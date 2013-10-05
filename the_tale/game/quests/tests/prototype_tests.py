@@ -52,9 +52,9 @@ class PrototypeTests(testcase.TestCase):
     def get_hero_position_id(self, quest):
         kb = quest.knowledge_base
 
-        hero_position_uid = list(location.place
-                                 for location in kb.filter(facts.LocatedIn)
-                                 if location.object == uids.hero(self.hero))[0]
+        hero_position_uid = (location.place
+                             for location in kb.filter(facts.LocatedIn)
+                             if location.object == uids.hero(self.hero)).next()
         return kb[hero_position_uid].externals['id']
 
     def test_replane_required__reset_on_do_step(self):
@@ -178,10 +178,10 @@ class PrototypeTests(testcase.TestCase):
         self.assertEqual(self.hero.statistics.artifacts_had, 1)
 
     def test_satisfy_requirement__unknown(self):
-        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_requirement, facts.Start(uid='start', type='test'))
+        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_requirement, facts.Start(uid='start', type='test', is_entry=True))
 
     def test_do_actions__unknown(self):
-        self.assertRaises(exceptions.UnknownAction, self.quest._do_actions, [facts.Start(uid='start', type='test')])
+        self.assertRaises(exceptions.UnknownAction, self.quest._do_actions, [facts.Start(uid='start', type='test', is_entry=True)])
 
     def test_get_upgrdade_choice__no_preference(self):
         for i in xrange(100):

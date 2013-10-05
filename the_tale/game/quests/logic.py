@@ -18,7 +18,9 @@ from questgen.quests.spying import Spying
 from questgen.quests.hunt import Hunt
 from questgen.quests.hometown import Hometown
 from questgen.quests.search_smith import SearchSmith
-
+from questgen.quests.delivery import Delivery
+from questgen.quests.caravan import Caravan
+from questgen.quests.collect_debt import CollectDebt
 
 
 from game.balance import constants as c
@@ -39,18 +41,19 @@ _quests_logger = getLogger('the-tale.quests')
 
 WORLD_RESTRICTIONS = [restrictions.SingleLocationForObject(),
                       restrictions.ReferencesIntegrity()]
-QUEST_RESTRICTIONS =  [restrictions.SingleStartState(),
+QUEST_RESTRICTIONS =  [restrictions.SingleStartStateWithNoEnters(),
                        restrictions.FinishStateExists(),
-                       restrictions.NoJumpsFromFinish(),
+                       restrictions.AllStatesHasJumps(),
                        restrictions.ConnectedStateJumpGraph(),
                        restrictions.NoCirclesInStateJumpGraph(),
                        restrictions.MultipleJumpsFromNormalState(),
                        restrictions.ChoicesConsistency()]
 
-QUESTS_BASE = QuestsBase()
-QUESTS_BASE += [Spying, Hunt, Hometown, SearchSmith]
 
-NORMAL_QUESTS = [Spying.TYPE]
+QUESTS_BASE = QuestsBase()
+QUESTS_BASE += [CollectDebt, Caravan, Delivery, Spying, Hunt, Hometown, SearchSmith]
+
+NORMAL_QUESTS = [CollectDebt.TYPE, Spying.TYPE, Delivery.TYPE, Caravan.TYPE]
 
 
 def fill_places_for_first_quest(kb, hero):
@@ -170,10 +173,9 @@ def create_random_quest_for_hero(hero):
 
 @retry_on_exception(max_retries=quests_settings.MAX_QUEST_GENERATION_RETRIES, exceptions=[questgen_exceptions.RollBackError])
 def _create_random_quest_for_hero(hero, special):
-
     knowledge_base = get_knowledge_base(hero)
 
-    selector = Selector(knowledge_base)
+    selector = Selector(knowledge_base, QUESTS_BASE)
 
     hero_uid = uids.hero(hero)
 
@@ -187,19 +189,17 @@ def _create_random_quest_for_hero(hero, special):
             excluded_quests.append(quest_type)
 
     if special:
-        quests_facts = QUESTS_BASE.create_start_quest(knowledge_base,
-                                                      selector,
-                                                      start_place=start_place,
-                                                      allowed=hero.get_special_quests(),
-                                                      excluded=excluded_quests,
-                                                      tags=('can_start',))
+        quests_facts = QUESTS_BASE.create_quest_from_place(selector=selector,
+                                                           start_place=start_place,
+                                                           allowed=hero.get_special_quests(),
+                                                           excluded=excluded_quests,
+                                                           tags=('can_start', ))
     else:
-        quests_facts = QUESTS_BASE.create_start_quest(knowledge_base,
-                                                      selector,
-                                                      start_place=start_place,
-                                                      allowed=NORMAL_QUESTS,
-                                                      excluded=excluded_quests,
-                                                      tags=('can_start',))
+        quests_facts = QUESTS_BASE.create_quest_from_place(selector=selector,
+                                                           start_place=start_place,
+                                                           allowed=NORMAL_QUESTS,
+                                                           excluded=excluded_quests,
+                                                           tags=('can_start', ))
 
     knowledge_base += quests_facts
 
@@ -207,7 +207,7 @@ def _create_random_quest_for_hero(hero, special):
     transformators.remove_restricted_states(knowledge_base)
     transformators.remove_broken_states(knowledge_base) # MUST be called after all graph changes
     transformators.determine_default_choices(knowledge_base) # MUST be called after all graph changes and on valid graph
-    transformators.remove_unused_actors(knowledge_base)
+    # transformators.remove_unused_actors(knowledge_base)
 
     knowledge_base.validate_consistency(WORLD_RESTRICTIONS)
     knowledge_base.validate_consistency(QUEST_RESTRICTIONS)

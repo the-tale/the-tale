@@ -87,7 +87,9 @@ class QuestInfo(object):
         return filter(None, [ self.prepair_actor_ui_info(ROLES.INITIATOR, ACTOR_TYPE.PERSON),
                               self.prepair_actor_ui_info(ROLES.INITIATOR_POSITION, ACTOR_TYPE.PLACE),
                               self.prepair_actor_ui_info(ROLES.RECEIVER, ACTOR_TYPE.PERSON),
-                              self.prepair_actor_ui_info(ROLES.RECEIVER_POSITION, ACTOR_TYPE.PLACE)])
+                              self.prepair_actor_ui_info(ROLES.RECEIVER_POSITION, ACTOR_TYPE.PLACE),
+                              self.prepair_actor_ui_info(ROLES.ANTAGONIST, ACTOR_TYPE.PERSON),
+                              self.prepair_actor_ui_info(ROLES.ANTAGONIST_POSITION, ACTOR_TYPE.PLACE)])
 
     @classmethod
     def deserialize(cls, data):
@@ -319,17 +321,28 @@ class QuestPrototype(object):
                 self.satisfy_requirement(requirement)
 
 
-    def _move_hero_to(self, destination):
+    def _move_hero_to(self, destination_uid, break_at=None):
         from game.actions.prototypes import ActionMoveToPrototype, ActionMoveNearPlacePrototype
 
+        if destination_uid:
+            destination = places_storage[self.knowledge_base[destination_uid].externals['id']]
+        else:
+            destination = self.hero.position.get_dominant_place()
+
         if self.hero.position.place or self.hero.position.road:
-            ActionMoveToPrototype.create(hero=self.hero, destination=destination)
+            ActionMoveToPrototype.create(hero=self.hero, destination=destination, break_at=break_at)
         else:
             ActionMoveNearPlacePrototype.create(hero=self.hero, place=self.hero.position.get_dominant_place(), back=True)
 
 
-    def _move_hero_near(self, destination, terrains=None):
+    def _move_hero_near(self, destination_uid, terrains=None):
         from game.actions.prototypes import ActionMoveNearPlacePrototype
+
+        if destination_uid:
+            destination = places_storage[self.knowledge_base[destination_uid].externals['id']]
+        else:
+            destination = self.hero.position.get_dominant_place()
+
         ActionMoveNearPlacePrototype.create(hero=self.hero, place=destination, back=False, terrains=terrains)
 
     def _give_power(self, hero, place, power):
@@ -371,10 +384,10 @@ class QuestPrototype(object):
     def _fight(self, mob_uid):
         from game.actions.prototypes import ActionBattlePvE1x1Prototype
 
-        mob = mobs_storage[self.knowledge_base[mob_uid].externals['id']].create_mob(self.hero)
-
-        # if mob is None:
-        #     mob = mobs_storage.get_random_mob(self.hero)
+        if mob_uid is not None:
+            mob = mobs_storage[self.knowledge_base[mob_uid].externals['id']].create_mob(self.hero)
+        else:
+            mob = mobs_storage.get_random_mob(self.hero)
 
         ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
 
@@ -474,11 +487,9 @@ class QuestPrototype(object):
 
     def satisfy_requirement(self, requirement):
         if isinstance(requirement, facts.LocatedIn):
-            destination = places_storage[self.knowledge_base[requirement.place].externals['id']]
-            self._move_hero_to(destination)
+            self._move_hero_to(requirement.place)
         elif isinstance(requirement, facts.LocatedNear):
-            destination = places_storage[self.knowledge_base[requirement.place].externals['id']]
-            self._move_hero_near(destination, terrains=requirement.terrains)
+            self._move_hero_near(requirement.place, terrains=requirement.terrains)
         else:
             raise exceptions.UnknownRequirement(requirement=requirement)
 
@@ -501,7 +512,7 @@ class QuestPrototype(object):
     def _do_actions(self, actions):
         for action in actions:
             if isinstance(action, facts.Message):
-                self.quests_stack[-1].process_message(self.knowledge_base, self.hero, action.id)
+                self.quests_stack[-1].process_message(self.knowledge_base, self.hero, action.type)
             elif isinstance(action, facts.GivePower):
                 recipient = self.knowledge_base[action.object]
                 if isinstance(recipient, facts.Person):
@@ -512,9 +523,10 @@ class QuestPrototype(object):
                     raise exceptions.UnknownPowerRecipient(recipient=recipient)
             elif isinstance(action, facts.Fight):
                 self._fight(action.mob)
-            elif isinstance(action, facts.LocatedNear):
-                destination = places_storage[self.knowledge_base[action.place].externals['id']]
-                self._move_hero_near(destination, terrains=action.terrains)
+            elif isinstance(action, facts.MoveNear):
+                self._move_hero_near(action.place, terrains=action.terrains)
+            elif isinstance(action, facts.MoveIn):
+                self._move_hero_to(action.place, break_at=action.percents)
             elif isinstance(action, facts.DoNothing):
                 self._donothing(action.type)
             elif isinstance(action, facts.UpgradeEquipment):

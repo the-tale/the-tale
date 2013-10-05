@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from questgen.quests.base_quest import BaseQuest
+from questgen.quests.base_quest import BaseQuest, RESULTS
 from questgen import facts
 
 from game.prototypes import TimePrototype
@@ -33,31 +33,31 @@ class QuestWith2ChoicePoints(BaseQuest):
     TAGS = ('normal', 'can_start', 'can_continue')
 
     @classmethod
-    def construct_from_place(cls, knowledge_base, selector, start_place):
+    def construct_from_place(cls, selector, start_place):
         from questgen.quests.base_quest import ROLES
 
-        initiator = selector.person_from(places=(start_place, ))
+        initiator = selector.person_from(places=(start_place.uid, ))
         receiver = selector.new_person()
 
-        initiator_position = selector.place_for(objects=(initiator,))
-        receiver_position = selector.place_for(objects=(receiver,))
+        initiator_position = selector.place_for(objects=(initiator.uid,))
+        receiver_position = selector.place_for(objects=(receiver.uid,))
 
-        ns = knowledge_base.get_next_ns()
+        ns = selector._kb.get_next_ns()
 
-        start = facts.Start(uid=ns+'start', type=cls.TYPE)
+        start = facts.Start(uid=ns+'start', type=cls.TYPE, is_entry=True)
 
         choice_1 = facts.Choice(uid=ns+'choice_1')
 
         choice_2 = facts.Choice(uid=ns+'choice_2')
 
-        finish_1_1 = facts.Finish(uid=ns+'finish_1_1', type='finish_1_1')
-        finish_1_2 = facts.Finish(uid=ns+'finish_1_2', type='finish_1_2')
-        finish_2 = facts.Finish(uid=ns+'finish_2', type='finish_2')
+        finish_1_1 = facts.Finish(uid=ns+'finish_1_1', type='finish_1_1', result=RESULTS.SUCCESSED)
+        finish_1_2 = facts.Finish(uid=ns+'finish_1_2', type='finish_1_2', result=RESULTS.FAILED)
+        finish_2 = facts.Finish(uid=ns+'finish_2', type='finish_2', result=RESULTS.SUCCESSED)
 
-        participants = [facts.QuestParticipant(start=start.uid, participant=initiator, role=ROLES.INITIATOR),
-                        facts.QuestParticipant(start=start.uid, participant=initiator_position, role=ROLES.INITIATOR_POSITION),
-                        facts.QuestParticipant(start=start.uid, participant=receiver, role=ROLES.RECEIVER),
-                        facts.QuestParticipant(start=start.uid, participant=receiver_position, role=ROLES.RECEIVER_POSITION) ]
+        participants = [facts.QuestParticipant(start=start.uid, participant=initiator.uid, role=ROLES.INITIATOR),
+                        facts.QuestParticipant(start=start.uid, participant=initiator_position.uid, role=ROLES.INITIATOR_POSITION),
+                        facts.QuestParticipant(start=start.uid, participant=receiver.uid, role=ROLES.RECEIVER),
+                        facts.QuestParticipant(start=start.uid, participant=receiver_position.uid, role=ROLES.RECEIVER_POSITION) ]
 
         quest_facts =  [ start,
                          choice_1,
