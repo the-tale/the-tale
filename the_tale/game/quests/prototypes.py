@@ -399,12 +399,10 @@ class QuestPrototype(object):
 
         hero.add_experience(experience)
 
-        self._give_reward(finish.type, hero)
-
         self.quests_stack.pop()
 
 
-    def _give_reward(self, quest_type, hero):
+    def _give_reward(self, reward_type, hero):
 
         quest_info = self.quests_stack[-1]
 
@@ -414,7 +412,7 @@ class QuestPrototype(object):
             if artifact is not None:
                 quest_info.process_message(knowledge_base=self.knowledge_base,
                                            hero=self.hero,
-                                           message='%s_artifact' % quest_type,
+                                           message='%s_artifact' % reward_type,
                                            ext_substitution={'artifact': artifact})
                 return
 
@@ -425,7 +423,7 @@ class QuestPrototype(object):
 
         quest_info.process_message(knowledge_base=self.knowledge_base,
                                    hero=self.hero,
-                                   message='%s_money' % quest_type,
+                                   message='%s_money' % reward_type,
                                    ext_substitution={'coins': money})
 
     def _donothing(self, donothing_type):
@@ -521,6 +519,8 @@ class QuestPrototype(object):
                     self._give_place_power(self.hero, places_storage[recipient.externals['id']], action.power)
                 else:
                     raise exceptions.UnknownPowerRecipient(recipient=recipient)
+            elif isinstance(action, facts.GiveReward):
+                self._give_reward(action.type, self.hero)
             elif isinstance(action, facts.Fight):
                 self._fight(action.mob)
             elif isinstance(action, facts.MoveNear):

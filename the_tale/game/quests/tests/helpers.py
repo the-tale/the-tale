@@ -50,9 +50,9 @@ class QuestWith2ChoicePoints(BaseQuest):
 
         choice_2 = facts.Choice(uid=ns+'choice_2')
 
-        finish_1_1 = facts.Finish(uid=ns+'finish_1_1', type='finish_1_1', result=RESULTS.SUCCESSED)
-        finish_1_2 = facts.Finish(uid=ns+'finish_1_2', type='finish_1_2', result=RESULTS.FAILED)
-        finish_2 = facts.Finish(uid=ns+'finish_2', type='finish_2', result=RESULTS.SUCCESSED)
+        finish_1_1 = facts.Finish(uid=ns+'finish_1_1', result=RESULTS.SUCCESSED)
+        finish_1_2 = facts.Finish(uid=ns+'finish_1_2', result=RESULTS.FAILED)
+        finish_2 = facts.Finish(uid=ns+'finish_2', result=RESULTS.SUCCESSED)
 
         participants = [facts.QuestParticipant(start=start.uid, participant=initiator.uid, role=ROLES.INITIATOR),
                         facts.QuestParticipant(start=start.uid, participant=initiator_position.uid, role=ROLES.INITIATOR_POSITION),

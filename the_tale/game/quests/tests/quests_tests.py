@@ -158,6 +158,10 @@ class RawQuestsTest(QuestsTestBase):
             elif isinstance(action, facts.Message):
                 self._check_messages(start, action.type)
 
+            elif isinstance(action, facts.GiveReward):
+                self._check_messages(start, '%s_money' % action.type)
+                self._check_messages(start, '%s_artifact' % action.type)
+
 
     def _bruteforce(self, knowledge_base, path, table, starts, processed):
         current_state = knowledge_base[path[-1]]
@@ -180,8 +184,6 @@ class RawQuestsTest(QuestsTestBase):
         self._check_action_messages(starts[-1], current_state.actions)
 
         if isinstance(current_state, facts.Finish):
-            self._check_messages(starts[-1], '%s_money' % current_state.type)
-            self._check_messages(starts[-1], '%s_artifact' % current_state.type)
             starts.pop()
 
         if not table.get(current_state.uid):
