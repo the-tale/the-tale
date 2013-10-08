@@ -1127,7 +1127,7 @@ class ActionTradingPrototype(ActionBase):
     def _create(cls, hero, bundle_id):
         prototype = cls( hero=hero,
                          bundle_id=bundle_id,
-                         percents_barier=hero.bag.occupation[1],
+                         percents_barier=hero.bag.occupation,
                          state=cls.STATE.TRADING)
         hero.add_message('action_trading_start', hero=hero)
         return prototype
@@ -1137,12 +1137,11 @@ class ActionTradingPrototype(ActionBase):
         if self.state == self.STATE.TRADING:
 
             for artifact in self.hero.bag.values():
-                if not artifact.quest:
-                    sell_price = self.hero.sell_artifact(artifact)
-                    self.hero.add_message('action_trading_sell_item', hero=self.hero, artifact=artifact, coins=sell_price)
-                    break
+                sell_price = self.hero.sell_artifact(artifact)
+                self.hero.add_message('action_trading_sell_item', hero=self.hero, artifact=artifact, coins=sell_price)
+                break
 
-            quest_items_count, loot_items_count = self.hero.bag.occupation # pylint: disable=W0612
+            loot_items_count = self.hero.bag.occupation # pylint: disable=W0612
 
             if loot_items_count:
                 self.percents = 1 - float(loot_items_count - 1) / self.percents_barier

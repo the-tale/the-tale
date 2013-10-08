@@ -119,7 +119,7 @@ class RawQuestsTest(QuestsTestBase):
         super(RawQuestsTest, self).setUp()
         self.vocabruary = get_vocabulary()
 
-    def check_messages(self, knowledge_base):
+    def check_quest(self, knowledge_base):
         start = logic.get_absolute_start(knowledge_base)
 
         table = {}
@@ -128,10 +128,18 @@ class RawQuestsTest(QuestsTestBase):
                 table[jump.state_from] = []
             table[jump.state_from].append(jump)
 
-        self._bruteforce(knowledge_base, [start.uid], table, [], processed=set())
+        powers = set()
 
-    def _check_messages(self, start, message):
-        writer = Writer(type=start, message=message, substitution={})
+        self._bruteforce(knowledge_base, [start.uid], table, [], processed=set(), powers=powers)
+
+        self.check_participants(knowledge_base, powers)
+
+    def check_participants(self, knowledge_base, powers):
+        for participant in knowledge_base.filter(facts.QuestParticipant):
+            self.assertTrue((participant.start, participant.participant) in powers)
+
+    def _check_messages(self, quest_type, message):
+        writer = Writer(type=quest_type, message=message, substitution={})
 
         # print '--------'
         # print writer.journal_id()
@@ -142,45 +150,57 @@ class RawQuestsTest(QuestsTestBase):
                         writer.diary_id() in self.vocabruary or
                         writer.action_id() in self.vocabruary)
 
-    def _check_action_messages(self, start, actions):
+    def _check_action_messages(self, quest_type, actions):
         for action in actions:
             if isinstance(action, facts.DoNothing):
-                self._check_messages(start, '%s_start' % action.type)
-                self._check_messages(start, '%s_donothing' % action.type)
+                self._check_messages(quest_type, '%s_start' % action.type)
+                self._check_messages(quest_type, '%s_donothing' % action.type)
 
             elif isinstance(action, facts.UpgradeEquipment):
-                self._check_messages(start, 'upgrade__fail')
-                self._check_messages(start, 'upgrade__buy_and_change')
-                self._check_messages(start, 'upgrade__buy')
-                self._check_messages(start, 'upgrade__sharp')
+                self._check_messages(quest_type, 'upgrade__fail')
+                self._check_messages(quest_type, 'upgrade__buy_and_change')
+                self._check_messages(quest_type, 'upgrade__buy')
+                self._check_messages(quest_type, 'upgrade__sharp')
 
             elif isinstance(action, facts.Message):
-                self._check_messages(start, action.type)
+                self._check_messages(quest_type, action.type)
 
             elif isinstance(action, facts.GiveReward):
-                self._check_messages(start, '%s_money' % action.type)
-                self._check_messages(start, '%s_artifact' % action.type)
+                self._check_messages(quest_type, '%s_money' % action.type)
+                self._check_messages(quest_type, '%s_artifact' % action.type)
 
 
-    def _bruteforce(self, knowledge_base, path, table, starts, processed):
+    def _get_powers(self, start, actions):
+        powers = set()
+
+        for action in actions:
+            if isinstance(action, facts.GivePower):
+                powers.add((start, action.object))
+
+        return powers
+
+
+    def _bruteforce(self, knowledge_base, path, table, starts, processed, powers):
         current_state = knowledge_base[path[-1]]
 
         if current_state.uid in processed:
             return
 
         if isinstance(current_state, facts.Start):
-            starts.append(current_state.type)
+            starts.append((current_state.uid, current_state.type))
 
-            writer = Writer(type=starts[-1], message=None, substitution={})
+            writer = Writer(type=starts[-1][1], message=None, substitution={})
             self.assertTrue(writer.name_id() in self.vocabruary)
 
             for participant in knowledge_base.filter(facts.QuestParticipant):
-                if knowledge_base[participant.start].type != starts[-1]:
+                if knowledge_base[participant.start].type != starts[-1][1]:
                     continue
 
                 self.assertTrue(writer.actor_id(participant.role) in self.vocabruary)
 
-        self._check_action_messages(starts[-1], current_state.actions)
+        self._check_action_messages(starts[-1][1], current_state.actions)
+
+        powers |= self._get_powers(starts[-1][0], current_state.actions)
 
         if isinstance(current_state, facts.Finish):
             starts.pop()
@@ -190,16 +210,19 @@ class RawQuestsTest(QuestsTestBase):
 
         for next_jump in table[current_state.uid]:
 
-            self._check_action_messages(starts[-1], next_jump.start_actions)
-            self._check_action_messages(starts[-1], next_jump.end_actions)
+            self._check_action_messages(starts[-1][1], next_jump.start_actions)
+            self._check_action_messages(starts[-1][1], next_jump.end_actions)
+
+            powers |= self._get_powers(starts[-1][0], next_jump.start_actions)
+            powers |= self._get_powers(starts[-1][0], next_jump.end_actions)
 
             if isinstance(next_jump, facts.Option):
-                writer = Writer(type=starts[-1], message='choice', substitution={})
+                writer = Writer(type=starts[-1][1], message='choice', substitution={})
                 self.assertTrue(writer.choice_variant_id(next_jump.type) in self.vocabruary)
                 self.assertTrue(writer.current_choice_id(next_jump.type) in self.vocabruary)
 
             path.append(next_jump.state_to)
-            self._bruteforce(knowledge_base, path, table, list(starts), processed )
+            self._bruteforce(knowledge_base, path, table, list(starts), processed, powers )
             path.pop()
 
         processed.add(current_state.uid)
@@ -224,17 +247,15 @@ def create_test_messages_method(quest, quests):
 
         hero_uid = uids.hero(self.hero)
 
-        start_place = selector.place_for(objects=(hero_uid,))
-
-        quests_facts = QUESTS_BASE.create_quest_from_place(selector=selector,
-                                                           start_place=start_place,
-                                                           allowed=[quest.TYPE],
-                                                           excluded=[],
-                                                           tags=('can_start',))
+        quests_facts = selector.create_quest_from_place(nesting=0,
+                                                        initiator_position=selector.place_for(objects=(hero_uid,)),
+                                                        allowed=[quest.TYPE],
+                                                        excluded=[],
+                                                        tags=('can_start',))
 
         knowledge_base += quests_facts
 
-        self.check_messages(knowledge_base)
+        self.check_quest(knowledge_base)
 
     return quest_test_method
 
@@ -246,4 +267,4 @@ for QuestClass in QUESTS_BASE.quests():
     if 'has_subquests' in QuestClass.TAGS:
         quests.append(Spying)
 
-    setattr(RawQuestsTest, 'test_messages__%s' % QuestClass.TYPE, create_test_messages_method(QuestClass, quests))
+    setattr(RawQuestsTest, 'test_%s' % QuestClass.TYPE, create_test_messages_method(QuestClass, quests))

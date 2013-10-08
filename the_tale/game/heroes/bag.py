@@ -41,19 +41,6 @@ class Bag(object):
         self.updated = True
         del self.bag[artifact.bag_uuid]
 
-    def pop_quest_artifact(self, artifact):
-        for bag_artifact in self.bag.values():
-            if bag_artifact.quest_uuid == artifact.quest_uuid:
-                self.pop_artifact(bag_artifact)
-                break
-
-    # TODO: can be removed in v0.2.19
-    def _remove_all_quest_artifacts(self):
-        for bag_artifact in self.bag.values():
-            if bag_artifact.quest:
-                self.pop_artifact(bag_artifact)
-
-
     def get(self, artifact_id):
         return self.bag.get(artifact_id, None)
 
@@ -68,15 +55,7 @@ class Bag(object):
         return not self.bag
 
     @property
-    def occupation(self):
-        quest_items_count = 0
-        loot_items_count = 0
-        for artifact in self.bag.values():
-            if artifact.quest:
-                quest_items_count += 1
-            else:
-                loot_items_count += 1
-        return quest_items_count, loot_items_count
+    def occupation(self): return len(self.bag)
 
     def __eq__(self, other):
         return (self.next_uuid == other.next_uuid and

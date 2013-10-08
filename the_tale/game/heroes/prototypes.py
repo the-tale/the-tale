@@ -256,21 +256,16 @@ class HeroPrototype(BasePrototype):
         return self._bag
 
     @property
-    def bag_is_full(self):
-        quest_items_count, loot_items_count = self.bag.occupation # pylint: disable=W0612
-        return loot_items_count >= self.max_bag_size
+    def bag_is_full(self): return self.bag.occupation >= self.max_bag_size
 
     def put_loot(self, artifact):
-        if artifact.quest or not self.bag_is_full:
+        if not self.bag_is_full:
             self.bag.put_artifact(artifact)
             return artifact.bag_uuid
 
 
     def pop_loot(self, artifact):
         self.bag.pop_artifact(artifact)
-
-    def pop_quest_loot(self, artifact):
-        self.bag.pop_quest_artifact(artifact)
 
     def buy_artifact_choices(self, equip, with_prefered_slot):
 
@@ -583,8 +578,7 @@ class HeroPrototype(BasePrototype):
 
     @property
     def need_trade_in_town(self):
-        quest_items_count, loot_items_count = self.bag.occupation # pylint: disable=W0612
-        return float(loot_items_count) / self.max_bag_size > c.BAG_SIZE_TO_SELL_LOOT_FRACTION
+        return float(self.bag.occupation) / self.max_bag_size > c.BAG_SIZE_TO_SELL_LOOT_FRACTION
 
     @property
     def need_equipping_in_town(self):
@@ -767,7 +761,6 @@ class HeroPrototype(BasePrototype):
                 self.diary == other.diary)
 
     def ui_info(self, for_last_turn=False, quests_info=False):
-        quest_items_count, loot_items_count = self.bag.occupation
 
         return {'id': self.id,
                 'saved_at_turn': self.saved_at_turn,
@@ -804,8 +797,7 @@ class HeroPrototype(BasePrototype):
                                'move_speed': self.move_speed,
                                'initiative': self.initiative,
                                'max_bag_size': self.max_bag_size,
-                               'loot_items_count': loot_items_count,
-                               'quest_items_count': quest_items_count},
+                               'loot_items_count': self.bag.occupation},
                 'quests': self.quests.ui_info(self)
                 }
 

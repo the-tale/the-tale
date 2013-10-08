@@ -33,7 +33,7 @@ class QuestWith2ChoicePoints(BaseQuest):
     TAGS = ('normal', 'can_start', 'can_continue')
 
     @classmethod
-    def construct_from_place(cls, selector, start_place):
+    def construct_from_place(cls, nesting, selector, start_place):
         from questgen.quests.base_quest import ROLES
 
         initiator = selector.person_from(places=(start_place.uid, ))
@@ -44,15 +44,15 @@ class QuestWith2ChoicePoints(BaseQuest):
 
         ns = selector._kb.get_next_ns()
 
-        start = facts.Start(uid=ns+'start', type=cls.TYPE, is_external=True)
+        start = facts.Start(uid=ns+'start', type=cls.TYPE, nesting=nesting)
 
         choice_1 = facts.Choice(uid=ns+'choice_1')
 
         choice_2 = facts.Choice(uid=ns+'choice_2')
 
-        finish_1_1 = facts.Finish(uid=ns+'finish_1_1', result=RESULTS.SUCCESSED, is_external=start.is_external)
-        finish_1_2 = facts.Finish(uid=ns+'finish_1_2', result=RESULTS.FAILED, is_external=start.is_external)
-        finish_2 = facts.Finish(uid=ns+'finish_2', result=RESULTS.SUCCESSED, is_external=start.is_external)
+        finish_1_1 = facts.Finish(uid=ns+'finish_1_1', result=RESULTS.SUCCESSED, nesting=nesting)
+        finish_1_2 = facts.Finish(uid=ns+'finish_1_2', result=RESULTS.FAILED, nesting=nesting)
+        finish_2 = facts.Finish(uid=ns+'finish_2', result=RESULTS.SUCCESSED, nesting=nesting)
 
         participants = [facts.QuestParticipant(start=start.uid, participant=initiator.uid, role=ROLES.INITIATOR),
                         facts.QuestParticipant(start=start.uid, participant=initiator_position.uid, role=ROLES.INITIATOR_POSITION),

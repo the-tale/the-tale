@@ -178,10 +178,10 @@ class PrototypeTests(testcase.TestCase):
         self.assertEqual(self.hero.statistics.artifacts_had, 1)
 
     def test_satisfy_requirement__unknown(self):
-        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_requirement, facts.Start(uid='start', type='test', is_external=True))
+        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_requirement, facts.Start(uid='start', type='test', nesting=0))
 
     def test_do_actions__unknown(self):
-        self.assertRaises(exceptions.UnknownAction, self.quest._do_actions, [facts.Start(uid='start', type='test', is_external=True)])
+        self.assertRaises(exceptions.UnknownAction, self.quest._do_actions, [facts.Start(uid='start', type='test', nesting=0)])
 
     def test_get_upgrdade_choice__no_preference(self):
         for i in xrange(100):

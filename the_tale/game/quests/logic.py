@@ -192,17 +192,17 @@ def _create_random_quest_for_hero(hero, special):
             excluded_quests.append(quest_type)
 
     if special:
-        quests_facts = QUESTS_BASE.create_quest_from_place(selector=selector,
-                                                           start_place=start_place,
-                                                           allowed=hero.get_special_quests(),
-                                                           excluded=excluded_quests,
-                                                           tags=('can_start', ))
+        quests_facts = selector.create_quest_from_place(nesting=0,
+                                                        initiator_position=start_place,
+                                                        allowed=hero.get_special_quests(),
+                                                        excluded=excluded_quests,
+                                                        tags=('can_start', ))
     else:
-        quests_facts = QUESTS_BASE.create_quest_from_place(selector=selector,
-                                                           start_place=start_place,
-                                                           allowed=NORMAL_QUESTS,
-                                                           excluded=excluded_quests,
-                                                           tags=('can_start', ))
+        quests_facts = selector.create_quest_from_place(nesting=0,
+                                                        initiator_position=start_place,
+                                                        allowed=NORMAL_QUESTS,
+                                                        excluded=excluded_quests,
+                                                        tags=('can_start', ))
 
     knowledge_base += quests_facts
 

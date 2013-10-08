@@ -16,13 +16,11 @@ from game.artifacts.models import ArtifactRecord, ARTIFACT_RECORD_STATE, RARITY_
 
 class ArtifactPrototype(object):
 
-    def __init__(self, record=None, power=None, quest=False, quest_uuid=None, bag_uuid=None, level=0):
+    def __init__(self, record=None, power=None, bag_uuid=None, level=0):
         self.record = record
-        self.quest = quest
         self.power = power
         self.level = level
 
-        self.quest_uuid = quest_uuid
         self.bag_uuid = bag_uuid
 
 
@@ -53,8 +51,6 @@ class ArtifactPrototype(object):
     @property
     def can_be_equipped(self): return not self.type.is_useless
 
-    def set_quest_uuid(self, uuid): self.quest_uuid = uuid
-
     def set_bag_uuid(self, uuid): self.bag_uuid = uuid
 
     def get_sell_price(self):
@@ -78,8 +74,6 @@ class ArtifactPrototype(object):
     def serialize(self):
         return {'id': self.id,
                 'power': self.power,
-                'quest': self.quest,
-                'quest_uuid': self.quest_uuid,
                 'bag_uuid': self.bag_uuid,
                 'level': self.level}
 
@@ -96,8 +90,6 @@ class ArtifactPrototype(object):
 
         return cls(record=record,
                    power=data['power'],
-                   quest=data['quest'],
-                   quest_uuid=data['quest_uuid'],
                    bag_uuid=data['bag_uuid'],
                    level=data.get('level', 1))
 
@@ -106,15 +98,12 @@ class ArtifactPrototype(object):
                 'id': self.record.id,
                 'equipped': self.can_be_equipped,
                 'name': self.name,
-                'power': self.power,
-                'quest': self.quest}
+                'power': self.power}
 
     def __eq__(self, other):
         return (self.record.id == other.record.id and
-                self.quest == other.quest and
                 self.power == other.power and
                 self.level == other.level and
-                self.quest_uuid == other.quest_uuid and
                 self.bag_uuid == other.bag_uuid)
 
 
@@ -256,8 +245,7 @@ class ArtifactRecordPrototype(BasePrototype):
         artifacts_storage.update_cached_data(self)
         artifacts_storage.update_version()
 
-    def create_artifact(self, level, power=0, quest=False):
+    def create_artifact(self, level, power=0):
         return ArtifactPrototype(record=self,
                                  power=power,
-                                 quest=quest,
                                  level=level)
