@@ -31,7 +31,6 @@ from game.actions.prototypes import ActionQuestPrototype, ActionIdlenessPrototyp
 # from questgen.quests.caravan import Caravan
 
 from questgen.quests.quests_base import QuestsBase
-from questgen.quests.collect_debt import CollectDebt
 from questgen.quests.spying import Spying
 from questgen import logic
 
@@ -55,7 +54,7 @@ class QuestsTestBase(testcase.TestCase):
         self.hero.preferences.set_friend(self.p1.persons[0])
         self.hero.preferences.set_enemy(self.p2.persons[0])
         self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
-        self.hero.position.set_place(self.p2)
+        self.hero.position.set_place(self.p3)
         self.hero.save()
 
         self.p1.persons[0]._model.type = PERSON_TYPE.BLACKSMITH
@@ -106,7 +105,7 @@ for QuestClass in QUESTS_BASE.quests():
 
     quests = [QuestClass]
 
-    if QuestClass in (CollectDebt,):
+    if 'has_subquests' in QuestClass.TAGS:
         quests.append(Spying)
 
     setattr(QuestsTest, 'test_%s' % QuestClass.TYPE, create_test_method(QuestClass, quests))
@@ -244,7 +243,7 @@ for QuestClass in QUESTS_BASE.quests():
 
     quests = [QuestClass]
 
-    if QuestClass in (CollectDebt,):
+    if 'has_subquests' in QuestClass.TAGS:
         quests.append(Spying)
 
     setattr(RawQuestsTest, 'test_messages__%s' % QuestClass.TYPE, create_test_messages_method(QuestClass, quests))

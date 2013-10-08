@@ -21,6 +21,9 @@ from questgen.quests.search_smith import SearchSmith
 from questgen.quests.delivery import Delivery
 from questgen.quests.caravan import Caravan
 from questgen.quests.collect_debt import CollectDebt
+from questgen.quests.help_friend import HelpFriend
+from questgen.quests.interfere_enemy import InterfereEnemy
+from questgen.quests.help import Help
 
 
 from game.balance import constants as c
@@ -51,9 +54,9 @@ QUEST_RESTRICTIONS =  [restrictions.SingleStartStateWithNoEnters(),
 
 
 QUESTS_BASE = QuestsBase()
-QUESTS_BASE += [CollectDebt, Caravan, Delivery, Spying, Hunt, Hometown, SearchSmith]
+QUESTS_BASE += [CollectDebt, Caravan, Delivery, Spying, Hunt, Hometown, SearchSmith, HelpFriend, InterfereEnemy, Help]
 
-NORMAL_QUESTS = [CollectDebt.TYPE, Spying.TYPE, Delivery.TYPE, Caravan.TYPE]
+NORMAL_QUESTS = [CollectDebt.TYPE, Spying.TYPE, Delivery.TYPE, Caravan.TYPE, Help.TYPE]
 
 
 def fill_places_for_first_quest(kb, hero):
@@ -147,7 +150,7 @@ def get_knowledge_base(hero): # pylint: disable=R0912
     enemy_uid = uids.person(pref_enemy) if pref_enemy is not None else None
     if enemy_uid in kb:
         kb += ( facts.PreferenceEnemy(object=hero_uid, person=enemy_uid),
-                facts.OnlyBadBranches(object=friend_uid) )
+                facts.OnlyBadBranches(object=enemy_uid) )
 
     pref_equipment_slot = hero.preferences.equipment_slot
     if pref_equipment_slot:

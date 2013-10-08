@@ -219,9 +219,8 @@ class HeroPrototype(BasePrototype):
         from questgen.quests.hunt import Hunt
         from questgen.quests.hometown import Hometown
         from questgen.quests.search_smith import SearchSmith
-
-        # from game.quests.quests_builders import HelpFriend
-        # from game.quests.quests_builders import InterfereEnemy
+        from questgen.quests.help_friend import HelpFriend
+        from questgen.quests.interfere_enemy import InterfereEnemy
 
         allowed_quests = []
 
@@ -229,10 +228,10 @@ class HeroPrototype(BasePrototype):
             allowed_quests.append(Hunt.TYPE)
         if self.preferences.place is not None:
             allowed_quests.append(Hometown.TYPE)
-        # if self.preferences.friend is not None:
-        #     allowed_quests.append(HelpFriend.type())
-        # if self.preferences.enemy is not None:
-        #     allowed_quests.append(InterfereEnemy.type())
+        if self.preferences.friend is not None:
+            allowed_quests.append(HelpFriend.TYPE)
+        if self.preferences.enemy is not None:
+            allowed_quests.append(InterfereEnemy.TYPE)
         if self.preferences.equipment_slot is not None:
             equipped_artifact = self.equipment.get(self.preferences.equipment_slot)
             equipped_power = equipped_artifact.power if equipped_artifact else -1
