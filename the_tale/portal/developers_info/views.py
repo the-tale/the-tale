@@ -61,7 +61,7 @@ def get_referers_statistics():
                                                                                                                      accounts_ids=query.values_list('id', flat=True)))
 
         if st.domain in statistics:
-            statistics[st.domain] = statistics[statistics.domain] + st
+            statistics[st.domain] = statistics[st.domain] + st
         else:
             statistics[st.domain] = st
 
