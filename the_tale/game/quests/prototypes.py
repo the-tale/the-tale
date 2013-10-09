@@ -53,7 +53,7 @@ class QuestInfo(object):
                 'power': self.power,
                 'actors': self.actors}
 
-    def ui_info(self):
+    def ui_info(self, hero):
         return {'type': self.type,
                 'uid': self.uid,
                 'name': self.name,
@@ -61,7 +61,7 @@ class QuestInfo(object):
                 'choice': self.choice,
                 'choice_alternatives': self.choice_alternatives,
                 'experience': self.experience,
-                'power': self.power,
+                'power': int(self.power * hero.person_power_modifier) if hero is not None else self.power, # show power modified by heroe level and abilities
                 'actors': self.actors_ui_info()}
 
 
@@ -552,14 +552,14 @@ class QuestPrototype(object):
         self.push_message(writer, self.hero, cmd.event)
 
     def ui_info(self):
-        return {'line': [info.ui_info() for info in self.quests_stack]}
+        return {'line': [info.ui_info(self.hero) for info in self.quests_stack]}
 
     @classmethod
-    def no_quests_ui_info(self):
-        return {'line': [NO_QUEST_INFO.ui_info()]}
+    def no_quests_ui_info(cls):
+        return {'line': [NO_QUEST_INFO.ui_info(None)]}
 
     @classmethod
-    def next_spending_ui_info(self, spending):
+    def next_spending_ui_info(cls, spending):
         NEXT_SPENDING_INFO = QuestInfo(type='next-spending',
                                        uid='next-spending',
                                        name=u'Накопить золото',
@@ -569,4 +569,4 @@ class QuestPrototype(object):
                                        experience=None,
                                        power=None,
                                        actors={'goal': (spending, u'цель')})
-        return {'line': [NEXT_SPENDING_INFO.ui_info()]}
+        return {'line': [NEXT_SPENDING_INFO.ui_info(None)]}
