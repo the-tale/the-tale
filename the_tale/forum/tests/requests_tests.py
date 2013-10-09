@@ -174,6 +174,14 @@ class TestCreateThreadRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(url('forum:subcategories:create-thread',  self.subcat1.id)),
                               code='forum.create_thread.form_errors')
 
+    def test_create_thread_form_errors__empty_caption(self):
+        self.check_ajax_error(self.client.post(url('forum:subcategories:create-thread',  self.subcat1.id), {'caption': '', 'text': 'thread4-text'}),
+                              code='forum.create_thread.form_errors')
+
+    def test_create_thread_form_errors__empty_body(self):
+        self.check_ajax_error(self.client.post(url('forum:subcategories:create-thread',  self.subcat1.id), {'caption': 'thread4-caption', 'text': ''}),
+                              code='forum.create_thread.form_errors')
+
     def test_create_thread_success(self):
         response = self.client.post(url('forum:subcategories:create-thread',  self.subcat1.id), {'caption': 'thread4-caption', 'text': 'thread4-text'})
 
@@ -298,6 +306,10 @@ class TestCreatePostRequests(BaseTestRequests):
 
     def test_create_post_form_errors(self):
         self.check_ajax_error(self.client.post(url('forum:threads:create-post', self.thread3.id)),
+                              code='forum.create_post.form_errors')
+
+    def test_create_post_form_errors__empty_post(self):
+        self.check_ajax_error(self.client.post(url('forum:threads:create-post', self.thread3.id), {'text': ''}),
                               code='forum.create_post.form_errors')
 
     def test_create_post_success(self):
