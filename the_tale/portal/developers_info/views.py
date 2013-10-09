@@ -17,7 +17,14 @@ from accounts.prototypes import AccountPrototype
 
 
 class RefererStatistics(collections.namedtuple('RefererStatisticsBase', ('domain', 'count', 'active_accounts', 'premium_accounts', 'active_and_premium', 'premium_currency'))):
-    pass
+
+    def __add__(self, s):
+        return RefererStatistics(domain=self.domain,
+                                 count=self.count+s.count,
+                                 active_accounts=self.active_accounts+s.active_accounts,
+                                 premium_accounts=self.premium_accounts+s.premium_accounts,
+                                 active_and_premium=self.active_and_premium+s.active_and_premium,
+                                 premium_currency=self.premium_currency+s.premium_currency)
 
 class InvoiceStatistics(collections.namedtuple('InvoiceStatisticsBase', ('operation', 'count', 'premium_currency'))):
     pass
@@ -27,10 +34,11 @@ def get_referers_statistics():
 
     raw_statistics = AccountPrototype.live_query().values('referer_domain').order_by().annotate(models.Count('referer_domain'))
 
-    statistics = []
+    statistics = {}
 
     for s in raw_statistics:
         domain=s['referer_domain']
+
         count=s['referer_domain__count']
 
         query = AccountPrototype.live_query().filter(referer_domain=domain)
@@ -38,16 +46,26 @@ def get_referers_statistics():
         if domain is None:
             count = query.count()
 
-        statistics.append(RefererStatistics(domain=domain,
-                                            count=count,
-                                            active_accounts=query.filter(active_end_at__gt=datetime.datetime.now()).count(),
-                                            premium_accounts=query.filter(premium_end_at__gt=datetime.datetime.now()).count(),
-                                            active_and_premium=query.filter(active_end_at__gt=datetime.datetime.now(),
-                                                                            premium_end_at__gt=datetime.datetime.now()).count(),
-                                            premium_currency=BankAccountPrototype._money_received(from_type=BANK_ENTITY_TYPE.XSOLLA,
-                                                                                                  accounts_ids=query.values_list('id', flat=True))))
+        target_domain = domain
 
-    statistics = sorted(statistics, key=lambda s: -s.count)
+        if target_domain and target_domain.endswith('livejournal.com'): # hide all domains username.livejournal.com (to hide there payment info)
+            target_domain = 'livejournal.com'
+
+        st = RefererStatistics(domain=target_domain,
+                               count=count,
+                               active_accounts=query.filter(active_end_at__gt=datetime.datetime.now()).count(),
+                               premium_accounts=query.filter(premium_end_at__gt=datetime.datetime.now()).count(),
+                               active_and_premium=query.filter(active_end_at__gt=datetime.datetime.now(),
+                                                               premium_end_at__gt=datetime.datetime.now()).count(),
+                                                               premium_currency=BankAccountPrototype._money_received(from_type=BANK_ENTITY_TYPE.XSOLLA,
+                                                                                                                     accounts_ids=query.values_list('id', flat=True)))
+
+        if st.domain in statistics:
+            statistics[st.domain] = statistics[statistics.domain] + st
+        else:
+            statistics[st.domain] = st
+
+    statistics = sorted(statistics.values(), key=lambda s: -s.count)
 
     return statistics
 

@@ -90,6 +90,13 @@
 #hero-bag-block .bag-record .power-container {
   vertical-align: middle;
 }
+.quests-line {
+  border-bottom: 3px solid #cccccc;
+  margin-bottom: 1em;
+}
+.quests-line:last-child {
+  border-bottom: none;
+}
 .quest-icon {
   width: 64px;
   height: 64px;
@@ -106,7 +113,7 @@
 .quest-icon.help {
   background: url('../game/images/quests.png') no-repeat scroll 0 -128px transparent;
 }
-.quest-icon.helpfriend {
+.quest-icon.help_friend {
   background: url('../game/images/quests.png') no-repeat scroll 0 -192px transparent;
 }
 .quest-icon.hometown {
@@ -115,16 +122,16 @@
 .quest-icon.hunt {
   background: url('../game/images/quests.png') no-repeat scroll 0 -320px transparent;
 }
-.quest-icon.interfereenemy {
+.quest-icon.interfere_enemy {
   background: url('../game/images/quests.png') no-repeat scroll 0 -384px transparent;
 }
-.quest-icon.notmywork {
+.quest-icon.collect_debt {
   background: url('../game/images/quests.png') no-repeat scroll 0 -448px transparent;
 }
 .quest-icon.spying {
   background: url('../game/images/quests.png') no-repeat scroll 0 -512px transparent;
 }
-.quest-icon.searchsmith {
+.quest-icon.search_smith {
   background: url('../game/images/quests.png') no-repeat scroll 0 -576px transparent;
 }
 .quest-icon.no-quest {
