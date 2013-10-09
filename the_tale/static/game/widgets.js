@@ -680,7 +680,6 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
     };
 
     this.Render = function() {
-        jQuery('.pgf-special-items-count').text(data.quest_items_count);
         jQuery('.pgf-loot-items-count', tabButton).text(data.loot_items_count);
         jQuery('.pgf-max-bag-size', tabButton).text(data.max_bag_size);
         jQuery('.pgf-item-count-container', tabButton).removeClass('pgf-hidden');
