@@ -312,9 +312,7 @@ class QuestPrototype(object):
         if self.hero.position.place:
             self.knowledge_base += facts.LocatedIn(object=hero_uid, place=uids.place(self.hero.position.place))
         else:
-            place = self.hero.position.get_dominant_place()
-            if place is None:
-                place = self.hero.position.get_nearest_place()
+            place = self.hero.position.get_nearest_dominant_place()
             self.knowledge_base += facts.LocatedNear(object=hero_uid, place=uids.place(place))
 
 
@@ -330,12 +328,13 @@ class QuestPrototype(object):
         if destination_uid:
             destination = places_storage[self.knowledge_base[destination_uid].externals['id']]
         else:
-            destination = self.hero.position.get_dominant_place()
+            destination = self.hero.position.get_nearest_dominant_place()
 
         if self.hero.position.place or self.hero.position.road:
             ActionMoveToPrototype.create(hero=self.hero, destination=destination, break_at=break_at)
         else:
-            ActionMoveNearPlacePrototype.create(hero=self.hero, place=self.hero.position.get_dominant_place(), back=True)
+            place = self.hero.position.get_nearest_dominant_place()
+            ActionMoveNearPlacePrototype.create(hero=self.hero, place=place, back=True)
 
 
     def _move_hero_near(self, destination_uid, terrains=None):
@@ -344,7 +343,7 @@ class QuestPrototype(object):
         if destination_uid:
             destination = places_storage[self.knowledge_base[destination_uid].externals['id']]
         else:
-            destination = self.hero.position.get_dominant_place()
+            destination = self.hero.position.get_nearest_dominant_place()
 
         ActionMoveNearPlacePrototype.create(hero=self.hero, place=destination, back=False, terrains=terrains)
 

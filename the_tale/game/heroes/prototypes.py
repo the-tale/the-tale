@@ -1053,6 +1053,12 @@ class HeroPositionPrototype(object):
 
         return best_place
 
+    def get_nearest_dominant_place(self):
+        place = self.get_dominant_place()
+        if place is None:
+            place = self.get_nearest_place()
+        return place
+
     def is_battle_start_needed(self):
         dominant_place = self.get_dominant_place()
 
