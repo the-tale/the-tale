@@ -312,7 +312,10 @@ class QuestPrototype(object):
         if self.hero.position.place:
             self.knowledge_base += facts.LocatedIn(object=hero_uid, place=uids.place(self.hero.position.place))
         else:
-            self.knowledge_base += facts.LocatedNear(object=hero_uid, place=uids.place(self.hero.position.get_dominant_place()))
+            place = self.hero.position.get_dominant_place()
+            if place is None:
+                place = self.hero.position.get_nearest_place()
+            self.knowledge_base += facts.LocatedNear(object=hero_uid, place=uids.place(place))
 
 
     def satisfy_requirements(self, state):

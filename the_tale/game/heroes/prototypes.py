@@ -1041,6 +1041,18 @@ class HeroPositionPrototype(object):
         else:
             return map_info_storage.item.get_dominant_place(*self.cell_coordinates)
 
+    def get_nearest_place(self):
+        x, y = self.cell_coordinates
+        best_distance = 999999999999999
+        best_place = None
+        for place in places_storage.all():
+            distance = math.hypot(place.x-x, place.y-y)
+            if distance < best_distance:
+                best_distance = distance
+                best_place = place
+
+        return best_place
+
     def is_battle_start_needed(self):
         dominant_place = self.get_dominant_place()
 

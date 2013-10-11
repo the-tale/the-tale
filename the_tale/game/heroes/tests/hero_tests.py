@@ -19,6 +19,8 @@ from game.prototypes import TimePrototype
 from game.balance import formulas as f, constants as c
 from game.logic_storage import LogicStorage
 
+from game.map.places.storage import places_storage
+
 
 from game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
 from game.heroes.habilities import ABILITY_TYPE, ABILITIES, battle
@@ -332,6 +334,14 @@ class HeroPositionTest(TestCase):
     @mock.patch('game.map.places.prototypes.PlacePrototype.transport', 2.0)
     def test_modify_move_speed_greater(self):
         self.assertEqual(self.hero.position.modify_move_speed(10), 20.0)
+
+    def test_get_neares_place(self):
+
+        for place in places_storage.all():
+            x, y = place.x, place.y
+
+            with mock.patch('game.heroes.prototypes.HeroPositionPrototype.cell_coordinates', (x, y)):
+                self.assertEqual(place.id, self.hero.position.get_nearest_place().id)
 
 
 class HeroLevelUpTests(TestCase):
