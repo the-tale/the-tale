@@ -53,6 +53,8 @@ OWNER_COUNTRY = u'Республика Беларусь'
 NEWRELIC_ENABLED = True
 NEWRELIC_CONF_PATH = '/home/the-tale/conf/newrelic.ini'
 
+API_CLIENT = 'the_tale-%s' % META_CONFIG.version
+
 ##############################
 # I18N
 ##############################
@@ -64,13 +66,13 @@ USE_L10N = True
 # static content settings
 ##############################
 
-STATIC_URL = '/static/%s/' % META_CONFIG.static_data_version
+STATIC_URL = '//the-tale.org/static/%s/' % META_CONFIG.static_data_version
 STATIC_DIR = os.path.join(PROJECT_DIR, 'static')
 STATIC_CDN = '//static.the-tale.org%s' % STATIC_URL
 
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 
-DCONT_URL = '/dcont/'
+DCONT_URL = '//the-tale.org/dcont/'
 DCONT_DIR = os.path.join(PROJECT_DIR, 'dcont')
 DCONT_CDN = '//static.the-tale.org%s' % DCONT_URL
 

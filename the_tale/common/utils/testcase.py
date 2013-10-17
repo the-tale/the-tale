@@ -1,9 +1,8 @@
 # coding: utf-8
 
-from django.core.urlresolvers import reverse
-
 from dext.utils.testcase import TestCase as DextTestCase, TransactionTestCase as DextTransactionTestCase
 from dext.settings import settings
+from dext.utils.urls import url
 
 from game.persons.storage import persons_storage
 from game.mobs.storage import mobs_storage
@@ -43,11 +42,11 @@ class TestCaseMixin(object):
         data = {'email': email, 'password': password}
         if remember:
             data['remember'] = 'remember'
-        response = self.client.post(reverse('accounts:auth:login'), data)
+        response = self.client.post(url('accounts:auth:api-login', api_version='1.0', api_client='test-1.0'), data)
         self.check_ajax_ok(response)
 
     def request_logout(self):
-        response = self.client.post(reverse('accounts:auth:logout'))
+        response = self.client.post(url('accounts:auth:api-logout', api_version='1.0', api_client='test-1.0'))
         self.check_ajax_ok(response)
 
 

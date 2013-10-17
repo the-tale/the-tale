@@ -1,10 +1,13 @@
 # coding: utf-8
 
+from django.conf import settings as project_settings
+
 from dext.views import handler
 from dext.settings import settings
 
 from common.utils import bbcode
 from common.utils.resources import Resource
+from common.utils import api
 
 from accounts.prototypes import AccountPrototype
 from accounts.clans.prototypes import ClanPrototype
@@ -29,6 +32,8 @@ from game.bills.prototypes import BillPrototype
 from game.heroes.prototypes import HeroPrototype
 
 from portal.conf import portal_settings
+from portal import logic as portal_logic
+
 
 class PortalResource(Resource):
 
@@ -95,3 +100,13 @@ class PortalResource(Resource):
     @handler('preview', name='preview', method='post')
     def preview(self):
         return self.string(bbcode.render(self.request.POST.get('text', '')))
+
+    @api.handler(versions=('1.0',))
+    @handler('api', 'info', name='api-info', method='get')
+    def info(self, api_version):
+        cdn_paths = portal_logic.cdn_paths()
+
+        return self.ok(data={'dynamic_content': cdn_paths['DCONT_CONTENT'],
+                             'static_content': cdn_paths['STATIC_CONTENT'],
+                             'game_version': project_settings.META_CONFIG.version,
+                             'account_id': self.account.id if self.account.is_authenticated() else None})

@@ -12,6 +12,7 @@ from common.postponed_tasks import PostponedTaskPrototype
 from common.utils.resources import Resource
 from common.utils.pagination import Paginator
 from common.utils.decorators import login_required
+from common.utils import api
 
 from blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
 
@@ -89,7 +90,7 @@ class RegistrationResource(BaseAccountsResource):
 
 class AuthResource(BaseAccountsResource):
 
-    @handler('login', method='get')
+    @handler('login', name='page-login', method='get')
     def login_page(self, next_url='/'):
         if self.account.is_authenticated():
             return self.redirect(next_url)
@@ -99,32 +100,35 @@ class AuthResource(BaseAccountsResource):
                              {'login_form': login_form,
                               'next_url': next_url} )
 
-    @handler('login', method='post')
-    def login(self, next_url='/'):
+    @api.handler(versions=('1.0',))
+    @handler('api', 'login', name='api-login', method='post')
+    def api_login(self, api_version, next_url='/'):
         login_form = forms.LoginForm(self.request.POST)
 
         if login_form.is_valid():
 
             account = AccountPrototype.get_by_email(login_form.c.email)
             if account is None:
-                return self.json_error('accounts.auth.login.wrong_credentials', u'Неверный логин или пароль')
+                return self.error('accounts.auth.login.wrong_credentials', u'Неверный логин или пароль')
 
             if not account.check_password(login_form.c.password):
-                return self.json_error('accounts.auth.login.wrong_credentials', u'Неверный логин или пароль')
+                return self.error('accounts.auth.login.wrong_credentials', u'Неверный логин или пароль')
 
             login_user(self.request, nick=account.nick, password=login_form.c.password, remember=login_form.c.remember)
 
-            return self.json_ok(data={'next_url': next_url})
+            return self.ok(data={'next_url': next_url})
 
-        return self.json_error('accounts.auth.login.form_errors', login_form.errors)
+        return self.error('accounts.auth.login.form_errors', login_form.errors)
 
-    @handler('logout', method=['post'])
-    def logout_post(self):
+    @api.handler(versions=('1.0',))
+    @handler('api', 'logout', name='api-logout', method=['post'])
+    def api_logout_post(self, api_version):
         logout_user(self.request)
-        return self.json_ok()
+        return self.ok()
 
-    @handler('logout', method=['get'])
-    def logout_get(self):
+    @api.handler(versions=('1.0',))
+    @handler('api', 'logout', name='api-logout', method=['get'])
+    def logout_get(self, api_version):
         django_logout(self.request)
         self.request.session.flush()
         return self.redirect('/')

@@ -91,36 +91,6 @@ class PvPResource(Resource):
     @login_required
     @validate_fast_account()
     @validate_participation_right()
-    @handler('info', method='get')
-    def info(self):
-
-        battle = Battle1x1Prototype.get_by_account_id(self.account.id)
-
-        if battle is None or not (battle.state._is_PROCESSING or battle.state._is_PREPAIRING):
-            return self.json_ok(data={'mode': 'pve',
-                                      'turn': self.time.ui_info()})
-
-        data = {'mode': 'pvp',
-                'turn': self.time.ui_info(),
-                'account': {},
-                'enemy': {}}
-
-        if self.account.is_authenticated():
-            data['new_messages'] = self.account.new_messages_number
-
-        account = self.account
-        enemy = AccountPrototype.get_by_id(battle.enemy_id)
-
-        data['account']['hero'] = HeroPrototype.cached_ui_info_for_hero(account.id)
-        data['enemy']['hero'] = HeroPrototype.get_by_account_id(enemy.id).ui_info(for_last_turn=True)
-
-        data['is_old'] = (data['account']['hero']['saved_at_turn'] < data['turn']['number'])
-
-        return self.json_ok(data=data)
-
-    @login_required
-    @validate_fast_account()
-    @validate_participation_right()
     @handler('say', method='post')
     def say(self):
 

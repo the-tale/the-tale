@@ -7,10 +7,10 @@ from dext.utils.decorators import debug_required
 
 from common.utils.decorators import staff_required, login_required
 from common.utils.resources import Resource
+from common.utils import api
 
 from accounts.clans.prototypes import ClanPrototype
 
-from game.heroes.prototypes import HeroPrototype
 from game.heroes.relations import EQUIPMENT_SLOT
 
 from game.map.conf import map_settings
@@ -18,6 +18,7 @@ from game.map.storage import map_info_storage
 
 from game.conf import game_settings
 from game.pvp.prototypes import Battle1x1Prototype
+from game import logic as game_logic
 
 class GameResource(Resource):
 
@@ -44,40 +45,17 @@ class GameResource(Resource):
                               'current_map_version': map_info_storage.version,
                               'clan': clan} )
 
-    @validate_argument_with_resource('account', Resource.validate_account_argument, 'game.info', u'неверный идентификатор аккаунта')
-    @handler('info', method='get')
-    def info(self, account=None):
+    @api.handler(versions=('1.0',))
+    @validate_argument_with_resource('account', Resource.validate_account_argument, 'game.info', u'неверный идентификатор аккаунта', raw=True)
+    @handler('api', 'info', name='api-info', method='get')
+    def info(self, api_version=None, account=None):
 
-        data = {'mode': 'pve',
-                'turn': self.time.ui_info(),
-                'map_version': map_info_storage.version,
-                'new_messages': 0,
-                'is_old': False}
+        if account is None and self.account.is_authenticated():
+            account = self.account
 
-        if account is not None:
-            is_own_hero = self.account and self.account.id == account.id
+        data = game_logic.form_game_info(account=account)
 
-            if self.account.is_authenticated():
-                data['new_messages'] = self.account.new_messages_number
-
-            if is_own_hero:
-                data['hero'] = HeroPrototype.cached_ui_info_for_hero(account.id)
-
-                data['pvp'] = {'waiting': False}
-
-                battle = Battle1x1Prototype.get_by_account_id(account.id)
-
-                if battle:
-                    if battle.state._is_WAITING:
-                        data['pvp']['waiting'] = True
-                    if battle.state._is_PROCESSING or battle.state._is_PREPAIRING:
-                        data['mode'] = 'pvp'
-            else:
-                data['hero'] = HeroPrototype.get_by_account_id(account.id).ui_info(for_last_turn=True, quests_info=False)
-
-            data['is_old'] = is_own_hero and (data['hero']['saved_at_turn'] < data['turn']['number'])
-
-        return self.json_ok(data=data)
+        return self.ok(data=data)
 
     @debug_required
     @staff_required()

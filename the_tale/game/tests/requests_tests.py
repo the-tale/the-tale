@@ -13,15 +13,14 @@ from common.utils.testcase import TestCase
 from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user, login_url
 
-from game.prototypes import TimePrototype
-from game.logic import create_test_map
+from game.logic import create_test_map, game_info_url
 
 from game.pvp.models import BATTLE_1X1_STATE
 from game.pvp.tests.helpers import PvPTestsMixin
 
-from game.heroes.prototypes import HeroPrototype
 
 from cms.news.models import News
+
 
 class RequestTestsBase(TestCase, PvPTestsMixin):
 
@@ -39,9 +38,9 @@ class RequestTestsBase(TestCase, PvPTestsMixin):
 
         self.client = client.Client()
 
-        self.game_info_url_1 = reverse('game:info') + ('?account=%d' % self.account_1.id)
-        self.game_info_url_2 = reverse('game:info') + ('?account=%d' % self.account_2.id)
-        self.game_info_url_anonimouse = reverse('game:info')
+        self.game_info_url_1 = game_info_url(account_id=self.account_1.id)
+        self.game_info_url_2 = game_info_url(account_id=self.account_2.id)
+        self.game_info_url_no_id = game_info_url()
 
         self.request_login('test_user@test.com')
 
@@ -75,81 +74,31 @@ class InfoRequestTests(RequestTestsBase):
     def test_logined(self):
         response = self.client.get(self.game_info_url_1)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(set(s11n.from_json(response.content)['data'].keys()), set(('turn', 'hero', 'mode', 'pvp', 'map_version', 'is_old', 'new_messages')))
+        self.assertEqual(set(s11n.from_json(response.content)['data'].keys()), set(('turn', 'mode', 'map_version', 'account', 'enemy')))
 
-    def test_other_account(self):
-        response = self.client.get(self.game_info_url_2)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(set(s11n.from_json(response.content)['data'].keys()), set(('turn', 'hero', 'mode', 'map_version', 'is_old', 'new_messages')))
+    def test_no_id__logined(self):
+        with mock.patch('game.logic.form_game_info', mock.Mock(return_value={})) as form_game_info:
+            self.check_ajax_ok(self.client.get(self.game_info_url_no_id))
+
+        self.assertEqual(form_game_info.call_count, 1)
+        self.assertEqual(form_game_info.call_args_list[0][1]['account'].id, self.account_1.id)
+
+    def test_no_id__unlogined(self):
+        self.request_logout()
+
+        with mock.patch('game.logic.form_game_info', mock.Mock(return_value={})) as form_game_info:
+            self.check_ajax_ok(self.client.get(self.game_info_url_no_id))
+
+        self.assertEqual(form_game_info.call_count, 1)
+        self.assertEqual(form_game_info.call_args_list[0][1]['account'], None)
 
     def test_account_not_exists(self):
-        response = self.request_ajax_json(reverse('game:info') + '?account=666')
+        response = self.request_ajax_json(game_info_url(account_id=666))
         self.check_ajax_error(response, 'game.info.account.not_found')
 
     def test_wrong_account_id(self):
-        response = self.request_ajax_json(reverse('game:info') + '?account=sdsd')
+        response = self.request_ajax_json(game_info_url(account_id='sdsd'))
         self.check_ajax_error(response, 'game.info.account.wrong_format')
-
-    def test_pvp_in_queue(self):
-        self.pvp_create_battle(self.account_1, None)
-        self.pvp_create_battle(self.account_2, None)
-        self.assertEqual(s11n.from_json(self.client.get(self.game_info_url_1).content)['data']['mode'], 'pve')
-
-    def test_pvp_prepairing(self):
-        self.pvp_create_battle(self.account_1, self.account_2)
-        self.pvp_create_battle(self.account_2, self.account_1)
-        self.assertEqual(s11n.from_json(self.client.get(self.game_info_url_1).content)['data']['mode'], 'pvp')
-
-    def test_pvp_processing(self):
-        self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
-        self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
-        self.assertEqual(s11n.from_json(self.client.get(self.game_info_url_1).content)['data']['mode'], 'pvp')
-
-    def test_own_hero_get_cached_data(self):
-        hero = HeroPrototype.get_by_account_id(self.account_1_id)
-        with mock.patch('game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero',
-                        mock.Mock(return_value={'id': hero.id, 'saved_at_turn': hero.saved_at_turn}),) as cached_ui_info_for_hero:
-            with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info', mock.Mock(return_value={})) as ui_info:
-                self.client.get(self.game_info_url_1)
-
-        self.assertEqual(cached_ui_info_for_hero.call_count, 1)
-        self.assertEqual(cached_ui_info_for_hero.call_args, mock.call(self.account_1_id))
-        self.assertEqual(ui_info.call_count, 0)
-
-    def test_other_hero_get_not_cached_data(self):
-        hero_2 = HeroPrototype.get_by_account_id(self.account_2_id)
-        with mock.patch('game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero') as cached_ui_info:
-            with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info',
-                            mock.Mock(return_value={'id': hero_2.id, 'saved_at_turn': hero_2.saved_at_turn})) as ui_info:
-                self.client.get(self.game_info_url_2)
-
-        self.assertEqual(cached_ui_info.call_count, 0)
-        self.assertEqual(ui_info.call_count, 1)
-        self.assertEqual(ui_info.call_args, mock.call(for_last_turn=True, quests_info=False))
-
-    def test_is_old(self):
-        self.assertFalse(s11n.from_json(self.request_ajax_json(self.game_info_url_1).content)['data']['is_old'])
-
-        TimePrototype(turn_number=666).save()
-        self.assertTrue(s11n.from_json(self.request_ajax_json(self.game_info_url_1).content)['data']['is_old'])
-
-        HeroPrototype.get_by_account_id(self.account_1_id).save()
-        self.assertFalse(s11n.from_json(self.request_ajax_json(self.game_info_url_1).content)['data']['is_old'])
-
-    def test_is_old__not_own_hero(self):
-        self.assertFalse(s11n.from_json(self.request_ajax_json(self.game_info_url_2).content)['data']['is_old'])
-
-        TimePrototype(turn_number=666).save()
-        self.assertFalse(s11n.from_json(self.request_ajax_json(self.game_info_url_2).content)['data']['is_old'])
-
-        HeroPrototype.get_by_account_id(self.account_2_id).save()
-        self.assertFalse(s11n.from_json(self.request_ajax_json(self.game_info_url_2).content)['data']['is_old'])
-
-    def test_is_old__anonimouse(self):
-        self.assertFalse(s11n.from_json(self.request_ajax_json(self.game_info_url_anonimouse).content)['data']['is_old'])
-
-        TimePrototype(turn_number=666).save()
-        self.assertFalse(s11n.from_json(self.request_ajax_json(self.game_info_url_anonimouse).content)['data']['is_old'])
 
 
 class NewsAlertsTests(TestCase):

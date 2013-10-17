@@ -4,10 +4,11 @@ import datetime
 
 from django.conf import settings as project_settings
 from django.contrib.auth import login as django_login, authenticate as django_authenticate, logout as django_logout
-from django.core.urlresolvers import reverse
+
 
 from dext.utils.decorators import nested_commit_on_success
 from dext.utils.logic import normalize_email
+from dext.utils.urls import url
 
 from common.utils.password import generate_password
 
@@ -28,7 +29,10 @@ class REGISTER_USER_RESULT:
 
 
 def login_url(target_url='/'):
-    return reverse('accounts:auth:login') + '?next_url=' + urllib.quote(target_url.encode('utf-8'))
+    return url('accounts:auth:api-login', api_version='1.0', api_client=project_settings.API_CLIENT) + '?next_url=' + urllib.quote(target_url.encode('utf-8'))
+
+def logout_url():
+    return url('accounts:auth:api-logout', api_version='1.0', api_client=project_settings.API_CLIENT)
 
 
 def get_system_user():

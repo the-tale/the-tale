@@ -35,7 +35,7 @@ var widgets = {};
 
 jQuery(document).ready(function(e){
 
-    updater = new pgf.game.Updater({url: "{{ url('game:pvp:info') }}"});
+    updater = new pgf.game.Updater({url: "{{ game_info_url() }}"});
 
     {% if settings.DEBUG %}
     {{ game_macros.game_debug_javascript() }}

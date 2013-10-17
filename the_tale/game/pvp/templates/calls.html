@@ -14,7 +14,7 @@ var abilities = undefined;
 
 jQuery(document).ready(function(e){
 
-    updater = new pgf.game.Updater({url: "{{ url('game:info', account=resource.account.id) }}"});
+    updater = new pgf.game.Updater({url: "{{ game_info_url() }}"});
 
     setTimeout(function RefreshData() {
         if (updater) {

@@ -97,7 +97,7 @@ class BasePrototype(object):
         return self._model.__unicode__()
 
     def __repr__(self):
-        return self._model.__repr__()
+        return u'%s(model=%s)' % (self.__class__.__name__, self._model.__repr__())
 
     # most for tests
     @classmethod

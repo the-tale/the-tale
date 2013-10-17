@@ -196,14 +196,14 @@ class HeroTest(TestCase):
             with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
                 HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)
         self.assertEqual(cmd_start_hero_caching.call_count, 1)
-        self.assertEqual(ui_info.call_args, mock.call(for_last_turn=False, quests_info=True))
+        self.assertEqual(ui_info.call_args, mock.call(for_last_turn=False))
 
     def test_cached_ui_info_for_hero__data_is_none(self):
         with mock.patch('game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
             with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
                 HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)
         self.assertEqual(cmd_start_hero_caching.call_count, 1)
-        self.assertEqual(ui_info.call_args, mock.call(for_last_turn=False, quests_info=True))
+        self.assertEqual(ui_info.call_args, mock.call(for_last_turn=False))
 
     @mock.patch('dext.utils.cache.get', lambda x: {'ui_caching_started_at': 0})
     def test_cached_ui_info_for_hero__continue_caching_required(self):
@@ -211,7 +211,7 @@ class HeroTest(TestCase):
             with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
                 HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)
         self.assertEqual(cmd_start_hero_caching.call_count, 1)
-        self.assertEqual(ui_info.call_args, mock.call(for_last_turn=False, quests_info=True))
+        self.assertEqual(ui_info.call_args, mock.call(for_last_turn=False))
 
     @mock.patch('dext.utils.cache.get', lambda x: {'ui_caching_started_at': time.time()})
     def test_cached_ui_info_for_hero__continue_caching_not_required(self):

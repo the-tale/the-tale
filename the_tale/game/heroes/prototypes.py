@@ -760,7 +760,7 @@ class HeroPrototype(BasePrototype):
                 self.messages == other.messages and
                 self.diary == other.diary)
 
-    def ui_info(self, for_last_turn=False, quests_info=False):
+    def ui_info(self, for_last_turn=False):
 
         return {'id': self.id,
                 'saved_at_turn': self.saved_at_turn,
@@ -802,7 +802,7 @@ class HeroPrototype(BasePrototype):
                 }
 
     def ui_info_for_cache(self):
-        return self.ui_info(for_last_turn=False, quests_info=True)
+        return self.ui_info(for_last_turn=False)
 
 
     @classmethod

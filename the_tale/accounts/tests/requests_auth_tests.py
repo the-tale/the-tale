@@ -1,13 +1,15 @@
 # coding: utf-8
 from django.test import client
-from django.core.urlresolvers import reverse
+
+from dext.utils.urls import url
 
 from common.utils.testcase import TestCase
 
-from accounts.logic import register_user
+from accounts.logic import register_user, logout_url
 from accounts.conf import accounts_settings
 
 from game.logic import create_test_map
+
 
 class AuthRequestsTests(TestCase):
 
@@ -18,12 +20,12 @@ class AuthRequestsTests(TestCase):
         self.client = client.Client()
 
     def test_login_page(self):
-        response = self.client.get(reverse('accounts:auth:login'))
+        response = self.client.get(url('accounts:auth:page-login'))
         self.check_html_ok(response)
 
     def test_login_page_after_login(self):
         self.request_login('test_user@test.com')
-        self.check_redirect(reverse('accounts:auth:login'), '/')
+        self.check_redirect(url('accounts:auth:page-login'), '/')
 
     def test_login_command(self):
         self.request_login('test_user@test.com', '111111', remember=False)
@@ -37,4 +39,4 @@ class AuthRequestsTests(TestCase):
         self.request_logout()
 
     def test_logout_command_get(self):
-        self.check_redirect(reverse('accounts:auth:logout'), '/')
+        self.check_redirect(logout_url(), '/')

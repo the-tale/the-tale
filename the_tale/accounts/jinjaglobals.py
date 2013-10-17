@@ -1,7 +1,5 @@
 # coding: utf-8
 
-from django.core.urlresolvers import reverse
-
 from dext.jinja2.decorators import jinjaglobal
 
 from accounts import logic
@@ -12,4 +10,4 @@ def login_url(next_url='/'):
 
 @jinjaglobal
 def logout_url():
-    return reverse('accounts:auth:logout')
+    return logic.logout_url()

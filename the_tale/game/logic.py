@@ -3,9 +3,13 @@ import os
 
 from django.conf import settings as project_settings
 
+from dext.utils.urls import url
+
 from textgen import words
 
 from common.utils.enum import create_enum
+
+from game.prototypes import TimePrototype
 
 from game.heroes.relations import EQUIPMENT_SLOT
 
@@ -120,3 +124,54 @@ def remove_game_data(account):
     storage._destroy_account_data(account)
 
     bundle.remove()
+
+def _form_game_account_info(game_time, account, in_pvp_queue):
+    from game.heroes.prototypes import HeroPrototype
+
+    is_own = account.is_authenticated()
+
+    data = { 'new_messages': account.new_messages_number if is_own else 0,
+             'id': account.id,
+             'is_own': is_own,
+             'is_old': False,
+             'hero': None,
+             'in_pvp_queue': in_pvp_queue }
+
+    if is_own:
+        data['hero'] = HeroPrototype.cached_ui_info_for_hero(account.id)
+    else:
+        data['hero'] = HeroPrototype.get_by_account_id(account.id).ui_info(for_last_turn=True)
+
+    data['is_old'] = (data['hero']['saved_at_turn'] < game_time.turn_number)
+
+    return data
+
+
+def form_game_info(account=None):
+    from accounts.prototypes import AccountPrototype
+
+    from game.pvp.prototypes import Battle1x1Prototype
+
+    game_time = TimePrototype.get_current_time()
+
+    data = {'mode': 'pve',
+            'turn': game_time.ui_info(),
+            'map_version': map_info_storage.version,
+            'account': None,
+            'enemy': None }
+
+    if account:
+        battle = Battle1x1Prototype.get_by_account_id(account.id)
+        data['account'] = _form_game_account_info(game_time, account, in_pvp_queue=False if battle is None else battle.state._is_WAITING)
+
+        if battle and (battle.state._is_PROCESSING or battle.state._is_PREPAIRING):
+            data['mode'] = 'pvp'
+            data['enemy'] = _form_game_account_info(game_time, AccountPrototype.get_by_id(battle.enemy_id), in_pvp_queue=False)
+
+    return data
+
+
+def game_info_url(account_id=None):
+    if account_id is not None:
+        return url('game:api-info', account=account_id, api_version='1.0', api_client=project_settings.API_CLIENT)
+    return url('game:api-info', api_version='1.0', api_client=project_settings.API_CLIENT)

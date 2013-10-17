@@ -170,7 +170,7 @@ class ProfileRequestsTests(TestCase):
     def test_profile_confirm_email_for_unlogined(self):
         self.request_login('test_user@test.com')
         self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.ru', 'nick': 'test_nick'})
-        self.client.get(reverse('accounts:auth:logout'))
+        self.request_logout()
 
         uuid = ChangeCredentialsTask.objects.all()[0].uuid
 

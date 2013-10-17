@@ -14,7 +14,11 @@ class Resource(BaseResource):
 
     def __init__(self, request, *args, **kwargs):
         super(Resource, self).__init__(request, *args, **kwargs)
-        self.account = AccountPrototype(model=self.request.user) if self.request.user.is_authenticated() else self.request.user
+
+        self.account = self.request.user
+        if self.account.is_authenticated():
+            self.account = AccountPrototype(model=self.account)
+
 
     def initialize(self, *args, **kwargs):
         super(Resource, self).initialize(*args, **kwargs)
