@@ -288,10 +288,6 @@ class QuestPrototype(object):
             self.machine.step()
             return True
 
-        if self.is_processed:
-            self.hero.statistics.change_quests_done(1)
-            return False
-
         if self.machine.next_state:
             self.satisfy_requirements(self.machine.next_state)
 
@@ -400,6 +396,8 @@ class QuestPrototype(object):
         experience = self.modify_experience(experience)
 
         hero.add_experience(experience)
+
+        hero.statistics.change_quests_done(1)
 
         self.quests_stack.pop()
 

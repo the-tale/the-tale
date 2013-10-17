@@ -75,6 +75,8 @@ class PrototypeTests(testcase.TestCase):
 
         self.assertEqual(self.hero.position.place.id, self.get_hero_position_id(quest))
 
+        old_quests_done = self.hero.statistics.quests_done
+
         while not self.action_idl.leader:
             self.storage.process_turn()
             current_time.increment_turn()
@@ -84,6 +86,7 @@ class PrototypeTests(testcase.TestCase):
         self.assertTrue(all(requirement.check(quest.knowledge_base) for requirement in quest.knowledge_base[quest.machine.pointer.state].require))
 
         self.assertTrue(self.hero.quests.history[quest.knowledge_base.filter(facts.Start).next().type] > 0)
+        self.assertTrue(old_quests_done < self.hero.statistics.quests_done)
 
     def test_complete_quest(self):
         self.complete_quest()
