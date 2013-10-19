@@ -62,47 +62,6 @@ API_CLIENT = 'the_tale-%s' % META_CONFIG.version
 USE_I18N = True
 USE_L10N = True
 
-##############################
-# static content settings
-##############################
-
-STATIC_URL = '//the-tale.org/static/%s/' % META_CONFIG.static_data_version
-STATIC_DIR = os.path.join(PROJECT_DIR, 'static')
-STATIC_CDN = '//static.the-tale.org%s' % STATIC_URL
-
-ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
-
-DCONT_URL = '//the-tale.org/dcont/'
-DCONT_DIR = os.path.join(PROJECT_DIR, 'dcont')
-DCONT_CDN = '//static.the-tale.org%s' % DCONT_URL
-
-LESS_FILES_DIR = os.path.join(PROJECT_DIR, 'less')
-LESS_DEST_DIR = os.path.join(PROJECT_DIR, 'static', 'css')
-
-CDNS_ENABLED = False
-
-CDNS = ( ('STATIC_JQUERY_JS',
-          '%splugins/jquery/jquery-1.7.2.min.js' % STATIC_URL, '//yandex.st/jquery/1.7.2/jquery.min.js',
-          'http://yandex.st/jquery/1.7.2/jquery.min.js'),
-         ('STATIC_JQUERY_UI_JS',
-          '%splugins/jquery/jquery-ui-1.8.9/js/jquery-ui-1.8.9.custom.min.js' % STATIC_URL, '//yandex.st/jquery-ui/1.8.9/jquery-ui.min.js',
-          'http://yandex.st/jquery-ui/1.8.9/jquery-ui.min.js'),
-         ('STATIC_TWITTER_BOOTSTRAP',
-          '%sbootstrap/' % STATIC_URL, '%sbootstrap/' % STATIC_CDN,
-          'http:%sbootstrap/css/bootstrap.min.css' % STATIC_CDN),
-
-          # bootstrapcdn returns css not equal to our (media instructions missed)
-          # '//netdna.bootstrapcdn.com/twitter-bootstrap/2.0.4/',
-          # 'http://netdna.bootstrapcdn.com/twitter-bootstrap/2.0.4/css/bootstrap-combined.min.css'),
-
-         ('STATIC_CONTENT',
-          STATIC_URL, STATIC_CDN,
-          'http:%simages/rss.png' % STATIC_CDN),
-
-         ('DCONT_CONTENT',
-          DCONT_URL, None,
-          None)
-    )
 
 SECRET_KEY = 'i@oi33(3f0vlezy$aj3_3q%q=#fb1ehovw0k&==w3ycs+#5f)y'
 
@@ -272,6 +231,51 @@ AMQP_CONNECTION_URL = 'amqp://%s:%s@%s/%s' % (AMQP_BROKER_USER,
 
 
 DEXT_PID_DIRECTORY = os.path.join(HOME_DIR, '.the-tale')
+
+##############################
+# static content settings
+##############################
+
+STATIC_URL = '//%s/static/%s/' % (SITE_URL, META_CONFIG.static_data_version)
+STATIC_DIR = os.path.join(PROJECT_DIR, 'static')
+STATIC_CDN = '//static.the-tale.org%s' % STATIC_URL
+STATIC_DEBUG_URL = '/static/%s/' % META_CONFIG.static_data_version
+
+ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
+
+DCONT_URL = '//%s/dcont/' % SITE_URL
+DCONT_DIR = os.path.join(PROJECT_DIR, 'dcont')
+DCONT_CDN = '//static.the-tale.org%s' % DCONT_URL
+DCONT_DEBUG_URL = '/dcont/'
+
+LESS_FILES_DIR = os.path.join(PROJECT_DIR, 'less')
+LESS_DEST_DIR = os.path.join(PROJECT_DIR, 'static', 'css')
+
+CDNS_ENABLED = False
+
+CDNS = ( ('STATIC_JQUERY_JS',
+          '%splugins/jquery/jquery-1.7.2.min.js' % STATIC_URL, '//yandex.st/jquery/1.7.2/jquery.min.js',
+          'http://yandex.st/jquery/1.7.2/jquery.min.js'),
+         ('STATIC_JQUERY_UI_JS',
+          '%splugins/jquery/jquery-ui-1.8.9/js/jquery-ui-1.8.9.custom.min.js' % STATIC_URL, '//yandex.st/jquery-ui/1.8.9/jquery-ui.min.js',
+          'http://yandex.st/jquery-ui/1.8.9/jquery-ui.min.js'),
+         ('STATIC_TWITTER_BOOTSTRAP',
+          '%sbootstrap/' % STATIC_URL, '%sbootstrap/' % STATIC_CDN,
+          'http:%sbootstrap/css/bootstrap.min.css' % STATIC_CDN),
+
+          # bootstrapcdn returns css not equal to our (media instructions missed)
+          # '//netdna.bootstrapcdn.com/twitter-bootstrap/2.0.4/',
+          # 'http://netdna.bootstrapcdn.com/twitter-bootstrap/2.0.4/css/bootstrap-combined.min.css'),
+
+         ('STATIC_CONTENT',
+          STATIC_URL, STATIC_CDN,
+          'http:%simages/rss.png' % STATIC_CDN),
+
+         ('DCONT_CONTENT',
+          DCONT_URL, None,
+          None)
+    )
+
 
 ############################
 # LOGGING

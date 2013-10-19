@@ -54,8 +54,8 @@ jQuery(document).ready(function(e){
         if (game_data.mode == "pvp") {
             location.href = "{{ url('game:pvp:') }}";
         }
-        jQuery(".pgf-new-messages-signalization").toggleClass("pgf-hidden", game_data.new_messages == 0);
-        jQuery(".pgf-new-messages-number").text(game_data.new_messages);
+        jQuery(".pgf-new-messages-signalization").toggleClass("pgf-hidden", game_data.account.new_messages == 0);
+        jQuery(".pgf-new-messages-number").text(game_data.account.new_messages);
 
     });
 

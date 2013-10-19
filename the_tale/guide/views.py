@@ -1,5 +1,7 @@
 # coding: utf-8
 
+import markdown
+
 from django.core.urlresolvers import reverse
 
 from dext.views import handler, validate_argument
@@ -18,6 +20,25 @@ from game.pvp import abilities as pvp_abilities
 
 from accounts.clans.conf import clans_settings
 
+
+class APIReference(object):
+
+    def __init__(self, id_, name, method):
+        self.id = id_
+        self.name = name
+        self.documentation = markdown.markdown(method.__doc__)
+
+
+def get_api_methods():
+    from portal.views import PortalResource
+    from accounts.views import AuthResource
+    from game.views import GameResource
+    return [APIReference('portal_info', u'Базовая информация', PortalResource.api_info),
+            APIReference('login', u'Вход в игру', AuthResource.api_login),
+            APIReference('logout', u'Выход из игры', AuthResource.api_logout),
+            APIReference('game_info', u'Информация об игре/герое', GameResource.api_info) ]
+
+API_METHODS = get_api_methods()
 
 
 class GuideResource(Resource):
@@ -103,6 +124,11 @@ class GuideResource(Resource):
         return self.template('guide/pvp.html', {'section': 'pvp',
                                                 'pvp_settings': pvp_settings,
                                                 'pvp_abilities': pvp_abilities})
+
+    @handler('api', method='get')
+    def api(self):
+        return self.template('guide/api.html', {'section': 'api',
+                                                'methods': API_METHODS})
 
     @validate_argument('ability_type', lambda x: ABILITY_TYPE(int(x)), 'guide.hero_abilities', u'Неверный формат типа способности')
     @validate_argument('activation_type', lambda x: ABILITY_ACTIVATION_TYPE(int(x)), 'guide.hero_abilities', u'Неверный формат типа активации')

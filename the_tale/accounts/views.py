@@ -103,6 +103,28 @@ class AuthResource(BaseAccountsResource):
     @api.handler(versions=('1.0',))
     @handler('api', 'login', name='api-login', method='post')
     def api_login(self, api_version, next_url='/'):
+        u'''
+Вход в игру
+
+- **адрес:** /accounts/auth/api/login
+- **http-метод:** POST
+- **версии:** 1.0
+- **параметры:**
+    * GET: next_url — вернётся в ответе метода в случае успешного входа, по-умолчанию равен "/"
+    * POST: email — email адрес пользователя
+    * POST: password — пароль пользователя
+    * POST: remember — если флаг указан, сессия игрока будет сохранена на длительное время
+- **возможные ошибки**:
+    * accounts.auth.login.wrong_credentials — неверный логин или пароль
+    * accounts.auth.login.form_errors — ошибка(-и) в заполнении полей
+
+формат данных в ответе:
+
+    {
+      "next_url": "относительный url", // адрес, переданный при вызове метода или "/"
+    }
+        '''
+
         login_form = forms.LoginForm(self.request.POST)
 
         if login_form.is_valid():
@@ -122,7 +144,17 @@ class AuthResource(BaseAccountsResource):
 
     @api.handler(versions=('1.0',))
     @handler('api', 'logout', name='api-logout', method=['post'])
-    def api_logout_post(self, api_version):
+    def api_logout(self, api_version):
+        u'''
+Выйти из игры
+
+- **адрес:** /accounts/auth/api/logout
+- **http-метод:** POST
+- **версии:** 1.0
+- **параметры:** нет
+- **возможные ошибки**: нет
+        '''
+
         logout_user(self.request)
         return self.ok()
 

@@ -103,7 +103,28 @@ class PortalResource(Resource):
 
     @api.handler(versions=('1.0',))
     @handler('api', 'info', name='api-info', method='get')
-    def info(self, api_version):
+    def api_info(self, api_version):
+        u'''
+Получение базовой информации о текущих параметрах игры и некоторых других данных.
+
+- **адрес:** /portal/info/api/
+- **http-метод:** GET
+- **версии:** 1.0
+- **параметры:** нет
+- **возможные ошибки**: нет
+
+формат данных в ответе:
+
+    {
+      "dynamic_content": "абсолютный url",   // базовый абсолютный путь к динамическим игровым данным (например, карте)
+      "static_content": "абсолютный url",    // базовый абсолютный путь к статическим игровым данным (например, картинкам)
+      "game_version": "текущая.версия.игры", // текущая версия игры
+      "account_id": <целое>|null             // идентификатор аккаунта, если пользователь вошёл в игру, иначе null
+    }
+
+Абсолютные адреса возвращаются без указания протокола: <code>//path/to/entity</code>
+        '''
+
         cdn_paths = portal_logic.cdn_paths()
 
         return self.ok(data={'dynamic_content': cdn_paths['DCONT_CONTENT'],

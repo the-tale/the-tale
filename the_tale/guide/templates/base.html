@@ -45,6 +45,7 @@
             <a href="{{ url('cms:development:page', menu_page.slug) }}">{{menu_page.caption}}</a>
           </li>
           {% endfor %}
+          <li class="nav-element {% if section=='api' %}active{% endif %}"><a href="{{ url('guide:api') }}">API</a></li>
         </ul>
       {% endblock %}
     </div>

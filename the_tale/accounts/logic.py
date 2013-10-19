@@ -29,7 +29,10 @@ class REGISTER_USER_RESULT:
 
 
 def login_url(target_url='/'):
-    return url('accounts:auth:api-login', api_version='1.0', api_client=project_settings.API_CLIENT) + '?next_url=' + urllib.quote(target_url.encode('utf-8'))
+    return url('accounts:auth:api-login', api_version='1.0', api_client=project_settings.API_CLIENT, next_url=urllib.quote(target_url.encode('utf-8')))
+
+def login_page_url(target_url='/'):
+    return url('accounts:auth:page-login', next_url=urllib.quote(target_url.encode('utf-8')))
 
 def logout_url():
     return url('accounts:auth:api-logout', api_version='1.0', api_client=project_settings.API_CLIENT)

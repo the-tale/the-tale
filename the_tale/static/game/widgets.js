@@ -136,12 +136,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
     };
 
     this.Refresh = function(game_data) {
-        if (params.dataMode == 'pve') {
-            data = game_data.hero;
-        }
-        if (params.dataMode == 'pvp_account') {
-            data = game_data.account.hero;
-        }
+        data = game_data.account.hero;
         if (params.dataMode == 'pvp_enemy') {
             data = game_data.enemy.hero;
         }
@@ -306,6 +301,12 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
 
     function RenderQuests() {
         pgf.base.HideTooltips(widget, 'pgf-actor-tooltip');
+
+        if (data.quests.length == 0) {
+            pgf.game.widgets._RenderQuest(0, [], currentQuest);
+            return;
+        }
+
         var quest = data.quests.quests[data.quests.quests.length - 1];
         pgf.game.widgets._RenderQuest(0, quest.line[quest.line.length-1], currentQuest);
     }
@@ -344,7 +345,7 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
     }
 
     function RenderChoices() {
-        if (data.quests.quests.length == 0) {
+        if (data.quests.length == 0 || data.quests.quests.length == 0) {
             return;
         }
 
@@ -492,8 +493,8 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
 
         data.actions = [];
 
-        if (game_data.hero) {
-            data.action = game_data.hero.action;
+        if (game_data.account.hero) {
+            data.action = game_data.account.hero.action;
         }
     };
 
@@ -717,19 +718,7 @@ pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
 
     this.Refresh = function(game_data) {
 
-        data = {};
-
-        if (params.dataMode == 'pve') {
-            if (game_data.hero) {
-                data = game_data.hero.equipment;
-            }
-        }
-
-        if (params.dataMode == 'pvp_account') {
-            if (game_data.account.hero) {
-                data = game_data.account.hero.equipment;
-            }
-        }
+        data = game_data.account.hero.equipment;
 
         if (params.dataMode == 'pvp_enemy') {
             if (game_data.account.hero) {
@@ -805,13 +794,7 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
         var heroData = undefined;
 
-        if (params.dataMode == "pve") {
-            heroData = game_data.hero;
-        }
-
-        if (params.dataMode == "pvp") {
-            heroData = game_data.account.hero;
-        }
+        heroData = game_data.account.hero;
 
         var turnMessages = [];
         if (heroData) {
@@ -1009,13 +992,14 @@ pgf.game.widgets.Abilities = function() {
     function Refresh(game_data) {
         turn = game_data.turn;
 
-        angelEnergy = game_data.hero.energy.value;
-        pvpWaiting = game_data.pvp.waiting;
-        canParticipateInPvp = game_data.hero.can_participate_in_pvp;
-        canRepairBuilding = game_data.hero.can_repair_building;
-        canRestoreEnergy =
+        var hero = game_data.account.hero;
 
-        hasEnergyCharges = game_data.hero.energy.charges > 0;
+        angelEnergy = hero.energy.value;
+        pvpWaiting = game_data.account.in_pvp_queue;
+        canParticipateInPvp = hero.can_participate_in_pvp;
+        canRepairBuilding = hero.can_repair_building;
+
+        hasEnergyCharges = hero.energy.charges > 0;
         canRestoreEnergy = angelEnergy < pgf.game.data.abilities.help.cost;
     };
 
