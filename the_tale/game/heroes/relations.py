@@ -56,7 +56,7 @@ class ITEMS_OF_EXPENDITURE(DjangoEnum):
 
 
 class EQUIPMENT_SLOT(DjangoEnum):
-    artifact_type = Column()
+    artifact_type = Column(related_name='equipment_slot')
 
     _records = ( ('HAND_PRIMARY', 0, u'основная рука', ARTIFACT_TYPE.MAIN_HAND),
                  ('HAND_SECONDARY', 1, u'вспомогательная рука', ARTIFACT_TYPE.OFF_HAND),

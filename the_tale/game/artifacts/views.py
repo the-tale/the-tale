@@ -13,7 +13,8 @@ from common.utils.enum import create_enum
 
 from game.map.relations import TERRAIN
 
-from game.artifacts.models import ARTIFACT_RECORD_STATE, RARITY_TYPE, ARTIFACT_TYPE
+from game.artifacts.models import ARTIFACT_RECORD_STATE, RARITY_TYPE
+from game.artifacts.relations import ARTIFACT_TYPE
 from game.artifacts.prototypes import ArtifactRecordPrototype
 from game.artifacts.storage import artifacts_storage
 from game.artifacts.forms import ArtifactRecordForm, ModerateArtifactRecordForm
@@ -21,6 +22,8 @@ from game.artifacts.forms import ArtifactRecordForm, ModerateArtifactRecordForm
 
 INDEX_ORDER_TYPE = create_enum('INDEX_ORDER_TYPE', (('BY_LEVEL', 'by_level', u'по уровню'),
                                                     ('BY_NAME', 'by_name', u'по имени'),))
+
+def argument_to_artifact_type(value): return ARTIFACT_TYPE(int(value))
 
 
 class ArtifactResourceBase(Resource):
@@ -44,7 +47,7 @@ class GuideArtifactResource(ArtifactResourceBase):
 
     @validate_argument('state', ARTIFACT_RECORD_STATE, 'artifacts', u'неверное состояние записи об артефакте')
     @validate_argument('rarity', RARITY_TYPE, 'artifacts', u'неверный тип редкости артефакта')
-    @validate_argument('type', ARTIFACT_TYPE, 'artifacts', u'неверный тип артефакта')
+    @validate_argument('type', argument_to_artifact_type, 'artifacts', u'неверный тип артефакта')
     @validate_argument('order_by', INDEX_ORDER_TYPE, 'artifacts', u'неверный тип сортировки')
     @handler('', method='get')
     def index(self,

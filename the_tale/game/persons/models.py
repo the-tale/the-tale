@@ -8,8 +8,7 @@ from rels.django_staff import TableIntegerField
 
 from common.utils.enum import create_enum
 
-from game.game_info import GENDER
-from game.balance.enums import RACE
+from game.relations import GENDER, RACE
 from game.persons.relations import PERSON_TYPE
 
 
@@ -31,9 +30,8 @@ class Person(models.Model):
 
     name = models.CharField(max_length=256)
 
-    gender = models.IntegerField(null=False, default=GENDER.MASCULINE, choices=GENDER._CHOICES)
-
-    race = models.IntegerField(choices=RACE._CHOICES, default=RACE.HUMAN)
+    gender = TableIntegerField(relation=GENDER, relation_column='value')
+    race = TableIntegerField(relation=RACE, relation_column='value')
 
     type = TableIntegerField(relation=PERSON_TYPE, relation_column='value')
 

@@ -8,7 +8,7 @@ from dext.utils import s11n
 
 from textgen.words import Noun
 
-from game.balance.enums import RACE
+from game.relations import RACE
 
 from game.bills.prototypes import BillPrototype
 from game.bills import bills
@@ -329,7 +329,7 @@ class PlaceChangeRace(BaseTestPrototypes):
     def setUp(self):
         super(PlaceChangeRace, self).setUp()
 
-        for race_id in RACE._ALL:
+        for race_id in RACE._records:
             if self.place1.race != race_id:
                 self.next_race_id = race_id
 

@@ -2,9 +2,7 @@
 
 from textgen.words import Noun
 
-from game.game_info import GENDER
-
-from game.balance.enums import RACE
+from game.relations import GENDER, RACE
 
 from game.persons.relations import PERSON_TYPE
 from game.persons.storage import persons_storage
@@ -62,11 +60,11 @@ class BasePersonBill(BaseBill):
 
     @property
     def person_race_verbose(self):
-        return RACE._ID_TO_TEXT[self.person_race]
+        return self.person_race.text
 
     @property
     def person_gender_verbose(self):
-        return GENDER._ID_TO_TEXT[self.person_gender]
+        return self.person_gender.text
 
     @property
     def user_form_initials(self):
@@ -98,9 +96,9 @@ class BasePersonBill(BaseBill):
         return {'type': self.type.name.lower(),
                 'person_id': self.person_id,
                 'person_name': self.person_name,
-                'person_race': self.person_race,
+                'person_race': self.person_race.value,
                 'person_type': self.person_type.value,
-                'person_gender': self.person_gender,
+                'person_gender': self.person_gender.value,
                 'place_id': self.place_id,
                 'old_place_name_forms': self.old_place_name_forms.serialize()}
 
@@ -109,9 +107,9 @@ class BasePersonBill(BaseBill):
         obj = cls()
         obj.person_id = data['person_id']
         obj.person_name = data['person_name']
-        obj.person_race = data['person_race']
+        obj.person_race = RACE(data['person_race'])
         obj.person_type = PERSON_TYPE(data['person_type'])
-        obj.person_gender = data['person_gender']
+        obj.person_gender = GENDER(data['person_gender'])
         obj.place_id = data['place_id']
 
         if 'old_place_name_forms' in data:

@@ -4,7 +4,9 @@ from django.db import models
 
 from rels.django_staff import TableIntegerField
 
-from game.balance.enums import CITY_MODIFIERS, RACE
+from game.balance.enums import CITY_MODIFIERS
+
+from game.relations import RACE
 
 from game.map.places.relations import BUILDING_TYPE, BUILDING_STATE, RESOURCE_EXCHANGE_TYPE
 
@@ -43,7 +45,7 @@ class Place(models.Model):
 
     modifier = models.IntegerField(null=True, default=None, choices=CITY_MODIFIERS._CHOICES, blank=True)
 
-    race = models.IntegerField(null=False, default=RACE.HUMAN, choices=RACE._CHOICES)
+    race = TableIntegerField(relation=RACE, relation_column='value')
 
     class Meta:
         ordering = ('name', )

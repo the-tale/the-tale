@@ -15,7 +15,8 @@ from game.map.relations import TERRAIN
 from game.heroes.prototypes import HeroPrototype
 
 from game.artifacts.prototypes import ArtifactRecordPrototype
-from game.artifacts.models import ARTIFACT_TYPE, ARTIFACT_RECORD_STATE
+from game.artifacts.models import ARTIFACT_RECORD_STATE
+from game.artifacts.relations import ARTIFACT_TYPE
 
 from game.mobs.storage import mobs_storage
 from game.mobs.models import MOB_RECORD_STATE
@@ -125,13 +126,13 @@ class MobsPrototypeTests(testcase.TestCase):
         with mock.patch('game.balance.formulas.artifacts_per_battle', lambda lvl: 1):
             artifact = mob.get_loot()
             self.assertEqual(artifact.level, mob.level)
-            self.assertFalse(artifact.type.is_useless)
+            self.assertFalse(artifact.type._is_USELESS)
             self.assertEqual(artifact_2.id, artifact.record.id)
 
         with mock.patch('game.balance.formulas.artifacts_per_battle', lambda lvl: 0),  mock.patch('game.balance.constants.GET_LOOT_PROBABILITY', 1):
             artifact = mob.get_loot()
             self.assertEqual(artifact.level, mob.record.level)
-            self.assertTrue(artifact.type.is_useless)
+            self.assertTrue(artifact.type._is_USELESS)
             self.assertEqual(artifact_1.id, artifact.record.id)
 
     def test_change_uuid(self):

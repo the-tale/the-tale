@@ -14,8 +14,7 @@ from common.utils.permissions import sync_group
 from accounts.logic import register_user, login_url
 from accounts.prototypes import AccountPrototype
 
-from game.game_info import GENDER, GENDER_ID_2_STR
-from game.balance.enums import RACE
+from game.relations import GENDER, RACE
 from game.logic_storage import LogicStorage
 from game.logic import create_test_map
 
@@ -172,7 +171,7 @@ class ChangeHeroRequestsTests(HeroRequestsTestBase):
                            u'%s_3' % name,
                            u'%s_4' % name,
                            u'%s_5' % name] * 2,
-                    properties=(GENDER_ID_2_STR[gender], ))
+                    properties=(gender.text_id, ))
 
     def test_chane_hero_ownership(self):
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')

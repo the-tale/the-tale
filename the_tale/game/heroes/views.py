@@ -110,7 +110,6 @@ class HeroResource(Resource):
     @handler('#hero', 'change-hero', method='post')
     def change_hero(self):
         from textgen.words import Noun
-        from game.game_info import GENDER_ID_2_STR
 
         edit_name_form = EditNameForm(self.request.POST)
 
@@ -121,7 +120,7 @@ class HeroResource(Resource):
         gender = edit_name_form.c.gender
 
         change_task = ChangeHeroTask(hero_id=self.hero.id,
-                                     name=Noun(normalized=forms[0], forms=forms*2, properties=(GENDER_ID_2_STR[gender], )),
+                                     name=Noun(normalized=forms[0], forms=forms*2, properties=(gender.text_id, )),
                                      race=edit_name_form.c.race,
                                      gender=gender)
 

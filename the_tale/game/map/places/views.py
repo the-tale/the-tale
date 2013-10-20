@@ -7,12 +7,12 @@ from common.utils.resources import Resource
 from accounts.models import Account
 from accounts.prototypes import AccountPrototype
 
+from game.relations import RACE
+
 from game.heroes.prototypes import HeroPrototype
 from game.heroes.preferences import HeroPreferences
 
 from game.map.places.prototypes import PlacePrototype
-
-from game.balance.enums import RACE_MULTIPLE_VERBOSE
 
 from game.map.utils import get_race_percents
 
@@ -53,7 +53,7 @@ class PlaceResource(Resource):
         return self.template('places/show.html',
                              {'place': self.place,
                               'hero': HeroPrototype.get_by_account_id(self.account.id) if self.account else None,
-                              'RACE_MULTIPLE_VERBOSE': RACE_MULTIPLE_VERBOSE,
+                              'RACE': RACE,
                               'race_percents': race_percents,
                               'persons': persons,
                               'accounts': accounts,

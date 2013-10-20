@@ -2,18 +2,6 @@
 
 from common.utils.enum import create_enum
 
-RACE = create_enum('RACE', ( ('HUMAN', 0, u'человек'),
-                             ('ELF', 1, u'эльф'),
-                             ('ORC', 2, u'орк'),
-                             ('GOBLIN', 3, u'гоблин'),
-                             ('DWARF', 4, u'дварф') ))
-
-RACE_MULTIPLE_VERBOSE = {RACE.HUMAN: u'люди',
-                         RACE.ELF: u'эльфы',
-                         RACE.ORC: u'орки',
-                         RACE.GOBLIN: u'гоблины',
-                         RACE.DWARF: u'дварфы'}
-
 
 ANGEL_ENERGY_REGENERATION_TYPES = create_enum('ANGEL_ENERGY_REGENERATION_TYPES',
                                               ( ('PRAY', 0, u'молитва'),

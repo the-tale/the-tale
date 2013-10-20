@@ -6,6 +6,7 @@ from textgen import words
 from dext.utils import s11n
 
 from game.balance import constants as c
+from game.relations import RACE
 
 from game.persons.storage import persons_storage
 from game.persons.conf import persons_settings
@@ -27,6 +28,7 @@ class PlacePowerTest(testcase.TestCase):
                                           y=0,
                                           name='power_test_place',
                                           name_forms=s11n.to_json(words.Noun.fast_construct('power_test_place').serialize()),
+                                          race=RACE.HUMAN,
                                           size=5 )
 
         self.place = PlacePrototype(self.model)

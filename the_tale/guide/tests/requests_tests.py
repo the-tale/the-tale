@@ -71,3 +71,6 @@ class TestRequests(TestCase):
 
     def test_pvp(self):
         self.check_html_ok(self.client.get(reverse('guide:pvp')))
+
+    def test_api(self):
+        self.check_html_ok(self.client.get(reverse('guide:api')))

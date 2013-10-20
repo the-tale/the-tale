@@ -9,7 +9,8 @@ from game.balance import formulas as f, constants as c
 
 from game.artifacts.exceptions import ArtifactsException
 from game.artifacts.prototypes import ArtifactRecordPrototype
-from game.artifacts.models import ArtifactRecord, ARTIFACT_TYPE
+from game.artifacts.models import ArtifactRecord
+from game.artifacts.relations import ARTIFACT_TYPE
 
 
 class ArtifactsStorage(create_storage_class('artifacts records change time', ArtifactRecord, ArtifactRecordPrototype, ArtifactsException)):
@@ -18,7 +19,7 @@ class ArtifactsStorage(create_storage_class('artifacts records change time', Art
         self._artifacts_by_uuids = {}
         self.artifacts = []
         self.loot = []
-        self._artifacts_by_types = { artifact_type: [] for artifact_type in ARTIFACT_TYPE._ALL}
+        self._artifacts_by_types = { artifact_type: [] for artifact_type in ARTIFACT_TYPE._records}
         self._mob_artifacts = {}
         self._mob_loot = {}
 
@@ -36,12 +37,12 @@ class ArtifactsStorage(create_storage_class('artifacts records change time', Art
         if not item.state.is_enabled:
             return
 
-        if item.type.is_useless:
+        if item.type._is_USELESS:
             self.loot.append(item)
         else:
             self.artifacts.append(item)
 
-        self._artifacts_by_types[item.type.value].append(item)
+        self._artifacts_by_types[item.type].append(item)
 
         self._mob_artifacts = {}
         self._mob_loot = {}
@@ -74,7 +75,7 @@ class ArtifactsStorage(create_storage_class('artifacts records change time', Art
         if artifact_record is None:
             return None
 
-        if artifact_record.type.is_useless:
+        if artifact_record.is_useless:
             power = 0
         else:
             power = f.power_to_artifact_randomized(level)

@@ -9,8 +9,8 @@ from common.utils.forms import NounFormsWithoutNumberField
 from game.heroes.models import Hero
 from game.heroes.relations import PREFERENCE_TYPE
 
-from game.game_info import GENDER
-from game.balance.enums import RACE
+from game.relations import GENDER, RACE
+
 
 class ChoosePreferencesForm(forms.Form):
 
@@ -20,9 +20,9 @@ class ChoosePreferencesForm(forms.Form):
 
 class EditNameForm(forms.Form):
 
-    race = fields.TypedChoiceField(label=u'раса', choices=RACE._CHOICES, coerce=int)
+    race = fields.TypedChoiceField(label=u'раса', choices=RACE._choices(), coerce=RACE._get_from_name)
 
-    gender = fields.TypedChoiceField(label=u'пол', choices=GENDER._CHOICES, coerce=int)
+    gender = fields.TypedChoiceField(label=u'пол', choices=GENDER._choices(), coerce=GENDER._get_from_name)
 
     name_forms = NounFormsWithoutNumberField(label=u'')
 

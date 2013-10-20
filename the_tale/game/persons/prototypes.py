@@ -9,14 +9,12 @@ from common.utils.prototypes import BasePrototype
 from common.utils.logic import choose_from_interval
 from common.utils.decorators import lazy_property
 
-from game.game_info import GENDER_ID_2_STR, GENDER
 from game.helpers import add_power_management
 from game.prototypes import TimePrototype
 
 from game.map.places.storage import places_storage, buildings_storage
 from game.map.places.relations import CITY_PARAMETERS
 
-from game.balance.enums import RACE
 from game.balance import constants as c
 
 from game.persons.models import Person, PERSON_STATE
@@ -48,7 +46,7 @@ class PersonPrototype(BasePrototype):
     def place(self): return places_storage[self._model.place_id]
 
     @property
-    def normalized_name(self): return (Fake(self._model.name), (GENDER_ID_2_STR[self.gender], u'загл'))
+    def normalized_name(self): return (Fake(self._model.name), (self.gender.text_id, u'загл'))
 
     @lazy_property
     def full_name(self):
@@ -56,15 +54,15 @@ class PersonPrototype(BasePrototype):
 
     @property
     def race_verbose(self):
-        return RACE._ID_TO_TEXT[self.race]
+        return self.race.text
 
     @property
     def gender_verbose(self):
-        return GENDER._ID_TO_TEXT[self.gender]
+        return self.gender.text
 
     @property
     def mastery(self):
-        mastery = PROFESSION_TO_RACE_MASTERY[self.type.value][self.race]
+        mastery = PROFESSION_TO_RACE_MASTERY[self.type.value][self.race.value]
         building = buildings_storage.get_by_person_id(self.id)
         if building:
             mastery += c.BUILDING_MASTERY_BONUS * building.integrity
@@ -207,8 +205,8 @@ class PersonPrototype(BasePrototype):
     def ui_info(self):
         return {'id': self.id,
                 'name': self.name,
-                'race': self.race,
-                'gender': self.gender,
+                'race': self.race.value,
+                'gender': self.gender.value,
                 'profession': self.type.value,
                 'mastery_verbose': self.mastery_verbose,
                 'place': self.place.id}

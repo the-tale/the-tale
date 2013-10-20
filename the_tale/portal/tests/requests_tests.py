@@ -9,6 +9,7 @@ from common.utils.testcase import TestCase
 from accounts.logic import register_user
 
 from game.logic import create_test_map
+from game.balance import constants as c
 
 from forum.tests.helpers import ForumFixture
 
@@ -45,6 +46,7 @@ class TestRequests(TestCase):
                            data={'dynamic_content': project_settings.DCONT_URL,
                                  'static_content': project_settings.STATIC_URL,
                                  'game_version': project_settings.META_CONFIG.version,
+                                 'turn_delta': c.TURN_DELTA,
                                  'account_id': None})
 
     def test_info__logined(self):
@@ -55,4 +57,5 @@ class TestRequests(TestCase):
                            data={'dynamic_content': project_settings.DCONT_URL,
                                  'static_content': project_settings.STATIC_URL,
                                  'game_version': project_settings.META_CONFIG.version,
+                                 'turn_delta': c.TURN_DELTA,
                                  'account_id': account_id})

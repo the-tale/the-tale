@@ -1,12 +1,12 @@
 # coding: utf-8
 
-from game.balance.enums import RACE
+from game.relations import RACE
 
 def get_race_percents(persons):
 
-    race_powers = dict( (race_id, 0) for race_id in RACE._ALL)
+    race_powers = dict( (race.value, 0) for race in RACE._records)
     for person in persons:
-        race_powers[person.race] += person.power
+        race_powers[person.race.value] += person.power
 
     total_power = sum(race_powers.values()) + 1 # +1 - to prevent division by 0
 

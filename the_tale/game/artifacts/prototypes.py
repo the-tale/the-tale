@@ -11,7 +11,8 @@ from common.utils.prototypes import BasePrototype
 from game.balance import constants as c, formulas as f
 
 from game.artifacts.exceptions import ArtifactsException
-from game.artifacts.models import ArtifactRecord, ARTIFACT_RECORD_STATE, RARITY_TYPE, ARTIFACT_TYPE, RARITY_TYPE_2_PRIORITY
+from game.artifacts.models import ArtifactRecord, ARTIFACT_RECORD_STATE, RARITY_TYPE, RARITY_TYPE_2_PRIORITY
+from game.artifacts.relations import ARTIFACT_TYPE
 
 
 class ArtifactPrototype(object):
@@ -49,7 +50,7 @@ class ArtifactPrototype(object):
     def is_useless(self): return self.record.is_useless
 
     @property
-    def can_be_equipped(self): return not self.type.is_useless
+    def can_be_equipped(self): return not self.type._is_USELESS
 
     def set_bag_uuid(self, uuid): self.bag_uuid = uuid
 
@@ -110,7 +111,7 @@ class ArtifactPrototype(object):
 class ArtifactRecordPrototype(BasePrototype):
     _model_class = ArtifactRecord
     _readonly = ('id', 'editor_id', 'mob_id')
-    _bidirectional = ('level', 'uuid', 'name', 'description')
+    _bidirectional = ('level', 'uuid', 'name', 'description', 'type')
     _get_by = ('id', )
 
     def get_state(self):
@@ -131,15 +132,6 @@ class ArtifactRecordPrototype(BasePrototype):
         self._model.rarity = self.rarity.value
     rarity = property(get_rarity, set_rarity)
 
-    def get_type(self):
-        if not hasattr(self, '_type'):
-            self._type = ARTIFACT_TYPE(self._model.type)
-        return self._type
-    def set_type(self, value):
-        self.type.update(value)
-        self._model.type = self.type.value
-    type = property(get_type, set_type)
-
     def get_name_forms(self):
         if not hasattr(self, '_normalized_name'):
             self._name_forms = Noun.deserialize(s11n.from_json(self._model.name_forms))
@@ -156,7 +148,7 @@ class ArtifactRecordPrototype(BasePrototype):
     def accepted_for_level(self, level): return self.level <= level
 
     @property
-    def is_useless(self): return self.type.is_useless
+    def is_useless(self): return self.type._is_USELESS
 
     @property
     def priority(self): return RARITY_TYPE_2_PRIORITY[self.rarity.value]

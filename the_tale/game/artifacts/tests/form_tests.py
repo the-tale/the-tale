@@ -9,7 +9,8 @@ from common.utils import testcase
 
 from game.logic import create_test_map
 
-from game.artifacts.models import RARITY_TYPE, ARTIFACT_TYPE
+from game.artifacts.models import RARITY_TYPE
+from game.artifacts.relations import ARTIFACT_TYPE
 from game.artifacts.forms import ArtifactRecordForm, ModerateArtifactRecordForm
 
 

@@ -11,9 +11,8 @@ from django.core.management.base import BaseCommand
 from dext.utils.decorators import nested_commit_on_success
 
 from game.balance import constants as c
-from game.balance.enums import RACE
 from game import names
-from game.game_info import GENDER
+from game.relations import GENDER, RACE
 from game.prototypes import TimePrototype
 
 from game.map.roads.models import Road

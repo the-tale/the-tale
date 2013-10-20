@@ -8,7 +8,7 @@ from common.utils import testcase
 
 from accounts.logic import register_user
 
-from game.balance.enums import RACE
+from game.relations import RACE
 
 from game.prototypes import TimePrototype
 from game.logic import create_test_map
@@ -53,7 +53,7 @@ class PlacePrototypeTests(testcase.TestCase):
         self.assertEqual(signal_counter.call_count, 0)
 
     def test_sync_race_signal_when_race_changed(self):
-        for race in RACE._ALL:
+        for race in RACE._records:
             if self.p1.race != race:
                 self.p1.race = race
                 self.p1.save()

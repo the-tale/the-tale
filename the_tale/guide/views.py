@@ -20,6 +20,8 @@ from game.pvp import abilities as pvp_abilities
 
 from accounts.clans.conf import clans_settings
 
+from guide.conf import guide_settings
+
 
 class APIReference(object):
 
@@ -27,6 +29,13 @@ class APIReference(object):
         self.id = id_
         self.name = name
         self.documentation = markdown.markdown(method.__doc__)
+
+class TypeReference(object):
+
+    def __init__(self, id_, name, relation):
+        self.id = id_
+        self.name = name
+        self.relation = relation
 
 
 def get_api_methods():
@@ -38,7 +47,21 @@ def get_api_methods():
             APIReference('logout', u'Выход из игры', AuthResource.api_logout),
             APIReference('game_info', u'Информация об игре/герое', GameResource.api_info) ]
 
+
+def get_api_types():
+    from game.relations import GENDER, RACE
+    from game.artifacts.relations import ARTIFACT_TYPE
+    from game.heroes.relations import EQUIPMENT_SLOT
+    from game.persons.relations import PERSON_TYPE
+
+    return [TypeReference('gender', u'Пол', GENDER),
+            TypeReference('race', u'Раса', RACE),
+            TypeReference('artifact_type', u'Тип артефакта', ARTIFACT_TYPE),
+            TypeReference('equipment_slot', u'Тип экипировки', EQUIPMENT_SLOT),
+            TypeReference('person_profession', u'Профессия жителя', PERSON_TYPE)]
+
 API_METHODS = get_api_methods()
+API_TYPES = get_api_types()
 
 
 class GuideResource(Resource):
@@ -128,7 +151,9 @@ class GuideResource(Resource):
     @handler('api', method='get')
     def api(self):
         return self.template('guide/api.html', {'section': 'api',
-                                                'methods': API_METHODS})
+                                                'api_forum_thread':  guide_settings.API_FORUM_THREAD,
+                                                'methods': API_METHODS,
+                                                'types': API_TYPES})
 
     @validate_argument('ability_type', lambda x: ABILITY_TYPE(int(x)), 'guide.hero_abilities', u'Неверный формат типа способности')
     @validate_argument('activation_type', lambda x: ABILITY_ACTIVATION_TYPE(int(x)), 'guide.hero_abilities', u'Неверный формат типа активации')

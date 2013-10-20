@@ -11,7 +11,7 @@ from deworld.layers import VEGETATION_TYPE
 from common.utils.prototypes import BasePrototype
 from common.utils.decorators import lazy_property
 
-from game.balance.enums import RACE
+from game.relations import RACE
 
 from game.persons.models import PERSON_STATE
 from game.persons.storage import persons_storage
@@ -104,7 +104,7 @@ class MapInfoPrototype(BasePrototype):
         race_percents = get_race_percents(persons_storage.filter(state=PERSON_STATE.IN_GAME))
 
         #race to cities percents
-        race_cities = dict( (race_id, 0) for race_id in RACE._ALL)
+        race_cities = dict( (race.value, 0) for race in RACE._records)
         for place_model in Place.objects.all():
             place = PlacePrototype(place_model)
             race_cities[place.race.value] += 1

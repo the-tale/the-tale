@@ -213,8 +213,8 @@ def chronicle_place_person_arrived(sender, place, person, **kwargs): # pylint: d
 def chronicle_place_race_changed(sender, place, old_race, new_race, **kwargs): # pylint: disable=W0613
     records.PlaceChangeRace(actors=[(ACTOR_ROLE.PLACE, place)],
                             substitutions={'place': place,
-                                           'old_race': old_race.verbose,
-                                           'new_race': new_race.verbose}).create_record()
+                                           'old_race': old_race.text,
+                                           'new_race': new_race.text}).create_record()
 
 
 @receiver(places_signals.building_destroyed_by_amortization, dispatch_uid='chronicle_building_destroyed_by_amortization')

@@ -5,8 +5,8 @@ from django.db import models
 
 from rels.django_staff import TableIntegerField
 
-from game.game_info import GENDER
-from game.balance.enums import RACE, ANGEL_ENERGY_REGENERATION_TYPES
+from game.relations import GENDER, RACE
+from game.balance.enums import ANGEL_ENERGY_REGENERATION_TYPES
 
 from game.heroes.relations import ITEMS_OF_EXPENDITURE, EQUIPMENT_SLOT, RISK_LEVEL
 
@@ -37,9 +37,8 @@ class Hero(models.Model):
     #base
     name = models.CharField(max_length=MAX_NAME_LENGTH, null=False)
 
-    gender = models.IntegerField(null=False, default=GENDER.MASCULINE, choices=GENDER._CHOICES)
-
-    race = models.IntegerField(choices=RACE._CHOICES, default=RACE.HUMAN)
+    gender = TableIntegerField(relation=GENDER, relation_column='value')
+    race = TableIntegerField(relation=RACE, relation_column='value')
 
     level = models.IntegerField(null=False, default=1)
     experience = models.FloatField(null=False, default=0)
@@ -71,7 +70,7 @@ class Hero(models.Model):
 
     next_spending = TableIntegerField(relation=ITEMS_OF_EXPENDITURE, relation_column='value')
 
-    energy = models.FloatField(null=False, default=0.0)
+    energy = models.IntegerField(null=False, default=0)
     last_energy_regeneration_at_turn = models.IntegerField(null=False, default=0)
     energy_charges = models.IntegerField(default=1)
 

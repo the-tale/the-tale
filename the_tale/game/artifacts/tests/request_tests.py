@@ -20,7 +20,8 @@ from game.mobs.storage import mobs_storage
 
 from game.artifacts.models import ArtifactRecord
 from game.artifacts.storage import artifacts_storage
-from game.artifacts.models import ARTIFACT_RECORD_STATE, ARTIFACT_TYPE, RARITY_TYPE
+from game.artifacts.models import ARTIFACT_RECORD_STATE, RARITY_TYPE
+from game.artifacts.relations import ARTIFACT_TYPE
 from game.artifacts.prototypes import ArtifactRecordPrototype
 
 
@@ -107,12 +108,12 @@ class TestIndexRequests(BaseTestRequests):
     def test_filter_by_type_no_artifacts_message(self):
         texts = [('loot_1', 0), ('plate_1', 0), ('loot_3', 0), ('pgf-no-artifacts-message', 1)]
         texts += [(uuid, 0) for uuid in DEFAULT_HERO_EQUIPMENT._ALL]
-        self.check_html_ok(self.request_html(reverse('guide:artifacts:')+('?type=%d' % ARTIFACT_TYPE.RING)), texts=texts)
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:')+('?type=%d' % ARTIFACT_TYPE.RING.value)), texts=texts)
 
     def test_filter_by_type(self):
         texts = [('loot_1', 1), ('loot_2', 1), ('loot_3', 1), ('pgf-no-artifacts-message', 0), ('helmet_2', 0), ('plate_2', 0), ('boots_2', 0)]
         texts += [(uuid, 0) for uuid in DEFAULT_HERO_EQUIPMENT._ALL]
-        self.check_html_ok(self.request_html(reverse('guide:artifacts:')+('?type=%d' % ARTIFACT_TYPE.USELESS)), texts=texts)
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:')+('?type=%d' % ARTIFACT_TYPE.USELESS.value)), texts=texts)
 
 
 class TestNewRequests(BaseTestRequests):

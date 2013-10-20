@@ -7,7 +7,8 @@ from common.utils import bbcode
 
 from game.mobs.storage import mobs_storage
 
-from game.artifacts.models import ArtifactRecord, ARTIFACT_TYPE, RARITY_TYPE
+from game.artifacts.models import ArtifactRecord, RARITY_TYPE
+from game.artifacts.relations import ARTIFACT_TYPE
 
 
 class ArtifactRecordBaseForm(forms.Form):
@@ -16,7 +17,7 @@ class ArtifactRecordBaseForm(forms.Form):
 
     description = bbcode.BBField(label=u'Описание', required=False)
 
-    type = fields.TypedChoiceField(label=u'тип', choices=ARTIFACT_TYPE._CHOICES, coerce=int)
+    type = fields.TypedChoiceField(label=u'тип', choices=ARTIFACT_TYPE._choices(), coerce=ARTIFACT_TYPE._get_from_name)
 
     rarity = fields.TypedChoiceField(label=u'Редкость', choices=RARITY_TYPE._CHOICES, coerce=int)
 

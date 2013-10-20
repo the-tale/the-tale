@@ -120,10 +120,10 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-experience-percents', widget).width( (100 * data.base.experience / data.base.experience_to_level) + '%');
 
         jQuery('.pgf-power', widget).text(data.secondary.power);
-        jQuery('.pgf-money', widget).text(parseInt(data.money));
-        jQuery('.pgf-might', widget).text(Math.round(data.might*100)/100);
-        jQuery('.pgf-might-crit-chance', widget).text(data.might_crit_chance);
-        jQuery('.pgf-might-pvp-effectiveness-bonus', widget).text(data.might_pvp_effectiveness_bonus);
+        jQuery('.pgf-money', widget).text(parseInt(data.base.money));
+        jQuery('.pgf-might', widget).text(Math.round(data.might.value*100)/100);
+        jQuery('.pgf-might-crit-chance', widget).text(Math.round(data.might.crit_chance*10000)/100.0);
+        jQuery('.pgf-might-pvp-effectiveness-bonus', widget).text(Math.round(data.might.pvp_effectiveness_bonus*10000)/100.0);
 
         jQuery('.pgf-energy', content).text(data.energy.value);
         jQuery('.pgf-max-energy', content).text(data.energy.max);
@@ -432,13 +432,11 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
 
         var dataChanged = false;
 
-        if (data.nextSpending != hero.next_spending ||
-            !pgf.base.CompareObjects(data.quests, newQuests)) {
+        if (!pgf.base.CompareObjects(data.quests, newQuests)) {
             dataChanged = true;
         }
 
         data.quests = newQuests;
-        data.nextSpending = hero.next_spending;
 
         return dataChanged;
     };
@@ -996,8 +994,8 @@ pgf.game.widgets.Abilities = function() {
 
         angelEnergy = hero.energy.value;
         pvpWaiting = game_data.account.in_pvp_queue;
-        canParticipateInPvp = hero.can_participate_in_pvp;
-        canRepairBuilding = hero.can_repair_building;
+        canParticipateInPvp = hero.permissions.can_participate_in_pvp;
+        canRepairBuilding = hero.permissions.can_repair_building;
 
         hasEnergyCharges = hero.energy.charges > 0;
         canRestoreEnergy = angelEnergy < pgf.game.data.abilities.help.cost;

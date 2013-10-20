@@ -15,9 +15,8 @@ from common.utils.decorators import lazy_property
 from game.map.places.storage import places_storage
 from game.map.roads.storage import roads_storage
 
-from game.game_info import GENDER, ATTRIBUTES, RACE_TO_ENERGY_REGENERATION_TYPE
+from game.game_info import ATTRIBUTES
 
-from game.balance.enums import RACE
 from game.balance import constants as c, formulas as f
 
 from game import names
@@ -111,7 +110,7 @@ class HeroPrototype(BasePrototype):
     ###########################################
 
     @property
-    def gender_verbose(self): return GENDER._ID_TO_TEXT[self.gender]
+    def gender_verbose(self): return self.gender.text
 
     @property
     def power(self): return f.clean_power_to_lvl(self.level) + self.equipment.get_power()
@@ -120,7 +119,7 @@ class HeroPrototype(BasePrototype):
     def basic_damage(self): return f.damage_from_power(self.power) * self.damage_modifier
 
     @property
-    def race_verbose(self): return RACE._ID_TO_TEXT[self.race]
+    def race_verbose(self): return self.race.text
 
     def increment_level(self):
         self._model.level += 1
@@ -295,7 +294,7 @@ class HeroPrototype(BasePrototype):
         if artifact is None:
             return None, None, None
 
-        if EQUIPMENT_SLOT._index_artifact_type[artifact.type.value] == self.preferences.equipment_slot:
+        if artifact.type.equipment_slot == self.preferences.equipment_slot:
             better = True
 
         self.bag.put_artifact(artifact)
@@ -304,7 +303,7 @@ class HeroPrototype(BasePrototype):
         if not equip:
             return artifact, None, None
 
-        slot = EQUIPMENT_SLOT._index_artifact_type[artifact.type.value]
+        slot = artifact.type.equipment_slot
         unequipped = self.equipment.get(slot)
 
         if better and unequipped is not None and artifact.power < unequipped.power:
@@ -390,7 +389,7 @@ class HeroPrototype(BasePrototype):
             if not artifact.can_be_equipped:
                 continue
 
-            slot = EQUIPMENT_SLOT._index_artifact_type[artifact.type.value]
+            slot = artifact.type.equipment_slot
 
             if self.preferences.favorite_item == slot:
                 continue
@@ -451,9 +450,9 @@ class HeroPrototype(BasePrototype):
     def get_normalized_name(self):
         if not hasattr(self, '_normalized_name'):
             if not self.is_name_changed:
-                if self.gender == GENDER.MASCULINE:
+                if self.gender._is_MASCULINE:
                     self._normalized_name = get_dictionary().get_word(u'герой')
-                elif self.gender == GENDER.FEMININE:
+                elif self.gender._is_FEMININE:
                     self._normalized_name = get_dictionary().get_word(u'героиня')
             else:
                 self._normalized_name = Noun.deserialize(s11n.from_json(self._model.name_forms))
@@ -601,7 +600,7 @@ class HeroPrototype(BasePrototype):
 
         preferences = HeroPreferences.deserialize(hero_id=self.id, data=s11n.from_json(self._model.preferences))
         if preferences.energy_regeneration_type is None:
-            preferences.set_energy_regeneration_type(RACE_TO_ENERGY_REGENERATION_TYPE[self.race], change_time=datetime.datetime.fromtimestamp(0))
+            preferences.set_energy_regeneration_type(self.race.energy_regeneration, change_time=datetime.datetime.fromtimestamp(0))
         if preferences.risk_level is None:
             preferences.set_risk_level(RISK_LEVEL.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
         return preferences
@@ -761,7 +760,6 @@ class HeroPrototype(BasePrototype):
                 self.diary == other.diary)
 
     def ui_info(self, for_last_turn=False):
-
         return {'id': self.id,
                 'saved_at_turn': self.saved_at_turn,
                 'saved_at': time.mktime(self.saved_at.timetuple()),
@@ -769,32 +767,31 @@ class HeroPrototype(BasePrototype):
                 'messages': self.messages.ui_info(),
                 'diary': self.diary.ui_info(with_date=True),
                 'position': self.position.ui_info(),
-                'alive': self.is_alive,
                 'bag': self.bag.ui_info(),
                 'equipment': self.equipment.ui_info(),
-                'money': self.money,
-                'might': self.might,
-                'might_crit_chance': '%.2f' % (self.might_crit_chance*100),
-                'might_pvp_effectiveness_bonus': '%.2f' % (self.might_pvp_effectiveness_bonus*100),
-                'can_participate_in_pvp': self.can_participate_in_pvp,
-                'can_repair_building': self.can_repair_building,
+                'might': { 'value': self.might,
+                           'crit_chance': self.might_crit_chance,
+                           'pvp_effectiveness_bonus': self.might_pvp_effectiveness_bonus },
+                'permissions': { 'can_participate_in_pvp': self.can_participate_in_pvp,
+                                 'can_repair_building': self.can_repair_building },
                 'energy': { 'max': self.energy_maximum,
                             'value': self.energy,
                             'charges': self.energy_charges},
-                'next_spending': self.next_spending.ui_id,
                 'action': self.actions.current_action.ui_info(),
                 'pvp': self.pvp.ui_info() if not for_last_turn else self.pvp.turn_ui_info(),
                 'base': { 'name': self.name,
                           'level': self.level,
                           'destiny_points': self.max_ability_points_number - self.current_ability_points_number,
-                          'health': self.health,
-                          'max_health': self.max_health,
+                          'health': int(self.health),
+                          'max_health': int(self.max_health),
                           'experience': int(self.experience),
                           'experience_to_level': int(f.exp_on_lvl(self.level)),
-                          'gender': self.gender,
-                          'race': self.race },
+                          'gender': self.gender.value,
+                          'race': self.race.value,
+                          'money': self.money,
+                          'alive': self.is_alive},
                 'secondary': { 'power': math.floor(self.power),
-                               'move_speed': self.move_speed,
+                               'move_speed': float(self.move_speed),
                                'initiative': self.initiative,
                                'max_bag_size': self.max_bag_size,
                                'loot_items_count': self.bag.occupation},
@@ -828,13 +825,13 @@ class HeroPrototype(BasePrototype):
 
     @classmethod
     def create(cls, account, bundle): # pylint: disable=R0914
-
+        from game.relations import GENDER, RACE
         from game.actions.prototypes import ActionIdlenessPrototype
         from game.logic_storage import LogicStorage
 
         start_place = places_storage.random_place()
 
-        race = random.choice(RACE._ALL)
+        race = random.choice(RACE._records)
 
         gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
 

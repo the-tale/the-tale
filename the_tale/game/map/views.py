@@ -6,8 +6,6 @@ from textgen.logic import Args
 
 from common.utils.resources import Resource
 
-from game.balance.enums import RACE_MULTIPLE_VERBOSE
-
 from game.heroes.prototypes import HeroPrototype
 
 from game.chronicle import RecordPrototype
@@ -58,7 +56,7 @@ class MapResource(Resource):
 
         if place is not None:
 
-            dominant_race = RACE_MULTIPLE_VERBOSE[place.race.value]
+            dominant_race = place.race.multiple_text
 
             place_modifiers = place.modifiers
 

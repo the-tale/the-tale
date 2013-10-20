@@ -9,8 +9,7 @@ from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
 
 from game.logic import create_test_map
-from game.game_info import GENDER
-from game.balance.enums import RACE
+from game.relations import GENDER, RACE
 from game.logic_storage import LogicStorage
 
 from game.heroes.postponed_tasks import ChangeHeroTask, CHANGE_HERO_TASK_STATE
@@ -34,7 +33,7 @@ class ChangeHeroTest(TestCase):
         self.forms=[u'слово', u'слова', u'слову', u'слово', u'словом', u'слове']
 
         self.race = RACE.ELF if RACE.ELF != self.hero.race else RACE.HUMAN
-        self.gender = GENDER.NEUTER if GENDER.NEUTER != self.hero.gender else GENDER.FEMININE
+        self.gender = GENDER.NEUTER if not self.hero.gender._is_NEUTER else GENDER.FEMININE
 
     def tearDown(self):
         pass

@@ -38,7 +38,7 @@
     {% for race_id, race_percent in race_percents %}
     {% if race_percent < 0.001 %}{% break %}{% endif %}
     <tr>
-      <td>{{RACE_MULTIPLE_VERBOSE[race_id]}}</td>
+      <td>{{RACE(race_id).multiple_text}}</td>
       <td>{{race_percent|percents}}</td>
     </tr>
     {% endfor %}

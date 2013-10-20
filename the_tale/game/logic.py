@@ -20,7 +20,7 @@ from game.mobs.storage import mobs_storage
 
 from game.artifacts.prototypes import ArtifactRecordPrototype
 from game.artifacts.storage import artifacts_storage
-from game.artifacts.models import ARTIFACT_TYPE
+from game.artifacts.relations import ARTIFACT_TYPE
 
 from game.map.storage import map_info_storage
 from game.map.relations import TERRAIN

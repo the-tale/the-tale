@@ -17,8 +17,9 @@ from game.heroes.prototypes import HeroPrototype
 from game.artifacts.exceptions import ArtifactsException
 from game.artifacts.storage import artifacts_storage
 from game.artifacts.prototypes import ArtifactRecordPrototype, ArtifactPrototype
-from game.artifacts.models import ARTIFACT_RECORD_STATE, RARITY_TYPE, ARTIFACT_TYPE
+from game.artifacts.models import ARTIFACT_RECORD_STATE, RARITY_TYPE
 from game.artifacts.forms import ModerateArtifactRecordForm
+from game.artifacts.relations import ARTIFACT_TYPE
 
 
 class PrototypeTests(testcase.TestCase):
@@ -140,13 +141,13 @@ class PrototypeTests(testcase.TestCase):
         with mock.patch('game.balance.formulas.artifacts_per_battle', lambda lvl: 1):
             artifact = artifacts_storage.generate_loot(mob)
             self.assertEqual(artifact.level, mob.level)
-            self.assertFalse(artifact.type.is_useless)
+            self.assertFalse(artifact.type._is_USELESS)
             self.assertEqual(artifact_2.id, artifact.record.id)
 
         with mock.patch('game.balance.formulas.artifacts_per_battle', lambda lvl: 0),  mock.patch('game.balance.constants.GET_LOOT_PROBABILITY', 1):
             artifact = artifacts_storage.generate_loot(mob)
             self.assertEqual(artifact.level, mob.record.level)
-            self.assertTrue(artifact.type.is_useless)
+            self.assertTrue(artifact.type._is_USELESS)
             self.assertEqual(artifact_1.id, artifact.record.id)
 
     def test_disabled_artifacts(self):

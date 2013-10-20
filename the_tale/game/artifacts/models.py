@@ -2,9 +2,14 @@
 
 from django.db import models
 
+from rels.django_staff import TableIntegerField
+
 from common.utils.enum import create_enum
 
 from game.balance import constants as c
+
+from game.artifacts.relations import ARTIFACT_TYPE
+
 
 ARTIFACT_RECORD_STATE = create_enum('ARTFACT_RECORD_STATE', ( ('ENABLED', 0, u'в игре'),
                                                               ('DISABLED', 1, u'вне игры'),) )
@@ -17,19 +22,6 @@ RARITY_TYPE_2_PRIORITY = { RARITY_TYPE.NORMAL: c.NORMAL_LOOT_PROBABILITY,
                            RARITY_TYPE.RARE: c.RARE_LOOT_PROBABILITY,
                            RARITY_TYPE.EPIC : c.EPIC_LOOT_PROBABILITY  }
 
-ARTIFACT_TYPE = create_enum('ARTIFACT_TYPE', ( ('USELESS', 0, u'хлам'),
-                                               ('MAIN_HAND', 1, u'основная рука'),
-                                               ('OFF_HAND', 2, u'вторая рука'),
-                                               ('PLATE', 3, u'броня'),
-                                               ('AMULET', 4, u'амулет'),
-                                               ('HELMET', 5, u'шлем'),
-                                               ('CLOAK', 6, u'плащ'),
-                                               ('SHOULDERS', 7, u'наплечники'),
-                                               ('GLOVES', 8, u'перчатки'),
-                                               ('PANTS', 9, u'штаны'),
-                                               ('BOOTS', 10, u'сапоги'),
-                                               ('RING', 11, u'кольцо') ) )
-
 class ArtifactRecord(models.Model):
 
     MAX_UUID_LENGTH = 32
@@ -40,7 +32,7 @@ class ArtifactRecord(models.Model):
 
     editor = models.ForeignKey('accounts.Account', null=True, related_name='+', blank=True, on_delete=models.SET_NULL)
 
-    type = models.IntegerField(default=ARTIFACT_TYPE.USELESS, choices=ARTIFACT_TYPE._CHOICES)
+    type = TableIntegerField(relation=ARTIFACT_TYPE, relation_column='value')
 
     rarity = models.IntegerField(default=RARITY_TYPE.NORMAL, choices=RARITY_TYPE._CHOICES)
 

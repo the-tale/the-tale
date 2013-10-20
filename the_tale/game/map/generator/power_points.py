@@ -3,8 +3,6 @@ import math
 
 from deworld import power_points, layers, normalizers
 
-from game.balance.enums import RACE
-
 from game.prototypes import TimePrototype, MONTHS
 
 from game.persons.prototypes import PersonPrototype
@@ -276,29 +274,29 @@ def get_place_power_points(place):
 def get_object_race_points(obj, race, power_percent):
     points = []
 
-    if race == RACE.HUMAN:
+    if race._is_HUMAN:
         points.append(_point_circle_height(obj, borders=(-0.2, 0.2), normalizer=normalizers.linear_2, power_percent=power_percent))
         points.append(_point_circle_vegetation(obj, power=(0.6, -0.3), normalizer=normalizers.linear_2, power_percent=power_percent))
         points.append(_point_circle_soil(obj, power=0.2, normalizer=normalizers.linear, power_percent=power_percent))
         points.append(_point_circle_wetness(obj, power=-0.05, normalizer=normalizers.linear, power_percent=power_percent))
-    elif race == RACE.ELF:
+    elif race._is_ELF:
         points.append(_point_circle_height(obj, borders=(0.0, 0.5), normalizer=normalizers.linear_2, power_percent=power_percent))
         points.append(_point_circle_vegetation(obj, power=(-0.2, 1.0), normalizer=normalizers.linear_2, power_percent=power_percent))
         points.append(_point_circle_soil(obj, power=0.1, normalizer=normalizers.linear, power_percent=power_percent))
         points.append(_point_circle_temperature(obj, power=0.1, normalizer=normalizers.linear, power_percent=power_percent))
         points.append(_point_circle_wetness(obj, power=0.1, normalizer=normalizers.linear, power_percent=power_percent))
-    elif race == RACE.ORC:
+    elif race._is_ORC:
         points.append(_point_circle_height(obj, borders=(-0.2, 0.3), normalizer=normalizers.linear_2, power_percent=power_percent))
         points.append(_point_circle_vegetation(obj, power=(-0.3, -0.5), normalizer=normalizers.linear_2, power_percent=power_percent))
         points.append(_point_circle_temperature(obj, power=0.3, normalizer=normalizers.linear, power_percent=power_percent))
         points.append(_point_circle_wetness(obj, power=-0.5, normalizer=normalizers.linear, power_percent=power_percent))
-    elif race == RACE.GOBLIN:
+    elif race._is_GOBLIN:
         points.append(_point_circle_height(obj, borders=(-0.7, -0.3), normalizer=normalizers.linear_2, power_percent=power_percent))
         points.append(_point_circle_vegetation(obj, power=(0.2, 0.0), normalizer=normalizers.linear_2, power_percent=power_percent))
         points.append(_point_circle_soil(obj, power=-0.2, normalizer=normalizers.linear, power_percent=power_percent))
         points.append(_point_circle_temperature(obj, power=0.2, normalizer=normalizers.linear, power_percent=power_percent))
         points.append(_point_circle_wetness(obj, power=0.4, normalizer=normalizers.linear, power_percent=power_percent))
-    elif race == RACE.DWARF:
+    elif race._is_DWARF:
         points.append(_point_arrow_height(obj, borders=(1.0, 1.0), length_normalizer=normalizers.linear_2, width_normalizer=normalizers.linear_2, power_percent=power_percent))
         points.append(_point_circle_temperature(obj, power=0.1, normalizer=normalizers.linear, power_percent=power_percent))
         points.append(_point_circle_vegetation(obj, power=(0.0, -0.1), normalizer=normalizers.linear_2, power_percent=power_percent))

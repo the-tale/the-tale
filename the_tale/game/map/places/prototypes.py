@@ -4,7 +4,6 @@ import math
 
 from dext.utils import s11n
 
-from game.game_info import GENDER
 from textgen import words
 
 from common.utils import bbcode
@@ -12,12 +11,12 @@ from common.utils.prototypes import BasePrototype
 from common.utils.decorators import lazy_property
 
 from game import names
+from game.relations import GENDER, RACE
+
 from game.balance import constants as c
-from game.prototypes import TimePrototype, GameTime
-
 from game.balance import formulas as f
-from game.balance.enums import RACE
 
+from game.prototypes import TimePrototype, GameTime
 from game.helpers import add_power_management
 
 from game.map.conf import map_settings
@@ -44,7 +43,7 @@ class PlaceParametersDescription(object):
 class PlacePrototype(BasePrototype):
     _model_class = Place
     _readonly = ('id', 'x', 'y', 'name', 'heroes_number', 'updated_at')
-    _bidirectional = ('description', 'size', 'expected_size', 'goods', 'production', 'safety', 'freedom', 'transport')
+    _bidirectional = ('description', 'size', 'expected_size', 'goods', 'production', 'safety', 'freedom', 'transport', 'race')
     _get_by = ('id',)
 
     @property
@@ -130,7 +129,7 @@ class PlacePrototype(BasePrototype):
         persons_count = len(self.persons)
 
         while persons_count < self.max_persons_number:
-            race = random.choice(RACE._ALL)
+            race = random.choice(RACE._records)
             gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
 
             new_person = PersonPrototype.create(place=self,
@@ -167,16 +166,6 @@ class PlacePrototype(BasePrototype):
             terrains.add(map_info.terrain[cell[1]][cell[0]])
         return terrains
 
-
-    def get_race(self):
-        if not hasattr(self, '_race'):
-            self._race = RACE(self._model.race)
-        return self._race
-    def set_race(self, value):
-        self.race.update(value)
-        self._model.race = self.race.value
-    race = property(get_race, set_race)
-
     def sync_race(self):
         race_power = {}
 
@@ -189,7 +178,7 @@ class PlacePrototype(BasePrototype):
         dominant_race = max(race_power.items(), key=lambda x: x[1])[0]
 
         if self.race != dominant_race:
-            old_race = RACE(self.race.value)
+            old_race = self.race
             self.race = dominant_race
             signals.place_race_changed.send(self.__class__, place=self, old_race=old_race, new_race=self.race)
 
@@ -292,6 +281,7 @@ class PlacePrototype(BasePrototype):
                                       y=y,
                                       name=name_forms.normalized,
                                       name_forms=s11n.to_json(name_forms.serialize()),
+                                      race=RACE.HUMAN,
                                       size=size)
         prototype = cls(model)
 

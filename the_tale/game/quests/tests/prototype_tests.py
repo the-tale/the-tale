@@ -4,6 +4,8 @@ import datetime
 
 from questgen import facts
 
+from dext.utils import s11n
+
 from common.utils import testcase
 
 from common.utils.fake import FakeWorkerCommand
@@ -67,7 +69,7 @@ class PrototypeTests(testcase.TestCase):
         self.quest.process()
         self.assertTrue(self.hero.quests.updated)
 
-    def complete_quest(self):
+    def complete_quest(self, callback=lambda : None):
         current_time = TimePrototype.get_current_time()
 
         # save link to quest, since it will be removed from hero when quest finished
@@ -79,6 +81,7 @@ class PrototypeTests(testcase.TestCase):
 
         while not self.action_idl.leader:
             self.storage.process_turn()
+            callback()
             current_time.increment_turn()
 
         self.assertEqual(self.hero.position.place.id, self.get_hero_position_id(quest))
@@ -88,8 +91,11 @@ class PrototypeTests(testcase.TestCase):
         self.assertTrue(self.hero.quests.history[quest.knowledge_base.filter(facts.Start).next().type] > 0)
         self.assertTrue(old_quests_done < self.hero.statistics.quests_done)
 
+    def check_ui_info(self):
+        s11n.to_json(self.hero.ui_info())
+
     def test_complete_quest(self):
-        self.complete_quest()
+        self.complete_quest(self.check_ui_info)
 
     @mock.patch('game.quests.prototypes.QuestInfo.get_person_power_for_quest', classmethod(lambda cls, hero: 1))
     def test_power_on_end_quest_for_fast_account_hero(self):

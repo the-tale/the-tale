@@ -20,7 +20,8 @@ from cms.news.models import News
 from blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
 from blogs.prototypes import PostPrototype as BlogPostPrototype
 
-from game.balance.enums import RACE
+from game.relations import RACE
+from game.balance import constants as c
 
 from game.map.storage import map_info_storage
 from game.map.relations import TERRAIN, MAP_STATISTICS
@@ -107,7 +108,7 @@ class PortalResource(Resource):
         u'''
 Получение базовой информации о текущих параметрах игры и некоторых других данных.
 
-- **адрес:** /portal/info/api/
+- **адрес:** /api/info/
 - **http-метод:** GET
 - **версии:** 1.0
 - **параметры:** нет
@@ -119,6 +120,7 @@ class PortalResource(Resource):
       "dynamic_content": "абсолютный url",   // базовый абсолютный путь к динамическим игровым данным (например, карте)
       "static_content": "абсолютный url",    // базовый абсолютный путь к статическим игровым данным (например, картинкам)
       "game_version": "текущая.версия.игры", // текущая версия игры
+      "turn_delta": <целое>,                 // задержка между ходами в секундах
       "account_id": <целое>|null             // идентификатор аккаунта, если пользователь вошёл в игру, иначе null
     }
 
@@ -130,4 +132,5 @@ class PortalResource(Resource):
         return self.ok(data={'dynamic_content': cdn_paths['DCONT_CONTENT'],
                              'static_content': cdn_paths['STATIC_CONTENT'],
                              'game_version': project_settings.META_CONFIG.version,
+                             'turn_delta': c.TURN_DELTA,
                              'account_id': self.account.id if self.account.is_authenticated() else None})

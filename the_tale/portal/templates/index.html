@@ -184,11 +184,11 @@
           <span style="font-size: 8pt;">от ПандораСтат</span>
           <table class="table table-condensed">
             <tr><th>раса</th>   <th>влияние<th><th>города</th></tr>
-            <tr><th>люди</th>   <td>{{ map_info.race_percents.get(RACE.HUMAN, 0)|percents }}<td> <td>{{ map_info.race_cities.get(RACE.HUMAN, 0) }}</td></tr>
-            <tr><th>гоблины</th><td>{{ map_info.race_percents.get(RACE.GOBLIN, 0)|percents }}<td><td>{{ map_info.race_cities.get(RACE.GOBLIN, 0) }}</td></tr>
-            <tr><th>эльфы</th>  <td>{{ map_info.race_percents.get(RACE.ELF, 0)|percents }}<td>   <td>{{ map_info.race_cities.get(RACE.ELF, 0) }}</td></tr>
-            <tr><th>орки</th>   <td>{{ map_info.race_percents.get(RACE.ORC, 0)|percents }}<td>   <td>{{ map_info.race_cities.get(RACE.ORC, 0) }}</td></tr>
-            <tr><th>дварфы</th> <td>{{ map_info.race_percents.get(RACE.DWARF, 0)|percents }}<td> <td>{{ map_info.race_cities.get(RACE.DWARF, 0) }}</td></tr>
+            <tr><th>люди</th>   <td>{{ map_info.race_percents.get(RACE.HUMAN.value, 0)|percents }}<td> <td>{{ map_info.race_cities.get(RACE.HUMAN.value, 0) }}</td></tr>
+            <tr><th>гоблины</th><td>{{ map_info.race_percents.get(RACE.GOBLIN.value, 0)|percents }}<td><td>{{ map_info.race_cities.get(RACE.GOBLIN.value, 0) }}</td></tr>
+            <tr><th>эльфы</th>  <td>{{ map_info.race_percents.get(RACE.ELF.value, 0)|percents }}<td>   <td>{{ map_info.race_cities.get(RACE.ELF.value, 0) }}</td></tr>
+            <tr><th>орки</th>   <td>{{ map_info.race_percents.get(RACE.ORC.value, 0)|percents }}<td>   <td>{{ map_info.race_cities.get(RACE.ORC.value, 0) }}</td></tr>
+            <tr><th>дварфы</th> <td>{{ map_info.race_percents.get(RACE.DWARF.value, 0)|percents }}<td> <td>{{ map_info.race_cities.get(RACE.DWARF.value, 0) }}</td></tr>
           </table>
         </div>
       </div>

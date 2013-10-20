@@ -11,8 +11,9 @@ from game.heroes.prototypes import HeroPrototype
 from game.logic import create_test_map
 from game.prototypes import TimePrototype
 from game.logic_storage import LogicStorage
+from game.relations import RACE
 
-from game.balance.enums import CITY_MODIFIERS, RACE
+from game.balance.enums import CITY_MODIFIERS
 
 class GameTest(testcase.TestCase):
 
@@ -44,5 +45,5 @@ class GameTest(testcase.TestCase):
 
     def test_race_in_dictionary(self):
 
-        for race_name in RACE._ID_TO_TEXT.values():
-            self.assertTrue(race_name.lower() in get_dictionary())
+        for race in RACE._records:
+            self.assertTrue(race.text.lower() in get_dictionary())

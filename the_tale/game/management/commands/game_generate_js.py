@@ -7,10 +7,8 @@ from dext.utils import s11n
 
 from game.conf import game_settings
 
-from game.balance.enums import RACE
-
 from game.quests.relations import ACTOR_TYPE
-from game.game_info import GENDER
+from game.relations import GENDER, RACE
 from game.map.relations import TERRAIN
 from game.map.places.relations import BUILDING_TYPE
 from game.persons.relations import PERSON_TYPE
@@ -29,11 +27,11 @@ class Command(BaseCommand):
         with open(game_settings.JS_CONSTNATS_FILE_LOCATION, 'w') as f:
             f.write(render('game/js_constants.js',
                            {'actor_type': s11n.to_json({a.name: a.value for a in ACTOR_TYPE._records}),
-                            'gender_to_text': s11n.to_json(GENDER._ID_TO_TEXT),
-                            'gender_to_str': s11n.to_json(GENDER._ID_TO_STR),
+                            'gender_to_text': s11n.to_json(dict(GENDER._select('value', 'text'))),
+                            'gender_to_str': s11n.to_json(dict(GENDER._select('value', 'name'))),
                             'person_type_to_text': s11n.to_json(dict(PERSON_TYPE._select('value', 'text'))),
-                            'race_to_text': s11n.to_json(RACE._ID_TO_TEXT),
-                            'race_to_str': s11n.to_json(RACE._ID_TO_STR),
+                            'race_to_text': s11n.to_json(dict(RACE._select('value', 'text'))),
+                            'race_to_str': s11n.to_json(dict(RACE._select('value', 'name'))),
                             'terrain_id_to_str': s11n.to_json(TERRAIN._ID_TO_STR),
                             'building_type_to_str': s11n.to_json(dict(BUILDING_TYPE._select('value', 'name')))
                             }).encode('utf-8'))

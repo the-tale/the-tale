@@ -1,6 +1,8 @@
 # coding: utf-8
 import subprocess
 
+from dext.utils.urls import url
+
 from common.utils import testcase
 
 
@@ -24,3 +26,9 @@ class CodeTests(testcase.TestCase):
                if 'migrations' not in filename and '.pyc' not in filename and '~' not in filename and 'code_tests.py' not in filename]
 
         self.assertTrue(all(' on_delete=' in code for code in out))
+
+    def test_api_urls_not_changed(self):
+        self.assertEqual(url('portal:api-info'), '/api/info')
+        self.assertEqual(url('accounts:auth:api-login'), '/accounts/auth/api/login')
+        self.assertEqual(url('accounts:auth:api-logout'), '/accounts/auth/api/logout')
+        self.assertEqual(url('game:api-info'), '/game/api/info')

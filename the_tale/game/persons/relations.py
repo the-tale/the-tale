@@ -8,7 +8,8 @@ from questgen.relations import PROFESSION as QUEST_PROFESSION
 
 from common.utils import xls
 
-from game.balance.enums import RACE, CITY_MODIFIERS
+from game.balance.enums import CITY_MODIFIERS
+from game.relations import RACE
 from game.map.places.relations import CITY_PARAMETERS, BUILDING_TYPE
 
 

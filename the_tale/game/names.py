@@ -1,10 +1,6 @@
 # coding: utf-8
 
 import pynames
-from pynames.generators import GENDER as PYNAMES_GENDER
-
-from game.game_info import GENDER
-from game.balance.enums import RACE
 
 class NamesGenerators(object):
 
@@ -15,17 +11,15 @@ class NamesGenerators(object):
     human = pynames.russian.PaganNamesGenerator()
 
     def get_name(self, race, gender):
-        gender = {GENDER.MASCULINE: PYNAMES_GENDER.MALE,
-                  GENDER.FEMININE: PYNAMES_GENDER.FEMALE}[gender]
-        if race == RACE.HUMAN:
-            return self.human.get_name_simple(gender=gender)
-        if race == RACE.ELF:
-            return self.elven.get_name_simple(gender=gender)
-        if race == RACE.ORC:
-            return self.orcish.get_name_simple(gender=gender)
-        if race == RACE.GOBLIN:
-            return self.goblin.get_name_simple(gender=gender)
-        if race == RACE.DWARF:
-            return self.dwarfish.get_name_simple(gender=gender)
+        if race._is_HUMAN:
+            return self.human.get_name_simple(gender=gender.pynames_id)
+        if race._is_ELF:
+            return self.elven.get_name_simple(gender=gender.pynames_id)
+        if race._is_ORC:
+            return self.orcish.get_name_simple(gender=gender.pynames_id)
+        if race._is_GOBLIN:
+            return self.goblin.get_name_simple(gender=gender.pynames_id)
+        if race._is_DWARF:
+            return self.dwarfish.get_name_simple(gender=gender.pynames_id)
 
 generator = NamesGenerators()

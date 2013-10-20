@@ -13,6 +13,7 @@ from common.utils.enum import create_enum
 
 from accounts.prototypes import AccountPrototype
 
+from game.relations import GENDER, RACE
 from game.balance import constants as c
 
 from game.map.places.storage import places_storage
@@ -107,15 +108,15 @@ class ChangeHeroTask(PostponedLogic):
         super(ChangeHeroTask, self).__init__()
         self.hero_id = hero_id
         self.name = name if isinstance(name, Noun) else Noun.deserialize(name)
-        self.race = race
-        self.gender = gender
+        self.race = race if isinstance(race, rels.Record) else RACE._index_value[race]
+        self.gender = gender if isinstance(gender, rels.Record) else GENDER._index_value[gender]
         self.state = state
 
     def serialize(self):
         return { 'hero_id': self.hero_id,
                  'name': self.name.serialize(),
-                 'race': self.race,
-                 'gender': self.gender,
+                 'race': self.race.value,
+                 'gender': self.gender.value,
                  'state': self.state}
 
     @property
