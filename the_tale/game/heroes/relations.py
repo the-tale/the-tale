@@ -39,13 +39,21 @@ class ITEMS_OF_EXPENDITURE(DjangoEnum):
     priority = Column(unique=False, primary=False)
     price_fraction = Column(unique=False, primary=False) # цена в доле от стандартной цены
     money_source = Column()
+    description = Column()
 
-    _records = ( ('INSTANT_HEAL',        0, u'лечение',           'heal',       12, 0.3, MONEY_SOURCE.SPEND_FOR_HEAL),
-                 ('BUYING_ARTIFACT',     1, u'покупка артефакта', 'artifact',   5,  1.5, MONEY_SOURCE.SPEND_FOR_ARTIFACTS),
-                 ('SHARPENING_ARTIFACT', 2, u'заточка артефакта', 'sharpening', 4,  2.0, MONEY_SOURCE.SPEND_FOR_SHARPENING),
-                 ('USELESS',             3, u'бесполезные траты', 'useless',    2,  0.4, MONEY_SOURCE.SPEND_FOR_USELESS),
-                 ('IMPACT',              4, u'изменение влияния', 'impact',     4,  2.5, MONEY_SOURCE.SPEND_FOR_IMPACT),
-                 ('EXPERIENCE',          5, u'обучение',          'experience', 1,  5.0, MONEY_SOURCE.SPEND_FOR_EXPERIENCE))
+    _records = ( ('INSTANT_HEAL',        0, u'лечение',           'heal',       12, 0.3, MONEY_SOURCE.SPEND_FOR_HEAL,
+                  u'Собирает деньги, чтобы поправить здоровье, когда понадобится.'),
+                 ('BUYING_ARTIFACT',     1, u'покупка артефакта', 'artifact',   5,  1.5, MONEY_SOURCE.SPEND_FOR_ARTIFACTS,
+                  u'Планирует приобретение новой экипировки.'),
+                 ('SHARPENING_ARTIFACT', 2, u'заточка артефакта', 'sharpening', 4,  2.0, MONEY_SOURCE.SPEND_FOR_SHARPENING,
+                  u'Собирает на улучшение экипировки.'),
+                 ('USELESS',             3, u'бесполезные траты', 'useless',    2,  0.4, MONEY_SOURCE.SPEND_FOR_USELESS,
+                  u'Копит золото для не очень полезных но безусловно необходимых трат.'),
+                 ('IMPACT',              4, u'изменение влияния', 'impact',     4,  2.5, MONEY_SOURCE.SPEND_FOR_IMPACT,
+                  u'Планирует накопить деньжат, чтобы повлиять на «запомнившегося» горожанина.'),
+                 ('EXPERIENCE',          5, u'обучение',          'experience', 1,  5.0, MONEY_SOURCE.SPEND_FOR_EXPERIENCE,
+                  u'Копит деньги в надежде немного повысить свою грамотность..'))
+
 
     @classmethod
     def get_quest_upgrade_equipment_fraction(cls):

@@ -75,7 +75,8 @@ class QuestInfo(object):
         if actor_type._is_PERSON:
             return (actor_name, actor_type.value, persons_storage[actor_id].ui_info())
         if actor_type._is_MONEY_SPENDING:
-            return (actor_name, actor_type.value, {'goal': actor_id.text})
+            return (actor_name, actor_type.value, {'goal': actor_id.text,
+                                                   'description': actor_id.description})
 
     def actors_ui_info(self):
         if self.type == 'no-quest':
