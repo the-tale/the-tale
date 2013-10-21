@@ -152,7 +152,34 @@ class BaseBuyPosponedTaskTests(testcase.TestCase):
 
         self.task.state = self.task.RELATION.WAIT_TRANSACTION_CONFIRMATION
 
+        with mock.patch('accounts.payments.postponed_tasks.BaseBuyTask.process_referrals') as process_referrals:
+            self.assertEqual(self.task.process(main_task=mock.Mock()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+
+        self.assertEqual(process_referrals.call_count, 1)
+
+        self.assertTrue(self.task.state._is_SUCCESSED)
+
+    def test_process__wait_confirmation__transaction_confirmed__with_referal(self):
+        self.invoice.state = INVOICE_STATE.CONFIRMED
+        self.invoice.save()
+
+        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
+        self.account._model.referral_of_id = account_id
+        self.account.save()
+
+        self.task.state = self.task.RELATION.WAIT_TRANSACTION_CONFIRMATION
+
         self.assertEqual(self.task.process(main_task=mock.Mock()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+
+        self.assertEqual(InvoicePrototype._db_count(), 2)
+
+        referral_invoice = InvoicePrototype._db_get_object(1)
+
+        self.assertTrue(referral_invoice.amount > 0)
+        self.assertTrue(referral_invoice.amount < self.amount)
+        self.assertEqual(referral_invoice.recipient_id, account_id)
+        self.assertTrue(referral_invoice.state._is_FORCED)
+
         self.assertTrue(self.task.state._is_SUCCESSED)
 
     def test_process__wait_confirmation__transaction_in_wrong_state(self):

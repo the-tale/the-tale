@@ -14,6 +14,8 @@ from accounts.workers.environment import workers_environment as accounts_workers
 from accounts.prototypes import AccountPrototype
 
 from accounts.payments.relations import PERMANENT_PURCHASE_TYPE
+from accounts.payments.logic import transaction_logic
+from accounts.payments.conf import payments_settings
 
 
 class BASE_BUY_TASK_STATE(DjangoEnum):
@@ -99,6 +101,7 @@ class BaseBuyTask(PostponedLogic):
             return POSTPONED_TASK_LOGIC_RESULT.WAIT
         elif transaction_state._is_CONFIRMED:
             self.state = self.RELATION.SUCCESSED
+            self.process_referrals()
             return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
         else:
             self.state = self.RELATION.ERROR_IN_CONFIRM_TRANSACTION
@@ -121,6 +124,26 @@ class BaseBuyTask(PostponedLogic):
             main_task.comment = 'wrong task state %r' % self.state
             self.state = self.RELATION.WRONG_TASK_STATE
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+
+    def process_referrals(self):
+        invoice = self.transaction.get_invoice()
+
+        if invoice.amount >= 0:
+            return
+
+        buyer = AccountPrototype.get_by_id(invoice.recipient_id)
+
+        if buyer.referral_of_id is None:
+            return
+
+        owner = AccountPrototype.get_by_id(buyer.referral_of_id)
+
+        transaction_logic(account=owner,
+                          amount=-int(invoice.amount*payments_settings.REFERRAL_BONUS),
+                          description=u'Часть от потраченного вашим рефералом',
+                          uid='referral-bonus',
+                          force=True)
 
 
 class BuyPremium(BaseBuyTask):

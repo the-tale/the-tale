@@ -33,6 +33,9 @@ class Transaction(object):
 
         return cls(invoice_id=invoice.id)
 
+    def get_invoice(self):
+        return InvoicePrototype.get_by_id(self.invoice_id)
+
     def get_invoice_state(self):
         return InvoicePrototype.get_by_id(self.invoice_id).state
 

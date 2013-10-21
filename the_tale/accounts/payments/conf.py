@@ -25,4 +25,6 @@ payments_settings = app_settings('PAYMENTS',
                                  XSOLLA_ID_THEME='id_theme',
 
                                  XSOLLA_DIALOG_WIDTH=900,
-                                 XSOLLA_DIALOG_HEIGHT=800 )
+                                 XSOLLA_DIALOG_HEIGHT=800,
+
+                                 REFERRAL_BONUS=0.1)
