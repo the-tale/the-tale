@@ -242,6 +242,7 @@ STATIC_CDN = '//static.the-tale.org%s' % STATIC_URL
 STATIC_DEBUG_URL = '/static/%s/' % META_CONFIG.static_data_version
 
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
+ADMIN_DEBUG_MEDIA_PREFIX = STATIC_DEBUG_URL + 'admin/'
 
 DCONT_URL = '//%s/dcont/' % SITE_URL
 DCONT_DIR = os.path.join(PROJECT_DIR, 'dcont')
