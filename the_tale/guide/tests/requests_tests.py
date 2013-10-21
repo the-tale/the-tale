@@ -7,6 +7,10 @@ from dext.utils.urls import url
 
 from common.utils.testcase import TestCase
 
+from accounts.logic import register_user
+
+from game.logic import create_test_map
+
 
 class TestRequests(TestCase):
 
@@ -74,3 +78,12 @@ class TestRequests(TestCase):
 
     def test_api(self):
         self.check_html_ok(self.client.get(reverse('guide:api')))
+
+    def test_referrals__unlogined(self):
+        self.check_html_ok(self.client.get(reverse('guide:referrals')))
+
+    def test_referrals__logined(self):
+        create_test_map()
+        register_user('test_user', 'test_user@test.com', '111111')
+        self.request_login('test_user@test.com')
+        self.check_html_ok(self.client.get(reverse('guide:referrals')))

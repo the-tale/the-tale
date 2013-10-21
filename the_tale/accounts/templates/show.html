@@ -11,11 +11,6 @@
 
 jQuery(document).ready(function(){
 
-    jQuery('.pgf-referral-dialog').click(function(e){
-        e.preventDefault();
-        pgf.ui.dialog.Create({ fromUrl: "{{ url('accounts:referral-dialog') }}"});
-    });
-
 {% if resource.account.is_authenticated() and master_account.id != resource.account.id%}
 
     jQuery('.pgf-new-message').click(function(e){
@@ -173,9 +168,8 @@ jQuery(document).ready(function(){
       <td>
         <ul class="unstyled">
           <li>
-            <strong>последователи:</strong>
+            <a href="{{url('guide:referrals')}}">последователи:</a>
             {{ master_account.referrals_number }}
-            <a href="#" class="pgf-referral-dialog" style="vertical-align: middle;"><i class="icon-info-sign"></i></a>
           </li>
         </ul>
       </td>

@@ -5,7 +5,7 @@ import markdown
 from django.core.urlresolvers import reverse
 
 from dext.views import handler, validate_argument
-from dext.utils.urls import UrlBuilder
+from dext.utils.urls import UrlBuilder, full_url
 
 from common.utils.resources import Resource
 
@@ -19,6 +19,7 @@ from game.pvp.conf import pvp_settings
 from game.pvp import abilities as pvp_abilities
 
 from accounts.clans.conf import clans_settings
+from accounts.conf import accounts_settings
 
 from guide.conf import guide_settings
 
@@ -199,3 +200,11 @@ class GuideResource(Resource):
     def hero_preferences(self):
         return self.template('guide/hero-preferences.html', {'section': 'hero-preferences',
                                                              'PREFERENCE_TYPE': PREFERENCE_TYPE})
+
+    @handler('referrals', method='get')
+    def referrals(self):
+        return self.template('guide/referrals.html', {'section': 'referrals',
+                                                      'account': self.account,
+                                                      'accounts_settings': accounts_settings,
+                                                      'referral_link': full_url('http', 'portal:',
+                                                                                **{accounts_settings.REFERRAL_URL_ARGUMENT: self.account.id if self.account else None})})
