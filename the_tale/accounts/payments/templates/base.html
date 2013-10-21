@@ -75,7 +75,7 @@ jQuery(document).ready( function(e) {
              id="paystation-link"
              rel="tooltip"
              title="приобрести ещё…"
-             onclick="XPSLightBox.open('{{resource.xsolla_paystaion_widget_link|safe}}', 900, 650); return false;"
+             onclick="XPSLightBox.open('{{resource.xsolla_paystaion_widget_link|safe}}', {{resource.XSOLLA_DIALOG_WIDTH}}, {{resource.XSOLLA_DIALOG_HEIGHT}}); return false;"
              class="pgf-xsolla-dialog-link btn btn-large btn-success">+</a>
           {% endif %}
         </div>

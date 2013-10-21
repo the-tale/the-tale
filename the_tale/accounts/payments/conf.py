@@ -21,4 +21,8 @@ payments_settings = app_settings('PAYMENTS',
                                  XSOLLA_THEME=115,
                                  XSOLLA_PROJECT=4521,
                                  XSOLLA_LOCAL=u'ru',
-                                 XSOLLA_DESCRIPTION=u'покупка печенек' )
+                                 XSOLLA_DESCRIPTION=u'покупка печенек',
+                                 XSOLLA_ID_THEME='id_theme',
+
+                                 XSOLLA_DIALOG_WIDTH=900,
+                                 XSOLLA_DIALOG_HEIGHT=800 )

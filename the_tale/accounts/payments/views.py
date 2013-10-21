@@ -1,4 +1,5 @@
 # coding: utf-8
+import md5
 
 from dext.views import handler, validate_argument, validator
 from dext.settings import settings
@@ -27,6 +28,9 @@ from game.heroes.prototypes import HeroPrototype
 
 class PaymentsResource(Resource):
 
+    XSOLLA_DIALOG_WIDTH = payments_settings.XSOLLA_DIALOG_WIDTH
+    XSOLLA_DIALOG_HEIGHT = payments_settings.XSOLLA_DIALOG_HEIGHT
+
     @login_required
     @validate_fast_account()
     def initialize(self, *args, **kwargs):
@@ -47,12 +51,20 @@ class PaymentsResource(Resource):
         # TODO: sign
         url_builder = UrlBuilder(base=payments_settings.XSOLLA_BASE_LINK)
 
+        sign_params = {'v1': self.account.email,
+                      'email': self.account.email,
+                      payments_settings.XSOLLA_ID_THEME: payments_settings.XSOLLA_THEME,
+                      'project': payments_settings.XSOLLA_PROJECT}
+
+        sign_md5 = md5.new(''.join(sorted(u'%s=%s' % (k, v) for k,v in sign_params.iteritems()))).hexdigest()
+
         attributes = {'v1': self.account.email,
                       'email': self.account.email,
-                      'id_theme': payments_settings.XSOLLA_THEME,
+                      payments_settings.XSOLLA_ID_THEME: payments_settings.XSOLLA_THEME,
                       'project': payments_settings.XSOLLA_PROJECT,
                       'local': payments_settings.XSOLLA_LOCAL,
-                      'description': payments_settings.XSOLLA_DESCRIPTION}
+                      'description': payments_settings.XSOLLA_DESCRIPTION,
+                      'sign': sign_md5}
 
         if payments_settings.XSOLLA_MARKETPLACE is not None:
             attributes['marketplace'] = payments_settings.XSOLLA_MARKETPLACE
