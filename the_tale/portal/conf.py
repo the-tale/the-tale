@@ -55,4 +55,10 @@ portal_settings = app_settings('PORTAL',
 
                                ENABLE_WORKER_LONG_COMMANDS=True,
 
-                               SETTINGS_CDN_INFO_KEY='cdn info')
+                               SETTINGS_CDN_INFO_KEY='cdn info',
+
+                               AWS_ACCESS_KEY='amazon access key',
+                               AWS_SECRET_KEY='amazon secret key',
+                               AWS_S3_BACKUP_BUCKET='tale-backups',
+
+                               LAST_BACKUP_PATH='/tmp/last_backup.gztar')

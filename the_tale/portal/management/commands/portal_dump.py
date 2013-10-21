@@ -7,9 +7,36 @@ import subprocess
 
 from django.core.management.base import BaseCommand
 from django.conf import settings as project_settings
-from django.core.mail import EmailMessage
+# from django.core.mail import EmailMessage
 
 from portal.conf import portal_settings
+
+
+def send_to_s3(backupname, filename):
+    from boto.s3.connection import S3Connection
+    from boto.s3.key import Key
+
+    print 'send to Amazon S3'
+
+    print 'create connection'
+
+    print portal_settings.AWS_ACCESS_KEY, portal_settings.AWS_SECRET_KEY
+
+    conn = S3Connection(portal_settings.AWS_ACCESS_KEY, portal_settings.AWS_SECRET_KEY)
+
+    print 'get bucket'
+    backups = conn.get_bucket(portal_settings.AWS_S3_BACKUP_BUCKET)
+
+    print 'create key'
+    k = Key(backups)
+
+    k.key = backupname
+
+    print 'upload file'
+
+    k.set_contents_from_filename(filename)
+
+
 
 class Command(BaseCommand):
 
@@ -47,16 +74,18 @@ class Command(BaseCommand):
 
             print 'archive created: %s' % archive_file
 
-            shutil.copyfile(archive_file, '/home/the-tale/last_backup.gztar')
+            shutil.copyfile(archive_file, portal_settings.LAST_BACKUP_PATH)
 
-            print 'send email to %s' % portal_settings.DUMP_EMAIL
+            send_to_s3(timestamp_string, archive_file)
 
-            email = EmailMessage('[BACKUP][%s] %s' % (project_settings.SITE_URL, timestamp_string),
-                                 'backup file for %s' % timestamp_string,
-                                 project_settings.SERVER_EMAIL,
-                                 [portal_settings.DUMP_EMAIL])
-            email.attach_file(archive_file)
-            email.send()
+            # print 'send email to %s' % portal_settings.DUMP_EMAIL
+
+            # email = EmailMessage('[BACKUP][%s] %s' % (project_settings.SITE_URL, timestamp_string ),
+            #                      'backup file for %s' % timestamp_string,
+            #                      project_settings.SERVER_EMAIL,
+            #                      [portal_settings.DUMP_EMAIL])
+            # email.attach_file(archive_file)
+            # email.send()
 
         except:
             raise
