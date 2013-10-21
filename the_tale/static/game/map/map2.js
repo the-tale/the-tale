@@ -232,8 +232,8 @@ pgf.game.map.MapManager = function(params) {
     }
 
     jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data) {
-        if (game_data.hero) {
-            dynamicData.hero = game_data.hero;
+        if (game_data.account.hero) {
+            dynamicData.hero = game_data.account.hero;
         }
 
         if (mapData && game_data.map_version != mapData.map_version) {
