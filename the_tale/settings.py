@@ -237,7 +237,9 @@ DEXT_PID_DIRECTORY = os.path.join(HOME_DIR, '.the-tale')
 ##############################
 
 STATIC_URL = '//%s/static/%s/' % (SITE_URL, META_CONFIG.static_data_version)
-STATIC_DIR = os.path.join(PROJECT_DIR, 'static')
+
+if 'STATIC_DIR' not in globals():
+    STATIC_DIR = os.path.join(PROJECT_DIR, 'static')
 STATIC_CDN = '//static.the-tale.org%s' % STATIC_URL
 STATIC_DEBUG_URL = '/static/%s/' % META_CONFIG.static_data_version
 
@@ -245,7 +247,8 @@ ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 ADMIN_DEBUG_MEDIA_PREFIX = STATIC_DEBUG_URL + 'admin/'
 
 DCONT_URL = '//%s/dcont/' % SITE_URL
-DCONT_DIR = os.path.join(PROJECT_DIR, 'dcont')
+if 'DCONT_DIR' not in globals():
+    DCONT_DIR = os.path.join(PROJECT_DIR, 'dcont')
 DCONT_CDN = '//static.the-tale.org%s' % DCONT_URL
 DCONT_DEBUG_URL = '/dcont/'
 
