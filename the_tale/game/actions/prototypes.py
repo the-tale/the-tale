@@ -637,7 +637,7 @@ class ActionMoveToPrototype(ActionBase):
         else:
 
             if random.uniform(0, 1) < 0.33:
-                if random.uniform(0, 1) < 0.04: # TODO: change probability, when there are move phrases
+                if self.destination.id != self.current_destination.id and random.uniform(0, 1) < 0.04: # TODO: change probability, when there are move phrases
                     self.hero.add_message('action_moveto_move_long_path',
                                           hero=self.hero,
                                           destination=self.destination,

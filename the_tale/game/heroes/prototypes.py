@@ -123,7 +123,7 @@ class HeroPrototype(BasePrototype):
 
     def increment_level(self):
         self._model.level += 1
-        self.add_message('hero_common_level_up', hero=self, level=self.level)
+        self.add_message('hero_common_journal_level_up', hero=self, level=self.level)
 
     def add_experience(self, value):
         self._model.experience += value * self.experience_modifier
