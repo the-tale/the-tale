@@ -10,8 +10,13 @@
 {% endmacro %}
 
 
-{% macro account_record(account, hero) %}
-<td><a href="{{ url('accounts:show', account.id) }}">{{ account.nick }}</a></td>
+{% macro account_record(account, hero, clan=none) %}
+<td>
+  <a href="{{ url('accounts:show', account.id) }}">{{ account.nick }}</a>
+  {% if clan %}
+  <a href="{{url('accounts:clans:show', clan.id)}}">[{{clan.abbr}}]</a>
+  {% endif %}
+</td>
 <td>{{ hero.might|int }}</td>
 <td class="updated-at pgf-format-date" data-timestamp="{{ account.created_at|timestamp }}"></td>
 <td>

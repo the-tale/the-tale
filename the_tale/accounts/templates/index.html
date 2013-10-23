@@ -35,7 +35,7 @@
   <tbody>
     {% for account in accounts %}
     <tr class="pgf-account-record">
-      {{ accounts_macros.account_record(account, heroes[account.id]) }}
+      {{ accounts_macros.account_record(account, heroes[account.id], clan=clans.get(account.clan_id)) }}
     </tr>
     {% endfor %}
   </tbody>

@@ -13,6 +13,13 @@ from accounts.friends.models import Friendship
 from accounts.friends.prototypes import FriendshipPrototype
 
 
+from accounts.clans.prototypes import ClanPrototype
+from accounts.clans.conf import clans_settings
+
+from forum.prototypes import CategoryPrototype
+
+
+
 class FriendshipRequestsTests(testcase.TestCase):
 
     def setUp(self):
@@ -28,6 +35,11 @@ class FriendshipRequestsTests(testcase.TestCase):
         result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
         self.account_3 = AccountPrototype.get_by_id(account_id)
 
+        CategoryPrototype.create(caption='category-1', slug=clans_settings.FORUM_CATEGORY_SLUG, order=0)
+
+        self.clan_2 = ClanPrototype.create(self.account_2, abbr=u'abbr2', name=u'name2', motto=u'motto', description=u'description')
+        self.clan_3 = ClanPrototype.create(self.account_3, abbr=u'abbr3', name=u'name3', motto=u'motto', description=u'description')
+
         self.request_login('test_user_1@test.com')
 
     def test_index__no_friends(self):
@@ -38,14 +50,18 @@ class FriendshipRequestsTests(testcase.TestCase):
         FriendshipPrototype.request_friendship(self.account_1, self.account_3, 'text 2')._confirm()
         self.check_html_ok(self.request_html(url('accounts:friends:')), texts=[('pgf-no-friends-message', 0),
                                                                              (self.account_2.nick, 1),
-                                                                             (self.account_3.nick, 1)])
+                                                                             (self.account_3.nick, 1),
+                                                                             (self.clan_2.abbr, 1),
+                                                                             (self.clan_3.abbr, 1)])
 
     def test_candidates__friends_only(self):
         FriendshipPrototype.request_friendship(self.account_1, self.account_2, 'text 1')._confirm()
         FriendshipPrototype.request_friendship(self.account_1, self.account_3, 'text 2')._confirm()
         self.check_html_ok(self.request_html(url('accounts:friends:candidates')), texts=[('pgf-no-candidates-message', 1),
                                                                                        (self.account_2.nick, 0),
-                                                                                       (self.account_3.nick, 0)])
+                                                                                       (self.account_3.nick, 0),
+                                                                                       (self.clan_2.abbr, 0),
+                                                                                       (self.clan_3.abbr, 0)])
 
     def test_candidates__no_candidates(self):
         self.check_html_ok(self.request_html(url('accounts:friends:candidates')), texts=['pgf-no-candidates-message'])
@@ -55,14 +71,18 @@ class FriendshipRequestsTests(testcase.TestCase):
         FriendshipPrototype.request_friendship(self.account_3, self.account_1, 'text 2')
         self.check_html_ok(self.request_html(url('accounts:friends:candidates')), texts=[('pgf-no-candidates-message', 0),
                                                                                        (self.account_2.nick, 0),
-                                                                                       (self.account_3.nick, 1)])
+                                                                                       (self.account_3.nick, 1),
+                                                                                       (self.clan_2.abbr, 0),
+                                                                                       (self.clan_3.abbr, 1)])
 
     def test_friends__candidates_only(self):
         FriendshipPrototype.request_friendship(self.account_1, self.account_2, 'text 1')
         FriendshipPrototype.request_friendship(self.account_1, self.account_3, 'text 2')
         self.check_html_ok(self.request_html(url('accounts:friends:')), texts=[('pgf-no-friends-message', 1),
                                                                              (self.account_2.nick, 0),
-                                                                             (self.account_3.nick, 0)])
+                                                                             (self.account_3.nick, 0),
+                                                                             (self.clan_2.abbr, 0),
+                                                                             (self.clan_3.abbr, 0)])
 
     def test_request_dialog(self):
         self.check_html_ok(self.request_html(url('accounts:friends:request', friend=self.account_2.id)))

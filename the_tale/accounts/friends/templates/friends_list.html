@@ -40,7 +40,7 @@
     {% for account in friends %}
     <tr class="pgf-account-record">
       <td><input type="checkbox" class="pgf-friends-checkbox" value="{{account.id}}"></td>
-      {{ accounts_macros.account_record(account, heroes[account.id]) }}
+      {{ accounts_macros.account_record(account, heroes[account.id], clan=clans.get(account.clan_id)) }}
       <td><a class="pgf-forms-post-simple" href="{{url('accounts:friends:remove', friend=account.id)}}">удалить</a></td>
     </tr>
     {% endfor %}

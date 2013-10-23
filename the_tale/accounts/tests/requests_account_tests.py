@@ -21,6 +21,11 @@ from accounts.relations import AWARD_TYPE, BAN_TYPE, BAN_TIME
 from accounts.logic import register_user, login_url
 from accounts.conf import accounts_settings
 
+from accounts.clans.prototypes import ClanPrototype
+from accounts.clans.conf import clans_settings
+
+from forum.prototypes import CategoryPrototype
+
 from game.heroes.prototypes import HeroPrototype
 
 class AccountRequestsTests(TestCase):
@@ -44,15 +49,22 @@ class AccountRequestsTests(TestCase):
         result, account_id, bundle_id = register_user('test_user4')
         self.account4 = AccountPrototype.get_by_id(account_id)
 
+        CategoryPrototype.create(caption='category-1', slug=clans_settings.FORUM_CATEGORY_SLUG, order=0)
+
+        self.clan_2 = ClanPrototype.create(self.account2, abbr=u'abbr2', name=u'name2', motto=u'motto', description=u'description')
+        self.clan_3 = ClanPrototype.create(self.account3, abbr=u'abbr3', name=u'name3', motto=u'motto', description=u'description')
+
 
 class IndexRequestsTests(AccountRequestsTests):
 
     def test_index(self):
         self.check_html_ok(self.request_html(reverse('accounts:')), texts=(('pgf-account-record', 3),
-                                                                         ('test_user1', 1),
-                                                                         ('test_user2', 1),
-                                                                         ('test_user_bot', 0),
-                                                                         ('test_user3', 1),))
+                                                                           ('test_user1', 1),
+                                                                           ('test_user2', 1),
+                                                                           ('test_user_bot', 0),
+                                                                           ('test_user3', 1),
+                                                                           ('abbr2', 1),
+                                                                           ('abbr3', 1)))
 
     def test_index_pagination(self):
         for i in xrange(accounts_settings.ACCOUNTS_ON_PAGE):

@@ -15,6 +15,9 @@ from game.heroes.prototypes import HeroPrototype
 from accounts.friends.prototypes import FriendshipPrototype
 from accounts.friends.forms import RequestForm
 
+from accounts.clans.prototypes import ClanPrototype
+
+
 class FriendsResource(Resource):
 
     @login_required
@@ -27,21 +30,26 @@ class FriendsResource(Resource):
         friends = FriendshipPrototype.get_friends_for(self.account)
         candidates = FriendshipPrototype.get_candidates_for(self.account)
         accounts_ids = [account.id for account in friends]
+        clans_ids = [ model.clan_id for model in friends]
         heroes = dict( (model.account_id, HeroPrototype(model=model)) for model in Hero.objects.filter(account_id__in=accounts_ids))
-
+        clans = {clan.id:clan for clan in ClanPrototype.get_list_by_id(clans_ids)}
         return self.template('friends/friends_list.html',
                              {'friends': friends,
                               'candidates': candidates,
-                              'heroes': heroes})
+                              'heroes': heroes,
+                              'clans': clans})
 
     @handler('candidates', method='get')
     def candidates(self):
         candidates = FriendshipPrototype.get_candidates_for(self.account)
         accounts_ids = [account.id for account in candidates]
+        clans_ids = [ model.clan_id for model in candidates]
         heroes = dict( (model.account_id, HeroPrototype(model=model)) for model in Hero.objects.filter(account_id__in=accounts_ids))
+        clans = {clan.id:clan for clan in ClanPrototype.get_list_by_id(clans_ids)}
         return self.template('friends/friends_candidates.html',
                              {'candidates': candidates,
-                              'heroes': heroes})
+                              'heroes': heroes,
+                              'clans': clans})
 
     @validate_argument('friend', AccountPrototype.get_by_id, 'friends', u'Игрок не найден')
     @handler('request', method='get')

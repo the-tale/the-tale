@@ -30,6 +30,8 @@ from accounts.conf import accounts_settings
 from accounts.logic import logout_user, login_user, get_system_user
 from accounts.workers.environment import workers_environment as infrastructure_workers_environment
 
+from accounts.clans.prototypes import ClanPrototype
+
 logger = getLogger('django.request')
 
 @validator(code='common.fast_account', message=u'Вы не закончили регистрацию и данная функция вам не доступна')
@@ -369,13 +371,17 @@ class AccountResource(BaseAccountsResource):
         accounts = [AccountPrototype(model) for model in accounts_models]
 
         accounts_ids = [ model.id for model in accounts_models]
+        clans_ids = [ model.clan_id for model in accounts_models]
 
         heroes = dict( (model.account_id, HeroPrototype(model=model)) for model in Hero.objects.filter(account_id__in=accounts_ids))
+
+        clans = {clan.id:clan for clan in ClanPrototype.get_list_by_id(clans_ids)}
 
         return self.template('accounts/index.html',
                              {'heroes': heroes,
                               'prefix': prefix,
                               'accounts': accounts,
+                              'clans': clans,
                               'current_page_number': page,
                               'paginator': paginator  } )
 
