@@ -51,7 +51,7 @@
         {% elif bill.state._is_ACCEPTED %}
 
           {% if bill.is_declined %}
-            отменён законом <a target="_blank" href="{{url('game:bills:show', bill.declined_by.id)}}">«{{bill.declined_by.caption}}»</a>
+            отменён законом <a target="_blank" href="{{url('game:bills:show', bill.declined_by.id)}}">«{{bill.declined_by.caption|capitalize}}»</a>
           {% else %}
             {% if not bill.duration._is_UNLIMITED %}
               {% if bill.ended_at is none %}
@@ -104,7 +104,7 @@
 
 {% macro bill_record(bill, vote=none) %}
 
-<h4 style="margin-bottom: 0.5em; display: inline-block;"><a href="{{ url('game:bills:show', bill.id) }}">{{ bill.caption }}</a></h4>
+<h4 style="margin-bottom: 0.5em; display: inline-block;"><a href="{{ url('game:bills:show', bill.id) }}">{{ bill.caption|capitalize }}</a></h4>
 
 {{ bill_info(bill, vote) }}
 

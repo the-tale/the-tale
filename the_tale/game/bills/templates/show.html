@@ -9,24 +9,35 @@
 
 {% block bills_content %}
 
-<div class="bills-page-title">
-  {{ base_macros.addthis(title="Закон «%s»" % bill.caption, description=bill.rationale_html|safe) }}
-  <h2 style="display: inline-block;">{{ bill.caption }}</h2>
-</div>
+<ul class="breadcrumb">
+  <li>
+    <a href="{{ url('game:bills:') }}">Политика</a><span class="divider">/</span>
+  </li>
+  <li class="active">{{ bill.caption|capitalize }}</li>
+</ul>
 
 {{ bills_macros.bill_info(bill, vote) }}
 
-{% if bill.state._is_VOTING %}
+<div class="pagination">
+  <ul>
+    <li>
+      {{ base_macros.addthis_short("Закон «%s»" % bill.caption, bill.rationale_html|safe, url=full_url('http', 'game:bills:show', bill.id)) }}
+    </li>
 
-{% if resource.account == bill.owner %}
-<a class="" style="margin-bottom: 1em; display: inline-block;" href="{{ url('game:bills:edit', bill.id) }}">редактировать</a>
-{% endif %}
+    {% if bill.state._is_VOTING %}
 
-{% if resource.can_moderate_bill() %}
-<a class="" style="margin-bottom: 1em; display: inline-block;" href="{{ url('game:bills:moderate', bill.id) }}">администрировать</a>
-{% endif %}
+      {% if resource.account == bill.owner %}
+        <li><a class="" style="margin-bottom: 1em; display: inline-block;" href="{{ url('game:bills:edit', bill.id) }}">редактировать</a></li>
+      {% endif %}
 
-{% endif %}
+      {% if resource.can_moderate_bill() %}
+        <li><a class="" style="margin-bottom: 1em; display: inline-block;" href="{{ url('game:bills:moderate', bill.id) }}">администрировать</a></li>
+      {% endif %}
+
+    {% endif %}
+  </ul>
+</div>
+
 
 {% if vote is none %}
 
