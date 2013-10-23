@@ -1,6 +1,5 @@
 # coding: utf-8
 
-import time
 import sys
 import Queue
 
@@ -15,7 +14,6 @@ def run_with_newrelic(method, method_data):
     name = newrelic.agent.callable_name(method)
 
     with newrelic.agent.BackgroundTask(application, name):
-        time.sleep(0.002) # TODO: remove when newrelic fix bug with division by 0 (gh-785)
         return method(**method_data)
 
 
