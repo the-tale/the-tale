@@ -19,11 +19,29 @@ jQuery(document).ready(function(e) {
 });
 </script>
 
-{% if not resource.account.is_premium %}
-<div style="margin-bottom: 0.5em;">
-  {{ accounts_macros.account_type_label(resource.account) }}
-</div>
+{% if not hero.is_name_changed or not resource.account.is_premium %}
+
+  <div style="margin-bottom: 0.5em;">
+
+    {% if not hero.is_name_changed %}
+      <a href="{{url('game:heroes:show', hero.id)}}"
+         class="label label-success"
+         rel="tooltip"
+         style="margin-right: 1em;"
+         title="Вы можете настроить пол, расу и имя героя на его странице">
+         настройте героя
+      </a>
+    {% endif %}
+
+    {% if not resource.account.is_premium %}
+      {{ accounts_macros.account_type_label(resource.account) }}
+    {% endif %}
+
+  </div>
+
 {% endif %}
+
+
 
 <div id="current-action-block" class="block" style="cursor: default;">
 

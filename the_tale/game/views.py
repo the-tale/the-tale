@@ -12,6 +12,7 @@ from common.utils import api
 from accounts.clans.prototypes import ClanPrototype
 
 from game.heroes.relations import EQUIPMENT_SLOT
+from game.heroes.prototypes import HeroPrototype
 
 from game.map.conf import map_settings
 from game.map.storage import map_info_storage
@@ -19,6 +20,7 @@ from game.map.storage import map_info_storage
 from game.conf import game_settings
 from game.pvp.prototypes import Battle1x1Prototype
 from game import logic as game_logic
+
 
 class GameResource(Resource):
 
@@ -43,7 +45,8 @@ class GameResource(Resource):
                               'game_settings': game_settings,
                               'EQUIPMENT_SLOT': EQUIPMENT_SLOT,
                               'current_map_version': map_info_storage.version,
-                              'clan': clan} )
+                              'clan': clan,
+                              'hero': HeroPrototype.get_by_account_id(self.account.id)} )
 
     @api.handler(versions=('1.0',))
     @validate_argument_with_resource('account', Resource.validate_account_argument, 'game.info', u'неверный идентификатор аккаунта', raw=True)
