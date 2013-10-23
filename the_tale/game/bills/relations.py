@@ -16,7 +16,7 @@ class BILL_STATE(DjangoEnum):
 
 class BILL_TYPE(DjangoEnum):
     _records = ( ('PLACE_RENAMING', 0, u'переименование города'),
-                 ('PERSON_REMOVE', 1, u'изгнать жителя'),
+                 ('PERSON_REMOVE', 1, u'исключить горожанина из Совет'),
                  ('PLACE_DESCRIPTION', 2, u'изменить описание города'),
                  ('PLACE_MODIFIER', 3, u'изменить тип места'),
                  ('BUILDING_CREATE', 4, u'возвести постройку'),

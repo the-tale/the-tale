@@ -12,7 +12,7 @@ from game.bills.bills.base_person_bill import BasePersonBill
 
 class UserForm(BaseUserForm):
 
-    person = fields.ChoiceField(label=u'Житель')
+    person = fields.ChoiceField(label=u'Член Совета')
 
     def __init__(self, choosen_person_id, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
@@ -34,8 +34,8 @@ class PersonRemove(BasePersonBill):
     MODERATOR_FORM_TEMPLATE = 'bills/bills/person_remove_moderator_form.html'
     SHOW_TEMPLATE = 'bills/bills/person_remove_show.html'
 
-    CAPTION = u'Изгнание жителя'
-    DESCRIPTION = u'В случае, если горожанин утратил доверие духов-хранителей, его можно изгнать из города. Изгонять можно только наименее влиятельных жителей (но житель будет изгнан, даже если за время голосования существенно увеличит своё влияние и станет самым влиятельным горожанином).'
+    CAPTION = u'Исключение из Совета'
+    DESCRIPTION = u'В случае, если горожанин утратил доверие духов-хранителей, его можно исключить из Совета города. Исключать можно только наименее влиятельных советников (но советник будет исключён, даже если за время голосования существенно увеличит своё влияние и станет самым влиятельным горожанином).'
 
     def apply(self, bill=None):
         self.person.move_out_game()

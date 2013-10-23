@@ -38,7 +38,7 @@
     <ul class="nav nav-tabs">
       {% if place %}
       <li><a href="#pgf-cell-description" class="pgf-cell-description-button" data-toggle="tab">Описание</a></li>
-      <li><a href="#pgf-cell-persons" class="pgf-cell-persons-button" data-toggle="tab">Жители</a></li>
+      <li><a href="#pgf-cell-persons" class="pgf-cell-persons-button" data-toggle="tab">Городской Совет</a></li>
       <li><a href="#pgf-cell-place-parameters" class="pgf-cell-place-parameters-button" data-toggle="tab">Параметры</a></li>
       <li><a href="#pgf-cell-place-bills" class="pgf-cell-place-bills-button" data-toggle="tab">Законы</a></li>
       <li><a href="#pgf-cell-place-modifiers" class="pgf-cell-place-modifiers-button" data-toggle="tab">Специализация</a></li>
@@ -70,7 +70,7 @@
            rel="tooltip"
            title="<ul style='text-align: left;'>
                   <li>в количестве соратников, противников и прописаных героев учитываются только те, что оказывают влияние на мир;</li>
-                  <li>жители — это неигровые персонажи (NPC), обладющие большим влиянием в городе.</li>
+                  <li>члены Совета — это неигровые персонажи (NPC), обладющие большим влиянием в городе.</li>
                   <ul>"></i>
 
         <ul class="unstyled">
@@ -82,7 +82,7 @@
         </ul>
 
 
-        <h3>жители</h3>
+        <h3>Состав Совета</h3>
 
         <ul class="unstyled">
           {% for person in place.persons %}
