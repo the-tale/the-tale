@@ -28,6 +28,7 @@ def get_accounts_list_by_ids(ids_string):
 
 class MessageResource(Resource):
 
+
     @login_required
     @validate_fast_account()
     def initialize(self, message_id=None, *args, **kwargs):
@@ -145,4 +146,10 @@ class MessageResource(Resource):
         self.message.hide_from(sender=(self.account.id == self.message.sender_id),
                                recipient=(self.account.id == self.message.recipient_id))
 
+        return self.json_ok()
+
+
+    @handler('delete-all', method='post')
+    def delete_all(self):
+        MessagePrototype.hide_all(account_id=self.account.id)
         return self.json_ok()

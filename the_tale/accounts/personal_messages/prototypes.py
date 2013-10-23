@@ -51,3 +51,8 @@ class MessagePrototype(BasePrototype):
             self._model.hide_from_recipient = True
 
         self._model.save()
+
+    @classmethod
+    def hide_all(cls, account_id):
+        cls._model_class.objects.filter(recipient=account_id).update(hide_from_recipient=True)
+        cls._model_class.objects.filter(sender=account_id).update(hide_from_sender=True)

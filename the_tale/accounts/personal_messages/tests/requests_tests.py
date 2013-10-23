@@ -288,3 +288,34 @@ class DeleteRequestsTests(BaseRequestsTests):
         message = MessagePrototype.get_by_id(self.message.id)
         self.assertFalse(message.hide_from_sender)
         self.assertTrue(message.hide_from_recipient)
+
+
+
+class DeleteAllRequestsTests(BaseRequestsTests):
+
+    def setUp(self):
+        super(DeleteAllRequestsTests, self).setUp()
+        self.message = MessagePrototype.create(self.account1, self.account2, 'message_1_2 1')
+        self.message_2 = MessagePrototype.create(self.account2, self.account1, 'message_2_1 1')
+
+    def test_unlogined(self):
+        self.request_logout()
+        self.check_ajax_error(self.client.post(url('accounts:messages:delete-all')), 'common.login_required')
+
+    def test_fast_account(self):
+        self.request_login('test_user1@test.com')
+        self.account1.is_fast = True
+        self.account1.save()
+        self.check_ajax_error(self.client.post(url('accounts:messages:delete-all')), 'common.fast_account')
+
+    def test_delete(self):
+        self.request_login('test_user1@test.com')
+        self.check_ajax_ok(self.client.post(url('accounts:messages:delete-all')))
+
+        self.message.reload()
+        self.message_2.reload()
+
+        self.assertTrue(self.message.hide_from_sender)
+        self.assertFalse(self.message.hide_from_recipient)
+        self.assertFalse(self.message_2.hide_from_sender)
+        self.assertTrue(self.message_2.hide_from_recipient)

@@ -38,6 +38,10 @@ jQuery(document).ready(function(){
 
 {% if messages %}
 
+<a class="btn pgf-forms-post-simple"
+   href="{{ url('accounts:messages:delete-all') }}"
+   data-confirmation="Вы действительно хотите удалить все сообщения?">удалить все сообщения</a>
+
 {{ base_macros.render_paginator(paginator) }}
 
 <ul class="unstyled">
@@ -81,7 +85,7 @@ jQuery(document).ready(function(){
 
 {% else %}
 
-<p class="pgf-no-messages">Нет сообщений</p>
+<p class="alert alert-info pgf-no-messages">У вас нет сообщений</p>
 
 {% endif %}
 

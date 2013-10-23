@@ -64,3 +64,11 @@ class PrototypeTests(testcase.TestCase):
         self.assertEqual(Message.objects.all().count(), 2)
         self.assertEqual(Message.objects.filter(hide_from_sender=True).count(), 1)
         self.assertEqual(Message.objects.filter(hide_from_recipient=True).count(), 1)
+
+    def test_hide_all__sender(self):
+        MessagePrototype.hide_all(account_id=self.account1.id)
+        self.assertEqual(MessagePrototype._db_filter(hide_from_sender=True, hide_from_recipient=False).count(), 2)
+
+    def test_hide_all__recipient(self):
+        MessagePrototype.hide_all(account_id=self.account2.id)
+        self.assertEqual(MessagePrototype._db_filter(hide_from_sender=False, hide_from_recipient=True).count(), 2)
