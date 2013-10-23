@@ -125,6 +125,9 @@ jQuery(document).ready( function(e) {
 
       <div class="author">
         <a href="{{url('accounts:show', post.author.id)}}">{{ post.author.nick }}</a>
+        {% if post.author.clan %}
+        <a href="{{url('accounts:clans:show', post.author.clan.id)}}">[{{post.author.clan.abbr}}]</a>
+        {% endif %}
       </div>
 
       <div class="created-at pgf-format-datetime" data-timestamp="{{ post.created_at|timestamp}}"></div>

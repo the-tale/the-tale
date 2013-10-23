@@ -8,6 +8,7 @@ from dext.utils.urls import url
 from common.utils import testcase
 
 from accounts.logic import login_url
+
 from game.logic import create_test_map
 
 from forum.models import Category, SubCategory, Thread, Post, Subscription
@@ -77,8 +78,8 @@ class ForumResourceReadAllTests(BaseTestRequests):
 class TestRequests(BaseTestRequests):
 
     def test_initialization(self):
-        self.assertEqual(Category.objects.all().count(), 3)
-        self.assertEqual(SubCategory.objects.all().count(), 3)
+        self.assertEqual(Category.objects.all().count(), 4)
+        self.assertEqual(SubCategory.objects.all().count(), 4)
         self.assertEqual(Thread.objects.all().count(), 3)
         self.assertEqual(Post.objects.all().count(), 4)
 
@@ -87,7 +88,7 @@ class TestRequests(BaseTestRequests):
 
     def test_index(self):
         texts = ['cat1-caption', 'cat2-caption', 'cat3-caption',
-                 'subcat1-caption', 'subcat2-caption', 'subcat3-caption']
+                 'subcat1-caption', 'subcat2-caption', 'subcat3-caption', self.fixture.clan_1.abbr]
         self.check_html_ok(self.request_html(url('forum:')), texts=texts)
         self.request_logout()
         self.check_html_ok(self.request_html(url('forum:')), texts=texts)
@@ -96,7 +97,7 @@ class TestRequests(BaseTestRequests):
 class TestSubcategoryRequests(BaseTestRequests):
 
     def test_subcategory__unlogined(self):
-        texts = ['cat1-caption', 'subcat1-caption', 'thread1-caption', 'thread2-caption']
+        texts = ['cat1-caption', 'subcat1-caption', 'thread1-caption', 'thread2-caption', self.fixture.clan_1.abbr]
         self.request_logout()
         self.check_html_ok(self.request_html(url('forum:subcategories:show', self.subcat1.id)), texts=texts)
 
@@ -105,7 +106,7 @@ class TestSubcategoryRequests(BaseTestRequests):
     def test_subcategory(self):
         self.request_logout()
         self.request_login(self.account_2.email)
-        texts = ['cat1-caption', 'subcat1-caption', 'thread1-caption', 'thread2-caption', 'pgf-new-thread-marker']
+        texts = ['cat1-caption', 'subcat1-caption', 'thread1-caption', 'thread2-caption', 'pgf-new-thread-marker', self.fixture.clan_1.abbr]
         self.check_html_ok(self.request_html(url('forum:subcategories:show', self.subcat1.id)), texts=texts)
 
         self.assertEqual(SubCategoryReadInfoPrototype._db_count(), 1)
@@ -228,7 +229,8 @@ class TestShowThreadRequests(BaseTestRequests):
 
     def test_get_thread_unlogined(self):
         self.request_logout()
-        self.check_html_ok(self.request_html(url('forum:threads:show', self.thread1.id)), texts=(('pgf-new-post-form', 0),))
+        self.check_html_ok(self.request_html(url('forum:threads:show', self.thread1.id)), texts=(('pgf-new-post-form', 0),
+                                                                                                 self.fixture.clan_1.abbr))
         self.assertEqual(ThreadReadInfoPrototype._db_count(), 0)
 
     def test_get_thread_not_found(self):

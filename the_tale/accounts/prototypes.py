@@ -47,7 +47,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
     _get_by = ('id', 'email', 'nick')
 
     @classmethod
-    def live_query(cls): return cls._model_class.objects.filter(is_fast=False, is_bot=False)
+    def live_query(cls): return cls._model_class.objects.filter(is_fast=False, is_bot=False).select_related('clan')
 
     @lazy_property
     def permanent_purchases(self):
@@ -153,6 +153,15 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
     def set_clan_id(self, clan_id):
         Account.objects.filter(id=self.id).update(clan=clan_id)
         self._model.clan_id = clan_id
+
+    @lazy_property
+    def clan(self):
+        from accounts.clans.prototypes import ClanPrototype
+
+        if self.clan_id is None:
+            return None
+
+        return ClanPrototype(model=self._model.clan)
 
     def set_might(self, might):
         Account.objects.filter(id=self.id).update(might=might)

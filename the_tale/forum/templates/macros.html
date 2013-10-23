@@ -42,13 +42,24 @@
   <a href="{{ url('forum:threads:show', thread.id) }}">{{ thread.caption }}</a>
   {{ pages_links(thread) }}
 </td>
-<td class="author"><a href="{{url('accounts:show', thread.author.id)}}">{{ thread.author.nick }}</a></td>
+<td class="author">
+  <a href="{{url('accounts:show', thread.author.id)}}">{{ thread.author.nick }}</a>
+  {% if thread.author.clan %}
+    <a href="{{url('accounts:clans:show', thread.author.clan.id)}}">[{{thread.author.clan.abbr}}]</a>
+  {% endif %}
+</td>
 <td class="posts-count">{{ thread.posts_count }}</td>
 <td class="last-poster">
   {% if thread.last_poster %}
-  <a href="{{url('accounts:show', thread.last_poster.id)}}">{{ thread.last_poster.nick }}</a>
+    <a href="{{url('accounts:show', thread.last_poster.id)}}">{{ thread.last_poster.nick }}</a>
+    {% if thread.last_poster.clan %}
+      <a href="{{url('accounts:clans:show', thread.last_poster.clan.id)}}">[{{thread.last_poster.clan.abbr}}]</a>
+    {% endif %}
   {% else %}
-  <a href="{{url('accounts:show', thread.author.id)}}">{{ thread.author.nick }}</a>
+    <a href="{{url('accounts:show', thread.author.id)}}">{{ thread.author.nick }}</a>
+    {% if thread.author.clan %}
+      <a href="{{url('accounts:clans:show', thread.author.clan.id)}}">[{{thread.author.clan.abbr}}]</a>
+    {% endif %}
   {% endif %}
 </td>
 <td class="updated-at pgf-format-datetime" data-timestamp="{{ thread.updated_at|timestamp }}"></td>
@@ -79,6 +90,9 @@
 <td class="last-poster">
   {% if subcategory.last_poster %}
   <a href="{{url('accounts:show', subcategory.last_poster.id)}}">{{ subcategory.last_poster.nick }}</a>
+  {% if subcategory.last_poster.clan %}
+    <a href="{{url('accounts:clans:show', subcategory.last_poster.clan.id)}}">[{{subcategory.last_poster.clan.abbr}}]</a>
+  {% endif %}
   {% else %}
   —
   {% endif %}
