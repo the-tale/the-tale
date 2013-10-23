@@ -48,6 +48,16 @@ class RatingPrototypeTests(PrototypeTestsBase):
         self.assertEqual([rv.account_id for rv in RatingValues.objects.all().order_by('account__id')],
                          [self.account_1.id, self.account_2.id, self.account_3.id, self.account_4.id, ])
 
+    def test_banned_accounts_filtration(self):
+        register_user('user_5', 'user_5@test.com', '111111')
+        account_5 = AccountPrototype.get_by_nick('user_5')
+
+        account_5.ban_game(1)
+
+        RatingValuesPrototype.recalculate()
+        self.assertEqual([rv.account_id for rv in RatingValues.objects.all().order_by('account__id')],
+                         [self.account_1.id, self.account_2.id, self.account_3.id, self.account_4.id, ])
+
     def set_values(self, account, might=0, level=0, power=0, pvp_battles_1x1_number=0, pvp_battles_1x1_victories=0):
         hero = HeroPrototype.get_by_account_id(account.id)
         hero._model.might = might
