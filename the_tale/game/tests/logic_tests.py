@@ -58,17 +58,15 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         self.assertEqual(data['account'], None)
         self.assertEqual(data['enemy'], None)
 
-    @mock.patch('accounts.prototypes.AccountPrototype.is_authenticated', lambda x: True)
     def test_account(self):
-        data = form_game_info(self.account_1)
+        data = form_game_info(self.account_1, is_own=True)
         self.assertEqual(data['mode'], 'pve')
         self.assertFalse(data['account']['in_pvp_queue'])
         self.assertEqual(data['account']['id'], self.account_1.id)
         self.assertEqual(data['enemy'], None)
 
     def test_account__other(self):
-        with mock.patch('accounts.prototypes.AccountPrototype.is_authenticated', lambda x: x.id == self.account_1.id):
-            data = form_game_info(self.account_2)
+        data = form_game_info(self.account_2, is_own=True)
         self.assertEqual(data['mode'], 'pve')
         self.assertFalse(data['account']['in_pvp_queue'])
         self.assertEqual(data['account']['id'], self.account_2.id)
@@ -104,49 +102,45 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         self.assertEqual(data['account']['id'], self.account_1.id)
         self.assertEqual(data['enemy']['id'], self.account_2.id)
 
-    @mock.patch('accounts.prototypes.AccountPrototype.is_authenticated', lambda x: True)
     def test_own_hero_get_cached_data(self):
         hero = HeroPrototype.get_by_account_id(self.account_1.id)
         with mock.patch('game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero',
                         mock.Mock(return_value={'id': hero.id, 'saved_at_turn': hero.saved_at_turn}),) as cached_ui_info_for_hero:
-            with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info', mock.Mock(return_value={})) as ui_info:
-                form_game_info(self.account_1)
+            with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info', mock.Mock(return_value={'saved_at_turn': 0})) as ui_info:
+                form_game_info(self.account_1, is_own=True)
 
         self.assertEqual(cached_ui_info_for_hero.call_count, 1)
         self.assertEqual(cached_ui_info_for_hero.call_args, mock.call(self.account_1.id))
         self.assertEqual(ui_info.call_count, 0)
 
-    @mock.patch('accounts.prototypes.AccountPrototype.is_authenticated', lambda x: False)
     def test_other_hero_get_not_cached_data(self):
         hero_2 = HeroPrototype.get_by_account_id(self.account_1.id)
         with mock.patch('game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero') as cached_ui_info:
             with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info',
                             mock.Mock(return_value={'id': hero_2.id, 'saved_at_turn': hero_2.saved_at_turn})) as ui_info:
-                form_game_info(self.account_1)
+                form_game_info(self.account_1, is_own=False)
 
         self.assertEqual(cached_ui_info.call_count, 0)
         self.assertEqual(ui_info.call_count, 1)
         self.assertEqual(ui_info.call_args, mock.call(for_last_turn=True))
 
-    @mock.patch('accounts.prototypes.AccountPrototype.is_authenticated', lambda x: True)
     def test_is_old(self):
-        self.assertFalse(form_game_info(self.account_1)['account']['is_old'])
+        self.assertFalse(form_game_info(self.account_1, is_own=True)['account']['is_old'])
 
         TimePrototype(turn_number=666).save()
-        self.assertTrue(form_game_info(self.account_1)['account']['is_old'])
+        self.assertTrue(form_game_info(self.account_1, is_own=True)['account']['is_old'])
 
         HeroPrototype.get_by_account_id(self.account_1.id).save()
-        self.assertFalse(form_game_info(self.account_1)['account']['is_old'])
+        self.assertFalse(form_game_info(self.account_1, is_own=True)['account']['is_old'])
 
-    @mock.patch('accounts.prototypes.AccountPrototype.is_authenticated', lambda x: False)
     def test_is_old__not_own_hero(self):
-        self.assertFalse(form_game_info(self.account_1)['account']['is_old'])
+        self.assertFalse(form_game_info(self.account_1, is_own=False)['account']['is_old'])
 
         TimePrototype(turn_number=666).save()
-        self.assertTrue(form_game_info(self.account_1)['account']['is_old'])
+        self.assertTrue(form_game_info(self.account_1, is_own=False)['account']['is_old'])
 
         HeroPrototype.get_by_account_id(self.account_1.id).save()
-        self.assertFalse(form_game_info(self.account_1)['account']['is_old'])
+        self.assertFalse(form_game_info(self.account_1, is_own=False)['account']['is_old'])
 
 
     def test_is_old__pvp(self):
@@ -187,8 +181,7 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         hero_2.pvp.energy = 2
         hero_2.save()
 
-        with mock.patch('accounts.prototypes.AccountPrototype.is_authenticated', lambda x: x.id == self.account_1.id):
-            data = form_game_info(self.account_1)
+        data = form_game_info(self.account_1, is_own=True)
 
         self.assertEqual(data['account']['hero']['pvp']['energy'], 1)
         self.assertEqual(data['enemy']['hero']['pvp']['energy'], 0)
@@ -196,8 +189,7 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         hero_2.pvp.store_turn_data()
         hero_2.save()
 
-        with mock.patch('accounts.prototypes.AccountPrototype.is_authenticated', lambda x: x.id == self.account_1.id):
-            data = form_game_info(self.account_1)
+        data = form_game_info(self.account_1, is_own=True)
 
         self.assertEqual(data['enemy']['hero']['pvp']['energy'], 2)
 
@@ -208,12 +200,11 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         hero_1 = HeroPrototype.get_by_account_id(self.account_1.id)
         hero_2 = HeroPrototype.get_by_account_id(self.account_2.id)
 
-        with mock.patch('accounts.prototypes.AccountPrototype.is_authenticated', lambda x: x.id == self.account_1.id):
-            with mock.patch('game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero',
-                            mock.Mock(return_value={'saved_at_turn': hero_1.saved_at_turn})) as cached_ui_info_for_hero:
-                with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info',
-                                mock.Mock(return_value={'saved_at_turn': hero_2.saved_at_turn})) as ui_info:
-                    form_game_info(self.account_1)
+        with mock.patch('game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero',
+                        mock.Mock(return_value={'saved_at_turn': hero_1.saved_at_turn})) as cached_ui_info_for_hero:
+            with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info',
+                            mock.Mock(return_value={'saved_at_turn': hero_2.saved_at_turn})) as ui_info:
+                form_game_info(self.account_1, is_own=True)
 
         self.assertEqual(cached_ui_info_for_hero.call_args_list, [mock.call(self.account_1.id)])
         self.assertEqual(ui_info.call_args_list, [mock.call(for_last_turn=True)])

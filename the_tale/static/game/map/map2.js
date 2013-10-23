@@ -232,7 +232,7 @@ pgf.game.map.MapManager = function(params) {
     }
 
     jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data) {
-        if (game_data.account.hero) {
+        if (game_data.account && game_data.account.hero) {
             dynamicData.hero = game_data.account.hero;
         }
 

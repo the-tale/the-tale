@@ -125,10 +125,8 @@ def remove_game_data(account):
 
     bundle.remove()
 
-def _form_game_account_info(game_time, account, in_pvp_queue):
+def _form_game_account_info(game_time, account, in_pvp_queue, is_own):
     from game.heroes.prototypes import HeroPrototype
-
-    is_own = account.is_authenticated()
 
     data = { 'new_messages': account.new_messages_number if is_own else 0,
              'id': account.id,
@@ -147,7 +145,7 @@ def _form_game_account_info(game_time, account, in_pvp_queue):
     return data
 
 
-def form_game_info(account=None):
+def form_game_info(account=None, is_own=False):
     from accounts.prototypes import AccountPrototype
 
     from game.pvp.prototypes import Battle1x1Prototype
@@ -162,11 +160,11 @@ def form_game_info(account=None):
 
     if account:
         battle = Battle1x1Prototype.get_by_account_id(account.id)
-        data['account'] = _form_game_account_info(game_time, account, in_pvp_queue=False if battle is None else battle.state._is_WAITING)
+        data['account'] = _form_game_account_info(game_time, account, in_pvp_queue=False if battle is None else battle.state._is_WAITING, is_own=is_own)
 
         if battle and (battle.state._is_PROCESSING or battle.state._is_PREPAIRING):
             data['mode'] = 'pvp'
-            data['enemy'] = _form_game_account_info(game_time, AccountPrototype.get_by_id(battle.enemy_id), in_pvp_queue=False)
+            data['enemy'] = _form_game_account_info(game_time, AccountPrototype.get_by_id(battle.enemy_id), in_pvp_queue=False, is_own=False)
 
     return data
 

@@ -256,7 +256,7 @@ class GameResource(Resource):
         if account is None and self.account.is_authenticated():
             account = self.account
 
-        data = game_logic.form_game_info(account=account)
+        data = game_logic.form_game_info(account=account, is_own=False if account is None else (self.account.id == account.id))
 
         return self.ok(data=data)
 
