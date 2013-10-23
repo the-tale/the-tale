@@ -60,7 +60,7 @@ LEFT OUTER JOIN ( SELECT %(phrase_candidates)s.author_id AS phrase_author_id, CO
                   FROM %(phrase_candidates)s
                   WHERE %(phrase_candidates)s.state=%(phrase_candidate_added_state)s GROUP BY %(phrase_candidates)s.author_id ) AS phrases_subquery
            ON %(accounts)s.id=phrase_author_id
-WHERE NOT %(accounts)s.is_fast AND NOT %(accounts)s.is_bot AND %(accounts)s.id <> %(system_user_id)s AND %(accounts)s.ban_game_end_at < (select current_timestamp)
+WHERE NOT %(accounts)s.is_fast AND NOT %(accounts)s.is_bot AND %(accounts)s.id <> %(system_user_id)s AND %(accounts)s.ban_game_end_at < current_timestamp
 '''
 
         sql_request = sql_request % {'ratings': RatingValues._meta.db_table,
