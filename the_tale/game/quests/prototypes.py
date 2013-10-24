@@ -380,13 +380,17 @@ class QuestPrototype(object):
         place.cmd_change_power(power)
 
 
-    def _fight(self, mob_uid):
+    def _fight(self, action):
         from game.actions.prototypes import ActionBattlePvE1x1Prototype
 
-        if mob_uid is not None:
-            mob = mobs_storage[self.knowledge_base[mob_uid].externals['id']].create_mob(self.hero)
+        if action.mob is not None:
+            mob = mobs_storage[self.knowledge_base[action.mob].externals['id']].create_mob(self.hero)
         else:
-            mob = mobs_storage.get_random_mob(self.hero)
+            mob = mobs_storage.get_random_mob(self.hero, mercenary=action.mercenary)
+
+            if mob is None:
+                mobs_storage.get_random_mob(self.hero)
+
 
         ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
 
@@ -523,7 +527,7 @@ class QuestPrototype(object):
             elif isinstance(action, facts.GiveReward):
                 self._give_reward(action.type, self.hero)
             elif isinstance(action, facts.Fight):
-                self._fight(action.mob)
+                self._fight(action)
             elif isinstance(action, facts.MoveNear):
                 self._move_hero_near(action.place, terrains=action.terrains)
             elif isinstance(action, facts.MoveIn):

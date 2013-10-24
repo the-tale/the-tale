@@ -14,6 +14,7 @@ from game.heroes.habilities.battle import HIT
 
 from game.mobs.models import MobRecord
 from game.mobs.prototypes import MobRecordPrototype
+from game.mobs.relations import MOB_TYPE
 
 
 def to_ability(ability_id):
@@ -27,6 +28,8 @@ ABILITY_CHOICES = sorted(ABILITY_CHOICES_DICT.items(), key=lambda choice: choice
 class MobRecordBaseForm(forms.Form):
 
     level = fields.IntegerField(label=u'минимальный уровень')
+
+    type = fields.TypedChoiceField(label=u'тип', choices=MOB_TYPE._choices(), coerce=MOB_TYPE._get_from_name)
 
     terrains = fields.TypedMultipleChoiceField(label=u'места обитания', choices=TERRAIN._CHOICES, coerce=int)
 

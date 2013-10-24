@@ -32,15 +32,11 @@
     {% if resource.can_create_mob or resource.can_moderate_mob %}
     <div class="btn-group pgf-mob-state-filter">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-        состояние:
-        {% if state.is_enabled %} в игре
-        {% elif state.is_disabled %} вне игры
-        {% endif %}
-        <span class="caret"></span>
+        состояние: {{state.text}} <span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
-        <li><a href="{{ url_builder(state=MOB_RECORD_STATE.ENABLED) }}">в игре</a></li>
-        <li><a href="{{ url_builder(state=MOB_RECORD_STATE.DISABLED) }}">вне игры</a></li>
+        <li><a href="{{ url_builder(state=MOB_RECORD_STATE.ENABLED.value) }}">в игре</a></li>
+        <li><a href="{{ url_builder(state=MOB_RECORD_STATE.DISABLED.value) }}">вне игры</a></li>
       </ul>
     </div>
     {% endif %}

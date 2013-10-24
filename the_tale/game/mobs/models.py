@@ -2,10 +2,10 @@
 
 from django.db import models
 
-from common.utils.enum import create_enum
+from rels.django_staff import TableIntegerField
 
-MOB_RECORD_STATE = create_enum('MOB_RECORD_STATE', ( ('ENABLED', 0, u'в игре'),
-                                                     ('DISABLED', 1, u'вне игры'),) )
+from game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
+
 
 class MobRecord(models.Model):
 
@@ -17,7 +17,8 @@ class MobRecord(models.Model):
 
     editor = models.ForeignKey('accounts.Account', null=True, related_name='+', on_delete=models.SET_NULL)
 
-    state = models.IntegerField(null=False, default=MOB_RECORD_STATE.DISABLED, choices=MOB_RECORD_STATE._CHOICES)
+    state = TableIntegerField(relation=MOB_RECORD_STATE, relation_column='value')
+    type = TableIntegerField(relation=MOB_TYPE, relation_column='value')
 
     level = models.IntegerField(default=0)
 

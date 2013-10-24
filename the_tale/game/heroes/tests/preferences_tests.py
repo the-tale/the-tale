@@ -200,7 +200,7 @@ class HeroPreferencesMobTest(TestCase):
 
         wrong_mob_uuid = None
         for mob_record in mobs_storage.all():
-            if mob_record.state.is_enabled and mob_record.level > self.hero.level:
+            if mob_record.state._is_ENABLED and mob_record.level > self.hero.level:
                 wrong_mob_uuid = mob_record.uuid
                 break
 

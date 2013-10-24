@@ -34,30 +34,31 @@ class MobResourceBase(Resource):
         self.can_moderate_mob = self.account.has_perm('mobs.moderate_mobrecord')
 
 
+def argument_to_mob_state(value): return MOB_RECORD_STATE(int(value))
+
 
 class GuideMobResource(MobResourceBase):
 
     @validator(code='mobs.mob_disabled', message=u'монстр находится вне игры', status_code=404)
     def validate_mob_disabled(self, *args, **kwargs):
-        return not self.mob.state.is_disabled or self.can_create_mob or self.can_moderate_mob
+        return not self.mob.state._is_DISABLED or self.can_create_mob or self.can_moderate_mob
 
-    @validate_argument('state', MOB_RECORD_STATE, 'mobs', u'неверное состояние записи о монстре')
+    @validate_argument('state', argument_to_mob_state, 'mobs', u'неверное состояние записи о монстре')
     @validate_argument('terrain', TERRAIN, 'mobs', u'неверный тип территории')
     @validate_argument('order_by', INDEX_ORDER_TYPE, 'mobs', u'неверный тип сортировки')
     @handler('', method='get')
-    def index(self, state=MOB_RECORD_STATE(MOB_RECORD_STATE.ENABLED), terrain=None, order_by=INDEX_ORDER_TYPE(INDEX_ORDER_TYPE.BY_NAME)):
+    def index(self, state=MOB_RECORD_STATE.ENABLED, terrain=None, order_by=INDEX_ORDER_TYPE(INDEX_ORDER_TYPE.BY_NAME)):
 
         mobs = mobs_storage.all()
 
         if not self.can_create_mob and not self.can_moderate_mob:
-            mobs = filter(lambda mob: mob.state.is_enabled, mobs) # pylint: disable=W0110
+            mobs = filter(lambda mob: mob.state._is_ENABLED, mobs) # pylint: disable=W0110
 
         is_filtering = False
 
-        if state is not None:
-            if not state.is_enabled: # if not default
-                is_filtering = True
-            mobs = filter(lambda mob: mob.state == state, mobs) # pylint: disable=W0110
+        if not state._is_ENABLED: # if not default
+            is_filtering = True
+        mobs = filter(lambda mob: mob.state == state, mobs) # pylint: disable=W0110
 
         if terrain is not None:
             is_filtering = True
@@ -105,7 +106,7 @@ class GameMobResource(MobResourceBase):
     def validate_moderate_rights(self, *args, **kwargs): return self.can_moderate_mob
 
     @validator(code='mobs.disabled_state_required', message=u'Для проведения этой операции монстр должен быть убран из игры')
-    def validate_disabled_state(self, *args, **kwargs): return self.mob.state.is_disabled
+    def validate_disabled_state(self, *args, **kwargs): return self.mob.state._is_DISABLED
 
     @login_required
     @validate_create_rights()
@@ -127,6 +128,7 @@ class GameMobResource(MobResourceBase):
         mob = MobRecordPrototype.create(uuid=uuid.uuid4().hex,
                                         level=form.c.level,
                                         name=form.c.name,
+                                        type=form.c.type,
                                         description=form.c.description,
                                         abilities=form.c.abilities,
                                         terrains=form.c.terrains,
@@ -142,6 +144,7 @@ class GameMobResource(MobResourceBase):
     def edit(self):
         form = MobRecordForm(initial={'name': self.mob.name,
                                       'description': self.mob.description,
+                                      'type': self.mob.type,
                                       'level': self.mob.level,
                                       'terrains': self.mob.terrains,
                                       'abilities': self.mob.abilities})
@@ -175,7 +178,7 @@ class GameMobResource(MobResourceBase):
                                               'abilities': self.mob.abilities,
                                               'uuid': self.mob.uuid,
                                               'name_forms': self.mob.name_forms.serialize(),
-                                              'approved': self.mob.state.is_enabled})
+                                              'approved': self.mob.state._is_ENABLED})
 
         return self.template('mobs/moderate.html', {'mob': self.mob,
                                                     'form': form} )

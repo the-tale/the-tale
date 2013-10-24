@@ -32,15 +32,27 @@ class MobsStorage(create_storage_class('mob records change time', MobRecord, Mob
         self.sync()
         return uuid in self._mobs_by_uuids
 
-    def get_available_mobs_list(self, level, terrain=None):
+    def get_available_mobs_list(self, level, terrain=None, mercenary=None):
         self.sync()
-        return [record
+        mobs = (record
                 for record in self.all()
-                if record.state.is_enabled and record.level <= level and (terrain is None or terrain in record.terrains)]
+                if record.state._is_ENABLED and record.level <= level and (terrain is None or terrain in record.terrains))
 
-    def get_random_mob(self, hero):
+        if mercenary is not None:
+            mobs = (record for record in mobs if record.type.is_mercenary == mercenary)
+
+        return list(mobs)
+
+
+    def get_random_mob(self, hero, mercenary=None):
         self.sync()
-        mob_record = random.choice(self.get_available_mobs_list(level=hero.level, terrain=hero.position.get_terrain()))
+
+        choices = self.get_available_mobs_list(level=hero.level, terrain=hero.position.get_terrain(), mercenary=mercenary)
+
+        if not choices:
+            return None
+
+        mob_record = random.choice(choices)
         return MobPrototype(record=mob_record, level=hero.level)
 
 mobs_storage = MobsStorage()

@@ -91,7 +91,7 @@ class AttributeAbiliesForMobTest(testcase.TestCase):
     @staticmethod
     def construct_mob_with_abilities(abilities, index):
         from game.mobs.prototypes import MobRecordPrototype
-        from game.mobs.models import MOB_RECORD_STATE
+        from game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
 
         uuid = 'test_mob %d' % index
         mob_record =  MobRecordPrototype.create(uuid,
@@ -100,6 +100,7 @@ class AttributeAbiliesForMobTest(testcase.TestCase):
                                                 description='',
                                                 abilities=abilities,
                                                 terrains=[],
+                                                type=MOB_TYPE.CIVILIZED,
                                                 state=MOB_RECORD_STATE.ENABLED)
         return MobPrototype(level=1, record=mob_record)
 

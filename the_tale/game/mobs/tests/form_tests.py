@@ -11,6 +11,7 @@ from game.logic import create_test_map
 from game.map.relations import TERRAIN
 
 from game.mobs.forms import MobRecordForm, ModerateMobRecordForm
+from game.mobs.relations import MOB_TYPE
 
 
 class MobsFormsTests(testcase.TestCase):
@@ -23,6 +24,7 @@ class MobsFormsTests(testcase.TestCase):
         form = MobRecordForm({'level': '1',
                               'terrains': [str(TERRAIN.PLANE_GRASS)],
                               'abilities': [],
+                              'type': MOB_TYPE.CIVILIZED,
                               'name': 'mob name'})
         self.assertFalse(form.is_valid())
 
@@ -30,6 +32,7 @@ class MobsFormsTests(testcase.TestCase):
         form = MobRecordForm({'level': '1',
                               'terrains': [str(TERRAIN.PLANE_GRASS)],
                               'abilities': ['bla-ability'],
+                              'type': MOB_TYPE.CIVILIZED,
                               'name': 'mob name'})
         self.assertFalse(form.is_valid())
 
@@ -37,6 +40,7 @@ class MobsFormsTests(testcase.TestCase):
         form = MobRecordForm({'level': '1',
                               'terrains': [],
                               'abilities': ['hit'],
+                              'type': MOB_TYPE.CIVILIZED,
                               'name': 'mob name'})
         self.assertFalse(form.is_valid())
 
@@ -44,6 +48,7 @@ class MobsFormsTests(testcase.TestCase):
         form = MobRecordForm({'level': '1',
                               'terrains': [str(666)],
                               'abilities': ['hit'],
+                              'type': MOB_TYPE.CIVILIZED,
                               'name': 'mob name'})
         self.assertFalse(form.is_valid())
 
@@ -51,6 +56,7 @@ class MobsFormsTests(testcase.TestCase):
         form = MobRecordForm({'level': '1',
                               'terrains': [str(TERRAIN.PLANE_GRASS)],
                               'abilities': ['hit'],
+                              'type': MOB_TYPE.CIVILIZED,
                               'name': 'mob name'})
         self.assertTrue(form.is_valid())
         self.assertEqual(form.c.abilities.__class__, frozenset)
@@ -62,6 +68,7 @@ class MobsFormsTests(testcase.TestCase):
                                       'abilities': ['hit'],
                                       'name': 'mob name',
                                       'uuid': 'mob_uuid',
+                                      'type': MOB_TYPE.CIVILIZED,
                                       'name_forms': s11n.to_json(Noun(normalized='mob name',
                                                                       forms=['mob name'] * Noun.FORMS_NUMBER,
                                                                       properties=(u'мр',)).serialize())})

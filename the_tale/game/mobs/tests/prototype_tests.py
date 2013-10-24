@@ -19,7 +19,7 @@ from game.artifacts.models import ARTIFACT_RECORD_STATE
 from game.artifacts.relations import ARTIFACT_TYPE
 
 from game.mobs.storage import mobs_storage
-from game.mobs.models import MOB_RECORD_STATE
+from game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
 from game.mobs.prototypes import MobPrototype, MobRecordPrototype
 from game.mobs.forms import ModerateMobRecordForm
 
@@ -78,6 +78,7 @@ class MobsPrototypeTests(testcase.TestCase):
                                   description='bandint',
                                   abilities=['hit', 'thick', 'slow', 'extra_strong'],
                                   terrains=TERRAIN._ALL,
+                                  type=MOB_TYPE.CIVILIZED,
                                   state=MOB_RECORD_STATE.ENABLED)
         mobs_storage.sync(force=True)
 
@@ -86,33 +87,6 @@ class MobsPrototypeTests(testcase.TestCase):
         self.assertEqual(bandit.health_cooficient, 1.025)
         self.assertEqual(bandit.initiative, 0.975)
         self.assertEqual(bandit.damage_modifier, 1.05)
-
-    def test_get_available_mobs_list(self):
-        MobRecordPrototype.create(uuid='bandit',
-                                  level=1,
-                                  name='bandint',
-                                  description='description',
-                                  abilities=['hit'],
-                                  terrains=[TERRAIN.PLANE_SAND],
-                                  state=MOB_RECORD_STATE.ENABLED)
-        MobRecordPrototype.create(uuid='bandit_wrong',
-                                  level=1,
-                                  name='bandit_wrong',
-                                  description='bandit_wrong description',
-                                  abilities=['hit'],
-                                  terrains=[TERRAIN.PLANE_SAND],
-                                  state=MOB_RECORD_STATE.DISABLED)
-
-        mobs_storage.sync(force=True)
-
-        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, TERRAIN.PLANE_SAND)]
-        self.assertEqual(frozenset(mobs_in_forest), frozenset(['mob_1', 'mob_2', 'mob_3', 'bandit']))
-
-        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, TERRAIN.PLANE_GRASS)]
-        self.assertEqual(frozenset(mobs_in_forest), frozenset(['mob_1', 'mob_2', 'mob_3']))
-
-        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(0, TERRAIN.PLANE_SAND)]
-        self.assertEqual(frozenset(mobs_in_forest), frozenset())
 
     def test_get_loot(self):
 
@@ -143,6 +117,7 @@ class MobsPrototypeTests(testcase.TestCase):
                                       'level': '667',
                                       'terrains': [TERRAIN.PLANE_JUNGLE, TERRAIN.HILLS_JUNGLE],
                                       'approved': True,
+                                      'type': MOB_TYPE.CIVILIZED,
                                       'abilities': ['hit', 'speedup'],
                                       'description': 'new description'})
         self.assertTrue(form.is_valid())

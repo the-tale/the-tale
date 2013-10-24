@@ -19,7 +19,9 @@ from game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
 
 from game.artifacts.storage import artifacts_storage
 
-from game.mobs.models import MobRecord, MOB_RECORD_STATE
+from game.mobs.models import MobRecord
+from game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
+
 
 class MobException(Exception): pass
 
@@ -88,7 +90,7 @@ class MobPrototype(object):
 
         level = data['level']
 
-        if record is None or record.state.is_disabled:
+        if record is None or record.state._is_DISABLED:
             record = random.choice(mobs_storage.get_available_mobs_list(level))
 
         abilities = cls._produce_abilities(record, level)
@@ -115,17 +117,8 @@ class MobPrototype(object):
 class MobRecordPrototype(BasePrototype):
     _model_class = MobRecord
     _readonly = ('id', 'editor_id')
-    _bidirectional = ('level', 'uuid', 'name', 'description')
+    _bidirectional = ('level', 'uuid', 'name', 'description', 'state', 'type')
     _get_by = ('id', )
-
-    def get_state(self):
-        if not hasattr(self, '_state'):
-            self._state = MOB_RECORD_STATE(self._model.state)
-        return self._state
-    def set_state(self, value):
-        self.state.update(value)
-        self._model.state = self.state.value
-    state = property(get_state, set_state)
 
     def get_name_forms(self):
         if not hasattr(self, '_normalized_name'):
@@ -171,7 +164,7 @@ class MobRecordPrototype(BasePrototype):
     def loot(self): return artifacts_storage.get_mob_loot(self.id)
 
     @classmethod
-    def create(cls, uuid, level, name, description, abilities, terrains, editor=None, state=MOB_RECORD_STATE.DISABLED, name_forms=None):
+    def create(cls, uuid, level, name, description, abilities, terrains, type, editor=None, state=MOB_RECORD_STATE.DISABLED, name_forms=None):
 
         from game.mobs.storage import mobs_storage
 
@@ -183,6 +176,7 @@ class MobRecordPrototype(BasePrototype):
         model = MobRecord.objects.create(uuid=uuid,
                                          level=level,
                                          name=name,
+                                         type=type,
                                          name_forms=s11n.to_json(name_forms.serialize()),
                                          description=description,
                                          abilities=s11n.to_json(list(abilities)),
@@ -206,7 +200,7 @@ class MobRecordPrototype(BasePrototype):
         return MobPrototype(record=self, level=hero.level)
 
     @classmethod
-    def create_random(cls, uuid, level=1, abilities_number=3, terrains=TERRAIN._ALL, state=MOB_RECORD_STATE.ENABLED): # pylint: disable=W0102
+    def create_random(cls, uuid, type=MOB_TYPE.CIVILIZED, level=1, abilities_number=3, terrains=TERRAIN._ALL, state=MOB_RECORD_STATE.ENABLED): # pylint: disable=W0102
 
         name = u'mob_'+uuid.lower()
 
@@ -218,7 +212,7 @@ class MobRecordPrototype(BasePrototype):
         for i in xrange(abilities_number-1): # pylint: disable=W0612
             abilities.add(random.choice(list(battle_abilities-abilities)))
 
-        return cls.create(uuid, level=level, name=name, description='description of %s' % name, abilities=abilities, terrains=terrains, state=state)
+        return cls.create(uuid, level=level, type=type, name=name, description='description of %s' % name, abilities=abilities, terrains=terrains, state=state)
 
     def update_by_creator(self, form, editor):
         self.name = form.c.name
@@ -226,6 +220,7 @@ class MobRecordPrototype(BasePrototype):
         self.level = form.c.level
         self.terrains = form.c.terrains
         self.abilities = form.c.abilities
+        self.type = form.c.type
         self.editor = editor._model
 
         self.save()
@@ -238,6 +233,7 @@ class MobRecordPrototype(BasePrototype):
         self.abilities = form.c.abilities
         self.uuid = form.c.uuid
         self.state = MOB_RECORD_STATE.ENABLED if form.c.approved else MOB_RECORD_STATE.DISABLED
+        self.type = form.c.type
         self.editor = editor._model if editor is not None else None
 
         self.save()

@@ -131,7 +131,7 @@ class HeroPreferences(object):
     def _prepair_mob(self, mob_id):
         mob = mobs_storage.get(mob_id)
 
-        if mob and not mob.state.is_enabled:
+        if mob and not mob.state._is_ENABLED:
             self.set_mob(None, change_time=datetime.datetime.fromtimestamp(0))
             return None
 
