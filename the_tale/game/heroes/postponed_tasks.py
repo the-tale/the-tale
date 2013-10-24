@@ -250,7 +250,7 @@ class ChoosePreferencesTask(PostponedLogic):
 
             mob = mobs_storage.get_by_uuid(mob_uuid)
 
-            if not mob.state.is_enabled:
+            if not mob.state._is_ENABLED:
                 main_task.comment = u'mob %s not in game' % (mob_uuid, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.MOB_NOT_IN_GAME
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
