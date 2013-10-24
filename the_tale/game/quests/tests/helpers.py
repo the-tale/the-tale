@@ -36,8 +36,8 @@ class QuestWith2ChoicePoints(BaseQuest):
     def construct_from_place(cls, nesting, selector, start_place):
         from questgen.quests.base_quest import ROLES
 
-        initiator = selector.person_from(places=(start_place.uid, ))
-        receiver = selector.new_person()
+        initiator = selector.new_person(first_initiator=(nesting==0), restrict_places=False, places=(start_place.uid, ))
+        receiver = selector.new_person(first_initiator=False)
 
         initiator_position = selector.place_for(objects=(initiator.uid,))
         receiver_position = selector.place_for(objects=(receiver.uid,))

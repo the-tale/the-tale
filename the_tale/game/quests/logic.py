@@ -88,7 +88,7 @@ def fill_places_for_short_paths(kb, hero):
         kb += facts.Place(uid=uids.place(place), terrains=list(place.terrains), externals={'id': place.id})
 
 
-def get_knowledge_base(hero): # pylint: disable=R0912
+def get_knowledge_base(hero, without_restrictions=False): # pylint: disable=R0912
 
     kb = KnowledgeBase()
 
@@ -156,6 +156,14 @@ def get_knowledge_base(hero): # pylint: disable=R0912
     if pref_equipment_slot:
         kb += facts.PreferenceEquipmentSlot(object=hero_uid, equipment_slot=pref_equipment_slot.value)
 
+
+    if not without_restrictions:
+
+        for person_id in hero.quests.interfered_persons:
+            person = persons_storage[person_id]
+            if person.place.id == hero.position.place.id:
+                kb += facts.NotFirstInitiator(person=uids.person(person))
+
     kb.validate_consistency(WORLD_RESTRICTIONS)
 
     return kb
@@ -165,18 +173,23 @@ def create_random_quest_for_hero(hero):
 
     special = (c.QUESTS_SPECIAL_FRACTION > random.uniform(0, 1))
 
-    if special:
-        try:
-            return _create_random_quest_for_hero(hero, special=True)
-        except questgen_exceptions.RollBackError:
-            pass
+    try:
 
-    return _create_random_quest_for_hero(hero, special=False)
+        if special:
+            try:
+                return _create_random_quest_for_hero(hero, special=True)
+            except questgen_exceptions.RollBackError:
+                pass
+
+        return _create_random_quest_for_hero(hero, special=False)
+
+    except questgen_exceptions.RollBackError:
+        return _create_random_quest_for_hero(hero, special=False, without_restrictions=True)
 
 
 @retry_on_exception(max_retries=quests_settings.MAX_QUEST_GENERATION_RETRIES, exceptions=[questgen_exceptions.RollBackError])
-def _create_random_quest_for_hero(hero, special):
-    knowledge_base = get_knowledge_base(hero)
+def _create_random_quest_for_hero(hero, special, without_restrictions=False):
+    knowledge_base = get_knowledge_base(hero, without_restrictions=without_restrictions)
 
     selector = Selector(knowledge_base, QUESTS_BASE)
 

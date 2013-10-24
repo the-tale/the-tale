@@ -350,9 +350,6 @@ class QuestPrototype(object):
         if power > 0:
             hero.places_history.add_place(place.id)
 
-        if not hero.can_change_persons_power:
-            return 0
-
         return power
 
 
@@ -360,10 +357,13 @@ class QuestPrototype(object):
 
         power = self._give_power(hero, person.place, power)
 
-        if power == 0:
-            return
-
         power = hero.modify_power(power, person=person)
+
+        if power < 0:
+            hero.quests.add_interfered_person(person.id)
+
+        if not hero.can_change_persons_power:
+            return 0
 
         person.cmd_change_power(power)
 
@@ -372,10 +372,10 @@ class QuestPrototype(object):
 
         power = self._give_power(hero, place, power)
 
-        if power == 0:
-            return
-
         power = hero.modify_power(power, place=place)
+
+        if not hero.can_change_persons_power:
+            return 0
 
         place.cmd_change_power(power)
 

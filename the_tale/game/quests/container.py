@@ -1,27 +1,32 @@
 # coding: utf-8
+import time
 import datetime
 
 from game.quests.prototypes import QuestPrototype
+from game.quests.conf import quests_settings
 
 
 class QuestsContainer(object):
 
-    __slots__ = ('updated', 'quests_list', 'history')
+    __slots__ = ('updated', 'quests_list', 'history', 'interfered_persons')
 
     def __init__(self):
         self.updated = False
         self.quests_list = []
         self.history = {}
+        self.interfered_persons = {}
 
     def serialize(self):
         return {'quests': [quest.serialize() for quest in self.quests_list],
-                'history': self.history}
+                'history': self.history,
+                'interfered_persons': self.interfered_persons}
 
     @classmethod
     def deserialize(cls, hero, data):
         obj = cls()
         obj.quests_list = [QuestPrototype.deserialize(hero=hero, data=quest_data) for quest_data in data.get('quests', [])]
         obj.history = data.get('history', {})
+        obj.interfered_persons = data.get('interfered_persons', {})
         return obj
 
     def ui_info(self, hero):
@@ -58,3 +63,21 @@ class QuestsContainer(object):
     def update_history(self, quest_type, turn_number):
         self.history[quest_type] = turn_number
         self.updated = True
+
+
+    def add_interfered_person(self, person_id):
+        self.interfered_persons[person_id] = time.time()
+
+    def is_interfered(self, person_id):
+        return person_id in self.interfered_persons
+
+    def sync_interfered_person(self):
+        to_remove = set()
+        current_time = time.time()
+
+        for person_id, person_time in self.interfered_persons.iteritems():
+            if current_time > person_time + quests_settings.INTERFERED_PERSONS_LIVE_TIME:
+                to_remove.add(person_id)
+
+        for person_id in to_remove:
+            del self.interfered_persons[person_id]

@@ -89,13 +89,16 @@ class PrototypeTests(testcase.TestCase):
         self.assertTrue(all(requirement.check(quest.knowledge_base) for requirement in quest.knowledge_base[quest.machine.pointer.state].require))
 
         self.assertTrue(self.hero.quests.history[quest.knowledge_base.filter(facts.Start).next().type] > 0)
+
         self.assertTrue(old_quests_done < self.hero.statistics.quests_done)
 
     def check_ui_info(self):
         s11n.to_json(self.hero.ui_info())
 
     def test_complete_quest(self):
+        self.assertEqual(self.hero.quests.interfered_persons, {})
         self.complete_quest(self.check_ui_info)
+        self.assertNotEqual(self.hero.quests.interfered_persons, {})
 
     @mock.patch('game.quests.prototypes.QuestInfo.get_person_power_for_quest', classmethod(lambda cls, hero: 1))
     def test_power_on_end_quest_for_fast_account_hero(self):
