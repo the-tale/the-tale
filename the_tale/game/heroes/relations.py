@@ -57,8 +57,7 @@ class ITEMS_OF_EXPENDITURE(DjangoEnum):
 
     @classmethod
     def get_quest_upgrade_equipment_fraction(cls):
-        QUEST_PRICE_MODIFIER = 2
-        return max(cls.BUYING_ARTIFACT.price_fraction, cls.SHARPENING_ARTIFACT.price_fraction) * QUEST_PRICE_MODIFIER
+        return cls.BUYING_ARTIFACT.price_fraction * 0.75
 
 
 

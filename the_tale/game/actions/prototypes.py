@@ -377,6 +377,7 @@ class ActionIdlenessPrototype(ActionBase):
         IN_PLACE = 'IN_PLACE'
         WAITING = 'WAITING'
         REGENERATE_ENERGY = 'regenerate_energy'
+        RETURN = 'RETURN'
 
     ###########################################
     # Object operations
@@ -422,7 +423,21 @@ class ActionIdlenessPrototype(ActionBase):
         if self.state == self.STATE.REGENERATE_ENERGY:
             self.state = self.STATE.WAITING
 
+        if self.state == self.STATE.RETURN:
+            self.state = self.STATE.WAITING
+
         if self.state == self.STATE.WAITING:
+
+            if self.hero.position.place is None:
+                destination = self.hero.position.get_nearest_dominant_place()
+
+                if self.hero.position.road:
+                    ActionMoveToPrototype.create(hero=self.hero, destination=destination)
+                else:
+                    ActionMoveNearPlacePrototype.create(hero=self.hero, place=destination, back=True)
+
+                self.state = self.STATE.RETURN
+                return
 
             self.percents += 1.0 / (c.TURNS_TO_IDLE * self.hero.level)
 

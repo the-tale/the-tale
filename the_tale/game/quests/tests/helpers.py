@@ -50,9 +50,27 @@ class QuestWith2ChoicePoints(BaseQuest):
 
         choice_2 = facts.Choice(uid=ns+'choice_2')
 
-        finish_1_1 = facts.Finish(uid=ns+'finish_1_1', result=RESULTS.SUCCESSED, nesting=nesting)
-        finish_1_2 = facts.Finish(uid=ns+'finish_1_2', result=RESULTS.FAILED, nesting=nesting)
-        finish_2 = facts.Finish(uid=ns+'finish_2', result=RESULTS.SUCCESSED, nesting=nesting)
+        finish_1_1 = facts.Finish(uid=ns+'finish_1_1',
+                                  start=start.uid,
+                                  results={initiator.uid: RESULTS.SUCCESSED,
+                                           initiator_position.uid: RESULTS.FAILED,
+                                           receiver.uid: RESULTS.SUCCESSED,
+                                           receiver_position.uid: RESULTS.SUCCESSED},
+                                  nesting=nesting)
+        finish_1_2 = facts.Finish(uid=ns+'finish_1_2',
+                                  start=start.uid,
+                                  results={initiator.uid: RESULTS.FAILED,
+                                           initiator_position.uid: RESULTS.FAILED,
+                                           receiver.uid: RESULTS.FAILED,
+                                           receiver_position.uid: RESULTS.FAILED},
+                                  nesting=nesting)
+        finish_2 = facts.Finish(uid=ns+'finish_2',
+                                start=start.uid,
+                                results={initiator.uid: RESULTS.SUCCESSED,
+                                         initiator_position.uid: RESULTS.SUCCESSED,
+                                         receiver.uid: RESULTS.FAILED,
+                                         receiver_position.uid: RESULTS.FAILED},
+                                nesting=nesting)
 
         participants = [facts.QuestParticipant(start=start.uid, participant=initiator.uid, role=ROLES.INITIATOR),
                         facts.QuestParticipant(start=start.uid, participant=initiator_position.uid, role=ROLES.INITIATOR_POSITION),

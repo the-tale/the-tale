@@ -306,11 +306,17 @@ class QuestPrototype(object):
                                 for location in self.knowledge_base.filter(facts.LocatedNear)
                                 if location.object == hero_uid]
 
+        self.knowledge_base -= [has_money
+                                for has_money in self.knowledge_base.filter(facts.HasMoney)
+                                if has_money.object == hero_uid]
+
         if self.hero.position.place:
             self.knowledge_base += facts.LocatedIn(object=hero_uid, place=uids.place(self.hero.position.place))
         else:
             place = self.hero.position.get_nearest_dominant_place()
             self.knowledge_base += facts.LocatedNear(object=hero_uid, place=uids.place(place))
+
+        self.knowledge_base += facts.HasMoney(object=hero_uid, money=self.hero.money)
 
 
     def satisfy_requirements(self, state):
@@ -454,32 +460,45 @@ class QuestPrototype(object):
         return random.choice(choices)
 
     @classmethod
-    def _upgrade_equipment(cls, process_message, hero, knowledge_base):
+    def upgrade_equipment_cost(cls, hero):
+        return int(f.normal_action_price(hero.level) * ITEMS_OF_EXPENDITURE.get_quest_upgrade_equipment_fraction())
 
-        # limit money spend
-        money_spend = min(hero.money,
-                          f.normal_action_price(hero.level) * ITEMS_OF_EXPENDITURE.get_quest_upgrade_equipment_fraction())
-
+    @classmethod
+    def _upgrade_equipment(cls, process_message, hero, knowledge_base, cost):
         if cls._get_upgrdade_choice(hero) == 'buy':
-            hero.change_money(MONEY_SOURCE.SPEND_FOR_ARTIFACTS, -money_spend)
             artifact, unequipped, sell_price = hero.buy_artifact(better=True, with_prefered_slot=True, equip=True)
 
-            if artifact is None:
-                process_message(knowledge_base, hero, message='upgrade__fail', ext_substitution={'coins': money_spend})
-            elif unequipped:
-                process_message(knowledge_base, hero, message='upgrade__buy_and_change', ext_substitution={'coins': money_spend,
-                                                                                                           'artifact': artifact,
-                                                                                                           'unequipped': unequipped,
-                                                                                                           'sell_price': sell_price})
+            if cost is not None:
+                hero.change_money(MONEY_SOURCE.SPEND_FOR_ARTIFACTS, -cost)
+                if artifact is None:
+                    process_message(knowledge_base, hero, message='upgrade__fail', ext_substitution={'coins': cost})
+                elif unequipped:
+                    process_message(knowledge_base, hero, message='upgrade__buy_and_change', ext_substitution={'coins': cost,
+                                                                                                               'artifact': artifact,
+                                                                                                               'unequipped': unequipped,
+                                                                                                               'sell_price': sell_price})
+                else:
+                    process_message(knowledge_base, hero, message='upgrade__buy', ext_substitution={'coins': cost,
+                                                                                                    'artifact': artifact})
             else:
-                process_message(knowledge_base, hero, message='upgrade__buy', ext_substitution={'coins': money_spend,
-                                                                                                'artifact': artifact})
+                if artifact is None:
+                    process_message(knowledge_base, hero, message='upgrade_free__fail', ext_substitution={})
+                elif unequipped:
+                    process_message(knowledge_base, hero, message='upgrade_free__buy_and_change', ext_substitution={'artifact': artifact,
+                                                                                                                    'unequipped': unequipped,
+                                                                                                                    'sell_price': sell_price})
+                else:
+                    process_message(knowledge_base, hero, message='upgrade_free__buy', ext_substitution={'artifact': artifact})
 
         else:
-            hero.change_money(MONEY_SOURCE.SPEND_FOR_SHARPENING, -money_spend)
             artifact = hero.sharp_artifact()
-            process_message(knowledge_base, hero, message='upgrade__sharp', ext_substitution={'coins': money_spend,
-                                                                                              'artifact': artifact})
+
+            if cost is not None:
+                hero.change_money(MONEY_SOURCE.SPEND_FOR_SHARPENING, -cost)
+                process_message(knowledge_base, hero, message='upgrade__sharp', ext_substitution={'coins': cost,
+                                                                                                  'artifact': artifact})
+            else:
+                process_message(knowledge_base, hero, message='upgrade_free__sharp', ext_substitution={'artifact': artifact})
 
     def _start_quest(self, start, hero):
         hero.quests.update_history(start.type, TimePrototype.get_current_turn_number())
@@ -535,7 +554,7 @@ class QuestPrototype(object):
             elif isinstance(action, facts.DoNothing):
                 self._donothing(action.type)
             elif isinstance(action, facts.UpgradeEquipment):
-                self._upgrade_equipment(self.quests_stack[-1].process_message, self.hero, self.knowledge_base)
+                self._upgrade_equipment(self.quests_stack[-1].process_message, self.hero, self.knowledge_base, cost=action.cost)
             else:
                 raise exceptions.UnknownAction(action=action)
 

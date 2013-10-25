@@ -226,7 +226,8 @@ class PrototypeTests(testcase.TestCase):
         self.assertEqual(self.hero.statistics.artifacts_had, 0)
         self.quest._upgrade_equipment(process_message=self.quest.quests_stack[-1].process_message,
                                       hero=self.hero,
-                                      knowledge_base=self.quest.knowledge_base)
+                                      knowledge_base=self.quest.knowledge_base,
+                                      cost=666)
         self.assertEqual(self.hero.statistics.artifacts_had, 1)
 
     @mock.patch('game.quests.prototypes.QuestPrototype._get_upgrdade_choice', classmethod(lambda *argv, **kwargs: 'sharp'))
@@ -236,7 +237,8 @@ class PrototypeTests(testcase.TestCase):
 
         self.quest._upgrade_equipment(process_message=self.quest.quests_stack[-1].process_message,
                                       hero=self.hero,
-                                      knowledge_base=self.quest.knowledge_base)
+                                      knowledge_base=self.quest.knowledge_base,
+                                      cost=666)
 
         self.assertEqual(self.hero.statistics.artifacts_had, 0)
         self.assertEqual(old_power + 1, self.hero.power)
@@ -246,6 +248,7 @@ class PrototypeTests(testcase.TestCase):
 
         self.quest._upgrade_equipment(process_message=self.quest.quests_stack[-1].process_message,
                                       hero=self.hero,
-                                      knowledge_base=self.quest.knowledge_base)
+                                      knowledge_base=self.quest.knowledge_base,
+                                      cost=666)
 
         self.assertTrue(self.hero.money > 0)

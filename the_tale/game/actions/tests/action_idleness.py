@@ -2,6 +2,7 @@
 
 from common.utils import testcase
 
+from accounts.prototypes import AccountPrototype
 from accounts.logic import register_user
 
 from game.balance import constants as c, formulas as f, enums as e
@@ -10,10 +11,16 @@ from game.prototypes import TimePrototype
 from game.logic_storage import LogicStorage
 from game.logic import create_test_map
 
-from game.heroes.prototypes import HeroPrototype
 from game.abilities.relations import HELP_CHOICES
 
-from game.actions.prototypes import ActionIdlenessPrototype, ActionQuestPrototype, ActionInPlacePrototype, ActionRegenerateEnergyPrototype
+from game.map.roads.storage import roads_storage
+
+from game.actions.prototypes import (ActionIdlenessPrototype,
+                                     ActionQuestPrototype,
+                                     ActionInPlacePrototype,
+                                     ActionRegenerateEnergyPrototype,
+                                     ActionMoveToPrototype,
+                                     ActionMoveNearPlacePrototype)
 
 class IdlenessActionTest(testcase.TestCase):
 
@@ -24,9 +31,12 @@ class IdlenessActionTest(testcase.TestCase):
 
         result, account_id, bundle_id = register_user('test_user')
 
-        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.account = AccountPrototype.get_by_id(account_id)
         self.storage = LogicStorage()
-        self.storage.add_hero(self.hero)
+        self.storage.load_account_data(self.account)
+
+        self.hero = self.storage.accounts_to_heroes[self.account.id]
+
         self.action_idl = self.hero.actions.current_action
 
     def tearDown(self):
@@ -139,3 +149,15 @@ class IdlenessActionTest(testcase.TestCase):
     def test_help_choices__start_quest_removed(self):
         self.action_idl.percents = 1.0
         self.assertFalse(HELP_CHOICES.START_QUEST in self.action_idl.HELP_CHOICES)
+
+    def test_return_from_road(self):
+        self.hero.position.set_road(list(roads_storage.all())[0], percents=0.5)
+        self.storage.process_turn()
+        self.assertEqual(self.hero.actions.number, 2)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionMoveToPrototype.TYPE)
+
+    def test_return_from_wild_terrain(self):
+        self.hero.position.set_coordinates(0, 0, 5, 5, percents=0)
+        self.storage.process_turn()
+        self.assertEqual(self.hero.actions.number, 2)
+        self.assertEqual(self.hero.actions.current_action.TYPE, ActionMoveNearPlacePrototype.TYPE)

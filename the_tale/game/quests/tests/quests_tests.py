@@ -1,8 +1,14 @@
 # coding: utf-8
+
+import random
+
 import mock
 
 from questgen import facts
 from questgen.quests.search_smith import SearchSmith
+from questgen.quests.quests_base import QuestsBase
+from questgen.quests.spying import Spying
+from questgen import logic
 
 from common.utils import testcase
 
@@ -17,22 +23,16 @@ from game.mobs.storage import mobs_storage
 
 from game.logic import create_test_map
 from game.text_generation import get_vocabulary
-
 from game.prototypes import TimePrototype
-from game.quests.logic import QUESTS_BASE
-from game.quests.writers import Writer
 
 from game.actions.prototypes import ActionQuestPrototype, ActionIdlenessPrototype
-# from questgen.quests.spying import Spying
-# from questgen.quests.hunt import Hunt
-# from questgen.quests.hometown import Hometown
-# from questgen.quests.search_smith import SearchSmith
-# from questgen.quests.delivery import Delivery
-# from questgen.quests.caravan import Caravan
 
-from questgen.quests.quests_base import QuestsBase
-from questgen.quests.spying import Spying
-from questgen import logic
+from game.heroes.relations import ITEMS_OF_EXPENDITURE
+
+from game.quests.logic import QUESTS_BASE
+from game.quests.writers import Writer
+from game.quests.prototypes import QuestPrototype
+
 
 
 class QuestsTestBase(testcase.TestCase):
@@ -75,8 +75,13 @@ class QuestsTest(QuestsTestBase):
 
 def create_test_method(quest, quests):
 
-    @mock.patch('questgen.quests.quests_base.QuestsBase._available_quests', lambda *argv, **kwargs: quests)
+    internal_quests = {q.TYPE: q for q in quests }
+
+    @mock.patch('game.heroes.prototypes.HeroPrototype.is_short_quest_path_required', False)
+    @mock.patch('game.heroes.prototypes.HeroPrototype.is_first_quest_path_required', False)
     @mock.patch('game.balance.constants.QUESTS_SPECIAL_FRACTION', 1.1)
+    @mock.patch('game.quests.logic.QUESTS_BASE._quests', internal_quests)
+    @mock.patch('game.quests.logic._get_first_quests', lambda hero, special: [quest.TYPE])
     @mock.patch('game.map.roads.storage.WaymarksStorage.average_path_length', 9999)
     def quest_test_method(self):
 
@@ -86,15 +91,20 @@ def create_test_method(quest, quests):
 
         current_time = TimePrototype.get_current_time()
 
+        test_upgrade_equipment = random.randint(0, 1) # test child quest or upgrade equipment for SearchSmith
+
         while self.hero.actions.current_action.TYPE != ActionQuestPrototype.TYPE:
             self.storage.process_turn()
+            if quest == SearchSmith and test_upgrade_equipment:
+                self.hero._model.money = QuestPrototype.upgrade_equipment_cost(self.hero)
+                self.hero._model.next_spending = ITEMS_OF_EXPENDITURE.INSTANT_HEAL
             current_time.increment_turn()
 
         self.complete_quest()
 
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionIdlenessPrototype.TYPE)
 
-        if quest == SearchSmith:
+        if quest == SearchSmith and test_upgrade_equipment:
             self.assertTrue(self.hero.statistics.money_spend_for_artifacts > 0 or
                             self.hero.statistics.money_spend_for_sharpening > 0)
 
@@ -108,7 +118,7 @@ for QuestClass in QUESTS_BASE.quests():
     if 'has_subquests' in QuestClass.TAGS:
         quests.append(Spying)
 
-    setattr(QuestsTest, 'test_%s' % QuestClass.TYPE, create_test_method(QuestClass, quests))
+    setattr(QuestsTest, 'test_%s' % QuestClass.TYPE, create_test_method(QuestClass, list(quests)))
 
 
 
@@ -161,6 +171,10 @@ class RawQuestsTest(QuestsTestBase):
                 self._check_messages(quest_type, 'upgrade__buy_and_change')
                 self._check_messages(quest_type, 'upgrade__buy')
                 self._check_messages(quest_type, 'upgrade__sharp')
+                self._check_messages(quest_type, 'upgrade_free__fail')
+                self._check_messages(quest_type, 'upgrade_free__buy_and_change')
+                self._check_messages(quest_type, 'upgrade_free__buy')
+                self._check_messages(quest_type, 'upgrade_free__sharp')
 
             elif isinstance(action, facts.Message):
                 self._check_messages(quest_type, action.type)
@@ -267,4 +281,4 @@ for QuestClass in QUESTS_BASE.quests():
     if 'has_subquests' in QuestClass.TAGS:
         quests.append(Spying)
 
-    setattr(RawQuestsTest, 'test_%s' % QuestClass.TYPE, create_test_messages_method(QuestClass, quests))
+    setattr(RawQuestsTest, 'test_%s' % QuestClass.TYPE, create_test_messages_method(QuestClass, list(quests)))
