@@ -41,9 +41,9 @@ class Hero(models.Model):
     race = TableIntegerField(relation=RACE, relation_column='value')
 
     level = models.IntegerField(null=False, default=1)
-    experience = models.FloatField(null=False, default=0)
+    experience = models.IntegerField(null=False, default=0)
 
-    health = models.FloatField(null=False, default=0.0)
+    health = models.IntegerField(null=False, default=0.0)
 
     raw_power = models.BigIntegerField(null=False, default=0) # special field for ratings
 

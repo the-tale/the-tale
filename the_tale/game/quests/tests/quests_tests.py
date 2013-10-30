@@ -4,6 +4,8 @@ import random
 
 import mock
 
+from dext.utils import s11n
+
 from questgen import facts
 from questgen.quests.search_smith import SearchSmith
 from questgen.quests.quests_base import QuestsBase
@@ -99,6 +101,9 @@ def create_test_method(quest, quests):
                 self.hero._model.money = QuestPrototype.upgrade_equipment_cost(self.hero)
                 self.hero._model.next_spending = ITEMS_OF_EXPENDITURE.INSTANT_HEAL
             current_time.increment_turn()
+
+        # test if quest is serializable
+        s11n.to_json(self.hero.quests.current_quest.serialize())
 
         self.complete_quest()
 

@@ -378,6 +378,7 @@ class ActionIdlenessPrototype(ActionBase):
         WAITING = 'WAITING'
         REGENERATE_ENERGY = 'regenerate_energy'
         RETURN = 'RETURN'
+        RESURRECT = 'RESURRECT'
 
     ###########################################
     # Object operations
@@ -409,35 +410,60 @@ class ActionIdlenessPrototype(ActionBase):
 
         return True
 
-    def process(self):
+    def preprocess(self):
+        if not self.hero.is_alive:
+            ActionResurrectPrototype.create(hero=self.hero)
+            self.state = self.STATE.RESURRECT
+            return True
 
-        if self.state == self.STATE.IN_PLACE:
-            self.state = self.STATE.WAITING
-            self.percents = 0
+        return False
 
-        if self.state == self.STATE.QUEST:
-            self.percents = 0
+    def process_position(self):
+        if self.hero.position.place is None:
+            destination = self.hero.position.get_nearest_dominant_place()
+
+            if self.hero.position.road:
+                ActionMoveToPrototype.create(hero=self.hero, destination=destination)
+            else:
+                ActionMoveNearPlacePrototype.create(hero=self.hero, place=destination, back=True)
+
+            self.state = self.STATE.RETURN
+        else:
             self.state = self.STATE.IN_PLACE
             ActionInPlacePrototype.create(hero=self.hero)
 
-        if self.state == self.STATE.REGENERATE_ENERGY:
+        return self.state in (self.STATE.IN_PLACE, self.STATE.RETURN)
+
+    def process(self):
+
+        if self.preprocess():
+            return
+
+        if self.state == self.STATE.RESURRECT:
+            if self.process_position():
+                return
+            self.percents = 0
             self.state = self.STATE.WAITING
 
         if self.state == self.STATE.RETURN:
+            self.percents = 0
+            self.state = self.STATE.WAITING
+
+        if self.state == self.STATE.IN_PLACE:
+            self.percents = 0
+            self.state = self.STATE.WAITING
+
+        if self.state == self.STATE.REGENERATE_ENERGY:
+            self.percents = 0
+            self.state = self.STATE.WAITING
+
+        if self.state == self.STATE.QUEST:
+            if self.process_position():
+                return
+            self.percents = 0
             self.state = self.STATE.WAITING
 
         if self.state == self.STATE.WAITING:
-
-            if self.hero.position.place is None:
-                destination = self.hero.position.get_nearest_dominant_place()
-
-                if self.hero.position.road:
-                    ActionMoveToPrototype.create(hero=self.hero, destination=destination)
-                else:
-                    ActionMoveNearPlacePrototype.create(hero=self.hero, place=destination, back=True)
-
-                self.state = self.STATE.RETURN
-                return
 
             self.percents += 1.0 / (c.TURNS_TO_IDLE * self.hero.level)
 
@@ -488,7 +514,9 @@ class ActionQuestPrototype(ActionBase):
                    state=cls.STATE.PROCESSING)
 
     def process(self):
+
         if self.state == self.STATE.PROCESSING:
+
             percents = self.hero.quests.current_quest.process()
 
             self.percents = percents
@@ -564,6 +592,24 @@ class ActionMoveToPrototype(ActionBase):
     @property
     def current_destination(self): return self.hero.position.road.point_2 if not self.hero.position.invert_direction else self.hero.position.road.point_1
 
+    def preprocess(self):
+        if not self.hero.is_alive:
+            ActionResurrectPrototype.create(hero=self.hero)
+            self.state = self.STATE.RESURRECT
+            return True
+
+        if self.hero.need_rest_in_move:
+            ActionRestPrototype.create(hero=self.hero)
+            self.state = self.STATE.RESTING
+            return True
+
+        if self.hero.quests.has_quests:
+            if self.hero.quests.current_quest.replane_required:
+                self.state = self.STATE.PROCESSED
+                return True
+
+        return False
+
     def process_choose_road__in_place(self):
         if self.hero.position.place_id != self.destination_id:
             waymark = waymarks_storage.look_for_road(point_from=self.hero.position.place_id, point_to=self.destination_id)
@@ -574,7 +620,6 @@ class ActionMoveToPrototype(ActionBase):
             length = None
             self.percents = 1
             self.state = self.STATE.PROCESSED
-
         return length
 
     def process_choose_road__in_road(self):
@@ -623,7 +668,6 @@ class ActionMoveToPrototype(ActionBase):
 
 
     def process_choose_road(self):
-
         if self.hero.position.place_id:
             length = self.process_choose_road__in_place()
         else:
@@ -633,11 +677,6 @@ class ActionMoveToPrototype(ActionBase):
             self.length = length
 
     def process_moving(self):
-        if self.hero.quests.has_quests:
-            if self.hero.quests.current_quest.replane_required:
-                self.state = self.STATE.PROCESSED
-                return
-
         current_destination = self.current_destination
 
         if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
@@ -684,14 +723,17 @@ class ActionMoveToPrototype(ActionBase):
 
     def process(self):
 
+        if self.preprocess():
+            return
+
         if self.state == self.STATE.RESTING:
-            self.state = self.STATE.MOVING
+            self.state = self.STATE.CHOOSE_ROAD
 
         if self.state == self.STATE.RESURRECT:
-            self.state = self.STATE.MOVING
+            self.state = self.STATE.CHOOSE_ROAD
 
         if self.state == self.STATE.REGENERATE_ENERGY:
-            self.state = self.STATE.MOVING
+            self.state = self.STATE.CHOOSE_ROAD
 
         if self.state == self.STATE.IN_CITY:
             self.state = self.STATE.CHOOSE_ROAD
@@ -1212,11 +1254,9 @@ class ActionMoveNearPlacePrototype(ActionBase):
                          state=cls.STATE.MOVING,
                          back=back)
 
-        if hero.position.is_walking:
-            from_x, from_y = hero.position.coordinates_to
-            hero.position.set_coordinates(from_x, from_y, x, y, percents=0)
-        else:
-            hero.position.set_coordinates(place.x, place.y, x, y, percents=0)
+        from_x, from_y = hero.position.cell_coordinates
+
+        hero.position.set_coordinates(from_x, from_y, x, y, percents=0)
 
         return prototype
 
@@ -1225,32 +1265,36 @@ class ActionMoveNearPlacePrototype(ActionBase):
         args.update({'place': self.place})
         return args
 
-    def process_battle(self):
+
+    def preprocess(self):
         if not self.hero.is_alive:
             ActionResurrectPrototype.create(hero=self.hero)
             self.state = self.STATE.RESURRECT
-        else:
-            if self.hero.need_rest_in_move:
-                ActionRestPrototype.create(hero=self.hero)
-                self.state = self.STATE.RESTING
-            elif self.hero.need_regenerate_energy:
-                ActionRegenerateEnergyPrototype.create(hero=self.hero)
-                self.state = self.STATE.REGENERATE_ENERGY
-            else:
-                self.state = self.STATE.MOVING
-
-    def process_moving(self):
-
-        if self.hero.quests.has_quests:
-            if self.hero.quests.current_quest.replane_required:
-                self.state = self.STATE.PROCESSED
-                return
+            return True
 
         if self.hero.need_rest_in_move:
             ActionRestPrototype.create(hero=self.hero)
             self.state = self.STATE.RESTING
+            return True
 
-        elif self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
+        if self.hero.quests.has_quests:
+            if self.hero.quests.current_quest.replane_required:
+                self.state = self.STATE.PROCESSED
+                return True
+
+        return False
+
+    def process_battle(self):
+
+        if self.hero.need_regenerate_energy:
+            ActionRegenerateEnergyPrototype.create(hero=self.hero)
+            self.state = self.STATE.REGENERATE_ENERGY
+        else:
+            self.state = self.STATE.MOVING
+
+    def process_moving(self):
+
+        if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
             ActionRegenerateEnergyPrototype.create(hero=self.hero)
             self.state = self.STATE.REGENERATE_ENERGY
 
@@ -1295,6 +1339,9 @@ class ActionMoveNearPlacePrototype(ActionBase):
 
 
     def process(self):
+
+        if self.preprocess():
+            return
 
         if self.state == self.STATE.RESTING:
             self.state = self.STATE.MOVING

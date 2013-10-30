@@ -159,8 +159,8 @@ def get_knowledge_base(hero, without_restrictions=False): # pylint: disable=R091
     if not without_restrictions:
 
         for person_id in hero.quests.interfered_persons:
-            person = persons_storage[person_id]
-            if person.place.id == hero.position.place.id:
+            person = persons_storage.get(person_id)
+            if person and person.place.id == hero.position.place.id:
                 kb += facts.NotFirstInitiator(person=uids.person(person))
 
     kb.validate_consistency(WORLD_RESTRICTIONS)

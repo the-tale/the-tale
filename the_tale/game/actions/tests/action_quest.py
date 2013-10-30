@@ -1,15 +1,20 @@
 # coding: utf-8
+
 from common.utils import testcase
 
 from accounts.logic import register_user
-from game.heroes.prototypes import HeroPrototype
-from game.logic_storage import LogicStorage
 
+from game.prototypes import TimePrototype
 
 from game.logic import create_test_map
-from game.actions.prototypes import ActionQuestPrototype
+from game.logic_storage import LogicStorage
+
+from game.heroes.prototypes import HeroPrototype
+
 from game.quests.logic import create_random_quest_for_hero
-from game.prototypes import TimePrototype
+
+from game.actions.prototypes import ActionQuestPrototype
+
 
 class QuestActionTest(testcase.TestCase):
 

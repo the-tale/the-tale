@@ -18,7 +18,14 @@ from game.logic import create_test_map
 
 from game.prototypes import TimePrototype
 
+from game.balance import constants as c
+from game.balance import formulas as f
+
 from game.actions.prototypes import ActionQuestPrototype
+
+from game.artifacts.prototypes import ArtifactRecordPrototype
+from game.artifacts.relations import ARTIFACT_TYPE
+from game.artifacts.storage import artifacts_storage
 
 from game.quests.logic import create_random_quest_for_hero
 from game.quests.prototypes import QuestPrototype
@@ -252,3 +259,41 @@ class PrototypeTests(testcase.TestCase):
                                       cost=666)
 
         self.assertTrue(self.hero.money > 0)
+
+
+    @mock.patch('game.heroes.prototypes.HeroPrototype.can_get_artifact_for_quest', lambda hero: True)
+    @mock.patch('game.balance.constants.ARTIFACT_POWER_DELTA', 0.0)
+    def test_give_reward__artifact_scale(self):
+
+        self.assertEqual(self.hero.bag.occupation, 0)
+
+        ArtifactRecordPrototype.create_random('just_ring', type_=ARTIFACT_TYPE.RING)
+        ArtifactRecordPrototype.create_random('just_amulet', type_=ARTIFACT_TYPE.AMULET)
+
+        with mock.patch('game.heroes.prototypes.HeroPrototype.buy_artifact_choices',
+                        lambda *argv, **kwargs: artifacts_storage.artifacts_for_type([ARTIFACT_TYPE.RING])):
+            self.quest._give_reward(self.hero, 'bla-bla', scale=1.0)
+
+        with mock.patch('game.heroes.prototypes.HeroPrototype.buy_artifact_choices',
+                        lambda *argv, **kwargs: artifacts_storage.artifacts_for_type([ARTIFACT_TYPE.AMULET])):
+            self.quest._give_reward(self.hero, 'bla-bla', scale=1.5)
+
+        self.assertEqual(self.hero.bag.occupation, 2)
+
+        artifact_1, artifact_2 = list(self.hero.bag.values())
+
+        self.assertEqual(abs(artifact_1.power - artifact_2.power), int(c.POWER_TO_LVL * 0.5))
+
+    @mock.patch('game.heroes.prototypes.HeroPrototype.can_get_artifact_for_quest', lambda hero: False)
+    @mock.patch('game.balance.constants.PRICE_DELTA', 0.0)
+    def test_give_reward__money_scale(self):
+
+        self.assertEqual(self.hero.money, 0)
+
+        self.quest._give_reward(self.hero, 'bla-bla', scale=1.0)
+
+        not_scaled_money = self.hero.money
+
+        self.quest._give_reward(self.hero, 'bla-bla', scale=1.5)
+
+        self.assertEqual(self.hero.money - not_scaled_money, int(1 + f.sell_artifact_price(self.hero.level) * 1.5))

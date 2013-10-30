@@ -26,7 +26,7 @@ class QuestsContainer(object):
         obj = cls()
         obj.quests_list = [QuestPrototype.deserialize(hero=hero, data=quest_data) for quest_data in data.get('quests', [])]
         obj.history = data.get('history', {})
-        obj.interfered_persons = data.get('interfered_persons', {})
+        obj.interfered_persons = {int(person_id): person_time for person_id, person_time in data.get('interfered_persons', {}).iteritems()}
         return obj
 
     def ui_info(self, hero):

@@ -151,12 +151,14 @@ class IdlenessActionTest(testcase.TestCase):
         self.assertFalse(HELP_CHOICES.START_QUEST in self.action_idl.HELP_CHOICES)
 
     def test_return_from_road(self):
+        self.action_idl.state = ActionIdlenessPrototype.STATE.QUEST
         self.hero.position.set_road(list(roads_storage.all())[0], percents=0.5)
         self.storage.process_turn()
         self.assertEqual(self.hero.actions.number, 2)
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionMoveToPrototype.TYPE)
 
     def test_return_from_wild_terrain(self):
+        self.action_idl.state = ActionIdlenessPrototype.STATE.QUEST
         self.hero.position.set_coordinates(0, 0, 5, 5, percents=0)
         self.storage.process_turn()
         self.assertEqual(self.hero.actions.number, 2)

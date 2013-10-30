@@ -7,7 +7,7 @@ from questgen.machine import Machine
 from questgen import facts
 from questgen.knowledge_base import KnowledgeBase
 from questgen import transformators
-from questgen.quests.base_quest import ROLES
+from questgen.quests.base_quest import ROLES, RESULTS as QUEST_RESULTS
 
 from game.prototypes import TimePrototype
 
@@ -26,6 +26,10 @@ from game.quests import exceptions
 from game.quests import uids
 from game.quests import writers
 from game.quests.relations import ACTOR_TYPE, DONOTHING_TYPE
+
+
+# from django.utils.log import getLogger
+# logger = getLogger('the-tale.workers.game_logic')
 
 
 class QuestInfo(object):
@@ -310,6 +314,13 @@ class QuestPrototype(object):
                                 for has_money in self.knowledge_base.filter(facts.HasMoney)
                                 if has_money.object == hero_uid]
 
+        self.knowledge_base -= [is_alive
+                                for is_alive in self.knowledge_base.filter(facts.IsAlive)
+                                if is_alive.object == hero_uid]
+
+        if self.hero.is_alive:
+            self.knowledge_base += facts.IsAlive(object=hero_uid)
+
         if self.hero.position.place:
             self.knowledge_base += facts.LocatedIn(object=hero_uid, place=uids.place(self.hero.position.place))
         else:
@@ -317,6 +328,11 @@ class QuestPrototype(object):
             self.knowledge_base += facts.LocatedNear(object=hero_uid, place=uids.place(place))
 
         self.knowledge_base += facts.HasMoney(object=hero_uid, money=self.hero.money)
+
+        # logger.warn(u'%r' % self.machine.pointer)
+        # logger.warn(u'%r' % ( [is_alive
+        #                        for is_alive in self.knowledge_base.filter(facts.IsAlive)
+        #                        if is_alive.object == hero_uid], ) )
 
 
     def satisfy_requirements(self, state):
@@ -365,9 +381,6 @@ class QuestPrototype(object):
 
         power = hero.modify_power(power, person=person)
 
-        if power < 0:
-            hero.quests.add_interfered_person(person.id)
-
         if not hero.can_change_persons_power:
             return 0
 
@@ -410,10 +423,14 @@ class QuestPrototype(object):
 
         hero.statistics.change_quests_done(1)
 
+        for person_uid, result in finish.results.iteritems():
+            if result == QUEST_RESULTS.FAILED:
+                hero.quests.add_interfered_person(self.knowledge_base[person_uid].externals['id'])
+
         self.quests_stack.pop()
 
 
-    def _give_reward(self, reward_type, hero):
+    def _give_reward(self, hero, reward_type, scale):
 
         quest_info = self.quests_stack[-1]
 
@@ -421,13 +438,14 @@ class QuestPrototype(object):
             artifact, unequipped, sell_price = hero.buy_artifact(better=False, with_prefered_slot=False, equip=False)# pylint: disable=W0612
 
             if artifact is not None:
+                artifact.power += int((scale - 1.0) * c.POWER_TO_LVL)
                 quest_info.process_message(knowledge_base=self.knowledge_base,
                                            hero=self.hero,
                                            message='%s_artifact' % reward_type,
                                            ext_substitution={'artifact': artifact})
                 return
 
-        multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
+        multiplier = (1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)) * scale
         money = 1 + int(f.sell_artifact_price(hero.level) * multiplier)
         money = hero.abilities.update_quest_reward(hero, money)
         hero.change_money(MONEY_SOURCE.EARNED_FROM_QUESTS, money)
@@ -465,6 +483,9 @@ class QuestPrototype(object):
 
     @classmethod
     def _upgrade_equipment(cls, process_message, hero, knowledge_base, cost):
+
+        cost = min(cost, hero.money)
+
         if cls._get_upgrdade_choice(hero) == 'buy':
             artifact, unequipped, sell_price = hero.buy_artifact(better=True, with_prefered_slot=True, equip=True)
 
@@ -544,7 +565,7 @@ class QuestPrototype(object):
                 else:
                     raise exceptions.UnknownPowerRecipient(recipient=recipient)
             elif isinstance(action, facts.GiveReward):
-                self._give_reward(action.type, self.hero)
+                self._give_reward(self.hero, action.type, action.scale)
             elif isinstance(action, facts.Fight):
                 self._fight(action)
             elif isinstance(action, facts.MoveNear):
