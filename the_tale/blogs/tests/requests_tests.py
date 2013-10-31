@@ -329,7 +329,7 @@ class TestVoteRequests(BaseTestRequests):
         self.check_post_votes(self.post.id, 2)
 
     def test_already_exists(self):
-        VotePrototype._db_delete_all()
+        VotePrototype._db_all().delete()
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:vote', args=[self.post.id]), {}))
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:vote', args=[self.post.id]), {}))
         self.check_post_votes(self.post.id, 1)
@@ -361,13 +361,13 @@ class TestUnvoteRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(reverse('blogs:posts:unvote', args=[666]), {}), 'blogs.posts.post.not_found')
 
     def test_remove_unexisted(self):
-        VotePrototype._db_delete_all()
+        VotePrototype._db_all().delete()
         self.assertEqual(VotePrototype._db_count(), 0)
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:unvote', args=[self.post.id]), {}))
         self.assertEqual(VotePrototype._db_count(), 0)
 
     def test_remove_existed(self):
-        VotePrototype._db_delete_all()
+        VotePrototype._db_all().delete()
         self.assertEqual(VotePrototype._db_count(), 0)
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:vote', args=[self.post.id]), {}))
         self.assertEqual(VotePrototype._db_count(), 1)

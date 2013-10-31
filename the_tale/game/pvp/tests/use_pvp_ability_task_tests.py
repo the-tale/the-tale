@@ -53,7 +53,7 @@ class UsePvPAbilityTests(testcase.TestCase):
         self.assertEqual(self.task.serialize(), UsePvPAbilityTask.deserialize(self.task.serialize()).serialize())
 
     def test_process_battle_not_found(self):
-        Battle1x1Prototype._db_delete_all()
+        Battle1x1Prototype._db_all().delete()
         self.task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(self.task.state, USE_PVP_ABILITY_TASK_STATE.BATTLE_FINISHED)
 

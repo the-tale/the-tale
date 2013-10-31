@@ -173,7 +173,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
     def test_decline__no_excange(self):
         self.apply_bill()
 
-        ResourceExchangePrototype._db_delete_all()
+        ResourceExchangePrototype._db_all().delete()
 
         resource_exchange_storage.refresh()
 
@@ -202,7 +202,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
     def test_end__no_excange(self):
         self.apply_bill()
 
-        ResourceExchangePrototype._db_delete_all()
+        ResourceExchangePrototype._db_all().delete()
 
         resource_exchange_storage.refresh()
 

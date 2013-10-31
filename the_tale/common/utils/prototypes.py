@@ -93,29 +93,42 @@ class BasePrototype(object):
     def create(self, *argv, **kwargs):
         raise NotImplementedError
 
+    def save(self):
+        self._model.save()
+
+    @classmethod
+    def from_query(cls, query):
+        return (cls(model=model) for model in query)
+
     def __unicode__(self):
         return self._model.__unicode__()
 
     def __repr__(self):
         return u'%s(model=%s)' % (self.__class__.__name__, self._model.__repr__())
 
-    # most for tests
-    @classmethod
-    def _db_get_object(cls, number=0):
-        return cls(model=cls._model_class.objects.all().order_by('id')[number])
+    #############################
+    # db query shortcuts
+    #############################
 
     @classmethod
     def _db_all(cls):
-        return [cls(model=model) for model in cls._model_class.objects.all()]
+        return cls._model_class.objects.all()
 
     @classmethod
-    def _db_count(cls):
+    def _db_count(cls): # DEPRECTATED: use _db_all().count() || _db_filter().count()
         return cls._model_class.objects.all().count()
-
-    @classmethod
-    def _db_delete_all(cls):
-        return cls._model_class.objects.all().delete()
 
     @classmethod
     def _db_filter(cls, **kwargs):
         return cls._model_class.objects.filter(**kwargs)
+
+    #############################
+    # db query shortcuts
+    #############################
+
+    #############################
+    # most for tests
+    #############################
+    @classmethod
+    def _db_get_object(cls, number=0):
+        return cls(model=cls._model_class.objects.all().order_by('id')[number])

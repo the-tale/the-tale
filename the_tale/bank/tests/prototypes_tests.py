@@ -551,7 +551,7 @@ class InvoicePrototypeTests(testcase.TestCase, BankTestsMixin):
 
             invoice = self.create_invoice(state=state)
             self.assertEqual(InvoicePrototype.get_unprocessed_invoice().id, invoice.id)
-            InvoicePrototype._db_delete_all()
+            InvoicePrototype._db_all().delete()
 
     def test_get_unprocessed_invoice__no_invoice(self):
         for state in INVOICE_STATE._records:
