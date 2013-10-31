@@ -34,7 +34,10 @@ class PostPrototype(BasePrototype):
     def text_html(self): return bbcode.render(self.text)
 
     @lazy_property
-    def author(self): return AccountPrototype(self._model.author)
+    def author(self):
+        if self._model.author:
+            return AccountPrototype(self._model.author)
+        return None
 
     def recalculate_votes(self):
         self.votes = Vote.objects.filter(post=self._model).count()

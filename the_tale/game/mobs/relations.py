@@ -18,4 +18,4 @@ class MOB_TYPE(DjangoEnum):
                  ('SUPERNATURAL', 2, u'сверхъестественное', False),
                  ('MECHANICAL', 3, u'механизм', False),
                  ('BARBARIAN', 4, u'дикарь', False),
-                 ('CIVILIZED', 5, u'цивилизованый гуманоид', True))
+                 ('CIVILIZED', 5, u'цивилизованный гуманоид', True))

@@ -22,10 +22,9 @@ jQuery(document).ready( function(e) {
 <form id="pgf-edit-mob-form" class="mobs-edit-form" method="post" action="{{ url('game:mobs:update', mob.id) }}">
 
   {{ form.errors_container }}
-
   {{ form.name.widget }}
-
   {{ form.level.widget }}
+  {{ form.type.widget }}
 
   <div class="terrain-and-abilities">
     <div class="terrain">

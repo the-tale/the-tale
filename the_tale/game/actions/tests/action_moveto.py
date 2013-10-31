@@ -215,6 +215,20 @@ class MoveToActionTest(testcase.TestCase):
         self.assertEqual(self.action_move.state, ActionMoveToPrototype.STATE.PROCESSED)
 
 
+    def test_hero_killed(self):
+        self.hero.is_alive = False
+        self.assertNotEqual(self.action_move.state, ActionMoveToPrototype.STATE.RESURRECT)
+        self.storage.process_turn(second_step_if_needed=False)
+        self.assertEqual(self.action_move.state, ActionMoveToPrototype.STATE.RESURRECT)
+
+    def test_hero_need_rest(self):
+        self.hero.health = 1
+        self.assertNotEqual(self.action_move.state, ActionMoveToPrototype.STATE.RESTING)
+        self.storage.process_turn(second_step_if_needed=False)
+        self.assertEqual(self.action_move.state, ActionMoveToPrototype.STATE.RESTING)
+
+
+
 class MoveToActionWithBreaksTest(testcase.TestCase):
 
     def setUp(self):

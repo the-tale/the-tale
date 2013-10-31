@@ -174,6 +174,7 @@ class GameMobResource(MobResourceBase):
     def moderation_page(self):
         form = ModerateMobRecordForm(initial={'description': self.mob.description,
                                               'level': self.mob.level,
+                                              'type': self.mob.type,
                                               'terrains': self.mob.terrains,
                                               'abilities': self.mob.abilities,
                                               'uuid': self.mob.uuid,

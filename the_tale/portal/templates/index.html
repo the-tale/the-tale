@@ -111,7 +111,11 @@
         {% for thread in forum_threads %}
         <li class="newspaper-link-list">
           <span class="pgf-format-time newspaper-link-time" data-timestamp="{{ thread.updated_at|timestamp }}"></span>
-          <span class="newspaper-forum-user">{{thread.last_poster.nick}}</span>
+          <span class="newspaper-forum-user">
+            {% if thread.last_poster %}{{thread.last_poster.nick}}
+            {% else %} —
+            {% endif %}
+          </span>
           <br/>
           {{ thread.caption }}&nbsp;<a style="font-size: 10pt;" href="{{ thread.paginator.last_page_url }}">➔</a>
         </li>
@@ -125,7 +129,11 @@
         {% for blog_post in blog_posts %}
         <li class="newspaper-link-list">
           <span class="pgf-format-date newspaper-link-time" data-timestamp="{{ blog_post.created_at|timestamp }}"></span>
-          <span class="newspaper-forum-user">{{blog_post.author.nick}}</span>
+          <span class="newspaper-forum-user">
+            {% if blog_post.author %}{{blog_post.author.nick}}
+            {% else %} —
+            {% endif %}
+          </span>
           <br/>
           {{ blog_post.caption }}&nbsp;<a style="font-size: 10pt;" href="{{ url('blogs:posts:show', blog_post.id) }}">➔</a>
         </li>
