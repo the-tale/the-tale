@@ -484,7 +484,8 @@ class QuestPrototype(object):
     @classmethod
     def _upgrade_equipment(cls, process_message, hero, knowledge_base, cost):
 
-        cost = min(cost, hero.money)
+        if cost is not None:
+            cost = min(cost, hero.money)
 
         if cls._get_upgrdade_choice(hero) == 'buy':
             artifact, unequipped, sell_price = hero.buy_artifact(better=True, with_prefered_slot=True, equip=True)

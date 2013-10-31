@@ -223,7 +223,7 @@ def _create_random_quest_for_hero(hero, special, without_restrictions=False):
     transformators.remove_restricted_states(knowledge_base)
     transformators.remove_broken_states(knowledge_base) # MUST be called after all graph changes
     transformators.determine_default_choices(knowledge_base) # MUST be called after all graph changes and on valid graph
-    # transformators.remove_unused_actors(knowledge_base)
+    transformators.remove_unused_actors(knowledge_base)
 
     knowledge_base.validate_consistency(WORLD_RESTRICTIONS)
     knowledge_base.validate_consistency(QUEST_RESTRICTIONS)

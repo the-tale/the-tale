@@ -96,10 +96,11 @@ def create_test_method(quest, quests):
         test_upgrade_equipment = random.randint(0, 1) # test child quest or upgrade equipment for SearchSmith
 
         while self.hero.actions.current_action.TYPE != ActionQuestPrototype.TYPE:
-            self.storage.process_turn()
             if quest == SearchSmith and test_upgrade_equipment:
-                self.hero._model.money = QuestPrototype.upgrade_equipment_cost(self.hero)
+                self.hero._model.money = QuestPrototype.upgrade_equipment_cost(self.hero) * 2
                 self.hero._model.next_spending = ITEMS_OF_EXPENDITURE.INSTANT_HEAL
+
+            self.storage.process_turn()
             current_time.increment_turn()
 
         # test if quest is serializable
