@@ -123,10 +123,6 @@ class BasePrototype(object):
         return cls._model_class.objects.filter(**kwargs)
 
     #############################
-    # db query shortcuts
-    #############################
-
-    #############################
     # most for tests
     #############################
     @classmethod

@@ -56,3 +56,7 @@ class Reward(models.Model):
     caption = models.CharField(max_length=CAPTION_MAX_LENGTH)
 
     text = models.TextField()
+
+    class Meta:
+        permissions = (('edit_reward', u'Может создавать и редактировать награды'),
+                       ('moderate_reward', u'Может утверждать награды'),)

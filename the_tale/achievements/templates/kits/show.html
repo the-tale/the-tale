@@ -1,0 +1,61 @@
+{% extends "achievements/kits/base.html" %}
+
+{% block title %}{{resource.kit.caption}} | {{ super() }}{% endblock %}
+
+{% block kits_content %}
+
+<h2>{{ resource.kit.section.caption }}: {{resource.kit.caption}}</h2>
+
+{{ resource.kit.description }}
+
+
+<h3>Награды</h3>
+
+{% if resource.can_edit_kit %}
+<a href="{{url('achievements:kits:edit', resource.kit.id)}}" class="pgf-edit-kit-button btn btn-success">Редактировать набор</a>
+{% endif %}
+
+{% if resource.can_moderate_kit %}
+  {% if not resource.kit.approved %}
+    <a href="{{url('achievements:kits:approve', resource.kit.id)}}"
+       class="pgf-approve-kit-button btn btn-danger pgf-forms-post-simple"
+       data-confirmation="Вы действительно хотите утвердить набор?">Утвердить набор</a>
+  {% else %}
+    <a href="{{url('achievements:kits:disapprove', resource.kit.id)}}"
+       class="pgf-disapprove-kit-button btn btn-danger pgf-forms-post-simple"
+       data-confirmation="Вы действительно хотите разутвердить набор?">Разутвердить набор</a>
+  {% endif %}
+{% endif %}
+
+{% if rewards %}
+
+<div class="accordion" id="pgf-phrases-accordion">
+
+  {% for reward in rewards %}
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-rewards-accordion" href="#pgf-reward-{{reward.id}}">
+        {{reward.caption}}
+      </a>
+    </div>
+    <div id="pgf-module-{{reward.id}}" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner">
+        {{reward.text}}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+
+{% else %}
+
+<p class="alert alert-info pgf-no-rewards-message">
+  В наборе нет наград.
+</p>
+
+{% endif %}
+
+
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "achievements/sections/base.html" %}
+
+{% block title %}{{resource.section.caption}} | {{ super() }}{% endblock %}
+
+{% block sections_content %}
+
+<h2>{{resource.section.caption}}</h2>
+
+{{resource.section.description}}
+
+
+<h3>Наборы</h3>
+
+{% if resource.can_edit_section %}
+<a href="{{url('achievements:sections:edit', resource.section.id)}}" class="pgf-edit-section-button btn btn-success">Редактировать раздел</a>
+{% endif %}
+
+{% if resource.can_moderate_section %}
+  {% if not resource.section.approved %}
+    <a href="{{url('achievements:sections:approve', resource.section.id)}}"
+       class="pgf-approve-section-button btn btn-danger pgf-forms-post-simple"
+       data-confirmation="Вы действительно хотите утвердить раздел?">Утвердить раздел</a>
+  {% else %}
+    <a href="{{url('achievements:sections:disapprove', resource.section.id)}}"
+       class="pgf-disapprove-section-button btn btn-danger pgf-forms-post-simple"
+       data-confirmation="Вы действительно хотите разутвердить раздел?">Разутвердить раздел</a>
+  {% endif %}
+{% endif %}
+
+{% if kits %}
+
+<ul>
+  {% for kit in kits %}
+    <li>
+      <a href="{{url('achievements:kits:show', kit.id)}}">{{kit.caption}}</a>
+    </li>
+  {% endfor %}
+</ul>
+
+{% else %}
+
+<p class="alert alert-info pgf-no-kits-message">
+  В разделе нет наборов наград.
+</p>
+
+{% endif %}
+
+
+
+{% endblock %}

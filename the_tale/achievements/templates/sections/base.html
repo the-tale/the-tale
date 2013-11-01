@@ -1,0 +1,29 @@
+{% extends "achievements/base.html" %}
+
+
+{% block achievements_content %}
+
+<div class="row">
+  <div class="span3">
+    <div class="block">
+      <h3>Разделы</h3>
+      <ul class="nav nav-list">
+        {% for menu_section in resource.sections %}
+        <li class="nav-element {% if resource.section and menu_section.id == resource.section.id %}active{% endif %}"
+            {% if not menu_section.approved%}style="color: red;"{% endif %}>
+          <a href="{{ url('achievements:sections:show', menu_section.id) }}">{{menu_section.caption}}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="span9">
+    <div class="block white">
+      {% block sections_content %}
+      {% endblock %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

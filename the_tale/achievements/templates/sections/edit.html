@@ -1,0 +1,36 @@
+{% extends "achievements/sections/base.html" %}
+
+{% block title %}Редактирование | {{resource.section.caption}} | {{ super() }}{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    var newForm = new pgf.forms.Form(jQuery('#pgf-edit-section-form'),
+                                               {OnSuccess: function(instance, data){location.href = data.data.next_url;}});
+
+});
+
+</script>
+
+{% endblock %}
+
+
+{% block sections_content %}
+
+<form id="pgf-edit-section-form" method="post" action="{{ url('achievements:sections:update', resource.section.id) }}">
+
+  {{ form.errors_container }}
+
+  {{ form.caption.widget }}
+  {{ form.description.widget }}
+
+  <div class="widget">
+    <input type="submit" class="btn" value="Сохранить"/>
+  </div>
+
+</form>
+
+
+{% endblock %}

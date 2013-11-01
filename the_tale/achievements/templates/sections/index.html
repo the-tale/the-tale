@@ -1,0 +1,14 @@
+{% extends "achievements/sections/base.html" %}
+
+{% block sections_content %}
+
+
+<h2>Главная страница разделов</h2>
+
+<p class="alert alert info">
+  Редактировать непосредственно раздел можно на его странице.
+</p>
+
+<a href="{{url('achievements:sections:new')}}" class="btn btn-success">Создать новый раздел</a>
+
+{% endblock %}

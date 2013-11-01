@@ -1,14 +1,15 @@
 # coding: utf-8
 
 from common.utils.prototypes import BasePrototype
+from common.utils.decorators import lazy_property
 
 from achievements.models import Section, Kit, Reward
 
 
 class SectionPrototype(BasePrototype):
     _model_class = Section
-    _readonly = ('id', 'created_at', 'updated_at', 'caption', 'description', 'approved')
-    _bidirectional = ()
+    _readonly = ('id', 'created_at', 'updated_at', 'CAPTION_MAX_LENGTH', 'DESCRIPTION_MAX_LENGTH')
+    _bidirectional = ('caption', 'description', 'approved', )
     _get_by = ('id', )
 
     @classmethod
@@ -16,28 +17,42 @@ class SectionPrototype(BasePrototype):
         return cls.from_query(cls._db_filter(approved=True))
 
     @classmethod
-    def create(cls, caption, description):
-        model = cls._model_class.create(caption=caption,
-                                        description=description)
+    def all_sections(cls):
+        return cls._db_all()
+
+    @classmethod
+    def create(cls, caption, description, approved=False):
+        model = cls._model_class.objects.create(caption=caption,
+                                                description=description,
+                                                approved=approved)
 
         return cls(model=model)
 
 
 class KitPrototype(BasePrototype):
     _model_class = Kit
-    _readonly = ('id', 'created_at', 'updated_at', 'caption', 'description', 'approved', 'section_id')
-    _bidirectional = ()
-    _get_by = ('id', )
+    _readonly = ('id', 'created_at', 'updated_at', 'CAPTION_MAX_LENGTH', 'DESCRIPTION_MAX_LENGTH')
+    _bidirectional = ('approved', 'caption', 'description', 'section_id')
+    _get_by = ('id', 'section_id')
 
     @classmethod
     def approved_kits(cls):
-        return cls.from_query(cls._db_filter(approved=True))
+        return cls.from_query(cls._db_filter(approved=True).order_by('caption'))
 
     @classmethod
-    def create(cls, section, caption, description):
-        model = cls._model_class.create(section=section._model_class,
-                                        caption=caption,
-                                        description=description)
+    def all_kits(cls):
+        return cls._db_all()
+
+    @lazy_property
+    def section(self):
+        return SectionPrototype.get_by_id(self.section_id)
+
+    @classmethod
+    def create(cls, section, caption, description, approved=False):
+        model = cls._model_class.objects.create(section=section._model,
+                                                caption=caption,
+                                                description=description,
+                                                approved=approved)
 
         return cls(model=model)
 
@@ -45,15 +60,19 @@ class KitPrototype(BasePrototype):
 
 class RewardPrototype(BasePrototype):
     _model_class = Reward
-    _readonly = ('id', 'created_at', 'updated_at', 'caption', 'text', 'approved')
-    _bidirectional = ()
-    _get_by = ('id', )
+    _readonly = ('id', 'created_at', 'updated_at', 'CAPTION_MAX_LENGTH')
+    _bidirectional = ('approved',  'caption', 'text', 'kit_id')
+    _get_by = ('id', 'kit_id')
 
+    @lazy_property
+    def kit(self):
+        return KitPrototype.get_by_id(self.kit_id)
 
     @classmethod
-    def create(cls, kit, caption, text):
-        model = cls._model_class.create(kit=kit._model_class,
-                                        caption=caption,
-                                        text=text)
+    def create(cls, kit, caption, text, approved=False):
+        model = cls._model_class.objects.create(kit=kit._model,
+                                                caption=caption,
+                                                text=text,
+                                                approved=approved)
 
         return cls(model=model)

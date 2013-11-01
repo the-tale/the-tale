@@ -1,0 +1,14 @@
+{% extends "achievements/kits/base.html" %}
+
+{% block kits_content %}
+
+
+<h2>Главная страница наборов</h2>
+
+<p class="alert alert info">
+  Редактировать непосредственно набор можно на его странице.
+</p>
+
+<a href="{{url('achievements:kits:new')}}" class="btn btn-success">Создать новый набор</a>
+
+{% endblock %}

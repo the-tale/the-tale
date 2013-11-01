@@ -39,91 +39,103 @@ class BaseRequestTests(testcase.TestCase):
 
 
         self.section_1 = SectionPrototype.create(caption=u'section_1', description=u'description_1')
-        self.section_2 = SectionPrototype.create(caption=u'section_2', description=u'description_2')
+        self.section_2 = SectionPrototype.create(caption=u'section_2', description=u'description_2', approved=True)
 
         self.kit_1 = KitPrototype.create(section=self.section_1, caption=u'kit_1', description=u'description_1')
         self.kit_2 = KitPrototype.create(section=self.section_2, caption=u'kit_2', description=u'description_2')
 
 
 
-class SectionsIndexTests(BaseRequestTests):
+class SectionVisibilityAllMixin(object):
+
+    def test_visible_sections__all(self):
+        self.request_login(self.account_2.email)
+        self.check_html_ok(self.request_html(self.test_url), texts=[self.section_1.caption,
+                                                                    self.section_2.caption])
+
+
+class SectionVisibilityApprovedMixin(SectionVisibilityAllMixin):
+
+    def test_visible_sections__aproved_only(self):
+        self.request_login(self.account_1.email)
+        self.check_html_ok(self.request_html(self.test_url), texts=[(self.section_1.caption, 0),
+                                                                    self.section_2.caption])
+
+
+
+class SectionsIndexTests(BaseRequestTests, SectionVisibilityAllMixin):
 
     def setUp(self):
         super(SectionsIndexTests, self).setUp()
-        self.index_url = url('achievements:sections:')
-
-    def test_success(self):
-        texts = [('pgf-no-sections-message', 0),
-                 ('pgf-no-kits-message', 0)]
-        texts.extend((kit.caption, 1) for kit in KitPrototype._db_all())
-        texts.extend((section.caption, 1) for section in SectionPrototype._db_all())
-
-        self.check_html_ok(self.request_html(self.index_url), texts=texts)
-
-    def test_no_sections(self):
-        KitPrototype._db_all().delete()
-        SectionPrototype._db_all().delete()
-        self.check_html_ok(self.request_html(self.index_url),
-                           texts=(('pgf-no-sections-message', 1),
-                                  ('pgf-no-kits-message', 0)))
-
-    def test_no_kits_in_section(self):
-        KitPrototype._db_all().delete()
-        self.check_html_ok(self.request_html(self.index_url),
-                           texts=(('pgf-no-sections-message', 0),
-                                  ('pgf-no-kits-message', 2)))
-
-
-class SectionsNewTests(BaseRequestTests):
-
-    def setUp(self):
-        super(SectionsNewTests, self).setUp()
-        self.new_url = url('achievements:sections:new')
+        self.test_url = url('achievements:sections:')
 
     def test_login_required(self):
-        self.check_redirect(self.new_url, login_url(self.new_url))
+        self.check_redirect(self.test_url, login_url(self.test_url))
 
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)
-        self.check_html_ok(self.request_html(self.new_url),
-                           texts=(('achievements.sections.no_edit_rights', 1)))
+        self.check_html_ok(self.request_html(self.test_url),
+                           texts=[('achievements.sections.no_edit_rights', 1)])
 
     def test_success(self):
         self.request_login(self.account_2.email)
-        self.check_html_ok(self.request_html(self.new_url),
-                           texts=(('achievements.sections.no_edit_rights', 0)))
+        self.check_html_ok(self.request_html(self.test_url),
+                           texts=[('achievements.sections.no_edit_rights', 0)])
+
+
+
+class SectionsNewTests(BaseRequestTests, SectionVisibilityAllMixin):
+
+    def setUp(self):
+        super(SectionsNewTests, self).setUp()
+        self.test_url = url('achievements:sections:new')
+
+    def test_login_required(self):
+        self.check_redirect(self.test_url, login_url(self.test_url))
+
+    def test_edit_rights_required(self):
+        self.request_login(self.account_1.email)
+        self.check_html_ok(self.request_html(self.test_url),
+                           texts=[('achievements.sections.no_edit_rights', 1)])
+
+    def test_success(self):
+        self.request_login(self.account_2.email)
+        self.check_html_ok(self.request_html(self.test_url),
+                           texts=[('achievements.sections.no_edit_rights', 0)])
+
 
 
 class SectionsCreateTests(BaseRequestTests):
 
     def setUp(self):
         super(SectionsCreateTests, self).setUp()
-        self.create_url = url('achievements:sections:create')
+        self.test_url = url('achievements:sections:create')
 
     def get_post_data(self):
         return {'caption': 'caption_3',
-                'description': 'description_3'}
+                'description': u'description_3'}
 
     def test_login_required(self):
-        self.check_ajax_error(self.post_ajax_json(self.create_url, self.get_post_data()),
+        self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
                               'common.login_required')
         self.assertEqual(SectionPrototype._db_all().count(), 2)
 
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)
-        self.check_ajax_error(self.post_ajax_json(self.create_url, self.get_post_data()),
+        self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
                               'achievements.sections.no_edit_rights')
         self.assertEqual(SectionPrototype._db_all().count(), 2)
 
     def test_form_errors(self):
         self.request_login(self.account_2.email)
-        self.check_ajax_error(self.post_ajax_json(self.create_url, {}),
-                              'achievements.sections.form_errors')
+        self.check_ajax_error(self.post_ajax_json(self.test_url, {}),
+                              'achievements.sections.create.form_errors')
         self.assertEqual(SectionPrototype._db_all().count(), 2)
 
     def test_success(self):
         self.request_login(self.account_2.email)
-        self.check_ajax_ok(self.post_ajax_json(self.create_url, {}))
+
+        self.check_ajax_ok(self.post_ajax_json(self.test_url, self.get_post_data()))
         self.assertEqual(SectionPrototype._db_all().count(), 3)
 
         section = SectionPrototype._db_get_object(2)
@@ -133,42 +145,88 @@ class SectionsCreateTests(BaseRequestTests):
         self.assertEqual(section.description, 'description_3')
 
 
-class SectionsShowTests(BaseRequestTests):
+class SectionsShowTests(BaseRequestTests, SectionVisibilityApprovedMixin):
 
     def setUp(self):
         super(SectionsShowTests, self).setUp()
-        self.show_url = url('achievements:sections:show', self.section_1.id)
+        self.test_url = url('achievements:sections:show', self.section_2.id)
 
     def test_success(self):
-        self.check_html_ok(self.request_html(self.show_url),
-                           texts=[self.section_1.caption,
-                                  self.kit_1.caption,
-                                  (self.section_2.caption, 0),
-                                  (self.kit_2.caption, 0),
+        self.check_html_ok(self.request_html(self.test_url),
+                           texts=[self.section_2.caption,
+                                  self.kit_2.caption,
+                                  (self.section_1.caption, 0),
+                                  (self.kit_1.caption, 0),
                                   ('pgf-no-kits-message', 0)])
 
-    def test_no_kits_in_section(self):
-        KitPrototype._db_all().delete()
-        self.check_html_ok(self.request_html(self.show_url),
-                           texts=[self.section_1.caption,
+
+    def test_access_restricted(self):
+        self.check_html_ok(self.request_html(url('achievements:sections:show', self.section_1.id)),
+                           status_code=404,
+                           texts=[(self.section_1.caption, 0),
                                   (self.kit_1.caption, 0),
                                   (self.section_2.caption, 0),
                                   (self.kit_2.caption, 0),
+                                  ('pgf-no-kits-message', 0),
+                                  ('achievements.sections.not_approved', 1)])
+
+    def test_no_kits_in_section(self):
+        KitPrototype._db_all().delete()
+        self.check_html_ok(self.request_html(self.test_url),
+                           texts=[self.section_2.caption,
+                                  (self.kit_2.caption, 0),
+                                  (self.section_1.caption, 0),
+                                  (self.kit_1.caption, 0),
                                   ('pgf-no-kits-message', 1)])
 
+    def test_buttons__anonymouse(self):
+        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-edit-section-button', 0),
+                                                                    ('pgf-approve-section-button', 0),
+                                                                    ('pgf-disapprove-section-button', 0)])
 
-class SectionsEditTests(BaseRequestTests):
+    def test_buttons__no_rights(self):
+        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-edit-section-button', 0),
+                                                                    ('pgf-approve-section-button', 0),
+                                                                    ('pgf-disapprove-section-button', 0)])
+
+    def test_buttons__edit_rights(self):
+        self.request_login(self.account_2.email)
+        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-edit-section-button', 0),
+                                                                    ('pgf-approve-section-button', 0),
+                                                                    ('pgf-disapprove-section-button', 0)])
+
+        self.section_2.approved = False
+        self.section_2.save()
+
+        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-edit-section-button', 1),
+                                                                    ('pgf-approve-section-button', 0),
+                                                                    ('pgf-disapprove-section-button', 0)])
+
+    def test_buttons__moderate_rights(self):
+        self.request_login(self.account_3.email)
+        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-edit-section-button', 1),
+                                                                    ('pgf-approve-section-button', 0),
+                                                                    ('pgf-disapprove-section-button', 1)])
+        self.section_2.approved = False
+        self.section_2.save()
+
+        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-edit-section-button', 1),
+                                                                    ('pgf-approve-section-button', 1),
+                                                                    ('pgf-disapprove-section-button', 0)])
+
+
+class SectionsEditTests(BaseRequestTests, SectionVisibilityAllMixin):
 
     def setUp(self):
         super(SectionsEditTests, self).setUp()
-        self.show_url = url('achievements:sections:edit', self.section_1.id)
+        self.test_url = url('achievements:sections:edit', self.section_1.id)
 
     def test_login_required(self):
-        self.check_redirect(self.show_url, login_url(self.show_url))
+        self.check_redirect(self.test_url, login_url(self.test_url))
 
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)
-        self.check_html_ok(self.request_html(self.show_url),
+        self.check_html_ok(self.request_html(self.test_url),
                            texts=(('achievements.sections.no_edit_rights', 1)))
 
 
@@ -176,12 +234,12 @@ class SectionsEditTests(BaseRequestTests):
         SectionPrototype._db_all().update(approved=True)
 
         self.request_login(self.account_2.email)
-        self.check_html_ok(self.request_html(self.show_url),
-                           texts=(('achievements.sections.no_moderate_rights', 1)))
+        self.check_html_ok(self.request_html(self.test_url),
+                           texts=(('achievements.sections.no_edit_rights', 1)))
 
     def test_success__for_edit(self):
         self.request_login(self.account_2.email)
-        self.check_html_ok(self.request_html(self.show_url),
+        self.check_html_ok(self.request_html(self.test_url),
                            texts=[self.section_1.caption,
                                   self.section_1.description])
 
@@ -189,7 +247,7 @@ class SectionsEditTests(BaseRequestTests):
         SectionPrototype._db_all().update(approved=True)
 
         self.request_login(self.account_3.email)
-        self.check_html_ok(self.request_html(self.show_url),
+        self.check_html_ok(self.request_html(self.test_url),
                            texts=[self.section_1.caption,
                                   self.section_1.description])
 
@@ -197,23 +255,23 @@ class SectionsEditTests(BaseRequestTests):
 class SectionsUpdateTests(BaseRequestTests):
 
     def setUp(self):
-        super(SectionsEditTests, self).setUp()
-        self.update_url = url('achievements:sections:update', self.section_1.id)
+        super(SectionsUpdateTests, self).setUp()
+        self.test_url = url('achievements:sections:update', self.section_1.id)
 
     def get_post_data(self):
-        return {'caption': 'caption_edited',
+        return {'caption': 'section_edited',
                 'description': 'description_edited'}
 
     def test_login_required(self):
-        self.check_ajax_error(self.post_ajax_json(self.update_url, self.get_post_data()), 'common.login_required')
+        self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()), 'common.login_required')
 
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)
-        self.check_ajax_error(self.post_ajax_json(self.update_url, self.get_post_data()),
+        self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
                               'achievements.sections.no_edit_rights')
 
         self.section_1.reload()
-        self.assertEqual(self.section_1.caption, 'caption_1')
+        self.assertEqual(self.section_1.caption, 'section_1')
         self.assertEqual(self.section_1.description, 'description_1')
 
 
@@ -221,37 +279,37 @@ class SectionsUpdateTests(BaseRequestTests):
         SectionPrototype._db_all().update(approved=True)
 
         self.request_login(self.account_2.email)
-        self.check_ajax_error(self.post_ajax_json(self.update_url, self.get_post_data()),
-                              'achievements.sections.no_moderate_rights')
+        self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
+                              'achievements.sections.no_edit_rights')
         self.section_1.reload()
-        self.assertEqual(self.section_1.caption, 'caption_1')
+        self.assertEqual(self.section_1.caption, 'section_1')
         self.assertEqual(self.section_1.description, 'description_1')
 
     def test_form_errors(self):
         self.request_login(self.account_2.email)
-        self.check_ajax_error(self.post_ajax_json(self.update_url, {}),
-                              'achievements.sections.update.forms_error')
+        self.check_ajax_error(self.post_ajax_json(self.test_url, {}),
+                              'achievements.sections.update.form_errors')
 
         self.section_1.reload()
-        self.assertEqual(self.section_1.caption, 'caption_1')
+        self.assertEqual(self.section_1.caption, 'section_1')
         self.assertEqual(self.section_1.description, 'description_1')
 
     def test_success__for_edit(self):
         self.request_login(self.account_2.email)
-        self.check_ajax_ok(self.post_ajax_json(self.update_url))
+        self.check_ajax_ok(self.post_ajax_json(self.test_url, self.get_post_data()))
 
         self.section_1.reload()
-        self.assertEqual(self.section_1.caption, 'caption_edited')
+        self.assertEqual(self.section_1.caption, 'section_edited')
         self.assertEqual(self.section_1.description, 'description_edited')
 
     def test_success__for_moderate(self):
         SectionPrototype._db_all().update(approved=True)
 
         self.request_login(self.account_3.email)
-        self.check_ajax_ok(self.post_ajax_json(self.update_url))
+        self.check_ajax_ok(self.post_ajax_json(self.test_url, self.get_post_data()))
 
         self.section_1.reload()
-        self.assertEqual(self.section_1.caption, 'caption_edited')
+        self.assertEqual(self.section_1.caption, 'section_edited')
         self.assertEqual(self.section_1.description, 'description_edited')
 
 
