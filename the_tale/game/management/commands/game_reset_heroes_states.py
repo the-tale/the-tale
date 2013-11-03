@@ -2,10 +2,10 @@
 
 from django.core.management.base import BaseCommand
 
-from game.map.places.storage import places_storage
+from the_tale.game.map.places.storage import places_storage
 
-from game.heroes.prototypes import HeroPrototype
-from game.quests.prototypes import QuestPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.quests.prototypes import QuestPrototype
 
 class Command(BaseCommand):
 

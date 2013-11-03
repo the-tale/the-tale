@@ -4,11 +4,10 @@ from django.conf.urls.defaults import patterns, include
 
 from dext.views import resource_patterns
 
-from achievements.views import KitsResource, SectionsResource, RewardsResource, AccountsResource
+from the_tale.collections.views import KitsResource, CollectionsResource, ItemsResource
 
 urlpatterns = patterns('',
                        (r'^kits/', include(resource_patterns(KitsResource), namespace='kits')),
-                       (r'^sections/', include(resource_patterns(SectionsResource), namespace='sections')),
-                       (r'^achievements/', include(resource_patterns(RewardsResource), namespace='rewards')),
-                       (r'^', include(resource_patterns(AccountsResource)) )
+                       (r'^collections/', include(resource_patterns(CollectionsResource), namespace='collections')),
+                       (r'^items/', include(resource_patterns(ItemsResource), namespace='items'))
 )

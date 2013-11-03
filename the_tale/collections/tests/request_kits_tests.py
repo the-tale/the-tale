@@ -2,17 +2,17 @@
 
 from dext.utils.urls import url
 
-from common.utils import testcase
-from common.utils.permissions import sync_group
+from the_tale.common.utils import testcase
+from the_tale.common.utils.permissions import sync_group
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user, login_url
-
-
-from game.logic import create_test_map
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user, login_url
 
 
-from achievements.prototypes import CollectionPrototype, KitPrototype, ItemPrototype
+from the_tale.game.logic import create_test_map
+
+
+from the_tale.collections.prototypes import CollectionPrototype, KitPrototype, ItemPrototype
 
 
 class BaseRequestTests(testcase.TestCase):
@@ -31,11 +31,11 @@ class BaseRequestTests(testcase.TestCase):
         result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
         self.account_3 = AccountPrototype.get_by_id(account_id)
 
-        group_edit_item = sync_group('edit item', ['achievements.edit_item'])
-        group_moderate_item = sync_group('moderate item', ['achievements.moderate_item'])
+        group_edit_item = sync_group('edit item', ['collections.edit_item'])
+        group_moderate_item = sync_group('moderate item', ['collections.moderate_item'])
 
-        group_edit = sync_group('edit kit', ['achievements.edit_kit'])
-        group_moderate = sync_group('moderate kit', ['achievements.moderate_kit'])
+        group_edit = sync_group('edit kit', ['collections.edit_kit'])
+        group_moderate = sync_group('moderate kit', ['collections.moderate_kit'])
 
         group_edit_item.account_set.add(self.account_2._model)
         group_moderate_item.account_set.add(self.account_3._model)
@@ -74,7 +74,7 @@ class KitsIndexTests(BaseRequestTests, KitVisibilityAllMixin):
 
     def setUp(self):
         super(KitsIndexTests, self).setUp()
-        self.test_url = url('achievements:kits:')
+        self.test_url = url('collections:kits:')
 
     def test_login_required(self):
         self.check_redirect(self.test_url, login_url(self.test_url))
@@ -82,12 +82,12 @@ class KitsIndexTests(BaseRequestTests, KitVisibilityAllMixin):
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)
         self.check_html_ok(self.request_html(self.test_url),
-                           texts=[('achievements.kits.no_edit_rights', 1)])
+                           texts=[('collections.kits.no_edit_rights', 1)])
 
     def test_success(self):
         self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(self.test_url),
-                           texts=[('achievements.kits.no_edit_rights', 0)])
+                           texts=[('collections.kits.no_edit_rights', 0)])
 
 
 
@@ -95,7 +95,7 @@ class KitsNewTests(BaseRequestTests, KitVisibilityAllMixin):
 
     def setUp(self):
         super(KitsNewTests, self).setUp()
-        self.test_url = url('achievements:kits:new')
+        self.test_url = url('collections:kits:new')
 
     def test_login_required(self):
         self.check_redirect(self.test_url, login_url(self.test_url))
@@ -103,19 +103,19 @@ class KitsNewTests(BaseRequestTests, KitVisibilityAllMixin):
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)
         self.check_html_ok(self.request_html(self.test_url),
-                           texts=[('achievements.kits.no_edit_rights', 1)])
+                           texts=[('collections.kits.no_edit_rights', 1)])
 
     def test_success(self):
         self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(self.test_url),
-                           texts=[('achievements.kits.no_edit_rights', 0)])
+                           texts=[('collections.kits.no_edit_rights', 0)])
 
 
 class KitsCreateTests(BaseRequestTests):
 
     def setUp(self):
         super(KitsCreateTests, self).setUp()
-        self.create_url = url('achievements:kits:create')
+        self.create_url = url('collections:kits:create')
 
     def get_post_data(self):
         return {'collection': self.collection_1.id,
@@ -130,13 +130,13 @@ class KitsCreateTests(BaseRequestTests):
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)
         self.check_ajax_error(self.post_ajax_json(self.create_url, self.get_post_data()),
-                              'achievements.kits.no_edit_rights')
+                              'collections.kits.no_edit_rights')
         self.assertEqual(KitPrototype._db_all().count(), 2)
 
     def test_form_errors(self):
         self.request_login(self.account_2.email)
         self.check_ajax_error(self.post_ajax_json(self.create_url, {}),
-                              'achievements.kits.create.form_errors')
+                              'collections.kits.create.form_errors')
         self.assertEqual(KitPrototype._db_all().count(), 2)
 
     def test_success(self):
@@ -156,7 +156,7 @@ class KitsShowTests(BaseRequestTests, KitVisibilityApprovedMixin):
 
     def setUp(self):
         super(KitsShowTests, self).setUp()
-        self.test_url = url('achievements:kits:show', self.kit_1.id)
+        self.test_url = url('collections:kits:show', self.kit_1.id)
 
     def test_success__no_approved_items(self):
         ItemPrototype._db_all().update(approved=False)
@@ -263,7 +263,7 @@ class KitsEditTests(BaseRequestTests, KitVisibilityAllMixin):
 
     def setUp(self):
         super(KitsEditTests, self).setUp()
-        self.test_url = url('achievements:kits:edit', self.kit_2.id)
+        self.test_url = url('collections:kits:edit', self.kit_2.id)
 
     def test_login_required(self):
         self.check_redirect(self.test_url, login_url(self.test_url))
@@ -271,7 +271,7 @@ class KitsEditTests(BaseRequestTests, KitVisibilityAllMixin):
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)
         self.check_html_ok(self.request_html(self.test_url),
-                           texts=[('achievements.kits.no_edit_rights', 1)])
+                           texts=[('collections.kits.no_edit_rights', 1)])
 
 
     def test_moderate_rights_required(self):
@@ -280,14 +280,14 @@ class KitsEditTests(BaseRequestTests, KitVisibilityAllMixin):
 
         self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(self.test_url),
-                           texts=[('achievements.kits.no_edit_rights', 1)])
+                           texts=[('collections.kits.no_edit_rights', 1)])
 
     def test_success__for_edit(self):
         self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(self.test_url),
                            texts=[self.kit_2.caption,
                                   self.kit_2.description,
-                                  ('achievements.kits.no_edit_rights', 0)])
+                                  ('collections.kits.no_edit_rights', 0)])
 
 
     def test_success__for_moderate(self):
@@ -303,7 +303,7 @@ class KitsUpdateTests(BaseRequestTests):
 
     def setUp(self):
         super(KitsUpdateTests, self).setUp()
-        self.test_url = url('achievements:kits:update', self.kit_2.id)
+        self.test_url = url('collections:kits:update', self.kit_2.id)
 
     def get_post_data(self):
         return {'caption': 'kit_edited',
@@ -316,7 +316,7 @@ class KitsUpdateTests(BaseRequestTests):
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)
         self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
-                              'achievements.kits.no_edit_rights')
+                              'collections.kits.no_edit_rights')
 
         self.kit_2.reload()
         self.assertEqual(self.kit_2.caption, 'kit_2')
@@ -329,7 +329,7 @@ class KitsUpdateTests(BaseRequestTests):
 
         self.request_login(self.account_2.email)
         self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
-                              'achievements.kits.no_edit_rights')
+                              'collections.kits.no_edit_rights')
 
         self.kit_2.reload()
         self.assertEqual(self.kit_2.caption, 'kit_2')
@@ -339,7 +339,7 @@ class KitsUpdateTests(BaseRequestTests):
     def test_form_errors(self):
         self.request_login(self.account_2.email)
         self.check_ajax_error(self.post_ajax_json(self.test_url, {}),
-                              'achievements.kits.update.form_errors')
+                              'collections.kits.update.form_errors')
 
         self.kit_2.reload()
         self.assertEqual(self.kit_2.caption, 'kit_2')
@@ -360,7 +360,7 @@ class KitsUpdateTests(BaseRequestTests):
 
         self.request_login(self.account_3.email)
         self.check_ajax_ok(self.post_ajax_json(self.test_url, self.get_post_data()),
-                           data={'next_url': url('achievements:collections:show', self.collection_2.id)})
+                           data={'next_url': url('collections:collections:show', self.collection_2.id)})
 
         self.kit_2.reload()
         self.assertEqual(self.kit_2.caption, 'kit_edited')
@@ -373,14 +373,14 @@ class KitsApproveTests(BaseRequestTests):
 
     def setUp(self):
         super(KitsApproveTests, self).setUp()
-        self.approve_url = url('achievements:kits:approve', self.kit_2.id)
+        self.approve_url = url('collections:kits:approve', self.kit_2.id)
 
     def test_login_required(self):
         self.check_ajax_error(self.post_ajax_json(self.approve_url), 'common.login_required')
 
     def test_moderate_rights_required(self):
         self.request_login(self.account_2.email)
-        self.check_ajax_error(self.post_ajax_json(self.approve_url), 'achievements.kits.no_moderate_rights')
+        self.check_ajax_error(self.post_ajax_json(self.approve_url), 'collections.kits.no_moderate_rights')
 
     def test_success(self):
         self.request_login(self.account_3.email)
@@ -395,14 +395,14 @@ class KitsDisapproveTests(BaseRequestTests):
 
     def setUp(self):
         super(KitsDisapproveTests, self).setUp()
-        self.disapprove_url = url('achievements:kits:disapprove', self.kit_2.id)
+        self.disapprove_url = url('collections:kits:disapprove', self.kit_2.id)
 
     def test_login_required(self):
         self.check_ajax_error(self.post_ajax_json(self.disapprove_url), 'common.login_required')
 
     def test_moderate_rights_required(self):
         self.request_login(self.account_2.email)
-        self.check_ajax_error(self.post_ajax_json(self.disapprove_url), 'achievements.kits.no_moderate_rights')
+        self.check_ajax_error(self.post_ajax_json(self.disapprove_url), 'collections.kits.no_moderate_rights')
 
     def test_success(self):
         KitPrototype._db_all().update(approved=True)

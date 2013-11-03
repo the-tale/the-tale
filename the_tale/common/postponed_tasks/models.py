@@ -2,7 +2,7 @@
 
 from django.db import models
 
-from common.utils.enum import create_enum
+from the_tale.common.utils.enum import create_enum
 
 POSTPONED_TASK_STATE = create_enum('POSTPONED_TASK_STATE', (('WAITING', 0, u'ожидает обработки'),
                                                             ('PROCESSED', 1, u'обработана'),

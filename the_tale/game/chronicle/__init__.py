@@ -1,6 +1,6 @@
 # coding: utf-8
 
 # load sygnals
-from game.chronicle import signal_processors
+from the_tale.game.chronicle import signal_processors
 
-from game.chronicle.prototypes import RecordPrototype
+from the_tale.game.chronicle.prototypes import RecordPrototype

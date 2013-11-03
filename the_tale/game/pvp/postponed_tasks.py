@@ -3,11 +3,11 @@ from dext.utils.decorators import nested_commit_on_success
 
 from textgen.words import Fake
 
-from common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
-from common.utils.enum import create_enum
+from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.utils.enum import create_enum
 
-from game.pvp.prototypes import Battle1x1Prototype
-from game.pvp.abilities import ABILITIES
+from the_tale.game.pvp.prototypes import Battle1x1Prototype
+from the_tale.game.pvp.abilities import ABILITIES
 
 SAY_IN_HERO_LOG_TASK_STATE = create_enum('SAY_IN_HERO_LOG_TASK_STATE', ( ('UNPROCESSED', 0, u'в очереди'),
                                                                          ('ACCOUNT_HERO_NOT_FOUND', 1, u'герой не найден'),

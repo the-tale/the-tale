@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 
 from rels.django_staff import TableIntegerField
 
-from forum.relations import MARKUP_METHOD, POST_REMOVED_BY, POST_STATE
+from the_tale.forum.relations import MARKUP_METHOD, POST_REMOVED_BY, POST_STATE
 
 
 class Category(models.Model):

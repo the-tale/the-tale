@@ -4,11 +4,11 @@ import math
 
 import rels
 
-from common.utils.logic import choose_from_interval, choose_nearest
+from the_tale.common.utils.logic import choose_from_interval, choose_nearest
 
-from game.prototypes import TimePrototype
+from the_tale.game.prototypes import TimePrototype
 
-from game.map.conf import map_settings
+from the_tale.game.map.conf import map_settings
 
 
 class WIND_DIRECTION(rels.Table):

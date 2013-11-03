@@ -3,12 +3,12 @@
 import mock
 import datetime
 
-from game.bills.prototypes import BillPrototype, VotePrototype
-from game.bills.bills import PlaceModifier
+from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
+from the_tale.game.bills.bills import PlaceModifier
 
-from game.bills.tests.prototype_tests import BaseTestPrototypes
+from the_tale.game.bills.tests.prototype_tests import BaseTestPrototypes
 
-from game.map.places.modifiers import TradeCenter, CraftCenter
+from the_tale.game.map.places.modifiers import TradeCenter, CraftCenter
 
 
 class PlaceModifierTests(BaseTestPrototypes):
@@ -32,7 +32,7 @@ class PlaceModifierTests(BaseTestPrototypes):
     def test_actors(self):
         self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.place)])
 
-    @mock.patch('game.map.places.modifiers.prototypes.PlaceModifierBase.can_be_choosen', True)
+    @mock.patch('the_tale.game.map.places.modifiers.prototypes.PlaceModifierBase.can_be_choosen', True)
     def test_update(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
                                                          'rationale': 'new-rationale',
@@ -49,7 +49,7 @@ class PlaceModifierTests(BaseTestPrototypes):
         self.assertEqual(self.bill.data.modifier_name, CraftCenter.NAME)
         self.assertEqual(self.bill.data.old_modifier_name, None)
 
-    @mock.patch('game.map.places.modifiers.prototypes.PlaceModifierBase.can_be_choosen', True)
+    @mock.patch('the_tale.game.map.places.modifiers.prototypes.PlaceModifierBase.can_be_choosen', True)
     def test_success_form_validation(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
                                                          'rationale': 'new-rationale',
@@ -57,7 +57,7 @@ class PlaceModifierTests(BaseTestPrototypes):
                                                          'new_modifier': CraftCenter.get_id()})
         self.assertTrue(form.is_valid())
 
-    @mock.patch('game.map.places.modifiers.prototypes.PlaceModifierBase.can_be_choosen', False)
+    @mock.patch('the_tale.game.map.places.modifiers.prototypes.PlaceModifierBase.can_be_choosen', False)
     def test_invalid_form_validation(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
                                                          'rationale': 'new-rationale',
@@ -66,8 +66,8 @@ class PlaceModifierTests(BaseTestPrototypes):
         self.assertFalse(form.is_valid())
 
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_apply(self):
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)

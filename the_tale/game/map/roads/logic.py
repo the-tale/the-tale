@@ -1,8 +1,8 @@
 # coding: utf-8
 
-from game.map.places.storage import places_storage
-from game.map.roads.storage import roads_storage, waymarks_storage
-from game.map.roads.prototypes import WaymarkPrototype
+from the_tale.game.map.places.storage import places_storage
+from the_tale.game.map.roads.storage import roads_storage, waymarks_storage
+from the_tale.game.map.roads.prototypes import WaymarkPrototype
 
 
 class Path(object):

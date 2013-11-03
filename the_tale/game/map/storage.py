@@ -1,15 +1,15 @@
 # coding: utf-8
 import time
 
-from common.utils.storage import create_single_storage_class
+from the_tale.common.utils.storage import create_single_storage_class
 
 from dext.settings import settings
 
-from game.map.models import MapInfo
-from game.map.prototypes import MapInfoPrototype
-from game.map.exceptions import MapException
+from the_tale.game.map.models import MapInfo
+from the_tale.game.map.prototypes import MapInfoPrototype
+from the_tale.game.map.exceptions import MapException
 
-from game.prototypes import TimePrototype
+from the_tale.game.prototypes import TimePrototype
 
 
 class MapInfoStorage(create_single_storage_class('map info change time', MapInfo, MapInfoPrototype, MapException)):

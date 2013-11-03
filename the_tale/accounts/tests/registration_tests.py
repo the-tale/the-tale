@@ -2,20 +2,20 @@
 
 import mock
 
-from common.utils import testcase
-from common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.utils import testcase
+from the_tale.common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
-from accounts.logic import register_user, REGISTER_USER_RESULT
-from accounts.prototypes import AccountPrototype
-from accounts.postponed_tasks import RegistrationTask, REGISTRATION_TASK_STATE
-from accounts.models import Account
-from accounts.exceptions import AccountsException
+from the_tale.accounts.logic import register_user, REGISTER_USER_RESULT
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.postponed_tasks import RegistrationTask, REGISTRATION_TASK_STATE
+from the_tale.accounts.models import Account
+from the_tale.accounts.exceptions import AccountsException
 
 
-from game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
 
-from game.heroes.relations import EQUIPMENT_SLOT
-from game.logic import create_test_map
+from the_tale.game.heroes.relations import EQUIPMENT_SLOT
+from the_tale.game.logic import create_test_map
 
 def raise_exception(*argv, **kwargs): raise Exception('unknown error')
 
@@ -166,19 +166,19 @@ class TestRegistrationTask(testcase.TestCase):
         self.assertTrue(task.account)
         self.assertEqual(task.account.referral_of_id, account_id)
 
-    @mock.patch('accounts.logic.register_user', lambda *argv, **kwargs: (REGISTER_USER_RESULT.OK+1, None, None))
+    @mock.patch('the_tale.accounts.logic.register_user', lambda *argv, **kwargs: (REGISTER_USER_RESULT.OK+1, None, None))
     def test_process_unknown_error(self):
         self.assertEqual(self.task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.UNKNOWN_ERROR)
         self.assertEqual(Account.objects.all().count(), 0)
 
-    @mock.patch('accounts.logic.register_user', lambda *argv, **kwargs: (REGISTER_USER_RESULT.OK, 1, 1))
+    @mock.patch('the_tale.accounts.logic.register_user', lambda *argv, **kwargs: (REGISTER_USER_RESULT.OK, 1, 1))
     def test_process_bundle_not_foud(self):
         self.assertEqual(self.task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.BUNDLE_NOT_FOUND)
         self.assertEqual(Account.objects.all().count(), 0)
 
-    @mock.patch('accounts.logic.register_user', lambda *argv, **kwargs: raise_exception())
+    @mock.patch('the_tale.accounts.logic.register_user', lambda *argv, **kwargs: raise_exception())
     def test_process_exceptin(self):
         self.assertRaises(Exception, self.task.process, FakePostpondTaskPrototype())
         self.assertEqual(Account.objects.all().count(), 0)

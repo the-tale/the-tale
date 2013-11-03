@@ -1,9 +1,9 @@
 # coding: utf-8
 
-from game.conf import game_settings
-from game.workers.environment import workers_environment
+from the_tale.game.conf import game_settings
+from the_tale.game.workers.environment import workers_environment
 
-from common.amqp_queues.django_commands import construct_workers_manager
+from the_tale.common.amqp_queues.django_commands import construct_workers_manager
 
 Command = construct_workers_manager(help='run game workers',
                                     process_pid='game_workers',

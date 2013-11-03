@@ -8,39 +8,39 @@ from textgen.words import Noun
 
 from dext.utils import s11n, database, cache
 
-from common.utils.prototypes import BasePrototype
-from common.utils.logic import random_value_by_priority
-from common.utils.decorators import lazy_property
+from the_tale.common.utils.prototypes import BasePrototype
+from the_tale.common.utils.logic import random_value_by_priority
+from the_tale.common.utils.decorators import lazy_property
 
-from game.map.places.storage import places_storage
-from game.map.roads.storage import roads_storage
+from the_tale.game.map.places.storage import places_storage
+from the_tale.game.map.roads.storage import roads_storage
 
-from game.game_info import ATTRIBUTES
+from the_tale.game.game_info import ATTRIBUTES
 
-from game.balance import constants as c, formulas as f
+from the_tale.game.balance import constants as c, formulas as f
 
-from game import names
+from the_tale.game import names
 
-from game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts.storage import artifacts_storage
 
-from game.map.storage import map_info_storage
+from the_tale.game.map.storage import map_info_storage
 
-from game.text_generation import get_dictionary, get_text
+from the_tale.game.text_generation import get_dictionary, get_text
 
-from game.prototypes import TimePrototype
+from the_tale.game.prototypes import TimePrototype
 
-from game.actions.container import ActionsContainer
-from game.quests.container import QuestsContainer
+from the_tale.game.actions.container import ActionsContainer
+from the_tale.game.quests.container import QuestsContainer
 
-from game.heroes.statistics import HeroStatistics, MONEY_SOURCE
-from game.heroes.models import Hero, HeroPreferences
-from game.heroes.habilities import AbilitiesPrototype, ABILITY_TYPE
-from game.heroes.conf import heroes_settings
-from game.heroes.exceptions import HeroException
-from game.heroes.pvp import PvPData
-from game.heroes.messages import MessagesContainer
-from game.heroes.places_help_statistics import PlacesHelpStatistics
-from game.heroes.relations import ITEMS_OF_EXPENDITURE, EQUIPMENT_SLOT, RISK_LEVEL
+from the_tale.game.heroes.statistics import HeroStatistics, MONEY_SOURCE
+from the_tale.game.heroes.models import Hero, HeroPreferences
+from the_tale.game.heroes.habilities import AbilitiesPrototype, ABILITY_TYPE
+from the_tale.game.heroes.conf import heroes_settings
+from the_tale.game.heroes.exceptions import HeroException
+from the_tale.game.heroes.pvp import PvPData
+from the_tale.game.heroes.messages import MessagesContainer
+from the_tale.game.heroes.places_help_statistics import PlacesHelpStatistics
+from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE, EQUIPMENT_SLOT, RISK_LEVEL
 
 
 class HeroPrototype(BasePrototype):
@@ -596,7 +596,7 @@ class HeroPrototype(BasePrototype):
 
     @lazy_property
     def preferences(self):
-        from game.heroes.preferences import HeroPreferences
+        from the_tale.game.heroes.preferences import HeroPreferences
 
         preferences = HeroPreferences.deserialize(hero_id=self.id, data=s11n.from_json(self._model.preferences))
         if preferences.energy_regeneration_type is None:
@@ -812,7 +812,7 @@ class HeroPrototype(BasePrototype):
 
     @classmethod
     def cached_ui_info_for_hero(cls, account_id):
-        from game.workers.environment import workers_environment as game_workers_environment
+        from the_tale.game.workers.environment import workers_environment as game_workers_environment
 
         data = cache.get(cls.cached_ui_info_key_for_hero(account_id))
 
@@ -825,9 +825,9 @@ class HeroPrototype(BasePrototype):
 
     @classmethod
     def create(cls, account, bundle): # pylint: disable=R0914
-        from game.relations import GENDER, RACE
-        from game.actions.prototypes import ActionIdlenessPrototype
-        from game.logic_storage import LogicStorage
+        from the_tale.game.relations import GENDER, RACE
+        from the_tale.game.actions.prototypes import ActionIdlenessPrototype
+        from the_tale.game.logic_storage import LogicStorage
 
         start_place = places_storage.random_place()
 
@@ -892,7 +892,7 @@ class HeroPrototype(BasePrototype):
         self.might = might
 
     def cmd_update_with_account_data(self, account):
-        from game.workers.environment import workers_environment as game_workers_environment
+        from the_tale.game.workers.environment import workers_environment as game_workers_environment
 
         game_workers_environment.supervisor.cmd_update_hero_with_account_data(account.id,
                                                                               self.id,

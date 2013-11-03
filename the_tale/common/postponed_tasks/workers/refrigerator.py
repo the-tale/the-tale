@@ -6,10 +6,10 @@ import datetime
 
 from django.utils.log import getLogger
 
-from common.amqp_queues import connection, BaseWorker
+from the_tale.common.amqp_queues import connection, BaseWorker
 
-from common.postponed_tasks.conf import postponed_tasks_settings
-from common.postponed_tasks.prototypes import PostponedTaskPrototype, POSTPONED_TASK_LOGIC_RESULT, autodiscover
+from the_tale.common.postponed_tasks.conf import postponed_tasks_settings
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, POSTPONED_TASK_LOGIC_RESULT, autodiscover
 
 
 class RefrigeratorException(Exception): pass

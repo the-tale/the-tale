@@ -4,19 +4,19 @@ import datetime
 
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 from django.contrib.auth import authenticate as django_authenticate
 
-from common.utils.fake import FakeLogger, FakeWorkerCommand
+from the_tale.common.utils.fake import FakeLogger, FakeWorkerCommand
 
-from post_service.models import Message
+from the_tale.post_service.models import Message
 
-from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
-from accounts.models import CHANGE_CREDENTIALS_TASK_STATE
-from accounts.logic import register_user
-from accounts.exceptions import AccountsException
+from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
+from the_tale.accounts.models import CHANGE_CREDENTIALS_TASK_STATE
+from the_tale.accounts.logic import register_user
+from the_tale.accounts.exceptions import AccountsException
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
 def raise_exception(*argv, **kwargs): raise Exception('unknown error')
 
@@ -65,7 +65,7 @@ class TestChangeCredentialsTask(testcase.TestCase):
 
         self.assertTrue(AccountPrototype.get_by_id(self.fast_account.id).is_fast)
 
-        with mock.patch('game.workers.environment.workers_environment.supervisor.cmd_update_hero_with_account_data') as fake_cmd:
+        with mock.patch('the_tale.game.workers.environment.workers_environment.supervisor.cmd_update_hero_with_account_data') as fake_cmd:
             postponed_task = task.change_credentials()
 
         self.assertNotEqual(postponed_task, None)
@@ -83,7 +83,7 @@ class TestChangeCredentialsTask(testcase.TestCase):
 
         fake_cmd = FakeWorkerCommand()
 
-        with mock.patch('game.workers.environment.workers_environment.supervisor.cmd_update_hero_with_account_data') as fake_cmd:
+        with mock.patch('the_tale.game.workers.environment.workers_environment.supervisor.cmd_update_hero_with_account_data') as fake_cmd:
             postponed_task = task.change_credentials()
 
         self.assertNotEqual(postponed_task, None)
@@ -177,7 +177,7 @@ class TestChangeCredentialsTask(testcase.TestCase):
         self.assertEqual(task.state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
         self.assertNotEqual(postponed_task, None)
 
-    @mock.patch('post_service.message_handlers.ChangeEmailNotificationHandler', raise_exception)
+    @mock.patch('the_tale.post_service.message_handlers.ChangeEmailNotificationHandler', raise_exception)
     def test_process_error(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='test_user@test.ru', new_password='222222')
         task.process(FakeLogger())

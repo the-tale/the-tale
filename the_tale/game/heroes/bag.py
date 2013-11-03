@@ -1,9 +1,9 @@
 # coding: utf-8
 
 
-from game.artifacts.prototypes import ArtifactPrototype
+from the_tale.game.artifacts.prototypes import ArtifactPrototype
 
-from game.heroes.relations import EQUIPMENT_SLOT
+from the_tale.game.heroes.relations import EQUIPMENT_SLOT
 
 
 class EquipmentException(Exception): pass

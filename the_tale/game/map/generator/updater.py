@@ -7,16 +7,16 @@ from dext.utils import s11n
 
 from django.conf import settings as project_settings
 
-from game.prototypes import TimePrototype
+from the_tale.game.prototypes import TimePrototype
 
-from game.map.conf import map_settings
-from game.map.storage import map_info_storage
-from game.map.prototypes import MapInfoPrototype, WorldInfoPrototype
-from game.map.generator.biomes import Biom
-from game.map.generator.power_points import get_power_points
-from game.map.places.storage import places_storage, buildings_storage
-from game.map.relations import TERRAIN
-from game.map.roads.storage import roads_storage
+from the_tale.game.map.conf import map_settings
+from the_tale.game.map.storage import map_info_storage
+from the_tale.game.map.prototypes import MapInfoPrototype, WorldInfoPrototype
+from the_tale.game.map.generator.biomes import Biom
+from the_tale.game.map.generator.power_points import get_power_points
+from the_tale.game.map.places.storage import places_storage, buildings_storage
+from the_tale.game.map.relations import TERRAIN
+from the_tale.game.map.roads.storage import roads_storage
 
 
 def update_map(index):

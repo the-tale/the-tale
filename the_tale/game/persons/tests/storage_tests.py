@@ -1,14 +1,14 @@
 # coding: utf-8
 
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.persons.storage import PersonsStorage
-from game.persons.models import PERSON_STATE
+from the_tale.game.persons.storage import PersonsStorage
+from the_tale.game.persons.models import PERSON_STATE
 
-from game.persons.tests.helpers import create_person
+from the_tale.game.persons.tests.helpers import create_person
 
 class PlacesStorageTest(testcase.TestCase):
 

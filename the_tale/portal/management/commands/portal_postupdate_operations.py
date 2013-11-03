@@ -1,14 +1,13 @@
 # coding: utf-8
 
-import subprocess
-
 from django.core.management.base import BaseCommand
 
-from game.prototypes import TimePrototype
+from the_tale.game.prototypes import TimePrototype
 
-from common.utils.permissions import sync_group
+from the_tale.common.utils.permissions import sync_group
+from the_tale.common.utils.logic import run_django_command
 
-from forum.conf import forum_settings
+from the_tale.forum.conf import forum_settings
 
 class Command(BaseCommand):
 
@@ -23,25 +22,25 @@ class Command(BaseCommand):
             print
             print 'CREATE TEST MAP'
             print
-            subprocess.call(['./manage.py', 'map_create_test_map'])
+            run_django_command(['map_create_test_map'])
 
             print
             print 'CREATE_PERSONS'
             print
 
-            subprocess.call(['./manage.py', 'places_sync'])
+            run_django_command(['places_sync'])
 
         print
         print 'UPDATE PLACES'
         print
 
-        subprocess.call(['./manage.py', 'places_fill_name_forms'])
+        run_django_command(['places_fill_name_forms'])
 
         print
         print 'UPDATE MAP'
         print
 
-        subprocess.call(['./manage.py', 'map_update_map'])
+        run_django_command(['map_update_map'])
 
         print
         print 'SYNC GROUPS AND PERMISSIONS'
@@ -66,15 +65,15 @@ class Command(BaseCommand):
 
         sync_group('accounts moderators group', ['accounts.moderate_account'])
 
-        sync_group('collections editors group', ['achievements.edit_collection',
-                                                 'achievements.edit_kit',
-                                                 'achievements.edit_item'])
-        sync_group('collections moderators group', ['achievements.moderate_collection',
-                                                    'achievements.moderate_kit',
-                                                    'achievements.moderate_item'])
+        sync_group('collections editors group', ['collections.edit_collection',
+                                                 'collections.edit_kit',
+                                                 'collections.edit_item'])
+        sync_group('collections moderators group', ['collections.moderate_collection',
+                                                    'collections.moderate_kit',
+                                                    'collections.moderate_item'])
 
         print
         print 'REFRESH CDNS'
         print
 
-        subprocess.call(['./manage.py', 'portal_refresh_cdns'])
+        run_django_command(['portal_refresh_cdns'])

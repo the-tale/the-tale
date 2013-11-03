@@ -1,16 +1,16 @@
 # coding: utf-8
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
-from game.heroes.prototypes import HeroPrototype
-from game.logic_storage import LogicStorage
+from the_tale.accounts.logic import register_user
+from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.logic_storage import LogicStorage
 
-from game.heroes.logic import create_mob_for_hero
-from game.logic import create_test_map
-from game.actions.prototypes import ActionBattlePvE1x1Prototype
-from game.prototypes import TimePrototype
+from the_tale.game.heroes.logic import create_mob_for_hero
+from the_tale.game.logic import create_test_map
+from the_tale.game.actions.prototypes import ActionBattlePvE1x1Prototype
+from the_tale.game.prototypes import TimePrototype
 
 class BattlePvE1x1ActionTest(testcase.TestCase):
 
@@ -38,7 +38,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(self.action_battle.bundle_id, self.action_idl.bundle_id)
         self.storage._test_save()
 
-    @mock.patch('game.actions.prototypes.battle.make_turn', lambda a, b, c: None)
+    @mock.patch('the_tale.game.actions.prototypes.battle.make_turn', lambda a, b, c: None)
     def test_mob_killed(self):
         self.assertEqual(self.hero.statistics.pve_kills, 0)
         self.action_battle.mob.health = 0
@@ -49,9 +49,9 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.storage._test_save()
 
 
-    @mock.patch('game.balance.formulas.artifacts_per_battle', lambda lvl: 0)
-    @mock.patch('game.balance.constants.GET_LOOT_PROBABILITY', 1)
-    @mock.patch('game.actions.prototypes.battle.make_turn', lambda a, b, c: None)
+    @mock.patch('the_tale.game.balance.formulas.artifacts_per_battle', lambda lvl: 0)
+    @mock.patch('the_tale.game.balance.constants.GET_LOOT_PROBABILITY', 1)
+    @mock.patch('the_tale.game.actions.prototypes.battle.make_turn', lambda a, b, c: None)
     def test_loot(self):
         self.assertEqual(self.hero.statistics.loot_had, 0)
         self.assertEqual(len(self.hero.bag.items()), 0)
@@ -61,8 +61,8 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(len(self.hero.bag.items()), 1)
         self.storage._test_save()
 
-    @mock.patch('game.balance.formulas.artifacts_per_battle', lambda lvl: 1)
-    @mock.patch('game.actions.prototypes.battle.make_turn', lambda a, b, c: None)
+    @mock.patch('the_tale.game.balance.formulas.artifacts_per_battle', lambda lvl: 1)
+    @mock.patch('the_tale.game.actions.prototypes.battle.make_turn', lambda a, b, c: None)
     def test_artifacts(self):
         self.assertEqual(self.hero.statistics.artifacts_had, 0)
         self.assertEqual(len(self.hero.bag.items()), 0)
@@ -72,7 +72,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(len(self.hero.bag.items()), 1)
         self.storage._test_save()
 
-    @mock.patch('game.actions.prototypes.battle.make_turn', lambda a, b, c: None)
+    @mock.patch('the_tale.game.actions.prototypes.battle.make_turn', lambda a, b, c: None)
     def test_hero_killed(self):
         self.assertEqual(self.hero.statistics.pve_deaths, 0)
         self.hero.health = 0

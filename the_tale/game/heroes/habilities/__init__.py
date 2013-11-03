@@ -4,13 +4,13 @@ import random
 import time
 import datetime
 
-from game.heroes.conf import heroes_settings
+from the_tale.game.heroes.conf import heroes_settings
 
-from game.heroes.habilities.relations import ABILITY_TYPE, ABILITY_AVAILABILITY, ABILITY_ACTIVATION_TYPE, ABILITY_LOGIC_TYPE
-from game.heroes.habilities.battle import ABILITIES as BATTLE_ABILITIES
-from game.heroes.habilities.attributes import ABILITIES as ATTRIBUTES_ABILITIES
-from game.heroes.habilities.modifiers import ABILITIES as MODIFIERS_ABILITIES
-from game.heroes.habilities.nonbattle import ABILITIES as NONBATTLE_ABILITIES
+from the_tale.game.heroes.habilities.relations import ABILITY_TYPE, ABILITY_AVAILABILITY, ABILITY_ACTIVATION_TYPE, ABILITY_LOGIC_TYPE
+from the_tale.game.heroes.habilities.battle import ABILITIES as BATTLE_ABILITIES
+from the_tale.game.heroes.habilities.attributes import ABILITIES as ATTRIBUTES_ABILITIES
+from the_tale.game.heroes.habilities.modifiers import ABILITIES as MODIFIERS_ABILITIES
+from the_tale.game.heroes.habilities.nonbattle import ABILITIES as NONBATTLE_ABILITIES
 
 
 ABILITIES = dict(**BATTLE_ABILITIES)

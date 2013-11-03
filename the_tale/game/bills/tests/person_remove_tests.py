@@ -3,12 +3,12 @@
 import mock
 import datetime
 
-from game.bills.prototypes import BillPrototype, VotePrototype
-from game.bills.bills import PersonRemove
+from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
+from the_tale.game.bills.bills import PersonRemove
 
-from game.persons.models import Person, PERSON_STATE
+from the_tale.game.persons.models import Person, PERSON_STATE
 
-from game.bills.tests.prototype_tests import BaseTestPrototypes
+from the_tale.game.bills.tests.prototype_tests import BaseTestPrototypes
 
 
 class PersonRemoveTests(BaseTestPrototypes):
@@ -74,8 +74,8 @@ class PersonRemoveTests(BaseTestPrototypes):
         self.check_persons_from_place_in_choices(self.place3, persons_ids, self.bill.data.person_id)
 
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_apply(self):
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)

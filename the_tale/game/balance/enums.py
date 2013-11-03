@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from common.utils.enum import create_enum
+from the_tale.common.utils.enum import create_enum
 
 
 ANGEL_ENERGY_REGENERATION_TYPES = create_enum('ANGEL_ENERGY_REGENERATION_TYPES',

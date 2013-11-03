@@ -3,7 +3,7 @@ import datetime
 
 from dext.utils.app_settings import app_settings
 
-from game.balance import constants as c
+from the_tale.game.balance import constants as c
 
 heroes_settings = app_settings('HEROES',
                                USE_ABILITY_CHANCE=0.1,

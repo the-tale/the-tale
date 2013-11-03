@@ -3,12 +3,12 @@ import math
 
 from dext.views import handler
 
-from common.utils.decorators import staff_required
-from common.utils.resources import Resource
+from the_tale.common.utils.decorators import staff_required
+from the_tale.common.utils.resources import Resource
 
-from game.map.roads.storage import waymarks_storage
+from the_tale.game.map.roads.storage import waymarks_storage
 
-from game.balance import constants as c, formulas as f
+from the_tale.game.balance import constants as c, formulas as f
 
 class BalanceResource(Resource):
 

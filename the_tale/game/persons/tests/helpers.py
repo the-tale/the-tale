@@ -2,12 +2,12 @@
 
 import random
 
-from game import names
+from the_tale.game import names
 
-from game.relations import GENDER, RACE
+from the_tale.game.relations import GENDER, RACE
 
-from game.persons.prototypes import PersonPrototype
-from game.persons.relations import PERSON_TYPE
+from the_tale.game.persons.prototypes import PersonPrototype
+from the_tale.game.persons.relations import PERSON_TYPE
 
 def create_person(place, state):
     race = random.choice(RACE._records)

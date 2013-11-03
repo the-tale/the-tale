@@ -8,20 +8,20 @@ from textgen.words import Noun
 from dext.utils import s11n
 from dext.utils.urls import url
 
-from common.utils.testcase import TestCase
-from common.utils.permissions import sync_group
+from the_tale.common.utils.testcase import TestCase
+from the_tale.common.utils.permissions import sync_group
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user, login_url
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user, login_url
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.map.relations import TERRAIN
+from the_tale.game.map.relations import TERRAIN
 
-from game.mobs.models import MobRecord
-from game.mobs.storage import mobs_storage
-from game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
-from game.mobs.prototypes import MobRecordPrototype
+from the_tale.game.mobs.models import MobRecord
+from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
+from the_tale.game.mobs.prototypes import MobRecordPrototype
 
 
 class BaseTestRequests(TestCase):

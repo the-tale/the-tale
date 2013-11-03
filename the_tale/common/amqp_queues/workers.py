@@ -3,8 +3,8 @@
 import sys
 import Queue
 
-from common.amqp_queues import exceptions
-from common.amqp_queues.connection import connection
+from the_tale.common.amqp_queues import exceptions
+from the_tale.common.amqp_queues.connection import connection
 from django.conf import settings as project_settings
 
 def run_with_newrelic(method, method_data):

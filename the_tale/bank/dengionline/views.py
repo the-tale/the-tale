@@ -9,10 +9,10 @@ from dext.views import handler, validate_argument
 from dext.utils.decorators import debug_required
 from dext.utils.urls import url
 
-from common.utils.resources import Resource
-from common.utils.decorators import superuser_required
+from the_tale.common.utils.resources import Resource
+from the_tale.common.utils.decorators import superuser_required
 
-from bank.dengionline.prototypes import InvoicePrototype
+from the_tale.bank.dengionline.prototypes import InvoicePrototype
 
 
 logger = getLogger('the-tale.bank_dengionline_requests')

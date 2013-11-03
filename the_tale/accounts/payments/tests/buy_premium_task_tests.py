@@ -2,8 +2,8 @@
 
 import datetime
 
-from accounts.payments.postponed_tasks import BuyPremium
-from accounts.payments.tests.base_buy_task_tests import BaseBuyPosponedTaskTests as _BaseBuyPosponedTaskTests
+from the_tale.accounts.payments.postponed_tasks import BuyPremium
+from the_tale.accounts.payments.tests.base_buy_task_tests import BaseBuyPosponedTaskTests as _BaseBuyPosponedTaskTests
 
 
 class BuyPremiumPosponedTaskTests(_BaseBuyPosponedTaskTests):

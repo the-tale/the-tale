@@ -7,13 +7,13 @@ from django.db import models
 
 from dext.views import handler
 
-from common.utils.decorators import staff_required
-from common.utils.resources import Resource
+from the_tale.common.utils.decorators import staff_required
+from the_tale.common.utils.resources import Resource
 
-from bank.prototypes import AccountPrototype as BankAccountPrototype, InvoicePrototype
-from bank.relations import ENTITY_TYPE as BANK_ENTITY_TYPE
+from the_tale.bank.prototypes import AccountPrototype as BankAccountPrototype, InvoicePrototype
+from the_tale.bank.relations import ENTITY_TYPE as BANK_ENTITY_TYPE
 
-from accounts.prototypes import AccountPrototype
+from the_tale.accounts.prototypes import AccountPrototype
 
 
 class RefererStatistics(collections.namedtuple('RefererStatisticsBase', ('domain', 'count', 'active_accounts', 'premium_accounts', 'active_and_premium', 'premium_currency'))):
@@ -142,10 +142,10 @@ class DevelopersInfoResource(Resource):
 
     @handler('mobs-and-artifacts', method='get')
     def mobs_and_artifacts(self): # pylint: disable=R0914
-        from game.mobs.storage import mobs_storage
-        from game.artifacts.storage import artifacts_storage
-        from game.map.relations import TERRAIN
-        from game.logic import DEFAULT_HERO_EQUIPMENT
+        from the_tale.game.mobs.storage import mobs_storage
+        from the_tale.game.artifacts.storage import artifacts_storage
+        from the_tale.game.map.relations import TERRAIN
+        from the_tale.game.logic import DEFAULT_HERO_EQUIPMENT
 
         mobs_without_loot = []
         mobs_without_artifacts = []

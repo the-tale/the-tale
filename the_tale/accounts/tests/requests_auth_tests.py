@@ -3,12 +3,12 @@ from django.test import client
 
 from dext.utils.urls import url
 
-from common.utils.testcase import TestCase
+from the_tale.common.utils.testcase import TestCase
 
-from accounts.logic import register_user, logout_url
-from accounts.conf import accounts_settings
+from the_tale.accounts.logic import register_user, logout_url
+from the_tale.accounts.conf import accounts_settings
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
 
 class AuthRequestsTests(TestCase):

@@ -2,20 +2,20 @@
 
 from dext.views import handler, validate_argument
 
-from common.utils.resources import Resource
-from common.utils.decorators import login_required
+from the_tale.common.utils.resources import Resource
+from the_tale.common.utils.decorators import login_required
 
-from accounts.prototypes import AccountPrototype
-from accounts.views import validate_fast_account
-from accounts.logic import get_system_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.views import validate_fast_account
+from the_tale.accounts.logic import get_system_user
 
-from game.heroes.models import Hero
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.models import Hero
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from accounts.friends.prototypes import FriendshipPrototype
-from accounts.friends.forms import RequestForm
+from the_tale.accounts.friends.prototypes import FriendshipPrototype
+from the_tale.accounts.friends.forms import RequestForm
 
-from accounts.clans.prototypes import ClanPrototype
+from the_tale.accounts.clans.prototypes import ClanPrototype
 
 
 class FriendsResource(Resource):

@@ -7,18 +7,18 @@ from django.utils.feedgenerator import Atom1Feed
 from dext.views import handler, validate_argument
 from dext.utils.urls import UrlBuilder
 
-from common.utils.resources import Resource
-from common.utils.pagination import Paginator
-from common.utils.decorators import login_required
+from the_tale.common.utils.resources import Resource
+from the_tale.common.utils.pagination import Paginator
+from the_tale.common.utils.decorators import login_required
 
-from accounts.prototypes import AccountPrototype
-from accounts.views import validate_fast_account, validate_ban_forum
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.views import validate_fast_account, validate_ban_forum
 
-from forum.models import Category, SubCategory, Thread, Post
-from forum.forms import NewPostForm, NewThreadForm, EditThreadForm
-from forum.conf import forum_settings
-from forum.read_state import ReadState
-from forum.prototypes import ( CategoryPrototype,
+from the_tale.forum.models import Category, SubCategory, Thread, Post
+from the_tale.forum.forms import NewPostForm, NewThreadForm, EditThreadForm
+from the_tale.forum.conf import forum_settings
+from the_tale.forum.read_state import ReadState
+from the_tale.forum.prototypes import ( CategoryPrototype,
                                SubCategoryPrototype,
                                ThreadPrototype,
                                PostPrototype,

@@ -6,13 +6,13 @@ from decimal import Decimal
 
 from django.db import IntegrityError
 
-from common.utils.prototypes import BasePrototype
+from the_tale.common.utils.prototypes import BasePrototype
 
-from bank import logic as bank_logic
+from the_tale.bank import logic as bank_logic
 
-from bank.xsolla.models import Invoice
-from bank.xsolla.relations import PAY_RESULT, INVOICE_STATE
-from bank.xsolla import exceptions
+from the_tale.bank.xsolla.models import Invoice
+from the_tale.bank.xsolla.relations import PAY_RESULT, INVOICE_STATE
+from the_tale.bank.xsolla import exceptions
 
 
 class InvoicePrototype(BasePrototype):
@@ -61,7 +61,7 @@ class InvoicePrototype(BasePrototype):
 
     @classmethod
     def create(cls, v1, v2, v3, xsolla_id, payment_sum, test, date, request_url):
-        from bank.workers.environment import workers_environment
+        from the_tale.bank.workers.environment import workers_environment
 
         user_email = v1
 
@@ -121,8 +121,8 @@ class InvoicePrototype(BasePrototype):
         return prototype
 
     def process(self):
-        from bank.transaction import Transaction
-        from bank.relations import ENTITY_TYPE, CURRENCY_TYPE
+        from the_tale.bank.transaction import Transaction
+        from the_tale.bank.relations import ENTITY_TYPE, CURRENCY_TYPE
 
         if not self.state._is_CREATED:
             raise exceptions.WrongInvoiceStateInProcessingError(invoice_id=self.id, state=self.state)

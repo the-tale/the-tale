@@ -4,24 +4,24 @@ import random
 
 from textgen.words import Noun
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
+from the_tale.accounts.logic import register_user
 
-from game.relations import RACE
+from the_tale.game.relations import RACE
 
-from game.prototypes import TimePrototype
-from game.logic import create_test_map
-from game.heroes.prototypes import HeroPrototype
-from game.balance import constants as c
+from the_tale.game.prototypes import TimePrototype
+from the_tale.game.logic import create_test_map
+from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.balance import constants as c
 
-from game.map.conf import map_settings
+from the_tale.game.map.conf import map_settings
 
-from game.map.places.models import Building
-from game.map.places.prototypes import BuildingPrototype, ResourceExchangePrototype
-from game.map.places.storage import places_storage, buildings_storage
-from game.map.places.relations import RESOURCE_EXCHANGE_TYPE
-from game.map.places import modifiers
+from the_tale.game.map.places.models import Building
+from the_tale.game.map.places.prototypes import BuildingPrototype, ResourceExchangePrototype
+from the_tale.game.map.places.storage import places_storage, buildings_storage
+from the_tale.game.map.places.relations import RESOURCE_EXCHANGE_TYPE
+from the_tale.game.map.places import modifiers
 
 
 class PlacePrototypeTests(testcase.TestCase):
@@ -47,7 +47,7 @@ class PlacePrototypeTests(testcase.TestCase):
         self.assertEqual(self.p1.heroes_number, 0)
 
     def test_sync_race_no_signal_when_race_not_changed(self):
-        with mock.patch('game.map.places.signals.place_race_changed.send') as signal_counter:
+        with mock.patch('the_tale.game.map.places.signals.place_race_changed.send') as signal_counter:
             self.p1.sync_race()
 
         self.assertEqual(signal_counter.call_count, 0)
@@ -59,7 +59,7 @@ class PlacePrototypeTests(testcase.TestCase):
                 self.p1.save()
                 break
 
-        with mock.patch('game.map.places.signals.place_race_changed.send') as signal_counter:
+        with mock.patch('the_tale.game.map.places.signals.place_race_changed.send') as signal_counter:
             self.p1.sync_race()
 
         self.assertEqual(signal_counter.call_count, 1)
@@ -144,9 +144,9 @@ class PlacePrototypeTests(testcase.TestCase):
                                          bill=None)
 
 
-    @mock.patch('game.balance.formulas.place_goods_production', lambda size: 100 if size < 5 else 1000)
-    @mock.patch('game.map.places.modifiers.prototypes.CraftCenter.PRODUCTION_MODIFIER', 10000)
-    @mock.patch('game.persons.prototypes.PersonPrototype.production', 1)
+    @mock.patch('the_tale.game.balance.formulas.place_goods_production', lambda size: 100 if size < 5 else 1000)
+    @mock.patch('the_tale.game.map.places.modifiers.prototypes.CraftCenter.PRODUCTION_MODIFIER', 10000)
+    @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.production', 1)
     def test_sync_sync_parameters__production(self):
         self.p1.modifier = modifiers.CraftCenter.get_id()
         self.p1.size = 1
@@ -160,8 +160,8 @@ class PlacePrototypeTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.production - expected_production < 0.001)
 
-    @mock.patch('game.map.places.modifiers.prototypes.Fort.SAFETY_MODIFIER', 0.01)
-    @mock.patch('game.persons.prototypes.PersonPrototype.safety', -0.001)
+    @mock.patch('the_tale.game.map.places.modifiers.prototypes.Fort.SAFETY_MODIFIER', 0.01)
+    @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.safety', -0.001)
     def test_sync_sync_parameters__safety(self):
         self.p1.modifier = modifiers.Fort.get_id()
 
@@ -174,8 +174,8 @@ class PlacePrototypeTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.safety - expected_safety < 0.001)
 
-    @mock.patch('game.map.places.modifiers.prototypes.TransportNode.TRANSPORT_MODIFIER', 0.01)
-    @mock.patch('game.persons.prototypes.PersonPrototype.transport', 0.001)
+    @mock.patch('the_tale.game.map.places.modifiers.prototypes.TransportNode.TRANSPORT_MODIFIER', 0.01)
+    @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.transport', 0.001)
     def test_sync_sync_parameters__transport(self):
         self.p1.modifier = modifiers.TransportNode.get_id()
 
@@ -188,8 +188,8 @@ class PlacePrototypeTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.transport - expected_transport < 0.001)
 
-    @mock.patch('game.map.places.modifiers.prototypes.Polic.FREEDOM_MODIFIER', 0.01)
-    @mock.patch('game.persons.prototypes.PersonPrototype.freedom', 0.001)
+    @mock.patch('the_tale.game.map.places.modifiers.prototypes.Polic.FREEDOM_MODIFIER', 0.01)
+    @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.freedom', 0.001)
     def test_sync_sync_parameters__freedom(self):
         self.p1.modifier = modifiers.Polic.get_id()
 
@@ -234,11 +234,11 @@ class BuildingPrototypeTests(testcase.TestCase):
 
 
     def test_dynamic_position_radius(self):
-        with mock.patch('game.map.places.conf.places_settings.BUILDING_POSITION_RADIUS', 2):
+        with mock.patch('the_tale.game.map.places.conf.places_settings.BUILDING_POSITION_RADIUS', 2):
             positions = BuildingPrototype.get_available_positions(-3, -1)
             self.assertEqual(positions, set([(0, 0), (0, 1), (0, 2)]))
 
-        with mock.patch('game.map.places.conf.places_settings.BUILDING_POSITION_RADIUS', 2):
+        with mock.patch('the_tale.game.map.places.conf.places_settings.BUILDING_POSITION_RADIUS', 2):
             positions = BuildingPrototype.get_available_positions(-4, -1)
             self.assertEqual(positions, set([(0, 0), (0, 1), (0, 2), (0, 3)]))
 

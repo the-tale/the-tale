@@ -12,7 +12,7 @@ from textgen.conf import textgen_settings
 from textgen import logic as textgen_logic
 from textgen.templates import Dictionary
 
-from game.conf import game_settings
+from the_tale.game.conf import game_settings
 
 
 morph = pymorphy.get_morph(textgen_settings.PYMORPHY_DICTS_DIRECTORY)

@@ -2,7 +2,7 @@
 import math
 import random
 
-from game.balance import constants as c
+from the_tale.game.balance import constants as c
 
 # время изменяется в часах, если размерность не указана отдельно
 # при всех вычислениях предполагается, что получаемые значения - это либо поталок (которого героя может достигнуть при активной игре пользователя) либо среднее

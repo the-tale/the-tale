@@ -2,8 +2,8 @@
 import time
 import datetime
 
-from game.quests.prototypes import QuestPrototype
-from game.quests.conf import quests_settings
+from the_tale.game.quests.prototypes import QuestPrototype
+from the_tale.game.quests.conf import quests_settings
 
 
 class QuestsContainer(object):

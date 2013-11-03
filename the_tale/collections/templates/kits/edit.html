@@ -1,4 +1,4 @@
-{% extends "achievements/kits/base.html" %}
+{% extends "collections/kits/base.html" %}
 
 {% block title %}Редактирование | {{resource.kit.caption}} | {{ super() }}{% endblock %}
 
@@ -19,7 +19,7 @@ jQuery(document).ready( function(e) {
 
 {% block kits_content %}
 
-<form id="pgf-edit-kit-form" method="post" action="{{ url('achievements:kits:update', resource.kit.id) }}">
+<form id="pgf-edit-kit-form" method="post" action="{{ url('collections:kits:update', resource.kit.id) }}">
 
   {{ form.errors_container }}
 

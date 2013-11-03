@@ -1,17 +1,17 @@
 # coding: utf-8
 import datetime
 
-from common.utils.testcase import TestCase
-from common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.utils.testcase import TestCase
+from the_tale.common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from game.logic import create_test_map
-from game.logic_storage import LogicStorage
+from the_tale.game.logic import create_test_map
+from the_tale.game.logic_storage import LogicStorage
 
-from game.heroes.habilities import battle as battle_abilities
-from game.heroes.postponed_tasks import ResetHeroAbilitiesTask
+from the_tale.game.heroes.habilities import battle as battle_abilities
+from the_tale.game.heroes.postponed_tasks import ResetHeroAbilitiesTask
 
 
 class ResetHeroAbilitiesTest(TestCase):

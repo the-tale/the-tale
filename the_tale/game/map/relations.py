@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from common.utils.enum import create_enum
+from the_tale.common.utils.enum import create_enum
 
 TERRAIN = create_enum('TERRAIN', ( ('WATER_DEEP',            0, u'глубокая вода'),
                                    ('WATER_SHOAL',           1, u'мелкая вода'),

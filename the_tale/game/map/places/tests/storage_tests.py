@@ -2,17 +2,17 @@
 import uuid
 import random
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
 from dext.settings import settings
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.map.places.models import Place
-from game.map.places.storage import PlacesStorage, resource_exchange_storage
-from game.map.places.prototypes import ResourceExchangePrototype
-from game.map.places.relations import RESOURCE_EXCHANGE_TYPE
-from game.map.places.exceptions import PlacesException
+from the_tale.game.map.places.models import Place
+from the_tale.game.map.places.storage import PlacesStorage, resource_exchange_storage
+from the_tale.game.map.places.prototypes import ResourceExchangePrototype
+from the_tale.game.map.places.relations import RESOURCE_EXCHANGE_TYPE
+from the_tale.game.map.places.exceptions import PlacesException
 
 class PlacesStorageTest(testcase.TestCase):
 
@@ -140,13 +140,13 @@ class ResourceExchangeStorageTests(testcase.TestCase):
         self.assertEqual(resource_exchange_storage.get_exchange_for_bill_id(666), None)
 
     def test_get_exchanges_for_bill_id__exists(self):
-        from accounts.prototypes import AccountPrototype
-        from accounts.logic import register_user
+        from the_tale.accounts.prototypes import AccountPrototype
+        from the_tale.accounts.logic import register_user
 
-        from forum.models import Category, SubCategory
-        from game.bills.conf import bills_settings
-        from game.bills import bills
-        from game.bills.prototypes import BillPrototype
+        from the_tale.forum.models import Category, SubCategory
+        from the_tale.game.bills.conf import bills_settings
+        from the_tale.game.bills import bills
+        from the_tale.game.bills.prototypes import BillPrototype
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
         account = AccountPrototype.get_by_id(account_id)

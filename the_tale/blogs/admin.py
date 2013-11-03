@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from blogs.models import Post, Vote
+from the_tale.blogs.models import Post, Vote
 
 
 class PostAdmin(admin.ModelAdmin):

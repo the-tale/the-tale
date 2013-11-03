@@ -2,13 +2,13 @@
 
 from dext.forms import forms, fields
 
-from common.utils.forms import SimpleWordField
-from common.utils import bbcode
+from the_tale.common.utils.forms import SimpleWordField
+from the_tale.common.utils import bbcode
 
-from game.mobs.storage import mobs_storage
+from the_tale.game.mobs.storage import mobs_storage
 
-from game.artifacts.models import ArtifactRecord, RARITY_TYPE
-from game.artifacts.relations import ARTIFACT_TYPE
+from the_tale.game.artifacts.models import ArtifactRecord, RARITY_TYPE
+from the_tale.game.artifacts.relations import ARTIFACT_TYPE
 
 
 class ArtifactRecordBaseForm(forms.Form):

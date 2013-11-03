@@ -6,27 +6,27 @@ from dext.utils import s11n
 
 from textgen.words import Noun
 
-from common.utils.testcase import TestCase
+from the_tale.common.utils.testcase import TestCase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from forum.models import Post
+from the_tale.forum.models import Post
 
-from game.logic import create_test_map
-from game.prototypes import TimePrototype
-from game.balance import constants as c
+from the_tale.game.logic import create_test_map
+from the_tale.game.prototypes import TimePrototype
+from the_tale.game.balance import constants as c
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.bills.models import Actor
-from game.bills.relations import BILL_STATE, VOTE_TYPE,BILL_DURATION
-from game.bills.prototypes import BillPrototype, VotePrototype
-from game.bills.bills import PlaceRenaming, PlaceDescripton
-from game.bills.conf import bills_settings
-from game.bills import exceptions
+from the_tale.game.bills.models import Actor
+from the_tale.game.bills.relations import BILL_STATE, VOTE_TYPE,BILL_DURATION
+from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
+from the_tale.game.bills.bills import PlaceRenaming, PlaceDescripton
+from the_tale.game.bills.conf import bills_settings
+from the_tale.game.bills import exceptions
 
-from game.map.places.storage import places_storage
+from the_tale.game.map.places.storage import places_storage
 
 
 class BaseTestPrototypes(TestCase):
@@ -61,7 +61,7 @@ class BaseTestPrototypes(TestCase):
         result, account_id, bundle_id = register_user('test_user4', 'test_user4@test.com', '111111')
         self.account4 = AccountPrototype.get_by_id(account_id)
 
-        from forum.models import Category, SubCategory
+        from the_tale.forum.models import Category, SubCategory
 
         forum_category = Category.objects.create(caption='category-1', slug='category-1')
         SubCategory.objects.create(caption=bills_settings.FORUM_CATEGORY_UID + '-caption',
@@ -90,12 +90,12 @@ class BillPrototypeTests(BaseTestPrototypes):
 
     def test_can_vote__places_restrictions__no_places(self):
         bill = self.create_bill()
-        with mock.patch('game.bills.bills.place_renaming.PlaceRenaming.actors', []):
+        with mock.patch('the_tale.game.bills.bills.place_renaming.PlaceRenaming.actors', []):
             self.assertTrue(bill.can_vote(self.hero))
 
     def test_can_vote__places_restrictions__no_allowed_places(self):
         bill = self.create_bill()
-        with mock.patch('game.bills.bills.place_renaming.PlaceRenaming.actors', [self.place1, self.place2, self.place3]):
+        with mock.patch('the_tale.game.bills.bills.place_renaming.PlaceRenaming.actors', [self.place1, self.place2, self.place3]):
             self.assertFalse(bill.can_vote(self.hero))
 
     def test_can_vote__places_restrictions__allowed_place(self):
@@ -103,7 +103,7 @@ class BillPrototypeTests(BaseTestPrototypes):
 
         self.hero.places_history.add_place(self.place2.id)
 
-        with mock.patch('game.bills.bills.place_renaming.PlaceRenaming.actors', [self.place1, self.place2, self.place3]):
+        with mock.patch('the_tale.game.bills.bills.place_renaming.PlaceRenaming.actors', [self.place1, self.place2, self.place3]):
             self.assertTrue(bill.can_vote(self.hero))
 
 
@@ -124,7 +124,7 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.assertEqual(places_storage[place_id].normalized_name.forms, name_forms)
 
 
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', lambda x: datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', lambda x: datetime.timedelta(seconds=0))
     def test_wrong_state(self):
         self.bill.state = BILL_STATE.ACCEPTED
         self.bill.save()
@@ -134,7 +134,7 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         self.check_place(self.place1.id, self.place1.name, self.place1.normalized_name.forms)
 
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', lambda x: datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', lambda x: datetime.timedelta(seconds=0))
     def test_not_approved(self):
         self.bill.approved_by_moderator = False
         self.bill.save()
@@ -150,8 +150,8 @@ class TestPrototypeApply(BaseTestPrototypes):
         places_storage.sync(force=True)
         self.check_place(self.place1.id, self.place1.name, self.place1.normalized_name.forms)
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.51)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.51)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_not_enough_voices_percents(self):
         VotePrototype.create(self.account2, self.bill, VOTE_TYPE.AGAINST)
         VotePrototype.create(self.account3, self.bill, VOTE_TYPE.REFRAINED)
@@ -170,8 +170,8 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         self.check_place(self.place1.id, self.place1.name, self.place1.normalized_name.forms)
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_approved(self):
         VotePrototype.create(self.account2, self.bill, VOTE_TYPE.AGAINST)
         VotePrototype.create(self.account3, self.bill, VOTE_TYPE.FOR)
@@ -206,8 +206,8 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.check_place(self.place1.id, 'new_name_1', self.NAME_FORMS)
 
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_approved__duration(self):
 
         ##################################
@@ -261,7 +261,7 @@ class TestPrototypeEnd(BaseTestPrototypes):
                 continue
             self.bill.state = state
 
-            with mock.patch('game.bills.bills.base_bill.BaseBill.end') as end:
+            with mock.patch('the_tale.game.bills.bills.base_bill.BaseBill.end') as end:
                 self.assertRaises(exceptions.EndBillInWrongStateError, self.bill.end)
 
             self.assertEqual(end.call_count, 0)
@@ -269,7 +269,7 @@ class TestPrototypeEnd(BaseTestPrototypes):
     def test_already_ended(self):
         self.bill._model.ended_at = datetime.datetime.now()
 
-        with mock.patch('game.bills.bills.base_bill.BaseBill.end') as end:
+        with mock.patch('the_tale.game.bills.bills.base_bill.BaseBill.end') as end:
             self.assertRaises(exceptions.EndBillAlreadyEndedError, self.bill.end)
 
         self.assertEqual(end.call_count, 0)
@@ -277,13 +277,13 @@ class TestPrototypeEnd(BaseTestPrototypes):
     def test_before_timeout(self):
         self.bill._model.ends_at_turn = TimePrototype.get_current_turn_number() + 1
 
-        with mock.patch('game.bills.bills.base_bill.BaseBill.end') as end:
+        with mock.patch('the_tale.game.bills.bills.base_bill.BaseBill.end') as end:
             self.assertRaises(exceptions.EndBillBeforeTimeError, self.bill.end)
 
         self.assertEqual(end.call_count, 0)
 
     def test_success(self):
-        with mock.patch('game.bills.bills.base_bill.BaseBill.end') as end:
+        with mock.patch('the_tale.game.bills.bills.base_bill.BaseBill.end') as end:
             self.bill.end()
 
         self.assertEqual(end.call_count, 1)

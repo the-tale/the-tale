@@ -4,7 +4,7 @@ from django.conf.urls.defaults import patterns, include
 
 from dext.views import resource_patterns
 
-from blogs.views import PostResource
+from the_tale.blogs.views import PostResource
 
 urlpatterns = patterns('',
                        (r'^posts/', include(resource_patterns(PostResource), namespace='posts')),

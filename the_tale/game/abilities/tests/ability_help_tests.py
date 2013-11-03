@@ -1,23 +1,23 @@
 # coding: utf-8
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from game.logic_storage import LogicStorage
-from game.logic import create_test_map
+from the_tale.game.logic_storage import LogicStorage
+from the_tale.game.logic import create_test_map
 
-from game.prototypes import TimePrototype
-from game.actions import prototypes as actions_prototypes
-from game.heroes.logic import create_mob_for_hero
+from the_tale.game.prototypes import TimePrototype
+from the_tale.game.actions import prototypes as actions_prototypes
+from the_tale.game.heroes.logic import create_mob_for_hero
 
-from game.abilities.deck.help import Help
-from game.abilities.relations import HELP_CHOICES
+from the_tale.game.abilities.deck.help import Help
+from the_tale.game.abilities.relations import HELP_CHOICES
 
-from game.pvp.prototypes import Battle1x1Prototype
-from game.pvp.models import BATTLE_1X1_STATE
+from the_tale.game.pvp.prototypes import Battle1x1Prototype
+from the_tale.game.pvp.models import BATTLE_1X1_STATE
 
 class HelpAbilityTest(testcase.TestCase):
 
@@ -45,7 +45,7 @@ class HelpAbilityTest(testcase.TestCase):
                 'pvp_balancer': None}
 
     def test_none(self):
-        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: None):
+        with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: None):
             self.assertEqual(self.ability.use(**self.use_attributes), (False, None, ()))
 
     def test_help_when_battle_waiting(self):
@@ -63,18 +63,18 @@ class HelpAbilityTest(testcase.TestCase):
 
     def test_heal(self):
         self.hero.health = 1
-        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL):
+        with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL):
             self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
             self.assertTrue(self.hero.health > 1)
 
     def test_start_quest(self):
-        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.START_QUEST):
+        with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.START_QUEST):
             self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
             self.assertTrue(self.action_idl.percents >= 1)
 
     def test_experience(self):
         old_experience = self.hero.experience
-        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.EXPERIENCE):
+        with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.EXPERIENCE):
             self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
 
         self.assertTrue(old_experience < self.hero.experience)
@@ -82,18 +82,18 @@ class HelpAbilityTest(testcase.TestCase):
     def test_stock_up_energy(self):
         old_charges = self.hero.energy_charges
 
-        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.STOCK_UP_ENERGY):
+        with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.STOCK_UP_ENERGY):
             self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
 
         self.assertTrue(self.hero.energy_charges > old_charges)
 
     def test_money(self):
         old_hero_money = self.hero.money
-        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.MONEY):
+        with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.MONEY):
             self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
             self.assertTrue(self.hero.money > old_hero_money)
 
-    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_teleport(self):
         move_place = self.p3
         if move_place.id == self.hero.position.place.id:
@@ -109,7 +109,7 @@ class HelpAbilityTest(testcase.TestCase):
         old_road_percents = self.hero.position.percents
         old_percents = action_move.percents
 
-        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.TELEPORT):
+        with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.TELEPORT):
             self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
 
         self.assertTrue(old_road_percents < self.hero.position.percents)
@@ -129,7 +129,7 @@ class HelpAbilityTest(testcase.TestCase):
 
         self.assertTrue(HELP_CHOICES.LIGHTING in action_battle.help_choices)
 
-        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.LIGHTING):
+        with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.LIGHTING):
             self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
 
         self.assertTrue(old_mob_health > action_battle.mob.health)
@@ -155,7 +155,7 @@ class HelpAbilityTest(testcase.TestCase):
 
         old_percents = action_resurrect.percents
 
-        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.RESURRECT):
+        with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.RESURRECT):
             current_time.increment_turn()
             self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
             self.storage.process_turn(second_step_if_needed=False)

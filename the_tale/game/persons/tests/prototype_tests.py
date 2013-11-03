@@ -4,18 +4,18 @@ import datetime
 
 from textgen.words import Noun
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
+from the_tale.accounts.logic import register_user
 
-from game.prototypes import TimePrototype
-from game.logic import create_test_map
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.prototypes import TimePrototype
+from the_tale.game.logic import create_test_map
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.map.places.prototypes import BuildingPrototype
+from the_tale.game.map.places.prototypes import BuildingPrototype
 
-from game.persons.models import PERSON_STATE
-from game.persons.tests.helpers import create_person
+from the_tale.game.persons.models import PERSON_STATE
+from the_tale.game.persons.tests.helpers import create_person
 
 class PrototypeTests(testcase.TestCase):
 
@@ -47,18 +47,18 @@ class PrototypeTests(testcase.TestCase):
         self.assertEqual(self.person.created_at_turn, TimePrototype.get_current_turn_number() - 1)
         self.assertTrue(self.person.is_stable)
 
-    @mock.patch('game.persons.conf.persons_settings.POWER_STABILITY_PERCENT', 1.0)
-    @mock.patch('game.persons.conf.persons_settings.POWER_STABILITY_WEEKS', -1.0)
+    @mock.patch('the_tale.game.persons.conf.persons_settings.POWER_STABILITY_PERCENT', 1.0)
+    @mock.patch('the_tale.game.persons.conf.persons_settings.POWER_STABILITY_WEEKS', -1.0)
     def test_is_stable_no_time_delay_no_percent(self):
         self.assertFalse(self.person.is_stable)
 
-    @mock.patch('game.persons.conf.persons_settings.POWER_STABILITY_PERCENT', 1.0)
-    @mock.patch('game.persons.conf.persons_settings.POWER_STABILITY_WEEKS', 10.0)
+    @mock.patch('the_tale.game.persons.conf.persons_settings.POWER_STABILITY_PERCENT', 1.0)
+    @mock.patch('the_tale.game.persons.conf.persons_settings.POWER_STABILITY_WEEKS', 10.0)
     def test_is_stable_with_time_delay(self):
         self.assertTrue(self.person.is_stable)
 
-    @mock.patch('game.persons.conf.persons_settings.POWER_STABILITY_PERCENT', -1.0)
-    @mock.patch('game.persons.conf.persons_settings.POWER_STABILITY_WEEKS', -1.0)
+    @mock.patch('the_tale.game.persons.conf.persons_settings.POWER_STABILITY_PERCENT', -1.0)
+    @mock.patch('the_tale.game.persons.conf.persons_settings.POWER_STABILITY_WEEKS', -1.0)
     def test_is_stable_with_percent(self):
         self.assertTrue(self.person.is_stable)
 
@@ -95,14 +95,14 @@ class PrototypeTests(testcase.TestCase):
 
     def test_power_from_building(self):
 
-        with mock.patch('game.workers.highlevel.Worker.cmd_change_power') as change_person_power_call:
+        with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as change_person_power_call:
             self.person.cmd_change_power(100)
 
         self.assertEqual(change_person_power_call.call_args, mock.call(person_id=self.person.id, power_delta=100, place_id=None))
 
         BuildingPrototype.create(self.person, name_forms=Noun.fast_construct('building-name'))
 
-        with mock.patch('game.workers.highlevel.Worker.cmd_change_power') as change_person_power_call:
+        with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as change_person_power_call:
             self.person.cmd_change_power(100)
 
         self.assertEqual(change_person_power_call.call_args[1]['power_delta'], 100)

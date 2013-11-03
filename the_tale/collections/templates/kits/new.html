@@ -1,4 +1,4 @@
-{% extends "achievements/kits/base.html" %}
+{% extends "collections/kits/base.html" %}
 
 {% block title %}Создание | {{ super() }}{% endblock %}
 
@@ -19,7 +19,7 @@ jQuery(document).ready( function(e) {
 
 {% block kits_content %}
 
-<form id="pgf-new-kit-form" method="post" action="{{ url('achievements:kits:create') }}">
+<form id="pgf-new-kit-form" method="post" action="{{ url('collections:kits:create') }}">
 
   {{ form.errors_container }}
 

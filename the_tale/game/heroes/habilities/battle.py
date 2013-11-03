@@ -1,12 +1,12 @@
 #coding: utf-8
 import random
 
-from game.heroes.habilities.prototypes import AbilityPrototype
-from game.heroes.habilities.relations import  ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_LOGIC_TYPE, DAMAGE_TYPE # pylint: disable=W0611
+from the_tale.game.heroes.habilities.prototypes import AbilityPrototype
+from the_tale.game.heroes.habilities.relations import  ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_LOGIC_TYPE, DAMAGE_TYPE # pylint: disable=W0611
 
-from game.actions.contexts.battle import Damage
+from the_tale.game.actions.contexts.battle import Damage
 
-from game.balance import constants as c, formulas as f
+from the_tale.game.balance import constants as c, formulas as f
 
 class HIT(AbilityPrototype):
 

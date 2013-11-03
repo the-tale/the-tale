@@ -3,16 +3,16 @@ import mock
 
 from dext.settings import settings
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
 
-from post_service.prototypes import MessagePrototype
-from post_service.conf import post_service_settings
-from post_service.message_handlers import TestHandler
-from post_service.workers.environment import workers_environment as post_service_workers_environment
+from the_tale.post_service.prototypes import MessagePrototype
+from the_tale.post_service.conf import post_service_settings
+from the_tale.post_service.message_handlers import TestHandler
+from the_tale.post_service.workers.environment import workers_environment as post_service_workers_environment
 
 
-@mock.patch('post_service.conf.post_service_settings.ENABLE_MESSAGE_SENDER', True)
+@mock.patch('the_tale.post_service.conf.post_service_settings.ENABLE_MESSAGE_SENDER', True)
 class MessageSenderTests(testcase.TestCase):
 
     def setUp(self):

@@ -1,3 +1,3 @@
 # coding: utf-8
 
-from game.map.places import signals
+from the_tale.game.map.places import signals

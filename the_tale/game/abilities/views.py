@@ -2,12 +2,12 @@
 
 from dext.views import handler, validate_argument
 
-from common.utils.resources import Resource
-from common.utils.decorators import login_required
+from the_tale.common.utils.resources import Resource
+from the_tale.common.utils.decorators import login_required
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.abilities.deck import ABILITIES
+from the_tale.game.abilities.deck import ABILITIES
 
 class AbilitiesResource(Resource):
 

@@ -5,15 +5,15 @@ import mock
 
 from django.db import IntegrityError
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from bank.prototypes import InvoicePrototype as BankInvoicePrototype
+from the_tale.bank.prototypes import InvoicePrototype as BankInvoicePrototype
 
-from bank.xsolla.prototypes import InvoicePrototype
-from bank.xsolla.relations import INVOICE_STATE
-from bank.xsolla import exceptions
+from the_tale.bank.xsolla.prototypes import InvoicePrototype
+from the_tale.bank.xsolla.relations import INVOICE_STATE
+from the_tale.bank.xsolla import exceptions
 
-from bank.xsolla.tests.helpers import TestInvoiceFabric
+from the_tale.bank.xsolla.tests.helpers import TestInvoiceFabric
 
 
 class InvoicePrototypeTests(testcase.TestCase):
@@ -23,7 +23,7 @@ class InvoicePrototypeTests(testcase.TestCase):
         self.fabric = TestInvoiceFabric()
 
     def create_invoice(self, worker_call_count, **kwargs):
-        with mock.patch('bank.xsolla.workers.banker.Worker.cmd_handle_invoices') as cmd_handle_invoices:
+        with mock.patch('the_tale.bank.xsolla.workers.banker.Worker.cmd_handle_invoices') as cmd_handle_invoices:
             invoice = self.fabric.create_invoice(**kwargs)
 
         self.assertEqual(cmd_handle_invoices.call_count, worker_call_count)
@@ -33,7 +33,7 @@ class InvoicePrototypeTests(testcase.TestCase):
     def pay(self, worker_call_count, **kwargs):
         self.assertFalse(set(kwargs.keys()) - set(['account_id', 'user_email', 'xsolla_id', 'payment_sum', 'test']))
 
-        with mock.patch('bank.xsolla.workers.banker.Worker.cmd_handle_invoices') as cmd_handle_invoices:
+        with mock.patch('the_tale.bank.xsolla.workers.banker.Worker.cmd_handle_invoices') as cmd_handle_invoices:
             invoice = self.fabric.pay(**kwargs)
 
         self.assertEqual(cmd_handle_invoices.call_count, worker_call_count)

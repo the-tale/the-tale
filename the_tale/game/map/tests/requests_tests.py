@@ -9,19 +9,19 @@ from dext.utils.urls import url
 
 from textgen.words import Noun
 
-from common.utils.testcase import TestCase
+from the_tale.common.utils.testcase import TestCase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.chronicle import RecordPrototype as ChronicleRecordPrototype
+from the_tale.game.chronicle import RecordPrototype as ChronicleRecordPrototype
 
-from game.map.places.modifiers import MODIFIERS, TradeCenter
-from game.map.places.prototypes import BuildingPrototype
+from the_tale.game.map.places.modifiers import MODIFIERS, TradeCenter
+from the_tale.game.map.places.prototypes import BuildingPrototype
 
-from game.map.conf import map_settings
+from the_tale.game.map.conf import map_settings
 
 
 class RequestsTestsBase(TestCase):

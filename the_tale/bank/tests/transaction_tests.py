@@ -1,13 +1,13 @@
 # coding: utf-8
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from bank.tests.helpers import BankTestsMixin
+from the_tale.bank.tests.helpers import BankTestsMixin
 
-from bank.prototypes import InvoicePrototype
-from bank.relations import ENTITY_TYPE, CURRENCY_TYPE
-from bank.transaction import Transaction
+from the_tale.bank.prototypes import InvoicePrototype
+from the_tale.bank.relations import ENTITY_TYPE, CURRENCY_TYPE
+from the_tale.bank.transaction import Transaction
 
 
 class TransactionTests(testcase.TestCase, BankTestsMixin):
@@ -27,7 +27,7 @@ class TransactionTests(testcase.TestCase, BankTestsMixin):
 
 
     def test_create(self):
-        with mock.patch('bank.workers.bank_processor.Worker.cmd_init_invoice') as cmd_init_invoice:
+        with mock.patch('the_tale.bank.workers.bank_processor.Worker.cmd_init_invoice') as cmd_init_invoice:
             transaction = self.create_transaction()
         self.assertEqual(cmd_init_invoice.call_count, 1)
 
@@ -49,12 +49,12 @@ class TransactionTests(testcase.TestCase, BankTestsMixin):
 
     def test_confirm(self):
         transaction = self.create_transaction()
-        with mock.patch('bank.workers.bank_processor.Worker.cmd_confirm_invoice') as cmd_confirm_invoice:
+        with mock.patch('the_tale.bank.workers.bank_processor.Worker.cmd_confirm_invoice') as cmd_confirm_invoice:
             transaction.confirm()
         self.assertEqual(cmd_confirm_invoice.call_count, 1)
 
     def test_cancel(self):
         transaction = self.create_transaction()
-        with mock.patch('bank.workers.bank_processor.Worker.cmd_cancel_invoice') as cmd_count_invoice:
+        with mock.patch('the_tale.bank.workers.bank_processor.Worker.cmd_cancel_invoice') as cmd_count_invoice:
             transaction.cancel()
         self.assertEqual(cmd_count_invoice.call_count, 1)

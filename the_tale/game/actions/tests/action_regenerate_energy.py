@@ -1,14 +1,14 @@
 # coding: utf-8
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
-from game.heroes.prototypes import HeroPrototype
-from game.logic_storage import LogicStorage
+from the_tale.accounts.logic import register_user
+from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.logic_storage import LogicStorage
 
-from game.balance import formulas as f
-from game.logic import create_test_map
-from game.actions.prototypes import ActionRegenerateEnergyPrototype
-from game.prototypes import TimePrototype
+from the_tale.game.balance import formulas as f
+from the_tale.game.logic import create_test_map
+from the_tale.game.actions.prototypes import ActionRegenerateEnergyPrototype
+from the_tale.game.prototypes import TimePrototype
 
 
 class RegenerateEnergyActionTest(testcase.TestCase):

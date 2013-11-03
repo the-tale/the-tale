@@ -5,35 +5,35 @@ from django.conf import settings as project_settings
 from dext.views import handler
 from dext.settings import settings
 
-from common.utils import bbcode
-from common.utils.resources import Resource
-from common.utils import api
+from the_tale.common.utils import bbcode
+from the_tale.common.utils.resources import Resource
+from the_tale.common.utils import api
 
-from accounts.prototypes import AccountPrototype
-from accounts.clans.prototypes import ClanPrototype
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.clans.prototypes import ClanPrototype
 
-from forum.models import Thread
-from forum.prototypes import ThreadPrototype
+from the_tale.forum.models import Thread
+from the_tale.forum.prototypes import ThreadPrototype
 
-from cms.news.models import News
+from the_tale.cms.news.models import News
 
-from blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
-from blogs.prototypes import PostPrototype as BlogPostPrototype
+from the_tale.blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
+from the_tale.blogs.prototypes import PostPrototype as BlogPostPrototype
 
-from game.relations import RACE
-from game.balance import constants as c
+from the_tale.game.relations import RACE
+from the_tale.game.balance import constants as c
 
-from game.map.storage import map_info_storage
-from game.map.relations import TERRAIN, MAP_STATISTICS
+from the_tale.game.map.storage import map_info_storage
+from the_tale.game.map.relations import TERRAIN, MAP_STATISTICS
 
-from game.chronicle import RecordPrototype as ChronicleRecordPrototype
+from the_tale.game.chronicle import RecordPrototype as ChronicleRecordPrototype
 
-from game.bills.prototypes import BillPrototype
+from the_tale.game.bills.prototypes import BillPrototype
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from portal.conf import portal_settings
-from portal import logic as portal_logic
+from the_tale.portal.conf import portal_settings
+from the_tale.portal import logic as portal_logic
 
 
 class PortalResource(Resource):

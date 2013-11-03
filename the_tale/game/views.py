@@ -5,21 +5,21 @@ from django.core.urlresolvers import reverse
 from dext.views import handler, validate_argument_with_resource
 from dext.utils.decorators import debug_required
 
-from common.utils.decorators import staff_required, login_required
-from common.utils.resources import Resource
-from common.utils import api
+from the_tale.common.utils.decorators import staff_required, login_required
+from the_tale.common.utils.resources import Resource
+from the_tale.common.utils import api
 
-from accounts.clans.prototypes import ClanPrototype
+from the_tale.accounts.clans.prototypes import ClanPrototype
 
-from game.heroes.relations import EQUIPMENT_SLOT
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.relations import EQUIPMENT_SLOT
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.map.conf import map_settings
-from game.map.storage import map_info_storage
+from the_tale.game.map.conf import map_settings
+from the_tale.game.map.storage import map_info_storage
 
-from game.conf import game_settings
-from game.pvp.prototypes import Battle1x1Prototype
-from game import logic as game_logic
+from the_tale.game.conf import game_settings
+from the_tale.game.pvp.prototypes import Battle1x1Prototype
+from the_tale.game import logic as game_logic
 
 
 class GameResource(Resource):

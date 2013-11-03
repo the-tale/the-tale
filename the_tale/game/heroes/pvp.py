@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from game.pvp.abilities import Ice, Blood, Flame
+from the_tale.game.pvp.abilities import Ice, Blood, Flame
 
 class PvPData(object):
 

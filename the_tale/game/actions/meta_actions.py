@@ -4,21 +4,21 @@ import random
 from dext.utils import s11n
 from dext.utils.decorators import nested_commit_on_success
 
-from common.utils.prototypes import BasePrototype
-from common.utils.decorators import lazy_property
-from common.utils.logic import random_value_by_priority
+from the_tale.common.utils.prototypes import BasePrototype
+from the_tale.common.utils.decorators import lazy_property
+from the_tale.common.utils.logic import random_value_by_priority
 
-from accounts.prototypes import AccountPrototype
+from the_tale.accounts.prototypes import AccountPrototype
 
-from game.actions.models import MetaAction, MetaActionMember, UNINITIALIZED_STATE
-from game.actions import battle, contexts
+from the_tale.game.actions.models import MetaAction, MetaActionMember, UNINITIALIZED_STATE
+from the_tale.game.actions import battle, contexts
 
-from game.prototypes import TimePrototype
+from the_tale.game.prototypes import TimePrototype
 
-from game.balance import constants as c
+from the_tale.game.balance import constants as c
 
-from game.pvp.prototypes import Battle1x1Prototype, Battle1x1ResultPrototype
-from game.pvp.relations import BATTLE_1X1_RESULT
+from the_tale.game.pvp.prototypes import Battle1x1Prototype, Battle1x1ResultPrototype
+from the_tale.game.pvp.relations import BATTLE_1X1_RESULT
 
 
 def get_meta_actions_types():
@@ -83,7 +83,7 @@ class MetaActionPrototype(BasePrototype):
 
 
     def remove(self):
-        from game.bundles import BundlePrototype
+        from the_tale.game.bundles import BundlePrototype
         MetaActionMemberPrototype._model_class.objects.filter(action_id=self.id).delete()
         self._model.delete()
         BundlePrototype.delete_by_id(self._model.bundle_id)
@@ -153,7 +153,7 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         return self._hero_2_context
 
     def get_bot_pvp_properties(self):
-        from game.pvp.abilities import ABILITIES
+        from the_tale.game.pvp.abilities import ABILITIES
 
         if 'bot_pvp_properties' in self.data:
             return self.data['bot_pvp_properties']
@@ -278,7 +278,7 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         self.state = self.STATE.PROCESSED
 
     def process_bot(self, bot, enemy):
-        from game.pvp.abilities import ABILITIES
+        from the_tale.game.pvp.abilities import ABILITIES
 
         properties = self.get_bot_pvp_properties()
 

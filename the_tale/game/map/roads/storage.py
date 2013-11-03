@@ -1,11 +1,11 @@
 # coding: utf-8
 
-from common.utils.storage import create_storage_class
-from common.utils.decorators import lazy_property
+from the_tale.common.utils.storage import create_storage_class
+from the_tale.common.utils.decorators import lazy_property
 
-from game.map.roads.models import Road, Waymark
-from game.map.roads.prototypes import RoadPrototype, WaymarkPrototype
-from game.map.roads.exceptions import RoadsException
+from the_tale.game.map.roads.models import Road, Waymark
+from the_tale.game.map.roads.prototypes import RoadPrototype, WaymarkPrototype
+from the_tale.game.map.roads.exceptions import RoadsException
 
 
 class RoadsStorage(create_storage_class('roads change time', Road, RoadPrototype, RoadsException)):

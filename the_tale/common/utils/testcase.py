@@ -4,12 +4,12 @@ from dext.utils.testcase import TestCase as DextTestCase, TransactionTestCase as
 from dext.settings import settings
 from dext.utils.urls import url
 
-from game.persons.storage import persons_storage
-from game.mobs.storage import mobs_storage
-from game.artifacts.storage import artifacts_storage
-from game.map.storage import map_info_storage
-from game.map.places.storage import places_storage, buildings_storage, resource_exchange_storage
-from game.map.roads.storage import roads_storage, waymarks_storage
+from the_tale.game.persons.storage import persons_storage
+from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.map.storage import map_info_storage
+from the_tale.game.map.places.storage import places_storage, buildings_storage, resource_exchange_storage
+from the_tale.game.map.roads.storage import roads_storage, waymarks_storage
 
 
 def setUp(self):

@@ -1,29 +1,29 @@
 # coding: utf-8
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
-from game.heroes.prototypes import HeroPrototype
-from game.logic_storage import LogicStorage
+from the_tale.accounts.logic import register_user
+from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.logic_storage import LogicStorage
 
-from game.balance import constants as c
-from game.logic import create_test_map
-from game.prototypes import TimePrototype
+from the_tale.game.balance import constants as c
+from the_tale.game.logic import create_test_map
+from the_tale.game.prototypes import TimePrototype
 
-from game.heroes.logic import create_mob_for_hero
+from the_tale.game.heroes.logic import create_mob_for_hero
 
-from game.actions.prototypes import ACTION_TYPES, ActionBattlePvE1x1Prototype, ActionBase
-from game.actions import contexts
+from the_tale.game.actions.prototypes import ACTION_TYPES, ActionBattlePvE1x1Prototype, ActionBase
+from the_tale.game.actions import contexts
 
-from game.actions.tests.helpers import TestAction
-from game.actions.container import ActionsContainer
-from game.actions.prototypes import ACTION_TYPES
+from the_tale.game.actions.tests.helpers import TestAction
+from the_tale.game.actions.container import ActionsContainer
+from the_tale.game.actions.prototypes import ACTION_TYPES
 
 
 class ActionsContainerTests(testcase.TestCase):
 
-    @mock.patch('game.actions.prototypes.ActionBase.get_description', lambda self: 'abrakadabra')
+    @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_description', lambda self: 'abrakadabra')
     def setUp(self):
         super(ActionsContainerTests, self).setUp()
         create_test_map()
@@ -46,7 +46,7 @@ class ActionsContainerTests(testcase.TestCase):
         self.assertFalse(container.updated)
         self.assertEqual(container.actions_list, [])
 
-    @mock.patch('game.actions.prototypes.ACTION_TYPES', dict(ACTION_TYPES, **{TestAction.TYPE: TestAction}))
+    @mock.patch('the_tale.game.actions.prototypes.ACTION_TYPES', dict(ACTION_TYPES, **{TestAction.TYPE: TestAction}))
     def test_serialization(self):
         self.assertEqual(self.container.serialize(), ActionsContainer.deserialize(self.hero, data=self.container.serialize()).serialize())
 
@@ -54,7 +54,7 @@ class ActionsContainerTests(testcase.TestCase):
         for action in container.actions_list:
             self.assertEqual(id(action.hero), id(self.hero))
 
-    @mock.patch('game.actions.prototypes.ActionBase.get_description', lambda self: 'abrakadabra')
+    @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_description', lambda self: 'abrakadabra')
     def test_push_action(self):
         self.assertEqual([a.data for a in self.container.actions_list], [None, 2, 3])
 

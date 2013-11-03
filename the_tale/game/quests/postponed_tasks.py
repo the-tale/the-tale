@@ -5,7 +5,7 @@ from rels.django_staff import DjangoEnum
 
 from dext.utils.decorators import nested_commit_on_success
 
-from common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 
 
 class MAKE_CHOICE_TASK_STATE(DjangoEnum):

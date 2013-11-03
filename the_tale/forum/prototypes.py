@@ -9,18 +9,18 @@ from django.db import IntegrityError
 from dext.utils.decorators import nested_commit_on_success
 from dext.utils.urls import UrlBuilder
 
-from accounts.models import Account
-from accounts.prototypes import AccountPrototype
+from the_tale.accounts.models import Account
+from the_tale.accounts.prototypes import AccountPrototype
 
-from common.utils import bbcode
-from common.utils.pagination import Paginator
-from common.utils.prototypes import BasePrototype
-from common.utils.decorators import lazy_property
+from the_tale.common.utils import bbcode
+from the_tale.common.utils.pagination import Paginator
+from the_tale.common.utils.prototypes import BasePrototype
+from the_tale.common.utils.decorators import lazy_property
 
-from forum.conf import forum_settings
-from forum.models import Category, SubCategory, Thread, Post, Subscription, ThreadReadInfo, SubCategoryReadInfo, Permission
-from forum.exceptions import ForumException
-from forum.relations import MARKUP_METHOD, POST_REMOVED_BY, POST_STATE
+from the_tale.forum.conf import forum_settings
+from the_tale.forum.models import Category, SubCategory, Thread, Post, Subscription, ThreadReadInfo, SubCategoryReadInfo, Permission
+from the_tale.forum.exceptions import ForumException
+from the_tale.forum.relations import MARKUP_METHOD, POST_REMOVED_BY, POST_STATE
 
 
 class CategoryPrototype(BasePrototype):
@@ -124,8 +124,8 @@ class ThreadPrototype(BasePrototype):
     @nested_commit_on_success
     def create(cls, subcategory, caption, author, text, markup_method=MARKUP_METHOD.POSTMARKUP, technical=False):
 
-        from post_service.prototypes import MessagePrototype
-        from post_service.message_handlers import ForumThreadHandler
+        from the_tale.post_service.prototypes import MessagePrototype
+        from the_tale.post_service.message_handlers import ForumThreadHandler
 
         if isinstance(subcategory, int):
             subcategory = SubCategoryPrototype.get_by_id(subcategory)
@@ -234,8 +234,8 @@ class PostPrototype(BasePrototype):
     @nested_commit_on_success
     def create(cls, thread, author, text, technical=False):
 
-        from post_service.prototypes import MessagePrototype
-        from post_service.message_handlers import ForumPostHandler
+        from the_tale.post_service.prototypes import MessagePrototype
+        from the_tale.post_service.message_handlers import ForumPostHandler
 
         post = Post.objects.create(thread=thread._model,
                                    author=author._model,

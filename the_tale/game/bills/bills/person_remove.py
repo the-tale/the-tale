@@ -2,12 +2,12 @@
 
 from dext.forms import fields
 
-from game.persons.prototypes import PersonPrototype
-from game.persons.storage import persons_storage
+from the_tale.game.persons.prototypes import PersonPrototype
+from the_tale.game.persons.storage import persons_storage
 
-from game.bills.relations import BILL_TYPE
-from game.bills.forms import BaseUserForm, BaseModeratorForm
-from game.bills.bills.base_person_bill import BasePersonBill
+from the_tale.game.bills.relations import BILL_TYPE
+from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
+from the_tale.game.bills.bills.base_person_bill import BasePersonBill
 
 
 class UserForm(BaseUserForm):

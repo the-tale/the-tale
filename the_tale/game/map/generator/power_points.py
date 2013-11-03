@@ -3,14 +3,14 @@ import math
 
 from deworld import power_points, layers, normalizers
 
-from game.prototypes import TimePrototype, MONTHS
+from the_tale.game.prototypes import TimePrototype, MONTHS
 
-from game.persons.prototypes import PersonPrototype
+from the_tale.game.persons.prototypes import PersonPrototype
 
-from game.map.places.prototypes import PlacePrototype, BuildingPrototype
-from game.map.places.storage import places_storage, buildings_storage
-from game.map.exceptions import MapException
-from game.map.conf import map_settings
+from the_tale.game.map.places.prototypes import PlacePrototype, BuildingPrototype
+from the_tale.game.map.places.storage import places_storage, buildings_storage
+from the_tale.game.map.exceptions import MapException
+from the_tale.game.map.conf import map_settings
 
 def get_height_power_function(borders, power_percent):
 

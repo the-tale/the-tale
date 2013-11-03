@@ -7,19 +7,19 @@ from django.core.urlresolvers import reverse
 
 from textgen.words import Noun
 
-from common.utils.testcase import TestCase
-from common.postponed_tasks import PostponedTask, PostponedTaskPrototype
-from common.utils.permissions import sync_group
+from the_tale.common.utils.testcase import TestCase
+from the_tale.common.postponed_tasks import PostponedTask, PostponedTaskPrototype
+from the_tale.common.utils.permissions import sync_group
 
-from accounts.logic import register_user, login_url
-from accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user, login_url
+from the_tale.accounts.prototypes import AccountPrototype
 
-from game.relations import GENDER, RACE
-from game.logic_storage import LogicStorage
-from game.logic import create_test_map
+from the_tale.game.relations import GENDER, RACE
+from the_tale.game.logic_storage import LogicStorage
+from the_tale.game.logic import create_test_map
 
-from game.heroes.prototypes import HeroPrototype
-from game.heroes.relations import PREFERENCE_TYPE
+from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.relations import PREFERENCE_TYPE
 
 
 class HeroRequestsTestBase(TestCase):

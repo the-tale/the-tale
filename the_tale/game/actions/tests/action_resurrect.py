@@ -1,16 +1,16 @@
 # coding: utf-8
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
-from accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
 
-from game.logic_storage import LogicStorage
+from the_tale.game.logic_storage import LogicStorage
 
-from game.logic import create_test_map
-from game.actions.prototypes import ActionResurrectPrototype
-from game.balance import constants as c
-from game.prototypes import TimePrototype
+from the_tale.game.logic import create_test_map
+from the_tale.game.actions.prototypes import ActionResurrectPrototype
+from the_tale.game.balance import constants as c
+from the_tale.game.prototypes import TimePrototype
 
 class ResurrectActionTest(testcase.TestCase):
 

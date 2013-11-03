@@ -8,29 +8,29 @@ from django.utils.log import getLogger
 from dext.views import handler, validator, validate_argument
 from dext.utils.urls import UrlBuilder
 
-from common.postponed_tasks import PostponedTaskPrototype
-from common.utils.resources import Resource
-from common.utils.pagination import Paginator
-from common.utils.decorators import login_required
-from common.utils import api
+from the_tale.common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.utils.resources import Resource
+from the_tale.common.utils.pagination import Paginator
+from the_tale.common.utils.decorators import login_required
+from the_tale.common.utils import api
 
-from blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
+from the_tale.blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
 
-from game.heroes.models import Hero
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.models import Hero
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from accounts.friends.prototypes import FriendshipPrototype
-from accounts.personal_messages.prototypes import MessagePrototype
+from the_tale.accounts.friends.prototypes import FriendshipPrototype
+from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 
-from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype, AwardPrototype, ResetPasswordTaskPrototype
-from accounts.postponed_tasks import RegistrationTask
-from accounts.models import CHANGE_CREDENTIALS_TASK_STATE
-from accounts import forms
-from accounts.conf import accounts_settings
-from accounts.logic import logout_user, login_user, get_system_user
-from accounts.workers.environment import workers_environment as infrastructure_workers_environment
+from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype, AwardPrototype, ResetPasswordTaskPrototype
+from the_tale.accounts.postponed_tasks import RegistrationTask
+from the_tale.accounts.models import CHANGE_CREDENTIALS_TASK_STATE
+from the_tale.accounts import forms
+from the_tale.accounts.conf import accounts_settings
+from the_tale.accounts.logic import logout_user, login_user, get_system_user
+from the_tale.accounts.workers.environment import workers_environment as infrastructure_workers_environment
 
-from accounts.clans.prototypes import ClanPrototype
+from the_tale.accounts.clans.prototypes import ClanPrototype
 
 logger = getLogger('django.request')
 
@@ -388,12 +388,12 @@ class AccountResource(BaseAccountsResource):
 
     @handler('#account', name='show', method='get')
     def show(self): # pylint: disable=R0914
-        from forum.models import Thread
-        from game.bills.models import Bill
-        from game.bills.relations import BILL_STATE
-        from game.ratings.prototypes import RatingPlacesPrototype, RatingValuesPrototype
-        from game.phrase_candidates.models import PhraseCandidate
-        from accounts.clans.logic import ClanInfo
+        from the_tale.forum.models import Thread
+        from the_tale.game.bills.models import Bill
+        from the_tale.game.bills.relations import BILL_STATE
+        from the_tale.game.ratings.prototypes import RatingPlacesPrototype, RatingValuesPrototype
+        from the_tale.game.phrase_candidates.models import PhraseCandidate
+        from the_tale.accounts.clans.logic import ClanInfo
 
         bills_count = Bill.objects.filter(owner=self.master_account._model).exclude(state=BILL_STATE.REMOVED).count()
 
@@ -434,7 +434,7 @@ class AccountResource(BaseAccountsResource):
     @validate_moderator_rights()
     @handler('#account', 'admin', name='admin', method='get')
     def admin(self):
-        from accounts.payments.forms import GMForm
+        from the_tale.accounts.payments.forms import GMForm
         return self.template('accounts/admin.html',
                              {'master_account': self.master_account,
                               'give_award_form': forms.GiveAwardForm(),

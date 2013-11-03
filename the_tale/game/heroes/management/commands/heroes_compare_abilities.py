@@ -5,16 +5,16 @@ import matplotlib.pyplot as plt
 
 from django.core.management.base import BaseCommand
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user, remove_account
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user, remove_account
 
-from game.logic_storage import LogicStorage
+from the_tale.game.logic_storage import LogicStorage
 
-from game.actions import battle, contexts
+from the_tale.game.actions import battle, contexts
 
-from game.balance import formulas as f
+from the_tale.game.balance import formulas as f
 
-from game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY, ABILITY_TYPE
+from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY, ABILITY_TYPE
 
 
 class Messanger(object):

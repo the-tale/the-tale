@@ -3,13 +3,13 @@ import datetime
 
 from dext.utils import s11n
 
-from common.utils.prototypes import BasePrototype
-from common.utils.decorators import lazy_property
+from the_tale.common.utils.prototypes import BasePrototype
+from the_tale.common.utils.decorators import lazy_property
 
-from post_service.models import Message
-from post_service.relations import MESSAGE_STATE
-from post_service.message_handlers import deserialize_handler
-from post_service.conf import post_service_settings
+from the_tale.post_service.models import Message
+from the_tale.post_service.relations import MESSAGE_STATE
+from the_tale.post_service.message_handlers import deserialize_handler
+from the_tale.post_service.conf import post_service_settings
 
 
 class MessagePrototype(BasePrototype):
@@ -51,7 +51,7 @@ class MessagePrototype(BasePrototype):
 
     @classmethod
     def create(cls, handler, now=False):
-        from post_service.workers.environment import workers_environment as post_service_workers_environment
+        from the_tale.post_service.workers.environment import workers_environment as post_service_workers_environment
 
         model = cls._model_class.objects.create(state=MESSAGE_STATE.WAITING,
                                                 handler=s11n.to_json(handler.serialize()))

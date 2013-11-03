@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from game.actions.contexts.battle import BattleContext
+from the_tale.game.actions.contexts.battle import BattleContext
 
 class FakeActor(object):
 

@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from game.mobs.models import MobRecord
+from the_tale.game.mobs.models import MobRecord
 
 
 class MobRecordAdmin(admin.ModelAdmin):

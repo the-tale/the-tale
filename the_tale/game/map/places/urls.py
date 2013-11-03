@@ -2,6 +2,6 @@
 
 from dext.views import resource_patterns
 
-from game.map.places.views import PlaceResource
+from the_tale.game.map.places.views import PlaceResource
 
 urlpatterns = resource_patterns(PlaceResource)

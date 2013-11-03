@@ -6,7 +6,7 @@ def login_required(func):
 
     @functools.wraps(func)
     def wrapper(resource, *argv, **kwargs):
-        from accounts.logic import login_url
+        from the_tale.accounts.logic import login_url
 
         if resource.account.is_authenticated():
             return func(resource, *argv, **kwargs)

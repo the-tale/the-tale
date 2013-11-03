@@ -2,10 +2,10 @@
 
 from dext.forms import forms, fields
 
-from common.utils import bbcode
+from the_tale.common.utils import bbcode
 
-from game.bills.models import Bill
-from game.bills.relations import BILL_DURATION
+from the_tale.game.bills.models import Bill
+from the_tale.game.bills.relations import BILL_DURATION
 
 
 class BaseUserForm(forms.Form):

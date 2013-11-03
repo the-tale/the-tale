@@ -9,7 +9,7 @@ from django.core.management.base import BaseCommand
 from django.conf import settings as project_settings
 # from django.core.mail import EmailMessage
 
-from portal.conf import portal_settings
+from the_tale.portal.conf import portal_settings
 
 
 def send_to_s3(backupname, filename):

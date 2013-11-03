@@ -9,12 +9,12 @@ from decimal import Decimal
 
 from dext.utils.decorators import nested_commit_on_success
 
-from common.utils.prototypes import BasePrototype
+from the_tale.common.utils.prototypes import BasePrototype
 
-from bank.dengionline.models import Invoice
-from bank.dengionline.conf import dengionline_settings
-from bank.dengionline.relations import INVOICE_STATE, CHECK_USER_RESULT, CONFIRM_PAYMENT_RESULT, CURRENCY_TYPE
-from bank.dengionline import exceptions
+from the_tale.bank.dengionline.models import Invoice
+from the_tale.bank.dengionline.conf import dengionline_settings
+from the_tale.bank.dengionline.relations import INVOICE_STATE, CHECK_USER_RESULT, CONFIRM_PAYMENT_RESULT, CURRENCY_TYPE
+from the_tale.bank.dengionline import exceptions
 
 
 class InvoicePrototype(BasePrototype):
@@ -107,7 +107,7 @@ class InvoicePrototype(BasePrototype):
 
     @classmethod
     def confirm_payment(cls, order_id, received_amount, user_id, paymode, payment_id, key):
-        from bank.workers.environment import workers_environment
+        from the_tale.bank.workers.environment import workers_environment
 
         cls.check_types(order_id=(order_id, int),
                         received_amount=(received_amount, Decimal),
@@ -182,8 +182,8 @@ class InvoicePrototype(BasePrototype):
         return CONFIRM_PAYMENT_RESULT.CONFIRMED
 
     def process(self):
-        from bank.transaction import Transaction
-        from bank.relations import ENTITY_TYPE
+        from the_tale.bank.transaction import Transaction
+        from the_tale.bank.relations import ENTITY_TYPE
 
         if not self.state._is_CONFIRMED:
             raise exceptions.WrongInvoiceStateInProcessingError(invoice_id=self.id, state=self.state)

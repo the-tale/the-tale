@@ -8,19 +8,19 @@ from django.core.urlresolvers import reverse
 
 from dext.utils.urls import url
 
-from common.utils.testcase import TestCase
-from common.utils.permissions import sync_group
+from the_tale.common.utils.testcase import TestCase
+from the_tale.common.utils.permissions import sync_group
 
-from game.text_generation import get_phrases_types
-from game.logic import create_test_map
+from the_tale.game.text_generation import get_phrases_types
+from the_tale.game.logic import create_test_map
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
-from game.phrase_candidates.prototypes import PhraseCandidatePrototype
-from game.phrase_candidates.conf import phrase_candidates_settings
-from game.phrase_candidates.forms import SUBTYPE_CHOICES_IDS, UNKNOWN_TYPE_ID
+from the_tale.game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
+from the_tale.game.phrase_candidates.prototypes import PhraseCandidatePrototype
+from the_tale.game.phrase_candidates.conf import phrase_candidates_settings
+from the_tale.game.phrase_candidates.forms import SUBTYPE_CHOICES_IDS, UNKNOWN_TYPE_ID
 
 class RequestsTestsBase(TestCase):
 
@@ -224,7 +224,7 @@ class NewRequestsTests(RequestsTestsBase):
         self.account_1.save()
         self.check_html_ok(self.request_ajax_html(self.create_new_url()), texts=['common.fast_account'])
 
-    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_banned(self):
         self.request_login('test_user_1@test.com')
         self.check_html_ok(self.request_ajax_html(self.create_new_url()), texts=['common.ban_forum'])
@@ -273,7 +273,7 @@ class CreateRequestsTests(RequestsTestsBase):
                                                                                           'phrase_subtype': self.phrase_subtype,
                                                                                           'text': 'created-text'}), 'common.fast_account')
 
-    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_banned(self):
         self.request_login('test_user_1@test.com')
         self.check_ajax_error(self.client.post(reverse('game:phrase-candidates:create'), {'phrase_type': self.phrase_type,

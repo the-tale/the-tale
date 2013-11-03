@@ -4,23 +4,23 @@ import contextlib
 
 from dext.settings import settings
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
+from the_tale.accounts.logic import register_user
 
-from game.persons.storage import persons_storage
-from game.persons.models import Person
+from the_tale.game.persons.storage import persons_storage
+from the_tale.game.persons.models import Person
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.map.places.storage import places_storage
+from the_tale.game.map.places.storage import places_storage
 
-from game.balance import constants as c
-from game.logic import create_test_map
-from game.workers.environment import workers_environment
-from game.prototypes import TimePrototype
-from game.bills.conf import bills_settings
-from game.logic_storage import LogicStorage
+from the_tale.game.balance import constants as c
+from the_tale.game.logic import create_test_map
+from the_tale.game.workers.environment import workers_environment
+from the_tale.game.prototypes import TimePrototype
+from the_tale.game.bills.conf import bills_settings
+from the_tale.game.logic_storage import LogicStorage
 
 def fake_sync_data(self):
     self._data_synced = True
@@ -77,10 +77,10 @@ class HighlevelTest(testcase.TestCase):
         self.worker.process_change_power(person_id=None, power_delta=-100, place_id=2)
         self.assertEqual(self.worker.places_power, {2: -99, 1: 10})
 
-    @mock.patch('game.workers.highlevel.Worker.sync_data', fake_sync_data)
-    @mock.patch('game.workers.highlevel.Worker.apply_bills', fake_apply_bills)
+    @mock.patch('the_tale.game.workers.highlevel.Worker.sync_data', fake_sync_data)
+    @mock.patch('the_tale.game.workers.highlevel.Worker.apply_bills', fake_apply_bills)
     @mock.patch('subprocess.call', lambda x: None)
-    @mock.patch('game.balance.constants.MAP_SYNC_TIME', 10)
+    @mock.patch('the_tale.game.balance.constants.MAP_SYNC_TIME', 10)
     def test_process_next_turn(self):
 
         time = TimePrototype.get_current_time()
@@ -105,7 +105,7 @@ class HighlevelTest(testcase.TestCase):
         self.assertTrue(self.worker._data_synced)
 
 
-    @mock.patch('game.workers.highlevel.Worker.sync_data', fake_sync_data)
+    @mock.patch('the_tale.game.workers.highlevel.Worker.sync_data', fake_sync_data)
     @mock.patch('subprocess.call', lambda x: None)
     def test_process_stop(self):
         self.worker.process_stop()
@@ -123,13 +123,13 @@ class HighlevelTest(testcase.TestCase):
         update_heroes_number = mock.Mock()
         mark_as_updated = mock.Mock()
 
-        with contextlib.nested(mock.patch('game.map.places.prototypes.PlacePrototype.set_expected_size', set_expected_size),
-                               mock.patch('game.map.places.prototypes.PlacePrototype.sync_size', sync_size),
-                               mock.patch('game.map.places.prototypes.PlacePrototype.sync_persons', sync_persons),
-                               mock.patch('game.map.places.prototypes.PlacePrototype.sync_modifier', sync_modifier),
-                               mock.patch('game.map.places.prototypes.PlacePrototype.sync_parameters', sync_parameters),
-                               mock.patch('game.map.places.prototypes.PlacePrototype.update_heroes_number', update_heroes_number),
-                               mock.patch('game.map.places.prototypes.PlacePrototype.mark_as_updated', mark_as_updated)):
+        with contextlib.nested(mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.set_expected_size', set_expected_size),
+                               mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_size', sync_size),
+                               mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_persons', sync_persons),
+                               mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_modifier', sync_modifier),
+                               mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_parameters', sync_parameters),
+                               mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.update_heroes_number', update_heroes_number),
+                               mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.mark_as_updated', mark_as_updated)):
             self.worker.sync_data()
 
         places_number = len(places_storage.all())
@@ -142,8 +142,8 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(update_heroes_number.call_count, places_number)
         self.assertEqual(mark_as_updated.call_count, places_number)
 
-    @mock.patch('game.map.places.prototypes.PlacePrototype.freedom', 1)
-    @mock.patch('game.map.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.freedom', 1)
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
     def test_sync_data(self):
         self.assertEqual(self.p1.power, 0)
         self.assertEqual(self.p2.power, 0)
@@ -206,11 +206,11 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(settings[places_storage.SETTINGS_KEY], places_version_2)
 
 
-    @mock.patch('game.map.places.prototypes.PlacePrototype.freedom', 1)
-    @mock.patch('game.map.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.freedom', 1)
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
     def test_sync_data__power_from_building(self):
         from textgen import words
-        from game.map.places.prototypes import BuildingPrototype
+        from the_tale.game.map.places.prototypes import BuildingPrototype
 
         person_1 = self.p1.persons[0]
 
@@ -236,8 +236,8 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(self.p1.power, place_power - 10)
         self.assertEqual(person_1.power, person_power)
 
-    @mock.patch('game.map.places.prototypes.PlacePrototype.freedom', 1.25)
-    @mock.patch('game.map.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.freedom', 1.25)
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
     def test_sync_data__power_from_freedom(self):
         person_1 = self.p1.persons[0]
 

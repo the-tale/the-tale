@@ -1,15 +1,15 @@
 # coding: utf-8
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
-from game.heroes.prototypes import HeroPrototype
+from the_tale.accounts.logic import register_user
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.logic import create_test_map
-from game.balance import constants as c
+from the_tale.game.logic import create_test_map
+from the_tale.game.balance import constants as c
 
-from game.heroes.habilities import nonbattle
-from game.heroes.relations import ITEMS_OF_EXPENDITURE
+from the_tale.game.heroes.habilities import nonbattle
+from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE
 
 
 class HabilitiesNonBattleTest(testcase.TestCase):

@@ -2,8 +2,8 @@
 from django.core.management.base import BaseCommand
 
 
-from game.heroes.models import Hero
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.models import Hero
+from the_tale.game.heroes.prototypes import HeroPrototype
 
 
 class Command(BaseCommand):

@@ -1,5 +1,4 @@
 # coding: utf-8
-import subprocess
 import random
 
 from textgen.words import Noun
@@ -10,22 +9,24 @@ from django.core.management.base import BaseCommand
 
 from dext.utils.decorators import nested_commit_on_success
 
-from game.balance import constants as c
-from game import names
-from game.relations import GENDER, RACE
-from game.prototypes import TimePrototype
+from the_tale.common.utils.logic import run_django_command
 
-from game.map.roads.models import Road
-from game.map.places.models import Place
-from game.map.places.prototypes import PlacePrototype
-from game.map.places.conf import places_settings
-from game.map.places.storage import places_storage
-from game.map.roads.storage import roads_storage
+from the_tale.game.balance import constants as c
+from the_tale.game import names
+from the_tale.game.relations import GENDER, RACE
+from the_tale.game.prototypes import TimePrototype
 
-from game.persons.prototypes import PersonPrototype
-from game.persons.storage import persons_storage
-from game.persons.conf import persons_settings
-from game.persons.relations import PERSON_TYPE
+from the_tale.game.map.roads.models import Road
+from the_tale.game.map.places.models import Place
+from the_tale.game.map.places.prototypes import PlacePrototype
+from the_tale.game.map.places.conf import places_settings
+from the_tale.game.map.places.storage import places_storage
+from the_tale.game.map.roads.storage import roads_storage
+
+from the_tale.game.persons.prototypes import PersonPrototype
+from the_tale.game.persons.storage import persons_storage
+from the_tale.game.persons.conf import persons_settings
+from the_tale.game.persons.relations import PERSON_TYPE
 
 
 class Command(BaseCommand):
@@ -46,7 +47,7 @@ class Command(BaseCommand):
     def run(self, *args, **kwargs):
 
         # to sync map size and do other unpredictable operations
-        subprocess.call(['./manage.py', 'map_update_map'])
+        run_django_command(['map_update_map'])
 
         with nested_commit_on_success():
 
@@ -97,7 +98,7 @@ class Command(BaseCommand):
 
 
         # update map with new places
-        subprocess.call(['./manage.py', 'map_update_map'])
+        run_django_command(['map_update_map'])
 
 
     @nested_commit_on_success

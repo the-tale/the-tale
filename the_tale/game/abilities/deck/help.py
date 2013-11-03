@@ -1,13 +1,13 @@
 # coding: utf-8
 import random
 
-from game.heroes.statistics import MONEY_SOURCE
+from the_tale.game.heroes.statistics import MONEY_SOURCE
 
-from game.abilities.prototypes import AbilityPrototype
+from the_tale.game.abilities.prototypes import AbilityPrototype
 
-from game.balance import constants as c, formulas as f
+from the_tale.game.balance import constants as c, formulas as f
 
-from game.pvp.prototypes import Battle1x1Prototype
+from the_tale.game.pvp.prototypes import Battle1x1Prototype
 
 
 class Help(AbilityPrototype):

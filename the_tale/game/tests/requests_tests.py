@@ -8,18 +8,18 @@ from django.core.urlresolvers import reverse
 
 from dext.utils import s11n
 
-from common.utils.testcase import TestCase
+from the_tale.common.utils.testcase import TestCase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user, login_url
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user, login_url
 
-from game.logic import create_test_map, game_info_url
+from the_tale.game.logic import create_test_map, game_info_url
 
-from game.pvp.models import BATTLE_1X1_STATE
-from game.pvp.tests.helpers import PvPTestsMixin
+from the_tale.game.pvp.models import BATTLE_1X1_STATE
+from the_tale.game.pvp.tests.helpers import PvPTestsMixin
 
 
-from cms.news.models import News
+from the_tale.cms.news.models import News
 
 
 class RequestTestsBase(TestCase, PvPTestsMixin):
@@ -77,7 +77,7 @@ class InfoRequestTests(RequestTestsBase):
         self.assertEqual(set(s11n.from_json(response.content)['data'].keys()), set(('turn', 'mode', 'map_version', 'account', 'enemy')))
 
     def test_no_id__logined(self):
-        with mock.patch('game.logic.form_game_info', mock.Mock(return_value={})) as form_game_info:
+        with mock.patch('the_tale.game.logic.form_game_info', mock.Mock(return_value={})) as form_game_info:
             self.check_ajax_ok(self.client.get(self.game_info_url_no_id))
 
         self.assertEqual(form_game_info.call_count, 1)
@@ -86,7 +86,7 @@ class InfoRequestTests(RequestTestsBase):
     def test_no_id__unlogined(self):
         self.request_logout()
 
-        with mock.patch('game.logic.form_game_info', mock.Mock(return_value={})) as form_game_info:
+        with mock.patch('the_tale.game.logic.form_game_info', mock.Mock(return_value={})) as form_game_info:
             self.check_ajax_ok(self.client.get(self.game_info_url_no_id))
 
         self.assertEqual(form_game_info.call_count, 1)

@@ -3,19 +3,19 @@
 import mock
 import datetime
 
-from game.map.places.storage import resource_exchange_storage
+from the_tale.game.map.places.storage import resource_exchange_storage
 
-from game.bills.prototypes import BillPrototype, VotePrototype
-from game.bills.bills import PlaceResourceExchange, BillDecline, PlaceDescripton
-from game.bills.tests.prototype_tests import BaseTestPrototypes
-from game.bills.tests.helpers import choose_resources
-from game.bills.relations import BILL_STATE
+from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
+from the_tale.game.bills.bills import PlaceResourceExchange, BillDecline, PlaceDescripton
+from the_tale.game.bills.tests.prototype_tests import BaseTestPrototypes
+from the_tale.game.bills.tests.helpers import choose_resources
+from the_tale.game.bills.relations import BILL_STATE
 
 
 class BillDeclineResourceExchangeTests(BaseTestPrototypes):
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def setUp(self):
         super(BillDeclineResourceExchangeTests, self).setUp()
 
@@ -50,8 +50,8 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
     def test_actors(self):
         self.assertEqual(self.bill_data.actors, self.declined_bill.data.actors)
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_update(self):
         declined_bill_2 = BillPrototype.create(self.account1, 'declined-bill-caption', 'declined-bill-rationale', self.declined_bill_data)
         declined_form = PlaceResourceExchange.ModeratorForm({'approved': True})
@@ -78,8 +78,8 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
         self.assertTrue(form.is_valid())
 
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_user_form_validation__wrong_bill(self):
         bill_data = PlaceDescripton(place_id=self.place1.id, description='new description')
         bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
@@ -95,8 +95,8 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
         self.assertFalse(form.is_valid())
 
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_apply(self):
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)
@@ -123,8 +123,8 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
         self.assertTrue(declined_bill.declined_by.id, bill.id)
 
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_reapply(self):
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)
@@ -142,7 +142,7 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
         self.bill.state = BILL_STATE.VOTING
         self.bill.save()
 
-        with mock.patch('game.bills.prototypes.BillPrototype.decline') as skipped_decline:
+        with mock.patch('the_tale.game.bills.prototypes.BillPrototype.decline') as skipped_decline:
             self.assertTrue(self.bill.apply())
 
         self.assertEqual(skipped_decline.call_count, 0)

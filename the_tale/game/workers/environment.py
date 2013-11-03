@@ -1,15 +1,15 @@
 # coding: utf-8
 
-from common.amqp_queues.environment import BaseEnvironment
+from the_tale.common.amqp_queues.environment import BaseEnvironment
 
 class Environment(BaseEnvironment):
 
     def initialize(self):
-        from game.workers.supervisor import Worker as Supervisor
-        from game.workers.logic import Worker as Logic
-        from game.workers.highlevel import Worker as Highlevel
-        from game.workers.turns_loop import Worker as TurnsLoop
-        from game.pvp.workers.balancer import Worker as PvPBalancer
+        from the_tale.game.workers.supervisor import Worker as Supervisor
+        from the_tale.game.workers.logic import Worker as Logic
+        from the_tale.game.workers.highlevel import Worker as Highlevel
+        from the_tale.game.workers.turns_loop import Worker as TurnsLoop
+        from the_tale.game.pvp.workers.balancer import Worker as PvPBalancer
 
 
         self.logic = Logic(game_queue='game_queue')

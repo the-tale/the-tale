@@ -1,34 +1,34 @@
-{% extends "achievements/kits/base.html" %}
+{% extends "collections/kits/base.html" %}
 
 {% block title %}{{resource.kit.caption}} | {{ super() }}{% endblock %}
 
 {% block kits_content %}
 
-<h2><a href="{{url('achievements:collections:show', resource.kit.collection_id)}}">{{ resource.kit.collection.caption }}</a>: {{resource.kit.caption}}</h2>
+<h2><a href="{{url('collections:collections:show', resource.kit.collection_id)}}">{{ resource.kit.collection.caption }}</a>: {{resource.kit.caption}}</h2>
 
 <div style="text-align: justify;">
   {{ resource.kit.description_html|safe }}
 </div>
 
-{% if resource.can_edit_kit or resource.can_moderate_kit or resource.can_edit_reward%}
+{% if resource.can_edit_kit or resource.can_moderate_kit or resource.can_edit_item%}
   <p>
-    {% if resource.can_edit_reward %}
-      <a href="{{url('achievements:rewards:new')}}" class="pgf-new-reward-button btn btn-success">Добавить предмет</a>
+    {% if resource.can_edit_item %}
+      <a href="{{url('collections:items:new')}}" class="pgf-new-item-button btn btn-success">Добавить предмет</a>
     {% endif %}
 
     {% if resource.can_edit_kit %}
-      <a href="{{url('achievements:kits:edit', resource.kit.id)}}" class="pgf-edit-kit-button btn btn-success">Редактировать набор</a>
+      <a href="{{url('collections:kits:edit', resource.kit.id)}}" class="pgf-edit-kit-button btn btn-success">Редактировать набор</a>
     {% endif %}
 
     {% if resource.can_moderate_kit %}
       {% if not resource.kit.approved %}
-        <a href="{{url('achievements:kits:approve', resource.kit.id)}}"
+        <a href="{{url('collections:kits:approve', resource.kit.id)}}"
            class="pgf-approve-kit-button btn btn-danger pgf-forms-post-simple"
            data-confirmation="Вы действительно хотите утвердить набор?">
            Утвердить набор
         </a>
       {% else %}
-        <a href="{{url('achievements:kits:disapprove', resource.kit.id)}}"
+        <a href="{{url('collections:kits:disapprove', resource.kit.id)}}"
            class="pgf-disapprove-kit-button btn btn-danger pgf-forms-post-simple"
            data-confirmation="Вы действительно хотите разутвердить набор?">
            Разутвердить набор
@@ -40,41 +40,41 @@
 
 <h3>Предметы</h3>
 
-{% if rewards %}
+{% if items %}
 
-<div class="accordion" id="pgf-rewards-accordion">
+<div class="accordion" id="pgf-items-accordion">
 
-  {% for reward in rewards %}
+  {% for item in items %}
 
   <div class="accordion-group">
     <div class="accordion-heading">
-      <a class="accordion-toggle collapsed {% if not reward.approved %}disabled{% endif %}"
+      <a class="accordion-toggle collapsed {% if not item.approved %}disabled{% endif %}"
          data-toggle="collapse"
-         data-parent="#pgf-rewards-accordion"
-         href="#pgf-reward-{{reward.id}}">
-         {{reward.caption}}
+         data-parent="#pgf-items-accordion"
+         href="#pgf-item-{{item.id}}">
+         {{item.caption}}
       </a>
     </div>
-    <div id="pgf-reward-{{reward.id}}" class="accordion-body collapse" style="height: 0px;">
+    <div id="pgf-item-{{item.id}}" class="accordion-body collapse" style="height: 0px;">
       <div class="accordion-inner" style="text-align: justify;">
-        {{reward.text_html|safe}}
+        {{item.text_html|safe}}
 
-        {% if resource._can_edit_reward(resource.reward) or resource.can_moderate_reward%}
+        {% if resource._can_edit_item(resource.item) or resource.can_moderate_item%}
           <br/>
-          {% if resource._can_edit_reward(reward) %}
-            <a href="{{url('achievements:rewards:edit', reward.id)}}" class="pgf-edit-reward-button btn btn-success">Редактировать набор</a>
+          {% if resource._can_edit_item(item) %}
+            <a href="{{url('collections:items:edit', item.id)}}" class="pgf-edit-item-button btn btn-success">Редактировать набор</a>
           {% endif %}
 
-          {% if resource.can_moderate_reward %}
-            {% if not reward.approved %}
-              <a href="{{url('achievements:rewards:approve', reward.id)}}"
-                 class="pgf-approve-reward-button btn btn-danger pgf-forms-post-simple"
+          {% if resource.can_moderate_item %}
+            {% if not item.approved %}
+              <a href="{{url('collections:items:approve', item.id)}}"
+                 class="pgf-approve-item-button btn btn-danger pgf-forms-post-simple"
                  data-confirmation="Вы действительно хотите утвердить предмет?">
                  Утвердить набор
               </a>
             {% else %}
-              <a href="{{url('achievements:rewards:disapprove', reward.id)}}"
-                 class="pgf-disapprove-reward-button btn btn-danger pgf-forms-post-simple"
+              <a href="{{url('collections:items:disapprove', item.id)}}"
+                 class="pgf-disapprove-item-button btn btn-danger pgf-forms-post-simple"
                  data-confirmation="Вы действительно хотите разутвердить предмет?">
                  Разутвердить набор
               </a>
@@ -91,7 +91,7 @@
 
 {% else %}
 
-<p class="alert alert-info pgf-no-rewards-message">
+<p class="alert alert-info pgf-no-items-message">
   В наборе нет предметов.
 </p>
 

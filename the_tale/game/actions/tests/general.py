@@ -1,20 +1,20 @@
 # coding: utf-8
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
-from game.heroes.prototypes import HeroPrototype
-from game.logic_storage import LogicStorage
+from the_tale.accounts.logic import register_user
+from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.logic_storage import LogicStorage
 
-from game.logic import create_test_map
-from game.prototypes import TimePrototype
-from game.balance import constants as c
+from the_tale.game.logic import create_test_map
+from the_tale.game.prototypes import TimePrototype
+from the_tale.game.balance import constants as c
 
-from game.abilities.relations import HELP_CHOICES
+from the_tale.game.abilities.relations import HELP_CHOICES
 
-from game.actions.prototypes import ACTION_TYPES, ActionBase
-from game.actions.tests.helpers import TestAction
+from the_tale.game.actions.prototypes import ACTION_TYPES, ActionBase
+from the_tale.game.actions.tests.helpers import TestAction
 
 
 class GeneralTest(testcase.TestCase):
@@ -58,30 +58,30 @@ class GeneralTest(testcase.TestCase):
 
         self.assertEqual(heal_found, result)
 
-    @mock.patch('game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL,)))
+    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL,)))
     def test_help_choice_has_heal__for_full_health_without_alternative(self):
         self.check_heal_in_choices(False)
 
-    @mock.patch('game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY)))
+    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY)))
     def test_help_choice_has_heal__for_full_health_with_alternative(self):
         self.check_heal_in_choices(False)
 
-    @mock.patch('game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL,)))
+    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL,)))
     def test_help_choice_has_heal__for_large_health_without_alternative(self):
         self.hero.health = self.hero.max_health - 1
         self.check_heal_in_choices(True)
 
-    @mock.patch('game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY)))
+    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY)))
     def test_help_choice_has_heal__for_large_health_with_alternative(self):
         self.hero.health = self.hero.max_health - 1
         self.check_heal_in_choices(False)
 
-    @mock.patch('game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL,)))
+    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL,)))
     def test_help_choice_has_heal__for_low_health_without_alternative(self):
         self.hero.health = 1
         self.check_heal_in_choices(True)
 
-    @mock.patch('game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY)))
+    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY)))
     def test_help_choice_has_heal__for_low_health_with_alternative(self):
         self.hero.health = 1
         self.check_heal_in_choices(True)
@@ -93,12 +93,12 @@ class GeneralTest(testcase.TestCase):
 
         self.assertEqual(stock_found, result)
 
-    @mock.patch('game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.STOCK_UP_ENERGY, HELP_CHOICES.MONEY)))
+    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.STOCK_UP_ENERGY, HELP_CHOICES.MONEY)))
     def test_help_choice_has_stock_up_energy__can_stock(self):
         self.hero.energy_charges = 0
         self.check_stock_up_energy_in_choices(True)
 
-    @mock.patch('game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.STOCK_UP_ENERGY, HELP_CHOICES.MONEY)))
+    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.STOCK_UP_ENERGY, HELP_CHOICES.MONEY)))
     def test_help_choice_has_stock_up_energy__can_not_stock(self):
         self.hero.energy_charges = c.ANGEL_FREE_ENERGY_CHARGES_MAXIMUM
         self.check_stock_up_energy_in_choices(False)
@@ -143,7 +143,7 @@ class GeneralTest(testcase.TestCase):
 
 
     def test_action_full_serialization(self):
-        from game.heroes.logic import create_mob_for_hero
+        from the_tale.game.heroes.logic import create_mob_for_hero
 
         mob = create_mob_for_hero(self.hero)
 

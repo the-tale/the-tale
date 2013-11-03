@@ -4,7 +4,7 @@ from django.db import models
 
 from rels.django_staff import TableIntegerField
 
-from bank.xsolla.relations import INVOICE_STATE, PAY_RESULT
+from the_tale.bank.xsolla.relations import INVOICE_STATE, PAY_RESULT
 
 
 class Invoice(models.Model):

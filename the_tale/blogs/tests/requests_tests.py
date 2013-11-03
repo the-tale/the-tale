@@ -6,17 +6,17 @@ import mock
 from django.test import client
 from django.core.urlresolvers import reverse
 
-from common.utils.permissions import sync_group
-from common.utils.testcase import TestCase
+from the_tale.common.utils.permissions import sync_group
+from the_tale.common.utils.testcase import TestCase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user, login_url
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user, login_url
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from blogs.models import Post, Vote, POST_STATE
-from blogs.prototypes import PostPrototype, VotePrototype
-from blogs.conf import blogs_settings
+from the_tale.blogs.models import Post, Vote, POST_STATE
+from the_tale.blogs.prototypes import PostPrototype, VotePrototype
+from the_tale.blogs.conf import blogs_settings
 
 
 class BaseTestRequests(TestCase):
@@ -33,7 +33,7 @@ class BaseTestRequests(TestCase):
 
         self.client = client.Client()
 
-        from forum.models import Category, SubCategory
+        from the_tale.forum.models import Category, SubCategory
 
         forum_category = Category.objects.create(caption='category-1', slug='category-1')
         SubCategory.objects.create(caption=blogs_settings.FORUM_CATEGORY_UID + '-caption',
@@ -188,7 +188,7 @@ class TestNewRequests(BaseTestRequests):
         self.account_1.save()
         self.check_html_ok(self.request_html(reverse('blogs:posts:new')), texts=(('blogs.posts.fast_account', 1),))
 
-    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_banned(self):
         self.check_html_ok(self.request_html(reverse('blogs:posts:new')), texts=(('common.ban_forum', 1),))
 
@@ -269,12 +269,12 @@ class TestCreateRequests(BaseTestRequests):
         self.account_1.save()
         self.check_ajax_error(self.client.post(reverse('blogs:posts:create'), self.get_post_data()), 'blogs.posts.fast_account')
 
-    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_banned(self):
         self.check_ajax_error(self.client.post(reverse('blogs:posts:create'), self.get_post_data()), 'common.ban_forum')
 
     def test_success(self):
-        from forum.models import Thread
+        from the_tale.forum.models import Thread
 
         self.assertEqual(Thread.objects.all().count(), 0)
 
@@ -396,7 +396,7 @@ class TestEditRequests(BaseTestRequests):
         self.account_1.save()
         self.check_html_ok(self.request_html(reverse('blogs:posts:edit', args=[self.post.id])), texts=(('blogs.posts.fast_account', 1),))
 
-    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_banned(self):
         self.check_html_ok(self.request_html(reverse('blogs:posts:edit', args=[self.post.id])), texts=(('common.ban_forum', 1),))
 
@@ -448,7 +448,7 @@ class TestUpdateRequests(BaseTestRequests):
         self.account_1.save()
         self.check_ajax_error(self.client.post(reverse('blogs:posts:update', args=[self.post.id]), self.get_post_data()), 'blogs.posts.fast_account')
 
-    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_banned(self):
         self.check_ajax_error(self.client.post(reverse('blogs:posts:update', args=[self.post.id]), self.get_post_data()), 'common.ban_forum')
 
@@ -473,7 +473,7 @@ class TestUpdateRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(reverse('blogs:posts:update', args=[self.post.id]), {}), 'blogs.posts.update.form_errors')
 
     def test_update_success(self):
-        from forum.models import Thread
+        from the_tale.forum.models import Thread
         old_updated_at = self.post.updated_at
 
         self.assertEqual(Post.objects.all().count(), 1)
@@ -529,7 +529,7 @@ class TestModerateRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(reverse('blogs:posts:decline', args=[self.post.id]), {}), 'blogs.posts.moderator_rights_required')
 
     def test_delete_success(self):
-        from forum.prototypes import PostPrototype as ForumPostPrototype
+        from the_tale.forum.prototypes import PostPrototype as ForumPostPrototype
 
         self.assertEqual(ForumPostPrototype._db_count(), 1)
 

@@ -1,18 +1,18 @@
 # coding: utf-8
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
-from game.heroes.prototypes import HeroPrototype
-from game.logic_storage import LogicStorage
+from the_tale.accounts.logic import register_user
+from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.logic_storage import LogicStorage
 
 
-from game.logic import create_test_map
-from game.actions.prototypes import ActionRestPrototype
-from game.abilities.deck.help import Help
-from game.abilities.relations import HELP_CHOICES
-from game.prototypes import TimePrototype
+from the_tale.game.logic import create_test_map
+from the_tale.game.actions.prototypes import ActionRestPrototype
+from the_tale.game.abilities.deck.help import Help
+from the_tale.game.abilities.relations import HELP_CHOICES
+from the_tale.game.prototypes import TimePrototype
 
 class RestActionTest(testcase.TestCase):
 
@@ -62,7 +62,7 @@ class RestActionTest(testcase.TestCase):
 
         old_percents = self.action_rest.percents
 
-        with mock.patch('game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL):
+        with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL):
             self.assertTrue(ability.use(storage=self.storage, data={'hero_id': self.hero.id}, step=None, main_task_id=0, pvp_balancer=None))
             self.assertTrue(self.hero.health > 1)
             self.assertTrue(old_percents < self.action_rest.percents)

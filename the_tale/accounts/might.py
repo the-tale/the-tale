@@ -3,16 +3,16 @@ import time
 
 from django.db import models
 
-from accounts.models import Award, AWARD_TYPE
-from accounts.prototypes import AccountPrototype
+from the_tale.accounts.models import Award, AWARD_TYPE
+from the_tale.accounts.prototypes import AccountPrototype
 
-from forum.models import Post, Thread, POST_STATE
-from blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
+from the_tale.forum.models import Post, Thread, POST_STATE
+from the_tale.blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
 
-from game.bills.models import Bill, Vote
-from game.bills.relations import BILL_STATE, VOTE_TYPE
-from game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.bills.models import Bill, Vote
+from the_tale.game.bills.relations import BILL_STATE, VOTE_TYPE
+from the_tale.game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
+from the_tale.game.heroes.prototypes import HeroPrototype
 
 
 def calculate_might(account): # pylint: disable=R0914

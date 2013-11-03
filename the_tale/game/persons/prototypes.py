@@ -5,22 +5,22 @@ from dext.utils import s11n
 
 from textgen.words import Fake
 
-from common.utils.prototypes import BasePrototype
-from common.utils.logic import choose_from_interval
-from common.utils.decorators import lazy_property
+from the_tale.common.utils.prototypes import BasePrototype
+from the_tale.common.utils.logic import choose_from_interval
+from the_tale.common.utils.decorators import lazy_property
 
-from game.helpers import add_power_management
-from game.prototypes import TimePrototype
+from the_tale.game.helpers import add_power_management
+from the_tale.game.prototypes import TimePrototype
 
-from game.map.places.storage import places_storage, buildings_storage
-from game.map.places.relations import CITY_PARAMETERS
+from the_tale.game.map.places.storage import places_storage, buildings_storage
+from the_tale.game.map.places.relations import CITY_PARAMETERS
 
-from game.balance import constants as c
+from the_tale.game.balance import constants as c
 
-from game.persons.models import Person, PERSON_STATE
-from game.persons.conf import persons_settings
-from game.persons.exceptions import PersonsException
-from game.persons.relations import PROFESSION_TO_RACE_MASTERY, PROFESSION_TO_CITY_PARAMETERS
+from the_tale.game.persons.models import Person, PERSON_STATE
+from the_tale.game.persons.conf import persons_settings
+from the_tale.game.persons.exceptions import PersonsException
+from the_tale.game.persons.relations import PROFESSION_TO_RACE_MASTERY, PROFESSION_TO_CITY_PARAMETERS
 
 
 MASTERY_VERBOSE = ( (0.0, u'полная непригодность'),
@@ -103,7 +103,7 @@ class PersonPrototype(BasePrototype):
         self._model.state = PERSON_STATE.REMOVED
 
     def cmd_change_power(self, power):
-        from game.workers.environment import workers_environment
+        from the_tale.game.workers.environment import workers_environment
         workers_environment.highlevel.cmd_change_power(power_delta=power, person_id=self.id, place_id=None)
 
     @property
@@ -141,17 +141,17 @@ class PersonPrototype(BasePrototype):
     @property
     def friends_number(self): return self._model.friends_number
     def update_friends_number(self):
-        from game.heroes.preferences import HeroPreferences
+        from the_tale.game.heroes.preferences import HeroPreferences
         self._model.friends_number = HeroPreferences.count_friends_of(self)
 
     @property
     def enemies_number(self): return self._model.enemies_number
     def update_enemies_number(self):
-        from game.heroes.preferences import HeroPreferences
+        from the_tale.game.heroes.preferences import HeroPreferences
         self._model.enemies_number = HeroPreferences.count_enemies_of(self)
 
     def save(self):
-        from game.persons.storage import persons_storage
+        from the_tale.game.persons.storage import persons_storage
 
         self._model.data = s11n.to_json(self.data)
         self._model.save()
@@ -164,7 +164,7 @@ class PersonPrototype(BasePrototype):
 
     @classmethod
     def create(cls, place, race, tp, name, gender, state=None):
-        from game.persons.storage import persons_storage
+        from the_tale.game.persons.storage import persons_storage
 
         instance = Person.objects.create(place=place._model,
                                          state=state if state is not None else PERSON_STATE.IN_GAME,

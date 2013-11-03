@@ -2,26 +2,26 @@
 
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from common.postponed_tasks import PostponedTaskPrototype, autodiscover
+from the_tale.common.postponed_tasks import PostponedTaskPrototype, autodiscover
 
-from bank.prototypes import InvoicePrototype
-from bank.relations import ENTITY_TYPE, CURRENCY_TYPE
+from the_tale.bank.prototypes import InvoicePrototype
+from the_tale.bank.relations import ENTITY_TYPE, CURRENCY_TYPE
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from accounts.clans.conf import clans_settings
+from the_tale.accounts.clans.conf import clans_settings
 
-from accounts.payments.postponed_tasks import BuyPremium, BuyPermanentPurchase
-from accounts.payments.goods import PremiumDays, PermanentPurchase
-from accounts.payments import exceptions
-from accounts.payments.relations import PERMANENT_PURCHASE_TYPE
+from the_tale.accounts.payments.postponed_tasks import BuyPremium, BuyPermanentPurchase
+from the_tale.accounts.payments.goods import PremiumDays, PermanentPurchase
+from the_tale.accounts.payments import exceptions
+from the_tale.accounts.payments.relations import PERMANENT_PURCHASE_TYPE
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
 
 class PremiumDaysTests(testcase.TestCase):
@@ -73,7 +73,7 @@ class PremiumDaysTests(testcase.TestCase):
         self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 0)
         self.assertEqual(InvoicePrototype._model_class.objects.all().count(), 0)
 
-        with mock.patch('common.postponed_tasks.PostponedTaskPrototype.cmd_wait') as cmd_wait:
+        with mock.patch('the_tale.common.postponed_tasks.PostponedTaskPrototype.cmd_wait') as cmd_wait:
             self.purchase.buy(account=self.account)
 
         self.assertEqual(cmd_wait.call_count, 1)
@@ -155,7 +155,7 @@ class PermanentPurchaseTests(testcase.TestCase):
         self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 0)
         self.assertEqual(InvoicePrototype._model_class.objects.all().count(), 0)
 
-        with mock.patch('common.postponed_tasks.PostponedTaskPrototype.cmd_wait') as cmd_wait:
+        with mock.patch('the_tale.common.postponed_tasks.PostponedTaskPrototype.cmd_wait') as cmd_wait:
             self.purchase.buy(account=self.account)
 
         self.assertEqual(cmd_wait.call_count, 1)

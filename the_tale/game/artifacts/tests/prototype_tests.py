@@ -6,20 +6,20 @@ from textgen.words import Noun
 
 from dext.utils import s11n
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
+from the_tale.accounts.logic import register_user
 
-from game.logic import create_test_map, DEFAULT_HERO_EQUIPMENT
+from the_tale.game.logic import create_test_map, DEFAULT_HERO_EQUIPMENT
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.artifacts.exceptions import ArtifactsException
-from game.artifacts.storage import artifacts_storage
-from game.artifacts.prototypes import ArtifactRecordPrototype, ArtifactPrototype
-from game.artifacts.models import ARTIFACT_RECORD_STATE, RARITY_TYPE
-from game.artifacts.forms import ModerateArtifactRecordForm
-from game.artifacts.relations import ARTIFACT_TYPE
+from the_tale.game.artifacts.exceptions import ArtifactsException
+from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype, ArtifactPrototype
+from the_tale.game.artifacts.models import ARTIFACT_RECORD_STATE, RARITY_TYPE
+from the_tale.game.artifacts.forms import ModerateArtifactRecordForm
+from the_tale.game.artifacts.relations import ARTIFACT_TYPE
 
 
 class PrototypeTests(testcase.TestCase):
@@ -106,21 +106,21 @@ class PrototypeTests(testcase.TestCase):
         ArtifactRecordPrototype.create_random('plate_3', type_=ARTIFACT_TYPE.PLATE, rarity=RARITY_TYPE.EPIC)
         ArtifactRecordPrototype.create_random('boots_3', type_=ARTIFACT_TYPE.BOOTS, rarity=RARITY_TYPE.EPIC)
 
-        with mock.patch('game.artifacts.prototypes.RARITY_TYPE_2_PRIORITY', { RARITY_TYPE.NORMAL: 1,
+        with mock.patch('the_tale.game.artifacts.prototypes.RARITY_TYPE_2_PRIORITY', { RARITY_TYPE.NORMAL: 1,
                                                                               RARITY_TYPE.RARE: 0,
                                                                               RARITY_TYPE.EPIC: 0 }):
             for i in xrange(100):
                 artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1)
                 self.assertTrue(artifact.id in ['helmet_1', 'plate_1', 'boots_1'] + DEFAULT_HERO_EQUIPMENT._ALL)
 
-        with mock.patch('game.artifacts.prototypes.RARITY_TYPE_2_PRIORITY', { RARITY_TYPE.NORMAL: 0,
+        with mock.patch('the_tale.game.artifacts.prototypes.RARITY_TYPE_2_PRIORITY', { RARITY_TYPE.NORMAL: 0,
                                                                               RARITY_TYPE.RARE: 1,
                                                                               RARITY_TYPE.EPIC: 0 }):
             for i in xrange(100):
                 artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1)
                 self.assertTrue(artifact.id in ['helmet_2', 'plate_2', 'boots_2'])
 
-        with mock.patch('game.artifacts.prototypes.RARITY_TYPE_2_PRIORITY', { RARITY_TYPE.NORMAL: 0,
+        with mock.patch('the_tale.game.artifacts.prototypes.RARITY_TYPE_2_PRIORITY', { RARITY_TYPE.NORMAL: 0,
                                                                               RARITY_TYPE.RARE: 0,
                                                                               RARITY_TYPE.EPIC: 1 }):
             for i in xrange(100):
@@ -128,8 +128,8 @@ class PrototypeTests(testcase.TestCase):
                 self.assertTrue(artifact.id in ['helmet_3', 'plate_3', 'boots_3'])
 
     def test_generate_artifact(self):
-        from game.mobs.prototypes import MobPrototype, MobRecordPrototype
-        from game.mobs.models import MOB_RECORD_STATE
+        from the_tale.game.mobs.prototypes import MobPrototype, MobRecordPrototype
+        from the_tale.game.mobs.models import MOB_RECORD_STATE
 
         self.hero._model.level = 5
 
@@ -138,13 +138,13 @@ class PrototypeTests(testcase.TestCase):
         artifact_1 = ArtifactRecordPrototype.create_random('bandit_loot', mob=mob_record, type_=ARTIFACT_TYPE.USELESS, state=ARTIFACT_RECORD_STATE.ENABLED)
         artifact_2 = ArtifactRecordPrototype.create_random('bandit_artifact', mob=mob_record, type_=ARTIFACT_TYPE.HELMET, state=ARTIFACT_RECORD_STATE.ENABLED)
 
-        with mock.patch('game.balance.formulas.artifacts_per_battle', lambda lvl: 1):
+        with mock.patch('the_tale.game.balance.formulas.artifacts_per_battle', lambda lvl: 1):
             artifact = artifacts_storage.generate_loot(mob)
             self.assertEqual(artifact.level, mob.level)
             self.assertFalse(artifact.type._is_USELESS)
             self.assertEqual(artifact_2.id, artifact.record.id)
 
-        with mock.patch('game.balance.formulas.artifacts_per_battle', lambda lvl: 0),  mock.patch('game.balance.constants.GET_LOOT_PROBABILITY', 1):
+        with mock.patch('the_tale.game.balance.formulas.artifacts_per_battle', lambda lvl: 0),  mock.patch('the_tale.game.balance.constants.GET_LOOT_PROBABILITY', 1):
             artifact = artifacts_storage.generate_loot(mob)
             self.assertEqual(artifact.level, mob.record.level)
             self.assertTrue(artifact.type._is_USELESS)

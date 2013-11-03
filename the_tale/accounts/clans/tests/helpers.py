@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from accounts.clans.prototypes import ClanPrototype
+from the_tale.accounts.clans.prototypes import ClanPrototype
 
 
 class ClansTestsMixin(object):

@@ -4,15 +4,15 @@ from dext.forms import fields
 
 from textgen.words import Noun
 
-from common.utils.forms import SimpleWordField
+from the_tale.common.utils.forms import SimpleWordField
 
-from game.map.places.models import Place
+from the_tale.game.map.places.models import Place
 
-from game.bills.models import BILL_TYPE
-from game.bills.forms import BaseUserForm, BaseModeratorForm
-from game.bills.bills.base_bill import BaseBill
+from the_tale.game.bills.models import BILL_TYPE
+from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
+from the_tale.game.bills.bills.base_bill import BaseBill
 
-from game.map.places.storage import places_storage
+from the_tale.game.map.places.storage import places_storage
 
 class UserForm(BaseUserForm):
 

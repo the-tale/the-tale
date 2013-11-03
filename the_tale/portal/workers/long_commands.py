@@ -9,12 +9,13 @@ from django.utils.log import getLogger
 
 from dext.settings import settings
 
-from common.amqp_queues import connection, BaseWorker
+from the_tale.common.amqp_queues import connection, BaseWorker
+from the_tale.common.utils.logic import run_django_command
 
-from portal.conf import portal_settings
-from portal import signals as portal_signals
+from the_tale.portal.conf import portal_settings
+from the_tale.portal import signals as portal_signals
 
-from portal import signal_processors # DO NOT REMOVE
+from the_tale.portal import signal_processors # DO NOT REMOVE
 
 
 class Worker(BaseWorker):
@@ -107,7 +108,15 @@ class Worker(BaseWorker):
         self.stop_queue.put({'code': 'stopped', 'worker': 'long commands'}, serializer='json', compression=None)
         self.logger.info('LONG COMMANDS STOPPED')
 
-    def _run_subprocess(self, name, cmd):
+    def _run_django_subprocess(self, name, cmd):
+        self.logger.info('run %s command' % name)
+        result = run_django_command(cmd)
+        if result:
+            self.logger.error('%s ENDED WITH CODE %d' % (name, result))
+        else:
+            self.logger.info('%s command was processed correctly' % name)
+
+    def _run_system_subprocess(self, name, cmd):
         self.logger.info('run %s command' % name)
         result = subprocess.call(cmd)
         if result:
@@ -117,25 +126,25 @@ class Worker(BaseWorker):
 
     def run_recalculate_ratings(self):
         self.logger.info('calculate ratings')
-        self._run_subprocess('recalculate_rating', ['./manage.py', 'ratings_recalculate_ratings'])
+        self._run_django_subprocess('recalculate_rating', ['ratings_recalculate_ratings'])
         self.logger.info('ratings calculated')
 
     def run_recalculate_might(self):
         self.logger.info('calculate might')
-        self._run_subprocess('recalculate_might', ['./manage.py', 'accounts_calculate_might'])
+        self._run_django_subprocess('recalculate_might', ['accounts_calculate_might'])
         self.logger.info('might calculated')
 
     def run_refresh_cdns(self):
         self.logger.info('refresh cdns')
-        self._run_subprocess('refresh_cdns', ['./manage.py', 'portal_refresh_cdns'])
+        self._run_django_subprocess('refresh_cdns', ['portal_refresh_cdns'])
         self.logger.info('cdns refreshed')
 
     def run_cleaning(self):
         self.logger.info('start cleaning')
-        self._run_subprocess('clean', ['./manage.py', 'portal_clean'])
-        self._run_subprocess('clearsessions', ['./manage.py', 'clearsessions'])
-        self._run_subprocess('vacuumdb', ['vacuumdb', '-q',
-                                         '-U', project_settings.DATABASES['default']['USER'],
-                                         '-d', project_settings.DATABASES['default']['NAME']])
+        self._run_django_subprocess('clean', ['portal_clean'])
+        self._run_django_subprocess('clearsessions', ['clearsessions'])
+        self._run_system_subprocess('vacuumdb', ['vacuumdb', '-q',
+                                                 '-U', project_settings.DATABASES['default']['USER'],
+                                                 '-d', project_settings.DATABASES['default']['NAME']])
 
         self.logger.info('cleaned')

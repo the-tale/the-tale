@@ -2,13 +2,13 @@
 
 import mock
 
-from common.utils import testcase
-from common.utils.fake import FakeLogger
+from the_tale.common.utils import testcase
+from the_tale.common.utils.fake import FakeLogger
 
-from common.postponed_tasks.exceptions import PostponedTaskException
-from common.postponed_tasks.prototypes import PostponedTaskPrototype, PostponedLogic, _register_postponed_tasks, autodiscover, POSTPONED_TASK_LOGIC_RESULT
-from common.postponed_tasks.models import PostponedTask, POSTPONED_TASK_STATE
-from common.postponed_tasks.postponed_tasks import FakePostponedInternalTask
+from the_tale.common.postponed_tasks.exceptions import PostponedTaskException
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, PostponedLogic, _register_postponed_tasks, autodiscover, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks.models import PostponedTask, POSTPONED_TASK_STATE
+from the_tale.common.postponed_tasks.postponed_tasks import FakePostponedInternalTask
 
 
 class PrototypeTests(testcase.TestCase):
@@ -19,11 +19,11 @@ class PrototypeTests(testcase.TestCase):
         self.task = PostponedTaskPrototype.create(FakePostponedInternalTask())
 
     def test_internals_tasks_collection(self):
-        from common.postponed_tasks.prototypes import _INTERNAL_LOGICS
+        from the_tale.common.postponed_tasks.prototypes import _INTERNAL_LOGICS
         self.assertEqual(_INTERNAL_LOGICS['fake-task'], FakePostponedInternalTask)
 
     def test_internals_tasks_collection_duplicate_registration(self):
-        from common.postponed_tasks.prototypes import _INTERNAL_LOGICS
+        from the_tale.common.postponed_tasks.prototypes import _INTERNAL_LOGICS
 
         class Fake2PostponedInternalTask(PostponedLogic):
             TYPE = 'fake-task'
@@ -31,7 +31,7 @@ class PrototypeTests(testcase.TestCase):
         self.assertRaises(PostponedTaskException, _register_postponed_tasks, _INTERNAL_LOGICS, [Fake2PostponedInternalTask])
 
     def test_internals_tasks_collection_no_type(self):
-        from common.postponed_tasks.prototypes import _INTERNAL_LOGICS
+        from the_tale.common.postponed_tasks.prototypes import _INTERNAL_LOGICS
 
         class Fake3PostponedInternalTask(PostponedLogic):
             pass
@@ -59,7 +59,7 @@ class PrototypeTests(testcase.TestCase):
 
         self.assertEqual(PostponedTask.objects.all().count(), 3)
 
-        with mock.patch('common.postponed_tasks.conf.postponed_tasks_settings.TASK_LIVE_TIME', -1):
+        with mock.patch('the_tale.common.postponed_tasks.conf.postponed_tasks_settings.TASK_LIVE_TIME', -1):
             PostponedTaskPrototype.remove_old_tasks()
 
         self.assertEqual(PostponedTask.objects.all().count(), 1)
@@ -148,7 +148,7 @@ class PrototypeTests(testcase.TestCase):
 
         self.assertEqual(len(self.task._postsave_actions), 1)
 
-        with mock.patch('common.postponed_tasks.workers.refrigerator.Worker.cmd_wait_task') as cmd_wait_task:
+        with mock.patch('the_tale.common.postponed_tasks.workers.refrigerator.Worker.cmd_wait_task') as cmd_wait_task:
             self.task.do_postsave_actions()
 
         self.assertEqual(cmd_wait_task.call_count, 1)

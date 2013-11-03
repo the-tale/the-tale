@@ -5,10 +5,10 @@ from django.db import models
 
 from rels.django_staff import TableIntegerField
 
-from game.relations import GENDER, RACE
-from game.balance.enums import ANGEL_ENERGY_REGENERATION_TYPES
+from the_tale.game.relations import GENDER, RACE
+from the_tale.game.balance.enums import ANGEL_ENERGY_REGENERATION_TYPES
 
-from game.heroes.relations import ITEMS_OF_EXPENDITURE, EQUIPMENT_SLOT, RISK_LEVEL
+from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE, EQUIPMENT_SLOT, RISK_LEVEL
 
 
 class Hero(models.Model):

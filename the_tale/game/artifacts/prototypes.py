@@ -5,14 +5,14 @@ from textgen.words import Noun
 
 from dext.utils import s11n
 
-from common.utils import bbcode
-from common.utils.prototypes import BasePrototype
+from the_tale.common.utils import bbcode
+from the_tale.common.utils.prototypes import BasePrototype
 
-from game.balance import constants as c, formulas as f
+from the_tale.game.balance import constants as c, formulas as f
 
-from game.artifacts.exceptions import ArtifactsException
-from game.artifacts.models import ArtifactRecord, ARTIFACT_RECORD_STATE, RARITY_TYPE, RARITY_TYPE_2_PRIORITY
-from game.artifacts.relations import ARTIFACT_TYPE
+from the_tale.game.artifacts.exceptions import ArtifactsException
+from the_tale.game.artifacts.models import ArtifactRecord, ARTIFACT_RECORD_STATE, RARITY_TYPE, RARITY_TYPE_2_PRIORITY
+from the_tale.game.artifacts.relations import ARTIFACT_TYPE
 
 
 class ArtifactPrototype(object):
@@ -82,7 +82,7 @@ class ArtifactPrototype(object):
     @classmethod
     def deserialize(cls, data):
         # if artifact record is desabled or deleted, get another random record
-        from game.artifacts.storage import artifacts_storage
+        from the_tale.game.artifacts.storage import artifacts_storage
 
         record = artifacts_storage.get_by_uuid(data['id'])
 
@@ -154,7 +154,7 @@ class ArtifactRecordPrototype(BasePrototype):
     def priority(self): return RARITY_TYPE_2_PRIORITY[self.rarity.value]
 
     def get_mob(self):
-        from game.mobs.storage import mobs_storage
+        from the_tale.game.mobs.storage import mobs_storage
         if self._model.mob_id is None: return None
         return mobs_storage[self._model.mob_id]
     def set_mob(self, value):
@@ -164,7 +164,7 @@ class ArtifactRecordPrototype(BasePrototype):
     @classmethod
     def create(cls, uuid, level, name, description, type_, rarity, mob=None, editor=None, state=ARTIFACT_RECORD_STATE.DISABLED, name_forms=None):
 
-        from game.artifacts.storage import artifacts_storage
+        from the_tale.game.artifacts.storage import artifacts_storage
 
         if name_forms is None:
             name_forms = Noun(normalized=name,
@@ -207,7 +207,7 @@ class ArtifactRecordPrototype(BasePrototype):
         self.save()
 
     def update_by_moderator(self, form, editor=None):
-        from game.logic import DEFAULT_HERO_EQUIPMENT
+        from the_tale.game.logic import DEFAULT_HERO_EQUIPMENT
 
         if self.uuid in DEFAULT_HERO_EQUIPMENT._ALL: # pylint: disable=E0203
             if self.uuid != form.c.uuid:  # pylint: disable=E0203
@@ -230,7 +230,7 @@ class ArtifactRecordPrototype(BasePrototype):
 
 
     def save(self):
-        from game.artifacts.storage import artifacts_storage
+        from the_tale.game.artifacts.storage import artifacts_storage
 
         self._model.save()
 

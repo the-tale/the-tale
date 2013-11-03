@@ -2,9 +2,9 @@
 
 from dext.forms import forms, fields
 
-from common.utils import bbcode
+from the_tale.common.utils import bbcode
 
-from blogs.models import Post
+from the_tale.blogs.models import Post
 
 
 class PostForm(forms.Form):

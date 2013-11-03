@@ -1,12 +1,12 @@
 # coding: utf-8
 
-from common.utils.testcase import TestCase
+from the_tale.common.utils.testcase import TestCase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
-from game.logic import create_test_map
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
+from the_tale.game.logic import create_test_map
 
-from forum.prototypes import ThreadPrototype, PostPrototype, SubCategoryPrototype, CategoryPrototype
+from the_tale.forum.prototypes import ThreadPrototype, PostPrototype, SubCategoryPrototype, CategoryPrototype
 
 class TestGetThreadsWithLastUsersPosts(TestCase):
 

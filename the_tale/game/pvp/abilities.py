@@ -1,9 +1,9 @@
 # coding: utf-8
 import random
 
-from common.utils.discovering import discover_classes
+from the_tale.common.utils.discovering import discover_classes
 
-from game.balance import constants as c
+from the_tale.game.balance import constants as c
 
 
 class BasePvPAbility(object):

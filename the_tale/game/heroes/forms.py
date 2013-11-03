@@ -4,12 +4,12 @@ from django.forms import ValidationError
 
 from dext.forms import forms, fields
 
-from common.utils.forms import NounFormsWithoutNumberField
+from the_tale.common.utils.forms import NounFormsWithoutNumberField
 
-from game.heroes.models import Hero
-from game.heroes.relations import PREFERENCE_TYPE
+from the_tale.game.heroes.models import Hero
+from the_tale.game.heroes.relations import PREFERENCE_TYPE
 
-from game.relations import GENDER, RACE
+from the_tale.game.relations import GENDER, RACE
 
 
 class ChoosePreferencesForm(forms.Form):

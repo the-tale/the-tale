@@ -4,14 +4,14 @@ from django.conf import settings as project_settings
 
 from dext.utils.urls import url
 
-from common.utils.testcase import TestCase
+from the_tale.common.utils.testcase import TestCase
 
-from accounts.logic import register_user
+from the_tale.accounts.logic import register_user
 
-from game.logic import create_test_map
-from game.balance import constants as c
+from the_tale.game.logic import create_test_map
+from the_tale.game.balance import constants as c
 
-from forum.tests.helpers import ForumFixture
+from the_tale.forum.tests.helpers import ForumFixture
 
 class TestRequests(TestCase):
 

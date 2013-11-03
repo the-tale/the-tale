@@ -7,14 +7,14 @@ from textgen.words import Noun
 
 from dext.utils import s11n
 
-from game.map.places.models import Building
-from game.map.places.storage import buildings_storage
-from game.map.places.prototypes import BuildingPrototype
+from the_tale.game.map.places.models import Building
+from the_tale.game.map.places.storage import buildings_storage
+from the_tale.game.map.places.prototypes import BuildingPrototype
 
-from game.bills.relations import BILL_STATE
-from game.bills.prototypes import BillPrototype, VotePrototype
-from game.bills.bills import BuildingCreate
-from game.bills.tests.prototype_tests import BaseTestPrototypes
+from the_tale.game.bills.relations import BILL_STATE
+from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
+from the_tale.game.bills.bills import BuildingCreate
+from the_tale.game.bills.tests.prototype_tests import BaseTestPrototypes
 
 
 class BuildingCreateTests(BaseTestPrototypes):
@@ -75,8 +75,8 @@ class BuildingCreateTests(BaseTestPrototypes):
         self.check_persons_from_place_in_choices(self.place3, persons_ids)
 
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_apply(self):
         self.assertEqual(Building.objects.all().count(), 0)
 
@@ -104,8 +104,8 @@ class BuildingCreateTests(BaseTestPrototypes):
         self.assertEqual(building.normalized_name, noun)
 
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_duplicate_apply(self):
         self.assertEqual(Building.objects.all().count(), 0)
 
@@ -137,8 +137,8 @@ class BuildingCreateTests(BaseTestPrototypes):
         self.assertNotEqual(BuildingPrototype._db_get_object(0).normalized_name, dup_noun)
 
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_apply_without_person(self):
         self.assertEqual(Building.objects.all().count(), 0)
 

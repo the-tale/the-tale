@@ -1,7 +1,7 @@
-{% extends "achievements/base.html" %}
+{% extends "collections/base.html" %}
 
 
-{% block achievements_content %}
+{% block collections_main_content %}
 
 <div class="row">
   <div class="span3">
@@ -11,7 +11,7 @@
         {% for menu_kit in resource.kits %}
         <li class="nav-element {% if resource.kit and menu_kit.id == resource.kit.id %}active{% endif %}"
             {% if not menu_kit.approved%}style="color: red;"{% endif %}>
-          <a href="{{ url('achievements:kits:show', menu_kit.id) }}">{{menu_kit.caption}}</a>
+          <a href="{{ url('collections:kits:show', menu_kit.id) }}">{{menu_kit.caption}}</a>
         </li>
         {% endfor %}
       </ul>

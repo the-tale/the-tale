@@ -1,22 +1,22 @@
 # coding: utf-8
 
-from common.utils.testcase import TestCase
+from the_tale.common.utils.testcase import TestCase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from game.actions.models import MetaAction
+from the_tale.game.actions.models import MetaAction
 
-from game.logic import create_test_map
-from game.prototypes import SupervisorTaskPrototype
-from game import exceptions
+from the_tale.game.logic import create_test_map
+from the_tale.game.prototypes import SupervisorTaskPrototype
+from the_tale.game import exceptions
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.pvp.prototypes import Battle1x1Prototype
-from game.pvp.models import Battle1x1, BATTLE_1X1_STATE
+from the_tale.game.pvp.prototypes import Battle1x1Prototype
+from the_tale.game.pvp.models import Battle1x1, BATTLE_1X1_STATE
 
-from game.models import Bundle
+from the_tale.game.models import Bundle
 
 class SupervisorTaskTests(TestCase):
 

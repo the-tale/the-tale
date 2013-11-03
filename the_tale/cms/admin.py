@@ -3,7 +3,7 @@
 from django.contrib import admin
 from django.db.models import Max
 
-from cms.models import Page
+from the_tale.cms.models import Page
 
 
 class PageAdmin(admin.ModelAdmin):

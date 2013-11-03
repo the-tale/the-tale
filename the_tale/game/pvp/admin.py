@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from game.pvp.models import Battle1x1, Battle1x1Result
+from the_tale.game.pvp.models import Battle1x1, Battle1x1Result
 
 class Battle1x1Admin(admin.ModelAdmin):
     list_display = ('id', 'state', 'calculate_rating', 'account', 'enemy', 'created_at')

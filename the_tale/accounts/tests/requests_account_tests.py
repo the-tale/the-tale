@@ -6,27 +6,27 @@ from django.core.urlresolvers import reverse
 
 from dext.utils.urls import url
 
-from common.utils.testcase import TestCase
-from common.utils.permissions import sync_group
-from common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.utils.testcase import TestCase
+from the_tale.common.utils.permissions import sync_group
+from the_tale.common.postponed_tasks import PostponedTaskPrototype
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from accounts.friends.prototypes import FriendshipPrototype
-from accounts.personal_messages.prototypes import MessagePrototype
+from the_tale.accounts.friends.prototypes import FriendshipPrototype
+from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 
-from accounts.models import Award
-from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
-from accounts.relations import AWARD_TYPE, BAN_TYPE, BAN_TIME
-from accounts.logic import register_user, login_url
-from accounts.conf import accounts_settings
+from the_tale.accounts.models import Award
+from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
+from the_tale.accounts.relations import AWARD_TYPE, BAN_TYPE, BAN_TIME
+from the_tale.accounts.logic import register_user, login_url
+from the_tale.accounts.conf import accounts_settings
 
-from accounts.clans.prototypes import ClanPrototype
-from accounts.clans.conf import clans_settings
+from the_tale.accounts.clans.prototypes import ClanPrototype
+from the_tale.accounts.clans.conf import clans_settings
 
-from forum.prototypes import CategoryPrototype
+from the_tale.forum.prototypes import CategoryPrototype
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
 class AccountRequestsTests(TestCase):
 
@@ -125,13 +125,13 @@ class ShowRequestsTests(AccountRequestsTests):
                  ('pgf-ban-game-message', 0)]
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account1.id])), texts=texts)
 
-    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_game', True)
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_game', True)
     def test_show__ban_game(self):
         texts = [('pgf-ban-forum-message', 0),
                  ('pgf-ban-game-message', 1)]
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account1.id])), texts=texts)
 
-    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_show__ban_forum(self):
         texts = [('pgf-ban-forum-message', 1),
                  ('pgf-ban-game-message', 0)]
@@ -213,13 +213,13 @@ class AdminRequestsTests(AccountRequestsTests):
         group.account_set.add(self.account3._model)
 
 
-    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_game', True)
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_game', True)
     def test_ban_game(self):
         texts = [('pgf-ban-forum-message', 0),
                  ('pgf-ban-game-message', 1)]
         self.check_html_ok(self.request_html(reverse('accounts:admin', args=[self.account1.id])), texts=texts)
 
-    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_ban_forum(self):
         texts = [('pgf-ban-forum-message', 1),
                  ('pgf-ban-game-message', 0)]

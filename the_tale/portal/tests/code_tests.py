@@ -3,7 +3,7 @@ import subprocess
 
 from dext.utils.urls import url
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
 
 class CodeTests(testcase.TestCase):
@@ -13,7 +13,7 @@ class CodeTests(testcase.TestCase):
 
 
     def test_every_foreign_key_has_on_delete_argument(self):
-        process = subprocess.Popen(['grep', '-R', 'ForeignKey', './'], stdout=subprocess.PIPE)
+        process = subprocess.Popen(['grep', '-R', 'ForeignKey', './the_tale'], stdout=subprocess.PIPE)
 
         out, err = process.communicate()
 
@@ -25,7 +25,8 @@ class CodeTests(testcase.TestCase):
                for filename, code in out
                if 'migrations' not in filename and '.pyc' not in filename and '~' not in filename and 'code_tests.py' not in filename]
 
-        self.assertTrue(all(' on_delete=' in code for code in out))
+        for code in out:
+            self.assertTrue(' on_delete=' in code)
 
     def test_api_urls_not_changed(self):
         self.assertEqual(url('portal:api-info'), '/api/info')

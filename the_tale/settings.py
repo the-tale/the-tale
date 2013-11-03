@@ -103,10 +103,10 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.media',
     'django.core.context_processors.static',
     'django.contrib.messages.context_processors.messages',
-    'portal.context_processors.section',
-    'portal.context_processors.cdn_paths',
-    'game.balance.context_processors.balance',
-    'game.bills.context_processors.bills_context'
+    'the_tale.portal.context_processors.section',
+    'the_tale.portal.context_processors.cdn_paths',
+    'the_tale.game.balance.context_processors.balance',
+    'the_tale.game.bills.context_processors.bills_context'
     )
 
 
@@ -118,10 +118,10 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'dext.settings.middleware.SettingsMiddleware',
-    'accounts.middleware.RegistrationMiddleware'
+    'the_tale.accounts.middleware.RegistrationMiddleware'
 )
 
-ROOT_URLCONF = 'urls'
+ROOT_URLCONF = 'the_tale.urls'
 
 TEMPLATE_DIRS = (
     os.path.join(PROJECT_DIR, 'templates'),
@@ -138,51 +138,51 @@ INSTALLED_APPS = (
     'dext.settings',
     'dext.forms',
 
-    'common.utils',
-    'common.postponed_tasks',
+    'the_tale.common.utils',
+    'the_tale.common.postponed_tasks',
 
-    'post_service',
+    'the_tale.post_service',
 
-    'accounts',
-    'accounts.clans',
-    'accounts.personal_messages',
-    'accounts.friends',
-    'accounts.payments',
+    'the_tale.accounts',
+    'the_tale.accounts.clans',
+    'the_tale.accounts.personal_messages',
+    'the_tale.accounts.friends',
+    'the_tale.accounts.payments',
 
-    'guide',
+    'the_tale.guide',
 
-    'portal',
-    'portal.developers_info',
+    'the_tale.portal',
+    'the_tale.portal.developers_info',
 
-    'game',
-    'game.angels',
-    'game.abilities',
-    'game.heroes',
-    'game.actions',
-    'game.quests',
-    'game.map',
-    'game.map.roads',
-    'game.map.places',
-    'game.artifacts',
-    'game.mobs',
-    'game.persons',
-    'game.balance',
-    'game.bills',
-    'game.ratings',
-    'game.pvp',
-    'game.phrase_candidates',
-    'game.chronicle',
+    'the_tale.game',
+    'the_tale.game.angels',
+    'the_tale.game.abilities',
+    'the_tale.game.heroes',
+    'the_tale.game.actions',
+    'the_tale.game.quests',
+    'the_tale.game.map',
+    'the_tale.game.map.roads',
+    'the_tale.game.map.places',
+    'the_tale.game.artifacts',
+    'the_tale.game.mobs',
+    'the_tale.game.persons',
+    'the_tale.game.balance',
+    'the_tale.game.bills',
+    'the_tale.game.ratings',
+    'the_tale.game.pvp',
+    'the_tale.game.phrase_candidates',
+    'the_tale.game.chronicle',
 
-    'cms',
-    'cms.news',
+    'the_tale.cms',
+    'the_tale.cms.news',
 
-    'forum',
-    'blogs',
-    'collections',
+    'the_tale.forum',
+    'the_tale.blogs',
+    'the_tale.collections',
 
-    'bank',
-    'bank.xsolla',
-    'bank.dengionline',
+    'the_tale.bank',
+    'the_tale.bank.xsolla',
+    'the_tale.bank.dengionline',
 
     'south'
 )

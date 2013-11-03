@@ -6,17 +6,17 @@ from textgen.words import Noun
 
 from dext.forms import fields
 
-from game.balance import constants as c
+from the_tale.game.balance import constants as c
 
-from game.bills.models import BILL_TYPE
-from game.bills.forms import BaseUserForm, BaseModeratorForm
-from game.bills.bills.base_bill import BaseBill
+from the_tale.game.bills.models import BILL_TYPE
+from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
+from the_tale.game.bills.bills.base_bill import BaseBill
 
-from game.map.places.storage import places_storage, resource_exchange_storage
-from game.map.places.prototypes import ResourceExchangePrototype
-from game.map.places.relations import RESOURCE_EXCHANGE_TYPE
+from the_tale.game.map.places.storage import places_storage, resource_exchange_storage
+from the_tale.game.map.places.prototypes import ResourceExchangePrototype
+from the_tale.game.map.places.relations import RESOURCE_EXCHANGE_TYPE
 
-from game.map.roads.storage import roads_storage
+from the_tale.game.map.roads.storage import roads_storage
 
 
 class UserForm(BaseUserForm):

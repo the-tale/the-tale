@@ -3,17 +3,17 @@
 from django.core import mail
 from django.conf import settings as project_settings
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
-from accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from forum.prototypes import ThreadPrototype, SubCategoryPrototype, CategoryPrototype, SubscriptionPrototype
+from the_tale.forum.prototypes import ThreadPrototype, SubCategoryPrototype, CategoryPrototype, SubscriptionPrototype
 
-from post_service.models import Message
-from post_service.prototypes import MessagePrototype
+from the_tale.post_service.models import Message
+from the_tale.post_service.prototypes import MessagePrototype
 
 
 class NewForumThreadTests(testcase.TestCase):
@@ -62,7 +62,7 @@ class NewForumThreadTests(testcase.TestCase):
         self.assertTrue(project_settings.SITE_URL in mail.outbox[0].alternatives[0][0])
 
     def test_mail_send__to_system_user(self):
-        from accounts.logic import get_system_user
+        from the_tale.accounts.logic import get_system_user
 
         SubscriptionPrototype.create(get_system_user(), subcategory=self.subcategory)
         self.assertEqual(len(mail.outbox), 0)

@@ -2,12 +2,12 @@
 
 from dext.utils import cache
 
-from game.heroes.prototypes import HeroPrototype
-from game.heroes.conf import heroes_settings
+from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.conf import heroes_settings
 
-from game import exceptions
-from game.conf import game_settings
-from game.prototypes import TimePrototype
+from the_tale.game import exceptions
+from the_tale.game.conf import game_settings
+from the_tale.game.prototypes import TimePrototype
 
 
 class LogicStorage(object):
@@ -78,8 +78,8 @@ class LogicStorage(object):
             self.meta_actions_to_actions[action.meta_action_id].add(self.get_action_uid(action))
 
             if action.meta_action_id not in self.meta_actions:
-                from game.actions.models import MetaAction
-                from game.actions.meta_actions import get_meta_action_by_model
+                from the_tale.game.actions.models import MetaAction
+                from the_tale.game.actions.meta_actions import get_meta_action_by_model
                 self.add_meta_action(get_meta_action_by_model(MetaAction.objects.get(id=action.meta_action_id)))
 
 

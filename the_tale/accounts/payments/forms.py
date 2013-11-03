@@ -4,7 +4,7 @@ from django import forms as django_forms
 
 from dext.forms import forms, fields
 
-from accounts.payments.logic import real_amount_to_game
+from the_tale.accounts.payments.logic import real_amount_to_game
 
 
 INITIAL_AMOUNT = 10

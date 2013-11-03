@@ -1,11 +1,11 @@
 # coding: utf-8
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
 from dext.settings import settings
 from dext.settings.models import Setting
 
-from game.prototypes import TimePrototype, GameTime
+from the_tale.game.prototypes import TimePrototype, GameTime
 
 
 class TimeTest(testcase.TestCase):

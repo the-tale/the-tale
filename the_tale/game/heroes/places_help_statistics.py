@@ -1,10 +1,10 @@
 # coding: utf-8
 
-from collections import Counter
+import collections
 
-from game.map.places.storage import places_storage
+from the_tale.game.map.places.storage import places_storage
 
-from game.heroes.conf import heroes_settings
+from the_tale.game.heroes.conf import heroes_settings
 
 
 class PlacesHelpStatistics(object):
@@ -30,7 +30,7 @@ class PlacesHelpStatistics(object):
             self.history.pop(0)
 
     def _get_most_common_places(self):
-        return Counter(self.history).most_common()
+        return collections.Counter(self.history).most_common()
 
     def get_most_common_places(self):
         return [ (places_storage[place_id], number) for place_id, number in  self._get_most_common_places()]

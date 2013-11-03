@@ -1,16 +1,16 @@
 # coding: utf-8
 
-from common.utils.testcase import TestCase
+from the_tale.common.utils.testcase import TestCase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.chronicle.models import Actor, RecordToActor, Record
-from game.chronicle.relations import RECORD_TYPE, ACTOR_ROLE
-from game.chronicle.prototypes import create_external_actor, RecordToActorPrototype, RecordPrototype
-from game.chronicle.tests.helpers import FakeRecord
+from the_tale.game.chronicle.models import Actor, RecordToActor, Record
+from the_tale.game.chronicle.relations import RECORD_TYPE, ACTOR_ROLE
+from the_tale.game.chronicle.prototypes import create_external_actor, RecordToActorPrototype, RecordPrototype
+from the_tale.game.chronicle.tests.helpers import FakeRecord
 
 
 class RecordPrototypeTests(TestCase):

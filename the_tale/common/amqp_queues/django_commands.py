@@ -10,9 +10,7 @@ from optparse import make_option
 from django.core.management.base import BaseCommand
 from django.conf import settings as project_settings
 
-
 from dext.utils import pid
-
 
 def initialize_newrelic():
     import newrelic.agent
@@ -74,7 +72,7 @@ def construct_workers_manager(help, process_pid, workers): # pylint: disable=W06
             for worker in workers:
                 print 'start %s' % worker.command_name
                 with open(os.devnull, 'w') as devnull:
-                    subprocess.Popen(['./manage.py', worker.command_name], stdin=devnull, stdout=devnull, stderr=devnull)
+                    subprocess.Popen(['django-admin.py', worker.command_name, '--settings', 'the_tale.settings'], stdin=devnull, stdout=devnull, stderr=devnull)
 
 
         def stop(self):

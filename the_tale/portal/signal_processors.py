@@ -6,13 +6,13 @@ from django.dispatch import receiver
 
 from dext.settings import settings
 
-from portal import signals as portal_signals
-from portal.conf import portal_settings
+from the_tale.portal import signals as portal_signals
+from the_tale.portal.conf import portal_settings
 
-from accounts.prototypes import AccountPrototype
-from accounts.workers.environment import workers_environment as accounts_workers_environment
-from accounts.personal_messages.prototypes import MessagePrototype
-from accounts.logic import get_system_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.workers.environment import workers_environment as accounts_workers_environment
+from the_tale.accounts.personal_messages.prototypes import MessagePrototype
+from the_tale.accounts.logic import get_system_user
 
 
 @receiver(portal_signals.day_started, dispatch_uid='portal_day_started')

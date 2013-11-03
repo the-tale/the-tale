@@ -1,3 +1,3 @@
 # coding: utf-8
 
-from guide.tests.requests_tests import *
+from the_tale.guide.tests.requests_tests import *

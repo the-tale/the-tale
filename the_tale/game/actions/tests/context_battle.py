@@ -1,11 +1,11 @@
 # coding: utf-8
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from game.balance import constants as c
+from the_tale.game.balance import constants as c
 
-from game.actions.contexts import BattleContext, Damage
+from the_tale.game.actions.contexts import BattleContext, Damage
 
 class BattleContextTest(testcase.TestCase):
 
@@ -41,7 +41,7 @@ class BattleContextTest(testcase.TestCase):
     def test_create(self):
         self.check_empty_values()
 
-    @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
+    @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_damage(self):
         damage = Damage(100, 50)
         damage.multiply(0.5, 2)
@@ -126,7 +126,7 @@ class BattleContextTest(testcase.TestCase):
         self.assertEqual(self.context.initiative, 10)
 
 
-    @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
+    @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_ability_magic_mushroom(self):
         self.context.use_ability_magic_mushroom([2.0, 1.0, 0.5])
         self.assertEqual(self.context.ability_magic_mushroom, [None, 2.0, 1.0, 0.5])
@@ -186,7 +186,7 @@ class BattleContextTest(testcase.TestCase):
         self.assertEqual(self.context.stun_length, 0)
         self.assertTrue(not self.context.is_stunned)
 
-    @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
+    @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_modify_outcoming_damage(self):
         self.assertEqual(self.context.modify_outcoming_damage(Damage(10, 11)).total, 21)
         self.assertEqual(self.context.modify_outcoming_damage(Damage(10.4, 11.4)).total, 22)
@@ -202,7 +202,7 @@ class BattleContextTest(testcase.TestCase):
         self.assertEqual(self.context.modify_outcoming_damage(Damage(20, 10)).total, 30) # only damage from hero with heigh advantage modified
         self.assertFalse(self.context.pvp_advantage_used)
 
-    @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
+    @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_modify_outcoming_damage_advantage_strike(self):
         self.context.use_pvp_advantage(1.0)
         self.assertEqual(self.context.modify_outcoming_damage(Damage(20, 10)).total, 0) # pvp_advantage_strike_damage not set
@@ -211,7 +211,7 @@ class BattleContextTest(testcase.TestCase):
         self.assertTrue(self.context.pvp_advantage_used)
 
 
-    @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
+    @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_critical_hit(self):
         old_damage = self.context.modify_outcoming_damage(Damage(100, 1000))
         self.context.use_crit_chance(100)
@@ -219,7 +219,7 @@ class BattleContextTest(testcase.TestCase):
         self.assertTrue(old_damage.physic < new_damage.physic)
         self.assertTrue(old_damage.magic < new_damage.magic)
 
-    @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
+    @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_berserk(self):
         old_damage = self.context.modify_outcoming_damage(Damage(100, 10))
         self.context.use_berserk(1.0)
@@ -234,7 +234,7 @@ class BattleContextTest(testcase.TestCase):
         for i in xrange(100):
             self.assertTrue(self.context.should_miss_attack())
 
-    @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
+    @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_outcoming_damage_modifier(self):
         self.assertEqual(self.context.modify_outcoming_damage(Damage(100, 1000)), Damage(100, 1000))
         self.context.use_outcoming_damage_modifier(5, 0.25)

@@ -2,13 +2,13 @@
 
 import math
 
-from common.utils.permanent_storage import PermanentRelationsStorage
+from the_tale.common.utils.permanent_storage import PermanentRelationsStorage
 
-from bank.transaction import Transaction
-from bank.relations import ENTITY_TYPE, CURRENCY_TYPE
+from the_tale.bank.transaction import Transaction
+from the_tale.bank.relations import ENTITY_TYPE, CURRENCY_TYPE
 
-from accounts.payments.conf import payments_settings
-from accounts.payments.relations import PERMANENT_PURCHASE_TYPE
+from the_tale.accounts.payments.conf import payments_settings
+from the_tale.accounts.payments.relations import PERMANENT_PURCHASE_TYPE
 
 
 def real_amount_to_game(amount):

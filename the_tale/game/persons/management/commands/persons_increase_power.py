@@ -5,7 +5,7 @@ from optparse import make_option
 
 from django.core.management.base import BaseCommand
 
-from game.persons.storage import persons_storage
+from the_tale.game.persons.storage import persons_storage
 
 
 class Command(BaseCommand):

@@ -2,6 +2,6 @@
 
 from dext.views import resource_patterns
 
-from game.bills.views import BillResource
+from the_tale.game.bills.views import BillResource
 
 urlpatterns = resource_patterns(BillResource)

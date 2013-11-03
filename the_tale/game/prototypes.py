@@ -1,20 +1,22 @@
 # coding: utf-8
 
+import collections
+
 from dext.settings import settings
 from dext.utils.decorators import nested_commit_on_success
 
 import rels
 from rels.django_staff import DjangoEnum
 
-from collections import namedtuple
 
-from common.utils.prototypes import BasePrototype
-from common.utils.decorators import lazy_property
 
-from game.balance import formulas as f
+from the_tale.common.utils.prototypes import BasePrototype
+from the_tale.common.utils.decorators import lazy_property
 
-from game.models import SupervisorTask, SupervisorTaskMember, SUPERVISOR_TASK_TYPE
-from game import exceptions
+from the_tale.game.balance import formulas as f
+
+from the_tale.game.models import SupervisorTask, SupervisorTaskMember, SUPERVISOR_TASK_TYPE
+from the_tale.game import exceptions
 
 
 class MONTHS(DjangoEnum):
@@ -26,7 +28,7 @@ class MONTHS(DjangoEnum):
                  ('DRY',   4, u'сухой месяц',    u'сухого месяца') )
 
 
-class GameTime(namedtuple('GameTimeTuple', ('year', 'month', 'day', 'hour', 'minute', 'second'))):
+class GameTime(collections.namedtuple('GameTimeTuple', ('year', 'month', 'day', 'hour', 'minute', 'second'))):
 
     @classmethod
     def create_from_turn(cls, turn_number):
@@ -122,13 +124,13 @@ class SupervisorTaskPrototype(BasePrototype):
 
 
     def process_arena_pvp_1x1(self): # pylint: disable=R0914
-        from accounts.prototypes import AccountPrototype
-        from game.actions.prototypes import ActionMetaProxyPrototype
-        from game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
-        from game.logic_storage import LogicStorage
-        from game.pvp.prototypes import Battle1x1Prototype
-        from game.pvp.models import BATTLE_1X1_STATE
-        from game.bundles import BundlePrototype
+        from the_tale.accounts.prototypes import AccountPrototype
+        from the_tale.game.actions.prototypes import ActionMetaProxyPrototype
+        from the_tale.game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
+        from the_tale.game.logic_storage import LogicStorage
+        from the_tale.game.pvp.prototypes import Battle1x1Prototype
+        from the_tale.game.pvp.models import BATTLE_1X1_STATE
+        from the_tale.game.bundles import BundlePrototype
 
         storage = LogicStorage()
 

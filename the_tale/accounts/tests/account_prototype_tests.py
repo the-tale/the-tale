@@ -6,17 +6,17 @@ import mock
 from django.contrib.auth import authenticate as django_authenticate
 from django.contrib.auth.hashers import make_password
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from post_service.models import Message
+from the_tale.post_service.models import Message
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from accounts.personal_messages.prototypes import MessagePrototype as PersonalMessagePrototype
+from the_tale.accounts.personal_messages.prototypes import MessagePrototype as PersonalMessagePrototype
 
-from accounts.logic import register_user
-from accounts.prototypes import AccountPrototype
-from accounts.conf import accounts_settings
+from the_tale.accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.conf import accounts_settings
 
 
 class AccountPrototypeTests(testcase.TestCase):
@@ -34,10 +34,10 @@ class AccountPrototypeTests(testcase.TestCase):
     def test_create(self):
         self.assertTrue(self.account.active_end_at > datetime.datetime.now() + datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT - 60))
 
-    @mock.patch('accounts.conf.accounts_settings.ACTIVE_STATE_REFRESH_PERIOD', 0)
+    @mock.patch('the_tale.accounts.conf.accounts_settings.ACTIVE_STATE_REFRESH_PERIOD', 0)
     def test_update_active_state__expired(self):
         self.assertTrue(self.account.is_update_active_state_needed)
-        with mock.patch('game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as cmd_mark_hero_as_active:
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as cmd_mark_hero_as_active:
             self.account.update_active_state()
         self.assertEqual(cmd_mark_hero_as_active.call_count, 1)
 
@@ -47,8 +47,8 @@ class AccountPrototypeTests(testcase.TestCase):
     def test_change_credentials(self):
         self.assertTrue(AccountPrototype.get_by_id(self.fast_account.id).is_fast)
 
-        with mock.patch('game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as fake_cmd:
-            with mock.patch('accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as fake_cmd:
+            with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
                 self.fast_account.change_credentials(new_email='fast_user@test.ru', new_password=make_password('222222'), new_nick='test_nick')
 
         self.assertEqual(cmd_run_account_method.call_count, 0)
@@ -64,8 +64,8 @@ class AccountPrototypeTests(testcase.TestCase):
 
         self.assertTrue(AccountPrototype.get_by_id(self.fast_account.id).is_fast)
 
-        with mock.patch('game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as fake_cmd:
-            with mock.patch('accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as fake_cmd:
+            with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
                 self.fast_account.change_credentials(new_email='fast_user@test.ru', new_password=make_password('222222'), new_nick='test_nick')
 
         self.assertEqual(cmd_run_account_method.call_count, 1)
@@ -89,7 +89,7 @@ class AccountPrototypeTests(testcase.TestCase):
 
     def test_change_credentials_nick(self):
 
-        with mock.patch('game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as fake_cmd:
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as fake_cmd:
             self.account.change_credentials(new_nick='test_nick')
 
         self.assertEqual(Message.objects.all().count(), 0)
@@ -180,7 +180,7 @@ class AccountPrototypeTests(testcase.TestCase):
 
     def test_ban_game(self):
         self.assertFalse(self.account.is_ban_game)
-        with mock.patch('game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as cmd_update_hero_with_account_data:
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as cmd_update_hero_with_account_data:
             self.account.ban_game(days=1)
         self.assertEqual(cmd_update_hero_with_account_data.call_count, 1)
         self.assertEqual(cmd_update_hero_with_account_data.call_args[1]['ban_end_at'], self.account.ban_game_end_at)
@@ -201,7 +201,7 @@ class AccountPrototypeTests(testcase.TestCase):
         self.assertTrue(bank_account.is_fake)
         self.assertEqual(bank_account.amount, 0)
 
-    @mock.patch('accounts.conf.accounts_settings.CREATE_DEBUG_BANK_ACCOUNTS', True)
+    @mock.patch('the_tale.accounts.conf.accounts_settings.CREATE_DEBUG_BANK_ACCOUNTS', True)
     def test_bank_account__created(self):
         bank_account = self.account.bank_account
 

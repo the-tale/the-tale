@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from game.relations import RACE
+from the_tale.game.relations import RACE
 
 def get_race_percents(persons):
 

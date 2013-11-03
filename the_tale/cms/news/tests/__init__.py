@@ -1,2 +1,2 @@
 # coding: utf-8
-from cms.news.tests.requests_tests import *
+from the_tale.cms.news.tests.requests_tests import *

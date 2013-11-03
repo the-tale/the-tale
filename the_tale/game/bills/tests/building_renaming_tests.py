@@ -7,13 +7,13 @@ from dext.utils import s11n
 
 from textgen.words import Noun
 
-from game.map.places.models import Building
-from game.map.places.prototypes import BuildingPrototype
-from game.map.places.relations import BUILDING_STATE
+from the_tale.game.map.places.models import Building
+from the_tale.game.map.places.prototypes import BuildingPrototype
+from the_tale.game.map.places.relations import BUILDING_STATE
 
-from game.bills.prototypes import BillPrototype, VotePrototype
-from game.bills.bills import BuildingRenaming
-from game.bills.tests.prototype_tests import BaseTestPrototypes
+from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
+from the_tale.game.bills.bills import BuildingRenaming
+from the_tale.game.bills.tests.prototype_tests import BaseTestPrototypes
 
 
 class BuildingRenamingTests(BaseTestPrototypes):
@@ -68,8 +68,8 @@ class BuildingRenamingTests(BaseTestPrototypes):
         self.assertEqual(set(persons_ids), set([self.person_1.id, self.person_2.id]))
 
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_apply(self):
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)
@@ -92,8 +92,8 @@ class BuildingRenamingTests(BaseTestPrototypes):
 
         self.assertEqual(self.building.name, 'r-building-name')
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_no_building(self):
 
         VotePrototype.create(self.account2, self.bill, False)

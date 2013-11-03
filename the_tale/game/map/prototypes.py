@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from collections import defaultdict
+import collections
 
 from dext.utils import s11n
 
@@ -8,21 +8,21 @@ import deworld
 
 from deworld.layers import VEGETATION_TYPE
 
-from common.utils.prototypes import BasePrototype
-from common.utils.decorators import lazy_property
+from the_tale.common.utils.prototypes import BasePrototype
+from the_tale.common.utils.decorators import lazy_property
 
-from game.relations import RACE
+from the_tale.game.relations import RACE
 
-from game.persons.models import PERSON_STATE
-from game.persons.storage import persons_storage
+from the_tale.game.persons.models import PERSON_STATE
+from the_tale.game.persons.storage import persons_storage
 
-from game.map.places.models import Place
-from game.map.places.prototypes import PlacePrototype
-from game.map.places.storage import places_storage
+from the_tale.game.map.places.models import Place
+from the_tale.game.map.places.prototypes import PlacePrototype
+from the_tale.game.map.places.storage import places_storage
 
-from game.map.models import MapInfo, WorldInfo
-from game.map.utils import get_race_percents
-from game.map.relations import MAP_STATISTICS
+from the_tale.game.map.models import MapInfo, WorldInfo
+from the_tale.game.map.utils import get_race_percents
+from the_tale.game.map.relations import MAP_STATISTICS
 
 
 
@@ -43,7 +43,7 @@ class MapInfoPrototype(BasePrototype):
 
     @lazy_property
     def cells(self):
-        from game.map.generator.descriptors import UICells
+        from the_tale.game.map.generator.descriptors import UICells
         return UICells.deserialize(s11n.from_json(self._model.cells))
 
     @property
@@ -73,11 +73,11 @@ class MapInfoPrototype(BasePrototype):
 
     @classmethod
     def create(cls, turn_number, width, height, terrain, world): # pylint: disable=R0914
-        from game.map.generator.descriptors import UICells
+        from the_tale.game.map.generator.descriptors import UICells
 
         terrain_percents = {}
 
-        terrain_squares = defaultdict(int)
+        terrain_squares = collections.defaultdict(int)
 
         for y in xrange(0, height):
             for x in xrange(0, width):

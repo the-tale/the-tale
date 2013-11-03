@@ -1,12 +1,12 @@
 # coding: utf-8
 
-from game.prototypes import TimePrototype
+from the_tale.game.prototypes import TimePrototype
 
-from game.text_generation import get_text
+from the_tale.game.text_generation import get_text
 
-from game.chronicle.relations import RECORD_TYPE, ACTOR_ROLE
-from game.chronicle.exceptions import ChronicleException
-from game.chronicle.prototypes import RecordPrototype, create_external_actor
+from the_tale.game.chronicle.relations import RECORD_TYPE, ACTOR_ROLE
+from the_tale.game.chronicle.exceptions import ChronicleException
+from the_tale.game.chronicle.prototypes import RecordPrototype, create_external_actor
 
 class RecordBase(object):
     TYPE = None

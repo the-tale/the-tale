@@ -8,21 +8,21 @@ from textgen.words import Noun
 from dext.utils import s11n
 from dext.utils.urls import url
 
-from common.utils.testcase import TestCase
-from common.utils.permissions import sync_group
+from the_tale.common.utils.testcase import TestCase
+from the_tale.common.utils.permissions import sync_group
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user, login_url
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user, login_url
 
-from game.logic import create_test_map, DEFAULT_HERO_EQUIPMENT
+from the_tale.game.logic import create_test_map, DEFAULT_HERO_EQUIPMENT
 
-from game.mobs.storage import mobs_storage
+from the_tale.game.mobs.storage import mobs_storage
 
-from game.artifacts.models import ArtifactRecord
-from game.artifacts.storage import artifacts_storage
-from game.artifacts.models import ARTIFACT_RECORD_STATE, RARITY_TYPE
-from game.artifacts.relations import ARTIFACT_TYPE
-from game.artifacts.prototypes import ArtifactRecordPrototype
+from the_tale.game.artifacts.models import ArtifactRecord
+from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts.models import ARTIFACT_RECORD_STATE, RARITY_TYPE
+from the_tale.game.artifacts.relations import ARTIFACT_TYPE
+from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
 
 
 class BaseTestRequests(TestCase):

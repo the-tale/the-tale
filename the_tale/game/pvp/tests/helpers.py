@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from game.pvp.prototypes import Battle1x1Prototype
+from the_tale.game.pvp.prototypes import Battle1x1Prototype
 
 class PvPTestsMixin(object):
 

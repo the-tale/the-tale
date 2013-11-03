@@ -4,7 +4,7 @@ from django.db import models
 
 from rels.django_staff import TableIntegerField
 
-from bank.relations import INVOICE_STATE, ENTITY_TYPE, CURRENCY_TYPE
+from the_tale.bank.relations import INVOICE_STATE, ENTITY_TYPE, CURRENCY_TYPE
 
 
 class Account(models.Model):

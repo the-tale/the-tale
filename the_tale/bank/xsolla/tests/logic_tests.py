@@ -1,11 +1,11 @@
 # coding: utf-8
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from bank.xsolla.logic import check_user_md5, check_user, pay_md5, pay, cancel_md5
-from bank.xsolla.relations import COMMAND_TYPE, PAY_RESULT
-from bank.xsolla.prototypes import InvoicePrototype
+from the_tale.bank.xsolla.logic import check_user_md5, check_user, pay_md5, pay, cancel_md5
+from the_tale.bank.xsolla.relations import COMMAND_TYPE, PAY_RESULT
+from the_tale.bank.xsolla.prototypes import InvoicePrototype
 
 
 class CheckUserLogicTests(testcase.TestCase):
@@ -33,7 +33,7 @@ class CheckUserLogicTests(testcase.TestCase):
                                    v3=None)._is_NOT_SPECIFIED_V1)
 
     def test_check_user__user_exists(self):
-        with mock.patch('bank.logic.get_account_id', mock.Mock(return_value=13)) as bank_check_user:
+        with mock.patch('the_tale.bank.logic.get_account_id', mock.Mock(return_value=13)) as bank_check_user:
             self.assertTrue(check_user(command=COMMAND_TYPE.CHECK,
                                        external_md5=self.check_user_md5,
                                        v1=self.user_email,
@@ -45,7 +45,7 @@ class CheckUserLogicTests(testcase.TestCase):
 
 
     def test_check_user__user_not_exists(self):
-        with mock.patch('bank.logic.get_account_id', mock.Mock(return_value=None)) as bank_check_user:
+        with mock.patch('the_tale.bank.logic.get_account_id', mock.Mock(return_value=None)) as bank_check_user:
             self.assertTrue(check_user(command=COMMAND_TYPE.CHECK,
                                        external_md5=self.check_user_md5,
                                        v1=self.user_email,
@@ -103,7 +103,7 @@ class PayLogicTests(testcase.TestCase):
 
     def test_pay__success(self):
         self.assertEqual(InvoicePrototype._db_count(), 0)
-        with mock.patch('bank.logic.get_account_id', mock.Mock(return_value=1234)):
+        with mock.patch('the_tale.bank.logic.get_account_id', mock.Mock(return_value=1234)):
             result, invoice_id = pay(command=COMMAND_TYPE.PAY,
                                      external_md5=self.pay_md5,
                                      v1=self.user_email, v2=None, v3=None,
@@ -116,7 +116,7 @@ class PayLogicTests(testcase.TestCase):
 
     def test_test_is_none(self):
         self.assertEqual(InvoicePrototype._db_count(), 0)
-        with mock.patch('bank.logic.get_account_id', mock.Mock(return_value=1234)):
+        with mock.patch('the_tale.bank.logic.get_account_id', mock.Mock(return_value=1234)):
             result, invoice_id = pay(command=COMMAND_TYPE.PAY,
                                      external_md5=self.pay_md5,
                                      v1=self.user_email, v2=None, v3=None,
@@ -128,7 +128,7 @@ class PayLogicTests(testcase.TestCase):
 
     def test_test_is_0(self):
         self.assertEqual(InvoicePrototype._db_count(), 0)
-        with mock.patch('bank.logic.get_account_id', mock.Mock(return_value=1234)):
+        with mock.patch('the_tale.bank.logic.get_account_id', mock.Mock(return_value=1234)):
             result, invoice_id = pay(command=COMMAND_TYPE.PAY,
                                      external_md5=self.pay_md5,
                                      v1=self.user_email, v2=None, v3=None,
@@ -140,7 +140,7 @@ class PayLogicTests(testcase.TestCase):
 
     def test_test_is_1(self):
         self.assertEqual(InvoicePrototype._db_count(), 0)
-        with mock.patch('bank.logic.get_account_id', mock.Mock(return_value=1234)):
+        with mock.patch('the_tale.bank.logic.get_account_id', mock.Mock(return_value=1234)):
             result, invoice_id = pay(command=COMMAND_TYPE.PAY,
                                      external_md5=self.pay_md5,
                                      v1=self.user_email, v2=None, v3=None,

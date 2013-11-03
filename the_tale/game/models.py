@@ -4,7 +4,7 @@ import datetime
 
 from django.db import models
 
-from common.utils.enum import create_enum
+from the_tale.common.utils.enum import create_enum
 
 
 class BUNDLE_TYPE:

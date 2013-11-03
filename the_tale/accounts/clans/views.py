@@ -4,19 +4,19 @@ from dext.views import handler, validate_argument, validator
 from dext.utils.decorators import nested_commit_on_success
 from dext.utils.urls import UrlBuilder, url
 
-from common.utils.resources import Resource
-from common.utils.decorators import login_required
-from common.utils.pagination import Paginator
-from common.utils import list_filter
+from the_tale.common.utils.resources import Resource
+from the_tale.common.utils.decorators import login_required
+from the_tale.common.utils.pagination import Paginator
+from the_tale.common.utils import list_filter
 
-from accounts.views import validate_fast_account
-from accounts.prototypes import AccountPrototype
+from the_tale.accounts.views import validate_fast_account
+from the_tale.accounts.prototypes import AccountPrototype
 
-from accounts.clans.prototypes import ClanPrototype, MembershipPrototype, MembershipRequestPrototype
-from accounts.clans.conf import clans_settings
-from accounts.clans.relations import ORDER_BY, MEMBER_ROLE, PAGE_ID, MEMBERSHIP_REQUEST_TYPE
-from accounts.clans.forms import ClanForm, MembershipRequestForm
-from accounts.clans.logic import ClanInfo
+from the_tale.accounts.clans.prototypes import ClanPrototype, MembershipPrototype, MembershipRequestPrototype
+from the_tale.accounts.clans.conf import clans_settings
+from the_tale.accounts.clans.relations import ORDER_BY, MEMBER_ROLE, PAGE_ID, MEMBERSHIP_REQUEST_TYPE
+from the_tale.accounts.clans.forms import ClanForm, MembershipRequestForm
+from the_tale.accounts.clans.logic import ClanInfo
 
 
 class IndexFilter(list_filter.ListFilter):
@@ -124,7 +124,7 @@ class ClansResource(Resource):
 
     @handler('#clan', name='show')
     def show(self):
-        from game.heroes.prototypes import HeroPrototype
+        from the_tale.game.heroes.prototypes import HeroPrototype
 
         roles = {member.account_id:member.role for member in MembershipPrototype.get_list_by_clan_id(self.clan.id)}
         accounts = sorted(AccountPrototype.get_list_by_id(roles.keys()), key=lambda a: (roles[a.id].value, a.nick))

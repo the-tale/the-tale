@@ -7,21 +7,22 @@ from django.utils.log import getLogger
 
 from dext.utils.decorators import nested_commit_on_success
 
-from common.amqp_queues import BaseWorker
-from common import postponed_tasks
+from the_tale.common.amqp_queues import BaseWorker
+from the_tale.common import postponed_tasks
+from the_tale.common.utils.logic import run_django_command
 
-from game.balance import constants as c
+from the_tale.game.balance import constants as c
 
-from game.persons.models import PERSON_STATE
-from game.persons.storage import persons_storage
+from the_tale.game.persons.models import PERSON_STATE
+from the_tale.game.persons.storage import persons_storage
 
-from game.map.places.storage import places_storage, buildings_storage
-from game.map.places.conf import places_settings
+from the_tale.game.map.places.storage import places_storage, buildings_storage
+from the_tale.game.map.places.conf import places_settings
 
-from game.bills.conf import bills_settings
-from game.workers.environment import workers_environment as game_environment
+from the_tale.game.bills.conf import bills_settings
+from the_tale.game.workers.environment import workers_environment as game_environment
 
-from game import exceptions
+from the_tale.game import exceptions
 
 
 class Worker(BaseWorker):
@@ -85,7 +86,7 @@ class Worker(BaseWorker):
 
         if map_update_needed:
             self.logger.info('update map')
-            subprocess.call(['./manage.py', 'map_update_map'])
+            run_django_command(['map_update_map'])
             self.logger.info('update map completed')
 
             # send command to main supervisor queue
@@ -101,7 +102,7 @@ class Worker(BaseWorker):
         with nested_commit_on_success():
             self.sync_data()
 
-        subprocess.call(['./manage.py', 'map_update_map'])
+        run_django_command(['map_update_map'])
 
         self.initialized = False
 
@@ -189,7 +190,7 @@ class Worker(BaseWorker):
         self.logger.info('sync data completed')
 
     def apply_bills(self):
-        from game.bills.prototypes import BillPrototype
+        from the_tale.game.bills.prototypes import BillPrototype
 
         self.logger.info('apply bills')
 

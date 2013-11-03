@@ -3,8 +3,7 @@ import time
 import datetime
 import math
 import itertools
-
-from collections import namedtuple
+import collections
 
 import Queue
 
@@ -12,28 +11,28 @@ from django.utils.log import getLogger
 
 from dext.utils.decorators import nested_commit_on_success
 
-from common.amqp_queues import BaseWorker
-from common import postponed_tasks
+from the_tale.common.amqp_queues import BaseWorker
+from the_tale.common import postponed_tasks
 
-from accounts.prototypes import AccountPrototype
+from the_tale.accounts.prototypes import AccountPrototype
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.prototypes import SupervisorTaskPrototype
+from the_tale.game.prototypes import SupervisorTaskPrototype
 
-from game.pvp.conf import pvp_settings
-from game.pvp.prototypes import Battle1x1Prototype
-from game.workers.environment import workers_environment as game_environment
+from the_tale.game.pvp.conf import pvp_settings
+from the_tale.game.pvp.prototypes import Battle1x1Prototype
+from the_tale.game.workers.environment import workers_environment as game_environment
 
 
 class PvPBalancerException(Exception): pass
 
 
-class QueueRecord(namedtuple('QueueRecord', ('account_id', 'created_at', 'battle_id', 'hero_level'))): #pylint: disable=E1001
+class QueueRecord(collections.namedtuple('QueueRecord', ('account_id', 'created_at', 'battle_id', 'hero_level'))): #pylint: disable=E1001
     __slots__ = ()
 
 
-class BalancingRecord(namedtuple('BalancingRecord', ('min_level', 'max_level', 'record'))): #pylint: disable=E1001
+class BalancingRecord(collections.namedtuple('BalancingRecord', ('min_level', 'max_level', 'record'))): #pylint: disable=E1001
     __slots__ = ()
 
     def in_interval(self, level):
@@ -202,11 +201,11 @@ class Worker(BaseWorker):
         if records_to_remove:
             for record in records_to_remove:
                 Battle1x1Prototype.get_by_id(record.battle_id).remove()
-            self.logger.info('remove from queue request from accounts %r' % (records_to_remove, ))
+            self.logger.info('remove from queue request from the_tale.accounts %r' % (records_to_remove, ))
 
 
     def _initiate_battle(self, record_1, record_2, calculate_ratings=False):
-        from accounts.prototypes import AccountPrototype
+        from the_tale.accounts.prototypes import AccountPrototype
 
         account_1 = AccountPrototype.get_by_id(record_1.account_id)
         account_2 = AccountPrototype.get_by_id(record_2.account_id)

@@ -1,19 +1,19 @@
 # coding: utf-8
 
-from common.utils.testcase import TestCase
+from the_tale.common.utils.testcase import TestCase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.ratings.models import RatingValues
-from game.ratings.prototypes import RatingValuesPrototype
+from the_tale.game.ratings.models import RatingValues
+from the_tale.game.ratings.prototypes import RatingValuesPrototype
 
-from game.phrase_candidates.prototypes import PhraseCandidatePrototype
-from game.phrase_candidates.models import PHRASE_CANDIDATE_STATE
+from the_tale.game.phrase_candidates.prototypes import PhraseCandidatePrototype
+from the_tale.game.phrase_candidates.models import PHRASE_CANDIDATE_STATE
 
 class PrototypeTestsBase(TestCase):
 
@@ -78,8 +78,8 @@ class RatingPrototypeTests(PrototypeTestsBase):
                          [10.0, 1.0, 17.0, 5.0 ])
 
     def create_bill(self, index, owner, state):
-        from game.bills.bills import PlaceRenaming
-        from game.bills.prototypes import BillPrototype
+        from the_tale.game.bills.bills import PlaceRenaming
+        from the_tale.game.bills.prototypes import BillPrototype
 
         bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_%d' % index)
         bill = BillPrototype.create(owner, 'bill-%d-caption' % index, 'bill-%d-rationale' % index, bill_data)
@@ -88,9 +88,9 @@ class RatingPrototypeTests(PrototypeTestsBase):
 
 
     def test_bills_count(self):
-        from forum.models import Category, SubCategory
-        from game.bills.conf import bills_settings
-        from game.bills.models import BILL_STATE
+        from the_tale.forum.models import Category, SubCategory
+        from the_tale.game.bills.conf import bills_settings
+        from the_tale.game.bills.models import BILL_STATE
 
         forum_category = Category.objects.create(caption='category-1', slug='category-1')
         SubCategory.objects.create(caption=bills_settings.FORUM_CATEGORY_UID + '-caption',

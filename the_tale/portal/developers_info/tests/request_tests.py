@@ -4,11 +4,11 @@ from django.test import client
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate as django_authenticate
 
-from common.utils.testcase import TestCase
+from the_tale.common.utils.testcase import TestCase
 
-from accounts.logic import register_user, login_url
+from the_tale.accounts.logic import register_user, login_url
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
 class TestRequestsBase(TestCase):
 
@@ -56,8 +56,8 @@ class TestMobsAndArtifactsRequests(TestRequestsBase):
     def test_mobs_without_artifacts(self):
         self.request_login('test_user_2@test.com')
 
-        from game.mobs.prototypes import MobRecordPrototype
-        from game.artifacts.prototypes import ArtifactRecordPrototype
+        from the_tale.game.mobs.prototypes import MobRecordPrototype
+        from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
 
         mob_without_loot = MobRecordPrototype.create_random('mob_without_loot')
         mob_without_artifact = MobRecordPrototype.create_random('mob_without_artifact')
@@ -76,7 +76,7 @@ class TestMobsAndArtifactsRequests(TestRequestsBase):
     def test_artifacts_without_mobs(self):
         self.request_login('test_user_2@test.com')
 
-        from game.artifacts.prototypes import ArtifactRecordPrototype
+        from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
 
         no_mob_loot = ArtifactRecordPrototype.create_random('no_mob_loot', level=1)
         no_mob_artifact = ArtifactRecordPrototype.create_random('no_mob_artifact', level=1)

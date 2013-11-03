@@ -10,7 +10,7 @@ from dext.utils import s11n
 from textgen.words import WordBase
 from textgen.templates import Vocabulary, Dictionary
 
-from game.conf import game_settings
+from the_tale.game.conf import game_settings
 
 _VOCABULARY = None
 _DICTIONARY = None

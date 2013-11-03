@@ -1,12 +1,12 @@
 # coding: utf-8
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
-from accounts.workers.environment import workers_environment
-from accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
+from the_tale.accounts.workers.environment import workers_environment
+from the_tale.accounts.prototypes import AccountPrototype
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
 
 

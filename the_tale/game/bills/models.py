@@ -3,9 +3,9 @@ from django.db import models
 
 from rels.django_staff import TableIntegerField
 
-from forum.models import Thread
+from the_tale.forum.models import Thread
 
-from game.bills.relations import BILL_STATE, BILL_TYPE, VOTE_TYPE, BILL_DURATION
+from the_tale.game.bills.relations import BILL_STATE, BILL_TYPE, VOTE_TYPE, BILL_DURATION
 
 
 class Bill(models.Model):

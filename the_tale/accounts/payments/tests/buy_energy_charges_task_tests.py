@@ -1,9 +1,9 @@
 # coding: utf-8
 
-from accounts.payments.postponed_tasks import BuyEnergyCharges
-from accounts.payments.tests.base_buy_task_tests import BaseBuyPosponedTaskTests as _BaseBuyPosponedTaskTests
+from the_tale.accounts.payments.postponed_tasks import BuyEnergyCharges
+from the_tale.accounts.payments.tests.base_buy_task_tests import BaseBuyPosponedTaskTests as _BaseBuyPosponedTaskTests
 
-from game.logic_storage import LogicStorage
+from the_tale.game.logic_storage import LogicStorage
 
 
 class BuyEnergyChargesTaskTests(_BaseBuyPosponedTaskTests):

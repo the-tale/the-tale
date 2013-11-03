@@ -2,17 +2,17 @@
 
 from dext.utils.urls import url
 
-from common.utils import testcase
-from common.utils.permissions import sync_group
+from the_tale.common.utils import testcase
+from the_tale.common.utils.permissions import sync_group
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user, login_url
-
-
-from game.logic import create_test_map
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user, login_url
 
 
-from achievements.prototypes import CollectionPrototype, KitPrototype, ItemPrototype
+from the_tale.game.logic import create_test_map
+
+
+from the_tale.collections.prototypes import CollectionPrototype, KitPrototype, ItemPrototype
 
 
 class BaseRequestTests(testcase.TestCase):
@@ -31,8 +31,8 @@ class BaseRequestTests(testcase.TestCase):
         result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
         self.account_3 = AccountPrototype.get_by_id(account_id)
 
-        group_edit = sync_group('edit item', ['achievements.edit_item'])
-        group_moderate = sync_group('moderate item', ['achievements.moderate_item'])
+        group_edit = sync_group('edit item', ['collections.edit_item'])
+        group_moderate = sync_group('moderate item', ['collections.moderate_item'])
 
         group_edit.account_set.add(self.account_2._model)
         group_moderate.account_set.add(self.account_3._model)
@@ -51,7 +51,7 @@ class ItemsNewTests(BaseRequestTests):
 
     def setUp(self):
         super(ItemsNewTests, self).setUp()
-        self.test_url = url('achievements:items:new')
+        self.test_url = url('collections:items:new')
 
     def test_login_required(self):
         self.check_redirect(self.test_url, login_url(self.test_url))
@@ -59,19 +59,19 @@ class ItemsNewTests(BaseRequestTests):
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)
         self.check_html_ok(self.request_html(self.test_url),
-                           texts=[('achievements.items.no_edit_rights', 1)])
+                           texts=[('collections.items.no_edit_rights', 1)])
 
     def test_success(self):
         self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(self.test_url),
-                           texts=[('achievements.items.no_edit_rights', 0)])
+                           texts=[('collections.items.no_edit_rights', 0)])
 
 
 class ItemsCreateTests(BaseRequestTests):
 
     def setUp(self):
         super(ItemsCreateTests, self).setUp()
-        self.test_url = url('achievements:items:create')
+        self.test_url = url('collections:items:create')
 
     def get_post_data(self):
         return {'kit': self.kit_1.id,
@@ -86,18 +86,18 @@ class ItemsCreateTests(BaseRequestTests):
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)
         self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
-                              'achievements.items.no_edit_rights')
+                              'collections.items.no_edit_rights')
         self.assertEqual(ItemPrototype._db_all().count(), 2)
 
     def test_form_errors(self):
         self.request_login(self.account_2.email)
         self.check_ajax_error(self.post_ajax_json(self.test_url, {}),
-                              'achievements.items.create.form_errors')
+                              'collections.items.create.form_errors')
         self.assertEqual(ItemPrototype._db_all().count(), 2)
 
     def test_success(self):
         self.request_login(self.account_2.email)
-        self.check_ajax_ok(self.post_ajax_json(self.test_url, self.get_post_data()), {'next_url': url('achievements:kits:show', self.kit_1.id)})
+        self.check_ajax_ok(self.post_ajax_json(self.test_url, self.get_post_data()), {'next_url': url('collections:kits:show', self.kit_1.id)})
         self.assertEqual(ItemPrototype._db_all().count(), 3)
 
         item = ItemPrototype._db_get_object(2)
@@ -113,7 +113,7 @@ class ItemsEditTests(BaseRequestTests):
 
     def setUp(self):
         super(ItemsEditTests, self).setUp()
-        self.test_url = url('achievements:items:edit', self.item_1_1.id)
+        self.test_url = url('collections:items:edit', self.item_1_1.id)
 
     def test_login_required(self):
         self.check_redirect(self.test_url, login_url(self.test_url))
@@ -121,7 +121,7 @@ class ItemsEditTests(BaseRequestTests):
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)
         self.check_html_ok(self.request_html(self.test_url),
-                           texts=(('achievements.items.no_edit_rights', 1)))
+                           texts=(('collections.items.no_edit_rights', 1)))
 
 
     def test_moderate_rights_required(self):
@@ -130,7 +130,7 @@ class ItemsEditTests(BaseRequestTests):
         self.request_login(self.account_2.email)
 
         self.check_html_ok(self.request_html(self.test_url),
-                           texts=[('achievements.items.no_edit_rights', 1)])
+                           texts=[('collections.items.no_edit_rights', 1)])
 
     def test_success__for_edit(self):
         self.request_login(self.account_2.email)
@@ -153,7 +153,7 @@ class ItemsUpdateTests(BaseRequestTests):
 
     def setUp(self):
         super(ItemsUpdateTests, self).setUp()
-        self.test_url = url('achievements:items:update', self.item_1_1.id)
+        self.test_url = url('collections:items:update', self.item_1_1.id)
 
     def get_post_data(self):
         return {'caption': 'caption_edited',
@@ -166,7 +166,7 @@ class ItemsUpdateTests(BaseRequestTests):
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)
         self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
-                              'achievements.items.no_edit_rights')
+                              'collections.items.no_edit_rights')
 
         self.item_1_1.reload()
         self.assertEqual(self.item_1_1.caption, 'item_1_1')
@@ -179,7 +179,7 @@ class ItemsUpdateTests(BaseRequestTests):
 
         self.request_login(self.account_2.email)
         self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
-                              'achievements.items.no_edit_rights')
+                              'collections.items.no_edit_rights')
 
         self.item_1_1.reload()
         self.assertEqual(self.item_1_1.caption, 'item_1_1')
@@ -189,7 +189,7 @@ class ItemsUpdateTests(BaseRequestTests):
     def test_form_errors(self):
         self.request_login(self.account_2.email)
         self.check_ajax_error(self.post_ajax_json(self.test_url, {}),
-                              'achievements.items.update.form_errors')
+                              'collections.items.update.form_errors')
 
         self.item_1_1.reload()
         self.assertEqual(self.item_1_1.caption, 'item_1_1')
@@ -222,14 +222,14 @@ class ItemsApproveTests(BaseRequestTests):
 
     def setUp(self):
         super(ItemsApproveTests, self).setUp()
-        self.test_url = url('achievements:items:approve', self.item_1_1.id)
+        self.test_url = url('collections:items:approve', self.item_1_1.id)
 
     def test_login_required(self):
         self.check_ajax_error(self.post_ajax_json(self.test_url), 'common.login_required')
 
     def test_moderate_rights_required(self):
         self.request_login(self.account_2.email)
-        self.check_ajax_error(self.post_ajax_json(self.test_url), 'achievements.items.no_moderate_rights')
+        self.check_ajax_error(self.post_ajax_json(self.test_url), 'collections.items.no_moderate_rights')
 
     def test_success(self):
         self.request_login(self.account_3.email)
@@ -244,14 +244,14 @@ class ItemsDisapproveTests(BaseRequestTests):
 
     def setUp(self):
         super(ItemsDisapproveTests, self).setUp()
-        self.test_url = url('achievements:items:disapprove', self.item_1_1.id)
+        self.test_url = url('collections:items:disapprove', self.item_1_1.id)
 
     def test_login_required(self):
         self.check_ajax_error(self.post_ajax_json(self.test_url), 'common.login_required')
 
     def test_moderate_rights_required(self):
         self.request_login(self.account_2.email)
-        self.check_ajax_error(self.post_ajax_json(self.test_url), 'achievements.items.no_moderate_rights')
+        self.check_ajax_error(self.post_ajax_json(self.test_url), 'collections.items.no_moderate_rights')
 
     def test_success(self):
         ItemPrototype._db_all().update(approved=True)

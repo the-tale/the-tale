@@ -5,19 +5,19 @@ import mock
 
 from dext.utils.urls import url
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import login_url
+from the_tale.accounts.logic import login_url
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from forum.models import Category, SubCategory, Thread, Post, Subscription
-from forum.prototypes import (ThreadPrototype,
+from the_tale.forum.models import Category, SubCategory, Thread, Post, Subscription
+from the_tale.forum.prototypes import (ThreadPrototype,
                               PostPrototype,
                               ThreadReadInfoPrototype,
                               SubCategoryReadInfoPrototype)
-from forum.conf import forum_settings
-from forum.tests.helpers import ForumFixture
+from the_tale.forum.conf import forum_settings
+from the_tale.forum.tests.helpers import ForumFixture
 
 
 class BaseTestRequests(testcase.TestCase):
@@ -116,7 +116,7 @@ class TestSubcategoryRequests(BaseTestRequests):
 
         self.check_html_ok(self.request_html(url('forum:subcategories:show', self.subcat1.id)), texts=[('pgf-new-thread-marker', 0)])
 
-    @mock.patch('forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
+    @mock.patch('the_tale.forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
     def test_restricted(self):
         self.check_html_ok(self.request_html(url('forum:subcategories:show', self.subcat1.id)), texts=['forum.subcategory_access_restricted'])
 
@@ -140,11 +140,11 @@ class TestNewThreadRequests(BaseTestRequests):
         self.account.save()
         self.check_html_ok(self.request_html(url('forum:subcategories:new-thread', self.subcat1.id)), texts=['pgf-error-common.fast_account'])
 
-    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_new_thread_banned(self):
         self.check_html_ok(self.request_html(url('forum:subcategories:new-thread', self.subcat1.id)), texts=['pgf-error-common.ban_forum'])
 
-    @mock.patch('forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
+    @mock.patch('the_tale.forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
     def test_restricted(self):
         self.check_html_ok(self.request_html(url('forum:subcategories:new-thread', self.subcat1.id)), texts=['forum.subcategory_access_restricted'])
 
@@ -162,7 +162,7 @@ class TestCreateThreadRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(url('forum:subcategories:create-thread',  self.subcat1.id)),
                               code='common.fast_account')
 
-    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_create_thread_banned(self):
         self.check_ajax_error(self.client.post(url('forum:subcategories:create-thread',  self.subcat1.id)),
                               code='common.ban_forum')
@@ -204,7 +204,7 @@ class TestCreateThreadRequests(BaseTestRequests):
 
         self.assertEqual(SubCategory.objects.get(id=self.subcat1.id).posts_count, 1)
 
-    @mock.patch('forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
+    @mock.patch('the_tale.forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
     def test_restricted(self):
         self.check_ajax_error(self.client.post(url('forum:subcategories:create-thread',  self.subcat1.id)), 'forum.subcategory_access_restricted')
 
@@ -283,7 +283,7 @@ class TestShowThreadRequests(BaseTestRequests):
         self.assertEqual(Thread.objects.get(id=self.thread1.id).posts_count, 5)
         self.assertEqual(Thread.objects.get(id=self.thread2.id).posts_count, 7)
 
-    @mock.patch('forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
+    @mock.patch('the_tale.forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
     def test_restricted(self):
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread1.id)), texts=('forum.subcategory_access_restricted',))
 
@@ -301,7 +301,7 @@ class TestCreatePostRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(url('forum:threads:create-post', self.thread3.id)),
                               code='common.fast_account')
 
-    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_create_post_banned(self):
         self.check_ajax_error(self.client.post(url('forum:threads:create-post', self.thread3.id)),
                               code='common.ban_forum')
@@ -323,7 +323,7 @@ class TestCreatePostRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(url('forum:threads:create-post', 666), {'text': 'thread3-test-post'}),
                               'forum.thread.not_found')
 
-    @mock.patch('forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
+    @mock.patch('the_tale.forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
     def test_restricted(self):
         self.check_ajax_error(self.client.post(url('forum:threads:create-post', self.thread3.id), {'text': 'thread3-test-post'}),
                               'forum.subcategory_access_restricted')
@@ -396,7 +396,7 @@ class ThreadSubscribeTests(BaseTestRequests):
         self.check_ajax_ok(self.client.post(url('forum:threads:subscribe', self.thread1.id)))
         self.assertEqual(Subscription.objects.all().count(), 1)
 
-    @mock.patch('forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
+    @mock.patch('the_tale.forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
     def test_restricted(self):
         self.check_ajax_error(self.client.post(url('forum:threads:subscribe', self.thread1.id)),
                               'forum.subcategory_access_restricted')
@@ -423,7 +423,7 @@ class SubcategorySubscribeTests(BaseTestRequests):
         self.check_ajax_ok(self.client.post(url('forum:subcategories:subscribe', self.subcat2.id)))
         self.assertEqual(Subscription.objects.all().count(), 1)
 
-    @mock.patch('forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
+    @mock.patch('the_tale.forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
     def test_restricted(self):
         self.check_ajax_error(self.client.post(url('forum:subcategories:subscribe', self.subcat2.id)),
                               'forum.subcategory_access_restricted')
@@ -457,7 +457,7 @@ class ThreadUnsubscribeTests(BaseTestRequests):
         self.check_ajax_ok(self.client.post(url('forum:threads:unsubscribe', self.thread1.id)))
         self.assertEqual(Subscription.objects.all().count(), 0)
 
-    @mock.patch('forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
+    @mock.patch('the_tale.forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
     def test_restricted(self):
         self.check_ajax_error(self.client.post(url('forum:threads:unsubscribe', self.thread1.id)),
                               'forum.subcategory_access_restricted')
@@ -491,7 +491,7 @@ class SubcategoryUnsubscribeTests(BaseTestRequests):
         self.check_ajax_ok(self.client.post(url('forum:subcategories:unsubscribe', self.subcat2.id)))
         self.assertEqual(Subscription.objects.all().count(), 0)
 
-    @mock.patch('forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
+    @mock.patch('the_tale.forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
     def test_restricted(self):
         self.check_ajax_error(self.client.post(url('forum:subcategories:unsubscribe', self.subcat2.id)),
                               'forum.subcategory_access_restricted')

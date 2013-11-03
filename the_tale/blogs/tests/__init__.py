@@ -1,3 +1,3 @@
 # coding: utf-8
 
-from blogs.tests.requests_tests import *
+from the_tale.blogs.tests.requests_tests import *

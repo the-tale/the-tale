@@ -5,13 +5,13 @@ from textgen.words import Noun
 
 from dext.utils import s11n
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.artifacts.models import RARITY_TYPE
-from game.artifacts.relations import ARTIFACT_TYPE
-from game.artifacts.forms import ArtifactRecordForm, ModerateArtifactRecordForm
+from the_tale.game.artifacts.models import RARITY_TYPE
+from the_tale.game.artifacts.relations import ARTIFACT_TYPE
+from the_tale.game.artifacts.forms import ArtifactRecordForm, ModerateArtifactRecordForm
 
 
 class ArtifactFormsTests(testcase.TestCase):

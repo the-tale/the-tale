@@ -1,7 +1,7 @@
 # coding: utf-8
 from dext.jinja2.decorators import jinjaglobal
 
-from cms.news.models import News
+from the_tale.cms.news.models import News
 
 @jinjaglobal
 def get_last_news():

@@ -3,9 +3,9 @@
 from rels import Column, NullObject
 from rels.django_staff import DjangoEnum
 
-from accounts.clans.conf import clans_settings
+from the_tale.accounts.clans.conf import clans_settings
 
-from game.heroes.relations import PREFERENCE_TYPE
+from the_tale.game.heroes.relations import PREFERENCE_TYPE
 
 
 CLAN_OWNERSHIP_RIGHT_DESCRIPTION = u'Если вам не хватает могущества для владения гильдией, Вы можете приобрести разрешение на владение ей за печеньки.'

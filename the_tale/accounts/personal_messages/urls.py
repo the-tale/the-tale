@@ -2,6 +2,6 @@
 
 from dext.views import resource_patterns
 
-from accounts.personal_messages.views import MessageResource
+from the_tale.accounts.personal_messages.views import MessageResource
 
 urlpatterns = resource_patterns(MessageResource)

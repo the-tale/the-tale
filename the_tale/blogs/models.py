@@ -2,7 +2,7 @@
 
 from django.db import models
 
-from blogs.relations import POST_STATE
+from the_tale.blogs.relations import POST_STATE
 
 from rels.django_staff import TableIntegerField
 

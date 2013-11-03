@@ -3,9 +3,9 @@ from django import forms as django_forms
 
 from dext.forms import forms, fields
 
-from game.text_generation import get_phrases_types
+from the_tale.game.text_generation import get_phrases_types
 
-from game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
+from the_tale.game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
 
 
 class PhraseCandidateNewForm(forms.Form):

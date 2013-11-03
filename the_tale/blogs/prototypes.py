@@ -5,20 +5,20 @@ from django.conf import settings as project_settings
 
 from dext.utils.decorators import nested_commit_on_success
 
-from common.utils import bbcode
-from common.utils.decorators import lazy_property
-from common.utils.prototypes import BasePrototype
+from the_tale.common.utils import bbcode
+from the_tale.common.utils.decorators import lazy_property
+from the_tale.common.utils.prototypes import BasePrototype
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import get_system_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import get_system_user
 
-from forum.prototypes import ThreadPrototype as ForumThreadPrototype, PostPrototype as ForumPostPrototype
-from forum.prototypes import SubCategoryPrototype as ForumSubCategoryPrototype
-from forum.models import MARKUP_METHOD
+from the_tale.forum.prototypes import ThreadPrototype as ForumThreadPrototype, PostPrototype as ForumPostPrototype
+from the_tale.forum.prototypes import SubCategoryPrototype as ForumSubCategoryPrototype
+from the_tale.forum.models import MARKUP_METHOD
 
-from blogs.models import Post, Vote
-from blogs.conf import blogs_settings
-from blogs.relations import POST_STATE
+from the_tale.blogs.models import Post, Vote
+from the_tale.blogs.conf import blogs_settings
+from the_tale.blogs.relations import POST_STATE
 
 
 class PostPrototype(BasePrototype):

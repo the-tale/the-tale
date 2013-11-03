@@ -1,15 +1,15 @@
 # coding: utf-8
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
-from game.heroes.prototypes import HeroPrototype
+from the_tale.accounts.logic import register_user
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.mobs.prototypes import MobPrototype
+from the_tale.game.mobs.prototypes import MobPrototype
 
-from game.heroes.habilities import attributes
+from the_tale.game.heroes.habilities import attributes
 
 class AttributeAbiliesForHeroTest(testcase.TestCase):
 
@@ -90,8 +90,8 @@ class AttributeAbiliesForMobTest(testcase.TestCase):
 
     @staticmethod
     def construct_mob_with_abilities(abilities, index):
-        from game.mobs.prototypes import MobRecordPrototype
-        from game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
+        from the_tale.game.mobs.prototypes import MobRecordPrototype
+        from the_tale.game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
 
         uuid = 'test_mob %d' % index
         mob_record =  MobRecordPrototype.create(uuid,

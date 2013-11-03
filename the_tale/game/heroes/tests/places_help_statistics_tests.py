@@ -1,9 +1,9 @@
 # coding: utf-8
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from game.heroes.places_help_statistics import PlacesHelpStatistics
-from game.heroes.conf import heroes_settings
+from the_tale.game.heroes.places_help_statistics import PlacesHelpStatistics
+from the_tale.game.heroes.conf import heroes_settings
 
 
 class PlacesHelpStatisticsTests(testcase.TestCase):

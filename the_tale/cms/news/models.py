@@ -4,7 +4,7 @@ import markdown
 
 from django.db import models
 
-from forum.models import Thread
+from the_tale.forum.models import Thread
 
 class News(models.Model):
 

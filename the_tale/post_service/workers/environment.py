@@ -1,8 +1,8 @@
 # coding: utf-8
 
-from common.amqp_queues.environment import BaseEnvironment
+from the_tale.common.amqp_queues.environment import BaseEnvironment
 
-from post_service.workers.message_sender import Worker as MessageSender
+from the_tale.post_service.workers.message_sender import Worker as MessageSender
 
 
 class Environment(BaseEnvironment):

@@ -8,4 +8,4 @@ bank_settings = app_settings('BANK',
                              ENABLE_BANK=True,
                              INFINIT_MONEY_AMOUNT=999999999,
                              SETTINGS_ALLOWED_KEY='bank allowed',
-                             GET_ACCOUNT_ID_BY_EMAIL='accounts.logic.get_account_id_by_email')
+                             GET_ACCOUNT_ID_BY_EMAIL='the_tale.accounts.logic.get_account_id_by_email')

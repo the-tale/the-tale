@@ -2,8 +2,8 @@
 
 from dext.utils.decorators import nested_commit_on_success
 
-from common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
-from common.utils.enum import create_enum
+from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.utils.enum import create_enum
 
 
 ABILITY_TASK_STATE = create_enum('ABILITY_TASK_STATE', (('UNPROCESSED', 0, u'в очереди'),
@@ -36,7 +36,7 @@ class UseAbilityTask(PostponedLogic):
     def error_message(self): return ABILITY_TASK_STATE._CHOICES[self.state][1]
 
     def process(self, main_task, storage=None, pvp_balancer=None, highlevel=None): # pylint: disable=R0911
-        from game.abilities.deck import ABILITIES
+        from the_tale.game.abilities.deck import ABILITIES
         ability = ABILITIES[self.ability_type]()
 
         if self.step is None:

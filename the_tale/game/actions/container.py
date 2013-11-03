@@ -14,7 +14,7 @@ class ActionsContainer(object):
 
     @classmethod
     def deserialize(cls, hero, data):
-        from game.actions.prototypes import ACTION_TYPES
+        from the_tale.game.actions.prototypes import ACTION_TYPES
         obj = cls()
         obj.actions_list = [ACTION_TYPES[action_data['type']].deserialize(hero=hero, data=action_data) for action_data in data.get('actions', [])]
         return obj

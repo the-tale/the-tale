@@ -4,10 +4,10 @@ from decimal import Decimal
 
 from datetime import datetime
 
-from bank.dengionline.prototypes import InvoicePrototype
-from bank.dengionline.relations import INVOICE_STATE
-from bank.dengionline.conf import dengionline_settings
-from bank.dengionline import exceptions
+from the_tale.bank.dengionline.prototypes import InvoicePrototype
+from the_tale.bank.dengionline.relations import INVOICE_STATE
+from the_tale.bank.dengionline.conf import dengionline_settings
+from the_tale.bank.dengionline import exceptions
 
 class Transaction(object):
 

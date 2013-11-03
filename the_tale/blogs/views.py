@@ -6,19 +6,19 @@ from dext.views import handler, validator, validate_argument
 from dext.utils.decorators import nested_commit_on_success
 from dext.utils.urls import UrlBuilder
 
-from common.utils.resources import Resource
-from common.utils.pagination import Paginator
-from common.utils.decorators import login_required
-from common.utils.enum import create_enum
+from the_tale.common.utils.resources import Resource
+from the_tale.common.utils.pagination import Paginator
+from the_tale.common.utils.decorators import login_required
+from the_tale.common.utils.enum import create_enum
 
-from accounts.prototypes import AccountPrototype
-from accounts.views import validate_ban_forum
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.views import validate_ban_forum
 
-from blogs.prototypes import PostPrototype, VotePrototype
-from blogs.models import Post, Vote
-from blogs.conf import blogs_settings
-from blogs.forms import PostForm
-from blogs.relations import POST_STATE
+from the_tale.blogs.prototypes import PostPrototype, VotePrototype
+from the_tale.blogs.models import Post, Vote
+from the_tale.blogs.conf import blogs_settings
+from the_tale.blogs.forms import PostForm
+from the_tale.blogs.relations import POST_STATE
 
 
 ORDER_BY = create_enum('ORDER_BY', (('ALPHABET', 'alphabet', u'по алфавиту'),
@@ -132,7 +132,7 @@ class PostResource(Resource):
     @validate_declined_state()
     @handler('#post', name='show', method='get')
     def show(self):
-        from forum.views import ThreadPageData
+        from the_tale.forum.views import ThreadPageData
 
         thread_data = ThreadPageData()
         thread_data.initialize(account=self.account, thread=self.post.forum_thread, page=1, inline=True)

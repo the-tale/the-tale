@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from bank.models import Account, Invoice
+from the_tale.bank.models import Account, Invoice
 
 class AccountAdmin(admin.ModelAdmin):
     list_display = ('id', 'entity_type', 'entity_id', 'currency', 'created_at', 'updated_at', 'amount')

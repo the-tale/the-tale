@@ -4,7 +4,7 @@ from django.conf.urls.defaults import patterns, include
 
 from dext.views import resource_patterns
 
-from forum.views import ForumResource, PostsResource, ThreadsResource, SubscriptionsResource, SubCategoryResource
+from the_tale.forum.views import ForumResource, PostsResource, ThreadsResource, SubscriptionsResource, SubCategoryResource
 
 urlpatterns = patterns('',
                        (r'^posts/', include(resource_patterns(PostsResource), namespace='posts')),

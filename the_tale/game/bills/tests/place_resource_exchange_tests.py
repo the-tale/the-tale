@@ -3,14 +3,14 @@
 import mock
 import datetime
 
-from game.bills.prototypes import BillPrototype, VotePrototype
-from game.bills.bills import PlaceResourceExchange
+from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
+from the_tale.game.bills.bills import PlaceResourceExchange
 
-from game.bills.tests.prototype_tests import BaseTestPrototypes
-from game.bills.tests.helpers import choose_resources
+from the_tale.game.bills.tests.prototype_tests import BaseTestPrototypes
+from the_tale.game.bills.tests.helpers import choose_resources
 
-from game.map.places.storage import resource_exchange_storage
-from game.map.places.prototypes import ResourceExchangePrototype
+from the_tale.game.map.places.storage import resource_exchange_storage
+from the_tale.game.map.places.prototypes import ResourceExchangePrototype
 
 
 class PlaceResourceExchangeTests(BaseTestPrototypes):
@@ -103,7 +103,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
                                                          'resource_2': self.resource_1})
         self.assertFalse(form.is_valid())
 
-    @mock.patch('game.balance.constants.PLACE_MAX_EXCHANGED_NUMBER', 0)
+    @mock.patch('the_tale.game.balance.constants.PLACE_MAX_EXCHANGED_NUMBER', 0)
     def test_user_form_validation__maximum_exchanges_reached(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'caption',
                                                          'rationale': 'rationale',
@@ -122,8 +122,8 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
                                                          'resource_2': self.resource_1})
         self.assertFalse(form.is_valid())
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def apply_bill(self):
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)

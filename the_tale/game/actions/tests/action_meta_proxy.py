@@ -1,24 +1,24 @@
 # coding: utf-8
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from game.logic import create_test_map
-from game.logic_storage import LogicStorage
-from game.prototypes import TimePrototype
-from game.bundles import BundlePrototype
-from game.actions.prototypes import ActionMetaProxyPrototype
-from game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
+from the_tale.game.logic import create_test_map
+from the_tale.game.logic_storage import LogicStorage
+from the_tale.game.prototypes import TimePrototype
+from the_tale.game.bundles import BundlePrototype
+from the_tale.game.actions.prototypes import ActionMetaProxyPrototype
+from the_tale.game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
 
-from game.pvp.models import BATTLE_1X1_STATE
-from game.pvp.tests.helpers import PvPTestsMixin
+from the_tale.game.pvp.models import BATTLE_1X1_STATE
+from the_tale.game.pvp.tests.helpers import PvPTestsMixin
 
 class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
 
-    @mock.patch('game.actions.prototypes.ActionBase.get_description', lambda self: 'abrakadabra')
+    @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_description', lambda self: 'abrakadabra')
     def setUp(self):
         super(MetaProxyActionForArenaPvP1x1Tests, self).setUp()
 
@@ -74,20 +74,20 @@ class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
         self.assertEqual(len(self.storage.meta_actions), 1)
 
     def test_one_action_step_one_meta_step(self):
-        with mock.patch('game.actions.meta_actions.MetaActionArenaPvP1x1Prototype._process') as meta_action_process_counter:
+        with mock.patch('the_tale.game.actions.meta_actions.MetaActionArenaPvP1x1Prototype._process') as meta_action_process_counter:
             self.action_proxy_1.process()
 
         self.assertEqual(meta_action_process_counter.call_count, 1)
 
     def test_two_actions_step_one_meta_step(self):
-        with mock.patch('game.actions.meta_actions.MetaActionArenaPvP1x1Prototype._process') as meta_action_process_counter:
+        with mock.patch('the_tale.game.actions.meta_actions.MetaActionArenaPvP1x1Prototype._process') as meta_action_process_counter:
             self.action_proxy_1.process()
             self.action_proxy_2.process()
 
         self.assertEqual(meta_action_process_counter.call_count, 1)
 
     def test_two_actions_step_one_meta_step_from_storage(self):
-        with mock.patch('game.actions.meta_actions.MetaActionArenaPvP1x1Prototype._process') as meta_action_process_counter:
+        with mock.patch('the_tale.game.actions.meta_actions.MetaActionArenaPvP1x1Prototype._process') as meta_action_process_counter:
             self.storage.process_turn()
 
         self.assertEqual(meta_action_process_counter.call_count, 1)

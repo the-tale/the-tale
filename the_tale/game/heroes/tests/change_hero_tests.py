@@ -2,17 +2,17 @@
 
 from textgen.words import Noun
 
-from common.utils.testcase import TestCase
-from common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.utils.testcase import TestCase
+from the_tale.common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from game.logic import create_test_map
-from game.relations import GENDER, RACE
-from game.logic_storage import LogicStorage
+from the_tale.game.logic import create_test_map
+from the_tale.game.relations import GENDER, RACE
+from the_tale.game.logic_storage import LogicStorage
 
-from game.heroes.postponed_tasks import ChangeHeroTask, CHANGE_HERO_TASK_STATE
+from the_tale.game.heroes.postponed_tasks import ChangeHeroTask, CHANGE_HERO_TASK_STATE
 
 
 class ChangeHeroTest(TestCase):

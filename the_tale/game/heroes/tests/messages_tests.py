@@ -1,11 +1,11 @@
 # coding: utf-8
 import datetime
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from game.prototypes import TimePrototype
+from the_tale.game.prototypes import TimePrototype
 
-from game.heroes.messages import MessagesContainer
+from the_tale.game.heroes.messages import MessagesContainer
 
 
 class MessagesContainerTest(testcase.TestCase):

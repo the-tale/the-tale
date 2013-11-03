@@ -3,16 +3,16 @@ import mock
 
 from dext.settings import settings
 
-from common.utils.testcase import TestCase
+from the_tale.common.utils.testcase import TestCase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user, get_system_user
-from accounts.personal_messages.prototypes import MessagePrototype
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user, get_system_user
+from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from portal import signals as portal_signals
-from portal.conf import portal_settings
+from the_tale.portal import signals as portal_signals
+from the_tale.portal.conf import portal_settings
 
 
 class DayStartedSignalTests(TestCase):
@@ -30,7 +30,7 @@ class DayStartedSignalTests(TestCase):
 
         self.assertEqual(MessagePrototype._db_count(), 0)
 
-        with mock.patch('accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
+        with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
             portal_signals.day_started.send(self.__class__)
 
         self.assertEqual(cmd_run_account_method.call_count, 1)

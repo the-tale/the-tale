@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from common.utils.exceptions import TheTaleError
+from the_tale.common.utils.exceptions import TheTaleError
 
 class PersonsException(TheTaleError):
     MSG = u'persons error'

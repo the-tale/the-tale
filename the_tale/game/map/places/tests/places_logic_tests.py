@@ -1,21 +1,21 @@
 # coding: utf-8
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
 from textgen import words
 from dext.utils import s11n
 
-from game.balance import constants as c
-from game.relations import RACE
+from the_tale.game.balance import constants as c
+from the_tale.game.relations import RACE
 
-from game.persons.storage import persons_storage
-from game.persons.conf import persons_settings
+from the_tale.game.persons.storage import persons_storage
+from the_tale.game.persons.conf import persons_settings
 
-from game.map.places.prototypes import PlacePrototype
-from game.map.places.models import Place
-from game.map.places.conf import places_settings
-from game.map.places.exceptions import PlacesException
-from game.map.places.storage import places_storage
+from the_tale.game.map.places.prototypes import PlacePrototype
+from the_tale.game.map.places.models import Place
+from the_tale.game.map.places.conf import places_settings
+from the_tale.game.map.places.exceptions import PlacesException
+from the_tale.game.map.places.storage import places_storage
 
 class PlacePowerTest(testcase.TestCase):
 

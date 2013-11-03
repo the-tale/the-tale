@@ -9,23 +9,23 @@ from questgen.knowledge_base import KnowledgeBase
 from questgen import transformators
 from questgen.quests.base_quest import ROLES, RESULTS as QUEST_RESULTS
 
-from game.prototypes import TimePrototype
+from the_tale.game.prototypes import TimePrototype
 
-from game.balance import constants as c, formulas as f
+from the_tale.game.balance import constants as c, formulas as f
 
-from game.mobs.storage import mobs_storage
+from the_tale.game.mobs.storage import mobs_storage
 
-from game.map.places.storage import places_storage
-from game.map.roads.storage import waymarks_storage
-from game.persons.storage import persons_storage
+from the_tale.game.map.places.storage import places_storage
+from the_tale.game.map.roads.storage import waymarks_storage
+from the_tale.game.persons.storage import persons_storage
 
-from game.heroes.statistics import MONEY_SOURCE
-from game.heroes.relations import ITEMS_OF_EXPENDITURE
+from the_tale.game.heroes.statistics import MONEY_SOURCE
+from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE
 
-from game.quests import exceptions
-from game.quests import uids
-from game.quests import writers
-from game.quests.relations import ACTOR_TYPE, DONOTHING_TYPE
+from the_tale.game.quests import exceptions
+from the_tale.game.quests import uids
+from the_tale.game.quests import writers
+from the_tale.game.quests.relations import ACTOR_TYPE, DONOTHING_TYPE
 
 
 # from django.utils.log import getLogger
@@ -138,7 +138,7 @@ class QuestInfo(object):
         return data
 
     def process_message(self, knowledge_base, hero, message, ext_substitution={}):
-        from game.heroes.messages import MessagesContainer
+        from the_tale.game.heroes.messages import MessagesContainer
 
         substitution = self.substitution(self.uid, knowledge_base, hero)
         substitution.update(ext_substitution)
@@ -342,7 +342,7 @@ class QuestPrototype(object):
 
 
     def _move_hero_to(self, destination_uid, break_at=None):
-        from game.actions.prototypes import ActionMoveToPrototype, ActionMoveNearPlacePrototype
+        from the_tale.game.actions.prototypes import ActionMoveToPrototype, ActionMoveNearPlacePrototype
 
         if destination_uid:
             destination = places_storage[self.knowledge_base[destination_uid].externals['id']]
@@ -357,7 +357,7 @@ class QuestPrototype(object):
 
 
     def _move_hero_near(self, destination_uid, terrains=None):
-        from game.actions.prototypes import ActionMoveNearPlacePrototype
+        from the_tale.game.actions.prototypes import ActionMoveNearPlacePrototype
 
         if destination_uid:
             destination = places_storage[self.knowledge_base[destination_uid].externals['id']]
@@ -400,7 +400,7 @@ class QuestPrototype(object):
 
 
     def _fight(self, action):
-        from game.actions.prototypes import ActionBattlePvE1x1Prototype
+        from the_tale.game.actions.prototypes import ActionBattlePvE1x1Prototype
 
         if action.mob is not None:
             mob = mobs_storage[self.knowledge_base[action.mob].externals['id']].create_mob(self.hero)
@@ -456,7 +456,7 @@ class QuestPrototype(object):
                                    ext_substitution={'coins': money})
 
     def _donothing(self, donothing_type):
-        from game.actions.prototypes import ActionDoNothingPrototype
+        from the_tale.game.actions.prototypes import ActionDoNothingPrototype
 
         donothing = DONOTHING_TYPE._index_value[donothing_type]
 
@@ -581,7 +581,7 @@ class QuestPrototype(object):
                 raise exceptions.UnknownAction(action=action)
 
     def modify_experience(self, experience):
-        from game.persons.storage import persons_storage
+        from the_tale.game.persons.storage import persons_storage
 
         experience_modifiers = {}
         # TODO:

@@ -4,7 +4,7 @@ import jinja2
 
 from dext.jinja2.decorators import jinjaglobal
 
-from accounts import logic
+from the_tale.accounts import logic
 
 @jinjaglobal
 def login_page_url(next_url='/'):

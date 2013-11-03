@@ -4,17 +4,17 @@ import mock
 
 from questgen import facts
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
+from the_tale.accounts.logic import register_user
 
-from game.logic_storage import LogicStorage
-from game.logic import create_test_map
+from the_tale.game.logic_storage import LogicStorage
+from the_tale.game.logic import create_test_map
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.quests.prototypes import QuestInfo
-from game.quests.tests.helpers import QuestTestsMixin, QuestWith2ChoicePoints, FakeWriter
+from the_tale.game.quests.prototypes import QuestInfo
+from the_tale.game.quests.tests.helpers import QuestTestsMixin, QuestWith2ChoicePoints, FakeWriter
 
 
 class QuestInfoTests(testcase.TestCase, QuestTestsMixin):
@@ -36,7 +36,7 @@ class QuestInfoTests(testcase.TestCase, QuestTestsMixin):
 
         self.start = self.quest.knowledge_base.filter(facts.Start).next()
 
-        with mock.patch('game.quests.writers.get_writer', lambda **kwargs: FakeWriter(fake_uid='q', **kwargs)):
+        with mock.patch('the_tale.game.quests.writers.get_writer', lambda **kwargs: FakeWriter(fake_uid='q', **kwargs)):
             self.quest_info = QuestInfo.construct(type=self.start.type,
                                                   uid=self.start.uid,
                                                   knowledge_base=self.quest.knowledge_base,
@@ -70,7 +70,7 @@ class QuestInfoTests(testcase.TestCase, QuestTestsMixin):
         return choice, options, defaults
 
 
-    @mock.patch('game.quests.writers.get_writer', lambda **kwargs: FakeWriter(fake_uid='q', **kwargs))
+    @mock.patch('the_tale.game.quests.writers.get_writer', lambda **kwargs: FakeWriter(fake_uid='q', **kwargs))
     def test_sync_choices(self):
 
         self.quest_info.sync_choices(self.quest.knowledge_base,
@@ -81,7 +81,7 @@ class QuestInfoTests(testcase.TestCase, QuestTestsMixin):
         self.assertEqual(self.quest_info.choice_alternatives,  [('#option([ns-0]choice_1, [ns-0]choice_2)',
                                                                  u'q_quest_quest_with_2_choice_points_choice_variant_opt_2_2')])
 
-    @mock.patch('game.quests.writers.get_writer', lambda **kwargs: FakeWriter(fake_uid='q', **kwargs))
+    @mock.patch('the_tale.game.quests.writers.get_writer', lambda **kwargs: FakeWriter(fake_uid='q', **kwargs))
     def test_sync_choices__no_choice(self):
         self.quest_info.sync_choices(self.quest.knowledge_base,
                                      self.quest.hero,
@@ -96,7 +96,7 @@ class QuestInfoTests(testcase.TestCase, QuestTestsMixin):
         self.assertEqual(self.quest_info.choice, None)
         self.assertEqual(self.quest_info.choice_alternatives, ())
 
-    @mock.patch('game.quests.writers.get_writer', lambda **kwargs: FakeWriter(fake_uid='q', **kwargs))
+    @mock.patch('the_tale.game.quests.writers.get_writer', lambda **kwargs: FakeWriter(fake_uid='q', **kwargs))
     def test_sync_choices__no_choice_made(self):
         self.quest_info.sync_choices(self.quest.knowledge_base,
                                      self.quest.hero,

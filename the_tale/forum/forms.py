@@ -1,7 +1,7 @@
 # coding: utf-8
 from dext.forms import forms, fields
 
-from common.utils import bbcode
+from the_tale.common.utils import bbcode
 
 
 class NewPostForm(forms.Form):

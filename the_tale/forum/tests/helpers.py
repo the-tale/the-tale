@@ -1,13 +1,13 @@
 # coding: utf-8
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from accounts.clans.prototypes import ClanPrototype
-from accounts.clans.conf import clans_settings
+from the_tale.accounts.clans.prototypes import ClanPrototype
+from the_tale.accounts.clans.conf import clans_settings
 
 
-from forum.prototypes import (ThreadPrototype,
+from the_tale.forum.prototypes import (ThreadPrototype,
                               PostPrototype,
                               SubCategoryPrototype,
                               CategoryPrototype)

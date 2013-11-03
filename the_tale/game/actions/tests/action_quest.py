@@ -1,19 +1,19 @@
 # coding: utf-8
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
+from the_tale.accounts.logic import register_user
 
-from game.prototypes import TimePrototype
+from the_tale.game.prototypes import TimePrototype
 
-from game.logic import create_test_map
-from game.logic_storage import LogicStorage
+from the_tale.game.logic import create_test_map
+from the_tale.game.logic_storage import LogicStorage
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.quests.logic import create_random_quest_for_hero
+from the_tale.game.quests.logic import create_random_quest_for_hero
 
-from game.actions.prototypes import ActionQuestPrototype
+from the_tale.game.actions.prototypes import ActionQuestPrototype
 
 
 class QuestActionTest(testcase.TestCase):

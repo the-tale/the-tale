@@ -2,13 +2,13 @@
 
 from dext.views import handler
 
-from common.utils.resources import Resource
-from common.utils.decorators import login_required
-from common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.utils.resources import Resource
+from the_tale.common.utils.decorators import login_required
+from the_tale.common.postponed_tasks import PostponedTaskPrototype
 
-from game.workers.environment import workers_environment
+from the_tale.game.workers.environment import workers_environment
 
-from game.quests.postponed_tasks import MakeChoiceTask
+from the_tale.game.quests.postponed_tasks import MakeChoiceTask
 
 
 class QuestsResource(Resource):

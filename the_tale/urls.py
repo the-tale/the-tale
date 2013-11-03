@@ -10,27 +10,27 @@ from django.conf import settings as project_settings
 from dext import jinja2 as jinja2_next
 from dext.views import create_handler_view
 
-from portal.views import PortalResource # pylint: disable=W0403
+from the_tale.portal.views import PortalResource # pylint: disable=W0403
 
-from common import postponed_tasks # pylint: disable=W0403
+from the_tale.common import postponed_tasks # pylint: disable=W0403
 
 admin.autodiscover()
 jinja2_next.autodiscover()
 postponed_tasks.autodiscover()
 
 urlpatterns = patterns('',
-                       (r'^', include('cms.urls', namespace='cms') ),
+                       (r'^', include('the_tale.cms.urls', namespace='cms') ),
                        (r'^admin/', include(admin.site.urls)),
-                       (r'^accounts/', include('accounts.urls', namespace='accounts') ),
-                       (r'^game/', include('game.urls', namespace='game') ),
-                       (r'^guide/', include('guide.urls', namespace='guide') ),
-                       (r'^forum/', include('forum.urls', namespace='forum') ),
-                       (r'^folclor/', include('blogs.urls', namespace='blogs') ),
-                       (r'^collections/', include('collections.urls', namespace='collections') ),
-                       (r'^news/', include('cms.news.urls', namespace='news') ),
-                       (r'^postponed-tasks/', include('common.postponed_tasks.urls', namespace='postponed-tasks') ),
-                       (r'^bank/', include('bank.urls', namespace='bank') ),
-                       (r'^', include('portal.urls', namespace='portal') ),
+                       (r'^accounts/', include('the_tale.accounts.urls', namespace='accounts') ),
+                       (r'^game/', include('the_tale.game.urls', namespace='game') ),
+                       (r'^guide/', include('the_tale.guide.urls', namespace='guide') ),
+                       (r'^forum/', include('the_tale.forum.urls', namespace='forum') ),
+                       (r'^folclor/', include('the_tale.blogs.urls', namespace='blogs') ),
+                       (r'^collections/', include('the_tale.collections.urls', namespace='collections') ),
+                       (r'^news/', include('the_tale.cms.news.urls', namespace='news') ),
+                       (r'^postponed-tasks/', include('the_tale.common.postponed_tasks.urls', namespace='postponed-tasks') ),
+                       (r'^bank/', include('the_tale.bank.urls', namespace='bank') ),
+                       (r'^', include('the_tale.portal.urls', namespace='portal') ),
 )
 
 

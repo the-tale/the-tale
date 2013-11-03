@@ -7,24 +7,24 @@ from dext.views import handler, validator, validate_argument
 from dext.utils.decorators import nested_commit_on_success
 from dext.utils.urls import UrlBuilder
 
-from common.utils import list_filter
-from common.utils.resources import Resource
-from common.utils.pagination import Paginator
-from common.utils.decorators import login_required, lazy_property
+from the_tale.common.utils import list_filter
+from the_tale.common.utils.resources import Resource
+from the_tale.common.utils.pagination import Paginator
+from the_tale.common.utils.decorators import login_required, lazy_property
 
-from accounts.prototypes import AccountPrototype
-from accounts.views import validate_fast_account, validate_ban_game
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.views import validate_fast_account, validate_ban_game
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.map.places.prototypes import PlacePrototype
-from game.map.places.storage import places_storage
+from the_tale.game.map.places.prototypes import PlacePrototype
+from the_tale.game.map.places.storage import places_storage
 
-from game.bills.prototypes import BillPrototype, VotePrototype
-from game.bills.conf import bills_settings
-from game.bills.models import Bill, Vote
-from game.bills.bills import BILLS_BY_ID
-from game.bills.relations import VOTED_TYPE, VOTE_TYPE, BILL_STATE, BILL_TYPE
+from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
+from the_tale.game.bills.conf import bills_settings
+from the_tale.game.bills.models import Bill, Vote
+from the_tale.game.bills.bills import BILLS_BY_ID
+from the_tale.game.bills.relations import VOTED_TYPE, VOTE_TYPE, BILL_STATE, BILL_TYPE
 
 
 BASE_INDEX_FILTERS = [list_filter.reset_element(),
@@ -201,7 +201,7 @@ class BillResource(Resource):
 
     @handler('#bill', name='show', method='get')
     def show(self):
-        from forum.views import ThreadPageData
+        from the_tale.forum.views import ThreadPageData
 
         thread_data = ThreadPageData()
         thread_data.initialize(account=self.account, thread=self.bill.forum_thread, page=1, inline=True)

@@ -1,6 +1,6 @@
 #coding: utf-8
 
-from game.heroes.habilities.relations import ABILITY_AVAILABILITY
+from the_tale.game.heroes.habilities.relations import ABILITY_AVAILABILITY
 
 
 class AbilityPrototype(object):

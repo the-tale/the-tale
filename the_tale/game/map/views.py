@@ -4,17 +4,17 @@ from dext.views import handler
 
 from textgen.logic import Args
 
-from common.utils.resources import Resource
+from the_tale.common.utils.resources import Resource
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.chronicle import RecordPrototype
+from the_tale.game.chronicle import RecordPrototype
 
-from game.map.storage import map_info_storage
-from game.map.places.storage import places_storage, buildings_storage, resource_exchange_storage
-from game.map.places.prototypes import PlaceParametersDescription
-from game.map.conf import map_settings
-from game.map.relations import TERRAIN
+from the_tale.game.map.storage import map_info_storage
+from the_tale.game.map.places.storage import places_storage, buildings_storage, resource_exchange_storage
+from the_tale.game.map.places.prototypes import PlaceParametersDescription
+from the_tale.game.map.conf import map_settings
+from the_tale.game.map.relations import TERRAIN
 
 class MapResource(Resource):
 

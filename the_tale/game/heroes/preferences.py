@@ -4,18 +4,18 @@ import datetime
 
 import rels
 
-from common.utils.prototypes import BasePrototype
+from the_tale.common.utils.prototypes import BasePrototype
 
-from game.balance import constants as c, enums as e
+from the_tale.game.balance import constants as c, enums as e
 
-from game.mobs.storage import mobs_storage
+from the_tale.game.mobs.storage import mobs_storage
 
-from game.map.places.storage import places_storage
+from the_tale.game.map.places.storage import places_storage
 
-from game.persons.storage import persons_storage
+from the_tale.game.persons.storage import persons_storage
 
-from game.heroes.relations import EQUIPMENT_SLOT, PREFERENCE_TYPE, RISK_LEVEL
-from game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
+from the_tale.game.heroes.relations import EQUIPMENT_SLOT, PREFERENCE_TYPE, RISK_LEVEL
+from the_tale.game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
 
 
 class _PreferencesMetaclass(type):

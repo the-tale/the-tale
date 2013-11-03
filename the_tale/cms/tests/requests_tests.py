@@ -4,15 +4,15 @@ from django.test import client
 from django.db import IntegrityError
 from django.core.urlresolvers import reverse
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from cms.models import Page
-from cms.conf import cms_settings
+from the_tale.cms.models import Page
+from the_tale.cms.conf import cms_settings
 
 
 class TestCMSRequests(testcase.TestCase):

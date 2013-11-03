@@ -5,13 +5,13 @@ from optparse import make_option
 
 from django.core.management.base import BaseCommand
 
-# from game.prototypes import TimePrototype
+# from the_tale.game.prototypes import TimePrototype
 
-from game.map.relations import TERRAIN
-from game.map.storage import map_info_storage
-from game.map.prototypes import WorldInfoPrototype
-from game.map.generator.biomes import Biom
-from game.map.generator.power_points import get_power_points
+from the_tale.game.map.relations import TERRAIN
+from the_tale.game.map.storage import map_info_storage
+from the_tale.game.map.prototypes import WorldInfoPrototype
+from the_tale.game.map.generator.biomes import Biom
+from the_tale.game.map.generator.power_points import get_power_points
 
 
 class Command(BaseCommand):

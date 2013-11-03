@@ -1,14 +1,14 @@
 # coding: utf-8
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
+from the_tale.accounts.logic import register_user
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.pvp.abilities import Ice, Blood, Flame
+from the_tale.game.pvp.abilities import Ice, Blood, Flame
 
 
 class AbilitiesTests(testcase.TestCase):

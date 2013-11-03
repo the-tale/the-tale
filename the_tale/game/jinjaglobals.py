@@ -4,7 +4,7 @@ import jinja2
 
 from dext.jinja2.decorators import jinjaglobal
 
-from game import logic
+from the_tale.game import logic
 
 
 @jinjaglobal

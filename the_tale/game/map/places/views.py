@@ -2,19 +2,19 @@
 
 from dext.views import handler, validate_argument
 
-from common.utils.resources import Resource
+from the_tale.common.utils.resources import Resource
 
-from accounts.models import Account
-from accounts.prototypes import AccountPrototype
+from the_tale.accounts.models import Account
+from the_tale.accounts.prototypes import AccountPrototype
 
-from game.relations import RACE
+from the_tale.game.relations import RACE
 
-from game.heroes.prototypes import HeroPrototype
-from game.heroes.preferences import HeroPreferences
+from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.preferences import HeroPreferences
 
-from game.map.places.prototypes import PlacePrototype
+from the_tale.game.map.places.prototypes import PlacePrototype
 
-from game.map.utils import get_race_percents
+from the_tale.game.map.utils import get_race_percents
 
 
 class PlaceResource(Resource):

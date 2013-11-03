@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.postponed_tasks import PostponedTaskPrototype
 
 
 class AbilityPrototype(object):
@@ -17,8 +17,8 @@ class AbilityPrototype(object):
         return {'type': self.get_type()}
 
     def activate(self, hero, data):
-        from game.workers.environment import workers_environment
-        from game.abilities.postponed_tasks import UseAbilityTask
+        from the_tale.game.workers.environment import workers_environment
+        from the_tale.game.abilities.postponed_tasks import UseAbilityTask
 
         data['hero_id'] = hero.id
 

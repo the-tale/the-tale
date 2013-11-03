@@ -6,11 +6,11 @@ from rels.django_staff import DjangoEnum
 
 from questgen.relations import PROFESSION as QUEST_PROFESSION
 
-from common.utils import xls
+from the_tale.common.utils import xls
 
-from game.balance.enums import CITY_MODIFIERS
-from game.relations import RACE
-from game.map.places.relations import CITY_PARAMETERS, BUILDING_TYPE
+from the_tale.game.balance.enums import CITY_MODIFIERS
+from the_tale.game.relations import RACE
+from the_tale.game.map.places.relations import CITY_PARAMETERS, BUILDING_TYPE
 
 
 class PERSON_TYPE(DjangoEnum):

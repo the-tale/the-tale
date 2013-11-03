@@ -5,9 +5,9 @@ from django.utils.log import getLogger
 
 from dext.settings import settings
 
-from common.amqp_queues import connection, BaseWorker
+from the_tale.common.amqp_queues import connection, BaseWorker
 
-from bank.dengionline.prototypes import InvoicePrototype
+from the_tale.bank.dengionline.prototypes import InvoicePrototype
 
 class Worker(BaseWorker):
 

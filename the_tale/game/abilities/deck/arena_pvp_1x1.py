@@ -1,10 +1,10 @@
 # coding: utf-8
 
-from common.utils.enum import create_enum
+from the_tale.common.utils.enum import create_enum
 
-from game.workers.environment import workers_environment
+from the_tale.game.workers.environment import workers_environment
 
-from game.abilities.prototypes import AbilityPrototype
+from the_tale.game.abilities.prototypes import AbilityPrototype
 
 
 ABILITY_TASK_STEP = create_enum('ABILITY_TASK_STEP', (('ERROR', 0, u'ошибка'),

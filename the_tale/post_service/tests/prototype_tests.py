@@ -3,13 +3,13 @@ import datetime
 
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
 
-from post_service.prototypes import MessagePrototype
-from post_service.message_handlers import TestHandler
-from post_service.relations import MESSAGE_STATE
-from post_service.conf import post_service_settings
+from the_tale.post_service.prototypes import MessagePrototype
+from the_tale.post_service.message_handlers import TestHandler
+from the_tale.post_service.relations import MESSAGE_STATE
+from the_tale.post_service.conf import post_service_settings
 
 
 class MessagePrototypeTests(testcase.TestCase):
@@ -18,12 +18,12 @@ class MessagePrototypeTests(testcase.TestCase):
         super(MessagePrototypeTests, self).setUp()
 
     def test_create_with_now(self):
-        with mock.patch('post_service.workers.message_sender.Worker.cmd_send_now') as cmd_send_now:
+        with mock.patch('the_tale.post_service.workers.message_sender.Worker.cmd_send_now') as cmd_send_now:
             message = MessagePrototype.create(TestHandler(), now=True)
         self.assertEqual(cmd_send_now.call_args, mock.call(message.id))
 
     def test_create_without_now(self):
-        with mock.patch('post_service.workers.message_sender.Worker.cmd_send_now') as cmd_send_now:
+        with mock.patch('the_tale.post_service.workers.message_sender.Worker.cmd_send_now') as cmd_send_now:
             MessagePrototype.create(TestHandler())
         self.assertEqual(cmd_send_now.call_count, 0)
 

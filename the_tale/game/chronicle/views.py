@@ -5,16 +5,16 @@ from django.core.urlresolvers import reverse
 from dext.views import handler, validate_argument
 from dext.utils.urls import UrlBuilder
 
-from common.utils import list_filter
-from common.utils.resources import Resource
-from common.utils.pagination import Paginator
+from the_tale.common.utils import list_filter
+from the_tale.common.utils.resources import Resource
+from the_tale.common.utils.pagination import Paginator
 
-from game.map.places.prototypes import PlacePrototype
-from game.map.places.storage import places_storage
+from the_tale.game.map.places.prototypes import PlacePrototype
+from the_tale.game.map.places.storage import places_storage
 
-from game.chronicle.models import Record
-from game.chronicle.conf import chronicle_settings
-from game.chronicle.prototypes import RecordPrototype
+from the_tale.game.chronicle.models import Record
+from the_tale.game.chronicle.conf import chronicle_settings
+from the_tale.game.chronicle.prototypes import RecordPrototype
 
 
 class IndexFilter(list_filter.ListFilter):

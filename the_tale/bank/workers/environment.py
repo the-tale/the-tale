@@ -1,10 +1,10 @@
 # coding: utf-8
 
-from common.amqp_queues.environment import BaseEnvironment
+from the_tale.common.amqp_queues.environment import BaseEnvironment
 
-from bank.workers.bank_processor import Worker as BankProcessor
-from bank.dengionline.workers.banker import Worker as DOBanker
-from bank.xsolla.workers.banker import Worker as XsollaBanker
+from the_tale.bank.workers.bank_processor import Worker as BankProcessor
+from the_tale.bank.dengionline.workers.banker import Worker as DOBanker
+from the_tale.bank.xsolla.workers.banker import Worker as XsollaBanker
 
 
 class Environment(BaseEnvironment):

@@ -6,16 +6,16 @@ from dext.views import handler, validate_argument
 from dext.utils.urls import UrlBuilder
 from dext.settings import settings
 
-from common.utils.resources import Resource
-from common.utils.pagination import Paginator
+from the_tale.common.utils.resources import Resource
+from the_tale.common.utils.pagination import Paginator
 
-from game.heroes.models import Hero
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.models import Hero
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.ratings.conf import ratings_settings
-from game.ratings.models import RatingValues, RatingPlaces
-from game.ratings.prototypes import RatingValuesPrototype, RatingPlacesPrototype
-from game.ratings.relations import RATING_TYPE
+from the_tale.game.ratings.conf import ratings_settings
+from the_tale.game.ratings.models import RatingValues, RatingPlaces
+from the_tale.game.ratings.prototypes import RatingValuesPrototype, RatingPlacesPrototype
+from the_tale.game.ratings.relations import RATING_TYPE
 
 
 

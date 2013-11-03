@@ -6,11 +6,11 @@ from django.core.management.base import BaseCommand
 
 from textgen.words import Noun
 
-from accounts.logic import register_user
-from accounts.prototypes import AccountPrototype
-from accounts.conf import accounts_settings
+from the_tale.accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.conf import accounts_settings
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
 
 class Command(BaseCommand):

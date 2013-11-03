@@ -1,7 +1,7 @@
 # coding: utf-8
 
-from bank.prototypes import InvoicePrototype, AccountPrototype
-from bank.relations import ENTITY_TYPE, CURRENCY_TYPE, INVOICE_STATE
+from the_tale.bank.prototypes import InvoicePrototype, AccountPrototype
+from the_tale.bank.relations import ENTITY_TYPE, CURRENCY_TYPE, INVOICE_STATE
 
 
 class BankTestsMixin(object):

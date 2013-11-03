@@ -3,10 +3,10 @@
 from dext.utils import s11n
 from dext.views import handler
 
-from common.utils.resources import Resource
+from the_tale.common.utils.resources import Resource
 
-from common.utils import testcase
-from common.utils import api
+from the_tale.common.utils import testcase
+from the_tale.common.utils import api
 
 
 class TestResource(Resource):

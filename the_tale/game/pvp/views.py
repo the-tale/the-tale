@@ -4,28 +4,28 @@ from django.core.urlresolvers import reverse
 
 from dext.views import handler, validate_argument, validator
 
-from common.utils.decorators import login_required, lazy_property
-from common.utils.resources import Resource
-from common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.utils.decorators import login_required, lazy_property
+from the_tale.common.utils.resources import Resource
+from the_tale.common.postponed_tasks import PostponedTaskPrototype
 
-from accounts.prototypes import AccountPrototype
-from accounts.views import validate_fast_account
-from accounts.clans.prototypes import ClanPrototype
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.views import validate_fast_account
+from the_tale.accounts.clans.prototypes import ClanPrototype
 
-from game.conf import game_settings
+from the_tale.game.conf import game_settings
 
-from game.workers.environment import workers_environment
+from the_tale.game.workers.environment import workers_environment
 
-from game.heroes.prototypes import HeroPrototype
-from game.heroes.models import Hero
-from game.heroes.relations import EQUIPMENT_SLOT
+from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.models import Hero
+from the_tale.game.heroes.relations import EQUIPMENT_SLOT
 
-from game.pvp.prototypes import Battle1x1Prototype
-from game.pvp.forms import SayForm
-from game.pvp.postponed_tasks import SayInBattleLogTask, UsePvPAbilityTask
-from game.pvp.models import Battle1x1, BATTLE_1X1_STATE
-from game.pvp.conf import pvp_settings
-from game.pvp.abilities import ABILITIES, Ice, Blood, Flame
+from the_tale.game.pvp.prototypes import Battle1x1Prototype
+from the_tale.game.pvp.forms import SayForm
+from the_tale.game.pvp.postponed_tasks import SayInBattleLogTask, UsePvPAbilityTask
+from the_tale.game.pvp.models import Battle1x1, BATTLE_1X1_STATE
+from the_tale.game.pvp.conf import pvp_settings
+from the_tale.game.pvp.abilities import ABILITIES, Ice, Blood, Flame
 
 def accept_call_valid_levels(hero_level):
     return (max(0, hero_level - pvp_settings.BALANCING_MIN_LEVEL_DELTA),

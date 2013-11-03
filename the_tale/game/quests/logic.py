@@ -26,19 +26,19 @@ from questgen.quests.interfere_enemy import InterfereEnemy
 from questgen.quests.help import Help
 
 
-from game.balance import constants as c
+from the_tale.game.balance import constants as c
 
-from game.map.places.storage import places_storage
-from game.map.roads.storage import waymarks_storage
+from the_tale.game.map.places.storage import places_storage
+from the_tale.game.map.roads.storage import waymarks_storage
 
-from game.persons.storage import persons_storage
-from game.persons.models import PERSON_STATE
+from the_tale.game.persons.storage import persons_storage
+from the_tale.game.persons.models import PERSON_STATE
 
-from game.prototypes import TimePrototype
+from the_tale.game.prototypes import TimePrototype
 
-from game.quests.conf import quests_settings
-from game.quests.prototypes import QuestPrototype
-from game.quests import uids
+from the_tale.game.quests.conf import quests_settings
+from the_tale.game.quests.prototypes import QuestPrototype
+from the_tale.game.quests import uids
 
 _quests_logger = getLogger('the-tale.quests')
 

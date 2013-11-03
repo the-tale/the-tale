@@ -4,14 +4,14 @@ from django.forms import ValidationError
 
 from dext.forms import fields
 
-from common.utils.decorators import lazy_property
+from the_tale.common.utils.decorators import lazy_property
 
 
-from game.bills.models import BILL_TYPE
-from game.bills.forms import BaseUserForm, BaseModeratorForm
-from game.bills.bills.base_bill import BaseBill
+from the_tale.game.bills.models import BILL_TYPE
+from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
+from the_tale.game.bills.bills.base_bill import BaseBill
 
-from game.map.places.storage import resource_exchange_storage
+from the_tale.game.map.places.storage import resource_exchange_storage
 
 
 class UserForm(BaseUserForm):
@@ -56,7 +56,7 @@ class BillDecline(BaseBill):
 
     @lazy_property
     def declined_bill(self):
-        from game.bills.prototypes import BillPrototype
+        from the_tale.game.bills.prototypes import BillPrototype
         return BillPrototype.get_by_id(self.declined_bill_id)
 
     @property

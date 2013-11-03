@@ -7,10 +7,10 @@ from django.utils.log import getLogger
 
 from dext.settings import settings
 
-from common.amqp_queues import connection, BaseWorker
+from the_tale.common.amqp_queues import connection, BaseWorker
 
-from post_service.prototypes import MessagePrototype
-from post_service.conf import post_service_settings
+from the_tale.post_service.prototypes import MessagePrototype
+from the_tale.post_service.conf import post_service_settings
 
 
 class MessageSenderException(Exception): pass

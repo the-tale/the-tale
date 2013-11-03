@@ -2,6 +2,6 @@
 
 from dext.views import resource_patterns
 
-from game.ratings.views import RatingResource
+from the_tale.game.ratings.views import RatingResource
 
 urlpatterns = resource_patterns(RatingResource)

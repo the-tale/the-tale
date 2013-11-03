@@ -4,7 +4,7 @@ import markdown
 
 from django.db import models
 
-from cms.conf import cms_settings
+from the_tale.cms.conf import cms_settings
 
 
 SECTIONS_CHOICES = [(section.id, section.caption) for section in cms_settings.SECTIONS]

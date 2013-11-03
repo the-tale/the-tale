@@ -1,13 +1,13 @@
 # coding: utf-8
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.persons.relations import PERSON_TYPE
+from the_tale.game.persons.relations import PERSON_TYPE
 
-from game.map.places.modifiers import MODIFIERS
-from game.map.places.modifiers.prototypes import TradeCenter, CraftCenter, Fort, PoliticalCenter, Polic, Resort, TransportNode, Outlaws
-from game.map.places.conf import places_settings
+from the_tale.game.map.places.modifiers import MODIFIERS
+from the_tale.game.map.places.modifiers.prototypes import TradeCenter, CraftCenter, Fort, PoliticalCenter, Polic, Resort, TransportNode, Outlaws
+from the_tale.game.map.places.conf import places_settings
 
 class ModifiersTests(testcase.TestCase):
 

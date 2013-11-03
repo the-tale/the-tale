@@ -1,29 +1,29 @@
 # coding: utf-8
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from forum.prototypes import CategoryPrototype, SubCategoryPrototype, ThreadPrototype, PostPrototype
-from forum.models import Thread, Post
+from the_tale.forum.prototypes import CategoryPrototype, SubCategoryPrototype, ThreadPrototype, PostPrototype
+from the_tale.forum.models import Thread, Post
 
-from accounts.models import Award, AWARD_TYPE
-from accounts.logic import register_user
-from accounts.prototypes import AccountPrototype
+from the_tale.accounts.models import Award, AWARD_TYPE
+from the_tale.accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
 
-from blogs.prototypes import PostPrototype as BlogPostPrototype, POST_STATE as BLOG_POST_STATE
-from blogs.conf import blogs_settings
+from the_tale.blogs.prototypes import PostPrototype as BlogPostPrototype, POST_STATE as BLOG_POST_STATE
+from the_tale.blogs.conf import blogs_settings
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.bills.prototypes import BillPrototype, VotePrototype
-from game.bills.bills import PlaceRenaming
-from game.bills.models import Vote
-from game.bills.conf import bills_settings
-from game.bills.relations import BILL_STATE, VOTE_TYPE
+from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
+from the_tale.game.bills.bills import PlaceRenaming
+from the_tale.game.bills.models import Vote
+from the_tale.game.bills.conf import bills_settings
+from the_tale.game.bills.relations import BILL_STATE, VOTE_TYPE
 
-from game.phrase_candidates.prototypes import PhraseCandidatePrototype
-from game.phrase_candidates.models import PHRASE_CANDIDATE_STATE
+from the_tale.game.phrase_candidates.prototypes import PhraseCandidatePrototype
+from the_tale.game.phrase_candidates.models import PHRASE_CANDIDATE_STATE
 
-from accounts.might import calculate_might
+from the_tale.accounts.might import calculate_might
 
 class CalculateMightTests(testcase.TestCase):
 

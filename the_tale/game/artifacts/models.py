@@ -4,11 +4,11 @@ from django.db import models
 
 from rels.django_staff import TableIntegerField
 
-from common.utils.enum import create_enum
+from the_tale.common.utils.enum import create_enum
 
-from game.balance import constants as c
+from the_tale.game.balance import constants as c
 
-from game.artifacts.relations import ARTIFACT_TYPE
+from the_tale.game.artifacts.relations import ARTIFACT_TYPE
 
 
 ARTIFACT_RECORD_STATE = create_enum('ARTFACT_RECORD_STATE', ( ('ENABLED', 0, u'в игре'),

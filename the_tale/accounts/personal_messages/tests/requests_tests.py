@@ -3,16 +3,16 @@ import mock
 
 from dext.utils.urls import url
 
-from common.utils.testcase import TestCase
+from the_tale.common.utils.testcase import TestCase
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user, login_url, get_system_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user, login_url, get_system_user
 
-from accounts.personal_messages.prototypes import MessagePrototype
-from accounts.personal_messages.models import Message
-from accounts.personal_messages.conf import personal_messages_settings
+from the_tale.accounts.personal_messages.prototypes import MessagePrototype
+from the_tale.accounts.personal_messages.models import Message
+from the_tale.accounts.personal_messages.conf import personal_messages_settings
 
 class BaseRequestsTests(TestCase):
 
@@ -123,7 +123,7 @@ class NewRequestsTests(BaseRequestsTests):
         self.account1.save()
         self.check_html_ok(self.request_html(url('accounts:messages:new', recipients=self.account2.id)), texts=['common.fast_account'])
 
-    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_banned_account(self):
         self.request_login('test_user1@test.com')
         self.check_html_ok(self.request_html(url('accounts:messages:new', recipients=self.account2.id)), texts=['common.ban_forum'])
@@ -200,7 +200,7 @@ class CreateRequestsTests(BaseRequestsTests):
         self.account1.save()
         self.check_ajax_error(self.client.post(url('accounts:messages:create'), {'text': 'test-message'}), 'common.fast_account')
 
-    @mock.patch('accounts.prototypes.AccountPrototype.is_ban_forum', True)
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_banned_account(self):
         self.request_login('test_user1@test.com')
         self.check_ajax_error(self.client.post(url('accounts:messages:create'), {'text': 'test-message'}), 'common.ban_forum')

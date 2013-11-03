@@ -11,26 +11,26 @@ from dext.utils.urls import url
 
 from textgen.words import Noun
 
-from common.utils.testcase import TestCase
-from common.utils.permissions import sync_group
+from the_tale.common.utils.testcase import TestCase
+from the_tale.common.utils.permissions import sync_group
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user, login_url
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user, login_url
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from forum.models import Post
+from the_tale.forum.models import Post
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.map.places.storage import places_storage
-from game.map.places.relations import RESOURCE_EXCHANGE_TYPE
+from the_tale.game.map.places.storage import places_storage
+from the_tale.game.map.places.relations import RESOURCE_EXCHANGE_TYPE
 
-from game.bills.models import Bill, Vote
-from game.bills.relations import VOTE_TYPE, BILL_STATE, BILL_DURATION
-from game.bills.prototypes import BillPrototype, VotePrototype
-from game.bills.bills import PlaceRenaming, PersonRemove, PlaceResourceExchange
-from game.bills.conf import bills_settings
+from the_tale.game.bills.models import Bill, Vote
+from the_tale.game.bills.relations import VOTE_TYPE, BILL_STATE, BILL_DURATION
+from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
+from the_tale.game.bills.bills import PlaceRenaming, PersonRemove, PlaceResourceExchange
+from the_tale.game.bills.conf import bills_settings
 
 
 class BaseTestRequests(TestCase):
@@ -54,7 +54,7 @@ class BaseTestRequests(TestCase):
 
         self.request_login('test_user1@test.com')
 
-        from forum.models import Category, SubCategory
+        from the_tale.forum.models import Category, SubCategory
 
         forum_category = Category.objects.create(caption='Category-1', slug='category-1')
         SubCategory.objects.create(caption=bills_settings.FORUM_CATEGORY_UID + '-caption',
@@ -103,7 +103,7 @@ class TestIndexRequests(BaseTestRequests):
                                                                            ('pgf-create-new-bill-buttons', 1),
                                                                            ('pgf-can-not-participate-in-politics', 0)))
 
-    @mock.patch('game.bills.views.BillResource.can_participate_in_politics', False)
+    @mock.patch('the_tale.game.bills.views.BillResource.can_participate_in_politics', False)
     def test_can_not_participate_in_politics(self):
         self.check_html_ok(self.request_html(reverse('game:bills:')), texts=(('pgf-active-bills-limit-reached', 0),
                                                                              ('pgf-create-new-bill-buttons', 0),
@@ -284,7 +284,7 @@ class TestNewRequests(BaseTestRequests):
         self.account1.save()
         self.check_html_ok(self.request_html(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)), texts=(('common.fast_account', 1),))
 
-    @mock.patch('game.bills.views.BillResource.can_participate_in_politics', False)
+    @mock.patch('the_tale.game.bills.views.BillResource.can_participate_in_politics', False)
     def test__can_not_participate_in_politics(self):
         self.check_html_ok(self.request_html(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)),
                            texts=(('bills.can_not_participate_in_politics', 1),))
@@ -500,7 +500,7 @@ class TestCreateRequests(BaseTestRequests):
         self.account1.save()
         self.check_ajax_error(self.client.post(reverse('game:bills:create'), self.get_post_data()), 'common.fast_account')
 
-    @mock.patch('game.bills.views.BillResource.can_participate_in_politics', False)
+    @mock.patch('the_tale.game.bills.views.BillResource.can_participate_in_politics', False)
     def test___can_not_participate_in_politics(self):
         self.check_ajax_error(self.client.post(reverse('game:bills:create'), self.get_post_data()), 'bills.can_not_participate_in_politics')
 
@@ -584,7 +584,7 @@ class TestVoteRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(url('game:bills:vote', self.bill.id, type=VOTE_TYPE.FOR.value), {}), 'common.fast_account')
         self.check_bill_votes(self.bill.id, 1, 0)
 
-    @mock.patch('game.bills.views.BillResource.can_participate_in_politics', False)
+    @mock.patch('the_tale.game.bills.views.BillResource.can_participate_in_politics', False)
     def test__can_not_participate_in_politics(self):
         self.check_ajax_error(self.client.post(url('game:bills:vote', self.bill.id, type=VOTE_TYPE.FOR.value), {}), 'bills.can_not_participate_in_politics')
         self.check_bill_votes(self.bill.id, 1, 0)
@@ -662,7 +662,7 @@ class TestEditRequests(BaseTestRequests):
         self.account1.save()
         self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[self.bill.id])), texts=(('common.fast_account', 1),))
 
-    @mock.patch('game.bills.views.BillResource.can_participate_in_politics', False)
+    @mock.patch('the_tale.game.bills.views.BillResource.can_participate_in_politics', False)
     def test__can_not_participate_in_politics(self):
         self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[self.bill.id])), texts=(('bills.can_not_participate_in_politics', 1),))
 
@@ -692,7 +692,7 @@ class TestEditRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[self.bill.id])), texts=[('duration', 0)])
 
     def test_success__duration(self):
-        from game.map.places.relations import RESOURCE_EXCHANGE_TYPE
+        from the_tale.game.map.places.relations import RESOURCE_EXCHANGE_TYPE
         self.bill._model.delete()
 
         self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceResourceExchange.type.value), {'caption': 'bill-caption',
@@ -736,7 +736,7 @@ class TestUpdateRequests(BaseTestRequests):
         self.account1.save()
         self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[self.bill.id]), self.get_post_data()), 'common.fast_account')
 
-    @mock.patch('game.bills.views.BillResource.can_participate_in_politics', False)
+    @mock.patch('the_tale.game.bills.views.BillResource.can_participate_in_politics', False)
     def test__can_not_participate_in_politics(self):
         self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[self.bill.id]), self.get_post_data()), 'bills.can_not_participate_in_politics')
 

@@ -1,11 +1,11 @@
 # coding: utf-8
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from game.balance.enums import CITY_MODIFIERS
-from game.relations import RACE
+from the_tale.game.balance.enums import CITY_MODIFIERS
+from the_tale.game.relations import RACE
 
-from game.persons.relations import PROFESSION_TO_RACE_MASTERY, PROFESSION_TO_CITY_MODIFIERS
+from the_tale.game.persons.relations import PROFESSION_TO_RACE_MASTERY, PROFESSION_TO_CITY_MODIFIERS
 
 class RelationsTests(testcase.TestCase):
 

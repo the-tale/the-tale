@@ -9,25 +9,25 @@ from dext.utils import s11n
 from django.test import client
 from django.core.urlresolvers import reverse
 
-from common.utils.testcase import TestCase
-from common.postponed_tasks import PostponedTaskPrototype, FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.utils.testcase import TestCase
+from the_tale.common.postponed_tasks import PostponedTaskPrototype, FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
-from accounts.logic import register_user, login_url
+from the_tale.accounts.logic import register_user, login_url
 
-from game.logic_storage import LogicStorage
-from game.logic import create_test_map
+from the_tale.game.logic_storage import LogicStorage
+from the_tale.game.logic import create_test_map
 
-from game.actions.fake import FakeActor
-from game.actions.contexts.battle import Damage
+from the_tale.game.actions.fake import FakeActor
+from the_tale.game.actions.contexts.battle import Damage
 
-from game.heroes.fake import FakeMessanger
+from the_tale.game.heroes.fake import FakeMessanger
 
-from game.heroes.prototypes import HeroPrototype
-from game.heroes.habilities import battle as battle_abilities
-from game.heroes.habilities import modifiers as modifiers_abilities
-from game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY, AbilitiesPrototype
-from game.heroes.postponed_tasks import ChooseHeroAbilityTask, CHOOSE_HERO_ABILITY_STATE
-from game.heroes.conf import heroes_settings
+from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.habilities import battle as battle_abilities
+from the_tale.game.heroes.habilities import modifiers as modifiers_abilities
+from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY, AbilitiesPrototype
+from the_tale.game.heroes.postponed_tasks import ChooseHeroAbilityTask, CHOOSE_HERO_ABILITY_STATE
+from the_tale.game.heroes.conf import heroes_settings
 
 E = 0.0001
 
@@ -143,7 +143,7 @@ class HabilitiesTest(TestCase):
         battle_abilities.CRITICAL_HIT().update_context(self.attacker, self.defender)
         self.assertTrue(self.attacker.context.crit_chance > 0)
 
-    @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
+    @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_berserk(self):
         old_damage = self.attacker.context.modify_outcoming_damage(Damage(100, 50))
         battle_abilities.BERSERK().update_context(self.attacker, self.defender)
@@ -206,7 +206,7 @@ class HabilitiesTest(TestCase):
 
         self.assertEqual(self.messanger.messages, ['hero_ability_speedup'])
 
-    @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
+    @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_mage(self):
         modifiers_abilities.MAGE().update_context(self.attacker, self.defender)
         damage = self.attacker.context.modify_outcoming_damage(Damage(100, 100))
@@ -215,7 +215,7 @@ class HabilitiesTest(TestCase):
         damage = self.attacker.context.modify_incoming_damage(Damage(100, 100))
         self.assertTrue(damage.physic > 100 and damage.magic < 100)
 
-    @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
+    @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_warrior(self):
         modifiers_abilities.WARRIOR().update_context(self.attacker, self.defender)
         damage = self.attacker.context.modify_outcoming_damage(Damage(100, 100))
@@ -224,7 +224,7 @@ class HabilitiesTest(TestCase):
         damage = self.attacker.context.modify_incoming_damage(Damage(100, 100))
         self.assertTrue(damage.physic < 100 and damage.magic > 100)
 
-    @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
+    @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_gargoyle(self):
         modifiers_abilities.GARGOYLE().update_context(self.attacker, self.defender)
         damage = self.attacker.context.modify_outcoming_damage(Damage(100, 100))
@@ -233,7 +233,7 @@ class HabilitiesTest(TestCase):
         damage = self.attacker.context.modify_incoming_damage(Damage(100, 100))
         self.assertTrue(damage.physic < 100 and damage.magic < 100)
 
-    @mock.patch('game.balance.constants.DAMAGE_DELTA', 0)
+    @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_killer(self):
         modifiers_abilities.KILLER().update_context(self.attacker, self.defender)
         damage = self.attacker.context.modify_outcoming_damage(Damage(100, 100))
@@ -300,7 +300,7 @@ class ChooseAbilityTaskTest(TestCase):
     def test_process_not_for_heroes(self):
         task = ChooseHeroAbilityTask(self.hero.id, self.get_only_for_mobs_ability_id())
 
-        with mock.patch('game.heroes.prototypes.HeroPrototype.get_abilities_for_choose', lambda x: [ABILITIES[task.ability_id]]):
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.get_abilities_for_choose', lambda x: [ABILITIES[task.ability_id]]):
             self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
 
         self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.NOT_FOR_PLAYERS)
@@ -312,8 +312,8 @@ class ChooseAbilityTaskTest(TestCase):
         self.hero.abilities.updated = True
         self.hero.save()
 
-        with mock.patch('game.heroes.prototypes.HeroPrototype.get_abilities_for_choose', lambda x: [ABILITIES[task.ability_id]]):
-            with mock.patch('game.heroes.prototypes.HeroPrototype.can_choose_new_ability', True):
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.get_abilities_for_choose', lambda x: [ABILITIES[task.ability_id]]):
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_choose_new_ability', True):
                 self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.ALREADY_MAX_LEVEL)
 
@@ -326,7 +326,7 @@ class ChooseAbilityTaskTest(TestCase):
 
         task = ChooseHeroAbilityTask(self.hero.id, self.get_new_ability_id())
 
-        with mock.patch('game.heroes.prototypes.HeroPrototype.can_choose_new_ability', False):
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_choose_new_ability', False):
             self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
 
         self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.MAXIMUM_ABILITY_POINTS_NUMBER)

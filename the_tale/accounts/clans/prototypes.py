@@ -5,19 +5,19 @@ from django.db import models, IntegrityError
 from dext.utils.decorators import nested_commit_on_success
 from dext.utils.urls import full_url
 
-from common.utils.prototypes import BasePrototype
-from common.utils import bbcode
-from common.utils.decorators import lazy_property
+from the_tale.common.utils.prototypes import BasePrototype
+from the_tale.common.utils import bbcode
+from the_tale.common.utils.decorators import lazy_property
 
-from accounts.personal_messages.prototypes import MessagePrototype
-from accounts.prototypes import AccountPrototype
+from the_tale.accounts.personal_messages.prototypes import MessagePrototype
+from the_tale.accounts.prototypes import AccountPrototype
 
-from accounts.clans.models import Clan, Membership, MembershipRequest
-from accounts.clans.relations import MEMBER_ROLE, MEMBERSHIP_REQUEST_TYPE
-from accounts.clans import exceptions
-from accounts.clans.conf import clans_settings
+from the_tale.accounts.clans.models import Clan, Membership, MembershipRequest
+from the_tale.accounts.clans.relations import MEMBER_ROLE, MEMBERSHIP_REQUEST_TYPE
+from the_tale.accounts.clans import exceptions
+from the_tale.accounts.clans.conf import clans_settings
 
-from forum.prototypes import CategoryPrototype, SubCategoryPrototype, PermissionPrototype as ForumPermissionPrototype
+from the_tale.forum.prototypes import CategoryPrototype, SubCategoryPrototype, PermissionPrototype as ForumPermissionPrototype
 
 
 class ClanPrototype(BasePrototype): #pylint: disable=R0904

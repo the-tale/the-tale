@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from game.models import Bundle, SupervisorTask, SupervisorTaskMember
+from the_tale.game.models import Bundle, SupervisorTask, SupervisorTaskMember
 
 class BundleAdmin(admin.ModelAdmin):
     list_display = ('id', 'owner', 'type')

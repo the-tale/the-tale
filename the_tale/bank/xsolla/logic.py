@@ -3,11 +3,11 @@ import md5
 import time
 import datetime
 
-from bank import logic as bank_logic
+from the_tale.bank import logic as bank_logic
 
-from bank.xsolla.conf import xsolla_settings
-from bank.xsolla.relations import CHECK_USER_RESULT, PAY_RESULT
-from bank.xsolla.prototypes import InvoicePrototype
+from the_tale.bank.xsolla.conf import xsolla_settings
+from the_tale.bank.xsolla.relations import CHECK_USER_RESULT, PAY_RESULT
+from the_tale.bank.xsolla.prototypes import InvoicePrototype
 
 
 def check_user_md5(command, v1):

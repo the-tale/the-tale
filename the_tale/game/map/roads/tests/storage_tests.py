@@ -1,15 +1,15 @@
 # coding: utf-8
 import uuid
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
 from dext.settings import settings
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.map.roads.models import Road
-from game.map.roads.storage import RoadsStorage
-from game.map.roads.exceptions import RoadsException
+from the_tale.game.map.roads.models import Road
+from the_tale.game.map.roads.storage import RoadsStorage
+from the_tale.game.map.roads.exceptions import RoadsException
 
 class RoadsStorageTest(testcase.TestCase):
 

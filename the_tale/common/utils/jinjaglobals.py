@@ -2,7 +2,7 @@
 
 from dext.jinja2.decorators import jinjafilter
 
-from common.utils.logic import verbose_timedelta as logic_verbose_timedelta
+from the_tale.common.utils.logic import verbose_timedelta as logic_verbose_timedelta
 
 
 @jinjafilter

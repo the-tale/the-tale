@@ -1,22 +1,22 @@
 # coding: utf-8
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
-from game.heroes.prototypes import HeroPrototype
-from game.logic_storage import LogicStorage
+from the_tale.accounts.logic import register_user
+from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.logic_storage import LogicStorage
 
 
-from game.balance import constants as c, formulas as f, enums as e
+from the_tale.game.balance import constants as c, formulas as f, enums as e
 
-from game.logic import create_test_map
-from game.actions.prototypes import ActionMoveNearPlacePrototype, ActionRestPrototype, ActionResurrectPrototype
-from game.actions.prototypes import ActionIdlenessPrototype, ActionBattlePvE1x1Prototype, ActionInPlacePrototype, ActionRegenerateEnergyPrototype
-from game.prototypes import TimePrototype
+from the_tale.game.logic import create_test_map
+from the_tale.game.actions.prototypes import ActionMoveNearPlacePrototype, ActionRestPrototype, ActionResurrectPrototype
+from the_tale.game.actions.prototypes import ActionIdlenessPrototype, ActionBattlePvE1x1Prototype, ActionInPlacePrototype, ActionRegenerateEnergyPrototype
+from the_tale.game.prototypes import TimePrototype
 
-from game.map.relations import TERRAIN
-from game.map.storage import map_info_storage
+from the_tale.game.map.relations import TERRAIN
+from the_tale.game.map.storage import map_info_storage
 
 
 class MoveNearActionTest(testcase.TestCase):
@@ -93,7 +93,7 @@ class MoveNearActionTest(testcase.TestCase):
         self.assertEqual(coordinates, set([(self.p1.x, self.p1.y)]))
 
 
-    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_processed(self):
 
         current_time = TimePrototype.get_current_time()
@@ -113,7 +113,7 @@ class MoveNearActionTest(testcase.TestCase):
         self.storage._test_save()
 
 
-    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_not_ready(self):
         self.storage.process_turn(second_step_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 2)
@@ -121,11 +121,11 @@ class MoveNearActionTest(testcase.TestCase):
         self.assertTrue(self.hero.position.is_walking or self.hero.position.place) # can end in start place
         self.storage._test_save()
 
-    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
-    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.subroad_len', lambda self: 1)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.subroad_len', lambda self: 1)
     def test_modify_speed(self):
 
-        with mock.patch('game.heroes.prototypes.HeroPositionPrototype.modify_move_speed',
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.modify_move_speed',
                         mock.Mock(return_value=self.hero.move_speed)) as speed_modifier_call_counter:
             self.storage.process_turn(second_step_if_needed=False)
 
@@ -187,7 +187,7 @@ class MoveNearActionTest(testcase.TestCase):
 
         self.storage._test_save()
 
-    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: True)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: True)
     def test_battle(self):
         self.storage.process_turn(second_step_if_needed=False)
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionBattlePvE1x1Prototype.TYPE)
@@ -249,18 +249,18 @@ class MoveNearActionTest(testcase.TestCase):
         self.storage._test_save()
 
 
-    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_stop_when_quest_required_replane(self):
         while self.action_move.state != ActionMoveNearPlacePrototype.STATE.MOVING:
             self.storage.process_turn(second_step_if_needed=False)
 
-        with mock.patch('game.quests.container.QuestsContainer.has_quests', True):
-            with mock.patch('game.quests.container.QuestsContainer.current_quest', mock.Mock(replane_required=False)):
+        with mock.patch('the_tale.game.quests.container.QuestsContainer.has_quests', True):
+            with mock.patch('the_tale.game.quests.container.QuestsContainer.current_quest', mock.Mock(replane_required=False)):
                 self.storage.process_turn(second_step_if_needed=False)
 
             self.assertEqual(self.action_move.state, ActionMoveNearPlacePrototype.STATE.MOVING)
 
-            with mock.patch('game.quests.container.QuestsContainer.current_quest', mock.Mock(replane_required=True)):
+            with mock.patch('the_tale.game.quests.container.QuestsContainer.current_quest', mock.Mock(replane_required=True)):
                 self.storage.process_turn(second_step_if_needed=False)
 
         self.assertEqual(self.action_move.state, ActionMoveNearPlacePrototype.STATE.PROCESSED)

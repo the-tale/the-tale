@@ -1,3 +1,3 @@
 # coding: utf-8
 
-from portal import signal_processors
+from the_tale.portal import signal_processors

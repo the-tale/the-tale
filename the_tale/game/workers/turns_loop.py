@@ -4,10 +4,10 @@ import Queue
 
 from django.utils.log import getLogger
 
-from common.amqp_queues import BaseWorker
+from the_tale.common.amqp_queues import BaseWorker
 
-from game.conf import game_settings
-from game.workers.environment import workers_environment as game_environment
+from the_tale.game.conf import game_settings
+from the_tale.game.workers.environment import workers_environment as game_environment
 
 
 class TurnsLoopException(Exception): pass

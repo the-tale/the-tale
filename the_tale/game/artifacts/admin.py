@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from game.artifacts.models import ArtifactRecord
+from the_tale.game.artifacts.models import ArtifactRecord
 
 
 class ArtifactRecordAdmin(admin.ModelAdmin):

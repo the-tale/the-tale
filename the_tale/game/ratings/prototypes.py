@@ -4,19 +4,19 @@ import time
 from dext.utils.decorators import nested_commit_on_success
 from dext.settings import settings
 
-from common.utils.decorators import lazy_property
-from common.utils.prototypes import BasePrototype
+from the_tale.common.utils.decorators import lazy_property
+from the_tale.common.utils.prototypes import BasePrototype
 
-from accounts.models import Account
-from accounts.prototypes import AccountPrototype
-from accounts.logic import get_system_user
+from the_tale.accounts.models import Account
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import get_system_user
 
-from game.heroes.models import Hero
-from game.bills.models import Bill, BILL_STATE
-from game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
+from the_tale.game.heroes.models import Hero
+from the_tale.game.bills.models import Bill, BILL_STATE
+from the_tale.game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
 
-from game.ratings.models import RatingValues, RatingPlaces
-from game.ratings.conf import ratings_settings
+from the_tale.game.ratings.models import RatingValues, RatingPlaces
+from the_tale.game.ratings.conf import ratings_settings
 
 
 class RatingValuesPrototype(BasePrototype):

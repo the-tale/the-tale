@@ -7,33 +7,33 @@ from dext.utils.urls import url
 
 from textgen import words
 
-from common.utils.enum import create_enum
+from the_tale.common.utils.enum import create_enum
 
-from game.prototypes import TimePrototype
+from the_tale.game.prototypes import TimePrototype
 
-from game.heroes.relations import EQUIPMENT_SLOT
+from the_tale.game.heroes.relations import EQUIPMENT_SLOT
 
-from game.persons.storage import persons_storage
+from the_tale.game.persons.storage import persons_storage
 
-from game.mobs.prototypes import MobRecordPrototype
-from game.mobs.storage import mobs_storage
+from the_tale.game.mobs.prototypes import MobRecordPrototype
+from the_tale.game.mobs.storage import mobs_storage
 
-from game.artifacts.prototypes import ArtifactRecordPrototype
-from game.artifacts.storage import artifacts_storage
-from game.artifacts.relations import ARTIFACT_TYPE
+from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
+from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts.relations import ARTIFACT_TYPE
 
-from game.map.storage import map_info_storage
-from game.map.relations import TERRAIN
-from game.map.prototypes import MapInfoPrototype, WorldInfoPrototype
-from game.map.conf import map_settings
+from the_tale.game.map.storage import map_info_storage
+from the_tale.game.map.relations import TERRAIN
+from the_tale.game.map.prototypes import MapInfoPrototype, WorldInfoPrototype
+from the_tale.game.map.conf import map_settings
 
-from game.map.places.storage import places_storage, buildings_storage
-from game.map.places.prototypes import PlacePrototype
-from game.map.places.logic import update_nearest_cells
+from the_tale.game.map.places.storage import places_storage, buildings_storage
+from the_tale.game.map.places.prototypes import PlacePrototype
+from the_tale.game.map.places.logic import update_nearest_cells
 
-from game.map.roads.storage import roads_storage, waymarks_storage
-from game.map.roads.prototypes import RoadPrototype
-from game.map.roads.logic import update_waymarks
+from the_tale.game.map.roads.storage import roads_storage, waymarks_storage
+from the_tale.game.map.roads.prototypes import RoadPrototype
+from the_tale.game.map.roads.logic import update_waymarks
 
 
 DEFAULT_HERO_EQUIPMENT = create_enum('DEFAULT_HERO_EQUIPMENT', ( ('PANTS', 'default_pants', u'штаны'),
@@ -114,8 +114,8 @@ def log_sql_queries(turn_number):
 
 
 def remove_game_data(account):
-    from game.logic_storage import LogicStorage
-    from game.bundles import BundlePrototype
+    from the_tale.game.logic_storage import LogicStorage
+    from the_tale.game.bundles import BundlePrototype
 
     bundle = BundlePrototype.get_by_account_id(account.id)
 
@@ -126,7 +126,7 @@ def remove_game_data(account):
     bundle.remove()
 
 def _form_game_account_info(game_time, account, in_pvp_queue, is_own):
-    from game.heroes.prototypes import HeroPrototype
+    from the_tale.game.heroes.prototypes import HeroPrototype
 
     data = { 'new_messages': account.new_messages_number if is_own else 0,
              'id': account.id,
@@ -146,9 +146,9 @@ def _form_game_account_info(game_time, account, in_pvp_queue, is_own):
 
 
 def form_game_info(account=None, is_own=False):
-    from accounts.prototypes import AccountPrototype
+    from the_tale.accounts.prototypes import AccountPrototype
 
-    from game.pvp.prototypes import Battle1x1Prototype
+    from the_tale.game.pvp.prototypes import Battle1x1Prototype
 
     game_time = TimePrototype.get_current_time()
 

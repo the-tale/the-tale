@@ -1,14 +1,14 @@
 # coding: utf-8
 import math
 
-from common.utils.prototypes import BasePrototype
+from the_tale.common.utils.prototypes import BasePrototype
 
-from game.map.conf import map_settings
-from game.map.places.storage import places_storage
+from the_tale.game.map.conf import map_settings
+from the_tale.game.map.places.storage import places_storage
 
-from game.map.roads.models import Road, Waymark
-from game.map.roads.exceptions import RoadsException
-from game.map.roads.relations import PATH_DIRECTION
+from the_tale.game.map.roads.models import Road, Waymark
+from the_tale.game.map.roads.exceptions import RoadsException
+from the_tale.game.map.roads.relations import PATH_DIRECTION
 
 
 class RoadPrototype(BasePrototype):
@@ -32,7 +32,7 @@ class RoadPrototype(BasePrototype):
 
     @classmethod
     def create(cls, point_1, point_2):
-        from game.map.roads.storage import roads_storage
+        from the_tale.game.map.roads.storage import roads_storage
 
         if point_1.id > point_2.id:
             point_1, point_2 = point_2, point_1
@@ -132,7 +132,7 @@ class WaymarkPrototype(BasePrototype):
     def get_road(self):
         if self._model.road_id is None:
             return None
-        from game.map.roads.storage import roads_storage
+        from the_tale.game.map.roads.storage import roads_storage
         return roads_storage[self._model.road_id]
 
     def set_road(self, value):
@@ -151,7 +151,7 @@ class WaymarkPrototype(BasePrototype):
 
     @classmethod
     def create(cls, point_from, point_to, road, length):
-        from game.map.roads.storage import waymarks_storage
+        from the_tale.game.map.roads.storage import waymarks_storage
 
         try:
             Waymark.objects.get(point_from=point_from.id,

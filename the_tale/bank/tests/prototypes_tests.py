@@ -2,14 +2,14 @@
 
 from django.db import IntegrityError
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from bank.tests.helpers import BankTestsMixin
+from the_tale.bank.tests.helpers import BankTestsMixin
 
-from bank.prototypes import AccountPrototype, InvoicePrototype
-from bank.relations import ENTITY_TYPE, CURRENCY_TYPE, INVOICE_STATE
-from bank.conf import bank_settings
-from bank.exceptions import BankError
+from the_tale.bank.prototypes import AccountPrototype, InvoicePrototype
+from the_tale.bank.relations import ENTITY_TYPE, CURRENCY_TYPE, INVOICE_STATE
+from the_tale.bank.conf import bank_settings
+from the_tale.bank.exceptions import BankError
 
 
 class AccountPrototypeTests(testcase.TestCase, BankTestsMixin):

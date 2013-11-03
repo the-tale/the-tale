@@ -1,18 +1,18 @@
 # coding: utf-8
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.bundles import BundlePrototype
+from the_tale.game.bundles import BundlePrototype
 
-from accounts.logic import register_user
+from the_tale.accounts.logic import register_user
 
-from game.heroes.prototypes import HeroPrototype
-from game.heroes.models import Hero
-from game.models import Bundle
-from game.prototypes import TimePrototype
-from game.logic_storage import LogicStorage
+from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.models import Hero
+from the_tale.game.models import Bundle
+from the_tale.game.prototypes import TimePrototype
+from the_tale.game.logic_storage import LogicStorage
 
 
 class BundleTest(testcase.TestCase):

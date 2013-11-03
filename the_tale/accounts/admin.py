@@ -7,7 +7,7 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.utils.translation import ugettext_lazy as _
 
 
-from accounts.models import Account, ChangeCredentialsTask, Award, ResetPasswordTask
+from the_tale.accounts.models import Account, ChangeCredentialsTask, Award, ResetPasswordTask
 
 
 class AccountChangeForm(forms.ModelForm):

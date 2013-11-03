@@ -3,12 +3,12 @@ import mock
 
 from dext.utils.urls import url
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from bank.dengionline.relations import CHECK_USER_RESULT, INVOICE_STATE, CONFIRM_PAYMENT_RESULT
-from bank.dengionline.prototypes import InvoicePrototype
+from the_tale.bank.dengionline.relations import CHECK_USER_RESULT, INVOICE_STATE, CONFIRM_PAYMENT_RESULT
+from the_tale.bank.dengionline.prototypes import InvoicePrototype
 
-from bank.dengionline.tests.helpers import TestInvoiceFabric
+from the_tale.bank.dengionline.tests.helpers import TestInvoiceFabric
 
 def exception_producer(*argv, **kwargs):
     raise Exception
@@ -141,7 +141,7 @@ class ConfirmPaymentRequestsTests(RequestsTestsBase):
             self.invoice.save()
             self.check_xml_ok(self.post_xml(self.confirm_url()))
 
-    @mock.patch('bank.dengionline.prototypes.InvoicePrototype.confirm', exception_producer)
+    @mock.patch('the_tale.bank.dengionline.prototypes.InvoicePrototype.confirm', exception_producer)
     def test_confirm_payment__exception_when_confirm(self):
         self.assertRaises(Exception, self.post_xml, self.confirm_url())
         self.invoice.reload()

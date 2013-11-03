@@ -1,7 +1,7 @@
 # coding: utf-8
 
-from common.postponed_tasks.workers.refrigerator import Worker as Refrigerator
-from common.amqp_queues.environment import BaseEnvironment
+from the_tale.common.postponed_tasks.workers.refrigerator import Worker as Refrigerator
+from the_tale.common.amqp_queues.environment import BaseEnvironment
 
 
 class Environment(BaseEnvironment):

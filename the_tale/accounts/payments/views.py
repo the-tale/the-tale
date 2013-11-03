@@ -5,25 +5,25 @@ from dext.views import handler, validate_argument, validator
 from dext.settings import settings
 from dext.utils.urls import UrlBuilder
 
-from common.utils.resources import Resource
-from common.utils.decorators import login_required, superuser_required
+from the_tale.common.utils.resources import Resource
+from the_tale.common.utils.decorators import login_required, superuser_required
 
-from accounts.views import validate_fast_account
+from the_tale.accounts.views import validate_fast_account
 
-from bank.dengionline.transaction import Transaction as DOTransaction
-from bank.dengionline.relations import CURRENCY_TYPE as DO_CURRENCY_TYPE
+from the_tale.bank.dengionline.transaction import Transaction as DOTransaction
+from the_tale.bank.dengionline.relations import CURRENCY_TYPE as DO_CURRENCY_TYPE
 
-from bank.relations import ENTITY_TYPE, CURRENCY_TYPE
-from bank.dengionline import exceptions
+from the_tale.bank.relations import ENTITY_TYPE, CURRENCY_TYPE
+from the_tale.bank.dengionline import exceptions
 
-from accounts.prototypes import AccountPrototype
+from the_tale.accounts.prototypes import AccountPrototype
 
-from accounts.payments import price_list
-from accounts.payments.forms import DengiOnlineForm, GMForm
-from accounts.payments.conf import payments_settings
-from accounts.payments.logic import real_amount_to_game, transaction_gm
+from the_tale.accounts.payments import price_list
+from the_tale.accounts.payments.forms import DengiOnlineForm, GMForm
+from the_tale.accounts.payments.conf import payments_settings
+from the_tale.accounts.payments.logic import real_amount_to_game, transaction_gm
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
 
 class PaymentsResource(Resource):

@@ -2,11 +2,11 @@
 
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from bank.workers.environment import workers_environment as bank_workers_environment
+from the_tale.bank.workers.environment import workers_environment as bank_workers_environment
 
-from bank.dengionline.tests.helpers import TestInvoiceFabric
+from the_tale.bank.dengionline.tests.helpers import TestInvoiceFabric
 
 
 class BankerTests(testcase.TestCase):
@@ -26,11 +26,11 @@ class BankerTests(testcase.TestCase):
         self.assertTrue(self.worker.initialized)
 
     def test_handle_confirmed_invoices(self):
-        with mock.patch('bank.dengionline.prototypes.InvoicePrototype.process_confirmed_invoices') as process_confirmed_invoices:
+        with mock.patch('the_tale.bank.dengionline.prototypes.InvoicePrototype.process_confirmed_invoices') as process_confirmed_invoices:
             self.worker.handle_confirmed_invoices()
         self.assertEqual(process_confirmed_invoices.call_count, 1)
 
     def test_process_handle_confirmations(self):
-        with mock.patch('bank.dengionline.prototypes.InvoicePrototype.process_confirmed_invoices') as process_confirmed_invoices:
+        with mock.patch('the_tale.bank.dengionline.prototypes.InvoicePrototype.process_confirmed_invoices') as process_confirmed_invoices:
             self.worker.process_handle_confirmations()
         self.assertEqual(process_confirmed_invoices.call_count, 1)

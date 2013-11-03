@@ -7,11 +7,11 @@ from django.utils.log import getLogger
 
 from dext.settings import settings
 
-from common.amqp_queues import connection, BaseWorker
-from common import postponed_tasks
+from the_tale.common.amqp_queues import connection, BaseWorker
+from the_tale.common import postponed_tasks
 
-from accounts.prototypes import AccountPrototype
-from accounts.conf import accounts_settings
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.conf import accounts_settings
 
 
 class AccountManagerException(Exception): pass

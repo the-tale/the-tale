@@ -5,8 +5,8 @@ import traceback
 from django.core.management.base import BaseCommand
 from django.utils.log import getLogger
 
-from game.map.storage import map_info_storage
-from game.map.generator import update_map
+from the_tale.game.map.storage import map_info_storage
+from the_tale.game.map.generator import update_map
 
 from optparse import make_option
 

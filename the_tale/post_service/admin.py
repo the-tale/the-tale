@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from post_service.models import Message
+from the_tale.post_service.models import Message
 
 class MessageAdmin(admin.ModelAdmin):
     list_display = ('id', 'state', 'created_at')

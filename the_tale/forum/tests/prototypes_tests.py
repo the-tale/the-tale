@@ -3,15 +3,15 @@ import mock
 
 import datetime
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from forum.conf import forum_settings
-from forum.prototypes import (ThreadPrototype,
+from the_tale.forum.conf import forum_settings
+from the_tale.forum.prototypes import (ThreadPrototype,
                               SubCategoryPrototype,
                               CategoryPrototype,
                               ThreadReadInfoPrototype,
@@ -89,7 +89,7 @@ class SubCategoryReadInfoPrototypeTests(testcase.TestCase):
         self.subcategory.save()
         self.assertFalse(self.subcategory.is_restricted_for(self.account))
 
-    @mock.patch('accounts.prototypes.AccountPrototype.is_authenticated', lambda a: False)
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', lambda a: False)
     def test_is_restricted_for__not_authenticated(self):
         self.subcategory._model.restricted = True
         self.subcategory.save()
@@ -228,7 +228,7 @@ class PermissionPrototypeTests(testcase.TestCase):
     def test_remove(self):
         permission = PermissionPrototype.create(self.account, self.subcategory)
 
-        with mock.patch('forum.prototypes.SubscriptionPrototype.remove_all_in_subcategory') as remove_all_in_subcategory:
+        with mock.patch('the_tale.forum.prototypes.SubscriptionPrototype.remove_all_in_subcategory') as remove_all_in_subcategory:
             permission.remove()
 
         self.assertEqual(remove_all_in_subcategory.call_count, 1)

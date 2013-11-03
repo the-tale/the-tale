@@ -5,7 +5,7 @@ import datetime
 
 from dext.jinja2.decorators import jinjaglobal
 
-from portal.conf import portal_settings
+from the_tale.portal.conf import portal_settings
 
 @jinjaglobal
 def faq_url():

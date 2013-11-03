@@ -5,18 +5,18 @@ from django.core.urlresolvers import reverse
 from dext.views import handler, validate_argument
 from dext.utils.urls import UrlBuilder
 
-from common.utils.resources import Resource
-from common.utils.pagination import Paginator
-from common.utils.decorators import login_required
+from the_tale.common.utils.resources import Resource
+from the_tale.common.utils.pagination import Paginator
+from the_tale.common.utils.decorators import login_required
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import get_system_user
-from accounts.views import validate_fast_account, validate_ban_forum
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import get_system_user
+from the_tale.accounts.views import validate_fast_account, validate_ban_forum
 
-from accounts.personal_messages.models import Message
-from accounts.personal_messages.prototypes import MessagePrototype
-from accounts.personal_messages.forms import NewMessageForm
-from accounts.personal_messages.conf import personal_messages_settings
+from the_tale.accounts.personal_messages.models import Message
+from the_tale.accounts.personal_messages.prototypes import MessagePrototype
+from the_tale.accounts.personal_messages.forms import NewMessageForm
+from the_tale.accounts.personal_messages.conf import personal_messages_settings
 
 
 def get_accounts_list_by_ids(ids_string):

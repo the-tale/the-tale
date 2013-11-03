@@ -10,16 +10,16 @@ from dext.utils.decorators import nested_commit_on_success
 from dext.utils.logic import normalize_email
 from dext.utils.urls import url
 
-from common.utils.password import generate_password
+from the_tale.common.utils.password import generate_password
 
-from accounts.models import Account
-from accounts.prototypes import AccountPrototype
-from accounts.exceptions  import AccountsException
-from accounts.conf import accounts_settings
+from the_tale.accounts.models import Account
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.exceptions  import AccountsException
+from the_tale.accounts.conf import accounts_settings
 
-from game.heroes.prototypes import HeroPrototype
-from game.bundles import BundlePrototype
-from game.logic import dress_new_hero
+from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.bundles import BundlePrototype
+from the_tale.game.logic import dress_new_hero
 
 
 class REGISTER_USER_RESULT:
@@ -123,7 +123,7 @@ def logout_user(request):
 
 
 def remove_account(account):
-    from game.logic import remove_game_data
+    from the_tale.game.logic import remove_game_data
     if account.can_be_removed():
         with nested_commit_on_success():
             remove_game_data(account)

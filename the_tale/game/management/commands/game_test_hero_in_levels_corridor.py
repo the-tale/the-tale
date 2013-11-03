@@ -5,16 +5,16 @@ import traceback
 
 from django.core.management.base import BaseCommand
 
-from accounts.logic import register_user
+from the_tale.accounts.logic import register_user
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.balance import formulas as f
+from the_tale.game.balance import formulas as f
 
-from game.prototypes import TimePrototype
-from game.logic_storage import LogicStorage
+from the_tale.game.prototypes import TimePrototype
+from the_tale.game.logic_storage import LogicStorage
 
-from game.map.roads.storage import waymarks_storage
+from the_tale.game.map.roads.storage import waymarks_storage
 
 
 class Command(BaseCommand):

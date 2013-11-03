@@ -5,11 +5,11 @@ from django.test import client
 
 from dext.utils.urls import url
 
-from common.utils.testcase import TestCase
+from the_tale.common.utils.testcase import TestCase
 
-from accounts.logic import register_user
+from the_tale.accounts.logic import register_user
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
 
 class TestRequests(TestCase):
@@ -55,7 +55,7 @@ class TestRequests(TestCase):
         self.check_html_ok(self.client.get(reverse('guide:politics')))
 
     def test_hero_abilities(self):
-        from game.heroes.habilities import ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
+        from the_tale.game.heroes.habilities import ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
 
         for ability_type in [None] + list(ABILITY_TYPE._records):
             for activation_type in [None] + list(ABILITY_ACTIVATION_TYPE._records):

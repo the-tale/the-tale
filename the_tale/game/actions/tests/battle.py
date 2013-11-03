@@ -1,18 +1,18 @@
 # coding: utf-8
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
-from game.heroes.prototypes import HeroPrototype
+from the_tale.accounts.logic import register_user
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.actions.battle import Actor
-from game.actions.contexts import BattleContext
+from the_tale.game.actions.battle import Actor
+from the_tale.game.actions.contexts import BattleContext
 
-from game.heroes.habilities.battle import RUN_UP_PUSH, HIT
-from game.mobs.storage import mobs_storage
-from game.logic_storage import LogicStorage
+from the_tale.game.heroes.habilities.battle import RUN_UP_PUSH, HIT
+from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.logic_storage import LogicStorage
 
 class ActorTest(testcase.TestCase):
 

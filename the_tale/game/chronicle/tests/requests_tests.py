@@ -3,15 +3,15 @@
 from django.test import client
 from django.core.urlresolvers import reverse
 
-from common.utils.testcase import TestCase
+from the_tale.common.utils.testcase import TestCase
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.chronicle.models import Record
-from game.chronicle.relations import ACTOR_ROLE, RECORD_TYPE
-from game.chronicle.conf import chronicle_settings
-from game.chronicle.tests.helpers import FakeRecord
-from game.chronicle.prototypes import ExternalPlace
+from the_tale.game.chronicle.models import Record
+from the_tale.game.chronicle.relations import ACTOR_ROLE, RECORD_TYPE
+from the_tale.game.chronicle.conf import chronicle_settings
+from the_tale.game.chronicle.tests.helpers import FakeRecord
+from the_tale.game.chronicle.prototypes import ExternalPlace
 
 class IndexRequestsTest(TestCase):
 

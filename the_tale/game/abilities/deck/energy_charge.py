@@ -1,8 +1,8 @@
 # coding: utf-8
 
 
-from game.abilities.prototypes import AbilityPrototype
-from game.abilities.deck.help import Help
+from the_tale.game.abilities.prototypes import AbilityPrototype
+from the_tale.game.abilities.deck.help import Help
 
 
 class EnergyCharge(AbilityPrototype):

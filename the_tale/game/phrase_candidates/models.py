@@ -2,7 +2,7 @@
 
 from django.db import models
 
-from common.utils.enum import create_enum
+from the_tale.common.utils.enum import create_enum
 
 PHRASE_CANDIDATE_STATE = create_enum('PHRASE_CANDIDATE_STATE', ( ('IN_QUEUE', 0, u'ожидает проверку'),
                                                                  ('REMOVED', 1, u'удалена'),

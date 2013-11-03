@@ -5,6 +5,8 @@ import subprocess
 from django.core.management.base import BaseCommand
 from django.conf import settings as project_settings
 
+from the_tale.common.utils.logic import run_django_command
+
 class Command(BaseCommand):
 
     help = 'run all non-django tests'
@@ -24,4 +26,4 @@ class Command(BaseCommand):
 
             tests.append(label[-1])
 
-        subprocess.call(['./manage.py', 'test'] + tests)
+        run_django_command(['test'] + tests)

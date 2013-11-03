@@ -5,23 +5,23 @@ from dext.utils import s11n
 
 from textgen.words import Noun
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
+from the_tale.accounts.logic import register_user
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.map.relations import TERRAIN
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.map.relations import TERRAIN
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.artifacts.prototypes import ArtifactRecordPrototype
-from game.artifacts.models import ARTIFACT_RECORD_STATE
-from game.artifacts.relations import ARTIFACT_TYPE
+from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
+from the_tale.game.artifacts.models import ARTIFACT_RECORD_STATE
+from the_tale.game.artifacts.relations import ARTIFACT_TYPE
 
-from game.mobs.storage import mobs_storage
-from game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
-from game.mobs.prototypes import MobPrototype, MobRecordPrototype
-from game.mobs.forms import ModerateMobRecordForm
+from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
+from the_tale.game.mobs.prototypes import MobPrototype, MobRecordPrototype
+from the_tale.game.mobs.forms import ModerateMobRecordForm
 
 
 class MobsPrototypeTests(testcase.TestCase):
@@ -97,13 +97,13 @@ class MobsPrototypeTests(testcase.TestCase):
         artifact_1 = ArtifactRecordPrototype.create_random('bandit_loot', mob=mob_record, type_=ARTIFACT_TYPE.USELESS, state=ARTIFACT_RECORD_STATE.ENABLED)
         artifact_2 = ArtifactRecordPrototype.create_random('bandit_artifact', mob=mob_record, type_=ARTIFACT_TYPE.HELMET, state=ARTIFACT_RECORD_STATE.ENABLED)
 
-        with mock.patch('game.balance.formulas.artifacts_per_battle', lambda lvl: 1):
+        with mock.patch('the_tale.game.balance.formulas.artifacts_per_battle', lambda lvl: 1):
             artifact = mob.get_loot()
             self.assertEqual(artifact.level, mob.level)
             self.assertFalse(artifact.type._is_USELESS)
             self.assertEqual(artifact_2.id, artifact.record.id)
 
-        with mock.patch('game.balance.formulas.artifacts_per_battle', lambda lvl: 0),  mock.patch('game.balance.constants.GET_LOOT_PROBABILITY', 1):
+        with mock.patch('the_tale.game.balance.formulas.artifacts_per_battle', lambda lvl: 0),  mock.patch('the_tale.game.balance.constants.GET_LOOT_PROBABILITY', 1):
             artifact = mob.get_loot()
             self.assertEqual(artifact.level, mob.record.level)
             self.assertTrue(artifact.type._is_USELESS)

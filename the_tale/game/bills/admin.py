@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from game.bills.models import Bill, Vote, Actor
+from the_tale.game.bills.models import Bill, Vote, Actor
 
 
 class BillAdmin(admin.ModelAdmin):

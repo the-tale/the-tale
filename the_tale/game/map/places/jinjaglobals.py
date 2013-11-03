@@ -2,7 +2,7 @@
 
 from dext.jinja2.decorators import jinjaglobal
 
-from game.map.places.storage import places_storage
+from the_tale.game.map.places.storage import places_storage
 
 @jinjaglobal
 def all_places():

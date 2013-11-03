@@ -1,8 +1,8 @@
 # coding: utf-8
 
-from accounts.payments.goods import PremiumDays, PermanentPurchase, EnergyCharges
-from accounts.payments import exceptions
-from accounts.payments.relations import PERMANENT_PURCHASE_TYPE
+from the_tale.accounts.payments.goods import PremiumDays, PermanentPurchase, EnergyCharges
+from the_tale.accounts.payments import exceptions
+from the_tale.accounts.payments.relations import PERMANENT_PURCHASE_TYPE
 
 
 PREMIUM_DAYS_DESCRIPTION = u'''

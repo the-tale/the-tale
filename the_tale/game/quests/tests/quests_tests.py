@@ -12,28 +12,28 @@ from questgen.quests.quests_base import QuestsBase
 from questgen.quests.spying import Spying
 from questgen import logic
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from game.heroes.relations import EQUIPMENT_SLOT
-from game.persons.relations import PERSON_TYPE
+from the_tale.game.heroes.relations import EQUIPMENT_SLOT
+from the_tale.game.persons.relations import PERSON_TYPE
 
-from accounts.logic import register_user
-from game.heroes.prototypes import HeroPrototype
-from game.logic_storage import LogicStorage
+from the_tale.accounts.logic import register_user
+from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.logic_storage import LogicStorage
 
-from game.mobs.storage import mobs_storage
+from the_tale.game.mobs.storage import mobs_storage
 
-from game.logic import create_test_map
-from game.text_generation import get_vocabulary
-from game.prototypes import TimePrototype
+from the_tale.game.logic import create_test_map
+from the_tale.game.text_generation import get_vocabulary
+from the_tale.game.prototypes import TimePrototype
 
-from game.actions.prototypes import ActionQuestPrototype, ActionIdlenessPrototype
+from the_tale.game.actions.prototypes import ActionQuestPrototype, ActionIdlenessPrototype
 
-from game.heroes.relations import ITEMS_OF_EXPENDITURE
+from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE
 
-from game.quests.logic import QUESTS_BASE
-from game.quests.writers import Writer
-from game.quests.prototypes import QuestPrototype
+from the_tale.game.quests.logic import QUESTS_BASE
+from the_tale.game.quests.writers import Writer
+from the_tale.game.quests.prototypes import QuestPrototype
 
 
 
@@ -79,12 +79,12 @@ def create_test_method(quest, quests):
 
     internal_quests = {q.TYPE: q for q in quests }
 
-    @mock.patch('game.heroes.prototypes.HeroPrototype.is_short_quest_path_required', False)
-    @mock.patch('game.heroes.prototypes.HeroPrototype.is_first_quest_path_required', False)
-    @mock.patch('game.balance.constants.QUESTS_SPECIAL_FRACTION', 1.1)
-    @mock.patch('game.quests.logic.QUESTS_BASE._quests', internal_quests)
-    @mock.patch('game.quests.logic._get_first_quests', lambda hero, special: [quest.TYPE])
-    @mock.patch('game.map.roads.storage.WaymarksStorage.average_path_length', 9999)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_short_quest_path_required', False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_first_quest_path_required', False)
+    @mock.patch('the_tale.game.balance.constants.QUESTS_SPECIAL_FRACTION', 1.1)
+    @mock.patch('the_tale.game.quests.logic.QUESTS_BASE._quests', internal_quests)
+    @mock.patch('the_tale.game.quests.logic._get_first_quests', lambda hero, special: [quest.TYPE])
+    @mock.patch('the_tale.game.map.roads.storage.WaymarksStorage.average_path_length', 9999)
     def quest_test_method(self):
 
         # defends from first quest rule
@@ -250,13 +250,13 @@ class RawQuestsTest(QuestsTestBase):
 
 def create_test_messages_method(quest, quests):
 
-    @mock.patch('game.heroes.prototypes.HeroPrototype.is_short_quest_path_required', False)
-    @mock.patch('game.heroes.prototypes.HeroPrototype.is_first_quest_path_required', False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_short_quest_path_required', False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_first_quest_path_required', False)
     def quest_test_method(self):
         from questgen.selectors import Selector
 
-        from game.quests.logic import get_knowledge_base
-        from game.quests import uids
+        from the_tale.game.quests.logic import get_knowledge_base
+        from the_tale.game.quests import uids
 
         knowledge_base = get_knowledge_base(self.hero)
 

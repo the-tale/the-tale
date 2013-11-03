@@ -6,12 +6,12 @@ from textgen.words import Noun
 
 from dext.forms import fields
 
-from game.bills.models import BILL_TYPE
-from game.bills.forms import BaseUserForm, BaseModeratorForm
-from game.bills.bills.base_bill import BaseBill
+from the_tale.game.bills.models import BILL_TYPE
+from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
+from the_tale.game.bills.bills.base_bill import BaseBill
 
-from game.map.places.storage import places_storage
-from game.map.places.modifiers import MODIFIERS
+from the_tale.game.map.places.storage import places_storage
+from the_tale.game.map.places.modifiers import MODIFIERS
 
 
 class UserForm(BaseUserForm):

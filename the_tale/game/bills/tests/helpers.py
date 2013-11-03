@@ -1,7 +1,7 @@
 # coding: utf-8
 
 import random
-from game.map.places.relations import RESOURCE_EXCHANGE_TYPE
+from the_tale.game.map.places.relations import RESOURCE_EXCHANGE_TYPE
 
 
 def choose_resources():

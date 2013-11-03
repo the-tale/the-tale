@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from accounts.clans.models import Clan, Membership, MembershipRequest
+from the_tale.accounts.clans.models import Clan, Membership, MembershipRequest
 
 
 class ClanAdmin(admin.ModelAdmin):

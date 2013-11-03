@@ -2,26 +2,26 @@
 
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from game.logic_storage import LogicStorage
-from game.logic import create_test_map
-from game.prototypes import TimePrototype
+from the_tale.game.logic_storage import LogicStorage
+from the_tale.game.logic import create_test_map
+from the_tale.game.prototypes import TimePrototype
 
-from game.balance import constants as c
-from game.bundles import BundlePrototype
+from the_tale.game.balance import constants as c
+from the_tale.game.bundles import BundlePrototype
 
-from game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
-from game.actions.models import MetaAction, MetaActionMember
+from the_tale.game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
+from the_tale.game.actions.models import MetaAction, MetaActionMember
 
-from game.pvp.models import Battle1x1, Battle1x1Result
-from game.pvp.relations import BATTLE_1X1_STATE
-from game.pvp.prototypes import Battle1x1Prototype
-from game.pvp.tests.helpers import PvPTestsMixin
-from game.pvp.abilities import ABILITIES
+from the_tale.game.pvp.models import Battle1x1, Battle1x1Result
+from the_tale.game.pvp.relations import BATTLE_1X1_STATE
+from the_tale.game.pvp.prototypes import Battle1x1Prototype
+from the_tale.game.pvp.tests.helpers import PvPTestsMixin
+from the_tale.game.pvp.abilities import ABILITIES
 
 
 class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
@@ -152,21 +152,21 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
         self.check_hero_pvp_statistics(self.hero_1, 1, 0, 1, 0)
         self.check_hero_pvp_statistics(self.hero_2, 1, 0, 1, 0)
 
-    @mock.patch('game.pvp.prototypes.Battle1x1Prototype.calculate_rating', False)
+    @mock.patch('the_tale.game.pvp.prototypes.Battle1x1Prototype.calculate_rating', False)
     def test_hero_1_win_no_stats(self):
         self._end_battle(hero_1_health=self.hero_1.max_health, hero_2_health=0)
 
         self.check_hero_pvp_statistics(self.hero_1, 0, 0, 0, 0)
         self.check_hero_pvp_statistics(self.hero_2, 0, 0, 0, 0)
 
-    @mock.patch('game.pvp.prototypes.Battle1x1Prototype.calculate_rating', False)
+    @mock.patch('the_tale.game.pvp.prototypes.Battle1x1Prototype.calculate_rating', False)
     def test_hero_2_win_no_stats(self):
         self._end_battle(hero_1_health=0, hero_2_health=self.hero_1.max_health)
 
         self.check_hero_pvp_statistics(self.hero_1, 0, 0, 0, 0)
         self.check_hero_pvp_statistics(self.hero_2, 0, 0, 0, 0)
 
-    @mock.patch('game.pvp.prototypes.Battle1x1Prototype.calculate_rating', False)
+    @mock.patch('the_tale.game.pvp.prototypes.Battle1x1Prototype.calculate_rating', False)
     def test_draw_no_stats(self):
         self._end_battle(hero_1_health=0, hero_2_health=0)
 
@@ -176,7 +176,7 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
 
     def test_second_process_call_in_one_turn(self):
 
-        with mock.patch('game.actions.meta_actions.MetaActionArenaPvP1x1Prototype._process') as meta_action_process_counter:
+        with mock.patch('the_tale.game.actions.meta_actions.MetaActionArenaPvP1x1Prototype._process') as meta_action_process_counter:
             self.meta_action_battle.process()
             self.meta_action_battle.process()
 
@@ -251,7 +251,7 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
 
         self.meta_action_battle.reload()
 
-        with mock.patch('game.actions.meta_actions.MetaActionArenaPvP1x1Prototype.process_bot') as process_bot:
+        with mock.patch('the_tale.game.actions.meta_actions.MetaActionArenaPvP1x1Prototype.process_bot') as process_bot:
             self.meta_action_battle.process()
 
         self.assertEqual(process_bot.call_count, 1)
@@ -264,7 +264,7 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
 
         self.meta_action_battle.reload()
 
-        with mock.patch('game.actions.meta_actions.MetaActionArenaPvP1x1Prototype.process_bot') as process_bot:
+        with mock.patch('the_tale.game.actions.meta_actions.MetaActionArenaPvP1x1Prototype.process_bot') as process_bot:
             self.meta_action_battle.process()
 
         self.assertEqual(process_bot.call_count, 1)

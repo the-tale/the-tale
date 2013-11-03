@@ -3,19 +3,19 @@ import mock
 
 from textgen.words import Noun
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
-from game.logic_storage import LogicStorage
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
+from the_tale.game.logic_storage import LogicStorage
 
-from game.workers.environment import workers_environment
+from the_tale.game.workers.environment import workers_environment
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.map.places.prototypes import BuildingPrototype
+from the_tale.game.map.places.prototypes import BuildingPrototype
 
-from game.abilities.deck.building_repair import BuildingRepair, ABILITY_TASK_STEP
+from the_tale.game.abilities.deck.building_repair import BuildingRepair, ABILITY_TASK_STEP
 
 class BuildingRepairTest(testcase.TestCase):
 
@@ -57,7 +57,7 @@ class BuildingRepairTest(testcase.TestCase):
                 'storage': storage,
                 'highlevel': highlevel}
 
-    @mock.patch('game.heroes.prototypes.HeroPrototype.can_repair_building', True)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_repair_building', True)
     def test_use(self):
 
         result, step, postsave_actions = self.ability_1.use(**self.use_attributes(hero_id=self.hero_1.id, storage=self.storage))
@@ -65,7 +65,7 @@ class BuildingRepairTest(testcase.TestCase):
         self.assertEqual((result, step), (None, ABILITY_TASK_STEP.HIGHLEVEL))
         self.assertEqual(len(postsave_actions), 1)
 
-        with mock.patch('game.workers.highlevel.Worker.cmd_logic_task') as highlevel_logic_task_counter:
+        with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_logic_task') as highlevel_logic_task_counter:
             postsave_actions[0]()
 
         self.assertEqual(highlevel_logic_task_counter.call_count, 1)
@@ -85,13 +85,13 @@ class BuildingRepairTest(testcase.TestCase):
         self.assertEqual(self.ability_2.use(**self.use_attributes(hero_id=self.hero_2.id, storage=self.storage)), (False, ABILITY_TASK_STEP.ERROR, ()))
         self.assertEqual(self.building.integrity, 0.5)
 
-    @mock.patch('game.heroes.prototypes.HeroPrototype.can_repair_building', False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_repair_building', False)
     def test_use_for_not_allowed_account(self):
         self.assertEqual(self.building.integrity, 0.5)
         self.assertEqual(self.ability_1.use(**self.use_attributes(hero_id=self.hero_1.id, storage=self.storage)), (False, ABILITY_TASK_STEP.ERROR, ()))
         self.assertEqual(self.building.integrity, 0.5)
 
-    @mock.patch('game.heroes.prototypes.HeroPrototype.can_repair_building', True)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_repair_building', True)
     def test_use_for_repaired_building(self):
         self.building = BuildingPrototype.create(self.place_1.persons[0], name_forms=Noun.fast_construct('building-name'))
         self.building._model.integrity = 1.0
@@ -99,13 +99,13 @@ class BuildingRepairTest(testcase.TestCase):
 
         self.assertEqual(self.ability_1.use(**self.use_attributes(hero_id=self.hero_1.id, storage=self.storage)), (False, ABILITY_TASK_STEP.ERROR, ()))
 
-    @mock.patch('game.heroes.prototypes.HeroPrototype.can_repair_building', True)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_repair_building', True)
     def test_use_for_wrong_building_id(self):
         self.assertEqual(self.building.integrity, 0.5)
         self.assertEqual(self.ability_1.use(**self.use_attributes(hero_id=self.hero_1.id, building_id=666, storage=self.storage)), (False, ABILITY_TASK_STEP.ERROR, ()))
         self.assertEqual(self.building.integrity, 0.5)
 
-    @mock.patch('game.heroes.prototypes.HeroPrototype.can_repair_building', True)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_repair_building', True)
     def test_use_without_building(self):
         self.assertEqual(self.building.integrity, 0.5)
         arguments = self.use_attributes(hero_id=self.hero_1.id, storage=self.storage)

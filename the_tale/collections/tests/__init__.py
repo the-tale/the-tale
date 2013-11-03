@@ -1,6 +1,5 @@
 # coding: utf-8
 
-
-from achievements.tests.request_collections_tests import *
-from achievements.tests.request_kits_tests import *
-from achievements.tests.request_items_tests import *
+from the_tale.collections.tests.request_collections_tests import *
+from the_tale.collections.tests.request_kits_tests import *
+from the_tale.collections.tests.request_items_tests import *

@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from game.actions import models
+from the_tale.game.actions import models
 
 
 class MetaActionAdmin(admin.ModelAdmin):

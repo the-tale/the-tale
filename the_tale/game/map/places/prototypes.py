@@ -6,27 +6,27 @@ from dext.utils import s11n
 
 from textgen import words
 
-from common.utils import bbcode
-from common.utils.prototypes import BasePrototype
-from common.utils.decorators import lazy_property
+from the_tale.common.utils import bbcode
+from the_tale.common.utils.prototypes import BasePrototype
+from the_tale.common.utils.decorators import lazy_property
 
-from game import names
-from game.relations import GENDER, RACE
+from the_tale.game import names
+from the_tale.game.relations import GENDER, RACE
 
-from game.balance import constants as c
-from game.balance import formulas as f
+from the_tale.game.balance import constants as c
+from the_tale.game.balance import formulas as f
 
-from game.prototypes import TimePrototype, GameTime
-from game.helpers import add_power_management
+from the_tale.game.prototypes import TimePrototype, GameTime
+from the_tale.game.helpers import add_power_management
 
-from game.map.conf import map_settings
+from the_tale.game.map.conf import map_settings
 
-from game.map.places.models import Place, Building, ResourceExchange
-from game.map.places.conf import places_settings
-from game.map.places.exceptions import PlacesException
-from game.map.places.modifiers import MODIFIERS, PlaceModifierBase
-from game.map.places.relations import BUILDING_STATE, RESOURCE_EXCHANGE_TYPE, CITY_PARAMETERS
-from game.map.places import signals
+from the_tale.game.map.places.models import Place, Building, ResourceExchange
+from the_tale.game.map.places.conf import places_settings
+from the_tale.game.map.places.exceptions import PlacesException
+from the_tale.game.map.places.modifiers import MODIFIERS, PlaceModifierBase
+from the_tale.game.map.places.relations import BUILDING_STATE, RESOURCE_EXCHANGE_TYPE, CITY_PARAMETERS
+from the_tale.game.map.places import signals
 
 class PlaceParametersDescription(object):
     PLACE_SIZE = (u'размер города', u'Влияет на количество жителей в городе, развитие специализаций и на потребление товаров жителями. Зависит от производства товаров.')
@@ -94,13 +94,13 @@ class PlacePrototype(BasePrototype):
         return self.terrain_change_power
 
     def update_heroes_number(self):
-        from game.heroes.preferences import HeroPreferences
+        from the_tale.game.heroes.preferences import HeroPreferences
         self._model.heroes_number = HeroPreferences.count_citizens_of(self)
 
     @property
     def persons(self):
-        from game.persons.storage import persons_storage
-        from game.persons.models import PERSON_STATE
+        from the_tale.game.persons.storage import persons_storage
+        from the_tale.game.persons.models import PERSON_STATE
         return sorted(persons_storage.filter(place_id=self.id, state=PERSON_STATE.IN_GAME), key=lambda p: -p.power)
 
     @property
@@ -116,8 +116,8 @@ class PlacePrototype(BasePrototype):
     def max_persons_number(self): return places_settings.SIZE_TO_PERSONS_NUMBER[self.size]
 
     def sync_persons(self):
-        from game.persons.relations import PERSON_TYPE
-        from game.persons.prototypes import PersonPrototype
+        from the_tale.game.persons.relations import PERSON_TYPE
+        from the_tale.game.persons.prototypes import PersonPrototype
 
         for person in self.persons:
             if person.is_stable:
@@ -159,7 +159,7 @@ class PlacePrototype(BasePrototype):
 
     @property
     def terrains(self):
-        from game.map.storage import map_info_storage
+        from the_tale.game.map.storage import map_info_storage
         map_info = map_info_storage.item
         terrains = set()
         for cell in self.nearest_cells:
@@ -213,7 +213,7 @@ class PlacePrototype(BasePrototype):
         return self.modifier.EXPERIENCE_MODIFIER if self.modifier else 0
 
     def _update_powers(self, powers, parameter):
-        from game.map.places.storage import resource_exchange_storage
+        from the_tale.game.map.places.storage import resource_exchange_storage
 
         for exchange in resource_exchange_storage.get_exchanges_for_place(self):
             resource_1, resource_2, place_2 = exchange.get_resources_for_place(self)
@@ -275,7 +275,7 @@ class PlacePrototype(BasePrototype):
 
     @classmethod
     def create(cls, x, y, size, name_forms):
-        from game.map.places.storage import places_storage
+        from the_tale.game.map.places.storage import places_storage
 
         model = Place.objects.create( x=x,
                                       y=y,
@@ -291,7 +291,7 @@ class PlacePrototype(BasePrototype):
         return prototype
 
     def save(self):
-        from game.map.places.storage import places_storage
+        from the_tale.game.map.places.storage import places_storage
 
         self._model.data = s11n.to_json(self.data)
         self._model.save(force_update=True)
@@ -299,7 +299,7 @@ class PlacePrototype(BasePrototype):
         places_storage.update_version()
 
     def cmd_change_power(self, power):
-        from game.workers.environment import workers_environment
+        from the_tale.game.workers.environment import workers_environment
         workers_environment.highlevel.cmd_change_power(power_delta=power, person_id=None, place_id=self.id)
 
 
@@ -340,12 +340,12 @@ class BuildingPrototype(BasePrototype):
 
     @property
     def person(self):
-        from game.persons.storage import persons_storage
+        from the_tale.game.persons.storage import persons_storage
         return persons_storage[self._model.person_id]
 
     @property
     def place(self):
-        from game.map.places.storage import places_storage
+        from the_tale.game.map.places.storage import places_storage
         return places_storage[self._model.place_id]
 
     @property
@@ -355,7 +355,7 @@ class BuildingPrototype(BasePrototype):
         return int(round(power))
 
     def amortization_delta(self, turns_number):
-        from game.map.places.storage import buildings_storage
+        from the_tale.game.map.places.storage import buildings_storage
 
         buildings_number = sum(buildings_storage.get_by_person_id(person.id) is not None
                                for person in self.place.persons)
@@ -388,9 +388,9 @@ class BuildingPrototype(BasePrototype):
 
     @classmethod
     def get_available_positions(cls, center_x, center_y, building_position_radius=places_settings.BUILDING_POSITION_RADIUS): # pylint: disable=R0914
-        from game.map.places.storage import places_storage, buildings_storage
-        from game.map.roads.storage import roads_storage
-        from game.map.roads.relations import PATH_DIRECTION
+        from the_tale.game.map.places.storage import places_storage, buildings_storage
+        from the_tale.game.map.roads.storage import roads_storage
+        from the_tale.game.map.roads.relations import PATH_DIRECTION
 
         positions = set()
 
@@ -429,7 +429,7 @@ class BuildingPrototype(BasePrototype):
 
     @classmethod
     def create(cls, person, name_forms):
-        from game.map.places.storage import buildings_storage
+        from the_tale.game.map.places.storage import buildings_storage
 
         building = buildings_storage.get_by_person_id(person.id)
 
@@ -457,7 +457,7 @@ class BuildingPrototype(BasePrototype):
         return prototype
 
     def destroy(self):
-        from game.map.places.storage import buildings_storage
+        from the_tale.game.map.places.storage import buildings_storage
         self.state = BUILDING_STATE.DESTROYED
         self.save()
         buildings_storage.update_version()
@@ -471,7 +471,7 @@ class BuildingPrototype(BasePrototype):
                 'type': self.type.value}
 
     def save(self):
-        from game.map.places.storage import buildings_storage
+        from the_tale.game.map.places.storage import buildings_storage
         self._model.save()
         buildings_storage.update_version()
 
@@ -484,17 +484,17 @@ class ResourceExchangePrototype(BasePrototype):
 
     @property
     def place_1(self):
-        from game.map.places.storage import places_storage
+        from the_tale.game.map.places.storage import places_storage
         return places_storage[self._model.place_1_id]
 
     @property
     def place_2(self):
-        from game.map.places.storage import places_storage
+        from the_tale.game.map.places.storage import places_storage
         return places_storage[self._model.place_2_id]
 
     @lazy_property
     def bill(self):
-        from game.bills.prototypes import BillPrototype
+        from the_tale.game.bills.prototypes import BillPrototype
         return BillPrototype.get_by_id(self.bill_id)
 
     def get_resources_for_place(self, place):
@@ -506,7 +506,7 @@ class ResourceExchangePrototype(BasePrototype):
 
     @classmethod
     def create(cls, place_1, place_2, resource_1, resource_2, bill):
-        from game.map.places.storage import resource_exchange_storage
+        from the_tale.game.map.places.storage import resource_exchange_storage
 
         model = cls._model_class.objects.create(bill=bill._model if bill is not None else None,
                                                 place_1=place_1._model,
@@ -521,7 +521,7 @@ class ResourceExchangePrototype(BasePrototype):
         return prototype
 
     def remove(self):
-        from game.map.places.storage import resource_exchange_storage
+        from the_tale.game.map.places.storage import resource_exchange_storage
 
         self._model.delete()
 

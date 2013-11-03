@@ -6,9 +6,9 @@ from django.conf import settings as project_settings
 from dext.settings import settings
 from dext.utils import s11n
 
-from common.utils import cdn
+from the_tale.common.utils import cdn
 
-from portal.conf import portal_settings
+from the_tale.portal.conf import portal_settings
 
 
 class Command(BaseCommand):

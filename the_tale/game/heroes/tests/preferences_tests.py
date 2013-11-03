@@ -5,30 +5,30 @@ import datetime
 from django.test import client
 from django.core.urlresolvers import reverse
 
-from common.utils.testcase import TestCase
-from common.postponed_tasks import PostponedTask, PostponedTaskPrototype, FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.utils.testcase import TestCase
+from the_tale.common.postponed_tasks import PostponedTask, PostponedTaskPrototype, FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
-from accounts.logic import register_user, login_url
-from accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user, login_url
+from the_tale.accounts.prototypes import AccountPrototype
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.mobs.storage import mobs_storage
-from game.mobs.models import MOB_RECORD_STATE
+from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.mobs.models import MOB_RECORD_STATE
 
-from game.map.places.models import Place
+from the_tale.game.map.places.models import Place
 
-from game.logic_storage import LogicStorage
+from the_tale.game.logic_storage import LogicStorage
 
-from game.balance import enums as e
+from the_tale.game.balance import enums as e
 
-from game.persons.models import Person, PERSON_STATE
-from game.persons.storage import persons_storage
+from the_tale.game.persons.models import Person, PERSON_STATE
+from the_tale.game.persons.storage import persons_storage
 
-from game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
-from game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT, RISK_LEVEL
-from game.heroes.postponed_tasks import ChoosePreferencesTask, CHOOSE_PREFERENCES_TASK_STATE
-from game.heroes.preferences import HeroPreferences
+from the_tale.game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
+from the_tale.game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT, RISK_LEVEL
+from the_tale.game.heroes.postponed_tasks import ChoosePreferencesTask, CHOOSE_PREFERENCES_TASK_STATE
+from the_tale.game.heroes.preferences import HeroPreferences
 
 
 class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
@@ -248,14 +248,14 @@ class HeroPreferencesMobTest(TestCase):
             self.assertEqual(mobs_storage[HeroPreferencesPrototype.get_by_hero_id(self.hero.id).mob_id].uuid, expected_mob_uuid)
 
 
-    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
+    @mock.patch('the_tale.game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_change_mob(self):
         self.check_change_mob(self.mob_2_uuid, self.mob_2_uuid, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
     def test_change_mob_cooldown(self):
         self.check_change_mob(self.mob_2_uuid, self.mob_uuid, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
-    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
+    @mock.patch('the_tale.game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_remove_mob(self):
         self.check_change_mob(None, None, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
@@ -360,14 +360,14 @@ class HeroPreferencesPlaceTest(TestCase):
             self.assertEqual(self.hero.preferences.place.id, expected_place_id)
         self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).place_id, expected_place_id)
 
-    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
+    @mock.patch('the_tale.game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_change_place(self):
         self.check_change_place(self.place_2.id, self.place_2.id, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
     def test_change_place_cooldown(self):
         self.check_change_place(self.place_2.id, self.place.id, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
-    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
+    @mock.patch('the_tale.game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_remove_place(self):
         self.check_change_place(None, None, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
@@ -526,14 +526,14 @@ class HeroPreferencesFriendTest(TestCase):
             self.assertEqual(self.hero.preferences.friend.id, expected_friend_id)
         self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).friend_id, expected_friend_id)
 
-    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
+    @mock.patch('the_tale.game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_change_friend(self):
         self.check_change_friend(self.friend_2_id, self.friend_2_id, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
     def test_change_friend_cooldownd(self):
         self.check_change_friend(self.friend_2_id, self.friend_id, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
-    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
+    @mock.patch('the_tale.game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_remove_friend(self):
         self.check_change_friend(None, None, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
@@ -707,14 +707,14 @@ class HeroPreferencesEnemyTest(TestCase):
             self.assertEqual(self.hero.preferences.enemy.id, expected_enemy_id)
         self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).enemy_id, expected_enemy_id)
 
-    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
+    @mock.patch('the_tale.game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_change_enemy(self):
         self.check_change_enemy(self.enemy_2_id, self.enemy_2_id, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
     def test_change_enemy_cooldown(self):
         self.check_change_enemy(self.enemy_2_id, self.enemy_id, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
-    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
+    @mock.patch('the_tale.game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_remove_enemy(self):
         self.check_change_enemy(None, None, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
@@ -859,14 +859,14 @@ class HeroPreferencesEquipmentSlotTest(TestCase):
 
         self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).equipment_slot, expected_slot)
 
-    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
+    @mock.patch('the_tale.game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_change_equipment_slot(self):
         self.check_change_equipment_slot(self.slot_2, self.slot_2, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
     def test_change_equipment_slot_cooldown(self):
         self.check_change_equipment_slot(self.slot_2, self.slot_1, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
-    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
+    @mock.patch('the_tale.game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_remove_equipment_slot(self):
         self.check_change_equipment_slot(None, None, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
@@ -964,14 +964,14 @@ class HeroPreferencesFavoriteItemTest(TestCase):
 
         self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).favorite_item, expected_slot)
 
-    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
+    @mock.patch('the_tale.game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_change_favorite_item(self):
         self.check_change_favorite_item(self.slot_2, self.slot_2, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
     def test_change_favorite_item_cooldown(self):
         self.check_change_favorite_item(self.slot_2, self.slot_1, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
-    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
+    @mock.patch('the_tale.game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_remove_favorite_item(self):
         self.check_change_favorite_item(None, None, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
@@ -1064,7 +1064,7 @@ class HeroPreferencesRiskLevelTest(TestCase):
 
         self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).risk_level, expected_slot)
 
-    @mock.patch('game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
+    @mock.patch('the_tale.game.balance.constants.CHARACTER_PREFERENCES_CHANGE_DELAY', 0)
     def test_change_risk_level(self):
         self.check_change_risk_level(self.risk_2, self.risk_2, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 

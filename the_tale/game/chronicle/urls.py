@@ -2,6 +2,6 @@
 
 from dext.views import resource_patterns
 
-from game.chronicle.views import ChronicleResource
+from the_tale.game.chronicle.views import ChronicleResource
 
 urlpatterns = resource_patterns(ChronicleResource)

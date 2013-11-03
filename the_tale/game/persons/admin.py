@@ -2,8 +2,8 @@
 
 from django.contrib import admin
 
-from game.persons.models import Person
-from game.persons.prototypes import PersonPrototype
+from the_tale.game.persons.models import Person
+from the_tale.game.persons.prototypes import PersonPrototype
 
 class PersonAdmin(admin.ModelAdmin):
     list_display = ('id', 'place', 'state', 'type', 'name', 'power', 'created_at', 'out_game_at')

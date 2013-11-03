@@ -4,7 +4,7 @@ from django.db import models
 
 from rels.django_staff import TableIntegerField
 
-from game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
+from the_tale.game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
 
 
 class MobRecord(models.Model):

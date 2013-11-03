@@ -4,17 +4,17 @@ from django.db import models
 
 from dext.utils.urls import full_url
 
-from common.utils.prototypes import BasePrototype
-from common.utils.decorators import lazy_property
-from common.utils import bbcode
+from the_tale.common.utils.prototypes import BasePrototype
+from the_tale.common.utils.decorators import lazy_property
+from the_tale.common.utils import bbcode
 
-from accounts.models import Account
-from accounts.prototypes import AccountPrototype
-from accounts.logic import get_system_user
+from the_tale.accounts.models import Account
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import get_system_user
 
-from accounts.personal_messages.prototypes import MessagePrototype
+from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 
-from accounts.friends.models import Friendship
+from the_tale.accounts.friends.models import Friendship
 
 
 

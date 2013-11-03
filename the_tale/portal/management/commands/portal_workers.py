@@ -1,14 +1,14 @@
 # coding: utf-8
 
-from common.amqp_queues.django_commands import construct_workers_manager
+from the_tale.common.amqp_queues.django_commands import construct_workers_manager
 
-from accounts.workers.environment import workers_environment as accounts_workers_environment
-from post_service.workers.environment import workers_environment as post_service_workers_environment
-from bank.workers.environment import workers_environment as bank_workers_environment
-from common.postponed_tasks.workers.environment import workers_environment as postponed_tasks_workers_environment
-from portal.workers.environment import workers_environment as portal_workers_environment
+from the_tale.accounts.workers.environment import workers_environment as accounts_workers_environment
+from the_tale.post_service.workers.environment import workers_environment as post_service_workers_environment
+from the_tale.bank.workers.environment import workers_environment as bank_workers_environment
+from the_tale.common.postponed_tasks.workers.environment import workers_environment as postponed_tasks_workers_environment
+from the_tale.portal.workers.environment import workers_environment as portal_workers_environment
 
-from portal.conf import portal_settings
+from the_tale.portal.conf import portal_settings
 
 Command = construct_workers_manager(help='run infrastructure workers',
                                     process_pid='game_workers',

@@ -1,10 +1,10 @@
 # coding: utf-8
 
-from common.utils.storage import create_storage_class
+from the_tale.common.utils.storage import create_storage_class
 
-from game.persons.models import Person, PERSON_STATE
-from game.persons.prototypes import PersonPrototype
-from game.persons.exceptions import PersonsException
+from the_tale.game.persons.models import Person, PERSON_STATE
+from the_tale.game.persons.prototypes import PersonPrototype
+from the_tale.game.persons.exceptions import PersonsException
 
 
 class PersonsStorage(create_storage_class('persons change time', Person, PersonPrototype, PersonsException)):
@@ -18,8 +18,8 @@ class PersonsStorage(create_storage_class('persons change time', Person, PersonP
                     (place_id is None or place_id==person.place_id))]
 
     def remove_out_game_persons(self):
-        from game.bills.prototypes import BillPrototype
-        from game.heroes.prototypes import HeroPrototype
+        from the_tale.game.bills.prototypes import BillPrototype
+        from the_tale.game.heroes.prototypes import HeroPrototype
 
         remove_time_border = min(BillPrototype.get_minimum_created_time_of_active_bills(),
                                  HeroPrototype.get_minimum_created_time_of_active_quests())

@@ -3,7 +3,7 @@
 from django.contrib import admin
 from django.core.urlresolvers import reverse
 
-from cms.news.models import News
+from the_tale.cms.news.models import News
 
 class NewsAdmin(admin.ModelAdmin):
     list_display = ('id', 'caption', 'created_at', 'publish_on_forum')
@@ -18,4 +18,3 @@ class NewsAdmin(admin.ModelAdmin):
     publish_on_forum.allow_tags = True
 
 admin.site.register(News, NewsAdmin)
-

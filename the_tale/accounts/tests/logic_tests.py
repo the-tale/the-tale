@@ -1,17 +1,17 @@
 # coding: utf-8
 import datetime
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
-from game.heroes.models import Hero
-from game.models import Bundle
-from game.logic import create_test_map
+from the_tale.game.heroes.models import Hero
+from the_tale.game.models import Bundle
+from the_tale.game.logic import create_test_map
 
-from accounts.logic import block_expired_accounts, get_account_id_by_email, register_user
-from accounts.models import Account
-from accounts.postponed_tasks import RegistrationTask
+from the_tale.accounts.logic import block_expired_accounts, get_account_id_by_email, register_user
+from the_tale.accounts.models import Account
+from the_tale.accounts.postponed_tasks import RegistrationTask
 
 class TestLogic(testcase.TestCase):
 

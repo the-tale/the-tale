@@ -1,9 +1,9 @@
 # coding: utf-8
 import math
 
-from game.map.conf import map_settings
-from game.map.places.storage import places_storage
-from game.map.places.conf import places_settings
+from the_tale.game.map.conf import map_settings
+from the_tale.game.map.places.storage import places_storage
+from the_tale.game.map.places.conf import places_settings
 
 E = 0.01
 GUARANTIED_RADIUS = math.sqrt(1+1)+E # guarantied raidius of places cells

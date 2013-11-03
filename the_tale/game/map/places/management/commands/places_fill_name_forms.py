@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 from textgen import words
 from dext.utils import s11n
 
-from game.map.places.storage import places_storage
+from the_tale.game.map.places.storage import places_storage
 
 class Command(BaseCommand):
 

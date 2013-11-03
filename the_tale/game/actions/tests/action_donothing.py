@@ -1,21 +1,21 @@
 # coding: utf-8
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
+from the_tale.accounts.logic import register_user
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.logic import create_test_map
-from game.logic_storage import LogicStorage
-from game.actions.prototypes import ActionDoNothingPrototype
-from game.prototypes import TimePrototype
+from the_tale.game.logic import create_test_map
+from the_tale.game.logic_storage import LogicStorage
+from the_tale.game.actions.prototypes import ActionDoNothingPrototype
+from the_tale.game.prototypes import TimePrototype
 
 
 class DoNothingActionTest(testcase.TestCase):
 
-    @mock.patch('game.actions.prototypes.ActionBase.get_description', lambda self: 'abrakadabra')
+    @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_description', lambda self: 'abrakadabra')
     def setUp(self):
         super(DoNothingActionTest, self).setUp()
 

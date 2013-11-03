@@ -2,7 +2,7 @@
 
 from django.core.management.base import BaseCommand
 
-from accounts.might import recalculate_accounts_might
+from the_tale.accounts.might import recalculate_accounts_might
 
 class Command(BaseCommand):
 

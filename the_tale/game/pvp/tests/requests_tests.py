@@ -9,20 +9,20 @@ from django.core.urlresolvers import reverse
 from dext.utils import s11n
 from dext.utils.urls import url
 
-from common.utils.testcase import TestCase
-from common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.utils.testcase import TestCase
+from the_tale.common.postponed_tasks import PostponedTaskPrototype
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user, login_url
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user, login_url
 
-from game.logic import create_test_map
-from game.prototypes import TimePrototype
+from the_tale.game.logic import create_test_map
+from the_tale.game.prototypes import TimePrototype
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.pvp.models import Battle1x1, BATTLE_1X1_STATE
-from game.pvp.tests.helpers import PvPTestsMixin
-from game.pvp.abilities import ABILITIES
+from the_tale.game.pvp.models import Battle1x1, BATTLE_1X1_STATE
+from the_tale.game.pvp.tests.helpers import PvPTestsMixin
+from the_tale.game.pvp.abilities import ABILITIES
 
 
 class TestRequestsBase(TestCase, PvPTestsMixin):
@@ -77,7 +77,7 @@ class TestRequests(TestRequestsBase):
         self.pvp_create_battle(self.account_2, self.account_1, calculate_rating=True)
         self.check_html_ok(self.client.get(reverse('game:pvp:')), texts=[('pgf-battle-not-in-rating', 0)])
 
-    @mock.patch('game.heroes.prototypes.HeroPrototype.is_name_changed', True)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_name_changed', True)
     def test_game_page_when_pvp_processing_change_name_warning_hiden(self):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
@@ -153,7 +153,7 @@ class TestCallsPage(TestRequestsBase):
                                                                               ('pgf-no-current-battles-message', 1),
                                                                               ('pgf-fast-account-message', 1)])
 
-    @mock.patch('game.heroes.prototypes.HeroPrototype.can_participate_in_pvp', False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_participate_in_pvp', False)
     def test_no_rights(self):
         self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pvp.no_rights', 0),
                                                                               ('pgf-level-restrictions-message', 0),

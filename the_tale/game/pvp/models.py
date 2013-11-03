@@ -4,7 +4,7 @@ from django.db import models
 
 from rels.django_staff import TableIntegerField
 
-from game.pvp.relations import BATTLE_1X1_STATE, BATTLE_1X1_RESULT
+from the_tale.game.pvp.relations import BATTLE_1X1_STATE, BATTLE_1X1_RESULT
 
 class Battle1x1(models.Model):
 

@@ -2,7 +2,7 @@
 from django.core.management.base import BaseCommand
 
 
-from game.ratings.prototypes import RatingValuesPrototype, RatingPlacesPrototype
+from the_tale.game.ratings.prototypes import RatingValuesPrototype, RatingPlacesPrototype
 
 
 class Command(BaseCommand):

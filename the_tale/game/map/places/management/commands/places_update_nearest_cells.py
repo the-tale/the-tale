@@ -2,7 +2,7 @@
 
 from django.core.management.base import BaseCommand
 
-from game.map.places.logic import update_nearest_cells
+from the_tale.game.map.places.logic import update_nearest_cells
 
 
 class Command(BaseCommand):

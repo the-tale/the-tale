@@ -1,7 +1,7 @@
 # coding: utf-8
 
-from game.actions import contexts
-from game.actions.prototypes import ActionBase
+from the_tale.game.actions import contexts
+from the_tale.game.actions.prototypes import ActionBase
 
 
 class TestAction(ActionBase):

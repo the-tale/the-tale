@@ -1,3 +1,3 @@
 # coding: utf-8
 
-from portal.developers_info.tests.request_tests import *
+from the_tale.portal.developers_info.tests.request_tests import *

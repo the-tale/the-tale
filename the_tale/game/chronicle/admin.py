@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from game.chronicle.models import Record, Actor, RecordToActor
+from the_tale.game.chronicle.models import Record, Actor, RecordToActor
 
 
 class RecordAdmin(admin.ModelAdmin):

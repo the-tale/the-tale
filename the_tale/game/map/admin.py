@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from game.map.models import MapInfo, WorldInfo
+from the_tale.game.map.models import MapInfo, WorldInfo
 
 
 class MapInfoAdmin(admin.ModelAdmin):

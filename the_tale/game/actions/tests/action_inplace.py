@@ -1,18 +1,18 @@
 # coding: utf-8
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
-from game.heroes.prototypes import HeroPrototype
-from game.logic_storage import LogicStorage
+from the_tale.accounts.logic import register_user
+from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.logic_storage import LogicStorage
 
-from game.heroes.relations import EQUIPMENT_SLOT
-from game.logic import create_test_map
-from game.actions.prototypes import ActionInPlacePrototype, ActionRestPrototype, ActionTradingPrototype, ActionEquippingPrototype, ActionRegenerateEnergyPrototype
-from game.artifacts.storage import artifacts_storage
-from game.prototypes import TimePrototype
+from the_tale.game.heroes.relations import EQUIPMENT_SLOT
+from the_tale.game.logic import create_test_map
+from the_tale.game.actions.prototypes import ActionInPlacePrototype, ActionRestPrototype, ActionTradingPrototype, ActionEquippingPrototype, ActionRegenerateEnergyPrototype
+from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.prototypes import TimePrototype
 
-from game.balance import constants as c, formulas as f, enums as e
+from the_tale.game.balance import constants as c, formulas as f, enums as e
 
 class InPlaceActionTest(testcase.TestCase):
 
@@ -37,7 +37,7 @@ class InPlaceActionTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_instant_heal_in_resort(self):
-        from game.map.places.modifiers.prototypes import Resort
+        from the_tale.game.map.places.modifiers.prototypes import Resort
 
         self.hero.health = 1
         self.hero.position.place.modifier = Resort(self.hero.position.place)
@@ -48,7 +48,7 @@ class InPlaceActionTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_no_instant_heal_in_resort(self):
-        from game.map.places.modifiers.prototypes import Resort
+        from the_tale.game.map.places.modifiers.prototypes import Resort
 
         self.hero.health = self.hero.max_health
         self.hero.position.place.modifier = Resort(self.hero.position.place)

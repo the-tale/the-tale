@@ -5,24 +5,24 @@ from textgen.words import Fake as FakeWord
 
 from textgen.words import Noun
 
-from common.utils.testcase import TestCase
+from the_tale.common.utils.testcase import TestCase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from forum.models import Category, SubCategory
+from the_tale.forum.models import Category, SubCategory
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.bills.conf import bills_settings
-from game.bills import bills
-from game.bills.prototypes import BillPrototype
-from game.bills.tests.helpers import choose_resources
+from the_tale.game.bills.conf import bills_settings
+from the_tale.game.bills import bills
+from the_tale.game.bills.prototypes import BillPrototype
+from the_tale.game.bills.tests.helpers import choose_resources
 
-from game.chronicle import records
-from game.chronicle.models import RECORD_TYPE, Record, Actor
-from game.chronicle.prototypes import create_external_actor
-from game.chronicle.relations import ACTOR_ROLE
+from the_tale.game.chronicle import records
+from the_tale.game.chronicle.models import RECORD_TYPE, Record, Actor
+from the_tale.game.chronicle.prototypes import create_external_actor
+from the_tale.game.chronicle.relations import ACTOR_ROLE
 
 
 class RecordTests(TestCase):
@@ -56,8 +56,8 @@ class RecordTests(TestCase):
                     forms=['new name %d %d' % (index, i) for i in xrange( Noun.FORMS_NUMBER)],
                     properties=(u'мр',))
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def create_bill_decline(self):
         resource_1, resource_2 = choose_resources()
 
@@ -78,7 +78,7 @@ class RecordTests(TestCase):
         return bill, declined_bill
 
     def test_bill_decline__actors(self):
-        from game.chronicle.signal_processors import _get_bill_decline_bill_arguments
+        from the_tale.game.chronicle.signal_processors import _get_bill_decline_bill_arguments
 
         bill, declined_bill = self.create_bill_decline()
 
@@ -90,8 +90,8 @@ class RecordTests(TestCase):
                                                      (ACTOR_ROLE.PLACE, self.place_1.id),
                                                      (ACTOR_ROLE.PLACE, self.place_2.id)]))
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_bill_decline__actors_on_creation_record(self):
         bill, declined_bill = self.create_bill_decline()
         form = bills.BillDecline.ModeratorForm({'approved': True})

@@ -8,9 +8,9 @@ class Command(BaseCommand):
     help = 'clean database'
 
     def handle(self, *args, **options):
-        from common.postponed_tasks.prototypes import PostponedTaskPrototype
-        from forum.prototypes import SubCategoryReadInfoPrototype, ThreadReadInfoPrototype
-        from post_service.prototypes import MessagePrototype
+        from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
+        from the_tale.forum.prototypes import SubCategoryReadInfoPrototype, ThreadReadInfoPrototype
+        from the_tale.post_service.prototypes import MessagePrototype
 
         PostponedTaskPrototype.remove_old_tasks()
 

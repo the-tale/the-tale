@@ -1,14 +1,14 @@
 # coding: utf-8
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from bank.relations import ENTITY_TYPE as BANK_ENTITY_TYPE, CURRENCY_TYPE as BANK_CURRENCY_TYPE
+from the_tale.bank.relations import ENTITY_TYPE as BANK_ENTITY_TYPE, CURRENCY_TYPE as BANK_CURRENCY_TYPE
 
-from bank.dengionline.prototypes import InvoicePrototype
-from bank.dengionline.transaction import Transaction
-from bank.dengionline.relations import CURRENCY_TYPE
-from bank.dengionline.conf import dengionline_settings
-from bank.dengionline import exceptions
+from the_tale.bank.dengionline.prototypes import InvoicePrototype
+from the_tale.bank.dengionline.transaction import Transaction
+from the_tale.bank.dengionline.relations import CURRENCY_TYPE
+from the_tale.bank.dengionline.conf import dengionline_settings
+from the_tale.bank.dengionline import exceptions
 
 
 class TransactionTests(testcase.TestCase):

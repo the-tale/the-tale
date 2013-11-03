@@ -5,7 +5,7 @@ from rels.django_staff import DjangoEnum
 
 from pynames.generators import GENDER as PYNAMES_GENDER
 
-from game.balance import enums as e
+from the_tale.game.balance import enums as e
 
 
 class GENDER(DjangoEnum):

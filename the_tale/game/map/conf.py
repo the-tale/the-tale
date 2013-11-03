@@ -6,7 +6,7 @@ from django.conf import settings as project_settings
 
 from dext.utils.app_settings import app_settings
 
-from game.balance import constants as c
+from the_tale.game.balance import constants as c
 
 map_settings = app_settings('MAP',
                             WIDTH=56 if not project_settings.TESTS_RUNNING else 4,

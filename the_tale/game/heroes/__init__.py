@@ -1,4 +1,4 @@
 # coding: utf-8
 
-# from game.heroes.models import Hero
-# from game.heroes.prototypes import HeroPrototype
+# from the_tale.game.heroes.models import Hero
+# from the_tale.game.heroes.prototypes import HeroPrototype

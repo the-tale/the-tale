@@ -3,12 +3,12 @@
 import math
 import random
 
-from game.balance import constants as c, enums as e
+from the_tale.game.balance import constants as c, enums as e
 
 
-from common.utils.enum import create_enum
+from the_tale.common.utils.enum import create_enum
 
-from game.persons.relations import PROFESSION_TO_CITY_MODIFIERS
+from the_tale.game.persons.relations import PROFESSION_TO_CITY_MODIFIERS
 
 
 EFFECT_SOURCES = create_enum('EFFECT_SOURCES', (('PERSON', 0, u'житель'),))

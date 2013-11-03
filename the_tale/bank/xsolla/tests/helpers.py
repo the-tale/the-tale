@@ -2,7 +2,7 @@
 
 import mock
 
-from bank.xsolla.prototypes import InvoicePrototype
+from the_tale.bank.xsolla.prototypes import InvoicePrototype
 
 
 class TestInvoiceFabric(object):
@@ -31,7 +31,7 @@ class TestInvoiceFabric(object):
         date = kwargs.get('date', self.date)
         request_url = kwargs.get('request_url', self.request_url)
 
-        with mock.patch('bank.logic.get_account_id', mock.Mock(return_value=account_id)):
+        with mock.patch('the_tale.bank.logic.get_account_id', mock.Mock(return_value=account_id)):
             return InvoicePrototype.create(v1=user_email,
                                            v2=self.v2,
                                            v3=self.v3,
@@ -54,7 +54,7 @@ class TestInvoiceFabric(object):
         date = kwargs.get('date', self.date)
         request_url = kwargs.get('request_url', self.request_url)
 
-        with mock.patch('bank.logic.get_account_id', mock.Mock(return_value=account_id)):
+        with mock.patch('the_tale.bank.logic.get_account_id', mock.Mock(return_value=account_id)):
             return InvoicePrototype.pay(v1=user_email,
                                         v2=self.v2,
                                         v3=self.v3,

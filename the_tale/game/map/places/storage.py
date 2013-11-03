@@ -1,11 +1,11 @@
 # coding: utf-8
 import random
 
-from common.utils.storage import create_storage_class
+from the_tale.common.utils.storage import create_storage_class
 
-from game.map.places.prototypes import PlacePrototype, BuildingPrototype, ResourceExchangePrototype
-from game.map.places.exceptions import PlacesException
-from game.map.places.relations import BUILDING_STATE
+from the_tale.game.map.places.prototypes import PlacePrototype, BuildingPrototype, ResourceExchangePrototype
+from the_tale.game.map.places.exceptions import PlacesException
+from the_tale.game.map.places.relations import BUILDING_STATE
 
 
 class PlacesStorage(create_storage_class('places change time', PlacePrototype._model_class, PlacePrototype, PlacesException)):

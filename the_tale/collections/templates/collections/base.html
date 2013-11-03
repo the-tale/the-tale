@@ -1,7 +1,7 @@
-{% extends "achievements/base.html" %}
+{% extends "collections/base.html" %}
 
 
-{% block achievements_content %}
+{% block collections_main_content %}
 
 <div class="row">
   <div class="span3">
@@ -10,7 +10,7 @@
       <ul class="nav nav-list">
         {% for menu_collection in resource.collections %}
         <li class="nav-element {% if resource.collection and menu_collection.id == resource.collection.id %}active{% endif %}">
-          <a href="{{ url('achievements:collections:show', menu_collection.id) }}"
+          <a href="{{ url('collections:collections:show', menu_collection.id) }}"
              class="{% if not menu_collection.approved%}disabled{% endif %}">
             {{menu_collection.caption}}
           </a>

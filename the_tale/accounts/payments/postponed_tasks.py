@@ -3,19 +3,19 @@
 import rels
 from rels.django_staff import DjangoEnum
 
-from common.utils.decorators import lazy_property
-from common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.utils.decorators import lazy_property
+from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 
-from bank.transaction import Transaction
+from the_tale.bank.transaction import Transaction
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from accounts.workers.environment import workers_environment as accounts_workers_environment
-from accounts.prototypes import AccountPrototype
+from the_tale.accounts.workers.environment import workers_environment as accounts_workers_environment
+from the_tale.accounts.prototypes import AccountPrototype
 
-from accounts.payments.relations import PERMANENT_PURCHASE_TYPE
-from accounts.payments.logic import transaction_logic
-from accounts.payments.conf import payments_settings
+from the_tale.accounts.payments.relations import PERMANENT_PURCHASE_TYPE
+from the_tale.accounts.payments.logic import transaction_logic
+from the_tale.accounts.payments.conf import payments_settings
 
 
 class BASE_BUY_TASK_STATE(DjangoEnum):
@@ -189,7 +189,7 @@ class BuyEnergyCharges(BaseBuyTask):
         hero.energy_charges += self.charges_number
 
     def on_process_transaction_requested__transaction_frozen(self, main_task):
-        from game.workers.environment import workers_environment as game_workers_environment
+        from the_tale.game.workers.environment import workers_environment as game_workers_environment
         main_task.extend_postsave_actions((lambda: game_workers_environment.supervisor.cmd_logic_task(self.account_id, main_task.id),))
 
 

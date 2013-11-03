@@ -1,12 +1,12 @@
 # coding: utf-8
 
 
-from common.utils.decorators import lazy_property
+from the_tale.common.utils.decorators import lazy_property
 
-from accounts.payments.relations import PERMANENT_PURCHASE_TYPE
+from the_tale.accounts.payments.relations import PERMANENT_PURCHASE_TYPE
 
-from accounts.clans.prototypes import ClanPrototype, MembershipPrototype
-from accounts.clans.conf import clans_settings
+from the_tale.accounts.clans.prototypes import ClanPrototype, MembershipPrototype
+from the_tale.accounts.clans.conf import clans_settings
 
 class ClanInfo(object):
 

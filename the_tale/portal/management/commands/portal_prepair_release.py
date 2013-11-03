@@ -1,10 +1,11 @@
 # coding: utf-8
 import sys
-import subprocess
 from optparse import make_option
 
 from django.core.management.base import BaseCommand
 from django.conf import settings as project_settings
+
+from the_tale.common.utils.logic import run_django_command
 
 META_CONFIG = project_settings.META_CONFIG
 
@@ -34,25 +35,25 @@ class Command(BaseCommand):
         print 'GENEREATE ABILITIES JS'
         print
 
-        subprocess.call(['./manage.py', 'abilities_create_abilities_js'])
+        run_django_command(['abilities_create_abilities_js'])
 
         print
         print 'GENERATE JAVASCRIPT CONSTANTS'
         print
 
-        subprocess.call(['./manage.py', 'game_generate_js'])
+        run_django_command(['game_generate_js'])
 
         print
         print 'GENERATE CSS'
         print
 
-        subprocess.call(['./manage.py', 'less_generate_css'])
+        run_django_command(['less_generate_css'])
 
         print
         print 'LOAD TEXTGEN TEXTS'
         print
 
-        subprocess.call(['./manage.py', 'game_load_texts'])
+        run_django_command(['game_load_texts'])
 
         print
         print 'GENERATE META CONFIG'

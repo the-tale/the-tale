@@ -4,10 +4,10 @@ from django import forms as django_forms
 
 from dext.forms import forms, fields
 
-from common.utils import bbcode
+from the_tale.common.utils import bbcode
 
 
-from achievements.prototypes import CollectionPrototype, KitPrototype, ItemPrototype
+from the_tale.collections.prototypes import CollectionPrototype, KitPrototype, ItemPrototype
 
 
 class EditCollectionForm(forms.Form):

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
 
 from . import formulas as f, constants as c, enums as e

@@ -4,20 +4,20 @@ import mock
 
 from dext.utils.urls import url
 
-from common.utils.testcase import TestCase
+from the_tale.common.utils.testcase import TestCase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user, login_url
-from accounts.personal_messages.prototypes import MessagePrototype
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user, login_url
+from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from accounts.clans.prototypes import ClanPrototype, MembershipPrototype, MembershipRequestPrototype
-from accounts.clans.relations import ORDER_BY, MEMBER_ROLE, MEMBERSHIP_REQUEST_TYPE
-from accounts.clans.tests.helpers import ClansTestsMixin
-from accounts.clans.conf import clans_settings
+from the_tale.accounts.clans.prototypes import ClanPrototype, MembershipPrototype, MembershipRequestPrototype
+from the_tale.accounts.clans.relations import ORDER_BY, MEMBER_ROLE, MEMBERSHIP_REQUEST_TYPE
+from the_tale.accounts.clans.tests.helpers import ClansTestsMixin
+from the_tale.accounts.clans.conf import clans_settings
 
-from forum.prototypes import CategoryPrototype
+from the_tale.forum.prototypes import CategoryPrototype
 
 
 class BaseTestRequests(TestCase, ClansTestsMixin):
@@ -60,17 +60,17 @@ class TestIndexRequests(BaseTestRequests):
                            texts=[('pgf-no-clans-message', 1)])
 
     def test_create_button(self):
-        with mock.patch('accounts.clans.logic.ClanInfo.can_create_clan', False):
+        with mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', False):
             self.check_html_ok(self.request_html(url('accounts:clans:')),
                                texts=[('pgf-create-clan-button', 0),
                                       ('pgf-create-clan-disabled-button', 1)])
 
-        with mock.patch('accounts.clans.logic.ClanInfo.can_create_clan', True):
+        with mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', True):
             self.check_html_ok(self.request_html(url('accounts:clans:')),
                                texts=[('pgf-create-clan-button', 1),
                                       ('pgf-create-clan-disabled-button', 0)])
 
-    @mock.patch('accounts.clans.conf.clans_settings.CLANS_ON_PAGE', 4)
+    @mock.patch('the_tale.accounts.clans.conf.clans_settings.CLANS_ON_PAGE', 4)
     def test_clans_2_pages(self):
         for i in xrange(6):
             result, account_id, bundle_id = register_user('leader_%d' % i, 'leader_%d@test.com' % i, '111111')
@@ -100,13 +100,13 @@ class TestNewRequests(BaseTestRequests):
         self.account.save()
         self.check_html_ok(self.request_html(self.new_url), texts=['common.fast_account'])
 
-    @mock.patch('accounts.clans.logic.ClanInfo.can_create_clan', False)
+    @mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', False)
     def test_creation_rights(self):
         self.request_login(self.account.email)
         self.check_html_ok(self.request_html(self.new_url), texts=['clans.can_not_create_clan'])
 
 
-    @mock.patch('accounts.clans.logic.ClanInfo.can_create_clan', True)
+    @mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', True)
     def test_ok(self):
         self.request_login(self.account.email)
         self.check_html_ok(self.request_html(self.new_url), texts=[('clans.can_not_create_clan', 0)])
@@ -136,17 +136,17 @@ class TestCreateRequests(BaseTestRequests):
         self.check_ajax_error(self.post_ajax_json(self.create_url, self.create_data()), 'common.fast_account')
         self.assertEqual(ClanPrototype._db_count(), 0)
 
-    @mock.patch('accounts.clans.logic.ClanInfo.can_create_clan', False)
+    @mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', False)
     def test_creation_rights(self):
         self.check_ajax_error(self.post_ajax_json(self.create_url, self.create_data()), 'clans.can_not_create_clan')
         self.assertEqual(ClanPrototype._db_count(), 0)
 
-    @mock.patch('accounts.clans.logic.ClanInfo.can_create_clan', True)
+    @mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', True)
     def test_form_errors(self):
         self.check_ajax_error(self.post_ajax_json(self.create_url, {}), 'clans.create.form_errors')
         self.assertEqual(ClanPrototype._db_count(), 0)
 
-    @mock.patch('accounts.clans.logic.ClanInfo.can_create_clan', True)
+    @mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', True)
     def test_name_exists(self):
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
         account = AccountPrototype.get_by_id(account_id)
@@ -155,7 +155,7 @@ class TestCreateRequests(BaseTestRequests):
         self.check_ajax_error(self.post_ajax_json(self.create_url, self.create_data(name=clan.name)), 'clans.create.name_exists')
         self.assertEqual(ClanPrototype._db_count(), 1)
 
-    @mock.patch('accounts.clans.logic.ClanInfo.can_create_clan', True)
+    @mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', True)
     def test_abbr_exists(self):
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
         account = AccountPrototype.get_by_id(account_id)
@@ -164,7 +164,7 @@ class TestCreateRequests(BaseTestRequests):
         self.check_ajax_error(self.post_ajax_json(self.create_url, self.create_data(abbr=clan.abbr)), 'clans.create.abbr_exists')
         self.assertEqual(ClanPrototype._db_count(), 1)
 
-    @mock.patch('accounts.clans.logic.ClanInfo.can_create_clan', True)
+    @mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', True)
     def test_ok(self):
         self.assertEqual(ClanPrototype._db_count(), 0)
         response = self.post_ajax_json(self.create_url, self.create_data())
@@ -1025,7 +1025,7 @@ class MembershipRemoveFromClanRequestsTests(BaseMembershipRequestsTests):
         self.check_ajax_error(self.post_ajax_json(self.remove_url), 'clans.membership.remove_from_clan.not_in_clan')
         self.assertEqual(MembershipPrototype._db_count(), 2)
 
-    @mock.patch('accounts.clans.relations.MEMBER_ROLE.MEMBER.priority', MEMBER_ROLE.LEADER.priority)
+    @mock.patch('the_tale.accounts.clans.relations.MEMBER_ROLE.MEMBER.priority', MEMBER_ROLE.LEADER.priority)
     def test_wrong_priority(self):
         self.check_ajax_error(self.post_ajax_json(self.remove_url), 'clans.membership.remove_from_clan.wrong_role_priority')
         self.assertEqual(MembershipPrototype._db_count(), 2)

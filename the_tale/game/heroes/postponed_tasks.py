@@ -8,20 +8,20 @@ from dext.utils.decorators import nested_commit_on_success
 
 from textgen.words import Noun
 
-from common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
-from common.utils.enum import create_enum
+from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.utils.enum import create_enum
 
-from accounts.prototypes import AccountPrototype
+from the_tale.accounts.prototypes import AccountPrototype
 
-from game.relations import GENDER, RACE
-from game.balance import constants as c
+from the_tale.game.relations import GENDER, RACE
+from the_tale.game.balance import constants as c
 
-from game.map.places.storage import places_storage
-from game.mobs.storage import mobs_storage
-from game.persons.storage import persons_storage
+from the_tale.game.map.places.storage import places_storage
+from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.persons.storage import persons_storage
 
-from game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
-from game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT, RISK_LEVEL
+from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
+from the_tale.game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT, RISK_LEVEL
 
 
 CHOOSE_HERO_ABILITY_STATE = create_enum('CHOOSE_HERO_ABILITY_STATE', ( ('UNPROCESSED', 0, u'в очереди'),

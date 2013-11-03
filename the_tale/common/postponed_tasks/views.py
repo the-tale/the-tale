@@ -4,9 +4,9 @@ from django.core.urlresolvers import reverse
 
 from dext.views import handler, validate_argument
 
-from common.utils.resources import Resource
+from the_tale.common.utils.resources import Resource
 
-from common.postponed_tasks.prototypes import PostponedTaskPrototype
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 
 class PostponedTaskResource(Resource):

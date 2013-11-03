@@ -1,6 +1,7 @@
 # coding: utf-8
 import math
 import random
+import subprocess
 
 def random_value_by_priority(values):
 
@@ -80,3 +81,7 @@ def get_or_create(get_method, create_method, exception, kwargs):
         return create_method(**kwargs)
     except exception:
         return get_method(**kwargs)
+
+
+def run_django_command(command):
+    return subprocess.call(['django-admin.py']+command+['--settings', 'the_tale.settings'])

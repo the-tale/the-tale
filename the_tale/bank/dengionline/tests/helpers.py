@@ -2,9 +2,9 @@
 
 from decimal import Decimal
 
-from bank.relations import ENTITY_TYPE as BANK_ENTITY_TYPE, CURRENCY_TYPE as BANK_CURRENCY_TYPE
-from bank.dengionline.relations import CURRENCY_TYPE
-from bank.dengionline.prototypes import InvoicePrototype
+from the_tale.bank.relations import ENTITY_TYPE as BANK_ENTITY_TYPE, CURRENCY_TYPE as BANK_CURRENCY_TYPE
+from the_tale.bank.dengionline.relations import CURRENCY_TYPE
+from the_tale.bank.dengionline.prototypes import InvoicePrototype
 
 
 class TestInvoiceFabric(object):

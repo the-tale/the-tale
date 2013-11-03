@@ -3,21 +3,21 @@ import mock
 
 from questgen import facts
 
-from common.utils import testcase
-from common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.utils import testcase
+from the_tale.common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
-from accounts.logic import register_user
-from accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
 
-from game.logic import create_test_map
-from game.logic_storage import LogicStorage
-from game.prototypes import TimePrototype
+from the_tale.game.logic import create_test_map
+from the_tale.game.logic_storage import LogicStorage
+from the_tale.game.prototypes import TimePrototype
 
-from game.actions.prototypes import ActionIdlenessPrototype
+from the_tale.game.actions.prototypes import ActionIdlenessPrototype
 
-from game.quests.postponed_tasks import MakeChoiceTask
+from the_tale.game.quests.postponed_tasks import MakeChoiceTask
 
-from game.quests.tests.helpers import QuestTestsMixin, QuestWith2ChoicePoints
+from the_tale.game.quests.tests.helpers import QuestTestsMixin, QuestWith2ChoicePoints
 
 
 class MakeChoiceTaskTest(testcase.TestCase, QuestTestsMixin):

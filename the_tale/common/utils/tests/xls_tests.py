@@ -2,8 +2,8 @@
 
 import os
 
-from common.utils.testcase import TestCase
-from common.utils import xls
+from the_tale.common.utils.testcase import TestCase
+from the_tale.common.utils import xls
 
 class XLSTests(TestCase):
 

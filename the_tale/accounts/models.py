@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from rels.django_staff import TableIntegerField
 
-from accounts.relations import AWARD_TYPE, CHANGE_CREDENTIALS_TASK_STATE
+from the_tale.accounts.relations import AWARD_TYPE, CHANGE_CREDENTIALS_TASK_STATE
 
 
 class AccountManager(BaseUserManager):

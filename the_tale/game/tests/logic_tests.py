@@ -1,20 +1,20 @@
 # coding: utf-8
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from game.bundles import BundlePrototype
-from game.models import Bundle
-from game.logic import remove_game_data, create_test_map, form_game_info
-from game.prototypes import TimePrototype
+from the_tale.game.bundles import BundlePrototype
+from the_tale.game.models import Bundle
+from the_tale.game.logic import remove_game_data, create_test_map, form_game_info
+from the_tale.game.prototypes import TimePrototype
 
-from game.pvp.tests.helpers import PvPTestsMixin
-from game.pvp.models import BATTLE_1X1_STATE
+from the_tale.game.pvp.tests.helpers import PvPTestsMixin
+from the_tale.game.pvp.models import BATTLE_1X1_STATE
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
 
 class LogicTests(testcase.TestCase):
@@ -104,9 +104,9 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
 
     def test_own_hero_get_cached_data(self):
         hero = HeroPrototype.get_by_account_id(self.account_1.id)
-        with mock.patch('game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero',
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero',
                         mock.Mock(return_value={'id': hero.id, 'saved_at_turn': hero.saved_at_turn}),) as cached_ui_info_for_hero:
-            with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info', mock.Mock(return_value={'saved_at_turn': 0})) as ui_info:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info', mock.Mock(return_value={'saved_at_turn': 0})) as ui_info:
                 form_game_info(self.account_1, is_own=True)
 
         self.assertEqual(cached_ui_info_for_hero.call_count, 1)
@@ -115,8 +115,8 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
 
     def test_other_hero_get_not_cached_data(self):
         hero_2 = HeroPrototype.get_by_account_id(self.account_1.id)
-        with mock.patch('game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero') as cached_ui_info:
-            with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info',
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero') as cached_ui_info:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info',
                             mock.Mock(return_value={'id': hero_2.id, 'saved_at_turn': hero_2.saved_at_turn})) as ui_info:
                 form_game_info(self.account_1, is_own=False)
 
@@ -200,9 +200,9 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         hero_1 = HeroPrototype.get_by_account_id(self.account_1.id)
         hero_2 = HeroPrototype.get_by_account_id(self.account_2.id)
 
-        with mock.patch('game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero',
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero',
                         mock.Mock(return_value={'saved_at_turn': hero_1.saved_at_turn})) as cached_ui_info_for_hero:
-            with mock.patch('game.heroes.prototypes.HeroPrototype.ui_info',
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info',
                             mock.Mock(return_value={'saved_at_turn': hero_2.saved_at_turn})) as ui_info:
                 form_game_info(self.account_1, is_own=True)
 

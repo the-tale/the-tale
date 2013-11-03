@@ -1,8 +1,8 @@
 # coding: utf-8
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from bank import logic
+from the_tale.bank import logic
 
 
 class LogicTests(testcase.TestCase):

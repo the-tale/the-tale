@@ -1,8 +1,8 @@
 # coding: utf-8
 
-from game.heroes.habilities.prototypes import AbilityPrototype
-from game.heroes.habilities.relations import ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
-from game.game_info import ATTRIBUTES
+from the_tale.game.heroes.habilities.prototypes import AbilityPrototype
+from the_tale.game.heroes.habilities.relations import ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
+from the_tale.game.game_info import ATTRIBUTES
 
 class AbilityAttributeBase(AbilityPrototype):
 

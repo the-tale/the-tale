@@ -4,17 +4,17 @@ from django.forms import ValidationError
 
 from dext.forms import forms, fields
 
-from common.utils.forms import SimpleWordField
-from common.utils import bbcode
+from the_tale.common.utils.forms import SimpleWordField
+from the_tale.common.utils import bbcode
 
-from game.map.relations import TERRAIN
+from the_tale.game.map.relations import TERRAIN
 
-from game.heroes.habilities import ABILITIES
-from game.heroes.habilities.battle import HIT
+from the_tale.game.heroes.habilities import ABILITIES
+from the_tale.game.heroes.habilities.battle import HIT
 
-from game.mobs.models import MobRecord
-from game.mobs.prototypes import MobRecordPrototype
-from game.mobs.relations import MOB_TYPE
+from the_tale.game.mobs.models import MobRecord
+from the_tale.game.mobs.prototypes import MobRecordPrototype
+from the_tale.game.mobs.relations import MOB_TYPE
 
 
 def to_ability(ability_id):

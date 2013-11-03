@@ -4,11 +4,11 @@ from django.db import models
 
 from rels.django_staff import TableIntegerField
 
-from accounts.models import Account
+from the_tale.accounts.models import Account
 
-from bank.relations import ENTITY_TYPE as BANK_ENTITY_TYPE, CURRENCY_TYPE as BANK_CURRENCY_TYPE
+from the_tale.bank.relations import ENTITY_TYPE as BANK_ENTITY_TYPE, CURRENCY_TYPE as BANK_CURRENCY_TYPE
 
-from bank.dengionline.relations import CURRENCY_TYPE, INVOICE_STATE
+from the_tale.bank.dengionline.relations import CURRENCY_TYPE, INVOICE_STATE
 
 
 class Invoice(models.Model):

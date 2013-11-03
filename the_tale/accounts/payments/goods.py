@@ -1,10 +1,10 @@
 # coding: utf-8
 
-from common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.postponed_tasks import PostponedTaskPrototype
 
-from accounts.payments.postponed_tasks import BuyPremium, BuyPermanentPurchase, BuyEnergyCharges
-from accounts.payments import exceptions
-from accounts.payments.logic import transaction_logic
+from the_tale.accounts.payments.postponed_tasks import BuyPremium, BuyPermanentPurchase, BuyEnergyCharges
+from the_tale.accounts.payments import exceptions
+from the_tale.accounts.payments.logic import transaction_logic
 
 
 class PurchaseItem(object):

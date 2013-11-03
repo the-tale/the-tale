@@ -1,8 +1,8 @@
 # coding: utf-8
 
-from accounts.payments.postponed_tasks import BuyPermanentPurchase
-from accounts.payments.tests.base_buy_task_tests import BaseBuyPosponedTaskTests as _BaseBuyPosponedTaskTests
-from accounts.payments.relations import PERMANENT_PURCHASE_TYPE
+from the_tale.accounts.payments.postponed_tasks import BuyPermanentPurchase
+from the_tale.accounts.payments.tests.base_buy_task_tests import BaseBuyPosponedTaskTests as _BaseBuyPosponedTaskTests
+from the_tale.accounts.payments.relations import PERMANENT_PURCHASE_TYPE
 
 class BuyPermanentPurchasePosponedTaskTests(_BaseBuyPosponedTaskTests):
 

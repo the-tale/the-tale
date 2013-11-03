@@ -2,14 +2,14 @@
 
 from textgen.words import Noun
 
-from game.relations import GENDER, RACE
+from the_tale.game.relations import GENDER, RACE
 
-from game.persons.relations import PERSON_TYPE
-from game.persons.storage import persons_storage
+from the_tale.game.persons.relations import PERSON_TYPE
+from the_tale.game.persons.storage import persons_storage
 
-from game.map.places.storage import places_storage
+from the_tale.game.map.places.storage import places_storage
 
-from game.bills.bills.base_bill import BaseBill
+from the_tale.game.bills.bills.base_bill import BaseBill
 
 
 class BasePersonBill(BaseBill):

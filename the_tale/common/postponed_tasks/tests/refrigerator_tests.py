@@ -1,11 +1,11 @@
 # coding: utf-8
 import datetime
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from common.postponed_tasks.prototypes import PostponedTaskPrototype, autodiscover, POSTPONED_TASK_LOGIC_RESULT
-from common.postponed_tasks.postponed_tasks import FakePostponedInternalTask
-from common.postponed_tasks.workers.environment import workers_environment as postponed_tasks_workers_environment
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, autodiscover, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks.postponed_tasks import FakePostponedInternalTask
+from the_tale.common.postponed_tasks.workers.environment import workers_environment as postponed_tasks_workers_environment
 
 
 class RefrigeratorTests(testcase.TestCase):

@@ -5,9 +5,9 @@ from django.core.urlresolvers import reverse
 
 from dext.views import handler
 
-from common.utils.resources import Resource
+from the_tale.common.utils.resources import Resource
 
-from cms.models import Page
+from the_tale.cms.models import Page
 
 
 class CMSResource(Resource):

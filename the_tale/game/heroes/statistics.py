@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from game.heroes.exceptions import HeroException
+from the_tale.game.heroes.exceptions import HeroException
 
 class MONEY_SOURCE:
 

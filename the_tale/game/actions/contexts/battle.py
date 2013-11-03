@@ -1,7 +1,7 @@
 # coding: utf-8
 import random
 
-from game.balance import constants as c
+from the_tale.game.balance import constants as c
 
 class Damage(object):
 

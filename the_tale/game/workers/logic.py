@@ -8,12 +8,12 @@ from django.conf import settings as project_settings
 from dext.settings import settings
 from dext.utils.decorators import nested_commit_on_success
 
-from common.amqp_queues import BaseWorker
-from common import postponed_tasks
+from the_tale.common.amqp_queues import BaseWorker
+from the_tale.common import postponed_tasks
 
-from game.prototypes import TimePrototype
-from game.logic_storage import LogicStorage
-from game.workers.environment import workers_environment as game_environment
+from the_tale.game.prototypes import TimePrototype
+from the_tale.game.logic_storage import LogicStorage
+from the_tale.game.workers.environment import workers_environment as game_environment
 
 
 class LogicException(Exception): pass
@@ -62,7 +62,7 @@ class Worker(BaseWorker):
         return self.send_cmd('next_turn', data={'turn_number': turn_number})
 
     def process_next_turn(self, turn_number):
-        from game.logic import log_sql_queries
+        from the_tale.game.logic import log_sql_queries
 
         settings.refresh()
 
@@ -104,7 +104,7 @@ class Worker(BaseWorker):
         return self.send_cmd('register_account', {'account_id': account_id})
 
     def process_register_account(self, account_id):
-        from accounts.prototypes import AccountPrototype
+        from the_tale.accounts.prototypes import AccountPrototype
         account = AccountPrototype.get_by_id(account_id)
         if account is None:
             raise LogicException('can not get account with id "%d"' % (account_id,))
@@ -114,7 +114,7 @@ class Worker(BaseWorker):
         return self.send_cmd('release_account', {'account_id': account_id})
 
     def process_release_account(self, account_id):
-        from accounts.prototypes import AccountPrototype
+        from the_tale.accounts.prototypes import AccountPrototype
         self.storage.release_account_data(AccountPrototype.get_by_id(account_id))
         game_environment.supervisor.cmd_account_released(account_id)
 

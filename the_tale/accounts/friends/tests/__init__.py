@@ -1,4 +1,4 @@
 # coding: utf-8
 
-from accounts.friends.tests.prototypes_tests import *
-from accounts.friends.tests.requests_tests import *
+from the_tale.accounts.friends.tests.prototypes_tests import *
+from the_tale.accounts.friends.tests.requests_tests import *

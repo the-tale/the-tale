@@ -5,7 +5,7 @@ from django.db import models
 
 from rels.django_staff import TableIntegerField
 
-from post_service.relations import MESSAGE_STATE
+from the_tale.post_service.relations import MESSAGE_STATE
 
 
 class Message(models.Model):

@@ -1,11 +1,11 @@
 # coding: utf-8
 import time
 
-from game.balance import constants as c
+from the_tale.game.balance import constants as c
 
-from game.prototypes import TimePrototype, GameTime
+from the_tale.game.prototypes import TimePrototype, GameTime
 
-from game.heroes.conf import heroes_settings
+from the_tale.game.heroes.conf import heroes_settings
 
 
 class MessagesContainer(object):

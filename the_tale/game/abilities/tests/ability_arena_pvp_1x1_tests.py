@@ -1,17 +1,17 @@
 # coding: utf-8
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
-from game.logic_storage import LogicStorage
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
+from the_tale.game.logic_storage import LogicStorage
 
-from game.workers.environment import workers_environment
+from the_tale.game.workers.environment import workers_environment
 
-from game.logic import create_test_map
-from game.abilities.deck.arena_pvp_1x1 import ArenaPvP1x1, ABILITY_TASK_STEP
-from game.pvp.models import Battle1x1
+from the_tale.game.logic import create_test_map
+from the_tale.game.abilities.deck.arena_pvp_1x1 import ArenaPvP1x1, ABILITY_TASK_STEP
+from the_tale.game.pvp.models import Battle1x1
 
 class ArenaPvP1x1AbilityTest(testcase.TestCase):
 
@@ -57,7 +57,7 @@ class ArenaPvP1x1AbilityTest(testcase.TestCase):
         self.assertEqual((result, step), (None, ABILITY_TASK_STEP.PVP_BALANCER))
         self.assertEqual(len(postsave_actions), 1)
 
-        with mock.patch('game.pvp.workers.balancer.Worker.cmd_logic_task') as pvp_balancer_logic_task_counter:
+        with mock.patch('the_tale.game.pvp.workers.balancer.Worker.cmd_logic_task') as pvp_balancer_logic_task_counter:
             postsave_actions[0]()
 
         self.assertEqual(pvp_balancer_logic_task_counter.call_count, 1)

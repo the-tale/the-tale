@@ -5,33 +5,33 @@ import copy
 
 from dext.utils.urls import url
 
-from common.utils.discovering import discover_classes
+from the_tale.common.utils.discovering import discover_classes
 
-from common.utils.logic import random_value_by_priority
+from the_tale.common.utils.logic import random_value_by_priority
 
-from game.heroes.logic import create_mob_for_hero
+from the_tale.game.heroes.logic import create_mob_for_hero
 
-from game.map.roads.storage import waymarks_storage
+from the_tale.game.map.roads.storage import waymarks_storage
 
-from game.actions import battle, contexts
+from the_tale.game.actions import battle, contexts
 
-from game.balance import constants as c, formulas as f, enums as e
+from the_tale.game.balance import constants as c, formulas as f, enums as e
 
-from game.actions.exceptions import ActionException
+from the_tale.game.actions.exceptions import ActionException
 
-from game.quests.logic import create_random_quest_for_hero
+from the_tale.game.quests.logic import create_random_quest_for_hero
 
-from game.mobs.prototypes import MobPrototype
+from the_tale.game.mobs.prototypes import MobPrototype
 
-from game.prototypes import TimePrototype
+from the_tale.game.prototypes import TimePrototype
 
-from game.map.places.storage import places_storage
+from the_tale.game.map.places.storage import places_storage
 
-from game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
+from the_tale.game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
 
-from game.abilities.relations import HELP_CHOICES
+from the_tale.game.abilities.relations import HELP_CHOICES
 
-from game.map.storage import map_info_storage
+from the_tale.game.map.storage import map_info_storage
 
 
 E = 0.0001

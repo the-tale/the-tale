@@ -3,7 +3,7 @@
 from rels import Column
 from rels.django_staff import DjangoEnum
 
-from game.balance import constants as c
+from the_tale.game.balance import constants as c
 
 
 class BUILDING_STATE(DjangoEnum):

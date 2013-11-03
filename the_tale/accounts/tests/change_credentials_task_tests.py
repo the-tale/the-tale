@@ -5,14 +5,14 @@ from dext.utils.urls import url
 
 from django.contrib.auth import authenticate as django_authenticate
 
-from common.utils import testcase
-from common.postponed_tasks import POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.utils import testcase
+from the_tale.common.postponed_tasks import POSTPONED_TASK_LOGIC_RESULT
 
-from accounts.prototypes import ChangeCredentialsTaskPrototype, AccountPrototype
-from accounts.postponed_tasks import ChangeCredentials, CHANGE_CREDENTIALS_STATE
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import ChangeCredentialsTaskPrototype, AccountPrototype
+from the_tale.accounts.postponed_tasks import ChangeCredentials, CHANGE_CREDENTIALS_STATE
+from the_tale.accounts.logic import register_user
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
 
 class PostponedChangeCredentialsTaskTests(testcase.TestCase):
@@ -42,14 +42,14 @@ class PostponedChangeCredentialsTaskTests(testcase.TestCase):
 
     def test_processed_view__simple(self):
         resource = mock.Mock()
-        with mock.patch('accounts.logic.force_login_user') as force_login_user:
+        with mock.patch('the_tale.accounts.logic.force_login_user') as force_login_user:
             self.postponed_task.processed_view(resource)
 
         self.assertEqual(resource.account.id, self.account.id)
         self.assertEqual(force_login_user.call_count, 1)
 
     def test_processed_view__real(self):
-        from common.postponed_tasks import autodiscover
+        from the_tale.common.postponed_tasks import autodiscover
         autodiscover()
 
         self.assertEqual(self.task.process(logger=mock.Mock()), None) # sent mail
@@ -59,7 +59,7 @@ class PostponedChangeCredentialsTaskTests(testcase.TestCase):
         self.assertEqual(self.client.session['_auth_user_id'], self.account.id)
 
     def test_processed_view__real__without_relogin(self):
-        from common.postponed_tasks import autodiscover
+        from the_tale.common.postponed_tasks import autodiscover
         autodiscover()
 
         self.task._model.relogin_required = False

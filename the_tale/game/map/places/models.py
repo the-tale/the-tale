@@ -4,13 +4,13 @@ from django.db import models
 
 from rels.django_staff import TableIntegerField
 
-from game.balance.enums import CITY_MODIFIERS
+from the_tale.game.balance.enums import CITY_MODIFIERS
 
-from game.relations import RACE
+from the_tale.game.relations import RACE
 
-from game.map.places.relations import BUILDING_TYPE, BUILDING_STATE, RESOURCE_EXCHANGE_TYPE
+from the_tale.game.map.places.relations import BUILDING_TYPE, BUILDING_STATE, RESOURCE_EXCHANGE_TYPE
 
-from game.balance import constants as c
+from the_tale.game.balance import constants as c
 
 
 class Place(models.Model):

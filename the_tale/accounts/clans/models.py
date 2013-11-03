@@ -4,7 +4,7 @@ from django.db import models
 
 from rels.django_staff import TableIntegerField
 
-from accounts.clans.relations import MEMBER_ROLE, MEMBERSHIP_REQUEST_TYPE
+from the_tale.accounts.clans.relations import MEMBER_ROLE, MEMBERSHIP_REQUEST_TYPE
 
 
 class Clan(models.Model):

@@ -1,7 +1,7 @@
 # coding: utf-8
 import math
 
-from game.balance import enums as e
+from the_tale.game.balance import enums as e
 
 TIME_TO_LVL_DELTA = float(5) # разница во времени получения двух соседних уровней
 

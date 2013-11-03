@@ -6,10 +6,10 @@ from django.db import models
 
 from rels.django_staff import TableIntegerField
 
-from common.utils.enum import create_enum
+from the_tale.common.utils.enum import create_enum
 
-from game.relations import GENDER, RACE
-from game.persons.relations import PERSON_TYPE
+from the_tale.game.relations import GENDER, RACE
+from the_tale.game.persons.relations import PERSON_TYPE
 
 
 PERSON_STATE = create_enum('PERSON_STATE', ( ('IN_GAME', 0,  u'в игре'),

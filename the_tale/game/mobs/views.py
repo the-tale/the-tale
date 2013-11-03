@@ -7,16 +7,16 @@ from dext.views import handler, validator, validate_argument
 from dext.utils.decorators import nested_commit_on_success
 from dext.utils.urls import UrlBuilder
 
-from common.utils.resources import Resource
-from common.utils.decorators import login_required
-from common.utils.enum import create_enum
+from the_tale.common.utils.resources import Resource
+from the_tale.common.utils.decorators import login_required
+from the_tale.common.utils.enum import create_enum
 
-from game.map.relations import TERRAIN
+from the_tale.game.map.relations import TERRAIN
 
-from game.mobs.models import MOB_RECORD_STATE
-from game.mobs.prototypes import MobRecordPrototype
-from game.mobs.storage import mobs_storage
-from game.mobs.forms import MobRecordForm, ModerateMobRecordForm
+from the_tale.game.mobs.models import MOB_RECORD_STATE
+from the_tale.game.mobs.prototypes import MobRecordPrototype
+from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.mobs.forms import MobRecordForm, ModerateMobRecordForm
 
 
 INDEX_ORDER_TYPE = create_enum('INDEX_ORDER_TYPE', (('BY_LEVEL', 'by_level', u'по уровню'),

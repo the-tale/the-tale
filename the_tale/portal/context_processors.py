@@ -1,7 +1,7 @@
 # coding: utf-8
 
-from portal.conf import SITE_SECTIONS
-from portal import logic
+from the_tale.portal.conf import SITE_SECTIONS
+from the_tale.portal import logic
 
 
 def section(request):

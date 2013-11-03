@@ -1,10 +1,10 @@
 # coding: utf-8
 
-from common.utils.prototypes import BasePrototype
-from common.utils.decorators import lazy_property
-from common.utils import bbcode
+from the_tale.common.utils.prototypes import BasePrototype
+from the_tale.common.utils.decorators import lazy_property
+from the_tale.common.utils import bbcode
 
-from achievements.models import Collection, Kit, Item
+from the_tale.collections.models import Collection, Kit, Item
 
 
 class CollectionPrototype(BasePrototype):

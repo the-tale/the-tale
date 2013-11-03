@@ -5,13 +5,13 @@ from django.core.management.base import BaseCommand
 from dext.jinja2 import render
 from dext.utils import s11n
 
-from game.conf import game_settings
+from the_tale.game.conf import game_settings
 
-from game.quests.relations import ACTOR_TYPE
-from game.relations import GENDER, RACE
-from game.map.relations import TERRAIN
-from game.map.places.relations import BUILDING_TYPE
-from game.persons.relations import PERSON_TYPE
+from the_tale.game.quests.relations import ACTOR_TYPE
+from the_tale.game.relations import GENDER, RACE
+from the_tale.game.map.relations import TERRAIN
+from the_tale.game.map.places.relations import BUILDING_TYPE
+from the_tale.game.persons.relations import PERSON_TYPE
 
 
 class Command(BaseCommand):

@@ -2,14 +2,14 @@
 
 from rels.django_staff import DjangoEnum
 
-from common.utils.enum import create_enum
+from the_tale.common.utils.enum import create_enum
 
-from game.pvp.prototypes import Battle1x1Prototype
+from the_tale.game.pvp.prototypes import Battle1x1Prototype
 
-from game.workers.environment import workers_environment
+from the_tale.game.workers.environment import workers_environment
 
-from game.abilities.prototypes import AbilityPrototype
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.abilities.prototypes import AbilityPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
 
 ABILITY_TASK_STEP = create_enum('ABILITY_TASK_STEP', (('ERROR', 0, u'ошибка'),

@@ -5,8 +5,8 @@ from django.conf import settings as project_settings
 
 from dext.jinja2 import render
 
-from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
-from accounts.logic import get_system_user
+from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
+from the_tale.accounts.logic import get_system_user
 
 # TODO: rewrite to autodiscover() logic
 #       code for this can be chosen form postponed_tasks and moved to utils
@@ -75,7 +75,7 @@ class PersonalMessageHandler(BaseMessageHandler):
     def uid(self): return 'personal-message-%d-message' % self.message_id
 
     def process(self):
-        from accounts.personal_messages.prototypes import MessagePrototype as PersonalMessagePrototype
+        from the_tale.accounts.personal_messages.prototypes import MessagePrototype as PersonalMessagePrototype
 
         message = PersonalMessagePrototype.get_by_id(self.message_id)
 
@@ -136,7 +136,7 @@ class ForumPostHandler(BaseMessageHandler):
     def uid(self): return 'forum-post-%d-message' % self.post_id
 
     def process(self):
-        from forum.prototypes import PostPrototype, SubscriptionPrototype
+        from the_tale.forum.prototypes import PostPrototype, SubscriptionPrototype
 
         post = PostPrototype.get_by_id(self.post_id)
 
@@ -197,7 +197,7 @@ class ForumThreadHandler(BaseMessageHandler):
     def uid(self): return 'forum-thread-%d-message' % self.thread_id
 
     def process(self):
-        from forum.prototypes import ThreadPrototype, SubscriptionPrototype
+        from the_tale.forum.prototypes import ThreadPrototype, SubscriptionPrototype
 
         thread = ThreadPrototype.get_by_id(self.thread_id)
 

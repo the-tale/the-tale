@@ -4,8 +4,8 @@ from django.conf.urls.defaults import patterns, include
 
 from dext.views import resource_patterns
 
-from cms.views import CMSResource
-from cms.conf import cms_settings
+from the_tale.cms.views import CMSResource
+from the_tale.cms.conf import cms_settings
 
 
 urlpatterns = patterns('')

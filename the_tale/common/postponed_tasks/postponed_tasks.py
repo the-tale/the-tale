@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 
 class FakePostponedInternalTask(PostponedLogic):
 

@@ -1,11 +1,11 @@
 # coding: utf-8
 
-from game.map.places.storage import places_storage
-from game.persons.storage import persons_storage
+from the_tale.game.map.places.storage import places_storage
+from the_tale.game.persons.storage import persons_storage
 
-from game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts.storage import artifacts_storage
 
-from game.quests.quests_generator.environment import BaseEnvironment
+from the_tale.game.quests.quests_generator.environment import BaseEnvironment
 
 
 class Environment(BaseEnvironment):
@@ -43,7 +43,7 @@ class Environment(BaseEnvironment):
         return self.persons['external_data']['name']
 
     def get_game_item(self, item_id):
-        from game.artifacts.prototypes import ArtifactPrototype
+        from the_tale.game.artifacts.prototypes import ArtifactPrototype
         return ArtifactPrototype.deserialize(data=self.items[item_id]['external_data']['artifact'])
 
     def get_msg_substitutions(self, local_env):

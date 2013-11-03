@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from game.map.places.models import Place, Building, ResourceExchange
+from the_tale.game.map.places.models import Place, Building, ResourceExchange
 
 
 class PlaceAdmin(admin.ModelAdmin):

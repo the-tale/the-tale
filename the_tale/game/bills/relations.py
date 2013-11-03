@@ -5,7 +5,7 @@ import datetime
 import rels
 from rels.django_staff import DjangoEnum
 
-from game.balance import constants as c
+from the_tale.game.balance import constants as c
 
 class BILL_STATE(DjangoEnum):
     _records = ( ('VOTING', 1, u'на голосовании'),

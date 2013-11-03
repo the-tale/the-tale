@@ -1,19 +1,19 @@
 # coding: utf-8
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
+from the_tale.accounts.logic import register_user
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.map.relations import TERRAIN
+from the_tale.game.map.relations import TERRAIN
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.mobs.storage import mobs_storage
-from game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
-from game.mobs.prototypes import MobRecordPrototype
+from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
+from the_tale.game.mobs.prototypes import MobRecordPrototype
 
 
 class MobsStorageTests(testcase.TestCase):
@@ -86,7 +86,7 @@ class MobsStorageTests(testcase.TestCase):
         mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(0, TERRAIN.PLANE_SAND, mercenary=False)]
         self.assertEqual(frozenset(mobs_in_forest), frozenset())
 
-    @mock.patch('game.mobs.storage.MobsStorage.get_available_mobs_list', mock.Mock(return_value=[]))
+    @mock.patch('the_tale.game.mobs.storage.MobsStorage.get_available_mobs_list', mock.Mock(return_value=[]))
     def test_get_random_mob__no_mob(self):
         result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
         hero = HeroPrototype.get_by_account_id(account_id)

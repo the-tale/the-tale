@@ -2,7 +2,7 @@
 
 from dext.utils.app_settings import app_settings
 
-from game.balance import constants as c
+from the_tale.game.balance import constants as c
 
 POWER_HISTORY_WEEKS = 6
 

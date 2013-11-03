@@ -3,7 +3,7 @@ import os
 
 from dext.utils.app_settings import app_settings
 
-from game.balance import constants as c
+from the_tale.game.balance import constants as c
 
 
 APP_DIR = os.path.abspath(os.path.dirname(__file__))

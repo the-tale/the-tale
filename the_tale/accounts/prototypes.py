@@ -11,17 +11,17 @@ from django.db import models
 from dext.utils.urls import full_url
 from dext.utils import s11n
 
-from common.postponed_tasks import PostponedTaskPrototype
-from common.utils.logic import verbose_timedelta
+from the_tale.common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.utils.logic import verbose_timedelta
 
-from common.utils.password import generate_password
-from common.utils.prototypes import BasePrototype
-from common.utils.decorators import lazy_property
+from the_tale.common.utils.password import generate_password
+from the_tale.common.utils.prototypes import BasePrototype
+from the_tale.common.utils.decorators import lazy_property
 
-from accounts.models import Account, ChangeCredentialsTask, Award, ResetPasswordTask
-from accounts.conf import accounts_settings
-from accounts.exceptions import AccountsException
-from accounts.relations import CHANGE_CREDENTIALS_TASK_STATE
+from the_tale.accounts.models import Account, ChangeCredentialsTask, Award, ResetPasswordTask
+from the_tale.accounts.conf import accounts_settings
+from the_tale.accounts.exceptions import AccountsException
+from the_tale.accounts.relations import CHANGE_CREDENTIALS_TASK_STATE
 
 
 class AccountPrototype(BasePrototype): #pylint: disable=R0904
@@ -51,7 +51,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
     @lazy_property
     def permanent_purchases(self):
-        from accounts.payments.logic import PermanentRelationsStorage
+        from the_tale.accounts.payments.logic import PermanentRelationsStorage
         return PermanentRelationsStorage.deserialize(s11n.from_json(self._model.permanent_purchases))
 
     @property
@@ -82,7 +82,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
     def is_ban_forum(self): return self.ban_forum_end_at > datetime.datetime.now()
 
     def ban_game(self, days):
-        from game.heroes.prototypes import HeroPrototype
+        from the_tale.game.heroes.prototypes import HeroPrototype
 
         end_time = datetime.datetime.now() + datetime.timedelta(days=days)
         self._model_class.objects.filter(id=self.id).update(ban_game_end_at=end_time)
@@ -108,8 +108,8 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         accounts_query.update(premium_expired_notification_send_at=current_time)
 
     def notify_about_premium_expiration(self):
-        from accounts.personal_messages.prototypes import MessagePrototype as PersonalMessagePrototype
-        from accounts.logic import get_system_user
+        from the_tale.accounts.personal_messages.prototypes import MessagePrototype as PersonalMessagePrototype
+        from the_tale.accounts.logic import get_system_user
 
         current_time = datetime.datetime.now()
 
@@ -124,8 +124,8 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
     @lazy_property
     def bank_account(self):
-        from bank.prototypes import AccountPrototype as BankAccountPrototype
-        from bank.relations import ENTITY_TYPE, CURRENCY_TYPE
+        from the_tale.bank.prototypes import AccountPrototype as BankAccountPrototype
+        from the_tale.bank.relations import ENTITY_TYPE, CURRENCY_TYPE
 
         bank_account = BankAccountPrototype.get_for(entity_type=ENTITY_TYPE.GAME_ACCOUNT,
                                                     entity_id=self.id,
@@ -156,7 +156,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
     @lazy_property
     def clan(self):
-        from accounts.clans.prototypes import ClanPrototype
+        from the_tale.accounts.clans.prototypes import ClanPrototype
 
         if self.clan_id is None:
             return None
@@ -171,8 +171,8 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         return self._model.check_password(password)
 
     def change_credentials(self, new_email=None, new_password=None, new_nick=None):
-        from game.heroes.prototypes import HeroPrototype
-        from accounts.workers.environment import workers_environment
+        from the_tale.game.heroes.prototypes import HeroPrototype
+        from the_tale.accounts.workers.environment import workers_environment
 
         if new_password:
             self._model.password = new_password
@@ -220,7 +220,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         return datetime.datetime.now() + datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT - accounts_settings.ACTIVE_STATE_REFRESH_PERIOD) > self.active_end_at
 
     def update_active_state(self):
-        from game.heroes.prototypes import HeroPrototype
+        from the_tale.game.heroes.prototypes import HeroPrototype
 
         self._model.active_end_at = self._next_active_end_at()
         self.save()
@@ -287,8 +287,8 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
         return self._model.new_email is not None and (self._model.old_email != self._model.new_email)
 
     def change_credentials(self):
-        from accounts.postponed_tasks import ChangeCredentials
-        from accounts.workers.environment import workers_environment
+        from the_tale.accounts.postponed_tasks import ChangeCredentials
+        from the_tale.accounts.workers.environment import workers_environment
 
         change_credentials_task = ChangeCredentials(task_id=self.id)
         task = PostponedTaskPrototype.create(change_credentials_task)
@@ -298,8 +298,8 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
         return task
 
     def request_email_confirmation(self):
-        from post_service.prototypes import MessagePrototype
-        from post_service.message_handlers import ChangeEmailNotificationHandler
+        from the_tale.post_service.prototypes import MessagePrototype
+        from the_tale.post_service.message_handlers import ChangeEmailNotificationHandler
 
         if self._model.new_email is None:
             raise AccountsException('email not specified')
@@ -391,8 +391,8 @@ class ResetPasswordTaskPrototype(BasePrototype):
 
     @classmethod
     def create(cls, account):
-        from post_service.prototypes import MessagePrototype
-        from post_service.message_handlers import ResetPasswordHandler
+        from the_tale.post_service.prototypes import MessagePrototype
+        from the_tale.post_service.message_handlers import ResetPasswordHandler
 
         model = cls._model_class.objects.create(account=account._model,
                                                 uuid=uuid.uuid4().hex)

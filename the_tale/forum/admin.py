@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from forum.models import Category, SubCategory, Thread, Post, Subscription, ThreadReadInfo, SubCategoryReadInfo, Permission
+from the_tale.forum.models import Category, SubCategory, Thread, Post, Subscription, ThreadReadInfo, SubCategoryReadInfo, Permission
 
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'slug', 'caption')

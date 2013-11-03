@@ -1,8 +1,8 @@
 # coding utf-8
 
-from common.utils.prototypes import BasePrototype
+from the_tale.common.utils.prototypes import BasePrototype
 
-from game.models import Bundle, BUNDLE_TYPE
+from the_tale.game.models import Bundle, BUNDLE_TYPE
 
 
 class BundleException(Exception): pass
@@ -20,7 +20,7 @@ class BundlePrototype(BasePrototype):
 
     @classmethod
     def get_by_account_id(cls, account_id):
-        from game.heroes.prototypes import HeroPrototype
+        from the_tale.game.heroes.prototypes import HeroPrototype
         bundle_id = HeroPrototype.get_by_account_id(account_id).actions.current_action.bundle_id
         return cls.get_by_id(bundle_id)
 

@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from game.ratings.models import RatingValues, RatingPlaces
+from the_tale.game.ratings.models import RatingValues, RatingPlaces
 
 
 class RatingValuesAdmin(admin.ModelAdmin):

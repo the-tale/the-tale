@@ -1,11 +1,11 @@
 # coding: utf-8
 import datetime
 
-from common.utils.decorators import lazy_property
+from the_tale.common.utils.decorators import lazy_property
 
-from forum.prototypes import ThreadReadInfoPrototype, SubCategoryReadInfoPrototype
-from forum.conf import forum_settings
-from forum.exceptions import ForumException
+from the_tale.forum.prototypes import ThreadReadInfoPrototype, SubCategoryReadInfoPrototype
+from the_tale.forum.conf import forum_settings
+from the_tale.forum.exceptions import ForumException
 
 
 class ReadState(object):

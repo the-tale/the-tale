@@ -2,8 +2,8 @@
 
 from dext.forms import forms, fields
 
-from accounts.conf import accounts_settings
-from accounts.relations import AWARD_TYPE, BAN_TYPE, BAN_TIME
+from the_tale.accounts.conf import accounts_settings
+from the_tale.accounts.relations import AWARD_TYPE, BAN_TYPE, BAN_TIME
 
 
 class EditProfileForm(forms.Form):

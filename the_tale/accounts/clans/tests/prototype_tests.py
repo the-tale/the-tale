@@ -2,20 +2,20 @@
 
 from django.db import IntegrityError
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from accounts.logic import register_user
-from accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
 
-from accounts.clans.prototypes import ClanPrototype, MembershipPrototype, MembershipRequestPrototype
-from accounts.clans.relations import MEMBERSHIP_REQUEST_TYPE, MEMBER_ROLE
-from accounts.clans import exceptions
-from accounts.clans.tests.helpers import ClansTestsMixin
-from accounts.clans.conf import clans_settings
+from the_tale.accounts.clans.prototypes import ClanPrototype, MembershipPrototype, MembershipRequestPrototype
+from the_tale.accounts.clans.relations import MEMBERSHIP_REQUEST_TYPE, MEMBER_ROLE
+from the_tale.accounts.clans import exceptions
+from the_tale.accounts.clans.tests.helpers import ClansTestsMixin
+from the_tale.accounts.clans.conf import clans_settings
 
-from forum.prototypes import CategoryPrototype, SubCategoryPrototype, PermissionPrototype as ForumPermissionPrototype
+from the_tale.forum.prototypes import CategoryPrototype, SubCategoryPrototype, PermissionPrototype as ForumPermissionPrototype
 
 
 class ClanPrototypeTests(testcase.TestCase):

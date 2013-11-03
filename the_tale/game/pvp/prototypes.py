@@ -2,10 +2,10 @@
 
 from django.db import IntegrityError
 
-from common.utils.prototypes import BasePrototype
+from the_tale.common.utils.prototypes import BasePrototype
 
-from game.pvp.models import Battle1x1, Battle1x1Result
-from game.pvp.relations import BATTLE_1X1_STATE
+from the_tale.game.pvp.models import Battle1x1, Battle1x1Result
+from the_tale.game.pvp.relations import BATTLE_1X1_STATE
 
 
 class Battle1x1Prototype(BasePrototype):

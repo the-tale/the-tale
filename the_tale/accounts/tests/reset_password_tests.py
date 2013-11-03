@@ -5,16 +5,16 @@ from django.test import client
 from django.contrib.auth import authenticate as django_authenticate
 from django.core.urlresolvers import reverse
 
-from common.utils import testcase
-from common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.utils import testcase
+from the_tale.common.postponed_tasks import PostponedTaskPrototype
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from post_service.models import Message
+from the_tale.post_service.models import Message
 
-from accounts.prototypes import AccountPrototype, ResetPasswordTaskPrototype, ChangeCredentialsTaskPrototype
-from accounts.logic import register_user
-from accounts.models import ResetPasswordTask
+from the_tale.accounts.prototypes import AccountPrototype, ResetPasswordTaskPrototype, ChangeCredentialsTaskPrototype
+from the_tale.accounts.logic import register_user
+from the_tale.accounts.models import ResetPasswordTask
 
 
 def raise_exception(*argv, **kwargs): raise Exception('unknown error')
@@ -35,7 +35,7 @@ class ResetPasswordTaskTests(testcase.TestCase):
         self.assertEqual(ResetPasswordTask.objects.all().count(), 1)
 
     def test_process(self):
-        from common.postponed_tasks import autodiscover
+        from the_tale.common.postponed_tasks import autodiscover
         autodiscover()
 
         self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 0)
@@ -99,7 +99,7 @@ class ResetPasswordRequestsTests(testcase.TestCase):
 
     def test_reset_password_expired(self):
         task = ResetPasswordTaskPrototype.create(self.account)
-        with mock.patch('accounts.conf.accounts_settings.RESET_PASSWORD_TASK_LIVE_TIME', -1):
+        with mock.patch('the_tale.accounts.conf.accounts_settings.RESET_PASSWORD_TASK_LIVE_TIME', -1):
             self.check_html_ok(self.request_html(reverse('accounts:profile:reset-password-processed') + ('?task=%s' % task.uuid)),
                                texts=['accounts.profile.reset_password_processed.time_expired'])
         self.assertEqual(django_authenticate(nick='test_user', password='111111').id, self.account.id)

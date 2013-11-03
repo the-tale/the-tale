@@ -2,18 +2,18 @@
 
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from common.postponed_tasks import POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks import POSTPONED_TASK_LOGIC_RESULT
 
-from bank.transaction import Transaction
-from bank.prototypes import InvoicePrototype, AccountPrototype as BankAccountPrototype
-from bank.relations import ENTITY_TYPE, CURRENCY_TYPE, INVOICE_STATE
+from the_tale.bank.transaction import Transaction
+from the_tale.bank.prototypes import InvoicePrototype, AccountPrototype as BankAccountPrototype
+from the_tale.bank.relations import ENTITY_TYPE, CURRENCY_TYPE, INVOICE_STATE
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
 
 class BaseBuyPosponedTaskTests(testcase.TestCase):
@@ -102,8 +102,8 @@ class BaseBuyPosponedTaskTests(testcase.TestCase):
         self.assertEqual(self.task.process(main_task=main_task), POSTPONED_TASK_LOGIC_RESULT.CONTINUE)
         self.assertTrue(self.task.state._is_TRANSACTION_FROZEN)
 
-        with mock.patch('accounts.workers.accounts_manager.Worker.cmd_task') as cmd_task:
-            with mock.patch('game.workers.supervisor.Worker.cmd_logic_task') as cmd_logic_task:
+        with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_task') as cmd_task:
+            with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_logic_task') as cmd_logic_task:
                 postsave_actions = main_task.extend_postsave_actions.call_args[0][0]
                 for action in postsave_actions:
                     action()
@@ -125,8 +125,8 @@ class BaseBuyPosponedTaskTests(testcase.TestCase):
 
         self.task.state = self.task.RELATION.TRANSACTION_FROZEN
 
-        with mock.patch('game.heroes.prototypes.HeroPrototype.cmd_update_with_account_data') as cmd_update_with_account_data:
-            with mock.patch('bank.transaction.Transaction.confirm') as transaction_confirm:
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.cmd_update_with_account_data') as cmd_update_with_account_data:
+            with mock.patch('the_tale.bank.transaction.Transaction.confirm') as transaction_confirm:
                 self.assertEqual(self.task.process(main_task=mock.Mock(), storage=self.storage), POSTPONED_TASK_LOGIC_RESULT.WAIT)
 
         self.assertEqual(cmd_update_with_account_data.call_count, self.cmd_update_with_account_data__call_count)
@@ -152,7 +152,7 @@ class BaseBuyPosponedTaskTests(testcase.TestCase):
 
         self.task.state = self.task.RELATION.WAIT_TRANSACTION_CONFIRMATION
 
-        with mock.patch('accounts.payments.postponed_tasks.BaseBuyTask.process_referrals') as process_referrals:
+        with mock.patch('the_tale.accounts.payments.postponed_tasks.BaseBuyTask.process_referrals') as process_referrals:
             self.assertEqual(self.task.process(main_task=mock.Mock()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertEqual(process_referrals.call_count, 1)

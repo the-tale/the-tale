@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from game.chronicle.records import RecordBase
+from the_tale.game.chronicle.records import RecordBase
 
 class FakeRecord(RecordBase):
     def __init__(self, type_, index=0, turn_number=0, actors={}):

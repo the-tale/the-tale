@@ -1,9 +1,9 @@
 # coding: utf-8
 
-from common.amqp_queues.environment import BaseEnvironment
+from the_tale.common.amqp_queues.environment import BaseEnvironment
 
-from accounts.workers.registration import Worker as Registration
-from accounts.workers.accounts_manager import Worker as AccountsManager
+from the_tale.accounts.workers.registration import Worker as Registration
+from the_tale.accounts.workers.accounts_manager import Worker as AccountsManager
 
 
 class Environment(BaseEnvironment):

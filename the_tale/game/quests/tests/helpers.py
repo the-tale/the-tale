@@ -3,11 +3,11 @@
 from questgen.quests.base_quest import BaseQuest, RESULTS
 from questgen import facts
 
-from game.prototypes import TimePrototype
+from the_tale.game.prototypes import TimePrototype
 
-from game.actions.prototypes import ActionQuestPrototype
+from the_tale.game.actions.prototypes import ActionQuestPrototype
 
-from game.quests.writers import Writer
+from the_tale.game.quests.writers import Writer
 
 
 

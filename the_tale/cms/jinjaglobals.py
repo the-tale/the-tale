@@ -1,8 +1,8 @@
 # coding: utf-8
 from dext.jinja2.decorators import jinjaglobal
 
-from cms.models import Page
-from cms.conf import cms_settings
+from the_tale.cms.models import Page
+from the_tale.cms.conf import cms_settings
 
 SECTIONS_DICT = dict( (section.id, section) for section in cms_settings.SECTIONS)
 

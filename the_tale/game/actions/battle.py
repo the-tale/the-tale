@@ -2,9 +2,9 @@
 
 import random
 
-from common.utils.logic import random_value_by_priority
+from the_tale.common.utils.logic import random_value_by_priority
 
-from game.actions.contexts.battle import Damage
+from the_tale.game.actions.contexts.battle import Damage
 
 class Actor(object):
 

@@ -3,9 +3,9 @@
 from rels import Column
 from rels.django_staff import DjangoEnum
 
-from game.artifacts.models import ARTIFACT_TYPE
+from the_tale.game.artifacts.models import ARTIFACT_TYPE
 
-from game.heroes.statistics import MONEY_SOURCE
+from the_tale.game.heroes.statistics import MONEY_SOURCE
 
 class RISK_LEVEL(DjangoEnum):
     health_percent_to_rest = Column()

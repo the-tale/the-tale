@@ -6,13 +6,13 @@ from decimal import Decimal
 
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from bank.dengionline.prototypes import InvoicePrototype
-from bank.dengionline.relations import INVOICE_STATE
-from bank.dengionline.conf import dengionline_settings
-from bank.dengionline import exceptions
-from bank.dengionline.tests.helpers import TestInvoiceFabric
+from the_tale.bank.dengionline.prototypes import InvoicePrototype
+from the_tale.bank.dengionline.relations import INVOICE_STATE
+from the_tale.bank.dengionline.conf import dengionline_settings
+from the_tale.bank.dengionline import exceptions
+from the_tale.bank.dengionline.tests.helpers import TestInvoiceFabric
 
 def exception_producer(*argv, **kwargs):
     raise Exception
@@ -176,14 +176,14 @@ class InvoicePrototypeTests(testcase.TestCase):
     def test_confirm_payment__invoice_not_found(self):
         self.assertTrue(InvoicePrototype.confirm_payment(**self.confirm_payment_args(order_id=666))._is_INVOICE_NOT_FOUND)
 
-    @mock.patch('bank.dengionline.prototypes.InvoicePrototype.confirm', exception_producer)
+    @mock.patch('the_tale.bank.dengionline.prototypes.InvoicePrototype.confirm', exception_producer)
     def test_confirm_payment__exception_when_confirm(self):
         self.assertRaises(Exception, InvoicePrototype.confirm_payment, **self.confirm_payment_args())
         self.invoice.reload()
         self.assertTrue(self.invoice.state._is_REQUESTED)
 
     def test_confirm_payment__success(self):
-        with mock.patch('bank.dengionline.workers.banker.Worker.cmd_handle_confirmations') as cmd_handle_confirmations:
+        with mock.patch('the_tale.bank.dengionline.workers.banker.Worker.cmd_handle_confirmations') as cmd_handle_confirmations:
             self.assertTrue(InvoicePrototype.confirm_payment(**self.confirm_payment_args())._is_CONFIRMED)
         self.assertEqual(cmd_handle_confirmations.call_count, 1)
 
@@ -192,14 +192,14 @@ class InvoicePrototypeTests(testcase.TestCase):
         InvoicePrototype.discard_old_invoices()
         self.assertEqual(InvoicePrototype._db_filter(state=INVOICE_STATE.REQUESTED).count(), 1)
 
-        with mock.patch('bank.dengionline.conf.dengionline_settings.DISCARD_TIMEOUT', timedelta(seconds=0)):
+        with mock.patch('the_tale.bank.dengionline.conf.dengionline_settings.DISCARD_TIMEOUT', timedelta(seconds=0)):
             InvoicePrototype.discard_old_invoices()
 
         self.assertEqual(InvoicePrototype._db_filter(state=INVOICE_STATE.REQUESTED).count(), 0)
         self.assertEqual(InvoicePrototype._db_filter(state=INVOICE_STATE.DISCARDED).count(), 1)
 
     def test_process(self):
-        from bank.prototypes import InvoicePrototype as BankInvoicePrototype
+        from the_tale.bank.prototypes import InvoicePrototype as BankInvoicePrototype
 
         self.assertEqual(BankInvoicePrototype._db_count(), 0)
 

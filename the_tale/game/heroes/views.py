@@ -6,31 +6,31 @@ from django.core.urlresolvers import reverse
 
 from dext.views import handler, validator, validate_argument
 
-from common.utils.resources import Resource
-from common.utils.decorators import login_required
-from common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.utils.resources import Resource
+from the_tale.common.utils.decorators import login_required
+from the_tale.common.postponed_tasks import PostponedTaskPrototype
 
-from accounts.prototypes import AccountPrototype
-from accounts.clans.prototypes import ClanPrototype
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.clans.prototypes import ClanPrototype
 
-from game.balance import constants as c
+from the_tale.game.balance import constants as c
 
-from game.mobs.storage import mobs_storage
+from the_tale.game.mobs.storage import mobs_storage
 
-from game.map.places.storage import places_storage
+from the_tale.game.map.places.storage import places_storage
 
-from game.persons.models import Person, PERSON_STATE
-from game.persons.storage import persons_storage
+from the_tale.game.persons.models import Person, PERSON_STATE
+from the_tale.game.persons.storage import persons_storage
 
-from game.workers.environment import workers_environment
+from the_tale.game.workers.environment import workers_environment
 
-from game import names
+from the_tale.game import names
 
-from game.heroes.prototypes import HeroPrototype
-from game.heroes.postponed_tasks import ChangeHeroTask, ChooseHeroAbilityTask, ChoosePreferencesTask, ResetHeroAbilitiesTask
-from game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT, RISK_LEVEL
-from game.heroes.forms import ChoosePreferencesForm, EditNameForm
-from game.heroes.conf import heroes_settings
+from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.postponed_tasks import ChangeHeroTask, ChooseHeroAbilityTask, ChoosePreferencesTask, ResetHeroAbilitiesTask
+from the_tale.game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT, RISK_LEVEL
+from the_tale.game.heroes.forms import ChoosePreferencesForm, EditNameForm
+from the_tale.game.heroes.conf import heroes_settings
 
 
 def split_list(items):

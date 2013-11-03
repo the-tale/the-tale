@@ -3,10 +3,10 @@ from django.conf.urls.defaults import patterns, include
 
 from dext.views import resource_patterns
 
-from game.mobs.views import GuideMobResource
-from game.artifacts.views import GuideArtifactResource
+from the_tale.game.mobs.views import GuideMobResource
+from the_tale.game.artifacts.views import GuideArtifactResource
 
-from guide.views import GuideResource
+from the_tale.guide.views import GuideResource
 
 urlpatterns = resource_patterns(GuideResource)
 

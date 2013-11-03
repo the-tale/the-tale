@@ -4,11 +4,11 @@ from django.test import client
 
 from dext.utils.urls import url
 
-from common.utils.testcase import TestCase
+from the_tale.common.utils.testcase import TestCase
 
-from common.postponed_tasks.prototypes import PostponedTaskPrototype, autodiscover
-from common.postponed_tasks.models import POSTPONED_TASK_STATE
-from common.postponed_tasks.postponed_tasks import FakePostponedInternalTask
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, autodiscover
+from the_tale.common.postponed_tasks.models import POSTPONED_TASK_STATE
+from the_tale.common.postponed_tasks.postponed_tasks import FakePostponedInternalTask
 
 class RequestsTests(TestCase):
 

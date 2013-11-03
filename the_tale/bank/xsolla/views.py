@@ -7,12 +7,12 @@ from dext.views import handler
 from dext.utils.decorators import debug_required
 from dext.utils.urls import url
 
-from common.utils.decorators import superuser_required
-from common.utils.resources import Resource
+from the_tale.common.utils.decorators import superuser_required
+from the_tale.common.utils.resources import Resource
 
-from bank.xsolla.relations import COMMAND_TYPE, COMMON_RESULT, CANCEL_RESULT
-from bank.xsolla import logic as xsolla_logic
-from bank.xsolla.conf import xsolla_settings
+from the_tale.bank.xsolla.relations import COMMAND_TYPE, COMMON_RESULT, CANCEL_RESULT
+from the_tale.bank.xsolla import logic as xsolla_logic
+from the_tale.bank.xsolla.conf import xsolla_settings
 
 
 logger = getLogger('the-tale.bank_xsolla_requests')
@@ -109,7 +109,7 @@ class XsollaResource(Resource):
     @debug_required
     @handler('debug', method='get')
     def debug(self, id='13', sum='666', test='0', v1='test@test.com'):
-        from bank.xsolla.logic import check_user_md5, pay_md5, cancel_md5
+        from the_tale.bank.xsolla.logic import check_user_md5, pay_md5, cancel_md5
 
         check_url = url('bank:xsolla:command',
                         command=COMMAND_TYPE.CHECK.value,

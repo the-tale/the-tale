@@ -2,7 +2,7 @@
 
 from dext.forms import forms
 
-from common.utils import bbcode
+from the_tale.common.utils import bbcode
 
 DEFAULT_TEXT = u'''Здравствуйте!
 Давайте дружить.'''

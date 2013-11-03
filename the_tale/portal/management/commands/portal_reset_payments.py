@@ -6,21 +6,21 @@ from django.db import models
 
 from dext.utils import pid
 
-from accounts.models import Account, Award
-from accounts.prototypes import AccountPrototype
-from accounts.relations import AWARD_TYPE
-from accounts.logic import get_system_user
+from the_tale.accounts.models import Account, Award
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.relations import AWARD_TYPE
+from the_tale.accounts.logic import get_system_user
 
-from accounts.payments.conf import payments_settings
-from accounts.payments.logic import transaction_gm
+from the_tale.accounts.payments.conf import payments_settings
+from the_tale.accounts.payments.logic import transaction_gm
 
-from bank.models import Account as BankAccount, Invoice as BankInvoice
-from bank.relations import INVOICE_STATE
-from bank.dengionline.models import Invoice as DOInvoice
-from bank.xsolla.models import Invoice as XsollaInvoice
+from the_tale.bank.models import Account as BankAccount, Invoice as BankInvoice
+from the_tale.bank.relations import INVOICE_STATE
+from the_tale.bank.dengionline.models import Invoice as DOInvoice
+from the_tale.bank.xsolla.models import Invoice as XsollaInvoice
 
-from game.heroes.models import Hero
-from game.workers.environment import workers_environment
+from the_tale.game.heroes.models import Hero
+from the_tale.game.workers.environment import workers_environment
 
 class Command(BaseCommand):
 

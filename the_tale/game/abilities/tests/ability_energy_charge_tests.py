@@ -1,15 +1,15 @@
 # coding: utf-8
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from game.logic_storage import LogicStorage
-from game.logic import create_test_map
+from the_tale.game.logic_storage import LogicStorage
+from the_tale.game.logic import create_test_map
 
 
-from game.abilities.deck import EnergyCharge, Help
+from the_tale.game.abilities.deck import EnergyCharge, Help
 
 
 class EnergyChargeAbilityTest(testcase.TestCase):

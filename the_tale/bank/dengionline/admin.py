@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from bank.dengionline.models import Invoice
+from the_tale.bank.dengionline.models import Invoice
 
 class InvoiceAdmin(admin.ModelAdmin):
     list_display = ('id',

@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from game.phrase_candidates.models import PhraseCandidate
+from the_tale.game.phrase_candidates.models import PhraseCandidate
 
 
 class PhraseCandidateAdmin(admin.ModelAdmin):

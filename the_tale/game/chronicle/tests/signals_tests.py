@@ -8,16 +8,16 @@ from dext.utils import s11n
 
 from textgen.words import Noun
 
-from game.relations import RACE
+from the_tale.game.relations import RACE
 
-from game.bills.prototypes import BillPrototype
-from game.bills import bills
-from game.bills.tests.prototype_tests import BaseTestPrototypes
+from the_tale.game.bills.prototypes import BillPrototype
+from the_tale.game.bills import bills
+from the_tale.game.bills.tests.prototype_tests import BaseTestPrototypes
 
-from game.chronicle.models import Record, RECORD_TYPE
+from the_tale.game.chronicle.models import Record, RECORD_TYPE
 
-from game.map.places.prototypes import BuildingPrototype
-from game.map.places.modifiers import TradeCenter, CraftCenter
+from the_tale.game.map.places.prototypes import BuildingPrototype
+from the_tale.game.map.places.modifiers import TradeCenter, CraftCenter
 
 @contextmanager
 def check_record_created(self, record_type, records_number=1):
@@ -28,9 +28,9 @@ def check_record_created(self, record_type, records_number=1):
     self.assertEqual(old_records_number + records_number, Record.objects.all().count())
     self.assertEqual(Record.objects.all().order_by('-id')[0].type, record_type)
 
-@mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+@mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
 def process_bill(bill, success):
-    with mock.patch('game.bills.prototypes.BillPrototype.is_percents_barier_not_passed', not success):
+    with mock.patch('the_tale.game.bills.prototypes.BillPrototype.is_percents_barier_not_passed', not success):
         bill.apply()
 
 class BillPlaceRenamingTests(BaseTestPrototypes):
@@ -119,8 +119,8 @@ class BillPlaceChangeModifierTests(BaseTestPrototypes):
 class BillPlaceExchangeResourcesTests(BaseTestPrototypes):
 
     def setUp(self):
-        from game.bills.tests.helpers import choose_resources
-        from game.bills.bills import PlaceResourceExchange
+        from the_tale.game.bills.tests.helpers import choose_resources
+        from the_tale.game.bills.bills import PlaceResourceExchange
 
         super(BillPlaceExchangeResourcesTests, self).setUp()
 
@@ -174,8 +174,8 @@ class BillPersonRemoveTests(BaseTestPrototypes):
         with check_record_created(self, RECORD_TYPE.PERSON_REMOVE_BILL_STARTED):
             self.bill.update_by_moderator(self.form)
 
-    @mock.patch('game.chronicle.records.PlaceChangeRace.create_record', lambda x: None)
-    @mock.patch('game.chronicle.records.PersonArrivedToPlace.create_record', lambda x: None)
+    @mock.patch('the_tale.game.chronicle.records.PlaceChangeRace.create_record', lambda x: None)
+    @mock.patch('the_tale.game.chronicle.records.PersonArrivedToPlace.create_record', lambda x: None)
     def test_bill_successed(self):
         self.bill.update_by_moderator(self.form)
         with check_record_created(self, RECORD_TYPE.PERSON_REMOVE_BILL_SUCCESSED):
@@ -286,7 +286,7 @@ class PlaceLosedModifierTests(BaseTestPrototypes):
         self.place1.modifier = CraftCenter.get_id()
         self.place1.save()
 
-    @mock.patch('game.map.places.modifiers.prototypes.CraftCenter.is_enough_power', False)
+    @mock.patch('the_tale.game.map.places.modifiers.prototypes.CraftCenter.is_enough_power', False)
     def test_reset_modifier(self):
         with check_record_created(self, RECORD_TYPE.PLACE_LOSED_MODIFIER):
             self.place1.sync_modifier()
@@ -297,16 +297,16 @@ class PersonMovementsTests(BaseTestPrototypes):
     def setUp(self):
         super(PersonMovementsTests, self).setUp()
 
-    @mock.patch('game.persons.prototypes.PersonPrototype.is_stable', False)
-    @mock.patch('game.map.places.prototypes.PlacePrototype.max_persons_number', 0)
+    @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.is_stable', False)
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.max_persons_number', 0)
     def test_person_left(self):
         with check_record_created(self, RECORD_TYPE.PERSON_LEFT_PLACE, records_number=len(self.place1.persons)):
             self.place1.sync_persons()
 
-    @mock.patch('game.chronicle.records.PlaceChangeRace.create_record', lambda x: None)
+    @mock.patch('the_tale.game.chronicle.records.PlaceChangeRace.create_record', lambda x: None)
     def test_person_arrived(self):
         with check_record_created(self, RECORD_TYPE.PERSON_ARRIVED_TO_PLACE):
-            with mock.patch('game.map.places.prototypes.PlacePrototype.max_persons_number', len(self.place1.persons) + 1):
+            with mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.max_persons_number', len(self.place1.persons) + 1):
                 self.place1.sync_persons()
 
 
@@ -316,8 +316,8 @@ class BuildingTests(BaseTestPrototypes):
         super(BuildingTests, self).setUp()
         self.building = BuildingPrototype.create(self.place1.persons[0], name_forms=Noun.fast_construct('building-name'))
 
-    # @mock.patch('game.persons.prototypes.PersonPrototype.is_stable', True)
-    # @mock.patch('game.chronicle.records.PlaceChangeRace.create_record', lambda x: None)
+    # @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.is_stable', True)
+    # @mock.patch('the_tale.game.chronicle.records.PlaceChangeRace.create_record', lambda x: None)
     def test_building_destroyed_by_amortization(self):
         with check_record_created(self, RECORD_TYPE.BUILDING_DESTROYED_BY_AMORTIZATION):
             self.building._model.integrity = 0

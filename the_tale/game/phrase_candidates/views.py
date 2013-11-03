@@ -5,19 +5,19 @@ from django.core.urlresolvers import reverse
 from dext.views import handler, validator
 from dext.utils.urls import UrlBuilder
 
-from accounts.prototypes import AccountPrototype
-from accounts.views import validate_fast_account, validate_ban_forum
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.views import validate_fast_account, validate_ban_forum
 
-from common.utils.resources import Resource
-from common.utils.pagination import Paginator
-from common.utils.decorators import login_required
+from the_tale.common.utils.resources import Resource
+from the_tale.common.utils.pagination import Paginator
+from the_tale.common.utils.decorators import login_required
 
-from game.text_generation import get_phrases_types, get_phrase_module_id_by_subtype
+from the_tale.game.text_generation import get_phrases_types, get_phrase_module_id_by_subtype
 
-from game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
-from game.phrase_candidates.forms import PhraseCandidateNewForm, PhraseCandidateEditForm, UNKNOWN_TYPE_ID, SUBTYPE_CHOICES_IDS
-from game.phrase_candidates.conf import phrase_candidates_settings
-from game.phrase_candidates.prototypes import PhraseCandidatePrototype
+from the_tale.game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
+from the_tale.game.phrase_candidates.forms import PhraseCandidateNewForm, PhraseCandidateEditForm, UNKNOWN_TYPE_ID, SUBTYPE_CHOICES_IDS
+from the_tale.game.phrase_candidates.conf import phrase_candidates_settings
+from the_tale.game.phrase_candidates.prototypes import PhraseCandidatePrototype
 
 
 class PhraseCandidateResource(Resource):

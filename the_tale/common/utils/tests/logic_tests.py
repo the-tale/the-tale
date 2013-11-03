@@ -1,13 +1,12 @@
 # coding: utf-8
 
 import datetime
+import collections
 
-from collections import Counter
+from the_tale.common.utils import testcase
 
-from common.utils import testcase
-
-from common.utils.logic import random_value_by_priority, verbose_timedelta, get_or_create
-from common.utils.decorators import lazy_property
+from the_tale.common.utils.logic import random_value_by_priority, verbose_timedelta, get_or_create
+from the_tale.common.utils.decorators import lazy_property
 
 _get_or_create_state = None # for get_or_create tests
 
@@ -17,7 +16,7 @@ class LogicTest(testcase.TestCase):
         super(LogicTest, self).setUp()
 
     def test_random_value_by_priority(self):
-        counter = Counter()
+        counter = collections.Counter()
 
         choices = [('0', 0),
                    ('a', 1),

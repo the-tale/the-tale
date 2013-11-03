@@ -2,12 +2,12 @@
 
 from dext.utils.decorators import nested_commit_on_success
 
-from common.utils import bbcode
-from common.utils.prototypes import BasePrototype
-from common.utils.decorators import lazy_property
+from the_tale.common.utils import bbcode
+from the_tale.common.utils.prototypes import BasePrototype
+from the_tale.common.utils.decorators import lazy_property
 
-from accounts.prototypes import AccountPrototype
-from accounts.personal_messages.models import Message
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.personal_messages.models import Message
 
 
 
@@ -29,8 +29,8 @@ class MessagePrototype(BasePrototype):
     @classmethod
     @nested_commit_on_success
     def create(cls, sender, recipient, text):
-        from post_service.prototypes import MessagePrototype as PostServiceMessagePrototype
-        from post_service.message_handlers import PersonalMessageHandler
+        from the_tale.post_service.prototypes import MessagePrototype as PostServiceMessagePrototype
+        from the_tale.post_service.message_handlers import PersonalMessageHandler
 
         model = Message.objects.create(recipient=recipient._model,
                                        sender=sender._model,

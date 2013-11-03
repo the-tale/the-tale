@@ -5,15 +5,15 @@ import datetime
 
 from textgen.words import Noun
 
-from game.map.places.models import Building
-from game.map.places.prototypes import BuildingPrototype
-from game.map.places.storage import buildings_storage
-from game.map.places.relations import BUILDING_STATE
+from the_tale.game.map.places.models import Building
+from the_tale.game.map.places.prototypes import BuildingPrototype
+from the_tale.game.map.places.storage import buildings_storage
+from the_tale.game.map.places.relations import BUILDING_STATE
 
-from game.bills.relations import BILL_STATE
-from game.bills.prototypes import BillPrototype, VotePrototype
-from game.bills.bills import BuildingDestroy
-from game.bills.tests.prototype_tests import BaseTestPrototypes
+from the_tale.game.bills.relations import BILL_STATE
+from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
+from the_tale.game.bills.bills import BuildingDestroy
+from the_tale.game.bills.tests.prototype_tests import BaseTestPrototypes
 
 
 class BuildingDestroyTests(BaseTestPrototypes):
@@ -62,8 +62,8 @@ class BuildingDestroyTests(BaseTestPrototypes):
         self.assertEqual(set(persons_ids), set([self.person_1.id, self.person_2.id]))
 
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_apply(self):
         self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
 
@@ -87,8 +87,8 @@ class BuildingDestroyTests(BaseTestPrototypes):
         self.assertNotEqual(building.id, self.building_1.id)
 
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_duplicate_apply(self):
         self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
 
@@ -108,8 +108,8 @@ class BuildingDestroyTests(BaseTestPrototypes):
 
         self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 1)
 
-    @mock.patch('game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_no_building(self):
         self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
 

@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from bank.xsolla.models import Invoice
+from the_tale.bank.xsolla.models import Invoice
 
 class InvoiceAdmin(admin.ModelAdmin):
     list_display = ('id',

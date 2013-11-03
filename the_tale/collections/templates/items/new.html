@@ -1,4 +1,4 @@
-{% extends "achievements/items/base.html" %}
+{% extends "collections/items/base.html" %}
 
 {% block title %}Создание | {{ super() }}{% endblock %}
 
@@ -19,7 +19,7 @@ jQuery(document).ready( function(e) {
 
 {% block items_content %}
 
-<form id="pgf-new-item-form" method="post" action="{{ url('achievements:items:create') }}">
+<form id="pgf-new-item-form" method="post" action="{{ url('collections:items:create') }}">
 
   {{ form.errors_container }}
 

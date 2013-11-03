@@ -7,13 +7,13 @@ from django.core.urlresolvers import reverse
 
 from dext.utils import s11n
 
-from common.utils import discovering
-from common.utils.prototypes import BasePrototype
-from common.utils.discovering import discover_classes
+from the_tale.common.utils import discovering
+from the_tale.common.utils.prototypes import BasePrototype
+from the_tale.common.utils.discovering import discover_classes
 
-from common.postponed_tasks.models import PostponedTask, POSTPONED_TASK_STATE, POSTPONED_TASK_LOGIC_RESULT
-from common.postponed_tasks.exceptions import PostponedTaskException
-from common.postponed_tasks.conf import postponed_tasks_settings
+from the_tale.common.postponed_tasks.models import PostponedTask, POSTPONED_TASK_STATE, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks.exceptions import PostponedTaskException
+from the_tale.common.postponed_tasks.conf import postponed_tasks_settings
 
 
 _INTERNAL_LOGICS = {}
@@ -138,7 +138,7 @@ class PostponedTaskPrototype(BasePrototype):
                 action()
 
     def cmd_wait(self):
-        from common.postponed_tasks.workers.environment import workers_environment
+        from the_tale.common.postponed_tasks.workers.environment import workers_environment
         workers_environment.refrigerator.cmd_wait_task(self.id)
 
     def process(self, logger, **kwargs):

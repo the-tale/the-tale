@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        from game.map.places.prototypes import BuildingPrototype
+        from the_tale.game.map.places.prototypes import BuildingPrototype
 
         pos = BuildingPrototype.get_available_positions(24, 13)
 

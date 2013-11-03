@@ -1,7 +1,7 @@
 # coding: utf-8
 
-from common.utils import testcase
-from common.utils.pagination import Paginator
+from the_tale.common.utils import testcase
+from the_tale.common.utils.pagination import Paginator
 
 D = Paginator.DELTA
 

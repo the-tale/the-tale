@@ -2,9 +2,9 @@
 
 from rels.django_staff import DjangoEnum
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from common.utils.permanent_storage import PermanentStorage, PermanentRelationsStorage, DuplicateInsertError, WrongRelationError
+from the_tale.common.utils.permanent_storage import PermanentStorage, PermanentRelationsStorage, DuplicateInsertError, WrongRelationError
 
 
 class TEST_RELATION(DjangoEnum):

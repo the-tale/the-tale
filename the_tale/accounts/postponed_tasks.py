@@ -8,14 +8,14 @@ from django.core.urlresolvers import reverse
 
 from dext.utils.decorators import nested_commit_on_success
 
-from common.utils.enum import create_enum
-from common.utils.decorators import lazy_property
+from the_tale.common.utils.enum import create_enum
+from the_tale.common.utils.decorators import lazy_property
 
-from common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 
-from game.workers.environment import workers_environment as game_workers_environment
+from the_tale.game.workers.environment import workers_environment as game_workers_environment
 
-from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
+from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
 
 
 REGISTRATION_TASK_STATE = create_enum('REGISTRATION_TASK_STATE', ( ('UNPROCESSED', 0, u'ожидает обработки'),
@@ -50,8 +50,8 @@ class RegistrationTask(PostponedLogic):
         return uuid.uuid4().hex[:AccountPrototype._model_class.MAX_NICK_LENGTH]
 
     def process(self, main_task):
-        from accounts.logic import register_user, REGISTER_USER_RESULT
-        from game.models import Bundle
+        from the_tale.accounts.logic import register_user, REGISTER_USER_RESULT
+        from the_tale.game.models import Bundle
 
         with nested_commit_on_success():
 
@@ -98,7 +98,7 @@ class ChangeCredentials(PostponedLogic):
     def processed_data(self): return {'next_url': reverse('accounts:profile:edited') }
 
     def processed_view(self, resource):
-        from accounts.logic import force_login_user
+        from the_tale.accounts.logic import force_login_user
 
         if not self.task.relogin_required:
             return

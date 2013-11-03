@@ -2,24 +2,24 @@
 import mock
 import datetime
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.logic import create_test_map
-from game.workers.environment import workers_environment
+from the_tale.game.logic import create_test_map
+from the_tale.game.workers.environment import workers_environment
 
-from game.models import SupervisorTask
+from the_tale.game.models import SupervisorTask
 
-from game.pvp.models import Battle1x1, BATTLE_1X1_STATE
-from game.pvp.prototypes import Battle1x1Prototype
-from game.pvp.workers.balancer import QueueRecord, BalancingRecord
+from the_tale.game.pvp.models import Battle1x1, BATTLE_1X1_STATE
+from the_tale.game.pvp.prototypes import Battle1x1Prototype
+from the_tale.game.pvp.workers.balancer import QueueRecord, BalancingRecord
 
 
-from game.pvp.conf import pvp_settings
+from the_tale.game.pvp.conf import pvp_settings
 
 class BalancerTestsBase(testcase.TestCase):
 
@@ -165,7 +165,7 @@ class BalancerBalancingTests(BalancerTestsBase):
 
         self.worker.leave_arena_queue(self.hero_2.id)
 
-        with mock.patch('game.pvp.conf.pvp_settings.BALANCING_TIMEOUT', 0):
+        with mock.patch('the_tale.game.pvp.conf.pvp_settings.BALANCING_TIMEOUT', 0):
             records, records_to_bots = self.worker._get_prepaired_queue()
 
         self.assertEqual(records, [])
@@ -194,7 +194,7 @@ class BalancerBalancingTests(BalancerTestsBase):
         self.worker.arena_queue[self.account_1.id] = battle_1_record
         self.worker.arena_queue[self.account_2.id] = battle_2_record
 
-        with mock.patch('game.pvp.conf.pvp_settings.BALANCING_TIMEOUT', 1):
+        with mock.patch('the_tale.game.pvp.conf.pvp_settings.BALANCING_TIMEOUT', 1):
             records, records_to_bots = self.worker._get_prepaired_queue()
 
         self.assertEqual(len(records), 1)

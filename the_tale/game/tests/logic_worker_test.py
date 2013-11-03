@@ -3,16 +3,16 @@ import datetime
 
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.logic import create_test_map
-from game.workers.environment import workers_environment
-from game.prototypes import TimePrototype
+from the_tale.game.logic import create_test_map
+from the_tale.game.workers.environment import workers_environment
+from the_tale.game.prototypes import TimePrototype
 
 
 class LogicWorkerTests(testcase.TestCase):
@@ -58,8 +58,8 @@ class LogicWorkerTests(testcase.TestCase):
 
         self.worker.process_register_account(self.account.id)
 
-        with mock.patch('game.workers.supervisor.Worker.cmd_account_release_required') as release_required_counter:
-            with mock.patch('game.heroes.prototypes.HeroPrototype.save') as save_counter:
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_account_release_required') as release_required_counter:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.save') as save_counter:
                 self.worker.process_next_turn(current_time.turn_number)
 
         self.assertEqual(save_counter.call_count, 1)
@@ -76,9 +76,9 @@ class LogicWorkerTests(testcase.TestCase):
 
         self.worker.storage.skipped_heroes.add(self.hero.id)
 
-        with mock.patch('game.actions.prototypes.ActionBase.process_turn') as action_process_turn:
-            with mock.patch('game.workers.supervisor.Worker.cmd_account_release_required') as release_required_counter:
-                with mock.patch('game.heroes.prototypes.HeroPrototype.save') as save_counter:
+        with mock.patch('the_tale.game.actions.prototypes.ActionBase.process_turn') as action_process_turn:
+            with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_account_release_required') as release_required_counter:
+                with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.save') as save_counter:
                     self.worker.process_next_turn(TimePrototype.get_current_turn_number())
 
         self.assertEqual(action_process_turn.call_count, 0)
@@ -88,7 +88,7 @@ class LogicWorkerTests(testcase.TestCase):
     def test_process_update_hero_with_account_data(self):
         self.worker.process_register_account(self.account.id)
 
-        with mock.patch('game.heroes.prototypes.HeroPrototype.update_with_account_data') as update_method:
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_with_account_data') as update_method:
             self.worker.process_update_hero_with_account_data(account_id=self.account.id,
                                                               hero_id=self.hero.id,
                                                               is_fast=False,
@@ -104,6 +104,6 @@ class LogicWorkerTests(testcase.TestCase):
         self.assertEqual(args['might'], 8888)
 
     def test_stop(self):
-        with mock.patch('game.logic_storage.LogicStorage.save_all') as save_all:
+        with mock.patch('the_tale.game.logic_storage.LogicStorage.save_all') as save_all:
             self.worker.process_stop()
         self.assertEqual(save_all.call_count, 1)

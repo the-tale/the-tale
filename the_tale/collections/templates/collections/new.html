@@ -1,4 +1,4 @@
-{% extends "achievements/collections/base.html" %}
+{% extends "collections/collections/base.html" %}
 
 {% block title %}Создание | {{ super() }}{% endblock %}
 
@@ -19,7 +19,7 @@ jQuery(document).ready( function(e) {
 
 {% block collections_content %}
 
-<form id="pgf-new-collection-form" method="post" action="{{ url('achievements:collections:create') }}">
+<form id="pgf-new-collection-form" method="post" action="{{ url('collections:collections:create') }}">
 
   {{ form.errors_container }}
 

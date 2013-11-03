@@ -5,18 +5,18 @@ from django.contrib.auth import authenticate as django_authenticate
 
 from dext.utils.urls import url
 
-from common.utils.fake import FakeLogger
-from common.utils.testcase import TestCase
-from common.postponed_tasks import PostponedTask, PostponedTaskPrototype
+from the_tale.common.utils.fake import FakeLogger
+from the_tale.common.utils.testcase import TestCase
+from the_tale.common.postponed_tasks import PostponedTask, PostponedTaskPrototype
 
-from post_service.models import Message
+from the_tale.post_service.models import Message
 
-from accounts.logic import register_user, login_url
+from the_tale.accounts.logic import register_user, login_url
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from accounts.models import CHANGE_CREDENTIALS_TASK_STATE, ChangeCredentialsTask
-from accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
+from the_tale.accounts.models import CHANGE_CREDENTIALS_TASK_STATE, ChangeCredentialsTask
+from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
 
 
 class ProfileRequestsTests(TestCase):

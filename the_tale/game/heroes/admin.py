@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from game.heroes.models import Hero, HeroPreferences
+from the_tale.game.heroes.models import Hero, HeroPreferences
 
 class HeroAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'is_alive', 'health', 'account')

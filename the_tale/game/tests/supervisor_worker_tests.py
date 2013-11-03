@@ -1,25 +1,25 @@
 # coding: utf-8
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.models import SupervisorTask
-from game.logic import create_test_map
-from game.workers.environment import workers_environment
-from game.prototypes import SupervisorTaskPrototype
-from game.workers.supervisor import SupervisorException
+from the_tale.game.models import SupervisorTask
+from the_tale.game.logic import create_test_map
+from the_tale.game.workers.environment import workers_environment
+from the_tale.game.prototypes import SupervisorTaskPrototype
+from the_tale.game.workers.supervisor import SupervisorException
 
-from game.pvp.prototypes import Battle1x1Prototype
+from the_tale.game.pvp.prototypes import Battle1x1Prototype
 
 _wait_answers_state = 'logic' # for one specific test
 
 
-@mock.patch('game.workers.supervisor.Worker.wait_answers_from', lambda self, name, workers: None)
+@mock.patch('the_tale.game.workers.supervisor.Worker.wait_answers_from', lambda self, name, workers: None)
 class SupervisorWorkerTests(testcase.TestCase):
 
     def setUp(self):
@@ -44,7 +44,7 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.worker.logger = mock.Mock()
 
     def test_initialization(self):
-        from common.postponed_tasks import PostponedTask, PostponedTaskPrototype, POSTPONED_TASK_STATE, FakePostponedInternalTask
+        from the_tale.common.postponed_tasks import PostponedTask, PostponedTaskPrototype, POSTPONED_TASK_STATE, FakePostponedInternalTask
 
         PostponedTaskPrototype.create(FakePostponedInternalTask())
 
@@ -77,7 +77,7 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.assertEqual(len(self.worker.tasks), 0)
         self.assertEqual(len(self.worker.accounts_for_tasks), 0)
 
-        with mock.patch('game.workers.logic.Worker.cmd_release_account') as release_accounts_counter:
+        with mock.patch('the_tale.game.workers.logic.Worker.cmd_release_account') as release_accounts_counter:
             self.worker.register_task(task, release_accounts=True)
 
         self.assertEqual(len(self.worker.tasks), 1)
@@ -109,7 +109,7 @@ class SupervisorWorkerTests(testcase.TestCase):
 
         task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
 
-        with mock.patch('game.workers.logic.Worker.cmd_release_account') as release_accounts_counter:
+        with mock.patch('the_tale.game.workers.logic.Worker.cmd_release_account') as release_accounts_counter:
             self.worker.register_task(task)
 
         self.assertEqual(release_accounts_counter.call_count, 2)
@@ -147,8 +147,8 @@ class SupervisorWorkerTests(testcase.TestCase):
                                                    ('logic_task', {'account_id': self.account_1.id, 'task_id': 2}),
                                                    ('logic_task', {'account_id': self.account_1.id, 'task_id': 4}) ]
 
-        with mock.patch('game.workers.logic.Worker.cmd_register_account') as register_account_counter:
-            with mock.patch('game.workers.logic.Worker.cmd_logic_task') as cmd_logic_task:
+        with mock.patch('the_tale.game.workers.logic.Worker.cmd_register_account') as register_account_counter:
+            with mock.patch('the_tale.game.workers.logic.Worker.cmd_logic_task') as cmd_logic_task:
                 self.worker.register_account(account_id)
 
         self.assertEqual(cmd_logic_task.call_count, 3)
@@ -161,7 +161,7 @@ class SupervisorWorkerTests(testcase.TestCase):
         task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
         self.worker.register_task(task)
 
-        with mock.patch('game.workers.logic.Worker.cmd_register_account') as register_account_counter:
+        with mock.patch('the_tale.game.workers.logic.Worker.cmd_register_account') as register_account_counter:
             self.worker.register_account(self.account_1.id)
 
         self.assertEqual(register_account_counter.call_count, 0)
@@ -177,7 +177,7 @@ class SupervisorWorkerTests(testcase.TestCase):
 
         self.worker.register_task(task)
 
-        with mock.patch('game.workers.logic.Worker.cmd_register_account') as register_account_counter:
+        with mock.patch('the_tale.game.workers.logic.Worker.cmd_register_account') as register_account_counter:
             self.worker.register_account(self.account_1.id)
             self.worker.register_account(self.account_2.id)
 
@@ -194,7 +194,7 @@ class SupervisorWorkerTests(testcase.TestCase):
         account_3 = AccountPrototype.get_by_id(account_3_id)
         hero_3 = HeroPrototype.get_by_id(account_3_id)
 
-        with mock.patch('game.workers.logic.Worker.cmd_logic_task') as logic_task_counter:
+        with mock.patch('the_tale.game.workers.logic.Worker.cmd_logic_task') as logic_task_counter:
             with mock.patch.object(self.worker.logger, 'warn') as logger_warn_counter:
                 self.worker.process_update_hero_with_account_data(account_3_id,
                                                                   hero_3.id,
@@ -209,18 +209,18 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.assertFalse(account_3_id in self.worker.accounts_owners)
         self.assertTrue(account_3_id in self.worker.accounts_queues)
 
-    @mock.patch('game.conf.game_settings.ENABLE_WORKER_HIGHLEVEL', True)
+    @mock.patch('the_tale.game.conf.game_settings.ENABLE_WORKER_HIGHLEVEL', True)
     def test_process_next_turn(self):
         self.worker.process_initialize()
-        with mock.patch('game.workers.supervisor.Worker.wait_answers_from') as wait_answers_from:
+        with mock.patch('the_tale.game.workers.supervisor.Worker.wait_answers_from') as wait_answers_from:
             self.worker.process_next_turn()
 
         self.assertEqual(wait_answers_from.call_count, 2)
 
-    @mock.patch('game.conf.game_settings.ENABLE_WORKER_HIGHLEVEL', True)
-    @mock.patch('game.workers.supervisor.Worker.logger.error', mock.Mock())
+    @mock.patch('the_tale.game.conf.game_settings.ENABLE_WORKER_HIGHLEVEL', True)
+    @mock.patch('the_tale.game.workers.supervisor.Worker.logger.error', mock.Mock())
     def test_process_next_turn__timeout_in_highlevel(self):
-        from common.amqp_queues import exceptions as amqp_exceptions
+        from the_tale.common.amqp_queues import exceptions as amqp_exceptions
 
         self.worker.process_initialize()
 
@@ -234,8 +234,8 @@ class SupervisorWorkerTests(testcase.TestCase):
                 _wait_answers_state = 'stop'
                 raise amqp_exceptions.WaitAnswerTimeoutError(code='code', workers='workers', timeout=60.0)
 
-        with mock.patch('game.workers.supervisor.Worker.wait_answers_from', wait_answers_from):
-            with mock.patch('game.workers.logic.Worker.cmd_stop') as logic_cmd_stop:
+        with mock.patch('the_tale.game.workers.supervisor.Worker.wait_answers_from', wait_answers_from):
+            with mock.patch('the_tale.game.workers.logic.Worker.cmd_stop') as logic_cmd_stop:
                 self.assertRaises(amqp_exceptions.WaitAnswerTimeoutError, self.worker.process_next_turn)
 
         self.assertEqual(logic_cmd_stop.call_count, 1)

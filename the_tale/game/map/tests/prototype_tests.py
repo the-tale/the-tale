@@ -1,11 +1,11 @@
 # coding: utf-8
 
-from common.utils.testcase import TestCase
+from the_tale.common.utils.testcase import TestCase
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.map.conf import map_settings
-from game.map.storage import map_info_storage
+from the_tale.game.map.conf import map_settings
+from the_tale.game.map.storage import map_info_storage
 
 
 class PrototypeTests(TestCase):

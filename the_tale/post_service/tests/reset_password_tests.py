@@ -2,15 +2,15 @@
 
 from django.core import mail
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.logic import register_user
-from accounts.prototypes import AccountPrototype, ResetPasswordTaskPrototype
+from the_tale.accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype, ResetPasswordTaskPrototype
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from post_service.models import Message
-from post_service.prototypes import MessagePrototype
+from the_tale.post_service.models import Message
+from the_tale.post_service.prototypes import MessagePrototype
 
 
 class ResetPasswordTests(testcase.TestCase):
@@ -40,7 +40,7 @@ class ResetPasswordTests(testcase.TestCase):
         self.assertTrue(self.reset_task.uuid in mail.outbox[0].alternatives[0][0])
 
     def test_mail_send__to_system_user(self):
-        from accounts.logic import get_system_user
+        from the_tale.accounts.logic import get_system_user
 
         Message.objects.all().delete()
 

@@ -8,24 +8,24 @@ from django.conf import settings as project_settings
 from dext.utils import s11n
 from dext.utils.decorators import nested_commit_on_success
 
-from common.utils.decorators import lazy_property
-from common.utils import bbcode
-from common.utils.prototypes import BasePrototype
+from the_tale.common.utils.decorators import lazy_property
+from the_tale.common.utils import bbcode
+from the_tale.common.utils.prototypes import BasePrototype
 
-from accounts.logic import get_system_user
-from accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import get_system_user
+from the_tale.accounts.prototypes import AccountPrototype
 
-from game.prototypes import TimePrototype
-from game.balance import constants as c
+from the_tale.game.prototypes import TimePrototype
+from the_tale.game.balance import constants as c
 
-from forum.prototypes import ThreadPrototype, PostPrototype, SubCategoryPrototype
-from forum.models import MARKUP_METHOD
+from the_tale.forum.prototypes import ThreadPrototype, PostPrototype, SubCategoryPrototype
+from the_tale.forum.models import MARKUP_METHOD
 
-from game.bills.models import Bill, Vote, Actor
-from game.bills.conf import bills_settings
-from game.bills import exceptions
-from game.bills.relations import BILL_STATE, VOTE_TYPE, BILL_DURATION
-from game.bills import signals
+from the_tale.game.bills.models import Bill, Vote, Actor
+from the_tale.game.bills.conf import bills_settings
+from the_tale.game.bills import exceptions
+from the_tale.game.bills.relations import BILL_STATE, VOTE_TYPE, BILL_DURATION
+from the_tale.game.bills import signals
 
 
 class BillPrototype(BasePrototype):
@@ -41,7 +41,7 @@ class BillPrototype(BasePrototype):
 
     @property
     def data(self):
-        from game.bills.bills import deserialize_bill
+        from the_tale.game.bills.bills import deserialize_bill
         if not hasattr(self, '_data'):
             self._data = deserialize_bill(s11n.from_json(self._model.technical_data))
         return self._data
@@ -121,7 +121,7 @@ class BillPrototype(BasePrototype):
         return [cls(model=model) for model in cls._model_class.objects.exclude(state=BILL_STATE.REMOVED).order_by('-updated_at')[:bills_number]]
 
     def can_vote(self, hero):
-        from game.map.places.prototypes import PlacePrototype
+        from the_tale.game.map.places.prototypes import PlacePrototype
 
         allowed_places_ids = hero.places_history.get_allowed_places_ids(bills_settings.PLACES__TO_ACCESS_VOTING)
 
@@ -379,7 +379,7 @@ class ActorPrototype(BasePrototype):
     @classmethod
     @nested_commit_on_success
     def update_actors(cls, bill, actors):
-        from game.map.places.prototypes import PlacePrototype
+        from the_tale.game.map.places.prototypes import PlacePrototype
 
         Actor.objects.filter(bill_id=bill.id).delete()
 

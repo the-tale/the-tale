@@ -2,12 +2,12 @@
 
 from dext.utils.decorators import nested_commit_on_success
 
-from common.utils.prototypes import BasePrototype
+from the_tale.common.utils.prototypes import BasePrototype
 
-from game.prototypes import TimePrototype
+from the_tale.game.prototypes import TimePrototype
 
-from game.chronicle.models import Record, Actor, RecordToActor
-from game.chronicle.exceptions import ChronicleException
+from the_tale.game.chronicle.models import Record, Actor, RecordToActor
+from the_tale.game.chronicle.exceptions import ChronicleException
 
 
 class RecordPrototype(BasePrototype):
@@ -95,9 +95,9 @@ class ExternalPerson(ExternalActorBase):
         self.person = self.object
 
 def create_external_actor(actor):
-    from game.bills.prototypes import BillPrototype
-    from game.map.places.prototypes import PlacePrototype
-    from game.persons.prototypes import PersonPrototype
+    from the_tale.game.bills.prototypes import BillPrototype
+    from the_tale.game.map.places.prototypes import PlacePrototype
+    from the_tale.game.persons.prototypes import PersonPrototype
 
     if isinstance(actor, BillPrototype): return ExternalBill(actor)
     if isinstance(actor, PersonPrototype): return ExternalPerson(actor)

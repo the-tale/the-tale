@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.core.management.base import BaseCommand
 
-from game.map.roads.storage import roads_storage
+from the_tale.game.map.roads.storage import roads_storage
 
 class Command(BaseCommand):
 

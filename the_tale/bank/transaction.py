@@ -1,8 +1,8 @@
 # coding: utf-8
 
 
-from bank.prototypes import InvoicePrototype
-from bank.workers.environment import workers_environment as bank_workers_environment
+from the_tale.bank.prototypes import InvoicePrototype
+from the_tale.bank.workers.environment import workers_environment as bank_workers_environment
 
 
 class Transaction(object):

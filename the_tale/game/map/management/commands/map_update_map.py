@@ -1,7 +1,9 @@
 # coding: utf-8
-import subprocess
 
 from django.core.management.base import BaseCommand
+
+from the_tale.common.utils.logic import run_django_command
+
 
 class Command(BaseCommand):
 
@@ -10,10 +12,10 @@ class Command(BaseCommand):
     requires_model_validation = False
 
     def handle(self, *args, **options):
-        subprocess.call(['./manage.py', 'roads_update_roads'])
+        run_django_command(['roads_update_roads'])
 
-        subprocess.call(['./manage.py', 'roads_update_waymarks'])
+        run_django_command(['roads_update_waymarks'])
 
-        subprocess.call(['./manage.py', 'places_update_nearest_cells'])
+        run_django_command(['places_update_nearest_cells'])
 
-        subprocess.call(['./manage.py', 'map_generate_map'])
+        run_django_command(['map_generate_map'])

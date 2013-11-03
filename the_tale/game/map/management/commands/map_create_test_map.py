@@ -1,20 +1,21 @@
-# -*- coding: utf-8 -*-
-import subprocess
+# coding: utf-8
 
 from django.core.management.base import BaseCommand
 
 from dext.utils.decorators import nested_commit_on_success
 
-from game.persons.storage import persons_storage
+from the_tale.common.utils.logic import run_django_command
 
-from game.map.roads.models import Road
-from game.map.places.models import Place
-from game.map.relations import TERRAIN
-from game.map.places.storage import places_storage
-from game.map.roads.storage import roads_storage
-from game.map.storage import map_info_storage
-from game.map.prototypes import MapInfoPrototype, WorldInfoPrototype
-from game.map.conf import map_settings
+from the_tale.game.persons.storage import persons_storage
+
+from the_tale.game.map.roads.models import Road
+from the_tale.game.map.places.models import Place
+from the_tale.game.map.relations import TERRAIN
+from the_tale.game.map.places.storage import places_storage
+from the_tale.game.map.roads.storage import roads_storage
+from the_tale.game.map.storage import map_info_storage
+from the_tale.game.map.prototypes import MapInfoPrototype, WorldInfoPrototype
+from the_tale.game.map.conf import map_settings
 
 class Command(BaseCommand):
 
@@ -24,7 +25,7 @@ class Command(BaseCommand):
 
         self.create_map()
 
-        subprocess.call(['./manage.py', 'map_update_map'])
+        run_django_command(['map_update_map'])
 
 
 

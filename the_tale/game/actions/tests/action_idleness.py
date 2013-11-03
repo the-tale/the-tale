@@ -2,22 +2,22 @@
 
 import mock
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from accounts.prototypes import AccountPrototype
-from accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
 
-from game.balance import constants as c, formulas as f, enums as e
-from game.prototypes import TimePrototype
+from the_tale.game.balance import constants as c, formulas as f, enums as e
+from the_tale.game.prototypes import TimePrototype
 
-from game.logic_storage import LogicStorage
-from game.logic import create_test_map
+from the_tale.game.logic_storage import LogicStorage
+from the_tale.game.logic import create_test_map
 
-from game.abilities.relations import HELP_CHOICES
+from the_tale.game.abilities.relations import HELP_CHOICES
 
-from game.map.roads.storage import roads_storage
+from the_tale.game.map.roads.storage import roads_storage
 
-from game.actions.prototypes import (ActionIdlenessPrototype,
+from the_tale.game.actions.prototypes import (ActionIdlenessPrototype,
                                      ActionQuestPrototype,
                                      ActionInPlacePrototype,
                                      ActionRegenerateEnergyPrototype,
@@ -153,7 +153,7 @@ class IdlenessActionTest(testcase.TestCase):
         self.action_idl.percents = 1.0
         self.assertFalse(HELP_CHOICES.START_QUEST in self.action_idl.HELP_CHOICES)
 
-    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_return_from_road__after_quest(self):
         self.action_idl.state = ActionIdlenessPrototype.STATE.QUEST
         self.hero.position.set_road(list(roads_storage.all())[0], percents=0.5)
@@ -161,7 +161,7 @@ class IdlenessActionTest(testcase.TestCase):
         self.assertEqual(self.hero.actions.number, 2)
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionMoveToPrototype.TYPE)
 
-    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_return_from_wild_terrain__after_quest(self):
         self.action_idl.state = ActionIdlenessPrototype.STATE.QUEST
         self.hero.position.set_coordinates(0, 0, 5, 5, percents=0)
@@ -169,7 +169,7 @@ class IdlenessActionTest(testcase.TestCase):
         self.assertEqual(self.hero.actions.number, 2)
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionMoveNearPlacePrototype.TYPE)
 
-    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_return_from_road__after_resurrect(self):
         self.action_idl.state = ActionIdlenessPrototype.STATE.RESURRECT
         self.hero.position.set_road(list(roads_storage.all())[0], percents=0.5)
@@ -177,7 +177,7 @@ class IdlenessActionTest(testcase.TestCase):
         self.assertEqual(self.hero.actions.number, 2)
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionMoveToPrototype.TYPE)
 
-    @mock.patch('game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_return_from_wild_terrain__after_resurrect(self):
         self.action_idl.state = ActionIdlenessPrototype.STATE.RESURRECT
         self.hero.position.set_coordinates(0, 0, 5, 5, percents=0)

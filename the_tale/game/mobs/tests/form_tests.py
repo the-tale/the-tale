@@ -1,17 +1,17 @@
 # coding: utf-8
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
 from textgen.words import Noun
 
 from dext.utils import s11n
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.map.relations import TERRAIN
+from the_tale.game.map.relations import TERRAIN
 
-from game.mobs.forms import MobRecordForm, ModerateMobRecordForm
-from game.mobs.relations import MOB_TYPE
+from the_tale.game.mobs.forms import MobRecordForm, ModerateMobRecordForm
+from the_tale.game.mobs.relations import MOB_TYPE
 
 
 class MobsFormsTests(testcase.TestCase):

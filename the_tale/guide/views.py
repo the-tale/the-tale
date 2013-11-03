@@ -7,21 +7,21 @@ from django.core.urlresolvers import reverse
 from dext.views import handler, validate_argument
 from dext.utils.urls import UrlBuilder, full_url
 
-from common.utils.resources import Resource
+from the_tale.common.utils.resources import Resource
 
-from game.heroes.habilities import ABILITIES, ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
-from game.heroes.conf import heroes_settings
-from game.heroes.relations import PREFERENCE_TYPE
+from the_tale.game.heroes.habilities import ABILITIES, ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
+from the_tale.game.heroes.conf import heroes_settings
+from the_tale.game.heroes.relations import PREFERENCE_TYPE
 
-from game.map.places.conf import places_settings
-from game.persons.conf import persons_settings
-from game.pvp.conf import pvp_settings
-from game.pvp import abilities as pvp_abilities
+from the_tale.game.map.places.conf import places_settings
+from the_tale.game.persons.conf import persons_settings
+from the_tale.game.pvp.conf import pvp_settings
+from the_tale.game.pvp import abilities as pvp_abilities
 
-from accounts.clans.conf import clans_settings
-from accounts.conf import accounts_settings
+from the_tale.accounts.clans.conf import clans_settings
+from the_tale.accounts.conf import accounts_settings
 
-from guide.conf import guide_settings
+from the_tale.guide.conf import guide_settings
 
 
 class APIReference(object):
@@ -40,9 +40,9 @@ class TypeReference(object):
 
 
 def get_api_methods():
-    from portal.views import PortalResource
-    from accounts.views import AuthResource
-    from game.views import GameResource
+    from the_tale.portal.views import PortalResource
+    from the_tale.accounts.views import AuthResource
+    from the_tale.game.views import GameResource
     return [APIReference('portal_info', u'Базовая информация', PortalResource.api_info),
             APIReference('login', u'Вход в игру', AuthResource.api_login),
             APIReference('logout', u'Выход из игры', AuthResource.api_logout),
@@ -50,10 +50,10 @@ def get_api_methods():
 
 
 def get_api_types():
-    from game.relations import GENDER, RACE
-    from game.artifacts.relations import ARTIFACT_TYPE
-    from game.heroes.relations import EQUIPMENT_SLOT
-    from game.persons.relations import PERSON_TYPE
+    from the_tale.game.relations import GENDER, RACE
+    from the_tale.game.artifacts.relations import ARTIFACT_TYPE
+    from the_tale.game.heroes.relations import EQUIPMENT_SLOT
+    from the_tale.game.persons.relations import PERSON_TYPE
 
     return [TypeReference('gender', u'Пол', GENDER),
             TypeReference('race', u'Раса', RACE),
@@ -108,8 +108,8 @@ class GuideResource(Resource):
 
     @handler('persons', method='get')
     def persons(self):
-        from game.persons.prototypes import MASTERY_VERBOSE
-        from game.persons.relations import PERSON_TYPE
+        from the_tale.game.persons.prototypes import MASTERY_VERBOSE
+        from the_tale.game.persons.relations import PERSON_TYPE
         return self.template('guide/persons.html', {'section': 'persons',
                                                     'persons_settings': persons_settings,
                                                     'MASTERY_LEVELS': [mastery[1] for mastery in MASTERY_VERBOSE],
@@ -117,8 +117,8 @@ class GuideResource(Resource):
 
     @handler('cities', method='get')
     def cities(self):
-        from game.map.places.modifiers import MODIFIERS
-        from game.map.places.prototypes import PlaceParametersDescription
+        from the_tale.game.map.places.modifiers import MODIFIERS
+        from the_tale.game.map.places.prototypes import PlaceParametersDescription
         return self.template('guide/cities.html', {'section': 'cities',
                                                    'places_settings': places_settings,
                                                    'PlaceParametersDescription': PlaceParametersDescription,
@@ -126,8 +126,8 @@ class GuideResource(Resource):
 
     @handler('politics', method='get')
     def politics(self):
-        from game.bills.conf import bills_settings
-        from game.bills.bills import BILLS_BY_ID
+        from the_tale.game.bills.conf import bills_settings
+        from the_tale.game.bills.bills import BILLS_BY_ID
         return self.template('guide/politics.html', {'section': 'politics',
                                                      'bills_settings': bills_settings,
                                                      'heroes_settings': heroes_settings,

@@ -3,12 +3,12 @@
 from django.test import client
 from django.core.urlresolvers import reverse
 
-from common.utils.testcase import TestCase
-from common.postponed_tasks import PostponedTask, PostponedTaskPrototype, POSTPONED_TASK_STATE
+from the_tale.common.utils.testcase import TestCase
+from the_tale.common.postponed_tasks import PostponedTask, PostponedTaskPrototype, POSTPONED_TASK_STATE
 
-from accounts.logic import register_user
+from the_tale.accounts.logic import register_user
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
 class RequestsRegistrationTests(TestCase):
 

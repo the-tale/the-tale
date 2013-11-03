@@ -4,13 +4,13 @@ from django.dispatch import receiver
 
 from textgen.words import Fake as FakeWord
 
-from game.bills import signals as bills_signals
-from game.bills.models import BILL_TYPE
+from the_tale.game.bills import signals as bills_signals
+from the_tale.game.bills.models import BILL_TYPE
 
-from game.map.places import signals as places_signals
+from the_tale.game.map.places import signals as places_signals
 
-from game.chronicle import records
-from game.chronicle.relations import ACTOR_ROLE
+from the_tale.game.chronicle import records
+from the_tale.game.chronicle.relations import ACTOR_ROLE
 
 
 def _get_bill_place_renaming_arguments(bill):

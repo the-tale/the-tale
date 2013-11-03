@@ -2,10 +2,10 @@
 
 from rels.django_staff import DjangoEnum
 
-from common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.postponed_tasks import PostponedTaskPrototype
 
-from accounts.conf import accounts_settings
-from accounts.logic import login_user
+from the_tale.accounts.conf import accounts_settings
+from the_tale.accounts.logic import login_user
 
 
 class HANDLE_REGISTRATION_RESULT(DjangoEnum):

@@ -3,11 +3,11 @@ import mock
 
 from dext.utils.urls import url
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from bank.xsolla.logic import check_user_md5, pay_md5, cancel_md5
-from bank.xsolla.relations import COMMAND_TYPE, CHECK_USER_RESULT, COMMON_RESULT, PAY_RESULT, CANCEL_RESULT
-from bank.xsolla.prototypes import InvoicePrototype
+from the_tale.bank.xsolla.logic import check_user_md5, pay_md5, cancel_md5
+from the_tale.bank.xsolla.relations import COMMAND_TYPE, CHECK_USER_RESULT, COMMON_RESULT, PAY_RESULT, CANCEL_RESULT
+from the_tale.bank.xsolla.prototypes import InvoicePrototype
 
 
 class BaseRequestsTests(testcase.TestCase):
@@ -49,7 +49,7 @@ class CommonRequestsTests(BaseRequestsTests):
         super(CommonRequestsTests, self).setUp()
 
     def test_wrong_ips(self):
-        with mock.patch('bank.xsolla.conf.xsolla_settings.ALLOWED_IPS', ()):
+        with mock.patch('the_tale.bank.xsolla.conf.xsolla_settings.ALLOWED_IPS', ()):
             self.check_xml_ok(self.request_xml(self.construct_url(command=COMMAND_TYPE.CHECK)),
                               body=self.construct_answer(COMMON_RESULT.DISALLOWED_IP),
                               encoding='cp1251')
@@ -60,12 +60,12 @@ class CommonRequestsTests(BaseRequestsTests):
                           body=self.construct_answer(COMMON_RESULT.WRONG_COMMAND),
                           encoding='cp1251')
 
-    @mock.patch('bank.xsolla.views.logger.error', mock.Mock())
+    @mock.patch('the_tale.bank.xsolla.views.logger.error', mock.Mock())
     def test_exception_raised(self):
         def raise_exception(*argv, **kwargs):
             raise Exception('!')
 
-        with mock.patch('bank.xsolla.logic.check_user', raise_exception):
+        with mock.patch('the_tale.bank.xsolla.logic.check_user', raise_exception):
             self.check_xml_ok(self.request_xml(self.construct_url(command=COMMAND_TYPE.CHECK)),
                               body=self.construct_answer(COMMON_RESULT.UNKNOWN_ERROR),
                               encoding='cp1251')
@@ -88,7 +88,7 @@ class CheckUserRequestsTests(BaseRequestsTests):
                           encoding='cp1251')
 
     def test_check_user__user_exists(self):
-        with mock.patch('bank.logic.get_account_id', mock.Mock(return_value=13)) as bank_check_user:
+        with mock.patch('the_tale.bank.logic.get_account_id', mock.Mock(return_value=13)) as bank_check_user:
             self.check_xml_ok(self.request_xml(self.construct_url()),
                               body=self.construct_answer(CHECK_USER_RESULT.USER_EXISTS),
                               encoding='cp1251')
@@ -98,7 +98,7 @@ class CheckUserRequestsTests(BaseRequestsTests):
 
 
     def test_check_user__user_not_exists(self):
-        with mock.patch('bank.logic.get_account_id', mock.Mock(return_value=None)) as bank_check_user:
+        with mock.patch('the_tale.bank.logic.get_account_id', mock.Mock(return_value=None)) as bank_check_user:
             self.check_xml_ok(self.request_xml(self.construct_url()),
                               body=self.construct_answer(CHECK_USER_RESULT.USER_NOT_EXISTS),
                               encoding='cp1251')
@@ -153,7 +153,7 @@ class PayRequestsTests(BaseRequestsTests):
                           encoding='cp1251')
 
     def test_success(self):
-        with mock.patch('bank.logic.get_account_id', mock.Mock(return_value=13)) as bank_check_user:
+        with mock.patch('the_tale.bank.logic.get_account_id', mock.Mock(return_value=13)) as bank_check_user:
             response = self.request_xml(self.construct_url())
 
         self.check_xml_ok(response,
@@ -165,7 +165,7 @@ class PayRequestsTests(BaseRequestsTests):
 
 
     def test_user_not_exists(self):
-        with mock.patch('bank.logic.get_account_id', mock.Mock(return_value=None)) as bank_check_user:
+        with mock.patch('the_tale.bank.logic.get_account_id', mock.Mock(return_value=None)) as bank_check_user:
             response = self.request_xml(self.construct_url())
 
         self.check_xml_ok(response,

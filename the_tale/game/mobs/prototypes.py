@@ -5,22 +5,22 @@ from textgen.words import Noun
 
 from dext.utils import s11n
 
-from common.utils import bbcode
-from common.utils.prototypes import BasePrototype
+from the_tale.common.utils import bbcode
+from the_tale.common.utils.prototypes import BasePrototype
 
-from game.heroes.habilities import AbilitiesPrototype
+from the_tale.game.heroes.habilities import AbilitiesPrototype
 
-from game.balance import formulas as f
-from game.game_info import ATTRIBUTES
+from the_tale.game.balance import formulas as f
+from the_tale.game.game_info import ATTRIBUTES
 
-from game.map.relations import TERRAIN
+from the_tale.game.map.relations import TERRAIN
 
-from game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
+from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
 
-from game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts.storage import artifacts_storage
 
-from game.mobs.models import MobRecord
-from game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
+from the_tale.game.mobs.models import MobRecord
+from the_tale.game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
 
 
 class MobException(Exception): pass
@@ -84,7 +84,7 @@ class MobPrototype(object):
         # we do not save abilities and after load, mob can has differen abilities levels
         # if mob record is desabled or deleted, get another random record
 
-        from game.mobs.storage import mobs_storage
+        from the_tale.game.mobs.storage import mobs_storage
 
         record = mobs_storage.get_by_uuid(data['id'])
 
@@ -166,7 +166,7 @@ class MobRecordPrototype(BasePrototype):
     @classmethod
     def create(cls, uuid, level, name, description, abilities, terrains, type, editor=None, state=MOB_RECORD_STATE.DISABLED, name_forms=None):
 
-        from game.mobs.storage import mobs_storage
+        from the_tale.game.mobs.storage import mobs_storage
 
         if name_forms is None:
             name_forms = Noun(normalized=name,
@@ -239,7 +239,7 @@ class MobRecordPrototype(BasePrototype):
         self.save()
 
     def save(self):
-        from game.mobs.storage import mobs_storage
+        from the_tale.game.mobs.storage import mobs_storage
 
         self._model.save()
 

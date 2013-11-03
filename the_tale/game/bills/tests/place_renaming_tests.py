@@ -4,13 +4,13 @@ from dext.utils import s11n
 
 from textgen.words import Noun
 
-from forum.models import Post, Thread, MARKUP_METHOD
+from the_tale.forum.models import Post, Thread, MARKUP_METHOD
 
-from game.bills.models import Vote
-from game.bills.prototypes import BillPrototype, VotePrototype
-from game.bills.bills import PlaceRenaming
-from game.bills.relations import VOTE_TYPE
-from game.bills.tests.prototype_tests import BaseTestPrototypes
+from the_tale.game.bills.models import Vote
+from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
+from the_tale.game.bills.bills import PlaceRenaming
+from the_tale.game.bills.relations import VOTE_TYPE
+from the_tale.game.bills.tests.prototype_tests import BaseTestPrototypes
 
 
 class PlaceRenamingTests(BaseTestPrototypes):

@@ -5,13 +5,13 @@ from django.db import IntegrityError
 
 from dext.utils.decorators import nested_commit_on_success
 
-from common.utils.prototypes import BasePrototype
-from common.utils.logic import get_or_create
+from the_tale.common.utils.prototypes import BasePrototype
+from the_tale.common.utils.logic import get_or_create
 
-from bank.models import Invoice, Account
-from bank.relations import INVOICE_STATE, ENTITY_TYPE, CURRENCY_TYPE
-from bank.exceptions import BankError
-from bank.conf import bank_settings
+from the_tale.bank.models import Invoice, Account
+from the_tale.bank.relations import INVOICE_STATE, ENTITY_TYPE, CURRENCY_TYPE
+from the_tale.bank.exceptions import BankError
+from the_tale.bank.conf import bank_settings
 
 
 class FakeAccountPrototype(object):

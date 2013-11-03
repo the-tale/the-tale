@@ -5,17 +5,17 @@ from django.core.urlresolvers import reverse
 from dext.utils import s11n
 from dext.utils.urls import url
 
-from common.utils.testcase import TestCase
-from common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.utils.testcase import TestCase
+from the_tale.common.postponed_tasks import PostponedTaskPrototype
 
-from accounts.logic import register_user
-from accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
 
-from game.logic import create_test_map
+from the_tale.game.logic import create_test_map
 
-from game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.prototypes import HeroPrototype
 
-from game.abilities.deck.help import Help
+from the_tale.game.abilities.deck.help import Help
 
 class AbilityRequests(TestCase):
 

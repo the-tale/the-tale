@@ -1,10 +1,10 @@
 # coding: utf-8
 import time
 
-from common.utils import testcase
+from the_tale.common.utils import testcase
 
-from game.quests.container import QuestsContainer
-from game.quests.conf import quests_settings
+from the_tale.game.quests.container import QuestsContainer
+from the_tale.game.quests.conf import quests_settings
 
 
 class ContainerTests(testcase.TestCase):

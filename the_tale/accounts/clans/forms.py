@@ -2,9 +2,9 @@
 
 from dext.forms import forms, fields
 
-from common.utils import bbcode
+from the_tale.common.utils import bbcode
 
-from accounts.clans.models import Clan, MembershipRequest
+from the_tale.accounts.clans.models import Clan, MembershipRequest
 
 class ClanForm(forms.Form):
 

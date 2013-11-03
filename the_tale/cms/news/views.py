@@ -10,17 +10,17 @@ from dext.views import handler
 from dext.utils.decorators import nested_commit_on_success
 from dext.utils.urls import UrlBuilder
 
-from common.utils.decorators import staff_required
-from common.utils.resources import Resource
-from common.utils.pagination import Paginator
+from the_tale.common.utils.decorators import staff_required
+from the_tale.common.utils.resources import Resource
+from the_tale.common.utils.pagination import Paginator
 
-from accounts.logic import get_system_user
+from the_tale.accounts.logic import get_system_user
 
-from cms.news.models import News
-from cms.news.conf import news_settings
+from the_tale.cms.news.models import News
+from the_tale.cms.news.conf import news_settings
 
-from forum.prototypes import ThreadPrototype, SubCategoryPrototype
-from forum.models import MARKUP_METHOD
+from the_tale.forum.prototypes import ThreadPrototype, SubCategoryPrototype
+from the_tale.forum.models import MARKUP_METHOD
 
 class NewsResource(Resource):
 
@@ -61,7 +61,7 @@ class NewsResource(Resource):
 
     @handler('#news_id', name='show', method='get')
     def show(self):
-        from forum.views import ThreadPageData
+        from the_tale.forum.views import ThreadPageData
 
         thread_data = None
 

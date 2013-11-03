@@ -6,15 +6,15 @@ from django.test import client
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate as django_authenticate
 
-from common.utils.testcase import TestCase
+from the_tale.common.utils.testcase import TestCase
 
-from accounts.logic import register_user, login_url
-from game.logic import create_test_map
+from the_tale.accounts.logic import register_user, login_url
+from the_tale.game.logic import create_test_map
 
-from cms.news.models import News
-from cms.news.conf import news_settings
+from the_tale.cms.news.models import News
+from the_tale.cms.news.conf import news_settings
 
-from forum.models import Category, SubCategory, Thread
+from the_tale.forum.models import Category, SubCategory, Thread
 
 class TestRequests(TestCase):
 
