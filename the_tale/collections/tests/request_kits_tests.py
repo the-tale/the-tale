@@ -12,7 +12,7 @@ from accounts.logic import register_user, login_url
 from game.logic import create_test_map
 
 
-from achievements.prototypes import SectionPrototype, KitPrototype, RewardPrototype
+from achievements.prototypes import CollectionPrototype, KitPrototype, ItemPrototype
 
 
 class BaseRequestTests(testcase.TestCase):
@@ -31,26 +31,32 @@ class BaseRequestTests(testcase.TestCase):
         result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
         self.account_3 = AccountPrototype.get_by_id(account_id)
 
+        group_edit_item = sync_group('edit item', ['achievements.edit_item'])
+        group_moderate_item = sync_group('moderate item', ['achievements.moderate_item'])
+
         group_edit = sync_group('edit kit', ['achievements.edit_kit'])
         group_moderate = sync_group('moderate kit', ['achievements.moderate_kit'])
+
+        group_edit_item.account_set.add(self.account_2._model)
+        group_moderate_item.account_set.add(self.account_3._model)
 
         group_edit.account_set.add(self.account_2._model)
         group_moderate.account_set.add(self.account_3._model)
 
-        self.section_1 = SectionPrototype.create(caption=u'section_1', description=u'description_1')
-        self.section_2 = SectionPrototype.create(caption=u'section_2', description=u'description_2')
+        self.collection_1 = CollectionPrototype.create(caption=u'collection_1', description=u'description_1')
+        self.collection_2 = CollectionPrototype.create(caption=u'collection_2', description=u'description_2')
 
-        self.kit_1 = KitPrototype.create(section=self.section_1, caption=u'kit_1', description=u'description_1', approved=True)
-        self.kit_2 = KitPrototype.create(section=self.section_1, caption=u'kit_2', description=u'description_2')
+        self.kit_1 = KitPrototype.create(collection=self.collection_1, caption=u'kit_1', description=u'description_1', approved=True)
+        self.kit_2 = KitPrototype.create(collection=self.collection_1, caption=u'kit_2', description=u'description_2')
 
-        self.reward_1_1 = RewardPrototype.create(kit=self.kit_1, caption=u'reward_1_1', text=u'text_1_1')
-        self.reward_1_2 = RewardPrototype.create(kit=self.kit_1, caption=u'reward_1_2', text=u'text_1_2', approved=True)
+        self.item_1_1 = ItemPrototype.create(kit=self.kit_1, caption=u'item_1_1', text=u'text_1_1')
+        self.item_1_2 = ItemPrototype.create(kit=self.kit_1, caption=u'item_1_2', text=u'text_1_2', approved=True)
 
 
 
 class KitVisibilityAllMixin(object):
 
-    def test_visible_sections__all(self):
+    def test_visible_collections__all(self):
         self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(self.test_url), texts=[self.kit_1.caption,
                                                                     self.kit_2.caption])
@@ -58,7 +64,7 @@ class KitVisibilityAllMixin(object):
 
 class KitVisibilityApprovedMixin(KitVisibilityAllMixin):
 
-    def test_visible_sections__aproved_only(self):
+    def test_visible_collections__aproved_only(self):
         self.request_login(self.account_1.email)
         self.check_html_ok(self.request_html(self.test_url), texts=[self.kit_1.caption,
                                                                     (self.kit_2.caption, 0)])
@@ -112,7 +118,7 @@ class KitsCreateTests(BaseRequestTests):
         self.create_url = url('achievements:kits:create')
 
     def get_post_data(self):
-        return {'section': self.section_1.id,
+        return {'collection': self.collection_1.id,
                 'caption': 'caption_3',
                 'description': 'description_3'}
 
@@ -141,7 +147,7 @@ class KitsCreateTests(BaseRequestTests):
         kit = KitPrototype._db_get_object(2)
 
         self.assertFalse(kit.approved)
-        self.assertEqual(kit.section_id, self.section_1.id)
+        self.assertEqual(kit.collection_id, self.collection_1.id)
         self.assertEqual(kit.caption, 'caption_3')
         self.assertEqual(kit.description, 'description_3')
 
@@ -152,61 +158,104 @@ class KitsShowTests(BaseRequestTests, KitVisibilityApprovedMixin):
         super(KitsShowTests, self).setUp()
         self.test_url = url('achievements:kits:show', self.kit_1.id)
 
+    def test_success__no_approved_items(self):
+        ItemPrototype._db_all().update(approved=False)
+        self.check_html_ok(self.request_html(self.test_url),
+                           texts=[self.collection_1.caption,
+                                  (self.collection_2.caption, 0),
+                                  self.kit_1.caption,
+                                  (self.kit_2.caption, 0),
+                                  (self.item_1_1.caption, 0),
+                                  (self.item_1_2.caption, 0),
+                                  ('pgf-no-items-message', 1)])
+
+
     def test_success(self):
         self.check_html_ok(self.request_html(self.test_url),
-                           texts=[self.section_1.caption,
-                                  (self.section_2.caption, 0),
+                           texts=[self.collection_1.caption,
+                                  (self.collection_2.caption, 0),
                                   self.kit_1.caption,
                                   (self.kit_2.caption, 0),
-                                  (self.reward_1_1.caption, 1),
-                                  (self.reward_1_2.caption, 1),
-                                  ('pgf-no-rewards-message', 0)])
+                                  (self.item_1_1.caption, 0),
+                                  (self.item_1_2.caption, 1),
+                                  ('pgf-no-items-message', 0)])
 
-    def test_no_rewards_in_kit(self):
-        RewardPrototype._db_all().delete()
+    def test_no_items_in_kit(self):
+        ItemPrototype._db_all().delete()
         self.check_html_ok(self.request_html(self.test_url),
-                           texts=[self.section_1.caption,
-                                  (self.section_2.caption, 0),
+                           texts=[self.collection_1.caption,
+                                  (self.collection_2.caption, 0),
                                   self.kit_1.caption,
                                   (self.kit_2.caption, 0),
-                                  (self.reward_1_1.caption, 0),
-                                  (self.reward_1_2.caption, 0),
-                                  ('pgf-no-rewards-message', 1)])
+                                  (self.item_1_1.caption, 0),
+                                  (self.item_1_2.caption, 0),
+                                  ('pgf-no-items-message', 1)])
 
     def test_buttons__anonymouse(self):
-        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-edit-kit-button', 0),
+        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-new-item-button', 0),
+                                                                    ('pgf-edit-kit-button', 0),
                                                                     ('pgf-approve-kit-button', 0),
-                                                                    ('pgf-disapprove-kit-button', 0)])
+                                                                    ('pgf-disapprove-kit-button', 0),
+                                                                    ('pgf-edit-item-button', 0),
+                                                                    ('pgf-approve-item-button', 0),
+                                                                    ('pgf-disapprove-item-button', 0)])
 
     def test_buttons__no_rights(self):
-        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-edit-kit-button', 0),
+        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-new-item-button', 0),
+                                                                    ('pgf-edit-kit-button', 0),
                                                                     ('pgf-approve-kit-button', 0),
-                                                                    ('pgf-disapprove-kit-button', 0)])
+                                                                    ('pgf-disapprove-kit-button', 0),
+                                                                    ('pgf-edit-item-button', 0),
+                                                                    ('pgf-approve-item-button', 0),
+                                                                    ('pgf-disapprove-item-button', 0)])
 
     def test_buttons__edit_rights(self):
         self.request_login(self.account_2.email)
-        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-edit-kit-button', 0),
-                                                                    ('pgf-approve-kit-button', 0),
-                                                                    ('pgf-disapprove-kit-button', 0)])
+        ItemPrototype._db_all().update(approved=True)
 
+        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-new-item-button', 1),
+                                                                    ('pgf-edit-kit-button', 0),
+                                                                    ('pgf-approve-kit-button', 0),
+                                                                    ('pgf-disapprove-kit-button', 0),
+                                                                    ('pgf-edit-item-button', 0),
+                                                                    ('pgf-approve-item-button', 0),
+                                                                    ('pgf-disapprove-item-button', 0)])
+
+        ItemPrototype._db_all().update(approved=False)
         self.kit_1.approved = False
         self.kit_1.save()
 
-        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-edit-kit-button', 1),
+        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-new-item-button', 1),
+                                                                    ('pgf-edit-kit-button', 1),
                                                                     ('pgf-approve-kit-button', 0),
-                                                                    ('pgf-disapprove-kit-button', 0)])
+                                                                    ('pgf-disapprove-kit-button', 0),
+                                                                    ('pgf-edit-item-button', 2),
+                                                                    ('pgf-approve-item-button', 0),
+                                                                    ('pgf-disapprove-item-button', 0)])
 
     def test_buttons__moderate_rights(self):
         self.request_login(self.account_3.email)
-        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-edit-kit-button', 1),
+
+        ItemPrototype._db_all().update(approved=True)
+
+        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-new-item-button', 1),
+                                                                    ('pgf-edit-kit-button', 1),
                                                                     ('pgf-approve-kit-button', 0),
-                                                                    ('pgf-disapprove-kit-button', 1)])
+                                                                    ('pgf-disapprove-kit-button', 1),
+                                                                    ('pgf-edit-item-button', 2),
+                                                                    ('pgf-approve-item-button', 0),
+                                                                    ('pgf-disapprove-item-button', 2)])
+        ItemPrototype._db_all().update(approved=False)
         self.kit_1.approved = False
         self.kit_1.save()
 
-        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-edit-kit-button', 1),
+        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-new-item-button', 1),
+                                                                    ('pgf-edit-kit-button', 1),
                                                                     ('pgf-approve-kit-button', 1),
-                                                                    ('pgf-disapprove-kit-button', 0)])
+                                                                    ('pgf-disapprove-kit-button', 0),
+                                                                    ('pgf-edit-item-button', 2),
+                                                                    ('pgf-approve-item-button', 2),
+                                                                    ('pgf-disapprove-item-button', 0)])
 
 
 
@@ -259,7 +308,7 @@ class KitsUpdateTests(BaseRequestTests):
     def get_post_data(self):
         return {'caption': 'kit_edited',
                 'description': 'description_edited',
-                'section': self.section_2.id}
+                'collection': self.collection_2.id}
 
     def test_login_required(self):
         self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()), 'common.login_required')
@@ -272,7 +321,7 @@ class KitsUpdateTests(BaseRequestTests):
         self.kit_2.reload()
         self.assertEqual(self.kit_2.caption, 'kit_2')
         self.assertEqual(self.kit_2.description, 'description_2')
-        self.assertEqual(self.kit_2.section_id, self.section_1.id)
+        self.assertEqual(self.kit_2.collection_id, self.collection_1.id)
 
 
     def test_moderate_rights_required(self):
@@ -285,7 +334,7 @@ class KitsUpdateTests(BaseRequestTests):
         self.kit_2.reload()
         self.assertEqual(self.kit_2.caption, 'kit_2')
         self.assertEqual(self.kit_2.description, 'description_2')
-        self.assertEqual(self.kit_2.section_id, self.section_1.id)
+        self.assertEqual(self.kit_2.collection_id, self.collection_1.id)
 
     def test_form_errors(self):
         self.request_login(self.account_2.email)
@@ -295,7 +344,7 @@ class KitsUpdateTests(BaseRequestTests):
         self.kit_2.reload()
         self.assertEqual(self.kit_2.caption, 'kit_2')
         self.assertEqual(self.kit_2.description, 'description_2')
-        self.assertEqual(self.kit_2.section_id, self.section_1.id)
+        self.assertEqual(self.kit_2.collection_id, self.collection_1.id)
 
     def test_success__for_edit(self):
         self.request_login(self.account_2.email)
@@ -304,18 +353,19 @@ class KitsUpdateTests(BaseRequestTests):
         self.kit_2.reload()
         self.assertEqual(self.kit_2.caption, 'kit_edited')
         self.assertEqual(self.kit_2.description, 'description_edited')
-        self.assertEqual(self.kit_2.section_id, self.section_2.id)
+        self.assertEqual(self.kit_2.collection_id, self.collection_2.id)
 
     def test_success__for_moderate(self):
         KitPrototype._db_all().update(approved=True)
 
         self.request_login(self.account_3.email)
-        self.check_ajax_ok(self.post_ajax_json(self.test_url, self.get_post_data()))
+        self.check_ajax_ok(self.post_ajax_json(self.test_url, self.get_post_data()),
+                           data={'next_url': url('achievements:collections:show', self.collection_2.id)})
 
         self.kit_2.reload()
         self.assertEqual(self.kit_2.caption, 'kit_edited')
         self.assertEqual(self.kit_2.description, 'description_edited')
-        self.assertEqual(self.kit_2.section_id, self.section_2.id)
+        self.assertEqual(self.kit_2.collection_id, self.collection_2.id)
 
 
 

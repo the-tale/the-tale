@@ -4,7 +4,7 @@
 from django.db import models
 
 
-class Section(models.Model):
+class Collection(models.Model):
 
     CAPTION_MAX_LENGTH = 100
     DESCRIPTION_MAX_LENGTH = 1000
@@ -19,8 +19,8 @@ class Section(models.Model):
     description = models.TextField(max_length=DESCRIPTION_MAX_LENGTH)
 
     class Meta:
-        permissions = (('edit_section', u'Может создавать и редактировать разделы'),
-                       ('moderate_section', u'Может утверждать разделы'),)
+        permissions = (('edit_collection', u'Может создавать и редактировать коллекции'),
+                       ('moderate_collection', u'Может утверждать коллекции'),)
 
 
 class Kit(models.Model):
@@ -32,7 +32,7 @@ class Kit(models.Model):
 
     approved = models.BooleanField(blank=True, default=False)
 
-    section = models.ForeignKey(Section, null=False, on_delete=models.PROTECT)
+    collection = models.ForeignKey(Collection, null=False, on_delete=models.PROTECT)
 
     caption = models.CharField(max_length=CAPTION_MAX_LENGTH)
 
@@ -43,7 +43,7 @@ class Kit(models.Model):
                        ('moderate_kit', u'Может утверждать наборы'),)
 
 
-class Reward(models.Model):
+class Item(models.Model):
     CAPTION_MAX_LENGTH = 100
 
     approved = models.BooleanField(blank=True, default=False)
@@ -58,5 +58,5 @@ class Reward(models.Model):
     text = models.TextField()
 
     class Meta:
-        permissions = (('edit_reward', u'Может создавать и редактировать награды'),
-                       ('moderate_reward', u'Может утверждать награды'),)
+        permissions = (('edit_item', u'Может создавать и редактировать предметы'),
+                       ('moderate_item', u'Может утверждать предметы'),)

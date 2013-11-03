@@ -26,7 +26,7 @@ urlpatterns = patterns('',
                        (r'^guide/', include('guide.urls', namespace='guide') ),
                        (r'^forum/', include('forum.urls', namespace='forum') ),
                        (r'^folclor/', include('blogs.urls', namespace='blogs') ),
-                       (r'^achievements/', include('achievements.urls', namespace='achievements') ),
+                       (r'^collections/', include('collections.urls', namespace='collections') ),
                        (r'^news/', include('cms.news.urls', namespace='news') ),
                        (r'^postponed-tasks/', include('common.postponed_tasks.urls', namespace='postponed-tasks') ),
                        (r'^bank/', include('bank.urls', namespace='bank') ),
@@ -37,7 +37,7 @@ urlpatterns = patterns('',
 if project_settings.DEBUG:
     urlpatterns += static(project_settings.ADMIN_DEBUG_MEDIA_PREFIX, document_root=os.path.join(os.path.dirname(admin.__file__), 'static', 'admin'))
     urlpatterns += patterns('',
-                            url(r'^%scss/' % project_settings.STATIC_URL[1:], include('dext.less.urls') )
+                            url(r'^%scss/' % project_settings.STATIC_DEBUG_URL[1:], include('dext.less.urls') )
                             )
     urlpatterns += static(project_settings.DCONT_DEBUG_URL, document_root=project_settings.DCONT_DIR)
     urlpatterns += static(project_settings.STATIC_DEBUG_URL, document_root=project_settings.STATIC_DIR)

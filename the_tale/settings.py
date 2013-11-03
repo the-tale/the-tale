@@ -178,7 +178,7 @@ INSTALLED_APPS = (
 
     'forum',
     'blogs',
-    'achievements',
+    'collections',
 
     'bank',
     'bank.xsolla',

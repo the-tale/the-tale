@@ -1,0 +1,66 @@
+{% extends "achievements/collections/base.html" %}
+
+{% block title %}{{resource.collection.caption}} | {{ super() }}{% endblock %}
+
+{% block collections_content %}
+
+<h2>{{resource.collection.caption}}</h2>
+
+<div style="text-align: justify;">
+  {{resource.collection.description_html|safe}}
+</div>
+
+{% if resource.can_edit_collection or resource.can_moderate_collection or resource.can_edit_kit%}
+  <p>
+    {% if resource.can_edit_kit %}
+      <a href="{{url('achievements:kits:new')}}" class="pgf-new-kit-button btn btn-success">Добавить набор</a>
+    {% endif %}
+
+    {% if resource.can_edit_collection %}
+      <a href="{{url('achievements:collections:edit', resource.collection.id)}}" class="pgf-edit-collection-button btn btn-success">Редактировать коллекцию</a>
+    {% endif %}
+
+    {% if resource.can_moderate_collection %}
+      {% if not resource.collection.approved %}
+        <a href="{{url('achievements:collections:approve', resource.collection.id)}}"
+           class="pgf-approve-collection-button btn btn-danger pgf-forms-post-simple"
+           data-confirmation="Вы действительно хотите утвердить коллекцию?">
+           Утвердить коллекцию
+        </a>
+      {% else %}
+        <a href="{{url('achievements:collections:disapprove', resource.collection.id)}}"
+           class="pgf-disapprove-collection-button btn btn-danger pgf-forms-post-simple"
+           data-confirmation="Вы действительно хотите разутвердить коллекцию?">
+           Разутвердить коллекцию
+        </a>
+      {% endif %}
+    {% endif %}
+  </p>
+{% endif %}
+
+<h3>Наборы</h3>
+
+{% if kits %}
+
+<ul>
+  {% for kit in kits %}
+    <li>
+      <a href="{{url('achievements:kits:show', kit.id)}}"
+         class="{% if not kit.approved %}disabled{% endif %}">
+        {{kit.caption}}
+      </a>
+    </li>
+  {% endfor %}
+</ul>
+
+{% else %}
+
+<p class="alert alert-info pgf-no-kits-message">
+  В коллекции нет наборов.
+</p>
+
+{% endif %}
+
+
+
+{% endblock %}

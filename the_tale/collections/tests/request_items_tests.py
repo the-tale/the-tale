@@ -12,7 +12,7 @@ from accounts.logic import register_user, login_url
 from game.logic import create_test_map
 
 
-from achievements.prototypes import SectionPrototype, KitPrototype, RewardPrototype
+from achievements.prototypes import CollectionPrototype, KitPrototype, ItemPrototype
 
 
 class BaseRequestTests(testcase.TestCase):
@@ -31,27 +31,27 @@ class BaseRequestTests(testcase.TestCase):
         result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
         self.account_3 = AccountPrototype.get_by_id(account_id)
 
-        group_edit = sync_group('edit reward', ['achievements.edit_reward'])
-        group_moderate = sync_group('moderate reward', ['achievements.moderate_reward'])
+        group_edit = sync_group('edit item', ['achievements.edit_item'])
+        group_moderate = sync_group('moderate item', ['achievements.moderate_item'])
 
         group_edit.account_set.add(self.account_2._model)
         group_moderate.account_set.add(self.account_3._model)
 
-        self.section_1 = SectionPrototype.create(caption=u'section_1', description=u'description_1')
-        self.section_2 = SectionPrototype.create(caption=u'section_2', description=u'description_2')
+        self.collection_1 = CollectionPrototype.create(caption=u'collection_1', description=u'description_1')
+        self.collection_2 = CollectionPrototype.create(caption=u'collection_2', description=u'description_2')
 
-        self.kit_1 = KitPrototype.create(section=self.section_1, caption=u'kit_1', description=u'description_1')
-        self.kit_2 = KitPrototype.create(section=self.section_1, caption=u'kit_2', description=u'description_2')
+        self.kit_1 = KitPrototype.create(collection=self.collection_1, caption=u'kit_1', description=u'description_1')
+        self.kit_2 = KitPrototype.create(collection=self.collection_1, caption=u'kit_2', description=u'description_2')
 
-        self.reward_1_1 = RewardPrototype.create(kit=self.kit_1, caption=u'reward_1_1', text=u'text_1_1')
-        self.reward_1_2 = RewardPrototype.create(kit=self.kit_1, caption=u'reward_1_2', text=u'text_1_2')
+        self.item_1_1 = ItemPrototype.create(kit=self.kit_1, caption=u'item_1_1', text=u'text_1_1')
+        self.item_1_2 = ItemPrototype.create(kit=self.kit_1, caption=u'item_1_2', text=u'text_1_2')
 
 
-class RewardsNewTests(BaseRequestTests):
+class ItemsNewTests(BaseRequestTests):
 
     def setUp(self):
-        super(RewardsNewTests, self).setUp()
-        self.test_url = url('achievements:rewards:new')
+        super(ItemsNewTests, self).setUp()
+        self.test_url = url('achievements:items:new')
 
     def test_login_required(self):
         self.check_redirect(self.test_url, login_url(self.test_url))
@@ -59,19 +59,19 @@ class RewardsNewTests(BaseRequestTests):
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)
         self.check_html_ok(self.request_html(self.test_url),
-                           texts=[('achievements.rewards.no_edit_rights', 1)])
+                           texts=[('achievements.items.no_edit_rights', 1)])
 
     def test_success(self):
         self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(self.test_url),
-                           texts=[('achievements.rewards.no_edit_rights', 0)])
+                           texts=[('achievements.items.no_edit_rights', 0)])
 
 
-class RewardsCreateTests(BaseRequestTests):
+class ItemsCreateTests(BaseRequestTests):
 
     def setUp(self):
-        super(RewardsCreateTests, self).setUp()
-        self.test_url = url('achievements:rewards:create')
+        super(ItemsCreateTests, self).setUp()
+        self.test_url = url('achievements:items:create')
 
     def get_post_data(self):
         return {'kit': self.kit_1.id,
@@ -81,39 +81,39 @@ class RewardsCreateTests(BaseRequestTests):
     def test_login_required(self):
         self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
                               'common.login_required')
-        self.assertEqual(RewardPrototype._db_all().count(), 2)
+        self.assertEqual(ItemPrototype._db_all().count(), 2)
 
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)
         self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
-                              'achievements.rewards.no_edit_rights')
-        self.assertEqual(RewardPrototype._db_all().count(), 2)
+                              'achievements.items.no_edit_rights')
+        self.assertEqual(ItemPrototype._db_all().count(), 2)
 
     def test_form_errors(self):
         self.request_login(self.account_2.email)
         self.check_ajax_error(self.post_ajax_json(self.test_url, {}),
-                              'achievements.rewards.create.form_errors')
-        self.assertEqual(RewardPrototype._db_all().count(), 2)
+                              'achievements.items.create.form_errors')
+        self.assertEqual(ItemPrototype._db_all().count(), 2)
 
     def test_success(self):
         self.request_login(self.account_2.email)
         self.check_ajax_ok(self.post_ajax_json(self.test_url, self.get_post_data()), {'next_url': url('achievements:kits:show', self.kit_1.id)})
-        self.assertEqual(RewardPrototype._db_all().count(), 3)
+        self.assertEqual(ItemPrototype._db_all().count(), 3)
 
-        reward = RewardPrototype._db_get_object(2)
+        item = ItemPrototype._db_get_object(2)
 
-        self.assertFalse(reward.approved)
-        self.assertEqual(reward.kit_id, self.kit_1.id)
-        self.assertEqual(reward.caption, 'caption_3')
-        self.assertEqual(reward.text, 'text_3')
+        self.assertFalse(item.approved)
+        self.assertEqual(item.kit_id, self.kit_1.id)
+        self.assertEqual(item.caption, 'caption_3')
+        self.assertEqual(item.text, 'text_3')
 
 
 
-class RewardsEditTests(BaseRequestTests):
+class ItemsEditTests(BaseRequestTests):
 
     def setUp(self):
-        super(RewardsEditTests, self).setUp()
-        self.test_url = url('achievements:rewards:edit', self.reward_1_1.id)
+        super(ItemsEditTests, self).setUp()
+        self.test_url = url('achievements:items:edit', self.item_1_1.id)
 
     def test_login_required(self):
         self.check_redirect(self.test_url, login_url(self.test_url))
@@ -121,23 +121,23 @@ class RewardsEditTests(BaseRequestTests):
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)
         self.check_html_ok(self.request_html(self.test_url),
-                           texts=(('achievements.rewards.no_edit_rights', 1)))
+                           texts=(('achievements.items.no_edit_rights', 1)))
 
 
     def test_moderate_rights_required(self):
-        RewardPrototype._db_all().update(approved=True)
+        ItemPrototype._db_all().update(approved=True)
 
         self.request_login(self.account_2.email)
 
         self.check_html_ok(self.request_html(self.test_url),
-                           texts=[('achievements.rewards.no_edit_rights', 1)])
+                           texts=[('achievements.items.no_edit_rights', 1)])
 
     def test_success__for_edit(self):
         self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(self.test_url),
                            texts=[self.kit_1.caption,
-                                  self.reward_1_1.caption,
-                                  self.reward_1_1.text])
+                                  self.item_1_1.caption,
+                                  self.item_1_1.text])
 
     def test_success__for_moderate(self):
         KitPrototype._db_all().update(approved=True)
@@ -145,15 +145,15 @@ class RewardsEditTests(BaseRequestTests):
         self.request_login(self.account_3.email)
         self.check_html_ok(self.request_html(self.test_url),
                            texts=[self.kit_1.caption,
-                                  self.reward_1_1.caption,
-                                  self.reward_1_1.text])
+                                  self.item_1_1.caption,
+                                  self.item_1_1.text])
 
 
-class RewardsUpdateTests(BaseRequestTests):
+class ItemsUpdateTests(BaseRequestTests):
 
     def setUp(self):
-        super(RewardsUpdateTests, self).setUp()
-        self.test_url = url('achievements:rewards:update', self.reward_1_1.id)
+        super(ItemsUpdateTests, self).setUp()
+        self.test_url = url('achievements:items:update', self.item_1_1.id)
 
     def get_post_data(self):
         return {'caption': 'caption_edited',
@@ -166,100 +166,100 @@ class RewardsUpdateTests(BaseRequestTests):
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)
         self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
-                              'achievements.rewards.no_edit_rights')
+                              'achievements.items.no_edit_rights')
 
-        self.reward_1_1.reload()
-        self.assertEqual(self.reward_1_1.caption, 'reward_1_1')
-        self.assertEqual(self.reward_1_1.text, 'text_1_1')
-        self.assertEqual(self.reward_1_1.kit_id, self.kit_1.id)
+        self.item_1_1.reload()
+        self.assertEqual(self.item_1_1.caption, 'item_1_1')
+        self.assertEqual(self.item_1_1.text, 'text_1_1')
+        self.assertEqual(self.item_1_1.kit_id, self.kit_1.id)
 
 
     def test_moderate_rights_required(self):
-        RewardPrototype._db_all().update(approved=True)
+        ItemPrototype._db_all().update(approved=True)
 
         self.request_login(self.account_2.email)
         self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
-                              'achievements.rewards.no_edit_rights')
+                              'achievements.items.no_edit_rights')
 
-        self.reward_1_1.reload()
-        self.assertEqual(self.reward_1_1.caption, 'reward_1_1')
-        self.assertEqual(self.reward_1_1.text, 'text_1_1')
-        self.assertEqual(self.reward_1_1.kit_id, self.section_1.id)
+        self.item_1_1.reload()
+        self.assertEqual(self.item_1_1.caption, 'item_1_1')
+        self.assertEqual(self.item_1_1.text, 'text_1_1')
+        self.assertEqual(self.item_1_1.kit_id, self.collection_1.id)
 
     def test_form_errors(self):
         self.request_login(self.account_2.email)
         self.check_ajax_error(self.post_ajax_json(self.test_url, {}),
-                              'achievements.rewards.update.form_errors')
+                              'achievements.items.update.form_errors')
 
-        self.reward_1_1.reload()
-        self.assertEqual(self.reward_1_1.caption, 'reward_1_1')
-        self.assertEqual(self.reward_1_1.text, 'text_1_1')
-        self.assertEqual(self.reward_1_1.kit_id, self.section_1.id)
+        self.item_1_1.reload()
+        self.assertEqual(self.item_1_1.caption, 'item_1_1')
+        self.assertEqual(self.item_1_1.text, 'text_1_1')
+        self.assertEqual(self.item_1_1.kit_id, self.collection_1.id)
 
     def test_success__for_edit(self):
         self.request_login(self.account_2.email)
         self.check_ajax_ok(self.post_ajax_json(self.test_url, self.get_post_data()))
 
-        self.reward_1_1.reload()
-        self.assertEqual(self.reward_1_1.caption, 'caption_edited')
-        self.assertEqual(self.reward_1_1.text, 'text_edited')
-        self.assertEqual(self.reward_1_1.kit_id, self.kit_2.id)
+        self.item_1_1.reload()
+        self.assertEqual(self.item_1_1.caption, 'caption_edited')
+        self.assertEqual(self.item_1_1.text, 'text_edited')
+        self.assertEqual(self.item_1_1.kit_id, self.kit_2.id)
 
     def test_success__for_moderate(self):
-        RewardPrototype._db_all().update(approved=True)
+        ItemPrototype._db_all().update(approved=True)
 
         self.request_login(self.account_3.email)
         self.check_ajax_ok(self.post_ajax_json(self.test_url, self.get_post_data()))
 
-        self.reward_1_1.reload()
-        self.assertEqual(self.reward_1_1.caption, 'caption_edited')
-        self.assertEqual(self.reward_1_1.text, 'text_edited')
-        self.assertEqual(self.reward_1_1.kit_id, self.kit_2.id)
+        self.item_1_1.reload()
+        self.assertEqual(self.item_1_1.caption, 'caption_edited')
+        self.assertEqual(self.item_1_1.text, 'text_edited')
+        self.assertEqual(self.item_1_1.kit_id, self.kit_2.id)
 
 
 
-class RewardsApproveTests(BaseRequestTests):
+class ItemsApproveTests(BaseRequestTests):
 
     def setUp(self):
-        super(RewardsApproveTests, self).setUp()
-        self.test_url = url('achievements:rewards:approve', self.reward_1_1.id)
+        super(ItemsApproveTests, self).setUp()
+        self.test_url = url('achievements:items:approve', self.item_1_1.id)
 
     def test_login_required(self):
         self.check_ajax_error(self.post_ajax_json(self.test_url), 'common.login_required')
 
     def test_moderate_rights_required(self):
         self.request_login(self.account_2.email)
-        self.check_ajax_error(self.post_ajax_json(self.test_url), 'achievements.rewards.no_moderate_rights')
+        self.check_ajax_error(self.post_ajax_json(self.test_url), 'achievements.items.no_moderate_rights')
 
     def test_success(self):
         self.request_login(self.account_3.email)
-        self.assertFalse(self.reward_1_1.approved)
+        self.assertFalse(self.item_1_1.approved)
         self.check_ajax_ok(self.post_ajax_json(self.test_url))
-        self.reward_1_1.reload()
-        self.assertTrue(self.reward_1_1.approved)
+        self.item_1_1.reload()
+        self.assertTrue(self.item_1_1.approved)
 
 
 
-class RewardsDisapproveTests(BaseRequestTests):
+class ItemsDisapproveTests(BaseRequestTests):
 
     def setUp(self):
-        super(RewardsDisapproveTests, self).setUp()
-        self.test_url = url('achievements:rewards:disapprove', self.reward_1_1.id)
+        super(ItemsDisapproveTests, self).setUp()
+        self.test_url = url('achievements:items:disapprove', self.item_1_1.id)
 
     def test_login_required(self):
         self.check_ajax_error(self.post_ajax_json(self.test_url), 'common.login_required')
 
     def test_moderate_rights_required(self):
         self.request_login(self.account_2.email)
-        self.check_ajax_error(self.post_ajax_json(self.test_url), 'achievements.rewards.no_moderate_rights')
+        self.check_ajax_error(self.post_ajax_json(self.test_url), 'achievements.items.no_moderate_rights')
 
     def test_success(self):
-        RewardPrototype._db_all().update(approved=True)
-        self.reward_1_1.reload()
+        ItemPrototype._db_all().update(approved=True)
+        self.item_1_1.reload()
 
         self.request_login(self.account_3.email)
 
-        self.assertTrue(self.reward_1_1.approved)
+        self.assertTrue(self.item_1_1.approved)
         self.check_ajax_ok(self.post_ajax_json(self.test_url))
-        self.reward_1_1.reload()
-        self.assertFalse(self.reward_1_1.approved)
+        self.item_1_1.reload()
+        self.assertFalse(self.item_1_1.approved)

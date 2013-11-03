@@ -1,4 +1,4 @@
-{% extends "achievements/kits/base.html" %}
+{% extends "achievements/collections/base.html" %}
 
 {% block title %}Создание | {{ super() }}{% endblock %}
 
@@ -7,7 +7,7 @@
 <script type="text/javascript">
 jQuery(document).ready( function(e) {
 
-    var newForm = new pgf.forms.Form(jQuery('#pgf-new-kit-form'),
+    var newForm = new pgf.forms.Form(jQuery('#pgf-new-collection-form'),
                                                {OnSuccess: function(instance, data){location.href = data.data.next_url;}});
 
 });
@@ -17,13 +17,12 @@ jQuery(document).ready( function(e) {
 {% endblock %}
 
 
-{% block kits_content %}
+{% block collections_content %}
 
-<form id="pgf-new-kit-form" method="post" action="{{ url('achievements:kits:create') }}">
+<form id="pgf-new-collection-form" method="post" action="{{ url('achievements:collections:create') }}">
 
   {{ form.errors_container }}
 
-  {{ form.section.widget }}
   {{ form.caption.widget }}
   {{ form.description.widget }}
 

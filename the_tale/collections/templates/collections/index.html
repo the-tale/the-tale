@@ -1,0 +1,14 @@
+{% extends "achievements/collections/base.html" %}
+
+{% block collections_content %}
+
+
+<h2>Главная страница коллекций</h2>
+
+<p class="alert alert-info">
+  Редактировать непосредственно коллекцию можно на её странице.
+</p>
+
+<a href="{{url('achievements:collections:new')}}" class="btn btn-success">Создать новую коллекцию</a>
+
+{% endblock %}

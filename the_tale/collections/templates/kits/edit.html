@@ -1,13 +1,13 @@
-{% extends "achievements/rewards/base.html" %}
+{% extends "achievements/kits/base.html" %}
 
-{% block title %}Редактирование | {{resource.reward.caption}} | {{ super() }}{% endblock %}
+{% block title %}Редактирование | {{resource.kit.caption}} | {{ super() }}{% endblock %}
 
 {% block head %}
 {{ super() }}
 <script type="text/javascript">
 jQuery(document).ready( function(e) {
 
-    var newForm = new pgf.forms.Form(jQuery('#pgf-edit-reward-form'),
+    var newForm = new pgf.forms.Form(jQuery('#pgf-edit-kit-form'),
                                                {OnSuccess: function(instance, data){location.href = data.data.next_url;}});
 
 });
@@ -17,15 +17,15 @@ jQuery(document).ready( function(e) {
 {% endblock %}
 
 
-{% block rewards_content %}
+{% block kits_content %}
 
-<form id="pgf-edit-reward-form" method="post" action="{{ url('achievements:rewards:update', resource.reward.id) }}">
+<form id="pgf-edit-kit-form" method="post" action="{{ url('achievements:kits:update', resource.kit.id) }}">
 
   {{ form.errors_container }}
 
-  {{ form.kit.widget }}
+  {{ form.collection.widget }}
   {{ form.caption.widget }}
-  {{ form.text.widget }}
+  {{ form.description.widget }}
 
   <div class="widget">
     <input type="submit" class="btn" value="Сохранить"/>

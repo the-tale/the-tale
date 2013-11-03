@@ -1,0 +1,31 @@
+{% extends "achievements/base.html" %}
+
+
+{% block achievements_content %}
+
+<div class="row">
+  <div class="span3">
+    <div class="block">
+      <h3>Коллекции</h3>
+      <ul class="nav nav-list">
+        {% for menu_collection in resource.collections %}
+        <li class="nav-element {% if resource.collection and menu_collection.id == resource.collection.id %}active{% endif %}">
+          <a href="{{ url('achievements:collections:show', menu_collection.id) }}"
+             class="{% if not menu_collection.approved%}disabled{% endif %}">
+            {{menu_collection.caption}}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="span9">
+    <div class="block white">
+      {% block collections_content %}
+      {% endblock %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

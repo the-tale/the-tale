@@ -66,12 +66,12 @@ class Command(BaseCommand):
 
         sync_group('accounts moderators group', ['accounts.moderate_account'])
 
-        sync_group('achievements editors group', ['achievements.edit_section',
-                                                  'achievements.edit_kit',
-                                                  'achievements.edit_reward'])
-        sync_group('achievements moderators group', ['achievements.moderate_section',
-                                                     'achievements.moderate_kit',
-                                                     'achievements.moderate_reward'])
+        sync_group('collections editors group', ['achievements.edit_collection',
+                                                 'achievements.edit_kit',
+                                                 'achievements.edit_item'])
+        sync_group('collections moderators group', ['achievements.moderate_collection',
+                                                    'achievements.moderate_kit',
+                                                    'achievements.moderate_item'])
 
         print
         print 'REFRESH CDNS'

@@ -1,0 +1,101 @@
+{% extends "achievements/kits/base.html" %}
+
+{% block title %}{{resource.kit.caption}} | {{ super() }}{% endblock %}
+
+{% block kits_content %}
+
+<h2><a href="{{url('achievements:collections:show', resource.kit.collection_id)}}">{{ resource.kit.collection.caption }}</a>: {{resource.kit.caption}}</h2>
+
+<div style="text-align: justify;">
+  {{ resource.kit.description_html|safe }}
+</div>
+
+{% if resource.can_edit_kit or resource.can_moderate_kit or resource.can_edit_reward%}
+  <p>
+    {% if resource.can_edit_reward %}
+      <a href="{{url('achievements:rewards:new')}}" class="pgf-new-reward-button btn btn-success">Добавить предмет</a>
+    {% endif %}
+
+    {% if resource.can_edit_kit %}
+      <a href="{{url('achievements:kits:edit', resource.kit.id)}}" class="pgf-edit-kit-button btn btn-success">Редактировать набор</a>
+    {% endif %}
+
+    {% if resource.can_moderate_kit %}
+      {% if not resource.kit.approved %}
+        <a href="{{url('achievements:kits:approve', resource.kit.id)}}"
+           class="pgf-approve-kit-button btn btn-danger pgf-forms-post-simple"
+           data-confirmation="Вы действительно хотите утвердить набор?">
+           Утвердить набор
+        </a>
+      {% else %}
+        <a href="{{url('achievements:kits:disapprove', resource.kit.id)}}"
+           class="pgf-disapprove-kit-button btn btn-danger pgf-forms-post-simple"
+           data-confirmation="Вы действительно хотите разутвердить набор?">
+           Разутвердить набор
+        </a>
+      {% endif %}
+    {% endif %}
+  </p>
+{% endif %}
+
+<h3>Предметы</h3>
+
+{% if rewards %}
+
+<div class="accordion" id="pgf-rewards-accordion">
+
+  {% for reward in rewards %}
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed {% if not reward.approved %}disabled{% endif %}"
+         data-toggle="collapse"
+         data-parent="#pgf-rewards-accordion"
+         href="#pgf-reward-{{reward.id}}">
+         {{reward.caption}}
+      </a>
+    </div>
+    <div id="pgf-reward-{{reward.id}}" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner" style="text-align: justify;">
+        {{reward.text_html|safe}}
+
+        {% if resource._can_edit_reward(resource.reward) or resource.can_moderate_reward%}
+          <br/>
+          {% if resource._can_edit_reward(reward) %}
+            <a href="{{url('achievements:rewards:edit', reward.id)}}" class="pgf-edit-reward-button btn btn-success">Редактировать набор</a>
+          {% endif %}
+
+          {% if resource.can_moderate_reward %}
+            {% if not reward.approved %}
+              <a href="{{url('achievements:rewards:approve', reward.id)}}"
+                 class="pgf-approve-reward-button btn btn-danger pgf-forms-post-simple"
+                 data-confirmation="Вы действительно хотите утвердить предмет?">
+                 Утвердить набор
+              </a>
+            {% else %}
+              <a href="{{url('achievements:rewards:disapprove', reward.id)}}"
+                 class="pgf-disapprove-reward-button btn btn-danger pgf-forms-post-simple"
+                 data-confirmation="Вы действительно хотите разутвердить предмет?">
+                 Разутвердить набор
+              </a>
+            {% endif %}
+          {% endif %}
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+
+{% else %}
+
+<p class="alert alert-info pgf-no-rewards-message">
+  В наборе нет предметов.
+</p>
+
+{% endif %}
+
+
+{% endblock %}
