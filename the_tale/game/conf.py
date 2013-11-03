@@ -18,7 +18,7 @@ game_settings = app_settings('GAME',
                              ENABLE_WORKER_LONG_COMMANDS=True,
                              ENABLE_PVP=True,
 
-                             ENABLE_DATA_REFRECH=True,
+                             ENABLE_DATA_REFRESH=True,
 
                              PROCESS_TURN_WAIT_LOGIC_TIMEOUT = 5*60,
                              PROCESS_TURN_WAIT_HIGHLEVEL_TIMEOUT = 10*60,

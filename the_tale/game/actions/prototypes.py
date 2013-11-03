@@ -709,7 +709,11 @@ class ActionMoveToPrototype(ActionBase):
             self.hero.position.percents += delta
 
             real_length = self.length if self.break_at is None else self.length * self.break_at
-            self.percents += move_speed / real_length
+
+            if real_length > 0.001:
+                self.percents += move_speed / real_length
+            else:
+                self.percents = 1
 
             if self.hero.position.percents >= 1:
                 self.hero.position.percents = 1

@@ -47,7 +47,7 @@ jQuery(document).ready(function(e){
         }
     }, 0);
 
-    {% if game_settings.ENABLE_DATA_REFRECH %}
+    {% if game_settings.ENABLE_DATA_REFRESH %}
     updater.SetRefreshInterval( {{ game_settings.TURN_DELAY*1000 }}, true );
     {% endif %}
 

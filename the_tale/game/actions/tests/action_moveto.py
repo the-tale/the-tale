@@ -227,6 +227,17 @@ class MoveToActionTest(testcase.TestCase):
         self.storage.process_turn(second_step_if_needed=False)
         self.assertEqual(self.action_move.state, ActionMoveToPrototype.STATE.RESTING)
 
+    def test_move_when_real_length_is_zero(self):
+        self.storage.process_turn(second_step_if_needed=False)
+        self.assertEqual(self.action_move.state, ActionMoveToPrototype.STATE.MOVING)
+
+        self.assertTrue(self.action_move.percents < 1)
+
+        self.action_move.length = 0
+
+        self.storage.process_turn(second_step_if_needed=False)
+
+        self.assertEqual(self.action_move.percents, 1)
 
 
 class MoveToActionWithBreaksTest(testcase.TestCase):
