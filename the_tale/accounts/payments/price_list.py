@@ -1,8 +1,10 @@
 # coding: utf-8
 
-from the_tale.accounts.payments.goods import PremiumDays, PermanentPurchase, EnergyCharges
+from the_tale.accounts.payments.goods import PremiumDays, PermanentPurchase, EnergyCharges, ResetHeroPreference
 from the_tale.accounts.payments import exceptions
 from the_tale.accounts.payments.relations import PERMANENT_PURCHASE_TYPE
+
+from the_tale.game.heroes.relations import PREFERENCE_TYPE
 
 
 PREMIUM_DAYS_DESCRIPTION = u'''
@@ -39,6 +41,14 @@ def permanent_permission_purchase(uid, purchase_type, cost):
                               purchase_type=purchase_type,
                               cost=cost,
                               transaction_description=u'Снятие ограничения уровня на предпочтение героя «%s»' % purchase_type.preference_type.text)
+
+def reset_hero_preference(uid, preference_type, cost):
+    return ResetHeroPreference(uid=uid,
+                               preference_type=preference_type,
+                               cost=cost,
+                               description=u'Сброс предпочтения героя: «%s» (вместо сброшенного предпочтения сразу можно выбрать новое)' % preference_type.text,
+                               name=u'Сброс предпочтения героя: «%s»' % preference_type.text,
+                               transaction_description=u'Сброс предпочтения героя: «%s»' % preference_type.text)
 
 
 PRICE_LIST = [  PremiumDays(uid=u'subscription-7',
@@ -114,7 +124,17 @@ PRICE_LIST = [  PremiumDays(uid=u'subscription-7',
                 permanent_purchase(uid=u'clan-ownership-right',
                                    cost=150,
                                    purchase_type=PERMANENT_PURCHASE_TYPE.CLAN_OWNERSHIP_RIGHT,
-                                   transaction_description=u'Приобретение разрешения на владение гильдией.')]
+                                   transaction_description=u'Приобретение разрешения на владение гильдией.'),
+
+                reset_hero_preference(uid='hero-preference-reset-mob', preference_type=PREFERENCE_TYPE.MOB, cost=10),
+                reset_hero_preference(uid='hero-preference-reset-place', preference_type=PREFERENCE_TYPE.PLACE, cost=50),
+                reset_hero_preference(uid='hero-preference-reset-friend', preference_type=PREFERENCE_TYPE.FRIEND, cost=75),
+                reset_hero_preference(uid='hero-preference-reset-enemy', preference_type=PREFERENCE_TYPE.ENEMY, cost=100),
+                reset_hero_preference(uid='hero-preference-reset-energy-regeneration-type', preference_type=PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, cost=10),
+                reset_hero_preference(uid='hero-preference-reset-equipment-slot', preference_type=PREFERENCE_TYPE.EQUIPMENT_SLOT, cost=25),
+                reset_hero_preference(uid='hero-preference-reset-risk-level', preference_type=PREFERENCE_TYPE.RISK_LEVEL, cost=10),
+                reset_hero_preference(uid='hero-preference-reset-favorite-item', preference_type=PREFERENCE_TYPE.FAVORITE_ITEM, cost=25)]
+
 
 PURCHASES_BY_UID = {purchase.uid:purchase for purchase in PRICE_LIST}
 

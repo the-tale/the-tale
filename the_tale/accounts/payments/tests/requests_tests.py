@@ -113,6 +113,7 @@ class ShopRequestesTests(RequestesTestsBase, PageRequestsMixin):
         for purchase in PURCHASES_BY_UID.values():
             if not isinstance(purchase, PermanentPurchase):
                 continue
+
             self.account.permanent_purchases.insert(purchase.purchase_type)
             self.account.save()
 

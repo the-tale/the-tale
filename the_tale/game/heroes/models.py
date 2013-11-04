@@ -117,7 +117,7 @@ class Hero(models.Model):
         return u'hero[%d] - %s' % (self.id, self.name)
 
 
-# just copy for different statistics
+# just copy for collection statistics
 class HeroPreferences(models.Model):
 
     hero = models.ForeignKey(Hero, on_delete=models.CASCADE)

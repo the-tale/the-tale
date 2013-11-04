@@ -12,3 +12,6 @@ class DuplicateUIDsInPriceListError(PaymentsError):
 
 class DuplicatePermanentPurchaseError(PaymentsError):
     MSG = 'try to buy duplicate permanent purchase %(purchase_id)s of type %(purchase_type)r for account %(account_id)s'
+
+class BuyHeroMethodSerializationError(PaymentsError):
+    MSG = 'can not serialize BuyHeroMethod postponed task'

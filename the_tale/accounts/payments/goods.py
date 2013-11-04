@@ -2,7 +2,7 @@
 
 from the_tale.common.postponed_tasks import PostponedTaskPrototype
 
-from the_tale.accounts.payments.postponed_tasks import BuyPremium, BuyPermanentPurchase, BuyEnergyCharges
+from the_tale.accounts.payments import postponed_tasks
 from the_tale.accounts.payments import exceptions
 from the_tale.accounts.payments.logic import transaction_logic
 
@@ -37,7 +37,7 @@ class PremiumDays(PurchaseItem):
                                         description=self.transaction_description,
                                         uid='ingame-purchase-<%s>' % self.uid)
 
-        postponed_logic = BuyPremium(account_id=account.id, days=self.days, transaction=transaction)
+        postponed_logic = postponed_tasks.BuyPremium(account_id=account.id, days=self.days, transaction=transaction)
 
         postponed_task = PostponedTaskPrototype.create(postponed_logic)
         postponed_task.cmd_wait()
@@ -61,7 +61,31 @@ class EnergyCharges(PurchaseItem):
                                         description=self.transaction_description,
                                         uid='ingame-purchase-<%s>' % self.uid)
 
-        postponed_logic = BuyEnergyCharges(account_id=account.id, charges_number=self.charges_number, transaction=transaction)
+        postponed_logic = postponed_tasks.BuyEnergyCharges(account_id=account.id, charges_number=self.charges_number, transaction=transaction)
+
+        postponed_task = PostponedTaskPrototype.create(postponed_logic)
+        postponed_task.cmd_wait()
+
+        return postponed_task
+
+
+class ResetHeroPreference(PurchaseItem):
+
+    def __init__(self, preference_type, **kwargs):
+        super(ResetHeroPreference, self).__init__(**kwargs)
+        self.preference_type = preference_type
+
+    def buy(self, account):
+
+        if account.is_fast:
+            raise exceptions.FastAccountError(purchase_uid=self.uid, account_id=account.id)
+
+        transaction = transaction_logic(account=account,
+                                        amount=-self.cost,
+                                        description=self.transaction_description,
+                                        uid='ingame-purchase-<%s>' % self.uid)
+
+        postponed_logic = postponed_tasks.BuyResetHeroPreference(account_id=account.id, preference_type=self.preference_type, transaction=transaction)
 
         postponed_task = PostponedTaskPrototype.create(postponed_logic)
         postponed_task.cmd_wait()
@@ -88,7 +112,7 @@ class PermanentPurchase(PurchaseItem):
                                         description=self.transaction_description,
                                         uid='ingame-purchase-<%s>' % self.uid)
 
-        postponed_logic = BuyPermanentPurchase(account_id=account.id, purchase_type=self.purchase_type, transaction=transaction)
+        postponed_logic = postponed_tasks.BuyPermanentPurchase(account_id=account.id, purchase_type=self.purchase_type, transaction=transaction)
 
         postponed_task = PostponedTaskPrototype.create(postponed_logic)
         postponed_task.cmd_wait()

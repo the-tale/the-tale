@@ -9,6 +9,7 @@ from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC
 from the_tale.bank.transaction import Transaction
 
 from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.relations import PREFERENCE_TYPE
 
 from the_tale.accounts.workers.environment import workers_environment as accounts_workers_environment
 from the_tale.accounts.prototypes import AccountPrototype
@@ -16,6 +17,7 @@ from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.payments.relations import PERMANENT_PURCHASE_TYPE
 from the_tale.accounts.payments.logic import transaction_logic
 from the_tale.accounts.payments.conf import payments_settings
+from the_tale.accounts.payments import exceptions
 
 
 class BASE_BUY_TASK_STATE(DjangoEnum):
@@ -146,6 +148,13 @@ class BaseBuyTask(PostponedLogic):
                           force=True)
 
 
+class BaseLogicBuyTask(BaseBuyTask):
+
+    def on_process_transaction_requested__transaction_frozen(self, main_task):
+        from the_tale.game.workers.environment import workers_environment as game_workers_environment
+        main_task.extend_postsave_actions((lambda: game_workers_environment.supervisor.cmd_logic_task(self.account_id, main_task.id),))
+
+
 class BuyPremium(BaseBuyTask):
     TYPE = 'buy-premium'
 
@@ -168,29 +177,62 @@ class BuyPremium(BaseBuyTask):
         HeroPrototype.get_by_account_id(self.account.id).cmd_update_with_account_data(self.account)
 
 
-class BuyEnergyCharges(BaseBuyTask):
-    TYPE = 'buy-energy-charges'
+class BaseBuyHeroMethod(BaseLogicBuyTask):
+    TYPE = None
+    ARGUMENTS = ()
+    METHOD = None
 
-    def __init__(self, charges_number, **kwargs):
-        super(BuyEnergyCharges, self).__init__(**kwargs)
-        self.charges_number = charges_number
+    def __init__(self, **kwargs):
+        arguments = {name: value for name, value in kwargs.iteritems() if name in self.ARGUMENTS}
+        for name in arguments:
+            del kwargs[name]
+
+        super(BaseBuyHeroMethod, self).__init__(**kwargs)
+
+        self.arguments = self.deserialize_arguments(arguments)
 
     def __eq__(self, other):
-        return (super(BuyEnergyCharges, self).__eq__(other) and
-                self.charges_number == other.charges_number )
+        return (super(BaseBuyHeroMethod, self).__eq__(other) and
+                self.arguments == other.arguments )
+
+    def serialize_arguments(self):
+        return self.arguments
+
+    @classmethod
+    def deserialize_arguments(cls, arguments):
+        return arguments
 
     def serialize(self):
-        data = super(BuyEnergyCharges, self).serialize()
-        data['charges_number'] = self.charges_number
+        data = super(BaseBuyHeroMethod, self).serialize()
+        if set(data.iterkeys()) & set(self.arguments.iterkeys()):
+            raise exceptions.BuyHeroMethodSerializationError()
+        data.update(self.serialize_arguments())
         return data
 
     def on_process_transaction_frozen(self, storage, **kwargs):
         hero = storage.accounts_to_heroes[self.account_id]
-        hero.energy_charges += self.charges_number
+        getattr(hero, self.METHOD)(**self.arguments)
+        storage.save_hero_data(hero.id, update_cache=True)
 
-    def on_process_transaction_requested__transaction_frozen(self, main_task):
-        from the_tale.game.workers.environment import workers_environment as game_workers_environment
-        main_task.extend_postsave_actions((lambda: game_workers_environment.supervisor.cmd_logic_task(self.account_id, main_task.id),))
+
+class BuyEnergyCharges(BaseBuyHeroMethod):
+    TYPE = 'buy-energy-charges'
+    ARGUMENTS = ('charges_number', )
+    METHOD = 'add_energy_charges'
+
+
+class BuyResetHeroPreference(BaseBuyHeroMethod):
+    TYPE = 'buy-reset-hero-preference'
+    ARGUMENTS = ('preference_type', )
+    METHOD = 'reset_preference'
+
+    def serialize_arguments(self):
+        return {'preference_type': self.arguments['preference_type'].value}
+
+    @classmethod
+    def deserialize_arguments(cls, arguments):
+        preference_type = arguments['preference_type']
+        return {'preference_type': preference_type if isinstance(preference_type, rels.Record) else PREFERENCE_TYPE(preference_type)}
 
 
 

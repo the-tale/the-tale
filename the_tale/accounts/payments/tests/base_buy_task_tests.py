@@ -201,3 +201,28 @@ class BaseBuyPosponedTaskTests(testcase.TestCase):
 
         self.bank_account.reload()
         self.assertEqual(self.bank_account.amount, self.initial_amount)
+
+
+
+class BaseBuyHeroMethodPosponedTaskTests(BaseBuyPosponedTaskTests):
+
+    def _test_create(self):
+        self.assertEqual(self.task.arguments, self._get_expected_arguments())
+
+    def _test_process__transaction_requested__invoice_unprocessed(self):
+        self._check_not_used()
+
+    def _test_process__transaction_requested__invoice_rejected(self):
+        self._check_not_used()
+
+    def _test_process__transaction_requested__invoice_wrong_state(self):
+        self._check_not_used()
+
+    def _test_process__transaction_requested__invoice_frozen(self):
+        self._check_not_used()
+
+    def _test_process__transaction_frozen(self):
+        self._check_used()
+
+    def _test_process__wrong_state(self):
+        self._check_not_used()

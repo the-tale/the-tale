@@ -16,16 +16,17 @@ from the_tale.game.logic import create_test_map
 from the_tale.game.prototypes import TimePrototype
 
 
-from the_tale.game.balance import formulas as f, constants as c
+from the_tale.game.balance import formulas as f, constants as c, enums as e
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.map.places.storage import places_storage
-
+from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.persons.storage import persons_storage
 
 from the_tale.game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
 from the_tale.game.heroes.habilities import ABILITY_TYPE, ABILITIES, battle
 from the_tale.game.heroes.conf import heroes_settings
-from the_tale.game.heroes.relations import EQUIPMENT_SLOT, RISK_LEVEL
+from the_tale.game.heroes.relations import EQUIPMENT_SLOT, RISK_LEVEL, PREFERENCE_TYPE
 
 
 class HeroTest(TestCase):
@@ -305,6 +306,25 @@ class HeroTest(TestCase):
     def test_need_rest_in_move__from_risk_level(self):
         self.check_rests_from_risk(lambda hero: hero.need_rest_in_move)
 
+
+    def test_resset_preferences(self):
+        self.hero.preferences.set_mob(mobs_storage.all()[0])
+        self.hero.preferences.set_place(places_storage.all()[0])
+        self.hero.preferences.set_friend(persons_storage.all()[0])
+        self.hero.preferences.set_enemy(persons_storage.all()[1])
+        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.HAND_PRIMARY)
+        self.hero.preferences.set_favorite_item(EQUIPMENT_SLOT.HAND_PRIMARY)
+        self.hero.preferences.set_risk_level(RISK_LEVEL.VERY_HIGH)
+        self.hero.preferences.set_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE)
+
+
+        for preference_type in PREFERENCE_TYPE._records:
+            self.hero.reset_preference(preference_type)
+            self.assertEqual(self.hero.preferences.time_before_update(preference_type, datetime.datetime.now()), datetime.timedelta(seconds=0))
+            if preference_type.nullable:
+                self.assertEqual(self.hero.preferences._get(preference_type), None)
+            else:
+                self.assertNotEqual(self.hero.preferences._get(preference_type), None)
 
 
 class HeroPositionTest(TestCase):

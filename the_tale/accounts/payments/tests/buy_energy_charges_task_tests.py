@@ -1,12 +1,12 @@
 # coding: utf-8
 
 from the_tale.accounts.payments.postponed_tasks import BuyEnergyCharges
-from the_tale.accounts.payments.tests.base_buy_task_tests import BaseBuyPosponedTaskTests as _BaseBuyPosponedTaskTests
+from the_tale.accounts.payments.tests.base_buy_task_tests import BaseBuyHeroMethodPosponedTaskTests as _BaseBuyHeroMethodPosponedTaskTests
 
 from the_tale.game.logic_storage import LogicStorage
 
 
-class BuyEnergyChargesTaskTests(_BaseBuyPosponedTaskTests):
+class BuyEnergyChargesTaskTests(_BaseBuyHeroMethodPosponedTaskTests):
 
     def setUp(self):
         super(BuyEnergyChargesTaskTests, self).setUp()
@@ -25,24 +25,11 @@ class BuyEnergyChargesTaskTests(_BaseBuyPosponedTaskTests):
         self.hero = self.storage.accounts_to_heroes[self.account.id]
         self.hero.energy_charges = 0
 
+    def _get_expected_arguments(self):
+        return {'charges_number': self.charges_number}
 
-    def _test_create(self):
-        self.assertEqual(self.task.charges_number, self.charges_number)
-
-    def _test_process__transaction_requested__invoice_unprocessed(self):
+    def _check_not_used(self):
         self.assertEqual(self.hero.energy_charges, 0)
 
-    def _test_process__transaction_requested__invoice_rejected(self):
-        self.assertEqual(self.hero.energy_charges, 0)
-
-    def _test_process__transaction_requested__invoice_wrong_state(self):
-        self.assertEqual(self.hero.energy_charges, 0)
-
-    def _test_process__transaction_requested__invoice_frozen(self):
-        self.assertEqual(self.hero.energy_charges, 0)
-
-    def _test_process__transaction_frozen(self):
+    def _check_used(self):
         self.assertEqual(self.hero.energy_charges, self.charges_number)
-
-    def _test_process__wrong_state(self):
-        self.assertEqual(self.hero.energy_charges, 0)

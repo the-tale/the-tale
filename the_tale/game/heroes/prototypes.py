@@ -131,6 +131,9 @@ class HeroPrototype(BasePrototype):
             self._model.experience -= f.exp_on_lvl(self.level)
             self.increment_level()
 
+    def add_energy_charges(self, charges_number):
+        self.energy_charges += charges_number
+
     @property
     def max_ability_points_number(self):
         return f.max_ability_points_number(self.level)
@@ -604,6 +607,14 @@ class HeroPrototype(BasePrototype):
         if preferences.risk_level is None:
             preferences.set_risk_level(RISK_LEVEL.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
         return preferences
+
+    def reset_preference(self, preference_type):
+        if preference_type._is_ENERGY_REGENERATION_TYPE:
+            self.preferences.set_energy_regeneration_type(self.race.energy_regeneration, change_time=datetime.datetime.fromtimestamp(0))
+        elif preference_type._is_RISK_LEVEL:
+            self.preferences.set_risk_level(RISK_LEVEL.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
+        else:
+            self.preferences._reset(preference_type)
 
     @lazy_property
     def actions(self): return ActionsContainer.deserialize(self, s11n.from_json(self._model.actions))
