@@ -227,6 +227,7 @@ class MoveToActionTest(testcase.TestCase):
         self.storage.process_turn(second_step_if_needed=False)
         self.assertEqual(self.action_move.state, ActionMoveToPrototype.STATE.RESTING)
 
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_move_when_real_length_is_zero(self):
         self.storage.process_turn(second_step_if_needed=False)
         self.assertEqual(self.action_move.state, ActionMoveToPrototype.STATE.MOVING)

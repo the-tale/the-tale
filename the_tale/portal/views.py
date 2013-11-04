@@ -23,6 +23,8 @@ from the_tale.blogs.prototypes import PostPrototype as BlogPostPrototype
 from the_tale.game.relations import RACE
 from the_tale.game.balance import constants as c
 
+from the_tale.game.abilities.relations import ABILITY_TYPE
+
 from the_tale.game.map.storage import map_info_storage
 from the_tale.game.map.relations import TERRAIN, MAP_STATISTICS
 
@@ -122,6 +124,9 @@ class PortalResource(Resource):
       "game_version": "текущая.версия.игры", // текущая версия игры
       "turn_delta": <целое>,                 // задержка между ходами в секундах
       "account_id": <целое>|null             // идентификатор аккаунта, если пользователь вошёл в игру, иначе null
+      "abilities_cost": {                    // цена использовани способностей игрока
+        <идентификатор способности>: <целое>
+      }
     }
 
 Абсолютные адреса возвращаются без указания протокола: <code>//path/to/entity</code>
@@ -133,4 +138,5 @@ class PortalResource(Resource):
                              'static_content': cdn_paths['STATIC_CONTENT'],
                              'game_version': project_settings.META_CONFIG.version,
                              'turn_delta': c.TURN_DELTA,
-                             'account_id': self.account.id if self.account.is_authenticated() else None})
+                             'account_id': self.account.id if self.account.is_authenticated() else None,
+                             'abilities_cost': {ability_type.value: ability_type.cost for ability_type in ABILITY_TYPE._records}})

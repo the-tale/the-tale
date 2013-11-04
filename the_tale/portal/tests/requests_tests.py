@@ -8,6 +8,8 @@ from the_tale.common.utils.testcase import TestCase
 
 from the_tale.accounts.logic import register_user
 
+from the_tale.game.abilities.relations import ABILITY_TYPE
+
 from the_tale.game.logic import create_test_map
 from the_tale.game.balance import constants as c
 
@@ -47,7 +49,8 @@ class TestRequests(TestCase):
                                  'static_content': project_settings.STATIC_URL,
                                  'game_version': project_settings.META_CONFIG.version,
                                  'turn_delta': c.TURN_DELTA,
-                                 'account_id': None})
+                                 'account_id': None,
+                                 'abilities_cost': {ability_type.value: ability_type.cost for ability_type in ABILITY_TYPE._records}})
 
     def test_info__logined(self):
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
@@ -58,4 +61,5 @@ class TestRequests(TestCase):
                                  'static_content': project_settings.STATIC_URL,
                                  'game_version': project_settings.META_CONFIG.version,
                                  'turn_delta': c.TURN_DELTA,
-                                 'account_id': account_id})
+                                 'account_id': account_id,
+                                 'abilities_cost': {ability_type.value: ability_type.cost for ability_type in ABILITY_TYPE._records}})

@@ -12,6 +12,7 @@ from the_tale.game.relations import GENDER, RACE
 from the_tale.game.map.relations import TERRAIN
 from the_tale.game.map.places.relations import BUILDING_TYPE
 from the_tale.game.persons.relations import PERSON_TYPE
+from the_tale.game.abilities.relations import ABILITY_TYPE
 
 
 class Command(BaseCommand):
@@ -33,5 +34,6 @@ class Command(BaseCommand):
                             'race_to_text': s11n.to_json(dict(RACE._select('value', 'text'))),
                             'race_to_str': s11n.to_json(dict(RACE._select('value', 'name'))),
                             'terrain_id_to_str': s11n.to_json(TERRAIN._ID_TO_STR),
-                            'building_type_to_str': s11n.to_json(dict(BUILDING_TYPE._select('value', 'name')))
+                            'building_type_to_str': s11n.to_json(dict(BUILDING_TYPE._select('value', 'name'))),
+                            'ABILITY_TYPE': ABILITY_TYPE
                             }).encode('utf-8'))

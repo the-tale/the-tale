@@ -9,7 +9,8 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
 
-from the_tale.game.abilities.deck import EnergyCharge, Help
+from the_tale.game.abilities.deck import EnergyCharge
+from the_tale.game.abilities.relations import ABILITY_TYPE
 
 
 class EnergyChargeAbilityTest(testcase.TestCase):
@@ -43,10 +44,10 @@ class EnergyChargeAbilityTest(testcase.TestCase):
         self.assertEqual(self.hero.energy_charges, 0)
 
     def test_to_many_energy(self):
-        self.hero._model.energy = Help.COST
+        self.hero._model.energy = ABILITY_TYPE.HELP.cost
         self.hero.energy_charges = 2
         self.assertEqual(self.ability.use(**self.use_attributes), (False, None, ()))
-        self.assertEqual(self.hero.energy, Help.COST)
+        self.assertEqual(self.hero.energy, ABILITY_TYPE.HELP.cost)
         self.assertEqual(self.hero.energy_charges, 2)
 
     def test_success(self):

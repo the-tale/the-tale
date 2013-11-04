@@ -4,17 +4,10 @@ from the_tale.common.postponed_tasks import PostponedTaskPrototype
 
 
 class AbilityPrototype(object):
+    TYPE = None
 
-    COST = None
-
-    NAME = None
-    DESCRIPTION = None
-
-    @classmethod
-    def get_type(cls): return cls.__name__.lower()
-
-    def ui_info(self):
-        return {'type': self.get_type()}
+    # def ui_info(self):
+    #     return {'type': self.TYPE.value}
 
     def activate(self, hero, data):
         from the_tale.game.workers.environment import workers_environment
@@ -22,7 +15,7 @@ class AbilityPrototype(object):
 
         data['hero_id'] = hero.id
 
-        ability_task = UseAbilityTask(ability_type=self.get_type(),
+        ability_task = UseAbilityTask(ability_type=self.TYPE,
                                       hero_id=hero.id,
                                       data=data)
 

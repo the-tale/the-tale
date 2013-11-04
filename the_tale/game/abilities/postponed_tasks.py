@@ -1,9 +1,13 @@
 # coding: utf-8
 
+import rels
+
 from dext.utils.decorators import nested_commit_on_success
 
 from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 from the_tale.common.utils.enum import create_enum
+
+from the_tale.game.abilities.relations import ABILITY_TYPE
 
 
 ABILITY_TASK_STATE = create_enum('ABILITY_TASK_STATE', (('UNPROCESSED', 0, u'в очереди'),
@@ -19,14 +23,14 @@ class UseAbilityTask(PostponedLogic):
 
     def __init__(self, ability_type, hero_id, data, step=None, state=ABILITY_TASK_STATE.UNPROCESSED):
         super(UseAbilityTask, self).__init__()
-        self.ability_type = ability_type
+        self.ability_type = ability_type if isinstance(ability_type, rels.Record) else ABILITY_TYPE(ability_type)
         self.hero_id = hero_id
         self.data = data
         self.state = state
         self.step = step
 
     def serialize(self):
-        return { 'ability_type': self.ability_type,
+        return { 'ability_type': self.ability_type.value,
                  'hero_id': self.hero_id,
                  'data': self.data,
                  'state': self.state,
@@ -50,7 +54,7 @@ class UseAbilityTask(PostponedLogic):
 
             energy = hero.energy
 
-            if energy < ability.COST:
+            if energy < ability.TYPE.cost:
                 main_task.comment = 'energy < ability.COST'
                 self.state = ABILITY_TASK_STATE.NO_ENERGY
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
@@ -69,7 +73,7 @@ class UseAbilityTask(PostponedLogic):
                 self.state = ABILITY_TASK_STATE.CAN_NOT_PROCESS
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            hero.change_energy(-ability.COST)
+            hero.change_energy(-ability.TYPE.cost)
 
             with nested_commit_on_success():
                 storage.save_hero_data(hero.id, update_cache=True)

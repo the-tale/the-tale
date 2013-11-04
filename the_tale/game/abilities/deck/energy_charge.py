@@ -2,14 +2,11 @@
 
 
 from the_tale.game.abilities.prototypes import AbilityPrototype
-from the_tale.game.abilities.deck.help import Help
+from the_tale.game.abilities.relations import ABILITY_TYPE
 
 
 class EnergyCharge(AbilityPrototype):
-
-    COST = 0
-    NAME = u'Энергия'
-    DESCRIPTION = u'Восстановить полный запас энергии'
+    TYPE = ABILITY_TYPE.ENERGY_CHARGE
 
     def use(self, data, storage, **kwargs): # pylint: disable=R0911
 
@@ -18,7 +15,7 @@ class EnergyCharge(AbilityPrototype):
         if hero.energy_charges == 0:
             return False, None, ()
 
-        if hero.energy >= Help.COST:
+        if hero.energy >= ABILITY_TYPE.HELP.cost:
             return False, None, ()
 
         hero.energy_charges -= 1

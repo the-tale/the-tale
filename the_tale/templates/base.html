@@ -60,6 +60,8 @@ pgf.base.settings.init("account_{{resource.account.id}}");
 pgf.base.settings.init("anonimues");
 {% endif %}
 
+API_CLIENT = "{{settings.API_CLIENT}}";
+
 jQuery(document).ready(function() {
 
     Globalize.culture('ru');

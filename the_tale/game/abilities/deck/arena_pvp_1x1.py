@@ -5,7 +5,7 @@ from the_tale.common.utils.enum import create_enum
 from the_tale.game.workers.environment import workers_environment
 
 from the_tale.game.abilities.prototypes import AbilityPrototype
-
+from the_tale.game.abilities.relations import ABILITY_TYPE
 
 ABILITY_TASK_STEP = create_enum('ABILITY_TASK_STEP', (('ERROR', 0, u'ошибка'),
                                                       ('LOGIC', 1, u'логика'),
@@ -14,10 +14,7 @@ ABILITY_TASK_STEP = create_enum('ABILITY_TASK_STEP', (('ERROR', 0, u'ошибк�
 
 
 class ArenaPvP1x1(AbilityPrototype):
-
-    COST = 1
-    NAME = u'Отправить на арену'
-    DESCRIPTION = u'Отправить героя на гладиаторскую арену'
+    TYPE = ABILITY_TYPE.ARENA_PVP_1x1
 
     def use(self, data, step, main_task_id, storage, pvp_balancer, **kwargs):
 

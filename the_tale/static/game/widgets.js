@@ -841,7 +841,7 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 pgf.game.widgets.Abilities = function() {
     var instance = this;
 
-    var abilities = pgf.game.data.abilities;
+    var abilities = pgf.game.constants.abilities;
 
     var MINIMUM_LOCK_DELAY = 750;
     var abilitiesWaitingStartTimes = {};
@@ -915,7 +915,7 @@ pgf.game.widgets.Abilities = function() {
         var battleId = element.data('battle-id');
         var redirectOnSuccess = element.data('redirect-on-success');
 
-        pgf.forms.Post({action: pgf.urls['game:abilities:activate'](ability.type, buildingId, battleId),
+        pgf.forms.Post({action: pgf.urls['game:abilities:use'](ability.type, buildingId, battleId),
                         wait: false,
                         OnError: function() {
                             ChangeAbilityWaitingState(ability.type, false);
@@ -967,11 +967,11 @@ pgf.game.widgets.Abilities = function() {
     function UpdateButtons() {
         jQuery('.pgf-ability-help').toggleClass('pgf-hidden', false);
 
-        jQuery('.pgf-ability-arenapvp1x1').toggleClass('pgf-hidden', pvpWaiting);
+        jQuery('.pgf-ability-arena_pvp_1x1').toggleClass('pgf-hidden', pvpWaiting);
         jQuery('.pgf-in-pvp-queue-message').toggleClass('pgf-hidden', !pvpWaiting);
 
-        jQuery('.pgf-ability-arenapvp1x1').toggleClass('no-registration', !canParticipateInPvp).toggleClass('pgf-disable', !canParticipateInPvp);
-        jQuery('.pgf-ability-buildingrepair').toggleClass('no-registration', !canRepairBuilding).toggleClass('pgf-disable', !canRepairBuilding);
+        jQuery('.pgf-ability-arena_pvp_1x1').toggleClass('no-registration', !canParticipateInPvp).toggleClass('pgf-disable', !canParticipateInPvp);
+        jQuery('.pgf-ability-building_repair').toggleClass('no-registration', !canRepairBuilding).toggleClass('pgf-disable', !canRepairBuilding);
 
         jQuery('.pgf-ability-energycharge')
             .toggleClass('pgf-hidden', false)
@@ -998,7 +998,7 @@ pgf.game.widgets.Abilities = function() {
         canRepairBuilding = hero.permissions.can_repair_building;
 
         hasEnergyCharges = hero.energy.charges > 0;
-        canRestoreEnergy = angelEnergy < pgf.game.data.abilities.help.cost;
+        canRestoreEnergy = angelEnergy < pgf.game.constants.abilities.help.cost;
     };
 
     function Render() {

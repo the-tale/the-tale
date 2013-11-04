@@ -32,12 +32,6 @@ class Command(BaseCommand):
             sys.exit(1)
 
         print
-        print 'GENEREATE ABILITIES JS'
-        print
-
-        run_django_command(['abilities_create_abilities_js'])
-
-        print
         print 'GENERATE JAVASCRIPT CONSTANTS'
         print
 

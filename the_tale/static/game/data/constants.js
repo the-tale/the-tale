@@ -23,3 +23,44 @@ pgf.game.constants = {
 
     BUILDING_TYPE_TO_STR: {"0": "SMITHY", "1": "FISHING_LODGE", "2": "TAILOR_SHOP", "3": "SAWMILL", "4": "HUNTER_HOUSE", "5": "WATCHTOWER", "6": "TRADING_POST", "7": "INN", "8": "DEN_OF_THIEVE", "9": "FARM", "10": "MINE", "11": "TEMPLE", "12": "HOSPITAL", "13": "LABORATORY", "14": "SCAFFOLD", "15": "MAGE_TOWER", "16": "GUILDHALL", "17": "BUREAU", "18": "MANOR", "19": "SCENE", "20": "MEWS", "21": "RANCH"}
 };
+
+pgf.game.constants.abilities = {
+
+    
+    "help": {
+        "type": "help",
+        "name": "Помочь",
+        "description": "Попытаться помочь герою, чем бы тот не занимался",
+        "cost": 4
+    },
+    "arena_pvp_1x1": {
+        "type": "arena_pvp_1x1",
+        "name": "Отправить на арену",
+        "description": "Отправить героя на гладиаторскую арену",
+        "cost": 1
+    },
+    "arena_pvp_1x1_leave_queue": {
+        "type": "arena_pvp_1x1_leave_queue",
+        "name": "Выйти из очереди",
+        "description": "Выйти из очереди на арену",
+        "cost": 0
+    },
+    "arena_pvp_1x1_accept": {
+        "type": "arena_pvp_1x1_accept",
+        "name": "Принять вызов",
+        "description": "Принять вызов другого героя",
+        "cost": 1
+    },
+    "building_repair": {
+        "type": "building_repair",
+        "name": "Вызвать рабочего",
+        "description": "Вызвать рабочего для ремонта здания",
+        "cost": 3
+    },
+    "energy_charge": {
+        "type": "energy_charge",
+        "name": "Энергия",
+        "description": "Восстановить полный запас энергии",
+        "cost": 0
+    }
+}

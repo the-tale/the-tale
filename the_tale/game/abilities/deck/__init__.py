@@ -8,9 +8,9 @@ from the_tale.game.abilities.deck.building_repair import BuildingRepair
 from the_tale.game.abilities.deck.energy_charge import EnergyCharge
 
 
-ABILITIES = {Help.get_type(): Help,
-             ArenaPvP1x1.get_type(): ArenaPvP1x1,
-             ArenaPvP1x1LeaveQueue.get_type(): ArenaPvP1x1LeaveQueue,
-             ArenaPvP1x1Accept.get_type(): ArenaPvP1x1Accept,
-             BuildingRepair.get_type(): BuildingRepair,
-             EnergyCharge.get_type(): EnergyCharge}
+ABILITIES = {Help.TYPE: Help,
+             ArenaPvP1x1.TYPE: ArenaPvP1x1,
+             ArenaPvP1x1LeaveQueue.TYPE: ArenaPvP1x1LeaveQueue,
+             ArenaPvP1x1Accept.TYPE: ArenaPvP1x1Accept,
+             BuildingRepair.TYPE: BuildingRepair,
+             EnergyCharge.TYPE: EnergyCharge}

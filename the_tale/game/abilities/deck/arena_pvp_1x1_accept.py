@@ -9,8 +9,9 @@ from the_tale.game.pvp.prototypes import Battle1x1Prototype
 from the_tale.game.workers.environment import workers_environment
 
 from the_tale.game.abilities.prototypes import AbilityPrototype
-from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.abilities.relations import ABILITY_TYPE
 
+from the_tale.game.heroes.prototypes import HeroPrototype
 
 ABILITY_TASK_STEP = create_enum('ABILITY_TASK_STEP', (('ERROR', 0, u'ошибка'),
                                                       ('LOGIC', 1, u'логика'),
@@ -27,10 +28,7 @@ class ACCEPT_BATTLE_RESULT(DjangoEnum):
 
 
 class ArenaPvP1x1Accept(AbilityPrototype):
-
-    COST = 1
-    NAME = u'Принять вызов'
-    DESCRIPTION = u'Принять вызов другого героя'
+    TYPE = ABILITY_TYPE.ARENA_PVP_1x1_ACCEPT
 
     @classmethod
     def accept_battle(cls, pvp_balancer, battle_id, hero_id):

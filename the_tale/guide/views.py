@@ -8,6 +8,7 @@ from dext.views import handler, validate_argument
 from dext.utils.urls import UrlBuilder, full_url
 
 from the_tale.common.utils.resources import Resource
+from the_tale.common.utils.decorators import lazy_property
 
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
 from the_tale.game.heroes.conf import heroes_settings
@@ -33,20 +34,30 @@ class APIReference(object):
 
 class TypeReference(object):
 
-    def __init__(self, id_, name, relation):
+    def __init__(self, id_, name, relation, fields=((u'значение', 'value'), (u'описание', 'text'))):
         self.id = id_
         self.name = name
         self.relation = relation
+        self.fields = fields
+
+    @lazy_property
+    def records(self):
+        records = []
+        for record in self.relation._records:
+            records.append([getattr(record, field_id) for field_name, field_id in self.fields])
+        return records
 
 
 def get_api_methods():
     from the_tale.portal.views import PortalResource
     from the_tale.accounts.views import AuthResource
     from the_tale.game.views import GameResource
+    from the_tale.game.abilities.views import AbilitiesResource
     return [APIReference('portal_info', u'Базовая информация', PortalResource.api_info),
             APIReference('login', u'Вход в игру', AuthResource.api_login),
             APIReference('logout', u'Выход из игры', AuthResource.api_logout),
-            APIReference('game_info', u'Информация об игре/герое', GameResource.api_info) ]
+            APIReference('game_info', u'Информация об игре/герое', GameResource.api_info),
+            APIReference('game_abilities', u'Использование способности', AbilitiesResource.use)]
 
 
 def get_api_types():
@@ -54,12 +65,15 @@ def get_api_types():
     from the_tale.game.artifacts.relations import ARTIFACT_TYPE
     from the_tale.game.heroes.relations import EQUIPMENT_SLOT
     from the_tale.game.persons.relations import PERSON_TYPE
+    from the_tale.game.abilities.relations import ABILITY_TYPE as ANGEL_ABILITY_TYPE
 
     return [TypeReference('gender', u'Пол', GENDER),
             TypeReference('race', u'Раса', RACE),
             TypeReference('artifact_type', u'Тип артефакта', ARTIFACT_TYPE),
             TypeReference('equipment_slot', u'Тип экипировки', EQUIPMENT_SLOT),
-            TypeReference('person_profession', u'Профессия жителя', PERSON_TYPE)]
+            TypeReference('person_profession', u'Профессия жителя', PERSON_TYPE),
+            TypeReference('ability_type', u'Тип способности игрока', ANGEL_ABILITY_TYPE,
+                         fields=((u'значение', 'value'), (u'описание', 'text'), (u'атрибуты запроса', 'request_attributes')))]
 
 API_METHODS = get_api_methods()
 API_TYPES = get_api_types()

@@ -12,7 +12,7 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.abilities.postponed_tasks import UseAbilityTask, ABILITY_TASK_STATE
-from the_tale.game.abilities.deck.help import Help
+from the_tale.game.abilities.relations import ABILITY_TYPE
 
 
 class UseAbilityTasksTests(TestCase):
@@ -28,7 +28,7 @@ class UseAbilityTasksTests(TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.task = UseAbilityTask(ability_type=Help.get_type(),
+        self.task = UseAbilityTask(ability_type=ABILITY_TYPE.HELP,
                                    hero_id=self.hero.id,
                                    data={'hero_id': self.hero.id})
 

@@ -23,3 +23,18 @@ pgf.game.constants = {
 
     BUILDING_TYPE_TO_STR: {{building_type_to_str|safe}}
 };
+
+pgf.game.constants.abilities = {
+
+    {% for ability_type in ABILITY_TYPE._records %}
+
+    "{{ ability_type.value }}": {
+        "type": "{{ ability_type.value }}",
+        "name": "{{ ability_type.text }}",
+        "description": "{{ ability_type.description }}",
+        "cost": {{ ability_type.cost }}
+    }{%- if not loop.last -%},{%- endif -%}
+
+    {% endfor %}
+
+}

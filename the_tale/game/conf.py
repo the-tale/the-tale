@@ -25,7 +25,7 @@ game_settings = app_settings('GAME',
 
                              SAVED_UNCACHED_HEROES_FRACTION=0.01,
 
-                             JS_CONSTNATS_FILE_LOCATION='./static/game/data/constants.js',
+                             JS_CONSTNATS_FILE_LOCATION='./the_tale/static/game/data/constants.js',
 
                              TEXTGEN_SOURCES_DIR=os.path.join(APP_DIR, 'fixtures', 'textgen', 'texts_src'),
                              TEXTGEN_VOCABULARY=os.path.join(APP_DIR, 'fixtures', 'textgen', 'vocabulary.json'),

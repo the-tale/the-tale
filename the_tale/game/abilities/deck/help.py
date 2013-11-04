@@ -4,6 +4,7 @@ import random
 from the_tale.game.heroes.statistics import MONEY_SOURCE
 
 from the_tale.game.abilities.prototypes import AbilityPrototype
+from the_tale.game.abilities.relations import ABILITY_TYPE
 
 from the_tale.game.balance import constants as c, formulas as f
 
@@ -11,10 +12,7 @@ from the_tale.game.pvp.prototypes import Battle1x1Prototype
 
 
 class Help(AbilityPrototype):
-
-    COST = c.ANGEL_HELP_COST
-    NAME = u'Помочь'
-    DESCRIPTION = u'Попытаться помочь герою, чем бы тот не занимался'
+    TYPE = ABILITY_TYPE.HELP
 
     def use_heal(self, action, hero, critical):
         if critical:

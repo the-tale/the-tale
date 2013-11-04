@@ -4,11 +4,10 @@ from the_tale.common.utils.enum import create_enum
 
 from the_tale.game.workers.environment import workers_environment
 
-from the_tale.game.balance import constants as c
-
 from the_tale.game.map.places.storage import buildings_storage
 
 from the_tale.game.abilities.prototypes import AbilityPrototype
+from the_tale.game.abilities.relations import ABILITY_TYPE
 
 
 ABILITY_TASK_STEP = create_enum('ABILITY_TASK_STEP', (('ERROR', 0, u'ошибка'),
@@ -18,10 +17,7 @@ ABILITY_TASK_STEP = create_enum('ABILITY_TASK_STEP', (('ERROR', 0, u'ошибк�
 
 
 class BuildingRepair(AbilityPrototype):
-
-    COST = c.BUILDING_WORKERS_ENERGY_COST
-    NAME = u'Вызвать рабочего'
-    DESCRIPTION = u'Вызвать рабочего для ремонта здания'
+    TYPE = ABILITY_TYPE.BUILDING_REPAIR
 
     def use(self, data, step, main_task_id, storage, highlevel, **kwargs): # pylint: disable=R0911,W0613
 

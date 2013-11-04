@@ -7,6 +7,7 @@ from the_tale.game.pvp.prototypes import Battle1x1Prototype
 from the_tale.game.workers.environment import workers_environment
 
 from the_tale.game.abilities.prototypes import AbilityPrototype
+from the_tale.game.abilities.relations import ABILITY_TYPE
 
 ABILITY_TASK_STEP = create_enum('ABILITY_TASK_STEP', (('ERROR', 0, u'ошибка'),
                                                       ('LOGIC', 1, u'логика'),
@@ -14,10 +15,7 @@ ABILITY_TASK_STEP = create_enum('ABILITY_TASK_STEP', (('ERROR', 0, u'ошибк�
                                                       ('SUCCESS', 3, u'обработка завершена') ))
 
 class ArenaPvP1x1LeaveQueue(AbilityPrototype):
-
-    COST = 0
-    NAME = u'Выйти из очереди'
-    DESCRIPTION = u'Выйти из очереди на арену'
+    TYPE = ABILITY_TYPE.ARENA_PVP_1x1_LEAVE_QUEUE
 
     def use(self, data, step, main_task_id, storage, pvp_balancer, **kwargs):
 
