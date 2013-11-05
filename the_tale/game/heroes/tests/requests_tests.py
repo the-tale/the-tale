@@ -11,7 +11,7 @@ from the_tale.common.utils.testcase import TestCase
 from the_tale.common.postponed_tasks import PostponedTask, PostponedTaskPrototype
 from the_tale.common.utils.permissions import sync_group
 
-from the_tale.accounts.logic import register_user, login_url
+from the_tale.accounts.logic import register_user, login_page_url
 from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.game.relations import GENDER, RACE
@@ -50,7 +50,7 @@ class MyHeroRequestsTests(HeroRequestsTestBase):
     def test_unloginned(self):
         self.request_logout()
         url = reverse('game:heroes:my-hero')
-        self.check_redirect(url, login_url(url))
+        self.check_redirect(url, login_page_url(url))
 
     def test_redirect(self):
         self.check_redirect(reverse('game:heroes:my-hero'), reverse('game:heroes:show', args=[self.hero.id]))

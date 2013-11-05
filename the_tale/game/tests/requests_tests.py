@@ -11,7 +11,7 @@ from dext.utils import s11n
 from the_tale.common.utils.testcase import TestCase
 
 from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_url
+from the_tale.accounts.logic import register_user, login_page_url
 
 from the_tale.game.logic import create_test_map, game_info_url
 
@@ -48,7 +48,7 @@ class GamePageRequestTests(RequestTestsBase):
 
     def test_game_page_unlogined(self):
         self.request_logout()
-        self.check_redirect(reverse('game:'), login_url(reverse('game:')))
+        self.check_redirect(reverse('game:'), login_page_url(reverse('game:')))
 
     def test_game_page_logined(self):
         response = self.client.get(reverse('game:'))

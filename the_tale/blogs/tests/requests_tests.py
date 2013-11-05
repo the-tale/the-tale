@@ -10,7 +10,7 @@ from the_tale.common.utils.permissions import sync_group
 from the_tale.common.utils.testcase import TestCase
 
 from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_url
+from the_tale.accounts.logic import register_user, login_page_url
 
 from the_tale.game.logic import create_test_map
 
@@ -181,7 +181,7 @@ class TestNewRequests(BaseTestRequests):
     def test_unlogined(self):
         self.request_logout()
         url = reverse('blogs:posts:new')
-        self.check_redirect(url, login_url(url))
+        self.check_redirect(url, login_page_url(url))
 
     def test_is_fast(self):
         self.account_1.is_fast = True
@@ -389,7 +389,7 @@ class TestEditRequests(BaseTestRequests):
     def test_unlogined(self):
         self.request_logout()
         url = reverse('blogs:posts:edit', args=[self.post.id])
-        self.check_redirect(url, login_url(url))
+        self.check_redirect(url, login_page_url(url))
 
     def test_is_fast(self):
         self.account_1.is_fast = True

@@ -6,7 +6,7 @@ from the_tale.common.utils import testcase
 from the_tale.common.utils.permissions import sync_group
 
 from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_url
+from the_tale.accounts.logic import register_user, login_page_url
 
 
 from the_tale.game.logic import create_test_map
@@ -77,7 +77,7 @@ class KitsIndexTests(BaseRequestTests, KitVisibilityAllMixin):
         self.test_url = url('collections:kits:')
 
     def test_login_required(self):
-        self.check_redirect(self.test_url, login_url(self.test_url))
+        self.check_redirect(self.test_url, login_page_url(self.test_url))
 
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)
@@ -98,7 +98,7 @@ class KitsNewTests(BaseRequestTests, KitVisibilityAllMixin):
         self.test_url = url('collections:kits:new')
 
     def test_login_required(self):
-        self.check_redirect(self.test_url, login_url(self.test_url))
+        self.check_redirect(self.test_url, login_page_url(self.test_url))
 
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)
@@ -266,7 +266,7 @@ class KitsEditTests(BaseRequestTests, KitVisibilityAllMixin):
         self.test_url = url('collections:kits:edit', self.kit_2.id)
 
     def test_login_required(self):
-        self.check_redirect(self.test_url, login_url(self.test_url))
+        self.check_redirect(self.test_url, login_page_url(self.test_url))
 
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)

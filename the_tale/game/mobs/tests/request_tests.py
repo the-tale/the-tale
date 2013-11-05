@@ -12,7 +12,7 @@ from the_tale.common.utils.testcase import TestCase
 from the_tale.common.utils.permissions import sync_group
 
 from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_url
+from the_tale.accounts.logic import register_user, login_page_url
 
 from the_tale.game.logic import create_test_map
 
@@ -113,7 +113,7 @@ class TestNewRequests(BaseTestRequests):
     def test_unlogined(self):
         self.request_logout()
         request_url = reverse('game:mobs:new')
-        self.check_redirect(request_url, login_url(request_url))
+        self.check_redirect(request_url, login_page_url(request_url))
 
     def test_create_rights(self):
         self.check_html_ok(self.request_html(reverse('game:mobs:new')), texts=[('mobs.create_mob_rights_required', 1),
@@ -279,7 +279,7 @@ class TestEditRequests(BaseTestRequests):
     def test_unlogined(self):
         self.request_logout()
         request_url = reverse('game:mobs:edit', args=[self.mob.id])
-        self.check_redirect(request_url, login_url(request_url))
+        self.check_redirect(request_url, login_page_url(request_url))
 
     def test_enabled_state(self):
         self.mob.state = MOB_RECORD_STATE.ENABLED
@@ -373,7 +373,7 @@ class TestModerationPageRequests(BaseTestRequests):
     def test_unlogined(self):
         self.request_logout()
         request_url = reverse('game:mobs:moderate', args=[self.mob.id])
-        self.check_redirect(request_url, login_url(request_url))
+        self.check_redirect(request_url, login_page_url(request_url))
 
     def test_moderate_rights(self):
         self.check_html_ok(self.request_html(reverse('game:mobs:moderate', args=[self.mob.id])), texts=[('mobs.moderate_mob_rights_required', 1),

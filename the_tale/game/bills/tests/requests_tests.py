@@ -15,7 +15,7 @@ from the_tale.common.utils.testcase import TestCase
 from the_tale.common.utils.permissions import sync_group
 
 from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_url
+from the_tale.accounts.logic import register_user, login_page_url
 
 from the_tale.game.logic import create_test_map
 
@@ -277,7 +277,7 @@ class TestNewRequests(BaseTestRequests):
     def test_unlogined(self):
         self.request_logout()
         url_ = reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)
-        self.check_redirect(url_, login_url(url_))
+        self.check_redirect(url_, login_page_url(url_))
 
     def test_is_fast(self):
         self.account1.is_fast = True
@@ -655,7 +655,7 @@ class TestEditRequests(BaseTestRequests):
     def test_unlogined(self):
         self.request_logout()
         url = reverse('game:bills:edit', args=[self.bill.id])
-        self.check_redirect(url, login_url(url))
+        self.check_redirect(url, login_page_url(url))
 
     def test_is_fast(self):
         self.account1.is_fast = True
@@ -825,7 +825,7 @@ class TestModerationPageRequests(BaseTestRequests):
     def test_unlogined(self):
         self.request_logout()
         url = reverse('game:bills:moderate', args=[self.bill.id])
-        self.check_redirect(url, login_url(url))
+        self.check_redirect(url, login_page_url(url))
 
     def test_is_fast(self):
         self.account2.is_fast = True

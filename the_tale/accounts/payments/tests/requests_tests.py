@@ -16,7 +16,7 @@ from the_tale.bank.dengionline.conf import dengionline_settings
 from the_tale.game.logic import create_test_map
 
 from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_url
+from the_tale.accounts.logic import register_user, login_page_url
 
 from the_tale.accounts.payments.price_list import PURCHASES_BY_UID
 from the_tale.accounts.payments.conf import payments_settings
@@ -34,7 +34,7 @@ class PageRequestsMixin(object):
 
     def test_unlogined(self):
         self.request_logout()
-        self.check_redirect(self.page_url, login_url(self.page_url))
+        self.check_redirect(self.page_url, login_page_url(self.page_url))
 
     def test_buy_link(self):
         self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-dengionline-dialog-link', 2)])

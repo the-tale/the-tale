@@ -9,7 +9,7 @@ from the_tale.common.utils.testcase import TestCase
 from the_tale.common.utils.permissions import sync_group
 
 from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_url
+from the_tale.accounts.logic import register_user, login_page_url
 from the_tale.game.logic import create_test_map
 
 from the_tale.forum.models import Category, SubCategory, Thread, Post
@@ -100,7 +100,7 @@ class TestModerationNewThreadRequests(TestModeration):
 
     def test_unlogined_new_thread_page(self):
         request_url = url('forum:subcategories:new-thread', self.subcategory.id)
-        self.check_redirect(request_url, login_url(request_url))
+        self.check_redirect(request_url, login_page_url(request_url))
 
     def test_loggined_new_thread_page_in_closed_theme(self):
         self.request_login('main_user@test.com')
@@ -242,7 +242,7 @@ class TestModerationEditThreadRequests(TestModeration):
     # page
     def test_unlogined_user_edit_theme_page(self):
         request_url = url('forum:threads:edit', self.thread.id)
-        self.check_redirect(request_url, login_url(request_url))
+        self.check_redirect(request_url, login_page_url(request_url))
 
     @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_edit_theme_page__banned(self):
@@ -485,7 +485,7 @@ class TestModerationEditPostRequests(TestModeration):
     # edit post page
     def test_edit_page_unlogined(self):
         request_url = url('forum:posts:edit', self.post.id)
-        self.check_redirect(request_url, login_url(request_url))
+        self.check_redirect(request_url, login_page_url(request_url))
 
     def test_edit_page_fast_account(self):
         self.request_login('main_user@test.com')

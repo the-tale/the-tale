@@ -6,17 +6,15 @@ import mock
 from django.test import client
 from django.core.urlresolvers import reverse
 
-from dext.utils import s11n
 from dext.utils.urls import url
 
 from the_tale.common.utils.testcase import TestCase
 from the_tale.common.postponed_tasks import PostponedTaskPrototype
 
 from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_url
+from the_tale.accounts.logic import register_user, login_page_url
 
 from the_tale.game.logic import create_test_map
-from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 
@@ -50,7 +48,7 @@ class TestRequests(TestRequestsBase):
 
     def test_login_required(self):
         self.request_logout()
-        self.check_redirect(reverse('game:pvp:'), login_url(reverse('game:pvp:')))
+        self.check_redirect(reverse('game:pvp:'), login_page_url(reverse('game:pvp:')))
 
     def test_game_page_when_pvp_in_queue(self):
         self.pvp_create_battle(self.account_1, None)

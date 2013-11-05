@@ -7,7 +7,7 @@ from dext.utils.urls import url
 from the_tale.common.utils.testcase import TestCase
 
 from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_url
+from the_tale.accounts.logic import register_user, login_page_url
 from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 
 from the_tale.game.logic import create_test_map
@@ -92,7 +92,7 @@ class TestNewRequests(BaseTestRequests):
         self.new_url = url('accounts:clans:new')
 
     def test_login_required(self):
-        self.check_redirect(self.new_url, login_url(self.new_url))
+        self.check_redirect(self.new_url, login_page_url(self.new_url))
 
     def test_fast_account(self):
         self.request_login(self.account.email)
@@ -193,7 +193,7 @@ class TestEditRequests(BaseTestRequests):
 
     def test_login_required(self):
         self.request_logout()
-        self.check_redirect(self.edit_url, login_url(self.edit_url))
+        self.check_redirect(self.edit_url, login_page_url(self.edit_url))
 
     def test_ownership(self):
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
@@ -334,7 +334,7 @@ class MembershipForClanRequestsTests(BaseMembershipRequestsTests):
 
     def test_login_required(self):
         self.request_logout()
-        self.check_redirect(self.for_clan_url, login_url(self.for_clan_url))
+        self.check_redirect(self.for_clan_url, login_page_url(self.for_clan_url))
 
     def test_has_invite_rights(self):
         MembershipPrototype._model_class.objects.all().update(role=MEMBER_ROLE.MEMBER)
@@ -405,7 +405,7 @@ class MembershipForAccountRequestsTests(BaseMembershipRequestsTests):
 
     def test_login_required(self):
         self.request_logout()
-        self.check_redirect(self.for_account_url, login_url(self.for_account_url))
+        self.check_redirect(self.for_account_url, login_page_url(self.for_account_url))
 
     def test_no_requests(self):
         self.check_html_ok(self.request_html(self.for_account_url), texts=[('pgf-no-requests-message', 1)])
@@ -478,7 +478,7 @@ class MembershipInviteDialogRequestsTests(BaseMembershipRequestsTests):
 
     def test_login_required(self):
         self.request_logout()
-        self.check_redirect(self.invite_url, login_url(self.invite_url))
+        self.check_redirect(self.invite_url, login_page_url(self.invite_url))
 
     def test_invite_rights(self):
         self.clan.remove()
@@ -545,7 +545,7 @@ class MembershipRequestDialogRequestsTests(BaseMembershipRequestsTests):
 
     def test_login_required(self):
         self.request_logout()
-        self.check_redirect(self.request_url, login_url(self.request_url))
+        self.check_redirect(self.request_url, login_page_url(self.request_url))
 
     def test_in_clan(self):
         self.create_clan(self.account_2, 1)

@@ -11,7 +11,7 @@ from the_tale.common.postponed_tasks import PostponedTask, PostponedTaskPrototyp
 
 from the_tale.post_service.models import Message
 
-from the_tale.accounts.logic import register_user, login_url
+from the_tale.accounts.logic import register_user, login_page_url
 
 from the_tale.game.logic import create_test_map
 
@@ -30,7 +30,7 @@ class ProfileRequestsTests(TestCase):
         self.account = AccountPrototype.get_by_id(account_id)
 
     def test_profile_page_unlogined(self):
-        self.check_redirect(reverse('accounts:profile:show'), login_url(reverse('accounts:profile:show')))
+        self.check_redirect(reverse('accounts:profile:show'), login_page_url(reverse('accounts:profile:show')))
 
     def test_profile_page__fast_account(self):
         self.request_login('test_user@test.com')

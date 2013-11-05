@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from the_tale.common.utils.testcase import TestCase
 from the_tale.common.postponed_tasks import PostponedTask, PostponedTaskPrototype, FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
-from the_tale.accounts.logic import register_user, login_url
+from the_tale.accounts.logic import register_user, login_page_url
 from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.game.logic import create_test_map
@@ -1169,7 +1169,7 @@ class HeroPreferencesRequestsTest(TestCase):
 
     def test_preferences_dialog_unlogined(self):
         request_url = reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.ENEMY.value)
-        self.check_redirect(request_url, login_url(request_url))
+        self.check_redirect(request_url, login_page_url(request_url))
 
     def test_preferences_dialog_wrong_user(self):
         self.request_login('test_user_2@test.com')

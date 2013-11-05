@@ -18,7 +18,7 @@ from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 from the_tale.accounts.models import Award
 from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
 from the_tale.accounts.relations import AWARD_TYPE, BAN_TYPE, BAN_TIME
-from the_tale.accounts.logic import register_user, login_url
+from the_tale.accounts.logic import register_user, login_page_url
 from the_tale.accounts.conf import accounts_settings
 
 from the_tale.accounts.clans.prototypes import ClanPrototype
@@ -228,7 +228,7 @@ class AdminRequestsTests(AccountRequestsTests):
     def test_unlogined(self):
         self.request_logout()
         requested_url = url('accounts:admin', self.account1.id)
-        self.check_redirect(requested_url, login_url(requested_url))
+        self.check_redirect(requested_url, login_page_url(requested_url))
 
     def test_no_rights(self):
         self.request_login('test_user2@test.com')

@@ -7,7 +7,7 @@ from dext.utils.urls import url
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.logic import login_url
+from the_tale.accounts.logic import login_page_url
 
 from the_tale.game.logic import create_test_map
 
@@ -133,7 +133,7 @@ class TestNewThreadRequests(BaseTestRequests):
     def test_new_thread_unlogined(self):
         self.request_logout()
         request_url = url('forum:subcategories:new-thread', self.subcat1.id)
-        self.check_redirect(request_url, login_url(request_url))
+        self.check_redirect(request_url, login_page_url(request_url))
 
     def test_new_thread_fast(self):
         self.account.is_fast = True
@@ -506,7 +506,7 @@ class SubscriptionsTests(BaseTestRequests):
     def test_login_required(self):
         self.request_logout()
         request_url = url('forum:subscriptions:')
-        self.check_redirect(request_url, login_url(request_url))
+        self.check_redirect(request_url, login_page_url(request_url))
 
     def test_fast_account(self):
         self.account.is_fast = True

@@ -8,7 +8,7 @@ from the_tale.common.utils.testcase import TestCase
 from the_tale.game.logic import create_test_map
 
 from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_url, get_system_user
+from the_tale.accounts.logic import register_user, login_page_url, get_system_user
 
 from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 from the_tale.accounts.personal_messages.models import Message
@@ -53,7 +53,7 @@ class IndexRequestsTests(BaseRequestsTests):
 
     def test_unlogined_index(self):
         request_url = url('accounts:messages:')
-        self.check_redirect(request_url, login_url(request_url))
+        self.check_redirect(request_url, login_page_url(request_url))
 
     def test_fast_account(self):
         self.request_login('test_user1@test.com')
@@ -63,7 +63,7 @@ class IndexRequestsTests(BaseRequestsTests):
 
     def test_unlogined_sent(self):
         request_url = url('accounts:messages:sent')
-        self.check_redirect(request_url, login_url(request_url))
+        self.check_redirect(request_url, login_page_url(request_url))
 
     def test_index(self):
         self.request_login('test_user1@test.com')
@@ -115,7 +115,7 @@ class NewRequestsTests(BaseRequestsTests):
     def test_unlogined(self):
         self.request_logout()
         request_url = url('accounts:messages:new')
-        self.check_redirect(request_url, login_url(request_url))
+        self.check_redirect(request_url, login_page_url(request_url))
 
     def test_fast_account(self):
         self.request_login('test_user1@test.com')

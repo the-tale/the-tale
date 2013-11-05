@@ -12,7 +12,7 @@ from django.core.urlresolvers import reverse
 from the_tale.common.utils.testcase import TestCase
 from the_tale.common.postponed_tasks import PostponedTaskPrototype, FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
-from the_tale.accounts.logic import register_user, login_url
+from the_tale.accounts.logic import register_user, login_page_url
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
@@ -362,7 +362,7 @@ class HabilitiesViewsTest(TestCase):
 
     def test_choose_ability_dialog_anonymous(self):
         request_url = reverse('game:heroes:choose-ability-dialog', args=[self.hero.id])
-        self.check_redirect(request_url, login_url(request_url))
+        self.check_redirect(request_url, login_page_url(request_url))
 
     def test_choose_ability_dialog_wrong_user(self):
         self.request_login('test_user_2@test.com')

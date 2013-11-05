@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate as django_authenticate
 
 from the_tale.common.utils.testcase import TestCase
 
-from the_tale.accounts.logic import register_user, login_url
+from the_tale.accounts.logic import register_user, login_page_url
 
 from the_tale.game.logic import create_test_map
 
@@ -29,7 +29,7 @@ class TestIndexRequests(TestRequestsBase):
 
     def test_login_required(self):
         request_url = reverse('portal:developers-info:')
-        self.check_redirect(request_url, login_url(request_url))
+        self.check_redirect(request_url, login_page_url(request_url))
 
     def test_staff_required(self):
         self.request_login('test_user@test.com')
@@ -43,7 +43,7 @@ class TestMobsAndArtifactsRequests(TestRequestsBase):
 
     def test_login_required(self):
         request_url = reverse('portal:developers-info:mobs-and-artifacts')
-        self.check_redirect(request_url, login_url(request_url))
+        self.check_redirect(request_url, login_page_url(request_url))
 
     def test_staff_required(self):
         self.request_login('test_user@test.com')

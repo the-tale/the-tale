@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate as django_authenticate
 
 from the_tale.common.utils.testcase import TestCase
 
-from the_tale.accounts.logic import register_user, login_url
+from the_tale.accounts.logic import register_user, login_page_url
 from the_tale.game.logic import create_test_map
 
 from the_tale.cms.news.models import News
@@ -125,7 +125,7 @@ class TestRequests(TestCase):
     def test_post_on_forum_unloggined(self):
         self.prepair_forum()
 
-        self.check_redirect(reverse('news:publish-on-forum', args=[self.news1.id]), login_url(reverse('news:publish-on-forum', args=[self.news1.id])))
+        self.check_redirect(reverse('news:publish-on-forum', args=[self.news1.id]), login_page_url(reverse('news:publish-on-forum', args=[self.news1.id])))
 
         self.assertEqual(Thread.objects.all().count(), 0)
 
