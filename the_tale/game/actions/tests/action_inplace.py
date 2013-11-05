@@ -14,6 +14,7 @@ from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.balance import constants as c, formulas as f, enums as e
 
+
 class InPlaceActionTest(testcase.TestCase):
 
     def setUp(self):
@@ -168,6 +169,24 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_heal, money - self.hero.money)
         self.storage._test_save()
+
+    def test_instant_heal__to_much_health(self):
+        while not self.hero.next_spending._is_INSTANT_HEAL:
+            self.hero.switch_spending()
+
+        money = self._current_spending_cost()
+        health = (self.hero.max_health * c.SPEN_MONEY_FOR_HEAL_HEALTH_FRACTION) + 1
+
+        self.hero._model.money = money
+        self.hero.health = health
+        self.storage.process_turn()
+        self.assertTrue(self.hero.money, money)
+        self.assertEqual(self.hero.health, health)
+
+        self.assertEqual(self.hero.statistics.money_spend, 0)
+        self.assertEqual(self.hero.statistics.money_spend_for_heal, 0)
+        self.storage._test_save()
+
 
     def test_bying_artifact_with_hero_preferences(self):
         while not self.hero.next_spending._is_BUYING_ARTIFACT:
