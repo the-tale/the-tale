@@ -13,7 +13,7 @@
   <li>
     <a href="{{ url('game:bills:') }}">Политика</a><span class="divider">/</span>
   </li>
-  <li class="active">{{ bill.caption|capitalize }}</li>
+  <li class="active">{{ bill.caption }}</li>
 </ul>
 
 {{ bills_macros.bill_info(bill, vote) }}
