@@ -6,7 +6,7 @@ def login_required(func):
 
     @functools.wraps(func)
     def wrapper(resource, *argv, **kwargs):
-        from the_tale.accounts.logic import login_url
+        from the_tale.accounts.logic import login_page_url
 
         if resource.account.is_authenticated():
             return func(resource, *argv, **kwargs)
@@ -16,7 +16,7 @@ def login_required(func):
 
             if resource.request.is_ajax() or response_type == 'json':
                 return resource.auto_error('common.login_required', u'У Вас нет прав для проведения данной операции')
-            return resource.redirect(login_url(resource.request.get_full_path()))
+            return resource.redirect(login_page_url(resource.request.get_full_path()))
 
     return wrapper
 
