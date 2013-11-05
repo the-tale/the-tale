@@ -20,8 +20,6 @@ def send_to_s3(backupname, filename):
 
     print 'create connection'
 
-    print portal_settings.AWS_ACCESS_KEY, portal_settings.AWS_SECRET_KEY
-
     conn = S3Connection(portal_settings.AWS_ACCESS_KEY, portal_settings.AWS_SECRET_KEY)
 
     print 'get bucket'
