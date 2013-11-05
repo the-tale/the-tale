@@ -973,7 +973,7 @@ pgf.game.widgets.Abilities = function() {
         jQuery('.pgf-ability-arena_pvp_1x1').toggleClass('no-registration', !canParticipateInPvp).toggleClass('pgf-disable', !canParticipateInPvp);
         jQuery('.pgf-ability-building_repair').toggleClass('no-registration', !canRepairBuilding).toggleClass('pgf-disable', !canRepairBuilding);
 
-        jQuery('.pgf-ability-energycharge')
+        jQuery('.pgf-ability-energy_charge')
             .toggleClass('pgf-hidden', false)
             .toggleClass('no-charges', !hasEnergyCharges)
             .toggleClass('energy-exists', !canRestoreEnergy && hasEnergyCharges) // display this warning only if player has charges
