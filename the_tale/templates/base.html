@@ -262,7 +262,7 @@ jQuery(document).ready(function() {
 
     <footer role="contentinfo" class="container">
       <div class="row">
-        <div class="span12">
+        <div class="span9">
           <ul class="unstyled">
             <li><a href="{{url('guide:user-agreement')}}">пользовательское соглашение</a></li>
             <li>поддержка: <a href="mailto:{{ settings.EMAIL_SUPPORT }}">{{ settings.EMAIL_SUPPORT_SHORT }}</a></li>
@@ -270,6 +270,40 @@ jQuery(document).ready(function() {
             <li>© 2011-{{now().year}} {{settings.OWNER}}</li>
             <li>версия {{settings.META_CONFIG.version}}</li>
           </ul>
+        </div>
+        <div class="span3">
+{% if settings.MAIL_RU %}
+          <!-- Rating@Mail.ru counter -->
+<script type="text/javascript">//<![CDATA[
+var _tmr = _tmr || [];
+_tmr.push({id: "2422333",  type: "pageView", start: (new Date()).getTime()});
+(function (d, w) {
+   var ts = d.createElement("script"); ts.type = "text/javascript"; ts.async = true;
+   ts.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//top-fwz1.mail.ru/js/code.js";
+   var f = function () {var s = d.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ts, s);};
+   if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); }
+})(document, window);
+//]]></script><noscript><div style="position:absolute;left:-10000px;">
+<img src="//top-fwz1.mail.ru/counter?id=2422333;js=na" style="border:0;" height="1" width="1" alt="Рейтинг@Mail.ru" />
+</div></noscript>
+<!-- //Rating@Mail.ru counter -->
+<!-- Rating@Mail.ru logo -->
+<a target="_blank" href="http://top.mail.ru/jump?from=2422333">
+<img src="//top-fwz1.mail.ru/counter?id=2422333;t=432;l=1"
+border="0" height="31" width="88" alt="Рейтинг@Mail.ru"></a>
+<!-- //Rating@Mail.ru logo -->
+<!-- begin of Top100 code -->
+{% endif %}
+{% if settings.RAMBLER %}
+<script id="top100Counter" type="text/javascript" src="http://counter.rambler.ru/top100.jcn?2961354"></script>
+<noscript>
+<a href="http://top100.rambler.ru/navi/2961354/">
+<img src="http://counter.rambler.ru/top100.cnt?2961354" alt="Rambler's Top100" border="0" />
+</a>
+
+</noscript>
+<!-- end of Top100 code -->
+{% endif %}
         </div>
       </div>
     </footer>
