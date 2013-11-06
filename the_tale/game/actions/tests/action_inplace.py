@@ -1,5 +1,7 @@
 # coding: utf-8
 
+import mock
+
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
@@ -154,22 +156,24 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.storage._test_save()
 
 
+    @mock.patch('the_tale.game.balance.constants.PRICE_DELTA', 0.0)
     def test_instant_heal(self):
         while not self.hero.next_spending._is_INSTANT_HEAL:
             self.hero.switch_spending()
 
         money = self._current_spending_cost()
 
-        self.hero._model.money = money
+        self.hero._model.money = money + 666
         self.hero.health = 1
         self.storage.process_turn()
-        self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
+        self.assertEqual(self.hero.money, 666)
         self.assertEqual(self.hero.health, self.hero.max_health)
 
-        self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
-        self.assertEqual(self.hero.statistics.money_spend_for_heal, money - self.hero.money)
+        self.assertEqual(self.hero.statistics.money_spend, money)
+        self.assertEqual(self.hero.statistics.money_spend_for_heal, money)
         self.storage._test_save()
 
+    @mock.patch('the_tale.game.balance.constants.PRICE_DELTA', 0.0)
     def test_instant_heal__too_much_health(self):
         while not self.hero.next_spending._is_INSTANT_HEAL:
             self.hero.switch_spending()
@@ -177,14 +181,32 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         money = self._current_spending_cost()
         health = (self.hero.max_health * c.SPEND_MONEY_FOR_HEAL_HEALTH_FRACTION) + 1
 
-        self.hero._model.money = money
+        self.hero._model.money = money + 666
         self.hero.health = health
         self.storage.process_turn()
-        self.assertTrue(self.hero.money, money)
+        self.assertTrue(self.hero.money, money + 666)
         self.assertEqual(self.hero.health, health)
 
         self.assertEqual(self.hero.statistics.money_spend, 0)
         self.assertEqual(self.hero.statistics.money_spend_for_heal, 0)
+        self.storage._test_save()
+
+    @mock.patch('the_tale.game.balance.constants.PRICE_DELTA', 0.0)
+    def test_instant_heal__low_health(self):
+        while not self.hero.next_spending._is_INSTANT_HEAL:
+            self.hero.switch_spending()
+
+        money = self._current_spending_cost()
+        health = (self.hero.max_health * c.SPEND_MONEY_FOR_HEAL_HEALTH_FRACTION) - 1
+
+        self.hero._model.money = money
+        self.hero.health = health
+        self.storage.process_turn()
+        self.assertEqual(self.hero.money, 0)
+        self.assertEqual(self.hero.health, self.hero.max_health)
+
+        self.assertEqual(self.hero.statistics.money_spend, money)
+        self.assertEqual(self.hero.statistics.money_spend_for_heal, money)
         self.storage._test_save()
 
 

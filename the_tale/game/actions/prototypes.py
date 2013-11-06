@@ -949,7 +949,7 @@ class ActionInPlacePrototype(ActionBase):
 
     @staticmethod
     def get_spend_amount(level, spending):
-        return f.normal_action_price(level) * spending.price_fraction
+        return int(f.normal_action_price(level) * spending.price_fraction)
 
     def try_to_spend_money(self):
         gold_amount = self.get_spend_amount(self.hero.level, self.hero.next_spending)
