@@ -963,7 +963,7 @@ class ActionInPlacePrototype(ActionBase):
         return None
 
     def spend_money__instant_heal(self):
-        if self.hero.health > self.hero.max_health * c.SPEN_MONEY_FOR_HEAL_HEALTH_FRACTION:
+        if self.hero.health > self.hero.max_health * c.SPEND_MONEY_FOR_HEAL_HEALTH_FRACTION:
             return
 
         coins = self.try_to_spend_money()

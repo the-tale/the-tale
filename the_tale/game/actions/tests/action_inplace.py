@@ -170,12 +170,12 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend_for_heal, money - self.hero.money)
         self.storage._test_save()
 
-    def test_instant_heal__to_much_health(self):
+    def test_instant_heal__too_much_health(self):
         while not self.hero.next_spending._is_INSTANT_HEAL:
             self.hero.switch_spending()
 
         money = self._current_spending_cost()
-        health = (self.hero.max_health * c.SPEN_MONEY_FOR_HEAL_HEALTH_FRACTION) + 1
+        health = (self.hero.max_health * c.SPEND_MONEY_FOR_HEAL_HEALTH_FRACTION) + 1
 
         self.hero._model.money = money
         self.hero.health = health
