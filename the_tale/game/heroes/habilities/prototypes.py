@@ -17,6 +17,8 @@ class AbilityPrototype(object):
     DESCRIPTIN = u''
     MAX_LEVEL = 5
 
+    __slots__ = ('level', )
+
     def __init__(self, level=1):
         self.level = level
 

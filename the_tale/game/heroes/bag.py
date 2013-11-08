@@ -10,6 +10,8 @@ class EquipmentException(Exception): pass
 
 class Bag(object):
 
+    __init__ = ('next_uuid', 'updated', 'bag')
+
     def __init__(self):
         self.next_uuid = 0
         self.updated = True
@@ -68,12 +70,11 @@ class Bag(object):
 
 class Equipment(object):
 
-    RINGS_NUMBER = 4
+    __slots__ = ('equipment', 'updated')
 
     def __init__(self):
         self.equipment = {}
         self.updated = True
-
 
     def get_power(self):
         power = 0

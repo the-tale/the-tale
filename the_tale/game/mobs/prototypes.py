@@ -28,6 +28,8 @@ class MobException(Exception): pass
 
 class MobPrototype(object):
 
+    __slots__ = ('record', 'level', 'abilities', 'initiative', 'health_cooficient', 'damage_modifier', 'max_health', 'health')
+
     def __init__(self, record=None, level=None, health=None, abilities=None):
 
         self.record = record

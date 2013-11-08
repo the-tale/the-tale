@@ -19,9 +19,10 @@ class MONEY_SOURCE:
 
 class HeroStatistics(object):
 
+    __slots__ = ('hero_model', )
+
     def __init__(self, hero_model):
         self.hero_model = hero_model
-
 
     #########################################
     # kills

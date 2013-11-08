@@ -17,6 +17,8 @@ from the_tale.game.artifacts.relations import ARTIFACT_TYPE
 
 class ArtifactPrototype(object):
 
+    __slots__ = ('record', 'power', 'level', 'bag_uuid')
+
     def __init__(self, record=None, power=None, bag_uuid=None, level=0):
         self.record = record
         self.power = power

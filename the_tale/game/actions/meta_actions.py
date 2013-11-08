@@ -175,7 +175,6 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
     def reset_hero_info(cls, hero):
         hero.pvp.advantage = 0
         hero.pvp.effectiveness = c.PVP_EFFECTIVENESS_INITIAL
-        hero.pvp.effectiveness_modified = 0
         hero.pvp.energy = 0
         hero.pvp.energy_speed = 1
 

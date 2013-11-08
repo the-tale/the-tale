@@ -763,7 +763,7 @@ class HeroPreferencesEnemyTest(TestCase):
     def test_reset_enemy_on_highlevel_update(self):
         enemy = self.place_1.persons[0]
 
-        self.hero.preferences.enemy_id = enemy.id
+        self.hero.preferences.set_enemy(enemy)
         self.hero.save()
 
         enemy.move_out_game()

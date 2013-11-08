@@ -10,6 +10,8 @@ from the_tale.game.heroes.conf import heroes_settings
 
 class MessagesContainer(object):
 
+    __slots__ = ('messages', 'updated')
+
     def __init__(self):
         self.messages = []
         self.updated = False

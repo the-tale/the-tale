@@ -4,6 +4,8 @@ from the_tale.game.pvp.abilities import Ice, Blood, Flame
 
 class PvPData(object):
 
+    __slots__ = ('updated', '_advantage', '_effectiveness', '_energy', '_energy_speed', 'turn_advantage', 'turn_effectiveness', 'turn_energy', 'turn_energy_speed')
+
     def __init__(self):
         self.updated = False
 

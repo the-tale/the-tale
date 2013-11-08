@@ -79,6 +79,7 @@ class _PreferencesMetaclass(type):
 class HeroPreferences(object):
 
     __metaclass__ = _PreferencesMetaclass
+    __slots__ = ('data', 'updated', 'hero_id')
 
     def __init__(self, hero_id):
         self.data = {}

@@ -9,6 +9,8 @@ from the_tale.game.heroes.conf import heroes_settings
 
 class PlacesHelpStatistics(object):
 
+    __slots__ = ('history', 'updated')
+
     def __init__(self):
         self.history = []
         self.updated = False

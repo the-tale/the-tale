@@ -8,6 +8,8 @@ from the_tale.game.actions.contexts.battle import Damage
 
 class Actor(object):
 
+    __slots__ = ('actor', 'context', 'messages')
+
     def __init__(self, actor, context):
         self.actor = actor
         self.context = context

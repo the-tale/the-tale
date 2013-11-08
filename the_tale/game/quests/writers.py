@@ -9,6 +9,8 @@ logger = getLogger('the-tale.workers.game_logic')
 
 class Writer(object):
 
+    __init__ = ('type', 'message', 'substitution')
+
     def __init__(self, type, message, substitution):
         self.type = type
         self.message = message

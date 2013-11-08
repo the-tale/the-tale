@@ -21,6 +21,8 @@ __all__ = ['ABILITIES', 'ABILITY_LOGIC_TYPE', 'ABILITY_TYPE', 'ABILITY_AVAILABIL
 
 class AbilitiesPrototype(object):
 
+    __slots__ = ('abilities', 'reseted_at', 'destiny_points_spend', 'updated')
+
     def __init__(self):
         self.abilities = {}
         self.reseted_at = datetime.datetime.now()

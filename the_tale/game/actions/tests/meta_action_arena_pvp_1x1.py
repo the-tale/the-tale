@@ -47,12 +47,10 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
         # for test data reset
         self.hero_1.health = self.hero_1.max_health / 2
         self.hero_1.pvp.advantage = 1
-        self.hero_1.pvp.rage = 390
         self.hero_1.pvp.effectiveness = 0.5
 
         # for test data reset
         self.hero_2.pvp.advantage = 1
-        self.hero_2.pvp.rage = 390
         self.hero_2.pvp.effectiveness = 0.5
 
         self.battle_1 = self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
