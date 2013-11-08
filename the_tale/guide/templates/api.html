@@ -53,6 +53,17 @@
   <li>Взаимодействие происходит по протоколу http;</li>
   <li>Ответ возвращается в формате JSON;</li>
   <li>Сессии реализуются через передачу cookie с именем sessionid; в случае, если в запросе cookie не указана, сервер создаст новую сессию и вернёт соответствующее значение cookie;</li>
+  <li>
+    Для защиты от <a href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">CSRF</a> (так как фунционал браузерной версии также построен на API), каждый POST запрос должен иметь cookie с именем csrftoken и либо POST параметр csrfmiddlewaretoken, либо заголовок X-CSRFToken, установленные в значение этой cookie. Для получения cookie достаточно сделать любой запрос к игре.
+  </li>
+  <li>
+    Примеры запросов на логин с использованием curl:
+<pre>
+curl -b "sessionid=kwc2ngq02dilu56ti76nj21z18wzaghe csrftoken=wxiefxk7i6kvkUeyi4jU2xO0B96RwvJc" -d "email=email@gmail.com&password=11111"  -H "X-CSRFToken: wxiefxk7i6kvkUeyi4jU2xO0B96RwvJc" "http://localhost:8000/accounts/auth/api/login?api_version=1.0&api_client=SASS-asas"
+
+curl -b "sessionid=kwc2ngq02dilu56ti76nj21z18wzaghe csrftoken=wxiefxk7i6kvkUeyi4jU2xO0B96RwvJc" -d "email=email@gmail.com&password=111111&csrfmiddlewaretoken=wxiefxk7i6kvUeyi4jU2xO0B96RwvJc" "http://localhost:8000/accounts/auth/api/login?api_version=1.0&api_client=SASS-asas"
+</pre>
+  </li>
 </ul>
 
 <h4>Формат запроса</h4>

@@ -125,6 +125,8 @@ class AuthResource(BaseAccountsResource):
     {
       "next_url": "относительный url", // адрес, переданный при вызове метода или "/"
     }
+
+При успешно выполнении запроса, будет установлено значение cookie с именем sessionid, которая и является идентификатором сессии пользователя.
         '''
 
         login_form = forms.LoginForm(self.request.POST)
