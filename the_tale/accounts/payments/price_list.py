@@ -93,6 +93,13 @@ PRICE_LIST = [  PremiumDays(uid=u'subscription-7',
                               charges_number=10,
                               transaction_description=u'Покупка 10 зарядов энергии.'),
 
+                EnergyCharges(uid=u'energy-charge-100',
+                              name=u'100 зарядов энергии',
+                              description=ENERGY_CHARGES_DESCRIPTION,
+                              cost=700,
+                              charges_number=100,
+                              transaction_description=u'Покупка 100 зарядов энергии.'),
+
                 permanent_permission_purchase(uid=u'preference-place',
                                               cost=10,
                                               purchase_type=PERMANENT_PURCHASE_TYPE.PREFERENCE_PLACE),
