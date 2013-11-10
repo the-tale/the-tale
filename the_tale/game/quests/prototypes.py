@@ -208,7 +208,7 @@ NO_QUEST_INFO = QuestInfo(type='no-quest',
 
 class QuestPrototype(object):
 
-    def __init__(self, hero, knowledge_base, quests_stack=None, created_at=None, replane_required=False, states_to_percents=None):
+    def __init__(self, hero, knowledge_base, quests_stack=None, created_at=None, states_to_percents=None):
         self.hero = hero
         self.quests_stack = [] if quests_stack is None else quests_stack
         self.knowledge_base = knowledge_base
@@ -217,14 +217,12 @@ class QuestPrototype(object):
                                on_jump_start=self.on_jump_start,
                                on_jump_end=self.on_jump_end)
         self.created_at =datetime.datetime.now() if created_at is None else created_at
-        self.replane_required = replane_required
         self.states_to_percents = states_to_percents if states_to_percents is not None else {}
 
     def serialize(self):
         return {'quests_stack': [info.serialize() for info in self.quests_stack],
                 'knowledge_base': self.knowledge_base.serialize(short=True),
                 'created_at': time.mktime(self.created_at.timetuple()),
-                'replane_required': self.replane_required,
                 'states_to_percents': self.states_to_percents,}
 
     @classmethod
@@ -232,7 +230,6 @@ class QuestPrototype(object):
         return cls(knowledge_base=KnowledgeBase.deserialize(data['knowledge_base'], fact_classes=facts.FACTS),
                    quests_stack=[QuestInfo.deserialize(info_data) for info_data in data['quests_stack']],
                    created_at=datetime.datetime.fromtimestamp(data['created_at']),
-                   replane_required=data['replane_required'],
                    states_to_percents=data['states_to_percents'],
                    hero=hero)
 
@@ -264,7 +261,7 @@ class QuestPrototype(object):
         if self.quests_stack:
             self.quests_stack[-1].sync_choices(self.knowledge_base, self.hero, *self.get_nearest_choice())
 
-        self.replane_required = True
+        self.hero.actions.request_replane()
         return True
 
     ###########################################
@@ -283,7 +280,6 @@ class QuestPrototype(object):
         return 1
 
     def do_step(self):
-        self.replane_required = False
 
         self.hero.quests.updated = True
 

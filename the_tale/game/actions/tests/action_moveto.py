@@ -204,13 +204,11 @@ class MoveToActionTest(testcase.TestCase):
             self.storage.process_turn(second_step_if_needed=False)
 
         with mock.patch('the_tale.game.quests.container.QuestsContainer.has_quests', True):
-            with mock.patch('the_tale.game.quests.container.QuestsContainer.current_quest', mock.Mock(replane_required=False)):
-                self.storage.process_turn(second_step_if_needed=False)
-
+            self.storage.process_turn(second_step_if_needed=False)
+            self.assertFalse(self.action_move.replane_required)
             self.assertEqual(self.action_move.state, ActionMoveToPrototype.STATE.MOVING)
-
-            with mock.patch('the_tale.game.quests.container.QuestsContainer.current_quest', mock.Mock(replane_required=True)):
-                self.storage.process_turn(second_step_if_needed=False)
+            self.action_move.replane_required = True
+            self.storage.process_turn(second_step_if_needed=False)
 
         self.assertEqual(self.action_move.state, ActionMoveToPrototype.STATE.PROCESSED)
 

@@ -27,6 +27,9 @@ game_settings = app_settings('GAME',
 
                              JS_CONSTNATS_FILE_LOCATION='./the_tale/static/game/data/constants.js',
 
+                             COLLECT_GARBAGE=True,
+                             UNLOAD_OBJECTS=True,
+
                              TEXTGEN_SOURCES_DIR=os.path.join(APP_DIR, 'fixtures', 'textgen', 'texts_src'),
                              TEXTGEN_VOCABULARY=os.path.join(APP_DIR, 'fixtures', 'textgen', 'vocabulary.json'),
                              TEXTGEN_STORAGE_VOCABULARY=os.path.join(APP_DIR, 'fixtures', 'textgen', 'storage', 'vocabulary.json'),

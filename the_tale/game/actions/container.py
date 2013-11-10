@@ -47,3 +47,7 @@ class ActionsContainer(object):
     def reset_to_idl(self):
         self.actions_list = self.actions_list[:1]
         self.updated = True
+
+    def request_replane(self):
+        for action in self.actions_list:
+            action.replane_required = True

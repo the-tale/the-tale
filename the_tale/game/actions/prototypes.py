@@ -62,7 +62,8 @@ class ActionBase(object):
                   'hero_health_lost',
                   'back',
                   'info_link',
-                  'meta_action_id')
+                  'meta_action_id',
+                  'replane_required')
 
 
     class STATE:
@@ -98,7 +99,8 @@ class ActionBase(object):
                  hero_health_lost=0,
                  back=False,
                  info_link=None,
-                 meta_action_id=None):
+                 meta_action_id=None,
+                 replane_required=False):
 
         self.hero = hero
 
@@ -142,6 +144,8 @@ class ActionBase(object):
 
         self.info_link = info_link
 
+        self.replane_required = replane_required
+
 
     def serialize(self):
         data = {'type': self.TYPE,
@@ -150,6 +154,8 @@ class ActionBase(object):
                 'percents': self.percents,
                 'description': self.description,
                 'created_at_turn': self.created_at_turn}
+        if self.replane_required:
+            data['replane_required'] = self.replane_required
         if self.context:
             data['context'] = self.context.serialize()
         if self.place_id is not None:
@@ -603,10 +609,9 @@ class ActionMoveToPrototype(ActionBase):
             self.state = self.STATE.RESTING
             return True
 
-        if self.hero.quests.has_quests:
-            if self.hero.quests.current_quest.replane_required:
-                self.state = self.STATE.PROCESSED
-                return True
+        if self.replane_required:
+            self.state = self.STATE.PROCESSED
+            return True
 
         return False
 
@@ -1284,10 +1289,9 @@ class ActionMoveNearPlacePrototype(ActionBase):
             self.state = self.STATE.RESTING
             return True
 
-        if self.hero.quests.has_quests:
-            if self.hero.quests.current_quest.replane_required:
-                self.state = self.STATE.PROCESSED
-                return True
+        if self.replane_required:
+            self.state = self.STATE.PROCESSED
+            return True
 
         return False
 

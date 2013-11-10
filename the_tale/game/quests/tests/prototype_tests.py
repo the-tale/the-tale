@@ -66,11 +66,6 @@ class PrototypeTests(testcase.TestCase):
                              if location.object == uids.hero(self.hero)).next()
         return kb[hero_position_uid].externals['id']
 
-    def test_replane_required__reset_on_do_step(self):
-        self.quest.replane_required = True
-        self.quest.do_step()
-        self.assertFalse(self.quest.replane_required)
-
     def test_do_step(self):
         self.hero.quests.updated = False
         self.quest.process()

@@ -33,7 +33,7 @@ class BasePvPAbility(object):
     def apply(self): raise NotImplementedError
 
     def miss(self):
-        self.hero.pvp.energy = 0
+        self.hero.pvp.set_energy(0)
         self.hero.add_message('pvp_miss_ability', hero=self.hero)
         self.enemy.add_message('pvp_miss_ability', turn_delta=1, hero=self.hero)
 
@@ -47,8 +47,8 @@ class Ice(BasePvPAbility):
     def get_probability(energy, energy_speed): return min(1.0, energy * 10 / 100.0 / energy_speed)
 
     def apply(self):
-        self.hero.pvp.energy_speed += 1
-        self.hero.pvp.energy = 0
+        self.hero.pvp.set_energy_speed(self.hero.pvp.energy_speed + 1)
+        self.hero.pvp.set_energy(0)
         self.hero.add_message('pvp_use_ability_%s' % self.TYPE, hero=self.hero)
         self.enemy.add_message('pvp_use_ability_%s' % self.TYPE, turn_delta=1, hero=self.hero)
 
@@ -68,8 +68,8 @@ class Blood(BasePvPAbility):
 
     def apply(self):
         effectiveness_delta = int(round(c.PVP_EFFECTIVENESS_STEP * self.modify_effect(1.0)*(1 + self.hero.might_pvp_effectiveness_bonus)))
-        self.hero.pvp.effectiveness += effectiveness_delta
-        self.hero.pvp.energy = 0
+        self.hero.pvp.set_effectiveness(self.hero.pvp.effectiveness + effectiveness_delta)
+        self.hero.pvp.set_energy(0)
         self.hero.add_message('pvp_use_ability_%s' % self.TYPE, hero=self.hero, effectiveness=effectiveness_delta)
         self.enemy.add_message('pvp_use_ability_%s' % self.TYPE, turn_delta=1, hero=self.hero, effectiveness=effectiveness_delta)
 
@@ -84,8 +84,8 @@ class Flame(BasePvPAbility):
 
     def apply(self):
         if self.enemy.pvp.energy_speed > 1:
-            self.enemy.pvp.energy_speed -= 1
-        self.hero.pvp.energy = 0
+            self.enemy.pvp.set_energy_speed(self.enemy.pvp.energy_speed - 1)
+        self.hero.pvp.set_energy(0)
         self.hero.add_message('pvp_use_ability_%s' % self.TYPE, hero=self.hero)
         self.enemy.add_message('pvp_use_ability_%s' % self.TYPE, turn_delta=1, hero=self.hero)
 

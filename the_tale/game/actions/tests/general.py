@@ -167,7 +167,8 @@ class GeneralTest(testcase.TestCase):
                                      hero_health_lost=20,
                                      back=True,
                                      info_link='/bla-bla',
-                                     meta_action_id=7)
+                                     meta_action_id=7,
+                                     replane_required=True)
 
         self.assertEqual(default_action.serialize(), {'bundle_id': self.bundle_id,
                                                       'state': TestAction.STATE.UNINITIALIZED,
@@ -190,6 +191,7 @@ class GeneralTest(testcase.TestCase):
                                                       'place_id': 2,
                                                       'data': {'xxx': 'yyy'},
                                                       'info_link': '/bla-bla',
-                                                      'break_at': 0.75})
+                                                      'break_at': 0.75,
+                                                      'replane_required': True})
 
         self.assertEqual(default_action, TestAction.deserialize(self.hero, default_action.serialize()))

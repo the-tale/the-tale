@@ -59,7 +59,7 @@ class MessagesContainer(object):
         return {'messages': self.messages}
 
     @classmethod
-    def deserialize(cls, data):
+    def deserialize(cls, hero, data):
         obj = cls()
         obj.messages = data['messages']
         return obj

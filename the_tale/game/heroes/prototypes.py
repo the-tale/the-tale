@@ -59,6 +59,10 @@ class HeroPrototype(BasePrototype):
                       'ban_state_end_at',
                       'energy_charges')
     _get_by = ('id', 'account_id')
+    _serialization_proxies = (('quests', QuestsContainer, heroes_settings.UNLOAD_TIMEOUT),
+                              ('places_history', PlacesHelpStatistics, heroes_settings.UNLOAD_TIMEOUT),
+                              ('pvp', PvPData, heroes_settings.UNLOAD_TIMEOUT),
+                              ('diary', MessagesContainer, heroes_settings.UNLOAD_TIMEOUT))
 
     @classmethod
     def live_query(cls): return cls._model_class.objects.filter(is_fast=False, is_bot=False)
@@ -212,10 +216,6 @@ class HeroPrototype(BasePrototype):
         random.setstate(random_state)
 
         return abilities
-
-
-    @lazy_property
-    def places_history(self): return PlacesHelpStatistics.deserialize(s11n.from_json(self._model.places_history))
 
     def get_special_quests(self):
         from questgen.quests.hunt import Hunt
@@ -620,16 +620,7 @@ class HeroPrototype(BasePrototype):
     def actions(self): return ActionsContainer.deserialize(self, s11n.from_json(self._model.actions))
 
     @lazy_property
-    def quests(self): return QuestsContainer.deserialize(self, s11n.from_json(self._model.quests))
-
-    @lazy_property
-    def pvp(self): return PvPData.deserialize(s11n.from_json(self._model.pvp))
-
-    @lazy_property
-    def messages(self): return MessagesContainer.deserialize(s11n.from_json(self._model.messages))
-
-    @lazy_property
-    def diary(self): return MessagesContainer.deserialize(s11n.from_json(self._model.diary))
+    def messages(self): return MessagesContainer.deserialize(self, s11n.from_json(self._model.messages))
 
     def push_message(self, msg, diary=False, journal=True):
         if journal:
@@ -682,16 +673,14 @@ class HeroPrototype(BasePrototype):
             self.abilities.updated = False
 
         if self.places_history.updated:
-            self._model.places_history = s11n.to_json(self.places_history.serialize())
-            self.places_history.updated = False
+            self.places_history.serialize()
 
         if self.messages.updated:
             self._model.messages = s11n.to_json(self.messages.serialize())
             self.messages.updated = False
 
         if self.diary.updated:
-            self._model.diary = s11n.to_json(self.diary.serialize())
-            self.diary.updated = False
+            self.diary.serialize()
 
         if self.actions.updated:
             self.actions.on_save()
@@ -700,12 +689,10 @@ class HeroPrototype(BasePrototype):
 
         if self.quests.updated:
             self._model.quest_created_time = self.quests.min_quest_created_time
-            self._model.quests = s11n.to_json(self.quests.serialize())
-            self.quests.updated = False
+            self.quests.serialize()
 
         if self.pvp.updated:
-            self._model.pvp = s11n.to_json(self.pvp.serialize())
-            self.pvp.updated = False
+            self.pvp.serialize()
 
         if self.preferences.updated:
             self._model.preferences = s11n.to_json(self.preferences.serialize())
@@ -714,6 +701,12 @@ class HeroPrototype(BasePrototype):
         database.raw_save(self._model)
 
         self.force_save_required = False
+
+    def postturn_operations(self):
+        self.quests.try_unload()
+        self.diary.try_unload()
+        self.pvp.try_unload()
+        self.places_history.try_unload()
 
     def reset_level(self):
         self._model.level = 1

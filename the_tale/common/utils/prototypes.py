@@ -1,6 +1,72 @@
 # coding: utf-8
+import time
+
+from dext.utils import s11n
+
+from the_tale.common.utils.decorators import lazy_property
+
 
 class PrototypeError(Exception): pass
+
+
+
+def _serialization_proxy(Class, field_name, unload_after):
+
+    class SerializationProxy(object):
+
+        __slots__ = ('_prototype', '_object', '_accessed_at')
+
+        def __init__(self, prototype):
+            self._prototype = prototype
+            self._object = None
+            self._accessed_at = 0
+
+        def _load_object(self):
+            self._object = Class.deserialize(self._prototype, s11n.from_json(getattr(self._prototype._model, field_name)))
+
+        def _unload_object(self):
+            self.serialize()
+            del self._object
+            self._object = None
+            self._accessed_at = 0
+
+        def updated_get(self):
+            return self._object is not None and self._object.updated
+
+        def updated_set(self, value):
+            if self._object is None:
+                self._load_object()
+            self._object.updated = value
+
+        updated = property(updated_get, updated_set)
+
+        def serialize(self, **kwargs):
+            if self._object is None:
+                return
+            self._object.updated = False
+            setattr(self._prototype._model, field_name, s11n.to_json(self._object.serialize(**kwargs)))
+
+        def __getattr__(self, name):
+            if self._object is None:
+                self._load_object()
+            self._accessed_at = time.time()
+            return getattr(self._object, name)
+
+        def unload_if_can(self, timestamp):
+            if timestamp < self._accessed_at + unload_after:
+                return
+            self._unload_object()
+
+        def __len__(self):
+            if self._object is None:
+                self._load_object()
+            self._accessed_at = time.time()
+            return self._object.__len__()
+
+
+    SerializationProxy.__name__ = '%sSerializationProxy' % Class.__name__
+
+    return SerializationProxy
 
 
 class _PrototypeMetaclass(type):
@@ -40,6 +106,17 @@ class _PrototypeMetaclass(type):
 
         return classmethod(get_list_by)
 
+    @classmethod
+    def create_serialization_proxy(cls, Class, field_name, unload_after):
+        ProxyClass = _serialization_proxy(Class=Class, field_name=field_name, unload_after=unload_after)
+
+        def proxy(self):
+            return ProxyClass(prototype=self)
+
+        proxy.__name__ = field_name
+
+        return proxy
+
 
     def __new__(mcs, name, bases, attributes):
 
@@ -71,6 +148,12 @@ class _PrototypeMetaclass(type):
                 raise PrototypeError('can not set attribute "%s" class has already had attribue with such name' % method_name)
             attributes[method_name] = mcs.create_get_list_by(method_name, get_by_attribute)
 
+        serialization_proxies = attributes.get('_serialization_proxies', ())
+        for proxy_field, proxy_class, unload_after in serialization_proxies:
+            if proxy_field in attributes:
+                raise PrototypeError('can not set attribute "%s" class has already had attribue with such name' % proxy_field)
+            attributes[proxy_field] = lazy_property(mcs.create_serialization_proxy(Class=proxy_class, field_name=proxy_field, unload_after=unload_after))
+
         return super(_PrototypeMetaclass, mcs).__new__(mcs, name, bases, attributes)
 
 
@@ -83,6 +166,7 @@ class BasePrototype(object):
     _readonly = ()
     _bidirectional = ()
     _get_by = ()
+    _serialization_proxies = ()
 
     def __init__(self, model):
         self._model = model
@@ -95,6 +179,10 @@ class BasePrototype(object):
 
     def save(self):
         self._model.save()
+
+    def unload_serializable_items(self, timestamp):
+        for field_name, Class, timeout in self._serialization_proxies:
+            getattr(self, field_name).unload_if_can(timestamp)
 
     @classmethod
     def from_query(cls, query):

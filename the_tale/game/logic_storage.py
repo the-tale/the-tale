@@ -1,5 +1,7 @@
 # coding: utf-8
 
+import time
+
 from dext.utils import cache
 
 from the_tale.game.heroes.prototypes import HeroPrototype
@@ -139,6 +141,9 @@ class LogicStorage(object):
 
             if leader_action.removed and leader_action.bundle_id != hero.actions.current_action.bundle_id:
                 self.skipped_heroes.add(hero.id)
+
+            if game_settings.UNLOAD_OBJECTS:
+                hero.unload_serializable_items(time.time())
 
     def _save_on_exception(self, excluded_bundle_id):
         for hero_id, hero in self.heroes.iteritems():

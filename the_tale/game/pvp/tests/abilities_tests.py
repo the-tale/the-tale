@@ -37,7 +37,7 @@ class AbilitiesTests(testcase.TestCase):
         self.assertEqual(self.enemy.pvp.energy_speed, 1)
 
     def test_flame_apply(self):
-        self.enemy.pvp.energy_speed = 100
+        self.enemy.pvp.set_energy_speed(100)
         ability = Flame(hero=self.hero, enemy=self.enemy)
         ability.apply()
         self.assertTrue(self.enemy.pvp.energy_speed < 100)
@@ -48,22 +48,22 @@ class AbilitiesTests(testcase.TestCase):
         ability.apply()
         self.assertEqual(self.hero.pvp.effectiveness,  0)
 
-        self.hero.pvp.energy = 1
+        self.hero.pvp.set_energy(1)
         ability.apply()
         self.assertTrue(self.hero.pvp.effectiveness > 0)
 
 
     def test_blood_apply__with_might(self):
-        self.hero.pvp.energy = 1000
+        self.hero.pvp.set_energy(1000)
         self.assertEqual(self.hero.pvp.effectiveness, 0)
         ability = Blood(hero=self.hero, enemy=self.enemy)
         ability.apply()
 
         clean_effectiveness = self.hero.pvp.effectiveness
 
-        self.hero.pvp.energy = 1000
+        self.hero.pvp.set_energy(1000)
         self.hero.might = 10000
-        self.hero.pvp.effectiveness = 0
+        self.hero.pvp.set_effectiveness(0)
         ability = Blood(hero=self.hero, enemy=self.enemy)
         ability.apply()
 

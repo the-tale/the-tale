@@ -1,5 +1,5 @@
 # coding: utf-8
-
+import gc
 import datetime
 
 from django.utils.log import getLogger
@@ -14,6 +14,7 @@ from the_tale.common import postponed_tasks
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.workers.environment import workers_environment as game_environment
+from the_tale.game.conf import game_settings
 
 
 class LogicException(Exception): pass
@@ -88,6 +89,9 @@ class Worker(BaseWorker):
             log_sql_queries(turn_number)
 
         game_environment.supervisor.cmd_answer('next_turn', self.worker_id)
+
+        if game_settings.COLLECT_GARBAGE:
+            gc.collect()
 
     def cmd_stop(self):
         return self.send_cmd('stop')

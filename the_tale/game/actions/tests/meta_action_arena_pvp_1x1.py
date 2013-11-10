@@ -46,12 +46,12 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
 
         # for test data reset
         self.hero_1.health = self.hero_1.max_health / 2
-        self.hero_1.pvp.advantage = 1
-        self.hero_1.pvp.effectiveness = 0.5
+        self.hero_1.pvp.set_advantage(1)
+        self.hero_1.pvp.set_effectiveness(0.5)
 
         # for test data reset
-        self.hero_2.pvp.advantage = 1
-        self.hero_2.pvp.effectiveness = 0.5
+        self.hero_2.pvp.set_advantage(1)
+        self.hero_2.pvp.set_effectiveness(0.5)
 
         self.battle_1 = self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.battle_1.calculate_rating = True
@@ -181,7 +181,7 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
         self.assertEqual(meta_action_process_counter.call_count, 1)
 
     def test_update_hero_pvp_info(self):
-        self.hero_2.pvp.effectiveness = 50
+        self.hero_2.pvp.set_effectiveness(50)
 
         self.meta_action_battle.update_hero_pvp_info(self.hero_2)
         self.assertTrue(self.hero_2.pvp.energy > self.hero_1.pvp.energy)
@@ -189,8 +189,8 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
         self.assertTrue(0 < self.hero_2.pvp.effectiveness < 50)
 
     def test_advantage_after_turn(self):
-        self.hero_1.pvp.effectiveness = 50
-        self.hero_2.pvp.effectiveness = 25
+        self.hero_1.pvp.set_effectiveness(50)
+        self.hero_2.pvp.set_effectiveness(25)
 
         self.meta_action_battle.process()
 
@@ -272,7 +272,7 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
 
     def test_process_bot_called__use_ability(self):
         self.hero_1._model.is_bot = True
-        self.hero_1.pvp.energy = 10
+        self.hero_1.pvp.set_energy(10)
 
         properties = self.meta_action_battle.get_bot_pvp_properties()
         properties['ability_chance'] = 1.0

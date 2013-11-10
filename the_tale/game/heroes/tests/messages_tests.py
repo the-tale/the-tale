@@ -22,7 +22,7 @@ class MessagesContainerTest(testcase.TestCase):
         self.messages.push_message(MessagesContainer._prepair_message('1'))
         self.messages.push_message(MessagesContainer._prepair_message('2'))
 
-        self.assertEqual(self.messages.serialize(), MessagesContainer.deserialize(self.messages.serialize()).serialize())
+        self.assertEqual(self.messages.serialize(), MessagesContainer.deserialize(None ,self.messages.serialize()).serialize())
 
     def test_push_message(self):
         current_time = TimePrototype.get_current_time()

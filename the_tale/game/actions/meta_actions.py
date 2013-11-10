@@ -173,10 +173,10 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
 
     @classmethod
     def reset_hero_info(cls, hero):
-        hero.pvp.advantage = 0
-        hero.pvp.effectiveness = c.PVP_EFFECTIVENESS_INITIAL
-        hero.pvp.energy = 0
-        hero.pvp.energy_speed = 1
+        hero.pvp.set_advantage(0)
+        hero.pvp.set_effectiveness(c.PVP_EFFECTIVENESS_INITIAL)
+        hero.pvp.set_energy(0)
+        hero.pvp.set_energy_speed(1)
 
         hero.pvp.store_turn_data()
 
@@ -233,8 +233,8 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
             self.percents = 1.0
 
     def update_hero_pvp_info(self, hero):
-        hero.pvp.energy += hero.pvp.energy_speed
-        hero.pvp.effectiveness -= hero.pvp.effectiveness * c.PVP_EFFECTIVENESS_EXTINCTION_FRACTION
+        hero.pvp.set_energy(hero.pvp.energy + hero.pvp.energy_speed)
+        hero.pvp.set_effectiveness(hero.pvp.effectiveness - hero.pvp.effectiveness * c.PVP_EFFECTIVENESS_EXTINCTION_FRACTION)
 
     def process_battle_ending(self):
         battle_1 = Battle1x1Prototype.get_by_account_id(self.hero_1.account_id)
@@ -308,10 +308,10 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
             effectiveness_fraction = (hero_1_effectivenes - hero_2_effectivenes) / max_effectivenes
         advantage_delta = c.PVP_MAX_ADVANTAGE_STEP * effectiveness_fraction
 
-        self.hero_1.pvp.advantage = self.hero_1.pvp.advantage + advantage_delta
+        self.hero_1.pvp.set_advantage(self.hero_1.pvp.advantage + advantage_delta)
         self.hero_1_context.use_pvp_advantage(self.hero_1.pvp.advantage)
 
-        self.hero_2.pvp.advantage = self.hero_2.pvp.advantage - advantage_delta
+        self.hero_2.pvp.set_advantage(self.hero_2.pvp.advantage - advantage_delta)
         self.hero_2_context.use_pvp_advantage(self.hero_2.pvp.advantage)
 
         # battle step
@@ -321,8 +321,8 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
                              self)
 
             if self.hero_1_context.pvp_advantage_used or self.hero_2_context.pvp_advantage_used:
-                self.hero_1.pvp.advantage = 0
-                self.hero_2.pvp.advantage = 0
+                self.hero_1.pvp.set_advantage(0)
+                self.hero_2.pvp.set_advantage(0)
 
             self.percents = 1.0 - min(self.hero_1.health_percents, self.hero_2.health_percents)
 

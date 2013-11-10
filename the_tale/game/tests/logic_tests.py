@@ -175,10 +175,10 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         hero_1 = HeroPrototype.get_by_account_id(self.account_1.id)
         hero_2 = HeroPrototype.get_by_account_id(self.account_2.id)
 
-        hero_1.pvp.energy = 1
+        hero_1.pvp.set_energy(1)
         hero_1.save()
 
-        hero_2.pvp.energy = 2
+        hero_2.pvp.set_energy(2)
         hero_2.save()
 
         data = form_game_info(self.account_1, is_own=True)

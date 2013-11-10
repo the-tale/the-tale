@@ -72,7 +72,7 @@ class UsePvPAbilityTests(testcase.TestCase):
         self.assertEqual(self.task.state, USE_PVP_ABILITY_TASK_STATE.NO_ENERGY)
 
     def test_process_success(self):
-        self.hero_1.pvp.energy = 1
+        self.hero_1.pvp.set_energy(1)
 
         old_hero_1_last_message = self.hero_1.messages.messages[-1]
         old_hero_2_last_message = self.hero_2.messages.messages[-1]
