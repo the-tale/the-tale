@@ -1,11 +1,9 @@
 # coding: utf-8
-import subprocess
 
 from dext.settings import settings
 
 from django.utils.log import getLogger
-
-from dext.utils.decorators import nested_commit_on_success
+from django.db import transaction
 
 from the_tale.common.amqp_queues import BaseWorker
 from the_tale.common import postponed_tasks
@@ -70,7 +68,7 @@ class Worker(BaseWorker):
         settings.refresh()
 
         map_update_needed = False
-        with nested_commit_on_success():
+        with transaction.atomic():
             self.turn_number += 1
 
             if turn_number != self.turn_number:
@@ -99,7 +97,7 @@ class Worker(BaseWorker):
         return self.send_cmd('stop')
 
     def process_stop(self):
-        with nested_commit_on_success():
+        with transaction.atomic():
             self.sync_data()
 
         run_django_command(['map_update_map'])

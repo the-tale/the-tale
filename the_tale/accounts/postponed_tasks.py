@@ -5,8 +5,7 @@ import rels
 from rels.django_staff import DjangoEnum
 
 from django.core.urlresolvers import reverse
-
-from dext.utils.decorators import nested_commit_on_success
+from django.db import transaction
 
 from the_tale.common.utils.enum import create_enum
 from the_tale.common.utils.decorators import lazy_property
@@ -53,7 +52,7 @@ class RegistrationTask(PostponedLogic):
         from the_tale.accounts.logic import register_user, REGISTER_USER_RESULT
         from the_tale.game.models import Bundle
 
-        with nested_commit_on_success():
+        with transaction.atomic():
 
             result, account_id, bundle_id = register_user(nick=self.get_unique_nick(), referer=self.referer, referral_of_id=self.referral_of_id)
 

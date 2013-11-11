@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 
 from the_tale.common.utils.prototypes import BasePrototype
 
@@ -31,8 +31,9 @@ class Battle1x1Prototype(BasePrototype):
     @classmethod
     def create(cls, account):
         try:
-            model = cls._model_class.objects.create(account=account._model,
-                                                    state=BATTLE_1X1_STATE.WAITING)
+            with transaction.atomic():
+                model = cls._model_class.objects.create(account=account._model,
+                                                        state=BATTLE_1X1_STATE.WAITING)
         except IntegrityError:
             return cls.get_by_account_id(account.id)
 

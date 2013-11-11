@@ -1,10 +1,10 @@
 # coding: utf-8
 
 from django.core.urlresolvers import reverse
-from django.db import models
+from django.db import models, transaction
+
 
 from dext.views import handler, validator, validate_argument
-from dext.utils.decorators import nested_commit_on_success
 from dext.utils.urls import UrlBuilder
 
 from the_tale.common.utils import list_filter
@@ -277,7 +277,7 @@ class BillResource(Resource):
 
     @login_required
     @validate_fast_account()
-    @nested_commit_on_success
+    @transaction.atomic
     @validate_ban_game()
     @validate_participate_in_politics()
     @validate_can_vote()

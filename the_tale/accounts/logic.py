@@ -4,9 +4,8 @@ import datetime
 
 from django.conf import settings as project_settings
 from django.contrib.auth import login as django_login, authenticate as django_authenticate, logout as django_logout
+from django.db import transaction
 
-
-from dext.utils.decorators import nested_commit_on_success
 from dext.utils.logic import normalize_email
 from dext.utils.urls import url
 
@@ -125,7 +124,7 @@ def logout_user(request):
 def remove_account(account):
     from the_tale.game.logic import remove_game_data
     if account.can_be_removed():
-        with nested_commit_on_success():
+        with transaction.atomic():
             remove_game_data(account)
             account.remove()
 

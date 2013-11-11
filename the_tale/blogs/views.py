@@ -1,9 +1,9 @@
 # coding: utf-8
 
 from django.core.urlresolvers import reverse
+from django.db import transaction
 
 from dext.views import handler, validator, validate_argument
-from dext.utils.decorators import nested_commit_on_success
 from dext.utils.urls import UrlBuilder
 
 from the_tale.common.utils.resources import Resource
@@ -158,7 +158,7 @@ class PostResource(Resource):
     @validate_fast_account_restrictions()
     @validate_edit_rights()
     @validate_declined_state()
-    @nested_commit_on_success
+    @transaction.atomic
     @handler('#post', 'update', method='post')
     def update(self):
         form = PostForm(self.request.POST)
@@ -198,7 +198,7 @@ class PostResource(Resource):
 
     @login_required
     @validate_fast_account_restrictions()
-    @nested_commit_on_success
+    @transaction.atomic
     @handler('#post', 'vote', method='post')
     def vote(self):
 
@@ -211,7 +211,7 @@ class PostResource(Resource):
 
     @login_required
     @validate_fast_account_restrictions()
-    @nested_commit_on_success
+    @transaction.atomic
     @handler('#post', 'unvote', method='post')
     def unvote(self):
 

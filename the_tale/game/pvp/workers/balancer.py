@@ -8,8 +8,7 @@ import collections
 import Queue
 
 from django.utils.log import getLogger
-
-from dext.utils.decorators import nested_commit_on_success
+from django.db import transaction
 
 from the_tale.common.amqp_queues import BaseWorker
 from the_tale.common import postponed_tasks
@@ -212,7 +211,7 @@ class Worker(BaseWorker):
 
         self.logger.info('start battle between accounts %d and %d' % (account_1.id, account_2.id))
 
-        with nested_commit_on_success():
+        with transaction.atomic():
             battle_1 = Battle1x1Prototype.get_by_id(record_1.battle_id)
             battle_2 = Battle1x1Prototype.get_by_id(record_2.battle_id)
 

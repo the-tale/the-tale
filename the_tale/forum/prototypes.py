@@ -4,9 +4,8 @@ import datetime
 import markdown
 
 from django.core.urlresolvers import reverse
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 
-from dext.utils.decorators import nested_commit_on_success
 from dext.utils.urls import UrlBuilder
 
 from the_tale.accounts.models import Account
@@ -77,7 +76,7 @@ class SubCategoryPrototype(BasePrototype):
         self._model.save()
 
     @classmethod
-    @nested_commit_on_success
+    @transaction.atomic
     def create(cls, category, caption, order, closed=False, restricted=False, uid=None):
 
         model = SubCategory.objects.create(category=category._model, caption=caption, order=order, closed=closed, restricted=restricted, uid=uid)
@@ -121,7 +120,7 @@ class ThreadPrototype(BasePrototype):
         return PostPrototype(model=Post.objects.filter(thread=self._model).order_by('created_at')[0])
 
     @classmethod
-    @nested_commit_on_success
+    @transaction.atomic
     def create(cls, subcategory, caption, author, text, markup_method=MARKUP_METHOD.POSTMARKUP, technical=False):
 
         from the_tale.post_service.prototypes import MessagePrototype
@@ -153,7 +152,7 @@ class ThreadPrototype(BasePrototype):
         return prototype
 
 
-    @nested_commit_on_success
+    @transaction.atomic
     def delete(self):
 
         subcategory = self.subcategory
@@ -164,7 +163,7 @@ class ThreadPrototype(BasePrototype):
         subcategory.update()
 
 
-    @nested_commit_on_success
+    @transaction.atomic
     def update(self, caption=None, new_subcategory_id=None, author=None, date=None):
 
         subcategory = self.subcategory
@@ -231,7 +230,7 @@ class PostPrototype(BasePrototype):
     def is_removed_by_moderator(self): return self.removed_by._is_MODERATOR
 
     @classmethod
-    @nested_commit_on_success
+    @transaction.atomic
     def create(cls, thread, author, text, technical=False):
 
         from the_tale.post_service.prototypes import MessagePrototype
@@ -255,7 +254,7 @@ class PostPrototype(BasePrototype):
         return prototype
 
 
-    @nested_commit_on_success
+    @transaction.atomic
     def delete(self, initiator, thread):
 
         self._model.state = POST_STATE.REMOVED
@@ -340,7 +339,7 @@ class SubscriptionPrototype(BasePrototype):
         self._model.delete()
 
     @classmethod
-    @nested_commit_on_success
+    @transaction.atomic
     def remove_all_in_subcategory(cls, account_id, subcategory_id):
         cls._model_class.objects.filter(account_id=account_id, subcategory_id=subcategory_id).delete()
         cls._model_class.objects.filter(account_id=account_id, thread_id__in=ThreadPrototype._model_class.objects.filter(subcategory_id=subcategory_id)).delete()

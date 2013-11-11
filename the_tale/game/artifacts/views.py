@@ -2,9 +2,9 @@
 import uuid
 
 from django.core.urlresolvers import reverse
+from django.db import transaction
 
 from dext.views import handler, validator, validate_argument
-from dext.utils.decorators import nested_commit_on_success
 from dext.utils.urls import UrlBuilder
 
 from the_tale.common.utils.resources import Resource
@@ -131,7 +131,7 @@ class GameArtifactResource(ArtifactResourceBase):
 
     @login_required
     @validate_create_rights()
-    @nested_commit_on_success
+    @transaction.atomic
     @handler('create', method='post')
     def create(self):
 
@@ -170,7 +170,7 @@ class GameArtifactResource(ArtifactResourceBase):
     @login_required
     @validate_disabled_state()
     @validate_create_rights()
-    @nested_commit_on_success
+    @transaction.atomic
     @handler('#artifact', 'update', name='update', method='post')
     def update(self):
 
@@ -202,7 +202,7 @@ class GameArtifactResource(ArtifactResourceBase):
 
     @login_required
     @validate_moderate_rights()
-    @nested_commit_on_success
+    @transaction.atomic
     @handler('#artifact', 'moderate', name='moderate', method='post')
     def moderate(self):
         form = ModerateArtifactRecordForm(self.request.POST)

@@ -1,8 +1,7 @@
 # coding: utf-8
 
 from django.core.management.base import BaseCommand
-
-from dext.utils.decorators import nested_commit_on_success
+from django.db import transaction
 
 from the_tale.common.utils.logic import run_django_command
 
@@ -39,7 +38,7 @@ class Command(BaseCommand):
         return Road.objects.create(point_1=p1, point_2=p2)
 
 
-    @nested_commit_on_success
+    @transaction.atomic
     def create_map(self): # pylint: disable=R0914, R0915
 
         Place.objects.all().delete()

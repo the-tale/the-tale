@@ -2,8 +2,9 @@
 
 import collections
 
+from django.db import transaction
+
 from dext.settings import settings
-from dext.utils.decorators import nested_commit_on_success
 
 import rels
 from rels.django_staff import DjangoEnum
@@ -103,7 +104,7 @@ class SupervisorTaskPrototype(BasePrototype):
     def all_members_captured(self): return self.members == self.captured_members
 
     @classmethod
-    @nested_commit_on_success
+    @transaction.atomic
     def create_arena_pvp_1x1(cls, account_1, account_2):
 
         model = cls._model_class.objects.create(type=SUPERVISOR_TASK_TYPE.ARENA_PVP_1X1)
@@ -113,7 +114,7 @@ class SupervisorTaskPrototype(BasePrototype):
 
         return cls(model)
 
-    @nested_commit_on_success
+    @transaction.atomic
     def process(self):
 
         if not self.all_members_captured:

@@ -1,8 +1,8 @@
 # coding: utf-8
 
-import rels
+from django.db import transaction
 
-from dext.utils.decorators import nested_commit_on_success
+import rels
 
 from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 from the_tale.common.utils.enum import create_enum
@@ -75,7 +75,7 @@ class UseAbilityTask(PostponedLogic):
 
             hero.change_energy(-ability.TYPE.cost)
 
-            with nested_commit_on_success():
+            with transaction.atomic():
                 storage.save_hero_data(hero.id, update_cache=True)
 
             if result is True:
@@ -99,7 +99,7 @@ class UseAbilityTask(PostponedLogic):
                 self.state = ABILITY_TASK_STATE.CAN_NOT_PROCESS
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            with nested_commit_on_success():
+            with transaction.atomic():
                 pass
 
             if result is True:

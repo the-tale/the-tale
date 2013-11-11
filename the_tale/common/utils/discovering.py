@@ -6,6 +6,13 @@ from django.utils.importlib import import_module
 from django.utils.module_loading import module_has_submodule
 
 
+def is_module_exists(module_path):
+    try:
+        return import_module(module_path)
+    except StandardError:
+        return False
+
+
 def discover_classes(classes_list, base_class):
     return ( class_
              for class_ in classes_list

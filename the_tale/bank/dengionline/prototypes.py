@@ -2,12 +2,12 @@
 import md5
 import urllib
 
+from django.db import transaction
+
 import rels
 
 from datetime import datetime
 from decimal import Decimal
-
-from dext.utils.decorators import nested_commit_on_success
 
 from the_tale.common.utils.prototypes import BasePrototype
 
@@ -46,7 +46,7 @@ class InvoicePrototype(BasePrototype):
                 raise exceptions.WrongValueTypeError(value_name=key, type=value.__class__)
 
     @classmethod
-    @nested_commit_on_success
+    @transaction.atomic
     def create(cls, bank_type, bank_id, bank_currency, bank_amount, user_id, comment, payment_amount, payment_currency):
 
         cls.check_types(bank_type=(bank_type, rels.Record),
@@ -123,7 +123,7 @@ class InvoicePrototype(BasePrototype):
         if invoice is None:
             return CONFIRM_PAYMENT_RESULT.INVOICE_NOT_FOUND
 
-        with nested_commit_on_success():
+        with transaction.atomic():
             confirm_result = invoice.confirm(order_id=int(order_id),
                                              received_amount=Decimal(received_amount),
                                              received_currency=CURRENCY_TYPE._index_name[dengionline_settings.RECEIVED_CURRENCY_TYPE],

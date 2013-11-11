@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from dext.utils.decorators import nested_commit_on_success
+from django.db import transaction
 
 from the_tale.common.utils import bbcode
 from the_tale.common.utils.prototypes import BasePrototype
@@ -27,7 +27,7 @@ class MessagePrototype(BasePrototype):
     def sender(self): return AccountPrototype(self._model.sender)
 
     @classmethod
-    @nested_commit_on_success
+    @transaction.atomic
     def create(cls, sender, recipient, text):
         from the_tale.post_service.prototypes import MessagePrototype as PostServiceMessagePrototype
         from the_tale.post_service.message_handlers import PersonalMessageHandler

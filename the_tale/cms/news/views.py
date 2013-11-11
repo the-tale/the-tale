@@ -5,9 +5,9 @@ import datetime
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 from django.utils.feedgenerator import Atom1Feed
+from django.db import transaction
 
 from dext.views import handler
-from dext.utils.decorators import nested_commit_on_success
 from dext.utils.urls import UrlBuilder
 
 from the_tale.common.utils.decorators import staff_required
@@ -78,7 +78,7 @@ class NewsResource(Resource):
 
     @handler('#news_id', 'publish-on-forum', method='get') #TODO: change to post
     @staff_required()
-    @nested_commit_on_success
+    @transaction.atomic
     def publish_on_forum(self):
 
         if news_settings.FORUM_CATEGORY_UID is None:

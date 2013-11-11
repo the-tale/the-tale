@@ -1,10 +1,10 @@
 # coding: utf-8
 import datetime
 
+from django.db import transaction
+
 import rels
 from rels.django_staff import DjangoEnum
-
-from dext.utils.decorators import nested_commit_on_success
 
 from textgen.words import Noun
 
@@ -50,7 +50,7 @@ class ChooseHeroAbilityTask(PostponedLogic):
     @property
     def error_message(self): return CHOOSE_HERO_ABILITY_STATE._CHOICES[self.state][1]
 
-    @nested_commit_on_success
+    @transaction.atomic
     def process(self, main_task, storage):
 
         hero = storage.heroes[self.hero_id]
@@ -89,7 +89,7 @@ class ChooseHeroAbilityTask(PostponedLogic):
         else:
             hero.abilities.add(self.ability_id)
 
-        with nested_commit_on_success():
+        with transaction.atomic():
             storage.save_hero_data(hero.id, update_cache=True)
 
         self.state = CHOOSE_HERO_ABILITY_STATE.PROCESSED
@@ -122,7 +122,7 @@ class ChangeHeroTask(PostponedLogic):
     @property
     def error_message(self): return CHANGE_HERO_TASK_STATE._CHOICES[self.state][1]
 
-    @nested_commit_on_success
+    @transaction.atomic
     def process(self, main_task, storage):
 
         hero = storage.heroes[self.hero_id]
@@ -131,7 +131,7 @@ class ChangeHeroTask(PostponedLogic):
         hero.gender = self.gender
         hero.race = self.race
 
-        with nested_commit_on_success():
+        with transaction.atomic():
             storage.save_hero_data(hero.id, update_cache=True)
 
         self.state = CHANGE_HERO_TASK_STATE.PROCESSED
@@ -160,7 +160,7 @@ class ResetHeroAbilitiesTask(PostponedLogic):
     @property
     def error_message(self): return self.state.text
 
-    @nested_commit_on_success
+    @transaction.atomic
     def process(self, main_task, storage):
 
         hero = storage.heroes[self.hero_id]
@@ -172,7 +172,7 @@ class ResetHeroAbilitiesTask(PostponedLogic):
 
         hero.abilities.reset()
 
-        with nested_commit_on_success():
+        with transaction.atomic():
             storage.save_hero_data(hero.id, update_cache=True)
 
         self.state = RESET_HERO_ABILITIES_TASK_STATE.PROCESSED
@@ -438,7 +438,7 @@ class ChoosePreferencesTask(PostponedLogic):
 
         if result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS:
 
-            with nested_commit_on_success():
+            with transaction.atomic():
                 storage.save_hero_data(hero.id, update_cache=True)
 
             self.state = CHOOSE_PREFERENCES_TASK_STATE.PROCESSED

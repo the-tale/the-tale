@@ -1,5 +1,6 @@
 # coding: utf-8
-from dext.utils.decorators import nested_commit_on_success
+
+from django.db import transaction
 
 from textgen.words import Fake
 
@@ -50,7 +51,7 @@ class SayInBattleLogTask(PostponedLogic):
         if enemy_hero is not None:
             enemy_hero.add_message('pvp_say', text=Fake(self.text))
 
-        with nested_commit_on_success():
+        with transaction.atomic():
             storage.save_account_data(battle.account_id, update_cache=True)
 
             if enemy_hero is not None:
@@ -121,7 +122,7 @@ class UsePvPAbilityTask(PostponedLogic):
 
         pvp_ability.use()
 
-        with nested_commit_on_success():
+        with transaction.atomic():
             storage.save_account_data(battle.account_id, update_cache=True)
             storage.save_account_data(battle.enemy_id, update_cache=True)
 

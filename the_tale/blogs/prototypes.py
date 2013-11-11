@@ -2,8 +2,7 @@
 
 from django.core.urlresolvers import reverse
 from django.conf import settings as project_settings
-
-from dext.utils.decorators import nested_commit_on_success
+from django.db import transaction
 
 from the_tale.common.utils import bbcode
 from the_tale.common.utils.decorators import lazy_property
@@ -43,7 +42,7 @@ class PostPrototype(BasePrototype):
         self.votes = Vote.objects.filter(post=self._model).count()
 
     @classmethod
-    @nested_commit_on_success
+    @transaction.atomic
     def create(cls, author, caption, text):
 
         model = Post.objects.create(author=author._model,
@@ -68,13 +67,13 @@ class PostPrototype(BasePrototype):
 
         return post
 
-    @nested_commit_on_success
+    @transaction.atomic
     def accept(self, moderator):
         self.state = POST_STATE.ACCEPTED
         self.moderator_id = moderator.id
         self.save()
 
-    @nested_commit_on_success
+    @transaction.atomic
     def decline(self, moderator):
         self.state = POST_STATE.DECLINED
         self.moderator_id = moderator.id

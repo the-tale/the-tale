@@ -48,8 +48,8 @@ class BaseTestRequests(TestCase):
         group_create = sync_group('create mob', ['mobs.create_mobrecord'])
         group_add = sync_group('add mob', ['mobs.moderate_mobrecord'])
 
-        group_create.account_set.add(self.account_2._model)
-        group_add.account_set.add(self.account_3._model)
+        group_create.user_set.add(self.account_2._model)
+        group_add.user_set.add(self.account_3._model)
 
 
 class TestIndexRequests(BaseTestRequests):

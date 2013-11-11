@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from django.conf.urls.defaults import patterns, include
+from django.conf.urls import patterns, include
 
 urlpatterns = patterns('',
                        (r'^dengionline/', include('the_tale.bank.dengionline.urls', namespace='dengionline') ),

@@ -1,7 +1,8 @@
 # coding: utf-8
 import time
 
-from dext.utils.decorators import nested_commit_on_success
+from django.db import transaction, connection
+
 from dext.settings import settings
 
 from the_tale.common.utils.decorators import lazy_property
@@ -29,9 +30,8 @@ class RatingValuesPrototype(BasePrototype):
     def account(self): return AccountPrototype(self._model.account)
 
     @classmethod
-    @nested_commit_on_success
+    @transaction.atomic
     def recalculate(cls):
-        from django.db import connection, transaction
 
         RatingValues.objects.all().delete()
 
@@ -90,9 +90,8 @@ class RatingPlacesPrototype(BasePrototype):
     def account(self): return AccountPrototype(self._model.account)
 
     @classmethod
-    @nested_commit_on_success
+    @transaction.atomic
     def recalculate(cls):
-        from django.db import connection, transaction
 
         RatingPlaces.objects.all().delete()
 

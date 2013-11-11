@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from dext.utils.decorators import nested_commit_on_success
+from django.db import transaction
 
 from the_tale.common.utils.prototypes import BasePrototype
 
@@ -19,7 +19,7 @@ class RecordPrototype(BasePrototype):
         return TimePrototype(self._model.created_at_turn).game_time
 
     @classmethod
-    @nested_commit_on_success
+    @transaction.atomic
     def create(cls, record):
 
         model = Record.objects.create(type=record.TYPE.value,

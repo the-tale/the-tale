@@ -1,9 +1,9 @@
 # coding: utf-8
 
+from django.db import transaction
+
 import rels
 from rels.django_staff import DjangoEnum
-
-from dext.utils.decorators import nested_commit_on_success
 
 from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 
@@ -38,7 +38,7 @@ class MakeChoiceTask(PostponedLogic):
     @property
     def error_message(self): return self.state.text
 
-    @nested_commit_on_success
+    @transaction.atomic
     def process(self, main_task, storage):
 
         hero = storage.accounts_to_heroes[self.account_id]

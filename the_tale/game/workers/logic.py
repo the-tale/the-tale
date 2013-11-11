@@ -4,9 +4,9 @@ import datetime
 
 from django.utils.log import getLogger
 from django.conf import settings as project_settings
+from django.db import transaction
 
 from dext.settings import settings
-from dext.utils.decorators import nested_commit_on_success
 
 from the_tale.common.amqp_queues import BaseWorker
 from the_tale.common import postponed_tasks
@@ -67,7 +67,7 @@ class Worker(BaseWorker):
 
         settings.refresh()
 
-        with nested_commit_on_success():
+        with transaction.atomic():
             self.turn_number += 1
 
             if turn_number != self.turn_number:

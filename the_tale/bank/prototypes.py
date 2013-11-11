@@ -1,9 +1,6 @@
 # coding: utf-8
 
-from django.db import models
-from django.db import IntegrityError
-
-from dext.utils.decorators import nested_commit_on_success
+from django.db import models, IntegrityError, transaction
 
 from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils.logic import get_or_create
@@ -177,7 +174,7 @@ class InvoicePrototype(BasePrototype):
 
         return cls(model=model)
 
-    @nested_commit_on_success
+    @transaction.atomic
     def freeze(self):
 
         if not self.state._is_REQUESTED:
@@ -200,7 +197,7 @@ class InvoicePrototype(BasePrototype):
         self.state = INVOICE_STATE.FROZEN
         self.save()
 
-    @nested_commit_on_success
+    @transaction.atomic
     def confirm(self):
         if not (self.state._is_FROZEN or self.state._is_FORCED):
             raise BankError(u'try to confirm not frozen or forced invoice "%d"' % self.id)
@@ -216,7 +213,7 @@ class InvoicePrototype(BasePrototype):
         self.state = INVOICE_STATE.CONFIRMED
         self.save()
 
-    @nested_commit_on_success
+    @transaction.atomic
     def force(self):
         self.confirm()
 

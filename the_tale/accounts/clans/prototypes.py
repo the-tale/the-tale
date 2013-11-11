@@ -1,8 +1,7 @@
 # coding: utf-8
 
-from django.db import models, IntegrityError
+from django.db import models, IntegrityError, transaction
 
-from dext.utils.decorators import nested_commit_on_success
 from dext.utils.urls import full_url
 
 from the_tale.common.utils.prototypes import BasePrototype
@@ -39,7 +38,7 @@ class ClanPrototype(BasePrototype): #pylint: disable=R0904
         return u'Раздел гильдии «%s»' % clan_name
 
     @classmethod
-    @nested_commit_on_success
+    @transaction.atomic
     def create(cls, owner, abbr, name, motto, description):
 
         forum_category = CategoryPrototype.get_by_slug(clans_settings.FORUM_CATEGORY_SLUG)
@@ -71,7 +70,7 @@ class ClanPrototype(BasePrototype): #pylint: disable=R0904
 
         return clan
 
-    @nested_commit_on_success
+    @transaction.atomic
     def update(self, abbr, name, motto, description):
         self.abbr = abbr
         self.name = name
@@ -85,7 +84,7 @@ class ClanPrototype(BasePrototype): #pylint: disable=R0904
         self.save()
 
 
-    @nested_commit_on_success
+    @transaction.atomic
     def add_member(self, account):
         try:
             MembershipPrototype.create(account, self, role=MEMBER_ROLE.MEMBER)
@@ -99,7 +98,7 @@ class ClanPrototype(BasePrototype): #pylint: disable=R0904
         self._model.members_number = MembershipPrototype._db_filter(clan_id=self.id).count()
         self.save()
 
-    @nested_commit_on_success
+    @transaction.atomic
     def remove_member(self, account):
         membership = MembershipPrototype.get_by_account_id(account.id)
         if membership is None:
@@ -127,7 +126,7 @@ class ClanPrototype(BasePrototype): #pylint: disable=R0904
     def save(self):
         self._model.save()
 
-    @nested_commit_on_success
+    @transaction.atomic
     def remove(self):
         for membership_model in MembershipPrototype._db_filter(clan_id=self.id):
             membership = MembershipPrototype(model=membership_model)
@@ -151,7 +150,7 @@ class MembershipPrototype(BasePrototype): #pylint: disable=R0904
     _get_by = ('clan_id', 'account_id')
 
     @classmethod
-    @nested_commit_on_success
+    @transaction.atomic
     def create(cls, account, clan, role):
         model = cls._model_class.objects.create(clan=clan._model,
                                                 account=account._model,
@@ -234,7 +233,7 @@ class MembershipRequestPrototype(BasePrototype): #pylint: disable=R0904
         MessagePrototype.create(initiator, self.account, message)
 
     @classmethod
-    @nested_commit_on_success
+    @transaction.atomic
     def create(cls, initiator, account, clan, text, type):
 
         model = cls._model_class.objects.create(clan=clan._model,

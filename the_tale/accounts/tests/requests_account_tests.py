@@ -193,7 +193,7 @@ class ShowRequestsTests(AccountRequestsTests):
         self.request_login('test_user3@test.com')
 
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
-        group.account_set.add(self.account3._model)
+        group.user_set.add(self.account3._model)
 
         texts = [('pgf-account-admin-link', 1)]
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account1.id])), texts=texts)
@@ -210,7 +210,7 @@ class AdminRequestsTests(AccountRequestsTests):
 
         self.request_login('test_user3@test.com')
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
-        group.account_set.add(self.account3._model)
+        group.user_set.add(self.account3._model)
 
 
     @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_game', True)
@@ -248,7 +248,7 @@ class GiveAwardRequestsTests(AccountRequestsTests):
         super(GiveAwardRequestsTests, self).setUp()
 
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
-        group.account_set.add(self.account3._model)
+        group.user_set.add(self.account3._model)
 
         self.request_login('test_user3@test.com')
 
@@ -284,7 +284,7 @@ class ResetNickRequestsTests(AccountRequestsTests):
         super(ResetNickRequestsTests, self).setUp()
 
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
-        group.account_set.add(self.account3._model)
+        group.user_set.add(self.account3._model)
 
         self.request_login('test_user3@test.com')
 
@@ -324,7 +324,7 @@ class BanRequestsTests(AccountRequestsTests):
         super(BanRequestsTests, self).setUp()
 
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
-        group.account_set.add(self.account3._model)
+        group.user_set.add(self.account3._model)
 
         self.request_login('test_user3@test.com')
 
@@ -385,7 +385,7 @@ class ResetBansRequestsTests(AccountRequestsTests):
         super(ResetBansRequestsTests, self).setUp()
 
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
-        group.account_set.add(self.account3._model)
+        group.user_set.add(self.account3._model)
 
         self.request_login('test_user3@test.com')
 

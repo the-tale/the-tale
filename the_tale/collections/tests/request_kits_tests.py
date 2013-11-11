@@ -37,11 +37,11 @@ class BaseRequestTests(testcase.TestCase):
         group_edit = sync_group('edit kit', ['collections.edit_kit'])
         group_moderate = sync_group('moderate kit', ['collections.moderate_kit'])
 
-        group_edit_item.account_set.add(self.account_2._model)
-        group_moderate_item.account_set.add(self.account_3._model)
+        group_edit_item.user_set.add(self.account_2._model)
+        group_moderate_item.user_set.add(self.account_3._model)
 
-        group_edit.account_set.add(self.account_2._model)
-        group_moderate.account_set.add(self.account_3._model)
+        group_edit.user_set.add(self.account_2._model)
+        group_moderate.user_set.add(self.account_3._model)
 
         self.collection_1 = CollectionPrototype.create(caption=u'collection_1', description=u'description_1')
         self.collection_2 = CollectionPrototype.create(caption=u'collection_2', description=u'description_2')

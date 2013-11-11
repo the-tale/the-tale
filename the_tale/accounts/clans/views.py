@@ -1,7 +1,8 @@
 # coding: utf-8
 
+from django.db import transaction
+
 from dext.views import handler, validate_argument, validator
-from dext.utils.decorators import nested_commit_on_success
 from dext.utils.urls import UrlBuilder, url
 
 from the_tale.common.utils.resources import Resource
@@ -308,7 +309,7 @@ class MembershipResource(Resource):
 
         return self.json_ok()
 
-    @nested_commit_on_success
+    @transaction.atomic
     @validate_argument('request', MembershipRequestPrototype.get_by_id, 'clan.membership.accept_request', u'Неверный идентификатор приглашения')
     @validate_invite_rights()
     @validate_request_from_account()
@@ -320,7 +321,7 @@ class MembershipResource(Resource):
         request.remove()
         return self.json_ok()
 
-    @nested_commit_on_success
+    @transaction.atomic
     @validate_argument('request', MembershipRequestPrototype.get_by_id, 'clan.membership.accept_invite', u'Неверный идентификатор приглашения')
     @validate_not_in_clan()
     @validate_request_from_clan()
@@ -331,7 +332,7 @@ class MembershipResource(Resource):
         return self.json_ok()
 
 
-    @nested_commit_on_success
+    @transaction.atomic
     @validate_argument('request', MembershipRequestPrototype.get_by_id, 'clan.membership.reject_request', u'Неверный идентификатор приглашения')
     @validate_invite_rights()
     @validate_request_from_account()
@@ -341,7 +342,7 @@ class MembershipResource(Resource):
         request.remove()
         return self.json_ok()
 
-    @nested_commit_on_success
+    @transaction.atomic
     @validate_argument('request', MembershipRequestPrototype.get_by_id, 'clan.membership.reject_invite', u'Неверный идентификатор приглашения')
     @validate_not_in_clan()
     @validate_request_from_clan()
@@ -350,7 +351,7 @@ class MembershipResource(Resource):
         request.remove()
         return self.json_ok()
 
-    @nested_commit_on_success
+    @transaction.atomic
     @validate_argument('account', AccountPrototype.get_by_id, 'clan.membership.remove_from_clan', u'Неверный идентификатор пользователя')
     @validate_remove_rights()
     @handler('remove-from-clan', method='post')
@@ -369,7 +370,7 @@ class MembershipResource(Resource):
         return self.json_ok()
 
 
-    @nested_commit_on_success
+    @transaction.atomic
     @validate_in_clan()
     @handler('leave-clan', method='post')
     def leave_clan(self):

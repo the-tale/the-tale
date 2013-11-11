@@ -1,8 +1,9 @@
 # coding: utf-8
 import random
 
+from django.db import transaction
+
 from dext.utils import s11n
-from dext.utils.decorators import nested_commit_on_success
 
 from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils.decorators import lazy_property
@@ -192,7 +193,7 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
 
 
     @classmethod
-    @nested_commit_on_success
+    @transaction.atomic
     def create(cls, storage, hero_1, hero_2, bundle):
 
         cls.prepair_bot(hero_1, hero_2)

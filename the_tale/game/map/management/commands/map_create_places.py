@@ -6,8 +6,7 @@ from textgen.words import Noun
 from dext.utils import s11n
 
 from django.core.management.base import BaseCommand
-
-from dext.utils.decorators import nested_commit_on_success
+from django.db import transaction
 
 from the_tale.common.utils.logic import run_django_command
 
@@ -49,7 +48,7 @@ class Command(BaseCommand):
         # to sync map size and do other unpredictable operations
         run_django_command(['map_update_map'])
 
-        with nested_commit_on_success():
+        with transaction.atomic():
 
             self.create_place(name=u'Гориндор',
                               name_forms=Noun(normalized=u'Гориндор',
@@ -101,7 +100,7 @@ class Command(BaseCommand):
         run_django_command(['map_update_map'])
 
 
-    @nested_commit_on_success
+    @transaction.atomic
     def create_place(self, name, x, y, size, roads_to, persons=(), name_forms=None): # pylint: disable=R0914
 
         place_power = int(max(place.power for place in places_storage.all()) * float(size) / places_settings.MAX_SIZE)

@@ -4,9 +4,9 @@ import datetime
 
 from django.core.urlresolvers import reverse
 from django.conf import settings as project_settings
+from django.db import transaction
 
 from dext.utils import s11n
-from dext.utils.decorators import nested_commit_on_success
 
 from the_tale.common.utils.decorators import lazy_property
 from the_tale.common.utils import bbcode
@@ -139,7 +139,7 @@ class BillPrototype(BasePrototype):
 
         return True
 
-    @nested_commit_on_success
+    @transaction.atomic
     def apply(self):
         if not self.state._is_VOTING:
             raise exceptions.ApplyBillInWrongStateError(bill_id=self.id)
@@ -188,7 +188,7 @@ class BillPrototype(BasePrototype):
         signals.bill_processed.send(self.__class__, bill=self)
         return True
 
-    @nested_commit_on_success
+    @transaction.atomic
     def end(self):
         if not self.state._is_ACCEPTED:
             raise exceptions.EndBillInWrongStateError(bill_id=self.id)
@@ -216,7 +216,7 @@ class BillPrototype(BasePrototype):
         signals.bill_ended.send(self.__class__, bill=self)
         return True
 
-    @nested_commit_on_success
+    @transaction.atomic
     def decline(self, decliner):
         if not self.state._is_ACCEPTED:
             raise exceptions.DeclinedBillInWrongStateError(bill_id=self.id)
@@ -236,7 +236,7 @@ class BillPrototype(BasePrototype):
 %s
 ''' % (text, self.caption, self.rationale)
 
-    @nested_commit_on_success
+    @transaction.atomic
     def update(self, form):
 
         Vote.objects.filter(bill_id=self.id).delete()
@@ -271,7 +271,7 @@ class BillPrototype(BasePrototype):
 
         signals.bill_edited.send(self.__class__, bill=self)
 
-    @nested_commit_on_success
+    @transaction.atomic
     def update_by_moderator(self, form):
         self.data.initialize_with_moderator_data(form)
         self._model.approved_by_moderator = form.c.approved
@@ -281,7 +281,7 @@ class BillPrototype(BasePrototype):
 
 
     @classmethod
-    @nested_commit_on_success
+    @transaction.atomic
     def create(cls, owner, caption, rationale, bill, duration=BILL_DURATION.UNLIMITED):
 
         model = Bill.objects.create(owner=owner._model,
@@ -326,7 +326,7 @@ class BillPrototype(BasePrototype):
         self._model.technical_data = s11n.to_json(self.data.serialize())
         self._model.save()
 
-    @nested_commit_on_success
+    @transaction.atomic
     def remove(self, initiator):
         self.set_remove_initiator(initiator)
         self.state = BILL_STATE.REMOVED
@@ -377,7 +377,7 @@ class ActorPrototype(BasePrototype):
         return cls(model)
 
     @classmethod
-    @nested_commit_on_success
+    @transaction.atomic
     def update_actors(cls, bill, actors):
         from the_tale.game.map.places.prototypes import PlacePrototype
 

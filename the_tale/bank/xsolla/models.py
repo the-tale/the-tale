@@ -35,7 +35,7 @@ class Invoice(models.Model):
 
     pay_result = TableIntegerField(null=True, relation=PAY_RESULT, relation_column='value', db_index=True)
 
-    test = models.BooleanField(blank=True)
+    test = models.BooleanField(blank=True, default=False)
 
     date = models.DateTimeField(null=True)
 
