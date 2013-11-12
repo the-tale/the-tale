@@ -156,6 +156,7 @@ INSTALLED_APPS = (
     'the_tale.accounts.personal_messages',
     'the_tale.accounts.friends',
     'the_tale.accounts.payments',
+    'the_tale.accounts.achievements',
 
     'the_tale.guide',
 
