@@ -2,14 +2,14 @@
 
 from the_tale.common.utils.storage import create_storage_class
 
-from the_tale.game.persons.models import Person, PERSON_STATE
+from the_tale.game.persons.models import PERSON_STATE
 from the_tale.game.persons.prototypes import PersonPrototype
 from the_tale.game.persons.exceptions import PersonsException
 
 
-class PersonsStorage(create_storage_class('persons change time', Person, PersonPrototype, PersonsException)):
+class PersonsStorage(create_storage_class('persons change time', PersonPrototype, PersonsException)):
 
-    def _get_all_query(self): return Person.objects.exclude(state=PERSON_STATE.REMOVED)
+    def _get_all_query(self): return PersonPrototype._db_exclude(state=PERSON_STATE.REMOVED)
 
     def filter(self, place_id=None, state=None):
         return [person

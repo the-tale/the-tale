@@ -113,8 +113,8 @@ def construct_workers_manager(help, process_pid, workers): # pylint: disable=W06
                 print 'infrastructure stopped (force)'
 
             elif command == 'restart':
-                self.start()
                 self.stop()
+                self.start()
                 print 'infrastructure restarted'
 
             elif command == 'status':

@@ -8,7 +8,7 @@ from the_tale.game.map.places.exceptions import PlacesException
 from the_tale.game.map.places.relations import BUILDING_STATE
 
 
-class PlacesStorage(create_storage_class('places change time', PlacePrototype._model_class, PlacePrototype, PlacesException)):
+class PlacesStorage(create_storage_class('places change time', PlacePrototype, PlacesException)):
 
     def random_place(self):
         self.sync()
@@ -35,7 +35,7 @@ class PlacesStorage(create_storage_class('places change time', PlacePrototype._m
 places_storage = PlacesStorage()
 
 
-class BuildingsStorage(create_storage_class('buildings change time', BuildingPrototype._model_class, BuildingPrototype, PlacesException)):
+class BuildingsStorage(create_storage_class('buildings change time', BuildingPrototype, PlacesException)):
 
     def _get_all_query(self): return BuildingPrototype._model_class.objects.exclude(state=BUILDING_STATE.DESTROYED)
 
@@ -72,7 +72,7 @@ class BuildingsStorage(create_storage_class('buildings change time', BuildingPro
 buildings_storage = BuildingsStorage()
 
 
-class ResourceExchangeStorage(create_storage_class('resource exchange change time', ResourceExchangePrototype._model_class, ResourceExchangePrototype, PlacesException)):
+class ResourceExchangeStorage(create_storage_class('resource exchange change time', ResourceExchangePrototype, PlacesException)):
 
     def get_exchanges_for_place(self, place):
         exchanges = []

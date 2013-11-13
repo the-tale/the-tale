@@ -1,0 +1,19 @@
+
+
+{% macro achievement_record(achievement, edit_button, account_achievements) %}
+
+<div class="achievement {% if account_achievements and account_achievements.has_achievement(achievement) %}owned pgf-owned{% endif %}">
+  <h3>
+    {{achievement.caption}}
+    {% if edit_button %}
+      <a href="{{url('accounts:achievements:edit', achievement.id)}}"
+         class="pgf-edit-achievement-button">
+        <i class="icon icon-pencil"></i>
+      </a>
+    {% endif %}
+  </h3>
+  <p>{{achievement.description}}</p>
+  <p><strong>награды</strong> нет</p>
+</div>
+
+{% endmacro %}

@@ -5,7 +5,7 @@ import functools
 
 from dext.settings import settings
 
-def create_storage_class(version_key, Model, Prototype, Exception_): # pylint: disable=R0912
+def create_storage_class(version_key, Prototype, Exception_): # pylint: disable=R0912
 
     class Storage(object):
 
@@ -21,7 +21,7 @@ def create_storage_class(version_key, Model, Prototype, Exception_): # pylint: d
             self.sync()
             return self._version
 
-        def _get_all_query(self): return Model.objects.all()
+        def _get_all_query(self): return Prototype._db_all()
 
         def refresh(self):
             self.clear()
@@ -49,7 +49,7 @@ def create_storage_class(version_key, Model, Prototype, Exception_): # pylint: d
             self.sync()
 
             if id_ not in self._data:
-                raise Exception_('wrong %r id: %s' % (Model, id_))
+                raise Exception_('wrong %r id: %s' % (Prototype, id_))
 
             return self._data[id_]
 
@@ -128,7 +128,7 @@ def create_storage_class(version_key, Model, Prototype, Exception_): # pylint: d
     return Storage
 
 
-def create_single_storage_class(version_key, Model, Prototype, Exception_): # pylint: disable=R0912,W0613
+def create_single_storage_class(version_key, Prototype, Exception_): # pylint: disable=R0912,W0613
 
     class SingleStorage(object):
 

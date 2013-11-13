@@ -9,11 +9,10 @@ from the_tale.game.balance import formulas as f, constants as c
 
 from the_tale.game.artifacts.exceptions import ArtifactsException
 from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
-from the_tale.game.artifacts.models import ArtifactRecord
 from the_tale.game.artifacts.relations import ARTIFACT_TYPE
 
 
-class ArtifactsStorage(create_storage_class('artifacts records change time', ArtifactRecord, ArtifactRecordPrototype, ArtifactsException)):
+class ArtifactsStorage(create_storage_class('artifacts records change time', ArtifactRecordPrototype, ArtifactsException)):
 
     def _reset_cache(self):
         self._artifacts_by_uuids = {}

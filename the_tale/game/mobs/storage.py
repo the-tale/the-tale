@@ -5,9 +5,9 @@ from the_tale.common.utils.storage import create_storage_class
 
 from the_tale.game.mobs.exceptions import MobsException
 from the_tale.game.mobs.prototypes import MobPrototype, MobRecordPrototype
-from the_tale.game.mobs.models import MobRecord
 
-class MobsStorage(create_storage_class('mob records change time', MobRecord, MobRecordPrototype, MobsException)):
+
+class MobsStorage(create_storage_class('mob records change time', MobRecordPrototype, MobsException)):
 
     def __init__(self):
         super(MobsStorage, self).__init__()

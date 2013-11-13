@@ -12,6 +12,7 @@ from the_tale.game.logic import create_test_map
 from the_tale.accounts.logic import block_expired_accounts, get_account_id_by_email, register_user
 from the_tale.accounts.models import Account
 from the_tale.accounts.postponed_tasks import RegistrationTask
+from the_tale.accounts.achievements.prototypes import AccountAchievementsPrototype
 
 class TestLogic(testcase.TestCase):
 
@@ -27,6 +28,8 @@ class TestLogic(testcase.TestCase):
         task.account._model.created_at = datetime.datetime.fromtimestamp(0)
         task.account._model.save()
 
+        self.assertEqual(AccountAchievementsPrototype._db_count(), 1)
+
         block_expired_accounts()
 
         self.assertEqual(Hero.objects.all().count(), 0)
@@ -34,6 +37,8 @@ class TestLogic(testcase.TestCase):
         self.assertEqual(Bundle.objects.all().count(), 0)
 
         self.assertEqual(Account.objects.all().count(), 0)
+
+        self.assertEqual(AccountAchievementsPrototype._db_count(), 0)
 
     def test_get_account_id_by_email(self):
         self.assertEqual(get_account_id_by_email('bla@bla.bla'), None)

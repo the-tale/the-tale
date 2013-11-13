@@ -1,0 +1,39 @@
+{% extends "collections/collections/base.html" %}
+
+{% block title %}Редактирование | {{resource.achievement.caption}} | {{ super() }}{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    var newForm = new pgf.forms.Form(jQuery('#pgf-edit-achievement-form'),
+                                               {OnSuccess: function(instance, data){location.href = data.data.next_url;}});
+
+});
+
+</script>
+
+{% endblock %}
+
+
+{% block achievements_content %}
+
+<form id="pgf-edit-achievement-form" method="post" action="{{ url('accounts:achievements:update', resource.achievement.id) }}">
+
+  {{ form.errors_container }}
+
+  {{ form.approved.widget }}
+  {{ form.group.widget }}
+  {{ form.type.widget }}
+  {{ form.caption.widget }}
+  {{ form.description.widget }}
+
+  <div class="widget">
+    <input type="submit" class="btn" value="Сохранить"/>
+  </div>
+
+</form>
+
+
+{% endblock %}

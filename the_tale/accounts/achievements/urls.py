@@ -4,9 +4,8 @@ from django.conf.urls import patterns, include
 
 from dext.views import resource_patterns
 
-from the_tale.accounts.achievements.views import AchievementResource, AccountAchievementsResource
+from the_tale.accounts.achievements.views import AchievementsResource
 
 urlpatterns = patterns('',
-                       (r'^admin/', include(resource_patterns(AchievementResource)) ),
-                       (r'^', include(resource_patterns(AccountAchievementsResource)) )
+                       (r'^', include(resource_patterns(AchievementsResource)) )
     )

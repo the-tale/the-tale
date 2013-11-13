@@ -3,12 +3,11 @@
 from the_tale.common.utils.storage import create_storage_class
 from the_tale.common.utils.decorators import lazy_property
 
-from the_tale.game.map.roads.models import Road, Waymark
 from the_tale.game.map.roads.prototypes import RoadPrototype, WaymarkPrototype
 from the_tale.game.map.roads.exceptions import RoadsException
 
 
-class RoadsStorage(create_storage_class('roads change time', Road, RoadPrototype, RoadsException)):
+class RoadsStorage(create_storage_class('roads change time', RoadPrototype, RoadsException)):
 
     def all_exists_roads(self):
         return [road for road in self.all() if road.exists]
@@ -26,7 +25,7 @@ class RoadsStorage(create_storage_class('roads change time', Road, RoadPrototype
 roads_storage = RoadsStorage()
 
 
-class WaymarksStorage(create_storage_class('waymarks change time', Waymark, WaymarkPrototype, RoadsException)):
+class WaymarksStorage(create_storage_class('waymarks change time', WaymarkPrototype, RoadsException)):
 
     def __init__(self, *argv, **kwargs):
         super(WaymarksStorage, self).__init__(*argv, **kwargs)

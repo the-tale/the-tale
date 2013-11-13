@@ -52,7 +52,9 @@ def _serialization_proxy(Class, field_name, unload_after):
             self._accessed_at = time.time()
             return getattr(self._object, name)
 
-        def unload_if_can(self, timestamp):
+        def _unload_if_can(self, timestamp):
+            if unload_after is None:
+                return
             if timestamp < self._accessed_at + unload_after:
                 return
             self._unload_object()
@@ -178,11 +180,13 @@ class BasePrototype(object):
         raise NotImplementedError
 
     def save(self):
+        for field_name, Class, timeout in self._serialization_proxies:
+            getattr(self, field_name)._unload_object()
         self._model.save()
 
     def unload_serializable_items(self, timestamp):
         for field_name, Class, timeout in self._serialization_proxies:
-            getattr(self, field_name).unload_if_can(timestamp)
+            getattr(self, field_name)._unload_if_can(timestamp)
 
     @classmethod
     def from_query(cls, query):
@@ -213,6 +217,10 @@ class BasePrototype(object):
     @classmethod
     def _db_filter(cls, **kwargs):
         return cls._model_class.objects.filter(**kwargs)
+
+    @classmethod
+    def _db_exclude(cls, **kwargs):
+        return cls._model_class.objects.exclude(**kwargs)
 
     #############################
     # most for tests

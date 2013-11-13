@@ -25,9 +25,13 @@ class Achievement(models.Model):
 
     approved = models.BooleanField(default=False)
 
+    class Meta:
+        permissions = (('edit_achievement', u'Может создавать и редактировать достижения'),)
+
+
 
 class AccountAchievements(models.Model):
 
     account = models.ForeignKey('accounts.Account', on_delete=models.CASCADE)
 
-    data = models.TextField(default='{}')
+    achievements = models.TextField(default='{}')

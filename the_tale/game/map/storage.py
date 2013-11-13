@@ -5,20 +5,19 @@ from the_tale.common.utils.storage import create_single_storage_class
 
 from dext.settings import settings
 
-from the_tale.game.map.models import MapInfo
 from the_tale.game.map.prototypes import MapInfoPrototype
 from the_tale.game.map.exceptions import MapException
 
 from the_tale.game.prototypes import TimePrototype
 
 
-class MapInfoStorage(create_single_storage_class('map info change time', MapInfo, MapInfoPrototype, MapException)):
+class MapInfoStorage(create_single_storage_class('map info change time', MapInfoPrototype, MapException)):
 
     def refresh(self):
         self.clear()
 
         try:
-            self._item = MapInfoPrototype(MapInfo.objects.order_by('-turn_number', '-id')[0])
+            self._item = MapInfoPrototype(MapInfoPrototype._model_class.objects.order_by('-turn_number', '-id')[0])
         except IndexError:
             self._item = None
 

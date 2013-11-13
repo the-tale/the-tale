@@ -72,6 +72,8 @@ class Command(BaseCommand):
                                                     'collections.moderate_kit',
                                                     'collections.moderate_item'])
 
+        sync_group('achievements editors group', ['achievements.edit_achievement'])
+
         print
         print 'REFRESH CDNS'
         print
