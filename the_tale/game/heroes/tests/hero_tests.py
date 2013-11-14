@@ -11,6 +11,7 @@ from the_tale.common.utils.testcase import TestCase
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
+from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
 from the_tale.game.logic import create_test_map
 from the_tale.game.prototypes import TimePrototype
@@ -40,9 +41,6 @@ class HeroTest(TestCase):
         self.storage = LogicStorage()
         self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
         self.hero = self.storage.accounts_to_heroes[account_id]
-
-    def tearDown(self):
-        pass
 
     def test_create(self):
         self.assertTrue(self.hero.is_alive)
@@ -307,7 +305,7 @@ class HeroTest(TestCase):
         self.check_rests_from_risk(lambda hero: hero.need_rest_in_move)
 
 
-    def test_resset_preferences(self):
+    def test_reset_preferences(self):
         self.hero.preferences.set_mob(mobs_storage.all()[0])
         self.hero.preferences.set_place(places_storage.all()[0])
         self.hero.preferences.set_friend(persons_storage.all()[0])
@@ -326,6 +324,56 @@ class HeroTest(TestCase):
             else:
                 self.assertNotEqual(self.hero.preferences._get(preference_type), None)
 
+    @mock.patch('the_tale.game.heroes.conf.heroes_settings.RARE_OPERATIONS_INTERVAL', 2)
+    def test_process_rare_operations__interval_not_passed(self):
+        game_time = TimePrototype.get_current_time()
+        game_time.increment_turn()
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype._process_rare_achievements') as process_rare_achievements:
+            self.hero.process_rare_operations()
+
+        self.assertEqual(process_rare_achievements.call_args_list, [])
+        self.assertEqual(self.hero.last_rare_operation_at_turn, 0)
+
+    @mock.patch('the_tale.game.heroes.conf.heroes_settings.RARE_OPERATIONS_INTERVAL', 2)
+    def test_process_rare_operations__interval_passed(self):
+        game_time = TimePrototype.get_current_time()
+        game_time.increment_turn()
+        game_time.increment_turn()
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype._process_rare_achievements') as process_rare_achievements:
+            self.hero.process_rare_operations()
+
+        self.assertEqual(process_rare_achievements.call_args_list, [mock.call(current_turn=game_time.turn_number)])
+        self.assertEqual(self.hero.last_rare_operation_at_turn, game_time.turn_number)
+
+    @mock.patch('the_tale.game.heroes.conf.heroes_settings.RARE_OPERATIONS_INTERVAL', 2)
+    def test_process_rare_operations__age_changed(self):
+        game_time = TimePrototype.get_current_time()
+        game_time.turn_number += c.TURNS_IN_GAME_YEAR - 1
+        game_time.save()
+
+        with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
+            self.hero.process_rare_operations()
+
+        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
+                                                                        type=ACHIEVEMENT_TYPE.TIME,
+                                                                        object=None,
+                                                                        old_value=0,
+                                                                        new_value=0)])
+
+        self.hero.last_rare_operation_at_turn = 0
+
+        game_time.increment_turn()
+
+        with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
+            self.hero.process_rare_operations()
+
+        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
+                                                                        type=ACHIEVEMENT_TYPE.TIME,
+                                                                        object=None,
+                                                                        old_value=0,
+                                                                        new_value=1)])
 
 class HeroPositionTest(TestCase):
 

@@ -23,3 +23,5 @@ class EditAchievementForm(forms.Form):
     caption = fields.CharField(label=u'Название', max_length=AchievementPrototype.CAPTION_MAX_LENGTH, min_length=1)
 
     description = bbcode.BBField(label=u'Описание', min_length=1, max_length=AchievementPrototype.DESCRIPTION_MAX_LENGTH)
+
+    barrier = fields.IntegerField(label=u'Барьер')

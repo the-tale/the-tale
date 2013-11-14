@@ -31,11 +31,11 @@ class _BaseRequestTests(testcase.TestCase):
 
         group_edit.user_set.add(self.account_2._model)
 
-        self.achievement_1 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY,
+        self.achievement_1 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=0,
                                                          caption=u'achievement_1', description=u'description_1', approved=True)
-        self.achievement_2 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY,
+        self.achievement_2 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=2,
                                                          caption=u'achievement_2', description=u'description_2', approved=False)
-        self.achievement_3 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.TIME, type=ACHIEVEMENT_TYPE.TIME,
+        self.achievement_3 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.TIME, type=ACHIEVEMENT_TYPE.TIME, barrier=3,
                                                          caption=u'achievement_3', description=u'description_3', approved=True)
 
 
@@ -112,6 +112,7 @@ class AchievementsCreateTests(_BaseRequestTests):
         return {'caption': 'caption_create',
                 'description': u'description_create',
                 'order': 666,
+                'barrier': 777,
                 'type': ACHIEVEMENT_TYPE.DEATHS,
                 'group': ACHIEVEMENT_GROUP.DEATHS}
 
@@ -145,6 +146,7 @@ class AchievementsCreateTests(_BaseRequestTests):
         self.assertEqual(achievement.description, 'description_create')
         self.assertEqual(achievement.type, ACHIEVEMENT_TYPE.DEATHS)
         self.assertEqual(achievement.group, ACHIEVEMENT_GROUP.DEATHS)
+        self.assertEqual(achievement.barrier, 777)
         self.assertFalse(achievement.approved)
 
 
@@ -182,6 +184,7 @@ class AchievementsUpdateTests(_BaseRequestTests):
         return {'caption': 'caption_edited',
                 'description': u'description_edited',
                 'order': 666,
+                'barrier': 777,
                 'type': ACHIEVEMENT_TYPE.DEATHS,
                 'group': ACHIEVEMENT_GROUP.DEATHS,
                 'approved': True}
@@ -202,9 +205,12 @@ class AchievementsUpdateTests(_BaseRequestTests):
 
     def test_form_errors(self):
         self.request_login(self.account_2.email)
-        with self.check_not_changed(AchievementPrototype._db_all().count):
-            self.check_ajax_error(self.post_ajax_json(self.test_url, {}),
-                                  'accounts.achievements.update.form_errors')
+        self.check_ajax_error(self.post_ajax_json(self.test_url, {}),
+                              'accounts.achievements.update.form_errors')
+
+        self.achievement_1.reload()
+        self.assertEqual(self.achievement_1.caption, 'achievement_1')
+        self.assertEqual(self.achievement_1.description, 'description_1')
 
     def test_success(self):
         self.request_login(self.account_2.email)
@@ -218,4 +224,5 @@ class AchievementsUpdateTests(_BaseRequestTests):
         self.assertEqual(self.achievement_2.description, 'description_edited')
         self.assertEqual(self.achievement_2.type, ACHIEVEMENT_TYPE.DEATHS)
         self.assertEqual(self.achievement_2.group, ACHIEVEMENT_GROUP.DEATHS)
+        self.assertEqual(self.achievement_2.barrier, 777)
         self.assertTrue(self.achievement_2.approved)

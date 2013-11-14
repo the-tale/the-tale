@@ -24,11 +24,12 @@ INDEX_ORDER_TYPE = create_enum('INDEX_ORDER_TYPE', (('BY_LEVEL', 'by_level', u'�
                                                     ('BY_NAME', 'by_name', u'по имени'),))
 
 def argument_to_artifact_type(value): return ARTIFACT_TYPE(int(value))
+def argument_to_artifact(value): return artifacts_storage.get(int(value), None)
 
 
 class ArtifactResourceBase(Resource):
 
-    @validate_argument('artifact', ArtifactRecordPrototype.get_by_id, 'artifacts', u'Запись об артефакте не найдена')
+    @validate_argument('artifact', argument_to_artifact, 'artifacts', u'Запись об артефакте не найдена')
     def initialize(self, artifact=None, *args, **kwargs):
         super(ArtifactResourceBase, self).initialize(*args, **kwargs)
         self.artifact = artifact

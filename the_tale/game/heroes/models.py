@@ -17,6 +17,7 @@ class Hero(models.Model):
 
     created_at_turn = models.IntegerField(null=False, default=0)
     saved_at_turn = models.IntegerField(null=False, default=0)
+    last_rare_operation_at_turn = models.IntegerField(null=False, default=0)
 
     saved_at = models.DateTimeField(auto_now=True, default=datetime.datetime.fromtimestamp(0))
 

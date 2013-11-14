@@ -221,7 +221,7 @@ class TestShowRequests(BaseTestRequests):
                                                                                                         ('pgf-edit-button', 0)])
 
     def test_no_description(self):
-        artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all()[0])
+        artifact = artifacts_storage.all()[0]
         artifact.description = ''
         artifact.save()
         self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[('pgf-no-description', 1)])
@@ -275,7 +275,7 @@ class TestInfoRequests(BaseTestRequests):
                                                                                                ('pgf-edit-button', 0)])
 
     def test_no_description(self):
-        artifact = ArtifactRecordPrototype._db_get_object(0)
+        artifact = artifacts_storage.all()[0]
         artifact.description = ''
         artifact.save()
         self.check_html_ok(self.request_html(url('guide:artifacts:info', artifact.id)), texts=[('pgf-no-description', 1)])
@@ -287,7 +287,7 @@ class TestEditRequests(BaseTestRequests):
     def setUp(self):
         super(TestEditRequests, self).setUp()
 
-        self.artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all()[0])
+        self.artifact = artifacts_storage.all()[0]
         self.artifact.state = ARTIFACT_RECORD_STATE.DISABLED
         self.artifact.save()
 
@@ -387,7 +387,7 @@ class TestModerationPageRequests(BaseTestRequests):
     def setUp(self):
         super(TestModerationPageRequests, self).setUp()
 
-        self.artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all()[0])
+        self.artifact = artifacts_storage.all()[0]
         self.artifact.state = ARTIFACT_RECORD_STATE.DISABLED
         self.artifact.save()
 

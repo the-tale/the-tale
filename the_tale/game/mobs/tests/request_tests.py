@@ -207,7 +207,7 @@ class TestShowRequests(BaseTestRequests):
                                                                                               ('pgf-edit-button', 0)])
 
     def test_no_description(self):
-        mob = MobRecordPrototype(MobRecord.objects.all()[0])
+        mob = mobs_storage.all()[0]
         mob.description = ''
         mob.save()
         self.check_html_ok(self.request_html(reverse('guide:mobs:show', args=[mob.id])), texts=[('pgf-no-description', 1)])
@@ -261,7 +261,7 @@ class TestInfoRequests(BaseTestRequests):
                                                                                    ('pgf-edit-button', 0)])
 
     def test_no_description(self):
-        mob = MobRecordPrototype(MobRecord.objects.all()[0])
+        mob = mobs_storage.all()[0]
         mob.description = ''
         mob.save()
         self.check_html_ok(self.request_html(url('guide:mobs:info', mob.id)), texts=[('pgf-no-description', 1)])
@@ -272,7 +272,7 @@ class TestEditRequests(BaseTestRequests):
     def setUp(self):
         super(TestEditRequests, self).setUp()
 
-        self.mob = MobRecordPrototype(MobRecord.objects.all()[0])
+        self.mob = mobs_storage.all()[0]
         self.mob.state = MOB_RECORD_STATE.DISABLED
         self.mob.save()
 
@@ -366,7 +366,7 @@ class TestModerationPageRequests(BaseTestRequests):
     def setUp(self):
         super(TestModerationPageRequests, self).setUp()
 
-        self.mob = MobRecordPrototype(MobRecord.objects.all()[0])
+        self.mob = mobs_storage.all()[0]
         self.mob.state = MOB_RECORD_STATE.DISABLED
         self.mob.save()
 

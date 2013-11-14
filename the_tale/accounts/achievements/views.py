@@ -49,8 +49,9 @@ class AchievementsResource(Resource):
         return self.template('achievements/group.html',
                              {'master_account': account,
                               'account_achievements': account_achievements,
-                              'achievements': achievements_storage.by_group(self.group, only_approved=not self.can_edit_achievements),
-                              'ACHIEVEMENT_GROUP': ACHIEVEMENT_GROUP})
+                              'achievements': sorted(achievements_storage.by_group(self.group, only_approved=not self.can_edit_achievements),
+                                                     key=lambda achievement: achievement.order),
+                              'groups': sorted(ACHIEVEMENT_GROUP._records, key=lambda group: group.name)})
 
 
     @login_required
@@ -75,7 +76,8 @@ class AchievementsResource(Resource):
                                                   type=form.c.type,
                                                   caption=form.c.caption,
                                                   description=form.c.description,
-                                                  approved=form.c.approved)
+                                                  approved=form.c.approved,
+                                                  barrier=form.c.barrier)
 
         return self.json_ok(data={'next_url': url('accounts:achievements:group', achievement.group.value)})
 
@@ -88,6 +90,7 @@ class AchievementsResource(Resource):
                                              'group': self.achievement.group,
                                              'type': self.achievement.type,
                                              'caption': self.achievement.caption,
+                                             'barrier': self.achievement.barrier,
                                              'description': self.achievement.description})
         return self.template('achievements/new.html',
                              {'form': form})
@@ -108,6 +111,7 @@ class AchievementsResource(Resource):
         self.achievement.caption = form.c.caption
         self.achievement.description = form.c.description
         self.achievement.approved = form.c.approved
+        self.achievement.barrier = form.c.barrier
 
         self.achievement.save()
 

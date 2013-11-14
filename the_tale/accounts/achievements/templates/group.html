@@ -11,7 +11,7 @@
     <div class="block">
       <h3>Достижения</h3>
       <ul class="nav nav-list">
-        {% for group in ACHIEVEMENT_GROUP._records %}
+        {% for group in groups %}
         <li class="nav-element {% if resource.group == group %}active{% endif %}">
           <a href="{{ url('accounts:achievements:group', group.value) }}">
             {{group.text}}

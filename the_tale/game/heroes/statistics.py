@@ -1,20 +1,10 @@
 # coding: utf-8
 
+from the_tale.accounts.achievements.storage import achievements_storage
+from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
+
+
 from the_tale.game.heroes.exceptions import HeroException
-
-class MONEY_SOURCE:
-
-    EARNED_FROM_LOOT = 0
-    EARNED_FROM_ARTIFACTS = 1
-    EARNED_FROM_QUESTS = 2
-    EARNED_FROM_HELP = 3
-
-    SPEND_FOR_HEAL = 1000
-    SPEND_FOR_ARTIFACTS = 1001
-    SPEND_FOR_SHARPENING = 1002
-    SPEND_FOR_USELESS = 1003
-    SPEND_FOR_IMPACT = 1004
-    SPEND_FOR_EXPERIENCE = 1005
 
 
 class HeroStatistics(object):
@@ -30,11 +20,21 @@ class HeroStatistics(object):
 
     @property
     def pve_deaths(self): return self.hero_model.stat_pve_deaths
-    def change_pve_deaths(self, value): self.hero_model.stat_pve_deaths += value
+    def change_pve_deaths(self, value):
+        with achievements_storage.verify(account_id=self.hero_model.account_id,
+                                         type=ACHIEVEMENT_TYPE.DEATHS,
+                                         object=None,
+                                         value_callback=lambda: self.pve_deaths):
+            self.hero_model.stat_pve_deaths += value
 
     @property
     def pve_kills(self): return self.hero_model.stat_pve_kills
-    def change_pve_kills(self, value): self.hero_model.stat_pve_kills += value
+    def change_pve_kills(self, value):
+        with achievements_storage.verify(account_id=self.hero_model.account_id,
+                                         type=ACHIEVEMENT_TYPE.MOBS,
+                                         object=None,
+                                         value_callback=lambda: self.pve_kills):
+            self.hero_model.stat_pve_kills += value
 
 
     #########################################
@@ -43,30 +43,33 @@ class HeroStatistics(object):
 
     def change_money(self, source, value):
 
-        if source == MONEY_SOURCE.EARNED_FROM_LOOT:
-            self.hero_model.stat_money_earned_from_loot += value
-        elif source == MONEY_SOURCE.EARNED_FROM_ARTIFACTS:
-            self.hero_model.stat_money_earned_from_artifacts += value
-        elif source == MONEY_SOURCE.EARNED_FROM_QUESTS:
-            self.hero_model.stat_money_earned_from_quests += value
-        elif source == MONEY_SOURCE.EARNED_FROM_HELP:
-            self.hero_model.stat_money_earned_from_help += value
+        with achievements_storage.verify(account_id=self.hero_model.account_id,
+                                         type=ACHIEVEMENT_TYPE.MONEY,
+                                         object=None,
+                                         value_callback=lambda: self.money_earned):
+            if source._is_EARNED_FROM_LOOT:
+                self.hero_model.stat_money_earned_from_loot += value
+            elif source._is_EARNED_FROM_ARTIFACTS:
+                self.hero_model.stat_money_earned_from_artifacts += value
+            elif source._is_EARNED_FROM_QUESTS:
+                self.hero_model.stat_money_earned_from_quests += value
+            elif source._is_EARNED_FROM_HELP:
+                self.hero_model.stat_money_earned_from_help += value
+            elif source._is_SPEND_FOR_HEAL:
+                self.hero_model.stat_money_spend_for_heal += value
+            elif source._is_SPEND_FOR_ARTIFACTS:
+                self.hero_model.stat_money_spend_for_artifacts += value
+            elif source._is_SPEND_FOR_SHARPENING:
+                self.hero_model.stat_money_spend_for_sharpening += value
+            elif source._is_SPEND_FOR_USELESS:
+                self.hero_model.stat_money_spend_for_useless += value
+            elif source._is_SPEND_FOR_IMPACT:
+                self.hero_model.stat_money_spend_for_impact += value
+            elif source._is_SPEND_FOR_EXPERIENCE:
+                self.hero_model.stat_money_spend_for_experience += value
 
-        elif source == MONEY_SOURCE.SPEND_FOR_HEAL:
-            self.hero_model.stat_money_spend_for_heal += value
-        elif source == MONEY_SOURCE.SPEND_FOR_ARTIFACTS:
-            self.hero_model.stat_money_spend_for_artifacts += value
-        elif source == MONEY_SOURCE.SPEND_FOR_SHARPENING:
-            self.hero_model.stat_money_spend_for_sharpening += value
-        elif source == MONEY_SOURCE.SPEND_FOR_USELESS:
-            self.hero_model.stat_money_spend_for_useless += value
-        elif source == MONEY_SOURCE.SPEND_FOR_IMPACT:
-            self.hero_model.stat_money_spend_for_impact += value
-        elif source == MONEY_SOURCE.SPEND_FOR_EXPERIENCE:
-            self.hero_model.stat_money_spend_for_experience += value
-
-        else:
-            raise HeroException('unknown money source: %s' % source)
+            else:
+                raise HeroException('unknown money source: %s' % source)
 
 
     @property
@@ -120,7 +123,12 @@ class HeroStatistics(object):
 
     @property
     def artifacts_had(self): return self.hero_model.stat_artifacts_had
-    def change_artifacts_had(self, value): self.hero_model.stat_artifacts_had += value
+    def change_artifacts_had(self, value):
+        with achievements_storage.verify(account_id=self.hero_model.account_id,
+                                         type=ACHIEVEMENT_TYPE.ARTIFACTS,
+                                         object=None,
+                                         value_callback=lambda: self.artifacts_had):
+            self.hero_model.stat_artifacts_had += value
 
     @property
     def loot_had(self): return self.hero_model.stat_loot_had
@@ -128,7 +136,12 @@ class HeroStatistics(object):
 
     @property
     def quests_done(self): return self.hero_model.stat_quests_done
-    def change_quests_done(self, value): self.hero_model.stat_quests_done += value
+    def change_quests_done(self, value):
+        with achievements_storage.verify(account_id=self.hero_model.account_id,
+                                         type=ACHIEVEMENT_TYPE.QUESTS,
+                                         object=None,
+                                         value_callback=lambda: self.quests_done):
+            self.hero_model.stat_quests_done += value
 
     #########################################
     # pvp

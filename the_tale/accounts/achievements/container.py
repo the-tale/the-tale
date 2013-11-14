@@ -20,10 +20,16 @@ class AchievementsContainer(object):
         return obj
 
     def add_achievement(self, achievement):
+
         if achievement.id in self.achievements:
             return
 
+        self.updated = True
         self.achievements[achievement.id] = time.time()
+
 
     def has_achievement(self, achievement):
         return achievement.id in self.achievements
+
+    def __len__(self):
+         return len(self.achievements)

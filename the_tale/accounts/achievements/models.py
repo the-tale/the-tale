@@ -25,6 +25,8 @@ class Achievement(models.Model):
 
     approved = models.BooleanField(default=False)
 
+    barrier = models.IntegerField()
+
     class Meta:
         permissions = (('edit_achievement', u'Может создавать и редактировать достижения'),)
 
@@ -35,3 +37,9 @@ class AccountAchievements(models.Model):
     account = models.ForeignKey('accounts.Account', on_delete=models.CASCADE)
 
     achievements = models.TextField(default='{}')
+
+
+
+class GiveAchievementTask(models.Model):
+    account = models.ForeignKey('accounts.Account', on_delete=models.CASCADE)
+    achievement = models.ForeignKey(Achievement, on_delete=models.CASCADE)

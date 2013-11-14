@@ -21,6 +21,7 @@ from the_tale.game.artifacts.storage import artifacts_storage
 
 from the_tale.game.mobs.models import MobRecord
 from the_tale.game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
+from the_tale.game.mobs import exceptions
 
 
 class MobException(Exception): pass
@@ -242,6 +243,9 @@ class MobRecordPrototype(BasePrototype):
 
     def save(self):
         from the_tale.game.mobs.storage import mobs_storage
+
+        if id(self) != id(mobs_storage[self.id]):
+            raise exceptions.SaveNotRegisteredMobError(mob=self.id)
 
         self._model.save()
 

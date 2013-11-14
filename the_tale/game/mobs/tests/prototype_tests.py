@@ -22,6 +22,7 @@ from the_tale.game.mobs.storage import mobs_storage
 from the_tale.game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
 from the_tale.game.mobs.prototypes import MobPrototype, MobRecordPrototype
 from the_tale.game.mobs.forms import ModerateMobRecordForm
+from the_tale.game.mobs import exceptions
 
 
 class MobsPrototypeTests(testcase.TestCase):
@@ -127,3 +128,8 @@ class MobsPrototypeTests(testcase.TestCase):
 
         self.assertEqual(mob.uuid, 'new_uid')
         self.assertEqual(mob.uuid, mobs_storage.get_by_uuid(mob.uuid).uuid)
+
+    def test_save__not_stored_mob(self):
+        mob = MobRecordPrototype.get_by_id(mobs_storage.all()[0].id)
+
+        self.assertRaises(exceptions.SaveNotRegisteredMobError, mob.save)

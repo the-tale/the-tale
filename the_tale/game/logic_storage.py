@@ -116,6 +116,8 @@ class LogicStorage(object):
 
     def process_turn(self, logger=None, second_step_if_needed=True):
 
+        timestamp = time.time()
+
         for hero in self.heroes.values():
 
             if hero.id in self.skipped_heroes:
@@ -139,11 +141,14 @@ class LogicStorage(object):
                     logger.error('bundles saved')
                 raise
 
+            hero.process_rare_operations()
+
             if leader_action.removed and leader_action.bundle_id != hero.actions.current_action.bundle_id:
                 self.skipped_heroes.add(hero.id)
 
             if game_settings.UNLOAD_OBJECTS:
-                hero.unload_serializable_items(time.time())
+                hero.unload_serializable_items(timestamp)
+
 
     def _save_on_exception(self, excluded_bundle_id):
         for hero_id, hero in self.heroes.iteritems():

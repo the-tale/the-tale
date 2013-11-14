@@ -5,7 +5,6 @@ from rels.django_staff import DjangoEnum
 
 from the_tale.game.artifacts.models import ARTIFACT_TYPE
 
-from the_tale.game.heroes.statistics import MONEY_SOURCE
 
 class RISK_LEVEL(DjangoEnum):
     health_percent_to_rest = Column()
@@ -32,6 +31,22 @@ class PREFERENCE_TYPE(DjangoEnum):
                  ('RISK_LEVEL', 6, u'уровень риска', 8, 'risk_level', '_prepair_risk_level', False),
                  ('FAVORITE_ITEM', 7, u'любимая вещь', 19, 'favorite_item', '_prepair_equipment_slot', True)
         )
+
+
+class MONEY_SOURCE(DjangoEnum):
+
+    _records = ( ('EARNED_FROM_LOOT', 0, u'заработано продажей добычи'),
+                 ('EARNED_FROM_ARTIFACTS', 1, u'заработано продажей артефактов'),
+                 ('EARNED_FROM_QUESTS', 2, u'заработано выполнением квестов'),
+                 ('EARNED_FROM_HELP', 3, u'получено от хранителя'),
+
+                 ('SPEND_FOR_HEAL', 1000, u'потрачено на лечение'),
+                 ('SPEND_FOR_ARTIFACTS', 1001, u'потрачено на покупку артефактов'),
+                 ('SPEND_FOR_SHARPENING', 1002, u'потрачено на заточку артефактов'),
+                 ('SPEND_FOR_USELESS', 1003, u'потрачено без пользы'),
+                 ('SPEND_FOR_IMPACT', 1004, u'потрачено на изменение влияния'),
+                 ('SPEND_FOR_EXPERIENCE', 1005, u'потрачено на обучение') )
+
 
 
 class ITEMS_OF_EXPENDITURE(DjangoEnum):

@@ -23,9 +23,11 @@ INDEX_ORDER_TYPE = create_enum('INDEX_ORDER_TYPE', (('BY_LEVEL', 'by_level', u'�
                                                     ('BY_NAME', 'by_name', u'по имени'),))
 
 
+def argument_to_mob(value): return mobs_storage.get(int(value), None)
+
 class MobResourceBase(Resource):
 
-    @validate_argument('mob', MobRecordPrototype.get_by_id, 'mobs', u'Запись о монстре не найдена')
+    @validate_argument('mob', argument_to_mob, 'mobs', u'Запись о монстре не найдена')
     def initialize(self, mob=None, *args, **kwargs):
         super(MobResourceBase, self).initialize(*args, **kwargs)
         self.mob = mob

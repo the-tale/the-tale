@@ -14,7 +14,7 @@ from the_tale.game.logic import create_test_map, DEFAULT_HERO_EQUIPMENT
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 
-from the_tale.game.artifacts.exceptions import ArtifactsException
+from the_tale.game.artifacts import exceptions
 from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype, ArtifactPrototype
 from the_tale.game.artifacts.models import ARTIFACT_RECORD_STATE, RARITY_TYPE
@@ -189,19 +189,21 @@ class PrototypeTests(testcase.TestCase):
 
         default_artifact = artifacts_storage.get_by_uuid(random.choice(DEFAULT_HERO_EQUIPMENT._ALL))
 
-        self.assertRaises(ArtifactsException, default_artifact.update_by_moderator, form)
+        self.assertRaises(exceptions.ChangeDefaultEquipmentUIDError, default_artifact.update_by_moderator, form)
 
 
     def test_disable_default_equipment(self):
+        artifact_uid = random.choice(DEFAULT_HERO_EQUIPMENT._ALL)
+
         form = ModerateArtifactRecordForm({'level': '1',
                                            'type': ARTIFACT_TYPE.USELESS,
                                            'rarity': RARITY_TYPE.NORMAL,
-                                           'uuid': 'artifact_uuid',
+                                           'uuid': artifact_uid,
                                            'name_forms': s11n.to_json(Noun(normalized='artifact name',
                                                                            forms=['artifact name'] * Noun.FORMS_NUMBER,
                                                                            properties=(u'мр',)).serialize())})
         self.assertTrue(form.is_valid())
 
-        default_artifact = artifacts_storage.get_by_uuid(random.choice(DEFAULT_HERO_EQUIPMENT._ALL))
+        default_artifact = artifacts_storage.get_by_uuid(artifact_uid)
 
-        self.assertRaises(ArtifactsException, default_artifact.update_by_moderator, form)
+        self.assertRaises(exceptions.DisableDefaultEquipmentError, default_artifact.update_by_moderator, form)

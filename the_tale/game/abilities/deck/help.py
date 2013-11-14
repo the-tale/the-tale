@@ -1,7 +1,7 @@
 # coding: utf-8
 import random
 
-from the_tale.game.heroes.statistics import MONEY_SOURCE
+from the_tale.game.heroes.relations import MONEY_SOURCE
 
 from the_tale.game.abilities.prototypes import AbilityPrototype
 from the_tale.game.abilities.relations import ABILITY_TYPE

@@ -19,8 +19,7 @@ from the_tale.game.map.places.storage import places_storage
 from the_tale.game.map.roads.storage import waymarks_storage
 from the_tale.game.persons.storage import persons_storage
 
-from the_tale.game.heroes.statistics import MONEY_SOURCE
-from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE
+from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE, MONEY_SOURCE
 
 from the_tale.game.quests import exceptions
 from the_tale.game.quests import uids

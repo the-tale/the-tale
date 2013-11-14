@@ -175,6 +175,8 @@ class BasePrototype(object):
 
     def reload(self):
         self._model = self._model_class.objects.get(id=self._model.id)
+        for field_name, Class, timeout in self._serialization_proxies:
+            getattr(self, field_name)._load_object()
 
     def create(self, *argv, **kwargs):
         raise NotImplementedError

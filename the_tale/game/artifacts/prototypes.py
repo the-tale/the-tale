@@ -10,7 +10,7 @@ from the_tale.common.utils.prototypes import BasePrototype
 
 from the_tale.game.balance import constants as c, formulas as f
 
-from the_tale.game.artifacts.exceptions import ArtifactsException
+from the_tale.game.artifacts import exceptions
 from the_tale.game.artifacts.models import ArtifactRecord, ARTIFACT_RECORD_STATE, RARITY_TYPE, RARITY_TYPE_2_PRIORITY
 from the_tale.game.artifacts.relations import ARTIFACT_TYPE
 
@@ -68,7 +68,7 @@ class ArtifactPrototype(object):
             elif self.rarity == RARITY_TYPE.EPIC:
                 gold_amount = 1 + int(f.epic_loot_cost_at_lvl(self.level) * multiplier)
             else:
-                raise ArtifactsException('unknown artifact rarity type: %s' % self)
+                raise exceptions.UnknownArtifactRarityTypeError(artifact=self, type=self.rarity)
         else:
             gold_amount = 1 + int(f.sell_artifact_price(self.level) * multiplier)
 
@@ -213,9 +213,9 @@ class ArtifactRecordPrototype(BasePrototype):
 
         if self.uuid in DEFAULT_HERO_EQUIPMENT._ALL: # pylint: disable=E0203
             if self.uuid != form.c.uuid:  # pylint: disable=E0203
-                raise ArtifactsException('we can not change uuid of default hero equipment (%s - > %s)' % (self.uuid, form.c.uuid)) # pylint: disable=E0203
+                raise exceptions.ChangeDefaultEquipmentUIDError(old_uid=self.uuid, new_uid=form.c.uuid)
             if not form.c.approved:
-                raise ArtifactsException('we can not disable default hero equipment (%s)' % self.uuid) # pylint: disable=E0203
+                raise exceptions.DisableDefaultEquipmentError(artifact=self.uuid)
 
         self.name_forms = form.c.name_forms
         self.level = form.c.level
@@ -233,6 +233,9 @@ class ArtifactRecordPrototype(BasePrototype):
 
     def save(self):
         from the_tale.game.artifacts.storage import artifacts_storage
+
+        if id(self) != id(artifacts_storage[self.id]):
+            raise exceptions.SaveNotRegisteredArtifactError(mob=self.id)
 
         self._model.save()
 

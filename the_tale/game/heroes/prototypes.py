@@ -32,7 +32,7 @@ from the_tale.game.prototypes import TimePrototype
 from the_tale.game.actions.container import ActionsContainer
 from the_tale.game.quests.container import QuestsContainer
 
-from the_tale.game.heroes.statistics import HeroStatistics, MONEY_SOURCE
+from the_tale.game.heroes.statistics import HeroStatistics
 from the_tale.game.heroes.models import Hero, HeroPreferences
 from the_tale.game.heroes.habilities import AbilitiesPrototype, ABILITY_TYPE
 from the_tale.game.heroes.conf import heroes_settings
@@ -40,7 +40,7 @@ from the_tale.game.heroes.exceptions import HeroException
 from the_tale.game.heroes.pvp import PvPData
 from the_tale.game.heroes.messages import MessagesContainer
 from the_tale.game.heroes.places_help_statistics import PlacesHelpStatistics
-from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE, EQUIPMENT_SLOT, RISK_LEVEL
+from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE, EQUIPMENT_SLOT, RISK_LEVEL, MONEY_SOURCE
 
 
 class HeroPrototype(BasePrototype):
@@ -57,7 +57,8 @@ class HeroPrototype(BasePrototype):
                       'active_state_end_at',
                       'premium_state_end_at',
                       'ban_state_end_at',
-                      'energy_charges')
+                      'energy_charges',
+                      'last_rare_operation_at_turn')
     _get_by = ('id', 'account_id')
     _serialization_proxies = (('quests', QuestsContainer, heroes_settings.UNLOAD_TIMEOUT),
                               ('places_history', PlacesHelpStatistics, heroes_settings.UNLOAD_TIMEOUT),
@@ -918,6 +919,30 @@ class HeroPrototype(BasePrototype):
     def resurrect(self):
         self.health = self.max_health
         self.is_alive = True
+
+    def _process_rare_achievements(self, current_turn):
+        from the_tale.accounts.achievements.storage import achievements_storage
+        from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
+
+        old_age = f.turns_to_game_time(self.last_rare_operation_at_turn - self.created_at_turn)
+        current_age = f.turns_to_game_time(current_turn -self.created_at_turn)
+
+        achievements_storage.verify_achievements(account_id=self.account_id,
+                                                 type=ACHIEVEMENT_TYPE.TIME,
+                                                 object=None,
+                                                 old_value=old_age[0],
+                                                 new_value=current_age[0])
+
+    def process_rare_operations(self):
+        current_turn = TimePrototype.get_current_turn_number()
+
+        if current_turn - self.last_rare_operation_at_turn < heroes_settings.RARE_OPERATIONS_INTERVAL:
+            return
+
+        self._process_rare_achievements(current_turn=current_turn)
+
+        self.last_rare_operation_at_turn = current_turn
+
 
 
 

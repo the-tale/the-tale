@@ -120,6 +120,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.GAME_SECONDS_IN_GAME_YEAR, 60*60*24*7*4*4)
 
         self.assertEqual(c.TURNS_IN_GAME_MONTH, 20160)
+        self.assertEqual(c.TURNS_IN_GAME_YEAR, 20160 * 4)
         self.assertEqual(c.GAME_SECONDS_IN_TURN, 120)
 
         self.assertEqual(c.MAP_CELL_LENGTH, 3.0)
