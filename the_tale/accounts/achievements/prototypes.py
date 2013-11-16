@@ -12,14 +12,14 @@ from the_tale.accounts.achievements import exceptions
 class AchievementPrototype(BasePrototype):
     _model_class = Achievement
     _readonly = ('id', 'created_at', 'updated_at')
-    _bidirectional = ('caption', 'description', 'order', 'group', 'type', 'approved', 'barrier')
+    _bidirectional = ('caption', 'description', 'order', 'group', 'type', 'approved', 'barrier', 'points')
     _get_by = ('id', )
 
     CAPTION_MAX_LENGTH = Achievement.CAPTION_MAX_LENGTH
     DESCRIPTION_MAX_LENGTH = Achievement.DESCRIPTION_MAX_LENGTH
 
     @classmethod
-    def create(cls, group, type, caption, description, approved, barrier):
+    def create(cls, group, type, caption, description, approved, barrier, points):
         from the_tale.accounts.achievements.storage import achievements_storage
 
         order = cls._db_all().aggregate(models.Max('order'))['order__max']
@@ -33,7 +33,8 @@ class AchievementPrototype(BasePrototype):
                                description=description,
                                order=order,
                                barrier=barrier,
-                               approved=approved)
+                               approved=approved,
+                               points=points)
         prototype = cls(model=model)
 
         achievements_storage.add_item(prototype.id, prototype)
@@ -52,13 +53,13 @@ class AchievementPrototype(BasePrototype):
         achievements_storage.update_version()
 
 
-    def check(self, object, old_value, new_value):
+    def check(self, old_value, new_value):
         return old_value < self.barrier <= new_value
 
 
 class AccountAchievementsPrototype(BasePrototype):
     _model_class = AccountAchievements
-    _readonly = ('id', 'account_id')
+    _readonly = ('id', 'account_id', 'points')
     _bidirectional = ()
     _get_by = ('id', 'account_id')
     _serialization_proxies = (('achievements', AchievementsContainer, None),)
@@ -72,6 +73,11 @@ class AccountAchievementsPrototype(BasePrototype):
         if not achievement.approved:
             return
         GiveAchievementTaskPrototype.create(account_id=account_id, achievement_id=achievement.id)
+
+    def add_achievement(self, achievement):
+        self.achievements.add_achievement(achievement)
+        self._model.points = self.achievements.get_points()
+
 
     def has_achievement(self, achievement):
         return self.achievements.has_achievement(achievement)

@@ -2,6 +2,7 @@
 
 import time
 
+
 class AchievementsContainer(object):
 
     __slots__ = ('updated', 'achievements')
@@ -33,3 +34,7 @@ class AchievementsContainer(object):
 
     def __len__(self):
          return len(self.achievements)
+
+    def get_points(self):
+        from the_tale.accounts.achievements.storage import achievements_storage
+        return sum(achievements_storage[achievement_id].points for achievement_id in self.achievements.keys())

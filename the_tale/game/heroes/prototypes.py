@@ -36,7 +36,7 @@ from the_tale.game.heroes.statistics import HeroStatistics
 from the_tale.game.heroes.models import Hero, HeroPreferences
 from the_tale.game.heroes.habilities import AbilitiesPrototype, ABILITY_TYPE
 from the_tale.game.heroes.conf import heroes_settings
-from the_tale.game.heroes.exceptions import HeroException
+from the_tale.game.heroes import exceptions
 from the_tale.game.heroes.pvp import PvPData
 from the_tale.game.heroes.messages import MessagesContainer
 from the_tale.game.heroes.places_help_statistics import PlacesHelpStatistics
@@ -596,7 +596,7 @@ class HeroPrototype(BasePrototype):
     def position(self): return HeroPositionPrototype(hero_model=self._model)
 
     @lazy_property
-    def statistics(self): return HeroStatistics(hero_model=self._model)
+    def statistics(self): return HeroStatistics(hero=self)
 
     @lazy_property
     def preferences(self):
@@ -638,7 +638,7 @@ class HeroPrototype(BasePrototype):
 
     def heal(self, delta):
         if delta < 0:
-            raise HeroException('can not heal hero for value less then 0')
+            raise exceptions.HealHeroForNegativeValueError()
         old_health = self.health
         self.health = int(min(self.health + delta, self.max_health))
         return self.health - old_health
@@ -920,28 +920,38 @@ class HeroPrototype(BasePrototype):
         self.health = self.max_health
         self.is_alive = True
 
-    def _process_rare_achievements(self, current_turn):
+
+    def get_achievement_account_id(self):
+        return self.account_id
+
+    def get_achievement_type_value(self, achievement_type):
+
+        if achievement_type._is_TIME:
+            return f.turns_to_game_time(self.last_rare_operation_at_turn - self.created_at_turn)[0]
+        elif achievement_type._is_MONEY:
+            return self.statistics.money_earned
+        elif achievement_type._is_MOBS:
+            return self.statistics.pve_kills
+        elif achievement_type._is_ARTIFACTS:
+            return self.statistics.artifacts_had
+        elif achievement_type._is_QUESTS:
+            return self.statistics.quests_done
+        elif achievement_type._is_DEATHS:
+            return self.statistics.pve_deaths
+
+        raise exceptions.UnkwnownAchievementTypeError(achievement_type=achievement_type)
+
+    def process_rare_operations(self):
         from the_tale.accounts.achievements.storage import achievements_storage
         from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
-        old_age = f.turns_to_game_time(self.last_rare_operation_at_turn - self.created_at_turn)
-        current_age = f.turns_to_game_time(current_turn -self.created_at_turn)
-
-        achievements_storage.verify_achievements(account_id=self.account_id,
-                                                 type=ACHIEVEMENT_TYPE.TIME,
-                                                 object=None,
-                                                 old_value=old_age[0],
-                                                 new_value=current_age[0])
-
-    def process_rare_operations(self):
         current_turn = TimePrototype.get_current_turn_number()
 
         if current_turn - self.last_rare_operation_at_turn < heroes_settings.RARE_OPERATIONS_INTERVAL:
             return
 
-        self._process_rare_achievements(current_turn=current_turn)
-
-        self.last_rare_operation_at_turn = current_turn
+        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.TIME, object=self):
+            self.last_rare_operation_at_turn = current_turn
 
 
 

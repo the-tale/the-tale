@@ -8,7 +8,7 @@ from the_tale.common.utils.permissions import sync_group
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user, login_page_url
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_GROUP, ACHIEVEMENT_TYPE
-from the_tale.accounts.achievements.prototypes import AchievementPrototype, AccountAchievementsPrototype
+from the_tale.accounts.achievements.prototypes import AchievementPrototype, AccountAchievementsPrototype, GiveAchievementTaskPrototype
 
 from the_tale.game.logic import create_test_map
 
@@ -31,11 +31,11 @@ class _BaseRequestTests(testcase.TestCase):
 
         group_edit.user_set.add(self.account_2._model)
 
-        self.achievement_1 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=0,
+        self.achievement_1 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=0, points=10,
                                                          caption=u'achievement_1', description=u'description_1', approved=True)
-        self.achievement_2 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=2,
+        self.achievement_2 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=2, points=10,
                                                          caption=u'achievement_2', description=u'description_2', approved=False)
-        self.achievement_3 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.TIME, type=ACHIEVEMENT_TYPE.TIME, barrier=3,
+        self.achievement_3 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.TIME, type=ACHIEVEMENT_TYPE.TIME, barrier=3, points=10,
                                                          caption=u'achievement_3', description=u'description_3', approved=True)
 
 
@@ -114,29 +114,34 @@ class AchievementsCreateTests(_BaseRequestTests):
                 'order': 666,
                 'barrier': 777,
                 'type': ACHIEVEMENT_TYPE.DEATHS,
-                'group': ACHIEVEMENT_GROUP.DEATHS}
+                'group': ACHIEVEMENT_GROUP.DEATHS,
+                'points': 20}
 
     def test_login_required(self):
         with self.check_not_changed(AchievementPrototype._db_all().count):
-            self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
-                                  'common.login_required')
+            with self.check_not_changed(GiveAchievementTaskPrototype._db_all().count):
+                self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
+                                      'common.login_required')
 
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)
         with self.check_not_changed(AchievementPrototype._db_all().count):
-            self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
-                                  'accounts.achievements.no_edit_rights')
+            with self.check_not_changed(GiveAchievementTaskPrototype._db_all().count):
+                self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
+                                      'accounts.achievements.no_edit_rights')
 
     def test_form_errors(self):
         self.request_login(self.account_2.email)
         with self.check_not_changed(AchievementPrototype._db_all().count):
-            self.check_ajax_error(self.post_ajax_json(self.test_url, {}),
-                                  'accounts.achievements.create.form_errors')
+            with self.check_not_changed(GiveAchievementTaskPrototype._db_all().count):
+                self.check_ajax_error(self.post_ajax_json(self.test_url, {}),
+                                      'accounts.achievements.create.form_errors')
 
     def test_success(self):
         self.request_login(self.account_2.email)
         with self.check_delta(AchievementPrototype._db_all().count, 1):
-            response = self.post_ajax_json(self.test_url, self.get_post_data())
+            with self.check_delta(GiveAchievementTaskPrototype._db_all().count, 1):
+                response = self.post_ajax_json(self.test_url, self.get_post_data())
 
         achievement = AchievementPrototype._db_get_object(3)
 
@@ -147,6 +152,7 @@ class AchievementsCreateTests(_BaseRequestTests):
         self.assertEqual(achievement.type, ACHIEVEMENT_TYPE.DEATHS)
         self.assertEqual(achievement.group, ACHIEVEMENT_GROUP.DEATHS)
         self.assertEqual(achievement.barrier, 777)
+        self.assertEqual(achievement.points, 20)
         self.assertFalse(achievement.approved)
 
 
@@ -187,16 +193,19 @@ class AchievementsUpdateTests(_BaseRequestTests):
                 'barrier': 777,
                 'type': ACHIEVEMENT_TYPE.DEATHS,
                 'group': ACHIEVEMENT_GROUP.DEATHS,
-                'approved': True}
+                'approved': True,
+                'points': 6}
 
 
     def test_login_required(self):
-        self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()), 'common.login_required')
+        with self.check_not_changed(GiveAchievementTaskPrototype._db_all().count):
+            self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()), 'common.login_required')
 
     def test_edit_rights_required(self):
         self.request_login(self.account_1.email)
-        self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
-                              'accounts.achievements.no_edit_rights')
+        with self.check_not_changed(GiveAchievementTaskPrototype._db_all().count):
+            self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
+                                  'accounts.achievements.no_edit_rights')
 
         self.achievement_1.reload()
         self.assertEqual(self.achievement_1.caption, 'achievement_1')
@@ -205,8 +214,9 @@ class AchievementsUpdateTests(_BaseRequestTests):
 
     def test_form_errors(self):
         self.request_login(self.account_2.email)
-        self.check_ajax_error(self.post_ajax_json(self.test_url, {}),
-                              'accounts.achievements.update.form_errors')
+        with self.check_not_changed(GiveAchievementTaskPrototype._db_all().count):
+            self.check_ajax_error(self.post_ajax_json(self.test_url, {}),
+                                  'accounts.achievements.update.form_errors')
 
         self.achievement_1.reload()
         self.assertEqual(self.achievement_1.caption, 'achievement_1')
@@ -214,7 +224,8 @@ class AchievementsUpdateTests(_BaseRequestTests):
 
     def test_success(self):
         self.request_login(self.account_2.email)
-        response = self.post_ajax_json(self.test_url, self.get_post_data())
+        with self.check_delta(GiveAchievementTaskPrototype._db_all().count, 1):
+            response = self.post_ajax_json(self.test_url, self.get_post_data())
 
         self.achievement_2.reload()
 
@@ -226,3 +237,4 @@ class AchievementsUpdateTests(_BaseRequestTests):
         self.assertEqual(self.achievement_2.group, ACHIEVEMENT_GROUP.DEATHS)
         self.assertEqual(self.achievement_2.barrier, 777)
         self.assertTrue(self.achievement_2.approved)
+        self.assertEqual(self.achievement_2.points, 6)

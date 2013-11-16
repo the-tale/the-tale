@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from django.db import transaction
+
 from dext.views import handler, validate_argument, validator
 from dext.utils.urls import url
 
@@ -9,7 +11,7 @@ from the_tale.common.utils.decorators import login_required
 
 from the_tale.accounts.prototypes import AccountPrototype
 
-from the_tale.accounts.achievements.prototypes import AchievementPrototype, AccountAchievementsPrototype
+from the_tale.accounts.achievements.prototypes import AchievementPrototype, AccountAchievementsPrototype, GiveAchievementTaskPrototype
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_GROUP
 from the_tale.accounts.achievements.storage import achievements_storage
 from the_tale.accounts.achievements.forms import EditAchievementForm
@@ -72,12 +74,16 @@ class AchievementsResource(Resource):
             return self.json_error('accounts.achievements.create.form_errors', form.errors)
 
 
-        achievement = AchievementPrototype.create(group=form.c.group,
-                                                  type=form.c.type,
-                                                  caption=form.c.caption,
-                                                  description=form.c.description,
-                                                  approved=form.c.approved,
-                                                  barrier=form.c.barrier)
+        with transaction.atomic():
+            achievement = AchievementPrototype.create(group=form.c.group,
+                                                      type=form.c.type,
+                                                      caption=form.c.caption,
+                                                      description=form.c.description,
+                                                      approved=form.c.approved,
+                                                      barrier=form.c.barrier,
+                                                      points=form.c.points)
+
+            GiveAchievementTaskPrototype.create(account_id=None, achievement_id=achievement.id)
 
         return self.json_ok(data={'next_url': url('accounts:achievements:group', achievement.group.value)})
 
@@ -91,7 +97,8 @@ class AchievementsResource(Resource):
                                              'type': self.achievement.type,
                                              'caption': self.achievement.caption,
                                              'barrier': self.achievement.barrier,
-                                             'description': self.achievement.description})
+                                             'description': self.achievement.description,
+                                             'points': self.achievement.points})
         return self.template('achievements/new.html',
                              {'form': form})
 
@@ -106,13 +113,18 @@ class AchievementsResource(Resource):
             return self.json_error('accounts.achievements.update.form_errors', form.errors)
 
 
-        self.achievement.group = form.c.group
-        self.achievement.type = form.c.type
-        self.achievement.caption = form.c.caption
-        self.achievement.description = form.c.description
-        self.achievement.approved = form.c.approved
-        self.achievement.barrier = form.c.barrier
+        with transaction.atomic():
 
-        self.achievement.save()
+            self.achievement.group = form.c.group
+            self.achievement.type = form.c.type
+            self.achievement.caption = form.c.caption
+            self.achievement.description = form.c.description
+            self.achievement.approved = form.c.approved
+            self.achievement.barrier = form.c.barrier
+            self.achievement.points = form.c.points
+
+            self.achievement.save()
+
+            GiveAchievementTaskPrototype.create(account_id=None, achievement_id=self.achievement.id)
 
         return self.json_ok(data={'next_url': url('accounts:achievements:group', self.achievement.group.value)})

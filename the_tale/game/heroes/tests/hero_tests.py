@@ -329,10 +329,10 @@ class HeroTest(TestCase):
         game_time = TimePrototype.get_current_time()
         game_time.increment_turn()
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype._process_rare_achievements') as process_rare_achievements:
+        with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
             self.hero.process_rare_operations()
 
-        self.assertEqual(process_rare_achievements.call_args_list, [])
+        self.assertEqual(verify_achievements.call_args_list, [])
         self.assertEqual(self.hero.last_rare_operation_at_turn, 0)
 
     @mock.patch('the_tale.game.heroes.conf.heroes_settings.RARE_OPERATIONS_INTERVAL', 2)
@@ -341,10 +341,14 @@ class HeroTest(TestCase):
         game_time.increment_turn()
         game_time.increment_turn()
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype._process_rare_achievements') as process_rare_achievements:
+        with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
             self.hero.process_rare_operations()
 
-        self.assertEqual(process_rare_achievements.call_args_list, [mock.call(current_turn=game_time.turn_number)])
+        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
+                                                                        type=ACHIEVEMENT_TYPE.TIME,
+                                                                        old_value=0,
+                                                                        new_value=0)])
+
         self.assertEqual(self.hero.last_rare_operation_at_turn, game_time.turn_number)
 
     @mock.patch('the_tale.game.heroes.conf.heroes_settings.RARE_OPERATIONS_INTERVAL', 2)
@@ -358,7 +362,6 @@ class HeroTest(TestCase):
 
         self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
                                                                         type=ACHIEVEMENT_TYPE.TIME,
-                                                                        object=None,
                                                                         old_value=0,
                                                                         new_value=0)])
 
@@ -371,9 +374,14 @@ class HeroTest(TestCase):
 
         self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
                                                                         type=ACHIEVEMENT_TYPE.TIME,
-                                                                        object=None,
                                                                         old_value=0,
                                                                         new_value=1)])
+
+
+    def test_get_achievement_type_value(self):
+        for achievement_type in ACHIEVEMENT_TYPE._records:
+            self.hero.get_achievement_type_value(achievement_type)
+
 
 class HeroPositionTest(TestCase):
 

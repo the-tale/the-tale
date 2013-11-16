@@ -44,14 +44,31 @@ class Worker(BaseWorker):
                 settings.refresh()
                 self.add_achievements()
 
+    def add_achievement(self, achievement, account_id):
+        achievements = AccountAchievementsPrototype.get_by_account_id(account_id)
+        achievements.add_achievement(achievement)
+        achievements.save()
+
     def add_achievements(self):
         for task in GiveAchievementTaskPrototype.from_query(GiveAchievementTaskPrototype._db_all()):
 
-            achievements = AccountAchievementsPrototype.get_by_account_id(task.account_id)
-            achievements.achievements.add_achievement(achievements_storage[task.achievement_id])
-            achievements.save()
+            achievement = achievements_storage[task.achievement_id]
+
+            if task.account_id is None:
+                self.spread_achievement(achievement)
+            else:
+                self.add_achievement(achievement, task.account_id)
 
             task.remove()
+
+    def spread_achievement(self, achievement):
+        from the_tale.game.heroes.prototypes import HeroPrototype
+
+        for hero in HeroPrototype.from_query(HeroPrototype._db_all()):
+            if not achievement.check(old_value=0, new_value=hero.get_achievement_type_value(achievement.type)):
+                continue
+            self.add_achievement(achievement, hero.account_id)
+
 
     def cmd_stop(self):
         return self.send_cmd('stop')

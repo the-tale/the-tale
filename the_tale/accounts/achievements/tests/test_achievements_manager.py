@@ -31,11 +31,11 @@ class AchievementsManagerTests(testcase.TestCase):
 
         group_edit.user_set.add(self.account_2._model)
 
-        self.achievement_1 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=0,
+        self.achievement_1 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=0, points=10,
                                                          caption=u'achievement_1', description=u'description_1', approved=True)
-        self.achievement_2 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=5,
+        self.achievement_2 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=5, points=10,
                                                          caption=u'achievement_2', description=u'description_2', approved=False)
-        self.achievement_3 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.TIME, type=ACHIEVEMENT_TYPE.TIME, barrier=4,
+        self.achievement_3 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.TIME, type=ACHIEVEMENT_TYPE.DEATHS, barrier=4, points=10,
                                                          caption=u'achievement_3', description=u'description_3', approved=True)
 
 
@@ -57,4 +57,29 @@ class AchievementsManagerTests(testcase.TestCase):
         self.worker.add_achievements()
         self.account_achievements_1.reload()
         self.assertTrue(self.account_achievements_1.has_achievement(self.achievement_3))
+        self.assertEqual(GiveAchievementTaskPrototype._db_count(), 0)
+
+
+    def test_add_achievements__all_accounts(self):
+        from the_tale.game.heroes.prototypes import HeroPrototype
+
+        GiveAchievementTaskPrototype.create(account_id=None, achievement_id=self.achievement_3.id)
+
+        account_achievements_2 = AccountAchievementsPrototype.get_by_account_id(self.account_2.id)
+
+        self.assertFalse(self.account_achievements_1.has_achievement(self.achievement_3))
+        self.assertFalse(account_achievements_2.has_achievement(self.achievement_3))
+
+        hero = HeroPrototype.get_by_account_id(self.account_1.id)
+        hero.statistics.change_pve_deaths(self.achievement_3.barrier)
+        hero.save()
+
+        self.worker.add_achievements()
+
+        self.account_achievements_1.reload()
+        account_achievements_2.reload()
+
+        self.assertTrue(self.account_achievements_1.has_achievement(self.achievement_3))
+        self.assertFalse(account_achievements_2.has_achievement(self.achievement_3))
+
         self.assertEqual(GiveAchievementTaskPrototype._db_count(), 0)

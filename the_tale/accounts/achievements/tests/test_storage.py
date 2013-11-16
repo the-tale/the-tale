@@ -22,17 +22,17 @@ class StorageTests(testcase.TestCase):
         result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
         self.account_1 = AccountPrototype.get_by_id(account_id)
 
-        self.achievement_1 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=0,
+        self.achievement_1 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=0, points=10,
                                                          caption=u'achievement_1', description=u'description_1', approved=True)
-        self.achievement_2 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=1,
+        self.achievement_2 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=1, points=10,
                                                          caption=u'achievement_2', description=u'description_2', approved=False)
-        self.achievement_3 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=2,
+        self.achievement_3 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=2, points=10,
                                                          caption=u'achievement_3', description=u'description_3', approved=True)
-        self.achievement_4 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=3,
+        self.achievement_4 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=3, points=10,
                                                          caption=u'achievement_4', description=u'description_4', approved=True)
-        self.achievement_5 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=4,
+        self.achievement_5 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=4, points=10,
                                                          caption=u'achievement_5', description=u'description_5', approved=True)
-        self.achievement_6 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.TIME, type=ACHIEVEMENT_TYPE.TIME, barrier=2,
+        self.achievement_6 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.TIME, type=ACHIEVEMENT_TYPE.TIME, barrier=2, points=10,
                                                          caption=u'achievement_6', description=u'description_6', approved=True)
 
 
@@ -79,7 +79,6 @@ class StorageTests(testcase.TestCase):
         with self.check_not_changed(GiveAchievementTaskPrototype._db_count):
             achievements_storage.verify_achievements(self.account_1.id,
                                                      type=ACHIEVEMENT_TYPE.MONEY,
-                                                     object=None,
                                                      old_value=self.achievement_2.barrier-1,
                                                      new_value=self.achievement_2.barrier)
 
@@ -87,7 +86,6 @@ class StorageTests(testcase.TestCase):
         with self.check_delta(GiveAchievementTaskPrototype._db_count, 1):
             achievements_storage.verify_achievements(self.account_1.id,
                                                      type=ACHIEVEMENT_TYPE.MONEY,
-                                                     object=None,
                                                      old_value=self.achievement_5.barrier-1,
                                                      new_value=self.achievement_5.barrier)
 

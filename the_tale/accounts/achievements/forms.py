@@ -25,3 +25,5 @@ class EditAchievementForm(forms.Form):
     description = bbcode.BBField(label=u'Описание', min_length=1, max_length=AchievementPrototype.DESCRIPTION_MAX_LENGTH)
 
     barrier = fields.IntegerField(label=u'Барьер')
+
+    points = fields.IntegerField(label=u'Очки')

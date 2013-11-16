@@ -39,9 +39,8 @@ class HeroStatisticsTest(TestCase):
         with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
             self.hero.statistics.change_money(MONEY_SOURCE.SPEND_FOR_HEAL, 666)
 
-        self.assertEqual(verify_achievements.call_args_list, [mock.call(self.hero.account_id,
+        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
                                                                         type=ACHIEVEMENT_TYPE.MONEY,
-                                                                        object=None,
                                                                         old_value=10,
                                                                         new_value=10)])
 
@@ -49,9 +48,8 @@ class HeroStatisticsTest(TestCase):
         with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
             self.hero.statistics.change_money(MONEY_SOURCE.EARNED_FROM_LOOT, 666)
 
-        self.assertEqual(verify_achievements.call_args_list, [mock.call(self.hero.account_id,
+        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
                                                                         type=ACHIEVEMENT_TYPE.MONEY,
-                                                                        object=None,
                                                                         old_value=10,
                                                                         new_value=10+666)])
 
@@ -61,9 +59,8 @@ class HeroStatisticsTest(TestCase):
         with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
             self.hero.statistics.change_artifacts_had(666)
 
-        self.assertEqual(verify_achievements.call_args_list, [mock.call(self.hero.account_id,
+        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
                                                                         type=ACHIEVEMENT_TYPE.ARTIFACTS,
-                                                                        object=None,
                                                                         old_value=11,
                                                                         new_value=11+666)])
 
@@ -73,9 +70,8 @@ class HeroStatisticsTest(TestCase):
         with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
             self.hero.statistics.change_quests_done(666)
 
-        self.assertEqual(verify_achievements.call_args_list, [mock.call(self.hero.account_id,
+        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
                                                                         type=ACHIEVEMENT_TYPE.QUESTS,
-                                                                        object=None,
                                                                         old_value=12,
                                                                         new_value=12+666)])
 
@@ -85,9 +81,8 @@ class HeroStatisticsTest(TestCase):
         with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
             self.hero.statistics.change_pve_kills(666)
 
-        self.assertEqual(verify_achievements.call_args_list, [mock.call(self.hero.account_id,
+        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
                                                                         type=ACHIEVEMENT_TYPE.MOBS,
-                                                                        object=None,
                                                                         old_value=13,
                                                                         new_value=13+666)])
 
@@ -97,8 +92,7 @@ class HeroStatisticsTest(TestCase):
         with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
             self.hero.statistics.change_pve_deaths(666)
 
-        self.assertEqual(verify_achievements.call_args_list, [mock.call(self.hero.account_id,
+        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
                                                                         type=ACHIEVEMENT_TYPE.DEATHS,
-                                                                        object=None,
                                                                         old_value=14,
                                                                         new_value=14+666)])
