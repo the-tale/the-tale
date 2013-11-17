@@ -47,18 +47,44 @@ jQuery(document).ready(function(){
 {% endblock %}
 
 
-{% block accounts_content %}
+{% block content %}
 
-  <div class="row-fluid">
-    <div class="span12">
+  <div class="row">
+    <div class="span3">
+      <div class="block">
+        <h3 class="game-navigation-caption" style="padding-left: 2px;">Страница игрока</h3>
+        <ul class="game-navigation nav nav-list" style="padding-left: 2px;">
 
-      <h2 style="display: inline-block;">{{ master_account.nick_verbose }} <small>могущество: {{ master_account.might|int }}</small></h2>
+          {% if resource.account.is_authenticated() and master_account.id != resource.account.id %}
 
-      {% if resource.account.is_authenticated() and master_account.id != resource.account.id %}
-        &nbsp;<a class="pgf-new-message" href="#">отправить сообщение</a> /
+            <li class="nav-element "><a class="pgf-new-message" href="#">отправить сообщение</a></li>
 
-        {% if own_clan_info and master_clan_info.membership is none and own_clan_info.can_invite %}
-          <script type="text/javascript">
+            {% if friendship is none %}
+              <li class="nav-element "><a class="pgf-friends-request-friendship" href="#">добавить в друзья</a></li>
+            {% elif friendship.is_confirmed %}
+              <li class="nav-element"><span class="pgf-friends-in-list">в списке друзей</span></li>
+            {% elif friendship.friend_1_id == master_account.id %}
+              <li class="nav-element ">
+                <span class="pgf-friends-request-from">
+                  игрок предлагает дружить
+                  <a class="pgf-forms-post-simple" href="{{url('accounts:friends:accept', friend=master_account.id)}}">принять</a> /
+                  <a class="pgf-forms-post-simple" href="{{url('accounts:friends:remove', friend=master_account.id)}}">отказать</a>
+                </span>
+              </li>
+            {% else %}
+              <li class="nav-element"><span class="pgf-friends-request-to">вы предложили дружбу</span></li>
+            {% endif %}
+
+         {% endif %}
+
+         {% set can_invite_to_guild = resource.account.is_authenticated() and master_account.id != resource.account.id and own_clan_info and master_clan_info.membership is none and own_clan_info.can_invite %}
+
+         <li class="nav-header">Гильдия</li>
+         <li class="nav-element">
+          {% if master_clan_info.membership is not none %}
+            <a href="{{url('accounts:clans:show', master_clan_info.clan.id)}}">[{{master_clan_info.clan.abbr}}] {{master_clan_info.clan.name}}</a>
+          {% elif can_invite_to_guild %}
+              <script type="text/javascript">
     jQuery(document).ready(function(){
         jQuery('.pgf-create-invite-to-clan').click(function(e){
             e.preventDefault();
@@ -69,232 +95,231 @@ jQuery(document).ready(function(){
                                                                                });
                                    }
                                  });
-        });
-    });
-          </script>
+                });
+                });
+              </script>
 
-        <a class="pgf-create-invite-to-clan" href="#">пригласить в гильдию</a> /
-        {% endif %}
+              <a class="pgf-create-invite-to-clan" href="#">пригласить</a>
 
-        {% if friendship is none %}<a class="pgf-friends-request-friendship" href="#">добавить в друзья</a>
-        {% elif friendship.is_confirmed %}<span class="pgf-friends-in-list">в списке друзей</span>
-        {% elif friendship.friend_1_id == master_account.id %}
-          <span class="pgf-friends-request-from">
-            игрок предлагает дружить
-            <a class="pgf-forms-post-simple" href="{{url('accounts:friends:accept', friend=master_account.id)}}">принять</a> /
-            <a class="pgf-forms-post-simple" href="{{url('accounts:friends:remove', friend=master_account.id)}}">отказать</a>
-          </span>
-        {% else %}<span class="pgf-friends-request-to">вы предложили этому игроку дружить</span>
-        {% endif %}
-
-      {% endif %}
-
-{% if master_account.is_ban_forum %}
-  <p class="alert alert-error pgf-ban-forum-message">
-    Игроку запрещено общаться на форуме до <span class="pgf-format-datetime" data-timestamp="{{ master_account.ban_forum_end_at|timestamp }}"></span>
-  </p>
-{% endif %}
-
-{% if master_account.is_ban_game %}
-  <p class="alert alert-error pgf-ban-game-message">
-    Герой игрока не оказывает влияние на мир до <span class="pgf-format-datetime" data-timestamp="{{ master_account.ban_game_end_at|timestamp }}"></span>
-  </p>
-{% endif %}
-
-<table class="account-info-table table table-condensed table-striped table-bordered table-no-highlighting">
-  <tbody>
-    <tr>
-      <th>герой</th>
-      <th>рейтинги</th>
-      <th>гильдия</th>
-    </tr>
-    <tr>
-      <td rowspan="3" width="150px">
-        <ul class="unstyled">
-          <li><strong>имя:</strong> <a href="{{ url('game:heroes:show', master_hero.id) }}">{{ master_hero.name }}</a></li>
-          <li><strong>пол:</strong> {{ master_hero.gender_verbose }}</li>
-          <li><strong>раса:</strong> {{ master_hero.race_verbose }}</li>
-          <li><strong>уровень:</strong> {{ master_hero.level }}</li>
-          <li><strong>сила:</strong> {{ master_hero.power }}</li>
-        </ul>
-      </td>
-
-      <td rowspan="5" width="250px">
-
-        {% if rating_values %}
-          <ul class="unstyled">
-            <li><strong>могущество:</strong> {% if rating_values.might > 0 %}{{ rating_places.might_place }} место{% else %}не участвует{% endif %}</li>
-            <li><strong>принятые законы:</strong> {% if rating_values.bills_count > 0 %}{{ rating_places.bills_count_place }} место{% else %}не участвует{% endif %}</li>
-            <li><strong>сила героя:</strong> {{ rating_places.power_place }} место</li>
-            <li><strong>уровень героя:</strong> {{ rating_places.level_place }} место</li>
-            <li><strong>добавленные фразы:</strong> {% if rating_values.phrases_count > 0 %}{{ rating_places.phrases_count_place }} место{% else %}не участвует{% endif %}</li>
-            <li><strong>сражений PvP:</strong> {% if rating_values.pvp_battles_1x1_number > 0 %}{{ rating_places.pvp_battles_1x1_number_place }} место{% else %}не участвует{% endif %}</li>
-            <li><strong>побед PvP:</strong> {% if rating_values.pvp_battles_1x1_victories > 0 %}{{ rating_places.pvp_battles_1x1_victories_place }} место{% else %}не участвует{% endif %}</li>
-            <li><strong>очки достижений:</strong> {% if rating_values.achievements_points > 0 %}{{ rating_places.achievements_points_place }} место{% else %}не участвует{% endif %}</li>
-            <li><strong>последователи:</strong> {% if rating_values.referrals_number > 0 %}{{ rating_places.referrals_number_place }} место{% else %}не участвует{% endif %}</li>
-          </ul>
-        {% else %}
-          игрок пока не участвует в рейтингах
-        {% endif %}
-
-      </td>
-
-      <td>
-          {% if master_clan_info.membership is not none %}
-            <a href="{{url('accounts:clans:show', master_clan_info.clan.id)}}">{{master_clan_info.clan.name}}</a>
           {% else %}
             Не состоит в гильдии
           {% endif %}
-      </td>
+         </li>
 
-    </tr>
-    <tr>
-      <th>мир</th>
-    </tr>
-    <tr>
-      <td>
-        <ul class="unstyled">
-          <li><a href="{{ url('game:bills:') }}?owner={{master_account.id}}">законопроекты, инициированые игроком</a> (всего {{bills_count}})</li>
-          <li><a href="{{ url('game:phrase-candidates:') }}?author_id={{master_account.id}}">фразы, предложенные игроком</a> (всего {{phrases_count}})</li>
-          <li><a href="{{ url('blogs:posts:') }}?author_id={{master_account.id}}">произведения игрока</a> (всего {{folclor_posts_count}})</li>
+         <li class="nav-header">Мир</li>
+         <li class="nav-element"><a href="{{ url('game:bills:') }}?owner={{master_account.id}}">законопроекты  ({{bills_count}})</a></li>
+         <li class="nav-element"><a href="{{ url('game:phrase-candidates:') }}?author_id={{master_account.id}}">фразы ({{phrases_count}})</a></li>
+         <li class="nav-element"><a href="{{ url('blogs:posts:') }}?author_id={{master_account.id}}">произведения ({{folclor_posts_count}})</a></li>
+
+         <li class="nav-header">Форум</li>
+         <li class="nav-element"><a href="{{url('forum:threads:')}}?author={{master_account.id}}">созданые обсуждения ({{threads_count}})</a></li>
+         <li class="nav-element"><a href="{{url('forum:threads:')}}?participant={{master_account.id}}">обсуждения с комментариями ({{threads_with_posts}})</a></li>
+
+         {% if resource.can_moderate_accounts %}
+           <li class="divider"></li>
+           <li class="nav-element">
+             <a class="pgf-account-admin-link" href="{{url('accounts:admin', master_account.id)}}">администрировать</a>
+           </li>
+         {% endif %}
+
+
         </ul>
-      </td>
-    </tr>
-
-    <tr>
-      <th>прочее</th>
-      <th>форум</th>
-    </tr>
-    <tr>
-      <td>
-        <ul class="unstyled">
-          <li>
-            <a href="{{url('guide:referrals')}}">последователи:</a>
-            {{ master_account.referrals_number }}
-          </li>
-        </ul>
-      </td>
-
-      <td>
-        <ul class="unstyled">
-          <li><a href="{{url('forum:threads:')}}?author={{master_account.id}}">обсуждения, созданные игроком</a> (всего {{threads_count}})</li>
-          <li><a href="{{url('forum:threads:')}}?participant={{master_account.id}}">обсуждения с участием игрока</a> (всего {{threads_with_posts}})</li>
-        </ul>
-      </td>
-
-    </tr>
-
-  </tbody>
-</table>
-
-    </div>
-  </div>
-
-  <div class="row-fluid">
-    <div class="span6" style="padding-right: 1em;">
-
-      <h4>Политика</h4>
-
-      <p>Города, которым игрок помогает чаще всего.</p>
-
-      {% if most_common_places %}
-        <div class="pgf-scrollable" style="overflow-y: auto; max-height: {{1+27*(1+bills_settings.PLACES__TO_ACCESS_VOTING)}}px; width: 360px;">
-
-          <table class="table table-condensed table-striped table-bordered table-no-highlighting">
-            <tbody>
-              <tr>
-                <th width="30px">№</th>
-                <th width="200px">город</th>
-                <th width="100px">помогал (раз)</th>
-              </tr>
-              {% for place, number in most_common_places %}
-                <tr>
-                  <td>{{loop.index}}</td>
-                  <td>{{place.name}}</td>
-                  <td>{{number}}</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-
-        </div>
-
-{% else %}
-
-  <p class="alert alert-info pgf-no-common-places-message">
-    Герой ещё не помог ни одному городу.
-  </p>
-{% endif %}
-
+      </div>
     </div>
 
-    {% if accounts_settings.INFORMER_SHOW and master_account.id == resource.account.id %}
-      <div style="width: 49%; display: inline-block; min-width: {{accounts_settings.INFORMER_WIDTH+20}}px;">
-        <h4>Информер</h4>
-        <p>
-          Нашим игроком <a target="_blank" href="{{url('accounts:show', accounts_settings.INFORMER_CREATOR_ID)}}">{{accounts_settings.INFORMER_CREATOR_NAME}}</a> был разработан информер, для вставки в подписи на форумах и аналогичных им местах. За что ему большое спасибо.
-        </p>
+    <div class="span9">
+      <div class="block white">
 
-        <div style="margin: 1em; text-align: center;">
-          <img width="{{accounts_settings.INFORMER_WIDTH}}px" height="{{accounts_settings.INFORMER_HEIGHT}}px" src="{{informer_link}}"></img>
-        </div>
+        <h2 style="line-height: 24px;">
+          <small>
+            Хранитель
+          </small>
+          {{ master_account.nick_verbose }}
 
-        <div class="accordion" id="pgf-informer-accordion">
+          <small>
+            и
+            <a href="{{ url('game:heroes:show', master_hero.id) }}">{{ master_hero.name }}</a>
+            —
+            {{ master_hero.gender_verbose }}-{{ master_hero.race_verbose }}
+            {{ master_hero.level }} уровня
+          </small>
+        </h2>
 
-          <div class="accordion-group">
-            <div class="accordion-heading">
-              <div class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-informer-accordion" href="#pgf-informer-codes">
-                <a href="#">
-                  Наиболее распространённые коды для вставки информера.
-                </a>
+        {% if master_account.is_ban_forum %}
+          <p class="alert alert-error pgf-ban-forum-message">
+            Игроку запрещено общаться на форуме до <span class="pgf-format-datetime" data-timestamp="{{ master_account.ban_forum_end_at|timestamp }}"></span>
+          </p>
+        {% endif %}
+
+        {% if master_account.is_ban_game %}
+          <p class="alert alert-error pgf-ban-game-message">
+            Герой игрока не оказывает влияние на мир до <span class="pgf-format-datetime" data-timestamp="{{ master_account.ban_game_end_at|timestamp }}"></span>
+          </p>
+        {% endif %}
+
+        <br/>
+
+        <table width="100%" style="text-align: center;">
+          <tbody>
+            <tr>
+              <td width="33%">
+                МОГУЩЕСТВО<br/>
+                <span style="font-size: 20pt;">{{ master_account.might|int }}</span></br>
+                <a href="{{url('guide:keepers')}}">путеводитель</a>
+              </td>
+              <td>
+                ОЧКИ ДОСТИЖЕНИЙ<br/>
+                <span style="font-size: 20pt;">{{master_achievements.points}}</span></br>
+                <a href="{{url('accounts:achievements:')}}">все достижения</a>
+              </td>
+              <td width="33%">
+                ПОСЛЕДОВАТЕЛИ<br/>
+                <span style="font-size: 20pt;">{{ master_account.referrals_number }}</span></br>
+                <a href="{{url('guide:referrals')}}">реферальная ссылка</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <br/>
+
+        <div class="row-fluid">
+          <div class="span6">
+
+            <h3>Рейтинги</h3>
+
+            <p>Положение игрока в рейтингах.</p>
+
+            {% if rating_values %}
+
+              <table class="table table-condensed table-striped table-bordered table-no-highlighting">
+                <tbody>
+                  <tr>
+                    <th >название</th>
+                    <th width="100px">место</th>
+                  </tr>
+
+                  <tr><td>могущество</td><td> {% if rating_values.might > 0 %}{{ rating_places.might_place }} место{% else %}не участвует{% endif %}</td></tr>
+                  <tr><td>принятые законы</td><td> {% if rating_values.bills_count > 0 %}{{ rating_places.bills_count_place }} место{% else %}не участвует{% endif %}</td></tr>
+                  <tr><td>сила героя</td><td> {{ rating_places.power_place }} место</td></tr>
+                  <tr><td>уровень героя</td><td> {{ rating_places.level_place }} место</td></tr>
+                  <tr><td>добавленные фразы</td><td> {% if rating_values.phrases_count > 0 %}{{ rating_places.phrases_count_place }} место{% else %}не участвует{% endif %}</td></tr>
+                  <tr><td>сражений PvP</td><td> {% if rating_values.pvp_battles_1x1_number > 0 %}{{ rating_places.pvp_battles_1x1_number_place }} место{% else %}не участвует{% endif %}</td></tr>
+                  <tr><td>побед PvP</td><td> {% if rating_values.pvp_battles_1x1_victories > 0 %}{{ rating_places.pvp_battles_1x1_victories_place }} место{% else %}не участвует{% endif %}</td></tr>
+                  <tr><td>очки достижений</td><td> {% if rating_values.achievements_points > 0 %}{{ rating_places.achievements_points_place }} место{% else %}не участвует{% endif %}</td></tr>
+                  <tr><td>последователи</td><td> {% if rating_values.referrals_number > 0 %}{{ rating_places.referrals_number_place }} место{% else %}не участвует{% endif %}</td></tr>
+                </tbody>
+              </table>
+            {% else %}
+              <p class="alert alert-info">Игрок пока не участвует в рейтингах</p>
+            {% endif %}
+
+          </div>
+
+          <div class="span6">
+            <h3>Политика</h3>
+
+            <p>Города, которым герой помогает чаще.</p>
+
+            {% if most_common_places %}
+              <div class="pgf-scrollable" style="overflow-y: auto; max-height: {{1+27*(1+bills_settings.PLACES__TO_ACCESS_VOTING)}}px;">
+
+                <table class="table table-condensed table-striped table-bordered table-no-highlighting">
+                  <tbody>
+                    <tr>
+                      <th width="30px">№</th>
+                      <th >город</th>
+                      <th width="100px">помогал (раз)</th>
+                    </tr>
+                    {% for place, number in most_common_places %}
+                      <tr>
+                        <td>{{loop.index}}</td>
+                        <td>{{place.name}}</td>
+                        <td>{{number}}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+
               </div>
-            </div>
-            <div id="pgf-informer-codes" class="accordion-body collapse" style="height: 0px;">
-              <div class="accordion-inner">
-                <ul class="unstyled">
-                  <li style="margin: 0.5em;">
-                    ссылка на картинку:<br/>
-                    <code>{{informer_link}}</code>
-                  </li>
-                  <li style="margin: 0.5em;">
-                    bb-код:<br/>
-                    <code style="display: block;">
-                      [url={{full_url('http', 'accounts:show', master_account.id, **{accounts_settings.REFERRAL_URL_ARGUMENT: master_account.id} )}}]<br/>
-                      [img]{{informer_link}}[/img]<br/>
-                      [/url]
-                    </code>
-                  </li>
-                  <li style="margin: 0.5em;">
-                    html-код:<br/>
-                    <code style="display: block;">
-                      &lt;a href="{{full_url('http', 'accounts:show', master_account.id, **{accounts_settings.REFERRAL_URL_ARGUMENT: master_account.id})}}"&gt;<br/>
-                      &lt;img width="{{accounts_settings.INFORMER_WIDTH}}px" height="{{accounts_settings.INFORMER_HEIGHT}}px" src="{{informer_link}}"&gt;&lt;/src&gt;<br/>
-                      &lt;/a&gt;
-                    </code>
-                  </li>
-                </ul>
 
-              </div>
-            </div>
+          {% else %}
+
+            <p class="alert alert-info pgf-no-common-places-message">
+              Герой ещё не помог ни одному городу.
+            </p>
+          {% endif %}
+
           </div>
 
         </div>
 
-        <p>
-          Обращаем ваше внимание, что информер является сторонним продуктом и администрация игры не несёт ответственности за его функционирование.
-        </p>
 
-        <p>
-          Обсудить работу информера можно на нашем <a href="{{url('forum:threads:show', accounts_settings.INFORMER_FORUM_THREAD)}}">форуме</a>.
-        </p>
+        {% if accounts_settings.INFORMER_SHOW and master_account.id == resource.account.id %}
+          <h3>Информер</h3>
+          <p>
+            Нашим игроком <a target="_blank" href="{{url('accounts:show', accounts_settings.INFORMER_CREATOR_ID)}}">{{accounts_settings.INFORMER_CREATOR_NAME}}</a> был разработан информер, для вставки в подписи на форумах и аналогичных им местах. За что ему большое спасибо.
+          </p>
 
-      </div>
-    {% endif %}
+          <div style="margin: 1em; text-align: center;">
+            <img width="{{accounts_settings.INFORMER_WIDTH}}px" height="{{accounts_settings.INFORMER_HEIGHT}}px" src="{{informer_link}}"></img>
+          </div>
+
+          <div class="accordion" id="pgf-informer-accordion">
+
+            <div class="accordion-group">
+              <div class="accordion-heading">
+                <div class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-informer-accordion" href="#pgf-informer-codes">
+                  <a href="#">
+                    Наиболее распространённые коды для вставки информера.
+                  </a>
+                </div>
+              </div>
+              <div id="pgf-informer-codes" class="accordion-body collapse" style="height: 0px;">
+                <div class="accordion-inner">
+                  <ul class="unstyled">
+                    <li style="margin: 0.5em;">
+                      ссылка на картинку:<br/>
+                      <code>{{informer_link}}</code>
+                    </li>
+                    <li style="margin: 0.5em;">
+                      bb-код:<br/>
+                      <code style="display: block;">
+                        [url={{full_url('http', 'accounts:show', master_account.id, **{accounts_settings.REFERRAL_URL_ARGUMENT: master_account.id} )}}]<br/>
+                        [img]{{informer_link}}[/img]<br/>
+                        [/url]
+                      </code>
+                    </li>
+                    <li style="margin: 0.5em;">
+                      html-код:<br/>
+                      <code style="display: block;">
+                        &lt;a href="{{full_url('http', 'accounts:show', master_account.id, **{accounts_settings.REFERRAL_URL_ARGUMENT: master_account.id})}}"&gt;<br/>
+                        &lt;img width="{{accounts_settings.INFORMER_WIDTH}}px" height="{{accounts_settings.INFORMER_HEIGHT}}px" src="{{informer_link}}"&gt;&lt;/src&gt;<br/>
+                        &lt;/a&gt;
+                      </code>
+                    </li>
+                  </ul>
+
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <p>
+            Обращаем ваше внимание, что информер является сторонним продуктом и администрация игры не несёт ответственности за его функционирование.
+          </p>
+
+          <p>
+            Обсудить работу информера можно на нашем <a href="{{url('forum:threads:show', accounts_settings.INFORMER_FORUM_THREAD)}}">форуме</a>.
+          </p>
+
+        {% endif %}
+
+    </div>
   </div>
+</div>
 
-{% if resource.can_moderate_accounts %}
-  <br/>
-  <a class="btn btn-danger pgf-account-admin-link" href="{{url('accounts:admin', master_account.id)}}">Администрировать</a>
-{% endif %}
+
 
 {% endblock %}

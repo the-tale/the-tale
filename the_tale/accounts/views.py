@@ -29,6 +29,7 @@ from the_tale.accounts import forms
 from the_tale.accounts.conf import accounts_settings
 from the_tale.accounts.logic import logout_user, login_user, get_system_user
 from the_tale.accounts.workers.environment import workers_environment as infrastructure_workers_environment
+from the_tale.accounts.achievements.prototypes import AccountAchievementsPrototype
 
 from the_tale.accounts.clans.prototypes import ClanPrototype
 
@@ -322,7 +323,7 @@ class ProfileResource(BaseAccountsResource):
         account = AccountPrototype.get_by_email(reset_password_form.c.email)
 
         if account is None:
-            return self.auto_error('accounts.profile.reset_password.wrong_email', u'На указаный email аккаунт не зарегистрирован')
+            return self.auto_error('accounts.profile.reset_password.wrong_email', u'На указанный email аккаунт не зарегистрирован')
 
         ResetPasswordTaskPrototype.create(account)
 
@@ -419,6 +420,7 @@ class AccountResource(BaseAccountsResource):
                              {'master_hero': master_hero,
                               'most_common_places': master_hero.places_history.get_most_common_places(),
                               'master_account': self.master_account,
+                              'master_achievements': AccountAchievementsPrototype.get_by_account_id(self.master_account.id),
                               'accounts_settings': accounts_settings,
                               'informer_link': accounts_settings.INFORMER_LINK % {'account_id': self.master_account.id},
                               'rating_places': rating_places,
