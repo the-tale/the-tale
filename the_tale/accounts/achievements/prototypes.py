@@ -82,6 +82,16 @@ class AccountAchievementsPrototype(BasePrototype):
     def has_achievement(self, achievement):
         return self.achievements.has_achievement(achievement)
 
+    def timestamp_for(self, achievement):
+        return self.achievements.timestamp_for(achievement)
+
+    def sort_key_for(self, achievement):
+        if not achievement.approved:
+            return (2, achievement.order)
+        if self.has_achievement(achievement):
+            return (0, achievement.order)
+        return (1, achievement.order)
+
 
 
 class GiveAchievementTaskPrototype(BasePrototype):

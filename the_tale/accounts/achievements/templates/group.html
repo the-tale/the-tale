@@ -13,7 +13,7 @@
       <ul class="nav nav-list">
         {% for group in groups %}
         <li class="nav-element {% if resource.group == group %}active{% endif %}">
-          <a href="{{ url('accounts:achievements:group', group.value) }}">
+          <a href="{{ url('accounts:achievements:group', group.slug) }}">
             {{group.text}}
           </a>
         </li>
@@ -22,14 +22,15 @@
     </div>
   </div>
 
-  <h3>{{resource.group.text}}</h3>
-
-  {% if resource.can_edit_achievements %}
-  <a href="{{url('accounts:achievements:new')}}" class="pgf-add-achievement-button"><i class="icon icon-pencil"></i></a>
-  {% endif %}
-
   <div class="span9">
     <div class="block white">
+
+      <h3>
+        {{resource.group.text}}
+        {% if resource.can_edit_achievements %}
+          <a href="{{url('accounts:achievements:new')}}" class="pgf-add-achievement-button"><i class="icon icon-plus" style="vertical-align: middle;"></i></a>
+        {% endif %}
+      </h3>
 
       {% for achievement in achievements %}
       {{ achievements_macros.achievement_record(achievement, edit_button=resource.can_edit_achievements, account_achievements=account_achievements) }}

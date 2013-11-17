@@ -17,7 +17,7 @@ from the_tale.accounts.achievements.storage import achievements_storage
 from the_tale.accounts.achievements.forms import EditAchievementForm
 
 
-def argument_to_group(value): return ACHIEVEMENT_GROUP(int(value))
+def argument_to_group(value): return ACHIEVEMENT_GROUP._index_slug.get(value)
 def argument_to_achievement(value): return achievements_storage[int(value)]
 
 
@@ -37,6 +37,9 @@ class AchievementsResource(Resource):
     def validate_can_edit_achievements(self, *args, **kwargs):
         return self.can_edit_achievements
 
+    @handler('')
+    def index(self):
+        return self.redirect(url('accounts:achievements:group', sorted(ACHIEVEMENT_GROUP._records, key=lambda group: group.name)[0].slug))
 
     @validate_argument('account', AccountPrototype.get_by_id, 'accounts.achievements', u'Игрок не найден')
     @handler('#group', name='group')
@@ -45,14 +48,19 @@ class AchievementsResource(Resource):
             account = self.account
 
         account_achievements = None
+
         if account:
             account_achievements = AccountAchievementsPrototype.get_by_account_id(account.id)
+            achievements = sorted(achievements_storage.by_group(self.group, only_approved=not self.can_edit_achievements),
+                                  key=account_achievements.sort_key_for)
+        else:
+            achievements = sorted(achievements_storage.by_group(self.group, only_approved=not self.can_edit_achievements),
+                                  key=lambda achievement: achievement.order)
 
         return self.template('achievements/group.html',
                              {'master_account': account,
                               'account_achievements': account_achievements,
-                              'achievements': sorted(achievements_storage.by_group(self.group, only_approved=not self.can_edit_achievements),
-                                                     key=lambda achievement: achievement.order),
+                              'achievements': achievements,
                               'groups': sorted(ACHIEVEMENT_GROUP._records, key=lambda group: group.name)})
 
 
@@ -85,7 +93,7 @@ class AchievementsResource(Resource):
 
             GiveAchievementTaskPrototype.create(account_id=None, achievement_id=achievement.id)
 
-        return self.json_ok(data={'next_url': url('accounts:achievements:group', achievement.group.value)})
+        return self.json_ok(data={'next_url': url('accounts:achievements:group', achievement.group.slug)})
 
 
     @login_required
@@ -98,8 +106,9 @@ class AchievementsResource(Resource):
                                              'caption': self.achievement.caption,
                                              'barrier': self.achievement.barrier,
                                              'description': self.achievement.description,
+                                             'order': self.achievement.order,
                                              'points': self.achievement.points})
-        return self.template('achievements/new.html',
+        return self.template('achievements/edit.html',
                              {'form': form})
 
 
@@ -127,4 +136,4 @@ class AchievementsResource(Resource):
 
             GiveAchievementTaskPrototype.create(account_id=None, achievement_id=self.achievement.id)
 
-        return self.json_ok(data={'next_url': url('accounts:achievements:group', self.achievement.group.value)})
+        return self.json_ok(data={'next_url': url('accounts:achievements:group', self.achievement.group.slug)})

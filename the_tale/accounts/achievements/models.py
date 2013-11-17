@@ -36,7 +36,7 @@ class Achievement(models.Model):
 
 class AccountAchievements(models.Model):
 
-    account = models.ForeignKey('accounts.Account', on_delete=models.CASCADE)
+    account = models.ForeignKey('accounts.Account', on_delete=models.CASCADE, unique=True)
 
     achievements = models.TextField(default='{}')
 

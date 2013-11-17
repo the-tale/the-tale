@@ -2,18 +2,28 @@
 
 {% macro achievement_record(achievement, edit_button, account_achievements) %}
 
-<div class="achievement {% if account_achievements and account_achievements.has_achievement(achievement) %}owned pgf-owned{% endif %}">
-  <h3>
+{% set has_achievement = account_achievements and account_achievements.has_achievement(achievement) %}
+
+<div class="achievement
+            {% if not achievement.approved %}outgame
+            {% elif has_achievement %}owned pgf-owned
+            {% else %}not-owned{% endif %}">
+  <h4>
     {{achievement.caption}}
+    {% if has_achievement %}
+    <small>получено <span class="pgf-format-date" data-timestamp="{{ account_achievements.timestamp_for(achievement) }}"></span></small>
+    {% endif %}
     {% if edit_button %}
       <a href="{{url('accounts:achievements:edit', achievement.id)}}"
          class="pgf-edit-achievement-button">
-        <i class="icon icon-pencil"></i>
+        <i class="icon icon-pencil" style="vertical-align: middle;"></i>
       </a>
     {% endif %}
-  </h3>
+
+    <span class="pull-right">+{{achievement.points}} очков</span>
+  </h4>
   <p>{{achievement.description}}</p>
-  <p><strong>награды</strong> нет</p>
+  <p><strong>награды:</strong> нет</p>
 </div>
 
 {% endmacro %}

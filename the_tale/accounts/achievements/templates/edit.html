@@ -1,4 +1,4 @@
-{% extends "collections/collections/base.html" %}
+{% extends "achievements/base.html" %}
 
 {% block title %}Редактирование | {{resource.achievement.caption}} | {{ super() }}{% endblock %}
 
@@ -19,6 +19,8 @@ jQuery(document).ready( function(e) {
 
 {% block achievements_content %}
 
+<h3>Редактирование достижения «{{resource.achievement.caption}}»</h3>
+
 <form id="pgf-edit-achievement-form" method="post" action="{{ url('accounts:achievements:update', resource.achievement.id) }}">
 
   {{ form.errors_container }}
@@ -26,6 +28,9 @@ jQuery(document).ready( function(e) {
   {{ form.approved.widget }}
   {{ form.group.widget }}
   {{ form.type.widget }}
+  {{ form.points.widget }}
+  {{ form.order.widget }}
+  {{ form.barrier.widget }}
   {{ form.caption.widget }}
   {{ form.description.widget }}
 

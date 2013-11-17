@@ -32,6 +32,9 @@ class AchievementsContainer(object):
     def has_achievement(self, achievement):
         return achievement.id in self.achievements
 
+    def timestamp_for(self, achievement):
+        return self.achievements.get(achievement.id)
+
     def __len__(self):
          return len(self.achievements)
 

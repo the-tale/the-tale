@@ -19,6 +19,8 @@ jQuery(document).ready( function(e) {
 
 {% block achievements_content %}
 
+<h3>Новое достижение</h3>
+
 <form id="pgf-new-achievement-form" method="post" action="{{ url('accounts:achievements:create') }}">
 
   {{ form.errors_container }}
@@ -26,6 +28,9 @@ jQuery(document).ready( function(e) {
   {{ form.approved.widget }}
   {{ form.group.widget }}
   {{ form.type.widget }}
+  {{ form.points.widget }}
+  {{ form.order.widget }}
+  {{ form.barrier.widget }}
   {{ form.caption.widget }}
   {{ form.description.widget }}
 

@@ -17,8 +17,8 @@ class EditAchievementForm(forms.Form):
 
     order = fields.IntegerField()
 
-    group = fields.TypedChoiceField(label=u'Группа', choices=ACHIEVEMENT_GROUP._choices(), coerce=ACHIEVEMENT_GROUP._get_from_name)
-    type = fields.TypedChoiceField(label=u'Тип', choices=ACHIEVEMENT_TYPE._choices(), coerce=ACHIEVEMENT_TYPE._get_from_name)
+    group = fields.TypedChoiceField(label=u'Группа', choices=sorted(ACHIEVEMENT_GROUP._choices(), key=lambda g: g[1]), coerce=ACHIEVEMENT_GROUP._get_from_name)
+    type = fields.TypedChoiceField(label=u'Тип', choices=sorted(ACHIEVEMENT_TYPE._choices(), key=lambda g: g[1]), coerce=ACHIEVEMENT_TYPE._get_from_name)
 
     caption = fields.CharField(label=u'Название', max_length=AchievementPrototype.CAPTION_MAX_LENGTH, min_length=1)
 

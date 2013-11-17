@@ -1,13 +1,51 @@
 
 @import "constants.less";
 
+@achievement-outgame-color: #EEDDDD;
+@achievement-not-owned-color: #DDDDDD; /* DDDDEE; */
+@achievement-owned-color: rgb(255, 204, 100);
+@achievement-body-delta: #111111;
+@achievement-border-delta: #111111;
+
 
 
 .achievement {
 
-   &.owned {
-      h3 {
-         background-color: rgb(90, 179, 119); /* #FFCC33 */
+   border: 1px solid black;
+   border-radius: 8px;
+   margin-top: 0.5em;
+   margin-bottom: 0.5em;
+
+   h4 {
+      padding: 0.25em;
+      border-radius: 8px 8px 0 0;
+   }
+
+   p {
+      margin: 0.25em;
+   }
+
+   &.not-owned {
+      h4 {
+         background-color: @achievement-not-owned-color;
       }
+      background-color: @achievement-not-owned-color + @achievement-body-delta;
+      border-color: @achievement-not-owned-color - @achievement-border-delta;
+   }
+
+   &.owned {
+      h4 {
+         background-color: @achievement-owned-color;
+      }
+      background-color: @achievement-owned-color + @achievement-body-delta;
+      border-color: @achievement-owned-color - @achievement-border-delta;
+   }
+
+   &.outgame {
+      h4 {
+         background-color: @achievement-outgame-color;
+      }
+      background-color: @achievement-outgame-color + @achievement-body-delta;
+      border-color: @achievement-outgame-color - @achievement-border-delta;
    }
 }

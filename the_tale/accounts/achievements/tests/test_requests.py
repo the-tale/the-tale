@@ -44,12 +44,22 @@ class _BaseRequestTests(testcase.TestCase):
         self.account_achievements_1.save()
 
 
+class AchievementsIndexTests(_BaseRequestTests):
+
+    def setUp(self):
+        super(AchievementsIndexTests, self).setUp()
+        self.test_url = url('accounts:achievements:')
+
+    def test_redirect(self):
+        self.check_redirect(self.test_url, url('accounts:achievements:group', sorted(ACHIEVEMENT_GROUP._records, key=lambda group: group.name)[0].slug))
+
+
 
 class AchievementsGroupTests(_BaseRequestTests):
 
     def setUp(self):
         super(AchievementsGroupTests, self).setUp()
-        self.test_url = url('accounts:achievements:group', ACHIEVEMENT_GROUP.MONEY.value)
+        self.test_url = url('accounts:achievements:group', ACHIEVEMENT_GROUP.MONEY.slug)
 
     def test__for_no_user(self):
         self.check_html_ok(self.request_html(self.test_url), texts=[self.achievement_1.caption,
@@ -145,7 +155,7 @@ class AchievementsCreateTests(_BaseRequestTests):
 
         achievement = AchievementPrototype._db_get_object(3)
 
-        self.check_ajax_ok(response, data={'next_url': url('accounts:achievements:group', achievement.group.value)})
+        self.check_ajax_ok(response, data={'next_url': url('accounts:achievements:group', achievement.group.slug)})
 
         self.assertEqual(achievement.caption, 'caption_create')
         self.assertEqual(achievement.description, 'description_create')
@@ -229,7 +239,7 @@ class AchievementsUpdateTests(_BaseRequestTests):
 
         self.achievement_2.reload()
 
-        self.check_ajax_ok(response, data={'next_url': url('accounts:achievements:group', self.achievement_2.group.value)})
+        self.check_ajax_ok(response, data={'next_url': url('accounts:achievements:group', self.achievement_2.group.slug)})
 
         self.assertEqual(self.achievement_2.caption, 'caption_edited')
         self.assertEqual(self.achievement_2.description, 'description_edited')

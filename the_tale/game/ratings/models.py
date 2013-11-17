@@ -22,6 +22,8 @@ class RatingValues(models.Model):
 
     referrals_number = models.IntegerField(default=0, db_index=True)
 
+    achievements_points = models.IntegerField(default=0, db_index=True)
+
 
 class RatingPlaces(models.Model):
 
@@ -41,3 +43,5 @@ class RatingPlaces(models.Model):
     pvp_battles_1x1_victories_place = models.BigIntegerField(db_index=True)
 
     referrals_number_place = models.IntegerField(default=0, db_index=True)
+
+    achievements_points_place = models.IntegerField(default=0, db_index=True)

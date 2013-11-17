@@ -5,10 +5,9 @@ from south.v2 import DataMigration
 from django.db import models
 
 class Migration(DataMigration):
-    depends_on = ( ("achievements", "0002_auto__add_achievement__add_accountachievements"), )
 
     def forwards(self, orm):
-        for account_id in orm['accounts.Account'].objects.values_list('id', flat=True):
+        for account_id in orm['accounts.Account'].objects.order_by('id').values_list('id', flat=True):
             orm['achievements.AccountAchievements'].objects.create(account_id=account_id)
 
     def backwards(self, orm):
@@ -47,55 +46,32 @@ class Migration(DataMigration):
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(1970, 1, 1, 0, 0)', 'auto_now': 'True', 'db_index': 'True', 'blank': 'True'}),
             'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Permission']"})
         },
-        u'accounts.award': {
-            'Meta': {'object_name': 'Award'},
-            'account': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['accounts.Account']"}),
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'db_index': 'True', 'blank': 'True'}),
-            'description': ('django.db.models.fields.TextField', [], {'default': "''", 'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'type': ('rels.django_staff.TableIntegerField', [], {'db_index': 'True'}),
-            'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'db_index': 'True', 'blank': 'True'})
-        },
-        u'accounts.changecredentialstask': {
-            'Meta': {'object_name': 'ChangeCredentialsTask'},
-            'account': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['accounts.Account']"}),
-            'comment': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '256', 'null': 'True', 'blank': 'True'}),
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'db_index': 'True', 'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'new_email': ('django.db.models.fields.EmailField', [], {'max_length': '254', 'null': 'True'}),
-            'new_nick': ('django.db.models.fields.CharField', [], {'default': 'None', 'max_length': '128', 'null': 'True'}),
-            'new_password': ('django.db.models.fields.TextField', [], {'default': 'None', 'null': 'True'}),
-            'old_email': ('django.db.models.fields.EmailField', [], {'max_length': '254', 'null': 'True'}),
-            'relogin_required': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'state': ('rels.django_staff.TableIntegerField', [], {'db_index': 'True'}),
-            'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'db_index': 'True', 'blank': 'True'}),
-            'uuid': ('django.db.models.fields.CharField', [], {'max_length': '32', 'db_index': 'True'})
-        },
-        u'accounts.resetpasswordtask': {
-            'Meta': {'object_name': 'ResetPasswordTask'},
-            'account': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['accounts.Account']"}),
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_processed': ('django.db.models.fields.BooleanField', [], {'default': 'False', 'db_index': 'True'}),
-            'uuid': ('django.db.models.fields.CharField', [], {'max_length': '32'})
-        },
         u'achievements.accountachievements': {
             'Meta': {'object_name': 'AccountAchievements'},
             'account': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounts.Account']"}),
             'achievements': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'points': ('django.db.models.fields.IntegerField', [], {'default': '0'})
         },
         u'achievements.achievement': {
             'Meta': {'object_name': 'Achievement'},
             'approved': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'barrier': ('django.db.models.fields.IntegerField', [], {}),
             'caption': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '1024'}),
             'group': ('rels.django_staff.TableIntegerField', [], {'db_index': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'order': ('django.db.models.fields.IntegerField', [], {}),
+            'points': ('django.db.models.fields.IntegerField', [], {}),
             'type': ('rels.django_staff.TableIntegerField', [], {'db_index': 'True'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
+        },
+        u'achievements.giveachievementtask': {
+            'Meta': {'object_name': 'GiveAchievementTask'},
+            'account': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounts.Account']", 'null': 'True'}),
+            'achievement': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['achievements.Achievement']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
         },
         u'auth.group': {
             'Meta': {'object_name': 'Group'},
@@ -154,5 +130,5 @@ class Migration(DataMigration):
         }
     }
 
-    complete_apps = ['achievements', 'accounts']
+    complete_apps = ['achievements']
     symmetrical = True
