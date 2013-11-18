@@ -2,8 +2,10 @@
 
 from django.db import models
 
+from the_tale.common.utils.decorators import lazy_property
 from the_tale.common.utils.prototypes import BasePrototype
 
+from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.achievements.models import Achievement, AccountAchievements, GiveAchievementTask
 from the_tale.accounts.achievements.container import AchievementsContainer
 from the_tale.accounts.achievements import exceptions
@@ -64,6 +66,9 @@ class AccountAchievementsPrototype(BasePrototype):
     _get_by = ('id', 'account_id')
     _serialization_proxies = (('achievements', AchievementsContainer, None),)
 
+    @lazy_property
+    def account(self): return AccountPrototype(model=self._model.account)
+
     @classmethod
     def create(cls, account):
         return cls(model=cls._db_create(account=account._model))
@@ -74,16 +79,36 @@ class AccountAchievementsPrototype(BasePrototype):
             return
         GiveAchievementTaskPrototype.create(account_id=account_id, achievement_id=achievement.id)
 
-    def add_achievement(self, achievement):
+    def add_achievement(self, achievement, notify):
+        from the_tale.accounts.personal_messages.prototypes import MessagePrototype
+        from the_tale.accounts.logic import get_system_user
+
         self.achievements.add_achievement(achievement)
         self._model.points = self.achievements.get_points()
 
+        if not notify:
+            return
+
+        MessagePrototype.create(get_system_user(),
+                                self.account,
+                                u'Вы заработали достижение «%(achievement)s» — %(description)s' %
+                                {'achievement': achievement.caption,
+                                 'description': achievement.description})
+
+
+    def remove_achievement(self, achievement):
+        self.achievements.remove_achievement(achievement)
+        self._model.points = self.achievements.get_points()
 
     def has_achievement(self, achievement):
         return self.achievements.has_achievement(achievement)
 
     def timestamp_for(self, achievement):
         return self.achievements.timestamp_for(achievement)
+
+    def achievements_ids(self): return self.achievements.achievements_ids()
+
+    def last_achievements(self, number): return self.achievements.last_achievements(number=number)
 
     def sort_key_for(self, achievement):
         if not achievement.approved:

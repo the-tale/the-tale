@@ -170,7 +170,7 @@ jQuery(document).ready(function(){
               <td>
                 ОЧКИ ДОСТИЖЕНИЙ<br/>
                 <span style="font-size: 20pt;">{{master_achievements.points}}</span></br>
-                <a href="{{url('accounts:achievements:')}}">все достижения</a>
+                <a href="{{url('accounts:achievements:', account=master_account.id)}}">все достижения</a>
               </td>
               <td width="33%">
                 ПОСЛЕДОВАТЕЛИ<br/>

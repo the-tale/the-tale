@@ -1,10 +1,12 @@
 # coding: utf-8
 import contextlib
+import collections
 
 from the_tale.common.utils.storage import create_storage_class
 
 from the_tale.accounts.achievements.prototypes import AchievementPrototype, AccountAchievementsPrototype
 from the_tale.accounts.achievements.exceptions import AchievementsError
+from the_tale.accounts.achievements.relations import ACHIEVEMENT_GROUP
 
 
 class AchievementsStorage(create_storage_class('achievements change time', AchievementPrototype, AchievementsError)):
@@ -42,6 +44,21 @@ class AchievementsStorage(create_storage_class('achievements change time', Achie
                                  type=type,
                                  old_value=old_value,
                                  new_value=object.get_achievement_type_value(type))
+
+
+    def get_groups_statistics(self, account_achievements):
+        groups_count = collections.Counter(achievement.group for achievement in self.all())
+
+        if account_achievements:
+            account_count = collections.Counter(self[achievement_id].group for achievement_id in account_achievements.achievements_ids())
+        else:
+            account_count = collections.Counter()
+
+        statistics = {group: (account_count[group], groups_count[group]) for group in ACHIEVEMENT_GROUP._records}
+
+        statistics[None] = (sum(account_count.values()), sum(groups_count.values()))
+
+        return statistics
 
 
 

@@ -11,7 +11,7 @@ from the_tale.accounts.achievements.prototypes import AchievementPrototype
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_GROUP, ACHIEVEMENT_TYPE
 
 
-class EditAchievementForm(forms.Form):
+class NewAchievementForm(forms.Form):
 
     approved = fields.BooleanField(label=u'Одобрена', required=False)
 
@@ -27,3 +27,8 @@ class EditAchievementForm(forms.Form):
     barrier = fields.IntegerField(label=u'Барьер')
 
     points = fields.IntegerField(label=u'Очки')
+
+
+class EditAchievementForm(NewAchievementForm):
+
+    approved = fields.BooleanField(label=u'Одобрена', required=False)

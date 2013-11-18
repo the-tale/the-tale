@@ -1,0 +1,75 @@
+{% extends "achievements/base.html" %}
+
+{% import 'achievements/macros.html' as achievements_macros with context %}
+
+{% macro group_record(group) %}
+
+  {% set gotten, total = groups_statistics[group] %}
+
+  {% set percents = ((gotten|float)/total if total else 0)|percents %}
+
+  {% if group %}
+    <div style="font-size: 20px; width: auto; margin-left: 20px; margin-right: 20px;">
+      <a href="{{resource.group_url(group)}}">{{ group.text }}</a><br/>
+      <div class="progress progress-success" style="height: 20px; margin-top: 5px;">
+        <div class="bar" style="width: {{ percents }}; height: 20px;">
+        </div>
+        <div style="position: relative; top: -20px; font-size: 14px;">{{ gotten }} / {{ total }} ({{percents}})</div>
+      </div>
+    </div>
+  {% endif %}
+{% endmacro %}
+
+
+{% block achievements_content %}
+
+  <h2>Достижения</h2>
+
+  <p>
+    Краткая информация по всем достижениям в игре.
+  </p>
+
+  {% if resource.master_account %}
+
+    {% set gotten, total = groups_statistics[none] %}
+
+    {% set percents = ((gotten|float)/total if total else 0)|percents %}
+
+    <div style="font-size: 20px; width: auto; margin-left: 20px;; margin-right: 20px; text-align: center;" class="pgf-all-achievements">
+      Всего {{account_achievements.points}} очков достижений<br/>
+      <div class="progress progress-success" style="height: 20px; margin-top: 5px; text-align: center;">
+        <div class="bar" style="width: {{ percents }}; height: 20px;">
+        </div>
+        <div style="position: relative; top: -20px; font-size: 14px;">{{ gotten }} / {{ total }} ({{percents}})</div>
+      </div>
+    </div>
+
+  {% endif %}
+
+  <table width="100%" style="text-align: center;">
+    <tbody>
+      {% for group_1, group_2, group_3 in groups_table %}
+        <tr>
+          <td width="33%">{{group_record(group_1)}}</td>
+          <td>{{group_record(group_2)}}</td>
+          <td width="33%">{{group_record(group_3)}}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if resource.master_account %}
+    <h3 class="pgf-last-achievements">Последние достижения</h3>
+
+    {% if last_achievements %}
+      {% for achievement in last_achievements %}
+        {{ achievements_macros.achievement_record(achievement, edit_button=false, account_achievements=account_achievements) }}
+      {% endfor %}
+    {% else %}
+      <p class="alert alert-info pgf-no-last-achievements">
+        Игрок пока не получил достижений.
+      </p>
+    {% endif %}
+  {% endif %}
+
+{% endblock %}

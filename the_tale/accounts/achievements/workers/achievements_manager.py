@@ -44,9 +44,14 @@ class Worker(BaseWorker):
                 settings.refresh()
                 self.add_achievements()
 
-    def add_achievement(self, achievement, account_id):
+    def add_achievement(self, achievement, account_id, notify):
         achievements = AccountAchievementsPrototype.get_by_account_id(account_id)
-        achievements.add_achievement(achievement)
+        achievements.add_achievement(achievement, notify=notify)
+        achievements.save()
+
+    def remove_achievement(self, achievement, account_id):
+        achievements = AccountAchievementsPrototype.get_by_account_id(account_id)
+        achievements.remove_achievement(achievement)
         achievements.save()
 
     def add_achievements(self):
@@ -57,7 +62,7 @@ class Worker(BaseWorker):
             if task.account_id is None:
                 self.spread_achievement(achievement)
             else:
-                self.add_achievement(achievement, task.account_id)
+                self.add_achievement(achievement, task.account_id, notify=True)
 
             task.remove()
 
@@ -66,8 +71,9 @@ class Worker(BaseWorker):
 
         for hero in HeroPrototype.from_query(HeroPrototype._db_all()):
             if not achievement.check(old_value=0, new_value=hero.get_achievement_type_value(achievement.type)):
+                self.remove_achievement(achievement, hero.account_id)
                 continue
-            self.add_achievement(achievement, hero.account_id)
+            self.add_achievement(achievement, hero.account_id, notify=False)
 
 
     def cmd_stop(self):

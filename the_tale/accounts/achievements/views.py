@@ -6,15 +6,15 @@ from dext.views import handler, validate_argument, validator
 from dext.utils.urls import url
 
 from the_tale.common.utils.resources import Resource
-from the_tale.common.utils.decorators import login_required
-
+from the_tale.common.utils.decorators import login_required, lazy_property
 
 from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.accounts.achievements.prototypes import AchievementPrototype, AccountAchievementsPrototype, GiveAchievementTaskPrototype
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_GROUP
 from the_tale.accounts.achievements.storage import achievements_storage
-from the_tale.accounts.achievements.forms import EditAchievementForm
+from the_tale.accounts.achievements.forms import NewAchievementForm, EditAchievementForm
+from the_tale.accounts.achievements.conf import achievements_settings
 
 
 def argument_to_group(value): return ACHIEVEMENT_GROUP._index_slug.get(value)
@@ -29,6 +29,7 @@ class AchievementsResource(Resource):
         super(AchievementsResource, self).initialize(*args, **kwargs)
         self.achievement = achievement
         self.group = group
+        self.master_account = None
 
     @property
     def can_edit_achievements(self): return self.account.has_perm('achievements.edit_achievement')
@@ -37,18 +38,69 @@ class AchievementsResource(Resource):
     def validate_can_edit_achievements(self, *args, **kwargs):
         return self.can_edit_achievements
 
+
+    @lazy_property
+    def groups(self):
+        return sorted(ACHIEVEMENT_GROUP._records, key=lambda group: group.name)
+
+
+    def group_url(self, group):
+        if self.master_account:
+            return url('accounts:achievements:group', group.slug, account=self.master_account.id)
+        else:
+            return url('accounts:achievements:group', group.slug)
+
+    def index_url(self):
+        if self.master_account:
+            return url('accounts:achievements:', account=self.master_account.id)
+        else:
+            return url('accounts:achievements:')
+
+
+    @validate_argument('account', AccountPrototype.get_by_id, 'accounts.achievements', u'Игрок не найден')
     @handler('')
-    def index(self):
-        return self.redirect(url('accounts:achievements:group', sorted(ACHIEVEMENT_GROUP._records, key=lambda group: group.name)[0].slug))
+    def index(self, account=None):
+
+        if account is None and self.account.is_authenticated():
+            return self.redirect(url('accounts:achievements:', account=self.account.id))
+
+        self.master_account = account
+
+        account_achievements = None
+        last_achievements = []
+        if account:
+            account_achievements = AccountAchievementsPrototype.get_by_account_id(account.id)
+            last_achievements = account_achievements.last_achievements(number=achievements_settings.LAST_ACHIEVEMENTS_NUMBER)
+
+        sublen = len(self.groups) / 3
+        groups_table = (self.groups[:sublen],
+                        self.groups[sublen:sublen*2],
+                        self.groups[sublen*2:])
+
+        if len(groups_table[0]) > len(groups_table[1]):
+            groups_table[1].append(None)
+
+        if len(groups_table[0]) > len(groups_table[2]):
+            groups_table[2].append(None)
+
+        groups_table = zip(*groups_table)
+
+        return self.template('achievements/index.html',
+                             {'account_achievements': account_achievements,
+                              'groups_table': groups_table,
+                              'groups_statistics': achievements_storage.get_groups_statistics(account_achievements),
+                              'last_achievements': last_achievements})
 
     @validate_argument('account', AccountPrototype.get_by_id, 'accounts.achievements', u'Игрок не найден')
     @handler('#group', name='group')
     def show_group(self, account=None):
+
         if account is None and self.account.is_authenticated():
-            account = self.account
+            return self.redirect(url('accounts:achievements:group', self.group.slug, account=self.account.id))
+
+        self.master_account = account
 
         account_achievements = None
-
         if account:
             account_achievements = AccountAchievementsPrototype.get_by_account_id(account.id)
             achievements = sorted(achievements_storage.by_group(self.group, only_approved=not self.can_edit_achievements),
@@ -57,11 +109,11 @@ class AchievementsResource(Resource):
             achievements = sorted(achievements_storage.by_group(self.group, only_approved=not self.can_edit_achievements),
                                   key=lambda achievement: achievement.order)
 
+
         return self.template('achievements/group.html',
-                             {'master_account': account,
-                              'account_achievements': account_achievements,
-                              'achievements': achievements,
-                              'groups': sorted(ACHIEVEMENT_GROUP._records, key=lambda group: group.name)})
+                             {'account_achievements': account_achievements,
+                              'groups_statistics': achievements_storage.get_groups_statistics(account_achievements),
+                              'achievements': achievements})
 
 
     @login_required
@@ -69,14 +121,14 @@ class AchievementsResource(Resource):
     @handler('new')
     def new(self):
         return self.template('achievements/new.html',
-                             {'form': EditAchievementForm()})
+                             {'form': NewAchievementForm()})
 
 
     @login_required
     @validate_can_edit_achievements()
     @handler('create', method='post')
     def create(self):
-        form = EditAchievementForm(self.request.POST)
+        form = NewAchievementForm(self.request.POST)
 
         if not form.is_valid():
             return self.json_error('accounts.achievements.create.form_errors', form.errors)
@@ -87,11 +139,9 @@ class AchievementsResource(Resource):
                                                       type=form.c.type,
                                                       caption=form.c.caption,
                                                       description=form.c.description,
-                                                      approved=form.c.approved,
+                                                      approved=False,
                                                       barrier=form.c.barrier,
                                                       points=form.c.points)
-
-            GiveAchievementTaskPrototype.create(account_id=None, achievement_id=achievement.id)
 
         return self.json_ok(data={'next_url': url('accounts:achievements:group', achievement.group.slug)})
 
@@ -124,6 +174,10 @@ class AchievementsResource(Resource):
 
         with transaction.atomic():
 
+            is_changed = (self.achievement.type != form.c.type or
+                          self.achievement.approved != form.c.approved or
+                          self.achievement.barrier != form.c.barrier)
+
             self.achievement.group = form.c.group
             self.achievement.type = form.c.type
             self.achievement.caption = form.c.caption
@@ -134,6 +188,7 @@ class AchievementsResource(Resource):
 
             self.achievement.save()
 
-            GiveAchievementTaskPrototype.create(account_id=None, achievement_id=self.achievement.id)
+            if is_changed:
+                GiveAchievementTaskPrototype.create(account_id=None, achievement_id=self.achievement.id)
 
         return self.json_ok(data={'next_url': url('accounts:achievements:group', self.achievement.group.slug)})

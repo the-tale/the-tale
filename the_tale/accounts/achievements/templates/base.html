@@ -4,7 +4,37 @@
 
 {% block content %}
 
-{% block achievements_content %}
-{% endblock %}
+<div class="row">
+  <div class="span3">
+    <div class="block">
+      <h3>Достижения</h3>
+      <ul class="nav nav-list">
+        {% if resource.master_account %}
+        <li class="nav-element"><a href="{{url('accounts:show', resource.master_account.id)}}">←{{resource.master_account.nick}}</a></li>
+        {% endif %}
+        <li class="nav-element"><a href="{{resource.index_url()}}">Общая информация</a></li>
+        <li class="divider"></li>
+        {% for group in resource.groups %}
+        <li class="nav-element {% if resource.group == group %}active{% endif %}">
+          <a href="{{ resource.group_url(group) }}">
+            {{group.text}}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="span9">
+    <div class="block white">
+
+      {% block achievements_content %}
+      {% endblock %}
+
+    </div>
+  </div>
+</div>
+
+
 
 {% endblock %}

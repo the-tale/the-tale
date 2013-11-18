@@ -1,10 +1,13 @@
 # coding: utf-8
+import mock
 
 from the_tale.common.utils import testcase
 from the_tale.common.utils.permissions import sync_group
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
+from the_tale.accounts.personal_messages.prototypes import MessagePrototype
+
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_GROUP, ACHIEVEMENT_TYPE
 from the_tale.accounts.achievements.prototypes import AchievementPrototype, AccountAchievementsPrototype, GiveAchievementTaskPrototype
 from the_tale.accounts.achievements.workers.environment import workers_environment
@@ -54,12 +57,14 @@ class AchievementsManagerTests(testcase.TestCase):
     def test_add_achievements(self):
         GiveAchievementTaskPrototype.create(account_id=self.account_1.id, achievement_id=self.achievement_3.id)
         self.assertFalse(self.account_achievements_1.has_achievement(self.achievement_3))
-        self.worker.add_achievements()
+        with self.check_delta(MessagePrototype._db_count, 1):
+            self.worker.add_achievements()
         self.account_achievements_1.reload()
         self.assertTrue(self.account_achievements_1.has_achievement(self.achievement_3))
         self.assertEqual(GiveAchievementTaskPrototype._db_count(), 0)
 
 
+    @mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements', lambda *argv, **kwargs: None)
     def test_add_achievements__all_accounts(self):
         from the_tale.game.heroes.prototypes import HeroPrototype
 
@@ -69,17 +74,40 @@ class AchievementsManagerTests(testcase.TestCase):
 
         self.assertFalse(self.account_achievements_1.has_achievement(self.achievement_3))
         self.assertFalse(account_achievements_2.has_achievement(self.achievement_3))
-
         hero = HeroPrototype.get_by_account_id(self.account_1.id)
         hero.statistics.change_pve_deaths(self.achievement_3.barrier)
         hero.save()
 
-        self.worker.add_achievements()
+        with self.check_not_changed(MessagePrototype._db_count):
+            self.worker.add_achievements()
 
         self.account_achievements_1.reload()
         account_achievements_2.reload()
 
         self.assertTrue(self.account_achievements_1.has_achievement(self.achievement_3))
+        self.assertFalse(account_achievements_2.has_achievement(self.achievement_3))
+
+        self.assertEqual(GiveAchievementTaskPrototype._db_count(), 0)
+
+    @mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements', lambda *argv, **kwargs: None)
+    def test_add_achievements__all_accounts__remove_achievements(self):
+        self.account_achievements_1.achievements.add_achievement(self.achievement_3)
+        self.account_achievements_1.save()
+
+        GiveAchievementTaskPrototype.create(account_id=None, achievement_id=self.achievement_3.id)
+
+        account_achievements_2 = AccountAchievementsPrototype.get_by_account_id(self.account_2.id)
+
+        self.assertTrue(self.account_achievements_1.has_achievement(self.achievement_3))
+        self.assertFalse(account_achievements_2.has_achievement(self.achievement_3))
+
+        with self.check_not_changed(MessagePrototype._db_count):
+            self.worker.add_achievements()
+
+        self.account_achievements_1.reload()
+        account_achievements_2.reload()
+
+        self.assertFalse(self.account_achievements_1.has_achievement(self.achievement_3))
         self.assertFalse(account_achievements_2.has_achievement(self.achievement_3))
 
         self.assertEqual(GiveAchievementTaskPrototype._db_count(), 0)

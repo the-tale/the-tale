@@ -6,39 +6,32 @@
 
 {% block achievements_content %}
 
-<div class="row">
-  <div class="span3">
-    <div class="block">
-      <h3>Достижения</h3>
-      <ul class="nav nav-list">
-        {% for group in groups %}
-        <li class="nav-element {% if resource.group == group %}active{% endif %}">
-          <a href="{{ url('accounts:achievements:group', group.slug) }}">
-            {{group.text}}
-          </a>
-        </li>
-        {% endfor %}
-      </ul>
+  <h3>
+    {{resource.group.text}}
+    {% if resource.can_edit_achievements %}
+      <a href="{{url('accounts:achievements:new')}}" class="pgf-add-achievement-button"><i class="icon icon-plus" style="vertical-align: middle;"></i></a>
+    {% endif %}
+  </h3>
+
+  {% if resource.master_account %}
+
+    {% set gotten, total = groups_statistics[resource.group] %}
+
+    {% set percents = ((gotten|float)/total if total else 0)|percents %}
+
+    <div style="font-size: 20px; width: auto; text-align: center;" class="pgf-group-progress">
+      <div class="progress progress-success" style="height: 20px; margin-top: 5px; text-align: center;">
+        <div class="bar" style="width: {{ percents }}; height: 20px;">
+        </div>
+        <div style="position: relative; top: -20px; font-size: 14px;">{{ gotten }} / {{ total }} ({{percents}})</div>
+      </div>
     </div>
-  </div>
 
-  <div class="span9">
-    <div class="block white">
+  {% endif %}
 
-      <h3>
-        {{resource.group.text}}
-        {% if resource.can_edit_achievements %}
-          <a href="{{url('accounts:achievements:new')}}" class="pgf-add-achievement-button"><i class="icon icon-plus" style="vertical-align: middle;"></i></a>
-        {% endif %}
-      </h3>
 
-      {% for achievement in achievements %}
-      {{ achievements_macros.achievement_record(achievement, edit_button=resource.can_edit_achievements, account_achievements=account_achievements) }}
-      {% endfor %}
-
-    </div>
-  </div>
-</div>
-
+  {% for achievement in achievements %}
+    {{ achievements_macros.achievement_record(achievement, edit_button=resource.can_edit_achievements, account_achievements=account_achievements) }}
+  {% endfor %}
 
 {% endblock %}
