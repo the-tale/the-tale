@@ -63,8 +63,8 @@ class QuestInfo(object):
                 'action': self.action,
                 'choice': self.choice,
                 'choice_alternatives': self.choice_alternatives,
-                'experience': self.experience,
-                'power': int(self.power * hero.person_power_modifier) if hero is not None else self.power, # show power modified by heroe level and abilities
+                'experience': int(self.experience * hero.experience_modifier) if hero is not None else self.experience,# show experience modified by hero level and abilities
+                'power': int(self.power * hero.person_power_modifier) if hero is not None else self.power, # show power modified by hero level and abilities
                 'actors': self.actors_ui_info()}
 
 
@@ -588,13 +588,20 @@ class QuestPrototype(object):
     def modify_experience(self, experience):
         from the_tale.game.persons.storage import persons_storage
 
+        quest_uid = self.quests_stack[-1].uid
+
         experience_modifiers = {}
-        # TODO:
-        # here we go by all persons in quest chain
-        # but MUST go only by persons in current_quest
-        for person in self.knowledge_base.filter(facts.Person):
-            person = persons_storage.get(person.externals['id'])
-            experience_modifiers[person.place.id] = person.place.get_experience_modifier()
+
+        for participant in self.knowledge_base.filter(facts.QuestParticipant):
+            if quest_uid != participant.start:
+                continue
+            fact = self.knowledge_base[participant.participant]
+            if isinstance(fact, facts.Person):
+                place = persons_storage.get(fact.externals['id']).place
+            elif isinstance(fact, facts.Place):
+                place = places_storage.get(fact.externals['id'])
+
+            experience_modifiers[place.id] = place.get_experience_modifier()
 
         experience += experience * sum(experience_modifiers.values())
         return experience
