@@ -54,7 +54,7 @@
   <li>Ответ возвращается в формате JSON;</li>
   <li>Сессии реализуются через передачу cookie с именем sessionid; в случае, если в запросе cookie не указана, сервер создаст новую сессию и вернёт соответствующее значение cookie;</li>
   <li>
-    Для защиты от <a href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">CSRF</a> (так как фунционал браузерной версии также построен на API), каждый POST запрос должен иметь cookie с именем csrftoken и либо POST параметр csrfmiddlewaretoken, либо заголовок X-CSRFToken, установленные в значение этой cookie. Для получения cookie достаточно сделать любой запрос к игре.
+    Для защиты от <a href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">CSRF</a> (так как фунционал браузерной версии также построен на API), каждый POST запрос должен иметь cookie с именем csrftoken И либо POST параметр csrfmiddlewaretoken, либо заголовок X-CSRFToken, установленные в значение этой cookie. Значение для csrftoken cookie можно установить случайное (либо значение cookie будет установлено при 1-ом запросе к API).
   </li>
   <li>
     Примеры запросов на логин с использованием curl:
