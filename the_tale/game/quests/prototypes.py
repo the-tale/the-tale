@@ -194,15 +194,25 @@ class QuestInfo(object):
         return f.person_power_for_quest(waymarks_storage.average_path_length)
 
 
-NO_QUEST_INFO = QuestInfo(type='no-quest',
-                          uid='no-quest',
-                          name=u'безделие',
-                          action=u'имитирует бурную деятельность',
-                          choice=None,
-                          choice_alternatives=(),
-                          experience=None,
-                          power=None,
-                          actors={})
+NO_QUEST_INFO__IN_PLACE = QuestInfo(type='no-quest',
+                                    uid='no-quest',
+                                    name=u'безделие',
+                                    action=u'имитирует бурную деятельность',
+                                    choice=None,
+                                    choice_alternatives=(),
+                                    experience=None,
+                                    power=None,
+                                    actors={})
+
+NO_QUEST_INFO__OUT_PLACE = QuestInfo(type='no-quest',
+                                     uid='no-quest',
+                                     name=u'безделие',
+                                     action=u'идёт в ближайший город',
+                                     choice=None,
+                                     choice_alternatives=(),
+                                     experience=None,
+                                     power=None,
+                                     actors={})
 
 
 class QuestPrototype(object):
@@ -596,8 +606,11 @@ class QuestPrototype(object):
         return {'line': [info.ui_info(self.hero) for info in self.quests_stack]}
 
     @classmethod
-    def no_quests_ui_info(cls):
-        return {'line': [NO_QUEST_INFO.ui_info(None)]}
+    def no_quests_ui_info(cls, in_place):
+        if in_place:
+            return {'line': [NO_QUEST_INFO__IN_PLACE.ui_info(None)]}
+        else:
+            return {'line': [NO_QUEST_INFO__OUT_PLACE.ui_info(None)]}
 
     @classmethod
     def next_spending_ui_info(cls, spending):

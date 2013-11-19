@@ -35,7 +35,7 @@ class QuestsContainer(object):
         if self.has_quests:
             return {'quests': [spending_ui_info] + [quest.ui_info() for quest in self.quests_list]}
 
-        return  {'quests': [spending_ui_info, QuestPrototype.no_quests_ui_info()]}
+        return  {'quests': [spending_ui_info, QuestPrototype.no_quests_ui_info(in_place=hero.position.place is not None)]}
 
     def push_quest(self, quest):
         self.updated = True
