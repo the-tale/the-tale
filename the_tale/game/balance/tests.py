@@ -131,11 +131,11 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.QUESTS_SPECIAL_FRACTION, 0.2)
         self.assertEqual(c.QUESTS_SHORT_PATH_LEVEL_CAP, 4)
 
-        self.assertEqual(c.QUESTS_LOCK_TIME, { 'hunt': int(1.5*12*360),
-                                               'hometown': int(12*360),
+        self.assertEqual(c.QUESTS_LOCK_TIME, { 'hunt': int(18*360),
+                                               'hometown': int(24*360),
                                                'helpfriend': int(12*360),
                                                'interfereenemy': int(12*360),
-                                               'searchsmith': int(0.5*12*360) })
+                                               'searchsmith': int(24*360) })
 
         self.assertEqual(c.HERO_POWER_PER_DAY, 1000)
         self.assertEqual(c.PERSON_POWER_PER_QUEST_FRACTION, 0.33)

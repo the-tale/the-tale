@@ -228,11 +228,11 @@ QUESTS_SHORT_PATH_LEVEL_CAP = int(4) # на уровнях до этого ге�
 
 # время блокировки указывается в ходах
 # если идентификатор задания тут не указан, считается, что блокировки нет (т.е. она равна 0)
-QUESTS_LOCK_TIME = { 'hunt': int(1.5*12*TURNS_IN_HOUR),
-                     'hometown': int(12*TURNS_IN_HOUR),
+QUESTS_LOCK_TIME = { 'hunt': int(18*TURNS_IN_HOUR),
+                     'hometown': int(24*TURNS_IN_HOUR),
                      'helpfriend': int(12*TURNS_IN_HOUR),
                      'interfereenemy': int(12*TURNS_IN_HOUR),
-                     'searchsmith': int(0.5*12*TURNS_IN_HOUR) }
+                     'searchsmith': int(24*TURNS_IN_HOUR) }
 
 ##########################
 # Влияние
