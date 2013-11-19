@@ -102,6 +102,8 @@ class ActionBase(object):
                  meta_action_id=None,
                  replane_required=False):
 
+        self.updated = False
+
         self.hero = hero
 
         self.description = description
@@ -578,6 +580,12 @@ class ActionMoveToPrototype(ActionBase):
 
         if self.state != self.STATE.MOVING:
             return False
+
+        if self.length < E:
+            self.hero.position.percents = 1
+            self.percents = 1
+            self.updated = True
+            return True
 
         self.hero.position.percents += distance / self.hero.position.road.length
         self.percents += distance / self.length

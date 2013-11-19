@@ -114,6 +114,27 @@ class MoveToActionTest(testcase.TestCase):
 
         self.storage._test_save()
 
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    def test_short_teleport__length_is_0(self):
+
+        current_time = TimePrototype.get_current_time()
+
+        self.action_move.length = 0
+
+        self.storage.process_turn(second_step_if_needed=False)
+
+        self.action_move.short_teleport(1)
+        self.assertEqual(self.hero.position.percents, 1)
+        self.assertEqual(self.action_move.percents, 1)
+        self.assertTrue(self.action_move.updated)
+
+        current_time.increment_turn()
+        self.storage.process_turn(second_step_if_needed=False)
+
+        self.assertEqual(self.hero.position.place.id, self.p2.id)
+
+        self.storage._test_save()
+
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: True)
     def test_battle(self):
