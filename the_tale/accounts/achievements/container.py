@@ -55,9 +55,11 @@ class AchievementsContainer(object):
 
     def last_achievements(self, number):
         from the_tale.accounts.achievements.storage import achievements_storage
-        achievements_ids = zip(*sorted((achievement_time, achievement_id)
-                                       for achievement_id, achievement_time in self.achievements.iteritems())[:number])
+        achievements_ids = zip(*sorted((-achievement_time, achievement_id)
+                                       for achievement_id, achievement_time in self.achievements.iteritems()))
         if achievements_ids:
             achievements_ids = achievements_ids[1]
 
-        return [achievements_storage[achievement_id] for achievement_id in achievements_ids]
+        return [achievements_storage[achievement_id]
+                for achievement_id in achievements_ids
+                if achievements_storage[achievement_id].approved][:number]

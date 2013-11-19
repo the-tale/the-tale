@@ -22,5 +22,5 @@ Command = construct_workers_manager(help='run infrastructure workers',
                                              post_service_workers_environment.message_sender,
                                              accounts_workers_environment.registration,
                                              accounts_workers_environment.accounts_manager,
-                                             achievements_workers_environment.achievement_manager,
+                                             achievements_workers_environment.achievements_manager,
                                              portal_workers_environment.long_commands if portal_settings.ENABLE_WORKER_LONG_COMMANDS else None) )

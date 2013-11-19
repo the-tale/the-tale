@@ -38,3 +38,10 @@ class ContainerTests(testcase.TestCase):
         self.container.add_achievement(self.achievement_1)
         self.assertEqual(old_time, self.container.achievements[self.achievement_1.id])
         self.assertEqual(self.container.get_points(), 10)
+
+    def test_last_achievements(self):
+        self.container.add_achievement(self.achievement_3)
+        self.container.add_achievement(self.achievement_2)
+        self.container.add_achievement(self.achievement_1)
+
+        self.assertEqual(self.container.last_achievements(number=3), [self.achievement_1, self.achievement_3])

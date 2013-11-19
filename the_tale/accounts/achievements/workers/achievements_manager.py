@@ -59,6 +59,8 @@ class Worker(BaseWorker):
 
             achievement = achievements_storage[task.achievement_id]
 
+            self.logger.info('process task %d for achievement %d' % (task.id, achievement.id))
+
             if task.account_id is None:
                 self.spread_achievement(achievement)
             else:
@@ -68,6 +70,8 @@ class Worker(BaseWorker):
 
     def spread_achievement(self, achievement):
         from the_tale.game.heroes.prototypes import HeroPrototype
+
+        self.logger.info('spread achievement %d' % achievement.id)
 
         for hero in HeroPrototype.from_query(HeroPrototype._db_all()):
             if not achievement.check(old_value=0, new_value=hero.get_achievement_type_value(achievement.type)):
