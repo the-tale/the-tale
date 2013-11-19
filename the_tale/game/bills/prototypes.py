@@ -156,7 +156,7 @@ class BillPrototype(BasePrototype):
 
         results_text = u'Итоги голосования: %d «за», %d «против» (итого %d%% «за»), %d «воздержалось».' % (self.votes_for,
                                                                                                            self.votes_against,
-                                                                                                           self.votes_for_percents*100,
+                                                                                                           round(self.votes_for_percents, 2)*100,
                                                                                                            self.votes_refrained)
 
         self._model.voting_end_at = datetime.datetime.now()
