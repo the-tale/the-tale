@@ -16,7 +16,8 @@ class AuthRequestsTests(TestCase):
     def setUp(self):
         super(AuthRequestsTests, self).setUp()
         create_test_map()
-        register_user('test_user', 'test_user@test.com', '111111')
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        self.account_id = account_id
         self.client = client.Client()
 
     def test_login_page(self):
@@ -34,6 +35,11 @@ class AuthRequestsTests(TestCase):
     def test_login__remeber(self):
         self.request_login('test_user@test.com', '111111', remember=True)
         self.assertTrue(self.client.session.get_expiry_age() > accounts_settings.SESSION_REMEMBER_TIME - 10)
+
+    def test_login(self):
+        response = self.client.post(url('accounts:auth:api-login', api_version='1.0', api_client='test-1.0', next_url='/bla-bla'),
+                                    {'email': 'test_user@test.com', 'password': '111111'})
+        self.check_ajax_ok(response, data={'next_url': '/bla-bla', 'account_id': self.account_id})
 
     def test_logout_command_post(self):
         self.request_logout()
