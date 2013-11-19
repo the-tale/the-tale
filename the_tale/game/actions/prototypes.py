@@ -1213,10 +1213,10 @@ class ActionTradingPrototype(ActionBase):
 
         if self.state == self.STATE.TRADING:
 
-            for artifact in self.hero.bag.values():
+            if not self.hero.bag.is_empty:
+                artifact = random.choice(self.hero.bag.values())
                 sell_price = self.hero.sell_artifact(artifact)
                 self.hero.add_message('action_trading_sell_item', hero=self.hero, artifact=artifact, coins=sell_price)
-                break
 
             loot_items_count = self.hero.bag.occupation # pylint: disable=W0612
 
