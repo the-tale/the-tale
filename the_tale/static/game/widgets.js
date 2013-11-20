@@ -649,15 +649,36 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
         jQuery('.pgf-name', element).text(item.name);
         jQuery('.pgf-power-container', element).toggleClass('pgf-hidden', !item.equipped);
         jQuery('.pgf-power', element).text(item.power);
+        jQuery('.pgf-count-container', element).toggleClass('pgf-hidden', item.count <= 1);
+        jQuery('.pgf-count', element).text(item.count);
         jQuery('.pgf-quest-item-marker', element).toggleClass('pgf-hidden', !item.quest);
         element.data('artifact-id', item.id);
     }
 
     function RenderItems() {
         var items = [];
+        var counted_items = {};
+
         for (var uuid in data.bag) {
-            items.push(data.bag[uuid]);
+            var item = data.bag[uuid];
+            var name = item.name + '#' + item.power;
+            if (name in counted_items) {
+                counted_items[name] += 1;
+            }
+            else {
+                counted_items[name] = 1;
+                items.push(item);
+            }
+
         }
+
+        for (var i in items) {
+            var item = items[i];
+            var name = item.name + '#' + item.power;
+            item.count = counted_items[name];
+        }
+        items.sort(function(a, b){return a.name > b.name || (a.name == b.name && a.power > b.power);})
+
         pgf.base.RenderTemplateList(bagContainer, items, RenderItem, {});
     }
 
