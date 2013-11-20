@@ -27,7 +27,7 @@ class ResetHeroAbilitiesTest(TestCase):
 
         self.hero = self.storage.accounts_to_heroes[account_id]
         self.hero.abilities.add(battle_abilities.STRONG_HIT.get_id())
-        self.hero.abilities.reseted_at = datetime.datetime.fromtimestamp(0)
+        self.hero.abilities.set_reseted_at(datetime.datetime.fromtimestamp(0))
         self.hero.save()
 
     def test_create(self):
@@ -41,7 +41,7 @@ class ResetHeroAbilitiesTest(TestCase):
     def test_reset__timeout(self):
         task = ResetHeroAbilitiesTask(self.hero.id)
 
-        self.hero.abilities.reseted_at = datetime.datetime.now()
+        self.hero.abilities.set_reseted_at(datetime.datetime.now())
 
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
 

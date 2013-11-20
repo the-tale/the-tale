@@ -235,6 +235,16 @@ class BuyResetHeroPreference(BaseBuyHeroMethod):
         return {'preference_type': preference_type if isinstance(preference_type, rels.Record) else PREFERENCE_TYPE(preference_type)}
 
 
+class BuyResetHeroAbilities(BaseBuyHeroMethod):
+    TYPE = 'buy-reset-hero-abilities'
+    ARGUMENTS = ()
+    METHOD = 'reset_abilities'
+
+class BuyRechooseHeroAbilitiesChoices(BaseBuyHeroMethod):
+    TYPE = 'buy-rechoose-hero-abilities-choices'
+    ARGUMENTS = ()
+    METHOD = 'rechooce_abilities_choices'
+
 
 class BuyPermanentPurchase(BaseBuyTask):
     TYPE = 'buy-permanent-purchase'

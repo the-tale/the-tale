@@ -3,6 +3,8 @@ import random
 import time
 import datetime
 
+from the_tale.game.balance import constants as c, formulas as f
+
 from the_tale.game.heroes.conf import heroes_settings
 
 from the_tale.game.heroes.habilities.relations import ABILITY_TYPE, ABILITY_AVAILABILITY, ABILITY_ACTIVATION_TYPE, ABILITY_LOGIC_TYPE
@@ -21,13 +23,17 @@ __all__ = ['ABILITIES', 'ABILITY_LOGIC_TYPE', 'ABILITY_TYPE', 'ABILITY_AVAILABIL
 
 class AbilitiesPrototype(object):
 
-    __slots__ = ('abilities', 'reseted_at', 'destiny_points_spend', 'updated')
+    __slots__ = ('abilities', 'reseted_at', 'destiny_points_spend', 'updated', 'hero')
 
     def __init__(self):
         self.abilities = {}
         self.reseted_at = datetime.datetime.now()
         self.destiny_points_spend = 0
         self.updated = False
+        self.hero = None
+
+    def set_reseted_at(self, reseted_at):
+        self.reseted_at = reseted_at
 
     def serialize(self):
         data = {'abilities': {},
@@ -35,10 +41,11 @@ class AbilitiesPrototype(object):
                 'destiny_points_spend': self.destiny_points_spend}
         for ability_id, ability in self.abilities.items():
             data['abilities'][ability_id] = ability.serialize()
+
         return data
 
     @classmethod
-    def deserialize(cls, data):
+    def deserialize(cls, hero, data):
         abilities = cls()
 
         for ability_id, ability_data in data['abilities'].items():
@@ -47,6 +54,7 @@ class AbilitiesPrototype(object):
 
         abilities.reseted_at = datetime.datetime.fromtimestamp(data.get('reseted_at', 0))
         abilities.destiny_points_spend = data.get('destiny_points_spend', 0)
+        abilities.hero = hero
 
         return abilities
 
@@ -97,7 +105,11 @@ class AbilitiesPrototype(object):
         self.abilities[ability_id].level += 1
         self.destiny_points_spend += 1
 
-    def get_candidates(self, ability_type, max_active_abilities, max_passive_abilities):
+    def _get_candidates(self):
+
+        ability_type=self.next_ability_type
+
+        max_active_abilities, max_passive_abilities = self.ability_types_limitations[ability_type]
 
         # filter by type (battle, nonbattle, etc...)
         ability_classes = filter(lambda a: a.TYPE==ability_type, ABILITIES.values()) # pylint: disable=W0110
@@ -125,7 +137,7 @@ class AbilitiesPrototype(object):
         return candidates
 
 
-    def get_for_choose(self, candidates, max_old_abilities_for_choose, max_abilities_for_choose):
+    def _get_for_choose(self, candidates, max_old_abilities_for_choose, max_abilities_for_choose):
         old_candidates = filter(lambda a: self.has(a.get_id()), candidates) # pylint: disable=W0110
         new_candidates = filter(lambda a: not self.has(a.get_id()), candidates) # pylint: disable=W0110
 
@@ -134,10 +146,6 @@ class AbilitiesPrototype(object):
         new_candidates = random.sample(new_candidates, min(max_abilities_for_choose - len(first_old_candidates), len(new_candidates)))
 
         candidates = first_old_candidates + new_candidates
-
-        # if len(candidates) < max_abilities_for_choose:
-        #     candidates += random.sample(filter(lambda a: a not in candidates, second_old_candidates),
-        #                                 min(len(second_old_candidates), max_abilities_for_choose - len(candidates)))
 
         random.shuffle(candidates)
 
@@ -201,6 +209,91 @@ class AbilitiesPrototype(object):
             self.updated = True
 
         return 0
+
+    @property
+    def ability_types_limitations(self):
+        return {ABILITY_TYPE.BATTLE: (c.ABILITIES_ACTIVE_MAXIMUM, c.ABILITIES_PASSIVE_MAXIMUM),
+                ABILITY_TYPE.NONBATTLE: (c.ABILITIES_NONBATTLE_MAXUMUM, c.ABILITIES_NONBATTLE_MAXUMUM)}
+
+    def get_for_choose(self):
+
+        random_state = random.getstate()
+        random.seed(self.hero.id + self.destiny_points_spend)
+
+        candidates = self._get_candidates()
+
+
+        abilities = self._get_for_choose(candidates,
+                                         max_old_abilities_for_choose=c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM,
+                                         max_abilities_for_choose=c.ABILITIES_FOR_CHOOSE_MAXIMUM)
+
+        random.setstate(random_state)
+
+        return abilities
+
+    def can_rechoose_abilities_choices(self):
+        candidates = self._get_candidates()
+
+        return not (all(self.has(ability.get_id()) for ability in candidates) and
+                    len(candidates) <= c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM)
+
+    def rechooce_choices(self):
+        if not self.can_rechoose_abilities_choices():
+            return False
+
+        old_choices = set(ability.get_id() for ability in self.get_for_choose())
+        new_choices = old_choices
+
+        while old_choices == new_choices:
+            self.destiny_points_spend += 1
+            new_choices = set(ability.get_id() for ability in self.get_for_choose())
+
+        self.updated = True
+
+        return True
+
+
+    @property
+    def max_ability_points_number(self):
+        return f.max_ability_points_number(self.hero.level)
+
+    @property
+    def current_ability_points_number(self):
+        return sum(ability.level for ability in self.abilities.values())
+
+    @property
+    def can_choose_new_ability(self):
+        return self.current_ability_points_number < self.max_ability_points_number
+
+    @property
+    def destiny_points(self):
+        return self.max_ability_points_number - self.current_ability_points_number
+
+    @property
+    def next_ability_type(self):
+        return {1: ABILITY_TYPE.BATTLE,
+                2: ABILITY_TYPE.BATTLE,
+                0: ABILITY_TYPE.NONBATTLE}[self.current_ability_points_number % 3]
+
+    @property
+    def next_battle_ability_point_lvl(self):
+        delta = self.hero.level % 6
+        return {0: 1,
+                1: 2,
+                2: 1,
+                3: 4,
+                4: 3,
+                5: 2}[delta] + self.hero.level
+
+    @property
+    def next_nonbattle_ability_point_lvl(self):
+        delta = self.hero.level % 6
+        return {0: 5,
+                1: 4,
+                2: 3,
+                3: 2,
+                4: 1,
+                5: 6}[delta] + self.hero.level
 
 
     def __eq__(self, other):

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from the_tale.accounts.payments.goods import PremiumDays, PermanentPurchase, EnergyCharges, ResetHeroPreference
+from the_tale.accounts.payments.goods import PremiumDays, PermanentPurchase, EnergyCharges, ResetHeroPreference, ResetHeroAbilities, RechooseHeroAbilitiesChoices
 from the_tale.accounts.payments import exceptions
 from the_tale.accounts.payments.relations import PERMANENT_PURCHASE_TYPE
 
@@ -140,7 +140,19 @@ PRICE_LIST = [  PremiumDays(uid=u'subscription-7',
                 reset_hero_preference(uid='hero-preference-reset-energy-regeneration-type', preference_type=PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, cost=10),
                 reset_hero_preference(uid='hero-preference-reset-equipment-slot', preference_type=PREFERENCE_TYPE.EQUIPMENT_SLOT, cost=25),
                 reset_hero_preference(uid='hero-preference-reset-risk-level', preference_type=PREFERENCE_TYPE.RISK_LEVEL, cost=10),
-                reset_hero_preference(uid='hero-preference-reset-favorite-item', preference_type=PREFERENCE_TYPE.FAVORITE_ITEM, cost=25)]
+                reset_hero_preference(uid='hero-preference-reset-favorite-item', preference_type=PREFERENCE_TYPE.FAVORITE_ITEM, cost=25),
+
+                ResetHeroAbilities(uid='hero-abilities-reset',
+                                   cost=300,
+                                   description=u'Сброс способностей героя (после сброса сразу можно выбрать новые способности)',
+                                   name=u'Сброс способностей героя',
+                                   transaction_description=u'Сброс способностей героя'),
+
+                RechooseHeroAbilitiesChoices(uid='hero-abilities-rechoose-choices',
+                                             cost=50,
+                                             description=u'Изменяет список новых способностей, доступных герою для выбора. Гарантируется, что как минимум одна способность в новом списке будет отличаться от старого.',
+                                             name=u'Изменение списка новых способностей героя',
+                                             transaction_description=u'Изменение списка новых способностей героя') ]
 
 
 PURCHASES_BY_UID = {purchase.uid:purchase for purchase in PRICE_LIST}

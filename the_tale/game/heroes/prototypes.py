@@ -34,7 +34,7 @@ from the_tale.game.quests.container import QuestsContainer
 
 from the_tale.game.heroes.statistics import HeroStatistics
 from the_tale.game.heroes.models import Hero, HeroPreferences
-from the_tale.game.heroes.habilities import AbilitiesPrototype, ABILITY_TYPE
+from the_tale.game.heroes.habilities import AbilitiesPrototype
 from the_tale.game.heroes.conf import heroes_settings
 from the_tale.game.heroes import exceptions
 from the_tale.game.heroes.pvp import PvPData
@@ -63,7 +63,8 @@ class HeroPrototype(BasePrototype):
     _serialization_proxies = (('quests', QuestsContainer, heroes_settings.UNLOAD_TIMEOUT),
                               ('places_history', PlacesHelpStatistics, heroes_settings.UNLOAD_TIMEOUT),
                               ('pvp', PvPData, heroes_settings.UNLOAD_TIMEOUT),
-                              ('diary', MessagesContainer, heroes_settings.UNLOAD_TIMEOUT))
+                              ('diary', MessagesContainer, heroes_settings.UNLOAD_TIMEOUT),
+                              ('abilities', AbilitiesPrototype, None))
 
     @classmethod
     def live_query(cls): return cls._model_class.objects.filter(is_fast=False, is_bot=False)
@@ -139,38 +140,6 @@ class HeroPrototype(BasePrototype):
     def add_energy_charges(self, charges_number):
         self.energy_charges += charges_number
 
-    @property
-    def max_ability_points_number(self):
-        return f.max_ability_points_number(self.level)
-
-    @property
-    def current_ability_points_number(self):
-        return sum(ability.level for ability in self.abilities.abilities.values())
-
-    @property
-    def can_choose_new_ability(self):
-        return self.current_ability_points_number < self.max_ability_points_number
-
-    @property
-    def next_battle_ability_point_lvl(self):
-        delta = self.level % 6
-        return {0: 1,
-                1: 2,
-                2: 1,
-                3: 4,
-                4: 3,
-                5: 2}[delta] + self.level
-
-    @property
-    def next_nonbattle_ability_point_lvl(self):
-        delta = self.level % 6
-        return {0: 5,
-                1: 4,
-                2: 3,
-                3: 2,
-                4: 1,
-                5: 6}[delta] + self.level
-
     def get_health(self): return self._model.health
     def set_health(self, value): self._model.health = int(value)
     health = property(get_health, set_health)
@@ -182,41 +151,6 @@ class HeroPrototype(BasePrototype):
         value = int(round(value))
         self.statistics.change_money(source, abs(value))
         self._model.money += value
-
-    @lazy_property
-    def abilities(self):
-        return AbilitiesPrototype.deserialize(s11n.from_json(self._model.abilities))
-
-    @property
-    def next_ability_type(self):
-        return {1: ABILITY_TYPE.BATTLE,
-                2: ABILITY_TYPE.BATTLE,
-                0: ABILITY_TYPE.NONBATTLE}[self.current_ability_points_number % 3]
-
-    @property
-    def ability_types_limitations(self):
-        return {ABILITY_TYPE.BATTLE: (c.ABILITIES_ACTIVE_MAXIMUM, c.ABILITIES_PASSIVE_MAXIMUM),
-                ABILITY_TYPE.NONBATTLE: (c.ABILITIES_NONBATTLE_MAXUMUM, c.ABILITIES_NONBATTLE_MAXUMUM)}[self.next_ability_type]
-
-    def get_abilities_for_choose(self):
-
-        random_state = random.getstate()
-        random.seed(self.id + self.abilities.destiny_points_spend)
-
-        max_abilities = self.ability_types_limitations
-
-        candidates = self.abilities.get_candidates(ability_type=self.next_ability_type,
-                                                   max_active_abilities=max_abilities[0],
-                                                   max_passive_abilities=max_abilities[1])
-
-
-        abilities = self.abilities.get_for_choose(candidates,
-                                                  max_old_abilities_for_choose=c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM,
-                                                  max_abilities_for_choose=c.ABILITIES_FOR_CHOOSE_MAXIMUM)
-
-        random.setstate(random_state)
-
-        return abilities
 
     def get_special_quests(self):
         from questgen.quests.hunt import Hunt
@@ -617,6 +551,12 @@ class HeroPrototype(BasePrototype):
         else:
             self.preferences._reset(preference_type)
 
+    def reset_abilities(self):
+        self.abilities.reset()
+
+    def rechooce_abilities_choices(self):
+        self.abilities.rechooce_choices()
+
     @lazy_property
     def actions(self): return ActionsContainer.deserialize(self, s11n.from_json(self._model.actions))
 
@@ -670,8 +610,7 @@ class HeroPrototype(BasePrototype):
             self.equipment.updated = False
 
         if self.abilities.updated:
-            self._model.abilities = s11n.to_json(self.abilities.serialize())
-            self.abilities.updated = False
+            self.abilities.serialize()
 
         if self.places_history.updated:
             self.places_history.serialize()
@@ -730,13 +669,13 @@ class HeroPrototype(BasePrototype):
         if increment_level:
             self.increment_level()
 
-        if self.can_choose_new_ability:
-            choices = self.get_abilities_for_choose()
+        if self.abilities.can_choose_new_ability:
+            choices = self.abilities.get_for_choose()
 
             if not choices:
                 return
 
-            new_ability = random.choice(self.get_abilities_for_choose())
+            new_ability = random.choice(choices)
             if self.abilities.has(new_ability.get_id()):
                 self.abilities.increment_level(new_ability.get_id())
             else:
@@ -786,7 +725,7 @@ class HeroPrototype(BasePrototype):
                 'pvp': self.pvp.ui_info() if not for_last_turn else self.pvp.turn_ui_info(),
                 'base': { 'name': self.name,
                           'level': self.level,
-                          'destiny_points': self.max_ability_points_number - self.current_ability_points_number,
+                          'destiny_points': self.abilities.destiny_points,
                           'health': int(self.health),
                           'max_health': int(self.max_health),
                           'experience': int(self.experience),

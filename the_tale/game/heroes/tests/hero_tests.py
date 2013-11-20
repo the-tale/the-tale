@@ -461,13 +461,13 @@ class HeroLevelUpTests(TestCase):
 
         for level, points_number in level_to_points_number.items():
             self.hero._model.level = level
-            self.assertEqual(self.hero.max_ability_points_number, points_number)
+            self.assertEqual(self.hero.abilities.max_ability_points_number, points_number)
 
 
     def test_can_choose_new_ability(self):
-        self.assertTrue(self.hero.can_choose_new_ability)
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.current_ability_points_number', 2):
-            self.assertFalse(self.hero.can_choose_new_ability)
+        self.assertTrue(self.hero.abilities.can_choose_new_ability)
+        with mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.current_ability_points_number', 2):
+            self.assertFalse(self.hero.abilities.can_choose_new_ability)
 
     def test_next_battle_ability_point_lvl(self):
         level_to_next_level = { 1: 3,
@@ -490,7 +490,7 @@ class HeroLevelUpTests(TestCase):
 
         for level, next_level in level_to_next_level.items():
             self.hero._model.level = level
-            self.assertEqual(self.hero.next_battle_ability_point_lvl, next_level)
+            self.assertEqual(self.hero.abilities.next_battle_ability_point_lvl, next_level)
 
     def test_next_nonbattle_ability_point_lvl(self):
         level_to_next_level = { 1: 5,
@@ -513,7 +513,7 @@ class HeroLevelUpTests(TestCase):
 
         for level, next_level in level_to_next_level.items():
             self.hero._model.level = level
-            self.assertEqual(self.hero.next_nonbattle_ability_point_lvl, next_level)
+            self.assertEqual(self.hero.abilities.next_nonbattle_ability_point_lvl, next_level)
 
     def test_next_ability_type(self):
         ability_points_to_type = {1: ABILITY_TYPE.BATTLE,
@@ -524,18 +524,18 @@ class HeroLevelUpTests(TestCase):
                                   6: ABILITY_TYPE.NONBATTLE}
 
         for ability_points, next_type in ability_points_to_type.items():
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.current_ability_points_number', ability_points):
-                self.assertEqual(self.hero.next_ability_type, next_type)
+            with mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.current_ability_points_number', ability_points):
+                self.assertEqual(self.hero.abilities.next_ability_type, next_type)
 
 
     def test_get_abilities_for_choose_first_time(self):
-        abilities = self.hero.get_abilities_for_choose()
+        abilities = self.hero.abilities.get_for_choose()
         self.assertEqual(len(abilities), c.ABILITIES_FOR_CHOOSE_MAXIMUM)
 
     def test_get_abilities_for_choose_has_free_slots(self):
         for ability in self.hero.abilities.abilities.values():
             ability.level = ability.MAX_LEVEL
-        abilities = self.hero.get_abilities_for_choose()
+        abilities = self.hero.abilities.get_for_choose()
         self.assertEqual(len(abilities), 4)
         self.assertEqual(len(filter(lambda a: a.level==2 and a.get_id()=='hit', abilities)), 0)
 
@@ -545,7 +545,7 @@ class HeroLevelUpTests(TestCase):
             self.hero.abilities.add(ability.get_id(), ability.level)
 
         for i in xrange(100):
-            abilities = self.hero.get_abilities_for_choose()
+            abilities = self.hero.abilities.get_for_choose()
             self.assertEqual(len(filter(lambda a: a.activation_type._is_PASSIVE, abilities)), 0)
 
     def test_get_abilities_for_choose_all_active_slots_busy(self):
@@ -554,7 +554,7 @@ class HeroLevelUpTests(TestCase):
             self.hero.abilities.add(ability.get_id(), ability.level)
 
         for i in xrange(100):
-            abilities = self.hero.get_abilities_for_choose()
+            abilities = self.hero.abilities.get_for_choose()
             self.assertEqual(len(filter(lambda a: a.activation_type._is_ACTIVE, abilities)), 0)
 
     def test_get_abilities_for_choose_all_slots_busy(self):
@@ -567,10 +567,10 @@ class HeroLevelUpTests(TestCase):
             self.hero.abilities.add(ability.get_id(), ability.level)
 
         for i in xrange(100):
-            abilities = self.hero.get_abilities_for_choose()
+            abilities = self.hero.abilities.get_for_choose()
             self.assertEqual(len(abilities), 0)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.next_ability_type', ABILITY_TYPE.BATTLE)
+    @mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.next_ability_type', ABILITY_TYPE.BATTLE)
     def test_get_abilities_for_choose_all_slots_busy_but_one_not_max_level(self):
         passive_abilities = filter(lambda a: a.activation_type._is_PASSIVE, [a(level=a.MAX_LEVEL) for a in battle.ABILITIES.values()])
         for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
@@ -584,7 +584,7 @@ class HeroLevelUpTests(TestCase):
         ability.level -= 1
 
         for i in xrange(100):
-            abilities = self.hero.get_abilities_for_choose()
+            abilities = self.hero.abilities.get_for_choose()
             self.assertEqual(abilities, [ability.__class__(level=ability.level+1)])
 
     def test_get_abilities_for_choose_all_slots_busy_and_all_not_max_level(self):
@@ -597,7 +597,7 @@ class HeroLevelUpTests(TestCase):
             self.hero.abilities.add(ability.get_id(), ability.level)
 
         for i in xrange(100):
-            abilities = self.hero.get_abilities_for_choose()
+            abilities = self.hero.abilities.get_for_choose()
             self.assertEqual(len(abilities), c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM)
 
 

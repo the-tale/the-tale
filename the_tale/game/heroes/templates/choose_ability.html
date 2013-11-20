@@ -17,7 +17,7 @@
 
     <h4>Способности:</h4>
 
-    {% set abilities = resource.hero.get_abilities_for_choose() %}
+    {% set abilities = resource.hero.abilities.get_for_choose() %}
     {{ macros.abilities_list(abilities) }}
   </div>
 

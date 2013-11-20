@@ -60,7 +60,7 @@ class ChooseHeroAbilityTask(PostponedLogic):
             main_task.comment = u'no ability with id "%s"' % self.ability_id
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        choices = hero.get_abilities_for_choose()
+        choices = hero.abilities.get_for_choose()
 
         if self.ability_id not in [choice.get_id() for choice in choices]:
             self.state = CHOOSE_HERO_ABILITY_STATE.NOT_IN_CHOICE_LIST
@@ -74,7 +74,7 @@ class ChooseHeroAbilityTask(PostponedLogic):
             main_task.comment = u'ability "%s" does not available to players' % self.ability_id
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        if not hero.can_choose_new_ability:
+        if not hero.abilities.can_choose_new_ability:
             self.state = CHOOSE_HERO_ABILITY_STATE.MAXIMUM_ABILITY_POINTS_NUMBER
             main_task.comment = 'has maximum ability points number'
             return POSTPONED_TASK_LOGIC_RESULT.ERROR

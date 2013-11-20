@@ -183,7 +183,9 @@ class BasePrototype(object):
 
     def save(self):
         for field_name, Class, timeout in self._serialization_proxies:
-            getattr(self, field_name)._unload_object()
+            object = getattr(self, field_name)
+            if object.updated:
+                object._unload_object()
         self._model.save()
 
     def unload_serializable_items(self, timestamp):

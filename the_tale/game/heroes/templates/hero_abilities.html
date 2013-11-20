@@ -46,7 +46,7 @@ jQuery(document).ready(function(e){
     </a>
     {% else %}
     <a href="#" class="pgf-reset-abilities-timeout-button  pull-right"
-       rel="tooltip" title="способности можно будет сбросить через {{ resource.hero.abilities.time_before_reset|verbose_timedelta }}">
+       rel="tooltip" title="способности можно будет сбросить через {{ resource.hero.abilities.time_before_reset|verbose_timedelta }}<br/> Вы можете сбросить их вне очереди в магазине">
       <i class="icon-time" style="vertical-align: middle;"></i>
     </a>
     {% endif %}
@@ -55,14 +55,14 @@ jQuery(document).ready(function(e){
 
   {% if is_owner %}
 
-  {% if resource.hero.can_choose_new_ability  %}
+  {% if resource.hero.abilities.can_choose_new_ability  %}
   <div id="choose-ability-button" class="alert fade in pgf-choose-ability-button">
     {{ resource.hero.name }} может выучить новую способность. <br/>
     Нажмите на это сообщение, чтобы выбрать её.
   </div>
   {% else %}
   <div class="alert alert-info fade in pgf-choose-ability-button">
-    {{ resource.hero.name }} cможет улучшить свои боевые навыки на уровне {{ resource.hero.next_battle_ability_point_lvl }} и небоевые на уровне {{ resource.hero.next_nonbattle_ability_point_lvl }}
+    {{ resource.hero.name }} cможет улучшить свои боевые навыки на уровне {{ resource.hero.abilities.next_battle_ability_point_lvl }} и небоевые на уровне {{ resource.hero.abilities.next_nonbattle_ability_point_lvl }}
   </div>
   {% endif %}
 

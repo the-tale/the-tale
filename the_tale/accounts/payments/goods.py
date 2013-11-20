@@ -20,6 +20,30 @@ class PurchaseItem(object):
     def is_purchasable(self, account, hero):
         return True
 
+    def buy(self, account):
+        if account.is_fast:
+            raise exceptions.FastAccountError(purchase_uid=self.uid, account_id=account.id)
+
+        self.additional_checks(account)
+
+        transaction = transaction_logic(account=account,
+                                        amount=-self.cost,
+                                        description=self.transaction_description,
+                                        uid='ingame-purchase-<%s>' % self.uid)
+
+        postponed_logic = self.construct_postponed_task(account, transaction)
+
+        postponed_task = PostponedTaskPrototype.create(postponed_logic)
+        postponed_task.cmd_wait()
+
+        return postponed_task
+
+    def additional_checks(self, account):
+        pass
+
+    def construct_postponed_task(self, account, transaction):
+        raise NotImplementedError
+
 
 class PremiumDays(PurchaseItem):
 
@@ -27,22 +51,8 @@ class PremiumDays(PurchaseItem):
         super(PremiumDays, self).__init__(**kwargs)
         self.days = days
 
-    def buy(self, account):
-
-        if account.is_fast:
-            raise exceptions.FastAccountError(purchase_uid=self.uid, account_id=account.id)
-
-        transaction = transaction_logic(account=account,
-                                        amount=-self.cost,
-                                        description=self.transaction_description,
-                                        uid='ingame-purchase-<%s>' % self.uid)
-
-        postponed_logic = postponed_tasks.BuyPremium(account_id=account.id, days=self.days, transaction=transaction)
-
-        postponed_task = PostponedTaskPrototype.create(postponed_logic)
-        postponed_task.cmd_wait()
-
-        return postponed_task
+    def construct_postponed_task(self, account, transaction):
+        return postponed_tasks.BuyPremium(account_id=account.id, days=self.days, transaction=transaction)
 
 
 class EnergyCharges(PurchaseItem):
@@ -51,22 +61,8 @@ class EnergyCharges(PurchaseItem):
         super(EnergyCharges, self).__init__(**kwargs)
         self.charges_number = charges_number
 
-    def buy(self, account):
-
-        if account.is_fast:
-            raise exceptions.FastAccountError(purchase_uid=self.uid, account_id=account.id)
-
-        transaction = transaction_logic(account=account,
-                                        amount=-self.cost,
-                                        description=self.transaction_description,
-                                        uid='ingame-purchase-<%s>' % self.uid)
-
-        postponed_logic = postponed_tasks.BuyEnergyCharges(account_id=account.id, charges_number=self.charges_number, transaction=transaction)
-
-        postponed_task = PostponedTaskPrototype.create(postponed_logic)
-        postponed_task.cmd_wait()
-
-        return postponed_task
+    def construct_postponed_task(self, account, transaction):
+        return postponed_tasks.BuyEnergyCharges(account_id=account.id, charges_number=self.charges_number, transaction=transaction)
 
 
 class ResetHeroPreference(PurchaseItem):
@@ -75,22 +71,29 @@ class ResetHeroPreference(PurchaseItem):
         super(ResetHeroPreference, self).__init__(**kwargs)
         self.preference_type = preference_type
 
-    def buy(self, account):
+    def construct_postponed_task(self, account, transaction):
+        return postponed_tasks.BuyResetHeroPreference(account_id=account.id, preference_type=self.preference_type, transaction=transaction)
 
-        if account.is_fast:
-            raise exceptions.FastAccountError(purchase_uid=self.uid, account_id=account.id)
 
-        transaction = transaction_logic(account=account,
-                                        amount=-self.cost,
-                                        description=self.transaction_description,
-                                        uid='ingame-purchase-<%s>' % self.uid)
+class ResetHeroAbilities(PurchaseItem):
 
-        postponed_logic = postponed_tasks.BuyResetHeroPreference(account_id=account.id, preference_type=self.preference_type, transaction=transaction)
+    def __init__(self, **kwargs):
+        super(ResetHeroAbilities, self).__init__(**kwargs)
 
-        postponed_task = PostponedTaskPrototype.create(postponed_logic)
-        postponed_task.cmd_wait()
+    def construct_postponed_task(self, account, transaction):
+        return postponed_tasks.BuyResetHeroAbilities(account_id=account.id, transaction=transaction)
 
-        return postponed_task
+
+class RechooseHeroAbilitiesChoices(PurchaseItem):
+
+    def __init__(self, **kwargs):
+        super(RechooseHeroAbilitiesChoices, self).__init__(**kwargs)
+
+    def construct_postponed_task(self, account, transaction):
+        return postponed_tasks.BuyRechooseHeroAbilitiesChoices(account_id=account.id, transaction=transaction)
+
+    def is_purchasable(self, account, hero):
+        return hero.abilities.can_rechoose_abilities_choices()
 
 
 class PermanentPurchase(PurchaseItem):
@@ -99,26 +102,12 @@ class PermanentPurchase(PurchaseItem):
         super(PermanentPurchase, self).__init__(**kwargs)
         self.purchase_type = purchase_type
 
-    def buy(self, account):
-
-        if account.is_fast:
-            raise exceptions.FastAccountError(purchase_uid=self.uid, account_id=account.id)
-
+    def additional_checks(self, account):
         if self.purchase_type in account.permanent_purchases:
             raise exceptions.DuplicatePermanentPurchaseError(purchase_uid=self.uid, purchase_type=self.purchase_type, account_id=account.id)
 
-        transaction = transaction_logic(account=account,
-                                        amount=-self.cost,
-                                        description=self.transaction_description,
-                                        uid='ingame-purchase-<%s>' % self.uid)
-
-        postponed_logic = postponed_tasks.BuyPermanentPurchase(account_id=account.id, purchase_type=self.purchase_type, transaction=transaction)
-
-        postponed_task = PostponedTaskPrototype.create(postponed_logic)
-        postponed_task.cmd_wait()
-
-        return postponed_task
-
+    def construct_postponed_task(self, account, transaction):
+        return postponed_tasks.BuyPermanentPurchase(account_id=account.id, purchase_type=self.purchase_type, transaction=transaction)
 
     def is_purchasable(self, account, hero):
 

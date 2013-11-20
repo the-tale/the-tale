@@ -13,9 +13,11 @@ from the_tale.common.utils.testcase import TestCase
 from the_tale.common.postponed_tasks import PostponedTaskPrototype, FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
 from the_tale.accounts.logic import register_user, login_page_url
+from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
+from the_tale.game.balance import constants as c
 
 from the_tale.game.actions.fake import FakeActor
 from the_tale.game.actions.contexts.battle import Damage
@@ -25,7 +27,7 @@ from the_tale.game.heroes.fake import FakeMessanger
 from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes.habilities import battle as battle_abilities
 from the_tale.game.heroes.habilities import modifiers as modifiers_abilities
-from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY, AbilitiesPrototype
+from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
 from the_tale.game.heroes.postponed_tasks import ChooseHeroAbilityTask, CHOOSE_HERO_ABILITY_STATE
 from the_tale.game.heroes.conf import heroes_settings
 
@@ -35,7 +37,16 @@ class HabilitiesContainerTest(TestCase):
 
     def setUp(self):
         super(HabilitiesContainerTest, self).setUp()
-        self.abilities = AbilitiesPrototype.create()
+        self.place_1, self.place_2, self.place_3 = create_test_map()
+
+        result, account_id, bundle_id = register_user('test_user')
+
+        self.storage = LogicStorage()
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
+
+        self.hero = self.storage.accounts_to_heroes[account_id]
+
+        self.abilities = self.hero.abilities
 
     def test_simple_level_up(self):
         self.assertEqual(self.abilities.randomized_level_up(1), 1)
@@ -68,7 +79,7 @@ class HabilitiesContainerTest(TestCase):
 
     def test_reset_abilities(self):
         self.assertFalse(self.abilities.can_reset) # new hero created with reset timeout
-        self.abilities.reseted_at = datetime.datetime.now() - heroes_settings.ABILITIES_RESET_TIMEOUT
+        self.abilities.set_reseted_at(datetime.datetime.now() - heroes_settings.ABILITIES_RESET_TIMEOUT)
         self.assertTrue(self.abilities.can_reset)
 
         self.abilities.add(battle_abilities.STRONG_HIT.get_id())
@@ -81,6 +92,27 @@ class HabilitiesContainerTest(TestCase):
         self.assertEqual(len(self.abilities.all), 1)
         self.assertEqual(old_destiny_points + 1, self.abilities.destiny_points_spend)
         self.assertFalse(self.abilities.can_reset)
+
+    def test_rechooce_choices(self):
+        for i in xrange(1000):
+            old_choices = set(ability.get_id() for ability in self.abilities.get_for_choose())
+            self.assertTrue(self.abilities.rechooce_choices())
+            new_choices = set(ability.get_id() for ability in self.abilities.get_for_choose())
+            self.assertNotEqual(old_choices, new_choices)
+
+    def test_rechooce_choices__can_not_rechoose(self):
+        while self.abilities.can_rechoose_abilities_choices():
+            self.hero.randomized_level_up(increment_level=True)
+
+        # here we should have only c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM unchosen abilities
+
+        self.assertEqual(len(self.abilities._get_candidates()), c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM)
+
+        for i in xrange(1000):
+            old_choices = set(ability.get_id() for ability in self.abilities.get_for_choose())
+            self.assertFalse(self.abilities.rechooce_choices())
+            new_choices = set(ability.get_id() for ability in self.abilities.get_for_choose())
+            self.assertEqual(old_choices, new_choices)
 
 
 
@@ -257,17 +289,14 @@ class ChooseAbilityTaskTest(TestCase):
     def get_new_ability_id(self, hero=None):
         if hero is None:
             hero = self.hero
-        return hero.get_abilities_for_choose()[0].get_id()
+        return hero.abilities.get_for_choose()[0].get_id()
 
     def get_unchoosed_ability_id(self, hero=None):
         if hero is None:
             hero = self.hero
-        choices = hero.get_abilities_for_choose()
+        choices = hero.abilities.get_for_choose()
 
-        max_abilities = hero.ability_types_limitations
-        all_ = hero.abilities.get_candidates(ability_type=hero.next_ability_type,
-                                             max_active_abilities=max_abilities[0],
-                                             max_passive_abilities=max_abilities[1])
+        all_ = hero.abilities._get_candidates()
 
         for ability in all_:
             if ability not in choices:
@@ -300,7 +329,7 @@ class ChooseAbilityTaskTest(TestCase):
     def test_process_not_for_heroes(self):
         task = ChooseHeroAbilityTask(self.hero.id, self.get_only_for_mobs_ability_id())
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.get_abilities_for_choose', lambda x: [ABILITIES[task.ability_id]]):
+        with mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.get_for_choose', lambda x: [ABILITIES[task.ability_id]]):
             self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
 
         self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.NOT_FOR_PLAYERS)
@@ -312,8 +341,8 @@ class ChooseAbilityTaskTest(TestCase):
         self.hero.abilities.updated = True
         self.hero.save()
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.get_abilities_for_choose', lambda x: [ABILITIES[task.ability_id]]):
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_choose_new_ability', True):
+        with mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.get_for_choose', lambda x: [ABILITIES[task.ability_id]]):
+            with mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.can_choose_new_ability', True):
                 self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.ALREADY_MAX_LEVEL)
 
@@ -326,7 +355,7 @@ class ChooseAbilityTaskTest(TestCase):
 
         task = ChooseHeroAbilityTask(self.hero.id, self.get_new_ability_id())
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_choose_new_ability', False):
+        with mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.can_choose_new_ability', False):
             self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
 
         self.assertEqual(task.state, CHOOSE_HERO_ABILITY_STATE.MAXIMUM_ABILITY_POINTS_NUMBER)
@@ -350,7 +379,7 @@ class HabilitiesViewsTest(TestCase):
     def get_new_ability_id(self, hero=None):
         if hero is None:
             hero = self.hero
-        return hero.get_abilities_for_choose()[0].get_id()
+        return hero.abilities.get_for_choose()[0].get_id()
 
     def tearDown(self):
         pass
