@@ -56,23 +56,28 @@ class ArtifactPrototype(object):
 
     def set_bag_uuid(self, uuid): self.bag_uuid = uuid
 
-    def get_sell_price(self):
-
-        multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
+    def absolute_sell_price(self):
 
         if self.is_useless:
             if self.rarity == RARITY_TYPE.NORMAL:
-                gold_amount = 1 + int(f.normal_loot_cost_at_lvl(self.level) * multiplier)
+                gold_amount = 1 + int(f.normal_loot_cost_at_lvl(self.level))
             elif self.rarity == RARITY_TYPE.RARE:
-                gold_amount = 1 + int(f.rare_loot_cost_at_lvl(self.level) * multiplier)
+                gold_amount = 1 + int(f.rare_loot_cost_at_lvl(self.level))
             elif self.rarity == RARITY_TYPE.EPIC:
-                gold_amount = 1 + int(f.epic_loot_cost_at_lvl(self.level) * multiplier)
+                gold_amount = 1 + int(f.epic_loot_cost_at_lvl(self.level))
             else:
                 raise exceptions.UnknownArtifactRarityTypeError(artifact=self, type=self.rarity)
         else:
-            gold_amount = 1 + int(f.sell_artifact_price(self.level) * multiplier)
+            gold_amount = 1 + int(f.sell_artifact_price(self.level))
 
         return gold_amount
+
+
+
+    def get_sell_price(self):
+        multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
+        return int(self.absolute_sell_price() * multiplier)
+
 
     def serialize(self):
         return {'id': self.id,

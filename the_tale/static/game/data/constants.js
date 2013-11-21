@@ -62,5 +62,11 @@ pgf.game.constants.abilities = {
         "name": "Энергия",
         "description": "Восстановить полный запас энергии",
         "cost": 0
+    },
+    "drop_item": {
+        "type": "drop_item",
+        "name": "Выбросить предмет",
+        "description": "Выбросить из рюкзака самый дешёвый предмет",
+        "cost": 3
     }
 }

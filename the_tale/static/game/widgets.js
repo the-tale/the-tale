@@ -875,6 +875,8 @@ pgf.game.widgets.Abilities = function() {
     var hasEnergyCharges = false;
     var canRestoreEnergy = false;
 
+    var itemsInBag = false;
+
     var turn = {};
 
     var allowAbilityUnlock = {};
@@ -988,6 +990,11 @@ pgf.game.widgets.Abilities = function() {
     function UpdateButtons() {
         jQuery('.pgf-ability-help').toggleClass('pgf-hidden', false);
 
+        jQuery('.pgf-ability-drop_item')
+            .toggleClass('pgf-hidden', false)
+            .toggleClass('no-items', !itemsInBag)
+            .toggleClass('pgf-disable', !itemsInBag);
+
         jQuery('.pgf-ability-arena_pvp_1x1').toggleClass('pgf-hidden', pvpWaiting);
         jQuery('.pgf-in-pvp-queue-message').toggleClass('pgf-hidden', !pvpWaiting);
 
@@ -1020,6 +1027,12 @@ pgf.game.widgets.Abilities = function() {
 
         hasEnergyCharges = hero.energy.charges > 0;
         canRestoreEnergy = angelEnergy < pgf.game.constants.abilities.help.cost;
+
+        itemsInBag = false;
+        for (var uuid in hero.bag) {
+            itemsInBag = true;
+            break;
+        }
     };
 
     function Render() {

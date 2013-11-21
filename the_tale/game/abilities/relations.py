@@ -29,4 +29,5 @@ class ABILITY_TYPE(DjangoEnum):
                 ('ARENA_PVP_1x1_LEAVE_QUEUE', 'arena_pvp_1x1_leave_queue', u'Выйти из очереди', 0, u'Выйти из очереди на арену', ()),
                 ('ARENA_PVP_1x1_ACCEPT', 'arena_pvp_1x1_accept', u'Принять вызов', 1, u'Принять вызов другого героя', ('battle',)),
                 ('BUILDING_REPAIR', 'building_repair', u'Вызвать рабочего', c.BUILDING_WORKERS_ENERGY_COST, u'Вызвать рабочего для ремонта здания', ('building',)),
-                ('ENERGY_CHARGE', 'energy_charge', u'Энергия', 0, u'Восстановить полный запас энергии', ()) )
+                ('ENERGY_CHARGE', 'energy_charge', u'Энергия', 0, u'Восстановить полный запас энергии', ()),
+                ('DROP_ITEM', 'drop_item', u'Выбросить предмет', 3, u'Выбросить из рюкзака самый ненужный предмет', ()))

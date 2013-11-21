@@ -59,6 +59,37 @@ class Bag(object):
     @property
     def occupation(self): return len(self.bag)
 
+    @classmethod
+    def _compare_drop(cls, a, b):
+        if a is None:
+            return True
+        elif b is None:
+            return False
+        elif a.type._is_USELESS:
+            if b.type._is_USELESS:
+                return a.absolute_sell_price() > b.absolute_sell_price()
+            else:
+                return False
+
+        else:
+            if b.type._is_USELESS:
+                return True
+            else:
+                return a.power > b.power
+
+    def drop_cheapest_item(self):
+
+        dropped_item = None
+
+        for item in self.bag.values():
+            if self._compare_drop(dropped_item, item):
+                dropped_item = item
+
+        if dropped_item is not None:
+            self.pop_artifact(dropped_item)
+
+        return dropped_item
+
     def __eq__(self, other):
         return (self.next_uuid == other.next_uuid and
                 self.bag == other.bag)

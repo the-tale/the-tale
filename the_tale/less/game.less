@@ -380,7 +380,7 @@
 
 .angel-ability {
 
-   &.wait, &.no-energy, &.no-registration, &.no-charges, &.energy-exists {
+   &.wait, &.no-energy, &.no-registration, &.no-charges, &.energy-exists, &.no-items {
       color: @disabled-text-color;
       text-decoration: none;
    }
@@ -413,6 +413,10 @@
    }
 
    &.energy-exists .icon-bell {
+      display: inline-block;
+   }
+
+   &.no-items .icon-bell {
       display: inline-block;
    }
 

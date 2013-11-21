@@ -21676,6 +21676,42 @@
       "template": "планирует прийти с повинной"
     }
   ], 
+  "angel_ability_drop_item_crit": [
+    {
+      "internals": [
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_0", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "dropped_item", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "dropped_item"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_1", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "«Рюкзак стал легче на вес %(e_0)s, а кошелёк потяжелел примерно на %(e_1)s %(i_0)s… чудеса»…"
+    }
+  ], 
   "chronicle_building_destroy_bill_started": [
     {
       "internals": [], 
@@ -30575,6 +30611,47 @@
       "internals": [], 
       "externals": [], 
       "template": "присвоить письмо и продать"
+    }
+  ], 
+  "angel_ability_drop_item": [
+    {
+      "internals": [
+        [
+          "заметил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш", 
+            "загл"
+          ], 
+          "заметил"
+        ], 
+        [
+          "потерял", 
+          [
+            "hero"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "потерял"
+        ]
+      ], 
+      "externals": [
+        [
+          "dropped_item", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "dropped_item"
+        ]
+      ], 
+      "template": "«%(i_0)s, что рюкзак стал легче, неужели где-то %(i_1)s %(e_0)s»?"
     }
   ], 
   "quest_hometown_journal_search_old_friends_donothing": [], 

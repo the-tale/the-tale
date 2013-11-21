@@ -1,5 +1,7 @@
 # coding: utf-8
 
+import mock
+
 from the_tale.common.utils.testcase import TestCase
 
 from the_tale.accounts.prototypes import AccountPrototype
@@ -247,3 +249,61 @@ class HeroEquipmentTests(TestCase):
             old_artifact = self.hero.equipment.get(EQUIPMENT_SLOT.PLATE)
             self.hero.buy_artifact(better=False, with_prefered_slot=True, equip=True)
             self.assertTrue(self.hero.equipment.get(EQUIPMENT_SLOT.PLATE).power >= old_artifact.power)
+
+    def test_compare_drop__none(self):
+        loot = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 666)
+        self.assertTrue(self.hero.bag._compare_drop(None, loot))
+        self.assertFalse(self.hero.bag._compare_drop(loot, None))
+
+    def test_compare_drop__useless_and_useless(self):
+        loot_1 = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 2)
+        loot_2 = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 1)
+        self.assertTrue(self.hero.bag._compare_drop(loot_1, loot_2))
+
+    def test_compare_drop__artifact_and_useless(self):
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1)
+        loot = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 666)
+        self.assertTrue(self.hero.bag._compare_drop(artifact, loot))
+
+    def test_compare_drop__useless_and_artifact(self):
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1)
+        loot = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 666)
+        self.assertFalse(self.hero.bag._compare_drop(loot, artifact))
+
+    def test_compare_drop__artifact_and_artifact(self):
+        artifact_1 = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1)
+        artifact_2 = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1)
+
+        artifact_2.power = 1
+        artifact_1.power = 2
+
+        self.assertTrue(self.hero.bag._compare_drop(artifact_1, artifact_2))
+        self.assertFalse(self.hero.bag._compare_drop(artifact_2, artifact_1))
+
+
+    def test_drop_cheapest_item__no_items(self):
+        self.assertEqual(self.hero.bag.occupation, 0)
+
+        dropped_item = self.hero.bag.drop_cheapest_item()
+
+        self.assertEqual(dropped_item, None)
+
+    def test_drop_cheapest_item(self):
+        artifact_1 = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
+        artifact_2 = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
+
+        artifact_1.power = 200
+        artifact_2.power = 1
+
+        self.hero.bag.put_artifact(artifact_1)
+        self.hero.bag.put_artifact(artifact_2)
+
+        self.assertEqual(self.hero.bag.occupation, 2)
+
+        dropped_item = self.hero.bag.drop_cheapest_item()
+
+        self.assertEqual(self.hero.bag.occupation, 1)
+
+        self.assertEqual(dropped_item.id, artifact_2.id)
+
+        self.assertEqual(self.hero.bag.values()[0].id, artifact_1.id)
