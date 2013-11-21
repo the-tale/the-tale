@@ -471,7 +471,7 @@ class HeroPrototype(BasePrototype):
     def max_health(self): return int(f.hp_on_lvl(self.level) * self.abilities.modify_attribute(ATTRIBUTES.HEALTH, 1))
 
     @property
-    def max_bag_size(self): return c.MAX_BAG_SIZE
+    def max_bag_size(self): return self.abilities.modify_attribute(ATTRIBUTES.MAX_BAG_SIZE, c.MAX_BAG_SIZE)
 
     @property
     def experience_modifier(self):

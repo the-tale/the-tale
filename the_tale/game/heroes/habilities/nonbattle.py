@@ -167,6 +167,24 @@ class GIFTED(AbilityPrototype):
     def modify_attribute(self, type_, value): return value*self.experience_multiplier if type_ == ATTRIBUTES.EXPERIENCE else value
 
 
+class THRIFTY(AbilityPrototype):
+
+    TYPE = ABILITY_TYPE.NONBATTLE
+    ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
+    AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
+
+    NAME = u'Запасливый'
+    normalized_name = NAME
+    DESCRIPTION = u'Запасливый герой не любит расставаться с добычей, поэтому носит с собой рюкзак большего размера.'
+
+    MAX_BAG_SIZE_MODIFIER = [1, 2, 3, 4, 5]
+
+    @property
+    def max_bag_size_modifier(self): return self.MAX_BAG_SIZE_MODIFIER[self.level-1]
+
+    def modify_attribute(self, type_, value): return value + self.max_bag_size_modifier if type_ == ATTRIBUTES.MAX_BAG_SIZE else value
+
+
 ABILITIES = dict( (ability.get_id(), ability)
                   for ability in globals().values()
                   if isinstance(ability, type) and issubclass(ability, AbilityPrototype) and ability != AbilityPrototype)

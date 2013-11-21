@@ -70,3 +70,10 @@ class HabilitiesNonBattleTest(testcase.TestCase):
         self.hero.add_experience(10)
 
         self.assertTrue(self.hero.experience > experience_delta * 2)
+
+    def test_thrifty(self):
+        self.assertEqual(self.hero.max_bag_size, c.MAX_BAG_SIZE)
+
+        self.hero.abilities.add(nonbattle.THRIFTY.get_id())
+
+        self.assertEqual(self.hero.max_bag_size, c.MAX_BAG_SIZE + 1)
