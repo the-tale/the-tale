@@ -103,7 +103,7 @@ class HeroResource(Resource):
     @validate_ownership()
     @handler('#hero', 'choose-ability-dialog', method='get')
     def choose_ability_dialog(self):
-        is_rechoose_purchasable = (price_list.rechoose_hero_abilities.cost > self.account.bank_account.amount and
+        is_rechoose_purchasable = (price_list.rechoose_hero_abilities.cost <= self.account.bank_account.amount and
                                    price_list.rechoose_hero_abilities.is_purchasable(account=self.account, hero=self.hero))
         return self.template('heroes/choose_ability.html',
                              {'rechoose_hero_abilities': price_list.rechoose_hero_abilities,
