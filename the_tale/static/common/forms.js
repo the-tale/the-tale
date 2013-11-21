@@ -227,6 +227,7 @@ jQuery('.pgf-forms-post-simple').live('click', function(e) {
 
     var confirmation = el.data('confirmation');
     var successMessage = el.data('success-message');
+    var successEvent = el.data('success-event');
 
     function ProcessData(data) {
         if (actionType == 'quietly') {
@@ -236,6 +237,9 @@ jQuery('.pgf-forms-post-simple').live('click', function(e) {
         }
         if (actionType == 'redirect') {
             location.href = el.data('redirect-url');
+        }
+        if (actionType == 'event') {
+            jQuery(document).trigger(successEvent);
         }
     }
 

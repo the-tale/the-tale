@@ -27,6 +27,18 @@ jQuery(document).ready(function(e){
                              });
     });
 
+    pgf.base.ToggleWait(jQuery(".pgf-hero-data-wait"), true);
+
+    jQuery(document).bind("pgf-reopen-abilities-dialog", function(){
+
+        setTimeout(function(){
+            jQuery('.modal').modal('hide');
+            jQuery('#choose-ability-button').click();
+        }, 0);
+
+    });
+
+
     {% endif %}
 
 });

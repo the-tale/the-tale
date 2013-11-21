@@ -12,6 +12,7 @@ from the_tale.common.postponed_tasks import PostponedTaskPrototype
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.clans.prototypes import ClanPrototype
+from the_tale.accounts.payments import price_list
 
 from the_tale.game.balance import constants as c
 
@@ -102,8 +103,11 @@ class HeroResource(Resource):
     @validate_ownership()
     @handler('#hero', 'choose-ability-dialog', method='get')
     def choose_ability_dialog(self):
+        is_rechoose_purchasable = (price_list.rechoose_hero_abilities.cost > self.account.bank_account.amount and
+                                   price_list.rechoose_hero_abilities.is_purchasable(account=self.account, hero=self.hero))
         return self.template('heroes/choose_ability.html',
-                             {} )
+                             {'rechoose_hero_abilities': price_list.rechoose_hero_abilities,
+                              'is_rechoose_purchasable': is_rechoose_purchasable} )
 
     @login_required
     @validate_ownership()

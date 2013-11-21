@@ -13,8 +13,10 @@
     </tr>
     <tr>
       <td width="100px" style="text-align: center; margin-bottom: 1em; vertical-align: middle;">
-        <span style="font-size: 20pt;">{{ purchase.cost }}</span><br/>
-        <span>ПЕЧЕНЕК</span><br/>
+        <div style="vertical-align: middle; margin-bottom: 0.25em;">
+          <span style="font-size: 20pt; vertical-align: middle;">{{ purchase.cost }}</span>
+          <img src="{{ STATIC_CONTENT }}images/cookies.png" style="vertical-align: middle;"></img>
+        </div>
         <a class="btn pgf-forms-post-simple {% if purchase.cost > account.bank_account.amount %}disabled pgf-disabled{% else %}btn-info{% endif %}"
            data-confirmation="Вы уверены, что хотите купить <strong>«{{purchase.name}}»</strong>, потратив {{purchase.cost}} печенек?"
            data-success-message="Поздравляем с покупкой! <strong>(«{{purchase.name}}»)</strong>"

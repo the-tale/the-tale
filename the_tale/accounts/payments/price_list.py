@@ -51,6 +51,13 @@ def reset_hero_preference(uid, preference_type, cost):
                                transaction_description=u'Сброс предпочтения героя: «%s»' % preference_type.text)
 
 
+rechoose_hero_abilities = RechooseHeroAbilitiesChoices(uid='hero-abilities-rechoose-choices',
+                                                       cost=50,
+                                                       description=u'Изменяет список новых способностей, доступных герою для выбора. Гарантируется, что как минимум одна способность в новом списке будет отличаться от старого.',
+                                                       name=u'Изменение списка новых способностей героя',
+                                                       transaction_description=u'Изменение списка новых способностей героя')
+
+
 PRICE_LIST = [  PremiumDays(uid=u'subscription-7',
                             name=u'7 дней подписки',
                             description=PREMIUM_DAYS_DESCRIPTION,
@@ -148,11 +155,7 @@ PRICE_LIST = [  PremiumDays(uid=u'subscription-7',
                                    name=u'Сброс способностей героя',
                                    transaction_description=u'Сброс способностей героя'),
 
-                RechooseHeroAbilitiesChoices(uid='hero-abilities-rechoose-choices',
-                                             cost=50,
-                                             description=u'Изменяет список новых способностей, доступных герою для выбора. Гарантируется, что как минимум одна способность в новом списке будет отличаться от старого.',
-                                             name=u'Изменение списка новых способностей героя',
-                                             transaction_description=u'Изменение списка новых способностей героя') ]
+                rechoose_hero_abilities ]
 
 
 PURCHASES_BY_UID = {purchase.uid:purchase for purchase in PRICE_LIST}

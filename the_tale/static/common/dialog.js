@@ -77,6 +77,8 @@ pgf.ui.dialog.Create = function(params) {
         var OnShow = function(e) {
             if (!$(e.target).is(dialog)) return;
 
+            jQuery('.modal').not(dialog).toggleClass('nested-modal', true);
+
             jQuery('.pgf-close-dialog', dialog).click(function(e){
                 e.preventDefault();
                 dialog.modal('hide');
@@ -109,6 +111,8 @@ pgf.ui.dialog.Create = function(params) {
 
         var OnHide = function(e) {
             if (!$(e.target).is(dialog)) return;
+
+            jQuery('.modal').not(dialog).toggleClass('nested-modal', false);
 
             if (params.OnClose) {
                 params.OnClose(dialog);
@@ -164,6 +168,9 @@ pgf.ui.dialog.Question = function(params) {
 
     pgf.ui.dialog.Create({fromSelector: dialog,
                           title: title,
+                          OnClose: function(dialog) {
+                              if (params.OnClose) params.OnClose(dialog);
+                          },
                           OnOpen: function(dialog){
                               for (var i in params.buttons) {
                                   var button = params.buttons[i];
@@ -189,6 +196,7 @@ pgf.ui.dialog.Alert = function(params) {
 
     pgf.ui.dialog.Question({message: params.message,
                             title: title,
+                            OnClose: OkCallback,
                             buttons: [{text: 'Ok',
                                        callback: OkCallback}]
                            });
