@@ -765,6 +765,8 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
     var shortLogContainer = jQuery('.pgf-log-list', content);
 
+    var MESSAGES_MAX_LENGTH = 100;
+
     function RenderDiaryMessage(index, message, element) {
 
         var text = "";
@@ -845,6 +847,10 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
             }
 
             lastGameTime = turnMessages[i][1];
+        }
+
+        for (var i=0; i<=messages.length - MESSAGES_MAX_LENGTH; i++){
+            messages.pop();
         }
 
     };
