@@ -9,3 +9,4 @@ class ATTRIBUTES:
     MIGHT_CRIT_CHANCE = 5
     EXPERIENCE = 6
     MAX_BAG_SIZE = 7
+    POWER = 8

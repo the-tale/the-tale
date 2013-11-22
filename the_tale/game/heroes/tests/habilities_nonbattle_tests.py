@@ -77,3 +77,11 @@ class HabilitiesNonBattleTest(testcase.TestCase):
         self.hero.abilities.add(nonbattle.THRIFTY.get_id())
 
         self.assertEqual(self.hero.max_bag_size, c.MAX_BAG_SIZE + 1)
+
+
+    def test_diplomatic(self):
+        old_power_modifier = self.hero.person_power_modifier
+
+        self.hero.abilities.add(nonbattle.DIPLOMATIC.get_id())
+
+        self.assertTrue(old_power_modifier < self.hero.person_power_modifier)

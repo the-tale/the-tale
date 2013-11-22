@@ -167,6 +167,24 @@ class GIFTED(AbilityPrototype):
     def modify_attribute(self, type_, value): return value*self.experience_multiplier if type_ == ATTRIBUTES.EXPERIENCE else value
 
 
+class DIPLOMATIC(AbilityPrototype):
+
+    TYPE = ABILITY_TYPE.NONBATTLE
+    ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
+    AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
+
+    NAME = u'Дипломатичный'
+    normalized_name = NAME
+    DESCRIPTION = u'Некоторые герои приноровились выполнять задание особенно хитро и тщательно, тем самым увеличивая своё влияние на участников задания.'
+
+    POWER_MULTIPLIER = [1.1, 1.2, 1.3, 1.4, 1.5]
+
+    @property
+    def power_multiplier(self): return self.POWER_MULTIPLIER[self.level-1]
+
+    def modify_attribute(self, type_, value): return value*self.power_multiplier if type_ == ATTRIBUTES.POWER else value
+
+
 class THRIFTY(AbilityPrototype):
 
     TYPE = ABILITY_TYPE.NONBATTLE

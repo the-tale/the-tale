@@ -488,7 +488,7 @@ class HeroPrototype(BasePrototype):
 
     @property
     def person_power_modifier(self):
-        return max(math.log(self.level, 2), 0.5)
+        return self.abilities.modify_attribute(ATTRIBUTES.POWER, max(math.log(self.level, 2), 0.5))
 
     ###########################################
     # Permissions
