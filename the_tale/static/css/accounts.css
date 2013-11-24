@@ -1,0 +1,35 @@
+/* DDDDEE; */
+.achievement {
+  border: 1px solid black;
+  border-radius: 8px;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+.achievement h4 {
+  padding: 0.25em;
+  border-radius: 8px 8px 0 0;
+}
+.achievement p {
+  margin: 0.25em;
+}
+.achievement.not-owned {
+  background-color: #eeeeee;
+  border-color: #cccccc;
+}
+.achievement.not-owned h4 {
+  background-color: #dddddd;
+}
+.achievement.owned {
+  background-color: #ffdd75;
+  border-color: #eebb53;
+}
+.achievement.owned h4 {
+  background-color: #ffcc64;
+}
+.achievement.outgame {
+  background-color: #ffeeee;
+  border-color: #ddcccc;
+}
+.achievement.outgame h4 {
+  background-color: #eedddd;
+}

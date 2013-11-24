@@ -66,7 +66,7 @@ pgf.game.constants.abilities = {
     "drop_item": {
         "type": "drop_item",
         "name": "Выбросить предмет",
-        "description": "Выбросить из рюкзака самый дешёвый предмет",
+        "description": "Выбросить из рюкзака самый ненужный предмет",
         "cost": 3
     }
 }

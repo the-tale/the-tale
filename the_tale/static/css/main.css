@@ -1,5 +1,7 @@
 @import "game.css";
 
+@import "accounts.css";
+
 @import "hero_page.css";
 
 @import "forum.css";
@@ -150,6 +152,9 @@ small {
   max-height: 300px;
   overflow-x: hidden;
   overflow-y: auto;
+}
+.nested-modal {
+  z-index: 1040 !important;
 }
 .pagination {
   margin-top: 0 !important;

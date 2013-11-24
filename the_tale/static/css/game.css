@@ -90,6 +90,9 @@
 #hero-bag-block .bag-record .power-container {
   vertical-align: middle;
 }
+#hero-bag-block .bag-record .count-container {
+  vertical-align: middle;
+}
 .quests-line {
   border-bottom: 3px solid #cccccc;
   margin-bottom: 1em;
@@ -268,7 +271,8 @@
 .angel-ability.no-energy,
 .angel-ability.no-registration,
 .angel-ability.no-charges,
-.angel-ability.energy-exists {
+.angel-ability.energy-exists,
+.angel-ability.no-items {
   color: #999999;
   text-decoration: none;
 }
@@ -294,6 +298,9 @@
   display: inline-block;
 }
 .angel-ability.energy-exists .icon-bell {
+  display: inline-block;
+}
+.angel-ability.no-items .icon-bell {
   display: inline-block;
 }
 .game-ui-icon {
