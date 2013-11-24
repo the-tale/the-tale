@@ -12,6 +12,9 @@ from the_tale.common.utils.testcase import TestCase
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user, login_page_url
 
+from the_tale.accounts.clans.prototypes import ClanPrototype
+from the_tale.accounts.clans.conf import clans_settings
+
 from the_tale.game.logic import create_test_map
 
 from the_tale.blogs.models import Post, Vote, POST_STATE
@@ -34,11 +37,16 @@ class BaseTestRequests(TestCase):
         self.client = client.Client()
 
         from the_tale.forum.models import Category, SubCategory
+        from the_tale.forum.prototypes import CategoryPrototype
 
         forum_category = Category.objects.create(caption='category-1', slug='category-1')
         SubCategory.objects.create(caption=blogs_settings.FORUM_CATEGORY_UID + '-caption',
                                    uid=blogs_settings.FORUM_CATEGORY_UID,
                                    category=forum_category)
+
+        CategoryPrototype.create(caption='category-1', slug=clans_settings.FORUM_CATEGORY_SLUG, order=0)
+
+        self.clan_2 = ClanPrototype.create(self.account_2, abbr=u'abbr2', name=u'name2', motto=u'motto', description=u'description')
 
     def create_posts(self, number, author, caption_template, text_template):
         return [PostPrototype.create(author, caption_template % i, text_template % i) for i in xrange(number) ]
@@ -73,7 +81,8 @@ class TestIndexRequests(BaseTestRequests):
                  ('caption-a2-1', 1), ('text-a2-1', 0),
                  ('caption-a2-2', 1), ('text-a2-2', 0),
                  ('test_user_1', 1),
-                 ('test_user_2', 3)]
+                 ('test_user_2', 3),
+                 self.clan_2.abbr]
 
         self.check_html_ok(self.request_html(reverse('blogs:posts:')), texts=texts)
 
@@ -91,7 +100,8 @@ class TestIndexRequests(BaseTestRequests):
                  ('caption-a1-3', 0), ('text-a1-3', 0),
                  ('caption-a2-0', 0), ('text-a2-0', 0),
                  ('caption-a2-2', 0), ('text-a2-2', 0),
-                 ('test_user_1', 3), ('test_user_2', 0)]
+                 ('test_user_1', 3), ('test_user_2', 0),
+                 (self.clan_2.abbr, 0)]
 
         self.check_html_ok(self.request_html(reverse('blogs:posts:')+'?page=2'), texts=texts)
 
@@ -213,10 +223,19 @@ class TestShowRequests(BaseTestRequests):
                  ('pgf-forum-block', 1),
                  ('pgf-add-vote-button', 0),
                  ('pgf-remove-vote-button', 0),
+                 (self.clan_2.abbr, 0),
                  (reverse('blogs:posts:accept', args=[self.post.id]), 0),
                  (reverse('blogs:posts:decline', args=[self.post.id]), 0) ]
 
         self.check_html_ok(self.request_html(reverse('blogs:posts:show', args=[self.post.id])), texts=texts)
+
+    def test_show__clan_abbr(self):
+        self.create_posts(1, self.account_2, 'caption-a2-%d', 'text-a2-%d')
+        post = Post.objects.all()[1]
+
+        texts = [self.clan_2.abbr]
+
+        self.check_html_ok(self.request_html(reverse('blogs:posts:show', args=[post.id])), texts=texts)
 
     def test_show_without_vote(self):
         self.request_login('test_user_2@test.com')

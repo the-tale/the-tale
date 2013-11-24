@@ -29,7 +29,14 @@
   <tbody>
     <tr>
       <th style="width: 150px;">автор</th>
-      <td style="width: 150px;"><a href="{{ url('accounts:show', bill.owner.id) }}">{{ bill.owner.nick }}</a></td>
+      <td style="width: 150px;">
+        <a href="{{ url('accounts:show', bill.owner.id) }}">
+          {{ bill.owner.nick }}
+          {% if bill.owner.clan %}
+            <a href="{{url('accounts:clans:show', bill.owner.clan.id)}}">[{{bill.owner.clan.abbr}}]</a>
+          {% endif %}
+        </a>
+      </td>
       <th style="width: 150px;">тип</th>
       <td>{{ bill.data.CAPTION }}</td>
     </tr>

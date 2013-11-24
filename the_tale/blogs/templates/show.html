@@ -39,7 +39,13 @@
 
 <div class="blog-post-info">
   <span class="text"><span class="pgf-format-datetime" data-timestamp="{{ post.created_at|timestamp }}"></span>,</span>
-  <span class="text">автор:</span> <a href="{{url('accounts:show', post.author.id)}}">{{post.author.nick}}</a>
+  <span class="text">автор:</span>
+  <a href="{{url('accounts:show', post.author.id)}}">
+    {{post.author.nick}}
+    {% if post.author.clan %}
+    <a href="{{url('accounts:clans:show', post.author.clan.id)}}">[{{post.author.clan.abbr}}]</a>
+    {% endif %}
+  </a>
 
   {% if resource.account.is_authenticated() %}
   {%if vote is not none%}

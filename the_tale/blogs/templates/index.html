@@ -83,7 +83,9 @@
 
     {% if author_account %}
     <div class="btn-group">
-      <a class="btn disabled" href="#">автор: {{author_account.nick}}</a>
+      <a class="btn disabled" href="#">
+        автор: {{author_account.nick}}
+      </a>
     </div>
     {% endif %}
 
@@ -124,7 +126,12 @@
           {% endif %}
           <a href="{{url('blogs:posts:show', post.id)}}">{{post.caption}}</a>
         </td>
-        <td width="100px"><a href="{{url('accounts:show', post.author.id)}}">{{post.author.nick}}</td>
+        <td width="200px"><a href="{{url('accounts:show', post.author.id)}}">
+            {{post.author.nick}}
+            {% if post.author.clan %}
+              <a href="{{url('accounts:clans:show', post.author.clan.id)}}">[{{post.author.clan.abbr}}]</a>
+            {% endif %}
+        </td>
       </tr>
     </table>
   </li>

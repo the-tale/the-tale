@@ -100,7 +100,14 @@ jQuery(document).ready( function(e) {
             {% endif %}
           </td>
           <th>{{ phrase.type_name }} :: {{ phrase.subtype_name }}</th>
-          <td width="125px;"><a href="{{ url('accounts:show', phrase.author.id) }}">{{phrase.author.nick}}</a></td>
+          <td width="200px;">
+            <a href="{{ url('accounts:show', phrase.author.id) }}">
+              {{phrase.author.nick}}
+              {% if phrase.author.clan %}
+                <a href="{{url('accounts:clans:show', phrase.author.clan.id)}}">[{{phrase.author.clan.abbr}}]</a>
+              {% endif %}
+            </a>
+          </td>
           {% if resource.can_moderate_phrase or resource.can_add_phrase_to_game %}
           <td width="75px;">
             {% if resource.can_moderate_phrase %}
