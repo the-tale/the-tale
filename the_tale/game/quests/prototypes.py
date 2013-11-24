@@ -371,6 +371,11 @@ class QuestPrototype(object):
 
         ActionMoveNearPlacePrototype.create(hero=self.hero, place=destination, back=False, terrains=terrains)
 
+
+    def _move_hero_on_road(self, place_1_uid, place_2_uid):
+        pass
+
+
     def _give_power(self, hero, place, power):
         power = power * self.quests_stack[-1].power
 
@@ -539,6 +544,8 @@ class QuestPrototype(object):
             self._move_hero_to(requirement.place)
         elif isinstance(requirement, facts.LocatedNear):
             self._move_hero_near(requirement.place, terrains=requirement.terrains)
+        elif isinstance(requirement, facts.LocatedOnRoad):
+            self._move_hero_on_road(requirement.place_1, requirement.place_2)
         else:
             raise exceptions.UnknownRequirement(requirement=requirement)
 
