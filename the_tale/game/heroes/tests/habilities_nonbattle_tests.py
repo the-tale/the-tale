@@ -63,13 +63,11 @@ class HabilitiesNonBattleTest(testcase.TestCase):
         self.assertTrue(self.hero.move_speed > old_speed)
 
     def test_gifted(self):
-        self.hero.add_experience(10)
-        experience_delta = self.hero.experience
+        old_experience_modifier = self.hero.experience_modifier
 
         self.hero.abilities.add(nonbattle.GIFTED.get_id())
-        self.hero.add_experience(10)
 
-        self.assertTrue(self.hero.experience > experience_delta * 2)
+        self.assertTrue(old_experience_modifier < self.hero.experience_modifier)
 
     def test_thrifty(self):
         self.assertEqual(self.hero.max_bag_size, c.MAX_BAG_SIZE)

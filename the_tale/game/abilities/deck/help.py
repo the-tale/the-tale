@@ -69,12 +69,12 @@ class Help(AbilityPrototype):
 
         if critical:
             experience = int(c.ANGEL_HELP_CRIT_EXPERIENCE * (1 + random.uniform(-c.ANGEL_HELP_EXPERIENCE_DELTA, c.ANGEL_HELP_EXPERIENCE_DELTA))+ 1)
-            hero.add_message('angel_ability_experience_crit', hero=hero, experience=experience)
+            real_experience = hero.add_experience(experience)
+            hero.add_message('angel_ability_experience_crit', hero=hero, experience=real_experience)
         else:
             experience = int(c.ANGEL_HELP_EXPERIENCE * (1 + random.uniform(-c.ANGEL_HELP_EXPERIENCE_DELTA, c.ANGEL_HELP_EXPERIENCE_DELTA))+ 1)
-            hero.add_message('angel_ability_experience', hero=hero, experience=experience)
-
-        hero.add_experience(experience)
+            real_experience = hero.add_experience(experience)
+            hero.add_message('angel_ability_experience', hero=hero, experience=real_experience)
 
         return True, None, ()
 

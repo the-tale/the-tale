@@ -132,10 +132,14 @@ class HeroPrototype(BasePrototype):
         self.add_message('hero_common_journal_level_up', hero=self, level=self.level)
 
     def add_experience(self, value):
-        self._model.experience += value * self.experience_modifier
+        real_experience = int(value * self.experience_modifier)
+        self._model.experience += real_experience
+
         while f.exp_on_lvl(self.level) <= self._model.experience:
             self._model.experience -= f.exp_on_lvl(self.level)
             self.increment_level()
+
+        return real_experience
 
     def add_energy_charges(self, charges_number):
         self.energy_charges += charges_number
