@@ -138,10 +138,6 @@ pgf.ui.dialog.Create = function(params) {
             .bind('hidden', OnHidden);
 
         dialog.modal('show');
-
-        var delta = jQuery('.modal').length - 1;
-        dialog.css({left: parseInt(dialog.css('left')) + delta + '%',
-                    top: parseInt(dialog.css('top')) + delta + '%'})
     }
 };
 

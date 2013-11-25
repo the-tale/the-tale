@@ -47,10 +47,10 @@ class AchievementsStorage(create_storage_class('achievements change time', Achie
 
 
     def get_groups_statistics(self, account_achievements):
-        groups_count = collections.Counter(achievement.group for achievement in self.all())
+        groups_count = collections.Counter(achievement.group for achievement in self.all() if achievement.approved)
 
         if account_achievements:
-            account_count = collections.Counter(self[achievement_id].group for achievement_id in account_achievements.achievements_ids())
+            account_count = collections.Counter(self[achievement_id].group for achievement_id in account_achievements.achievements_ids() if self[achievement_id].approved )
         else:
             account_count = collections.Counter()
 

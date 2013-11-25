@@ -185,6 +185,7 @@ class AchievementsResource(Resource):
             self.achievement.approved = form.c.approved
             self.achievement.barrier = form.c.barrier
             self.achievement.points = form.c.points
+            self.achievement.order = form.c.order
 
             self.achievement.save()
 

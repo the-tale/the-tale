@@ -224,3 +224,57 @@ class FormulasTest(testcase.TestCase):
     def test_person_power_for_quest(self):
         self.assertTrue(f.person_power_for_quest(100) < f.person_power_for_quest(1000)< f.person_power_for_quest(10000))
         self.assertEqual(int(f.person_power_for_quest__real(100)), 572)
+
+
+# if one of this tests broken, we MUST review appropriate achievements' barriers
+class AchievementsBarriers(testcase.TestCase):
+
+    def money_after_months(self, months):
+        return f.total_gold_at_lvl(f.lvl_after_time(months*30*24))
+
+    def check_money(self, months, money):
+        # print months, self.money_after_months(months) , self.money_after_months(months+0.25)
+        self.assertTrue(self.money_after_months(months) <= money <= self.money_after_months(months+0.25))
+
+    def test_money(self):
+        self.check_money(0.1, 1000)
+        self.check_money(0.5, 10000)
+        self.check_money(1.4, 50000)
+        self.check_money(7, 500000)
+        self.check_money(11.25, 1000000)
+        self.check_money(33.5, 5000000)
+
+
+    def mobs_after_months(self, months):
+        return int(c.BATTLES_PER_HOUR * months * 30 * 24)
+
+    def check_mobs(self, months, mobs):
+        # print months, self.mobs_after_months(months) , self.mobs_after_months(months+0.05)
+        self.assertTrue(self.mobs_after_months(months) <= mobs <= self.mobs_after_months(months+0.05))
+
+    def test_mobs(self):
+        self.check_mobs(0.08, 1000)
+        self.check_mobs(0.4, 5000)
+        self.check_mobs(1.25, 15000)
+        self.check_mobs(4.25, 50000)
+        self.check_mobs(8.6, 100500)
+        self.check_mobs(12.85, 150000)
+        self.check_mobs(21.45, 250000)
+        self.check_mobs(34.3, 400000)
+
+
+    def artifacts_after_months(self, months):
+        MAGIC = 1.5 # magic cooficient, to spend money events and abilities
+        return int(c.ARTIFACTS_PER_LVL * (f.lvl_after_time(months*30*24)-1) * MAGIC)
+
+    def check_artifacts(self, months, artifacts):
+        # print months, self.artifacts_after_months(months) , self.artifacts_after_months(months+0.25)
+        self.assertTrue(self.artifacts_after_months(months) <= artifacts <= self.artifacts_after_months(months+0.25))
+
+    def test_artifacts(self):
+        self.check_artifacts(0, 1)
+        self.check_artifacts(0.2, 50)
+        self.check_artifacts(0.9, 100)
+        self.check_artifacts(6.2, 250)
+        self.check_artifacts(24.6, 500)
+        self.check_artifacts(55, 750)
