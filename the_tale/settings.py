@@ -17,8 +17,6 @@ DEBUG = False
 DEBUG_DATABASE_USAGE = False
 DEBUG_DATABASE_USAGE_OUTPUT_DIR = '/tmp/'
 
-CONN_MAX_AGE = None
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
