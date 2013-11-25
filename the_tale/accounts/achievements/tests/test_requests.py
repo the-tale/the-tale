@@ -247,7 +247,7 @@ class AchievementsUpdateTests(_BaseRequestTests):
                 'type': self.achievement_2.type,
                 'group': ACHIEVEMENT_GROUP.DEATHS,
                 'approved': self.achievement_2.approved,
-                'points': 6}
+                'points': self.achievement_2.points}
 
 
     def test_login_required(self):
@@ -294,6 +294,7 @@ class AchievementsUpdateTests(_BaseRequestTests):
 
     def test_success__not_changed(self):
         self.request_login(self.account_2.email)
+
         with self.check_not_changed(GiveAchievementTaskPrototype._db_all().count):
             response = self.post_ajax_json(self.test_url, self.get_post_data__without_update())
 
@@ -307,4 +308,4 @@ class AchievementsUpdateTests(_BaseRequestTests):
         self.assertEqual(self.achievement_2.group, ACHIEVEMENT_GROUP.DEATHS)
         self.assertEqual(self.achievement_2.barrier, 2)
         self.assertFalse(self.achievement_2.approved)
-        self.assertEqual(self.achievement_2.points, 6)
+        self.assertEqual(self.achievement_2.points, 10)

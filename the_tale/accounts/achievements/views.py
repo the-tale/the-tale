@@ -176,7 +176,8 @@ class AchievementsResource(Resource):
 
             is_changed = (self.achievement.type != form.c.type or
                           self.achievement.approved != form.c.approved or
-                          self.achievement.barrier != form.c.barrier)
+                          self.achievement.barrier != form.c.barrier or
+                          self.achievement.points != form.c.points)
 
             self.achievement.group = form.c.group
             self.achievement.type = form.c.type
