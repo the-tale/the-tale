@@ -17,7 +17,7 @@ class ModifiersTests(testcase.TestCase):
 
     def test_all_professions_covered(self):
         for modifier in MODIFIERS.values():
-            for person_type in PERSON_TYPE._records:
+            for person_type in PERSON_TYPE.records:
                 self.assertTrue(person_type.value in modifier.PERSON_EFFECTS)
 
     def test_trade_center(self):

@@ -2,7 +2,7 @@
 import os
 
 from rels import Column
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 from questgen.relations import PROFESSION as QUEST_PROFESSION
 
@@ -17,7 +17,7 @@ class PERSON_TYPE(DjangoEnum):
     building_type = Column(related_name='person_type')
     quest_profession = Column(unique=False)
 
-    _records = ( ('BLACKSMITH',  0, u'кузнец', BUILDING_TYPE.SMITHY, QUEST_PROFESSION.BLACKSMITH),
+    records = ( ('BLACKSMITH',  0, u'кузнец', BUILDING_TYPE.SMITHY, QUEST_PROFESSION.BLACKSMITH),
                  ('FISHERMAN',   1, u'рыбак', BUILDING_TYPE.FISHING_LODGE, QUEST_PROFESSION.NONE),
                  ('TAILOR',      2, u'портной', BUILDING_TYPE.TAILOR_SHOP, QUEST_PROFESSION.NONE),
                  ('CARPENTER',   3, u'плотник', BUILDING_TYPE.SAWMILL, QUEST_PROFESSION.NONE),

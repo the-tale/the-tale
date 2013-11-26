@@ -52,7 +52,7 @@ class PermanentRelationsStorage(PermanentStorage):
     @classmethod
     def deserialize(cls, data):
         obj = cls()
-        obj._data = set(getattr(cls.RELATION, '_index_%s' % cls.VALUE_COLUMN)[value] for value in data)
+        obj._data = set(getattr(cls.RELATION, 'index_%s' % cls.VALUE_COLUMN)[value] for value in data)
         return obj
 
     def insert(self, item):

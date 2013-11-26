@@ -137,7 +137,7 @@ class ChangePreferencesRequestsTests(HeroRequestsTestBase):
         self.hero._model.level = PREFERENCE_TYPE.EQUIPMENT_SLOT.level_required
         self.hero.save()
 
-        for preference_type in PREFERENCE_TYPE._records:
+        for preference_type in PREFERENCE_TYPE.records:
             texts = []
             self.check_html_ok(self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % preference_type.value)), texts=texts)
 

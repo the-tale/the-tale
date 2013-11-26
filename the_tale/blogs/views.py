@@ -44,7 +44,7 @@ class PostResource(Resource):
     def validate_moderator_rights(self, *args, **kwargs): return self.can_moderate_post
 
     @validator(code='blogs.posts.post_declined', message=u'Произведение не прошло проверку модератора и отклонено')
-    def validate_declined_state(self, *args, **kwargs): return not self.post.state._is_DECLINED
+    def validate_declined_state(self, *args, **kwargs): return not self.post.state.is_DECLINED
 
 
     @handler('', method='get')

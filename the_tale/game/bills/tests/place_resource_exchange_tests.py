@@ -147,7 +147,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
         self.assertEqual(len(resource_exchange_storage.all()), 1)
 
         bill = BillPrototype.get_by_id(self.bill.id)
-        self.assertTrue(bill.state._is_ACCEPTED)
+        self.assertTrue(bill.state.is_ACCEPTED)
 
         exchange = resource_exchange_storage.all()[0]
 

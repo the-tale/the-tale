@@ -3,19 +3,19 @@
 import datetime
 
 import rels
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 from the_tale.game.balance import constants as c
 
 class BILL_STATE(DjangoEnum):
-    _records = ( ('VOTING', 1, u'на голосовании'),
+    records = ( ('VOTING', 1, u'на голосовании'),
                  ('ACCEPTED', 2, u'принят'),
                  ('REJECTED', 3, u'отклонён'),
                  ('REMOVED', 4, u'удалён'))
 
 
 class BILL_TYPE(DjangoEnum):
-    _records = ( ('PLACE_RENAMING', 0, u'переименование города'),
+    records = ( ('PLACE_RENAMING', 0, u'переименование города'),
                  ('PERSON_REMOVE', 1, u'исключить горожанина из Совет'),
                  ('PLACE_DESCRIPTION', 2, u'изменить описание города'),
                  ('PLACE_MODIFIER', 3, u'изменить тип места'),
@@ -27,14 +27,14 @@ class BILL_TYPE(DjangoEnum):
 
 
 class VOTE_TYPE(DjangoEnum):
-    _records = (('REFRAINED', 0, u'воздержался'),
+    records = (('REFRAINED', 0, u'воздержался'),
                 ('FOR', 1, u'«за»'),
                 ('AGAINST', 2, u'«против»'))
 
 class VOTED_TYPE(DjangoEnum):
     vote_type = rels.Column(unique=False, single_type=False)
 
-    _records = (('NO', 'no', u'не голосовал', None),
+    records = (('NO', 'no', u'не голосовал', None),
                 ('YES', 'yes', u'проголосовал', None),
                 ('FOR', 'for', u'«за»', VOTE_TYPE.FOR),
                 ('AGAINST', 'against', u'«против»', VOTE_TYPE.AGAINST),
@@ -48,7 +48,7 @@ def days_from_game_months(months):
 class BILL_DURATION(DjangoEnum):
     game_months = rels.Column()
 
-    _records = ( ('UNLIMITED', 0, u'бесконечно', 0),
+    records = ( ('UNLIMITED', 0, u'бесконечно', 0),
                  ('MONTH',     1, u'1 месяц (реальных дней: %.1f)' % days_from_game_months(1), 1),
                  ('MONTH_2',   2, u'2 месяца (реальных дней: %.1f)' % days_from_game_months(2), 2),
                  ('MONTH_3',   3, u'3 месяца (реальных дней: %.1f)' % days_from_game_months(3), 3),

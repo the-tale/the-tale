@@ -129,13 +129,13 @@ class PlacePrototype(BasePrototype):
         persons_count = len(self.persons)
 
         while persons_count < self.max_persons_number:
-            race = random.choice(RACE._records)
+            race = random.choice(RACE.records)
             gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
 
             new_person = PersonPrototype.create(place=self,
                                                 race=race,
                                                 gender=gender,
-                                                tp=random.choice(PERSON_TYPE._records),
+                                                tp=random.choice(PERSON_TYPE.records),
                                                 name=names.generator.get_name(race, gender))
             persons_count += 1
             signals.place_person_arrived.send(self.__class__, place=self, person=new_person)

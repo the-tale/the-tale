@@ -10,7 +10,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
 
         # Changing field 'Hero.gender'
-        db.alter_column(u'heroes_hero', 'gender', self.gf('rels.django_staff.TableIntegerField')())
+        db.alter_column(u'heroes_hero', 'gender', self.gf('rels.django.TableIntegerField')())
 
     def backwards(self, orm):
 
@@ -119,7 +119,7 @@ class Migration(SchemaMigration):
             'energy_charges': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
             'equipment': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
             'experience': ('django.db.models.fields.FloatField', [], {'default': '0'}),
-            'gender': ('rels.django_staff.TableIntegerField', [], {}),
+            'gender': ('rels.django.TableIntegerField', [], {}),
             'health': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_alive': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
@@ -132,7 +132,7 @@ class Migration(SchemaMigration):
             'money': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
             'name_forms': ('django.db.models.fields.TextField', [], {'default': "''", 'blank': 'True'}),
-            'next_spending': ('rels.django_staff.TableIntegerField', [], {}),
+            'next_spending': ('rels.django.TableIntegerField', [], {}),
             'places_history': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
             'pos_from_x': ('django.db.models.fields.IntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
             'pos_from_y': ('django.db.models.fields.IntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
@@ -175,14 +175,14 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'HeroPreferences'},
             'enemy': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'on_delete': 'models.PROTECT', 'default': 'None', 'to': u"orm['persons.Person']", 'blank': 'True', 'null': 'True'}),
             'energy_regeneration_type': ('django.db.models.fields.IntegerField', [], {'default': '0', 'blank': 'True'}),
-            'equipment_slot': ('rels.django_staff.TableIntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
-            'favorite_item': ('rels.django_staff.TableIntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
+            'equipment_slot': ('rels.django.TableIntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
+            'favorite_item': ('rels.django.TableIntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
             'friend': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'on_delete': 'models.PROTECT', 'default': 'None', 'to': u"orm['persons.Person']", 'blank': 'True', 'null': 'True'}),
             'hero': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['heroes.Hero']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'mob': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': u"orm['mobs.MobRecord']", 'null': 'True', 'on_delete': 'models.PROTECT', 'blank': 'True'}),
             'place': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'on_delete': 'models.PROTECT', 'default': 'None', 'to': u"orm['places.Place']", 'blank': 'True', 'null': 'True'}),
-            'risk_level': ('rels.django_staff.TableIntegerField', [], {})
+            'risk_level': ('rels.django.TableIntegerField', [], {})
         },
         u'mobs.mobrecord': {
             'Meta': {'object_name': 'MobRecord'},
@@ -206,14 +206,14 @@ class Migration(SchemaMigration):
             'data': ('django.db.models.fields.TextField', [], {'default': "u'{}'"}),
             'enemies_number': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'friends_number': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'gender': ('rels.django_staff.TableIntegerField', [], {}),
+            'gender': ('rels.django.TableIntegerField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
             'out_game_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2000, 1, 1, 0, 0)'}),
             'place': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'persons'", 'on_delete': 'models.PROTECT', 'to': u"orm['places.Place']"}),
             'race': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'state': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'type': ('rels.django_staff.TableIntegerField', [], {})
+            'type': ('rels.django.TableIntegerField', [], {})
         },
         u'places.place': {
             'Meta': {'ordering': "('name',)", 'object_name': 'Place'},

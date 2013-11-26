@@ -212,22 +212,22 @@ class PostPrototype(BasePrototype):
 
     @property
     def html(self):
-        if self.markup_method._is_POSTMARKUP:
+        if self.markup_method.is_POSTMARKUP:
             return bbcode.render(self.text)
-        elif self.markup_method._is_MARKDOWN:
+        elif self.markup_method.is_MARKDOWN:
             return markdown.markdown(self.text)
 
     @property
-    def is_removed(self): return self.state._is_REMOVED
+    def is_removed(self): return self.state.is_REMOVED
 
     @property
-    def is_removed_by_author(self): return self.removed_by._is_AUTHOR
+    def is_removed_by_author(self): return self.removed_by.is_AUTHOR
 
     @property
-    def is_removed_by_thread_owner(self): return self.removed_by._is_THREAD_OWNER
+    def is_removed_by_thread_owner(self): return self.removed_by.is_THREAD_OWNER
 
     @property
-    def is_removed_by_moderator(self): return self.removed_by._is_MODERATOR
+    def is_removed_by_moderator(self): return self.removed_by.is_MODERATOR
 
     @classmethod
     @transaction.atomic

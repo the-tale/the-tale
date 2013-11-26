@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from rels import Column
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 from the_tale.game.balance import constants as c
 
@@ -9,7 +9,7 @@ from the_tale.game.balance import constants as c
 class HELP_CHOICES(DjangoEnum):
     priority = Column(unique=False)
 
-    _records = ( ('HEAL', 0, u'лечение', 160),
+    records = ( ('HEAL', 0, u'лечение', 160),
                  ('TELEPORT', 1, u'телепорт', 160),
                  ('LIGHTING', 2, u'молния', 160),
                  ('START_QUEST', 3, u'начало задания', 800),
@@ -24,7 +24,7 @@ class ABILITY_TYPE(DjangoEnum):
     description = Column()
     request_attributes = Column(unique=False)
 
-    _records = (('HELP', 'help', u'Помочь', c.ANGEL_HELP_COST, u'Попытаться помочь герою, чем бы тот не занимался', ()),
+    records = (('HELP', 'help', u'Помочь', c.ANGEL_HELP_COST, u'Попытаться помочь герою, чем бы тот не занимался', ()),
                 ('ARENA_PVP_1x1', 'arena_pvp_1x1', u'Отправить на арену', 1, u'Отправить героя на гладиаторскую арену', ()),
                 ('ARENA_PVP_1x1_LEAVE_QUEUE', 'arena_pvp_1x1_leave_queue', u'Выйти из очереди', 0, u'Выйти из очереди на арену', ()),
                 ('ARENA_PVP_1x1_ACCEPT', 'arena_pvp_1x1_accept', u'Принять вызов', 1, u'Принять вызов другого героя', ('battle',)),

@@ -33,7 +33,7 @@ class ChangeHeroTest(TestCase):
         self.forms=[u'слово', u'слова', u'слову', u'слово', u'словом', u'слове']
 
         self.race = RACE.ELF if RACE.ELF != self.hero.race else RACE.HUMAN
-        self.gender = GENDER.NEUTER if not self.hero.gender._is_NEUTER else GENDER.FEMININE
+        self.gender = GENDER.NEUTER if not self.hero.gender.is_NEUTER else GENDER.FEMININE
 
     def tearDown(self):
         pass

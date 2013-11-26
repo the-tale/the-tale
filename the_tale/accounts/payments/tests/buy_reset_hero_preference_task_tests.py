@@ -54,6 +54,6 @@ def _create_reset_hero_preference_test(preference_type):
     return _BuyResetHeroPreferenceTaskTests
 
 
-for preference in PREFERENCE_TYPE._records:
+for preference in PREFERENCE_TYPE.records:
     Class = _create_reset_hero_preference_test(preference)
     globals()[Class.__name__] = Class

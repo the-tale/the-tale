@@ -4,21 +4,21 @@
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal">×</button>
     <h3 class="pgf-dialog-title dialog-title">
-      {% if type._is_ENERGY_REGENERATION_TYPE %}
+      {% if type.is_ENERGY_REGENERATION_TYPE %}
       Выберите тип религиозности
-      {% elif type._is_MOB %}
+      {% elif type.is_MOB %}
       Выберите любимую добычу
-      {% elif type._is_PLACE %}
+      {% elif type.is_PLACE %}
       Выберите родной город
-      {% elif type._is_FRIEND %}
+      {% elif type.is_FRIEND %}
       Выберите соратника
-      {% elif type._is_ENEMY %}
+      {% elif type.is_ENEMY %}
       Выберите противника
-      {% elif type._is_EQUIPMENT_SLOT %}
+      {% elif type.is_EQUIPMENT_SLOT %}
       Выберите слот экипировки
-      {% elif type._is_RISK_LEVEL %}
+      {% elif type.is_RISK_LEVEL %}
       Выберите уровень риска
-      {% elif type._is_FAVORITE_ITEM %}
+      {% elif type.is_FAVORITE_ITEM %}
       Выберите любимую вещь
       {% endif %}
     </h3>
@@ -30,36 +30,36 @@
       Обратите внимание, что предпочтение можно выбирать раз в {{ PREFERENCES_CHANGE_DELAY|verbose_timedelta }}
     </p>
 
-    {% if type._is_ENERGY_REGENERATION_TYPE %}
+    {% if type.is_ENERGY_REGENERATION_TYPE %}
     {% include "heroes/choose_preferences_energy_regeneration_type.html" with context %}
 
-    {% elif type._is_MOB %}
+    {% elif type.is_MOB %}
     {% include "heroes/choose_preferences_mob.html" with context %}
 
-    {% elif type._is_PLACE %}
+    {% elif type.is_PLACE %}
     {% include "heroes/choose_preferences_place.html" with context %}
 
-    {% elif type._is_FRIEND %}
+    {% elif type.is_FRIEND %}
     {% set persons = friends %}
     {% set _is_friend = true %}
     {% set choosen_person = resource.hero.preferences.friend %}
     {% set choosen_person_place_id = resource.hero.preferences.friend.place_id if choosen_person else none %}
     {% include "heroes/choose_preferences_person.html" with context %}
 
-    {% elif type._is_ENEMY %}
+    {% elif type.is_ENEMY %}
     {% set persons = enemies %}
     {% set _is_friend = false %}
     {% set choosen_person = resource.hero.preferences.enemy %}
     {% set choosen_person_place_id = resource.hero.preferences.enemy.place_id if choosen_person else none %}
     {% include "heroes/choose_preferences_person.html" with context %}
 
-    {% elif type._is_EQUIPMENT_SLOT %}
+    {% elif type.is_EQUIPMENT_SLOT %}
     {% include "heroes/choose_preferences_equipment_slot.html" with context %}
 
-    {% elif type._is_RISK_LEVEL %}
+    {% elif type.is_RISK_LEVEL %}
     {% include "heroes/choose_preferences_risk_level.html" with context %}
 
-    {% elif type._is_FAVORITE_ITEM %}
+    {% elif type.is_FAVORITE_ITEM %}
     {% include "heroes/choose_preferences_favorite_item.html" with context %}
 
     {% endif %}

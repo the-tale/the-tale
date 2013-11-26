@@ -329,7 +329,7 @@ class PlaceChangeRace(BaseTestPrototypes):
     def setUp(self):
         super(PlaceChangeRace, self).setUp()
 
-        for race_id in RACE._records:
+        for race_id in RACE.records:
             if self.place1.race != race_id:
                 self.next_race_id = race_id
 

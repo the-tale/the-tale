@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 from the_tale.common.utils import testcase
 
@@ -8,12 +8,12 @@ from the_tale.common.utils.permanent_storage import PermanentStorage, PermanentR
 
 
 class TEST_RELATION(DjangoEnum):
-    _records = ( ('REC_1', 0, u'rec_1'),
+    records = ( ('REC_1', 0, u'rec_1'),
                  ('REC_3', 1, u'rec_2'),
                  ('REC_5', 2, u'rec_3')  )
 
 class WRONG_TEST_RELATION(DjangoEnum):
-    _records = ( ('WREC_1', 0, u'wrec_1'),
+    records = ( ('WREC_1', 0, u'wrec_1'),
                  ('WREC_3', 1, u'wrec_2'),
                  ('WREC_5', 2, u'wrec_3')  )
 

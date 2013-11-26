@@ -43,12 +43,12 @@ class ClanInfo(object):
         return self.membership and clan and self.membership.clan_id == clan.id
 
     def is_owner_of(self, clan):
-        return self.is_member_of(clan) and self.membership.role._is_LEADER
+        return self.is_member_of(clan) and self.membership.role.is_LEADER
 
     @property
     def can_invite(self):
-        return self.membership and self.membership.role._is_LEADER
+        return self.membership and self.membership.role.is_LEADER
 
     @property
     def can_remove(self):
-        return self.membership and self.membership.role._is_LEADER
+        return self.membership and self.membership.role.is_LEADER

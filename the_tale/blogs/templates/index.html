@@ -121,7 +121,7 @@
           </span>
         </td>
         <td>
-          {% if post.state._is_NOT_MODERATED %}
+          {% if post.state.is_NOT_MODERATED %}
           <span class="label label-info">не проверено</span>
           {% endif %}
           <a href="{{url('blogs:posts:show', post.id)}}">{{post.caption}}</a>

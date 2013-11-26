@@ -80,7 +80,7 @@ class Migration(SchemaMigration):
             'clan': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['clans.Clan']", 'on_delete': 'models.PROTECT'}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'role': ('rels.django_staff.TableIntegerField', [], {}),
+            'role': ('rels.django.TableIntegerField', [], {}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
         u'clans.membershiprequest': {
@@ -91,7 +91,7 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'initiator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['accounts.Account']"}),
             'text': ('django.db.models.fields.TextField', [], {'max_length': '1024'}),
-            'type': ('rels.django_staff.TableIntegerField', [], {}),
+            'type': ('rels.django.TableIntegerField', [], {}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
         u'contenttypes.contenttype': {

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 from the_tale.common.utils.enum import create_enum
 
@@ -20,7 +20,7 @@ ABILITY_TASK_STEP = create_enum('ABILITY_TASK_STEP', (('ERROR', 0, u'ошибк�
 
 
 class ACCEPT_BATTLE_RESULT(DjangoEnum):
-    _records = ( ('BATTLE_NOT_FOUND', 1, u'битва не найдена'),
+    records = ( ('BATTLE_NOT_FOUND', 1, u'битва не найдена'),
                  ('WRONG_ACCEPTED_BATTLE_STATE', 2, u'герой не успел принять вызов'),
                  ('WRONG_INITIATOR_BATTLE_STATE', 3, u'герой уже находится в сражении'),
                  ('NOT_IN_QUEUE', 4, u'битва не находится в очереди балансировщика'),
@@ -38,7 +38,7 @@ class ArenaPvP1x1Accept(AbilityPrototype):
         if accepted_battle is None:
             return ACCEPT_BATTLE_RESULT.BATTLE_NOT_FOUND
 
-        if not accepted_battle.state._is_WAITING:
+        if not accepted_battle.state.is_WAITING:
             return ACCEPT_BATTLE_RESULT.WRONG_ACCEPTED_BATTLE_STATE
 
         if not accepted_battle.account_id in pvp_balancer.arena_queue:
@@ -48,7 +48,7 @@ class ArenaPvP1x1Accept(AbilityPrototype):
 
         initiator_battle = Battle1x1Prototype.get_by_account_id(initiator_id)
 
-        if initiator_battle is not None and not initiator_battle.state._is_WAITING:
+        if initiator_battle is not None and not initiator_battle.state.is_WAITING:
             return ACCEPT_BATTLE_RESULT.WRONG_INITIATOR_BATTLE_STATE
 
         if initiator_id not in pvp_balancer.arena_queue:
@@ -71,7 +71,7 @@ class ArenaPvP1x1Accept(AbilityPrototype):
 
             accept_result = self.accept_battle(pvp_balancer, data['battle'], data['hero_id'])
 
-            if not accept_result._is_PROCESSED:
+            if not accept_result.is_PROCESSED:
                 return False, ABILITY_TASK_STEP.ERROR, ()
 
             return True, ABILITY_TASK_STEP.SUCCESS, ()

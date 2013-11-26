@@ -24,8 +24,8 @@ class UserForm(BaseUserForm):
     place_1 = fields.ChoiceField(label=u'Первый город')
     place_2 = fields.ChoiceField(label=u'Второй город')
 
-    resource_1 = fields.TypedChoiceField(label=u'Ресурс от первого города', choices=RESOURCE_EXCHANGE_TYPE._choices(), coerce=RESOURCE_EXCHANGE_TYPE._get_from_name)
-    resource_2 = fields.TypedChoiceField(label=u'Ресурс от второго города', choices=RESOURCE_EXCHANGE_TYPE._choices(), coerce=RESOURCE_EXCHANGE_TYPE._get_from_name)
+    resource_1 = fields.TypedChoiceField(label=u'Ресурс от первого города', choices=RESOURCE_EXCHANGE_TYPE.choices(), coerce=RESOURCE_EXCHANGE_TYPE.get_from_name)
+    resource_2 = fields.TypedChoiceField(label=u'Ресурс от второго города', choices=RESOURCE_EXCHANGE_TYPE.choices(), coerce=RESOURCE_EXCHANGE_TYPE.get_from_name)
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
@@ -160,7 +160,7 @@ class PlaceResourceExchange(BaseBill):
         obj.place_2_id = data['place_2_id']
         obj.old_place_1_name_forms = Noun.deserialize(data['old_place_1_name_forms'])
         obj.old_place_2_name_forms = Noun.deserialize(data['old_place_2_name_forms'])
-        obj.resource_1 = RESOURCE_EXCHANGE_TYPE._index_value[data['resource_1']]
-        obj.resource_2 = RESOURCE_EXCHANGE_TYPE._index_value[data['resource_2']]
+        obj.resource_1 = RESOURCE_EXCHANGE_TYPE.index_value[data['resource_1']]
+        obj.resource_2 = RESOURCE_EXCHANGE_TYPE.index_value[data['resource_2']]
 
         return obj

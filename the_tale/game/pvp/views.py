@@ -55,7 +55,7 @@ class PvPResource(Resource):
 
         battle = Battle1x1Prototype.get_by_account_id(self.account.id)
 
-        if battle is None or not (battle.state._is_PROCESSING or battle.state._is_PREPAIRING):
+        if battle is None or not (battle.state.is_PROCESSING or battle.state.is_PREPAIRING):
             return self.redirect(reverse('game:'))
 
         own_abilities = sorted(self.own_hero.abilities.all, key=lambda x: x.NAME)
@@ -96,7 +96,7 @@ class PvPResource(Resource):
 
         battle = Battle1x1Prototype.get_by_account_id(self.account.id)
 
-        if battle is None or not (battle.state._is_PROCESSING or battle.state._is_PREPAIRING):
+        if battle is None or not (battle.state.is_PROCESSING or battle.state.is_PREPAIRING):
             return self.json_error('pvp.say.no_battle', u'Бой не идёт, вы не можете говорить')
 
         say_form = SayForm(self.request.POST)
@@ -162,7 +162,7 @@ class PvPResource(Resource):
 
         battle = Battle1x1Prototype.get_by_account_id(self.account.id)
 
-        if battle is None or not (battle.state._is_PROCESSING or battle.state._is_PREPAIRING):
+        if battle is None or not (battle.state.is_PROCESSING or battle.state.is_PREPAIRING):
             return self.json_error('pvp.use_ability.no_battle', u'Бой не идёт, вы не можете использовать способность')
 
         use_ability_task = UsePvPAbilityTask(battle_id=battle.id, account_id=self.account.id, ability_id=ability.TYPE)

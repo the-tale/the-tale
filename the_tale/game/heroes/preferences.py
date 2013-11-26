@@ -60,7 +60,7 @@ class _PreferencesMetaclass(type):
 
     def __new__(mcs, name, bases, attributes):
 
-        for preference in PREFERENCE_TYPE._records:
+        for preference in PREFERENCE_TYPE.records:
             getter = mcs.create_preference_getter(preference)
             attributes[getter.__name__] = property(getter)
 
@@ -132,7 +132,7 @@ class HeroPreferences(object):
     def _prepair_mob(self, mob_id):
         mob = mobs_storage.get(mob_id)
 
-        if mob and not mob.state._is_ENABLED:
+        if mob and not mob.state.is_ENABLED:
             self.set_mob(None, change_time=datetime.datetime.fromtimestamp(0))
             return None
 
@@ -144,11 +144,11 @@ class HeroPreferences(object):
 
     def _prepair_equipment_slot(self, slot_id):
         if slot_id is None: return None
-        return EQUIPMENT_SLOT._index_value.get(int(slot_id))
+        return EQUIPMENT_SLOT.index_value.get(int(slot_id))
 
     def _prepair_risk_level(self, risk_id):
         if risk_id is None: return None
-        return RISK_LEVEL._index_value.get(int(risk_id))
+        return RISK_LEVEL.index_value.get(int(risk_id))
 
     def _get(self, preferences_type):
         if preferences_type.base_name not in self.data:

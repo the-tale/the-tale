@@ -55,7 +55,7 @@ class HeroEquipmentTests(TestCase):
         self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.HAND_PRIMARY)
 
         artifact = self.hero.sharp_artifact()
-        self.assertTrue(artifact.type._is_MAIN_HAND)
+        self.assertTrue(artifact.type.is_MAIN_HAND)
 
     def test_sharp_preferences_with_max_power(self):
         min_power, max_power = f.power_to_artifact_interval(self.hero.level)
@@ -66,7 +66,7 @@ class HeroEquipmentTests(TestCase):
         artifact.power = max_power
 
         artifact = self.hero.sharp_artifact()
-        self.assertFalse(artifact.type._is_MAIN_HAND)
+        self.assertFalse(artifact.type.is_MAIN_HAND)
 
     def test_buy_artifact_and_not_equip(self):
         old_equipment = self.hero.equipment.serialize()

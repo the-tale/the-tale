@@ -24,7 +24,7 @@
       {{ base_macros.addthis_short("Закон «%s»" % bill.caption, bill.rationale_html|safe, url=full_url('http', 'game:bills:show', bill.id)) }}
     </li>
 
-    {% if bill.state._is_VOTING %}
+    {% if bill.state.is_VOTING %}
 
       {% if resource.account == bill.owner %}
         <li><a class="" style="margin-bottom: 1em; display: inline-block;" href="{{ url('game:bills:edit', bill.id) }}">редактировать</a></li>
@@ -67,7 +67,7 @@
 
 {% else %}
 
-{% if bill.state._is_VOTING %}
+{% if bill.state.is_VOTING %}
 <div class="well pgf-voting-block">
   <h3>Идёт голосование</h3>
 
@@ -92,7 +92,7 @@
 <h3 style="margin-bottom: 0.5em;">{{ bill.data.CAPTION }}</h3>
 
 <ul style="font-size: 14px;" class="unstyled">
-  {% if not bill.duration._is_UNLIMITED %}
+  {% if not bill.duration.is_UNLIMITED %}
   <li class="pgf-duration-info"><strong>Время действия:</strong> {{ bill.duration.text }}</li>
   {% endif %}
 

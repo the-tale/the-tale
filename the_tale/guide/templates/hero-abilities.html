@@ -39,7 +39,7 @@
       </a>
       <ul class="dropdown-menu">
         <li><a href="{{ url_builder(ability_type=none) }}">все</a></li>
-        {% for filter_type in ABILITY_TYPE._records %}
+        {% for filter_type in ABILITY_TYPE.records %}
         <li><a href="{{ url_builder(ability_type=filter_type.value) }}">{{filter_type.text}}</a></li>
         {% endfor %}
       </ul>
@@ -55,7 +55,7 @@
       </a>
       <ul class="dropdown-menu">
         <li><a href="{{ url_builder(activation_type=none) }}">все</a></li>
-        {% for filter_type in ABILITY_ACTIVATION_TYPE._records %}
+        {% for filter_type in ABILITY_ACTIVATION_TYPE.records %}
         <li><a href="{{ url_builder(activation_type=filter_type.value) }}">{{filter_type.text}}</a></li>
         {% endfor %}
       </ul>
@@ -67,7 +67,7 @@
         <span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
-        {% for filter_type in ABILITY_AVAILABILITY._records %}
+        {% for filter_type in ABILITY_AVAILABILITY.records %}
         <li><a href="{{ url_builder(availability=filter_type.value) }}">{{filter_type.text}}</a></li>
         {% endfor %}
       </ul>

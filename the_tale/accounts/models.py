@@ -5,7 +5,7 @@ from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 from django.utils.translation import ugettext_lazy as _
 
-from rels.django_staff import TableIntegerField
+from rels.django import TableIntegerField
 
 from the_tale.accounts.relations import AWARD_TYPE, CHANGE_CREDENTIALS_TASK_STATE
 

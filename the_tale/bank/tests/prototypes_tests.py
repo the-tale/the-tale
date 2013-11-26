@@ -152,31 +152,31 @@ class InvoicePrototypeTests(testcase.TestCase, BankTestsMixin):
     def test_create(self):
         invoice = self.create_invoice()
 
-        self.assertTrue(invoice.recipient_type._is_GAME_ACCOUNT)
+        self.assertTrue(invoice.recipient_type.is_GAME_ACCOUNT)
         self.assertEqual(invoice.recipient_id, self.recipient_id)
-        self.assertTrue(invoice.sender_type._is_GAME_LOGIC)
+        self.assertTrue(invoice.sender_type.is_GAME_LOGIC)
         self.assertEqual(invoice.sender_id, self.sender_id)
         self.assertEqual(invoice.amount, self.amount)
-        self.assertTrue(invoice.state._is_REQUESTED)
-        self.assertTrue(invoice.currency._is_PREMIUM)
+        self.assertTrue(invoice.state.is_REQUESTED)
+        self.assertTrue(invoice.currency.is_PREMIUM)
 
     def test_create__forced(self):
         invoice = self.create_invoice(force=True)
 
-        self.assertTrue(invoice.recipient_type._is_GAME_ACCOUNT)
+        self.assertTrue(invoice.recipient_type.is_GAME_ACCOUNT)
         self.assertEqual(invoice.recipient_id, self.recipient_id)
-        self.assertTrue(invoice.sender_type._is_GAME_LOGIC)
+        self.assertTrue(invoice.sender_type.is_GAME_LOGIC)
         self.assertEqual(invoice.sender_id, self.sender_id)
         self.assertEqual(invoice.amount, self.amount)
-        self.assertTrue(invoice.state._is_FORCED)
-        self.assertTrue(invoice.currency._is_PREMIUM)
+        self.assertTrue(invoice.state.is_FORCED)
+        self.assertTrue(invoice.currency.is_PREMIUM)
 
     def check_freeze(self, recipient_type, sender_type, amount, initial_accounts_number=0, recipient_amount=0, sender_amount=0):
         self.assertEqual(AccountPrototype._model_class.objects.all().count(), initial_accounts_number)
 
         invoice = self.create_invoice(recipient_type=recipient_type, sender_type=sender_type, amount=amount)
         invoice.freeze()
-        self.assertTrue(invoice.state._is_FROZEN)
+        self.assertTrue(invoice.state.is_FROZEN)
 
         self.assertEqual(AccountPrototype._model_class.objects.all().count(), 2)
 
@@ -184,13 +184,13 @@ class InvoicePrototypeTests(testcase.TestCase, BankTestsMixin):
         self.assertEqual(recipient.amount, recipient_amount)
         self.assertEqual(recipient.entity_type, recipient_type)
         self.assertEqual(recipient.entity_id, self.recipient_id)
-        self.assertTrue(recipient.currency._is_PREMIUM)
+        self.assertTrue(recipient.currency.is_PREMIUM)
 
         sender = AccountPrototype(model=AccountPrototype._model_class.objects.all().order_by('created_at')[1])
         self.assertEqual(sender.amount, sender_amount)
         self.assertEqual(sender.entity_type, sender_type)
         self.assertEqual(sender.entity_id, self.sender_id)
-        self.assertTrue(sender.currency._is_PREMIUM)
+        self.assertTrue(sender.currency.is_PREMIUM)
 
 
     def test_freeze__for_infinite_sender(self):
@@ -248,7 +248,7 @@ class InvoicePrototypeTests(testcase.TestCase, BankTestsMixin):
 
         invoice = self.create_invoice(recipient_type=recipient_type, sender_type=sender_type, amount=amount)
         invoice.freeze()
-        self.assertTrue(invoice.state._is_REJECTED)
+        self.assertTrue(invoice.state.is_REJECTED)
 
         self.assertEqual(AccountPrototype._model_class.objects.all().count(), processed_accounts_number)
 
@@ -259,7 +259,7 @@ class InvoicePrototypeTests(testcase.TestCase, BankTestsMixin):
         self.assertEqual(recipient.amount, recipient_amount)
         self.assertEqual(recipient.entity_type, recipient_type)
         self.assertEqual(recipient.entity_id, self.recipient_id)
-        self.assertTrue(recipient.currency._is_PREMIUM)
+        self.assertTrue(recipient.currency.is_PREMIUM)
 
         if processed_accounts_number == 1:
             return
@@ -268,7 +268,7 @@ class InvoicePrototypeTests(testcase.TestCase, BankTestsMixin):
         self.assertEqual(sender.amount, sender_amount)
         self.assertEqual(sender.entity_type, sender_type)
         self.assertEqual(sender.entity_id, self.sender_id)
-        self.assertTrue(sender.currency._is_PREMIUM)
+        self.assertTrue(sender.currency.is_PREMIUM)
 
     def test_freeze__reject_for_infinit_recipient(self):
         self.check_reject(recipient_type=ENTITY_TYPE.GAME_LOGIC,
@@ -321,7 +321,7 @@ class InvoicePrototypeTests(testcase.TestCase, BankTestsMixin):
                                       sender_id=self.sender_id,
                                       amount=amount)
         invoice.freeze()
-        self.assertTrue(invoice.state._is_FROZEN)
+        self.assertTrue(invoice.state.is_FROZEN)
 
         recipient.reload()
         sender.reload()
@@ -337,7 +337,7 @@ class InvoicePrototypeTests(testcase.TestCase, BankTestsMixin):
         self.assertEqual(recipient.amount, result_recipient_amount)
         self.assertEqual(sender.amount, result_sender_amount)
 
-        self.assertTrue(invoice.state._is_CONFIRMED)
+        self.assertTrue(invoice.state.is_CONFIRMED)
 
 
     def test_confirm__noninfinit(self):
@@ -416,7 +416,7 @@ class InvoicePrototypeTests(testcase.TestCase, BankTestsMixin):
 
         invoice = self.create_invoice(recipient_type=recipient_type, sender_type=sender_type, amount=amount)
         invoice.freeze()
-        self.assertTrue(invoice.state._is_FROZEN)
+        self.assertTrue(invoice.state.is_FROZEN)
 
         self.assertEqual(AccountPrototype._model_class.objects.all().count(), 2)
 
@@ -424,13 +424,13 @@ class InvoicePrototypeTests(testcase.TestCase, BankTestsMixin):
         self.assertEqual(recipient.amount, initial_recipient_amount)
         self.assertEqual(recipient.entity_type, recipient_type)
         self.assertEqual(recipient.entity_id, self.recipient_id)
-        self.assertTrue(recipient.currency._is_PREMIUM)
+        self.assertTrue(recipient.currency.is_PREMIUM)
 
         sender = AccountPrototype(model=AccountPrototype._model_class.objects.all().order_by('created_at')[1])
         self.assertEqual(sender.amount, initial_sender_amount)
         self.assertEqual(sender.entity_type, sender_type)
         self.assertEqual(sender.entity_id, self.sender_id)
-        self.assertTrue(sender.currency._is_PREMIUM)
+        self.assertTrue(sender.currency.is_PREMIUM)
 
         invoice = self.create_invoice(recipient_type=recipient_type,
                                       recipient_id=self.recipient_id,
@@ -439,7 +439,7 @@ class InvoicePrototypeTests(testcase.TestCase, BankTestsMixin):
                                       amount=amount,
                                       force=True)
         invoice.force()
-        self.assertTrue(invoice.state._is_CONFIRMED)
+        self.assertTrue(invoice.state.is_CONFIRMED)
 
         recipient.reload()
         sender.reload()
@@ -524,29 +524,29 @@ class InvoicePrototypeTests(testcase.TestCase, BankTestsMixin):
         invoice = self.create_invoice()
         invoice.freeze()
         invoice.cancel()
-        self.assertTrue(invoice.state._is_CANCELED)
+        self.assertTrue(invoice.state.is_CANCELED)
 
     def test_cancel__not_in_frozen_state(self):
         invoice = self.create_invoice()
         self.assertRaises(BankError, invoice.cancel)
 
     def test_reset_all(self):
-        for state in INVOICE_STATE._records:
+        for state in INVOICE_STATE.records:
             invoice = self.create_invoice()
             invoice.state = state
             invoice.save()
 
         InvoicePrototype.reset_all()
 
-        self.assertEqual(InvoicePrototype._model_class.objects.filter(state=INVOICE_STATE.RESETED).count(), len(INVOICE_STATE._records) - 4)
+        self.assertEqual(InvoicePrototype._model_class.objects.filter(state=INVOICE_STATE.RESETED).count(), len(INVOICE_STATE.records) - 4)
         self.assertEqual(InvoicePrototype._model_class.objects.filter(state=INVOICE_STATE.CONFIRMED).count(), 1)
         self.assertEqual(InvoicePrototype._model_class.objects.filter(state=INVOICE_STATE.CANCELED).count(), 1)
         self.assertEqual(InvoicePrototype._model_class.objects.filter(state=INVOICE_STATE.REJECTED).count(), 1)
         self.assertEqual(InvoicePrototype._model_class.objects.filter(state=INVOICE_STATE.FORCED).count(), 1)
 
     def test_get_unprocessed_invoice_success(self):
-        for state in INVOICE_STATE._records:
-            if not (state._is_REQUESTED or state._is_FORCED):
+        for state in INVOICE_STATE.records:
+            if not (state.is_REQUESTED or state.is_FORCED):
                 continue
 
             invoice = self.create_invoice(state=state)
@@ -554,8 +554,8 @@ class InvoicePrototypeTests(testcase.TestCase, BankTestsMixin):
             InvoicePrototype._db_all().delete()
 
     def test_get_unprocessed_invoice__no_invoice(self):
-        for state in INVOICE_STATE._records:
-            if state._is_REQUESTED or state._is_FORCED:
+        for state in INVOICE_STATE.records:
+            if state.is_REQUESTED or state.is_FORCED:
                 continue
             self.create_invoice(state=state)
 

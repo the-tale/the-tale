@@ -14,7 +14,7 @@ class Migration(SchemaMigration):
             ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('x', self.gf('django.db.models.fields.BigIntegerField')()),
             ('y', self.gf('django.db.models.fields.BigIntegerField')()),
-            ('type', self.gf('rels.django_staff.TableIntegerField')()),
+            ('type', self.gf('rels.django.TableIntegerField')()),
             ('place', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['places.Place'])),
             ('person', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['persons.Person'])),
         ))
@@ -47,7 +47,7 @@ class Migration(SchemaMigration):
             'place': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'persons'", 'to': "orm['places.Place']"}),
             'race': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'state': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'type': ('rels.django_staff.TableIntegerField', [], {})
+            'type': ('rels.django.TableIntegerField', [], {})
         },
         'places.building': {
             'Meta': {'object_name': 'Building'},
@@ -55,7 +55,7 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'person': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['persons.Person']"}),
             'place': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['places.Place']"}),
-            'type': ('rels.django_staff.TableIntegerField', [], {}),
+            'type': ('rels.django.TableIntegerField', [], {}),
             'x': ('django.db.models.fields.BigIntegerField', [], {}),
             'y': ('django.db.models.fields.BigIntegerField', [], {})
         },

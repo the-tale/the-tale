@@ -52,7 +52,7 @@ class ArtifactPrototype(object):
     def is_useless(self): return self.record.is_useless
 
     @property
-    def can_be_equipped(self): return not self.type._is_USELESS
+    def can_be_equipped(self): return not self.type.is_USELESS
 
     def set_bag_uuid(self, uuid): self.bag_uuid = uuid
 
@@ -155,7 +155,7 @@ class ArtifactRecordPrototype(BasePrototype):
     def accepted_for_level(self, level): return self.level <= level
 
     @property
-    def is_useless(self): return self.type._is_USELESS
+    def is_useless(self): return self.type.is_USELESS
 
     @property
     def priority(self): return RARITY_TYPE_2_PRIORITY[self.rarity.value]

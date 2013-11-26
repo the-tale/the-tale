@@ -1,12 +1,12 @@
 # coding: utf-8
 
 from rels import Column
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 
 class XSOLLA_RESULT(DjangoEnum):
 
-    _records = ( ('OK', 0, u'OK'),
+    records = ( ('OK', 0, u'OK'),
                  ('REPEATE_REQUEST', 1, u'Временная ошибка, повторите запрос позже'),
                  ('WRONG_USER_ID', 2, u'Неверный идентификатор пользователя'),
                  ('WRONG_MD5', 3, u'Неверная подпись md5'),
@@ -16,24 +16,24 @@ class XSOLLA_RESULT(DjangoEnum):
 
 
 class COMMAND_TYPE(DjangoEnum):
-    _records = ( ('CHECK', 'check', u'проверка существования пользователя'),
+    records = ( ('CHECK', 'check', u'проверка существования пользователя'),
                  ('PAY', 'pay', u'зачисление средств'),
                  ('CANCEL', 'cancel', u'отмена платежа') )
 
 
 class COMMON_RESULT(DjangoEnum):
     xsolla_result = Column(unique=False, primary=False)
-    _records = ( ('DISALLOWED_IP', 0, u'попытка достпуа с ip не внесённого в список разрешённых', XSOLLA_RESULT.OTHER_ERROR),
+    records = ( ('DISALLOWED_IP', 0, u'попытка достпуа с ip не внесённого в список разрешённых', XSOLLA_RESULT.OTHER_ERROR),
                  ('WRONG_COMMAND', 1, u'неверный идентификатор команды', XSOLLA_RESULT.OTHER_ERROR),
                  ('UNKNOWN_ERROR', 2, u'ошибка при обработке запроса', XSOLLA_RESULT.OTHER_ERROR))
 
 class CANCEL_RESULT(DjangoEnum):
     xsolla_result = Column(unique=False, primary=False)
-    _records = ( ('NOT_SUPPORTED', 0, u'отмена платежей не поддерживается', XSOLLA_RESULT.OTHER_ERROR), )
+    records = ( ('NOT_SUPPORTED', 0, u'отмена платежей не поддерживается', XSOLLA_RESULT.OTHER_ERROR), )
 
 
 class INVOICE_STATE(DjangoEnum):
-    _records = ( (u'ERROR_WHILE_CREATING', 0, u'ошибка при создании платежа'),
+    records = ( (u'ERROR_WHILE_CREATING', 0, u'ошибка при создании платежа'),
                  (u'CREATED', 1, u'создан'),
                  (u'ERROR_WHILE_PROCESSING', 2, u'ошибка при начислении средств'),
                  (u'PROCESSED', 3, u'платёж обработан'),
@@ -42,7 +42,7 @@ class INVOICE_STATE(DjangoEnum):
 
 class CHECK_USER_RESULT(DjangoEnum):
     xsolla_result = Column(unique=False, primary=False)
-    _records = ( ('USER_EXISTS', 0, u'пользователь найден', XSOLLA_RESULT.OK),
+    records = ( ('USER_EXISTS', 0, u'пользователь найден', XSOLLA_RESULT.OK),
                  ('USER_NOT_EXISTS', 1, u'пользователь не найден', XSOLLA_RESULT.PAYMENT_RESTRICTED),
                  ('WRONG_MD5', 2, u'неверная контрольная сумма', XSOLLA_RESULT.WRONG_MD5),
                  ('NOT_SPECIFIED_V1', 3, u'не указан параметр v1', XSOLLA_RESULT.WRONG_REQUEST_FORMAT) )
@@ -51,7 +51,7 @@ class CHECK_USER_RESULT(DjangoEnum):
 class PAY_RESULT(DjangoEnum):
     xsolla_result = Column(unique=False, primary=False)
     invoice_state = Column(unique=False, primary=False)
-    _records = ( ('USER_NOT_EXISTS', 0, u'пользователь не найден', XSOLLA_RESULT.WRONG_USER_ID, INVOICE_STATE.ERROR_WHILE_CREATING),
+    records = ( ('USER_NOT_EXISTS', 0, u'пользователь не найден', XSOLLA_RESULT.WRONG_USER_ID, INVOICE_STATE.ERROR_WHILE_CREATING),
                  ('WRONG_MD5', 1, u'неверная контрольная сумма', XSOLLA_RESULT.WRONG_MD5, INVOICE_STATE.ERROR_WHILE_CREATING),
                  ('WRONG_SUM_FORMAT', 2, u'неверный формат суммы', XSOLLA_RESULT.WRONG_REQUEST_FORMAT, INVOICE_STATE.ERROR_WHILE_CREATING),
                  ('FRACTION_IN_SUM', 3, u'дробная часть в сумме начислений', XSOLLA_RESULT.WRONG_REQUEST_FORMAT, INVOICE_STATE.ERROR_WHILE_CREATING),

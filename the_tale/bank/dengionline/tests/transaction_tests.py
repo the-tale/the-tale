@@ -45,7 +45,7 @@ class TransactionTests(testcase.TestCase):
         transaction = self.create_transaction()
         invoice = InvoicePrototype.get_by_id(transaction.invoice_id)
 
-        self.assertTrue(invoice.state._is_REQUESTED)
+        self.assertTrue(invoice.state.is_REQUESTED)
         self.assertEqual(invoice.bank_type, self.bank_type)
         self.assertEqual(invoice.bank_id, self.bank_id)
         self.assertEqual(invoice.bank_currency, self.bank_currency)

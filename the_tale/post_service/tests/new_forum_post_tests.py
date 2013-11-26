@@ -42,14 +42,14 @@ class NewForumPostTests(testcase.TestCase):
     def test_no_subscriptions(self):
         self.assertEqual(len(mail.outbox), 0)
         self.message.process()
-        self.assertTrue(self.message.state._is_PROCESSED)
+        self.assertTrue(self.message.state.is_PROCESSED)
         self.assertEqual(len(mail.outbox), 0)
 
     def test_one_subscription(self):
         SubscriptionPrototype.create(self.account_1, self.thread)
         self.assertEqual(len(mail.outbox), 0)
         self.message.process()
-        self.assertTrue(self.message.state._is_PROCESSED)
+        self.assertTrue(self.message.state.is_PROCESSED)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, [self.account_1.email])
 
@@ -69,7 +69,7 @@ class NewForumPostTests(testcase.TestCase):
         SubscriptionPrototype.create(get_system_user(), self.thread)
         self.assertEqual(len(mail.outbox), 0)
         self.message.process()
-        self.assertTrue(self.message.state._is_PROCESSED)
+        self.assertTrue(self.message.state.is_PROCESSED)
         self.assertEqual(len(mail.outbox), 0)
 
     def test_many_subscriptions(self):
@@ -81,7 +81,7 @@ class NewForumPostTests(testcase.TestCase):
 
         self.assertEqual(len(mail.outbox), 0)
         self.message.process()
-        self.assertTrue(self.message.state._is_PROCESSED)
+        self.assertTrue(self.message.state.is_PROCESSED)
         self.assertEqual(len(mail.outbox), 2)
         self.assertEqual(mail.outbox[0].to, [self.account_1.email])
         self.assertEqual(mail.outbox[1].to, [account_2.email])

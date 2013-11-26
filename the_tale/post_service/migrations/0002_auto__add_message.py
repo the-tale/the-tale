@@ -13,7 +13,7 @@ class Migration(SchemaMigration):
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('processed_at', self.gf('django.db.models.fields.DateTimeField')(null=True)),
-            ('state', self.gf('rels.django_staff.TableIntegerField')(db_index=True)),
+            ('state', self.gf('rels.django.TableIntegerField')(db_index=True)),
             ('handler', self.gf('django.db.models.fields.TextField')(default='')),
         ))
         db.send_create_signal(u'post_service', ['Message'])
@@ -29,7 +29,7 @@ class Migration(SchemaMigration):
             'handler': ('django.db.models.fields.TextField', [], {'default': "''"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'processed_at': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
-            'state': ('rels.django_staff.TableIntegerField', [], {'db_index': 'True'})
+            'state': ('rels.django.TableIntegerField', [], {'db_index': 'True'})
         }
     }
 

@@ -32,7 +32,7 @@ class HabilitiesNonBattleTest(testcase.TestCase):
         self.assertTrue(100 < nonbattle.HUCKSTER().update_sell_price(self.hero, 100))
 
     def test_dandy(self):
-        priorities = {record:record.priority for record in ITEMS_OF_EXPENDITURE._records}
+        priorities = {record:record.priority for record in ITEMS_OF_EXPENDITURE.records}
         priorities = nonbattle.DANDY().update_items_of_expenditure_priorities(self.hero, priorities)
 
         self.assertEqual(ITEMS_OF_EXPENDITURE.INSTANT_HEAL.priority, priorities[ITEMS_OF_EXPENDITURE.INSTANT_HEAL])

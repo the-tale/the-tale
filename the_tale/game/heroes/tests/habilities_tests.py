@@ -134,7 +134,7 @@ class HabilitiesTest(TestCase):
 
     def test_on_miss_method_exists(self):
         for ability_class in ABILITIES.values():
-            if ability_class.LOGIC_TYPE is not None and ability_class.LOGIC_TYPE._is_WITH_CONTACT:
+            if ability_class.LOGIC_TYPE is not None and ability_class.LOGIC_TYPE.is_WITH_CONTACT:
                 self.assertTrue('on_miss' in ability_class.__dict__)
 
     def test_hit(self):

@@ -1,7 +1,7 @@
 # coding: utf-8
 
 import rels
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 from the_tale.common.utils.decorators import lazy_property
 from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
@@ -21,7 +21,7 @@ from the_tale.accounts.payments import exceptions
 
 
 class BASE_BUY_TASK_STATE(DjangoEnum):
-    _records = ( ('TRANSACTION_REQUESTED', 1, u'запрошены средства'),
+    records = ( ('TRANSACTION_REQUESTED', 1, u'запрошены средства'),
                  ('TRANSACTION_REJECTED', 2, u'недостаточно средств'),
                  ('TRANSACTION_FROZEN', 3, u'средства выделены'),
                  ('WAIT_TRANSACTION_CONFIRMATION', 4, u'ожидает подтверждение платежа'),
@@ -43,7 +43,7 @@ class BaseBuyTask(PostponedLogic):
             state = self.RELATION.TRANSACTION_REQUESTED
 
         self.account_id = account_id
-        self.state = state if isinstance(state, rels.Record) else self.RELATION._index_value[state]
+        self.state = state if isinstance(state, rels.Record) else self.RELATION.index_value[state]
         self.transaction = Transaction.deserialize(transaction) if isinstance(transaction, dict) else transaction
 
     def __eq__(self, other):
@@ -68,13 +68,13 @@ class BaseBuyTask(PostponedLogic):
     def process_transaction_requested(self, main_task):
         transaction_state = self.transaction.get_invoice_state()
 
-        if transaction_state._is_REQUESTED:
+        if transaction_state.is_REQUESTED:
             return POSTPONED_TASK_LOGIC_RESULT.WAIT
-        if transaction_state._is_REJECTED:
+        if transaction_state.is_REJECTED:
             self.state = self.RELATION.TRANSACTION_REJECTED
             main_task.comment = 'invoice %d rejected' % self.transaction.invoice_id
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
-        elif transaction_state._is_FROZEN:
+        elif transaction_state.is_FROZEN:
             self.state = self.RELATION.TRANSACTION_FROZEN
             self.on_process_transaction_requested__transaction_frozen(main_task)
             return POSTPONED_TASK_LOGIC_RESULT.CONTINUE
@@ -99,9 +99,9 @@ class BaseBuyTask(PostponedLogic):
     def process_transaction_confirmation(self, main_task):
         transaction_state = self.transaction.get_invoice_state()
 
-        if transaction_state._is_FROZEN:
+        if transaction_state.is_FROZEN:
             return POSTPONED_TASK_LOGIC_RESULT.WAIT
-        elif transaction_state._is_CONFIRMED:
+        elif transaction_state.is_CONFIRMED:
             self.state = self.RELATION.SUCCESSED
             self.process_referrals()
             return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
@@ -113,13 +113,13 @@ class BaseBuyTask(PostponedLogic):
 
     def process(self, main_task, storage=None): # pylint: disable=W0613
 
-        if self.state._is_TRANSACTION_REQUESTED:
+        if self.state.is_TRANSACTION_REQUESTED:
             return self.process_transaction_requested(main_task)
 
-        elif self.state._is_TRANSACTION_FROZEN:
+        elif self.state.is_TRANSACTION_FROZEN:
             return self.process_transaction_frozen(main_task, storage=storage)
 
-        elif self.state._is_WAIT_TRANSACTION_CONFIRMATION:
+        elif self.state.is_WAIT_TRANSACTION_CONFIRMATION:
             return self.process_transaction_confirmation(main_task)
 
         else:
@@ -251,7 +251,7 @@ class BuyPermanentPurchase(BaseBuyTask):
 
     def __init__(self, purchase_type, **kwargs):
         super(BuyPermanentPurchase, self).__init__(**kwargs)
-        self.purchase_type = purchase_type if isinstance(purchase_type, rels.Record) else PERMANENT_PURCHASE_TYPE._index_value[purchase_type]
+        self.purchase_type = purchase_type if isinstance(purchase_type, rels.Record) else PERMANENT_PURCHASE_TYPE.index_value[purchase_type]
 
     def __eq__(self, other):
         return (super(BuyPermanentPurchase, self).__eq__(other) and

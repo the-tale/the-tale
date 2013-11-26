@@ -3,13 +3,13 @@
 from django.db import transaction
 
 import rels
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 
 
 class MAKE_CHOICE_TASK_STATE(DjangoEnum):
-    _records = ( ('UNPROCESSED', 0, u'в очереди'),
+    records = ( ('UNPROCESSED', 0, u'в очереди'),
                  ('PROCESSED', 1, u'обработана'),
                  ('UNKNOWN_CHOICE', 2, u'не существует такого выбора'),
                  ('WRONG_POINT', 3, u'в данный момент вы не можете влиять на эту точку выбора'),
@@ -28,7 +28,7 @@ class MakeChoiceTask(PostponedLogic):
         super(MakeChoiceTask, self).__init__()
         self.account_id = account_id
         self.option_uid = option_uid
-        self.state = state if isinstance(state, rels.Record) else MAKE_CHOICE_TASK_STATE._index_value[state]
+        self.state = state if isinstance(state, rels.Record) else MAKE_CHOICE_TASK_STATE.index_value[state]
 
     def serialize(self):
         return { 'account_id': self.account_id,

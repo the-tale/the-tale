@@ -99,11 +99,11 @@ class BillPrototype(BasePrototype):
 
     @property
     def last_bill_event_text(self):
-        if self.state._is_ACCEPTED:
+        if self.state.is_ACCEPTED:
             return u'принят закон'
-        if self.state._is_REJECTED:
+        if self.state.is_REJECTED:
             return u'отклонён закон'
-        if self.state._is_VOTING:
+        if self.state.is_VOTING:
             if (self.updated_at - self.created_at).seconds > 1:
                 return u'исправлен закон'
             else:
@@ -141,7 +141,7 @@ class BillPrototype(BasePrototype):
 
     @transaction.atomic
     def apply(self):
-        if not self.state._is_VOTING:
+        if not self.state.is_VOTING:
             raise exceptions.ApplyBillInWrongStateError(bill_id=self.id)
 
         if not self.approved_by_moderator:
@@ -160,7 +160,7 @@ class BillPrototype(BasePrototype):
                                                                                                            self.votes_refrained)
 
         self._model.voting_end_at = datetime.datetime.now()
-        if not self.duration._is_UNLIMITED:
+        if not self.duration.is_UNLIMITED:
             self._model.ends_at_turn = TimePrototype.get_current_turn_number() + self.duration.game_months * c.TURNS_IN_GAME_MONTH
 
         if self.is_percents_barier_not_passed:
@@ -190,7 +190,7 @@ class BillPrototype(BasePrototype):
 
     @transaction.atomic
     def end(self):
-        if not self.state._is_ACCEPTED:
+        if not self.state.is_ACCEPTED:
             raise exceptions.EndBillInWrongStateError(bill_id=self.id)
 
         if self.ended_at is not None:
@@ -218,7 +218,7 @@ class BillPrototype(BasePrototype):
 
     @transaction.atomic
     def decline(self, decliner):
-        if not self.state._is_ACCEPTED:
+        if not self.state.is_ACCEPTED:
             raise exceptions.DeclinedBillInWrongStateError(bill_id=self.id)
 
         self.is_declined = True

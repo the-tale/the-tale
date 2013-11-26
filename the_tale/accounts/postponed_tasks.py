@@ -2,7 +2,7 @@
 import uuid
 
 import rels
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 from django.core.urlresolvers import reverse
 from django.db import transaction
@@ -75,7 +75,7 @@ class RegistrationTask(PostponedLogic):
 
 
 class CHANGE_CREDENTIALS_STATE(DjangoEnum):
-    _records = ( ('UNPROCESSED', 1, u'необработана'),
+    records = ( ('UNPROCESSED', 1, u'необработана'),
                  ('PROCESSED', 2, u'обработана'),
                  ('WRONG_STATE', 3, u'неверное состояние задачи'))
 
@@ -87,7 +87,7 @@ class ChangeCredentials(PostponedLogic):
     def __init__(self, task_id, state=CHANGE_CREDENTIALS_STATE.UNPROCESSED):
         super(ChangeCredentials, self).__init__()
         self.task_id = task_id
-        self.state = state if isinstance(state, rels.Record) else CHANGE_CREDENTIALS_STATE._index_value[state]
+        self.state = state if isinstance(state, rels.Record) else CHANGE_CREDENTIALS_STATE.index_value[state]
 
     def serialize(self):
         return { 'state': self.state.value,
@@ -114,7 +114,7 @@ class ChangeCredentials(PostponedLogic):
     def task(self): return ChangeCredentialsTaskPrototype.get_by_id(self.task_id)
 
     def process(self, main_task):
-        if self.state._is_UNPROCESSED:
+        if self.state.is_UNPROCESSED:
             self.task.account.change_credentials(new_email=self.task.new_email,
                                                  new_password=self.task.new_password,
                                                  new_nick=self.task.new_nick)
@@ -129,7 +129,7 @@ class ChangeCredentials(PostponedLogic):
 
 
 class UPDATE_ACCOUNT_STATE(DjangoEnum):
-    _records = ( ('UNPROCESSED', 1, u'необработана'),
+    records = ( ('UNPROCESSED', 1, u'необработана'),
                  ('PROCESSED', 2, u'обработана'),
                  ('WRONG_STATE', 3, u'неверное состояние задачи'))
 
@@ -143,7 +143,7 @@ class UpdateAccount(PostponedLogic):
         self.account_id = account_id
         self.method = method.__name__ if callable(method) else method
         self.data = data
-        self.state = state if isinstance(state, rels.Record) else UPDATE_ACCOUNT_STATE._index_value[state]
+        self.state = state if isinstance(state, rels.Record) else UPDATE_ACCOUNT_STATE.index_value[state]
 
     def serialize(self):
         return { 'state': self.state.value,
@@ -158,7 +158,7 @@ class UpdateAccount(PostponedLogic):
     def error_message(self): return self.state.text
 
     def process(self, main_task):
-        if self.state._is_UNPROCESSED:
+        if self.state.is_UNPROCESSED:
             getattr(self.account, self.method)(**self.data)
             self.account.save()
             self.state = UPDATE_ACCOUNT_STATE.PROCESSED

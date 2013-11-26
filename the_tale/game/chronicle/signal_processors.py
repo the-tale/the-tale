@@ -129,55 +129,55 @@ def chronicle_bill_processed(sender, bill, **kwargs): # pylint: disable=R0912,W0
 
     if bill.data.type == BILL_TYPE.PLACE_RENAMING:
         record_type = records.PlaceChangeNameBillFailed
-        if bill.state._is_ACCEPTED:
+        if bill.state.is_ACCEPTED:
             record_type = records.PlaceChangeNameBillSuccessed
         record_type(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
 
     elif bill.data.type == BILL_TYPE.PLACE_DESCRIPTION:
         record_type = records.PlaceChangeDescriptionBillFailed
-        if bill.state._is_ACCEPTED:
+        if bill.state.is_ACCEPTED:
             record_type = records.PlaceChangeDescriptionBillSuccessed
         record_type(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
 
     elif bill.data.type == BILL_TYPE.PLACE_MODIFIER:
         record_type = records.PlaceChangeModifierBillFailed
-        if bill.state._is_ACCEPTED:
+        if bill.state.is_ACCEPTED:
             record_type = records.PlaceChangeModifierBillSuccessed
         record_type(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
 
     elif bill.data.type == BILL_TYPE.PERSON_REMOVE:
         record_type = records.PersonRemoveBillFailed
-        if bill.state._is_ACCEPTED:
+        if bill.state.is_ACCEPTED:
             record_type = records.PersonRemoveBillSuccessed
         record_type(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
 
     elif bill.data.type == BILL_TYPE.BUILDING_CREATE:
         record_type = records.BuildingCreateBillFailed
-        if bill.state._is_ACCEPTED:
+        if bill.state.is_ACCEPTED:
             record_type = records.BuildingCreateBillSuccessed
         record_type(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
 
     elif bill.data.type == BILL_TYPE.BUILDING_DESTROY:
         record_type = records.BuildingDestroyBillFailed
-        if bill.state._is_ACCEPTED:
+        if bill.state.is_ACCEPTED:
             record_type = records.BuildingDestroyBillSuccessed
         record_type(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
 
     elif bill.data.type == BILL_TYPE.BUILDING_RENAMING:
         record_type = records.BuildingRenamingBillFailed
-        if bill.state._is_ACCEPTED:
+        if bill.state.is_ACCEPTED:
             record_type = records.BuildingRenamingBillSuccessed
         record_type(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
 
     elif bill.data.type == BILL_TYPE.PLACE_RESOURCE_EXCHANGE:
         record_type = records.PlaceResourceExchangeFailed
-        if bill.state._is_ACCEPTED:
+        if bill.state.is_ACCEPTED:
             record_type = records.PlaceResourceExchangeSuccessed
         record_type(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
 
     elif bill.data.type == BILL_TYPE.BILL_DECLINE:
         record_type = records.BillDeclineFailed
-        if bill.state._is_ACCEPTED:
+        if bill.state.is_ACCEPTED:
             record_type = records.BillDeclineSuccessed
         record_type(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
 

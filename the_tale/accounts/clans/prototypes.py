@@ -105,7 +105,7 @@ class ClanPrototype(BasePrototype): #pylint: disable=R0904
             raise exceptions.RemoveNotMemberFromClanError(member_id=account.id, clan_id=self.id)
         if membership.clan_id != self.id:
             raise exceptions.RemoveMemberFromWrongClanError(member_id=account.id, clan_id=self.id)
-        if membership.role._is_LEADER:
+        if membership.role.is_LEADER:
             raise exceptions.RemoveLeaderFromClanError(member_id=account.id, clan_id=self.id)
 
         account.set_clan_id(None)

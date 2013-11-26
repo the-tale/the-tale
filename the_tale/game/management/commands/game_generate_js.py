@@ -27,13 +27,13 @@ class Command(BaseCommand):
 
         with open(game_settings.JS_CONSTNATS_FILE_LOCATION, 'w') as f:
             f.write(render('game/js_constants.js',
-                           {'actor_type': s11n.to_json({a.name: a.value for a in ACTOR_TYPE._records}),
-                            'gender_to_text': s11n.to_json(dict(GENDER._select('value', 'text'))),
-                            'gender_to_str': s11n.to_json(dict(GENDER._select('value', 'name'))),
-                            'person_type_to_text': s11n.to_json(dict(PERSON_TYPE._select('value', 'text'))),
-                            'race_to_text': s11n.to_json(dict(RACE._select('value', 'text'))),
-                            'race_to_str': s11n.to_json(dict(RACE._select('value', 'name'))),
+                           {'actor_type': s11n.to_json({a.name: a.value for a in ACTOR_TYPE.records}),
+                            'gender_to_text': s11n.to_json(dict(GENDER.select('value', 'text'))),
+                            'gender_to_str': s11n.to_json(dict(GENDER.select('value', 'name'))),
+                            'person_type_to_text': s11n.to_json(dict(PERSON_TYPE.select('value', 'text'))),
+                            'race_to_text': s11n.to_json(dict(RACE.select('value', 'text'))),
+                            'race_to_str': s11n.to_json(dict(RACE.select('value', 'name'))),
                             'terrain_id_to_str': s11n.to_json(TERRAIN._ID_TO_STR),
-                            'building_type_to_str': s11n.to_json(dict(BUILDING_TYPE._select('value', 'name'))),
+                            'building_type_to_str': s11n.to_json(dict(BUILDING_TYPE.select('value', 'name'))),
                             'ABILITY_TYPE': ABILITY_TYPE
                             }).encode('utf-8'))

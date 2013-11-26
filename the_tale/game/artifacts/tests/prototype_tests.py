@@ -141,13 +141,13 @@ class PrototypeTests(testcase.TestCase):
         with mock.patch('the_tale.game.balance.formulas.artifacts_per_battle', lambda lvl: 1):
             artifact = artifacts_storage.generate_loot(mob)
             self.assertEqual(artifact.level, mob.level)
-            self.assertFalse(artifact.type._is_USELESS)
+            self.assertFalse(artifact.type.is_USELESS)
             self.assertEqual(artifact_2.id, artifact.record.id)
 
         with mock.patch('the_tale.game.balance.formulas.artifacts_per_battle', lambda lvl: 0),  mock.patch('the_tale.game.balance.constants.GET_LOOT_PROBABILITY', 1):
             artifact = artifacts_storage.generate_loot(mob)
             self.assertEqual(artifact.level, mob.record.level)
-            self.assertTrue(artifact.type._is_USELESS)
+            self.assertTrue(artifact.type.is_USELESS)
             self.assertEqual(artifact_1.id, artifact.record.id)
 
     def test_disabled_artifacts(self):

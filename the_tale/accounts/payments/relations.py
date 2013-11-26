@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from rels import Column, NullObject
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 from the_tale.accounts.clans.conf import clans_settings
 
@@ -28,7 +28,7 @@ class PERMANENT_PURCHASE_TYPE(DjangoEnum):
     level_required = Column(unique=False, single_type=False)
     preference_type = Column(single_type=False, related_name='purchase_type')
 
-    _records = ( ('CLAN_OWNERSHIP_RIGHT', 0, u'Разрешение на владение гильдией',
+    records = ( ('CLAN_OWNERSHIP_RIGHT', 0, u'Разрешение на владение гильдией',
                   CLAN_OWNERSHIP_RIGHT_DESCRIPTION, clans_settings.OWNER_MIGHT_REQUIRED, None, NullObject()),
 
                   preference_record(1, PREFERENCE_TYPE.MOB),

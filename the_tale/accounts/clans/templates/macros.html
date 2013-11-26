@@ -4,11 +4,11 @@
 
 <li class="nav-header">Гильдии</li>
 
-<li class="nav-element {%if page_id._is_INDEX%}active{%endif%}"><a href="{{ url('accounts:clans:') }}">Все гильдии</a></li>
+<li class="nav-element {%if page_id.is_INDEX%}active{%endif%}"><a href="{{ url('accounts:clans:') }}">Все гильдии</a></li>
 
 {% if own_clan_info.clan is none %}
   {% if own_clan_info.can_create_clan %}
-    <li class="nav-element {%if page_id._is_NEW%}active{%endif%}"><a href="{{ url('accounts:clans:new') }}" class="pgf-create-clan-button">Создать гильдию</a></li>
+    <li class="nav-element {%if page_id.is_NEW%}active{%endif%}"><a href="{{ url('accounts:clans:new') }}" class="pgf-create-clan-button">Создать гильдию</a></li>
   {% else %}
     <li class="nav-element disabled"
         rel="tooltip"
@@ -17,10 +17,10 @@
     </li>
   {% endif %}
 
-  <li class="nav-element {%if page_id._is_FOR_ACCOUNT%}active{%endif%}"><a href="{{ url('accounts:clans:membership:for-account') }}">Мои приглашения</a></li>
+  <li class="nav-element {%if page_id.is_FOR_ACCOUNT%}active{%endif%}"><a href="{{ url('accounts:clans:membership:for-account') }}">Мои приглашения</a></li>
 
 {% else %}
-  <li class="nav-element {%if page_id._is_SHOW%}active{%endif%}"><a href="{{ url('accounts:clans:show', own_clan_info.clan_id) }}">Моя гильдия</a></li>
+  <li class="nav-element {%if page_id.is_SHOW%}active{%endif%}"><a href="{{ url('accounts:clans:show', own_clan_info.clan_id) }}">Моя гильдия</a></li>
 {% endif %}
 
 {% if current_clan %}
@@ -30,16 +30,16 @@
     <li class="nav-element"><a href="{{ url('forum:subcategories:show', own_clan_info.clan.forum_subcategory_id) }}">Форум гильдии</a></li>
 
     {% if own_clan_info.can_invite %}
-    <li class="nav-element {%if page_id._is_FOR_CLAN%}active{%endif%}"><a href="{{ url('accounts:clans:membership:for-clan') }}">Заявки на вступление</a></li>
+    <li class="nav-element {%if page_id.is_FOR_CLAN%}active{%endif%}"><a href="{{ url('accounts:clans:membership:for-clan') }}">Заявки на вступление</a></li>
     {% endif %}
 
-    {% if own_clan_info.membership.role._is_LEADER %}
+    {% if own_clan_info.membership.role.is_LEADER %}
 
       <li class="divider"></li>
 
-      <li class="nav-element {%if page_id._is_EDIT%}active{%endif%}"><a href="{{ url('accounts:clans:edit', own_clan_info.clan_id) }}">Редактировать</a></li>
+      <li class="nav-element {%if page_id.is_EDIT%}active{%endif%}"><a href="{{ url('accounts:clans:edit', own_clan_info.clan_id) }}">Редактировать</a></li>
 
-      {% if page_id._is_EDIT %}
+      {% if page_id.is_EDIT %}
         <li class="nav-element">
           <a class="pgf-forms-post-simple"
              href="{{ url('accounts:clans:remove', own_clan_info.clan_id) }}"

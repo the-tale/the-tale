@@ -54,7 +54,7 @@ class AchievementsStorage(create_storage_class('achievements change time', Achie
         else:
             account_count = collections.Counter()
 
-        statistics = {group: (account_count[group], groups_count[group]) for group in ACHIEVEMENT_GROUP._records}
+        statistics = {group: (account_count[group], groups_count[group]) for group in ACHIEVEMENT_GROUP.records}
 
         statistics[None] = (sum(account_count.values()), sum(groups_count.values()))
 

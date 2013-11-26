@@ -115,7 +115,7 @@ class InvoicePrototype(BasePrototype):
 
         prototype = cls(model=model)
 
-        if prototype.state._is_CREATED:
+        if prototype.state.is_CREATED:
             workers_environment.xsolla_banker.cmd_handle_invoices()
 
         return prototype
@@ -124,7 +124,7 @@ class InvoicePrototype(BasePrototype):
         from the_tale.bank.transaction import Transaction
         from the_tale.bank.relations import ENTITY_TYPE, CURRENCY_TYPE
 
-        if not self.state._is_CREATED:
+        if not self.state.is_CREATED:
             raise exceptions.WrongInvoiceStateInProcessingError(invoice_id=self.id, state=self.state)
 
         if self.test:

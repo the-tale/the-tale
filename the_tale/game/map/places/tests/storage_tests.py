@@ -91,8 +91,8 @@ class ResourceExchangeStorageTests(testcase.TestCase):
         super(ResourceExchangeStorageTests, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
-        self.resource_1 = random.choice(RESOURCE_EXCHANGE_TYPE._records)
-        self.resource_2 = random.choice(RESOURCE_EXCHANGE_TYPE._records)
+        self.resource_1 = random.choice(RESOURCE_EXCHANGE_TYPE.records)
+        self.resource_2 = random.choice(RESOURCE_EXCHANGE_TYPE.records)
 
     def test_create(self):
         self.assertEqual(len(resource_exchange_storage.all()), 0)

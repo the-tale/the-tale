@@ -104,7 +104,7 @@ class MapInfoPrototype(BasePrototype):
         race_percents = get_race_percents(persons_storage.filter(state=PERSON_STATE.IN_GAME))
 
         #race to cities percents
-        race_cities = dict( (race.value, 0) for race in RACE._records)
+        race_cities = dict( (race.value, 0) for race in RACE.records)
         for place_model in Place.objects.all():
             place = PlacePrototype(place_model)
             race_cities[place.race.value] += 1

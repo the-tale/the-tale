@@ -4,7 +4,7 @@ import datetime
 from django.db import transaction
 
 import rels
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 from textgen.words import Noun
 
@@ -108,8 +108,8 @@ class ChangeHeroTask(PostponedLogic):
         super(ChangeHeroTask, self).__init__()
         self.hero_id = hero_id
         self.name = name if isinstance(name, Noun) else Noun.deserialize(name)
-        self.race = race if isinstance(race, rels.Record) else RACE._index_value[race]
-        self.gender = gender if isinstance(gender, rels.Record) else GENDER._index_value[gender]
+        self.race = race if isinstance(race, rels.Record) else RACE.index_value[race]
+        self.gender = gender if isinstance(gender, rels.Record) else GENDER.index_value[gender]
         self.state = state
 
     def serialize(self):
@@ -140,7 +140,7 @@ class ChangeHeroTask(PostponedLogic):
 
 
 class RESET_HERO_ABILITIES_TASK_STATE(DjangoEnum):
-   _records = ( ('UNPROCESSED', 0, u'в очереди'),
+   records = ( ('UNPROCESSED', 0, u'в очереди'),
                 ('PROCESSED', 1, u'обработана'),
                 ('RESET_TIMEOUT', 2, u'сброс способностей пока не доступен'))
 
@@ -250,7 +250,7 @@ class ChoosePreferencesTask(PostponedLogic):
 
             mob = mobs_storage.get_by_uuid(mob_uuid)
 
-            if not mob.state._is_ENABLED:
+            if not mob.state.is_ENABLED:
                 main_task.comment = u'mob %s not in game' % (mob_uuid, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.MOB_NOT_IN_GAME
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
@@ -334,12 +334,12 @@ class ChoosePreferencesTask(PostponedLogic):
 
         if equipment_slot is not None:
 
-            if equipment_slot not in EQUIPMENT_SLOT._index_value:
+            if equipment_slot not in EQUIPMENT_SLOT.index_value:
                 main_task.comment = u'unknown equipment slot: %s' % (equipment_slot, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            equipment_slot = EQUIPMENT_SLOT._index_value[equipment_slot]
+            equipment_slot = EQUIPMENT_SLOT.index_value[equipment_slot]
 
         hero.preferences.set_equipment_slot(equipment_slot)
 
@@ -351,12 +351,12 @@ class ChoosePreferencesTask(PostponedLogic):
 
         if equipment_slot is not None:
 
-            if equipment_slot not in EQUIPMENT_SLOT._index_value:
+            if equipment_slot not in EQUIPMENT_SLOT.index_value:
                 main_task.comment = u'unknown equipment slot: %s' % (equipment_slot, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            equipment_slot = EQUIPMENT_SLOT._index_value[equipment_slot]
+            equipment_slot = EQUIPMENT_SLOT.index_value[equipment_slot]
 
             if hero.equipment.get(equipment_slot) is None:
                 main_task.comment = u'empty equipment slot for favorite item: %s' % (equipment_slot, )
@@ -374,12 +374,12 @@ class ChoosePreferencesTask(PostponedLogic):
 
         if risk_level is not None:
 
-            if risk_level not in RISK_LEVEL._index_value:
+            if risk_level not in RISK_LEVEL.index_value:
                 main_task.comment = u'unknown risk level: %s' % (risk_level, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_RISK_LEVEL
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            risk_level = RISK_LEVEL._index_value[risk_level]
+            risk_level = RISK_LEVEL.index_value[risk_level]
 
         hero.preferences.set_risk_level(risk_level)
 
@@ -407,28 +407,28 @@ class ChoosePreferencesTask(PostponedLogic):
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
 
-        if self.preference_type._is_ENERGY_REGENERATION_TYPE:
+        if self.preference_type.is_ENERGY_REGENERATION_TYPE:
             result = self.process_energy_regeneration(main_task, hero)
 
-        elif self.preference_type._is_MOB:
+        elif self.preference_type.is_MOB:
             result = self.process_mob(main_task, hero)
 
-        elif self.preference_type._is_PLACE:
+        elif self.preference_type.is_PLACE:
             result = self.process_place(main_task, hero)
 
-        elif self.preference_type._is_FRIEND:
+        elif self.preference_type.is_FRIEND:
             result = self.process_friend(main_task, hero)
 
-        elif self.preference_type._is_ENEMY:
+        elif self.preference_type.is_ENEMY:
             result = self.process_enemy(main_task, hero)
 
-        elif self.preference_type._is_EQUIPMENT_SLOT:
+        elif self.preference_type.is_EQUIPMENT_SLOT:
             result = self.process_equipment_slot(main_task, hero)
 
-        elif self.preference_type._is_RISK_LEVEL:
+        elif self.preference_type.is_RISK_LEVEL:
             result = self.process_risk_level(main_task, hero)
 
-        elif self.preference_type._is_FAVORITE_ITEM:
+        elif self.preference_type.is_FAVORITE_ITEM:
             result = self.process_favorite_item(main_task, hero)
 
         else:

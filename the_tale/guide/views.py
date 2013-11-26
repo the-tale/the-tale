@@ -43,7 +43,7 @@ class TypeReference(object):
     @lazy_property
     def records(self):
         records = []
-        for record in self.relation._records:
+        for record in self.relation.records:
             records.append([getattr(record, field_id) for field_name, field_id in self.fields])
         return records
 
@@ -127,7 +127,7 @@ class GuideResource(Resource):
         return self.template('guide/persons.html', {'section': 'persons',
                                                     'persons_settings': persons_settings,
                                                     'MASTERY_LEVELS': [mastery[1] for mastery in MASTERY_VERBOSE],
-                                                    'PERSON_TYPES': sorted(PERSON_TYPE._records, key=lambda r: r.text) })
+                                                    'PERSON_TYPES': sorted(PERSON_TYPE.records, key=lambda r: r.text) })
 
     @handler('cities', method='get')
     def cities(self):

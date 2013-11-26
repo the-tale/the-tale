@@ -81,11 +81,11 @@ class BalancerTests(BalancerTestsBase):
         battle_1.set_enemy(self.account_2)
         battle_1.save()
 
-        self.assertTrue(Battle1x1Prototype.get_by_id(battle_1.id).state._is_PREPAIRING)
+        self.assertTrue(Battle1x1Prototype.get_by_id(battle_1.id).state.is_PREPAIRING)
 
         self.worker.leave_arena_queue(self.hero_1.id)
 
-        self.assertTrue(Battle1x1Prototype.get_by_id(battle_1.id).state._is_PREPAIRING)
+        self.assertTrue(Battle1x1Prototype.get_by_id(battle_1.id).state.is_PREPAIRING)
 
     def test_process_leave_queue_waiting_state(self):
         battle = self.worker.add_to_arena_queue(self.hero_1.id)

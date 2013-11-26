@@ -88,11 +88,11 @@ class Command(BaseCommand):
                           y=20,
                           size=3,
                           roads_to=[places_storage[19]],
-                          persons=[(None, 0.2, RACE.DWARF, GENDER.MASCULINE, random.choice(PERSON_TYPE._records)),
-                                   (None, 0.2, RACE.GOBLIN,GENDER.MASCULINE, random.choice(PERSON_TYPE._records)),
-                                   (None, 0.2, RACE.ORC,   GENDER.MASCULINE, random.choice(PERSON_TYPE._records)),
-                                   (None, 0.2, RACE.ELF,   GENDER.MASCULINE, random.choice(PERSON_TYPE._records)),
-                                   (None, 0.2, RACE.HUMAN, GENDER.MASCULINE, random.choice(PERSON_TYPE._records)) ])
+                          persons=[(None, 0.2, RACE.DWARF, GENDER.MASCULINE, random.choice(PERSON_TYPE.records)),
+                                   (None, 0.2, RACE.GOBLIN,GENDER.MASCULINE, random.choice(PERSON_TYPE.records)),
+                                   (None, 0.2, RACE.ORC,   GENDER.MASCULINE, random.choice(PERSON_TYPE.records)),
+                                   (None, 0.2, RACE.ELF,   GENDER.MASCULINE, random.choice(PERSON_TYPE.records)),
+                                   (None, 0.2, RACE.HUMAN, GENDER.MASCULINE, random.choice(PERSON_TYPE.records)) ])
 
 
 

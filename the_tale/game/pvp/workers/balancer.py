@@ -136,7 +136,7 @@ class Worker(BaseWorker):
 
         battle = Battle1x1Prototype.get_by_account_id(hero.account_id)
 
-        if not battle.state._is_WAITING:
+        if not battle.state.is_WAITING:
             return
 
         if battle.account_id not in self.arena_queue:
@@ -268,7 +268,7 @@ class Worker(BaseWorker):
             self._initiate_battle(*battle_pair, calculate_ratings=True)
 
         for record in records_to_bots:
-            _records_to_remove, _records_to_exclude = self._initiate_battle_with_bot(record)
+            records_to_remove, records_to_exclude = self._initiate_battle_with_bot(record)
             records_to_remove.extend(_records_to_remove)
             records_to_exclude.extend(_records_to_exclude)
 

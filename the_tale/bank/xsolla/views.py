@@ -78,13 +78,13 @@ class XsollaResource(Resource):
                 return self.create_answer(COMMON_RESULT.WRONG_COMMAND)
 
 
-            if command._is_CHECK:
+            if command.is_CHECK:
                 return self.create_check_answer(xsolla_logic.check_user(command=command,
                                                                         external_md5=md5,
                                                                         v1=v1,
                                                                         v2=v2,
                                                                         v3=v3))
-            elif command._is_PAY:
+            elif command.is_PAY:
                 pay_result, internal_id = xsolla_logic.pay(command=command,
                                                            external_md5=md5,
                                                            v1=v1,
@@ -97,7 +97,7 @@ class XsollaResource(Resource):
                                                            request_url=self.request.build_absolute_uri())
                 return self.create_pay_answer(pay_result, xsolla_id=id, internal_id=internal_id, sum=sum)
 
-            elif command._is_CANCEL:
+            elif command.is_CANCEL:
                 return self.create_cancel_answer()
         except:
             logger.error('XSOLLA command exception',

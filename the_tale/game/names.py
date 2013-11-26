@@ -11,15 +11,15 @@ class NamesGenerators(object):
     human = pynames.russian.PaganNamesGenerator()
 
     def get_name(self, race, gender):
-        if race._is_HUMAN:
+        if race.is_HUMAN:
             return self.human.get_name_simple(gender=gender.pynames_id)
-        if race._is_ELF:
+        if race.is_ELF:
             return self.elven.get_name_simple(gender=gender.pynames_id)
-        if race._is_ORC:
+        if race.is_ORC:
             return self.orcish.get_name_simple(gender=gender.pynames_id)
-        if race._is_GOBLIN:
+        if race.is_GOBLIN:
             return self.goblin.get_name_simple(gender=gender.pynames_id)
-        if race._is_DWARF:
+        if race.is_DWARF:
             return self.dwarfish.get_name_simple(gender=gender.pynames_id)
 
 generator = NamesGenerators()

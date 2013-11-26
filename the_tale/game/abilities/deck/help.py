@@ -97,7 +97,7 @@ class Help(AbilityPrototype):
 
         battle = Battle1x1Prototype.get_by_account_id(hero.account_id)
 
-        if battle and not battle.state._is_WAITING:
+        if battle and not battle.state.is_WAITING:
             return False, None, ()
 
         action = hero.actions.current_action
@@ -109,26 +109,26 @@ class Help(AbilityPrototype):
 
         critical = random.uniform(0, 1) < hero.might_crit_chance
 
-        if choice._is_HEAL:
+        if choice.is_HEAL:
             return self.use_heal(action, hero, critical)
 
-        elif choice._is_START_QUEST:
+        elif choice.is_START_QUEST:
             return self.use_start_quest(action, hero, critical)
 
-        elif choice._is_MONEY:
+        elif choice.is_MONEY:
             return self.use_money(action, hero, critical)
 
-        elif choice._is_TELEPORT:
+        elif choice.is_TELEPORT:
             return self.use_teleport(action, hero, critical)
 
-        elif choice._is_LIGHTING:
+        elif choice.is_LIGHTING:
             return self.use_lightning(action, hero, critical)
 
-        elif choice._is_RESURRECT:
+        elif choice.is_RESURRECT:
             return self.use_resurrect(action, hero, critical)
 
-        elif choice._is_EXPERIENCE:
+        elif choice.is_EXPERIENCE:
             return self.use_experience(action, hero, critical)
 
-        elif choice._is_STOCK_UP_ENERGY:
+        elif choice.is_STOCK_UP_ENERGY:
             return self.use_stock_up_energy(action, hero, critical)

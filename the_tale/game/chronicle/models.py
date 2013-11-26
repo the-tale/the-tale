@@ -2,7 +2,7 @@
 
 from django.db import models
 
-from rels.django_staff import TableIntegerField
+from rels.django import TableIntegerField
 
 from the_tale.game.chronicle.relations import RECORD_TYPE, ACTOR_ROLE
 

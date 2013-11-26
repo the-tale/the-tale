@@ -36,7 +36,7 @@ class MobsStorage(create_storage_class('mob records change time', MobRecordProto
         self.sync()
         mobs = (record
                 for record in self.all()
-                if record.state._is_ENABLED and record.level <= level and (terrain is None or terrain in record.terrains))
+                if record.state.is_ENABLED and record.level <= level and (terrain is None or terrain in record.terrains))
 
         if mercenary is not None:
             mobs = (record for record in mobs if record.type.is_mercenary == mercenary)

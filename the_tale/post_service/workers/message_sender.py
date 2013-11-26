@@ -65,7 +65,7 @@ class Worker(BaseWorker):
 
         message.process()
 
-        if message.state._is_PROCESSED:
+        if message.state.is_PROCESSED:
             self.logger.info('message %s status %s' % (message.uid, message.state))
         else:
             self.logger.error('message %s status %s ' % (message.uid, message.state))

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 from the_tale.common.postponed_tasks import PostponedTaskPrototype
 
@@ -9,7 +9,7 @@ from the_tale.accounts.logic import login_user
 
 
 class HANDLE_REGISTRATION_RESULT(DjangoEnum):
-    _records = ( ('NOT_ANONYMOUS', 0, u'пользователь уже зарегистрирован'),
+    records = ( ('NOT_ANONYMOUS', 0, u'пользователь уже зарегистрирован'),
                  ('NO_TASK_ID', 1, u'нет идентификатора задач'),
                  ('TASK_NOT_FOUND', 2, u'задача не найдена'),
                  ('TASK_NOT_PROCESSED', 4, u'задача не обработана'),
@@ -17,14 +17,14 @@ class HANDLE_REGISTRATION_RESULT(DjangoEnum):
 
 
 class HANDLE_REFERER_RESULT(DjangoEnum):
-    _records = ( ('NOT_ANONYMOUS', 0, u'пользователь уже зарегистрирован'),
+    records = ( ('NOT_ANONYMOUS', 0, u'пользователь уже зарегистрирован'),
                  ('SAVED', 1, u'реферер сохранён'),
                  ('ALREADY_SAVED', 2, u'реферер уже сохранён'),
                  ('NO_REFERER', 4, u'нет реферера'))
 
 
 class HANDLE_REFERRAL_RESULT(DjangoEnum):
-    _records = ( ('NOT_ANONYMOUS', 0, u'пользователь уже зарегистрирован'),
+    records = ( ('NOT_ANONYMOUS', 0, u'пользователь уже зарегистрирован'),
                  ('NO_REFERRAL', 1, u'владелец реферала не указан'),
                  ('ALREADY_SAVED', 2, u'владелец реферала уже сохранён'),
                  ('SAVED', 4, u'владелец реферала сохранён'))

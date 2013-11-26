@@ -73,11 +73,11 @@ class QuestInfo(object):
             return None
 
         actor_id, actor_name = self.actors[role]
-        if actor_type._is_PLACE:
+        if actor_type.is_PLACE:
             return (actor_name, actor_type.value, {'id': actor_id})
-        if actor_type._is_PERSON:
+        if actor_type.is_PERSON:
             return (actor_name, actor_type.value, persons_storage[actor_id].ui_info())
-        if actor_type._is_MONEY_SPENDING:
+        if actor_type.is_MONEY_SPENDING:
             return (actor_name, actor_type.value, {'goal': actor_id.text,
                                                    'description': actor_id.description})
 
@@ -468,7 +468,7 @@ class QuestPrototype(object):
     def _donothing(self, donothing_type):
         from the_tale.game.actions.prototypes import ActionDoNothingPrototype
 
-        donothing = DONOTHING_TYPE._index_value[donothing_type]
+        donothing = DONOTHING_TYPE.index_value[donothing_type]
 
         writer = writers.get_writer(type=self.quests_stack[-1].type, message=donothing_type, substitution={})
 

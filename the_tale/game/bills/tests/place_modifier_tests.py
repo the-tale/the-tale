@@ -79,7 +79,7 @@ class PlaceModifierTests(BaseTestPrototypes):
         self.assertTrue(self.bill.apply())
 
         bill = BillPrototype.get_by_id(self.bill.id)
-        self.assertTrue(bill.state._is_ACCEPTED)
+        self.assertTrue(bill.state.is_ACCEPTED)
 
         self.assertNotEqual(self.place.modifier, None)
         self.assertEqual(self.place.modifier, TradeCenter(self.place) )

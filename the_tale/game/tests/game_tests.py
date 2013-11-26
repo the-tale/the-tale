@@ -45,5 +45,5 @@ class GameTest(testcase.TestCase):
 
     def test_race_in_dictionary(self):
 
-        for race in RACE._records:
+        for race in RACE.records:
             self.assertTrue(race.text.lower() in get_dictionary())

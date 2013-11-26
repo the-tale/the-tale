@@ -522,7 +522,7 @@ class TestCreateRequests(BaseTestRequests):
         self.assertEqual(bill.data.base_name, 'new-name')
         self.assertEqual(bill.votes_for, 1)
         self.assertEqual(bill.votes_against, 0)
-        self.assertTrue(bill.duration._is_UNLIMITED)
+        self.assertTrue(bill.duration.is_UNLIMITED)
 
         vote = VotePrototype(Vote.objects.all()[0])
         self.check_vote(vote, self.account1, VOTE_TYPE.FOR, bill.id)
@@ -540,7 +540,7 @@ class TestCreateRequests(BaseTestRequests):
                                                                                                                'resource_1': RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL,
                                                                                                                'resource_2': RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE,})
 
-        self.assertTrue(BillPrototype._db_get_object(0).duration._is_YEAR)
+        self.assertTrue(BillPrototype._db_get_object(0).duration.is_YEAR)
 
 
     def test_success_second_bill_error(self):
@@ -801,7 +801,7 @@ class TestUpdateRequests(BaseTestRequests):
                                                                                             'resource_1': RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL,
                                                                                             'resource_2': RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE,}))
 
-        self.assertTrue(BillPrototype._db_get_object(0).duration._is_YEAR_2)
+        self.assertTrue(BillPrototype._db_get_object(0).duration.is_YEAR_2)
 
 
 class TestModerationPageRequests(BaseTestRequests):

@@ -14,7 +14,7 @@
 </p>
 
 <table class="table table-bordered table-striped table-condensed">
-  {% for risk_level in RISK_LEVEL._records %}
+  {% for risk_level in RISK_LEVEL.records %}
   <tr>
     {{ preference_record(risk_level, resource.hero.preferences.risk_level) }}
   </tr>

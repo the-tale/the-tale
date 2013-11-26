@@ -1,11 +1,11 @@
 # coding: utf-8
 
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 
 class ARTIFACT_TYPE(DjangoEnum):
 
-    _records = ( ('USELESS', 0, u'хлам'),
+    records = ( ('USELESS', 0, u'хлам'),
                  ('MAIN_HAND', 1, u'основная рука'),
                  ('OFF_HAND', 2, u'вторая рука'),
                  ('PLATE', 3, u'броня'),

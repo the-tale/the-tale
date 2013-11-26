@@ -70,7 +70,7 @@ class PlaceRenamingTests(BaseTestPrototypes):
         self.bill = BillPrototype.get_by_id(self.bill.id)
 
         self.assertTrue(old_updated_at < self.bill.updated_at)
-        self.assertTrue(self.bill.state._is_VOTING)
+        self.assertTrue(self.bill.state.is_VOTING)
         self.assertEqual(self.bill.votes_for, 1)
         self.assertEqual(self.bill.votes_against, 0)
         self.assertEqual(self.bill.votes_refrained, 0)
@@ -101,14 +101,14 @@ class PlaceRenamingTests(BaseTestPrototypes):
         self.bill.update_by_moderator(form)
 
         self.bill = BillPrototype.get_by_id(self.bill.id)
-        self.assertTrue(self.bill.state._is_VOTING)
+        self.assertTrue(self.bill.state.is_VOTING)
         self.assertEqual(self.bill.approved_by_moderator, True)
         self.assertEqual(self.bill.data.name_forms.forms, self.NAME_FORMS)
 
     def test_remove(self):
         thread = Thread.objects.get(id=self.bill.forum_thread_id)
         self.bill.remove(self.account1)
-        self.assertTrue(self.bill.state._is_REMOVED)
+        self.assertTrue(self.bill.state.is_REMOVED)
         self.assertEqual(Post.objects.all().count(), 2)
         self.assertNotEqual(Thread.objects.get(id=self.bill.forum_thread_id).caption, thread.caption)
 

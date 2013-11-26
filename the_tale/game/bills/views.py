@@ -33,10 +33,10 @@ BASE_INDEX_FILTERS = [list_filter.reset_element(),
                                                                                             (BILL_STATE.VOTING.value, u'голосование'),
                                                                                             (BILL_STATE.ACCEPTED.value, u'принятые'),
                                                                                             (BILL_STATE.REJECTED.value, u'отклонённые') ]),
-                      list_filter.choice_element(u'тип:', attribute='bill_type', choices=[(None, u'все')] + list(BILL_TYPE._select('value', 'text'))),
+                      list_filter.choice_element(u'тип:', attribute='bill_type', choices=[(None, u'все')] + list(BILL_TYPE.select('value', 'text'))),
                       list_filter.choice_element(u'город:', attribute='place', choices=lambda x: [(None, u'все')] + places_storage.get_choices()) ]
 
-LOGINED_INDEX_FILTERS = BASE_INDEX_FILTERS + [list_filter.choice_element(u'голосование:', attribute='voted', choices=[(None, u'все')] + list(VOTED_TYPE._select('value', 'text'))),]
+LOGINED_INDEX_FILTERS = BASE_INDEX_FILTERS + [list_filter.choice_element(u'голосование:', attribute='voted', choices=[(None, u'все')] + list(VOTED_TYPE.select('value', 'text'))),]
 
 class UnloginedIndexFilter(list_filter.ListFilter):
     ELEMENTS = BASE_INDEX_FILTERS
@@ -66,7 +66,7 @@ class BillResource(Resource):
         return self.account.is_authenticated() and self.account.has_perm('bills.moderate_bill')
 
     @validator(code='bills.voting_state_required')
-    def validate_voting_state(self, *args, **kwargs): return self.bill.state._is_VOTING
+    def validate_voting_state(self, *args, **kwargs): return self.bill.state.is_VOTING
 
     @validator(code='bills.not_owner', message=u'Вы не являетесь владельцем данного законопроекта')
     def validate_ownership(self, *args, **kwargs): return self.account.id == self.bill.owner.id
@@ -86,7 +86,7 @@ class BillResource(Resource):
 
         self.bill = bill
 
-        if self.bill and self.bill.state._is_REMOVED:
+        if self.bill and self.bill.state.is_REMOVED:
             return self.auto_error('bills.removed', u'Законопроект удалён')
 
     @validate_argument('page', int, 'bills', u'неверная страница')
@@ -117,9 +117,9 @@ class BillResource(Resource):
 
         if voted is not None:
 
-            if voted._is_NO:
+            if voted.is_NO:
                 bills_query = bills_query.filter(~models.Q(vote__owner=self.account._model)).distinct()
-            elif voted._is_YES:
+            elif voted.is_YES:
                 bills_query = bills_query.filter(vote__owner=self.account._model).distinct()
             else:
                 bills_query = bills_query.filter(vote__owner=self.account._model, vote__type=voted.vote_type).distinct()
@@ -282,7 +282,7 @@ class BillResource(Resource):
     @validate_participate_in_politics()
     @validate_can_vote()
     @validate_voting_state(message=u'На данной стадии за закон нельзя голосовать')
-    @validate_argument('type', lambda t: VOTE_TYPE._index_value[int(t)], 'bills.vote', u'Неверно указан тип голоса')
+    @validate_argument('type', lambda t: VOTE_TYPE.index_value[int(t)], 'bills.vote', u'Неверно указан тип голоса')
     @handler('#bill', 'vote', name='vote', method='post')
     def vote(self, type): # pylint: disable=W0622
 

@@ -486,13 +486,13 @@ class AccountResource(BaseAccountsResource):
         if not form.is_valid():
             return self.json_error('accounts.account.ban.form_errors', form.errors)
 
-        if form.c.ban_type._is_FORUM:
+        if form.c.ban_type.is_FORUM:
             self.master_account.ban_forum(form.c.ban_time.days)
             message = u'Вы лишены права общаться на форуме. Причина: \n\n%(message)s'
-        elif form.c.ban_type._is_GAME:
+        elif form.c.ban_type.is_GAME:
             self.master_account.ban_game(form.c.ban_time.days)
             message = u'Ваш герой лишён возможности влиять на мир игры. Причина: \n\n%(message)s'
-        elif form.c.ban_type._is_TOTAL:
+        elif form.c.ban_type.is_TOTAL:
             self.master_account.ban_forum(form.c.ban_time.days)
             self.master_account.ban_game(form.c.ban_time.days)
             message = u'Вы лишены права общаться на форуме, ваш герой лишён возможности влиять на мир игры. Причина: \n\n%(message)s'

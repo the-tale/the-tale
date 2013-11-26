@@ -52,7 +52,7 @@
       </a>
       <ul class="dropdown-menu">
         <li><a href="{{ url_builder(type=none) }}">все</a></li>
-        {% for artifact_type in ARTIFACT_TYPE._records %}
+        {% for artifact_type in ARTIFACT_TYPE.records %}
         <li><a href="{{ url_builder(type=artifact_type.value) }}">{{artifact_type.text}}</a></li>
         {% endfor %}
       </ul>

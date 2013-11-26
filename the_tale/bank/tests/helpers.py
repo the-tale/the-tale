@@ -37,7 +37,7 @@ class BankTestsMixin(object):
 
     def create_entity_history(self, entity_id):
 
-        for state in INVOICE_STATE._records:
+        for state in INVOICE_STATE.records:
             new_invoices = [
                 self.create_invoice(recipient_id=entity_id, description='first-invoice-description-%s' % state, state=state),
                 self.create_invoice(recipient_id=entity_id, description='second-invoice-description-%s' % state, state=state),
@@ -51,7 +51,7 @@ class BankTestsMixin(object):
                 self.create_invoice(sender_id=entity_id, sender_type=ENTITY_TYPE.GAME_LOGIC, description='eighth-invoice-description-%s' % state, state=state),
                 self.create_invoice(sender_id=entity_id + 1, sender_type=ENTITY_TYPE.GAME_LOGIC, description='ninth-invoice-description-%s' % state, state=state) ]
 
-            if state._is_CONFIRMED:
+            if state.is_CONFIRMED:
                 invoices = new_invoices
 
         return [invoices[4],

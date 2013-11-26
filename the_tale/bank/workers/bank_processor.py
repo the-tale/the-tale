@@ -69,9 +69,9 @@ class Worker(BaseWorker):
 
         self.logger.info('process invoice %s' % invoice.id)
 
-        if invoice.state._is_REQUESTED:
+        if invoice.state.is_REQUESTED:
             invoice.freeze()
-        elif invoice.state._is_FORCED:
+        elif invoice.state.is_FORCED:
             invoice.force()
         else:
             raise BankException('unknown invoice %d state %s' % (invoice.id, invoice.state))

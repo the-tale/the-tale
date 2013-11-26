@@ -17,7 +17,7 @@ class ArtifactRecordBaseForm(forms.Form):
 
     description = bbcode.BBField(label=u'Описание', required=False)
 
-    type = fields.TypedChoiceField(label=u'тип', choices=ARTIFACT_TYPE._choices(), coerce=ARTIFACT_TYPE._get_from_name)
+    type = fields.TypedChoiceField(label=u'тип', choices=ARTIFACT_TYPE.choices(), coerce=ARTIFACT_TYPE.get_from_name)
 
     rarity = fields.TypedChoiceField(label=u'Редкость', choices=RARITY_TYPE._CHOICES, coerce=int)
 

@@ -15,14 +15,14 @@ from the_tale.game.relations import GENDER, RACE
 class ChoosePreferencesForm(forms.Form):
 
     preference_id = fields.CharField(max_length=32, required=False)
-    preference_type = fields.TypedChoiceField(choices=PREFERENCE_TYPE._choices(), coerce=PREFERENCE_TYPE._get_from_name)
+    preference_type = fields.TypedChoiceField(choices=PREFERENCE_TYPE.choices(), coerce=PREFERENCE_TYPE.get_from_name)
 
 
 class EditNameForm(forms.Form):
 
-    race = fields.TypedChoiceField(label=u'раса', choices=RACE._choices(), coerce=RACE._get_from_name)
+    race = fields.TypedChoiceField(label=u'раса', choices=RACE.choices(), coerce=RACE.get_from_name)
 
-    gender = fields.TypedChoiceField(label=u'пол', choices=GENDER._choices(), coerce=GENDER._get_from_name)
+    gender = fields.TypedChoiceField(label=u'пол', choices=GENDER.choices(), coerce=GENDER.get_from_name)
 
     name_forms = NounFormsWithoutNumberField(label=u'')
 

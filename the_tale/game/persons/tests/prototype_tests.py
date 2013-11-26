@@ -72,9 +72,9 @@ class PrototypeTests(testcase.TestCase):
 
     def test_move_out_game_with_building(self):
         building = BuildingPrototype.create(self.person, name_forms=Noun.fast_construct('building-name'))
-        self.assertTrue(building.state._is_WORKING)
+        self.assertTrue(building.state.is_WORKING)
         self.person.move_out_game()
-        self.assertTrue(building.state._is_DESTROYED)
+        self.assertTrue(building.state.is_DESTROYED)
 
     def test_mastery_from_building(self):
 

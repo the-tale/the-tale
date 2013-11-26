@@ -182,71 +182,71 @@ def get_building_power_points(building): # pylint: disable=R0912,R0915
     # power from race of building must not be equal to power from city. So, multiple it to 0.25
     points = get_object_race_points(MapObject(building, 'race'), building.person.race, building.integrity * 0.25)
 
-    if building.type._is_SMITHY:
+    if building.type.is_SMITHY:
         points.append(_point_arrow_height(MapObject(building), borders=(0.3, 1.0), length_normalizer=normalizers.linear_2, width_normalizer=normalizers.linear_2, power_percent=1.0))
         points.append(_point_circle_vegetation(MapObject(building), power=(0.0, -0.4), normalizer=normalizers.linear_2, power_percent=1.0))
         points.append(_point_circle_soil(MapObject(building), power=-0.1, normalizer=normalizers.linear, power_percent=1.0))
         points.append(_point_circle_wetness(MapObject(building), power=-0.2, normalizer=normalizers.linear, power_percent=1.0))
         points.append(_point_circle_temperature(MapObject(building), power=0.15, normalizer=normalizers.linear, power_percent=1.0))
-    elif building.type._is_FISHING_LODGE:
+    elif building.type.is_FISHING_LODGE:
         # points.append(_point_circle_height(MapObject(building), borders=(-0.8, -0.4), normalizer=normalizers.linear_2, power_percent=1.0))
         points.append(_point_circle_wetness(MapObject(building), power=0.2, normalizer=normalizers.linear, power_percent=1.0))
-    elif building.type._is_TAILOR_SHOP:
+    elif building.type.is_TAILOR_SHOP:
         points.append(_point_circle_height(MapObject(building), borders=(-0.5, 0.5), normalizer=normalizers.linear_2, power_percent=1.0))
-    elif building.type._is_SAWMILL:
+    elif building.type.is_SAWMILL:
         points.append(_point_circle_height(MapObject(building), borders=(-0.5, 0.5), normalizer=normalizers.linear_2, power_percent=1.0))
         points.append(_point_circle_vegetation(MapObject(building), power=(0.0, 0.7), normalizer=normalizers.linear_2, power_percent=1.0))
-    elif building.type._is_HUNTER_HOUSE:
+    elif building.type.is_HUNTER_HOUSE:
         points.append(_point_circle_height(MapObject(building), borders=(-0.7, 0.7), normalizer=normalizers.linear_2, power_percent=1.0))
         points.append(_point_circle_vegetation(MapObject(building), power=(0.0, 0.5), normalizer=normalizers.linear_2, power_percent=1.0))
-    elif building.type._is_WATCHTOWER:
+    elif building.type.is_WATCHTOWER:
         points.append(_point_circle_vegetation(MapObject(building), power=(0.0, -0.5), normalizer=normalizers.linear_2, power_percent=1.0))
-    elif building.type._is_TRADING_POST:
+    elif building.type.is_TRADING_POST:
         # points.append(_point_circle_height(MapObject(building), borders=(-0.5, 0.5), normalizer=normalizers.linear_2, power_percent=1.0))
         points.append(_point_circle_soil(MapObject(building), power=-0.1, normalizer=normalizers.linear, power_percent=1.0))
-    elif building.type._is_INN:
+    elif building.type.is_INN:
         points.append(_point_circle_soil(MapObject(building), power=-0.01, normalizer=normalizers.linear, power_percent=1.0))
         # points.append(_point_circle_height(MapObject(building), borders=(-0.5, 0.5), normalizer=normalizers.linear_2, power_percent=1.0))
-    elif building.type._is_DEN_OF_THIEVE:
+    elif building.type.is_DEN_OF_THIEVE:
         points.append(_point_circle_vegetation(MapObject(building), power=(0.0, 0.3), normalizer=normalizers.linear_2, power_percent=1.0))
-    elif building.type._is_FARM:
+    elif building.type.is_FARM:
         points.append(_point_circle_height(MapObject(building), borders=(0.0, 0.0), normalizer=normalizers.linear_2, power_percent=1.0))
         points.append(_point_circle_vegetation(MapObject(building), power=(0.3, -0.3), normalizer=normalizers.linear_2, power_percent=1.0))
-    elif building.type._is_MINE:
+    elif building.type.is_MINE:
         points.append(_point_arrow_height(MapObject(building), borders=(1.0, 1.0), length_normalizer=normalizers.linear_2, width_normalizer=normalizers.linear_2, power_percent=1.0))
         points.append(_point_circle_soil(MapObject(building), power=-0.1, normalizer=normalizers.linear, power_percent=1.0))
-    elif building.type._is_TEMPLE:
+    elif building.type.is_TEMPLE:
         points.append(_point_circle_height(MapObject(building), borders=(0.3, 1.0), normalizer=normalizers.linear_2, power_percent=1.0))
-    elif building.type._is_HOSPITAL:
+    elif building.type.is_HOSPITAL:
         points.append(_point_circle_height(MapObject(building), borders=(0.0, 0.4), normalizer=normalizers.linear_2, power_percent=1.0))
         points.append(_point_circle_vegetation(MapObject(building), power=(0.0, 0.1), normalizer=normalizers.linear_2, power_percent=1.0))
-    elif building.type._is_LABORATORY:
+    elif building.type.is_LABORATORY:
         points.append(_point_arrow_height(MapObject(building), borders=(0.4, 0.8), length_normalizer=normalizers.linear_2, width_normalizer=normalizers.linear_2, power_percent=1.0))
         points.append(_point_circle_soil(MapObject(building), power=-0.3, normalizer=normalizers.linear, power_percent=1.0))
         points.append(_point_circle_temperature(MapObject(building), power=0.1, normalizer=normalizers.linear, power_percent=1.0))
-    elif building.type._is_SCAFFOLD:
+    elif building.type.is_SCAFFOLD:
         points.append(_point_circle_height(MapObject(building), borders=(0.2, 0.4), normalizer=normalizers.linear_2, power_percent=1.0))
-    elif building.type._is_MAGE_TOWER:
+    elif building.type.is_MAGE_TOWER:
         points.append(_point_arrow_height(MapObject(building), borders=(0.8, 1.0), length_normalizer=normalizers.linear_2, width_normalizer=normalizers.linear_2, power_percent=1.0))
         points.append(_point_circle_soil(MapObject(building), power=-0.2, normalizer=normalizers.linear, power_percent=1.0))
         points.append(_point_circle_temperature(MapObject(building), power=0.1, normalizer=normalizers.linear, power_percent=1.0))
-    elif building.type._is_GUILDHALL:
+    elif building.type.is_GUILDHALL:
         points.append(_point_circle_soil(MapObject(building), power=-0.01, normalizer=normalizers.linear, power_percent=1.0))
         # points.append(_point_circle_height(MapObject(building), borders=(-0.5, 0.5), normalizer=normalizers.linear_2, power_percent=1.0))
-    elif building.type._is_BUREAU:
+    elif building.type.is_BUREAU:
         points.append(_point_circle_soil(MapObject(building), power=-0.01, normalizer=normalizers.linear, power_percent=1.0))
         # points.append(_point_circle_height(MapObject(building), borders=(-0.5, 0.5), normalizer=normalizers.linear_2, power_percent=1.0))
-    elif building.type._is_MANOR:
+    elif building.type.is_MANOR:
         points.append(_point_circle_soil(MapObject(building), power=-0.01, normalizer=normalizers.linear, power_percent=1.0))
         # points.append(_point_circle_height(MapObject(building), borders=(0.2, 0.5), normalizer=normalizers.linear_2, power_percent=1.0))
-    elif building.type._is_SCENE:
+    elif building.type.is_SCENE:
         # points.append(_point_circle_height(MapObject(building), borders=(0.2, 0.4), normalizer=normalizers.linear_2, power_percent=1.0))
         points.append(_point_circle_vegetation(MapObject(building), power=(0.0, -0.1), normalizer=normalizers.linear_2, power_percent=1.0))
-    elif building.type._is_MEWS:
+    elif building.type.is_MEWS:
         points.append(_point_circle_height(MapObject(building), borders=(-0.2, 0.2), normalizer=normalizers.linear_2, power_percent=1.0))
         points.append(_point_circle_vegetation(MapObject(building), power=(0.0, -0.6), normalizer=normalizers.linear_2, power_percent=1.0))
         points.append(_point_circle_soil(MapObject(building), power=-0.15, normalizer=normalizers.linear, power_percent=1.0))
-    elif building.type._is_RANCH:
+    elif building.type.is_RANCH:
         points.append(_point_circle_height(MapObject(building), borders=(-0.2, 0.2), normalizer=normalizers.linear_2, power_percent=1.0))
         points.append(_point_circle_vegetation(MapObject(building), power=(0.0, -0.6), normalizer=normalizers.linear_2, power_percent=1.0))
         points.append(_point_circle_soil(MapObject(building), power=-0.2, normalizer=normalizers.linear, power_percent=1.0))
@@ -274,29 +274,29 @@ def get_place_power_points(place):
 def get_object_race_points(obj, race, power_percent):
     points = []
 
-    if race._is_HUMAN:
+    if race.is_HUMAN:
         points.append(_point_circle_height(obj, borders=(-0.2, 0.2), normalizer=normalizers.linear_2, power_percent=power_percent))
         points.append(_point_circle_vegetation(obj, power=(0.6, -0.3), normalizer=normalizers.linear_2, power_percent=power_percent))
         points.append(_point_circle_soil(obj, power=0.2, normalizer=normalizers.linear, power_percent=power_percent))
         points.append(_point_circle_wetness(obj, power=-0.05, normalizer=normalizers.linear, power_percent=power_percent))
-    elif race._is_ELF:
+    elif race.is_ELF:
         points.append(_point_circle_height(obj, borders=(0.0, 0.5), normalizer=normalizers.linear_2, power_percent=power_percent))
         points.append(_point_circle_vegetation(obj, power=(-0.2, 1.0), normalizer=normalizers.linear_2, power_percent=power_percent))
         points.append(_point_circle_soil(obj, power=0.1, normalizer=normalizers.linear, power_percent=power_percent))
         points.append(_point_circle_temperature(obj, power=0.1, normalizer=normalizers.linear, power_percent=power_percent))
         points.append(_point_circle_wetness(obj, power=0.1, normalizer=normalizers.linear, power_percent=power_percent))
-    elif race._is_ORC:
+    elif race.is_ORC:
         points.append(_point_circle_height(obj, borders=(-0.2, 0.3), normalizer=normalizers.linear_2, power_percent=power_percent))
         points.append(_point_circle_vegetation(obj, power=(-0.3, -0.5), normalizer=normalizers.linear_2, power_percent=power_percent))
         points.append(_point_circle_temperature(obj, power=0.3, normalizer=normalizers.linear, power_percent=power_percent))
         points.append(_point_circle_wetness(obj, power=-0.5, normalizer=normalizers.linear, power_percent=power_percent))
-    elif race._is_GOBLIN:
+    elif race.is_GOBLIN:
         points.append(_point_circle_height(obj, borders=(-0.7, -0.3), normalizer=normalizers.linear_2, power_percent=power_percent))
         points.append(_point_circle_vegetation(obj, power=(0.2, 0.0), normalizer=normalizers.linear_2, power_percent=power_percent))
         points.append(_point_circle_soil(obj, power=-0.2, normalizer=normalizers.linear, power_percent=power_percent))
         points.append(_point_circle_temperature(obj, power=0.2, normalizer=normalizers.linear, power_percent=power_percent))
         points.append(_point_circle_wetness(obj, power=0.4, normalizer=normalizers.linear, power_percent=power_percent))
-    elif race._is_DWARF:
+    elif race.is_DWARF:
         points.append(_point_arrow_height(obj, borders=(1.0, 1.0), length_normalizer=normalizers.linear_2, width_normalizer=normalizers.linear_2, power_percent=power_percent))
         points.append(_point_circle_temperature(obj, power=0.1, normalizer=normalizers.linear, power_percent=power_percent))
         points.append(_point_circle_vegetation(obj, power=(0.0, -0.1), normalizer=normalizers.linear_2, power_percent=power_percent))

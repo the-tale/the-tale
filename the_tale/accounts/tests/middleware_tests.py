@@ -34,21 +34,21 @@ class MiddlewareTests(testcase.TestCase):
                                                                                 session={accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY: 666},
                                                                                 user=self.account._model))
 
-        self.assertTrue(result._is_NOT_ANONYMOUS)
+        self.assertTrue(result.is_NOT_ANONYMOUS)
         self.assertEqual(login_user.call_count, 0)
 
     def test_handle_registration__no_data_in_session(self):
         with mock.patch('the_tale.accounts.middleware.login_user') as login_user:
             result = self.middleware.handle_registration(self.make_request_html('/'))
 
-        self.assertTrue(result._is_NO_TASK_ID)
+        self.assertTrue(result.is_NO_TASK_ID)
         self.assertEqual(login_user.call_count, 0)
 
     def test_handle_registration__no_task(self):
         with mock.patch('the_tale.accounts.middleware.login_user') as login_user:
             result = self.middleware.handle_registration(self.make_request_html('/', session={accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY: 666}))
 
-        self.assertTrue(result._is_TASK_NOT_FOUND)
+        self.assertTrue(result.is_TASK_NOT_FOUND)
         self.assertEqual(login_user.call_count, 0)
 
     def test_handle_registration__task_not_processed(self):
@@ -58,7 +58,7 @@ class MiddlewareTests(testcase.TestCase):
         with mock.patch('the_tale.accounts.middleware.login_user') as login_user:
             result = self.middleware.handle_registration(self.make_request_html('/', session={accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY: task.id}))
 
-        self.assertTrue(result._is_TASK_NOT_PROCESSED)
+        self.assertTrue(result.is_TASK_NOT_PROCESSED)
         self.assertEqual(login_user.call_count, 0)
 
     def test_handle_registration__task_processed(self):
@@ -71,42 +71,42 @@ class MiddlewareTests(testcase.TestCase):
         with mock.patch('the_tale.accounts.middleware.login_user') as login_user:
             result = self.middleware.handle_registration(self.make_request_html('/', session={accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY: task.id}))
 
-        self.assertTrue(result._is_USER_LOGINED)
+        self.assertTrue(result.is_USER_LOGINED)
         self.assertEqual(login_user.call_count, 1)
 
 
     def test_handle_referer__not_anonymous(self):
         result = self.middleware.handle_referer(self.make_request_html('/', user=self.account._model, meta={'HTTP_REFERER': 'example.com'}))
-        self.assertTrue(result._is_NOT_ANONYMOUS)
+        self.assertTrue(result.is_NOT_ANONYMOUS)
 
     def test_handle_referer__no_referer(self):
         result = self.middleware.handle_referer(self.make_request_html('/'))
-        self.assertTrue(result._is_NO_REFERER)
+        self.assertTrue(result.is_NO_REFERER)
 
     def test_handle_referer__already_saved(self):
         result = self.middleware.handle_referer(self.make_request_html('/',
                                                                        session={accounts_settings.SESSION_REGISTRATION_REFERER_KEY: 'example.com'},
                                                                        meta={'HTTP_REFERER': 'example.com'}))
-        self.assertTrue(result._is_ALREADY_SAVED)
+        self.assertTrue(result.is_ALREADY_SAVED)
 
     def test_handle_referer__saved(self):
         result = self.middleware.handle_referer(self.make_request_html('/', meta={'HTTP_REFERER': 'example.com'}))
-        self.assertTrue(result._is_SAVED)
+        self.assertTrue(result.is_SAVED)
 
 
     def test_handle_referral__not_anonymous(self):
         result = self.middleware.handle_referral(self.make_request_html(self.referral_link, user=self.account._model))
-        self.assertTrue(result._is_NOT_ANONYMOUS)
+        self.assertTrue(result.is_NOT_ANONYMOUS)
 
     def test_handle_referral__no_referral(self):
         result = self.middleware.handle_referral(self.make_request_html('/'))
-        self.assertTrue(result._is_NO_REFERRAL)
+        self.assertTrue(result.is_NO_REFERRAL)
 
     def test_handle_referral__referral_already_in_session(self):
         result = self.middleware.handle_referral(self.make_request_html(self.referral_link,
                                                                        session={accounts_settings.SESSION_REGISTRATION_REFERRAL_KEY: 666}))
-        self.assertTrue(result._is_ALREADY_SAVED)
+        self.assertTrue(result.is_ALREADY_SAVED)
 
     def test_handle_referral__referral_not_in_session(self):
         result = self.middleware.handle_referral(self.make_request_html(self.referral_link))
-        self.assertTrue(result._is_SAVED)
+        self.assertTrue(result.is_SAVED)

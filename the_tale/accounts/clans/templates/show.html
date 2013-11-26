@@ -31,7 +31,7 @@
     <th width="100px">Игрок</th>
     <th width="100px">Звание</th>
     <th>Герой</th>
-    {% if resource.clan_info.clan and resource.clan.id == resource.clan_info.clan_id and not resource.clan_info.membership.role._is_MEMBER %}
+    {% if resource.clan_info.clan and resource.clan.id == resource.clan_info.clan_id and not resource.clan_info.membership.role.is_MEMBER %}
     <th width="100px">Действия</th>
     {% endif %}
   </tr>
@@ -52,9 +52,9 @@
       <a href="{{url('game:heroes:show', hero.id)}}">{{hero.name}}</a>
       {{ hero.level }} уровня
     </td>
-    {% if resource.clan_info.clan and resource.clan.id == resource.clan_info.clan_id and not resource.clan_info.membership.role._is_MEMBER %}
+    {% if resource.clan_info.clan and resource.clan.id == resource.clan_info.clan_id and not resource.clan_info.membership.role.is_MEMBER %}
     <td>
-      {% if not role._is_LEADER %}
+      {% if not role.is_LEADER %}
       <div class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">изменить<b class="caret"></b></a>
         <ul class="dropdown-menu" role="menu">

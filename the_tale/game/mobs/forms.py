@@ -29,7 +29,7 @@ class MobRecordBaseForm(forms.Form):
 
     level = fields.IntegerField(label=u'минимальный уровень')
 
-    type = fields.TypedChoiceField(label=u'тип', choices=MOB_TYPE._choices(), coerce=MOB_TYPE._get_from_name)
+    type = fields.TypedChoiceField(label=u'тип', choices=MOB_TYPE.choices(), coerce=MOB_TYPE.get_from_name)
 
     terrains = fields.TypedMultipleChoiceField(label=u'места обитания', choices=TERRAIN._CHOICES, coerce=int)
 

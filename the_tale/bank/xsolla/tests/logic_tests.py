@@ -23,14 +23,14 @@ class CheckUserLogicTests(testcase.TestCase):
                                    external_md5='bla-bla',
                                    v1=self.user_email,
                                    v2=None,
-                                   v3=None)._is_WRONG_MD5)
+                                   v3=None).is_WRONG_MD5)
 
     def test_check_user__no_v1(self):
         self.assertTrue(check_user(command=COMMAND_TYPE.CHECK,
                                    external_md5=self.check_user_md5,
                                    v1=None,
                                    v2=None,
-                                   v3=None)._is_NOT_SPECIFIED_V1)
+                                   v3=None).is_NOT_SPECIFIED_V1)
 
     def test_check_user__user_exists(self):
         with mock.patch('the_tale.bank.logic.get_account_id', mock.Mock(return_value=13)) as bank_check_user:
@@ -38,7 +38,7 @@ class CheckUserLogicTests(testcase.TestCase):
                                        external_md5=self.check_user_md5,
                                        v1=self.user_email,
                                        v2=None,
-                                       v3=None)._is_USER_EXISTS)
+                                       v3=None).is_USER_EXISTS)
 
         self.assertEqual(bank_check_user.call_count, 1)
         self.assertEqual(bank_check_user.call_args, mock.call(email=self.user_email))
@@ -50,7 +50,7 @@ class CheckUserLogicTests(testcase.TestCase):
                                        external_md5=self.check_user_md5,
                                        v1=self.user_email,
                                        v2=None,
-                                       v3=None)._is_USER_NOT_EXISTS)
+                                       v3=None).is_USER_NOT_EXISTS)
 
         self.assertEqual(bank_check_user.call_count, 1)
         self.assertEqual(bank_check_user.call_args, mock.call(email=self.user_email))
@@ -109,7 +109,7 @@ class PayLogicTests(testcase.TestCase):
                                      v1=self.user_email, v2=None, v3=None,
                                      id=self.xsolla_id, sum=self.payment_sum, test=False, date=None, request_url=u'bla-bla.test.com')
 
-        self.assertTrue(result._is_SUCCESS)
+        self.assertTrue(result.is_SUCCESS)
         self.assertNotEqual(invoice_id, None)
         self.assertTrue(isinstance(invoice_id, int))
         self.assertEqual(InvoicePrototype._db_count(), 1)
@@ -122,7 +122,7 @@ class PayLogicTests(testcase.TestCase):
                                      v1=self.user_email, v2=None, v3=None,
                                      id=self.xsolla_id, sum=self.payment_sum, test=None, date=None, request_url=u'bla-bla.test.com')
 
-        self.assertTrue(result._is_SUCCESS)
+        self.assertTrue(result.is_SUCCESS)
         self.assertEqual(InvoicePrototype._db_count(), 1)
         self.assertFalse(InvoicePrototype._db_get_object(0).test)
 
@@ -134,7 +134,7 @@ class PayLogicTests(testcase.TestCase):
                                      v1=self.user_email, v2=None, v3=None,
                                      id=self.xsolla_id, sum=self.payment_sum, test='0', date=None, request_url=u'bla-bla.test.com')
 
-        self.assertTrue(result._is_SUCCESS)
+        self.assertTrue(result.is_SUCCESS)
         self.assertEqual(InvoicePrototype._db_count(), 1)
         self.assertFalse(InvoicePrototype._db_get_object(0).test)
 
@@ -146,7 +146,7 @@ class PayLogicTests(testcase.TestCase):
                                      v1=self.user_email, v2=None, v3=None,
                                      id=self.xsolla_id, sum=self.payment_sum, test='1', date=None, request_url=u'bla-bla.test.com')
 
-        self.assertTrue(result._is_SUCCESS)
+        self.assertTrue(result.is_SUCCESS)
         self.assertEqual(InvoicePrototype._db_count(), 1)
         self.assertTrue(InvoicePrototype._db_get_object(0).test)
 

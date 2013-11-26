@@ -159,12 +159,12 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.assertEqual(Post.objects.all().count(), 1)
 
         self.assertFalse(self.bill.apply())
-        self.assertTrue(self.bill.state._is_REJECTED)
+        self.assertTrue(self.bill.state.is_REJECTED)
 
         self.assertEqual(Post.objects.all().count(), 2)
 
         bill = BillPrototype.get_by_id(self.bill.id)
-        self.assertTrue(bill.state._is_REJECTED)
+        self.assertTrue(bill.state.is_REJECTED)
 
         places_storage.sync(force=True)
 
@@ -193,13 +193,13 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.assertEqual(Post.objects.all().count(), 1)
 
         self.assertTrue(self.bill.apply())
-        self.assertTrue(self.bill.state._is_ACCEPTED)
+        self.assertTrue(self.bill.state.is_ACCEPTED)
         self.assertEqual(self.bill.ends_at_turn, None)
 
         self.assertEqual(Post.objects.all().count(), 2)
 
         bill = BillPrototype.get_by_id(self.bill.id)
-        self.assertTrue(bill.state._is_ACCEPTED)
+        self.assertTrue(bill.state.is_ACCEPTED)
 
         places_storage.sync(force=True)
 
@@ -229,13 +229,13 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.bill.save()
 
         self.assertTrue(self.bill.apply())
-        self.assertTrue(self.bill.state._is_ACCEPTED)
+        self.assertTrue(self.bill.state.is_ACCEPTED)
         self.assertEqual(self.bill.ends_at_turn, TimePrototype.get_current_turn_number() + BILL_DURATION.YEAR.game_months * c.TURNS_IN_GAME_MONTH)
 
         self.assertEqual(Post.objects.all().count(), 2)
 
         bill = BillPrototype.get_by_id(self.bill.id)
-        self.assertTrue(bill.state._is_ACCEPTED)
+        self.assertTrue(bill.state.is_ACCEPTED)
 
         places_storage.sync(force=True)
 
@@ -256,8 +256,8 @@ class TestPrototypeEnd(BaseTestPrototypes):
         TimePrototype.get_current_time().increment_turn()
 
     def test_not_accepted(self):
-        for state in BILL_STATE._records:
-            if state._is_ACCEPTED:
+        for state in BILL_STATE.records:
+            if state.is_ACCEPTED:
                 continue
             self.bill.state = state
 
@@ -313,8 +313,8 @@ class GetApplicableBillsTest(BaseTestPrototypes):
 
     def test_wrong_state(self):
 
-        for state in BILL_STATE._records:
-            if state._is_VOTING:
+        for state in BILL_STATE.records:
+            if state.is_VOTING:
                 continue
             self.bill_1.state = state
             self.bill_1.save()
@@ -359,8 +359,8 @@ class GetBillsToEndTest(BaseTestPrototypes):
 
     def test_wrong_state(self):
 
-        for state in BILL_STATE._records:
-            if state._is_ACCEPTED:
+        for state in BILL_STATE.records:
+            if state.is_ACCEPTED:
                 continue
             self.bill_1.state = state
             self.bill_1.save()

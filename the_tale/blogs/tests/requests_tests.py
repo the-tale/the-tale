@@ -553,9 +553,9 @@ class TestModerateRequests(BaseTestRequests):
         self.assertEqual(ForumPostPrototype._db_count(), 1)
 
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:accept', args=[self.post.id]), {}))
-        self.assertTrue(PostPrototype.get_by_id(self.post.id).state._is_ACCEPTED)
+        self.assertTrue(PostPrototype.get_by_id(self.post.id).state.is_ACCEPTED)
 
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:decline', args=[self.post.id]), {}))
-        self.assertTrue(PostPrototype.get_by_id(self.post.id).state._is_DECLINED)
+        self.assertTrue(PostPrototype.get_by_id(self.post.id).state.is_DECLINED)
 
         self.assertEqual(ForumPostPrototype._db_count(), 2)

@@ -3,7 +3,7 @@ import datetime
 
 from django.db import models
 
-from rels.django_staff import TableIntegerField
+from rels.django import TableIntegerField
 
 from the_tale.game.relations import GENDER, RACE
 from the_tale.game.balance.enums import ANGEL_ENERGY_REGENERATION_TYPES

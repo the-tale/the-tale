@@ -22,13 +22,13 @@
   {% endif %}
 
   {% if resource.can_moderate_post %}
-  {% if not post.state._is_ACCEPTED %}
+  {% if not post.state.is_ACCEPTED %}
   <li class="pull-right" style="margin-left: 0.5em;">
     <a class="pgf-forms-post-simple" href="{{url('blogs:posts:accept', post.id)}}">принять</a>
   </li>
   {% endif %}
 
-  {% if not post.state._is_DECLINED %}
+  {% if not post.state.is_DECLINED %}
   <li class="pull-right" style="margin-left: 0.5em;">
     <a class="pgf-forms-post-simple" href="{{url('blogs:posts:decline', post.id)}}">заблокировать</a>
   </li>

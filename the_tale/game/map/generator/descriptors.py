@@ -16,7 +16,7 @@ class WIND_DIRECTION(rels.Table):
     text = rels.Column(unique=False)
     direction = rels.Column(unique=False)
 
-    _records = ( (0,  u'восточный', -math.pi*8.0/8.0),
+    records = ( (0,  u'восточный', -math.pi*8.0/8.0),
                  (1,  u'юго-восточно-восточный', -math.pi*7.0/8.0),
                  (2,  u'юго-восточный', -math.pi*6.0/8.0),
                  (3,  u'юго-юго-восточный', -math.pi*5.0/8.0),
@@ -42,7 +42,7 @@ class WIND_POWER(rels.Table):
     text = rels.Column(unique=False)
     power = rels.Column()
 
-    _records = ((0,  u'штиль', 0.0),
+    records = ((0,  u'штиль', 0.0),
                 (1,  u'тихий ветер', 0.05),
                 (2,  u'лёгкий ветер', 0.10),
                 (3,  u'слабый ветер', 0.17),
@@ -62,7 +62,7 @@ class TEMPERATURE_POWER(rels.Table):
     text = rels.Column(unique=False)
     temperature = rels.Column()
 
-    _records = ( (0, u'ужасно холодно', 0.00),
+    records = ( (0, u'ужасно холодно', 0.00),
                  (1, u'очень холодно', 0.10),
                  (2, u'холодно', 0.25),
                  (3, u'прохладно', 0.35),
@@ -78,7 +78,7 @@ class WETNESS_POWER(rels.Table):
     text = rels.Column(unique=False)
     wetness = rels.Column()
 
-    _records = ( (0, u'ужасно сухо', 0.00),
+    records = ( (0, u'ужасно сухо', 0.00),
                  (1, u'очень сухо', 0.05),
                  (2, u'сухо', 0.15),
                  (3, u'пониженная влажность', 0.30),
@@ -102,17 +102,17 @@ class WETNESS_POWER(rels.Table):
 
 def _get_wind_direction(cell):
     return choose_nearest(math.atan2(cell.atmo_wind[1], cell.atmo_wind[0]),
-                          [(r.direction, r) for r in WIND_DIRECTION._records])
+                          [(r.direction, r) for r in WIND_DIRECTION.records])
 
 def _get_wind_power(cell):
     wind_power = math.hypot(*cell.atmo_wind)
-    return choose_from_interval(wind_power, [(r.power, r) for r in WIND_POWER._records])
+    return choose_from_interval(wind_power, [(r.power, r) for r in WIND_POWER.records])
 
 def _get_temperature(cell):
-    return choose_from_interval(cell.mid_temperature, [(r.temperature, r) for r in TEMPERATURE_POWER._records])
+    return choose_from_interval(cell.mid_temperature, [(r.temperature, r) for r in TEMPERATURE_POWER.records])
 
 def _get_wetness(cell):
-    return choose_from_interval(cell.mid_wetness,  [(r.wetness, r) for r in WETNESS_POWER._records])
+    return choose_from_interval(cell.mid_wetness,  [(r.wetness, r) for r in WETNESS_POWER.records])
 
 
 
@@ -135,10 +135,10 @@ class UICell(object):
     def deserialize(cls, data):
         cell = cls()
 
-        cell.wind_direction = WIND_DIRECTION._index_value[data[0]]
-        cell.wind_power = WIND_POWER._index_value[data[1]]
-        cell.temperature = TEMPERATURE_POWER._index_value[data[2]]
-        cell.wetness = WETNESS_POWER._index_value[data[3]]
+        cell.wind_direction = WIND_DIRECTION.index_value[data[0]]
+        cell.wind_power = WIND_POWER.index_value[data[1]]
+        cell.temperature = TEMPERATURE_POWER.index_value[data[2]]
+        cell.wetness = WETNESS_POWER.index_value[data[3]]
 
         return cell
 

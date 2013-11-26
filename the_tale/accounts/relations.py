@@ -1,12 +1,12 @@
 # coding: utf-8
 
 from rels import Column
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 
 class AWARD_TYPE(DjangoEnum):
 
-    _records = ( ('BUG_MINOR', 0, u'найдена ошибка: небольшая'),
+    records = ( ('BUG_MINOR', 0, u'найдена ошибка: небольшая'),
                  ('BUG_NORMAL', 1, u'найдена ошибка: обычная'),
                  ('BUG_MAJOR', 2, u'найдена ошибка: существенная'),
                  ('CONTEST_1_PLACE', 3, u'конкурс: 1-ое место'),
@@ -17,7 +17,7 @@ class AWARD_TYPE(DjangoEnum):
                  ('STANDARD_MAJOR', 8, u'стандартная награда: существенная') )
 
 class CHANGE_CREDENTIALS_TASK_STATE(DjangoEnum):
-    _records = ( ('WAITING', 0, u'ожидает обработки'),
+    records = ( ('WAITING', 0, u'ожидает обработки'),
                  ('EMAIL_SENT', 1, u'отослано письмо'),
                  ('PROCESSED', 2, u'обработана'),
                  ('UNPROCESSED', 3, u'не обработана'),
@@ -27,14 +27,14 @@ class CHANGE_CREDENTIALS_TASK_STATE(DjangoEnum):
 
 
 class BAN_TYPE(DjangoEnum):
-    _records = ( ('FORUM', 0, u'запрет общения'),
+    records = ( ('FORUM', 0, u'запрет общения'),
                  ('GAME',  1, u'запрет игры'),
                  ('TOTAL', 2, u'запрет всего'),)
 
 class BAN_TIME(DjangoEnum):
     days = Column()
 
-    _records = ( ('DAYS', 0, u'3 дня', 3),
+    records = ( ('DAYS', 0, u'3 дня', 3),
                  ('WEEK', 1, u'неделя', 7),
                  ('MONTH', 2, u'месяц', 30),
                  ('HALF_YEAR', 4, u'полгода', 180),

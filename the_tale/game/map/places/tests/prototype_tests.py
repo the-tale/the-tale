@@ -53,7 +53,7 @@ class PlacePrototypeTests(testcase.TestCase):
         self.assertEqual(signal_counter.call_count, 0)
 
     def test_sync_race_signal_when_race_changed(self):
-        for race in RACE._records:
+        for race in RACE.records:
             if self.p1.race != race:
                 self.p1.race = race
                 self.p1.save()
@@ -297,7 +297,7 @@ class BuildingPrototypeTests(testcase.TestCase):
 
         building.amortize(1000)
 
-        self.assertTrue(building.state._is_DESTROYED)
+        self.assertTrue(building.state.is_DESTROYED)
 
 
     def test_amortization_grows(self):
@@ -340,8 +340,8 @@ class ResourceExchangeTests(testcase.TestCase):
         super(ResourceExchangeTests, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
-        self.resource_1 = random.choice(RESOURCE_EXCHANGE_TYPE._records)
-        self.resource_2 = random.choice(RESOURCE_EXCHANGE_TYPE._records)
+        self.resource_1 = random.choice(RESOURCE_EXCHANGE_TYPE.records)
+        self.resource_2 = random.choice(RESOURCE_EXCHANGE_TYPE.records)
 
         self.exchange = ResourceExchangePrototype.create(place_1=self.place_1,
                                                          place_2=self.place_2,

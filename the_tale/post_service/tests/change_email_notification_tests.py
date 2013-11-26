@@ -40,7 +40,7 @@ class ChangeEmailNotificationTests(testcase.TestCase):
         task, message = self.create_task_and_message(self.account, 'user_1_new')
         self.assertEqual(len(mail.outbox), 0)
         message.process()
-        self.assertTrue(message.state._is_PROCESSED)
+        self.assertTrue(message.state.is_PROCESSED)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, ['user_1_new@test.com'])
 
@@ -52,7 +52,7 @@ class ChangeEmailNotificationTests(testcase.TestCase):
         task, message = self.create_task_and_message(get_system_user(), 'user_1_new')
         self.assertEqual(len(mail.outbox), 0)
         message.process()
-        self.assertTrue(message.state._is_PROCESSED)
+        self.assertTrue(message.state.is_PROCESSED)
         self.assertEqual(len(mail.outbox), 0)
 
     def test_mail_send_for_fast_account(self):
@@ -66,7 +66,7 @@ class ChangeEmailNotificationTests(testcase.TestCase):
         message = MessagePrototype.get_priority_message()
         message.process()
 
-        self.assertTrue(message.state._is_PROCESSED)
+        self.assertTrue(message.state.is_PROCESSED)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, ['user_2_new@test.com'])
 

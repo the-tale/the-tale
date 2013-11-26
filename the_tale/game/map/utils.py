@@ -4,7 +4,7 @@ from the_tale.game.relations import RACE
 
 def get_race_percents(persons):
 
-    race_powers = dict( (race.value, 0) for race in RACE._records)
+    race_powers = dict( (race.value, 0) for race in RACE.records)
     for person in persons:
         race_powers[person.race.value] += person.power
 

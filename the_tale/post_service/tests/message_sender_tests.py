@@ -26,14 +26,14 @@ class MessageSenderTests(testcase.TestCase):
 
     def test_send_message_skipped(self):
         self.worker.send_message(self.message)
-        self.assertTrue(self.message.state._is_SKIPPED)
+        self.assertTrue(self.message.state.is_SKIPPED)
 
     def test_send_message_processed(self):
         settings[post_service_settings.SETTINGS_ALLOWED_KEY] = 'allowed'
         self.worker.send_message(self.message)
-        self.assertTrue(self.message.state._is_PROCESSED)
+        self.assertTrue(self.message.state.is_PROCESSED)
 
     def test_send_message_forces_process(self):
         settings[post_service_settings.SETTINGS_FORCE_ALLOWED_KEY] = TestHandler().settings_type_uid
         self.worker.send_message(self.message)
-        self.assertTrue(self.message.state._is_PROCESSED)
+        self.assertTrue(self.message.state.is_PROCESSED)

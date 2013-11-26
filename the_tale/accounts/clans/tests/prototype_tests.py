@@ -42,7 +42,7 @@ class ClanPrototypeTests(testcase.TestCase):
 
         self.assertEqual(membership.clan_id, self.clan.id)
         self.assertEqual(membership.account_id, self.account.id)
-        self.assertTrue(membership.role._is_LEADER)
+        self.assertTrue(membership.role.is_LEADER)
 
         self.account.reload()
         self.assertEqual(self.account.clan_id, self.clan.id)

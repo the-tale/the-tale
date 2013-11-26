@@ -1,24 +1,24 @@
 # coding: utf-8
 
 from rels import Column
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 from the_tale.game.balance import constants as c
 
 
 class BUILDING_STATE(DjangoEnum):
-    _records = ( ('WORKING', 0, u'работает'),
+    records = ( ('WORKING', 0, u'работает'),
                  ('DESTROYED', 1, u'уничтожено') )
 
 class CITY_PARAMETERS(DjangoEnum):
-    _records = ( ('PRODUCTION', 0, u'Производство'),
+    records = ( ('PRODUCTION', 0, u'Производство'),
                  ('SAFETY', 1, u'Безопасность'),
                  ('FREEDOM', 2, u'Свободы'),
                  ('TRANSPORT', 3, u'Транспорт'),)
 
 
 class BUILDING_TYPE(DjangoEnum):
-    _records = ( ('SMITHY', 0, u'кузница'),
+    records = ( ('SMITHY', 0, u'кузница'),
                  ('FISHING_LODGE', 1, u'домик рыболова'),
                  ('TAILOR_SHOP', 2, u'мастерская портного'),
                  ('SAWMILL', 3, u'лесопилка'),
@@ -51,7 +51,7 @@ class RESOURCE_EXCHANGE_TYPE(DjangoEnum):
     SAFETY_BASE = c.PLACE_SAFETY_FROM_BEST_PERSON / 10.0
     TRANSPORT_BASE = c.PLACE_TRANSPORT_FROM_BEST_PERSON / 10.0
 
-    _records = ( ('NONE',  0, u'ничего', None, 0),
+    records = ( ('NONE',  0, u'ничего', None, 0),
                  ('PRODUCTION_SMALL',  1, u'%d продукции' % PRODUCTION_BASE, CITY_PARAMETERS.PRODUCTION, PRODUCTION_BASE),
                  ('PRODUCTION_NORMAL', 2, u'%d продукции' % (PRODUCTION_BASE * 2), CITY_PARAMETERS.PRODUCTION, PRODUCTION_BASE * 2),
                  ('PRODUCTION_LARGE',  3, u'%d продукции' % (PRODUCTION_BASE * 4), CITY_PARAMETERS.PRODUCTION, PRODUCTION_BASE * 4),

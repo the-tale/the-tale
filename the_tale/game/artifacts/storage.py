@@ -18,7 +18,7 @@ class ArtifactsStorage(create_storage_class('artifacts records change time', Art
         self._artifacts_by_uuids = {}
         self.artifacts = []
         self.loot = []
-        self._artifacts_by_types = { artifact_type: [] for artifact_type in ARTIFACT_TYPE._records}
+        self._artifacts_by_types = { artifact_type: [] for artifact_type in ARTIFACT_TYPE.records}
         self._mob_artifacts = {}
         self._mob_loot = {}
 
@@ -36,7 +36,7 @@ class ArtifactsStorage(create_storage_class('artifacts records change time', Art
         if not item.state.is_enabled:
             return
 
-        if item.type._is_USELESS:
+        if item.type.is_USELESS:
             self.loot.append(item)
         else:
             self.artifacts.append(item)

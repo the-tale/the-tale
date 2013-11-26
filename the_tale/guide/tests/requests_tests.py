@@ -57,9 +57,9 @@ class TestRequests(TestCase):
     def test_hero_abilities(self):
         from the_tale.game.heroes.habilities import ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
 
-        for ability_type in [None] + list(ABILITY_TYPE._records):
-            for activation_type in [None] + list(ABILITY_ACTIVATION_TYPE._records):
-                for availability in ABILITY_AVAILABILITY._records:
+        for ability_type in [None] + list(ABILITY_TYPE.records):
+            for activation_type in [None] + list(ABILITY_ACTIVATION_TYPE.records):
+                for availability in ABILITY_AVAILABILITY.records:
                     args = {'availability': availability.value}
                     if ability_type is not None:
                         args['ability_type'] = ability_type.value

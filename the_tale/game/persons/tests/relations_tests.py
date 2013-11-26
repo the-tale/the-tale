@@ -14,7 +14,7 @@ class RelationsTests(testcase.TestCase):
 
     def test_profession_to_race_mastery(self):
         for profession, masteries in PROFESSION_TO_RACE_MASTERY.items():
-            self.assertEqual(len(masteries), len(RACE._records))
+            self.assertEqual(len(masteries), len(RACE.records))
 
             self.assertTrue(all([0 < mastery < 1.0001 for mastery in masteries.values()]))
 

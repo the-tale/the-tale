@@ -210,7 +210,7 @@ class HeroPrototype(BasePrototype):
 
     def buy_artifact_choices(self, equip, with_prefered_slot):
 
-        allowed_slots = list(EQUIPMENT_SLOT._records)
+        allowed_slots = list(EQUIPMENT_SLOT.records)
 
         if self.preferences.favorite_item and equip:
             allowed_slots.remove(self.preferences.favorite_item)
@@ -296,7 +296,7 @@ class HeroPrototype(BasePrototype):
 
 
     def sharp_artifact(self):
-        choices = list(EQUIPMENT_SLOT._records)
+        choices = list(EQUIPMENT_SLOT.records)
         random.shuffle(choices)
 
         if self.preferences.equipment_slot is not None:
@@ -392,9 +392,9 @@ class HeroPrototype(BasePrototype):
     def get_normalized_name(self):
         if not hasattr(self, '_normalized_name'):
             if not self.is_name_changed:
-                if self.gender._is_MASCULINE:
+                if self.gender.is_MASCULINE:
                     self._normalized_name = get_dictionary().get_word(u'герой')
-                elif self.gender._is_FEMININE:
+                elif self.gender.is_FEMININE:
                     self._normalized_name = get_dictionary().get_word(u'героиня')
             else:
                 self._normalized_name = Noun.deserialize(s11n.from_json(self._model.name_forms))
@@ -407,7 +407,7 @@ class HeroPrototype(BasePrototype):
     normalized_name = property(get_normalized_name, set_normalized_name)
 
     def switch_spending(self):
-        priorities = {record:record.priority for record in ITEMS_OF_EXPENDITURE._records}
+        priorities = {record:record.priority for record in ITEMS_OF_EXPENDITURE.records}
         priorities = self.abilities.update_items_of_expenditure_priorities(self, priorities)
         self._model.next_spending = random_value_by_priority(list(priorities.items()))
 
@@ -548,9 +548,9 @@ class HeroPrototype(BasePrototype):
         return preferences
 
     def reset_preference(self, preference_type):
-        if preference_type._is_ENERGY_REGENERATION_TYPE:
+        if preference_type.is_ENERGY_REGENERATION_TYPE:
             self.preferences.set_energy_regeneration_type(self.race.energy_regeneration, change_time=datetime.datetime.fromtimestamp(0))
-        elif preference_type._is_RISK_LEVEL:
+        elif preference_type.is_RISK_LEVEL:
             self.preferences.set_risk_level(RISK_LEVEL.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
         else:
             self.preferences._reset(preference_type)
@@ -657,7 +657,7 @@ class HeroPrototype(BasePrototype):
         self.abilities.reset()
 
     def randomize_equip(self):
-        for slot in EQUIPMENT_SLOT._records:
+        for slot in EQUIPMENT_SLOT.records:
             self.equipment.unequip(slot)
 
             artifacts_list = artifacts_storage.artifacts_for_type([slot.artifact_type])
@@ -779,7 +779,7 @@ class HeroPrototype(BasePrototype):
 
         start_place = places_storage.random_place()
 
-        race = random.choice(RACE._records)
+        race = random.choice(RACE.records)
 
         gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
 
@@ -869,17 +869,17 @@ class HeroPrototype(BasePrototype):
 
     def get_achievement_type_value(self, achievement_type):
 
-        if achievement_type._is_TIME:
+        if achievement_type.is_TIME:
             return f.turns_to_game_time(self.last_rare_operation_at_turn - self.created_at_turn)[0]
-        elif achievement_type._is_MONEY:
+        elif achievement_type.is_MONEY:
             return self.statistics.money_earned
-        elif achievement_type._is_MOBS:
+        elif achievement_type.is_MOBS:
             return self.statistics.pve_kills
-        elif achievement_type._is_ARTIFACTS:
+        elif achievement_type.is_ARTIFACTS:
             return self.statistics.artifacts_had
-        elif achievement_type._is_QUESTS:
+        elif achievement_type.is_QUESTS:
             return self.statistics.quests_done
-        elif achievement_type._is_DEATHS:
+        elif achievement_type.is_DEATHS:
             return self.statistics.pve_deaths
 
         raise exceptions.UnkwnownAchievementTypeError(achievement_type=achievement_type)

@@ -4,7 +4,7 @@ import datetime
 
 from django.db import models
 
-from rels.django_staff import TableIntegerField
+from rels.django import TableIntegerField
 
 from the_tale.common.utils.enum import create_enum
 

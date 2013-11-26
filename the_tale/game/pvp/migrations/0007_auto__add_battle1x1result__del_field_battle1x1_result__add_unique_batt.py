@@ -14,7 +14,7 @@ class Migration(SchemaMigration):
             ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('participant_1', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['accounts.Account'])),
             ('participant_2', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['accounts.Account'])),
-            ('result', self.gf('rels.django_staff.TableIntegerField')(db_index=True)),
+            ('result', self.gf('rels.django.TableIntegerField')(db_index=True)),
         ))
         db.send_create_signal(u'pvp', ['Battle1x1Result'])
 
@@ -29,7 +29,7 @@ class Migration(SchemaMigration):
 
 
         # Changing field 'Battle1x1.state'
-        db.alter_column(u'pvp_battle1x1', 'state', self.gf('rels.django_staff.TableIntegerField')())
+        db.alter_column(u'pvp_battle1x1', 'state', self.gf('rels.django.TableIntegerField')())
     def backwards(self, orm):
         # Removing unique constraint on 'Battle1x1', fields ['account']
         db.delete_unique(u'pvp_battle1x1', ['account_id'])
@@ -95,7 +95,7 @@ class Migration(SchemaMigration):
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'enemy': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'unique': 'True', 'null': 'True', 'to': u"orm['accounts.Account']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'state': ('rels.django_staff.TableIntegerField', [], {'db_index': 'True'}),
+            'state': ('rels.django.TableIntegerField', [], {'db_index': 'True'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
         u'pvp.battle1x1result': {
@@ -104,7 +104,7 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'participant_1': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['accounts.Account']"}),
             'participant_2': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['accounts.Account']"}),
-            'result': ('rels.django_staff.TableIntegerField', [], {'db_index': 'True'})
+            'result': ('rels.django.TableIntegerField', [], {'db_index': 'True'})
         }
     }
 

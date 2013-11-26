@@ -86,10 +86,10 @@ class AbilitiesPrototype(object):
     def all(self): return self.abilities.values()
 
     @property
-    def active_abilities(self): return [ability for ability in self.abilities.values() if ability.activation_type._is_ACTIVE]
+    def active_abilities(self): return [ability for ability in self.abilities.values() if ability.activation_type.is_ACTIVE]
 
     @property
-    def passive_abilities(self): return [ability for ability in self.abilities.values() if ability.activation_type._is_PASSIVE]
+    def passive_abilities(self): return [ability for ability in self.abilities.values() if ability.activation_type.is_PASSIVE]
 
     def has(self, ability_id): return ability_id in self.abilities
 
@@ -129,10 +129,10 @@ class AbilitiesPrototype(object):
                       for a in ability_classes]
 
         if free_active_slots <= 0:
-            candidates = filter(lambda a: not a.activation_type._is_ACTIVE or self.has(a.get_id()), candidates) # pylint: disable=W0110
+            candidates = filter(lambda a: not a.activation_type.is_ACTIVE or self.has(a.get_id()), candidates) # pylint: disable=W0110
 
         if free_passive_slots <= 0:
-            candidates = filter(lambda a: not a.activation_type._is_PASSIVE or self.has(a.get_id()), candidates) # pylint: disable=W0110
+            candidates = filter(lambda a: not a.activation_type.is_PASSIVE or self.has(a.get_id()), candidates) # pylint: disable=W0110
 
         return candidates
 

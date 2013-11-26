@@ -90,9 +90,9 @@ def strike(attacker, defender, messanger):
 
     ability = attacker.choose_ability()
 
-    if ability.LOGIC_TYPE._is_WITHOUT_CONTACT:
+    if ability.LOGIC_TYPE.is_WITHOUT_CONTACT:
         strike_without_contact(ability, attacker, defender, messanger)
-    elif ability.LOGIC_TYPE._is_WITH_CONTACT:
+    elif ability.LOGIC_TYPE.is_WITH_CONTACT:
         strike_with_contact(ability, attacker, defender, messanger)
 
 

@@ -15,7 +15,7 @@ class Migration(SchemaMigration):
 
 
         # Changing field 'Hero.next_spending'
-        db.alter_column(u'heroes_hero', 'next_spending', self.gf('rels.django_staff.TableIntegerField')())
+        db.alter_column(u'heroes_hero', 'next_spending', self.gf('rels.django.TableIntegerField')())
     def backwards(self, orm):
         # Deleting field 'Hero.stat_money_spend_for_experience'
         db.delete_column(u'heroes_hero', 'stat_money_spend_for_experience')
@@ -98,7 +98,7 @@ class Migration(SchemaMigration):
             'money': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
             'name_forms': ('django.db.models.fields.TextField', [], {'default': "''", 'blank': 'True'}),
-            'next_spending': ('rels.django_staff.TableIntegerField', [], {}),
+            'next_spending': ('rels.django.TableIntegerField', [], {}),
             'places_history': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
             'pos_from_x': ('django.db.models.fields.IntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
             'pos_from_y': ('django.db.models.fields.IntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
@@ -176,7 +176,7 @@ class Migration(SchemaMigration):
             'place': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'persons'", 'to': u"orm['places.Place']"}),
             'race': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'state': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'type': ('rels.django_staff.TableIntegerField', [], {})
+            'type': ('rels.django.TableIntegerField', [], {})
         },
         u'places.place': {
             'Meta': {'ordering': "('name',)", 'object_name': 'Place'},

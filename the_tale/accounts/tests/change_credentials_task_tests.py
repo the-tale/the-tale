@@ -35,7 +35,7 @@ class PostponedChangeCredentialsTaskTests(testcase.TestCase):
     def test_create(self):
         self.assertEqual(self.postponed_task.processed_data, {'next_url': url('accounts:profile:edited')})
         self.assertEqual(self.postponed_task.task_id, self.task.id)
-        self.assertTrue(self.postponed_task.state._is_UNPROCESSED)
+        self.assertTrue(self.postponed_task.state.is_UNPROCESSED)
 
     def test_serialization(self):
         self.assertEqual(self.postponed_task.serialize(), ChangeCredentials.deserialize(self.postponed_task.serialize()).serialize())
@@ -74,9 +74,9 @@ class PostponedChangeCredentialsTaskTests(testcase.TestCase):
     def test_process__wrong_state(self):
         self.postponed_task.state = CHANGE_CREDENTIALS_STATE.PROCESSED
         self.assertEqual(self.postponed_task.process(main_task=mock.Mock()), POSTPONED_TASK_LOGIC_RESULT.ERROR)
-        self.assertTrue(self.postponed_task.state._is_WRONG_STATE)
+        self.assertTrue(self.postponed_task.state.is_WRONG_STATE)
 
     def test_process(self):
         self.assertEqual(self.postponed_task.process(main_task=mock.Mock()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
-        self.assertTrue(self.postponed_task.state._is_PROCESSED)
+        self.assertTrue(self.postponed_task.state.is_PROCESSED)
         self.assertEqual(django_authenticate(nick='test_nick', password='222222').email, 'test_user@test.ru')

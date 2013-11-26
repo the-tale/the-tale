@@ -11,7 +11,7 @@
                {{ ability.availability.text }},
                {{ ability.activation_type.text -}}
 
-               {%- if ability.type._is_BATTLE -%},
+               {%- if ability.type.is_BATTLE -%},
                {% if ability.damage_type is not none %}
                {{ability.damage_type.text}} урон
                {% else %}

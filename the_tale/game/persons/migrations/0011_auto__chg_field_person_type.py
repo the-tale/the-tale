@@ -10,7 +10,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
 
         # Changing field 'Person.type'
-        db.alter_column('persons_person', 'type', self.gf('rels.django_staff.TableIntegerField')())
+        db.alter_column('persons_person', 'type', self.gf('rels.django.TableIntegerField')())
     def backwards(self, orm):
 
         # Changing field 'Person.type'
@@ -30,7 +30,7 @@ class Migration(SchemaMigration):
             'place': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'persons'", 'to': "orm['places.Place']"}),
             'race': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'state': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'type': ('rels.django_staff.TableIntegerField', [], {})
+            'type': ('rels.django.TableIntegerField', [], {})
         },
         'places.place': {
             'Meta': {'ordering': "('name',)", 'object_name': 'Place'},

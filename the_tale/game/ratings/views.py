@@ -41,47 +41,47 @@ class RatingResource(Resource):
         place_getter = None
         value_getter = None
 
-        if self.rating_type._is_MIGHT:
+        if self.rating_type.is_MIGHT:
             ratings_query = ratings_query.filter(account__ratingvalues__might__gt=0).order_by('might_place')
             place_getter = lambda places: places.might_place
             value_getter = lambda values: values.might
 
-        elif self.rating_type._is_BILLS:
+        elif self.rating_type.is_BILLS:
             ratings_query = ratings_query.filter(account__ratingvalues__bills_count__gt=0).order_by('bills_count_place')
             place_getter = lambda places: places.bills_count_place
             value_getter = lambda values: values.bills_count
 
-        elif self.rating_type._is_POWER:
+        elif self.rating_type.is_POWER:
             ratings_query = ratings_query.order_by('power_place')
             place_getter = lambda places: places.power_place
             value_getter = lambda values: values.power
 
-        elif self.rating_type._is_LEVEL:
+        elif self.rating_type.is_LEVEL:
             ratings_query = ratings_query.order_by('level_place')
             place_getter = lambda places: places.level_place
             value_getter = lambda values: values.level
 
-        elif self.rating_type._is_PHRASES:
+        elif self.rating_type.is_PHRASES:
             ratings_query = ratings_query.filter(account__ratingvalues__phrases_count__gt=0).order_by('phrases_count_place')
             place_getter = lambda places: places.phrases_count_place
             value_getter = lambda values: values.phrases_count
 
-        elif self.rating_type._is_PVP_BATTLES_1x1_NUMBER:
+        elif self.rating_type.is_PVP_BATTLES_1x1_NUMBER:
             ratings_query = ratings_query.filter(account__ratingvalues__pvp_battles_1x1_number__gt=0).order_by('pvp_battles_1x1_number_place')
             place_getter = lambda places: places.pvp_battles_1x1_number_place
             value_getter = lambda values: values.pvp_battles_1x1_number
 
-        elif self.rating_type._is_PVP_BATTLES_1x1_VICTORIES:
+        elif self.rating_type.is_PVP_BATTLES_1x1_VICTORIES:
             ratings_query = ratings_query.filter(account__ratingvalues__pvp_battles_1x1_victories__gt=0).order_by('pvp_battles_1x1_victories_place')
             place_getter = lambda places: places.pvp_battles_1x1_victories_place
             value_getter = lambda values: '%.2f%%' % (values.pvp_battles_1x1_victories * 100)
 
-        elif self.rating_type._is_REFERRALS_NUMBER:
+        elif self.rating_type.is_REFERRALS_NUMBER:
             ratings_query = ratings_query.filter(account__ratingvalues__referrals_number__gt=0).order_by('referrals_number_place')
             place_getter = lambda places: places.referrals_number_place
             value_getter = lambda values: values.referrals_number
 
-        elif self.rating_type._is_ACHIEVEMENTS_POINTS:
+        elif self.rating_type.is_ACHIEVEMENTS_POINTS:
             ratings_query = ratings_query.filter(account__ratingvalues__achievements_points__gt=0).order_by('achievements_points_place')
             place_getter = lambda places: places.achievements_points_place
             value_getter = lambda values: values.achievements_points

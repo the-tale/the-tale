@@ -2,7 +2,7 @@
 
 from django.db import models
 
-from rels.django_staff import TableIntegerField
+from rels.django import TableIntegerField
 
 from the_tale.game.pvp.relations import BATTLE_1X1_STATE, BATTLE_1X1_RESULT
 

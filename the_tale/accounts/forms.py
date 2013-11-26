@@ -36,12 +36,12 @@ class ResetPasswordForm(forms.Form):
 
 
 class GiveAwardForm(forms.Form):
-    type = fields.TypedChoiceField(label=u'тип', choices=AWARD_TYPE._choices(), coerce=AWARD_TYPE._get_from_name)
+    type = fields.TypedChoiceField(label=u'тип', choices=AWARD_TYPE.choices(), coerce=AWARD_TYPE.get_from_name)
     description = fields.TextField(label=u'обоснование', required=False)
 
 
 class BanForm(forms.Form):
-    ban_type = fields.TypedChoiceField(label=u'тип', choices=BAN_TYPE._choices(), coerce=BAN_TYPE._get_from_name)
-    ban_time = fields.TypedChoiceField(label=u'длительность', choices=BAN_TIME._choices(), coerce=BAN_TIME._get_from_name)
+    ban_type = fields.TypedChoiceField(label=u'тип', choices=BAN_TYPE.choices(), coerce=BAN_TYPE.get_from_name)
+    ban_time = fields.TypedChoiceField(label=u'длительность', choices=BAN_TIME.choices(), coerce=BAN_TIME.get_from_name)
 
     description = fields.TextField(label=u'обоснование', required=True)

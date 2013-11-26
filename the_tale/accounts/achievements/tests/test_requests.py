@@ -53,7 +53,7 @@ class AchievementsIndexTests(_BaseRequestTests):
     def test_anonymouse(self):
         self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-last-achievements', 0),
                                                                     ('pgf-all-achievements', 0),
-                                                                    ('pgf-no-last-achievements', 0)] + [group.text for group in ACHIEVEMENT_GROUP._records])
+                                                                    ('pgf-no-last-achievements', 0)] + [group.text for group in ACHIEVEMENT_GROUP.records])
 
     def test_logined_redirect(self):
         self.request_login(self.account_2.email)
@@ -64,14 +64,14 @@ class AchievementsIndexTests(_BaseRequestTests):
         test_url = url('accounts:achievements:', account=self.account_2.id)
         self.check_html_ok(self.request_html(test_url), texts=[('pgf-last-achievements', 1),
                                                                ('pgf-all-achievements', 1),
-                                                               ('pgf-no-last-achievements', 1)] + [group.text for group in ACHIEVEMENT_GROUP._records])
+                                                               ('pgf-no-last-achievements', 1)] + [group.text for group in ACHIEVEMENT_GROUP.records])
 
     def test_account_specified(self):
         self.request_login(self.account_1.email)
         test_url = url('accounts:achievements:', account=self.account_2.id)
         self.check_html_ok(self.request_html(test_url), texts=[('pgf-last-achievements', 1),
                                                                ('pgf-all-achievements', 1),
-                                                               ('pgf-no-last-achievements', 1)] + [group.text for group in ACHIEVEMENT_GROUP._records])
+                                                               ('pgf-no-last-achievements', 1)] + [group.text for group in ACHIEVEMENT_GROUP.records])
 
     def test_last_achievements(self):
         self.request_login(self.account_1.email)
@@ -79,7 +79,7 @@ class AchievementsIndexTests(_BaseRequestTests):
         self.check_html_ok(self.request_html(test_url), texts=[('pgf-last-achievements', 1),
                                                                self.achievement_1.caption,
                                                                ('pgf-all-achievements', 1),
-                                                               ('pgf-no-last-achievements', 0)] + [group.text for group in ACHIEVEMENT_GROUP._records])
+                                                               ('pgf-no-last-achievements', 0)] + [group.text for group in ACHIEVEMENT_GROUP.records])
 
 
 

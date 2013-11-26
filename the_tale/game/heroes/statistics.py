@@ -38,25 +38,25 @@ class HeroStatistics(object):
     def change_money(self, source, value):
 
         with achievements_storage.verify(type=ACHIEVEMENT_TYPE.MONEY, object=self.hero):
-            if source._is_EARNED_FROM_LOOT:
+            if source.is_EARNED_FROM_LOOT:
                 self.hero._model.stat_money_earned_from_loot += value
-            elif source._is_EARNED_FROM_ARTIFACTS:
+            elif source.is_EARNED_FROM_ARTIFACTS:
                 self.hero._model.stat_money_earned_from_artifacts += value
-            elif source._is_EARNED_FROM_QUESTS:
+            elif source.is_EARNED_FROM_QUESTS:
                 self.hero._model.stat_money_earned_from_quests += value
-            elif source._is_EARNED_FROM_HELP:
+            elif source.is_EARNED_FROM_HELP:
                 self.hero._model.stat_money_earned_from_help += value
-            elif source._is_SPEND_FOR_HEAL:
+            elif source.is_SPEND_FOR_HEAL:
                 self.hero._model.stat_money_spend_for_heal += value
-            elif source._is_SPEND_FOR_ARTIFACTS:
+            elif source.is_SPEND_FOR_ARTIFACTS:
                 self.hero._model.stat_money_spend_for_artifacts += value
-            elif source._is_SPEND_FOR_SHARPENING:
+            elif source.is_SPEND_FOR_SHARPENING:
                 self.hero._model.stat_money_spend_for_sharpening += value
-            elif source._is_SPEND_FOR_USELESS:
+            elif source.is_SPEND_FOR_USELESS:
                 self.hero._model.stat_money_spend_for_useless += value
-            elif source._is_SPEND_FOR_IMPACT:
+            elif source.is_SPEND_FOR_IMPACT:
                 self.hero._model.stat_money_spend_for_impact += value
-            elif source._is_SPEND_FOR_EXPERIENCE:
+            elif source.is_SPEND_FOR_EXPERIENCE:
                 self.hero._model.stat_money_spend_for_experience += value
 
             else:

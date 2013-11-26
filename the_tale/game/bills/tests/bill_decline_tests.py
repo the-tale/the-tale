@@ -115,10 +115,10 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
         self.assertEqual(len(resource_exchange_storage.all()), 0)
 
         bill = BillPrototype.get_by_id(self.bill.id)
-        self.assertTrue(bill.state._is_ACCEPTED)
+        self.assertTrue(bill.state.is_ACCEPTED)
 
         declined_bill = BillPrototype.get_by_id(self.declined_bill.id)
-        self.assertTrue(declined_bill.state._is_ACCEPTED)
+        self.assertTrue(declined_bill.state.is_ACCEPTED)
         self.assertTrue(declined_bill.is_declined)
         self.assertTrue(declined_bill.declined_by.id, bill.id)
 
@@ -151,9 +151,9 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
         self.assertEqual(len(resource_exchange_storage.all()), 0)
 
         bill = BillPrototype.get_by_id(self.bill.id)
-        self.assertTrue(bill.state._is_ACCEPTED)
+        self.assertTrue(bill.state.is_ACCEPTED)
 
         declined_bill = BillPrototype.get_by_id(self.declined_bill.id)
-        self.assertTrue(declined_bill.state._is_ACCEPTED)
+        self.assertTrue(declined_bill.state.is_ACCEPTED)
         self.assertTrue(declined_bill.is_declined)
         self.assertTrue(declined_bill.declined_by.id, bill.id)

@@ -330,7 +330,7 @@ class BanRequestsTests(AccountRequestsTests):
 
     def form_data(self, ban_type, description=u'ban-description'):
         return {'ban_type': ban_type,
-                'ban_time': random.choice(BAN_TIME._records),
+                'ban_time': random.choice(BAN_TIME.records),
                 'description': description}
 
     def test_no_rights(self):

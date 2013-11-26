@@ -32,7 +32,7 @@ class ResetHeroAbilitiesTest(TestCase):
 
     def test_create(self):
         task = ResetHeroAbilitiesTask(self.hero.id)
-        self.assertTrue(task.state._is_UNPROCESSED)
+        self.assertTrue(task.state.is_UNPROCESSED)
 
     def test_serialization(self):
         task = ResetHeroAbilitiesTask(self.hero.id)
@@ -46,7 +46,7 @@ class ResetHeroAbilitiesTest(TestCase):
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
 
         self.assertTrue(len(self.hero.abilities.all) > 1)
-        self.assertTrue(task.state._is_RESET_TIMEOUT)
+        self.assertTrue(task.state.is_RESET_TIMEOUT)
 
     def test_reset(self):
         task = ResetHeroAbilitiesTask(self.hero.id)
@@ -54,4 +54,4 @@ class ResetHeroAbilitiesTest(TestCase):
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertEqual(len(self.hero.abilities.all), 1)
-        self.assertTrue(task.state._is_PROCESSED)
+        self.assertTrue(task.state.is_PROCESSED)

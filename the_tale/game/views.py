@@ -33,7 +33,7 @@ class GameResource(Resource):
 
         battle = Battle1x1Prototype.get_by_account_id(self.account.id)
 
-        if battle and battle.state._is_PROCESSING:
+        if battle and battle.state.is_PROCESSING:
             return self.redirect(reverse('game:pvp:'))
 
         clan = None

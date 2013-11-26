@@ -4,7 +4,7 @@ import datetime
 from django.db import models
 from django.core.urlresolvers import reverse
 
-from rels.django_staff import TableIntegerField
+from rels.django import TableIntegerField
 
 from the_tale.forum.relations import MARKUP_METHOD, POST_REMOVED_BY, POST_STATE
 

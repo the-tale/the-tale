@@ -74,9 +74,9 @@ class HeroResource(Resource):
     @handler('#hero', name='show', method='get')
     def hero_page(self):
         abilities = sorted(self.hero.abilities.all, key=lambda x: x.NAME)
-        battle_active_abilities = filter(lambda a: a.type._is_BATTLE and a.activation_type._is_ACTIVE, abilities) # pylint: disable=W0110
-        battle_passive_abilities = filter(lambda a: a.type._is_BATTLE and a.activation_type._is_PASSIVE, abilities)# pylint: disable=W0110
-        nonbattle_abilities = filter(lambda a: a.type._is_NONBATTLE, abilities)# pylint: disable=W0110
+        battle_active_abilities = filter(lambda a: a.type.is_BATTLE and a.activation_type.is_ACTIVE, abilities) # pylint: disable=W0110
+        battle_passive_abilities = filter(lambda a: a.type.is_BATTLE and a.activation_type.is_PASSIVE, abilities)# pylint: disable=W0110
+        nonbattle_abilities = filter(lambda a: a.type.is_NONBATTLE, abilities)# pylint: disable=W0110
         edit_name_form = EditNameForm(initial={'name_forms': self.hero.normalized_name.forms[:6] if self.hero.is_name_changed else [self.hero.name]*6,
                                                'gender': self.hero.gender,
                                                'race': self.hero.race} )
@@ -201,36 +201,36 @@ class HeroResource(Resource):
         all_places = places_storage.all()
         all_places.sort(key=lambda x: x.name)
 
-        if type._is_ENERGY_REGENERATION_TYPE:
+        if type.is_ENERGY_REGENERATION_TYPE:
             pass
 
-        if type._is_MOB:
+        if type.is_MOB:
             all_mobs = mobs_storage.get_available_mobs_list(level=self.hero.level)
             all_mobs = sorted(all_mobs, key=lambda x: x.name)
             mobs = split_list(all_mobs)
 
-        elif type._is_PLACE:
+        elif type.is_PLACE:
             places = split_list(all_places)
 
-        elif type._is_FRIEND:
+        elif type.is_FRIEND:
             persons_ids = Person.objects.filter(state=PERSON_STATE.IN_GAME).order_by('name').values_list('id', flat=True)
             all_friends = [persons_storage[person_id] for person_id in persons_ids]
             friends = all_friends
 
-        elif type._is_ENEMY:
+        elif type.is_ENEMY:
             persons_ids = Person.objects.filter(state=PERSON_STATE.IN_GAME).order_by('name').values_list('id', flat=True)
             all_enemys = [persons_storage[person_id] for person_id in persons_ids]
             enemies = all_enemys
 
-        elif type._is_EQUIPMENT_SLOT:
-            equipment_slots = split_list(list(EQUIPMENT_SLOT._records))
+        elif type.is_EQUIPMENT_SLOT:
+            equipment_slots = split_list(list(EQUIPMENT_SLOT.records))
 
-        elif type._is_RISK_LEVEL:
+        elif type.is_RISK_LEVEL:
             pass
 
-        elif type._is_FAVORITE_ITEM:
+        elif type.is_FAVORITE_ITEM:
             favorite_items = {slot: self.hero.equipment.get(slot)
-                              for slot in EQUIPMENT_SLOT._records
+                              for slot in EQUIPMENT_SLOT.records
                               if self.hero.equipment.get(slot) is not None}
 
         return self.template('heroes/choose_preferences.html',

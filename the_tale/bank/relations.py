@@ -1,12 +1,12 @@
 # coding: utf-8
 
 from rels import Column
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 
 class INVOICE_STATE(DjangoEnum):
 
-    _records = ( ('REQUESTED', 0, u'запрошен'),
+    records = ( ('REQUESTED', 0, u'запрошен'),
                  ('FROZEN',    1, u'заморожен'),
                  ('REJECTED',  2, u'отказано в заморозке'),
                  ('CONFIRMED', 3, u'подтверждён'),
@@ -19,7 +19,7 @@ class ENTITY_TYPE(DjangoEnum):
     is_infinite = Column(unique=False)
     is_real = Column(unique=False)
 
-    _records = ( ('DENGI_ONLINE', 0, u'dengi online', True, True),
+    records = ( ('DENGI_ONLINE', 0, u'dengi online', True, True),
                  ('GAME_ACCOUNT', 1, u'игровой аккаунт', False, False),
                  ('GAME_MASTER',  2, u'гейммастер', True, False),
                  ('GAME_LOGIC',   3, u'игровая логика', True, False),
@@ -27,5 +27,5 @@ class ENTITY_TYPE(DjangoEnum):
 
 
 class CURRENCY_TYPE(DjangoEnum):
-    _records = ( ('PREMIUM', 0, u'премиум валюта'),
+    records = ( ('PREMIUM', 0, u'премиум валюта'),
                  ('NORMAL', 1, u'обычная валюта'),)

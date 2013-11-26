@@ -1,9 +1,9 @@
 # coding: utf-8
 
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 class PATH_DIRECTION(DjangoEnum):
-    _records = ( ('LEFT',  'l', u'лево'),
+    records = ( ('LEFT',  'l', u'лево'),
                  ('RIGHT', 'r', u'право'),
                  ('UP',    'u', u'верх'),
                  ('DOWN',  'd', u'низ') )

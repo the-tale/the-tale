@@ -45,8 +45,8 @@ class CheckUserRequestsTests(RequestsTestsBase):
                            body=self.construct_user_answer(CHECK_USER_RESULT.USER_EXISTS))
 
     def test_user_not_exists(self):
-        for state in INVOICE_STATE._records:
-            if state._is_REQUESTED:
+        for state in INVOICE_STATE.records:
+            if state.is_REQUESTED:
                 continue
             self.invoice._model.state = state
             self.invoice.save()
@@ -136,7 +136,7 @@ class ConfirmPaymentRequestsTests(RequestsTestsBase):
                           body=self.construct_user_answer(self.invoice.id, CONFIRM_PAYMENT_RESULT.DISCARDED))
 
     def test_confirm__all_states_processed_correctly(self):
-        for state in INVOICE_STATE._records:
+        for state in INVOICE_STATE.records:
             self.invoice._model.state = state
             self.invoice.save()
             self.check_xml_ok(self.post_xml(self.confirm_url()))
@@ -145,4 +145,4 @@ class ConfirmPaymentRequestsTests(RequestsTestsBase):
     def test_confirm_payment__exception_when_confirm(self):
         self.assertRaises(Exception, self.post_xml, self.confirm_url())
         self.invoice.reload()
-        self.assertTrue(self.invoice.state._is_REQUESTED)
+        self.assertTrue(self.invoice.state.is_REQUESTED)

@@ -160,9 +160,9 @@ def form_game_info(account=None, is_own=False):
 
     if account:
         battle = Battle1x1Prototype.get_by_account_id(account.id)
-        data['account'] = _form_game_account_info(game_time, account, in_pvp_queue=False if battle is None else battle.state._is_WAITING, is_own=is_own)
+        data['account'] = _form_game_account_info(game_time, account, in_pvp_queue=False if battle is None else battle.state.is_WAITING, is_own=is_own)
 
-        if battle and (battle.state._is_PROCESSING or battle.state._is_PREPAIRING):
+        if battle and (battle.state.is_PROCESSING or battle.state.is_PREPAIRING):
             data['mode'] = 'pvp'
             data['enemy'] = _form_game_account_info(game_time, AccountPrototype.get_by_id(battle.enemy_id), in_pvp_queue=False, is_own=False)
 

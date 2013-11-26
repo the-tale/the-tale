@@ -65,14 +65,14 @@ class Bag(object):
             return True
         elif b is None:
             return False
-        elif a.type._is_USELESS:
-            if b.type._is_USELESS:
+        elif a.type.is_USELESS:
+            if b.type.is_USELESS:
                 return a.absolute_sell_price() > b.absolute_sell_price()
             else:
                 return False
 
         else:
-            if b.type._is_USELESS:
+            if b.type.is_USELESS:
                 return True
             else:
                 return a.power > b.power
@@ -109,7 +109,7 @@ class Equipment(object):
 
     def get_power(self):
         power = 0
-        for slot in EQUIPMENT_SLOT._records:
+        for slot in EQUIPMENT_SLOT.records:
             artifact = self.get(slot)
             if artifact:
                 power += artifact.power
@@ -135,7 +135,7 @@ class Equipment(object):
     def equip(self, slot, artifact):
         if slot.value in self.equipment:
             raise EquipmentException('slot for equipment has already busy')
-        if slot not in EQUIPMENT_SLOT._records:
+        if slot not in EQUIPMENT_SLOT.records:
             raise EquipmentException('unknown slot id: %s' % slot)
 
         self.updated = True
@@ -145,12 +145,12 @@ class Equipment(object):
         return self.equipment.get(slot.value, None)
 
     def _remove_all(self):
-        for slot in EQUIPMENT_SLOT._records:
+        for slot in EQUIPMENT_SLOT.records:
             self.unequip(slot)
         self.updated = True
 
     def test_equip_in_all_slots(self, artifact):
-        for slot in EQUIPMENT_SLOT._records:
+        for slot in EQUIPMENT_SLOT.records:
             if self.get(slot) is not None:
                 self.unequip(slot)
             self.equip(slot, artifact)

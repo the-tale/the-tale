@@ -17,7 +17,7 @@ from the_tale.accounts.achievements.forms import NewAchievementForm, EditAchieve
 from the_tale.accounts.achievements.conf import achievements_settings
 
 
-def argument_to_group(value): return ACHIEVEMENT_GROUP._index_slug.get(value)
+def argument_to_group(value): return ACHIEVEMENT_GROUP.index_slug.get(value)
 def argument_to_achievement(value): return achievements_storage[int(value)]
 
 
@@ -41,7 +41,7 @@ class AchievementsResource(Resource):
 
     @lazy_property
     def groups(self):
-        return sorted(ACHIEVEMENT_GROUP._records, key=lambda group: group.name)
+        return sorted(ACHIEVEMENT_GROUP.records, key=lambda group: group.name)
 
 
     def group_url(self, group):

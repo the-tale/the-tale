@@ -81,63 +81,63 @@ class InvoicePrototypeTests(testcase.TestCase):
         self.assertEqual(self.invoice.check_user_request_key(user_id=u'идентификатор'), '078472915f9029eb178a69283db86966')
 
     def test_check_user__wrong_key(self):
-        self.assertTrue(InvoicePrototype.check_user(user_id=self.invoice.user_id, key='bla-bla')._is_WRONG_KEY)
+        self.assertTrue(InvoicePrototype.check_user(user_id=self.invoice.user_id, key='bla-bla').is_WRONG_KEY)
 
     def test_check_user__user_exists(self):
-        self.assertTrue(InvoicePrototype.check_user(user_id=self.invoice.user_id, key='c38fc225fe78889420e0242350bbeb45')._is_USER_EXISTS)
+        self.assertTrue(InvoicePrototype.check_user(user_id=self.invoice.user_id, key='c38fc225fe78889420e0242350bbeb45').is_USER_EXISTS)
 
     def test_check_user__user_not_exists(self):
-        for state in INVOICE_STATE._records:
-            if state._is_REQUESTED:
+        for state in INVOICE_STATE.records:
+            if state.is_REQUESTED:
                 continue
             self.invoice._model.state = state
             self.invoice.save()
-            self.assertTrue(InvoicePrototype.check_user(user_id=self.invoice.user_id, key='c38fc225fe78889420e0242350bbeb45')._is_USER_NOT_EXISTS)
+            self.assertTrue(InvoicePrototype.check_user(user_id=self.invoice.user_id, key='c38fc225fe78889420e0242350bbeb45').is_USER_NOT_EXISTS)
 
     def test_confim__wrong_order_id(self):
-        self.assertTrue(self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id+1))._is_WRONG_ORDER_ID)
+        self.assertTrue(self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id+1)).is_WRONG_ORDER_ID)
         self.check_raw_invoice()
 
     def test_confim__wrong_user_id(self):
-        self.assertTrue(self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id, user_id=self.fabric.user_id + u'!'))._is_WRONG_USER_ID)
+        self.assertTrue(self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id, user_id=self.fabric.user_id + u'!')).is_WRONG_USER_ID)
         self.check_raw_invoice()
 
     def test_confim__key(self):
-        self.assertTrue(self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id, key='bla-bla-wrong-key'))._is_WRONG_HASH_KEY)
+        self.assertTrue(self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id, key='bla-bla-wrong-key')).is_WRONG_HASH_KEY)
         self.check_raw_invoice()
 
     def test_confim__success(self):
-        self.assertTrue(self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id))._is_CONFIRMED)
+        self.assertTrue(self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id)).is_CONFIRMED)
         self.check_confirmed_invoice()
 
     def test_confim__already_confirmed(self):
         self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id))
-        self.assertTrue(self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id))._is_ALREADY_CONFIRMED)
+        self.assertTrue(self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id)).is_ALREADY_CONFIRMED)
         self.check_confirmed_invoice()
 
     def test_confim__already_confirmed__wrong_arguments(self):
         self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id))
-        self.assertTrue(self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id, paymode=self.fabric.paymode+1))._is_ALREADY_CONFIRMED_WRONG_ARGUMENTS)
+        self.assertTrue(self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id, paymode=self.fabric.paymode+1)).is_ALREADY_CONFIRMED_WRONG_ARGUMENTS)
         self.check_confirmed_invoice()
 
     def test_confim__already_processed(self):
         self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id))
         self.invoice._model.state = INVOICE_STATE.PROCESSED
         self.invoice.save()
-        self.assertTrue(self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id))._is_ALREADY_PROCESSED)
+        self.assertTrue(self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id)).is_ALREADY_PROCESSED)
         self.check_confirmed_invoice(state=INVOICE_STATE.PROCESSED)
 
     def test_confim__already_processed__wrong_arguments(self):
         self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id))
         self.invoice._model.state = INVOICE_STATE.PROCESSED
         self.invoice.save()
-        self.assertTrue(self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id, paymode=self.fabric.paymode+1))._is_ALREADY_PROCESSED_WRONG_ARGUMENTS)
+        self.assertTrue(self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id, paymode=self.fabric.paymode+1)).is_ALREADY_PROCESSED_WRONG_ARGUMENTS)
         self.check_confirmed_invoice(state=INVOICE_STATE.PROCESSED)
 
     def test_confim__discarded(self):
         self.invoice._model.state = INVOICE_STATE.DISCARDED
         self.invoice.save()
-        self.assertTrue(self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id))._is_DISCARDED)
+        self.assertTrue(self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id)).is_DISCARDED)
         self.check_raw_invoice(state=INVOICE_STATE.DISCARDED)
 
 
@@ -145,13 +145,13 @@ class InvoicePrototypeTests(testcase.TestCase):
         self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id))
 
         invoice = self.fabric.create_invoice()
-        self.assertTrue(invoice.confirm(**self.fabric.confirm_args(order_id=invoice.id))._is_DUPLICATED_PAYMENT_ID)
+        self.assertTrue(invoice.confirm(**self.fabric.confirm_args(order_id=invoice.id)).is_DUPLICATED_PAYMENT_ID)
 
         invoice.reload()
-        self.assertTrue(invoice.state._is_REQUESTED)
+        self.assertTrue(invoice.state.is_REQUESTED)
 
     def test_confirm__all_states_processed_correctly(self):
-        for state in INVOICE_STATE._records:
+        for state in INVOICE_STATE.records:
             self.invoice._model.state = state
             self.invoice.save()
             self.invoice.confirm(**self.fabric.confirm_args(order_id=self.invoice.id))
@@ -174,17 +174,17 @@ class InvoicePrototypeTests(testcase.TestCase):
                 'key': key}
 
     def test_confirm_payment__invoice_not_found(self):
-        self.assertTrue(InvoicePrototype.confirm_payment(**self.confirm_payment_args(order_id=666))._is_INVOICE_NOT_FOUND)
+        self.assertTrue(InvoicePrototype.confirm_payment(**self.confirm_payment_args(order_id=666)).is_INVOICE_NOT_FOUND)
 
     @mock.patch('the_tale.bank.dengionline.prototypes.InvoicePrototype.confirm', exception_producer)
     def test_confirm_payment__exception_when_confirm(self):
         self.assertRaises(Exception, InvoicePrototype.confirm_payment, **self.confirm_payment_args())
         self.invoice.reload()
-        self.assertTrue(self.invoice.state._is_REQUESTED)
+        self.assertTrue(self.invoice.state.is_REQUESTED)
 
     def test_confirm_payment__success(self):
         with mock.patch('the_tale.bank.dengionline.workers.banker.Worker.cmd_handle_confirmations') as cmd_handle_confirmations:
-            self.assertTrue(InvoicePrototype.confirm_payment(**self.confirm_payment_args())._is_CONFIRMED)
+            self.assertTrue(InvoicePrototype.confirm_payment(**self.confirm_payment_args()).is_CONFIRMED)
         self.assertEqual(cmd_handle_confirmations.call_count, 1)
 
     def test_discards_old_invoices(self):
@@ -213,6 +213,6 @@ class InvoicePrototypeTests(testcase.TestCase):
 
         self.invoice.process()
 
-        self.assertTrue(self.invoice.state._is_PROCESSED)
+        self.assertTrue(self.invoice.state.is_PROCESSED)
         self.assertEqual(BankInvoicePrototype._db_count(), 1)
-        self.assertTrue(BankInvoicePrototype._db_get_object(0).state._is_FORCED)
+        self.assertTrue(BankInvoicePrototype._db_get_object(0).state.is_FORCED)

@@ -1,13 +1,13 @@
 
 {% macro _voting_results(bill) %}
 
-{% if bill.state._is_VOTING %}
+{% if bill.state.is_VOTING %}
 {% set min_votes_percents = bills_settings.MIN_VOTES_PERCENT %}
 {% else %}
 {% set min_votes_percents = bill.min_votes_percents_required %}
 {% endif %}
 
-{% if bill.state._is_VOTING %}
+{% if bill.state.is_VOTING %}
 <span class="pgf-bills-results-summary">
   проголосовало: {{bill.votes_for + bill.votes_against}} (необходимо {{ min_votes_percents|percents }} «за»),
   воздержалось: {{bill.votes_refrained}}
@@ -47,7 +47,7 @@
 
       <th>состояние</th>
       <td>
-        {% if bill.state._is_VOTING %}
+        {% if bill.state.is_VOTING %}
           голосование
 
           {%- if not bill.approved_by_moderator -%}
@@ -55,12 +55,12 @@
           {%- endif -%}
 
           , осталось: {{ bill.time_before_voting_end|verbose_timedelta }}
-        {% elif bill.state._is_ACCEPTED %}
+        {% elif bill.state.is_ACCEPTED %}
 
           {% if bill.is_declined %}
             отменён законом <a target="_blank" href="{{url('game:bills:show', bill.declined_by.id)}}">«{{bill.declined_by.caption}}»</a>
           {% else %}
-            {% if not bill.duration._is_UNLIMITED %}
+            {% if not bill.duration.is_UNLIMITED %}
               {% if bill.ended_at is none %}
                 Прекратит действовать через {{bill.time_before_end|verbose_timedelta}}
               {% else %}
@@ -72,9 +72,9 @@
 
           {% endif %}
 
-        {% elif bill.state._is_REJECTED %}
+        {% elif bill.state.is_REJECTED %}
           отклонён <span class="pgf-format-datetime" data-timestamp="{{ bill.voting_end_at|timestamp }}"></span>
-        {% elif bill.state._is_REMOVED %}
+        {% elif bill.state.is_REMOVED %}
           удалён
         {% endif %}
       </td>
@@ -84,9 +84,9 @@
       <th>ваш голос</th>
       <td>
         {% if vote %}
-        {% if vote.type._is_FOR %}
+        {% if vote.type.is_FOR %}
         <span class="label label-success pgf-voted-for-marker" style="cursor: default;" rel="tooltip" title="Вы поддержали закон">«за»</span>
-        {% elif vote.type._is_AGAINST %}
+        {% elif vote.type.is_AGAINST %}
         <span class="label label-important pgf-voted-against-marker" style="cursor: default;" rel="tooltip" title="Вы выступили против закона">«против»</span>
         {% else %}
         <span class="label label-info pgf-voted-refrained-marker" style="cursor: default;" rel="tooltip" title="Вы воздержались от голосования">«воздержался»</span>

@@ -10,7 +10,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
 
         # Changing field 'Award.type'
-        db.alter_column(u'accounts_award', 'type', self.gf('rels.django_staff.TableIntegerField')())
+        db.alter_column(u'accounts_award', 'type', self.gf('rels.django.TableIntegerField')())
         # Adding index on 'Award', fields ['type']
         db.create_index(u'accounts_award', ['type'])
 
@@ -46,7 +46,7 @@ class Migration(SchemaMigration):
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'db_index': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {'default': "''", 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'type': ('rels.django_staff.TableIntegerField', [], {'db_index': 'True'}),
+            'type': ('rels.django.TableIntegerField', [], {'db_index': 'True'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'db_index': 'True', 'blank': 'True'})
         },
         u'accounts.changecredentialstask': {

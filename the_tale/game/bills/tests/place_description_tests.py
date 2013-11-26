@@ -67,7 +67,7 @@ class PlaceDescriptionTests(BaseTestPrototypes):
         self.assertTrue(self.bill.apply())
 
         bill = BillPrototype.get_by_id(self.bill.id)
-        self.assertTrue(bill.state._is_ACCEPTED)
+        self.assertTrue(bill.state.is_ACCEPTED)
 
         self.assertNotEqual(self.place.description, 'old description' )
         self.assertEqual(self.place.description, 'new description' )

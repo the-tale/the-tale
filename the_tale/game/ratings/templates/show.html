@@ -15,7 +15,7 @@
 </h2>
 
 <ul class="nav nav-pills">
-  {% for menu_rating in RATING_TYPE._records %}
+  {% for menu_rating in RATING_TYPE.records %}
   <li {% if rating_type == menu_rating %}class="active"{% endif %}><a href="{{ url('game:ratings:show', menu_rating.value) }}">{{menu_rating.text}}</a></li>
   {% endfor %}
 </ul>

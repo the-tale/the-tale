@@ -206,8 +206,8 @@ class TestCallsPage(TestRequestsBase):
                                                                               self.hero_2.name])
 
     def test_only_waiting_and_processing_battles(self):
-        for state in BATTLE_1X1_STATE._records:
-            if state._is_WAITING or state._is_PROCESSING:
+        for state in BATTLE_1X1_STATE.records:
+            if state.is_WAITING or state.is_PROCESSING:
                 continue
             self.pvp_create_battle(self.account_2, None, state)
             self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 1), ('pgf-no-current-battles-message', 1)])

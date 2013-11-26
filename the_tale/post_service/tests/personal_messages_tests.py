@@ -41,13 +41,13 @@ class PersonalMessagesTests(testcase.TestCase):
 
         self.assertEqual(len(mail.outbox), 0)
         self.message.process()
-        self.assertTrue(self.message.state._is_PROCESSED)
+        self.assertTrue(self.message.state.is_PROCESSED)
         self.assertEqual(len(mail.outbox), 0)
 
     def test_subscription(self):
         self.assertEqual(len(mail.outbox), 0)
         self.message.process()
-        self.assertTrue(self.message.state._is_PROCESSED)
+        self.assertTrue(self.message.state.is_PROCESSED)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, [self.account_2.email])
 
@@ -72,5 +72,5 @@ class PersonalMessagesTests(testcase.TestCase):
 
         self.assertEqual(len(mail.outbox), 0)
         message.process()
-        self.assertTrue(message.state._is_PROCESSED)
+        self.assertTrue(message.state.is_PROCESSED)
         self.assertEqual(len(mail.outbox), 0)

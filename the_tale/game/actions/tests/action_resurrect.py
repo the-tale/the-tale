@@ -40,7 +40,7 @@ class ResurrectActionTest(testcase.TestCase):
         self.assertEqual(self.action_resurrect.leader, True)
         self.assertEqual(self.action_resurrect.bundle_id, self.action_idl.bundle_id)
         self.assertEqual(len(self.action_resurrect.HELP_CHOICES), 1)
-        self.assertTrue(list(self.action_resurrect.HELP_CHOICES)[0]._is_RESURRECT)
+        self.assertTrue(list(self.action_resurrect.HELP_CHOICES)[0].is_RESURRECT)
         self.storage._test_save()
 
     def test_processed(self):

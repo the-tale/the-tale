@@ -158,7 +158,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.balance.constants.PRICE_DELTA', 0.0)
     def test_instant_heal(self):
-        while not self.hero.next_spending._is_INSTANT_HEAL:
+        while not self.hero.next_spending.is_INSTANT_HEAL:
             self.hero.switch_spending()
 
         money = self._current_spending_cost()
@@ -175,7 +175,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.balance.constants.PRICE_DELTA', 0.0)
     def test_instant_heal__too_much_health(self):
-        while not self.hero.next_spending._is_INSTANT_HEAL:
+        while not self.hero.next_spending.is_INSTANT_HEAL:
             self.hero.switch_spending()
 
         money = self._current_spending_cost()
@@ -193,7 +193,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.balance.constants.PRICE_DELTA', 0.0)
     def test_instant_heal__low_health(self):
-        while not self.hero.next_spending._is_INSTANT_HEAL:
+        while not self.hero.next_spending.is_INSTANT_HEAL:
             self.hero.switch_spending()
 
         money = self._current_spending_cost()
@@ -211,7 +211,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
 
     def test_bying_artifact_with_hero_preferences(self):
-        while not self.hero.next_spending._is_BUYING_ARTIFACT:
+        while not self.hero.next_spending.is_BUYING_ARTIFACT:
             self.hero.switch_spending()
 
         money = self._current_spending_cost()
@@ -241,7 +241,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
 
     def test_bying_artifact_without_change(self):
-        while not self.hero.next_spending._is_BUYING_ARTIFACT:
+        while not self.hero.next_spending.is_BUYING_ARTIFACT:
             self.hero.switch_spending()
 
         money = self._current_spending_cost()
@@ -267,7 +267,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_bying_artifact_with_change(self):
-        while not self.hero.next_spending._is_BUYING_ARTIFACT:
+        while not self.hero.next_spending.is_BUYING_ARTIFACT:
             self.hero.switch_spending()
 
         # fill all slots with artifacts
@@ -293,7 +293,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_sharpening_artifact(self):
-        while not self.hero.next_spending._is_SHARPENING_ARTIFACT:
+        while not self.hero.next_spending.is_SHARPENING_ARTIFACT:
             self.hero.switch_spending()
 
         money = self._current_spending_cost()
@@ -310,7 +310,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_sharpening_artifact_with_hero_preferences(self):
-        while not self.hero.next_spending._is_SHARPENING_ARTIFACT:
+        while not self.hero.next_spending.is_SHARPENING_ARTIFACT:
             self.hero.switch_spending()
 
         self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
@@ -332,7 +332,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_useless(self):
-        while not self.hero.next_spending._is_USELESS:
+        while not self.hero.next_spending.is_USELESS:
             self.hero.switch_spending()
 
         money = self._current_spending_cost()
@@ -346,7 +346,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
 
     def test_impact(self):
-        while not self.hero.next_spending._is_IMPACT:
+        while not self.hero.next_spending.is_IMPACT:
             self.hero.switch_spending()
 
         money = self._current_spending_cost()
@@ -359,7 +359,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_experience(self):
-        while not self.hero.next_spending._is_EXPERIENCE:
+        while not self.hero.next_spending.is_EXPERIENCE:
             self.hero.switch_spending()
 
         money = self._current_spending_cost()

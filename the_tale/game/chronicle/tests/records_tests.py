@@ -43,7 +43,7 @@ class RecordTests(TestCase):
         self.bill = BillPrototype.create(self.account, 'bill-caption', 'bill-rationale', bill_data)
 
     def test_records_for_every_type(self):
-        types = set(RECORD_TYPE._records)
+        types = set(RECORD_TYPE.records)
 
         for record_class in records.RECORDS.values():
             if record_class.TYPE in types:
@@ -121,14 +121,14 @@ def create_test_create_method(record_class):
                 substitutions[argument] = self.create_test_word(index)
 
         for role in record_class.ACTORS:
-            if role._is_PLACE:
+            if role.is_PLACE:
                 if (role, self.place_1) not in actors:
                     actors.append((role, self.place_1))
                 else:
                     actors.append((role, self.place_2))
-            elif role._is_BILL:
+            elif role.is_BILL:
                 actors.append((role, self.bill))
-            elif role._is_PERSON:
+            elif role.is_PERSON:
                 actors.append((role, self.place_1.persons[0]))
 
         record = record_class(actors=actors, substitutions=substitutions)

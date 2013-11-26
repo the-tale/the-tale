@@ -1044,22 +1044,22 @@ class ActionInPlacePrototype(ActionBase):
 
     def spend_money(self):
 
-        if self.hero.next_spending._is_INSTANT_HEAL:
+        if self.hero.next_spending.is_INSTANT_HEAL:
             self.spend_money__instant_heal()
 
-        elif self.hero.next_spending._is_BUYING_ARTIFACT:
+        elif self.hero.next_spending.is_BUYING_ARTIFACT:
             self.spend_money__buying_artifact()
 
-        elif self.hero.next_spending._is_SHARPENING_ARTIFACT:
+        elif self.hero.next_spending.is_SHARPENING_ARTIFACT:
             self.spend_money__sharpening_artifact()
 
-        elif self.hero.next_spending._is_USELESS:
+        elif self.hero.next_spending.is_USELESS:
             self.spend_money__useless()
 
-        elif self.hero.next_spending._is_IMPACT:
+        elif self.hero.next_spending.is_IMPACT:
             self.spend_money__impact()
 
-        elif self.hero.next_spending._is_EXPERIENCE:
+        elif self.hero.next_spending.is_EXPERIENCE:
             self.spend_money__experience()
 
         else:

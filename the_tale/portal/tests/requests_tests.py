@@ -50,7 +50,7 @@ class TestRequests(TestCase):
                                  'game_version': project_settings.META_CONFIG.version,
                                  'turn_delta': c.TURN_DELTA,
                                  'account_id': None,
-                                 'abilities_cost': {ability_type.value: ability_type.cost for ability_type in ABILITY_TYPE._records}})
+                                 'abilities_cost': {ability_type.value: ability_type.cost for ability_type in ABILITY_TYPE.records}})
 
     def test_info__logined(self):
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
@@ -62,4 +62,4 @@ class TestRequests(TestCase):
                                  'game_version': project_settings.META_CONFIG.version,
                                  'turn_delta': c.TURN_DELTA,
                                  'account_id': account_id,
-                                 'abilities_cost': {ability_type.value: ability_type.cost for ability_type in ABILITY_TYPE._records}})
+                                 'abilities_cost': {ability_type.value: ability_type.cost for ability_type in ABILITY_TYPE.records}})

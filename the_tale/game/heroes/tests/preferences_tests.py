@@ -200,7 +200,7 @@ class HeroPreferencesMobTest(TestCase):
 
         wrong_mob_uuid = None
         for mob_record in mobs_storage.all():
-            if mob_record.state._is_ENABLED and mob_record.level > self.hero.level:
+            if mob_record.state.is_ENABLED and mob_record.level > self.hero.level:
                 wrong_mob_uuid = mob_record.uuid
                 break
 
@@ -1015,7 +1015,7 @@ class HeroPreferencesRiskLevelTest(TestCase):
     def test_create(self):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.RISK_LEVEL, 'wrong_risk_level')
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNPROCESSED)
-        self.assertTrue(self.hero.preferences.risk_level._is_NORMAL )
+        self.assertTrue(self.hero.preferences.risk_level.is_NORMAL )
 
     def test_wrong_level(self):
         self.assertTrue(PREFERENCE_TYPE.RISK_LEVEL.level_required > 1)
@@ -1023,11 +1023,11 @@ class HeroPreferencesRiskLevelTest(TestCase):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.RISK_LEVEL, self.risk_1.value)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
-        self.assertTrue(self.hero.preferences.risk_level._is_NORMAL )
+        self.assertTrue(self.hero.preferences.risk_level.is_NORMAL )
 
     def check_set_risk_level(self, risk_1):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.RISK_LEVEL , risk_1.value)
-        self.assertTrue(self.hero.preferences.risk_level._is_NORMAL)
+        self.assertTrue(self.hero.preferences.risk_level.is_NORMAL)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
         self.assertEqual(self.hero.preferences.risk_level, risk_1)
@@ -1044,7 +1044,7 @@ class HeroPreferencesRiskLevelTest(TestCase):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.RISK_LEVEL, 666)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_RISK_LEVEL)
-        self.assertTrue(self.hero.preferences.risk_level._is_NORMAL )
+        self.assertTrue(self.hero.preferences.risk_level.is_NORMAL )
 
     def test_set_risk_level(self):
         changed_at = self.hero.preferences.risk_level_changed_at
@@ -1084,7 +1084,7 @@ class HeroPreferencesRequestsTest(TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.hero._model.level = max(r.level_required for r in PREFERENCE_TYPE._records) # maximum blocking level
+        self.hero._model.level = max(r.level_required for r in PREFERENCE_TYPE.records) # maximum blocking level
         self.hero._model.save()
 
         register_user('test_user_2', 'test_user_2@test.com', '111111')
@@ -1158,13 +1158,13 @@ class HeroPreferencesRequestsTest(TestCase):
     def test_preferences_dialog_risk_level(self):
         self.request_login('test_user@test.com')
         response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.RISK_LEVEL.value))
-        self.check_html_ok(response, texts=[r.text for r in RISK_LEVEL._records])
+        self.check_html_ok(response, texts=[r.text for r in RISK_LEVEL.records])
 
     def test_preferences_dialog_favorite_item(self):
         self.request_login('test_user@test.com')
         response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % PREFERENCE_TYPE.FAVORITE_ITEM.value))
         self.check_html_ok(response, texts=[self.hero.equipment.get(slot).name
-                                            for slot in EQUIPMENT_SLOT._records
+                                            for slot in EQUIPMENT_SLOT.records
                                             if self.hero.equipment.get(slot)])
 
     def test_preferences_dialog_unlogined(self):

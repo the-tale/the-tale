@@ -1,13 +1,13 @@
 # coding: utf-8
 
 import rels
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 
 class ACHIEVEMENT_GROUP(DjangoEnum): # visualization
     slug = rels.Column()
 
-    _records = ( ('TIME', 0, u'Время', 'time'),
+    records = ( ('TIME', 0, u'Время', 'time'),
                  ('MONEY', 1, u'Деньги', 'money'),
                  ('MOBS', 2, u'Монстры', 'mobs'),
                  ('ARTIFACTS', 3, u'Артефакты', 'artifacts'),
@@ -16,7 +16,7 @@ class ACHIEVEMENT_GROUP(DjangoEnum): # visualization
 
 
 class ACHIEVEMENT_TYPE(DjangoEnum): # filtration
-    _records = ( ('TIME', 0, u'Время'),
+    records = ( ('TIME', 0, u'Время'),
                  ('MONEY', 1, u'Деньги'),
                  ('MOBS', 2, u'Монстры'),
                  ('ARTIFACTS', 3, u'Артефакты'),

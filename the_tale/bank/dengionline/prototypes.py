@@ -126,13 +126,13 @@ class InvoicePrototype(BasePrototype):
         with transaction.atomic():
             confirm_result = invoice.confirm(order_id=int(order_id),
                                              received_amount=Decimal(received_amount),
-                                             received_currency=CURRENCY_TYPE._index_name[dengionline_settings.RECEIVED_CURRENCY_TYPE],
+                                             received_currency=CURRENCY_TYPE.index_name[dengionline_settings.RECEIVED_CURRENCY_TYPE],
                                              user_id=user_id,
                                              payment_id=int(payment_id),
                                              key=key,
                                              paymode=int(paymode))
 
-        if confirm_result._is_CONFIRMED:
+        if confirm_result.is_CONFIRMED:
             workers_environment.dengionline_banker.cmd_handle_confirmations()
 
         return confirm_result
@@ -149,22 +149,22 @@ class InvoicePrototype(BasePrototype):
         if real_key != key:
             return CONFIRM_PAYMENT_RESULT.WRONG_HASH_KEY
 
-        if self.state._is_CONFIRMED:
+        if self.state.is_CONFIRMED:
             # does not check received_amount and received_currency since they can be changed by dengionline configuration
             if self.payment_id != payment_id or self.paymode != paymode:
                 return CONFIRM_PAYMENT_RESULT.ALREADY_CONFIRMED_WRONG_ARGUMENTS
             return CONFIRM_PAYMENT_RESULT.ALREADY_CONFIRMED
 
-        if self.state._is_PROCESSED:
+        if self.state.is_PROCESSED:
             # does not check received_amount and received_currency since they can be changed by dengionline configuration
             if self.payment_id != payment_id or self.paymode != paymode:
                 return CONFIRM_PAYMENT_RESULT.ALREADY_PROCESSED_WRONG_ARGUMENTS
             return CONFIRM_PAYMENT_RESULT.ALREADY_PROCESSED
 
-        if self.state._is_DISCARDED:
+        if self.state.is_DISCARDED:
             return CONFIRM_PAYMENT_RESULT.DISCARDED
 
-        if not self.state._is_REQUESTED:
+        if not self.state.is_REQUESTED:
             # all states MUST be processed before this line
             raise exceptions.WrongInvoiceStateInConfirmationError(state=self.state)
 
@@ -185,7 +185,7 @@ class InvoicePrototype(BasePrototype):
         from the_tale.bank.transaction import Transaction
         from the_tale.bank.relations import ENTITY_TYPE
 
-        if not self.state._is_CONFIRMED:
+        if not self.state.is_CONFIRMED:
             raise exceptions.WrongInvoiceStateInProcessingError(invoice_id=self.id, state=self.state)
 
         transaction = Transaction.create(recipient_type=self.bank_type,

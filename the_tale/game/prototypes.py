@@ -7,7 +7,7 @@ from django.db import transaction
 from dext.settings import settings
 
 import rels
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 
 
@@ -23,7 +23,7 @@ from the_tale.game import exceptions
 class MONTHS(DjangoEnum):
     date_text = rels.Column()
 
-    _records = ( ('COLD',  1, u'холодный месяц', u'холодного месяца'),
+    records = ( ('COLD',  1, u'холодный месяц', u'холодного месяца'),
                  ('CRUDE', 2, u'сырой месяц',    u'сырого месяца'),
                  ('HOT',   3, u'жаркий месяц',   u'жаркого месяца'),
                  ('DRY',   4, u'сухой месяц',    u'сухого месяца') )

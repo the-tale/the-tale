@@ -308,7 +308,7 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
 
     @property
     def has_already_processed(self):
-        return not (self.state._is_WAITING or self.state._is_EMAIL_SENT)
+        return not (self.state.is_WAITING or self.state.is_EMAIL_SENT)
 
     def mark_as_processed(self):
         self._model.state = CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
@@ -326,7 +326,7 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
             return
 
         try:
-            if self.state._is_WAITING:
+            if self.state.is_WAITING:
                 if self.email_changed:
                     self.request_email_confirmation()
                     self._model.state = CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT
@@ -338,7 +338,7 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
                     self._model.save()
                     return postponed_task
 
-            if self.state._is_EMAIL_SENT:
+            if self.state.is_EMAIL_SENT:
                 if AccountPrototype.get_by_email(self._model.new_email):
                     self._model.state = CHANGE_CREDENTIALS_TASK_STATE.ERROR
                     self._model.comment = 'duplicate email'

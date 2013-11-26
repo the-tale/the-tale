@@ -13,8 +13,8 @@ class Migration(SchemaMigration):
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('updated_at', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-            ('group', self.gf('rels.django_staff.TableIntegerField')(db_index=True)),
-            ('type', self.gf('rels.django_staff.TableIntegerField')(db_index=True)),
+            ('group', self.gf('rels.django.TableIntegerField')(db_index=True)),
+            ('type', self.gf('rels.django.TableIntegerField')(db_index=True)),
             ('caption', self.gf('django.db.models.fields.CharField')(max_length=128)),
             ('description', self.gf('django.db.models.fields.CharField')(max_length=1024)),
             ('order', self.gf('django.db.models.fields.IntegerField')()),
@@ -84,10 +84,10 @@ class Migration(SchemaMigration):
             'caption': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '1024'}),
-            'group': ('rels.django_staff.TableIntegerField', [], {'db_index': 'True'}),
+            'group': ('rels.django.TableIntegerField', [], {'db_index': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'order': ('django.db.models.fields.IntegerField', [], {}),
-            'type': ('rels.django_staff.TableIntegerField', [], {'db_index': 'True'}),
+            'type': ('rels.django.TableIntegerField', [], {'db_index': 'True'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
         u'auth.group': {

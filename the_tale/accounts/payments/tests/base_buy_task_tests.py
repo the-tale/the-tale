@@ -54,7 +54,7 @@ class BaseBuyPosponedTaskTests(testcase.TestCase):
         self.supervisor_worker = False
 
     def test_create(self):
-        self.assertTrue(self.task.state._is_TRANSACTION_REQUESTED)
+        self.assertTrue(self.task.state.is_TRANSACTION_REQUESTED)
         self._test_create()
 
     def test_serialization(self):
@@ -62,7 +62,7 @@ class BaseBuyPosponedTaskTests(testcase.TestCase):
 
     def test_process__transaction_requested__invoice_unprocessed(self):
         self.assertEqual(self.task.process(main_task=mock.Mock()), POSTPONED_TASK_LOGIC_RESULT.WAIT)
-        self.assertTrue(self.task.state._is_TRANSACTION_REQUESTED)
+        self.assertTrue(self.task.state.is_TRANSACTION_REQUESTED)
 
         self._test_process__transaction_requested__invoice_unprocessed()
 
@@ -74,7 +74,7 @@ class BaseBuyPosponedTaskTests(testcase.TestCase):
         self.invoice.save()
 
         self.assertEqual(self.task.process(main_task=mock.Mock()), POSTPONED_TASK_LOGIC_RESULT.ERROR)
-        self.assertTrue(self.task.state._is_TRANSACTION_REJECTED)
+        self.assertTrue(self.task.state.is_TRANSACTION_REJECTED)
 
         self._test_process__transaction_requested__invoice_rejected()
 
@@ -86,7 +86,7 @@ class BaseBuyPosponedTaskTests(testcase.TestCase):
         self.invoice.save()
 
         self.assertEqual(self.task.process(main_task=mock.Mock()), POSTPONED_TASK_LOGIC_RESULT.ERROR)
-        self.assertTrue(self.task.state._is_ERROR_IN_FREEZING_TRANSACTION)
+        self.assertTrue(self.task.state.is_ERROR_IN_FREEZING_TRANSACTION)
 
         self._test_process__transaction_requested__invoice_wrong_state()
 
@@ -100,7 +100,7 @@ class BaseBuyPosponedTaskTests(testcase.TestCase):
         main_task = mock.Mock()
 
         self.assertEqual(self.task.process(main_task=main_task), POSTPONED_TASK_LOGIC_RESULT.CONTINUE)
-        self.assertTrue(self.task.state._is_TRANSACTION_FROZEN)
+        self.assertTrue(self.task.state.is_TRANSACTION_FROZEN)
 
         with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_task') as cmd_task:
             with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_logic_task') as cmd_logic_task:
@@ -144,7 +144,7 @@ class BaseBuyPosponedTaskTests(testcase.TestCase):
         self.task.state = self.task.RELATION.WAIT_TRANSACTION_CONFIRMATION
 
         self.assertEqual(self.task.process(main_task=mock.Mock()), POSTPONED_TASK_LOGIC_RESULT.WAIT)
-        self.assertTrue(self.task.state._is_WAIT_TRANSACTION_CONFIRMATION)
+        self.assertTrue(self.task.state.is_WAIT_TRANSACTION_CONFIRMATION)
 
     def test_process__wait_confirmation__transaction_confirmed(self):
         self.invoice.state = INVOICE_STATE.CONFIRMED
@@ -157,7 +157,7 @@ class BaseBuyPosponedTaskTests(testcase.TestCase):
 
         self.assertEqual(process_referrals.call_count, 1)
 
-        self.assertTrue(self.task.state._is_SUCCESSED)
+        self.assertTrue(self.task.state.is_SUCCESSED)
 
     def test_process__wait_confirmation__transaction_confirmed__with_referal(self):
         self.invoice.state = INVOICE_STATE.CONFIRMED
@@ -178,9 +178,9 @@ class BaseBuyPosponedTaskTests(testcase.TestCase):
         self.assertTrue(referral_invoice.amount > 0)
         self.assertTrue(referral_invoice.amount < self.amount)
         self.assertEqual(referral_invoice.recipient_id, account_id)
-        self.assertTrue(referral_invoice.state._is_FORCED)
+        self.assertTrue(referral_invoice.state.is_FORCED)
 
-        self.assertTrue(self.task.state._is_SUCCESSED)
+        self.assertTrue(self.task.state.is_SUCCESSED)
 
     def test_process__wait_confirmation__transaction_in_wrong_state(self):
         self.invoice.state = INVOICE_STATE.REJECTED
@@ -189,13 +189,13 @@ class BaseBuyPosponedTaskTests(testcase.TestCase):
         self.task.state = self.task.RELATION.WAIT_TRANSACTION_CONFIRMATION
 
         self.assertEqual(self.task.process(main_task=mock.Mock()), POSTPONED_TASK_LOGIC_RESULT.ERROR)
-        self.assertTrue(self.task.state._is_ERROR_IN_CONFIRM_TRANSACTION)
+        self.assertTrue(self.task.state.is_ERROR_IN_CONFIRM_TRANSACTION)
 
     def test_process__wrong_state(self):
         self.task.state = self.task.RELATION.ERROR_IN_FREEZING_TRANSACTION
 
         self.assertEqual(self.task.process(main_task=mock.Mock()), POSTPONED_TASK_LOGIC_RESULT.ERROR)
-        self.assertTrue(self.task.state._is_WRONG_TASK_STATE)
+        self.assertTrue(self.task.state.is_WRONG_TASK_STATE)
 
         self._test_process__wrong_state()
 

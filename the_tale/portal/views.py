@@ -139,4 +139,4 @@ class PortalResource(Resource):
                              'game_version': project_settings.META_CONFIG.version,
                              'turn_delta': c.TURN_DELTA,
                              'account_id': self.account.id if self.account.is_authenticated() else None,
-                             'abilities_cost': {ability_type.value: ability_type.cost for ability_type in ABILITY_TYPE._records}})
+                             'abilities_cost': {ability_type.value: ability_type.cost for ability_type in ABILITY_TYPE.records}})

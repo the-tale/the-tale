@@ -1,10 +1,10 @@
 # coding: utf-8
 
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 
 class RATING_TYPE(DjangoEnum):
-    _records = ( ('MIGHT', 'might', u'Могущество'),
+    records = ( ('MIGHT', 'might', u'Могущество'),
                  ('BILLS', 'bills', u'Принятые законы'),
                  ('POWER', 'power', u'Сила героя'),
                  ('LEVEL', 'level', u'Уровень героя'),

@@ -10,12 +10,12 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding field 'MobRecord.type'
         db.add_column(u'mobs_mobrecord', 'type',
-                      self.gf('rels.django_staff.TableIntegerField')(default=5),
+                      self.gf('rels.django.TableIntegerField')(default=5),
                       keep_default=False)
 
 
         # Changing field 'MobRecord.state'
-        db.alter_column(u'mobs_mobrecord', 'state', self.gf('rels.django_staff.TableIntegerField')())
+        db.alter_column(u'mobs_mobrecord', 'state', self.gf('rels.django.TableIntegerField')())
 
     def backwards(self, orm):
         # Deleting field 'MobRecord.type'
@@ -123,9 +123,9 @@ class Migration(SchemaMigration):
             'level': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '32', 'db_index': 'True'}),
             'name_forms': ('django.db.models.fields.TextField', [], {}),
-            'state': ('rels.django_staff.TableIntegerField', [], {}),
+            'state': ('rels.django.TableIntegerField', [], {}),
             'terrains': ('django.db.models.fields.TextField', [], {}),
-            'type': ('rels.django_staff.TableIntegerField', [], {}),
+            'type': ('rels.django.TableIntegerField', [], {}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'uuid': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '32'})
         }

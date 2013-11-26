@@ -22,7 +22,7 @@ from the_tale.accounts.clans.logic import ClanInfo
 
 class IndexFilter(list_filter.ListFilter):
     ELEMENTS = [list_filter.reset_element(),
-                list_filter.choice_element(u'сортировать по:', attribute='order_by', choices=ORDER_BY._select('value', 'text'), default_value=ORDER_BY.NAME.value) ]
+                list_filter.choice_element(u'сортировать по:', attribute='order_by', choices=ORDER_BY.select('value', 'text'), default_value=ORDER_BY.NAME.value) ]
 
 
 
@@ -214,10 +214,10 @@ class MembershipResource(Resource):
     def validate_other_not_in_clan(self, account, **kwargs): return ClanInfo(account).membership is None
 
     @validator(code='clans.membership.request_not_from_clan', message=u'Запрос не от гильдии')
-    def validate_request_from_clan(self, request, **kwargs): return request.type._is_FROM_CLAN
+    def validate_request_from_clan(self, request, **kwargs): return request.type.is_FROM_CLAN
 
     @validator(code='clans.membership.request_not_from_account', message=u'Запрос не от аккаунта')
-    def validate_request_from_account(self, request, **kwargs): return request.type._is_FROM_ACCOUNT
+    def validate_request_from_account(self, request, **kwargs): return request.type.is_FROM_ACCOUNT
 
     @validator(code='clans.membership.account_has_invite', message=u'Игрок уже отправил заявку на вступление или получил приглашение в вашу гильдию')
     def validate_account_has_invite(self, account, **kwargs): return MembershipRequestPrototype.get_for(account_id=account.id, clan_id=self.clan_info.clan_id) is None
@@ -374,7 +374,7 @@ class MembershipResource(Resource):
     @validate_in_clan()
     @handler('leave-clan', method='post')
     def leave_clan(self):
-        if self.clan_info.membership.role._is_LEADER:
+        if self.clan_info.membership.role.is_LEADER:
             return self.auto_error('clans.membership.leave_clan.leader', u'Лидер гильдии не может покинуть её. Передайте лидерство или расформируйте гильдию.')
 
         self.clan_info.clan.remove_member(self.account)

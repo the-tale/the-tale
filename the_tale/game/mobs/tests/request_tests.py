@@ -168,7 +168,7 @@ class TestCreateRequests(BaseTestRequests):
         self.assertEqual(mob_record.terrains, frozenset([TERRAIN.PLANE_GRASS, TERRAIN.HILLS_GRASS]))
         self.assertEqual(mob_record.abilities, frozenset(['hit', 'strong_hit', 'sidestep']) )
         self.assertEqual(mob_record.description, 'mob description')
-        self.assertTrue(mob_record.state._is_DISABLED)
+        self.assertTrue(mob_record.state.is_DISABLED)
         self.assertTrue(mob_record.editor_id, self.account_2.id)
 
 
@@ -333,7 +333,7 @@ class TestUpdateRequests(BaseTestRequests):
         self.assertEqual(mob.terrains, frozenset(data['terrains']) )
         self.assertEqual(mob.abilities, frozenset(data['abilities']) )
         self.assertEqual(mob.description, data['description'])
-        self.assertTrue(mob.state._is_DISABLED)
+        self.assertTrue(mob.state.is_DISABLED)
         self.assertTrue(mob.type, data['type'])
         self.assertTrue(mob.editor_id, self.account_2.id)
 
@@ -452,8 +452,8 @@ class TestModerateRequests(BaseTestRequests):
         self.assertEqual(mob_record.terrains, frozenset([TERRAIN.PLANE_JUNGLE, TERRAIN.HILLS_JUNGLE]))
         self.assertEqual(mob_record.abilities, frozenset(['hit', 'speedup']) )
         self.assertEqual(mob_record.description, 'new description')
-        self.assertTrue(mob_record.state._is_ENABLED)
-        self.assertTrue(mob_record.type._is_PLANT)
+        self.assertTrue(mob_record.state.is_ENABLED)
+        self.assertTrue(mob_record.type.is_PLANT)
         self.assertTrue(mob_record.editor_id, self.account_3.id)
 
     def test_simple_not_approved(self):
@@ -461,4 +461,4 @@ class TestModerateRequests(BaseTestRequests):
 
         mob_record = MobRecordPrototype.get_by_id(self.mob.id)
 
-        self.assertTrue(mob_record.state._is_DISABLED)
+        self.assertTrue(mob_record.state.is_DISABLED)

@@ -1,10 +1,10 @@
 # coding: utf-8
 
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 
 class RECORD_TYPE(DjangoEnum):
-    _records = (('PLACE_CHANGE_NAME_BILL_STARTED', 0, u'название города: предложен закон об изменении'),
+    records = (('PLACE_CHANGE_NAME_BILL_STARTED', 0, u'название города: предложен закон об изменении'),
                 ('PLACE_CHANGE_NAME_BILL_SUCCESSED', 1, u'название города: принят закон об изменении'),
                 ('PLACE_CHANGE_NAME_BILL_FAILED', 2, u'название города: отклонён закон об изменении'),
 
@@ -52,6 +52,6 @@ class RECORD_TYPE(DjangoEnum):
 
 class ACTOR_ROLE(DjangoEnum):
 
-    _records = ( ('BILL', 0, u'закон'),
+    records = ( ('BILL', 0, u'закон'),
                  ('PLACE', 1, u'город'),
                  ('PERSON', 2, u'житель') )

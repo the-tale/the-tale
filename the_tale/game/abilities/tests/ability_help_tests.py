@@ -50,7 +50,7 @@ class HelpAbilityTest(testcase.TestCase):
 
     def test_help_when_battle_waiting(self):
         battle = Battle1x1Prototype.create(self.account)
-        self.assertTrue(battle.state._is_WAITING)
+        self.assertTrue(battle.state.is_WAITING)
         self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
 
     def test_help_when_battle_not_waiting(self):
@@ -58,7 +58,7 @@ class HelpAbilityTest(testcase.TestCase):
         battle.state = BATTLE_1X1_STATE.PREPAIRING
         battle.save()
 
-        self.assertFalse(battle.state._is_WAITING)
+        self.assertFalse(battle.state.is_WAITING)
         self.assertEqual(self.ability.use(**self.use_attributes), (False, None, ()))
 
     def test_heal(self):

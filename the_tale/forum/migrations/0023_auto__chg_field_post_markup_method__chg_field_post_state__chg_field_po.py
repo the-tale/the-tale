@@ -10,13 +10,13 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
 
         # Changing field 'Post.markup_method'
-        db.alter_column(u'forum_post', 'markup_method', self.gf('rels.django_staff.TableIntegerField')())
+        db.alter_column(u'forum_post', 'markup_method', self.gf('rels.django.TableIntegerField')())
 
         # Changing field 'Post.state'
-        db.alter_column(u'forum_post', 'state', self.gf('rels.django_staff.TableIntegerField')())
+        db.alter_column(u'forum_post', 'state', self.gf('rels.django.TableIntegerField')())
 
         # Changing field 'Post.removed_by'
-        db.alter_column(u'forum_post', 'removed_by', self.gf('rels.django_staff.TableIntegerField')(null=True))
+        db.alter_column(u'forum_post', 'removed_by', self.gf('rels.django.TableIntegerField')(null=True))
     def backwards(self, orm):
 
         # Changing field 'Post.markup_method'
@@ -81,10 +81,10 @@ class Migration(SchemaMigration):
             'author': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': u"orm['accounts.Account']"}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'markup_method': ('rels.django_staff.TableIntegerField', [], {}),
+            'markup_method': ('rels.django.TableIntegerField', [], {}),
             'remove_initiator': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'+'", 'null': 'True', 'to': u"orm['accounts.Account']"}),
-            'removed_by': ('rels.django_staff.TableIntegerField', [], {'default': 'None', 'null': 'True'}),
-            'state': ('rels.django_staff.TableIntegerField', [], {}),
+            'removed_by': ('rels.django.TableIntegerField', [], {'default': 'None', 'null': 'True'}),
+            'state': ('rels.django.TableIntegerField', [], {}),
             'technical': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'text': ('django.db.models.fields.TextField', [], {'default': "''", 'blank': 'True'}),
             'thread': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['forum.Thread']"}),

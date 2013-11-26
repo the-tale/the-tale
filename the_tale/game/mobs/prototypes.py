@@ -93,7 +93,7 @@ class MobPrototype(object):
 
         level = data['level']
 
-        if record is None or record.state._is_DISABLED:
+        if record is None or record.state.is_DISABLED:
             record = random.choice(mobs_storage.get_available_mobs_list(level))
 
         abilities = cls._produce_abilities(record, level)
@@ -196,7 +196,7 @@ class MobRecordPrototype(BasePrototype):
 
     @classmethod
     def get_available_abilities(cls):
-        return filter(lambda a: a.TYPE._is_BATTLE and a.AVAILABILITY.value & ABILITY_AVAILABILITY.FOR_MONSTERS.value, # pylint: disable=W0110
+        return filter(lambda a: a.TYPE.is_BATTLE and a.AVAILABILITY.value & ABILITY_AVAILABILITY.FOR_MONSTERS.value, # pylint: disable=W0110
                       ABILITIES.values())
 
     def create_mob(self, hero):

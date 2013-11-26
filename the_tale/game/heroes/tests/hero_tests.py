@@ -47,7 +47,7 @@ class HeroTest(TestCase):
         self.assertEqual(self.hero.created_at_turn, TimePrototype.get_current_time().turn_number)
         self.assertEqual(self.hero.abilities.get('hit').level, 1)
 
-        self.assertTrue(self.hero.preferences.risk_level._is_NORMAL)
+        self.assertTrue(self.hero.preferences.risk_level.is_NORMAL)
 
         self.assertEqual(HeroPreferencesPrototype._db_count(), 1)
         self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).energy_regeneration_type, self.hero.preferences.energy_regeneration_type)
@@ -284,7 +284,7 @@ class HeroTest(TestCase):
 
     def check_rests_from_risk(self, method):
         results = []
-        for risk_level in RISK_LEVEL._records:
+        for risk_level in RISK_LEVEL.records:
             values = []
             self.hero.preferences.set_risk_level(risk_level)
             for health_percents in xrange(1, 100, 1):
@@ -316,7 +316,7 @@ class HeroTest(TestCase):
         self.hero.preferences.set_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE)
 
 
-        for preference_type in PREFERENCE_TYPE._records:
+        for preference_type in PREFERENCE_TYPE.records:
             self.hero.reset_preference(preference_type)
             self.assertEqual(self.hero.preferences.time_before_update(preference_type, datetime.datetime.now()), datetime.timedelta(seconds=0))
             if preference_type.nullable:
@@ -379,7 +379,7 @@ class HeroTest(TestCase):
 
 
     def test_get_achievement_type_value(self):
-        for achievement_type in ACHIEVEMENT_TYPE._records:
+        for achievement_type in ACHIEVEMENT_TYPE.records:
             self.hero.get_achievement_type_value(achievement_type)
 
 
@@ -540,29 +540,29 @@ class HeroLevelUpTests(TestCase):
         self.assertEqual(len(filter(lambda a: a.level==2 and a.get_id()=='hit', abilities)), 0)
 
     def test_get_abilities_for_choose_all_passive_slots_busy(self):
-        passive_abilities = filter(lambda a: a.activation_type._is_PASSIVE, [a(level=a.MAX_LEVEL) for a in ABILITIES.values()])
+        passive_abilities = filter(lambda a: a.activation_type.is_PASSIVE, [a(level=a.MAX_LEVEL) for a in ABILITIES.values()])
         for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
         for i in xrange(100):
             abilities = self.hero.abilities.get_for_choose()
-            self.assertEqual(len(filter(lambda a: a.activation_type._is_PASSIVE, abilities)), 0)
+            self.assertEqual(len(filter(lambda a: a.activation_type.is_PASSIVE, abilities)), 0)
 
     def test_get_abilities_for_choose_all_active_slots_busy(self):
-        active_abilities = filter(lambda a: a.activation_type._is_ACTIVE, [a(level=a.MAX_LEVEL) for a in ABILITIES.values()])
+        active_abilities = filter(lambda a: a.activation_type.is_ACTIVE, [a(level=a.MAX_LEVEL) for a in ABILITIES.values()])
         for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
         for i in xrange(100):
             abilities = self.hero.abilities.get_for_choose()
-            self.assertEqual(len(filter(lambda a: a.activation_type._is_ACTIVE, abilities)), 0)
+            self.assertEqual(len(filter(lambda a: a.activation_type.is_ACTIVE, abilities)), 0)
 
     def test_get_abilities_for_choose_all_slots_busy(self):
-        passive_abilities = filter(lambda a: a.activation_type._is_PASSIVE, [a(level=a.MAX_LEVEL) for a in ABILITIES.values()])
+        passive_abilities = filter(lambda a: a.activation_type.is_PASSIVE, [a(level=a.MAX_LEVEL) for a in ABILITIES.values()])
         for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
-        active_abilities = filter(lambda a: a.activation_type._is_ACTIVE, [a(level=a.MAX_LEVEL) for a in ABILITIES.values()])
+        active_abilities = filter(lambda a: a.activation_type.is_ACTIVE, [a(level=a.MAX_LEVEL) for a in ABILITIES.values()])
         for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
@@ -572,11 +572,11 @@ class HeroLevelUpTests(TestCase):
 
     @mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.next_ability_type', ABILITY_TYPE.BATTLE)
     def test_get_abilities_for_choose_all_slots_busy_but_one_not_max_level(self):
-        passive_abilities = filter(lambda a: a.activation_type._is_PASSIVE, [a(level=a.MAX_LEVEL) for a in battle.ABILITIES.values()])
+        passive_abilities = filter(lambda a: a.activation_type.is_PASSIVE, [a(level=a.MAX_LEVEL) for a in battle.ABILITIES.values()])
         for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
-        active_abilities = filter(lambda a: a.activation_type._is_ACTIVE, [a(level=a.MAX_LEVEL) for a in battle.ABILITIES.values()])
+        active_abilities = filter(lambda a: a.activation_type.is_ACTIVE, [a(level=a.MAX_LEVEL) for a in battle.ABILITIES.values()])
         for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
@@ -588,11 +588,11 @@ class HeroLevelUpTests(TestCase):
             self.assertEqual(abilities, [ability.__class__(level=ability.level+1)])
 
     def test_get_abilities_for_choose_all_slots_busy_and_all_not_max_level(self):
-        passive_abilities = filter(lambda a: a.activation_type._is_PASSIVE, [a(level=1) for a in ABILITIES.values()])
+        passive_abilities = filter(lambda a: a.activation_type.is_PASSIVE, [a(level=1) for a in ABILITIES.values()])
         for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
-        active_abilities = filter(lambda a: a.activation_type._is_ACTIVE, [a(level=1) for a in ABILITIES.values()])
+        active_abilities = filter(lambda a: a.activation_type.is_ACTIVE, [a(level=1) for a in ABILITIES.values()])
         for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 

@@ -168,7 +168,7 @@ class PurchasesRequestesTests(RequestesTestsBase, PageRequestsMixin):
 
         texts = [('pgf-no-history-message', 0)]
 
-        for record in PERMANENT_PURCHASE_TYPE._records:
+        for record in PERMANENT_PURCHASE_TYPE.records:
             self.account.permanent_purchases.insert(record)
             texts.append(record.description)
             texts.append((record.text, 1))
@@ -243,14 +243,14 @@ class PayWithDengionlineRequestesTests(RequestesTestsBase):
 
         invoice = DOInvoicePrototype._db_get_object(0)
 
-        self.assertTrue(invoice.bank_type._is_GAME_ACCOUNT)
+        self.assertTrue(invoice.bank_type.is_GAME_ACCOUNT)
         self.assertEqual(invoice.bank_id, self.account.id)
-        self.assertTrue(invoice.bank_currency._is_PREMIUM)
+        self.assertTrue(invoice.bank_currency.is_PREMIUM)
         self.assertEqual(invoice.bank_amount, 5 * payments_settings.PREMIUM_CURRENCY_FOR_DOLLAR)
         self.assertEqual(invoice.user_id, self.account.email)
         self.assertTrue(invoice.comment)
         self.assertEqual(invoice.payment_amount, 5)
-        self.assertTrue(invoice.payment_currency._is_USD)
+        self.assertTrue(invoice.payment_currency.is_USD)
 
         self.check_ajax_ok(response, data={'next_url': invoice.simple_payment_url})
 
@@ -350,14 +350,14 @@ class GiveMoneyRequestesTests(RequestesTestsBase):
 
         invoice = BankInvoicePrototype._db_get_object(0)
 
-        self.assertTrue(invoice.recipient_type._is_GAME_ACCOUNT)
+        self.assertTrue(invoice.recipient_type.is_GAME_ACCOUNT)
         self.assertEqual(invoice.recipient_id, self.account.id)
-        self.assertTrue(invoice.sender_type._is_GAME_MASTER)
+        self.assertTrue(invoice.sender_type.is_GAME_MASTER)
         self.assertEqual(invoice.sender_id, self.superuser.id)
-        self.assertTrue(invoice.currency._is_PREMIUM)
+        self.assertTrue(invoice.currency.is_PREMIUM)
         self.assertEqual(invoice.amount, 5)
         self.assertEqual(invoice.description, u'bla-bla')
-        self.assertTrue(invoice.state._is_FORCED)
+        self.assertTrue(invoice.state.is_FORCED)
 
         self.check_ajax_ok(response)
 

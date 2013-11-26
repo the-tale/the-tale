@@ -27,7 +27,7 @@ class PostponedUpdateAccountTaskTests(testcase.TestCase):
         self.assertEqual(self.postponed_task.account_id, self.account.id)
         self.assertEqual(self.postponed_task.method, 'prolong_premium')
         self.assertEqual(self.postponed_task.data, {'days': 17})
-        self.assertTrue(self.postponed_task.state._is_UNPROCESSED)
+        self.assertTrue(self.postponed_task.state.is_UNPROCESSED)
 
     def test_serialization(self):
         self.assertEqual(self.postponed_task.serialize(), UpdateAccount.deserialize(self.postponed_task.serialize()).serialize())
@@ -39,8 +39,8 @@ class PostponedUpdateAccountTaskTests(testcase.TestCase):
         self.assertTrue(self.account.is_premium)
 
     def test_processed__wrong_state(self):
-        for state in UPDATE_ACCOUNT_STATE._records:
-            if state._is_UNPROCESSED:
+        for state in UPDATE_ACCOUNT_STATE.records:
+            if state.is_UNPROCESSED:
                 continue
             self.postponed_task.state = state
             self.postponed_task.process(main_task=mock.Mock())

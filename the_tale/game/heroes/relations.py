@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from rels import Column
-from rels.django_staff import DjangoEnum
+from rels.django import DjangoEnum
 
 from the_tale.game.artifacts.models import ARTIFACT_TYPE
 
@@ -9,7 +9,7 @@ from the_tale.game.artifacts.models import ARTIFACT_TYPE
 class RISK_LEVEL(DjangoEnum):
     health_percent_to_rest = Column()
 
-    _records = ( ('VERY_HIGH', 0, u'очень высокий', 0.70),
+    records = ( ('VERY_HIGH', 0, u'очень высокий', 0.70),
                  ('HIGH',      1, u'высокий', 0.85),
                  ('NORMAL',    2, u'обычный', 1.00),
                  ('LOW',       3, u'низкий', 1.15),
@@ -22,7 +22,7 @@ class PREFERENCE_TYPE(DjangoEnum):
     prepair_method = Column(unique=False)
     nullable = Column(unique=False)
 
-    _records = ( ('MOB', 0, u'любимая добыча', 43, 'mob', '_prepair_mob', True),
+    records = ( ('MOB', 0, u'любимая добыча', 43, 'mob', '_prepair_mob', True),
                  ('PLACE', 1, u'родной город', 4, 'place', '_prepair_place', True),
                  ('FRIEND', 2, u'соратник', 13, 'friend', '_prepair_person', True),
                  ('ENEMY', 3, u'противник', 26, 'enemy', '_prepair_person', True),
@@ -35,7 +35,7 @@ class PREFERENCE_TYPE(DjangoEnum):
 
 class MONEY_SOURCE(DjangoEnum):
 
-    _records = ( ('EARNED_FROM_LOOT', 0, u'заработано продажей добычи'),
+    records = ( ('EARNED_FROM_LOOT', 0, u'заработано продажей добычи'),
                  ('EARNED_FROM_ARTIFACTS', 1, u'заработано продажей артефактов'),
                  ('EARNED_FROM_QUESTS', 2, u'заработано выполнением квестов'),
                  ('EARNED_FROM_HELP', 3, u'получено от хранителя'),
@@ -56,7 +56,7 @@ class ITEMS_OF_EXPENDITURE(DjangoEnum):
     money_source = Column()
     description = Column()
 
-    _records = ( ('INSTANT_HEAL',        0, u'лечение',           'heal',       12, 0.3, MONEY_SOURCE.SPEND_FOR_HEAL,
+    records = ( ('INSTANT_HEAL',        0, u'лечение',           'heal',       12, 0.3, MONEY_SOURCE.SPEND_FOR_HEAL,
                   u'Собирает деньги, чтобы поправить здоровье, когда понадобится.'),
                  ('BUYING_ARTIFACT',     1, u'покупка артефакта', 'artifact',   5,  1.5, MONEY_SOURCE.SPEND_FOR_ARTIFACTS,
                   u'Планирует приобретение новой экипировки.'),
@@ -80,7 +80,7 @@ class ITEMS_OF_EXPENDITURE(DjangoEnum):
 class EQUIPMENT_SLOT(DjangoEnum):
     artifact_type = Column(related_name='equipment_slot')
 
-    _records = ( ('HAND_PRIMARY', 0, u'основная рука', ARTIFACT_TYPE.MAIN_HAND),
+    records = ( ('HAND_PRIMARY', 0, u'основная рука', ARTIFACT_TYPE.MAIN_HAND),
                  ('HAND_SECONDARY', 1, u'вспомогательная рука', ARTIFACT_TYPE.OFF_HAND),
                  ('HELMET', 2, u'шлем', ARTIFACT_TYPE.HELMET),
                  ('SHOULDERS', 3, u'наплечники', ARTIFACT_TYPE.SHOULDERS),

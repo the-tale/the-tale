@@ -138,7 +138,7 @@ class AcceptBattleMethodTests(ArenaPvP1x1AcceptBaseTests):
     def test_process_battle_not_found(self):
         Battle1x1.objects.all().delete()
 
-        self.assertTrue(self.accept_battle()._is_BATTLE_NOT_FOUND)
+        self.assertTrue(self.accept_battle().is_BATTLE_NOT_FOUND)
 
         self.assertEqual(SupervisorTask.objects.all().count(), 0)
 
@@ -146,7 +146,7 @@ class AcceptBattleMethodTests(ArenaPvP1x1AcceptBaseTests):
         self.battle.state = BATTLE_1X1_STATE.PROCESSING
         self.battle.save()
 
-        self.assertTrue(self.accept_battle()._is_WRONG_ACCEPTED_BATTLE_STATE)
+        self.assertTrue(self.accept_battle().is_WRONG_ACCEPTED_BATTLE_STATE)
 
         self.assertEqual(SupervisorTask.objects.all().count(), 0)
 
@@ -155,21 +155,21 @@ class AcceptBattleMethodTests(ArenaPvP1x1AcceptBaseTests):
         battle.state = BATTLE_1X1_STATE.PREPAIRING
         battle.save()
 
-        self.assertTrue(self.accept_battle()._is_WRONG_INITIATOR_BATTLE_STATE)
+        self.assertTrue(self.accept_battle().is_WRONG_INITIATOR_BATTLE_STATE)
 
         self.assertEqual(SupervisorTask.objects.all().count(), 0)
 
     def test_process_battle_not_in_queue(self):
         self.pvp_balancer.arena_queue.clear()
 
-        self.assertTrue(self.accept_battle()._is_NOT_IN_QUEUE)
+        self.assertTrue(self.accept_battle().is_NOT_IN_QUEUE)
 
         self.assertEqual(SupervisorTask.objects.all().count(), 0)
 
     def test_process_success(self):
         self.assertEqual(SupervisorTask.objects.all().count(), 0)
 
-        self.assertTrue(self.accept_battle()._is_PROCESSED)
+        self.assertTrue(self.accept_battle().is_PROCESSED)
 
         self.assertEqual(SupervisorTask.objects.all().count(), 1)
 
@@ -182,7 +182,7 @@ class AcceptBattleMethodTests(ArenaPvP1x1AcceptBaseTests):
 
         self.assertEqual(SupervisorTask.objects.all().count(), 0)
 
-        self.assertTrue(self.accept_battle()._is_PROCESSED)
+        self.assertTrue(self.accept_battle().is_PROCESSED)
 
         self.assertEqual(SupervisorTask.objects.all().count(), 1)
 
