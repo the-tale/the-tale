@@ -87,7 +87,10 @@ class PersonalMessageHandler(BaseMessageHandler):
         if not account.personal_messages_subscription:
             return True
 
-        if account.id == get_system_user().id:
+        if account.id == get_system_user().id or account.is_bot:
+            return True
+
+        if not account.email:
             return True
 
         subject = u'«Сказка»: личное сообщение'
@@ -99,9 +102,6 @@ class PersonalMessageHandler(BaseMessageHandler):
 
         connection = mail.get_connection()
         connection.open()
-
-        if not account.email:
-            return True
 
         email = mail.EmailMultiAlternatives(subject, text_content, project_settings.EMAIL_NOREPLY, [account.email], connection=connection)
         email.attach_alternative(html_content, "text/html")
@@ -161,7 +161,7 @@ class ForumPostHandler(BaseMessageHandler):
             if not account.email:
                 continue
 
-            if account.id == system_user.id:
+            if account.id == system_user.id or account.is_bot:
                 continue
 
             email = mail.EmailMultiAlternatives(subject, text_content, project_settings.EMAIL_NOREPLY, [account.email], connection=connection)
@@ -225,7 +225,7 @@ class ForumThreadHandler(BaseMessageHandler):
             if not account.email:
                 continue
 
-            if account.id == system_user.id:
+            if account.id == system_user.id or account.is_bot:
                 continue
 
             email = mail.EmailMultiAlternatives(subject, text_content, project_settings.EMAIL_NOREPLY, [account.email], connection=connection)
@@ -266,7 +266,7 @@ class ResetPasswordHandler(BaseMessageHandler):
     def process(self):
         account = AccountPrototype.get_by_id(self.account_id)
 
-        if account.id == get_system_user().id:
+        if account.id == get_system_user().id or account.is_bot:
             return True
 
         subject = u'«Сказка»: сброс пароля'
@@ -318,7 +318,7 @@ class ChangeEmailNotificationHandler(BaseMessageHandler):
 
         task = ChangeCredentialsTaskPrototype.get_by_id(self.task_id)
 
-        if task.account.id == get_system_user().id:
+        if task.account.id == get_system_user().id or task.account.is_bot:
             return True
 
         context = {'task': task}
