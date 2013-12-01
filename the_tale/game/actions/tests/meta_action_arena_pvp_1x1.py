@@ -277,6 +277,8 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
         properties = self.meta_action_battle.get_bot_pvp_properties()
         properties['ability_chance'] = 1.0
 
+        self.hero_2.pvp.set_energy_speed(2) # flame abilitie will not be used, if enemy energy speed is 1
+
         self.meta_action_battle.process()
 
         self.assertTrue(self.hero_1.pvp.energy in (1, 2))

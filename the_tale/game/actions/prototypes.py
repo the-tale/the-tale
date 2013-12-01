@@ -784,6 +784,8 @@ class ActionBattlePvE1x1Prototype(ActionBase):
 
     @property
     def HELP_CHOICES(self): # pylint: disable=C0103
+        if not self.hero.is_alive:
+            return set((HELP_CHOICES.RESURRECT,))
         if self.mob.health <= 0:
             return set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
         return set((HELP_CHOICES.LIGHTING, HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
@@ -826,6 +828,18 @@ class ActionBattlePvE1x1Prototype(ActionBase):
 
         self.updated = True
 
+        return True
+
+    def fast_resurrect(self):
+        if self.state != self.STATE.PROCESSED: # hero can be dead only if action already processed
+            return False
+
+        if self.hero.is_alive:
+            return False
+
+        self.hero.resurrect()
+
+        self.updated = True
         return True
 
     def process(self):
@@ -901,6 +915,9 @@ class ActionResurrectPrototype(ActionBase):
 
         self.percents = 1.0
         self.hero.actions.current_action.percents = self.percents
+
+        self.hero.resurrect()
+        self.state = self.STATE.PROCESSED
 
         self.updated = True
         return True

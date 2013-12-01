@@ -12,6 +12,9 @@ from the_tale.game.logic import create_test_map
 from the_tale.game.actions.prototypes import ActionBattlePvE1x1Prototype
 from the_tale.game.prototypes import TimePrototype
 
+from the_tale.game.abilities.relations import HELP_CHOICES
+
+
 class BattlePvE1x1ActionTest(testcase.TestCase):
 
     def setUp(self):
@@ -112,3 +115,30 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(self.action_battle.mob.health, 0)
         self.assertEqual(self.action_battle.percents, 1)
         self.assertTrue(self.action_battle.updated)
+
+    def test_fast_resurrect__not_processed(self):
+        self.action_battle.hero.kill()
+        self.assertFalse(self.action_battle.fast_resurrect())
+        self.assertFalse(self.action_battle.hero.is_alive)
+
+    def test_fast_resurrect__hero_is_alive(self):
+        self.action_battle.state = self.action_battle.STATE.PROCESSED
+        self.assertFalse(self.action_battle.fast_resurrect())
+        self.assertTrue(self.action_battle.hero.is_alive)
+
+    def test_fast_resurrect__success(self):
+        self.action_battle.hero.kill()
+        self.action_battle.state = self.action_battle.STATE.PROCESSED
+        self.assertTrue(self.action_battle.fast_resurrect())
+        self.assertTrue(self.action_battle.hero.is_alive)
+
+    def test_help_choices(self):
+        self.assertTrue(HELP_CHOICES.LIGHTING in self.action_battle.HELP_CHOICES)
+
+        self.action_battle.mob.health = 0
+        self.assertFalse(HELP_CHOICES.LIGHTING in self.action_battle.HELP_CHOICES)
+
+        self.action_battle.mob.health = 1
+        self.action_battle.hero.kill()
+
+        self.assertEqual(self.action_battle.HELP_CHOICES, set((HELP_CHOICES.RESURRECT,)))
