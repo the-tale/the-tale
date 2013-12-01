@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from dext.utils.urls import url
 
 from the_tale.common.utils import testcase
 
@@ -69,6 +70,8 @@ class AccountAchievementsPrototypeTests(testcase.TestCase):
         message = MessagePrototype._db_get_object(0)
         self.assertEqual(message.sender_id, get_system_user().id)
         self.assertEqual(message.recipient_id, self.account_1.id)
+        self.assertTrue((url('accounts:achievements:group', self.achievement_1.group.slug) + ('#a%d' % self.achievement_1.id)) in
+                        message.text)
 
     def test_add_achievement__notify_false(self):
         with self.check_not_changed(MessagePrototype._db_count):

@@ -9,7 +9,7 @@
             {% elif has_achievement %}owned pgf-owned
             {% else %}not-owned{% endif %}">
   <h4>
-    {{achievement.caption}}
+    <a href="{{url('accounts:achievements:group', achievement.group.slug)}}#a{{achievement.id}}">{{achievement.caption}}</a>
     {% if has_achievement %}
     <small>получено <span class="pgf-format-date" data-timestamp="{{ account_achievements.timestamp_for(achievement) }}"></span></small>
     {% endif %}
@@ -19,7 +19,7 @@
         <i class="icon icon-pencil" style="vertical-align: middle;"></i>
       </a>
     {% endif %}
-
+    <a class="anchor" id="a{{achievement.id}}"></a>
     <span class="pull-right">+{{achievement.points}} очков</span>
   </h4>
   <p>{{achievement.description}}</p>

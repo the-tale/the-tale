@@ -2,6 +2,8 @@
 
 from django.db import models
 
+from dext.utils.urls import full_url
+
 from the_tale.common.utils.decorators import lazy_property
 from the_tale.common.utils.prototypes import BasePrototype
 
@@ -89,11 +91,13 @@ class AccountAchievementsPrototype(BasePrototype):
         if not notify:
             return
 
-        MessagePrototype.create(get_system_user(),
-                                self.account,
-                                u'Вы заработали достижение «%(achievement)s» — %(description)s' %
-                                {'achievement': achievement.caption,
-                                 'description': achievement.description})
+        message = (u'Вы заработали достижение «%(achievement)s» — %(description)s' %
+                   {'achievement': u'[url=%s#a%d]%s[/url]' % (full_url('http', 'accounts:achievements:group', achievement.group.slug),
+                                                              achievement.id,
+                                                              achievement.caption),
+                    'description': achievement.description})
+
+        MessagePrototype.create(get_system_user(), self.account, message)
 
 
     def remove_achievement(self, achievement):

@@ -29,7 +29,7 @@ class FriendshipPrototype(BasePrototype):
         MessagePrototype.create(get_system_user(),
                                 self.friend_1,
                                 u'игрок %(account_link)s подтвердил, что вы являетесь друзьями' %
-                                {'account_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', self.friend_2.id), self.friend_2.nick)})
+                                {'account_link': u'[url=%s]%s[/url]' % (full_url('http', 'accounts:show', self.friend_2.id), self.friend_2.nick)})
         self._model.is_confirmed = True
         self.save()
 
