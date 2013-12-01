@@ -237,7 +237,7 @@ class HeroResource(Resource):
                              {'type': type,
                               'mobs': mobs,
                               'places': places,
-                              'all_places': dict([ (place.id, place) for place in all_places]),
+                              'all_places': places_storage.get_choices(),
                               'friends': friends,
                               'enemies': enemies,
                               'equipment_slots': equipment_slots,

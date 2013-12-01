@@ -38,11 +38,11 @@
 <label for="pgf-places-selector">Город</label>
 
 <select id="pgf-places-selector">
-  {% for place_id, place in all_places.items() %}
+  {% for place_id, place_name in all_places %}
   <option value="{{place_id}}"
           {% if choosen_person_place_id == place_id %}selected='selected'
           {% endif %}>
-    {{place.name}}
+    {{place_name}}
   </option>
   {% endfor %}
 </select>
@@ -50,7 +50,7 @@
 
 <label>Жители</label>
 
-{% for place_id, place in all_places.items() %}
+{% for place_id, place_name in all_places %}
 <table class="pgf-hidden place-table place-table-{{place_id}} table table-bordered table-striped table-condensed">
   <tbody>
     {% for person in persons %}
