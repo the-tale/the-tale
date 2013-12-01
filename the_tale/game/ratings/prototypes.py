@@ -50,7 +50,7 @@ SELECT %(accounts)s.id AS account_id,
        %(heroes)s.level AS level,
        CASE WHEN raw_phrases_count IS NULL THEN 0 ELSE raw_phrases_count END AS phrases_count,
        %(heroes)s.stat_pvp_battles_1x1_number AS pvp_battles_1x1_number,
-       CASE WHEN %(heroes)s.stat_pvp_battles_1x1_number=0 THEN 0 ELSE CAST(%(heroes)s.stat_pvp_battles_1x1_victories AS FLOAT) / %(heroes)s.stat_pvp_battles_1x1_number END AS pvp_battles_1x1_victories,
+       CASE WHEN %(heroes)s.stat_pvp_battles_1x1_number < %(min_pvp_battles)s THEN 0 ELSE CAST(%(heroes)s.stat_pvp_battles_1x1_victories AS FLOAT) / %(heroes)s.stat_pvp_battles_1x1_number END AS pvp_battles_1x1_victories,
        %(accounts)s.referrals_number as referrals_number,
        %(achievements)s.points as achievements_points
 FROM %(accounts)s
@@ -75,6 +75,7 @@ WHERE NOT %(accounts)s.is_fast AND NOT %(accounts)s.is_bot AND %(accounts)s.id <
                                      'bill_accepted_state': BILL_STATE.ACCEPTED.value,
                                      'phrase_candidates': PhraseCandidate._meta.db_table,
                                      'phrase_candidate_added_state': PHRASE_CANDIDATE_STATE.ADDED,
+                                     'min_pvp_battles': ratings_settings.MIN_PVP_BATTLES,
                                      'system_user_id': get_system_user().id}
 
         cursor.execute(sql_request)

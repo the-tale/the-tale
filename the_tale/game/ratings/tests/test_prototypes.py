@@ -11,9 +11,12 @@ from the_tale.game.heroes.prototypes import HeroPrototype
 
 from the_tale.game.ratings.models import RatingValues
 from the_tale.game.ratings.prototypes import RatingValuesPrototype
+from the_tale.game.ratings.conf import ratings_settings
 
 from the_tale.game.phrase_candidates.prototypes import PhraseCandidatePrototype
 from the_tale.game.phrase_candidates.models import PHRASE_CANDIDATE_STATE
+
+
 
 class PrototypeTestsBase(TestCase):
 
@@ -168,8 +171,10 @@ class RatingPrototypeTests(PrototypeTestsBase):
 
         RatingValuesPrototype.recalculate()
 
+        self.assertEqual(ratings_settings.MIN_PVP_BATTLES, 10)
+
         self.assertEqual([rv.pvp_battles_1x1_number for rv in RatingValues.objects.all().order_by('account__id')],
                          [0, 5, 10, 20 ])
 
         self.assertEqual([rv.pvp_battles_1x1_victories for rv in RatingValues.objects.all().order_by('account__id')],
-                         [0, 0.2, 0.2, 0.15])
+                         [0, 0.0, 0.2, 0.15])

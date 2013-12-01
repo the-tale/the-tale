@@ -28,7 +28,12 @@
       <th>место</th>
       <th>хранитель</th>
       <th>герой</th>
-      <th>{{rating_type.text|lower}}</th>
+      <th>
+        {{rating_type.text|lower}}
+        {% if rating_type.hint %}
+        <i class="icon icon-info-sign" style="vertical-align: middle;" rel="tooltip" title="{{rating_type.hint}}"></i>
+        {% endif %}
+      </th>
     </tr>
   </thead>
   <tbody>
