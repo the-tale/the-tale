@@ -12,7 +12,7 @@ from the_tale.portal.workers.environment import workers_environment as portal_wo
 from the_tale.portal.conf import portal_settings
 
 Command = construct_workers_manager(help='run infrastructure workers',
-                                    process_pid='game_workers',
+                                    process_pid='portal_workers',
                                     # bank worker MUST be places in start of the list
                                     # since it MUST be stopped latest
                                     workers=(bank_workers_environment.bank_processor,
