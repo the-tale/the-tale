@@ -140,11 +140,11 @@ class ArtifactRecordPrototype(BasePrototype):
     rarity = property(get_rarity, set_rarity)
 
     def get_name_forms(self):
-        if not hasattr(self, '_normalized_name'):
+        if not hasattr(self, '_name_forms'):
             self._name_forms = Noun.deserialize(s11n.from_json(self._model.name_forms))
         return self._name_forms
     def set_name_forms(self, word):
-        self._normalized_name = word
+        self._name_forms = word
         self._model.name = word.normalized
         self._model.name_forms = s11n.to_json(word.serialize())
     name_forms = property(get_name_forms, set_name_forms)
