@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from django.conf import settings as project_settings
+from django.db import models
 
 from dext.views import handler
 from dext.settings import settings
@@ -59,9 +60,8 @@ class PortalResource(Resource):
             if account_of_the_day.clan_id is not None:
                 clan_of_the_day = ClanPrototype.get_by_id(account_of_the_day.clan_id)
 
-
-        forum_threads = [ ThreadPrototype(thread_model)
-                          for thread_model in Thread.objects.filter(subcategory__restricted=False).order_by('-updated_at')[:portal_settings.FORUM_THREADS_ON_INDEX]]
+        forum_threads = ThreadPrototype.get_last_threads(account=self.account if self.account.is_authenticated() else None,
+                                                         limit=portal_settings.FORUM_THREADS_ON_INDEX)
 
         blog_posts = [ BlogPostPrototype(blog_post_model)
                        for blog_post_model in BlogPost.objects.filter(state__in=[BLOG_POST_STATE.ACCEPTED, BLOG_POST_STATE.NOT_MODERATED],

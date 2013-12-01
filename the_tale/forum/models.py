@@ -142,7 +142,7 @@ class Permission(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True, db_index=True)
 
-    subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE, related_name='+')
+    subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
     account = models.ForeignKey('accounts.Account', related_name='+', on_delete=models.CASCADE)
 
     class Meta:

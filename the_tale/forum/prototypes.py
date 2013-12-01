@@ -4,7 +4,7 @@ import datetime
 import markdown
 
 from django.core.urlresolvers import reverse
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, transaction, models
 
 from dext.utils.urls import UrlBuilder
 
@@ -106,15 +106,17 @@ class ThreadPrototype(BasePrototype):
         return Paginator(1, self.posts_count+1, forum_settings.POSTS_ON_PAGE, url_builder)
 
     @classmethod
-    def get_threads_with_last_users_posts(cls, account, limit=None):
-        from django.db import models
+    def threads_visible_to_account_query(cls, account):
+        if account:
+            return cls._model_class.objects.filter(models.Q(subcategory__restricted=False) |
+                                                   (models.Q(subcategory__restricted=True) & models.Q(subcategory__permission__account_id=account.id)) )
+        else:
+            return cls._model_class.objects.filter(subcategory__restricted=False)
 
-        threads = Thread.objects.filter(post__author=account._model).annotate(last_user_post_time=models.Max('post__updated_at')).order_by('-last_user_post_time')
+    @classmethod
+    def get_last_threads(cls, account, limit):
+        return cls.from_query(cls.threads_visible_to_account_query(account=account).order_by('-updated_at')[:limit])
 
-        if limit:
-            threads = threads[:limit]
-
-        return [cls(thread) for thread in threads]
 
     def get_first_post(self):
         return PostPrototype(model=Post.objects.filter(thread=self._model).order_by('created_at')[0])

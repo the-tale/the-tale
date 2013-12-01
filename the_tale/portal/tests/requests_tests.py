@@ -4,7 +4,7 @@ from django.conf import settings as project_settings
 
 from dext.utils.urls import url
 
-from the_tale.common.utils.testcase import TestCase
+from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
 
@@ -15,16 +15,11 @@ from the_tale.game.balance import constants as c
 
 from the_tale.forum.tests.helpers import ForumFixture
 
-class TestRequests(TestCase):
+class TestRequests(testcase.TestCase):
 
     def setUp(self):
         super(TestRequests, self).setUp()
         create_test_map()
-
-
-    def test_index(self):
-        response = self.client.get(url('portal:'))
-        self.assertEqual(response.status_code, 200)
 
     def test_search(self):
         self.check_html_ok(self.request_html(url('portal:search')))
@@ -63,3 +58,16 @@ class TestRequests(TestCase):
                                  'turn_delta': c.TURN_DELTA,
                                  'account_id': account_id,
                                  'abilities_cost': {ability_type.value: ability_type.cost for ability_type in ABILITY_TYPE.records}})
+
+
+
+class IndexRequestTests(testcase.TestCase):
+
+    def setUp(self):
+        super(IndexRequestTests, self).setUp()
+        create_test_map()
+
+
+    def test_success(self):
+        response = self.client.get(url('portal:'))
+        self.assertEqual(response.status_code, 200)

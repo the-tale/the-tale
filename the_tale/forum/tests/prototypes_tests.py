@@ -20,6 +20,43 @@ from the_tale.forum.prototypes import (ThreadPrototype,
                               SubscriptionPrototype)
 
 
+class ThreadPrototypeTests(testcase.TestCase):
+
+    def setUp(self):
+        super(ThreadPrototypeTests, self).setUp()
+        create_test_map()
+
+
+    def test_last_forum_posts_with_permissions(self):
+        register_user('test_user', 'test_user@test.com', '111111')
+        register_user('granted_user', 'granted_user@test.com', '111111')
+        register_user('wrong_user', 'wrong_user@test.com', '111111')
+
+        account = AccountPrototype.get_by_nick('test_user')
+        granted_account = AccountPrototype.get_by_nick('granted_user')
+        wrong_account = AccountPrototype.get_by_nick('wrong_user')
+
+        category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
+        subcategory = SubCategoryPrototype.create(category=category, caption='subcat-caption', order=0)
+
+        restricted_subcategory = SubCategoryPrototype.create(category=category, caption='subcat2-caption', order=1, restricted=True)
+
+        PermissionPrototype.create(granted_account, restricted_subcategory)
+
+        thread = ThreadPrototype.create(subcategory, 'thread-caption', account, 'thread-text')
+        restricted_thread = ThreadPrototype.create(restricted_subcategory, 'thread-restricted-caption', account, 'thread-text')
+
+        self.assertEqual(set(t.id for t in ThreadPrototype.get_last_threads(account=None, limit=3)),
+                         set([thread.id]))
+
+        self.assertEqual(set(t.id for t in ThreadPrototype.get_last_threads(account=granted_account, limit=3)),
+                         set([thread.id, restricted_thread.id]))
+
+        self.assertEqual(set(t.id for t in ThreadPrototype.get_last_threads(account=wrong_account, limit=3)),
+                         set([thread.id]))
+
+
+
 class ThreadReadInfoPrototypeTests(testcase.TestCase):
 
     def setUp(self):
