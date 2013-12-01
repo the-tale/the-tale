@@ -59,6 +59,7 @@ class AccountAdmin(DjangoUserAdmin):
                                                  'groups',
                                                  'user_permissions')}),
                   (_('Settings'), {'fields': ('personal_messages_subscription',)}),
+                  (_('Data'), {'fields': ('permanent_purchases',)}),
                   (_('Important dates'), {'fields': ('last_login',
                                                     'active_end_at', 'premium_end_at',
                                                     'ban_game_end_at', 'ban_forum_end_at')}),  )

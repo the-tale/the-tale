@@ -63,7 +63,7 @@ jQuery(document).ready(function(e){
     <strong>{{ type.text }}:</strong>
     <br/>
     <span class="" style="margin-left: 2em;">
-      {% if (resource.account.is_authenticated() and type.purchase_type in resource.account.permanent_purchases) or resource.hero.level >= type.level_required %}
+      {% if type.purchase_type in master_account.permanent_purchases or resource.hero.level >= type.level_required %}
 
         {% if value %}
           {{value}}
