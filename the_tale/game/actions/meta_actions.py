@@ -278,7 +278,7 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         self.state = self.STATE.PROCESSED
 
     def process_bot(self, bot, enemy):
-        from the_tale.game.pvp.abilities import ABILITIES
+        from the_tale.game.pvp.abilities import ABILITIES, Flame
 
         properties = self.get_bot_pvp_properties()
 
@@ -286,6 +286,9 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
             return
 
         used_ability_type = random_value_by_priority(properties['priorities'].items())
+
+        if used_ability_type == Flame.TYPE and enemy.pvp.energy_speed == 1:
+            return
 
         ABILITIES[used_ability_type](hero=bot, enemy=enemy).use()
 

@@ -21,7 +21,7 @@ from the_tale.game.pvp.models import Battle1x1, Battle1x1Result
 from the_tale.game.pvp.relations import BATTLE_1X1_STATE
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
 from the_tale.game.pvp.tests.helpers import PvPTestsMixin
-from the_tale.game.pvp.abilities import ABILITIES
+from the_tale.game.pvp.abilities import ABILITIES, Flame
 
 
 class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
@@ -357,3 +357,30 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
         self.assertEqual(hero_2.level, 50)
         self.assertTrue(len(hero_2.abilities.all) > 1)
         self.assertEqual(hero_2.health, hero_2.max_health)
+
+
+    def test_process_bot__flame_ability_not_used(self):
+        result, account_1_id, bundle_id = register_user('bot', 'bot@bot.bot', '111111', is_bot=True)
+        result, account_2_id, bundle_id = register_user('test_user_3')
+
+        account_1 = AccountPrototype.get_by_id(account_1_id)
+        account_2 = AccountPrototype.get_by_id(account_2_id)
+
+        storage = LogicStorage()
+        storage.load_account_data(account_1)
+        storage.load_account_data(account_2)
+
+        hero_1 = storage.accounts_to_heroes[account_1.id]
+        hero_2 = storage.accounts_to_heroes[account_2.id]
+
+        MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2, bundle=BundlePrototype.create())
+
+        self.assertEqual(hero_2.pvp.energy_speed, 1)
+
+        with mock.patch('the_tale.game.actions.meta_actions.MetaActionArenaPvP1x1Prototype.get_bot_pvp_properties',
+                        lambda a:  {'priorities': {Flame.TYPE: 1}, 'ability_chance': 1}):
+            with mock.patch('the_tale.game.pvp.abilities.Flame.use') as use:
+                for i in xrange(100):
+                    self.meta_action_battle.process_bot(hero_1, hero_2)
+
+        self.assertEqual(use.call_count, 0)
