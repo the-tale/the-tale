@@ -12,6 +12,8 @@ class PlaceAdmin(admin.ModelAdmin):
 class BuildingAdmin(admin.ModelAdmin):
     list_display = ('id', 'type', 'integrity', 'state', 'person', 'type', 'x', 'y')
 
+    list_filter = ('state', 'type')
+
 
 class ResourceExchangeAdmin(admin.ModelAdmin):
     list_display = ('id', 'place_1', 'place_2', 'resource_1', 'resource_2', 'bill')

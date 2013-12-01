@@ -255,7 +255,7 @@
         <table class="table table-striped table-condensed table-no-highlighting">
           <tbody>
             <tr>
-              <td"><a target="_blank" href="{{url('game:bills:show', bill.id)}}">{{bill.caption}}</a></td>
+              <td><a target="_blank" href="{{url('game:bills:show', bill.id)}}">{{bill.caption}}</a></td>
             </tr>
             {% if not bill.duration.is_UNLIMITED %}
             <tr><td>Прекратит действовать через: {{bill.time_before_end|verbose_timedelta}}</td></tr>
@@ -351,6 +351,7 @@
             <tr><th width="200px">название</th><td>{{building.name}}</td></tr>
             <tr><th width="200px">город</th><td>{{building.place.name}}</td></tr>
             <tr><th width="200px">владелец</th><td>{{building.person.name}} {{ building.person.race_verbose }}-{{ building.person.type.text }}</td></tr>
+            <tr><th width="200px">возведено</th><td>{{building.created_at_turn|verbose_game_date}}</td></tr>
             <tr>
               <th width="200px">целостность</th>
               <td>

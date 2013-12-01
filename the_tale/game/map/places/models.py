@@ -59,6 +59,7 @@ class Building(models.Model):
     name_forms = models.TextField(null=False, default=u'')
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
+    created_at_turn = models.BigIntegerField(default=0)
 
     x = models.BigIntegerField(null=False)
     y = models.BigIntegerField(null=False)

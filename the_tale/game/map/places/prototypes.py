@@ -313,7 +313,7 @@ class PlacePrototype(BasePrototype):
 
 class BuildingPrototype(BasePrototype):
     _model_class = Building
-    _readonly = ('id', 'x', 'y', 'type', 'integrity')
+    _readonly = ('id', 'x', 'y', 'type', 'integrity', 'created_at_turn')
     _bidirectional = ('state',)
     _get_by = ('id',)
 
@@ -447,6 +447,7 @@ class BuildingPrototype(BasePrototype):
                                         place=person.place._model,
                                         person=person._model,
                                         state=BUILDING_STATE.WORKING,
+                                        created_at_turn=TimePrototype.get_current_turn_number(),
                                         type=person.type.building_type)
 
         prototype = cls(model=model)
