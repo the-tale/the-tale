@@ -41,7 +41,7 @@ class AchievementsResource(Resource):
 
     @lazy_property
     def groups(self):
-        return sorted(ACHIEVEMENT_GROUP.records, key=lambda group: group.name)
+        return sorted(ACHIEVEMENT_GROUP.records, key=lambda group: group.text)
 
 
     def group_url(self, group):
