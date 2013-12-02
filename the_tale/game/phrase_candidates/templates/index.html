@@ -54,7 +54,7 @@ jQuery(document).ready( function(e) {
 
     {% if author_account %}
     <div class="btn-group">
-      <a class="btn disabled" href="#">автор: {{author_account.nick}}</a>
+      <a class="btn disabled" href="#">автор: {{author_account.nick_verbose}}</a>
     </div>
     {% endif %}
 
@@ -102,7 +102,7 @@ jQuery(document).ready( function(e) {
           <th>{{ phrase.type_name }} :: {{ phrase.subtype_name }}</th>
           <td width="200px;">
             <a href="{{ url('accounts:show', phrase.author.id) }}">
-              {{phrase.author.nick}}
+              {{phrase.author.nick_verbose}}
               {% if phrase.author.clan %}
                 <a href="{{url('accounts:clans:show', phrase.author.clan.id)}}">[{{phrase.author.clan.abbr}}]</a>
               {% endif %}

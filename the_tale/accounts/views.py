@@ -471,7 +471,7 @@ class AccountResource(BaseAccountsResource):
     @handler('#account', 'reset-nick', name='reset-nick', method='post')
     def reset_nick(self):
         task = ChangeCredentialsTaskPrototype.create(account=self.master_account,
-                                                     new_nick=u'имя игрока сброшено (%s)' % uuid.uuid4().hex)
+                                                     new_nick=u'%s (%s)' % (accounts_settings.RESET_NICK_PREFIX, uuid.uuid4().hex))
 
         postponed_task = task.process(logger)
 

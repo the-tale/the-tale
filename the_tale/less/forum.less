@@ -46,6 +46,8 @@
 
 .post {
 
+   margin-bottom: 1em;
+
    .head {
 
       padding-top: 0.5em;
@@ -61,31 +63,31 @@
          padding-right: 0.5em;
       }
 
-      .index {
-         width: 3em;
-      }
-
-      .author {
-      }
-
-      .change-post {
-         float: right;
-      }
-
-      .delete-post {
-         float: right;
-      }
-
-      .created-at {
-         float: right;
-         text-align: right;
-      }
-
    }
 
-   .body {
+   .info {
+      padding-top: 0.5em;
+      padding-bottom: 0.5em;
+      margin-bottom:0.5em;
+      border-right: 1px solid #dddddd;
+      border-bottom: 1px solid #dddddd;
+      background-color: #f9f9f9;
+      height: 100px;
+      vertical-align: top;
+      text-align: center;
+      color: gray;
+   }
+
+   .info-head {
+      border-top: 1px solid #dddddd;
+      background-color: #f9f9f9;
+      text-align: center;
+      font-size: 12pt;
+   }
+
+   .message {
       padding: 0.5em;
-      margin-bottom: 1em;
+      vertical-align: top;
 
       .post-removed-message {
          color: @attention-text-color;

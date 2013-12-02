@@ -88,7 +88,7 @@
         </li>
         <li><strong>уровень:</strong> {{ hero_of_the_day.level}}</li>
         <li><strong>сила:</strong> {{ hero_of_the_day.power }}</li>
-        <li><strong>покровитель:</strong> <a href="{{ url('accounts:show', account_of_the_day.id) }}">{{ account_of_the_day.nick}}</a></li>
+        <li><strong>покровитель:</strong> <a href="{{ url('accounts:show', account_of_the_day.id) }}">{{ account_of_the_day.nick_verbose}}</a></li>
         <li><strong>могущество:</strong> {{ hero_of_the_day.might }}</li>
         {% if clan_of_the_day %}
         <li><strong>гильдия:</strong> <a href="{{url('accounts:clans:show', clan_of_the_day.id)}}">{{clan_of_the_day.name}}</a></li>
@@ -112,7 +112,7 @@
         <li class="newspaper-link-list">
           <span class="pgf-format-time newspaper-link-time" data-timestamp="{{ thread.updated_at|timestamp }}"></span>
           <span class="newspaper-forum-user">
-            {% if thread.last_poster %}{{thread.last_poster.nick}}
+            {% if thread.last_poster %}{{thread.last_poster.nick_verbose}}
             {% else %} —
             {% endif %}
           </span>
@@ -130,7 +130,7 @@
         <li class="newspaper-link-list">
           <span class="pgf-format-date newspaper-link-time" data-timestamp="{{ blog_post.created_at|timestamp }}"></span>
           <span class="newspaper-forum-user">
-            {% if blog_post.author %}{{blog_post.author.nick}}
+            {% if blog_post.author %}{{blog_post.author.nick_verbose}}
             {% else %} —
             {% endif %}
           </span>

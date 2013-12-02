@@ -48,6 +48,8 @@ accounts_settings = app_settings('ACCOUNTS',
                                  NICK_MIN_LENGTH=3,
                                  NICK_MAX_LENGTH=30,
 
+                                 RESET_NICK_PREFIX=u'имя игрока сброшено',
+
                                  BOT_EMAIL_TEMPLATE='bot_%d@the-tale.org',
                                  BOT_PASSWORD='password-Bots',
                                  BOT_NICK_TEMPLATE=u'Существо №%d',

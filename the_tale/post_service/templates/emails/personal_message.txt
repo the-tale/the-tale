@@ -2,7 +2,7 @@
 
 {% block content %}
 
-{{message.sender.nick}}:
+{{message.sender.nick_verbose}}:
 
 {{ message.text_html|striptags }}
 

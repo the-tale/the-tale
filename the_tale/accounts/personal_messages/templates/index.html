@@ -52,8 +52,8 @@ jQuery(document).ready(function(){
       <tbody>
         <tr class="head">
           <td class="author">
-            <a href="{{url('accounts:show', message.sender.id)}}">{{ message.sender.nick }}</a> ⟶
-            <a href="{{url('accounts:show', message.recipient.id)}}">{{ message.recipient.nick }}</a>
+            <a href="{{url('accounts:show', message.sender.id)}}">{{ message.sender.nick_verbose }}</a> ⟶
+            <a href="{{url('accounts:show', message.recipient.id)}}">{{ message.recipient.nick_verbose }}</a>
           </td>
 
           {% if incoming %}

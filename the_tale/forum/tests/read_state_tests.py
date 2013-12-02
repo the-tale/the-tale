@@ -137,3 +137,18 @@ class ReadStateTests(testcase.TestCase):
         read_state = self.get_read_state()
 
         self.assertFalse(read_state.thread_is_new(self.thread))
+
+    def test_subcategory_has_new_messages__unauthenticated(self):
+        pass
+
+    def test_subcategory_has_new_messages__not_read(self):
+        pass
+
+    def test_subcategory_has_new_messages__unread_state_expired(self):
+        pass
+
+    def test_subcategory_has_new_messages__read(self):
+        pass
+
+    def test_subcategory_has_new_messages__unread_but_thread_read(self):
+        pass

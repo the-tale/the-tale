@@ -10,7 +10,7 @@
       <h3>Достижения</h3>
       <ul class="nav nav-list">
         {% if resource.master_account %}
-        <li class="nav-element"><a href="{{url('accounts:show', resource.master_account.id)}}">←{{resource.master_account.nick}}</a></li>
+        <li class="nav-element"><a href="{{url('accounts:show', resource.master_account.id)}}">←{{resource.master_account.nick_verbose}}</a></li>
         {% endif %}
         <li class="nav-element"><a href="{{resource.index_url()}}">Общая информация</a></li>
         <li class="divider"></li>

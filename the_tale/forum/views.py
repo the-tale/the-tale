@@ -297,6 +297,8 @@ class ThreadPageData(object):
 
     def initialize(self, account, thread, page, inline=False):
 
+        from the_tale.game.heroes.prototypes import HeroPrototype
+
         self.account = account
         self.thread = thread
 
@@ -314,6 +316,11 @@ class ThreadPageData(object):
         self.post_from = post_from
 
         self.posts = [PostPrototype(post_model) for post_model in Post.objects.filter(thread=self.thread._model).order_by('created_at')[post_from:post_to]]
+
+        self.authors = {author.id:author for author in  AccountPrototype.get_list_by_id([post.author_id for post in self.posts])}
+
+        self.game_objects = {game_object.account_id:game_object
+                             for game_object in  HeroPrototype.get_list_by_id([post.author_id for post in self.posts])}
 
         pages_on_page_slice = self.posts
         if post_from == 0:
@@ -458,6 +465,9 @@ class ForumResource(BaseForumResource):
 
         forum_structure = []
 
+        read_states = {subcategory.id: ReadState(account=self.account, subcategory=subcategory)
+                       for subcategory in subcategories}
+
         for category in categories:
             children = []
             for subcategory in subcategories:
@@ -469,7 +479,8 @@ class ForumResource(BaseForumResource):
 
 
         return self.template('forum/index.html',
-                             {'forum_structure': forum_structure} )
+                             {'forum_structure': forum_structure,
+                              'read_states': read_states} )
 
     @login_required
     @handler('categories', '#subcategory', 'read-all', name='read-all', method='post')

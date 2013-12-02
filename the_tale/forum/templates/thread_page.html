@@ -1,5 +1,7 @@
 {% import 'macros.html' as base_macros with context %}
 
+{% import 'accounts/macros.html' as accounts_macros with context %}
+
 {% macro forum_paginator_line(thread_data, delete_thread_button=false, edit_thread_button=false) %}
   <div class="pagination pull-left">
     <ul>
@@ -41,12 +43,73 @@
 <script type="text/javascript">
 jQuery(document).ready( function(e) {
 
+    jQuery('.pgf-scroll-top').click(function(e){
+        e.preventDefault();
+        jQuery('html, body').scrollTop(0)
+    });
+
+    {% if resource.account.is_authenticated() %}
+    {{  accounts_macros.personal_message_js(resource.account) }}
+    {% endif %}
+
     {% if thread_data.can_post %}
     var newPostForm = new pgf.forms.Form(jQuery('#pgf-new-post-form'),
                                          { OnSuccess: function(form, data){
                                              location.href = data.data.thread_url;
                                          }
                                          });
+
+    jQuery('.pgf-quote').click(function(e){
+        e.preventDefault();
+
+        var target = jQuery(e.currentTarget);
+
+        var post = target.parents('.pgf-post').eq(0);
+
+        var content = jQuery('.pgf-message', post);
+
+        var text = content.html();
+        var selectedText = undefined;
+
+        if (window.getSelection) {
+            selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                range = selection.getRangeAt(0);
+                var clonedSelection = range.cloneContents();
+                var div = document.createElement('div');
+                div.appendChild(clonedSelection);
+                selectedText = div.innerHTML;
+            }
+            else {
+                selectedText = selection.toString()
+            }
+        }
+        else {
+            if (document.selection) {
+                if (document.selection.createRange) {
+                    selectedText = document.selection.createRange().htmlText;
+                }
+                else {
+                    selectedText = document.selection.toString();
+                }
+            }
+        }
+
+        if (selectedText.length > 0) {
+            text = selectedText;
+        }
+
+        text = text.replace(/^\s+/g, '');
+        text = text.replace(/\s+$/g, '');
+        text = pgf.base.HTMLToBBcode(text);
+
+        text = '[b]'+ post.data('author-name') +'[/b]\r[quote]' + text + '\r[/quote]';
+
+        var newPostInput = jQuery('#pgf-new-post-form #id_text');
+        newPostInput.val(newPostInput.val() + text);
+
+        jQuery('html, body').scrollTop(newPostInput.offset().top)
+    });
     {% endif %}
 
     {% if thread_data.can_delete_posts or thread_data.has_post_on_page %}
@@ -111,63 +174,102 @@ jQuery(document).ready( function(e) {
 
   {{ forum_paginator_line(thread_data, delete_thread_button=true, edit_thread_button=true) }}
 
-<ul class="unstyled">
+<div>
   {% for post in thread_data.posts %}
 
   {% if loop.index==1 and thread_data.ignore_first_post %}{% continue %}{% endif %}
 
   {% set message_number = loop.index + thread_data.post_from %}
 
+  {% set author = thread_data.authors[post.author_id] %}
+  {% set game_object = thread_data.game_objects[post.author_id] %}
+
   {# give anchor to previous element, if we give anchor to current element#}
-  <li class="post">
-    <div class="head">
-      <div class="index"><a href="#m{{post.id}}" >#{{message_number}}</a><div class="anchor" id="m{{post.id}}"></div></div>
+  <table class="post pgf-post" width="100%" data-author-name="{{author.nick_verbose}}">
+    <thead>
+      <tr>
+        <td width="200px" class="info-head">
+          <a href="{{url('accounts:show', author.id)}}">{{ author.nick_verbose }}</a>
+          {% if author.clan %}
+            <a href="{{url('accounts:clans:show', author.clan.id)}}">[{{author.clan.abbr}}]</a>
+          {% endif %}
+        </td>
+        <td class="head">
 
-      <div class="author">
-        <a href="{{url('accounts:show', post.author.id)}}">{{ post.author.nick }}</a>
-        {% if post.author.clan %}
-        <a href="{{url('accounts:clans:show', post.author.clan.id)}}">[{{post.author.clan.abbr}}]</a>
-        {% endif %}
-      </div>
+          <div style="width: 3em;">
+            <a href="#m{{post.id}}">#{{message_number}}</a>
+            <div class="anchor" id="m{{post.id}}"></div>
+          </div>
 
-      <div class="created-at pgf-format-datetime" data-timestamp="{{ post.created_at|timestamp}}"></div>
+          <div class="pgf-format-datetime" data-timestamp="{{ post.created_at|timestamp}}"></div>
 
-      {% if not (post.is_removed or post.technical) %}
+          {% if thread_data.can_post %}
+          <a href="#" class="pgf-quote" style="font-size: 11pt;" rel="tooltip" title="цитировать">«»</a>
+          {% endif %}
 
-      {% if (thread_data.can_delete_posts or post.author.id == resource.account.id) and (loop.index!=1 or thread_data.paginator.current_page_number!=0) %}
-      <div class="delete-post">
-        <a href="#" class="pgf-remove-post-button" data-delete-url="{{ url('forum:posts:delete', post.id) }}">удалить</a>
-      </div>
-      {% endif %}
+          <div style="float: right;">
+            <a href="#" class="pgf-scroll-top">в начало ⇑</a>
+          </div>
 
-      {% if thread_data.can_change_posts or post.author.id == resource.account.id %}
-      <div class="change-post">
-        <a href="{{ url('forum:posts:edit', post.id) }}" class="pgf-change-post-button">правка</a>
-      </div>
-      {% endif %}
+          {% if not (post.is_removed or post.technical) %}
 
-      {% endif %}
+            {% if (thread_data.can_delete_posts or author.id == resource.account.id) and (loop.index!=1 or thread_data.paginator.current_page_number!=0) %}
+              <div style="float: right;">
+                <a href="#" class="pgf-remove-post-button" data-delete-url="{{ url('forum:posts:delete', post.id) }}">удалить</a>
+              </div>
+            {% endif %}
 
-    </div>
+            {% if thread_data.can_change_posts or author.id == resource.account.id %}
+              <div style="float: right;">
+                <a href="{{ url('forum:posts:edit', post.id) }}" class="pgf-change-post-button">правка</a>
+              </div>
+            {% endif %}
 
-    <div class="body">
-      {% if post.is_removed %}
-      <span class="post-removed-message">
-        {% if post.is_removed_by_author %}
-        Сообщение удалено автором
-        {% elif post.is_removed_by_thread_owner %}
-        Соообщение удалено владельцем темы
-        {% else %}
-        Сообщение удалено модератором
-        {% endif %}
-      </span>
-      {% else %}
-      {{ post.html|safe }}
-      {% endif %}
-    </div>
-  </li>
+          {% endif %}
+
+        </td>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr>
+        <td class="info">
+          {% if not author.is_system_user %}
+            могущество: {{author.might|int}} <br/>
+
+            {% if resource.account.is_authenticated() %}
+              <a class="pgf-new-message" href="#">личное сообщение</a><br/>
+            {% endif %}
+
+            <br/>
+            {{game_object.gender_verbose}}-{{game_object.race_verbose}}<br/>
+            <a href="{{url('game:heroes:show', game_object.id)}}">{{game_object.name}}</a><br/>
+            {{game_object.level}} уровня
+          {% else %}
+            системный пользователь
+          {% endif %}
+        </td>
+        <td class="message pgf-message">
+          {% if post.is_removed %}
+            <span class="post-removed-message">
+              {% if post.is_removed_by_author %}
+                Сообщение удалено автором
+              {% elif post.is_removed_by_thread_owner %}
+                Соообщение удалено владельцем темы
+              {% else %}
+                Сообщение удалено модератором
+              {% endif %}
+            </span>
+          {% else %}
+            {{ post.html|safe }}
+          {% endif %}
+        </td>
+      </tr>
+    </tbody>
+  </table>
   {% endfor %}
-</ul>
+
+</div>
 
 {% if not thread_data.no_posts %}
 {{ forum_paginator_line(thread_data) }}

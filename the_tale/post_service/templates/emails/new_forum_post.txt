@@ -2,7 +2,7 @@
 
 {% block content %}
 
-{{post.author.nick}}:
+{{post.author.nick_verbose}}:
 
 {{ post.html|striptags }}
 

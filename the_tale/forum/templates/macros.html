@@ -43,7 +43,7 @@
   {{ pages_links(thread) }}
 </td>
 <td class="author">
-  <a href="{{url('accounts:show', thread.author.id)}}">{{ thread.author.nick }}</a>
+  <a href="{{url('accounts:show', thread.author.id)}}">{{ thread.author.nick_verbose }}</a>
   {% if thread.author.clan %}
     <a href="{{url('accounts:clans:show', thread.author.clan.id)}}">[{{thread.author.clan.abbr}}]</a>
   {% endif %}
@@ -51,12 +51,12 @@
 <td class="posts-count">{{ thread.posts_count }}</td>
 <td class="last-poster">
   {% if thread.last_poster %}
-    <a href="{{url('accounts:show', thread.last_poster.id)}}">{{ thread.last_poster.nick }}</a>
+    <a href="{{url('accounts:show', thread.last_poster.id)}}">{{ thread.last_poster.nick_verbose }}</a>
     {% if thread.last_poster.clan %}
       <a href="{{url('accounts:clans:show', thread.last_poster.clan.id)}}">[{{thread.last_poster.clan.abbr}}]</a>
     {% endif %}
   {% else %}
-    <a href="{{url('accounts:show', thread.author.id)}}">{{ thread.author.nick }}</a>
+    <a href="{{url('accounts:show', thread.author.id)}}">{{ thread.author.nick_verbose }}</a>
     {% if thread.author.clan %}
       <a href="{{url('accounts:clans:show', thread.author.clan.id)}}">[{{thread.author.clan.abbr}}]</a>
     {% endif %}
@@ -79,8 +79,8 @@
 {% endmacro %}
 
 
-{% macro subcategory_record(subcategory, subscription=false) %}
-<td class="caption">
+{% macro subcategory_record(subcategory, read_state=none, subscription=false) %}
+<td class="caption {% if read_state is not none and read_state.subcategory_has_new_messages() %}new-messages{% endif %}">
   <a href="{{ url('forum:subcategories:show', subcategory.id) }}">
     {{ subcategory.caption }}
   </a>
@@ -89,7 +89,7 @@
 <td class="posts-count">{{ subcategory.posts_count }}</td>
 <td class="last-poster">
   {% if subcategory.last_poster %}
-  <a href="{{url('accounts:show', subcategory.last_poster.id)}}">{{ subcategory.last_poster.nick }}</a>
+  <a href="{{url('accounts:show', subcategory.last_poster.id)}}">{{ subcategory.last_poster.nick_verbose }}</a>
   {% if subcategory.last_poster.clan %}
     <a href="{{url('accounts:clans:show', subcategory.last_poster.clan.id)}}">[{{subcategory.last_poster.clan.abbr}}]</a>
   {% endif %}

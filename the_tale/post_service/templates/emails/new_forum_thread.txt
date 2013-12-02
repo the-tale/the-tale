@@ -6,7 +6,7 @@
 
 ссылка: {{absolute_url(thread.paginator.first_page_url)}}
 
-{{post.author.nick}}:
+{{post.author.nick_verbose}}:
 
 {{ post.html|striptags }}
 

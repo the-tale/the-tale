@@ -50,12 +50,19 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
     def live_query(cls): return cls._model_class.objects.filter(is_fast=False, is_bot=False).select_related('clan')
 
     @lazy_property
+    def is_system_user(self):
+        return self.nick == accounts_settings.SYSTEM_USER_NICK
+
+    @lazy_property
     def permanent_purchases(self):
         from the_tale.accounts.payments.logic import PermanentRelationsStorage
         return PermanentRelationsStorage.deserialize(s11n.from_json(self._model.permanent_purchases))
 
     @property
-    def nick_verbose(self): return self._model.nick if not self._model.is_fast else u'Игрок'
+    def nick_verbose(self):
+        if self._model.nick.startswith(accounts_settings.RESET_NICK_PREFIX):
+            return accounts_settings.RESET_NICK_PREFIX
+        return self._model.nick if not self._model.is_fast else u'Игрок'
 
     def update_last_news_remind_time(self):
         current_time = datetime.datetime.now()

@@ -8,7 +8,7 @@
   <div class="modal-body">
 
     <p class="alert alert-info">
-      Вы собираетесь пригласить игрока <a target="_blank" href="{{url('accounts:show', invited_account.id)}}">{{invited_account.nick}}</a> в свою гильдию.
+      Вы собираетесь пригласить игрока <a target="_blank" href="{{url('accounts:show', invited_account.id)}}">{{invited_account.nick_verbose}}</a> в свою гильдию.
     </p>
 
     <form id="pgf-invite-form" method="post" action="{{ url('accounts:clans:membership:invite', account=invited_account.id) }}">

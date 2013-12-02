@@ -297,3 +297,47 @@ pgf.base.CompareObjects = function(a, b)
 
   return true;
 };
+
+
+// convert subset of html into bbcode
+pgf.base.HTMLToBBcode = function(text) {
+
+    text = text
+        .replace(/<strong>/g, '[b]')
+        .replace(/<\/strong>/g, '[/b]')
+
+        .replace(/<em>/g, '[i]')
+        .replace(/<\/em>/g, '[/i]')
+
+        .replace(/<u>/g, '[u]')
+        .replace(/<\/u>/g, '[/u]')
+
+        .replace(/<strike>/g, '[s]')
+        .replace(/<\/strike>/g, '[/s]')
+
+        .replace(/<blockquote>/g, '[quote]')
+        .replace(/<\/blockquote>/g, '[/quote]')
+
+        .replace(/<ul>/g, '[list]')
+        .replace(/<\/ul>/g, '[/list]')
+
+        .replace(/<li>/g, '[*]')
+        .replace(/<\/li>/g, '')
+
+        .replace(/<img src="([^"]*)">/g, '[img]$1[/img]')
+        .replace(/<\/img>/g, '')
+
+        .replace(/<a href="([^"]*)">/g, '[url=$1]')
+        .replace(/<\/a>/g, '[/url]')
+
+        .replace(/\s+/g, ' ')
+
+        .replace(/<br>/g, '\r')
+
+        .replace(/<p>/g, '\r\r')
+        .replace(/<\/p>/g, '');
+
+    text = text.replace(/<[^>]*>/g, "");
+
+    return text;
+};

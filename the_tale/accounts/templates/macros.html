@@ -12,7 +12,7 @@
 
 {% macro account_record(account, hero, clan=none) %}
 <td>
-  <a href="{{ url('accounts:show', account.id) }}">{{ account.nick }}</a>
+  <a href="{{ url('accounts:show', account.id) }}">{{ account.nick_verbose }}</a>
   {% if clan %}
   <a href="{{url('accounts:clans:show', clan.id)}}">[{{clan.abbr}}]</a>
   {% endif %}
@@ -53,4 +53,18 @@
 </a>
 {% endif %}
 
+{% endmacro %}
+
+
+{% macro personal_message_js(master_account) %}
+    jQuery('.pgf-new-message').click(function(e){
+        e.preventDefault();
+        pgf.ui.dialog.Create({ fromUrl: "{{ url('accounts:messages:new', recipients=master_account.id) }}",
+                               OnOpen: function(dialog) {
+                                   var newMessageForm = new pgf.forms.Form(jQuery('#pgf-new-message-form', dialog),
+                                                                           { OnSuccess: function(form, data){ dialog.modal('hide'); }
+                                                                           });
+                               }
+                             });
+    });
 {% endmacro %}

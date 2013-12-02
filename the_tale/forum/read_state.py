@@ -62,3 +62,21 @@ class ReadState(object):
             read_at = max(self.subcategory_read_info.read_at, read_at)
 
         return thread.created_at > read_at
+
+
+    # TODO: we have minor bug here
+    # user can got to thread page (and update thread_read_info)
+    # without going into subcategory page (and updating subcategory_read_info info)
+    # => user can read all threads, but subcategory will be displayed as unread
+    def subcategory_has_new_messages(self):
+
+        if not self._account.is_authenticated():
+            return False
+
+        if self.subcategory_read_info is None:
+            return True
+
+        if self._subcategory.updated_at + datetime.timedelta(seconds=forum_settings.UNREAD_STATE_EXPIRE_TIME) < datetime.datetime.now():
+            return False
+
+        return self._subcategory.updated_at > self.subcategory_read_info.read_at

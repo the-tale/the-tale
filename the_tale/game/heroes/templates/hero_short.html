@@ -95,7 +95,7 @@ jQuery(document).ready(function(e) {
 
   {% if master_account and not is_owner %}
   <div>
-    <strong>покровитель:</strong> <a href="{{ url('accounts:show', master_account.id) }}">{{master_account.nick}}</a>
+    <strong>покровитель:</strong> <a href="{{ url('accounts:show', master_account.id) }}">{{master_account.nick_verbose}}</a>
   </div>
   {% endif %}
 

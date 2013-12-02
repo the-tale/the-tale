@@ -9,7 +9,7 @@
   <a href="{{url('game:heroes:show', hero.id)}}">{{hero.name}}</a>
   {{ hero.level }} уровня,
   {% set owner = accounts[hero.account_id] %}
-  покровитель: <a href="{{ url('accounts:show', owner.id) }}">{{owner.nick}}</a>
+  покровитель: <a href="{{ url('accounts:show', owner.id) }}">{{owner.nick_verbose}}</a>
   {% endif %}
 </td>
 {% endmacro %}

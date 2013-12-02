@@ -29,7 +29,7 @@ class FriendshipPrototype(BasePrototype):
         MessagePrototype.create(get_system_user(),
                                 self.friend_1,
                                 u'игрок %(account_link)s подтвердил, что вы являетесь друзьями' %
-                                {'account_link': u'[url=%s]%s[/url]' % (full_url('http', 'accounts:show', self.friend_2.id), self.friend_2.nick)})
+                                {'account_link': u'[url=%s]%s[/url]' % (full_url('http', 'accounts:show', self.friend_2.id), self.friend_2.nick_verbose)})
         self._model.is_confirmed = True
         self.save()
 
@@ -111,7 +111,7 @@ class FriendshipPrototype(BasePrototype):
 
 ----------
 принять или отклонить предложение вы можете на этой странице: %(friends_link)s
-''' % {'account_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', friend_1.id), friend_1.nick),
+''' % {'account_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', friend_1.id), friend_1.nick_verbose),
        'text': text,
        'friends_link': u'[url="%s"]предложения дружбы[/url]' % full_url('http', 'accounts:friends:candidates')}
 
@@ -131,12 +131,12 @@ class FriendshipPrototype(BasePrototype):
             MessagePrototype.create(get_system_user(),
                                     friend,
                                     u'игрок %(account_link)s удалил вас из списка друзей' %
-                                    {'account_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick)})
+                                    {'account_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick_verbose)})
         else:
             MessagePrototype.create(get_system_user(),
                                     friend,
                                     u'игрок %(account_link)s отказался добавить вас в список друзей' %
-                                    {'account_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick)})
+                                    {'account_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick_verbose)})
 
         request.remove()
 

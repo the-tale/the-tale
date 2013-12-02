@@ -128,7 +128,7 @@ class ClansResource(Resource):
         from the_tale.game.heroes.prototypes import HeroPrototype
 
         roles = {member.account_id:member.role for member in MembershipPrototype.get_list_by_clan_id(self.clan.id)}
-        accounts = sorted(AccountPrototype.get_list_by_id(roles.keys()), key=lambda a: (roles[a.id].value, a.nick))
+        accounts = sorted(AccountPrototype.get_list_by_id(roles.keys()), key=lambda a: (roles[a.id].value, a.nick_verbose))
         heroes = {hero.account_id:hero for hero in HeroPrototype.get_list_by_account_id(roles.keys())}
 
         return self.template('clans/show.html',

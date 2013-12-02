@@ -11,12 +11,12 @@
 
     <p>
       {% if recipients|length == 1 %}
-      Сообщение для игрока <a href="{{ url('accounts:show', recipients[0].id) }}">{{recipients[0].nick}}</a>
+      Сообщение для игрока <a href="{{ url('accounts:show', recipients[0].id) }}">{{recipients[0].nick_verbose}}</a>
       {% else %}
       Сообщение для игроков:
       {% for recipient in recipients -%}
       {%- if loop.index != 1 %},{% endif %}
-      <a href="{{ url('accounts:show', recipient.id) }}">{{recipient.nick}}</a>
+      <a href="{{ url('accounts:show', recipient.id) }}">{{recipient.nick_verbose}}</a>
       {%- endfor %}
       {% endif %}
     </p>

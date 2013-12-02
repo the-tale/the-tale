@@ -28,7 +28,7 @@
     <tbody>
       {% for subcategory in subcategories %}
       <tr>
-        {{ forum_macros.subcategory_record(subcategory) }}
+        {{ forum_macros.subcategory_record(subcategory, read_state=read_states[subcategory.id]) }}
       </tr>
       {% endfor %}
     </tbody>

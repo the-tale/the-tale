@@ -1,8 +1,8 @@
 {% extends "accounts/base.html" %}
 
-{% import 'bills/macros.html' as bills_macros with context %}
+{% import 'accounts/macros.html' as accounts_macros with context %}
 
-{% block title %} {{ master_account.nick }} | {{ super() }}{% endblock %}
+{% block title %} {{ master_account.nick_verbose }} | {{ super() }}{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -13,16 +13,7 @@ jQuery(document).ready(function(){
 
 {% if resource.account.is_authenticated() and master_account.id != resource.account.id%}
 
-    jQuery('.pgf-new-message').click(function(e){
-        e.preventDefault();
-        pgf.ui.dialog.Create({ fromUrl: "{{ url('accounts:messages:new', recipients=master_account.id) }}",
-                               OnOpen: function(dialog) {
-                                   var newMessageForm = new pgf.forms.Form(jQuery('#pgf-new-message-form', dialog),
-                                                                           { OnSuccess: function(form, data){ dialog.modal('hide'); }
-                                                                           });
-                               }
-                             });
-    });
+    {{  accounts_macros.personal_message_js(master_account) }}
 
 {% if friendship is none %}
 
@@ -57,7 +48,7 @@ jQuery(document).ready(function(){
 
           {% if resource.account.is_authenticated() and master_account.id != resource.account.id %}
 
-            <li class="nav-element "><a class="pgf-new-message" href="#">отправить сообщение</a></li>
+            <li class="nav-element "><a class="pgf-new-message" href="#">личное сообщение</a></li>
 
             {% if friendship is none %}
               <li class="nav-element "><a class="pgf-friends-request-friendship" href="#">добавить в друзья</a></li>

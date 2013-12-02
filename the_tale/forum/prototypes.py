@@ -202,7 +202,7 @@ class ThreadPrototype(BasePrototype):
 
 class PostPrototype(BasePrototype):
     _model_class = Post
-    _readonly = ('id', 'created_at', 'updated_at', 'text', 'markup_method', 'state', 'removed_by', 'technical')
+    _readonly = ('id', 'created_at', 'updated_at', 'text', 'markup_method', 'state', 'removed_by', 'technical', 'author_id')
     _bidirectional = ()
     _get_by = ('id', )
 

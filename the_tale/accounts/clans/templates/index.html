@@ -20,7 +20,7 @@
 <div>
 
   <div style="display: inline-block; width: 150px; color: gray;">
-    <div style="">Лидер: <a href="{{url('accounts:show', leaders[clan.id].id)}}">{{ leaders[clan.id].nick }}</a></div>
+    <div style="">Лидер: <a href="{{url('accounts:show', leaders[clan.id].id)}}">{{ leaders[clan.id].nick_verbose }}</a></div>
     <div style="">Создан: <span class="created-at pgf-format-date" data-timestamp="{{ clan.created_at|timestamp }}"></span></div>
     <div style="">Героев: {{ clan.members_number }}</div>
   </div>

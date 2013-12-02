@@ -45,7 +45,7 @@
     <td><input type="checkbox" class="pgf-members-checkbox" value="{{account.id}}"></td>
     {% endif %}
     <td>{{loop.index}}</td>
-    <td><a href="{{url('accounts:show', account.id)}}">{{account.nick}}</a></td>
+    <td><a href="{{url('accounts:show', account.id)}}">{{account.nick_verbose}}</a></td>
     <td>{{role.text}}</td>
     <td>
       {{hero.gender_verbose}}-{{hero.race_verbose}}
@@ -61,7 +61,7 @@
           <li>
             <a class="pgf-forms-post-simple"
                href="{{ url('accounts:clans:membership:remove-from-clan', account=account.id) }}"
-               data-confirmation="Вы действительно хотите исключить <a target='_blank' href='{{url('accounts:show', account.id)}}'>{{account.nick}}</a> из гильдии?">
+               data-confirmation="Вы действительно хотите исключить <a target='_blank' href='{{url('accounts:show', account.id)}}'>{{account.nick_verbose}}</a> из гильдии?">
               Исключить из гильдии
             </a>
           </li>
