@@ -53,10 +53,12 @@
     </tr>
   </thead>
   <tbody>
+    {% for thread in important_threads %}
+      <tr>{{ forum_macros.thread_record(thread, read_state) }}</tr>
+    {% endfor %}
+
     {% for thread in threads %}
-    <tr>
-      {{ forum_macros.thread_record(thread, read_state) }}
-    </tr>
+      <tr>{{ forum_macros.thread_record(thread, read_state) }}</tr>
     {% endfor %}
   </tbody>
 </table>

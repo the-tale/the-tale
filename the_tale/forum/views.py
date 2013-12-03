@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.utils.feedgenerator import Atom1Feed
 
 from dext.views import handler, validate_argument
-from dext.utils.urls import UrlBuilder
+from dext.utils.urls import UrlBuilder, url
 
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.pagination import Paginator
@@ -127,7 +127,11 @@ class PostsResource(BaseForumResource):
 
         self.post.update(edit_post_form.c.text)
 
-        return self.json_ok()
+        thread_posts_ids = list(PostPrototype._db_filter(thread_id=self.post.thread_id).order_by('created_at').values_list('id', flat=True))
+
+        page = Paginator.get_page_numbers(thread_posts_ids.index(self.post.id)+1, forum_settings.POSTS_ON_PAGE)
+
+        return self.json_ok(data={'next_url':url('forum:threads:show', self.thread.id, page=page) + ('#m%d' % self.post.id)})
 
 
 class ThreadsResource(BaseForumResource):
@@ -162,9 +166,9 @@ class ThreadsResource(BaseForumResource):
         if not new_post_form.is_valid():
             return self.json_error('forum.create_post.form_errors', new_post_form.errors)
 
-        PostPrototype.create(self.thread, self.account, new_post_form.c.text)
+        post = PostPrototype.create(self.thread, self.account, new_post_form.c.text)
 
-        return self.json_ok(data={'thread_url': reverse('forum:threads:show', args=[self.thread.id]) + ('?page=%d' % self.thread.paginator.pages_count)})
+        return self.json_ok(data={'next_url': url('forum:threads:show', self.thread.id, page=self.thread.paginator.pages_count) + ('#m%d' % post.id)})
 
 
     @validate_argument('author', AccountPrototype.get_by_id, 'forum.threads.index', u'автор не найден')
@@ -248,7 +252,7 @@ class ThreadsResource(BaseForumResource):
             if not can_change_thread_category(self.account):
                 return self.json_error('forum.update_thread.no_permissions_to_change_subcategory', u'У вас нет прав для переноса темы в другой раздел')
 
-        self.thread.update(caption=edit_thread_form.c.caption, new_subcategory_id=new_subcategory_id)
+        self.thread.update(caption=edit_thread_form.c.caption, new_subcategory_id=new_subcategory_id, important=edit_thread_form.c.important)
 
         return self.json_ok()
 
@@ -268,7 +272,8 @@ class ThreadsResource(BaseForumResource):
                               'thread': self.thread,
                               'edit_thread_form': EditThreadForm(subcategories=[SubCategoryPrototype(subcategory_model) for subcategory_model in SubCategory.objects.all()],
                                                                  initial={'subcategory': self.subcategory.id,
-                                                                          'caption': self.thread.caption}),
+                                                                          'caption': self.thread.caption,
+                                                                          'important': self.thread.important}),
                               'can_change_thread_category': can_change_thread_category(self.account)} )
 
 
@@ -437,7 +442,10 @@ class SubCategoryResource(BaseForumResource):
 
         thread_from, thread_to = paginator.page_borders(page)
 
-        threads = list(ThreadPrototype(thread_model) for thread_model in threads_query.select_related().order_by('-updated_at')[thread_from:thread_to])
+        threads = ThreadPrototype.from_query(threads_query.select_related().order_by('-important', '-updated_at')[thread_from:thread_to])
+
+        important_threads = sorted(filter(lambda t: t.important, threads), key=lambda t: t.caption)
+        threads = filter(lambda t: not t.important, threads)
 
         read_state = ReadState(account=self.account, subcategory=self.subcategory, threads=threads)
         if self.account.is_authenticated():
@@ -451,6 +459,7 @@ class SubCategoryResource(BaseForumResource):
                               'can_subscribe': self.account.is_authenticated() and not self.account.is_fast,
                               'has_subscription': SubscriptionPrototype.has_subscription(self.account, subcategory=self.subcategory),
                               'threads': threads,
+                              'important_threads': important_threads,
                               'read_state': read_state } )
 
 

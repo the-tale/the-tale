@@ -53,7 +53,6 @@ class ReadStateTests(testcase.TestCase):
         read_state = self.get_read_state()
         self.assertFalse(read_state.thread_has_new_messages(self.thread))
 
-    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', lambda a: True)
     def test_thread_has_new_messages__never_read(self):
         read_state = self.get_read_state()
         self.assertTrue(read_state.thread_has_new_messages(self.thread))
@@ -61,7 +60,6 @@ class ReadStateTests(testcase.TestCase):
         self.account.save()
         self.assertFalse(read_state.thread_has_new_messages(self.thread))
 
-    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', lambda a: True)
     def test_thread_has_new_messages__read(self):
         ThreadReadInfoPrototype.read_thread(self.thread, self.account)
 
@@ -74,7 +72,6 @@ class ReadStateTests(testcase.TestCase):
 
         self.assertTrue(read_state.thread_has_new_messages(self.thread))
 
-    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', lambda a: True)
     @mock.patch('the_tale.forum.conf.forum_settings.UNREAD_STATE_EXPIRE_TIME', 0)
     def test_thread_has_new_messages__unread_state_expired(self):
         read_state = self.get_read_state()
@@ -86,12 +83,10 @@ class ReadStateTests(testcase.TestCase):
         read_state = self.get_read_state()
         self.assertFalse(read_state.thread_is_new(self.thread))
 
-    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', lambda a: True)
     def test_thread_is_new__author(self):
         read_state = self.get_read_state(account=self.account_2)
         self.assertFalse(read_state.thread_is_new(self.thread))
 
-    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', lambda a: True)
     def test_thread_is_new__never_read(self):
         read_state = self.get_read_state()
         self.assertTrue(read_state.thread_is_new(self.thread))
@@ -99,7 +94,6 @@ class ReadStateTests(testcase.TestCase):
         self.account.save()
         self.assertFalse(read_state.thread_is_new(self.thread))
 
-    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', lambda a: True)
     def test_thread_is_new__read(self):
         SubCategoryReadInfoPrototype.read_subcategory(self.subcategory, self.account)
 
@@ -112,13 +106,11 @@ class ReadStateTests(testcase.TestCase):
 
         self.assertTrue(read_state.thread_is_new(self.thread))
 
-    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', lambda a: True)
     @mock.patch('the_tale.forum.conf.forum_settings.UNREAD_STATE_EXPIRE_TIME', 0)
     def test_thread_is_new__unread_state_expired(self):
         read_state = self.get_read_state()
         self.assertFalse(read_state.thread_is_new(self.thread))
 
-    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', lambda a: True)
     def test_thread_has_new_messages__category_read(self):
         read_state = self.get_read_state()
         self.assertTrue(read_state.thread_is_new(self.thread))
@@ -128,7 +120,6 @@ class ReadStateTests(testcase.TestCase):
 
         self.assertFalse(read_state.thread_has_new_messages(self.thread))
 
-    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', lambda a: True)
     def test_thread_is_new_messages__thread_read(self):
         read_state = self.get_read_state()
         self.assertTrue(read_state.thread_is_new(self.thread))
@@ -138,17 +129,38 @@ class ReadStateTests(testcase.TestCase):
 
         self.assertFalse(read_state.thread_is_new(self.thread))
 
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', lambda a: False)
     def test_subcategory_has_new_messages__unauthenticated(self):
-        pass
+        self.assertFalse(self.get_read_state().subcategory_has_new_messages())
 
     def test_subcategory_has_new_messages__not_read(self):
-        pass
+        self.assertTrue(self.get_read_state().subcategory_has_new_messages())
+        SubCategoryReadInfoPrototype.read_subcategory(subcategory=self.subcategory, account=self.account)
+        self.assertFalse(self.get_read_state().subcategory_has_new_messages())
 
+    @mock.patch('the_tale.forum.conf.forum_settings.UNREAD_STATE_EXPIRE_TIME', 0)
     def test_subcategory_has_new_messages__unread_state_expired(self):
-        pass
+        SubCategoryReadInfoPrototype.read_subcategory(subcategory=self.subcategory, account=self.account)
+        self.subcategory._model.updated_at = datetime.datetime.now()
+        self.subcategory.save()
 
-    def test_subcategory_has_new_messages__read(self):
-        pass
+        self.assertFalse(self.get_read_state().subcategory_has_new_messages())
 
+    def test_subcategory_has_new_messages__unread(self):
+        SubCategoryReadInfoPrototype.read_subcategory(subcategory=self.subcategory, account=self.account)
+        self.assertFalse(self.get_read_state().subcategory_has_new_messages())
+        self.subcategory._model.updated_at = datetime.datetime.now()
+        self.subcategory.save()
+        self.assertTrue(self.get_read_state().subcategory_has_new_messages())
+
+    # test that bug still exists
     def test_subcategory_has_new_messages__unread_but_thread_read(self):
-        pass
+        SubCategoryReadInfoPrototype.read_subcategory(subcategory=self.subcategory, account=self.account)
+        self.subcategory._model.updated_at = datetime.datetime.now()
+        self.subcategory.save()
+        self.assertTrue(self.get_read_state().subcategory_has_new_messages())
+
+        ThreadReadInfoPrototype.read_thread(self.thread, self.account)
+        ThreadReadInfoPrototype.read_thread(self.thread_2, self.account)
+        ThreadReadInfoPrototype.read_thread(self.thread_3, self.account)
+        self.assertTrue(self.get_read_state().subcategory_has_new_messages())

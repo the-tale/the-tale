@@ -86,7 +86,7 @@ class SubCategoryPrototype(BasePrototype):
 
 class ThreadPrototype(BasePrototype):
     _model_class = Thread
-    _readonly = ('id', 'created_at', 'posts_count', 'updated_at', 'technical', 'subcategory_id')
+    _readonly = ('id', 'created_at', 'posts_count', 'updated_at', 'technical', 'subcategory_id', 'important')
     _bidirectional = ('caption', )
     _get_by = ('id', )
 
@@ -166,7 +166,7 @@ class ThreadPrototype(BasePrototype):
 
 
     @transaction.atomic
-    def update(self, caption=None, new_subcategory_id=None, author=None, date=None):
+    def update(self, caption=None, new_subcategory_id=None, author=None, date=None, important=None):
 
         subcategory = self.subcategory
 
@@ -178,6 +178,9 @@ class ThreadPrototype(BasePrototype):
 
         if author:
             self._model.last_poster = author._model
+
+        if important is not None:
+            self._model.important = important
 
         subcategory_changed = new_subcategory_id is not None and self.subcategory.id != new_subcategory_id
 
@@ -202,7 +205,7 @@ class ThreadPrototype(BasePrototype):
 
 class PostPrototype(BasePrototype):
     _model_class = Post
-    _readonly = ('id', 'created_at', 'updated_at', 'text', 'markup_method', 'state', 'removed_by', 'technical', 'author_id')
+    _readonly = ('id', 'created_at', 'updated_at', 'text', 'markup_method', 'state', 'removed_by', 'technical', 'author_id', 'thread_id')
     _bidirectional = ()
     _get_by = ('id', )
 

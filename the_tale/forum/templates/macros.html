@@ -35,6 +35,10 @@
 
 <td class="caption
            {% if read_state is not none and read_state.thread_has_new_messages(thread) %}new-messages{% endif %}">
+  {% if thread.important %}
+    <i class="icon icon-star" style="position: relative; top: 1px;" rel="tooltip" title="Важная тема"></i>
+  {% endif %}
+
   {% if read_state is not none and read_state.thread_is_new(thread) %}
   <span class="new-thread pgf-new-thread-marker">Новое!</span>
   {% endif %}

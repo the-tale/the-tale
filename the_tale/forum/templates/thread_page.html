@@ -55,7 +55,13 @@ jQuery(document).ready( function(e) {
     {% if thread_data.can_post %}
     var newPostForm = new pgf.forms.Form(jQuery('#pgf-new-post-form'),
                                          { OnSuccess: function(form, data){
-                                             location.href = data.data.thread_url;
+                                             var oldUrl = location.href.split('#')[0];
+                                             var newUrl = data.data.next_url.split('#')[0];
+                                             location.href = data.data.next_url;
+                                             if (oldUrl.indexOf(newUrl, oldUrl.length - newUrl.length) != -1 ||
+                                                 newUrl.indexOf(oldUrl, newUrl.length - oldUrl.length) != -1) {
+                                                 location.reload();
+                                             }
                                          }
                                          });
 

@@ -65,6 +65,8 @@ class Thread(models.Model):
 
     technical = models.BooleanField(default=False)
 
+    important = models.BooleanField(default=False, db_index=True)
+
     class Meta:
         permissions = (("moderate_thread", u"Может редактировать темы на форуме"), )
 

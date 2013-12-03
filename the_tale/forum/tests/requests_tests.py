@@ -13,9 +13,9 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.forum.models import Category, SubCategory, Thread, Post, Subscription
 from the_tale.forum.prototypes import (ThreadPrototype,
-                              PostPrototype,
-                              ThreadReadInfoPrototype,
-                              SubCategoryReadInfoPrototype)
+                                       PostPrototype,
+                                       ThreadReadInfoPrototype,
+                                       SubCategoryReadInfoPrototype)
 from the_tale.forum.conf import forum_settings
 from the_tale.forum.tests.helpers import ForumFixture
 
@@ -115,6 +115,40 @@ class TestSubcategoryRequests(BaseTestRequests):
         self.assertEqual(read_info.subcategory_id, self.subcat1.id)
 
         self.check_html_ok(self.request_html(url('forum:subcategories:show', self.subcat1.id)), texts=[('pgf-new-thread-marker', 0)])
+
+    def test_second_page(self):
+        texts = [self.thread1.caption,
+                 self.thread2.caption,
+                 (self.thread3.caption, 0)]
+        for i in xrange(forum_settings.THREADS_ON_PAGE):
+            caption = 'thread-x-%d-caption' % i
+            ThreadPrototype.create(self.subcat1, caption, self.account, 'thread-text')
+            texts.append((caption, 0))
+
+        self.check_html_ok(self.request_html(url('forum:subcategories:show', self.subcat1.id, page=2)), texts=texts)
+
+
+    def test_importans_threads_on_first_page(self):
+        texts = [self.thread1.caption,
+                 (self.thread2.caption, 0),
+                 (self.thread3.caption, 0)]
+
+        self.thread2._model.important = True
+        self.thread2.save()
+
+        for i in xrange(forum_settings.THREADS_ON_PAGE):
+            caption = 'thread-x-%d-caption' % i
+            ThreadPrototype.create(self.subcat1, caption, self.account, 'thread-text')
+            if i != 0:
+                texts.append((caption, 0))
+            else:
+                texts.append(caption)
+
+        self.check_html_ok(self.request_html(url('forum:subcategories:show', self.subcat1.id, page=2)), texts=texts)
+
+        self.check_html_ok(self.request_html(url('forum:subcategories:show', self.subcat1.id, page=1)), texts=[self.thread2.caption])
+
+
 
     @mock.patch('the_tale.forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
     def test_restricted(self):
@@ -315,8 +349,12 @@ class TestCreatePostRequests(BaseTestRequests):
                               code='forum.create_post.form_errors')
 
     def test_create_post_success(self):
-        self.check_ajax_ok(self.client.post(url('forum:threads:create-post', self.thread3.id), {'text': 'thread3-test-post'}),
-                           data={'thread_url': url('forum:threads:show', self.thread3.id) + '?page=1'})
+        response = self.client.post(url('forum:threads:create-post', self.thread3.id), {'text': 'thread3-test-post'})
+
+        post = PostPrototype._db_get_object(4)
+
+        self.check_ajax_ok(response, data={'next_url': url('forum:threads:show', self.thread3.id) + ('?page=1#m%d' % post.id)})
+
         self.assertEqual(Post.objects.all().count(), 5)
 
     def test_create_post_thread_not_found(self):

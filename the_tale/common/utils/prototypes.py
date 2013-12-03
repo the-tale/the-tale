@@ -194,7 +194,7 @@ class BasePrototype(object):
 
     @classmethod
     def from_query(cls, query):
-        return (cls(model=model) for model in query)
+        return [cls(model=model) for model in query]
 
     def __unicode__(self):
         return self._model.__unicode__()

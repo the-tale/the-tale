@@ -9,7 +9,7 @@ jQuery(document).ready( function(e) {
 
     var newPostForm = new pgf.forms.Form(jQuery('#pgf-change-post-form'),
                                          { OnSuccess: function(form, data){
-                                             location.href = "{{ url('forum:threads:show', thread.id) }}";
+                                             location.href = data.data.next_url;
                                          }
                                          });
 
