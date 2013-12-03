@@ -6,21 +6,39 @@ from django.db import transaction
 
 from dext.views import handler, validator, validate_argument
 from dext.utils.urls import UrlBuilder
+from the_tale.common.utils import list_filter
 
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.decorators import login_required
-from the_tale.common.utils.enum import create_enum
 
 from the_tale.game.map.relations import TERRAIN
 
-from the_tale.game.mobs.models import MOB_RECORD_STATE
+from the_tale.game.mobs.relations import MOB_RECORD_STATE, INDEX_ORDER_TYPE, MOB_TYPE
 from the_tale.game.mobs.prototypes import MobRecordPrototype
 from the_tale.game.mobs.storage import mobs_storage
 from the_tale.game.mobs.forms import MobRecordForm, ModerateMobRecordForm
 
 
-INDEX_ORDER_TYPE = create_enum('INDEX_ORDER_TYPE', (('BY_LEVEL', 'by_level', u'по уровню'),
-                                                    ('BY_NAME', 'by_name', u'по имени'),))
+BASE_INDEX_FILTERS = [list_filter.reset_element(),
+                      list_filter.choice_element(u'тип:', attribute='type', choices=[(None, u'все')] + list(MOB_TYPE.select('value', 'text'))),
+                      list_filter.choice_element(u'территория:', attribute='terrain', choices=[(None, u'все')] + TERRAIN._CHOICES),
+                      list_filter.choice_element(u'сортировка:',
+                                                 attribute='order_by',
+                                                 choices=INDEX_ORDER_TYPE.select('value', 'text'),
+                                                 default_value=INDEX_ORDER_TYPE.BY_NAME.value) ]
+
+MODERATOR_INDEX_FILTERS = BASE_INDEX_FILTERS + [list_filter.choice_element(u'состояние:',
+                                                                           attribute='state',
+                                                                           default_value=MOB_RECORD_STATE.ENABLED.value,
+                                                                           choices=MOB_RECORD_STATE.select('value', 'text'))]
+
+
+class UnloginedIndexFilter(list_filter.ListFilter):
+    ELEMENTS = BASE_INDEX_FILTERS
+
+class ModeratorIndexFilter(list_filter.ListFilter):
+    ELEMENTS = MODERATOR_INDEX_FILTERS
+
 
 
 def argument_to_mob(value): return mobs_storage.get(int(value), None)
@@ -38,6 +56,8 @@ class MobResourceBase(Resource):
 
 def argument_to_mob_state(value): return MOB_RECORD_STATE(int(value))
 
+def argument_to_mob_type(value): return MOB_TYPE(int(value))
+
 
 class GuideMobResource(MobResourceBase):
 
@@ -48,8 +68,9 @@ class GuideMobResource(MobResourceBase):
     @validate_argument('state', argument_to_mob_state, 'mobs', u'неверное состояние записи о монстре')
     @validate_argument('terrain', TERRAIN, 'mobs', u'неверный тип территории')
     @validate_argument('order_by', INDEX_ORDER_TYPE, 'mobs', u'неверный тип сортировки')
+    @validate_argument('type', argument_to_mob_type, 'mobs', u'неверный тип монстра')
     @handler('', method='get')
-    def index(self, state=MOB_RECORD_STATE.ENABLED, terrain=None, order_by=INDEX_ORDER_TYPE(INDEX_ORDER_TYPE.BY_NAME)):
+    def index(self, state=MOB_RECORD_STATE.ENABLED, terrain=None, order_by=INDEX_ORDER_TYPE.BY_NAME, type=None):
 
         mobs = mobs_storage.all()
 
@@ -66,14 +87,26 @@ class GuideMobResource(MobResourceBase):
             is_filtering = True
             mobs = filter(lambda mob: terrain.value in mob.terrains, mobs) # pylint: disable=W0110
 
-        if order_by.is_by_name:
+        if order_by.is_BY_NAME:
             mobs = sorted(mobs, key=lambda mob: mob.name)
-        elif order_by.is_by_level:
+        elif order_by.is_BY_LEVEL:
             mobs = sorted(mobs, key=lambda mob: mob.level)
 
-        url_builder = UrlBuilder(reverse('guide:mobs:'), arguments={ 'state': state.value if state else None,
-                                                                     'terrain': terrain.value if terrain else None,
+        if type is not None:
+            mobs = filter(lambda mob: mob.type == type, mobs) # pylint: disable=W0110
+
+        url_builder = UrlBuilder(reverse('guide:mobs:'), arguments={ 'state': state.value if state is not None else None,
+                                                                     'terrain': terrain.value if terrain is not None else None,
+                                                                     'type': type.value if type is not None else None,
                                                                      'order_by': order_by.value})
+
+        IndexFilter = ModeratorIndexFilter if self.can_create_mob or self.can_moderate_mob else UnloginedIndexFilter #pylint: disable=C0103
+
+        index_filter = IndexFilter(url_builder=url_builder, values={'state': state.value if state is not None else None,
+                                                                    'terrain': terrain.value if terrain is not None else None,
+                                                                    'type': type.value if type is not None else None,
+                                                                    'order_by': order_by.value})
+
 
         return self.template('mobs/index.html',
                              {'mobs': mobs,
@@ -85,6 +118,7 @@ class GuideMobResource(MobResourceBase):
                               'order_by': order_by,
                               'INDEX_ORDER_TYPE': INDEX_ORDER_TYPE,
                               'url_builder': url_builder,
+                              'index_filter': index_filter,
                               'section': 'mobs'} )
 
     @validate_mob_disabled()

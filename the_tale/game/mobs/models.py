@@ -17,8 +17,8 @@ class MobRecord(models.Model):
 
     editor = models.ForeignKey('accounts.Account', null=True, related_name='+', on_delete=models.SET_NULL)
 
-    state = TableIntegerField(relation=MOB_RECORD_STATE, relation_column='value')
-    type = TableIntegerField(relation=MOB_TYPE, relation_column='value')
+    state = TableIntegerField(relation=MOB_RECORD_STATE, relation_column='value', db_index=True)
+    type = TableIntegerField(relation=MOB_TYPE, relation_column='value', db_index=True)
 
     level = models.IntegerField(default=0)
 

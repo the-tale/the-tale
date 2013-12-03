@@ -63,7 +63,7 @@ class TestIndexRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('guide:mobs:')), texts=(('pgf-no-mobs-message', 1),))
 
     def test_simple(self):
-        texts = ['mob_1', 'mob_2', 'mob_3', ('pgf-create-mob-button', 0), ('pgf-mob-state-filter', 0)]
+        texts = ['mob_1', 'mob_2', 'mob_3', ('pgf-create-mob-button', 0), ('pgf-filter-state', 0)]
         self.check_html_ok(self.request_html(reverse('guide:mobs:')), texts=texts)
 
     def test_create_mob_button(self):
@@ -74,11 +74,11 @@ class TestIndexRequests(BaseTestRequests):
     def test_mob_state_filter(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
-        self.check_html_ok(self.request_html(reverse('guide:mobs:')), texts=[('pgf-mob-state-filter', 1)])
+        self.check_html_ok(self.request_html(reverse('guide:mobs:')), texts=[('pgf-filter-state', 1)])
 
         self.request_logout()
         self.request_login('test_user_3@test.com')
-        self.check_html_ok(self.request_html(reverse('guide:mobs:')), texts=[('pgf-mob-state-filter', 1)])
+        self.check_html_ok(self.request_html(reverse('guide:mobs:')), texts=[('pgf-filter-state', 1)])
 
     def test_disabled_mobs(self):
         MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
@@ -103,6 +103,18 @@ class TestIndexRequests(BaseTestRequests):
         mobs_storage.clear()
         MobRecordPrototype.create_random(uuid='bandit', terrains=[TERRAIN.PLANE_GRASS])
         self.check_html_ok(self.request_html(reverse('guide:mobs:')+('?terrain=%d' % TERRAIN.PLANE_GRASS)), texts=['bandit'])
+
+    def test_filter_by_type_no_mobs_message(self):
+        MobRecord.objects.all().delete()
+        mobs_storage.clear()
+        MobRecordPrototype.create_random(uuid='bandit', type=MOB_TYPE.COLDBLOODED)
+        self.check_html_ok(self.request_html(url('guide:mobs:', type=MOB_TYPE.CIVILIZED.value)), texts=(('pgf-no-mobs-message', 1),))
+
+    def test_filter_by_type(self):
+        MobRecord.objects.all().delete()
+        mobs_storage.clear()
+        MobRecordPrototype.create_random(uuid='bandit', type=MOB_TYPE.COLDBLOODED)
+        self.check_html_ok(self.request_html(url('guide:mobs:', type=MOB_TYPE.COLDBLOODED.value)), texts=['bandit'])
 
 
 class TestNewRequests(BaseTestRequests):

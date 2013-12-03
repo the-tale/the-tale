@@ -1,5 +1,6 @@
 {% extends "guide/base.html" %}
 {% import 'guide/macros.html' as guide_macros with context %}
+{% import 'utils/list_filter.html' as list_filter_macros with context %}
 
 {% block title %}Бестиарий | {{ super() }}{% endblock %}
 
@@ -21,57 +22,7 @@
 <a class="btn btn-danger pgf-create-mob-button" href="{{url('game:mobs:new')}}">создать монстра</a>
 {% endif %}
 
-<div>
-  <div class="btn-toolbar">
-
-    <div class="btn-group">
-      <a class="btn {% if not is_filtering %}disabled{% endif %}"
-         href="{% if is_filtering %}{{ url('guide:mobs:') }}{%else%}javascript: return none;{%endif%}">сбросить фильтрацию</a>
-    </div>
-
-    {% if resource.can_create_mob or resource.can_moderate_mob %}
-    <div class="btn-group pgf-mob-state-filter">
-      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-        состояние: {{state.text}} <span class="caret"></span>
-      </a>
-      <ul class="dropdown-menu">
-        <li><a href="{{ url_builder(state=MOB_RECORD_STATE.ENABLED.value) }}">в игре</a></li>
-        <li><a href="{{ url_builder(state=MOB_RECORD_STATE.DISABLED.value) }}">вне игры</a></li>
-      </ul>
-    </div>
-    {% endif %}
-
-    <div class="btn-group">
-      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-        территория:
-        {% if terrain is not none %} {{ terrain.verbose }}
-        {% else %} все
-        {% endif %}
-        <span class="caret"></span>
-      </a>
-      <ul class="dropdown-menu">
-        <li><a href="{{ url_builder(terrain=none) }}">все</a></li>
-        {% for terrain_id, terrain_text in TERRAIN._ID_TO_TEXT.items() %}
-        <li><a href="{{ url_builder(terrain=terrain_id) }}">{{terrain_text}}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
-
-    <div class="btn-group">
-      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-        сортировка: {{order_by.verbose}}
-        <span class="caret"></span>
-      </a>
-      <ul class="dropdown-menu">
-        {% for order_id, order_text in INDEX_ORDER_TYPE._ID_TO_TEXT.items() %}
-        <li><a href="{{ url_builder(order_by=order_id) }}">{{order_text}}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
-
-  </div>
-
-</div>
+{{ list_filter_macros.html_filter(index_filter) }}
 
 {% if mobs %}
 
@@ -143,7 +94,7 @@
 </table>
 
 {% else %}
-<span class="pgf-no-mobs-message">Не найдено монстров, отвечающих условиям поиска.</span>
+<p class="pgf-no-mobs-message alert alert-info">Не найдено монстров, отвечающих условиям поиска.</p>
 {% endif %}
 
 {% endblock %}
