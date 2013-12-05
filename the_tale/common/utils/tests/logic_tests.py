@@ -5,7 +5,7 @@ import collections
 
 from the_tale.common.utils import testcase
 
-from the_tale.common.utils.logic import random_value_by_priority, verbose_timedelta, get_or_create
+from the_tale.common.utils.logic import random_value_by_priority, verbose_timedelta, get_or_create, split_into_table
 from the_tale.common.utils.decorators import lazy_property
 
 _get_or_create_state = None # for get_or_create tests
@@ -104,3 +104,14 @@ class LogicTest(testcase.TestCase):
         def create(x, y): raise Exception
 
         self.assertEqual(get_or_create(get_method=get, create_method=create, exception=Exception, kwargs={'x': 222, 'y': 444}), 666)
+
+
+    def test_split_into_table(self):
+        self.assertEqual(split_into_table([], 3), [])
+        self.assertEqual(split_into_table([1], 3), [(1, None, None)])
+        self.assertEqual(split_into_table([1, 2], 3), [(1, 2, None)])
+        self.assertEqual(split_into_table([1, 2, 3], 3), [(1, 2, 3)])
+        self.assertEqual(split_into_table([1, 2, 3, 4], 3), [(1, 3, 4), (2, None, None)])
+        self.assertEqual(split_into_table([1, 2, 3, 4, 5], 3), [(1, 3, 5), (2, 4, None)])
+        self.assertEqual(split_into_table([1, 2, 3, 4, 5, 6], 3), [(1, 3, 5), (2, 4, 6)])
+        self.assertEqual(split_into_table([1, 2, 3, 4, 5, 6, 7], 3), [(1, 4, 6), (2, 5, 7), (3, None, None)])

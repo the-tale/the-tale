@@ -4,22 +4,30 @@ from dext.views import handler, validate_argument, validator
 from dext.utils.urls import url
 
 from the_tale.common.utils.resources import Resource
-from the_tale.common.utils.decorators import login_required
+from the_tale.common.utils.decorators import login_required, lazy_property
+from the_tale.common.utils.logic import split_into_table
 
-from the_tale.collections.prototypes import CollectionPrototype, KitPrototype, ItemPrototype
+from the_tale.accounts.prototypes import AccountPrototype
+
+from the_tale.collections.prototypes import CollectionPrototype, KitPrototype, ItemPrototype, AccountItemsPrototype
 from the_tale.collections.forms import EditCollectionForm, EditKitForm, EditItemForm
+from the_tale.collections.logic import get_collections_statistics
+from the_tale.collections.conf import collections_settings
+from the_tale.collections.storage import collections_storage, kits_storage, items_storage
 
 
 class BaseCollectionsResource(Resource):
 
-    @validate_argument('collection', CollectionPrototype.get_by_id, 'collections', u'Коллекция не найдена')
-    @validate_argument('kit', KitPrototype.get_by_id, 'collections', u'Набор не найден')
-    @validate_argument('item', ItemPrototype.get_by_id, 'collections', u'Предмет не найден')
+    @validate_argument('collection', lambda value: collections_storage[int(value)], 'collections', u'Коллекция не найдена')
+    @validate_argument('kit', lambda value: kits_storage[int(value)], 'collections', u'Набор не найден')
+    @validate_argument('item', lambda value: items_storage[int(value)], 'collections', u'Предмет не найден')
     def initialize(self, collection=None, kit=None, item=None, **kwargs):
         super(BaseCollectionsResource, self).initialize(**kwargs)
         self.item = item
         self.kit = kit
         self.collection = collection
+
+        self.master_account = None
 
         if self.item:
             self.kit = self.item.kit
@@ -27,43 +35,43 @@ class BaseCollectionsResource(Resource):
         if self.kit:
             self.collection = self.kit.collection
 
-    @property
+    @lazy_property
     def edit_collection_permission(self): return self.account.has_perm('collections.edit_collection')
 
-    @property
+    @lazy_property
     def moderate_collection_permission(self): return self.account.has_perm('collections.moderate_collection')
 
-    @property
+    @lazy_property
     def edit_kit_permission(self): return self.account.has_perm('collections.edit_kit')
 
-    @property
+    @lazy_property
     def moderate_kit_permission(self): return self.account.has_perm('collections.moderate_kit')
 
-    @property
+    @lazy_property
     def edit_item_permission(self): return self.account.has_perm('collections.edit_item')
 
-    @property
+    @lazy_property
     def moderate_item_permission(self): return self.account.has_perm('collections.moderate_item')
 
-    @property
+    @lazy_property
     def can_see_all_collections(self): return self.edit_collection_permission or self.moderate_collection_permission
 
-    @property
+    @lazy_property
     def can_edit_collection(self):
         if self.collection and self.collection.approved:
             return self.can_moderate_collection
         return self.edit_collection_permission or self.moderate_collection_permission
 
-    @property
+    @lazy_property
     def can_moderate_collection(self): return self.moderate_collection_permission
 
-    @property
+    @lazy_property
     def can_edit_kit(self):
         if self.kit and self.kit.approved:
             return self.can_moderate_kit
         return self.edit_kit_permission or self.moderate_kit_permission
 
-    @property
+    @lazy_property
     def can_moderate_kit(self): return self.moderate_kit_permission
 
     def _can_edit_item(self, item):
@@ -71,25 +79,38 @@ class BaseCollectionsResource(Resource):
             return self.can_moderate_item
         return self.edit_item_permission or self.moderate_item_permission
 
-    @property
+    @lazy_property
     def can_edit_item(self): return self._can_edit_item(self.item)
 
-    @property
+    @lazy_property
     def can_moderate_item(self): return self.moderate_item_permission
 
-    @property
+    @lazy_property
     def collections(self):
         if self.moderate_collection_permission or self.edit_collection_permission:
-            return CollectionPrototype.all_collections()
+            return sorted(CollectionPrototype.all_collections(), key=lambda c: c.caption)
         else:
-            return CollectionPrototype.approved_collections()
+            return sorted(CollectionPrototype.approved_collections(), key=lambda c: c.caption)
 
-    @property
+    @lazy_property
     def kits(self):
         if self.moderate_kit_permission or self.edit_kit_permission:
-            return KitPrototype.all_kits()
+            return sorted(KitPrototype.all_kits(), key=lambda k: k.caption)
         else:
-            return KitPrototype.approved_kits()
+            return sorted(KitPrototype.approved_kits(), key=lambda k: k.caption)
+
+    def collection_url(self, collection):
+        if self.master_account:
+            return url('collections:collections:show', collection.id, account=self.master_account.id)
+        else:
+            return url('collections:collections:show', collection.id)
+
+
+    def index_url(self):
+        if self.master_account:
+            return url('collections:collections:', account=self.master_account.id)
+        else:
+            return url('collections:collections:')
 
 
 class CollectionsResource(BaseCollectionsResource):
@@ -107,12 +128,36 @@ class CollectionsResource(BaseCollectionsResource):
     def validate_collection_approved(self, *args, **kwargs):
         return self.collection and (self.can_edit_collection or self.collection.approved)
 
-    @login_required
-    @validate_can_edit_collection()
+    @validate_argument('account', AccountPrototype.get_by_id, 'collections', u'Игрок не найден')
     @handler('')
-    def index(self):
+    def index(self, account=None):
+
+        if account is None and self.account.is_authenticated():
+            return self.redirect(url('collections:collections:', account=self.account.id))
+
+        self.master_account = account
+
+        master_account_items = None
+        last_items = []
+        if self.master_account:
+            master_account_items = AccountItemsPrototype.get_by_account_id(self.master_account.id)
+            last_items = master_account_items.last_items(number=collections_settings.LAST_ITEMS_NUMBER)
+
+        account_items = None
+        if self.account.is_authenticated():
+            account_items = AccountItemsPrototype.get_by_account_id(self.account.id)
+
+        collections_statistics = get_collections_statistics(account_items=master_account_items)
+
+        collections_table = split_into_table(self.collections, 3)
+
+
         return self.template('collections/collections/index.html',
-                             {})
+                             {'collections_statistics': collections_statistics,
+                              'collections_table': collections_table,
+                              'account_items': account_items,
+                              'master_account_items': master_account_items,
+                              'last_items': last_items})
 
     @login_required
     @validate_can_edit_collection()
@@ -138,13 +183,47 @@ class CollectionsResource(BaseCollectionsResource):
 
 
     @validate_collection_approved()
+    @validate_argument('account', AccountPrototype.get_by_id, 'collections', u'Игрок не найден')
     @handler('#collection', name='show')
-    def show(self):
-        kits = KitPrototype.get_list_by_collection_id(self.collection.id)
+    def show(self, account=None):
+
+        if account is None and self.account.is_authenticated():
+            return self.redirect(url('collections:collections:show', self.collection.id, account=self.account.id))
+
+        self.master_account = account
+
+        master_account_items = None
+        if self.master_account:
+            master_account_items = AccountItemsPrototype.get_by_account_id(self.master_account.id)
+
+        account_items = None
+        if self.account.is_authenticated():
+            account_items = AccountItemsPrototype.get_by_account_id(self.account.id)
+
+        collections_statistics = get_collections_statistics(account_items=master_account_items)
+
+
+        kits = sorted([kit for kit in kits_storage.all() if kit.collection_id == self.collection.id], key=lambda k: k.caption)
+
         if not (self.can_edit_kit or self.can_moderate_kit):
             kits = [kit for kit in kits if kit.approved]
+
+        items = {kit.id: [] for kit in kits}
+
+        items_query = ItemPrototype._db_all()
+
+        if not self.edit_item_permission and not self.moderate_item_permission:
+            items_query = items_query.filter(approved=True)
+
+        for item in ItemPrototype.from_query(items_query.filter(kit_id__in=[kit.id for kit in kits])):
+            items[item.kit_id].append(item)
+
         return self.template('collections/collections/show.html',
-                             {'kits': kits})
+                             {'kits': kits,
+                              'items': items,
+                              'account_items': account_items,
+                              'master_account_items': master_account_items,
+                              'collections_statistics': collections_statistics})
 
     @login_required
     @validate_can_edit_collection()
@@ -209,13 +288,6 @@ class KitsResource(BaseCollectionsResource):
 
     @login_required
     @validate_can_edit_kit()
-    @handler('')
-    def index(self):
-        return self.template('collections/kits/index.html',
-                             {})
-
-    @login_required
-    @validate_can_edit_kit()
     @handler('new')
     def new(self):
         return self.template('collections/kits/new.html',
@@ -234,16 +306,8 @@ class KitsResource(BaseCollectionsResource):
                                   caption=form.c.caption,
                                   description=form.c.description)
 
-        return self.json_ok(data={'next_url': url('collections:kits:show', kit.id)})
+        return self.json_ok(data={'next_url': url('collections:collections:show', kit.collection_id)})
 
-
-    @handler('#kit', name='show')
-    def show(self):
-        items = ItemPrototype.get_list_by_kit_id(self.kit.id)
-        if not (self.can_edit_item or self.can_moderate_item):
-            items = [item for item in items if item.approved]
-        return self.template('collections/kits/show.html',
-                             {'items': items})
 
     @login_required
     @validate_can_edit_kit()
@@ -298,6 +362,11 @@ class ItemsResource(BaseCollectionsResource):
     @validator(code='collections.items.no_edit_rights', message=u'нет прав для редактирования предмета')
     def validate_can_edit_item(self, *args, **kwargs):
         return self.can_edit_item or self.can_moderate_item
+        # if self.item is None or not self.item.approved:
+        #     print self.item.approved
+        #     return self.can_edit_item or self.can_moderate_item
+        # else:
+        #     return self.can_moderate_item
 
     @validator(code='collections.items.no_moderate_rights', message=u'нет прав для модерации предмета')
     def validate_can_moderate_item(self, *args, **kwargs):
@@ -323,7 +392,7 @@ class ItemsResource(BaseCollectionsResource):
                                         caption=form.c.caption,
                                         text=form.c.text)
 
-        return self.json_ok(data={'next_url': url('collections:kits:show', item.kit_id)})
+        return self.json_ok(data={'next_url': url('collections:collections:show', item.kit.collection_id)})
 
     @login_required
     @validate_can_edit_item()
@@ -340,6 +409,7 @@ class ItemsResource(BaseCollectionsResource):
     @validate_can_edit_item()
     @handler('#item', 'update')
     def update(self, method='post'):
+
         form = EditItemForm(self.request.POST)
 
         if not form.is_valid():
@@ -350,7 +420,7 @@ class ItemsResource(BaseCollectionsResource):
         self.item.text = form.c.text
         self.item.save()
 
-        return self.json_ok(data={'next_url': url('collections:kits:show', self.item.kit_id)})
+        return self.json_ok(data={'next_url': url('collections:collections:show', self.item.kit.collection_id)})
 
 
     @login_required

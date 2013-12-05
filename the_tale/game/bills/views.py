@@ -94,7 +94,7 @@ class BillResource(Resource):
     @validate_argument('state', argument_to_bill_state, 'bills', u'неверное состояние закона')
     @validate_argument('bill_type', argument_to_bill_type, 'bills', u'неверный тип закона')
     @validate_argument('voted', VOTED_TYPE, 'bills', u'неверный тип фильтра голосования')
-    @validate_argument('place', PlacePrototype.get_by_id, 'bills', u'не существует такого города')
+    @validate_argument('place', lambda value: places_storage[int(value)], 'bills', u'не существует такого города')
     @handler('', method='get')
     def index(self, page=1, owner=None, state=None, bill_type=None, voted=None, place=None):#pylint: disable=R0914
 

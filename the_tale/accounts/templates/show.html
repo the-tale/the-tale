@@ -153,17 +153,22 @@ jQuery(document).ready(function(){
         <table width="100%" style="text-align: center;">
           <tbody>
             <tr>
-              <td width="33%">
+              <td width="25%" style="vertical-align: middle;">
                 МОГУЩЕСТВО<br/>
                 <span style="font-size: 20pt;">{{ master_account.might|int }}</span></br>
                 <a href="{{url('guide:keepers')}}">путеводитель</a>
               </td>
-              <td>
+              <td width="25%" style="vertical-align: middle;">
                 ОЧКИ ДОСТИЖЕНИЙ<br/>
                 <span style="font-size: 20pt;">{{master_achievements.points}}</span></br>
                 <a href="{{url('accounts:achievements:', account=master_account.id)}}">все достижения</a>
               </td>
-              <td width="33%">
+              <td width="25%" style="vertical-align: middle;">
+                ПРЕДМЕТОВ В КОЛЛЕКЦИИ<br/>
+                <span style="font-size: 20pt;">{{master_items.get_items_count()}}</span></br>
+                <a href="{{url('collections:collections:', account=master_account.id)}}">коллекция</a>
+              </td>
+              <td width="25%" style="vertical-align: middle;">
                 ПОСЛЕДОВАТЕЛИ<br/>
                 <span style="font-size: 20pt;">{{ master_account.referrals_number }}</span></br>
                 <a href="{{url('guide:referrals')}}">реферальная ссылка</a>

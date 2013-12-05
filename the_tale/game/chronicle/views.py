@@ -9,7 +9,6 @@ from the_tale.common.utils import list_filter
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.pagination import Paginator
 
-from the_tale.game.map.places.prototypes import PlacePrototype
 from the_tale.game.map.places.storage import places_storage
 
 from the_tale.game.chronicle.models import Record
@@ -28,7 +27,7 @@ class ChronicleResource(Resource):
         super(ChronicleResource, self).initialize(*args, **kwargs)
 
     @validate_argument('page', int, 'chronicle', u'неверная страница')
-    @validate_argument('place', PlacePrototype.get_by_id, 'chronicle', u'неверный идентификатор города')
+    @validate_argument('place', lambda value: places_storage[int(value)], 'chronicle', u'неверный идентификатор города')
     @handler('', method='get')
     def index(self, page=None, place=None):
 

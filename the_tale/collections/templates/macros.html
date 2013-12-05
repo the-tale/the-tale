@@ -1,0 +1,77 @@
+
+
+{% macro items_list(items, account_items, master_account_items) %}
+
+{% if items %}
+
+<div class="accordion" id="pgf-items-accordion">
+
+  {% for item in items %}
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+
+      {% if resource._can_edit_item(item) %}
+        <a href="{{url('collections:items:edit', item.id)}}" class="pgf-edit-item-button pull-right accordion-toggle" rel="tooltip" title="Редактировать предмет">
+          <i class="icon icon-pencil" style="vertical-align: middle;"></i>
+        </a>
+      {% endif %}
+
+      {% if resource.can_moderate_item %}
+        {% if not item.approved %}
+          <a href="{{url('collections:items:approve', item.id)}}"
+             class="pgf-approve-item-button pgf-forms-post-simple pull-right accordion-toggle"
+             data-confirmation="Вы действительно хотите утвердить предмет?"
+             rel="tooltip"
+             title="Утвердить предмет">
+             <i class="icon icon-ok" style="vertical-align: middle;"></i>
+          </a>
+        {% else %}
+          <a href="{{url('collections:items:disapprove', item.id)}}"
+             class="pgf-disapprove-item-button pgf-forms-post-simple pull-right accordion-toggle"
+             data-confirmation="Вы действительно хотите разутвердить предмет?"
+             rel="tooltip"
+             title="Разутвердить предмет">
+             <i class="icon icon-remove" style="vertical-align: middle;"></i>
+          </a>
+        {% endif %}
+      {% endif %}
+
+
+      <a class="accordion-toggle collapsed {% if master_account_items is none or not master_account_items.has_item(item) %}disabled{% endif %}"
+         style="{% if not item.approved %}color: red !important;{% endif %}"
+         data-toggle="collapse"
+         data-parent="#pgf-items-accordion"
+         href="#pgf-item-{{item.id}}">
+         {{item.caption}}
+      </a>
+
+    </div>
+    <div id="pgf-item-{{item.id}}" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner" style="text-align: justify;">
+        {% if resource.edit_item_permission or resource.moderate_item_permission %}
+           {{item.text_html|safe}}
+        {% elif account_items is none or not account_items.has_item(item) %}
+          Вы ещё не получили это предмет.
+        {% elif master_account_items and master_account_items.has_item(item) %}
+           {{item.text_html|safe}}
+        {% else %}
+          Игрок ещё не получил этот предмет.
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+
+{% else %}
+
+<p class="alert alert-info pgf-no-items-message">
+  В наборе нет предметов.
+</p>
+
+{% endif %}
+
+
+{% endmacro %}

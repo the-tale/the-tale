@@ -4,15 +4,17 @@ from dext.utils.testcase import TestCase as DextTestCase, TransactionTestCase as
 from dext.settings import settings
 from dext.utils.urls import url
 
-from the_tale.game.persons.storage import persons_storage
-from the_tale.game.mobs.storage import mobs_storage
-from the_tale.game.artifacts.storage import artifacts_storage
-from the_tale.game.map.storage import map_info_storage
-from the_tale.game.map.places.storage import places_storage, buildings_storage, resource_exchange_storage
-from the_tale.game.map.roads.storage import roads_storage, waymarks_storage
-
-
 def setUp(self):
+    from the_tale.accounts.achievements.storage import achievements_storage
+    from the_tale.collections.storage import collections_storage, kits_storage, items_storage
+
+    from the_tale.game.persons.storage import persons_storage
+    from the_tale.game.mobs.storage import mobs_storage
+    from the_tale.game.artifacts.storage import artifacts_storage
+    from the_tale.game.map.storage import map_info_storage
+    from the_tale.game.map.places.storage import places_storage, buildings_storage, resource_exchange_storage
+    from the_tale.game.map.roads.storage import roads_storage, waymarks_storage
+
     settings.refresh(force=True)
 
     places_storage.clear()
@@ -24,6 +26,10 @@ def setUp(self):
     artifacts_storage.clear()
     map_info_storage.clear()
     resource_exchange_storage.clear()
+    collections_storage.clear()
+    kits_storage.clear()
+    items_storage.clear()
+    achievements_storage.clear()
 
     places_storage._setup_version()
     buildings_storage._setup_version()
@@ -34,6 +40,10 @@ def setUp(self):
     artifacts_storage._setup_version()
     map_info_storage._setup_version()
     resource_exchange_storage._setup_version()
+    collections_storage._setup_version()
+    kits_storage._setup_version()
+    items_storage._setup_version()
+    achievements_storage._setup_version()
 
 
 class TestCaseMixin(object):

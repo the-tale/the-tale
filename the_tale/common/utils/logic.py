@@ -70,6 +70,29 @@ def choose_nearest(value, intervals):
     return choosen_result
 
 
+def split_into_table(sequence, columns):
+    table = []
+
+    items_number = len(sequence)
+
+    start_index = 0
+
+    for i in xrange(columns):
+        sublen = int(math.ceil(items_number / float(columns-i)))
+        table.append(sequence[start_index:start_index+sublen])
+        items_number -= sublen
+        start_index += sublen
+
+    for i in xrange(1, columns):
+        while len(table[0]) > len(table[i]):
+            table[i].append(None)
+
+    table = zip(*table)
+
+    return table
+
+
+
 def get_or_create(get_method, create_method, exception, kwargs):
 
     obj = get_method(**kwargs)

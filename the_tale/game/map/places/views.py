@@ -12,14 +12,14 @@ from the_tale.game.relations import RACE
 from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes.preferences import HeroPreferences
 
-from the_tale.game.map.places.prototypes import PlacePrototype
+from the_tale.game.map.places.storage import places_storage
 
 from the_tale.game.map.utils import get_race_percents
 
 
 class PlaceResource(Resource):
 
-    @validate_argument('place', PlacePrototype.get_by_id, 'places', u'место не найдено')
+    @validate_argument('place', lambda value: places_storage.get(int(value)), 'places', u'место не найдено')
     def initialize(self, place=None, *args, **kwargs):
         super(PlaceResource, self).initialize(*args, **kwargs)
         self.place = place

@@ -1,65 +1,123 @@
 {% extends "collections/collections/base.html" %}
 
+{% import 'collections/macros.html' as collections_macros with context %}
+
 {% block title %}{{resource.collection.caption}} | {{ super() }}{% endblock %}
 
 {% block collections_content %}
 
-<h2>{{resource.collection.caption}}</h2>
+  <h2>
+    {{resource.collection.caption}}
 
-<div style="text-align: justify;">
-  {{resource.collection.description_html|safe}}
-</div>
-
-{% if resource.can_edit_collection or resource.can_moderate_collection or resource.can_edit_kit%}
-  <p>
-    {% if resource.can_edit_kit %}
-      <a href="{{url('collections:kits:new')}}" class="pgf-new-kit-button btn btn-success">Добавить набор</a>
-    {% endif %}
+    <small>
+      {{collections_statistics["account_items_in_collections"].get(resource.collection.id, 0)}}
+      из
+      {{collections_statistics["total_items_in_collections"].get(resource.collection.id, 0)}}
+    </small>
 
     {% if resource.can_edit_collection %}
-      <a href="{{url('collections:collections:edit', resource.collection.id)}}" class="pgf-edit-collection-button btn btn-success">Редактировать коллекцию</a>
+      <a href="{{url('collections:collections:edit', resource.collection.id)}}" class="pgf-edit-collection-button" rel="tooltip" title="Редактировать коллекцию">
+        <i class="icon icon-pencil" style="vertical-align: middle;"></i>
+      </a>
     {% endif %}
 
     {% if resource.can_moderate_collection %}
       {% if not resource.collection.approved %}
         <a href="{{url('collections:collections:approve', resource.collection.id)}}"
-           class="pgf-approve-collection-button btn btn-danger pgf-forms-post-simple"
-           data-confirmation="Вы действительно хотите утвердить коллекцию?">
-           Утвердить коллекцию
+           class="pgf-approve-collection-button pgf-forms-post-simple"
+           data-confirmation="Вы действительно хотите утвердить коллекцию?"
+           rel="tooltip"
+           title="Утвердить коллекцию">
+           <i class="icon icon-ok" style="vertical-align: middle;"></i>
         </a>
       {% else %}
         <a href="{{url('collections:collections:disapprove', resource.collection.id)}}"
-           class="pgf-disapprove-collection-button btn btn-danger pgf-forms-post-simple"
-           data-confirmation="Вы действительно хотите разутвердить коллекцию?">
-           Разутвердить коллекцию
+           class="pgf-disapprove-collection-button pgf-forms-post-simple"
+           data-confirmation="Вы действительно хотите разутвердить коллекцию?"
+           rel="tooltip"
+           title="Разутвердить коллекцию">
+           <i class="icon icon-remove" style="vertical-align: middle;"></i>
         </a>
       {% endif %}
     {% endif %}
-  </p>
-{% endif %}
 
-<h3>Наборы</h3>
-
-{% if kits %}
-
-<ul>
-  {% for kit in kits %}
-    <li>
-      <a href="{{url('collections:kits:show', kit.id)}}"
-         class="{% if not kit.approved %}disabled{% endif %}">
-        {{kit.caption}}
+    {% if resource.can_edit_kit %}
+      <a href="{{url('collections:kits:new')}}" class="pgf-new-kit-button" rel="tooltip" title="Добавить набор">
+        <i class="icon icon-plus" style="vertical-align: middle;"></i>
       </a>
-    </li>
-  {% endfor %}
-</ul>
+    {% endif %}
 
-{% else %}
+  </h2>
 
-<p class="alert alert-info pgf-no-kits-message">
-  В коллекции нет наборов.
-</p>
+  <div style="text-align: justify;">
+    {{resource.collection.description_html|safe}}
+  </div>
 
-{% endif %}
+  {% if kits %}
+    <br/>
+
+    {% for kit in kits %}
+      <h3 style="{% if not kit.approved %}color: red;{% endif %}">
+        {{ kit.caption }}
+
+        <small>
+          {{collections_statistics["account_items_in_kits"].get(kit.id, 0)}}
+          из
+          {{collections_statistics["total_items_in_kits"].get(kit.id, 0)}}
+        </small>
+
+        {% if resource.can_edit_item %}
+          <a href="{{url('collections:items:new')}}" class="pgf-new-item-button" rel="tooltip" title="Добавить предмет">
+            <i class="icon icon-plus" style="vertical-align: middle;"></i>
+          </a>
+        {% endif %}
+
+        {% if resource.can_edit_kit %}
+          <a href="{{url('collections:kits:edit', kit.id)}}" class="pgf-edit-kit-button" rel="tooltip" title="Редактировать набор">
+            <i class="icon icon-pencil" style="vertical-align: middle;"></i>
+          </a>
+        {% endif %}
+
+        {% if resource.can_moderate_kit %}
+          {% if not kit.approved %}
+            <a href="{{url('collections:kits:approve', kit.id)}}"
+               class="pgf-approve-kit-button pgf-forms-post-simple"
+               data-confirmation="Вы действительно хотите утвердить набор?"
+               rel="tooltip"
+               title="Утвердить набор">
+               <i class="icon icon-ok" style="vertical-align: middle;"></i>
+            </a>
+          {% else %}
+            <a href="{{url('collections:kits:disapprove', kit.id)}}"
+               class="pgf-disapprove-kit-button pgf-forms-post-simple"
+               data-confirmation="Вы действительно хотите разутвердить набор?"
+               rel="tooltip"
+               title="Разутвердить набор">
+               <i class="icon icon-remove" style="vertical-align: middle;"></i>
+            </a>
+          {% endif %}
+        {% endif %}
+
+
+      </h3>
+
+      <div style="text-align: justify;">
+        {{kit.description_html|safe}}
+      </div>
+
+      <br/>
+
+      {{ collections_macros.items_list(items[kit.id], account_items, master_account_items) }}
+
+    {% endfor %}
+
+  {% else %}
+
+    <p class="alert alert-info pgf-no-kits-message">
+      В коллекции нет наборов.
+    </p>
+
+  {% endif %}
 
 
 

@@ -19,6 +19,8 @@ from the_tale.blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STAT
 from the_tale.game.heroes.models import Hero
 from the_tale.game.heroes.prototypes import HeroPrototype
 
+from the_tale.collections.prototypes import AccountItemsPrototype
+
 from the_tale.accounts.friends.prototypes import FriendshipPrototype
 from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 
@@ -425,6 +427,7 @@ class AccountResource(BaseAccountsResource):
                               'most_common_places': master_hero.places_history.get_most_common_places(),
                               'master_account': self.master_account,
                               'master_achievements': AccountAchievementsPrototype.get_by_account_id(self.master_account.id),
+                              'master_items': AccountItemsPrototype.get_by_account_id(self.master_account.id),
                               'accounts_settings': accounts_settings,
                               'informer_link': accounts_settings.INFORMER_LINK % {'account_id': self.master_account.id},
                               'rating_places': rating_places,

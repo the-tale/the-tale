@@ -5,11 +5,17 @@ import functools
 
 from dext.settings import settings
 
+
+class BaseStorage(object):
+    pass
+
+
 def create_storage_class(version_key, Prototype, Exception_): # pylint: disable=R0912
 
-    class Storage(object):
+    class Storage(BaseStorage):
 
         SETTINGS_KEY = version_key
+        PROTOTYPE = Prototype
 
         def __init__(self):
             self.clear()
@@ -124,15 +130,14 @@ def create_storage_class(version_key, Prototype, Exception_): # pylint: disable=
 
             return wrapper
 
-
     return Storage
 
 
 def create_single_storage_class(version_key, Prototype, Exception_): # pylint: disable=R0912,W0613
 
-    class SingleStorage(object):
-
+    class SingleStorage(BaseStorage):
         SETTINGS_KEY = version_key
+        PROTOTYPE = Prototype
 
         def __init__(self):
             self.clear()

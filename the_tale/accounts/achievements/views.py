@@ -7,6 +7,7 @@ from dext.utils.urls import url
 
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.decorators import login_required, lazy_property
+from the_tale.common.utils.logic import split_into_table
 
 from the_tale.accounts.prototypes import AccountPrototype
 
@@ -72,18 +73,7 @@ class AchievementsResource(Resource):
             account_achievements = AccountAchievementsPrototype.get_by_account_id(account.id)
             last_achievements = account_achievements.last_achievements(number=achievements_settings.LAST_ACHIEVEMENTS_NUMBER)
 
-        sublen = len(self.groups) / 3
-        groups_table = (self.groups[:sublen],
-                        self.groups[sublen:sublen*2],
-                        self.groups[sublen*2:])
-
-        if len(groups_table[0]) > len(groups_table[1]):
-            groups_table[1].append(None)
-
-        if len(groups_table[0]) > len(groups_table[2]):
-            groups_table[2].append(None)
-
-        groups_table = zip(*groups_table)
+        groups_table = split_into_table(self.groups, 3)
 
         return self.template('achievements/index.html',
                              {'account_achievements': account_achievements,

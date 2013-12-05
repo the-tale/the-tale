@@ -12,7 +12,8 @@ from the_tale.accounts.logic import register_user, login_page_url
 from the_tale.game.logic import create_test_map
 
 
-from the_tale.collections.prototypes import CollectionPrototype, KitPrototype
+from the_tale.collections.prototypes import CollectionPrototype, KitPrototype, AccountItemsPrototype, ItemPrototype
+from the_tale.collections.storage import kits_storage, items_storage, collections_storage
 
 
 class BaseRequestTests(testcase.TestCase):
@@ -31,12 +32,18 @@ class BaseRequestTests(testcase.TestCase):
         result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
         self.account_3 = AccountPrototype.get_by_id(account_id)
 
+        self.account_1_items = AccountItemsPrototype.get_by_account_id(self.account_1.id)
+        self.account_2_items = AccountItemsPrototype.get_by_account_id(self.account_2.id)
+        self.account_3_items = AccountItemsPrototype.get_by_account_id(self.account_3.id)
+
         group_edit_kit = sync_group('edit kit', ['collections.edit_kit'])
         group_edit = sync_group('edit collection', ['collections.edit_collection'])
+        group_edit_item = sync_group('edit item', ['collections.edit_item'])
         group_moderate = sync_group('moderate collection', ['collections.moderate_collection'])
 
         group_edit_kit.user_set.add(self.account_2._model)
         group_edit.user_set.add(self.account_2._model)
+        group_edit_item.user_set.add(self.account_2._model)
         group_moderate.user_set.add(self.account_3._model)
 
 
@@ -44,7 +51,11 @@ class BaseRequestTests(testcase.TestCase):
         self.collection_2 = CollectionPrototype.create(caption=u'collection_2', description=u'description_2', approved=True)
 
         self.kit_1 = KitPrototype.create(collection=self.collection_1, caption=u'kit_1', description=u'description_1')
-        self.kit_2 = KitPrototype.create(collection=self.collection_2, caption=u'kit_2', description=u'description_2')
+        self.kit_2 = KitPrototype.create(collection=self.collection_2, caption=u'kit_2', description=u'description_2', approved=True)
+
+        self.item_1_1 = ItemPrototype.create(kit=self.kit_1, caption=u'item_1_1', text=u'item_text_1_1')
+        self.item_1_2 = ItemPrototype.create(kit=self.kit_1, caption=u'item_1_2', text=u'item_text_1_2', approved=True)
+        self.item_2_1 = ItemPrototype.create(kit=self.kit_2, caption=u'item_2_1', text=u'item_text_2_1', approved=True)
 
 
 
@@ -69,20 +80,94 @@ class CollectionsIndexTests(BaseRequestTests, CollectionVisibilityAllMixin):
 
     def setUp(self):
         super(CollectionsIndexTests, self).setUp()
-        self.test_url = url('collections:collections:')
+        self.test_url = url('collections:collections:', account=self.account_1.id)
 
-    def test_login_required(self):
-        self.check_redirect(self.test_url, login_page_url(self.test_url))
+    def test_redirect__redirect(self):
+        self.request_login(self.account_3.email)
+        self.check_redirect(url('collections:collections:'), url('collections:collections:', account=self.account_3.id))
 
-    def test_edit_rights_required(self):
-        self.request_login(self.account_1.email)
-        self.check_html_ok(self.request_html(self.test_url),
-                           texts=[('collections.collections.no_edit_rights', 1)])
-
-    def test_success(self):
+    def test_success__moderator(self):
         self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(self.test_url),
-                           texts=[('collections.collections.no_edit_rights', 0)])
+                           texts=[('pgf-add-collection-button', 1),
+                                  self.collection_1.caption,
+                                  self.collection_2.caption])
+
+
+    def test_without_account(self):
+        self.check_html_ok(self.request_html(url('collections:collections:')),
+                           texts=[('pgf-add-collection-button', 0),
+                                  ('pgf-last-items', 0),
+                                  (self.collection_1.caption, 0),
+                                  self.collection_2.caption])
+
+
+    def test_account__no_last_items(self):
+        self.check_html_ok(self.request_html(self.test_url),
+                           texts=[('pgf-add-collection-button', 0),
+                                  ('pgf-last-items', 1),
+                                  ('pgf-no-last-items-message', 1)])
+
+    def test_account__has_last_items(self):
+        self.account_1_items.add_item(self.item_2_1)
+        self.account_1_items.save()
+
+        self.check_html_ok(self.request_html(self.test_url),
+                           texts=[('collections.collections.no_edit_rights', 0),
+                                  ('pgf-last-items', 1),
+                                  ('pgf-no-last-items-message', 0),
+                                  ('item_2_1', 1)])
+
+    def test_last_items__anonymous(self):
+        self.account_1_items.add_item(self.item_2_1)
+        self.account_1_items.save()
+
+        self.check_html_ok(self.request_html(self.test_url),
+                           texts=[('collections.collections.no_edit_rights', 0),
+                                  ('pgf-last-items', 1),
+                                  ('pgf-no-last-items-message', 0),
+                                  ('item_2_1', 1),
+                                  ('item_text_2_1', 0)])
+
+    def test_last_items__account_without_item(self):
+        self.account_1_items.add_item(self.item_2_1)
+        self.account_1_items.save()
+
+        self.request_login(self.account_3.email)
+        self.check_html_ok(self.request_html(self.test_url),
+                           texts=[('collections.collections.no_edit_rights', 0),
+                                  ('pgf-last-items', 1),
+                                  ('pgf-no-last-items-message', 0),
+                                  ('item_2_1', 1),
+                                  ('item_text_2_1', 0)])
+
+    def test_last_items__account_with_item(self):
+        self.account_1_items.add_item(self.item_2_1)
+        self.account_3_items.add_item(self.item_2_1)
+
+        self.account_1_items.save()
+        self.account_3_items.save()
+
+        self.request_login(self.account_3.email)
+        self.check_html_ok(self.request_html(self.test_url),
+                           texts=[('collections.collections.no_edit_rights', 0),
+                                  ('pgf-last-items', 1),
+                                  ('pgf-no-last-items-message', 0),
+                                  ('item_2_1', 1),
+                                  ('item_text_2_1', 1)])
+
+    def test_last_items__editor(self):
+        self.account_1_items.add_item(self.item_2_1)
+        self.account_1_items.save()
+
+        self.request_login(self.account_2.email)
+        self.check_html_ok(self.request_html(self.test_url),
+                           texts=[('collections.collections.no_edit_rights', 0),
+                                  ('pgf-last-items', 1),
+                                  ('pgf-no-last-items-message', 0),
+                                  ('item_2_1', 1),
+                                  ('item_text_2_1', 1)])
+
 
 
 
@@ -151,9 +236,16 @@ class CollectionsShowTests(BaseRequestTests, CollectionVisibilityApprovedMixin):
 
     def setUp(self):
         super(CollectionsShowTests, self).setUp()
-        self.test_url = url('collections:collections:show', self.collection_2.id)
+        self.test_url = url('collections:collections:show', self.collection_2.id, account=self.account_1.id)
+
+    def test_redirect__redirect(self):
+        self.request_login(self.account_3.email)
+        self.check_redirect(url('collections:collections:show', self.collection_2.id), url('collections:collections:show', self.collection_2.id, account=self.account_3.id))
 
     def test_success__no_approved_kits(self):
+        KitPrototype._db_all().update(approved=False)
+        kits_storage.refresh()
+
         self.check_html_ok(self.request_html(self.test_url),
                            texts=[self.collection_2.caption,
                                   (self.kit_2.caption, 0),
@@ -181,7 +273,12 @@ class CollectionsShowTests(BaseRequestTests, CollectionVisibilityApprovedMixin):
                                   ('collections.collections.not_approved', 1)])
 
     def test_no_kits_in_collection(self):
+        ItemPrototype._db_all().delete()
         KitPrototype._db_all().delete()
+
+        items_storage.refresh()
+        kits_storage.refresh()
+
         self.check_html_ok(self.request_html(self.test_url),
                            texts=[self.collection_2.caption,
                                   (self.kit_2.caption, 0),
@@ -230,6 +327,80 @@ class CollectionsShowTests(BaseRequestTests, CollectionVisibilityApprovedMixin):
                                                                     ('pgf-approve-collection-button', 1),
                                                                     ('pgf-disapprove-collection-button', 0)])
 
+    def test_item_show__anonymous(self):
+        self.account_1_items.add_item(self.item_2_1)
+        self.account_1_items.save()
+
+        self.check_html_ok(self.request_html(self.test_url), texts=[self.item_2_1.caption,
+                                                                    (self.item_2_1.text, 0)])
+
+
+    def test_item_show__account_without_item(self):
+
+        self.account_1_items.add_item(self.item_2_1)
+        self.account_1_items.save()
+
+        self.request_login(self.account_3.email)
+
+        self.check_html_ok(self.request_html(self.test_url), texts=[self.item_2_1.caption,
+                                                                    (self.item_2_1.text, 0)])
+
+
+    def test_item_show__account_with_item(self):
+        self.account_1_items.add_item(self.item_2_1)
+        self.account_1_items.save()
+
+        self.account_3_items.add_item(self.item_2_1)
+        self.account_3_items.save()
+
+        self.request_login(self.account_3.email)
+
+        self.check_html_ok(self.request_html(self.test_url), texts=[self.item_2_1.caption,
+                                                                    self.item_2_1.text])
+
+
+    def test_item_show__moderator(self):
+        self.account_1_items.add_item(self.item_2_1)
+        self.account_1_items.save()
+
+        self.request_login(self.account_2.email)
+
+        self.check_html_ok(self.request_html(self.test_url), texts=[self.item_2_1.caption,
+                                                                    self.item_2_1.text])
+
+
+    def test_unapproved_item__anonymous(self):
+        item = ItemPrototype.create(kit=self.kit_2, caption=u'item_2_2', text=u'item_text_2_2', approved=False)
+
+        self.account_1_items.add_item(item)
+        self.account_1_items.save()
+
+        self.check_html_ok(self.request_html(self.test_url), texts=[(item.caption, 0),
+                                                                    (item.text, 0)])
+
+    def test_unapproved_item__loginned(self):
+        item = ItemPrototype.create(kit=self.kit_2, caption=u'item_2_2', text=u'item_text_2_2', approved=False)
+
+        self.account_1_items.add_item(item)
+        self.account_1_items.save()
+
+        self.request_login(self.account_1.email)
+
+        self.check_html_ok(self.request_html(self.test_url), texts=[(item.caption, 0),
+                                                                    (item.text, 0)])
+
+    def test_unapproved_item__moderator(self):
+        item = ItemPrototype.create(kit=self.kit_2, caption=u'item_2_2', text=u'item_text_2_2', approved=False)
+
+        self.account_1_items.add_item(item)
+        self.account_1_items.save()
+
+        self.request_login(self.account_2.email)
+
+        self.check_html_ok(self.request_html(self.test_url), texts=[(item.caption, 1),
+                                                                    (item.text, 1)])
+
+
 
 class CollectionsEditTests(BaseRequestTests, CollectionVisibilityAllMixin):
 
@@ -248,6 +419,7 @@ class CollectionsEditTests(BaseRequestTests, CollectionVisibilityAllMixin):
 
     def test_moderate_rights_required(self):
         CollectionPrototype._db_all().update(approved=True)
+        collections_storage.refresh()
 
         self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(self.test_url),
@@ -261,6 +433,7 @@ class CollectionsEditTests(BaseRequestTests, CollectionVisibilityAllMixin):
 
     def test_success__for_moderate(self):
         CollectionPrototype._db_all().update(approved=True)
+        collections_storage.refresh()
 
         self.request_login(self.account_3.email)
         self.check_html_ok(self.request_html(self.test_url),
@@ -293,6 +466,7 @@ class CollectionsUpdateTests(BaseRequestTests):
 
     def test_moderate_rights_required(self):
         CollectionPrototype._db_all().update(approved=True)
+        collections_storage.refresh()
 
         self.request_login(self.account_2.email)
         self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
@@ -320,6 +494,7 @@ class CollectionsUpdateTests(BaseRequestTests):
 
     def test_success__for_moderate(self):
         CollectionPrototype._db_all().update(approved=True)
+        collections_storage.refresh()
 
         self.request_login(self.account_3.email)
         self.check_ajax_ok(self.post_ajax_json(self.test_url, self.get_post_data()))
@@ -367,6 +542,7 @@ class CollectionsDisapproveTests(BaseRequestTests):
 
     def test_success(self):
         CollectionPrototype._db_all().update(approved=True)
+        collections_storage.refresh()
         self.collection_1.reload()
 
         self.request_login(self.account_3.email)

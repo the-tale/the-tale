@@ -13,6 +13,7 @@ from the_tale.game.logic import create_test_map
 
 
 from the_tale.collections.prototypes import CollectionPrototype, KitPrototype, ItemPrototype
+from the_tale.collections.storage import items_storage, kits_storage
 
 
 class BaseRequestTests(testcase.TestCase):
@@ -97,7 +98,7 @@ class ItemsCreateTests(BaseRequestTests):
 
     def test_success(self):
         self.request_login(self.account_2.email)
-        self.check_ajax_ok(self.post_ajax_json(self.test_url, self.get_post_data()), {'next_url': url('collections:kits:show', self.kit_1.id)})
+        self.check_ajax_ok(self.post_ajax_json(self.test_url, self.get_post_data()), {'next_url': url('collections:collections:show', self.kit_1.collection_id)})
         self.assertEqual(ItemPrototype._db_all().count(), 3)
 
         item = ItemPrototype._db_get_object(2)
@@ -126,6 +127,7 @@ class ItemsEditTests(BaseRequestTests):
 
     def test_moderate_rights_required(self):
         ItemPrototype._db_all().update(approved=True)
+        items_storage.refresh()
 
         self.request_login(self.account_2.email)
 
@@ -141,6 +143,7 @@ class ItemsEditTests(BaseRequestTests):
 
     def test_success__for_moderate(self):
         KitPrototype._db_all().update(approved=True)
+        kits_storage.refresh()
 
         self.request_login(self.account_3.email)
         self.check_html_ok(self.request_html(self.test_url),
@@ -176,8 +179,10 @@ class ItemsUpdateTests(BaseRequestTests):
 
     def test_moderate_rights_required(self):
         ItemPrototype._db_all().update(approved=True)
+        items_storage.refresh()
 
         self.request_login(self.account_2.email)
+
         self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
                               'collections.items.no_edit_rights')
 
@@ -207,6 +212,7 @@ class ItemsUpdateTests(BaseRequestTests):
 
     def test_success__for_moderate(self):
         ItemPrototype._db_all().update(approved=True)
+        items_storage.refresh()
 
         self.request_login(self.account_3.email)
         self.check_ajax_ok(self.post_ajax_json(self.test_url, self.get_post_data()))
@@ -255,6 +261,8 @@ class ItemsDisapproveTests(BaseRequestTests):
 
     def test_success(self):
         ItemPrototype._db_all().update(approved=True)
+        items_storage.refresh()
+
         self.item_1_1.reload()
 
         self.request_login(self.account_3.email)

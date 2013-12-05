@@ -1,14 +1,102 @@
 {% extends "collections/collections/base.html" %}
 
+{% import 'collections/macros.html' as collections_macros with context %}
+
+{% macro collection_record(collection) %}
+
+  {% if collection %}
+    {% set gotten = collections_statistics["account_items_in_collections"].get(collection.id, 0) %}
+    {% set total = collections_statistics["total_items_in_collections"].get(collection.id, 0) %}
+
+    {% if total > 0 %}
+      {% set percents = ((gotten|float)/total if total else 0)|percents %}
+    {% else %}
+      {% set percents = 0 %}
+    {% endif %}
+
+    <div style="font-size: 20px; width: auto; margin-left: 20px; margin-right: 20px;">
+      <a href="{{resource.collection_url(collection)}}">{{ collection.caption }}</a><br/>
+      {% if resource.master_account %}
+        <div class="progress progress-success" style="height: 20px; margin-top: 5px;">
+          <div class="bar" style="width: {{ percents }}; height: 20px;">
+          </div>
+          <div style="position: relative; top: -20px; font-size: 14px;">{{ gotten }} / {{ total }} ({{percents}})</div>
+        </div>
+      {% else %}
+        <div style="font-size: 10pt;">всего {{total}}</div><br/>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endmacro %}
+
+
 {% block collections_content %}
 
+  {% set gotten = collections_statistics["account_items"] %}
+  {% set total = collections_statistics["total_items"] %}
 
-<h2>Главная страница коллекций</h2>
+  <h2>
+    Коллекции
 
-<p class="alert alert-info">
-  Редактировать непосредственно коллекцию можно на её странице.
-</p>
+    <small>всего {{total}}</small>
 
-<a href="{{url('collections:collections:new')}}" class="btn btn-success">Создать новую коллекцию</a>
+    {% if resource.can_edit_collection %}
+      <a href="{{url('collections:collections:new')}}" class="pgf-add-collection-button">
+        <i class="icon icon-plus" style="vertical-align: middle;" rel="tooltip" title="Добавить коллекцию"></i>
+      </a>
+    {% endif %}
+  </h2>
+
+  <p>
+    В мире Пандоры есть множество интересных вещей, пригодных для коллекционирования. Собирание коллекций для Хранителя — это не только способ развлечься, но и возможность больше узнать о мире, в котором живёт его подопечный. Гоблинские учёные уже давно классифицировали, систематизировали и каталогизировали всё, что достойно собирания. Их систему и переняли Хранители.
+  </p>
+
+  <p>
+    Предметы коллекций можно получить разными способами. Одни из них выдаются за достижения, другие — за участие героя в определённых событиях, третьи герой может просто найти во время путешествия.
+  </p>
+
+  {% if resource.master_account %}
+
+    {% set percents = ((gotten|float)/total if total else 0)|percents %}
+
+    <div style="font-size: 20px; width: auto; margin-left: 20px;; margin-right: 20px; text-align: center;" class="pgf-all-items">
+      Всего предметов<br/>
+      <div class="progress progress-success" style="height: 20px; margin-top: 5px; text-align: center;">
+        <div class="bar" style="width: {{ percents }}; height: 20px;">
+        </div>
+        <div style="position: relative; top: -20px; font-size: 14px;">{{ gotten }} / {{ total }} ({{percents}})</div>
+      </div>
+    </div>
+
+  {% endif %}
+
+  <table width="100%" style="text-align: center;">
+    <tbody>
+      {% for collection_1, collection_2, collection_3 in collections_table %}
+        <tr>
+          <td width="33%">{{collection_record(collection_1)}}</td>
+          <td>{{collection_record(collection_2)}}</td>
+          <td width="33%">{{collection_record(collection_3)}}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if resource.master_account %}
+
+    <h3 class="pgf-last-items">Последние полученые предметы</h3>
+
+    {% if last_items %}
+
+      {{ collections_macros.items_list(last_items, account_items, master_account_items) }}
+
+    {% else %}
+      <p class="alert alert-info pgf-no-last-items-message">
+        Ни один предмет пока не получен.
+      </p>
+    {% endif %}
+
+  {% endif %}
+
 
 {% endblock %}

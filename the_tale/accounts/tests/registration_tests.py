@@ -12,6 +12,7 @@ from the_tale.accounts.models import Account
 from the_tale.accounts.exceptions import AccountsException
 from the_tale.accounts.achievements.prototypes import AccountAchievementsPrototype
 
+from the_tale.collections.prototypes import AccountItemsPrototype
 
 from the_tale.game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
 
@@ -29,6 +30,7 @@ class TestRegistration(testcase.TestCase):
     def test_successfull_result(self):
 
         self.assertEqual(AccountAchievementsPrototype._db_count(), 0)
+        self.assertEqual(AccountItemsPrototype._db_count(), 0)
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
 
@@ -72,6 +74,7 @@ class TestRegistration(testcase.TestCase):
         self.assertEqual(account.is_bot, False)
 
         self.assertEqual(AccountAchievementsPrototype._db_count(), 1)
+        self.assertEqual(AccountItemsPrototype._db_count(), 1)
 
 
     def test_successfull_result__referer(self):

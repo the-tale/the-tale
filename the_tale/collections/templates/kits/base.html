@@ -2,30 +2,6 @@
 
 
 {% block collections_main_content %}
-
-<div class="row">
-  <div class="span3">
-    <div class="block">
-      <h3>Наборы</h3>
-      <ul class="nav nav-list">
-        {% for menu_kit in resource.kits %}
-        <li class="nav-element {% if resource.kit and menu_kit.id == resource.kit.id %}active{% endif %}">
-          <a href="{{ url('collections:kits:show', menu_kit.id) }}"
-             class="{% if not menu_kit.approved%}disabled{% endif %}">
-            {{menu_kit.caption}}
-          </a>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
-  </div>
-
-  <div class="span9">
-    <div class="block white">
-      {% block kits_content %}
-      {% endblock %}
-    </div>
-  </div>
-</div>
-
+  {% block kits_content %}
+  {% endblock %}
 {% endblock %}

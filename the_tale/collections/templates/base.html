@@ -4,7 +4,37 @@
 
 {% block content %}
 
-{% block collections_main_content %}
-{% endblock %}
+<div class="row">
+  <div class="span3">
+    <div class="block">
+      <h3>Коллекции</h3>
+      <ul class="nav nav-list">
+        {% if resource.master_account %}
+        <li class="nav-element"><a href="{{url('accounts:show', resource.master_account.id)}}">←{{resource.master_account.nick_verbose}}</a></li>
+        {% endif %}
+        <li class="nav-element"><a href="{{resource.index_url()}}">Общая информация</a></li>
+        <li class="divider"></li>
+        <li class="nav-header">Коллекции</li>
+        {% for menu_collection in resource.collections %}
+          <li class="nav-element {% if resource.collection and menu_collection.id == resource.collection.id %}active{% endif %}">
+            <a href="{{ resource.collection_url(menu_collection) }}"
+               class="{% if not menu_collection.approved%}disabled{% endif %}">
+               {{menu_collection.caption}}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="span9">
+    <div class="block white">
+
+      {% block collections_main_content %}
+      {% endblock %}
+
+    </div>
+  </div>
+</div>
 
 {% endblock %}

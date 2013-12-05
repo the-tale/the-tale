@@ -22,6 +22,8 @@ class Collection(models.Model):
         permissions = (('edit_collection', u'Может создавать и редактировать коллекции'),
                        ('moderate_collection', u'Может утверждать коллекции'),)
 
+    def __unicode__(self): return self.caption
+
 
 class Kit(models.Model):
     CAPTION_MAX_LENGTH = 100
@@ -42,6 +44,8 @@ class Kit(models.Model):
         permissions = (('edit_kit', u'Может создавать и редактировать наборы'),
                        ('moderate_kit', u'Может утверждать наборы'),)
 
+    def __unicode__(self): return self.caption
+
 
 class Item(models.Model):
     CAPTION_MAX_LENGTH = 100
@@ -60,3 +64,18 @@ class Item(models.Model):
     class Meta:
         permissions = (('edit_item', u'Может создавать и редактировать предметы'),
                        ('moderate_item', u'Может утверждать предметы'),)
+
+    def __unicode__(self): return self.caption
+
+
+
+class AccountItems(models.Model):
+
+    account = models.ForeignKey('accounts.Account', on_delete=models.CASCADE, unique=True)
+
+    items = models.TextField(default='{}')
+
+
+class GiveItemTask(models.Model):
+    account = models.ForeignKey('accounts.Account', null=True, on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)

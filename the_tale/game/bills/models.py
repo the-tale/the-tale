@@ -15,7 +15,7 @@ class Bill(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now_add=True, null=False) # MUST setupped by hand
-    voting_end_at = models.DateTimeField(null=True)
+    voting_end_at = models.DateTimeField(null=True, blank=True)
 
     created_at_turn = models.IntegerField(null=False)
 

@@ -11,11 +11,16 @@
   {% if group %}
     <div style="font-size: 20px; width: auto; margin-left: 20px; margin-right: 20px;">
       <a href="{{resource.group_url(group)}}">{{ group.text }}</a><br/>
-      <div class="progress progress-success" style="height: 20px; margin-top: 5px;">
-        <div class="bar" style="width: {{ percents }}; height: 20px;">
+
+      {% if resource.master_account %}
+        <div class="progress progress-success" style="height: 20px; margin-top: 5px;">
+          <div class="bar" style="width: {{ percents }}; height: 20px;">
+          </div>
+          <div style="position: relative; top: -20px; font-size: 14px;">{{ gotten }} / {{ total }} ({{percents}})</div>
         </div>
-        <div style="position: relative; top: -20px; font-size: 14px;">{{ gotten }} / {{ total }} ({{percents}})</div>
-      </div>
+      {% else %}
+        <div style="font-size: 10pt;">всего {{total}}</div><br/>
+      {% endif %}
     </div>
   {% endif %}
 {% endmacro %}
@@ -23,15 +28,15 @@
 
 {% block achievements_content %}
 
-  <h2>Достижения</h2>
+  {% set gotten, total = groups_statistics[none] %}
+
+  <h2>Достижения <small>всего {{total}}</small></h2>
 
   <p>
-    Краткая информация по всем достижениям в игре.
+    Достижение — это важная веха на пути героя и его Хранителя. Свидетельство того, что они познали тайны ещё одного кусочка Пандоры и намёк на ещё большее их количество впереди.
   </p>
 
   {% if resource.master_account %}
-
-    {% set gotten, total = groups_statistics[none] %}
 
     {% set percents = ((gotten|float)/total if total else 0)|percents %}
 

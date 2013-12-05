@@ -8,6 +8,7 @@ from the_tale.common.utils import bbcode
 
 
 from the_tale.collections.prototypes import CollectionPrototype, KitPrototype, ItemPrototype
+from the_tale.collections.storage import collections_storage, kits_storage
 
 
 class EditCollectionForm(forms.Form):
@@ -31,7 +32,7 @@ class EditKitForm(forms.Form):
 
     def clean_collection(self):
         collection_id = self.cleaned_data['collection']
-        collection =  CollectionPrototype.get_by_id(collection_id)
+        collection =  collections_storage[int(collection_id)]
 
         if collection is None:
             raise django_forms.ValidationError(u'Коллекция не найдена')
@@ -54,7 +55,7 @@ class EditItemForm(forms.Form):
 
     def clean_kit(self):
         kit_id = self.cleaned_data['kit']
-        kit =  KitPrototype.get_by_id(kit_id)
+        kit =  kits_storage[int(kit_id)]
 
         if kit is None:
             raise django_forms.ValidationError(u'Колекция не найдена')
