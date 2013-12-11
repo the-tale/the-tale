@@ -16,7 +16,6 @@ from the_tale.accounts.payments.logic import transaction_gm
 
 from the_tale.bank.models import Account as BankAccount, Invoice as BankInvoice
 from the_tale.bank.relations import INVOICE_STATE
-from the_tale.bank.dengionline.models import Invoice as DOInvoice
 from the_tale.bank.xsolla.models import Invoice as XsollaInvoice
 
 from the_tale.game.heroes.models import Hero
@@ -45,7 +44,6 @@ class Command(BaseCommand):
         BankInvoice.objects.exclude(id=446).delete()
         BankInvoice.objects.filter(id=446).update(state=INVOICE_STATE.FORCED)
 
-        DOInvoice.objects.all().delete()
         XsollaInvoice.objects.exclude(id=19).delete()
 
         BASE_PREMIUM_DAYS_LENGTH = 3

@@ -11,34 +11,6 @@
 <script id="xsolla-paystation-lightbox" type="text/javascript" src="https://secure.xsolla.com/partners/embed/lightbox.js"></script>
 {% endif %}
 
-<script type="text/javascript">
-jQuery(document).ready( function(e) {
-
-    {% if resource.dengionline_enabled %}
-    jQuery('.pgf-dengionline-dialog-link').click(function(e){
-        e.preventDefault();
-        var target = jQuery(e.currentTarget);
-        var url = target.attr('href');
-        pgf.ui.dialog.Create({ fromUrl: url,
-                               OnOpen: function(dialog) {
-                                   var payForm = new pgf.forms.Form(jQuery('#pgf-dengionline-pay-form', dialog),
-                                                                    {OnSuccess: function(instance, data){location.href = data.data.next_url;}});
-                                   var realAmountField = jQuery('#id_real_amount', dialog);
-                                   var gameAmountField = jQuery('#id_game_amount', dialog);
-                                   realAmountField.on('change keyup', function(e){
-                                       var realValue = parseInt(realAmountField.val());
-                                       var realAmount = (realValue == realAmountField.val() ? realValue : 0) * {{resource.usd_to_premium}};
-                                       gameAmountField.val(isNaN(realAmount) ? 0 : realAmount);
-                                   });
-                               }
-                             });
-    });
-    {% endif %}
-
-});
-
-</script>
-
 {% endblock %}
 
 {% block accounts_content %}
@@ -63,11 +35,6 @@ jQuery(document).ready( function(e) {
         </div>
 
         <div style="display: inline-block; vertical-align: middle;">
-          {% if resource.dengionline_enabled %}
-          <a style="vertical-align: middle;"
-             href="{{url('accounts:payments:dengionline-dialog')}}"
-             class="pgf-dengionline-dialog-link btn btn-large btn-success">+</a>
-          {% endif %}
 
           {% if resource.xsolla_enabled %}
           <a style="vertical-align: middle; font-size: 36pt; line-height: 18px; padding: 10px;"

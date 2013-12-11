@@ -10,16 +10,12 @@ from the_tale.common.utils.decorators import login_required, superuser_required
 
 from the_tale.accounts.views import validate_fast_account
 
-from the_tale.bank.dengionline.transaction import Transaction as DOTransaction
-from the_tale.bank.dengionline.relations import CURRENCY_TYPE as DO_CURRENCY_TYPE
-
 from the_tale.bank.relations import ENTITY_TYPE, CURRENCY_TYPE
-from the_tale.bank.dengionline import exceptions
 
 from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.accounts.payments import price_list
-from the_tale.accounts.payments.forms import DengiOnlineForm, GMForm
+from the_tale.accounts.payments.forms import GMForm
 from the_tale.accounts.payments.conf import payments_settings
 from the_tale.accounts.payments.logic import real_amount_to_game, transaction_gm
 
@@ -40,7 +36,6 @@ class PaymentsResource(Resource):
                                      (payments_settings.ENABLE_REAL_PAYMENTS or
                                       self.account.id in payments_settings.ALWAYS_ALLOWED_ACCOUNTS))
 
-        self.dengionline_enabled = self.real_payments_enabled and payments_settings.DENGIONLINE_ENABLED
         self.xsolla_enabled = self.real_payments_enabled and payments_settings.XSOLLA_ENABLED
 
         self.usd_to_premium = real_amount_to_game(1)
@@ -75,9 +70,6 @@ class PaymentsResource(Resource):
         link = url_builder(**attributes)
 
         return link
-
-    @validator('payments.dengionline_disabled', u'Платежи c помощью «Деньги Онлайн» отключены')
-    def validate_dengionline_enabled(self, *args, **kwargs): return self.dengionline_enabled
 
     @validator('payments.xsolla_disabled', u'Платежи c помощью «Xsolla» отключены')
     def validate_xsolla_enabled(self, *args, **kwargs): return self.xsolla_enabled
@@ -125,37 +117,6 @@ class PaymentsResource(Resource):
         return self.template('payments/failed.html',
                              {'account': self.account,
                               'page_type': 'failed'})
-
-    @validate_dengionline_enabled()
-    @handler('dengionline-dialog', method='get')
-    def dengionline_dialog(self):
-        return self.template('payments/dengionline_dialog.html',
-                             {'dengionline_form': DengiOnlineForm(),
-                              'cource': real_amount_to_game(1)})
-
-    @validate_dengionline_enabled()
-    @handler('pay-with-dengionline', method='post')
-    def pay_with_dengionline(self):
-
-        form = DengiOnlineForm(self.request.POST)
-
-        if not form.is_valid():
-            return self.json_error('payments.pay_with_dengionline.form_errors', form.errors)
-
-        try:
-            transaction = DOTransaction.create(bank_type=ENTITY_TYPE.GAME_ACCOUNT,
-                                               bank_id=self.account.id,
-                                               bank_currency=CURRENCY_TYPE.PREMIUM,
-                                               bank_amount=form.c.game_amount,
-                                               email=self.account.email,
-                                               comment=u'Покупка печенек: %d шт. за %d$' % (form.c.game_amount, form.c.real_amount),
-                                               payment_amount=form.c.real_amount,
-                                               payment_currency=DO_CURRENCY_TYPE.USD)
-        except exceptions.CreationLimitError:
-            return self.json_error('payments.pay_with_dengionline.creation_limit_riched',
-                                   u'Вы создали слишком много запросов на покупку печенек. Вы сможете повторить попытку через несколько минут.')
-
-        return self.json_ok(data={'next_url': transaction.get_simple_payment_url()})
 
     @superuser_required()
     @validate_argument('account', AccountPrototype.get_by_id, 'payments.give_money', u'Аккаунт не обнаружен')

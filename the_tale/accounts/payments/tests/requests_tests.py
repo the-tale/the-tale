@@ -10,8 +10,6 @@ from the_tale.common.postponed_tasks import PostponedTaskPrototype
 
 from the_tale.bank.prototypes import InvoicePrototype as BankInvoicePrototype
 from the_tale.bank.tests.helpers import BankTestsMixin
-from the_tale.bank.dengionline.prototypes import InvoicePrototype as DOInvoicePrototype
-from the_tale.bank.dengionline.conf import dengionline_settings
 
 from the_tale.game.logic import create_test_map
 
@@ -35,28 +33,6 @@ class PageRequestsMixin(object):
     def test_unlogined(self):
         self.request_logout()
         self.check_redirect(self.page_url, login_page_url(self.page_url))
-
-    def test_buy_link(self):
-        self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-dengionline-dialog-link', 2)])
-
-    @mock.patch('the_tale.accounts.payments.conf.payments_settings.DENGIONLINE_ENABLED', False)
-    def test_dengionline_disabled__dengionline(self):
-        self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-dengionline-dialog-link', 0)])
-
-    @mock.patch('the_tale.accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
-    @mock.patch('the_tale.accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [])
-    def test_dengionline_disabled__global(self):
-        self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-dengionline-dialog-link', 0)])
-
-    def test_dengionline_disabled__settings(self):
-        del settings[payments_settings.SETTINGS_ALLOWED_KEY]
-        self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-dengionline-dialog-link', 0)])
-
-    @mock.patch('the_tale.accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
-    def test_dengionline_disabled__global_with_exception(self):
-        with mock.patch('the_tale.accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [self.account.id]):
-            self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-dengionline-dialog-link', 2)])
-
 
     def test_xsolla_buy_link(self):
         self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-xsolla-dialog-link', 1)])
@@ -201,111 +177,6 @@ class BuyRequestesTests(RequestesTestsBase, BankTestsMixin):
         response = self.client.post(url('accounts:payments:buy', purchase=self.purchase.uid))
         self.check_ajax_processing(response, PostponedTaskPrototype._db_get_object(0).status_url)
 
-
-class PayWithDengionlineRequestesTests(RequestesTestsBase):
-
-    def setUp(self):
-        super(PayWithDengionlineRequestesTests, self).setUp()
-
-    def post_data(self, amount):
-        return {'real_amount': amount, 'game_amount': real_amount_to_game(amount)}
-
-    def test_for_fast_account(self):
-        self.account.is_fast = True
-        self.account.save()
-        self.check_ajax_error(self.client.post(url('accounts:payments:pay-with-dengionline', amount=5)), 'common.fast_account')
-        self.assertEqual(DOInvoicePrototype._db_count(), 0)
-
-    def test_unlogined(self):
-        self.request_logout()
-        self.check_ajax_error(self.client.post(url('accounts:payments:pay-with-dengionline', amount=5)), 'common.login_required')
-        self.assertEqual(DOInvoicePrototype._db_count(), 0)
-
-    def test_amount__wrong(self):
-        self.check_ajax_error(self.client.post(url('accounts:payments:pay-with-dengionline'),
-                                               {'real_amount': 'bla', 'game_amount': 10000}), 'payments.pay_with_dengionline.form_errors')
-        self.assertEqual(DOInvoicePrototype._db_count(), 0)
-
-    def test_amount__zero_or_less(self):
-        self.check_ajax_error(self.post_ajax_json(url('accounts:payments:pay-with-dengionline'), self.post_data(-5)), 'payments.pay_with_dengionline.form_errors')
-        self.check_ajax_error(self.post_ajax_json(url('accounts:payments:pay-with-dengionline'), self.post_data(0)), 'payments.pay_with_dengionline.form_errors')
-        self.assertEqual(DOInvoicePrototype._db_count(), 0)
-
-    def test_amount__wrong_calculations(self):
-        self.check_ajax_error(self.post_ajax_json(url('accounts:payments:pay-with-dengionline'),
-                                                  {'real_amount': 5, 'game_amount': real_amount_to_game(5)*2}), 'payments.pay_with_dengionline.form_errors')
-        self.assertEqual(DOInvoicePrototype._db_count(), 0)
-
-    def test_success(self):
-        self.assertEqual(DOInvoicePrototype._db_count(), 0)
-        response = self.post_ajax_json(url('accounts:payments:pay-with-dengionline'), self.post_data(5))
-        self.assertEqual(DOInvoicePrototype._db_count(), 1)
-
-        invoice = DOInvoicePrototype._db_get_object(0)
-
-        self.assertTrue(invoice.bank_type.is_GAME_ACCOUNT)
-        self.assertEqual(invoice.bank_id, self.account.id)
-        self.assertTrue(invoice.bank_currency.is_PREMIUM)
-        self.assertEqual(invoice.bank_amount, 5 * payments_settings.PREMIUM_CURRENCY_FOR_DOLLAR)
-        self.assertEqual(invoice.user_id, self.account.email)
-        self.assertTrue(invoice.comment)
-        self.assertEqual(invoice.payment_amount, 5)
-        self.assertTrue(invoice.payment_currency.is_USD)
-
-        self.check_ajax_ok(response, data={'next_url': invoice.simple_payment_url})
-
-    def test_creation_limits(self):
-        for i in xrange(dengionline_settings.CREATION_NUMBER_LIMIT):
-            self.check_ajax_ok(self.post_ajax_json(url('accounts:payments:pay-with-dengionline'), self.post_data(5)))
-        self.check_ajax_error(self.post_ajax_json(url('accounts:payments:pay-with-dengionline'), self.post_data(5)),
-                              'payments.pay_with_dengionline.creation_limit_riched')
-
-    @mock.patch('the_tale.accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
-    @mock.patch('the_tale.accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [])
-    def test_dengionline_disabled__global(self):
-        self.check_ajax_error(self.post_ajax_json(url('accounts:payments:pay-with-dengionline'), self.post_data(5)),
-                              'payments.dengionline_disabled')
-
-    @mock.patch('the_tale.accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', True)
-    def test_dengionline_disabled__settings(self):
-        del settings[payments_settings.SETTINGS_ALLOWED_KEY]
-        self.check_ajax_error(self.post_ajax_json(url('accounts:payments:pay-with-dengionline'), self.post_data(5)),
-                              'payments.dengionline_disabled')
-
-    @mock.patch('the_tale.accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
-    def test_dengionline_disabled__global_with_exception(self):
-        with mock.patch('the_tale.accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [self.account.id]):
-            self.check_ajax_ok(self.post_ajax_json(url('accounts:payments:pay-with-dengionline'), self.post_data(5)))
-
-
-class PayDialogRequestesTests(RequestesTestsBase):
-
-    def setUp(self):
-        super(PayDialogRequestesTests, self).setUp()
-
-    def test_for_fast_account(self):
-        self.account.is_fast = True
-        self.account.save()
-        self.check_html_ok(self.request_ajax_html(url('accounts:payments:dengionline-dialog')), texts=['common.fast_account'])
-
-    def test_unlogined(self):
-        self.request_logout()
-        self.check_html_ok(self.request_ajax_html(url('accounts:payments:dengionline-dialog')), texts=['common.login_required'])
-
-    @mock.patch('the_tale.accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
-    @mock.patch('the_tale.accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [])
-    def test_dengionline_disabled__global(self):
-        self.check_html_ok(self.request_ajax_html(url('accounts:payments:dengionline-dialog')), texts=['payments.dengionline_disabled'])
-
-    @mock.patch('the_tale.accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', True)
-    def test_dengionline_disabled__settings(self):
-        del settings[payments_settings.SETTINGS_ALLOWED_KEY]
-        self.check_html_ok(self.request_ajax_html(url('accounts:payments:dengionline-dialog')), texts=['payments.dengionline_disabled'])
-
-    @mock.patch('the_tale.accounts.payments.conf.payments_settings.ENABLE_REAL_PAYMENTS', False)
-    def test_dengionline_disabled__global_with_exception(self):
-        with mock.patch('the_tale.accounts.payments.conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS', [self.account.id]):
-            self.check_html_ok(self.request_ajax_html(url('accounts:payments:dengionline-dialog')), texts=[('payments.dengionline_disabled', 0)])
 
 
 class GiveMoneyRequestesTests(RequestesTestsBase):

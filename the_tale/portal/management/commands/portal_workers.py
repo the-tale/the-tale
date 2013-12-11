@@ -17,7 +17,6 @@ Command = construct_workers_manager(help='run infrastructure workers',
                                     # bank worker MUST be places in start of the list
                                     # since it MUST be stopped latest
                                     workers=(bank_workers_environment.bank_processor,
-                                             # bank_workers_environment.dengionline_banker,
                                              bank_workers_environment.xsolla_banker,
                                              postponed_tasks_workers_environment.refrigerator,
                                              post_service_workers_environment.message_sender,
