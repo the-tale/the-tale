@@ -14,7 +14,22 @@ class KitsStorage(create_storage_class('kits change time', KitPrototype, excepti
     pass
 
 class ItemsStorage(create_storage_class('items change time', ItemPrototype, exceptions.CollectionsError)):
-    pass
+
+    def form_choices(self):
+        self.sync()
+
+        choices = []
+
+        for kit in kits_storage.all():
+            items = []
+
+            for item in self.all():
+                if item.kit_id == kit.id:
+                    items.append((item.id, item.caption))
+
+            choices.append((kit.caption, sorted(items, key=lambda record: record[1])))
+
+        return sorted(choices)
 
 
 collections_storage = CollectionsStorage()

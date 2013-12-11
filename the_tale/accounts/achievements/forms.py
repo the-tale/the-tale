@@ -1,14 +1,26 @@
 # coding: utf-8
 
-# from django import forms as django_forms
-
 from dext.forms import forms, fields
 
 from the_tale.common.utils import bbcode
 
+from the_tale.collections.storage import items_storage
 
 from the_tale.accounts.achievements.prototypes import AchievementPrototype
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_GROUP, ACHIEVEMENT_TYPE
+
+
+def create_clean_item_method(number):
+
+    def clean_item(self):
+        item = self.cleaned_data.get('item_%d' % number)
+
+        if item != '':
+            return items_storage[int(item)]
+
+        return None
+
+    return clean_item
 
 
 class NewAchievementForm(forms.Form):
@@ -27,6 +39,21 @@ class NewAchievementForm(forms.Form):
     barrier = fields.IntegerField(label=u'Барьер')
 
     points = fields.IntegerField(label=u'Очки')
+
+    item_1 = fields.ChoiceField(label=u'награда 1', choices=[], required=False)
+    item_2 = fields.ChoiceField(label=u'награда 2', choices=[], required=False)
+    item_3 = fields.ChoiceField(label=u'награда 3', choices=[], required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(NewAchievementForm, self).__init__(*args, **kwargs)
+        self.fields['item_1'].choices = [('', u'-----')] + items_storage.form_choices()
+        self.fields['item_2'].choices = [('', u'-----')] + items_storage.form_choices()
+        self.fields['item_3'].choices = [('', u'-----')] + items_storage.form_choices()
+
+    clean_item_1 = create_clean_item_method(1)
+    clean_item_2 = create_clean_item_method(2)
+    clean_item_3 = create_clean_item_method(3)
+
 
 
 class EditAchievementForm(NewAchievementForm):

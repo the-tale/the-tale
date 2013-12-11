@@ -1,6 +1,6 @@
 
 
-{% macro items_list(items, account_items, master_account_items) %}
+{% macro items_list(items, account_items, master_account_items, show_kit_caption=false) %}
 
 {% if items %}
 
@@ -43,6 +43,9 @@
          data-toggle="collapse"
          data-parent="#pgf-items-accordion"
          href="#pgf-item-{{item.id}}">
+         {% if show_kit_caption %}
+           {{item.kit.caption}}:
+         {% endif %}
          {{item.caption}}
       </a>
 

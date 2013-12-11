@@ -5,6 +5,8 @@ from dext.utils.urls import url
 from the_tale.common.utils import testcase
 from the_tale.common.utils.permissions import sync_group
 
+from the_tale.collections.prototypes import CollectionPrototype, KitPrototype, ItemPrototype
+
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user, login_page_url
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_GROUP, ACHIEVEMENT_TYPE
@@ -38,6 +40,10 @@ class _BaseRequestTests(testcase.TestCase):
         self.achievement_3 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.TIME, type=ACHIEVEMENT_TYPE.TIME, barrier=3, points=10,
                                                          caption=u'achievement_3', description=u'description_3', approved=True)
 
+        self.collection_1 = CollectionPrototype.create(caption=u'collection_1', description=u'description_1', approved=True)
+        self.kit_1 = KitPrototype.create(collection=self.collection_1, caption=u'kit_1', description=u'description_1', approved=True)
+        self.item_1_1 = ItemPrototype.create(kit=self.kit_1, caption=u'item_1_1', text=u'text_1_1', approved=True)
+        self.item_1_2 = ItemPrototype.create(kit=self.kit_1, caption=u'item_1_2', text=u'text_1_2', approved=True)
 
         self.account_achievements_1 = AccountAchievementsPrototype.get_by_account_id(self.account_1.id)
         self.account_achievements_1.achievements.add_achievement(self.achievement_1)
@@ -162,7 +168,10 @@ class AchievementsCreateTests(_BaseRequestTests):
                 'barrier': 777,
                 'type': ACHIEVEMENT_TYPE.DEATHS,
                 'group': ACHIEVEMENT_GROUP.DEATHS,
-                'points': 20}
+                'points': 20,
+                'item_1': self.item_1_1.id,
+                'item_2': '',
+                'item_3': ''}
 
     def test_login_required(self):
         with self.check_not_changed(AchievementPrototype._db_all().count):
@@ -197,6 +206,9 @@ class AchievementsCreateTests(_BaseRequestTests):
         self.assertEqual(achievement.barrier, 777)
         self.assertEqual(achievement.points, 20)
         self.assertFalse(achievement.approved)
+        self.assertEqual(achievement.item_1.id, self.item_1_1.id)
+        self.assertEqual(achievement.item_2, None)
+        self.assertEqual(achievement.item_3, None)
 
 
 class AchievementsEditTests(_BaseRequestTests):
@@ -237,7 +249,10 @@ class AchievementsUpdateTests(_BaseRequestTests):
                 'type': ACHIEVEMENT_TYPE.DEATHS,
                 'group': ACHIEVEMENT_GROUP.DEATHS,
                 'approved': True,
-                'points': 6}
+                'points': 6,
+                'item_1': self.item_1_1.id,
+                'item_2': self.item_1_2.id,
+                'item_3': ''}
 
     def get_post_data__without_update(self):
         return {'caption': 'caption_edited',
@@ -247,8 +262,10 @@ class AchievementsUpdateTests(_BaseRequestTests):
                 'type': self.achievement_2.type,
                 'group': ACHIEVEMENT_GROUP.DEATHS,
                 'approved': self.achievement_2.approved,
-                'points': self.achievement_2.points}
-
+                'points': self.achievement_2.points,
+                'item_1': '',
+                'item_2': '',
+                'item_3': ''}
 
     def test_login_required(self):
         with self.check_not_changed(GiveAchievementTaskPrototype._db_all().count):
@@ -291,6 +308,9 @@ class AchievementsUpdateTests(_BaseRequestTests):
         self.assertEqual(self.achievement_2.barrier, 777)
         self.assertTrue(self.achievement_2.approved)
         self.assertEqual(self.achievement_2.points, 6)
+        self.assertEqual(self.achievement_2.item_1.id, self.item_1_1.id)
+        self.assertEqual(self.achievement_2.item_2.id, self.item_1_2.id)
+        self.assertEqual(self.achievement_2.item_3, None)
 
     def test_success__not_changed(self):
         self.request_login(self.account_2.email)
@@ -309,3 +329,7 @@ class AchievementsUpdateTests(_BaseRequestTests):
         self.assertEqual(self.achievement_2.barrier, 2)
         self.assertFalse(self.achievement_2.approved)
         self.assertEqual(self.achievement_2.points, 10)
+
+        self.assertEqual(self.achievement_2.item_1, None)
+        self.assertEqual(self.achievement_2.item_2, None)
+        self.assertEqual(self.achievement_2.item_3, None)

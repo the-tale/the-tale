@@ -131,7 +131,10 @@ class AchievementsResource(Resource):
                                                       description=form.c.description,
                                                       approved=False,
                                                       barrier=form.c.barrier,
-                                                      points=form.c.points)
+                                                      points=form.c.points,
+                                                      item_1=form.c.item_1,
+                                                      item_2=form.c.item_2,
+                                                      item_3=form.c.item_3)
 
         return self.json_ok(data={'next_url': url('accounts:achievements:group', achievement.group.slug)})
 
@@ -147,7 +150,10 @@ class AchievementsResource(Resource):
                                              'barrier': self.achievement.barrier,
                                              'description': self.achievement.description,
                                              'order': self.achievement.order,
-                                             'points': self.achievement.points})
+                                             'points': self.achievement.points,
+                                             'item_1': self.achievement.item_1.id if self.achievement.item_1 is not None else None,
+                                             'item_2': self.achievement.item_2.id if self.achievement.item_2 is not None else None,
+                                             'item_3': self.achievement.item_3.id if self.achievement.item_3 is not None else None})
         return self.template('achievements/edit.html',
                              {'form': form})
 
@@ -167,7 +173,10 @@ class AchievementsResource(Resource):
             is_changed = (self.achievement.type != form.c.type or
                           self.achievement.approved != form.c.approved or
                           self.achievement.barrier != form.c.barrier or
-                          self.achievement.points != form.c.points)
+                          self.achievement.points != form.c.points or
+                          self.achievement.item_1 != form.c.item_1 or
+                          self.achievement.item_2 != form.c.item_2 or
+                          self.achievement.item_3 != form.c.item_3 )
 
             self.achievement.group = form.c.group
             self.achievement.type = form.c.type
@@ -177,6 +186,10 @@ class AchievementsResource(Resource):
             self.achievement.barrier = form.c.barrier
             self.achievement.points = form.c.points
             self.achievement.order = form.c.order
+
+            self.achievement.item_1_id = form.c.item_1.id if form.c.item_1 is not None else None
+            self.achievement.item_2_id = form.c.item_2.id if form.c.item_2 is not None else None
+            self.achievement.item_3_id = form.c.item_3.id if form.c.item_3 is not None else None
 
             self.achievement.save()
 

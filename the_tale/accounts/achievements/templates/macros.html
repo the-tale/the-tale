@@ -23,7 +23,20 @@
     <div class="anchor" id="a{{achievement.id}}"></div>
   </h4>
   <p>{{achievement.description}}</p>
-  <p><strong>награды:</strong> нет</p>
+  <p>
+    <strong>награды:</strong>
+
+    {% set rewards = achievement.approved_rewards %}
+
+    {% if rewards %}
+      {%- for item in rewards -%}
+        {%- if loop.index > 1 -%},{% endif %}
+        <a href="{{url('collections:collections:show', item.kit.collection.id)}}#k{{item.kit.id}}">{{item.kit.caption}}: {{item.caption}}</a>
+      {%- endfor -%}
+    {% else %}
+      нет
+    {% endif %}
+  </p>
 </div>
 
 {% endmacro %}

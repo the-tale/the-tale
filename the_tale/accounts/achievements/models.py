@@ -29,6 +29,10 @@ class Achievement(models.Model):
 
     points = models.IntegerField()
 
+    item_1 = models.ForeignKey('collections.Item', null=True, default=None, related_name='+', on_delete=models.SET_NULL)
+    item_2 = models.ForeignKey('collections.Item', null=True, default=None, related_name='+', on_delete=models.SET_NULL)
+    item_3 = models.ForeignKey('collections.Item', null=True, default=None, related_name='+', on_delete=models.SET_NULL)
+
     class Meta:
         permissions = (('edit_achievement', u'Может создавать и редактировать достижения'),)
 

@@ -88,7 +88,7 @@
 
     {% if last_items %}
 
-      {{ collections_macros.items_list(last_items, account_items, master_account_items) }}
+      {{ collections_macros.items_list(last_items, account_items, master_account_items, show_kit_caption=true) }}
 
     {% else %}
       <p class="alert alert-info pgf-no-last-items-message">

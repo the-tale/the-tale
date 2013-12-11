@@ -15,14 +15,16 @@
   <tr>
     <th>всего аккаунтов</th>
     <td>{{accounts_total}}</td>
-    <td>{{accounts_total-accounts_registered}} незавершённых регистрации</td>
+    <td>
+      {{accounts_total-accounts_registered}} незавершённых регистрации
+      (если образовалось много незарегистрированных аккаунтов, их надо почистить)
+    </td>
   </tr>
   <tr>
     <th>зарегистрированных</th>
     <td>{{accounts_registered}}</td>
     <td>
       {{(accounts_registered/registration_attemps_number)|percents}} от всех регистраций
-      (если образовалось много незарегистрированных аккаунтов, их надо почистить)
     </td>
   </tr>
   <tr><th>боты</th><td>{{accounts_bots}}</td><td>боты для pvp и прочих вещей</td></tr>
@@ -44,6 +46,21 @@
       {{(accounts_active_and_premium|float/accounts_active)|percents}} от активных
       {% endif %}
     </td>
+  </tr>
+  <tr>
+    <th>рефералов</th><td>{{accounts_referrals}}</td>
+    <td>
+      {{(accounts_referrals|float/accounts_registered)|percents}} от зарегистрированых
+    </td>
+  </tr>
+  <tr>
+    <th>и премиум и рефералы</th><td>{{accounts_referrals_and_premium}}</td>
+    <td>
+      {% if accounts_referrals %}
+      {{(accounts_referrals_and_premium|float/accounts_referrals)|percents}} от премиумных
+      {% endif %}
+    </td>
+
   </tr>
 </table>
 

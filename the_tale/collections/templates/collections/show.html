@@ -9,12 +9,6 @@
   <h2>
     {{resource.collection.caption}}
 
-    <small>
-      {{collections_statistics["account_items_in_collections"].get(resource.collection.id, 0)}}
-      из
-      {{collections_statistics["total_items_in_collections"].get(resource.collection.id, 0)}}
-    </small>
-
     {% if resource.can_edit_collection %}
       <a href="{{url('collections:collections:edit', resource.collection.id)}}" class="pgf-edit-collection-button" rel="tooltip" title="Редактировать коллекцию">
         <i class="icon icon-pencil" style="vertical-align: middle;"></i>
@@ -49,6 +43,24 @@
 
   </h2>
 
+  {% if resource.master_account %}
+
+    {% set gotten = collections_statistics["account_items_in_collections"].get(resource.collection.id, 0) %}
+    {% set total = collections_statistics["total_items_in_collections"].get(resource.collection.id, 0) %}
+
+    {% set percents = ((gotten|float)/total if total else 0)|percents %}
+
+    <div style="font-size: 20px; width: auto; text-align: center;" class="pgf-all-items">
+      <div class="progress progress-success" style="height: 20px; margin-top: 5px; text-align: center;">
+        <div class="bar" style="width: {{ percents }}; height: 20px;">
+        </div>
+        <div style="position: relative; top: -20px; font-size: 14px;">{{ gotten }} / {{ total }} ({{percents}})</div>
+      </div>
+    </div>
+
+  {% endif %}
+
+
   <div style="text-align: justify;">
     {{resource.collection.description_html|safe}}
   </div>
@@ -58,7 +70,8 @@
 
     {% for kit in kits %}
       <h3 style="{% if not kit.approved %}color: red;{% endif %}">
-        {{ kit.caption }}
+        <a style="color: black;"
+           href="{{url('collections:collections:show', resource.collection.id)}}#k{{kit.id}}">{{ kit.caption }}</a>
 
         <small>
           {{collections_statistics["account_items_in_kits"].get(kit.id, 0)}}
@@ -98,7 +111,7 @@
           {% endif %}
         {% endif %}
 
-
+        <div class="anchor" id="k{{kit.id}}"></div>
       </h3>
 
       <div style="text-align: justify;">

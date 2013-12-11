@@ -32,6 +32,9 @@ class BaseRequestTests(testcase.TestCase):
         result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
         self.account_3 = AccountPrototype.get_by_id(account_id)
 
+        result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
+        self.account_4 = AccountPrototype.get_by_id(account_id)
+
         self.account_1_items = AccountItemsPrototype.get_by_account_id(self.account_1.id)
         self.account_2_items = AccountItemsPrototype.get_by_account_id(self.account_2.id)
         self.account_3_items = AccountItemsPrototype.get_by_account_id(self.account_3.id)
@@ -40,11 +43,15 @@ class BaseRequestTests(testcase.TestCase):
         group_edit = sync_group('edit collection', ['collections.edit_collection'])
         group_edit_item = sync_group('edit item', ['collections.edit_item'])
         group_moderate = sync_group('moderate collection', ['collections.moderate_collection'])
+        group_moderate_kit = sync_group('moderate kit', ['collections.moderate_kit'])
+        group_moderate_item = sync_group('moderate item', ['collections.moderate_item'])
 
         group_edit_kit.user_set.add(self.account_2._model)
         group_edit.user_set.add(self.account_2._model)
         group_edit_item.user_set.add(self.account_2._model)
         group_moderate.user_set.add(self.account_3._model)
+        group_moderate_kit.user_set.add(self.account_3._model)
+        group_moderate_item.user_set.add(self.account_3._model)
 
 
         self.collection_1 = CollectionPrototype.create(caption=u'collection_1', description=u'description_1')
@@ -133,7 +140,7 @@ class CollectionsIndexTests(BaseRequestTests, CollectionVisibilityAllMixin):
         self.account_1_items.add_item(self.item_2_1)
         self.account_1_items.save()
 
-        self.request_login(self.account_3.email)
+        self.request_login(self.account_4.email)
         self.check_html_ok(self.request_html(self.test_url),
                            texts=[('collections.collections.no_edit_rights', 0),
                                   ('pgf-last-items', 1),
@@ -290,12 +297,26 @@ class CollectionsShowTests(BaseRequestTests, CollectionVisibilityApprovedMixin):
         self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-new-kit-button', 0),
                                                                     ('pgf-edit-collection-button', 0),
                                                                     ('pgf-approve-collection-button', 0),
+                                                                    ('pgf-new-item-button', 0),
+                                                                    ('pgf-edit-kit-button', 0),
+                                                                    ('pgf-approve-kit-button', 0),
+                                                                    ('pgf-disapprove-kit-button', 0),
+                                                                    ('pgf-edit-item-button', 0),
+                                                                    ('pgf-approve-item-button', 0),
+                                                                    ('pgf-disapprove-item-button', 0),
                                                                     ('pgf-disapprove-collection-button', 0)])
 
     def test_buttons__no_rights(self):
         self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-new-kit-button', 0),
                                                                     ('pgf-edit-collection-button', 0),
                                                                     ('pgf-approve-collection-button', 0),
+                                                                    ('pgf-new-item-button', 0),
+                                                                    ('pgf-edit-kit-button', 0),
+                                                                    ('pgf-approve-kit-button', 0),
+                                                                    ('pgf-disapprove-kit-button', 0),
+                                                                    ('pgf-edit-item-button', 0),
+                                                                    ('pgf-approve-item-button', 0),
+                                                                    ('pgf-disapprove-item-button', 0),
                                                                     ('pgf-disapprove-collection-button', 0)])
 
     def test_buttons__edit_rights(self):
@@ -303,6 +324,13 @@ class CollectionsShowTests(BaseRequestTests, CollectionVisibilityApprovedMixin):
         self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-new-kit-button', 1),
                                                                     ('pgf-edit-collection-button', 0),
                                                                     ('pgf-approve-collection-button', 0),
+                                                                    ('pgf-new-item-button', 1),
+                                                                    ('pgf-edit-kit-button', 1),
+                                                                    ('pgf-approve-kit-button', 0),
+                                                                    ('pgf-disapprove-kit-button', 0),
+                                                                    ('pgf-edit-item-button', 0),
+                                                                    ('pgf-approve-item-button', 0),
+                                                                    ('pgf-disapprove-item-button', 0),
                                                                     ('pgf-disapprove-collection-button', 0)])
 
         self.collection_2.approved = False
@@ -311,20 +339,47 @@ class CollectionsShowTests(BaseRequestTests, CollectionVisibilityApprovedMixin):
         self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-new-kit-button', 1),
                                                                     ('pgf-edit-collection-button', 1),
                                                                     ('pgf-approve-collection-button', 0),
+                                                                    ('pgf-new-item-button', 1),
+                                                                    ('pgf-edit-kit-button', 1),
+                                                                    ('pgf-approve-kit-button', 0),
+                                                                    ('pgf-disapprove-kit-button', 0),
+                                                                    ('pgf-edit-item-button', 0),
+                                                                    ('pgf-approve-item-button', 0),
+                                                                    ('pgf-disapprove-item-button', 0),
                                                                     ('pgf-disapprove-collection-button', 0)])
 
     def test_buttons__moderate_rights(self):
         self.request_login(self.account_3.email)
-        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-new-kit-button', 0),
+        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-new-kit-button', 1),
                                                                     ('pgf-edit-collection-button', 1),
                                                                     ('pgf-approve-collection-button', 0),
+                                                                    ('pgf-new-item-button', 1),
+                                                                    ('pgf-edit-kit-button', 1),
+                                                                    ('pgf-approve-kit-button', 0),
+                                                                    ('pgf-disapprove-kit-button', 1),
+                                                                    ('pgf-edit-item-button', 1),
+                                                                    ('pgf-approve-item-button', 0),
+                                                                    ('pgf-disapprove-item-button', 1),
                                                                     ('pgf-disapprove-collection-button', 1)])
         self.collection_2.approved = False
         self.collection_2.save()
 
-        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-new-kit-button', 0),
+        self.kit_2.approved = False
+        self.kit_2.save()
+
+        self.item_2_1.approved = False
+        self.item_2_1.save()
+
+        self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-new-kit-button', 1),
                                                                     ('pgf-edit-collection-button', 1),
                                                                     ('pgf-approve-collection-button', 1),
+                                                                    ('pgf-new-item-button', 1),
+                                                                    ('pgf-edit-kit-button', 1),
+                                                                    ('pgf-approve-kit-button', 1),
+                                                                    ('pgf-disapprove-kit-button', 0),
+                                                                    ('pgf-edit-item-button', 1),
+                                                                    ('pgf-approve-item-button', 1),
+                                                                    ('pgf-disapprove-item-button', 0),
                                                                     ('pgf-disapprove-collection-button', 0)])
 
     def test_item_show__anonymous(self):
@@ -340,7 +395,7 @@ class CollectionsShowTests(BaseRequestTests, CollectionVisibilityApprovedMixin):
         self.account_1_items.add_item(self.item_2_1)
         self.account_1_items.save()
 
-        self.request_login(self.account_3.email)
+        self.request_login(self.account_4.email)
 
         self.check_html_ok(self.request_html(self.test_url), texts=[self.item_2_1.caption,
                                                                     (self.item_2_1.text, 0)])
