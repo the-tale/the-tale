@@ -7251,9 +7251,55 @@
       "template": "Поразительное сочетание потоков магической энергии и положения звёзд позволили сохранить два заряда энергии."
     }
   ], 
-  "quest_delivery_diary_finish_steal_artifact": [
+  "action_inplace_diary_buying_artifact_and_change_equal_items": [
     {
-      "internals": [], 
+      "internals": [
+        [
+          "поменял", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш", 
+            "загл"
+          ], 
+          "поменял"
+        ], 
+        [
+          "старый", 
+          [
+            "artifact"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "старый"
+        ], 
+        [
+          "новый", 
+          [
+            "artifact"
+          ], 
+          "i_2", 
+          [
+            "вн"
+          ], 
+          "новый"
+        ], 
+        [
+          "монета", 
+          [
+            "coins_delta"
+          ], 
+          "i_3", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
       "externals": [
         [
           "artifact", 
@@ -7263,9 +7309,16 @@
             "вн"
           ], 
           "artifact"
+        ], 
+        [
+          "coins_delta", 
+          [], 
+          "e_1", 
+          [], 
+          "coins_delta"
         ]
       ], 
-      "template": "«Посылку удалось обменять на %(e_0)s»."
+      "template": "«%(i_0)s %(i_1)s %(e_0)s на %(i_2)s, пришлось доплатить %(e_1)s %(i_3)s»."
     }
   ], 
   "action_idleness_description": [
@@ -35171,6 +35224,23 @@
       "internals": [], 
       "externals": [], 
       "template": "«А это что за трактир, в прошлый раз его не было, пожалуй стоит проверить чем тут потчуют»."
+    }
+  ], 
+  "quest_delivery_diary_finish_steal_artifact": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "artifact", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "«Посылку удалось обменять на %(e_0)s»."
     }
   ], 
   "hero_ability_hit": [

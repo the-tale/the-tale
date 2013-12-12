@@ -1010,8 +1010,12 @@ class ActionInPlacePrototype(ActionBase):
             artifact, unequipped, sell_price = self.hero.buy_artifact(better=better, with_prefered_slot=False, equip=True)
 
             if unequipped is not None:
-                self.hero.add_message('action_inplace_diary_buying_artifact_and_change', diary=True,
-                                      hero=self.hero, artifact=artifact, coins=coins, old_artifact=unequipped, sell_price=sell_price)
+                if artifact.id == unequipped.id:
+                    self.hero.add_message('action_inplace_diary_buying_artifact_and_change_equal_items', diary=True,
+                                          hero=self.hero, artifact=artifact, coins=coins, sell_price=sell_price, coins_delta=coins-sell_price)
+                else:
+                    self.hero.add_message('action_inplace_diary_buying_artifact_and_change', diary=True,
+                                          hero=self.hero, artifact=artifact, coins=coins, old_artifact=unequipped, sell_price=sell_price)
             else:
                 self.hero.add_message('action_inplace_diary_buying_artifact', diary=True, hero=self.hero, coins=coins, artifact=artifact)
 
