@@ -1,5 +1,6 @@
 # coding: utf-8
 import uuid
+import time
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth import logout as django_logout
@@ -127,7 +128,8 @@ class AuthResource(BaseAccountsResource):
 
     {
       "next_url": "относительный url", // адрес, переданный при вызове метода или "/"
-      "account_id": <целое число>      // идентификатор аккаунта
+      "account_id": <целое число>,     // идентификатор аккаунта
+      "session_expire_at": <timestamp> // время окончания сессии пользователя
     }
 
 При успешно выполнении запроса, будет установлено значение cookie с именем sessionid, которая и является идентификатором сессии пользователя.
@@ -149,7 +151,8 @@ class AuthResource(BaseAccountsResource):
             login_user(self.request, nick=account.nick, password=login_form.c.password, remember=login_form.c.remember)
 
             return self.ok(data={'next_url': next_url,
-                                 'account_id': account.id})
+                                 'account_id': account.id,
+                                 'session_expire_at': time.mktime(self.request.session.get_expiry_date().timetuple())})
 
         return self.error('accounts.auth.login.form_errors', login_form.errors)
 

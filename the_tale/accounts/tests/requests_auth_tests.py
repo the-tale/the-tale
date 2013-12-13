@@ -1,6 +1,9 @@
 # coding: utf-8
+import time
+
 from django.test import client
 
+from dext.utils import s11n
 from dext.utils.urls import url
 
 from the_tale.common.utils.testcase import TestCase
@@ -39,7 +42,13 @@ class AuthRequestsTests(TestCase):
     def test_login(self):
         response = self.client.post(url('accounts:auth:api-login', api_version='1.0', api_client='test-1.0', next_url='/bla-bla'),
                                     {'email': 'test_user@test.com', 'password': '111111'})
-        self.check_ajax_ok(response, data={'next_url': '/bla-bla', 'account_id': self.account_id})
+        self.check_ajax_ok(response)
+
+        data = s11n.from_json(response.content)
+
+        self.assertEqual(data['data']['next_url'], '/bla-bla')
+        self.assertEqual(data['data']['account_id'], self.account_id)
+        self.assertTrue(data['data']['session_expire_at'] > time.time())
 
     def test_logout_command_post(self):
         self.request_logout()
