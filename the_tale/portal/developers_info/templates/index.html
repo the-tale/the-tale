@@ -179,4 +179,37 @@
 
 </table>
 
+{% macro groups_table(groups) %}
+<table class="table">
+  <tr>
+    <th>группа</th>
+    <th>количество</th>
+  </tr>
+
+  {% for group, group_count  in groups %}
+  <tr>
+    <td>{{group}}</td>
+    <td>{{group_count}}</td>
+  </tr>
+  {% endfor %}
+
+</table>
+{% endmacro %}
+
+<h3>Группы по количеству оплат</h3>
+
+{{ groups_table(repeatable_payments_statistics['payments_count_groups']) }}
+
+<h3>Группы по печенькам</h3>
+
+{{ groups_table(repeatable_payments_statistics['payment_sum_groups']) }}
+
+<h3>Группы по подпискам</h3>
+
+{{ groups_table(repeatable_payments_statistics['subscriptions_count_groups']) }}
+
+<h3>Группы по энергии</h3>
+
+{{ groups_table(repeatable_payments_statistics['energy_count_groups']) }}
+
 {% endblock %}

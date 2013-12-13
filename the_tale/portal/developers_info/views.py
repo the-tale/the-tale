@@ -15,6 +15,8 @@ from the_tale.bank.relations import ENTITY_TYPE as BANK_ENTITY_TYPE
 
 from the_tale.accounts.prototypes import AccountPrototype
 
+from the_tale.portal.developers_info.relations import PAYMENT_GROUPS
+
 
 class RefererStatistics(collections.namedtuple('RefererStatisticsBase', ('domain', 'count', 'active_accounts', 'premium_accounts', 'active_and_premium', 'premium_currency'))):
 
@@ -83,6 +85,45 @@ def get_invoice_statistics():
     return statistics
 
 
+def get_repeatable_payments_statistics():
+    # группы по количеству оплат
+    payments_count = collections.Counter(InvoicePrototype._db_filter(sender_type=BANK_ENTITY_TYPE.XSOLLA).values_list('recipient_id', flat=True))
+    payments_count_groups = collections.Counter(payments_count.values())
+
+    # группы по заплаченным деньгам
+    gold_count = InvoicePrototype._db_filter(sender_type=BANK_ENTITY_TYPE.XSOLLA).values_list('recipient_id', 'amount')
+    accounts_spend = {}
+    for account_id, amount in gold_count:
+        accounts_spend[account_id] = accounts_spend.get(account_id, 0) + amount
+
+    payment_sum_groups = {}
+
+    for amount in accounts_spend.values():
+        for group in PAYMENT_GROUPS.records:
+            if amount < group.top_border:
+                payment_sum_groups[group.value] = payment_sum_groups.get(group.value, 0) + 1
+                break
+
+    # группы по повторным подпискам
+    subscriptions_count = collections.Counter(InvoicePrototype._db_filter(recipient_type=BANK_ENTITY_TYPE.GAME_ACCOUNT,
+                                                                          operation_uid__startswith='ingame-purchase-<subscription').values_list('recipient_id', flat=True))
+    subscriptions_count_groups = collections.Counter(subscriptions_count.values())
+
+    # группы по повторным покупкам энергии
+    energy_count = collections.Counter(InvoicePrototype._db_filter(recipient_type=BANK_ENTITY_TYPE.GAME_ACCOUNT,
+                                                                   operation_uid__startswith='ingame-purchase-<energy-charge').values_list('recipient_id', flat=True))
+    energy_count_groups = collections.Counter(energy_count.values())
+
+
+    return {'payments_count_groups': sorted(payments_count_groups.items()),
+            'payment_sum_groups': [(PAYMENT_GROUPS(group_id).text, count) for group_id, count in sorted(payment_sum_groups.items())],
+            'subscriptions_count_groups': sorted(subscriptions_count_groups.items()),
+            'energy_count_groups': sorted(energy_count_groups.items())}
+
+
+
+
+
 class DevelopersInfoResource(Resource):
 
     @staff_required()
@@ -146,6 +187,8 @@ class DevelopersInfoResource(Resource):
                               'referers_statistics': get_referers_statistics(),
                               'invoice_statistics': get_invoice_statistics(),
                               'invoice_count': InvoicePrototype._model_class.objects.all().count(),
+                              'repeatable_payments_statistics': get_repeatable_payments_statistics(),
+                              'PAYMENT_GROUPS': PAYMENT_GROUPS,
                               'page_type': 'index'})
 
     @handler('mobs-and-artifacts', method='get')
