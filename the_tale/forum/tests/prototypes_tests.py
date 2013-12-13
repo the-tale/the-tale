@@ -20,6 +20,41 @@ from the_tale.forum.prototypes import (ThreadPrototype,
                               SubscriptionPrototype)
 
 
+class SubcategoryPrototypeTests(testcase.TestCase):
+
+    def setUp(self):
+        super(SubcategoryPrototypeTests, self).setUp()
+        create_test_map()
+
+
+    def test_subcategories_visible_to_account_with_permissions(self):
+        register_user('test_user', 'test_user@test.com', '111111')
+        register_user('granted_user', 'granted_user@test.com', '111111')
+        register_user('wrong_user', 'wrong_user@test.com', '111111')
+
+        granted_account = AccountPrototype.get_by_nick('granted_user')
+        wrong_account = AccountPrototype.get_by_nick('wrong_user')
+
+        category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
+        subcategory_1 = SubCategoryPrototype.create(category=category, caption='subcat-1-caption', order=2)
+
+        SubCategoryPrototype.create(category=category, caption='subcat-2-caption', order=1, restricted=True)
+
+        restricted_subcategory = SubCategoryPrototype.create(category=category, caption='subcat-restricted-caption', order=0, restricted=True)
+
+        PermissionPrototype.create(granted_account, restricted_subcategory)
+
+        self.assertEqual([s.id for s in SubCategoryPrototype.subcategories_visible_to_account(account=None)],
+                         [subcategory_1.id])
+
+        self.assertEqual([s.id for s in SubCategoryPrototype.subcategories_visible_to_account(account=granted_account)],
+                         [restricted_subcategory.id, subcategory_1.id])
+
+        self.assertEqual([s.id for s in SubCategoryPrototype.subcategories_visible_to_account(account=wrong_account)],
+                         [subcategory_1.id])
+
+
+
 class ThreadPrototypeTests(testcase.TestCase):
 
     def setUp(self):

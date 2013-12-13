@@ -1,7 +1,6 @@
 # coding: utf-8
 
 from django.conf import settings as project_settings
-from django.db import models
 
 from dext.views import handler
 from dext.settings import settings
@@ -13,7 +12,6 @@ from the_tale.common.utils import api
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.clans.prototypes import ClanPrototype
 
-from the_tale.forum.models import Thread
 from the_tale.forum.prototypes import ThreadPrototype
 
 from the_tale.cms.news.models import News

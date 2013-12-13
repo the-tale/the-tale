@@ -83,6 +83,19 @@ class SubCategoryPrototype(BasePrototype):
 
         return cls(model=model)
 
+    @classmethod
+    def subcategories_visible_to_account_query(cls, account):
+        if account:
+            return cls._model_class.objects.filter(models.Q(restricted=False) |
+                                                   (models.Q(restricted=True) & models.Q(permission__account_id=account.id)) )
+        else:
+            return cls._model_class.objects.filter(restricted=False)
+
+    @classmethod
+    def subcategories_visible_to_account(cls, account):
+        return cls.from_query(cls.subcategories_visible_to_account_query(account=account).order_by('order', 'id'))
+
+
 
 class ThreadPrototype(BasePrototype):
     _model_class = Thread
