@@ -103,6 +103,8 @@ class DevelopersInfoResource(Resource):
 
         accounts_referrals = AccountPrototype.live_query().exclude(referral_of=None).count()
         accounts_referrals_and_premium = AccountPrototype.live_query().exclude(referral_of=None).filter(premium_end_at__gt=datetime.datetime.now()).count()
+        accounts_referrals_and_active = AccountPrototype.live_query().exclude(referral_of=None).filter(active_end_at__gt=datetime.datetime.now(),
+                                                                                                       premium_end_at__gt=datetime.datetime.now()).count()
 
         gold = {}
         gold_total_spent = 0
@@ -135,6 +137,7 @@ class DevelopersInfoResource(Resource):
                               'accounts_active_and_premium': accounts_active_and_premium,
                               'accounts_referrals': accounts_referrals,
                               'accounts_referrals_and_premium': accounts_referrals_and_premium,
+                              'accounts_referrals_and_active': accounts_referrals_and_active,
                               'gold': gold,
                               'gold_total_spent': gold_total_spent,
                               'gold_total_received': gold_total_received,

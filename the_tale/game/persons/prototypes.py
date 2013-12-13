@@ -52,6 +52,11 @@ class PersonPrototype(BasePrototype):
     def full_name(self):
         return u'%s %s-%s' % (self.name, self.race_verbose, self.type.text)
 
+    @lazy_property
+    def name_from(self):
+        from textgen.logic import Args
+        return u'%s — %s из %s' % (self.name, self.race_verbose, self.place.normalized_name.get_form(Args(u'рд')))
+
     @property
     def race_verbose(self):
         return self.race.text

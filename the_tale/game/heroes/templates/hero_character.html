@@ -129,8 +129,8 @@ jQuery(document).ready(function(e){
     {% set pref_religion = resource.hero.preferences.energy_regeneration_type_name %}
     {% set pref_mob = resource.hero.preferences.mob and resource.hero.preferences.mob.name %}
     {% set pref_place = resource.hero.preferences.place and resource.hero.preferences.place.name %}
-    {% set pref_friend = resource.hero.preferences.friend and resource.hero.preferences.friend.name %}
-    {% set pref_enemy = resource.hero.preferences.enemy and resource.hero.preferences.enemy.name %}
+    {% set pref_friend = resource.hero.preferences.friend and resource.hero.preferences.friend.name_from %}
+    {% set pref_enemy = resource.hero.preferences.enemy and resource.hero.preferences.enemy.name_from %}
     {% set pref_equipment_slot = resource.hero.preferences.equipment_slot and resource.hero.preferences.equipment_slot.text %}
     {% set pref_risk_level = resource.hero.preferences.risk_level and resource.hero.preferences.risk_level.text %}
 

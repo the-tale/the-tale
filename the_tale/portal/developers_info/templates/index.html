@@ -61,6 +61,14 @@
       {% endif %}
     </td>
 
+  <tr>
+    <th>и активные и рефералы</th><td>{{accounts_referrals_and_active}}</td>
+    <td>
+      {% if accounts_referrals %}
+      {{(accounts_referrals_and_active|float/accounts_referrals)|percents}} от премиумных
+      {% endif %}
+    </td>
+
   </tr>
 </table>
 
