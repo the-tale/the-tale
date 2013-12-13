@@ -20,7 +20,7 @@
   {{resource.clan.description_html|safe}}
 </p>
 
-<strong>всего героев: {{resource.clan.members_number}}</strong>
+<strong>всего героев: {{resource.clan.members_number}}</strong> <small>серым выделены игроки, остутствующие в игре дольше {{active_state_days}} дней.</small>
 
 <table class="table table-condensed table-striped table-bordered table-no-highlighting">
   <tr>
@@ -45,7 +45,12 @@
     <td><input type="checkbox" class="pgf-members-checkbox" value="{{account.id}}"></td>
     {% endif %}
     <td>{{loop.index}}</td>
-    <td><a href="{{url('accounts:show', account.id)}}">{{account.nick_verbose}}</a></td>
+    <td>
+      <a href="{{url('accounts:show', account.id)}}"
+         class="{% if not account.is_active %}disabled{% endif %}">
+        {{account.nick_verbose}}
+      </a>
+    </td>
     <td>{{role.text}}</td>
     <td>
       {{hero.gender_verbose}}-{{hero.race_verbose}}

@@ -46,6 +46,12 @@ jQuery(document).ready(function(){
         <h3 class="game-navigation-caption" style="padding-left: 2px;">Страница игрока</h3>
         <ul class="game-navigation nav nav-list" style="padding-left: 2px;">
 
+          <li class="nav-element">
+            <small>
+              был в игре <span class="pgf-format-date" data-timestamp="{{ master_account.was_in_game_at|timestamp}}"></span>
+            </small>
+          </li>
+
           {% if resource.account.is_authenticated() and master_account.id != resource.account.id %}
 
             <li class="nav-element "><a class="pgf-new-message" href="#">личное сообщение</a></li>

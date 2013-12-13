@@ -234,6 +234,11 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
         HeroPrototype.get_by_account_id(self.id).cmd_update_with_account_data(self)
 
+    @property
+    def was_in_game_at(self): return self.active_end_at - datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT)
+
+    @property
+    def is_active(self): return self.active_end_at > datetime.datetime.now()
 
     @classmethod
     def create(cls, nick, email, is_fast, password=None, referer=None, referral_of=None, is_bot=False):

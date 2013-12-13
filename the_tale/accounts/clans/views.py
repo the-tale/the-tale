@@ -12,6 +12,7 @@ from the_tale.common.utils import list_filter
 
 from the_tale.accounts.views import validate_fast_account
 from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.conf import accounts_settings
 
 from the_tale.accounts.clans.prototypes import ClanPrototype, MembershipPrototype, MembershipRequestPrototype
 from the_tale.accounts.clans.conf import clans_settings
@@ -135,6 +136,7 @@ class ClansResource(Resource):
                              {'page_id': PAGE_ID.SHOW,
                               'roles': roles,
                               'accounts': accounts,
+                              'active_state_days': accounts_settings.ACTIVE_STATE_TIMEOUT / (24*60*60),
                               'heroes': heroes})
 
     @login_required

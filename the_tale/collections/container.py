@@ -41,7 +41,7 @@ class ItemsContainer(object):
 
     def approved_items_count(self):
         from the_tale.collections.storage import items_storage
-        return len([item_id for item_id in self.items.itervalues() if items_storage[item_id].approved])
+        return len([item_id for item_id in self.items.itervalues() if item_id in items_storage and items_storage[item_id].approved])
 
     def last_items(self, number):
         from the_tale.collections.storage import items_storage
