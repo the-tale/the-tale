@@ -26,7 +26,7 @@ pgf.game.constants = {
 
 pgf.game.constants.abilities = {
 
-    {% for ability_type in ABILITY_TYPE._records %}
+    {% for ability_type in ABILITY_TYPE.records %}
 
     "{{ ability_type.value }}": {
         "type": "{{ ability_type.value }}",

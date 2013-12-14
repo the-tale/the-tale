@@ -16,16 +16,19 @@
   width: 5em;
 }
 .forum-table .author {
-  width: 10em;
+  width: 13em;
 }
 .forum-table .last-poster {
-  width: 10em;
+  width: 13em;
 }
 .forum-table .thread-page-links {
   color: #4A516B;
 }
 .forum-table .subscription {
   width: 10em;
+}
+.post {
+  margin-bottom: 1em;
 }
 .post .head {
   padding-top: 0.5em;
@@ -40,24 +43,29 @@
   padding-left: 0.5em;
   padding-right: 0.5em;
 }
-.post .head .index {
-  width: 3em;
+.post .info {
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  margin-bottom: 0.5em;
+  border-right: 1px solid #dddddd;
+  border-bottom: 1px solid #dddddd;
+  background-color: #f9f9f9;
+  height: 100px;
+  vertical-align: top;
+  text-align: center;
+  color: gray;
 }
-.post .head .change-post {
-  float: right;
+.post .info-head {
+  border-top: 1px solid #dddddd;
+  background-color: #f9f9f9;
+  text-align: center;
+  font-size: 12pt;
 }
-.post .head .delete-post {
-  float: right;
-}
-.post .head .created-at {
-  float: right;
-  text-align: right;
-}
-.post .body {
+.post .message {
   padding: 0.5em;
-  margin-bottom: 1em;
+  vertical-align: top;
 }
-.post .body .post-removed-message {
+.post .message .post-removed-message {
   color: #b94a48;
 }
 .new-post-form,
