@@ -2,14 +2,14 @@
 {% import 'guide/macros.html' as guide_macros with context %}
 {% import 'mobs/macros.html' as mobs_macros with context %}
 
-{% block title %}{{mob.name|capitalize}} | Бестиарий | {{ super() }}{% endblock %}
-{% block description %}Описание монстра {{mob.name|capitalize}}{% endblock %}
+{% block title %}{{mob.name|up_first}} | Бестиарий | {{ super() }}{% endblock %}
+{% block description %}Описание монстра {{mob.name|up_first}}{% endblock %}
 
 {% block guide_content %}
 
 <ul class="breadcrumb">
   <li><a href="{{url('guide:mobs:')}}">Бестиарий</a><span class="divider">/</span></li>
-  <li class="active">{{mob.name|capitalize}}</li>
+  <li class="active">{{mob.name|up_first}}</li>
 
   {% if resource.can_moderate_mob %}
   <li class="pull-right pgf-moderate-button" style="margin-left: 10px;"><a href="{{url('game:mobs:moderate', mob.id)}}">модерировать</a></li>
@@ -21,7 +21,7 @@
 
 </ul>
 
-{{ guide_macros.page_caption(mob.name|capitalize, "Описание монстра") }}
+{{ guide_macros.page_caption(mob.name|up_first, "Описание монстра") }}
 
 {{ mobs_macros.mob_info(mob) }}
 

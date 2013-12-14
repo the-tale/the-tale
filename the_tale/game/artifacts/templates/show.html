@@ -2,14 +2,14 @@
 {% import 'guide/macros.html' as guide_macros with context %}
 {% import 'artifacts/macros.html' as artifacts_macros with context %}
 
-{% block title %}{{artifact.name|capitalize}} | Артефакты | {{ super() }}{% endblock %}
-{% block description %}Информация об артефакте «{{artifact.name|capitalize}}».{% endblock %}
+{% block title %}{{artifact.name|up_first}} | Артефакты | {{ super() }}{% endblock %}
+{% block description %}Информация об артефакте «{{artifact.name|up_first}}».{% endblock %}
 
 {% block guide_content %}
 
 <ul class="breadcrumb">
   <li><a href="{{url('guide:artifacts:')}}">Артефакты</a><span class="divider">/</span></li>
-  <li class="active">{{artifact.name|capitalize}}</li>
+  <li class="active">{{artifact.name|up_first}}</li>
 
   {% if resource.can_moderate_artifact %}
   <li class="pull-right pgf-moderate-button" style="margin-left: 10px;"><a href="{{url('game:artifacts:moderate', artifact.id)}}">модерировать</a></li>
@@ -21,7 +21,7 @@
 
 </ul>
 
-{{ guide_macros.page_caption(artifact.name|capitalize, "Описание артефакта") }}
+{{ guide_macros.page_caption(artifact.name|up_first, "Описание артефакта") }}
 
 {{ artifacts_macros.artifact_info(artifact, limit_content=false, link_in_blank=false) }}
 
