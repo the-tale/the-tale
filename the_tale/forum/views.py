@@ -447,7 +447,7 @@ class SubCategoryResource(BaseForumResource):
         important_threads = sorted(filter(lambda t: t.important, threads), key=lambda t: t.caption)
         threads = filter(lambda t: not t.important, threads)
 
-        read_state = ReadState(account=self.account, subcategory=self.subcategory, threads=threads)
+        read_state = ReadState(account=self.account, subcategory=self.subcategory, threads=important_threads + threads)
         if self.account.is_authenticated():
             SubCategoryReadInfoPrototype.read_subcategory(subcategory=self.subcategory, account=self.account)
 

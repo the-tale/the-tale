@@ -268,7 +268,7 @@ class Worker(BaseWorker):
             self._initiate_battle(*battle_pair, calculate_ratings=True)
 
         for record in records_to_bots:
-            records_to_remove, records_to_exclude = self._initiate_battle_with_bot(record)
+            _records_to_remove, _records_to_exclude = self._initiate_battle_with_bot(record)
             records_to_remove.extend(_records_to_remove)
             records_to_exclude.extend(_records_to_exclude)
 
