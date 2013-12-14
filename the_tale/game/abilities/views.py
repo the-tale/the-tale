@@ -47,4 +47,4 @@ class AbilitiesResource(Resource):
                                      data={'building_id': building,
                                            'battle': battle})
 
-        return self.json_processing(task.status_url)
+        return self.processing(task.status_url)

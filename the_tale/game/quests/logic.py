@@ -2,8 +2,10 @@
 import random
 
 from django.utils.log import getLogger
+from django.conf import settings as project_settings
 
 from dext.utils.decorators import retry_on_exception
+from dext.utils.urls import url
 
 from questgen import facts
 from questgen import restrictions
@@ -59,6 +61,10 @@ QUESTS_BASE = QuestsBase()
 QUESTS_BASE += [CollectDebt, Caravan, Delivery, Spying, Hunt, Hometown, SearchSmith, HelpFriend, InterfereEnemy, Help]
 
 NORMAL_QUESTS = [CollectDebt.TYPE, Spying.TYPE, Delivery.TYPE, Caravan.TYPE, Help.TYPE]
+
+
+def choose_quest_path_url():
+    return url('game:quests:api-choose', api_version='1.0', api_client=project_settings.API_CLIENT)
 
 
 def fill_places_for_first_quest(kb, hero):

@@ -53,11 +53,13 @@ def get_api_methods():
     from the_tale.accounts.views import AuthResource
     from the_tale.game.views import GameResource
     from the_tale.game.abilities.views import AbilitiesResource
+    from the_tale.game.quests.views import QuestsResource
     return [APIReference('portal_info', u'Базовая информация', PortalResource.api_info),
             APIReference('login', u'Вход в игру', AuthResource.api_login),
             APIReference('logout', u'Выход из игры', AuthResource.api_logout),
             APIReference('game_info', u'Информация об игре/герое', GameResource.api_info),
-            APIReference('game_abilities', u'Использование способности', AbilitiesResource.use)]
+            APIReference('game_abilities', u'Использование способности', AbilitiesResource.use),
+            APIReference('game_quests', u'Выбор в задании', QuestsResource.api_choose)]
 
 
 def get_api_types():

@@ -16,6 +16,7 @@ from the_tale.bank.relations import ENTITY_TYPE as BANK_ENTITY_TYPE
 from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.portal.developers_info.relations import PAYMENT_GROUPS
+from the_tale.portal.conf import portal_settings
 
 
 class RefererStatistics(collections.namedtuple('RefererStatisticsBase', ('domain', 'count', 'active_accounts', 'premium_accounts', 'active_and_premium', 'premium_currency'))):
@@ -189,6 +190,7 @@ class DevelopersInfoResource(Resource):
                               'invoice_count': InvoicePrototype._model_class.objects.all().count(),
                               'repeatable_payments_statistics': get_repeatable_payments_statistics(),
                               'PAYMENT_GROUPS': PAYMENT_GROUPS,
+                              'PREMIUM_DAYS_FOR_HERO_OF_THE_DAY': portal_settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY,
                               'page_type': 'index'})
 
     @handler('mobs-and-artifacts', method='get')

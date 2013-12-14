@@ -18,7 +18,5 @@ pgf.urls = {
         return url;
     },
     'game:map:cell_info': function(x, y){return '/game/map/cell-info?x='+x+'&y='+y;},
-    'guide:artifacts:info': function(id){return '/guide/artifacts/'+id+'/info';},
-    'game:quests:choose': function(questId, choicePoint, choice) {
-        return '/game/quests/'+questId+'/choose?choice_point='+choicePoint+'&choice='+choice;}
+    'guide:artifacts:info': function(id){return '/guide/artifacts/'+id+'/info';}
 };

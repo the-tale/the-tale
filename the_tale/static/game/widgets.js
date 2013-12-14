@@ -330,7 +330,7 @@ pgf.game.widgets.Quest = function(selector, updater, widgets, params) {
 
                                e.preventDefault();
 
-                               pgf.forms.Post({action: params.chooseUrl + '?option_uid=' + encodeURIComponent(variant[0]),
+                               pgf.forms.Post({action: params.chooseUrl + '&option_uid=' + encodeURIComponent(variant[0]),
                                                data: {},
                                                wait: false,
                                                OnSuccess: function(data) {
