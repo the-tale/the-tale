@@ -8,6 +8,9 @@
 {{friends_macros.messages_broadcast_script(uid='friends')}}
 {% endblock %}
 
+{% block title %}{{ super() }}{% endblock %}
+{% block description %}Список Ваших друзей.{% endblock %}
+
 
 {% block friends_content %}
 

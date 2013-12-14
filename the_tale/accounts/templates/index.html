@@ -3,6 +3,9 @@
 {% import 'macros.html' as base_macros with context %}
 {% import 'accounts/macros.html' as accounts_macros with context %}
 
+{% block title %}Список игроков | {{super()}}{% endblock %}
+{% block description %}Список всех игроков.{% endblock %}
+
 
 {% block accounts_content %}
 

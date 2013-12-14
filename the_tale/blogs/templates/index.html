@@ -2,6 +2,9 @@
 
 {% import 'macros.html' as base_macros with context %}
 
+{% block title %}{{ super() }}{% endblock %}
+{% block description %}Список фольклорных произведений.{% endblock %}
+
 {% block blogs_content %}
 
 <p>

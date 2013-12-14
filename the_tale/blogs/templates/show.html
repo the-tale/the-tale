@@ -4,6 +4,8 @@
 {% import 'forum/thread_page.html' as thread_page with context %}
 
 {% block title %} {{ post.caption }} | {{ super() }}{% endblock %}
+{% block description %} Фольклорное произведение «{{post.caption}}».{% endblock %}
+
 
 
 {% block blogs_content %}

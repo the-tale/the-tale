@@ -392,7 +392,7 @@ class TestShowRequests(BaseTestRequests):
         self.create_bills(1, self.account1, 'Caption-a2-%d', 'rationale-a2-%d', bill_data)
         bill = Bill.objects.all()[0]
 
-        texts = [('Caption-a2-0', 2 + 1), # 1 from social sharing
+        texts = [('Caption-a2-0', 3 + 1), # 1 from social sharing
                  ('rationale-a2-0', 1 + 1), # 1 from social sharing
                  ('pgf-voting-block', 0),
                  ('pgf-duration-info', 0),

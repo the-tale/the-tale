@@ -3,6 +3,7 @@
 {% import 'artifacts/macros.html' as artifacts_macros with context %}
 
 {% block title %}{{artifact.name|capitalize}} | Артефакты | {{ super() }}{% endblock %}
+{% block description %}Информация об артефакте «{{artifact.name|capitalize}}».{% endblock %}
 
 {% block guide_content %}
 

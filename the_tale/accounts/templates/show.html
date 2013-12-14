@@ -3,6 +3,7 @@
 {% import 'accounts/macros.html' as accounts_macros with context %}
 
 {% block title %} {{ master_account.nick_verbose }} | {{ super() }}{% endblock %}
+{% block description %}О Хранителе «{{ master_account.nick_verbose }}» и «{{ master_hero.name }}» — герое {{ master_hero.level }} уровня.{% endblock %}
 
 {% block head %}
 {{ super() }}

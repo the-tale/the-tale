@@ -10,8 +10,6 @@ from the_tale.common.utils.decorators import login_required, superuser_required
 
 from the_tale.accounts.views import validate_fast_account
 
-from the_tale.bank.relations import ENTITY_TYPE, CURRENCY_TYPE
-
 from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.accounts.payments import price_list
@@ -105,18 +103,6 @@ class PaymentsResource(Resource):
     def buy(self, purchase):
         postponed_task = purchase.buy(account=self.account)
         return self.json_processing(postponed_task.status_url)
-
-    @handler('successed', method='get')
-    def successed(self):
-        return self.template('payments/successed.html',
-                             {'account': self.account,
-                              'page_type': 'successed'})
-
-    @handler('failed', method='get')
-    def failed(self):
-        return self.template('payments/failed.html',
-                             {'account': self.account,
-                              'page_type': 'failed'})
 
     @superuser_required()
     @validate_argument('account', AccountPrototype.get_by_id, 'payments.give_money', u'Аккаунт не обнаружен')

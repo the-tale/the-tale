@@ -3,7 +3,7 @@
 {% import 'macros.html' as base_macros with context %}
 
 {% block title %} {{ rating_type.text }} | {{ super() }}{% endblock %}
-
+{% block description %}Рейтинг игроков: {{ rating_type.text }}{% endblock %}
 
 {% block ratings_content %}
 

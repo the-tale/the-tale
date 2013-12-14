@@ -3,6 +3,7 @@
 {% import 'mobs/macros.html' as mobs_macros with context %}
 
 {% block title %}{{mob.name|capitalize}} | Бестиарий | {{ super() }}{% endblock %}
+{% block description %}Описание монстра {{mob.name|capitalize}}{% endblock %}
 
 {% block guide_content %}
 

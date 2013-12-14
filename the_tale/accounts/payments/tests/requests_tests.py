@@ -18,7 +18,6 @@ from the_tale.accounts.logic import register_user, login_page_url
 
 from the_tale.accounts.payments.price_list import PURCHASES_BY_UID
 from the_tale.accounts.payments.conf import payments_settings
-from the_tale.accounts.payments.logic import real_amount_to_game
 from the_tale.accounts.payments.relations import PERMANENT_PURCHASE_TYPE
 from the_tale.accounts.payments.goods import PermanentPurchase
 
@@ -231,21 +230,3 @@ class GiveMoneyRequestesTests(RequestesTestsBase):
         self.assertTrue(invoice.state.is_FORCED)
 
         self.check_ajax_ok(response)
-
-
-class SuccessedRequestesTests(RequestesTestsBase):
-
-    def setUp(self):
-        super(SuccessedRequestesTests, self).setUp()
-
-    def test_success(self):
-        self.check_html_ok(self.request_html(url('accounts:payments:successed')))
-
-
-class FailedRequestesTests(RequestesTestsBase):
-
-    def setUp(self):
-        super(FailedRequestesTests, self).setUp()
-
-    def test_success(self):
-        self.check_html_ok(self.request_html(url('accounts:payments:failed')))

@@ -2,6 +2,7 @@
 
 {% import 'achievements/macros.html' as achievements_macros with context %}
 
+
 {% macro group_record(group) %}
 
   {% set gotten, total = groups_statistics[group] %}
@@ -24,6 +25,9 @@
     </div>
   {% endif %}
 {% endmacro %}
+
+{% block title %}{{ super() }}{% endblock %}
+{% block description %}Общая информация о достижениях.{% endblock %}
 
 
 {% block achievements_content %}

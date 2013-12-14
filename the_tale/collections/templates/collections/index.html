@@ -29,6 +29,9 @@
   {% endif %}
 {% endmacro %}
 
+{% block title %}Общая информация | {{ super() }}{% endblock %}
+{% block description %}Общая информация о всех коллекциях.{% endblock %}
+
 
 {% block collections_content %}
 

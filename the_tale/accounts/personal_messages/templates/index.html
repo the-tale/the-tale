@@ -2,6 +2,9 @@
 
 {% import 'macros.html' as base_macros with context %}
 
+{% block title %}{% if incoming %}Входящие{% else %}Исходящие{% endif %} | {{ super() }}{% endblock %}
+{% block description %}{% if incoming %}Ваши входящие сообщения{% else %}Ваши исходящие сообщения{% endif %}{% endblock %}
+
 {% block head %}
 {{ super() }}
 

@@ -81,7 +81,7 @@ class TestRequests(TestCase):
 
 
     def test_show_page(self):
-        self.check_html_ok(self.client.get(reverse('news:show', args=[self.news1.id])), texts=(('news1-caption', 3), # third caption in addthis widget
+        self.check_html_ok(self.client.get(reverse('news:show', args=[self.news1.id])), texts=(('news1-caption', 4), # third caption in addthis widget
                                                                                                ('news1-description', 1), # description in addthis widget
                                                                                                ('news1-content', 1),
                                                                                                ('pgf-forum-block', 0),))
@@ -114,7 +114,7 @@ class TestRequests(TestCase):
 
         self.assertRedirects(response, reverse('forum:threads:show', args=[thread.id]), status_code=302, target_status_code=200)
 
-        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[thread.id])), texts=(('news1-caption', 5),
+        self.check_html_ok(self.client.get(reverse('forum:threads:show', args=[thread.id])), texts=(('news1-caption', 6),
                                                                                                     ('news1-description', 0),
                                                                                                     ('news1-content', 1)))
 

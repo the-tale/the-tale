@@ -3,6 +3,7 @@
 {% import 'friends/macros.html' as friends_macros with context %}
 
 {% block title %}{{resource.clan.name}} | {{ super() }}{% endblock %}
+{% block description %}Страница гильдии [{{resource.clan.abbr}}] {{resource.clan.name}}{% endblock %}
 
 {% block head %}
 {{ super() }}

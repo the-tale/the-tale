@@ -4,6 +4,9 @@
 {% import 'chronicle/macros.html' as chronicle_macros with context %}
 {% import 'utils/list_filter.html' as list_filter_macros with context %}
 
+{% block title %}{{ super() }}{% endblock %}
+{% block description %}Летопись Пандоры, в которой перечислены все важные события, происходившие в её истории.{% endblock %}
+
 {% block chronicle_content %}
 
 <h2 style="margin-bottom: 0.5em;">Летопись</h2>

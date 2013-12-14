@@ -1,6 +1,7 @@
 {% extends "forum/base.html" %}
 
 {% block title %}Редактирование темы | {{ super() }}{% endblock %}
+{% block description %}Редактирование тему «{{resource.thread.caption}}».{% endblock %}
 
 {% block head %}
 {{ super() }}

@@ -145,7 +145,7 @@ class ChangePreferencesRequestsTests(HeroRequestsTestBase):
 class ChangeHeroRequestsTests(HeroRequestsTestBase):
 
     def test_hero_page(self):
-        self.check_html_ok(self.request_html(reverse('game:heroes:show', args=[self.hero.id])), texts=[(jinja2.escape(self.hero.name), 7),
+        self.check_html_ok(self.request_html(reverse('game:heroes:show', args=[self.hero.id])), texts=[(jinja2.escape(self.hero.name), 8),
                                                                                                      ('pgf-change-name-warning', 1)])
 
     def test_hero_page_change_name_warning_hidden(self):

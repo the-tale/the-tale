@@ -218,7 +218,7 @@ class TestShowRequests(BaseTestRequests):
 
     def test_show(self):
 
-        texts = [('caption-a2-0', 3 + 1), # 1 from social sharing
+        texts = [('caption-a2-0', 4 + 1), # 1 from social sharing
                  ('text-a2-0', 1 + 1),  # 1 from social sharing
                  ('pgf-forum-block', 1),
                  ('pgf-add-vote-button', 0),

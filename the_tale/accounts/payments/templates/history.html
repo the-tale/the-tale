@@ -1,5 +1,8 @@
 {% extends "payments/base.html" %}
 
+{% block title %}История платежей|{{super()}}{% endblock %}
+{% block description %}История Ваших платежей в ZPG «Сказка»{% endblock %}
+
 {% block payments_content %}
 
 {% if history %}

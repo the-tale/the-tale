@@ -1,6 +1,7 @@
 {% extends "places/base.html" %}
 
 {% block title %} {{ place.name }} | {{ super() }}{% endblock %}
+{% block description %}Информация о городе «{{place.name}}»{% endblock %}
 
 {% macro hero_record(hero) %}
 <td>

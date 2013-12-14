@@ -5,7 +5,7 @@
 {% import 'forum/thread_page.html' as thread_page with context %}
 
 {% block title %} {{ bill.caption }} | {{ super() }}{% endblock %}
-
+{% block description %}Информация о законе «{{ bill.caption }}».{% endblock %}
 
 {% block bills_content %}
 

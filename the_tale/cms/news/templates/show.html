@@ -4,6 +4,7 @@
 {% import 'forum/thread_page.html' as thread_page with context %}
 
 {% block title %}{{ news.caption }} | {{ super() }}{% endblock %}
+{% block description %}Новость: «{{news.caption}}».{% endblock %}
 
 {% block news_content %}
 

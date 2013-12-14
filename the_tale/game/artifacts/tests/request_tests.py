@@ -215,7 +215,7 @@ class TestShowRequests(BaseTestRequests):
 
     def test_simple(self):
         artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all()[0])
-        self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[(artifact.name.capitalize(), 4),
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[(artifact.name.capitalize(), 5),
                                                                                                         ('pgf-no-description', 0),
                                                                                                         ('pgf-moderate-button', 0),
                                                                                                         ('pgf-edit-button', 0)])

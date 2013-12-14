@@ -1,6 +1,7 @@
 {% extends "achievements/base.html" %}
 
 {% block title %}Редактирование | {{resource.achievement.caption}} | {{ super() }}{% endblock %}
+{% block description %}Редактирование достижения «{{resource.achievement.caption}}».{% endblock %}
 
 {% block head %}
 {{ super() }}

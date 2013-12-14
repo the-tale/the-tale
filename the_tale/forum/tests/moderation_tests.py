@@ -252,8 +252,8 @@ class TestModerationEditThreadRequests(TestModeration):
     def test_main_user_edit_theme_page(self):
         self.request_login('main_user@test.com')
         self.check_html_ok(self.request_html(url('forum:threads:edit', self.thread.id)), texts=[('pgf-edit-thread-form', 2),
-                                                                                                        ('pgf-thread-subcategory', 0),
-                                                                                                        ('thread-caption', 2)])
+                                                                                                ('pgf-thread-subcategory', 0),
+                                                                                                ('thread-caption', 3)])
 
     def test_second_user_edit_theme_button(self):
         self.request_login('second_user@test.com')
@@ -265,8 +265,8 @@ class TestModerationEditThreadRequests(TestModeration):
     def test_moderator_user_edit_theme_button(self):
         self.request_login('moderator@test.com')
         self.check_html_ok(self.request_html(url('forum:threads:edit', self.thread.id)), texts=[('pgf-edit-thread-form', 2),
-                                                                                                        ('pgf-thread-subcategory', 1),
-                                                                                                        ('thread-caption', 2)])
+                                                                                                ('pgf-thread-subcategory', 1),
+                                                                                                ('thread-caption', 3)])
 
 class TestModerationUpdateThreadRequests(TestModeration):
 

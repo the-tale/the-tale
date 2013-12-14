@@ -213,7 +213,7 @@ class TestShowRequests(BaseTestRequests):
 
     def test_simple(self):
         mob = MobRecordPrototype(MobRecord.objects.all()[0])
-        self.check_html_ok(self.request_html(reverse('guide:mobs:show', args=[mob.id])), texts=[(mob.name.capitalize(), 4),
+        self.check_html_ok(self.request_html(reverse('guide:mobs:show', args=[mob.id])), texts=[(mob.name.capitalize(), 5),
                                                                                               ('pgf-no-description', 0),
                                                                                               ('pgf-moderate-button', 0),
                                                                                               ('pgf-edit-button', 0)])
