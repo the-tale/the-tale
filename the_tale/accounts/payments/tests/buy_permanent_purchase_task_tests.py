@@ -14,6 +14,10 @@ class BuyPermanentPurchasePosponedTaskTests(_BaseBuyPosponedTaskTests):
                                          purchase_type=self.purchase_type,
                                          transaction=self.transaction)
 
+        self.cmd_update_with_account_data__call_count = 0 # no need in updating hero state
+
+
+
     def _test_create(self):
         self.assertEqual(self.task.purchase_type, self.purchase_type)
 

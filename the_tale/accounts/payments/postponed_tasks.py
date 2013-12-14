@@ -174,7 +174,6 @@ class BuyPremium(BaseBuyTask):
     def on_process_transaction_frozen(self, **kwargs):
         self.account.prolong_premium(days=self.days)
         self.account.save()
-        HeroPrototype.get_by_account_id(self.account.id).cmd_update_with_account_data(self.account)
 
 
 class BaseBuyHeroMethod(BaseLogicBuyTask):
@@ -265,4 +264,3 @@ class BuyPermanentPurchase(BaseBuyTask):
     def on_process_transaction_frozen(self, **kwargs):
         self.account.permanent_purchases.insert(self.purchase_type)
         self.account.save()
-        HeroPrototype.get_by_account_id(self.account.id).cmd_update_with_account_data(self.account)
