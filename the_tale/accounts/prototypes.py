@@ -77,7 +77,11 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         self._model.personal_messages_subscription = form.c.personal_messages_subscription
 
     def prolong_premium(self, days):
+        from the_tale.game.heroes.prototypes import HeroPrototype
+
         self._model.premium_end_at = max(self.premium_end_at, datetime.datetime.now()) + datetime.timedelta(days=days)
+
+        HeroPrototype.get_by_account_id(self.id).cmd_update_with_account_data(self)
 
     @property
     def is_premium(self): return self.premium_end_at > datetime.datetime.now()
