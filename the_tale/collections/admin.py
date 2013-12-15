@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from the_tale.collections.models import Collection, Kit, Item, GiveItemTask
+from the_tale.collections.models import Collection, Kit, Item, GiveItemTask, AccountItems
 
 
 class CollectionAdmin(admin.ModelAdmin):
@@ -23,8 +23,12 @@ class ItemAdmin(admin.ModelAdmin):
 class GiveItemTaskAdmin(admin.ModelAdmin):
     list_display = ('id', 'account', 'item')
 
+class AccountItemsAdmin(admin.ModelAdmin):
+    list_display = ('id', 'account')
+
 
 admin.site.register(Collection, CollectionAdmin)
 admin.site.register(Kit, KitAdmin)
 admin.site.register(Item, ItemAdmin)
 admin.site.register(GiveItemTask, GiveItemTaskAdmin)
+admin.site.register(AccountItems, AccountItemsAdmin)
