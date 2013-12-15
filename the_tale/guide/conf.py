@@ -1,8 +1,5 @@
 # coding: utf-8
 
-import re
-import datetime
-
 from django.core.urlresolvers import reverse_lazy
 
 from dext.utils.app_settings import app_settings

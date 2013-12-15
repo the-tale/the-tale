@@ -377,8 +377,8 @@ class ThreadReadInfoPrototype(BasePrototype):
             return None
 
     @classmethod
-    def get_threads_info(cls, threads_ids, account_id):
-        return dict(cls._model_class.objects.filter(account_id=account_id, thread_id__in=threads_ids).values_list('thread_id', 'read_at'))
+    def get_threads_info(cls, account_id):
+        return {read_info.thread_id: read_info for read_info in cls.from_query(cls._db_filter(account_id=account_id))}
 
     @classmethod
     def remove_old_infos(cls):
@@ -420,6 +420,10 @@ class SubCategoryReadInfoPrototype(BasePrototype):
             return cls(model=cls._model_class.objects.get(subcategory_id=subcategory_id, account_id=account_id))
         except cls._model_class.DoesNotExist:
             return None
+
+    @classmethod
+    def get_subcategories_info(cls, account_id):
+        return {read_info.subcategory_id: read_info for read_info in cls.from_query(cls._db_filter(account_id=account_id))}
 
     @classmethod
     def remove_old_infos(cls):

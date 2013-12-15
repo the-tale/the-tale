@@ -119,7 +119,7 @@ class ThreadReadInfo(models.Model):
 
     account = models.ForeignKey('accounts.Account', related_name='+', db_index=True, on_delete=models.CASCADE)
 
-    read_at = models.DateTimeField(auto_now=True)
+    read_at = models.DateTimeField(auto_now=True, db_index=True)
 
     class Meta:
         unique_together = (('thread', 'account'),)

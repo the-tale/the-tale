@@ -8,4 +8,4 @@ forum_settings = app_settings('FORUM',
                               MODERATOR_GROUP_NAME='forum moderators group',
                               FEED_ITEMS_NUMBER=10,
                               FEED_ITEMS_DELAY=2*60*60,
-                              UNREAD_STATE_EXPIRE_TIME=4*24*60*60)
+                              UNREAD_STATE_EXPIRE_TIME=3*24*60*60)

@@ -4,6 +4,8 @@ import mock
 
 import datetime
 
+from dext.utils.urls import url
+
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.prototypes import AccountPrototype
@@ -11,9 +13,8 @@ from the_tale.accounts.logic import register_user
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.forum.prototypes import ThreadPrototype, SubCategoryPrototype, ThreadReadInfoPrototype, CategoryPrototype, SubCategoryReadInfoPrototype
+from the_tale.forum.prototypes import ThreadPrototype, SubCategoryPrototype, ThreadReadInfoPrototype, CategoryPrototype, SubCategoryReadInfoPrototype, PostPrototype
 from the_tale.forum.read_state import ReadState
-from the_tale.forum.exceptions import ForumException
 
 
 class ReadStateTests(testcase.TestCase):
@@ -37,16 +38,7 @@ class ReadStateTests(testcase.TestCase):
         self.thread_3 = ThreadPrototype.create(self.subcategory_2, 'thread2-caption', self.account, 'thread-2-text')
 
     def get_read_state(self, account=None):
-        return ReadState(self.account if account is None else account,
-                         threads=[self.thread, self.thread_2],
-                         subcategory=self.subcategory)
-
-    def test_threads_from_different_subcategories(self, account=None):
-        self.assertRaises(ForumException,
-                          ReadState,
-                          self.account if account is None else account,
-                          threads=[self.thread, self.thread_2, self.thread_3],
-                          subcategory=self.subcategory)
+        return ReadState(self.account if account is None else account)
 
     @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', lambda a: False)
     def test_thread_has_new_messages__unauthenticated(self):
@@ -131,12 +123,18 @@ class ReadStateTests(testcase.TestCase):
 
     @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', lambda a: False)
     def test_subcategory_has_new_messages__unauthenticated(self):
-        self.assertFalse(self.get_read_state().subcategory_has_new_messages())
+        self.assertFalse(self.get_read_state().subcategory_has_new_messages(self.subcategory))
 
     def test_subcategory_has_new_messages__not_read(self):
-        self.assertTrue(self.get_read_state().subcategory_has_new_messages())
+        self.assertTrue(self.get_read_state().subcategory_has_new_messages(self.subcategory))
+
+    def test_subcategory_has_new_messages__read(self):
         SubCategoryReadInfoPrototype.read_subcategory(subcategory=self.subcategory, account=self.account)
-        self.assertFalse(self.get_read_state().subcategory_has_new_messages())
+        self.assertTrue(self.get_read_state().subcategory_has_new_messages(self.subcategory))
+
+    def test_subcategory_has_new_messages__read_all(self):
+        SubCategoryReadInfoPrototype.read_all_in_subcategory(subcategory=self.subcategory, account=self.account)
+        self.assertFalse(self.get_read_state().subcategory_has_new_messages(self.subcategory))
 
     @mock.patch('the_tale.forum.conf.forum_settings.UNREAD_STATE_EXPIRE_TIME', 0)
     def test_subcategory_has_new_messages__unread_state_expired(self):
@@ -144,23 +142,44 @@ class ReadStateTests(testcase.TestCase):
         self.subcategory._model.updated_at = datetime.datetime.now()
         self.subcategory.save()
 
-        self.assertFalse(self.get_read_state().subcategory_has_new_messages())
+        self.assertFalse(self.get_read_state().subcategory_has_new_messages(self.subcategory))
 
-    def test_subcategory_has_new_messages__unread(self):
-        SubCategoryReadInfoPrototype.read_subcategory(subcategory=self.subcategory, account=self.account)
-        self.assertFalse(self.get_read_state().subcategory_has_new_messages())
-        self.subcategory._model.updated_at = datetime.datetime.now()
-        self.subcategory.save()
-        self.assertTrue(self.get_read_state().subcategory_has_new_messages())
+    def test_subcategory_has_new_messages__new_thread(self):
+        SubCategoryReadInfoPrototype.read_all_in_subcategory(subcategory=self.subcategory, account=self.account)
+        self.assertFalse(self.get_read_state().subcategory_has_new_messages(self.subcategory))
+        ThreadPrototype.create(self.subcategory, 'new-threwad', self.account_2, 'thread-new-text')
+        self.assertTrue(self.get_read_state().subcategory_has_new_messages(self.subcategory))
 
-    # test that bug still exists
+    def test_subcategory_has_new_messages__new_post(self):
+        SubCategoryReadInfoPrototype.read_all_in_subcategory(subcategory=self.subcategory, account=self.account)
+        self.assertFalse(self.get_read_state().subcategory_has_new_messages(self.subcategory))
+        PostPrototype.create(self.thread, self.account_2, 'post-new-text')
+        self.assertTrue(self.get_read_state().subcategory_has_new_messages(self.subcategory))
+
+    def test_subcategory_has_new_messages__new_post_from_request(self):
+        SubCategoryReadInfoPrototype.read_all_in_subcategory(subcategory=self.subcategory, account=self.account)
+        self.assertFalse(self.get_read_state().subcategory_has_new_messages(self.subcategory))
+
+        self.request_login(self.account_2.email)
+        self.client.post(url('forum:threads:create-post', self.thread.id), {'text': 'thread3-test-post'})
+
+        self.assertTrue(self.get_read_state().subcategory_has_new_messages(self.subcategory))
+
+    def test_subcategory_has_new_messages__new_post_from_request_from_read_account(self):
+        SubCategoryReadInfoPrototype.read_all_in_subcategory(subcategory=self.subcategory, account=self.account)
+        self.assertFalse(self.get_read_state().subcategory_has_new_messages(self.subcategory))
+
+        self.request_login(self.account.email)
+        self.client.post(url('forum:threads:create-post', self.thread.id), {'text': 'thread3-test-post'})
+
+        self.assertFalse(self.get_read_state().subcategory_has_new_messages(self.subcategory))
+
     def test_subcategory_has_new_messages__unread_but_thread_read(self):
         SubCategoryReadInfoPrototype.read_subcategory(subcategory=self.subcategory, account=self.account)
         self.subcategory._model.updated_at = datetime.datetime.now()
         self.subcategory.save()
-        self.assertTrue(self.get_read_state().subcategory_has_new_messages())
-
+        self.assertTrue(self.get_read_state().subcategory_has_new_messages(self.subcategory))
         ThreadReadInfoPrototype.read_thread(self.thread, self.account)
         ThreadReadInfoPrototype.read_thread(self.thread_2, self.account)
         ThreadReadInfoPrototype.read_thread(self.thread_3, self.account)
-        self.assertTrue(self.get_read_state().subcategory_has_new_messages())
+        self.assertFalse(self.get_read_state().subcategory_has_new_messages(self.subcategory))

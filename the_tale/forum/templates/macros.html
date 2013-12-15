@@ -84,7 +84,7 @@
 
 
 {% macro subcategory_record(subcategory, read_state=none, subscription=false) %}
-<td class="caption {% if read_state is not none and read_state.subcategory_has_new_messages() %}new-messages{% endif %}">
+<td class="caption {% if read_state is not none and read_state.subcategory_has_new_messages(subcategory) %}new-messages{% endif %}">
   <a href="{{ url('forum:subcategories:show', subcategory.id) }}">
     {{ subcategory.caption }}
   </a>

@@ -69,7 +69,6 @@ SECRET_KEY = 'i@oi33(3f0vlezy$aj3_3q%q=#fb1ehovw0k&==w3ycs+#5f)y'
 GA_CODE = 'UA-10915391-4'
 ADDTHIS = True
 MAIL_RU = True
-RAMBLER = True
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 

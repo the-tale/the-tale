@@ -106,10 +106,14 @@ class TestSubcategoryRequests(BaseTestRequests):
     def test_subcategory(self):
         self.request_logout()
         self.request_login(self.account_2.email)
+
+        self.assertEqual(SubCategoryReadInfoPrototype._db_count(), 0)
+
         texts = ['cat1-caption', 'subcat1-caption', 'thread1-caption', 'thread2-caption', 'pgf-new-thread-marker', self.fixture.clan_1.abbr]
         self.check_html_ok(self.request_html(url('forum:subcategories:show', self.subcat1.id)), texts=texts)
 
         self.assertEqual(SubCategoryReadInfoPrototype._db_count(), 1)
+
         read_info = SubCategoryReadInfoPrototype._db_get_object(0)
         self.assertEqual(read_info.account_id, self.account_2.id)
         self.assertEqual(read_info.subcategory_id, self.subcat1.id)
@@ -349,6 +353,9 @@ class TestCreatePostRequests(BaseTestRequests):
                               code='forum.create_post.form_errors')
 
     def test_create_post_success(self):
+
+        self.assertEqual(ThreadReadInfoPrototype._db_count(), 0)
+
         response = self.client.post(url('forum:threads:create-post', self.thread3.id), {'text': 'thread3-test-post'})
 
         post = PostPrototype._db_get_object(4)
@@ -356,6 +363,9 @@ class TestCreatePostRequests(BaseTestRequests):
         self.check_ajax_ok(response, data={'next_url': url('forum:threads:show', self.thread3.id) + ('?page=1#m%d' % post.id)})
 
         self.assertEqual(Post.objects.all().count(), 5)
+
+        self.assertEqual(ThreadReadInfoPrototype._db_count(), 1)
+        self.assertEqual(ThreadReadInfoPrototype._db_get_object(0).thread_id, self.thread3.id)
 
     def test_create_post_thread_not_found(self):
         self.check_ajax_error(self.client.post(url('forum:threads:create-post', 666), {'text': 'thread3-test-post'}),

@@ -168,6 +168,9 @@ class ThreadsResource(BaseForumResource):
 
         post = PostPrototype.create(self.thread, self.account, new_post_form.c.text)
 
+        if self.account.is_authenticated():
+            ThreadReadInfoPrototype.read_thread(self.thread, self.account)
+
         return self.json_ok(data={'next_url': url('forum:threads:show', self.thread.id, page=self.thread.paginator.pages_count) + ('#m%d' % post.id)})
 
 
@@ -212,7 +215,7 @@ class ThreadsResource(BaseForumResource):
                               'participant_account': participant,
                               'paginator': paginator,
                               'threads': threads,
-                              'read_state': ReadState(account=self.account, subcategory=self.subcategory, threads=threads)} )
+                              'read_state': ReadState(account=self.account)} )
 
 
     @login_required
@@ -447,7 +450,8 @@ class SubCategoryResource(BaseForumResource):
         important_threads = sorted(filter(lambda t: t.important, threads), key=lambda t: t.caption)
         threads = filter(lambda t: not t.important, threads)
 
-        read_state = ReadState(account=self.account, subcategory=self.subcategory, threads=important_threads + threads)
+        read_state = ReadState(account=self.account)
+
         if self.account.is_authenticated():
             SubCategoryReadInfoPrototype.read_subcategory(subcategory=self.subcategory, account=self.account)
 
@@ -473,7 +477,7 @@ class ForumResource(BaseForumResource):
 
         forum_structure = []
 
-        read_states = {subcategory.id: ReadState(account=self.account, subcategory=subcategory)
+        read_states = {subcategory.id: ReadState(account=self.account)
                        for subcategory in subcategories}
 
         for category in categories:

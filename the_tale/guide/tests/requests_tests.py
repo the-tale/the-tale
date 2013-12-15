@@ -87,3 +87,6 @@ class TestRequests(TestCase):
         register_user('test_user', 'test_user@test.com', '111111')
         self.request_login('test_user@test.com')
         self.check_html_ok(self.client.get(reverse('guide:referrals')))
+
+    def test_zpg(self):
+        self.check_html_ok(self.client.get(reverse('guide:zpg')))

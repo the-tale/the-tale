@@ -33,6 +33,7 @@
           {% endfor %}
 
           <li class="nav-header {% if section=='' %}active{% endif %}">Общее</li>
+          <li class="nav-element {% if section=='zpg' %}active{% endif %}"><a href="{{ url('guide:zpg') }}">Zero Player Game</a></li>
           <li class="nav-element {% if section=='registration' %}active{% endif %}"><a href="{{ url('guide:registration') }}">Регистрация</a></li>
           <li class="nav-element {% if section=='account-types' %}active{% endif %}"><a href="{{ url('guide:account-types') }}">Типы аккаунтов</a></li>
           <li class="nav-element {% if section=='referrals' %}active{% endif %}"><a href="{{ url('guide:referrals') }}">Рефералы</a></li>

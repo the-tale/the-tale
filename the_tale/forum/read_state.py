@@ -3,34 +3,39 @@ import datetime
 
 from the_tale.common.utils.decorators import lazy_property
 
-from the_tale.forum.prototypes import ThreadReadInfoPrototype, SubCategoryReadInfoPrototype
+from the_tale.forum.prototypes import ThreadReadInfoPrototype, SubCategoryReadInfoPrototype, ThreadPrototype
 from the_tale.forum.conf import forum_settings
-from the_tale.forum.exceptions import ForumException
 
 
 class ReadState(object):
 
-    def __init__(self, account, subcategory, threads=()):
+    def __init__(self, account):
         self._account = account
-        self._threads = threads
-        self._subcategory = subcategory
 
-        if self._subcategory is not None:
-            if any(thread.subcategory_id != self._subcategory.id for thread in  self._threads):
-                raise ForumException(u'ReadState can be constructed only with threads from one subcategory')
+        # can not make lazy properties, since some read_infos can be created after this object was constructed
+        self.subcategories_read_info = self.get_subcategories_read_info()
+        self.threads_read_info = self.get_threads_read_info()
 
-        if not self._account.is_authenticated() or self._subcategory is None:
-            self.subcategory_read_info = None
-        else:
-            self.subcategory_read_info =  SubCategoryReadInfoPrototype.get_for(account_id=self._account.id, subcategory_id=self._subcategory.id)
-
-    @lazy_property
-    def threads_read_info(self):
+    def get_subcategories_read_info(self):
         if not self._account.is_authenticated():
             return {}
 
-        return ThreadReadInfoPrototype.get_threads_info(account_id=self._account.id,
-                                                        threads_ids=[thread.id for thread in self._threads])
+        return SubCategoryReadInfoPrototype.get_subcategories_info(account_id=self._account.id)
+
+    def get_threads_read_info(self):
+        if not self._account.is_authenticated():
+            return {}
+
+        return ThreadReadInfoPrototype.get_threads_info(account_id=self._account.id)
+
+    @lazy_property
+    def threads_info(self):
+        if not self._account.is_authenticated():
+            return {}
+
+        time_barrier = datetime.datetime.now() - datetime.timedelta(seconds=forum_settings.UNREAD_STATE_EXPIRE_TIME)
+
+        return {thread.id: thread for thread in ThreadPrototype.from_query(ThreadPrototype._db_filter(updated_at__gt=time_barrier))}
 
     def thread_has_new_messages(self, thread):
         if not self._account.is_authenticated():
@@ -39,10 +44,13 @@ class ReadState(object):
         if thread.updated_at + datetime.timedelta(seconds=forum_settings.UNREAD_STATE_EXPIRE_TIME) < datetime.datetime.now():
             return False
 
-        read_at = self.threads_read_info.get(thread.id, self._account.created_at)
+        thread_read_info = self.threads_read_info.get(thread.id)
+        read_at = thread_read_info.read_at if thread_read_info else self._account.created_at
 
-        if self.subcategory_read_info is not None:
-            read_at = max(self.subcategory_read_info.all_read_at, read_at)
+        subcategory_read_info = self.subcategories_read_info.get(thread.subcategory_id)
+
+        if subcategory_read_info is not None:
+            read_at = max(subcategory_read_info.all_read_at, read_at)
 
         return thread.updated_at > read_at
 
@@ -56,10 +64,13 @@ class ReadState(object):
         if thread.created_at + datetime.timedelta(seconds=forum_settings.UNREAD_STATE_EXPIRE_TIME) < datetime.datetime.now():
             return False
 
-        read_at = self.threads_read_info.get(thread.id, self._account.created_at)
+        thread_read_info = self.threads_read_info.get(thread.id)
+        read_at = thread_read_info.read_at if thread_read_info else self._account.created_at
 
-        if self.subcategory_read_info is not None:
-            read_at = max(self.subcategory_read_info.read_at, read_at)
+        subcategory_read_info = self.subcategories_read_info.get(thread.subcategory_id)
+
+        if subcategory_read_info is not None:
+            read_at = max(subcategory_read_info.read_at, read_at)
 
         return thread.created_at > read_at
 
@@ -68,15 +79,19 @@ class ReadState(object):
     # user can got to thread page (and update thread_read_info)
     # without going into subcategory page (and updating subcategory_read_info info)
     # => user can read all threads, but subcategory will be displayed as unread
-    def subcategory_has_new_messages(self):
+    def subcategory_has_new_messages(self, subcategory):
 
         if not self._account.is_authenticated():
             return False
 
-        if self.subcategory_read_info is None:
+        subcategory_read_info = self.subcategories_read_info.get(subcategory.id)
+
+        if subcategory_read_info is None:
             return True
 
-        if self._subcategory.updated_at + datetime.timedelta(seconds=forum_settings.UNREAD_STATE_EXPIRE_TIME) < datetime.datetime.now():
+        if subcategory.updated_at + datetime.timedelta(seconds=forum_settings.UNREAD_STATE_EXPIRE_TIME) < datetime.datetime.now():
             return False
 
-        return self._subcategory.updated_at > self.subcategory_read_info.read_at
+        return any(self.thread_has_new_messages(thread)
+                   for thread in self.threads_info.values()
+                   if thread.subcategory_id == subcategory.id)

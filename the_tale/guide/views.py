@@ -224,3 +224,7 @@ class GuideResource(Resource):
                                                       'accounts_settings': accounts_settings,
                                                       'referral_link': full_url('http', 'portal:',
                                                                                 **{accounts_settings.REFERRAL_URL_ARGUMENT: self.account.id if self.account else None})})
+
+    @handler('zero-player-game', name='zpg', method='get')
+    def zpg(self):
+        return self.template('guide/zpg.html', {'section': 'zpg'})
