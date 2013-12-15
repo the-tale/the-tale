@@ -9,7 +9,7 @@ from the_tale.game.persons.exceptions import PersonsException
 
 class PersonsStorage(create_storage_class('persons change time', PersonPrototype, PersonsException)):
 
-    def _get_all_query(self): return PersonPrototype._db_exclude(state=PERSON_STATE.REMOVED)
+    def _get_all_query(self): return self.PROTOTYPE._db_exclude(state=PERSON_STATE.REMOVED)
 
     def filter(self, place_id=None, state=None):
         return [person

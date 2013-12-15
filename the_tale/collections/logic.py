@@ -3,13 +3,20 @@
 import collections
 
 
-from the_tale.collections.prototypes import KitPrototype, ItemPrototype
+from the_tale.collections.storage import items_storage, kits_storage
 
 
-def get_items_count(items_query):
-    items_in_kits = collections.Counter(items_query.filter(approved=True, kit__approved=True, kit__collection__approved=True).values_list('kit', flat=True))
+def get_items_count(items):
 
-    kits_in_collections = KitPrototype._db_filter(approved=True, collection__approved=True, ).values_list('id', 'collection')
+    items = (item
+             for item in items
+             if item.approved and item.kit.approved and item.kit.collection)
+
+    items_in_kits = collections.Counter(item.kit_id for item in items)
+
+    kits_in_collections = [(kit.id, kit.collection_id)
+                           for kit in kits_storage.all()
+                           if kit.approved and kit.collection.approved]
 
     items_in_collections = {}
 
@@ -28,13 +35,13 @@ def get_collections_statistics(account_items):
                   'total_items': 0,
                   'account_items': 0}
 
-    items_in_kits, items_in_collections = get_items_count(ItemPrototype._db_all())
+    items_in_kits, items_in_collections = get_items_count(items_storage.all())
     statistics['total_items_in_kits'] = items_in_kits
     statistics['total_items_in_collections'] = items_in_collections
     statistics['total_items'] = sum(items_in_collections.values())
 
     if account_items:
-        items_in_kits, items_in_collections = get_items_count(ItemPrototype._db_filter(id__in=account_items.items_ids()))
+        items_in_kits, items_in_collections = get_items_count(item for item in items_storage.all() if item.id in account_items.items_ids())
         statistics['account_items_in_kits'] = items_in_kits
         statistics['account_items_in_collections'] = items_in_collections
         statistics['account_items'] = sum(items_in_collections.values())

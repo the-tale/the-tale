@@ -210,12 +210,14 @@ class CollectionsResource(BaseCollectionsResource):
 
         items = {kit.id: [] for kit in kits}
 
-        items_query = ItemPrototype._db_all()
+        items_query = items_storage.all()
 
         if not self.edit_item_permission and not self.moderate_item_permission:
-            items_query = items_query.filter(approved=True)
+            items_query = (item for item in items_query if item.approved)
 
-        for item in ItemPrototype.from_query(items_query.filter(kit_id__in=[kit.id for kit in kits])):
+        items_query = sorted([item for item in items_query if item.kit_id in items], key=lambda i: i.caption)
+
+        for item in items_query:
             items[item.kit_id].append(item)
 
         return self.template('collections/collections/show.html',

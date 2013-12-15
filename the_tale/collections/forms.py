@@ -28,7 +28,7 @@ class EditKitForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(EditKitForm, self).__init__(*args, **kwargs)
-        self.fields['collection'].choices = [('', '----')] + [(s.id, s.caption) for s in CollectionPrototype._db_all()]
+        self.fields['collection'].choices = collections_storage.get_form_choices()
 
     def clean_collection(self):
         collection_id = self.cleaned_data['collection']
@@ -50,7 +50,7 @@ class EditItemForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(EditItemForm, self).__init__(*args, **kwargs)
-        self.fields['kit'].choices = [('', '----')] + [(k.id, k.caption) for k in KitPrototype._db_all()]
+        self.fields['kit'].choices = kits_storage.get_form_choices()
 
 
     def clean_kit(self):

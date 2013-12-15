@@ -72,3 +72,5 @@ class CodeTests(testcase.TestCase):
             for code in self._filter_code(prototype.__name__, only_models=False):
                 self.assertFalse(('%s.get_by' % prototype.__name__) in code)
                 self.assertFalse(('%s.get_list_by' % prototype.__name__) in code)
+                self.assertFalse(('%s._db_' % prototype.__name__) in code)
+                self.assertFalse(('%s.from_query' % prototype.__name__) in code)
