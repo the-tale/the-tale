@@ -49,7 +49,7 @@ jQuery(document).ready( function(e) {
     });
 
     {% if resource.account.is_authenticated() %}
-    {{  accounts_macros.personal_message_js(resource.account) }}
+    {{  accounts_macros.personal_message_js() }}
     {% endif %}
 
     {% if thread_data.can_post %}
@@ -244,7 +244,7 @@ jQuery(document).ready( function(e) {
             могущество: {{author.might|int}} <br/>
 
             {% if resource.account.is_authenticated() %}
-              <a class="pgf-new-message" href="#">личное сообщение</a><br/>
+              <a class="pgf-new-message" data-recipient="{{author.id}}" href="#">личное сообщение</a><br/>
             {% endif %}
 
             <br/>

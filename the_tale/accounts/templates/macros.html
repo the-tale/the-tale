@@ -56,10 +56,13 @@
 {% endmacro %}
 
 
-{% macro personal_message_js(master_account) %}
+{% macro personal_message_js() %}
     jQuery('.pgf-new-message').click(function(e){
+
+        var recipient = jQuery(e.currentTarget).data('recipient');
+
         e.preventDefault();
-        pgf.ui.dialog.Create({ fromUrl: "{{ url('accounts:messages:new', recipients=master_account.id) }}",
+        pgf.ui.dialog.Create({ fromUrl: "{{ url('accounts:messages:new') }}?recipients=" + recipient,
                                OnOpen: function(dialog) {
                                    var newMessageForm = new pgf.forms.Form(jQuery('#pgf-new-message-form', dialog),
                                                                            { OnSuccess: function(form, data){ dialog.modal('hide'); }

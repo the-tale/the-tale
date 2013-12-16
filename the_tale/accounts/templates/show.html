@@ -14,7 +14,7 @@ jQuery(document).ready(function(){
 
 {% if resource.account.is_authenticated() and master_account.id != resource.account.id%}
 
-    {{  accounts_macros.personal_message_js(master_account) }}
+    {{  accounts_macros.personal_message_js() }}
 
 {% if friendship is none %}
 
@@ -55,7 +55,7 @@ jQuery(document).ready(function(){
 
           {% if resource.account.is_authenticated() and master_account.id != resource.account.id %}
 
-            <li class="nav-element "><a class="pgf-new-message" href="#">личное сообщение</a></li>
+            <li class="nav-element "><a class="pgf-new-message" data-recipient="{{master_account.id}}" href="#">личное сообщение</a></li>
 
             {% if friendship is none %}
               <li class="nav-element "><a class="pgf-friends-request-friendship" href="#">добавить в друзья</a></li>
