@@ -43,7 +43,7 @@
   <li class="active">{{ subcategory.caption }}</li>
 </ul>
 
-{% if threads %}
+{% if threads or important_threads %}
 
 {{ forum_paginator_line() }}
 
