@@ -100,7 +100,7 @@ class Post(models.Model):
 
     markup_method = TableIntegerField(relation=MARKUP_METHOD, relation_column='value')
 
-    state = TableIntegerField(relation=POST_STATE, relation_column='value')
+    state = TableIntegerField(relation=POST_STATE, relation_column='value', db_index=True)
     removed_by = TableIntegerField(relation=POST_REMOVED_BY, relation_column='value', null=True, default=None)
     remove_initiator = models.ForeignKey('accounts.Account', null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
 

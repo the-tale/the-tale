@@ -90,7 +90,7 @@ class PostsResource(BaseForumResource):
         if self.post.author.id != self.account.id and is_moderator(self.post.author):
             return self.auto_error('forum.delete_post.remove_moderator_post', u'Вы не можете удалить сообщение модератора')
 
-        self.post.delete(self.account, self.thread)
+        self.post.delete(self.account)
 
         return self.json_ok()
 

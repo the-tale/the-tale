@@ -43,9 +43,9 @@ class SubCategoryPrototype(BasePrototype):
     @lazy_property
     def category(self): return CategoryPrototype(self._model.category)
 
-    def update_threads_count(self): self._model.threads_count = Thread.objects.filter(subcategory=self._model).count()
-
-    def update_posts_count(self): self._model.posts_count = sum(Thread.objects.filter(subcategory=self._model).values_list('posts_count', flat=True))
+    def update_counts(self):
+        self._model.threads_count = Thread.objects.filter(subcategory=self._model).count()
+        self._model.posts_count = PostPrototype._db_filter(thread__subcategory__id=self.id).count() - self.threads_count
 
     @lazy_property
     def last_poster(self): return AccountPrototype(self._model.last_poster) if self._model.last_poster else None
@@ -57,18 +57,23 @@ class SubCategoryPrototype(BasePrototype):
             return True
         return PermissionPrototype.get_for(account_id=account.id, subcategory_id=self.id) is None
 
-    def update(self, author=None, date=None, last_thread_created_at=None):
-        self.update_threads_count()
-        self.update_posts_count()
+    def update(self):
+        self.update_counts()
 
-        if author:
-            self._model.last_poster = author._model
+        try:
+            last_post = PostPrototype(model=PostPrototype._db_filter(thread__subcategory__id=self.id, state=POST_STATE.DEFAULT).latest('created_at'))
+        except PostPrototype._model_class.DoesNotExists:
+            last_post = None
 
-        if date:
-            self._model.updated_at = date
+        if last_post is None:
+            self._model.last_poster = None
+            self._model.updated_at = datetime.datetime.now()
+            self._model.last_thread_created_at = None
 
-        if last_thread_created_at:
-            self._model.last_thread_created_at = last_thread_created_at
+        else:
+            self._model.last_poster = last_post.author._model
+            self._model.updated_at = last_post.created_at
+            self._model.last_thread_created_at = last_post.thread.created_at
 
         self.save()
 
@@ -151,16 +156,16 @@ class ThreadPrototype(BasePrototype):
                                              technical=technical,
                                              posts_count=0)
 
-        post_model = Post.objects.create(thread=thread_model,
-                                         author=author._model,
-                                         markup_method=markup_method,
-                                         technical=technical,
-                                         text=text,
-                                         state=POST_STATE.DEFAULT)
+        Post.objects.create(thread=thread_model,
+                            author=author._model,
+                            markup_method=markup_method,
+                            technical=technical,
+                            text=text,
+                            state=POST_STATE.DEFAULT)
 
         prototype = cls(model=thread_model)
 
-        subcategory.update(author, post_model.created_at, last_thread_created_at=prototype.created_at)
+        subcategory.update()
 
         MessagePrototype.create(ForumThreadHandler(thread_id=prototype.id))
 
@@ -179,21 +184,27 @@ class ThreadPrototype(BasePrototype):
 
 
     @transaction.atomic
-    def update(self, caption=None, new_subcategory_id=None, author=None, date=None, important=None):
+    def update(self, caption=None, new_subcategory_id=None, important=None):
 
         subcategory = self.subcategory
 
         if caption is not None:
             self._model.caption = caption
 
-        if date is not None:
-            self._model.updated_at = date
-
-        if author:
-            self._model.last_poster = author._model
-
         if important is not None:
             self._model.important = important
+
+        try:
+            last_post = PostPrototype(model=PostPrototype._db_filter(thread__id=self.id, state=POST_STATE.DEFAULT).latest('created_at'))
+        except PostPrototype._model_class.DoesNotExists:
+            last_post = None
+
+        if last_post is None:
+            self._model.last_poster = None
+            self._model.updated_at = datetime.datetime.now()
+        else:
+            self._model.last_poster = last_post.author._model
+            self._model.updated_at = last_post.created_at
 
         subcategory_changed = new_subcategory_id is not None and self.subcategory.id != new_subcategory_id
 
@@ -205,11 +216,13 @@ class ThreadPrototype(BasePrototype):
 
         self.save()
 
+        subcategory.update()
+
         if subcategory_changed:
-            subcategory.update()
             new_subcategory.update()
 
-    def update_posts_count(self): self._model.posts_count = Post.objects.filter(thread=self._model).count() - 1
+    def update_posts_count(self):
+        self._model.posts_count = PostPrototype._db_filter(thread=self._model).count() - 1
 
     def save(self):
         self._model.save()
@@ -261,9 +274,9 @@ class PostPrototype(BasePrototype):
                                    markup_method=MARKUP_METHOD.POSTMARKUP,
                                    state=POST_STATE.DEFAULT)
 
-        thread.update(author=author, date=post.created_at)
+        thread.update()
 
-        thread.subcategory.update(author, post.created_at)
+        thread.subcategory.update()
 
         prototype = cls(post)
 
@@ -273,13 +286,13 @@ class PostPrototype(BasePrototype):
 
 
     @transaction.atomic
-    def delete(self, initiator, thread):
+    def delete(self, initiator):
 
         self._model.state = POST_STATE.REMOVED
 
         if self.author == initiator:
             self._model.removed_by = POST_REMOVED_BY.AUTHOR
-        elif thread.author == initiator:
+        elif self.thread.author == initiator:
             self._model.removed_by = POST_REMOVED_BY.THREAD_OWNER
         else:
             self._model.removed_by = POST_REMOVED_BY.MODERATOR
@@ -287,6 +300,8 @@ class PostPrototype(BasePrototype):
         self._model.remove_initiator = initiator._model
 
         self.save()
+
+        self.thread.update()
 
     def update(self, text):
         self._model.text = text

@@ -12,12 +12,14 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.forum.conf import forum_settings
 from the_tale.forum.prototypes import (ThreadPrototype,
-                              SubCategoryPrototype,
-                              CategoryPrototype,
-                              ThreadReadInfoPrototype,
-                              SubCategoryReadInfoPrototype,
-                              PermissionPrototype,
-                              SubscriptionPrototype)
+                                       PostPrototype,
+                                       SubCategoryPrototype,
+                                       CategoryPrototype,
+                                       ThreadReadInfoPrototype,
+                                       SubCategoryReadInfoPrototype,
+                                       PermissionPrototype,
+                                       SubscriptionPrototype)
+from the_tale.forum.relations import MARKUP_METHOD, POST_REMOVED_BY, POST_STATE
 
 
 class SubcategoryPrototypeTests(testcase.TestCase):
@@ -54,6 +56,79 @@ class SubcategoryPrototypeTests(testcase.TestCase):
                          [subcategory_1.id])
 
 
+class SubcategoryPrototypeUpdateTests(testcase.TestCase):
+
+    def setUp(self):
+        super(SubcategoryPrototypeUpdateTests, self).setUp()
+
+        create_test_map()
+
+        register_user('test_user', 'test_user@test.com', '111111')
+        register_user('checked_user', 'granted_user@test.com', '111111')
+
+        self.account = AccountPrototype.get_by_nick('test_user')
+        self.checked_account = AccountPrototype.get_by_nick('checked_user')
+
+        self.category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
+        self.subcategory = SubCategoryPrototype.create(category=self.category, caption='subcat-caption', order=2)
+
+        self.thread_1 = ThreadPrototype.create(self.subcategory, 'thread-1-caption', self.account, 'thread-1-text')
+        self.thread_2 = ThreadPrototype.create(self.subcategory, 'thread-2-caption', self.account, 'thread-2-text')
+
+
+    def test_automatic_update_on_post_creating(self):
+
+        old_time = datetime.datetime.now()
+
+        PostPrototype.create(thread=self.thread_2, author=self.checked_account, text='post-1-text')
+
+        self.subcategory.reload()
+
+        self.assertEqual(self.subcategory.threads_count, 2)
+        self.assertEqual(self.subcategory.posts_count, 1)
+        self.assertEqual(self.subcategory.last_poster.id, self.checked_account.id)
+        self.assertTrue(self.subcategory.updated_at > old_time)
+        self.assertEqual(self.subcategory.last_thread_created_at, self.thread_2.created_at)
+
+    def test_automatic_raw_update(self):
+
+        old_time = datetime.datetime.now()
+
+        PostPrototype._model_class.objects.create(thread=self.thread_1._model,
+                                                  author=self.checked_account._model,
+                                                  markup_method=MARKUP_METHOD.MARKDOWN,
+                                                  technical=False,
+                                                  text='post-2-text',
+                                                  state=POST_STATE.DEFAULT)
+
+        self.subcategory.reload()
+
+        self.assertEqual(self.subcategory.posts_count, 0)
+        self.assertEqual(self.subcategory.last_poster.id, self.account.id)
+        self.assertTrue(self.subcategory.updated_at < old_time)
+
+        self.subcategory.update()
+        self.subcategory.reload()
+
+        self.assertEqual(self.subcategory.posts_count, 1)
+        self.assertEqual(self.subcategory._model.last_poster.id, self.checked_account.id)
+        self.assertTrue(old_time < self.subcategory.updated_at)
+
+    def test_automatic_update_on_post_deleting(self):
+
+        old_time = datetime.datetime.now()
+
+        self.test_automatic_update_on_post_creating()
+
+        PostPrototype._db_get_object(2).delete(self.checked_account)
+
+        self.subcategory.update()
+
+        self.assertEqual(self.subcategory.posts_count, 1)
+        self.assertEqual(self.subcategory._model.last_poster.id, self.account.id)
+        self.assertTrue(self.subcategory.updated_at < old_time)
+
+
 
 class ThreadPrototypeTests(testcase.TestCase):
 
@@ -61,35 +136,168 @@ class ThreadPrototypeTests(testcase.TestCase):
         super(ThreadPrototypeTests, self).setUp()
         create_test_map()
 
+        register_user('test_user', 'test_user@test.com', '111111')
+        self.account = AccountPrototype.get_by_nick('test_user')
+
+        self.category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
+        self.subcategory = SubCategoryPrototype.create(category=self.category, caption='subcat-caption', order=0)
+
+        self.thread = ThreadPrototype.create(self.subcategory, 'thread-caption', self.account, 'thread-text')
 
     def test_last_forum_posts_with_permissions(self):
-        register_user('test_user', 'test_user@test.com', '111111')
+
         register_user('granted_user', 'granted_user@test.com', '111111')
         register_user('wrong_user', 'wrong_user@test.com', '111111')
 
-        account = AccountPrototype.get_by_nick('test_user')
+
         granted_account = AccountPrototype.get_by_nick('granted_user')
         wrong_account = AccountPrototype.get_by_nick('wrong_user')
 
-        category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
-        subcategory = SubCategoryPrototype.create(category=category, caption='subcat-caption', order=0)
-
-        restricted_subcategory = SubCategoryPrototype.create(category=category, caption='subcat2-caption', order=1, restricted=True)
+        restricted_subcategory = SubCategoryPrototype.create(category=self.category, caption='subcat2-caption', order=1, restricted=True)
 
         PermissionPrototype.create(granted_account, restricted_subcategory)
 
-        thread = ThreadPrototype.create(subcategory, 'thread-caption', account, 'thread-text')
-        restricted_thread = ThreadPrototype.create(restricted_subcategory, 'thread-restricted-caption', account, 'thread-text')
+        restricted_thread = ThreadPrototype.create(restricted_subcategory, 'thread-restricted-caption', self.account, 'thread-text')
 
         self.assertEqual(set(t.id for t in ThreadPrototype.get_last_threads(account=None, limit=3)),
-                         set([thread.id]))
+                         set([self.thread.id]))
 
         self.assertEqual(set(t.id for t in ThreadPrototype.get_last_threads(account=granted_account, limit=3)),
-                         set([thread.id, restricted_thread.id]))
+                         set([self.thread.id, restricted_thread.id]))
 
         self.assertEqual(set(t.id for t in ThreadPrototype.get_last_threads(account=wrong_account, limit=3)),
-                         set([thread.id]))
+                         set([self.thread.id]))
 
+
+
+    def test_update_subcategory_on_delete(self):
+        with mock.patch('the_tale.forum.prototypes.SubCategoryPrototype.update') as subcategory_update:
+            self.thread.delete()
+
+        self.assertEqual(subcategory_update.call_count, 1)
+
+    def test_update_subcategory_on_create(self):
+        with mock.patch('the_tale.forum.prototypes.SubCategoryPrototype.update') as subcategory_update:
+            ThreadPrototype.create(self.subcategory, 'thread-2-caption', self.account, 'thread-2-text')
+
+        self.assertEqual(subcategory_update.call_count, 1)
+
+
+class ThreadPrototypeUpdateTests(testcase.TestCase):
+
+    def setUp(self):
+        super(ThreadPrototypeUpdateTests, self).setUp()
+
+        create_test_map()
+
+        register_user('test_user', 'test_user@test.com', '111111')
+        register_user('checked_user', 'granted_user@test.com', '111111')
+
+        self.account = AccountPrototype.get_by_nick('test_user')
+        self.checked_account = AccountPrototype.get_by_nick('checked_user')
+
+        self.category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
+        self.subcategory = SubCategoryPrototype.create(category=self.category, caption='subcat-caption', order=2)
+
+        self.thread = ThreadPrototype.create(self.subcategory, 'thread-caption', self.account, 'thread-text')
+
+
+    def test_automatic_update_on_post_creating(self):
+
+        old_time = datetime.datetime.now()
+
+        PostPrototype.create(thread=self.thread, author=self.checked_account, text='post-1-text')
+
+        self.thread.reload()
+
+        self.assertEqual(self.thread.posts_count, 1)
+        self.assertEqual(self.thread.last_poster.id, self.checked_account.id)
+        self.assertTrue(self.thread.updated_at > old_time)
+
+    def test_automatic_raw_update(self):
+
+        old_time = datetime.datetime.now()
+
+        PostPrototype._model_class.objects.create(thread=self.thread._model,
+                                                  author=self.checked_account._model,
+                                                  markup_method=MARKUP_METHOD.MARKDOWN,
+                                                  technical=False,
+                                                  text='post-2-text',
+                                                  state=POST_STATE.DEFAULT)
+
+        self.thread.reload()
+
+        self.assertEqual(self.thread.posts_count, 0)
+        self.assertEqual(self.thread.last_poster.id, self.account.id)
+        self.assertTrue(self.thread.updated_at < old_time)
+
+        self.thread.update()
+        self.thread.reload()
+
+        self.assertEqual(self.thread.posts_count, 1)
+        self.assertEqual(self.thread._model.last_poster.id, self.checked_account.id)
+        self.assertTrue(old_time < self.thread.updated_at)
+
+    def test_automatic_update_on_post_deleting(self):
+
+        old_time = datetime.datetime.now()
+
+        self.test_automatic_update_on_post_creating()
+
+        PostPrototype._db_get_object(1).delete(self.checked_account)
+
+        self.thread.update()
+
+        self.assertEqual(self.thread.posts_count, 1)
+        self.assertEqual(self.thread._model.last_poster.id, self.account.id)
+        self.assertTrue(self.thread.updated_at < old_time)
+
+    def test_subcategory_updated(self):
+        with mock.patch('the_tale.forum.prototypes.SubCategoryPrototype.update') as subcategory_update:
+            self.thread.update()
+
+        self.assertEqual(subcategory_update.call_count, 1)
+
+
+    def test_2_subcategories_updated(self):
+        subcategory_2 = SubCategoryPrototype.create(category=self.category, caption='subcat-2-caption', order=3)
+
+        with mock.patch('the_tale.forum.prototypes.SubCategoryPrototype.update') as subcategory_update:
+            self.thread.update(new_subcategory_id=subcategory_2.id)
+
+        self.assertEqual(subcategory_update.call_count, 2)
+
+
+
+class PostPrototypeTests(testcase.TestCase):
+
+    def setUp(self):
+        super(PostPrototypeTests, self).setUp()
+
+        create_test_map()
+
+        register_user('test_user', 'test_user@test.com', '111111')
+        register_user('checked_user', 'granted_user@test.com', '111111')
+
+        self.account = AccountPrototype.get_by_nick('test_user')
+        self.checked_account = AccountPrototype.get_by_nick('checked_user')
+
+        self.category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
+        self.subcategory = SubCategoryPrototype.create(category=self.category, caption='subcat-caption', order=2)
+
+        self.thread = ThreadPrototype.create(self.subcategory, 'thread-caption', self.account, 'thread-text')
+
+    def test_update_thread_on_delete(self):
+        with mock.patch('the_tale.forum.prototypes.ThreadPrototype.update') as thread_update:
+            PostPrototype._db_get_object(0).delete(self.checked_account)
+
+        self.assertEqual(thread_update.call_count, 1)
+
+    def test_update_thread_on_create(self):
+        with mock.patch('the_tale.forum.prototypes.ThreadPrototype.update') as thread_update:
+            PostPrototype.create(thread=self.thread, author=self.checked_account, text='post-1-text')
+
+        self.assertEqual(thread_update.call_count, 1)
 
 
 class ThreadReadInfoPrototypeTests(testcase.TestCase):
