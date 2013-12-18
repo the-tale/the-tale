@@ -442,6 +442,7 @@ class AccountResource(BaseAccountsResource):
                               'phrases_count': phrases_count,
                               'master_clan_info': ClanInfo(self.master_account),
                               'own_clan_info': ClanInfo(self.account),
+                              'FORUM_COMPLAINT_THEME': accounts_settings.FORUM_COMPLAINT_THEME,
                               'friendship': friendship} )
 
     @login_required

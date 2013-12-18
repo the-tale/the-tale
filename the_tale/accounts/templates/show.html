@@ -73,6 +73,8 @@ jQuery(document).ready(function(){
               <li class="nav-element"><span class="pgf-friends-request-to">вы предложили дружбу</span></li>
             {% endif %}
 
+            <li class="nav-element "><a href="{{FORUM_COMPLAINT_THEME}}">пожаловаться</a></li>
+
          {% endif %}
 
          {% set can_invite_to_guild = resource.account.is_authenticated() and master_account.id != resource.account.id and own_clan_info and master_clan_info.membership is none and own_clan_info.can_invite %}

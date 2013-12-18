@@ -17,6 +17,9 @@ accounts_settings = app_settings('ACCOUNTS',
 
                                  REFERRAL_URL_ARGUMENT='referral',
 
+                                 FORUM_COMPLAINT_THEME='/forum/threads/1177',
+
+
                                  FAST_REGISTRATION_USER_PASSWORD='password-FOR_fast-USERS',
                                  FAST_ACCOUNT_EXPIRED_TIME=3*24*60*60,
                                  REGISTRATION_TIMEOUT=1*60,
