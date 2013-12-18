@@ -34,8 +34,10 @@ class BAN_TYPE(DjangoEnum):
 class BAN_TIME(DjangoEnum):
     days = Column()
 
-    records = ( ('DAYS', 0, u'3 дня', 3),
-                 ('WEEK', 1, u'неделя', 7),
-                 ('MONTH', 2, u'месяц', 30),
-                 ('HALF_YEAR', 4, u'полгода', 180),
-                 ('TOTAL', 5, u'пожизненно', 365*666))
+    records = ( ('1_DAY', 0, u'1 день', 1),
+                ('2_DAYS', 1, u'2 дня', 2),
+                ('3_DAYS', 2, u'3 дня', 3),
+                ('WEEK', 3, u'неделя', 7),
+                ('MONTH', 4, u'месяц', 30),
+                ('HALF_YEAR', 5, u'полгода', 180),
+                ('TOTAL', 6, u'пожизненно', 365*666))
