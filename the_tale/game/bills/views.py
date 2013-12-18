@@ -17,7 +17,6 @@ from the_tale.accounts.views import validate_fast_account, validate_ban_game
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 
-from the_tale.game.map.places.prototypes import PlacePrototype
 from the_tale.game.map.places.storage import places_storage
 
 from the_tale.game.bills.prototypes import BillPrototype, VotePrototype

@@ -105,6 +105,11 @@ class TestNewRequests(BaseTestRequests):
         self.request_login(self.account.email)
         self.check_html_ok(self.request_html(self.new_url), texts=['clans.can_not_create_clan'])
 
+    def test_banned(self):
+        self.request_login(self.account.email)
+        self.account.ban_forum(1)
+        self.check_html_ok(self.request_html(self.new_url), texts=['common.ban_any'])
+
 
     @mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', True)
     def test_ok(self):
@@ -171,6 +176,12 @@ class TestCreateRequests(BaseTestRequests):
         self.assertEqual(ClanPrototype._db_count(), 1)
         self.check_ajax_ok(response, data={'next_url': url('accounts:clans:show', ClanPrototype._db_get_object(0).id)})
 
+    @mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', True)
+    def test_banned(self):
+        self.request_login(self.account.email)
+        self.account.ban_forum(1)
+        self.check_ajax_error(self.post_ajax_json(self.create_url, self.create_data()), 'common.ban_any')
+
 
 class TestShowRequests(BaseTestRequests):
 
@@ -204,6 +215,11 @@ class TestEditRequests(BaseTestRequests):
 
     def test_ok(self):
         self.check_html_ok(self.request_html(self.edit_url), texts=[self.clan.abbr, self.clan.name, self.clan.motto, self.clan.description, (self.clan.description_html, 0)])
+
+    def test_banned(self):
+        self.request_login(self.account.email)
+        self.account.ban_forum(1)
+        self.check_html_ok(self.request_html(self.edit_url), texts=['common.ban_any'])
 
 
 class TestUpdateRequests(BaseTestRequests):
@@ -275,6 +291,11 @@ class TestUpdateRequests(BaseTestRequests):
     def test_ok(self):
         self.check_ajax_ok(self.post_ajax_json(self.update_url, self.update_data()))
         self.check_clan_new_data()
+
+    def test_banned(self):
+        self.request_login(self.account.email)
+        self.account.ban_forum(1)
+        self.check_ajax_error(self.post_ajax_json(self.update_url, self.update_data()), 'common.ban_any')
 
     def test_name_and_abbr_not_changed(self):
         self.check_ajax_ok(self.post_ajax_json(self.update_url, self.update_data(abbr=self.clan.abbr, name=self.clan.name)))

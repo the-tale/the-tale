@@ -92,6 +92,9 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
     @property
     def is_ban_forum(self): return self.ban_forum_end_at > datetime.datetime.now()
 
+    @property
+    def is_ban_any(self): return self.is_ban_game or self.is_ban_forum
+
     def ban_game(self, days):
         from the_tale.game.heroes.prototypes import HeroPrototype
 

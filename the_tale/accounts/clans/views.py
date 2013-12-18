@@ -10,7 +10,7 @@ from the_tale.common.utils.decorators import login_required
 from the_tale.common.utils.pagination import Paginator
 from the_tale.common.utils import list_filter
 
-from the_tale.accounts.views import validate_fast_account
+from the_tale.accounts.views import validate_fast_account, validate_ban_any
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.conf import accounts_settings
 
@@ -93,6 +93,7 @@ class ClansResource(Resource):
 
     @login_required
     @validate_fast_account()
+    @validate_ban_any()
     @validate_creation_rights()
     @handler('new')
     def new(self):
@@ -102,6 +103,7 @@ class ClansResource(Resource):
 
     @login_required
     @validate_fast_account()
+    @validate_ban_any()
     @validate_creation_rights()
     @handler('create', method='post')
     def create(self):
@@ -141,6 +143,7 @@ class ClansResource(Resource):
 
     @login_required
     @validate_ownership()
+    @validate_ban_any()
     @handler('#clan', 'edit')
     def edit(self):
         form = ClanForm(initial={'name': self.clan.name,
@@ -153,6 +156,7 @@ class ClansResource(Resource):
 
     @login_required
     @validate_ownership()
+    @validate_ban_any()
     @handler('#clan', 'update', method='post')
     def update(self):
         form = ClanForm(self.request.POST)

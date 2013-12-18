@@ -79,6 +79,15 @@ class ProfileRequestsTests(TestCase):
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
         self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
 
+    def test_profile_update_nick__banned(self):
+        self.request_login('test_user@test.com')
+        self.account.ban_forum(1)
+
+        with self.check_not_changed(ChangeCredentialsTask.objects.all().count):
+            self.check_ajax_error(self.client.post(reverse('accounts:profile:update'),
+                                                   {'email': 'test_user@test.com', 'nick': 'test_nick'}),
+                                  'accounts.profile.update.banned')
+
     def test_profile_update_email(self):
         self.request_login('test_user@test.com')
         response = self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.ru', 'nick': 'test_nick'})

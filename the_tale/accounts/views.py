@@ -47,6 +47,9 @@ def validate_ban_forum(self, *args, **kwargs): return not self.account.is_ban_fo
 @validator(code='common.ban_game', message=u'Вам запрещено проводить эту операцию')
 def validate_ban_game(self, *args, **kwargs): return not self.account.is_ban_game
 
+@validator(code='common.ban_any', message=u'Вам запрещено проводить эту операцию')
+def validate_ban_any(self, *args, **kwargs): return not self.account.is_ban_any
+
 
 class BaseAccountsResource(Resource):
 
@@ -211,35 +214,38 @@ class ProfileResource(BaseAccountsResource):
 
         edit_profile_form = forms.EditProfileForm(self.request.POST)
 
-        if edit_profile_form.is_valid():
+        if not edit_profile_form.is_valid():
+            return self.json_error('accounts.profile.update.form_errors', edit_profile_form.errors)
 
-            if self.account.is_fast and not (edit_profile_form.c.email and edit_profile_form.c.password and edit_profile_form.c.nick):
-                return self.json_error('accounts.profile.update.empty_fields', u'Необходимо заполнить все поля')
+        if self.account.is_fast and not (edit_profile_form.c.email and edit_profile_form.c.password and edit_profile_form.c.nick):
+            return self.json_error('accounts.profile.update.empty_fields', u'Необходимо заполнить все поля')
 
-            if edit_profile_form.c.email:
-                existed_account = AccountPrototype.get_by_email(edit_profile_form.c.email)
-                if existed_account and existed_account.id != self.account.id:
-                    return self.json_error('accounts.profile.update.used_email', {'email': [u'На этот адрес уже зарегистрирован аккаунт']})
+        if edit_profile_form.c.email:
+            existed_account = AccountPrototype.get_by_email(edit_profile_form.c.email)
+            if existed_account and existed_account.id != self.account.id:
+                return self.json_error('accounts.profile.update.used_email', {'email': [u'На этот адрес уже зарегистрирован аккаунт']})
 
-            if edit_profile_form.c.nick:
-                existed_account = AccountPrototype.get_by_nick(edit_profile_form.c.nick)
-                if existed_account and existed_account.id != self.account.id:
-                    return self.json_error('accounts.profile.update.used_nick', {'nick': [u'Это имя уже занято']})
+        if edit_profile_form.c.nick:
+            existed_account = AccountPrototype.get_by_nick(edit_profile_form.c.nick)
+            if existed_account and existed_account.id != self.account.id:
+                return self.json_error('accounts.profile.update.used_nick', {'nick': [u'Это имя уже занято']})
 
-            task = ChangeCredentialsTaskPrototype.create(account=self.account,
-                                                         new_email=edit_profile_form.c.email,
-                                                         new_password=edit_profile_form.c.password,
-                                                         new_nick=edit_profile_form.c.nick,
-                                                         relogin_required=True)
+        if edit_profile_form.c.nick != self.account.nick and self.account.is_ban_any:
+            return self.json_error('accounts.profile.update.banned', {'nick': [u'Вы не можете менять ник пока забанены']})
 
-            postponed_task = task.process(logger)
+        task = ChangeCredentialsTaskPrototype.create(account=self.account,
+                                                     new_email=edit_profile_form.c.email,
+                                                     new_password=edit_profile_form.c.password,
+                                                     new_nick=edit_profile_form.c.nick,
+                                                     relogin_required=True)
 
-            if postponed_task is not None:
-                return self.json_processing(postponed_task.status_url)
+        postponed_task = task.process(logger)
 
-            return self.json_ok(data={'next_url': reverse('accounts:profile:confirm-email-request')})
+        if postponed_task is not None:
+            return self.json_processing(postponed_task.status_url)
 
-        return self.json_error('accounts.profile.update.form_errors', edit_profile_form.errors)
+        return self.json_ok(data={'next_url': reverse('accounts:profile:confirm-email-request')})
+
 
     @handler('confirm-email', method='get')
     def confirm_email(self, uuid): # pylint: disable=W0621
