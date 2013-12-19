@@ -225,6 +225,10 @@ jQuery(document).ready( function(e) {
 
           {% if not (post.is_removed or post.technical) %}
 
+            <div style="float: right;">
+              <a href="{{forum_complaint_theme()}}">пожаловаться</a>
+            </div>
+
             {% if (thread_data.can_delete_posts or author.id == resource.account.id) and (loop.index!=1 or thread_data.paginator.current_page_number!=0) %}
               <div style="float: right;">
                 <a href="#" class="pgf-remove-post-button" data-delete-url="{{ url('forum:posts:delete', post.id) }}">удалить</a>
