@@ -189,6 +189,10 @@ class TestNewThreadRequests(BaseTestRequests):
 
 class TestCreateThreadRequests(BaseTestRequests):
 
+    def setUp(self):
+        super(TestCreateThreadRequests, self).setUp()
+        ThreadPrototype._db_all().update(created_at=datetime.datetime.now() - datetime.timedelta(days=30))
+
     def test_create_thread_unlogined(self):
         self.request_logout()
         self.check_ajax_error(self.client.post(url('forum:subcategories:create-thread',  self.subcat1.id)),
@@ -245,6 +249,11 @@ class TestCreateThreadRequests(BaseTestRequests):
     @mock.patch('the_tale.forum.prototypes.SubCategoryPrototype.is_restricted_for', lambda proto, account: True)
     def test_restricted(self):
         self.check_ajax_error(self.client.post(url('forum:subcategories:create-thread',  self.subcat1.id)), 'forum.subcategory_access_restricted')
+
+    @mock.patch('the_tale.forum.prototypes.ThreadPrototype.get_new_thread_delay', classmethod(lambda cls, account: 1))
+    def test_delayed(self):
+        self.check_ajax_error(self.client.post(url('forum:subcategories:create-thread',  self.subcat1.id), {'caption': 'thread4-caption', 'text': 'thread4-text'}),
+                              'forum.create_thread.delay')
 
 
 class TestIndexThreadsRequests(BaseTestRequests):
@@ -328,6 +337,11 @@ class TestShowThreadRequests(BaseTestRequests):
 
 class TestCreatePostRequests(BaseTestRequests):
 
+    def setUp(self):
+        super(TestCreatePostRequests, self).setUp()
+        PostPrototype._db_all().update(created_at=datetime.datetime.now() - datetime.timedelta(days=30))
+
+
     def test_create_post_unlogined(self):
         self.request_logout()
         self.check_ajax_error(self.client.post(url('forum:threads:create-post', self.thread3.id)),
@@ -375,6 +389,12 @@ class TestCreatePostRequests(BaseTestRequests):
     def test_restricted(self):
         self.check_ajax_error(self.client.post(url('forum:threads:create-post', self.thread3.id), {'text': 'thread3-test-post'}),
                               'forum.subcategory_access_restricted')
+
+
+    @mock.patch('the_tale.forum.prototypes.PostPrototype.get_new_post_delay', classmethod(lambda cls, account: 1))
+    def test_delayed(self):
+        self.check_ajax_error(self.client.post(url('forum:threads:create-post',  self.thread3.id), {'text': 'post4-text'}),
+                              'forum.create_post.delay')
 
 
 

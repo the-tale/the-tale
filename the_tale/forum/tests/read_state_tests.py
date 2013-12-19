@@ -156,6 +156,8 @@ class ReadStateTests(testcase.TestCase):
         PostPrototype.create(self.thread, self.account_2, 'post-new-text')
         self.assertTrue(self.get_read_state().subcategory_has_new_messages(self.subcategory))
 
+    @mock.patch('the_tale.forum.conf.forum_settings.POST_DELAY', 0)
+    @mock.patch('the_tale.forum.conf.forum_settings.FIRST_POST_DELAY', 0)
     def test_subcategory_has_new_messages__new_post_from_request(self):
         SubCategoryReadInfoPrototype.read_all_in_subcategory(subcategory=self.subcategory, account=self.account)
         self.assertFalse(self.get_read_state().subcategory_has_new_messages(self.subcategory))

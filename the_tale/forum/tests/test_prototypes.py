@@ -19,7 +19,7 @@ from the_tale.forum.prototypes import (ThreadPrototype,
                                        SubCategoryReadInfoPrototype,
                                        PermissionPrototype,
                                        SubscriptionPrototype)
-from the_tale.forum.relations import MARKUP_METHOD, POST_REMOVED_BY, POST_STATE
+from the_tale.forum.relations import MARKUP_METHOD, POST_STATE
 
 
 class SubcategoryPrototypeTests(testcase.TestCase):
@@ -143,6 +143,25 @@ class ThreadPrototypeTests(testcase.TestCase):
         self.subcategory = SubCategoryPrototype.create(category=self.category, caption='subcat-caption', order=0)
 
         self.thread = ThreadPrototype.create(self.subcategory, 'thread-caption', self.account, 'thread-text')
+
+    def test_get_new_thread_delay__no_threads__new_account(self):
+        register_user('new_test_user', 'new_test_user@test.com', '111111')
+        new_account = AccountPrototype.get_by_nick('new_test_user')
+        self.assertTrue(ThreadPrototype.get_new_thread_delay(new_account) > 0)
+
+    def test_get_new_thread_delay__no_threads__old_account(self):
+        register_user('new_test_user', 'new_test_user@test.com', '111111')
+        new_account = AccountPrototype.get_by_nick('new_test_user')
+        new_account._model.created_at = datetime.datetime.now() - datetime.timedelta(days=30)
+        self.assertFalse(ThreadPrototype.get_new_thread_delay(new_account), 0)
+
+    def test_get_new_thread_delay__has_old_thread(self):
+        ThreadPrototype._db_all().update(created_at=datetime.datetime.now() - datetime.timedelta(days=30))
+        self.assertEqual(ThreadPrototype.get_new_thread_delay(self.account), 0)
+
+    def test_get_new_thread_delay__has_new_thread(self):
+        self.assertTrue(ThreadPrototype.get_new_thread_delay(self.account) > 0)
+
 
     def test_last_forum_posts_with_permissions(self):
 
@@ -286,6 +305,42 @@ class PostPrototypeTests(testcase.TestCase):
         self.subcategory = SubCategoryPrototype.create(category=self.category, caption='subcat-caption', order=2)
 
         self.thread = ThreadPrototype.create(self.subcategory, 'thread-caption', self.account, 'thread-text')
+
+    def test_get_new_post_delay__no_posts__new_account(self):
+        register_user('new_test_user', 'new_test_user@test.com', '111111')
+        new_account = AccountPrototype.get_by_nick('new_test_user')
+        self.assertTrue(PostPrototype.get_new_post_delay(new_account) > 0)
+
+    def test_get_new_post_delay__no_posts__old_account(self):
+        register_user('new_test_user', 'new_test_user@test.com', '111111')
+        new_account = AccountPrototype.get_by_nick('new_test_user')
+        new_account._model.created_at = datetime.datetime.now() - datetime.timedelta(days=30)
+        self.assertFalse(PostPrototype.get_new_post_delay(new_account), 0)
+
+    def test_get_new_post_delay__has_old_post(self):
+        PostPrototype.create(thread=self.thread, author=self.account, text='post-1-text')
+        PostPrototype._db_all().update(created_at=datetime.datetime.now() - datetime.timedelta(days=30))
+        self.assertEqual(PostPrototype.get_new_post_delay(self.account), 0)
+
+    def test_get_new_post_delay__has_new_post(self):
+        PostPrototype.create(thread=self.thread, author=self.account, text='post-1-text')
+        self.assertTrue(PostPrototype.get_new_post_delay(self.account) > 0)
+
+    def test_get_new_post_delay__more_then_one_post(self):
+        PostPrototype.create(thread=self.thread, author=self.account, text='post-1-text')
+        delay_1 = PostPrototype.get_new_post_delay(self.account)
+
+        PostPrototype.create(thread=self.thread, author=self.account, text='post-1-text')
+
+        delay_2 = PostPrototype.get_new_post_delay(self.account)
+
+        self.assertTrue(delay_1 - delay_2 > 1)
+
+    def test_get_new_post_delay__a_lot_of_posts(self):
+        for i in xrange(100):
+            PostPrototype.create(thread=self.thread, author=self.account, text='post-1-text')
+
+        self.assertTrue(PostPrototype.get_new_post_delay(self.account) < forum_settings.POST_DELAY)
 
     def test_update_thread_on_delete(self):
         with mock.patch('the_tale.forum.prototypes.ThreadPrototype.update') as thread_update:

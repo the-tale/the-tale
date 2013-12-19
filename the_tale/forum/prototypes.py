@@ -140,6 +140,21 @@ class ThreadPrototype(BasePrototype):
         return PostPrototype(model=Post.objects.filter(thread=self._model).order_by('created_at')[0])
 
     @classmethod
+    def get_new_thread_delay(cls, account):
+        last_thread_time = cls._db_filter(author_id=account.id).aggregate(models.Max('created_at')).get('created_at__max')
+
+        if last_thread_time is None:
+            last_thread_time = account.created_at
+
+        delay_seconds = forum_settings.THREAD_DELAY - (datetime.datetime.now() - last_thread_time).total_seconds()
+
+        if delay_seconds > 0:
+            return int(delay_seconds)
+
+        return 0
+
+
+    @classmethod
     @transaction.atomic
     def create(cls, subcategory, caption, author, text, markup_method=MARKUP_METHOD.POSTMARKUP, technical=False):
 
@@ -259,6 +274,25 @@ class PostPrototype(BasePrototype):
 
     @property
     def is_removed_by_moderator(self): return self.removed_by.is_MODERATOR
+
+    @classmethod
+    def get_new_post_delay(cls, account):
+        last_post_time = cls._db_filter(author_id=account.id).aggregate(models.Max('created_at')).get('created_at__max')
+
+        if last_post_time is None:
+            last_post_time = account.created_at
+
+        posts_number = cls._db_filter(author_id=account.id).count()
+
+        max_post_delay = max(forum_settings.POST_DELAY, forum_settings.FIRST_POST_DELAY - posts_number * forum_settings.POST_DELAY)
+
+        delay_seconds = max_post_delay - (datetime.datetime.now() - last_post_time).total_seconds()
+
+        if delay_seconds < 0:
+            return 0
+
+        return int(delay_seconds)
+
 
     @classmethod
     @transaction.atomic

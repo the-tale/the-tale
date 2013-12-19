@@ -114,7 +114,8 @@ class TestModerationNewThreadRequests(TestModeration):
 
 
 class TestModerationCreateThreadRequests(TestModeration):
-    # create request
+
+    @mock.patch('the_tale.forum.conf.forum_settings.THREAD_DELAY', 0)
     def test_loggined_create_thread_page(self):
         self.request_login('main_user@test.com')
         response = self.client.post(url('forum:subcategories:create-thread',  self.subcategory.id),
@@ -146,6 +147,7 @@ class TestModerationCreateThreadRequests(TestModeration):
                                                {'caption': 'thread5-caption', 'text': 'thread5-text'}),
                               'forum.create_thread.no_permissions')
 
+    @mock.patch('the_tale.forum.conf.forum_settings.THREAD_DELAY', 0)
     def test_moderator_create_thread_page_in_closed_theme(self):
         self.request_login('moderator@test.com')
         response = self.client.post(url('forum:subcategories:create-thread',  self.subcategory2.id),

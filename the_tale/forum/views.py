@@ -161,6 +161,15 @@ class ThreadsResource(BaseForumResource):
     @handler('#thread', 'create-post', method='post')
     def create_post(self):
 
+        new_post_delay = PostPrototype.get_new_post_delay(self.account)
+
+        if new_post_delay > 0:
+            error_message = (u'Создавать новые сообщения можно не чаще раза в %d секунд. <br/>Задержка увеличивается для игроков, только начинающих общаться на форуме.<br/> Вы сможете создать новое сообщение через %d сек.' %
+                             ( forum_settings.POST_DELAY,
+                               int(new_post_delay)))
+            return self.json_error('forum.create_post.delay', error_message)
+
+
         new_post_form = NewPostForm(self.request.POST)
 
         if not new_post_form.is_valid():
@@ -414,6 +423,13 @@ class SubCategoryResource(BaseForumResource):
 
         if not can_create_thread(self.account, self.subcategory):
             return self.json_error('forum.create_thread.no_permissions', u'Вы не можете создавать темы в данном разделе')
+
+        new_thread_delay = ThreadPrototype.get_new_thread_delay(self.account)
+        if new_thread_delay > 0:
+            error_message = (u'Создавать новые обсуждения можно не чаще раза в %d минут.<br/> Вы сможете создать новое обсуждение через %d сек.' %
+                             ( int(forum_settings.THREAD_DELAY / 60),
+                               int(new_thread_delay)))
+            return self.json_error('forum.create_thread.delay', error_message)
 
         new_thread_form = NewThreadForm(self.request.POST)
 
