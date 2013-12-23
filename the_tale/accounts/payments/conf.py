@@ -8,9 +8,12 @@ payments_settings = app_settings('PAYMENTS',
                                  PREMIUM_CURRENCY_FOR_DOLLAR=100,
                                  ENABLE_REAL_PAYMENTS=False if not project_settings.TESTS_RUNNING else True,
                                  SETTINGS_ALLOWED_KEY='payments allowed',
-                                 DENGIONLINE_ENABLED=False if not project_settings.TESTS_RUNNING else True,
-                                 XSOLLA_ENABLED=False if not project_settings.TESTS_RUNNING else True,
+
+                                 GLOBAL_COST_MULTIPLIER = 1.0,
+
                                  ALWAYS_ALLOWED_ACCOUNTS=[],
+
+                                 XSOLLA_ENABLED=False if not project_settings.TESTS_RUNNING else True,
 
                                  XSOLLA_RUB_FOR_PREMIUM_CURRENCY=100,
 

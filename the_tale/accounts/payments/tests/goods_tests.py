@@ -20,6 +20,7 @@ from the_tale.accounts.payments.postponed_tasks import BuyPremium, BuyPermanentP
 from the_tale.accounts.payments.goods import PremiumDays, PermanentPurchase, RechooseHeroAbilitiesChoices
 from the_tale.accounts.payments import exceptions
 from the_tale.accounts.payments.relations import PERMANENT_PURCHASE_TYPE
+from the_tale.accounts.payments.conf import payments_settings
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 
@@ -44,7 +45,7 @@ class PremiumDaysTests(testcase.TestCase):
         self.purchase = PremiumDays(uid='premium-days-uid',
                                     name=u'premium-days-name',
                                     description=u'premium-days-description',
-                                    cost=self.cost,
+                                    cost=int(self.cost / payments_settings.GLOBAL_COST_MULTIPLIER),
                                     days=self.days,
                                     transaction_description='premium-days-transaction-description')
 
@@ -125,7 +126,7 @@ class PermanentPurchaseTests(testcase.TestCase):
         self.purchase = PermanentPurchase(uid=u'clan-creation-rights',
                                           name=self.PURCHASE_TYPE.text,
                                           description=self.PURCHASE_TYPE.description,
-                                          cost=self.cost,
+                                          cost=int(self.cost / payments_settings.GLOBAL_COST_MULTIPLIER),
                                           purchase_type=self.PURCHASE_TYPE,
                                           transaction_description=u'clan-creation-rights')
 
@@ -211,7 +212,7 @@ class RechooseHeroAbilitiesChoicesTests(testcase.TestCase):
         self.purchase = RechooseHeroAbilitiesChoices(uid='rechoose-uid',
                                                      name=u'rechoose-name',
                                                      description=u'rechoose-description',
-                                                     cost=self.cost,
+                                                     cost=int(self.cost / payments_settings.GLOBAL_COST_MULTIPLIER),
                                                      transaction_description='rechoose-transaction-description')
 
     def test_create(self):

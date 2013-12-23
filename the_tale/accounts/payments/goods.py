@@ -5,13 +5,14 @@ from the_tale.common.postponed_tasks import PostponedTaskPrototype
 from the_tale.accounts.payments import postponed_tasks
 from the_tale.accounts.payments import exceptions
 from the_tale.accounts.payments.logic import transaction_logic
+from the_tale.accounts.payments.conf import payments_settings
 
 
 class PurchaseItem(object):
 
     def __init__(self, uid, cost, name, description, transaction_description):
         self.uid = uid
-        self.cost = cost
+        self.cost = int(cost * payments_settings.GLOBAL_COST_MULTIPLIER)
         self.name = name
         self.description = description
         self.transaction_description = transaction_description
