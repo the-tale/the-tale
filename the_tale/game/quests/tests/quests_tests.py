@@ -7,6 +7,7 @@ import mock
 from dext.utils import s11n
 
 from questgen import facts
+from questgen import actions as questgen_actions
 from questgen.quests.search_smith import SearchSmith
 from questgen.quests.quests_base import QuestsBase
 from questgen.quests.spying import Spying
@@ -168,11 +169,11 @@ class RawQuestsTest(QuestsTestBase):
 
     def _check_action_messages(self, quest_type, actions):
         for action in actions:
-            if isinstance(action, facts.DoNothing):
+            if isinstance(action, questgen_actions.DoNothing):
                 self._check_messages(quest_type, '%s_start' % action.type)
                 self._check_messages(quest_type, '%s_donothing' % action.type)
 
-            elif isinstance(action, facts.UpgradeEquipment):
+            elif isinstance(action, questgen_actions.UpgradeEquipment):
                 self._check_messages(quest_type, 'upgrade__fail')
                 self._check_messages(quest_type, 'upgrade__buy_and_change')
                 self._check_messages(quest_type, 'upgrade__buy')
@@ -182,10 +183,10 @@ class RawQuestsTest(QuestsTestBase):
                 self._check_messages(quest_type, 'upgrade_free__buy')
                 self._check_messages(quest_type, 'upgrade_free__sharp')
 
-            elif isinstance(action, facts.Message):
+            elif isinstance(action, questgen_actions.Message):
                 self._check_messages(quest_type, action.type)
 
-            elif isinstance(action, facts.GiveReward):
+            elif isinstance(action, questgen_actions.GiveReward):
                 self._check_messages(quest_type, '%s_money' % action.type)
                 self._check_messages(quest_type, '%s_artifact' % action.type)
 
@@ -194,7 +195,7 @@ class RawQuestsTest(QuestsTestBase):
         powers = set()
 
         for action in actions:
-            if isinstance(action, facts.GivePower):
+            if isinstance(action, questgen_actions.GivePower):
                 powers.add((start, action.object))
 
         return powers

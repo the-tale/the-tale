@@ -60,7 +60,7 @@
     <th>и премиум и рефералы</th><td>{{accounts_referrals_and_premium}}</td>
     <td>
       {% if accounts_referrals %}
-      {{(accounts_referrals_and_premium|float/accounts_referrals)|percents}} от премиумных
+      {{(accounts_referrals_and_premium|float/accounts_premium)|percents}} от премиумных
       {% endif %}
     </td>
 
@@ -68,7 +68,7 @@
     <th>и активные и рефералы</th><td>{{accounts_referrals_and_active}}</td>
     <td>
       {% if accounts_referrals %}
-      {{(accounts_referrals_and_active|float/accounts_referrals)|percents}} от премиумных
+      {{(accounts_referrals_and_active|float/accounts_active)|percents}} от активных
       {% endif %}
     </td>
 

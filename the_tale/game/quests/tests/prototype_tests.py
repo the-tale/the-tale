@@ -30,7 +30,6 @@ from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.quests.logic import create_random_quest_for_hero
 from the_tale.game.quests.prototypes import QuestPrototype
 from the_tale.game.quests import uids
-from the_tale.game.quests import exceptions
 
 
 class PrototypeTests(testcase.TestCase):
@@ -58,14 +57,6 @@ class PrototypeTests(testcase.TestCase):
     def test_serialization(self):
         self.assertEqual(self.quest.serialize(), QuestPrototype.deserialize(self.hero, self.quest.serialize()).serialize())
 
-    def get_hero_position_id(self, quest):
-        kb = quest.knowledge_base
-
-        hero_position_uid = (location.place
-                             for location in kb.filter(facts.LocatedIn)
-                             if location.object == uids.hero(self.hero)).next()
-        return kb[hero_position_uid].externals['id']
-
     def test_do_step(self):
         self.hero.quests.updated = False
         self.quest.process()
@@ -77,8 +68,6 @@ class PrototypeTests(testcase.TestCase):
         # save link to quest, since it will be removed from hero when quest finished
         quest = self.hero.quests.current_quest
 
-        self.assertEqual(self.hero.position.place.id, self.get_hero_position_id(quest))
-
         old_quests_done = self.hero.statistics.quests_done
 
         while not self.action_idl.leader:
@@ -86,9 +75,8 @@ class PrototypeTests(testcase.TestCase):
             callback()
             current_time.increment_turn()
 
-        self.assertEqual(self.hero.position.place.id, self.get_hero_position_id(quest))
         self.assertTrue(isinstance(quest.knowledge_base[quest.machine.pointer.state], facts.Finish))
-        self.assertTrue(all(requirement.check(quest.knowledge_base) for requirement in quest.knowledge_base[quest.machine.pointer.state].require))
+        self.assertTrue(all(requirement.check(quest) for requirement in quest.knowledge_base[quest.machine.pointer.state].require))
 
         self.assertTrue(self.hero.quests.history[quest.knowledge_base.filter(facts.Start).next().type] > 0)
 
@@ -191,12 +179,6 @@ class PrototypeTests(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_earned_from_quests, 0)
         self.assertEqual(self.hero.statistics.artifacts_had, 1)
 
-    def test_satisfy_requirement__unknown(self):
-        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_requirement, facts.Start(uid='start', type='test', nesting=0))
-
-    def test_do_actions__unknown(self):
-        self.assertRaises(exceptions.UnknownAction, self.quest._do_actions, [facts.Start(uid='start', type='test', nesting=0)])
-
     def test_get_upgrdade_choice__no_preference(self):
         for i in xrange(100):
             self.assertEqual(self.quest._get_upgrdade_choice(self.hero), 'buy')
@@ -292,3 +274,9 @@ class PrototypeTests(testcase.TestCase):
         self.quest._give_reward(self.hero, 'bla-bla', scale=1.5)
 
         self.assertEqual(self.hero.money - not_scaled_money, int(1 + f.sell_artifact_price(self.hero.level) * 1.5))
+
+
+    def test_all_callbacks_exists(self):
+        from questgen.logic import get_required_interpreter_methods
+        for method_name in get_required_interpreter_methods():
+            self.assertTrue(hasattr(self.quest, method_name))

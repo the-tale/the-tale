@@ -22,13 +22,9 @@ from the_tale.game.persons.storage import persons_storage
 from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE, MONEY_SOURCE
 
 from the_tale.game.quests import exceptions
-from the_tale.game.quests import uids
 from the_tale.game.quests import writers
 from the_tale.game.quests.relations import ACTOR_TYPE, DONOTHING_TYPE
 
-
-# from django.utils.log import getLogger
-# logger = getLogger('the-tale.workers.game_logic')
 
 
 class QuestInfo(object):
@@ -222,9 +218,7 @@ class QuestPrototype(object):
         self.quests_stack = [] if quests_stack is None else quests_stack
         self.knowledge_base = knowledge_base
         self.machine = Machine(knowledge_base=knowledge_base,
-                               on_state=self.on_state,
-                               on_jump_start=self.on_jump_start,
-                               on_jump_end=self.on_jump_end)
+                               interpreter=self)
         self.created_at =datetime.datetime.now() if created_at is None else created_at
         self.states_to_percents = states_to_percents if states_to_percents is not None else {}
 
@@ -278,7 +272,9 @@ class QuestPrototype(object):
     ###########################################
 
     def process(self):
-        step_result = self.do_step()
+        self.hero.quests.updated = True
+
+        step_result = self.machine.do_step()
 
         if self.quests_stack:
             self.quests_stack[-1].sync_choices(self.knowledge_base, self.hero, *self.get_nearest_choice())
@@ -287,64 +283,6 @@ class QuestPrototype(object):
             return self.percents
 
         return 1
-
-    def do_step(self):
-
-        self.hero.quests.updated = True
-
-        self.sync_knowledge_base()
-
-        if self.machine.can_do_step():
-            self.machine.step()
-            return True
-
-        if self.machine.next_state:
-            self.satisfy_requirements(self.machine.next_state)
-
-        return True
-
-    def sync_knowledge_base(self):
-
-        hero_uid = uids.hero(self.hero)
-
-        self.knowledge_base -= [location
-                                for location in self.knowledge_base.filter(facts.LocatedIn)
-                                if location.object == hero_uid]
-
-        self.knowledge_base -= [location
-                                for location in self.knowledge_base.filter(facts.LocatedNear)
-                                if location.object == hero_uid]
-
-        self.knowledge_base -= [has_money
-                                for has_money in self.knowledge_base.filter(facts.HasMoney)
-                                if has_money.object == hero_uid]
-
-        self.knowledge_base -= [is_alive
-                                for is_alive in self.knowledge_base.filter(facts.IsAlive)
-                                if is_alive.object == hero_uid]
-
-        if self.hero.is_alive:
-            self.knowledge_base += facts.IsAlive(object=hero_uid)
-
-        if self.hero.position.place:
-            self.knowledge_base += facts.LocatedIn(object=hero_uid, place=uids.place(self.hero.position.place))
-        else:
-            place = self.hero.position.get_nearest_dominant_place()
-            self.knowledge_base += facts.LocatedNear(object=hero_uid, place=uids.place(place))
-
-        self.knowledge_base += facts.HasMoney(object=hero_uid, money=self.hero.money)
-
-        # logger.warn(u'%r' % self.machine.pointer)
-        # logger.warn(u'%r' % ( [is_alive
-        #                        for is_alive in self.knowledge_base.filter(facts.IsAlive)
-        #                        if is_alive.object == hero_uid], ) )
-
-
-    def satisfy_requirements(self, state):
-        for requirement in state.require:
-            if not requirement.check(self.knowledge_base):
-                self.satisfy_requirement(requirement)
-
 
     def _move_hero_to(self, destination_uid, break_at=None):
         from the_tale.game.actions.prototypes import ActionMoveToPrototype, ActionMoveNearPlacePrototype
@@ -539,58 +477,6 @@ class QuestPrototype(object):
                                                      knowledge_base=self.machine.knowledge_base,
                                                      hero=hero))
 
-    def satisfy_requirement(self, requirement):
-        if isinstance(requirement, facts.LocatedIn):
-            self._move_hero_to(requirement.place)
-        elif isinstance(requirement, facts.LocatedNear):
-            self._move_hero_near(requirement.place, terrains=requirement.terrains)
-        elif isinstance(requirement, facts.LocatedOnRoad):
-            self._move_hero_on_road(requirement.place_1, requirement.place_2)
-        else:
-            raise exceptions.UnknownRequirement(requirement=requirement)
-
-    def on_state(self, state):
-
-        if isinstance(state, facts.Start):
-            self._start_quest(state, hero=self.hero)
-
-        self._do_actions(state.actions)
-
-        if isinstance(state, facts.Finish):
-            self._finish_quest(state, hero=self.hero)
-
-    def on_jump_start(self, jump):
-        self._do_actions(jump.start_actions)
-
-    def on_jump_end(self, jump):
-        self._do_actions(jump.end_actions)
-
-    def _do_actions(self, actions):
-        for action in actions:
-            if isinstance(action, facts.Message):
-                self.quests_stack[-1].process_message(self.knowledge_base, self.hero, action.type)
-            elif isinstance(action, facts.GivePower):
-                recipient = self.knowledge_base[action.object]
-                if isinstance(recipient, facts.Person):
-                    self._give_person_power(self.hero, persons_storage[recipient.externals['id']], action.power)
-                elif isinstance(recipient, facts.Place):
-                    self._give_place_power(self.hero, places_storage[recipient.externals['id']], action.power)
-                else:
-                    raise exceptions.UnknownPowerRecipient(recipient=recipient)
-            elif isinstance(action, facts.GiveReward):
-                self._give_reward(self.hero, action.type, action.scale)
-            elif isinstance(action, facts.Fight):
-                self._fight(action)
-            elif isinstance(action, facts.MoveNear):
-                self._move_hero_near(action.place, terrains=action.terrains)
-            elif isinstance(action, facts.MoveIn):
-                self._move_hero_to(action.place, break_at=action.percents)
-            elif isinstance(action, facts.DoNothing):
-                self._donothing(action.type)
-            elif isinstance(action, facts.UpgradeEquipment):
-                self._upgrade_equipment(self.quests_stack[-1].process_message, self.hero, self.knowledge_base, cost=action.cost)
-            else:
-                raise exceptions.UnknownAction(action=action)
 
     def modify_experience(self, experience):
         from the_tale.game.persons.storage import persons_storage
@@ -613,8 +499,150 @@ class QuestPrototype(object):
         experience += experience * sum(experience_modifiers.values())
         return experience
 
-    def cmd_switch(self, cmd, writer):
-        self.push_message(writer, self.hero, cmd.event)
+    ################################
+    # general callbacks
+    ################################
+
+    def on_state__before_actions(self, state):
+
+        if isinstance(state, facts.Start):
+            self._start_quest(state, hero=self.hero)
+
+    def on_state__after_actions(self, state):
+        if isinstance(state, facts.Finish):
+            self._finish_quest(state, hero=self.hero)
+
+    def on_jump_start__before_actions(self, jump):
+        pass
+
+    def on_jump_start__after_actions(self, jump):
+        pass
+
+    def on_jump_end__before_actions(self, jump):
+        pass
+
+    def on_jump_end__after_actions(self, jump):
+        pass
+
+    ################################
+    # do action callbacks
+    ################################
+
+    def do_message(self, action):
+        self.quests_stack[-1].process_message(self.knowledge_base, self.hero, action.type)
+
+    def do_give_power(self, action):
+        recipient = self.knowledge_base[action.object]
+        if isinstance(recipient, facts.Person):
+            self._give_person_power(self.hero, persons_storage[recipient.externals['id']], action.power)
+        elif isinstance(recipient, facts.Place):
+            self._give_place_power(self.hero, places_storage[recipient.externals['id']], action.power)
+        else:
+            raise exceptions.UnknownPowerRecipient(recipient=recipient)
+
+
+    def do_give_reward(self, action):
+        self._give_reward(self.hero, action.type, action.scale)
+
+    def do_fight(self, action):
+        self._fight(action)
+
+    def do_do_nothing(self, action):
+        self._donothing(action.type)
+
+    def do_upgrade_equipment(self, action):
+        self._upgrade_equipment(self.quests_stack[-1].process_message, self.hero, self.knowledge_base, cost=action.cost)
+
+    def do_move_near(self, action):
+        self._move_hero_near(action.place, terrains=action.terrains)
+
+    def do_move_in(self, action):
+        self._move_hero_to(action.place, break_at=action.percents)
+
+    ################################
+    # check requirements callbacks
+    ################################
+
+    def check_located_in(self, requirement):
+        object_fact = self.knowledge_base[requirement.object]
+        place_fact = self.knowledge_base[requirement.place]
+
+        place = places_storage[place_fact.externals['id']]
+
+        if isinstance(object_fact, facts.Person):
+            person = persons_storage[object_fact.externals['id']]
+            return person.place.id == place.id
+
+        if isinstance(object_fact, facts.Hero):
+            return self.hero.position.place and self.hero.position.place.id == place.id
+
+        raise exceptions.UnknownRequirement(requirement=requirement)
+
+
+    def check_located_near(self, requirement):
+        object_fact = self.knowledge_base[requirement.object]
+        place_fact = self.knowledge_base[requirement.place]
+
+        place = places_storage[place_fact.externals['id']]
+
+        if isinstance(object_fact, facts.Person):
+            return False
+
+        if isinstance(object_fact, facts.Hero):
+            if self.hero.position.place:
+                return False
+
+            hero_place = self.hero.position.get_nearest_dominant_place()
+            return place.id == hero_place.id
+
+        raise exceptions.UnknownRequirement(requirement=requirement)
+
+    def check_located_on_road(self, requirement):
+        return False
+
+    def check_has_money(self, requirement):
+        object_fact = self.knowledge_base[requirement.object]
+
+        if isinstance(object_fact, facts.Person):
+            return False
+
+        if isinstance(object_fact, facts.Hero):
+            return self.hero.money >= requirement.money
+
+        raise exceptions.UnknownRequirement(requirement=requirement)
+
+    def check_is_alive(self, requirement):
+        object_fact = self.knowledge_base[requirement.object]
+
+        if isinstance(object_fact, facts.Person):
+            return True
+
+        if isinstance(object_fact, facts.Hero):
+            return self.hero.is_alive
+
+    ################################
+    # satisfy requirements callbacks
+    ################################
+
+    def satisfy_located_in(self, requirement):
+        self._move_hero_to(requirement.place)
+
+    def satisfy_located_near(self, requirement):
+        self._move_hero_near(requirement.place, terrains=requirement.terrains)
+
+    def satisfy_located_on_road(self, requirement):
+        self._move_hero_on_road(requirement.place_1, requirement.place_2)
+
+    def satisfy_has_money(self, requirement):
+        raise exceptions.UnknownRequirement(requirement=requirement)
+
+    def satisfy_is_alive(self, requirement):
+        raise exceptions.UnknownRequirement(requirement=requirement)
+
+
+    ################################
+    # ui info
+    ################################
 
     def ui_info(self):
         return {'line': [info.ui_info(self.hero) for info in self.quests_stack]}
