@@ -25,7 +25,7 @@ from the_tale.game.quests import exceptions
 from the_tale.game.quests import writers
 from the_tale.game.quests.relations import ACTOR_TYPE, DONOTHING_TYPE
 
-
+E = 0.001
 
 class QuestInfo(object):
     __slots__ = ('type', 'uid', 'name', 'action', 'choice', 'choice_alternatives', 'experience', 'power', 'actors')
@@ -284,34 +284,49 @@ class QuestPrototype(object):
 
         return 1
 
-    def _move_hero_to(self, destination_uid, break_at=None):
-        from the_tale.game.actions.prototypes import ActionMoveToPrototype, ActionMoveNearPlacePrototype
+    def _move_hero_to(self, destination, break_at=None):
+        from the_tale.game.actions.prototypes import ActionMoveToPrototype
 
-        if destination_uid:
-            destination = places_storage[self.knowledge_base[destination_uid].externals['id']]
-        else:
-            destination = self.hero.position.get_nearest_dominant_place()
+        if self.hero.position.is_walking:
+            self._move_hero_near(destination=None, back=True)
+            return
 
-        if self.hero.position.place or self.hero.position.road:
-            ActionMoveToPrototype.create(hero=self.hero, destination=destination, break_at=break_at)
-        else:
-            place = self.hero.position.get_nearest_dominant_place()
-            ActionMoveNearPlacePrototype.create(hero=self.hero, place=place, back=True)
+        ActionMoveToPrototype.create(hero=self.hero, destination=destination, break_at=break_at)
 
 
-    def _move_hero_near(self, destination_uid, terrains=None):
+    def _move_hero_near(self, destination, terrains=None, back=False):
         from the_tale.game.actions.prototypes import ActionMoveNearPlacePrototype
 
-        if destination_uid:
-            destination = places_storage[self.knowledge_base[destination_uid].externals['id']]
-        else:
+        if destination is None:
             destination = self.hero.position.get_nearest_dominant_place()
 
-        ActionMoveNearPlacePrototype.create(hero=self.hero, place=destination, back=False, terrains=terrains)
+        ActionMoveNearPlacePrototype.create(hero=self.hero, place=destination, back=back, terrains=terrains)
 
 
-    def _move_hero_on_road(self, place_1_uid, place_2_uid):
-        pass
+    def _move_hero_on_road(self, place_from, place_to, percents):
+
+        if self.hero.position.is_walking:
+            self._move_hero_near(destination=None, back=True)
+            return
+
+        path_to_position_length = self.hero.position.get_minumum_distance_to(place_from)
+        path_from_position_length = self.hero.position.get_minumum_distance_to(place_to)
+
+        full_path_length = path_to_position_length + path_from_position_length
+
+        if path_to_position_length < E:
+            current_percents = 0.0
+        elif path_from_position_length < E:
+            current_percents = 1.0
+        else:
+            current_percents = path_to_position_length / full_path_length
+
+        if percents <= current_percents:
+            return
+
+        path_to_pass = (percents - current_percents) * full_path_length
+
+        self._move_hero_to(destination=place_to, break_at=path_to_pass / path_from_position_length)
 
 
     def _give_power(self, hero, place, power):
@@ -540,7 +555,6 @@ class QuestPrototype(object):
         else:
             raise exceptions.UnknownPowerRecipient(recipient=recipient)
 
-
     def do_give_reward(self, action):
         self._give_reward(self.hero, action.type, action.scale)
 
@@ -554,10 +568,10 @@ class QuestPrototype(object):
         self._upgrade_equipment(self.quests_stack[-1].process_message, self.hero, self.knowledge_base, cost=action.cost)
 
     def do_move_near(self, action):
-        self._move_hero_near(action.place, terrains=action.terrains)
-
-    def do_move_in(self, action):
-        self._move_hero_to(action.place, break_at=action.percents)
+        if action.place:
+            self._move_hero_near(destination=places_storage.get(self.knowledge_base[action.place].externals['id']), terrains=action.terrains)
+        else:
+            self._move_hero_near(destination=None, terrains=action.terrains)
 
     ################################
     # check requirements callbacks
@@ -574,7 +588,7 @@ class QuestPrototype(object):
             return person.place.id == place.id
 
         if isinstance(object_fact, facts.Hero):
-            return self.hero.position.place and self.hero.position.place.id == place.id
+            return bool(self.hero.id == object_fact.externals['id'] and self.hero.position.place and self.hero.position.place.id == place.id)
 
         raise exceptions.UnknownRequirement(requirement=requirement)
 
@@ -589,6 +603,9 @@ class QuestPrototype(object):
             return False
 
         if isinstance(object_fact, facts.Hero):
+            if self.hero.id != object_fact.externals['id']:
+                return False
+
             if self.hero.position.place:
                 return False
 
@@ -598,7 +615,37 @@ class QuestPrototype(object):
         raise exceptions.UnknownRequirement(requirement=requirement)
 
     def check_located_on_road(self, requirement):
-        return False
+        object_fact = self.knowledge_base[requirement.object]
+
+        if isinstance(object_fact, facts.Person):
+            return False
+
+        if not isinstance(object_fact, facts.Hero):
+            raise exceptions.UnknownRequirement(requirement=requirement)
+
+        if self.hero.id != object_fact.externals['id']:
+            return False
+
+        place_from = places_storage[self.knowledge_base[requirement.place_from].externals['id']]
+        place_to = places_storage[self.knowledge_base[requirement.place_to].externals['id']]
+        percents = requirement.percents
+
+        path_to_position_length = self.hero.position.get_minumum_distance_to(place_from)
+        path_from_position_length = self.hero.position.get_minumum_distance_to(place_to)
+
+        full_path_length = path_to_position_length + path_from_position_length
+
+        if path_to_position_length < E:
+            current_percents = 0.0
+        elif path_from_position_length < E:
+            current_percents = 1.0
+        else:
+            current_percents = path_to_position_length / full_path_length
+
+        # print current_percents, percents
+
+        return current_percents >= percents
+
 
     def check_has_money(self, requirement):
         object_fact = self.knowledge_base[requirement.object]
@@ -607,6 +654,8 @@ class QuestPrototype(object):
             return False
 
         if isinstance(object_fact, facts.Hero):
+            if self.hero.id != object_fact.externals['id']:
+                return False
             return self.hero.money >= requirement.money
 
         raise exceptions.UnknownRequirement(requirement=requirement)
@@ -618,20 +667,44 @@ class QuestPrototype(object):
             return True
 
         if isinstance(object_fact, facts.Hero):
+            if self.hero.id != object_fact.externals['id']:
+                return False
             return self.hero.is_alive
+
+        raise exceptions.UnknownRequirement(requirement=requirement)
 
     ################################
     # satisfy requirements callbacks
     ################################
 
     def satisfy_located_in(self, requirement):
-        self._move_hero_to(requirement.place)
+        object_fact = self.knowledge_base[requirement.object]
+
+        if not isinstance(object_fact, facts.Hero) or self.hero.id != object_fact.externals['id']:
+            raise exceptions.UnknownRequirement(requirement=requirement)
+
+        self._move_hero_to(destination=places_storage[self.knowledge_base[requirement.place].externals['id']])
 
     def satisfy_located_near(self, requirement):
-        self._move_hero_near(requirement.place, terrains=requirement.terrains)
+        object_fact = self.knowledge_base[requirement.object]
+
+        if not isinstance(object_fact, facts.Hero) or self.hero.id != object_fact.externals['id']:
+            raise exceptions.UnknownRequirement(requirement=requirement)
+
+        if requirement.place is None:
+            self._move_hero_near(destination=None, terrains=requirement.terrains)
+        else:
+            self._move_hero_near(destination=places_storage.get(self.knowledge_base[requirement.place].externals['id']), terrains=requirement.terrains)
 
     def satisfy_located_on_road(self, requirement):
-        self._move_hero_on_road(requirement.place_1, requirement.place_2)
+        object_fact = self.knowledge_base[requirement.object]
+
+        if not isinstance(object_fact, facts.Hero) or self.hero.id != object_fact.externals['id']:
+            raise exceptions.UnknownRequirement(requirement=requirement)
+
+        self._move_hero_on_road(place_from=places_storage[self.knowledge_base[requirement.place_from].externals['id']],
+                                place_to=places_storage[self.knowledge_base[requirement.place_to].externals['id']],
+                                percents=requirement.percents)
 
     def satisfy_has_money(self, requirement):
         raise exceptions.UnknownRequirement(requirement=requirement)

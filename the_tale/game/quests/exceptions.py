@@ -10,6 +10,5 @@ class UnknownRequirement(QuestError):
     MSG = u'unknown state requirement: %(requirement)r'
 
 
-
 class UnknownPowerRecipient(QuestError):
     MSG = u'unknown state action: %(recipient)r'

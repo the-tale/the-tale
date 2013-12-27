@@ -23,7 +23,7 @@ game_settings = app_settings('GAME',
                              PROCESS_TURN_WAIT_LOGIC_TIMEOUT = 5*60,
                              PROCESS_TURN_WAIT_HIGHLEVEL_TIMEOUT = 10*60,
 
-                             SAVED_UNCACHED_HEROES_FRACTION=0.01,
+                             SAVED_UNCACHED_HEROES_FRACTION=0.0025,
 
                              JS_CONSTNATS_FILE_LOCATION='./the_tale/static/game/data/constants.js',
 

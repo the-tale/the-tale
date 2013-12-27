@@ -1057,6 +1057,33 @@ class HeroPositionPrototype(object):
         else:
             return speed
 
+    def get_minumum_distance_to(self, destination):
+        from the_tale.game.map.roads.storage import waymarks_storage
+
+        if self.place:
+            return waymarks_storage.look_for_road(self.place, destination).length
+
+        if self.is_walking:
+            x = self.coordinates_from[0] + (self.coordinates_to[0] - self.coordinates_from[0]) * self.percents
+            y = self.coordinates_from[1] + (self.coordinates_to[1] - self.coordinates_from[1]) * self.percents
+            nearest_place = self.get_nearest_place()
+            return math.hypot(x-nearest_place.x, y-nearest_place.y) + waymarks_storage.look_for_road(nearest_place, destination).length
+
+        # if on road
+        place_from = self.road.point_1
+        place_to = self.road.point_2
+
+        if self.invert_direction:
+            place_from, place_to = place_to, place_from
+
+        delta_from = self.road.length * self.percents
+        delta_to = self.road.length * (1-self.percents)
+
+        return min(waymarks_storage.look_for_road(place_from, destination).length + delta_from,
+                   waymarks_storage.look_for_road(place_to, destination).length + delta_to)
+
+
+
     ###########################################
     # Object operations
     ###########################################

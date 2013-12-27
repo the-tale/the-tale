@@ -99,7 +99,7 @@ def get_knowledge_base(hero, without_restrictions=False): # pylint: disable=R091
 
     hero_uid = uids.hero(hero)
 
-    kb += facts.Hero(uid=hero_uid)
+    kb += facts.Hero(uid=hero_uid, externals={'id': hero.id})
 
     # fill places
     if hero.is_first_quest_path_required:

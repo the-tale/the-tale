@@ -2,7 +2,7 @@
 import mock
 import datetime
 
-from questgen import facts
+from questgen import facts, requirements
 
 from dext.utils import s11n
 
@@ -18,6 +18,12 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game.prototypes import TimePrototype
 
+from the_tale.game.actions.prototypes import ActionMoveToPrototype, ActionMoveNearPlacePrototype
+
+from the_tale.game.map.places.storage import places_storage
+from the_tale.game.map.roads.storage import roads_storage
+from the_tale.game.persons.storage import persons_storage
+
 from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
 
@@ -29,13 +35,13 @@ from the_tale.game.artifacts.storage import artifacts_storage
 
 from the_tale.game.quests.logic import create_random_quest_for_hero
 from the_tale.game.quests.prototypes import QuestPrototype
-from the_tale.game.quests import uids
+from the_tale.game.quests import exceptions
 
 
-class PrototypeTests(testcase.TestCase):
+class PrototypeTestsBase(testcase.TestCase):
 
     def setUp(self):
-        super(PrototypeTests, self).setUp()
+        super(PrototypeTestsBase, self).setUp()
         current_time = TimePrototype.get_current_time()
         current_time.increment_turn()
 
@@ -46,6 +52,7 @@ class PrototypeTests(testcase.TestCase):
         self.storage = LogicStorage()
         self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
         self.hero = self.storage.accounts_to_heroes[account_id]
+
         self.action_idl = self.hero.actions.current_action
 
         self.action_idl.state = self.action_idl.STATE.QUEST
@@ -53,6 +60,12 @@ class PrototypeTests(testcase.TestCase):
         self.quest = create_random_quest_for_hero(self.hero)
         self.action_quest = ActionQuestPrototype.create(hero=self.hero, quest=self.quest)
 
+
+
+class PrototypeTests(PrototypeTestsBase):
+
+    def setUp(self):
+        super(PrototypeTests, self).setUp()
 
     def test_serialization(self):
         self.assertEqual(self.quest.serialize(), QuestPrototype.deserialize(self.hero, self.quest.serialize()).serialize())
@@ -280,3 +293,483 @@ class PrototypeTests(testcase.TestCase):
         from questgen.logic import get_required_interpreter_methods
         for method_name in get_required_interpreter_methods():
             self.assertTrue(hasattr(self.quest, method_name))
+
+
+
+class CheckRequirementsTests(PrototypeTestsBase):
+
+    def setUp(self):
+        super(CheckRequirementsTests, self).setUp()
+
+        self.hero_fact = self.quest.knowledge_base.filter(facts.Hero).next()
+        self.person_fact = self.quest.knowledge_base.filter(facts.Person).next()
+
+        self.person = persons_storage[self.person_fact.externals['id']]
+
+        self.place_1_fact = facts.Place(uid='place_1', externals={'id': self.place_1.id})
+        self.place_2_fact = facts.Place(uid='place_2', externals={'id': self.place_2.id})
+        self.place_3_fact = facts.Place(uid='place_3', externals={'id': self.place_3.id})
+
+        self.quest.knowledge_base += [self.place_1_fact, self.place_2_fact, self.place_3_fact]
+
+
+    def get_check_places(self, place_id):
+        for place in self.quest.knowledge_base.filter(facts.Place):
+            if places_storage[place.externals['id']].id == place_id:
+                place_fact = place
+                break
+
+        for place in self.quest.knowledge_base.filter(facts.Place):
+            if places_storage[place.externals['id']].id != place_id:
+                non_place_fact = place
+                break
+
+        return place_fact, non_place_fact
+
+    # located in
+
+    def check_located_in(self, object, place, result):
+        requirement = requirements.LocatedIn(object=object.uid, place=place.uid)
+        self.assertEqual(self.quest.check_located_in(requirement), result)
+
+    def test_check_located_in__person(self):
+        person_place_fact, nonperson_place_fact = self.get_check_places(self.person.place_id)
+
+        self.check_located_in(object=self.person_fact, place=person_place_fact, result=True)
+        self.check_located_in(object=self.person_fact, place=nonperson_place_fact, result=False)
+
+    def test_check_located_in__wrong_hero(self):
+        wrong_hero = facts.Hero(uid='wrong_hero', externals={'id': 666})
+        self.quest.knowledge_base += wrong_hero
+        self.check_located_in(object=wrong_hero, place=self.quest.knowledge_base.filter(facts.Place).next(), result=False)
+
+    def test_check_located_in__hero__in_place(self):
+        self.hero.position.set_place(self.place_1)
+
+        self.check_located_in(object=self.hero_fact, place=self.place_1_fact, result=True)
+        self.check_located_in(object=self.hero_fact, place=self.place_2_fact, result=False)
+        self.check_located_in(object=self.hero_fact, place=self.place_3_fact, result=False)
+
+    def test_check_located_in__hero__move_near(self):
+        self.hero.position.set_coordinates(self.place_1.x, self.place_1.y, self.place_1.x+1,  self.place_1.y+1, percents=0.5)
+
+        self.check_located_in(object=self.hero_fact, place=self.place_1_fact, result=False)
+        self.check_located_in(object=self.hero_fact, place=self.place_2_fact, result=False)
+        self.check_located_in(object=self.hero_fact, place=self.place_3_fact, result=False)
+
+    def test_check_located_in__hero__road(self):
+        self.hero.position.set_road(roads_storage.get_by_places(self.place_1, self.place_2), percents=0.5)
+
+        self.check_located_in(object=self.hero_fact, place=self.place_1_fact, result=False)
+        self.check_located_in(object=self.hero_fact, place=self.place_2_fact, result=False)
+        self.check_located_in(object=self.hero_fact, place=self.place_3_fact, result=False)
+
+    def test_check_located_in__wrong_requirement(self):
+        place_uid = self.quest.knowledge_base.filter(facts.Place).next().uid
+        requirement = requirements.LocatedIn(object=place_uid, place=place_uid)
+        self.assertRaises(exceptions.UnknownRequirement, self.quest.check_located_in, requirement)
+
+    # located near
+
+    def check_located_near(self, object, place, result):
+        requirement = requirements.LocatedNear(object=object.uid, place=place.uid)
+        self.assertEqual(self.quest.check_located_near(requirement), result)
+
+    def test_check_located_near__person(self):
+        person_place_fact, nonperson_place_fact = self.get_check_places(self.person.place_id)
+
+        self.check_located_near(object=self.person_fact, place=person_place_fact, result=False)
+        self.check_located_near(object=self.person_fact, place=nonperson_place_fact, result=False)
+
+    def test_check_located_near__wrong_hero(self):
+        wrong_hero = facts.Hero(uid='wrong_hero', externals={'id': 666})
+        self.quest.knowledge_base += wrong_hero
+        self.check_located_near(object=wrong_hero, place=self.quest.knowledge_base.filter(facts.Place).next(), result=False)
+
+    def test_check_located_near__hero__in_place(self):
+        self.hero.position.set_place(self.place_1)
+
+        self.check_located_near(object=self.hero_fact, place=self.place_1_fact, result=False)
+        self.check_located_near(object=self.hero_fact, place=self.place_2_fact, result=False)
+        self.check_located_near(object=self.hero_fact, place=self.place_3_fact, result=False)
+
+    def test_check_located_near__hero__move_near(self):
+        self.hero.position.set_coordinates(self.place_1.x, self.place_1.y, self.place_1.x+1,  self.place_1.y+1, percents=0.5)
+
+        self.check_located_near(object=self.hero_fact, place=self.place_1_fact, result=True)
+        self.check_located_near(object=self.hero_fact, place=self.place_2_fact, result=False)
+        self.check_located_near(object=self.hero_fact, place=self.place_3_fact, result=False)
+
+    def test_check_located_near__hero__road(self):
+        self.hero.position.set_road(roads_storage.get_by_places(self.place_1, self.place_2), percents=0.25)
+
+        self.check_located_near(object=self.hero_fact, place=self.place_1_fact, result=True)
+        self.check_located_near(object=self.hero_fact, place=self.place_2_fact, result=False)
+        self.check_located_near(object=self.hero_fact, place=self.place_3_fact, result=False)
+
+    def test_check_located_near__wrong_requirement(self):
+        place_uid = self.quest.knowledge_base.filter(facts.Place).next().uid
+        requirement = requirements.LocatedNear(object=place_uid, place=place_uid)
+        self.assertRaises(exceptions.UnknownRequirement, self.quest.check_located_near, requirement)
+
+
+    # located on road
+
+    def check_located_on_road(self, object, place_from, place_to, percents, result):
+        requirement = requirements.LocatedOnRoad(object=object.uid, place_from=place_from.uid, place_to=place_to.uid, percents=percents)
+        self.assertEqual(self.quest.check_located_on_road(requirement), result)
+
+    def test_check_located_on_road__person(self):
+        person_place_fact, nonperson_place_fact = self.get_check_places(self.person.place_id)
+
+        self.check_located_on_road(object=self.person_fact, place_from=person_place_fact, place_to=nonperson_place_fact, percents=0.01, result=False)
+        self.check_located_on_road(object=self.person_fact, place_from=person_place_fact, place_to=nonperson_place_fact, percents=0.99, result=False)
+        self.check_located_on_road(object=self.person_fact, place_from=nonperson_place_fact, place_to=person_place_fact, percents=0.01, result=False)
+        self.check_located_on_road(object=self.person_fact, place_from=nonperson_place_fact, place_to=person_place_fact, percents=0.99, result=False)
+
+    def test_check_located_on_road__wrong_hero(self):
+        wrong_hero = facts.Hero(uid='wrong_hero', externals={'id': 666})
+        self.quest.knowledge_base += wrong_hero
+
+        self.check_located_on_road(object=wrong_hero, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.01, result=False)
+        self.check_located_on_road(object=wrong_hero, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.99, result=False)
+        self.check_located_on_road(object=wrong_hero, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.01, result=False)
+        self.check_located_on_road(object=wrong_hero, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.99, result=False)
+
+    def test_check_located_on_road__hero__in_place(self):
+        self.hero.position.set_place(self.place_1)
+
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0, result=True)
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=1, result=False)
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0, result=True)
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=1, result=True)
+
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.01, result=False)
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.99, result=False)
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.01, result=True)
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.99, result=True)
+
+    def test_check_located_on_road__hero__move_near(self):
+        self.hero.position.set_coordinates(self.place_1.x, self.place_1.y, self.place_1.x+1,  self.place_1.y+1, percents=0.5)
+
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.01, result=True)
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.99, result=False)
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.01, result=True)
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.99, result=False)
+
+    def test_check_located_on_road__hero__road(self):
+        self.hero.position.set_road(roads_storage.get_by_places(self.place_1, self.place_2), percents=0.25)
+
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.01, result=True)
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.99, result=False)
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.01, result=True)
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.99, result=False)
+
+    def test_check_located_on_road__wrong_requirement(self):
+        requirement = requirements.LocatedOnRoad(object=self.place_1_fact.uid, place_from=self.place_2_fact.uid, place_to=self.place_3_fact.uid, percents=0.25)
+        self.assertRaises(exceptions.UnknownRequirement, self.quest.check_located_on_road, requirement)
+
+    # has money
+
+    def test_check_has_money__person(self):
+        requirement = requirements.HasMoney(object=self.person_fact.uid, money=666)
+        self.assertFalse(self.quest.check_has_money(requirement))
+
+    def test_check_has_money__wrong_hero(self):
+        wrong_hero = facts.Hero(uid='wrong_hero', externals={'id': 666})
+        self.quest.knowledge_base += wrong_hero
+
+        requirement = requirements.HasMoney(object=wrong_hero.uid, money=666)
+        self.assertFalse(self.quest.check_has_money(requirement))
+
+    def test_check_has_money__hero(self):
+        requirement = requirements.HasMoney(object=self.hero_fact.uid, money=666)
+        self.assertFalse(self.quest.check_has_money(requirement))
+
+        self.hero._model.money = 667
+        self.assertTrue(self.quest.check_has_money(requirement))
+
+    def test_check_has_money__wrong_requirement(self):
+        requirement = requirements.HasMoney(object=self.place_1_fact.uid, money=666)
+        self.assertRaises(exceptions.UnknownRequirement, self.quest.check_has_money, requirement)
+
+    # is alive
+
+    def test_check_is_alive__person(self):
+        requirement = requirements.IsAlive(object=self.person_fact.uid)
+        self.assertTrue(self.quest.check_is_alive(requirement))
+
+    def test_check_is_alive__wrong_hero(self):
+        wrong_hero = facts.Hero(uid='wrong_hero', externals={'id': 666})
+        self.quest.knowledge_base += wrong_hero
+
+        requirement = requirements.IsAlive(object=wrong_hero.uid)
+        self.assertFalse(self.quest.check_is_alive(requirement))
+
+    def test_check_is_alive__hero(self):
+        requirement = requirements.IsAlive(object=self.hero_fact.uid)
+        self.assertTrue(self.quest.check_is_alive(requirement))
+
+        self.hero.kill()
+        self.assertFalse(self.quest.check_is_alive(requirement))
+
+    def test_check_is_alive__wrong_requirement(self):
+        requirement = requirements.IsAlive(object=self.place_1_fact.uid)
+        self.assertRaises(exceptions.UnknownRequirement, self.quest.check_is_alive, requirement)
+
+
+
+class SatisfyRequirementsTests(PrototypeTestsBase):
+
+    def setUp(self):
+        super(SatisfyRequirementsTests, self).setUp()
+
+        self.hero_fact = self.quest.knowledge_base.filter(facts.Hero).next()
+        self.person_fact = self.quest.knowledge_base.filter(facts.Person).next()
+
+        self.person = persons_storage[self.person_fact.externals['id']]
+
+        self.place_1_fact = facts.Place(uid='place_1', externals={'id': self.place_1.id})
+        self.place_2_fact = facts.Place(uid='place_2', externals={'id': self.place_2.id})
+        self.place_3_fact = facts.Place(uid='place_3', externals={'id': self.place_3.id})
+
+        self.quest.knowledge_base += [self.place_1_fact, self.place_2_fact, self.place_3_fact]
+
+
+    def get_check_places(self, place_id):
+        for place in self.quest.knowledge_base.filter(facts.Place):
+            if places_storage[place.externals['id']].id == place_id:
+                place_fact = place
+                break
+
+        for place in self.quest.knowledge_base.filter(facts.Place):
+            if places_storage[place.externals['id']].id != place_id:
+                non_place_fact = place
+                break
+
+        return place_fact, non_place_fact
+
+    # located in
+
+    def test_satisfy_located_in__non_hero(self):
+        requirement = requirements.LocatedIn(object=self.person_fact.uid, place=self.place_1_fact.uid)
+        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_located_in, requirement)
+
+    def test_satisfy_located_in__wrong_hero(self):
+        wrong_hero = facts.Hero(uid='wrong_hero', externals={'id': 666})
+        self.quest.knowledge_base += wrong_hero
+
+        requirement = requirements.LocatedIn(object=wrong_hero.uid, place=self.place_1_fact.uid)
+        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_located_in, requirement)
+
+    def test_satisfy_located_in__success(self):
+        self.hero.position.set_place(self.place_1)
+
+        requirement = requirements.LocatedIn(object=self.hero_fact.uid, place=self.place_2_fact.uid)
+
+        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype._move_hero_to') as move_hero_to:
+            self.quest.satisfy_located_in(requirement)
+
+        self.assertEqual(move_hero_to.call_args_list, [mock.call(destination=self.place_2)])
+
+    # located near
+
+    def test_satisfy_located_near__non_hero(self):
+        requirement = requirements.LocatedNear(object=self.person_fact.uid, place=self.place_1_fact.uid)
+        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_located_near, requirement)
+
+    def test_satisfy_located_near__wrong_hero(self):
+        wrong_hero = facts.Hero(uid='wrong_hero', externals={'id': 666})
+        self.quest.knowledge_base += wrong_hero
+
+        requirement = requirements.LocatedNear(object=wrong_hero.uid, place=self.place_1_fact.uid)
+        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_located_near, requirement)
+
+    def test_satisfy_located_near__success(self):
+        requirement = requirements.LocatedNear(object=self.hero_fact.uid, place=self.place_2_fact.uid, terrains=[1, 2])
+
+        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype._move_hero_near') as move_hero_near:
+            self.quest.satisfy_located_near(requirement)
+
+        self.assertEqual(move_hero_near.call_args_list, [mock.call(destination=self.place_2, terrains=[1, 2])])
+
+
+    def test_satisfy_located_near__no_place(self):
+        requirement = requirements.LocatedNear(object=self.hero_fact.uid, place=None, terrains=[1, 2])
+
+        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype._move_hero_near') as move_hero_near:
+            self.quest.satisfy_located_near(requirement)
+
+        self.assertEqual(move_hero_near.call_args_list, [mock.call(destination=None, terrains=[1, 2])])
+
+
+    # located on road
+
+    def test_satisfy_located_on_road__non_hero(self):
+        requirement = requirements.LocatedOnRoad(object=self.person_fact.uid, place_from=self.place_1_fact.uid, place_to=self.place_2_fact.uid, percents=0.5)
+        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_located_on_road, requirement)
+
+    def test_satisfy_located_on_road__wrong_hero(self):
+        wrong_hero = facts.Hero(uid='wrong_hero', externals={'id': 666})
+        self.quest.knowledge_base += wrong_hero
+
+        requirement = requirements.LocatedOnRoad(object=wrong_hero.uid, place_from=self.place_1_fact.uid, place_to=self.place_2_fact.uid, percents=0.5)
+        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_located_on_road, requirement)
+
+    def test_satisfy_located_on_road__success(self):
+        requirement = requirements.LocatedOnRoad(object=self.hero_fact.uid, place_from=self.place_1_fact.uid, place_to=self.place_2_fact.uid, percents=0.5)
+
+        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype._move_hero_on_road') as move_hero_on_road:
+            self.quest.satisfy_located_on_road(requirement)
+
+        self.assertEqual(move_hero_on_road.call_args_list, [mock.call(place_from=self.place_1,
+                                                                      place_to=self.place_2,
+                                                                      percents=0.5)])
+
+    # located has money
+
+    def test_satisfy_has_money__non_hero(self):
+        requirement = requirements.HasMoney(object=self.person_fact.uid, money=666)
+        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_has_money, requirement)
+
+    def test_satisfy_has_money__wrong_hero(self):
+        wrong_hero = facts.Hero(uid='wrong_hero', externals={'id': 666})
+        self.quest.knowledge_base += wrong_hero
+
+        requirement = requirements.HasMoney(object=wrong_hero.uid, money=666)
+        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_has_money, requirement)
+
+    def test_satisfy_has_money__success(self):
+        requirement = requirements.HasMoney(object=self.hero_fact.uid, money=666)
+        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_has_money, requirement)
+
+    # located is alive
+
+    def test_satisfy_is_alive__non_hero(self):
+        requirement = requirements.IsAlive(object=self.person_fact.uid)
+        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_is_alive, requirement)
+
+    def test_satisfy_is_alive__wrong_hero(self):
+        wrong_hero = facts.Hero(uid='wrong_hero', externals={'id': 666})
+        self.quest.knowledge_base += wrong_hero
+
+        requirement = requirements.IsAlive(object=wrong_hero.uid)
+        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_is_alive, requirement)
+
+    def test_satisfy_is_alive__success(self):
+        requirement = requirements.IsAlive(object=self.hero_fact.uid)
+        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_is_alive, requirement)
+
+
+class PrototypeMoveHeroTests(PrototypeTestsBase):
+
+    def setUp(self):
+        super(PrototypeMoveHeroTests, self).setUp()
+
+    # move hero to
+
+    def test_move_hero_to__from_walking(self):
+        self.hero.position.set_coordinates(self.place_1.x, self.place_1.y, self.place_1.x+1,  self.place_1.y+1, percents=0.5)
+
+        self.quest._move_hero_to(self.place_1)
+
+        self.assertTrue(isinstance(self.hero.actions.current_action, ActionMoveNearPlacePrototype))
+        self.assertEqual(self.hero.actions.current_action.place.id, self.place_1.id)
+
+    def test_move_hero_to__from_road(self):
+        self.hero.position.set_road(roads_storage.get_by_places(self.place_1, self.place_2), percents=0.5)
+
+        self.quest._move_hero_to(self.place_3)
+
+        self.assertTrue(isinstance(self.hero.actions.current_action, ActionMoveToPrototype))
+        self.assertEqual(self.hero.actions.current_action.destination.id, self.place_3.id)
+        self.assertEqual(self.hero.actions.current_action.break_at, None)
+
+    def test_move_hero_to__from_place(self):
+        self.hero.position.set_place(self.place_1)
+
+        self.quest._move_hero_to(self.place_3)
+
+        self.assertTrue(isinstance(self.hero.actions.current_action, ActionMoveToPrototype))
+        self.assertEqual(self.hero.actions.current_action.destination.id, self.place_3.id)
+        self.assertEqual(self.hero.actions.current_action.break_at, None)
+
+    def test_move_hero_to__break_at(self):
+        self.hero.position.set_place(self.place_1)
+
+        self.quest._move_hero_to(self.place_3, break_at=0.25)
+
+        self.assertTrue(isinstance(self.hero.actions.current_action, ActionMoveToPrototype))
+        self.assertEqual(self.hero.actions.current_action.destination.id, self.place_3.id)
+        self.assertEqual(self.hero.actions.current_action.break_at, 0.25)
+
+
+    # move hero to
+
+    def test_move_hero_near__from_walking(self):
+        self.hero.position.set_coordinates(self.place_1.x, self.place_1.y, self.place_1.x+1,  self.place_1.y+1, percents=0.5)
+
+        self.quest._move_hero_near(self.place_1)
+
+        self.assertTrue(isinstance(self.hero.actions.current_action, ActionMoveNearPlacePrototype))
+        self.assertEqual(self.hero.actions.current_action.place.id, self.place_1.id)
+        self.assertFalse(self.hero.actions.current_action.back)
+
+    def test_move_hero_near__from_road(self):
+        self.hero.position.set_road(roads_storage.get_by_places(self.place_1, self.place_2), percents=0.5)
+
+        self.quest._move_hero_near(self.place_3)
+
+        self.assertTrue(isinstance(self.hero.actions.current_action, ActionMoveNearPlacePrototype))
+        self.assertEqual(self.hero.actions.current_action.place.id, self.place_3.id)
+        self.assertFalse(self.hero.actions.current_action.back)
+
+    def test_move_hero_near__from_place(self):
+        self.hero.position.set_place(self.place_1)
+
+        self.quest._move_hero_near(self.place_1)
+
+        self.assertTrue(isinstance(self.hero.actions.current_action, ActionMoveNearPlacePrototype))
+        self.assertEqual(self.hero.actions.current_action.place.id, self.place_1.id)
+        self.assertFalse(self.hero.actions.current_action.back)
+
+    def test_move_hero_near__back(self):
+        self.hero.position.set_coordinates(self.place_1.x, self.place_1.y, self.place_1.x+1,  self.place_1.y+1, percents=0.5)
+
+        self.quest._move_hero_near(self.place_1, back=True)
+
+        self.assertTrue(isinstance(self.hero.actions.current_action, ActionMoveNearPlacePrototype))
+        self.assertEqual(self.hero.actions.current_action.place.id, self.place_1.id)
+        self.assertTrue(self.hero.actions.current_action.back)
+
+
+    # move hero on road
+
+    def test_move_hero_on_road__from_walking(self):
+        self.hero.position.set_coordinates(self.place_1.x, self.place_1.y, self.place_1.x+1,  self.place_1.y+1, percents=0.5)
+
+        self.quest._move_hero_on_road(place_from=self.place_1, place_to=self.place_3, percents=0.9)
+
+        self.assertTrue(isinstance(self.hero.actions.current_action, ActionMoveNearPlacePrototype))
+        self.assertEqual(self.hero.actions.current_action.place.id, self.place_1.id)
+        self.assertTrue(self.hero.actions.current_action.back)
+
+    def test_move_hero_on_road__from_road(self):
+        self.hero.position.set_road(roads_storage.get_by_places(self.place_1, self.place_2), percents=0.5)
+
+        self.quest._move_hero_on_road(place_from=self.place_1, place_to=self.place_3, percents=0.9)
+
+        self.assertTrue(isinstance(self.hero.actions.current_action, ActionMoveToPrototype))
+        self.assertEqual(self.hero.actions.current_action.destination.id, self.place_3.id)
+        self.assertTrue(0 < self.hero.actions.current_action.break_at < 0.9)
+
+    def test_move_hero_on_road__from_place(self):
+        self.hero.position.set_place(self.place_1)
+
+        self.quest._move_hero_on_road(place_from=self.place_1, place_to=self.place_3, percents=0.9)
+
+        self.assertTrue(isinstance(self.hero.actions.current_action, ActionMoveToPrototype))
+        self.assertEqual(self.hero.actions.current_action.destination.id, self.place_3.id)
+        self.assertEqual(self.hero.actions.current_action.break_at, 0.9)
+
+# TODO test actions
