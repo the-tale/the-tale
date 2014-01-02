@@ -2,7 +2,7 @@
 
 from django.db import models
 
-from rels.django import TableIntegerField
+from rels.django import RelationIntegerField
 
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_GROUP, ACHIEVEMENT_TYPE
 
@@ -15,8 +15,8 @@ class Achievement(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now=True, null=False)
 
-    group = TableIntegerField(relation=ACHIEVEMENT_GROUP, db_index=True)
-    type = TableIntegerField(relation=ACHIEVEMENT_TYPE, db_index=True)
+    group = RelationIntegerField(relation=ACHIEVEMENT_GROUP, db_index=True)
+    type = RelationIntegerField(relation=ACHIEVEMENT_TYPE, db_index=True)
 
     caption = models.CharField(max_length=CAPTION_MAX_LENGTH)
     description = models.CharField(max_length=DESCRIPTION_MAX_LENGTH)

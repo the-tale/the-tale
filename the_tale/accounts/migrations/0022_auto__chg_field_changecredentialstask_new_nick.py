@@ -43,7 +43,7 @@ class Migration(SchemaMigration):
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'db_index': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {'default': "''", 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'type': ('rels.django.TableIntegerField', [], {'db_index': 'True'}),
+            'type': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'db_index': 'True', 'blank': 'True'})
         },
         u'accounts.changecredentialstask': {
@@ -56,7 +56,7 @@ class Migration(SchemaMigration):
             'new_nick': ('django.db.models.fields.CharField', [], {'default': 'None', 'max_length': '128', 'null': 'True'}),
             'new_password': ('django.db.models.fields.TextField', [], {'default': 'None', 'null': 'True'}),
             'old_email': ('django.db.models.fields.EmailField', [], {'max_length': '254', 'null': 'True'}),
-            'state': ('rels.django.TableIntegerField', [], {'db_index': 'True'}),
+            'state': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'db_index': 'True', 'blank': 'True'}),
             'uuid': ('django.db.models.fields.CharField', [], {'max_length': '32', 'db_index': 'True'})
         },

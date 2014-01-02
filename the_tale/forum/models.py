@@ -4,7 +4,7 @@ import datetime
 from django.db import models
 from django.core.urlresolvers import reverse
 
-from rels.django import TableIntegerField
+from rels.django import RelationIntegerField
 
 from the_tale.forum.relations import MARKUP_METHOD, POST_REMOVED_BY, POST_STATE
 
@@ -98,10 +98,10 @@ class Post(models.Model):
 
     text = models.TextField(null=False, blank=True, default='')
 
-    markup_method = TableIntegerField(relation=MARKUP_METHOD, relation_column='value')
+    markup_method = RelationIntegerField(relation=MARKUP_METHOD, relation_column='value')
 
-    state = TableIntegerField(relation=POST_STATE, relation_column='value', db_index=True)
-    removed_by = TableIntegerField(relation=POST_REMOVED_BY, relation_column='value', null=True, default=None)
+    state = RelationIntegerField(relation=POST_STATE, relation_column='value', db_index=True)
+    removed_by = RelationIntegerField(relation=POST_REMOVED_BY, relation_column='value', null=True, default=None)
     remove_initiator = models.ForeignKey('accounts.Account', null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
 
     technical = models.BooleanField(default=False)

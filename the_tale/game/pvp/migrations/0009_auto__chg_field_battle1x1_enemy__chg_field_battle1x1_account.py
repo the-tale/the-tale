@@ -79,7 +79,7 @@ class Migration(SchemaMigration):
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'enemy': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'unique': 'True', 'null': 'True', 'on_delete': 'models.PROTECT', 'to': u"orm['accounts.Account']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'state': ('rels.django.TableIntegerField', [], {'db_index': 'True'}),
+            'state': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
         u'pvp.battle1x1result': {
@@ -88,7 +88,7 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'participant_1': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['accounts.Account']"}),
             'participant_2': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['accounts.Account']"}),
-            'result': ('rels.django.TableIntegerField', [], {'db_index': 'True'})
+            'result': ('rels.django.RelationIntegerField', [], {'db_index': 'True'})
         }
     }
 

@@ -56,6 +56,6 @@ class PermanentRelationsStorage(PermanentStorage):
         return obj
 
     def insert(self, item):
-        if not issubclass(item._table, self.RELATION):
+        if not issubclass(item._relation, self.RELATION):
             raise WrongRelationError(wrong_relation=item, expected_relation=self.RELATION)
         super(PermanentRelationsStorage, self).insert(item)

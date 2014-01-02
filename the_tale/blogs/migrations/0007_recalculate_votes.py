@@ -59,7 +59,7 @@ class Migration(DataMigration):
             'forum_thread': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'+'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': u"orm['forum.Thread']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'moderator': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'+'", 'null': 'True', 'to': u"orm['accounts.Account']"}),
-            'state': ('rels.django.TableIntegerField', [], {'db_index': 'True'}),
+            'state': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             'text': ('django.db.models.fields.TextField', [], {'default': "''", 'blank': 'True'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'votes': ('django.db.models.fields.IntegerField', [], {'default': '0'})

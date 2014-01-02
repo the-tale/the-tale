@@ -15,7 +15,7 @@ class Migration(SchemaMigration):
             ('updated_at', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
             ('clan', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['clans.Clan'])),
             ('account', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['accounts.Account'])),
-            ('type', self.gf('rels.django.TableIntegerField')()),
+            ('type', self.gf('rels.django.RelationIntegerField')()),
             ('text', self.gf('django.db.models.fields.TextField')(max_length=1024)),
         ))
         db.send_create_signal(u'clans', ['MembershipRequest'])
@@ -30,7 +30,7 @@ class Migration(SchemaMigration):
             ('updated_at', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
             ('clan', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['clans.Clan'], on_delete=models.PROTECT)),
             ('account', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['accounts.Account'], unique=True, on_delete=models.PROTECT)),
-            ('role', self.gf('rels.django.TableIntegerField')()),
+            ('role', self.gf('rels.django.RelationIntegerField')()),
         ))
         db.send_create_signal(u'clans', ['Membership'])
 
@@ -121,7 +121,7 @@ class Migration(SchemaMigration):
             'clan': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['clans.Clan']", 'on_delete': 'models.PROTECT'}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'role': ('rels.django.TableIntegerField', [], {}),
+            'role': ('rels.django.RelationIntegerField', [], {}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
         u'clans.membershiprequest': {
@@ -131,7 +131,7 @@ class Migration(SchemaMigration):
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'text': ('django.db.models.fields.TextField', [], {'max_length': '1024'}),
-            'type': ('rels.django.TableIntegerField', [], {}),
+            'type': ('rels.django.RelationIntegerField', [], {}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
         u'contenttypes.contenttype': {

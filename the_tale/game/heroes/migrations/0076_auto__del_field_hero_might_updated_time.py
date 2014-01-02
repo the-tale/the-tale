@@ -131,7 +131,7 @@ class Migration(SchemaMigration):
             'money': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
             'name_forms': ('django.db.models.fields.TextField', [], {'default': "''", 'blank': 'True'}),
-            'next_spending': ('rels.django.TableIntegerField', [], {}),
+            'next_spending': ('rels.django.RelationIntegerField', [], {}),
             'places_history': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
             'pos_from_x': ('django.db.models.fields.IntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
             'pos_from_y': ('django.db.models.fields.IntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
@@ -209,7 +209,7 @@ class Migration(SchemaMigration):
             'place': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'persons'", 'on_delete': 'models.PROTECT', 'to': u"orm['places.Place']"}),
             'race': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'state': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'type': ('rels.django.TableIntegerField', [], {})
+            'type': ('rels.django.RelationIntegerField', [], {})
         },
         u'places.place': {
             'Meta': {'ordering': "('name',)", 'object_name': 'Place'},

@@ -32,7 +32,7 @@ class Migration(SchemaMigration):
             'place': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'persons'", 'on_delete': 'models.PROTECT', 'to': u"orm['places.Place']"}),
             'race': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'state': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'type': ('rels.django.TableIntegerField', [], {})
+            'type': ('rels.django.RelationIntegerField', [], {})
         },
         u'places.place': {
             'Meta': {'ordering': "('name',)", 'object_name': 'Place'},

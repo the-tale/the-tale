@@ -2,7 +2,7 @@
 
 from django.db import models
 
-from rels.django import TableIntegerField
+from rels.django import RelationIntegerField
 
 from the_tale.game.chronicle.relations import RECORD_TYPE, ACTOR_ROLE
 
@@ -25,7 +25,7 @@ class Actor(models.Model):
 
 class Record(models.Model):
 
-    type = TableIntegerField(relation=RECORD_TYPE, relation_column='value', db_index=True)
+    type = RelationIntegerField(relation=RECORD_TYPE, relation_column='value', db_index=True)
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     created_at_turn = models.IntegerField(null=False)
@@ -40,7 +40,7 @@ class Record(models.Model):
 
 class RecordToActor(models.Model):
 
-    role = TableIntegerField(relation=ACTOR_ROLE, relation_column='value')
+    role = RelationIntegerField(relation=ACTOR_ROLE, relation_column='value')
 
     record = models.ForeignKey(Record, on_delete=models.CASCADE)
     actor = models.ForeignKey(Actor, on_delete=models.PROTECT)

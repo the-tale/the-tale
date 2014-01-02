@@ -10,7 +10,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
 
         # Changing field 'Record.type'
-        db.alter_column('chronicle_record', 'type', self.gf('rels.django.TableIntegerField')())
+        db.alter_column('chronicle_record', 'type', self.gf('rels.django.RelationIntegerField')())
     def backwards(self, orm):
 
         # Changing field 'Record.type'
@@ -93,7 +93,7 @@ class Migration(SchemaMigration):
             'created_at_turn': ('django.db.models.fields.IntegerField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'text': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'type': ('rels.django.TableIntegerField', [], {'db_index': 'True'})
+            'type': ('rels.django.RelationIntegerField', [], {'db_index': 'True'})
         },
         'chronicle.recordtoactor': {
             'Meta': {'object_name': 'RecordToActor'},

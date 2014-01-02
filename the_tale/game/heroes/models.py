@@ -3,7 +3,7 @@ import datetime
 
 from django.db import models
 
-from rels.django import TableIntegerField
+from rels.django import RelationIntegerField
 
 from the_tale.game.relations import GENDER, RACE
 from the_tale.game.balance.enums import ANGEL_ENERGY_REGENERATION_TYPES
@@ -38,8 +38,8 @@ class Hero(models.Model):
     #base
     name = models.CharField(max_length=MAX_NAME_LENGTH, null=False)
 
-    gender = TableIntegerField(relation=GENDER, relation_column='value')
-    race = TableIntegerField(relation=RACE, relation_column='value')
+    gender = RelationIntegerField(relation=GENDER, relation_column='value')
+    race = RelationIntegerField(relation=RACE, relation_column='value')
 
     level = models.IntegerField(null=False, default=1)
     experience = models.IntegerField(null=False, default=0)
@@ -69,7 +69,7 @@ class Hero(models.Model):
 
     pvp = models.TextField(null=False, default='{}')
 
-    next_spending = TableIntegerField(relation=ITEMS_OF_EXPENDITURE, relation_column='value')
+    next_spending = RelationIntegerField(relation=ITEMS_OF_EXPENDITURE, relation_column='value')
 
     energy = models.IntegerField(null=False, default=0)
     last_energy_regeneration_at_turn = models.IntegerField(null=False, default=0)
@@ -128,6 +128,6 @@ class HeroPreferences(models.Model):
     place = models.ForeignKey('places.Place', null=True, default=None, related_name='+', blank=True, on_delete=models.PROTECT)
     friend = models.ForeignKey('persons.Person', null=True, default=None, related_name='+', blank=True, on_delete=models.PROTECT)
     enemy = models.ForeignKey('persons.Person', null=True, default=None, related_name='+', blank=True, on_delete=models.PROTECT)
-    equipment_slot = TableIntegerField(relation=EQUIPMENT_SLOT, null=True, default=None, blank=True)
-    risk_level = TableIntegerField(relation=RISK_LEVEL)
-    favorite_item = TableIntegerField(relation=EQUIPMENT_SLOT, null=True, default=None, blank=True)
+    equipment_slot = RelationIntegerField(relation=EQUIPMENT_SLOT, null=True, default=None, blank=True)
+    risk_level = RelationIntegerField(relation=RISK_LEVEL)
+    favorite_item = RelationIntegerField(relation=EQUIPMENT_SLOT, null=True, default=None, blank=True)

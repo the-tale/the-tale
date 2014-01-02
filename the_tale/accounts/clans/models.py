@@ -2,7 +2,7 @@
 
 from django.db import models
 
-from rels.django import TableIntegerField
+from rels.django import RelationIntegerField
 
 from the_tale.accounts.clans.relations import MEMBER_ROLE, MEMBERSHIP_REQUEST_TYPE
 
@@ -40,7 +40,7 @@ class Membership(models.Model):
     clan = models.ForeignKey(Clan, on_delete=models.PROTECT)
     account = models.ForeignKey('accounts.Account', unique=True, on_delete=models.PROTECT)
 
-    role = TableIntegerField(relation=MEMBER_ROLE, relation_column='value')
+    role = RelationIntegerField(relation=MEMBER_ROLE, relation_column='value')
 
 
 class MembershipRequest(models.Model):
@@ -55,7 +55,7 @@ class MembershipRequest(models.Model):
 
     initiator = models.ForeignKey('accounts.Account', related_name='+', on_delete=models.CASCADE)
 
-    type = TableIntegerField(relation=MEMBERSHIP_REQUEST_TYPE, relation_column='value')
+    type = RelationIntegerField(relation=MEMBERSHIP_REQUEST_TYPE, relation_column='value')
 
     text = models.TextField(max_length=MAX_TEXT_LENGTH)
 

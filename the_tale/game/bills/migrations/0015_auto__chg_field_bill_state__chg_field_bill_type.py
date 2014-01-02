@@ -10,10 +10,10 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
 
         # Changing field 'Bill.state'
-        db.alter_column('bills_bill', 'state', self.gf('rels.django.TableIntegerField')())
+        db.alter_column('bills_bill', 'state', self.gf('rels.django.RelationIntegerField')())
 
         # Changing field 'Bill.type'
-        db.alter_column('bills_bill', 'type', self.gf('rels.django.TableIntegerField')())
+        db.alter_column('bills_bill', 'type', self.gf('rels.django.RelationIntegerField')())
     def backwards(self, orm):
 
         # Changing field 'Bill.state'
@@ -77,9 +77,9 @@ class Migration(SchemaMigration):
             'rationale': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'reject_reason': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'remove_initiator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': "orm['accounts.Account']"}),
-            'state': ('rels.django.TableIntegerField', [], {'db_index': 'True'}),
+            'state': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             'technical_data': ('django.db.models.fields.TextField', [], {'default': '{}', 'blank': 'True'}),
-            'type': ('rels.django.TableIntegerField', [], {'db_index': 'True'}),
+            'type': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2000, 1, 1, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
             'votes_against': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'votes_for': ('django.db.models.fields.IntegerField', [], {'default': '0'})

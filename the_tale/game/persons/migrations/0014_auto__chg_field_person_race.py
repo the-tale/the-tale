@@ -10,7 +10,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
 
         # Changing field 'Person.race'
-        db.alter_column(u'persons_person', 'race', self.gf('rels.django.TableIntegerField')())
+        db.alter_column(u'persons_person', 'race', self.gf('rels.django.RelationIntegerField')())
 
     def backwards(self, orm):
 
@@ -25,14 +25,14 @@ class Migration(SchemaMigration):
             'data': ('django.db.models.fields.TextField', [], {'default': "u'{}'"}),
             'enemies_number': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'friends_number': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'gender': ('rels.django.TableIntegerField', [], {}),
+            'gender': ('rels.django.RelationIntegerField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
             'out_game_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2000, 1, 1, 0, 0)'}),
             'place': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'persons'", 'on_delete': 'models.PROTECT', 'to': u"orm['places.Place']"}),
-            'race': ('rels.django.TableIntegerField', [], {}),
+            'race': ('rels.django.RelationIntegerField', [], {}),
             'state': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'type': ('rels.django.TableIntegerField', [], {})
+            'type': ('rels.django.RelationIntegerField', [], {})
         },
         u'places.place': {
             'Meta': {'ordering': "('name',)", 'object_name': 'Place'},
@@ -47,7 +47,7 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '150', 'db_index': 'True'}),
             'name_forms': ('django.db.models.fields.TextField', [], {'default': "u''"}),
             'production': ('django.db.models.fields.IntegerField', [], {'default': '100'}),
-            'race': ('rels.django.TableIntegerField', [], {}),
+            'race': ('rels.django.RelationIntegerField', [], {}),
             'safety': ('django.db.models.fields.FloatField', [], {'default': '0.75'}),
             'size': ('django.db.models.fields.IntegerField', [], {}),
             'transport': ('django.db.models.fields.FloatField', [], {'default': '1.0'}),

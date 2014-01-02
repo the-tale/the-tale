@@ -121,9 +121,9 @@ class Migration(SchemaMigration):
             'level': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '32', 'db_index': 'True'}),
             'name_forms': ('django.db.models.fields.TextField', [], {}),
-            'state': ('rels.django.TableIntegerField', [], {'db_index': 'True'}),
+            'state': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             'terrains': ('django.db.models.fields.TextField', [], {}),
-            'type': ('rels.django.TableIntegerField', [], {'db_index': 'True'}),
+            'type': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'uuid': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '32'})
         }

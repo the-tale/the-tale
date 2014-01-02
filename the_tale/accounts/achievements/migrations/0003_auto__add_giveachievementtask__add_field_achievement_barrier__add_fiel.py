@@ -93,11 +93,11 @@ class Migration(SchemaMigration):
             'caption': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '1024'}),
-            'group': ('rels.django.TableIntegerField', [], {'db_index': 'True'}),
+            'group': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'order': ('django.db.models.fields.IntegerField', [], {}),
             'points': ('django.db.models.fields.IntegerField', [], {}),
-            'type': ('rels.django.TableIntegerField', [], {'db_index': 'True'}),
+            'type': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
         u'achievements.giveachievementtask': {

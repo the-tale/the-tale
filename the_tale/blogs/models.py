@@ -4,7 +4,7 @@ from django.db import models
 
 from the_tale.blogs.relations import POST_STATE
 
-from rels.django import TableIntegerField
+from rels.django import RelationIntegerField
 
 
 class Post(models.Model):
@@ -20,7 +20,7 @@ class Post(models.Model):
     caption = models.CharField(max_length=CAPTION_MAX_LENGTH)
     text = models.TextField(null=False, blank=True, default='')
 
-    state = TableIntegerField(relation=POST_STATE, relation_column='value', db_index=True)
+    state = RelationIntegerField(relation=POST_STATE, relation_column='value', db_index=True)
 
     moderator = models.ForeignKey('accounts.Account', null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
 

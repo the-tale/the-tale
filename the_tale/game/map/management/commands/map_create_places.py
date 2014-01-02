@@ -50,51 +50,15 @@ class Command(BaseCommand):
 
         with transaction.atomic():
 
-            self.create_place(name=u'Гориндор',
-                              name_forms=Noun(normalized=u'Гориндор',
-                                              forms=(u'Гориндор', u'Гориндора', u'Гориндору', u'Гориндор', u'Гориндором', u'Гориндоре',
-                                                     u'Гориндоры', u'Гориндоров', u'Гориндорам', u'Гориндоры', u'Гориндорами', u'Гориндорах'),
+            self.create_place(name=u'Новогодний',
+                              name_forms=Noun(normalized=u'Новогодний',
+                                              forms=(u'Новогодний', u'Новогоднего', u'Новогоднему', u'Новогодний', u'Новогодним', u'Новогоднем',
+                                                     u'Новогодние', u'Новогодних', u'Новогодним', u'Новогодние', u'Новогодними', u'Новогодних'),
                                               properties=(u'мр')),
-                          x=17,
-                          y=7,
-                          size=10,
-                          roads_to=[places_storage[1],
-                                    places_storage[2]],
-                          persons=[(u'Эбхард Чернобрадый',    0.25, RACE.DWARF, GENDER.MASCULINE, PERSON_TYPE.BLACKSMITH),
-                                   (u'Ингварр Одноглазый',    0.25, RACE.DWARF, GENDER.MASCULINE, PERSON_TYPE.BUREAUCRAT),
-                                   (u'Дойлин',                0.25, RACE.DWARF, GENDER.MASCULINE, PERSON_TYPE.MAGICIAN),
-                                   (u'Уллрэкс Чёрная Секира', 0.25, RACE.DWARF, GENDER.MASCULINE, PERSON_TYPE.WARDEN) ])
-
-            self.create_place(name=u'Лотир-Нериэн',
-                              name_forms=Noun(normalized=u'Лотир-Нериэн',
-                                              forms=(u'Лотир-Нериэн', u'Лотир-Нериэна', u'Лотир-Нериэну', u'Лотир-Нериэн', u'Лотир-Нериэном', u'Лотир-Нериэне',
-                                                     u'Лотир-Нериэны', u'Лотир-Нериэнов', u'Лотир-Нериэнам', u'Лотир-Нериэны', u'Лотир-Нериэнами', u'Лотир-Нериэнах'),
-                                              properties=(u'мр')),
-                          x=33,
-                          y=32,
-                          size=3,
-                          roads_to=[places_storage[18]],
-                          persons=[(u'Andermil',   0.25, RACE.ELF, GENDER.MASCULINE, PERSON_TYPE.EXECUTIONER),
-                                   (u'Ku-ling-on', 0.25, RACE.GOBLIN, GENDER.MASCULINE, PERSON_TYPE.MAYOR),
-                                   (u'Sinedkorj',  0.25, RACE.ORC, GENDER.MASCULINE, PERSON_TYPE.WARDEN),
-                                   (u'Кайлонг',    0.25, RACE.GOBLIN, GENDER.MASCULINE, PERSON_TYPE.ALCHEMIST) ])
-
-            self.create_place(name=u'Лазурь',
-                              name_forms=Noun(normalized=u'Лазурь',
-                                              forms=(u'Лазурь', u'Лазури', u'Лазури', u'Лазурь', u'Лазурью', u'Лазури',
-                                                     u'Лазури', u'Лазури', u'Лазури', u'Лазури', u'Лазурями', u'Лазурях'),
-                                              properties=(u'жр')),
-                          x=48,
-                          y=20,
-                          size=3,
-                          roads_to=[places_storage[19]],
-                          persons=[(None, 0.2, RACE.DWARF, GENDER.MASCULINE, random.choice(PERSON_TYPE.records)),
-                                   (None, 0.2, RACE.GOBLIN,GENDER.MASCULINE, random.choice(PERSON_TYPE.records)),
-                                   (None, 0.2, RACE.ORC,   GENDER.MASCULINE, random.choice(PERSON_TYPE.records)),
-                                   (None, 0.2, RACE.ELF,   GENDER.MASCULINE, random.choice(PERSON_TYPE.records)),
-                                   (None, 0.2, RACE.HUMAN, GENDER.MASCULINE, random.choice(PERSON_TYPE.records)) ])
-
-
+                          x=23,
+                          y=2,
+                          size=1,
+                          roads_to=[places_storage[21]])
 
         # update map with new places
         run_django_command(['map_update_map'])
@@ -108,11 +72,10 @@ class Command(BaseCommand):
         place_power_steps = int(places_settings.POWER_HISTORY_LENGTH / c.MAP_SYNC_TIME)
         place_power_per_step = (place_power / place_power_steps) + 1
 
-        place = PlacePrototype(Place.objects.create( x=x,
-                                                     y=y,
-                                                     name=name,
-                                                     name_forms=s11n.to_json((Noun.fast_construct(name) if name_forms is None else name_forms).serialize()),
-                                                     size=size))
+        place = PlacePrototype.create( x=x,
+                                       y=y,
+                                       name_forms=Noun.fast_construct(name) if name_forms is None else name_forms,
+                                       size=size)
 
         initial_turn = TimePrototype.get_current_turn_number() - places_settings.POWER_HISTORY_LENGTH
         for i in xrange(place_power_steps):

@@ -2,7 +2,7 @@
 
 from django.db import models
 
-from rels.django import TableIntegerField
+from rels.django import RelationIntegerField
 
 from the_tale.bank.xsolla.relations import INVOICE_STATE, PAY_RESULT
 
@@ -19,7 +19,7 @@ class Invoice(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now=True, null=False)
 
-    state = TableIntegerField(null=True, relation=INVOICE_STATE, relation_column='value', db_index=True)
+    state = RelationIntegerField(null=True, relation=INVOICE_STATE, relation_column='value', db_index=True)
 
     bank_id = models.BigIntegerField()
     bank_amount = models.BigIntegerField()
@@ -33,7 +33,7 @@ class Invoice(models.Model):
 
     comment = models.CharField(max_length=COMMENT_MAX_LENGTH, null=False, default=u'')
 
-    pay_result = TableIntegerField(null=True, relation=PAY_RESULT, relation_column='value', db_index=True)
+    pay_result = RelationIntegerField(null=True, relation=PAY_RESULT, relation_column='value', db_index=True)
 
     test = models.BooleanField(blank=True, default=False)
 

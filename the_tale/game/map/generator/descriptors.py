@@ -11,7 +11,7 @@ from the_tale.game.prototypes import TimePrototype
 from the_tale.game.map.conf import map_settings
 
 
-class WIND_DIRECTION(rels.Table):
+class WIND_DIRECTION(rels.Relation):
     value = rels.Column(external=True, unique=True)
     text = rels.Column(unique=False)
     direction = rels.Column(unique=False)
@@ -37,7 +37,7 @@ class WIND_DIRECTION(rels.Table):
 
 
 #http://ru.wikipedia.org/wiki/Ветер
-class WIND_POWER(rels.Table):
+class WIND_POWER(rels.Relation):
     value = rels.Column(external=True, unique=True)
     text = rels.Column(unique=False)
     power = rels.Column()
@@ -57,7 +57,7 @@ class WIND_POWER(rels.Table):
                 (12, u'ураган', 0.96) )
 
 
-class TEMPERATURE_POWER(rels.Table):
+class TEMPERATURE_POWER(rels.Relation):
     value = rels.Column(external=True, unique=True)
     text = rels.Column(unique=False)
     temperature = rels.Column()
@@ -73,7 +73,7 @@ class TEMPERATURE_POWER(rels.Table):
                  (8, u'ужасно жарко', 0.95) )
 
 
-class WETNESS_POWER(rels.Table):
+class WETNESS_POWER(rels.Relation):
     value = rels.Column(external=True, unique=True)
     text = rels.Column(unique=False)
     wetness = rels.Column()

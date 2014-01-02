@@ -14,8 +14,8 @@ class Migration(SchemaMigration):
             ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('place_1', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['places.Place'])),
             ('place_2', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['places.Place'])),
-            ('resource_1', self.gf('rels.django.TableIntegerField')()),
-            ('resource_2', self.gf('rels.django.TableIntegerField')()),
+            ('resource_1', self.gf('rels.django.RelationIntegerField')()),
+            ('resource_2', self.gf('rels.django.RelationIntegerField')()),
             ('bill', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', null=True, to=orm['bills.Bill'])),
         ))
         db.send_create_signal(u'places', ['ResourceExchange'])
@@ -77,9 +77,9 @@ class Migration(SchemaMigration):
             'rationale': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'reject_reason': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'remove_initiator': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'+'", 'null': 'True', 'to': u"orm['accounts.Account']"}),
-            'state': ('rels.django.TableIntegerField', [], {'db_index': 'True'}),
+            'state': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             'technical_data': ('django.db.models.fields.TextField', [], {'default': '{}', 'blank': 'True'}),
-            'type': ('rels.django.TableIntegerField', [], {'db_index': 'True'}),
+            'type': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'votes_against': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'votes_for': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
@@ -141,7 +141,7 @@ class Migration(SchemaMigration):
             'place': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'persons'", 'to': u"orm['places.Place']"}),
             'race': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'state': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'type': ('rels.django.TableIntegerField', [], {})
+            'type': ('rels.django.RelationIntegerField', [], {})
         },
         u'places.building': {
             'Meta': {'object_name': 'Building'},
@@ -151,8 +151,8 @@ class Migration(SchemaMigration):
             'name_forms': ('django.db.models.fields.TextField', [], {'default': "u''"}),
             'person': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['persons.Person']", 'unique': 'True'}),
             'place': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['places.Place']"}),
-            'state': ('rels.django.TableIntegerField', [], {'db_index': 'True'}),
-            'type': ('rels.django.TableIntegerField', [], {}),
+            'state': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
+            'type': ('rels.django.RelationIntegerField', [], {}),
             'x': ('django.db.models.fields.BigIntegerField', [], {}),
             'y': ('django.db.models.fields.BigIntegerField', [], {})
         },
@@ -185,8 +185,8 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'place_1': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['places.Place']"}),
             'place_2': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['places.Place']"}),
-            'resource_1': ('rels.django.TableIntegerField', [], {}),
-            'resource_2': ('rels.django.TableIntegerField', [], {})
+            'resource_1': ('rels.django.RelationIntegerField', [], {}),
+            'resource_2': ('rels.django.RelationIntegerField', [], {})
         }
     }
 

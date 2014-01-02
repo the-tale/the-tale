@@ -10,7 +10,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
 
         # Changing field 'RecordToActor.role'
-        db.alter_column('chronicle_recordtoactor', 'role', self.gf('rels.django.TableIntegerField')())
+        db.alter_column('chronicle_recordtoactor', 'role', self.gf('rels.django.RelationIntegerField')())
     def backwards(self, orm):
 
         # Changing field 'RecordToActor.role'
@@ -93,14 +93,14 @@ class Migration(SchemaMigration):
             'created_at_turn': ('django.db.models.fields.IntegerField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'text': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'type': ('rels.django.TableIntegerField', [], {'db_index': 'True'})
+            'type': ('rels.django.RelationIntegerField', [], {'db_index': 'True'})
         },
         'chronicle.recordtoactor': {
             'Meta': {'object_name': 'RecordToActor'},
             'actor': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['chronicle.Actor']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'record': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['chronicle.Record']"}),
-            'role': ('rels.django.TableIntegerField', [], {})
+            'role': ('rels.django.RelationIntegerField', [], {})
         },
         'contenttypes.contenttype': {
             'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},

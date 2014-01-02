@@ -1,7 +1,7 @@
 # coding: utf-8
 from django.db import models
 
-from rels.django import TableIntegerField
+from rels.django import RelationIntegerField
 
 from the_tale.forum.models import Thread
 
@@ -21,14 +21,14 @@ class Bill(models.Model):
 
     ends_at_turn = models.BigIntegerField(null=True, blank=True, db_index=True)
     ended_at = models.DateTimeField(null=True, blank=True)
-    duration = TableIntegerField(relation=BILL_DURATION, relation_column='value')
+    duration = RelationIntegerField(relation=BILL_DURATION, relation_column='value')
 
     owner = models.ForeignKey('accounts.Account', null=True, related_name='+', on_delete=models.SET_NULL)
 
     caption = models.CharField(max_length=CAPTION_MAX_LENGTH)
 
-    type = TableIntegerField(relation=BILL_TYPE, relation_column='value', db_index=True)
-    state = TableIntegerField(relation=BILL_STATE, relation_column='value', db_index=True)
+    type = RelationIntegerField(relation=BILL_TYPE, relation_column='value', db_index=True)
+    state = RelationIntegerField(relation=BILL_STATE, relation_column='value', db_index=True)
 
     approved_by_moderator = models.BooleanField(default=False, db_index=True)
 
@@ -75,7 +75,7 @@ class Vote(models.Model):
 
     bill = models.ForeignKey(Bill, null=False, on_delete=models.CASCADE)
 
-    type = TableIntegerField(relation=VOTE_TYPE, relation_column='value', db_index=True)
+    type = RelationIntegerField(relation=VOTE_TYPE, relation_column='value', db_index=True)
 
     class Meta:
         unique_together = (('owner', 'bill'),)

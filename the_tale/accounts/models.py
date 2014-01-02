@@ -5,7 +5,7 @@ from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 from django.utils.translation import ugettext_lazy as _
 
-from rels.django import TableIntegerField
+from rels.django import RelationIntegerField
 
 from the_tale.accounts.relations import AWARD_TYPE, CHANGE_CREDENTIALS_TASK_STATE
 
@@ -114,7 +114,7 @@ class Award(models.Model):
 
     account = models.ForeignKey(Account,  related_name='+', null=False, on_delete=models.CASCADE)
 
-    type = TableIntegerField(relation=AWARD_TYPE, relation_column='value', db_index=True)
+    type = RelationIntegerField(relation=AWARD_TYPE, relation_column='value', db_index=True)
 
     description = models.TextField(default='', blank=True)
 
@@ -134,7 +134,7 @@ class ChangeCredentialsTask(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True, db_index=True)
 
-    state = TableIntegerField(relation=CHANGE_CREDENTIALS_TASK_STATE, relation_column='value', db_index=True)
+    state = RelationIntegerField(relation=CHANGE_CREDENTIALS_TASK_STATE, relation_column='value', db_index=True)
 
     comment = models.CharField(max_length=256, blank=True, null=True, default='')
 

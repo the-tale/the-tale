@@ -77,9 +77,9 @@ class Migration(DataMigration):
             'rationale': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'reject_reason': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'remove_initiator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': u"orm['accounts.Account']"}),
-            'state': ('rels.django.TableIntegerField', [], {'default': '1', 'db_index': 'True'}),
+            'state': ('rels.django.RelationIntegerField', [], {'default': '1', 'db_index': 'True'}),
             'technical_data': ('django.db.models.fields.TextField', [], {'default': '{}', 'blank': 'True'}),
-            'type': ('rels.django.TableIntegerField', [], {'db_index': 'True'}),
+            'type': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2000, 1, 1, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
             'votes_against': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'votes_for': ('django.db.models.fields.IntegerField', [], {'default': '0'})
@@ -145,7 +145,7 @@ class Migration(DataMigration):
             'place': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'persons'", 'to': u"orm['places.Place']"}),
             'race': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'state': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'type': ('rels.django.TableIntegerField', [], {})
+            'type': ('rels.django.RelationIntegerField', [], {})
         },
         u'places.place': {
             'Meta': {'ordering': "('name',)", 'object_name': 'Place'},

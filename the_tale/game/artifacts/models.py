@@ -2,7 +2,7 @@
 
 from django.db import models
 
-from rels.django import TableIntegerField
+from rels.django import RelationIntegerField
 
 from the_tale.common.utils.enum import create_enum
 
@@ -32,7 +32,7 @@ class ArtifactRecord(models.Model):
 
     editor = models.ForeignKey('accounts.Account', null=True, related_name='+', blank=True, on_delete=models.SET_NULL)
 
-    type = TableIntegerField(relation=ARTIFACT_TYPE, relation_column='value')
+    type = RelationIntegerField(relation=ARTIFACT_TYPE, relation_column='value')
 
     rarity = models.IntegerField(default=RARITY_TYPE.NORMAL, choices=RARITY_TYPE._CHOICES)
 

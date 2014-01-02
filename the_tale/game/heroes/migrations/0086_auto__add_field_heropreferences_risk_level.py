@@ -10,7 +10,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding field 'HeroPreferences.risk_level'
         db.add_column(u'heroes_heropreferences', 'risk_level',
-                      self.gf('rels.django.TableIntegerField')(default=2),
+                      self.gf('rels.django.RelationIntegerField')(default=2),
                       keep_default=False)
 
 
@@ -134,7 +134,7 @@ class Migration(SchemaMigration):
             'money': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
             'name_forms': ('django.db.models.fields.TextField', [], {'default': "''", 'blank': 'True'}),
-            'next_spending': ('rels.django.TableIntegerField', [], {}),
+            'next_spending': ('rels.django.RelationIntegerField', [], {}),
             'places_history': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
             'pos_from_x': ('django.db.models.fields.IntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
             'pos_from_y': ('django.db.models.fields.IntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
@@ -176,13 +176,13 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'HeroPreferences'},
             'enemy': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'on_delete': 'models.PROTECT', 'default': 'None', 'to': u"orm['persons.Person']", 'blank': 'True', 'null': 'True'}),
             'energy_regeneration_type': ('django.db.models.fields.IntegerField', [], {'default': '0', 'blank': 'True'}),
-            'equipment_slot': ('rels.django.TableIntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
+            'equipment_slot': ('rels.django.RelationIntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
             'friend': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'on_delete': 'models.PROTECT', 'default': 'None', 'to': u"orm['persons.Person']", 'blank': 'True', 'null': 'True'}),
             'hero': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['heroes.Hero']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'mob': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': u"orm['mobs.MobRecord']", 'null': 'True', 'on_delete': 'models.PROTECT', 'blank': 'True'}),
             'place': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'on_delete': 'models.PROTECT', 'default': 'None', 'to': u"orm['places.Place']", 'blank': 'True', 'null': 'True'}),
-            'risk_level': ('rels.django.TableIntegerField', [], {})
+            'risk_level': ('rels.django.RelationIntegerField', [], {})
         },
         u'mobs.mobrecord': {
             'Meta': {'object_name': 'MobRecord'},
@@ -213,7 +213,7 @@ class Migration(SchemaMigration):
             'place': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'persons'", 'on_delete': 'models.PROTECT', 'to': u"orm['places.Place']"}),
             'race': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'state': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'type': ('rels.django.TableIntegerField', [], {})
+            'type': ('rels.django.RelationIntegerField', [], {})
         },
         u'places.place': {
             'Meta': {'ordering': "('name',)", 'object_name': 'Place'},

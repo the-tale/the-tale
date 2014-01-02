@@ -2,7 +2,7 @@
 
 from django.db import models
 
-from rels.django import TableIntegerField
+from rels.django import RelationIntegerField
 
 from the_tale.game.balance.enums import CITY_MODIFIERS
 
@@ -45,7 +45,7 @@ class Place(models.Model):
 
     modifier = models.IntegerField(null=True, default=None, choices=CITY_MODIFIERS._CHOICES, blank=True)
 
-    race = TableIntegerField(relation=RACE, relation_column='value')
+    race = RelationIntegerField(relation=RACE, relation_column='value')
 
     class Meta:
         ordering = ('name', )
@@ -64,8 +64,8 @@ class Building(models.Model):
     x = models.BigIntegerField(null=False)
     y = models.BigIntegerField(null=False)
 
-    state = TableIntegerField(relation=BUILDING_STATE, relation_column='value', db_index=True)
-    type = TableIntegerField(relation=BUILDING_TYPE, relation_column='value')
+    state = RelationIntegerField(relation=BUILDING_STATE, relation_column='value', db_index=True)
+    type = RelationIntegerField(relation=BUILDING_TYPE, relation_column='value')
 
     integrity = models.FloatField(default=1.0, null=False)
 
@@ -81,7 +81,7 @@ class ResourceExchange(models.Model):
     place_1 = models.ForeignKey(Place, related_name='+', on_delete=models.CASCADE)
     place_2 = models.ForeignKey(Place, related_name='+', on_delete=models.CASCADE)
 
-    resource_1 = TableIntegerField(relation=RESOURCE_EXCHANGE_TYPE, relation_column='value')
-    resource_2 = TableIntegerField(relation=RESOURCE_EXCHANGE_TYPE, relation_column='value')
+    resource_1 = RelationIntegerField(relation=RESOURCE_EXCHANGE_TYPE, relation_column='value')
+    resource_2 = RelationIntegerField(relation=RESOURCE_EXCHANGE_TYPE, relation_column='value')
 
     bill = models.ForeignKey('bills.Bill', blank=True, null=True, related_name='+', on_delete=models.SET_NULL)

@@ -106,14 +106,14 @@ def load_table(filename, sheet_index=0, encoding='utf-8', rows=None, columns=Non
 
 def load_table_for_enums(filename, rows_enum, columns_enum, sheet_index=0, encoding='utf-8', data_type=lambda x: x):
 
-    if issubclass(rows_enum, rels.Table):
+    if issubclass(rows_enum, rels.Relation):
         rows_values = zip(*rows_enum.select('name'))[0]
         rows_items = rows_enum.select('value', 'name')
     else:
         rows_values = rows_enum._ID_TO_STR.values()
         rows_items = rows_enum._ID_TO_STR.items()
 
-    if issubclass(columns_enum, rels.Table):
+    if issubclass(columns_enum, rels.Relation):
         columns_values = zip(*columns_enum.select('name'))[0]
         columns_dict = dict(columns_enum.select('name', 'value'))
     else:

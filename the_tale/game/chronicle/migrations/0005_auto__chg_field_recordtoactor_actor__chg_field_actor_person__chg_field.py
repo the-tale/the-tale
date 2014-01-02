@@ -84,7 +84,7 @@ class Migration(SchemaMigration):
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'created_at_turn': ('django.db.models.fields.IntegerField', [], {}),
             'declined_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'on_delete': 'models.SET_NULL', 'default': 'None', 'to': u"orm['bills.Bill']", 'blank': 'True', 'null': 'True'}),
-            'duration': ('rels.django.TableIntegerField', [], {}),
+            'duration': ('rels.django.RelationIntegerField', [], {}),
             'ended_at': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'ends_at_turn': ('django.db.models.fields.BigIntegerField', [], {'db_index': 'True', 'null': 'True', 'blank': 'True'}),
             'forum_thread': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'+'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': u"orm['forum.Thread']"}),
@@ -95,9 +95,9 @@ class Migration(SchemaMigration):
             'rationale': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'reject_reason': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'remove_initiator': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'+'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': u"orm['accounts.Account']"}),
-            'state': ('rels.django.TableIntegerField', [], {'db_index': 'True'}),
+            'state': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             'technical_data': ('django.db.models.fields.TextField', [], {'default': '{}', 'blank': 'True'}),
-            'type': ('rels.django.TableIntegerField', [], {'db_index': 'True'}),
+            'type': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'votes_against': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'votes_for': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
@@ -119,14 +119,14 @@ class Migration(SchemaMigration):
             'created_at_turn': ('django.db.models.fields.IntegerField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'text': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'type': ('rels.django.TableIntegerField', [], {'db_index': 'True'})
+            'type': ('rels.django.RelationIntegerField', [], {'db_index': 'True'})
         },
         u'chronicle.recordtoactor': {
             'Meta': {'object_name': 'RecordToActor'},
             'actor': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['chronicle.Actor']", 'on_delete': 'models.PROTECT'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'record': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['chronicle.Record']"}),
-            'role': ('rels.django.TableIntegerField', [], {})
+            'role': ('rels.django.RelationIntegerField', [], {})
         },
         u'contenttypes.contenttype': {
             'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
@@ -183,7 +183,7 @@ class Migration(SchemaMigration):
             'place': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'persons'", 'on_delete': 'models.PROTECT', 'to': u"orm['places.Place']"}),
             'race': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'state': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'type': ('rels.django.TableIntegerField', [], {})
+            'type': ('rels.django.RelationIntegerField', [], {})
         },
         u'places.place': {
             'Meta': {'ordering': "('name',)", 'object_name': 'Place'},

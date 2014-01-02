@@ -4,7 +4,7 @@ import datetime
 
 from django.db import models
 
-from rels.django import TableIntegerField
+from rels.django import RelationIntegerField
 
 from the_tale.common.utils.enum import create_enum
 
@@ -30,10 +30,10 @@ class Person(models.Model):
 
     name = models.CharField(max_length=256)
 
-    gender = TableIntegerField(relation=GENDER, relation_column='value')
-    race = TableIntegerField(relation=RACE, relation_column='value')
+    gender = RelationIntegerField(relation=GENDER, relation_column='value')
+    race = RelationIntegerField(relation=RACE, relation_column='value')
 
-    type = TableIntegerField(relation=PERSON_TYPE, relation_column='value')
+    type = RelationIntegerField(relation=PERSON_TYPE, relation_column='value')
 
     friends_number = models.IntegerField(default=0)
 
