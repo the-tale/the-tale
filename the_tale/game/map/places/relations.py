@@ -3,6 +3,8 @@
 from rels import Column
 from rels.django import DjangoEnum
 
+from questgen.relations import PLACE_TYPE as QUEST_PLACE_TYPE
+
 from the_tale.game.balance import constants as c
 
 
@@ -61,3 +63,22 @@ class RESOURCE_EXCHANGE_TYPE(DjangoEnum):
                  ('TRANSPORT_SMALL',   7, u'%.1f%% транспорта' % float(TRANSPORT_BASE * 100), CITY_PARAMETERS.TRANSPORT, TRANSPORT_BASE),
                  ('TRANSPORT_NORMAL',  8, u'%.1f%% транспорта' % float(TRANSPORT_BASE * 2 * 100), CITY_PARAMETERS.TRANSPORT, TRANSPORT_BASE * 2),
                  ('TRANSPORT_LARGE',   9, u'%.1f%% транспорта' % float(TRANSPORT_BASE * 4 * 100), CITY_PARAMETERS.TRANSPORT, TRANSPORT_BASE * 4) )
+
+
+
+class CITY_MODIFIERS(DjangoEnum):
+    quest_type = Column(unique=False)
+
+    records = ( ('TRADE_CENTER', 0, u'Торговый центр', QUEST_PLACE_TYPE.NONE),
+                ('CRAFT_CENTER', 1, u'Город мастеров', QUEST_PLACE_TYPE.NONE),
+                ('FORT', 2, u'Форт', QUEST_PLACE_TYPE.NONE),
+                ('POLITICAL_CENTER', 3, u'Политический центр', QUEST_PLACE_TYPE.NONE),
+                ('POLIC', 4, u'Полис', QUEST_PLACE_TYPE.NONE),
+                ('RESORT', 5, u'Курорт', QUEST_PLACE_TYPE.NONE),
+                ('TRANSPORT_NODE', 6, u'Транспортный узел', QUEST_PLACE_TYPE.NONE),
+                ('OUTLAWS', 7, u'Вольница', QUEST_PLACE_TYPE.NONE),
+                ('HOLY_CITY', 8, u'Святой город', QUEST_PLACE_TYPE.HOLY_CITY) )
+
+
+class EFFECT_SOURCES(DjangoEnum):
+   records = ( ('PERSON', 0, u'житель'),)

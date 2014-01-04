@@ -18,7 +18,8 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game.chronicle import RecordPrototype as ChronicleRecordPrototype
 
-from the_tale.game.map.places.modifiers import MODIFIERS, TradeCenter
+from the_tale.game.map.places.modifiers import TradeCenter
+from the_tale.game.map.places.relations import CITY_MODIFIERS
 from the_tale.game.map.places.prototypes import BuildingPrototype
 
 from the_tale.game.map.conf import map_settings
@@ -54,8 +55,7 @@ class CellInfoTests(RequestsTestsBase):
         self.check_html_ok(self.request_html(reverse('game:map:cell-info') + '?x=3&y=2'), texts=[('pgf-cell-debug', 3)])
 
     def test_place_info_no_modifier(self):
-        texts = [('pgf-current-modifier-marker', 0)] + [(modifier.NAME, 1) for modifier in MODIFIERS.values()]
-
+        texts = [('pgf-current-modifier-marker', 0)] + [(modifier.text, 1) for modifier in CITY_MODIFIERS.records]
         self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
 
     def test_place_info_modifier(self):

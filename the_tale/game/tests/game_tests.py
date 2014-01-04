@@ -13,7 +13,7 @@ from the_tale.game.prototypes import TimePrototype
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.relations import RACE
 
-from the_tale.game.balance.enums import CITY_MODIFIERS
+from the_tale.game.map.places.relations import CITY_MODIFIERS
 
 class GameTest(testcase.TestCase):
 
@@ -40,8 +40,8 @@ class GameTest(testcase.TestCase):
 
     def test_city_modifiers_in_dictionary(self):
 
-        for modifier_name in CITY_MODIFIERS._ID_TO_TEXT.values():
-            self.assertTrue(modifier_name.lower() in get_dictionary())
+        for modifier in CITY_MODIFIERS.records:
+            self.assertTrue(modifier.text.lower() in get_dictionary())
 
     def test_race_in_dictionary(self):
 

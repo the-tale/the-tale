@@ -105,6 +105,8 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.ANGEL_HELP_CRIT_MONEY_MULTIPLIER, int(10))
         self.assertEqual(c.ANGEL_HELP_CRIT_EXPERIENCE, 60)
 
+        self.assertEqual(c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE, 4)
+
 
         self.assertEqual(c.GAME_SECONDS_IN_GAME_MINUTE, 60)
         self.assertEqual(c.GAME_MINUTES_IN_GAME_HOUR, 60)
@@ -130,6 +132,7 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.QUESTS_SPECIAL_FRACTION, 0.2)
         self.assertEqual(c.QUESTS_SHORT_PATH_LEVEL_CAP, 4)
+        self.assertEqual(c.QUESTS_PILGRIMAGE_FRACTION, 0.025)
 
         self.assertEqual(c.QUESTS_LOCK_TIME, { 'hunt': int(18*360),
                                                'hometown': int(24*360),

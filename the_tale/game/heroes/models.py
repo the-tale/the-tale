@@ -78,6 +78,7 @@ class Hero(models.Model):
     might = models.FloatField(null=False, default=0.0)
 
     #position
+    pos_previous_place = models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True, on_delete=models.PROTECT)
     pos_place = models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True, on_delete=models.PROTECT)
     pos_road = models.ForeignKey('roads.Road', related_name='+', null=True, default=None, blank=True, on_delete=models.PROTECT)
     pos_percents = models.FloatField(null=True, default=None, blank=True)

@@ -15,6 +15,7 @@ from questgen import analysers
 from questgen.knowledge_base import KnowledgeBase
 from questgen.selectors import Selector
 from questgen.quests.quests_base import QuestsBase
+from questgen.relations import PLACE_TYPE as QUEST_PLACE_TYPE
 
 from questgen.quests.spying import Spying
 from questgen.quests.hunt import Hunt
@@ -26,6 +27,7 @@ from questgen.quests.collect_debt import CollectDebt
 from questgen.quests.help_friend import HelpFriend
 from questgen.quests.interfere_enemy import InterfereEnemy
 from questgen.quests.help import Help
+from questgen.quests.pilgrimage import Pilgrimage
 
 
 from the_tale.game.balance import constants as c
@@ -58,7 +60,7 @@ QUEST_RESTRICTIONS =  [restrictions.SingleStartStateWithNoEnters(),
 
 
 QUESTS_BASE = QuestsBase()
-QUESTS_BASE += [CollectDebt, Caravan, Delivery, Spying, Hunt, Hometown, SearchSmith, HelpFriend, InterfereEnemy, Help]
+QUESTS_BASE += [CollectDebt, Caravan, Delivery, Spying, Hunt, Hometown, SearchSmith, HelpFriend, InterfereEnemy, Help, Pilgrimage]
 
 NORMAL_QUESTS = [CollectDebt.TYPE, Spying.TYPE, Delivery.TYPE, Caravan.TYPE, Help.TYPE]
 
@@ -79,8 +81,14 @@ def fill_places_for_first_quest(kb, hero):
             best_distance = path_length
             best_destination = place
 
-    kb += facts.Place(uid=uids.place(best_destination), terrains=list(best_destination.terrains), externals={'id': best_destination.id})
-    kb += facts.Place(uid=uids.place(hero.position.place), terrains=list(hero.position.place.terrains), externals={'id': hero.position.place.id})
+    kb += facts.Place(uid=uids.place(best_destination),
+                      terrains=list(best_destination.terrains),
+                      externals={'id': best_destination.id},
+                      type=best_destination.modifier.TYPE.quest_type if best_destination.modifier else QUEST_PLACE_TYPE.NONE)
+    kb += facts.Place(uid=uids.place(hero.position.place),
+                      terrains=list(hero.position.place.terrains),
+                      externals={'id': hero.position.place.id},
+                      type=hero.position.place.modifier.TYPE.quest_type if hero.position.place.modifier else QUEST_PLACE_TYPE.NONE)
 
 
 def fill_places_for_short_paths(kb, hero):
@@ -90,7 +98,10 @@ def fill_places_for_short_paths(kb, hero):
             if path_length > waymarks_storage.average_path_length:
                 continue
 
-        kb += facts.Place(uid=uids.place(place), terrains=list(place.terrains), externals={'id': place.id})
+        kb += facts.Place(uid=uids.place(place),
+                          terrains=list(place.terrains),
+                          externals={'id': place.id},
+                          type=place.modifier.TYPE.quest_type if place.modifier else QUEST_PLACE_TYPE.NONE)
 
 
 def get_knowledge_base(hero, without_restrictions=False): # pylint: disable=R0912
@@ -111,7 +122,10 @@ def get_knowledge_base(hero, without_restrictions=False): # pylint: disable=R091
 
     hero_position_uid = uids.place(hero.position.place)
     if hero_position_uid not in kb:
-        kb += facts.Place(uid=hero_position_uid, terrains=list(hero.position.place.terrains), externals={'id': hero.position.place.id})
+        kb += facts.Place(uid=hero_position_uid,
+                          terrains=list(hero.position.place.terrains),
+                          externals={'id': hero.position.place.id},
+                          type=hero.position.place.modifier.TYPE.quest_type if hero.position.place.modifier else QUEST_PLACE_TYPE.NONE)
 
     kb += facts.LocatedIn(object=hero_uid, place=hero_position_uid)
 
@@ -119,7 +133,10 @@ def get_knowledge_base(hero, without_restrictions=False): # pylint: disable=R091
         for place in places_storage.all():
             place_uid = uids.place(place)
             if place_uid not in kb:
-                kb += facts.Place(uid=place_uid, terrains=list(place.terrains), externals={'id': place.id})
+                kb += facts.Place(uid=place_uid,
+                                  terrains=list(place.terrains),
+                                  externals={'id': place.id},
+                                  type=place.modifier.TYPE.quest_type if place.modifier else QUEST_PLACE_TYPE.NONE)
 
 
     # fill persons
@@ -195,9 +212,15 @@ def create_random_quest_for_hero(hero):
         return _create_random_quest_for_hero(hero, special=False, without_restrictions=True)
 
 
-def _get_first_quests(hero, special):
+def get_first_quests(hero, special):
     if special:
-        return hero.get_special_quests()
+        quests = hero.get_special_quests()
+        if quests:
+            return quests
+
+    if random.uniform(0, 1) < c.QUESTS_PILGRIMAGE_FRACTION:
+        return [Pilgrimage.TYPE]
+
     return NORMAL_QUESTS
 
 @retry_on_exception(max_retries=quests_settings.MAX_QUEST_GENERATION_RETRIES, exceptions=[questgen_exceptions.RollBackError])
@@ -219,7 +242,7 @@ def _create_random_quest_for_hero(hero, special, without_restrictions=False):
 
     quests_facts = selector.create_quest_from_place(nesting=0,
                                                     initiator_position=start_place,
-                                                    allowed=_get_first_quests(hero, special=special),
+                                                    allowed=get_first_quests(hero, special=special),
                                                     excluded=excluded_quests,
                                                     tags=('can_start', ))
 

@@ -14,6 +14,8 @@ from the_tale.game.actions.prototypes import ActionInPlacePrototype, ActionRestP
 from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.prototypes import TimePrototype
 
+from the_tale.game.map.places.modifiers.prototypes import HolyCity, Resort
+
 from the_tale.game.balance import constants as c, formulas as f, enums as e
 
 
@@ -30,18 +32,20 @@ class InPlaceActionTest(testcase.TestCase):
         self.storage.add_hero(self.hero)
         self.action_idl = self.hero.actions.current_action
 
+        self.hero._model.pos_previous_place_id = None # test setting prevouse place in action constructor
+
         self.action_inplace = ActionInPlacePrototype.create(hero=self.hero)
 
-
     def test_create(self):
+        self.assertEqual(self.hero.position.previous_place, self.hero.position.place)
+
         self.assertEqual(self.action_idl.leader, False)
         self.assertEqual(self.action_inplace.leader, True)
         self.assertEqual(self.action_inplace.bundle_id, self.action_idl.bundle_id)
+
         self.storage._test_save()
 
     def test_instant_heal_in_resort(self):
-        from the_tale.game.map.places.modifiers.prototypes import Resort
-
         self.hero.health = 1
         self.hero.position.place.modifier = Resort(self.hero.position.place)
         old_messages_len = len (self.hero.messages.messages)
@@ -51,14 +55,73 @@ class InPlaceActionTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_no_instant_heal_in_resort(self):
-        from the_tale.game.map.places.modifiers.prototypes import Resort
-
         self.hero.health = self.hero.max_health
         self.hero.position.place.modifier = Resort(self.hero.position.place)
         old_messages_len = len (self.hero.messages.messages)
         ActionInPlacePrototype.create(hero=self.hero)
         self.assertEqual(self.hero.health, self.hero.max_health)
         self.assertEqual(len(self.hero.messages.messages), old_messages_len)
+        self.storage._test_save()
+
+
+    def test_instant_energy_regen_in_holy_city(self):
+        self.hero._model.energy = 0
+        self.hero._model.pos_previous_place_id = None
+
+        self.hero.position.place.modifier = HolyCity(self.hero.position.place)
+
+
+        self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
+
+        with self.check_delta(lambda: len(self.hero.messages.messages), 1):
+            ActionInPlacePrototype.create(hero=self.hero)
+
+        self.assertEqual(self.hero.energy, c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE)
+
+        self.storage._test_save()
+
+    def test_instant_energy_regen_in_holy_city__maximum_energy(self):
+        self.hero._model.energy = self.hero.energy_maximum
+        self.hero._model.pos_previous_place_id = None
+
+        self.hero.position.place.modifier = HolyCity(self.hero.position.place)
+
+        self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
+
+        with self.check_not_changed(lambda: len(self.hero.messages.messages)):
+            ActionInPlacePrototype.create(hero=self.hero)
+
+        self.assertEqual(self.hero.energy, self.hero.energy_maximum)
+
+        self.storage._test_save()
+
+    def test_instant_energy_regen_in_holy_city__no_regen(self):
+        self.hero._model.energy = 0
+        self.hero._model.pos_previous_place_id = None
+
+        self.hero.position.place.modifier = None
+
+        self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
+
+        with self.check_not_changed(lambda: len(self.hero.messages.messages)):
+            ActionInPlacePrototype.create(hero=self.hero)
+
+        self.assertEqual(self.hero.energy, 0)
+
+        self.storage._test_save()
+
+    def test_instant_energy_regen_in_holy_city__place_not_changed(self):
+        self.hero._model.energy = 0
+        self.hero.position.place.modifier = HolyCity(self.hero.position.place)
+        self.hero.position.visit_current_place()
+
+        self.assertEqual(self.hero.position.place, self.hero.position.previous_place)
+
+        with self.check_not_changed(lambda: len(self.hero.messages.messages)):
+            ActionInPlacePrototype.create(hero=self.hero)
+
+        self.assertEqual(self.hero.energy, 0)
+
         self.storage._test_save()
 
     def test_processed(self):

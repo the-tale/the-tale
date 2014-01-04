@@ -967,6 +967,14 @@ class ActionInPlacePrototype(ActionBase):
             hero.health = hero.max_health
             hero.add_message('action_inplace_instant_heal', hero=hero, place=hero.position.place)
 
+        if (hero.energy < hero.energy_maximum and
+            hero.position.place.modifier and hero.position.place.modifier.energy_regen_allowed() and
+            hero.position.place != hero.position.previous_place):
+            hero.change_energy(c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE)
+            hero.add_message('action_inplace_instant_energy_regen', hero=hero, place=hero.position.place)
+
+        hero.position.visit_current_place()
+
         return prototype
 
     def get_description_arguments(self):

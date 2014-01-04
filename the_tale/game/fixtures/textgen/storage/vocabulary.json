@@ -39,6 +39,45 @@
       "template": "«%(i_0)s %(e_0)s куда лучше %(i_1)s — надо их поменять»."
     }
   ], 
+  "quest_pilgrimage_diary_finish_money": [
+    {
+      "internals": [
+        [
+          "получил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш", 
+            "загл"
+          ], 
+          "получил"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "«%(i_0)s %(e_0)s %(i_1)s от раскаивающегося вора»."
+    }
+  ], 
   "chronicle_place_change_name_bill_successed": [
     {
       "internals": [
@@ -186,6 +225,7 @@
       "template": "«%(e_0)s имеет репутацию хорошего кузнеца. Пора посетить %(i_0)s в %(e_1)s. Вдруг удастся прикупить что-то стоящее из снаряжения»?"
     }
   ], 
+  "quest_delivery_choice_current_dummy_lie": [], 
   "quest_spying_choice_variant_open_up": [
     {
       "internals": [], 
@@ -3764,6 +3804,7 @@
       "template": "ограбить торговца"
     }
   ], 
+  "quest_delivery_choice_variant_dummy_lie": [], 
   "hero_ability_fireball_miss": [
     {
       "internals": [], 
@@ -4099,6 +4140,13 @@
         ]
       ], 
       "template": "«%(e_0)s говорит, что никак не может найти время — %(i_0)s делами по горло. Придётся помочь»."
+    }
+  ], 
+  "quest_pilgrimage_actor_receiver_position": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "святыня"
     }
   ], 
   "action_moveto_description": [
@@ -4902,273 +4950,18 @@
       "template": "%(e_0)s %(i_0)s вакантное место в Совете %(e_1)s."
     }
   ], 
-  "hero_ability_vampire_strike_miss": [
+  "quest_pilgrimage_action_stagger_holy_streets": [
     {
-      "internals": [
-        [
-          "попытался", 
-          [
-            "attacker"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "попытался"
-        ], 
-        [
-          "промахнулся", 
-          [
-            "attacker"
-          ], 
-          "i_1", 
-          [
-            "прш"
-          ], 
-          "промахнулся"
-        ]
-      ], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [
-            "им", 
-            "загл"
-          ], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "defender"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s укусить %(e_1)s, но %(i_1)s."
-    }, 
+      "internals": [], 
+      "externals": [], 
+      "template": "гуляет по городу"
+    }
+  ], 
+  "quest_collect_debt_action_intro": [
     {
-      "internals": [
-        [
-          "укусил", 
-          [
-            "attacker"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "укусил"
-        ]
-      ], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [
-            "им", 
-            "загл"
-          ], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "рд"
-          ], 
-          "defender"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s себя вместо %(e_1)s."
-    }, 
-    {
-      "internals": [
-        [
-          "клацнул", 
-          [
-            "attacker"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "клацнул"
-        ], 
-        [
-          "он", 
-          [
-            "defender"
-          ], 
-          "i_1", 
-          [
-            "вн"
-          ], 
-          "он"
-        ]
-      ], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "тв"
-          ], 
-          "defender"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s зубами рядом с %(e_1)s, не сумев вцепиться в н%(i_1)s."
-    }, 
-    {
-      "internals": [
-        [
-          "ощутил", 
-          [
-            "attacker"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "ощутил"
-        ], 
-        [
-          "смог", 
-          [
-            "attacker"
-          ], 
-          "i_1", 
-          [
-            "прш"
-          ], 
-          "смог"
-        ]
-      ], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "defender"
-        ]
-      ], 
-      "template": "Слишком сильно открыв рот для укуса, %(e_0)s %(i_0)s боль в челюсти и не %(i_1)s укусить %(e_1)s."
-    }, 
-    {
-      "internals": [
-        [
-          "раззявил", 
-          [
-            "attacker"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "раззявил"
-        ]
-      ], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "attacker"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s рот, но подходящий для укуса момент уже был упущен."
-    }, 
-    {
-      "internals": [
-        [
-          "ускользнул", 
-          [
-            "defender"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "ускользнул"
-        ]
-      ], 
-      "externals": [
-        [
-          "defender", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "defender"
-        ], 
-        [
-          "attacker", 
-          [], 
-          "e_1", 
-          [
-            "рд"
-          ], 
-          "attacker"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s от зубов %(e_1)s."
-    }, 
-    {
-      "internals": [
-        [
-          "промахнулся", 
-          [
-            "attacker"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "промахнулся"
-        ]
-      ], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "attacker"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s, бесполезно клацнув зубами."
+      "internals": [], 
+      "externals": [], 
+      "template": "направляется к должнику"
     }
   ], 
   "action_inplace_diary_sharpening_artifact": [
@@ -5520,6 +5313,13 @@
       "internals": [], 
       "externals": [], 
       "template": "выслеживает вора"
+    }
+  ], 
+  "quest_pilgrimage_journal_stagger_holy_streets_donothing": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "«Сколько же тут паломников, целые толпы»…"
     }
   ], 
   "quest_delivery_action_intro": [
@@ -10608,6 +10408,13 @@
       "template": "Смиренно сев и своеобразно сложив руки, %(e_0)s сосредоточенно %(i_0)s проникновенный фрагмент личной мольбы."
     }
   ], 
+  "quest_pilgrimage_journal_speak_with_guru_donothing": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Гуру рассуждает о смысле жизни и границах Пандоры."
+    }
+  ], 
   "quest_collect_debt_diary_finish_attack_failed": [
     {
       "internals": [
@@ -11731,6 +11538,13 @@
       "template": "%(e_0)s %(i_0)s удержать место советника в %(e_1)s — закон об %(i_1)s исключении «%(e_2)s» не получил необходимую поддержку."
     }
   ], 
+  "quest_pilgrimage_journal_stagger_holy_streets_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Шатается по улочкам, пялясь на паломников."
+    }
+  ], 
   "hero_ability_strong_hit": [
     {
       "internals": [
@@ -12488,11 +12302,21 @@
       "template": "Набравшись сил, в радостном нетерпении %(e_0)s начинает путь в %(e_1)s."
     }
   ], 
-  "quest_help_name": [
+  "action_regenerate_energy_description_incense": [
     {
       "internals": [], 
       "externals": [], 
-      "template": "Помочь другу"
+      "template": "вдыхает аромат курящихся благовоний"
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "возжигает ароматическую палочку"
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "размышляет в облаке дыма"
     }
   ], 
   "quest_caravan_diary_choose_defence": [
@@ -12738,6 +12562,13 @@
         ]
       ], 
       "template": "Принят закон «%(e_0)s». Закон «%(e_1)s» отменён."
+    }
+  ], 
+  "quest_pilgrimage_journal_speak_with_guru_description": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Внимательно слушает местного гуру"
     }
   ], 
   "quest_hometown_journal_drunk_song_start": [
@@ -18308,6 +18139,45 @@
       "template": "«%(e_0)s %(i_0)s поистине чудесный артефакт — «%(e_1)s»! %(e_2)s удалось продать за %(e_3)s %(i_1)s»."
     }
   ], 
+  "action_inplace_instant_energy_regen": [
+    {
+      "internals": [
+        [
+          "вошёл", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "вошёл"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "им", 
+            "загл"
+          ], 
+          "hero"
+        ], 
+        [
+          "place", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s в %(e_1)s, и Вы почувствовали небольшой прилив энергии."
+    }
+  ], 
   "action_rest_resring": [
     {
       "internals": [
@@ -19240,21 +19110,11 @@
       "template": "%(e_0)s чувствует, как лёгкие наполняются воздухом, а рассудок — ясностью."
     }
   ], 
-  "action_regenerate_energy_description_incense": [
+  "quest_help_name": [
     {
       "internals": [], 
       "externals": [], 
-      "template": "вдыхает аромат курящихся благовоний"
-    }, 
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "возжигает ароматическую палочку"
-    }, 
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "размышляет в облаке дыма"
+      "template": "Помочь другу"
     }
   ], 
   "quest_delivery_diary_finish_delivery_money": [
@@ -19434,6 +19294,13 @@
       "internals": [], 
       "externals": [], 
       "template": "получатель"
+    }
+  ], 
+  "quest_pilgrimage_name": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "Отправиться в паломничество"
     }
   ], 
   "quest_delivery_journal_start_delivery": [
@@ -19722,6 +19589,33 @@
         ]
       ], 
       "template": "Тучи за спиной %(e_0)s сошлись… И снова разошлись, ничего не произошло."
+    }
+  ], 
+  "quest_pilgrimage_diary_intro": [
+    {
+      "internals": [
+        [
+          "великий", 
+          [
+            "receiver_position"
+          ], 
+          "i_0", 
+          [
+            "загл"
+          ], 
+          "великий"
+        ]
+      ], 
+      "externals": [
+        [
+          "receiver_position", 
+          [], 
+          "e_0", 
+          [], 
+          "receiver_position"
+        ]
+      ], 
+      "template": "«Как-то на душе стало неспокойно, наверно, нельзя столько убивать. %(i_0)s %(e_0)s наверняка поможет мне обрести духовный покой»."
     }
   ], 
   "quest_search_smith_diary_quest_failed": [
@@ -24857,48 +24751,16 @@
       "template": "%(e_0)s %(i_0)s %(e_1)s так, что ничего ценного уже не осталось."
     }
   ], 
-  "action_regenerate_energy_energy_received_pray": [
+  "quest_caravan_action_finish_attack": [
     {
-      "internals": [
-        [
-          "закончил", 
-          [
-            "hero"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "закончил"
-        ]
-      ], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "hero"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s обряд. Ваша энергия восстанавливается."
+      "internals": [], 
+      "externals": [], 
+      "template": "продаёт добычу"
     }, 
     {
       "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "рд"
-          ], 
-          "hero"
-        ]
-      ], 
-      "template": "Последние слова молитвы, сорвавшись с губ %(e_0)s, гулким эхом разносятся по округе, восстанавливая вашу энергию."
+      "externals": [], 
+      "template": "сбывает награбленное"
     }
   ], 
   "quest_hometown_diary_finish_artifact": [
@@ -27127,6 +26989,13 @@
       "template": "несёт радостную весть"
     }
   ], 
+  "quest_pilgrimage_action_speak_with_guru": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "внемлет"
+    }
+  ], 
   "quest_delivery_journal_fight_thief": [
     {
       "internals": [], 
@@ -27364,305 +27233,11 @@
       "template": "Неаккуратным движением %(e_0)s %(i_0)s символы, которые так долго %(i_1)s."
     }
   ], 
-  "hero_ability_poison_cloud": [
-    {
-      "internals": [
-        [
-          "создал", 
-          [
-            "attacker"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "создал"
-        ]
-      ], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [
-            "им", 
-            "загл"
-          ], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "рд"
-          ], 
-          "defender"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s ядовитое облако вокруг %(e_1)s."
-    }, 
-    {
-      "internals": [
-        [
-          "создал", 
-          [
-            "attacker"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "создал"
-        ], 
-        [
-          "тот", 
-          [
-            "defender"
-          ], 
-          "i_1", 
-          [
-            "им"
-          ], 
-          "тот"
-        ], 
-        [
-          "начал", 
-          [
-            "defender"
-          ], 
-          "i_2", 
-          [
-            "прш"
-          ], 
-          "начал"
-        ]
-      ], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [
-            "им", 
-            "загл"
-          ], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "рд"
-          ], 
-          "defender"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s странный пар вокруг %(e_1)s и %(i_1)s %(i_2)s задыхаться."
-    }, 
+  "quest_help_friend_action_intro": [
     {
       "internals": [], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [
-            "тв"
-          ], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "defender"
-        ]
-      ], 
-      "template": "Ядовитое облако, сотворённое %(e_0)s, окутало %(e_1)s."
-    }, 
-    {
-      "internals": [
-        [
-          "окутал", 
-          [
-            "attacker"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "окутал"
-        ]
-      ], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "defender"
-        ]
-      ], 
-      "template": "Быстро создав ядовитое облако, %(e_0)s %(i_0)s им %(e_1)s."
-    }, 
-    {
-      "internals": [
-        [
-          "создал", 
-          [
-            "attacker"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "создал"
-        ]
-      ], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "рд"
-          ], 
-          "defender"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s вокруг %(e_1)s ядовитое облако."
-    }, 
-    {
-      "internals": [
-        [
-          "оказался", 
-          [
-            "defender"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "оказался"
-        ]
-      ], 
-      "externals": [
-        [
-          "defender", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "defender"
-        ], 
-        [
-          "attacker", 
-          [], 
-          "e_1", 
-          [
-            "тв"
-          ], 
-          "attacker"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s в созданном %(e_1)s облаке яда."
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [
-            "тв"
-          ], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "defender"
-        ]
-      ], 
-      "template": "Ядовитое облако, созданное %(e_0)s, обволокло %(e_1)s."
-    }, 
-    {
-      "internals": [
-        [
-          "задыхался", 
-          [
-            "defender"
-          ], 
-          "i_0", 
-          [
-            "нст", 
-            "3л"
-          ], 
-          "задыхался"
-        ], 
-        [
-          "кашлял", 
-          [
-            "defender"
-          ], 
-          "i_1", 
-          [
-            "нст", 
-            "3л"
-          ], 
-          "кашлял"
-        ]
-      ], 
-      "externals": [
-        [
-          "defender", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "defender"
-        ], 
-        [
-          "attacker", 
-          [], 
-          "e_1", 
-          [
-            "тв"
-          ], 
-          "attacker"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s и %(i_1)s в созданном %(e_1)s ядовитом облаке."
+      "externals": [], 
+      "template": "идёт в гости"
     }
   ], 
   "quest_delivery_diary_delivery_returned": [
@@ -28152,6 +27727,53 @@
       "internals": [], 
       "externals": [], 
       "template": "Провести караван"
+    }
+  ], 
+  "quest_pilgrimage_journal_speak_with_guru_start": [
+    {
+      "internals": [
+        [
+          "увидел", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "увидел"
+        ], 
+        [
+          "решил", 
+          [
+            "hero"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "решил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s кружок паломников, слушающих местного гуру, и %(i_1)s присоединиться к ним."
+    }
+  ], 
+  "quest_pilgrimage_journal_stagger_holy_streets_start": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "«Пойду поброжу по святым улицам»."
     }
   ], 
   "action_regenerate_energy_no_energy_received_pray": [
@@ -35140,11 +34762,305 @@
       "template": "«%(e_0)s — прекрасный мастер! %(e_1)s — моя мечта, за такую работу и %(e_2)s %(i_0)s не жалко»!"
     }
   ], 
-  "quest_help_friend_action_intro": [
+  "hero_ability_poison_cloud": [
+    {
+      "internals": [
+        [
+          "создал", 
+          [
+            "attacker"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "создал"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "им", 
+            "загл"
+          ], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "defender"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s ядовитое облако вокруг %(e_1)s."
+    }, 
+    {
+      "internals": [
+        [
+          "создал", 
+          [
+            "attacker"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "создал"
+        ], 
+        [
+          "тот", 
+          [
+            "defender"
+          ], 
+          "i_1", 
+          [
+            "им"
+          ], 
+          "тот"
+        ], 
+        [
+          "начал", 
+          [
+            "defender"
+          ], 
+          "i_2", 
+          [
+            "прш"
+          ], 
+          "начал"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "им", 
+            "загл"
+          ], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "defender"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s странный пар вокруг %(e_1)s и %(i_1)s %(i_2)s задыхаться."
+    }, 
     {
       "internals": [], 
-      "externals": [], 
-      "template": "идёт в гости"
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "тв"
+          ], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "defender"
+        ]
+      ], 
+      "template": "Ядовитое облако, сотворённое %(e_0)s, окутало %(e_1)s."
+    }, 
+    {
+      "internals": [
+        [
+          "окутал", 
+          [
+            "attacker"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "окутал"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "defender"
+        ]
+      ], 
+      "template": "Быстро создав ядовитое облако, %(e_0)s %(i_0)s им %(e_1)s."
+    }, 
+    {
+      "internals": [
+        [
+          "создал", 
+          [
+            "attacker"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "создал"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "defender"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s вокруг %(e_1)s ядовитое облако."
+    }, 
+    {
+      "internals": [
+        [
+          "оказался", 
+          [
+            "defender"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "оказался"
+        ]
+      ], 
+      "externals": [
+        [
+          "defender", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "defender"
+        ], 
+        [
+          "attacker", 
+          [], 
+          "e_1", 
+          [
+            "тв"
+          ], 
+          "attacker"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s в созданном %(e_1)s облаке яда."
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "тв"
+          ], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "defender"
+        ]
+      ], 
+      "template": "Ядовитое облако, созданное %(e_0)s, обволокло %(e_1)s."
+    }, 
+    {
+      "internals": [
+        [
+          "задыхался", 
+          [
+            "defender"
+          ], 
+          "i_0", 
+          [
+            "нст", 
+            "3л"
+          ], 
+          "задыхался"
+        ], 
+        [
+          "кашлял", 
+          [
+            "defender"
+          ], 
+          "i_1", 
+          [
+            "нст", 
+            "3л"
+          ], 
+          "кашлял"
+        ]
+      ], 
+      "externals": [
+        [
+          "defender", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "defender"
+        ], 
+        [
+          "attacker", 
+          [], 
+          "e_1", 
+          [
+            "тв"
+          ], 
+          "attacker"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s и %(i_1)s в созданном %(e_1)s ядовитом облаке."
     }
   ], 
   "quest_hometown_journal_stagger_streets_description": [
@@ -35745,6 +35661,13 @@
       "template": "«Я %(i_0)s доставить письмо, ведь не зря %(e_0)s доверяет мне»."
     }
   ], 
+  "quest_pilgrimage_action_intro": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "идёт к святыне"
+    }
+  ], 
   "quest_hometown_journal_drunk_song_donothing": [
     {
       "internals": [], 
@@ -36237,11 +36160,273 @@
       "template": "%(e_0)s %(i_0)s, что %(e_1)s как нельзя лучше подойдёт геройскому образу."
     }
   ], 
-  "quest_collect_debt_action_intro": [
+  "hero_ability_vampire_strike_miss": [
     {
-      "internals": [], 
-      "externals": [], 
-      "template": "направляется к должнику"
+      "internals": [
+        [
+          "попытался", 
+          [
+            "attacker"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "попытался"
+        ], 
+        [
+          "промахнулся", 
+          [
+            "attacker"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "промахнулся"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "им", 
+            "загл"
+          ], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "defender"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s укусить %(e_1)s, но %(i_1)s."
+    }, 
+    {
+      "internals": [
+        [
+          "укусил", 
+          [
+            "attacker"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "укусил"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "им", 
+            "загл"
+          ], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "defender"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s себя вместо %(e_1)s."
+    }, 
+    {
+      "internals": [
+        [
+          "клацнул", 
+          [
+            "attacker"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "клацнул"
+        ], 
+        [
+          "он", 
+          [
+            "defender"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "он"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "тв"
+          ], 
+          "defender"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s зубами рядом с %(e_1)s, не сумев вцепиться в н%(i_1)s."
+    }, 
+    {
+      "internals": [
+        [
+          "ощутил", 
+          [
+            "attacker"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "ощутил"
+        ], 
+        [
+          "смог", 
+          [
+            "attacker"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "смог"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "defender"
+        ]
+      ], 
+      "template": "Слишком сильно открыв рот для укуса, %(e_0)s %(i_0)s боль в челюсти и не %(i_1)s укусить %(e_1)s."
+    }, 
+    {
+      "internals": [
+        [
+          "раззявил", 
+          [
+            "attacker"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "раззявил"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "attacker"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s рот, но подходящий для укуса момент уже был упущен."
+    }, 
+    {
+      "internals": [
+        [
+          "ускользнул", 
+          [
+            "defender"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "ускользнул"
+        ]
+      ], 
+      "externals": [
+        [
+          "defender", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "defender"
+        ], 
+        [
+          "attacker", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "attacker"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s от зубов %(e_1)s."
+    }, 
+    {
+      "internals": [
+        [
+          "промахнулся", 
+          [
+            "attacker"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "промахнулся"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "attacker"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s, бесполезно клацнув зубами."
     }
   ], 
   "quest_collect_debt_diary_finish_help_artifact": [
@@ -37654,6 +37839,35 @@
       "template": "сожалеет о неудаче"
     }
   ], 
+  "quest_pilgrimage_diary_finish_artifact": [
+    {
+      "internals": [
+        [
+          "согласился", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "согласился"
+        ]
+      ], 
+      "externals": [
+        [
+          "artifact", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "«Раскаивающийся грешник долго упрашивал меня взять %(e_0)s, в конце-концов я %(i_0)s»."
+    }
+  ], 
   "quest_help_journal_before_help": [
     {
       "internals": [], 
@@ -38071,16 +38285,48 @@
       "template": "«А-а-а-а-а-а»! — вызванный ветер оказался ураганом и перенёс %(e_0)s гораздо дальше, чем планировалось."
     }
   ], 
-  "quest_caravan_action_finish_attack": [
+  "action_regenerate_energy_energy_received_pray": [
     {
-      "internals": [], 
-      "externals": [], 
-      "template": "продаёт добычу"
+      "internals": [
+        [
+          "закончил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "закончил"
+        ]
+      ], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s обряд. Ваша энергия восстанавливается."
     }, 
     {
       "internals": [], 
-      "externals": [], 
-      "template": "сбывает награбленное"
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "hero"
+        ]
+      ], 
+      "template": "Последние слова молитвы, сорвавшись с губ %(e_0)s, гулким эхом разносятся по округе, восстанавливая вашу энергию."
     }
   ], 
   "action_movenearplace_walk": [

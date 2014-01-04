@@ -8,9 +8,8 @@ from questgen.relations import PROFESSION as QUEST_PROFESSION
 
 from the_tale.common.utils import xls
 
-from the_tale.game.balance.enums import CITY_MODIFIERS
 from the_tale.game.relations import RACE
-from the_tale.game.map.places.relations import CITY_PARAMETERS, BUILDING_TYPE
+from the_tale.game.map.places.relations import CITY_PARAMETERS, BUILDING_TYPE, CITY_MODIFIERS
 
 
 class PERSON_TYPE(DjangoEnum):
@@ -25,7 +24,7 @@ class PERSON_TYPE(DjangoEnum):
                  ('WARDEN',      5, u'стражник', BUILDING_TYPE.WATCHTOWER, QUEST_PROFESSION.NONE),
                  ('MERCHANT',    6, u'торговец', BUILDING_TYPE.TRADING_POST, QUEST_PROFESSION.NONE),
                  ('INNKEEPER',   7, u'трактирщик', BUILDING_TYPE.INN, QUEST_PROFESSION.NONE),
-                 ('ROGUE',       8, u'вор', BUILDING_TYPE.DEN_OF_THIEVE, QUEST_PROFESSION.NONE),
+                 ('ROGUE',       8, u'вор', BUILDING_TYPE.DEN_OF_THIEVE, QUEST_PROFESSION.ROGUE),
                  ('FARMER',      9, u'фермер', BUILDING_TYPE.FARM, QUEST_PROFESSION.NONE),
                  ('MINER',       10, u'шахтёр', BUILDING_TYPE.MINE, QUEST_PROFESSION.NONE),
                  ('PRIEST',      11, u'священник', BUILDING_TYPE.TEMPLE, QUEST_PROFESSION.NONE),

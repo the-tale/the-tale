@@ -4,11 +4,9 @@ from django.db import models
 
 from rels.django import RelationIntegerField
 
-from the_tale.game.balance.enums import CITY_MODIFIERS
-
 from the_tale.game.relations import RACE
 
-from the_tale.game.map.places.relations import BUILDING_TYPE, BUILDING_STATE, RESOURCE_EXCHANGE_TYPE
+from the_tale.game.map.places.relations import BUILDING_TYPE, BUILDING_STATE, RESOURCE_EXCHANGE_TYPE, CITY_MODIFIERS
 
 from the_tale.game.balance import constants as c
 
@@ -43,9 +41,8 @@ class Place(models.Model):
 
     heroes_number = models.IntegerField(default=0)
 
-    modifier = models.IntegerField(null=True, default=None, choices=CITY_MODIFIERS._CHOICES, blank=True)
-
-    race = RelationIntegerField(relation=RACE, relation_column='value')
+    modifier = RelationIntegerField(relation=CITY_MODIFIERS, null=True, default=None, blank=True)
+    race = RelationIntegerField(relation=RACE)
 
     class Meta:
         ordering = ('name', )

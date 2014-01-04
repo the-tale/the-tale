@@ -19,14 +19,14 @@ class PlaceModifierTests(BaseTestPrototypes):
         self.place = self.place1
         self.place_2 = self.place2
 
-        self.bill_data = PlaceModifier(place_id=self.place.id, modifier_id=TradeCenter.get_id(), modifier_name=TradeCenter.NAME, old_modifier_name=None)
+        self.bill_data = PlaceModifier(place_id=self.place.id, modifier_id=TradeCenter.get_id(), modifier_name=TradeCenter.TYPE.text, old_modifier_name=None)
 
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data)
 
     def test_create(self):
         self.assertEqual(self.bill.data.place_id, self.place.id)
         self.assertEqual(self.bill.data.modifier_id, TradeCenter.get_id())
-        self.assertEqual(self.bill.data.modifier_name, TradeCenter.NAME)
+        self.assertEqual(self.bill.data.modifier_name, TradeCenter.TYPE.text)
         self.assertEqual(self.bill.data.old_modifier_name, None)
 
     def test_actors(self):
@@ -46,7 +46,7 @@ class PlaceModifierTests(BaseTestPrototypes):
 
         self.assertEqual(self.bill.data.place_id, self.place_2.id)
         self.assertEqual(self.bill.data.modifier_id, CraftCenter.get_id())
-        self.assertEqual(self.bill.data.modifier_name, CraftCenter.NAME)
+        self.assertEqual(self.bill.data.modifier_name, CraftCenter.TYPE.text)
         self.assertEqual(self.bill.data.old_modifier_name, None)
 
     @mock.patch('the_tale.game.map.places.modifiers.prototypes.PlaceModifierBase.can_be_choosen', True)

@@ -53,8 +53,8 @@ def load_table(filename, sheet_index=0, encoding='utf-8', rows=None, columns=Non
 
     if rows and columns:
         new_data = {}
-
         real_columns = data[0][1:]
+
         if set(real_columns) != set(columns):
             raise XLSException('wrong columns ids: %r' % (real_columns, ))
 

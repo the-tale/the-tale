@@ -16,7 +16,8 @@ class ModifiersTests(testcase.TestCase):
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
     def test_all_professions_covered(self):
-        for modifier in MODIFIERS.values():
+        for modifier_class in MODIFIERS.values():
+            modifier = modifier_class(place=self.place_1)
             for person_type in PERSON_TYPE.records:
                 self.assertTrue(person_type.value in modifier.PERSON_EFFECTS)
 

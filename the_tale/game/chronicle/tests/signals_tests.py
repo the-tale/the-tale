@@ -95,7 +95,7 @@ class BillPlaceChangeModifierTests(BaseTestPrototypes):
     def setUp(self):
         super(BillPlaceChangeModifierTests, self).setUp()
 
-        bill_data = bills.PlaceModifier(place_id=self.place1.id, modifier_id=TradeCenter.get_id(), modifier_name=TradeCenter.NAME, old_modifier_name=None)
+        bill_data = bills.PlaceModifier(place_id=self.place1.id, modifier_id=TradeCenter.get_id(), modifier_name=TradeCenter.TYPE.text, old_modifier_name=None)
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
 
         self.form = bills.PlaceModifier.ModeratorForm({'approved': True})

@@ -910,11 +910,13 @@ class HeroPositionPrototype(object):
     @property
     def place(self): return places_storage.get(self.hero_model.pos_place_id)
 
+    @property
+    def previous_place(self): return places_storage.get(self.hero_model.pos_previous_place_id)
+
+    def visit_current_place(self):
+        self.hero_model.pos_previous_place = self.hero_model.pos_place
+
     def _reset_position(self):
-        if hasattr(self, '_place'):
-            delattr(self, '_place')
-        if hasattr(self, '_road'):
-            delattr(self, '_road')
         self.hero_model.pos_place = None
         self.hero_model.pos_road = None
         self.hero_model.pos_invert_direction = None

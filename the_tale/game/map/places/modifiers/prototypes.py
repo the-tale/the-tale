@@ -3,22 +3,19 @@
 import math
 import random
 
-from the_tale.game.balance import constants as c, enums as e
+from the_tale.common.utils.decorators import lazy_property
 
+from the_tale.game.balance import constants as c
 
-from the_tale.common.utils.enum import create_enum
 
 from the_tale.game.persons.relations import PROFESSION_TO_CITY_MODIFIERS
 
+from the_tale.game.map.places.relations import CITY_MODIFIERS, EFFECT_SOURCES
 
-EFFECT_SOURCES = create_enum('EFFECT_SOURCES', (('PERSON', 0, u'житель'),))
-
-def _get_profession_effects(type_):
-    return dict( (profession_id, modifiers[type_]) for profession_id, modifiers in PROFESSION_TO_CITY_MODIFIERS.items())
 
 class PlaceModifierBase(object):
 
-    NAME = None
+    TYPE = None
     DESCRIPTION = None
     PERSON_EFFECTS = None
     PERSON_POWER_MODIFIER = 20
@@ -32,6 +29,13 @@ class PlaceModifierBase(object):
 
     def __init__(self, place):
         self.place = place
+
+    @lazy_property
+    def NAME(self): return self.TYPE.text
+
+    @lazy_property
+    def PERSON_EFFECTS(self):
+        return dict( (profession_id, modifiers[self.TYPE.value]) for profession_id, modifiers in PROFESSION_TO_CITY_MODIFIERS.items())
 
     @property
     def power_effects(self):
@@ -97,13 +101,12 @@ class PlaceModifierBase(object):
     def modify_terrain_change_power(self, power): return power
     def full_regen_allowed(self): return False
     def modify_experience(self, exp): return exp
+    def energy_regen_allowed(self): return False
 
 
 class TradeCenter(PlaceModifierBase):
 
-    TYPE = e.CITY_MODIFIERS.TRADE_CENTER
-    PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.TRADE_CENTER)
-    NAME = u'Торговый центр'
+    TYPE = CITY_MODIFIERS.TRADE_CENTER
     DESCRIPTION = u'В городе идёт оживлённая торговля, поэтому герои всегда могут найти выгодную цену для продажи своих трофеев или покупки артефактов. Увеличивается производство и уровень свободы в городе.'
 
     PRODUCTION_MODIFIER = c.PLACE_GOODS_BONUS / 2
@@ -115,9 +118,7 @@ class TradeCenter(PlaceModifierBase):
 
 class CraftCenter(PlaceModifierBase):
 
-    TYPE = e.CITY_MODIFIERS.CRAFT_CENTER
-    PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.CRAFT_CENTER)
-    NAME = u'Город мастеров'
+    TYPE = CITY_MODIFIERS.CRAFT_CENTER
     DESCRIPTION = u'Большое количество мастеров, трудящихся в городе, позволяет героям приобретать лучшие артефакты. Увеличивается уровень производства в городе.'
 
     PRODUCTION_MODIFIER = c.PLACE_GOODS_BONUS
@@ -126,9 +127,7 @@ class CraftCenter(PlaceModifierBase):
 
 
 class Fort(PlaceModifierBase):
-    TYPE = e.CITY_MODIFIERS.FORT
-    PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.FORT)
-    NAME = u'Форт'
+    TYPE = CITY_MODIFIERS.FORT
     DESCRIPTION = u'Постоянное присутствие военных делает окрестности города безопаснее для путешествий.'
 
     SAFETY_MODIFIER = 0.05
@@ -136,18 +135,14 @@ class Fort(PlaceModifierBase):
 
 class PoliticalCenter(PlaceModifierBase):
 
-    TYPE = e.CITY_MODIFIERS.POLITICAL_CENTER
-    PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.POLITICAL_CENTER)
-    NAME = u'Политический центр'
+    TYPE = CITY_MODIFIERS.POLITICAL_CENTER
     DESCRIPTION = u'Активная политическая жизнь приводит к тому, что усиливаются все изменения влияния (и положительные и отрицательные) — увеличивается уровень свободы в городе.'
 
     FREEDOM_MODIFIER = 0.25
 
 
 class Polic(PlaceModifierBase):
-    TYPE = e.CITY_MODIFIERS.POLIC
-    PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.POLIC)
-    NAME = u'Полис'
+    TYPE = CITY_MODIFIERS.POLIC
     DESCRIPTION = u'Самостоятельная политика города вместе с большими свободами граждан способствует увеличению размера экономики и уровня свободы в городе.'
 
     FREEDOM_MODIFIER = 0.1
@@ -158,9 +153,7 @@ class Polic(PlaceModifierBase):
 
 class Resort(PlaceModifierBase):
 
-    TYPE = e.CITY_MODIFIERS.RESORT
-    PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.RESORT)
-    NAME = u'Курорт'
+    TYPE = CITY_MODIFIERS.RESORT
     DESCRIPTION = u'Город прославлен своими здравницами и особой атмосферой, в которой раны затягиваются особенно быстро. При посещении города герои полностью восстанавливают своё здоровье. Увеличивается уровень безопасности города и уровень свободы.'
 
     FREEDOM_MODIFIER = 0.1
@@ -170,23 +163,30 @@ class Resort(PlaceModifierBase):
 
 
 class TransportNode(PlaceModifierBase):
-    TYPE = e.CITY_MODIFIERS.TRANSPORT_NODE
-    PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.TRANSPORT_NODE)
-    NAME = u'Транспортный узел'
+    TYPE = CITY_MODIFIERS.TRANSPORT_NODE
     DESCRIPTION = u'Хорошие дороги и обилие гостиниц делает путешествие по дорогам в окрестностях города быстрым и комфортным. Увеличивается уровень транспорта в городе.'
 
     TRANSPORT_MODIFIER = 0.2
 
 
 class Outlaws(PlaceModifierBase):
-    TYPE = e.CITY_MODIFIERS.OUTLAWS
-    PERSON_EFFECTS = _get_profession_effects(e.CITY_MODIFIERS.OUTLAWS)
-    NAME = u'Вольница'
+    TYPE = CITY_MODIFIERS.OUTLAWS
     DESCRIPTION = u'Город облюбован всевозможными авантюристами, бунтарями, беглыми преступниками, бастардами и просто свободолюбивыми людьми, которые готовы любыми средствами защищать свою свободу и свой уклад. Любое задание, связанное с этим городом, принесёт дополнительные опыт герою. Так же в городе увеличен уровень свободы и уменьшен уровень безопасности.'
 
     FREEDOM_MODIFIER = 0.35
     SAFETY_MODIFIER = -0.1
     EXPERIENCE_MODIFIER = 0.25
+
+
+class HolyCity(PlaceModifierBase):
+    TYPE = CITY_MODIFIERS.HOLY_CITY
+    DESCRIPTION = u'Город является средоточием религиозной жизни Пандоры. У каждого героя рано или поздно появляется желание посетить это святое место, чтобы дать отдых своему духу. Обилие паломников способствует развитию транспортной системы города, но излишняя религиозность жителей отрицательно сказывается на производстве и свободе. Сильная энергетика города позволяет Хранителям восстанавливать немного энергии, когда их герой посещает город.'
+
+    PRODUCTION_MODIFIER = -c.PLACE_GOODS_BONUS / 2
+    TRANSPORT_MODIFIER = 0.1
+    FREEDOM_MODIFIER = -0.25
+
+    def energy_regen_allowed(self): return True
 
 
 

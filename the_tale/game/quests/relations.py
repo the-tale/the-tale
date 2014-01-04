@@ -18,4 +18,6 @@ class DONOTHING_TYPE(DjangoEnum):
                 ('STAGGER_STREETS', 'stagger_streets', u'шляться по улицам', 10, 0.3),
                 ('CHATTING', 'chatting', u'общение с друзьями',  5, 0.3),
                 ('SEARCH_OLD_FRIENDS', 'search_old_friends', u'поиск старых друзей', 7, 0.3),
-                ('REMEMBER_NAMES', 'remember_names', u'вспоминание имён', 3, 0.3),  )
+                ('REMEMBER_NAMES', 'remember_names', u'вспоминание имён', 3, 0.3),
+                ('SPEAK_WITH_GURU', 'speak_with_guru', u'общение с гуру', 5, 0.1),
+                ('STAGGER_HOLY_STREETS', 'stagger_holy_streets', u'бродить по святым улицам', 5, 0.1) )

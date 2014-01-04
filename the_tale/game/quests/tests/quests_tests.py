@@ -32,9 +32,12 @@ from the_tale.game.actions.prototypes import ActionQuestPrototype, ActionIdlenes
 
 from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE
 
+from the_tale.game.map.places.modifiers import HolyCity
+
 from the_tale.game.quests.logic import QUESTS_BASE
 from the_tale.game.quests.writers import Writer
 from the_tale.game.quests.prototypes import QuestPrototype
+from the_tale.game.quests.relations import DONOTHING_TYPE
 
 
 
@@ -60,6 +63,9 @@ class QuestsTestBase(testcase.TestCase):
         self.hero.position.set_place(self.p3)
         self.hero.save()
 
+        self.p2.modifier = HolyCity(self.p2)
+        self.p2.save()
+
         self.p1.persons[0]._model.type = PERSON_TYPE.BLACKSMITH
         self.p1.persons[0].save()
 
@@ -84,7 +90,7 @@ def create_test_method(quest, quests):
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_first_quest_path_required', False)
     @mock.patch('the_tale.game.balance.constants.QUESTS_SPECIAL_FRACTION', 1.1)
     @mock.patch('the_tale.game.quests.logic.QUESTS_BASE._quests', internal_quests)
-    @mock.patch('the_tale.game.quests.logic._get_first_quests', lambda hero, special: [quest.TYPE])
+    @mock.patch('the_tale.game.quests.logic.get_first_quests', lambda hero, special: [quest.TYPE])
     @mock.patch('the_tale.game.map.roads.storage.WaymarksStorage.average_path_length', 9999)
     def quest_test_method(self):
 
@@ -172,6 +178,9 @@ class RawQuestsTest(QuestsTestBase):
             if isinstance(action, questgen_actions.DoNothing):
                 self._check_messages(quest_type, '%s_start' % action.type)
                 self._check_messages(quest_type, '%s_donothing' % action.type)
+
+                # check donothing type in DONOTHING relation
+                self.assertTrue(action.type in DONOTHING_TYPE.index_value)
 
             elif isinstance(action, questgen_actions.UpgradeEquipment):
                 self._check_messages(quest_type, 'upgrade__fail')

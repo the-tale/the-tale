@@ -12,6 +12,7 @@ from the_tale.game.bills.bills.base_bill import BaseBill
 
 from the_tale.game.map.places.storage import places_storage
 from the_tale.game.map.places.modifiers import MODIFIERS
+from the_tale.game.map.places.relations import CITY_MODIFIERS
 
 
 class UserForm(BaseUserForm):
@@ -22,11 +23,11 @@ class UserForm(BaseUserForm):
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
         self.fields['place'].choices = places_storage.get_choices()
-        self.fields['new_modifier'].choices = [(modifier.get_id(), modifier.NAME) for modifier in sorted(MODIFIERS.values(), key=lambda m: m.NAME)]
+        self.fields['new_modifier'].choices = sorted(CITY_MODIFIERS.choices(), key=lambda m: m[1])
 
     def clean_new_modifier(self):
         data = self.cleaned_data['new_modifier']
-        return int(data)
+        return CITY_MODIFIERS.get_from_name(data)
 
     def clean(self):
         cleaned_data = super(UserForm, self).clean()
@@ -78,7 +79,7 @@ class PlaceModifier(BaseBill):
     @property
     def user_form_initials(self):
         return {'place': self.place_id,
-                'new_modifier': self.modifier_id}
+                'new_modifier': self.modifier_id.value}
 
     @property
     def place_name_changed(self):
@@ -90,7 +91,7 @@ class PlaceModifier(BaseBill):
     def initialize_with_user_data(self, user_form):
         self.place_id = int(user_form.c.place)
         self.modifier_id = user_form.c.new_modifier
-        self.modifier_name = MODIFIERS[self.modifier_id].NAME
+        self.modifier_name = self.modifier_id.text
         self.old_name_forms = self.place.normalized_name
         self.old_modifier_name = self.place.modifier.NAME if self.place.modifier else None
 
@@ -100,7 +101,7 @@ class PlaceModifier(BaseBill):
 
     def serialize(self):
         return {'type': self.type.name.lower(),
-                'modifier_id': self.modifier_id,
+                'modifier_id': self.modifier_id.value,
                 'modifier_name': self.modifier_name,
                 'place_id': self.place_id,
                 'old_name_forms': self.old_name_forms.serialize(),
@@ -109,7 +110,7 @@ class PlaceModifier(BaseBill):
     @classmethod
     def deserialize(cls, data):
         obj = cls()
-        obj.modifier_id = data['modifier_id']
+        obj.modifier_id = CITY_MODIFIERS(data['modifier_id'])
         obj.modifier_name = data['modifier_name']
         obj.place_id = data['place_id']
         obj.old_name_forms = Noun.deserialize(data['old_name_forms'])
