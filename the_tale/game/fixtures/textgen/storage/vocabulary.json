@@ -39647,6 +39647,21 @@
       "template": "%(e_0)s, сосредоточившись, %(i_0)s %(e_1)s потоком липкого холодного воздуха, сковав %(i_1)s члены и замедлив движения."
     }
   ], 
+  "angel_ability_building_repair_crit": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [], 
+          "hero"
+        ]
+      ], 
+      "template": "Какое-то здание хорошеет на глазах, но, увы, %(e_0)s этого не видит."
+    }
+  ], 
   "chronicle_place_change_modifier_bill_successed_without_old_modifier": [
     {
       "internals": [], 
@@ -39862,19 +39877,6 @@
       "internals": [], 
       "externals": [], 
       "template": "«Бродишь целыми днями по лесам да болотам, жизнью рискуешь, а награды не дождёшься. Надо было в вольные каменщики податься. Им, говорят, хорошо нынче платят»."
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [], 
-          "hero"
-        ]
-      ], 
-      "template": "Какое-то здание хорошеет на глазах, но, увы, %(e_0)s этого не видит."
     }
   ], 
   "quest_search_smith_action_intro": [

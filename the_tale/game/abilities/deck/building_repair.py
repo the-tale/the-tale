@@ -1,4 +1,5 @@
 # coding: utf-8
+import random
 
 from the_tale.common.utils.enum import create_enum
 
@@ -39,7 +40,14 @@ class BuildingRepair(AbilityPrototype):
             if not hero.can_repair_building:
                 return False, ABILITY_TASK_STEP.ERROR, ()
 
-            hero.add_message('angel_ability_building_repair', hero=hero)
+            critical = random.uniform(0, 1) < hero.might_crit_chance
+
+            data['critical'] = critical
+
+            if critical:
+                hero.add_message('angel_ability_building_repair_crit', hero=hero)
+            else:
+                hero.add_message('angel_ability_building_repair', hero=hero)
 
             return None, ABILITY_TASK_STEP.HIGHLEVEL, ((lambda: workers_environment.highlevel.cmd_logic_task(hero.account_id, main_task_id)), )
 
@@ -50,6 +58,10 @@ class BuildingRepair(AbilityPrototype):
 
             building = buildings_storage[building_id]
             building.repair()
+
+            if data.get('critical'): # repair second time
+                building.repair()
+
             building.save()
 
             buildings_storage.update_version()

@@ -49,9 +49,10 @@ class BuildingRepairTest(testcase.TestCase):
         self.building._model.integrity = 0.5
         self.building.save()
 
-    def use_attributes(self, hero_id, building_id=None, step=None, storage=None, highlevel=None):
+    def use_attributes(self, hero_id, building_id=None, step=None, storage=None, highlevel=None, critical=False):
         return {'data': {'hero_id': hero_id,
-                         'building_id': self.building.id if building_id is None else building_id},
+                         'building_id': self.building.id if building_id is None else building_id,
+                         'critical': critical},
                 'step': step,
                 'main_task_id': 0,
                 'storage': storage,
@@ -79,6 +80,37 @@ class BuildingRepairTest(testcase.TestCase):
         self.assertEqual((result, step, postsave_actions), (True, ABILITY_TASK_STEP.SUCCESS, ()))
 
         self.assertTrue(self.building.integrity > 0.5)
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_repair_building', True)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.might_crit_chance', 1.0)
+    def test_critical(self):
+
+        use_attributes = self.use_attributes(hero_id=self.hero_1.id, storage=self.storage)
+
+        result, step, postsave_actions = self.ability_1.use(**use_attributes)
+
+        self.assertTrue(use_attributes['data']['critical'])
+
+        self.assertEqual((result, step), (None, ABILITY_TASK_STEP.HIGHLEVEL))
+        self.assertEqual(len(postsave_actions), 1)
+
+        with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_logic_task') as highlevel_logic_task_counter:
+            postsave_actions[0]()
+
+        self.assertEqual(highlevel_logic_task_counter.call_count, 1)
+
+        self.assertEqual(self.building.integrity, 0.5)
+
+        with mock.patch('the_tale.game.map.places.prototypes.BuildingPrototype.repair') as repair:
+            result, step, postsave_actions = self.ability_1.use(**self.use_attributes(hero_id=self.hero_1.id,
+                                                                                      step=step,
+                                                                                      highlevel=self.highlevel,
+                                                                                      critical=True))
+
+        self.assertEqual(repair.call_count, 2)
+
+        self.assertEqual((result, step, postsave_actions), (True, ABILITY_TASK_STEP.SUCCESS, ()))
 
     def test_use_for_fast_account(self):
         self.assertEqual(self.building.integrity, 0.5)
