@@ -1,0 +1,32 @@
+
+{% macro place_demographics(place) %}
+
+<p>
+  Информация о демографической ситуации в городе.
+</p>
+
+<table class="table table-striped table-condensed table-no-highlighting">
+  <thead>
+    <th>раса</th>
+    <th>количество</th>
+    <th>в день</th>
+    <th>влияние советников</th>
+  </thead>
+  <tbody>
+    {% for race_info in place.races.demographics(place.persons) %}
+    <tr>
+      <td>{{race_info.race.multiple_text}}</td>
+      <td>{{race_info.percents|percents(2)}}</td>
+      {% set delta = race_info.delta*24 %}
+      <td style="text-align: left; color:{%if race_info.delta > 0.0001 %}green{%elif race_info.delta < -0.0001%}red{%else%}black{%endif%};">
+        {% if race_info.delta > 0.00001%}+{% elif race_info.delta < -0.00001%}-{% else %}&nbsp;{%endif%} {{delta|abs|percents(2)}}
+                                                                    </td>
+      <td>
+        {{race_info.persons_percents|percents(2)}}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endmacro %}

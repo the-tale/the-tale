@@ -66,7 +66,6 @@ class MapResource(Resource):
                 resource_1, resource_2, place_2 = exchange.get_resources_for_place(place)
                 exchanges.append((resource_1, resource_2, place_2, exchange.bill))
 
-
         terrain_points = []
 
         building = buildings_storage.get_by_coordinates(x, y)

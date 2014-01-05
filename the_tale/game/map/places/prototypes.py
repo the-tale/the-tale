@@ -27,6 +27,7 @@ from the_tale.game.map.places.exceptions import PlacesException
 from the_tale.game.map.places.modifiers import MODIFIERS, PlaceModifierBase
 from the_tale.game.map.places.relations import BUILDING_STATE, RESOURCE_EXCHANGE_TYPE, CITY_PARAMETERS
 from the_tale.game.map.places import signals
+from the_tale.game.map.places.races import Races
 
 class PlaceParametersDescription(object):
     PLACE_SIZE = (u'размер города', u'Влияет на количество жителей в городе, развитие специализаций и на потребление товаров жителями. Зависит от производства товаров.')
@@ -157,6 +158,12 @@ class PlacePrototype(BasePrototype):
     def set_nearest_cells(self, value): self.data['nearest_cells'] = value
     nearest_cells = property(get_nearest_cells, set_nearest_cells)
 
+    @lazy_property
+    def races(self):
+        if 'races' not in self.data:
+            self.data['races'] = {}
+        return Races(data=self.data['races'])
+
     @property
     def terrains(self):
         from the_tale.game.map.storage import map_info_storage
@@ -167,17 +174,11 @@ class PlacePrototype(BasePrototype):
         return terrains
 
     def sync_race(self):
-        race_power = {}
+        self.races.update(persons=self.persons)
 
-        for person in self.persons:
-            race_power[person.race] = race_power.get(person.race, 0) + person.power
+        dominant_race = self.races.dominant_race
 
-        if len(race_power) == 0:
-            return
-
-        dominant_race = max(race_power.items(), key=lambda x: x[1])[0]
-
-        if self.race != dominant_race:
+        if dominant_race and self.race != dominant_race:
             old_race = self.race
             self.race = dominant_race
             signals.place_race_changed.send(self.__class__, place=self, old_race=old_race, new_race=self.race)
@@ -292,6 +293,8 @@ class PlacePrototype(BasePrototype):
 
     def save(self):
         from the_tale.game.map.places.storage import places_storage
+
+        self.races.serialize()
 
         self._model.data = s11n.to_json(self.data)
         self._model.save(force_update=True)

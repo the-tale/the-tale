@@ -175,6 +175,9 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.PLACE_MAX_EXCHANGED_NUMBER, 3)
 
+        self.assertEqual(c.PLACE_RACE_CHANGE_DELTA_IN_DAY, 0.1)
+        self.assertEqual(c.PLACE_RACE_CHANGE_DELTA, 0.1 / 24)
+
         self.assertEqual(c.BUILDING_MASTERY_BONUS, 0.15)
         self.assertEqual(c.BUILDING_FULL_DESTRUCTION_TIME, 2*7*24)
         self.assertTrue(0.0029 < c.BUILDING_AMORTIZATION_SPEED < 0.0030)

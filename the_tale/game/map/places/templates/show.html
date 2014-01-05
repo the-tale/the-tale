@@ -1,4 +1,5 @@
 {% extends "places/base.html" %}
+{% import 'places/macros.html' as places_macros with context %}
 
 {% block title %} {{ place.name }} | {{ super() }}{% endblock %}
 {% block description %}Информация о городе «{{place.name}}»{% endblock %}
@@ -26,25 +27,7 @@
   Размер города: {{place.size}}
 </p>
 
-<p>
-  Доли каждой расы в населении города.
-</p>
-
-<table class="table table-condensed table-striped table-bordered table-no-highlighting" style="width: auto;">
-  <tbody>
-    <tr>
-      <th width="75px">раса</th>
-      <th width="50px">доля</th>
-    </tr>
-    {% for race_id, race_percent in race_percents %}
-    {% if race_percent < 0.001 %}{% break %}{% endif %}
-    <tr>
-      <td>{{RACE(race_id).multiple_text}}</td>
-      <td>{{race_percent|percents}}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+{{ places_macros.place_demographics(place)}}
 
 <p>
   Списки героев, выбравших город родным или сотрудничающих/враждующих с кем-либо из городского Совета.<br/>

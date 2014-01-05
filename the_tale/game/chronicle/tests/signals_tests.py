@@ -300,8 +300,9 @@ class PersonMovementsTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.is_stable', False)
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.max_persons_number', 0)
     def test_person_left(self):
-        with check_record_created(self, RECORD_TYPE.PERSON_LEFT_PLACE, records_number=len(self.place1.persons)):
-            self.place1.sync_persons()
+        with mock.patch('the_tale.game.map.places.races.Races.dominant_race', self.place1.race):
+            with check_record_created(self, RECORD_TYPE.PERSON_LEFT_PLACE, records_number=len(self.place1.persons)):
+                self.place1.sync_persons()
 
     @mock.patch('the_tale.game.chronicle.records.PlaceChangeRace.create_record', lambda x: None)
     def test_person_arrived(self):

@@ -1,5 +1,6 @@
 {% import 'chronicle/macros.html' as chronicle_macros with context %}
 {% import 'map/macros.html' as map_macros with context %}
+{% import 'places/macros.html' as places_macros with context %}
 
 <div class="modal hide place-description-dialog">
 
@@ -40,6 +41,7 @@
       <li><a href="#pgf-cell-description" class="pgf-cell-description-button" data-toggle="tab">Описание</a></li>
       <li><a href="#pgf-cell-persons" class="pgf-cell-persons-button" data-toggle="tab">Городской Совет</a></li>
       <li><a href="#pgf-cell-place-parameters" class="pgf-cell-place-parameters-button" data-toggle="tab">Параметры</a></li>
+      <li><a href="#pgf-cell-place-demographics" class="pgf-cell-place-demographics-button" data-toggle="tab">Демография</a></li>
       <li><a href="#pgf-cell-place-bills" class="pgf-cell-place-bills-button" data-toggle="tab">Законы</a></li>
       <li><a href="#pgf-cell-place-modifiers" class="pgf-cell-place-modifiers-button" data-toggle="tab">Специализация</a></li>
       <li><a href="#pgf-cell-place-chronicle" class="pgf-cell-place-chronicle-button" data-toggle="tab">События</a></li>
@@ -243,6 +245,11 @@
         </table>
 
       </div>
+
+      <div class="tab-pane active description" id="pgf-cell-place-demographics">
+        {{ places_macros.place_demographics(place)}}
+      </div>
+
 
       <div class="tab-pane active description" id="pgf-cell-place-bills">
         <p>
