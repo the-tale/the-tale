@@ -366,12 +366,12 @@ class QuestPrototype(object):
         from the_tale.game.actions.prototypes import ActionBattlePvE1x1Prototype
 
         if action.mob is not None:
-            mob = mobs_storage[self.knowledge_base[action.mob].externals['id']].create_mob(self.hero)
+            mob = mobs_storage[self.knowledge_base[action.mob].externals['id']].create_mob(self.hero, is_boss=True)
         else:
-            mob = mobs_storage.get_random_mob(self.hero, mercenary=action.mercenary)
+            mob = mobs_storage.get_random_mob(self.hero, mercenary=action.mercenary, is_boss=True)
 
             if mob is None:
-                mobs_storage.get_random_mob(self.hero)
+                mobs_storage.get_random_mob(self.hero, is_boss=True)
 
 
         ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)

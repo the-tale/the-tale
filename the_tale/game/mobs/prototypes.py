@@ -29,12 +29,13 @@ class MobException(Exception): pass
 
 class MobPrototype(object):
 
-    __slots__ = ('record', 'level', 'abilities', 'initiative', 'health_cooficient', 'damage_modifier', 'max_health', 'health')
+    __slots__ = ('record', 'level', 'abilities', 'initiative', 'health_cooficient', 'damage_modifier', 'max_health', 'health', 'is_boss')
 
-    def __init__(self, record=None, level=None, health=None, abilities=None):
+    def __init__(self, record=None, level=None, health=None, abilities=None, is_boss=False):
 
         self.record = record
         self.level = level
+        self.is_boss = is_boss
 
         self.abilities = self._produce_abilities(record, level) if abilities is None else abilities
 
@@ -42,9 +43,14 @@ class MobPrototype(object):
         self.health_cooficient = self.abilities.modify_attribute(ATTRIBUTES.HEALTH, 1)
         self.damage_modifier = self.abilities.modify_attribute(ATTRIBUTES.DAMAGE, 1)
 
-        self.max_health = int(f.mob_hp_to_lvl(level) * self.health_cooficient)
+        if self.is_boss:
+            self.max_health = int(f.boss_hp_to_lvl(level) * self.health_cooficient)
+        else:
+            self.max_health = int(f.mob_hp_to_lvl(level) * self.health_cooficient)
 
         self.health = self.max_health if health is None else health
+
+
 
     @staticmethod
     def _produce_abilities(record, level):
@@ -80,6 +86,7 @@ class MobPrototype(object):
     def serialize(self):
         return {'level': self.level,
                 'id': self.id,
+                'is_boss': self.is_boss,
                 'health': self.health}
 
     @classmethod
@@ -101,11 +108,13 @@ class MobPrototype(object):
         return cls(record=record,
                    level=level,
                    health=data['health'],
+                   is_boss=data.get('is_boss', False),
                    abilities=abilities)
 
     def ui_info(self):
         return { 'name': self.name,
-                 'health': self.health_percents }
+                 'health': self.health_percents,
+                 'is_boss': self.is_boss}
 
 
     def __eq__(self, other):
@@ -113,6 +122,7 @@ class MobPrototype(object):
                 self.level == other.level and
                 self.max_health == other.max_health and
                 self.health == other.health and
+                self.is_boss == other.is_boss and
                 self.abilities == other.abilities)
 
 
@@ -199,8 +209,8 @@ class MobRecordPrototype(BasePrototype):
         return filter(lambda a: a.TYPE.is_BATTLE and a.AVAILABILITY.value & ABILITY_AVAILABILITY.FOR_MONSTERS.value, # pylint: disable=W0110
                       ABILITIES.values())
 
-    def create_mob(self, hero):
-        return MobPrototype(record=self, level=hero.level)
+    def create_mob(self, hero, is_boss=False):
+        return MobPrototype(record=self, level=hero.level, is_boss=is_boss)
 
     @classmethod
     def create_random(cls, uuid, type=MOB_TYPE.CIVILIZED, level=1, abilities_number=3, terrains=TERRAIN._ALL, state=MOB_RECORD_STATE.ENABLED): # pylint: disable=W0102

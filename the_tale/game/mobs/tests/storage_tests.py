@@ -92,3 +92,18 @@ class MobsStorageTests(testcase.TestCase):
         hero = HeroPrototype.get_by_account_id(account_id)
 
         self.assertEqual(mobs_storage.get_random_mob(hero), None)
+
+
+    def test_get_random_mob__boss(self):
+        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
+        hero = HeroPrototype.get_by_account_id(account_id)
+
+        boss = mobs_storage.get_random_mob(hero, is_boss=True)
+
+        self.assertTrue(boss.is_boss)
+
+        normal_mob = boss.record.create_mob(hero)
+
+        self.assertFalse(normal_mob.is_boss)
+
+        self.assertTrue(boss.max_health > normal_mob.max_health)

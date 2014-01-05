@@ -44,7 +44,7 @@ class MobsStorage(create_storage_class('mob records change time', MobRecordProto
         return list(mobs)
 
 
-    def get_random_mob(self, hero, mercenary=None):
+    def get_random_mob(self, hero, mercenary=None, is_boss=False):
         self.sync()
 
         choices = self.get_available_mobs_list(level=hero.level, terrain=hero.position.get_terrain(), mercenary=mercenary)
@@ -53,6 +53,6 @@ class MobsStorage(create_storage_class('mob records change time', MobRecordProto
             return None
 
         mob_record = random.choice(choices)
-        return MobPrototype(record=mob_record, level=hero.level)
+        return MobPrototype(record=mob_record, level=hero.level, is_boss=is_boss)
 
 mobs_storage = MobsStorage()

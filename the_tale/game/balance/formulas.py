@@ -59,6 +59,7 @@ def power_to_artifact_randomized(lvl):
 #
 
 def mob_hp_to_lvl(lvl): return int(hp_on_lvl(lvl) * c.MOB_HP_MULTIPLIER) # здоровье моба уровня героя
+def boss_hp_to_lvl(lvl): return int(hp_on_lvl(lvl) * c.BOSS_HP_MULTIPLIER) # здоровье босса уровня героя
 
 def expected_damage_to_hero_per_hit(lvl): return float(hp_on_lvl(lvl) * c.DAMAGE_TO_HERO_PER_HIT_FRACTION) # ожидаемый урон моба по герою за удар
 def expected_damage_to_mob_per_hit(lvl): return float(mob_hp_to_lvl(lvl) * c.DAMAGE_TO_MOB_PER_HIT_FRACTION) # ожидаемый урон героя по мобу за удар

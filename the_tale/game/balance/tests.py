@@ -15,6 +15,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.INITIAL_HP, 500)
         self.assertEqual(c.HP_PER_LVL, 50)
         self.assertEqual(c.MOB_HP_MULTIPLIER, 0.25)
+        self.assertEqual(c.BOSS_HP_MULTIPLIER, 0.5)
         self.assertEqual(c.TURN_DELTA, 10)
         self.assertEqual(c.TURNS_IN_HOUR, 360.0)
         self.assertEqual(c.POWER_PER_LVL, 1)
