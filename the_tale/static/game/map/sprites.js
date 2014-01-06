@@ -145,7 +145,7 @@ pgf.tilesets = {
         TILE_SIZE: 32,
         W: 32,
         H: 32,
-        SRC: "/game/images/map_hats.png",
+        SRC: "/game/images/map.png",
         sprites: jQuery.extend(true, {}, pgf.sprites)
     },
 
@@ -153,7 +153,7 @@ pgf.tilesets = {
         TILE_SIZE: 32,
         W: 32,
         H: 32,
-        SRC: "/game/images/map_winter_hats.png",
+        SRC: "/game/images/map_winter.png",
         sprites: jQuery.extend(true, {}, pgf.sprites)
     }
 };

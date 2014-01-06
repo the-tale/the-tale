@@ -200,7 +200,8 @@ class ActionBase(object):
     def ui_info(self):
         return {'percents': self.percents,
                 'description': self.description,
-                'info_link': self.info_link}
+                'info_link': self.info_link,
+                'is_boss': self.mob.is_boss if self.mob else None}
 
     @property
     def leader(self):
@@ -472,6 +473,10 @@ class ActionIdlenessPrototype(ActionBase):
             self.state = self.STATE.WAITING
 
         if self.state == self.STATE.WAITING:
+
+            if self.hero.position.place is None:
+                self.process_position()
+                return
 
             self.percents += 1.0 / (c.TURNS_TO_IDLE * self.hero.level)
 

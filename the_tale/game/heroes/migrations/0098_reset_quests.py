@@ -13,6 +13,7 @@ class Migration(DataMigration):
         for hero in Hero.objects.all():
             actions = json.loads(hero.actions)
             actions['actions'] = [actions['actions'][0]]
+            actions['actions'][0]['percents'] = 0
             hero.actions = json.dumps(actions)
 
             quests = json.loads(hero.quests)

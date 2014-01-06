@@ -78,7 +78,7 @@ class QuestInfoTests(testcase.TestCase, QuestTestsMixin):
                                      *self.get_choices())
 
         self.assertEqual(self.quest_info.choice, 'q_quest_quest_with_2_choice_points_choice_current_opt_1_1')
-        self.assertEqual(self.quest_info.choice_alternatives,  [('#option([ns-0]choice_1, [ns-0]choice_2)',
+        self.assertEqual(self.quest_info.choice_alternatives,  [('#option([ns-0]choice_1, [ns-0]choice_2, opt_2)',
                                                                  u'q_quest_quest_with_2_choice_points_choice_variant_opt_2_2')])
 
     @mock.patch('the_tale.game.quests.writers.get_writer', lambda **kwargs: FakeWriter(fake_uid='q', **kwargs))

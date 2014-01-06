@@ -35,10 +35,10 @@ class MakeChoiceTaskTest(testcase.TestCase, QuestTestsMixin):
 
         self.choice_1_uid = '[ns-0]choice_1'
         self.choice_2_uid = '[ns-0]choice_2'
-        self.option_1_1_uid = '#option([ns-0]choice_1, [ns-0]choice_2)'
-        self.option_1_2_uid = '#option([ns-0]choice_1, [ns-0]finish_2)'
-        self.option_2_1_uid = '#option([ns-0]choice_2, [ns-0]finish_1_1)'
-        self.option_2_2_uid = '#option([ns-0]choice_2, [ns-0]finish_1_2)'
+        self.option_1_1_uid = '#option([ns-0]choice_1, [ns-0]choice_2, opt_2)'
+        self.option_1_2_uid = '#option([ns-0]choice_1, [ns-0]finish_2, opt_1)'
+        self.option_2_1_uid = '#option([ns-0]choice_2, [ns-0]finish_1_1, opt_2_1)'
+        self.option_2_2_uid = '#option([ns-0]choice_2, [ns-0]finish_1_2, opt_2_2)'
 
     def create_task(self, option_uid, account_id=None):
 
