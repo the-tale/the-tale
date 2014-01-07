@@ -488,11 +488,17 @@ class HeroPrototype(BasePrototype):
         else:
             modifier = c.EXP_FOR_NORMAL_ACCOUNT * c.EXP_PENALTY_MULTIPLIER
 
+        modifier *= self.preferences.risk_level.experience_modifier
+
         return self.abilities.modify_attribute(ATTRIBUTES.EXPERIENCE, modifier)
 
     @property
     def person_power_modifier(self):
-        return self.abilities.modify_attribute(ATTRIBUTES.POWER, max(math.log(self.level, 2), 0.5))
+        return self.abilities.modify_attribute(ATTRIBUTES.POWER, max(math.log(self.level, 2), 0.5)) * self.preferences.risk_level.power_modifier
+
+    @property
+    def reward_modifier(self):
+        return self.preferences.risk_level.reward_modifier
 
     ###########################################
     # Permissions

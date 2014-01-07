@@ -48,7 +48,6 @@ class MapResource(Resource):
 
         place = places_storage.get_by_coordinates(x, y)
 
-        dominant_race = None
         place_modifiers = None
 
         chronicle_records = []
@@ -56,7 +55,6 @@ class MapResource(Resource):
 
         if place is not None:
 
-            dominant_race = place.race.multiple_text
 
             place_modifiers = place.modifiers
 
@@ -79,7 +77,6 @@ class MapResource(Resource):
                               'cell': cell,
                               'terrain': terrain,
                               'nearest_place_name': nearest_place_name,
-                              'dominant_race': dominant_race,
                               'PlaceParametersDescription': PlaceParametersDescription,
                               'x': x,
                               'y': y,

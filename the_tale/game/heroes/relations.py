@@ -8,12 +8,15 @@ from the_tale.game.artifacts.models import ARTIFACT_TYPE
 
 class RISK_LEVEL(DjangoEnum):
     health_percent_to_rest = Column()
+    experience_modifier = Column()
+    power_modifier = Column()
+    reward_modifier = Column()
 
-    records = ( ('VERY_HIGH', 0, u'очень высокий', 0.70),
-                 ('HIGH',      1, u'высокий', 0.85),
-                 ('NORMAL',    2, u'обычный', 1.00),
-                 ('LOW',       3, u'низкий', 1.15),
-                 ('VERY_LOW',  4, u'очень низкий', 1.30) )
+    records = ( ('VERY_HIGH', 0, u'очень высокий', 0.70, 1.30, 1.30, 1.30),
+                 ('HIGH',      1, u'высокий', 0.85, 1.15, 1.15, 1.15),
+                 ('NORMAL',    2, u'обычный', 1.00, 1.00, 1.00, 1.00),
+                 ('LOW',       3, u'низкий', 1.15, 0.85, 0.85, 0.85),
+                 ('VERY_LOW',  4, u'очень низкий', 1.30, 0.70, 0.70, 0.70) )
 
 
 class PREFERENCE_TYPE(DjangoEnum):

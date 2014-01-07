@@ -76,7 +76,6 @@
                   <ul>"></i>
 
         <ul class="unstyled">
-          <li>основное население: {{dominant_race}}</li>
           <li>
             прописано героев: {{place.heroes_number}},
             <a href="{{url('game:map:places:show', place.id)}}" target="_blank">подробнее</a>
@@ -140,7 +139,7 @@
                            title="владеет строением в окрестностях города"></i>
                         {% endif %}
 
-                        <span rel="tooltip" title="количество соратников/противников">
+                        <span rel="tooltip" title="количество соратников/противников" style="vertical-align: middle;">
                           <i class="icon-user"></i> {{person.friends_number}}/{{person.enemies_number}}
                         </span>
                       </span>

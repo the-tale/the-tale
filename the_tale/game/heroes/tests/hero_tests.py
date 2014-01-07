@@ -89,6 +89,15 @@ class HeroTest(TestCase):
         self.hero.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         self.assertEqual(self.hero.experience_modifier, 0)
 
+    def test_experience_modifier__risk_level(self):
+        self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
+
+        self.hero.preferences.set_risk_level(RISK_LEVEL.VERY_HIGH)
+        self.assertTrue(c.EXP_FOR_NORMAL_ACCOUNT < self.hero.experience_modifier)
+
+        self.hero.preferences.set_risk_level(RISK_LEVEL.VERY_LOW)
+        self.assertTrue(c.EXP_FOR_NORMAL_ACCOUNT > self.hero.experience_modifier)
+
     def test_experience_modifier__active_inactive_state(self):
         self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
@@ -162,6 +171,21 @@ class HeroTest(TestCase):
         self.assertTrue(self.hero.premium_state_end_at > datetime.datetime.now())
         self.assertTrue(self.hero.ban_state_end_at > datetime.datetime.now())
         self.assertEqual(self.hero.might, 666)
+
+    def test_reward_modifier__risk_level(self):
+        self.assertEqual(self.hero.reward_modifier, 1.0)
+        self.hero.preferences.set_risk_level(RISK_LEVEL.VERY_HIGH)
+        self.assertTrue(self.hero.reward_modifier > 1.0)
+        self.hero.preferences.set_risk_level(RISK_LEVEL.VERY_LOW)
+        self.assertTrue(self.hero.reward_modifier < 1.0)
+
+    def test_person_power_modifier__risk_level(self):
+        normal_power_modifier = self.hero.person_power_modifier
+
+        self.hero.preferences.set_risk_level(RISK_LEVEL.VERY_HIGH)
+        self.assertTrue(self.hero.person_power_modifier > normal_power_modifier)
+        self.hero.preferences.set_risk_level(RISK_LEVEL.VERY_LOW)
+        self.assertTrue(self.hero.person_power_modifier < normal_power_modifier)
 
 
     def test_modify_person_power(self):

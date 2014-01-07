@@ -395,6 +395,8 @@ class QuestPrototype(object):
 
     def _give_reward(self, hero, reward_type, scale):
 
+        scale *= hero.reward_modifier
+
         quest_info = self.quests_stack[-1]
 
         if hero.can_get_artifact_for_quest():
