@@ -671,6 +671,7 @@ class QuestPrototype(object):
         if isinstance(object_fact, facts.Hero):
             if self.hero.id != object_fact.externals['id']:
                 return False
+
             return self.hero.is_alive
 
         raise exceptions.UnknownRequirement(requirement=requirement)

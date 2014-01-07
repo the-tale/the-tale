@@ -44,7 +44,7 @@ class PlaceParametersDescription(object):
 class PlacePrototype(BasePrototype):
     _model_class = Place
     _readonly = ('id', 'x', 'y', 'name', 'heroes_number', 'updated_at')
-    _bidirectional = ('description', 'size', 'expected_size', 'goods', 'production', 'safety', 'freedom', 'transport', 'race')
+    _bidirectional = ('description', 'size', 'expected_size', 'goods', 'production', 'safety', 'freedom', 'transport', 'race', 'persons_changed_at_turn')
     _get_by = ('id',)
 
     @property
@@ -116,10 +116,26 @@ class PlacePrototype(BasePrototype):
     @property
     def max_persons_number(self): return places_settings.SIZE_TO_PERSONS_NUMBER[self.size]
 
-    def sync_persons(self):
+
+    def add_person(self):
         from the_tale.game.persons.relations import PERSON_TYPE
         from the_tale.game.persons.prototypes import PersonPrototype
 
+        race = random.choice(RACE.records)
+        gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
+
+        new_person = PersonPrototype.create(place=self,
+                                            race=race,
+                                            gender=gender,
+                                            tp=random.choice(PERSON_TYPE.records),
+                                            name=names.generator.get_name(race, gender))
+
+        signals.place_person_arrived.send(self.__class__, place=self, person=new_person)
+
+    @property
+    def can_add_person(self): return self.persons_changed_at_turn + c.PLACE_ADD_PERSON_DELAY < TimePrototype.get_current_turn_number()
+
+    def sync_persons(self, force_add):
         for person in self.persons:
             if person.is_stable:
                 continue
@@ -130,16 +146,13 @@ class PlacePrototype(BasePrototype):
         persons_count = len(self.persons)
 
         while persons_count < self.max_persons_number:
-            race = random.choice(RACE.records)
-            gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
 
-            new_person = PersonPrototype.create(place=self,
-                                                race=race,
-                                                gender=gender,
-                                                tp=random.choice(PERSON_TYPE.records),
-                                                name=names.generator.get_name(race, gender))
-            persons_count += 1
-            signals.place_person_arrived.send(self.__class__, place=self, person=new_person)
+            if force_add or persons_count == 0 or self.can_add_person:
+                self.add_person()
+                persons_count += 1
+
+            if not force_add:
+                break
 
         self.sync_race()
 
@@ -275,14 +288,14 @@ class PlacePrototype(BasePrototype):
 
 
     @classmethod
-    def create(cls, x, y, size, name_forms):
+    def create(cls, x, y, size, name_forms, race=RACE.HUMAN):
         from the_tale.game.map.places.storage import places_storage
 
         model = Place.objects.create( x=x,
                                       y=y,
                                       name=name_forms.normalized,
                                       name_forms=s11n.to_json(name_forms.serialize()),
-                                      race=RACE.HUMAN,
+                                      race=race,
                                       size=size)
         prototype = cls(model)
 

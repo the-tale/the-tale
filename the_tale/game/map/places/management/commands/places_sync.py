@@ -13,5 +13,5 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         for place in places_storage.all():
-            place.sync_persons()
+            place.sync_persons(force_add=True)
             place.save()

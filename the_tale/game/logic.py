@@ -56,7 +56,7 @@ def create_test_map():
     p3 = PlacePrototype.create( x=1, y=3, size=3, name_forms=words.Noun.fast_construct('1x10'))
 
     for place in places_storage.all():
-        place.sync_persons()
+        place.sync_persons(force_add=True)
 
     RoadPrototype.create(point_1=p1, point_2=p2)
     RoadPrototype.create(point_1=p2, point_2=p3)

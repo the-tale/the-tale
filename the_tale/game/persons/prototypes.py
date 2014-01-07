@@ -99,6 +99,8 @@ class PersonPrototype(BasePrototype):
         self._model.out_game_at = datetime.datetime.now()
         self._model.state = PERSON_STATE.OUT_GAME
 
+        self.place.persons_changed_at_turn = TimePrototype.get_current_turn_number()
+
         building = buildings_storage.get_by_person_id(self.id)
 
         if building:
@@ -183,6 +185,8 @@ class PersonPrototype(BasePrototype):
 
         persons_storage.add_item(prototype.id, prototype)
         persons_storage.update_version()
+
+        prototype.place.persons_changed_at_turn = TimePrototype.get_current_turn_number()
 
         return prototype
 

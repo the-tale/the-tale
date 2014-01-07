@@ -168,7 +168,7 @@ class Worker(BaseWorker):
             place.set_expected_size(expected_size)
 
             place.sync_size(c.MAP_SYNC_TIME_HOURS)
-            place.sync_persons()
+            place.sync_persons(force_add=False)
             place.sync_modifier()
             place.sync_parameters() # must be last operation to display and use real data
 

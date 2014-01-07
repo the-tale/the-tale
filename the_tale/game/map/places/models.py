@@ -44,6 +44,8 @@ class Place(models.Model):
     modifier = RelationIntegerField(relation=CITY_MODIFIERS, null=True, default=None, blank=True)
     race = RelationIntegerField(relation=RACE)
 
+    persons_changed_at_turn = models.BigIntegerField(default=0)
+
     class Meta:
         ordering = ('name', )
 

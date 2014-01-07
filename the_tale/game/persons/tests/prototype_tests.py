@@ -24,6 +24,8 @@ class PrototypeTests(testcase.TestCase):
         current_time = TimePrototype.get_current_time()
         current_time.increment_turn()
 
+        self.persons_changed_at_turn = TimePrototype.get_current_turn_number()
+
         self.p1, self.p2, self.p3 = create_test_map()
 
         self.person = create_person(self.p1, PERSON_STATE.IN_GAME)
@@ -42,6 +44,8 @@ class PrototypeTests(testcase.TestCase):
 
 
     def test_initialize(self):
+        self.assertEqual(self.person.place.persons_changed_at_turn, self.persons_changed_at_turn)
+
         self.assertEqual(self.person.friends_number, 0)
         self.assertEqual(self.person.enemies_number, 0)
         self.assertEqual(self.person.created_at_turn, TimePrototype.get_current_turn_number() - 1)
@@ -63,12 +67,18 @@ class PrototypeTests(testcase.TestCase):
         self.assertTrue(self.person.is_stable)
 
     def test_move_out_game(self):
+        self.assertEqual(self.person.place.persons_changed_at_turn, self.persons_changed_at_turn)
+
+        TimePrototype.get_current_time().increment_turn()
+
         current_time = datetime.datetime.now()
         self.assertTrue(self.person.out_game_at < current_time)
         self.assertEqual(self.person.state, PERSON_STATE.IN_GAME)
         self.person.move_out_game()
         self.assertTrue(self.person.out_game_at > current_time)
         self.assertEqual(self.person.state, PERSON_STATE.OUT_GAME)
+
+        self.assertEqual(self.person.place.persons_changed_at_turn, TimePrototype.get_current_turn_number())
 
     def test_move_out_game_with_building(self):
         building = BuildingPrototype.create(self.person, name_forms=Noun.fast_construct('building-name'))

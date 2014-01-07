@@ -91,7 +91,7 @@ class Command(BaseCommand):
         roads_storage.update_version()
 
         for place in places_storage.all():
-            place.sync_persons()
+            place.sync_persons(force_add=True)
 
         persons_storage.update_version()
 

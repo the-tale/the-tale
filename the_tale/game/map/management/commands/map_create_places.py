@@ -101,7 +101,7 @@ class Command(BaseCommand):
 
         persons_storage.update_version()
 
-        place.sync_persons()
+        place.sync_persons(force_add=True)
         place.sync_race()
         place.save()
 
