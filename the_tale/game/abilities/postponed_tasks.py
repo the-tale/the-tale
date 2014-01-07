@@ -68,6 +68,11 @@ class UseAbilityTask(PostponedLogic):
 
             main_task.extend_postsave_actions(postsave_actions)
 
+            if result is None:
+                main_task.comment = 'result is None: do nothing'
+                self.state = ABILITY_TASK_STATE.PROCESSED
+                return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
+
             if result is False:
                 main_task.comment = 'result is False'
                 self.state = ABILITY_TASK_STATE.CAN_NOT_PROCESS

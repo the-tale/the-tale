@@ -164,3 +164,18 @@ class HelpAbilityTest(testcase.TestCase):
         self.assertEqual(self.hero.is_alive, True)
         self.assertTrue(old_percents < action_resurrect.percents)
         self.assertEqual(self.hero.actions.current_action.percents, action_resurrect.percents)
+
+
+    def test_resurrect__two_times(self):
+        current_time = TimePrototype.get_current_time()
+
+        self.hero.kill()
+
+        with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.RESURRECT):
+            current_time.increment_turn()
+            self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
+            self.storage.process_turn(second_step_if_needed=False)
+
+        with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.RESURRECT):
+            current_time.increment_turn()
+            self.assertEqual(self.ability.use(**self.use_attributes), (None, None, ()))

@@ -61,6 +61,8 @@ class Help(AbilityPrototype):
         return True, None, ()
 
     def use_resurrect(self, action, hero, critical): # pylint: disable=W0613
+        if hero.is_alive:
+            return None, None, ()
         action.fast_resurrect()
         hero.add_message('angel_ability_resurrect', hero=hero)
         return True, None, ()
