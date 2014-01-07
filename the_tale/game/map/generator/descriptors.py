@@ -7,6 +7,7 @@ import rels
 from the_tale.common.utils.logic import choose_from_interval, choose_nearest
 
 from the_tale.game.prototypes import TimePrototype
+from the_tale.game.balance import constants as c
 
 from the_tale.game.map.conf import map_settings
 
@@ -90,6 +91,23 @@ class WETNESS_POWER(rels.Relation):
                  (9, u'сильный туман', 0.95) )
 
 
+class SAFETY(rels.Relation):
+    value = rels.Column(external=True, unique=True)
+    text = rels.Column(unique=False)
+    safety = rels.Column()
+
+    records = ( (1, u'ни один вменяемый герой никогда не сунется в это пропащее место', 0.00),
+                (2, u'здесь есть только душераздирающие вопли, дикая магия, опаснейшие монстры и страх, пробирающий до костей', 0.10),
+                (3, u'в округе нет ни одного безопасного места, за каждым поворотом, каждым камнем путника ждёт бой не на жизнь на на смерть', 0.20),
+                (4, u'ужасные крики то и дело пролетают по окрестностям, опасные твари ходят в открытую, далеко не каждый герой отважится зайти в это гиблое место', 0.30),
+                (5, u'хищные взгляды множества голодных тварей не дадут расслабится ни одному смельчаку, рискнувшему забраться в эту глушь', 0.40),
+                (6, u'разбросанные тут и там кости и остатки походного скарба не предвещают ничего хорошего путникам', 0.50),
+                (7, u'пейзаж выглядит устрашающе, присмотревшись, можно увидеть свежие следы хищных тварей', 0.60),
+                (8, u'местность выглядит настораживающе, расслабляться не стоит — опасность рядом', 0.70),
+                (9, u'окрестности выглядят безопаснее обычного, видимо, здесь часто ходят опытные герои', 0.80),
+                (10, u'местность очень безопасная и ухоженная', 0.90) )
+
+
 # GROUND_WETNESS_POWERS = [(0.00, u'истрескавшаяся пыльная земля'),
 #                          (0.10, u'высохшая земля'),
 #                          (0.30, u'сухая земля'),
@@ -113,6 +131,9 @@ def _get_temperature(cell):
 
 def _get_wetness(cell):
     return choose_from_interval(cell.mid_wetness,  [(r.wetness, r) for r in WETNESS_POWER.records])
+
+def _get_safety(safety):
+    return choose_from_interval(safety,  [(r.safety, r) for r in SAFETY.records])
 
 
 
@@ -141,6 +162,19 @@ class UICell(object):
         cell.wetness = WETNESS_POWER.index_value[data[3]]
 
         return cell
+
+    @classmethod
+    def safety(self, x, y):
+        from the_tale.game.map.storage import map_info_storage
+        dominant_place = map_info_storage.item.get_dominant_place(x, y)
+
+        if dominant_place:
+            safety = dominant_place.safety
+        else:
+            safety = 1.0 - c.BATTLES_PER_TURN
+
+        return _get_safety(safety)
+
 
 
 class UICells(object):
