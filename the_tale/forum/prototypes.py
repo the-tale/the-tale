@@ -440,7 +440,7 @@ class ThreadReadInfoPrototype(BasePrototype):
                                                     account_id=account.id)
             return cls(model=model)
         except IntegrityError:
-            return cls._get_for(thread_id=thread.id, account_id=account.id)
+            return cls.get_for(thread_id=thread.id, account_id=account.id)
 
     @classmethod
     def read_thread(cls, thread, account):
