@@ -88,7 +88,10 @@ class PlacePrototype(BasePrototype):
 
     @property
     def terrain_owning_radius(self):
-        return self.size * 1.25
+        radius = self.size * 1.25
+        if self.modifier:
+            radius = self.modifier.modify_terrain_owning_radius(radius)
+        return radius
 
     @property
     def terrain_radius(self):

@@ -99,9 +99,11 @@ class PlaceModifierBase(object):
     def can_buy_better_artifact(self): return False
     def modify_economic_size(self, size): return size
     def modify_terrain_change_power(self, power): return power
+    def modify_terrain_owning_radius(self, radius): return radius
     def full_regen_allowed(self): return False
     def modify_experience(self, exp): return exp
     def energy_regen_allowed(self): return False
+
 
 
 class TradeCenter(PlaceModifierBase):
@@ -139,6 +141,8 @@ class PoliticalCenter(PlaceModifierBase):
     DESCRIPTION = u'Активная политическая жизнь приводит к тому, что усиливаются все изменения влияния (и положительные и отрицательные) — увеличивается уровень свободы в городе.'
 
     FREEDOM_MODIFIER = 0.25
+
+    def modify_terrain_owning_radius(self, radius): return radius * 1.25
 
 
 class Polic(PlaceModifierBase):
