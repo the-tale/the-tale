@@ -451,25 +451,20 @@ class ActionIdlenessPrototype(ActionBase):
         if self.state == self.STATE.RESURRECT:
             if self.process_position():
                 return
-            self.percents = 0
             self.state = self.STATE.WAITING
 
         if self.state == self.STATE.RETURN:
-            self.percents = 0
             self.state = self.STATE.WAITING
 
         if self.state == self.STATE.IN_PLACE:
-            self.percents = 0
             self.state = self.STATE.WAITING
 
         if self.state == self.STATE.REGENERATE_ENERGY:
-            self.percents = 0
             self.state = self.STATE.WAITING
 
         if self.state == self.STATE.QUEST:
             if self.process_position():
                 return
-            self.percents = 0
             self.state = self.STATE.WAITING
 
         if self.state == self.STATE.WAITING:
@@ -485,7 +480,8 @@ class ActionIdlenessPrototype(ActionBase):
 
                 quest = create_random_quest_for_hero(self.hero)
                 ActionQuestPrototype.create(hero=self.hero, quest=quest)
-                self.percents = 0
+
+                self.percents = 0 # reset percents only when start new quest
 
             elif self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
                 ActionRegenerateEnergyPrototype.create(hero=self.hero)
