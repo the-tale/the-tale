@@ -12,7 +12,7 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.abilities.postponed_tasks import UseAbilityTask, ABILITY_TASK_STATE
-from the_tale.game.abilities.relations import ABILITY_TYPE
+from the_tale.game.abilities.relations import ABILITY_TYPE, ABILITY_RESULT
 
 
 class UseAbilityTasksTests(TestCase):
@@ -55,7 +55,7 @@ class UseAbilityTasksTests(TestCase):
 
     def test_process_can_not_process(self):
 
-        with mock.patch('the_tale.game.abilities.deck.help.Help.use', lambda self, data, step, main_task_id, storage, pvp_balancer, highlevel: (False, None, ())):
+        with mock.patch('the_tale.game.abilities.deck.help.Help.use', lambda self, data, step, main_task_id, storage, pvp_balancer, highlevel: (ABILITY_RESULT.FAILED, None, ())):
             self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
             self.assertEqual(self.task.state, ABILITY_TASK_STATE.CAN_NOT_PROCESS)
 
@@ -65,7 +65,7 @@ class UseAbilityTasksTests(TestCase):
 
     def test_process_second_step_success(self):
 
-        with mock.patch('the_tale.game.abilities.deck.help.Help.use', lambda self, data, step, main_task_id, storage, pvp_balancer, highlevel: (None, 'second-step', ())):
+        with mock.patch('the_tale.game.abilities.deck.help.Help.use', lambda self, data, step, main_task_id, storage, pvp_balancer, highlevel: (ABILITY_RESULT.CONTINUE, 'second-step', ())):
             self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.CONTINUE)
 
         self.assertEqual(self.task.step, 'second-step')
@@ -77,13 +77,13 @@ class UseAbilityTasksTests(TestCase):
 
     def test_process_second_step_error(self):
 
-        with mock.patch('the_tale.game.abilities.deck.help.Help.use', lambda self, data, step, main_task_id, storage, pvp_balancer, highlevel: (None, 'second-step', ())):
+        with mock.patch('the_tale.game.abilities.deck.help.Help.use', lambda self, data, step, main_task_id, storage, pvp_balancer, highlevel: (ABILITY_RESULT.CONTINUE, 'second-step', ())):
             self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.CONTINUE)
 
         self.assertEqual(self.task.step, 'second-step')
         self.assertEqual(self.task.state, ABILITY_TASK_STATE.UNPROCESSED)
 
-        with mock.patch('the_tale.game.abilities.deck.help.Help.use', lambda self, data, step, main_task_id, storage, pvp_balancer, highlevel: (False, None, ())):
+        with mock.patch('the_tale.game.abilities.deck.help.Help.use', lambda self, data, step, main_task_id, storage, pvp_balancer, highlevel: (ABILITY_RESULT.FAILED, None, ())):
             self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
 
         self.assertEqual(self.task.state, ABILITY_TASK_STATE.CAN_NOT_PROCESS)

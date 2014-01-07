@@ -4,7 +4,7 @@ import random
 from the_tale.game.heroes.relations import MONEY_SOURCE
 
 from the_tale.game.abilities.prototypes import AbilityPrototype
-from the_tale.game.abilities.relations import ABILITY_TYPE
+from the_tale.game.abilities.relations import ABILITY_TYPE, ABILITY_RESULT
 
 from the_tale.game.balance import constants as c, formulas as f
 
@@ -22,12 +22,12 @@ class Help(AbilityPrototype):
             heal_amount = int(hero.heal(hero.max_health * random.uniform(*c.ANGEL_HELP_HEAL_FRACTION)))
             hero.add_message('angel_ability_healhero', hero=hero, health=heal_amount)
         action.on_heal()
-        return True, None, ()
+        return (ABILITY_RESULT.SUCCESSED, None, ())
 
     def use_start_quest(self, action, hero, critical): # pylint: disable=W0613
         action.init_quest()
         hero.add_message('angel_ability_stimulate', hero=hero)
-        return True, None, ()
+        return (ABILITY_RESULT.SUCCESSED, None, ())
 
     def use_money(self, action, hero, critical): # pylint: disable=W0613
         multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
@@ -40,7 +40,7 @@ class Help(AbilityPrototype):
         else:
             hero.change_money(MONEY_SOURCE.EARNED_FROM_HELP, coins)
             hero.add_message('angel_ability_money', hero=hero, coins=coins)
-        return True, None, ()
+        return (ABILITY_RESULT.SUCCESSED, None, ())
 
     def use_teleport(self, action, hero, critical):
         if critical:
@@ -49,7 +49,7 @@ class Help(AbilityPrototype):
         else:
             action.short_teleport(c.ANGEL_HELP_TELEPORT_DISTANCE)
             hero.add_message('angel_ability_shortteleport', hero=hero)
-        return True, None, ()
+        return (ABILITY_RESULT.SUCCESSED, None, ())
 
     def use_lightning(self, action, hero, critical):
         if critical:
@@ -58,14 +58,14 @@ class Help(AbilityPrototype):
         else:
             action.bit_mob(random.uniform(*c.ANGEL_HELP_LIGHTING_FRACTION))
             hero.add_message('angel_ability_lightning', hero=hero, mob=action.mob)
-        return True, None, ()
+        return (ABILITY_RESULT.SUCCESSED, None, ())
 
     def use_resurrect(self, action, hero, critical): # pylint: disable=W0613
         if hero.is_alive:
-            return None, None, ()
+            return (ABILITY_RESULT.IGNORE, None, ())
         action.fast_resurrect()
         hero.add_message('angel_ability_resurrect', hero=hero)
-        return True, None, ()
+        return (ABILITY_RESULT.SUCCESSED, None, ())
 
     def use_experience(self, action, hero, critical): # pylint: disable=W0613
 
@@ -78,7 +78,7 @@ class Help(AbilityPrototype):
             real_experience = hero.add_experience(experience)
             hero.add_message('angel_ability_experience', hero=hero, experience=real_experience)
 
-        return True, None, ()
+        return (ABILITY_RESULT.SUCCESSED, None, ())
 
     def use_stock_up_energy(self, action, hero, critical): # pylint: disable=W0613
 
@@ -91,7 +91,7 @@ class Help(AbilityPrototype):
 
         hero.energy_charges += charges
 
-        return True, None, ()
+        return (ABILITY_RESULT.SUCCESSED, None, ())
 
     def use(self, data, storage, **kwargs): # pylint: disable=R0911
 
@@ -100,14 +100,14 @@ class Help(AbilityPrototype):
         battle = Battle1x1Prototype.get_by_account_id(hero.account_id)
 
         if battle and not battle.state.is_WAITING:
-            return False, None, ()
+            return (ABILITY_RESULT.FAILED, None, ())
 
         action = hero.actions.current_action
 
         choice = action.get_help_choice()
 
         if choice is None:
-            return False, None, ()
+            return (ABILITY_RESULT.FAILED, None, ())
 
         critical = random.uniform(0, 1) < hero.might_crit_chance
 

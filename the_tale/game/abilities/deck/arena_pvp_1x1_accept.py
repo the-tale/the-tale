@@ -9,7 +9,7 @@ from the_tale.game.pvp.prototypes import Battle1x1Prototype
 from the_tale.game.workers.environment import workers_environment
 
 from the_tale.game.abilities.prototypes import AbilityPrototype
-from the_tale.game.abilities.relations import ABILITY_TYPE
+from the_tale.game.abilities.relations import ABILITY_TYPE, ABILITY_RESULT
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 
@@ -65,13 +65,13 @@ class ArenaPvP1x1Accept(AbilityPrototype):
 
             hero = storage.heroes[data['hero_id']]
 
-            return None, ABILITY_TASK_STEP.PVP_BALANCER, ((lambda: workers_environment.pvp_balancer.cmd_logic_task(hero.account_id, main_task_id)), )
+            return ABILITY_RESULT.CONTINUE, ABILITY_TASK_STEP.PVP_BALANCER, ((lambda: workers_environment.pvp_balancer.cmd_logic_task(hero.account_id, main_task_id)), )
 
         elif step == ABILITY_TASK_STEP.PVP_BALANCER:
 
             accept_result = self.accept_battle(pvp_balancer, data['battle'], data['hero_id'])
 
             if not accept_result.is_PROCESSED:
-                return False, ABILITY_TASK_STEP.ERROR, ()
+                return ABILITY_RESULT.FAILED, ABILITY_TASK_STEP.ERROR, ()
 
-            return True, ABILITY_TASK_STEP.SUCCESS, ()
+            return ABILITY_RESULT.SUCCESSED, ABILITY_TASK_STEP.SUCCESS, ()

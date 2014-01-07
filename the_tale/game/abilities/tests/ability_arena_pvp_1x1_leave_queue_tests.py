@@ -12,6 +12,7 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.abilities.deck.arena_pvp_1x1_leave_queue import ArenaPvP1x1LeaveQueue, ABILITY_TASK_STEP
+from the_tale.game.abilities.relations import ABILITY_RESULT
 
 from the_tale.game.pvp.models import BATTLE_1X1_STATE, Battle1x1
 
@@ -49,7 +50,7 @@ class ArenaPvP1x1LeaveQueueAbilityTest(testcase.TestCase):
     def test_use_no_battle(self):
 
         with mock.patch('the_tale.game.pvp.workers.balancer.Worker.leave_arena_queue') as balancer_cmd_counter:
-            self.assertEqual(self.ability.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id)), (True, None, ()))
+            self.assertEqual(self.ability.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id)), (ABILITY_RESULT.SUCCESSED, None, ()))
 
         self.assertEqual(balancer_cmd_counter.call_count, 0)
 
@@ -59,7 +60,7 @@ class ArenaPvP1x1LeaveQueueAbilityTest(testcase.TestCase):
 
         result, step, postsave_actions = self.ability.use(**self.use_attributes(hero_id=self.hero.id, storage=self.storage))
 
-        self.assertEqual((result, step), (None, ABILITY_TASK_STEP.PVP_BALANCER))
+        self.assertEqual((result, step), (ABILITY_RESULT.CONTINUE, ABILITY_TASK_STEP.PVP_BALANCER))
         self.assertEqual(len(postsave_actions), 1)
 
         with mock.patch('the_tale.game.pvp.workers.balancer.Worker.cmd_logic_task') as pvp_balancer_logic_task_counter:
@@ -73,7 +74,7 @@ class ArenaPvP1x1LeaveQueueAbilityTest(testcase.TestCase):
                                                                                 step=step,
                                                                                 pvp_balancer=self.pvp_balancer))
 
-        self.assertEqual((result, step, postsave_actions), (True, ABILITY_TASK_STEP.SUCCESS, ()))
+        self.assertEqual((result, step, postsave_actions), (ABILITY_RESULT.SUCCESSED, ABILITY_TASK_STEP.SUCCESS, ()))
 
         self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.WAITING).count(), 0)
         self.assertEqual(Battle1x1.objects.all().count(), 0)

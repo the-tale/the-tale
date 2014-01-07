@@ -68,12 +68,12 @@ class UseAbilityTask(PostponedLogic):
 
             main_task.extend_postsave_actions(postsave_actions)
 
-            if result is None:
+            if result.is_IGNORE:
                 main_task.comment = 'result is None: do nothing'
                 self.state = ABILITY_TASK_STATE.PROCESSED
                 return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
-            if result is False:
+            if result.is_FAILED:
                 main_task.comment = 'result is False'
                 self.state = ABILITY_TASK_STATE.CAN_NOT_PROCESS
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
@@ -83,11 +83,16 @@ class UseAbilityTask(PostponedLogic):
             with transaction.atomic():
                 storage.save_hero_data(hero.id, update_cache=True)
 
-            if result is True:
+            if result.is_SUCCESSED:
                 self.state = ABILITY_TASK_STATE.PROCESSED
                 return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
-            return POSTPONED_TASK_LOGIC_RESULT.CONTINUE
+            if result.is_CONTINUE:
+                return POSTPONED_TASK_LOGIC_RESULT.CONTINUE
+
+            main_task.comment = u'unknown result %r' % result
+            self.state = ABILITY_TASK_STATE.CAN_NOT_PROCESS
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         else:
             result, self.step, postsave_actions = ability.use(data=self.data,
@@ -99,7 +104,13 @@ class UseAbilityTask(PostponedLogic):
 
             main_task.extend_postsave_actions(postsave_actions)
 
-            if result is False:
+            if result.is_IGNORE:
+                main_task.comment = 'result is None: do nothing'
+                self.state = ABILITY_TASK_STATE.PROCESSED
+                return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
+
+
+            if result.is_FAILED:
                 main_task.comment = 'result is False on step %r' %  (self.step,)
                 self.state = ABILITY_TASK_STATE.CAN_NOT_PROCESS
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
@@ -107,8 +118,13 @@ class UseAbilityTask(PostponedLogic):
             with transaction.atomic():
                 pass
 
-            if result is True:
+            if result.is_SUCCESSED:
                 self.state = ABILITY_TASK_STATE.PROCESSED
                 return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
-            return POSTPONED_TASK_LOGIC_RESULT.CONTINUE
+            if result.is_CONTINUE:
+                return POSTPONED_TASK_LOGIC_RESULT.CONTINUE
+
+            main_task.comment = u'unknown result %r' % result
+            self.state = ABILITY_TASK_STATE.CAN_NOT_PROCESS
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR

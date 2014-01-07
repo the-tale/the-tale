@@ -31,3 +31,10 @@ class ABILITY_TYPE(DjangoEnum):
                 ('BUILDING_REPAIR', 'building_repair', u'Вызвать рабочего', c.BUILDING_WORKERS_ENERGY_COST, u'Вызвать рабочего для ремонта здания', ('building',)),
                 ('ENERGY_CHARGE', 'energy_charge', u'Энергия', 0, u'Восстановить полный запас энергии', ()),
                 ('DROP_ITEM', 'drop_item', u'Выбросить предмет', 3, u'Выбросить из рюкзака самый ненужный предмет', ()))
+
+
+class ABILITY_RESULT(DjangoEnum):
+    records = ( ('SUCCESSED', 0, u'успешно'),
+                ('FAILED', 1, u'ошибка'),
+                ('CONTINUE', 2, u'продолжить'),
+                ('IGNORE', 3, u'игнорировать способность'))

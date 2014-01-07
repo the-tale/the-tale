@@ -11,6 +11,7 @@ from the_tale.game.workers.environment import workers_environment
 
 from the_tale.game.logic import create_test_map
 from the_tale.game.abilities.deck.arena_pvp_1x1 import ArenaPvP1x1, ABILITY_TASK_STEP
+from the_tale.game.abilities.relations import ABILITY_RESULT
 from the_tale.game.pvp.models import Battle1x1
 
 class ArenaPvP1x1AbilityTest(testcase.TestCase):
@@ -54,7 +55,7 @@ class ArenaPvP1x1AbilityTest(testcase.TestCase):
 
         result, step, postsave_actions = self.ability_1.use(**self.use_attributes(hero_id=self.hero_1.id, storage=self.storage))
 
-        self.assertEqual((result, step), (None, ABILITY_TASK_STEP.PVP_BALANCER))
+        self.assertEqual((result, step), (ABILITY_RESULT.CONTINUE, ABILITY_TASK_STEP.PVP_BALANCER))
         self.assertEqual(len(postsave_actions), 1)
 
         with mock.patch('the_tale.game.pvp.workers.balancer.Worker.cmd_logic_task') as pvp_balancer_logic_task_counter:
@@ -68,7 +69,7 @@ class ArenaPvP1x1AbilityTest(testcase.TestCase):
                                                                                   step=step,
                                                                                   pvp_balancer=self.pvp_balancer))
 
-        self.assertEqual((result, step, postsave_actions), (True, ABILITY_TASK_STEP.SUCCESS, ()))
+        self.assertEqual((result, step, postsave_actions), (ABILITY_RESULT.SUCCESSED, ABILITY_TASK_STEP.SUCCESS, ()))
 
         self.assertEqual(Battle1x1.objects.all().count(), 1)
 
@@ -80,6 +81,6 @@ class ArenaPvP1x1AbilityTest(testcase.TestCase):
     def test_use_for_fast_account(self):
         self.assertEqual(Battle1x1.objects.all().count(), 0)
 
-        self.assertEqual(self.ability_2.use(**self.use_attributes(hero_id=self.hero_2.id, storage=self.storage)), (False, ABILITY_TASK_STEP.ERROR, ()))
+        self.assertEqual(self.ability_2.use(**self.use_attributes(hero_id=self.hero_2.id, storage=self.storage)), (ABILITY_RESULT.FAILED, ABILITY_TASK_STEP.ERROR, ()))
 
         self.assertEqual(Battle1x1.objects.all().count(), 0)

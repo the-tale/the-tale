@@ -7,7 +7,7 @@ from the_tale.game.pvp.prototypes import Battle1x1Prototype
 from the_tale.game.workers.environment import workers_environment
 
 from the_tale.game.abilities.prototypes import AbilityPrototype
-from the_tale.game.abilities.relations import ABILITY_TYPE
+from the_tale.game.abilities.relations import ABILITY_TYPE, ABILITY_RESULT
 
 ABILITY_TASK_STEP = create_enum('ABILITY_TASK_STEP', (('ERROR', 0, u'ошибка'),
                                                       ('LOGIC', 1, u'логика'),
@@ -26,14 +26,14 @@ class ArenaPvP1x1LeaveQueue(AbilityPrototype):
             battle = Battle1x1Prototype.get_by_account_id(hero.account_id)
 
             if battle is None:
-                return True, None, ()
+                return ABILITY_RESULT.SUCCESSED, None, ()
 
             hero.add_message('angel_ability_arena_pvp_1x1_leave_queue', hero=hero)
 
-            return None, ABILITY_TASK_STEP.PVP_BALANCER, ((lambda: workers_environment.pvp_balancer.cmd_logic_task(hero.account_id, main_task_id)), )
+            return ABILITY_RESULT.CONTINUE, ABILITY_TASK_STEP.PVP_BALANCER, ((lambda: workers_environment.pvp_balancer.cmd_logic_task(hero.account_id, main_task_id)), )
 
         elif step == ABILITY_TASK_STEP.PVP_BALANCER:
 
             pvp_balancer.leave_arena_queue(data['hero_id'])
 
-            return True, ABILITY_TASK_STEP.SUCCESS, ()
+            return ABILITY_RESULT.SUCCESSED, ABILITY_TASK_STEP.SUCCESS, ()

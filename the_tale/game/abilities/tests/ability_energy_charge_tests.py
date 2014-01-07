@@ -10,7 +10,7 @@ from the_tale.game.logic import create_test_map
 
 
 from the_tale.game.abilities.deck import EnergyCharge
-from the_tale.game.abilities.relations import ABILITY_TYPE
+from the_tale.game.abilities.relations import ABILITY_TYPE, ABILITY_RESULT
 
 
 class EnergyChargeAbilityTest(testcase.TestCase):
@@ -39,19 +39,19 @@ class EnergyChargeAbilityTest(testcase.TestCase):
                 'pvp_balancer': None}
 
     def test_no_charges(self):
-        self.assertEqual(self.ability.use(**self.use_attributes), (False, None, ()))
+        self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.FAILED, None, ()))
         self.assertEqual(self.hero.energy, 0)
         self.assertEqual(self.hero.energy_charges, 0)
 
     def test_to_many_energy(self):
         self.hero._model.energy = ABILITY_TYPE.HELP.cost
         self.hero.energy_charges = 2
-        self.assertEqual(self.ability.use(**self.use_attributes), (False, None, ()))
+        self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.FAILED, None, ()))
         self.assertEqual(self.hero.energy, ABILITY_TYPE.HELP.cost)
         self.assertEqual(self.hero.energy_charges, 2)
 
     def test_success(self):
         self.hero.energy_charges = 2
-        self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
+        self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.SUCCESSED, None, ()))
         self.assertEqual(self.hero.energy, self.hero.energy_maximum)
         self.assertEqual(self.hero.energy_charges, 1)

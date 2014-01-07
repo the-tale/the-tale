@@ -2,7 +2,7 @@
 
 
 from the_tale.game.abilities.prototypes import AbilityPrototype
-from the_tale.game.abilities.relations import ABILITY_TYPE
+from the_tale.game.abilities.relations import ABILITY_TYPE, ABILITY_RESULT
 
 
 class EnergyCharge(AbilityPrototype):
@@ -13,12 +13,12 @@ class EnergyCharge(AbilityPrototype):
         hero = storage.heroes[data['hero_id']]
 
         if hero.energy_charges == 0:
-            return False, None, ()
+            return ABILITY_RESULT.FAILED, None, ()
 
         if hero.energy >= ABILITY_TYPE.HELP.cost:
-            return False, None, ()
+            return ABILITY_RESULT.FAILED, None, ()
 
         hero.energy_charges -= 1
         hero.change_energy(hero.energy_maximum)
 
-        return True, None, ()
+        return ABILITY_RESULT.SUCCESSED, None, ()

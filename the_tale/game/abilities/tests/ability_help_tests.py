@@ -14,7 +14,7 @@ from the_tale.game.actions import prototypes as actions_prototypes
 from the_tale.game.heroes.logic import create_mob_for_hero
 
 from the_tale.game.abilities.deck.help import Help
-from the_tale.game.abilities.relations import HELP_CHOICES
+from the_tale.game.abilities.relations import HELP_CHOICES, ABILITY_RESULT
 
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
 from the_tale.game.pvp.models import BATTLE_1X1_STATE
@@ -46,12 +46,12 @@ class HelpAbilityTest(testcase.TestCase):
 
     def test_none(self):
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: None):
-            self.assertEqual(self.ability.use(**self.use_attributes), (False, None, ()))
+            self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.FAILED, None, ()))
 
     def test_help_when_battle_waiting(self):
         battle = Battle1x1Prototype.create(self.account)
         self.assertTrue(battle.state.is_WAITING)
-        self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
+        self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.SUCCESSED, None, ()))
 
     def test_help_when_battle_not_waiting(self):
         battle = Battle1x1Prototype.create(self.account)
@@ -59,23 +59,23 @@ class HelpAbilityTest(testcase.TestCase):
         battle.save()
 
         self.assertFalse(battle.state.is_WAITING)
-        self.assertEqual(self.ability.use(**self.use_attributes), (False, None, ()))
+        self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.FAILED, None, ()))
 
     def test_heal(self):
         self.hero.health = 1
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL):
-            self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
+            self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.SUCCESSED, None, ()))
             self.assertTrue(self.hero.health > 1)
 
     def test_start_quest(self):
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.START_QUEST):
-            self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
+            self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.SUCCESSED, None, ()))
             self.assertTrue(self.action_idl.percents >= 1)
 
     def test_experience(self):
         old_experience = self.hero.experience
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.EXPERIENCE):
-            self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
+            self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.SUCCESSED, None, ()))
 
         self.assertTrue(old_experience < self.hero.experience)
 
@@ -83,14 +83,14 @@ class HelpAbilityTest(testcase.TestCase):
         old_charges = self.hero.energy_charges
 
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.STOCK_UP_ENERGY):
-            self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
+            self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.SUCCESSED, None, ()))
 
         self.assertTrue(self.hero.energy_charges > old_charges)
 
     def test_money(self):
         old_hero_money = self.hero.money
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.MONEY):
-            self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
+            self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.SUCCESSED, None, ()))
             self.assertTrue(self.hero.money > old_hero_money)
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
@@ -110,7 +110,7 @@ class HelpAbilityTest(testcase.TestCase):
         old_percents = action_move.percents
 
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.TELEPORT):
-            self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
+            self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.SUCCESSED, None, ()))
 
         self.assertTrue(old_road_percents < self.hero.position.percents)
         self.assertTrue(old_percents < action_move.percents)
@@ -130,7 +130,7 @@ class HelpAbilityTest(testcase.TestCase):
         self.assertTrue(HELP_CHOICES.LIGHTING in action_battle.help_choices)
 
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.LIGHTING):
-            self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
+            self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.SUCCESSED, None, ()))
 
         self.assertTrue(old_mob_health > action_battle.mob.health)
         self.assertEqual(self.hero.actions.current_action.percents, action_battle.percents)
@@ -157,7 +157,7 @@ class HelpAbilityTest(testcase.TestCase):
 
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.RESURRECT):
             current_time.increment_turn()
-            self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
+            self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.SUCCESSED, None, ()))
             self.storage.process_turn(second_step_if_needed=False)
 
         self.assertEqual(self.hero.health, self.hero.max_health)
@@ -170,12 +170,12 @@ class HelpAbilityTest(testcase.TestCase):
         current_time = TimePrototype.get_current_time()
 
         self.hero.kill()
+        actions_prototypes.ActionResurrectPrototype.create(hero=self.hero)
 
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.RESURRECT):
             current_time.increment_turn()
-            self.assertEqual(self.ability.use(**self.use_attributes), (True, None, ()))
-            self.storage.process_turn(second_step_if_needed=False)
+            self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.SUCCESSED, None, ()))
 
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.RESURRECT):
             current_time.increment_turn()
-            self.assertEqual(self.ability.use(**self.use_attributes), (None, None, ()))
+            self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.IGNORE, None, ()))

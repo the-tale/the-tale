@@ -8,7 +8,7 @@ from the_tale.game.workers.environment import workers_environment
 from the_tale.game.map.places.storage import buildings_storage
 
 from the_tale.game.abilities.prototypes import AbilityPrototype
-from the_tale.game.abilities.relations import ABILITY_TYPE
+from the_tale.game.abilities.relations import ABILITY_TYPE, ABILITY_RESULT
 
 
 ABILITY_TASK_STEP = create_enum('ABILITY_TASK_STEP', (('ERROR', 0, u'ошибка'),
@@ -25,20 +25,20 @@ class BuildingRepair(AbilityPrototype):
         building_id = data.get('building_id')
 
         if building_id is None:
-            return False, ABILITY_TASK_STEP.ERROR, ()
+            return ABILITY_RESULT.FAILED, ABILITY_TASK_STEP.ERROR, ()
 
         if step is None:
 
             if building_id not in buildings_storage:
-                return False, ABILITY_TASK_STEP.ERROR, ()
+                return ABILITY_RESULT.FAILED, ABILITY_TASK_STEP.ERROR, ()
 
             if not buildings_storage[building_id].need_repair:
-                return False, ABILITY_TASK_STEP.ERROR, ()
+                return ABILITY_RESULT.FAILED, ABILITY_TASK_STEP.ERROR, ()
 
             hero = storage.heroes[data['hero_id']]
 
             if not hero.can_repair_building:
-                return False, ABILITY_TASK_STEP.ERROR, ()
+                return ABILITY_RESULT.FAILED, ABILITY_TASK_STEP.ERROR, ()
 
             critical = random.uniform(0, 1) < hero.might_crit_chance
 
@@ -49,12 +49,12 @@ class BuildingRepair(AbilityPrototype):
             else:
                 hero.add_message('angel_ability_building_repair', hero=hero)
 
-            return None, ABILITY_TASK_STEP.HIGHLEVEL, ((lambda: workers_environment.highlevel.cmd_logic_task(hero.account_id, main_task_id)), )
+            return ABILITY_RESULT.CONTINUE, ABILITY_TASK_STEP.HIGHLEVEL, ((lambda: workers_environment.highlevel.cmd_logic_task(hero.account_id, main_task_id)), )
 
         elif step == ABILITY_TASK_STEP.HIGHLEVEL:
 
             if building_id not in buildings_storage:
-                return False, ABILITY_TASK_STEP.ERROR, ()
+                return ABILITY_RESULT.FAILED, ABILITY_TASK_STEP.ERROR, ()
 
             building = buildings_storage[building_id]
             building.repair()
@@ -66,4 +66,4 @@ class BuildingRepair(AbilityPrototype):
 
             buildings_storage.update_version()
 
-            return True, ABILITY_TASK_STEP.SUCCESS, ()
+            return ABILITY_RESULT.SUCCESSED, ABILITY_TASK_STEP.SUCCESS, ()
