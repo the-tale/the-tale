@@ -80,12 +80,10 @@ class HelpAbilityTest(testcase.TestCase):
         self.assertTrue(old_experience < self.hero.experience)
 
     def test_stock_up_energy(self):
-        old_charges = self.hero.energy_charges
 
-        with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.STOCK_UP_ENERGY):
-            self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.SUCCESSED, None, ()))
-
-        self.assertTrue(self.hero.energy_charges > old_charges)
+        with self.check_changed(lambda: self.hero.energy_bonus):
+            with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.STOCK_UP_ENERGY):
+                self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.SUCCESSED, None, ()))
 
     def test_money(self):
         old_hero_money = self.hero.money

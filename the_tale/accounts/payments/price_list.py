@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from the_tale.accounts.payments.goods import PremiumDays, PermanentPurchase, EnergyCharges, ResetHeroPreference, ResetHeroAbilities, RechooseHeroAbilitiesChoices
+from the_tale.accounts.payments.goods import PremiumDays, PermanentPurchase, Energy, ResetHeroPreference, ResetHeroAbilities, RechooseHeroAbilitiesChoices
 from the_tale.accounts.payments import exceptions
 from the_tale.accounts.payments.relations import PERMANENT_PURCHASE_TYPE
 
@@ -23,7 +23,7 @@ PREMIUM_DAYS_DESCRIPTION = u'''
 
 ENERGY_CHARGES_DESCRIPTION = u'''
 <p>
-С помощью заряда энергии Вы можете полностью восстановить свой запас энергии. Заряды накапливаются, поэтому можно купить сразу несколько, чтобы использовать по мере необходимости.
+Дополнительная энергия. Вы сможете использовать эту энергию, когда у вас закончится запас энергии, полученной от героя.
 </p>
 '''
 
@@ -86,26 +86,26 @@ PRICE_LIST = [  PremiumDays(uid=u'subscription-7',
                             days=90,
                             transaction_description=u'Продление подписки на 90 дней.'),
 
-                EnergyCharges(uid=u'energy-charge-1',
-                              name=u'1 заряд энергии',
-                              description=ENERGY_CHARGES_DESCRIPTION,
-                              cost=10,
-                              charges_number=1,
-                              transaction_description=u'Покупка одного заряда энергии.'),
+                Energy(uid=u'energy-20',
+                       name=u'20 единиц энергии',
+                       description=ENERGY_CHARGES_DESCRIPTION,
+                       cost=10,
+                       energy=20,
+                       transaction_description=u'Покупка 20 единиц энергии.'),
 
-                EnergyCharges(uid=u'energy-charge-10',
-                              name=u'10 зарядов энергии',
-                              description=ENERGY_CHARGES_DESCRIPTION,
-                              cost=80,
-                              charges_number=10,
-                              transaction_description=u'Покупка 10 зарядов энергии.'),
+                Energy(uid=u'energy-200',
+                       name=u'200 единиц энергии',
+                       description=ENERGY_CHARGES_DESCRIPTION,
+                       cost=80,
+                       energy=200,
+                       transaction_description=u'Покупка 200 единиц энергии.'),
 
-                EnergyCharges(uid=u'energy-charge-100',
-                              name=u'100 зарядов энергии',
-                              description=ENERGY_CHARGES_DESCRIPTION,
-                              cost=700,
-                              charges_number=100,
-                              transaction_description=u'Покупка 100 зарядов энергии.'),
+                Energy(uid=u'energy-2000',
+                       name=u'2000 единиц энергии',
+                       description=ENERGY_CHARGES_DESCRIPTION,
+                       cost=700,
+                       energy=2000,
+                       transaction_description=u'Покупка 2000 единиц энергии.'),
 
                 permanent_permission_purchase(uid=u'preference-place',
                                               cost=10,

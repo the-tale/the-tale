@@ -305,6 +305,30 @@ class HeroTest(TestCase):
         maximum_with_premium = self.hero.energy_maximum
         self.assertTrue(maximum_without_premium < maximum_with_premium)
 
+    def test_energy(self):
+        self.hero._model.energy = 6
+        self.hero.add_energy_bonus(100)
+
+        self.assertEqual(self.hero.energy, 6)
+        self.assertEqual(self.hero.energy_full, 106)
+
+    def test_change_energy__plus(self):
+        self.hero._model.energy = 6
+        self.hero.add_energy_bonus(100)
+
+        self.assertEqual(self.hero.change_energy(self.hero.energy_maximum), self.hero.energy_maximum - 6)
+        self.assertEqual(self.hero.energy_bonus, 100)
+
+    def test_change_energy__minus(self):
+        self.hero._model.energy = 6
+        self.hero.add_energy_bonus(100)
+
+        self.assertEqual(self.hero.change_energy(-50), -50)
+        self.assertEqual(self.hero.energy_bonus, 56)
+
+        self.assertEqual(self.hero.change_energy(-100), -56)
+        self.assertEqual(self.hero.energy_bonus, 0)
+
 
     def check_rests_from_risk(self, method):
         results = []

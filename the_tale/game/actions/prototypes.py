@@ -235,7 +235,7 @@ class ActionBase(object):
                 choices.remove(HELP_CHOICES.HEAL)
 
         if HELP_CHOICES.STOCK_UP_ENERGY in choices:
-            if self.hero.energy_charges >= c.ANGEL_FREE_ENERGY_CHARGES_MAXIMUM:
+            if self.hero.energy_bonus >= c.ANGEL_FREE_ENERGY_MAXIMUM:
                 choices.remove(HELP_CHOICES.STOCK_UP_ENERGY)
 
         return choices
@@ -463,6 +463,7 @@ class ActionIdlenessPrototype(ActionBase):
             self.state = self.STATE.WAITING
 
         if self.state == self.STATE.QUEST:
+            self.percents = 0 # reset percents only when end quest
             if self.process_position():
                 return
             self.state = self.STATE.WAITING
@@ -480,8 +481,6 @@ class ActionIdlenessPrototype(ActionBase):
 
                 quest = create_random_quest_for_hero(self.hero)
                 ActionQuestPrototype.create(hero=self.hero, quest=quest)
-
-                self.percents = 0 # reset percents only when start new quest
 
             elif self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
                 ActionRegenerateEnergyPrototype.create(hero=self.hero)

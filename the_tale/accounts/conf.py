@@ -40,7 +40,7 @@ accounts_settings = app_settings('ACCOUNTS',
                                  CREATE_DEBUG_BANK_ACCOUNTS=False,
 
                                  INFORMER_SHOW=True,
-                                 INFORMER_LINK=u'http//informer.the-tale.org/?id=%(account_id)d&type=4',
+                                 INFORMER_LINK=u'http://informer.the-tale.org/?id=%(account_id)d&type=4',
                                  INFORMER_CREATOR_ID=2557,
                                  INFORMER_CREATOR_NAME=u'Yashko',
                                  INFORMER_WIDTH=400,

@@ -74,6 +74,9 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.ANGEL_ENERGY_MAX, 12)
         self.assertEqual(c.ANGEL_ENERGY_PREMIUM_BONUS, 6)
+        self.assertEqual(c.ANGEL_FREE_ENERGY_MAXIMUM, 50)
+        self.assertEqual(c.ANGEL_FREE_ENERGY_CHARGE, 10)
+        self.assertEqual(c.ANGEL_FREE_ENERGY_CHARGE_CRIT, 20)
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_TIME,  0.5)
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_PERIOD,  180)
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_AMAUNT, 1)

@@ -644,8 +644,6 @@ class QuestPrototype(object):
         else:
             current_percents = path_to_position_length / full_path_length
 
-        # print current_percents, percents
-
         return current_percents >= percents
 
 

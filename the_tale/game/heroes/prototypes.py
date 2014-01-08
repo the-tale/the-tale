@@ -57,7 +57,7 @@ class HeroPrototype(BasePrototype):
                       'active_state_end_at',
                       'premium_state_end_at',
                       'ban_state_end_at',
-                      'energy_charges',
+                      'energy_bonus',
                       'last_rare_operation_at_turn')
     _get_by = ('id', 'account_id')
     _serialization_proxies = (('quests', QuestsContainer, heroes_settings.UNLOAD_TIMEOUT),
@@ -141,8 +141,8 @@ class HeroPrototype(BasePrototype):
 
         return real_experience
 
-    def add_energy_charges(self, charges_number):
-        self.energy_charges += charges_number
+    def add_energy_bonus(self, energy):
+        self.energy_bonus += energy
 
     def get_health(self): return self._model.health
     def set_health(self, value): self._model.health = int(value)
@@ -417,19 +417,26 @@ class HeroPrototype(BasePrototype):
             return c.ANGEL_ENERGY_MAX + c.ANGEL_ENERGY_PREMIUM_BONUS
         return c.ANGEL_ENERGY_MAX
 
+    @property
+    def energy_full(self):
+        return self.energy + self.energy_bonus
+
     def change_energy(self, value):
-        old_energy = self._model.energy
+        old_energy = self.energy_full
 
         self._model.energy += value
+
         if self._model.energy < 0:
+            self._model.energy_bonus += self._model.energy
             self._model.energy = 0
+
         elif self._model.energy > self.energy_maximum:
             self._model.energy = self.energy_maximum
 
-        if self._model.energy != old_energy:
-            self.updated = True
+        if self._model.energy_bonus < 0:
+            self._model.energy_bonus = 0
 
-        return self._model.energy - old_energy
+        return self.energy_full - old_energy
 
     @property
     def might_crit_chance(self): return self.abilities.modify_attribute(ATTRIBUTES.MIGHT_CRIT_CHANCE, f.might_crit_chance(self.might))
@@ -730,7 +737,8 @@ class HeroPrototype(BasePrototype):
                                  'can_repair_building': self.can_repair_building },
                 'energy': { 'max': self.energy_maximum,
                             'value': self.energy,
-                            'charges': self.energy_charges},
+                            'charges': 0, # DEPRECATED, left for api
+                            'bonus': self.energy_bonus},
                 'action': self.actions.current_action.ui_info(),
                 'pvp': self.pvp.ui_info() if not for_last_turn else self.pvp.turn_ui_info(),
                 'base': { 'name': self.name,

@@ -56,14 +56,14 @@ class PremiumDays(PurchaseItem):
         return postponed_tasks.BuyPremium(account_id=account.id, days=self.days, transaction=transaction)
 
 
-class EnergyCharges(PurchaseItem):
+class Energy(PurchaseItem):
 
-    def __init__(self, charges_number, **kwargs):
-        super(EnergyCharges, self).__init__(**kwargs)
-        self.charges_number = charges_number
+    def __init__(self, energy, **kwargs):
+        super(Energy, self).__init__(**kwargs)
+        self.energy = energy
 
     def construct_postponed_task(self, account, transaction):
-        return postponed_tasks.BuyEnergyCharges(account_id=account.id, charges_number=self.charges_number, transaction=transaction)
+        return postponed_tasks.BuyEnergy(account_id=account.id, energy=self.energy, transaction=transaction)
 
 
 class ResetHeroPreference(PurchaseItem):

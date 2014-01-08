@@ -127,7 +127,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
 
         jQuery('.pgf-energy', content).text(data.energy.value);
         jQuery('.pgf-max-energy', content).text(data.energy.max);
-        jQuery('.pgf-energy-charges', content).text(data.energy.charges);
+        jQuery('.pgf-energy-bonus', content).text(data.energy.bonus);
         jQuery('.pgf-energy-percents', content).width( (100 * data.energy.value / data.energy.max) + '%');
     };
 
@@ -880,7 +880,6 @@ pgf.game.widgets.Abilities = function() {
     var canParticipateInPvp = true;
     var canRepairBuilding = true;
 
-    var hasEnergyCharges = false;
     var canRestoreEnergy = false;
 
     var itemsInBag = false;
@@ -1008,12 +1007,6 @@ pgf.game.widgets.Abilities = function() {
 
         jQuery('.pgf-ability-arena_pvp_1x1').toggleClass('no-registration', !canParticipateInPvp).toggleClass('pgf-disable', !canParticipateInPvp);
         jQuery('.pgf-ability-building_repair').toggleClass('no-registration', !canRepairBuilding).toggleClass('pgf-disable', !canRepairBuilding);
-
-        jQuery('.pgf-ability-energy_charge')
-            .toggleClass('pgf-hidden', false)
-            .toggleClass('no-charges', !hasEnergyCharges)
-            .toggleClass('energy-exists', !canRestoreEnergy && hasEnergyCharges) // display this warning only if player has charges
-            .toggleClass('pgf-disable', !hasEnergyCharges || !canRestoreEnergy);
     }
 
     function RenderDeck() {
@@ -1028,13 +1021,10 @@ pgf.game.widgets.Abilities = function() {
 
         var hero = game_data.account.hero;
 
-        angelEnergy = hero.energy.value;
+        angelEnergy = hero.energy.value + hero.energy.bonus;
         pvpWaiting = game_data.account.in_pvp_queue;
         canParticipateInPvp = hero.permissions.can_participate_in_pvp;
         canRepairBuilding = hero.permissions.can_repair_building;
-
-        hasEnergyCharges = hero.energy.charges > 0;
-        canRestoreEnergy = angelEnergy < pgf.game.constants.abilities.help.cost;
 
         itemsInBag = false;
         for (var uuid in hero.bag) {

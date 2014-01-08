@@ -3,6 +3,7 @@ import mock
 import datetime
 
 from questgen import facts, requirements
+from questgen import actions as questgen_actions
 
 from dext.utils import s11n
 
@@ -75,12 +76,17 @@ class PrototypeTests(PrototypeTestsBase):
         self.quest.process()
         self.assertTrue(self.hero.quests.updated)
 
-    @mock.patch('questgen.actions.GivePower.power', 100)
     def complete_quest(self, callback=lambda : None):
         current_time = TimePrototype.get_current_time()
 
         # save link to quest, since it will be removed from hero when quest finished
         quest = self.hero.quests.current_quest
+
+        # modify givepower, to give only positive values
+        for fact in quest.knowledge_base._facts.values():
+            for action in getattr(fact, 'actions', ()):
+                if isinstance(action, questgen_actions.GivePower):
+                    action.power = 100
 
         old_quests_done = self.hero.statistics.quests_done
 
@@ -91,6 +97,7 @@ class PrototypeTests(PrototypeTestsBase):
             current_time.increment_turn()
 
         self.assertTrue(isinstance(quest.knowledge_base[quest.machine.pointer.state], facts.Finish))
+
         self.assertTrue(all(requirement.check(quest) for requirement in quest.knowledge_base[quest.machine.pointer.state].require))
 
         self.assertTrue(self.hero.quests.history[quest.knowledge_base.filter(facts.Start).next().type] > 0)
@@ -106,7 +113,6 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertNotEqual(self.hero.quests.interfered_persons, {})
 
     @mock.patch('the_tale.game.quests.prototypes.QuestInfo.get_person_power_for_quest', classmethod(lambda cls, hero: 1))
-    @mock.patch('questgen.actions.GivePower.power', 100)
     def test_power_on_end_quest_for_fast_account_hero(self):
         fake_cmd = FakeWorkerCommand()
 
@@ -120,7 +126,6 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertFalse(fake_cmd.commands)
 
     @mock.patch('the_tale.game.quests.prototypes.QuestInfo.get_person_power_for_quest', classmethod(lambda cls, hero: 1))
-    @mock.patch('questgen.actions.GivePower.power', 100)
     def test_power_on_end_quest_for_premium_account_hero(self):
 
         self.hero.is_fast = False
@@ -136,7 +141,6 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertTrue(fake_cmd.call_count > 0)
 
     @mock.patch('the_tale.game.quests.prototypes.QuestInfo.get_person_power_for_quest', classmethod(lambda cls, hero: 1))
-    @mock.patch('questgen.actions.GivePower.power', 100)
     def test_power_on_end_quest_for_normal_account_hero(self):
 
         self.hero.is_fast = False
@@ -150,7 +154,6 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.assertEqual(fake_cmd.call_count, 0)
 
-    @mock.patch('questgen.actions.GivePower.power', 100)
     def test_power_on_end_quest__give_power_called(self):
 
         with mock.patch('the_tale.game.quests.prototypes.QuestPrototype._give_power') as give_power:

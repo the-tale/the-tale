@@ -112,7 +112,7 @@ def get_repeatable_payments_statistics():
 
     # группы по повторным покупкам энергии
     energy_count = collections.Counter(InvoicePrototype._db_filter(recipient_type=BANK_ENTITY_TYPE.GAME_ACCOUNT,
-                                                                   operation_uid__startswith='ingame-purchase-<energy-charge').values_list('recipient_id', flat=True))
+                                                                   operation_uid__startswith='ingame-purchase-<energy-').values_list('recipient_id', flat=True))
     energy_count_groups = collections.Counter(energy_count.values())
 
 

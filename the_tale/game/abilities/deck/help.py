@@ -83,13 +83,13 @@ class Help(AbilityPrototype):
     def use_stock_up_energy(self, action, hero, critical): # pylint: disable=W0613
 
         if critical:
-            charges = 2
+            energy = c.ANGEL_FREE_ENERGY_CHARGE_CRIT
             hero.add_message('angel_ability_stock_up_energy_crit', hero=hero)
         else:
-            charges = 1
+            energy = c.ANGEL_FREE_ENERGY_CHARGE
             hero.add_message('angel_ability_stock_up_energy', hero=hero)
 
-        hero.energy_charges += charges
+        hero.add_energy_bonus(energy)
 
         return (ABILITY_RESULT.SUCCESSED, None, ())
 

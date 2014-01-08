@@ -8,7 +8,6 @@ from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC
 
 from the_tale.bank.transaction import Transaction
 
-from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes.relations import PREFERENCE_TYPE
 
 from the_tale.accounts.workers.environment import workers_environment as accounts_workers_environment
@@ -214,10 +213,10 @@ class BaseBuyHeroMethod(BaseLogicBuyTask):
         storage.save_hero_data(hero.id, update_cache=True)
 
 
-class BuyEnergyCharges(BaseBuyHeroMethod):
-    TYPE = 'buy-energy-charges'
-    ARGUMENTS = ('charges_number', )
-    METHOD = 'add_energy_charges'
+class BuyEnergy(BaseBuyHeroMethod):
+    TYPE = 'buy-energy'
+    ARGUMENTS = ('energy', )
+    METHOD = 'add_energy_bonus'
 
 
 class BuyResetHeroPreference(BaseBuyHeroMethod):

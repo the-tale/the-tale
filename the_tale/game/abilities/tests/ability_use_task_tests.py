@@ -53,6 +53,13 @@ class UseAbilityTasksTests(TestCase):
         self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(self.task.state, ABILITY_TASK_STATE.NO_ENERGY)
 
+    def test_process_bonus_energy(self):
+        self.hero._model.energy = 0
+        self.hero.add_energy_bonus(100)
+        self.hero.save()
+        self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+        self.assertEqual(self.task.state, ABILITY_TASK_STATE.PROCESSED)
+
     def test_process_can_not_process(self):
 
         with mock.patch('the_tale.game.abilities.deck.help.Help.use', lambda self, data, step, main_task_id, storage, pvp_balancer, highlevel: (ABILITY_RESULT.FAILED, None, ())):

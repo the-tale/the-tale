@@ -100,7 +100,7 @@ class GeneralTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.STOCK_UP_ENERGY, HELP_CHOICES.MONEY)))
     def test_help_choice_has_stock_up_energy__can_not_stock(self):
-        self.hero.energy_charges = c.ANGEL_FREE_ENERGY_CHARGES_MAXIMUM
+        self.hero.energy_bonus = c.ANGEL_FREE_ENERGY_MAXIMUM
         self.check_stock_up_energy_in_choices(False)
 
     def test_percents_consistency(self):
@@ -125,8 +125,8 @@ class GeneralTest(testcase.TestCase):
         self.assertFalse(HELP_CHOICES.HEAL in self.action_idl.help_choices)
 
     def test_action_default_serialization(self):
-        class TestAction(ActionBase):
-            TYPE = 'test-action'
+        # class TestAction(ActionBase):
+        #     TYPE = 'test-action'
 
         default_action = TestAction( hero=self.hero,
                                      bundle_id=self.bundle_id,

@@ -52,7 +52,7 @@ class UseAbilityTask(PostponedLogic):
                 self.state = ABILITY_TASK_STATE.BANNED
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            energy = hero.energy
+            energy = hero.energy_full
 
             if energy < ability.TYPE.cost:
                 main_task.comment = 'energy < ability.COST'
