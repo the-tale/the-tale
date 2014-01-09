@@ -38,11 +38,14 @@ class SubCategory(models.Model):
     threads_count = models.IntegerField(default=0, null=False)
 
     last_poster = models.ForeignKey('accounts.Account', null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
+    last_thread = models.ForeignKey('forum.Thread', null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
 
     posts_count = models.BigIntegerField(default=0, null=False)
 
     closed = models.BooleanField(default=False) # if True, only staff can create themes in this subcategory
     restricted = models.BooleanField(default=False, db_index=True) # if True, permissions required to work with this subcategory
+
+    description = models.TextField(default=u'', null=False)
 
     def __unicode__(self): return self.caption
 
@@ -92,7 +95,7 @@ class Post(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
 
-    updated_at = models.DateTimeField(auto_now=True, null=False, default=datetime.datetime.fromtimestamp(0))
+    updated_at = models.DateTimeField(auto_now=True, null=True, default=None)
 
     author = models.ForeignKey('accounts.Account', null=True, related_name='+', on_delete=models.SET_NULL)
 

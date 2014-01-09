@@ -225,9 +225,11 @@ jQuery(document).ready( function(e) {
 
           {% if not (post.is_removed or post.technical) %}
 
-            <div style="float: right;">
+            {% if resource.account.is_authenticated() and post.author_id != resource.account.id %}
+            <div style="float: right;" class="pgf-complaint-button">
               <a href="{{forum_complaint_theme()}}">пожаловаться</a>
             </div>
+            {% endif %}
 
             {% if (thread_data.can_delete_posts or author.id == resource.account.id) and (loop.index!=1 or thread_data.paginator.current_page_number!=0) %}
               <div style="float: right;">
@@ -278,6 +280,14 @@ jQuery(document).ready( function(e) {
             </span>
           {% else %}
             {{ post.html|safe }}
+          {% endif %}
+
+          {% if post.is_updated %}
+            <div class="pgf-edit-time-message">
+              <br/><br/>
+              <hr/>
+              <strong>Сообщение изменено <span class="pgf-format-datetime" data-timestamp="{{ post.updated_at|timestamp}}"></span></strong>
+            </div>
           {% endif %}
         </td>
       </tr>

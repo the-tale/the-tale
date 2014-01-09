@@ -27,8 +27,8 @@ from the_tale.forum.prototypes import ( CategoryPrototype,
                                SubCategoryReadInfoPrototype)
 
 
-def can_delete_thread(account, thread):
-    return (account.id == thread.author.id and not thread.subcategory.closed) or account.has_perm('forum.moderate_thread')
+def can_delete_thread(account):
+    return account.has_perm('forum.moderate_thread')
 
 def can_change_thread(account, thread):
     return (account.id == thread.author.id and not thread.technical) or account.has_perm('forum.moderate_thread')
@@ -233,7 +233,7 @@ class ThreadsResource(BaseForumResource):
     @handler('#thread', 'delete', method='post')
     def delete_thread(self):
 
-        if not can_delete_thread(self.account, self.thread):
+        if not can_delete_thread(self.account):
             return self.json_error('forum.delete_thread.no_permissions', u'У Вас нет прав для удаления темы')
 
         self.thread.delete()
@@ -351,7 +351,7 @@ class ThreadPageData(object):
 
         self.can_delete_posts = can_delete_posts(self.account, self.thread)
         self.can_change_posts = can_change_posts(self.account)
-        self.can_delete_thread = not self.inline and can_delete_thread(self.account, self.thread)
+        self.can_delete_thread = not self.inline and can_delete_thread(self.account)
         self.can_change_thread = not self.inline and can_change_thread(self.account, self.thread)
 
         self.ignore_first_post = (self.inline and self.paginator.current_page_number==0)

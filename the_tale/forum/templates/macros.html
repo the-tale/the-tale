@@ -77,8 +77,7 @@
 <th class="caption">раздел</th>
 <th class="threads-count">тем</th>
 <th class="posts-count">ответов</th>
-<th class="last-poster">последний</th>
-<th class="updated-at">обновлено</th>
+<th class="last-thread">последнее сообщение</th>
 {% if subscription %}<th class="subscription">подписка</th>{% endif %}
 {% endmacro %}
 
@@ -88,20 +87,36 @@
   <a href="{{ url('forum:subcategories:show', subcategory.id) }}">
     {{ subcategory.caption }}
   </a>
+  <br/>
+  <small>
+    {{subcategory.description}}
+  </small>
 </td>
 <td class="threads-count">{{ subcategory.threads_count }}</td>
 <td class="posts-count">{{ subcategory.posts_count }}</td>
-<td class="last-poster">
-  {% if subcategory.last_poster %}
-  <a href="{{url('accounts:show', subcategory.last_poster.id)}}">{{ subcategory.last_poster.nick_verbose }}</a>
-  {% if subcategory.last_poster.clan %}
-    <a href="{{url('accounts:clans:show', subcategory.last_poster.clan.id)}}">[{{subcategory.last_poster.clan.abbr}}]</a>
-  {% endif %}
+<td class="last-thread" style="font-size: 8pt;">
+  {% if subcategory.last_thread %}
+  <a href="{{ subcategory.last_thread.paginator.last_page_url }}"
+     rel="tooltip"
+     title="{{subcategory.last_thread.caption}}">
+    {{ subcategory.last_thread.caption|truncate(45) }}
+  </a>
+  <br/>
+  <span class="updated-at pgf-format-datetime" data-timestamp="{{ subcategory.last_thread.updated_at|timestamp }}"></span>
+  <span class="">
+    {% if subcategory.last_thread.last_poster %}
+      <a href="{{url('accounts:show', subcategory.last_poster.id)}}">{{ subcategory.last_poster.nick_verbose|truncate(30) }}</a>
+      {% if subcategory.last_poster.clan %}
+        <a href="{{url('accounts:clans:show', subcategory.last_poster.clan.id)}}">[{{subcategory.last_poster.clan.abbr}}]</a>
+      {% endif %}
+    {% else %}
+    —
+    {% endif %}
+  </span>
   {% else %}
   —
   {% endif %}
 </td>
-<td class="updated-at pgf-format-datetime" data-timestamp="{{ subcategory.updated_at|timestamp }}"></td>
 
 {% if subscription %}
 <td><a href="{{ url('forum:subcategories:unsubscribe', subcategory.id) }}" class="pgf-forms-post-simple">отписаться</a></td>

@@ -187,7 +187,7 @@ class TestModerationShowThreadRequests(TestModeration):
 
     def test_main_user_has_remove_thread_button(self):
         self.request_login('main_user@test.com')
-        self.check_html_ok(self.request_html(url('forum:threads:show', self.thread.id)), texts=[('pgf-remove-thread-button', 2)])
+        self.check_html_ok(self.request_html(url('forum:threads:show', self.thread.id)), texts=[('pgf-remove-thread-button', 0)])
 
     def test_moderator_has_remove_thread_button(self):
         self.request_login('moderator@test.com')
@@ -351,9 +351,9 @@ class TestModerationDeleteThreadRequests(TestModeration):
 
     def test_main_user_remove_thread(self):
         self.request_login('main_user@test.com')
-        self.check_ajax_ok(self.client.post(url('forum:threads:delete', self.thread.id)))
-        self.assertEqual(Thread.objects.all().count(), 2)
-        self.assertEqual(Post.objects.all().count(), 4)
+        self.check_ajax_error(self.client.post(url('forum:threads:delete', self.thread.id)), 'forum.delete_thread.no_permissions')
+        self.assertEqual(Thread.objects.all().count(), 3)
+        self.assertEqual(Post.objects.all().count(), 8)
 
     def test_main_user_remove_thread_in_closed_subcategory(self):
         self.subcategory._model.closed = True

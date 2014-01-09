@@ -36,7 +36,7 @@ class CategoryPrototype(BasePrototype):
 
 class SubCategoryPrototype(BasePrototype):
     _model_class = SubCategory
-    _readonly = ('id', 'order', 'created_at', 'category_id', 'updated_at', 'threads_count', 'posts_count', 'closed', 'last_thread_created_at', 'restricted')
+    _readonly = ('id', 'order', 'created_at', 'category_id', 'updated_at', 'threads_count', 'posts_count', 'closed', 'last_thread_created_at', 'restricted', 'description')
     _bidirectional = ('caption',)
     _get_by = ('id', 'uid')
 
@@ -49,6 +49,9 @@ class SubCategoryPrototype(BasePrototype):
 
     @lazy_property
     def last_poster(self): return AccountPrototype(self._model.last_poster) if self._model.last_poster else None
+
+    @lazy_property
+    def last_thread(self): return ThreadPrototype(self._model.last_thread) if self._model.last_thread else None
 
     def is_restricted_for(self, account):
         if not self.restricted:
@@ -67,11 +70,13 @@ class SubCategoryPrototype(BasePrototype):
 
         if last_post is None:
             self._model.last_poster = None
+            self._model.last_thread = None
             self._model.updated_at = datetime.datetime.now()
             self._model.last_thread_created_at = None
 
         else:
             self._model.last_poster = last_post.author._model
+            self._model.last_thread = last_post._model.thread
             self._model.updated_at = last_post.created_at
             self._model.last_thread_created_at = last_post.thread.created_at
 
@@ -138,6 +143,9 @@ class ThreadPrototype(BasePrototype):
 
     def get_first_post(self):
         return PostPrototype(model=Post.objects.filter(thread=self._model).order_by('created_at')[0])
+
+    def get_last_post(self):
+        return PostPrototype(model=Post.objects.filter(thread=self._model).order_by('-created_at')[0])
 
     @classmethod
     def get_new_thread_delay(cls, account):
@@ -211,7 +219,7 @@ class ThreadPrototype(BasePrototype):
 
         try:
             last_post = PostPrototype(model=PostPrototype._db_filter(thread__id=self.id, state=POST_STATE.DEFAULT).latest('created_at'))
-        except PostPrototype._model_class.DoesNotExists:
+        except PostPrototype._model_class.DoesNotExist:
             last_post = None
 
         if last_post is None:
@@ -255,6 +263,10 @@ class PostPrototype(BasePrototype):
 
     @lazy_property
     def author(self): return AccountPrototype(self._model.author) if self._model.author else None
+
+    @property
+    def is_updated(self):
+        return self.updated_at is not None and self.updated_at > self.created_at + datetime.timedelta(seconds=1)
 
     @property
     def html(self):

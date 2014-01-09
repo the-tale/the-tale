@@ -87,11 +87,11 @@ class SubcategoryPrototypeUpdateTests(testcase.TestCase):
         self.assertEqual(self.subcategory.threads_count, 2)
         self.assertEqual(self.subcategory.posts_count, 1)
         self.assertEqual(self.subcategory.last_poster.id, self.checked_account.id)
+        self.assertEqual(self.subcategory.last_thread.id, self.thread_2.id)
         self.assertTrue(self.subcategory.updated_at > old_time)
         self.assertEqual(self.subcategory.last_thread_created_at, self.thread_2.created_at)
 
     def test_automatic_raw_update(self):
-
         old_time = datetime.datetime.now()
 
         PostPrototype._model_class.objects.create(thread=self.thread_1._model,
@@ -105,13 +105,15 @@ class SubcategoryPrototypeUpdateTests(testcase.TestCase):
 
         self.assertEqual(self.subcategory.posts_count, 0)
         self.assertEqual(self.subcategory.last_poster.id, self.account.id)
+        self.assertEqual(self.subcategory.last_thread.id, self.thread_2.id)
         self.assertTrue(self.subcategory.updated_at < old_time)
 
         self.subcategory.update()
         self.subcategory.reload()
 
         self.assertEqual(self.subcategory.posts_count, 1)
-        self.assertEqual(self.subcategory._model.last_poster.id, self.checked_account.id)
+        self.assertEqual(self.subcategory._model.last_poster_id, self.checked_account.id)
+        self.assertEqual(self.subcategory._model.last_thread_id, self.thread_1.id)
         self.assertTrue(old_time < self.subcategory.updated_at)
 
     def test_automatic_update_on_post_deleting(self):
@@ -126,6 +128,16 @@ class SubcategoryPrototypeUpdateTests(testcase.TestCase):
 
         self.assertEqual(self.subcategory.posts_count, 1)
         self.assertEqual(self.subcategory._model.last_poster.id, self.account.id)
+        self.assertEqual(self.subcategory._model.last_thread.id, self.thread_2.id)
+        self.assertTrue(self.subcategory.updated_at < old_time)
+
+        PostPrototype._db_get_object(1).delete(self.checked_account)
+
+        self.subcategory.update()
+
+        self.assertEqual(self.subcategory.posts_count, 1)
+        self.assertEqual(self.subcategory._model.last_poster.id, self.account.id)
+        self.assertEqual(self.subcategory._model.last_thread.id, self.thread_1.id)
         self.assertTrue(self.subcategory.updated_at < old_time)
 
 

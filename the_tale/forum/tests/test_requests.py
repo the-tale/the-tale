@@ -288,10 +288,28 @@ class TestShowThreadRequests(BaseTestRequests):
         self.account.save()
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread1.id)), texts=(('pgf-new-post-form', 0),))
 
+
+    def test_get_thread__posts_not_edited(self):
+        self.check_html_ok(self.request_html(url('forum:threads:show', self.thread1.id)), texts=(('pgf-edit-time-message', 0),))
+
+
+    def test_get_thread__posts_edited(self):
+        post = self.thread1.get_last_post()
+        post.save()
+        self.check_html_ok(self.request_html(url('forum:threads:show', self.thread1.id)), texts=('pgf-edit-time-message'))
+
+
     def test_get_thread(self):
         self.assertEqual(ThreadReadInfoPrototype._db_count(), 0)
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread1.id)), texts=('pgf-new-post-form',))
         self.assertEqual(ThreadReadInfoPrototype._db_count(), 1)
+
+    def test_get_thread__complaint_button(self):
+        PostPrototype.create(self.thread1, self.account, 'post1-text')
+        self.check_html_ok(self.request_html(url('forum:threads:show', self.thread1.id)), texts=(('pgf-complaint-button', 0), ))
+
+        PostPrototype.create(self.thread1, self.account_2, 'post2-text')
+        self.check_html_ok(self.request_html(url('forum:threads:show', self.thread1.id)), texts=(('pgf-complaint-button', 1), ))
 
     def test_get_thread_wrong_page(self):
         response = self.request_html(url('forum:threads:show', self.thread1.id)+'?page=2')
