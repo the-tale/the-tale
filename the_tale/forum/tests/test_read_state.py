@@ -185,3 +185,8 @@ class ReadStateTests(testcase.TestCase):
         ThreadReadInfoPrototype.read_thread(self.thread_2, self.account)
         ThreadReadInfoPrototype.read_thread(self.thread_3, self.account)
         self.assertFalse(self.get_read_state().subcategory_has_new_messages(self.subcategory))
+
+    @mock.patch('the_tale.forum.conf.forum_settings.UNREAD_STATE_EXPIRE_TIME', 0)
+    def test_subcategory_expired__no_read_info(self):
+        SubCategoryReadInfoPrototype._db_all().delete()
+        self.assertFalse(self.get_read_state().subcategory_has_new_messages(self.subcategory))
