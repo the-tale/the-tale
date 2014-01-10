@@ -180,6 +180,7 @@ class LogicStorageTests(testcase.TestCase):
         self.assertEqual(save_counter.call_count, 2) # meta action saved by every proxy actions (see mock.patch)
 
 
+    @mock.patch('the_tale.game.heroes.conf.heroes_settings.DUMP_CACHED_HEROES', True)
     def test_process_turn(self):
         self.assertEqual(self.storage.skipped_heroes, set())
         self.storage.process_turn()
@@ -189,6 +190,18 @@ class LogicStorageTests(testcase.TestCase):
             self.storage.save_changed_data()
 
         self.assertEqual(save_hero_data.call_count, 2)
+
+
+    @mock.patch('the_tale.game.heroes.conf.heroes_settings.DUMP_CACHED_HEROES', False)
+    def test_process_turn__without_dump(self):
+        self.assertEqual(self.storage.skipped_heroes, set())
+        self.storage.process_turn()
+        self.assertEqual(self.storage.skipped_heroes, set())
+
+        with mock.patch('the_tale.game.logic_storage.LogicStorage.save_hero_data') as save_hero_data:
+            self.storage.save_changed_data()
+
+        self.assertEqual(save_hero_data.call_count, 1) # save only game_settings.SAVED_UNCACHED_HEROES_FRACTION bundles number
 
 
     def test_process_turn__process_created_action(self):
@@ -205,6 +218,7 @@ class LogicStorageTests(testcase.TestCase):
 
         self.assertEqual(move_to_process.call_count, 2)
 
+    @mock.patch('the_tale.game.heroes.conf.heroes_settings.DUMP_CACHED_HEROES', True)
     def test_process_turn_with_skipped_hero(self):
         # skipped heroes saved, but not processed
         self.storage.skipped_heroes.add(self.hero_1.id)
@@ -218,6 +232,21 @@ class LogicStorageTests(testcase.TestCase):
             self.storage.save_changed_data()
 
         self.assertEqual(save_hero_data.call_count, 2)
+
+    @mock.patch('the_tale.game.heroes.conf.heroes_settings.DUMP_CACHED_HEROES', False)
+    def test_process_turn_with_skipped_hero__without_cache_dump(self):
+        # skipped heroes saved, but not processed
+        self.storage.skipped_heroes.add(self.hero_1.id)
+
+        with mock.patch('the_tale.game.actions.prototypes.ActionBase.process_turn') as action_process_turn:
+            self.storage.process_turn()
+
+        self.assertEqual(action_process_turn.call_count, 1)
+
+        with mock.patch('the_tale.game.logic_storage.LogicStorage.save_hero_data') as save_hero_data:
+            self.storage.save_changed_data()
+
+        self.assertEqual(save_hero_data.call_count, 1)
 
     def test_process_turn___exception_raises(self):
         def process_turn_raise_exception(action):
@@ -269,15 +298,34 @@ class LogicStorageTests(testcase.TestCase):
         self.assertEqual(ui_info_for_cache.call_count, 2)
         self.assertEqual(ui_info_for_cache.call_args, mock.call())
 
+    @mock.patch('the_tale.game.heroes.conf.heroes_settings.DUMP_CACHED_HEROES', True)
     def test_save_changed_data__with_unsaved_bundles(self):
         self.storage.process_turn()
+
+        self.assertEqual(len(self.storage.heroes), 2)
 
         with mock.patch('the_tale.game.logic_storage.LogicStorage._get_bundles_to_save', lambda x: [self.bundle_2_id]):
             with mock.patch('the_tale.game.logic_storage.LogicStorage.save_hero_data') as save_hero_data:
                 with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info_for_cache') as ui_info_for_cache:
                     self.storage.save_changed_data()
 
-        self.assertEqual(ui_info_for_cache.call_count, 1)
+        self.assertEqual(ui_info_for_cache.call_count, 2) # cache all heroes, since they are new
+        self.assertEqual(ui_info_for_cache.call_args, mock.call())
+        self.assertEqual(save_hero_data.call_args, mock.call(self.hero_2.id, update_cache=False))
+
+    def test_save_changed_data__with_unsaved_bundles__without_dump(self):
+        self.storage.process_turn()
+
+        self.assertEqual(len(self.storage.heroes), 2)
+
+        self.hero_2.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
+
+        with mock.patch('the_tale.game.logic_storage.LogicStorage._get_bundles_to_save', lambda x: [self.bundle_2_id]):
+            with mock.patch('the_tale.game.logic_storage.LogicStorage.save_hero_data') as save_hero_data:
+                with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info_for_cache') as ui_info_for_cache:
+                    self.storage.save_changed_data()
+
+        self.assertEqual(ui_info_for_cache.call_count, 1) # cache only first hero
         self.assertEqual(ui_info_for_cache.call_args, mock.call())
         self.assertEqual(save_hero_data.call_args, mock.call(self.hero_2.id, update_cache=False))
 
@@ -326,13 +374,13 @@ class LogicStorageTests(testcase.TestCase):
         self.assertEqual(len(self.storage.meta_actions), 0)
         self.assertEqual(len(self.storage.meta_actions_to_actions), 0)
 
+    @mock.patch('the_tale.game.heroes.conf.heroes_settings.DUMP_CACHED_HEROES', True)
     @mock.patch('the_tale.game.conf.game_settings.SAVED_UNCACHED_HEROES_FRACTION', 0)
     def test_get_bundles_to_save(self):
         # hero 1 not saved
         # hero 2 saved by quota
         # hero 3 saved by caching
         # hero 4 not saved
-        # hero 5 saved by force
 
         result, account_3_id, bundle_3_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
         result, account_4_id, bundle_4_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
@@ -344,15 +392,11 @@ class LogicStorageTests(testcase.TestCase):
 
         hero_3 = self.storage.accounts_to_heroes[account_3_id]
         hero_4 = self.storage.accounts_to_heroes[account_4_id]
-        hero_5 = self.storage.accounts_to_heroes[account_5_id]
 
         self.hero_1._model.saved_at = datetime.datetime.now()
         self.hero_1.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
         self.hero_2.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
         hero_4.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
-        hero_5.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
-
-        hero_5.force_save_required = True
 
         self.assertTrue(self.hero_1.saved_at > self.hero_2.saved_at)
 
@@ -360,16 +404,42 @@ class LogicStorageTests(testcase.TestCase):
         self.assertFalse(self.hero_2.is_ui_caching_required)
         self.assertTrue(hero_3.is_ui_caching_required)
         self.assertFalse(hero_4.is_ui_caching_required)
-        self.assertFalse(hero_5.is_ui_caching_required)
-
-        self.assertFalse(self.hero_1.force_save_required)
-        self.assertFalse(self.hero_2.force_save_required)
-        self.assertFalse(hero_3.force_save_required)
-        self.assertFalse(hero_4.force_save_required)
-        self.assertTrue(hero_5.force_save_required)
 
         self.assertEqual(self.storage._get_bundles_to_save(), set([self.bundle_2_id, bundle_3_id, bundle_5_id]))
 
+
+    @mock.patch('the_tale.game.heroes.conf.heroes_settings.DUMP_CACHED_HEROES', False)
+    @mock.patch('the_tale.game.conf.game_settings.SAVED_UNCACHED_HEROES_FRACTION', 0)
+    def test_get_bundles_to_save__without_cache_dump(self):
+        # hero 1 not saved
+        # hero 2 saved by quota
+        # hero 3 does not saved by caching
+        # hero 4 not saved
+
+        result, account_3_id, bundle_3_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
+        result, account_4_id, bundle_4_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
+
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_3_id))
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_4_id))
+
+        hero_3 = self.storage.accounts_to_heroes[account_3_id]
+        hero_4 = self.storage.accounts_to_heroes[account_4_id]
+
+        self.hero_1._model.saved_at = datetime.datetime.now()
+        self.hero_1.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
+        self.hero_2.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
+        hero_4.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
+
+        self.assertTrue(self.hero_1.saved_at > self.hero_2.saved_at)
+
+        self.assertFalse(self.hero_1.is_ui_caching_required)
+        self.assertFalse(self.hero_2.is_ui_caching_required)
+        self.assertTrue(hero_3.is_ui_caching_required)
+        self.assertFalse(hero_4.is_ui_caching_required)
+
+        self.assertEqual(self.storage._get_bundles_to_save(), set([self.bundle_2_id]))
+
+    @mock.patch('the_tale.game.heroes.conf.heroes_settings.DUMP_CACHED_HEROES', True)
     @mock.patch('the_tale.game.conf.game_settings.SAVED_UNCACHED_HEROES_FRACTION', 0)
     def test_save_changed_data__with_multiple_heroes_to_bundle(self):
         # hero 1 saved by bundle from hero 3
@@ -403,5 +473,43 @@ class LogicStorageTests(testcase.TestCase):
 
         self.assertEqual(set_many.call_count, 1)
         self.assertEqual(save_hero_data.call_count, 3)
+        self.assertEqual(ui_info_for_cache.call_count, 1)
+        self.assertEqual(ui_info_for_cache.call_args, mock.call())
+
+
+    @mock.patch('the_tale.game.heroes.conf.heroes_settings.DUMP_CACHED_HEROES', False)
+    @mock.patch('the_tale.game.conf.game_settings.SAVED_UNCACHED_HEROES_FRACTION', 0)
+    def test_save_changed_data__with_multiple_heroes_to_bundle__without_cache_dump(self):
+        # hero 1 saved by bundle from hero 2
+        # hero 2 saved by quota
+        # hero 3 does not saved by caching
+
+        result, account_3_id, bundle_3_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
+
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_3_id))
+
+        hero_3 = self.storage.accounts_to_heroes[account_3_id]
+
+        self.hero_1._model.saved_at = datetime.datetime.now()
+        self.hero_1.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
+        self.hero_1.actions.current_action.bundle_id = self.hero_2.actions.current_action.bundle_id
+        self.hero_2.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
+
+        self.assertTrue(self.hero_1.saved_at > self.hero_2.saved_at)
+        self.assertFalse(self.hero_1.is_ui_caching_required)
+        self.assertFalse(self.hero_2.is_ui_caching_required)
+        self.assertTrue(hero_3.is_ui_caching_required)
+
+        self.assertEqual(self.storage._get_bundles_to_save(), set([self.bundle_2_id]))
+
+        self.storage.process_turn()
+
+        with mock.patch('dext.utils.cache.set_many') as set_many:
+            with mock.patch('the_tale.game.logic_storage.LogicStorage.save_hero_data') as save_hero_data:
+                with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info_for_cache') as ui_info_for_cache:
+                    self.storage.save_changed_data()
+
+        self.assertEqual(set_many.call_count, 1)
+        self.assertEqual(save_hero_data.call_count, 2)
         self.assertEqual(ui_info_for_cache.call_count, 1)
         self.assertEqual(ui_info_for_cache.call_args, mock.call())

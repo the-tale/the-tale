@@ -145,7 +145,8 @@ class BalancerBalancingTests(BalancerTestsBase):
         self.assertTrue(record[0] <= record[1])
 
     def test_get_prepaired_queue_one_record_test_time_delta(self):
-        battle_1_record = self.battle_1_record(created_at_delta=-datetime.timedelta(seconds=float(pvp_settings.BALANCING_TIMEOUT) / pvp_settings.BALANCING_MAX_LEVEL_DELTA * 2))
+        # -0.1 since some time will pass from record creatig to real query processing
+        battle_1_record = self.battle_1_record(created_at_delta=-datetime.timedelta(seconds=float(pvp_settings.BALANCING_TIMEOUT) / pvp_settings.BALANCING_MAX_LEVEL_DELTA * 2 - 0.1) )
         self.worker.arena_queue[self.account_1.id] = battle_1_record
 
         self.worker.leave_arena_queue(self.hero_2.id)
@@ -194,7 +195,7 @@ class BalancerBalancingTests(BalancerTestsBase):
         self.worker.arena_queue[self.account_1.id] = battle_1_record
         self.worker.arena_queue[self.account_2.id] = battle_2_record
 
-        with mock.patch('the_tale.game.pvp.conf.pvp_settings.BALANCING_TIMEOUT', 1):
+        with mock.patch('the_tale.game.pvp.conf.pvp_settings.BALANCING_TIMEOUT', 1.5):
             records, records_to_bots = self.worker._get_prepaired_queue()
 
         self.assertEqual(len(records), 1)

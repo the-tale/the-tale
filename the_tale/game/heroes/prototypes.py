@@ -72,10 +72,6 @@ class HeroPrototype(BasePrototype):
     def __init__(self, **kwargs):
         super(HeroPrototype, self).__init__(**kwargs)
 
-        # set to True, when, for example, action objects make changes, than MUST be saved
-        # example: save on creating and deleting quest action
-        self.force_save_required = False
-
     @property
     def is_premium(self):
         return self.premium_state_end_at > datetime.datetime.now()
@@ -97,7 +93,7 @@ class HeroPrototype(BasePrototype):
 
     @property
     def is_ui_caching_required(self):
-        return (datetime.datetime.now() - self._model.ui_caching_started_at).seconds < heroes_settings.UI_CACHING_TIME
+        return (datetime.datetime.now() - self._model.ui_caching_started_at).total_seconds() < heroes_settings.UI_CACHING_TIME
 
     @classmethod
     def is_ui_continue_caching_required(self, ui_caching_started_at):
@@ -657,7 +653,6 @@ class HeroPrototype(BasePrototype):
 
         database.raw_save(self._model)
 
-        self.force_save_required = False
 
     def postturn_operations(self):
         self.quests.try_unload()

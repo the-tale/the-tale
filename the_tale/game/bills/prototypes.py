@@ -104,7 +104,7 @@ class BillPrototype(BasePrototype):
         if self.state.is_REJECTED:
             return u'отклонён закон'
         if self.state.is_VOTING:
-            if (self.updated_at - self.created_at).seconds > 1:
+            if (self.updated_at - self.created_at).total_seconds() > 1:
                 return u'исправлен закон'
             else:
                 return u'выдвинут закон'

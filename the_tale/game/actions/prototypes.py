@@ -507,11 +507,9 @@ class ActionQuestPrototype(ActionBase):
 
     def on_create(self):
         super(ActionQuestPrototype, self).on_create()
-        self.hero.force_save_required = True
 
     def on_remove(self):
         super(ActionQuestPrototype, self).on_remove()
-        self.hero.force_save_required = True
         self.hero.quests.pop_quest()
 
     @classmethod

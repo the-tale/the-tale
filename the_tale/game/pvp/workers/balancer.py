@@ -157,14 +157,14 @@ class Worker(BaseWorker):
 
         for record in self.arena_queue.values():
 
-            time_delta = (datetime.datetime.now() - record.created_at).seconds
+            time_delta = (datetime.datetime.now() - record.created_at).total_seconds()
 
             if time_delta > pvp_settings.BALANCING_TIMEOUT:
                 records_to_bots.append(record)
                 continue
 
-            balancing_record = BalancingRecord(min_level=math.floor(record.hero_level - pvp_settings.BALANCING_MIN_LEVEL_DELTA - time_delta / time_in_level),
-                                               max_level=math.ceil(record.hero_level + pvp_settings.BALANCING_MIN_LEVEL_DELTA + time_delta / time_in_level),
+            balancing_record = BalancingRecord(min_level=int(math.floor(record.hero_level - pvp_settings.BALANCING_MIN_LEVEL_DELTA - time_delta / time_in_level)),
+                                               max_level=int(math.ceil(record.hero_level + pvp_settings.BALANCING_MIN_LEVEL_DELTA + time_delta / time_in_level)),
                                                record=record)
 
             records.append(balancing_record)

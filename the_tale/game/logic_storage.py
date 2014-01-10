@@ -163,9 +163,12 @@ class LogicStorage(object):
             self.save_hero_data(hero_id, update_cache=False)
 
     def _get_bundles_to_save(self):
-        bundles = set(hero.actions.current_action.bundle_id
-                      for hero in self.heroes.itervalues()
-                      if hero.is_ui_caching_required or hero.force_save_required)
+        bundles = set()
+
+        if heroes_settings.DUMP_CACHED_HEROES:
+            bundles = set(hero.actions.current_action.bundle_id
+                          for hero in self.heroes.itervalues()
+                          if hero.is_ui_caching_required)
 
         unsaved_heroes = sorted(self.heroes.itervalues(), key=lambda h: h.saved_at)
 
@@ -185,15 +188,16 @@ class LogicStorage(object):
 
         for hero_id, hero in self.heroes.iteritems():
 
-            if hero.actions.current_action.bundle_id not in bundles:
-                continue
-
-            self.save_hero_data(hero_id, update_cache=False)
-
             if hero.is_ui_caching_required:
                 cached_ui_info[hero.cached_ui_info_key] = hero.ui_info_for_cache()
 
+            if hero.actions.current_action.bundle_id in bundles:
+                self.save_hero_data(hero_id, update_cache=False)
+
         cache.set_many(cached_ui_info, heroes_settings.UI_CACHING_TIMEOUT)
+
+        if logger:
+            logger.info('[save_changed_data] cached heroes: %d' % len(cached_ui_info))
 
     def _destroy_account_data(self, account):
 
