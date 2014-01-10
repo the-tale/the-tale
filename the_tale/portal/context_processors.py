@@ -15,3 +15,6 @@ def section(request):
 
 def cdn_paths(request):
     return logic.cdn_paths()
+
+def currencies(request):
+    return {'CURRENCIES': logic.currencies()}

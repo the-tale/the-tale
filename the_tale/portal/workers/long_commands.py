@@ -98,6 +98,12 @@ class Worker(BaseWorker):
                                             delay=portal_settings.CDN_SYNC_DELAY):
             return
 
+        # is currenciess refresh needed
+        if self._try_run_command_with_delay(cmd=self.run_refresh_currenciess,
+                                            settings_key=portal_settings.SETTINGS_PREV_CURRENCIES_SYNC_TIME_KEY,
+                                            delay=portal_settings.CURRENCIES_SYNC_DELAY):
+            return
+
 
     def cmd_stop(self):
         return self.send_cmd('stop')
@@ -138,6 +144,11 @@ class Worker(BaseWorker):
         self.logger.info('refresh cdns')
         self._run_django_subprocess('refresh_cdns', ['portal_refresh_cdns'])
         self.logger.info('cdns refreshed')
+
+    def run_refresh_currencies(self):
+        self.logger.info('currencies cdns')
+        self._run_django_subprocess('refresh_currencies', ['portal_refresh_currencies'])
+        self.logger.info('currencies refreshed')
 
     def run_cleaning(self):
         self.logger.info('start cleaning')

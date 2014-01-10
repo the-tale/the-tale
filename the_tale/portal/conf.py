@@ -48,6 +48,9 @@ portal_settings = app_settings('PORTAL',
                                SETTINGS_PREV_CDN_SYNC_TIME_KEY='prev cdn sync run time',
                                CDN_SYNC_DELAY=5*60,
 
+                               SETTINGS_PREV_CURRENCIES_SYNC_TIME_KEY='prev currencies sync run time',
+                               CURRENCIES_SYNC_DELAY=24*60*60,
+
                                PREMIUM_DAYS_FOR_HERO_OF_THE_DAY=30,
 
                                SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY='prev real day started',
@@ -56,6 +59,7 @@ portal_settings = app_settings('PORTAL',
                                ENABLE_WORKER_LONG_COMMANDS=True,
 
                                SETTINGS_CDN_INFO_KEY='cdn info',
+                               SETTINGS_CURRENCIES_INFO_KEY='currencies info',
 
                                AWS_ACCESS_KEY='amazon access key',
                                AWS_SECRET_KEY='amazon secret key',

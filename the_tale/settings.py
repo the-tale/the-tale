@@ -111,6 +111,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.messages.context_processors.messages',
     'the_tale.portal.context_processors.section',
     'the_tale.portal.context_processors.cdn_paths',
+    'the_tale.portal.context_processors.currencies',
     'the_tale.game.balance.context_processors.balance',
     'the_tale.game.bills.context_processors.bills_context'
     )
@@ -287,6 +288,10 @@ CDNS = ( ('STATIC_JQUERY_JS',
           None)
     )
 
+
+
+CURRENCIES_BASE = 'BYR'
+CURRENCIES_LIST = ['BYR', 'RUB', 'UAH', 'USD']
 
 ############################
 # LOGGING

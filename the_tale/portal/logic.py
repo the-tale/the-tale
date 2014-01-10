@@ -16,3 +16,10 @@ def cdn_paths():
         return s11n.from_json(settings[portal_settings.SETTINGS_CDN_INFO_KEY])
 
     return cdn.get_local_paths(project_settings.CDNS)
+
+
+def currencies():
+    if portal_settings.SETTINGS_CURRENCIES_INFO_KEY in settings:
+        return s11n.from_json(settings[portal_settings.SETTINGS_CURRENCIES_INFO_KEY])
+
+    return {}
