@@ -132,10 +132,11 @@ class AuthResource(BaseAccountsResource):
     {
       "next_url": "относительный url", // адрес, переданный при вызове метода или "/"
       "account_id": <целое число>,     // идентификатор аккаунта
+      "account_name": <строка>,        // имя игрока
       "session_expire_at": <timestamp> // время окончания сессии пользователя
     }
 
-При успешно выполнении запроса, будет установлено значение cookie с именем sessionid, которая и является идентификатором сессии пользователя.
+При успешном выполнении запроса, будет установлено значение cookie с именем sessionid, которая и является идентификатором сессии пользователя.
 
 В случае, если от имени не вошедшего в игру пользователя будет произведён запрос функционала, доступного только авторизованным пользователям, API вернёт ошибку с кодом "common.login_required" (см. секцию с описанием общих ошибок).
         '''
@@ -155,6 +156,7 @@ class AuthResource(BaseAccountsResource):
 
             return self.ok(data={'next_url': next_url,
                                  'account_id': account.id,
+                                 'account_name': account.nick_verbose,
                                  'session_expire_at': time.mktime(self.request.session.get_expiry_date().timetuple())})
 
         return self.error('accounts.auth.login.form_errors', login_form.errors)

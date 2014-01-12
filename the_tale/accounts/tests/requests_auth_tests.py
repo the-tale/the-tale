@@ -48,6 +48,7 @@ class AuthRequestsTests(TestCase):
 
         self.assertEqual(data['data']['next_url'], '/bla-bla')
         self.assertEqual(data['data']['account_id'], self.account_id)
+        self.assertEqual(data['data']['account_name'], 'test_user')
         self.assertTrue(data['data']['session_expire_at'] > time.time())
 
     def test_logout_command_post(self):
