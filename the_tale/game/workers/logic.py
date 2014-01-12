@@ -133,6 +133,9 @@ class Worker(BaseWorker):
         task.process(self.logger, storage=self.storage)
         task.do_postsave_actions()
 
+        self.storage.recache_account_data(account_id)
+
+
     def cmd_start_hero_caching(self, account_id, hero_id):
         self.send_cmd('start_hero_caching', {'hero_id': hero_id,
                                              'account_id': account_id})

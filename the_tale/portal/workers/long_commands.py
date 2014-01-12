@@ -99,7 +99,7 @@ class Worker(BaseWorker):
             return
 
         # is currenciess refresh needed
-        if self._try_run_command_with_delay(cmd=self.run_refresh_currenciess,
+        if self._try_run_command_with_delay(cmd=self.run_refresh_currencies,
                                             settings_key=portal_settings.SETTINGS_PREV_CURRENCIES_SYNC_TIME_KEY,
                                             delay=portal_settings.CURRENCIES_SYNC_DELAY):
             return
