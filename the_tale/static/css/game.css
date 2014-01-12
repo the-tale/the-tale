@@ -143,6 +143,9 @@
 .quest-icon.next-spending {
   background: url('../game/images/quests.png') no-repeat scroll 0 -704px transparent;
 }
+.quest-icon.pilgrimage {
+  background: url('../game/images/quests.png') no-repeat scroll -64px -320px transparent;
+}
 .quest-record {
   min-height: 84px;
   cursor: default;

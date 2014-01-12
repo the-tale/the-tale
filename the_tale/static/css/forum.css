@@ -18,8 +18,8 @@
 .forum-table .author {
   width: 13em;
 }
-.forum-table .last-poster {
-  width: 13em;
+.forum-table .last-thread {
+  width: 20em;
 }
 .forum-table .thread-page-links {
   color: #4A516B;
