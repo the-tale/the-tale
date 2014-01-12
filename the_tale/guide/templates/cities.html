@@ -25,7 +25,7 @@
   </thead>
   <tbody>
     {% for modifier in MODIFIERS%}
-    <tr><td width="150px;">{{modifier.NAME}}</td><td>{{modifier.DESCRIPTION}}</td></tr>
+    <tr><td width="150px;">{{modifier.TYPE.text}}</td><td>{{modifier.DESCRIPTION}}</td></tr>
     {% endfor %}
   </tbody>
 </table>
