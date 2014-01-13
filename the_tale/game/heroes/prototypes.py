@@ -715,11 +715,12 @@ class HeroPrototype(BasePrototype):
                 self.messages == other.messages and
                 self.diary == other.diary)
 
-    def ui_info(self, for_last_turn=False):
+    def ui_info(self, actual_guaranteed):
         return {'id': self.id,
-                'saved_at_turn': self.saved_at_turn,
-                'saved_at': time.mktime(self.saved_at.timetuple()),
-                'ui_caching_started_at': time.mktime(self.ui_caching_started_at.timetuple()),
+                'saved_at_turn': 0, # DEPRECATED
+                'saved_at': 0, # DEPRECATED
+                'actual_on_turn': TimePrototype.get_current_turn_number() if actual_guaranteed else self.saved_at_turn,
+                'ui_caching_started_at': 0, # DEPRECATED
                 'messages': self.messages.ui_info(),
                 'diary': self.diary.ui_info(with_date=True),
                 'position': self.position.ui_info(),
@@ -732,10 +733,12 @@ class HeroPrototype(BasePrototype):
                                  'can_repair_building': self.can_repair_building },
                 'energy': { 'max': self.energy_maximum,
                             'value': self.energy,
-                            'charges': 0, # DEPRECATED, left for api
+                            'charges': 0, # DEPRECATED
                             'bonus': self.energy_bonus},
                 'action': self.actions.current_action.ui_info(),
-                'pvp': self.pvp.ui_info() if not for_last_turn else self.pvp.turn_ui_info(),
+                # 'pvp' will be filled in modify_ui_info_with_turn
+                'pvp__actual': self.pvp.ui_info(),
+                'pvp__last_turn': self.pvp.turn_ui_info(),
                 'base': { 'name': self.name,
                           'level': self.level,
                           'destiny_points': self.abilities.destiny_points,
@@ -755,8 +758,20 @@ class HeroPrototype(BasePrototype):
                 'quests': self.quests.ui_info(self)
                 }
 
-    def ui_info_for_cache(self):
-        return self.ui_info(for_last_turn=False)
+    @classmethod
+    def modify_ui_info_with_turn(self, data, for_last_turn):
+
+        if for_last_turn:
+            data['pvp'] = data['pvp__last_turn']
+        else:
+            data['pvp'] = data['pvp__actual']
+
+        del data['pvp__last_turn']
+        del data['pvp__actual']
+
+
+    def ui_info_for_cache(self, actual_guaranteed):
+        return self.ui_info(actual_guaranteed=actual_guaranteed)
 
 
     @classmethod
@@ -775,7 +790,7 @@ class HeroPrototype(BasePrototype):
 
         if data is None or cls.is_ui_continue_caching_required(data['ui_caching_started_at']):
             hero = cls.get_by_account_id(account_id)
-            data = hero.ui_info_for_cache()
+            data = hero.ui_info_for_cache(actual_guaranteed=False)
             game_workers_environment.supervisor.cmd_start_hero_caching(hero.account_id, hero.id)
 
         return data

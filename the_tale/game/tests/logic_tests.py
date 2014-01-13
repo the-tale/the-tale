@@ -104,25 +104,37 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
 
     def test_own_hero_get_cached_data(self):
         hero = HeroPrototype.get_by_account_id(self.account_1.id)
+
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero',
-                        mock.Mock(return_value={'id': hero.id, 'saved_at_turn': hero.saved_at_turn}),) as cached_ui_info_for_hero:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info', mock.Mock(return_value={'saved_at_turn': 0})) as ui_info:
-                form_game_info(self.account_1, is_own=True)
+                        mock.Mock(return_value={'actual_on_turn': hero.saved_at_turn, 'pvp__actual':'actual', 'pvp__last_turn':'last_turn'})) as cached_ui_info_for_hero:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                data = form_game_info(self.account_1, is_own=True)
+
+        self.assertEqual(data['account']['hero']['pvp'], 'actual')
+        self.assertEqual(data['enemy'], None)
+
+        self.assertFalse('pvp__actual' in data['account']['hero']['pvp'])
+        self.assertFalse('pvp__last_turn' in data['account']['hero']['pvp'])
 
         self.assertEqual(cached_ui_info_for_hero.call_count, 1)
         self.assertEqual(cached_ui_info_for_hero.call_args, mock.call(self.account_1.id))
         self.assertEqual(ui_info.call_count, 0)
 
-    def test_other_hero_get_not_cached_data(self):
-        hero_2 = HeroPrototype.get_by_account_id(self.account_1.id)
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero') as cached_ui_info:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info',
-                            mock.Mock(return_value={'id': hero_2.id, 'saved_at_turn': hero_2.saved_at_turn})) as ui_info:
-                form_game_info(self.account_1, is_own=False)
+    def test_not_own_hero_get_cached_data(self):
+        hero = HeroPrototype.get_by_account_id(self.account_1.id)
 
-        self.assertEqual(cached_ui_info.call_count, 0)
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info',
+                        mock.Mock(return_value={'actual_on_turn': hero.saved_at_turn, 'pvp__actual':'actual', 'pvp__last_turn':'last_turn'})) as ui_info:
+            data = form_game_info(self.account_1, is_own=False)
+
+        self.assertEqual(data['account']['hero']['pvp'], 'last_turn')
+        self.assertEqual(data['enemy'], None)
+
+        self.assertFalse('pvp__actual' in data['account']['hero']['pvp'])
+        self.assertFalse('pvp__last_turn' in data['account']['hero']['pvp'])
+
         self.assertEqual(ui_info.call_count, 1)
-        self.assertEqual(ui_info.call_args, mock.call(for_last_turn=True))
+        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
 
     def test_is_old(self):
         self.assertFalse(form_game_info(self.account_1, is_own=True)['account']['is_old'])
@@ -200,11 +212,19 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         hero_1 = HeroPrototype.get_by_account_id(self.account_1.id)
         hero_2 = HeroPrototype.get_by_account_id(self.account_2.id)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero',
-                        mock.Mock(return_value={'saved_at_turn': hero_1.saved_at_turn})) as cached_ui_info_for_hero:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info',
-                            mock.Mock(return_value={'saved_at_turn': hero_2.saved_at_turn})) as ui_info:
-                form_game_info(self.account_1, is_own=True)
+        def get_ui_info(self, **kwargs):
+            if self.id == hero_1.id:
+                return {'actual_on_turn': hero_1.saved_at_turn, 'pvp__actual':'actual', 'pvp__last_turn':'last_turn'}
+            else:
+                return {'actual_on_turn': hero_2.saved_at_turn, 'pvp__actual':'actual', 'pvp__last_turn':'last_turn'}
 
-        self.assertEqual(cached_ui_info_for_hero.call_args_list, [mock.call(self.account_1.id)])
-        self.assertEqual(ui_info.call_args_list, [mock.call(for_last_turn=True)])
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info', get_ui_info):
+            data = form_game_info(self.account_1, is_own=True)
+
+        self.assertEqual(data['account']['hero']['pvp'], 'actual')
+        self.assertEqual(data['enemy']['hero']['pvp'], 'last_turn')
+
+        self.assertFalse('pvp__actual' in data['account']['hero']['pvp'])
+        self.assertFalse('pvp__last_turn' in data['account']['hero']['pvp'])
+        self.assertFalse('pvp__actual' in data['enemy']['hero']['pvp'])
+        self.assertFalse('pvp__last_turn' in data['enemy']['hero']['pvp'])

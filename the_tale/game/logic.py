@@ -135,12 +135,13 @@ def _form_game_account_info(game_time, account, in_pvp_queue, is_own):
              'hero': None,
              'in_pvp_queue': in_pvp_queue }
 
-    if is_own:
-        data['hero'] = HeroPrototype.cached_ui_info_for_hero(account.id)
-    else:
-        data['hero'] = HeroPrototype.get_by_account_id(account.id).ui_info(for_last_turn=True)
+    hero_data = HeroPrototype.cached_ui_info_for_hero(account.id)
 
-    data['is_old'] = (data['hero']['saved_at_turn'] < game_time.turn_number)
+    HeroPrototype.modify_ui_info_with_turn(hero_data, for_last_turn=(not is_own))
+
+    data['hero'] = hero_data
+
+    data['is_old'] = (data['hero']['actual_on_turn'] < game_time.turn_number)
 
     return data
 

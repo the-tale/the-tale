@@ -79,7 +79,7 @@ class QuestsTest(QuestsTestBase):
             self.storage.process_turn()
             current_time.increment_turn()
 
-            self.hero.ui_info() # test if ui info formed correctly
+            self.hero.ui_info(actual_guaranteed=True) # test if ui info formed correctly
 
 
 def create_test_method(quest, quests):

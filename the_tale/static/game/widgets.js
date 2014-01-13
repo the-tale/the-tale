@@ -51,7 +51,7 @@ pgf.game.Updater = function(params) {
             url: params.url,
             success: function(data, request, status) {
 
-                if (data.data.is_old && requireNewData) {
+                if (data.data.account.is_old && requireNewData) {
                     jQuery('.pgf-wait-data').toggleClass('pgf-hidden', false);
                     jQuery('.pgf-game-data').toggleClass('pgf-hidden', true);
                     setTimeout(function(e){

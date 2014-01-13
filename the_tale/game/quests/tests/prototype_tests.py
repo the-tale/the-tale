@@ -105,7 +105,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertTrue(old_quests_done < self.hero.statistics.quests_done)
 
     def check_ui_info(self):
-        s11n.to_json(self.hero.ui_info())
+        s11n.to_json(self.hero.ui_info(actual_guaranteed=True))
 
     def test_complete_quest(self):
         self.assertEqual(self.hero.quests.interfered_persons, {})

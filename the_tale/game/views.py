@@ -228,8 +228,9 @@ class GameResource(Resource):
       },
 
       "id": <целое число>,                             // идентификатор
-      "saved_at_turn": <целое число>,                  // данные на какой ход предоставлены
-      "saved_at": <timestamp>,                         // данные на какое время предоставлены
+      "saved_at_turn": 0,                              // УСТАРЕЛО, будет удалено в будущих версиях
+      "saved_at": 0,                                   // УСТАРЕЛО, будет удалено в будущих версиях
+      "actual_on_turn": <целое число>,                 // данные на какой ход предоставлены
       }
 
     <quest_actor_info> = <quest_actor_place_info>|<quest_actor_person_info>|<quest_actor_spending_info>

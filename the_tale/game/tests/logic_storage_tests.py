@@ -296,7 +296,7 @@ class LogicStorageTests(testcase.TestCase):
 
         self.assertEqual(set_many.call_count, 1)
         self.assertEqual(ui_info_for_cache.call_count, 2)
-        self.assertEqual(ui_info_for_cache.call_args, mock.call())
+        self.assertEqual(ui_info_for_cache.call_args, mock.call(actual_guaranteed=True))
 
     @mock.patch('the_tale.game.heroes.conf.heroes_settings.DUMP_CACHED_HEROES', True)
     def test_save_changed_data__with_unsaved_bundles(self):
@@ -310,7 +310,7 @@ class LogicStorageTests(testcase.TestCase):
                     self.storage.save_changed_data()
 
         self.assertEqual(ui_info_for_cache.call_count, 2) # cache all heroes, since they are new
-        self.assertEqual(ui_info_for_cache.call_args, mock.call())
+        self.assertEqual(ui_info_for_cache.call_args, mock.call(actual_guaranteed=True))
         self.assertEqual(save_hero_data.call_args, mock.call(self.hero_2.id, update_cache=False))
 
     def test_save_changed_data__with_unsaved_bundles__without_dump(self):
@@ -326,7 +326,7 @@ class LogicStorageTests(testcase.TestCase):
                     self.storage.save_changed_data()
 
         self.assertEqual(ui_info_for_cache.call_count, 1) # cache only first hero
-        self.assertEqual(ui_info_for_cache.call_args, mock.call())
+        self.assertEqual(ui_info_for_cache.call_args, mock.call(actual_guaranteed=True))
         self.assertEqual(save_hero_data.call_args, mock.call(self.hero_2.id, update_cache=False))
 
     def test__destroy_account_data(self):
@@ -474,7 +474,7 @@ class LogicStorageTests(testcase.TestCase):
         self.assertEqual(set_many.call_count, 1)
         self.assertEqual(save_hero_data.call_count, 3)
         self.assertEqual(ui_info_for_cache.call_count, 1)
-        self.assertEqual(ui_info_for_cache.call_args, mock.call())
+        self.assertEqual(ui_info_for_cache.call_args, mock.call(actual_guaranteed=True))
 
 
     @mock.patch('the_tale.game.heroes.conf.heroes_settings.DUMP_CACHED_HEROES', False)
@@ -512,4 +512,4 @@ class LogicStorageTests(testcase.TestCase):
         self.assertEqual(set_many.call_count, 1)
         self.assertEqual(save_hero_data.call_count, 2)
         self.assertEqual(ui_info_for_cache.call_count, 1)
-        self.assertEqual(ui_info_for_cache.call_args, mock.call())
+        self.assertEqual(ui_info_for_cache.call_args, mock.call(actual_guaranteed=True))

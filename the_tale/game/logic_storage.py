@@ -49,14 +49,14 @@ class LogicStorage(object):
         hero = self.accounts_to_heroes[account_id]
         if hero.saved_at_turn != TimePrototype.get_current_turn_number():
             hero.save()
-        cache.set(hero.cached_ui_info_key, hero.ui_info_for_cache(), heroes_settings.UI_CACHING_TIMEOUT)
+        cache.set(hero.cached_ui_info_key, hero.ui_info_for_cache(actual_guaranteed=True), heroes_settings.UI_CACHING_TIMEOUT)
 
     def save_hero_data(self, hero_id, update_cache):
         hero = self.heroes[hero_id]
         hero.save()
 
         if update_cache:
-            cache.set(hero.cached_ui_info_key, hero.ui_info_for_cache(), heroes_settings.UI_CACHING_TIMEOUT)
+            cache.set(hero.cached_ui_info_key, hero.ui_info_for_cache(actual_guaranteed=True), heroes_settings.UI_CACHING_TIMEOUT)
 
 
     def add_hero(self, hero):
@@ -189,7 +189,7 @@ class LogicStorage(object):
         for hero_id, hero in self.heroes.iteritems():
 
             if hero.is_ui_caching_required:
-                cached_ui_info[hero.cached_ui_info_key] = hero.ui_info_for_cache()
+                cached_ui_info[hero.cached_ui_info_key] = hero.ui_info_for_cache(actual_guaranteed=True)
 
             if hero.actions.current_action.bundle_id in bundles:
                 self.save_hero_data(hero_id, update_cache=False)
