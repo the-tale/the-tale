@@ -720,7 +720,7 @@ class HeroPrototype(BasePrototype):
                 'saved_at_turn': 0, # DEPRECATED
                 'saved_at': 0, # DEPRECATED
                 'actual_on_turn': TimePrototype.get_current_turn_number() if actual_guaranteed else self.saved_at_turn,
-                'ui_caching_started_at': 0, # DEPRECATED
+                'ui_caching_started_at': time.mktime(self.ui_caching_started_at.timetuple()),
                 'messages': self.messages.ui_info(),
                 'diary': self.diary.ui_info(with_date=True),
                 'position': self.position.ui_info(),

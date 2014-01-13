@@ -166,9 +166,7 @@ class LogicStorage(object):
         bundles = set()
 
         if heroes_settings.DUMP_CACHED_HEROES:
-            bundles = set(hero.actions.current_action.bundle_id
-                          for hero in self.heroes.itervalues()
-                          if hero.is_ui_caching_required)
+            bundles |= self._get_bundles_to_cache()
 
         unsaved_heroes = sorted(self.heroes.itervalues(), key=lambda h: h.saved_at)
 
@@ -178,20 +176,26 @@ class LogicStorage(object):
 
         return bundles
 
+    def _get_bundles_to_cache(self):
+        return set(hero.actions.current_action.bundle_id
+                   for hero in self.heroes.itervalues()
+                   if hero.is_ui_caching_required)
+
     def save_changed_data(self, logger=None):
         cached_ui_info = {}
 
-        bundles = self._get_bundles_to_save()
+        saved_bundles = self._get_bundles_to_save()
+        cached_bundles = self._get_bundles_to_cache()
 
         if logger:
-            logger.info('[save_changed_data] saved bundles number: %d' % len(bundles))
+            logger.info('[save_changed_data] saved bundles number: %d' % len(saved_bundles))
 
         for hero_id, hero in self.heroes.iteritems():
 
-            if hero.is_ui_caching_required:
+            if hero.actions.current_action.bundle_id in cached_bundles:
                 cached_ui_info[hero.cached_ui_info_key] = hero.ui_info_for_cache(actual_guaranteed=True)
 
-            if hero.actions.current_action.bundle_id in bundles:
+            if hero.actions.current_action.bundle_id in saved_bundles:
                 self.save_hero_data(hero_id, update_cache=False)
 
         cache.set_many(cached_ui_info, heroes_settings.UI_CACHING_TIMEOUT)

@@ -473,8 +473,8 @@ class LogicStorageTests(testcase.TestCase):
 
         self.assertEqual(set_many.call_count, 1)
         self.assertEqual(save_hero_data.call_count, 3)
-        self.assertEqual(ui_info_for_cache.call_count, 1)
-        self.assertEqual(ui_info_for_cache.call_args, mock.call(actual_guaranteed=True))
+        self.assertEqual(ui_info_for_cache.call_count, 2)
+        self.assertEqual(ui_info_for_cache.call_args_list, [mock.call(actual_guaranteed=True), mock.call(actual_guaranteed=True)])
 
 
     @mock.patch('the_tale.game.heroes.conf.heroes_settings.DUMP_CACHED_HEROES', False)
