@@ -1,7 +1,7 @@
 # coding: utf-8
 import random
 
-from django.utils.log import getLogger
+# from django.utils.log import getLogger
 from django.conf import settings as project_settings
 
 from dext.utils.decorators import retry_on_exception
@@ -44,7 +44,7 @@ from the_tale.game.quests.conf import quests_settings
 from the_tale.game.quests.prototypes import QuestPrototype
 from the_tale.game.quests import uids
 
-_quests_logger = getLogger('the-tale.quests')
+# logger = getLogger('the-tale.workers.game_logic')
 
 WORLD_RESTRICTIONS = [restrictions.SingleLocationForObject(),
                       restrictions.ReferencesIntegrity()]
@@ -181,9 +181,8 @@ def get_knowledge_base(hero, without_restrictions=False): # pylint: disable=R091
 
     if not without_restrictions:
 
-        for person_id in hero.quests.interfered_persons:
-            person = persons_storage.get(person_id)
-            if person and person.place.id == hero.position.place.id:
+        for person in persons_storage.all():
+            if person.place.id == hero.position.place.id and hero.quests.is_person_interfered(person.id):
                 kb += facts.NotFirstInitiator(person=uids.person(person))
 
     kb.validate_consistency(WORLD_RESTRICTIONS)
@@ -198,17 +197,21 @@ def create_random_quest_for_hero(hero):
 
     special = (c.QUESTS_SPECIAL_FRACTION > random.uniform(0, 1))
 
+    # logger.warn('create quest: %s' % {True: 'SPECIAL', False: 'NORMAL'}[special])
+
     try:
 
         if special:
             try:
                 return _create_random_quest_for_hero(hero, special=True)
             except questgen_exceptions.RollBackError:
+                # logger.warn('special quest failed')
                 pass
 
         return _create_random_quest_for_hero(hero, special=False)
 
     except questgen_exceptions.RollBackError:
+        # logger.warn('normal quest failed')
         return _create_random_quest_for_hero(hero, special=False, without_restrictions=True)
 
 
@@ -233,12 +236,12 @@ def _create_random_quest_for_hero(hero, special, without_restrictions=False):
 
     start_place = selector.place_for(objects=(hero_uid,))
 
-    current_time = TimePrototype.get_current_turn_number()
+    # current_time = TimePrototype.get_current_turn_number()
 
     excluded_quests = []
-    for quest_type, turn_number in hero.quests.history.items():
-        if turn_number + c.QUESTS_LOCK_TIME.get(quest_type, 0) >= current_time:
-            excluded_quests.append(quest_type)
+    # for quest_type, turn_number in hero.quests.history.items():
+    #     if turn_number + c.QUESTS_LOCK_TIME.get(quest_type, 0) >= current_time:
+    #         excluded_quests.append(quest_type)
 
     quests_facts = selector.create_quest_from_place(nesting=0,
                                                     initiator_position=start_place,

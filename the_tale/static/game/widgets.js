@@ -52,14 +52,19 @@ pgf.game.Updater = function(params) {
             success: function(data, request, status) {
 
                 if (data.data.account.is_old && requireNewData) {
-                    jQuery('.pgf-wait-data').toggleClass('pgf-hidden', false);
-                    jQuery('.pgf-game-data').toggleClass('pgf-hidden', true);
+
+                    // hide only if not get info about last turn
+                    if (data.data.turn.number != data.data.account.hero.actual_on_turn + 1) {
+                        jQuery('.pgf-wait-data').toggleClass('pgf-hidden', false);
+                        jQuery('.pgf-game-data').toggleClass('pgf-hidden', true);
+                    }
+
                     setTimeout(function(e){
                         refreshDelay *= 1.618; //the golden ratio
                         instance.ResetRefreshInterval(requireNewData);
                         instance.Refresh(requireNewData);
                     }, refreshDelay);
-                    return;yes
+                    return;
                 }
 
                 refreshDelay = 1000;

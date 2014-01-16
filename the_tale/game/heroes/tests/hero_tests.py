@@ -388,14 +388,18 @@ class HeroTest(TestCase):
         game_time.increment_turn()
 
         with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
-            self.hero.process_rare_operations()
+            with mock.patch('the_tale.game.quests.container.QuestsContainer.sync_interfered_persons') as sync_interfered_persons:
+                self.hero.process_rare_operations()
 
         self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
                                                                         type=ACHIEVEMENT_TYPE.TIME,
                                                                         old_value=0,
                                                                         new_value=0)])
 
+        self.assertEqual(sync_interfered_persons.call_args_list, [mock.call()])
+
         self.assertEqual(self.hero.last_rare_operation_at_turn, game_time.turn_number)
+
 
     @mock.patch('the_tale.game.heroes.conf.heroes_settings.RARE_OPERATIONS_INTERVAL', 2)
     def test_process_rare_operations__age_changed(self):

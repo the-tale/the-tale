@@ -917,6 +917,8 @@ class HeroPrototype(BasePrototype):
         if current_turn - self.last_rare_operation_at_turn < heroes_settings.RARE_OPERATIONS_INTERVAL:
             return
 
+        self.quests.sync_interfered_persons()
+
         with achievements_storage.verify(type=ACHIEVEMENT_TYPE.TIME, object=self):
             self.last_rare_operation_at_turn = current_turn
 
