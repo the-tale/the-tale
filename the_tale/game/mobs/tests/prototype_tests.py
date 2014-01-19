@@ -78,7 +78,7 @@ class MobsPrototypeTests(testcase.TestCase):
                                   name='bandint',
                                   description='bandint',
                                   abilities=['hit', 'thick', 'slow', 'extra_strong'],
-                                  terrains=TERRAIN._ALL,
+                                  terrains=TERRAIN.records,
                                   type=MOB_TYPE.CIVILIZED,
                                   state=MOB_RECORD_STATE.ENABLED)
         mobs_storage.sync(force=True)

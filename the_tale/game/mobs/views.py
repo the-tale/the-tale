@@ -20,8 +20,8 @@ from the_tale.game.mobs.forms import MobRecordForm, ModerateMobRecordForm
 
 
 BASE_INDEX_FILTERS = [list_filter.reset_element(),
-                      list_filter.choice_element(u'тип:', attribute='type', choices=[(None, u'все')] + list(MOB_TYPE.select('value', 'text'))),
-                      list_filter.choice_element(u'территория:', attribute='terrain', choices=[(None, u'все')] + TERRAIN._CHOICES),
+                      list_filter.choice_element(u'тип:', attribute='type', choices=[(None, u'все')] + sorted(list(MOB_TYPE.select('value', 'text')), key=lambda x: x[1])),
+                      list_filter.choice_element(u'территория:', attribute='terrain', choices=[(None, u'все')] + sorted(list(TERRAIN.select('value', 'text')), key=lambda x: x[1])),
                       list_filter.choice_element(u'сортировка:',
                                                  attribute='order_by',
                                                  choices=INDEX_ORDER_TYPE.select('value', 'text'),
@@ -66,7 +66,7 @@ class GuideMobResource(MobResourceBase):
         return not self.mob.state.is_DISABLED or self.can_create_mob or self.can_moderate_mob
 
     @validate_argument('state', argument_to_mob_state, 'mobs', u'неверное состояние записи о монстре')
-    @validate_argument('terrain', TERRAIN, 'mobs', u'неверный тип территории')
+    @validate_argument('terrain', lambda value: TERRAIN(int(value)), 'mobs', u'неверный тип территории')
     @validate_argument('order_by', INDEX_ORDER_TYPE, 'mobs', u'неверный тип сортировки')
     @validate_argument('type', argument_to_mob_type, 'mobs', u'неверный тип монстра')
     @handler('', method='get')
@@ -85,7 +85,7 @@ class GuideMobResource(MobResourceBase):
 
         if terrain is not None:
             is_filtering = True
-            mobs = filter(lambda mob: terrain.value in mob.terrains, mobs) # pylint: disable=W0110
+            mobs = filter(lambda mob: terrain in mob.terrains, mobs) # pylint: disable=W0110
 
         if order_by.is_BY_NAME:
             mobs = sorted(mobs, key=lambda mob: mob.name)

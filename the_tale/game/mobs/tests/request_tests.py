@@ -96,13 +96,13 @@ class TestIndexRequests(BaseTestRequests):
         MobRecord.objects.all().delete()
         mobs_storage.clear()
         MobRecordPrototype.create_random(uuid='bandit', terrains=[TERRAIN.PLANE_GRASS])
-        self.check_html_ok(self.request_html(reverse('guide:mobs:')+('?terrain=%d' % TERRAIN.HILLS_GRASS)), texts=(('pgf-no-mobs-message', 1),))
+        self.check_html_ok(self.request_html(reverse('guide:mobs:')+('?terrain=%d' % TERRAIN.HILLS_GRASS.value)), texts=(('pgf-no-mobs-message', 1),))
 
     def test_filter_by_terrain(self):
         MobRecord.objects.all().delete()
         mobs_storage.clear()
         MobRecordPrototype.create_random(uuid='bandit', terrains=[TERRAIN.PLANE_GRASS])
-        self.check_html_ok(self.request_html(reverse('guide:mobs:')+('?terrain=%d' % TERRAIN.PLANE_GRASS)), texts=['bandit'])
+        self.check_html_ok(self.request_html(reverse('guide:mobs:')+('?terrain=%d' % TERRAIN.PLANE_GRASS.value)), texts=['bandit'])
 
     def test_filter_by_type_no_mobs_message(self):
         MobRecord.objects.all().delete()

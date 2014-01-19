@@ -22,16 +22,23 @@ from the_tale.game.map.places.storage import places_storage
 
 from the_tale.game.map.models import MapInfo, WorldInfo
 from the_tale.game.map.utils import get_race_percents
-from the_tale.game.map.relations import MAP_STATISTICS
+from the_tale.game.map.relations import MAP_STATISTICS, TERRAIN
 
 
 
 class MapInfoPrototype(BasePrototype):
     _model_class = MapInfo
-    _readonly = ('id', 'turn_number', 'world_id')
+    _readonly = ('id', 'turn_number', 'world_id', 'width', 'height')
 
     @lazy_property
-    def terrain(self): return s11n.from_json(self._model.terrain)
+    def terrain(self):
+        data =  s11n.from_json(self._model.terrain)
+        terrain = []
+        for row in data:
+            terrain.append([])
+            for cell in row:
+                terrain[-1].append(TERRAIN(cell))
+        return terrain
 
     @lazy_property
     def statistics(self):
@@ -99,7 +106,7 @@ class MapInfoPrototype(BasePrototype):
 
         total_cells = width * height
 
-        terrain_percents = dict( (id_, float(square) / total_cells) for id_, square in terrain_squares.items())
+        terrain_percents = dict( (id_.value, float(square) / total_cells) for id_, square in terrain_squares.items())
 
         race_percents = get_race_percents(persons_storage.filter(state=PERSON_STATE.IN_GAME))
 
@@ -117,7 +124,7 @@ class MapInfoPrototype(BasePrototype):
         model = MapInfo.objects.create(turn_number=turn_number,
                                        width=width,
                                        height=height,
-                                       terrain=s11n.to_json(terrain),
+                                       terrain=s11n.to_json([ [cell.value for cell in row] for row in terrain]),
                                        cells=s11n.to_json(UICells.create(world.generator).serialize()),
                                        world=world._model,
                                        statistics=s11n.to_json(statistics))

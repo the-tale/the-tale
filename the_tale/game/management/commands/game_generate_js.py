@@ -9,8 +9,8 @@ from the_tale.game.conf import game_settings
 
 from the_tale.game.quests.relations import ACTOR_TYPE
 from the_tale.game.relations import GENDER, RACE
-from the_tale.game.map.relations import TERRAIN
-from the_tale.game.map.places.relations import BUILDING_TYPE
+from the_tale.game.map.conf import map_settings
+from the_tale.game.map.relations import SPRITES
 from the_tale.game.persons.relations import PERSON_TYPE
 from the_tale.game.abilities.relations import ABILITY_TYPE
 
@@ -33,7 +33,7 @@ class Command(BaseCommand):
                             'person_type_to_text': s11n.to_json(dict(PERSON_TYPE.select('value', 'text'))),
                             'race_to_text': s11n.to_json(dict(RACE.select('value', 'text'))),
                             'race_to_str': s11n.to_json(dict(RACE.select('value', 'name'))),
-                            'terrain_id_to_str': s11n.to_json(TERRAIN._ID_TO_STR),
-                            'building_type_to_str': s11n.to_json(dict(BUILDING_TYPE.select('value', 'name'))),
-                            'ABILITY_TYPE': ABILITY_TYPE
+                            'ABILITY_TYPE': ABILITY_TYPE,
+                            'SPRITES': SPRITES,
+                            'CELL_SIZE': map_settings.CELL_SIZE
                             }).encode('utf-8'))

@@ -14,7 +14,6 @@ from the_tale.game.map.storage import map_info_storage
 from the_tale.game.map.places.storage import places_storage, buildings_storage, resource_exchange_storage
 from the_tale.game.map.places.prototypes import PlaceParametersDescription
 from the_tale.game.map.conf import map_settings
-from the_tale.game.map.relations import TERRAIN
 
 class MapResource(Resource):
 
@@ -37,7 +36,7 @@ class MapResource(Resource):
 
         map_info = map_info_storage.item
 
-        terrain = TERRAIN._ID_TO_TEXT[map_info.terrain[y][x]]
+        terrain = map_info.terrain[y][x]
 
         cell = map_info.cells.get_cell(x, y)
 

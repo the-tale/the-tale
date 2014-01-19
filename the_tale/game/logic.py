@@ -58,8 +58,8 @@ def create_test_map():
     for place in places_storage.all():
         place.sync_persons(force_add=True)
 
-    RoadPrototype.create(point_1=p1, point_2=p2)
-    RoadPrototype.create(point_1=p2, point_2=p3)
+    RoadPrototype.create(point_1=p1, point_2=p2).update()
+    RoadPrototype.create(point_1=p2, point_2=p3).update()
 
     update_waymarks()
 

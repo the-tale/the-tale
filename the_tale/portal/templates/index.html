@@ -176,12 +176,12 @@
 
           <table class="table table-condensed">
             <tr><th>местность</th>  <th>распространение<th></tr>
-            <tr><th>{{MAP_STATISTICS._ID_TO_TEXT[MAP_STATISTICS.LOWLANDS]}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.LOWLANDS, 0)|percents }}</td></tr>
-            <tr><th>{{MAP_STATISTICS._ID_TO_TEXT[MAP_STATISTICS.PLAINS]}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.PLAINS, 0)|percents }}</td></tr>
-            <tr><th>{{MAP_STATISTICS._ID_TO_TEXT[MAP_STATISTICS.UPLANDS]}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.UPLANDS, 0)|percents }}</td></tr>
-            <tr><th>{{MAP_STATISTICS._ID_TO_TEXT[MAP_STATISTICS.DESERTS]}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.DESERTS, 0)|percents }}</td></tr>
-            <tr><th>{{MAP_STATISTICS._ID_TO_TEXT[MAP_STATISTICS.GRASS]}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.GRASS, 0)|percents }}</td></tr>
-            <tr><th>{{MAP_STATISTICS._ID_TO_TEXT[MAP_STATISTICS.FORESTS]}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.FORESTS, 0)|percents }}</td></tr>
+            <tr><th>{{MAP_STATISTICS.LOWLANDS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.LOWLANDS.value, 0)|percents }}</td></tr>
+            <tr><th>{{MAP_STATISTICS.PLAINS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.PLAINS.value, 0)|percents }}</td></tr>
+            <tr><th>{{MAP_STATISTICS.UPLANDS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.UPLANDS.value, 0)|percents }}</td></tr>
+            <tr><th>{{MAP_STATISTICS.DESERTS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.DESERTS.value, 0)|percents }}</td></tr>
+            <tr><th>{{MAP_STATISTICS.GRASS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.GRASS.value, 0)|percents }}</td></tr>
+            <tr><th>{{MAP_STATISTICS.FORESTS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.FORESTS.value, 0)|percents }}</td></tr>
           </table>
 
         </div>

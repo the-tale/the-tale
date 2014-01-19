@@ -779,6 +779,6 @@ class PrototypeMoveHeroTests(PrototypeTestsBase):
 
         self.assertTrue(isinstance(self.hero.actions.current_action, ActionMoveToPrototype))
         self.assertEqual(self.hero.actions.current_action.destination.id, self.place_3.id)
-        self.assertEqual(self.hero.actions.current_action.break_at, 0.9)
+        self.assertEqual(round(self.hero.actions.current_action.break_at, 4), 0.9000)
 
 # TODO test actions

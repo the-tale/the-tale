@@ -12,14 +12,14 @@ class NamesGenerators(object):
 
     def get_name(self, race, gender):
         if race.is_HUMAN:
-            return self.human.get_name_simple(gender=gender.pynames_id)
+            return self.human.get_name_simple(gender=gender.pynames_id, language=pynames.LANGUAGE.RU)
         if race.is_ELF:
-            return self.elven.get_name_simple(gender=gender.pynames_id)
+            return self.elven.get_name_simple(gender=gender.pynames_id, language=pynames.LANGUAGE.RU)
         if race.is_ORC:
-            return self.orcish.get_name_simple(gender=gender.pynames_id)
+            return self.orcish.get_name_simple(gender=gender.pynames_id, language=pynames.LANGUAGE.RU)
         if race.is_GOBLIN:
-            return self.goblin.get_name_simple(gender=gender.pynames_id)
+            return self.goblin.get_name_simple(gender=gender.pynames_id, language=pynames.LANGUAGE.RU)
         if race.is_DWARF:
-            return self.dwarfish.get_name_simple(gender=gender.pynames_id)
+            return self.dwarfish.get_name_simple(gender=gender.pynames_id, language=pynames.LANGUAGE.RU)
 
 generator = NamesGenerators()

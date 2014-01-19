@@ -38,8 +38,6 @@ from the_tale.game.map.roads.storage import waymarks_storage
 from the_tale.game.persons.storage import persons_storage
 from the_tale.game.persons.models import PERSON_STATE
 
-from the_tale.game.prototypes import TimePrototype
-
 from the_tale.game.quests.conf import quests_settings
 from the_tale.game.quests.prototypes import QuestPrototype
 from the_tale.game.quests import uids
@@ -82,11 +80,11 @@ def fill_places_for_first_quest(kb, hero):
             best_destination = place
 
     kb += facts.Place(uid=uids.place(best_destination),
-                      terrains=list(best_destination.terrains),
+                      terrains=[terrain.value for terrain in best_destination.terrains],
                       externals={'id': best_destination.id},
                       type=best_destination.modifier.TYPE.quest_type if best_destination.modifier else QUEST_PLACE_TYPE.NONE)
     kb += facts.Place(uid=uids.place(hero.position.place),
-                      terrains=list(hero.position.place.terrains),
+                      terrains=[terrain.value for terrain in hero.position.place.terrains],
                       externals={'id': hero.position.place.id},
                       type=hero.position.place.modifier.TYPE.quest_type if hero.position.place.modifier else QUEST_PLACE_TYPE.NONE)
 
@@ -99,7 +97,7 @@ def fill_places_for_short_paths(kb, hero):
                 continue
 
         kb += facts.Place(uid=uids.place(place),
-                          terrains=list(place.terrains),
+                          terrains=[terrain.value for terrain in place.terrains],
                           externals={'id': place.id},
                           type=place.modifier.TYPE.quest_type if place.modifier else QUEST_PLACE_TYPE.NONE)
 
@@ -123,7 +121,7 @@ def get_knowledge_base(hero, without_restrictions=False): # pylint: disable=R091
     hero_position_uid = uids.place(hero.position.place)
     if hero_position_uid not in kb:
         kb += facts.Place(uid=hero_position_uid,
-                          terrains=list(hero.position.place.terrains),
+                          terrains=[terrain.value for terrain in hero.position.place.terrains],
                           externals={'id': hero.position.place.id},
                           type=hero.position.place.modifier.TYPE.quest_type if hero.position.place.modifier else QUEST_PLACE_TYPE.NONE)
 
@@ -134,7 +132,7 @@ def get_knowledge_base(hero, without_restrictions=False): # pylint: disable=R091
             place_uid = uids.place(place)
             if place_uid not in kb:
                 kb += facts.Place(uid=place_uid,
-                                  terrains=list(place.terrains),
+                                  terrains=[terrain.value for terrain in place.terrains],
                                   externals={'id': place.id},
                                   type=place.modifier.TYPE.quest_type if place.modifier else QUEST_PLACE_TYPE.NONE)
 
@@ -153,7 +151,7 @@ def get_knowledge_base(hero, without_restrictions=False): # pylint: disable=R091
     pref_mob = hero.preferences.mob
     if pref_mob:
         mob_uid = uids.mob(pref_mob)
-        kb += ( facts.Mob(uid=mob_uid, terrains=list(pref_mob.terrains), externals={'id': pref_mob.id}),
+        kb += ( facts.Mob(uid=mob_uid, terrains=[terrain.value for terrain in pref_mob.terrains], externals={'id': pref_mob.id}),
                 facts.PreferenceMob(object=hero_uid, mob=mob_uid) )
 
     pref_place = hero.preferences.place

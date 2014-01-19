@@ -31,7 +31,7 @@ class MobRecordBaseForm(forms.Form):
 
     type = fields.TypedChoiceField(label=u'тип', choices=MOB_TYPE.choices(), coerce=MOB_TYPE.get_from_name)
 
-    terrains = fields.TypedMultipleChoiceField(label=u'места обитания', choices=TERRAIN._CHOICES, coerce=int)
+    terrains = fields.TypedMultipleChoiceField(label=u'места обитания', choices=TERRAIN.choices(), coerce=TERRAIN.get_from_name)
 
     abilities = fields.MultipleChoiceField(label=u'способности', choices=ABILITY_CHOICES)
 
@@ -59,9 +59,9 @@ class MobRecordBaseForm(forms.Form):
         if not terrains:
             raise ValidationError(u'не указаны места обитания монстра')
 
-        for terrain_id in terrains:
-            if terrain_id not in TERRAIN._ID_TO_STR:
-                raise ValidationError(u'неверный идентификатор типа местости')
+        # for terrain_id in terrains:
+        #     if terrain_id not in TERRAIN._ID_TO_STR:
+        #         raise ValidationError(u'неверный идентификатор типа местости')
 
         return frozenset(terrains)
 

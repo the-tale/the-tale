@@ -4,7 +4,7 @@
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
 
-    var tileset = pgf.tilesets[pgf.base.settings.get("game_map_tileset", "main")];
+    var tileset = pgf.game.constants.tilesets[pgf.base.settings.get("game_map_tileset", "main")];
 
     var spritesManager = new pgf.game.resources.ImageManager(tileset.sprites,
                                                              { staticUrl: "{{ STATIC_CONTENT }}",

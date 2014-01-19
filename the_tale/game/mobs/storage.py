@@ -34,6 +34,7 @@ class MobsStorage(create_storage_class('mob records change time', MobRecordProto
 
     def get_available_mobs_list(self, level, terrain=None, mercenary=None):
         self.sync()
+
         mobs = (record
                 for record in self.all()
                 if record.state.is_ENABLED and record.level <= level and (terrain is None or terrain in record.terrains))

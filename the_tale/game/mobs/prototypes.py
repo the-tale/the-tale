@@ -160,15 +160,15 @@ class MobRecordPrototype(BasePrototype):
 
     def get_terrains(self):
         if not hasattr(self, '_terrains'):
-            self._terrains = frozenset(s11n.from_json(self._model.terrains))
+            self._terrains = frozenset(TERRAIN(terrain) for terrain in s11n.from_json(self._model.terrains))
         return self._terrains
     def set_terrains(self, value):
         self._terrains = frozenset(value)
-        self._model.terrains = s11n.to_json(list(value))
+        self._model.terrains = s11n.to_json([terrain.value for terrain in value])
     terrains = property(get_terrains, set_terrains)
 
     def get_terrain_names(self):
-        return sorted([TERRAIN._ID_TO_TEXT[terrain_id] for terrain_id in self.terrains])
+        return sorted([terrain.text for terrain in self.terrains])
 
     @property
     def artifacts(self): return artifacts_storage.get_mob_artifacts(self.id)
@@ -193,7 +193,7 @@ class MobRecordPrototype(BasePrototype):
                                          name_forms=s11n.to_json(name_forms.serialize()),
                                          description=description,
                                          abilities=s11n.to_json(list(abilities)),
-                                         terrains=s11n.to_json(list(terrains)),
+                                         terrains=s11n.to_json([terrain.value for terrain in terrains]),
                                          state=state,
                                          editor=editor._model if editor else None)
 
@@ -213,7 +213,7 @@ class MobRecordPrototype(BasePrototype):
         return MobPrototype(record=self, level=hero.level, is_boss=is_boss)
 
     @classmethod
-    def create_random(cls, uuid, type=MOB_TYPE.CIVILIZED, level=1, abilities_number=3, terrains=TERRAIN._ALL, state=MOB_RECORD_STATE.ENABLED): # pylint: disable=W0102
+    def create_random(cls, uuid, type=MOB_TYPE.CIVILIZED, level=1, abilities_number=3, terrains=TERRAIN.records, state=MOB_RECORD_STATE.ENABLED): # pylint: disable=W0102
 
         name = u'mob_'+uuid.lower()
 

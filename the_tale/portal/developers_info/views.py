@@ -218,13 +218,13 @@ class DevelopersInfoResource(Resource):
 
         territory_levels_checks = [1, 2, 3, 5, 7, 10, 15, 20, 30, 50, 75, 100]
 
-        mobs_by_territory = { terrain_str:[0]*len(territory_levels_checks) for terrain_str in TERRAIN._ID_TO_STR.values() }
+        mobs_by_territory = { terrain.name:[0]*len(territory_levels_checks) for terrain in TERRAIN.records }
 
         for mob in mobs_storage.get_available_mobs_list(level=999999):
             for terrain in mob.terrains:
                 for i, level in enumerate(territory_levels_checks):
                     if level >= mob.level:
-                        mobs_by_territory[TERRAIN._ID_TO_STR[terrain]][i] += 1
+                        mobs_by_territory[terrain.name][i] += 1
 
         del mobs_by_territory['WATER_SHOAL']
         del mobs_by_territory['WATER_DEEP']

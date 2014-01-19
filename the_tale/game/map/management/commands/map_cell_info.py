@@ -5,8 +5,6 @@ from optparse import make_option
 
 from django.core.management.base import BaseCommand
 
-# from the_tale.game.prototypes import TimePrototype
-
 from the_tale.game.map.relations import TERRAIN
 from the_tale.game.map.storage import map_info_storage
 from the_tale.game.map.prototypes import WorldInfoPrototype
@@ -57,9 +55,9 @@ class Command(BaseCommand):
         print 'atmo_wetness:      %.2f \t\t|          ' % (cell.atmo_wetness,)
 
         terrain_points = []
-        for terrain_id, text in TERRAIN._ID_TO_TEXT.items():
-            biom = Biom(id_=terrain_id)
-            terrain_points.append((text, biom.check(cell), biom.get_points(cell)))
+        for terrain in TERRAIN.records:
+            biom = Biom(id_=terrain)
+            terrain_points.append((terrain.text, biom.check(cell), biom.get_points(cell)))
         terrain_points = sorted(terrain_points, key=lambda x: -x[1])
 
         print

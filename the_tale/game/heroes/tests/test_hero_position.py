@@ -1,7 +1,7 @@
 # coding: utf-8
 import mock
 
-from the_tale.common.utils.testcase import TestCase
+from the_tale.common.utils import testcase
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
@@ -16,7 +16,7 @@ from the_tale.game.map.roads.storage import roads_storage
 
 
 
-class HeroPositionTest(TestCase):
+class HeroPositionTest(testcase.TestCase):
 
     def setUp(self):
         super(HeroPositionTest, self).setUp()
@@ -82,3 +82,52 @@ class HeroPositionTest(TestCase):
         self.assertEqual(self.hero.position.get_minumum_distance_to(self.place_1), self.road_1_2.length * 0.75)
         self.assertEqual(self.hero.position.get_minumum_distance_to(self.place_2), self.road_1_2.length * 0.25)
         self.assertEqual(self.hero.position.get_minumum_distance_to(self.place_3), self.road_1_2.length * 0.25 + self.road_2_3.length)
+
+    def test_get_position_on_map__place(self):
+        self.hero.position.set_place(self.place_1)
+        self.assertEqual(self.hero.position.get_position_on_map(), (self.place_1.x, self.place_1.y, 0, 0))
+
+    def test_get_position_on_map__road(self):
+        dx = self.place_1.x - self.place_2.x
+        dy = self.place_1.y - self.place_2.y
+
+        self.hero.position.set_road(self.road_1_2, percents=0)
+        self.assertEqual(self.hero.position.get_position_on_map(), (self.place_1.x, self.place_1.y, dx, dy))
+
+        self.hero.position.set_road(self.road_1_2, percents=1.0)
+        self.assertEqual(self.hero.position.get_position_on_map(), (self.place_2.x, self.place_2.y, dx, dy))
+
+        self.hero.position.set_road(self.road_1_2, percents=0.5)
+        x, y, real_dx, real_dy = self.hero.position.get_position_on_map()
+        self.assertTrue(self.place_1.x <= x <= self.place_2.x)
+        self.assertTrue(self.place_1.y <= y <= self.place_2.y)
+        self.assertEqual((real_dx, real_dy), (dx, dy))
+
+    def test_get_position_on_map__road__inverted(self):
+        dx = self.place_2.x - self.place_1.x
+        dy = self.place_2.y - self.place_1.y
+
+        self.hero.position.set_road(self.road_1_2, percents=0, invert=True)
+        self.assertEqual(self.hero.position.get_position_on_map(), (self.place_2.x, self.place_2.y, dx, dy))
+
+        self.hero.position.set_road(self.road_1_2, percents=1.0, invert=True)
+        self.assertEqual(self.hero.position.get_position_on_map(), (self.place_1.x, self.place_1.y, dx, dy))
+
+        self.hero.position.set_road(self.road_1_2, percents=0.5, invert=True)
+        x, y, real_dx, real_dy = self.hero.position.get_position_on_map()
+        self.assertTrue(self.place_1.x <= x <= self.place_2.x)
+        self.assertTrue(self.place_1.y <= y <= self.place_2.y)
+        self.assertEqual((real_dx, real_dy), (dx, dy))
+
+    def test_get_position_on_map__walking(self):
+        dx = 10 - 30
+        dy = 40 - 20
+
+        self.hero.position.set_coordinates(10, 40, 30, 20, 0.0)
+        self.assertEqual(self.hero.position.get_position_on_map(), (10, 40, dx, dy))
+
+        self.hero.position.set_coordinates(10, 40, 30, 20, 1.0)
+        self.assertEqual(self.hero.position.get_position_on_map(), (30, 20, dx, dy))
+
+        self.hero.position.set_coordinates(10, 40, 30, 20, 0.5)
+        self.assertEqual(self.hero.position.get_position_on_map(), (20, 30, dx, dy))

@@ -123,6 +123,8 @@ pgf.game.map.MapManager = function(params) {
     var calculatedData = {};
     var dynamicData = { heroes: {} };
     var instance = this;
+    var mapWidth = undefined;
+    var mapHeight = undefined;
 
     function LoadMap(version) {
         jQuery.ajax({   dataType: 'json',
@@ -130,8 +132,6 @@ pgf.game.map.MapManager = function(params) {
                         url: params.RegionUrl(version),
                         success: function(data, request, status) {
                             mapData = data;
-
-                            calculatedData.mapInfo = CalculateMapInfo(mapData);
 
                             instance.mapWidth = data.width;
                             instance.mapHeight = data.height;
@@ -143,52 +143,6 @@ pgf.game.map.MapManager = function(params) {
                         complete: function() {
                         }
                     });
-    }
-
-    function CalculateMapInfo(mapData) {
-        var w = mapData.width;
-        var h = mapData.height;
-
-        var mapInfo = [];
-        for (var i=0; i<h; ++i) {
-            var row = [];
-            for (var j=0; j<w; ++j) {
-                row.push({});
-            }
-            mapInfo.push(row);
-        }
-
-        for(var road_id in mapData.roads) {
-            var road = mapData.roads[road_id];
-
-            if (!road.exists) continue;
-
-            var point_1 = mapData.places[road.point_1_id];
-            var pos = point_1.pos;
-            var x = point_1.pos.x;
-            var y = point_1.pos.y;
-
-            for(var i=0; i<road.path.length; ++i) {
-
-                mapInfo[y][x][road.path[i]] = true;
-                mapInfo[y][x].road = true;
-
-                switch(road.path[i]) {
-                case 'l': x -= 1; break;
-                case 'r': x += 1; break;
-                case 'u': y -= 1; break;
-                case 'd': y += 1; break;
-                }
-            }
-            mapInfo[y][x].road = true;
-        }
-
-        for(var building_id in mapData.buildings) {
-            var building = mapData.buildings[building_id];
-            mapInfo[building.pos.y][building.pos.x].building = true;
-        }
-
-        return mapInfo;
     }
 
     function GetMapDataForRect(x, y, w, h) {
@@ -383,7 +337,7 @@ pgf.game.map.Map = function(selector, params) {
     var _highlightingPositions = {};
     function GetHighlightingBorder() {
         if (!_highlightingBorder) {
-            image = spritesManager.GetImage('cell_highlighting');
+            image = spritesManager.GetImage('CELL_HIGHLIGHTING');
             _highlightingBorder = jQuery('<div></div>').css({'width': TILE_SIZE+'px',
                                                              'height': TILE_SIZE+'px',
                                                              'background': 'url("'+image.src+'") no-repeat scroll -'+image.x+'px -'+image.y+'px',
@@ -422,14 +376,12 @@ pgf.game.map.Map = function(selector, params) {
 
         if (!hero) return;
 
-        var heroPosition = GetHeroPosition(data, hero);
-
-        var x = heroPosition.x * TILE_SIZE - canvasWidth / 2;
-        var y = heroPosition.y * TILE_SIZE - canvasHeight / 2;
+        var x = hero.position.x * TILE_SIZE - canvasWidth / 2;
+        var y = hero.position.y * TILE_SIZE - canvasHeight / 2;
 
         OnMove(x + pos.x, y + pos.y);
 
-        HighlightCell(heroPosition.x, heroPosition.y);
+        HighlightCell(hero.position.x, hero.position.y);
 
         return;
     }
@@ -450,111 +402,6 @@ pgf.game.map.Map = function(selector, params) {
         return;
     };
 
-    function GetRoadTile(map, y, x) {
-        var result = {name: '',
-                      rotate: 0};
-        var l = 0;
-        var r = 0;
-        var u = 0;
-        var d = 0;
-
-        var cell = map[y][x];
-        var l_cell = x > 0 ? map[y][x-1] : {};
-        var r_cell = x < map[y].length-1 ? map[y][x+1] : {};
-        var u_cell = y > 0 ? map[y-1][x] : {};
-        var d_cell = y < map.length-1 ? map[y+1][x] : {};
-
-        if (cell.l || l_cell.r) l = 1;
-        if (cell.r || r_cell.l) r = 1;
-        if (cell.u || u_cell.d) u = 1;
-        if (cell.d || d_cell.u) d = 1;
-
-        var sum = l + r + u + d;
-
-        if (sum==4) return {name: 'r4', scaleX: 1, scaleY: 1};
-
-        if (sum==3) {
-            if (!l) return {name: 'r3', rotate: 90, scaleX: 1, scaleY: 1};
-            if (!r) return {name: 'r3', rotate: 270, scaleX: 1, scaleY: 1};
-            if (!u) return {name: 'r3', rotate: 180, scaleX: 1, scaleY: -1};
-            if (!d) return {name: 'r3', rotate: 0, scaleX: 1, scaleY: 1};
-        }
-
-        if (l && u) return {name: 'r_angle', rotate: 0, scaleX: 1, scaleY: 1};
-        if (l && r) return {name: 'r_horiz', rotate: 0, scaleX: 1, scaleY: 1};
-        if (l && d) return {name: 'r_angle', rotate: 270, scaleX: 1, scaleY: 1};
-
-        if (u && r) return {name: 'r_angle', rotate: 90, scaleX: 1, scaleY: 1};
-        if (u && d) return {name: 'r_vert', rotate: 0, scaleX: 1, scaleY: 1};
-
-        if (r && d) return {name: 'r_angle', rotate: 180, scaleX: 1, scaleY: 1};
-
-        if (l) return {name: 'r1', rotate: 180, scaleX: 1, scaleY: 1};
-        if (r) return {name: 'r1', rotate: 0, scaleX: 1, scaleY: 1};
-        if (u) return {name: 'r1', rotate: 270, scaleX: 1, scaleY: 1};
-        if (d) return {name: 'r1', rotate: 90, scaleX: 1, scaleY: 1};
-
-        alert('check cell: ('+x+', '+y+')');
-        return {name: 'r_line', rotate: 0};
-    }
-
-    function GetHeroPosition(data, hero) {
-
-        if (hero.position.place_id != null) {
-            var place = data.places[hero.position.place_id];
-            return {x: place.pos.x, y: place.pos.y};
-        }
-
-        if (hero.position.road_id != null) {
-            var road = data.roads[hero.position.road_id];
-            var point_1 = data.places[road.point_1_id];
-            var point_2 = data.places[road.point_2_id];
-
-            var percents = hero.position.percents;
-            var path = road.path;
-            var x = point_1.pos.x;
-            var y = point_1.pos.y;
-            if (hero.position.invert_direction) {
-                percents = 1 - percents;
-            }
-            var length = percents * path.length;
-            for (var i=0; i+1<length; ++i) {
-                switch(path[i]) {
-                case 'l': x -= 1; break;
-                case 'r': x += 1; break;
-                case 'u': y -= 1; break;
-                case 'd': y += 1; break;
-                }
-            }
-
-            var delta = length - i;
-            switch(path[i]) {
-            case 'l': x -= delta; break;
-            case 'r': x += delta; break;
-            case 'u': y -= delta; break;
-            case 'd': y += delta; break;
-            }
-
-            return {x: x, y: y};
-        }
-
-        if (hero.position.coordinates.to.x ||
-            hero.position.coordinates.to.y ||
-            hero.position.coordinates.from.x ||
-            hero.position.coordinates.from.y) {
-
-            var to_x = hero.position.coordinates.to.x;
-            var to_y = hero.position.coordinates.to.y;
-            var from_x = hero.position.coordinates.from.x;
-            var from_y = hero.position.coordinates.from.y;
-            var percents = hero.position.percents;
-
-            var x = from_x + (to_x - from_x) * percents;
-            var y = from_y + (to_y - from_y) * percents;
-
-            return {x: x, y: y};
-        }
-    }
 
     function DrawText(context, text, textWidth, textHeight, x, y) {
 
@@ -593,67 +440,38 @@ pgf.game.map.Map = function(selector, params) {
 
         for (var i=0; i<h; ++i) {
             for (var j=0; j<w; ++j) {
-                var image = undefined;
-                var rotate = 0;
+
+                var sprites = data.draw_info[i][j];
 
                 var x = posX + j * TILE_SIZE;
                 var y = posY + i * TILE_SIZE;
 
-                var imageName = pgf.game.constants.TERRAIN_ID_TO_STR[terrain[i][j]];
+                for (var sprite_id in sprites) {
+                    var sprite_info = sprites[sprite_id];
+                    var image = spritesManager.GetImage(sprite_info[0]);
 
-                var cellInfo = calculatedData.mapInfo[i][j];
+                    var rotate = sprite_info[1] * Math.PI / 180;
 
-                if (cellInfo.road || cellInfo.building) {
-                    image = spritesManager.GetImage('BOARD_'+imageName);
-                    image.Draw(context, x, y);
+                    if (rotate) {
+                        context.save();
+                        var translated_x = x + TILE_SIZE / 2;
+                        var translated_y = y + TILE_SIZE / 2;
+                        context.translate(translated_x, translated_y);
+                        context.rotate(rotate);
+                        image.Draw(context, -TILE_SIZE/2, -TILE_SIZE/2);
+                        context.restore();
+                    }
+                    else {
+                        image.Draw(context, x, y);
+                    }
                 }
-                else {
-                    image = spritesManager.GetImage(imageName);
-                    image.Draw(context, x, y);
-                }
-
-                if (calculatedData.mapInfo[i][j].road) {
-                    var roadTile = GetRoadTile(calculatedData.mapInfo, i, j);
-                    image = spritesManager.GetImage(roadTile.name);
-                    rotate = roadTile.rotate * Math.PI / 180;
-
-                    context.save();
-                    var translated_x = x + TILE_SIZE / 2;
-                    var translated_y = y + TILE_SIZE / 2;
-                    context.translate(translated_x, translated_y);
-                    context.rotate(rotate);
-                    image.Draw(context, -TILE_SIZE/2, -TILE_SIZE/2);
-                    context.restore();
-                }
-
             }
-        }
 
-        context.font="10px sans-serif";
-        for (var building_id in data.buildings) {
-            var building = data.buildings[building_id];
-            var spriteName = 'BUILDING_' + pgf.game.constants.BUILDING_TYPE_TO_STR[building.type];
-            var image = spritesManager.GetImage(spriteName);
-            image.Draw(context,
-                       posX + building.pos.x * TILE_SIZE,
-                       posY + building.pos.y * TILE_SIZE);
         }
 
         context.font="12px sans-serif";
         for (var place_id in data.places) {
             var place = data.places[place_id];
-            var spriteName = 'city_' + pgf.game.constants.RACE_TO_STR[place.race].toLowerCase();
-
-            if (place.size < 3) { spriteName += '_small'; }
-            else { if (place.size < 6) { spriteName += '_medium'; }
-                   else { if (place.size < 9) { spriteName += '_large'; }
-                          else spriteName += '_capital';
-                        }}
-
-            var image = spritesManager.GetImage(spriteName);
-            image.Draw(context,
-                       posX + place.pos.x * TILE_SIZE,
-                       posY + place.pos.y * TILE_SIZE);
 
             var text = '('+place.size+') '+place.name;
             var textWidth = context.measureText(text).width;
@@ -670,48 +488,12 @@ pgf.game.map.Map = function(selector, params) {
 
         if (hero) {
 
-            var heroPosition = GetHeroPosition(data, hero);
-            // hero.base.race/gender
-            var heroImage = 'hero_'+
-                pgf.game.constants.RACE_TO_STR[hero.base.race].toLowerCase() +
-                '_' + pgf.game.constants.GENDER_TO_STR[hero.base.gender].toLowerCase();
+            var reflectNeeded = (hero.position.dx < 0);
 
-            var reflectNeeded = false;
+            var image = spritesManager.GetImage(hero.sprite);
 
-            if (hero.position.road_id != null) {
-                var road = data.roads[hero.position.road_id];
-                var point_1 = data.places[road.point_1_id];
-                var point_2 = data.places[road.point_2_id];
-
-
-                if (hero.position.invert_direction) {
-                    var tmp = point_1;
-                    point_1 = point_2;
-                    point_2 = tmp;
-                }
-
-                if (point_1.pos.x < point_2.pos.x) {
-                    reflectNeeded = true;
-                }
-            }
-
-            if (hero.position.coordinates.to.x ||
-                hero.position.coordinates.to.y ||
-                hero.position.coordinates.from.x ||
-                hero.position.coordinates.from.y) {
-
-                var to_x = hero.position.coordinates.to.x;
-                var from_x = hero.position.coordinates.from.x;
-
-                if (from_x < to_x) {
-                    reflectNeeded = true;
-                }
-            }
-
-            var image = spritesManager.GetImage(heroImage);
-
-            var heroX = parseInt(posX + heroPosition.x * TILE_SIZE, 10);
-            var heroY = parseInt(posY + heroPosition.y * TILE_SIZE, 10) - 12;
+            var heroX = parseInt(posX + hero.position.x * TILE_SIZE, 10);
+            var heroY = parseInt(posY + hero.position.y * TILE_SIZE, 10) - 12;
 
             if (reflectNeeded) {
                 context.save();
@@ -734,7 +516,7 @@ pgf.game.map.Map = function(selector, params) {
 
             if (0 <= x && x < w * TILE_SIZE &&
                 0 <= y && y < h * TILE_SIZE) {
-                var image = spritesManager.GetImage('select_land');
+                var image = spritesManager.GetImage('SELECT_LAND');
                 image.Draw(context, x, y);
             }
         }

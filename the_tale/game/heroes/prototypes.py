@@ -15,6 +15,8 @@ from the_tale.common.utils.decorators import lazy_property
 from the_tale.game.map.places.storage import places_storage
 from the_tale.game.map.roads.storage import roads_storage
 
+from the_tale.game.map.storage import map_info_storage
+
 from the_tale.game.game_info import ATTRIBUTES
 
 from the_tale.game.balance import constants as c, formulas as f
@@ -22,8 +24,6 @@ from the_tale.game.balance import constants as c, formulas as f
 from the_tale.game import names
 
 from the_tale.game.artifacts.storage import artifacts_storage
-
-from the_tale.game.map.storage import map_info_storage
 
 from the_tale.game.text_generation import get_dictionary, get_text
 
@@ -716,9 +716,9 @@ class HeroPrototype(BasePrototype):
                 self.diary == other.diary)
 
     def ui_info(self, actual_guaranteed):
+        from the_tale.game.map.generator.drawer import get_hero_sprite
+
         return {'id': self.id,
-                'saved_at_turn': 0, # DEPRECATED
-                'saved_at': 0, # DEPRECATED
                 'actual_on_turn': TimePrototype.get_current_turn_number() if actual_guaranteed else self.saved_at_turn,
                 'ui_caching_started_at': time.mktime(self.ui_caching_started_at.timetuple()),
                 'messages': self.messages.ui_info(),
@@ -733,7 +733,6 @@ class HeroPrototype(BasePrototype):
                                  'can_repair_building': self.can_repair_building },
                 'energy': { 'max': self.energy_maximum,
                             'value': self.energy,
-                            'charges': 0, # DEPRECATED
                             'bonus': self.energy_bonus},
                 'action': self.actions.current_action.ui_info(),
                 # 'pvp' will be filled in modify_ui_info_with_turn
@@ -755,7 +754,8 @@ class HeroPrototype(BasePrototype):
                                'initiative': self.initiative,
                                'max_bag_size': self.max_bag_size,
                                'loot_items_count': self.bag.occupation},
-                'quests': self.quests.ui_info(self)
+                'quests': self.quests.ui_info(self),
+                'sprite': get_hero_sprite(self).value
                 }
 
     @classmethod
@@ -1112,19 +1112,79 @@ class HeroPositionPrototype(object):
 
 
 
+    def get_position_on_map(self):
+
+        if self.place:
+            return (self.place.x, self.place.y, 0, 0)
+
+        if self.road:
+            percents = self.percents
+            path = self.road.path
+
+            x = self.road.point_1.x
+            y = self.road.point_1.y
+
+            dx = self.road.point_1.x - self.road.point_2.x
+            dy = self.road.point_1.y - self.road.point_2.y
+
+            if self.invert_direction:
+                percents = 1 - percents
+                dx = -dx
+                dy = -dy
+
+            length = percents * len(path)
+            index = 0
+            character = None
+
+            for c in path:
+                character = c
+
+                index += 1
+
+                if index > length:
+                    break
+
+                if c == 'l': x -= 1
+                elif c == 'r': x += 1
+                elif c == 'u': y -= 1
+                elif c == 'd': y += 1
+
+            else:
+                index += 1
+
+            delta = length - (index-1)
+
+            if character == 'l': x -= delta
+            elif character == 'r': x += delta
+            elif character == 'u': y -= delta
+            elif character == 'd': y += delta
+
+            return (x, y, dx, dy)
+
+        if self.is_walking:
+
+            to_x = self.coordinates_to[0]
+            to_y = self.coordinates_to[1]
+            from_x = self.coordinates_from[0]
+            from_y = self.coordinates_from[1]
+
+            x = from_x + (to_x - from_x) * self.percents
+            y = from_y + (to_y - from_y) * self.percents
+
+            return (x, y, from_x - to_x, from_y - to_y)
+
+
+
     ###########################################
     # Object operations
     ###########################################
 
     def ui_info(self):
-        return {'place_id': self.place.id if self.place else None,
-                'road_id': self.road.id if self.road else None,
-                'invert_direction': self.invert_direction,
-                'percents': self.percents,
-                'coordinates': { 'to': { 'x': self.coordinates_to[0],
-                                         'y': self.coordinates_to[1]},
-                                 'from': { 'x': self.coordinates_from[0],
-                                           'y': self.coordinates_from[1]} } }
+        x, y, dx, dy = self.get_position_on_map()
+        return { 'x': x,
+                 'y': y,
+                 'dx': dx,
+                 'dy': dy}
 
     def __eq__(self, other):
         return ( self.place_id == other.place_id and

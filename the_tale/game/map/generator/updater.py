@@ -14,9 +14,11 @@ from the_tale.game.map.storage import map_info_storage
 from the_tale.game.map.prototypes import MapInfoPrototype, WorldInfoPrototype
 from the_tale.game.map.generator.biomes import Biom
 from the_tale.game.map.generator.power_points import get_power_points
+from the_tale.game.map.generator.drawer import get_draw_info
 from the_tale.game.map.places.storage import places_storage, buildings_storage
-from the_tale.game.map.relations import TERRAIN
 from the_tale.game.map.roads.storage import roads_storage
+from the_tale.game.map.relations import TERRAIN
+
 
 
 def update_map(index):
@@ -34,7 +36,7 @@ def update_map(index):
     for point in get_power_points():
         generator.add_power_point(point)
 
-    for terrain in TERRAIN._ALL:
+    for terrain in TERRAIN.records:
         generator.add_biom(Biom(id_=terrain))
 
     generator.do_step()
@@ -42,6 +44,8 @@ def update_map(index):
     biomes_map = generator.get_biomes_map()
 
     time = TimePrototype.get_current_time()
+
+    draw_info = get_draw_info(biomes_map)
 
     terrain = []
     for y in xrange(0, generator.h):
@@ -58,13 +62,20 @@ def update_map(index):
 
     MapInfoPrototype.remove_old_infos()
 
+    raw_draw_info = []
+    for row in draw_info:
+        raw_draw_info.append([])
+        for cell in row:
+            raw_draw_info[-1].append(cell.get_sprites())
+
     data = {'width': generator.w,
             'height': generator.h,
             'map_version': map_info_storage.version,
-            'terrain': [ row for row in terrain ],
+            'format_version': '0.1',
+            'draw_info': raw_draw_info,
             'places': dict( (place.id, place.map_info() ) for place in places_storage.all() ),
-            'buildings': dict( (building.id, building.map_info() ) for building in buildings_storage.all() ),
-            'roads': dict( (road.id, road.map_info() ) for road in roads_storage.all() ) }
+            # 'buildings': dict( (building.id, building.map_info() ) for building in buildings_storage.all() ),
+            'roads': dict( (road.id, road.map_info() ) for road in roads_storage.all()) }
 
     region_js_file = map_settings.GEN_REGION_OUTPUT % map_info_storage.version
 
