@@ -5,15 +5,19 @@
 {% block description %}Информация о городе «{{place.name}}»{% endblock %}
 
 {% macro hero_record(hero) %}
-<td>
-  {% if hero %}
-  {{hero.gender_verbose}}-{{hero.race_verbose}}
-  <a href="{{url('game:heroes:show', hero.id)}}">{{hero.name}}</a>
-  {{ hero.level }} уровня,
-  {% set owner = accounts[hero.account_id] %}
-  покровитель: <a href="{{ url('accounts:show', owner.id) }}">{{owner.nick_verbose}}</a>
-  {% endif %}
-</td>
+  <td>
+    {% if hero %}
+      {{hero.gender_verbose}}-{{hero.race_verbose}}
+      <a href="{{url('game:heroes:show', hero.id)}}">{{hero.name}}</a>
+      {{ hero.level }} уровня,
+      {% set owner = accounts[hero.account_id] %}
+      покровитель:
+      <a href="{{ url('accounts:show', owner.id) }}">{{owner.nick_verbose}}</a>
+      {% if owner.clan %}
+        <a href="{{url('accounts:clans:show', owner.clan.id)}}">[{{owner.clan.abbr}}]</a>
+      {% endif %}
+    {% endif %}
+  </td>
 {% endmacro %}
 
 
