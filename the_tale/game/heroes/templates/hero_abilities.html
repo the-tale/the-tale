@@ -38,6 +38,12 @@ jQuery(document).ready(function(e){
 
     });
 
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
+        var data = game_data.account.hero;
+        jQuery('.pgf-abilities-block .pgf-free-destiny-points').toggleClass('pgf-hidden', !data.base.destiny_points);
+        jQuery('.pgf-abilities-block .pgf-no-destiny-points').toggleClass('pgf-hidden', !!data.base.destiny_points);
+    });
+
 
     {% endif %}
 
@@ -45,7 +51,7 @@ jQuery(document).ready(function(e){
 
 </script>
 
-<div class="block">
+<div class="block pgf-abilities-block">
   <h2 style="cursor: default;">
     Способности
     {% if is_owner %}
@@ -67,16 +73,14 @@ jQuery(document).ready(function(e){
 
   {% if is_owner %}
 
-  {% if resource.hero.abilities.can_choose_new_ability  %}
-  <div id="choose-ability-button" class="alert fade in pgf-choose-ability-button">
+  <div id="choose-ability-button" class="alert fade in pgf-choose-ability-button pgf-free-destiny-points pgf-hidden">
     {{ resource.hero.name }} может выучить новую способность. <br/>
     Нажмите на это сообщение, чтобы выбрать её.
   </div>
-  {% else %}
-  <div class="alert alert-info fade in pgf-choose-ability-button">
+
+  <div class="alert alert-info fade in pgf-choose-ability-button pgf-no-destiny-points">
     {{ resource.hero.name }} cможет улучшить свои боевые навыки на уровне {{ resource.hero.abilities.next_battle_ability_point_lvl }} и небоевые на уровне {{ resource.hero.abilities.next_nonbattle_ability_point_lvl }}
   </div>
-  {% endif %}
 
   {% endif %}
 

@@ -75,9 +75,10 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
                                   ('pgf-money', 1),
                                   ('"pgf-health"', 1),
                                   ('pgf-max-health', 1),
-                                  ('pgf-choose-ability-button', 1),
+                                  ('pgf-choose-ability-button', 2),
                                   ('pgf-choose-preference-button', 2),
-                                  ('pgf-free-destiny-points', 1),
+                                  ('pgf-free-destiny-points', 3),
+                                  ('pgf-no-destiny-points', 2),
                                   ('pgf-settings-container',2),
                                   ('pgf-settings-tab-button', 2),
                                   ('pgf-moderation-container', 0)))
@@ -102,6 +103,7 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
                  ('pgf-max-health', 1),
                  ('pgf-choose-ability-button', 0),
                  ('pgf-choose-preference-button', 0),
+                 ('pgf-no-destiny-points', 0),
                  ('pgf-free-destiny-points', 0),
                  ('pgf-settings-container',0),
                  ('pgf-settings-tab-button', 1),
@@ -145,8 +147,8 @@ class ChangePreferencesRequestsTests(HeroRequestsTestBase):
 class ChangeHeroRequestsTests(HeroRequestsTestBase):
 
     def test_hero_page(self):
-        self.check_html_ok(self.request_html(reverse('game:heroes:show', args=[self.hero.id])), texts=[(jinja2.escape(self.hero.name), 8),
-                                                                                                     ('pgf-change-name-warning', 1)])
+        self.check_html_ok(self.request_html(reverse('game:heroes:show', args=[self.hero.id])), texts=[(jinja2.escape(self.hero.name), 9),
+                                                                                                       ('pgf-change-name-warning', 1)])
 
     def test_hero_page_change_name_warning_hidden(self):
         self.hero.normalized_name = Noun(u'слово', forms=[u'слово']*12)
