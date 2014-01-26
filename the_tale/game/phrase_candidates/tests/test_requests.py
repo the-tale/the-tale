@@ -125,10 +125,10 @@ class IndexRequestsTests(RequestsTestsBase):
         self.check_html_ok(self.client.get(reverse('game:phrase-candidates:')), texts=[(u'pgf-no-phrases-message', 1)])
 
     def test_author_filter_not_found(self):
-        self.check_html_ok(self.client.get(reverse('game:phrase-candidates:')+('?author_id=%d' % self.account_3.id)), texts=[(u'pgf-no-phrases-message', 1)])
+        self.check_html_ok(self.client.get(reverse('game:phrase-candidates:')+('?author=%d' % self.account_3.id)), texts=[(u'pgf-no-phrases-message', 1)])
 
     def test_author_filter(self):
-        self.check_html_ok(self.client.get(reverse('game:phrase-candidates:')+('?author_id=%d' % self.account_1.id)), texts=[(self.account_1.nick, 4),
+        self.check_html_ok(self.client.get(reverse('game:phrase-candidates:')+('?author=%d' % self.account_1.id)), texts=[(self.account_1.nick, 4),
                                                                                                                              (self.account_2.nick, 0),
                                                                                                                              (self.phrase_1.text, 1),
                                                                                                                              (self.phrase_2.text, 1),
@@ -169,6 +169,10 @@ class IndexRequestsTests(RequestsTestsBase):
                                                                                        (u'pgf-approve-phrase-button', 0),
                                                                                        (u'pgf-remove-phrase-button', 0),
                                                                                        (u'pgf-add-to-game-phrase-button', 1*3),])
+
+    def test_wrong_author(self):
+        self.check_html_ok(self.request_html(url('game:phrase-candidates:', author='dsds')), texts=[u'phrase_candidates.index.author.wrong_format']),
+        self.check_html_ok(self.request_html(url('game:phrase-candidates:', author=666)), texts=[u'phrase_candidates.index.author.not_found'], status_code=404),
 
 
 class TypesRequestsTests(RequestsTestsBase):

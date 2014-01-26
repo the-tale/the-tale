@@ -2,7 +2,7 @@
 
 from django.core.urlresolvers import reverse
 
-from dext.views import handler, validator
+from dext.views import handler, validator, validate_argument
 from dext.utils.urls import UrlBuilder
 
 from the_tale.accounts.prototypes import AccountPrototype
@@ -40,17 +40,17 @@ class PhraseCandidateResource(Resource):
         self.can_moderate_phrase = self.account.has_perm('phrase_candidates.moderate_phrasecandidate')
         self.can_add_phrase_to_game = self.account.has_perm('phrase_candidates.add_to_game_phrasecandidate')
 
+    @validate_argument('author', AccountPrototype.get_by_id, 'phrase_candidates.index', u'неверный идентификатор автора')
     @handler('', method='get')
-    def index(self, page=1, author_id=None, state=None):
+    def index(self, page=1, author=None, state=None):
         candidates_query = PhraseCandidate.objects.all()
 
         is_filtering = False
 
         author_account = None
 
-        if author_id is not None:
-            author_id = int(author_id)
-            author_account = AccountPrototype.get_by_id(author_id)
+        if author is not None:
+            author_account = author
             if author_account:
                 candidates_query = candidates_query.filter(author_id=author_account.id)
                 is_filtering = True
@@ -62,7 +62,7 @@ class PhraseCandidateResource(Resource):
             is_filtering = True
             candidates_query = candidates_query.filter(state=state)
 
-        url_builder = UrlBuilder(reverse('game:phrase-candidates:'), arguments={'author_id': author_id,
+        url_builder = UrlBuilder(reverse('game:phrase-candidates:'), arguments={'author': author.id if author else None,
                                                                                 'state': state})
 
         phrases_count = candidates_query.count()

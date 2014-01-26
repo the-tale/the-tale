@@ -108,7 +108,7 @@ jQuery(document).ready(function(){
 
          <li class="nav-header">Мир</li>
          <li class="nav-element"><a href="{{ url('game:bills:') }}?owner={{master_account.id}}">законопроекты  ({{bills_count}})</a></li>
-         <li class="nav-element"><a href="{{ url('game:phrase-candidates:') }}?author_id={{master_account.id}}">фразы ({{phrases_count}})</a></li>
+         <li class="nav-element"><a href="{{ url('game:phrase-candidates:') }}?author={{master_account.id}}">фразы ({{phrases_count}})</a></li>
          <li class="nav-element"><a href="{{ url('blogs:posts:') }}?author_id={{master_account.id}}">произведения ({{folclor_posts_count}})</a></li>
 
          <li class="nav-header">Форум</li>
