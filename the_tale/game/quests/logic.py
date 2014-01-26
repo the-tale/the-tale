@@ -1,8 +1,8 @@
 # coding: utf-8
 import random
 
-# from django.utils.log import getLogger
 from django.conf import settings as project_settings
+from django.utils.log import getLogger
 
 from dext.utils.decorators import retry_on_exception
 from dext.utils.urls import url
@@ -42,7 +42,7 @@ from the_tale.game.quests.conf import quests_settings
 from the_tale.game.quests.prototypes import QuestPrototype
 from the_tale.game.quests import uids
 
-# logger = getLogger('the-tale.workers.game_logic')
+QUESTS_LOGGER = getLogger('the-tale.game.quests')
 
 WORLD_RESTRICTIONS = [restrictions.SingleLocationForObject(),
                       restrictions.ReferencesIntegrity()]
@@ -241,9 +241,11 @@ def _create_random_quest_for_hero(hero, special, without_restrictions=False):
     #     if turn_number + c.QUESTS_LOCK_TIME.get(quest_type, 0) >= current_time:
     #         excluded_quests.append(quest_type)
 
+    allowed_quests = get_first_quests(hero, special=special)
+
     quests_facts = selector.create_quest_from_place(nesting=0,
                                                     initiator_position=start_place,
-                                                    allowed=get_first_quests(hero, special=special),
+                                                    allowed=allowed_quests,
                                                     excluded=excluded_quests,
                                                     tags=('can_start', ))
 
@@ -264,5 +266,12 @@ def _create_random_quest_for_hero(hero, special, without_restrictions=False):
 
     if quest.machine.can_do_step():
         quest.machine.step() # do first step to setup pointer
+
+
+    QUESTS_LOGGER.info(u'hero[%(hero_id).6d]: special=%(special)5s %(quest_type)20s (from %(allowed)s)' %
+                       {'hero_id': hero.id,
+                        'special': special,
+                        'quest_type': quest.quests_stack[0].type,
+                        'allowed': ', '.join(allowed_quests)})
 
     return quest

@@ -347,6 +347,7 @@ LOGGING = {
         'file_game_turns_loop': get_worker_log_file_handler('game_turns_loop'),
         'file_portal_long_commands': get_worker_log_file_handler('portal_long_commands'),
         'file_game_pvp_balancer': get_worker_log_file_handler('game_pvp_balancer'),
+        'file_game_quests': get_worker_log_file_handler('game_quests'),
         'file_accounts_registration': get_worker_log_file_handler('accounts_registration'),
         'file_accounts_accounts_manager': get_worker_log_file_handler('accounts_accounts_manager'),
         'file_achievements_achievements_manager': get_worker_log_file_handler('achievements_achievements_manager'),
@@ -382,6 +383,7 @@ LOGGING = {
         'the-tale.workers.bank_bank_processor': get_worker_logger('bank_bank_processor'),
         'the-tale.workers.bank_xsolla_banker': get_worker_logger('bank_xsolla_banker'),
         'the-tale.bank_xsolla_requests': get_worker_logger('bank_xsolla_requests'),
-        'the-tale.workers.postponed_tasks_refrigerator': get_worker_logger('postponed_tasks_refrigerator')
+        'the-tale.workers.postponed_tasks_refrigerator': get_worker_logger('postponed_tasks_refrigerator'),
+        'the-tale.game.quests': get_worker_logger('game_quests')
     } if not TESTS_RUNNING else {}
 }

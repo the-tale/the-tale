@@ -134,13 +134,14 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.MAP_SYNC_TIME, 360)
 
 
-        self.assertEqual(c.QUESTS_SPECIAL_FRACTION, 0.2)
+        self.assertEqual(c.QUESTS_SPECIAL_FRACTION, 0.25)
         self.assertEqual(c.QUESTS_SHORT_PATH_LEVEL_CAP, 4)
         self.assertEqual(c.QUESTS_PILGRIMAGE_FRACTION, 0.025)
 
         self.assertEqual(c.HERO_POWER_PER_DAY, 1000)
         self.assertEqual(c.PERSON_POWER_PER_QUEST_FRACTION, 0.33)
         self.assertEqual(c.PERSON_POWER_FOR_RANDOM_SPEND, 200)
+        self.assertEqual(c.HERO_POWER_PREFERENCE_MULTIPLIER, 2)
 
         self.assertEqual(c.CHARACTER_PREFERENCES_CHANGE_DELAY, 60*60*24*7)
 
