@@ -4,6 +4,7 @@ import math
 from deworld import power_points, layers, normalizers
 
 from the_tale.game.prototypes import TimePrototype, MONTHS
+from the_tale.game.relations import RACE
 
 from the_tale.game.persons.prototypes import PersonPrototype
 
@@ -255,16 +256,17 @@ def get_building_power_points(building): # pylint: disable=R0912,R0915
 
     return points
 
-def get_person_power_points(person):
 
-    place_power = person.place.total_persons_power
+def get_place_race_power_points(place, race):
+
+    place_power = place.total_persons_power
 
     if place_power < 0.1:
         return []
 
-    power_percent = person.power / place_power * 0.5
+    power_percent = place.races.get_race_percents(race) * 0.5
 
-    return get_object_race_points(MapObject(person), person.race, power_percent)
+    return get_object_race_points(MapObject(place, suffix='race_%s' % race.name), race, power_percent)
 
 
 def get_place_power_points(place):
@@ -320,8 +322,8 @@ def get_power_points():
 
     for place in places_storage.all():
         points.extend(get_place_power_points(place))
-        for person in place.persons:
-            points.extend(get_person_power_points(person))
+        for race in RACE.records:
+            points.extend(get_place_race_power_points(place, race))
 
     for building in buildings_storage.all():
         points.extend(get_building_power_points(building))

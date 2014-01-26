@@ -29,6 +29,9 @@ class Races(object):
         self._data.clear()
         self._data.update({race.value: percents for race, percents in self._races.iteritems()})
 
+    def get_race_percents(self, race):
+        return self._races.get(race, 0)
+
 
     def get_next_races(self, persons):
         trends = {race: 0.0 for race in RACE.records}
