@@ -157,11 +157,9 @@
             <small><a href="{{ url('news:') }}">ещё…</a></small>
           </h4>
 
-          <ul class="unstyled">
-            {% for record in news %}
-            {{ news_macros.news_record(record) }}
-            {% endfor %}
-          </ul>
+          {% for record in news %}
+          {{ news_macros.news_record(record) }}
+          {% endfor %}
         </div>
 
       </div>

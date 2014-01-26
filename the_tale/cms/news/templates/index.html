@@ -19,13 +19,9 @@
 
   {{ base_macros.render_paginator(paginator) }}
 
-  <ul class="unstyled">
-
-    {% for record in news %}
-    {{ macros.news_record(record, in_block=true) }}
-    {% endfor %}
-
-  </ul>
+  {% for record in news %}
+  {{ macros.news_record(record, in_block=true) }}
+  {% endfor %}
 
   {{ base_macros.render_paginator(paginator) }}
 
