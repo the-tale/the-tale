@@ -17,8 +17,6 @@ from the_tale.game.map.roads.storage import roads_storage
 
 from the_tale.game.map.storage import map_info_storage
 
-from the_tale.game.game_info import ATTRIBUTES
-
 from the_tale.game.balance import constants as c, formulas as f
 
 from the_tale.game import names
@@ -35,12 +33,14 @@ from the_tale.game.quests.container import QuestsContainer
 from the_tale.game.heroes.statistics import HeroStatistics
 from the_tale.game.heroes.models import Hero, HeroPreferences
 from the_tale.game.heroes.habilities import AbilitiesPrototype
+from the_tale.game.heroes.habilities.relations import MODIFIERS as HABILITY_MODIFIERS
 from the_tale.game.heroes.conf import heroes_settings
 from the_tale.game.heroes import exceptions
 from the_tale.game.heroes.pvp import PvPData
 from the_tale.game.heroes.messages import MessagesContainer
 from the_tale.game.heroes.places_help_statistics import PlacesHelpStatistics
 from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE, EQUIPMENT_SLOT, RISK_LEVEL, MONEY_SOURCE
+
 
 
 class HeroPrototype(BasePrototype):
@@ -275,7 +275,7 @@ class HeroPrototype(BasePrototype):
         return sell_price
 
     def modify_sell_price(self, price):
-        price = self.abilities.update_sell_price(self, price)
+        price = self.abilities.modify_attribute(HABILITY_MODIFIERS.SELL_PRICE, price)
 
         if self.position.place and self.position.place.modifier:
             price = self.position.place.modifier.modify_sell_price(price)
@@ -283,7 +283,7 @@ class HeroPrototype(BasePrototype):
         return int(round(price))
 
     def modify_buy_price(self, price):
-        price = self.abilities.update_buy_price(self, price)
+        price = self.abilities.modify_attribute(HABILITY_MODIFIERS.BUY_PRICE, price)
 
         if self.position.place and self.position.place.modifier:
             price = self.position.place.modifier.modify_buy_price(price)
@@ -362,10 +362,10 @@ class HeroPrototype(BasePrototype):
             self.equipment.equip(slot, equipped)
 
     def can_get_artifact_for_quest(self):
-        return self.abilities.can_get_artifact_for_quest(self)
+        return self.abilities.check_attribute(HABILITY_MODIFIERS.GET_ARTIFACT_FOR_QUEST)
 
     def can_buy_better_artifact(self):
-        if self.abilities.can_buy_better_artifact(self):
+        if self.abilities.check_attribute(HABILITY_MODIFIERS.BUY_BETTER_ARTIFACT):
             return True
 
         if self.position.place and self.position.place.modifier and self.position.place.modifier.can_buy_better_artifact():
@@ -404,7 +404,7 @@ class HeroPrototype(BasePrototype):
 
     def switch_spending(self):
         priorities = {record:record.priority for record in ITEMS_OF_EXPENDITURE.records}
-        priorities = self.abilities.update_items_of_expenditure_priorities(self, priorities)
+        priorities = self.abilities.modify_attribute(HABILITY_MODIFIERS.ITEMS_OF_EXPENDITURE_PRIORITIES, priorities)
         self._model.next_spending = random_value_by_priority(list(priorities.items()))
 
     @property
@@ -435,7 +435,7 @@ class HeroPrototype(BasePrototype):
         return self.energy_full - old_energy
 
     @property
-    def might_crit_chance(self): return self.abilities.modify_attribute(ATTRIBUTES.MIGHT_CRIT_CHANCE, f.might_crit_chance(self.might))
+    def might_crit_chance(self): return self.abilities.modify_attribute(HABILITY_MODIFIERS.MIGHT_CRIT_CHANCE, f.might_crit_chance(self.might))
 
     @property
     def might_pvp_effectiveness_bonus(self): return f.might_pvp_effectiveness_bonus(self.might)
@@ -466,19 +466,19 @@ class HeroPrototype(BasePrototype):
     ###########################################
 
     @property
-    def damage_modifier(self): return self.abilities.modify_attribute(ATTRIBUTES.DAMAGE, 1)
+    def damage_modifier(self): return self.abilities.modify_attribute(HABILITY_MODIFIERS.DAMAGE, 1)
 
     @property
-    def move_speed(self): return self.abilities.modify_attribute(ATTRIBUTES.SPEED, c.HERO_MOVE_SPEED)
+    def move_speed(self): return self.abilities.modify_attribute(HABILITY_MODIFIERS.SPEED, c.HERO_MOVE_SPEED)
 
     @property
-    def initiative(self): return self.abilities.modify_attribute(ATTRIBUTES.INITIATIVE, 1)
+    def initiative(self): return self.abilities.modify_attribute(HABILITY_MODIFIERS.INITIATIVE, 1)
 
     @property
-    def max_health(self): return int(f.hp_on_lvl(self.level) * self.abilities.modify_attribute(ATTRIBUTES.HEALTH, 1))
+    def max_health(self): return int(f.hp_on_lvl(self.level) * self.abilities.modify_attribute(HABILITY_MODIFIERS.HEALTH, 1))
 
     @property
-    def max_bag_size(self): return self.abilities.modify_attribute(ATTRIBUTES.MAX_BAG_SIZE, c.MAX_BAG_SIZE)
+    def max_bag_size(self): return self.abilities.modify_attribute(HABILITY_MODIFIERS.MAX_BAG_SIZE, c.MAX_BAG_SIZE)
 
     @property
     def experience_modifier(self):
@@ -493,11 +493,11 @@ class HeroPrototype(BasePrototype):
 
         modifier *= self.preferences.risk_level.experience_modifier
 
-        return self.abilities.modify_attribute(ATTRIBUTES.EXPERIENCE, modifier)
+        return self.abilities.modify_attribute(HABILITY_MODIFIERS.EXPERIENCE, modifier)
 
     @property
     def person_power_modifier(self):
-        return self.abilities.modify_attribute(ATTRIBUTES.POWER, max(math.log(self.level, 2), 0.5)) * self.preferences.risk_level.power_modifier
+        return self.abilities.modify_attribute(HABILITY_MODIFIERS.POWER, max(math.log(self.level, 2), 0.5)) * self.preferences.risk_level.power_modifier
 
     @property
     def reward_modifier(self):

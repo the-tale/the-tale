@@ -20,6 +20,7 @@ from the_tale.game.map.roads.storage import waymarks_storage
 from the_tale.game.persons.storage import persons_storage
 
 from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE, MONEY_SOURCE
+from the_tale.game.heroes.habilities.relations import MODIFIERS as HABILITY_MODIFIERS
 
 from the_tale.game.quests import exceptions
 from the_tale.game.quests import writers
@@ -412,7 +413,7 @@ class QuestPrototype(object):
 
         multiplier = (1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)) * scale
         money = 1 + int(f.sell_artifact_price(hero.level) * multiplier)
-        money = hero.abilities.update_quest_reward(hero, money)
+        money = hero.abilities.modify_attribute(HABILITY_MODIFIERS.QUEST_MONEY_REWARD, money)
         hero.change_money(MONEY_SOURCE.EARNED_FROM_QUESTS, money)
 
         quest_info.process_message(knowledge_base=self.knowledge_base,

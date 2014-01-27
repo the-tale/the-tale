@@ -10,6 +10,7 @@ from the_tale.game.balance import constants as c
 
 from the_tale.game.heroes.habilities import nonbattle
 from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE
+from the_tale.game.heroes.habilities.relations import MODIFIERS
 
 
 class HabilitiesNonBattleTest(testcase.TestCase):
@@ -25,15 +26,15 @@ class HabilitiesNonBattleTest(testcase.TestCase):
         pass
 
     def test_charisma(self):
-        self.assertTrue(100 < nonbattle.CHARISMA().update_quest_reward(self.hero, 100))
+        self.assertTrue(100 < nonbattle.CHARISMA().modify_attribute(MODIFIERS.QUEST_MONEY_REWARD, 100))
 
-    def test_hackster(self):
-        self.assertTrue(100 > nonbattle.HUCKSTER().update_buy_price(self.hero, 100))
-        self.assertTrue(100 < nonbattle.HUCKSTER().update_sell_price(self.hero, 100))
+    def test_huckster(self):
+        self.assertTrue(100 > nonbattle.HUCKSTER().modify_attribute(MODIFIERS.BUY_PRICE, 100))
+        self.assertTrue(100 < nonbattle.HUCKSTER().modify_attribute(MODIFIERS.SELL_PRICE, 100))
 
     def test_dandy(self):
         priorities = {record:record.priority for record in ITEMS_OF_EXPENDITURE.records}
-        priorities = nonbattle.DANDY().update_items_of_expenditure_priorities(self.hero, priorities)
+        priorities = nonbattle.DANDY().modify_attribute(MODIFIERS.ITEMS_OF_EXPENDITURE_PRIORITIES, priorities)
 
         self.assertEqual(ITEMS_OF_EXPENDITURE.INSTANT_HEAL.priority, priorities[ITEMS_OF_EXPENDITURE.INSTANT_HEAL])
         self.assertEqual(ITEMS_OF_EXPENDITURE.USELESS.priority, priorities[ITEMS_OF_EXPENDITURE.USELESS])

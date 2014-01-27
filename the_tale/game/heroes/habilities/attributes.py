@@ -2,7 +2,7 @@
 
 from the_tale.game.heroes.habilities.prototypes import AbilityPrototype
 from the_tale.game.heroes.habilities.relations import ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
-from the_tale.game.game_info import ATTRIBUTES
+
 
 class AbilityAttributeBase(AbilityPrototype):
 
@@ -27,7 +27,7 @@ class EXTRA_SLOW(AbilityAttributeBase):
 
     MODIFIER = [0.95, 0.90, 0.85, 0.80, 0.75]
 
-    def modify_attribute(self, type_, value): return value*self.modifier if type_ == ATTRIBUTES.INITIATIVE else value
+    def modify_attribute(self, type_, value): return value*self.modifier if type_.is_INITIATIVE else value
 
 
 class SLOW(AbilityAttributeBase):
@@ -42,7 +42,7 @@ class SLOW(AbilityAttributeBase):
 
     MODIFIER = [0.975, 0.95, 0.875, 0.90, 0.875]
 
-    def modify_attribute(self, type_, value): return value*self.modifier if type_ == ATTRIBUTES.INITIATIVE else value
+    def modify_attribute(self, type_, value): return value*self.modifier if type_.is_INITIATIVE else value
 
 
 class FAST(AbilityAttributeBase):
@@ -57,7 +57,7 @@ class FAST(AbilityAttributeBase):
 
     MODIFIER = [1.025, 1.05, 1.075, 1.100, 1.125]
 
-    def modify_attribute(self, type_, value): return value*self.modifier if type_ == ATTRIBUTES.INITIATIVE else value
+    def modify_attribute(self, type_, value): return value*self.modifier if type_.is_INITIATIVE else value
 
 
 class EXTRA_FAST(AbilityAttributeBase):
@@ -72,7 +72,7 @@ class EXTRA_FAST(AbilityAttributeBase):
 
     MODIFIER = [1.05, 1.10, 1.15, 1.20, 1.25]
 
-    def modify_attribute(self, type_, value): return value*self.modifier if type_ == ATTRIBUTES.INITIATIVE else value
+    def modify_attribute(self, type_, value): return value*self.modifier if type_.is_INITIATIVE else value
 
 
 #######################
@@ -91,7 +91,7 @@ class EXTRA_THIN(AbilityAttributeBase):
 
     MODIFIER = [0.95, 0.90, 0.85, 0.80, 0.75]
 
-    def modify_attribute(self, type_, value): return value*self.modifier if type_ == ATTRIBUTES.HEALTH else value
+    def modify_attribute(self, type_, value): return value*self.modifier if type_.is_HEALTH else value
 
 
 class THIN(AbilityAttributeBase):
@@ -106,7 +106,7 @@ class THIN(AbilityAttributeBase):
 
     MODIFIER = [0.975, 0.95, 0.875, 0.90, 0.875]
 
-    def modify_attribute(self, type_, value): return value*self.modifier if type_ == ATTRIBUTES.HEALTH else value
+    def modify_attribute(self, type_, value): return value*self.modifier if type_.is_HEALTH else value
 
 
 class THICK(AbilityAttributeBase):
@@ -121,7 +121,7 @@ class THICK(AbilityAttributeBase):
 
     MODIFIER = [1.025, 1.05, 1.075, 1.100, 1.13]
 
-    def modify_attribute(self, type_, value): return value*self.modifier if type_ == ATTRIBUTES.HEALTH else value
+    def modify_attribute(self, type_, value): return value*self.modifier if type_.is_HEALTH else value
 
 
 class EXTRA_THICK(AbilityAttributeBase):
@@ -136,7 +136,7 @@ class EXTRA_THICK(AbilityAttributeBase):
 
     MODIFIER = [1.05, 1.10, 1.15, 1.20, 1.25]
 
-    def modify_attribute(self, type_, value): return value*self.modifier if type_ == ATTRIBUTES.HEALTH else value
+    def modify_attribute(self, type_, value): return value*self.modifier if type_.is_HEALTH else value
 
 
 #######################
@@ -155,7 +155,7 @@ class EXTRA_WEAK(AbilityAttributeBase):
 
     MODIFIER = [0.95, 0.90, 0.85, 0.80, 0.75]
 
-    def modify_attribute(self, type_, value): return value*self.modifier if type_ == ATTRIBUTES.DAMAGE else value
+    def modify_attribute(self, type_, value): return value*self.modifier if type_.is_DAMAGE else value
 
 
 class WEAK(AbilityAttributeBase):
@@ -170,7 +170,7 @@ class WEAK(AbilityAttributeBase):
 
     MODIFIER = [0.975, 0.95, 0.875, 0.90, 0.875]
 
-    def modify_attribute(self, type_, value): return value*self.modifier if type_ == ATTRIBUTES.DAMAGE else value
+    def modify_attribute(self, type_, value): return value*self.modifier if type_.is_DAMAGE else value
 
 
 class STRONG(AbilityAttributeBase):
@@ -185,7 +185,7 @@ class STRONG(AbilityAttributeBase):
 
     MODIFIER = [1.025, 1.05, 1.075, 1.100, 1.125]
 
-    def modify_attribute(self, type_, value): return value*self.modifier if type_ == ATTRIBUTES.DAMAGE else value
+    def modify_attribute(self, type_, value): return value*self.modifier if type_.is_DAMAGE else value
 
 
 class EXTRA_STRONG(AbilityAttributeBase):
@@ -200,7 +200,7 @@ class EXTRA_STRONG(AbilityAttributeBase):
 
     MODIFIER = [1.05, 1.10, 1.15, 1.20, 1.25]
 
-    def modify_attribute(self, type_, value): return value*self.modifier if type_ == ATTRIBUTES.DAMAGE else value
+    def modify_attribute(self, type_, value): return value*self.modifier if type_.is_DAMAGE else value
 
 
 ABILITIES = dict( (ability.get_id(), ability)

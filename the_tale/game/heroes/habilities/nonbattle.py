@@ -1,7 +1,6 @@
 # coding: utf-8
 import random
 
-from the_tale.game.game_info import ATTRIBUTES
 from the_tale.game.heroes.habilities.prototypes import AbilityPrototype
 from the_tale.game.heroes.habilities.relations import ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
 from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE
@@ -22,8 +21,7 @@ class CHARISMA(AbilityPrototype):
     @property
     def money_multiplier(self): return self.MONEY_MULTIPLIER[self.level-1]
 
-    def update_quest_reward(self, hero, money):
-        return int(money * self.money_multiplier)
+    def modify_attribute(self, type_, value): return int(value * self.money_multiplier) if type_.is_QUEST_MONEY_REWARD else value
 
 
 class HUCKSTER(AbilityPrototype):
@@ -45,12 +43,15 @@ class HUCKSTER(AbilityPrototype):
     @property
     def buy_multiplier(self): return self.BUY_MULTIPLIER[self.level-1]
 
-    def update_buy_price(self, hero, money):
-        return int(money * self.buy_multiplier)
+    def modify_attribute(self, type_, value):
+        if type_.is_BUY_PRICE:
+            return int(value * self.buy_multiplier)
 
-    def update_sell_price(self, hero, money):
-        ''' +1 for increase price on low levels'''
-        return int(money * self.sell_multiplier + 1)
+        if type_.is_SELL_PRICE:
+            # +1 for increase price on low levels
+            return int(value * self.sell_multiplier + 1)
+
+        return value
 
 
 class DANDY(AbilityPrototype):
@@ -68,10 +69,11 @@ class DANDY(AbilityPrototype):
     @property
     def priority_multiplier(self): return self.PRIORITY_MULTIPLIER[self.level-1]
 
-    def update_items_of_expenditure_priorities(self, hero, priorities):
-        priorities[ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT] *= self.priority_multiplier
-        priorities[ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT] *= self.priority_multiplier
-        return priorities
+    def modify_attribute(self, type_, value):
+        if type_.is_ITEMS_OF_EXPENDITURE_PRIORITIES:
+            value[ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT] *= self.priority_multiplier
+            value[ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT] *= self.priority_multiplier
+        return value
 
 
 class BUSINESSMAN(AbilityPrototype):
@@ -84,13 +86,14 @@ class BUSINESSMAN(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = u'Герой может получить артефакт в награду за выполнение задания.'
 
-    PROBABILITY = [0.05, 0.1, 0.15, 0.2, 0.25]
+    PROBABILITY = [0.025, 0.05, 0.075, 0.1, 0.125]
 
     @property
     def probability(self): return self.PROBABILITY[self.level-1]
 
-    def can_get_artifact_for_quest(self, hero):
-        return random.uniform(0, 1) < self.probability
+    def check_attribute(self, type_):
+        if type_.is_GET_ARTIFACT_FOR_QUEST:
+            return random.uniform(0, 1) < self.probability
 
 
 class PICKY(AbilityPrototype):
@@ -108,8 +111,10 @@ class PICKY(AbilityPrototype):
     @property
     def probability(self): return self.PROBABILITY[self.level-1]
 
-    def can_buy_better_artifact(self, hero):
-        return random.uniform(0, 1) < self.probability
+    def check_attribute(self, type_):
+        if type_.is_BUY_BETTER_ARTIFACT:
+            return random.uniform(0, 1) < self.probability
+
 
 class ETHEREAL_MAGNET(AbilityPrototype):
 
@@ -126,7 +131,7 @@ class ETHEREAL_MAGNET(AbilityPrototype):
     @property
     def crit_probability(self): return self.CRIT_PROBABILITY[self.level-1]
 
-    def modify_attribute(self, type_, value): return min(1.0, value + self.crit_probability) if type_ == ATTRIBUTES.MIGHT_CRIT_CHANCE else value
+    def modify_attribute(self, type_, value): return min(1.0, value + self.crit_probability) if type_.is_MIGHT_CRIT_CHANCE else value
 
 
 class WANDERER(AbilityPrototype):
@@ -146,7 +151,7 @@ class WANDERER(AbilityPrototype):
     @property
     def speed_multiplier(self): return self.SPEED_MULTIPLIER[self.level-1]
 
-    def modify_attribute(self, type_, value): return value*self.speed_multiplier if type_ == ATTRIBUTES.SPEED else value
+    def modify_attribute(self, type_, value): return value*self.speed_multiplier if type_.is_SPEED else value
 
 
 class GIFTED(AbilityPrototype):
@@ -164,7 +169,7 @@ class GIFTED(AbilityPrototype):
     @property
     def experience_multiplier(self): return self.EXPERIENCE_MULTIPLIER[self.level-1]
 
-    def modify_attribute(self, type_, value): return value*self.experience_multiplier if type_ == ATTRIBUTES.EXPERIENCE else value
+    def modify_attribute(self, type_, value): return value*self.experience_multiplier if type_.is_EXPERIENCE else value
 
 
 class DIPLOMATIC(AbilityPrototype):
@@ -182,7 +187,7 @@ class DIPLOMATIC(AbilityPrototype):
     @property
     def power_multiplier(self): return self.POWER_MULTIPLIER[self.level-1]
 
-    def modify_attribute(self, type_, value): return value*self.power_multiplier if type_ == ATTRIBUTES.POWER else value
+    def modify_attribute(self, type_, value): return value*self.power_multiplier if type_.is_POWER else value
 
 
 class THRIFTY(AbilityPrototype):
@@ -200,7 +205,7 @@ class THRIFTY(AbilityPrototype):
     @property
     def max_bag_size_modifier(self): return self.MAX_BAG_SIZE_MODIFIER[self.level-1]
 
-    def modify_attribute(self, type_, value): return value + self.max_bag_size_modifier if type_ == ATTRIBUTES.MAX_BAG_SIZE else value
+    def modify_attribute(self, type_, value): return value + self.max_bag_size_modifier if type_.is_MAX_BAG_SIZE else value
 
 
 ABILITIES = dict( (ability.get_id(), ability)

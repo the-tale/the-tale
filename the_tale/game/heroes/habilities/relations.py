@@ -28,3 +28,21 @@ class DAMAGE_TYPE(DjangoEnum):
    records = ( ('PHYSICAL', 0b0001, u'физический'),
                 ('MAGICAL', 0b0010, u'магический'),
                 ('MIXED', 0b0011, u'смешанный') )
+
+
+
+class MODIFIERS(DjangoEnum):
+    records = ( ('INITIATIVE', 0, u'инициатива'),
+                ('HEALTH', 1, u'здоровье'),
+                ('DAMAGE', 2, u'урон'),
+                ('SPEED', 3, u'скорость'),
+                ('MIGHT_CRIT_CHANCE', 4, u'шанс критического срабатвания способности Хранителя'),
+                ('EXPERIENCE', 5, u'опыт'),
+                ('MAX_BAG_SIZE', 6, u'максимальный размер рюкзака'),
+                ('POWER', 7, u'сила героя'),
+                ('QUEST_MONEY_REWARD', 8, u'денежная награда за выполнение задения'),
+                ('BUY_PRICE', 9, u'цена покупки'),
+                ('SELL_PRICE', 10, u'цена продажи'),
+                ('ITEMS_OF_EXPENDITURE_PRIORITIES', 11, u'приортет трат'),
+                ('GET_ARTIFACT_FOR_QUEST', 12, u'может получить артефакты за задания'),
+                ('BUY_BETTER_ARTIFACT', 13, u'может купить лучший артефакт') )

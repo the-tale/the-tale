@@ -160,37 +160,8 @@ class AbilitiesPrototype(object):
         for ability in self.abilities.values():
             ability.update_context(actor, enemy)
 
-    def update_quest_reward(self, hero, money):
-        for ability in self.abilities.values():
-            money = ability.update_quest_reward(hero, money)
-        return money
-
-    def update_buy_price(self, hero, money):
-        for ability in self.abilities.values():
-            money = ability.update_buy_price(hero, money)
-        return money
-
-    def update_sell_price(self, hero, money):
-        for ability in self.abilities.values():
-            money = ability.update_sell_price(hero, money)
-        return money
-
-    def update_items_of_expenditure_priorities(self, hero, priorities):
-        for ability in self.abilities.values():
-            priorities = ability.update_items_of_expenditure_priorities(hero, priorities)
-        return priorities
-
-    def can_get_artifact_for_quest(self, hero):
-        for ability in self.abilities.values():
-            if ability.can_get_artifact_for_quest(hero):
-                return True
-        return False
-
-    def can_buy_better_artifact(self, hero):
-        for ability in self.abilities.values():
-            if ability.can_buy_better_artifact(hero):
-                return True
-        return False
+    def check_attribute(self, name):
+        return any(ability.check_attribute(name) for ability in self.abilities.itervalues())
 
     def randomized_level_up(self, levels):
 

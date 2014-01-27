@@ -11,11 +11,11 @@ from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.game.heroes.habilities import AbilitiesPrototype
 
 from the_tale.game.balance import formulas as f
-from the_tale.game.game_info import ATTRIBUTES
 
 from the_tale.game.map.relations import TERRAIN
 
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
+from the_tale.game.heroes.habilities.relations import MODIFIERS as HABILITY_MODIFIERS
 
 from the_tale.game.artifacts.storage import artifacts_storage
 
@@ -39,9 +39,9 @@ class MobPrototype(object):
 
         self.abilities = self._produce_abilities(record, level) if abilities is None else abilities
 
-        self.initiative = self.abilities.modify_attribute(ATTRIBUTES.INITIATIVE, 1)
-        self.health_cooficient = self.abilities.modify_attribute(ATTRIBUTES.HEALTH, 1)
-        self.damage_modifier = self.abilities.modify_attribute(ATTRIBUTES.DAMAGE, 1)
+        self.initiative = self.abilities.modify_attribute(HABILITY_MODIFIERS.INITIATIVE, 1)
+        self.health_cooficient = self.abilities.modify_attribute(HABILITY_MODIFIERS.HEALTH, 1)
+        self.damage_modifier = self.abilities.modify_attribute(HABILITY_MODIFIERS.DAMAGE, 1)
 
         if self.is_boss:
             self.max_health = int(f.boss_hp_to_lvl(level) * self.health_cooficient)
