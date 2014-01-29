@@ -51,7 +51,7 @@ pgf.game.Updater = function(params) {
             url: params.url,
             success: function(data, request, status) {
 
-                if (data.data.account.is_old && requireNewData) {
+                if (data.data.account && data.data.account.is_old && requireNewData) {
 
                     // hide only if not get info about last turn
                     if (data.data.turn.number != data.data.account.hero.actual_on_turn + 1) {
