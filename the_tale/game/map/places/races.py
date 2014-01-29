@@ -6,7 +6,7 @@ import collections
 from the_tale.game.relations import RACE
 
 from the_tale.game.balance import constants as c
-from the_tale.game.map.utils import get_race_percents
+from the_tale.game.map.utils import get_person_race_percents
 
 E = 0.001
 
@@ -79,7 +79,7 @@ class Races(object):
 
         next_delta = self.get_next_delta(persons)
 
-        persons_percents = get_race_percents(persons)
+        persons_percents = get_person_race_percents(persons)
 
         for race in RACE.records:
             races.append(RaceInfo(race=race, percents=self._races[race], delta=next_delta[race], persons_percents=persons_percents[race.value]))

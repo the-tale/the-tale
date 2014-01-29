@@ -14,7 +14,7 @@ from the_tale.game.heroes.preferences import HeroPreferences
 
 from the_tale.game.map.places.storage import places_storage
 
-from the_tale.game.map.utils import get_race_percents
+from the_tale.game.map.utils import get_person_race_percents
 
 
 class PlaceResource(Resource):
@@ -27,7 +27,7 @@ class PlaceResource(Resource):
 
     @handler('#place', name='show', method='get')
     def show(self):
-        race_percents = sorted(get_race_percents(self.place.persons).items(), key=lambda x: -x[1])
+        race_percents = sorted(get_person_race_percents(self.place.persons).items(), key=lambda x: -x[1])
 
         persons = self.place.persons
 

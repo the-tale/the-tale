@@ -21,7 +21,7 @@ from the_tale.game.map.places.prototypes import PlacePrototype
 from the_tale.game.map.places.storage import places_storage
 
 from the_tale.game.map.models import MapInfo, WorldInfo
-from the_tale.game.map.utils import get_race_percents
+from the_tale.game.map.utils import get_person_race_percents, get_race_percents
 from the_tale.game.map.relations import MAP_STATISTICS, TERRAIN
 
 
@@ -43,9 +43,10 @@ class MapInfoPrototype(BasePrototype):
     @lazy_property
     def statistics(self):
         statistics = s11n.from_json(self._model.statistics)
-        statistics['race_percents'] = dict( (int(key), value) for key, value in statistics['race_percents'].items())
-        statistics['race_cities'] = dict( (int(key), value) for key, value in statistics['race_cities'].items())
-        statistics['terrain_percents'] = dict( (int(key), value) for key, value in statistics['terrain_percents'].items())
+        statistics['race_percents'] = dict( (RACE(int(key)), value) for key, value in statistics['race_percents'].items())
+        statistics['person_race_percents'] = dict( (RACE(int(key)), value) for key, value in statistics['person_race_percents'].items())
+        statistics['race_cities'] = dict( (RACE(int(key)), value) for key, value in statistics['race_cities'].items())
+        statistics['terrain_percents'] = dict( (TERRAIN(int(key)), value) for key, value in statistics['terrain_percents'].items())
         return statistics
 
     @lazy_property
@@ -53,11 +54,14 @@ class MapInfoPrototype(BasePrototype):
         from the_tale.game.map.generator.descriptors import UICells
         return UICells.deserialize(s11n.from_json(self._model.cells))
 
-    @property
+    @lazy_property
     def terrain_percents(self): return self.statistics['terrain_percents']
 
-    @property
+    @lazy_property
     def race_percents(self): return self.statistics['race_percents']
+
+    @lazy_property
+    def person_race_percents(self): return self.statistics['person_race_percents']
 
     @property
     def race_cities(self): return self.statistics['race_cities']
@@ -108,7 +112,8 @@ class MapInfoPrototype(BasePrototype):
 
         terrain_percents = dict( (id_.value, float(square) / total_cells) for id_, square in terrain_squares.items())
 
-        race_percents = get_race_percents(persons_storage.filter(state=PERSON_STATE.IN_GAME))
+        person_race_percents = get_person_race_percents(persons_storage.filter(state=PERSON_STATE.IN_GAME))
+        race_percents = get_race_percents(places_storage.all())
 
         #race to cities percents
         race_cities = dict( (race.value, 0) for race in RACE.records)
@@ -116,8 +121,8 @@ class MapInfoPrototype(BasePrototype):
             place = PlacePrototype(place_model)
             race_cities[place.race.value] += 1
 
-
         statistics = {'terrain_percents': terrain_percents,
+                      'person_race_percents': person_race_percents,
                       'race_percents': race_percents,
                       'race_cities': race_cities}
 
