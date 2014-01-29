@@ -1,4 +1,6 @@
 # coding: utf-8
+import math
+
 import mock
 
 from the_tale.common.utils import testcase
@@ -41,20 +43,35 @@ class PlacePowerTest(testcase.TestCase):
         self.place.push_power(0, 10)
         self.assertEqual(self.place.power, 10)
 
+        TimePrototype.get_current_time().increment_turn()
         self.place.push_power(1, 1)
-        self.assertEqual(self.place.power, 11)
+        self.assertEqual(self.place.power,
+                         1 + 10*float(places_settings.POWER_HISTORY_LENGTH-1)/places_settings.POWER_HISTORY_LENGTH)
 
+        TimePrototype(places_settings.POWER_HISTORY_LENGTH-1).save()
         self.place.push_power(places_settings.POWER_HISTORY_LENGTH-1, 100)
-        self.assertEqual(self.place.power, 111)
+        self.assertEqual(self.place.power,
+                         100 + 10*1.0/places_settings.POWER_HISTORY_LENGTH + 2.0/places_settings.POWER_HISTORY_LENGTH)
 
+        TimePrototype(places_settings.POWER_HISTORY_LENGTH).save()
         self.place.push_power(places_settings.POWER_HISTORY_LENGTH, 1000)
-        self.assertEqual(self.place.power, 1111)
+        self.assertEqual(self.place.power,
+                         1000 + 100*float(places_settings.POWER_HISTORY_LENGTH-1)/places_settings.POWER_HISTORY_LENGTH + 1.0/places_settings.POWER_HISTORY_LENGTH)
 
+        TimePrototype(places_settings.POWER_HISTORY_LENGTH+1).save()
         self.place.push_power(places_settings.POWER_HISTORY_LENGTH+1, 10000)
-        self.assertEqual(self.place.power, 11101)
+        self.assertEqual(self.place.power,
+                         10000 +
+                         1000*float(places_settings.POWER_HISTORY_LENGTH-1)/places_settings.POWER_HISTORY_LENGTH +
+                         100*float(places_settings.POWER_HISTORY_LENGTH-2)/places_settings.POWER_HISTORY_LENGTH)
 
+        TimePrototype(places_settings.POWER_HISTORY_LENGTH+2).save()
         self.place.push_power(places_settings.POWER_HISTORY_LENGTH+2, 100000)
-        self.assertEqual(self.place.power, 111100)
+        self.assertEqual(round(self.place.power, 5),
+                         round(100000 +
+                               10000*float(places_settings.POWER_HISTORY_LENGTH-1)/places_settings.POWER_HISTORY_LENGTH +
+                               1000*float(places_settings.POWER_HISTORY_LENGTH-2)/places_settings.POWER_HISTORY_LENGTH +
+                               100*float(places_settings.POWER_HISTORY_LENGTH-3)/places_settings.POWER_HISTORY_LENGTH, 5) )
 
     def test_push_power_exceptions(self):
         self.place.push_power(666, 10)

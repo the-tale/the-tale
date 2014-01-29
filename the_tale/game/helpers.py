@@ -1,6 +1,9 @@
 # coding: utf-8
 import functools
 
+from the_tale.game.prototypes import TimePrototype
+
+
 def add_power_management(history_length, exception_class):
     '''
     manage powers in persons and places
@@ -15,9 +18,12 @@ def add_power_management(history_length, exception_class):
             return self.data['power_points']
 
         def power(self):
-            if self.power_points:
-                return max(sum([power[1] for power in self.power_points]), 0)
-            return 0
+            if not self.power_points:
+                return 0
+
+            turn_number = TimePrototype.get_current_turn_number()
+
+            return max(sum([power[1]*(1-float(turn_number-power[0])/history_length) for power in self.power_points]), 0)
 
         def push_power(self, turn, value):
             if self.power_points and self.power_points[-1][0] > turn:
@@ -25,7 +31,9 @@ def add_power_management(history_length, exception_class):
 
             self.power_points.append((turn, value))
 
-            while self.power_points and self.power_points[0][0] < turn - history_length:
+            current_turn_number = TimePrototype.get_current_turn_number()
+
+            while self.power_points and self.power_points[0][0] < current_turn_number - history_length:
                 self.power_points.pop(0)
 
 

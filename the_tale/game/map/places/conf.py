@@ -4,11 +4,11 @@ from dext.utils.app_settings import app_settings
 
 from the_tale.game.balance import constants as c
 
-POWER_HISTORY_WEEKS = 4
+POWER_HISTORY_WEEKS = 6
 
 places_settings = app_settings('PLACES',
                                POWER_HISTORY_WEEKS=POWER_HISTORY_WEEKS,
-                               POWER_HISTORY_LENGTH=POWER_HISTORY_WEEKS*7*24*c.TURNS_IN_HOUR,
+                               POWER_HISTORY_LENGTH=int(POWER_HISTORY_WEEKS*7*24*c.TURNS_IN_HOUR),
                                MAX_SIZE=10,
                                MAX_DESCRIPTION_LENGTH=1000,
                                BUILDING_POSITION_RADIUS=2,
