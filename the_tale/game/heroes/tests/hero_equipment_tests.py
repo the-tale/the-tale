@@ -69,11 +69,19 @@ class HeroEquipmentTests(TestCase):
         self.assertFalse(artifact.type.is_MAIN_HAND)
 
     def test_buy_artifact_and_not_equip(self):
-        old_equipment = self.hero.equipment.serialize()
-        old_bag = self.hero.bag.serialize()
+        self.hero.equipment.serialize()
+        old_equipment = self.hero._model.equipment
+
+        self.hero.bag.serialize()
+        old_bag = self.hero._model.bag
+
         self.hero.buy_artifact(equip=False, better=False, with_prefered_slot=False)
-        self.assertEqual(old_equipment, self.hero.equipment.serialize())
-        self.assertNotEqual(old_bag, self.hero.bag.serialize())
+
+        self.hero.equipment.serialize()
+        self.assertEqual(old_equipment, self.hero._model.equipment)
+
+        self.hero.bag.serialize()
+        self.assertNotEqual(old_bag, self.hero._model.bag)
 
 
     def test_equipping_process(self):

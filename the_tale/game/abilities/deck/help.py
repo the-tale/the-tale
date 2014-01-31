@@ -1,7 +1,7 @@
 # coding: utf-8
 import random
 
-from the_tale.game.heroes.relations import MONEY_SOURCE
+from the_tale.game.heroes.relations import MONEY_SOURCE, HABIT_CHANGE_SOURCE
 
 from the_tale.game.abilities.prototypes import AbilityPrototype
 from the_tale.game.abilities.relations import ABILITY_TYPE, ABILITY_RESULT
@@ -108,6 +108,11 @@ class Help(AbilityPrototype):
 
         if choice is None:
             return (ABILITY_RESULT.FAILED, None, ())
+
+        if action.AGGRESSIVE:
+            hero.update_habits(HABIT_CHANGE_SOURCE.HELP_AGGRESSIVE)
+        else:
+            hero.update_habits(HABIT_CHANGE_SOURCE.HELP_UNAGGRESSIVE)
 
         critical = random.uniform(0, 1) < hero.might_crit_chance
 

@@ -4,6 +4,8 @@ from the_tale.common.utils.enum import create_enum
 
 from the_tale.game.workers.environment import workers_environment
 
+from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
+
 from the_tale.game.abilities.prototypes import AbilityPrototype
 from the_tale.game.abilities.relations import ABILITY_TYPE, ABILITY_RESULT
 
@@ -26,6 +28,8 @@ class ArenaPvP1x1(AbilityPrototype):
                 return ABILITY_RESULT.FAILED, ABILITY_TASK_STEP.ERROR, ()
 
             hero.add_message('angel_ability_arena_pvp_1x1', hero=hero)
+
+            hero.update_habits(HABIT_CHANGE_SOURCE.ARENA_SEND)
 
             return ABILITY_RESULT.CONTINUE, ABILITY_TASK_STEP.PVP_BALANCER, ((lambda: workers_environment.pvp_balancer.cmd_logic_task(hero.account_id, main_task_id)), )
 

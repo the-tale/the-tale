@@ -10,7 +10,7 @@ from the_tale.game.balance import constants as c
 
 from the_tale.game.heroes.habilities import nonbattle
 from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE
-from the_tale.game.heroes.habilities.relations import MODIFIERS
+from the_tale.game.heroes.relations import MODIFIERS
 
 
 class HabilitiesNonBattleTest(testcase.TestCase):

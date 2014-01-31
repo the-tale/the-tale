@@ -11,13 +11,16 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.actions import prototypes as actions_prototypes
+
 from the_tale.game.heroes.logic import create_mob_for_hero
+from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
 
 from the_tale.game.abilities.deck.help import Help
 from the_tale.game.abilities.relations import HELP_CHOICES, ABILITY_RESULT
 
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
 from the_tale.game.pvp.models import BATTLE_1X1_STATE
+
 
 class HelpAbilityTest(testcase.TestCase):
 
@@ -177,3 +180,18 @@ class HelpAbilityTest(testcase.TestCase):
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.RESURRECT):
             current_time.increment_turn()
             self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.IGNORE, None, ()))
+
+    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.AGGRESSIVE', False)
+    def test_update_habits__aggressive_action(self):
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
+            self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.SUCCESSED, None, ()))
+
+        self.assertEqual(update_habits.call_args_list, [mock.call(HABIT_CHANGE_SOURCE.HELP_UNAGGRESSIVE)])
+
+    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.AGGRESSIVE', True)
+    def test_update_habits__unaggressive_action(self):
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
+            self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.SUCCESSED, None, ()))
+
+        self.assertEqual(update_habits.call_args_list, [mock.call(HABIT_CHANGE_SOURCE.HELP_AGGRESSIVE)])

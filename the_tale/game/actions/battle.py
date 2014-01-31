@@ -36,6 +36,9 @@ class Actor(object):
     @property
     def max_health(self): return self.actor.max_health
 
+    @property
+    def mob_type(self): return self.actor.mob_type
+
     def change_health(self, value):
         # TODO: change for heal & kick methods?
         old_health = self.actor.health
@@ -47,7 +50,7 @@ class Actor(object):
         return random_value_by_priority(choice_abilities)
 
     def update_context(self, enemy):
-        self.actor.abilities.update_context(self, enemy)
+        self.actor.update_context(self, enemy)
 
     def process_effects(self, messanger):
         fire_damage = self.context.fire_damage

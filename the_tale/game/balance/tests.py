@@ -153,6 +153,20 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM, 2)
         self.assertEqual(c.ABILITIES_FOR_CHOOSE_MAXIMUM, 4)
 
+        self.assertEqual(c.HABITS_RIGHT_BORDERS, [-700, -300, -100, 100, 300, 700, 1001])
+        self.assertEqual(c.HABITS_QUEST_ACTIVE_DELTA, 5.0)
+        self.assertEqual(c.HABITS_QUEST_PASSIVE_DELTA, 0.5)
+        self.assertEqual(round(c.HABITS_ABILITY_DELTA, 5), 2.77778)
+        self.assertEqual(round(c.HABITS_PERIODIC_DELTA, 5), 2.16667)
+
+        self.assertEqual(c.KILL_BEFORE_BATTLE_PROBABILITY, 0.05)
+        self.assertEqual(c.PICKED_UP_IN_ROAD_TELEPORT_LENGTH, 3.0)
+        self.assertEqual(round(c.PICKED_UP_IN_ROAD_SPEED_BONUS, 5), 0.07018)
+        self.assertEqual(round(c.PICKED_UP_IN_ROAD_PROBABILITY, 5), 0.02339)
+
+        self.assertEqual(c.HONOR_POWER_BONUS_FRACTION, 0.25)
+        self.assertEqual(c.MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE, 0.1)
+
         self.assertEqual(c.DAMAGE_PVP_ADVANTAGE_MODIFIER, 0.5)
         self.assertEqual(c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER, 5)
         self.assertEqual(c.PVP_MAX_ADVANTAGE_STEP, 0.25)
@@ -169,8 +183,8 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PLACE_GOODS_AFTER_LEVEL_UP, 0.25)
         self.assertEqual(c.PLACE_GOODS_AFTER_LEVEL_DOWN, 0.75)
         self.assertEqual(c.PLACE_SAFETY_FROM_BEST_PERSON, 0.05)
-        self.assertEqual(c.PLACE_TRANSPORT_FROM_BEST_PERSON, 0.2)
-        self.assertEqual(c.PLACE_FREEDOM_FROM_BEST_PERSON, 0.2)
+        self.assertEqual(round(c.PLACE_TRANSPORT_FROM_BEST_PERSON, 5), 0.33333)
+        self.assertEqual(round(c.PLACE_FREEDOM_FROM_BEST_PERSON, 5), 0.33333)
 
         self.assertEqual(c.PLACE_MAX_EXCHANGED_NUMBER, 3)
 

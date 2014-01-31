@@ -78,3 +78,12 @@ class ArenaPvP1x1LeaveQueueAbilityTest(testcase.TestCase):
 
         self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.WAITING).count(), 0)
         self.assertEqual(Battle1x1.objects.all().count(), 0)
+
+
+    def test_update_habits(self):
+        from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
+            self.assertEqual(self.ability.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id)), (ABILITY_RESULT.SUCCESSED, None, ()))
+
+        self.assertEqual(update_habits.call_args_list, [mock.call(HABIT_CHANGE_SOURCE.ARENA_LEAVE)])

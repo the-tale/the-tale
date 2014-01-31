@@ -3,6 +3,10 @@
 from rels import Column
 from rels.django import DjangoEnum
 
+from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS
+
+from the_tale.game.balance import constants as c
+
 from the_tale.game.artifacts.models import ARTIFACT_TYPE
 
 
@@ -94,3 +98,76 @@ class EQUIPMENT_SLOT(DjangoEnum):
                  ('BOOTS', 8, u'сапоги', ARTIFACT_TYPE.BOOTS),
                  ('AMULET', 9, u'амулет', ARTIFACT_TYPE.AMULET),
                  ('RING', 10, u'кольцо', ARTIFACT_TYPE.RING) )
+
+
+class MODIFIERS(DjangoEnum):
+    records = ( ('INITIATIVE', 0, u'инициатива'),
+                ('HEALTH', 1, u'здоровье'),
+                ('DAMAGE', 2, u'урон'),
+                ('SPEED', 3, u'скорость'),
+                ('MIGHT_CRIT_CHANCE', 4, u'шанс критического срабатвания способности Хранителя'),
+                ('EXPERIENCE', 5, u'опыт'),
+                ('MAX_BAG_SIZE', 6, u'максимальный размер рюкзака'),
+                ('POWER', 7, u'влияние героя'),
+                ('QUEST_MONEY_REWARD', 8, u'денежная награда за выполнение задения'),
+                ('BUY_PRICE', 9, u'цена покупки'),
+                ('SELL_PRICE', 10, u'цена продажи'),
+                ('ITEMS_OF_EXPENDITURE_PRIORITIES', 11, u'приортет трат'),
+                ('GET_ARTIFACT_FOR_QUEST', 12, u'получить артефакты за задания'),
+                ('BUY_BETTER_ARTIFACT', 13, u'купить лучший артефакт'),
+                ('KILL_BEFORE_BATTLE', 14, u'убить монстра перед боем'),
+                ('PICKED_UP_IN_ROAD', 15, u'ехать на попутных телегах'),
+                ('POWER_TO_FRIEND', 16, u'бонус к влиянию на друга'),
+                ('POWER_TO_ENEMY', 17, u'бонус к влиянию на врага'))
+
+
+
+class HABIT_INTERVAL(DjangoEnum):
+    female_text = Column()
+    neuter_text = Column()
+
+
+class HABIT_HONOR_INTERVAL(HABIT_INTERVAL):
+
+    records = ( ('LEFT_3', 0, u'бесчестный', u'бесчестная', u'бесчестное'),
+                ('LEFT_2', 1, u'подлый', u'подлая', u'подлое'),
+                ('LEFT_1', 2, u'порочный', u'порочная', u'порочное'),
+                ('NEUTRAL', 3, u'у себя на уме', u'у себя на уме', u'у себя на уме'),
+                ('RIGHT_1', 4, u'порядочный', u'порядочная', u'порядочное'),
+                ('RIGHT_2', 5, u'благородный', u'благородная', u'благородное'),
+                ('RIGHT_3', 6, u'хозяин своего слова', u'хозяйка своего слова', u'хозяин своего слова') )
+
+
+class HABIT_AGGRESSIVENESS_INTERVAL(HABIT_INTERVAL):
+
+    records = ( ('LEFT_3', 0, u'скорый на расправу', u'скорая на расправу', u'скорое на расправу'),
+                ('LEFT_2', 1, u'вспыльчивый', u'вспыльчивая', u'вспыльчивое'),
+                ('LEFT_1', 2, u'задира', u'задира', u'задира'),
+                ('NEUTRAL', 3, u'сдержанный', u'сдержанная', u'сдержаное'),
+                ('RIGHT_1', 4, u'доброхот', u'доброхот', u'доброхот'),
+                ('RIGHT_2', 5, u'миролюбивый', u'миролюбивая', u'миролюбивое'),
+                ('RIGHT_3', 6, u'гуманист', u'гуманист', u'гуманист') )
+
+
+class HABIT_CHANGE_SOURCE(DjangoEnum):
+    quest_marker = Column(unique=False, single_type=False)
+    quest_default = Column(unique=False, single_type=False)
+    correlation_requirements = Column(unique=False, single_type=False)
+    honor = Column(unique=False)
+    aggressiveness = Column(unique=False)
+
+    records = ( ('QUEST_HONORABLE', 0, u'выбор чести в задании игроком', QUEST_OPTION_MARKERS.HONORABLE, False, None,           c.HABITS_QUEST_ACTIVE_DELTA, 0.0),
+                ('QUEST_DISHONORABLE', 1, u'выбор бесчестия в задании игроком', QUEST_OPTION_MARKERS.DISHONORABLE, False, None,  -c.HABITS_QUEST_ACTIVE_DELTA, 0.0),
+                ('QUEST_AGGRESSIVE', 2, u'выборе агрессивности в задании игроком', QUEST_OPTION_MARKERS.AGGRESSIVE, False, None, 0.0, -c.HABITS_QUEST_ACTIVE_DELTA),
+                ('QUEST_UNAGGRESSIVE', 3, u'выбор миролюбия в задании игроком', QUEST_OPTION_MARKERS.UNAGGRESSIVE, False, None,  0.0, c.HABITS_QUEST_ACTIVE_DELTA),
+
+                ('QUEST_HONORABLE_DEFAULT', 4, u'выбор чести в задании героем', QUEST_OPTION_MARKERS.HONORABLE, True, False,            c.HABITS_QUEST_PASSIVE_DELTA, 0.0),
+                ('QUEST_DISHONORABLE_DEFAULT', 5, u'выбор бесчестия в задании героем', QUEST_OPTION_MARKERS.DISHONORABLE, True, False,  -c.HABITS_QUEST_PASSIVE_DELTA, 0.0),
+                ('QUEST_AGGRESSIVE_DEFAULT', 6, u'выборе агрессивности в задании героем', QUEST_OPTION_MARKERS.AGGRESSIVE, True, False, 0.0, -c.HABITS_QUEST_PASSIVE_DELTA),
+                ('QUEST_UNAGGRESSIVE_DEFAULT', 7, u'выбор миролюбия в задании героем', QUEST_OPTION_MARKERS.UNAGGRESSIVE, True, False,  0.0, c.HABITS_QUEST_PASSIVE_DELTA),
+
+                ('HELP_AGGRESSIVE', 8, u'помощь в бою', None, None, None,      0.0, -1.0),
+                ('HELP_UNAGGRESSIVE', 9, u'помощь вне боя', None, None, None,  0.0, 1.0),
+                ('ARENA_SEND', 10, u'отправка на арену', None, None, None,     0.0, -1.0),
+                ('ARENA_LEAVE', 11, u'покидание арены', None, None, None,      0.0, 1.0),
+                ('PERIODIC', 12, u'периодическое изменение', None, None, None, -1.0, -1.0) )

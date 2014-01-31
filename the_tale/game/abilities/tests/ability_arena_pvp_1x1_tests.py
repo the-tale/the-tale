@@ -84,3 +84,12 @@ class ArenaPvP1x1AbilityTest(testcase.TestCase):
         self.assertEqual(self.ability_2.use(**self.use_attributes(hero_id=self.hero_2.id, storage=self.storage)), (ABILITY_RESULT.FAILED, ABILITY_TASK_STEP.ERROR, ()))
 
         self.assertEqual(Battle1x1.objects.all().count(), 0)
+
+
+    def test_update_habits(self):
+        from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
+            self.ability_1.use(**self.use_attributes(hero_id=self.hero_1.id, storage=self.storage))
+
+        self.assertEqual(update_habits.call_args_list, [mock.call(HABIT_CHANGE_SOURCE.ARENA_SEND)])

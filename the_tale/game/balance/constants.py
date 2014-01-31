@@ -2,6 +2,7 @@
 import math
 
 from the_tale.game.balance import enums as e
+from the_tale.game.balance import helpers as h
 
 TIME_TO_LVL_DELTA = float(5) # разница во времени получения двух соседних уровней
 
@@ -248,7 +249,7 @@ CHARACTER_PREFERENCES_CHANGE_DELAY = int(60*60*24*7) # время блокиро
 
 ##########################
 # споособности
-#########################
+##########################
 
 ABILITIES_ACTIVE_MAXIMUM = int(5)
 ABILITIES_PASSIVE_MAXIMUM = int(2)
@@ -259,6 +260,25 @@ ABILITIES_NONBATTLE_MAXUMUM = int(4)
 ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM = int(2)
 ABILITIES_FOR_CHOOSE_MAXIMUM = int(4)
 
+##########################
+# Черты
+##########################
+
+HABITS_BORDER = float(1000) # модуль максимального значения черты
+HABITS_RIGHT_BORDERS = [-700, -300, -100, 100, 300, 700, 1001] # правые границы черт
+HABITS_QUEST_ACTIVE_DELTA = float(5) # за выбор в заданиии гроком
+HABITS_QUEST_PASSIVE_DELTA = float(0.1 * HABITS_QUEST_ACTIVE_DELTA) # за неверный выбор героем
+HABITS_ABILITY_DELTA = float(HABITS_BORDER / (30 * _ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST)) # за использование способности
+HABITS_PERIODIC_DELTA = float(0.1 * (HABITS_QUEST_ACTIVE_DELTA*2 + HABITS_ABILITY_DELTA * (_ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST))/2 ) # скорость автоматического уменьшения (в день)
+
+KILL_BEFORE_BATTLE_PROBABILITY = float(0.05)  # вероятность убить мобы в начале боя
+PICKED_UP_IN_ROAD_TELEPORT_LENGTH = ANGEL_HELP_TELEPORT_DISTANCE
+# бонус к скорости передвижения, эквивалентный вероятности убить моба
+PICKED_UP_IN_ROAD_SPEED_BONUS = h.speed_from_safety(BATTLES_PER_TURN*KILL_BEFORE_BATTLE_PROBABILITY, BATTLES_PER_TURN)
+PICKED_UP_IN_ROAD_PROBABILITY = PICKED_UP_IN_ROAD_SPEED_BONUS / PICKED_UP_IN_ROAD_TELEPORT_LENGTH
+
+HONOR_POWER_BONUS_FRACTION = float(0.25) # бонус к влиянию на для чести
+MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE = float(0.1) # вероятность крита по типу монстра
 
 ###########################
 # pvp
@@ -289,16 +309,10 @@ PLACE_GOODS_AFTER_LEVEL_DOWN = float(0.75) # процент товаров, во
 
 # исходим из того, что в первую очередь надо балансировать вероятность нападения монстров как самый важный параметр
 PLACE_SAFETY_FROM_BEST_PERSON = float(0.05)
-# при фиксированном количестве боёв за цикл движения, изменение скорости эквивалентное изменению вероятности боя
-# будет равно отношению пройденных путей (т.к. количество ходов движения пренебрежительно мало по сравнению с ходами боя)
-# так же можно пренебречь количеством
-# путь изначальный: speed * (1 / battle_probability - 1)
-# путь результирующий: speed * (1 / (battle_probability+0.01) - 1)
-# 1% safety ~ 0.01 / battle_probability
-PLACE_TRANSPORT_FROM_BEST_PERSON = float(PLACE_SAFETY_FROM_BEST_PERSON / BATTLES_PER_TURN) if BATTLES_PER_TURN > 0 else 0.01
+PLACE_TRANSPORT_FROM_BEST_PERSON = h.speed_from_safety(PLACE_SAFETY_FROM_BEST_PERSON, BATTLES_PER_TURN)
 
 # хотя на опыт свобода и не влияет, но на город оказывает такое-же влияние как и транспорт
-PLACE_FREEDOM_FROM_BEST_PERSON = float(PLACE_SAFETY_FROM_BEST_PERSON / BATTLES_PER_TURN) if BATTLES_PER_TURN > 0 else 0.01
+PLACE_FREEDOM_FROM_BEST_PERSON = PLACE_TRANSPORT_FROM_BEST_PERSON
 
 PLACE_MAX_EXCHANGED_NUMBER = int(3)
 

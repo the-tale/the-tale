@@ -5,6 +5,7 @@ from the_tale.common.utils.storage import create_storage_class
 
 from the_tale.game.mobs import exceptions
 from the_tale.game.mobs.prototypes import MobPrototype, MobRecordPrototype
+from the_tale.game.mobs import relations
 
 
 class MobsStorage(create_storage_class('mob records change time', MobRecordPrototype, exceptions.MobsStorageError)):
@@ -12,13 +13,19 @@ class MobsStorage(create_storage_class('mob records change time', MobRecordProto
     def __init__(self):
         super(MobsStorage, self).__init__()
         self._mobs_by_uuids = {}
+        self._types_count = {mob_type: 0 for mob_type in relations.MOB_TYPE.records}
+        self.mobs_number = 0
 
     def update_cached_data(self, item):
         self._mobs_by_uuids[item.uuid] = item
+        self._types_count[item.type] += 1
+        self.mobs_number += 1
 
     def clear(self):
         super(MobsStorage, self).clear()
         self._mobs_by_uuids = {}
+        self._types_count = {mob_type: 0 for mob_type in relations.MOB_TYPE.records}
+        self.mobs_number = 0
 
     def add_item(self, id_, item):
         super(MobsStorage, self).add_item(id_, item)
@@ -31,6 +38,8 @@ class MobsStorage(create_storage_class('mob records change time', MobRecordProto
     def has_mob(self, uuid):
         self.sync()
         return uuid in self._mobs_by_uuids
+
+    def mob_type_fraction(self, mob_type): return self._types_count[mob_type] / float(self.mobs_number)
 
     def get_available_mobs_list(self, level, terrain=None, mercenary=None):
         self.sync()

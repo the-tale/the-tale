@@ -12,6 +12,8 @@ from the_tale.game.abilities.prototypes import AbilityPrototype
 from the_tale.game.abilities.relations import ABILITY_TYPE, ABILITY_RESULT
 
 from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
+
 
 ABILITY_TASK_STEP = create_enum('ABILITY_TASK_STEP', (('ERROR', 0, u'ошибка'),
                                                       ('LOGIC', 1, u'логика'),
@@ -64,6 +66,8 @@ class ArenaPvP1x1Accept(AbilityPrototype):
         if step is None:
 
             hero = storage.heroes[data['hero_id']]
+
+            hero.update_habits(HABIT_CHANGE_SOURCE.ARENA_SEND)
 
             return ABILITY_RESULT.CONTINUE, ABILITY_TASK_STEP.PVP_BALANCER, ((lambda: workers_environment.pvp_balancer.cmd_logic_task(hero.account_id, main_task_id)), )
 

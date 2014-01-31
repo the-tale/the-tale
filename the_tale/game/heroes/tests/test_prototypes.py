@@ -27,7 +27,7 @@ from the_tale.game.persons.storage import persons_storage
 from the_tale.game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
 from the_tale.game.heroes.habilities import ABILITY_TYPE, ABILITIES, battle
 from the_tale.game.heroes.conf import heroes_settings
-from the_tale.game.heroes.relations import EQUIPMENT_SLOT, RISK_LEVEL, PREFERENCE_TYPE
+from the_tale.game.heroes import relations
 
 
 class HeroTest(TestCase):
@@ -92,10 +92,10 @@ class HeroTest(TestCase):
     def test_experience_modifier__risk_level(self):
         self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
-        self.hero.preferences.set_risk_level(RISK_LEVEL.VERY_HIGH)
+        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_HIGH)
         self.assertTrue(c.EXP_FOR_NORMAL_ACCOUNT < self.hero.experience_modifier)
 
-        self.hero.preferences.set_risk_level(RISK_LEVEL.VERY_LOW)
+        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_LOW)
         self.assertTrue(c.EXP_FOR_NORMAL_ACCOUNT > self.hero.experience_modifier)
 
     def test_experience_modifier__active_inactive_state(self):
@@ -174,17 +174,17 @@ class HeroTest(TestCase):
 
     def test_reward_modifier__risk_level(self):
         self.assertEqual(self.hero.reward_modifier, 1.0)
-        self.hero.preferences.set_risk_level(RISK_LEVEL.VERY_HIGH)
+        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_HIGH)
         self.assertTrue(self.hero.reward_modifier > 1.0)
-        self.hero.preferences.set_risk_level(RISK_LEVEL.VERY_LOW)
+        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_LOW)
         self.assertTrue(self.hero.reward_modifier < 1.0)
 
     def test_person_power_modifier__risk_level(self):
         normal_power_modifier = self.hero.person_power_modifier
 
-        self.hero.preferences.set_risk_level(RISK_LEVEL.VERY_HIGH)
+        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_HIGH)
         self.assertTrue(self.hero.person_power_modifier > normal_power_modifier)
-        self.hero.preferences.set_risk_level(RISK_LEVEL.VERY_LOW)
+        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_LOW)
         self.assertTrue(self.hero.person_power_modifier < normal_power_modifier)
 
 
@@ -199,6 +199,41 @@ class HeroTest(TestCase):
         self.assertEqual(self.hero.modify_power(person=self.place_3.persons[0], power=100), 100 * self.hero.person_power_modifier)
         self.assertTrue(self.hero.modify_power(person=enemy, power=100) > 100 * self.hero.person_power_modifier)
         self.assertTrue(self.hero.modify_power(person=friend, power=100) > self.hero.modify_power(person=enemy, power=100)) # friend live in hometowm
+
+    def test_modify_person_power__enemy(self):
+        friend = self.place_1.persons[0]
+        enemy = self.place_2.persons[0]
+
+        self.hero.preferences.set_place(self.place_1)
+        self.hero.preferences.set_friend(friend)
+        self.hero.preferences.set_enemy(enemy)
+
+        place_power = self.hero.modify_power(place=self.place_1, power=100)
+        enemy_power = self.hero.modify_power(person=enemy, power=100)
+        friend_power = self.hero.modify_power(person=friend, power=100)
+
+        with mock.patch('the_tale.game.heroes.habits.Honor.interval', relations.HABIT_HONOR_INTERVAL.LEFT_3):
+            self.assertEqual(place_power, self.hero.modify_power(place=self.place_1, power=100))
+            self.assertTrue(enemy_power < self.hero.modify_power(person=enemy, power=100))
+            self.assertEqual(friend_power, self.hero.modify_power(person=friend, power=100))
+
+
+    def test_modify_person_power__firend(self):
+        friend = self.place_1.persons[0]
+        enemy = self.place_2.persons[0]
+
+        self.hero.preferences.set_place(self.place_1)
+        self.hero.preferences.set_friend(friend)
+        self.hero.preferences.set_enemy(enemy)
+
+        place_power = self.hero.modify_power(place=self.place_1, power=100)
+        enemy_power = self.hero.modify_power(person=enemy, power=100)
+        friend_power = self.hero.modify_power(person=friend, power=100)
+
+        with mock.patch('the_tale.game.heroes.habits.Honor.interval', relations.HABIT_HONOR_INTERVAL.RIGHT_3):
+            self.assertEqual(place_power, self.hero.modify_power(place=self.place_1, power=100))
+            self.assertEqual(enemy_power, self.hero.modify_power(person=enemy, power=100))
+            self.assertTrue(friend_power < self.hero.modify_power(person=friend, power=100))
 
     def test_modify_place_power(self):
         self.hero.preferences.set_place(self.place_1)
@@ -330,7 +365,7 @@ class HeroTest(TestCase):
 
     def check_rests_from_risk(self, method):
         results = []
-        for risk_level in RISK_LEVEL.records:
+        for risk_level in relations.RISK_LEVEL.records:
             values = []
             self.hero.preferences.set_risk_level(risk_level)
             for health_percents in xrange(1, 100, 1):
@@ -356,13 +391,13 @@ class HeroTest(TestCase):
         self.hero.preferences.set_place(places_storage.all()[0])
         self.hero.preferences.set_friend(persons_storage.all()[0])
         self.hero.preferences.set_enemy(persons_storage.all()[1])
-        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.HAND_PRIMARY)
-        self.hero.preferences.set_favorite_item(EQUIPMENT_SLOT.HAND_PRIMARY)
-        self.hero.preferences.set_risk_level(RISK_LEVEL.VERY_HIGH)
+        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.HAND_PRIMARY)
+        self.hero.preferences.set_favorite_item(relations.EQUIPMENT_SLOT.HAND_PRIMARY)
+        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_HIGH)
         self.hero.preferences.set_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE)
 
 
-        for preference_type in PREFERENCE_TYPE.records:
+        for preference_type in relations.PREFERENCE_TYPE.records:
             self.hero.reset_preference(preference_type)
             self.assertEqual(self.hero.preferences.time_before_update(preference_type, datetime.datetime.now()), datetime.timedelta(seconds=0))
             if preference_type.nullable:
@@ -426,6 +461,17 @@ class HeroTest(TestCase):
                                                                         type=ACHIEVEMENT_TYPE.TIME,
                                                                         old_value=0,
                                                                         new_value=1)])
+
+
+    @mock.patch('the_tale.game.heroes.conf.heroes_settings.RARE_OPERATIONS_INTERVAL', 1)
+    def test_process_rare_operations__update_habits(self):
+        game_time = TimePrototype.get_current_time()
+        game_time.increment_turn()
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
+            self.hero.process_rare_operations()
+
+        self.assertEqual(update_habits.call_args_list, [mock.call(relations.HABIT_CHANGE_SOURCE.PERIODIC)])
 
 
     def test_get_achievement_type_value(self):
@@ -631,16 +677,16 @@ class HeroQuestsTest(TestCase):
 
     def test_special_quests_searchsmith_with_preferences_without_artifact(self):
         self.hero.equipment._remove_all()
-        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
+        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.PLATE)
         self.hero.save()
 
         self.assertTrue(SearchSmith.TYPE in self.hero.get_special_quests())
 
     def test_special_quests_searchsmith_with_preferences_with_artifact(self):
-        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
+        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.PLATE)
         self.hero.save()
 
-        self.assertTrue(self.hero.equipment.get(EQUIPMENT_SLOT.PLATE) is not None)
+        self.assertTrue(self.hero.equipment.get(relations.EQUIPMENT_SLOT.PLATE) is not None)
         self.assertTrue(SearchSmith.TYPE in self.hero.get_special_quests())
 
     def test_get_minimum_created_time_of_active_quests(self):

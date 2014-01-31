@@ -4,6 +4,7 @@ import datetime
 
 from questgen import facts, requirements
 from questgen import actions as questgen_actions
+from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS
 
 from dext.utils import s11n
 
@@ -37,6 +38,8 @@ from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.quests.logic import create_random_quest_for_hero
 from the_tale.game.quests.prototypes import QuestPrototype
 from the_tale.game.quests import exceptions
+
+from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
 
 
 class PrototypeTestsBase(testcase.TestCase):
@@ -298,11 +301,73 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertEqual(self.hero.money - not_scaled_money, int(1 + f.sell_artifact_price(self.hero.level) * 1.5))
 
 
+class InterpreterCallbacksTests(PrototypeTestsBase):
+
+    def setUp(self):
+        super(InterpreterCallbacksTests, self).setUp()
+
     def test_all_callbacks_exists(self):
         from questgen.logic import get_required_interpreter_methods
         for method_name in get_required_interpreter_methods():
             self.assertTrue(hasattr(self.quest, method_name))
 
+    def test_update_habits__on_jump_end__after_actions__no_markers__default(self):
+        jump = facts.Jump(state_from='state_from', state_to='state_to')
+        path = facts.ChoicePath(choice='some_choice', option=jump.uid, default=True)
+        self.quest.knowledge_base += path
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
+            self.quest.on_jump_end__after_actions(jump)
+        self.assertEqual(update_habits.call_args_list, [])
+
+    def test_update_habits__on_jump_end__after_actions__wrong_markers__default(self):
+        jump = facts.Option(state_from='state_from', state_to='state_to', markers=[666, 75], type='opt')
+        path = facts.ChoicePath(choice='some_choice', option=jump.uid, default=True)
+        self.quest.knowledge_base += path
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
+            self.quest.on_jump_end__after_actions(jump)
+        self.assertEqual(update_habits.call_args_list, [])
+
+    def test_update_habits__on_jump_end__after_actions__default(self):
+        jump = facts.Option(state_from='state_from', state_to='state_to', markers=[QUEST_OPTION_MARKERS.HONORABLE, QUEST_OPTION_MARKERS.AGGRESSIVE], type='opt')
+        path = facts.ChoicePath(choice='some_choice', option=jump.uid, default=True)
+        self.quest.knowledge_base += path
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
+            self.quest.on_jump_end__after_actions(jump)
+        self.assertEqual(update_habits.call_args_list, [mock.call(HABIT_CHANGE_SOURCE.QUEST_HONORABLE_DEFAULT),
+                                                         mock.call(HABIT_CHANGE_SOURCE.QUEST_AGGRESSIVE_DEFAULT)])
+
+
+
+    def test_update_habits__on_jump_end__after_actions__no_markers(self):
+        jump = facts.Jump(state_from='state_from', state_to='state_to')
+        path = facts.ChoicePath(choice='some_choice', option=jump.uid, default=False)
+        self.quest.knowledge_base += path
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
+            self.quest.on_jump_end__after_actions(jump)
+        self.assertEqual(update_habits.call_args_list, [])
+
+    def test_update_habits__on_jump_end__after_actions__wrong_markers(self):
+        jump = facts.Option(state_from='state_from', state_to='state_to', markers=[666, 75], type='opt')
+        path = facts.ChoicePath(choice='some_choice', option=jump.uid, default=False)
+        self.quest.knowledge_base += path
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
+            self.quest.on_jump_end__after_actions(jump)
+        self.assertEqual(update_habits.call_args_list, [])
+
+    def test_update_habits__on_jump_end__after_actions(self):
+        jump = facts.Option(state_from='state_from', state_to='state_to', markers=[QUEST_OPTION_MARKERS.HONORABLE, QUEST_OPTION_MARKERS.AGGRESSIVE], type='opt')
+        path = facts.ChoicePath(choice='some_choice', option=jump.uid, default=False)
+        self.quest.knowledge_base += path
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
+            self.quest.on_jump_end__after_actions(jump)
+        self.assertEqual(update_habits.call_args_list, [mock.call(HABIT_CHANGE_SOURCE.QUEST_HONORABLE),
+                                                         mock.call(HABIT_CHANGE_SOURCE.QUEST_AGGRESSIVE)])
 
 
 class CheckRequirementsTests(PrototypeTestsBase):

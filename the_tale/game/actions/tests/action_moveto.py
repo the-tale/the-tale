@@ -4,10 +4,11 @@ import mock
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
+
 from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.relations import HABIT_HONOR_INTERVAL
+
 from the_tale.game.logic_storage import LogicStorage
-
-
 from the_tale.game.balance import formulas as f, constants as c, enums as e
 
 from the_tale.game.logic import create_test_map
@@ -16,10 +17,11 @@ from the_tale.game.actions.prototypes import ActionResurrectPrototype, ActionBat
 from the_tale.game.prototypes import TimePrototype
 
 
-class MoveToActionTest(testcase.TestCase):
+
+class BaseMoveToActionTest(testcase.TestCase):
 
     def setUp(self):
-        super(MoveToActionTest, self).setUp()
+        super(BaseMoveToActionTest, self).setUp()
 
         self.p1, self.p2, self.p3 = create_test_map()
 
@@ -35,8 +37,10 @@ class MoveToActionTest(testcase.TestCase):
         self.action_move = ActionMoveToPrototype.create(hero=self.hero, destination=self.p3)
 
 
-    def tearDown(self):
-        pass
+
+@mock.patch('the_tale.game.balance.constants.PICKED_UP_IN_ROAD_PROBABILITY', 0)
+class MoveToActionTest(BaseMoveToActionTest):
+
 
     def test_create(self):
         self.assertEqual(self.action_idl.leader, False)
@@ -260,6 +264,7 @@ class MoveToActionTest(testcase.TestCase):
         self.assertEqual(self.action_move.percents, 1)
 
 
+@mock.patch('the_tale.game.balance.constants.PICKED_UP_IN_ROAD_PROBABILITY', 0)
 class MoveToActionWithBreaksTest(testcase.TestCase):
 
     def setUp(self):
@@ -303,4 +308,22 @@ class MoveToActionWithBreaksTest(testcase.TestCase):
             current_time.increment_turn()
 
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionInPlacePrototype.TYPE)
+        self.storage._test_save()
+
+
+@mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.RIGHT_3)
+@mock.patch('the_tale.game.balance.constants.PICKED_UP_IN_ROAD_PROBABILITY', 1.01)
+class MoveToActionPickedUpTest(BaseMoveToActionTest):
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    def test_short_teleport_called(self):
+
+        self.storage.process_turn(second_step_if_needed=False)
+
+        with mock.patch('the_tale.game.actions.prototypes.ActionMoveToPrototype.short_teleport') as short_teleport:
+            self.storage.process_turn(second_step_if_needed=False)
+
+        self.assertEqual(short_teleport.call_args_list, [mock.call(c.PICKED_UP_IN_ROAD_TELEPORT_LENGTH)])
+
         self.storage._test_save()

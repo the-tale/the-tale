@@ -10,20 +10,24 @@ class EquipmentException(Exception): pass
 
 class Bag(object):
 
-    __init__ = ('next_uuid', 'updated', 'bag')
+    __slots__ = ('next_uuid', 'updated', 'bag')
 
     def __init__(self):
         self.next_uuid = 0
         self.updated = True
         self.bag = {}
 
-    def deserialize(self, data):
-        # return
-        self.next_uuid = data.get('next_uuid', 0)
-        self.bag = {}
+    @classmethod
+    def deserialize(cls, hero, data):
+        obj = cls()
+
+        obj.next_uuid = data.get('next_uuid', 0)
+        obj.bag = {}
         for uuid, artifact_data in data.get('bag', {}).items():
             artifact = ArtifactPrototype.deserialize(artifact_data)
-            self.bag[int(uuid)] = artifact
+            obj.bag[int(uuid)] = artifact
+
+        return obj
 
     def serialize(self):
         return { 'next_uuid': self.next_uuid,
@@ -121,8 +125,11 @@ class Equipment(object):
     def serialize(self):
         return dict( (slot, artifact.serialize()) for slot, artifact in self.equipment.items() if artifact )
 
-    def deserialize(self, data):
-        self.equipment = dict( (int(slot), ArtifactPrototype.deserialize(artifact_data)) for slot, artifact_data in data.items() if  artifact_data)
+    @classmethod
+    def deserialize(cls, hero, data):
+        obj = cls()
+        obj.equipment = dict( (int(slot), ArtifactPrototype.deserialize(artifact_data)) for slot, artifact_data in data.items() if  artifact_data)
+        return obj
 
     def unequip(self, slot):
         if slot.value not in self.equipment:

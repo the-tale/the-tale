@@ -8,6 +8,8 @@ from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.heroes.logic import create_mob_for_hero
+from the_tale.game.heroes.relations import HABIT_HONOR_INTERVAL
+
 from the_tale.game.logic import create_test_map
 from the_tale.game.actions.prototypes import ActionBattlePvE1x1Prototype
 from the_tale.game.prototypes import TimePrototype
@@ -29,7 +31,8 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.storage.add_hero(self.hero)
         self.action_idl = self.hero.actions.current_action
 
-        self.action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=create_mob_for_hero(self.hero))
+        with mock.patch('the_tale.game.balance.constants.KILL_BEFORE_BATTLE_PROBABILITY', 0):
+            self.action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=create_mob_for_hero(self.hero))
 
     def tearDown(self):
         pass
@@ -39,6 +42,8 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(self.action_idl.leader, False)
         self.assertEqual(self.action_battle.leader, True)
         self.assertEqual(self.action_battle.bundle_id, self.action_idl.bundle_id)
+        self.assertEqual(self.action_battle.percents, 0.0)
+        self.assertEqual(self.action_battle.state, self.action_battle.STATE.BATTLE_RUNNING)
         self.storage._test_save()
 
     @mock.patch('the_tale.game.actions.prototypes.battle.make_turn', lambda a, b, c: None)
@@ -142,3 +147,12 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.action_battle.hero.kill()
 
         self.assertEqual(self.action_battle.HELP_CHOICES, set((HELP_CHOICES.RESURRECT,)))
+
+    @mock.patch('the_tale.game.balance.constants.KILL_BEFORE_BATTLE_PROBABILITY', 1.01)
+    @mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.LEFT_3)
+    def test_kill_before_start(self):
+        with self.check_delta(lambda: self.hero.statistics.pve_kills, 1):
+            action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=create_mob_for_hero(self.hero))
+
+        self.assertEqual(action_battle.percents, 1.0)
+        self.assertEqual(action_battle.state, self.action_battle.STATE.BATTLE_RUNNING)

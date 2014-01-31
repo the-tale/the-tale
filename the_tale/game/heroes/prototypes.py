@@ -33,17 +33,19 @@ from the_tale.game.quests.container import QuestsContainer
 from the_tale.game.heroes.statistics import HeroStatistics
 from the_tale.game.heroes.models import Hero, HeroPreferences
 from the_tale.game.heroes.habilities import AbilitiesPrototype
-from the_tale.game.heroes.habilities.relations import MODIFIERS as HABILITY_MODIFIERS
 from the_tale.game.heroes.conf import heroes_settings
 from the_tale.game.heroes import exceptions
 from the_tale.game.heroes.pvp import PvPData
 from the_tale.game.heroes.messages import MessagesContainer
 from the_tale.game.heroes.places_help_statistics import PlacesHelpStatistics
-from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE, EQUIPMENT_SLOT, RISK_LEVEL, MONEY_SOURCE
+from the_tale.game.heroes import relations
+from the_tale.game.heroes import habits
+from the_tale.game.heroes import logic_accessors
+from the_tale.game.heroes import bag
 
 
 
-class HeroPrototype(BasePrototype):
+class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
     _model_class = Hero
     _readonly = ('id', 'account_id', 'created_at_turn', 'name', 'experience', 'money', 'next_spending', 'energy', 'level', 'saved_at_turn', 'saved_at', 'is_bot')
     _bidirectional = ('is_alive',
@@ -58,19 +60,19 @@ class HeroPrototype(BasePrototype):
                       'premium_state_end_at',
                       'ban_state_end_at',
                       'energy_bonus',
-                      'last_rare_operation_at_turn')
+                      'last_rare_operation_at_turn',
+                      'health')
     _get_by = ('id', 'account_id')
     _serialization_proxies = (('quests', QuestsContainer, heroes_settings.UNLOAD_TIMEOUT),
                               ('places_history', PlacesHelpStatistics, heroes_settings.UNLOAD_TIMEOUT),
                               ('pvp', PvPData, heroes_settings.UNLOAD_TIMEOUT),
                               ('diary', MessagesContainer, heroes_settings.UNLOAD_TIMEOUT),
-                              ('abilities', AbilitiesPrototype, None))
+                              ('abilities', AbilitiesPrototype, None),
+                              ('bag', bag.Bag, None),
+                              ('equipment', bag.Equipment, None))
 
     @classmethod
     def live_query(cls): return cls._model_class.objects.filter(is_fast=False, is_bot=False)
-
-    def __init__(self, **kwargs):
-        super(HeroPrototype, self).__init__(**kwargs)
 
     @property
     def is_premium(self):
@@ -99,17 +101,11 @@ class HeroPrototype(BasePrototype):
     def is_ui_continue_caching_required(self, ui_caching_started_at):
         return ui_caching_started_at + heroes_settings.UI_CACHING_TIME - heroes_settings.UI_CACHING_CONTINUE_TIME < time.time()
 
-    @property
-    def is_short_quest_path_required(self):
-        return self.level < c.QUESTS_SHORT_PATH_LEVEL_CAP
-
-    @property
-    def is_first_quest_path_required(self):
-        return self.statistics.quests_done == 0
-
     ###########################################
     # Base attributes
     ###########################################
+
+    mob_type = None
 
     @property
     def gender_verbose(self): return self.gender.text
@@ -139,10 +135,6 @@ class HeroPrototype(BasePrototype):
 
     def add_energy_bonus(self, energy):
         self.energy_bonus += energy
-
-    def get_health(self): return self._model.health
-    def set_health(self, value): self._model.health = int(value)
-    health = property(get_health, set_health)
 
     @property
     def health_percents(self): return float(self.health) / self.max_health
@@ -184,29 +176,17 @@ class HeroPrototype(BasePrototype):
         created_at = cls._model_class.objects.all().aggregate(Min('quest_created_time'))['quest_created_time__min']
         return created_at if created_at is not None else datetime.datetime.now()
 
-    @property
-    def bag(self):
-        if not hasattr(self, '_bag'):
-            from .bag import Bag
-            self._bag = Bag()
-            self._bag.deserialize(s11n.from_json(self._model.bag))
-        return self._bag
-
-    @property
-    def bag_is_full(self): return self.bag.occupation >= self.max_bag_size
-
     def put_loot(self, artifact):
         if not self.bag_is_full:
             self.bag.put_artifact(artifact)
             return artifact.bag_uuid
-
 
     def pop_loot(self, artifact):
         self.bag.pop_artifact(artifact)
 
     def buy_artifact_choices(self, equip, with_prefered_slot):
 
-        allowed_slots = list(EQUIPMENT_SLOT.records)
+        allowed_slots = list(relations.EQUIPMENT_SLOT.records)
 
         if self.preferences.favorite_item and equip:
             allowed_slots.remove(self.preferences.favorite_item)
@@ -265,34 +245,17 @@ class HeroPrototype(BasePrototype):
         sell_price = self.modify_sell_price(sell_price)
 
         if artifact.is_useless:
-            money_source = MONEY_SOURCE.EARNED_FROM_LOOT
+            money_source = relations.MONEY_SOURCE.EARNED_FROM_LOOT
         else:
-            money_source = MONEY_SOURCE.EARNED_FROM_ARTIFACTS
+            money_source = relations.MONEY_SOURCE.EARNED_FROM_ARTIFACTS
 
         self.change_money(money_source, sell_price)
         self.bag.pop_artifact(artifact)
 
         return sell_price
 
-    def modify_sell_price(self, price):
-        price = self.abilities.modify_attribute(HABILITY_MODIFIERS.SELL_PRICE, price)
-
-        if self.position.place and self.position.place.modifier:
-            price = self.position.place.modifier.modify_sell_price(price)
-
-        return int(round(price))
-
-    def modify_buy_price(self, price):
-        price = self.abilities.modify_attribute(HABILITY_MODIFIERS.BUY_PRICE, price)
-
-        if self.position.place and self.position.place.modifier:
-            price = self.position.place.modifier.modify_buy_price(price)
-
-        return int(round(price))
-
-
     def sharp_artifact(self):
-        choices = list(EQUIPMENT_SLOT.records)
+        choices = list(relations.EQUIPMENT_SLOT.records)
         random.shuffle(choices)
 
         if self.preferences.equipment_slot is not None:
@@ -361,26 +324,6 @@ class HeroPrototype(BasePrototype):
             self.bag.pop_artifact(equipped)
             self.equipment.equip(slot, equipped)
 
-    def can_get_artifact_for_quest(self):
-        return self.abilities.check_attribute(HABILITY_MODIFIERS.GET_ARTIFACT_FOR_QUEST)
-
-    def can_buy_better_artifact(self):
-        if self.abilities.check_attribute(HABILITY_MODIFIERS.BUY_BETTER_ARTIFACT):
-            return True
-
-        if self.position.place and self.position.place.modifier and self.position.place.modifier.can_buy_better_artifact():
-            return True
-
-        return False
-
-    @property
-    def equipment(self):
-        if not hasattr(self, '_equipment'):
-            from .bag import Equipment
-            self._equipment = Equipment()
-            self._equipment.deserialize(s11n.from_json(self._model.equipment))
-        return self._equipment
-
     @property
     def is_name_changed(self):
         return bool(self._model.name_forms)
@@ -403,15 +346,7 @@ class HeroPrototype(BasePrototype):
     normalized_name = property(get_normalized_name, set_normalized_name)
 
     def switch_spending(self):
-        priorities = {record:record.priority for record in ITEMS_OF_EXPENDITURE.records}
-        priorities = self.abilities.modify_attribute(HABILITY_MODIFIERS.ITEMS_OF_EXPENDITURE_PRIORITIES, priorities)
-        self._model.next_spending = random_value_by_priority(list(priorities.items()))
-
-    @property
-    def energy_maximum(self):
-        if self.is_premium:
-            return c.ANGEL_ENERGY_MAX + c.ANGEL_ENERGY_PREMIUM_BONUS
-        return c.ANGEL_ENERGY_MAX
+        self._model.next_spending = random_value_by_priority(list(self.spending_priorities().items()))
 
     @property
     def energy_full(self):
@@ -435,9 +370,6 @@ class HeroPrototype(BasePrototype):
         return self.energy_full - old_energy
 
     @property
-    def might_crit_chance(self): return self.abilities.modify_attribute(HABILITY_MODIFIERS.MIGHT_CRIT_CHANCE, f.might_crit_chance(self.might))
-
-    @property
     def might_pvp_effectiveness_bonus(self): return f.might_pvp_effectiveness_bonus(self.might)
 
     def on_highlevel_data_updated(self):
@@ -456,52 +388,40 @@ class HeroPrototype(BasePrototype):
                                     self.preferences.enemy.id if self.preferences.enemy else None):
             power *= c.HERO_POWER_PREFERENCE_MULTIPLIER
 
+        if person and self.preferences.friend and person.id == self.preferences.friend.id:
+            power *= self.friend_power_modifier
+
+        if person and self.preferences.enemy and person.id == self.preferences.enemy.id:
+            power *= self.enemy_power_modifier
+
         if self.preferences.place and place.id == self.preferences.place.id:
             power *= c.HERO_POWER_PREFERENCE_MULTIPLIER
 
         return int(power * self.person_power_modifier)
 
-    ###########################################
-    # Secondary attributes
-    ###########################################
+    @lazy_property
+    def habit_honor(self): return habits.Honor(self, 'honor', relations.HABIT_HONOR_INTERVAL)
 
-    @property
-    def damage_modifier(self): return self.abilities.modify_attribute(HABILITY_MODIFIERS.DAMAGE, 1)
+    @lazy_property
+    def habit_aggressiveness(self): return habits.Aggressiveness(self, 'aggressiveness', relations.HABIT_AGGRESSIVENESS_INTERVAL)
 
-    @property
-    def move_speed(self): return self.abilities.modify_attribute(HABILITY_MODIFIERS.SPEED, c.HERO_MOVE_SPEED)
+    def update_habits(self, change_source):
 
-    @property
-    def initiative(self): return self.abilities.modify_attribute(HABILITY_MODIFIERS.INITIATIVE, 1)
+        if change_source.correlation_requirements is None:
+            self.habit_honor.change(change_source.honor)
+            self.habit_aggressiveness.change(change_source.aggressiveness)
 
-    @property
-    def max_health(self): return int(f.hp_on_lvl(self.level) * self.abilities.modify_attribute(HABILITY_MODIFIERS.HEALTH, 1))
+        elif change_source.correlation_requirements:
+            if self.habit_honor.raw_value * change_source.honor > 0:
+                self.habit_honor.change(change_source.honor)
+            if self.habit_aggressiveness.raw_value * change_source.aggressiveness > 0:
+                self.habit_aggressiveness.change(change_source.aggressiveness)
 
-    @property
-    def max_bag_size(self): return self.abilities.modify_attribute(HABILITY_MODIFIERS.MAX_BAG_SIZE, c.MAX_BAG_SIZE)
-
-    @property
-    def experience_modifier(self):
-        if self.is_banned:
-            modifier = 0.0
-        elif self.is_premium:
-            modifier = c.EXP_FOR_PREMIUM_ACCOUNT
-        elif self.is_active:
-            modifier = c.EXP_FOR_NORMAL_ACCOUNT
         else:
-            modifier = c.EXP_FOR_NORMAL_ACCOUNT * c.EXP_PENALTY_MULTIPLIER
-
-        modifier *= self.preferences.risk_level.experience_modifier
-
-        return self.abilities.modify_attribute(HABILITY_MODIFIERS.EXPERIENCE, modifier)
-
-    @property
-    def person_power_modifier(self):
-        return self.abilities.modify_attribute(HABILITY_MODIFIERS.POWER, max(math.log(self.level, 2), 0.5)) * self.preferences.risk_level.power_modifier
-
-    @property
-    def reward_modifier(self):
-        return self.preferences.risk_level.reward_modifier
+            if self.habit_honor.raw_value * change_source.honor < 0:
+                self.habit_honor.change(change_source.honor)
+            if self.habit_aggressiveness.raw_value * change_source.aggressiveness < 0:
+                self.habit_aggressiveness.change(change_source.aggressiveness)
 
     ###########################################
     # Permissions
@@ -553,14 +473,14 @@ class HeroPrototype(BasePrototype):
         if preferences.energy_regeneration_type is None:
             preferences.set_energy_regeneration_type(self.race.energy_regeneration, change_time=datetime.datetime.fromtimestamp(0))
         if preferences.risk_level is None:
-            preferences.set_risk_level(RISK_LEVEL.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
+            preferences.set_risk_level(relations.RISK_LEVEL.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
         return preferences
 
     def reset_preference(self, preference_type):
         if preference_type.is_ENERGY_REGENERATION_TYPE:
             self.preferences.set_energy_regeneration_type(self.race.energy_regeneration, change_time=datetime.datetime.fromtimestamp(0))
         elif preference_type.is_RISK_LEVEL:
-            self.preferences.set_risk_level(RISK_LEVEL.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
+            self.preferences.set_risk_level(relations.RISK_LEVEL.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
         else:
             self.preferences._reset(preference_type)
 
@@ -614,13 +534,11 @@ class HeroPrototype(BasePrototype):
         self._model.saved_at = datetime.datetime.now()
 
         if self.bag.updated:
-            self._model.bag = s11n.to_json(self.bag.serialize())
-            self.bag.updated = False
+            self.bag.serialize()
 
         if self.equipment.updated:
-            self._model.equipment = s11n.to_json(self.equipment.serialize())
             self._model.raw_power = self.power
-            self.equipment.updated = False
+            self.equipment.serialize()
 
         if self.abilities.updated:
             self.abilities.serialize()
@@ -653,19 +571,12 @@ class HeroPrototype(BasePrototype):
 
         database.raw_save(self._model)
 
-
-    def postturn_operations(self):
-        self.quests.try_unload()
-        self.diary.try_unload()
-        self.pvp.try_unload()
-        self.places_history.try_unload()
-
     def reset_level(self):
         self._model.level = 1
         self.abilities.reset()
 
     def randomize_equip(self):
-        for slot in EQUIPMENT_SLOT.records:
+        for slot in relations.EQUIPMENT_SLOT.records:
             self.equipment.unequip(slot)
 
             artifacts_list = artifacts_storage.artifacts_for_type([slot.artifact_type])
@@ -837,7 +748,7 @@ class HeroPrototype(BasePrototype):
                                    messages=s11n.to_json(messages.serialize()),
                                    diary=s11n.to_json(diary.serialize()),
                                    name=name,
-                                   next_spending=ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT,
+                                   next_spending=relations.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT,
                                    health=f.hp_on_lvl(1),
                                    energy=c.ANGEL_ENERGY_MAX,
                                    pos_place = start_place._model)
@@ -846,7 +757,7 @@ class HeroPrototype(BasePrototype):
 
         HeroPreferencesPrototype.create(hero,
                                         energy_regeneration_type=hero.preferences.energy_regeneration_type,
-                                        risk_level=RISK_LEVEL.NORMAL)
+                                        risk_level=relations.RISK_LEVEL.NORMAL)
 
         storage = LogicStorage() # tmp storage for creating Idleness action
 
@@ -921,6 +832,8 @@ class HeroPrototype(BasePrototype):
 
         with achievements_storage.verify(type=ACHIEVEMENT_TYPE.TIME, object=self):
             self.last_rare_operation_at_turn = current_turn
+
+        self.update_habits(relations.HABIT_CHANGE_SOURCE.PERIODIC)
 
 
 

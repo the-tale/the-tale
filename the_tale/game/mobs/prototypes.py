@@ -15,7 +15,7 @@ from the_tale.game.balance import formulas as f
 from the_tale.game.map.relations import TERRAIN
 
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
-from the_tale.game.heroes.habilities.relations import MODIFIERS as HABILITY_MODIFIERS
+from the_tale.game.heroes.relations import MODIFIERS as HERO_MODIFIERS
 
 from the_tale.game.artifacts.storage import artifacts_storage
 
@@ -39,9 +39,9 @@ class MobPrototype(object):
 
         self.abilities = self._produce_abilities(record, level) if abilities is None else abilities
 
-        self.initiative = self.abilities.modify_attribute(HABILITY_MODIFIERS.INITIATIVE, 1)
-        self.health_cooficient = self.abilities.modify_attribute(HABILITY_MODIFIERS.HEALTH, 1)
-        self.damage_modifier = self.abilities.modify_attribute(HABILITY_MODIFIERS.DAMAGE, 1)
+        self.initiative = self.abilities.modify_attribute(HERO_MODIFIERS.INITIATIVE, 1)
+        self.health_cooficient = self.abilities.modify_attribute(HERO_MODIFIERS.HEALTH, 1)
+        self.damage_modifier = self.abilities.modify_attribute(HERO_MODIFIERS.DAMAGE, 1)
 
         if self.is_boss:
             self.max_health = int(f.boss_hp_to_lvl(level) * self.health_cooficient)
@@ -74,6 +74,9 @@ class MobPrototype(object):
 
     @property
     def basic_damage(self): return f.expected_damage_to_hero_per_hit(self.level) * self.damage_modifier
+
+    @property
+    def mob_type(self): return self.record.type
 
     def strike_by(self, percents):
         self.health = max(0, self.health - self.max_health * percents)
@@ -203,6 +206,9 @@ class MobRecordPrototype(BasePrototype):
         mobs_storage.update_version()
 
         return prototype
+
+    def update_context(self, enemy):
+        self.abilities.update_context(self, enemy)
 
     @classmethod
     def get_available_abilities(cls):

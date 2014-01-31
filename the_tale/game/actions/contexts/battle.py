@@ -29,6 +29,23 @@ class Damage(object):
 
 class BattleContext(object):
 
+    __slots__ = ('ability_magic_mushroom',
+                 'ability_sidestep',
+                 'stun_length',
+                 'crit_chance',
+                 'berserk_damage_modifier',
+                 'ninja',
+                 'damage_queue_fire',
+                 'damage_queue_poison',
+                 'initiative_queue',
+                 'incoming_magic_damage_modifier',
+                 'incoming_physic_damage_modifier',
+                 'outcoming_magic_damage_modifier',
+                 'outcoming_physic_damage_modifier',
+                 'pvp_advantage',
+                 'pvp_advantage_used',
+                 'pvp_advantage_strike_damage')
+
     def __init__(self):
         self.ability_magic_mushroom = []
         self.ability_sidestep = []
@@ -56,7 +73,7 @@ class BattleContext(object):
 
     def use_stun(self, stun_length): self.stun_length = max(self.stun_length, stun_length + 1)
 
-    def use_crit_chance(self, crit_chance): self.crit_chance = crit_chance
+    def use_crit_chance(self, crit_chance): self.crit_chance += crit_chance
 
     def use_berserk(self, damage_modifier): self.berserk_damage_modifier = damage_modifier
 

@@ -75,6 +75,7 @@ class ActionBase(object):
     CONTEXT_MANAGER = None
     HELP_CHOICES = set()
     APPROVED_FOR_SECOND_STEP = True
+    AGGRESSIVE = False # for hero habits
 
     def __init__(self,
                  hero,
@@ -687,6 +688,42 @@ class ActionMoveToPrototype(ActionBase):
         if self.length is None:
             self.length = length
 
+    def normal_move(self):
+        if random.uniform(0, 1) < 0.33:
+            if self.destination.id != self.current_destination.id and random.uniform(0, 1) < 0.04: # TODO: change probability, when there are move phrases
+                self.hero.add_message('action_moveto_move_long_path',
+                                      hero=self.hero,
+                                      destination=self.destination,
+                                      current_destination=self.current_destination)
+            else:
+                self.hero.add_message('action_moveto_move',
+                                      hero=self.hero,
+                                      destination=self.destination,
+                                      current_destination=self.current_destination)
+
+        move_speed = self.hero.position.modify_move_speed(self.hero.move_speed)
+
+        delta = move_speed / self.hero.position.road.length
+
+        self.hero.position.percents += delta
+
+        real_length = self.length if self.break_at is None else self.length * self.break_at
+
+        if real_length > 0.001:
+            self.percents += move_speed / real_length
+        else:
+            self.percents = 1
+
+    def picked_up_in_road(self):
+        self.short_teleport(c.PICKED_UP_IN_ROAD_TELEPORT_LENGTH)
+
+        self.hero.add_message('action_moveto_picked_up_in_road',
+                              hero=self.hero,
+                              destination=self.destination,
+                              current_destination=self.current_destination)
+
+
+
     def process_moving(self):
         current_destination = self.current_destination
 
@@ -700,31 +737,10 @@ class ActionMoveToPrototype(ActionBase):
             self.state = self.STATE.BATTLE
 
         else:
-
-            if random.uniform(0, 1) < 0.33:
-                if self.destination.id != self.current_destination.id and random.uniform(0, 1) < 0.04: # TODO: change probability, when there are move phrases
-                    self.hero.add_message('action_moveto_move_long_path',
-                                          hero=self.hero,
-                                          destination=self.destination,
-                                          current_destination=self.current_destination)
-                else:
-                    self.hero.add_message('action_moveto_move',
-                                          hero=self.hero,
-                                          destination=self.destination,
-                                          current_destination=self.current_destination)
-
-            move_speed = self.hero.position.modify_move_speed(self.hero.move_speed)
-
-            delta = move_speed / self.hero.position.road.length
-
-            self.hero.position.percents += delta
-
-            real_length = self.length if self.break_at is None else self.length * self.break_at
-
-            if real_length > 0.001:
-                self.percents += move_speed / real_length
+            if self.hero.can_picked_up_in_road():
+                self.picked_up_in_road()
             else:
-                self.percents = 1
+                self.normal_move()
 
             if self.hero.position.percents >= 1:
                 self.hero.position.percents = 1
@@ -779,6 +795,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
     TYPE = 'BATTLE_PVE1x1'
     TEXTGEN_TYPE = 'action_battlepve1x1'
     CONTEXT_MANAGER = contexts.BattleContext
+    AGGRESSIVE = True
 
     @property
     def HELP_CHOICES(self): # pylint: disable=C0103
@@ -800,13 +817,27 @@ class ActionBattlePvE1x1Prototype(ActionBase):
 
     @classmethod
     def _create(cls, hero, bundle_id, mob):
+
+        kill_before_battle = hero.can_kill_before_battle()
+
+        if kill_before_battle:
+            percents = 1.0
+            hero.add_message('action_battlepve1x1_kill_before_start', hero=hero, mob=mob)
+        else:
+            percents = 0.0
+            hero.add_message('action_battlepve1x1_start', hero=hero, mob=mob)
+
         prototype = cls( hero=hero,
                          bundle_id=bundle_id,
                          context=cls.CONTEXT_MANAGER(),
                          mob=mob,
                          mob_context=cls.CONTEXT_MANAGER(),
+                         percents=percents,
                          state=cls.STATE.BATTLE_RUNNING)
-        hero.add_message('action_battlepve1x1_start', hero=hero, mob=mob)
+
+        if kill_before_battle:
+            prototype._kill_mob()
+
         return prototype
 
     def get_description_arguments(self):
@@ -840,6 +871,27 @@ class ActionBattlePvE1x1Prototype(ActionBase):
         self.updated = True
         return True
 
+    def _kill_mob(self):
+        self.mob.kill()
+        self.hero.statistics.change_pve_kills(1)
+
+        loot = self.mob.get_loot()
+
+        if loot is not None:
+            bag_uuid = self.hero.put_loot(loot)
+
+            if bag_uuid is not None:
+                if loot.is_useless:
+                    self.hero.statistics.change_loot_had(1)
+                else:
+                    self.hero.statistics.change_artifacts_had(1)
+                self.hero.add_message('action_battlepve1x1_put_loot', hero=self.hero, artifact=loot, mob=self.mob)
+            else:
+                self.hero.add_message('action_battlepve1x1_put_loot_no_space', hero=self.hero, artifact=loot, mob=self.mob)
+        else:
+            self.hero.add_message('action_battlepve1x1_no_loot', hero=self.hero, mob=self.mob)
+
+
     def process(self):
 
         if self.state == self.STATE.BATTLE_RUNNING:
@@ -858,30 +910,15 @@ class ActionBattlePvE1x1Prototype(ActionBase):
                 self.hero.statistics.change_pve_deaths(1)
                 self.hero.add_message('action_battlepve1x1_diary_hero_killed', diary=True, journal=False, hero=self.hero, mob=self.mob)
                 self.hero.add_message('action_battlepve1x1_journal_hero_killed', hero=self.hero, mob=self.mob)
+
                 self.state = self.STATE.PROCESSED
                 self.percents = 1.0
 
 
             if self.mob.health <= 0:
-                self.mob.kill()
-                self.hero.statistics.change_pve_kills(1)
                 self.hero.add_message('action_battlepve1x1_mob_killed', hero=self.hero, mob=self.mob)
 
-                loot = self.mob.get_loot()
-
-                if loot is not None:
-                    bag_uuid = self.hero.put_loot(loot)
-
-                    if bag_uuid is not None:
-                        if loot.is_useless:
-                            self.hero.statistics.change_loot_had(1)
-                        else:
-                            self.hero.statistics.change_artifacts_had(1)
-                        self.hero.add_message('action_battlepve1x1_put_loot', hero=self.hero, artifact=loot, mob=self.mob)
-                    else:
-                        self.hero.add_message('action_battlepve1x1_put_loot_no_space', hero=self.hero, artifact=loot, mob=self.mob)
-                else:
-                    self.hero.add_message('action_battlepve1x1_no_loot', hero=self.hero, mob=self.mob)
+                self._kill_mob()
 
                 self.percents = 1.0
                 self.state = self.STATE.PROCESSED

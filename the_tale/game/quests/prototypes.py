@@ -19,8 +19,8 @@ from the_tale.game.map.places.storage import places_storage
 from the_tale.game.map.roads.storage import waymarks_storage
 from the_tale.game.persons.storage import persons_storage
 
-from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE, MONEY_SOURCE
-from the_tale.game.heroes.habilities.relations import MODIFIERS as HABILITY_MODIFIERS
+from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE, MONEY_SOURCE, HABIT_CHANGE_SOURCE
+from the_tale.game.heroes.relations import MODIFIERS as HERO_MODIFIERS
 
 from the_tale.game.quests import exceptions
 from the_tale.game.quests import writers
@@ -413,7 +413,7 @@ class QuestPrototype(object):
 
         multiplier = (1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)) * scale
         money = 1 + int(f.sell_artifact_price(hero.level) * multiplier)
-        money = hero.abilities.modify_attribute(HABILITY_MODIFIERS.QUEST_MONEY_REWARD, money)
+        money = hero.abilities.modify_attribute(HERO_MODIFIERS.QUEST_MONEY_REWARD, money)
         hero.change_money(MONEY_SOURCE.EARNED_FROM_QUESTS, money)
 
         quest_info.process_message(knowledge_base=self.knowledge_base,
@@ -540,7 +540,15 @@ class QuestPrototype(object):
         pass
 
     def on_jump_end__after_actions(self, jump):
-        pass
+        if not isinstance(jump, facts.Option):
+            return
+
+        path = (path for path in self.knowledge_base.filter(facts.ChoicePath) if path.option == jump.uid).next()
+
+        for marker in jump.markers:
+            for change_source in HABIT_CHANGE_SOURCE.records:
+                if change_source.quest_marker == marker and change_source.quest_default == path.default:
+                    self.hero.update_habits(change_source)
 
     ################################
     # do action callbacks
