@@ -14,17 +14,16 @@
     <title>{% block title%}Сказка — многопользовательский тамагочи с изменяемым миром{% endblock %}</title>
 
     {% if settings.GA_CODE %}
-    <script type="text/javascript">
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', "{{ settings.GA_CODE }}" ]);
-      _gaq.push(['_trackPageview']);
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-      (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
-    </script>
+  ga('create', '{{ settings.GA_CODE }}', 'the-tale.org');
+  ga('send', 'pageview');
+
+</script>
     {% endif %}
 
     <link rel="stylesheet" type="text/css" href="{{ STATIC_CONTENT }}css/main.css" />
@@ -157,6 +156,7 @@ jQuery(document).ready(function() {
             {{ base_macros.main_menu_item("guide", "#", "Путеводитель", [(url("guide:game"), "Описание игры"),
                                                                          (url("guide:keepers"), "Хранители"),
                                                                          (url("guide:hero-abilities"), "Способности героев"),
+                                                                         (url("guide:hero-habits"), "Черты героев"),
                                                                          (url("guide:hero-preferences"), "Предпочтения героев"),
                                                                          (url("guide:quests"), "Задания"),
                                                                          (url("guide:persons"), "Жители Пандоры"),

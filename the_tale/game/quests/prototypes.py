@@ -29,9 +29,9 @@ from the_tale.game.quests.relations import ACTOR_TYPE, DONOTHING_TYPE
 E = 0.001
 
 class QuestInfo(object):
-    __slots__ = ('type', 'uid', 'name', 'action', 'choice', 'choice_alternatives', 'experience', 'power', 'actors')
+    __slots__ = ('type', 'uid', 'name', 'action', 'choice', 'choice_alternatives', 'experience', 'power', 'actors', 'used_markers')
 
-    def __init__(self, type, uid, name, action, choice, choice_alternatives, experience, power, actors):
+    def __init__(self, type, uid, name, action, choice, choice_alternatives, experience, power, actors, used_markers):
         self.type = type
         self.uid = uid
         self.name = name
@@ -41,6 +41,7 @@ class QuestInfo(object):
         self.experience = experience
         self.power = power
         self.actors = actors
+        self.used_markers = set(used_markers)
 
     def serialize(self):
         return {'type': self.type,
@@ -51,7 +52,8 @@ class QuestInfo(object):
                 'choice_alternatives': self.choice_alternatives,
                 'experience': self.experience,
                 'power': self.power,
-                'actors': self.actors}
+                'actors': self.actors,
+                'used_markers': list(self.used_markers)}
 
     def ui_info(self, hero):
         return {'type': self.type,
@@ -94,6 +96,9 @@ class QuestInfo(object):
 
     @classmethod
     def deserialize(cls, data):
+        # TODO: remove after v0.3.9
+        if 'used_markers' not in data:
+            data['used_markers'] = set()
         return cls(**data)
 
     @classmethod
@@ -113,7 +118,8 @@ class QuestInfo(object):
                    choice_alternatives=[],
                    experience=cls.get_expirience_for_quest(hero),
                    power=cls.get_person_power_for_quest(hero),
-                   actors=actors)
+                   actors=actors,
+                   used_markers=set())
 
     @classmethod
     def substitution(cls, uid, knowledge_base, hero):
@@ -190,6 +196,17 @@ class QuestInfo(object):
     def get_person_power_for_quest(cls, hero):# pylint: disable=W0613
         return f.person_power_for_quest(waymarks_storage.average_path_length)
 
+    def get_real_reward_scale(self, hero, scale):
+
+        scale *= hero.reward_modifier
+
+        markers_bonuses = hero.quest_markers_rewards_bonus()
+        for marker in self.used_markers:
+            scale *= (1 + markers_bonuses.get(marker, 0))
+
+        return scale
+
+
 
 NO_QUEST_INFO__IN_PLACE = QuestInfo(type='no-quest',
                                     uid='no-quest',
@@ -199,7 +216,8 @@ NO_QUEST_INFO__IN_PLACE = QuestInfo(type='no-quest',
                                     choice_alternatives=(),
                                     experience=None,
                                     power=None,
-                                    actors={})
+                                    actors={},
+                                    used_markers=set())
 
 NO_QUEST_INFO__OUT_PLACE = QuestInfo(type='no-quest',
                                      uid='no-quest',
@@ -209,7 +227,8 @@ NO_QUEST_INFO__OUT_PLACE = QuestInfo(type='no-quest',
                                      choice_alternatives=(),
                                      experience=None,
                                      power=None,
-                                     actors={})
+                                     actors={},
+                                     used_markers=set())
 
 
 class QuestPrototype(object):
@@ -396,9 +415,9 @@ class QuestPrototype(object):
 
     def _give_reward(self, hero, reward_type, scale):
 
-        scale *= hero.reward_modifier
-
         quest_info = self.quests_stack[-1]
+
+        scale = quest_info.get_real_reward_scale(hero, scale)
 
         if hero.can_get_artifact_for_quest():
             artifact, unequipped, sell_price = hero.buy_artifact(better=False, with_prefered_slot=False, equip=False)# pylint: disable=W0612
@@ -544,6 +563,8 @@ class QuestPrototype(object):
             return
 
         path = (path for path in self.knowledge_base.filter(facts.ChoicePath) if path.option == jump.uid).next()
+
+        self.quests_stack[-1].used_markers |= set(jump.markers)
 
         for marker in jump.markers:
             for change_source in HABIT_CHANGE_SOURCE.records:
@@ -747,5 +768,6 @@ class QuestPrototype(object):
                                        choice_alternatives=(),
                                        experience=None,
                                        power=None,
-                                       actors={'goal': (spending, u'цель')})
+                                       actors={'goal': (spending, u'цель')},
+                                       used_markers=set())
         return {'line': [NEXT_SPENDING_INFO.ui_info(None)]}

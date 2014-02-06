@@ -44,7 +44,9 @@ class BattleContext(object):
                  'outcoming_physic_damage_modifier',
                  'pvp_advantage',
                  'pvp_advantage_used',
-                 'pvp_advantage_strike_damage')
+                 'pvp_advantage_strike_damage',
+                 'first_srike',
+                 'turn')
 
     def __init__(self):
         self.ability_magic_mushroom = []
@@ -57,6 +59,8 @@ class BattleContext(object):
         self.damage_queue_poison = []
         self.initiative_queue = []
 
+        self.first_srike = False
+
         self.incoming_magic_damage_modifier = 1.0
         self.incoming_physic_damage_modifier = 1.0
 
@@ -66,6 +70,7 @@ class BattleContext(object):
         self.pvp_advantage = 0
         self.pvp_advantage_used = False
         self.pvp_advantage_strike_damage = 0
+        self.turn = 0
 
     def use_ability_magic_mushroom(self, damage_factors): self.ability_magic_mushroom = [None] + damage_factors
 
@@ -78,6 +83,8 @@ class BattleContext(object):
     def use_berserk(self, damage_modifier): self.berserk_damage_modifier = damage_modifier
 
     def use_ninja(self, probability): self.ninja = probability
+
+    def use_first_strike(self): self.first_srike = True
 
     def use_damage_queue_fire(self, damage_queue):
         self.damage_queue_fire = map(lambda queue, delta: (delta if delta else 0) + (queue if queue else 0), self.damage_queue_fire, [None]+damage_queue) # pylint: disable=W0110
@@ -170,6 +177,8 @@ class BattleContext(object):
 
         self.pvp_advantage_used = False
 
+        self.turn += 1
+
     def on_own_turn(self):
         if self.ability_magic_mushroom:
             self.ability_magic_mushroom.pop(0)
@@ -200,7 +209,10 @@ class BattleContext(object):
 
                  'pvp_advantage': self.pvp_advantage,
                  'pvp_advantage_used': self.pvp_advantage_used,
-                 'pvp_advantage_strike_damage': self.pvp_advantage_strike_damage}
+                 'pvp_advantage_strike_damage': self.pvp_advantage_strike_damage,
+
+                 'first_srike': self.first_srike,
+                 'turn': self.turn}
 
     @classmethod
     def deserialize(cls, data):
@@ -208,7 +220,6 @@ class BattleContext(object):
 
         context.ability_magic_mushroom = data.get('ability_magic_mushroom', [])
         context.ability_sidestep = data.get('ability_sidestep', [])
-        context.stun_turns = data.get('stun_length', 0)
         context.crit_chance = data.get('crit_chance', 0)
         context.berserk_damage_modifier = data.get('berserk_damage_modifier', 1.0)
         context.ninja = data.get('ninja', 0)
@@ -224,6 +235,9 @@ class BattleContext(object):
         context.pvp_advantage = data.get('pvp_advantage', 0)
         context.pvp_advantage_used = data.get('pvp_advantage_used', False)
         context.pvp_advantage_strike_damage = data.get('pvp_advantage_strike_damage', 0)
+
+        context.first_srike = data.get('first_srike', False)
+        context.turn = data.get('turn', 0)
 
         return context
 
@@ -246,4 +260,7 @@ class BattleContext(object):
 
                 self.pvp_advantage == other.pvp_advantage and
                 self.pvp_advantage_used == other.pvp_advantage_used and
-                self.pvp_advantage_strike_damage == other.pvp_advantage_strike_damage)
+                self.pvp_advantage_strike_damage == other.pvp_advantage_strike_damage and
+
+                self.first_srike == other.first_srike and
+                self.turn == other.turn)

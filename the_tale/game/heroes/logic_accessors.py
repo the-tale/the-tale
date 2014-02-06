@@ -45,6 +45,18 @@ class LogicAccessorsMixin(object):
 
         return int(round(price))
 
+    def modify_quest_priority(self, quest):
+
+        priority = quest.priority
+
+        if quest.is_HELP_FRIEND:
+            priority = self.modify_attribute(relations.MODIFIERS.FRIEND_QUEST_PRIORITY, priority)
+
+        if quest.is_INTERFERE_ENEMY:
+            priority = self.modify_attribute(relations.MODIFIERS.ENEMY_QUEST_PRIORITY, priority)
+
+        return priority
+
     ################################
     # checkers
     ################################
@@ -64,8 +76,16 @@ class LogicAccessorsMixin(object):
     def can_kill_before_battle(self):
         return self.check_attribute(relations.MODIFIERS.KILL_BEFORE_BATTLE)
 
+    def can_peacefull_battle(self, mob_type):
+        if mob_type.is_CIVILIZED:
+            return self.check_attribute(relations.MODIFIERS.PEACEFULL_BATTLE)
+        return False
+
     def can_picked_up_in_road(self):
         return self.check_attribute(relations.MODIFIERS.PICKED_UP_IN_ROAD)
+
+    def can_get_exp_for_kill(self):
+        return self.check_attribute(relations.MODIFIERS.EXP_FOR_KILL)
 
     @property
     def is_short_quest_path_required(self):
@@ -140,3 +160,12 @@ class LogicAccessorsMixin(object):
     def spending_priorities(self):
         priorities = {record:record.priority for record in relations.ITEMS_OF_EXPENDITURE.records}
         return self.modify_attribute(relations.MODIFIERS.ITEMS_OF_EXPENDITURE_PRIORITIES, priorities)
+
+    def prefered_quest_markers(self):
+        return self.modify_attribute(relations.MODIFIERS.QUEST_MARKERS, set())
+
+    def quest_markers_rewards_bonus(self):
+        return self.modify_attribute(relations.MODIFIERS.QUEST_MARKERS_REWARD_BONUS, {})
+
+    def loot_probability(self):
+        return self.modify_attribute(relations.MODIFIERS.LOOT_PROBABILITY, c.GET_LOOT_PROBABILITY)

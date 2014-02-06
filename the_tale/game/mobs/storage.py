@@ -18,8 +18,8 @@ class MobsStorage(create_storage_class('mob records change time', MobRecordProto
 
     def update_cached_data(self, item):
         self._mobs_by_uuids[item.uuid] = item
-        self._types_count[item.type] += 1
-        self.mobs_number += 1
+        self._types_count[item.type] = len([mob for mob in self.all() if mob.type == item.type])
+        self.mobs_number = len(self.all())
 
     def clear(self):
         super(MobsStorage, self).clear()
@@ -53,7 +53,6 @@ class MobsStorage(create_storage_class('mob records change time', MobRecordProto
 
         return list(mobs)
 
-
     def get_random_mob(self, hero, mercenary=None, is_boss=False):
         self.sync()
 
@@ -64,5 +63,6 @@ class MobsStorage(create_storage_class('mob records change time', MobRecordProto
 
         mob_record = random.choice(choices)
         return MobPrototype(record=mob_record, level=hero.level, is_boss=is_boss)
+
 
 mobs_storage = MobsStorage()

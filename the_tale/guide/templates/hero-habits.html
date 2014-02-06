@@ -1,0 +1,32 @@
+{% extends "guide/base.html" %}
+{% import 'guide/macros.html' as guide_macros with context %}
+{% import 'heroes/macros.html' as macros with context %}
+
+{% block title %}Черты героев | {{ super() }}{% endblock %}
+{% block description %}Описание черт героев.{% endblock %}
+
+{% block guide_content %}
+
+{{ guide_macros.page_caption("Черты героев", "Описание черт героев") }}
+
+<p>
+  Каждый герой имеет свой подход к жизни, своё представление о её «тёмных» и «светлых» сторонах, о поведении в разных ситуациях. Такие взгляды мы называем чертами.
+<p>
+
+<p>
+  Черты отражают базовые особенности характера героя и изменяются как от действий его самого, так и от действий Хранителя. Каждая черта обладает двумя противоположными полюсами. Двигаясь к одному из них, герой проходит несколько уровней и получает всё больше специфичных для полюса особенностей.
+</p>
+
+<p>
+  Все молодые герои начинают с нейтральными значениями черт.
+</p>
+
+<h3>{{HABIT_TYPE.HONOR.text}}</h3>
+
+{% include ("guide/hero-habit-%s.html" % HABIT_TYPE.HONOR.name.lower()) with context %}
+
+<h3>{{HABIT_TYPE.AGGRESSIVENESS.text}}</h3>
+
+{% include ("guide/hero-habit-%s.html" % HABIT_TYPE.AGGRESSIVENESS.name.lower()) with context %}
+
+{% endblock %}

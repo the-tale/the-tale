@@ -1,0 +1,31 @@
+
+<div class="modal hide habit-info-dialog">
+
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3 class="pgf-dialog-title dialog-title">
+      Черты героя
+    </h3>
+  </div>
+
+  <div class="modal-body">
+
+    <p>
+      Черты отражают базовые особенности характера героя и изменяются как от его, так и от Ваших дейсвий. Подробнее о чертах можно прочитать в соответствующем <a href="{{url('guide:hero-habits')}}">разделе путеводителя</a>.
+    </p>
+
+    <p>
+      Каждая черта обладает двумя противоположными полюсами. Двигаясь к одному из них, герой проходит несколько уровней и получает всё больше специфичных для полюса особенностей.
+    </p>
+
+    <h3>{{habit.text|capitalize}}</h3>
+
+    <div class="pgf-scrollable" style="max-height: 360px; overflow-y: auto;">
+
+      {% include ("guide/hero-habit-%s.html" % habit.name.lower()) with context %}
+
+    </div>
+
+  </div>
+
+</div>

@@ -144,31 +144,27 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
         self.statistics.change_money(source, abs(value))
         self._model.money += value
 
-    def get_special_quests(self):
-        from questgen.quests.hunt import Hunt
-        from questgen.quests.hometown import Hometown
-        from questgen.quests.search_smith import SearchSmith
-        from questgen.quests.help_friend import HelpFriend
-        from questgen.quests.interfere_enemy import InterfereEnemy
+    def get_quests(self):
+        from the_tale.game.quests.relations import QUESTS
 
-        allowed_quests = []
+        quests = [quest for quest in QUESTS.records if not quest.quest_type.is_CHARACTER]
 
         if self.preferences.mob is not None:
-            allowed_quests.append(Hunt.TYPE)
+            quests.append(QUESTS.HUNT)
         if self.preferences.place is not None:
-            allowed_quests.append(Hometown.TYPE)
+            quests.append(QUESTS.HOMETOWN)
         if self.preferences.friend is not None:
-            allowed_quests.append(HelpFriend.TYPE)
+            quests.append(QUESTS.HELP_FRIEND)
         if self.preferences.enemy is not None:
-            allowed_quests.append(InterfereEnemy.TYPE)
+            quests.append(QUESTS.INTERFERE_ENEMY)
         if self.preferences.equipment_slot is not None:
             equipped_artifact = self.equipment.get(self.preferences.equipment_slot)
             equipped_power = equipped_artifact.power if equipped_artifact else -1
             min_power, max_power = f.power_to_artifact_interval(self.level) # pylint: disable=W0612
             if equipped_power <= max_power:
-                allowed_quests.append(SearchSmith.TYPE)
+                quests.append(QUESTS.SEARCH_SMITH)
 
-        return allowed_quests
+        return [(quest, self.modify_quest_priority(quest)) for quest in quests]
 
     @classmethod
     def get_minimum_created_time_of_active_quests(cls):
@@ -400,10 +396,10 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
         return int(power * self.person_power_modifier)
 
     @lazy_property
-    def habit_honor(self): return habits.Honor(self, 'honor', relations.HABIT_HONOR_INTERVAL)
+    def habit_honor(self): return habits.Honor(self, 'honor')
 
     @lazy_property
-    def habit_aggressiveness(self): return habits.Aggressiveness(self, 'aggressiveness', relations.HABIT_AGGRESSIVENESS_INTERVAL)
+    def habit_aggressiveness(self): return habits.Aggressiveness(self, 'aggressiveness')
 
     def update_habits(self, change_source):
 
@@ -665,6 +661,10 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
                                'initiative': self.initiative,
                                'max_bag_size': self.max_bag_size,
                                'loot_items_count': self.bag.occupation},
+                'habits': { 'honor': {'verbose': self.habit_honor.verbose_value,
+                                      'raw': self.habit_honor.raw_value},
+                            'aggressiveness': {'verbose': self.habit_aggressiveness.verbose_value,
+                                               'raw': self.habit_aggressiveness.raw_value}},
                 'quests': self.quests.ui_info(self),
                 'sprite': get_hero_sprite(self).value
                 }

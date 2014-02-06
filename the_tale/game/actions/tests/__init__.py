@@ -16,9 +16,10 @@ from the_tale.game.actions.tests.action_meta_proxy import *
 
 from the_tale.game.actions.tests.context_battle import *
 
-from the_tale.game.actions.tests.battle import *
 from the_tale.game.actions.tests.general import *
 
 from the_tale.game.actions.tests.meta_action_arena_pvp_1x1 import *
 
 from the_tale.game.actions.tests.container_tests import *
+
+from the_tale.game.actions.tests.test_battle import *

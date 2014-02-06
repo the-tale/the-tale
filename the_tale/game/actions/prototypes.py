@@ -59,7 +59,6 @@ class ActionBase(object):
                   'extra_probability',
                   'mob_context',
                   'textgen_id',
-                  'hero_health_lost',
                   'back',
                   'info_link',
                   'meta_action_id',
@@ -97,7 +96,6 @@ class ActionBase(object):
                  extra_probability=None,
                  mob_context=None,
                  textgen_id=None,
-                 hero_health_lost=0,
                  back=False,
                  info_link=None,
                  meta_action_id=None,
@@ -141,7 +139,6 @@ class ActionBase(object):
         self.percents_barier = percents_barier
         self.extra_probability = extra_probability
         self.textgen_id = textgen_id
-        self.hero_health_lost = hero_health_lost
         self.back = back
         self.meta_action_id = meta_action_id
 
@@ -183,8 +180,6 @@ class ActionBase(object):
             data['mob_context'] = self.mob_context.serialize()
         if self.textgen_id is not None:
             data['textgen_id'] = self.textgen_id
-        if self.hero_health_lost != 0:
-            data['hero_health_lost'] = self.hero_health_lost
         if self.back:
             data['back'] = self.back
         if self.meta_action_id is not None:
@@ -196,6 +191,11 @@ class ActionBase(object):
 
     @classmethod
     def deserialize(cls, hero, data):
+
+        # TODO: remove after v0.3.9
+        if 'hero_health_lost' in data:
+            del data['hero_health_lost']
+
         return cls(hero=hero, **data)
 
     def ui_info(self):
@@ -819,12 +819,19 @@ class ActionBattlePvE1x1Prototype(ActionBase):
     def _create(cls, hero, bundle_id, mob):
 
         kill_before_battle = hero.can_kill_before_battle()
+        can_peacefull_battle = hero.can_peacefull_battle(mob.mob_type)
 
         if kill_before_battle:
             percents = 1.0
+            state = cls.STATE.BATTLE_RUNNING
             hero.add_message('action_battlepve1x1_kill_before_start', hero=hero, mob=mob)
+        elif can_peacefull_battle:
+            percents = 1.0
+            state = cls.STATE.PROCESSED
+            hero.add_message('action_battlepve1x1_peacefull_battle', hero=hero, mob=mob)
         else:
             percents = 0.0
+            state = cls.STATE.BATTLE_RUNNING
             hero.add_message('action_battlepve1x1_start', hero=hero, mob=mob)
 
         prototype = cls( hero=hero,
@@ -833,7 +840,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
                          mob=mob,
                          mob_context=cls.CONTEXT_MANAGER(),
                          percents=percents,
-                         state=cls.STATE.BATTLE_RUNNING)
+                         state=state)
 
         if kill_before_battle:
             prototype._kill_mob()
@@ -875,7 +882,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
         self.mob.kill()
         self.hero.statistics.change_pve_kills(1)
 
-        loot = self.mob.get_loot()
+        loot = self.mob.get_loot(self.hero.loot_probability())
 
         if loot is not None:
             bag_uuid = self.hero.put_loot(loot)
@@ -891,6 +898,10 @@ class ActionBattlePvE1x1Prototype(ActionBase):
         else:
             self.hero.add_message('action_battlepve1x1_no_loot', hero=self.hero, mob=self.mob)
 
+        if self.hero.can_get_exp_for_kill():
+            experience = self.hero.add_experience(int(c.EXP_FOR_KILL*random.uniform(1.0-c.EXP_FOR_KILL_DELTA, 1.0+c.EXP_FOR_KILL_DELTA)))
+            self.hero.add_message('action_battlepve1x1_exp_for_kill', hero=self.hero, mob=self.mob, diary=True, experience=experience)
+
 
     def process(self):
 
@@ -898,11 +909,9 @@ class ActionBattlePvE1x1Prototype(ActionBase):
 
             # make turn only if mob still alive (it can be killed by angel)
             if self.mob.health > 0:
-                old_health = self.hero.health
                 battle.make_turn(battle.Actor(self.hero, self.context),
                                  battle.Actor(self.mob, self.mob_context ),
                                  self.hero)
-                self.hero_health_lost += old_health - self.hero.health
                 self.percents = 1.0 - self.mob.health_percents
 
             if self.hero.health <= 0:

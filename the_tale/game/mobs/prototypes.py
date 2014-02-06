@@ -84,7 +84,7 @@ class MobPrototype(object):
     def kill(self):
         pass
 
-    def get_loot(self): return artifacts_storage.generate_loot(self)
+    def get_loot(self, loot_probability): return artifacts_storage.generate_loot(self, loot_probability)
 
     def serialize(self):
         return {'level': self.level,
@@ -113,6 +113,9 @@ class MobPrototype(object):
                    health=data['health'],
                    is_boss=data.get('is_boss', False),
                    abilities=abilities)
+
+    def update_context(self, actor, enemy):
+        self.abilities.update_context(actor, enemy)
 
     def ui_info(self):
         return { 'name': self.name,
@@ -206,9 +209,6 @@ class MobRecordPrototype(BasePrototype):
         mobs_storage.update_version()
 
         return prototype
-
-    def update_context(self, enemy):
-        self.abilities.update_context(self, enemy)
 
     @classmethod
     def get_available_abilities(cls):

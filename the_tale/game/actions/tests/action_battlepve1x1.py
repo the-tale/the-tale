@@ -4,11 +4,14 @@ import mock
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
-from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.logic_storage import LogicStorage
+from the_tale.game.balance import constants as c
 
+from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes.logic import create_mob_for_hero
-from the_tale.game.heroes.relations import HABIT_HONOR_INTERVAL
+from the_tale.game.heroes.relations import HABIT_HONOR_INTERVAL, HABIT_AGGRESSIVENESS_INTERVAL
+
+from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.logic import create_test_map
 from the_tale.game.actions.prototypes import ActionBattlePvE1x1Prototype
@@ -156,3 +159,33 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         self.assertEqual(action_battle.percents, 1.0)
         self.assertEqual(action_battle.state, self.action_battle.STATE.BATTLE_RUNNING)
+
+
+    @mock.patch('the_tale.game.balance.constants.PEACEFULL_BATTLE_PROBABILITY', 1.01)
+    @mock.patch('the_tale.game.heroes.habits.Aggressiveness.interval', HABIT_AGGRESSIVENESS_INTERVAL.RIGHT_3)
+    def test_peacefull_battle(self):
+        mob = (m for m in mobs_storage.all() if m.type.is_CIVILIZED).next()
+
+        with self.check_delta(lambda: self.hero.statistics.pve_kills, 0):
+            action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob.create_mob(self.hero, is_boss=False))
+
+        self.assertEqual(action_battle.percents, 1.0)
+        self.assertEqual(action_battle.state, self.action_battle.STATE.PROCESSED)
+
+
+    @mock.patch('the_tale.game.balance.constants.EXP_FOR_KILL_PROBABILITY', 1.01)
+    @mock.patch('the_tale.game.balance.constants.EXP_FOR_KILL_DELTA', 0)
+    @mock.patch('the_tale.game.heroes.habits.Aggressiveness.interval', HABIT_AGGRESSIVENESS_INTERVAL.LEFT_3)
+    def test_experience_for_kill(self):
+        mob = create_mob_for_hero(self.hero)
+        mob.health = 0
+
+        with self.check_delta(lambda: self.hero.statistics.pve_kills, 1):
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.add_experience') as add_experience:
+                action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
+                self.storage.process_turn(second_step_if_needed=False)
+
+        self.assertEqual(add_experience.call_args_list, [mock.call(c.EXP_FOR_KILL)])
+
+        self.assertEqual(action_battle.percents, 1.0)
+        self.assertEqual(action_battle.state, self.action_battle.STATE.PROCESSED)

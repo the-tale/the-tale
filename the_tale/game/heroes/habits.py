@@ -2,22 +2,28 @@
 
 import random
 
+from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS
+
 from the_tale.common.utils.decorators import lazy_property
 
 from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.mobs.relations import MOB_TYPE
 
 from the_tale.game.balance import constants as c
+
+from the_tale.game.heroes import relations
 
 
 
 class Habit(object):
     __slots__ = ('hero', 'field_name', 'intervals', '_interval__lazy')
 
-    def __init__(self, hero, name, intervals):
+    TYPE = None
+
+    def __init__(self, hero, name):
         super(Habit, self).__init__()
         self.hero = hero
         self.field_name = 'habit_%s' % name
-        self.intervals = intervals
 
     @property
     def raw_value(self):
@@ -25,7 +31,7 @@ class Habit(object):
 
     @lazy_property
     def interval(self):
-        for interval, right_border in zip(self.intervals.records, c.HABITS_RIGHT_BORDERS):
+        for interval, right_border in zip(self.TYPE.intervals.records, c.HABITS_RIGHT_BORDERS):
             if right_border > self.raw_value:
                 return interval
 
@@ -52,15 +58,34 @@ class Habit(object):
         pass
 
 
-
 class Honor(Habit):
 
+    TYPE = relations.HABIT_TYPE.HONOR
+
     def modify_attribute(self, modifier, value):
-        if self.interval.is_LEFT_3 and modifier.is_POWER_TO_ENEMY:
+        if modifier.is_POWER_TO_ENEMY and self.interval.is_LEFT_3:
             return value * (1 + c.HONOR_POWER_BONUS_FRACTION)
 
-        if self.interval.is_RIGHT_3 and modifier.is_POWER_TO_FRIEND:
+        if modifier.is_POWER_TO_FRIEND and self.interval.is_RIGHT_3:
             return value * (1 + c.HONOR_POWER_BONUS_FRACTION)
+
+        if modifier.is_QUEST_MARKERS and (self.interval.is_LEFT_1 or self.interval.is_LEFT_2 or self.interval.is_LEFT_3):
+            if random.uniform(0, 1) < abs(self.raw_value / float(c.HABITS_BORDER)):
+                value.add(QUEST_OPTION_MARKERS.DISHONORABLE)
+            return value
+
+        if modifier.is_QUEST_MARKERS and (self.interval.is_RIGHT_1 or self.interval.is_RIGHT_2 or self.interval.is_RIGHT_3):
+            if random.uniform(0, 1) < abs(self.raw_value / float(c.HABITS_BORDER)):
+                value.add(QUEST_OPTION_MARKERS.HONORABLE)
+            return value
+
+        if modifier.is_QUEST_MARKERS_REWARD_BONUS and (self.interval.is_LEFT_1 or self.interval.is_LEFT_2 or self.interval.is_LEFT_3):
+            value[QUEST_OPTION_MARKERS.DISHONORABLE] = abs(self.raw_value / float(c.HABITS_BORDER)) * c.HABIT_QUEST_REWARD_MAX_BONUS
+            return value
+
+        if modifier.is_QUEST_MARKERS_REWARD_BONUS and (self.interval.is_RIGHT_1 or self.interval.is_RIGHT_2 or self.interval.is_RIGHT_3):
+            value[QUEST_OPTION_MARKERS.HONORABLE] = abs(self.raw_value / float(c.HABITS_BORDER)) * c.HABIT_QUEST_REWARD_MAX_BONUS
+            return value
 
         return value
 
@@ -75,18 +100,59 @@ class Honor(Habit):
 
     def update_context(self, actor, enemy):
         if (self.interval.is_LEFT_2 or self.interval.is_LEFT_3) and enemy.mob_type is not None and enemy.mob_type.is_CIVILIZED:
-            actor.context.use_crit_chance(c.MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE * mobs_storage.mob_type_fraction(enemy.mob_type))
+            actor.context.use_crit_chance(c.MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE / mobs_storage.mob_type_fraction(enemy.mob_type))
 
         if (self.interval.is_RIGHT_2 or self.interval.is_RIGHT_3) and enemy.mob_type is not None and enemy.mob_type.is_MONSTER:
-            actor.context.use_crit_chance(c.MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE * mobs_storage.mob_type_fraction(enemy.mob_type))
+            actor.context.use_crit_chance(c.MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE / mobs_storage.mob_type_fraction(enemy.mob_type))
+
 
 
 class Aggressiveness(Habit):
 
+    TYPE = relations.HABIT_TYPE.AGGRESSIVENESS
+
     def modify_attribute(self, modifier, value):
+
+        if modifier.is_FRIEND_QUEST_PRIORITY and self.interval.is_RIGHT_3:
+            return value * c.HABIT_QUEST_PRIORITY_MODIFIER
+
+        if modifier.is_ENEMY_QUEST_PRIORITY and self.interval.is_LEFT_3:
+            return value * c.HABIT_QUEST_PRIORITY_MODIFIER
+
+        if modifier.is_LOOT_PROBABILITY and (self.interval.is_RIGHT_2 or self.interval.is_RIGHT_3):
+            return value + c.HABIT_GET_LOOT_PROBABILITY
+
+        if modifier.is_QUEST_MARKERS and (self.interval.is_LEFT_1 or self.interval.is_LEFT_2 or self.interval.is_LEFT_3):
+            if random.uniform(0, 1) < abs(self.raw_value / float(c.HABITS_BORDER)):
+                value.add(QUEST_OPTION_MARKERS.AGGRESSIVE)
+            return value
+
+        if modifier.is_QUEST_MARKERS and (self.interval.is_RIGHT_1 or self.interval.is_RIGHT_2 or self.interval.is_RIGHT_3):
+            if random.uniform(0, 1) < abs(self.raw_value / float(c.HABITS_BORDER)):
+                value.add(QUEST_OPTION_MARKERS.UNAGGRESSIVE)
+            return value
+
+        if modifier.is_QUEST_MARKERS_REWARD_BONUS and (self.interval.is_LEFT_1 or self.interval.is_LEFT_2 or self.interval.is_LEFT_3):
+            value[QUEST_OPTION_MARKERS.AGGRESSIVE] = abs(self.raw_value / float(c.HABITS_BORDER)) * c.HABIT_QUEST_REWARD_MAX_BONUS
+            return value
+
+        if modifier.is_QUEST_MARKERS_REWARD_BONUS and (self.interval.is_RIGHT_1 or self.interval.is_RIGHT_2 or self.interval.is_RIGHT_3):
+            value[QUEST_OPTION_MARKERS.UNAGGRESSIVE] = abs(self.raw_value / float(c.HABITS_BORDER)) * c.HABIT_QUEST_REWARD_MAX_BONUS
+            return value
+
         return value
 
+
     def check_attribute(self, modifier):
+        if modifier.is_FIRST_STRIKE and (self.interval.is_LEFT_3 or self.interval.is_LEFT_2):
+            return True
+
+        if modifier.is_EXP_FOR_KILL and self.interval.is_LEFT_3:
+            return random.uniform(0, 1) < c.EXP_FOR_KILL_PROBABILITY
+
+        if modifier.is_PEACEFULL_BATTLE and self.interval.is_RIGHT_3:
+            return random.uniform(0, 1) < c.PEACEFULL_BATTLE_PROBABILITY / mobs_storage.mob_type_fraction(MOB_TYPE.CIVILIZED)
+
         return False
 
     def update_context(self, actor, enemy):

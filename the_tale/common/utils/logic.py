@@ -23,6 +23,20 @@ def random_value_by_priority(values):
     raise Exception('unknown error in random_value_by_priority')
 
 
+def shuffle_values_by_priority(values):
+
+    result = []
+
+    working_values = list(values)
+
+    while working_values:
+        choosen_value = random_value_by_priority(working_values)
+        working_values = [(value, priority) for value, priority in working_values if value != choosen_value]
+        result.append(choosen_value)
+
+    return result
+
+
 def pluralize_word(real_number, word_1, word_2_4, word_other):
     number = real_number % 100
 

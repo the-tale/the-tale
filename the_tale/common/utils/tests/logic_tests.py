@@ -5,7 +5,7 @@ import collections
 
 from the_tale.common.utils import testcase
 
-from the_tale.common.utils.logic import random_value_by_priority, verbose_timedelta, get_or_create, split_into_table
+from the_tale.common.utils.logic import random_value_by_priority, shuffle_values_by_priority, verbose_timedelta, get_or_create, split_into_table
 from the_tale.common.utils.decorators import lazy_property
 
 _get_or_create_state = None # for get_or_create tests
@@ -31,6 +31,23 @@ class LogicTest(testcase.TestCase):
         self.assertTrue(counter['c'])
 
         self.assertTrue(counter['0'] < counter['a'] < counter['b'] < counter['c'])
+
+
+    def test_shuffle_values_by_priority(self):
+        counter = collections.Counter()
+
+        choices = [('0', 0),
+                   ('a', 1),
+                   ('b', 10),
+                   ('c', 100)]
+
+        for i in xrange(10000):
+            for j, value in enumerate(shuffle_values_by_priority(choices)):
+                counter.update([(value, j)])
+
+        self.assertTrue(counter[('c', 0)] > counter[('c', 1)] > counter[('c', 2)] > counter[('c', 3)])
+        self.assertTrue(counter[('b', 1)] > counter[('b', 0)] > counter[('b', 3)] and counter[('b', 1)] > counter[('b', 2)] > counter[('b', 3)])
+        self.assertTrue(counter[('a', 2)] > counter[('a', 0)] > counter[('a', 3)] and counter[('a', 2)] > counter[('a', 1)] > counter[('a', 0)])
 
     def test_verbose_timedelta(self):
         self.assertEqual(u'1 день', verbose_timedelta(datetime.timedelta(days=1)))

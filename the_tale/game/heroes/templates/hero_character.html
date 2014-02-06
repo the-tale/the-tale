@@ -49,6 +49,15 @@ jQuery(document).ready(function(e){
 
     });
 
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
+        var data = game_data.account.hero;
+        jQuery('#pgf-attributes-container .pgf-habit-honor-raw').text(Math.round(data.habits.honor.raw*100)/100);
+        jQuery('#pgf-attributes-container .pgf-habit-honor-verbose').text(data.habits.honor.verbose);
+
+        jQuery('#pgf-attributes-container .pgf-habit-aggressiveness-raw').text(Math.round(data.habits.aggressiveness.raw*100)/100);
+        jQuery('#pgf-attributes-container .pgf-habit-aggressiveness-verbose').text(data.habits.aggressiveness.verbose);
+    });
+
 {% endif %}
 
 });
@@ -119,9 +128,35 @@ jQuery(document).ready(function(e){
 
 {% endmacro %}
 
+{% macro habit_record(habit) %}
+  <li class="hero-habit-record">
+    <strong>{{ habit.text }}</strong>
+    <br/>
+    <span class="" style="margin-left: 2em;">
+      <span class="pgf-habit-{{habit.name.lower()}}-verbose"></span>
+      <span class="pull-right"  style="vertical-align: middle;">
+        <span class="pgf-habit-{{habit.name.lower()}}-raw" style="vertical-align: middle;"></span>
+        <a href="{{url('guide:hero-habit-info', habit=habit.value)}}" class="pgf-dialog-simple">
+          <i class="icon-info-sign"
+             style="vertical-align: middle;"
+             rel="tooltip"
+             title="подробнее…"></i>
+        </a>
+      </span>
+    </span>
+  </li>
+{% endmacro %}
+
 
 <div class="block">
   <h2 style="cursor: default;">Характер</h2>
+
+  <h3>черты</h3>
+
+  <ul class="unstyled">
+    {{ habit_record(HABIT_TYPE.HONOR)}}
+    {{ habit_record(HABIT_TYPE.AGGRESSIVENESS)}}
+  </ul>
 
   <h3>предпочтения</h3>
 

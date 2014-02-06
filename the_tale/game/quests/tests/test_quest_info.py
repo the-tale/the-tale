@@ -3,6 +3,7 @@
 import mock
 
 from questgen import facts
+from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS
 
 from the_tale.common.utils import testcase
 
@@ -104,3 +105,25 @@ class QuestInfoTests(testcase.TestCase, QuestTestsMixin):
 
         self.assertEqual(self.quest_info.choice, 'q_quest_quest_with_2_choice_points_choice_current_opt_1_1')
         self.assertEqual(self.quest_info.choice_alternatives,  ())
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reward_modifier', 1.0)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.quest_markers_rewards_bonus', lambda self: {QUEST_OPTION_MARKERS.HONORABLE: 0.2,
+                                                                                                           QUEST_OPTION_MARKERS.DISHONORABLE: 0.3,
+                                                                                                           QUEST_OPTION_MARKERS.AGGRESSIVE: 0.4,
+                                                                                                           QUEST_OPTION_MARKERS.UNAGGRESSIVE: 0.5})
+    def test_get_real_reward_scale(self):
+
+        self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.0)
+
+        self.quest_info.used_markers.add(QUEST_OPTION_MARKERS.DISHONORABLE)
+        self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.3)
+
+        self.quest_info.used_markers.add(QUEST_OPTION_MARKERS.AGGRESSIVE)
+        self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.3*1.4)
+
+        self.quest_info.used_markers.add(QUEST_OPTION_MARKERS.HONORABLE)
+        self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.3*1.4*1.2)
+
+        self.quest_info.used_markers.add(QUEST_OPTION_MARKERS.UNAGGRESSIVE)
+        self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.3*1.4*1.2*1.5)

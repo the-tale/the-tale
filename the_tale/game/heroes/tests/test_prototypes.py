@@ -5,8 +5,6 @@ import random
 
 import mock
 
-from questgen.quests.search_smith import SearchSmith
-
 from the_tale.common.utils.testcase import TestCase
 
 from the_tale.accounts.prototypes import AccountPrototype
@@ -16,6 +14,7 @@ from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 from the_tale.game.logic import create_test_map
 from the_tale.game.prototypes import TimePrototype
 
+from the_tale.game.quests.relations import QUESTS
 
 from the_tale.game.balance import formulas as f, constants as c, enums as e
 from the_tale.game.logic_storage import LogicStorage
@@ -673,21 +672,21 @@ class HeroQuestsTest(TestCase):
 
 
     def test_special_quests_searchsmith_without_preferences(self):
-        self.assertFalse(SearchSmith.TYPE in self.hero.get_special_quests())
+        self.assertFalse(QUESTS.SEARCH_SMITH in [quest for quest, priority in self.hero.get_quests()])
 
     def test_special_quests_searchsmith_with_preferences_without_artifact(self):
         self.hero.equipment._remove_all()
         self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.PLATE)
         self.hero.save()
 
-        self.assertTrue(SearchSmith.TYPE in self.hero.get_special_quests())
+        self.assertTrue(QUESTS.SEARCH_SMITH in [quest for quest, priority in self.hero.get_quests()])
 
     def test_special_quests_searchsmith_with_preferences_with_artifact(self):
         self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.PLATE)
         self.hero.save()
 
         self.assertTrue(self.hero.equipment.get(relations.EQUIPMENT_SLOT.PLATE) is not None)
-        self.assertTrue(SearchSmith.TYPE in self.hero.get_special_quests())
+        self.assertTrue(QUESTS.SEARCH_SMITH in [quest for quest, priority in self.hero.get_quests()])
 
     def test_get_minimum_created_time_of_active_quests(self):
         self.hero._model.quest_created_time = datetime.datetime.now() - datetime.timedelta(days=1)
@@ -700,3 +699,18 @@ class HeroQuestsTest(TestCase):
 
         # not there are no another quests an get_minimum_created_time_of_active_quests return now()
         self.assertEqual(hero._model.quest_created_time, HeroPrototype.get_minimum_created_time_of_active_quests())
+
+
+    def test_modify_quest_priority(self):
+        self.assertEqual(self.hero.modify_quest_priority(QUESTS.HELP_FRIEND), QUESTS.HELP_FRIEND.priority)
+        self.assertEqual(self.hero.modify_quest_priority(QUESTS.INTERFERE_ENEMY), QUESTS.INTERFERE_ENEMY.priority)
+
+    @mock.patch('the_tale.game.heroes.habits.Aggressiveness.interval', relations.HABIT_AGGRESSIVENESS_INTERVAL.RIGHT_3)
+    def test_modify_quest_priority__friend(self):
+        self.assertTrue(self.hero.modify_quest_priority(QUESTS.HELP_FRIEND) > QUESTS.HELP_FRIEND.priority)
+        self.assertEqual(self.hero.modify_quest_priority(QUESTS.INTERFERE_ENEMY), QUESTS.INTERFERE_ENEMY.priority)
+
+    @mock.patch('the_tale.game.heroes.habits.Aggressiveness.interval', relations.HABIT_AGGRESSIVENESS_INTERVAL.LEFT_3)
+    def test_modify_quest_priority__enemy(self):
+        self.assertEqual(self.hero.modify_quest_priority(QUESTS.HELP_FRIEND), QUESTS.HELP_FRIEND.priority)
+        self.assertTrue(self.hero.modify_quest_priority(QUESTS.INTERFERE_ENEMY)> QUESTS.INTERFERE_ENEMY.priority)

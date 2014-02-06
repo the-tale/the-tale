@@ -97,12 +97,12 @@ class ArtifactsStorage(create_storage_class('artifacts records change time', Art
         return self._mob_loot[mob_id]
 
 
-    def generate_loot(self, mob):
+    def generate_loot(self, mob, loot_probability):
 
         if random.uniform(0, 1) < f.artifacts_per_battle(mob.level):
             return self.generate_artifact_from_list(self.get_mob_artifacts(mob.record.id), mob.level)
 
-        if random.uniform(0, 1) < c.GET_LOOT_PROBABILITY:
+        if random.uniform(0, 1) < loot_probability:
             return self.generate_artifact_from_list(self.get_mob_loot(mob.record.id), mob.record.level)
 
         return None

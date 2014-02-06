@@ -134,7 +134,6 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.MAP_SYNC_TIME, 360)
 
 
-        self.assertEqual(c.QUESTS_SPECIAL_FRACTION, 0.25)
         self.assertEqual(c.QUESTS_SHORT_PATH_LEVEL_CAP, 4)
         self.assertEqual(c.QUESTS_PILGRIMAGE_FRACTION, 0.025)
 
@@ -153,6 +152,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM, 2)
         self.assertEqual(c.ABILITIES_FOR_CHOOSE_MAXIMUM, 4)
 
+        self.assertEqual(c.HABITS_BORDER, 1000)
         self.assertEqual(c.HABITS_RIGHT_BORDERS, [-700, -300, -100, 100, 300, 700, 1001])
         self.assertEqual(c.HABITS_QUEST_ACTIVE_DELTA, 5.0)
         self.assertEqual(c.HABITS_QUEST_PASSIVE_DELTA, 0.5)
@@ -164,8 +164,17 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(round(c.PICKED_UP_IN_ROAD_SPEED_BONUS, 5), 0.07018)
         self.assertEqual(round(c.PICKED_UP_IN_ROAD_PROBABILITY, 5), 0.02339)
 
+        self.assertEqual(c.HABIT_QUEST_PRIORITY_MODIFIER, 2.0)
+
         self.assertEqual(c.HONOR_POWER_BONUS_FRACTION, 0.25)
-        self.assertEqual(c.MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE, 0.1)
+        self.assertEqual(c.MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE, 0.02)
+
+        self.assertEqual(c.HABIT_QUEST_REWARD_MAX_BONUS, 0.25)
+        self.assertEqual(c.HABIT_GET_LOOT_PROBABILITY, 0.07)
+
+        self.assertEqual(c.EXP_FOR_KILL, 120)
+        self.assertEqual(c.EXP_FOR_KILL_DELTA, 0.5)
+        self.assertEqual(round(c.EXP_FOR_KILL_PROBABILITY, 5), 0.00041)
 
         self.assertEqual(c.DAMAGE_PVP_ADVANTAGE_MODIFIER, 0.5)
         self.assertEqual(c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER, 5)

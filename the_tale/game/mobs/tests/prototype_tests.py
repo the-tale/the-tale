@@ -99,13 +99,13 @@ class MobsPrototypeTests(testcase.TestCase):
         artifact_2 = ArtifactRecordPrototype.create_random('bandit_artifact', mob=mob_record, type_=ARTIFACT_TYPE.HELMET, state=ARTIFACT_RECORD_STATE.ENABLED)
 
         with mock.patch('the_tale.game.balance.formulas.artifacts_per_battle', lambda lvl: 1):
-            artifact = mob.get_loot()
+            artifact = mob.get_loot(loot_probability=1.0)
             self.assertEqual(artifact.level, mob.level)
             self.assertFalse(artifact.type.is_USELESS)
             self.assertEqual(artifact_2.id, artifact.record.id)
 
-        with mock.patch('the_tale.game.balance.formulas.artifacts_per_battle', lambda lvl: 0),  mock.patch('the_tale.game.balance.constants.GET_LOOT_PROBABILITY', 1):
-            artifact = mob.get_loot()
+        with mock.patch('the_tale.game.balance.formulas.artifacts_per_battle', lambda lvl: 0):
+            artifact = mob.get_loot(loot_probability=1.0)
             self.assertEqual(artifact.level, mob.record.level)
             self.assertTrue(artifact.type.is_USELESS)
             self.assertEqual(artifact_1.id, artifact.record.id)

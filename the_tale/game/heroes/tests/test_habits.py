@@ -4,6 +4,8 @@ import contextlib
 
 import mock
 
+from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS
+
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.prototypes import AccountPrototype
@@ -18,10 +20,17 @@ from the_tale.game.logic import create_test_map
 from the_tale.game.relations import GENDER
 from the_tale.game.logic_storage import LogicStorage
 
-from the_tale.game.heroes.relations import HABIT_HONOR_INTERVAL, MODIFIERS
+from the_tale.game.heroes.relations import HABIT_HONOR_INTERVAL, HABIT_AGGRESSIVENESS_INTERVAL, MODIFIERS
+from the_tale.game.heroes import habits
 
 
 class BaseHabitTest(testcase.TestCase):
+
+    ALL_QUEST_MARKERS = set([QUEST_OPTION_MARKERS.DISHONORABLE,
+                             QUEST_OPTION_MARKERS.HONORABLE,
+                             QUEST_OPTION_MARKERS.AGGRESSIVE,
+                             QUEST_OPTION_MARKERS.UNAGGRESSIVE])
+
 
     def setUp(self):
         super(BaseHabitTest, self).setUp()
@@ -33,6 +42,30 @@ class BaseHabitTest(testcase.TestCase):
         self.storage = LogicStorage()
         self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
         self.hero = self.storage.accounts_to_heroes[account_id]
+
+
+    def check_crit_chance_equal(self, mob, expected_crit_chance):
+        self.actor_hero.context._on_every_turn()
+        self.hero.update_context(self.actor_hero, mob)
+        self.assertEqual(round(self.actor_hero.context.crit_chance, 5), expected_crit_chance)
+
+    def check_quest_markers(self, expected_markers, habit_class):
+        with mock.patch.object(habit_class, 'raw_value', c.HABITS_BORDER):
+            self.assertEqual(self.hero.prefered_quest_markers(), set(expected_markers))
+
+        with mock.patch.object(habit_class, 'raw_value', 0):
+            self.assertEqual(self.hero.prefered_quest_markers(), set())
+
+    def check_quest_markers_reward_bonus(self, expected_markers, habit_class):
+        with mock.patch.object(habit_class, 'raw_value', c.HABITS_BORDER / 2):
+            markers = self.hero.quest_markers_rewards_bonus()
+
+            for quest_marker in self.ALL_QUEST_MARKERS:
+                if quest_marker in expected_markers:
+                    self.assertTrue(markers[quest_marker] > 0)
+                else:
+                    self.assertFalse(quest_marker in markers)
+
 
 
 class HabitTest(BaseHabitTest):
@@ -113,8 +146,8 @@ class UpdateHabitsTest(BaseHabitTest):
 @mock.patch('the_tale.game.balance.constants.KILL_BEFORE_BATTLE_PROBABILITY', 1.01)
 @mock.patch('the_tale.game.balance.constants.PICKED_UP_IN_ROAD_PROBABILITY', 1.01)
 @mock.patch('the_tale.game.mobs.storage.mobs_storage.mob_type_fraction', lambda mob_type: {MOB_TYPE.PLANT: 0.1,
-                                                                                           MOB_TYPE.CIVILIZED: 0.3,
-                                                                                           MOB_TYPE.MONSTER: 0.6}.get(mob_type, 0))
+                                                                                           MOB_TYPE.CIVILIZED: 0.4,
+                                                                                           MOB_TYPE.MONSTER: 0.5}.get(mob_type, 0))
 class HonorHabitModifiersTest(BaseHabitTest):
 
     def setUp(self):
@@ -127,11 +160,6 @@ class HonorHabitModifiersTest(BaseHabitTest):
         self.mob_civilized = FakeActor(name='defender', mob_type=MOB_TYPE.CIVILIZED)
         self.mob_monster = FakeActor(name='defender', mob_type=MOB_TYPE.MONSTER)
 
-    def check_crit_chance_equal(self, mob, expected_crit_chance):
-        self.actor_hero.context._on_every_turn()
-        self.hero.update_context(self.actor_hero, mob)
-        self.assertEqual(self.actor_hero.context.crit_chance, expected_crit_chance)
-
     @mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.LEFT_3)
     def test_left_3(self):
         self.assertTrue(self.hero.check_attribute(MODIFIERS.KILL_BEFORE_BATTLE))
@@ -141,8 +169,11 @@ class HonorHabitModifiersTest(BaseHabitTest):
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.POWER_TO_FRIEND, 1.0), 1.0)
 
         self.check_crit_chance_equal(self.mob_neutral, 0.0)
-        self.check_crit_chance_equal(self.mob_civilized, 0.03)
+        self.check_crit_chance_equal(self.mob_civilized, 0.05)
         self.check_crit_chance_equal(self.mob_monster, 0.0)
+
+        self.check_quest_markers([QUEST_OPTION_MARKERS.DISHONORABLE], habit_class=habits.Honor)
+        self.check_quest_markers_reward_bonus([QUEST_OPTION_MARKERS.DISHONORABLE], habit_class=habits.Honor)
 
 
     @mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.LEFT_2)
@@ -154,8 +185,11 @@ class HonorHabitModifiersTest(BaseHabitTest):
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.POWER_TO_FRIEND, 1.0), 1.0)
 
         self.check_crit_chance_equal(self.mob_neutral, 0.0)
-        self.check_crit_chance_equal(self.mob_civilized, 0.03)
+        self.check_crit_chance_equal(self.mob_civilized, 0.05)
         self.check_crit_chance_equal(self.mob_monster, 0.0)
+
+        self.check_quest_markers([QUEST_OPTION_MARKERS.DISHONORABLE], habit_class=habits.Honor)
+        self.check_quest_markers_reward_bonus([QUEST_OPTION_MARKERS.DISHONORABLE], habit_class=habits.Honor)
 
 
     @mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.LEFT_1)
@@ -170,6 +204,9 @@ class HonorHabitModifiersTest(BaseHabitTest):
         self.check_crit_chance_equal(self.mob_civilized, 0.0)
         self.check_crit_chance_equal(self.mob_monster, 0.0)
 
+        self.check_quest_markers([QUEST_OPTION_MARKERS.DISHONORABLE], habit_class=habits.Honor)
+        self.check_quest_markers_reward_bonus([QUEST_OPTION_MARKERS.DISHONORABLE], habit_class=habits.Honor)
+
     @mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.NEUTRAL)
     def test_neutral(self):
         self.assertFalse(self.hero.check_attribute(MODIFIERS.KILL_BEFORE_BATTLE))
@@ -181,6 +218,9 @@ class HonorHabitModifiersTest(BaseHabitTest):
         self.check_crit_chance_equal(self.mob_neutral, 0.0)
         self.check_crit_chance_equal(self.mob_civilized, 0.0)
         self.check_crit_chance_equal(self.mob_monster, 0.0)
+
+        self.check_quest_markers([], habit_class=habits.Honor)
+        self.check_quest_markers_reward_bonus([], habit_class=habits.Honor)
 
     @mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.RIGHT_1)
     def test_right_1(self):
@@ -194,6 +234,9 @@ class HonorHabitModifiersTest(BaseHabitTest):
         self.check_crit_chance_equal(self.mob_civilized, 0.0)
         self.check_crit_chance_equal(self.mob_monster, 0.0)
 
+        self.check_quest_markers([QUEST_OPTION_MARKERS.HONORABLE], habit_class=habits.Honor)
+        self.check_quest_markers_reward_bonus([QUEST_OPTION_MARKERS.HONORABLE], habit_class=habits.Honor)
+
     @mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.RIGHT_2)
     def test_right_2(self):
         self.assertFalse(self.hero.check_attribute(MODIFIERS.KILL_BEFORE_BATTLE))
@@ -204,7 +247,10 @@ class HonorHabitModifiersTest(BaseHabitTest):
 
         self.check_crit_chance_equal(self.mob_neutral, 0.0)
         self.check_crit_chance_equal(self.mob_civilized, 0.0)
-        self.check_crit_chance_equal(self.mob_monster, 0.06)
+        self.check_crit_chance_equal(self.mob_monster, 0.04)
+
+        self.check_quest_markers([QUEST_OPTION_MARKERS.HONORABLE], habit_class=habits.Honor)
+        self.check_quest_markers_reward_bonus([QUEST_OPTION_MARKERS.HONORABLE], habit_class=habits.Honor)
 
     @mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.RIGHT_3)
     def test_right_3(self):
@@ -216,4 +262,125 @@ class HonorHabitModifiersTest(BaseHabitTest):
 
         self.check_crit_chance_equal(self.mob_neutral, 0.0)
         self.check_crit_chance_equal(self.mob_civilized, 0.0)
-        self.check_crit_chance_equal(self.mob_monster, 0.06)
+        self.check_crit_chance_equal(self.mob_monster, 0.04)
+
+        self.check_quest_markers([QUEST_OPTION_MARKERS.HONORABLE], habit_class=habits.Honor)
+        self.check_quest_markers_reward_bonus([QUEST_OPTION_MARKERS.HONORABLE], habit_class=habits.Honor)
+
+
+@mock.patch('the_tale.game.balance.constants.EXP_FOR_KILL_PROBABILITY', 1.01)
+@mock.patch('the_tale.game.balance.constants.PEACEFULL_BATTLE_PROBABILITY', 1.01)
+class AggressivenessHabitModifiersTest(BaseHabitTest):
+
+    def setUp(self):
+        super(AggressivenessHabitModifiersTest, self).setUp()
+
+        self.actor_hero = FakeActor(name='attacker')
+
+        self.mob_neutral = FakeActor(name='defender', mob_type=MOB_TYPE.PLANT)
+
+        self.mob_civilized = FakeActor(name='defender', mob_type=MOB_TYPE.CIVILIZED)
+        self.mob_monster = FakeActor(name='defender', mob_type=MOB_TYPE.MONSTER)
+
+
+    @mock.patch('the_tale.game.heroes.habits.Aggressiveness.interval', HABIT_AGGRESSIVENESS_INTERVAL.LEFT_3)
+    def test_left_3(self):
+
+        self.assertEqual(self.hero.modify_attribute(MODIFIERS.FRIEND_QUEST_PRIORITY, 1.0), 1.0)
+        self.assertTrue(self.hero.modify_attribute(MODIFIERS.ENEMY_QUEST_PRIORITY, 1.0) > 1.0)
+
+        self.assertTrue(self.hero.check_attribute(MODIFIERS.EXP_FOR_KILL))
+        self.assertFalse(self.hero.check_attribute(MODIFIERS.PEACEFULL_BATTLE))
+
+        self.assertEqual(self.hero.modify_attribute(MODIFIERS.LOOT_PROBABILITY, 1.0), 1.0)
+        self.assertTrue(self.hero.check_attribute(MODIFIERS.FIRST_STRIKE))
+
+        self.check_quest_markers([QUEST_OPTION_MARKERS.AGGRESSIVE], habit_class=habits.Aggressiveness)
+        self.check_quest_markers_reward_bonus([QUEST_OPTION_MARKERS.AGGRESSIVE], habit_class=habits.Aggressiveness)
+
+
+    @mock.patch('the_tale.game.heroes.habits.Aggressiveness.interval', HABIT_AGGRESSIVENESS_INTERVAL.LEFT_2)
+    def test_left_2(self):
+
+        self.assertEqual(self.hero.modify_attribute(MODIFIERS.FRIEND_QUEST_PRIORITY, 1.0), 1.0)
+        self.assertEqual(self.hero.modify_attribute(MODIFIERS.ENEMY_QUEST_PRIORITY, 1.0), 1.0)
+
+        self.assertFalse(self.hero.check_attribute(MODIFIERS.EXP_FOR_KILL))
+        self.assertFalse(self.hero.check_attribute(MODIFIERS.PEACEFULL_BATTLE))
+
+        self.assertEqual(self.hero.modify_attribute(MODIFIERS.LOOT_PROBABILITY, 1.0), 1.0)
+        self.assertTrue(self.hero.check_attribute(MODIFIERS.FIRST_STRIKE))
+
+        self.check_quest_markers([QUEST_OPTION_MARKERS.AGGRESSIVE], habit_class=habits.Aggressiveness)
+        self.check_quest_markers_reward_bonus([QUEST_OPTION_MARKERS.AGGRESSIVE], habit_class=habits.Aggressiveness)
+
+
+    @mock.patch('the_tale.game.heroes.habits.Aggressiveness.interval', HABIT_AGGRESSIVENESS_INTERVAL.LEFT_1)
+    def test_left_1(self):
+        self.assertEqual(self.hero.modify_attribute(MODIFIERS.FRIEND_QUEST_PRIORITY, 1.0), 1.0)
+        self.assertEqual(self.hero.modify_attribute(MODIFIERS.ENEMY_QUEST_PRIORITY, 1.0), 1.0)
+
+        self.assertFalse(self.hero.check_attribute(MODIFIERS.EXP_FOR_KILL))
+        self.assertFalse(self.hero.check_attribute(MODIFIERS.PEACEFULL_BATTLE))
+
+        self.assertEqual(self.hero.modify_attribute(MODIFIERS.LOOT_PROBABILITY, 1.0), 1.0)
+        self.assertFalse(self.hero.check_attribute(MODIFIERS.FIRST_STRIKE))
+
+        self.check_quest_markers([QUEST_OPTION_MARKERS.AGGRESSIVE], habit_class=habits.Aggressiveness)
+        self.check_quest_markers_reward_bonus([QUEST_OPTION_MARKERS.AGGRESSIVE], habit_class=habits.Aggressiveness)
+
+    @mock.patch('the_tale.game.heroes.habits.Aggressiveness.interval', HABIT_AGGRESSIVENESS_INTERVAL.NEUTRAL)
+    def test_neutral(self):
+        self.assertEqual(self.hero.modify_attribute(MODIFIERS.FRIEND_QUEST_PRIORITY, 1.0), 1.0)
+        self.assertEqual(self.hero.modify_attribute(MODIFIERS.ENEMY_QUEST_PRIORITY, 1.0), 1.0)
+
+        self.assertFalse(self.hero.check_attribute(MODIFIERS.EXP_FOR_KILL))
+        self.assertFalse(self.hero.check_attribute(MODIFIERS.PEACEFULL_BATTLE))
+
+        self.assertEqual(self.hero.modify_attribute(MODIFIERS.LOOT_PROBABILITY, 1.0), 1.0)
+        self.assertFalse(self.hero.check_attribute(MODIFIERS.FIRST_STRIKE))
+
+        self.check_quest_markers([], habit_class=habits.Aggressiveness)
+        self.check_quest_markers_reward_bonus([], habit_class=habits.Aggressiveness)
+
+    @mock.patch('the_tale.game.heroes.habits.Aggressiveness.interval', HABIT_AGGRESSIVENESS_INTERVAL.RIGHT_1)
+    def test_right_1(self):
+        self.assertEqual(self.hero.modify_attribute(MODIFIERS.FRIEND_QUEST_PRIORITY, 1.0), 1.0)
+        self.assertEqual(self.hero.modify_attribute(MODIFIERS.ENEMY_QUEST_PRIORITY, 1.0), 1.0)
+
+        self.assertFalse(self.hero.check_attribute(MODIFIERS.EXP_FOR_KILL))
+        self.assertFalse(self.hero.check_attribute(MODIFIERS.PEACEFULL_BATTLE))
+
+        self.assertEqual(self.hero.modify_attribute(MODIFIERS.LOOT_PROBABILITY, 1.0), 1.0)
+        self.assertFalse(self.hero.check_attribute(MODIFIERS.FIRST_STRIKE))
+
+        self.check_quest_markers([QUEST_OPTION_MARKERS.UNAGGRESSIVE], habit_class=habits.Aggressiveness)
+        self.check_quest_markers_reward_bonus([QUEST_OPTION_MARKERS.UNAGGRESSIVE], habit_class=habits.Aggressiveness)
+
+    @mock.patch('the_tale.game.heroes.habits.Aggressiveness.interval', HABIT_AGGRESSIVENESS_INTERVAL.RIGHT_2)
+    def test_right_2(self):
+        self.assertEqual(self.hero.modify_attribute(MODIFIERS.FRIEND_QUEST_PRIORITY, 1.0), 1.0)
+        self.assertEqual(self.hero.modify_attribute(MODIFIERS.ENEMY_QUEST_PRIORITY, 1.0), 1.0)
+
+        self.assertFalse(self.hero.check_attribute(MODIFIERS.EXP_FOR_KILL))
+        self.assertFalse(self.hero.check_attribute(MODIFIERS.PEACEFULL_BATTLE))
+
+        self.assertTrue(self.hero.modify_attribute(MODIFIERS.LOOT_PROBABILITY, 1.0) > 1.0)
+        self.assertFalse(self.hero.check_attribute(MODIFIERS.FIRST_STRIKE))
+
+        self.check_quest_markers([QUEST_OPTION_MARKERS.UNAGGRESSIVE], habit_class=habits.Aggressiveness)
+        self.check_quest_markers_reward_bonus([QUEST_OPTION_MARKERS.UNAGGRESSIVE], habit_class=habits.Aggressiveness)
+
+    @mock.patch('the_tale.game.heroes.habits.Aggressiveness.interval', HABIT_AGGRESSIVENESS_INTERVAL.RIGHT_3)
+    def test_right_3(self):
+        self.assertTrue(self.hero.modify_attribute(MODIFIERS.FRIEND_QUEST_PRIORITY, 1.0) > 1.0)
+        self.assertEqual(self.hero.modify_attribute(MODIFIERS.ENEMY_QUEST_PRIORITY, 1.0), 1.0)
+
+        self.assertFalse(self.hero.check_attribute(MODIFIERS.EXP_FOR_KILL))
+        self.assertTrue(self.hero.check_attribute(MODIFIERS.PEACEFULL_BATTLE))
+
+        self.assertTrue(self.hero.modify_attribute(MODIFIERS.LOOT_PROBABILITY, 1.0) > 1.0)
+        self.assertFalse(self.hero.check_attribute(MODIFIERS.FIRST_STRIKE))
+
+        self.check_quest_markers([QUEST_OPTION_MARKERS.UNAGGRESSIVE], habit_class=habits.Aggressiveness)
+        self.check_quest_markers_reward_bonus([QUEST_OPTION_MARKERS.UNAGGRESSIVE], habit_class=habits.Aggressiveness)

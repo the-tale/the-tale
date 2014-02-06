@@ -29,7 +29,7 @@ from the_tale.game import names
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes.postponed_tasks import ChangeHeroTask, ChooseHeroAbilityTask, ChoosePreferencesTask, ResetHeroAbilitiesTask
-from the_tale.game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT, RISK_LEVEL
+from the_tale.game.heroes import relations
 from the_tale.game.heroes.forms import ChoosePreferencesForm, EditNameForm
 from the_tale.game.heroes.conf import heroes_settings
 
@@ -96,8 +96,10 @@ class HeroResource(Resource):
                               'edit_name_form': edit_name_form,
                               'master_account': master_account,
                               'master_clan': master_clan,
-                              'EQUIPMENT_SLOT': EQUIPMENT_SLOT,
-                              'PREFERENCE_TYPE': PREFERENCE_TYPE} )
+                              'EQUIPMENT_SLOT': relations.EQUIPMENT_SLOT,
+                              'PREFERENCE_TYPE': relations.PREFERENCE_TYPE,
+                              'HABIT_TYPE': relations.HABIT_TYPE,
+                              'HABITS_BORDER': c.HABITS_BORDER} )
 
     @login_required
     @validate_ownership()
@@ -187,7 +189,7 @@ class HeroResource(Resource):
 
     @login_required
     @validate_ownership()
-    @validate_argument('type', lambda x: PREFERENCE_TYPE(int(x)), 'heroes.choose_preferences_dialog', u'Неверный тип способности')
+    @validate_argument('type', lambda x: relations.PREFERENCE_TYPE(int(x)), 'heroes.choose_preferences_dialog', u'Неверный тип способности')
     @handler('#hero', 'choose-preferences-dialog', method='get')
     def choose_preferences_dialog(self, type): # pylint: disable=W0622
 
@@ -223,14 +225,14 @@ class HeroResource(Resource):
             enemies = all_enemys
 
         elif type.is_EQUIPMENT_SLOT:
-            equipment_slots = split_list(list(EQUIPMENT_SLOT.records))
+            equipment_slots = split_list(list(relations.EQUIPMENT_SLOT.records))
 
         elif type.is_RISK_LEVEL:
             pass
 
         elif type.is_FAVORITE_ITEM:
             favorite_items = {slot: self.hero.equipment.get(slot)
-                              for slot in EQUIPMENT_SLOT.records
+                              for slot in relations.EQUIPMENT_SLOT.records
                               if self.hero.equipment.get(slot) is not None}
 
         return self.template('heroes/choose_preferences.html',
@@ -243,8 +245,8 @@ class HeroResource(Resource):
                               'equipment_slots': equipment_slots,
                               'favorite_items': favorite_items,
                               'PREFERENCES_CHANGE_DELAY': datetime.timedelta(seconds=c.CHARACTER_PREFERENCES_CHANGE_DELAY),
-                              'EQUIPMENT_SLOT': EQUIPMENT_SLOT,
-                              'RISK_LEVEL': RISK_LEVEL} )
+                              'EQUIPMENT_SLOT': relations.EQUIPMENT_SLOT,
+                              'RISK_LEVEL': relations.RISK_LEVEL} )
 
     @login_required
     @validate_ownership()

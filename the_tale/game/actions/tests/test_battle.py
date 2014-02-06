@@ -1,4 +1,5 @@
 # coding: utf-8
+import mock
 
 from the_tale.common.utils import testcase
 
@@ -7,12 +8,13 @@ from the_tale.game.heroes.prototypes import HeroPrototype
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.actions.battle import Actor
+from the_tale.game.actions import battle
 from the_tale.game.actions.contexts import BattleContext
 
 from the_tale.game.heroes.habilities.battle import RUN_UP_PUSH, HIT
 from the_tale.game.mobs.storage import mobs_storage
 from the_tale.game.logic_storage import LogicStorage
+
 
 class ActorTest(testcase.TestCase):
 
@@ -25,15 +27,11 @@ class ActorTest(testcase.TestCase):
         self.storage = LogicStorage()
         self.storage.add_hero(self.hero)
 
-    def tearDown(self):
-        pass
-
-
     def test_hero_actor(self):
         self.hero.health = 10
         self.hero.abilities.add(RUN_UP_PUSH.get_id())
 
-        actor = Actor(self.hero, BattleContext())
+        actor = battle.Actor(self.hero, BattleContext())
 
         self.assertEqual(self.hero.initiative, actor.initiative)
         self.assertEqual(self.hero.name, actor.name)
@@ -67,7 +65,7 @@ class ActorTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_initiative_change(self):
-        actor = Actor(self.hero, BattleContext())
+        actor = battle.Actor(self.hero, BattleContext())
         actor.context.use_initiative([2])
         self.assertEqual(actor.initiative, self.hero.initiative*2)
 
@@ -77,7 +75,7 @@ class ActorTest(testcase.TestCase):
         mob.health = 10
         mob.abilities.add(RUN_UP_PUSH.get_id())
 
-        actor = Actor(mob, BattleContext())
+        actor = battle.Actor(mob, BattleContext())
 
         self.assertEqual(mob.initiative, actor.initiative)
         self.assertEqual(mob.name, actor.name)
@@ -111,7 +109,7 @@ class ActorTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_process_effects(self):
-        actor = Actor(self.hero, BattleContext())
+        actor = battle.Actor(self.hero, BattleContext())
 
         actor.context.use_damage_queue_fire([100, 100])
         actor.context.use_damage_queue_poison([100, 100])
@@ -125,3 +123,51 @@ class ActorTest(testcase.TestCase):
         actor.context.use_incoming_damage_modifier(physic=10, magic=1.2)
         actor.process_effects(self.hero)
         self.assertEqual(self.hero.health, self.hero.max_health - 160 - 240)
+
+    def check_first_strike(self, actor_1, actor_2, turn, expected_actors):
+        with mock.patch('the_tale.game.actions.battle.strike') as strike:
+            for i in xrange(100):
+                actor_1.context.turn = turn
+                actor_2.context.turn = turn
+                battle.make_turn(actor_1, actor_2, self.hero)
+
+        self.assertEqual(set(id(call[1]['attacker']) for call in strike.call_args_list), expected_actors)
+
+    def get_actors(self):
+        mob = mobs_storage.get_random_mob(self.hero)
+        actor_1 = battle.Actor(self.hero, BattleContext())
+        actor_2 = battle.Actor(mob, BattleContext())
+
+        return actor_1, actor_2
+
+
+
+    def test_first_strike__no_actors(self):
+        actor_1, actor_2 = self.get_actors()
+        self.check_first_strike(actor_1, actor_2, turn=0, expected_actors=set((id(actor_1), id(actor_2))))
+
+    def test_first_strike__actor_1(self):
+        actor_1, actor_2 = self.get_actors()
+        actor_1.context.use_first_strike()
+        self.check_first_strike(actor_1, actor_2, turn=0, expected_actors=set((id(actor_1),)))
+
+    def test_first_strike__actor_2(self):
+        actor_1, actor_2 = self.get_actors()
+        actor_2.context.use_first_strike()
+        self.check_first_strike(actor_1, actor_2, turn=0, expected_actors=set((id(actor_2),)))
+
+    def test_first_strike__actor_1__not_first_turns(self):
+        actor_1, actor_2 = self.get_actors()
+        actor_1.context.use_first_strike()
+        self.check_first_strike(actor_1, actor_2, turn=1, expected_actors=set((id(actor_1), id(actor_2))))
+
+    def test_first_strike__actor_2__not_first_turns(self):
+        actor_1, actor_2 = self.get_actors()
+        actor_2.context.use_first_strike()
+        self.check_first_strike(actor_1, actor_2, turn=1, expected_actors=set((id(actor_1), id(actor_2))))
+
+    def test_first_strike__actors_1_and_2(self):
+        actor_1, actor_2 = self.get_actors()
+        actor_1.context.use_first_strike()
+        actor_2.context.use_first_strike()
+        self.check_first_strike(actor_1, actor_2, turn=0, expected_actors=set((id(actor_1), id(actor_2))))

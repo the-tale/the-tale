@@ -12,7 +12,7 @@ from the_tale.common.utils.decorators import lazy_property
 
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
 from the_tale.game.heroes.conf import heroes_settings
-from the_tale.game.heroes.relations import PREFERENCE_TYPE
+from the_tale.game.heroes.relations import PREFERENCE_TYPE, HABIT_TYPE
 
 from the_tale.game.map.places.conf import places_settings
 from the_tale.game.persons.conf import persons_settings
@@ -228,3 +228,14 @@ class GuideResource(Resource):
     @handler('zero-player-game', name='zpg', method='get')
     def zpg(self):
         return self.template('guide/zpg.html', {'section': 'zpg'})
+
+    @handler('hero-habits', method='get')
+    def habits(self):
+        return self.template('guide/hero-habits.html', {'section': 'hero-habits',
+                                                'HABIT_TYPE': HABIT_TYPE})
+
+    @validate_argument('habit', lambda x: HABIT_TYPE(int(x)), 'guide.hero_habit_info', u'Неверный тип черты')
+    @handler('hero-habit-info', method='get')
+    def habit_info(self, habit):
+        return self.template('guide/hero-habit-info.html', {'habit': habit,
+                                                            'HABIT_TYPE': HABIT_TYPE})

@@ -66,14 +66,25 @@ class Actor(object):
             messanger.add_message('action_battlepve1x1_periodical_poison_damage', actor=self, damage=damage.total)
 
 
-def make_turn(actor1, actor2, messanger):
+def make_turn(actor_1, actor_2, messanger):
 
-    actor1_initiative = random.uniform(0, actor1.initiative + actor2.initiative)
+    if actor_1.context.turn == actor_2.context.turn == 0:
+        if actor_1.context.first_srike and not actor_2.context.first_srike:
+            # print 1
+            return strike(attacker=actor_1, defender=actor_2, messanger=messanger)
 
-    if actor1_initiative < actor1.initiative:
-        return strike(actor1, actor2, messanger)
+        if actor_2.context.first_srike and not actor_1.context.first_srike:
+            # print 2
+            return strike(attacker=actor_2, defender=actor_1, messanger=messanger)
+
+    actor_1_initiative = random.uniform(0, actor_1.initiative + actor_2.initiative)
+
+    if actor_1_initiative < actor_1.initiative:
+        # print 3
+        return strike(attacker=actor_1, defender=actor_2, messanger=messanger)
     else:
-        return strike(actor2, actor1, messanger)
+        # print 4
+        return strike(attacker=actor_2, defender=actor_1, messanger=messanger)
 
 
 def strike(attacker, defender, messanger):

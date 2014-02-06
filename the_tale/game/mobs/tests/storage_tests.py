@@ -55,7 +55,7 @@ class MobsStorageTests(testcase.TestCase):
         self.assertEqual(len(mobs_storage.all()), 5)
         self.assertEqual(mobs_storage.mobs_number, 5)
         self.assertEqual(sum(mobs_storage._types_count.itervalues()), 5)
-        self.assertTrue(mobs_storage.get_mob_type_count(MOB_TYPE.CIVILIZED) > 2)
+        self.assertTrue(mobs_storage.mob_type_fraction(MOB_TYPE.CIVILIZED) > 2.0 / 5)
 
     def test_get_available_mobs_list(self):
         mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, TERRAIN.PLANE_SAND)]

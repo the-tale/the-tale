@@ -1,5 +1,5 @@
 # coding: utf-8
-import random
+import time
 
 from django.conf import settings as project_settings
 from django.utils.log import getLogger
@@ -17,20 +17,7 @@ from questgen.selectors import Selector
 from questgen.quests.quests_base import QuestsBase
 from questgen.relations import PLACE_TYPE as QUEST_PLACE_TYPE
 
-from questgen.quests.spying import Spying
-from questgen.quests.hunt import Hunt
-from questgen.quests.hometown import Hometown
-from questgen.quests.search_smith import SearchSmith
-from questgen.quests.delivery import Delivery
-from questgen.quests.caravan import Caravan
-from questgen.quests.collect_debt import CollectDebt
-from questgen.quests.help_friend import HelpFriend
-from questgen.quests.interfere_enemy import InterfereEnemy
-from questgen.quests.help import Help
-from questgen.quests.pilgrimage import Pilgrimage
-
-
-from the_tale.game.balance import constants as c
+from the_tale.common.utils.logic import shuffle_values_by_priority
 
 from the_tale.game.map.places.storage import places_storage
 from the_tale.game.map.roads.storage import waymarks_storage
@@ -41,6 +28,7 @@ from the_tale.game.persons.models import PERSON_STATE
 from the_tale.game.quests.conf import quests_settings
 from the_tale.game.quests.prototypes import QuestPrototype
 from the_tale.game.quests import uids
+from the_tale.game.quests.relations import QUESTS
 
 QUESTS_LOGGER = getLogger('the-tale.game.quests')
 
@@ -58,9 +46,7 @@ QUEST_RESTRICTIONS =  [restrictions.SingleStartStateWithNoEnters(),
 
 
 QUESTS_BASE = QuestsBase()
-QUESTS_BASE += [CollectDebt, Caravan, Delivery, Spying, Hunt, Hometown, SearchSmith, HelpFriend, InterfereEnemy, Help, Pilgrimage]
-
-NORMAL_QUESTS = [CollectDebt.TYPE, Spying.TYPE, Delivery.TYPE, Caravan.TYPE, Help.TYPE]
+QUESTS_BASE += [quest.quest_class for quest in QUESTS.records]
 
 
 def choose_quest_path_url():
@@ -193,39 +179,50 @@ def get_knowledge_base(hero, without_restrictions=False): # pylint: disable=R091
 
 def create_random_quest_for_hero(hero):
 
-    special = (c.QUESTS_SPECIAL_FRACTION > random.uniform(0, 1))
+    start_time = time.time()
 
-    # logger.warn('create quest: %s' % {True: 'SPECIAL', False: 'NORMAL'}[special])
+    normal_mode = True
 
-    try:
+    quests = shuffle_values_by_priority(hero.get_quests())
 
-        if special:
-            try:
-                return _create_random_quest_for_hero(hero, special=True)
-            except questgen_exceptions.RollBackError:
-                # logger.warn('special quest failed')
-                pass
+    excluded_quests = []
+    last_quests = sorted(hero.quests.history.items(), key=lambda item: -item[1])
+    if last_quests:
+        excluded_quests.append(last_quests[0][0])
 
-        return _create_random_quest_for_hero(hero, special=False)
+    quest = try_to_create_random_quest_for_hero(hero, quests, excluded_quests, without_restrictions=False)
 
-    except questgen_exceptions.RollBackError:
-        # logger.warn('normal quest failed')
-        return _create_random_quest_for_hero(hero, special=False, without_restrictions=True)
+    if quest is None:
+        normal_mode = False
+        quest = try_to_create_random_quest_for_hero(hero, quests, excluded_quests=[], without_restrictions=True)
+
+    spent_time = time.time() - start_time
+
+    QUESTS_LOGGER.info(u'hero[%(hero_id).6d]: %(spent_time)s %(is_normal)s %(quest_type)20s (allowed: %(allowed)s) (excluded: %(excluded)s)' %
+                       {'hero_id': hero.id,
+                        'spent_time': spent_time,
+                        'is_normal': normal_mode,
+                        'quest_type': quest.quests_stack[-1].type,
+                        'allowed': ', '.join(quest.name for quest in quests),
+                        'excluded': ', '.join(excluded_quests)})
 
 
-def get_first_quests(hero, special):
-    if special:
-        quests = hero.get_special_quests()
-        if quests:
-            return quests
+    return quest
 
-    if random.uniform(0, 1) < c.QUESTS_PILGRIMAGE_FRACTION:
-        return [Pilgrimage.TYPE]
 
-    return NORMAL_QUESTS
+def try_to_create_random_quest_for_hero(hero, quests, excluded_quests, without_restrictions):
+
+    for quest_type in quests:
+        try:
+            return _create_random_quest_for_hero(hero, start_quests=[quest_type.quest_class.TYPE], excluded_quests=excluded_quests, without_restrictions=without_restrictions)
+        except questgen_exceptions.RollBackError:
+            continue
+
+    return None
+
 
 @retry_on_exception(max_retries=quests_settings.MAX_QUEST_GENERATION_RETRIES, exceptions=[questgen_exceptions.RollBackError])
-def _create_random_quest_for_hero(hero, special, without_restrictions=False):
+def _create_random_quest_for_hero(hero, start_quests, excluded_quests=[], without_restrictions=False):
     knowledge_base = get_knowledge_base(hero, without_restrictions=without_restrictions)
 
     selector = Selector(knowledge_base, QUESTS_BASE)
@@ -234,18 +231,9 @@ def _create_random_quest_for_hero(hero, special, without_restrictions=False):
 
     start_place = selector.place_for(objects=(hero_uid,))
 
-    # current_time = TimePrototype.get_current_turn_number()
-
-    excluded_quests = []
-    # for quest_type, turn_number in hero.quests.history.items():
-    #     if turn_number + c.QUESTS_LOCK_TIME.get(quest_type, 0) >= current_time:
-    #         excluded_quests.append(quest_type)
-
-    allowed_quests = get_first_quests(hero, special=special)
-
     quests_facts = selector.create_quest_from_place(nesting=0,
                                                     initiator_position=start_place,
-                                                    allowed=allowed_quests,
+                                                    allowed=start_quests,
                                                     excluded=excluded_quests,
                                                     tags=('can_start', ))
 
@@ -254,7 +242,7 @@ def _create_random_quest_for_hero(hero, special, without_restrictions=False):
     transformators.activate_events(knowledge_base) # TODO: after remove restricted states
     transformators.remove_restricted_states(knowledge_base)
     transformators.remove_broken_states(knowledge_base) # MUST be called after all graph changes
-    transformators.determine_default_choices(knowledge_base) # MUST be called after all graph changes and on valid graph
+    transformators.determine_default_choices(knowledge_base, preferred_markers=hero.prefered_quest_markers()) # MUST be called after all graph changes and on valid graph
     transformators.remove_unused_actors(knowledge_base)
 
     knowledge_base.validate_consistency(WORLD_RESTRICTIONS)
@@ -266,12 +254,5 @@ def _create_random_quest_for_hero(hero, special, without_restrictions=False):
 
     if quest.machine.can_do_step():
         quest.machine.step() # do first step to setup pointer
-
-
-    QUESTS_LOGGER.info(u'hero[%(hero_id).6d]: special=%(special)5s %(quest_type)20s (from %(allowed)s)' %
-                       {'hero_id': hero.id,
-                        'special': special,
-                        'quest_type': quest.quests_stack[0].type,
-                        'allowed': ', '.join(allowed_quests)})
 
     return quest

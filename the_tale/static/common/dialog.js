@@ -264,3 +264,12 @@ pgf.ui.dialog.wait = function(command, stopCallback) {
         }
     }
 };
+
+
+jQuery('.pgf-dialog-simple').live('click', function(e) {
+    e.preventDefault();
+
+    var el = jQuery(this);
+
+    pgf.ui.dialog.Create({ fromUrl: el.attr("href") });
+});

@@ -231,7 +231,6 @@ MAP_SYNC_TIME = int(TURNS_IN_HOUR * MAP_SYNC_TIME_HOURS) # синхронизи�
 # Задания
 ##########################
 
-QUESTS_SPECIAL_FRACTION = float(0.25) # вероятность получить "специальное" задание - задание обусловленное параметрами героя, а не внешним миром.
 QUESTS_SHORT_PATH_LEVEL_CAP = int(4) # на уровнях до этого герои получаю задания в близких городах
 
 QUESTS_PILGRIMAGE_FRACTION = float(0.025) # вероятность отправить героя в паломничество
@@ -264,7 +263,7 @@ ABILITIES_FOR_CHOOSE_MAXIMUM = int(4)
 # Черты
 ##########################
 
-HABITS_BORDER = float(1000) # модуль максимального значения черты
+HABITS_BORDER = int(1000) # модуль максимального значения черты
 HABITS_RIGHT_BORDERS = [-700, -300, -100, 100, 300, 700, 1001] # правые границы черт
 HABITS_QUEST_ACTIVE_DELTA = float(5) # за выбор в заданиии гроком
 HABITS_QUEST_PASSIVE_DELTA = float(0.1 * HABITS_QUEST_ACTIVE_DELTA) # за неверный выбор героем
@@ -277,8 +276,55 @@ PICKED_UP_IN_ROAD_TELEPORT_LENGTH = ANGEL_HELP_TELEPORT_DISTANCE
 PICKED_UP_IN_ROAD_SPEED_BONUS = h.speed_from_safety(BATTLES_PER_TURN*KILL_BEFORE_BATTLE_PROBABILITY, BATTLES_PER_TURN)
 PICKED_UP_IN_ROAD_PROBABILITY = PICKED_UP_IN_ROAD_SPEED_BONUS / PICKED_UP_IN_ROAD_TELEPORT_LENGTH
 
+HABIT_QUEST_PRIORITY_MODIFIER = float(2) # модификатор приоритета выбора заданий от предпочтений
+
 HONOR_POWER_BONUS_FRACTION = float(0.25) # бонус к влиянию на для чести
-MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE = float(0.1) # вероятность крита по типу монстра
+MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE = float(0.02) # вероятность крита по типу монстра, если все монстры этого типа
+
+HABIT_QUEST_REWARD_MAX_BONUS = float(0.25) # максимальный бонус к награде за задание при выборе, совпадающем с чертой
+HABIT_GET_LOOT_PROBABILITY = float(0.07) # бонус к вероятности получить лут
+
+PEACEFULL_BATTLE_PROBABILITY = float(0.01) # вероятность мирно разойтись с монстром, если все можно расходиться со всеми типами монстров
+
+# вероятность получить опыт расчитывается исходя из:
+# - средней величины получаемого опыта
+# - ускорения прокачки от первого удара (вычитается)
+# - проигрыша агрессивного использования способностей (молния) перед мирными (телепортом) (плюсуется)
+# - лечение не учитываем, т.к. оно может быть применено и в бою и не в бою
+
+# процент сохранённых ходов от первого удара
+_FIRST_STRIKE_TURNS_BONUS = (0.5 * BATTLES_BEFORE_HEAL) / ACTIONS_CYCLE_LENGTH # выигрываем полхода в каждой битве
+
+_HELPS_IN_TURN = (float(_ANGEL_ENERGY_IN_DAY) / ANGEL_HELP_COST) / TURNS_IN_HOUR / 24
+
+# процент сохранённых ходов сражении, если только бьём молнией
+_BATTLE_TURNS_BONUS = (float(BATTLE_LENGTH) * (sum(ANGEL_HELP_LIGHTING_FRACTION)/2) + HEAL_LENGTH * (sum(ANGEL_HELP_LIGHTING_FRACTION)/2) / BATTLES_BEFORE_HEAL) * _HELPS_IN_TURN
+
+# процент сохранённых ходов движения, если только телепортируем
+_TELEPORT_MOVE_TURNS = float(ANGEL_HELP_TELEPORT_DISTANCE) / HERO_MOVE_SPEED
+_TELEPORT_SAVED_BATTLES = _TELEPORT_MOVE_TURNS/INTERVAL_BETWEEN_BATTLES
+_TELEPORT_SAVED_TURNS =_TELEPORT_MOVE_TURNS + _TELEPORT_SAVED_BATTLES * BATTLE_LENGTH + HEAL_LENGTH * _TELEPORT_SAVED_BATTLES / BATTLES_BEFORE_HEAL
+_TELEPORT_TURNS_BONUS = _TELEPORT_SAVED_TURNS * _HELPS_IN_TURN
+
+# процент сохранённых ходов от мирного расхождения с монстрами
+_PEACEFULL_TURNS_BONUS = PEACEFULL_BATTLE_PROBABILITY * float(BATTLES_BEFORE_HEAL * BATTLE_LENGTH) / ACTIONS_CYCLE_LENGTH
+
+# print 'battles in day', TURNS_IN_HOUR * 24 / ACTIONS_CYCLE_LENGTH * BATTLES_BEFORE_HEAL
+# print 'inverted', 1.0 / (TURNS_IN_HOUR * 24 / ACTIONS_CYCLE_LENGTH * BATTLES_BEFORE_HEAL)
+# print 'strike', _FIRST_STRIKE_TURNS_BONUS
+# print 'battle', _BATTLE_TURNS_BONUS
+# print 'teleport', _TELEPORT_TURNS_BONUS
+
+EXP_FOR_KILL = int(12*EXP_PER_HOUR) # средний опыт за убийство монстра
+EXP_FOR_KILL_DELTA = float(0.5) # разброс опыта за убийство
+EXP_FOR_KILL_PROBABILITY = float(0.01)
+
+
+_KILLS_IN_HOUR = float(TURNS_IN_HOUR) / ACTIONS_CYCLE_LENGTH * BATTLES_BEFORE_HEAL
+_REQUIRED_BONUS_EXP = _TELEPORT_TURNS_BONUS + _PEACEFULL_TURNS_BONUS - _BATTLE_TURNS_BONUS - _FIRST_STRIKE_TURNS_BONUS
+
+# вероятность получить опыт за убийство моба
+EXP_FOR_KILL_PROBABILITY = float(EXP_PER_HOUR * _REQUIRED_BONUS_EXP) / EXP_FOR_KILL / _KILLS_IN_HOUR
 
 ###########################
 # pvp

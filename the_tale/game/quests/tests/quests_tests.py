@@ -10,17 +10,19 @@ from questgen import facts
 from questgen import actions as questgen_actions
 from questgen.quests.search_smith import SearchSmith
 from questgen.quests.quests_base import QuestsBase
-from questgen.quests.spying import Spying
 from questgen import logic
 
 from the_tale.common.utils import testcase
 
-from the_tale.game.heroes.relations import EQUIPMENT_SLOT
-from the_tale.game.persons.relations import PERSON_TYPE
-
 from the_tale.accounts.logic import register_user
+
+from the_tale.game.heroes.relations import EQUIPMENT_SLOT
 from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE
+
 from the_tale.game.logic_storage import LogicStorage
+
+from the_tale.game.persons.relations import PERSON_TYPE
 
 from the_tale.game.mobs.storage import mobs_storage
 
@@ -30,14 +32,11 @@ from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.actions.prototypes import ActionQuestPrototype, ActionIdlenessPrototype
 
-from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE
-
 from the_tale.game.map.places.modifiers import HolyCity
 
-from the_tale.game.quests.logic import QUESTS_BASE
 from the_tale.game.quests.writers import Writer
 from the_tale.game.quests.prototypes import QuestPrototype
-from the_tale.game.quests.relations import DONOTHING_TYPE
+from the_tale.game.quests.relations import DONOTHING_TYPE, QUESTS
 
 
 
@@ -84,13 +83,12 @@ class QuestsTest(QuestsTestBase):
 
 def create_test_method(quest, quests):
 
-    internal_quests = {q.TYPE: q for q in quests }
+    internal_quests = {q.quest_class.TYPE: q.quest_class for q in quests }
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_short_quest_path_required', False)
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_first_quest_path_required', False)
-    @mock.patch('the_tale.game.balance.constants.QUESTS_SPECIAL_FRACTION', 1.1)
     @mock.patch('the_tale.game.quests.logic.QUESTS_BASE._quests', internal_quests)
-    @mock.patch('the_tale.game.quests.logic.get_first_quests', lambda hero, special: [quest.TYPE])
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.get_quests', lambda hero: [(quest, 10000000)] + [(q, 0) for q in quests if q != quest])
     @mock.patch('the_tale.game.map.roads.storage.WaymarksStorage.average_path_length', 9999)
     def quest_test_method(self):
 
@@ -122,18 +120,6 @@ def create_test_method(quest, quests):
                             self.hero.statistics.money_spend_for_sharpening > 0)
 
     return quest_test_method
-
-
-for QuestClass in QUESTS_BASE.quests():
-
-    quests = [QuestClass]
-
-    if 'has_subquests' in QuestClass.TAGS:
-        quests.append(Spying)
-
-    setattr(QuestsTest, 'test_%s' % QuestClass.TYPE, create_test_method(QuestClass, list(quests)))
-
-
 
 
 class RawQuestsTest(QuestsTestBase):
@@ -271,7 +257,7 @@ def create_test_messages_method(quest, quests):
         knowledge_base = get_knowledge_base(self.hero)
 
         qb = QuestsBase()
-        qb += quests
+        qb += [q.quest_class for q in quests]
 
         selector = Selector(knowledge_base, qb)
 
@@ -279,7 +265,7 @@ def create_test_messages_method(quest, quests):
 
         quests_facts = selector.create_quest_from_place(nesting=0,
                                                         initiator_position=selector.place_for(objects=(hero_uid,)),
-                                                        allowed=[quest.TYPE],
+                                                        allowed=[quest.quest_class.TYPE],
                                                         excluded=[],
                                                         tags=('can_start',))
 
@@ -290,11 +276,12 @@ def create_test_messages_method(quest, quests):
     return quest_test_method
 
 
-for QuestClass in QUESTS_BASE.quests():
+for quest in QUESTS.records:
 
-    quests = [QuestClass]
+    quests = [quest]
 
-    if 'has_subquests' in QuestClass.TAGS:
-        quests.append(Spying)
+    if 'has_subquests' in quest.quest_class.TAGS:
+        quests.append(QUESTS.SPYING)
 
-    setattr(RawQuestsTest, 'test_%s' % QuestClass.TYPE, create_test_messages_method(QuestClass, list(quests)))
+    setattr(QuestsTest, 'test_%s' % quest.name, create_test_method(quest, list(quests)))
+    setattr(RawQuestsTest, 'test_%s' % quest.name, create_test_messages_method(quest, list(quests)))
