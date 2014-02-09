@@ -170,7 +170,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE, 0.02)
 
         self.assertEqual(c.HABIT_QUEST_REWARD_MAX_BONUS, 0.25)
-        self.assertEqual(c.HABIT_GET_LOOT_PROBABILITY, 0.07)
+        self.assertEqual(c.HABIT_GET_LOOT_PROBABILITY, 1.2)
 
         self.assertEqual(c.EXP_FOR_KILL, 120)
         self.assertEqual(c.EXP_FOR_KILL_DELTA, 0.5)

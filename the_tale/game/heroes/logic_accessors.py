@@ -169,3 +169,6 @@ class LogicAccessorsMixin(object):
 
     def loot_probability(self):
         return self.modify_attribute(relations.MODIFIERS.LOOT_PROBABILITY, c.GET_LOOT_PROBABILITY)
+
+    def artifacts_probability(self):
+        return self.modify_attribute(relations.MODIFIERS.LOOT_PROBABILITY, f.artifacts_per_battle(self.level))

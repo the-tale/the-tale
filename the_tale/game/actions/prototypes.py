@@ -882,7 +882,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
         self.mob.kill()
         self.hero.statistics.change_pve_kills(1)
 
-        loot = self.mob.get_loot(self.hero.loot_probability())
+        loot = self.mob.get_loot(self.hero.artifacts_probability(), self.hero.loot_probability())
 
         if loot is not None:
             bag_uuid = self.hero.put_loot(loot)

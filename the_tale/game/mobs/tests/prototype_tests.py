@@ -98,17 +98,15 @@ class MobsPrototypeTests(testcase.TestCase):
         artifact_1 = ArtifactRecordPrototype.create_random('bandit_loot', mob=mob_record, type_=ARTIFACT_TYPE.USELESS, state=ARTIFACT_RECORD_STATE.ENABLED)
         artifact_2 = ArtifactRecordPrototype.create_random('bandit_artifact', mob=mob_record, type_=ARTIFACT_TYPE.HELMET, state=ARTIFACT_RECORD_STATE.ENABLED)
 
-        with mock.patch('the_tale.game.balance.formulas.artifacts_per_battle', lambda lvl: 1):
-            artifact = mob.get_loot(loot_probability=1.0)
-            self.assertEqual(artifact.level, mob.level)
-            self.assertFalse(artifact.type.is_USELESS)
-            self.assertEqual(artifact_2.id, artifact.record.id)
+        artifact = mob.get_loot(artifacts_probability=1.0, loot_probability=1.0)
+        self.assertEqual(artifact.level, mob.level)
+        self.assertFalse(artifact.type.is_USELESS)
+        self.assertEqual(artifact_2.id, artifact.record.id)
 
-        with mock.patch('the_tale.game.balance.formulas.artifacts_per_battle', lambda lvl: 0):
-            artifact = mob.get_loot(loot_probability=1.0)
-            self.assertEqual(artifact.level, mob.record.level)
-            self.assertTrue(artifact.type.is_USELESS)
-            self.assertEqual(artifact_1.id, artifact.record.id)
+        artifact = mob.get_loot(artifacts_probability=0, loot_probability=1.0)
+        self.assertEqual(artifact.level, mob.record.level)
+        self.assertTrue(artifact.type.is_USELESS)
+        self.assertEqual(artifact_1.id, artifact.record.id)
 
     def test_change_uuid(self):
         mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)

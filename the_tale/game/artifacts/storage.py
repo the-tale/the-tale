@@ -5,7 +5,7 @@ import itertools
 from the_tale.common.utils.logic import random_value_by_priority
 from the_tale.common.utils.storage import create_storage_class
 
-from the_tale.game.balance import formulas as f, constants as c
+from the_tale.game.balance import formulas as f
 
 from the_tale.game.artifacts import exceptions
 from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
@@ -97,9 +97,9 @@ class ArtifactsStorage(create_storage_class('artifacts records change time', Art
         return self._mob_loot[mob_id]
 
 
-    def generate_loot(self, mob, loot_probability):
+    def generate_loot(self, mob, artifacts_probability, loot_probability):
 
-        if random.uniform(0, 1) < f.artifacts_per_battle(mob.level):
+        if random.uniform(0, 1) < artifacts_probability:
             return self.generate_artifact_from_list(self.get_mob_artifacts(mob.record.id), mob.level)
 
         if random.uniform(0, 1) < loot_probability:

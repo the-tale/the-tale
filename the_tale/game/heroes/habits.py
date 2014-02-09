@@ -120,7 +120,7 @@ class Aggressiveness(Habit):
             return value * c.HABIT_QUEST_PRIORITY_MODIFIER
 
         if modifier.is_LOOT_PROBABILITY and (self.interval.is_RIGHT_2 or self.interval.is_RIGHT_3):
-            return value + c.HABIT_GET_LOOT_PROBABILITY
+            return value * c.HABIT_LOOT_PROBABILITY_MODIFIER
 
         if modifier.is_QUEST_MARKERS and (self.interval.is_LEFT_1 or self.interval.is_LEFT_2 or self.interval.is_LEFT_3):
             if random.uniform(0, 1) < abs(self.raw_value / float(c.HABITS_BORDER)):

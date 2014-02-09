@@ -98,7 +98,7 @@ class HabitTest(BaseHabitTest):
 
     def test_interval_and_change(self):
         self.assertTrue(self.hero.habit_honor.interval.is_NEUTRAL)
-        for expected_interval, right_border in zip(self.hero.habit_honor.intervals.records, c.HABITS_RIGHT_BORDERS):
+        for expected_interval, right_border in zip(self.hero.habit_honor.TYPE.intervals.records, c.HABITS_RIGHT_BORDERS):
             self.hero.habit_honor.change(right_border - self.hero._model.habit_honor - 0.01)
             self.assertEqual(self.hero.habit_honor.interval, expected_interval)
 

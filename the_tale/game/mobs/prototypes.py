@@ -84,7 +84,7 @@ class MobPrototype(object):
     def kill(self):
         pass
 
-    def get_loot(self, loot_probability): return artifacts_storage.generate_loot(self, loot_probability)
+    def get_loot(self, artifacts_probability, loot_probability): return artifacts_storage.generate_loot(self, artifacts_probability, loot_probability)
 
     def serialize(self):
         return {'level': self.level,
