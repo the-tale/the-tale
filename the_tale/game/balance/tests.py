@@ -156,8 +156,8 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.HABITS_RIGHT_BORDERS, [-700, -300, -100, 100, 300, 700, 1001])
         self.assertEqual(c.HABITS_QUEST_ACTIVE_DELTA, 5.0)
         self.assertEqual(c.HABITS_QUEST_PASSIVE_DELTA, 0.5)
-        self.assertEqual(round(c.HABITS_ABILITY_DELTA, 5), 2.77778)
-        self.assertEqual(round(c.HABITS_PERIODIC_DELTA, 5), 2.16667)
+        self.assertEqual(round(c.HABITS_ABILITY_DELTA, 5), 2.0)
+        self.assertEqual(round(c.HABITS_PERIODIC_DELTA, 5), 1.7)
 
         self.assertEqual(c.KILL_BEFORE_BATTLE_PROBABILITY, 0.05)
         self.assertEqual(c.PICKED_UP_IN_ROAD_TELEPORT_LENGTH, 3.0)
@@ -170,11 +170,23 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE, 0.02)
 
         self.assertEqual(c.HABIT_QUEST_REWARD_MAX_BONUS, 0.25)
-        self.assertEqual(c.HABIT_GET_LOOT_PROBABILITY, 1.2)
+        self.assertEqual(c.HABIT_LOOT_PROBABILITY_MODIFIER, 1.2)
 
         self.assertEqual(c.EXP_FOR_KILL, 120)
         self.assertEqual(c.EXP_FOR_KILL_DELTA, 0.5)
         self.assertEqual(round(c.EXP_FOR_KILL_PROBABILITY, 5), 0.00041)
+
+        self.assertEqual(c.HABIT_EVENTS_IN_DAY, 1.33)
+        self.assertEqual(round(c.HABIT_EVENTS_IN_TURN, 5), 0.00015)
+
+        self.assertEqual(c.HABIT_EVENT_NOTHING_PRIORITY, 4)
+        self.assertEqual(c.HABIT_EVENT_MONEY_PRIORITY, 4)
+        self.assertEqual(c.HABIT_EVENT_ARTIFACT_PRIORITY, 2)
+        self.assertEqual(c.HABIT_EVENT_EXPERIENCE_PRIORITY, 1)
+
+        self.assertEqual(c.HABIT_EVENT_EXPERIENCE, 99)
+        self.assertEqual(c.HABIT_EVENT_EXPERIENCE_DELTA, 0.5)
+
 
         self.assertEqual(c.DAMAGE_PVP_ADVANTAGE_MODIFIER, 0.5)
         self.assertEqual(c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER, 5)

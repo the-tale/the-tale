@@ -172,3 +172,6 @@ class LogicAccessorsMixin(object):
 
     def artifacts_probability(self):
         return self.modify_attribute(relations.MODIFIERS.LOOT_PROBABILITY, f.artifacts_per_battle(self.level))
+
+    def habit_events(self):
+        return self.modify_attribute(relations.MODIFIERS.HONOR_EVENTS)

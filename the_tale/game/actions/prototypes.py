@@ -6,32 +6,32 @@ import copy
 from dext.utils.urls import url
 
 from the_tale.common.utils.discovering import discover_classes
-
 from the_tale.common.utils.logic import random_value_by_priority
+
+from the_tale.game.prototypes import TimePrototype
+from the_tale.game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
 
 from the_tale.game.heroes.logic import create_mob_for_hero
 
-from the_tale.game.map.roads.storage import waymarks_storage
-
-from the_tale.game.actions import battle, contexts
-
 from the_tale.game.balance import constants as c, formulas as f, enums as e
-
-from the_tale.game.actions.exceptions import ActionException
 
 from the_tale.game.quests.logic import create_random_quest_for_hero
 
 from the_tale.game.mobs.prototypes import MobPrototype
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game.artifacts.storage import artifacts_storage
 
+from the_tale.game.map.roads.storage import waymarks_storage
 from the_tale.game.map.places.storage import places_storage
-
-from the_tale.game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
+from the_tale.game.map.storage import map_info_storage
 
 from the_tale.game.abilities.relations import HELP_CHOICES
 
-from the_tale.game.map.storage import map_info_storage
+from the_tale.game.actions import battle
+from the_tale.game.actions import contexts
+from the_tale.game.actions import exceptions
+from the_tale.game.actions import relations
+
 
 
 E = 0.0001
@@ -345,6 +345,40 @@ class ActionBase(object):
 
     def process_turn(self):
         self.process_action()
+
+
+    def action_event(self, action_type):
+
+        if random.uniform(0, 1) > c.HABIT_EVENTS_IN_TURN:
+            return
+
+        habit_events = self.hero.habit_events()
+
+        if not habit_events:
+            return
+
+        event = random.choice(habit_events)
+
+        event_reward = random_value_by_priority((record, record.priority) for record in relations.ACTION_EVENT_REWARD.records)
+
+        message_type = 'action_event_habit_%s_%s_%s' % (self.TYPE.lower(), event.name.lower(), event_reward.name.lower())
+
+        if event_reward.is_NOTHING:
+            self.hero.add_message(message_type, hero=self.hero, **self.action_event_message_arguments())
+        elif event_reward.is_MONEY:
+            multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
+            coins = int(f.normal_loot_cost_at_lvl(self.hero.level) * multiplier)
+            self.hero.add_message(message_type, hero=self.hero, coins=coins, **self.action_event_message_arguments())
+        elif event_reward.is_ARTIFACT:
+            artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
+            self.hero.add_message(message_type, hero=self.hero, artifact=artifact, **self.action_event_message_arguments())
+        elif event_reward.is_EXPERIENCE:
+            experience = self.hero.add_experience(int(c.HABIT_EVENT_EXPERIENCE * random.uniform(1.0-c.HABIT_EVENT_EXPERIENCE_DELTA, 1.0+c.HABIT_EVENT_EXPERIENCE_DELTA)))
+            self.hero.add_message(message_type, hero=self.hero, experience=experience, **self.action_event_message_arguments())
+
+    def action_event_message_arguments(self):
+        return {}
+
 
     def __eq__(self, other):
 
@@ -1136,7 +1170,7 @@ class ActionInPlacePrototype(ActionBase):
             self.spend_money__experience()
 
         else:
-            raise ActionException('wrong hero money spend type: %d' % self.hero.next_spending)
+            raise exceptions.ActionException('wrong hero money spend type: %d' % self.hero.next_spending)
 
 
     def process_settlement(self):

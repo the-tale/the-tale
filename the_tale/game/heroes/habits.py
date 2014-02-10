@@ -11,6 +11,8 @@ from the_tale.game.mobs.relations import MOB_TYPE
 
 from the_tale.game.balance import constants as c
 
+from the_tale.game.actions.relations import ACTION_EVENT
+
 from the_tale.game.heroes import relations
 
 
@@ -87,6 +89,14 @@ class Honor(Habit):
             value[QUEST_OPTION_MARKERS.HONORABLE] = abs(self.raw_value / float(c.HABITS_BORDER)) * c.HABIT_QUEST_REWARD_MAX_BONUS
             return value
 
+        if modifier.is_HONOR_EVENTS and (self.interval.is_RIGHT_2 or self.interval.is_RIGHT_3):
+            value.add(ACTION_EVENT.NOBLE)
+            return value
+
+        if modifier.is_HONOR_EVENTS and (self.interval.is_LEFT_2 or self.interval.is_LEFT_3):
+            value.add(ACTION_EVENT.DISHONORABLE)
+            return value
+
         return value
 
     def check_attribute(self, modifier):
@@ -139,6 +149,15 @@ class Aggressiveness(Habit):
         if modifier.is_QUEST_MARKERS_REWARD_BONUS and (self.interval.is_RIGHT_1 or self.interval.is_RIGHT_2 or self.interval.is_RIGHT_3):
             value[QUEST_OPTION_MARKERS.UNAGGRESSIVE] = abs(self.raw_value / float(c.HABITS_BORDER)) * c.HABIT_QUEST_REWARD_MAX_BONUS
             return value
+
+        if modifier.is_HONOR_EVENTS and (self.interval.is_RIGHT_2 or self.interval.is_RIGHT_3):
+            value.add(ACTION_EVENT.PEACEABLE)
+            return value
+
+        if modifier.is_HONOR_EVENTS and (self.interval.is_LEFT_2 or self.interval.is_LEFT_3):
+            value.add(ACTION_EVENT.AGGRESSIVE)
+            return value
+
 
         return value
 

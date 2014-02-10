@@ -327,6 +327,26 @@ _REQUIRED_BONUS_EXP = _TELEPORT_TURNS_BONUS + _PEACEFULL_TURNS_BONUS - _BATTLE_T
 EXP_FOR_KILL_PROBABILITY = float(EXP_PER_HOUR * _REQUIRED_BONUS_EXP) / EXP_FOR_KILL / _KILLS_IN_HOUR
 
 ###########################
+# события для черт
+###########################
+
+HABIT_EVENTS_IN_DAY = float(1.33) # количество событий в сутки
+HABIT_EVENTS_IN_TURN = float(HABIT_EVENTS_IN_DAY / 24 / TURNS_IN_HOUR) # вероятность события в ход
+
+# приоритеты событий с разными эффектами
+HABIT_EVENT_NOTHING_PRIORITY = float(4)
+HABIT_EVENT_MONEY_PRIORITY = float(4)
+HABIT_EVENT_ARTIFACT_PRIORITY = float(2)
+HABIT_EVENT_EXPERIENCE_PRIORITY = float(1)
+
+# получаемые деньги могут быть эквиваленты цене продажи артефакта
+# артефакт может создаваться обычным (как при луте)
+# считаем, что можем позволить ускорить прокачку на 5%
+_HABIT_EVENT_TOTAL_PRIORITY = HABIT_EVENT_NOTHING_PRIORITY + HABIT_EVENT_MONEY_PRIORITY + HABIT_EVENT_ARTIFACT_PRIORITY + HABIT_EVENT_EXPERIENCE_PRIORITY
+HABIT_EVENT_EXPERIENCE = int(0.05 * (24.0 * EXP_PER_HOUR) / (HABIT_EVENTS_IN_DAY * HABIT_EVENT_EXPERIENCE_PRIORITY / _HABIT_EVENT_TOTAL_PRIORITY) )
+HABIT_EVENT_EXPERIENCE_DELTA = float(0.5) # разброс опыта
+
+###########################
 # pvp
 ###########################
 

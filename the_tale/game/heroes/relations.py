@@ -126,7 +126,8 @@ class MODIFIERS(DjangoEnum):
                 ('EXP_FOR_KILL', 22, u'опыт за убийство моснтра'),
                 ('PEACEFULL_BATTLE', 23, u'мирный бой'),
                 ('FRIEND_QUEST_PRIORITY', 24, u'приоритет задания на помощь другу'),
-                ('ENEMY_QUEST_PRIORITY', 25, u'приоритет задания на вредительство врагу') )
+                ('ENEMY_QUEST_PRIORITY', 25, u'приоритет задания на вредительство врагу'),
+                ('HONOR_EVENTS', 26, u'события для черт'))
 
 
 
