@@ -31,6 +31,9 @@ class MessagesContainer(object):
         if len(self.messages) > heroes_settings.MESSAGES_LOG_LENGTH:
             self.messages.pop(0)
 
+    def messages_number(self):
+        return len(self.messages)
+
     def _clear(self):
         del self.messages[:]
         self.updated = True

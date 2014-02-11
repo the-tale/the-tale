@@ -12,9 +12,11 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.balance import formulas as f, constants as c, enums as e
 
 from the_tale.game.logic import create_test_map
+from the_tale.game.prototypes import TimePrototype
+
 from the_tale.game.actions.prototypes import ActionMoveToPrototype, ActionInPlacePrototype, ActionRestPrototype
 from the_tale.game.actions.prototypes import ActionResurrectPrototype, ActionBattlePvE1x1Prototype, ActionRegenerateEnergyPrototype
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game.actions.tests.helpers import ActionEventsTestsMixin
 
 
 
@@ -37,9 +39,13 @@ class BaseMoveToActionTest(testcase.TestCase):
         self.action_move = ActionMoveToPrototype.create(hero=self.hero, destination=self.p3)
 
 
-
 @mock.patch('the_tale.game.balance.constants.PICKED_UP_IN_ROAD_PROBABILITY', 0)
-class MoveToActionTest(BaseMoveToActionTest):
+class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
+
+    def setUp(self):
+        super(MoveToActionTest, self).setUp()
+
+        self.action_event = self.action_move
 
 
     def test_create(self):

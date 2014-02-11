@@ -333,6 +333,9 @@ EXP_FOR_KILL_PROBABILITY = float(EXP_PER_HOUR * _REQUIRED_BONUS_EXP) / EXP_FOR_K
 HABIT_EVENTS_IN_DAY = float(1.33) # количество событий в сутки
 HABIT_EVENTS_IN_TURN = float(HABIT_EVENTS_IN_DAY / 24 / TURNS_IN_HOUR) # вероятность события в ход
 
+HABIT_MOVE_EVENTS_IN_TURN = HABIT_EVENTS_IN_TURN # вероятность события при движении
+HABIT_IN_PLACE_EVENTS_IN_TURN = HABIT_EVENTS_IN_TURN * 10 # вероятность события в городе (с учётом имплементации)
+
 # приоритеты событий с разными эффектами
 HABIT_EVENT_NOTHING_PRIORITY = float(4)
 HABIT_EVENT_MONEY_PRIORITY = float(4)

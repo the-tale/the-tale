@@ -43,16 +43,17 @@ class PREFERENCE_TYPE(DjangoEnum):
 class MONEY_SOURCE(DjangoEnum):
 
     records = ( ('EARNED_FROM_LOOT', 0, u'заработано продажей добычи'),
-                 ('EARNED_FROM_ARTIFACTS', 1, u'заработано продажей артефактов'),
-                 ('EARNED_FROM_QUESTS', 2, u'заработано выполнением квестов'),
-                 ('EARNED_FROM_HELP', 3, u'получено от хранителя'),
+                ('EARNED_FROM_ARTIFACTS', 1, u'заработано продажей артефактов'),
+                ('EARNED_FROM_QUESTS', 2, u'заработано выполнением квестов'),
+                ('EARNED_FROM_HELP', 3, u'получено от хранителя'),
+                ('EARNED_FROM_HABITS', 4, u'получено от черт'),
 
-                 ('SPEND_FOR_HEAL', 1000, u'потрачено на лечение'),
-                 ('SPEND_FOR_ARTIFACTS', 1001, u'потрачено на покупку артефактов'),
-                 ('SPEND_FOR_SHARPENING', 1002, u'потрачено на заточку артефактов'),
-                 ('SPEND_FOR_USELESS', 1003, u'потрачено без пользы'),
-                 ('SPEND_FOR_IMPACT', 1004, u'потрачено на изменение влияния'),
-                 ('SPEND_FOR_EXPERIENCE', 1005, u'потрачено на обучение') )
+                ('SPEND_FOR_HEAL', 1000, u'потрачено на лечение'),
+                ('SPEND_FOR_ARTIFACTS', 1001, u'потрачено на покупку артефактов'),
+                ('SPEND_FOR_SHARPENING', 1002, u'потрачено на заточку артефактов'),
+                ('SPEND_FOR_USELESS', 1003, u'потрачено без пользы'),
+                ('SPEND_FOR_IMPACT', 1004, u'потрачено на изменение влияния'),
+                ('SPEND_FOR_EXPERIENCE', 1005, u'потрачено на обучение') )
 
 
 

@@ -46,6 +46,8 @@ class HeroStatistics(object):
                 self.hero._model.stat_money_earned_from_quests += value
             elif source.is_EARNED_FROM_HELP:
                 self.hero._model.stat_money_earned_from_help += value
+            elif source.is_EARNED_FROM_HABITS:
+                self.hero._model.stat_money_earned_from_habits += value
             elif source.is_SPEND_FOR_HEAL:
                 self.hero._model.stat_money_spend_for_heal += value
             elif source.is_SPEND_FOR_ARTIFACTS:
@@ -67,7 +69,8 @@ class HeroStatistics(object):
     def money_earned(self): return (self.money_earned_from_loot +
                                     self.money_earned_from_artifacts +
                                     self.money_earned_from_quests +
-                                    self.money_earned_from_help)
+                                    self.money_earned_from_help +
+                                    self.money_earned_from_habits)
 
     @property
     def money_spend(self): return (self.money_spend_for_heal +
@@ -88,6 +91,9 @@ class HeroStatistics(object):
 
     @property
     def money_earned_from_help(self): return self.hero._model.stat_money_earned_from_help
+
+    @property
+    def money_earned_from_habits(self): return self.hero._model.stat_money_earned_from_habits
 
 
     @property

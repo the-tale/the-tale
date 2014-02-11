@@ -10,7 +10,10 @@ from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.heroes.relations import EQUIPMENT_SLOT
 from the_tale.game.logic import create_test_map
+
 from the_tale.game.actions.prototypes import ActionInPlacePrototype, ActionRestPrototype, ActionTradingPrototype, ActionEquippingPrototype, ActionRegenerateEnergyPrototype
+from the_tale.game.actions.tests.helpers import ActionEventsTestsMixin
+
 from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.prototypes import TimePrototype
 
@@ -19,7 +22,7 @@ from the_tale.game.map.places.modifiers.prototypes import HolyCity, Resort
 from the_tale.game.balance import constants as c, formulas as f, enums as e
 
 
-class InPlaceActionTest(testcase.TestCase):
+class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
     def setUp(self):
         super(InPlaceActionTest, self).setUp()
@@ -35,6 +38,8 @@ class InPlaceActionTest(testcase.TestCase):
         self.hero._model.pos_previous_place_id = None # test setting prevouse place in action constructor
 
         self.action_inplace = ActionInPlacePrototype.create(hero=self.hero)
+
+        self.action_event = self.action_inplace
 
     def test_create(self):
         self.assertEqual(self.hero.position.previous_place, self.hero.position.place)

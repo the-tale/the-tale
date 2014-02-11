@@ -45,7 +45,7 @@
         },
 
         "habit_move_to_dishonorable_artifact": {
-            "name": "В движении, черты, бесчестие (артифакт)",
+            "name": "В движении, черты, бесчестие (артефакт)",
             "description": "",
             "variables": {"hero": "привидение", "artifact": "пепельница"},
             "phrases": [
