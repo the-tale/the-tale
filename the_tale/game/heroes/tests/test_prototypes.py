@@ -470,7 +470,34 @@ class HeroTest(TestCase):
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
             self.hero.process_rare_operations()
 
-        self.assertEqual(update_habits.call_args_list, [mock.call(relations.HABIT_CHANGE_SOURCE.PERIODIC)])
+        self.assertEqual(update_habits.call_args_list, [mock.call(relations.HABIT_CHANGE_SOURCE.PERIODIC_LEFT, multuplier=0.00011574074074074075),
+                                                        mock.call(relations.HABIT_CHANGE_SOURCE.PERIODIC_RIGHT, multuplier=0.00011574074074074075)])
+
+    @mock.patch('the_tale.game.heroes.conf.heroes_settings.RARE_OPERATIONS_INTERVAL', 1)
+    def test_process_rare_operations__update_habits__from_left(self):
+        game_time = TimePrototype.get_current_time()
+        game_time.increment_turn()
+
+        self.hero.habit_honor.change(-500)
+        self.hero.habit_peacefulness.change(-500)
+
+        self.hero.process_rare_operations()
+
+        self.assertTrue(self.hero.habit_honor.raw_value > -500)
+        self.assertTrue(self.hero.habit_peacefulness.raw_value > -500)
+
+    @mock.patch('the_tale.game.heroes.conf.heroes_settings.RARE_OPERATIONS_INTERVAL', 1)
+    def test_process_rare_operations__update_habits__from_right(self):
+        game_time = TimePrototype.get_current_time()
+        game_time.increment_turn()
+
+        self.hero.habit_honor.change(500)
+        self.hero.habit_peacefulness.change(500)
+
+        self.hero.process_rare_operations()
+
+        self.assertTrue(self.hero.habit_honor.raw_value < 500)
+        self.assertTrue(self.hero.habit_peacefulness.raw_value < 500)
 
 
     def test_get_achievement_type_value(self):
@@ -671,6 +698,26 @@ class HeroQuestsTest(TestCase):
         self.hero = HeroPrototype.get_by_account_id(account_id)
 
 
+    def test_special_quests__hometown(self):
+        self.assertFalse(QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests()])
+        self.hero.preferences.set_place(places_storage.all()[0])
+        self.assertTrue(QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests()])
+
+    def test_special_quests__friend(self):
+        self.assertFalse(QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests()])
+        self.hero.preferences.set_friend(persons_storage.all()[0])
+        self.assertTrue(QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests()])
+
+    def test_special_quests__enemy(self):
+        self.assertFalse(QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests()])
+        self.hero.preferences.set_enemy(persons_storage.all()[0])
+        self.assertTrue(QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests()])
+
+    def test_special_quests__hunt(self):
+        self.assertFalse(QUESTS.HUNT in [quest for quest, priority in self.hero.get_quests()])
+        self.hero.preferences.set_mob(mobs_storage.all()[0])
+        self.assertTrue(QUESTS.HUNT in [quest for quest, priority in self.hero.get_quests()])
+
     def test_special_quests_searchsmith_without_preferences(self):
         self.assertFalse(QUESTS.SEARCH_SMITH in [quest for quest, priority in self.hero.get_quests()])
 
@@ -705,12 +752,12 @@ class HeroQuestsTest(TestCase):
         self.assertEqual(self.hero.modify_quest_priority(QUESTS.HELP_FRIEND), QUESTS.HELP_FRIEND.priority)
         self.assertEqual(self.hero.modify_quest_priority(QUESTS.INTERFERE_ENEMY), QUESTS.INTERFERE_ENEMY.priority)
 
-    @mock.patch('the_tale.game.heroes.habits.Aggressiveness.interval', relations.HABIT_AGGRESSIVENESS_INTERVAL.RIGHT_3)
+    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', relations.HABIT_PEACEFULNESS_INTERVAL.RIGHT_3)
     def test_modify_quest_priority__friend(self):
         self.assertTrue(self.hero.modify_quest_priority(QUESTS.HELP_FRIEND) > QUESTS.HELP_FRIEND.priority)
         self.assertEqual(self.hero.modify_quest_priority(QUESTS.INTERFERE_ENEMY), QUESTS.INTERFERE_ENEMY.priority)
 
-    @mock.patch('the_tale.game.heroes.habits.Aggressiveness.interval', relations.HABIT_AGGRESSIVENESS_INTERVAL.LEFT_3)
+    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', relations.HABIT_PEACEFULNESS_INTERVAL.LEFT_3)
     def test_modify_quest_priority__enemy(self):
         self.assertEqual(self.hero.modify_quest_priority(QUESTS.HELP_FRIEND), QUESTS.HELP_FRIEND.priority)
         self.assertTrue(self.hero.modify_quest_priority(QUESTS.INTERFERE_ENEMY)> QUESTS.INTERFERE_ENEMY.priority)

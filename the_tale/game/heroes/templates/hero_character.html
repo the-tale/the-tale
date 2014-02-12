@@ -54,8 +54,8 @@ jQuery(document).ready(function(e){
         jQuery('#pgf-attributes-container .pgf-habit-honor-raw').text(Math.round(data.habits.honor.raw*100)/100);
         jQuery('#pgf-attributes-container .pgf-habit-honor-verbose').text(data.habits.honor.verbose);
 
-        jQuery('#pgf-attributes-container .pgf-habit-aggressiveness-raw').text(Math.round(data.habits.aggressiveness.raw*100)/100);
-        jQuery('#pgf-attributes-container .pgf-habit-aggressiveness-verbose').text(data.habits.aggressiveness.verbose);
+        jQuery('#pgf-attributes-container .pgf-habit-peacefulness-raw').text(Math.round(data.habits.peacefulness.raw*100)/100);
+        jQuery('#pgf-attributes-container .pgf-habit-peacefulness-verbose').text(data.habits.peacefulness.verbose);
     });
 
 {% endif %}
@@ -140,7 +140,7 @@ jQuery(document).ready(function(e){
           <i class="icon-info-sign"
              style="vertical-align: middle;"
              rel="tooltip"
-             title="подробнее…"></i>
+             title="подробнее"></i>
         </a>
       </span>
     </span>
@@ -155,7 +155,7 @@ jQuery(document).ready(function(e){
 
   <ul class="unstyled">
     {{ habit_record(HABIT_TYPE.HONOR)}}
-    {{ habit_record(HABIT_TYPE.AGGRESSIVENESS)}}
+    {{ habit_record(HABIT_TYPE.PEACEFULNESS)}}
   </ul>
 
   <h3>предпочтения</h3>

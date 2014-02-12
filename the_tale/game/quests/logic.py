@@ -213,8 +213,11 @@ def create_random_quest_for_hero(hero):
 def try_to_create_random_quest_for_hero(hero, quests, excluded_quests, without_restrictions):
 
     for quest_type in quests:
+        if quest_type in excluded_quests:
+            continue
+
         try:
-            return _create_random_quest_for_hero(hero, start_quests=[quest_type.quest_class.TYPE], excluded_quests=excluded_quests, without_restrictions=without_restrictions)
+            return _create_random_quest_for_hero(hero, start_quests=[quest_type.quest_class.TYPE], without_restrictions=without_restrictions)
         except questgen_exceptions.RollBackError:
             continue
 
@@ -222,7 +225,7 @@ def try_to_create_random_quest_for_hero(hero, quests, excluded_quests, without_r
 
 
 @retry_on_exception(max_retries=quests_settings.MAX_QUEST_GENERATION_RETRIES, exceptions=[questgen_exceptions.RollBackError])
-def _create_random_quest_for_hero(hero, start_quests, excluded_quests=[], without_restrictions=False):
+def _create_random_quest_for_hero(hero, start_quests, without_restrictions=False):
     knowledge_base = get_knowledge_base(hero, without_restrictions=without_restrictions)
 
     selector = Selector(knowledge_base, QUESTS_BASE)
@@ -234,7 +237,7 @@ def _create_random_quest_for_hero(hero, start_quests, excluded_quests=[], withou
     quests_facts = selector.create_quest_from_place(nesting=0,
                                                     initiator_position=start_place,
                                                     allowed=start_quests,
-                                                    excluded=excluded_quests,
+                                                    excluded=[],
                                                     tags=('can_start', ))
 
     knowledge_base += quests_facts

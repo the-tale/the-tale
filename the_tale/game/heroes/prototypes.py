@@ -399,25 +399,25 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
     def habit_honor(self): return habits.Honor(self, 'honor')
 
     @lazy_property
-    def habit_aggressiveness(self): return habits.Aggressiveness(self, 'aggressiveness')
+    def habit_peacefulness(self): return habits.Peacefulness(self, 'peacefulness')
 
-    def update_habits(self, change_source):
+    def update_habits(self, change_source, multuplier=1.0):
 
         if change_source.correlation_requirements is None:
-            self.habit_honor.change(change_source.honor)
-            self.habit_aggressiveness.change(change_source.aggressiveness)
+            self.habit_honor.change(change_source.honor*multuplier)
+            self.habit_peacefulness.change(change_source.peacefulness*multuplier)
 
         elif change_source.correlation_requirements:
             if self.habit_honor.raw_value * change_source.honor > 0:
-                self.habit_honor.change(change_source.honor)
-            if self.habit_aggressiveness.raw_value * change_source.aggressiveness > 0:
-                self.habit_aggressiveness.change(change_source.aggressiveness)
+                self.habit_honor.change(change_source.honor*multuplier)
+            if self.habit_peacefulness.raw_value * change_source.peacefulness > 0:
+                self.habit_peacefulness.change(change_source.peacefulness*multuplier)
 
         else:
             if self.habit_honor.raw_value * change_source.honor < 0:
-                self.habit_honor.change(change_source.honor)
-            if self.habit_aggressiveness.raw_value * change_source.aggressiveness < 0:
-                self.habit_aggressiveness.change(change_source.aggressiveness)
+                self.habit_honor.change(change_source.honor*multuplier)
+            if self.habit_peacefulness.raw_value * change_source.peacefulness < 0:
+                self.habit_peacefulness.change(change_source.peacefulness*multuplier)
 
     ###########################################
     # Permissions
@@ -663,8 +663,8 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
                                'loot_items_count': self.bag.occupation},
                 'habits': { 'honor': {'verbose': self.habit_honor.verbose_value,
                                       'raw': self.habit_honor.raw_value},
-                            'aggressiveness': {'verbose': self.habit_aggressiveness.verbose_value,
-                                               'raw': self.habit_aggressiveness.raw_value}},
+                            'peacefulness': {'verbose': self.habit_peacefulness.verbose_value,
+                                             'raw': self.habit_peacefulness.raw_value}},
                 'quests': self.quests.ui_info(self),
                 'sprite': get_hero_sprite(self).value
                 }
@@ -825,7 +825,9 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
 
         current_turn = TimePrototype.get_current_turn_number()
 
-        if current_turn - self.last_rare_operation_at_turn < heroes_settings.RARE_OPERATIONS_INTERVAL:
+        passed_interval = current_turn - self.last_rare_operation_at_turn
+
+        if passed_interval < heroes_settings.RARE_OPERATIONS_INTERVAL:
             return
 
         self.quests.sync_interfered_persons()
@@ -833,7 +835,11 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
         with achievements_storage.verify(type=ACHIEVEMENT_TYPE.TIME, object=self):
             self.last_rare_operation_at_turn = current_turn
 
-        self.update_habits(relations.HABIT_CHANGE_SOURCE.PERIODIC)
+
+        habits_multiplier = float(passed_interval) / (24 * c.TURNS_IN_HOUR)
+
+        self.update_habits(relations.HABIT_CHANGE_SOURCE.PERIODIC_LEFT, multuplier=habits_multiplier)
+        self.update_habits(relations.HABIT_CHANGE_SOURCE.PERIODIC_RIGHT, multuplier=habits_multiplier)
 
 
 

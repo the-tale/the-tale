@@ -2,6 +2,7 @@
 import random
 
 import mock
+import jinja2
 
 from django.test import client
 from django.core.urlresolvers import reverse
@@ -202,8 +203,8 @@ class TestCallsPage(TestRequestsBase):
         self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 1),
                                                                               ('pgf-no-current-battles-message', 0),
                                                                               ('pgf-accept-battle', 0),
-                                                                              self.hero_1.name,
-                                                                              self.hero_2.name])
+                                                                              jinja2.escape(self.hero_1.name),
+                                                                              jinja2.escape(self.hero_2.name)])
 
     def test_only_waiting_and_processing_battles(self):
         for state in BATTLE_1X1_STATE.records:

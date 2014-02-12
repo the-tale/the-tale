@@ -9,7 +9,7 @@ from the_tale.game.balance import constants as c
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes.logic import create_mob_for_hero
-from the_tale.game.heroes.relations import HABIT_HONOR_INTERVAL, HABIT_AGGRESSIVENESS_INTERVAL
+from the_tale.game.heroes.relations import HABIT_HONOR_INTERVAL, HABIT_PEACEFULNESS_INTERVAL
 
 from the_tale.game.mobs.storage import mobs_storage
 
@@ -154,16 +154,26 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
     @mock.patch('the_tale.game.balance.constants.KILL_BEFORE_BATTLE_PROBABILITY', 1.01)
     @mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.LEFT_3)
     def test_kill_before_start(self):
+
+        self.hero.actions.pop_action()
+
         with self.check_delta(lambda: self.hero.statistics.pve_kills, 1):
             action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=create_mob_for_hero(self.hero))
 
         self.assertEqual(action_battle.percents, 1.0)
-        self.assertEqual(action_battle.state, self.action_battle.STATE.BATTLE_RUNNING)
+        self.assertEqual(action_battle.state, self.action_battle.STATE.PROCESSED)
+
+        self.storage.process_turn(second_step_if_needed=False)
+
+        self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
 
     @mock.patch('the_tale.game.balance.constants.PEACEFULL_BATTLE_PROBABILITY', 1.01)
-    @mock.patch('the_tale.game.heroes.habits.Aggressiveness.interval', HABIT_AGGRESSIVENESS_INTERVAL.RIGHT_3)
+    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', HABIT_PEACEFULNESS_INTERVAL.RIGHT_3)
     def test_peacefull_battle(self):
+
+        self.hero.actions.pop_action()
+
         mob = (m for m in mobs_storage.all() if m.type.is_CIVILIZED).next()
 
         with self.check_delta(lambda: self.hero.statistics.pve_kills, 0):
@@ -172,10 +182,14 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(action_battle.percents, 1.0)
         self.assertEqual(action_battle.state, self.action_battle.STATE.PROCESSED)
 
+        self.storage.process_turn(second_step_if_needed=False)
+
+        self.assertEqual(self.hero.actions.current_action, self.action_idl)
+
 
     @mock.patch('the_tale.game.balance.constants.EXP_FOR_KILL_PROBABILITY', 1.01)
     @mock.patch('the_tale.game.balance.constants.EXP_FOR_KILL_DELTA', 0)
-    @mock.patch('the_tale.game.heroes.habits.Aggressiveness.interval', HABIT_AGGRESSIVENESS_INTERVAL.LEFT_3)
+    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', HABIT_PEACEFULNESS_INTERVAL.LEFT_3)
     def test_experience_for_kill(self):
         mob = create_mob_for_hero(self.hero)
         mob.health = 0

@@ -173,6 +173,7 @@ ANGEL_ENERGY_REGENERATION_STEPS = { e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 3,
 ##########################
 
 ANGEL_HELP_COST = 4
+ANGEL_ARENA_COST = 1
 
 ANGEL_HELP_HEAL_IF_LOWER_THEN = float(0.8) # можем лечить если здоровья меньше чем
 
@@ -266,9 +267,13 @@ ABILITIES_FOR_CHOOSE_MAXIMUM = int(4)
 HABITS_BORDER = int(1000) # модуль максимального значения черты
 HABITS_RIGHT_BORDERS = [-700, -300, -100, 100, 300, 700, 1001] # правые границы черт
 HABITS_QUEST_ACTIVE_DELTA = float(5) # за выбор в заданиии гроком
-HABITS_QUEST_PASSIVE_DELTA = float(0.1 * HABITS_QUEST_ACTIVE_DELTA) # за неверный выбор героем
-HABITS_ABILITY_DELTA = float(HABITS_BORDER / (30 * _ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST)) # за использование способности
-HABITS_PERIODIC_DELTA = float(0.1 * (HABITS_QUEST_ACTIVE_DELTA*2 + HABITS_ABILITY_DELTA * (_ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST))/2 ) # скорость автоматического уменьшения (в день)
+HABITS_QUEST_PASSIVE_DELTA = float(0.25 * HABITS_QUEST_ACTIVE_DELTA) # за неверный выбор героем
+HABITS_HELP_ABILITY_DELTA = float(float(HABITS_BORDER) / (30 * _ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST)) # за использование способности
+HABITS_ARENA_ABILITY_DELTA = float(float(HABITS_BORDER) / (30 * _ANGEL_ENERGY_IN_DAY / ANGEL_ARENA_COST)) # за использование способности
+
+# скорость автоматического уменьшения (в день)
+HABITS_PERIODIC_DELTA = float(0.1 * HABITS_QUEST_ACTIVE_DELTA * 2)
+
 
 KILL_BEFORE_BATTLE_PROBABILITY = float(0.05)  # вероятность убить мобы в начале боя
 PICKED_UP_IN_ROAD_TELEPORT_LENGTH = ANGEL_HELP_TELEPORT_DISTANCE
@@ -317,7 +322,6 @@ _PEACEFULL_TURNS_BONUS = PEACEFULL_BATTLE_PROBABILITY * float(BATTLES_BEFORE_HEA
 
 EXP_FOR_KILL = int(12*EXP_PER_HOUR) # средний опыт за убийство монстра
 EXP_FOR_KILL_DELTA = float(0.5) # разброс опыта за убийство
-EXP_FOR_KILL_PROBABILITY = float(0.01)
 
 
 _KILLS_IN_HOUR = float(TURNS_IN_HOUR) / ACTIONS_CYCLE_LENGTH * BATTLES_BEFORE_HEAL

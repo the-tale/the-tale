@@ -116,14 +116,14 @@ class QuestInfoTests(testcase.TestCase, QuestTestsMixin):
 
         self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.0)
 
-        self.quest_info.used_markers.add(QUEST_OPTION_MARKERS.DISHONORABLE)
+        self.quest_info.used_markers[QUEST_OPTION_MARKERS.DISHONORABLE] = True
         self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.3)
 
-        self.quest_info.used_markers.add(QUEST_OPTION_MARKERS.AGGRESSIVE)
+        self.quest_info.used_markers[QUEST_OPTION_MARKERS.AGGRESSIVE] = False
         self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.3*1.4)
 
-        self.quest_info.used_markers.add(QUEST_OPTION_MARKERS.HONORABLE)
+        self.quest_info.used_markers[QUEST_OPTION_MARKERS.HONORABLE] = False
         self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.3*1.4*1.2)
 
-        self.quest_info.used_markers.add(QUEST_OPTION_MARKERS.UNAGGRESSIVE)
+        self.quest_info.used_markers[QUEST_OPTION_MARKERS.UNAGGRESSIVE] =  True
         self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.3*1.4*1.2*1.5)

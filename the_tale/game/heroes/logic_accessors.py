@@ -12,18 +12,18 @@ class LogicAccessorsMixin(object):
     def modify_attribute(self, modifier, value):
         value = self.abilities.modify_attribute(modifier, value)
         value = self.habit_honor.modify_attribute(modifier, value)
-        value = self.habit_aggressiveness.modify_attribute(modifier, value)
+        value = self.habit_peacefulness.modify_attribute(modifier, value)
         return value
 
     def check_attribute(self, modifier):
         return ( self.abilities.check_attribute(modifier) or
                  self.habit_honor.check_attribute(modifier) or
-                 self.habit_aggressiveness.check_attribute(modifier) )
+                 self.habit_peacefulness.check_attribute(modifier) )
 
     def update_context(self, hero_actor, enemy):
         self.abilities.update_context(hero_actor, enemy)
         self.habit_honor.update_context(hero_actor, enemy)
-        self.habit_aggressiveness.update_context(hero_actor, enemy)
+        self.habit_peacefulness.update_context(hero_actor, enemy)
 
     ################################
     # modifiers

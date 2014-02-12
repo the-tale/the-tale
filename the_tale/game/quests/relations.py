@@ -50,7 +50,7 @@ class QUESTS(DjangoEnum):
 
     records = ( ('SPYING', 0, u'шпионаж', Spying, QUEST_TYPE.NORMAL, 1.0),
                 ('HUNT', 1, u'охота', Hunt, QUEST_TYPE.CHARACTER, 1.0),
-                ('HONETOWN', 2, u'посетить родной город', Hometown, QUEST_TYPE.CHARACTER, 1.0),
+                ('HOMETOWN', 2, u'посетить родной город', Hometown, QUEST_TYPE.CHARACTER, 1.0),
                 ('SEARCH_SMITH', 3, u'посетить кузнеца', SearchSmith, QUEST_TYPE.CHARACTER, 1.0),
                 ('DELIVERY', 4, u'доставка', Delivery, QUEST_TYPE.NORMAL, 1.0),
                 ('CARAVAN', 5, u'караван', Caravan, QUEST_TYPE.NORMAL, 1.0),

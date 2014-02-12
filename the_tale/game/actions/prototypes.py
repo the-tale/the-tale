@@ -863,7 +863,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
 
         if kill_before_battle:
             percents = 1.0
-            state = cls.STATE.BATTLE_RUNNING
+            state = cls.STATE.PROCESSED
             hero.add_message('action_battlepve1x1_kill_before_start', hero=hero, mob=mob)
         elif can_peacefull_battle:
             percents = 1.0
@@ -939,8 +939,9 @@ class ActionBattlePvE1x1Prototype(ActionBase):
             self.hero.add_message('action_battlepve1x1_no_loot', hero=self.hero, mob=self.mob)
 
         if self.hero.can_get_exp_for_kill():
-            experience = self.hero.add_experience(int(c.EXP_FOR_KILL*random.uniform(1.0-c.EXP_FOR_KILL_DELTA, 1.0+c.EXP_FOR_KILL_DELTA)))
-            self.hero.add_message('action_battlepve1x1_exp_for_kill', hero=self.hero, mob=self.mob, diary=True, experience=experience)
+            raw_experience = int(c.EXP_FOR_KILL*random.uniform(1.0-c.EXP_FOR_KILL_DELTA, 1.0+c.EXP_FOR_KILL_DELTA))
+            real_experience = self.hero.add_experience(raw_experience)
+            self.hero.add_message('action_battlepve1x1_exp_for_kill', hero=self.hero, mob=self.mob, diary=True, experience=real_experience)
 
 
     def process(self):

@@ -94,6 +94,7 @@ class ConstantsTest(testcase.TestCase):
                                                               e.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 4 })
 
         self.assertEqual(c.ANGEL_HELP_COST, 4)
+        self.assertEqual(c.ANGEL_ARENA_COST, 1)
         self.assertEqual(c.ANGEL_HELP_HEAL_IF_LOWER_THEN, float(0.8))
 
         self.assertEqual(c.ANGEL_HELP_HEAL_FRACTION,  (float(0.25), float(0.5)))
@@ -155,9 +156,10 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.HABITS_BORDER, 1000)
         self.assertEqual(c.HABITS_RIGHT_BORDERS, [-700, -300, -100, 100, 300, 700, 1001])
         self.assertEqual(c.HABITS_QUEST_ACTIVE_DELTA, 5.0)
-        self.assertEqual(c.HABITS_QUEST_PASSIVE_DELTA, 0.5)
-        self.assertEqual(round(c.HABITS_ABILITY_DELTA, 5), 2.0)
-        self.assertEqual(round(c.HABITS_PERIODIC_DELTA, 5), 1.7)
+        self.assertEqual(c.HABITS_QUEST_PASSIVE_DELTA, 1.25)
+        self.assertEqual(round(c.HABITS_HELP_ABILITY_DELTA, 5), 2.77778)
+        self.assertEqual(round(c.HABITS_ARENA_ABILITY_DELTA, 5), 0.69444)
+        self.assertEqual(round(c.HABITS_PERIODIC_DELTA, 5), 1.0)
 
         self.assertEqual(c.KILL_BEFORE_BATTLE_PROBABILITY, 0.05)
         self.assertEqual(c.PICKED_UP_IN_ROAD_TELEPORT_LENGTH, 3.0)

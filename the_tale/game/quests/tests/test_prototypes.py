@@ -1,10 +1,12 @@
 # coding: utf-8
 import mock
 import datetime
+import random
 
 from questgen import facts, requirements
 from questgen import actions as questgen_actions
 from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS
+from questgen.relations import OPTION_MARKERS_GROUPS
 
 from dext.utils import s11n
 
@@ -311,6 +313,28 @@ class InterpreterCallbacksTests(PrototypeTestsBase):
         for method_name in get_required_interpreter_methods():
             self.assertTrue(hasattr(self.quest, method_name))
 
+    def test_on_jump_end__only_one_marker_from_group(self):
+        all_markers = {}
+        for group in OPTION_MARKERS_GROUPS:
+            for marker in group:
+                all_markers[marker] = random.choice([True, False])
+
+        self.quest.quests_stack[-1].used_markers = all_markers
+
+        self.assertEqual(set(self.quest.quests_stack[-1].used_markers.keys()), set([QUEST_OPTION_MARKERS.HONORABLE,
+                                                                                    QUEST_OPTION_MARKERS.DISHONORABLE,
+                                                                                    QUEST_OPTION_MARKERS.AGGRESSIVE,
+                                                                                    QUEST_OPTION_MARKERS.UNAGGRESSIVE]))
+
+        jump = facts.Option(state_from='state_from', state_to='state_to', markers=[QUEST_OPTION_MARKERS.HONORABLE, QUEST_OPTION_MARKERS.AGGRESSIVE], type='opt')
+        path = facts.ChoicePath(choice='some_choice', option=jump.uid, default=True)
+
+        self.quest.knowledge_base += path
+
+        self.quest.on_jump_end__after_actions(jump)
+
+        self.assertEqual(set(self.quest.quests_stack[-1].used_markers.keys()), set([QUEST_OPTION_MARKERS.HONORABLE, QUEST_OPTION_MARKERS.AGGRESSIVE]))
+
     def test_update_habits__on_jump_end__after_actions__no_markers__default(self):
         jump = facts.Jump(state_from='state_from', state_to='state_to')
         path = facts.ChoicePath(choice='some_choice', option=jump.uid, default=True)
@@ -334,10 +358,27 @@ class InterpreterCallbacksTests(PrototypeTestsBase):
         path = facts.ChoicePath(choice='some_choice', option=jump.uid, default=True)
         self.quest.knowledge_base += path
 
+        self.quest.on_jump_end__after_actions(jump)
+
+        self.assertEqual(self.quest.quests_stack[-1].used_markers,
+                         {QUEST_OPTION_MARKERS.HONORABLE: True,
+                          QUEST_OPTION_MARKERS.AGGRESSIVE: True})
+
+    def test_finish_quest__update_habits__defaults(self):
+        jump = facts.Option(state_from='state_from', state_to='state_to', markers=[QUEST_OPTION_MARKERS.HONORABLE, QUEST_OPTION_MARKERS.AGGRESSIVE], type='opt')
+        path = facts.ChoicePath(choice='some_choice', option=jump.uid, default=True)
+        self.quest.knowledge_base += path
+
+        self.quest.on_jump_end__after_actions(jump)
+
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
-            self.quest.on_jump_end__after_actions(jump)
+            self.quest.on_state__after_actions(facts.Finish(uid='test_uid',
+                                                            start='any_start_uid',
+                                                            results={},
+                                                            nesting=666))
+
         self.assertEqual(update_habits.call_args_list, [mock.call(HABIT_CHANGE_SOURCE.QUEST_HONORABLE_DEFAULT),
-                                                         mock.call(HABIT_CHANGE_SOURCE.QUEST_AGGRESSIVE_DEFAULT)])
+                                                        mock.call(HABIT_CHANGE_SOURCE.QUEST_AGGRESSIVE_DEFAULT)])
 
 
 
@@ -364,10 +405,28 @@ class InterpreterCallbacksTests(PrototypeTestsBase):
         path = facts.ChoicePath(choice='some_choice', option=jump.uid, default=False)
         self.quest.knowledge_base += path
 
+        self.quest.on_jump_end__after_actions(jump)
+
+        self.assertEqual(self.quest.quests_stack[-1].used_markers,
+                         {QUEST_OPTION_MARKERS.HONORABLE: False,
+                          QUEST_OPTION_MARKERS.AGGRESSIVE: False})
+
+    def test_finish_quest__update_habits__custom(self):
+
+        jump = facts.Option(state_from='state_from', state_to='state_to', markers=[QUEST_OPTION_MARKERS.HONORABLE, QUEST_OPTION_MARKERS.AGGRESSIVE], type='opt')
+        path = facts.ChoicePath(choice='some_choice', option=jump.uid, default=False)
+        self.quest.knowledge_base += path
+
+        self.quest.on_jump_end__after_actions(jump)
+
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
-            self.quest.on_jump_end__after_actions(jump)
+            self.quest.on_state__after_actions(facts.Finish(uid='test_uid',
+                                                            start='any_start_uid',
+                                                            results={},
+                                                            nesting=666))
+
         self.assertEqual(update_habits.call_args_list, [mock.call(HABIT_CHANGE_SOURCE.QUEST_HONORABLE),
-                                                         mock.call(HABIT_CHANGE_SOURCE.QUEST_AGGRESSIVE)])
+                                                        mock.call(HABIT_CHANGE_SOURCE.QUEST_AGGRESSIVE)])
 
 
 class CheckRequirementsTests(PrototypeTestsBase):

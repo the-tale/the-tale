@@ -147,17 +147,17 @@ class HABIT_HONOR_INTERVAL(HABIT_INTERVAL):
                 ('NEUTRAL', 3, u'у себя на уме', u'у себя на уме', u'у себя на уме', c.HABITS_RIGHT_BORDERS[2], c.HABITS_RIGHT_BORDERS[3]),
                 ('RIGHT_1', 4, u'порядочный', u'порядочная', u'порядочное', c.HABITS_RIGHT_BORDERS[3], c.HABITS_RIGHT_BORDERS[4]),
                 ('RIGHT_2', 5, u'благородный', u'благородная', u'благородное', c.HABITS_RIGHT_BORDERS[4], c.HABITS_RIGHT_BORDERS[5]),
-                ('RIGHT_3', 6, u'хозяин своего слова', u'хозяйка своего слова', u'хозяин своего слова', c.HABITS_RIGHT_BORDERS[5], c.HABITS_RIGHT_BORDERS[6]) )
+                ('RIGHT_3', 6, u'хозяин своего слова', u'хозяйка своего слова', u'хозяин своего слова', c.HABITS_RIGHT_BORDERS[5], c.HABITS_BORDER) )
 
 
-class HABIT_AGGRESSIVENESS_INTERVAL(HABIT_INTERVAL):
+class HABIT_PEACEFULNESS_INTERVAL(HABIT_INTERVAL):
     records = ( ('LEFT_3', 0, u'скорый на расправу', u'скорая на расправу', u'скорое на расправу', -c.HABITS_BORDER, c.HABITS_RIGHT_BORDERS[0]),
                 ('LEFT_2', 1, u'вспыльчивый', u'вспыльчивая', u'вспыльчивое', c.HABITS_RIGHT_BORDERS[0], c.HABITS_RIGHT_BORDERS[1]),
                 ('LEFT_1', 2, u'задира', u'задира', u'задира', c.HABITS_RIGHT_BORDERS[1], c.HABITS_RIGHT_BORDERS[2]),
                 ('NEUTRAL', 3, u'сдержанный', u'сдержанная', u'сдержаное', c.HABITS_RIGHT_BORDERS[2], c.HABITS_RIGHT_BORDERS[3]),
                 ('RIGHT_1', 4, u'доброхот', u'доброхот', u'доброхот', c.HABITS_RIGHT_BORDERS[3], c.HABITS_RIGHT_BORDERS[4]),
                 ('RIGHT_2', 5, u'миролюбивый', u'миролюбивая', u'миролюбивое', c.HABITS_RIGHT_BORDERS[4], c.HABITS_RIGHT_BORDERS[5]),
-                ('RIGHT_3', 6, u'гуманист', u'гуманист', u'гуманист', c.HABITS_RIGHT_BORDERS[5], c.HABITS_RIGHT_BORDERS[6]) )
+                ('RIGHT_3', 6, u'гуманист', u'гуманист', u'гуманист', c.HABITS_RIGHT_BORDERS[5], c.HABITS_BORDER) )
 
 
 class HABIT_CHANGE_SOURCE(DjangoEnum):
@@ -165,7 +165,7 @@ class HABIT_CHANGE_SOURCE(DjangoEnum):
     quest_default = Column(unique=False, single_type=False)
     correlation_requirements = Column(unique=False, single_type=False)
     honor = Column(unique=False)
-    aggressiveness = Column(unique=False)
+    peacefulness = Column(unique=False)
 
     records = ( ('QUEST_HONORABLE', 0, u'выбор чести в задании игроком', QUEST_OPTION_MARKERS.HONORABLE, False, None,           c.HABITS_QUEST_ACTIVE_DELTA, 0.0),
                 ('QUEST_DISHONORABLE', 1, u'выбор бесчестия в задании игроком', QUEST_OPTION_MARKERS.DISHONORABLE, False, None,  -c.HABITS_QUEST_ACTIVE_DELTA, 0.0),
@@ -177,15 +177,17 @@ class HABIT_CHANGE_SOURCE(DjangoEnum):
                 ('QUEST_AGGRESSIVE_DEFAULT', 6, u'выборе агрессивности в задании героем', QUEST_OPTION_MARKERS.AGGRESSIVE, True, False, 0.0, -c.HABITS_QUEST_PASSIVE_DELTA),
                 ('QUEST_UNAGGRESSIVE_DEFAULT', 7, u'выбор миролюбия в задании героем', QUEST_OPTION_MARKERS.UNAGGRESSIVE, True, False,  0.0, c.HABITS_QUEST_PASSIVE_DELTA),
 
-                ('HELP_AGGRESSIVE', 8, u'помощь в бою', None, None, None,      0.0, -1.0),
-                ('HELP_UNAGGRESSIVE', 9, u'помощь вне боя', None, None, None,  0.0, 1.0),
-                ('ARENA_SEND', 10, u'отправка на арену', None, None, None,     0.0, -1.0),
-                ('ARENA_LEAVE', 11, u'покидание арены', None, None, None,      0.0, 1.0),
-                ('PERIODIC', 12, u'периодическое изменение', None, None, None, -1.0, -1.0) )
+                ('HELP_AGGRESSIVE', 8, u'помощь в бою', None, None, None,       0.0, -c.HABITS_HELP_ABILITY_DELTA),
+                ('HELP_UNAGGRESSIVE', 9, u'помощь вне боя', None, None, None,   0.0, c.HABITS_HELP_ABILITY_DELTA),
+                ('ARENA_SEND', 10, u'отправка на арену', None, None, None,      0.0, -c.HABITS_ARENA_ABILITY_DELTA),
+                ('ARENA_LEAVE', 11, u'покидание арены', None, None, None,       0.0, c.HABITS_ARENA_ABILITY_DELTA),
+
+                ('PERIODIC_LEFT', 12, u'периодическое изменение (слева)', None, None, False, c.HABITS_PERIODIC_DELTA, c.HABITS_PERIODIC_DELTA),
+                ('PERIODIC_RIGHT', 13, u'периодическое изменение (справа)', None, None, False, -c.HABITS_PERIODIC_DELTA, -c.HABITS_PERIODIC_DELTA) )
 
 
 class HABIT_TYPE(DjangoEnum):
     intervals = Column()
 
     records = ( ('HONOR', 0, u'честь', HABIT_HONOR_INTERVAL),
-                ('AGGRESSIVENESS', 1, u'агрессивность', HABIT_AGGRESSIVENESS_INTERVAL) )
+                ('PEACEFULNESS', 1, u'миролюбие', HABIT_PEACEFULNESS_INTERVAL) )

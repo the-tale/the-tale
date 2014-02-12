@@ -91,7 +91,7 @@ class Hero(models.Model):
     preferences = models.TextField(null=False, default='{}')
 
     habit_honor = models.FloatField(default=0)
-    habit_aggressiveness = models.FloatField(default=0)
+    habit_peacefulness = models.FloatField(default=0)
 
     #statistics
     stat_pve_deaths = models.BigIntegerField(default=0, null=False)

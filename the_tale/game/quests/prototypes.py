@@ -8,6 +8,7 @@ from questgen import facts
 from questgen.knowledge_base import KnowledgeBase
 from questgen import transformators
 from questgen.quests.base_quest import ROLES, RESULTS as QUEST_RESULTS
+from questgen.relations import OPTION_MARKERS_GROUPS
 
 from the_tale.game.prototypes import TimePrototype
 
@@ -41,7 +42,7 @@ class QuestInfo(object):
         self.experience = experience
         self.power = power
         self.actors = actors
-        self.used_markers = set(used_markers)
+        self.used_markers = used_markers
 
     def serialize(self):
         return {'type': self.type,
@@ -53,7 +54,7 @@ class QuestInfo(object):
                 'experience': self.experience,
                 'power': self.power,
                 'actors': self.actors,
-                'used_markers': list(self.used_markers)}
+                'used_markers': self.used_markers}
 
     def ui_info(self, hero):
         return {'type': self.type,
@@ -98,7 +99,7 @@ class QuestInfo(object):
     def deserialize(cls, data):
         # TODO: remove after v0.3.9
         if 'used_markers' not in data:
-            data['used_markers'] = set()
+            data['used_markers'] = {}
         return cls(**data)
 
     @classmethod
@@ -119,7 +120,7 @@ class QuestInfo(object):
                    experience=cls.get_expirience_for_quest(hero),
                    power=cls.get_person_power_for_quest(hero),
                    actors=actors,
-                   used_markers=set())
+                   used_markers={})
 
     @classmethod
     def substitution(cls, uid, knowledge_base, hero):
@@ -410,6 +411,11 @@ class QuestPrototype(object):
             if result == QUEST_RESULTS.FAILED:
                 hero.quests.add_interfered_person(self.knowledge_base[person_uid].externals['id'])
 
+        for marker, default in self.quests_stack[-1].used_markers.iteritems():
+            for change_source in HABIT_CHANGE_SOURCE.records:
+                if change_source.quest_marker == marker and change_source.quest_default == default:
+                    self.hero.update_habits(change_source)
+
         self.quests_stack.pop()
 
 
@@ -564,12 +570,18 @@ class QuestPrototype(object):
 
         path = (path for path in self.knowledge_base.filter(facts.ChoicePath) if path.option == jump.uid).next()
 
-        self.quests_stack[-1].used_markers |= set(jump.markers)
-
+        used_markers = self.quests_stack[-1].used_markers
         for marker in jump.markers:
-            for change_source in HABIT_CHANGE_SOURCE.records:
-                if change_source.quest_marker == marker and change_source.quest_default == path.default:
-                    self.hero.update_habits(change_source)
+            for markers_group in OPTION_MARKERS_GROUPS:
+                if marker not in markers_group:
+                    continue
+
+                for removed_marker in markers_group:
+                    if removed_marker in used_markers:
+                        del used_markers[removed_marker]
+
+            used_markers[marker] = path.default
+
 
     ################################
     # do action callbacks

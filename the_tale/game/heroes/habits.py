@@ -117,9 +117,9 @@ class Honor(Habit):
 
 
 
-class Aggressiveness(Habit):
+class Peacefulness(Habit):
 
-    TYPE = relations.HABIT_TYPE.AGGRESSIVENESS
+    TYPE = relations.HABIT_TYPE.PEACEFULNESS
 
     def modify_attribute(self, modifier, value):
 
