@@ -141,7 +141,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.HERO_POWER_PER_DAY, 1000)
         self.assertEqual(c.PERSON_POWER_PER_QUEST_FRACTION, 0.33)
         self.assertEqual(c.PERSON_POWER_FOR_RANDOM_SPEND, 200)
-        self.assertEqual(c.HERO_POWER_PREFERENCE_MULTIPLIER, 2)
+        self.assertEqual(c.HERO_POWER_BONUS, 0.04)
 
         self.assertEqual(c.CHARACTER_PREFERENCES_CHANGE_DELAY, 60*60*24*7)
 

@@ -80,6 +80,12 @@
             прописано героев: {{place.heroes_number}},
             <a href="{{url('game:map:places:show', place.id)}}" target="_blank">подробнее</a>
           </li>
+          <li>
+            бонус к положительному влиянию на город: {{place.power_positive|percents(1)}}
+          </li>
+          <li>
+            бонус к отрицательному влиянию на город: {{place.power_negative|percents(1)}}
+          </li>
         </ul>
 
 
@@ -94,7 +100,7 @@
                 <tr>
                   <td rowspan="3"
                       class="profession-icon-container"
-                      rel="tooltil"
+                      rel="tooltip"
                       title="{{ person.type.text }}">
                     <i class="profession-icon {{person.type.name.lower()}}"></i>
                   </td>
@@ -122,6 +128,24 @@
                 </tr>
 
                 <tr>
+                  <th>бонусы к влиянию</th>
+                  <td colspan="2" style="vertical-align: middle;">
+                    <span>
+                      {{person.power_positive|percents(1)}} <strong>и</strong> {{person.power_negative|percents(1)}}
+                    </span>
+                    <span class="pull-right">
+                      <i class="icon-info-sign"
+                         style="vertical-align: middle;"
+                         rel="tooltip"
+                         title="бонусы ко всему начисляемому влияюнию<br/>
+                                <span style='color: green;'>положительному</span> <strong>и</strong> <span style='color: red;'>отрицательному</span>">
+                      </i>
+                    </span>
+
+                  </td>
+                </tr>
+
+                <tr>
                   <th colspan="3">
                       <small>{{ person.gender_verbose }}-{{ person.race_verbose }} {{person.mastery_verbose}}</small>
 
@@ -136,6 +160,7 @@
                         {% if person.has_building %}
                         <i class="icon-home"
                            rel="tooltip"
+                           style="vertical-align: middle;"
                            title="владеет строением в окрестностях города"></i>
                         {% endif %}
 

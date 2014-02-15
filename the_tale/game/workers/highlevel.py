@@ -23,6 +23,9 @@ from the_tale.game.workers.environment import workers_environment as game_enviro
 from the_tale.game import exceptions
 
 
+E = 0.001
+
+
 class Worker(BaseWorker):
 
     logger = getLogger('the-tale.workers.game_highlevel')
@@ -109,6 +112,23 @@ class Worker(BaseWorker):
         self.stop_required = True
         self.logger.info('HIGHLEVEL STOPPED')
 
+    def get_power_correction(self, positive_power, negative_power):
+        # if positive_power / negative_power < relation
+        # (positive_power + x) / negative_power = relation
+        # x = relation * negative_power - positive_power
+        #
+        # if positive_power / negative_power > relation
+        # positive_power / (negative_power + x) = relation
+        # (positive_power - negative_power * relation) / reltation = x
+
+        positive_power = abs(float(positive_power))
+        negative_power = abs(float(negative_power))
+
+        if negative_power > E and positive_power / negative_power < c.POSITIVE_NEGATIVE_POWER_RELATION:
+            return c.POSITIVE_NEGATIVE_POWER_RELATION * negative_power - positive_power, 0.0
+
+        return 0.0, (positive_power - negative_power * c.POSITIVE_NEGATIVE_POWER_RELATION) / c.POSITIVE_NEGATIVE_POWER_RELATION
+
 
     @places_storage.postpone_version_update
     @buildings_storage.postpone_version_update
@@ -117,46 +137,75 @@ class Worker(BaseWorker):
 
         self.logger.info('sync data')
 
-        places_power_delta = {}
+        total_positive_power = 0
+        total_negative_power = 0
 
         for person in persons_storage.filter(state=PERSON_STATE.IN_GAME):
 
             if person.id in self.persons_power:
 
+                positive_power, negative_power, positive_bonus, negative_bonus = self.persons_power[person.id]
+
                 power_multiplier = 1
                 if person.has_building:
                     power_multiplier *= c.BUILDING_PERSON_POWER_MULTIPLIER
 
-                power = self.persons_power[person.id] * power_multiplier * person.place.freedom
+                # this power will go to person and to place
+                positive_power *= (1 + person.power_positive) * power_multiplier
+                negative_power *= (1 + person.power_negative) * power_multiplier
+
+                # this power, only to person
+                power = (positive_power + negative_power) * person.place.freedom
+
+                total_positive_power += positive_power * person.place.freedom
+                total_negative_power += negative_power * person.place.freedom
 
                 person.push_power(self.turn_number, power)
+                person.push_power_positive(self.turn_number, positive_bonus)
+                person.push_power_negative(self.turn_number, negative_bonus)
 
-                if person.place_id not in places_power_delta:
-                    places_power_delta[person.place_id] = 0
+                self.change_place_power(person.place_id, 0, 0, positive_power)
+                self.change_place_power(person.place_id, 0, 0, negative_power)
 
-                places_power_delta[person.place_id] += power
+        person_positive_delta, person_negative_delta = self.get_power_correction(total_positive_power, total_negative_power)
+        person_power_delta = (person_positive_delta - person_negative_delta) / len(persons_storage.filter(state=PERSON_STATE.IN_GAME))
+
+        for person in persons_storage.filter(state=PERSON_STATE.IN_GAME):
+            person.push_power(self.turn_number, person_power_delta)
 
             person.update_friends_number()
             person.update_enemies_number()
 
         self.persons_power = {}
 
-        for place_id, power in self.places_power.iteritems():
+        total_positive_power = 0
+        total_negative_power = 0
+
+        for place_id in self.places_power:
+
+            positive_power, negative_power, positive_bonus, negative_bonus = self.places_power[place_id]
+
             place = places_storage[place_id]
 
-            if place_id not in places_power_delta:
-                places_power_delta[place_id] = 0
+            positive_power *= (1 + place.power_positive)
+            negative_power *= (1 + place.power_negative)
 
-            places_power_delta[place_id] += power * place.freedom
+            power = (positive_power + negative_power) * place.freedom
+
+            total_positive_power += positive_power * place.freedom
+            total_negative_power += negative_power * place.freedom
+
+            place.push_power(self.turn_number, power)
+            place.push_power_positive(self.turn_number, positive_bonus)
+            place.push_power_negative(self.turn_number, negative_bonus)
 
         self.places_power = {}
 
-        max_place_power = 0
+        place_positive_delta, place_negative_delta = self.get_power_correction(total_positive_power, total_negative_power)
+        place_power_delta = (place_positive_delta - place_negative_delta) / len(places_storage.all())
 
-        # calculate power
         for place in places_storage.all():
-            place.push_power(self.turn_number, places_power_delta.get(place.id, 0))
-            max_place_power = max(max_place_power, place.power)
+            place.push_power(self.turn_number, place_power_delta)
 
         # update size
         places_by_power = sorted(places_storage.all(), key=lambda x: x.power)
@@ -204,17 +253,32 @@ class Worker(BaseWorker):
 
         return applied
 
+    def _change_power(self, storage, id_, positive_bonus_delta, negative_bonus_delta, power_delta):
+        power_good, power_bad, positive_bonus, negative_bonus = storage.get(id_, (0, 0, 0, 0))
+        storage[id_] = (power_good + (power_delta if power_delta > 0 else 0),
+                        power_bad + (power_delta if power_delta < 0 else 0),
+                        positive_bonus + positive_bonus_delta,
+                        negative_bonus + negative_bonus_delta)
 
-    def cmd_change_power(self, person_id, place_id, power_delta):
-        self.send_cmd('change_power', {'person_id': person_id, 'place_id': place_id, 'power_delta': power_delta})
+    def change_person_power(self, id_, positive_bonus, negative_bonus, power_delta):
+        self._change_power(self.persons_power, id_, positive_bonus, negative_bonus, power_delta)
 
-    def process_change_power(self, person_id, place_id, power_delta):
+    def change_place_power(self, id_, positive_bonus, negative_bonus, power_delta):
+        self._change_power(self.places_power, id_, positive_bonus, negative_bonus, power_delta)
+
+
+    def cmd_change_power(self, person_id, positive_bonus, negative_bonus, place_id, power_delta):
+        self.send_cmd('change_power', {'person_id': person_id,
+                                       'positive_bonus': positive_bonus,
+                                       'negative_bonus': negative_bonus,
+                                       'place_id': place_id,
+                                       'power_delta': power_delta})
+
+    def process_change_power(self, person_id, positive_bonus, negative_bonus, place_id, power_delta):
         if person_id is not None and place_id is None:
-            person_power = self.persons_power.get(person_id, 0)
-            self.persons_power[person_id] = person_power + power_delta
+            self.change_person_power(person_id, positive_bonus, negative_bonus, power_delta)
         elif place_id is not None and person_id is None:
-            place_power = self.places_power.get(place_id, 0)
-            self.places_power[place_id] = place_power + power_delta
+            self.change_place_power(place_id, positive_bonus, negative_bonus, power_delta)
         else:
             raise exceptions.ChangePowerError(place_id=place_id, person_id=person_id)
 

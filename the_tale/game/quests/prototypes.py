@@ -18,14 +18,17 @@ from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.map.places.storage import places_storage
 from the_tale.game.map.roads.storage import waymarks_storage
+
 from the_tale.game.persons.storage import persons_storage
+from the_tale.game.persons.relations import PERSON_TYPE
 
 from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE, MONEY_SOURCE, HABIT_CHANGE_SOURCE
 from the_tale.game.heroes.relations import MODIFIERS as HERO_MODIFIERS
 
 from the_tale.game.quests import exceptions
 from the_tale.game.quests import writers
-from the_tale.game.quests.relations import ACTOR_TYPE, DONOTHING_TYPE
+from the_tale.game.quests import relations
+from the_tale.game.quests import uids
 
 E = 0.001
 
@@ -86,14 +89,14 @@ class QuestInfo(object):
             return []
 
         if self.type == 'next-spending':
-            return [ self.prepair_actor_ui_info('goal', ACTOR_TYPE.MONEY_SPENDING)  ]
+            return [ self.prepair_actor_ui_info('goal', relations.ACTOR_TYPE.MONEY_SPENDING)  ]
 
-        return filter(None, [ self.prepair_actor_ui_info(ROLES.INITIATOR, ACTOR_TYPE.PERSON),
-                              self.prepair_actor_ui_info(ROLES.INITIATOR_POSITION, ACTOR_TYPE.PLACE),
-                              self.prepair_actor_ui_info(ROLES.RECEIVER, ACTOR_TYPE.PERSON),
-                              self.prepair_actor_ui_info(ROLES.RECEIVER_POSITION, ACTOR_TYPE.PLACE),
-                              self.prepair_actor_ui_info(ROLES.ANTAGONIST, ACTOR_TYPE.PERSON),
-                              self.prepair_actor_ui_info(ROLES.ANTAGONIST_POSITION, ACTOR_TYPE.PLACE)])
+        return filter(None, [ self.prepair_actor_ui_info(ROLES.INITIATOR, relations.ACTOR_TYPE.PERSON),
+                              self.prepair_actor_ui_info(ROLES.INITIATOR_POSITION, relations.ACTOR_TYPE.PLACE),
+                              self.prepair_actor_ui_info(ROLES.RECEIVER, relations.ACTOR_TYPE.PERSON),
+                              self.prepair_actor_ui_info(ROLES.RECEIVER_POSITION, relations.ACTOR_TYPE.PLACE),
+                              self.prepair_actor_ui_info(ROLES.ANTAGONIST, relations.ACTOR_TYPE.PERSON),
+                              self.prepair_actor_ui_info(ROLES.ANTAGONIST_POSITION, relations.ACTOR_TYPE.PLACE)])
 
     @classmethod
     def deserialize(cls, data):
@@ -363,25 +366,35 @@ class QuestPrototype(object):
 
         power = self._give_power(hero, person.place, power)
 
-        power = hero.modify_power(power, person=person)
+        power, positive_bonus, negative_bonus = hero.modify_power(power, person=person)
+
+        person_uid = uids.person(person)
+        has_profession_marker = [marker for marker in self.knowledge_base.filter(facts.ProfessionMarker) if marker.person == person_uid]
+        if has_profession_marker:
+            power /= len(PERSON_TYPE.records)
+            positive_bonus /= len(PERSON_TYPE.records)
+            negative_bonus /= len(PERSON_TYPE.records)
 
         if not hero.can_change_persons_power:
             return 0
 
-        person.cmd_change_power(power)
+        person.cmd_change_power(power, positive_bonus, negative_bonus)
+
+        return power
 
 
     def _give_place_power(self, hero, place, power):
 
         power = self._give_power(hero, place, power)
 
-        power = hero.modify_power(power, place=place)
+        power, positive_bonus, negative_bonus = hero.modify_power(power, place=place)
 
         if not hero.can_change_persons_power:
             return 0
 
-        place.cmd_change_power(power)
+        place.cmd_change_power(power, positive_bonus, negative_bonus)
 
+        return power
 
     def _fight(self, action):
         from the_tale.game.actions.prototypes import ActionBattlePvE1x1Prototype
@@ -449,7 +462,7 @@ class QuestPrototype(object):
     def _donothing(self, donothing_type):
         from the_tale.game.actions.prototypes import ActionDoNothingPrototype
 
-        donothing = DONOTHING_TYPE.index_value[donothing_type]
+        donothing = relations.DONOTHING_TYPE.index_value[donothing_type]
 
         writer = writers.get_writer(type=self.quests_stack[-1].type, message=donothing_type, substitution={})
 

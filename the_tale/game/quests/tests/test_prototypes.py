@@ -40,6 +40,7 @@ from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.quests.logic import create_random_quest_for_hero
 from the_tale.game.quests.prototypes import QuestPrototype
 from the_tale.game.quests import exceptions
+from the_tale.game.quests import uids
 
 from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
 
@@ -116,6 +117,20 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertEqual(self.hero.quests.interfered_persons, {})
         self.complete_quest(self.check_ui_info)
         self.assertNotEqual(self.hero.quests.interfered_persons, {})
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_change_persons_power', True)
+    def test_give_person_power__profession(self):
+
+        person = persons_storage.all()[0]
+
+        power_without_profession = self.quest._give_person_power(self.hero, person, 1.0)
+
+        self.quest.knowledge_base += facts.ProfessionMarker(person=uids.person(person), profession=666)
+        power_with_profession = self.quest._give_person_power(self.hero, person, 1.0)
+
+        self.assertTrue(power_with_profession < power_without_profession)
+
 
     @mock.patch('the_tale.game.quests.prototypes.QuestInfo.get_person_power_for_quest', classmethod(lambda cls, hero: 1))
     def test_power_on_end_quest_for_fast_account_hero(self):

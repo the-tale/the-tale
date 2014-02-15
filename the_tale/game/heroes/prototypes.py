@@ -380,20 +380,26 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
         if person is not None and place is None:
             place = person.place
 
-        if person and person.id in (self.preferences.friend.id if self.preferences.friend else None,
-                                    self.preferences.enemy.id if self.preferences.enemy else None):
-            power *= c.HERO_POWER_PREFERENCE_MULTIPLIER
-
         if person and self.preferences.friend and person.id == self.preferences.friend.id:
             power *= self.friend_power_modifier
 
         if person and self.preferences.enemy and person.id == self.preferences.enemy.id:
             power *= self.enemy_power_modifier
 
-        if self.preferences.place and place.id == self.preferences.place.id:
-            power *= c.HERO_POWER_PREFERENCE_MULTIPLIER
+        positive_bonus = 0.0
+        negative_bonus = 0.0
 
-        return int(power * self.person_power_modifier)
+        if ((self.preferences.place and place.id == self.preferences.place.id) or
+            (self.preferences.friend and person and person.id == self.preferences.friend.id) or
+            (self.preferences.enemy and person and person.id == self.preferences.enemy.id)):
+            if power > 0:
+                positive_bonus = c.HERO_POWER_BONUS
+            elif power < 0:
+                negative_bonus = c.HERO_POWER_BONUS
+
+        return (int(power * self.person_power_modifier),
+                positive_bonus * self.person_power_modifier,
+                negative_bonus * self.person_power_modifier)
 
     @lazy_property
     def habit_honor(self): return habits.Honor(self, 'honor')

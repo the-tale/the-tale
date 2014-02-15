@@ -46,7 +46,8 @@
         <a href="#">
           Герои, поселившиеся в городе
           <small>
-            всего: {{city_heroes|length}}
+            всего: {{city_heroes|length}},
+            бонусы влияния: {{place.power_positive|percents(1)}} и {{place.power_negative|percents(1)}}
           </small>
         </a>
         {% if hero and hero.preferences.place and hero.preferences.place.id == place.id %}
@@ -93,6 +94,7 @@
             {% set power = 0 %}
             {% endif %}
             влиятельность: {{ power|percents }},
+            бонусы: {{person.power_positive|percents(1)}} и {{person.power_negative|percents(1)}}
             соратников/противников: {{persons_numbers[person.id][0]}}/{{persons_numbers[person.id][1]}}
           </small>
 
