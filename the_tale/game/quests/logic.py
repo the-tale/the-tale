@@ -165,7 +165,7 @@ def get_knowledge_base(hero, without_restrictions=False): # pylint: disable=R091
 
     if not without_restrictions:
 
-        for person in persons_storage.all():
+        for person in persons_storage.filter(state=PERSON_STATE.IN_GAME):
             if person.place.id == hero.position.place.id and hero.quests.is_person_interfered(person.id):
                 kb += facts.NotFirstInitiator(person=uids.person(person))
 
@@ -218,7 +218,11 @@ def try_to_create_random_quest_for_hero(hero, quests, excluded_quests, without_r
 
         try:
             return _create_random_quest_for_hero(hero, start_quests=[quest_type.quest_class.TYPE], without_restrictions=without_restrictions)
-        except questgen_exceptions.RollBackError:
+        except questgen_exceptions.RollBackError, e:
+            QUESTS_LOGGER.info(u'hero[%(hero_id).6d]: can not create quest <%(quest_type)s>: %(exception)s' %
+                       {'hero_id': hero.id,
+                        'quest_type': quest_type,
+                        'exception': e})
             continue
 
     return None

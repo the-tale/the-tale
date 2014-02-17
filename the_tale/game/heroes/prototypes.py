@@ -145,17 +145,18 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
         self._model.money += value
 
     def get_quests(self):
+        # always check hero position to prevent «bad» quests generation
         from the_tale.game.quests.relations import QUESTS
 
-        quests = [quest for quest in QUESTS.records if not quest.quest_type.is_CHARACTER]
+        quests = [quest for quest in QUESTS.records if quest.quest_type.is_NORMAL]
 
         if self.preferences.mob is not None:
             quests.append(QUESTS.HUNT)
-        if self.preferences.place is not None:
+        if self.preferences.place is not None and (self.position.place is None or self.preferences.place.id != self.position.place.id):
             quests.append(QUESTS.HOMETOWN)
-        if self.preferences.friend is not None:
+        if self.preferences.friend is not None and (self.position.place is None or self.preferences.friend.place.id != self.position.place.id):
             quests.append(QUESTS.HELP_FRIEND)
-        if self.preferences.enemy is not None:
+        if self.preferences.enemy is not None and (self.position.place is None or self.preferences.enemy.place.id != self.position.place.id):
             quests.append(QUESTS.INTERFERE_ENEMY)
         if self.preferences.equipment_slot is not None:
             equipped_artifact = self.equipment.get(self.preferences.equipment_slot)
@@ -163,6 +164,10 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
             min_power, max_power = f.power_to_artifact_interval(self.level) # pylint: disable=W0612
             if equipped_power <= max_power:
                 quests.append(QUESTS.SEARCH_SMITH)
+
+        if any(place.modifier and place.modifier.TYPE.is_HOLY_CITY for place in places_storage.all()):
+            if self.position.place is None or self.position.place.modifier is None or not self.position.place.modifier.TYPE.is_HOLY_CITY:
+                quests.append(QUESTS.PILGRIMAGE)
 
         return [(quest, self.modify_quest_priority(quest)) for quest in quests]
 
