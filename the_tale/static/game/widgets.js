@@ -54,10 +54,10 @@ pgf.game.Updater = function(params) {
                 if (data.data.account && data.data.account.is_old && requireNewData) {
 
                     // hide only if not get info about last turn
-                    if (data.data.turn.number != data.data.account.hero.actual_on_turn + 1) {
-                        jQuery('.pgf-wait-data').toggleClass('pgf-hidden', false);
-                        jQuery('.pgf-game-data').toggleClass('pgf-hidden', true);
-                    }
+                    // if (data.data.turn.number != data.data.account.hero.actual_on_turn + 1) {
+                    //     jQuery('.pgf-wait-data').toggleClass('pgf-hidden', false);
+                    //     jQuery('.pgf-game-data').toggleClass('pgf-hidden', true);
+                    // }
 
                     setTimeout(function(e){
                         refreshDelay *= 1.618; //the golden ratio
