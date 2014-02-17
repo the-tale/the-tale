@@ -365,6 +365,15 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
 
         return self.energy_full - old_energy
 
+    def change_habits(self, habit_type, habit_value):
+
+        if habit_type == self.habit_honor.TYPE:
+            self.habit_honor.change(habit_value)
+
+        if habit_type == self.habit_peacefulness.TYPE:
+            self.habit_peacefulness.change(habit_value)
+
+
     @property
     def might_pvp_effectiveness_bonus(self): return f.might_pvp_effectiveness_bonus(self.might)
 

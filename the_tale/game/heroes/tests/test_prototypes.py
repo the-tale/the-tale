@@ -510,6 +510,24 @@ class HeroTest(TestCase):
         for achievement_type in ACHIEVEMENT_TYPE.records:
             self.hero.get_achievement_type_value(achievement_type)
 
+    def test_change_habits__honor(self):
+        self.assertEqual(self.hero.habit_honor.raw_value, 0)
+
+        self.hero.change_habits(self.hero.habit_honor.TYPE, 500)
+        self.assertEqual(self.hero.habit_honor.raw_value, 500)
+
+        self.hero.change_habits(self.hero.habit_honor.TYPE, -1000)
+        self.assertEqual(self.hero.habit_honor.raw_value, -500)
+
+    def test_change_habits__peacefulness(self):
+        self.assertEqual(self.hero.habit_peacefulness.raw_value, 0)
+
+        self.hero.change_habits(self.hero.habit_peacefulness.TYPE, 500)
+        self.assertEqual(self.hero.habit_peacefulness.raw_value, 500)
+
+        self.hero.change_habits(self.hero.habit_peacefulness.TYPE, -1000)
+        self.assertEqual(self.hero.habit_peacefulness.raw_value, -500)
+
 
 
 class HeroLevelUpTests(TestCase):

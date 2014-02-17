@@ -8,7 +8,7 @@ from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC
 
 from the_tale.bank.transaction import Transaction
 
-from the_tale.game.heroes.relations import PREFERENCE_TYPE
+from the_tale.game.heroes.relations import PREFERENCE_TYPE, HABIT_TYPE
 
 from the_tale.accounts.workers.environment import workers_environment as accounts_workers_environment
 from the_tale.accounts.prototypes import AccountPrototype
@@ -231,6 +231,22 @@ class BuyResetHeroPreference(BaseBuyHeroMethod):
     def deserialize_arguments(cls, arguments):
         preference_type = arguments['preference_type']
         return {'preference_type': preference_type if isinstance(preference_type, rels.Record) else PREFERENCE_TYPE(preference_type)}
+
+
+class BuyChangeHeroHabits(BaseBuyHeroMethod):
+    TYPE = 'buy-change-hero-habits'
+    ARGUMENTS = ('habit_type', 'habit_value')
+    METHOD = 'change_habits'
+
+    def serialize_arguments(self):
+        return {'habit_type': self.arguments['habit_type'].value,
+                'habit_value': self.arguments['habit_value']}
+
+    @classmethod
+    def deserialize_arguments(cls, arguments):
+        habit_type = arguments['habit_type']
+        return {'habit_type': habit_type if isinstance(habit_type, rels.Record) else HABIT_TYPE(habit_type),
+                'habit_value': arguments['habit_value']}
 
 
 class BuyResetHeroAbilities(BaseBuyHeroMethod):

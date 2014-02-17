@@ -1,10 +1,10 @@
 # coding: utf-8
 
-from the_tale.accounts.payments.goods import PremiumDays, PermanentPurchase, Energy, ResetHeroPreference, ResetHeroAbilities, RechooseHeroAbilitiesChoices
+from the_tale.accounts.payments import goods
 from the_tale.accounts.payments import exceptions
 from the_tale.accounts.payments.relations import PERMANENT_PURCHASE_TYPE
 
-from the_tale.game.heroes.relations import PREFERENCE_TYPE
+from the_tale.game.heroes.relations import PREFERENCE_TYPE, HABIT_TYPE
 
 
 PREMIUM_DAYS_DESCRIPTION = u'''
@@ -27,9 +27,11 @@ ENERGY_CHARGES_DESCRIPTION = u'''
 </p>
 '''
 
+HABIT_MINOR_COST = 200
+HABIT_MAJOR_COST = 450
 
 def permanent_purchase(uid, purchase_type, cost, transaction_description):
-    return PermanentPurchase(uid=uid,
+    return goods.PermanentPurchase(uid=uid,
                              name=purchase_type.text,
                              description=purchase_type.description,
                              cost=cost,
@@ -43,7 +45,7 @@ def permanent_permission_purchase(uid, purchase_type, cost):
                               transaction_description=u'Снятие ограничения уровня на предпочтение героя «%s»' % purchase_type.preference_type.text)
 
 def reset_hero_preference(uid, preference_type, cost):
-    return ResetHeroPreference(uid=uid,
+    return goods.ResetHeroPreference(uid=uid,
                                preference_type=preference_type,
                                cost=cost,
                                description=u'Сброс предпочтения героя: «%s» (вместо сброшенного предпочтения сразу можно выбрать новое)' % preference_type.text,
@@ -51,56 +53,78 @@ def reset_hero_preference(uid, preference_type, cost):
                                transaction_description=u'Сброс предпочтения героя: «%s»' % preference_type.text)
 
 
-rechoose_hero_abilities = RechooseHeroAbilitiesChoices(uid='hero-abilities-rechoose-choices',
+rechoose_hero_abilities = goods.RechooseHeroAbilitiesChoices(uid='hero-abilities-rechoose-choices',
                                                        cost=50,
                                                        description=u'Изменяет список новых способностей, доступных герою для выбора. Гарантируется, что как минимум одна способность в новом списке будет отличаться от старого.',
                                                        name=u'Изменение списка новых способностей героя',
                                                        transaction_description=u'Изменение списка новых способностей героя')
 
 
-PRICE_LIST = [  PremiumDays(uid=u'subscription-7',
+def change_hero_habits(habit, value, cost):
+
+    if habit.is_HONOR:
+        name = u'%s очков чести' % value
+        transaction_description = u'Покупка %s очков чести' % value
+
+    elif habit.is_PEACEFULNESS:
+        name = u'%s очков миролюбия' % value
+        transaction_description = u'Покупка %s очков миролюбия' % value
+
+    else:
+        raise exceptions.UnknownHabit(habit=habit)
+
+    return goods.ChangeHeroHabits(uid='hero-habits-%s-%d' % (habit.name.lower(), value),
+                                  cost=cost,
+                                  description=u'Мгновенное изменение очков черт героя на указанную величину',
+                                  name=name,
+                                  transaction_description=transaction_description,
+                                  habit_type=habit,
+                                  habit_value=value)
+
+
+PRICE_LIST = [  goods.PremiumDays(uid=u'subscription-7',
                             name=u'7 дней подписки',
                             description=PREMIUM_DAYS_DESCRIPTION,
                             cost=100,
                             days=7,
                             transaction_description=u'Продление подписки на 7 дней.'),
 
-                PremiumDays(uid=u'subscription-15',
+                goods.PremiumDays(uid=u'subscription-15',
                             name=u'15 дней подписки',
                             description=PREMIUM_DAYS_DESCRIPTION,
                             cost=180,
                             days=15,
                             transaction_description=u'Продление подписки на 15 дней.'),
 
-                PremiumDays(uid=u'subscription-30',
+                goods.PremiumDays(uid=u'subscription-30',
                             name=u'30 дней подписки',
                             description=PREMIUM_DAYS_DESCRIPTION,
                             cost=300,
                             days=30,
                             transaction_description=u'Продление подписки на 30 дней.'),
 
-                PremiumDays(uid=u'subscription-90',
+                goods.PremiumDays(uid=u'subscription-90',
                             name=u'90 дней подписки',
                             description=PREMIUM_DAYS_DESCRIPTION,
                             cost=750,
                             days=90,
                             transaction_description=u'Продление подписки на 90 дней.'),
 
-                Energy(uid=u'energy-20',
+                goods.Energy(uid=u'energy-20',
                        name=u'20 единиц энергии',
                        description=ENERGY_CHARGES_DESCRIPTION,
                        cost=10,
                        energy=20,
                        transaction_description=u'Покупка 20 единиц энергии.'),
 
-                Energy(uid=u'energy-200',
+                goods.Energy(uid=u'energy-200',
                        name=u'200 единиц энергии',
                        description=ENERGY_CHARGES_DESCRIPTION,
                        cost=80,
                        energy=200,
                        transaction_description=u'Покупка 200 единиц энергии.'),
 
-                Energy(uid=u'energy-2000',
+                goods.Energy(uid=u'energy-2000',
                        name=u'2000 единиц энергии',
                        description=ENERGY_CHARGES_DESCRIPTION,
                        cost=700,
@@ -149,11 +173,21 @@ PRICE_LIST = [  PremiumDays(uid=u'subscription-7',
                 reset_hero_preference(uid='hero-preference-reset-risk-level', preference_type=PREFERENCE_TYPE.RISK_LEVEL, cost=10),
                 reset_hero_preference(uid='hero-preference-reset-favorite-item', preference_type=PREFERENCE_TYPE.FAVORITE_ITEM, cost=25),
 
-                ResetHeroAbilities(uid='hero-abilities-reset',
-                                   cost=300,
-                                   description=u'Сброс способностей героя (после сброса сразу можно выбрать новые способности)',
-                                   name=u'Сброс способностей героя',
-                                   transaction_description=u'Сброс способностей героя'),
+                goods.ResetHeroAbilities(uid='hero-abilities-reset',
+                                         cost=300,
+                                         description=u'Сброс способностей героя (после сброса сразу можно выбрать новые способности)',
+                                         name=u'Сброс способностей героя',
+                                         transaction_description=u'Сброс способностей героя'),
+
+                change_hero_habits(habit=HABIT_TYPE.HONOR, value=250, cost=HABIT_MINOR_COST),
+                change_hero_habits(habit=HABIT_TYPE.HONOR, value=-250, cost=HABIT_MINOR_COST),
+                change_hero_habits(habit=HABIT_TYPE.HONOR, value=1000, cost=HABIT_MAJOR_COST),
+                change_hero_habits(habit=HABIT_TYPE.HONOR, value=-1000, cost=HABIT_MAJOR_COST),
+
+                change_hero_habits(habit=HABIT_TYPE.PEACEFULNESS, value=250, cost=HABIT_MINOR_COST),
+                change_hero_habits(habit=HABIT_TYPE.PEACEFULNESS, value=-250, cost=HABIT_MINOR_COST),
+                change_hero_habits(habit=HABIT_TYPE.PEACEFULNESS, value=1000, cost=HABIT_MAJOR_COST),
+                change_hero_habits(habit=HABIT_TYPE.PEACEFULNESS, value=-1000, cost=HABIT_MAJOR_COST),
 
                 rechoose_hero_abilities ]
 

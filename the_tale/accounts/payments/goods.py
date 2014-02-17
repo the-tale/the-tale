@@ -76,6 +76,17 @@ class ResetHeroPreference(PurchaseItem):
         return postponed_tasks.BuyResetHeroPreference(account_id=account.id, preference_type=self.preference_type, transaction=transaction)
 
 
+class ChangeHeroHabits(PurchaseItem):
+
+    def __init__(self, habit_type, habit_value, **kwargs):
+        super(ChangeHeroHabits, self).__init__(**kwargs)
+        self.habit_type = habit_type
+        self.habit_value = habit_value
+
+    def construct_postponed_task(self, account, transaction):
+        return postponed_tasks.BuyChangeHeroHabits(account_id=account.id, habit_type=self.habit_type, habit_value=self.habit_value, transaction=transaction)
+
+
 class ResetHeroAbilities(PurchaseItem):
 
     def __init__(self, **kwargs):
