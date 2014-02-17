@@ -37,6 +37,7 @@ SITE_URL = None # MUST be defined in settings_local
 
 SOCIAL_VK_GROUP_URL = 'http://vk.com/zpgtale'
 SOCIAL_TWITTER_GROUP_URL = 'https://twitter.com/zpg_tale'
+SOCIAL_FACEBOOK_GROUP_URL = 'https://www.facebook.com/groups/zpgtale/'
 
 X_FRAME_OPTIONS = 'DENY'
 
