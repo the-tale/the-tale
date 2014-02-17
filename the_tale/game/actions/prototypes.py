@@ -726,7 +726,7 @@ class ActionMoveToPrototype(ActionBase):
 
     def normal_move(self):
 
-        if random.uniform(0, 1) > c.HABIT_MOVE_EVENTS_IN_TURN:
+        if random.uniform(0, 1) < c.HABIT_MOVE_EVENTS_IN_TURN:
             self.do_events()
 
         if random.uniform(0, 1) < 0.33:
@@ -1197,7 +1197,7 @@ class ActionInPlacePrototype(ActionBase):
 
         if self.state == self.STATE.CHOOSING:
 
-            if random.uniform(0, 1) > c.HABIT_IN_PLACE_EVENTS_IN_TURN:
+            if random.uniform(0, 1) < c.HABIT_IN_PLACE_EVENTS_IN_TURN:
                 self.do_events()
 
             if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
