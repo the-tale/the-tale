@@ -225,6 +225,8 @@ class GameResource(Resource):
 
       "id": <целое число>,                             // идентификатор
       "actual_on_turn": <целое число>,                 // данные на какой ход предоставлены
+
+      "sprite": <целое число>  // идентификатор спрайта, которым отображается герой
       }
 
     <quest_actor_info> = <quest_actor_place_info>|<quest_actor_person_info>|<quest_actor_spending_info>

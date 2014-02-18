@@ -28,7 +28,7 @@
 <td>{{ hero.power }}</td>
 {% endmacro %}
 
-{% macro account_type_label(account) %}
+{% macro account_type_label(account, additional_text='') %}
 
 {% if account.is_premium %}
 <a href="{{url('accounts:payments:shop')}}"
@@ -39,7 +39,7 @@
                  <li>герой получает на 50% больше опыта;</li>
                  <li>максимальное количество энергии увеличивается на 50%;</li>
                  <li>герой сохраняет скорость получения опыта при длительном отсутствии игрока в игре.</li>">
-  подписчик
+  подписчик {{additional_text}}
 </a>
 {% else %}
 <a href="{{url('accounts:payments:shop')}}"
@@ -49,7 +49,7 @@
    data-content="<li>игрок не может голосовать (но может выдвигать законы);</li>
                  <li>игрок не может ремонтировать строения на карте;</li>
                  <li>задания, выполняемые героем игрока, не оказывают влияние на мир игры.</li>">
-  базовый аккаунт
+  базовый аккаунт {{additional_text}}
 </a>
 {% endif %}
 
