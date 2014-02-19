@@ -3,7 +3,7 @@
 from rels import Column
 from rels.django import DjangoEnum
 
-from pynames.generators import GENDER as PYNAMES_GENDER
+from pynames.relations import GENDER as PYNAMES_GENDER
 
 from the_tale.game.balance import enums as e
 
