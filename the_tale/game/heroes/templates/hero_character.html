@@ -49,6 +49,8 @@ jQuery(document).ready(function(e){
 
     });
 
+{% endif %}
+
     jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
         var data = game_data.account.hero;
         jQuery('#pgf-attributes-container .pgf-habit-honor-raw').text(Math.round(data.habits.honor.raw*100)/100);
@@ -58,7 +60,6 @@ jQuery(document).ready(function(e){
         jQuery('#pgf-attributes-container .pgf-habit-peacefulness-verbose').text(data.habits.peacefulness.verbose);
     });
 
-{% endif %}
 
 });
 

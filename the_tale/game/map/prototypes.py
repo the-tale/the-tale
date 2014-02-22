@@ -46,7 +46,7 @@ class MapInfoPrototype(BasePrototype):
         statistics['race_percents'] = dict( (RACE(int(key)), value) for key, value in statistics['race_percents'].items())
         statistics['person_race_percents'] = dict( (RACE(int(key)), value) for key, value in statistics['person_race_percents'].items())
         statistics['race_cities'] = dict( (RACE(int(key)), value) for key, value in statistics['race_cities'].items())
-        statistics['terrain_percents'] = dict( (TERRAIN(int(key)), value) for key, value in statistics['terrain_percents'].items())
+        statistics['terrain_percents'] = dict( (MAP_STATISTICS(int(key)), value) for key, value in statistics['terrain_percents'].items())
         return statistics
 
     @lazy_property

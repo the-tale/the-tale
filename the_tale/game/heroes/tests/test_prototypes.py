@@ -199,11 +199,15 @@ class HeroTest(TestCase):
         self.assertEqual(self.hero.modify_power(person=self.place_3.persons[0], power=100), (100 * self.hero.person_power_modifier, 0.0, 0.0))
         self.assertEqual(self.hero.modify_power(person=self.place_3.persons[0], power=-100), (-100 * self.hero.person_power_modifier, 0.0, 0.0))
 
-        self.assertEqual(self.hero.modify_power(person=enemy, power=100), (100 * self.hero.person_power_modifier, 0.02, 0.0))
-        self.assertEqual(self.hero.modify_power(person=enemy, power=-100), (-100 * self.hero.person_power_modifier, 0.0, 0.02))
+        # test person in hometown
+        self.assertEqual(self.hero.modify_power(person=self.place_1.persons[1], power=100), (100 * self.hero.person_power_modifier, 0.0, 0.0))
+        self.assertEqual(self.hero.modify_power(person=self.place_1.persons[1], power=-100), (-100 * self.hero.person_power_modifier, 0.0, 0.0))
 
-        self.assertEqual(self.hero.modify_power(person=friend, power=100), (100 * self.hero.person_power_modifier, 0.02, 0.0))
-        self.assertEqual(self.hero.modify_power(person=friend, power=-100), (-100 * self.hero.person_power_modifier, 0.0, 0.02))
+        self.assertEqual(self.hero.modify_power(person=enemy, power=100), (100 * self.hero.person_power_modifier, 0.01, 0.0))
+        self.assertEqual(self.hero.modify_power(person=enemy, power=-100), (-100 * self.hero.person_power_modifier, 0.0, 0.01))
+
+        self.assertEqual(self.hero.modify_power(person=friend, power=100), (100 * self.hero.person_power_modifier, 0.01, 0.0))
+        self.assertEqual(self.hero.modify_power(person=friend, power=-100), (-100 * self.hero.person_power_modifier, 0.0, 0.01))
 
     def test_modify_person_power__enemy(self):
         friend = self.place_1.persons[0]
@@ -244,8 +248,8 @@ class HeroTest(TestCase):
         self.hero.preferences.set_place(self.place_1)
 
         self.assertEqual(self.hero.modify_power(place=self.place_2, power=100), (100 * self.hero.person_power_modifier, 0, 0))
-        self.assertEqual(self.hero.modify_power(place=self.place_1, power=100), (100 * self.hero.person_power_modifier, 0.02, 0.0))
-        self.assertEqual(self.hero.modify_power(place=self.place_1, power=-100), (-100 * self.hero.person_power_modifier, 0.0, 0.02))
+        self.assertEqual(self.hero.modify_power(place=self.place_1, power=100), (100 * self.hero.person_power_modifier, 0.01, 0.0))
+        self.assertEqual(self.hero.modify_power(place=self.place_1, power=-100), (-100 * self.hero.person_power_modifier, 0.0, 0.01))
 
     def test_is_ui_caching_required(self):
         self.assertTrue(self.hero.is_ui_caching_required) # new hero must be cached, since player, who created him, is in game

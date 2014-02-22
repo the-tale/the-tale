@@ -67,6 +67,14 @@ pgf.game.constants.tilesets = {
         H: {{CELL_SIZE}},
         SRC: "/game/images/map_winter.png",
         sprites: jQuery.extend(true, {}, pgf.game.constants.sprites)
+    },
+
+    large_pixel: {
+        TILE_SIZE: {{CELL_SIZE}},
+        W: {{CELL_SIZE}},
+        H: {{CELL_SIZE}},
+        SRC: "/game/images/map_large_pixel.png",
+        sprites: jQuery.extend(true, {}, pgf.game.constants.sprites)
     }
 };
 

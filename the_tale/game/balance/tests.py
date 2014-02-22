@@ -141,7 +141,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.HERO_POWER_PER_DAY, 1000)
         self.assertEqual(c.PERSON_POWER_PER_QUEST_FRACTION, 0.33)
         self.assertEqual(c.PERSON_POWER_FOR_RANDOM_SPEND, 200)
-        self.assertEqual(c.HERO_POWER_BONUS, 0.04)
+        self.assertEqual(c.HERO_POWER_BONUS, 0.02)
 
         self.assertEqual(c.CHARACTER_PREFERENCES_CHANGE_DELAY, 60*60*24*7)
 
@@ -156,7 +156,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.HABITS_BORDER, 1000)
         self.assertEqual(c.HABITS_RIGHT_BORDERS, [-700, -300, -100, 100, 300, 700, 1001])
         self.assertEqual(c.HABITS_QUEST_ACTIVE_DELTA, 5.0)
-        self.assertEqual(c.HABITS_QUEST_PASSIVE_DELTA, 1.25)
+        self.assertEqual(c.HABITS_QUEST_PASSIVE_DELTA, 0.5)
         self.assertEqual(round(c.HABITS_HELP_ABILITY_DELTA, 5), 2.77778)
         self.assertEqual(round(c.HABITS_ARENA_ABILITY_DELTA, 5), 0.69444)
         self.assertEqual(round(c.HABITS_PERIODIC_DELTA, 5), 1.0)

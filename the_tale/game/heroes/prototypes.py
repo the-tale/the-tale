@@ -391,9 +391,6 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
 
     def modify_power(self, power, person=None, place=None):
 
-        if person is not None and place is None:
-            place = person.place
-
         if person and self.preferences.friend and person.id == self.preferences.friend.id:
             power *= self.friend_power_modifier
 
@@ -403,7 +400,7 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
         positive_bonus = 0.0
         negative_bonus = 0.0
 
-        if ((self.preferences.place and place.id == self.preferences.place.id) or
+        if ((self.preferences.place and place and place.id == self.preferences.place.id) or
             (self.preferences.friend and person and person.id == self.preferences.friend.id) or
             (self.preferences.enemy and person and person.id == self.preferences.enemy.id)):
             if power > 0:
