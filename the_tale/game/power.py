@@ -4,11 +4,15 @@ import functools
 from the_tale.game.prototypes import TimePrototype
 
 
-def _sum_power_points(history_length, points):
+def _sum_raw_power_points(history_length, points):
     if not points:
         return 0
     turn_number = TimePrototype.get_current_turn_number()
-    return max(sum([power[1]*(1-float(turn_number-power[0])/history_length) for power in points]), 0)
+    return sum([power[1]*(1-float(turn_number-power[0])/history_length) for power in points])
+
+
+def _sum_power_points(history_length, points):
+    return max(_sum_raw_power_points(history_length, points), 0)
 
 
 def _create_power_points_getter(name):
@@ -25,6 +29,16 @@ def _create_power_points_sum(method_name, history_length, name):
 
     def power(self):
         return _sum_power_points(history_length, getattr(self, name))
+
+    power.__name__ = method_name
+
+    return power
+
+
+def _create_raw_power_points_sum(method_name, history_length, name):
+
+    def power(self):
+        return _sum_raw_power_points(history_length, getattr(self, name))
 
     power.__name__ = method_name
 
@@ -61,6 +75,8 @@ def add_power_management(history_length, exception_class):
         cls.power_points = property(_create_power_points_getter('power_points'))
         cls.power = property(_create_power_points_sum('power', history_length, 'power_points'))
         cls.push_power = _create_power_points_push('push_power', history_length, exception_class, 'power_points')
+
+        cls.raw_power = property(_create_raw_power_points_sum('raw_power', history_length, 'power_points'))
 
         cls.power_positive_points = property(_create_power_points_getter('power_positive_points'))
         cls.power_positive = property(_create_power_points_sum('power_positive', history_length, 'power_positive_points'))

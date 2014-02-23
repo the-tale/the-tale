@@ -243,11 +243,11 @@ QUESTS_PILGRIMAGE_FRACTION = float(0.025) # вероятность отправ�
 HERO_POWER_PER_DAY = int(1000) # базовое количество влияния, которое герой 1-ого уровня производит в день на одного жителя задействованного в заданиях
 PERSON_POWER_PER_QUEST_FRACTION = float(0.33) # разброс влияния за задание
 PERSON_POWER_FOR_RANDOM_SPEND = int(200) # доля от стандартной величины..
-HERO_POWER_BONUS = float(0.02) # множитель для начисления влияния связанного с предпочтениями
+HERO_POWER_BONUS = float(0.01) # множитель для начисления влияния связанного с предпочтениями
 
 CHARACTER_PREFERENCES_CHANGE_DELAY = int(60*60*24*7) # время блокировки возможности изменять предпочтение
 
-POSITIVE_NEGATIVE_POWER_RELATION = float(1.1) # желаемое отношение позитивного влияния к негативному, если не совпадает, корректируем, добавляя необходимое
+POSITIVE_NEGATIVE_POWER_RELATION = float(2.0) # желаемое отношение позитивного влияния к негативному, если не совпадает, корректируем, добавляя необходимое
 
 ##########################
 # споособности
@@ -268,13 +268,13 @@ ABILITIES_FOR_CHOOSE_MAXIMUM = int(4)
 
 HABITS_BORDER = int(1000) # модуль максимального значения черты
 HABITS_RIGHT_BORDERS = [-700, -300, -100, 100, 300, 700, 1001] # правые границы черт
-HABITS_QUEST_ACTIVE_DELTA = float(5) # за выбор в заданиии гроком
-HABITS_QUEST_PASSIVE_DELTA = float(0.1 * HABITS_QUEST_ACTIVE_DELTA) # за неверный выбор героем
+HABITS_QUEST_ACTIVE_DELTA = float(10) # за выбор в заданиии гроком
+HABITS_QUEST_PASSIVE_DELTA = float(0.05 * HABITS_QUEST_ACTIVE_DELTA) # за неверный выбор героем
 HABITS_HELP_ABILITY_DELTA = float(float(HABITS_BORDER) / (30 * _ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST)) # за использование способности
 HABITS_ARENA_ABILITY_DELTA = float(float(HABITS_BORDER) / (30 * _ANGEL_ENERGY_IN_DAY / ANGEL_ARENA_COST)) # за использование способности
 
 # скорость автоматического уменьшения (в день)
-HABITS_PERIODIC_DELTA = float(0.1 * HABITS_QUEST_ACTIVE_DELTA * 2)
+HABITS_PERIODIC_DELTA = float(0.1 * HABITS_QUEST_ACTIVE_DELTA)
 
 
 KILL_BEFORE_BATTLE_PROBABILITY = float(0.05)  # вероятность убить мобы в начале боя
@@ -302,10 +302,11 @@ PEACEFULL_BATTLE_PROBABILITY = float(0.01) # вероятность мирно �
 # процент сохранённых ходов от первого удара
 _FIRST_STRIKE_TURNS_BONUS = (0.5 * BATTLES_BEFORE_HEAL) / ACTIONS_CYCLE_LENGTH # выигрываем полхода в каждой битве
 
-_HELPS_IN_TURN = (float(_ANGEL_ENERGY_IN_DAY) / ANGEL_HELP_COST) / TURNS_IN_HOUR / 24
+_HELPS_IN_TURN = (float(_ANGEL_ENERGY_IN_DAY) / ANGEL_HELP_COST) / 24 / TURNS_IN_HOUR
 
-# процент сохранённых ходов сражении, если только бьём молнией
-_BATTLE_TURNS_BONUS = (float(BATTLE_LENGTH) * (sum(ANGEL_HELP_LIGHTING_FRACTION)/2) + HEAL_LENGTH * (sum(ANGEL_HELP_LIGHTING_FRACTION)/2) / BATTLES_BEFORE_HEAL) * _HELPS_IN_TURN
+# процент сохранённых ходов сражения, если только бьём молнией
+_BATTLE_TURNS_BONUS_FROM_ON_USE = (float(BATTLE_LENGTH) * (sum(ANGEL_HELP_LIGHTING_FRACTION)/2) + HEAL_LENGTH * (sum(ANGEL_HELP_HEAL_FRACTION)/2)) / 2
+_BATTLE_TURNS_BONUS = _BATTLE_TURNS_BONUS_FROM_ON_USE * _HELPS_IN_TURN
 
 # процент сохранённых ходов движения, если только телепортируем
 _TELEPORT_MOVE_TURNS = float(ANGEL_HELP_TELEPORT_DISTANCE) / HERO_MOVE_SPEED
@@ -314,7 +315,7 @@ _TELEPORT_SAVED_TURNS =_TELEPORT_MOVE_TURNS + _TELEPORT_SAVED_BATTLES * BATTLE_L
 _TELEPORT_TURNS_BONUS = _TELEPORT_SAVED_TURNS * _HELPS_IN_TURN
 
 # процент сохранённых ходов от мирного расхождения с монстрами
-_PEACEFULL_TURNS_BONUS = PEACEFULL_BATTLE_PROBABILITY * float(BATTLES_BEFORE_HEAL * BATTLE_LENGTH) / ACTIONS_CYCLE_LENGTH
+_PEACEFULL_TURNS_BONUS = (PEACEFULL_BATTLE_PROBABILITY * float(BATTLES_BEFORE_HEAL) * BATTLE_LENGTH) / ACTIONS_CYCLE_LENGTH
 
 # print 'battles in day', TURNS_IN_HOUR * 24 / ACTIONS_CYCLE_LENGTH * BATTLES_BEFORE_HEAL
 # print 'inverted', 1.0 / (TURNS_IN_HOUR * 24 / ACTIONS_CYCLE_LENGTH * BATTLES_BEFORE_HEAL)
@@ -322,15 +323,15 @@ _PEACEFULL_TURNS_BONUS = PEACEFULL_BATTLE_PROBABILITY * float(BATTLES_BEFORE_HEA
 # print 'battle', _BATTLE_TURNS_BONUS
 # print 'teleport', _TELEPORT_TURNS_BONUS
 
-EXP_FOR_KILL = int(12*EXP_PER_HOUR) # средний опыт за убийство монстра
-EXP_FOR_KILL_DELTA = float(0.5) # разброс опыта за убийство
+EXP_FOR_KILL = int(2 * EXP_PER_HOUR) # средний опыт за убийство монстра
+EXP_FOR_KILL_DELTA = float(0.3) # разброс опыта за убийство
 
 
 _KILLS_IN_HOUR = float(TURNS_IN_HOUR) / ACTIONS_CYCLE_LENGTH * BATTLES_BEFORE_HEAL
-_REQUIRED_BONUS_EXP = _TELEPORT_TURNS_BONUS + _PEACEFULL_TURNS_BONUS - _BATTLE_TURNS_BONUS - _FIRST_STRIKE_TURNS_BONUS
+_REQUIRED_EXP_BONUS = _TELEPORT_TURNS_BONUS + _PEACEFULL_TURNS_BONUS - _BATTLE_TURNS_BONUS - _FIRST_STRIKE_TURNS_BONUS
 
 # вероятность получить опыт за убийство моба
-EXP_FOR_KILL_PROBABILITY = float(EXP_PER_HOUR * _REQUIRED_BONUS_EXP) / EXP_FOR_KILL / _KILLS_IN_HOUR
+EXP_FOR_KILL_PROBABILITY =  float(EXP_PER_HOUR * _REQUIRED_EXP_BONUS) / _KILLS_IN_HOUR / EXP_FOR_KILL
 
 ###########################
 # события для черт

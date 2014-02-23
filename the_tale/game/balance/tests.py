@@ -141,9 +141,10 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.HERO_POWER_PER_DAY, 1000)
         self.assertEqual(c.PERSON_POWER_PER_QUEST_FRACTION, 0.33)
         self.assertEqual(c.PERSON_POWER_FOR_RANDOM_SPEND, 200)
-        self.assertEqual(c.HERO_POWER_BONUS, 0.02)
+        self.assertEqual(c.HERO_POWER_BONUS, 0.01)
 
         self.assertEqual(c.CHARACTER_PREFERENCES_CHANGE_DELAY, 60*60*24*7)
+        self.assertEqual(c.POSITIVE_NEGATIVE_POWER_RELATION, 2.0)
 
         self.assertEqual(c.ABILITIES_ACTIVE_MAXIMUM, 5)
         self.assertEqual(c.ABILITIES_PASSIVE_MAXIMUM, 2)
@@ -155,7 +156,7 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.HABITS_BORDER, 1000)
         self.assertEqual(c.HABITS_RIGHT_BORDERS, [-700, -300, -100, 100, 300, 700, 1001])
-        self.assertEqual(c.HABITS_QUEST_ACTIVE_DELTA, 5.0)
+        self.assertEqual(c.HABITS_QUEST_ACTIVE_DELTA, 10.0)
         self.assertEqual(c.HABITS_QUEST_PASSIVE_DELTA, 0.5)
         self.assertEqual(round(c.HABITS_HELP_ABILITY_DELTA, 5), 2.77778)
         self.assertEqual(round(c.HABITS_ARENA_ABILITY_DELTA, 5), 0.69444)
@@ -174,9 +175,9 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.HABIT_QUEST_REWARD_MAX_BONUS, 0.25)
         self.assertEqual(c.HABIT_LOOT_PROBABILITY_MODIFIER, 1.2)
 
-        self.assertEqual(c.EXP_FOR_KILL, 120)
-        self.assertEqual(c.EXP_FOR_KILL_DELTA, 0.5)
-        self.assertEqual(round(c.EXP_FOR_KILL_PROBABILITY, 5), 0.00041)
+        self.assertEqual(c.EXP_FOR_KILL, 20)
+        self.assertEqual(c.EXP_FOR_KILL_DELTA, 0.3)
+        self.assertEqual(round(c.EXP_FOR_KILL_PROBABILITY, 5), 0.0024)
 
         self.assertEqual(c.HABIT_EVENTS_IN_DAY, 1.33)
         self.assertEqual(round(c.HABIT_EVENTS_IN_TURN, 5), 0.00015)
