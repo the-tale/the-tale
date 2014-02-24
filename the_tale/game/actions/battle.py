@@ -69,21 +69,23 @@ class Actor(object):
 def make_turn(actor_1, actor_2, messanger):
 
     if actor_1.context.turn == actor_2.context.turn == 0:
+
+        # initialize contexts on first turn
+        actor_1.update_context(actor_2)
+        actor_2.update_context(actor_1)
+
+        # check first strike
         if actor_1.context.first_strike and not actor_2.context.first_strike:
-            # print 1
             return strike(attacker=actor_1, defender=actor_2, messanger=messanger)
 
         if actor_2.context.first_strike and not actor_1.context.first_strike:
-            # print 2
             return strike(attacker=actor_2, defender=actor_1, messanger=messanger)
 
     actor_1_initiative = random.uniform(0, actor_1.initiative + actor_2.initiative)
 
     if actor_1_initiative < actor_1.initiative:
-        # print 3
         return strike(attacker=actor_1, defender=actor_2, messanger=messanger)
     else:
-        # print 4
         return strike(attacker=actor_2, defender=actor_1, messanger=messanger)
 
 

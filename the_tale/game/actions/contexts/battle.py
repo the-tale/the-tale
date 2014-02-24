@@ -167,6 +167,7 @@ class BattleContext(object):
 
         self.ninja = 0
         self.crit_chance = 0
+        self.first_strike = False
         self.berserk_damage_modifier = 1.0
 
         self.incoming_magic_damage_modifier = 1.0

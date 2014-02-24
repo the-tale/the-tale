@@ -951,7 +951,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
             # make turn only if mob still alive (it can be killed by angel)
             if self.mob.health > 0:
                 battle.make_turn(battle.Actor(self.hero, self.context),
-                                 battle.Actor(self.mob, self.mob_context ),
+                                 battle.Actor(self.mob, self.mob_context),
                                  self.hero)
                 self.percents = 1.0 - self.mob.health_percents
 

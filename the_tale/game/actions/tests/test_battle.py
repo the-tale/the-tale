@@ -171,3 +171,13 @@ class ActorTest(testcase.TestCase):
         actor_1.context.use_first_strike()
         actor_2.context.use_first_strike()
         self.check_first_strike(actor_1, actor_2, turn=0, expected_actors=set((id(actor_1), id(actor_2))))
+
+    def test_make_turn__initialize_contexts_on_first_turn(self):
+        actor_1, actor_2 = self.get_actors()
+
+        with mock.patch('the_tale.game.actions.battle.strike') as strike:
+            with mock.patch('the_tale.game.actions.battle.Actor.update_context') as update_context:
+                battle.make_turn(actor_1, actor_2, self.hero)
+
+        self.assertEqual(strike.call_count, 1)
+        self.assertEqual(update_context.call_args_list, [mock.call(actor_2), mock.call(actor_1)])

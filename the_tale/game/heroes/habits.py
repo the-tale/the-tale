@@ -172,5 +172,5 @@ class Peacefulness(Habit):
         return False
 
     def update_context(self, actor, enemy):
-        if self.interval.is_LEFT_2 or self.interval.is_LEFT_3:
+        if (self.interval.is_LEFT_2 or self.interval.is_LEFT_3) and enemy.mob_type is not None:
             actor.context.use_first_strike()
