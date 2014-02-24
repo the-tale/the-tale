@@ -50,6 +50,11 @@ class BaseHabitTest(testcase.TestCase):
         self.hero.update_context(self.actor_hero, mob)
         self.assertEqual(round(self.actor_hero.context.crit_chance, 5), expected_crit_chance)
 
+    def check_first_strike(self, mob, expected_first_strike):
+        self.actor_hero.context._on_every_turn()
+        self.hero.update_context(self.actor_hero, mob)
+        self.assertEqual(self.actor_hero.context.first_strike, expected_first_strike)
+
     def check_quest_markers(self, expected_markers, habit_class):
         with mock.patch.object(habit_class, 'raw_value', c.HABITS_BORDER):
             self.assertEqual(self.hero.prefered_quest_markers(), set(expected_markers))
@@ -308,7 +313,8 @@ class PeacefulnessHabitModifiersTest(BaseHabitTest):
         self.assertFalse(self.hero.check_attribute(MODIFIERS.PEACEFULL_BATTLE))
 
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.LOOT_PROBABILITY, 1.0), 1.0)
-        self.assertTrue(self.hero.check_attribute(MODIFIERS.FIRST_STRIKE))
+
+        self.check_first_strike(self.mob_neutral, True)
 
         self.check_quest_markers([QUEST_OPTION_MARKERS.AGGRESSIVE], habit_class=habits.Peacefulness)
         self.check_quest_markers_reward_bonus([QUEST_OPTION_MARKERS.AGGRESSIVE], habit_class=habits.Peacefulness)
@@ -326,7 +332,7 @@ class PeacefulnessHabitModifiersTest(BaseHabitTest):
         self.assertFalse(self.hero.check_attribute(MODIFIERS.PEACEFULL_BATTLE))
 
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.LOOT_PROBABILITY, 1.0), 1.0)
-        self.assertTrue(self.hero.check_attribute(MODIFIERS.FIRST_STRIKE))
+        self.check_first_strike(self.mob_neutral, True)
 
         self.check_quest_markers([QUEST_OPTION_MARKERS.AGGRESSIVE], habit_class=habits.Peacefulness)
         self.check_quest_markers_reward_bonus([QUEST_OPTION_MARKERS.AGGRESSIVE], habit_class=habits.Peacefulness)
@@ -343,7 +349,7 @@ class PeacefulnessHabitModifiersTest(BaseHabitTest):
         self.assertFalse(self.hero.check_attribute(MODIFIERS.PEACEFULL_BATTLE))
 
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.LOOT_PROBABILITY, 1.0), 1.0)
-        self.assertFalse(self.hero.check_attribute(MODIFIERS.FIRST_STRIKE))
+        self.check_first_strike(self.mob_neutral, False)
 
         self.check_quest_markers([QUEST_OPTION_MARKERS.AGGRESSIVE], habit_class=habits.Peacefulness)
         self.check_quest_markers_reward_bonus([QUEST_OPTION_MARKERS.AGGRESSIVE], habit_class=habits.Peacefulness)
@@ -359,7 +365,7 @@ class PeacefulnessHabitModifiersTest(BaseHabitTest):
         self.assertFalse(self.hero.check_attribute(MODIFIERS.PEACEFULL_BATTLE))
 
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.LOOT_PROBABILITY, 1.0), 1.0)
-        self.assertFalse(self.hero.check_attribute(MODIFIERS.FIRST_STRIKE))
+        self.check_first_strike(self.mob_neutral, False)
 
         self.check_quest_markers([], habit_class=habits.Peacefulness)
         self.check_quest_markers_reward_bonus([], habit_class=habits.Peacefulness)
@@ -375,7 +381,7 @@ class PeacefulnessHabitModifiersTest(BaseHabitTest):
         self.assertFalse(self.hero.check_attribute(MODIFIERS.PEACEFULL_BATTLE))
 
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.LOOT_PROBABILITY, 1.0), 1.0)
-        self.assertFalse(self.hero.check_attribute(MODIFIERS.FIRST_STRIKE))
+        self.check_first_strike(self.mob_neutral, False)
 
         self.check_quest_markers([QUEST_OPTION_MARKERS.UNAGGRESSIVE], habit_class=habits.Peacefulness)
         self.check_quest_markers_reward_bonus([QUEST_OPTION_MARKERS.UNAGGRESSIVE], habit_class=habits.Peacefulness)
@@ -391,7 +397,7 @@ class PeacefulnessHabitModifiersTest(BaseHabitTest):
         self.assertFalse(self.hero.check_attribute(MODIFIERS.PEACEFULL_BATTLE))
 
         self.assertTrue(self.hero.modify_attribute(MODIFIERS.LOOT_PROBABILITY, 1.0) > 1.0)
-        self.assertFalse(self.hero.check_attribute(MODIFIERS.FIRST_STRIKE))
+        self.check_first_strike(self.mob_neutral, False)
 
         self.check_quest_markers([QUEST_OPTION_MARKERS.UNAGGRESSIVE], habit_class=habits.Peacefulness)
         self.check_quest_markers_reward_bonus([QUEST_OPTION_MARKERS.UNAGGRESSIVE], habit_class=habits.Peacefulness)
@@ -407,7 +413,7 @@ class PeacefulnessHabitModifiersTest(BaseHabitTest):
         self.assertTrue(self.hero.check_attribute(MODIFIERS.PEACEFULL_BATTLE))
 
         self.assertTrue(self.hero.modify_attribute(MODIFIERS.LOOT_PROBABILITY, 1.0) > 1.0)
-        self.assertFalse(self.hero.check_attribute(MODIFIERS.FIRST_STRIKE))
+        self.check_first_strike(self.mob_neutral, False)
 
         self.check_quest_markers([QUEST_OPTION_MARKERS.UNAGGRESSIVE], habit_class=habits.Peacefulness)
         self.check_quest_markers_reward_bonus([QUEST_OPTION_MARKERS.UNAGGRESSIVE], habit_class=habits.Peacefulness)

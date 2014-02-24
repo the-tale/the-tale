@@ -122,7 +122,6 @@ class MODIFIERS(DjangoEnum):
                 ('POWER_TO_ENEMY', 17, u'бонус к влиянию на врага'),
                 ('QUEST_MARKERS', 18, u'маркеры задания'),
                 ('QUEST_MARKERS_REWARD_BONUS', 19, u'бонус наград за правильный выбор'),
-                ('FIRST_STRIKE', 20, u'первый удар'),
                 ('LOOT_PROBABILITY', 21, u'вероятность получить лут после боя'),
                 ('EXP_FOR_KILL', 22, u'опыт за убийство моснтра'),
                 ('PEACEFULL_BATTLE', 23, u'мирный бой'),

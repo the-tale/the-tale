@@ -163,9 +163,6 @@ class Peacefulness(Habit):
 
 
     def check_attribute(self, modifier):
-        if modifier.is_FIRST_STRIKE and (self.interval.is_LEFT_3 or self.interval.is_LEFT_2):
-            return True
-
         if modifier.is_EXP_FOR_KILL and self.interval.is_LEFT_3:
             return random.uniform(0, 1) < c.EXP_FOR_KILL_PROBABILITY
 
@@ -175,4 +172,5 @@ class Peacefulness(Habit):
         return False
 
     def update_context(self, actor, enemy):
-        pass
+        if self.interval.is_LEFT_2 or self.interval.is_LEFT_3:
+            actor.context.use_first_strike()

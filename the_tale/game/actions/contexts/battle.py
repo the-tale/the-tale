@@ -45,7 +45,7 @@ class BattleContext(object):
                  'pvp_advantage',
                  'pvp_advantage_used',
                  'pvp_advantage_strike_damage',
-                 'first_srike',
+                 'first_strike',
                  'turn')
 
     def __init__(self):
@@ -59,7 +59,7 @@ class BattleContext(object):
         self.damage_queue_poison = []
         self.initiative_queue = []
 
-        self.first_srike = False
+        self.first_strike = False
 
         self.incoming_magic_damage_modifier = 1.0
         self.incoming_physic_damage_modifier = 1.0
@@ -84,7 +84,7 @@ class BattleContext(object):
 
     def use_ninja(self, probability): self.ninja = probability
 
-    def use_first_strike(self): self.first_srike = True
+    def use_first_strike(self): self.first_strike = True
 
     def use_damage_queue_fire(self, damage_queue):
         self.damage_queue_fire = map(lambda queue, delta: (delta if delta else 0) + (queue if queue else 0), self.damage_queue_fire, [None]+damage_queue) # pylint: disable=W0110
@@ -211,7 +211,7 @@ class BattleContext(object):
                  'pvp_advantage_used': self.pvp_advantage_used,
                  'pvp_advantage_strike_damage': self.pvp_advantage_strike_damage,
 
-                 'first_srike': self.first_srike,
+                 'first_strike': self.first_strike,
                  'turn': self.turn}
 
     @classmethod
@@ -236,7 +236,7 @@ class BattleContext(object):
         context.pvp_advantage_used = data.get('pvp_advantage_used', False)
         context.pvp_advantage_strike_damage = data.get('pvp_advantage_strike_damage', 0)
 
-        context.first_srike = data.get('first_srike', False)
+        context.first_strike = data.get('first_strike', False)
         context.turn = data.get('turn', 0)
 
         return context
@@ -262,5 +262,5 @@ class BattleContext(object):
                 self.pvp_advantage_used == other.pvp_advantage_used and
                 self.pvp_advantage_strike_damage == other.pvp_advantage_strike_damage and
 
-                self.first_srike == other.first_srike and
+                self.first_strike == other.first_strike and
                 self.turn == other.turn)

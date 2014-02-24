@@ -69,11 +69,11 @@ class Actor(object):
 def make_turn(actor_1, actor_2, messanger):
 
     if actor_1.context.turn == actor_2.context.turn == 0:
-        if actor_1.context.first_srike and not actor_2.context.first_srike:
+        if actor_1.context.first_strike and not actor_2.context.first_strike:
             # print 1
             return strike(attacker=actor_1, defender=actor_2, messanger=messanger)
 
-        if actor_2.context.first_srike and not actor_1.context.first_srike:
+        if actor_2.context.first_strike and not actor_1.context.first_strike:
             # print 2
             return strike(attacker=actor_2, defender=actor_1, messanger=messanger)
 
