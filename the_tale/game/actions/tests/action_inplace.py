@@ -419,7 +419,31 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
         money = self._current_spending_cost()
         self.hero._model.money = money
-        self.storage.process_turn()
+
+        with mock.patch('the_tale.game.persons.prototypes.PersonPrototype.cmd_change_power') as cmd_change_power:
+            self.storage.process_turn()
+
+        self.assertEqual(cmd_change_power.call_count, 0)
+
+        self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
+
+        self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
+        self.assertEqual(self.hero.statistics.money_spend_for_impact, money - self.hero.money)
+        self.storage._test_save()
+
+    def test_impact__can_change_power(self):
+        while not self.hero.next_spending.is_IMPACT:
+            self.hero.switch_spending()
+
+        money = self._current_spending_cost()
+        self.hero._model.money = money
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_change_persons_power', True):
+            with mock.patch('the_tale.game.persons.prototypes.PersonPrototype.cmd_change_power') as cmd_change_power:
+                self.storage.process_turn()
+
+        self.assertEqual(cmd_change_power.call_count, 1)
+
         self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
