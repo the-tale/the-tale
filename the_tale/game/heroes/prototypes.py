@@ -420,6 +420,9 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
 
     def update_habits(self, change_source, multuplier=1.0):
 
+        if change_source.quest_default is False:
+            multuplier *= self.habit_quest_active_multiplier
+
         if change_source.correlation_requirements is None:
             self.habit_honor.change(change_source.honor*multuplier)
             self.habit_peacefulness.change(change_source.peacefulness*multuplier)

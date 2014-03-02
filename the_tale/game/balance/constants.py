@@ -268,13 +268,15 @@ ABILITIES_FOR_CHOOSE_MAXIMUM = int(4)
 
 HABITS_BORDER = int(1000) # модуль максимального значения черты
 HABITS_RIGHT_BORDERS = [-700, -300, -100, 100, 300, 700, 1001] # правые границы черт
-HABITS_QUEST_ACTIVE_DELTA = float(10) # за выбор в заданиии гроком
-HABITS_QUEST_PASSIVE_DELTA = float(0.05 * HABITS_QUEST_ACTIVE_DELTA) # за неверный выбор героем
+HABITS_QUEST_ACTIVE_DELTA = float(20) # за выбор в задании игроком
+HABITS_QUEST_PASSIVE_DELTA = float(0.03 * HABITS_QUEST_ACTIVE_DELTA) # за неверный выбор героем
 HABITS_HELP_ABILITY_DELTA = float(float(HABITS_BORDER) / (30 * _ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST)) # за использование способности
 HABITS_ARENA_ABILITY_DELTA = float(float(HABITS_BORDER) / (30 * _ANGEL_ENERGY_IN_DAY / ANGEL_ARENA_COST)) # за использование способности
 
 # скорость автоматического уменьшения (в день)
 HABITS_PERIODIC_DELTA = float(0.1 * HABITS_QUEST_ACTIVE_DELTA)
+
+HABITS_QUEST_ACTIVE_PREMIUM_MULTIPLIER = float(1.5) # бонус к начисляемому влиянию за выбор игрока для подписчиков
 
 
 KILL_BEFORE_BATTLE_PROBABILITY = float(0.05)  # вероятность убить мобы в начале боя

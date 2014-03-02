@@ -175,3 +175,9 @@ class LogicAccessorsMixin(object):
 
     def habit_events(self):
         return self.modify_attribute(relations.MODIFIERS.HONOR_EVENTS, set())
+
+    @property
+    def habit_quest_active_multiplier(self):
+        if self.is_premium:
+            return c.HABITS_QUEST_ACTIVE_PREMIUM_MULTIPLIER
+        return 1.0

@@ -156,11 +156,13 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.HABITS_BORDER, 1000)
         self.assertEqual(c.HABITS_RIGHT_BORDERS, [-700, -300, -100, 100, 300, 700, 1001])
-        self.assertEqual(c.HABITS_QUEST_ACTIVE_DELTA, 10.0)
-        self.assertEqual(c.HABITS_QUEST_PASSIVE_DELTA, 0.5)
+        self.assertEqual(c.HABITS_QUEST_ACTIVE_DELTA, 20.0)
+        self.assertEqual(c.HABITS_QUEST_PASSIVE_DELTA, 0.6)
         self.assertEqual(round(c.HABITS_HELP_ABILITY_DELTA, 5), 2.77778)
         self.assertEqual(round(c.HABITS_ARENA_ABILITY_DELTA, 5), 0.69444)
-        self.assertEqual(round(c.HABITS_PERIODIC_DELTA, 5), 1.0)
+        self.assertEqual(round(c.HABITS_PERIODIC_DELTA, 5), 2.0)
+
+        self.assertEqual(c.HABITS_QUEST_ACTIVE_PREMIUM_MULTIPLIER, 1.5)
 
         self.assertEqual(c.KILL_BEFORE_BATTLE_PROBABILITY, 0.05)
         self.assertEqual(c.PICKED_UP_IN_ROAD_TELEPORT_LENGTH, 3.0)

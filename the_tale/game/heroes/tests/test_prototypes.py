@@ -534,6 +534,21 @@ class HeroTest(TestCase):
         self.assertEqual(self.hero.habit_peacefulness.raw_value, -500)
 
 
+    def test_update_habits__premium(self):
+        self.assertEqual(self.hero.habit_honor.raw_value, 0)
+        self.assertFalse(self.hero.is_premium)
+
+        self.hero.update_habits(relations.HABIT_CHANGE_SOURCE.QUEST_HONORABLE)
+
+        value_without_premium = self.hero.habit_honor.raw_value
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True):
+            self.hero.update_habits(relations.HABIT_CHANGE_SOURCE.QUEST_HONORABLE)
+
+        self.assertTrue(value_without_premium < self.hero.habit_honor.raw_value - value_without_premium)
+
+
+
 
 class HeroLevelUpTests(TestCase):
 
