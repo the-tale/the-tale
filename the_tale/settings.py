@@ -249,7 +249,7 @@ STATIC_URL = '//%s/static/%s/' % (SITE_URL, META_CONFIG.static_data_version)
 
 if 'STATIC_DIR' not in globals():
     STATIC_DIR = os.path.join(PROJECT_DIR, 'static')
-STATIC_CDN = '//static.the-tale.org%s' % STATIC_URL
+STATIC_CDN = '//static.the-tale.org/static/%s/' % META_CONFIG.static_data_version
 STATIC_DEBUG_URL = '/static/%s/' % META_CONFIG.static_data_version
 
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
@@ -264,7 +264,8 @@ DCONT_DEBUG_URL = '/dcont/'
 LESS_FILES_DIR = os.path.join(PROJECT_DIR, 'less')
 LESS_DEST_DIR = os.path.join(PROJECT_DIR, 'static', 'css')
 
-CDNS_ENABLED = False
+if 'CDNS_ENABLED' not in globals():
+    CDNS_ENABLED = False
 
 CDNS = ( ('STATIC_JQUERY_JS',
           '%splugins/jquery/jquery-1.7.2.min.js' % STATIC_URL, '//yandex.st/jquery/1.7.2/jquery.min.js',

@@ -67,22 +67,21 @@ class Worker(BaseWorker):
 
         settings.refresh()
 
-        with transaction.atomic():
-            self.turn_number += 1
+        self.turn_number += 1
 
-            if turn_number != self.turn_number:
-                raise LogicException('dessinchonization: workers turn number (%d) not equal to command turn number (%d)' % (self.turn_number, turn_number))
+        if turn_number != self.turn_number:
+            raise LogicException('dessinchonization: workers turn number (%d) not equal to command turn number (%d)' % (self.turn_number, turn_number))
 
 
-            if TimePrototype.get_current_turn_number() != self.turn_number:
-                raise LogicException('dessinchonization: workers turn number (%d) not equal to saved turn number (%d)' % (self.turn_number,
-                                                                                                                          TimePrototype.get_current_turn_number()))
+        if TimePrototype.get_current_turn_number() != self.turn_number:
+            raise LogicException('dessinchonization: workers turn number (%d) not equal to saved turn number (%d)' % (self.turn_number,
+                                                                                                                      TimePrototype.get_current_turn_number()))
 
-            self.storage.process_turn(logger=self.logger)
-            self.storage.save_changed_data(logger=self.logger)
+        self.storage.process_turn(logger=self.logger)
+        self.storage.save_changed_data(logger=self.logger)
 
-            for hero_id in self.storage.skipped_heroes:
-                game_environment.supervisor.cmd_account_release_required(self.storage.heroes[hero_id].account_id)
+        for hero_id in self.storage.skipped_heroes:
+            game_environment.supervisor.cmd_account_release_required(self.storage.heroes[hero_id].account_id)
 
 
         if project_settings.DEBUG_DATABASE_USAGE:
