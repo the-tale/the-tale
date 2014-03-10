@@ -36,7 +36,7 @@ from the_tale.game.heroes.habilities import AbilitiesPrototype
 from the_tale.game.heroes.conf import heroes_settings
 from the_tale.game.heroes import exceptions
 from the_tale.game.heroes.pvp import PvPData
-from the_tale.game.heroes.messages import MessagesContainer
+from the_tale.game.heroes import messages
 from the_tale.game.heroes.places_help_statistics import PlacesHelpStatistics
 from the_tale.game.heroes import relations
 from the_tale.game.heroes import habits
@@ -66,7 +66,7 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
     _serialization_proxies = (('quests', QuestsContainer, heroes_settings.UNLOAD_TIMEOUT),
                               ('places_history', PlacesHelpStatistics, heroes_settings.UNLOAD_TIMEOUT),
                               ('pvp', PvPData, heroes_settings.UNLOAD_TIMEOUT),
-                              ('diary', MessagesContainer, heroes_settings.UNLOAD_TIMEOUT),
+                              ('diary', messages.DiaryContainer, heroes_settings.UNLOAD_TIMEOUT),
                               ('abilities', AbilitiesPrototype, None),
                               ('bag', bag.Bag, None),
                               ('equipment', bag.Equipment, None))
@@ -510,7 +510,7 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
     def actions(self): return ActionsContainer.deserialize(self, s11n.from_json(self._model.actions))
 
     @lazy_property
-    def messages(self): return MessagesContainer.deserialize(self, s11n.from_json(self._model.messages))
+    def messages(self): return messages.JournalContainer.deserialize(self, s11n.from_json(self._model.messages))
 
     def push_message(self, msg, diary=False, journal=True):
         if journal:
@@ -522,7 +522,7 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
     def add_message(self, type_, diary=False, journal=True, turn_delta=0, **kwargs):
         msg = get_text('hero:add_message', type_, kwargs)
         if msg is None: return
-        self.push_message(MessagesContainer._prepair_message(msg, turn_delta=turn_delta), diary=diary, journal=journal)
+        self.push_message(messages.prepair_message(msg, turn_delta=turn_delta), diary=diary, journal=journal)
 
 
     def heal(self, delta):
@@ -742,18 +742,18 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
 
         name = names.generator.get_name(race, gender)
 
-        messages = MessagesContainer()
-        messages.push_message(messages._prepair_message(u'«Тучи сгущаются (и как быстро!), к непогоде»', turn_delta=-7))
-        messages.push_message(messages._prepair_message(u'«Аааааа, повсюду молнии, спрячусь ка я под этим большим дубом».', turn_delta=-6))
-        messages.push_message(messages._prepair_message(u'Бабах!!!', turn_delta=-5))
-        messages.push_message(messages._prepair_message(u'«Темно, страшно, кажется, я в коридоре»…', turn_delta=-4))
-        messages.push_message(messages._prepair_message(u'«Свет! Надо идти на свет»!', turn_delta=-3))
-        messages.push_message(messages._prepair_message(u'«Свет сказал, что избрал меня для великих дел, взял кровь из пальца и поставил ей крестик в каком-то пергаменте».', turn_delta=-2))
-        messages.push_message(messages._prepair_message(u'«Приказано идти обратно и геройствовать, как именно геройствовать — не уточняется».', turn_delta=-1))
-        messages.push_message(messages._prepair_message(u'«Эх, опять в этом мире, в том было хотя бы чисто и сухо. Голова болит. Палец болит. Тянет на подвиги».', turn_delta=-0))
+        journal = messages.JournalContainer()
+        journal.push_message(messages.prepair_message(u'«Тучи сгущаются (и как быстро!), к непогоде»', turn_delta=-7))
+        journal.push_message(messages.prepair_message(u'«Аааааа, повсюду молнии, спрячусь ка я под этим большим дубом».', turn_delta=-6))
+        journal.push_message(messages.prepair_message(u'Бабах!!!', turn_delta=-5))
+        journal.push_message(messages.prepair_message(u'«Темно, страшно, кажется, я в коридоре»…', turn_delta=-4))
+        journal.push_message(messages.prepair_message(u'«Свет! Надо идти на свет»!', turn_delta=-3))
+        journal.push_message(messages.prepair_message(u'«Свет сказал, что избрал меня для великих дел, взял кровь из пальца и поставил ей крестик в каком-то пергаменте».', turn_delta=-2))
+        journal.push_message(messages.prepair_message(u'«Приказано идти обратно и геройствовать, как именно геройствовать — не уточняется».', turn_delta=-1))
+        journal.push_message(messages.prepair_message(u'«Эх, опять в этом мире, в том было хотя бы чисто и сухо. Голова болит. Палец болит. Тянет на подвиги».', turn_delta=-0))
 
-        diary = MessagesContainer()
-        diary.push_message(diary._prepair_message(u'«Вот же ж угораздило. У всех ангелы-хранители нормальные, сидят себе и попаданию подопечных в загробный мир не мешают. А у моего, значит, шило в заднице! Где ты был, когда я лотерейные билеты покупал?! Молнию отвести он значит не может, а воскресить — запросто. Как же всё болит, кажется теперь у меня две печёнки (это, конечно, тебе спасибо, всегда пригодится). Ну ничего, рано или поздно я к твоему начальству попаду и там уж всё расскажу! А пока буду записывать в свой дневник».'))
+        diary = messages.DiaryContainer()
+        diary.push_message(messages.prepair_message(u'«Вот же ж угораздило. У всех ангелы-хранители нормальные, сидят себе и попаданию подопечных в загробный мир не мешают. А у моего, значит, шило в заднице! Где ты был, когда я лотерейные билеты покупал?! Молнию отвести он значит не может, а воскресить — запросто. Как же всё болит, кажется теперь у меня две печёнки (это, конечно, тебе спасибо, всегда пригодится). Ну ничего, рано или поздно я к твоему начальству попаду и там уж всё расскажу! А пока буду записывать в свой дневник».'))
 
         hero = Hero.objects.create(created_at_turn=current_turn_number,
                                    saved_at_turn=current_turn_number,
@@ -765,7 +765,7 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
                                    is_fast=account.is_fast,
                                    is_bot=account.is_bot,
                                    abilities=s11n.to_json(AbilitiesPrototype.create().serialize()),
-                                   messages=s11n.to_json(messages.serialize()),
+                                   messages=s11n.to_json(journal.serialize()),
                                    diary=s11n.to_json(diary.serialize()),
                                    name=name,
                                    next_spending=relations.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT,

@@ -318,8 +318,8 @@ class HeroTest(TestCase):
         self.assertTrue(HeroPrototype.is_ui_continue_caching_required(time.time() - heroes_settings.UI_CACHING_TIME))
 
     def test_push_message(self):
-        from the_tale.game.heroes.messages import MessagesContainer
-        message = MessagesContainer._prepair_message('abrakadabra')
+        from the_tale.game.heroes import messages
+        message = messages.prepair_message('abrakadabra')
 
         self.hero.messages._clear()
         self.hero.diary._clear()

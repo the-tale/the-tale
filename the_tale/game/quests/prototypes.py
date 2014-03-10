@@ -144,7 +144,7 @@ class QuestInfo(object):
         return data
 
     def process_message(self, knowledge_base, hero, message, ext_substitution={}):
-        from the_tale.game.heroes.messages import MessagesContainer
+        from the_tale.game.heroes import messages
 
         substitution = self.substitution(self.uid, knowledge_base, hero)
         substitution.update(ext_substitution)
@@ -157,13 +157,13 @@ class QuestInfo(object):
 
         diary_msg = writer.diary()
         if diary_msg:
-            hero.messages.push_message(MessagesContainer._prepair_message(diary_msg))
-            hero.diary.push_message(MessagesContainer._prepair_message(diary_msg))
+            hero.messages.push_message(messages.prepair_message(diary_msg))
+            hero.diary.push_message(messages.prepair_message(diary_msg))
             return
 
         journal_msg = writer.journal()
         if journal_msg:
-            hero.messages.push_message(MessagesContainer._prepair_message(journal_msg))
+            hero.messages.push_message(messages.prepair_message(journal_msg))
 
     def sync_choices(self, knowledge_base, hero, choice, options, defaults):
 

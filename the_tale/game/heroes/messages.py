@@ -12,13 +12,11 @@ class MessagesContainer(object):
 
     __slots__ = ('messages', 'updated')
 
+    MESSAGES_LOG_LENGTH = None
+
     def __init__(self):
         self.messages = []
         self.updated = False
-
-    @staticmethod
-    def _prepair_message(msg, turn_delta=0):
-        return (TimePrototype.get_current_turn_number()+turn_delta, time.time()+turn_delta*c.TURN_DELTA, msg)
 
     def push_message(self, msg):
         self.updated = True
@@ -28,7 +26,7 @@ class MessagesContainer(object):
         if len(self.messages) > 1 and (self.messages[-1][0] < self.messages[-2][0] or self.messages[-1][1] < self.messages[-2][1]):
             self.messages.sort() # compare tuples
 
-        if len(self.messages) > heroes_settings.MESSAGES_LOG_LENGTH:
+        if len(self.messages) > self.MESSAGES_LOG_LENGTH:
             self.messages.pop(0)
 
     def messages_number(self):
@@ -76,3 +74,15 @@ class MessagesContainer(object):
                 return False
 
         return True
+
+
+class JournalContainer(MessagesContainer):
+    MESSAGES_LOG_LENGTH = heroes_settings.MESSAGES_LOG_LENGTH
+
+
+class DiaryContainer(MessagesContainer):
+    MESSAGES_LOG_LENGTH = heroes_settings.DIARY_LOG_LENGTH
+
+
+def prepair_message(msg, turn_delta=0):
+    return (TimePrototype.get_current_turn_number()+turn_delta, time.time()+turn_delta*c.TURN_DELTA, msg)
