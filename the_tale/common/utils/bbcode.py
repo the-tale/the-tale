@@ -39,8 +39,16 @@ class SpoilerTag(postmarkup.TagBase):
         return u'</div></div></div></div>'
 
 
-render = postmarkup.create(use_pygments=False, annotate_links=False)
-render.tag_factory.add_tag(SpoilerTag, 'spoiler')
+
+_renderer = postmarkup.create(use_pygments=False, annotate_links=False)
+_renderer.tag_factory.add_tag(SpoilerTag, 'spoiler')
+
+def render(*argv, **kwargs):
+    try:
+        return _renderer.render_to_html(*argv, **kwargs)
+    except:
+        return u'Текст нельзя отформатировать. Возможно Вы ошиблись при вводе тегов.'
+
 
 
 class BBField(fields.TextField):
