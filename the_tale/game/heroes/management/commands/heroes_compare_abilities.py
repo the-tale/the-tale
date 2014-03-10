@@ -48,10 +48,10 @@ def get_battles_statistics(hero_1, hero_2):
 
     for hero_level in HERO_LEVELS:
 
-        with mock.patch('game.heroes.prototypes.HeroPrototype.power', f.power_to_lvl(hero_level)):
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.power', f.power_to_lvl(hero_level)):
 
-            hero_1.model.level = hero_level
-            hero_2.model.level = hero_level
+            hero_1._model.level = hero_level
+            hero_2._model.level = hero_level
 
             for i in xrange(TEST_BATTLES_NUMBER): # pylint: disable=W0612
                 hero_1.health = hero_1.max_health
@@ -72,11 +72,11 @@ def compare_abilities(hero_1, hero_2, abilities, level):
     for i, ability_1 in enumerate(abilities[:-1]):
         for ability_2 in abilities[i+1:]:
 
-            hero_1.abilities.abilities = {}
+            hero_1.abilities.reset() #abilities = {}
             hero_1.abilities.add('hit', min(level, ABILITIES['hit'].MAX_LEVEL))
             hero_1.abilities.add(ability_1.get_id(), level)
 
-            hero_2.abilities.abilities = {}
+            hero_2.abilities.reset() #abilities = {}
             hero_2.abilities.add('hit', min(level, ABILITIES['hit'].MAX_LEVEL))
             hero_2.abilities.add(ability_2.get_id(), level)
 
@@ -203,7 +203,7 @@ class Command(BaseCommand):
 
             abilities = [ability_class
                          for ability_class in ABILITIES.values()
-                         if (ability_class.AVAILABILITY & ABILITY_AVAILABILITY.FOR_PLAYERS and
+                         if (ability_class.AVAILABILITY.value & ABILITY_AVAILABILITY.FOR_PLAYERS.value and
                              ability_class.get_id() != 'hit' and
                              ability_class.TYPE == ABILITY_TYPE.BATTLE) ]
 
