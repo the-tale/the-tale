@@ -73,9 +73,3 @@ class Command(BaseCommand):
                                                     'collections.moderate_item'])
 
         sync_group('achievements editors group', ['achievements.edit_achievement'])
-
-        print
-        print 'REFRESH CDNS'
-        print
-
-        run_django_command(['portal_refresh_cdns'])

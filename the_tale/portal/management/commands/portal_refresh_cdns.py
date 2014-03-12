@@ -17,6 +17,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
+        print 'refresh CDNs'
+
         info = cdn.get_cdns_info(project_settings.CDNS)
 
         settings[portal_settings.SETTINGS_CDN_INFO_KEY] = s11n.to_json(info)
