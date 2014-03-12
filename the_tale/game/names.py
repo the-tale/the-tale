@@ -20,6 +20,6 @@ class NamesGenerators(object):
         if race.is_GOBLIN:
             return self.goblin.get_name_simple(gender=gender.pynames_id, language=pynames.LANGUAGE.RU)
         if race.is_DWARF:
-            return self.dwarfish.get_name_simple(gender=gender.pynames_id, language=pynames.LANGUAGE.RU)
+            return self.dwarfish.get_name_simple(gender=gender.pynames_id, language=pynames.LANGUAGE.EN)
 
 generator = NamesGenerators()
