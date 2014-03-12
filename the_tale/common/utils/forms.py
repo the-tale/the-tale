@@ -1,5 +1,4 @@
 # coding: utf-8
-
 from django import forms as django_forms
 
 from dext.forms import fields
@@ -38,6 +37,8 @@ class NounFormsWithoutNumberWidget(django_forms.MultiWidget):
 @fields.pgf
 class NounFormsWithoutNumberField(django_forms.MultiValueField):
 
+    RESTRICTED_SYMBOLS = set('<>\'"&')
+
     def __init__(self, **kwargs):
         super(NounFormsWithoutNumberField, self).__init__(fields=[fields.CharField(),
                                                                   fields.CharField(),
@@ -50,6 +51,13 @@ class NounFormsWithoutNumberField(django_forms.MultiValueField):
 
     def compress(self, data_list):
         return data_list
+
+    def clean(self, value):
+        for v in value:
+            if self.RESTRICTED_SYMBOLS & set(v):
+                raise django_forms.ValidationError(u'В словах нельзя использовать следующие символы: %s' % ' '.join(c for c in self.RESTRICTED_SYMBOLS))
+
+        return value
 
 
 @fields.pgf
