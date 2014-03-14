@@ -89,7 +89,7 @@ jQuery(document).ready(function() {
                 return cookieValue;
             }
             if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken') );
+                xhr.setRequestHeader("X-CSRFToken", "{{resource.csrf}}" );
             }
         }
     });

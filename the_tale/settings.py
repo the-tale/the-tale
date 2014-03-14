@@ -32,6 +32,9 @@ TIME_ZONE = 'UTC'
 
 LANGUAGE_CODE = 'ru'
 
+CSRF_COOKIE_HTTPONLY = True
+SESSION_COOKIE_HTTPONLY = True
+
 SITE_ID = 1
 SITE_URL = None # MUST be defined in settings_local
 
