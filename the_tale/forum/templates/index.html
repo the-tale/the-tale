@@ -8,14 +8,28 @@
 
 <h2>
   Форум
-  <a href="{{ url('forum:feed') }}" class="rss-link" rel="alternate" type="application/rss+xml" rel="tooltip" title="подписаться на rss форума">
-    <img src="{{STATIC_CONTENT}}images/rss.png" style="margin: 2px;"/>
-  </a>
 
   <small>
+    <a href="{{ url('forum:feed') }}" class="" rel="alternate" type="application/rss+xml" rel="tooltip" title="подписаться на rss форума">
+      <img src="{{STATIC_CONTENT}}images/rss.png" style="margin: 2px;"/>
+      rss
+    </a>
+
+    |
+
     <a href="{{url('guide:behavior-rules')}}" rel="tooltip" title="Правила поведения на форуме и в игре">
       правила
     </a>
+
+    |
+
+    <a href="{{url('portal:search')}}"
+       rel="tooltip"
+       title="Поиск">
+      <i class="icon-search" style="vertical-align: middle;"></i>
+      поиск
+    </a>
+
   </small>
 </h2>
 
