@@ -1,15 +1,15 @@
 # coding: utf-8
 
-from django.core import mail
-from django.conf import settings as project_settings
-
 from dext.jinja2 import render
 
 from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
 from the_tale.accounts.logic import get_system_user
 
+from the_tale.post_service import logic
+
 # TODO: rewrite to autodiscover() logic
-#       code for this can be chosen form postponed_tasks and moved to utils
+#       code for this can be chosen from postponed_tasks and moved to utils
+
 
 
 class BaseMessageHandler(object):
@@ -100,16 +100,7 @@ class PersonalMessageHandler(BaseMessageHandler):
         html_content = render.template(self.EMAIL_HTML_TEMPLATE, context)
         text_content = render.template(self.EMAIL_TEXT_TEMPLATE, context)
 
-        connection = mail.get_connection()
-        connection.open()
-
-        email = mail.EmailMultiAlternatives(subject, text_content, project_settings.EMAIL_NOREPLY, [account.email], connection=connection)
-        email.attach_alternative(html_content, "text/html")
-        email.send()
-
-        connection.close()
-
-        return True
+        return logic.send_mail([account], subject, text_content, html_content)
 
 
 class ForumPostHandler(BaseMessageHandler):
@@ -152,25 +143,7 @@ class ForumPostHandler(BaseMessageHandler):
         html_content = render.template(self.EMAIL_HTML_TEMPLATE, context)
         text_content = render.template(self.EMAIL_TEXT_TEMPLATE, context)
 
-        connection = mail.get_connection()
-        connection.open()
-
-        system_user = get_system_user()
-
-        for account in accounts:
-            if not account.email:
-                continue
-
-            if account.id == system_user.id or account.is_bot:
-                continue
-
-            email = mail.EmailMultiAlternatives(subject, text_content, project_settings.EMAIL_NOREPLY, [account.email], connection=connection)
-            email.attach_alternative(html_content, "text/html")
-            email.send()
-
-        connection.close()
-
-        return True
+        return logic.send_mail(accounts, subject, text_content, html_content)
 
 
 class ForumThreadHandler(BaseMessageHandler):
@@ -216,25 +189,7 @@ class ForumThreadHandler(BaseMessageHandler):
         html_content = render.template(self.EMAIL_HTML_TEMPLATE, context)
         text_content = render.template(self.EMAIL_TEXT_TEMPLATE, context)
 
-        connection = mail.get_connection()
-        connection.open()
-
-        system_user = get_system_user()
-
-        for account in accounts:
-            if not account.email:
-                continue
-
-            if account.id == system_user.id or account.is_bot:
-                continue
-
-            email = mail.EmailMultiAlternatives(subject, text_content, project_settings.EMAIL_NOREPLY, [account.email], connection=connection)
-            email.attach_alternative(html_content, "text/html")
-            email.send()
-
-        connection.close()
-
-        return True
+        return logic.send_mail(accounts, subject, text_content, html_content)
 
 
 class ResetPasswordHandler(BaseMessageHandler):
@@ -277,16 +232,7 @@ class ResetPasswordHandler(BaseMessageHandler):
         html_content = render.template(self.EMAIL_HTML_TEMPLATE, context)
         text_content = render.template(self.EMAIL_TEXT_TEMPLATE, context)
 
-        connection = mail.get_connection()
-        connection.open()
-
-        email = mail.EmailMultiAlternatives(subject, text_content, project_settings.EMAIL_NOREPLY, [account.email], connection=connection)
-        email.attach_alternative(html_content, "text/html")
-        email.send()
-
-        connection.close()
-
-        return True
+        return logic.send_mail([account], subject, text_content, html_content)
 
 
 class ChangeEmailNotificationHandler(BaseMessageHandler):
@@ -326,16 +272,7 @@ class ChangeEmailNotificationHandler(BaseMessageHandler):
         html_content = render.template(self.EMAIL_HTML_TEMPLATE, context)
         text_content = render.template(self.EMAIL_TEXT_TEMPLATE, context)
 
-        connection = mail.get_connection()
-        connection.open()
-
-        email = mail.EmailMultiAlternatives(subject, text_content, project_settings.EMAIL_NOREPLY, [task.new_email], connection=connection)
-        email.attach_alternative(html_content, "text/html")
-        email.send()
-
-        connection.close()
-
-        return True
+        return logic.send_mail([(task.account, task.new_email)], subject, text_content, html_content)
 
 
 HANDLERS = dict( (handler.TYPE, handler)

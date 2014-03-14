@@ -4,7 +4,6 @@ import datetime
 
 from django.utils.log import getLogger
 from django.conf import settings as project_settings
-from django.db import transaction
 
 from dext.settings import settings
 
