@@ -124,17 +124,16 @@ class AchievementsResource(Resource):
             return self.json_error('accounts.achievements.create.form_errors', form.errors)
 
 
-        with transaction.atomic():
-            achievement = AchievementPrototype.create(group=form.c.group,
-                                                      type=form.c.type,
-                                                      caption=form.c.caption,
-                                                      description=form.c.description,
-                                                      approved=False,
-                                                      barrier=form.c.barrier,
-                                                      points=form.c.points,
-                                                      item_1=form.c.item_1,
-                                                      item_2=form.c.item_2,
-                                                      item_3=form.c.item_3)
+        achievement = AchievementPrototype.create(group=form.c.group,
+                                                  type=form.c.type,
+                                                  caption=form.c.caption,
+                                                  description=form.c.description,
+                                                  approved=False,
+                                                  barrier=form.c.barrier,
+                                                  points=form.c.points,
+                                                  item_1=form.c.item_1,
+                                                  item_2=form.c.item_2,
+                                                  item_3=form.c.item_3)
 
         return self.json_ok(data={'next_url': url('accounts:achievements:group', achievement.group.slug)})
 

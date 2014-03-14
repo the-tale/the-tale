@@ -6,6 +6,7 @@ from django.utils.log import getLogger
 from django.conf import settings as project_settings
 
 from dext.settings import settings
+from dext.utils.profile import profile_decorator
 
 from the_tale.common.amqp_queues import BaseWorker
 from the_tale.common import postponed_tasks
@@ -30,8 +31,8 @@ class Worker(BaseWorker):
     def __init__(self, game_queue):
         super(Worker, self).__init__(command_queue=game_queue)
 
-    # @profile_decorator('game_logic.profiled')
-    run = BaseWorker.run_simple
+    run = profile_decorator('game_logic.profiled')(BaseWorker.run_simple)
+    # run = BaseWorker.run_simple
 
     def initialize(self):
         # worker initialized by supervisor

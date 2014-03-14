@@ -1,7 +1,5 @@
 # coding: utf-8
 
-from django.db import transaction
-
 from textgen.words import Fake
 
 from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
@@ -51,11 +49,10 @@ class SayInBattleLogTask(PostponedLogic):
         if enemy_hero is not None:
             enemy_hero.add_message('pvp_say', text=Fake(self.text))
 
-        with transaction.atomic():
-            storage.save_account_data(battle.account_id, update_cache=True)
+        storage.save_account_data(battle.account_id, update_cache=True)
 
-            if enemy_hero is not None:
-                storage.save_account_data(battle.enemy_id, update_cache=True)
+        if enemy_hero is not None:
+            storage.save_account_data(battle.enemy_id, update_cache=True)
 
         self.state = SAY_IN_HERO_LOG_TASK_STATE.PROCESSED
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
@@ -122,9 +119,8 @@ class UsePvPAbilityTask(PostponedLogic):
 
         pvp_ability.use()
 
-        with transaction.atomic():
-            storage.save_account_data(battle.account_id, update_cache=True)
-            storage.save_account_data(battle.enemy_id, update_cache=True)
+        storage.save_account_data(battle.account_id, update_cache=True)
+        storage.save_account_data(battle.enemy_id, update_cache=True)
 
         self.state = USE_PVP_ABILITY_TASK_STATE.PROCESSED
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS

@@ -451,7 +451,7 @@ class QuestPrototype(object):
 
         multiplier = (1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)) * scale
         money = 1 + int(f.sell_artifact_price(hero.level) * multiplier)
-        money = hero.abilities.modify_attribute(HERO_MODIFIERS.QUEST_MONEY_REWARD, money)
+        money = int(money * hero.attribute_modifier(HERO_MODIFIERS.QUEST_MONEY_REWARD))
         hero.change_money(MONEY_SOURCE.EARNED_FROM_QUESTS, money)
 
         quest_info.process_message(knowledge_base=self.knowledge_base,

@@ -33,7 +33,7 @@ class Worker(BaseWorker):
 
         while not self.exception_raised and not self.stop_required:
             game_cmd = self.command_queue.get(block=True)
-            game_cmd.ack()
+            # game_cmd.ack()
 
             settings.refresh()
 

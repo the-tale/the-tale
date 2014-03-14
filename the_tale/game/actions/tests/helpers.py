@@ -10,13 +10,17 @@ from the_tale.game.actions.relations import ACTION_EVENT_REWARD, ACTION_EVENT
 class TestAction(ActionBase):
     TYPE = 'test-action'
     CONTEXT_MANAGER = contexts.BattleContext
+    SINGLE = False
+    TEXTGEN_TYPE = 'action_idleness'
 
     @classmethod
-    def _create(cls, hero=None, bundle_id=None, data=0):
-        return cls( hero=hero,
-                    bundle_id=bundle_id,
-                    data=data,
-                    state=cls.STATE.UNINITIALIZED)
+    def _create(cls, hero=None, bundle_id=None, data=0, single=False):
+        obj = cls( hero=hero,
+                   bundle_id=bundle_id,
+                   data=data,
+                   state=cls.STATE.UNINITIALIZED)
+        obj.SINGLE = single
+        return obj
 
 
 class ActionEventsTestsMixin(object):

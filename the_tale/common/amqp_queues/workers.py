@@ -25,7 +25,7 @@ class BaseWorker(object):
     stop_signal_required = True
 
     def __init__(self, command_queue):
-        self.command_queue = connection.SimpleQueue(command_queue)
+        self.command_queue = connection.SimpleQueue(command_queue, no_ack=True)
 
         self.exception_raised = False
         self.stop_required = False
@@ -41,7 +41,7 @@ class BaseWorker(object):
     def run_simple(self):
         while not self.exception_raised and not self.stop_required:
             cmd = self.command_queue.get(block=True)
-            cmd.ack()
+            # cmd.ack()
             self.process_cmd(cmd.payload)
 
     def close_queries(self):

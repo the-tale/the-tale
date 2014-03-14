@@ -24,6 +24,24 @@ class MessagesContainerTest(testcase.TestCase):
 
         self.assertEqual(self.messages.serialize(), messages.JournalContainer.deserialize(None ,self.messages.serialize()).serialize())
 
+    def test_clear(self):
+        self.messages.push_message(messages.prepair_message('1'))
+
+        self.messages.updated = False
+
+        self.messages.clear()
+
+        self.assertTrue(self.messages.updated)
+        self.assertEqual(self.messages.messages, [])
+
+        self.messages.updated = False
+
+        self.messages.clear()
+
+        self.assertFalse(self.messages.updated)
+        self.assertEqual(self.messages.messages, [])
+
+
     def test_push_message(self):
         current_time = TimePrototype.get_current_time()
 

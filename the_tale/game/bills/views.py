@@ -276,7 +276,6 @@ class BillResource(Resource):
 
     @login_required
     @validate_fast_account()
-    @transaction.atomic
     @validate_ban_game()
     @validate_participate_in_politics()
     @validate_can_vote()
@@ -291,8 +290,9 @@ class BillResource(Resource):
         if VotePrototype.get_for(self.account, self.bill):
             return self.json_error('bills.vote.vote_exists', u'Вы уже проголосовали')
 
-        VotePrototype.create(self.account, self.bill, type)
-        self.bill.recalculate_votes()
-        self.bill.save()
+        with transaction.atomic():
+            VotePrototype.create(self.account, self.bill, type)
+            self.bill.recalculate_votes()
+            self.bill.save()
 
         return self.json_ok()

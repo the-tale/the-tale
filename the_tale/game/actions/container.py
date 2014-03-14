@@ -3,10 +3,11 @@
 
 class ActionsContainer(object):
 
-    __slots__ = ('updated', 'actions_list')
+    __slots__ = ('updated', 'actions_list', 'is_single')
 
     def __init__(self):
         self.updated = False
+        self.is_single = False
         self.actions_list = []
 
     def serialize(self):
@@ -17,18 +18,25 @@ class ActionsContainer(object):
         from the_tale.game.actions.prototypes import ACTION_TYPES
         obj = cls()
         obj.actions_list = [ACTION_TYPES[action_data['type']].deserialize(hero=hero, data=action_data) for action_data in data.get('actions', [])]
+        obj.is_single = obj._is_single
         return obj
 
     def ui_info(self):
         return {'actions': [action.ui_info() for action in self.actions_list]}
 
+    @property
+    def _is_single(self):
+        return all(action.SINGLE for action in self.actions_list)
+
     def push_action(self, action):
         self.updated = True
         self.actions_list.append(action)
+        self.is_single = self._is_single
 
     def pop_action(self):
         self.updated = True
         action = self.actions_list.pop()
+        self.is_single = self._is_single
         return action
 
     @property

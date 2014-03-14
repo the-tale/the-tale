@@ -1,7 +1,5 @@
 # coding: utf-8
 
-from django.db import transaction
-
 import rels
 from rels.django import DjangoEnum
 
@@ -38,7 +36,6 @@ class MakeChoiceTask(PostponedLogic):
     @property
     def error_message(self): return self.state.text
 
-    @transaction.atomic
     def process(self, main_task, storage):
 
         hero = storage.accounts_to_heroes[self.account_id]

@@ -7,18 +7,13 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.logic_storage import LogicStorage
 
-from the_tale.game.balance import constants as c
 from the_tale.game.logic import create_test_map
-from the_tale.game.prototypes import TimePrototype
 
-from the_tale.game.heroes.logic import create_mob_for_hero
-
-from the_tale.game.actions.prototypes import ACTION_TYPES, ActionBattlePvE1x1Prototype, ActionBase
-from the_tale.game.actions import contexts
+from the_tale.game.actions.prototypes import ACTION_TYPES
 
 from the_tale.game.actions.tests.helpers import TestAction
 from the_tale.game.actions.container import ActionsContainer
-from the_tale.game.actions.prototypes import ACTION_TYPES
+
 
 
 class ActionsContainerTests(testcase.TestCase):
@@ -45,6 +40,7 @@ class ActionsContainerTests(testcase.TestCase):
         container = ActionsContainer()
         self.assertFalse(container.updated)
         self.assertEqual(container.actions_list, [])
+        self.assertFalse(container.is_single)
 
     @mock.patch('the_tale.game.actions.prototypes.ACTION_TYPES', dict(ACTION_TYPES, **{TestAction.TYPE: TestAction}))
     def test_serialization(self):
@@ -78,3 +74,33 @@ class ActionsContainerTests(testcase.TestCase):
 
     def test_current_action(self):
         self.assertEqual(self.container.current_action.percents, self.action_3.percents)
+
+
+    def test_is_single__push_and_pop_action(self):
+        while self.container.number > 1:
+            self.container.pop_action()
+
+        self.assertTrue(self.container.is_single)
+
+        TestAction.create(hero=self.hero, data=4, single=False)
+        self.assertFalse(self.container.is_single)
+
+        TestAction.create(hero=self.hero, data=4, single=True)
+        self.assertFalse(self.container.is_single)
+
+        self.container.pop_action()
+        self.assertFalse(self.container.is_single)
+
+        self.container.pop_action()
+        self.assertTrue(self.container.is_single)
+
+
+    def test_is_single__deserialize(self):
+        while self.container.number > 1:
+            self.container.pop_action()
+
+        self.assertTrue(self.container.is_single)
+
+        with mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.SINGLE', False):
+            with mock.patch('the_tale.game.actions.prototypes.ACTION_TYPES', dict(ACTION_TYPES, **{TestAction.TYPE: TestAction})):
+                self.assertFalse(ActionsContainer.deserialize(self.hero, self.container.serialize()).is_single)

@@ -48,6 +48,7 @@ class Habit(object):
     def change(self, delta):
         setattr(self.hero._model, self.field_name, max(-c.HABITS_BORDER, min(c.HABITS_BORDER, self.raw_value + delta)))
         del self.interval
+        self.hero.reset_accessors_cache()
 
 
     def modify_attribute(self, modifier, value):

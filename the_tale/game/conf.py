@@ -23,12 +23,12 @@ game_settings = app_settings('GAME',
                              PROCESS_TURN_WAIT_LOGIC_TIMEOUT = 5*60,
                              PROCESS_TURN_WAIT_HIGHLEVEL_TIMEOUT = 10*60,
 
-                             SAVED_UNCACHED_HEROES_FRACTION=0.001,
+                             SAVED_UNCACHED_HEROES_FRACTION=0.00025,
 
                              JS_CONSTNATS_FILE_LOCATION='./the_tale/static/game/data/constants.js',
 
-                             COLLECT_GARBAGE=True,
-                             UNLOAD_OBJECTS=True,
+                             COLLECT_GARBAGE=False,
+                             UNLOAD_OBJECTS=False,
 
                              TEXTGEN_SOURCES_DIR=os.path.join(APP_DIR, 'fixtures', 'textgen', 'texts_src'),
                              TEXTGEN_VOCABULARY=os.path.join(APP_DIR, 'fixtures', 'textgen', 'vocabulary.json'),

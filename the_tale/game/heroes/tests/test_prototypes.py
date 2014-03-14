@@ -2,10 +2,11 @@
 import datetime
 import time
 import random
+import contextlib
 
 import mock
 
-from the_tale.common.utils.testcase import TestCase
+from the_tale.common.utils import testcase
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
@@ -28,9 +29,10 @@ from the_tale.game.heroes.prototypes import HeroPrototype, HeroPreferencesProtot
 from the_tale.game.heroes.habilities import ABILITY_TYPE, ABILITIES, battle
 from the_tale.game.heroes.conf import heroes_settings
 from the_tale.game.heroes import relations
+from the_tale.game.heroes import messages
 
 
-class HeroTest(TestCase):
+class HeroTest(testcase.TestCase):
 
     def setUp(self):
         super(HeroTest, self).setUp()
@@ -103,7 +105,8 @@ class HeroTest(TestCase):
 
         self.hero._model.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=60)
 
-        self.assertTrue(self.hero.experience_modifier < c.EXP_FOR_NORMAL_ACCOUNT)
+        # inactive heroes get the same exp, insteed experience penalty  there action delayed
+        self.assertTrue(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
         self.hero.update_with_account_data(is_fast=False,
                                            premium_end_at=datetime.datetime.now(),
@@ -318,11 +321,10 @@ class HeroTest(TestCase):
         self.assertTrue(HeroPrototype.is_ui_continue_caching_required(time.time() - heroes_settings.UI_CACHING_TIME))
 
     def test_push_message(self):
-        from the_tale.game.heroes import messages
         message = messages.prepair_message('abrakadabra')
 
-        self.hero.messages._clear()
-        self.hero.diary._clear()
+        self.hero.messages.clear()
+        self.hero.diary.clear()
 
         self.assertEqual(len(self.hero.messages), 0)
         self.assertEqual(len(self.hero.diary), 0)
@@ -341,6 +343,44 @@ class HeroTest(TestCase):
 
         self.assertEqual(len(self.hero.messages), 2)
         self.assertEqual(len(self.hero.diary), 2)
+
+    def test_add_message__inactive_hero(self):
+
+        self.hero.messages.clear()
+        self.hero.diary.clear()
+
+        self.hero.messages.updated = False
+        self.hero.diary.updated = False
+
+        self.assertTrue(self.hero.is_active)
+
+        with mock.patch('the_tale.game.text_generation.get_text', mock.Mock(return_value='message_1')):
+            self.hero.add_message('message_type', diary=True, journal=True)
+
+        self.assertEqual(len(self.hero.messages), 1)
+        self.assertEqual(len(self.hero.diary), 1)
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_active', False):
+            with mock.patch('the_tale.game.text_generation.get_text', mock.Mock(return_value='message_2')):
+                self.hero.add_message('message_type', diary=True, journal=True)
+
+            self.assertEqual(len(self.hero.messages), 2)
+            self.assertEqual(len(self.hero.diary), 2)
+
+            with mock.patch('the_tale.game.text_generation.get_text', mock.Mock(return_value='message_2')):
+                self.hero.add_message('message_type', diary=False, journal=True)
+
+            self.assertEqual(len(self.hero.messages), 0)
+            self.assertEqual(len(self.hero.diary), 2)
+
+            with mock.patch('the_tale.game.text_generation.get_text', mock.Mock(return_value='message_2')):
+                with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True):
+                    self.hero.add_message('message_type', diary=False, journal=True)
+
+            self.assertEqual(len(self.hero.messages), 1)
+            self.assertEqual(len(self.hero.diary), 2)
+
+
 
     def test_energy_maximum(self):
         maximum_without_premium = self.hero.energy_maximum
@@ -548,9 +588,58 @@ class HeroTest(TestCase):
         self.assertTrue(value_without_premium < self.hero.habit_honor.raw_value - value_without_premium)
 
 
+    def test_reset_accessories_cache(self):
+        self.hero.damage_modifier # fill cache
+
+        self.assertTrue(getattr(self.hero, '_cached_modifiers'))
+
+        self.hero.reset_accessors_cache()
+
+        self.assertFalse(getattr(self.hero, '_cached_modifiers'))
 
 
-class HeroLevelUpTests(TestCase):
+
+class HeroLogicAccessorsTest(testcase.TestCase):
+
+    def setUp(self):
+        super(HeroLogicAccessorsTest, self).setUp()
+        self.place_1, self.place_2, self.place_3 = create_test_map()
+
+        result, account_id, bundle_id = register_user('test_user', 'test@test.com', '111111')
+
+        self.storage = LogicStorage()
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
+        self.hero = self.storage.accounts_to_heroes[account_id]
+
+
+    def check_can_process_turn(self, expected_result, banned=False, bot=False, active=False, premium=False, single=True, idle=False, sinchronized_turn=True):
+
+        if sinchronized_turn:
+            turn_number = 6 * heroes_settings.INACTIVE_HERO_DELAY + self.hero.id
+        else:
+            turn_number = 6 * heroes_settings.INACTIVE_HERO_DELAY + self.hero.id + 1
+
+        with contextlib.nested(
+                mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_banned', banned),
+                mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_bot', bot),
+                mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_active', active),
+                mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', premium),
+                mock.patch('the_tale.game.actions.container.ActionsContainer.is_single', single),
+                mock.patch('the_tale.game.actions.container.ActionsContainer.number', 1 if idle else 2)):
+            self.assertEqual(self.hero.can_process_turn(turn_number), expected_result)
+
+
+    def test_can_process_turn__banned(self):
+        self.check_can_process_turn(True, banned=True)
+        self.check_can_process_turn(False, banned=True, idle=True)
+        self.check_can_process_turn(True, active=True)
+        self.check_can_process_turn(True, premium=True)
+        self.check_can_process_turn(True, single=False)
+        self.check_can_process_turn(True, sinchronized_turn=True)
+        self.check_can_process_turn(False, sinchronized_turn=False)
+
+
+class HeroLevelUpTests(testcase.TestCase):
 
     def setUp(self):
         super(HeroLevelUpTests, self).setUp()
@@ -731,7 +820,7 @@ class HeroLevelUpTests(TestCase):
             self.assertEqual(len(abilities), c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM)
 
 
-class HeroQuestsTest(TestCase):
+class HeroQuestsTest(testcase.TestCase):
 
     def setUp(self):
         super(HeroQuestsTest, self).setUp()

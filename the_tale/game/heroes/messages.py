@@ -32,9 +32,10 @@ class MessagesContainer(object):
     def messages_number(self):
         return len(self.messages)
 
-    def _clear(self):
-        del self.messages[:]
-        self.updated = True
+    def clear(self):
+        if self.messages:
+            del self.messages[:]
+            self.updated = True
 
     def __len__(self): return len(self.messages)
 

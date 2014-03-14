@@ -22,7 +22,6 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.EQUIP_SLOTS_NUMBER, 11)
         self.assertEqual(c.ARTIFACTS_PER_LVL, 4)
 
-        self.assertEqual(c.EXP_PENALTY_MULTIPLIER, 0.1)
         self.assertEqual(c.EXP_PER_HOUR, 10)
         self.assertEqual(c.EXP_PER_QUEST_FRACTION, 0.33)
         self.assertEqual(c.EXP_FOR_PREMIUM_ACCOUNT, 1.0)

@@ -68,6 +68,9 @@ class AbilitiesPrototype(object):
         self.initialize()
         self.updated = True
 
+        if self.hero:
+            self.hero.reset_accessors_cache()
+
     @property
     def time_before_reset(self):
         return max(datetime.timedelta(seconds=0), (self.reseted_at + heroes_settings.ABILITIES_RESET_TIMEOUT - datetime.datetime.now()))
@@ -100,10 +103,16 @@ class AbilitiesPrototype(object):
         self.abilities[ability_id] = ABILITIES[ability_id](level=level)
         self.destiny_points_spend += 1
 
+        if self.hero:
+            self.hero.reset_accessors_cache()
+
     def increment_level(self, ability_id):
         self.updated = True
         self.abilities[ability_id].level += 1
         self.destiny_points_spend += 1
+
+        if self.hero:
+            self.hero.reset_accessors_cache()
 
     def _get_candidates(self):
 
@@ -179,6 +188,9 @@ class AbilitiesPrototype(object):
             ability.level += 1
             self.updated = True
 
+        if self.hero:
+            self.hero.reset_accessors_cache()
+
         return 0
 
     @property
@@ -220,6 +232,9 @@ class AbilitiesPrototype(object):
             new_choices = set(ability.get_id() for ability in self.get_for_choose())
 
         self.updated = True
+
+        if self.hero:
+            self.hero.reset_accessors_cache()
 
         return True
 

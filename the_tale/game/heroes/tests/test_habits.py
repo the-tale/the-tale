@@ -109,6 +109,13 @@ class HabitTest(BaseHabitTest):
             self.assertEqual(self.hero.habit_honor.interval, expected_interval)
 
 
+    def test_reset_accessories_cache_on_change(self):
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+            self.hero.habit_honor.change(-500)
+
+        self.assertEqual(reset_accessors_cache.call_count, 1)
+
+
 class UpdateHabitsTest(BaseHabitTest):
 
     def setUp(self):

@@ -54,6 +54,10 @@ class NounFormsWithoutNumberField(django_forms.MultiValueField):
 
     def clean(self, value):
         for v in value:
+
+            if v is None:
+                raise django_forms.ValidationError(u'Все формы слова должны быть определены')
+
             if self.RESTRICTED_SYMBOLS & set(v):
                 raise django_forms.ValidationError(u'В словах нельзя использовать следующие символы: %s' % ' '.join(c for c in self.RESTRICTED_SYMBOLS))
 

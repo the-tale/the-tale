@@ -2,12 +2,35 @@
 
 import math
 
+from django.conf import settings as project_settings
+
 from the_tale.game.balance import constants as c, formulas as f
 
 from the_tale.game.heroes import relations
+from the_tale.game.heroes.conf import heroes_settings
 
 
 class LogicAccessorsMixin(object):
+
+    def reset_accessors_cache(self):
+        if not hasattr(self, '_cached_modifiers'):
+            self._cached_modifiers = {}
+        else:
+            self._cached_modifiers.clear()
+
+    def attribute_modifier(self, modifier):
+
+        if not hasattr(self, '_cached_modifiers'):
+            self._cached_modifiers = {}
+
+        if not project_settings.TESTS_RUNNING and modifier in self._cached_modifiers:
+            return self._cached_modifiers[modifier]
+
+        result = self.modify_attribute(modifier, modifier.default())
+
+        self._cached_modifiers[modifier] = result
+
+        return result
 
     def modify_attribute(self, modifier, value):
         value = self.abilities.modify_attribute(modifier, value)
@@ -30,7 +53,7 @@ class LogicAccessorsMixin(object):
     ################################
 
     def modify_sell_price(self, price):
-        price = self.modify_attribute(relations.MODIFIERS.SELL_PRICE, price)
+        price *= self.attribute_modifier(relations.MODIFIERS.SELL_PRICE)
 
         if self.position.place and self.position.place.modifier:
             price = self.position.place.modifier.modify_sell_price(price)
@@ -38,7 +61,7 @@ class LogicAccessorsMixin(object):
         return int(round(price))
 
     def modify_buy_price(self, price):
-        price = self.modify_attribute(relations.MODIFIERS.BUY_PRICE, price)
+        price *= self.attribute_modifier(relations.MODIFIERS.BUY_PRICE)
 
         if self.position.place and self.position.place.modifier:
             price = self.position.place.modifier.modify_buy_price(price)
@@ -50,10 +73,10 @@ class LogicAccessorsMixin(object):
         priority = quest.priority
 
         if quest.is_HELP_FRIEND:
-            priority = self.modify_attribute(relations.MODIFIERS.FRIEND_QUEST_PRIORITY, priority)
+            priority *= self.attribute_modifier(relations.MODIFIERS.FRIEND_QUEST_PRIORITY)
 
         if quest.is_INTERFERE_ENEMY:
-            priority = self.modify_attribute(relations.MODIFIERS.ENEMY_QUEST_PRIORITY, priority)
+            priority *= self.attribute_modifier(relations.MODIFIERS.ENEMY_QUEST_PRIORITY)
 
         return priority
 
@@ -109,75 +132,87 @@ class LogicAccessorsMixin(object):
         return c.ANGEL_ENERGY_MAX
 
     @property
-    def might_crit_chance(self): return self.modify_attribute(relations.MODIFIERS.MIGHT_CRIT_CHANCE, f.might_crit_chance(self.might))
+    def might_crit_chance(self): return min(1, f.might_crit_chance(self.might) + self.attribute_modifier(relations.MODIFIERS.MIGHT_CRIT_CHANCE))
 
     @property
-    def damage_modifier(self): return self.modify_attribute(relations.MODIFIERS.DAMAGE, 1)
+    def damage_modifier(self): return self.attribute_modifier(relations.MODIFIERS.DAMAGE)
 
     @property
-    def move_speed(self): return self.modify_attribute(relations.MODIFIERS.SPEED, c.HERO_MOVE_SPEED)
+    def move_speed(self): return c.HERO_MOVE_SPEED * self.attribute_modifier(relations.MODIFIERS.SPEED)
 
     @property
-    def initiative(self): return self.modify_attribute(relations.MODIFIERS.INITIATIVE, 1)
+    def initiative(self): return self.attribute_modifier(relations.MODIFIERS.INITIATIVE)
 
     @property
-    def max_health(self): return int(f.hp_on_lvl(self.level) * self.modify_attribute(relations.MODIFIERS.HEALTH, 1))
+    def max_health(self): return int(f.hp_on_lvl(self.level) * self.attribute_modifier(relations.MODIFIERS.HEALTH))
 
     @property
-    def max_bag_size(self): return self.modify_attribute(relations.MODIFIERS.MAX_BAG_SIZE, c.MAX_BAG_SIZE)
+    def max_bag_size(self): return c.MAX_BAG_SIZE + self.attribute_modifier(relations.MODIFIERS.MAX_BAG_SIZE)
 
     @property
     def experience_modifier(self):
         if self.is_banned:
-            modifier = 0.0
+            return 0.0
         elif self.is_premium:
             modifier = c.EXP_FOR_PREMIUM_ACCOUNT
-        elif self.is_active:
-            modifier = c.EXP_FOR_NORMAL_ACCOUNT
         else:
-            modifier = c.EXP_FOR_NORMAL_ACCOUNT * c.EXP_PENALTY_MULTIPLIER
+            modifier = c.EXP_FOR_NORMAL_ACCOUNT
 
         modifier *= self.preferences.risk_level.experience_modifier
 
-        return self.modify_attribute(relations.MODIFIERS.EXPERIENCE, modifier)
+        return modifier * self.attribute_modifier(relations.MODIFIERS.EXPERIENCE)
 
     @property
     def person_power_modifier(self):
-        return self.modify_attribute(relations.MODIFIERS.POWER, max(math.log(self.level, 2), 0.5)) * self.preferences.risk_level.power_modifier
+        return max(math.log(self.level, 2), 0.5) * self.attribute_modifier(relations.MODIFIERS.POWER) * self.preferences.risk_level.power_modifier
 
     @property
     def friend_power_modifier(self):
-        return self.modify_attribute(relations.MODIFIERS.POWER_TO_FRIEND, 1.0)
+        return self.attribute_modifier(relations.MODIFIERS.POWER_TO_FRIEND)
 
     @property
     def enemy_power_modifier(self):
-        return self.modify_attribute(relations.MODIFIERS.POWER_TO_ENEMY, 1.0)
+        return self.attribute_modifier(relations.MODIFIERS.POWER_TO_ENEMY)
 
     @property
     def reward_modifier(self):
         return self.preferences.risk_level.reward_modifier
 
     def spending_priorities(self):
-        priorities = {record:record.priority for record in relations.ITEMS_OF_EXPENDITURE.records}
-        return self.modify_attribute(relations.MODIFIERS.ITEMS_OF_EXPENDITURE_PRIORITIES, priorities)
+        return self.attribute_modifier(relations.MODIFIERS.ITEMS_OF_EXPENDITURE_PRIORITIES)
 
     def prefered_quest_markers(self):
-        return self.modify_attribute(relations.MODIFIERS.QUEST_MARKERS, set())
+        return self.attribute_modifier(relations.MODIFIERS.QUEST_MARKERS)
+
+    def quest_money_reward_multiplier(self):
+        return self.attribute_modifier(relations.MODIFIERS.QUEST_MONEY_REWARD)
 
     def quest_markers_rewards_bonus(self):
-        return self.modify_attribute(relations.MODIFIERS.QUEST_MARKERS_REWARD_BONUS, {})
+        return self.attribute_modifier(relations.MODIFIERS.QUEST_MARKERS_REWARD_BONUS)
 
     def loot_probability(self):
-        return self.modify_attribute(relations.MODIFIERS.LOOT_PROBABILITY, c.GET_LOOT_PROBABILITY)
+        return c.GET_LOOT_PROBABILITY * self.attribute_modifier(relations.MODIFIERS.LOOT_PROBABILITY)
 
     def artifacts_probability(self):
-        return self.modify_attribute(relations.MODIFIERS.LOOT_PROBABILITY, f.artifacts_per_battle(self.level))
+        return f.artifacts_per_battle(self.level) * self.attribute_modifier(relations.MODIFIERS.LOOT_PROBABILITY)
 
     def habit_events(self):
-        return self.modify_attribute(relations.MODIFIERS.HONOR_EVENTS, set())
+        return self.attribute_modifier(relations.MODIFIERS.HONOR_EVENTS)
 
     @property
     def habit_quest_active_multiplier(self):
         if self.is_premium:
             return c.HABITS_QUEST_ACTIVE_PREMIUM_MULTIPLIER
         return 1.0
+
+    def can_process_turn(self, turn_number):
+
+        if self.is_banned and self.actions.number == 1:
+            return False
+
+        if self.is_bot or self.is_active or self.is_premium or (not self.actions.is_single):
+            return True
+
+        # делаем разброс обрабатываемых с задержкой героев в зависимости от их идентификатора
+        # чтобы не делать скачкообразной нагрузки раз в c.INACTIVE_HERO_DELAY ходов
+        return (turn_number % heroes_settings.INACTIVE_HERO_DELAY) == (self.id % heroes_settings.INACTIVE_HERO_DELAY)

@@ -47,8 +47,8 @@ class LogicStorage(object):
 
     def recache_account_data(self, account_id):
         hero = self.accounts_to_heroes[account_id]
-        if hero.saved_at_turn != TimePrototype.get_current_turn_number():
-            hero.save()
+        # if hero.saved_at_turn != TimePrototype.get_current_turn_number():
+        #     hero.save()
         cache.set(hero.cached_ui_info_key, hero.ui_info_for_cache(actual_guaranteed=True), heroes_settings.UI_CACHING_TIMEOUT)
 
     def save_hero_data(self, hero_id, update_cache):
@@ -118,13 +118,22 @@ class LogicStorage(object):
 
         timestamp = time.time()
 
+        turn_number = TimePrototype.get_current_turn_number()
+
+        processed_heroes = 0
+
         for hero in self.heroes.values():
 
             if hero.id in self.skipped_heroes:
                 continue
 
+            if not hero.can_process_turn(turn_number):
+                continue
+
             leader_action = hero.actions.current_action
             bundle_id = leader_action.bundle_id
+
+            processed_heroes += 1
 
             try:
                 leader_action.process_turn()
@@ -148,6 +157,8 @@ class LogicStorage(object):
 
             if game_settings.UNLOAD_OBJECTS:
                 hero.unload_serializable_items(timestamp)
+
+        logger.info('[next_turn] processed heroes: %d / %d' % (processed_heroes, len(self.heroes)))
 
 
     def _save_on_exception(self, excluded_bundle_id):

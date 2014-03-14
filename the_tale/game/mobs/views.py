@@ -2,7 +2,6 @@
 import uuid
 
 from django.core.urlresolvers import reverse
-from django.db import transaction
 
 from dext.views import handler, validator, validate_argument
 from dext.utils.urls import UrlBuilder
@@ -152,7 +151,6 @@ class GameMobResource(MobResourceBase):
 
     @login_required
     @validate_create_rights()
-    @transaction.atomic
     @handler('create', method='post')
     def create(self):
 
@@ -191,7 +189,6 @@ class GameMobResource(MobResourceBase):
     @login_required
     @validate_disabled_state()
     @validate_create_rights()
-    @transaction.atomic
     @handler('#mob', 'update', name='update', method='post')
     def update(self):
 
@@ -222,7 +219,6 @@ class GameMobResource(MobResourceBase):
 
     @login_required
     @validate_moderate_rights()
-    @transaction.atomic
     @handler('#mob', 'moderate', name='moderate', method='post')
     def moderate(self):
         form = ModerateMobRecordForm(self.request.POST)

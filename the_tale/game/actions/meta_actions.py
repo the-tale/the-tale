@@ -193,7 +193,6 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
 
 
     @classmethod
-    @transaction.atomic
     def create(cls, storage, hero_1, hero_2, bundle):
 
         cls.prepair_bot(hero_1, hero_2)
@@ -208,15 +207,16 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         hero_2.health = hero_2.max_health
         cls.reset_hero_info(hero_2)
 
-        model = MetaAction.objects.create(type=cls.TYPE,
-                                          percents=0,
-                                          data=s11n.to_json({'hero_1_old_health': hero_1_old_health,
-                                                             'hero_2_old_health': hero_2_old_health}),
-                                          bundle=bundle._model,
-                                          state=cls.STATE.BATTLE_RUNNING )
+        with transaction.atomic():
+            model = MetaAction.objects.create(type=cls.TYPE,
+                                              percents=0,
+                                              data=s11n.to_json({'hero_1_old_health': hero_1_old_health,
+                                                                 'hero_2_old_health': hero_2_old_health}),
+                                              bundle=bundle._model,
+                                              state=cls.STATE.BATTLE_RUNNING )
 
-        member_1 = MetaActionMemberPrototype.create(meta_action_model=model, hero_model=hero_1._model, role=cls.ROLES.HERO_1)
-        member_2 = MetaActionMemberPrototype.create(meta_action_model=model, hero_model=hero_2._model, role=cls.ROLES.HERO_2)
+            member_1 = MetaActionMemberPrototype.create(meta_action_model=model, hero_model=hero_1._model, role=cls.ROLES.HERO_1)
+            member_2 = MetaActionMemberPrototype.create(meta_action_model=model, hero_model=hero_2._model, role=cls.ROLES.HERO_2)
 
         meta_action = cls(model, members=[member_1, member_2])
         meta_action.set_storage(storage)

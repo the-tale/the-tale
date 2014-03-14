@@ -71,6 +71,7 @@ class ActionBase(object):
         PROCESSED = 'processed'
 
     TYPE = 'BASE'
+    SINGLE = True # is action work with only one hero
     TEXTGEN_TYPE = None
     CONTEXT_MANAGER = None
     HELP_CHOICES = set()
@@ -1615,9 +1616,10 @@ class ActionDoNothingPrototype(ActionBase):
 
 class ActionMetaProxyPrototype(ActionBase):
 
+    SINGLE = False
     TYPE = 'META_PROXY'
     TEXTGEN_TYPE = 'no texgen type'
-    SHORT_DESCRIPTION = u'торгует'
+    SHORT_DESCRIPTION = u'no description'
     HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
 
     @property

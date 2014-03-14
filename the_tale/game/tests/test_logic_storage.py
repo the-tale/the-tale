@@ -248,6 +248,20 @@ class LogicStorageTests(testcase.TestCase):
 
         self.assertEqual(save_hero_data.call_count, 1)
 
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_process_turn', lambda self, turn: True)
+    def test_process_turn__can_process_turn(self):
+        with mock.patch('the_tale.game.actions.prototypes.ActionBase.process_turn') as action_process_turn:
+            self.storage.process_turn(second_step_if_needed=False)
+
+        self.assertEqual(action_process_turn.call_count, 2)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_process_turn', lambda self, turn: False)
+    def test_process_turn__can_not_process_turn(self):
+        with mock.patch('the_tale.game.actions.prototypes.ActionBase.process_turn') as action_process_turn:
+            self.storage.process_turn(second_step_if_needed=False)
+
+        self.assertEqual(action_process_turn.call_count, 0)
+
     def test_process_turn___exception_raises(self):
         def process_turn_raise_exception(action):
             if action.hero.id == self.hero_2.id:

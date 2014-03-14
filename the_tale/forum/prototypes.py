@@ -86,7 +86,6 @@ class SubCategoryPrototype(BasePrototype):
         self._model.save()
 
     @classmethod
-    @transaction.atomic
     def create(cls, category, caption, order, closed=False, restricted=False, uid=None):
 
         model = SubCategory.objects.create(category=category._model, caption=caption, order=order, closed=closed, restricted=restricted, uid=uid)

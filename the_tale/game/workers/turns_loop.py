@@ -27,7 +27,7 @@ class Worker(BaseWorker):
         while not self.exception_raised and not self.stop_required:
             try:
                 cmd = self.command_queue.get_nowait()
-                cmd.ack()
+                # cmd.ack()
                 self.process_cmd(cmd.payload)
             except Queue.Empty:
                 self.logger.info('send next turn command')

@@ -23,7 +23,7 @@ from the_tale.game import names
 
 from the_tale.game.artifacts.storage import artifacts_storage
 
-from the_tale.game.text_generation import get_dictionary, get_text
+from the_tale.game import text_generation
 
 from the_tale.game.prototypes import TimePrototype
 
@@ -333,9 +333,9 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
         if not hasattr(self, '_normalized_name'):
             if not self.is_name_changed:
                 if self.gender.is_MASCULINE:
-                    self._normalized_name = get_dictionary().get_word(u'герой')
+                    self._normalized_name = text_generation.get_dictionary().get_word(u'герой')
                 elif self.gender.is_FEMININE:
-                    self._normalized_name = get_dictionary().get_word(u'героиня')
+                    self._normalized_name = text_generation.get_dictionary().get_word(u'героиня')
             else:
                 self._normalized_name = Noun.deserialize(s11n.from_json(self._model.name_forms))
         return self._normalized_name
@@ -520,8 +520,16 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
             self.diary.push_message(msg)
 
     def add_message(self, type_, diary=False, journal=True, turn_delta=0, **kwargs):
-        msg = get_text('hero:add_message', type_, kwargs)
+
+        if not diary and not self.is_active and not self.is_premium:
+            # do not process journal messages for inactive heroes (and clear it if needed)
+            self.messages.clear()
+            return
+
+        msg = text_generation.get_text('hero:add_message', type_, kwargs)
+
         if msg is None: return
+
         self.push_message(messages.prepair_message(msg, turn_delta=turn_delta), diary=diary, journal=journal)
 
 

@@ -32,7 +32,7 @@ class Worker(BaseWorker):
         while not self.exception_raised and not self.stop_required:
             try:
                 cmd = self.command_queue.get(block=True, timeout=60)
-                cmd.ack()
+                # cmd.ack()
 
                 settings.refresh()
                 self.process_cmd(cmd.payload)

@@ -1,7 +1,5 @@
 # coding: utf-8
 
-from django.db import transaction
-
 import rels
 
 from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
@@ -80,8 +78,7 @@ class UseAbilityTask(PostponedLogic):
 
             hero.change_energy(-ability.TYPE.cost)
 
-            with transaction.atomic():
-                storage.save_hero_data(hero.id, update_cache=True)
+            storage.save_hero_data(hero.id, update_cache=True)
 
             if result.is_SUCCESSED:
                 self.state = ABILITY_TASK_STATE.PROCESSED
@@ -114,9 +111,6 @@ class UseAbilityTask(PostponedLogic):
                 main_task.comment = 'result is False on step %r' %  (self.step,)
                 self.state = ABILITY_TASK_STATE.CAN_NOT_PROCESS
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
-
-            with transaction.atomic():
-                pass
 
             if result.is_SUCCESSED:
                 self.state = ABILITY_TASK_STATE.PROCESSED

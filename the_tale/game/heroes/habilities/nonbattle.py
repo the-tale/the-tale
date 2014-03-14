@@ -131,7 +131,7 @@ class ETHEREAL_MAGNET(AbilityPrototype):
     @property
     def crit_probability(self): return self.CRIT_PROBABILITY[self.level-1]
 
-    def modify_attribute(self, type_, value): return min(1.0, value + self.crit_probability) if type_.is_MIGHT_CRIT_CHANCE else value
+    def modify_attribute(self, type_, value): return (value + self.crit_probability) if type_.is_MIGHT_CRIT_CHANCE else value
 
 
 class WANDERER(AbilityPrototype):
