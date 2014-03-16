@@ -1,5 +1,7 @@
 # coding: utf-8
 
+import datetime
+
 from the_tale.common.utils import testcase
 
 from the_tale.game.logic import create_test_map
@@ -7,10 +9,11 @@ from the_tale.game.logic import create_test_map
 from the_tale.post_service.models import Message as PostServiceMessage
 
 from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
+from the_tale.accounts.logic import register_user, get_system_user
 
 from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 from the_tale.accounts.personal_messages.models import Message
+from the_tale.accounts.personal_messages.conf import personal_messages_settings
 
 
 class PrototypeTests(testcase.TestCase):
@@ -72,3 +75,41 @@ class PrototypeTests(testcase.TestCase):
     def test_hide_all__recipient(self):
         MessagePrototype.hide_all(account_id=self.account2.id)
         self.assertEqual(MessagePrototype._db_filter(hide_from_sender=False, hide_from_recipient=True).count(), 2)
+
+    def test_remove_old_messages__hiden_by_recipients(self):
+        message_3 = MessagePrototype.create(self.account1, self.account2, 'message 3')
+        MessagePrototype.create(self.account1, self.account2, 'message 3')
+
+        self.message.hide_from(sender=True)
+        self.message_2.hide_from(recipient=True)
+        message_3.hide_from(sender=True, recipient=True)
+
+        with self.check_delta(MessagePrototype._db_count, -1):
+            MessagePrototype.remove_old_messages()
+
+        self.assertEqual(MessagePrototype.get_by_id(message_3.id), None)
+
+
+    def test_remove_old_messages__system_user(self):
+
+        system_user = get_system_user()
+
+        messages = [ MessagePrototype.create(self.account1, self.account2, 'message 1'),
+                     MessagePrototype.create(system_user, self.account2, 'message 2'),
+                     MessagePrototype.create(self.account1, system_user, 'message 3'),
+                     MessagePrototype.create(system_user, system_user, 'message 4'),
+
+                     MessagePrototype.create(self.account1, self.account2, 'message 5'),
+                     MessagePrototype.create(system_user, self.account2, 'message 6'),
+                     MessagePrototype.create(self.account1, system_user, 'message 7'),
+                     MessagePrototype.create(system_user, system_user, 'message 8') ]
+
+        for message in messages[-4:]:
+            message._model.created_at = datetime.datetime.now() - personal_messages_settings.SYSTEM_MESSAGES_LEAVE_TIME
+            message.save()
+
+        with self.check_delta(MessagePrototype._db_count, -3):
+            MessagePrototype.remove_old_messages()
+
+        for message in messages[:5]:
+            self.assertNotEqual(MessagePrototype.get_by_id(message.id), None)

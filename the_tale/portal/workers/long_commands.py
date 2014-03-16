@@ -154,6 +154,7 @@ class Worker(BaseWorker):
         self.logger.info('start cleaning')
         self._run_django_subprocess('clean', ['portal_clean'])
         self._run_django_subprocess('clearsessions', ['clearsessions'])
+        self._run_django_subprocess('personal_messages_remove_system_messages', ['personal_messages_remove_system_messages'])
         self._run_system_subprocess('vacuumdb', ['vacuumdb', '-q',
                                                  '-U', project_settings.DATABASES['default']['USER'],
                                                  '-d', project_settings.DATABASES['default']['NAME']])

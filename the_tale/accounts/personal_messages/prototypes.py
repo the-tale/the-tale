@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 
 from django.db import transaction
 
@@ -6,9 +7,11 @@ from the_tale.common.utils import bbcode
 from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils.decorators import lazy_property
 
+from the_tale.accounts.logic import get_system_user
+
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.personal_messages.models import Message
-
+from the_tale.accounts.personal_messages.conf import personal_messages_settings
 
 
 class MessagePrototype(BasePrototype):
@@ -56,3 +59,13 @@ class MessagePrototype(BasePrototype):
     def hide_all(cls, account_id):
         cls._model_class.objects.filter(recipient=account_id).update(hide_from_recipient=True)
         cls._model_class.objects.filter(sender=account_id).update(hide_from_sender=True)
+
+
+    @classmethod
+    def remove_old_messages(cls):
+        cls._db_filter(hide_from_sender=True, hide_from_recipient=True).delete()
+
+        system_user = get_system_user()
+
+        cls._db_filter(recipient=system_user.id, created_at__lt=datetime.datetime.now() - personal_messages_settings.SYSTEM_MESSAGES_LEAVE_TIME).delete()
+        cls._db_filter(sender=system_user.id, created_at__lt=datetime.datetime.now() - personal_messages_settings.SYSTEM_MESSAGES_LEAVE_TIME).delete()
