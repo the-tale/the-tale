@@ -255,20 +255,23 @@ class TestModerationEditThreadRequests(TestModeration):
         self.request_login('main_user@test.com')
         self.check_html_ok(self.request_html(url('forum:threads:edit', self.thread.id)), texts=[('pgf-edit-thread-form', 2),
                                                                                                 ('pgf-thread-subcategory', 0),
-                                                                                                ('thread-caption', 3)])
+                                                                                                ('thread-caption', 3),
+                                                                                                ('id_important', 0)])
 
     def test_second_user_edit_theme_button(self):
         self.request_login('second_user@test.com')
         self.check_html_ok(self.request_html(url('forum:threads:edit', self.thread.id)), texts=[('pgf-edit-thread-form', 0),
                                                                                                         ('forum.edit_thread.no_permissions', 1),
                                                                                                         ('pgf-thread-subcategory', 0),
-                                                                                                        ('thread-caption', 0)])
+                                                                                                        ('thread-caption', 0),
+                                                                                                        ('id_important', 0)])
 
     def test_moderator_user_edit_theme_button(self):
         self.request_login('moderator@test.com')
         self.check_html_ok(self.request_html(url('forum:threads:edit', self.thread.id)), texts=[('pgf-edit-thread-form', 2),
                                                                                                 ('pgf-thread-subcategory', 1),
-                                                                                                ('thread-caption', 3)])
+                                                                                                ('thread-caption', 3),
+                                                                                                'id_important'])
 
 class TestModerationUpdateThreadRequests(TestModeration):
 
@@ -306,6 +309,15 @@ class TestModerationUpdateThreadRequests(TestModeration):
         self.assertEqual(self.subcategory2.posts_count, 0)
         self.assertEqual(self.subcategory2.threads_count, 0)
 
+    def test_main_user_update_theme_with_important(self):
+        self.assertFalse(self.thread.important)
+
+        self.request_login('main_user@test.com')
+        self.check_ajax_ok(self.client.post(url('forum:threads:update', self.thread.id), {'caption': 'edited caption', 'important': True}))
+
+        self.thread.reload()
+        self.assertFalse(self.thread.important)
+
 
     def test_main_user_update_theme_with_form_errors(self):
         self.request_login('main_user@test.com')
@@ -325,6 +337,15 @@ class TestModerationUpdateThreadRequests(TestModeration):
         self.request_login('moderator@test.com')
         self.check_ajax_ok(self.client.post(url('forum:threads:update', self.thread.id), {'caption': 'edited caption'}))
         self.assertEqual(Thread.objects.get(id=self.thread.id).caption, 'edited caption')
+
+    def test_moderator_user_update_theme_with_important(self):
+        self.assertFalse(self.thread.important)
+
+        self.request_login('moderator@test.com')
+        self.check_ajax_ok(self.client.post(url('forum:threads:update', self.thread.id), {'caption': 'edited caption', 'important': True}))
+
+        self.thread.reload()
+        self.assertTrue(self.thread.important)
 
     def test_moderator_user_update_theme_with_subcategory(self):
         self.assertEqual(self.subcategory.posts_count, 5)

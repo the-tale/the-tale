@@ -15,7 +15,7 @@ from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.views import validate_fast_account, validate_ban_forum
 
 from the_tale.forum.models import Category, SubCategory, Thread, Post
-from the_tale.forum.forms import NewPostForm, NewThreadForm, EditThreadForm
+from the_tale.forum import forms
 from the_tale.forum.conf import forum_settings
 from the_tale.forum.read_state import ReadState
 from the_tale.forum.prototypes import ( CategoryPrototype,
@@ -109,7 +109,7 @@ class PostsResource(BaseForumResource):
                               'subcategory': self.subcategory,
                               'thread': self.thread,
                               'post': self.post,
-                              'new_post_form': NewPostForm(initial={'text': self.post.text})} )
+                              'new_post_form': forms.NewPostForm(initial={'text': self.post.text})} )
 
     @login_required
     @validate_fast_account()
@@ -120,7 +120,7 @@ class PostsResource(BaseForumResource):
         if not (can_change_posts(self.account) or self.post.author == self.account):
             return self.json_error('forum.update_post.no_permissions', u'У Вас нет прав для редактирования сообщения')
 
-        edit_post_form = NewPostForm(self.request.POST)
+        edit_post_form = forms.NewPostForm(self.request.POST)
 
         if not edit_post_form.is_valid():
             return self.json_error('forum.update_post.form_errors', edit_post_form.errors)
@@ -170,7 +170,7 @@ class ThreadsResource(BaseForumResource):
             return self.json_error('forum.create_post.delay', error_message)
 
 
-        new_post_form = NewPostForm(self.request.POST)
+        new_post_form = forms.NewPostForm(self.request.POST)
 
         if not new_post_form.is_valid():
             return self.json_error('forum.create_post.form_errors', new_post_form.errors)
@@ -249,6 +249,10 @@ class ThreadsResource(BaseForumResource):
         if not can_change_thread(self.account, self.thread):
             return self.json_error('forum.update_thread.no_permissions', u'У Вас нет прав для редактирования темы')
 
+        account_is_moderator = is_moderator(self.account)
+
+        EditThreadForm = forms.EditThreadModeratorForm if account_is_moderator else forms.EditThreadForm
+
         edit_thread_form = EditThreadForm(subcategories=[SubCategoryPrototype(subcategory_model) for subcategory_model in SubCategory.objects.all()],
                                           data=self.request.POST )
 
@@ -264,7 +268,10 @@ class ThreadsResource(BaseForumResource):
             if not can_change_thread_category(self.account):
                 return self.json_error('forum.update_thread.no_permissions_to_change_subcategory', u'У вас нет прав для переноса темы в другой раздел')
 
-        self.thread.update(caption=edit_thread_form.c.caption, new_subcategory_id=new_subcategory_id, important=edit_thread_form.c.important)
+        if account_is_moderator:
+            self.thread.update(caption=edit_thread_form.c.caption, new_subcategory_id=new_subcategory_id, important=edit_thread_form.c.important)
+        else:
+            self.thread.update(caption=edit_thread_form.c.caption, new_subcategory_id=new_subcategory_id, important=self.thread.important)
 
         return self.json_ok()
 
@@ -278,14 +285,24 @@ class ThreadsResource(BaseForumResource):
             return self.template('error.html', {'msg': u'Вы не можете редактировать эту тему',
                                                 'error_code': 'forum.edit_thread.no_permissions'})
 
+        account_is_moderator = is_moderator(self.account)
+
+        if account_is_moderator:
+            form = forms.EditThreadModeratorForm(subcategories=[SubCategoryPrototype(subcategory_model) for subcategory_model in SubCategory.objects.all()],
+                                                 initial={'subcategory': self.subcategory.id,
+                                                          'caption': self.thread.caption,
+                                                          'important': self.thread.important})
+        else:
+            form = forms.EditThreadForm(subcategories=[SubCategoryPrototype(subcategory_model) for subcategory_model in SubCategory.objects.all()],
+                                        initial={'subcategory': self.subcategory.id,
+                                                 'caption': self.thread.caption})
+
         return self.template('forum/edit_thread.html',
                              {'category': self.category,
                               'subcategory': self.subcategory,
                               'thread': self.thread,
-                              'edit_thread_form': EditThreadForm(subcategories=[SubCategoryPrototype(subcategory_model) for subcategory_model in SubCategory.objects.all()],
-                                                                 initial={'subcategory': self.subcategory.id,
-                                                                          'caption': self.thread.caption,
-                                                                          'important': self.thread.important}),
+                              'edit_thread_form': form,
+                              'is_moderator': account_is_moderator,
                               'can_change_thread_category': can_change_thread_category(self.account)} )
 
 
@@ -344,7 +361,7 @@ class ThreadPageData(object):
             pages_on_page_slice = pages_on_page_slice[1:]
 
         self.has_post_on_page = any([post.author.id == self.account.id for post in pages_on_page_slice])
-        self.new_post_form = NewPostForm()
+        self.new_post_form = forms.NewPostForm()
         self.start_posts_from = page * forum_settings.POSTS_ON_PAGE
 
         self.inline = inline
@@ -413,7 +430,7 @@ class SubCategoryResource(BaseForumResource):
         return self.template('forum/new_thread.html',
                              {'category': self.subcategory.category,
                               'subcategory': self.subcategory,
-                              'new_thread_form': NewThreadForm()} )
+                              'new_thread_form': forms.NewThreadForm()} )
 
     @login_required
     @validate_fast_account()
@@ -431,7 +448,7 @@ class SubCategoryResource(BaseForumResource):
                                int(new_thread_delay)))
             return self.json_error('forum.create_thread.delay', error_message)
 
-        new_thread_form = NewThreadForm(self.request.POST)
+        new_thread_form = forms.NewThreadForm(self.request.POST)
 
         if not new_thread_form.is_valid():
             return self.json_error('forum.create_thread.form_errors', new_thread_form.errors)

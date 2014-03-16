@@ -49,7 +49,9 @@ jQuery(document).ready( function(e) {
   </div>
   {% endif %}
 
+  {% if is_moderator %}
   {{ edit_thread_form.important.widget}}
+  {% endif %}
 
   <div class="widget">
     <input type="submit" value="Сохранить"/>
