@@ -62,7 +62,7 @@ class PvPData(object):
 
     def ui_info(self):
         return  { 'advantage': self.advantage,
-                  'effectiveness': self.effectiveness,
+                  'effectiveness': int(self.effectiveness),
                   'probabilities': { 'ice': Ice.get_probability(self.energy, self.energy_speed),
                                      'blood': Blood.get_probability(self.energy, self.energy_speed),
                                      'flame': Flame.get_probability(self.energy, self.energy_speed) },
@@ -71,7 +71,7 @@ class PvPData(object):
 
     def turn_ui_info(self):
         return  { 'advantage': self.turn_advantage,
-                  'effectiveness': self.turn_effectiveness,
+                  'effectiveness': int(self.turn_effectiveness),
                   'probabilities': { 'ice': Ice.get_probability(self.turn_energy, self.turn_energy_speed),
                                      'blood': Blood.get_probability(self.turn_energy, self.turn_energy_speed),
                                      'flame': Flame.get_probability(self.turn_energy, self.turn_energy_speed) },

@@ -218,8 +218,8 @@ NO_QUEST_INFO__IN_PLACE = QuestInfo(type='no-quest',
                                     action=u'имитирует бурную деятельность',
                                     choice=None,
                                     choice_alternatives=(),
-                                    experience=None,
-                                    power=None,
+                                    experience=0,
+                                    power=0,
                                     actors={},
                                     used_markers=set())
 
@@ -229,8 +229,8 @@ NO_QUEST_INFO__OUT_PLACE = QuestInfo(type='no-quest',
                                      action=u'идёт в ближайший город',
                                      choice=None,
                                      choice_alternatives=(),
-                                     experience=None,
-                                     power=None,
+                                     experience=0,
+                                     power=0,
                                      actors={},
                                      used_markers=set())
 
@@ -791,8 +791,8 @@ class QuestPrototype(object):
                                        action=u'копит',
                                        choice=None,
                                        choice_alternatives=(),
-                                       experience=None,
-                                       power=None,
+                                       experience=0,
+                                       power=0,
                                        actors={'goal': (spending, u'цель')},
                                        used_markers=set())
         return {'line': [NEXT_SPENDING_INFO.ui_info(None)]}

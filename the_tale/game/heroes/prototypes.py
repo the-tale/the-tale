@@ -684,7 +684,7 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
                           'race': self.race.value,
                           'money': self.money,
                           'alive': self.is_alive},
-                'secondary': { 'power': math.floor(self.power),
+                'secondary': { 'power': int(self.power),
                                'move_speed': float(self.move_speed),
                                'initiative': self.initiative,
                                'max_bag_size': self.max_bag_size,
