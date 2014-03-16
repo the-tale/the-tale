@@ -20,10 +20,14 @@ pgf.game.events.DATA_REFRESH_NEEDED = 'pgf-data-refresh-needed';
 
 pgf.game.Updater = function(params) {
 
+    var INITIAL_REFRESH_DELAY = 1000;
+
     var instance = this;
     var refreshInterval = undefined;
     var refreshTimer = undefined;
-    var refreshDelay = 1000;
+    var refreshDelay = INITIAL_REFRESH_DELAY;
+
+    var autoRefreshStopped = false;
 
     this.data = {};
 
@@ -32,6 +36,7 @@ pgf.game.Updater = function(params) {
         refreshTimer = setInterval(function(e){
             instance.Refresh(requireNewData);
         }, refreshInterval );
+        autoRefreshStopped = false;
     };
 
     this.ResetRefreshInterval = function(requireNewData) {
@@ -42,6 +47,12 @@ pgf.game.Updater = function(params) {
         instance.SetRefreshInterval(refreshInterval, requireNewData);
     };
 
+    this.StopAutoRefresh = function() {
+        if (!refreshInterval) return;
+
+        clearInterval(refreshTimer);
+        autoRefreshStopped = true;
+    };
 
     this.Refresh = function(requireNewData) {
 
@@ -53,21 +64,19 @@ pgf.game.Updater = function(params) {
 
                 if (data.data.account && data.data.account.is_old && requireNewData) {
 
-                    // hide only if not get info about last turn
-                    // if (data.data.turn.number != data.data.account.hero.actual_on_turn + 1) {
-                    //     jQuery('.pgf-wait-data').toggleClass('pgf-hidden', false);
-                    //     jQuery('.pgf-game-data').toggleClass('pgf-hidden', true);
-                    // }
-
                     setTimeout(function(e){
                         refreshDelay *= 1.618; //the golden ratio
-                        instance.ResetRefreshInterval(requireNewData);
+                        instance.StopAutoRefresh();
                         instance.Refresh(requireNewData);
                     }, refreshDelay);
                     return;
                 }
 
-                refreshDelay = 1000;
+                refreshDelay = INITIAL_REFRESH_DELAY;
+
+                if (autoRefreshStopped) {
+                    this.SetRefreshInterval(refreshInterval, requireNewData);
+                }
 
                 instance.data = data.data;
 
