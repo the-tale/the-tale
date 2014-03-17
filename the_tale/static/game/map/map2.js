@@ -252,6 +252,7 @@ pgf.game.map.Map = function(selector, params) {
 
     jQuery(window).resize(function(e){
         SyncCanvasSize();
+        navigationLayer.Resize();
         var data = mapManager.GetMapDataForRect(pos.x, pos.y, canvasWidth, canvasHeight);
         Draw(data);
     });
@@ -632,6 +633,14 @@ pgf.game.map.NavigationLayer = function(selector, params) {
         OnClick(x, y);
     }
 
+    function Resize() {
+        params.w = jQuery('#pgf-map-container').width()-20;
+
+        container.css({width: params.w,
+                       height: params.h});
+    }
+
+
     container.mousemove(function(e) {_OnMouseMove(e.pageX, e.pageY);});
     container.mouseenter(function(e){OnMouseEnter();});
     container.mouseleave(function(e){OnMouseLeave();});
@@ -659,4 +668,6 @@ pgf.game.map.NavigationLayer = function(selector, params) {
 
                        OnStopDragging();
                    });
+
+    this.Resize = Resize;
 };
