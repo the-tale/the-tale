@@ -3,41 +3,85 @@
 {% block title %} Магазин | {{ super() }}{% endblock %}
 {% block description %}Список товаров.{% endblock %}
 
+
+{% macro buy_element(purchase, columns) %}
+
+  <td width="{{100/columns}}%" style="text-align: center; padding-bottom: 1.5em;">
+
+    {% if purchase %}
+
+      {% set is_purchasable = purchase.is_purchasable(resource.account, hero) %}
+
+      <div style="font-size: 12pt; padding-bottom: 0.5em;">{{purchase.name|upper}}</div>
+
+      <a class="btn pgf-forms-post-simple {% if purchase.cost > account.bank_account.amount or not is_purchasable %}disabled pgf-disabled{% else %}btn-info{% endif %}"
+         data-confirmation="Вы уверены, что хотите купить <strong>«{{purchase.full_name}}»</strong>, потратив {{purchase.cost}} печенек?"
+         data-success-message="Поздравляем с покупкой! <strong>(«{{purchase.full_name}}»)</strong>"
+         rel="tooltip"
+         {% if not is_purchasable %}
+           title="Вы уже приобрели этот предмет или получили его во время игры"
+           href="#"
+         {% elif purchase.cost > account.bank_account.amount %}
+           title="не хватает печенек"
+           href="#"
+         {% else %}
+           title="купить"
+           href="{{url('accounts:payments:buy', purchase=purchase.uid)}}"
+         {% endif %}>
+         <span style="font-size: 14pt; vertical-align: middle;">{{ purchase.cost }}</span>
+         <img src="{{ STATIC_CONTENT }}images/cookies.png" style="vertical-align: middle;"></img>
+      </a>
+
+    {% endif %}
+
+  </td>
+
+
+{% endmacro %}
+
 {% block payments_content %}
 
 
-{% if PRICE_LIST %}
+<ul class="nav nav-tabs nav-stacked span2" style="margin-left: 0;">
+  {% for group in PRICE_GROUPS %}
+  <li><a href="#price-group-{{group.uid}}">{{group.name}}</a></li>
+  {% endfor %}
+</ul>
 
-<table class="table table-condensed table-striped table-bordered table-no-highlighting">
-  <tbody>
-    {% for purchase in PRICE_LIST %}
-    <tr>
-      <th colspan="2" style="padding-left: 117px;">{{purchase.name}}</th>
-    </tr>
-    <tr>
-      <td width="100px" style="text-align: center; margin-bottom: 1em; vertical-align: middle;">
-        <div style="vertical-align: middle; margin-bottom: 0.25em;">
-          <span style="font-size: 20pt; vertical-align: middle;">{{ purchase.cost }}</span>
-          <img src="{{ STATIC_CONTENT }}images/cookies.png" style="vertical-align: middle;"></img>
-        </div>
-        <a class="btn pgf-forms-post-simple {% if purchase.cost > account.bank_account.amount %}disabled pgf-disabled{% else %}btn-info{% endif %}"
-           data-confirmation="Вы уверены, что хотите купить <strong>«{{purchase.name}}»</strong>, потратив {{purchase.cost}} печенек?"
-           data-success-message="Поздравляем с покупкой! <strong>(«{{purchase.name}}»)</strong>"
-           href="{{url('accounts:payments:buy', purchase=purchase.uid)}}">Купить</a>
-      </td>
-      <td>
-        {{ purchase.description|safe }}
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+{% if PRICE_GROUPS %}
+
+  {% for group in PRICE_GROUPS %}
+    <div class="offset2">
+      <div id="price-group-{{group.uid}}" class="anchor"></div>
+      <h2>{{group.name}}</h2>
+
+
+      {{ group.description|safe }}
+
+      <table width="100%">
+        <tbody>
+          {% for row in group.items_table(4) %}
+            <tr>
+              {% for purchase in row %}
+                {{ buy_element(purchase, columns=4) }}
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+    </div>
+
+    {% if not loop.last %}
+      <hr class="offset2" style="margin-top: 1em; margin-bottom: 1em;"/>
+    {% endif %}
+  {% endfor %}
 
 {% else %}
 
-<p class="alert alert-info pgf-no-goods-message">
-  На текущий момент, в магазине нет товаров.
-</p>
+  <p class="alert alert-info pgf-no-goods-message">
+    На текущий момент, в магазине нет товаров.
+  </p>
 
 {% endif %}
 

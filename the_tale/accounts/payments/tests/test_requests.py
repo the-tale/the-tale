@@ -71,13 +71,14 @@ class RequestesTestsBase(testcase.TestCase):
         self.request_login(self.account.email)
 
 
-class ShopRequestesTests(RequestesTestsBase, PageRequestsMixin):
+class ShopRequestesTests(RequestesTestsBase, PageRequestsMixin, BankTestsMixin):
 
     def setUp(self):
         super(ShopRequestesTests, self).setUp()
         self.page_url = url('accounts:payments:shop')
+        self.create_bank_account(self.account.id, amount=666666)
 
-    @mock.patch('the_tale.accounts.payments.price_list.PRICE_LIST', [])
+    @mock.patch('the_tale.accounts.payments.price_list.PRICE_GROUPS', [])
     def test_no_goods(self):
         self.check_html_ok(self.request_html(self.page_url), texts=['pgf-no-goods-message'])
 

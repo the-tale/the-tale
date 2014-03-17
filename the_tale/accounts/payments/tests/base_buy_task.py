@@ -16,11 +16,11 @@ from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
 
 
-class BaseBuyPosponedTaskTests(testcase.TestCase):
+class _BaseBuyPosponedTaskTests(testcase.TestCase):
 
 
     def setUp(self):
-        super(BaseBuyPosponedTaskTests, self).setUp()
+        super(_BaseBuyPosponedTaskTests, self).setUp()
 
         create_test_map()
 
@@ -204,7 +204,7 @@ class BaseBuyPosponedTaskTests(testcase.TestCase):
 
 
 
-class BaseBuyHeroMethodPosponedTaskTests(BaseBuyPosponedTaskTests):
+class _BaseBuyHeroMethodPosponedTaskTests(_BaseBuyPosponedTaskTests):
 
     def _test_create(self):
         self.assertEqual(self.task.arguments, self._get_expected_arguments())

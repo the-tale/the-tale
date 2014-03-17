@@ -158,7 +158,8 @@ class LogicStorage(object):
             if game_settings.UNLOAD_OBJECTS:
                 hero.unload_serializable_items(timestamp)
 
-        logger.info('[next_turn] processed heroes: %d / %d' % (processed_heroes, len(self.heroes)))
+        if logger:
+            logger.info('[next_turn] processed heroes: %d / %d' % (processed_heroes, len(self.heroes)))
 
 
     def _save_on_exception(self, excluded_bundle_id):

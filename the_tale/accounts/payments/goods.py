@@ -8,12 +8,33 @@ from the_tale.accounts.payments.logic import transaction_logic
 from the_tale.accounts.payments.conf import payments_settings
 
 
+class PurchaseGroup(object):
+
+    def __init__(self, uid, name, description, items):
+        self.uid = uid
+        self.name = name
+        self.description = description
+        self.items = items
+
+    def items_table(self, columns):
+        table = []
+
+        for i in xrange(0, len(self.items), columns):
+            table.append(self.items[i:i+columns])
+
+        while len(table[-1]) != columns:
+            table[-1].append(None)
+
+        return table
+
+
 class PurchaseItem(object):
 
-    def __init__(self, uid, cost, name, description, transaction_description):
+    def __init__(self, uid, cost, name, description, transaction_description, full_name=None):
         self.uid = uid
         self.cost = int(cost * payments_settings.GLOBAL_COST_MULTIPLIER)
         self.name = name
+        self.full_name = full_name if full_name is not None else name
         self.description = description
         self.transaction_description = transaction_description
 

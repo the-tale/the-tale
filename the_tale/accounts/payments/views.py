@@ -76,7 +76,8 @@ class PaymentsResource(Resource):
     def shop(self):
         hero = HeroPrototype.get_by_account_id(self.account.id)
         return self.template('payments/shop.html',
-                             {'PRICE_LIST': filter(lambda item: item.is_purchasable(self.account, hero), price_list.PRICE_LIST),
+                             {'PRICE_GROUPS': price_list.PRICE_GROUPS,
+                              'hero': hero,
                               'payments_settings': payments_settings,
                               'account': self.account,
                               'page_type': 'shop'})

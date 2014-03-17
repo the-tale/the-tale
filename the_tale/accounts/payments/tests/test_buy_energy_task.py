@@ -1,12 +1,12 @@
 # coding: utf-8
 
 from the_tale.accounts.payments.postponed_tasks import BuyEnergy
-from the_tale.accounts.payments.tests.base_buy_task_tests import BaseBuyHeroMethodPosponedTaskTests as _BaseBuyHeroMethodPosponedTaskTests
+from the_tale.accounts.payments.tests import base_buy_task
 
 from the_tale.game.logic_storage import LogicStorage
 
 
-class BuyEnergyTaskTests(_BaseBuyHeroMethodPosponedTaskTests):
+class BuyEnergyTaskTests(base_buy_task._BaseBuyHeroMethodPosponedTaskTests):
 
     def setUp(self):
         super(BuyEnergyTaskTests, self).setUp()

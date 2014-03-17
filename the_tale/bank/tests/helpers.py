@@ -6,8 +6,13 @@ from the_tale.bank.relations import ENTITY_TYPE, CURRENCY_TYPE, INVOICE_STATE
 
 class BankTestsMixin(object):
 
-    def create_bank_account(self, entity_id):
-        return AccountPrototype.create(entity_type=ENTITY_TYPE.GAME_ACCOUNT, entity_id=entity_id, currency=CURRENCY_TYPE.PREMIUM)
+    def create_bank_account(self, entity_id, amount=0):
+        account = AccountPrototype.create(entity_type=ENTITY_TYPE.GAME_ACCOUNT, entity_id=entity_id, currency=CURRENCY_TYPE.PREMIUM)
+
+        account.amount = amount
+        account.save()
+
+        return account
 
     def create_invoice(self,
                        recipient_type=ENTITY_TYPE.GAME_ACCOUNT,

@@ -15,11 +15,12 @@ PREFERENCE_DESCRIPTION = u'Убрать ограничение на уровен
 def preference_record(id, preference_type):
     return ('PREFERENCE_%s' % preference_type.name,
             id,
-            u'Предпочтение «%s»' % preference_type.text,
+            preference_type.text,
             PREFERENCE_DESCRIPTION,
             None,
             preference_type.level_required,
-            preference_type)
+            preference_type,
+            u'Предпочтение "%s"' % preference_type.text)
 
 
 class PERMANENT_PURCHASE_TYPE(DjangoEnum):
@@ -27,9 +28,10 @@ class PERMANENT_PURCHASE_TYPE(DjangoEnum):
     might_required = Column(unique=False, single_type=False)
     level_required = Column(unique=False, single_type=False)
     preference_type = Column(single_type=False, related_name='purchase_type')
+    full_name = Column()
 
     records = ( ('CLAN_OWNERSHIP_RIGHT', 0, u'Разрешение на владение гильдией',
-                  CLAN_OWNERSHIP_RIGHT_DESCRIPTION, clans_settings.OWNER_MIGHT_REQUIRED, None, NullObject()),
+                  CLAN_OWNERSHIP_RIGHT_DESCRIPTION, clans_settings.OWNER_MIGHT_REQUIRED, None, NullObject(), u'Разрешение на владение гильдией'),
 
                   preference_record(1, PREFERENCE_TYPE.MOB),
                   preference_record(2, PREFERENCE_TYPE.PLACE),

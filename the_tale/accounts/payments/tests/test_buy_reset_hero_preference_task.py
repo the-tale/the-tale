@@ -1,7 +1,7 @@
 # coding: utf-8
 import datetime
 from the_tale.accounts.payments.postponed_tasks import BuyResetHeroPreference
-from the_tale.accounts.payments.tests.base_buy_task_tests import BaseBuyHeroMethodPosponedTaskTests as _BaseBuyHeroMethodPosponedTaskTests
+from the_tale.accounts.payments.tests import base_buy_task
 
 from the_tale.game.balance import enums as e
 from the_tale.game.logic_storage import LogicStorage
@@ -13,7 +13,7 @@ from the_tale.game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT, RISK
 
 def _create_reset_hero_preference_test(preference_type):
 
-    class _BuyResetHeroPreferenceTaskTests(_BaseBuyHeroMethodPosponedTaskTests):
+    class _BuyResetHeroPreferenceTaskTests(base_buy_task._BaseBuyHeroMethodPosponedTaskTests):
         PREFERENCE_TYPE = preference_type
 
         def setUp(self):

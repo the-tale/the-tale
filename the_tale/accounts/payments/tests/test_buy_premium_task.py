@@ -3,10 +3,10 @@
 import datetime
 
 from the_tale.accounts.payments.postponed_tasks import BuyPremium
-from the_tale.accounts.payments.tests.base_buy_task_tests import BaseBuyPosponedTaskTests as _BaseBuyPosponedTaskTests
+from the_tale.accounts.payments.tests import base_buy_task
 
 
-class BuyPremiumPosponedTaskTests(_BaseBuyPosponedTaskTests):
+class BuyPremiumPosponedTaskTests(base_buy_task._BaseBuyPosponedTaskTests):
 
     def setUp(self):
         super(BuyPremiumPosponedTaskTests, self).setUp()

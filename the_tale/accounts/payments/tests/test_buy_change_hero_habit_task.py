@@ -3,14 +3,14 @@
 import random
 
 from the_tale.accounts.payments.postponed_tasks import BuyChangeHeroHabits
-from the_tale.accounts.payments.tests.base_buy_task_tests import BaseBuyHeroMethodPosponedTaskTests as _BaseBuyHeroMethodPosponedTaskTests
+from the_tale.accounts.payments.tests import base_buy_task
 
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.heroes.relations import HABIT_TYPE
 
 
-class BuyChangeHeroHabitsTaskTests(_BaseBuyHeroMethodPosponedTaskTests):
+class BuyChangeHeroHabitsTaskTests(base_buy_task._BaseBuyHeroMethodPosponedTaskTests):
 
     def setUp(self):
         super(BuyChangeHeroHabitsTaskTests, self).setUp()
