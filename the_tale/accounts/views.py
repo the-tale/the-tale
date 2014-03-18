@@ -409,13 +409,12 @@ class AccountResource(BaseAccountsResource):
     @handler('#account', name='show', method='get')
     def show(self): # pylint: disable=R0914
         from the_tale.forum.models import Thread
-        from the_tale.game.bills.models import Bill
-        from the_tale.game.bills.relations import BILL_STATE
+        from the_tale.game.bills.prototypes import BillPrototype
         from the_tale.game.ratings.prototypes import RatingPlacesPrototype, RatingValuesPrototype
         from the_tale.game.phrase_candidates.models import PhraseCandidate
         from the_tale.accounts.clans.logic import ClanInfo
 
-        bills_count = Bill.objects.filter(owner=self.master_account._model).exclude(state=BILL_STATE.REMOVED).count()
+        bills_count = BillPrototype.accepted_bills_count(self.master_account.id)
 
         threads_count = Thread.objects.filter(author=self.master_account._model).count()
 

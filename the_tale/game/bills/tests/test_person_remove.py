@@ -8,7 +8,7 @@ from the_tale.game.bills.bills import PersonRemove
 
 from the_tale.game.persons.models import Person, PERSON_STATE
 
-from the_tale.game.bills.tests.prototype_tests import BaseTestPrototypes
+from the_tale.game.bills.tests.helpers import BaseTestPrototypes
 
 
 class PersonRemoveTests(BaseTestPrototypes):

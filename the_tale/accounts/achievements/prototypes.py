@@ -76,7 +76,10 @@ class AchievementPrototype(BasePrototype):
 
 
     def check(self, old_value, new_value):
-        return old_value < self.barrier <= new_value
+        if new_value < 0:
+            return old_value > self.barrier >= new_value
+        else:
+            return old_value < self.barrier <= new_value
 
     @property
     def rewards(self):

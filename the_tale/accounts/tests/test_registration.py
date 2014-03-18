@@ -9,7 +9,7 @@ from the_tale.accounts.logic import register_user, REGISTER_USER_RESULT
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.postponed_tasks import RegistrationTask, REGISTRATION_TASK_STATE
 from the_tale.accounts.models import Account
-from the_tale.accounts.exceptions import AccountsException
+from the_tale.accounts import exceptions
 from the_tale.accounts.achievements.prototypes import AccountAchievementsPrototype
 
 from the_tale.collections.prototypes import AccountItemsPrototype
@@ -135,7 +135,7 @@ class TestRegistration(testcase.TestCase):
         self.assertEqual(account.is_bot, True)
 
     def test_successfull_result__is_bot_and_fast(self):
-        self.assertRaises(AccountsException, register_user, 'test_user', is_bot=True)
+        self.assertRaises(exceptions.BotIsFastError, register_user, 'test_user', is_bot=True)
 
 
 class TestRegistrationTask(testcase.TestCase):

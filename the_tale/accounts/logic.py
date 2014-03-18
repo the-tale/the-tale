@@ -13,7 +13,7 @@ from the_tale.common.utils.password import generate_password
 
 from the_tale.accounts.models import Account
 from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.exceptions  import AccountsException
+from the_tale.accounts import exceptions
 from the_tale.accounts.conf import accounts_settings
 
 from the_tale.accounts.achievements.prototypes import AccountAchievementsPrototype
@@ -69,12 +69,12 @@ def register_user(nick, email=None, password=None, referer=None, referral_of_id=
         referral_of = None
 
     if (email and not password) or (not email and password):
-        raise AccountsException('email & password must be specified or not specified together')
+        raise exceptions.EmailAndPasswordError()
 
     is_fast = not (email and password)
 
     if is_fast and is_bot:
-        raise AccountsException('can not cant fast account for bot')
+        raise exceptions.BotIsFastError()
 
     if password is None:
         password = accounts_settings.FAST_REGISTRATION_USER_PASSWORD

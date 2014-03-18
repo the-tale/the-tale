@@ -10,6 +10,8 @@ heroes_settings = app_settings('HEROES',
                                MESSAGES_LOG_LENGTH=10,
                                DIARY_LOG_LENGTH=20,
 
+                               MIN_PVP_BATTLES=25,
+
                                UI_CACHING_KEY='hero_ui_%d',
                                UI_CACHING_TIME=10*60, # not cache livetime, but time period after setupped ui_caching_started_at in which ui_caching is turned on
                                UI_CACHING_CONTINUE_TIME=60, # time before caching end, when we send next cache command

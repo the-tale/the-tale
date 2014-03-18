@@ -553,6 +553,8 @@ class HeroTest(testcase.TestCase):
 
     def test_get_achievement_type_value(self):
         for achievement_type in ACHIEVEMENT_TYPE.records:
+            if achievement_type.source.is_ACCOUNT:
+                continue
             self.hero.get_achievement_type_value(achievement_type)
 
     def test_change_habits__honor(self):

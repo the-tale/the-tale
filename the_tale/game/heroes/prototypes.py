@@ -844,6 +844,18 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
             return self.statistics.quests_done
         elif achievement_type.is_DEATHS:
             return self.statistics.pve_deaths
+        elif achievement_type.is_PVP_BATTLES_1X1:
+            return self.statistics.pvp_battles_1x1_number
+        elif achievement_type.is_PVP_VICTORIES_1X1:
+            if self.statistics.pvp_battles_1x1_number >= heroes_settings.MIN_PVP_BATTLES:
+                return int(float(self.statistics.pvp_battles_1x1_victories) / self.statistics.pvp_battles_1x1_number * 100)
+            return 0
+        elif achievement_type.is_KEEPER_HELP_COUNT:
+            return self.statistics.help_count
+        elif achievement_type.is_HABITS_HONOR:
+            return self.habit_honor.raw_value
+        elif achievement_type.is_HABITS_PEACEFULNESS:
+            return self.habit_peacefulness.raw_value
 
         raise exceptions.UnkwnownAchievementTypeError(achievement_type=achievement_type)
 

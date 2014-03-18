@@ -14,7 +14,7 @@ from the_tale.post_service.models import Message
 from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
 from the_tale.accounts.models import CHANGE_CREDENTIALS_TASK_STATE
 from the_tale.accounts.logic import register_user
-from the_tale.accounts.exceptions import AccountsException
+from the_tale.accounts import exceptions
 
 from the_tale.game.logic import create_test_map
 
@@ -46,9 +46,9 @@ class TestChangeCredentialsTask(testcase.TestCase):
         self.assertEqual(task.id, task_duplicate.id)
 
     def test_create_exceptions(self):
-        self.assertRaises(AccountsException, ChangeCredentialsTaskPrototype.create, self.fast_account,  new_password='222222')
-        self.assertRaises(AccountsException, ChangeCredentialsTaskPrototype.create, self.fast_account,  new_email='fast_user@test.com')
-        self.assertRaises(AccountsException, ChangeCredentialsTaskPrototype.create, self.fast_account,  new_nick='test_nick')
+        self.assertRaises(exceptions.MailNotSpecifiedForFastAccountError, ChangeCredentialsTaskPrototype.create, self.fast_account,  new_password='222222', new_nick='test_nick')
+        self.assertRaises(exceptions.PasswordNotSpecifiedForFastAccountError, ChangeCredentialsTaskPrototype.create, self.fast_account, new_email='fast_user@test.com', new_nick='test_nick')
+        self.assertRaises(exceptions.NickNotSpecifiedForFastAccountError, ChangeCredentialsTaskPrototype.create, self.fast_account, new_password='222222', new_email='fast_user@test.com')
 
     def test_email_changed(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='test_user@test.ru')
@@ -102,7 +102,7 @@ class TestChangeCredentialsTask(testcase.TestCase):
 
     def test_request_email_confirmation_exceptions(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_password='222222')
-        self.assertRaises(AccountsException, task.request_email_confirmation)
+        self.assertRaises(exceptions.NewEmailNotSpecifiedError, task.request_email_confirmation)
 
     def test_request_email_confirmation(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='test_user@test.ru')

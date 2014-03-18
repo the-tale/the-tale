@@ -20,8 +20,8 @@ from the_tale.common.utils.decorators import lazy_property
 
 from the_tale.accounts.models import Account, ChangeCredentialsTask, Award, ResetPasswordTask
 from the_tale.accounts.conf import accounts_settings
-from the_tale.accounts.exceptions import AccountsException
-from the_tale.accounts.relations import CHANGE_CREDENTIALS_TASK_STATE
+from the_tale.accounts import exceptions
+from the_tale.accounts import relations
 
 
 class AccountPrototype(BasePrototype): #pylint: disable=R0904
@@ -178,8 +178,13 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         return ClanPrototype(model=self._model.clan)
 
     def set_might(self, might):
+        from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
+        from the_tale.accounts.achievements.storage import achievements_storage
+
         Account.objects.filter(id=self.id).update(might=might)
-        self._model.might = might
+
+        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.KEEPER_MIGHT, object=self):
+            self._model.might = might
 
     def check_password(self, password):
         return self._model.check_password(password)
@@ -247,6 +252,26 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
     @property
     def is_active(self): return self.active_end_at > datetime.datetime.now()
 
+    def get_achievement_account_id(self):
+        return self.id
+
+    def get_achievement_type_value(self, achievement_type):
+        from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
+
+        if achievement_type.is_POLITICS_ACCEPTED_BILLS:
+            return BillPrototype.accepted_bills_count(self.id)
+        elif achievement_type.is_POLITICS_VOTES_TOTAL:
+            return VotePrototype.votes_count(self.id)
+        elif achievement_type.is_POLITICS_VOTES_FOR:
+            return VotePrototype.votes_for_count(self.id)
+        elif achievement_type.is_POLITICS_VOTES_AGAINST:
+            return VotePrototype.votes_against_count(self.id)
+        elif achievement_type.is_KEEPER_MIGHT:
+            return self.might
+
+        raise exceptions.UnkwnownAchievementTypeError(achievement_type=achievement_type)
+
+
     @classmethod
     def create(cls, nick, email, is_fast, password=None, referer=None, referral_of=None, is_bot=False):
         referer_domain = None
@@ -279,11 +304,11 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
     def create(cls, account, new_email=None, new_password=None, new_nick=None, relogin_required=False):
         old_email = account.email
         if account.is_fast and new_email is None:
-            raise AccountsException('new_email must be specified for fast account')
+            raise exceptions.MailNotSpecifiedForFastAccountError()
         if account.is_fast and new_password is None:
-            raise AccountsException('password must be specified for fast account')
+            raise exceptions.PasswordNotSpecifiedForFastAccountError()
         if account.is_fast and new_nick is None:
-            raise AccountsException('nick must be specified for fast account')
+            raise exceptions.NickNotSpecifiedForFastAccountError()
 
         if old_email == new_email:
             new_email = None
@@ -293,7 +318,7 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
                                                      old_email=old_email,
                                                      new_email=new_email,
                                                      new_password=make_password(new_password) if new_password else '',
-                                                     state=CHANGE_CREDENTIALS_TASK_STATE.WAITING,
+                                                     state=relations.CHANGE_CREDENTIALS_TASK_STATE.WAITING,
                                                      new_nick=new_nick,
                                                      relogin_required=relogin_required)
         return cls(model=model)
@@ -321,7 +346,7 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
         from the_tale.post_service.message_handlers import ChangeEmailNotificationHandler
 
         if self._model.new_email is None:
-            raise AccountsException('email not specified')
+            raise exceptions.NewEmailNotSpecifiedError()
 
         MessagePrototype.create(ChangeEmailNotificationHandler(task_id=self.id), now=True)
 
@@ -330,7 +355,7 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
         return not (self.state.is_WAITING or self.state.is_EMAIL_SENT)
 
     def mark_as_processed(self):
-        self._model.state = CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
+        self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
         self._model.save()
 
     def process(self, logger):
@@ -339,7 +364,7 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
             return
 
         if self._model.created_at + datetime.timedelta(seconds=accounts_settings.CHANGE_EMAIL_TIMEOUT) < datetime.datetime.now():
-            self._model.state = CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT
+            self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT
             self._model.comment = 'timeout'
             self._model.save()
             return
@@ -348,24 +373,24 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
             if self.state.is_WAITING:
                 if self.email_changed:
                     self.request_email_confirmation()
-                    self._model.state = CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT
+                    self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT
                     self._model.save()
                     return
                 else:
                     postponed_task = self.change_credentials()
-                    self._model.state = CHANGE_CREDENTIALS_TASK_STATE.CHANGING
+                    self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.CHANGING
                     self._model.save()
                     return postponed_task
 
             if self.state.is_EMAIL_SENT:
                 if AccountPrototype.get_by_email(self._model.new_email):
-                    self._model.state = CHANGE_CREDENTIALS_TASK_STATE.ERROR
+                    self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.ERROR
                     self._model.comment = 'duplicate email'
                     self._model.save()
                     return
 
                 postponed_task = self.change_credentials()
-                self._model.state = CHANGE_CREDENTIALS_TASK_STATE.CHANGING
+                self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.CHANGING
                 self._model.save()
                 return postponed_task
 
@@ -380,7 +405,7 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
                          exc_info=exception_info,
                          extra={} )
 
-            self._model.state = CHANGE_CREDENTIALS_TASK_STATE.ERROR
+            self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.ERROR
             self._model.comment = u'%s' % traceback_strings
             self._model.save()
 

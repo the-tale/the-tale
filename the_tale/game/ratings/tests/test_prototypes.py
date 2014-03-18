@@ -11,11 +11,11 @@ from the_tale.game.heroes.prototypes import HeroPrototype
 
 from the_tale.game.ratings.models import RatingValues
 from the_tale.game.ratings.prototypes import RatingValuesPrototype
-from the_tale.game.ratings.conf import ratings_settings
 
 from the_tale.game.phrase_candidates.prototypes import PhraseCandidatePrototype
 from the_tale.game.phrase_candidates.models import PHRASE_CANDIDATE_STATE
 
+from the_tale.game.heroes.conf import heroes_settings
 
 
 class PrototypeTestsBase(TestCase):
@@ -61,13 +61,14 @@ class RatingPrototypeTests(PrototypeTestsBase):
         self.assertEqual([rv.account_id for rv in RatingValues.objects.all().order_by('account__id')],
                          [self.account_1.id, self.account_2.id, self.account_3.id, self.account_4.id, ])
 
-    def set_values(self, account, might=0, level=0, power=0, pvp_battles_1x1_number=0, pvp_battles_1x1_victories=0):
+    def set_values(self, account, might=0, level=0, power=0, pvp_battles_1x1_number=0, pvp_battles_1x1_victories=0, help_count=0):
         hero = HeroPrototype.get_by_account_id(account.id)
         hero._model.might = might
         hero._model.level = level
         hero._model.raw_power = power
         hero._model.stat_pvp_battles_1x1_number = pvp_battles_1x1_number
         hero._model.stat_pvp_battles_1x1_victories = pvp_battles_1x1_victories
+        hero._model.stat_help_count = help_count
         hero._model.save()
 
     def test_might(self):
@@ -79,6 +80,16 @@ class RatingPrototypeTests(PrototypeTestsBase):
         RatingValuesPrototype.recalculate()
         self.assertEqual([rv.might for rv in RatingValues.objects.all().order_by('account__id')],
                          [10.0, 1.0, 17.0, 5.0 ])
+
+    def test_help_count(self):
+        self.set_values(self.account_1, help_count=10)
+        self.set_values(self.account_2, help_count=1)
+        self.set_values(self.account_3, help_count=17)
+        self.set_values(self.account_4, help_count=5)
+
+        RatingValuesPrototype.recalculate()
+        self.assertEqual([rv.help_count for rv in RatingValues.objects.all().order_by('account__id')],
+                         [10, 1, 17, 5 ])
 
     def create_bill(self, index, owner, state):
         from the_tale.game.bills.bills import PlaceRenaming
@@ -166,15 +177,15 @@ class RatingPrototypeTests(PrototypeTestsBase):
     def test_pvp(self):
         self.set_values(self.account_1, pvp_battles_1x1_number=0, pvp_battles_1x1_victories=0)
         self.set_values(self.account_2, pvp_battles_1x1_number=5, pvp_battles_1x1_victories=1)
-        self.set_values(self.account_3, pvp_battles_1x1_number=10, pvp_battles_1x1_victories=2)
-        self.set_values(self.account_4, pvp_battles_1x1_number=20, pvp_battles_1x1_victories=3)
+        self.set_values(self.account_3, pvp_battles_1x1_number=100, pvp_battles_1x1_victories=2)
+        self.set_values(self.account_4, pvp_battles_1x1_number=200, pvp_battles_1x1_victories=3)
 
         RatingValuesPrototype.recalculate()
 
-        self.assertEqual(ratings_settings.MIN_PVP_BATTLES, 10)
+        self.assertEqual(heroes_settings.MIN_PVP_BATTLES, 25)
 
         self.assertEqual([rv.pvp_battles_1x1_number for rv in RatingValues.objects.all().order_by('account__id')],
-                         [0, 5, 10, 20 ])
+                         [0, 5, 100, 200 ])
 
         self.assertEqual([rv.pvp_battles_1x1_victories for rv in RatingValues.objects.all().order_by('account__id')],
-                         [0, 0.0, 0.2, 0.15])
+                         [0, 0.0, 0.02, 0.015])

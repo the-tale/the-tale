@@ -100,3 +100,31 @@ class AccountAchievementsPrototypeTests(testcase.TestCase):
         with self.check_delta(GiveItemTaskPrototype._db_count, 2):
             with self.check_not_changed(MessagePrototype._db_count):
                 self.account_achievements_1.add_achievement(self.achievement_1, notify=False)
+
+    def test_check(self):
+        self.achievement_1.barrier = 2
+
+        self.assertTrue(self.achievement_1.check(1, 3))
+        self.assertFalse(self.achievement_1.check(3, 1))
+        self.assertFalse(self.achievement_1.check(-1, -3))
+        self.assertFalse(self.achievement_1.check(-3, -1))
+        self.assertFalse(self.achievement_1.check(1, -1))
+        self.assertFalse(self.achievement_1.check(-1, 1))
+
+        self.achievement_1.barrier = -2
+
+        self.assertFalse(self.achievement_1.check(1, 3))
+        self.assertFalse(self.achievement_1.check(3, 1))
+        self.assertTrue(self.achievement_1.check(-1, -3))
+        self.assertFalse(self.achievement_1.check(-3, -1))
+        self.assertFalse(self.achievement_1.check(1, -1))
+        self.assertFalse(self.achievement_1.check(-1, 1))
+
+        self.achievement_1.barrier = 0
+
+        self.assertFalse(self.achievement_1.check(1, 3))
+        self.assertFalse(self.achievement_1.check(3, 1))
+        self.assertFalse(self.achievement_1.check(-1, -3))
+        self.assertFalse(self.achievement_1.check(-3, -1))
+        self.assertTrue(self.achievement_1.check(1, -1))
+        self.assertTrue(self.achievement_1.check(-1, 1))

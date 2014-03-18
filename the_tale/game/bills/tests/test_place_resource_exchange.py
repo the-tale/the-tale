@@ -6,8 +6,7 @@ import datetime
 from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
 from the_tale.game.bills.bills import PlaceResourceExchange
 
-from the_tale.game.bills.tests.prototype_tests import BaseTestPrototypes
-from the_tale.game.bills.tests.helpers import choose_resources
+from the_tale.game.bills.tests.helpers import choose_resources, BaseTestPrototypes
 
 from the_tale.game.map.places.storage import resource_exchange_storage
 from the_tale.game.map.places.prototypes import ResourceExchangePrototype

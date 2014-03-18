@@ -10,6 +10,7 @@ from the_tale.common.utils import testcase
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
+from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
 from the_tale.game.actions.fake import FakeActor
 from the_tale.game.actions.relations import ACTION_EVENT
@@ -81,6 +82,40 @@ class HabitTest(BaseHabitTest):
 
         self.hero._model.habit_honor = 500
         self.assertEqual(self.hero.habit_honor.raw_value, 500)
+
+    def test_achievements__honor(self):
+        with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
+            self.hero.habit_honor.change(-500)
+
+        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
+                                                                        type=ACHIEVEMENT_TYPE.HABITS_HONOR,
+                                                                        old_value=0,
+                                                                        new_value=-500)])
+
+        with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
+            self.hero.habit_honor.change(666)
+
+        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
+                                                                        type=ACHIEVEMENT_TYPE.HABITS_HONOR,
+                                                                        old_value=-500,
+                                                                        new_value=166)])
+
+    def test_achievements__peacefulness(self):
+        with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
+            self.hero.habit_peacefulness.change(-500)
+
+        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
+                                                                        type=ACHIEVEMENT_TYPE.HABITS_PEACEFULNESS,
+                                                                        old_value=0,
+                                                                        new_value=-500)])
+
+        with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
+            self.hero.habit_peacefulness.change(666)
+
+        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
+                                                                        type=ACHIEVEMENT_TYPE.HABITS_PEACEFULNESS,
+                                                                        old_value=-500,
+                                                                        new_value=166)])
 
     def test_verbose_value(self):
         values = set()

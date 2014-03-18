@@ -86,6 +86,10 @@ class RatingResource(Resource):
             place_getter = lambda places: places.achievements_points_place
             value_getter = lambda values: values.achievements_points
 
+        elif self.rating_type.is_HELP_COUNT:
+            ratings_query = ratings_query.order_by('help_count_place')
+            place_getter = lambda places: places.help_count_place
+            value_getter = lambda values: values.help_count
 
         ratings_count = ratings_query.count()
 

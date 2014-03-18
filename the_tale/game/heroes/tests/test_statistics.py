@@ -13,6 +13,7 @@ from the_tale.game.logic import create_test_map
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.heroes.relations import MONEY_SOURCE
+from the_tale.game.heroes.conf import heroes_settings
 
 
 class HeroStatisticsTest(TestCase):
@@ -32,6 +33,9 @@ class HeroStatisticsTest(TestCase):
         self.hero.statistics.change_quests_done(12)
         self.hero.statistics.change_pve_kills(13)
         self.hero.statistics.change_pve_deaths(14)
+        self.hero.statistics.change_pvp_battles_1x1_number(15)
+        self.hero.statistics.change_pvp_battles_1x1_victories(16)
+        self.hero.statistics.change_help_count(17)
 
 
     def test_change_money__achievements(self):
@@ -96,3 +100,48 @@ class HeroStatisticsTest(TestCase):
                                                                         type=ACHIEVEMENT_TYPE.DEATHS,
                                                                         old_value=14,
                                                                         new_value=14+666)])
+
+
+    def test_change_pvp_battles_1x1__achievements(self):
+
+        with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
+            self.hero.statistics.change_pvp_battles_1x1_number(666)
+
+        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
+                                                                        type=ACHIEVEMENT_TYPE.PVP_BATTLES_1X1,
+                                                                        old_value=15,
+                                                                        new_value=15+666)])
+
+
+    def test_change_pvp_battles_1x1_victories__achievements(self):
+
+        self.assertTrue(self.hero.statistics.pvp_battles_1x1_number < heroes_settings.MIN_PVP_BATTLES)
+
+        with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
+            self.hero.statistics.change_pvp_battles_1x1_victories(1)
+
+        self.assertEqual(verify_achievements.call_args_list, [mock.call(new_value=0,
+                                                                        old_value=0,
+                                                                        account_id=self.hero.account_id,
+                                                                        type=ACHIEVEMENT_TYPE.PVP_VICTORIES_1X1)])
+
+        self.hero.statistics.change_pvp_battles_1x1_number(heroes_settings.MIN_PVP_BATTLES)
+
+        with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
+            self.hero.statistics.change_pvp_battles_1x1_victories(666)
+
+        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
+                                                                        type=ACHIEVEMENT_TYPE.PVP_VICTORIES_1X1,
+                                                                        old_value=int(float(17) / self.hero.statistics.pvp_battles_1x1_number * 100),
+                                                                        new_value=int(float(17+666) / self.hero.statistics.pvp_battles_1x1_number * 100))])
+
+
+    def test_change_help_count__achievements(self):
+
+        with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
+            self.hero.statistics.change_help_count(666)
+
+        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
+                                                                        type=ACHIEVEMENT_TYPE.KEEPER_HELP_COUNT,
+                                                                        old_value=17,
+                                                                        new_value=17+666)])

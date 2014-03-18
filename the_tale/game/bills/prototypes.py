@@ -15,6 +15,9 @@ from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.accounts.logic import get_system_user
 from the_tale.accounts.prototypes import AccountPrototype
 
+from the_tale.accounts.achievements.storage import achievements_storage
+from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
+
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.balance import constants as c
 
@@ -35,6 +38,11 @@ class BillPrototype(BasePrototype):
                  'voting_end_at', 'ended_at', 'ends_at_turn', 'duration')
     _bidirectional = ('approved_by_moderator', 'state', 'is_declined')
     _get_by = ('id', )
+
+
+    @classmethod
+    def accepted_bills_count(cls, account_id):
+        return cls._model_class.objects.filter(owner_id=account_id, state=BILL_STATE.ACCEPTED).count()
 
     @lazy_property
     def declined_by(self): return BillPrototype.get_by_id(self._model.declined_by_id)
@@ -178,7 +186,9 @@ class BillPrototype(BasePrototype):
         self.data.apply(self)
 
         self.state = BILL_STATE.ACCEPTED
-        self.save()
+
+        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.POLITICS_ACCEPTED_BILLS, object=self.owner):
+            self.save()
 
         PostPrototype.create(ThreadPrototype(self._model.forum_thread),
                              get_system_user(),
@@ -398,6 +408,15 @@ class VotePrototype(BasePrototype):
     _bidirectional = ()
 
     @classmethod
+    def votes_count(cls, account_id): return cls._model_class.objects.filter(owner_id=account_id).count()
+
+    @classmethod
+    def votes_for_count(cls, account_id): return cls._model_class.objects.filter(owner_id=account_id, type=VOTE_TYPE.FOR).count()
+
+    @classmethod
+    def votes_against_count(cls, account_id): return cls._model_class.objects.filter(owner_id=account_id, type=VOTE_TYPE.AGAINST).count()
+
+    @classmethod
     def get_for(cls, owner, bill):
         try:
             return Vote.objects.get(owner=owner._model, bill=bill._model)
@@ -410,9 +429,12 @@ class VotePrototype(BasePrototype):
     @classmethod
     def create(cls, owner, bill, type): # pylint: disable=W0622
 
-        model = Vote.objects.create(owner=owner._model,
-                                    bill=bill._model,
-                                    type=type)
+        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.POLITICS_VOTES_AGAINST, object=owner):
+            with achievements_storage.verify(type=ACHIEVEMENT_TYPE.POLITICS_VOTES_FOR, object=owner):
+                with achievements_storage.verify(type=ACHIEVEMENT_TYPE.POLITICS_VOTES_TOTAL, object=owner):
+                    model = Vote.objects.create(owner=owner._model,
+                                                bill=bill._model,
+                                                type=type)
 
         return cls(model)
 

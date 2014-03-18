@@ -15,6 +15,8 @@ from the_tale.game.actions.relations import ACTION_EVENT
 
 from the_tale.game.heroes import relations
 
+from the_tale.accounts.achievements.storage import achievements_storage
+from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
 
 class Habit(object):
@@ -64,6 +66,10 @@ class Habit(object):
 class Honor(Habit):
 
     TYPE = relations.HABIT_TYPE.HONOR
+
+    def change(self, delta):
+        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.HABITS_HONOR, object=self.hero):
+            super(Honor, self).change(delta)
 
     def modify_attribute(self, modifier, value):
         if modifier.is_POWER_TO_ENEMY and self.interval.is_LEFT_3:
@@ -121,6 +127,10 @@ class Honor(Habit):
 class Peacefulness(Habit):
 
     TYPE = relations.HABIT_TYPE.PEACEFULNESS
+
+    def change(self, delta):
+        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.HABITS_PEACEFULNESS, object=self.hero):
+            super(Peacefulness, self).change(delta)
 
     def modify_attribute(self, modifier, value):
 

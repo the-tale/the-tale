@@ -14,7 +14,7 @@ from the_tale.game.map.places.prototypes import BuildingPrototype
 from the_tale.game.bills.relations import BILL_STATE
 from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
 from the_tale.game.bills.bills import BuildingCreate
-from the_tale.game.bills.tests.prototype_tests import BaseTestPrototypes
+from the_tale.game.bills.tests.helpers import BaseTestPrototypes
 
 
 class BuildingCreateTests(BaseTestPrototypes):

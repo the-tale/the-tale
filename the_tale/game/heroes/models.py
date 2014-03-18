@@ -113,6 +113,8 @@ class Hero(models.Model):
     stat_artifacts_had = models.BigIntegerField(default=0, null=False)
     stat_loot_had = models.BigIntegerField(default=0, null=False)
 
+    stat_help_count = models.BigIntegerField(default=0, null=False)
+
     stat_quests_done = models.BigIntegerField(default=0, null=False)
 
     stat_pvp_battles_1x1_number = models.BigIntegerField(default=0, null=False)

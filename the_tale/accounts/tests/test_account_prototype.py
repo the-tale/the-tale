@@ -17,6 +17,7 @@ from the_tale.accounts.personal_messages.prototypes import MessagePrototype as P
 from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.conf import accounts_settings
+from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
 
 class AccountPrototypeTests(testcase.TestCase):
@@ -33,6 +34,13 @@ class AccountPrototypeTests(testcase.TestCase):
 
     def test_create(self):
         self.assertTrue(self.account.active_end_at > datetime.datetime.now() + datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT - 60))
+
+    def test_get_achievement_type_value(self):
+        for achievement_type in ACHIEVEMENT_TYPE.records:
+            if achievement_type.source.is_GAME_OBJECT:
+                continue
+            self.account.get_achievement_type_value(achievement_type)
+
 
     @mock.patch('the_tale.accounts.conf.accounts_settings.ACTIVE_STATE_REFRESH_PERIOD', 0)
     def test_update_active_state__expired(self):
@@ -225,3 +233,13 @@ class AccountPrototypeTests(testcase.TestCase):
 
         # child account must not be removed
         self.assertEqual(AccountPrototype.get_by_id(account_id).referral_of_id, None)
+
+
+    def test_set_might(self):
+        with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
+            self.account.set_might(666)
+
+        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.account.id,
+                                                                        type=ACHIEVEMENT_TYPE.KEEPER_MIGHT,
+                                                                        old_value=0,
+                                                                        new_value=666)])
