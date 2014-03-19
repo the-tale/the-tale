@@ -60,6 +60,39 @@ class BaseHabitTest(testcase.TestCase):
         with mock.patch.object(habit_class, 'raw_value', c.HABITS_BORDER):
             self.assertEqual(self.hero.prefered_quest_markers(), set(expected_markers))
 
+        with mock.patch.object(habit_class, 'raw_value', -c.HABITS_BORDER):
+            self.assertEqual(self.hero.prefered_quest_markers(), set(expected_markers))
+
+
+        no_markers = False
+        markers = set()
+
+        with mock.patch.object(habit_class, 'raw_value', c.HABITS_BORDER / 2):
+            for i in xrange(100):
+                current_markers = self.hero.prefered_quest_markers()
+                if current_markers:
+                    markers |= current_markers
+                else:
+                    no_markers = True
+
+
+        self.assertEqual(markers, set(expected_markers))
+        self.assertTrue(no_markers)
+
+        no_markers = False
+        markers = set()
+
+        with mock.patch.object(habit_class, 'raw_value', -c.HABITS_BORDER / 2):
+            for i in xrange(100):
+                current_markers = self.hero.prefered_quest_markers()
+                if current_markers:
+                    markers |= current_markers
+                else:
+                    no_markers = True
+
+        self.assertEqual(markers, set(expected_markers))
+        self.assertTrue(no_markers)
+
         with mock.patch.object(habit_class, 'raw_value', 0):
             self.assertEqual(self.hero.prefered_quest_markers(), set())
 

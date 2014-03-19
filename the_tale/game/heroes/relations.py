@@ -122,7 +122,7 @@ class MODIFIERS(DjangoEnum):
                 ('PICKED_UP_IN_ROAD', 15, u'ехать на попутных телегах', lambda: False),
                 ('POWER_TO_FRIEND', 16, u'бонус к влиянию на друга', lambda: 1.0),
                 ('POWER_TO_ENEMY', 17, u'бонус к влиянию на врага', lambda: 1.0),
-                ('QUEST_MARKERS', 18, u'маркеры задания', lambda: set()),
+                ('QUEST_MARKERS', 18, u'маркеры задания', lambda: {}),
                 ('QUEST_MARKERS_REWARD_BONUS', 19, u'бонус наград за правильный выбор', lambda: {}),
                 ('LOOT_PROBABILITY', 21, u'вероятность получить лут после боя', lambda: 1.0),
                 ('EXP_FOR_KILL', 22, u'опыт за убийство моснтра', lambda: 1.0),

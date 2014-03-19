@@ -79,13 +79,11 @@ class Honor(Habit):
             return value * (1 + c.HONOR_POWER_BONUS_FRACTION)
 
         if modifier.is_QUEST_MARKERS and (self.interval.is_LEFT_1 or self.interval.is_LEFT_2 or self.interval.is_LEFT_3):
-            if random.uniform(0, 1) < abs(self.raw_value / float(c.HABITS_BORDER)):
-                value.add(QUEST_OPTION_MARKERS.DISHONORABLE)
+            value[QUEST_OPTION_MARKERS.DISHONORABLE] = abs(self.raw_value / float(c.HABITS_BORDER))
             return value
 
         if modifier.is_QUEST_MARKERS and (self.interval.is_RIGHT_1 or self.interval.is_RIGHT_2 or self.interval.is_RIGHT_3):
-            if random.uniform(0, 1) < abs(self.raw_value / float(c.HABITS_BORDER)):
-                value.add(QUEST_OPTION_MARKERS.HONORABLE)
+            value[QUEST_OPTION_MARKERS.HONORABLE] = abs(self.raw_value / float(c.HABITS_BORDER))
             return value
 
         if modifier.is_QUEST_MARKERS_REWARD_BONUS and (self.interval.is_LEFT_1 or self.interval.is_LEFT_2 or self.interval.is_LEFT_3):
@@ -144,13 +142,11 @@ class Peacefulness(Habit):
             return value * c.HABIT_LOOT_PROBABILITY_MODIFIER
 
         if modifier.is_QUEST_MARKERS and (self.interval.is_LEFT_1 or self.interval.is_LEFT_2 or self.interval.is_LEFT_3):
-            if random.uniform(0, 1) < abs(self.raw_value / float(c.HABITS_BORDER)):
-                value.add(QUEST_OPTION_MARKERS.AGGRESSIVE)
+            value[QUEST_OPTION_MARKERS.AGGRESSIVE] =  abs(self.raw_value / float(c.HABITS_BORDER))
             return value
 
         if modifier.is_QUEST_MARKERS and (self.interval.is_RIGHT_1 or self.interval.is_RIGHT_2 or self.interval.is_RIGHT_3):
-            if random.uniform(0, 1) < abs(self.raw_value / float(c.HABITS_BORDER)):
-                value.add(QUEST_OPTION_MARKERS.UNAGGRESSIVE)
+            value[QUEST_OPTION_MARKERS.UNAGGRESSIVE] = abs(self.raw_value / float(c.HABITS_BORDER))
             return value
 
         if modifier.is_QUEST_MARKERS_REWARD_BONUS and (self.interval.is_LEFT_1 or self.interval.is_LEFT_2 or self.interval.is_LEFT_3):

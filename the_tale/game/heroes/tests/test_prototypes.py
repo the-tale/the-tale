@@ -641,6 +641,48 @@ class HeroLogicAccessorsTest(testcase.TestCase):
         self.check_can_process_turn(False, sinchronized_turn=False)
 
 
+    def test_prefered_quest_markers__no_markers(self):
+        self.assertTrue(self.hero.habit_honor.interval.is_NEUTRAL)
+        self.assertTrue(self.hero.habit_peacefulness.interval.is_NEUTRAL)
+
+        markers = set()
+
+        for i in xrange(1000):
+            markers |= self.hero.prefered_quest_markers()
+
+        self.assertEqual(markers, set())
+
+
+    def test_prefered_quest_markers__has_markers(self):
+        from questgen.relations import OPTION_MARKERS
+
+        self.hero.habit_honor.change(500)
+        self.hero.habit_peacefulness.change(500)
+
+        self.assertTrue(self.hero.habit_honor.interval.is_RIGHT_2)
+        self.assertTrue(self.hero.habit_peacefulness.interval.is_RIGHT_2)
+
+        markers = set()
+
+        for i in xrange(1000):
+            markers |= self.hero.prefered_quest_markers()
+
+        self.hero.habit_honor.change(-1000)
+        self.hero.habit_peacefulness.change(-1000)
+
+        self.assertTrue(self.hero.habit_honor.interval.is_LEFT_2)
+        self.assertTrue(self.hero.habit_peacefulness.interval.is_LEFT_2)
+
+        for i in xrange(1000):
+            markers |= self.hero.prefered_quest_markers()
+
+        self.assertEqual(markers, set([OPTION_MARKERS.HONORABLE,
+                                       OPTION_MARKERS.DISHONORABLE,
+                                       OPTION_MARKERS.AGGRESSIVE,
+                                       OPTION_MARKERS.UNAGGRESSIVE]))
+
+
+
 class HeroLevelUpTests(testcase.TestCase):
 
     def setUp(self):

@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import math
+import random
 
 from django.conf import settings as project_settings
 
@@ -182,7 +183,8 @@ class LogicAccessorsMixin(object):
         return self.attribute_modifier(relations.MODIFIERS.ITEMS_OF_EXPENDITURE_PRIORITIES)
 
     def prefered_quest_markers(self):
-        return self.attribute_modifier(relations.MODIFIERS.QUEST_MARKERS)
+        markers = self.attribute_modifier(relations.MODIFIERS.QUEST_MARKERS)
+        return set(marker for marker, probability in markers.iteritems() if random.uniform(0, 1) < probability)
 
     def quest_money_reward_multiplier(self):
         return self.attribute_modifier(relations.MODIFIERS.QUEST_MONEY_REWARD)
