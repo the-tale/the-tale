@@ -143,8 +143,7 @@ def get_knowledge_base(hero, without_restrictions=False): # pylint: disable=R091
     pref_place = hero.preferences.place
     place_uid = uids.place(pref_place) if pref_place is not None else None
     if place_uid in kb:
-        kb += ( facts.PreferenceHometown(object=hero_uid, place=place_uid),
-                facts.ExceptBadBranches(object=place_uid))
+        kb += facts.PreferenceHometown(object=hero_uid, place=place_uid)
 
     pref_friend = hero.preferences.friend
     friend_uid = uids.person(pref_friend) if pref_friend is not None else None
@@ -185,10 +184,7 @@ def create_random_quest_for_hero(hero):
 
     quests = shuffle_values_by_priority(hero.get_quests())
 
-    excluded_quests = []
-    last_quests = sorted(hero.quests.history.items(), key=lambda item: -item[1])
-    if last_quests:
-        excluded_quests.append(last_quests[0][0])
+    excluded_quests = hero.quests.excluded_quests()
 
     quest = try_to_create_random_quest_for_hero(hero, quests, excluded_quests, without_restrictions=False)
 

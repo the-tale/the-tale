@@ -33,3 +33,35 @@ class ContainerTests(testcase.TestCase):
         self.assertFalse(self.container.is_person_interfered(1))
         self.assertTrue(self.container.is_person_interfered(2))
         self.assertTrue(self.container.is_person_interfered(3))
+
+    def test_excluded_quests__no_history(self):
+        self.assertEqual(self.container.history, {})
+        self.assertEqual(self.container.excluded_quests(), [])
+
+    def test_excluded_quests__one_history(self):
+        self.assertEqual(self.container.history, {})
+        self.container.update_history('q_1', 1)
+        self.assertEqual(self.container.excluded_quests(), [])
+
+    def test_excluded_quests__big_history__odd(self):
+        self.assertEqual(self.container.history, {})
+
+        self.container.update_history('q_1', 5)
+        self.container.update_history('q_2', 4)
+        self.container.update_history('q_3', 3)
+        self.container.update_history('q_4', 2)
+        self.container.update_history('q_5', 1)
+
+        self.assertEqual(set(self.container.excluded_quests()), set(['q_1', 'q_2']))
+
+    def test_excluded_quests__big_history__even(self):
+        self.assertEqual(self.container.history, {})
+
+        self.container.update_history('q_1', 5)
+        self.container.update_history('q_2', 4)
+        self.container.update_history('q_3', 3)
+        self.container.update_history('q_4', 2)
+        self.container.update_history('q_5', 1)
+        self.container.update_history('q_6', 0)
+
+        self.assertEqual(set(self.container.excluded_quests()), set(['q_1', 'q_2', 'q_3']))

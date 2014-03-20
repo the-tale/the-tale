@@ -83,3 +83,11 @@ class QuestsContainer(object):
 
         for person_id in to_remove:
             del self.interfered_persons[person_id]
+
+    def excluded_quests(self):
+        excluded_quests = []
+        last_quests = sorted(self.history.items(), key=lambda item: -item[1])
+        for last_quest in last_quests[:len(last_quests) / 2]: # exclude half of the quests
+            excluded_quests.append(last_quest[0])
+
+        return excluded_quests
