@@ -100,9 +100,6 @@ class QuestInfo(object):
 
     @classmethod
     def deserialize(cls, data):
-        # TODO: remove after v0.3.9
-        if 'used_markers' not in data:
-            data['used_markers'] = {}
         return cls(**data)
 
     @classmethod
