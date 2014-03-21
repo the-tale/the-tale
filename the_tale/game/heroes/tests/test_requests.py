@@ -18,7 +18,6 @@ from the_tale.game.relations import GENDER, RACE
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes.relations import PREFERENCE_TYPE
 
 
@@ -30,9 +29,9 @@ class HeroRequestsTestBase(TestCase):
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
 
-        self.hero = HeroPrototype.get_by_account_id(account_id)
         self.storage = LogicStorage()
-        self.storage.add_hero(self.hero)
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
+        self.hero = self.storage.accounts_to_heroes[account_id]
 
         self.client = client.Client()
         self.request_login('test_user@test.com')

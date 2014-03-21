@@ -4,7 +4,8 @@ import mock
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
-from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.accounts.prototypes import AccountPrototype
+
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.logic import create_test_map
@@ -13,7 +14,7 @@ from the_tale.game.balance import constants as c
 
 from the_tale.game.abilities.relations import HELP_CHOICES
 
-from the_tale.game.actions.prototypes import ACTION_TYPES, ActionBase
+from the_tale.game.actions.prototypes import ACTION_TYPES
 from the_tale.game.actions.tests.helpers import TestAction
 
 
@@ -26,9 +27,10 @@ class GeneralTest(testcase.TestCase):
         result, account_id, bundle_id = register_user('test_user')
 
         self.bundle_id = bundle_id
-        self.hero = HeroPrototype.get_by_account_id(account_id)
+
         self.storage = LogicStorage()
-        self.storage.add_hero(self.hero)
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
+        self.hero = self.storage.accounts_to_heroes[account_id]
         self.action_idl = self.hero.actions.current_action
 
     def tearDown(self):

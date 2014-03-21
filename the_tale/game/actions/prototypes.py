@@ -1621,6 +1621,7 @@ class ActionMetaProxyPrototype(ActionBase):
     TEXTGEN_TYPE = 'no texgen type'
     SHORT_DESCRIPTION = u'no description'
     HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
+    APPROVED_FOR_SECOND_STEP = False
 
     @property
     def description_text_name(self):

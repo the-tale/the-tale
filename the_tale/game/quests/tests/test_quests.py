@@ -15,9 +15,9 @@ from questgen import logic
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.game.heroes.relations import EQUIPMENT_SLOT
-from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE
 
 from the_tale.game.logic_storage import LogicStorage
@@ -48,9 +48,9 @@ class QuestsTestBase(testcase.TestCase):
 
         result, account_id, bundle_id = register_user('test_user')
 
-        self.hero = HeroPrototype.get_by_account_id(account_id)
         self.storage = LogicStorage()
-        self.storage.add_hero(self.hero)
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
+        self.hero = self.storage.accounts_to_heroes[account_id]
         self.action_idl = self.hero.actions.current_action
 
         self.hero._model.money += 1

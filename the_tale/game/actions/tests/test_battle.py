@@ -4,7 +4,7 @@ import mock
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
-from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.game.logic import create_test_map
 
@@ -23,9 +23,10 @@ class ActorTest(testcase.TestCase):
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')
-        self.hero = HeroPrototype.get_by_account_id(account_id)
+
         self.storage = LogicStorage()
-        self.storage.add_hero(self.hero)
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
+        self.hero = self.storage.accounts_to_heroes[account_id]
 
     def test_hero_actor(self):
         self.hero.health = 10

@@ -50,6 +50,8 @@ class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
         self.action_proxy_1 = ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=bundle.id, meta_action=meta_action_battle)
         self.action_proxy_2 = ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=bundle.id, meta_action=meta_action_battle)
 
+        self.storage.merge_bundles([self.action_idl_1.bundle_id, self.action_idl_2.bundle_id], bundle.id)
+
         self.meta_action_battle = self.storage.meta_actions.values()[0]
 
 

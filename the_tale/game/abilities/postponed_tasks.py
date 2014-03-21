@@ -78,8 +78,6 @@ class UseAbilityTask(PostponedLogic):
 
             hero.change_energy(-ability.TYPE.cost)
 
-            storage.save_hero_data(hero.id, update_cache=True)
-
             if result.is_SUCCESSED:
                 self.state = ABILITY_TASK_STATE.PROCESSED
                 return POSTPONED_TASK_LOGIC_RESULT.SUCCESS

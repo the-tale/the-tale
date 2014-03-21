@@ -6,8 +6,7 @@ import traceback
 from django.core.management.base import BaseCommand
 
 from the_tale.accounts.logic import register_user
-
-from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.game.balance import formulas as f
 
@@ -39,9 +38,9 @@ class Command(BaseCommand):
     def test_corridor(self):
 
         result, account_id, bundle_id = register_user(uuid.uuid4().hex) # pylint: disable=W0612
-        self.hero = HeroPrototype.get_by_account_id(account_id)
         self.storage = LogicStorage()
-        self.storage.add_hero(self.hero)
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
+        self.hero = self.storage.accounts_to_heroes[account_id]
 
         current_time = TimePrototype.get_current_time()
 

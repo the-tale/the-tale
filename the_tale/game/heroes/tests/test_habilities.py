@@ -24,7 +24,6 @@ from the_tale.game.actions.contexts.battle import Damage
 
 from the_tale.game.heroes.fake import FakeMessanger
 
-from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes.habilities import battle as battle_abilities
 from the_tale.game.heroes.habilities import modifiers as modifiers_abilities
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
@@ -316,9 +315,11 @@ class ChooseAbilityTaskTest(TestCase):
         super(ChooseAbilityTaskTest, self).setUp()
         create_test_map()
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.hero = HeroPrototype.get_by_account_id(account_id)
+
         self.storage = LogicStorage()
-        self.storage.add_hero(self.hero)
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
+        self.hero = self.storage.accounts_to_heroes[account_id]
+
 
     def get_new_ability_id(self, hero=None):
         if hero is None:
@@ -401,10 +402,10 @@ class HabilitiesViewsTest(TestCase):
         super(HabilitiesViewsTest, self).setUp()
         create_test_map()
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.hero = HeroPrototype.get_by_account_id(account_id)
-        self.storage = LogicStorage()
-        self.storage.add_hero(self.hero)
 
+        self.storage = LogicStorage()
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
+        self.hero = self.storage.accounts_to_heroes[account_id]
 
         register_user('test_user_2', 'test_user_2@test.com', '111111')
 

@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import time
+import contextlib
 
 from dext.utils import cache
 
@@ -20,6 +21,7 @@ class LogicStorage(object):
         self.meta_actions = {}
         self.meta_actions_to_actions = {}
         self.skipped_heroes = set()
+        self.bundles_to_accounts = {}
 
     def load_account_data(self, account):
         hero = HeroPrototype.get_by_account_id(account.id)
@@ -28,13 +30,13 @@ class LogicStorage(object):
                                       active_end_at=account.active_end_at,
                                       ban_end_at=account.ban_game_end_at,
                                       might=account.might)
-        self.add_hero(hero)
+        self._add_hero(hero)
 
     def release_account_data(self, account, save_required=True):
         hero = self.accounts_to_heroes[account.id]
 
         if save_required:
-            self.save_hero_data(hero.id, update_cache=True)
+            self._save_hero_data(hero.id, update_cache=True)
 
         if hero.id in self.skipped_heroes:
             self.skipped_heroes.remove(hero.id)
@@ -42,16 +44,24 @@ class LogicStorage(object):
         del self.heroes[hero.id]
         del self.accounts_to_heroes[account.id]
 
-    def save_account_data(self, account_id, update_cache):
-        return self.save_hero_data(self.accounts_to_heroes[account_id].id, update_cache=update_cache)
+        bundle_id = hero.actions.current_action.bundle_id
+
+        self.bundles_to_accounts[bundle_id].remove(account.id)
+        if not self.bundles_to_accounts[bundle_id]:
+            del self.bundles_to_accounts[bundle_id]
+
+    def save_bundle_data(self, bundle_id, update_cache):
+        for account_id in self.bundles_to_accounts[bundle_id]:
+            self._save_hero_data(self.accounts_to_heroes[account_id].id, update_cache=update_cache)
 
     def recache_account_data(self, account_id):
+        # probably, here we need recache all bundle
         hero = self.accounts_to_heroes[account_id]
         # if hero.saved_at_turn != TimePrototype.get_current_turn_number():
         #     hero.save()
         cache.set(hero.cached_ui_info_key, hero.ui_info_for_cache(actual_guaranteed=True), heroes_settings.UI_CACHING_TIMEOUT)
 
-    def save_hero_data(self, hero_id, update_cache):
+    def _save_hero_data(self, hero_id, update_cache):
         hero = self.heroes[hero_id]
         hero.save()
 
@@ -59,7 +69,7 @@ class LogicStorage(object):
             cache.set(hero.cached_ui_info_key, hero.ui_info_for_cache(actual_guaranteed=True), heroes_settings.UI_CACHING_TIMEOUT)
 
 
-    def add_hero(self, hero):
+    def _add_hero(self, hero):
 
         if hero.id in self.heroes:
             raise exceptions.HeroAlreadyRegisteredError(hero_id=hero.id)
@@ -69,6 +79,35 @@ class LogicStorage(object):
 
         for action in hero.actions.actions_list:
             self.add_action(action)
+
+        bundle_id = hero.actions.current_action.bundle_id
+
+        if bundle_id not in self.bundles_to_accounts:
+            self.bundles_to_accounts[bundle_id] = set()
+        self.bundles_to_accounts[bundle_id].add(hero.account_id)
+
+
+    def merge_bundles(self, bundles_from, bundle_into):
+
+        accounts = set()
+
+        for bundle_id in bundles_from:
+            accounts |= self.bundles_to_accounts[bundle_id]
+            del self.bundles_to_accounts[bundle_id]
+
+        self.bundles_to_accounts[bundle_into] = self.bundles_to_accounts.get(bundle_into, set()) |  accounts
+
+    def unmerge_bundles(self, account_id, old_bundle_id, new_bundle_id):
+        self.bundles_to_accounts[old_bundle_id].remove(account_id)
+
+        if not self.bundles_to_accounts[old_bundle_id]:
+            del self.bundles_to_accounts[old_bundle_id]
+
+        if new_bundle_id not in self.bundles_to_accounts:
+            self.bundles_to_accounts[new_bundle_id] = set()
+
+        self.bundles_to_accounts[new_bundle_id].add(account_id)
+
 
     def add_action(self, action):
         action.set_storage(self)
@@ -114,6 +153,19 @@ class LogicStorage(object):
             hero.on_highlevel_data_updated()
 
 
+    @contextlib.contextmanager
+    def save_on_exception(self, logger, message, data, excluded_bundle_id):
+        try:
+            yield
+        except Exception:
+            if logger:
+                logger.error(message % data)
+            self._save_on_exception(excluded_bundle_id=excluded_bundle_id)
+            if logger:
+                logger.error('bundles saved')
+            raise
+
+
     def process_turn(self, logger=None, second_step_if_needed=True):
 
         timestamp = time.time()
@@ -135,24 +187,28 @@ class LogicStorage(object):
 
             processed_heroes += 1
 
-            try:
+            with self.save_on_exception(logger,
+                                        message='LogicStorage.process_turn catch exception, while processing hero %d, try to save all bundles except %d',
+                                        data=(hero.id, bundle_id),
+                                        excluded_bundle_id=bundle_id):
                 leader_action.process_turn()
 
                 # process new actions if it has been created
-                if second_step_if_needed and leader_action != hero.actions.current_action and hero.actions.current_action.APPROVED_FOR_SECOND_STEP:
+                if (second_step_if_needed and
+                    leader_action != hero.actions.current_action and
+                    hero.actions.current_action.APPROVED_FOR_SECOND_STEP and
+                    leader_action.APPROVED_FOR_SECOND_STEP):
+
                     leader_action = hero.actions.current_action
                     leader_action.process_turn()
-            except Exception:
-                if logger:
-                    logger.error('LogicStorage.process_turn catch exception, while processing hero %d, try to save all bundles except %d' % (hero.id, bundle_id))
-                self._save_on_exception(excluded_bundle_id=bundle_id)
-                if logger:
-                    logger.error('bundles saved')
-                raise
+
 
             hero.process_rare_operations()
 
             if leader_action.removed and leader_action.bundle_id != hero.actions.current_action.bundle_id:
+                self.unmerge_bundles(account_id=hero.account_id,
+                                     old_bundle_id=leader_action.bundle_id,
+                                     new_bundle_id=hero.actions.current_action.bundle_id)
                 self.skipped_heroes.add(hero.id)
 
             if game_settings.UNLOAD_OBJECTS:
@@ -166,13 +222,13 @@ class LogicStorage(object):
         for hero_id, hero in self.heroes.iteritems():
             if hero.actions.current_action.bundle_id == excluded_bundle_id:
                 continue
-            self.save_hero_data(hero_id, update_cache=False)
+            self._save_hero_data(hero_id, update_cache=False)
 
     def save_all(self, logger=None):
         for hero_id, hero in self.heroes.iteritems():
             if logger:
                 logger.info('save hero %d' % hero_id)
-            self.save_hero_data(hero_id, update_cache=False)
+            self._save_hero_data(hero_id, update_cache=False)
 
     def _get_bundles_to_save(self):
         bundles = set()
@@ -208,7 +264,7 @@ class LogicStorage(object):
                 cached_ui_info[hero.cached_ui_info_key] = hero.ui_info_for_cache(actual_guaranteed=True)
 
             if hero.actions.current_action.bundle_id in saved_bundles:
-                self.save_hero_data(hero_id, update_cache=False)
+                self._save_hero_data(hero_id, update_cache=False)
 
         cache.set_many(cached_ui_info, heroes_settings.UI_CACHING_TIMEOUT)
 
@@ -219,20 +275,20 @@ class LogicStorage(object):
 
         hero = self.accounts_to_heroes[account.id]
 
+        self.release_account_data(account, save_required=False)
+
         for action in reversed(hero.actions.actions_list):
             action.remove()
-
-        self.release_account_data(account, save_required=False)
 
         hero.remove()
 
     def _test_save(self):
         for hero_id in self.heroes:
-            self.save_hero_data(hero_id, update_cache=False)
+            self._save_hero_data(hero_id, update_cache=False)
 
         test_storage = LogicStorage()
         for hero_id in self.heroes:
-            test_storage.add_hero(HeroPrototype.get_by_id(hero_id))
+            test_storage._add_hero(HeroPrototype.get_by_id(hero_id))
 
         return self == test_storage
 

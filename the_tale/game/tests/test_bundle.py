@@ -7,8 +7,8 @@ from the_tale.game.logic import create_test_map
 from the_tale.game.bundles import BundlePrototype
 
 from the_tale.accounts.logic import register_user
+from the_tale.accounts.prototypes import AccountPrototype
 
-from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes.models import Hero
 from the_tale.game.models import Bundle
 from the_tale.game.prototypes import TimePrototype
@@ -24,9 +24,10 @@ class BundleTest(testcase.TestCase):
         result, account_id, bundle_id = register_user('test_user')
 
         self.bundle = BundlePrototype.get_by_id(bundle_id)
-        self.hero = HeroPrototype.get_by_account_id(account_id)
+
         self.storage = LogicStorage()
-        self.storage.add_hero(self.hero)
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
+        self.hero = self.storage.accounts_to_heroes[account_id]
 
 
     def test_remove(self):

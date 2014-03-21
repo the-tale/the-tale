@@ -146,6 +146,9 @@ class SupervisorTaskPrototype(BasePrototype):
         hero_1 = storage.accounts_to_heroes[account_1_id]
         hero_2 = storage.accounts_to_heroes[account_2_id]
 
+        old_bundle_1_id = hero_1.actions.current_action.bundle_id
+        old_bundle_2_id = hero_2.actions.current_action.bundle_id
+
         bundle = BundlePrototype.create()
 
         meta_action_battle = MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2, bundle=bundle)
@@ -153,9 +156,10 @@ class SupervisorTaskPrototype(BasePrototype):
         ActionMetaProxyPrototype.create(hero=hero_1, _bundle_id=bundle.id, meta_action=meta_action_battle)
         ActionMetaProxyPrototype.create(hero=hero_2, _bundle_id=bundle.id, meta_action=meta_action_battle)
 
-        storage.save_account_data(account_1_id, update_cache=True)
-        storage.save_account_data(account_2_id, update_cache=True)
-        storage.save_changed_data()
+        storage.merge_bundles([old_bundle_1_id, old_bundle_2_id], bundle.id)
+
+        storage.save_bundle_data(bundle.id, update_cache=True)
+        # storage.save_changed_data()
 
         battle_1 = Battle1x1Prototype.get_by_account_id(account_1_id)
         battle_1.state = BATTLE_1X1_STATE.PROCESSING

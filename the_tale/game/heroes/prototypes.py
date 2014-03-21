@@ -788,10 +788,9 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
                                         risk_level=relations.RISK_LEVEL.NORMAL)
 
         storage = LogicStorage() # tmp storage for creating Idleness action
+        ActionIdlenessPrototype.create(hero=hero, _bundle_id=bundle.id, _storage=None)
 
-        storage.add_hero(hero)
-
-        ActionIdlenessPrototype.create(hero=hero, _bundle_id=bundle.id, _storage=storage)
+        storage._add_hero(hero)
 
         return hero
 
