@@ -36,25 +36,9 @@ class ContainerTests(testcase.TestCase):
 
     def test_excluded_quests__no_history(self):
         self.assertEqual(self.container.history, {})
-        self.assertEqual(self.container.excluded_quests(), [])
+        self.assertEqual(self.container.excluded_quests(3), [])
 
-    def test_excluded_quests__one_history(self):
-        self.assertEqual(self.container.history, {})
-        self.container.update_history('q_1', 1)
-        self.assertEqual(self.container.excluded_quests(), [])
-
-    def test_excluded_quests__big_history__odd(self):
-        self.assertEqual(self.container.history, {})
-
-        self.container.update_history('q_1', 5)
-        self.container.update_history('q_2', 4)
-        self.container.update_history('q_3', 3)
-        self.container.update_history('q_4', 2)
-        self.container.update_history('q_5', 1)
-
-        self.assertEqual(set(self.container.excluded_quests()), set(['q_1', 'q_2']))
-
-    def test_excluded_quests__big_history__even(self):
+    def test_excluded_quests(self):
         self.assertEqual(self.container.history, {})
 
         self.container.update_history('q_1', 5)
@@ -64,4 +48,7 @@ class ContainerTests(testcase.TestCase):
         self.container.update_history('q_5', 1)
         self.container.update_history('q_6', 0)
 
-        self.assertEqual(set(self.container.excluded_quests()), set(['q_1', 'q_2', 'q_3']))
+        self.assertEqual(self.container.excluded_quests(0), [])
+        self.assertEqual(set(self.container.excluded_quests(1)), set(['q_1']))
+        self.assertEqual(set(self.container.excluded_quests(3)), set(['q_1', 'q_2', 'q_3']))
+        self.assertEqual(set(self.container.excluded_quests(7)), set(['q_1', 'q_2', 'q_3', 'q_4', 'q_5', 'q_6']))

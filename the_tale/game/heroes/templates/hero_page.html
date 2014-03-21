@@ -22,7 +22,7 @@ jQuery(document).ready(function(e){
     updater = new pgf.game.Updater({url: "{{ game_info_url(master_account) }}"});
 
     setTimeout(function(){
-        updater.Refresh();
+        updater.Refresh({% if is_owner %}true{% else %}false{% endif %});
     }, 0);
 
     pgf.base.InitializeTabs('hero-tab-main', 'attributes', [['.pgf-attributes-tab-button', 'attributes'],

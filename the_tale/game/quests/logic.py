@@ -184,7 +184,7 @@ def create_random_quest_for_hero(hero):
 
     quests = shuffle_values_by_priority(hero.get_quests())
 
-    excluded_quests = hero.quests.excluded_quests()
+    excluded_quests = hero.quests.excluded_quests(max_number=len(quests) / 2)
 
     quest = try_to_create_random_quest_for_hero(hero, quests, excluded_quests, without_restrictions=False)
 
@@ -199,7 +199,7 @@ def create_random_quest_for_hero(hero):
                         'spent_time': spent_time,
                         'is_normal': normal_mode,
                         'quest_type': quest.quests_stack[-1].type,
-                        'allowed': ', '.join(quest.name for quest in quests),
+                        'allowed': ', '.join(quest.quest_class.TYPE for quest in quests),
                         'excluded': ', '.join(excluded_quests)})
 
 
@@ -209,7 +209,7 @@ def create_random_quest_for_hero(hero):
 def try_to_create_random_quest_for_hero(hero, quests, excluded_quests, without_restrictions):
 
     for quest_type in quests:
-        if quest_type in excluded_quests:
+        if quest_type.quest_class.TYPE in excluded_quests:
             continue
 
         try:
