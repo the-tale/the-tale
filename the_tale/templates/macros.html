@@ -36,7 +36,7 @@
   <div class="addthis_toolbox addthis_default_style"
        addthis:ui_language="ru"
        addthis:title="«Сказка»: {{title|striptags}}"
-       addthis:description="{{description|striptags}}"
+       addthis:description="{{description|striptags|truncate(500)}}"
        addthis:services_exclude="print"
        addthis:url="{{url}}"
 
@@ -79,7 +79,7 @@
        >
     <a class="addthis_button"
        addthis:title="«Сказка»: {{title}}"
-       addthis:description="{{description|striptags}}"
+       addthis:description="{{description|striptags|truncate(500)}}"
        addthis:url="{{url}}"
        addthis:ui_click="true"
        addthis:data_track_addressbar="false"
