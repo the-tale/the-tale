@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from the_tale.game.actions import relations
+
 
 class ActionsContainer(object):
 
@@ -16,8 +18,9 @@ class ActionsContainer(object):
     @classmethod
     def deserialize(cls, hero, data):
         from the_tale.game.actions.prototypes import ACTION_TYPES
+
         obj = cls()
-        obj.actions_list = [ACTION_TYPES[action_data['type']].deserialize(hero=hero, data=action_data) for action_data in data.get('actions', [])]
+        obj.actions_list = [ACTION_TYPES[relations.ACTION_TYPE.index_value[action_data['type']]].deserialize(hero=hero, data=action_data) for action_data in data.get('actions', [])]
         obj.is_single = obj._is_single
         return obj
 

@@ -12,7 +12,9 @@ from the_tale.common.utils.logic import random_value_by_priority
 from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.game.actions.models import MetaAction, MetaActionMember, UNINITIALIZED_STATE
-from the_tale.game.actions import battle, contexts
+from the_tale.game.actions import battle
+from the_tale.game.actions import contexts
+from the_tale.game.actions import relations
 
 from the_tale.game.prototypes import TimePrototype
 
@@ -114,7 +116,7 @@ class MetaActionMemberPrototype(BasePrototype):
 
 class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
 
-    TYPE = 'ARENA_PVP_1X1'
+    TYPE = relations.ACTION_TYPE.ARENA_PVP_1X1
     TEXTGEN_TYPE = 'meta_action_arena_pvp_1x1'
 
     class STATE(MetaActionPrototype.STATE):

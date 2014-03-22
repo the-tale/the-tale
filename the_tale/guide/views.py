@@ -34,16 +34,19 @@ class APIReference(object):
 
 class TypeReference(object):
 
-    def __init__(self, id_, name, relation, fields=((u'значение', 'value'), (u'описание', 'text'))):
+    def __init__(self, id_, name, relation, filter=lambda record: True, fields=((u'значение', 'value'), (u'описание', 'text'))):
         self.id = id_
         self.name = name
         self.relation = relation
         self.fields = fields
+        self.filter = filter
 
     @lazy_property
     def records(self):
         records = []
         for record in self.relation.records:
+            if not self.filter(record):
+                continue
             records.append([getattr(record, field_id) for field_name, field_id in self.fields])
         return records
 
@@ -68,6 +71,7 @@ def get_api_types():
     from the_tale.game.heroes.relations import EQUIPMENT_SLOT
     from the_tale.game.persons.relations import PERSON_TYPE
     from the_tale.game.abilities.relations import ABILITY_TYPE as ANGEL_ABILITY_TYPE
+    from the_tale.game.actions.relations import ACTION_TYPE
 
     return [TypeReference('gender', u'Пол', GENDER),
             TypeReference('race', u'Раса', RACE),
@@ -75,7 +79,8 @@ def get_api_types():
             TypeReference('equipment_slot', u'Тип экипировки', EQUIPMENT_SLOT),
             TypeReference('person_profession', u'Профессия жителя', PERSON_TYPE),
             TypeReference('ability_type', u'Тип способности игрока', ANGEL_ABILITY_TYPE,
-                         fields=((u'значение', 'value'), (u'описание', 'text'), (u'атрибуты запроса', 'request_attributes')))]
+                         fields=((u'значение', 'value'), (u'описание', 'text'), (u'атрибуты запроса', 'request_attributes'))),
+            TypeReference('action_type', u'Тип действия героя', ACTION_TYPE, filter=lambda record: not record.technical),]
 
 API_METHODS = get_api_methods()
 API_TYPES = get_api_types()

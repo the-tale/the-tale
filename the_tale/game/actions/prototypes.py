@@ -70,7 +70,7 @@ class ActionBase(object):
         UNINITIALIZED = 'uninitialized'
         PROCESSED = 'processed'
 
-    TYPE = 'BASE'
+    TYPE = None
     SINGLE = True # is action work with only one hero
     TEXTGEN_TYPE = None
     CONTEXT_MANAGER = None
@@ -150,7 +150,7 @@ class ActionBase(object):
 
 
     def serialize(self):
-        data = {'type': self.TYPE,
+        data = {'type': self.TYPE.value,
                 'bundle_id': self.bundle_id,
                 'state': self.state,
                 'percents': self.percents,
@@ -193,15 +193,14 @@ class ActionBase(object):
 
     @classmethod
     def deserialize(cls, hero, data):
-
-        # TODO: remove after v0.3.9
-        if 'hero_health_lost' in data:
-            del data['hero_health_lost']
-
         return cls(hero=hero, **data)
+
+    @property
+    def ui_type(self): return self.TYPE.value
 
     def ui_info(self):
         return {'percents': self.percents,
+                'type': self.ui_type,
                 'description': self.description,
                 'info_link': self.info_link,
                 'is_boss': self.mob.is_boss if self.mob else None}
@@ -362,7 +361,7 @@ class ActionBase(object):
 
         event_reward = self.choose_event_reward()
 
-        message_type = 'action_event_habit_%s_%s_%s' % (self.TYPE.lower(), event.name.lower(), event_reward.name.lower())
+        message_type = 'action_event_habit_%s_%s_%s' % (self.TYPE.old_type.lower(), event.name.lower(), event_reward.name.lower())
 
         if event_reward.is_NOTHING:
             self.hero.add_message(message_type, diary=True, hero=self.hero, **self.action_event_message_arguments())
@@ -407,7 +406,7 @@ class ActionBase(object):
 
 class ActionIdlenessPrototype(ActionBase):
 
-    TYPE = 'IDLENESS'
+    TYPE = relations.ACTION_TYPE.IDLENESS
     TEXTGEN_TYPE = 'action_idleness'
 
     @property
@@ -531,7 +530,7 @@ class ActionIdlenessPrototype(ActionBase):
 
 class ActionQuestPrototype(ActionBase):
 
-    TYPE = 'QUEST'
+    TYPE = relations.ACTION_TYPE.QUEST
     TEXTGEN_TYPE = 'action_quest'
     HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
     APPROVED_FOR_SECOND_STEP = False # all quest actions MUST be done on separated turns
@@ -572,7 +571,7 @@ class ActionQuestPrototype(ActionBase):
 
 class ActionMoveToPrototype(ActionBase):
 
-    TYPE = 'MOVE_TO'
+    TYPE = relations.ACTION_TYPE.MOVE_TO
     TEXTGEN_TYPE = 'action_moveto'
     SHORT_DESCRIPTION = u'путешествует'
     HELP_CHOICES = set((HELP_CHOICES.TELEPORT, HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
@@ -833,7 +832,7 @@ class ActionMoveToPrototype(ActionBase):
 
 class ActionBattlePvE1x1Prototype(ActionBase):
 
-    TYPE = 'BATTLE_PVE1x1'
+    TYPE = relations.ACTION_TYPE.BATTLE_PVE_1X1
     TEXTGEN_TYPE = 'action_battlepve1x1'
     CONTEXT_MANAGER = contexts.BattleContext
     AGGRESSIVE = True
@@ -980,7 +979,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
 
 class ActionResurrectPrototype(ActionBase):
 
-    TYPE = 'RESURRECT'
+    TYPE = relations.ACTION_TYPE.RESURRECT
     TEXTGEN_TYPE = 'action_resurrect'
     HELP_CHOICES = set((HELP_CHOICES.RESURRECT,))
 
@@ -1027,7 +1026,7 @@ class ActionResurrectPrototype(ActionBase):
 
 class ActionInPlacePrototype(ActionBase):
 
-    TYPE = 'IN_PLACE'
+    TYPE = relations.ACTION_TYPE.IN_PLACE
     TEXTGEN_TYPE = 'action_inplace'
     HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
 
@@ -1226,7 +1225,7 @@ class ActionInPlacePrototype(ActionBase):
 
 class ActionRestPrototype(ActionBase):
 
-    TYPE = 'REST'
+    TYPE = relations.ACTION_TYPE.REST
     TEXTGEN_TYPE = 'action_rest'
     HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
 
@@ -1276,7 +1275,7 @@ class ActionRestPrototype(ActionBase):
 
 class ActionEquippingPrototype(ActionBase):
 
-    TYPE = 'EQUIPPING'
+    TYPE = relations.ACTION_TYPE.EQUIPPING
     TEXTGEN_TYPE = 'action_equipping'
     HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
 
@@ -1315,7 +1314,7 @@ class ActionEquippingPrototype(ActionBase):
 
 class ActionTradingPrototype(ActionBase):
 
-    TYPE = 'TRADING'
+    TYPE = relations.ACTION_TYPE.TRADING
     TEXTGEN_TYPE = 'action_trading'
     SHORT_DESCRIPTION = u'торгует'
     HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
@@ -1356,7 +1355,7 @@ class ActionTradingPrototype(ActionBase):
 
 class ActionMoveNearPlacePrototype(ActionBase):
 
-    TYPE = 'MOVE_NEAR_PLACE'
+    TYPE = relations.ACTION_TYPE.MOVE_NEAR_PLACE
     TEXTGEN_TYPE = 'action_movenearplace'
     HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
 
@@ -1513,7 +1512,7 @@ class ActionMoveNearPlacePrototype(ActionBase):
 
 class ActionRegenerateEnergyPrototype(ActionBase):
 
-    TYPE = 'REGENERATE_ENERGY'
+    TYPE = relations.ACTION_TYPE.REGENERATE_ENERGY
     TEXTGEN_TYPE = 'action_regenerate_energy'
     HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
 
@@ -1574,7 +1573,7 @@ class ActionRegenerateEnergyPrototype(ActionBase):
 
 class ActionDoNothingPrototype(ActionBase):
 
-    TYPE = 'DO_NOTHING'
+    TYPE = relations.ACTION_TYPE.DO_NOTHING
     TEXTGEN_TYPE = 'no texgen type'
     SHORT_DESCRIPTION = u'торгует'
     HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
@@ -1617,7 +1616,7 @@ class ActionDoNothingPrototype(ActionBase):
 class ActionMetaProxyPrototype(ActionBase):
 
     SINGLE = False
-    TYPE = 'META_PROXY'
+    TYPE = relations.ACTION_TYPE.META_PROXY
     TEXTGEN_TYPE = 'no texgen type'
     SHORT_DESCRIPTION = u'no description'
     HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
@@ -1626,6 +1625,9 @@ class ActionMetaProxyPrototype(ActionBase):
     @property
     def description_text_name(self):
         return self.meta_action.description_text_name
+
+    @property
+    def ui_type(self): return self.meta_action.TYPE.value
 
     ###########################################
     # Object operations

@@ -138,7 +138,7 @@ class GeneralTest(testcase.TestCase):
                                                       'state': TestAction.STATE.UNINITIALIZED,
                                                       'percents': 0.0,
                                                       'description': None,
-                                                      'type': TestAction.TYPE,
+                                                      'type': TestAction.TYPE.value,
                                                       'created_at_turn': TimePrototype.get_current_turn_number()})
 
         self.assertEqual(default_action, TestAction.deserialize(self.hero, default_action.serialize()))
@@ -186,7 +186,7 @@ class GeneralTest(testcase.TestCase):
                                                       'destination_y': 30,
                                                       'percents': 0.0,
                                                       'description': u'description',
-                                                      'type': TestAction.TYPE,
+                                                      'type': TestAction.TYPE.value,
                                                       'created_at_turn': 666,
                                                       'place_id': 2,
                                                       'data': {'xxx': 'yyy'},
