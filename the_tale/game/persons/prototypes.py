@@ -3,8 +3,6 @@ import datetime
 
 from dext.utils import s11n
 
-from textgen.words import Fake
-
 from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils.logic import choose_from_interval
 from the_tale.common.utils.decorators import lazy_property
@@ -39,14 +37,22 @@ MASTERY_VERBOSE = ( (0.0, u'полная непригодность'),
 @add_power_management(persons_settings.POWER_HISTORY_LENGTH, PersonsException)
 class PersonPrototype(BasePrototype):
     _model_class = Person
-    _readonly = ('id', 'created_at_turn', 'place_id', 'name', 'gender', 'race', 'type', 'state', 'out_game_at')
+    _readonly = ('id', 'created_at_turn', 'place_id', 'gender', 'race', 'type', 'state', 'out_game_at')
     _get_by = ('id', )
 
     @property
     def place(self): return places_storage[self._model.place_id]
 
-    @property
-    def normalized_name(self): return (Fake(self._model.name), (self.gender.text_id, u'загл'))
+    @lazy_property
+    def name_forms(self):
+        from textgen.words import Noun
+        return Noun.deserialize(s11n.from_json(self._model.name_forms))
+
+    @lazy_property
+    def name(self): return self.name_forms.normalized
+
+    @lazy_property
+    def normalized_name(self): return self.name_forms
 
     @lazy_property
     def full_name(self):
@@ -170,7 +176,7 @@ class PersonPrototype(BasePrototype):
         self._model.remove()
 
     @classmethod
-    def create(cls, place, race, tp, name, gender, state=None):
+    def create(cls, place, race, tp, name_forms, gender, state=None):
         from the_tale.game.persons.storage import persons_storage
 
         instance = Person.objects.create(place=place._model,
@@ -178,7 +184,7 @@ class PersonPrototype(BasePrototype):
                                          race=race,
                                          type=tp,
                                          gender=gender,
-                                         name=name,
+                                         name_forms=s11n.to_json(name_forms.serialize()),
                                          created_at_turn=TimePrototype.get_current_turn_number())
 
         prototype = cls(model=instance)

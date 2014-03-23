@@ -122,9 +122,10 @@ class ChangeHeroTask(PostponedLogic):
 
         hero = storage.heroes[self.hero_id]
 
-        hero.normalized_name = self.name
+        hero.set_name_forms(self.name)
         hero.gender = self.gender
         hero.race = self.race
+        hero.settings_approved = True
 
         storage.save_bundle_data(hero.actions.current_action.bundle_id, update_cache=True)
 

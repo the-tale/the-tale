@@ -26,4 +26,9 @@ class PersonAdmin(admin.ModelAdmin):
         person = PersonPrototype(obj)
         return round(person.power_negative, 2)
 
+    def name(self, obj):
+        from the_tale.game.persons.prototypes import PersonPrototype
+        return PersonPrototype(model=obj).name
+
+
 admin.site.register(Person, PersonAdmin)

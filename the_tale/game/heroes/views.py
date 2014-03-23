@@ -77,7 +77,7 @@ class HeroResource(Resource):
         battle_active_abilities = filter(lambda a: a.type.is_BATTLE and a.activation_type.is_ACTIVE, abilities) # pylint: disable=W0110
         battle_passive_abilities = filter(lambda a: a.type.is_BATTLE and a.activation_type.is_PASSIVE, abilities)# pylint: disable=W0110
         nonbattle_abilities = filter(lambda a: a.type.is_NONBATTLE, abilities)# pylint: disable=W0110
-        edit_name_form = EditNameForm(initial={'name_forms': self.hero.normalized_name.forms[:6] if self.hero.is_name_changed else [self.hero.name]*6,
+        edit_name_form = EditNameForm(initial={'name_forms': self.hero.normalized_name.forms[:6],
                                                'gender': self.hero.gender,
                                                'race': self.hero.race} )
 
@@ -157,12 +157,8 @@ class HeroResource(Resource):
     @validate_moderator_rights()
     @handler('#hero', 'reset-name', method='post')
     def reset_name(self):
-        from textgen.words import Noun
-
-        name = names.generator.get_name(self.hero.race, self.hero.gender)
-
         change_task = ChangeHeroTask(hero_id=self.hero.id,
-                                     name=Noun.fast_construct(name),
+                                     name=names.generator.get_name(self.hero.race, self.hero.gender),
                                      race=self.hero.race,
                                      gender=self.hero.gender)
 
@@ -215,14 +211,12 @@ class HeroResource(Resource):
             places = split_list(all_places)
 
         elif type.is_FRIEND:
-            persons_ids = Person.objects.filter(state=PERSON_STATE.IN_GAME).order_by('name').values_list('id', flat=True)
-            all_friends = [persons_storage[person_id] for person_id in persons_ids]
-            friends = all_friends
+            friends = sorted([person for person in persons_storage.filter(state=PERSON_STATE.IN_GAME)],
+                             key=lambda person: person.name)
 
         elif type.is_ENEMY:
-            persons_ids = Person.objects.filter(state=PERSON_STATE.IN_GAME).order_by('name').values_list('id', flat=True)
-            all_enemys = [persons_storage[person_id] for person_id in persons_ids]
-            enemies = all_enemys
+            enemies = sorted([person for person in persons_storage.filter(state=PERSON_STATE.IN_GAME)],
+                             key=lambda person: person.name)
 
         elif type.is_EQUIPMENT_SLOT:
             equipment_slots = split_list(list(relations.EQUIPMENT_SLOT.records))

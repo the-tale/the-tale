@@ -4,6 +4,8 @@ import datetime
 
 from django.db import models
 
+from dext.utils import s11n
+
 from rels.django import RelationIntegerField
 
 from the_tale.common.utils.enum import create_enum
@@ -28,7 +30,7 @@ class Person(models.Model):
 
     state = models.IntegerField(default=PERSON_STATE.IN_GAME, choices=PERSON_STATE._CHOICES)
 
-    name = models.CharField(max_length=256)
+    name_forms = models.TextField(null=False, default=u'', blank=True)
 
     gender = RelationIntegerField(relation=GENDER, relation_column='value')
     race = RelationIntegerField(relation=RACE, relation_column='value')
@@ -41,4 +43,4 @@ class Person(models.Model):
 
     data = models.TextField(null=False, default=u'{}')
 
-    def __unicode__(self): return u'%s from %s' % (self.name, self.place)
+    def __unicode__(self): return u'%s from %s' % (s11n.from_json(self.name_forms)['normalized'], self.place)

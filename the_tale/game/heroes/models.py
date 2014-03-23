@@ -3,6 +3,8 @@ import datetime
 
 from django.db import models
 
+from dext.utils import s11n
+
 from rels.django import RelationIntegerField
 
 from the_tale.game.relations import GENDER, RACE
@@ -36,8 +38,6 @@ class Hero(models.Model):
     ui_caching_started_at = models.DateTimeField(auto_now_add=True, default=datetime.datetime(2000, 1, 1))
 
     #base
-    name = models.CharField(max_length=MAX_NAME_LENGTH, null=False)
-
     gender = RelationIntegerField(relation=GENDER, relation_column='value')
     race = RelationIntegerField(relation=RACE, relation_column='value')
 
@@ -66,6 +66,8 @@ class Hero(models.Model):
     quest_created_time = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
 
     name_forms = models.TextField(null=False, default='', blank=True)
+
+    settings_approved = models.BooleanField(null=False, default=True, blank=True)
 
     pvp = models.TextField(null=False, default='{}')
 
@@ -121,8 +123,7 @@ class Hero(models.Model):
     stat_pvp_battles_1x1_victories = models.BigIntegerField(default=0, null=False)
     stat_pvp_battles_1x1_draws = models.BigIntegerField(default=0, null=False)
 
-    def __unicode__(self):
-        return u'hero[%d] - %s' % (self.id, self.name)
+    def __unicode__(self): return u'hero[%s] — %s' % (self.id, s11n.from_json(self.name_forms)['normalized'])
 
 
 # just copy for collection statistics

@@ -59,12 +59,12 @@ class TestRequests(TestRequestsBase):
     def test_game_page_when_pvp_prepairing(self):
         self.pvp_create_battle(self.account_1, self.account_2)
         self.pvp_create_battle(self.account_2, self.account_1)
-        self.check_html_ok(self.client.get(reverse('game:pvp:')), texts=[('pgf-change-name-warning', 1)])
+        self.check_html_ok(self.client.get(reverse('game:pvp:')), texts=[])
 
     def test_game_page_when_pvp_processing(self):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
-        self.check_html_ok(self.client.get(reverse('game:pvp:')), texts=[('pgf-change-name-warning', 1)])
+        self.check_html_ok(self.client.get(reverse('game:pvp:')), texts=[])
 
     def test_game_page__not_in_ratings(self):
         self.pvp_create_battle(self.account_1, self.account_2)
@@ -75,12 +75,6 @@ class TestRequests(TestRequestsBase):
         self.pvp_create_battle(self.account_1, self.account_2, calculate_rating=True)
         self.pvp_create_battle(self.account_2, self.account_1, calculate_rating=True)
         self.check_html_ok(self.client.get(reverse('game:pvp:')), texts=[('pgf-battle-not-in-rating', 0)])
-
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_name_changed', True)
-    def test_game_page_when_pvp_processing_change_name_warning_hiden(self):
-        self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
-        self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
-        self.check_html_ok(self.client.get(reverse('game:pvp:')), texts=[('pgf-change-name-warning', 0)])
 
 
 class SayRequestsTests(TestRequestsBase):

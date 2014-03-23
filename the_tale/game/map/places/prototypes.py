@@ -131,7 +131,7 @@ class PlacePrototype(BasePrototype):
                                             race=race,
                                             gender=gender,
                                             tp=random.choice(PERSON_TYPE.records),
-                                            name=names.generator.get_name(race, gender))
+                                            name_forms=names.generator.get_name(race, gender))
 
         signals.place_person_arrived.send(self.__class__, place=self, person=new_person)
 

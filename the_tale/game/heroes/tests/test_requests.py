@@ -146,13 +146,13 @@ class ChangePreferencesRequestsTests(HeroRequestsTestBase):
 class ChangeHeroRequestsTests(HeroRequestsTestBase):
 
     def test_hero_page(self):
-        self.check_html_ok(self.request_html(reverse('game:heroes:show', args=[self.hero.id])), texts=[(jinja2.escape(self.hero.name), 9),
-                                                                                                       ('pgf-change-name-warning', 1)])
+        self.check_html_ok(self.request_html(reverse('game:heroes:show', args=[self.hero.id])), texts=[jinja2.escape(self.hero.name),
+                                                                                                       ('pgf-settings-approved-warning', 1)])
 
     def test_hero_page_change_name_warning_hidden(self):
-        self.hero.normalized_name = Noun(u'слово', forms=[u'слово']*12)
+        self.hero.settings_approved = True
         self.hero.save()
-        self.check_html_ok(self.request_html(reverse('game:heroes:show', args=[self.hero.id])), texts=[('pgf-change-name-warning', 0)])
+        self.check_html_ok(self.request_html(reverse('game:heroes:show', args=[self.hero.id])), texts=[('pgf-settings-approved-warning', 0)])
 
     def get_post_data(self, name='new_name', gender=GENDER.MASCULINE, race=RACE.DWARF):
         return {'name_forms_0': u'%s_0' % name,

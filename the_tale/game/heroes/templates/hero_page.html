@@ -60,7 +60,7 @@ jQuery(document).ready(function(e){
       {% if is_owner %}
       <li class="">
         <a href="#pgf-settings-container" class="pgf-settings-tab-button" data-toggle="tab">
-          Настройки {% if not resource.hero.is_name_changed %}<span class="label label-important pgf-change-name-warning">укажите формы имени героя</span>{% endif %}
+          Настройки {% if not resource.hero.settings_approved %}<span class="label label-important pgf-settings-approved-warning">подтвердите параметры героя</span>{% endif %}
         </a>
       </li>
       {% endif %}

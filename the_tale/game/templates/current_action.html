@@ -19,11 +19,11 @@ jQuery(document).ready(function(e) {
 });
 </script>
 
-{% if not hero.is_name_changed or not resource.account.is_premium %}
+{% if not hero.settings_approved or not resource.account.is_premium %}
 
   <div style="margin-bottom: 0.5em;">
 
-    {% if not hero.is_name_changed %}
+    {% if not hero.settings_approved %}
       <a href="{{url('game:heroes:show', hero.id)}}"
          class="label label-success"
          rel="tooltip"

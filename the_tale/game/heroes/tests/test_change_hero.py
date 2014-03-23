@@ -56,7 +56,7 @@ class ChangeHeroTest(TestCase):
         self.assertNotEqual(self.hero.normalized_name, self.noun)
         self.assertNotEqual(self.hero.gender, self.gender)
         self.assertNotEqual(self.hero.race, self.race)
-        self.assertFalse(self.hero.is_name_changed)
+        self.assertFalse(self.hero.settings_approved)
 
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
@@ -65,4 +65,4 @@ class ChangeHeroTest(TestCase):
         self.assertEqual(self.hero.name, self.noun.normalized)
         self.assertEqual(self.hero.race, self.race)
         self.assertEqual(self.hero.gender, self.gender)
-        self.assertTrue(self.hero.is_name_changed)
+        self.assertTrue(self.hero.settings_approved)

@@ -47,7 +47,7 @@ from the_tale.game.heroes import bag
 
 class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
     _model_class = Hero
-    _readonly = ('id', 'account_id', 'created_at_turn', 'name', 'experience', 'money', 'next_spending', 'energy', 'level', 'saved_at_turn', 'saved_at', 'is_bot')
+    _readonly = ('id', 'account_id', 'created_at_turn', 'experience', 'money', 'next_spending', 'energy', 'level', 'saved_at_turn', 'saved_at', 'is_bot')
     _bidirectional = ('is_alive',
                       'is_fast',
                       'gender',
@@ -61,7 +61,8 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
                       'ban_state_end_at',
                       'energy_bonus',
                       'last_rare_operation_at_turn',
-                      'health')
+                      'health',
+                      'settings_approved')
     _get_by = ('id', 'account_id')
     _serialization_proxies = (('quests', QuestsContainer, heroes_settings.UNLOAD_TIMEOUT),
                               ('places_history', PlacesHelpStatistics, heroes_settings.UNLOAD_TIMEOUT),
@@ -325,26 +326,27 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
             self.bag.pop_artifact(equipped)
             self.equipment.equip(slot, equipped)
 
-    @property
-    def is_name_changed(self):
-        return bool(self._model.name_forms)
+    @lazy_property
+    def name(self): return self.name_forms.normalized
 
-    def get_normalized_name(self):
-        if not hasattr(self, '_normalized_name'):
-            if not self.is_name_changed:
-                if self.gender.is_MASCULINE:
-                    self._normalized_name = text_generation.get_dictionary().get_word(u'герой')
-                elif self.gender.is_FEMININE:
-                    self._normalized_name = text_generation.get_dictionary().get_word(u'героиня')
-            else:
-                self._normalized_name = Noun.deserialize(s11n.from_json(self._model.name_forms))
-        return self._normalized_name
-    def set_normalized_name(self, word):
-        self._normalized_name = word
-        self._model.name = word.normalized
-        self._model.name_forms = s11n.to_json(word.serialize()) # need to correct work of is_name_changed
+    @lazy_property
+    def name_forms(self):
+        if self._model.name_forms:
+            return Noun.deserialize(s11n.from_json(self._model.name_forms))
+        else:
+            # TODO: remove after v0.3.10
+            return names.generator.get_name(self.race, self.gender)
 
-    normalized_name = property(get_normalized_name, set_normalized_name)
+    @lazy_property
+    def normalized_name(self): return self.name_forms
+
+    def set_name_forms(self, word):
+        del self.normalized_name
+        del self.name
+        del self.name_forms
+
+        self._model.name_forms = s11n.to_json(word.serialize())
+
 
     def switch_spending(self):
         self._model.next_spending = random_value_by_priority(list(self.spending_priorities().items()))
@@ -775,7 +777,8 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
                                    abilities=s11n.to_json(AbilitiesPrototype.create().serialize()),
                                    messages=s11n.to_json(journal.serialize()),
                                    diary=s11n.to_json(diary.serialize()),
-                                   name=name,
+                                   name_forms=s11n.to_json(name.serialize()),
+                                   settings_approved=False,
                                    next_spending=relations.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT,
                                    health=f.hp_on_lvl(1),
                                    energy=c.ANGEL_ENERGY_MAX,
