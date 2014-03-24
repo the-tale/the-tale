@@ -55,6 +55,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PRICE_DELTA, 0.2)
         self.assertEqual(c.POWER_TO_LVL, 11.0)
         self.assertEqual(c.ARTIFACT_POWER_DELTA, 0.2)
+        self.assertEqual(c.ARTIFACT_BETTER_MIN_POWER_DELTA, 5)
         self.assertEqual(c.BATTLES_LINE_LENGTH, 8*(16+3)-3)
         self.assertEqual(c.BATTLES_PER_TURN, 1.0 / (3+1) )
         self.assertEqual(c.HEAL_LENGTH, int((8*(16+3)-3) * 0.2))
@@ -272,6 +273,18 @@ class FormulasTest(testcase.TestCase):
     def test_person_power_for_quest(self):
         self.assertTrue(f.person_power_for_quest(100) < f.person_power_for_quest(1000)< f.person_power_for_quest(10000))
         self.assertEqual(int(f.person_power_for_quest__real(100)), 572)
+
+    def test_better_artifact_power(self):
+        median_power = f.power_to_artifact(100)
+        for i in xrange(100):
+            self.assertTrue(median_power < f.power_to_better_artifact_randomized(100))
+
+    def test_better_artifact_power__on_low_levels(self):
+        self.assertEqual(f.power_to_artifact(1), 1)
+
+        self.assertEqual(1 + c.ARTIFACT_BETTER_MIN_POWER_DELTA*2,
+                         len(set(f.power_to_better_artifact_randomized(1) for i in xrange(100))))
+
 
 
 # if one of this tests broken, we MUST review appropriate achievements' barriers

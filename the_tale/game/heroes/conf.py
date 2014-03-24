@@ -19,6 +19,8 @@ heroes_settings = app_settings('HEROES',
 
                                DUMP_CACHED_HEROES=False, # should we dump cached heroes to database
 
+                               START_ENERGY_BONUS=10,
+
                                ABILITIES_RESET_TIMEOUT=datetime.timedelta(days=30),
                                PLACE_HELP_HISTORY_SIZE=200,
                                UNLOAD_TIMEOUT=c.TURN_DELTA * 3,

@@ -77,6 +77,7 @@ class PaymentsResource(Resource):
         hero = HeroPrototype.get_by_account_id(self.account.id)
         return self.template('payments/shop.html',
                              {'PRICE_GROUPS': price_list.PRICE_GROUPS,
+                              'FEATURED_GROUP': price_list.RANDOM_PREMIUM_CHEST,
                               'hero': hero,
                               'payments_settings': payments_settings,
                               'account': self.account,

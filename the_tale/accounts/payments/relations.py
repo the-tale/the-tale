@@ -41,3 +41,14 @@ class PERMANENT_PURCHASE_TYPE(DjangoEnum):
                   preference_record(6, PREFERENCE_TYPE.EQUIPMENT_SLOT),
                   preference_record(7, PREFERENCE_TYPE.RISK_LEVEL),
                   preference_record(8, PREFERENCE_TYPE.FAVORITE_ITEM))
+
+
+class RANDOM_PREMIUM_CHEST_REWARD(DjangoEnum):
+    priority = Column(unique=False)
+    description = Column(unique=False)
+    arguments = Column(unique=False, no_index=True)
+    hero_method = Column()
+
+    records = ( ('ARTIFACT', 0, u'артефакт', 6, u'случайный артефакт (лучше среднего для текущего уровня героя)', {}, 'purchase_artifact'),
+                ('ENERGY', 1, u'энергия', 3, u'750 энергии', {'energy': 750}, 'purchase_energy_bonus'),
+                ('EXPERIENCE', 2, u'опыт', 1, u'1500 опыта', {'experience': 1500}, 'purchase_experience') )

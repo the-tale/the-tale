@@ -128,11 +128,18 @@ class Worker(BaseWorker):
     def process_logic_task(self, account_id, task_id): # pylint: disable=W0613
         settings.refresh()
 
-        task = postponed_tasks.PostponedTaskPrototype.get_by_id(task_id)
-        task.process(self.logger, storage=self.storage)
-        task.do_postsave_actions()
+        hero = self.storage.accounts_to_heroes[account_id]
+        bundle_id = hero.actions.current_action.bundle_id
 
-        self.storage.recache_account_data(account_id)
+        with self.storage.save_on_exception(self.logger,
+                                            message='LogicWorker.process_logic_task catch exception, while processing hero %d, try to save all bundles except %d',
+                                            data=(hero.id, bundle_id),
+                                            excluded_bundle_id=bundle_id):
+            task = postponed_tasks.PostponedTaskPrototype.get_by_id(task_id)
+            task.process(self.logger, storage=self.storage)
+            task.do_postsave_actions()
+
+            self.storage.recache_account_data(account_id)
 
 
     def cmd_start_hero_caching(self, account_id, hero_id):

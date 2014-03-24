@@ -10,7 +10,7 @@ from dext.settings import settings
 from the_tale.common.amqp_queues import connection, BaseWorker
 from the_tale.common import postponed_tasks
 
-from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.prototypes import AccountPrototype, RandomPremiumRequestPrototype
 from the_tale.accounts.conf import accounts_settings
 
 
@@ -60,8 +60,25 @@ class Worker(BaseWorker):
             self.run_send_premium_expired_notifications()
             return
 
+        self.run_random_premium_requests_processing()
+
     def run_send_premium_expired_notifications(self):
         AccountPrototype.send_premium_expired_notifications()
+
+    def run_random_premium_requests_processing(self):
+        while True:
+            request = RandomPremiumRequestPrototype.get_unprocessed()
+
+            if request is None:
+                return
+
+            self.logger.info('process random premium request %d' % request.id)
+
+            if not request.process():
+                self.logger.info('request %d not processed' % request.id)
+                return
+            else:
+                self.logger.info('request %d processed' % request.id)
 
     def cmd_task(self, task_id):
         return self.send_cmd('task', {'task_id': task_id})

@@ -10,11 +10,13 @@ from the_tale.accounts.payments.conf import payments_settings
 
 class PurchaseGroup(object):
 
-    def __init__(self, uid, name, description, items):
+    def __init__(self, uid, name, description, items, short_name=None, featured=False):
         self.uid = uid
         self.name = name
+        self.short_name = short_name if short_name is not None else self.name
         self.description = description
         self.items = items
+        self.featured = featured
 
     def items_table(self, columns):
         table = []
@@ -115,6 +117,15 @@ class ResetHeroAbilities(PurchaseItem):
 
     def construct_postponed_task(self, account, transaction):
         return postponed_tasks.BuyResetHeroAbilities(account_id=account.id, transaction=transaction)
+
+
+class RandomPremiumChest(PurchaseItem):
+
+    def __init__(self, **kwargs):
+        super(RandomPremiumChest, self).__init__(**kwargs)
+
+    def construct_postponed_task(self, account, transaction):
+        return postponed_tasks.BuyRandomPremiumChest(account_id=account.id, transaction=transaction)
 
 
 class RechooseHeroAbilitiesChoices(PurchaseItem):

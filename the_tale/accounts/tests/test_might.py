@@ -5,9 +5,10 @@ from the_tale.common.utils import testcase
 from the_tale.forum.prototypes import CategoryPrototype, SubCategoryPrototype, ThreadPrototype, PostPrototype
 from the_tale.forum.models import Thread, Post
 
-from the_tale.accounts.models import Award, AWARD_TYPE
+from the_tale.accounts.models import Award
 from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts import relations
 
 from the_tale.blogs.prototypes import PostPrototype as BlogPostPrototype, POST_STATE as BLOG_POST_STATE
 from the_tale.blogs.conf import blogs_settings
@@ -186,7 +187,7 @@ class CalculateMightTests(testcase.TestCase):
         self.assertEqual(new_might, calculate_might(self.account))
 
     def test_custom_might(self):
-        Award.objects.create(account=self.account._model, type=AWARD_TYPE.BUG_MINOR)
+        Award.objects.create(account=self.account._model, type=relations.AWARD_TYPE.BUG_MINOR)
         self.assertTrue(calculate_might(self.account) > 0)
 
     def test_referral_custom_might(self):

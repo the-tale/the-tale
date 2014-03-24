@@ -246,6 +246,10 @@ jQuery('.pgf-forms-post-simple').live('click', function(e) {
     var Operation = function() {
         pgf.forms.Post({ action: url,
                          OnSuccess: function(data){
+                             if (data.data.message) {
+                                 successMessage = data.data.message;
+                             }
+
                              if (successMessage) {
                                  pgf.ui.dialog.Alert({message: successMessage,
                                                       title: 'Операция завершена',

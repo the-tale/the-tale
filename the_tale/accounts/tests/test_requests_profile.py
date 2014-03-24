@@ -15,8 +15,9 @@ from the_tale.accounts.logic import register_user, login_page_url
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.accounts.models import CHANGE_CREDENTIALS_TASK_STATE, ChangeCredentialsTask
+from the_tale.accounts.models import ChangeCredentialsTask
 from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
+from the_tale.accounts import relations
 
 
 class ProfileRequestsTests(TestCase):
@@ -69,7 +70,7 @@ class ProfileRequestsTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.check_ajax_processing(response, PostponedTaskPrototype._db_get_object(0).status_url)
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
-        self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
+        self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, relations.CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
 
     def test_profile_update_nick(self):
         self.request_login('test_user@test.com')
@@ -77,7 +78,7 @@ class ProfileRequestsTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.check_ajax_processing(response, PostponedTaskPrototype._db_get_object(0).status_url)
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
-        self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
+        self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, relations.CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
 
     def test_profile_update_nick__banned(self):
         self.request_login('test_user@test.com')
@@ -94,7 +95,7 @@ class ProfileRequestsTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.check_ajax_ok(response, data={'next_url': reverse('accounts:profile:confirm-email-request')})
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
-        self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT)
+        self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, relations.CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT)
         self.assertEqual(Message.objects.all().count(), 1)
         self.assertEqual(django_authenticate(nick='test_user', password='111111').id, self.account.id)
         self.assertEqual(django_authenticate(nick='test_user', password='111111').email, 'test_user@test.com')
@@ -155,7 +156,7 @@ class ProfileRequestsTests(TestCase):
         self.check_response_redirect(response, PostponedTaskPrototype._db_get_object(0).wait_url)
 
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
-        self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
+        self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, relations.CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
         self.assertEqual(Message.objects.all().count(), 1)
 
     def test_fast_profile_confirm_email(self):
@@ -171,7 +172,7 @@ class ProfileRequestsTests(TestCase):
         self.check_response_redirect(response, PostponedTaskPrototype._db_get_object(1).wait_url)
 
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 1)
-        self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
+        self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, relations.CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
 
         self.assertEqual(django_authenticate(nick='test_nick', password='123456'), None)
 
@@ -197,7 +198,7 @@ class ProfileRequestsTests(TestCase):
         self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.ru', 'nick': 'test_nick'})
 
         task = ChangeCredentialsTaskPrototype._db_get_object(0)
-        task._model.state = CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
+        task._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
         task._model.save()
 
         self.check_html_ok(self.client.get(url('accounts:profile:confirm-email', uuid=task.uuid), texts=['pgf-change-credentials-already-processed']))
@@ -207,7 +208,7 @@ class ProfileRequestsTests(TestCase):
         self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.ru', 'nick': 'test_nick'})
 
         task = ChangeCredentialsTaskPrototype._db_get_object(0)
-        task._model.state = CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT
+        task._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT
         task._model.save()
 
         self.check_html_ok(self.client.get(url('accounts:profile:confirm-email', uuid=task.uuid), texts=['pgf-change-credentials-timeout']))
@@ -217,7 +218,7 @@ class ProfileRequestsTests(TestCase):
         self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.ru', 'nick': 'test_nick'})
 
         task = ChangeCredentialsTaskPrototype._db_get_object(0)
-        task._model.state = CHANGE_CREDENTIALS_TASK_STATE.ERROR
+        task._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.ERROR
         task._model.save()
 
         self.check_html_ok(self.client.get(url('accounts:profile:confirm-email', uuid=task.uuid), texts=['pgf-change-credentials-error']))

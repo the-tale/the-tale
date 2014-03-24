@@ -86,6 +86,8 @@ POWER_TO_LVL = float(EQUIP_SLOTS_NUMBER) # бонус к ожидаемой си
 # что бы не вводить дизбаланса, надо на маленьких уровнях уменьшать делту, что бу разница уровня предмета и дельты была неменьше единицы
 ARTIFACT_POWER_DELTA = float(0.2) # дельта, на которую может изменяться сила артифакта
 
+ARTIFACT_BETTER_MIN_POWER_DELTA = int(5) # минимальная дельта, на которую может изменятся сила лучшего артефакта (для магазина)
+
 # ходов - длинна непрерывной цепочки боёв до остановки на лечение
 BATTLES_LINE_LENGTH = int(BATTLES_BEFORE_HEAL * (BATTLE_LENGTH + INTERVAL_BETWEEN_BATTLES ) - INTERVAL_BETWEEN_BATTLES)
 

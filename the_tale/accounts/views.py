@@ -27,7 +27,7 @@ from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 
 from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype, AwardPrototype, ResetPasswordTaskPrototype
 from the_tale.accounts.postponed_tasks import RegistrationTask
-from the_tale.accounts.models import CHANGE_CREDENTIALS_TASK_STATE
+from the_tale.accounts import relations
 from the_tale.accounts import forms
 from the_tale.accounts.conf import accounts_settings
 from the_tale.accounts.logic import logout_user, login_user, get_system_user
@@ -269,11 +269,11 @@ class ProfileResource(BaseAccountsResource):
 
         postponed_task = task.process(logger)
 
-        if task.state == CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT:
+        if task.state == relations.CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT:
             context['timeout'] = True
             return self.template('accounts/confirm_email.html', context)
 
-        if task.state == CHANGE_CREDENTIALS_TASK_STATE.ERROR:
+        if task.state == relations.CHANGE_CREDENTIALS_TASK_STATE.ERROR:
             context['error_occured'] = True
             return self.template('accounts/confirm_email.html', context)
 

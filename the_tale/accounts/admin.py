@@ -7,7 +7,7 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.utils.translation import ugettext_lazy as _
 
 
-from the_tale.accounts.models import Account, ChangeCredentialsTask, Award, ResetPasswordTask
+from the_tale.accounts.models import Account, ChangeCredentialsTask, Award, ResetPasswordTask, RandomPremiumRequest
 
 
 class AccountChangeForm(forms.ModelForm):
@@ -80,7 +80,12 @@ class ResetPasswordTaskAdmin(admin.ModelAdmin):
     list_display = ('id', 'account', 'is_processed', 'uuid', 'created_at')
 
 
+class RandomPremiumRequestAdmin(admin.ModelAdmin):
+    list_display = ('id', 'initiator', 'receiver', 'state', 'created_at')
+
+
 admin.site.register(Account, AccountAdmin)
 admin.site.register(Award, AwardAdmin)
 admin.site.register(ChangeCredentialsTask, ChangeCredentialsTaskAdmin)
 admin.site.register(ResetPasswordTask, ResetPasswordTaskAdmin)
+admin.site.register(RandomPremiumRequest, RandomPremiumRequestAdmin)

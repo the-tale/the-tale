@@ -4,9 +4,9 @@
 {% block description %}Список товаров.{% endblock %}
 
 
-{% macro buy_element(purchase, columns) %}
+{% macro buy_element(purchase, columns, last_row) %}
 
-  <td width="{{100/columns}}%" style="text-align: center; padding-bottom: 1.5em;">
+  <td width="{{100/columns}}%" style="text-align: center; {% if not last_row %}padding-bottom: 1.5em;{% endif %}">
 
     {% if purchase %}
 
@@ -39,40 +39,45 @@
 
 {% endmacro %}
 
+{% macro group_record(group) %}
+
+  <div class="offset2" style="{% if group.featured %}padding: 1em; background-color: #aaffaa; border-radius: 10px;{% endif %}">
+    <div id="price-group-{{group.uid}}" class="anchor"></div>
+    <h2>{{group.name}}</h2>
+
+    {{ group.description|safe }}
+
+    <table width="100%">
+      <tbody>
+        {% for row in group.items_table(4) %}
+          {% set last_row = loop.last %}
+          <tr>
+            {% for purchase in row %}
+              {{ buy_element(purchase, columns=4, last_row=last_row) }}
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+{% endmacro %}
+
 {% block payments_content %}
 
 
 <ul class="nav nav-tabs nav-stacked span2" style="margin-left: 0;">
   {% for group in PRICE_GROUPS %}
-  <li><a href="#price-group-{{group.uid}}">{{group.name}}</a></li>
+  <li><a href="#price-group-{{group.uid}}">{{group.short_name}}</a></li>
   {% endfor %}
 </ul>
 
 {% if PRICE_GROUPS %}
 
   {% for group in PRICE_GROUPS %}
-    <div class="offset2">
-      <div id="price-group-{{group.uid}}" class="anchor"></div>
-      <h2>{{group.name}}</h2>
+    {{ group_record(group) }}
 
-
-      {{ group.description|safe }}
-
-      <table width="100%">
-        <tbody>
-          {% for row in group.items_table(4) %}
-            <tr>
-              {% for purchase in row %}
-                {{ buy_element(purchase, columns=4) }}
-              {% endfor %}
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-
-    </div>
-
-    {% if not loop.last %}
+    {% if not loop.last and not group.featured %}
       <hr class="offset2" style="margin-top: 1em; margin-bottom: 1em;"/>
     {% endif %}
   {% endfor %}

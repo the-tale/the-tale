@@ -5,15 +5,16 @@ from rels.django import DjangoEnum
 
 from the_tale.common.utils.decorators import lazy_property
 from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.utils.logic import random_value_by_priority
 
 from the_tale.bank.transaction import Transaction
 
 from the_tale.game.heroes.relations import PREFERENCE_TYPE, HABIT_TYPE
 
 from the_tale.accounts.workers.environment import workers_environment as accounts_workers_environment
-from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.prototypes import AccountPrototype, RandomPremiumRequestPrototype
 
-from the_tale.accounts.payments.relations import PERMANENT_PURCHASE_TYPE
+from the_tale.accounts.payments import relations
 from the_tale.accounts.payments.logic import transaction_logic
 from the_tale.accounts.payments.conf import payments_settings
 from the_tale.accounts.payments import exceptions
@@ -155,7 +156,7 @@ class BaseLogicBuyTask(BaseBuyTask):
 
 
 class BuyPremium(BaseBuyTask):
-    TYPE = 'buy-premium'
+    TYPE = 'purchase-premium'
 
     def __init__(self, days, **kwargs):
         super(BuyPremium, self).__init__(**kwargs)
@@ -209,20 +210,23 @@ class BaseBuyHeroMethod(BaseLogicBuyTask):
 
     def on_process_transaction_frozen(self, storage, **kwargs):
         hero = storage.accounts_to_heroes[self.account_id]
-        getattr(hero, self.METHOD)(**self.arguments)
+        self.invoke_method(hero)
         storage.save_bundle_data(hero.actions.current_action.bundle_id, update_cache=True)
+
+    def invoke_method(self, hero):
+        getattr(hero, self.METHOD)(**self.arguments)
 
 
 class BuyEnergy(BaseBuyHeroMethod):
-    TYPE = 'buy-energy'
+    TYPE = 'purchase-energy'
     ARGUMENTS = ('energy', )
-    METHOD = 'add_energy_bonus'
+    METHOD = 'purchase_energy_bonus'
 
 
 class BuyResetHeroPreference(BaseBuyHeroMethod):
-    TYPE = 'buy-reset-hero-preference'
+    TYPE = 'purchase-reset-hero-preference'
     ARGUMENTS = ('preference_type', )
-    METHOD = 'reset_preference'
+    METHOD = 'purchase_reset_preference'
 
     def serialize_arguments(self):
         return {'preference_type': self.arguments['preference_type'].value}
@@ -234,9 +238,9 @@ class BuyResetHeroPreference(BaseBuyHeroMethod):
 
 
 class BuyChangeHeroHabits(BaseBuyHeroMethod):
-    TYPE = 'buy-change-hero-habits'
+    TYPE = 'purchase-change-hero-habits'
     ARGUMENTS = ('habit_type', 'habit_value')
-    METHOD = 'change_habits'
+    METHOD = 'purchase_change_habits'
 
     def serialize_arguments(self):
         return {'habit_type': self.arguments['habit_type'].value,
@@ -250,22 +254,22 @@ class BuyChangeHeroHabits(BaseBuyHeroMethod):
 
 
 class BuyResetHeroAbilities(BaseBuyHeroMethod):
-    TYPE = 'buy-reset-hero-abilities'
+    TYPE = 'purchase-reset-hero-abilities'
     ARGUMENTS = ()
-    METHOD = 'reset_abilities'
+    METHOD = 'purchase_reset_abilities'
 
 class BuyRechooseHeroAbilitiesChoices(BaseBuyHeroMethod):
-    TYPE = 'buy-rechoose-hero-abilities-choices'
+    TYPE = 'purchase-rechoose-hero-abilities-choices'
     ARGUMENTS = ()
-    METHOD = 'rechooce_abilities_choices'
+    METHOD = 'purchase_rechooce_abilities_choices'
 
 
 class BuyPermanentPurchase(BaseBuyTask):
-    TYPE = 'buy-permanent-purchase'
+    TYPE = 'purchase-permanent-purchase'
 
     def __init__(self, purchase_type, **kwargs):
         super(BuyPermanentPurchase, self).__init__(**kwargs)
-        self.purchase_type = purchase_type if isinstance(purchase_type, rels.Record) else PERMANENT_PURCHASE_TYPE.index_value[purchase_type]
+        self.purchase_type = purchase_type if isinstance(purchase_type, rels.Record) else relations.PERMANENT_PURCHASE_TYPE.index_value[purchase_type]
 
     def __eq__(self, other):
         return (super(BuyPermanentPurchase, self).__eq__(other) and
@@ -279,3 +283,38 @@ class BuyPermanentPurchase(BaseBuyTask):
     def on_process_transaction_frozen(self, **kwargs):
         self.account.permanent_purchases.insert(self.purchase_type)
         self.account.save()
+
+
+class BuyRandomPremiumChest(BaseBuyHeroMethod):
+    TYPE = 'purchase-random-premium-chest'
+    ARGUMENTS = ('message', )
+    METHOD = None
+
+    MESSAGE = u'''
+<strong>Поздравляем!</strong><br/>
+
+Благодаря Вам один из активных игроков получит подписку!<br/>
+
+Вы получаете <strong>%(reward)s</strong><br/>
+'''
+
+    def get_reward_type(self):
+        return random_value_by_priority([(record, record.priority)
+                                         for record in relations.RANDOM_PREMIUM_CHEST_REWARD.records])
+
+    def invoke_method(self, hero):
+        reward = self.get_reward_type()
+
+        result = getattr(hero, reward.hero_method)(**reward.arguments)
+
+        if reward.is_ARTIFACT:
+            message = self.MESSAGE % {'reward': (u'%s +%d' % (result.name, result.power))}
+        else:
+            message = self.MESSAGE % {'reward': reward.description}
+
+        self.arguments['message'] = message
+
+        RandomPremiumRequestPrototype.create(hero.account_id, days=payments_settings.RANDOM_PREMIUM_DAYS)
+
+    @property
+    def processed_data(self): return {'message': self.arguments['message'] }

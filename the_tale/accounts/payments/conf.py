@@ -13,6 +13,8 @@ payments_settings = app_settings('PAYMENTS',
 
                                  ALWAYS_ALLOWED_ACCOUNTS=[],
 
+                                 RANDOM_PREMIUM_DAYS=30,
+
                                  XSOLLA_ENABLED=False if not project_settings.TESTS_RUNNING else True,
 
                                  XSOLLA_RUB_FOR_PREMIUM_CURRENCY=100,

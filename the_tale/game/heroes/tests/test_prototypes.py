@@ -2,7 +2,6 @@
 import datetime
 import time
 import random
-import contextlib
 
 import mock
 
@@ -17,13 +16,12 @@ from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.quests.relations import QUESTS
 
-from the_tale.game.balance import formulas as f, constants as c, enums as e
+from the_tale.game.balance import formulas as f, constants as c
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.map.places.storage import places_storage
 from the_tale.game.map.places.relations import CITY_MODIFIERS
 from the_tale.game.mobs.storage import mobs_storage
-from the_tale.game.persons.storage import persons_storage
 
 from the_tale.game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
 from the_tale.game.heroes.habilities import ABILITY_TYPE, ABILITIES, battle
@@ -393,18 +391,18 @@ class HeroTest(testcase.TestCase):
         self.hero.add_energy_bonus(100)
 
         self.assertEqual(self.hero.energy, 6)
-        self.assertEqual(self.hero.energy_full, 106)
+        self.assertEqual(self.hero.energy_full, 106 + heroes_settings.START_ENERGY_BONUS)
 
     def test_change_energy__plus(self):
         self.hero._model.energy = 6
         self.hero.add_energy_bonus(100)
 
         self.assertEqual(self.hero.change_energy(self.hero.energy_maximum), self.hero.energy_maximum - 6)
-        self.assertEqual(self.hero.energy_bonus, 100)
+        self.assertEqual(self.hero.energy_bonus, 100 + heroes_settings.START_ENERGY_BONUS)
 
     def test_change_energy__minus(self):
         self.hero._model.energy = 6
-        self.hero.add_energy_bonus(100)
+        self.hero.add_energy_bonus(100 - heroes_settings.START_ENERGY_BONUS)
 
         self.assertEqual(self.hero.change_energy(-50), -50)
         self.assertEqual(self.hero.energy_bonus, 56)
@@ -434,26 +432,6 @@ class HeroTest(testcase.TestCase):
 
     def test_need_rest_in_move__from_risk_level(self):
         self.check_rests_from_risk(lambda hero: hero.need_rest_in_move)
-
-
-    def test_reset_preferences(self):
-        self.hero.preferences.set_mob(mobs_storage.all()[0])
-        self.hero.preferences.set_place(places_storage.all()[0])
-        self.hero.preferences.set_friend(persons_storage.all()[0])
-        self.hero.preferences.set_enemy(persons_storage.all()[1])
-        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.HAND_PRIMARY)
-        self.hero.preferences.set_favorite_item(relations.EQUIPMENT_SLOT.HAND_PRIMARY)
-        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_HIGH)
-        self.hero.preferences.set_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE)
-
-
-        for preference_type in relations.PREFERENCE_TYPE.records:
-            self.hero.reset_preference(preference_type)
-            self.assertEqual(self.hero.preferences.time_before_update(preference_type, datetime.datetime.now()), datetime.timedelta(seconds=0))
-            if preference_type.nullable:
-                self.assertEqual(self.hero.preferences._get(preference_type), None)
-            else:
-                self.assertNotEqual(self.hero.preferences._get(preference_type), None)
 
     @mock.patch('the_tale.game.heroes.conf.heroes_settings.RARE_OPERATIONS_INTERVAL', 2)
     def test_process_rare_operations__interval_not_passed(self):
@@ -557,25 +535,6 @@ class HeroTest(testcase.TestCase):
                 continue
             self.hero.get_achievement_type_value(achievement_type)
 
-    def test_change_habits__honor(self):
-        self.assertEqual(self.hero.habit_honor.raw_value, 0)
-
-        self.hero.change_habits(self.hero.habit_honor.TYPE, 500)
-        self.assertEqual(self.hero.habit_honor.raw_value, 500)
-
-        self.hero.change_habits(self.hero.habit_honor.TYPE, -1000)
-        self.assertEqual(self.hero.habit_honor.raw_value, -500)
-
-    def test_change_habits__peacefulness(self):
-        self.assertEqual(self.hero.habit_peacefulness.raw_value, 0)
-
-        self.hero.change_habits(self.hero.habit_peacefulness.TYPE, 500)
-        self.assertEqual(self.hero.habit_peacefulness.raw_value, 500)
-
-        self.hero.change_habits(self.hero.habit_peacefulness.TYPE, -1000)
-        self.assertEqual(self.hero.habit_peacefulness.raw_value, -500)
-
-
     def test_update_habits__premium(self):
         self.assertEqual(self.hero.habit_honor.raw_value, 0)
         self.assertFalse(self.hero.is_premium)
@@ -598,89 +557,6 @@ class HeroTest(testcase.TestCase):
         self.hero.reset_accessors_cache()
 
         self.assertFalse(getattr(self.hero, '_cached_modifiers'))
-
-
-
-class HeroLogicAccessorsTest(testcase.TestCase):
-
-    def setUp(self):
-        super(HeroLogicAccessorsTest, self).setUp()
-        self.place_1, self.place_2, self.place_3 = create_test_map()
-
-        result, account_id, bundle_id = register_user('test_user', 'test@test.com', '111111')
-
-        self.storage = LogicStorage()
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
-        self.hero = self.storage.accounts_to_heroes[account_id]
-
-
-    def check_can_process_turn(self, expected_result, banned=False, bot=False, active=False, premium=False, single=True, idle=False, sinchronized_turn=True):
-
-        if sinchronized_turn:
-            turn_number = 6 * heroes_settings.INACTIVE_HERO_DELAY + self.hero.id
-        else:
-            turn_number = 6 * heroes_settings.INACTIVE_HERO_DELAY + self.hero.id + 1
-
-        with contextlib.nested(
-                mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_banned', banned),
-                mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_bot', bot),
-                mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_active', active),
-                mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', premium),
-                mock.patch('the_tale.game.actions.container.ActionsContainer.is_single', single),
-                mock.patch('the_tale.game.actions.container.ActionsContainer.number', 1 if idle else 2)):
-            self.assertEqual(self.hero.can_process_turn(turn_number), expected_result)
-
-
-    def test_can_process_turn__banned(self):
-        self.check_can_process_turn(True, banned=True)
-        self.check_can_process_turn(False, banned=True, idle=True)
-        self.check_can_process_turn(True, active=True)
-        self.check_can_process_turn(True, premium=True)
-        self.check_can_process_turn(True, single=False)
-        self.check_can_process_turn(True, sinchronized_turn=True)
-        self.check_can_process_turn(False, sinchronized_turn=False)
-
-
-    def test_prefered_quest_markers__no_markers(self):
-        self.assertTrue(self.hero.habit_honor.interval.is_NEUTRAL)
-        self.assertTrue(self.hero.habit_peacefulness.interval.is_NEUTRAL)
-
-        markers = set()
-
-        for i in xrange(1000):
-            markers |= self.hero.prefered_quest_markers()
-
-        self.assertEqual(markers, set())
-
-
-    def test_prefered_quest_markers__has_markers(self):
-        from questgen.relations import OPTION_MARKERS
-
-        self.hero.habit_honor.change(500)
-        self.hero.habit_peacefulness.change(500)
-
-        self.assertTrue(self.hero.habit_honor.interval.is_RIGHT_2)
-        self.assertTrue(self.hero.habit_peacefulness.interval.is_RIGHT_2)
-
-        markers = set()
-
-        for i in xrange(1000):
-            markers |= self.hero.prefered_quest_markers()
-
-        self.hero.habit_honor.change(-1000)
-        self.hero.habit_peacefulness.change(-1000)
-
-        self.assertTrue(self.hero.habit_honor.interval.is_LEFT_2)
-        self.assertTrue(self.hero.habit_peacefulness.interval.is_LEFT_2)
-
-        for i in xrange(1000):
-            markers |= self.hero.prefered_quest_markers()
-
-        self.assertEqual(markers, set([OPTION_MARKERS.HONORABLE,
-                                       OPTION_MARKERS.DISHONORABLE,
-                                       OPTION_MARKERS.AGGRESSIVE,
-                                       OPTION_MARKERS.UNAGGRESSIVE]))
-
 
 
 class HeroLevelUpTests(testcase.TestCase):

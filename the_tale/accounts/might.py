@@ -3,8 +3,9 @@ import time
 
 from django.db import models
 
-from the_tale.accounts.models import Award, AWARD_TYPE
+from the_tale.accounts.models import Award
 from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts import relations
 
 from the_tale.forum.models import Post, Thread, POST_STATE
 from the_tale.blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
@@ -26,15 +27,15 @@ def calculate_might(account): # pylint: disable=R0914
 
     MIGHT_FROM_REFERRAL = 0.1
 
-    MIGHT_FOR_AWARD = { AWARD_TYPE.BUG_MINOR: 111,
-                        AWARD_TYPE.BUG_NORMAL: 222,
-                        AWARD_TYPE.BUG_MAJOR: 333,
-                        AWARD_TYPE.CONTEST_1_PLACE: 1000,
-                        AWARD_TYPE.CONTEST_2_PLACE: 666,
-                        AWARD_TYPE.CONTEST_3_PLACE: 333,
-                        AWARD_TYPE.STANDARD_MINOR: 333,
-                        AWARD_TYPE.STANDARD_NORMAL: 666,
-                        AWARD_TYPE.STANDARD_MAJOR: 1000 }
+    MIGHT_FOR_AWARD = { relations.AWARD_TYPE.BUG_MINOR: 111,
+                        relations.AWARD_TYPE.BUG_NORMAL: 222,
+                        relations.AWARD_TYPE.BUG_MAJOR: 333,
+                        relations.AWARD_TYPE.CONTEST_1_PLACE: 1000,
+                        relations.AWARD_TYPE.CONTEST_2_PLACE: 666,
+                        relations.AWARD_TYPE.CONTEST_3_PLACE: 333,
+                        relations.AWARD_TYPE.STANDARD_MINOR: 333,
+                        relations.AWARD_TYPE.STANDARD_NORMAL: 666,
+                        relations.AWARD_TYPE.STANDARD_MAJOR: 1000 }
 
 
     might = 0

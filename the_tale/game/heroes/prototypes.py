@@ -41,11 +41,14 @@ from the_tale.game.heroes.places_help_statistics import PlacesHelpStatistics
 from the_tale.game.heroes import relations
 from the_tale.game.heroes import habits
 from the_tale.game.heroes import logic_accessors
+from the_tale.game.heroes import shop_accessors
 from the_tale.game.heroes import bag
 
 
 
-class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
+class HeroPrototype(BasePrototype,
+                    logic_accessors.LogicAccessorsMixin,
+                    shop_accessors.ShopAccessorsMixin):
     _model_class = Hero
     _readonly = ('id', 'account_id', 'created_at_turn', 'experience', 'money', 'next_spending', 'energy', 'level', 'saved_at_turn', 'saved_at', 'is_bot')
     _bidirectional = ('is_alive',
@@ -133,9 +136,6 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
             self.increment_level()
 
         return real_experience
-
-    def add_energy_bonus(self, energy):
-        self.energy_bonus += energy
 
     @property
     def health_percents(self): return float(self.health) / self.max_health
@@ -355,6 +355,9 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
     def energy_full(self):
         return self.energy + self.energy_bonus
 
+    def add_energy_bonus(self, energy):
+        self.energy_bonus += energy
+
     def change_energy(self, value):
         old_energy = self.energy_full
 
@@ -371,14 +374,6 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
             self._model.energy_bonus = 0
 
         return self.energy_full - old_energy
-
-    def change_habits(self, habit_type, habit_value):
-
-        if habit_type == self.habit_honor.TYPE:
-            self.habit_honor.change(habit_value)
-
-        if habit_type == self.habit_peacefulness.TYPE:
-            self.habit_peacefulness.change(habit_value)
 
 
     @property
@@ -493,20 +488,6 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
         if preferences.risk_level is None:
             preferences.set_risk_level(relations.RISK_LEVEL.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
         return preferences
-
-    def reset_preference(self, preference_type):
-        if preference_type.is_ENERGY_REGENERATION_TYPE:
-            self.preferences.set_energy_regeneration_type(self.race.energy_regeneration, change_time=datetime.datetime.fromtimestamp(0))
-        elif preference_type.is_RISK_LEVEL:
-            self.preferences.set_risk_level(relations.RISK_LEVEL.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
-        else:
-            self.preferences._reset(preference_type)
-
-    def reset_abilities(self):
-        self.abilities.reset()
-
-    def rechooce_abilities_choices(self):
-        self.abilities.rechooce_choices()
 
     @lazy_property
     def actions(self): return ActionsContainer.deserialize(self, s11n.from_json(self._model.actions))
@@ -782,6 +763,7 @@ class HeroPrototype(BasePrototype, logic_accessors.LogicAccessorsMixin):
                                    next_spending=relations.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT,
                                    health=f.hp_on_lvl(1),
                                    energy=c.ANGEL_ENERGY_MAX,
+                                   energy_bonus=heroes_settings.START_ENERGY_BONUS,
                                    pos_place = start_place._model)
 
         hero = cls(model=hero)

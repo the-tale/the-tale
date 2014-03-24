@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from rels.django import RelationIntegerField
 
-from the_tale.accounts.relations import AWARD_TYPE, CHANGE_CREDENTIALS_TASK_STATE
+from the_tale.accounts import relations
 
 
 class AccountManager(BaseUserManager):
@@ -114,7 +114,7 @@ class Award(models.Model):
 
     account = models.ForeignKey(Account,  related_name='+', null=False, on_delete=models.CASCADE)
 
-    type = RelationIntegerField(relation=AWARD_TYPE, relation_column='value', db_index=True)
+    type = RelationIntegerField(relation=relations.AWARD_TYPE, relation_column='value', db_index=True)
 
     description = models.TextField(default='', blank=True)
 
@@ -134,7 +134,7 @@ class ChangeCredentialsTask(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True, db_index=True)
 
-    state = RelationIntegerField(relation=CHANGE_CREDENTIALS_TASK_STATE, relation_column='value', db_index=True)
+    state = RelationIntegerField(relation=relations.CHANGE_CREDENTIALS_TASK_STATE, relation_column='value', db_index=True)
 
     comment = models.CharField(max_length=256, blank=True, null=True, default='')
 
@@ -151,3 +151,17 @@ class ChangeCredentialsTask(models.Model):
     uuid = models.CharField(max_length=32, db_index=True)
 
     relogin_required = models.BooleanField(blank=True, default=False)
+
+
+
+class RandomPremiumRequest(models.Model):
+
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True, db_index=True)
+
+    state = RelationIntegerField(relation=relations.RANDOM_PREMIUM_REQUEST_STATE, db_index=True)
+
+    days = models.IntegerField(null=False)
+
+    initiator = models.ForeignKey(Account, related_name='+', on_delete=models.PROTECT)
+    receiver = models.ForeignKey(Account, default=None, null=True, related_name='+', on_delete=models.PROTECT)

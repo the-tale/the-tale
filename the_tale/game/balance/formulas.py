@@ -52,6 +52,11 @@ def power_to_artifact_interval(lvl):
 def power_to_artifact_randomized(lvl):
     return random.randint(*power_to_artifact_interval(lvl))
 
+# артефакт лучше среднего для магазина
+def power_to_better_artifact_randomized(lvl):
+    base_power = power_to_artifact(lvl)
+    delta = max(int(base_power * c.ARTIFACT_POWER_DELTA), c.ARTIFACT_BETTER_MIN_POWER_DELTA)
+    return random.randint(base_power+1, base_power+1+2*delta)
 
 # Предполагаем, что мобы различаются по инициативе (скорости), здоровью и урону. Каждый из этих параметров высчитывается как процент от среднего (ожидаемого) значения.
 # Таким образом, каждый параметр может быть, например от 0.5 до 1.5. Сложность моба расчитывается по формуле, учитывающей влияние этих параметров на задержку героя

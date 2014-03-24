@@ -3,10 +3,12 @@ import sys
 import uuid
 import datetime
 import traceback
+import random
+
 from urlparse import urlparse
 
 from django.contrib.auth.hashers import make_password
-from django.db import models
+from django.db import models, transaction
 
 from dext.utils.urls import full_url
 from dext.utils import s11n
@@ -18,7 +20,7 @@ from the_tale.common.utils.password import generate_password
 from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils.decorators import lazy_property
 
-from the_tale.accounts.models import Account, ChangeCredentialsTask, Award, ResetPasswordTask
+from the_tale.accounts.models import Account, ChangeCredentialsTask, Award, ResetPasswordTask, RandomPremiumRequest
 from the_tale.accounts.conf import accounts_settings
 from the_tale.accounts import exceptions
 from the_tale.accounts import relations
@@ -466,3 +468,58 @@ class ResetPasswordTaskPrototype(BasePrototype):
 
     def save(self):
         self._model.save()
+
+
+class RandomPremiumRequestPrototype(BasePrototype):
+    _model_class = RandomPremiumRequest
+    _readonly = ('days', 'id')
+    _bidirectional = ('state', 'initiator_id', 'receiver_id')
+    _get_by = ()
+
+    MESSAGE = u'''
+Поздравляем!
+
+Один из игроков подарил вам подписку на %(days)s дней!
+'''
+
+
+    @classmethod
+    def create(cls, initiator_id, days):
+        model = cls._model_class.objects.create(initiator_id=initiator_id,
+                                                days=days,
+                                                state=relations.RANDOM_PREMIUM_REQUEST_STATE.WAITING)
+        prototype = cls(model=model)
+
+        return prototype
+
+    @classmethod
+    def get_unprocessed(cls):
+        try:
+            return cls(model=cls._db_filter(state=relations.RANDOM_PREMIUM_REQUEST_STATE.WAITING).order_by('id')[0])
+        except IndexError:
+            return None
+
+    def process(self):
+        from the_tale.accounts.personal_messages.prototypes import MessagePrototype as PersonalMessagePrototype
+        from the_tale.accounts.logic import get_system_user
+
+        accounts_ids = AccountPrototype.live_query().filter(is_fast=False,
+                                                            active_end_at__gt=datetime.datetime.now(),
+                                                            premium_end_at__lt=datetime.datetime.now()).exclude(id=self.initiator_id).values_list('id', flat=True)
+
+        if not accounts_ids:
+            return False
+
+        account = AccountPrototype.get_by_id(random.choice(accounts_ids))
+
+        with transaction.atomic():
+            account.prolong_premium(self.days)
+            account.save()
+
+            PersonalMessagePrototype.create(get_system_user(), account, self.MESSAGE % {'days': self.days})
+
+            self.receiver_id = account.id
+            self.state = relations.RANDOM_PREMIUM_REQUEST_STATE.PROCESSED
+            self.save()
+
+        return True

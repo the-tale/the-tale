@@ -41,3 +41,8 @@ class BAN_TIME(DjangoEnum):
                 ('MONTH', 4, u'месяц', 30),
                 ('HALF_YEAR', 5, u'полгода', 180),
                 ('TOTAL', 6, u'пожизненно', 365*666))
+
+
+class RANDOM_PREMIUM_REQUEST_STATE(DjangoEnum):
+    records = ( ('WAITING', 0, u'ожидает обработки'),
+                ('PROCESSED',  1, u'обработана') )
