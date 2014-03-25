@@ -75,7 +75,7 @@ pgf.game.Updater = function(params) {
                 refreshDelay = INITIAL_REFRESH_DELAY;
 
                 if (autoRefreshStopped) {
-                    this.SetRefreshInterval(refreshInterval, requireNewData);
+                    instance.SetRefreshInterval(refreshInterval, requireNewData);
                 }
 
                 instance.data = data.data;
