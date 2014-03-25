@@ -93,29 +93,7 @@ class Help(AbilityPrototype):
 
         return (ABILITY_RESULT.SUCCESSED, None, ())
 
-    def use(self, data, storage, **kwargs): # pylint: disable=R0911
-
-        hero = storage.heroes[data['hero_id']]
-
-        battle = Battle1x1Prototype.get_by_account_id(hero.account_id)
-
-        if battle and not battle.state.is_WAITING:
-            return (ABILITY_RESULT.FAILED, None, ())
-
-        action = hero.actions.current_action
-
-        choice = action.get_help_choice()
-
-        if choice is None:
-            return (ABILITY_RESULT.FAILED, None, ())
-
-        if action.AGGRESSIVE:
-            hero.update_habits(HABIT_CHANGE_SOURCE.HELP_AGGRESSIVE)
-        else:
-            hero.update_habits(HABIT_CHANGE_SOURCE.HELP_UNAGGRESSIVE)
-
-        critical = random.uniform(0, 1) < hero.might_crit_chance
-
+    def _use(self, choice, action, hero, critical):
         if choice.is_HEAL:
             return self.use_heal(action, hero, critical)
 
@@ -139,3 +117,33 @@ class Help(AbilityPrototype):
 
         elif choice.is_STOCK_UP_ENERGY:
             return self.use_stock_up_energy(action, hero, critical)
+
+    def use(self, data, storage, **kwargs): # pylint: disable=R0911
+
+        hero = storage.heroes[data['hero_id']]
+
+        battle = Battle1x1Prototype.get_by_account_id(hero.account_id)
+
+        if battle and not battle.state.is_WAITING:
+            return (ABILITY_RESULT.FAILED, None, ())
+
+        action = hero.actions.current_action
+
+        choice = action.get_help_choice()
+
+        if choice is None:
+            return (ABILITY_RESULT.FAILED, None, ())
+
+        if action.AGGRESSIVE:
+            hero.update_habits(HABIT_CHANGE_SOURCE.HELP_AGGRESSIVE)
+        else:
+            hero.update_habits(HABIT_CHANGE_SOURCE.HELP_UNAGGRESSIVE)
+
+        critical = random.uniform(0, 1) < hero.might_crit_chance
+
+        result = self._use(choice, action, hero, critical)
+
+        if result[0].is_SUCCESSED:
+            hero.statistics.change_help_count(1)
+
+        return result

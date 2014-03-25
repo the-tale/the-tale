@@ -224,7 +224,10 @@ class ActionBase(object):
         self.destination_y = y
 
     @property
-    def meta_action(self): return self.storage.meta_actions.get(self.meta_action_id) if self.meta_action_id else None
+    def meta_action(self):
+        if self.storage is None: # if meta_action accessed from views (not from logic)
+            return None
+        return self.storage.meta_actions.get(self.meta_action_id) if self.meta_action_id else None
 
     @property
     def help_choices(self):
