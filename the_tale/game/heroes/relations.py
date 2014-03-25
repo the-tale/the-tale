@@ -145,7 +145,7 @@ class HABIT_HONOR_INTERVAL(HABIT_INTERVAL):
     records = ( ('LEFT_3', 0, u'бесчестный', u'бесчестная', u'бесчестное', -c.HABITS_BORDER, c.HABITS_RIGHT_BORDERS[0]),
                 ('LEFT_2', 1, u'подлый', u'подлая', u'подлое', c.HABITS_RIGHT_BORDERS[0], c.HABITS_RIGHT_BORDERS[1]),
                 ('LEFT_1', 2, u'порочный', u'порочная', u'порочное', c.HABITS_RIGHT_BORDERS[1], c.HABITS_RIGHT_BORDERS[2]),
-                ('NEUTRAL', 3, u'у себя на уме', u'у себя на уме', u'у себя на уме', c.HABITS_RIGHT_BORDERS[2], c.HABITS_RIGHT_BORDERS[3]),
+                ('NEUTRAL', 3, u'себе на уме', u'себе на уме', u'себе на уме', c.HABITS_RIGHT_BORDERS[2], c.HABITS_RIGHT_BORDERS[3]),
                 ('RIGHT_1', 4, u'порядочный', u'порядочная', u'порядочное', c.HABITS_RIGHT_BORDERS[3], c.HABITS_RIGHT_BORDERS[4]),
                 ('RIGHT_2', 5, u'благородный', u'благородная', u'благородное', c.HABITS_RIGHT_BORDERS[4], c.HABITS_RIGHT_BORDERS[5]),
                 ('RIGHT_3', 6, u'хозяин своего слова', u'хозяйка своего слова', u'хозяин своего слова', c.HABITS_RIGHT_BORDERS[5], c.HABITS_BORDER) )

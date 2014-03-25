@@ -84,10 +84,10 @@ class Help(AbilityPrototype):
 
         if critical:
             energy = c.ANGEL_FREE_ENERGY_CHARGE_CRIT
-            hero.add_message('angel_ability_stock_up_energy_crit', hero=hero)
+            hero.add_message('angel_ability_stock_up_energy_crit', hero=hero, energy=energy)
         else:
             energy = c.ANGEL_FREE_ENERGY_CHARGE
-            hero.add_message('angel_ability_stock_up_energy', hero=hero)
+            hero.add_message('angel_ability_stock_up_energy', hero=hero, energy=energy)
 
         hero.add_energy_bonus(energy)
 
