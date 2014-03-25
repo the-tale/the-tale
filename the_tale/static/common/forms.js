@@ -246,7 +246,7 @@ jQuery('.pgf-forms-post-simple').live('click', function(e) {
     var Operation = function() {
         pgf.forms.Post({ action: url,
                          OnSuccess: function(data){
-                             if (data.data.message) {
+                             if (data && data.data && data.data.message) {
                                  successMessage = data.data.message;
                              }
 
