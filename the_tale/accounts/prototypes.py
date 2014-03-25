@@ -504,6 +504,7 @@ class RandomPremiumRequestPrototype(BasePrototype):
         from the_tale.accounts.logic import get_system_user
 
         accounts_ids = AccountPrototype.live_query().filter(is_fast=False,
+                                                            created_at__lt=datetime.datetime.now() - accounts_settings.RANDOM_PREMIUM_CREATED_AT_BARRIER,
                                                             active_end_at__gt=datetime.datetime.now(),
                                                             premium_end_at__lt=datetime.datetime.now()).exclude(id=self.initiator_id).values_list('id', flat=True)
 

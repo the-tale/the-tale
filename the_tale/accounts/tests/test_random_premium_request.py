@@ -11,6 +11,7 @@ from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 from the_tale.accounts.logic import register_user, get_system_user
 from the_tale.accounts.prototypes import AccountPrototype, RandomPremiumRequestPrototype
 from the_tale.accounts import relations
+from the_tale.accounts.conf import accounts_settings
 
 
 
@@ -25,6 +26,8 @@ class RandomPremiumRequestPrototypeTests(testcase.TestCase):
 
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
         self.account_2 = AccountPrototype.get_by_id(account_id)
+
+        AccountPrototype._db_all().update(created_at=datetime.datetime.now() - accounts_settings.RANDOM_PREMIUM_CREATED_AT_BARRIER)
 
         self.request = RandomPremiumRequestPrototype.create(self.account_1.id, days=30)
 
@@ -90,3 +93,11 @@ class RandomPremiumRequestPrototypeTests(testcase.TestCase):
         self.request.reload()
         self.assertTrue(self.request.state.is_PROCESSED)
         self.assertEqual(self.request.receiver_id, self.account_2.id)
+
+
+    def test_process__has_only_new_active_accounts(self):
+        AccountPrototype._db_all().update(active_end_at=datetime.datetime.now() + datetime.timedelta(days=1),
+                                          created_at=datetime.datetime.now())
+
+        self.request.process()
+        self.check_not_processed()

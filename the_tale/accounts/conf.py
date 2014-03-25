@@ -34,6 +34,8 @@ accounts_settings = app_settings('ACCOUNTS',
 
                                  PREMIUM_EXPIRED_NOTIFICATION_IN=datetime.timedelta(days=3),
 
+                                 RANDOM_PREMIUM_CREATED_AT_BARRIER=datetime.timedelta(days=7),
+
                                  SETTINGS_PREV_PREIMIUM_EXPIRED_NOTIFICATION_RUN_TIME_KEY = 'pref premium expired notification',
                                  PREMIUM_EXPIRED_NOTIFICATION_RUN_TIME=3, # UTC time
 

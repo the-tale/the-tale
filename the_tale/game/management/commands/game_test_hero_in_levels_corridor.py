@@ -24,7 +24,7 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list
 
-    @mock.patch('game.balance.constants.EXP_PER_QUEST_FRACTION', 0.0)
+    @mock.patch('the_tale.game.balance.constants.EXP_PER_QUEST_FRACTION', 0.0)
     def handle(self, *args, **options):
         try:
             self.test_corridor()
