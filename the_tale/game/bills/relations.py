@@ -43,7 +43,7 @@ class VOTED_TYPE(DjangoEnum):
 
 def days_from_game_months(months):
     delta = datetime.timedelta(seconds=months * c.TURNS_IN_GAME_MONTH * c.TURN_DELTA)
-    return delta.days + delta.total_seconds() / (60*60*24.0)
+    return delta.total_seconds() / (60*60*24.0)
 
 class BILL_DURATION(DjangoEnum):
     game_months = rels.Column()

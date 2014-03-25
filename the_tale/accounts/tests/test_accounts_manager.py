@@ -9,6 +9,7 @@ from the_tale.common.utils import testcase
 from the_tale.accounts.logic import register_user
 from the_tale.accounts.workers.environment import workers_environment
 from the_tale.accounts.prototypes import AccountPrototype, RandomPremiumRequestPrototype
+from the_tale.accounts.conf import accounts_settings
 
 from the_tale.game.logic import create_test_map
 
@@ -66,7 +67,8 @@ class AccountsManagerTest(testcase.TestCase):
 
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
         account_2 = AccountPrototype.get_by_id(account_id)
-        AccountPrototype._db_all().update(active_end_at=datetime.datetime.now() + datetime.timedelta(days=1))
+        AccountPrototype._db_all().update(active_end_at=datetime.datetime.now() + datetime.timedelta(days=1),
+                                          created_at=datetime.datetime.now() - accounts_settings.RANDOM_PREMIUM_CREATED_AT_BARRIER)
 
         request = RandomPremiumRequestPrototype.create(self.account.id, days=30)
 
