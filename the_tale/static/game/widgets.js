@@ -62,7 +62,7 @@ pgf.game.Updater = function(params) {
             url: params.url,
             success: function(data, request, status) {
 
-                if (data.data.account && data.data.account.is_old && requireNewData) {
+                if (data && data.data && data.data.account && data.data.account.is_old && requireNewData) {
 
                     setTimeout(function(e){
                         refreshDelay *= 1.618; //the golden ratio

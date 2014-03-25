@@ -331,11 +331,11 @@ class HeroPrototype(BasePrototype,
 
     @lazy_property
     def name_forms(self):
-        if self._model.name_forms:
-            return Noun.deserialize(s11n.from_json(self._model.name_forms))
-        else:
+        if not self._model.name_forms:
             # TODO: remove after v0.3.10
-            return names.generator.get_name(self.race, self.gender)
+            self._model.name_forms = s11n.to_json(names.generator.get_name(self.race, self.gender).serialize())
+
+        return Noun.deserialize(s11n.from_json(self._model.name_forms))
 
     @lazy_property
     def normalized_name(self): return self.name_forms

@@ -80,7 +80,7 @@ def get_api_types():
             TypeReference('person_profession', u'Профессия жителя', PERSON_TYPE),
             TypeReference('ability_type', u'Тип способности игрока', ANGEL_ABILITY_TYPE,
                          fields=((u'значение', 'value'), (u'описание', 'text'), (u'атрибуты запроса', 'request_attributes'))),
-            TypeReference('action_type', u'Тип действия героя', ACTION_TYPE, filter=lambda record: not record.technical),]
+            TypeReference('action_type', u'Тип действия героя', ACTION_TYPE),]
 
 API_METHODS = get_api_methods()
 API_TYPES = get_api_types()

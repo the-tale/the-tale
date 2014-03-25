@@ -224,7 +224,7 @@ class ActionBase(object):
         self.destination_y = y
 
     @property
-    def meta_action(self): return self.storage.meta_actions[self.meta_action_id] if self.meta_action_id else None
+    def meta_action(self): return self.storage.meta_actions.get(self.meta_action_id) if self.meta_action_id else None
 
     @property
     def help_choices(self):
@@ -1627,7 +1627,10 @@ class ActionMetaProxyPrototype(ActionBase):
         return self.meta_action.description_text_name
 
     @property
-    def ui_type(self): return self.meta_action.TYPE.value
+    def ui_type(self):
+        if self.meta_action is None:
+            return self.TYPE.value
+        return self.meta_action.TYPE.value
 
     ###########################################
     # Object operations

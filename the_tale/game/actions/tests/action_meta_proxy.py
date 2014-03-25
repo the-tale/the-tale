@@ -12,6 +12,7 @@ from the_tale.game.prototypes import TimePrototype
 from the_tale.game.bundles import BundlePrototype
 from the_tale.game.actions.prototypes import ActionMetaProxyPrototype
 from the_tale.game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
+from the_tale.game.actions import relations
 
 from the_tale.game.pvp.models import BATTLE_1X1_STATE
 from the_tale.game.pvp.tests.helpers import PvPTestsMixin
@@ -112,3 +113,22 @@ class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
 
         self.assertTrue(self.action_idl_1.leader)
         self.assertTrue(self.action_idl_2.leader)
+
+
+    def test_get_meta_action__no_meta_action_id(self):
+        self.action_proxy_1.meta_action_id = None
+        self.assertEqual(self.action_proxy_1.meta_action, None)
+
+    def test_get_meta_action__no_meta_action(self):
+        self.storage.meta_actions = {}
+        self.assertEqual(self.action_proxy_1.meta_action, None)
+
+    def test_get_meta_action(self):
+        self.assertEqual(self.action_proxy_1.meta_action.id, self.meta_action_battle.id)
+
+    def test_get_ui_type__with_metaaction(self):
+        self.assertEqual(self.action_proxy_1.ui_type, relations.ACTION_TYPE.ARENA_PVP_1X1.value)
+
+    def test_get_ui_type__without_metaaction(self):
+        self.storage.meta_actions = {}
+        self.assertEqual(self.action_proxy_1.ui_type, relations.ACTION_TYPE.META_PROXY.value)
