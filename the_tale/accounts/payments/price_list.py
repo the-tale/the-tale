@@ -76,6 +76,10 @@ RANDOM_PREMIUM_CHEST_DESCRIPTION = u'''
 %(gifts)s
 </ul>
 <p>
+Подарки указаны от самого вероятного к самому редкому.
+</p>
+
+<p>
 Чем больше подписчиков, тем увлекательнее жизнь Пандоры!
 </p>
 ''' % {'gifts': '\n'.join(u'<li>%s</li>' % reward.description
