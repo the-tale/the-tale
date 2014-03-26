@@ -79,11 +79,13 @@ class LogicWorkerTests(testcase.TestCase):
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.process_turn') as action_process_turn:
             with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_account_release_required') as release_required_counter:
                 with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.save') as save_counter:
-                    self.worker.process_next_turn(TimePrototype.get_current_turn_number())
+                    with mock.patch('the_tale.game.conf.game_settings.SAVED_UNCACHED_HEROES_FRACTION', 0):
+                        self.worker.process_next_turn(TimePrototype.get_current_turn_number())
 
         self.assertEqual(action_process_turn.call_count, 0)
-        self.assertEqual(save_counter.call_count, 1)
-        self.assertEqual(release_required_counter.call_count, 1)
+        # save on every iteration & save on release
+        self.assertEqual(save_counter.call_count, 1+1)
+        self.assertEqual(release_required_counter.call_count, 0) # just release account, do not send release_require cmd
 
     def test_process_update_hero_with_account_data(self):
         self.worker.process_register_account(self.account.id)

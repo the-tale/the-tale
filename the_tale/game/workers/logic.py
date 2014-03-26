@@ -80,17 +80,33 @@ class Worker(BaseWorker):
         self.storage.process_turn(logger=self.logger)
         self.storage.save_changed_data(logger=self.logger)
 
-        for hero_id in self.storage.skipped_heroes:
-            game_environment.supervisor.cmd_account_release_required(self.storage.heroes[hero_id].account_id)
-
-
         if project_settings.DEBUG_DATABASE_USAGE:
             log_sql_queries(turn_number)
 
         game_environment.supervisor.cmd_answer('next_turn', self.worker_id)
 
+        for hero_id in list(self.storage.skipped_heroes):
+            self.release_account(self.storage.heroes[hero_id].account_id)
+
         if game_settings.COLLECT_GARBAGE:
             gc.collect()
+
+    def release_account(self, account_id):
+        from the_tale.accounts.prototypes import AccountPrototype
+
+        if account_id not in self.storage.accounts_to_heroes:
+            game_environment.supervisor.cmd_account_released(account_id)
+            return
+
+        hero = self.storage.accounts_to_heroes[account_id]
+        bundle_id = hero.actions.current_action.bundle_id
+
+        with self.storage.save_on_exception(self.logger,
+                                            message='LogicWorker.process_release_account catch exception, while processing hero %d, try to save all bundles except %d',
+                                            data=(hero.id, bundle_id),
+                                            excluded_bundle_id=bundle_id):
+            self.storage.release_account_data(AccountPrototype.get_by_id(account_id))
+            game_environment.supervisor.cmd_account_released(account_id)
 
     def cmd_stop(self):
         return self.send_cmd('stop')
@@ -117,9 +133,7 @@ class Worker(BaseWorker):
         return self.send_cmd('release_account', {'account_id': account_id})
 
     def process_release_account(self, account_id):
-        from the_tale.accounts.prototypes import AccountPrototype
-        self.storage.release_account_data(AccountPrototype.get_by_id(account_id))
-        game_environment.supervisor.cmd_account_released(account_id)
+        self.release_account(account_id)
 
     def cmd_logic_task(self, account_id, task_id):
         return self.send_cmd('logic_task', {'task_id': task_id,
