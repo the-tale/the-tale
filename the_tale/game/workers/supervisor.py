@@ -160,8 +160,9 @@ class Worker(BaseWorker):
 
     def send_release_account_cmd(self, account_id):
         from the_tale.game.workers.environment import workers_environment as game_environment
-        self.accounts_owners[account_id] = None
-        game_environment.logic.cmd_release_account(account_id)
+        if self.accounts_owners[account_id] is not None:
+            self.accounts_owners[account_id] = None
+            game_environment.logic.cmd_release_account(account_id)
 
     def dispatch_logic_cmd(self, account_id, cmd_name, kwargs):
         from the_tale.game.workers.environment import workers_environment as game_environment

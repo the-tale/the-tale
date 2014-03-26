@@ -83,10 +83,10 @@ class Worker(BaseWorker):
         if project_settings.DEBUG_DATABASE_USAGE:
             log_sql_queries(turn_number)
 
-        game_environment.supervisor.cmd_answer('next_turn', self.worker_id)
-
         for hero_id in list(self.storage.skipped_heroes):
-            self.release_account(self.storage.heroes[hero_id].account_id)
+            game_environment.supervisor.cmd_account_release_required(self.storage.heroes[hero_id].account_id)
+
+        game_environment.supervisor.cmd_answer('next_turn', self.worker_id)
 
         if game_settings.COLLECT_GARBAGE:
             gc.collect()
