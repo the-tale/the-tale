@@ -68,16 +68,24 @@ class Worker(BaseWorker):
 
             task.remove()
 
-    def spread_achievement(self, achievement):
+    def get_achievements_source_iterator(self, achievement):
+        from the_tale.accounts.prototypes import AccountPrototype
         from the_tale.game.heroes.prototypes import HeroPrototype
 
+        if achievement.type.source.is_ACCOUNT:
+            return (AccountPrototype(model=account_model) for account_model in AccountPrototype._db_all())
+
+        if achievement.type.source.is_GAME_OBJECT:
+            return (HeroPrototype(model=hero_model) for hero_model in HeroPrototype._db_all())
+
+    def spread_achievement(self, achievement):
         self.logger.info('spread achievement %d' % achievement.id)
 
-        for hero in HeroPrototype.from_query(HeroPrototype._db_all()):
-            if not achievement.check(old_value=0, new_value=hero.get_achievement_type_value(achievement.type)):
-                self.remove_achievement(achievement, hero.account_id)
+        for source in self.get_achievements_source_iterator(achievement):
+            if not achievement.check(old_value=0, new_value=source.get_achievement_type_value(achievement.type)):
+                self.remove_achievement(achievement, source.account_id)
                 continue
-            self.add_achievement(achievement, hero.account_id, notify=False)
+            self.add_achievement(achievement, source.account_id, notify=False)
 
 
     def cmd_stop(self):

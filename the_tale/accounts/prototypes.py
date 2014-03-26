@@ -48,6 +48,9 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
     _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription')
     _get_by = ('id', 'email', 'nick')
 
+    @property
+    def account_id(self): return self.id
+
     @classmethod
     def live_query(cls): return cls._model_class.objects.filter(is_fast=False, is_bot=False).select_related('clan')
 
