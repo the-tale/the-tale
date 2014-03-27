@@ -239,3 +239,31 @@ class SupervisorWorkerTests(testcase.TestCase):
                 self.assertRaises(amqp_exceptions.WaitAnswerTimeoutError, self.worker.process_next_turn)
 
         self.assertEqual(logic_cmd_stop.call_count, 1)
+
+    def test_send_release_account_cmd(self):
+        self.worker.process_initialize()
+
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'logic', self.account_2.id: 'logic'})
+
+        with mock.patch('the_tale.game.workers.logic.Worker.cmd_release_account') as cmd_release_account:
+            self.worker.send_release_account_cmd(self.account_2.id)
+
+        self.assertEqual(cmd_release_account.call_args_list, [mock.call(self.account_2.id)])
+
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'logic', self.account_2.id: None})
+
+
+    def test_send_release_account_cmd__second_try(self):
+        self.worker.process_initialize()
+
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'logic', self.account_2.id: 'logic'})
+
+        with mock.patch('the_tale.game.workers.logic.Worker.cmd_release_account') as cmd_release_account:
+            self.worker.send_release_account_cmd(self.account_2.id)
+            self.worker.send_release_account_cmd(self.account_2.id)
+            self.worker.send_release_account_cmd(self.account_1.id)
+            self.worker.send_release_account_cmd(self.account_2.id)
+
+        self.assertEqual(cmd_release_account.call_args_list, [mock.call(self.account_2.id), mock.call(self.account_1.id)])
+
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: None, self.account_2.id: None})

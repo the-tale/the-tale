@@ -329,7 +329,6 @@ class AchievementsBarriers(testcase.TestCase):
         return int(c.ARTIFACTS_PER_LVL * (f.lvl_after_time(months*30*24)-1) * MAGIC)
 
     def check_artifacts(self, months, artifacts):
-        # print months, self.artifacts_after_months(months) , self.artifacts_after_months(months+0.25)
         self.assertTrue(self.artifacts_after_months(months) <= artifacts <= self.artifacts_after_months(months+0.25))
 
     def test_artifacts(self):
@@ -339,3 +338,6 @@ class AchievementsBarriers(testcase.TestCase):
         self.check_artifacts(6.2, 250)
         self.check_artifacts(24.6, 500)
         self.check_artifacts(55, 750)
+
+    def test_habits(self):
+        self.assertEqual(c.HABITS_RIGHT_BORDERS, [-700, -300, -100, 100, 300, 700, 1001])

@@ -83,9 +83,8 @@ class LogicWorkerTests(testcase.TestCase):
                         self.worker.process_next_turn(TimePrototype.get_current_turn_number())
 
         self.assertEqual(action_process_turn.call_count, 0)
-        # save on every iteration & save on release
-        self.assertEqual(save_counter.call_count, 1+1)
-        self.assertEqual(release_required_counter.call_count, 0) # just release account, do not send release_require cmd
+        self.assertEqual(save_counter.call_count, 1)
+        self.assertEqual(release_required_counter.call_count, 1)
 
     def test_process_update_hero_with_account_data(self):
         self.worker.process_register_account(self.account.id)
@@ -109,3 +108,22 @@ class LogicWorkerTests(testcase.TestCase):
         with mock.patch('the_tale.game.logic_storage.LogicStorage.save_all') as save_all:
             self.worker.process_stop()
         self.assertEqual(save_all.call_count, 1)
+
+
+    def test_release_account(self):
+        self.worker.process_register_account(self.account.id)
+
+        with mock.patch('the_tale.game.logic_storage.LogicStorage.release_account_data') as release_account_data:
+            self.worker.release_account(self.account.id)
+
+        self.assertEqual(release_account_data.call_count, 1)
+        self.assertEqual(release_account_data.call_args_list[0][0][0].id, self.account.id)
+
+
+    def test_release_account__account_not_in_logic(self):
+        self.worker.process_register_account(self.account.id)
+
+        with mock.patch('the_tale.game.logic_storage.LogicStorage.release_account_data') as release_account_data:
+            self.worker.release_account(666)
+
+        self.assertEqual(release_account_data.call_count, 0)
