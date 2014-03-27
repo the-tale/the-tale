@@ -633,7 +633,7 @@ pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
 
     this.Refresh = function(game_data) {
 
-        if (game_data.account.hero) {
+        if (game_data && game_data.account && game_data.account.hero) {
             data.own_hero = game_data.account.hero;
             data.enemy_hero = game_data.enemy.hero;
             RefreshAbilitiesStates();

@@ -26,11 +26,11 @@ class HabilitiesNonBattleTest(testcase.TestCase):
         pass
 
     def test_charisma(self):
-        self.assertTrue(100 < nonbattle.CHARISMA().modify_attribute(MODIFIERS.QUEST_MONEY_REWARD, 100))
+        self.assertTrue(1.0 < nonbattle.CHARISMA().modify_attribute(MODIFIERS.QUEST_MONEY_REWARD, 1.0))
 
     def test_huckster(self):
-        self.assertTrue(100 > nonbattle.HUCKSTER().modify_attribute(MODIFIERS.BUY_PRICE, 100))
-        self.assertTrue(100 < nonbattle.HUCKSTER().modify_attribute(MODIFIERS.SELL_PRICE, 100))
+        self.assertTrue(1.0 > nonbattle.HUCKSTER().modify_attribute(MODIFIERS.BUY_PRICE, 1.0))
+        self.assertTrue(1.0 < nonbattle.HUCKSTER().modify_attribute(MODIFIERS.SELL_PRICE, 1.0))
 
     def test_dandy(self):
         priorities = {record:record.priority for record in ITEMS_OF_EXPENDITURE.records}

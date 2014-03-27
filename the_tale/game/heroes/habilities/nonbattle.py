@@ -21,7 +21,7 @@ class CHARISMA(AbilityPrototype):
     @property
     def money_multiplier(self): return self.MONEY_MULTIPLIER[self.level-1]
 
-    def modify_attribute(self, type_, value): return int(value * self.money_multiplier) if type_.is_QUEST_MONEY_REWARD else value
+    def modify_attribute(self, type_, value): return value * self.money_multiplier if type_.is_QUEST_MONEY_REWARD else value
 
 
 class HUCKSTER(AbilityPrototype):
@@ -45,11 +45,11 @@ class HUCKSTER(AbilityPrototype):
 
     def modify_attribute(self, type_, value):
         if type_.is_BUY_PRICE:
-            return int(value * self.buy_multiplier)
+            return value * self.buy_multiplier
 
         if type_.is_SELL_PRICE:
             # +1 for increase price on low levels
-            return int(value * self.sell_multiplier + 1)
+            return value * self.sell_multiplier + 1
 
         return value
 
