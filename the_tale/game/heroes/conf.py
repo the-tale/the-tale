@@ -15,7 +15,7 @@ heroes_settings = app_settings('HEROES',
                                UI_CACHING_KEY='hero_ui_%d',
                                UI_CACHING_TIME=10*60, # not cache livetime, but time period after setupped ui_caching_started_at in which ui_caching is turned on
                                UI_CACHING_CONTINUE_TIME=60, # time before caching end, when we send next cache command
-                               UI_CACHING_TIMEOUT=15*60, # cache livetime
+                               UI_CACHING_TIMEOUT=60, # cache livetime
 
                                DUMP_CACHED_HEROES=False, # should we dump cached heroes to database
 
