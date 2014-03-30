@@ -122,6 +122,8 @@ class AccountAchievementsPrototype(BasePrototype):
         from the_tale.accounts.personal_messages.prototypes import MessagePrototype
         from the_tale.accounts.logic import get_system_user
 
+        already_had_achievement = self.achievements.has_achievement(achievement)
+
         self.achievements.add_achievement(achievement)
         self._model.points = self.achievements.get_points()
 
@@ -131,7 +133,7 @@ class AccountAchievementsPrototype(BasePrototype):
         for item in rewards:
             GiveItemTaskPrototype.create(self.account_id, item.id)
 
-        if not notify:
+        if not notify or already_had_achievement:
             return
 
         rewards_message = u''

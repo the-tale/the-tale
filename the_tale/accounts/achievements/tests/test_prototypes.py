@@ -96,6 +96,16 @@ class AccountAchievementsPrototypeTests(testcase.TestCase):
         self.assertTrue((url('accounts:achievements:group', self.achievement_1.group.slug) + ('#a%d' % self.achievement_1.id)) in
                         message.text)
 
+    def test_add_achievement__does_not_notify_when_already_has_achievement(self):
+        with self.check_delta(GiveItemTaskPrototype._db_count, 2):
+            with self.check_not_changed(MessagePrototype._db_count):
+                self.account_achievements_1.add_achievement(self.achievement_1, notify=False)
+
+        with self.check_delta(GiveItemTaskPrototype._db_count, 2):
+            with self.check_not_changed(MessagePrototype._db_count):
+                self.account_achievements_1.add_achievement(self.achievement_1, notify=True)
+
+
     def test_add_achievement__notify_false(self):
         with self.check_delta(GiveItemTaskPrototype._db_count, 2):
             with self.check_not_changed(MessagePrototype._db_count):
