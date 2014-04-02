@@ -2,6 +2,7 @@
 import math
 import random
 import subprocess
+import datetime
 
 def random_value_by_priority(values):
 
@@ -122,3 +123,8 @@ def get_or_create(get_method, create_method, exception, kwargs):
 
 def run_django_command(command):
     return subprocess.call(['django-admin.py']+command+['--settings', 'the_tale.settings'])
+
+
+def days_range(date_from, date_to):
+    for days in xrange((date_to-date_from).days):
+        yield (date_from + datetime.timedelta(days=days)).date()

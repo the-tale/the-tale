@@ -195,6 +195,8 @@ INSTALLED_APPS = (
     'the_tale.bank',
     'the_tale.bank.xsolla',
 
+    'the_tale.statistics',
+
     'south'
 )
 

@@ -1,0 +1,116 @@
+{% extends "statistics/base.html" %}
+{% import 'statistics/macros.html' as statistics_macros with context %}
+
+
+{% block head %}
+{{ super() }}
+
+  <script src="{{ STATIC_CONTENT }}plugins/dygraph/dygraph-combined.js" type="text/javascript"></script>
+
+  <script type="text/javascript">
+
+
+function PreprocessData(data) {
+    var realData = {}
+
+    for (var i in data) {
+        var dataLine = [];
+        var rawLine = data[i];
+        for (var j in rawLine) {
+            dataLine.push([new Date(rawLine[j][0]), rawLine[j][1]]);
+        }
+        realData[i] = dataLine;
+    }
+
+    return realData;
+}
+
+function PercentsFrom(data, dataFrom, percents) {
+    var line = [];
+
+    for (var i in data) {
+        var value = 0
+        if (dataFrom[i][1] > 0.0001) {
+             value = data[i][1] / dataFrom[i][1];
+        }
+        if (percents) {
+            value *= 100;
+        }
+        line.push([data[i][0], value]);
+    }
+
+    return line;
+}
+
+function MergeData() {
+
+    var data = [];
+
+    var longestLine = undefined;
+
+    for (var i in arguments) {
+        if (!longestLine || longestLine.length < arguments[i].length) {
+            longestLine = arguments[i];
+        }
+    }
+
+    for (var j in longestLine) {
+        data.push([longestLine[j][0]]);
+    }
+
+    for (var i in arguments) {
+        var dataLine = arguments[i];
+        for (var j in data) {
+            if (j < dataLine.length) {
+                data[j].push(dataLine[j][1]);
+            }
+            else {
+                data[j].push(NaN);
+            }
+        }
+    }
+
+    return data;
+}
+
+function InitializePlots(data) {
+
+    var data = PreprocessData(data);
+
+    var PLOTS = [];
+    var REDRAW = false;
+
+    {% for plots_group in PLOTS_GROUPS %}
+    {{ statistics_macros.dygraph_js(plots_group)}}
+    {% endfor %}
+}
+
+jQuery(document).ready(function(){
+    jQuery.ajax({dataType: 'json',
+                             type: 'get',
+                             url: "{{url('statistics:data') }}",
+                             success: function(data) {
+                                 InitializePlots(data.data);
+                             }});
+});
+
+</script>
+{% endblock %}
+
+{% block statistics_content %}
+
+<h2 style="margin-bottom: 0.5em;">Статистика</h2>
+
+<ul>
+  <li>На этой странице представлена разнообразная игровая статистика.</li>
+  <li>Увеличивать масштаб можно выделяя мышкой (как горизонтально, так и вертикально).</li>
+  <li>Двойной клик по графику отображает максимальный интервал.</li>
+  <li>Если в левом нижнем углу графика есть поле ввода, то в нём указано количество дней, за которые усредняются значения.</li>
+  <li>100 печенек ~ 1$.</li>
+</ul>
+
+{% for plots_group in PLOTS_GROUPS %}
+<div id="pgf-stats-{{plots_group.uid}}" style="width: 100%;"></div><br/>
+{% endfor %}
+
+{% endblock %}

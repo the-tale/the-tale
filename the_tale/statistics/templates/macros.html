@@ -1,0 +1,66 @@
+
+{% macro dygraph_js(plots_group) %}
+
+    PLOTS.push(new Dygraph(
+        document.getElementById("pgf-stats-{{plots_group.uid}}"),
+        MergeData({% for plot in plots_group.plots %}data[{{plot.type.value}}]{% if not loop.last %},{% endif %}{% endfor %}),
+        {
+            {% if plots_group.roll_period %}
+            rollPeriod: {{plots_group.roll_period}},
+            showRoller: true,
+            {% endif %}
+            dateWindow: [{{now()|timestamp - 30*24*60*60}}*1000, {{now()|timestamp}}*1000], // last month
+
+            title: "{{plots_group.title}}",
+            xlabel: "{{plots_group.x_label}}",
+            ylabel: "{{plots_group.y_label}}",
+            y2label: "{{plots_group.y2_label}}",
+            fillGraph: {% if plots_group.fill_graph %}true{% else %}false{% endif %},
+
+            series: {
+                {% for plot in plots_group.plots %}
+                "{{plot.type.text}}": {axis: "{{plot.y_axis}}"}{% if not loop.last %},{% endif %}
+                {% endfor %}
+            },
+
+            animatedZooms: true,
+            labels: ["дата" {% for plot in plots_group.plots %}, "{{plot.type.text}}"{% endfor %}],
+            labelsDivWidth: 300,
+            labelsSeparateLines: true,
+            legend: "always",
+            labelsKMB: true,
+            yAxisLabelWidth: 80,
+            axes: {
+                x: {
+                },
+                y: {
+                    {% if plots_group.y_value_range %}
+                    valueRange: {{plots_group.y_value_range}}
+                    {% endif %}
+                },
+                y2: {
+                    {% if plots_group.y2_value_range %}
+                    valueRange: {{plots_group.y2_value_range}}
+                    {% endif %}
+                }
+            },
+            drawCallback: function(me, initial) {
+                if (REDRAW || initial) return;
+
+                REDRAW = true;
+
+                var range = me.xAxisRange();
+
+                for (var i in PLOTS) {
+                  if (PLOTS[i] == me) continue;
+
+                    PLOTS[i].updateOptions( {
+                        dateWindow: range,
+                    } );
+                }
+                REDRAW = false;
+            }
+        }
+    ));
+
+{% endmacro %}

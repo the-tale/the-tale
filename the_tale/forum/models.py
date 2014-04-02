@@ -97,7 +97,7 @@ class Post(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True, null=True, default=None)
 
-    author = models.ForeignKey('accounts.Account', null=True, related_name='+', on_delete=models.SET_NULL)
+    author = models.ForeignKey('accounts.Account', null=True, related_name='forum_posts', on_delete=models.SET_NULL)
 
     text = models.TextField(null=False, blank=True, default='')
 

@@ -30,6 +30,7 @@ urlpatterns = patterns('',
                        (r'^news/', include('the_tale.cms.news.urls', namespace='news') ),
                        (r'^postponed-tasks/', include('the_tale.common.postponed_tasks.urls', namespace='postponed-tasks') ),
                        (r'^bank/', include('the_tale.bank.urls', namespace='bank') ),
+                       (r'^statistics/', include('the_tale.statistics.urls', namespace='statistics') ),
                        (r'^', include('the_tale.portal.urls', namespace='portal') ),
 )
 

@@ -219,8 +219,8 @@ class BasePrototype(object):
         return cls._model_class.objects.all().count()
 
     @classmethod
-    def _db_filter(cls, **kwargs):
-        return cls._model_class.objects.filter(**kwargs)
+    def _db_filter(cls, *argv, **kwargs):
+        return cls._model_class.objects.filter(*argv, **kwargs)
 
     @classmethod
     def _db_exclude(cls, **kwargs):
