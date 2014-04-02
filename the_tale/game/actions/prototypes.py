@@ -1340,6 +1340,9 @@ class ActionTradingPrototype(ActionBase):
 
     def process(self):
 
+        if self.replane_required:
+            self.state = self.STATE.PROCESSED
+
         if self.state == self.STATE.TRADING:
 
             if not self.hero.bag.is_empty:

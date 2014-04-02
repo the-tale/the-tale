@@ -45,4 +45,6 @@ class ShopAccessorsMixin(object):
                                                                               power=f.power_to_better_artifact_randomized(self.level))
         self.bag.put_artifact(artifact)
 
+        self.actions.request_replane()
+
         return artifact

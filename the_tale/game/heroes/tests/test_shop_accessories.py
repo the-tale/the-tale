@@ -120,5 +120,10 @@ class ShopAccessoriesTest(testcase.TestCase):
         self.assertEqual(self.hero.level, 100)
         middle_power = f.power_to_artifact(self.hero.level)
 
-        for i in xrange(100):
-            self.assertTrue(self.hero.purchase_artifact().power > middle_power)
+        N = 100
+
+        with mock.patch('the_tale.game.actions.container.ActionsContainer.request_replane') as request_replane:
+            for i in xrange(N):
+                self.assertTrue(self.hero.purchase_artifact().power > middle_power)
+
+        self.assertEqual(request_replane.call_count, N)

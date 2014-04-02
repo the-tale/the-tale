@@ -71,6 +71,8 @@ class TradingActionTest(testcase.TestCase):
         artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
         self.hero.bag.put_artifact(artifact)
 
+        self.assertEqual(self.hero.bag.occupation, 2)
+
         self.action_trade.percents_barier = 2
 
         current_time = TimePrototype.get_current_time()
@@ -78,6 +80,7 @@ class TradingActionTest(testcase.TestCase):
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 2)
         self.assertEqual(self.hero.actions.current_action, self.action_trade)
+        self.assertEqual(self.hero.bag.occupation, 1)
 
         self.assertTrue(self.hero.money > old_money)
 
@@ -89,5 +92,42 @@ class TradingActionTest(testcase.TestCase):
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
+        self.assertEqual(self.hero.bag.occupation, 0)
+
         self.assertTrue(self.hero.money > old_money)
         self.storage._test_save()
+
+    def test_stop_when_quest_required_replane(self):
+
+        self.action_idl.percents = 0.0
+
+        self.assertFalse(self.action_trade.replane_required)
+
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
+        self.hero.bag.put_artifact(artifact)
+
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
+        self.hero.bag.put_artifact(artifact)
+
+        self.action_trade.percents_barier = 2
+
+        self.assertEqual(self.hero.bag.occupation, 2)
+
+        current_time = TimePrototype.get_current_time()
+
+        self.storage.process_turn()
+
+        self.assertEqual(self.hero.bag.occupation, 1)
+        self.assertEqual(len(self.hero.actions.actions_list), 2)
+        self.assertEqual(self.hero.actions.current_action, self.action_trade)
+
+        self.action_trade.replane_required = True
+
+        current_time.increment_turn()
+
+        self.storage.process_turn()
+        self.assertEqual(self.hero.bag.occupation, 1)
+        self.assertEqual(len(self.hero.actions.actions_list), 1)
+
+        self.assertEqual(self.action_trade.state, self.action_trade.STATE.PROCESSED)
+        self.assertEqual(self.hero.actions.current_action, self.action_idl)
