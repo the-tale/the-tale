@@ -9,3 +9,6 @@ class MetricsError(exceptions.StatisticsError):
 
 class UnequalDatesError(MetricsError):
     MSG = u'unequal dates'
+
+class ValuesCompletedError(MetricsError):
+    MSG = u'values already completed, metric must be reinitialized'

@@ -1,0 +1,1 @@
+STATISTICS = {{data|safe}}

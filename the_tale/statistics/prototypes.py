@@ -1,9 +1,11 @@
 # coding: utf-8
+import datetime
 
 from the_tale.common.utils.prototypes import BasePrototype
 
 from the_tale.statistics.models import Record
 from the_tale.statistics import exceptions
+from the_tale.statistics import relations
 
 
 class RecordPrototype(BasePrototype):
@@ -59,4 +61,11 @@ class RecordPrototype(BasePrototype):
     @classmethod
     def select_for_js(cls, type, date_from, date_to):
         data = cls.select(type=type, date_from=date_from, date_to=date_to)
-        return [(date.isoformat(), value) for date, value in data]
+        return [(date.date().isoformat(), value) for date, value in data]
+
+
+    @classmethod
+    def get_js_data(cls):
+        return {record.value: RecordPrototype.select_for_js(record,
+                                                            date_from=datetime.datetime.min,
+                                                            date_to=datetime.datetime.now()) for record in relations.RECORD_TYPE.records}

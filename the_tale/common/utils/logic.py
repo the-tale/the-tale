@@ -127,4 +127,5 @@ def run_django_command(command):
 
 def days_range(date_from, date_to):
     for days in xrange((date_to-date_from).days):
-        yield (date_from + datetime.timedelta(days=days)).date()
+        current_date = (date_from + datetime.timedelta(days=days))
+        yield current_date.date() if isinstance(current_date, datetime.datetime) else current_date

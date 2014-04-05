@@ -80,6 +80,13 @@ class Worker(BaseWorker):
             self.run_cleaning()
             return
 
+        # is statistics run needed
+        if (time.time() - float(settings.get(portal_settings.SETTINGS_PREV_STATISTICS_RUN_TIME_KEY, 0)) > 23.5*60*60 and
+            portal_settings.STATISTICS_RUN_TIME <= datetime.datetime.now().hour <= portal_settings.STATISTICS_RUN_TIME + 1):
+            settings[portal_settings.SETTINGS_PREV_STATISTICS_RUN_TIME_KEY] = str(time.time())
+            self.run_statistics()
+            return
+
         # is rating sync needed
         if self._try_run_command_with_delay(cmd=self.run_recalculate_ratings,
                                             settings_key=portal_settings.SETTINGS_PREV_RATINGS_SYNC_TIME_KEY,
@@ -149,6 +156,10 @@ class Worker(BaseWorker):
         self.logger.info('currencies cdns')
         self._run_django_subprocess('refresh_currencies', ['portal_refresh_currencies'])
         self.logger.info('currencies refreshed')
+
+    def run_statistics(self):
+        self.logger.info('start statistics')
+        self._run_django_subprocess('statistics', ['statistics_complete'])
 
     def run_cleaning(self):
         self.logger.info('start cleaning')

@@ -2,8 +2,6 @@
 
 import datetime
 
-from the_tale.common.utils.logic import days_range
-
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.conf import accounts_settings
 
@@ -13,24 +11,19 @@ from the_tale.statistics import relations
 
 class AliveAfterBase(BaseMetric):
     TYPE = None
+    FULL_CLEAR_RECUIRED = True
     DAYS = None
-    PERIOD = 7 # days
 
-    @classmethod
-    def count(cls, date):
-        query = AccountPrototype._db_filter(is_fast=False, is_bot=False)
-        query = query.filter(created_at__gte=date-datetime.timedelta(days=cls.PERIOD), created_at__lt=date)
+    def get_value(self, date):
+        query = AccountPrototype._db_filter(self.db_date_day('created_at', date),
+                                            is_fast=False,
+                                            is_bot=False)
         return len([True
                     for active_end_at, created_at in query.values_list('active_end_at', 'created_at')
-                    if (active_end_at - created_at - datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT)).days > cls.DAYS])
+                    if (active_end_at - created_at - datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT)).days >= self.DAYS])
 
-    @classmethod
-    def complete_values(cls):
-        last_date = cls.last_date()
-
-        for date in days_range(last_date+datetime.timedelta(days=1), datetime.datetime.now()-datetime.timedelta(days=cls.DAYS)):
-            cls.store_value(date, cls.count(date))
-
+    def _get_interval(self):
+        return (self.free_date, (datetime.datetime.now()-datetime.timedelta(days=self.DAYS)).date())
 
 
 class AliveAfterDay(AliveAfterBase):
@@ -62,40 +55,36 @@ class AliveAfter0(AliveAfterBase):
     DAYS = 0
 
 
-
 class Lifetime(BaseMetric):
     TYPE = relations.RECORD_TYPE.LIFETIME
-    PERIOD = 7 # days
+    FULL_CLEAR_RECUIRED = True
 
-    @classmethod
-    def lifetime(cls, date):
-        query = AccountPrototype._db_filter(is_fast=False, is_bot=False)
-        query = query.filter(created_at__gte=date-datetime.timedelta(days=cls.PERIOD), created_at__lt=date)
-        lifetimes = [active_end_at - created_at - datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT)
+    def get_value(self, date):
+        query = AccountPrototype._db_filter(self.db_date_day('created_at', date=date),
+                                            is_fast=False,
+                                            is_bot=False)
+
+        lifetimes = [active_end_at - created_at - datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT-1)
                      for active_end_at, created_at in query.values_list('active_end_at', 'created_at') ]
+
+        # filter «strange» lifetimes
+        lifetimes = [lifetime for lifetime in lifetimes if lifetime > datetime.timedelta(seconds=0)]
 
         if not lifetimes:
             return 0
 
         total_time = reduce(lambda s, v: s+v, lifetimes, datetime.timedelta(seconds=0))
-        return float(total_time.days) / len(lifetimes)
-
-    @classmethod
-    def complete_values(cls):
-        last_date = cls.last_date()
-
-        for date in days_range(last_date+datetime.timedelta(days=1), datetime.datetime.now()):
-            cls.store_value(date, cls.lifetime(date))
+        return float(total_time.total_seconds() / (24*60*60)) / len(lifetimes)
 
 
 class LifetimePercent(BaseMetric):
     TYPE = relations.RECORD_TYPE.LIFETIME_PERCENT
-    PERIOD = 7 # days
+    FULL_CLEAR_RECUIRED = True
 
-    @classmethod
-    def lifetime(cls, date):
-        query = AccountPrototype._db_filter(is_fast=False, is_bot=False)
-        query = query.filter(created_at__gte=date-datetime.timedelta(days=cls.PERIOD), created_at__lt=date)
+    def get_value(self, date):
+        query = AccountPrototype._db_filter(self.db_date_day('created_at', date=date),
+                                            is_fast=False,
+                                            is_bot=False)
         lifetimes = [active_end_at - created_at - datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT)
                      for active_end_at, created_at in query.values_list('active_end_at', 'created_at') ]
 
@@ -106,10 +95,3 @@ class LifetimePercent(BaseMetric):
         lifetime = float(total_time.total_seconds()) / len(lifetimes)
         maximum = (datetime.datetime.now().date() - date).total_seconds()
         return  lifetime / maximum * 100
-
-    @classmethod
-    def complete_values(cls):
-        last_date = cls.last_date()
-
-        for date in days_range(last_date+datetime.timedelta(days=1), datetime.datetime.now()):
-            cls.store_value(date, cls.lifetime(date))

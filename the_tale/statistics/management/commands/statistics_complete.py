@@ -1,12 +1,20 @@
 # coding: utf-8
+import os
+from optparse import make_option
 
 from django.core.management.base import BaseCommand
+
+from dext.jinja2 import render
+from dext.utils import s11n
+from dext.settings import settings
+
+from the_tale.statistics.conf import statistics_settings
+from the_tale.statistics.prototypes import RecordPrototype
 
 from the_tale.statistics.metrics import registrations
 from the_tale.statistics.metrics import lifetime
 from the_tale.statistics.metrics import monetization
 from the_tale.statistics.metrics import actual
-
 
 
 METRICS = [
@@ -24,6 +32,13 @@ METRICS = [
         actual.Active,
         actual.DAU,
         actual.MAU,
+
+        actual.ActiveOlderDay,
+        actual.ActiveOlderWeek,
+        actual.ActiveOlderMonth,
+        actual.ActiveOlder3Month,
+        actual.ActiveOlder6Month,
+        actual.ActiveOlderYear,
 
         lifetime.AliveAfterDay,
         lifetime.AliveAfterWeek,
@@ -48,10 +63,17 @@ METRICS = [
         monetization.ARPNU3Month,
         monetization.LTV,
 
+        monetization.Revenue,
+
         monetization.IncomeFromForum,
         monetization.IncomeFromSilent,
         monetization.IncomeFromGuildMembers,
         monetization.IncomeFromSingles,
+
+        monetization.IncomeFromForumPercents,
+        monetization.IncomeFromSilentPercents,
+        monetization.IncomeFromGuildMembersPercents,
+        monetization.IncomeFromSinglesPercents,
 
         monetization.IncomeFromGoodsPremium,
         monetization.IncomeFromGoodsEnergy,
@@ -62,6 +84,16 @@ METRICS = [
         monetization.IncomeFromGoodsHabits,
         monetization.IncomeFromGoodsAbilities,
         monetization.IncomeFromGoodsClans,
+
+        monetization.IncomeFromGoodsPremiumPercents,
+        monetization.IncomeFromGoodsEnergyPercents,
+        monetization.IncomeFromGoodsChestPercents,
+        monetization.IncomeFromGoodsOtherPercents,
+        monetization.IncomeFromGoodsPeferencesPercents,
+        monetization.IncomeFromGoodsPreferencesResetPercents,
+        monetization.IncomeFromGoodsHabitsPercents,
+        monetization.IncomeFromGoodsAbilitiesPercents,
+        monetization.IncomeFromGoodsClansPercents,
 
         monetization.IncomeGroup0_500,
         monetization.IncomeGroup500_1000,
@@ -85,7 +117,7 @@ METRICS = [
         monetization.IncomeGroupIncome500_1000Percents,
         monetization.IncomeGroupIncome1000_2500Percents,
         monetization.IncomeGroupIncome2500_10000Percents,
-        monetization.IncomeGroupIncome10000Percents,
+        monetization.IncomeGroupIncome10000Percents
     ]
 
 
@@ -93,9 +125,45 @@ class Command(BaseCommand):
 
     help = 'complete statistics'
 
+    option_list = BaseCommand.option_list + ( make_option('-f', '--force-clear',
+                                                          action='store_true',
+                                                          dest='force-clear',
+                                                          help='force clear all metrics'),
+                                              make_option('-l', '--log',
+                                                          action='store_true',
+                                                          dest='verbose',
+                                                          help='print log'),)
+
     def handle(self, *args, **options):
 
-        for metric in METRICS:
-            print 'calculate %s' % metric.TYPE
-            metric.clear()
+        force_clear = options.get('force-clear')
+        verbose = options.get('verbose')
+
+        for i, MetricClass in enumerate(METRICS):
+            if force_clear or MetricClass.FULL_CLEAR_RECUIRED:
+                if verbose:
+                    print 'clear %s' % MetricClass.TYPE
+                MetricClass.clear()
+
+        for i, MetricClass in enumerate(METRICS):
+            metric = MetricClass()
+            if verbose:
+                print '[%3d] calculate %s' % (i, metric.TYPE)
+
+            metric.initialize()
             metric.complete_values()
+
+
+        data_version = int(settings.get(statistics_settings.JS_DATA_FILE_VERSION_KEY, 0))
+        data_version += 1
+        output_file = statistics_settings.JS_DATA_FILE_LOCATION % data_version
+
+        output_dir_name = os.path.dirname(output_file)
+        if not os.path.exists(output_dir_name):
+            os.makedirs(output_dir_name, 0755)
+
+        with open(output_file, 'w') as f:
+            f.write(render('statistics/js_data.js',
+                           {'data': s11n.to_json(RecordPrototype.get_js_data())}).encode('utf-8'))
+
+        settings[statistics_settings.JS_DATA_FILE_VERSION_KEY] = str(data_version)

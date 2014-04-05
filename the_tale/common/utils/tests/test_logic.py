@@ -5,7 +5,12 @@ import collections
 
 from the_tale.common.utils import testcase
 
-from the_tale.common.utils.logic import random_value_by_priority, shuffle_values_by_priority, verbose_timedelta, get_or_create, split_into_table
+from the_tale.common.utils.logic import (random_value_by_priority,
+                                         shuffle_values_by_priority,
+                                         verbose_timedelta,
+                                         get_or_create,
+                                         split_into_table,
+                                         days_range)
 from the_tale.common.utils.decorators import lazy_property
 
 _get_or_create_state = None # for get_or_create tests
@@ -132,3 +137,24 @@ class LogicTest(testcase.TestCase):
         self.assertEqual(split_into_table([1, 2, 3, 4, 5], 3), [(1, 3, 5), (2, 4, None)])
         self.assertEqual(split_into_table([1, 2, 3, 4, 5, 6], 3), [(1, 3, 5), (2, 4, 6)])
         self.assertEqual(split_into_table([1, 2, 3, 4, 5, 6, 7], 3), [(1, 4, 6), (2, 5, 7), (3, None, None)])
+
+
+    def test_days_range__inverted(self):
+        self.assertEqual(list(days_range(datetime.date(666, 6, 6), datetime.date(666, 6, 5))),
+                         [])
+
+    def test_days_range__0_days(self):
+        self.assertEqual(list(days_range(datetime.date(666, 6, 6), datetime.date(666, 6, 6))),
+                         [])
+
+    def test_days_range__1_day(self):
+        self.assertEqual(list(days_range(datetime.date(666, 6, 6), datetime.date(666, 6, 7))),
+                         [datetime.date(666, 6, 6)])
+
+    def test_days_range__many_days(self):
+        self.assertEqual(list(days_range(datetime.date(666, 6, 6), datetime.date(666, 6, 10))),
+                         [datetime.date(666, 6, 6), datetime.date(666, 6, 7), datetime.date(666, 6, 8), datetime.date(666, 6, 9)])
+
+    def test_days_range__many_days__datetime(self):
+        self.assertEqual(list(days_range(datetime.date(666, 6, 6, 6), datetime.date(666, 6, 10, 7))),
+                         [datetime.date(666, 6, 6), datetime.date(666, 6, 7), datetime.date(666, 6, 8), datetime.date(666, 6, 9)])
