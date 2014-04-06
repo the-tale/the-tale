@@ -37,7 +37,7 @@ class Premiums(ActiveBase):
     TYPE = relations.RECORD_TYPE.PREMIUMS
 
     def get_actual_value(self, date):
-        return AccountPrototype._db_filter(self.db_date_gte('premium_end_at')).count()
+        return AccountPrototype._db_filter(self.db_date_gte('premium_end_at', date=date)).count()
 
     def get_invoice_intervals_count(self, days, date):
         starts = list(InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED),
