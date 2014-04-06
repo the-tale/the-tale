@@ -156,5 +156,8 @@ class LogicTest(testcase.TestCase):
                          [datetime.date(666, 6, 6), datetime.date(666, 6, 7), datetime.date(666, 6, 8), datetime.date(666, 6, 9)])
 
     def test_days_range__many_days__datetime(self):
-        self.assertEqual(list(days_range(datetime.date(666, 6, 6, 6), datetime.date(666, 6, 10, 7))),
-                         [datetime.date(666, 6, 6), datetime.date(666, 6, 7), datetime.date(666, 6, 8), datetime.date(666, 6, 9)])
+        self.assertEqual(list(days_range(datetime.datetime(666, 6, 6, 6), datetime.datetime(666, 6, 10, 7))),
+                         [datetime.date(666, 6, 6),
+                          datetime.date(666, 6, 7),
+                          datetime.date(666, 6, 8),
+                          datetime.date(666, 6, 9)])
