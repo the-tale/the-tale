@@ -172,8 +172,7 @@ PLOTS_GROUPS = [
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCE_RESET, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_HABITS, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_ABILITIES, y_axis='y2'),
-                      Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS, y_axis='y2'),
-                      Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_OTHER, y_axis='y2')] ),
+                      Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS, y_axis='y2')] ),
 
     PlotsGroup(uid='goods-percents',
                title=u'% доходов по группам товаров (за предыдущую неделю)',
@@ -188,8 +187,7 @@ PLOTS_GROUPS = [
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCE_RESET_PERCENTS, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_HABITS_PERCENTS, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_ABILITIES_PERCENTS, y_axis='y2'),
-                      Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS_PERCENTS, y_axis='y2'),
-                      Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_OTHER_PERCENTS, y_axis='y2')] ),
+                      Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS_PERCENTS, y_axis='y2')] ),
 
     PlotsGroup(uid='income-groups',
                title=u'Численность игроков по размеру трат',

@@ -143,6 +143,15 @@ class BasePercentsCombination(BaseCombination):
         else:
             return 0.0
 
+class BasePercentsFromSumCombination(BaseCombination):
+
+    def get_combined_value(self, part, *total):
+        divider = sum(total)
+        if divider:
+            return float(part * 100) / divider
+        else:
+            return 0.0
+
 
 class BaseFractionCombination(BaseCombination):
 

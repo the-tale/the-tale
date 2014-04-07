@@ -13,7 +13,7 @@ from the_tale.accounts.payments.relations import GOODS_GROUP
 from the_tale.bank.prototypes import InvoicePrototype
 from the_tale.bank.relations import INVOICE_STATE, ENTITY_TYPE, CURRENCY_TYPE
 
-from the_tale.statistics.metrics.base import BaseMetric, BasePercentsCombination, BaseFractionCombination
+from the_tale.statistics.metrics.base import BaseMetric, BasePercentsCombination, BaseFractionCombination, BasePercentsFromSumCombination
 from the_tale.statistics import relations
 from the_tale.statistics.conf import statistics_settings
 
@@ -63,14 +63,21 @@ class IncomeTotal(BaseMetric):
         super(IncomeTotal, self).initialize()
         query = InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED),
                                             self.db_date_gte('created_at'),
-                                            sender_type=ENTITY_TYPE.XSOLLA, currency=CURRENCY_TYPE.PREMIUM).values_list('created_at', 'amount')
+                                            sender_type=ENTITY_TYPE.XSOLLA,
+                                            currency=CURRENCY_TYPE.PREMIUM).values_list('created_at', 'amount')
         invoices = [(created_at.date(), amount) for created_at, amount in query]
 
         invoices_values = {}
         for created_at, amount in invoices:
             invoices_values[created_at] = invoices_values.get(created_at, 0) + amount
 
-        income = 0
+        income = InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED),
+                                             self.db_date_lt('created_at'),
+                                             sender_type=ENTITY_TYPE.XSOLLA,
+                                             currency=CURRENCY_TYPE.PREMIUM).aggregate(income=models.Sum('amount'))['income']
+        if income is None:
+            income = 0
+
         self.incomes = {}
 
         for date in days_range(*self._get_interval()):
@@ -486,69 +493,66 @@ class Revenue(BaseMetric):
 
         return income
 
+_FORUM_GROUPS = [relations.RECORD_TYPE.INCOME_FROM_FORUM,
+                 relations.RECORD_TYPE.INCOME_FROM_SILENT]
 
-class IncomeFromForumPercents(BasePercentsCombination):
+_GUIDS_GROUPS = [relations.RECORD_TYPE.INCOME_FROM_GUILD_MEMBERS,
+                 relations.RECORD_TYPE.REVENUE]
+
+class IncomeFromForumPercents(BasePercentsFromSumCombination):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_FORUM_PERCENTS
-    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_FORUM,
-               relations.RECORD_TYPE.REVENUE]
+    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_FORUM] + _FORUM_GROUPS
 
-class IncomeFromSilentPercents(BasePercentsCombination):
+class IncomeFromSilentPercents(BasePercentsFromSumCombination):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_SILENT_PERCENTS
-    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_SILENT,
-               relations.RECORD_TYPE.REVENUE]
+    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_SILENT] + _FORUM_GROUPS
 
-class IncomeFromGuildMembersPercents(BasePercentsCombination):
+class IncomeFromGuildMembersPercents(BasePercentsFromSumCombination):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GUILD_MEMBERS_PERCENTS
-    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GUILD_MEMBERS,
-               relations.RECORD_TYPE.REVENUE]
+    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GUILD_MEMBERS] + _GUIDS_GROUPS
 
-class IncomeFromSinglesPercents(BasePercentsCombination):
+class IncomeFromSinglesPercents(BasePercentsFromSumCombination):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_SINGLES_PERCENTS
-    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_SINGLES,
-               relations.RECORD_TYPE.REVENUE]
+    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_SINGLES] + _GUIDS_GROUPS
 
 
-class IncomeFromGoodsPremiumPercents(BasePercentsCombination):
+_GOODS_GROUPS = [relations.RECORD_TYPE.INCOME_FROM_GOODS_PREMIUM,
+                 relations.RECORD_TYPE.INCOME_FROM_GOODS_ENERGY,
+                 relations.RECORD_TYPE.INCOME_FROM_GOODS_CHEST,
+                 relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCES,
+                 relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCE_RESET,
+                 relations.RECORD_TYPE.INCOME_FROM_GOODS_HABITS,
+                 relations.RECORD_TYPE.INCOME_FROM_GOODS_ABILITIES,
+                 relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS]
+
+class IncomeFromGoodsPremiumPercents(BasePercentsFromSumCombination):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_PREMIUM_PERCENTS
-    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_PREMIUM,
-               relations.RECORD_TYPE.REVENUE]
+    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_PREMIUM] + _GOODS_GROUPS
 
-class IncomeFromGoodsEnergyPercents(BasePercentsCombination):
+class IncomeFromGoodsEnergyPercents(BasePercentsFromSumCombination):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_ENERGY_PERCENTS
-    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_ENERGY,
-               relations.RECORD_TYPE.REVENUE]
+    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_ENERGY] + _GOODS_GROUPS
 
-class IncomeFromGoodsChestPercents(BasePercentsCombination):
+class IncomeFromGoodsChestPercents(BasePercentsFromSumCombination):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_CHEST_PERCENTS
-    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_CHEST,
-               relations.RECORD_TYPE.REVENUE]
+    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_CHEST] + _GOODS_GROUPS
 
-class IncomeFromGoodsPeferencesPercents(BasePercentsCombination):
+class IncomeFromGoodsPeferencesPercents(BasePercentsFromSumCombination):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCES_PERCENTS
-    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCES,
-               relations.RECORD_TYPE.REVENUE]
+    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCES] + _GOODS_GROUPS
 
-class IncomeFromGoodsPreferencesResetPercents(BasePercentsCombination):
+class IncomeFromGoodsPreferencesResetPercents(BasePercentsFromSumCombination):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCE_RESET_PERCENTS
-    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCE_RESET,
-               relations.RECORD_TYPE.REVENUE]
+    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCE_RESET] + _GOODS_GROUPS
 
-class IncomeFromGoodsHabitsPercents(BasePercentsCombination):
+class IncomeFromGoodsHabitsPercents(BasePercentsFromSumCombination):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_HABITS_PERCENTS
-    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_HABITS,
-               relations.RECORD_TYPE.REVENUE]
+    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_HABITS] + _GOODS_GROUPS
 
-class IncomeFromGoodsAbilitiesPercents(BasePercentsCombination):
+class IncomeFromGoodsAbilitiesPercents(BasePercentsFromSumCombination):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_ABILITIES_PERCENTS
-    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_ABILITIES,
-               relations.RECORD_TYPE.REVENUE]
+    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_ABILITIES] + _GOODS_GROUPS
 
-class IncomeFromGoodsClansPercents(BasePercentsCombination):
+class IncomeFromGoodsClansPercents(BasePercentsFromSumCombination):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS_PERCENTS
-    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS,
-               relations.RECORD_TYPE.REVENUE]
-
-class IncomeFromGoodsOtherPercents(BasePercentsCombination):
-    TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_OTHER_PERCENTS
-    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_OTHER,
-               relations.RECORD_TYPE.REVENUE]
+    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS] + _GOODS_GROUPS

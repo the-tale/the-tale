@@ -78,7 +78,6 @@ METRICS = [
         monetization.IncomeFromGoodsPremium,
         monetization.IncomeFromGoodsEnergy,
         monetization.IncomeFromGoodsChest,
-        monetization.IncomeFromGoodsOther,
         monetization.IncomeFromGoodsPeferences,
         monetization.IncomeFromGoodsPreferencesReset,
         monetization.IncomeFromGoodsHabits,
@@ -88,7 +87,6 @@ METRICS = [
         monetization.IncomeFromGoodsPremiumPercents,
         monetization.IncomeFromGoodsEnergyPercents,
         monetization.IncomeFromGoodsChestPercents,
-        monetization.IncomeFromGoodsOtherPercents,
         monetization.IncomeFromGoodsPeferencesPercents,
         monetization.IncomeFromGoodsPreferencesResetPercents,
         monetization.IncomeFromGoodsHabitsPercents,
@@ -132,14 +130,24 @@ class Command(BaseCommand):
                                               make_option('-l', '--log',
                                                           action='store_true',
                                                           dest='verbose',
-                                                          help='print log'),)
+                                                          help='print log'),
+                                              make_option('-r', '--recalculate-last',
+                                                          action='store_true',
+                                                          dest='recalculate-last',
+                                                          help='recalculate last day'),        )
 
     def handle(self, *args, **options):
 
         force_clear = options.get('force-clear')
         verbose = options.get('verbose')
+        recalculate = options.get('recalculate')
 
-        for i, MetricClass in enumerate(METRICS):
+        if recalculate:
+            for MetricClass in METRICS:
+                RecordPrototype._db_filter(date=MetricClass._last_datetime().date(),
+                                           type=MetricClass.TYPE).delete()
+
+        for MetricClass in METRICS:
             if force_clear or MetricClass.FULL_CLEAR_RECUIRED:
                 if verbose:
                     print 'clear %s' % MetricClass.TYPE

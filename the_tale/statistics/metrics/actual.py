@@ -110,7 +110,7 @@ class ActiveOlderBase(ActiveBase):
         barrier = (date +
                    datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT))
 
-        accounts = AccountPrototype._db_filter(self.db_date_gt('active_end_at', date=barrier),
+        accounts = AccountPrototype._db_filter(self.db_date_gte('active_end_at', date=barrier),
                                                is_bot=False,
                                                is_fast=False).values_list('created_at', 'active_end_at')
         return len([True
