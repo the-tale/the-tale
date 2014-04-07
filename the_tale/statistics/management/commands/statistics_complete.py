@@ -140,7 +140,7 @@ class Command(BaseCommand):
 
         force_clear = options.get('force-clear')
         verbose = options.get('verbose')
-        recalculate = options.get('recalculate')
+        recalculate = options.get('recalculate-last')
 
         if recalculate:
             for MetricClass in METRICS:
