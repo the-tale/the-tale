@@ -209,9 +209,10 @@ class PersonPrototype(BasePrototype):
                 if choosen_person.id not in [p.id for p in accepted_persons]:
                     accepted_persons.append(choosen_person)
 
-            accepted_persons = sorted(accepted_persons, key=lambda p: p.name)
+            persons = tuple( (person.id, u'%s [%s %.2f%%]' % (person.name, person.type.text, person.power / place.total_persons_power * 100))
+                             for person in accepted_persons )
 
-            persons = tuple( (person.id, person.name) for person in accepted_persons )
+            persons = sorted(persons, key=lambda choice: choice[1])
 
             choices.append( ( place.name, persons ) )
 
