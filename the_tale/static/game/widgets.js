@@ -228,6 +228,11 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
         if (data.mastery_verbose) {
             jQuery('.pgf-mastery', content).text(data.mastery_verbose);
         }
+
+        nameElement.click(function(e){
+            e.preventDefault();
+            widgets.map.CenterOnPlace(place.id);
+        });
     }
 
     if (actor[1] == pgf.game.constants.ACTOR_TYPE.PLACE) {
@@ -241,6 +246,11 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
         var content = jQuery('#pgf-popover-place').clone();
 
         if (place) jQuery('.pgf-size', content).text(place.size);
+
+        nameElement.click(function(e){
+            e.preventDefault();
+            widgets.map.CenterOnPlace(place.id);
+        });
     }
 
     if (actor[1] == pgf.game.constants.ACTOR_TYPE.MONEY_SPENDING) {
@@ -248,6 +258,10 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
         popoverTitle = 'цель накопления';
         var content = jQuery('#pgf-popover-money-spending').clone();
         jQuery('.pgf-description', content).text(data.description);
+
+        nameElement.click(function(e){
+            e.preventDefault();
+        });
     }
 
     content.children(':first').toggleClass('pgf-actor-tooltip', true);
