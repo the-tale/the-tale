@@ -6,6 +6,7 @@ from django.conf.urls import patterns, url, include
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.conf import settings as project_settings
+from django.views.generic.base import RedirectView
 
 from dext import jinja2 as jinja2_next
 from dext.views import create_handler_view
@@ -25,7 +26,10 @@ urlpatterns = patterns('',
                        (r'^game/', include('the_tale.game.urls', namespace='game') ),
                        (r'^guide/', include('the_tale.guide.urls', namespace='guide') ),
                        (r'^forum/', include('the_tale.forum.urls', namespace='forum') ),
-                       (r'^folclor/', include('the_tale.blogs.urls', namespace='blogs') ),
+
+                       ('^folclor/(?P<path>.*)$', RedirectView.as_view(url='/folklore/%(path)s')), # wrong names url, leaved to allow old links worked correctly
+
+                       (r'^folklore/', include('the_tale.blogs.urls', namespace='blogs') ),
                        (r'^collections/', include('the_tale.collections.urls', namespace='collections') ),
                        (r'^news/', include('the_tale.cms.news.urls', namespace='news') ),
                        (r'^postponed-tasks/', include('the_tale.common.postponed_tasks.urls', namespace='postponed-tasks') ),
