@@ -10,7 +10,7 @@ from the_tale.game.persons.prototypes import PersonPrototype
 
 from the_tale.game.map.places.prototypes import PlacePrototype, BuildingPrototype
 from the_tale.game.map.places.storage import places_storage, buildings_storage
-from the_tale.game.map.exceptions import MapException
+from the_tale.game.map import exceptions
 from the_tale.game.map.conf import map_settings
 
 def get_height_power_function(borders, power_percent):
@@ -60,7 +60,7 @@ class MapObject(object):
             self.y = game_object.y
             self.r = game_object.terrain_change_power
         else:
-            raise MapException('try to get uid for unknown power point source %r' % game_object)
+            raise exceptions.UnknownPowerPointError(game_object=game_object)
 
         self.id = game_object.id
 
@@ -252,7 +252,7 @@ def get_building_power_points(building): # pylint: disable=R0912,R0915
         points.append(_point_circle_vegetation(MapObject(building), power=(0.0, -0.6), normalizer=normalizers.linear_2, power_percent=1.0))
         points.append(_point_circle_soil(MapObject(building), power=-0.2, normalizer=normalizers.linear, power_percent=1.0))
     else:
-        raise MapException('unknown building type: %r' % building.type)
+        raise exceptions.UnknownBuildingTypeError(building=building.type)
 
     return points
 
@@ -304,7 +304,7 @@ def get_object_race_points(obj, race, power_percent):
         points.append(_point_circle_vegetation(obj, power=(0.0, -0.1), normalizer=normalizers.linear_2, power_percent=power_percent))
         points.append(_point_circle_wetness(obj, power=-0.1, normalizer=normalizers.linear, power_percent=power_percent))
     else:
-        raise MapException('unknown person race: %r' % race)
+        raise exceptions.UnknownPersonRaceError(race=race)
 
     return points
 

@@ -50,7 +50,7 @@ def _create_power_points_push(method_name, history_length, exception_class, name
         points = getattr(self, name)
 
         if points and points[-1][0] > turn:
-            raise exception_class(u'can not push power to place "%s" - current push turn number (%d) less then latest (%d) ' % (self.name, points[-1][0], turn))
+            raise exception_class(message=u'can not push power to place "%s" - current push turn number (%d) less then latest (%d) ' % (self.name, points[-1][0], turn))
 
         points.append((turn, value))
 

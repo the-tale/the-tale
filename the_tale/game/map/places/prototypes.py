@@ -23,7 +23,7 @@ from the_tale.game.map.conf import map_settings
 
 from the_tale.game.map.places.models import Place, Building, ResourceExchange
 from the_tale.game.map.places.conf import places_settings
-from the_tale.game.map.places.exceptions import PlacesException
+from the_tale.game.map.places import exceptions
 from the_tale.game.map.places.modifiers import MODIFIERS, PlaceModifierBase
 from the_tale.game.map.places.relations import BUILDING_STATE, RESOURCE_EXCHANGE_TYPE, CITY_PARAMETERS
 from the_tale.game.map.places import signals
@@ -40,7 +40,7 @@ class PlaceParametersDescription(object):
     FREEDOM = (u'свобода', u'Насколько активна политическая жизнь в городе (как сильно изменяется влияние его жителей от действий героев).')
 
 
-@add_power_management(places_settings.POWER_HISTORY_LENGTH, PlacesException)
+@add_power_management(places_settings.POWER_HISTORY_LENGTH, exceptions.PlacesPowerError)
 class PlacePrototype(BasePrototype):
     _model_class = Place
     _readonly = ('id', 'x', 'y', 'name', 'heroes_number', 'updated_at')

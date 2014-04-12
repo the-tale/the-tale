@@ -7,7 +7,7 @@ from the_tale.game.map.conf import map_settings
 from the_tale.game.map.places.storage import places_storage
 
 from the_tale.game.map.roads.models import Road, Waymark
-from the_tale.game.map.roads.exceptions import RoadsException
+from the_tale.game.map.roads import exceptions
 from the_tale.game.map.roads.relations import PATH_DIRECTION
 
 
@@ -40,7 +40,7 @@ class RoadPrototype(BasePrototype):
         try:
             Road.objects.get(point_1=point_1.id,
                              point_2=point_2.id)
-            raise RoadsException('road (%i, %i) has already exist' % (point_1.id, point_2.id) )
+            raise exceptions.RoadsAlreadyExistsError(start=point_1.id, stop=point_2.id)
         except Road.DoesNotExist:
             pass
 

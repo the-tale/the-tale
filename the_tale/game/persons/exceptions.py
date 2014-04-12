@@ -2,8 +2,11 @@
 
 from the_tale.common.utils.exceptions import TheTaleError
 
-class PersonsException(TheTaleError):
+class PersonsError(TheTaleError):
     MSG = u'persons error'
 
-# class PlaceEffectsValueError(PersonsException):
-#     MSG = u'wrong sum of place effects: %(effects)r'
+class PersonsPowerError(PersonsError):
+    MSG = u'persons power error: %(message)s'
+
+class PersonsStorageError(PersonsError):
+    MSG = u'persons power error: %(message)s'

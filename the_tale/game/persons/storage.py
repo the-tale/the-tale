@@ -4,10 +4,10 @@ from the_tale.common.utils.storage import create_storage_class
 
 from the_tale.game.persons.models import PERSON_STATE
 from the_tale.game.persons.prototypes import PersonPrototype
-from the_tale.game.persons.exceptions import PersonsException
+from the_tale.game.persons import exceptions
 
 
-class PersonsStorage(create_storage_class('persons change time', PersonPrototype, PersonsException)):
+class PersonsStorage(create_storage_class('persons change time', PersonPrototype, exceptions.PersonsStorageError)):
 
     def _get_all_query(self): return self.PROTOTYPE._db_exclude(state=PERSON_STATE.REMOVED)
 

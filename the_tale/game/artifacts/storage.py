@@ -12,7 +12,7 @@ from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
 from the_tale.game.artifacts.relations import ARTIFACT_TYPE
 
 
-class ArtifactsStorage(create_storage_class('artifacts records change time', ArtifactRecordPrototype, exceptions.ArtifactsError)):
+class ArtifactsStorage(create_storage_class('artifacts records change time', ArtifactRecordPrototype, exceptions.ArtifactsStorageError)):
 
     def _reset_cache(self):
         self._artifacts_by_uuids = {}

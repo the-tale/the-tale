@@ -7,7 +7,7 @@ class MobsError(TheTaleError):
     MSG = u'mobs error'
 
 class MobsStorageError(MobsError):
-    MSG = u'mobs storage error'
+    MSG = u'mobs storage error: %(message)s'
 
 class SaveNotRegisteredMobError(MobsError):
     MSG = u'try to save mob %(mob)r not from storage'

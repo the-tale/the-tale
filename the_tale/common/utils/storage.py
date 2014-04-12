@@ -55,7 +55,7 @@ def create_storage_class(version_key, Prototype, Exception_): # pylint: disable=
             self.sync()
 
             if id_ not in self._data:
-                raise Exception_('wrong %r id: %s' % (Prototype, id_))
+                raise Exception_(message='wrong %r id: %s' % (Prototype, id_))
 
             return self._data[id_]
 
@@ -148,7 +148,7 @@ def create_single_storage_class(version_key, Prototype, Exception_): # pylint: d
             return self._version
 
         def refresh(self):
-            raise NotImplementedError
+            raise NotImplementedError()
 
         def sync(self, force=False):
             if self.SETTINGS_KEY not in settings:

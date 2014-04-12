@@ -6,12 +6,12 @@ from the_tale.common.utils.storage import create_single_storage_class
 from dext.settings import settings
 
 from the_tale.game.map.prototypes import MapInfoPrototype
-from the_tale.game.map.exceptions import MapException
+from the_tale.game.map import exceptions
 
 from the_tale.game.prototypes import TimePrototype
 
 
-class MapInfoStorage(create_single_storage_class('map info change time', MapInfoPrototype, MapException)):
+class MapInfoStorage(create_single_storage_class('map info change time', MapInfoPrototype, exceptions.MapStorageError)):
 
     def refresh(self):
         self.clear()

@@ -17,7 +17,7 @@ from the_tale.game.balance import constants as c
 
 from the_tale.game.persons.models import Person, PERSON_STATE
 from the_tale.game.persons.conf import persons_settings
-from the_tale.game.persons.exceptions import PersonsException
+from the_tale.game.persons import exceptions
 from the_tale.game.persons.relations import PROFESSION_TO_RACE_MASTERY, PROFESSION_TO_CITY_PARAMETERS
 
 
@@ -34,7 +34,7 @@ MASTERY_VERBOSE = ( (0.0, u'полная непригодность'),
                     (1.0, u'гений') )
 
 
-@add_power_management(persons_settings.POWER_HISTORY_LENGTH, PersonsException)
+@add_power_management(persons_settings.POWER_HISTORY_LENGTH, exceptions.PersonsPowerError)
 class PersonPrototype(BasePrototype):
     _model_class = Person
     _readonly = ('id', 'created_at_turn', 'place_id', 'gender', 'race', 'type', 'state', 'out_game_at')
@@ -209,7 +209,11 @@ class PersonPrototype(BasePrototype):
                 if choosen_person.id not in [p.id for p in accepted_persons]:
                     accepted_persons.append(choosen_person)
 
-            persons = tuple( (person.id, u'%s [%s %.2f%%]' % (person.name, person.type.text, person.power / place.total_persons_power * 100))
+            place_power = place.total_persons_power
+
+            persons = tuple( (person.id, u'%s [%s %.2f%%]' % (person.name,
+                                                              person.type.text,
+                                                              person.power / place_power * 100 if place_power > 0.001 else 0))
                              for person in accepted_persons )
 
             persons = sorted(persons, key=lambda choice: choice[1])

@@ -4,11 +4,11 @@ import random
 from the_tale.common.utils.storage import create_storage_class
 
 from the_tale.game.map.places.prototypes import PlacePrototype, BuildingPrototype, ResourceExchangePrototype
-from the_tale.game.map.places.exceptions import PlacesException
+from the_tale.game.map.places import exceptions
 from the_tale.game.map.places.relations import BUILDING_STATE
 
 
-class PlacesStorage(create_storage_class('places change time', PlacePrototype, PlacesException)):
+class PlacesStorage(create_storage_class('places change time', PlacePrototype, exceptions.PlacesStorageError)):
 
     def random_place(self):
         self.sync()
@@ -35,7 +35,7 @@ class PlacesStorage(create_storage_class('places change time', PlacePrototype, P
 places_storage = PlacesStorage()
 
 
-class BuildingsStorage(create_storage_class('buildings change time', BuildingPrototype, PlacesException)):
+class BuildingsStorage(create_storage_class('buildings change time', BuildingPrototype, exceptions.BuildingsStorageError)):
 
     def _get_all_query(self): return BuildingPrototype._model_class.objects.exclude(state=BUILDING_STATE.DESTROYED)
 
@@ -72,7 +72,7 @@ class BuildingsStorage(create_storage_class('buildings change time', BuildingPro
 buildings_storage = BuildingsStorage()
 
 
-class ResourceExchangeStorage(create_storage_class('resource exchange change time', ResourceExchangePrototype, PlacesException)):
+class ResourceExchangeStorage(create_storage_class('resource exchange change time', ResourceExchangePrototype, exceptions.ResourceExchangeStorageError)):
 
     def get_exchanges_for_place(self, place):
         exchanges = []

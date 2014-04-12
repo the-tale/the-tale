@@ -7,7 +7,7 @@ class ArtifactsError(TheTaleError):
     MSG = u'artifacts error'
 
 class ArtifactsStorageError(ArtifactsError):
-    MSG = u'artifacts storage error'
+    MSG = u'artifacts storage error: %(message)s'
 
 class SaveNotRegisteredArtifactError(ArtifactsError):
     MSG = u'try to save artifact %(artifact)r not from storage'
