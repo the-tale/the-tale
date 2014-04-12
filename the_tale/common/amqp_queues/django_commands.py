@@ -94,6 +94,14 @@ def construct_workers_manager(help, process_pid, workers): # pylint: disable=W06
                 print 'force stop %s' % worker.command_name
                 pid.force_kill(worker.command_name)
 
+        def before_start(self): pass
+        def before_stop(self): pass
+        def before_force_stop(self): pass
+
+        def after_start(self): pass
+        def after_stop(self): pass
+        def after_force_stop(self): pass
+
 
         @pid.protector(process_pid)
         def handle(self, *args, **options):
@@ -101,15 +109,21 @@ def construct_workers_manager(help, process_pid, workers): # pylint: disable=W06
             command = options['command']
 
             if command == 'start':
+                self.before_start()
                 self.start()
+                self.after_start()
                 print 'infrastructure started'
 
             elif command == 'stop':
+                self.before_stop()
                 self.stop()
+                self.after_stop()
                 print 'infrastructure stopped'
 
             elif command == 'force_stop':
+                self.before_force_stop()
                 self.force_stop()
+                self.after_force_stop()
                 print 'infrastructure stopped (force)'
 
             elif command == 'restart':

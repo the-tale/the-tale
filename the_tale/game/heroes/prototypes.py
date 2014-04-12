@@ -24,8 +24,7 @@ from the_tale.game import names
 from the_tale.game.artifacts.storage import artifacts_storage
 
 from the_tale.game import text_generation
-
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game.prototypes import TimePrototype, GameState
 
 from the_tale.game.actions.container import ActionsContainer
 from the_tale.game.quests.container import QuestsContainer
@@ -713,7 +712,9 @@ class HeroPrototype(BasePrototype,
         if data is None or cls.is_ui_continue_caching_required(data['ui_caching_started_at']):
             hero = cls.get_by_account_id(account_id)
             data = hero.ui_info_for_cache(actual_guaranteed=False)
-            game_workers_environment.supervisor.cmd_start_hero_caching(hero.account_id, hero.id)
+
+            if GameState.is_working():
+                game_workers_environment.supervisor.cmd_start_hero_caching(hero.account_id, hero.id)
 
         return data
 

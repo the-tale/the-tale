@@ -45,6 +45,22 @@ jQuery(document).ready(function(e){
 </div>
 {% endmacro %}
 
+{% macro game_stopped_message() %}
+<script type="text/javascript">
+    jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
+        jQuery(".pgf-game-stopped-message").toggleClass("pgf-hidden", (game_data.game_state != pgf.game.constants.GAME_STATE.STOPPED));
+    });
+</script>
+
+<div class="row pgf-hidden pgf-game-stopped-message">
+  <div class="span12">
+    <p class="alert alert-warning" style="text-align: center;">
+      <span style="vertical-align: middle;">Игра временно остановлена.</span>
+    </p>
+  </div>
+</div>
+{% endmacro %}
+
 
 {% macro game_debug_javascript() %}
 

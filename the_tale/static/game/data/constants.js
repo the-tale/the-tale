@@ -18,6 +18,8 @@ pgf.game.constants = {
 
     RACE_TO_TEXT: {"0": "человек", "1": "эльф", "2": "орк", "3": "гоблин", "4": "дварф"},
     RACE_TO_STR: {"0": "HUMAN", "1": "ELF", "2": "ORC", "3": "GOBLIN", "4": "DWARF"},
+
+    GAME_STATE: {"STOPPED": 0, "WORKING": 1},
 };
 
 pgf.game.constants.abilities = {

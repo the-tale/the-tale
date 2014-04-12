@@ -10,7 +10,7 @@ from the_tale.common import postponed_tasks
 
 from the_tale.accounts.models import Account
 
-from the_tale.game.prototypes import TimePrototype, SupervisorTaskPrototype
+from the_tale.game.prototypes import TimePrototype, SupervisorTaskPrototype, GameState
 from the_tale.game.bundles import BundlePrototype
 from the_tale.game.models import SupervisorTask, SUPERVISOR_TASK_STATE
 from the_tale.game.conf import game_settings
@@ -109,6 +109,8 @@ class Worker(BaseWorker):
             self.register_account(account_id)
 
         self.initialized = True
+
+        GameState.start()
 
         self.logger.info('SUPERVISOR INITIALIZED')
 
@@ -214,7 +216,10 @@ class Worker(BaseWorker):
 
         self.logger.error('force stop all workers, send signals.')
 
+        GameState.stop()
+
         game_environment.logic.cmd_stop()
+
         if game_settings.ENABLE_WORKER_HIGHLEVEL:
             game_environment.highlevel.cmd_stop()
         if game_settings.ENABLE_WORKER_TURNS_LOOP:
@@ -226,6 +231,9 @@ class Worker(BaseWorker):
 
     def process_stop(self):
         from the_tale.game.workers.environment import workers_environment as game_environment
+
+        GameState.stop()
+
         # stop logic first
         # at normal stop it save all it's data
         # if another worker broken, it save all it's data

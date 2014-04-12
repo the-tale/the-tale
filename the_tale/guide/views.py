@@ -72,6 +72,7 @@ def get_api_types():
     from the_tale.game.persons.relations import PERSON_TYPE
     from the_tale.game.abilities.relations import ABILITY_TYPE as ANGEL_ABILITY_TYPE
     from the_tale.game.actions.relations import ACTION_TYPE
+    from the_tale.game.relations import GAME_STATE
 
     return [TypeReference('gender', u'Пол', GENDER),
             TypeReference('race', u'Раса', RACE),
@@ -80,7 +81,8 @@ def get_api_types():
             TypeReference('person_profession', u'Профессия жителя', PERSON_TYPE),
             TypeReference('ability_type', u'Тип способности игрока', ANGEL_ABILITY_TYPE,
                          fields=((u'значение', 'value'), (u'описание', 'text'), (u'атрибуты запроса', 'request_attributes'))),
-            TypeReference('action_type', u'Тип действия героя', ACTION_TYPE),]
+            TypeReference('action_type', u'Тип действия героя', ACTION_TYPE),
+            TypeReference('game_state', u'Состояние игры', GAME_STATE)]
 
 API_METHODS = get_api_methods()
 API_TYPES = get_api_types()

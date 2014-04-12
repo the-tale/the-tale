@@ -74,7 +74,7 @@ class InfoRequestTests(RequestTestsBase):
     def test_logined(self):
         response = self.client.get(self.game_info_url_1)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(set(s11n.from_json(response.content)['data'].keys()), set(('turn', 'mode', 'map_version', 'account', 'enemy')))
+        self.assertEqual(set(s11n.from_json(response.content)['data'].keys()), set(('turn', 'mode', 'map_version', 'account', 'enemy', 'game_state')))
 
     def test_no_id__logined(self):
         with mock.patch('the_tale.game.logic.form_game_info', mock.Mock(return_value={})) as form_game_info:

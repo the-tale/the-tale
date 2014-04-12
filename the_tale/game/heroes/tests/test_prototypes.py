@@ -12,7 +12,7 @@ from the_tale.accounts.logic import register_user
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
 from the_tale.game.logic import create_test_map
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game.prototypes import TimePrototype, GameState
 
 from the_tale.game.quests.relations import QUESTS
 
@@ -274,12 +274,32 @@ class HeroTest(testcase.TestCase):
         self.assertEqual(cmd_start_hero_caching.call_count, 1)
         self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
 
+    def test_cached_ui_info_for_hero__data_is_none__game_stopped(self):
+        GameState.stop()
+
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)
+        self.assertEqual(cmd_start_hero_caching.call_count, 0)
+        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
+
+
     @mock.patch('dext.utils.cache.get', lambda x: {'ui_caching_started_at': 0})
     def test_cached_ui_info_for_hero__continue_caching_required(self):
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
             with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
                 HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)
         self.assertEqual(cmd_start_hero_caching.call_count, 1)
+        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
+
+    @mock.patch('dext.utils.cache.get', lambda x: {'ui_caching_started_at': 0})
+    def test_cached_ui_info_for_hero__continue_caching_required__game_stopped(self):
+        GameState.stop()
+
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)
+        self.assertEqual(cmd_start_hero_caching.call_count, 0)
         self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
 
     @mock.patch('dext.utils.cache.get', lambda x: {'ui_caching_started_at': time.time()})

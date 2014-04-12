@@ -18,6 +18,8 @@ pgf.game.constants = {
 
     RACE_TO_TEXT: {{race_to_text|safe}},
     RACE_TO_STR: {{race_to_str|safe}},
+
+    GAME_STATE: {{game_state|safe}},
 };
 
 pgf.game.constants.abilities = {

@@ -27,3 +27,9 @@ class RACE(DjangoEnum):
                  ('ORC', 2, u'орк',  u'орки', e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE),
                  ('GOBLIN', 3, u'гоблин', u'гоблины', e.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION),
                  ('DWARF', 4, u'дварф', u'дварфы', e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS) )
+
+
+class GAME_STATE(DjangoEnum):
+
+    records = ( ('STOPPED', 0, u'остановлена'),
+                ('WORKING', 1, u'запущена')  )

@@ -148,13 +148,14 @@ def _form_game_account_info(game_time, account, in_pvp_queue, is_own):
 
 def form_game_info(account=None, is_own=False):
     from the_tale.accounts.prototypes import AccountPrototype
-
+    from the_tale.game.prototypes import GameState
     from the_tale.game.pvp.prototypes import Battle1x1Prototype
 
     game_time = TimePrototype.get_current_time()
 
     data = {'mode': 'pve',
             'turn': game_time.ui_info(),
+            'game_state': GameState.state().value,
             'map_version': map_info_storage.version,
             'account': None,
             'enemy': None }

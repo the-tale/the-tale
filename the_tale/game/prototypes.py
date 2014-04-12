@@ -4,12 +4,10 @@ import collections
 
 from django.db import transaction
 
-from dext.settings import settings
-
 import rels
 from rels.django import DjangoEnum
 
-
+from dext.settings import settings
 
 from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils.decorators import lazy_property
@@ -17,6 +15,9 @@ from the_tale.common.utils.decorators import lazy_property
 from the_tale.game.balance import formulas as f
 
 from the_tale.game.models import SupervisorTask, SupervisorTaskMember, SUPERVISOR_TASK_TYPE
+
+from the_tale.game.conf import game_settings
+from the_tale.game import relations
 from the_tale.game import exceptions
 
 
@@ -171,3 +172,34 @@ class SupervisorTaskPrototype(BasePrototype):
 
     def remove(self):
         self._model.delete()
+
+
+class GameState(object):
+
+    @classmethod
+    def _set_state(cls, state):
+        settings[game_settings.GAME_STATE_KEY] = str(state.value)
+
+    @classmethod
+    def _get_state(cls):
+        return relations.GAME_STATE.index_value[int(settings.get(game_settings.GAME_STATE_KEY, relations.GAME_STATE.STOPPED.value))]
+
+    @classmethod
+    def state(cls):
+        return cls._get_state()
+
+    @classmethod
+    def stop(cls):
+        cls._set_state(relations.GAME_STATE.STOPPED)
+
+    @classmethod
+    def start(cls):
+        cls._set_state(relations.GAME_STATE.WORKING)
+
+    @classmethod
+    def is_stopped(cls):
+        return cls._get_state().is_STOPPED
+
+    @classmethod
+    def is_working(cls):
+        return cls._get_state().is_WORKING

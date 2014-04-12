@@ -11,7 +11,7 @@ from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.models import SupervisorTask
 from the_tale.game.logic import create_test_map
 from the_tale.game.workers.environment import workers_environment
-from the_tale.game.prototypes import SupervisorTaskPrototype
+from the_tale.game.prototypes import SupervisorTaskPrototype, GameState
 from the_tale.game.workers.supervisor import SupervisorException
 
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
@@ -60,6 +60,7 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'logic', self.account_2.id: 'logic'})
         self.assertEqual(self.worker.accounts_queues, {})
         self.assertTrue(self.worker.initialized)
+        self.assertTrue(GameState.is_working())
 
     def test_register_task(self):
         self.worker.process_initialize()
@@ -267,3 +268,7 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.assertEqual(cmd_release_account.call_args_list, [mock.call(self.account_2.id), mock.call(self.account_1.id)])
 
         self.assertEqual(self.worker.accounts_owners, {self.account_1.id: None, self.account_2.id: None})
+
+    def test_force_stop(self):
+        self.worker._force_stop()
+        self.assertTrue(GameState.is_stopped())

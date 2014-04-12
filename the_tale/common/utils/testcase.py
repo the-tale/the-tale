@@ -8,6 +8,7 @@ def setUp(self):
     from the_tale.accounts.achievements.storage import achievements_storage
     from the_tale.collections.storage import collections_storage, kits_storage, items_storage
 
+    from the_tale.game.prototypes import GameState
     from the_tale.game.persons.storage import persons_storage
     from the_tale.game.mobs.storage import mobs_storage
     from the_tale.game.artifacts.storage import artifacts_storage
@@ -44,6 +45,8 @@ def setUp(self):
     kits_storage._setup_version()
     items_storage._setup_version()
     achievements_storage._setup_version()
+
+    GameState.start()
 
 
 class TestCaseMixin(object):
