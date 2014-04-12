@@ -144,7 +144,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.HERO_POWER_BONUS, 0.01)
 
         self.assertEqual(c.CHARACTER_PREFERENCES_CHANGE_DELAY, 60*60*24*7)
-        self.assertEqual(c.POSITIVE_NEGATIVE_POWER_RELATION, 2.0)
+        self.assertEqual(c.POSITIVE_NEGATIVE_POWER_RELATION, 4.0)
 
         self.assertEqual(c.ABILITIES_ACTIVE_MAXIMUM, 5)
         self.assertEqual(c.ABILITIES_PASSIVE_MAXIMUM, 2)
