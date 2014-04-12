@@ -4,10 +4,13 @@ import Queue
 
 from django.utils.log import getLogger
 
+from dext.settings import settings
+
 from the_tale.common.amqp_queues import BaseWorker
 
 from the_tale.game.conf import game_settings
 from the_tale.game.workers.environment import workers_environment as game_environment
+from the_tale.game.prototypes import GameState
 
 
 class TurnsLoopException(Exception): pass
@@ -25,13 +28,14 @@ class Worker(BaseWorker):
     def run(self):
 
         while not self.exception_raised and not self.stop_required:
+            settings.refresh()
             try:
                 cmd = self.command_queue.get_nowait()
-                # cmd.ack()
                 self.process_cmd(cmd.payload)
             except Queue.Empty:
-                self.logger.info('send next turn command')
-                game_environment.supervisor.cmd_next_turn()
+                if GameState.is_working():
+                    self.logger.info('send next turn command')
+                    game_environment.supervisor.cmd_next_turn()
                 time.sleep(game_settings.TURN_DELAY)
 
     def initialize(self):
