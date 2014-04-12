@@ -59,7 +59,9 @@ class Paginator(object):
             self.pages_numbers = list(reversed(self.pages_numbers))
 
     @property
-    def wrong_page_number(self): return self.current_page_number and self.current_page_number >= self.pages_count # zero page always exists
+    def wrong_page_number(self):
+        return ( (self.current_page_number < 0) or
+                 (self.current_page_number and self.current_page_number >= self.pages_count) ) # zero page always exists
 
     @property
     def last_page_url(self): return self.url_builder(page=max(self.pages_count, 1))

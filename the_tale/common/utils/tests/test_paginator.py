@@ -39,3 +39,15 @@ class PaginatorTests(testcase.TestCase):
         paginator = self.create_paginator(4*D+2*missed, 2*D+missed)
         self.assertEqual(paginator.pages_numbers,
                          range(0, D+1) + [None] + range(D+missed, D+missed+2*D+1) + [None] + range(3*D+2*missed-1, 4*D+2*missed))
+
+    def test_wrong_page_number__good_number(self):
+        paginator = self.create_paginator(10, 5)
+        self.assertFalse(paginator.wrong_page_number)
+
+    def test_wrong_page_number__less_then_0(self):
+        paginator = self.create_paginator(10, -1)
+        self.assertTrue(paginator.wrong_page_number)
+
+    def test_wrong_page_number__greater_then_maximum(self):
+        paginator = self.create_paginator(10, 11)
+        self.assertTrue(paginator.wrong_page_number)
