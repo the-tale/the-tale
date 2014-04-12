@@ -411,7 +411,7 @@ class AccountResource(BaseAccountsResource):
         from the_tale.forum.models import Thread
         from the_tale.game.bills.prototypes import BillPrototype
         from the_tale.game.ratings.prototypes import RatingPlacesPrototype, RatingValuesPrototype
-        from the_tale.game.phrase_candidates.models import PhraseCandidate
+        from the_tale.game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
         from the_tale.accounts.clans.logic import ClanInfo
 
         bills_count = BillPrototype.accepted_bills_count(self.master_account.id)
@@ -424,7 +424,8 @@ class AccountResource(BaseAccountsResource):
 
         rating_values = RatingValuesPrototype.get_by_account_id(self.master_account.id)
 
-        phrases_count = PhraseCandidate.objects.filter(author=self.master_account._model).count()
+        phrases_count = PhraseCandidate.objects.filter(author=self.master_account._model,
+                                                       state=PHRASE_CANDIDATE_STATE.ADDED).count()
 
         folclor_posts_count = BlogPost.objects.filter(author=self.master_account._model, state=BLOG_POST_STATE.ACCEPTED).count()
 
