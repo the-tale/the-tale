@@ -1,5 +1,7 @@
 # coding: utf-8
 import os
+import time
+import datetime
 
 from django.conf import settings as project_settings
 
@@ -8,6 +10,8 @@ from dext.utils.urls import url
 from textgen import words
 
 from the_tale.common.utils.enum import create_enum
+
+from the_tale.accounts.conf import accounts_settings
 
 from the_tale.game.prototypes import TimePrototype
 
@@ -130,6 +134,7 @@ def _form_game_account_info(game_time, account, in_pvp_queue, is_own):
 
     data = { 'new_messages': account.new_messages_number if is_own else 0,
              'id': account.id,
+             'last_visit': time.mktime((account.active_end_at - datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT)).timetuple()),
              'is_own': is_own,
              'is_old': False,
              'hero': None,
