@@ -197,6 +197,7 @@ class Worker(BaseWorker):
                 game_environment.highlevel.cmd_next_turn(turn_number=self.time.turn_number)
                 self.wait_answers_from('next_turn', workers=['highlevel'], timeout=game_settings.PROCESS_TURN_WAIT_HIGHLEVEL_TIMEOUT)
         except amqp_exceptions.WaitAnswerTimeoutError:
+            self.logger.error('next turn timeout while getting answer from highlevel')
             self._force_stop()
             raise
 
