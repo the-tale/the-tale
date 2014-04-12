@@ -77,6 +77,11 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
     def test_purchased(self):
         self.assertEqual(PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE.level_required, 1)
 
+    def test_wrong_format_of_energy_regeneration_type(self):
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, '3.5')
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_ENERGY_REGENERATION_TYPE)
+
     def test_wrong_energy_regeneration_type(self):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, 666)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
@@ -327,6 +332,11 @@ class HeroPreferencesPlaceTest(TestCase):
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PLACE)
 
+    def test_wrong_format_of_place(self):
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.PLACE, '3.5')
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PLACE)
+
     def test_set_place(self):
         self.assertEqual(HeroPreferences.get_citizens_of(self.place), [])
         changed_at = self.hero.preferences.place_changed_at
@@ -475,6 +485,11 @@ class HeroPreferencesFriendTest(TestCase):
 
     def test_wrong_friend(self):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, 666)
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON)
+
+    def test_wrong_format(self):
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FRIEND, '3.5')
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON)
 
@@ -662,6 +677,11 @@ class HeroPreferencesEnemyTest(TestCase):
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON)
 
+    def test_wrong_format_of_enemy(self):
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.ENEMY, '3.5')
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON)
+
     def test_set_outgame_enemy(self):
         enemy = persons_storage[self.enemy_id]
         enemy.move_out_game()
@@ -841,6 +861,11 @@ class HeroPreferencesEquipmentSlotTest(TestCase):
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT)
 
+    def test_wrong_forma_of_slot(self):
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.EQUIPMENT_SLOT, '3.5')
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT)
+
     def test_set_equipment_slot(self):
         changed_at = self.hero.preferences.equipment_slot_changed_at
         self.check_set_equipment_slot(self.slot_1)
@@ -946,6 +971,11 @@ class HeroPreferencesFavoriteItemTest(TestCase):
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT)
 
+    def test_wrong_format_of_slot(self):
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.FAVORITE_ITEM, '3.5')
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT)
+
     def test_set_favorite_item(self):
         changed_at = self.hero.preferences.favorite_item_changed_at
         self.check_set_favorite_item(self.slot_1)
@@ -1042,6 +1072,12 @@ class HeroPreferencesRiskLevelTest(TestCase):
 
     def test_wrong_risk_level(self):
         task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.RISK_LEVEL, 666)
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_RISK_LEVEL)
+        self.assertTrue(self.hero.preferences.risk_level.is_NORMAL )
+
+    def test_wrong_format_of_risk_level(self):
+        task = ChoosePreferencesTask(self.hero.id, PREFERENCE_TYPE.RISK_LEVEL, '3.5')
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_RISK_LEVEL)
         self.assertTrue(self.hero.preferences.risk_level.is_NORMAL )

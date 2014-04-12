@@ -214,7 +214,13 @@ class ChoosePreferencesTask(PostponedLogic):
     def error_message(self): return CHOOSE_PREFERENCES_TASK_STATE._CHOICES[self.state][1]
 
     def process_energy_regeneration(self, main_task, hero):
-        energy_regeneration_type = int(self.preference_id) if self.preference_id is not None else None
+
+        try:
+            energy_regeneration_type = int(self.preference_id) if self.preference_id is not None else None
+        except:
+            main_task.comment = u'unknown energy regeneration type: %s' % (self.preference_id, )
+            self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_ENERGY_REGENERATION_TYPE
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if energy_regeneration_type is None:
             main_task.comment = u'energy regeneration preference can not be None'
@@ -259,7 +265,12 @@ class ChoosePreferencesTask(PostponedLogic):
 
 
     def process_place(self, main_task, hero):
-        place_id = int(self.preference_id) if self.preference_id is not None else None
+        try:
+            place_id = int(self.preference_id) if self.preference_id is not None else None
+        except:
+            main_task.comment = u'unknown place id: %s' % (self.preference_id, )
+            self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PLACE
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if place_id is not None:
 
@@ -274,7 +285,12 @@ class ChoosePreferencesTask(PostponedLogic):
 
 
     def process_friend(self, main_task, hero):
-        friend_id = int(self.preference_id) if self.preference_id is not None else None
+        try:
+            friend_id = int(self.preference_id) if self.preference_id is not None else None
+        except:
+            main_task.comment = u'unknown person id: %s' % (self.preference_id, )
+            self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if friend_id is not None:
             if hero.preferences.enemy and hero.preferences.enemy.id == friend_id:
@@ -298,7 +314,12 @@ class ChoosePreferencesTask(PostponedLogic):
 
 
     def process_enemy(self, main_task, hero):
-        enemy_id = int(self.preference_id) if self.preference_id is not None else None
+        try:
+            enemy_id = int(self.preference_id) if self.preference_id is not None else None
+        except:
+            main_task.comment = u'unknown person id: %s' % (self.preference_id, )
+            self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if enemy_id is not None:
             if hero.preferences.friend and hero.preferences.friend.id == enemy_id:
@@ -323,7 +344,12 @@ class ChoosePreferencesTask(PostponedLogic):
 
     def process_equipment_slot(self, main_task, hero):
 
-        equipment_slot = int(self.preference_id) if self.preference_id is not None else None
+        try:
+            equipment_slot = int(self.preference_id) if self.preference_id is not None else None
+        except:
+            main_task.comment = u'unknown equipment slot: %s' % (self.preference_id, )
+            self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if equipment_slot is not None:
 
@@ -340,7 +366,12 @@ class ChoosePreferencesTask(PostponedLogic):
 
     def process_favorite_item(self, main_task, hero):
 
-        equipment_slot = int(self.preference_id) if self.preference_id is not None else None
+        try:
+            equipment_slot = int(self.preference_id) if self.preference_id is not None else None
+        except:
+            main_task.comment = u'unknown equipment slot: %s' % (self.preference_id, )
+            self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if equipment_slot is not None:
 
@@ -363,7 +394,12 @@ class ChoosePreferencesTask(PostponedLogic):
 
     def process_risk_level(self, main_task, hero):
 
-        risk_level = int(self.preference_id) if self.preference_id is not None else None
+        try:
+            risk_level = int(self.preference_id) if self.preference_id is not None else None
+        except:
+            main_task.comment = u'unknown risk level: %s' % (self.preference_id, )
+            self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_RISK_LEVEL
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if risk_level is not None:
 
