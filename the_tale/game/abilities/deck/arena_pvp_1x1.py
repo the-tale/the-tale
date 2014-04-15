@@ -9,6 +9,8 @@ from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
 from the_tale.game.abilities.prototypes import AbilityPrototype
 from the_tale.game.abilities.relations import ABILITY_TYPE, ABILITY_RESULT
 
+from the_tale.game.pvp.prototypes import Battle1x1Prototype
+
 ABILITY_TASK_STEP = create_enum('ABILITY_TASK_STEP', (('ERROR', 0, u'ошибка'),
                                                       ('LOGIC', 1, u'логика'),
                                                       ('PVP_BALANCER', 2, u'pvp балансировщик'),
@@ -35,6 +37,9 @@ class ArenaPvP1x1(AbilityPrototype):
 
         elif step == ABILITY_TASK_STEP.PVP_BALANCER:
 
-            pvp_balancer.add_to_arena_queue(data['hero_id'])
+            battle = Battle1x1Prototype.get_by_account_id(data['account_id'])
+
+            if battle is None:
+                pvp_balancer.add_to_arena_queue(data['hero_id'])
 
             return ABILITY_RESULT.SUCCESSED, ABILITY_TASK_STEP.SUCCESS, ()

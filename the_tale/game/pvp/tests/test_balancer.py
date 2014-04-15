@@ -1,6 +1,7 @@
 # coding: utf-8
 import mock
 import datetime
+import random
 
 from the_tale.common.utils import testcase
 
@@ -16,7 +17,8 @@ from the_tale.game.models import SupervisorTask
 
 from the_tale.game.pvp.models import Battle1x1, BATTLE_1X1_STATE
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
-from the_tale.game.pvp.workers.balancer import QueueRecord, BalancingRecord
+from the_tale.game.pvp.workers.balancer import QueueRecord, BalancingRecord, PvPBalancerException
+from the_tale.game.pvp import relations
 
 
 from the_tale.game.pvp.conf import pvp_settings
@@ -69,6 +71,31 @@ class BalancerTests(BalancerTestsBase):
         battle_2 = Battle1x1Prototype.create(AccountPrototype.get_by_id(self.account_1.id))
         self.assertEqual(Battle1x1.objects.all().count(), 1)
         self.assertEqual(battle_1.id, battle_2.id)
+
+    def test_process_add_to_arena_queue__battle_exists_in_waiting_state(self):
+        battle = self.worker.add_to_arena_queue(self.hero_1.id)
+
+        self.worker.arena_queue.clear()
+
+        self.assertEqual(self.worker.add_to_arena_queue(self.hero_1.id).id, battle.id)
+        self.assertEqual(len(self.worker.arena_queue), 1)
+        self.assertEqual(self.worker.arena_queue.values()[0], QueueRecord(account_id=self.account_1.id,
+                                                                          battle_id=battle.id,
+                                                                          created_at=battle.created_at,
+                                                                          hero_level=self.hero_1.level))
+
+    def test_process_add_to_arena_queue__battle_exists_not_in_waiting_state(self):
+        battle = self.worker.add_to_arena_queue(self.hero_1.id)
+
+        new_state = random.choice([record for record in relations.BATTLE_1X1_STATE.records if not record.is_WAITING])
+
+        battle.state = new_state
+        battle.save()
+
+        self.worker.arena_queue.clear()
+
+        self.assertRaises(PvPBalancerException, self.worker.add_to_arena_queue, self.hero_1.id)
+
 
     def test_process_add_to_arena_queue_second_record(self):
         self.worker.add_to_arena_queue(self.hero_1.id)

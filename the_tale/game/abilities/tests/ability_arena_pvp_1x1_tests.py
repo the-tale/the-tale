@@ -43,8 +43,9 @@ class ArenaPvP1x1AbilityTest(testcase.TestCase):
         self.pvp_balancer = workers_environment.pvp_balancer
         self.pvp_balancer.process_initialize('pvp_balancer')
 
-    def use_attributes(self, hero_id, step=None, storage=None, pvp_balancer=None):
-        return {'data': {'hero_id': hero_id},
+    def use_attributes(self, hero, step=None, storage=None, pvp_balancer=None):
+        return {'data': {'hero_id': hero.id,
+                         'account_id': hero.account_id},
                 'step': step,
                 'main_task_id': 0,
                 'storage': storage,
@@ -53,7 +54,7 @@ class ArenaPvP1x1AbilityTest(testcase.TestCase):
 
     def test_use(self):
 
-        result, step, postsave_actions = self.ability_1.use(**self.use_attributes(hero_id=self.hero_1.id, storage=self.storage))
+        result, step, postsave_actions = self.ability_1.use(**self.use_attributes(hero=self.hero_1, storage=self.storage))
 
         self.assertEqual((result, step), (ABILITY_RESULT.CONTINUE, ABILITY_TASK_STEP.PVP_BALANCER))
         self.assertEqual(len(postsave_actions), 1)
@@ -65,7 +66,7 @@ class ArenaPvP1x1AbilityTest(testcase.TestCase):
 
         self.assertEqual(Battle1x1.objects.all().count(), 0)
 
-        result, step, postsave_actions = self.ability_1.use(**self.use_attributes(hero_id=self.hero_1.id,
+        result, step, postsave_actions = self.ability_1.use(**self.use_attributes(hero=self.hero_1,
                                                                                   step=step,
                                                                                   pvp_balancer=self.pvp_balancer))
 
@@ -77,11 +78,46 @@ class ArenaPvP1x1AbilityTest(testcase.TestCase):
         self.assertEqual(battle.account.id, self.account_1.id)
         self.assertEqual(battle.enemy, None)
 
+    def test_use__for_existed_battle(self):
+
+        result, step, postsave_actions = self.ability_1.use(**self.use_attributes(hero=self.hero_1, storage=self.storage))
+
+        self.assertEqual((result, step), (ABILITY_RESULT.CONTINUE, ABILITY_TASK_STEP.PVP_BALANCER))
+        self.assertEqual(len(postsave_actions), 1)
+
+        with mock.patch('the_tale.game.pvp.workers.balancer.Worker.cmd_logic_task') as pvp_balancer_logic_task_counter:
+            postsave_actions[0]()
+
+        self.assertEqual(pvp_balancer_logic_task_counter.call_count, 1)
+
+        self.assertEqual(Battle1x1.objects.all().count(), 0)
+
+        result_1, step_1, postsave_actions_1 = self.ability_1.use(**self.use_attributes(hero=self.hero_1,
+                                                                                        step=step,
+                                                                                        pvp_balancer=self.pvp_balancer))
+
+        with mock.patch('the_tale.game.pvp.workers.balancer.Worker.add_to_arena_queue') as add_to_arena_queue:
+            result_2, step_2, postsave_actions_2 = self.ability_1.use(**self.use_attributes(hero=self.hero_1,
+                                                                                            step=step,
+                                                                                            pvp_balancer=self.pvp_balancer))
+
+        self.assertEqual(add_to_arena_queue.call_count, 0)
+
+        self.assertTrue((result_1, step_1, postsave_actions_1) ==
+                        (result_2, step_2, postsave_actions_2) ==
+                        (ABILITY_RESULT.SUCCESSED, ABILITY_TASK_STEP.SUCCESS, ()))
+
+        self.assertEqual(Battle1x1.objects.all().count(), 1)
+
+        battle = Battle1x1.objects.all()[0]
+        self.assertEqual(battle.account.id, self.account_1.id)
+        self.assertEqual(battle.enemy, None)
+
 
     def test_use_for_fast_account(self):
         self.assertEqual(Battle1x1.objects.all().count(), 0)
 
-        self.assertEqual(self.ability_2.use(**self.use_attributes(hero_id=self.hero_2.id, storage=self.storage)), (ABILITY_RESULT.FAILED, ABILITY_TASK_STEP.ERROR, ()))
+        self.assertEqual(self.ability_2.use(**self.use_attributes(hero=self.hero_2, storage=self.storage)), (ABILITY_RESULT.FAILED, ABILITY_TASK_STEP.ERROR, ()))
 
         self.assertEqual(Battle1x1.objects.all().count(), 0)
 
@@ -90,6 +126,6 @@ class ArenaPvP1x1AbilityTest(testcase.TestCase):
         from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
 
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
-            self.ability_1.use(**self.use_attributes(hero_id=self.hero_1.id, storage=self.storage))
+            self.ability_1.use(**self.use_attributes(hero=self.hero_1, storage=self.storage))
 
         self.assertEqual(update_habits.call_args_list, [mock.call(HABIT_CHANGE_SOURCE.ARENA_SEND)])

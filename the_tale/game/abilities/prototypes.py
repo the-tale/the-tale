@@ -14,6 +14,7 @@ class AbilityPrototype(object):
         from the_tale.game.abilities.postponed_tasks import UseAbilityTask
 
         data['hero_id'] = hero.id
+        data['account_id'] = hero.account_id
 
         ability_task = UseAbilityTask(ability_type=self.TYPE,
                                       hero_id=hero.id,

@@ -118,6 +118,9 @@ class Worker(BaseWorker):
 
         battle = Battle1x1Prototype.create(AccountPrototype.get_by_id(hero.account_id))
 
+        if not battle.state.is_WAITING:
+            raise PvPBalancerException('account %d already has battle not in waiting state' % hero.account_id)
+
         record = QueueRecord(account_id=battle.account_id,
                              created_at=battle.created_at,
                              battle_id=battle.id,
