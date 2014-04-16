@@ -20,7 +20,10 @@ from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.map.places.modifiers.prototypes import HolyCity, Resort
 
-from the_tale.game.balance import constants as c, formulas as f, enums as e
+from the_tale.game.balance import constants as c
+from the_tale.game.balance import formulas as f
+from the_tale.game.balance import enums as e
+from the_tale.game.balance.power import Power
 
 
 class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
@@ -175,7 +178,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
     def test_equip_action_create(self):
         artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1)
-        artifact.power = 666
+        artifact.power = Power(666, 666)
         self.hero.bag.put_artifact(artifact)
 
         self.storage.process_turn()
@@ -367,12 +370,12 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
         money = self._current_spending_cost()
 
-        old_power = self.hero.power
+        old_power = self.hero.power.clone()
 
         self.hero._model.money = money
         self.storage.process_turn()
         self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
-        self.assertEqual(old_power + 1, self.hero.power)
+        self.assertEqual(old_power.total() + 1, self.hero.power.total())
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_sharpening, money - self.hero.money)
@@ -387,14 +390,14 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
         money = self._current_spending_cost()
 
-        old_power = self.hero.power
-        old_plate_power = self.hero.equipment.get(EQUIPMENT_SLOT.PLATE).power
+        old_power = self.hero.power.clone()
+        old_plate_power = self.hero.equipment.get(EQUIPMENT_SLOT.PLATE).power.clone()
 
         self.hero._model.money = money
         self.storage.process_turn()
         self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
-        self.assertEqual(old_power + 1, self.hero.power)
-        self.assertEqual(old_plate_power + 1, self.hero.equipment.get(EQUIPMENT_SLOT.PLATE).power)
+        self.assertEqual(old_power.total() + 1, self.hero.power.total())
+        self.assertEqual(old_plate_power.total() + 1, self.hero.equipment.get(EQUIPMENT_SLOT.PLATE).power.total())
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_sharpening, money - self.hero.money)

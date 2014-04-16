@@ -946,6 +946,18 @@ class ActionBattlePvE1x1Prototype(ActionBase):
             real_experience = self.hero.add_experience(raw_experience)
             self.hero.add_message('action_battlepve1x1_exp_for_kill', hero=self.hero, mob=self.mob, diary=True, experience=real_experience)
 
+    def process_artifact_breaking(self):
+        artifacts = self.hero.equipment.values()
+
+        if not artifacts:
+            return
+
+        artifact = random.choice(artifacts)
+
+        if artifact.test_to_break():
+            artifact.break_it()
+            self.hero.add_message('action_battlepve1x1_artifact_broken', hero=self.hero, mob=self.mob, diary=True, artifact=artifact)
+
 
     def process(self):
 
@@ -977,6 +989,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
                 self.state = self.STATE.PROCESSED
 
             if self.state == self.STATE.PROCESSED:
+                self.process_artifact_breaking()
                 self.remove_mob()
 
 

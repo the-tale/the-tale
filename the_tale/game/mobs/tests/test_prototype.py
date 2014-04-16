@@ -1,6 +1,4 @@
 # coding: utf-8
-import mock
-
 from dext.utils import s11n
 
 from textgen.words import Noun
@@ -15,8 +13,7 @@ from the_tale.game.map.relations import TERRAIN
 from the_tale.game.heroes.prototypes import HeroPrototype
 
 from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
-from the_tale.game.artifacts.models import ARTIFACT_RECORD_STATE
-from the_tale.game.artifacts.relations import ARTIFACT_TYPE
+from the_tale.game.artifacts.relations import ARTIFACT_TYPE, ARTIFACT_RECORD_STATE
 
 from the_tale.game.mobs.storage import mobs_storage
 from the_tale.game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE

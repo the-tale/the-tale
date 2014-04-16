@@ -308,7 +308,7 @@ class BuyRandomPremiumChest(BaseBuyHeroMethod):
         result = getattr(hero, reward.hero_method)(**reward.arguments)
 
         if reward.is_ARTIFACT:
-            message = self.MESSAGE % {'reward': (u'%s +%d' % (result.name, result.power))}
+            message = self.MESSAGE % {'reward': (u'%s %d/%d' % (result.name, result.power.physic, result.power.magic))}
         else:
             message = self.MESSAGE % {'reward': reward.description}
 

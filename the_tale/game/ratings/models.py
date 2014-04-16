@@ -11,7 +11,8 @@ class RatingValues(models.Model):
 
     bills_count = models.IntegerField(default=0, db_index=True)
 
-    power = models.IntegerField(default=0, db_index=True)
+    magic_power = models.IntegerField(default=0, db_index=True)
+    physic_power = models.IntegerField(default=0, db_index=True)
 
     level = models.IntegerField(default=0, db_index=True)
 
@@ -35,7 +36,8 @@ class RatingPlaces(models.Model):
 
     bills_count_place = models.BigIntegerField(db_index=True)
 
-    power_place = models.BigIntegerField(db_index=True)
+    magic_power_place = models.BigIntegerField(db_index=True)
+    physic_power_place = models.BigIntegerField(db_index=True)
 
     level_place = models.BigIntegerField(db_index=True)
 

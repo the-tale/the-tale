@@ -3,7 +3,7 @@
 import random
 import datetime
 
-from the_tale.game.balance import formulas as f
+from the_tale.game.balance.power import Power
 
 from the_tale.game.heroes import relations
 
@@ -41,8 +41,9 @@ class ShopAccessorsMixin(object):
         self.add_experience(experience)
 
     def purchase_artifact(self):
+        distribution = self.preferences.archetype.power_distribution
         artifact = random.choice(artifacts_storage.artifacts).create_artifact(level=self.level,
-                                                                              power=f.power_to_better_artifact_randomized(self.level))
+                                                                              power=Power.better_artifact_power_randomized(distribution, self.level))
         self.bag.put_artifact(artifact)
 
         self.actions.request_replane()

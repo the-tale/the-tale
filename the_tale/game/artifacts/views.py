@@ -12,8 +12,7 @@ from the_tale.common.utils.enum import create_enum
 
 from the_tale.game.map.relations import TERRAIN
 
-from the_tale.game.artifacts.models import ARTIFACT_RECORD_STATE, RARITY_TYPE
-from the_tale.game.artifacts.relations import ARTIFACT_TYPE
+from the_tale.game.artifacts import relations
 from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
 from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.artifacts.forms import ArtifactRecordForm, ModerateArtifactRecordForm
@@ -22,7 +21,7 @@ from the_tale.game.artifacts.forms import ArtifactRecordForm, ModerateArtifactRe
 INDEX_ORDER_TYPE = create_enum('INDEX_ORDER_TYPE', (('BY_LEVEL', 'by_level', u'по уровню'),
                                                     ('BY_NAME', 'by_name', u'по имени'),))
 
-def argument_to_artifact_type(value): return ARTIFACT_TYPE(int(value))
+def argument_to_artifact_type(value): return relations.ARTIFACT_TYPE(int(value))
 def argument_to_artifact(value): return artifacts_storage.get(int(value), None)
 
 
@@ -42,35 +41,29 @@ class GuideArtifactResource(ArtifactResourceBase):
 
     @validator(code='artifacts.artifact_disabled', message=u'артефакт находится вне игры', status_code=404)
     def validate_artifact_disabled(self, *args, **kwargs):
-        return not self.artifact.state.is_disabled or self.can_create_artifact or self.can_moderate_artifact
+        return not self.artifact.state.is_DISABLED or self.can_create_artifact or self.can_moderate_artifact
 
 
-    @validate_argument('state', ARTIFACT_RECORD_STATE, 'artifacts', u'неверное состояние записи об артефакте')
-    @validate_argument('rarity', RARITY_TYPE, 'artifacts', u'неверный тип редкости артефакта')
+    @validate_argument('state', lambda v: relations.ARTIFACT_RECORD_STATE.index_value[int(v)], 'artifacts', u'неверное состояние записи об артефакте')
     @validate_argument('type', argument_to_artifact_type, 'artifacts', u'неверный тип артефакта')
     @validate_argument('order_by', INDEX_ORDER_TYPE, 'artifacts', u'неверный тип сортировки')
     @handler('', method='get')
     def index(self,
-              state=ARTIFACT_RECORD_STATE(ARTIFACT_RECORD_STATE.ENABLED),
+              state=relations.ARTIFACT_RECORD_STATE.ENABLED,
               type=None, # pylint: disable=W0622
-              rarity=None,
               order_by=INDEX_ORDER_TYPE(INDEX_ORDER_TYPE.BY_NAME)):
 
         artifacts = artifacts_storage.all()
 
         if not self.can_create_artifact and not self.can_moderate_artifact:
-            artifacts = filter(lambda artifact: artifact.state.is_enabled, artifacts) # pylint: disable=W0110
+            artifacts = filter(lambda artifact: artifact.state.is_ENABLED, artifacts) # pylint: disable=W0110
 
         is_filtering = False
 
         if state is not None:
-            if not state.is_enabled: # if not default
+            if not state.is_ENABLED: # if not default
                 is_filtering = True
             artifacts = filter(lambda artifact: artifact.state == state, artifacts) # pylint: disable=W0110
-
-        if rarity is not None:
-            is_filtering = True
-            artifacts = filter(lambda artifact: artifact.rarity == rarity, artifacts) # pylint: disable=W0110
 
         if type is not None:
             is_filtering = True
@@ -82,18 +75,15 @@ class GuideArtifactResource(ArtifactResourceBase):
             artifacts = sorted(artifacts, key=lambda artifact: artifact.level)
 
         url_builder = UrlBuilder(reverse('guide:artifacts:'), arguments={ 'state': state.value if state else None,
-                                                                          'rarity': rarity.value if rarity else None,
                                                                           'type': type.value if type else None,
                                                                           'order_by': order_by.value})
         return self.template('artifacts/index.html',
                              {'artifacts': artifacts,
                               'is_filtering': is_filtering,
-                              'ARTIFACT_RECORD_STATE': ARTIFACT_RECORD_STATE,
+                              'ARTIFACT_RECORD_STATE': relations.ARTIFACT_RECORD_STATE,
                               'TERRAIN': TERRAIN,
-                              'RARITY_TYPE': RARITY_TYPE,
-                              'ARTIFACT_TYPE': ARTIFACT_TYPE,
+                              'ARTIFACT_TYPE': relations.ARTIFACT_TYPE,
                               'state': state,
-                              'rarity': rarity,
                               'type': type,
                               'order_by': order_by,
                               'INDEX_ORDER_TYPE': INDEX_ORDER_TYPE,
@@ -121,7 +111,7 @@ class GameArtifactResource(ArtifactResourceBase):
     def validate_moderate_rights(self, *args, **kwargs): return self.can_moderate_artifact
 
     @validator(code='artifacts.disabled_state_required', message=u'Для проведения этой операции артефакт должен быть убран из игры')
-    def validate_disabled_state(self, *args, **kwargs): return self.artifact.state.is_disabled
+    def validate_disabled_state(self, *args, **kwargs): return self.artifact.state.is_DISABLED
 
     @login_required
     @validate_create_rights()
@@ -144,9 +134,9 @@ class GameArtifactResource(ArtifactResourceBase):
                                                   name=form.c.name,
                                                   description=form.c.description,
                                                   type_=form.c.type,
-                                                  rarity=form.c.rarity,
                                                   editor=self.account,
-                                                  state=ARTIFACT_RECORD_STATE.DISABLED,
+                                                  state=relations.ARTIFACT_RECORD_STATE.DISABLED,
+                                                  power_type=form.c.power_type,
                                                   mob=form.c.mob)
         return self.json_ok(data={'next_url': reverse('guide:artifacts:show', args=[artifact.id])})
 
@@ -159,7 +149,7 @@ class GameArtifactResource(ArtifactResourceBase):
         form = ArtifactRecordForm(initial={'name': self.artifact.name,
                                            'level': self.artifact.level,
                                            'type': self.artifact.type.value,
-                                           'rarity': self.artifact.type.value,
+                                           'power_type': self.artifact.power_type.value,
                                            'description': self.artifact.description,
                                            'mob': self.artifact.mob.id if self.artifact.mob is not None else None})
 
@@ -188,11 +178,10 @@ class GameArtifactResource(ArtifactResourceBase):
         form = ModerateArtifactRecordForm(initial={'name': self.artifact.name,
                                                    'level': self.artifact.level,
                                                    'type': self.artifact.type.value,
-                                                   'rarity': self.artifact.type.value,
                                                    'description': self.artifact.description,
                                                    'uuid': self.artifact.uuid,
                                                    'name_forms': self.artifact.name_forms.serialize(),
-                                                   'approved': self.artifact.state.is_enabled,
+                                                   'approved': self.artifact.state.is_ENABLED,
                                                    'mob': self.artifact.mob.id if self.artifact.mob is not None else None})
 
         return self.template('artifacts/moderate.html', {'artifact': self.artifact,

@@ -17,7 +17,9 @@ from the_tale.game.map.roads.storage import roads_storage
 
 from the_tale.game.map.storage import map_info_storage
 
-from the_tale.game.balance import constants as c, formulas as f
+from the_tale.game.balance import constants as c
+from the_tale.game.balance import formulas as f
+from the_tale.game.balance.power import Power
 
 from the_tale.game import names
 
@@ -114,10 +116,10 @@ class HeroPrototype(BasePrototype,
     def gender_verbose(self): return self.gender.text
 
     @property
-    def power(self): return f.clean_power_to_lvl(self.level) + self.equipment.get_power()
+    def power(self): return Power.clean_power_for_hero_level(self.level) + self.equipment.get_power()
 
     @property
-    def basic_damage(self): return f.damage_from_power(self.power) * self.damage_modifier
+    def basic_damage(self): return self.power.damage() * self.damage_modifier
 
     @property
     def race_verbose(self): return self.race.text
@@ -159,11 +161,7 @@ class HeroPrototype(BasePrototype,
         if self.preferences.enemy is not None and (self.position.place is None or self.preferences.enemy.place.id != self.position.place.id):
             quests.append(QUESTS.INTERFERE_ENEMY)
         if self.preferences.equipment_slot is not None:
-            equipped_artifact = self.equipment.get(self.preferences.equipment_slot)
-            equipped_power = equipped_artifact.power if equipped_artifact else -1
-            min_power, max_power = f.power_to_artifact_interval(self.level) # pylint: disable=W0612
-            if equipped_power <= max_power:
-                quests.append(QUESTS.SEARCH_SMITH)
+            quests.append(QUESTS.SEARCH_SMITH)
 
         if any(place.modifier and place.modifier.TYPE.is_HOLY_CITY for place in places_storage.all()):
             if self.position.place is None or self.position.place.modifier is None or not self.position.place.modifier.TYPE.is_HOLY_CITY:
@@ -225,11 +223,14 @@ class HeroPrototype(BasePrototype,
         slot = artifact.type.equipment_slot
         unequipped = self.equipment.get(slot)
 
-        if better and unequipped is not None and artifact.power < unequipped.power:
-            artifact.power = unequipped.power + 1
+        distribution = self.preferences.archetype.power_distribution
 
-        min_power, max_power = f.power_to_artifact_interval(self.level) # pylint: disable=W0612
-        artifact.power = min(artifact.power, max_power)
+        if (better and unequipped is not None and
+            artifact.preference_rating(distribution) <  unequipped.preference_rating(distribution)):
+            artifact.make_better_than(unequipped, distribution)
+
+        # min_power, max_power = f.power_to_artifact_interval(self.level) # pylint: disable=W0612
+        # artifact.power = min(artifact.power, max_power)
 
         self.change_equipment(slot, unequipped, artifact)
 
@@ -262,12 +263,13 @@ class HeroPrototype(BasePrototype,
         if self.preferences.equipment_slot is not None:
             choices.insert(0, self.preferences.equipment_slot)
 
-        min_power, max_power = f.power_to_artifact_interval(self.level) # pylint: disable=W0612
+        distribution = self.preferences.archetype.power_distribution
+
+        min_power, max_power = Power.artifact_power_interval(distribution, self.level) # pylint: disable=W0612
 
         for slot in choices:
             artifact = self.equipment.get(slot)
-            if artifact is not None and artifact.power < max_power:
-                artifact.power += 1
+            if artifact is not None and artifact.sharp(distribution, max_power):
                 self.equipment.updated = True
                 return artifact
 
@@ -275,8 +277,7 @@ class HeroPrototype(BasePrototype,
         random.shuffle(choices)
         for slot in choices:
             artifact = self.equipment.get(slot)
-            if artifact is not None:
-                artifact.power += 1
+            if artifact is not None and artifact.sharp(distribution, max_power, force=True):
                 self.equipment.updated = True
                 return artifact
 
@@ -286,6 +287,8 @@ class HeroPrototype(BasePrototype,
         equipped_slot = None
         equipped = None
         unequipped = None
+
+        distribution = self.preferences.archetype.power_distribution
 
         for artifact in self.bag.values():
             if not artifact.can_be_equipped:
@@ -303,7 +306,7 @@ class HeroPrototype(BasePrototype,
                 equipped = artifact
                 break
 
-            if equipped_artifact.power < artifact.power:
+            if equipped_artifact.preference_rating(distribution) < artifact.preference_rating(distribution):
                 equipped = artifact
                 unequipped = equipped_artifact
                 equipped_slot = slot
@@ -543,7 +546,8 @@ class HeroPrototype(BasePrototype,
             self.bag.serialize()
 
         if self.equipment.updated:
-            self._model.raw_power = self.power
+            self._model.raw_power_physic = self.power.physic
+            self._model.raw_power_magic = self.power.magic
             self.equipment.serialize()
 
         if self.abilities.updated:
@@ -666,7 +670,7 @@ class HeroPrototype(BasePrototype,
                           'race': self.race.value,
                           'money': self.money,
                           'alive': self.is_alive},
-                'secondary': { 'power': int(self.power),
+                'secondary': { 'power': self.power.ui_info(),
                                'move_speed': float(self.move_speed),
                                'initiative': self.initiative,
                                'max_bag_size': self.max_bag_size,

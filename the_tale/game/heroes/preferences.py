@@ -14,7 +14,7 @@ from the_tale.game.map.places.storage import places_storage
 
 from the_tale.game.persons.storage import persons_storage
 
-from the_tale.game.heroes.relations import EQUIPMENT_SLOT, PREFERENCE_TYPE, RISK_LEVEL
+from the_tale.game.heroes import relations
 from the_tale.game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
 
 
@@ -60,7 +60,7 @@ class _PreferencesMetaclass(type):
 
     def __new__(mcs, name, bases, attributes):
 
-        for preference in PREFERENCE_TYPE.records:
+        for preference in relations.PREFERENCE_TYPE.records:
             getter = mcs.create_preference_getter(preference)
             attributes[getter.__name__] = property(getter)
 
@@ -144,11 +144,11 @@ class HeroPreferences(object):
 
     def _prepair_equipment_slot(self, slot_id):
         if slot_id is None: return None
-        return EQUIPMENT_SLOT.index_value.get(int(slot_id))
+        return relations.EQUIPMENT_SLOT.index_value.get(int(slot_id))
 
     def _prepair_risk_level(self, risk_id):
         if risk_id is None: return None
-        return RISK_LEVEL.index_value.get(int(risk_id))
+        return relations.RISK_LEVEL.index_value.get(int(risk_id))
 
     def _get(self, preferences_type):
         if preferences_type.base_name not in self.data:
@@ -166,6 +166,9 @@ class HeroPreferences(object):
     @property
     def energy_regeneration_type_name(self):
         return e.ANGEL_ENERGY_REGENERATION_TYPES._ID_TO_TEXT[self.energy_regeneration_type]
+
+
+    archetype = relations.ARCHETYPE.NEUTRAL
 
     # helpers
 

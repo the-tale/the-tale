@@ -32,52 +32,11 @@ def total_exp_to_lvl(lvl): return int(sum(exp_on_lvl(x) for x in xrange(1, lvl+1
 # и добавляем 1
 def lvl_after_time(time): return int(1 + (-c.TIME_TO_LVL_DELTA + math.sqrt(c.TIME_TO_LVL_DELTA) * math.sqrt(8 * time + c.TIME_TO_LVL_DELTA)) / (2 * c.TIME_TO_LVL_DELTA))
 
-# чистая сила героя на уровень
-def clean_power_to_lvl(lvl): return int(lvl * c.POWER_PER_LVL)
-
-# общая ожидаемая сила артефактов, надетых на героя указанного уровня к моменту получения следующего уровня
-# рассматривался альтернативный вариант - зависимость силы, от времени, но в этом случае она растёт очень быстро, что плохо сказывается на цифрах урона и т.п.
-def power_to_lvl(lvl): return int(lvl * c.POWER_TO_LVL)
-
-def power_to_artifact(lvl): return power_to_lvl(lvl) / c.EQUIP_SLOTS_NUMBER
-
-# функция, для получения случайного значения силы артефакта
-def power_to_artifact_interval(lvl):
-    base_power = power_to_artifact(lvl)
-    delta = int(base_power * c.ARTIFACT_POWER_DELTA)
-    min_power = max(base_power - delta, 1)
-    max_power = base_power + delta
-    return min_power, max_power
-
-def power_to_artifact_randomized(lvl):
-    return random.randint(*power_to_artifact_interval(lvl))
-
-# артефакт лучше среднего для магазина
-def power_to_better_artifact_randomized(lvl):
-    base_power = power_to_artifact(lvl)
-    delta = max(int(base_power * c.ARTIFACT_POWER_DELTA), c.ARTIFACT_BETTER_MIN_POWER_DELTA)
-    return random.randint(base_power+1, base_power+1+2*delta)
-
-# Предполагаем, что мобы различаются по инициативе (скорости), здоровью и урону. Каждый из этих параметров высчитывается как процент от среднего (ожидаемого) значения.
-# Таким образом, каждый параметр может быть, например от 0.5 до 1.5. Сложность моба расчитывается по формуле, учитывающей влияние этих параметров на задержку героя
-# в сравнении с битвой со средним мобом. Опыт даётся пропорционально сложности.
-#
-
 def mob_hp_to_lvl(lvl): return int(hp_on_lvl(lvl) * c.MOB_HP_MULTIPLIER) # здоровье моба уровня героя
 def boss_hp_to_lvl(lvl): return int(hp_on_lvl(lvl) * c.BOSS_HP_MULTIPLIER) # здоровье босса уровня героя
 
 def expected_damage_to_hero_per_hit(lvl): return float(hp_on_lvl(lvl) * c.DAMAGE_TO_HERO_PER_HIT_FRACTION) # ожидаемый урон моба по герою за удар
 def expected_damage_to_mob_per_hit(lvl): return float(mob_hp_to_lvl(lvl) * c.DAMAGE_TO_MOB_PER_HIT_FRACTION) # ожидаемый урон героя по мобу за удар
-
-# находим зависимость урона, наносимого героем от его силы
-# для этого опираясь на силу, оцениваем уровень героя, на котором она может быть и исходя из этого делаем предположение об уроне мобу
-# т.к. здоровье моба зависит от здоровья героя, то полученая формула должна быть применима и в PvP - т.е. бои просто будут идти дольше
-# решаем уравнение:  Solve[power == powerToLvl[lvl], lvl];
-# ВНИМАНИЕ: должен быть float
-def expected_lvl_from_power(power): return float(power) / (c.POWER_PER_LVL + c.POWER_TO_LVL) # оцениваемый уровень героя, исходя из его силы
-
-def damage_from_power(power): return float(expected_damage_to_mob_per_hit(expected_lvl_from_power(power)))  # урон, наносимый героем
-
 
 def battles_on_lvl(lvl): return int(time_on_lvl(lvl) * c.BATTLES_PER_HOUR)
 
@@ -125,10 +84,7 @@ def total_gold_at_lvl(lvl): return int(sum(expected_gold_at_lvl(x) for x in xran
 
 def normal_action_price(lvl): return int(expected_gold_in_day(lvl) * c.NORMAL_ACTION_PRICE_MULTIPLYER)
 
-# +1 top power - to prevent total zero power -> zero lvl
-# +1 to slots - to emulate heroe's clean power
 def sell_artifact_price(lvl):
-    # lvl = int(math.ceil(expected_lvl_from_power((power+1)*c.EQUIP_SLOTS_NUMBER)))
     return int(expected_gold_in_day(lvl) * c.SELL_ARTIFACT_PRICE_FRACTION)
 
 # задания (квесты)

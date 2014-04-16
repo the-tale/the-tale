@@ -12,7 +12,9 @@ from questgen.relations import OPTION_MARKERS_GROUPS
 
 from the_tale.game.prototypes import TimePrototype
 
-from the_tale.game.balance import constants as c, formulas as f
+from the_tale.game.balance import constants as c
+from the_tale.game.balance import formulas as f
+from the_tale.game.balance.power import Power
 
 from the_tale.game.mobs.storage import mobs_storage
 
@@ -439,7 +441,8 @@ class QuestPrototype(object):
             artifact, unequipped, sell_price = hero.buy_artifact(better=False, with_prefered_slot=False, equip=False)# pylint: disable=W0612
 
             if artifact is not None:
-                artifact.power += int((scale - 1.0) * c.POWER_TO_LVL)
+                artifact.power += Power(physic=int((scale - 1.0) * c.POWER_TO_LVL / 2 ),
+                                        magic=int((scale - 1.0) * c.POWER_TO_LVL / 2 ) )
                 quest_info.process_message(knowledge_base=self.knowledge_base,
                                            hero=self.hero,
                                            message='%s_artifact' % reward_type,

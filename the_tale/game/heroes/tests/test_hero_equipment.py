@@ -1,7 +1,5 @@
 # coding: utf-8
 
-import mock
-
 from the_tale.common.utils.testcase import TestCase
 
 from the_tale.accounts.prototypes import AccountPrototype
@@ -10,7 +8,7 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.logic import create_test_map
 from the_tale.game.artifacts.storage import artifacts_storage
 
-from the_tale.game.balance import formulas as f
+from the_tale.game.balance.power import Power
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT
@@ -34,21 +32,28 @@ class HeroEquipmentTests(TestCase):
     def test_sharp_artifact(self):
         old_power = self.hero.power
         artifact = self.hero.sharp_artifact()
-        self.assertEqual(self.hero.power, old_power+1)
-        self.assertEqual(artifact.power, 1)
+        self.assertTrue(self.hero.power.physic > old_power.physic or
+                        self.hero.power.magic > old_power.magic)
+        self.assertTrue(artifact.power == Power(1, 0) or
+                        artifact.power == Power(0, 1))
         self.assertTrue(self.hero.equipment.updated)
 
 
     def test_sharp_artifact_when_all_artifacts_has_max_power(self):
-        min_power, max_power = f.power_to_artifact_interval(self.hero.level)
+        distribution = self.hero.preferences.archetype.power_distribution
+        min_power, max_power = Power.artifact_power_interval(distribution, self.hero.level)
 
         for artifact in self.hero.equipment.equipment.values():
-            artifact.power = max_power
+            artifact.power = max_power.clone()
 
         old_power = self.hero.power
         artifact = self.hero.sharp_artifact()
-        self.assertEqual(self.hero.power, old_power+1)
-        self.assertEqual(artifact.power, max_power + 1)
+
+        self.assertTrue(self.hero.power.physic > old_power.physic or
+                        self.hero.power.magic > old_power.magic)
+
+        self.assertTrue(artifact.power == max_power + Power(1, 0) or
+                        artifact.power == max_power + Power(0, 1))
         self.assertTrue(self.hero.equipment.updated)
 
     def test_sharp_preferences(self):
@@ -58,7 +63,8 @@ class HeroEquipmentTests(TestCase):
         self.assertTrue(artifact.type.is_MAIN_HAND)
 
     def test_sharp_preferences_with_max_power(self):
-        min_power, max_power = f.power_to_artifact_interval(self.hero.level)
+        distribution = self.hero.preferences.archetype.power_distribution
+        min_power, max_power = Power.artifact_power_interval(distribution, self.hero.level)
 
         self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.HAND_PRIMARY)
 
@@ -106,7 +112,7 @@ class HeroEquipmentTests(TestCase):
 
         # change artifact
         new_artifact = artifacts_storage.generate_artifact_from_list([artifact.record], self.hero.level)
-        new_artifact.power = artifact.power + 1
+        new_artifact.power = artifact.power + Power(1, 1)
         self.hero.bag.put_artifact(new_artifact)
 
         slot, unequipped, equipped = self.hero.get_equip_canditates()
@@ -129,7 +135,7 @@ class HeroEquipmentTests(TestCase):
         old_artifact = self.hero.equipment.get(EQUIPMENT_SLOT.HAND_PRIMARY)
 
         artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts_for_type([EQUIPMENT_SLOT.HAND_PRIMARY.artifact_type]), self.hero.level)
-        artifact.power = old_artifact.power + 1
+        artifact.power = old_artifact.power + Power(1, 1)
         self.hero.bag.put_artifact(artifact)
 
         slot, unequipped, equipped = self.hero.get_equip_canditates()
@@ -154,7 +160,8 @@ class HeroEquipmentTests(TestCase):
 
         self.hero.randomize_equip()
 
-        self.assertTrue(old_hero_power < self.hero.power)
+        self.assertTrue(old_hero_power.magic < self.hero.power.magic or
+                        old_hero_power.physic < self.hero.power.physic)
 
     def check_buy_artifact_choices(self, equip, with_prefered_slot, prefered_slot=None, favorite_slot=None, expected_choices_ids=frozenset()):
         self.hero._model.level = 666
@@ -253,62 +260,80 @@ class HeroEquipmentTests(TestCase):
         # just set any artifact
         self.hero.buy_artifact(better=False, with_prefered_slot=True, equip=True)
 
+        distribution = self.hero.preferences.archetype.power_distribution
+        min_power, max_power = Power.artifact_power_interval(distribution, self.hero.level)
+
         for i in xrange(100):
             old_artifact = self.hero.equipment.get(EQUIPMENT_SLOT.PLATE)
             self.hero.buy_artifact(better=False, with_prefered_slot=True, equip=True)
-            self.assertTrue(self.hero.equipment.get(EQUIPMENT_SLOT.PLATE).power >= old_artifact.power)
+            self.assertTrue(self.hero.equipment.get(EQUIPMENT_SLOT.PLATE).preference_rating(distribution) >= old_artifact.preference_rating(distribution))
 
     def test_compare_drop__none(self):
+        distribution = self.hero.preferences.archetype.power_distribution
+
         loot = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 666)
-        self.assertTrue(self.hero.bag._compare_drop(None, loot))
-        self.assertFalse(self.hero.bag._compare_drop(loot, None))
+        self.assertTrue(self.hero.bag._compare_drop(distribution, None, loot))
+        self.assertFalse(self.hero.bag._compare_drop(distribution, loot, None))
 
     def test_compare_drop__useless_and_useless(self):
+        distribution = self.hero.preferences.archetype.power_distribution
+
         loot_1 = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 2)
         loot_2 = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 1)
-        self.assertTrue(self.hero.bag._compare_drop(loot_1, loot_2))
+        self.assertTrue(self.hero.bag._compare_drop(distribution, loot_1, loot_2))
 
     def test_compare_drop__artifact_and_useless(self):
+        distribution = self.hero.preferences.archetype.power_distribution
+
         artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1)
         loot = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 666)
-        self.assertTrue(self.hero.bag._compare_drop(artifact, loot))
+        self.assertTrue(self.hero.bag._compare_drop(distribution, artifact, loot))
 
     def test_compare_drop__useless_and_artifact(self):
+        distribution = self.hero.preferences.archetype.power_distribution
+
         artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1)
         loot = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 666)
-        self.assertFalse(self.hero.bag._compare_drop(loot, artifact))
+        self.assertFalse(self.hero.bag._compare_drop(distribution, loot, artifact))
 
     def test_compare_drop__artifact_and_artifact(self):
         artifact_1 = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1)
         artifact_2 = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1)
 
-        artifact_2.power = 1
-        artifact_1.power = 2
+        artifact_2.power = Power(1, 1)
+        artifact_1.power = Power(2, 2)
 
-        self.assertTrue(self.hero.bag._compare_drop(artifact_1, artifact_2))
-        self.assertFalse(self.hero.bag._compare_drop(artifact_2, artifact_1))
+        distribution = self.hero.preferences.archetype.power_distribution
+
+        self.assertTrue(self.hero.bag._compare_drop(distribution, artifact_1, artifact_2))
+        self.assertFalse(self.hero.bag._compare_drop(distribution, artifact_2, artifact_1))
 
 
     def test_drop_cheapest_item__no_items(self):
         self.assertEqual(self.hero.bag.occupation, 0)
 
-        dropped_item = self.hero.bag.drop_cheapest_item()
+        distribution = self.hero.preferences.archetype.power_distribution
+
+        dropped_item = self.hero.bag.drop_cheapest_item(distribution)
 
         self.assertEqual(dropped_item, None)
+
 
     def test_drop_cheapest_item(self):
         artifact_1 = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
         artifact_2 = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
 
-        artifact_1.power = 200
-        artifact_2.power = 1
+        artifact_1.power = Power(200, 200)
+        artifact_2.power = Power(1, 1)
 
         self.hero.bag.put_artifact(artifact_1)
         self.hero.bag.put_artifact(artifact_2)
 
+        distribution = self.hero.preferences.archetype.power_distribution
+
         self.assertEqual(self.hero.bag.occupation, 2)
 
-        dropped_item = self.hero.bag.drop_cheapest_item()
+        dropped_item = self.hero.bag.drop_cheapest_item(distribution)
 
         self.assertEqual(self.hero.bag.occupation, 1)
 

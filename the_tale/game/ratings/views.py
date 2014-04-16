@@ -51,10 +51,15 @@ class RatingResource(Resource):
             place_getter = lambda places: places.bills_count_place
             value_getter = lambda values: values.bills_count
 
-        elif self.rating_type.is_POWER:
-            ratings_query = ratings_query.order_by('power_place')
-            place_getter = lambda places: places.power_place
-            value_getter = lambda values: values.power
+        elif self.rating_type.is_MAGIC_POWER:
+            ratings_query = ratings_query.order_by('magic_power_place')
+            place_getter = lambda places: places.magic_power_place
+            value_getter = lambda values: values.magic_power
+
+        elif self.rating_type.is_PHYSIC_POWER:
+            ratings_query = ratings_query.order_by('physic_power_place')
+            place_getter = lambda places: places.physic_power_place
+            value_getter = lambda values: values.physic_power
 
         elif self.rating_type.is_LEVEL:
             ratings_query = ratings_query.order_by('level_place')

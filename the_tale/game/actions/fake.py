@@ -1,12 +1,15 @@
 # coding: utf-8
 
+from the_tale.game.balance.power import Damage
+
 from the_tale.game.actions.contexts.battle import BattleContext
+
 
 class FakeActor(object):
 
-    def __init__(self, name='fake_actor', damage=10, max_health=100, context=None, level=7, mob_type=None):
+    def __init__(self, name='fake_actor', damage=None, max_health=100, context=None, level=7, mob_type=None):
         self.name = name
-        self.basic_damage = damage
+        self.basic_damage = damage if damage is not None else Damage(10, 10)
         self.max_health = max_health
         self.health = max_health
         self.level = level

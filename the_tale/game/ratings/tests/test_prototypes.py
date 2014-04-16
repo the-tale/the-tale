@@ -61,11 +61,12 @@ class RatingPrototypeTests(PrototypeTestsBase):
         self.assertEqual([rv.account_id for rv in RatingValues.objects.all().order_by('account__id')],
                          [self.account_1.id, self.account_2.id, self.account_3.id, self.account_4.id, ])
 
-    def set_values(self, account, might=0, level=0, power=0, pvp_battles_1x1_number=0, pvp_battles_1x1_victories=0, help_count=0):
+    def set_values(self, account, might=0, level=0, magic_power=0, physic_power=0, pvp_battles_1x1_number=0, pvp_battles_1x1_victories=0, help_count=0):
         hero = HeroPrototype.get_by_account_id(account.id)
         hero._model.might = might
         hero._model.level = level
-        hero._model.raw_power = power
+        hero._model.raw_power_physic = physic_power
+        hero._model.raw_power_magic = magic_power
         hero._model.stat_pvp_battles_1x1_number = pvp_battles_1x1_number
         hero._model.stat_pvp_battles_1x1_victories = pvp_battles_1x1_victories
         hero._model.stat_help_count = help_count
@@ -163,14 +164,24 @@ class RatingPrototypeTests(PrototypeTestsBase):
                          [10, 9, 7, 1 ])
 
 
-    def test_power(self):
-        self.set_values(self.account_1, power=9)
-        self.set_values(self.account_2, power=10)
-        self.set_values(self.account_3, power=7)
-        self.set_values(self.account_4, power=1)
+    def test_magic_power(self):
+        self.set_values(self.account_1, magic_power=9)
+        self.set_values(self.account_2, magic_power=10)
+        self.set_values(self.account_3, magic_power=7)
+        self.set_values(self.account_4, magic_power=1)
 
         RatingValuesPrototype.recalculate()
-        self.assertEqual([rv.power for rv in RatingValues.objects.all().order_by('account__id')],
+        self.assertEqual([rv.magic_power for rv in RatingValues.objects.all().order_by('account__id')],
+                         [9, 10, 7, 1 ])
+
+    def test_physic_power(self):
+        self.set_values(self.account_1, physic_power=9)
+        self.set_values(self.account_2, physic_power=10)
+        self.set_values(self.account_3, physic_power=7)
+        self.set_values(self.account_4, physic_power=1)
+
+        RatingValuesPrototype.recalculate()
+        self.assertEqual([rv.physic_power for rv in RatingValues.objects.all().order_by('account__id')],
                          [9, 10, 7, 1 ])
 
 

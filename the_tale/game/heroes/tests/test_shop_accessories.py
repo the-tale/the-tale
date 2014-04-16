@@ -9,8 +9,11 @@ from the_tale.accounts.logic import register_user
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.balance import enums as e, formulas as f
+from the_tale.game.balance import enums as e
+from the_tale.game.balance.power import Power
 from the_tale.game.logic_storage import LogicStorage
+
+from the_tale.game.artifacts.prototypes import ArtifactPrototype
 
 from the_tale.game.map.places.storage import places_storage
 from the_tale.game.mobs.storage import mobs_storage
@@ -108,22 +111,25 @@ class ShopAccessoriesTest(testcase.TestCase):
 
     def test_purchase_artifact__better_artifact__min_level(self):
         self.assertEqual(self.hero.level, 1)
-        middle_power = f.power_to_artifact(self.hero.level)
+        distribution = self.hero.preferences.archetype.power_distribution
+        middle_power = Power.power_to_artifact(distribution, self.hero.level)
 
         for i in xrange(100):
-            self.assertTrue(self.hero.purchase_artifact().power > middle_power)
+            self.assertTrue(self.hero.purchase_artifact().preference_rating(distribution) > ArtifactPrototype._preference_rating(middle_power, distribution))
 
 
     def test_purchase_artifact__better_artifact__large_level(self):
         self.hero._model.level = 100
 
         self.assertEqual(self.hero.level, 100)
-        middle_power = f.power_to_artifact(self.hero.level)
+
+        distribution = self.hero.preferences.archetype.power_distribution
+        middle_power = Power.power_to_artifact(distribution, self.hero.level)
 
         N = 100
 
         with mock.patch('the_tale.game.actions.container.ActionsContainer.request_replane') as request_replane:
             for i in xrange(N):
-                self.assertTrue(self.hero.purchase_artifact().power > middle_power)
+                self.assertTrue(self.hero.purchase_artifact().preference_rating(distribution) > ArtifactPrototype._preference_rating(middle_power, distribution))
 
         self.assertEqual(request_replane.call_count, N)

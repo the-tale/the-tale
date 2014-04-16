@@ -7,7 +7,9 @@ from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.game.logic_storage import LogicStorage
+
 from the_tale.game.balance import constants as c
+from the_tale.game.balance.power import Power
 
 from the_tale.game.heroes.logic import create_mob_for_hero
 from the_tale.game.heroes.relations import HABIT_HONOR_INTERVAL, HABIT_PEACEFULNESS_INTERVAL
@@ -197,10 +199,38 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         with self.check_delta(lambda: self.hero.statistics.pve_kills, 1):
             with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.add_experience') as add_experience:
-                action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
-                self.storage.process_turn(second_step_if_needed=False)
+                with mock.patch('the_tale.game.actions.prototypes.ActionBattlePvE1x1Prototype.process_artifact_breaking') as process_artifact_breaking:
+                    action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
+                    self.storage.process_turn(second_step_if_needed=False)
 
         self.assertEqual(add_experience.call_args_list, [mock.call(c.EXP_FOR_KILL)])
+        self.assertEqual(process_artifact_breaking.call_count, 1)
 
         self.assertEqual(action_battle.percents, 1.0)
         self.assertEqual(action_battle.state, self.action_battle.STATE.PROCESSED)
+
+
+    @mock.patch('the_tale.game.artifacts.prototypes.ArtifactPrototype.test_to_break', lambda self: True)
+    def test_process_artifact_breaking__no_equipment(self):
+        self.hero.equipment._remove_all()
+        old_power = self.hero.power.clone()
+        self.action_battle.process_artifact_breaking()
+        self.assertEqual(old_power, self.hero.power)
+
+    @mock.patch('the_tale.game.artifacts.prototypes.ArtifactPrototype.test_to_break', lambda self: True)
+    def test_process_artifact_breaking__broken(self):
+        for artifact in self.hero.equipment.values():
+            artifact.power = Power(100, 100)
+
+        old_power = self.hero.power.total()
+        self.action_battle.process_artifact_breaking()
+        self.assertTrue(old_power > self.hero.power.total())
+
+    @mock.patch('the_tale.game.artifacts.prototypes.ArtifactPrototype.test_to_break', lambda self: False)
+    def test_process_artifact_breaking__not_broken(self):
+        for artifact in self.hero.equipment.values():
+            artifact.power = Power(100, 100)
+
+        old_power = self.hero.power.total()
+        self.action_battle.process_artifact_breaking()
+        self.assertEqual(old_power, self.hero.power.total())

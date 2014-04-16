@@ -11,7 +11,8 @@ class RATING_TYPE(DjangoEnum):
 
     records = ( ('MIGHT', 'might', u'Могущество', u''),
                 ('BILLS', 'bills', u'Принятые законы', u''),
-                ('POWER', 'power', u'Сила героя', u''),
+                ('MAGIC_POWER', 'magic-power', u'Магическая сила героя', u''),
+                ('PHYSIC_POWER', 'physic-power', u'Физическая сила героя', u''),
                 ('LEVEL', 'level', u'Уровень героя', u''),
                 ('PHRASES', 'phrases', u'Добавленные фразы', u''),
                 ('PVP_BATTLES_1x1_NUMBER', 'pvp_battles_1x1_number', u'Сражения в PvP', u''),

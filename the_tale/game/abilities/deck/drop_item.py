@@ -18,7 +18,7 @@ class DropItem(AbilityPrototype):
         if hero.bag.is_empty:
             return ABILITY_RESULT.FAILED, None, ()
 
-        dropped_item = hero.bag.drop_cheapest_item()
+        dropped_item = hero.bag.drop_cheapest_item(hero.preferences.archetype.power_distribution)
 
         critical = random.uniform(0, 1) < hero.might_crit_chance
 

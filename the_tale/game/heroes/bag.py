@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from the_tale.game.balance.power import Power
 
 from the_tale.game.artifacts.prototypes import ArtifactPrototype
 
@@ -64,7 +65,7 @@ class Bag(object):
     def occupation(self): return len(self.bag)
 
     @classmethod
-    def _compare_drop(cls, a, b):
+    def _compare_drop(cls, distribution, a, b):
         if a is None:
             return True
         elif b is None:
@@ -79,14 +80,14 @@ class Bag(object):
             if b.type.is_USELESS:
                 return True
             else:
-                return a.power > b.power
+                return a.preference_rating(distribution) > b.preference_rating(distribution)
 
-    def drop_cheapest_item(self):
+    def drop_cheapest_item(self, distribution):
 
         dropped_item = None
 
         for item in self.bag.values():
-            if self._compare_drop(dropped_item, item):
+            if self._compare_drop(distribution, dropped_item, item):
                 dropped_item = item
 
         if dropped_item is not None:
@@ -112,7 +113,7 @@ class Equipment(object):
         self.updated = True
 
     def get_power(self):
-        power = 0
+        power = Power(0, 0)
         for slot in EQUIPMENT_SLOT.records:
             artifact = self.get(slot)
             if artifact:
@@ -155,6 +156,12 @@ class Equipment(object):
         for slot in EQUIPMENT_SLOT.records:
             self.unequip(slot)
         self.updated = True
+
+    def items(self):
+        return self.equipment.items()
+
+    def values(self):
+        return self.equipment.values()
 
     def test_equip_in_all_slots(self, artifact):
         for slot in EQUIPMENT_SLOT.records:

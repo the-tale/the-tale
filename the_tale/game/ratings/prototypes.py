@@ -25,7 +25,7 @@ from the_tale.game.heroes.conf import heroes_settings
 
 class RatingValuesPrototype(BasePrototype):
     _model_class = RatingValues
-    _readonly = ('id', 'account_id', 'might', 'bills_count', 'power', 'level',
+    _readonly = ('id', 'account_id', 'might', 'bills_count', 'magic_power', 'physic_power', 'level',
                  'phrases_count', 'pvp_battles_1x1_number', 'pvp_battles_1x1_victories', 'referrals_number', 'achievements_points', 'help_count')
     _bidirectional = ()
     _get_by = ('account_id', )
@@ -44,11 +44,12 @@ class RatingValuesPrototype(BasePrototype):
 
 
         sql_request = '''
-INSERT INTO %(ratings)s (account_id, might, bills_count, power, level, phrases_count, pvp_battles_1x1_number, pvp_battles_1x1_victories, referrals_number, achievements_points, help_count)
+INSERT INTO %(ratings)s (account_id, might, bills_count, magic_power, physic_power, level, phrases_count, pvp_battles_1x1_number, pvp_battles_1x1_victories, referrals_number, achievements_points, help_count)
 SELECT %(accounts)s.id AS account_id,
        %(heroes)s.might AS might,
        CASE WHEN raw_bills_count IS NULL THEN 0 ELSE raw_bills_count END AS bills_count,
-       %(heroes)s.raw_power AS power,
+       %(heroes)s.raw_power_magic AS magic_power,
+       %(heroes)s.raw_power_physic AS physic_power,
        %(heroes)s.level AS level,
        CASE WHEN raw_phrases_count IS NULL THEN 0 ELSE raw_phrases_count END AS phrases_count,
        %(heroes)s.stat_pvp_battles_1x1_number AS pvp_battles_1x1_number,
@@ -90,7 +91,7 @@ WHERE NOT %(accounts)s.is_fast AND NOT %(accounts)s.is_bot AND %(accounts)s.id <
 
 class RatingPlacesPrototype(BasePrototype):
     _model_class = RatingPlaces
-    _readonly = ('id', 'account_id', 'might_place', 'bills_count_place', 'power_place', 'level_place',
+    _readonly = ('id', 'account_id', 'might_place', 'bills_count_place', 'magic_power_place', 'physic_power_place', 'level_place',
                  'phrases_count_place', 'pvp_battles_1x1_number_place', 'pvp_battles_1x1_victories_place', 'referrals_number_place', 'achievements_points_place', 'help_count_place')
     _bidirectional = ()
     _get_by = ('account_id', )
@@ -107,11 +108,12 @@ class RatingPlacesPrototype(BasePrototype):
         cursor = connection.cursor()
 
         sql_request = '''
-INSERT INTO %(places)s (account_id, might_place, bills_count_place, power_place, level_place, phrases_count_place, pvp_battles_1x1_number_place, pvp_battles_1x1_victories_place, referrals_number_place, achievements_points_place, help_count_place)
+INSERT INTO %(places)s (account_id, might_place, bills_count_place, magic_power_place, physic_power_place, level_place, phrases_count_place, pvp_battles_1x1_number_place, pvp_battles_1x1_victories_place, referrals_number_place, achievements_points_place, help_count_place)
 SELECT might_table.account_id AS account_id,
        might_table.might_place AS might_place,
        bills_count_table.bills_count_place AS bills_count_place,
-       power_table.power_place AS power_place,
+       magic_power_table.magic_power_place AS magic_power_place,
+       physic_power_table.physic_power_place AS physic_power_place,
        level_table.level_place AS level_place,
        phrases_count_table.phrases_count_place AS phrases_count_place,
        pvp_battles_1x1_number_table.pvp_battles_1x1_number_place AS pvp_battles_1x1_number_place,
@@ -124,8 +126,10 @@ JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %
     ON might_table.account_id=bills_count_table.account_id
 JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.level DESC, %(ratings)s.account_id) AS level_place FROM %(ratings)s) as level_table
     ON might_table.account_id=level_table.account_id
-JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.power DESC, %(ratings)s.account_id) AS power_place FROM %(ratings)s) as power_table
-    ON might_table.account_id=power_table.account_id
+JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.magic_power DESC, %(ratings)s.account_id) AS magic_power_place FROM %(ratings)s) as magic_power_table
+    ON might_table.account_id=physic_power_table.account_id
+JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.physic_power DESC, %(ratings)s.account_id) AS physic_power_place FROM %(ratings)s) as physic_power_table
+    ON might_table.account_id=physic_power_table.account_id
 JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.phrases_count DESC, %(ratings)s.account_id) AS phrases_count_place FROM %(ratings)s) as phrases_count_table
     ON might_table.account_id=phrases_count_table.account_id
 JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.pvp_battles_1x1_number DESC, %(ratings)s.account_id) AS pvp_battles_1x1_number_place FROM %(ratings)s) as pvp_battles_1x1_number_table

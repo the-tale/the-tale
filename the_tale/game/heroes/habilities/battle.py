@@ -28,7 +28,7 @@ class HIT(AbilityPrototype):
 
     def use(self, messanger, actor, enemy):
         base_damage = actor.basic_damage*self.damage_modifier
-        damage = actor.context.modify_outcoming_damage(Damage(physic=base_damage/2.0, magic=base_damage/2.0))
+        damage = actor.context.modify_outcoming_damage(base_damage * 0.5)
         damage = enemy.context.modify_incoming_damage(damage)
         enemy.change_health(-damage.total)
         messanger.add_message('hero_ability_hit', attacker=actor, defender=enemy, damage=damage.total)
@@ -55,7 +55,7 @@ class STRONG_HIT(AbilityPrototype):
     def damage_modifier(self): return self.DAMAGE_MODIFIER[self.level-1]
 
     def use(self, messanger, actor, enemy):
-        damage = actor.context.modify_outcoming_damage(Damage(physic=actor.basic_damage*self.damage_modifier))
+        damage = actor.context.modify_outcoming_damage(actor.basic_damage.multiply(physic_multiplier=self.damage_modifier))
         damage = enemy.context.modify_incoming_damage(damage)
         enemy.change_health(-damage.total)
         messanger.add_message('hero_ability_strong_hit', attacker=actor, defender=enemy, damage=damage.total)
@@ -145,7 +145,7 @@ class RUN_UP_PUSH(AbilityPrototype):
     def damage_modifier(self): return self.DAMAGE_MODIFIER[self.level-1]
 
     def use(self, messanger, actor, enemy):
-        damage = actor.context.modify_outcoming_damage(Damage(physic=actor.basic_damage*self.damage_modifier))
+        damage = actor.context.modify_outcoming_damage(actor.basic_damage.multiply(physic_multiplier=self.damage_modifier))
         damage = enemy.context.modify_incoming_damage(damage)
         enemy.change_health(-damage.total)
         enemy.context.use_stun(int(round(random.uniform(*self.stun_length))))
@@ -262,10 +262,10 @@ class FIREBALL(AbilityPrototype):
     def periodic_damage_modifiers(self): return self.PERIODIC_DAMAGE_MODIFIERS[self.level-1]
 
     def use(self, messanger, actor, enemy):
-        damage = actor.context.modify_outcoming_damage(Damage(magic=actor.basic_damage*self.damage_modifier))
+        damage = actor.context.modify_outcoming_damage(actor.basic_damage.multiply(magic_multiplier=self.damage_modifier))
         damage = enemy.context.modify_incoming_damage(damage)
         enemy.change_health(-damage.total)
-        enemy.context.use_damage_queue_fire([modifier * actor.basic_damage for modifier in self.periodic_damage_modifiers])
+        enemy.context.use_damage_queue_fire([(actor.basic_damage * modifier).total for modifier in self.periodic_damage_modifiers])
         messanger.add_message('hero_ability_fireball', attacker=actor, defender=enemy, damage=damage.total)
 
     def on_miss(self, messanger, actor, enemy):
@@ -294,7 +294,7 @@ class POISON_CLOUD(AbilityPrototype):
     def periodic_damage_modifiers(self): return self.PERIODIC_DAMAGE_MODIFIERS[self.level-1]
 
     def use(self, messanger, actor, enemy):
-        enemy.context.use_damage_queue_poison([modifier * actor.basic_damage for modifier in self.periodic_damage_modifiers])
+        enemy.context.use_damage_queue_poison([(actor.basic_damage * modifier).total for modifier in self.periodic_damage_modifiers])
         messanger.add_message('hero_ability_poison_cloud', attacker=actor, defender=enemy)
 
 
@@ -321,7 +321,7 @@ class VAMPIRE_STRIKE(AbilityPrototype):
 
     def use(self, messanger, actor, enemy):
         base_damage = actor.basic_damage * self.damage_fraction
-        damage = actor.context.modify_outcoming_damage(Damage(physic=base_damage/2, magic=base_damage/2))
+        damage = actor.context.modify_outcoming_damage(base_damage * 0.5)
         damage = enemy.context.modify_incoming_damage(damage)
         health = int(round(damage.total * self.heal_fraction))
         enemy.change_health(-damage.total)

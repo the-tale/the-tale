@@ -31012,6 +31012,54 @@
       "template": "«%(i_0)s новый приём на %(i_1)s %(e_0)s, %(i_2)s %(e_1)s %(i_3)s опыта»."
     }
   ], 
+  "action_battlepve1x1_artifact_broken": [
+    {
+      "internals": [
+        [
+          "проклятый", 
+          [
+            "mob"
+          ], 
+          "i_0", 
+          [
+            "загл", 
+            "прш"
+          ], 
+          "проклятый"
+        ], 
+        [
+          "сломал", 
+          [
+            "mob"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "сломал"
+        ]
+      ], 
+      "externals": [
+        [
+          "mob", 
+          [], 
+          "e_0", 
+          [], 
+          "mob"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "«%(i_0)s %(e_0)s %(i_1)s %(e_1)s»!"
+    }
+  ], 
   "action_idleness_waiting": [
     {
       "internals": [], 

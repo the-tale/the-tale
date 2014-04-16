@@ -46,7 +46,8 @@ class Hero(models.Model):
 
     health = models.IntegerField(null=False, default=0.0)
 
-    raw_power = models.BigIntegerField(null=False, default=0) # special field for ratings
+    raw_power_magic = models.BigIntegerField(null=False, default=0) # special field for ratings
+    raw_power_physic = models.BigIntegerField(null=False, default=0) # special field for ratings
 
     money = models.BigIntegerField(null=False, default=0)
 

@@ -13,6 +13,8 @@ from the_tale.common.utils.enum import create_enum
 
 from the_tale.accounts.conf import accounts_settings
 
+from the_tale.game.balance.power import Power
+
 from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.heroes.relations import EQUIPMENT_SLOT
@@ -79,8 +81,6 @@ def create_test_map():
     mob_2 = MobRecordPrototype.create_random('mob_2')
     mob_3 = MobRecordPrototype.create_random('mob_3')
 
-    ArtifactRecordPrototype.create_random('letter') # for delivery quests
-
     ArtifactRecordPrototype.create_random('loot_1', mob=mob_1)
     ArtifactRecordPrototype.create_random('loot_2', mob=mob_2)
     ArtifactRecordPrototype.create_random('loot_3', mob=mob_3)
@@ -99,11 +99,11 @@ def create_test_map():
 
 
 def dress_new_hero(hero):
-    hero.equipment.equip(EQUIPMENT_SLOT.PANTS, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.PANTS).create_artifact(level=1, power=0))
-    hero.equipment.equip(EQUIPMENT_SLOT.BOOTS, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.BOOTS).create_artifact(level=1, power=0))
-    hero.equipment.equip(EQUIPMENT_SLOT.PLATE, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.PLATE).create_artifact(level=1, power=0))
-    hero.equipment.equip(EQUIPMENT_SLOT.GLOVES, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.GLOVES).create_artifact(level=1, power=0))
-    hero.equipment.equip(EQUIPMENT_SLOT.HAND_PRIMARY, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.WEAPON).create_artifact(level=1, power=0))
+    hero.equipment.equip(EQUIPMENT_SLOT.PANTS, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.PANTS).create_artifact(level=1, power=Power(0, 0)))
+    hero.equipment.equip(EQUIPMENT_SLOT.BOOTS, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.BOOTS).create_artifact(level=1, power=Power(0, 0)))
+    hero.equipment.equip(EQUIPMENT_SLOT.PLATE, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.PLATE).create_artifact(level=1, power=Power(0, 0)))
+    hero.equipment.equip(EQUIPMENT_SLOT.GLOVES, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.GLOVES).create_artifact(level=1, power=Power(0, 0)))
+    hero.equipment.equip(EQUIPMENT_SLOT.HAND_PRIMARY, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.WEAPON).create_artifact(level=1, power=Power(0, 0)))
 
 
 def log_sql_queries(turn_number):

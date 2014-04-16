@@ -4,23 +4,8 @@ from django.db import models
 
 from rels.django import RelationIntegerField
 
-from the_tale.common.utils.enum import create_enum
+from the_tale.game.artifacts import relations
 
-from the_tale.game.balance import constants as c
-
-from the_tale.game.artifacts.relations import ARTIFACT_TYPE
-
-
-ARTIFACT_RECORD_STATE = create_enum('ARTFACT_RECORD_STATE', ( ('ENABLED', 0, u'в игре'),
-                                                              ('DISABLED', 1, u'вне игры'),) )
-
-RARITY_TYPE = create_enum('RARITY_TYPE', (('NORMAL', 0, u'обычный'),
-                                          ('RARE', 1, u'редкий'),
-                                          ('EPIC', 2, u'очень редкий'),) )
-
-RARITY_TYPE_2_PRIORITY = { RARITY_TYPE.NORMAL: c.NORMAL_LOOT_PROBABILITY,
-                           RARITY_TYPE.RARE: c.RARE_LOOT_PROBABILITY,
-                           RARITY_TYPE.EPIC : c.EPIC_LOOT_PROBABILITY  }
 
 class ArtifactRecord(models.Model):
 
@@ -32,11 +17,9 @@ class ArtifactRecord(models.Model):
 
     editor = models.ForeignKey('accounts.Account', null=True, related_name='+', blank=True, on_delete=models.SET_NULL)
 
-    type = RelationIntegerField(relation=ARTIFACT_TYPE, relation_column='value')
-
-    rarity = models.IntegerField(default=RARITY_TYPE.NORMAL, choices=RARITY_TYPE._CHOICES)
-
-    state = models.IntegerField(null=False, default=ARTIFACT_RECORD_STATE.DISABLED, choices=ARTIFACT_RECORD_STATE._CHOICES)
+    type = RelationIntegerField(relation=relations.ARTIFACT_TYPE, relation_column='value')
+    power_type = RelationIntegerField(relation=relations.ARTIFACT_POWER_TYPE, relation_column='value')
+    state = RelationIntegerField(relation=relations.ARTIFACT_RECORD_STATE, relation_column='value')
 
     level = models.IntegerField(default=0)
 

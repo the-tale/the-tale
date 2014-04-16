@@ -2,10 +2,9 @@
 import random
 import itertools
 
-from the_tale.common.utils.logic import random_value_by_priority
 from the_tale.common.utils.storage import create_storage_class
 
-from the_tale.game.balance import formulas as f
+from the_tale.game.balance.power import Power
 
 from the_tale.game.artifacts import exceptions
 from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
@@ -33,7 +32,7 @@ class ArtifactsStorage(create_storage_class('artifacts records change time', Art
     def update_cached_data(self, item):
         self._artifacts_by_uuids[item.uuid] = item
 
-        if not item.state.is_enabled:
+        if not item.state.is_ENABLED:
             return
 
         if item.type.is_USELESS:
@@ -66,18 +65,19 @@ class ArtifactsStorage(create_storage_class('artifacts records change time', Art
         artifact_choices = []
 
         for artifact_record in artifacts_list:
-            if artifact_record.state.is_enabled and artifact_record.accepted_for_level(level):
-                artifact_choices.append((artifact_record, artifact_record.priority))
+            if artifact_record.state.is_ENABLED and artifact_record.accepted_for_level(level):
+                artifact_choices.append(artifact_record)
 
-        artifact_record = random_value_by_priority(artifact_choices)
-
-        if artifact_record is None:
+        if not artifact_choices:
             return None
 
+        artifact_record = random.choice(artifact_choices)
+
         if artifact_record.is_useless:
-            power = 0
+            power = Power.zero()
         else:
-            power = f.power_to_artifact_randomized(level)
+            power = Power.artifact_power_randomized(distribution=artifact_record.power_type.distribution,
+                                                    level=level)
 
         return artifact_record.create_artifact(level=level, power=power)
 

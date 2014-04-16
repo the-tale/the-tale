@@ -6,8 +6,9 @@ from rels.django import DjangoEnum
 from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS
 
 from the_tale.game.balance import constants as c
+from the_tale.game.balance.power import PowerDistribution
 
-from the_tale.game.artifacts.models import ARTIFACT_TYPE
+from the_tale.game.artifacts.relations import ARTIFACT_TYPE
 
 
 class RISK_LEVEL(DjangoEnum):
@@ -23,6 +24,14 @@ class RISK_LEVEL(DjangoEnum):
                  ('VERY_LOW',  4, u'очень низкий', 1.30, 0.70, 0.70, 0.70) )
 
 
+class ARCHETYPE(DjangoEnum):
+    power_distribution = Column()
+
+    records = ( ('MAGICAL', 1, u'маг', PowerDistribution(0.25, 0.75)),
+                ('NEUTRAL', 2, u'нейтральный', PowerDistribution(0.5, 0.5)),
+                ('PHYSICAL', 3, u'воин', PowerDistribution(0.75, 0.25)) )
+
+
 class PREFERENCE_TYPE(DjangoEnum):
     level_required = Column()
     base_name = Column()
@@ -36,7 +45,7 @@ class PREFERENCE_TYPE(DjangoEnum):
                  ('ENERGY_REGENERATION_TYPE', 4, u'религиозность', 1, 'energy_regeneration_type', '_prepair_value', False),
                  ('EQUIPMENT_SLOT', 5, u'экипировка', 34, 'equipment_slot', '_prepair_equipment_slot', True),
                  ('RISK_LEVEL', 6, u'уровень риска', 8, 'risk_level', '_prepair_risk_level', False),
-                 ('FAVORITE_ITEM', 7, u'любимая вещь', 19, 'favorite_item', '_prepair_equipment_slot', True)
+                 ('FAVORITE_ITEM', 7, u'любимая вещь', 19, 'favorite_item', '_prepair_equipment_slot', True),
         )
 
 

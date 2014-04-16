@@ -258,7 +258,7 @@ class PrototypeTests(PrototypeTestsBase):
 
     @mock.patch('the_tale.game.quests.prototypes.QuestPrototype._get_upgrdade_choice', classmethod(lambda *argv, **kwargs: 'sharp'))
     def test_upgrade_equipment__sharp(self):
-        old_power = self.hero.power
+        old_power = self.hero.power.clone()
         self.assertEqual(self.hero.statistics.artifacts_had, 0)
 
         self.quest._upgrade_equipment(process_message=self.quest.quests_stack[-1].process_message,
@@ -267,7 +267,7 @@ class PrototypeTests(PrototypeTestsBase):
                                       cost=666)
 
         self.assertEqual(self.hero.statistics.artifacts_had, 0)
-        self.assertEqual(old_power + 1, self.hero.power)
+        self.assertEqual(old_power.total() + 1, self.hero.power.total())
 
     def test_upgrade_equipment__money_limit(self):
         self.hero._model.money = 99999999
@@ -301,7 +301,7 @@ class PrototypeTests(PrototypeTestsBase):
 
         artifact_1, artifact_2 = list(self.hero.bag.values())
 
-        self.assertEqual(abs(artifact_1.power - artifact_2.power), int(c.POWER_TO_LVL * 0.5))
+        self.assertEqual(abs(artifact_1.power.total() - artifact_2.power.total()), int(c.POWER_TO_LVL * 0.5) - 1) # -1 since rounding error
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_get_artifact_for_quest', lambda hero: False)
     @mock.patch('the_tale.game.balance.constants.PRICE_DELTA', 0.0)

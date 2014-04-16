@@ -7,8 +7,8 @@ from the_tale.common.utils import bbcode
 
 from the_tale.game.mobs.storage import mobs_storage
 
-from the_tale.game.artifacts.models import ArtifactRecord, RARITY_TYPE
-from the_tale.game.artifacts.relations import ARTIFACT_TYPE
+from the_tale.game.artifacts.models import ArtifactRecord
+from the_tale.game.artifacts import relations
 
 
 class ArtifactRecordBaseForm(forms.Form):
@@ -17,9 +17,8 @@ class ArtifactRecordBaseForm(forms.Form):
 
     description = bbcode.BBField(label=u'Описание', required=False)
 
-    type = fields.TypedChoiceField(label=u'тип', choices=ARTIFACT_TYPE.choices(), coerce=ARTIFACT_TYPE.get_from_name)
-
-    rarity = fields.TypedChoiceField(label=u'Редкость', choices=RARITY_TYPE._CHOICES, coerce=int)
+    type = fields.TypedChoiceField(label=u'тип', choices=relations.ARTIFACT_TYPE.choices(), coerce=relations.ARTIFACT_TYPE.get_from_name)
+    power_type = fields.TypedChoiceField(label=u'тип силы', choices=relations.ARTIFACT_POWER_TYPE.choices(), coerce=relations.ARTIFACT_POWER_TYPE.get_from_name)
 
     mob = fields.ChoiceField(label=u'Монстр', required=False)
 

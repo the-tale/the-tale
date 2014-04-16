@@ -89,6 +89,13 @@ ARTIFACT_POWER_DELTA = float(0.2) # дельта, на которую может
 
 ARTIFACT_BETTER_MIN_POWER_DELTA = int(5) # минимальная дельта, на которую может изменятся сила лучшего артефакта (для магазина)
 
+ARTIFACT_MAX_INTEGRITY = int(10000) # максимальная целостность обычного артефакта
+ARTIFACT_SHARP_MAX_INTEGRITY_LOST_FRACTION = float(0.02) # доля максимальной целостности, теряемая при заточке
+ARTIFACT_INTEGRITY_SAFE_BARRIER = float(0.1) # доля от максимальной целостности, артефакт не может сломаться, если цего целостность отличается от максимальной меньше чем на эту долю
+ARTIFACT_BREAK_POWER_FRACTIONS = (float(0.1), float(0.2)) # на сколько артефакт может сломаться за раз
+ARTIFACT_BREAK_INTEGRITY_FRACTIONS = (float(0.1), float(0.2)) # на сколько артефакт может сломаться за раз
+
+
 # ходов - длинна непрерывной цепочки боёв до остановки на лечение
 BATTLES_LINE_LENGTH = int(BATTLES_BEFORE_HEAL * (BATTLE_LENGTH + INTERVAL_BETWEEN_BATTLES ) - INTERVAL_BETWEEN_BATTLES)
 

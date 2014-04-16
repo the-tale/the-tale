@@ -5,6 +5,8 @@ from the_tale.common.utils import testcase
 from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype
 
+from the_tale.game.balance.power import Power
+
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
@@ -51,7 +53,7 @@ class ActionEquippingTest(testcase.TestCase):
 
     def test_equip(self):
         artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
-        artifact.power = 666
+        artifact.power = Power(666, 666)
 
         equip_slot = artifact.type.equipment_slot
         self.hero.equipment.unequip(equip_slot)
@@ -71,7 +73,7 @@ class ActionEquippingTest(testcase.TestCase):
 
     def test_switch_artifact(self):
         artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
-        artifact.power = 13
+        artifact.power = Power(13, 13)
 
         equip_slot = artifact.type.equipment_slot
 
@@ -79,7 +81,7 @@ class ActionEquippingTest(testcase.TestCase):
         self.hero.equipment.equip(equip_slot, artifact)
 
         new_artifact = artifacts_storage.generate_artifact_from_list([artifact.record], self.hero.level+1)
-        new_artifact.power = 666
+        new_artifact.power = Power(666, 666)
 
         self.hero.bag.put_artifact(new_artifact)
 
@@ -89,12 +91,12 @@ class ActionEquippingTest(testcase.TestCase):
         self.assertEqual(self.hero.actions.current_action, self.action_equipping)
 
         self.assertEqual(len(self.hero.bag.items()), 1)
-        self.assertEqual(self.hero.bag.items()[0][1].power, 13)
+        self.assertEqual(self.hero.bag.items()[0][1].power, Power(13, 13))
 
         equip_slot = artifact.type.equipment_slot
 
         self.assertEqual(self.hero.equipment.get(equip_slot), new_artifact)
-        self.assertEqual(self.hero.equipment.get(equip_slot).power, 666)
+        self.assertEqual(self.hero.equipment.get(equip_slot).power, Power(666, 666))
 
         current_time = TimePrototype.get_current_time()
         current_time.increment_turn()

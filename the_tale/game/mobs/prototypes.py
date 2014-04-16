@@ -11,6 +11,7 @@ from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.game.heroes.habilities import AbilitiesPrototype
 
 from the_tale.game.balance import formulas as f
+from the_tale.game.balance.power import Damage
 
 from the_tale.game.map.relations import TERRAIN
 
@@ -73,7 +74,9 @@ class MobPrototype(object):
     def health_percents(self): return float(self.health) / self.max_health
 
     @property
-    def basic_damage(self): return f.expected_damage_to_hero_per_hit(self.level) * self.damage_modifier
+    def basic_damage(self):
+        raw_damage = f.expected_damage_to_hero_per_hit(self.level) * self.damage_modifier
+        return Damage(physic=raw_damage/2, magic=raw_damage/2)
 
     @property
     def mob_type(self): return self.record.type
