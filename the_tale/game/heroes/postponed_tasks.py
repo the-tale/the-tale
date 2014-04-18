@@ -19,7 +19,7 @@ from the_tale.game.mobs.storage import mobs_storage
 from the_tale.game.persons.storage import persons_storage
 
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
-from the_tale.game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT, RISK_LEVEL
+from the_tale.game.heroes import relations
 
 
 CHOOSE_HERO_ABILITY_STATE = create_enum('CHOOSE_HERO_ABILITY_STATE', ( ('UNPROCESSED', 0, u'в очереди'),
@@ -190,7 +190,8 @@ CHOOSE_PREFERENCES_TASK_STATE = create_enum('CHOOSE_PREFERENCES_TASK_STATE', ( (
                                                                                ('UNKNOWN_PREFERENCE', 14, u'неизвестный тип предпочтения'),
                                                                                ('MOB_NOT_IN_GAME', 15, u'этот тип противника выведен из игры'),
                                                                                ('UNKNOWN_RISK_LEVEL', 16, u'неизвестный уровень риска'),
-                                                                               ('EMPTY_EQUIPMENT_SLOT', 17, u'пустой слот экипировки')) )
+                                                                               ('EMPTY_EQUIPMENT_SLOT', 17, u'пустой слот экипировки'),
+                                                                               ('UNKNOWN_ARCHETYPE', 18, u'неизвестный архетип'), ) )
 
 
 class ChoosePreferencesTask(PostponedLogic):
@@ -200,7 +201,7 @@ class ChoosePreferencesTask(PostponedLogic):
     def __init__(self, hero_id, preference_type, preference_id, state=CHOOSE_PREFERENCES_TASK_STATE.UNPROCESSED):
         super(ChoosePreferencesTask, self).__init__()
         self.hero_id = hero_id
-        self.preference_type = preference_type if isinstance(preference_type, rels.Record) else PREFERENCE_TYPE(preference_type)
+        self.preference_type = preference_type if isinstance(preference_type, rels.Record) else relations.PREFERENCE_TYPE(preference_type)
         self.preference_id = preference_id
         self.state = state
 
@@ -353,12 +354,12 @@ class ChoosePreferencesTask(PostponedLogic):
 
         if equipment_slot is not None:
 
-            if equipment_slot not in EQUIPMENT_SLOT.index_value:
+            if equipment_slot not in relations.EQUIPMENT_SLOT.index_value:
                 main_task.comment = u'unknown equipment slot: %s' % (equipment_slot, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            equipment_slot = EQUIPMENT_SLOT.index_value[equipment_slot]
+            equipment_slot = relations.EQUIPMENT_SLOT.index_value[equipment_slot]
 
         hero.preferences.set_equipment_slot(equipment_slot)
 
@@ -375,12 +376,12 @@ class ChoosePreferencesTask(PostponedLogic):
 
         if equipment_slot is not None:
 
-            if equipment_slot not in EQUIPMENT_SLOT.index_value:
+            if equipment_slot not in relations.EQUIPMENT_SLOT.index_value:
                 main_task.comment = u'unknown equipment slot: %s' % (equipment_slot, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            equipment_slot = EQUIPMENT_SLOT.index_value[equipment_slot]
+            equipment_slot = relations.EQUIPMENT_SLOT.index_value[equipment_slot]
 
             if hero.equipment.get(equipment_slot) is None:
                 main_task.comment = u'empty equipment slot for favorite item: %s' % (equipment_slot, )
@@ -403,14 +404,37 @@ class ChoosePreferencesTask(PostponedLogic):
 
         if risk_level is not None:
 
-            if risk_level not in RISK_LEVEL.index_value:
+            if risk_level not in relations.RISK_LEVEL.index_value:
                 main_task.comment = u'unknown risk level: %s' % (risk_level, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_RISK_LEVEL
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            risk_level = RISK_LEVEL.index_value[risk_level]
+            risk_level = relations.RISK_LEVEL.index_value[risk_level]
 
         hero.preferences.set_risk_level(risk_level)
+
+        return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
+
+
+    def process_archetype(self, main_task, hero):
+
+        try:
+            archetype = int(self.preference_id) if self.preference_id is not None else None
+        except:
+            main_task.comment = u'unknown archetype: %s' % (self.preference_id, )
+            self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_ARCHETYPE
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+        if archetype is not None:
+
+            if archetype not in relations.ARCHETYPE.index_value:
+                main_task.comment = u'unknown archetype: %s' % (archetype, )
+                self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_ARCHETYPE
+                return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+            archetype = relations.ARCHETYPE.index_value[archetype]
+
+        hero.preferences.set_archetype(archetype)
 
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
@@ -459,6 +483,9 @@ class ChoosePreferencesTask(PostponedLogic):
 
         elif self.preference_type.is_FAVORITE_ITEM:
             result = self.process_favorite_item(main_task, hero)
+
+        elif self.preference_type.is_ARCHETYPE:
+            result = self.process_archetype(main_task, hero)
 
         else:
             main_task.comment = u'unknown preference type: %s' % (self.preference_type, )

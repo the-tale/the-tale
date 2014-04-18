@@ -809,9 +809,6 @@ class HeroQuestsTest(testcase.TestCase):
         self.hero.preferences.set_mob(mobs_storage.all()[0])
         self.assertTrue(QUESTS.HUNT in [quest for quest, priority in self.hero.get_quests()])
 
-    def test_character_quests_searchsmith_without_preferences(self):
-        self.assertFalse(QUESTS.SEARCH_SMITH in [quest for quest, priority in self.hero.get_quests()])
-
     def test_character_quests_searchsmith_with_preferences_without_artifact(self):
         self.hero.equipment._remove_all()
         self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.PLATE)

@@ -438,7 +438,8 @@ class QuestPrototype(object):
         scale = quest_info.get_real_reward_scale(hero, scale)
 
         if hero.can_get_artifact_for_quest():
-            artifact, unequipped, sell_price = hero.buy_artifact(better=False, with_prefered_slot=False, equip=False)# pylint: disable=W0612
+
+            artifact, unequipped, sell_price = self.hero.receive_artifact(equip=False, better=False, prefered_slot=False, prefered_item=False, archetype=False)
 
             if artifact is not None:
                 artifact.power += Power(physic=int((scale - 1.0) * c.POWER_TO_LVL / 2 ),
@@ -474,10 +475,13 @@ class QuestPrototype(object):
 
     @classmethod
     def _get_upgrdade_choice(cls, hero):
-        choices = ['buy']
+        choices = [relations.UPGRADE_EQUIPMENT_VARIANTS.BUY]
 
         if hero.preferences.equipment_slot and hero.equipment.get(hero.preferences.equipment_slot) is not None:
-            choices.append('sharp')
+            choices.append(relations.UPGRADE_EQUIPMENT_VARIANTS.SHARP)
+
+            if hero.equipment.get(hero.preferences.equipment_slot).can_be_broken():
+                choices.append(relations.UPGRADE_EQUIPMENT_VARIANTS.REPAIR)
 
         return random.choice(choices)
 
@@ -491,8 +495,10 @@ class QuestPrototype(object):
         if cost is not None:
             cost = min(cost, hero.money)
 
-        if cls._get_upgrdade_choice(hero) == 'buy':
-            artifact, unequipped, sell_price = hero.buy_artifact(better=True, with_prefered_slot=True, equip=True)
+        upgrade_choice = cls._get_upgrdade_choice(hero)
+
+        if upgrade_choice.is_BUY:
+            artifact, unequipped, sell_price = hero.receive_artifact(equip=True, better=True, prefered_slot=True, prefered_item=True, archetype=True)
 
             if cost is not None:
                 hero.change_money(MONEY_SOURCE.SPEND_FOR_ARTIFACTS, -cost)
@@ -516,7 +522,7 @@ class QuestPrototype(object):
                 else:
                     process_message(knowledge_base, hero, message='upgrade_free__buy', ext_substitution={'artifact': artifact})
 
-        else:
+        elif upgrade_choice.is_SHARP:
             artifact = hero.sharp_artifact()
 
             if cost is not None:
@@ -525,6 +531,19 @@ class QuestPrototype(object):
                                                                                                   'artifact': artifact})
             else:
                 process_message(knowledge_base, hero, message='upgrade_free__sharp', ext_substitution={'artifact': artifact})
+
+        elif upgrade_choice.is_REPAIR:
+            artifact = hero.repair_artifact()
+
+            if cost is not None:
+                hero.change_money(MONEY_SOURCE.SPEND_FOR_REPAIRING, -cost)
+                process_message(knowledge_base, hero, message='upgrade__repair', ext_substitution={'coins': cost,
+                                                                                                   'artifact': artifact})
+            else:
+                process_message(knowledge_base, hero, message='upgrade_free__repair', ext_substitution={'artifact': artifact})
+
+        else:
+            raise exceptions.UnknownUpgadeEquipmentTypeError(type=upgrade_choice)
 
     def _start_quest(self, start, hero):
         hero.quests.update_history(start.type, TimePrototype.get_current_turn_number())
@@ -610,7 +629,7 @@ class QuestPrototype(object):
         elif isinstance(recipient, facts.Place):
             self._give_place_power(self.hero, places_storage[recipient.externals['id']], action.power)
         else:
-            raise exceptions.UnknownPowerRecipient(recipient=recipient)
+            raise exceptions.UnknownPowerRecipientError(recipient=recipient)
 
     def do_give_reward(self, action):
         self._give_reward(self.hero, action.type, action.scale)
@@ -647,7 +666,7 @@ class QuestPrototype(object):
         if isinstance(object_fact, facts.Hero):
             return bool(self.hero.id == object_fact.externals['id'] and self.hero.position.place and self.hero.position.place.id == place.id)
 
-        raise exceptions.UnknownRequirement(requirement=requirement)
+        raise exceptions.UnknownRequirementError(requirement=requirement)
 
 
     def check_located_near(self, requirement):
@@ -669,7 +688,7 @@ class QuestPrototype(object):
             hero_place = self.hero.position.get_nearest_dominant_place()
             return place.id == hero_place.id
 
-        raise exceptions.UnknownRequirement(requirement=requirement)
+        raise exceptions.UnknownRequirementError(requirement=requirement)
 
     def check_located_on_road(self, requirement):
         object_fact = self.knowledge_base[requirement.object]
@@ -678,7 +697,7 @@ class QuestPrototype(object):
             return False
 
         if not isinstance(object_fact, facts.Hero):
-            raise exceptions.UnknownRequirement(requirement=requirement)
+            raise exceptions.UnknownRequirementError(requirement=requirement)
 
         if self.hero.id != object_fact.externals['id']:
             return False
@@ -713,7 +732,7 @@ class QuestPrototype(object):
                 return False
             return self.hero.money >= requirement.money
 
-        raise exceptions.UnknownRequirement(requirement=requirement)
+        raise exceptions.UnknownRequirementError(requirement=requirement)
 
     def check_is_alive(self, requirement):
         object_fact = self.knowledge_base[requirement.object]
@@ -727,7 +746,7 @@ class QuestPrototype(object):
 
             return self.hero.is_alive
 
-        raise exceptions.UnknownRequirement(requirement=requirement)
+        raise exceptions.UnknownRequirementError(requirement=requirement)
 
     ################################
     # satisfy requirements callbacks
@@ -737,7 +756,7 @@ class QuestPrototype(object):
         object_fact = self.knowledge_base[requirement.object]
 
         if not isinstance(object_fact, facts.Hero) or self.hero.id != object_fact.externals['id']:
-            raise exceptions.UnknownRequirement(requirement=requirement)
+            raise exceptions.UnknownRequirementError(requirement=requirement)
 
         self._move_hero_to(destination=places_storage[self.knowledge_base[requirement.place].externals['id']])
 
@@ -745,7 +764,7 @@ class QuestPrototype(object):
         object_fact = self.knowledge_base[requirement.object]
 
         if not isinstance(object_fact, facts.Hero) or self.hero.id != object_fact.externals['id']:
-            raise exceptions.UnknownRequirement(requirement=requirement)
+            raise exceptions.UnknownRequirementError(requirement=requirement)
 
         if requirement.place is None:
             self._move_hero_near(destination=None, terrains=requirement.terrains)
@@ -756,17 +775,17 @@ class QuestPrototype(object):
         object_fact = self.knowledge_base[requirement.object]
 
         if not isinstance(object_fact, facts.Hero) or self.hero.id != object_fact.externals['id']:
-            raise exceptions.UnknownRequirement(requirement=requirement)
+            raise exceptions.UnknownRequirementError(requirement=requirement)
 
         self._move_hero_on_road(place_from=places_storage[self.knowledge_base[requirement.place_from].externals['id']],
                                 place_to=places_storage[self.knowledge_base[requirement.place_to].externals['id']],
                                 percents=requirement.percents)
 
     def satisfy_has_money(self, requirement):
-        raise exceptions.UnknownRequirement(requirement=requirement)
+        raise exceptions.UnknownRequirementError(requirement=requirement)
 
     def satisfy_is_alive(self, requirement):
-        raise exceptions.UnknownRequirement(requirement=requirement)
+        raise exceptions.UnknownRequirementError(requirement=requirement)
 
 
     ################################

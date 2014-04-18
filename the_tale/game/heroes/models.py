@@ -112,6 +112,7 @@ class Hero(models.Model):
     stat_money_spend_for_useless = models.BigIntegerField(default=0, null=False)
     stat_money_spend_for_impact = models.BigIntegerField(default=0, null=False)
     stat_money_spend_for_experience = models.BigIntegerField(default=0, null=False)
+    stat_money_spend_for_repairing = models.BigIntegerField(default=0, null=False)
 
     stat_artifacts_had = models.BigIntegerField(default=0, null=False)
     stat_loot_had = models.BigIntegerField(default=0, null=False)
@@ -140,3 +141,4 @@ class HeroPreferences(models.Model):
     equipment_slot = RelationIntegerField(relation=relations.EQUIPMENT_SLOT, null=True, default=None, blank=True)
     risk_level = RelationIntegerField(relation=relations.RISK_LEVEL)
     favorite_item = RelationIntegerField(relation=relations.EQUIPMENT_SLOT, null=True, default=None, blank=True)
+    archetype = RelationIntegerField(relation=relations.ARCHETYPE, null=True, default=None, blank=True)

@@ -82,14 +82,15 @@ class AchievementsBarriers(testcase.TestCase):
 
     def artifacts_after_months(self, months):
         MAGIC = 1.5 # magic cooficient, to spend money events and abilities
-        return int(c.ARTIFACTS_PER_LVL * (f.lvl_after_time(months*30*24)-1) * MAGIC)
+        return int((c.ARTIFACTS_LOOT_PER_DAY * months*30-1) * MAGIC)
 
     def check_artifacts(self, months, artifacts):
+        # print self.artifacts_after_months(months), artifacts, self.artifacts_after_months(months+0.25)
         self.assertTrue(self.artifacts_after_months(months) <= artifacts <= self.artifacts_after_months(months+0.25))
 
     def test_artifacts(self):
         self.check_artifacts(0, 1)
-        self.check_artifacts(0.2, 50)
+        self.check_artifacts(0.2, 18)
         self.check_artifacts(0.9, 100)
         self.check_artifacts(6.2, 250)
         self.check_artifacts(24.6, 500)

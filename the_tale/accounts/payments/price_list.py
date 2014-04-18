@@ -240,12 +240,16 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                                                                           cost=50,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_ENEMY),
 
-                                            permanent_permission_purchase(uid=u'preference-equipment-slot',
+                                            permanent_permission_purchase(uid=u'preference-archetype',
                                                                           cost=60,
+                                                                          purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_ARCHETYPE),
+
+                                            permanent_permission_purchase(uid=u'preference-equipment-slot',
+                                                                          cost=70,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_EQUIPMENT_SLOT),
 
                                             permanent_permission_purchase(uid=u'preference-mob',
-                                                                          cost=70,
+                                                                          cost=80,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_MOB) ]),
 
 
@@ -259,7 +263,8 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                                             reset_hero_preference(uid='hero-preference-reset-energy-regeneration-type', preference_type=PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, cost=10),
                                             reset_hero_preference(uid='hero-preference-reset-equipment-slot', preference_type=PREFERENCE_TYPE.EQUIPMENT_SLOT, cost=25),
                                             reset_hero_preference(uid='hero-preference-reset-risk-level', preference_type=PREFERENCE_TYPE.RISK_LEVEL, cost=10),
-                                            reset_hero_preference(uid='hero-preference-reset-favorite-item', preference_type=PREFERENCE_TYPE.FAVORITE_ITEM, cost=25)]),
+                                            reset_hero_preference(uid='hero-preference-reset-favorite-item', preference_type=PREFERENCE_TYPE.FAVORITE_ITEM, cost=25),
+                                            reset_hero_preference(uid='hero-preference-reset-archetype', preference_type=PREFERENCE_TYPE.ARCHETYPE, cost=50),]),
 
                 goods.PurchaseGroup(uid='habits',
                                     name=u'Черты',

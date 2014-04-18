@@ -1,0 +1,25 @@
+
+{% macro preference_record(item, choosen_id) %}
+<td class="hero-preference-choise {% if item == choosen_id %}choosen{% endif %}">
+  {% if item != choosen_id %}
+  <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ item.value }}">{{ item.text }}</a>
+  {% else %}
+  <a href="#" class="current-choice pgf-close-dialog">{{ item.text }}</a>
+  {% endif %}
+</td>
+<td>
+  {{item.description}}
+</td>
+{% endmacro %}
+
+<p>
+  Чему герой доверяет больше: магии или верному мечу? Быть может он идёт по грани между силой и магией, умело используя преимущества обоих сторон? Вы можете выбрать архетип своего подопечного, определяющий предпочитаему им экипировку.
+</p>
+
+<table class="table table-bordered table-striped table-condensed">
+  {% for archetype in ARCHETYPE.records %}
+  <tr>
+    {{ preference_record(archetype, resource.hero.preferences.archetype) }}
+  </tr>
+  {% endfor %}
+</table>

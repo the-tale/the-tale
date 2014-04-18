@@ -20,7 +20,7 @@ from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.map.places.storage import places_storage
 
-from the_tale.game.persons.models import Person, PERSON_STATE
+from the_tale.game.persons.models import PERSON_STATE
 from the_tale.game.persons.storage import persons_storage
 
 from the_tale.game.workers.environment import workers_environment
@@ -224,6 +224,9 @@ class HeroResource(Resource):
         elif type.is_RISK_LEVEL:
             pass
 
+        elif type.is_ARCHETYPE:
+            pass
+
         elif type.is_FAVORITE_ITEM:
             favorite_items = {slot: self.hero.equipment.get(slot)
                               for slot in relations.EQUIPMENT_SLOT.records
@@ -238,9 +241,10 @@ class HeroResource(Resource):
                               'enemies': enemies,
                               'equipment_slots': equipment_slots,
                               'favorite_items': favorite_items,
-                              'PREFERENCES_CHANGE_DELAY': datetime.timedelta(seconds=c.CHARACTER_PREFERENCES_CHANGE_DELAY),
+                              'PREFERENCES_CHANGE_DELAY': datetime.timedelta(seconds=c.PREFERENCES_CHANGE_DELAY),
                               'EQUIPMENT_SLOT': relations.EQUIPMENT_SLOT,
-                              'RISK_LEVEL': relations.RISK_LEVEL} )
+                              'RISK_LEVEL': relations.RISK_LEVEL,
+                              'ARCHETYPE': relations.ARCHETYPE} )
 
     @login_required
     @validate_ownership()

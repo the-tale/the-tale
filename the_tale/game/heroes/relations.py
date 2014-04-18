@@ -8,7 +8,7 @@ from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS
 from the_tale.game.balance import constants as c
 from the_tale.game.balance.power import PowerDistribution
 
-from the_tale.game.artifacts.relations import ARTIFACT_TYPE
+from the_tale.game.artifacts.relations import ARTIFACT_TYPE, ARTIFACT_POWER_TYPE
 
 
 class RISK_LEVEL(DjangoEnum):
@@ -26,10 +26,18 @@ class RISK_LEVEL(DjangoEnum):
 
 class ARCHETYPE(DjangoEnum):
     power_distribution = Column()
+    description = Column()
+    allowed_power_types = Column(no_index=True, unique=False)
 
-    records = ( ('MAGICAL', 1, u'маг', PowerDistribution(0.25, 0.75)),
-                ('NEUTRAL', 2, u'нейтральный', PowerDistribution(0.5, 0.5)),
-                ('PHYSICAL', 3, u'воин', PowerDistribution(0.75, 0.25)) )
+    records = ( ('MAGICAL', 0, u'маг', PowerDistribution(0.25, 0.75), u'герой предпочитает магию грубой силе', [ARTIFACT_POWER_TYPE.MOST_MAGICAL,
+                                                                                                                ARTIFACT_POWER_TYPE.MAGICAL,
+                                                                                                                ARTIFACT_POWER_TYPE.NEUTRAL]),
+                ('NEUTRAL', 1, u'авантюрист', PowerDistribution(0.5, 0.5), u'герой соблюдает баланс между мечём и магией', [ARTIFACT_POWER_TYPE.MAGICAL,
+                                                                                                                            ARTIFACT_POWER_TYPE.NEUTRAL,
+                                                                                                                            ARTIFACT_POWER_TYPE.PHYSICAL]),
+                ('PHYSICAL', 2, u'воин', PowerDistribution(0.75, 0.25), u'герой полагается на воинские умения', [ARTIFACT_POWER_TYPE.NEUTRAL,
+                                                                                                                 ARTIFACT_POWER_TYPE.PHYSICAL,
+                                                                                                                 ARTIFACT_POWER_TYPE.MOST_PHYSICAL]) )
 
 
 class PREFERENCE_TYPE(DjangoEnum):
@@ -38,14 +46,15 @@ class PREFERENCE_TYPE(DjangoEnum):
     prepair_method = Column(unique=False)
     nullable = Column(unique=False)
 
-    records = ( ('MOB', 0, u'любимая добыча', 43, 'mob', '_prepair_mob', True),
-                 ('PLACE', 1, u'родной город', 4, 'place', '_prepair_place', True),
-                 ('FRIEND', 2, u'соратник', 13, 'friend', '_prepair_person', True),
-                 ('ENEMY', 3, u'противник', 26, 'enemy', '_prepair_person', True),
-                 ('ENERGY_REGENERATION_TYPE', 4, u'религиозность', 1, 'energy_regeneration_type', '_prepair_value', False),
-                 ('EQUIPMENT_SLOT', 5, u'экипировка', 34, 'equipment_slot', '_prepair_equipment_slot', True),
-                 ('RISK_LEVEL', 6, u'уровень риска', 8, 'risk_level', '_prepair_risk_level', False),
-                 ('FAVORITE_ITEM', 7, u'любимая вещь', 19, 'favorite_item', '_prepair_equipment_slot', True),
+    records = ( ('MOB', 0, u'любимая добыча', 53, 'mob', '_prepair_mob', True),
+                ('PLACE', 1, u'родной город', 4, 'place', '_prepair_place', True),
+                ('FRIEND', 2, u'соратник', 13, 'friend', '_prepair_person', True),
+                ('ENEMY', 3, u'противник', 26, 'enemy', '_prepair_person', True),
+                ('ENERGY_REGENERATION_TYPE', 4, u'религиозность', 1, 'energy_regeneration_type', '_prepair_value', False),
+                ('EQUIPMENT_SLOT', 5, u'экипировка', 43, 'equipment_slot', '_prepair_equipment_slot', True),
+                ('RISK_LEVEL', 6, u'уровень риска', 8, 'risk_level', '_prepair_risk_level', False),
+                ('FAVORITE_ITEM', 7, u'любимая вещь', 19, 'favorite_item', '_prepair_equipment_slot', True),
+                ('ARCHETYPE', 8, u'архетип', 34, 'archetype', '_prepair_archetype', False),
         )
 
 
@@ -62,7 +71,8 @@ class MONEY_SOURCE(DjangoEnum):
                 ('SPEND_FOR_SHARPENING', 1002, u'потрачено на заточку артефактов'),
                 ('SPEND_FOR_USELESS', 1003, u'потрачено без пользы'),
                 ('SPEND_FOR_IMPACT', 1004, u'потрачено на изменение влияния'),
-                ('SPEND_FOR_EXPERIENCE', 1005, u'потрачено на обучение') )
+                ('SPEND_FOR_EXPERIENCE', 1005, u'потрачено на обучение'),
+                ('SPEND_FOR_REPAIRING', 1006, u'потрачено на починку'))
 
 
 
@@ -84,7 +94,9 @@ class ITEMS_OF_EXPENDITURE(DjangoEnum):
                  ('IMPACT',              4, u'изменение влияния', 'impact',     4,  2.5, MONEY_SOURCE.SPEND_FOR_IMPACT,
                   u'Планирует накопить деньжат, чтобы повлиять на «запомнившегося» горожанина.'),
                  ('EXPERIENCE',          5, u'обучение',          'experience', 1,  5.0, MONEY_SOURCE.SPEND_FOR_EXPERIENCE,
-                  u'Копит деньги в надежде немного повысить свою грамотность..'))
+                  u'Копит деньги в надежде немного повысить свою грамотность..'),
+                 ('REPAIRING_ARTIFACT',  6, u'починка артефакта', 'repairing', 4, 1.0, MONEY_SOURCE.SPEND_FOR_REPAIRING,
+                  u'Копит на починку экипировки'))
 
 
     @classmethod

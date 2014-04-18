@@ -20,6 +20,8 @@
       Выберите уровень риска
       {% elif type.is_FAVORITE_ITEM %}
       Выберите любимую вещь
+      {% elif type.is_FAVORITE_ITEM %}
+      Выберите архетип героя
       {% endif %}
     </h3>
   </div>
@@ -61,6 +63,9 @@
 
     {% elif type.is_FAVORITE_ITEM %}
     {% include "heroes/choose_preferences_favorite_item.html" with context %}
+
+    {% elif type.is_ARCHETYPE %}
+    {% include "heroes/choose_preferences_archetype.html" with context %}
 
     {% endif %}
 

@@ -381,6 +381,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend_for_sharpening, money - self.hero.money)
         self.storage._test_save()
 
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_upgrade_prefered_slot', True)
     def test_sharpening_artifact_with_hero_preferences(self):
         while not self.hero.next_spending.is_SHARPENING_ARTIFACT:
             self.hero.switch_spending()
@@ -401,6 +402,29 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_sharpening, money - self.hero.money)
+        self.storage._test_save()
+
+
+    def test_repair_artifact(self):
+        for artifact in self.hero.equipment.values():
+            artifact.integrity = artifact.max_integrity
+
+        test_artifact = artifact
+        test_artifact.integrity = 0
+
+        while not self.hero.next_spending.is_REPAIRING_ARTIFACT:
+            self.hero.switch_spending()
+
+        money = self._current_spending_cost()
+
+        self.hero._model.money = money
+        self.storage.process_turn()
+        self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
+
+        self.assertEqual(test_artifact.integrity, test_artifact.max_integrity)
+
+        self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
+        self.assertEqual(self.hero.statistics.money_spend_for_repairing, money - self.hero.money)
         self.storage._test_save()
 
     def test_useless(self):

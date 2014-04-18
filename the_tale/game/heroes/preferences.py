@@ -99,7 +99,7 @@ class HeroPreferences(object):
         return self.time_before_update(preferences_type, current_time).total_seconds() == 0
 
     def _time_before_update(self, changed_at, current_time):
-        return max(datetime.timedelta(seconds=0), (changed_at + datetime.timedelta(seconds=c.CHARACTER_PREFERENCES_CHANGE_DELAY) - current_time))
+        return max(datetime.timedelta(seconds=0), (changed_at + datetime.timedelta(seconds=c.PREFERENCES_CHANGE_DELAY) - current_time))
 
     def time_before_update(self, preferences_type, current_time):
         return self._time_before_update(self._get_changed_at(preferences_type), current_time)
@@ -150,6 +150,10 @@ class HeroPreferences(object):
         if risk_id is None: return None
         return relations.RISK_LEVEL.index_value.get(int(risk_id))
 
+    def _prepair_archetype(self, archetype_id):
+        if archetype_id is None: return None
+        return relations.ARCHETYPE.index_value.get(int(archetype_id))
+
     def _get(self, preferences_type):
         if preferences_type.base_name not in self.data:
             return None
@@ -167,8 +171,6 @@ class HeroPreferences(object):
     def energy_regeneration_type_name(self):
         return e.ANGEL_ENERGY_REGENERATION_TYPES._ID_TO_TEXT[self.energy_regeneration_type]
 
-
-    archetype = relations.ARCHETYPE.NEUTRAL
 
     # helpers
 

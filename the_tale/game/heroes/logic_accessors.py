@@ -88,14 +88,14 @@ class LogicAccessorsMixin(object):
     def can_get_artifact_for_quest(self):
         return self.check_attribute(relations.MODIFIERS.GET_ARTIFACT_FOR_QUEST)
 
-    def can_buy_better_artifact(self):
-        if self.check_attribute(relations.MODIFIERS.BUY_BETTER_ARTIFACT):
-            return True
+    # def can_buy_better_artifact(self):
+    #     if self.check_attribute(relations.MODIFIERS.BUY_BETTER_ARTIFACT):
+    #         return True
 
-        if self.position.place and self.position.place.modifier and self.position.place.modifier.can_buy_better_artifact():
-            return True
+    #     if self.position.place and self.position.place.modifier and self.position.place.modifier.can_buy_better_artifact():
+    #         return True
 
-        return False
+    #     return False
 
     def can_kill_before_battle(self):
         return self.check_attribute(relations.MODIFIERS.KILL_BEFORE_BATTLE)
@@ -121,6 +121,10 @@ class LogicAccessorsMixin(object):
 
     @property
     def bag_is_full(self): return self.bag.occupation >= self.max_bag_size
+
+    @property
+    def can_upgrade_prefered_slot(self):
+        return random.uniform(0, 1) < c.ARTIFACT_FROM_PREFERED_SLOT_PROBABILITY
 
     ################################
     # attributes
@@ -196,7 +200,7 @@ class LogicAccessorsMixin(object):
         return c.GET_LOOT_PROBABILITY * self.attribute_modifier(relations.MODIFIERS.LOOT_PROBABILITY)
 
     def artifacts_probability(self):
-        return f.artifacts_per_battle(self.level) * self.attribute_modifier(relations.MODIFIERS.LOOT_PROBABILITY)
+        return c.ARTIFACTS_PER_BATTLE * self.attribute_modifier(relations.MODIFIERS.LOOT_PROBABILITY)
 
     def habit_events(self):
         return self.attribute_modifier(relations.MODIFIERS.HONOR_EVENTS)

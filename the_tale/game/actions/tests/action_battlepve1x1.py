@@ -63,7 +63,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.storage._test_save()
 
 
-    @mock.patch('the_tale.game.balance.formulas.artifacts_per_battle', lambda lvl: 0)
+    @mock.patch('the_tale.game.balance.constants.ARTIFACTS_PER_BATTLE', 0)
     @mock.patch('the_tale.game.balance.constants.GET_LOOT_PROBABILITY', 1)
     @mock.patch('the_tale.game.actions.prototypes.battle.make_turn', lambda a, b, c: None)
     def test_loot(self):
@@ -75,7 +75,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(len(self.hero.bag.items()), 1)
         self.storage._test_save()
 
-    @mock.patch('the_tale.game.balance.formulas.artifacts_per_battle', lambda lvl: 1)
+    @mock.patch('the_tale.game.balance.constants.ARTIFACTS_PER_BATTLE', 1)
     @mock.patch('the_tale.game.actions.prototypes.battle.make_turn', lambda a, b, c: None)
     def test_artifacts(self):
         self.assertEqual(self.hero.statistics.artifacts_had, 0)
@@ -210,14 +210,16 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(action_battle.state, self.action_battle.STATE.PROCESSED)
 
 
-    @mock.patch('the_tale.game.artifacts.prototypes.ArtifactPrototype.test_to_break', lambda self: True)
+    @mock.patch('the_tale.game.balance.constants.ARTIFACTS_BREAKS_PER_BATTLE', 1.0)
+    @mock.patch('the_tale.game.artifacts.prototypes.ArtifactPrototype.can_be_broken', lambda self: True)
     def test_process_artifact_breaking__no_equipment(self):
         self.hero.equipment._remove_all()
         old_power = self.hero.power.clone()
         self.action_battle.process_artifact_breaking()
         self.assertEqual(old_power, self.hero.power)
 
-    @mock.patch('the_tale.game.artifacts.prototypes.ArtifactPrototype.test_to_break', lambda self: True)
+    @mock.patch('the_tale.game.balance.constants.ARTIFACTS_BREAKS_PER_BATTLE', 1.0)
+    @mock.patch('the_tale.game.artifacts.prototypes.ArtifactPrototype.can_be_broken', lambda self: True)
     def test_process_artifact_breaking__broken(self):
         for artifact in self.hero.equipment.values():
             artifact.power = Power(100, 100)
@@ -226,7 +228,8 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.action_battle.process_artifact_breaking()
         self.assertTrue(old_power > self.hero.power.total())
 
-    @mock.patch('the_tale.game.artifacts.prototypes.ArtifactPrototype.test_to_break', lambda self: False)
+    @mock.patch('the_tale.game.balance.constants.ARTIFACTS_BREAKS_PER_BATTLE', 1.0)
+    @mock.patch('the_tale.game.artifacts.prototypes.ArtifactPrototype.can_be_broken', lambda self: False)
     def test_process_artifact_breaking__not_broken(self):
         for artifact in self.hero.equipment.values():
             artifact.power = Power(100, 100)
@@ -234,3 +237,27 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         old_power = self.hero.power.total()
         self.action_battle.process_artifact_breaking()
         self.assertEqual(old_power, self.hero.power.total())
+
+    @mock.patch('the_tale.game.balance.constants.ARTIFACTS_BREAKS_PER_BATTLE', 1.0)
+    @mock.patch('the_tale.game.artifacts.prototypes.ArtifactPrototype.can_be_broken', lambda self: False)
+    def test_process_artifact_breaking__break_only_mostly_damaged(self):
+        for artifact in self.hero.equipment.values():
+            artifact.power = Power(100, 100)
+            artifact.integrity = 0
+
+        artifact.integrity = artifact.max_integrity
+
+        for i in xrange(100):
+            self.action_battle.process_artifact_breaking()
+
+        self.assertEqual(artifact.power, Power(100, 100))
+
+
+    def test_process_artifact_breaking__integrity_damage(self):
+        for artifact in self.hero.equipment.values():
+            artifact.integrity = artifact.max_integrity
+
+        self.action_battle.process_artifact_breaking()
+
+        for artifact in self.hero.equipment.values():
+            self.assertEqual(artifact.integrity, artifact.max_integrity - 1)

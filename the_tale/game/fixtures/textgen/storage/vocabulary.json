@@ -10730,6 +10730,54 @@
       "template": "Собрать компромат"
     }
   ], 
+  "action_inplace_diary_repairing_artifact": [
+    {
+      "internals": [
+        [
+          "Заплатил", 
+          [
+            "hero"
+          ], 
+          "i_0", 
+          [
+            "прш", 
+            "загл"
+          ], 
+          "Заплатил"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "coins", 
+          [], 
+          "e_0", 
+          [], 
+          "coins"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "«%(i_0)s кузнецу %(e_0)s %(i_1)s за починку %(e_1)s»."
+    }
+  ], 
   "chronicle_building_renaming_bill_started": [
     {
       "internals": [], 
@@ -19033,6 +19081,62 @@
       "template": "бьется на арене"
     }
   ], 
+  "quest_search_smith_diary_upgrade__repair": [
+    {
+      "internals": [
+        [
+          "починил", 
+          [
+            "receiver"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "починил"
+        ], 
+        [
+          "монета", 
+          [
+            "coins"
+          ], 
+          "i_1", 
+          [
+            "вн"
+          ], 
+          "монета"
+        ]
+      ], 
+      "externals": [
+        [
+          "receiver", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "receiver"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ], 
+        [
+          "coins", 
+          [], 
+          "e_2", 
+          [], 
+          "coins"
+        ]
+      ], 
+      "template": "«%(e_0)s %(i_0)s %(e_1)s! И всего за %(e_2)s %(i_1)s»."
+    }
+  ], 
   "action_event_habit_move_to_dishonorable_money": [
     {
       "internals": [
@@ -19839,6 +19943,44 @@
         ]
       ], 
       "template": "Принят закон «%(e_0)s». %(e_1)s %(i_0)s %(e_2)s."
+    }
+  ], 
+  "quest_search_smith_diary_upgrade_free__repair": [
+    {
+      "internals": [
+        [
+          "починил", 
+          [
+            "receiver"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "починил"
+        ]
+      ], 
+      "externals": [
+        [
+          "receiver", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "receiver"
+        ], 
+        [
+          "artifact", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "artifact"
+        ]
+      ], 
+      "template": "«%(e_0)s %(i_0)s %(e_1)s!»."
     }
   ], 
   "action_battlepve1x1_put_loot_no_space": [
@@ -28403,7 +28545,7 @@
           "artifact"
         ]
       ], 
-      "template": "%(i_0)s кузнецу %(e_0)s %(i_1)s за улучшение %(e_1)s."
+      "template": "«%(i_0)s кузнецу %(e_0)s %(i_1)s за улучшение %(e_1)s»."
     }, 
     {
       "internals": [
@@ -28448,7 +28590,7 @@
           "artifact"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s, конечно, немалые деньги, но работа кузнеца того стоила — %(i_1)s без зазрения за улучшение %(e_1)s."
+      "template": "«%(e_0)s %(i_0)s, конечно, немалые деньги, но работа кузнеца того стоила — %(i_1)s без зазрения за улучшение %(e_1)s»."
     }, 
     {
       "internals": [
@@ -28494,7 +28636,7 @@
           "coins"
         ]
       ], 
-      "template": "Теперь %(e_0)s %(i_0)s сиять ещё ярче — %(e_1)s %(i_1)s не столь высокая цена за отличную полировку."
+      "template": "«Теперь %(e_0)s %(i_0)s сиять ещё ярче — %(e_1)s %(i_1)s не столь высокая цена за отличную полировку»."
     }, 
     {
       "internals": [
@@ -28540,7 +28682,7 @@
           "artifact"
         ]
       ], 
-      "template": "%(i_0)s мастеру %(e_0)s %(i_1)s за гравировку рун на %(e_1)s."
+      "template": "«%(i_0)s мастеру %(e_0)s %(i_1)s за гравировку рун на %(e_1)s»."
     }, 
     {
       "internals": [
@@ -28607,7 +28749,7 @@
           "artifact"
         ]
       ], 
-      "template": "%(e_0)s %(i_0)s %(i_1)s %(i_2)s не зря — %(e_1)s аж %(i_3)s!"
+      "template": "«%(e_0)s %(i_0)s %(i_1)s %(i_2)s не зря — %(e_1)s аж %(i_3)s»!"
     }
   ], 
   "quest_hometown_diary_intro": [

@@ -48,10 +48,10 @@ class HabilitiesNonBattleTest(testcase.TestCase):
         self.hero.abilities.add(nonbattle.BUSINESSMAN.get_id())
         self.assertTrue(any(self.hero.can_get_artifact_for_quest() for i in xrange(200)))
 
-    def test_picky(self):
-        self.assertFalse(any(self.hero.can_buy_better_artifact() for i in xrange(200)))
-        self.hero.abilities.add(nonbattle.PICKY.get_id())
-        self.assertTrue(any(self.hero.can_buy_better_artifact() for i in xrange(200)))
+    # def test_picky(self):
+    #     self.assertFalse(any(self.hero.can_buy_better_artifact() for i in xrange(200)))
+    #     self.hero.abilities.add(nonbattle.PICKY.get_id())
+    #     self.assertTrue(any(self.hero.can_buy_better_artifact() for i in xrange(200)))
 
     def test_ethereal_magnet(self):
         old_crit_chance = self.hero.might_crit_chance

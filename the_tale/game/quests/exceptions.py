@@ -6,9 +6,12 @@ class QuestError(TheTaleError):
     MSG = u'hero error'
 
 
-class UnknownRequirement(QuestError):
+class UnknownRequirementError(QuestError):
     MSG = u'unknown state requirement: %(requirement)r'
 
 
-class UnknownPowerRecipient(QuestError):
+class UnknownPowerRecipientError(QuestError):
     MSG = u'unknown state action: %(recipient)r'
+
+class UnknownUpgadeEquipmentTypeError(QuestError):
+    MSG = u'unknown upgrade equipment: %(type)r'

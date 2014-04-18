@@ -1,4 +1,7 @@
 # coding: utf-8
+import random
+
+import mock
 
 from the_tale.common.utils.testcase import TestCase
 
@@ -6,18 +9,22 @@ from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
 
 from the_tale.game.logic import create_test_map
-from the_tale.game.artifacts.storage import artifacts_storage
 
+from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
+from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts.relations import ARTIFACT_POWER_TYPE, ARTIFACT_TYPE
+
+from the_tale.game.balance import constants as c
 from the_tale.game.balance.power import Power
 from the_tale.game.logic_storage import LogicStorage
 
-from the_tale.game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT
+from the_tale.game.heroes import relations
 
 
-class HeroEquipmentTests(TestCase):
+class _HeroEquipmentTestsBase(TestCase):
 
     def setUp(self):
-        super(HeroEquipmentTests, self).setUp()
+        super(_HeroEquipmentTestsBase, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
@@ -26,8 +33,11 @@ class HeroEquipmentTests(TestCase):
         self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
 
         self.hero = self.storage.accounts_to_heroes[account_id]
-        self.hero._model.level = PREFERENCE_TYPE.EQUIPMENT_SLOT.level_required
+        self.hero._model.level = relations.PREFERENCE_TYPE.EQUIPMENT_SLOT.level_required
         self.hero.save()
+
+
+class HeroEquipmentTests(_HeroEquipmentTestsBase):
 
     def test_sharp_artifact(self):
         old_power = self.hero.power
@@ -56,8 +66,9 @@ class HeroEquipmentTests(TestCase):
                         artifact.power == max_power + Power(0, 1))
         self.assertTrue(self.hero.equipment.updated)
 
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_upgrade_prefered_slot', True)
     def test_sharp_preferences(self):
-        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.HAND_PRIMARY)
+        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.HAND_PRIMARY)
 
         artifact = self.hero.sharp_artifact()
         self.assertTrue(artifact.type.is_MAIN_HAND)
@@ -66,29 +77,13 @@ class HeroEquipmentTests(TestCase):
         distribution = self.hero.preferences.archetype.power_distribution
         min_power, max_power = Power.artifact_power_interval(distribution, self.hero.level)
 
-        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.HAND_PRIMARY)
+        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.HAND_PRIMARY)
 
-        artifact = self.hero.equipment.get(EQUIPMENT_SLOT.HAND_PRIMARY)
+        artifact = self.hero.equipment.get(relations.EQUIPMENT_SLOT.HAND_PRIMARY)
         artifact.power = max_power
 
         artifact = self.hero.sharp_artifact()
         self.assertFalse(artifact.type.is_MAIN_HAND)
-
-    def test_buy_artifact_and_not_equip(self):
-        self.hero.equipment.serialize()
-        old_equipment = self.hero._model.equipment
-
-        self.hero.bag.serialize()
-        old_bag = self.hero._model.bag
-
-        self.hero.buy_artifact(equip=False, better=False, with_prefered_slot=False)
-
-        self.hero.equipment.serialize()
-        self.assertEqual(old_equipment, self.hero._model.equipment)
-
-        self.hero.bag.serialize()
-        self.assertNotEqual(old_bag, self.hero._model.bag)
-
 
     def test_equipping_process(self):
         self.assertEqual(self.hero.get_equip_canditates(), (None, None, None))
@@ -129,21 +124,21 @@ class HeroEquipmentTests(TestCase):
 
     def test_get_equip_canditates__ignore_favorite_item_slot(self):
         self.assertTrue(self.hero.bag.is_empty)
-        self.assertTrue(self.hero.equipment.get(EQUIPMENT_SLOT.HAND_PRIMARY))
+        self.assertTrue(self.hero.equipment.get(relations.EQUIPMENT_SLOT.HAND_PRIMARY))
         self.assertEqual(self.hero.preferences.favorite_item, None)
 
-        old_artifact = self.hero.equipment.get(EQUIPMENT_SLOT.HAND_PRIMARY)
+        old_artifact = self.hero.equipment.get(relations.EQUIPMENT_SLOT.HAND_PRIMARY)
 
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts_for_type([EQUIPMENT_SLOT.HAND_PRIMARY.artifact_type]), self.hero.level)
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts_for_type([relations.EQUIPMENT_SLOT.HAND_PRIMARY.artifact_type]), self.hero.level)
         artifact.power = old_artifact.power + Power(1, 1)
         self.hero.bag.put_artifact(artifact)
 
         slot, unequipped, equipped = self.hero.get_equip_canditates()
-        self.assertEqual(slot, EQUIPMENT_SLOT.HAND_PRIMARY)
+        self.assertEqual(slot, relations.EQUIPMENT_SLOT.HAND_PRIMARY)
         self.assertEqual(unequipped, old_artifact)
         self.assertEqual(equipped, artifact)
 
-        self.hero.preferences.set_favorite_item(EQUIPMENT_SLOT.HAND_PRIMARY)
+        self.hero.preferences.set_favorite_item(relations.EQUIPMENT_SLOT.HAND_PRIMARY)
 
         slot, unequipped, equipped = self.hero.get_equip_canditates()
         self.assertEqual(slot, None)
@@ -163,110 +158,6 @@ class HeroEquipmentTests(TestCase):
         self.assertTrue(old_hero_power.magic < self.hero.power.magic or
                         old_hero_power.physic < self.hero.power.physic)
 
-    def check_buy_artifact_choices(self, equip, with_prefered_slot, prefered_slot=None, favorite_slot=None, expected_choices_ids=frozenset()):
-        self.hero._model.level = 666
-        self.hero.preferences.set_equipment_slot(prefered_slot)
-        self.hero.preferences.set_favorite_item(favorite_slot)
-
-        choices = self.hero.buy_artifact_choices(equip=equip, with_prefered_slot=with_prefered_slot)
-
-        self.assertEqual(set(choice.id for choice in choices), set(expected_choices_ids))
-
-    def test_buy_artifact_choices__no_preferences(self):
-        expected_choices_ids = set(artifact.id for artifact in artifacts_storage.artifacts)
-
-        self.check_buy_artifact_choices(equip=False, with_prefered_slot=False, expected_choices_ids=expected_choices_ids)
-        self.check_buy_artifact_choices(equip=False, with_prefered_slot=True, expected_choices_ids=expected_choices_ids)
-        self.check_buy_artifact_choices(equip=True, with_prefered_slot=False, expected_choices_ids=expected_choices_ids)
-        self.check_buy_artifact_choices(equip=True, with_prefered_slot=True, expected_choices_ids=expected_choices_ids)
-
-    def test_buy_artifact_choices__exclude_favorite_slot(self):
-        favorite_slot = EQUIPMENT_SLOT.PLATE
-
-        artifacts_for_type = artifacts_storage.artifacts_for_type([favorite_slot.artifact_type])
-
-        self.assertTrue(artifacts_for_type)
-
-        all_choices_ids = set(artifact.id for artifact in artifacts_storage.artifacts)
-
-        expected_choices_ids = all_choices_ids - set(artifact.id for artifact in artifacts_for_type)
-
-        self.check_buy_artifact_choices(equip=False, with_prefered_slot=False, favorite_slot=favorite_slot, expected_choices_ids=all_choices_ids)
-        self.check_buy_artifact_choices(equip=False, with_prefered_slot=True, favorite_slot=favorite_slot, expected_choices_ids=all_choices_ids)
-        self.check_buy_artifact_choices(equip=True, with_prefered_slot=False, favorite_slot=favorite_slot, expected_choices_ids=expected_choices_ids)
-        self.check_buy_artifact_choices(equip=True, with_prefered_slot=True, favorite_slot=favorite_slot, expected_choices_ids=expected_choices_ids)
-
-    def test_buy_artifact_choices__with_prefered_slot(self):
-        prefered_slot = EQUIPMENT_SLOT.PLATE
-
-        artifacts_for_type = [a.id for a in artifacts_storage.artifacts_for_type([prefered_slot.artifact_type])]
-
-        self.assertTrue(artifacts_for_type)
-
-        all_choices_ids = set(artifact.id for artifact in artifacts_storage.artifacts)
-
-        self.check_buy_artifact_choices(equip=False, with_prefered_slot=False, prefered_slot=prefered_slot, expected_choices_ids=all_choices_ids)
-        self.check_buy_artifact_choices(equip=False, with_prefered_slot=True, prefered_slot=prefered_slot, expected_choices_ids=artifacts_for_type)
-        self.check_buy_artifact_choices(equip=True, with_prefered_slot=False, prefered_slot=prefered_slot, expected_choices_ids=all_choices_ids)
-        self.check_buy_artifact_choices(equip=True, with_prefered_slot=True, prefered_slot=prefered_slot, expected_choices_ids=artifacts_for_type)
-
-    def test_buy_artifact_choices__with_prefered_slot_and_favorite_slot(self):
-        all_choices_ids = set(artifact.id for artifact in artifacts_storage.artifacts)
-
-        prefered_slot = EQUIPMENT_SLOT.PLATE
-
-        prefered_artifacts_ids = [a.id for a in artifacts_storage.artifacts_for_type([prefered_slot.artifact_type])]
-
-        self.assertTrue(prefered_artifacts_ids)
-
-        favorite_slot = EQUIPMENT_SLOT.HAND_PRIMARY
-
-        favorite_artifacts_ids = set(a.id for a in artifacts_storage.artifacts_for_type([favorite_slot.artifact_type]))
-
-        self.assertTrue(favorite_artifacts_ids)
-
-        without_favorites_ids = all_choices_ids - set(favorite_artifacts_ids)
-
-        self.assertTrue(favorite_artifacts_ids)
-
-        self.check_buy_artifact_choices(equip=False, with_prefered_slot=False, prefered_slot=prefered_slot, favorite_slot=favorite_slot, expected_choices_ids=all_choices_ids)
-        self.check_buy_artifact_choices(equip=False, with_prefered_slot=True, prefered_slot=prefered_slot, favorite_slot=favorite_slot, expected_choices_ids=prefered_artifacts_ids)
-        self.check_buy_artifact_choices(equip=True, with_prefered_slot=False, prefered_slot=prefered_slot, favorite_slot=favorite_slot, expected_choices_ids=without_favorites_ids)
-        self.check_buy_artifact_choices(equip=True, with_prefered_slot=True, prefered_slot=prefered_slot, favorite_slot=favorite_slot, expected_choices_ids=prefered_artifacts_ids)
-
-
-    def test_buy_artifact_choices__equal_prefered_slot_and_favorite_slot(self):
-        all_choices_ids = set(artifact.id for artifact in artifacts_storage.artifacts)
-
-        prefered_slot = EQUIPMENT_SLOT.PLATE
-        favorite_slot = EQUIPMENT_SLOT.PLATE
-
-        artifacts_ids = [a.id for a in artifacts_storage.artifacts_for_type([prefered_slot.artifact_type])]
-
-        self.assertTrue(artifacts_ids)
-
-        without_favorites_ids = all_choices_ids - set(artifacts_ids)
-
-        self.check_buy_artifact_choices(equip=False, with_prefered_slot=False, prefered_slot=prefered_slot, favorite_slot=favorite_slot, expected_choices_ids=all_choices_ids)
-        self.check_buy_artifact_choices(equip=False, with_prefered_slot=True, prefered_slot=prefered_slot, favorite_slot=favorite_slot, expected_choices_ids=artifacts_ids)
-        self.check_buy_artifact_choices(equip=True, with_prefered_slot=False, prefered_slot=prefered_slot, favorite_slot=favorite_slot, expected_choices_ids=without_favorites_ids)
-        self.check_buy_artifact_choices(equip=True, with_prefered_slot=True, prefered_slot=prefered_slot, favorite_slot=favorite_slot, expected_choices_ids=without_favorites_ids)
-
-
-    def test_buy_artifact__only_better_for_prefered_slot(self):
-        self.hero._model.level = 666
-        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
-
-        # just set any artifact
-        self.hero.buy_artifact(better=False, with_prefered_slot=True, equip=True)
-
-        distribution = self.hero.preferences.archetype.power_distribution
-        min_power, max_power = Power.artifact_power_interval(distribution, self.hero.level)
-
-        for i in xrange(100):
-            old_artifact = self.hero.equipment.get(EQUIPMENT_SLOT.PLATE)
-            self.hero.buy_artifact(better=False, with_prefered_slot=True, equip=True)
-            self.assertTrue(self.hero.equipment.get(EQUIPMENT_SLOT.PLATE).preference_rating(distribution) >= old_artifact.preference_rating(distribution))
 
     def test_compare_drop__none(self):
         distribution = self.hero.preferences.archetype.power_distribution
@@ -340,3 +231,328 @@ class HeroEquipmentTests(TestCase):
         self.assertEqual(dropped_item.id, artifact_2.id)
 
         self.assertEqual(self.hero.bag.values()[0].id, artifact_1.id)
+
+    def test_repair_artifact(self):
+        for artifact in self.hero.equipment.values():
+            artifact.integrity = 0
+
+        artifact = self.hero.repair_artifact()
+
+        self.assertEqual(artifact.integrity, artifact.max_integrity)
+        self.assertEqual(self.hero.equipment.get(artifact.type.equipment_slot), artifact)
+
+
+    def test_repair_artifact__only_damaged_artifacts(self):
+
+        test_artifact = random.choice(self.hero.equipment.values())
+
+        for i in xrange(100):
+
+            for artifact in self.hero.equipment.values():
+                artifact.integrity = 0
+
+            test_artifact.integrity = test_artifact.max_integrity
+
+            artifact = self.hero.repair_artifact()
+
+            self.assertEqual(artifact.integrity, artifact.max_integrity)
+            self.assertNotEqual(artifact, test_artifact)
+
+            self.assertEqual(test_artifact.integrity, test_artifact.max_integrity)
+
+    def test_repair_artifact__single_damaged_artifact(self):
+
+        test_artifact = random.choice(self.hero.equipment.values())
+
+        for i in xrange(100):
+
+            for artifact in self.hero.equipment.values():
+                artifact.integrity = artifact.max_integrity
+
+            test_artifact.integrity = 0
+
+            artifact = self.hero.repair_artifact()
+
+            self.assertEqual(artifact.integrity, artifact.max_integrity)
+            self.assertEqual(artifact, test_artifact)
+
+    def test_sell_artifact(self):
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
+        self.hero.bag.put_artifact(artifact)
+
+        self.assertEqual(self.hero.bag.occupation, 1)
+        self.assertEqual(self.hero.money, 0)
+        self.assertEqual(self.hero.statistics.money_earned_from_loot, 0)
+        self.assertEqual(self.hero.statistics.money_earned_from_artifacts, 0)
+
+        price = self.hero.sell_artifact(artifact)
+
+        self.assertTrue(price > 0)
+
+        self.assertEqual(self.hero.bag.occupation, 0)
+        self.assertEqual(self.hero.money, price)
+        self.assertEqual(self.hero.statistics.money_earned_from_loot, 0)
+        self.assertEqual(self.hero.statistics.money_earned_from_artifacts, price)
+
+    def test_sell_artifact__useless(self):
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, self.hero.level)
+        self.hero.bag.put_artifact(artifact)
+
+        self.assertEqual(self.hero.bag.occupation, 1)
+        self.assertEqual(self.hero.money, 0)
+        self.assertEqual(self.hero.statistics.money_earned_from_loot, 0)
+        self.assertEqual(self.hero.statistics.money_earned_from_artifacts, 0)
+
+        price = self.hero.sell_artifact(artifact)
+
+        self.assertTrue(price > 0)
+
+        self.assertEqual(self.hero.bag.occupation, 0)
+        self.assertEqual(self.hero.money, price)
+        self.assertEqual(self.hero.statistics.money_earned_from_loot, price)
+        self.assertEqual(self.hero.statistics.money_earned_from_artifacts, 0)
+
+    def test_artifacts_to_break__all_unbreakable(self):
+        self.hero.equipment._remove_all()
+        for slot in relations.EQUIPMENT_SLOT.records:
+            artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
+            self.hero.equipment.equip(slot, artifact)
+            self.assertFalse(artifact.can_be_broken())
+
+        self.assertEqual(self.hero.artifacts_to_break(), [])
+
+    def test_artifacts_to_break__all_breakable(self):
+        self.hero.equipment._remove_all()
+        for slot in relations.EQUIPMENT_SLOT.records:
+            artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
+
+            artifact.integrity = slot.value
+
+            self.hero.equipment.equip(slot, artifact)
+            self.assertTrue(artifact.can_be_broken())
+
+        for candidate in self.hero.artifacts_to_break():
+            self.assertTrue(candidate.integrity <= int(c.EQUIP_SLOTS_NUMBER * c.EQUIPMENT_BREAK_FRACTION) + 1)
+
+
+
+class ReceiveArtifactsChoicesTests(_HeroEquipmentTestsBase):
+
+    def setUp(self):
+        super(ReceiveArtifactsChoicesTests, self).setUp()
+
+        self.assertTrue(any(artifact.power_type.is_NEUTRAL for artifact in artifacts_storage.artifacts))
+
+        self.hero._model.level = 100
+
+        self.base_artifacts = list(artifacts_storage.artifacts)
+
+        self.artifact_most_magic = ArtifactRecordPrototype.create_random('most_magic', power_type=ARTIFACT_POWER_TYPE.MOST_MAGICAL, level=1, type_=ARTIFACT_TYPE.PLATE)
+        self.artifact_magic = ArtifactRecordPrototype.create_random('magic', power_type=ARTIFACT_POWER_TYPE.MAGICAL, level=2, type_=ARTIFACT_TYPE.HELMET)
+        self.artifact_neutral = ArtifactRecordPrototype.create_random('neutral', power_type=ARTIFACT_POWER_TYPE.NEUTRAL, level=3, type_=ARTIFACT_TYPE.MAIN_HAND)
+        self.artifact_physic = ArtifactRecordPrototype.create_random('physic', power_type=ARTIFACT_POWER_TYPE.PHYSICAL, level=4, type_=ARTIFACT_TYPE.OFF_HAND)
+        self.artifact_most_physic = ArtifactRecordPrototype.create_random('most_physic', power_type=ARTIFACT_POWER_TYPE.MOST_PHYSICAL, level=5, type_=ARTIFACT_TYPE.CLOAK)
+
+    def check_artifacts_lists(self, list_1, list_2):
+        self.assertEqual(set([a.id for a in list_1]),
+                         set([a.id for a in list_2]))
+
+
+    def test_get_allowed_artifact_types__level(self):
+        self.hero._model.level = 3
+
+        expected_artifact_types = self.base_artifacts + [self.artifact_most_magic, self.artifact_magic, self.artifact_neutral]
+
+        self.check_artifacts_lists(self.hero.get_allowed_artifact_types(slots=relations.EQUIPMENT_SLOT.records, archetype=False),
+                                   expected_artifact_types)
+
+        self.hero._model.level = 7
+
+        expected_artifact_types = self.base_artifacts + [self.artifact_most_magic, self.artifact_magic, self.artifact_neutral, self.artifact_physic, self.artifact_most_physic]
+
+        self.check_artifacts_lists(self.hero.get_allowed_artifact_types(slots=relations.EQUIPMENT_SLOT.records, archetype=False),
+                                   expected_artifact_types)
+
+
+    def test_get_allowed_artifact_types__with_archetype_magic(self):
+        self.hero.preferences.set_archetype(relations.ARCHETYPE.MAGICAL)
+        expected_artifact_types = self.base_artifacts + [self.artifact_most_magic, self.artifact_magic, self.artifact_neutral]
+        self.check_artifacts_lists(self.hero.get_allowed_artifact_types(slots=relations.EQUIPMENT_SLOT.records, archetype=True),
+                                   expected_artifact_types)
+
+    def test_get_allowed_artifact_types__with_archetype_neutral(self):
+        self.hero.preferences.set_archetype(relations.ARCHETYPE.NEUTRAL)
+        expected_artifact_types = self.base_artifacts + [self.artifact_magic, self.artifact_neutral, self.artifact_physic]
+        self.check_artifacts_lists(self.hero.get_allowed_artifact_types(slots=relations.EQUIPMENT_SLOT.records, archetype=True),
+                                   expected_artifact_types)
+
+    def test_get_allowed_artifact_types__with_archetype_physic(self):
+        self.hero.preferences.set_archetype(relations.ARCHETYPE.PHYSICAL)
+        expected_artifact_types = self.base_artifacts + [self.artifact_neutral, self.artifact_physic, self.artifact_most_physic]
+        self.check_artifacts_lists(self.hero.get_allowed_artifact_types(slots=relations.EQUIPMENT_SLOT.records, archetype=True),
+                                   expected_artifact_types)
+
+    def test_get_allowed_artifact_types__slot_excluded(self):
+        # without self.artifact_most_physic to remove cloaks
+        expected_artifact_types = self.base_artifacts + [self.artifact_most_magic, self.artifact_magic, self.artifact_neutral, self.artifact_physic]
+        slots = list(relations.EQUIPMENT_SLOT.records)
+        slots.remove(relations.EQUIPMENT_SLOT.CLOAK)
+
+        self.check_artifacts_lists(self.hero.get_allowed_artifact_types(slots=slots, archetype=False),
+                                   expected_artifact_types)
+
+    def test_receive_artifacts_slots_choices__prefered_item__no_preference(self):
+        self.hero.preferences.set_favorite_item(None)
+        self.assertEqual(set(self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=False, prefered_item=True)),
+                         set(relations.EQUIPMENT_SLOT.records))
+
+    def test_receive_artifacts_slots_choices__prefered_item__has_preference(self):
+        self.hero.preferences.set_favorite_item(relations.EQUIPMENT_SLOT.HELMET)
+        self.assertEqual(set(self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=False, prefered_item=True)),
+                         set(relations.EQUIPMENT_SLOT.records) - set([relations.EQUIPMENT_SLOT.HELMET]))
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_upgrade_prefered_slot', False)
+    def test_receive_artifacts_slots_choices__prefered_slot__no_probability(self):
+        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.CLOAK)
+        self.assertEqual(set(self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=True, prefered_item=False)),
+                         set(relations.EQUIPMENT_SLOT.records))
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_upgrade_prefered_slot', True)
+    def test_receive_artifacts_slots_choices__prefered_slot__no_preference(self):
+        self.hero.preferences.set_equipment_slot(None)
+        self.assertEqual(set(self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=True, prefered_item=False)),
+                         set(relations.EQUIPMENT_SLOT.records))
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_upgrade_prefered_slot', True)
+    def test_receive_artifacts_slots_choices__prefered_slot__has_preference(self):
+        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.CLOAK)
+        self.assertEqual(set(self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=True, prefered_item=False)),
+                         set([relations.EQUIPMENT_SLOT.CLOAK]))
+
+    def test_receive_artifacts_slots_choices__better_false(self):
+        distribution = self.hero.preferences.archetype.power_distribution
+        min_power, max_power = Power.artifact_power_interval(distribution, self.hero.level) # pylint: disable=W0612
+
+        for artifact in self.hero.equipment.values():
+            artifact.power = max_power
+
+        self.assertEqual(set(self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=False, prefered_item=False)),
+                         set(relations.EQUIPMENT_SLOT.records))
+
+    def test_receive_artifacts_slots_choices__better_true(self):
+        distribution = self.hero.preferences.archetype.power_distribution
+        min_power, max_power = Power.artifact_power_interval(distribution, self.hero.level) # pylint: disable=W0612
+
+        excluded_slots = []
+
+        for artifact in self.hero.equipment.values():
+            artifact.power = max_power
+            excluded_slots.append(artifact.type.equipment_slot)
+
+        self.assertEqual(set(self.hero.receive_artifacts_slots_choices(better=True, prefered_slot=False, prefered_item=False)),
+                         set(relations.EQUIPMENT_SLOT.records) - set(excluded_slots))
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.get_allowed_artifact_types', lambda self, **kwargs: ['working'])
+    def test_receive_artifacts_choices__has_choices(self):
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype._receive_artifacts_choices') as receive_artifacts_choices:
+            self.assertEqual(self.hero.receive_artifacts_choices(better=True, prefered_slot=True, prefered_item=True, archetype=True),
+                             ['working'])
+        self.assertEqual(receive_artifacts_choices.call_count, 0)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.get_allowed_artifact_types', lambda self, **kwargs: [])
+    def test_receive_artifacts_choices__no_choices(self):
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype._receive_artifacts_choices') as receive_artifacts_choices:
+            self.hero.receive_artifacts_choices(better=True, prefered_slot=True, prefered_item=True, archetype=True)
+        self.assertEqual(receive_artifacts_choices.call_args_list,
+                         [mock.call(better=True, prefered_slot=False, prefered_item=True, archetype=True)])
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype._receive_artifacts_choices') as receive_artifacts_choices:
+            self.hero.receive_artifacts_choices(better=True, prefered_slot=False, prefered_item=True, archetype=True)
+        self.assertEqual(receive_artifacts_choices.call_args_list,
+                         [mock.call(better=True, prefered_slot=False, prefered_item=True, archetype=False)])
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype._receive_artifacts_choices') as receive_artifacts_choices:
+            self.hero.receive_artifacts_choices(better=True, prefered_slot=False, prefered_item=True, archetype=False)
+        self.assertEqual(receive_artifacts_choices.call_args_list,
+                         [mock.call(better=False, prefered_slot=False, prefered_item=True, archetype=False)])
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype._receive_artifacts_choices') as receive_artifacts_choices:
+            self.assertEqual(self.hero.receive_artifacts_choices(better=False, prefered_slot=False, prefered_item=True, archetype=False),
+                             [])
+        self.assertEqual(receive_artifacts_choices.call_count, 0)
+
+
+
+class ReceiveArtifactsTests(_HeroEquipmentTestsBase):
+
+    def setUp(self):
+        super(ReceiveArtifactsTests, self).setUp()
+
+
+    def test_not_equip(self):
+        self.hero.equipment.serialize()
+        old_equipment = self.hero._model.equipment
+
+        self.hero.bag.serialize()
+        old_bag = self.hero._model.bag
+
+        self.hero.receive_artifact(equip=False, better=True, prefered_slot=True, prefered_item=True, archetype=True)
+
+        self.hero.equipment.serialize()
+        self.assertEqual(old_equipment, self.hero._model.equipment)
+
+        self.hero.bag.serialize()
+        self.assertNotEqual(old_bag, self.hero._model.bag)
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_upgrade_prefered_slot', True)
+    def test_only_better_for_prefered_slot(self):
+        self.hero._model.level = 9999
+        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.PLATE)
+
+        # just set any artifact
+        self.hero.receive_artifact(equip=True, better=False, prefered_slot=True, prefered_item=True, archetype=True)
+
+        distribution = self.hero.preferences.archetype.power_distribution
+        min_power, max_power = Power.artifact_power_interval(distribution, self.hero.level)
+
+        for i in xrange(100):
+            old_artifact = self.hero.equipment.get(relations.EQUIPMENT_SLOT.PLATE)
+            self.hero.receive_artifact(equip=True, better=True, prefered_slot=True, prefered_item=True, archetype=True)
+            self.assertTrue(self.hero.equipment.get(relations.EQUIPMENT_SLOT.PLATE).preference_rating(distribution) > old_artifact.preference_rating(distribution))
+
+    def test_base_not_equip(self):
+
+        with self.check_delta(lambda: self.hero.statistics.artifacts_had, 1):
+            equipped, unequipped, coins = self.hero.receive_artifact(equip=False, better=False, prefered_slot=True, prefered_item=True, archetype=True)
+
+        self.assertTrue(equipped in self.hero.bag.values())
+        self.assertEqual(unequipped, None)
+        self.assertEqual(coins, None)
+
+
+    def test_base_equip__in_empty_slot(self):
+        self.hero.equipment._remove_all()
+
+        with self.check_delta(lambda: self.hero.statistics.artifacts_had, 1):
+            equipped, unequipped, coins = self.hero.receive_artifact(equip=True, better=False, prefered_slot=True, prefered_item=True, archetype=True)
+
+        self.assertEqual(self.hero.equipment.get(equipped.type.equipment_slot), equipped)
+        self.assertFalse(equipped in self.hero.bag.values())
+        self.assertFalse(unequipped in self.hero.bag.values())
+        self.assertEqual(coins, None)
+
+
+    def test_base_equip__in_filled_slot(self):
+        self.hero.equipment._remove_all()
+        for slot in relations.EQUIPMENT_SLOT.records:
+            self.hero.equipment.equip(slot, artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level))
+
+        with self.check_delta(lambda: self.hero.statistics.artifacts_had, 1):
+            equipped, unequipped, coins = self.hero.receive_artifact(equip=True, better=False, prefered_slot=True, prefered_item=True, archetype=True)
+
+        self.assertEqual(self.hero.equipment.get(equipped.type.equipment_slot), equipped)
+        self.assertFalse(equipped in self.hero.bag.values())
+        self.assertFalse(unequipped in self.hero.bag.values())
+
+        self.assertTrue(coins > 0)

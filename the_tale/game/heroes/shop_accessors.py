@@ -20,6 +20,8 @@ class ShopAccessorsMixin(object):
             self.preferences.set_energy_regeneration_type(self.race.energy_regeneration, change_time=datetime.datetime.fromtimestamp(0))
         elif preference_type.is_RISK_LEVEL:
             self.preferences.set_risk_level(relations.RISK_LEVEL.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
+        elif preference_type.is_ARCHETYPE:
+            self.preferences.set_archetype(relations.ARCHETYPE.NEUTRAL, change_time=datetime.datetime.fromtimestamp(0))
         else:
             self.preferences._reset(preference_type)
 

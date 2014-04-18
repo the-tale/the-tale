@@ -41,6 +41,7 @@ from the_tale.game.quests.logic import create_random_quest_for_hero
 from the_tale.game.quests.prototypes import QuestPrototype
 from the_tale.game.quests import exceptions
 from the_tale.game.quests import uids
+from the_tale.game.quests import relations
 
 from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
 
@@ -203,7 +204,7 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.assertTrue(get_experience_modifier.call_count > 0)
 
-    @mock.patch('the_tale.game.balance.formulas.artifacts_per_battle', lambda *argv: 0)
+    @mock.patch('the_tale.game.balance.constants.ARTIFACTS_PER_BATTLE', 0)
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_get_artifact_for_quest', lambda *argv: False)
     def test_get_money_for_quest(self):
         self.assertEqual(self.hero.statistics.money_earned_from_quests, 0)
@@ -212,7 +213,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertTrue(self.hero.statistics.money_earned_from_quests > 0)
         self.assertEqual(self.hero.statistics.artifacts_had, 0)
 
-    @mock.patch('the_tale.game.balance.formulas.artifacts_per_battle', lambda *argv: 0)
+    @mock.patch('the_tale.game.balance.constants.ARTIFACTS_PER_BATTLE', 0)
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_get_artifact_for_quest', lambda *argv: True)
     def test_get_artifacts_for_quest(self):
         self.assertEqual(self.hero.statistics.money_earned_from_quests, 0)
@@ -223,19 +224,22 @@ class PrototypeTests(PrototypeTestsBase):
 
     def test_get_upgrdade_choice__no_preference(self):
         for i in xrange(100):
-            self.assertEqual(self.quest._get_upgrdade_choice(self.hero), 'buy')
+            self.assertTrue(self.quest._get_upgrdade_choice(self.hero).is_BUY)
 
     def test_get_upgrdade_choice(self):
         from the_tale.game.heroes.relations import EQUIPMENT_SLOT
 
         self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
+        self.hero.equipment.get(EQUIPMENT_SLOT.PLATE).integrity = 0
 
         choices = set()
 
         for i in xrange(100):
             choices.add(self.quest._get_upgrdade_choice(self.hero))
 
-        self.assertEqual(choices, set(('buy', 'sharp')))
+        self.assertEqual(choices, set((relations.UPGRADE_EQUIPMENT_VARIANTS.BUY,
+                                       relations.UPGRADE_EQUIPMENT_VARIANTS.SHARP,
+                                       relations.UPGRADE_EQUIPMENT_VARIANTS.REPAIR)))
 
 
     def test_get_upgrdade_choice__no_item_equipped(self):
@@ -244,10 +248,10 @@ class PrototypeTests(PrototypeTestsBase):
         self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.RING)
 
         for i in xrange(100):
-            self.assertEqual(self.quest._get_upgrdade_choice(self.hero), 'buy')
+            self.assertTrue(self.quest._get_upgrdade_choice(self.hero).is_BUY)
 
 
-    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype._get_upgrdade_choice', classmethod(lambda *argv, **kwargs: 'buy'))
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype._get_upgrdade_choice', classmethod(lambda *argv, **kwargs: relations.UPGRADE_EQUIPMENT_VARIANTS.BUY))
     def test_upgrade_equipment__buy(self):
         self.assertEqual(self.hero.statistics.artifacts_had, 0)
         self.quest._upgrade_equipment(process_message=self.quest.quests_stack[-1].process_message,
@@ -256,7 +260,7 @@ class PrototypeTests(PrototypeTestsBase):
                                       cost=666)
         self.assertEqual(self.hero.statistics.artifacts_had, 1)
 
-    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype._get_upgrdade_choice', classmethod(lambda *argv, **kwargs: 'sharp'))
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype._get_upgrdade_choice', classmethod(lambda *argv, **kwargs: relations.UPGRADE_EQUIPMENT_VARIANTS.SHARP))
     def test_upgrade_equipment__sharp(self):
         old_power = self.hero.power.clone()
         self.assertEqual(self.hero.statistics.artifacts_had, 0)
@@ -268,6 +272,25 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.assertEqual(self.hero.statistics.artifacts_had, 0)
         self.assertEqual(old_power.total() + 1, self.hero.power.total())
+
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype._get_upgrdade_choice', classmethod(lambda *argv, **kwargs: relations.UPGRADE_EQUIPMENT_VARIANTS.REPAIR))
+    def test_upgrade_equipment__repair(self):
+
+        test_artifact = random.choice(self.hero.equipment.values())
+        test_artifact.integrity = 0
+        self.hero.preferences.set_equipment_slot(test_artifact.type.equipment_slot)
+
+        old_power = self.hero.power.clone()
+        self.assertEqual(self.hero.statistics.artifacts_had, 0)
+
+        self.quest._upgrade_equipment(process_message=self.quest.quests_stack[-1].process_message,
+                                      hero=self.hero,
+                                      knowledge_base=self.quest.knowledge_base,
+                                      cost=666)
+
+        self.assertEqual(self.hero.statistics.artifacts_had, 0)
+        self.assertEqual(old_power.total(), self.hero.power.total())
+        self.assertEqual(test_artifact.integrity, test_artifact.max_integrity)
 
     def test_upgrade_equipment__money_limit(self):
         self.hero._model.money = 99999999
@@ -289,11 +312,11 @@ class PrototypeTests(PrototypeTestsBase):
         ArtifactRecordPrototype.create_random('just_ring', type_=ARTIFACT_TYPE.RING)
         ArtifactRecordPrototype.create_random('just_amulet', type_=ARTIFACT_TYPE.AMULET)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.buy_artifact_choices',
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.receive_artifacts_choices',
                         lambda *argv, **kwargs: artifacts_storage.artifacts_for_type([ARTIFACT_TYPE.RING])):
             self.quest._give_reward(self.hero, 'bla-bla', scale=1.0)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.buy_artifact_choices',
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.receive_artifacts_choices',
                         lambda *argv, **kwargs: artifacts_storage.artifacts_for_type([ARTIFACT_TYPE.AMULET])):
             self.quest._give_reward(self.hero, 'bla-bla', scale=1.5)
 
@@ -515,7 +538,7 @@ class CheckRequirementsTests(PrototypeTestsBase):
     def test_check_located_in__wrong_requirement(self):
         place_uid = self.quest.knowledge_base.filter(facts.Place).next().uid
         requirement = requirements.LocatedIn(object=place_uid, place=place_uid)
-        self.assertRaises(exceptions.UnknownRequirement, self.quest.check_located_in, requirement)
+        self.assertRaises(exceptions.UnknownRequirementError, self.quest.check_located_in, requirement)
 
     # located near
 
@@ -558,7 +581,7 @@ class CheckRequirementsTests(PrototypeTestsBase):
     def test_check_located_near__wrong_requirement(self):
         place_uid = self.quest.knowledge_base.filter(facts.Place).next().uid
         requirement = requirements.LocatedNear(object=place_uid, place=place_uid)
-        self.assertRaises(exceptions.UnknownRequirement, self.quest.check_located_near, requirement)
+        self.assertRaises(exceptions.UnknownRequirementError, self.quest.check_located_near, requirement)
 
 
     # located on road
@@ -615,7 +638,7 @@ class CheckRequirementsTests(PrototypeTestsBase):
 
     def test_check_located_on_road__wrong_requirement(self):
         requirement = requirements.LocatedOnRoad(object=self.place_1_fact.uid, place_from=self.place_2_fact.uid, place_to=self.place_3_fact.uid, percents=0.25)
-        self.assertRaises(exceptions.UnknownRequirement, self.quest.check_located_on_road, requirement)
+        self.assertRaises(exceptions.UnknownRequirementError, self.quest.check_located_on_road, requirement)
 
     # has money
 
@@ -639,7 +662,7 @@ class CheckRequirementsTests(PrototypeTestsBase):
 
     def test_check_has_money__wrong_requirement(self):
         requirement = requirements.HasMoney(object=self.place_1_fact.uid, money=666)
-        self.assertRaises(exceptions.UnknownRequirement, self.quest.check_has_money, requirement)
+        self.assertRaises(exceptions.UnknownRequirementError, self.quest.check_has_money, requirement)
 
     # is alive
 
@@ -663,7 +686,7 @@ class CheckRequirementsTests(PrototypeTestsBase):
 
     def test_check_is_alive__wrong_requirement(self):
         requirement = requirements.IsAlive(object=self.place_1_fact.uid)
-        self.assertRaises(exceptions.UnknownRequirement, self.quest.check_is_alive, requirement)
+        self.assertRaises(exceptions.UnknownRequirementError, self.quest.check_is_alive, requirement)
 
 
 
@@ -701,14 +724,14 @@ class SatisfyRequirementsTests(PrototypeTestsBase):
 
     def test_satisfy_located_in__non_hero(self):
         requirement = requirements.LocatedIn(object=self.person_fact.uid, place=self.place_1_fact.uid)
-        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_located_in, requirement)
+        self.assertRaises(exceptions.UnknownRequirementError, self.quest.satisfy_located_in, requirement)
 
     def test_satisfy_located_in__wrong_hero(self):
         wrong_hero = facts.Hero(uid='wrong_hero', externals={'id': 666})
         self.quest.knowledge_base += wrong_hero
 
         requirement = requirements.LocatedIn(object=wrong_hero.uid, place=self.place_1_fact.uid)
-        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_located_in, requirement)
+        self.assertRaises(exceptions.UnknownRequirementError, self.quest.satisfy_located_in, requirement)
 
     def test_satisfy_located_in__success(self):
         self.hero.position.set_place(self.place_1)
@@ -724,14 +747,14 @@ class SatisfyRequirementsTests(PrototypeTestsBase):
 
     def test_satisfy_located_near__non_hero(self):
         requirement = requirements.LocatedNear(object=self.person_fact.uid, place=self.place_1_fact.uid)
-        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_located_near, requirement)
+        self.assertRaises(exceptions.UnknownRequirementError, self.quest.satisfy_located_near, requirement)
 
     def test_satisfy_located_near__wrong_hero(self):
         wrong_hero = facts.Hero(uid='wrong_hero', externals={'id': 666})
         self.quest.knowledge_base += wrong_hero
 
         requirement = requirements.LocatedNear(object=wrong_hero.uid, place=self.place_1_fact.uid)
-        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_located_near, requirement)
+        self.assertRaises(exceptions.UnknownRequirementError, self.quest.satisfy_located_near, requirement)
 
     def test_satisfy_located_near__success(self):
         requirement = requirements.LocatedNear(object=self.hero_fact.uid, place=self.place_2_fact.uid, terrains=[1, 2])
@@ -755,14 +778,14 @@ class SatisfyRequirementsTests(PrototypeTestsBase):
 
     def test_satisfy_located_on_road__non_hero(self):
         requirement = requirements.LocatedOnRoad(object=self.person_fact.uid, place_from=self.place_1_fact.uid, place_to=self.place_2_fact.uid, percents=0.5)
-        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_located_on_road, requirement)
+        self.assertRaises(exceptions.UnknownRequirementError, self.quest.satisfy_located_on_road, requirement)
 
     def test_satisfy_located_on_road__wrong_hero(self):
         wrong_hero = facts.Hero(uid='wrong_hero', externals={'id': 666})
         self.quest.knowledge_base += wrong_hero
 
         requirement = requirements.LocatedOnRoad(object=wrong_hero.uid, place_from=self.place_1_fact.uid, place_to=self.place_2_fact.uid, percents=0.5)
-        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_located_on_road, requirement)
+        self.assertRaises(exceptions.UnknownRequirementError, self.quest.satisfy_located_on_road, requirement)
 
     def test_satisfy_located_on_road__success(self):
         requirement = requirements.LocatedOnRoad(object=self.hero_fact.uid, place_from=self.place_1_fact.uid, place_to=self.place_2_fact.uid, percents=0.5)
@@ -778,35 +801,35 @@ class SatisfyRequirementsTests(PrototypeTestsBase):
 
     def test_satisfy_has_money__non_hero(self):
         requirement = requirements.HasMoney(object=self.person_fact.uid, money=666)
-        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_has_money, requirement)
+        self.assertRaises(exceptions.UnknownRequirementError, self.quest.satisfy_has_money, requirement)
 
     def test_satisfy_has_money__wrong_hero(self):
         wrong_hero = facts.Hero(uid='wrong_hero', externals={'id': 666})
         self.quest.knowledge_base += wrong_hero
 
         requirement = requirements.HasMoney(object=wrong_hero.uid, money=666)
-        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_has_money, requirement)
+        self.assertRaises(exceptions.UnknownRequirementError, self.quest.satisfy_has_money, requirement)
 
     def test_satisfy_has_money__success(self):
         requirement = requirements.HasMoney(object=self.hero_fact.uid, money=666)
-        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_has_money, requirement)
+        self.assertRaises(exceptions.UnknownRequirementError, self.quest.satisfy_has_money, requirement)
 
     # located is alive
 
     def test_satisfy_is_alive__non_hero(self):
         requirement = requirements.IsAlive(object=self.person_fact.uid)
-        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_is_alive, requirement)
+        self.assertRaises(exceptions.UnknownRequirementError, self.quest.satisfy_is_alive, requirement)
 
     def test_satisfy_is_alive__wrong_hero(self):
         wrong_hero = facts.Hero(uid='wrong_hero', externals={'id': 666})
         self.quest.knowledge_base += wrong_hero
 
         requirement = requirements.IsAlive(object=wrong_hero.uid)
-        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_is_alive, requirement)
+        self.assertRaises(exceptions.UnknownRequirementError, self.quest.satisfy_is_alive, requirement)
 
     def test_satisfy_is_alive__success(self):
         requirement = requirements.IsAlive(object=self.hero_fact.uid)
-        self.assertRaises(exceptions.UnknownRequirement, self.quest.satisfy_is_alive, requirement)
+        self.assertRaises(exceptions.UnknownRequirementError, self.quest.satisfy_is_alive, requirement)
 
 
 class PrototypeMoveHeroTests(PrototypeTestsBase):

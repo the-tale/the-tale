@@ -40,7 +40,8 @@ class PERMANENT_PURCHASE_TYPE(DjangoEnum):
                   preference_record(5, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE),
                   preference_record(6, PREFERENCE_TYPE.EQUIPMENT_SLOT),
                   preference_record(7, PREFERENCE_TYPE.RISK_LEVEL),
-                  preference_record(8, PREFERENCE_TYPE.FAVORITE_ITEM))
+                  preference_record(8, PREFERENCE_TYPE.FAVORITE_ITEM),
+                  preference_record(9, PREFERENCE_TYPE.ARCHETYPE))
 
 
 class RANDOM_PREMIUM_CHEST_REWARD(DjangoEnum):

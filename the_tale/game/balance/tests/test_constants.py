@@ -20,7 +20,14 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.TURNS_IN_HOUR, 360.0)
         self.assertEqual(c.POWER_PER_LVL, 1)
         self.assertEqual(c.EQUIP_SLOTS_NUMBER, 11)
-        self.assertEqual(c.ARTIFACTS_PER_LVL, 4)
+
+        self.assertEqual(c.ARTIFACTS_LOOT_PER_DAY, 1.0)
+        self.assertEqual(c.ARTIFACTS_RECEIVING_SPEED, 1.0)
+        self.assertEqual(c.ARTIFACTS_BREAKING_SPEED, 0.5)
+
+        self.assertEqual(c.EQUIPMENT_BREAK_FRACTION, 0.5)
+        self.assertEqual(c.NORMAL_SLOT_REPAIR_PRIORITY, 1.0)
+        self.assertEqual(c.SPECIAL_SLOT_REPAIR_PRIORITY, 2.0)
 
         self.assertEqual(c.EXP_PER_HOUR, 10)
         self.assertEqual(c.EXP_PER_QUEST_FRACTION, 0.33)
@@ -66,6 +73,11 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.HEAL_LENGTH, int((8*(16+3)-3) * 0.2))
         self.assertEqual(c.ACTIONS_CYCLE_LENGTH, int(8*(16+3)-3 + (8*(16+3)-3) * 0.2))
         self.assertEqual(c.BATTLES_PER_HOUR, 360.0 / (int(8*(16+3)-3 + (8*(16+3)-3) * 0.2)) * 8)
+
+        self.assertEqual(c.ARTIFACTS_PER_BATTLE, 0.0025752314814814817)
+        self.assertEqual(c.ARTIFACTS_BREAKS_PER_BATTLE, 0.0012876157407407409)
+        self.assertEqual(c.ARTIFACT_FROM_PREFERED_SLOT_PROBABILITY, 0.25)
+
         self.assertEqual(c.DAMAGE_TO_HERO_PER_HIT_FRACTION, 1.0 / (8*16/2))
         self.assertEqual(c.DAMAGE_TO_MOB_PER_HIT_FRACTION, 1.0 / (16/2))
         self.assertEqual(c.DAMAGE_DELTA, 0.2)
@@ -148,7 +160,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PERSON_POWER_FOR_RANDOM_SPEND, 200)
         self.assertEqual(c.HERO_POWER_BONUS, 0.01)
 
-        self.assertEqual(c.CHARACTER_PREFERENCES_CHANGE_DELAY, 60*60*24*7)
+        self.assertEqual(c.PREFERENCES_CHANGE_DELAY, 60*60*24*7)
         self.assertEqual(c.POSITIVE_NEGATIVE_POWER_RELATION, 4.0)
 
         self.assertEqual(c.ABILITIES_ACTIVE_MAXIMUM, 5)

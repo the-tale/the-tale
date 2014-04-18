@@ -110,7 +110,7 @@ class ArtifactPrototype(object):
 
     def make_better_than(self, artifact, distribution):
         while self.preference_rating(distribution) <= artifact.preference_rating(distribution):
-            if random.uniform(0, 1)  < distribution.physic:
+            if random.uniform(0, 1) < distribution.physic:
                 self.power.physic += 1
             else:
                 self.power.magic += 1
@@ -135,16 +135,26 @@ class ArtifactPrototype(object):
 
         return True
 
-    def test_to_break(self):
-        if self.integrity >= self.max_integrity * (1.0 - c.ARTIFACT_INTEGRITY_SAFE_BARRIER):
-            return True
-        return self.integrity < random.uniform(0, self.max_integrity)
+    @property
+    def integrity_fraction(self):
+        if self.max_integrity == 0:
+            return 0
+        return float(self.integrity) / self.max_integrity
+
+    def damage_integrity(self):
+        self.integrity = max(0, self.integrity - 1)
+
+    def can_be_broken(self):
+        return self.integrity < self.max_integrity * (1.0 - c.ARTIFACT_INTEGRITY_SAFE_BARRIER)
 
     def break_it(self):
         self.power = Power(physic=max(0, int(self.power.physic * (1 - random.uniform(*c.ARTIFACT_BREAK_POWER_FRACTIONS)) - 1)),
                            magic=max(0, int(self.power.magic * (1 - random.uniform(*c.ARTIFACT_BREAK_POWER_FRACTIONS)) - 1)) )
         self.max_integrity = int(self.max_integrity * (1 - random.uniform(*c.ARTIFACT_BREAK_INTEGRITY_FRACTIONS)))
         self.integrity = min(self.integrity, self.max_integrity)
+
+    def repair_it(self):
+        self.integrity = self.max_integrity
 
     def ui_info(self):
         return {'type': self.type.value,

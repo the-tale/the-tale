@@ -947,16 +947,23 @@ class ActionBattlePvE1x1Prototype(ActionBase):
             self.hero.add_message('action_battlepve1x1_exp_for_kill', hero=self.hero, mob=self.mob, diary=True, experience=real_experience)
 
     def process_artifact_breaking(self):
-        artifacts = self.hero.equipment.values()
 
-        if not artifacts:
+        for artifact in self.hero.equipment.values():
+            artifact.damage_integrity()
+
+        if random.uniform(0.0, 1.0) > c.ARTIFACTS_BREAKS_PER_BATTLE:
             return
 
-        artifact = random.choice(artifacts)
+        artifacts = self.hero.artifacts_to_break()
 
-        if artifact.test_to_break():
-            artifact.break_it()
-            self.hero.add_message('action_battlepve1x1_artifact_broken', hero=self.hero, mob=self.mob, diary=True, artifact=artifact)
+        if not len(artifacts):
+            return
+
+        artifact = random_value_by_priority([(artifact, 1 - artifact.integrity_fraction)
+                                             for artifact in artifacts])
+
+        artifact.break_it()
+        self.hero.add_message('action_battlepve1x1_artifact_broken', hero=self.hero, mob=self.mob, diary=True, artifact=artifact)
 
 
     def process(self):
@@ -1117,9 +1124,7 @@ class ActionInPlacePrototype(ActionBase):
         coins = self.try_to_spend_money()
         if coins is not None:
 
-            better = self.hero.can_buy_better_artifact()
-
-            artifact, unequipped, sell_price = self.hero.buy_artifact(better=better, with_prefered_slot=False, equip=True)
+            artifact, unequipped, sell_price = self.hero.receive_artifact(equip=True, better=True, prefered_slot=True, prefered_item=True, archetype=True)
 
             if unequipped is not None:
                 if artifact.id == unequipped.id:
@@ -1137,6 +1142,13 @@ class ActionInPlacePrototype(ActionBase):
             artifact = self.hero.sharp_artifact()
 
             self.hero.add_message('action_inplace_diary_sharpening_artifact', diary=True, hero=self.hero, coins=coins, artifact=artifact)
+
+    def spend_money__repairing_artifact(self):
+        coins = self.try_to_spend_money()
+        if coins is not None:
+            artifact = self.hero.repair_artifact()
+
+            self.hero.add_message('action_inplace_diary_repairing_artifact', diary=True, hero=self.hero, coins=coins, artifact=artifact)
 
     def spend_money__useless(self):
         coins = self.try_to_spend_money()
@@ -1191,6 +1203,9 @@ class ActionInPlacePrototype(ActionBase):
 
         elif self.hero.next_spending.is_SHARPENING_ARTIFACT:
             self.spend_money__sharpening_artifact()
+
+        elif self.hero.next_spending.is_REPAIRING_ARTIFACT:
+            self.spend_money__repairing_artifact()
 
         elif self.hero.next_spending.is_USELESS:
             self.spend_money__useless()

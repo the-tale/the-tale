@@ -51,7 +51,7 @@ class QUESTS(DjangoEnum):
     records = ( ('SPYING', 0, u'шпионаж', Spying, QUEST_TYPE.NORMAL, 1.0),
                 ('HUNT', 1, u'охота', Hunt, QUEST_TYPE.CHARACTER, 1.0),
                 ('HOMETOWN', 2, u'посетить родной город', Hometown, QUEST_TYPE.CHARACTER, 1.0),
-                ('SEARCH_SMITH', 3, u'посетить кузнеца', SearchSmith, QUEST_TYPE.CHARACTER, 1.0),
+                ('SEARCH_SMITH', 3, u'посетить кузнеца', SearchSmith, QUEST_TYPE.NORMAL, 0.25),
                 ('DELIVERY', 4, u'доставка', Delivery, QUEST_TYPE.NORMAL, 1.0),
                 ('CARAVAN', 5, u'караван', Caravan, QUEST_TYPE.NORMAL, 1.0),
                 ('COLLECT_DEBT', 6, u'возвращение долга', CollectDebt, QUEST_TYPE.NORMAL, 1.0),
@@ -59,3 +59,9 @@ class QUESTS(DjangoEnum):
                 ('INTERFERE_ENEMY', 8, u'вред противнику', InterfereEnemy, QUEST_TYPE.CHARACTER, 1.0),
                 ('HELP', 9, u'помощь', Help, QUEST_TYPE.NORMAL, 1.0),
                 ('PILGRIMAGE', 10, u'паломничество', Pilgrimage, QUEST_TYPE.UNIQUE, 0.1) )
+
+
+class UPGRADE_EQUIPMENT_VARIANTS(DjangoEnum):
+    records = (('BUY', 0, u'купить'),
+               ('SHARP', 1, u'заточить'),
+               ('REPAIR', 2, u'починить'))

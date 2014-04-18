@@ -311,18 +311,14 @@ class PrototypeTests(testcase.TestCase):
         artifact.sharp(distribution=PowerDistribution(0.5, 0.5), max_power=Power(1, 1), force=True)
         self.assertEqual(artifact.power.total(), 3)
 
-    def test_test_to_break__barrier(self):
+    def test_can_be_broken__barrier(self):
         artifact = self.artifact_record.create_artifact(level=1, power=Power(1, 1))
-        self.assertTrue(all(artifact.test_to_break() for i in xrange(artifact.max_integrity*10)))
+        self.assertFalse(artifact.can_be_broken())
 
-        artifact.integrity = int(artifact.max_integrity * (1-c.ARTIFACT_INTEGRITY_SAFE_BARRIER)) + 1
-        self.assertTrue(all(artifact.test_to_break() for i in xrange(artifact.max_integrity*10)))
-
-    def test_test_to_break(self):
+    def test_can_be_broken(self):
         artifact = self.artifact_record.create_artifact(level=1, power=Power(1, 1))
         artifact.integrity = int(artifact.max_integrity * (1-c.ARTIFACT_INTEGRITY_SAFE_BARRIER)) - 1
-        self.assertTrue(any(artifact.test_to_break() for i in xrange(artifact.max_integrity*10)))
-        self.assertTrue(any(not artifact.test_to_break() for i in xrange(artifact.max_integrity*10)))
+        self.assertTrue(artifact.can_be_broken())
 
     def test_break_it(self):
         artifact = self.artifact_record.create_artifact(level=1, power=Power(100, 100))
@@ -360,4 +356,10 @@ class PrototypeTests(testcase.TestCase):
 
         self.assertEqual(artifact.power, Power(0, 0))
         self.assertTrue(old_max_integrity > artifact.max_integrity)
+        self.assertEqual(artifact.integrity, artifact.max_integrity)
+
+    def test_repair_it(self):
+        artifact = self.artifact_record.create_artifact(level=1, power=Power(0, 0))
+        artifact.integrity = artifact.max_integrity - 1
+        artifact.repair_it()
         self.assertEqual(artifact.integrity, artifact.max_integrity)

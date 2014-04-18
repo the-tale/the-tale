@@ -23,8 +23,6 @@ from the_tale.game.balance.power import Power
 
 from the_tale.game import names
 
-from the_tale.game.artifacts.storage import artifacts_storage
-
 from the_tale.game import text_generation
 from the_tale.game.prototypes import TimePrototype, GameState
 
@@ -43,13 +41,15 @@ from the_tale.game.heroes import relations
 from the_tale.game.heroes import habits
 from the_tale.game.heroes import logic_accessors
 from the_tale.game.heroes import shop_accessors
+from the_tale.game.heroes import equipment_methods
 from the_tale.game.heroes import bag
 
 
 
 class HeroPrototype(BasePrototype,
                     logic_accessors.LogicAccessorsMixin,
-                    shop_accessors.ShopAccessorsMixin):
+                    shop_accessors.ShopAccessorsMixin,
+                    equipment_methods.EquipmentMethodsMixin):
     _model_class = Hero
     _readonly = ('id', 'account_id', 'created_at_turn', 'experience', 'money', 'next_spending', 'energy', 'level', 'saved_at_turn', 'saved_at', 'is_bot')
     _bidirectional = ('is_alive',
@@ -160,8 +160,6 @@ class HeroPrototype(BasePrototype,
             quests.append(QUESTS.HELP_FRIEND)
         if self.preferences.enemy is not None and (self.position.place is None or self.preferences.enemy.place.id != self.position.place.id):
             quests.append(QUESTS.INTERFERE_ENEMY)
-        if self.preferences.equipment_slot is not None:
-            quests.append(QUESTS.SEARCH_SMITH)
 
         if any(place.modifier and place.modifier.TYPE.is_HOLY_CITY for place in places_storage.all()):
             if self.position.place is None or self.position.place.modifier is None or not self.position.place.modifier.TYPE.is_HOLY_CITY:
@@ -174,159 +172,6 @@ class HeroPrototype(BasePrototype,
         from django.db.models import Min
         created_at = cls._model_class.objects.all().aggregate(Min('quest_created_time'))['quest_created_time__min']
         return created_at if created_at is not None else datetime.datetime.now()
-
-    def put_loot(self, artifact):
-        if not self.bag_is_full:
-            self.bag.put_artifact(artifact)
-            return artifact.bag_uuid
-
-    def pop_loot(self, artifact):
-        self.bag.pop_artifact(artifact)
-
-    def buy_artifact_choices(self, equip, with_prefered_slot):
-
-        allowed_slots = list(relations.EQUIPMENT_SLOT.records)
-
-        if self.preferences.favorite_item and equip:
-            allowed_slots.remove(self.preferences.favorite_item)
-
-        slot_choices = allowed_slots
-
-        if with_prefered_slot and self.preferences.equipment_slot is not None and self.preferences.equipment_slot in allowed_slots:
-            slot_choices = [self.preferences.equipment_slot]
-
-        artifacts_choices = artifacts_storage.artifacts_for_type([slot.artifact_type for slot in slot_choices])
-
-        if not artifacts_choices:
-            artifacts_choices = artifacts_storage.artifacts_for_type([slot.artifact_type for slot in allowed_slots])
-
-        return artifacts_choices
-
-    def buy_artifact(self, better, with_prefered_slot, equip):
-
-        artifact_choices = self.buy_artifact_choices(equip=equip, with_prefered_slot=with_prefered_slot)
-
-        artifact = artifacts_storage.generate_artifact_from_list(artifact_choices, self.level)
-
-        if artifact is None:
-            return None, None, None
-
-        if artifact.type.equipment_slot == self.preferences.equipment_slot:
-            better = True
-
-        self.bag.put_artifact(artifact)
-        self.statistics.change_artifacts_had(1)
-
-        if not equip:
-            return artifact, None, None
-
-        slot = artifact.type.equipment_slot
-        unequipped = self.equipment.get(slot)
-
-        distribution = self.preferences.archetype.power_distribution
-
-        if (better and unequipped is not None and
-            artifact.preference_rating(distribution) <  unequipped.preference_rating(distribution)):
-            artifact.make_better_than(unequipped, distribution)
-
-        # min_power, max_power = f.power_to_artifact_interval(self.level) # pylint: disable=W0612
-        # artifact.power = min(artifact.power, max_power)
-
-        self.change_equipment(slot, unequipped, artifact)
-
-        sell_price = None
-
-        if unequipped is not None:
-            sell_price = self.sell_artifact(unequipped)
-
-        return artifact, unequipped, sell_price
-
-    def sell_artifact(self, artifact):
-        sell_price = artifact.get_sell_price()
-
-        sell_price = self.modify_sell_price(sell_price)
-
-        if artifact.is_useless:
-            money_source = relations.MONEY_SOURCE.EARNED_FROM_LOOT
-        else:
-            money_source = relations.MONEY_SOURCE.EARNED_FROM_ARTIFACTS
-
-        self.change_money(money_source, sell_price)
-        self.bag.pop_artifact(artifact)
-
-        return sell_price
-
-    def sharp_artifact(self):
-        choices = list(relations.EQUIPMENT_SLOT.records)
-        random.shuffle(choices)
-
-        if self.preferences.equipment_slot is not None:
-            choices.insert(0, self.preferences.equipment_slot)
-
-        distribution = self.preferences.archetype.power_distribution
-
-        min_power, max_power = Power.artifact_power_interval(distribution, self.level) # pylint: disable=W0612
-
-        for slot in choices:
-            artifact = self.equipment.get(slot)
-            if artifact is not None and artifact.sharp(distribution, max_power):
-                self.equipment.updated = True
-                return artifact
-
-        # if all artifacts are on maximum level
-        random.shuffle(choices)
-        for slot in choices:
-            artifact = self.equipment.get(slot)
-            if artifact is not None and artifact.sharp(distribution, max_power, force=True):
-                self.equipment.updated = True
-                return artifact
-
-
-    def get_equip_canditates(self):
-
-        equipped_slot = None
-        equipped = None
-        unequipped = None
-
-        distribution = self.preferences.archetype.power_distribution
-
-        for artifact in self.bag.values():
-            if not artifact.can_be_equipped:
-                continue
-
-            slot = artifact.type.equipment_slot
-
-            if self.preferences.favorite_item == slot:
-                continue
-
-            equipped_artifact = self.equipment.get(slot)
-
-            if equipped_artifact is None:
-                equipped_slot = slot
-                equipped = artifact
-                break
-
-            if equipped_artifact.preference_rating(distribution) < artifact.preference_rating(distribution):
-                equipped = artifact
-                unequipped = equipped_artifact
-                equipped_slot = slot
-                break
-
-        return equipped_slot, unequipped, equipped
-
-    def equip_from_bag(self):
-        slot, unequipped, equipped = self.get_equip_canditates()
-        self.change_equipment(slot, unequipped, equipped)
-        return slot, unequipped, equipped
-
-    def change_equipment(self, slot, unequipped, equipped):
-        if unequipped:
-            self.equipment.unequip(slot)
-            self.bag.put_artifact(unequipped)
-
-        if equipped:
-            self.bag.pop_artifact(equipped)
-            self.equipment.equip(slot, equipped)
 
     @lazy_property
     def name(self): return self.name_forms.normalized
@@ -489,6 +334,8 @@ class HeroPrototype(BasePrototype,
             preferences.set_energy_regeneration_type(self.race.energy_regeneration, change_time=datetime.datetime.fromtimestamp(0))
         if preferences.risk_level is None:
             preferences.set_risk_level(relations.RISK_LEVEL.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
+        if preferences.archetype is None:
+            preferences.set_archetype(relations.ARCHETYPE.NEUTRAL, change_time=datetime.datetime.fromtimestamp(0))
         return preferences
 
     @lazy_property
@@ -584,19 +431,6 @@ class HeroPrototype(BasePrototype,
     def reset_level(self):
         self._model.level = 1
         self.abilities.reset()
-
-    def randomize_equip(self):
-        for slot in relations.EQUIPMENT_SLOT.records:
-            self.equipment.unequip(slot)
-
-            artifacts_list = artifacts_storage.artifacts_for_type([slot.artifact_type])
-            if not artifacts_list:
-                continue
-
-            artifact = artifacts_storage.generate_artifact_from_list(artifacts_list, self.level)
-
-            self.equipment.equip(slot, artifact)
-
 
     def randomized_level_up(self, increment_level=False):
         if increment_level:
@@ -775,7 +609,8 @@ class HeroPrototype(BasePrototype,
 
         HeroPreferencesPrototype.create(hero,
                                         energy_regeneration_type=hero.preferences.energy_regeneration_type,
-                                        risk_level=relations.RISK_LEVEL.NORMAL)
+                                        risk_level=relations.RISK_LEVEL.NORMAL,
+                                        archetype=relations.ARCHETYPE.NEUTRAL)
 
         storage = LogicStorage() # tmp storage for creating Idleness action
         ActionIdlenessPrototype.create(hero=hero, _bundle_id=bundle.id, _storage=None)
@@ -1154,7 +989,8 @@ class HeroPreferencesPrototype(BasePrototype):
                  'enemy_id',
                  'equipment_slot',
                  'risk_level',
-                 'favorite_item')
+                 'favorite_item',
+                 'archetype')
     _bidirectional = ()
     _get_by = ('id', 'hero_id')
 
@@ -1162,10 +998,11 @@ class HeroPreferencesPrototype(BasePrototype):
         super(HeroPreferencesPrototype, self).__init__(**kwargs)
 
     @classmethod
-    def create(cls, hero, energy_regeneration_type, risk_level):
+    def create(cls, hero, energy_regeneration_type, risk_level, archetype):
         return cls(model=cls._model_class.objects.create(hero=hero._model,
                                                          energy_regeneration_type=energy_regeneration_type,
-                                                         risk_level=risk_level))
+                                                         risk_level=risk_level,
+                                                         archetype=archetype))
 
     @classmethod
     def update(cls, hero_id, field, value):
