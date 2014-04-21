@@ -6,6 +6,8 @@ from the_tale.common.utils import testcase
 from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype
 
+from the_tale.game.balance.power import Damage
+
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.actions import battle
@@ -112,18 +114,18 @@ class ActorTest(testcase.TestCase):
     def test_process_effects(self):
         actor = battle.Actor(self.hero, BattleContext())
 
-        actor.context.use_damage_queue_fire([100, 100])
-        actor.context.use_damage_queue_poison([100, 100])
+        actor.context.use_damage_queue_fire([Damage(50, 50), Damage(50, 50)])
+        actor.context.use_damage_queue_poison([Damage(50, 50), Damage(50, 50)])
         actor.context.on_own_turn()
 
-        actor.context.use_incoming_damage_modifier(physic=10, magic=0.8)
+        actor.context.use_incoming_damage_modifier(physic=1.0, magic=0.8)
         actor.process_effects(self.hero)
-        self.assertEqual(self.hero.health, self.hero.max_health - 160)
+        self.assertEqual(self.hero.health, self.hero.max_health - 180)
 
         actor.context.on_own_turn()
-        actor.context.use_incoming_damage_modifier(physic=10, magic=1.2)
+        actor.context.use_incoming_damage_modifier(physic=1.2, magic=1.0)
         actor.process_effects(self.hero)
-        self.assertEqual(self.hero.health, self.hero.max_health - 160 - 240)
+        self.assertEqual(self.hero.health, self.hero.max_health - 180 - 220)
 
     def check_first_strike(self, actor_1, actor_2, turn, expected_actors):
         with mock.patch('the_tale.game.actions.battle.strike') as strike:

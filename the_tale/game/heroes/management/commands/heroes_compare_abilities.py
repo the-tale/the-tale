@@ -12,7 +12,7 @@ from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.actions import battle, contexts
 
-from the_tale.game.balance import formulas as f
+from the_tale.game.balance.power import Power, PowerDistribution
 
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY, ABILITY_TYPE
 
@@ -22,11 +22,13 @@ class Messanger(object):
     def add_message(self, *argv, **kwargs):
         pass
 
+
 MESSANGER = Messanger()
 
 TEST_BATTLES_NUMBER = 40
-LEVEL = 5
+LEVEL = 1
 HERO_LEVELS = [5, 15, 25, 35, 45]
+POWER_DISTRIBUTION = PowerDistribution(0.5, 0.5)
 
 
 def process_battle(hero_1, hero_2):
@@ -48,8 +50,7 @@ def get_battles_statistics(hero_1, hero_2):
 
     for hero_level in HERO_LEVELS:
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.power', f.power_to_lvl(hero_level)):
-
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.power', Power.power_to_level(POWER_DISTRIBUTION, hero_level)):
             hero_1._model.level = hero_level
             hero_2._model.level = hero_level
 
@@ -186,8 +187,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options): # pylint: disable=R0914
 
-        result, account_1_id, bundle_id = register_user('test_user') # pylint: disable=W0612
-        result, account_2_id, bundle_id = register_user('test_user_2') # pylint: disable=W0612
+        result, account_1_id, bundle_id = register_user('compare_abilities_user') # pylint: disable=W0612
+        result, account_2_id, bundle_id = register_user('compare_abilities_user_2') # pylint: disable=W0612
 
         account_1 = AccountPrototype.get_by_id(account_1_id)
         account_2 = AccountPrototype.get_by_id(account_2_id)

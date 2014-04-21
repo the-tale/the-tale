@@ -1,6 +1,6 @@
 #coding: utf-8
 
-from the_tale.game.heroes.habilities.relations import ABILITY_AVAILABILITY
+from the_tale.game.heroes.habilities import relations
 
 
 class AbilityPrototype(object):
@@ -9,8 +9,7 @@ class AbilityPrototype(object):
     ACTIVATION_TYPE = None
     LOGIC_TYPE = None
     PRIORITY = None
-    AVAILABILITY = ABILITY_AVAILABILITY.FOR_ALL
-    DAMAGE_TYPE = None
+    AVAILABILITY = relations.ABILITY_AVAILABILITY.FOR_ALL
 
     NAME = u''
     normalized_name = u''
@@ -37,9 +36,6 @@ class AbilityPrototype(object):
 
     @property
     def activation_type(self): return self.ACTIVATION_TYPE
-
-    @property
-    def damage_type(self): return self.DAMAGE_TYPE
 
     @property
     def has_max_level(self): return self.level == self.MAX_LEVEL

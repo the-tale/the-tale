@@ -2,19 +2,17 @@
 import random
 
 from the_tale.game.heroes.habilities.prototypes import AbilityPrototype
-from the_tale.game.heroes.habilities.relations import  ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_LOGIC_TYPE, DAMAGE_TYPE # pylint: disable=W0611
-
-from the_tale.game.actions.contexts.battle import Damage
+from the_tale.game.heroes.habilities import relations
 
 from the_tale.game.balance import constants as c, formulas as f
 
+
 class HIT(AbilityPrototype):
 
-    TYPE = ABILITY_TYPE.BATTLE
-    ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
-    LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITH_CONTACT
+    TYPE = relations.ABILITY_TYPE.BATTLE
+    ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.ACTIVE
+    LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITH_CONTACT
     PRIORITY = [100]
-    DAMAGE_TYPE = DAMAGE_TYPE.MIXED
     MAX_LEVEL = 1
 
     NAME = u'Удар'
@@ -27,8 +25,8 @@ class HIT(AbilityPrototype):
     def damage_modifier(self): return self.DAMAGE_MODIFIER[self.level-1]
 
     def use(self, messanger, actor, enemy):
-        base_damage = actor.basic_damage*self.damage_modifier
-        damage = actor.context.modify_outcoming_damage(base_damage * 0.5)
+        damage = actor.basic_damage*self.damage_modifier
+        damage = actor.context.modify_outcoming_damage(damage)
         damage = enemy.context.modify_incoming_damage(damage)
         enemy.change_health(-damage.total)
         messanger.add_message('hero_ability_hit', attacker=actor, defender=enemy, damage=damage.total)
@@ -39,11 +37,11 @@ class HIT(AbilityPrototype):
 
 class STRONG_HIT(AbilityPrototype):
 
-    TYPE = ABILITY_TYPE.BATTLE
-    ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
-    LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITH_CONTACT
+    TYPE = relations.ABILITY_TYPE.BATTLE
+    ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.ACTIVE
+    LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITH_CONTACT
+
     PRIORITY = [15, 16, 17, 18, 19]
-    DAMAGE_TYPE = DAMAGE_TYPE.PHYSICAL
 
     NAME = u'Тяжёлый удар'
     normalized_name = NAME
@@ -55,7 +53,8 @@ class STRONG_HIT(AbilityPrototype):
     def damage_modifier(self): return self.DAMAGE_MODIFIER[self.level-1]
 
     def use(self, messanger, actor, enemy):
-        damage = actor.context.modify_outcoming_damage(actor.basic_damage.multiply(physic_multiplier=self.damage_modifier))
+        damage = actor.basic_damage * self.damage_modifier
+        damage = actor.context.modify_outcoming_damage(damage)
         damage = enemy.context.modify_incoming_damage(damage)
         enemy.change_health(-damage.total)
         messanger.add_message('hero_ability_strong_hit', attacker=actor, defender=enemy, damage=damage.total)
@@ -66,14 +65,14 @@ class STRONG_HIT(AbilityPrototype):
 
 class MAGIC_MUSHROOM(AbilityPrototype):
 
-    TYPE = ABILITY_TYPE.BATTLE
-    ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
-    LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
+    TYPE = relations.ABILITY_TYPE.BATTLE
+    ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.ACTIVE
+    LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
     PRIORITY = [9, 11, 11, 12, 12]
 
     NAME = u'Волшебный гриб'
     normalized_name = NAME
-    DESCRIPTION = u'Находясь в бою, герой может силой своей могучей воли вырастить волшебный гриб, съев который, некоторое время станет наносить увеличенный урон противникам.'
+    DESCRIPTION = u'Герой всегда носит с собой особые грибы, съев один из которых в бою, на некоторое время существенно увеличивает наносимый урон.'
 
     DAMAGE_FACTORS = [ [1.75, 1.55, 1.25, 1.05],
                        [1.85, 1.65, 1.40, 1.15],
@@ -91,10 +90,9 @@ class MAGIC_MUSHROOM(AbilityPrototype):
 
 class SIDESTEP(AbilityPrototype):
 
-    TYPE = ABILITY_TYPE.BATTLE
-    ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
-    LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
-
+    TYPE = relations.ABILITY_TYPE.BATTLE
+    ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.ACTIVE
+    LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
     PRIORITY = [12, 13, 14, 15, 16]
 
     NAME = u'Шаг в сторону'
@@ -120,10 +118,9 @@ class SIDESTEP(AbilityPrototype):
 
 class RUN_UP_PUSH(AbilityPrototype):
 
-    TYPE = ABILITY_TYPE.BATTLE
-    ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
-    LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITH_CONTACT
-    DAMAGE_TYPE = DAMAGE_TYPE.PHYSICAL
+    TYPE = relations.ABILITY_TYPE.BATTLE
+    ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.ACTIVE
+    LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITH_CONTACT
     PRIORITY = [7, 8, 9, 10, 11]
 
     NAME = u'Разбег-толчок'
@@ -145,7 +142,8 @@ class RUN_UP_PUSH(AbilityPrototype):
     def damage_modifier(self): return self.DAMAGE_MODIFIER[self.level-1]
 
     def use(self, messanger, actor, enemy):
-        damage = actor.context.modify_outcoming_damage(actor.basic_damage.multiply(physic_multiplier=self.damage_modifier))
+        damage = actor.basic_damage * self.damage_modifier
+        damage = actor.context.modify_outcoming_damage(damage)
         damage = enemy.context.modify_incoming_damage(damage)
         enemy.change_health(-damage.total)
         enemy.context.use_stun(int(round(random.uniform(*self.stun_length))))
@@ -158,9 +156,9 @@ class RUN_UP_PUSH(AbilityPrototype):
 
 class REGENERATION(AbilityPrototype):
 
-    TYPE = ABILITY_TYPE.BATTLE
-    ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
-    LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
+    TYPE = relations.ABILITY_TYPE.BATTLE
+    ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.ACTIVE
+    LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
     PRIORITY = [8, 9, 10, 11, 12]
 
     NAME = u'Регенерация'
@@ -176,16 +174,14 @@ class REGENERATION(AbilityPrototype):
 
     def use(self, messanger, actor, enemy): # pylint: disable=W0613
         health_to_regen = f.mob_hp_to_lvl(actor.level) * self.restored_percent * (1 + random.uniform(-c.DAMAGE_DELTA, c.DAMAGE_DELTA))# !!!MOB HP, NOT HERO!!!
-        # health_to_regen = actor.max_health * self.restored_percent
-        # health_to_regen = actor.basic_damage * self.restored_percent * (1 + random.uniform(-c.DAMAGE_DELTA, c.DAMAGE_DELTA))
         applied_health = int(round(actor.change_health(health_to_regen)))
         messanger.add_message('hero_ability_regeneration', actor=actor, health=applied_health)
 
 
 class CRITICAL_HIT(AbilityPrototype):
 
-    TYPE = ABILITY_TYPE.BATTLE
-    ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
+    TYPE = relations.ABILITY_TYPE.BATTLE
+    ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.PASSIVE
 
     NAME = u'Критический удар'
     normalized_name = NAME
@@ -202,12 +198,12 @@ class CRITICAL_HIT(AbilityPrototype):
 
 class BERSERK(AbilityPrototype):
 
-    TYPE = ABILITY_TYPE.BATTLE
-    ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
+    TYPE = relations.ABILITY_TYPE.BATTLE
+    ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.PASSIVE
 
     NAME = u'Берсерк'
     normalized_name = NAME
-    DESCRIPTION = u'Чем меньше у героя остаётся здоровья, тем сильнее его удары.'
+    DESCRIPTION = u'Чем меньше у героя остаётся здоровья, тем больше урона врагу он наносит.'
 
     MAXIMUM_BONUS = [0.05, 0.10, 0.15, 0.20, 0.25]
 
@@ -220,8 +216,8 @@ class BERSERK(AbilityPrototype):
 
 class NINJA(AbilityPrototype):
 
-    TYPE = ABILITY_TYPE.BATTLE
-    ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
+    TYPE = relations.ABILITY_TYPE.BATTLE
+    ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.PASSIVE
 
     NAME = u'Ниндзя'
     normalized_name = NAME
@@ -238,22 +234,21 @@ class NINJA(AbilityPrototype):
 
 class FIREBALL(AbilityPrototype):
 
-    TYPE = ABILITY_TYPE.BATTLE
-    ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
-    LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITH_CONTACT
-    DAMAGE_TYPE = DAMAGE_TYPE.MAGICAL
+    TYPE = relations.ABILITY_TYPE.BATTLE
+    ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.ACTIVE
+    LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITH_CONTACT
     PRIORITY = [4, 5, 6, 7, 8]
 
     NAME = u'Шар огня'
     normalized_name = NAME
     DESCRIPTION = u'Герой запускает в противника шар волшебного огня, нанося большой урон и поджигая врага.'
 
-    DAMAGE_MODIFIER = [1.4, 1.5, 1.6, 1.7, 1.8]
-    PERIODIC_DAMAGE_MODIFIERS = [ [0.15, 0.05],
-                                  [0.30, 0.20, 0.10],
-                                  [0.35, 0.25, 0.10],
-                                  [0.40, 0.30, 0.15, 0.10],
-                                  [0.45, 0.35, 0.15, 0.10] ]
+    DAMAGE_MODIFIER = [1.45, 1.50, 1.55, 1.60, 1.65]
+    PERIODIC_DAMAGE_MODIFIERS = [ [0.18, 0.08],
+                                  [0.22, 0.12, 0.02],
+                                  [0.26, 0.16, 0.06],
+                                  [0.30, 0.20, 0.10, 0.05],
+                                  [0.34, 0.24, 0.14, 0.09] ]
 
     @property
     def damage_modifier(self): return self.DAMAGE_MODIFIER[self.level-1]
@@ -262,10 +257,11 @@ class FIREBALL(AbilityPrototype):
     def periodic_damage_modifiers(self): return self.PERIODIC_DAMAGE_MODIFIERS[self.level-1]
 
     def use(self, messanger, actor, enemy):
-        damage = actor.context.modify_outcoming_damage(actor.basic_damage.multiply(magic_multiplier=self.damage_modifier))
-        damage = enemy.context.modify_incoming_damage(damage)
+        damage = actor.basic_damage * self.damage_modifier
+        outcoming_damage = actor.context.modify_outcoming_damage(damage)
+        damage = enemy.context.modify_incoming_damage(outcoming_damage)
         enemy.change_health(-damage.total)
-        enemy.context.use_damage_queue_fire([(actor.basic_damage * modifier).total for modifier in self.periodic_damage_modifiers])
+        enemy.context.use_damage_queue_fire([outcoming_damage * modifier for modifier in self.periodic_damage_modifiers])
         messanger.add_message('hero_ability_fireball', attacker=actor, defender=enemy, damage=damage.total)
 
     def on_miss(self, messanger, actor, enemy):
@@ -274,11 +270,10 @@ class FIREBALL(AbilityPrototype):
 
 class POISON_CLOUD(AbilityPrototype):
 
-    TYPE = ABILITY_TYPE.BATTLE
-    ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
-    LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
+    TYPE = relations.ABILITY_TYPE.BATTLE
+    ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.ACTIVE
+    LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
     PRIORITY = [6, 7, 8, 9, 10]
-    DAMAGE_TYPE = DAMAGE_TYPE.MAGICAL
 
     NAME = u'Ядовитое облако'
     normalized_name = NAME
@@ -294,16 +289,17 @@ class POISON_CLOUD(AbilityPrototype):
     def periodic_damage_modifiers(self): return self.PERIODIC_DAMAGE_MODIFIERS[self.level-1]
 
     def use(self, messanger, actor, enemy):
-        enemy.context.use_damage_queue_poison([(actor.basic_damage * modifier).total for modifier in self.periodic_damage_modifiers])
+        damage = actor.basic_damage
+        damage = actor.context.modify_outcoming_damage(damage)
+        enemy.context.use_damage_queue_poison([damage * modifier for modifier in self.periodic_damage_modifiers])
         messanger.add_message('hero_ability_poison_cloud', attacker=actor, defender=enemy)
 
 
 class VAMPIRE_STRIKE(AbilityPrototype):
 
-    TYPE = ABILITY_TYPE.BATTLE
-    ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
-    LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITH_CONTACT
-    DAMAGE_TYPE = DAMAGE_TYPE.MIXED
+    TYPE = relations.ABILITY_TYPE.BATTLE
+    ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.ACTIVE
+    LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITH_CONTACT
     PRIORITY = [14, 15, 16, 17, 18]
 
     NAME = u'Удар вампира'
@@ -320,8 +316,8 @@ class VAMPIRE_STRIKE(AbilityPrototype):
     def damage_fraction(self): return self.DAMAGE_FRACTION[self.level-1]
 
     def use(self, messanger, actor, enemy):
-        base_damage = actor.basic_damage * self.damage_fraction
-        damage = actor.context.modify_outcoming_damage(base_damage * 0.5)
+        damage = actor.basic_damage * self.damage_fraction
+        damage = actor.context.modify_outcoming_damage(damage)
         damage = enemy.context.modify_incoming_damage(damage)
         health = int(round(damage.total * self.heal_fraction))
         enemy.change_health(-damage.total)
@@ -334,9 +330,9 @@ class VAMPIRE_STRIKE(AbilityPrototype):
 
 class FREEZING(AbilityPrototype):
 
-    TYPE = ABILITY_TYPE.BATTLE
-    ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
-    LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
+    TYPE = relations.ABILITY_TYPE.BATTLE
+    ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.ACTIVE
+    LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
     PRIORITY = [7, 8, 10, 10, 11]
 
     NAME = u'Заморозка'
@@ -359,9 +355,9 @@ class FREEZING(AbilityPrototype):
 
 class SPEEDUP(AbilityPrototype):
 
-    TYPE = ABILITY_TYPE.BATTLE
-    ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.ACTIVE
-    LOGIC_TYPE = ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
+    TYPE = relations.ABILITY_TYPE.BATTLE
+    ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.ACTIVE
+    LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
     PRIORITY = [8, 10, 11, 11, 12]
 
     NAME = u'Ускорение'

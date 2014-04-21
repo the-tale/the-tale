@@ -65,10 +65,12 @@ class BattleContext(object):
     def use_first_strike(self): self.first_strike = True
 
     def use_damage_queue_fire(self, damage_queue):
-        self.damage_queue_fire = map(lambda queue, delta: (delta if delta else 0) + (queue if queue else 0), self.damage_queue_fire, [None]+damage_queue) # pylint: disable=W0110
+        self.damage_queue_fire = map(lambda queue, delta: (delta if delta else Damage(0, 0)) + (queue if queue else Damage(0, 0)),
+                                     self.damage_queue_fire, [None]+damage_queue) # pylint: disable=W0110
 
     def use_damage_queue_poison(self, damage_queue):
-        self.damage_queue_poison = map(lambda queue, delta: (delta if delta else 0) + (queue if queue else 0), self.damage_queue_poison, [None] + damage_queue) # pylint: disable=W0110
+        self.damage_queue_poison = map(lambda queue, delta: (delta if delta else Damage(0, 0)) + (queue if queue else Damage(0, 0)),
+                                       self.damage_queue_poison, [None] + damage_queue) # pylint: disable=W0110
 
     def use_initiative(self, initiative_queue):
         # do not prefix [None] here, since initiative getted before on_every_turn
@@ -93,13 +95,11 @@ class BattleContext(object):
 
     @property
     def fire_damage(self):
-        damage = int(round(self.damage_queue_fire[0] if self.damage_queue_fire else 0))
-        return damage if damage else None
+        return self.damage_queue_fire[0] if self.damage_queue_fire and self.damage_queue_fire[0].total > 0 else None
 
     @property
     def poison_damage(self):
-        damage = int(round(self.damage_queue_poison[0] if self.damage_queue_poison else 0))
-        return damage if damage else None
+        return self.damage_queue_poison[0] if self.damage_queue_poison and self.damage_queue_poison[0].total > 0 else None
 
     @property
     def initiative(self):
@@ -113,10 +113,11 @@ class BattleContext(object):
 
     def modify_outcoming_damage(self, damage):
         if self.ability_magic_mushroom:
-            damage.multiply(self.ability_magic_mushroom[0], self.ability_magic_mushroom[0])
+            damage *=  self.ability_magic_mushroom[0]
         if random.uniform(0, 1) < self.crit_chance:
-            damage.multiply(c.DAMAGE_CRIT_MULTIPLIER, c.DAMAGE_CRIT_MULTIPLIER)
-        damage.multiply(self.berserk_damage_modifier, self.berserk_damage_modifier)
+            damage *= c.DAMAGE_CRIT_MULTIPLIER
+
+        damage *= self.berserk_damage_modifier
 
         damage.multiply(self.outcoming_physic_damage_modifier, self.outcoming_magic_damage_modifier)
 
@@ -124,9 +125,10 @@ class BattleContext(object):
             # make full reset of damage, since it can be really huge delta in damage with different abilities
             damage = Damage(physic=self.pvp_advantage_strike_damage/2.0, magic=self.pvp_advantage_strike_damage/2.0)
             self.pvp_advantage_used = True
+
         elif self.pvp_advantage > 0:
             advantage_damage_multiplier = 1 + self.pvp_advantage * c.DAMAGE_PVP_ADVANTAGE_MODIFIER
-            damage.multiply(advantage_damage_multiplier, advantage_damage_multiplier)
+            damage *= advantage_damage_multiplier
 
         damage.randomize()
         return damage

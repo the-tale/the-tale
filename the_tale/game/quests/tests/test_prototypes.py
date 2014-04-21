@@ -324,7 +324,7 @@ class PrototypeTests(PrototypeTestsBase):
 
         artifact_1, artifact_2 = list(self.hero.bag.values())
 
-        self.assertEqual(abs(artifact_1.power.total() - artifact_2.power.total()), int(c.POWER_TO_LVL * 0.5) - 1) # -1 since rounding error
+        self.assertEqual(abs(artifact_1.power.total() - artifact_2.power.total()), int(c.POWER_TO_LVL * 0.5))
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_get_artifact_for_quest', lambda hero: False)
     @mock.patch('the_tale.game.balance.constants.PRICE_DELTA', 0.0)

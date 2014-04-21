@@ -5,7 +5,7 @@ from rels.django import DjangoEnum
 
 class ABILITY_TYPE(DjangoEnum):
     records = ( ('BATTLE', 0, u'боевая'),
-                 ('NONBATTLE', 1, u'небоевая'),)
+                ('NONBATTLE', 1, u'небоевая'),)
 
 
 class ABILITY_ACTIVATION_TYPE(DjangoEnum):
@@ -22,9 +22,3 @@ class ABILITY_AVAILABILITY(DjangoEnum):
    records = ( ('FOR_PLAYERS', 0b0001, u'только для игроков'),
                 ('FOR_MONSTERS', 0b0010, u'только для монстров'),
                 ('FOR_ALL', 0b0011, u'для всех') )
-
-
-class DAMAGE_TYPE(DjangoEnum):
-   records = ( ('PHYSICAL', 0b0001, u'физический'),
-                ('MAGICAL', 0b0010, u'магический'),
-                ('MIXED', 0b0011, u'смешанный') )

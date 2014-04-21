@@ -11,7 +11,7 @@ from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.game.heroes.habilities import AbilitiesPrototype
 
 from the_tale.game.balance import formulas as f
-from the_tale.game.balance.power import Damage
+from the_tale.game.balance.power import Damage, Power, PowerDistribution
 
 from the_tale.game.map.relations import TERRAIN
 
@@ -30,13 +30,14 @@ class MobException(Exception): pass
 
 class MobPrototype(object):
 
-    __slots__ = ('record', 'level', 'abilities', 'initiative', 'health_cooficient', 'damage_modifier', 'max_health', 'health', 'is_boss')
+    __slots__ = ('record', 'level', 'abilities', 'initiative', 'health_cooficient', 'damage_modifier', 'max_health', 'health', 'is_boss', 'power')
 
     def __init__(self, record=None, level=None, health=None, abilities=None, is_boss=False):
 
         self.record = record
         self.level = level
         self.is_boss = is_boss
+        self.power = Power.power_to_level(distribution=PowerDistribution(0.5, 0.5), level=level)
 
         self.abilities = self._produce_abilities(record, level) if abilities is None else abilities
 

@@ -4,7 +4,6 @@ import random
 
 from the_tale.common.utils.logic import random_value_by_priority
 
-from the_tale.game.actions.contexts.battle import Damage
 
 class Actor(object):
 
@@ -31,6 +30,9 @@ class Actor(object):
     def basic_damage(self): return self.actor.basic_damage
 
     @property
+    def power(self): return self.actor.power
+
+    @property
     def health(self): return self.actor.health
 
     @property
@@ -55,13 +57,13 @@ class Actor(object):
     def process_effects(self, messanger):
         fire_damage = self.context.fire_damage
         if fire_damage:
-            damage = self.context.modify_incoming_damage(Damage(magic=fire_damage))
+            damage = self.context.modify_incoming_damage(fire_damage)
             self.change_health(-damage.total)
             messanger.add_message('action_battlepve1x1_periodical_fire_damage', actor=self, damage=damage.total)
 
         poison_damage = self.context.poison_damage
         if poison_damage:
-            damage = self.context.modify_incoming_damage(Damage(magic=poison_damage))
+            damage = self.context.modify_incoming_damage(poison_damage)
             self.change_health(-damage.total)
             messanger.add_message('action_battlepve1x1_periodical_poison_damage', actor=self, damage=damage.total)
 

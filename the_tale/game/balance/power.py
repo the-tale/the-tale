@@ -40,22 +40,23 @@ class Power(object):
     def total(self):
         return self.magic + self.physic
 
-    # общая ожидаемая сила артефактов, надетых на героя указанного уровня к моменту получения следующего уровня
-    # рассматривался альтернативный вариант - зависимость силы, от времени, но в этом случае она растёт очень быстро, что плохо сказывается на цифрах урона и т.п.
-    # за ожидаемое распределение берётся нейтральный герой (т.е. без предпочтения в магии/физике)
-    # @classmethod
-    # def expected_power_to_level(cls, level): # TODO: remove?
-    #     print cls.normal_total_power_to_level(level)
-    #     half_power = cls.normal_total_power_to_level(level) / 2
-    #     return cls(half_power, half_power)
-
     @classmethod
     def normal_total_power_to_level(cls, level):
+        return int(level * (c.POWER_PER_LVL + c.POWER_TO_LVL))
+
+    @classmethod
+    def normal_power_to_level(cls, level):
         return int(level * c.POWER_TO_LVL)
 
     @classmethod
+    def power_to_level(cls, distribution, level):
+        power = float(cls.normal_power_to_level(level))
+        return cls(physic=int(power*distribution.physic+distribution.physic),
+                   magic=int(power*distribution.magic+distribution.magic) )
+
+    @classmethod
     def power_to_artifact(cls, distribution, level):
-        power = float(cls.normal_total_power_to_level(level)) / c.EQUIP_SLOTS_NUMBER
+        power = float(cls.normal_power_to_level(level)) / c.EQUIP_SLOTS_NUMBER
         return cls(physic=int(power*distribution.physic+0.5),
                    magic=int(power*distribution.magic+0.5) )
 
@@ -63,8 +64,8 @@ class Power(object):
     @classmethod
     def artifact_power_interval(cls, distribution, level):
         base_power = cls.power_to_artifact(distribution, level)
-        physic_delta = int(base_power.physic * c.ARTIFACT_POWER_DELTA)
-        magic_delta = int(base_power.magic * c.ARTIFACT_POWER_DELTA)
+        physic_delta = max(int(base_power.physic * c.ARTIFACT_POWER_DELTA), 1)
+        magic_delta = max(int(base_power.magic * c.ARTIFACT_POWER_DELTA), 1)
         min_power = cls(physic=max(base_power.physic - physic_delta, 1),
                         magic=max(base_power.magic - magic_delta, 1))
         max_power = cls(physic=base_power.physic + physic_delta,
@@ -86,19 +87,14 @@ class Power(object):
         return cls(physic=random.randint(base_power.physic+1, base_power.physic + 1 + 2 * physic_delta),
                    magic=random.randint(base_power.magic+1, base_power.magic + 1 + 2 * magic_delta))
 
-    # находим зависимость урона, наносимого героем от его силы
-    # для этого опираясь на силу, оцениваем уровень героя, на котором она может быть и исходя из этого делаем предположение об уроне мобу
-    # т.к. здоровье моба зависит от здоровья героя, то полученая формула должна быть применима и в PvP - т.е. бои просто будут идти дольше
-    # делим на 2, т.к. считаем, что обе силы (магическая и физическая) равны
-    def expected_levels(self):
-        physic = float(self.physic) / (c.POWER_PER_LVL + c.POWER_TO_LVL/2) # оцениваемый уровень героя, исходя из его силы
-        magic =  float(self.magic) / (c.POWER_PER_LVL + c.POWER_TO_LVL/2) # оцениваемый уровень героя, исходя из его силы
-        return physic, magic
+    def expected_level(self):
+        return float(self.total()) / (c.POWER_PER_LVL + c.POWER_TO_LVL)
 
     def damage(self):
-        physic_level, magic_level = self.expected_levels()
-        return Damage(physic=f.expected_damage_to_mob_per_hit(physic_level) / 2,
-                      magic=f.expected_damage_to_mob_per_hit(magic_level) / 2)
+        expected_damage = f.expected_damage_to_mob_per_hit(self.expected_level())
+        total_power = self.total()
+        return Damage(physic=float(self.physic)/total_power * expected_damage,
+                      magic=float(self.magic)/total_power * expected_damage)
 
     def __repr__(self): return u'Power(physic=%d, magic=%d)' % (self.physic, self.magic)
 
@@ -137,6 +133,14 @@ class Damage(object):
     def randomize(self):
         self.physic =  self.physic * random.uniform(1-c.DAMAGE_DELTA, 1+c.DAMAGE_DELTA)
         self.magic =  self.magic * random.uniform(1-c.DAMAGE_DELTA, 1+c.DAMAGE_DELTA)
+
+    def __add__(self, other):
+        return self.clone().__iadd__(other)
+
+    def __iadd__(self, other):
+        self.physic += other.physic
+        self.magic += other.magic
+        return self
 
     def __mul__(self, other):
         return self.clone().multiply(other, other)
