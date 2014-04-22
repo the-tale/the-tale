@@ -1,5 +1,4 @@
 # coding: utf-8
-import math
 
 import mock
 
@@ -16,7 +15,7 @@ from the_tale.game.persons.conf import persons_settings
 
 from the_tale.game.map.places.prototypes import PlacePrototype
 from the_tale.game.map.places.conf import places_settings
-from the_tale.game.map.places.exceptions import PlacesException
+from the_tale.game.map.places import exceptions
 from the_tale.game.map.places.storage import places_storage
 
 class PlacePowerTest(testcase.TestCase):
@@ -75,7 +74,7 @@ class PlacePowerTest(testcase.TestCase):
 
     def test_push_power_exceptions(self):
         self.place.push_power(666, 10)
-        self.assertRaises(PlacesException, self.place.push_power, 13, 1)
+        self.assertRaises(exceptions.PlacesPowerError, self.place.push_power, 13, 1)
 
     def test_persons_sorting(self):
         person_1 = self.place.persons[0]

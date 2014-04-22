@@ -6,6 +6,7 @@ from the_tale.common.utils.exceptions import TheTaleError
 class ArtifactsError(TheTaleError):
     MSG = u'artifacts error'
 
+
 class ArtifactsStorageError(ArtifactsError):
     MSG = u'artifacts storage error: %(message)s'
 
@@ -19,3 +20,7 @@ class ChangeDefaultEquipmentUIDError(ArtifactsError):
 
 class DisableDefaultEquipmentError(ArtifactsError):
     MSG = u'we can not disable default hero equipment %(artifact)s'
+
+
+class UnknownRarityType(ArtifactsError):
+    MSG = u'unknown rare type: %(type)r'

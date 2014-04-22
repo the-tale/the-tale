@@ -12,7 +12,7 @@ from the_tale.game.map.places.models import Place
 from the_tale.game.map.places.storage import PlacesStorage, resource_exchange_storage
 from the_tale.game.map.places.prototypes import ResourceExchangePrototype
 from the_tale.game.map.places.relations import RESOURCE_EXCHANGE_TYPE
-from the_tale.game.map.places.exceptions import PlacesException
+from the_tale.game.map.places import exceptions
 
 class PlacesStorageTest(testcase.TestCase):
 
@@ -59,7 +59,7 @@ class PlacesStorageTest(testcase.TestCase):
 
 
     def test_getitem_wrong_id(self):
-        self.assertRaises(PlacesException, self.storage.__getitem__, 666)
+        self.assertRaises(exceptions.PlacesStorageError, self.storage.__getitem__, 666)
 
     def test_getitem(self):
         self.assertEqual(self.storage[self.p1.id].id, self.p1.id)

@@ -20,6 +20,8 @@ from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.balance import constants as c
 
+from the_tale.game.heroes.relations import ARCHETYPE
+
 from the_tale.game.pvp.prototypes import Battle1x1Prototype, Battle1x1ResultPrototype
 from the_tale.game.pvp.relations import BATTLE_1X1_RESULT
 
@@ -187,6 +189,8 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
     def prepair_bot(cls, hero, enemy):
         if not hero.is_bot:
             return
+
+        hero.preferences.set_archetype(random.choice(ARCHETYPE.records))
 
         hero.reset_level()
         for i in xrange(enemy.level-1):

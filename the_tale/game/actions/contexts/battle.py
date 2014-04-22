@@ -24,6 +24,7 @@ class BattleContext(object):
                  'pvp_advantage_used',
                  'pvp_advantage_strike_damage',
                  'first_strike',
+                 'last_chance_probability',
                  'turn')
 
     def __init__(self):
@@ -38,6 +39,7 @@ class BattleContext(object):
         self.initiative_queue = []
 
         self.first_strike = False
+        self.last_chance_probability = 0
 
         self.incoming_magic_damage_modifier = 1.0
         self.incoming_physic_damage_modifier = 1.0
@@ -63,6 +65,8 @@ class BattleContext(object):
     def use_ninja(self, probability): self.ninja = probability
 
     def use_first_strike(self): self.first_strike = True
+
+    def use_last_chance_probability(self, probability): self.last_chance_probability = probability
 
     def use_damage_queue_fire(self, damage_queue):
         self.damage_queue_fire = map(lambda queue, delta: (delta if delta else Damage(0, 0)) + (queue if queue else Damage(0, 0)),
@@ -111,6 +115,9 @@ class BattleContext(object):
             miss = max(miss, self.ability_sidestep[0])
         return (random.uniform(0, 1) < miss)
 
+    def can_use_last_chance(self):
+        return random.uniform(0, 1) < self.last_chance_probability
+
     def modify_outcoming_damage(self, damage):
         if self.ability_magic_mushroom:
             damage *=  self.ability_magic_mushroom[0]
@@ -148,6 +155,7 @@ class BattleContext(object):
         self.ninja = 0
         self.crit_chance = 0
         self.first_strike = False
+        self.last_chance_probability = 0.0
         self.berserk_damage_modifier = 1.0
 
         self.incoming_magic_damage_modifier = 1.0
@@ -193,6 +201,7 @@ class BattleContext(object):
                  'pvp_advantage_strike_damage': self.pvp_advantage_strike_damage,
 
                  'first_strike': self.first_strike,
+                 'last_chance_probability': self.last_chance_probability,
                  'turn': self.turn}
 
     @classmethod
@@ -218,6 +227,7 @@ class BattleContext(object):
         context.pvp_advantage_strike_damage = data.get('pvp_advantage_strike_damage', 0)
 
         context.first_strike = data.get('first_strike', False)
+        context.last_chance_probability = data.get('last_chance_probability', 0)
         context.turn = data.get('turn', 0)
 
         return context
@@ -244,4 +254,5 @@ class BattleContext(object):
                 self.pvp_advantage_strike_damage == other.pvp_advantage_strike_damage and
 
                 self.first_strike == other.first_strike and
+                self.last_chance_probability == other.last_chance_probability and
                 self.turn == other.turn)

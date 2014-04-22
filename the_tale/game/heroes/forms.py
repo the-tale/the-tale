@@ -29,7 +29,10 @@ class EditNameForm(forms.Form):
     def clean_name_forms(self):
         data = self.cleaned_data['name_forms']
 
-        if len(data[0]) > Hero.MAX_NAME_LENGTH:
-            raise ValidationError(u'слишком длинное имя, максимальное число символов: %d' % Hero.MAX_NAME_LENGTH)
+        for name_form in data:
+            if len(name_form) > Hero.MAX_NAME_LENGTH:
+                raise ValidationError(u'слишком длинное имя, максимальное число символов: %d' % Hero.MAX_NAME_LENGTH)
+            if len(name_form) < 3:
+                raise ValidationError(u'слишком короткое имя, минимальное число символов: %d' % 3)
 
         return data

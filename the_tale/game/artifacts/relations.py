@@ -36,3 +36,46 @@ class ARTIFACT_POWER_TYPE(DjangoEnum):
 class ARTIFACT_RECORD_STATE(DjangoEnum):
     records = ( ('ENABLED', 0, u'в игре'),
                 ('DISABLED', 1, u'вне игры') )
+
+
+class RARITY(DjangoEnum):
+    records = ( ('NORMAL', 0, u'обычный артефакт'),
+                ('RARE', 1, u'редкий артефакт'),
+                ('EPIC', 2, u'эпический артефакт') )
+
+
+class ARTIFACT_EFFECT(DjangoEnum):
+
+    records = ( ('PHYSICAL_DAMAGE', 0, u'мощь'),
+                ('MAGICAL_DAMAGE', 1, u'колдовство'),
+                ('INITIATIVE', 2, u'хорошая реакция'),
+                ('HEALTH', 3, u'здоровье'),
+                ('EXPERIENCE', 4, u'повышение интуиции'),
+                ('POWER', 5, u'хитрость'),
+                ('ENERGY', 6, u'астральный сосуд'),
+                ('SPEED', 7, u'скороход'),
+                ('BAG', 8, u'карманы'),
+
+                ('GREAT_PHYSICAL_DAMAGE', 1000, u'небывалая мощь'),
+                ('GREAT_MAGICAL_DAMAGE', 1001, u'могучее колдовство'),
+                ('GREAT_INITIATIVE', 1002, u'превосходная реакция'),
+                ('GREAT_HEALTH', 1003, u'невероятное здоровье'),
+                ('GREAT_EXPERIENCE', 1004, u'сверхинтуиция'),
+                ('GREAT_POWER', 1005, u'особая хитрость'),
+                ('GREAT_ENERGY', 1006, u'большой астральный сосуд'),
+                ('GREAT_SPEED', 1007, u'неутомимый скороход'),
+                ('GREAT_BAG', 1008, u'большие карманы'),
+                ('REST_LENGTH', 1009, u'выносливость'),
+                ('RESURRECT_LENGTH', 1010, u'живучесть'),
+                ('IDLE_LENGTH', 1011, u'деятельность'),
+                ('CONVICTION', 1012, u'убеждение'),
+                ('CHARM', 1013, u'очарование'),
+                ('SPIRITUAL_CONNECTION', 1014, u'духовная связь'),
+                ('PEACE_OF_MIND', 1015, u'душевное равновесие'),
+                ('SPECIAL_AURA', 1016, u'особая аура'),
+                ('REGENERATION', 1017, u'регенерация'),
+                ('LAST_CHANCE', 1018, u'последний шанс'),
+                ('ICE', 1019, u'лёд'),
+                ('FLAME', 1020, u'пламя'),
+                ('POISON', 1021, u'яд'),
+                ('VAMPIRE_STRIKE', 1022, u'вампиризм'))

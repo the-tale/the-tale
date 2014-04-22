@@ -17,16 +17,18 @@ from the_tale.game.balance.power import Power
 from the_tale.game.artifacts import exceptions
 from the_tale.game.artifacts.models import ArtifactRecord
 from the_tale.game.artifacts import relations
+from the_tale.game.artifacts import effects
 
 
 class ArtifactPrototype(object):
 
-    __slots__ = ('record', 'power', 'level', 'bag_uuid', 'max_integrity', 'integrity')
+    __slots__ = ('record', 'power', 'level', 'bag_uuid', 'max_integrity', 'integrity', 'rarity')
 
-    def __init__(self, record=None, power=None, bag_uuid=None, level=0, max_integrity=c.ARTIFACT_MAX_INTEGRITY, integrity=c.ARTIFACT_MAX_INTEGRITY):
+    def __init__(self, record=None, power=None, bag_uuid=None, level=0, max_integrity=c.ARTIFACT_MAX_INTEGRITY, integrity=c.ARTIFACT_MAX_INTEGRITY, rarity=relations.RARITY.NORMAL):
         self.record = record
         self.power = power
         self.level = level
+        self.rarity = rarity
 
         self.max_integrity = max_integrity
         self.integrity = integrity
@@ -74,6 +76,15 @@ class ArtifactPrototype(object):
         multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
         return int(self.absolute_sell_price() * multiplier)
 
+    def modify_attribute(self, type_, value):
+        if self.rarity.is_NORMAL:
+            return value
+        elif self.rarity.is_RARE:
+            return effects.EFFECTS[self.record.rare_effect].modify_attribute(type_, value)
+        elif self.rarity.is_EPIC:
+            return effects.EFFECTS[self.record.epic_effect].modify_attribute(type_, value)
+        else:
+            raise exceptions.UnknownRarityType(type=self.rarity)
 
     def serialize(self):
         return {'id': self.id,
@@ -81,6 +92,7 @@ class ArtifactPrototype(object):
                 'bag_uuid': self.bag_uuid,
                 'integrity': self.integrity,
                 'max_integrity': self.max_integrity,
+                'rarity': self.rarity.value,
                 'level': self.level}
 
 
@@ -99,6 +111,7 @@ class ArtifactPrototype(object):
                    bag_uuid=data['bag_uuid'],
                    max_integrity=data.get('max_integrity', c.ARTIFACT_MAX_INTEGRITY),
                    integrity=data.get('integrity', c.ARTIFACT_MAX_INTEGRITY),
+                   rarity=relations.RARITY.index_value[data.get('rarity', relations.RARITY.NORMAL.value)],
                    level=data.get('level', 1))
 
     @classmethod
@@ -142,7 +155,7 @@ class ArtifactPrototype(object):
         return float(self.integrity) / self.max_integrity
 
     def damage_integrity(self):
-        self.integrity = max(0, self.integrity - 1)
+        self.integrity = max(0, self.integrity - c.ARTIFACT_INTEGRITY_DAMAGE_PER_BATTLE)
 
     def can_be_broken(self):
         return self.integrity < self.max_integrity * (1.0 - c.ARTIFACT_INTEGRITY_SAFE_BARRIER)
@@ -207,7 +220,19 @@ class ArtifactRecordPrototype(BasePrototype):
     mob = property(get_mob, set_mob)
 
     @classmethod
-    def create(cls, uuid, level, name, description, type_, power_type, mob=None, editor=None, state=relations.ARTIFACT_RECORD_STATE.DISABLED, name_forms=None):
+    def create(cls, uuid,
+               level,
+               name,
+               description,
+               type_,
+               power_type,
+               mob=None,
+               editor=None,
+               state=relations.ARTIFACT_RECORD_STATE.DISABLED,
+               name_forms=None,
+               rare_effect=relations.ARTIFACT_EFFECT.MAGICAL_DAMAGE,
+               epic_effect=relations.ARTIFACT_EFFECT.MAGICAL_DAMAGE):
+
 
         from the_tale.game.artifacts.storage import artifacts_storage
 
@@ -224,6 +249,8 @@ class ArtifactRecordPrototype(BasePrototype):
                                               mob=mob._model if mob else None,
                                               type=type_,
                                               power_type=power_type,
+                                              rare_effect=rare_effect,
+                                              epic_effect=epic_effect,
                                               state=state,
                                               editor=editor._model if editor else None)
 

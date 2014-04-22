@@ -216,9 +216,6 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.action_inplace = ActionInPlacePrototype.create(hero=self.hero)
 
 
-    def _current_spending_cost(self):
-        return ActionInPlacePrototype.get_spend_amount(self.hero.level, self.hero.next_spending)
-
     def test_no_money(self):
 
         self.hero._model.money = 1
@@ -233,7 +230,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         while not self.hero.next_spending.is_INSTANT_HEAL:
             self.hero.switch_spending()
 
-        money = self._current_spending_cost()
+        money = self.hero.spend_amount
 
         self.hero._model.money = money + 666
         self.hero.health = 1
@@ -250,7 +247,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         while not self.hero.next_spending.is_INSTANT_HEAL:
             self.hero.switch_spending()
 
-        money = self._current_spending_cost()
+        money = self.hero.spend_amount
         health = (self.hero.max_health * c.SPEND_MONEY_FOR_HEAL_HEALTH_FRACTION) + 1
 
         self.hero._model.money = money + 666
@@ -268,7 +265,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         while not self.hero.next_spending.is_INSTANT_HEAL:
             self.hero.switch_spending()
 
-        money = self._current_spending_cost()
+        money = self.hero.spend_amount
         health = (self.hero.max_health * c.SPEND_MONEY_FOR_HEAL_HEALTH_FRACTION) - 1
 
         self.hero._model.money = money
@@ -286,7 +283,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         while not self.hero.next_spending.is_BUYING_ARTIFACT:
             self.hero.switch_spending()
 
-        money = self._current_spending_cost()
+        money = self.hero.spend_amount
 
         self.assertEqual(self.hero.statistics.money_spend, 0)
         self.assertEqual(self.hero.statistics.money_spend_for_artifacts, 0)
@@ -316,7 +313,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         while not self.hero.next_spending.is_BUYING_ARTIFACT:
             self.hero.switch_spending()
 
-        money = self._current_spending_cost()
+        money = self.hero.spend_amount
 
         self.assertEqual(self.hero.statistics.money_spend, 0)
         self.assertEqual(self.hero.statistics.money_spend_for_artifacts, 0)
@@ -345,7 +342,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         # fill all slots with artifacts
         self.hero.equipment.test_equip_in_all_slots(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level))
 
-        money = self._current_spending_cost()
+        money = self.hero.spend_amount
 
         #buy artifact
         self.hero._model.money = money
@@ -368,7 +365,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         while not self.hero.next_spending.is_SHARPENING_ARTIFACT:
             self.hero.switch_spending()
 
-        money = self._current_spending_cost()
+        money = self.hero.spend_amount
 
         old_power = self.hero.power.clone()
 
@@ -389,7 +386,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
         self.hero.save()
 
-        money = self._current_spending_cost()
+        money = self.hero.spend_amount
 
         old_power = self.hero.power.clone()
         old_plate_power = self.hero.equipment.get(EQUIPMENT_SLOT.PLATE).power.clone()
@@ -415,7 +412,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         while not self.hero.next_spending.is_REPAIRING_ARTIFACT:
             self.hero.switch_spending()
 
-        money = self._current_spending_cost()
+        money = self.hero.spend_amount
 
         self.hero._model.money = money
         self.storage.process_turn()
@@ -431,7 +428,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         while not self.hero.next_spending.is_USELESS:
             self.hero.switch_spending()
 
-        money = self._current_spending_cost()
+        money = self.hero.spend_amount
         self.hero._model.money = money
         self.storage.process_turn()
         self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
@@ -445,7 +442,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         while not self.hero.next_spending.is_IMPACT:
             self.hero.switch_spending()
 
-        money = self._current_spending_cost()
+        money = self.hero.spend_amount
         self.hero._model.money = money
 
         with mock.patch('the_tale.game.persons.prototypes.PersonPrototype.cmd_change_power') as cmd_change_power:
@@ -463,7 +460,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         while not self.hero.next_spending.is_IMPACT:
             self.hero.switch_spending()
 
-        money = self._current_spending_cost()
+        money = self.hero.spend_amount
         self.hero._model.money = money
 
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_change_persons_power', True):
@@ -482,7 +479,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         while not self.hero.next_spending.is_EXPERIENCE:
             self.hero.switch_spending()
 
-        money = self._current_spending_cost()
+        money = self.hero.spend_amount
         self.hero._model.money = money
         self.storage.process_turn()
         self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)

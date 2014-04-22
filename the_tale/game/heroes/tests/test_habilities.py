@@ -271,6 +271,10 @@ class HabilitiesTest(TestCase):
 
         self.assertEqual(self.messanger.messages, ['hero_ability_speedup'])
 
+    def test_last_chance(self):
+        battle_abilities.LAST_CHANCE().update_context(self.attacker, self.defender)
+        self.assertTrue(self.attacker.context.last_chance_probability > 0)
+
     @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_mage(self):
         modifiers_abilities.MAGE().update_context(self.attacker, self.defender)

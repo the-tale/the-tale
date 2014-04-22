@@ -4,6 +4,8 @@ from django.db import models
 
 from rels.django import RelationIntegerField
 
+from the_tale.game.heroes.relations import ARCHETYPE
+
 from the_tale.game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
 
 
@@ -17,8 +19,10 @@ class MobRecord(models.Model):
 
     editor = models.ForeignKey('accounts.Account', null=True, related_name='+', on_delete=models.SET_NULL)
 
-    state = RelationIntegerField(relation=MOB_RECORD_STATE, relation_column='value', db_index=True)
-    type = RelationIntegerField(relation=MOB_TYPE, relation_column='value', db_index=True)
+    state = RelationIntegerField(relation=MOB_RECORD_STATE, db_index=True)
+    type = RelationIntegerField(relation=MOB_TYPE, db_index=True)
+
+    archetype = RelationIntegerField(relation=ARCHETYPE, db_index=True)
 
     level = models.IntegerField(default=0)
 

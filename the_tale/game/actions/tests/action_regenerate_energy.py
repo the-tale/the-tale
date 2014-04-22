@@ -1,4 +1,5 @@
 # coding: utf-8
+import mock
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
@@ -42,6 +43,7 @@ class RegenerateEnergyActionTest(testcase.TestCase):
         self.assertEqual(self.hero.actions.current_action, self.action_regenerate)
         self.storage._test_save()
 
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_regenerate_double_energy', False)
     def test_full(self):
         self.hero.change_energy(-self.hero.energy)
 
@@ -53,6 +55,23 @@ class RegenerateEnergyActionTest(testcase.TestCase):
 
         self.assertTrue(self.action_idl.leader)
         self.assertEqual(self.hero.energy, f.angel_energy_regeneration_amount(self.hero.preferences.energy_regeneration_type))
+        self.assertEqual(self.hero.need_regenerate_energy, False)
+        self.assertEqual(self.hero.last_energy_regeneration_at_turn, TimePrototype.get_current_turn_number()-1)
+
+        self.storage._test_save()
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_regenerate_double_energy', True)
+    def test_full__double_energy(self):
+        self.hero.change_energy(-self.hero.energy)
+
+        current_time = TimePrototype.get_current_time()
+
+        while len(self.hero.actions.actions_list) != 1:
+            self.storage.process_turn(second_step_if_needed=False)
+            current_time.increment_turn()
+
+        self.assertTrue(self.action_idl.leader)
+        self.assertEqual(self.hero.energy, f.angel_energy_regeneration_amount(self.hero.preferences.energy_regeneration_type) * 2)
         self.assertEqual(self.hero.need_regenerate_energy, False)
         self.assertEqual(self.hero.last_energy_regeneration_at_turn, TimePrototype.get_current_turn_number()-1)
 

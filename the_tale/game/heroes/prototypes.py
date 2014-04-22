@@ -119,7 +119,9 @@ class HeroPrototype(BasePrototype,
     def power(self): return Power.clean_power_for_hero_level(self.level) + self.equipment.get_power()
 
     @property
-    def basic_damage(self): return self.power.damage() * self.damage_modifier
+    def basic_damage(self):
+        damage = self.power.damage() * self.damage_modifier
+        return damage.multiply(self.physic_damage_modifier, self.magic_damage_modifier)
 
     @property
     def race_verbose(self): return self.race.text
@@ -207,6 +209,9 @@ class HeroPrototype(BasePrototype,
 
     def change_energy(self, value):
         old_energy = self.energy_full
+
+        if value < -1:
+            value += self.energy_discount
 
         self._model.energy += value
 

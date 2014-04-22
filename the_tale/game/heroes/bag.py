@@ -163,6 +163,11 @@ class Equipment(object):
     def values(self):
         return self.equipment.values()
 
+    def modify_attribute(self, type_, value):
+        for artifact in self.equipment.values():
+            value = artifact.modify_attribute(type_, value)
+        return value
+
     def test_equip_in_all_slots(self, artifact):
         for slot in EQUIPMENT_SLOT.records:
             if self.get(slot) is not None:

@@ -13,15 +13,15 @@ from the_tale.game.logic import create_test_map
 from the_tale.game.actions import battle
 from the_tale.game.actions.contexts import BattleContext
 
-from the_tale.game.heroes.habilities.battle import RUN_UP_PUSH, HIT
+from the_tale.game.heroes.habilities.battle import RUN_UP_PUSH, HIT, VAMPIRE_STRIKE
 from the_tale.game.mobs.storage import mobs_storage
 from the_tale.game.logic_storage import LogicStorage
 
 
-class ActorTest(testcase.TestCase):
+class BattleTests(testcase.TestCase):
 
     def setUp(self):
-        super(ActorTest, self).setUp()
+        super(BattleTests, self).setUp()
         create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')
@@ -30,6 +30,7 @@ class ActorTest(testcase.TestCase):
         self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
         self.hero = self.storage.accounts_to_heroes[account_id]
 
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.additional_abilities', [VAMPIRE_STRIKE(level=1)])
     def test_hero_actor(self):
         self.hero.health = 10
         self.hero.abilities.add(RUN_UP_PUSH.get_id())
@@ -54,6 +55,7 @@ class ActorTest(testcase.TestCase):
 
         hit_selected = False
         run_up_push_selected = False
+        vampire_strike_selected = False
         for i in xrange(100):
             ability = actor.choose_ability()
 
@@ -61,9 +63,12 @@ class ActorTest(testcase.TestCase):
                hit_selected = True
             elif ability.get_id() == RUN_UP_PUSH.get_id():
                 run_up_push_selected = True
+            elif ability.get_id() == VAMPIRE_STRIKE.get_id():
+                vampire_strike_selected = True
 
         self.assertTrue(hit_selected)
         self.assertTrue(run_up_push_selected)
+        self.assertTrue(vampire_strike_selected)
 
         self.storage._test_save()
 
@@ -72,7 +77,7 @@ class ActorTest(testcase.TestCase):
         actor.context.use_initiative([2])
         self.assertEqual(actor.initiative, self.hero.initiative*2)
 
-
+    @mock.patch('the_tale.game.mobs.prototypes.MobPrototype.additional_abilities', [VAMPIRE_STRIKE(level=1)])
     def test_mob_actor(self):
         mob = mobs_storage.get_random_mob(self.hero)
         mob.health = 10
@@ -98,6 +103,7 @@ class ActorTest(testcase.TestCase):
 
         hit_selected = False
         run_up_push_selected = False
+        vampire_strike_selected = False
         for i in xrange(100):
             ability = actor.choose_ability()
 
@@ -105,9 +111,12 @@ class ActorTest(testcase.TestCase):
                hit_selected = True
             elif ability.get_id() == RUN_UP_PUSH.get_id():
                 run_up_push_selected = True
+            elif ability.get_id() == VAMPIRE_STRIKE.get_id():
+                vampire_strike_selected = True
 
         self.assertTrue(hit_selected)
         self.assertTrue(run_up_push_selected)
+        self.assertTrue(vampire_strike_selected)
 
         self.storage._test_save()
 
@@ -127,6 +136,7 @@ class ActorTest(testcase.TestCase):
         actor.process_effects(self.hero)
         self.assertEqual(self.hero.health, self.hero.max_health - 180 - 220)
 
+
     def check_first_strike(self, actor_1, actor_2, turn, expected_actors):
         with mock.patch('the_tale.game.actions.battle.strike') as strike:
             for i in xrange(100):
@@ -142,8 +152,6 @@ class ActorTest(testcase.TestCase):
         actor_2 = battle.Actor(mob, BattleContext())
 
         return actor_1, actor_2
-
-
 
     def test_first_strike__no_actors(self):
         actor_1, actor_2 = self.get_actors()
@@ -184,3 +192,37 @@ class ActorTest(testcase.TestCase):
 
         self.assertEqual(strike.call_count, 1)
         self.assertEqual(update_context.call_args_list, [mock.call(actor_2), mock.call(actor_1)])
+
+
+    @mock.patch('the_tale.game.actions.contexts.battle.BattleContext._on_every_turn', mock.Mock())
+    def test_last_chance__attacker(self):
+        actor_1, actor_2 = self.get_actors()
+        actor_1.change_health(-actor_1.health)
+        self.assertEqual(actor_1.health, 0)
+        actor_1.context.use_last_chance_probability(1.0)
+        battle.strike(actor_1, actor_2, mock.Mock())
+        self.assertEqual(actor_1.health, 1)
+
+    @mock.patch('the_tale.game.actions.contexts.battle.BattleContext._on_every_turn', mock.Mock())
+    def test_last_chance__defender(self):
+        actor_1, actor_2 = self.get_actors()
+        actor_2.change_health(-actor_2.health)
+        self.assertEqual(actor_2.health, 0)
+        actor_2.context.use_last_chance_probability(1.0)
+        battle.strike(actor_1, actor_2, mock.Mock())
+        self.assertEqual(actor_2.health, 1)
+
+    @mock.patch('the_tale.game.actions.contexts.battle.BattleContext._on_every_turn', mock.Mock())
+    def test_last_chance__second_use(self):
+        actor_1, actor_2 = self.get_actors()
+        actor_1.context.use_last_chance_probability(1.0)
+
+        actor_1.change_health(-actor_1.health)
+        self.assertEqual(actor_1.health, 0)
+        battle.strike(actor_1, actor_2, mock.Mock())
+        self.assertEqual(actor_1.health, 1)
+
+        actor_1.change_health(-actor_1.health)
+        self.assertEqual(actor_1.health, 0)
+        battle.strike(actor_1, actor_2, mock.Mock())
+        self.assertEqual(actor_1.health, 1)

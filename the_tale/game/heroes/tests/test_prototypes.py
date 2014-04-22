@@ -16,7 +16,10 @@ from the_tale.game.prototypes import TimePrototype, GameState
 
 from the_tale.game.quests.relations import QUESTS
 
-from the_tale.game.balance import formulas as f, constants as c
+from the_tale.game.balance import formulas as f
+from the_tale.game.balance import constants as c
+from the_tale.game.balance.power import Damage
+
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.map.places.storage import places_storage
@@ -430,6 +433,17 @@ class HeroTest(testcase.TestCase):
         self.assertEqual(self.hero.change_energy(-100), -56)
         self.assertEqual(self.hero.energy_bonus, 0)
 
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.energy_discount', 1)
+    def test_change_energy__discount(self):
+        self.hero._model.energy = 6
+        self.hero.add_energy_bonus(100 - heroes_settings.START_ENERGY_BONUS)
+
+        self.assertEqual(self.hero.change_energy(-50), -49)
+        self.assertEqual(self.hero.energy_bonus, 57)
+
+        self.assertEqual(self.hero.change_energy(-100), -57)
+        self.assertEqual(self.hero.energy_bonus, 0)
+
 
     def check_rests_from_risk(self, method):
         results = []
@@ -577,6 +591,13 @@ class HeroTest(testcase.TestCase):
         self.hero.reset_accessors_cache()
 
         self.assertFalse(getattr(self.hero, '_cached_modifiers'))
+
+    @mock.patch('the_tale.game.balance.power.Power.damage', lambda self: Damage(1, 1))
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.damage_modifier', 2)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.magic_damage_modifier', 3)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.physic_damage_modifier', 4)
+    def test_basic_damage(self):
+        self.assertEqual(self.hero.basic_damage, Damage(physic=8, magic=6))
 
 
 class HeroLevelUpTests(testcase.TestCase):

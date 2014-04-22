@@ -378,6 +378,25 @@ class SPEEDUP(AbilityPrototype):
         messanger.add_message('hero_ability_speedup', attacker=actor, defender=enemy)
 
 
+class LAST_CHANCE(AbilityPrototype):
+
+    TYPE = relations.ABILITY_TYPE.BATTLE
+    ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.PASSIVE
+    AVAILABILITY = relations.ABILITY_AVAILABILITY.FOR_MONSTERS
+
+    NAME = u'Последний шанс'
+    normalized_name = NAME
+    DESCRIPTION = u'Способность для тех, кто действительно сражается до конца. Иногда позволяет пережить смертельный удар и продолжить сражаться с 1 здоровьем (может спасать владельца несколько раз за бой).'
+
+    PROBABILITIES = [0.1, 0.2, 0.3, 0.4, 0.5]
+
+    @property
+    def probability(self): return self.PROBABILITIES[self.level-1]
+
+    def update_context(self, actor, enemy):
+        actor.context.use_last_chance_probability(self.probability)
+
+
 ABILITIES = dict( (ability.get_id(), ability)
                   for ability in globals().values()
                   if isinstance(ability, type) and issubclass(ability, AbilityPrototype) and ability != AbilityPrototype)

@@ -11,12 +11,13 @@ from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.game.heroes.habilities import AbilitiesPrototype
 
 from the_tale.game.balance import formulas as f
-from the_tale.game.balance.power import Damage, Power, PowerDistribution
+from the_tale.game.balance.power import Damage
 
 from the_tale.game.map.relations import TERRAIN
 
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
 from the_tale.game.heroes.relations import MODIFIERS as HERO_MODIFIERS
+from the_tale.game.heroes.relations import ARCHETYPE
 
 from the_tale.game.artifacts.storage import artifacts_storage
 
@@ -30,14 +31,13 @@ class MobException(Exception): pass
 
 class MobPrototype(object):
 
-    __slots__ = ('record', 'level', 'abilities', 'initiative', 'health_cooficient', 'damage_modifier', 'max_health', 'health', 'is_boss', 'power')
+    __slots__ = ('record', 'level', 'abilities', 'initiative', 'health_cooficient', 'damage_modifier', 'max_health', 'health', 'is_boss')
 
     def __init__(self, record=None, level=None, health=None, abilities=None, is_boss=False):
 
         self.record = record
         self.level = level
         self.is_boss = is_boss
-        self.power = Power.power_to_level(distribution=PowerDistribution(0.5, 0.5), level=level)
 
         self.abilities = self._produce_abilities(record, level) if abilities is None else abilities
 
@@ -62,6 +62,8 @@ class MobPrototype(object):
         abilities.randomized_level_up(f.max_ability_points_number(level)-len(record.abilities))
         return abilities
 
+    additional_abilities = []
+
     @property
     def id(self): return self.record.uuid
 
@@ -76,8 +78,9 @@ class MobPrototype(object):
 
     @property
     def basic_damage(self):
+        distribution = self.record.archetype.power_distribution
         raw_damage = f.expected_damage_to_hero_per_hit(self.level) * self.damage_modifier
-        return Damage(physic=raw_damage/2, magic=raw_damage/2)
+        return Damage(physic=raw_damage * distribution.physic, magic=raw_damage * distribution.magic)
 
     @property
     def mob_type(self): return self.record.type
@@ -140,7 +143,7 @@ class MobPrototype(object):
 class MobRecordPrototype(BasePrototype):
     _model_class = MobRecord
     _readonly = ('id', 'editor_id')
-    _bidirectional = ('level', 'uuid', 'name', 'description', 'state', 'type')
+    _bidirectional = ('level', 'uuid', 'name', 'description', 'state', 'type', 'archetype')
     _get_by = ('id', )
 
     def get_name_forms(self):
@@ -187,7 +190,7 @@ class MobRecordPrototype(BasePrototype):
     def loot(self): return artifacts_storage.get_mob_loot(self.id)
 
     @classmethod
-    def create(cls, uuid, level, name, description, abilities, terrains, type, editor=None, state=MOB_RECORD_STATE.DISABLED, name_forms=None):
+    def create(cls, uuid, level, name, description, abilities, terrains, type, archetype=ARCHETYPE.NEUTRAL, editor=None, state=MOB_RECORD_STATE.DISABLED, name_forms=None):
 
         from the_tale.game.mobs.storage import mobs_storage
 
@@ -200,6 +203,7 @@ class MobRecordPrototype(BasePrototype):
                                          level=level,
                                          name=name,
                                          type=type,
+                                         archetype=archetype,
                                          name_forms=s11n.to_json(name_forms.serialize()),
                                          description=description,
                                          abilities=s11n.to_json(list(abilities)),
@@ -244,6 +248,7 @@ class MobRecordPrototype(BasePrototype):
         self.terrains = form.c.terrains
         self.abilities = form.c.abilities
         self.type = form.c.type
+        self.archetype = form.c.archetype
         self.editor = editor._model
 
         self.save()
@@ -257,6 +262,7 @@ class MobRecordPrototype(BasePrototype):
         self.uuid = form.c.uuid
         self.state = MOB_RECORD_STATE.ENABLED if form.c.approved else MOB_RECORD_STATE.DISABLED
         self.type = form.c.type
+        self.archetype = form.c.archetype
         self.editor = editor._model if editor is not None else None
 
         self.save()

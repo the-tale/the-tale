@@ -1,7 +1,6 @@
 # coding: utf-8
 
 import math
-import random
 
 from the_tale.common.utils.decorators import lazy_property
 
@@ -96,7 +95,7 @@ class PlaceModifierBase(object):
 
     def modify_sell_price(self, price): return price
     def modify_buy_price(self, price): return price
-    def can_buy_better_artifact(self): return False
+    def modify_buy_better_artifact(self, probability): return probability
     def modify_economic_size(self, size): return size
     def modify_terrain_change_power(self, power): return power
     def modify_terrain_owning_radius(self, radius): return radius
@@ -125,7 +124,7 @@ class CraftCenter(PlaceModifierBase):
 
     PRODUCTION_MODIFIER = c.PLACE_GOODS_BONUS
 
-    def can_buy_better_artifact(self): return random.uniform(0, 1) < 0.1
+    def modify_buy_better_artifact(self, probability): return probability + 0.1
 
 
 class Fort(PlaceModifierBase):

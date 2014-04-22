@@ -22,8 +22,8 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.EQUIP_SLOTS_NUMBER, 11)
 
         self.assertEqual(c.ARTIFACTS_LOOT_PER_DAY, 1.0)
-        self.assertEqual(c.ARTIFACTS_RECEIVING_SPEED, 1.0)
-        self.assertEqual(c.ARTIFACTS_BREAKING_SPEED, 0.5)
+        self.assertEqual(c.ARTIFACT_FOR_QUEST_PROBABILITY, 0.1)
+        self.assertEqual(round(c.ARTIFACTS_BREAKING_SPEED, 2), 0.37)
 
         self.assertEqual(c.EQUIPMENT_BREAK_FRACTION, 0.5)
         self.assertEqual(c.NORMAL_SLOT_REPAIR_PRIORITY, 1.0)
@@ -63,7 +63,9 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.POWER_TO_LVL, 11.0)
         self.assertEqual(c.ARTIFACT_POWER_DELTA, 0.2)
         self.assertEqual(c.ARTIFACT_BETTER_MIN_POWER_DELTA, 5)
-        self.assertEqual(c.ARTIFACT_MAX_INTEGRITY, 10000)
+        self.assertEqual(c.ARTIFACT_INTEGRITY_DAMAGE_PER_BATTLE, 1)
+        self.assertEqual(c.ARTIFACT_INTEGRITY_SAFE_PROBABILITY_FOR_FAVORITE_ITEM, 0.5)
+        self.assertEqual(c.ARTIFACT_MAX_INTEGRITY, 20000)
         self.assertEqual(c.ARTIFACT_SHARP_MAX_INTEGRITY_LOST_FRACTION, 0.02)
         self.assertEqual(c.ARTIFACT_INTEGRITY_SAFE_BARRIER, 0.1)
         self.assertEqual(c.ARTIFACT_BREAK_POWER_FRACTIONS, (0.1, 0.2))
@@ -75,7 +77,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.BATTLES_PER_HOUR, 360.0 / (int(8*(16+3)-3 + (8*(16+3)-3) * 0.2)) * 8)
 
         self.assertEqual(c.ARTIFACTS_PER_BATTLE, 0.0025752314814814817)
-        self.assertEqual(c.ARTIFACTS_BREAKS_PER_BATTLE, 0.0012876157407407409)
+        self.assertEqual(c.ARTIFACTS_BREAKS_PER_BATTLE, 0.0009442515432098765)
         self.assertEqual(c.ARTIFACT_FROM_PREFERED_SLOT_PROBABILITY, 0.25)
 
         self.assertEqual(c.DAMAGE_TO_HERO_PER_HIT_FRACTION, 1.0 / (8*16/2))

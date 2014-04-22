@@ -514,7 +514,7 @@ class ActionIdlenessPrototype(ActionBase):
                 self.process_position()
                 return
 
-            self.percents += 1.0 / (c.TURNS_TO_IDLE * self.hero.level)
+            self.percents += 1.0 / self.hero.idle_length
 
             if self.percents >= 1.0:
                 self.state = self.STATE.QUEST
@@ -948,8 +948,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
 
     def process_artifact_breaking(self):
 
-        for artifact in self.hero.equipment.values():
-            artifact.damage_integrity()
+        self.hero.damage_integrity()
 
         if random.uniform(0.0, 1.0) > c.ARTIFACTS_BREAKS_PER_BATTLE:
             return
@@ -1035,7 +1034,7 @@ class ActionResurrectPrototype(ActionBase):
 
         if self.state == self.STATE.RESURRECT:
 
-            self.percents += 1.0 / (c.TURNS_TO_RESURRECT * self.hero.level)
+            self.percents += 1.0 / self.hero.resurrect_length
 
             if random.uniform(0, 1) < 1.0 / c.TURNS_TO_RESURRECT / 2: # 1 фраза на два уровня героя
                 self.hero.add_message('action_resurrect_resurrecting', hero=self.hero)
@@ -1096,12 +1095,8 @@ class ActionInPlacePrototype(ActionBase):
     def process(self):
         return self.process_settlement()
 
-    @staticmethod
-    def get_spend_amount(level, spending):
-        return int(f.normal_action_price(level) * spending.price_fraction)
-
     def try_to_spend_money(self):
-        gold_amount = self.get_spend_amount(self.hero.level, self.hero.next_spending)
+        gold_amount = self.hero.spend_amount
         if gold_amount <= self.hero.money:
             gold_amount = min(self.hero.money, int(gold_amount * (1 + random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA))))
             gold_amount = self.hero.modify_buy_price(gold_amount)
@@ -1286,7 +1281,7 @@ class ActionRestPrototype(ActionBase):
 
         if self.state == self.STATE.RESTING:
 
-            heal_amount = int(round(float(self.hero.max_health) / c.HEAL_LENGTH * (1 + random.uniform(-c.HEAL_STEP_FRACTION, c.HEAL_STEP_FRACTION))))
+            heal_amount = int(round(float(self.hero.max_health) / self.hero.rest_length * (1 + random.uniform(-c.HEAL_STEP_FRACTION, c.HEAL_STEP_FRACTION))))
 
             heal_amount = self.hero.heal(heal_amount)
 
@@ -1594,7 +1589,8 @@ class ActionRegenerateEnergyPrototype(ActionBase):
             self.percents += self.step_percents()
 
             if self.percents >= 1:
-                energy_delta = self.hero.change_energy(f.angel_energy_regeneration_amount(self.regeneration_type))
+                multiplier = 2 if self.hero.can_regenerate_double_energy else 1
+                energy_delta = self.hero.change_energy(f.angel_energy_regeneration_amount(self.regeneration_type)*multiplier)
                 self.hero.last_energy_regeneration_at_turn = TimePrototype.get_current_turn_number()
 
                 if energy_delta:

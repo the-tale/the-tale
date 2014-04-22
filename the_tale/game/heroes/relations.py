@@ -6,7 +6,7 @@ from rels.django import DjangoEnum
 from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS
 
 from the_tale.game.balance import constants as c
-from the_tale.game.balance.power import PowerDistribution
+from the_tale.game.balance.power import Power, PowerDistribution
 
 from the_tale.game.artifacts.relations import ARTIFACT_TYPE, ARTIFACT_POWER_TYPE
 
@@ -83,19 +83,19 @@ class ITEMS_OF_EXPENDITURE(DjangoEnum):
     money_source = Column()
     description = Column()
 
-    records = ( ('INSTANT_HEAL',        0, u'лечение',           'heal',       12, 0.3, MONEY_SOURCE.SPEND_FOR_HEAL,
+    records = ( ('INSTANT_HEAL',        0, u'лечение',           'heal',       20, 0.3, MONEY_SOURCE.SPEND_FOR_HEAL,
                   u'Собирает деньги, чтобы поправить здоровье, когда понадобится.'),
-                 ('BUYING_ARTIFACT',     1, u'покупка артефакта', 'artifact',   5,  1.5, MONEY_SOURCE.SPEND_FOR_ARTIFACTS,
+                 ('BUYING_ARTIFACT',     1, u'покупка артефакта', 'artifact',   4,  1.5, MONEY_SOURCE.SPEND_FOR_ARTIFACTS,
                   u'Планирует приобретение новой экипировки.'),
-                 ('SHARPENING_ARTIFACT', 2, u'заточка артефакта', 'sharpening', 4,  2.0, MONEY_SOURCE.SPEND_FOR_SHARPENING,
+                 ('SHARPENING_ARTIFACT', 2, u'заточка артефакта', 'sharpening', 3,  2.0, MONEY_SOURCE.SPEND_FOR_SHARPENING,
                   u'Собирает на улучшение экипировки.'),
                  ('USELESS',             3, u'бесполезные траты', 'useless',    2,  0.4, MONEY_SOURCE.SPEND_FOR_USELESS,
                   u'Копит золото для не очень полезных но безусловно необходимых трат.'),
                  ('IMPACT',              4, u'изменение влияния', 'impact',     4,  2.5, MONEY_SOURCE.SPEND_FOR_IMPACT,
                   u'Планирует накопить деньжат, чтобы повлиять на «запомнившегося» горожанина.'),
-                 ('EXPERIENCE',          5, u'обучение',          'experience', 1,  5.0, MONEY_SOURCE.SPEND_FOR_EXPERIENCE,
-                  u'Копит деньги в надежде немного повысить свою грамотность..'),
-                 ('REPAIRING_ARTIFACT',  6, u'починка артефакта', 'repairing', 4, 1.0, MONEY_SOURCE.SPEND_FOR_REPAIRING,
+                 ('EXPERIENCE',          5, u'обучение',          'experience', 2,  5.0, MONEY_SOURCE.SPEND_FOR_EXPERIENCE,
+                  u'Копит деньги в надежде немного повысить свою грамотность.'),
+                 ('REPAIRING_ARTIFACT',  6, u'починка артефакта', 'repairing', 3, 1.0, MONEY_SOURCE.SPEND_FOR_REPAIRING,
                   u'Копит на починку экипировки'))
 
 
@@ -137,8 +137,8 @@ class MODIFIERS(DjangoEnum):
                 ('BUY_PRICE', 9, u'цена покупки', lambda: 1.0),
                 ('SELL_PRICE', 10, u'цена продажи', lambda: 1.0),
                 ('ITEMS_OF_EXPENDITURE_PRIORITIES', 11, u'приортет трат', lambda: {record:record.priority for record in ITEMS_OF_EXPENDITURE.records}),
-                ('GET_ARTIFACT_FOR_QUEST', 12, u'получить артефакты за задания', lambda: None),
-                ('BUY_BETTER_ARTIFACT', 13, u'купить лучший артефакт', lambda: False),
+                ('GET_ARTIFACT_FOR_QUEST', 12, u'получить артефакты за задания', lambda: c.ARTIFACT_FOR_QUEST_PROBABILITY),
+                ('BUY_BETTER_ARTIFACT', 13, u'купить лучший артефакт', lambda: 0),
                 ('KILL_BEFORE_BATTLE', 14, u'убить монстра перед боем', lambda: False),
                 ('PICKED_UP_IN_ROAD', 15, u'ехать на попутных телегах', lambda: False),
                 ('POWER_TO_FRIEND', 16, u'бонус к влиянию на друга', lambda: 1.0),
@@ -150,7 +150,18 @@ class MODIFIERS(DjangoEnum):
                 ('PEACEFULL_BATTLE', 23, u'мирный бой', lambda: False),
                 ('FRIEND_QUEST_PRIORITY', 24, u'приоритет задания на помощь другу', lambda: 1.0),
                 ('ENEMY_QUEST_PRIORITY', 25, u'приоритет задания на вредительство врагу', lambda: 1.0),
-                ('HONOR_EVENTS', 26, u'события для черт', lambda: set()))
+                ('HONOR_EVENTS', 26, u'события для черт', lambda: set()),
+                ('SAFE_ARTIFACT_INTEGRITY', 27, u'сохранить целостность артефакта', lambda: 0),
+                ('MAGIC_DAMAGE', 28, u'бонус к магическому урону', lambda: 1.0),
+                ('PHYSIC_DAMAGE', 29, u'бонус к физическому урону', lambda: 1.0),
+                ('MAX_ENERGY', 30, u'бонус к максимуму энергии', lambda: 0),
+                ('REST_LENGTH', 31, u'длительность отдыха', lambda: 1.0),
+                ('RESURRECT_LENGTH', 32, u'длительность воскрешения', lambda: 1.0),
+                ('IDLE_LENGTH', 33, u'длительность бездействия', lambda: 1.0),
+                ('ENERGY_DISCOUNT', 34, u'скидка на трату энергии', lambda: 0),
+                ('DOUBLE_ENERGY_REGENERATION', 35, u'вероятность восстановить в 2 раза больше энергии', lambda: 0),
+                ('BONUS_ARTIFACT_POWER', 36, u'бонус к силе артефактов получаемых', lambda: Power(0, 0)),
+                ('ADDITIONAL_ABILITIES', 37, u'дополнительные способности', lambda: []))
 
 
 

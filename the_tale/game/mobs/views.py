@@ -12,6 +12,8 @@ from the_tale.common.utils.decorators import login_required
 
 from the_tale.game.map.relations import TERRAIN
 
+from the_tale.game.heroes.relations import ARCHETYPE
+
 from the_tale.game.mobs.relations import MOB_RECORD_STATE, INDEX_ORDER_TYPE, MOB_TYPE
 from the_tale.game.mobs.prototypes import MobRecordPrototype
 from the_tale.game.mobs.storage import mobs_storage
@@ -20,6 +22,7 @@ from the_tale.game.mobs.forms import MobRecordForm, ModerateMobRecordForm
 
 BASE_INDEX_FILTERS = [list_filter.reset_element(),
                       list_filter.choice_element(u'тип:', attribute='type', choices=[(None, u'все')] + sorted(list(MOB_TYPE.select('value', 'text')), key=lambda x: x[1])),
+                      list_filter.choice_element(u'архетип:', attribute='archetype', choices=[(None, u'все')] + sorted(list(ARCHETYPE.select('value', 'text')), key=lambda x: x[1])),
                       list_filter.choice_element(u'территория:', attribute='terrain', choices=[(None, u'все')] + sorted(list(TERRAIN.select('value', 'text')), key=lambda x: x[1])),
                       list_filter.choice_element(u'сортировка:',
                                                  attribute='order_by',
@@ -57,6 +60,8 @@ def argument_to_mob_state(value): return MOB_RECORD_STATE(int(value))
 
 def argument_to_mob_type(value): return MOB_TYPE(int(value))
 
+def argument_to_archetype(value): return ARCHETYPE(int(value))
+
 
 class GuideMobResource(MobResourceBase):
 
@@ -67,9 +72,10 @@ class GuideMobResource(MobResourceBase):
     @validate_argument('state', argument_to_mob_state, 'mobs', u'неверное состояние записи о монстре')
     @validate_argument('terrain', lambda value: TERRAIN(int(value)), 'mobs', u'неверный тип территории')
     @validate_argument('order_by', INDEX_ORDER_TYPE, 'mobs', u'неверный тип сортировки')
+    @validate_argument('archetype', argument_to_archetype, 'mobs', u'неверный архетип монстра')
     @validate_argument('type', argument_to_mob_type, 'mobs', u'неверный тип монстра')
     @handler('', method='get')
-    def index(self, state=MOB_RECORD_STATE.ENABLED, terrain=None, order_by=INDEX_ORDER_TYPE.BY_NAME, type=None):
+    def index(self, state=MOB_RECORD_STATE.ENABLED, terrain=None, order_by=INDEX_ORDER_TYPE.BY_NAME, type=None, archetype=None):
 
         mobs = mobs_storage.all()
 
@@ -94,9 +100,13 @@ class GuideMobResource(MobResourceBase):
         if type is not None:
             mobs = filter(lambda mob: mob.type == type, mobs) # pylint: disable=W0110
 
+        if archetype is not None:
+            mobs = filter(lambda mob: mob.archetype == type, mobs) # pylint: disable=W0110
+
         url_builder = UrlBuilder(reverse('guide:mobs:'), arguments={ 'state': state.value if state is not None else None,
                                                                      'terrain': terrain.value if terrain is not None else None,
                                                                      'type': type.value if type is not None else None,
+                                                                     'archetype': archetype.value if archetype is not None else None,
                                                                      'order_by': order_by.value})
 
         IndexFilter = ModeratorIndexFilter if self.can_create_mob or self.can_moderate_mob else UnloginedIndexFilter #pylint: disable=C0103
@@ -104,6 +114,7 @@ class GuideMobResource(MobResourceBase):
         index_filter = IndexFilter(url_builder=url_builder, values={'state': state.value if state is not None else None,
                                                                     'terrain': terrain.value if terrain is not None else None,
                                                                     'type': type.value if type is not None else None,
+                                                                    'archetype': archetype.value if archetype is not None else None,
                                                                     'order_by': order_by.value})
 
 
@@ -163,6 +174,7 @@ class GameMobResource(MobResourceBase):
                                         level=form.c.level,
                                         name=form.c.name,
                                         type=form.c.type,
+                                        archetype=form.c.archetype,
                                         description=form.c.description,
                                         abilities=form.c.abilities,
                                         terrains=form.c.terrains,
@@ -179,6 +191,7 @@ class GameMobResource(MobResourceBase):
         form = MobRecordForm(initial={'name': self.mob.name,
                                       'description': self.mob.description,
                                       'type': self.mob.type,
+                                      'archetype': self.mob.archetype,
                                       'level': self.mob.level,
                                       'terrains': self.mob.terrains,
                                       'abilities': self.mob.abilities})
@@ -208,6 +221,7 @@ class GameMobResource(MobResourceBase):
         form = ModerateMobRecordForm(initial={'description': self.mob.description,
                                               'level': self.mob.level,
                                               'type': self.mob.type,
+                                              'archetype': self.mob.archetype,
                                               'terrains': self.mob.terrains,
                                               'abilities': self.mob.abilities,
                                               'uuid': self.mob.uuid,

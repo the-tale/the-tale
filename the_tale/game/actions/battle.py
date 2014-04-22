@@ -2,6 +2,7 @@
 
 import random
 
+
 from the_tale.common.utils.logic import random_value_by_priority
 
 
@@ -49,6 +50,7 @@ class Actor(object):
 
     def choose_ability(self):
         choice_abilities = [ (ability, ability.priority) for ability in self.actor.abilities.active_abilities if ability.can_be_used(self)]
+        choice_abilities += [ (ability, ability.priority) for ability in self.actor.additional_abilities if ability.can_be_used(self)]
         return random_value_by_priority(choice_abilities)
 
     def update_context(self, enemy):
@@ -112,6 +114,14 @@ def strike(attacker, defender, messanger):
         strike_without_contact(ability, attacker, defender, messanger)
     elif ability.LOGIC_TYPE.is_WITH_CONTACT:
         strike_with_contact(ability, attacker, defender, messanger)
+
+    if attacker.health <= 0 and attacker.context.can_use_last_chance():
+        attacker.change_health(-attacker.health+1)
+        messanger.add_message('hero_ability_last_chance', actor=attacker)
+
+    if defender.health <= 0 and defender.context.can_use_last_chance():
+        defender.change_health(-defender.health+1)
+        messanger.add_message('hero_ability_last_chance', actor=defender)
 
 
 def strike_with_contact(ability, attacker, defender, messanger):

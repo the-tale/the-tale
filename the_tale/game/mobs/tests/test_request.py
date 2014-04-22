@@ -18,6 +18,8 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game.map.relations import TERRAIN
 
+from the_tale.game.heroes.relations import ARCHETYPE
+
 from the_tale.game.mobs.models import MobRecord
 from the_tale.game.mobs.storage import mobs_storage
 from the_tale.game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
@@ -151,6 +153,7 @@ class TestCreateRequests(BaseTestRequests):
                 'terrains': [TERRAIN.PLANE_GRASS, TERRAIN.HILLS_GRASS],
                 'abilities': ['hit', 'strong_hit', 'sidestep'],
                 'type': MOB_TYPE.CIVILIZED,
+                'archetype': ARCHETYPE.NEUTRAL,
                 'description': 'mob description'}
 
     def test_unlogined(self):
@@ -181,6 +184,8 @@ class TestCreateRequests(BaseTestRequests):
         self.assertEqual(mob_record.abilities, frozenset(['hit', 'strong_hit', 'sidestep']) )
         self.assertEqual(mob_record.description, 'mob description')
         self.assertTrue(mob_record.state.is_DISABLED)
+        self.assertTrue(mob_record.type.is_CIVILIZED)
+        self.assertTrue(mob_record.archetype.is_NEUTRAL)
         self.assertTrue(mob_record.editor_id, self.account_2.id)
 
 
@@ -329,6 +334,7 @@ class TestUpdateRequests(BaseTestRequests):
                 'terrains': [TERRAIN.PLANE_GRASS, TERRAIN.HILLS_GRASS],
                 'abilities': ['hit', 'strong_hit', 'sidestep'],
                 'type': MOB_TYPE.CIVILIZED,
+                'archetype': ARCHETYPE.NEUTRAL,
                 'description': 'mob description'}
 
     def get_update_data(self):
@@ -337,6 +343,7 @@ class TestUpdateRequests(BaseTestRequests):
                 'terrains': [TERRAIN.PLANE_JUNGLE, TERRAIN.HILLS_JUNGLE],
                 'abilities': ['hit', 'speedup'],
                 'type': MOB_TYPE.BARBARIAN,
+                'archetype': ARCHETYPE.MAGICAL,
                 'description': 'new description'}
 
     def check_mob(self, mob, data):
@@ -347,6 +354,7 @@ class TestUpdateRequests(BaseTestRequests):
         self.assertEqual(mob.description, data['description'])
         self.assertTrue(mob.state.is_DISABLED)
         self.assertTrue(mob.type, data['type'])
+        self.assertTrue(mob.archetype, data['archetype'])
         self.assertTrue(mob.editor_id, self.account_2.id)
 
     def test_unlogined(self):
@@ -424,6 +432,7 @@ class TestModerateRequests(BaseTestRequests):
                 'terrains': [TERRAIN.PLANE_GRASS, TERRAIN.HILLS_GRASS],
                 'abilities': ['hit', 'strong_hit', 'sidestep'],
                 'type': MOB_TYPE.CIVILIZED,
+                'archetype': ARCHETYPE.NEUTRAL,
                 'description': 'mob description'}
 
     def get_moderate_data(self, approved=True):
@@ -434,6 +443,7 @@ class TestModerateRequests(BaseTestRequests):
                 'approved': approved,
                 'abilities': ['hit', 'speedup'],
                 'type': MOB_TYPE.PLANT,
+                'archetype': ARCHETYPE.PHYSICAL,
                 'description': 'new description'}
 
     def test_unlogined(self):
@@ -466,6 +476,7 @@ class TestModerateRequests(BaseTestRequests):
         self.assertEqual(mob_record.description, 'new description')
         self.assertTrue(mob_record.state.is_ENABLED)
         self.assertTrue(mob_record.type.is_PLANT)
+        self.assertTrue(mob_record.archetype.is_PHYSICAL)
         self.assertTrue(mob_record.editor_id, self.account_3.id)
 
     def test_simple_not_approved(self):

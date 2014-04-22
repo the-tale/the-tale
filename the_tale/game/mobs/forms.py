@@ -11,6 +11,7 @@ from the_tale.game.map.relations import TERRAIN
 
 from the_tale.game.heroes.habilities import ABILITIES
 from the_tale.game.heroes.habilities.battle import HIT
+from the_tale.game.heroes.relations import ARCHETYPE
 
 from the_tale.game.mobs.models import MobRecord
 from the_tale.game.mobs.prototypes import MobRecordPrototype
@@ -30,6 +31,7 @@ class MobRecordBaseForm(forms.Form):
     level = fields.IntegerField(label=u'минимальный уровень')
 
     type = fields.TypedChoiceField(label=u'тип', choices=MOB_TYPE.choices(), coerce=MOB_TYPE.get_from_name)
+    archetype = fields.TypedChoiceField(label=u'тип', choices=ARCHETYPE.choices(), coerce=ARCHETYPE.get_from_name)
 
     terrains = fields.TypedMultipleChoiceField(label=u'места обитания', choices=TERRAIN.choices(), coerce=TERRAIN.get_from_name)
 
@@ -58,10 +60,6 @@ class MobRecordBaseForm(forms.Form):
 
         if not terrains:
             raise ValidationError(u'не указаны места обитания монстра')
-
-        # for terrain_id in terrains:
-        #     if terrain_id not in TERRAIN._ID_TO_STR:
-        #         raise ValidationError(u'неверный идентификатор типа местости')
 
         return frozenset(terrains)
 

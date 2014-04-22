@@ -28,8 +28,8 @@ class ModifiersTests(testcase.TestCase):
         self.assertTrue(TradeCenter(self.place_1).modify_buy_price(100) < 100)
 
     def test_craft_center(self):
-        self.assertFalse(any(TradeCenter(self.place_1).can_buy_better_artifact() for i in xrange(100)))
-        self.assertTrue(any(CraftCenter(self.place_1).can_buy_better_artifact() for i in xrange(100)))
+        self.assertEqual(sum(TradeCenter(self.place_1).modify_buy_better_artifact(0) for i in xrange(100)), 0)
+        self.assertTrue(sum(CraftCenter(self.place_1).modify_buy_better_artifact(0) for i in xrange(100)) > 0)
 
     def test_fort(self):
         self.assertEqual(Fort.SAFETY_MODIFIER, 0.05)

@@ -90,11 +90,11 @@ class AchievementsBarriers(testcase.TestCase):
 
     def test_artifacts(self):
         self.check_artifacts(0, 1)
-        self.check_artifacts(0.2, 18)
-        self.check_artifacts(0.9, 100)
-        self.check_artifacts(6.2, 250)
-        self.check_artifacts(24.6, 500)
-        self.check_artifacts(55, 750)
+        self.check_artifacts(1, 50)
+        self.check_artifacts(2.2, 100)
+        self.check_artifacts(5.5, 250)
+        self.check_artifacts(11, 500)
+        self.check_artifacts(16.5, 750)
 
     def test_habits(self):
         self.assertEqual(c.HABITS_RIGHT_BORDERS, [-700, -300, -100, 100, 300, 700, 1001])

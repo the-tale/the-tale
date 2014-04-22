@@ -39,6 +39,36 @@ class _HeroEquipmentTestsBase(TestCase):
 
 class HeroEquipmentTests(_HeroEquipmentTestsBase):
 
+    def test_put_loot(self):
+        with self.check_delta(lambda: self.hero.bag.occupation, 1):
+            self.hero.put_loot(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level))
+
+    def test_put_loot__bag_is_full(self):
+        with self.check_delta(lambda: self.hero.bag.occupation, self.hero.max_bag_size):
+            for i in xrange(self.hero.max_bag_size*2):
+                self.hero.put_loot(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level))
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.bonus_artifact_power', Power(0, 0))
+    def test_put_loot__bonus_power_no_bonus(self):
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
+        artifact.power = Power(0, 0)
+        self.hero.put_loot(artifact)
+        self.assertEqual(artifact.power, Power(0, 0))
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.bonus_artifact_power', Power(1, 1))
+    def test_put_loot__bonus_power_for_useless(self):
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, self.hero.level)
+        artifact.power = Power(0, 0)
+        self.hero.put_loot(artifact)
+        self.assertEqual(artifact.power, Power(0, 0))
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.bonus_artifact_power', Power(1, 1))
+    def test_put_loot__bonus_power_for_artifact(self):
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
+        artifact.power = Power(0, 0)
+        self.hero.put_loot(artifact)
+        self.assertEqual(artifact.power, Power(1, 1))
+
     def test_sharp_artifact(self):
         old_power = self.hero.power
         artifact = self.hero.sharp_artifact()
@@ -334,6 +364,29 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
         for candidate in self.hero.artifacts_to_break():
             self.assertTrue(candidate.integrity <= int(c.EQUIP_SLOTS_NUMBER * c.EQUIPMENT_BREAK_FRACTION) + 1)
 
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_safe_artifact_integrity', lambda self: False)
+    def test_damage_integrity(self):
+        self.hero.equipment._remove_all()
+        for slot in relations.EQUIPMENT_SLOT.records:
+            artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
+            self.assertEqual(artifact.integrity, artifact.max_integrity)
+
+        self.hero.damage_integrity()
+
+        for artifact in self.hero.equipment.values():
+            self.assertTrue(artifact.integrity < artifact.max_integrity)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_safe_artifact_integrity', lambda self: True)
+    def test_damage_integrity__safe(self):
+        self.hero.equipment._remove_all()
+        for slot in relations.EQUIPMENT_SLOT.records:
+            artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
+            self.assertEqual(artifact.integrity, artifact.max_integrity)
+
+        self.hero.damage_integrity()
+
+        for artifact in self.hero.equipment.values():
+            self.assertEqual(artifact.integrity, artifact.max_integrity)
 
 
 class ReceiveArtifactsChoicesTests(_HeroEquipmentTestsBase):

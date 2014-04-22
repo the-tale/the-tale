@@ -16,6 +16,8 @@ class EquipmentMethodsMixin(object):
 
     def put_loot(self, artifact):
         if not self.bag_is_full:
+            if not artifact.type.is_USELESS:
+                artifact.power += self.bonus_artifact_power
             self.bag.put_artifact(artifact)
             return artifact.bag_uuid
 
@@ -164,6 +166,12 @@ class EquipmentMethodsMixin(object):
                 self.equipment.updated = True
                 return artifact
 
+    def damage_integrity(self):
+        for artifact in self.equipment.values():
+            if not self.can_safe_artifact_integrity(artifact):
+                artifact.damage_integrity()
+
+
     def artifacts_to_break(self):
         artifacts = [artifact
                      for artifact in self.equipment.values()
@@ -234,11 +242,14 @@ class EquipmentMethodsMixin(object):
             self.bag.pop_artifact(equipped)
             self.equipment.equip(slot, equipped)
 
+        self.reset_accessors_cache()
+
     def randomize_equip(self):
         for slot in relations.EQUIPMENT_SLOT.records:
             self.equipment.unequip(slot)
 
-            artifacts_list = artifacts_storage.artifacts_for_type([slot.artifact_type])
+            artifacts_list = self.receive_artifacts_choices(better=False, prefered_slot=False, prefered_item=False, archetype=True)
+
             if not artifacts_list:
                 continue
 

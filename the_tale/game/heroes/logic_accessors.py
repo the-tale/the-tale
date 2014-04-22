@@ -37,6 +37,7 @@ class LogicAccessorsMixin(object):
         value = self.abilities.modify_attribute(modifier, value)
         value = self.habit_honor.modify_attribute(modifier, value)
         value = self.habit_peacefulness.modify_attribute(modifier, value)
+        value = self.equipment.modify_attribute(modifier, value)
         return value
 
     def check_attribute(self, modifier):
@@ -46,6 +47,10 @@ class LogicAccessorsMixin(object):
 
     def update_context(self, hero_actor, enemy):
         self.abilities.update_context(hero_actor, enemy)
+
+        for ability in self.additional_abilities:
+            ability.update_context(hero_actor, enemy)
+
         self.habit_honor.update_context(hero_actor, enemy)
         self.habit_peacefulness.update_context(hero_actor, enemy)
 
@@ -86,16 +91,21 @@ class LogicAccessorsMixin(object):
     ################################
 
     def can_get_artifact_for_quest(self):
-        return self.check_attribute(relations.MODIFIERS.GET_ARTIFACT_FOR_QUEST)
+        return random.uniform(0, 1) < self.attribute_modifier(relations.MODIFIERS.GET_ARTIFACT_FOR_QUEST)
 
-    # def can_buy_better_artifact(self):
-    #     if self.check_attribute(relations.MODIFIERS.BUY_BETTER_ARTIFACT):
-    #         return True
+    def can_safe_artifact_integrity(self, artifact):
+        # return random.uniform(0, 1) < self.attribute_modifier(relations.MODIFIERS.SAFE_ARTIFACT_INTEGRITY)
+        probability = 0
+        if self.preferences.favorite_item is not None and self.preferences.favorite_item == artifact.type.equipment_slot:
+            probability += c.ARTIFACT_INTEGRITY_SAFE_PROBABILITY_FOR_FAVORITE_ITEM
+        return random.uniform(0, 1) < probability
 
-    #     if self.position.place and self.position.place.modifier and self.position.place.modifier.can_buy_better_artifact():
-    #         return True
+    def can_buy_better_artifact(self):
+        probability = 0
+        if self.position.place and self.position.place.modifier:
+            probability = self.position.place.modifier.modify_buy_better_artifact(probability)
 
-    #     return False
+        return random.uniform(0, 1) < self.attribute_modifier(relations.MODIFIERS.BUY_BETTER_ARTIFACT)
 
     def can_kill_before_battle(self):
         return self.check_attribute(relations.MODIFIERS.KILL_BEFORE_BATTLE)
@@ -126,21 +136,65 @@ class LogicAccessorsMixin(object):
     def can_upgrade_prefered_slot(self):
         return random.uniform(0, 1) < c.ARTIFACT_FROM_PREFERED_SLOT_PROBABILITY
 
+    @property
+    def can_regenerate_double_energy(self):
+         return random.uniform(0, 1) > self.regenerate_double_energy_probability
+
+
     ################################
     # attributes
     ################################
 
     @property
+    def additional_abilities(self):
+        return self.attribute_modifier(relations.MODIFIERS.ADDITIONAL_ABILITIES)
+
+    @property
+    def bonus_artifact_power(self):
+        return self.attribute_modifier(relations.MODIFIERS.BONUS_ARTIFACT_POWER)
+
+    @property
+    def regenerate_double_energy_probability(self):
+        return self.attribute_modifier(relations.MODIFIERS.DOUBLE_ENERGY_REGENERATION)
+
+    @property
+    def rest_length(self):
+        return int(c.HEAL_LENGTH * self.attribute_modifier(relations.MODIFIERS.REST_LENGTH))
+
+    @property
+    def resurrect_length(self):
+        return int(self.level * c.TURNS_TO_RESURRECT * self.attribute_modifier(relations.MODIFIERS.RESURRECT_LENGTH))
+
+    @property
+    def idle_length(self):
+        return int(self.level * c.TURNS_TO_IDLE * self.attribute_modifier(relations.MODIFIERS.IDLE_LENGTH))
+
+    @property
     def energy_maximum(self):
+        maximum = c.ANGEL_ENERGY_MAX
         if self.is_premium:
-            return c.ANGEL_ENERGY_MAX + c.ANGEL_ENERGY_PREMIUM_BONUS
-        return c.ANGEL_ENERGY_MAX
+            maximum = c.ANGEL_ENERGY_MAX + c.ANGEL_ENERGY_PREMIUM_BONUS
+        return maximum + self.attribute_modifier(relations.MODIFIERS.MAX_ENERGY)
+
+    @property
+    def spend_amount(self):
+        return int(f.normal_action_price(self.level) * self.next_spending.price_fraction)
+
+    @property
+    def energy_discount(self):
+         return self.attribute_modifier(relations.MODIFIERS.ENERGY_DISCOUNT)
 
     @property
     def might_crit_chance(self): return min(1, f.might_crit_chance(self.might) + self.attribute_modifier(relations.MODIFIERS.MIGHT_CRIT_CHANCE))
 
     @property
     def damage_modifier(self): return self.attribute_modifier(relations.MODIFIERS.DAMAGE)
+
+    @property
+    def magic_damage_modifier(self): return self.attribute_modifier(relations.MODIFIERS.MAGIC_DAMAGE)
+
+    @property
+    def physic_damage_modifier(self): return self.attribute_modifier(relations.MODIFIERS.PHYSIC_DAMAGE)
 
     @property
     def move_speed(self): return c.HERO_MOVE_SPEED * self.attribute_modifier(relations.MODIFIERS.SPEED)

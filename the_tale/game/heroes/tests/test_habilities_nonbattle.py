@@ -1,4 +1,5 @@
 # coding: utf-8
+import mock
 
 from the_tale.common.utils import testcase
 
@@ -42,16 +43,23 @@ class HabilitiesNonBattleTest(testcase.TestCase):
 
         self.assertTrue(ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT.priority < priorities[ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT])
         self.assertTrue(ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT.priority < priorities[ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT])
+        self.assertTrue(ITEMS_OF_EXPENDITURE.REPAIRING_ARTIFACT.priority < priorities[ITEMS_OF_EXPENDITURE.REPAIRING_ARTIFACT])
 
+    @mock.patch('the_tale.game.balance.constants.ARTIFACT_FOR_QUEST_PROBABILITY', 0)
     def test_businessman(self):
-        self.assertFalse(any(self.hero.can_get_artifact_for_quest() for i in xrange(200)))
+        self.assertFalse(any(self.hero.can_get_artifact_for_quest() for i in xrange(1000)))
         self.hero.abilities.add(nonbattle.BUSINESSMAN.get_id())
-        self.assertTrue(any(self.hero.can_get_artifact_for_quest() for i in xrange(200)))
+        self.assertTrue(any(self.hero.can_get_artifact_for_quest() for i in xrange(1000)))
 
-    # def test_picky(self):
-    #     self.assertFalse(any(self.hero.can_buy_better_artifact() for i in xrange(200)))
-    #     self.hero.abilities.add(nonbattle.PICKY.get_id())
-    #     self.assertTrue(any(self.hero.can_buy_better_artifact() for i in xrange(200)))
+    def test_picky(self):
+        self.assertFalse(any(self.hero.can_buy_better_artifact() for i in xrange(1000)))
+        self.hero.abilities.add(nonbattle.PICKY.get_id())
+        self.assertTrue(any(self.hero.can_buy_better_artifact() for i in xrange(1000)))
+
+    # def test_careful(self):
+    #     self.assertFalse(any(self.hero.can_safe_artifact_integrity() for i in xrange(200)))
+    #     self.hero.abilities.add(nonbattle.CAREFUL.get_id())
+    #     self.assertTrue(any(self.hero.can_safe_artifact_integrity() for i in xrange(200)))
 
     def test_ethereal_magnet(self):
         old_crit_chance = self.hero.might_crit_chance

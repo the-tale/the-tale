@@ -1,6 +1,4 @@
 # coding: utf-8
-import random
-
 from the_tale.game.heroes.habilities.prototypes import AbilityPrototype
 from the_tale.game.heroes.habilities.relations import ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
 from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE
@@ -62,9 +60,9 @@ class DANDY(AbilityPrototype):
 
     NAME = u'Щёголь'
     normalized_name = NAME
-    DESCRIPTION = u'Увеличивает вероятность траты денег на заточку и покупку артефактов.'
+    DESCRIPTION = u'Увеличивает вероятность траты денег на заточку, ремонт и покупку артефактов.'
 
-    PRIORITY_MULTIPLIER = [1.5, 2, 2.5, 3, 3.5]
+    PRIORITY_MULTIPLIER = [1.25, 1.5, 1.75, 2, 2.25]
 
     @property
     def priority_multiplier(self): return self.PRIORITY_MULTIPLIER[self.level-1]
@@ -73,6 +71,7 @@ class DANDY(AbilityPrototype):
         if type_.is_ITEMS_OF_EXPENDITURE_PRIORITIES:
             value[ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT] *= self.priority_multiplier
             value[ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT] *= self.priority_multiplier
+            value[ITEMS_OF_EXPENDITURE.REPAIRING_ARTIFACT] *= self.priority_multiplier
         return value
 
 
@@ -84,16 +83,14 @@ class BUSINESSMAN(AbilityPrototype):
 
     NAME = u'Делец'
     normalized_name = NAME
-    DESCRIPTION = u'Герой может получить артефакт в награду за выполнение задания.'
+    DESCRIPTION = u'Герой имеет больше шансов получить артефакт в награду за выполнение задания.'
 
-    PROBABILITY = [0.025, 0.05, 0.075, 0.1, 0.125]
+    PROBABILITY = [0.02, 0.04, 0.06, 0.08, 0.1]
 
     @property
     def probability(self): return self.PROBABILITY[self.level-1]
 
-    def check_attribute(self, type_):
-        if type_.is_GET_ARTIFACT_FOR_QUEST:
-            return random.uniform(0, 1) < self.probability
+    def modify_attribute(self, type_, value): return (value + self.probability) if type_.is_GET_ARTIFACT_FOR_QUEST else value
 
 
 class PICKY(AbilityPrototype):
@@ -111,9 +108,7 @@ class PICKY(AbilityPrototype):
     @property
     def probability(self): return self.PROBABILITY[self.level-1]
 
-    def check_attribute(self, type_):
-        if type_.is_BUY_BETTER_ARTIFACT:
-            return random.uniform(0, 1) < self.probability
+    def modify_attribute(self, type_, value): return (value + self.probability) if type_.is_BUY_BETTER_ARTIFACT else value
 
 
 class ETHEREAL_MAGNET(AbilityPrototype):
@@ -188,6 +183,24 @@ class DIPLOMATIC(AbilityPrototype):
     def power_multiplier(self): return self.POWER_MULTIPLIER[self.level-1]
 
     def modify_attribute(self, type_, value): return value*self.power_multiplier if type_.is_POWER else value
+
+
+# class CAREFUL(AbilityPrototype):
+
+#     TYPE = ABILITY_TYPE.NONBATTLE
+#     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
+#     AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
+
+#     NAME = u'Аккуратный'
+#     normalized_name = NAME
+#     DESCRIPTION = u'Герой аккуратно обращается со своей экипировкой, благодаря чему она ломается медленнее.'
+
+#     PROBABILITY = [0.04, 0.08, 0.12, 0.16, 0.2]
+
+#     @property
+#     def sage_integrity_probability(self): return self.PROBABILITY[self.level-1]
+
+#     def modify_attribute(self, type_, value): return value + self.sage_integrity_probability if type_.is_SAFE_ARTIFACT_INTEGRITY else value
 
 
 class THRIFTY(AbilityPrototype):

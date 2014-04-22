@@ -11,6 +11,7 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game.map.relations import TERRAIN
 from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes.relations import ARCHETYPE
 
 from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
 from the_tale.game.artifacts.relations import ARTIFACT_TYPE, ARTIFACT_RECORD_STATE
@@ -77,6 +78,7 @@ class MobsPrototypeTests(testcase.TestCase):
                                   abilities=['hit', 'thick', 'slow', 'extra_strong'],
                                   terrains=TERRAIN.records,
                                   type=MOB_TYPE.CIVILIZED,
+                                  archetype=ARCHETYPE.NEUTRAL,
                                   state=MOB_RECORD_STATE.ENABLED)
         mobs_storage.sync(force=True)
 
@@ -114,6 +116,7 @@ class MobsPrototypeTests(testcase.TestCase):
                                       'terrains': [TERRAIN.PLANE_JUNGLE, TERRAIN.HILLS_JUNGLE],
                                       'approved': True,
                                       'type': MOB_TYPE.CIVILIZED,
+                                      'archetype': ARCHETYPE.NEUTRAL,
                                       'abilities': ['hit', 'speedup'],
                                       'description': 'new description'})
         self.assertTrue(form.is_valid())
