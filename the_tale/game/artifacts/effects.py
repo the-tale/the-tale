@@ -2,9 +2,11 @@
 
 from the_tale.common.utils import discovering
 
+from the_tale.game.balance import constants as c
 from the_tale.game.balance.power import Power
 
 from the_tale.game.heroes.habilities import battle
+from the_tale.game.heroes.habilities import modifiers as battle_modifiers
 
 from the_tale.game.artifacts import relations
 
@@ -293,33 +295,129 @@ class AdditionalAbilitiesBase(BaseEffect):
 
 class LastChance(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.LAST_CHANCE
-    DESCRIPTION = u'герою становится доступна способность «Последний шанс» максимального уровня'
+    DESCRIPTION = u'Герою становится доступна способность «Последний шанс» максимального уровня'
     ABILITY = battle.LAST_CHANCE
 
 class Regeneration(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.REGENERATION
-    DESCRIPTION = u'герою становится доступна способность «Регенерация» максимального уровня'
+    DESCRIPTION = u'Герою становится доступна способность «Регенерация» максимального уровня'
     ABILITY = battle.REGENERATION
 
 class Ice(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.ICE
-    DESCRIPTION = u'герою становится доступна способность «Заморозка» максимального уровня'
+    DESCRIPTION = u'Герою становится доступна способность «Заморозка» максимального уровня'
     ABILITY = battle.FREEZING
 
 class Flame(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.FLAME
-    DESCRIPTION = u'герою становится доступна способность «Огненный шар» максимального уровня'
+    DESCRIPTION = u'Герою становится доступна способность «Огненный шар» максимального уровня'
     ABILITY = battle.FIREBALL
 
 class Poison(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.POISON
-    DESCRIPTION = u'герою становится доступна способность «Ядовитое облако» максимального уровня'
+    DESCRIPTION = u'Герою становится доступна способность «Ядовитое облако» максимального уровня'
     ABILITY = battle.POISON_CLOUD
 
 class VampireStrike(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.VAMPIRE_STRIKE
-    DESCRIPTION = u'герою становится доступна способность «Удар вампира» максимального уровня'
+    DESCRIPTION = u'Герою становится доступна способность «Удар вампира» максимального уровня'
     ABILITY = battle.VAMPIRE_STRIKE
+
+class Speedup(AdditionalAbilitiesBase):
+    TYPE = relations.ARTIFACT_EFFECT.SPEEDUP
+    DESCRIPTION = u'Герою становится доступна способность «Ускорение» максимального уровня'
+    ABILITY = battle.SPEEDUP
+
+class CriticalHit(AdditionalAbilitiesBase):
+    TYPE = relations.ARTIFACT_EFFECT.CRITICAL_HIT
+    DESCRIPTION = u'Герою становится доступна способность «Критический удар» максимального уровня'
+    ABILITY = battle.CRITICAL_HIT
+
+class AstralBarrier(AdditionalAbilitiesBase):
+    TYPE = relations.ARTIFACT_EFFECT.ASTRAL_BARRIER
+    DESCRIPTION = u'Герою становится доступна способность «Горгулья» максимального уровня'
+    ABILITY = battle_modifiers.GARGOYLE
+
+
+class Esprit(BaseEffect):
+    TYPE = relations.ARTIFACT_EFFECT.ESPRIT
+    DESCRIPTION = u'Задержка смены предпочтений уменьшается до 1 дня'
+    MULTIPLIER = int(60*60*24*1)
+
+    @classmethod
+    def modify_attribute(cls, type_, value):
+        return min(value, cls.MULTIPLIER) if type_.is_PREFERENCES_CHANCE_DELAY else value
+
+
+class TerribleView(BaseEffect):
+    TYPE = relations.ARTIFACT_EFFECT.TERRIBLE_VIEW
+    DESCRIPTION = u'Герой выглядит настолько ужасно, что некоторые противнике в ужасе убегают, не вступая в бой'
+    MULTIPLIER = c.KILL_BEFORE_BATTLE_PROBABILITY # just to be equal to some similar behavour
+
+    @classmethod
+    def modify_attribute(cls, type_, value):
+        return value + cls.MULTIPLIER if type_.is_FEAR else value
+
+
+class CloudedMind(BaseEffect):
+    TYPE = relations.ARTIFACT_EFFECT.CLOUDED_MIND
+    DESCRIPTION = u'Разум героя затуманивается и тот начинает вести себя независимо от черт'
+    MULTIPLIER = True
+
+    @classmethod
+    def modify_attribute(cls, type_, value):
+        return any((value, cls.MULTIPLIER)) if type_.is_CLOUDED_MIND else value
+
+
+class LuckOfStranger(BaseEffect):
+    TYPE = relations.ARTIFACT_EFFECT.LUCK_OF_STRANGER
+    DESCRIPTION = u'Увеличивается шанс получения редких артефактов'
+    MULTIPLIER = 2
+
+    @classmethod
+    def modify_attribute(cls, type_, value):
+        return value * cls.MULTIPLIER if type_.is_RARE else value
+
+
+class LuckOfHero(BaseEffect):
+    TYPE = relations.ARTIFACT_EFFECT.LUCK_OF_HERO
+    DESCRIPTION = u'Увеличивается шанс получения редких артефактов'
+    MULTIPLIER = 2
+
+    @classmethod
+    def modify_attribute(cls, type_, value):
+        return value * cls.MULTIPLIER if type_.is_EPIC else value
+
+
+class Fortitude(BaseEffect):
+    TYPE = relations.ARTIFACT_EFFECT.FORTITUDE
+    DESCRIPTION = u'Черты героя уменьшаются медленнее'
+    MULTIPLIER = 0.5
+
+    @classmethod
+    def modify_attribute(cls, type_, value):
+        return value * cls.MULTIPLIER if type_.is_HABITS_DECREASE else value
+
+
+class Ideological(BaseEffect):
+    TYPE = relations.ARTIFACT_EFFECT.IDEOLOGICAL
+    DESCRIPTION = u'Черты героя растут быстрее'
+    MULTIPLIER = 2
+
+    @classmethod
+    def modify_attribute(cls, type_, value):
+        return value * cls.MULTIPLIER if type_.is_HABITS_INCREASE else value
+
+
+class Unbreakable(BaseEffect):
+    TYPE = relations.ARTIFACT_EFFECT.UNBREAKABLE
+    DESCRIPTION = u'Экипировка героя медленнее ломается'
+    MULTIPLIER = 0.25
+
+    @classmethod
+    def modify_attribute(cls, type_, value):
+        return value + cls.MULTIPLIER if type_.is_SAFE_INTEGRITY else value
+
 
 
 EFFECTS = {effect.TYPE: effect

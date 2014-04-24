@@ -94,8 +94,7 @@ class LogicAccessorsMixin(object):
         return random.uniform(0, 1) < self.attribute_modifier(relations.MODIFIERS.GET_ARTIFACT_FOR_QUEST)
 
     def can_safe_artifact_integrity(self, artifact):
-        # return random.uniform(0, 1) < self.attribute_modifier(relations.MODIFIERS.SAFE_ARTIFACT_INTEGRITY)
-        probability = 0
+        probability = self.safe_artifact_integrity_probability
         if self.preferences.favorite_item is not None and self.preferences.favorite_item == artifact.type.equipment_slot:
             probability += c.ARTIFACT_INTEGRITY_SAFE_PROBABILITY_FOR_FAVORITE_ITEM
         return random.uniform(0, 1) < probability
@@ -138,12 +137,47 @@ class LogicAccessorsMixin(object):
 
     @property
     def can_regenerate_double_energy(self):
-         return random.uniform(0, 1) > self.regenerate_double_energy_probability
+         return random.uniform(0, 1) < self.regenerate_double_energy_probability
+
+    def can_leave_battle_in_fear(self):
+        return random.uniform(0, 1) < self.attribute_modifier(relations.MODIFIERS.FEAR)
 
 
     ################################
     # attributes
     ################################
+
+    @property
+    def safe_artifact_integrity_probability(self):
+        return self.attribute_modifier(relations.MODIFIERS.SAFE_INTEGRITY)
+
+    @property
+    def habits_increase_modifier(self):
+        return self.attribute_modifier(relations.MODIFIERS.HABITS_INCREASE)
+
+    @property
+    def habits_decrease_modifier(self):
+        return self.attribute_modifier(relations.MODIFIERS.HABITS_DECREASE)
+
+    @property
+    def rare_artifact_probability_multiplier(self):
+        return self.attribute_modifier(relations.MODIFIERS.RARE)
+
+    @property
+    def epic_artifact_probability_multiplier(self):
+        return self.attribute_modifier(relations.MODIFIERS.EPIC)
+
+    @property
+    def clouded_mind(self):
+        return self.attribute_modifier(relations.MODIFIERS.CLOUDED_MIND)
+
+    @property
+    def leave_battle_in_fear_probability(self):
+        return self.attribute_modifier(relations.MODIFIERS.FEAR)
+
+    @property
+    def preferences_change_delay(self):
+        return self.attribute_modifier(relations.MODIFIERS.PREFERENCES_CHANCE_DELAY)
 
     @property
     def additional_abilities(self):

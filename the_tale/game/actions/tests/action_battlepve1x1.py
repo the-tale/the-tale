@@ -35,6 +35,9 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.storage = LogicStorage()
         self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
         self.hero = self.storage.accounts_to_heroes[account_id]
+
+        self.hero._model.level = 66
+
         self.action_idl = self.hero.actions.current_action
 
         with mock.patch('the_tale.game.balance.constants.KILL_BEFORE_BATTLE_PROBABILITY', 0):
@@ -174,6 +177,21 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
     @mock.patch('the_tale.game.balance.constants.PEACEFULL_BATTLE_PROBABILITY', 1.01)
     @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', HABIT_PEACEFULNESS_INTERVAL.RIGHT_3)
     def test_peacefull_battle(self):
+
+        self.hero.actions.pop_action()
+
+        with self.check_delta(lambda: self.hero.statistics.pve_kills, 0):
+            action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=create_mob_for_hero(self.hero))
+
+        self.assertEqual(action_battle.percents, 1.0)
+        self.assertEqual(action_battle.state, self.action_battle.STATE.PROCESSED)
+
+        self.storage.process_turn(second_step_if_needed=False)
+
+        self.assertEqual(self.hero.actions.current_action, self.action_idl)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_leave_battle_in_fear', lambda self: True)
+    def test_fear_battle(self):
 
         self.hero.actions.pop_action()
 

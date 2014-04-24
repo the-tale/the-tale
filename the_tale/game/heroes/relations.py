@@ -161,7 +161,15 @@ class MODIFIERS(DjangoEnum):
                 ('ENERGY_DISCOUNT', 34, u'скидка на трату энергии', lambda: 0),
                 ('DOUBLE_ENERGY_REGENERATION', 35, u'вероятность восстановить в 2 раза больше энергии', lambda: 0),
                 ('BONUS_ARTIFACT_POWER', 36, u'бонус к силе артефактов получаемых', lambda: Power(0, 0)),
-                ('ADDITIONAL_ABILITIES', 37, u'дополнительные способности', lambda: []))
+                ('ADDITIONAL_ABILITIES', 37, u'дополнительные способности', lambda: []),
+                ('PREFERENCES_CHANCE_DELAY', 38, u'зедержка смены предпочтений', lambda: c.PREFERENCES_CHANGE_DELAY),
+                ('FEAR', 39, u'монстры могу убежать в начале боя', lambda: 0),
+                ('CLOUDED_MIND', 40, u'поступки героя перестают зависеть от черт', lambda: False),
+                ('RARE', 41, u'увеличиена вероятность получить редкий артефакт', lambda: 1),
+                ('EPIC', 42, u'увеличиена вероятность получить эпический артефакт', lambda: 1),
+                ('HABITS_INCREASE', 43, u'скорость роста черт', lambda: 1),
+                ('HABITS_DECREASE', 44, u'скорость уменьшения черт', lambda: 1),
+                ('SAFE_INTEGRITY', 45, u'вероятность сохранить целостность артефакта после боя', lambda: 0))
 
 
 

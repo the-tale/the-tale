@@ -3,6 +3,7 @@
 from rels import Column
 from rels.django import DjangoEnum
 
+from the_tale.game.balance import constants as c
 from the_tale.game.balance.power import PowerDistribution
 
 
@@ -39,9 +40,11 @@ class ARTIFACT_RECORD_STATE(DjangoEnum):
 
 
 class RARITY(DjangoEnum):
-    records = ( ('NORMAL', 0, u'обычный артефакт'),
-                ('RARE', 1, u'редкий артефакт'),
-                ('EPIC', 2, u'эпический артефакт') )
+    probability = Column()
+
+    records = ( ('NORMAL', 0, u'обычный артефакт', c.NORMAL_ARTIFACT_PROBABILITY),
+                ('RARE', 1, u'редкий артефакт', c.RARE_ARTIFACT_PROBABILITY),
+                ('EPIC', 2, u'эпический артефакт', c.EPIC_ARTIFACT_PROBABILITY) )
 
 
 class ARTIFACT_EFFECT(DjangoEnum):
@@ -78,4 +81,15 @@ class ARTIFACT_EFFECT(DjangoEnum):
                 ('ICE', 1019, u'лёд'),
                 ('FLAME', 1020, u'пламя'),
                 ('POISON', 1021, u'яд'),
-                ('VAMPIRE_STRIKE', 1022, u'вампиризм'))
+                ('VAMPIRE_STRIKE', 1022, u'вампиризм'),
+                ('ESPRIT', 1023, u'живость ума'),
+                ('TERRIBLE_VIEW', 1024, u'ужасный вид'),
+                ('CRITICAL_HIT', 1025, u'точные атаки'),
+                ('ASTRAL_BARRIER', 1026, u'астральная преграда'),
+                ('CLOUDED_MIND', 1027, u'затуманеный разум'),
+                ('LUCK_OF_STRANGER', 1028, u'удача странника'),
+                ('LUCK_OF_HERO', 1029, u'удача героя'),
+                ('FORTITUDE', 1030, u'крепость духа'),
+                ('IDEOLOGICAL', 1031, u'идейность'),
+                ('UNBREAKABLE', 1032, u'нерушимость'),
+                ('SPEEDUP', 1033, u'ускорение'))

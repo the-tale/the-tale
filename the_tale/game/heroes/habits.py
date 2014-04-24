@@ -40,6 +40,12 @@ class Habit(object):
                 return interval
 
     @property
+    def _real_interval(self):
+        if self.hero.clouded_mind:
+            return random.choice(self.TYPE.intervals.records)
+        return self.interval
+
+    @property
     def verbose_value(self):
         if self.hero.gender.is_MASCULINE:
             return self.interval.text
@@ -48,7 +54,13 @@ class Habit(object):
         return self.interval.neuter_text
 
     def change(self, delta):
+        if (self.raw_value > 0 and delta > 0) or (self.raw_value < 0 and delta < 0):
+            delta *= self.hero.habits_increase_modifier
+        elif (self.raw_value < 0 and delta > 0) or (self.raw_value > 0 and delta < 0):
+            delta *= self.hero.habits_decrease_modifier
+
         setattr(self.hero._model, self.field_name, max(-c.HABITS_BORDER, min(c.HABITS_BORDER, self.raw_value + delta)))
+
         del self.interval
         self.hero.reset_accessors_cache()
 
@@ -72,52 +84,52 @@ class Honor(Habit):
             super(Honor, self).change(delta)
 
     def modify_attribute(self, modifier, value):
-        if modifier.is_POWER_TO_ENEMY and self.interval.is_LEFT_3:
+        if modifier.is_POWER_TO_ENEMY and self._real_interval.is_LEFT_3:
             return value * (1 + c.HONOR_POWER_BONUS_FRACTION)
 
-        if modifier.is_POWER_TO_FRIEND and self.interval.is_RIGHT_3:
+        if modifier.is_POWER_TO_FRIEND and self._real_interval.is_RIGHT_3:
             return value * (1 + c.HONOR_POWER_BONUS_FRACTION)
 
-        if modifier.is_QUEST_MARKERS and (self.interval.is_LEFT_1 or self.interval.is_LEFT_2 or self.interval.is_LEFT_3):
+        if modifier.is_QUEST_MARKERS and (self._real_interval.is_LEFT_1 or self._real_interval.is_LEFT_2 or self._real_interval.is_LEFT_3):
             value[QUEST_OPTION_MARKERS.DISHONORABLE] = abs(self.raw_value / float(c.HABITS_BORDER))
             return value
 
-        if modifier.is_QUEST_MARKERS and (self.interval.is_RIGHT_1 or self.interval.is_RIGHT_2 or self.interval.is_RIGHT_3):
+        if modifier.is_QUEST_MARKERS and (self._real_interval.is_RIGHT_1 or self._real_interval.is_RIGHT_2 or self._real_interval.is_RIGHT_3):
             value[QUEST_OPTION_MARKERS.HONORABLE] = abs(self.raw_value / float(c.HABITS_BORDER))
             return value
 
-        if modifier.is_QUEST_MARKERS_REWARD_BONUS and (self.interval.is_LEFT_1 or self.interval.is_LEFT_2 or self.interval.is_LEFT_3):
+        if modifier.is_QUEST_MARKERS_REWARD_BONUS and (self._real_interval.is_LEFT_1 or self._real_interval.is_LEFT_2 or self._real_interval.is_LEFT_3):
             value[QUEST_OPTION_MARKERS.DISHONORABLE] = abs(self.raw_value / float(c.HABITS_BORDER)) * c.HABIT_QUEST_REWARD_MAX_BONUS
             return value
 
-        if modifier.is_QUEST_MARKERS_REWARD_BONUS and (self.interval.is_RIGHT_1 or self.interval.is_RIGHT_2 or self.interval.is_RIGHT_3):
+        if modifier.is_QUEST_MARKERS_REWARD_BONUS and (self._real_interval.is_RIGHT_1 or self._real_interval.is_RIGHT_2 or self._real_interval.is_RIGHT_3):
             value[QUEST_OPTION_MARKERS.HONORABLE] = abs(self.raw_value / float(c.HABITS_BORDER)) * c.HABIT_QUEST_REWARD_MAX_BONUS
             return value
 
-        if modifier.is_HONOR_EVENTS and (self.interval.is_RIGHT_2 or self.interval.is_RIGHT_3):
+        if modifier.is_HONOR_EVENTS and (self._real_interval.is_RIGHT_2 or self._real_interval.is_RIGHT_3):
             value.add(ACTION_EVENT.NOBLE)
             return value
 
-        if modifier.is_HONOR_EVENTS and (self.interval.is_LEFT_2 or self.interval.is_LEFT_3):
+        if modifier.is_HONOR_EVENTS and (self._real_interval.is_LEFT_2 or self._real_interval.is_LEFT_3):
             value.add(ACTION_EVENT.DISHONORABLE)
             return value
 
         return value
 
     def check_attribute(self, modifier):
-        if self.interval.is_LEFT_3 and modifier.is_KILL_BEFORE_BATTLE:
+        if self._real_interval.is_LEFT_3 and modifier.is_KILL_BEFORE_BATTLE:
             return random.uniform(0, 1) < c.KILL_BEFORE_BATTLE_PROBABILITY
 
-        if self.interval.is_RIGHT_3 and modifier.is_PICKED_UP_IN_ROAD:
+        if self._real_interval.is_RIGHT_3 and modifier.is_PICKED_UP_IN_ROAD:
             return random.uniform(0, 1) < c.PICKED_UP_IN_ROAD_PROBABILITY
 
         return False
 
     def update_context(self, actor, enemy):
-        if (self.interval.is_LEFT_2 or self.interval.is_LEFT_3) and enemy.mob_type is not None and enemy.mob_type.is_CIVILIZED:
+        if (self._real_interval.is_LEFT_2 or self._real_interval.is_LEFT_3) and enemy.mob_type is not None and enemy.mob_type.is_CIVILIZED:
             actor.context.use_crit_chance(c.MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE / mobs_storage.mob_type_fraction(enemy.mob_type))
 
-        if (self.interval.is_RIGHT_2 or self.interval.is_RIGHT_3) and enemy.mob_type is not None and enemy.mob_type.is_MONSTER:
+        if (self._real_interval.is_RIGHT_2 or self._real_interval.is_RIGHT_3) and enemy.mob_type is not None and enemy.mob_type.is_MONSTER:
             actor.context.use_crit_chance(c.MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE / mobs_storage.mob_type_fraction(enemy.mob_type))
 
 
@@ -132,36 +144,36 @@ class Peacefulness(Habit):
 
     def modify_attribute(self, modifier, value):
 
-        if modifier.is_FRIEND_QUEST_PRIORITY and self.interval.is_RIGHT_3:
+        if modifier.is_FRIEND_QUEST_PRIORITY and self._real_interval.is_RIGHT_3:
             return value * c.HABIT_QUEST_PRIORITY_MODIFIER
 
-        if modifier.is_ENEMY_QUEST_PRIORITY and self.interval.is_LEFT_3:
+        if modifier.is_ENEMY_QUEST_PRIORITY and self._real_interval.is_LEFT_3:
             return value * c.HABIT_QUEST_PRIORITY_MODIFIER
 
-        if modifier.is_LOOT_PROBABILITY and (self.interval.is_RIGHT_2 or self.interval.is_RIGHT_3):
+        if modifier.is_LOOT_PROBABILITY and (self._real_interval.is_RIGHT_2 or self._real_interval.is_RIGHT_3):
             return value * c.HABIT_LOOT_PROBABILITY_MODIFIER
 
-        if modifier.is_QUEST_MARKERS and (self.interval.is_LEFT_1 or self.interval.is_LEFT_2 or self.interval.is_LEFT_3):
+        if modifier.is_QUEST_MARKERS and (self._real_interval.is_LEFT_1 or self._real_interval.is_LEFT_2 or self._real_interval.is_LEFT_3):
             value[QUEST_OPTION_MARKERS.AGGRESSIVE] =  abs(self.raw_value / float(c.HABITS_BORDER))
             return value
 
-        if modifier.is_QUEST_MARKERS and (self.interval.is_RIGHT_1 or self.interval.is_RIGHT_2 or self.interval.is_RIGHT_3):
+        if modifier.is_QUEST_MARKERS and (self._real_interval.is_RIGHT_1 or self._real_interval.is_RIGHT_2 or self._real_interval.is_RIGHT_3):
             value[QUEST_OPTION_MARKERS.UNAGGRESSIVE] = abs(self.raw_value / float(c.HABITS_BORDER))
             return value
 
-        if modifier.is_QUEST_MARKERS_REWARD_BONUS and (self.interval.is_LEFT_1 or self.interval.is_LEFT_2 or self.interval.is_LEFT_3):
+        if modifier.is_QUEST_MARKERS_REWARD_BONUS and (self._real_interval.is_LEFT_1 or self._real_interval.is_LEFT_2 or self._real_interval.is_LEFT_3):
             value[QUEST_OPTION_MARKERS.AGGRESSIVE] = abs(self.raw_value / float(c.HABITS_BORDER)) * c.HABIT_QUEST_REWARD_MAX_BONUS
             return value
 
-        if modifier.is_QUEST_MARKERS_REWARD_BONUS and (self.interval.is_RIGHT_1 or self.interval.is_RIGHT_2 or self.interval.is_RIGHT_3):
+        if modifier.is_QUEST_MARKERS_REWARD_BONUS and (self._real_interval.is_RIGHT_1 or self._real_interval.is_RIGHT_2 or self._real_interval.is_RIGHT_3):
             value[QUEST_OPTION_MARKERS.UNAGGRESSIVE] = abs(self.raw_value / float(c.HABITS_BORDER)) * c.HABIT_QUEST_REWARD_MAX_BONUS
             return value
 
-        if modifier.is_HONOR_EVENTS and (self.interval.is_RIGHT_2 or self.interval.is_RIGHT_3):
+        if modifier.is_HONOR_EVENTS and (self._real_interval.is_RIGHT_2 or self._real_interval.is_RIGHT_3):
             value.add(ACTION_EVENT.PEACEABLE)
             return value
 
-        if modifier.is_HONOR_EVENTS and (self.interval.is_LEFT_2 or self.interval.is_LEFT_3):
+        if modifier.is_HONOR_EVENTS and (self._real_interval.is_LEFT_2 or self._real_interval.is_LEFT_3):
             value.add(ACTION_EVENT.AGGRESSIVE)
             return value
 
@@ -170,14 +182,14 @@ class Peacefulness(Habit):
 
 
     def check_attribute(self, modifier):
-        if modifier.is_EXP_FOR_KILL and self.interval.is_LEFT_3:
+        if modifier.is_EXP_FOR_KILL and self._real_interval.is_LEFT_3:
             return random.uniform(0, 1) < c.EXP_FOR_KILL_PROBABILITY
 
-        if modifier.is_PEACEFULL_BATTLE and self.interval.is_RIGHT_3:
+        if modifier.is_PEACEFULL_BATTLE and self._real_interval.is_RIGHT_3:
             return random.uniform(0, 1) < c.PEACEFULL_BATTLE_PROBABILITY / mobs_storage.mob_type_fraction(MOB_TYPE.CIVILIZED)
 
         return False
 
     def update_context(self, actor, enemy):
-        if (self.interval.is_LEFT_2 or self.interval.is_LEFT_3) and enemy.mob_type is not None:
+        if (self._real_interval.is_LEFT_2 or self._real_interval.is_LEFT_3) and enemy.mob_type is not None:
             actor.context.use_first_strike()

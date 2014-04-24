@@ -6,7 +6,7 @@ import rels
 
 from the_tale.common.utils.prototypes import BasePrototype
 
-from the_tale.game.balance import constants as c, enums as e
+from the_tale.game.balance import enums as e
 
 from the_tale.game.mobs.storage import mobs_storage
 
@@ -79,19 +79,19 @@ class _PreferencesMetaclass(type):
 class HeroPreferences(object):
 
     __metaclass__ = _PreferencesMetaclass
-    __slots__ = ('data', 'updated', 'hero_id')
+    __slots__ = ('data', 'updated', 'hero')
 
-    def __init__(self, hero_id):
+    def __init__(self, hero):
         self.data = {}
         self.updated = False
-        self.hero_id = hero_id
+        self.hero = hero
 
     def serialize(self):
         return self.data
 
     @classmethod
-    def deserialize(cls, hero_id, data):
-        obj = cls(hero_id=hero_id)
+    def deserialize(cls, hero, data):
+        obj = cls(hero=hero)
         obj.data = data
         return obj
 
@@ -99,7 +99,7 @@ class HeroPreferences(object):
         return self.time_before_update(preferences_type, current_time).total_seconds() == 0
 
     def _time_before_update(self, changed_at, current_time):
-        return max(datetime.timedelta(seconds=0), (changed_at + datetime.timedelta(seconds=c.PREFERENCES_CHANGE_DELAY) - current_time))
+        return max(datetime.timedelta(seconds=0), (changed_at + datetime.timedelta(seconds=self.hero.preferences_change_delay) - current_time))
 
     def time_before_update(self, preferences_type, current_time):
         return self._time_before_update(self._get_changed_at(preferences_type), current_time)
@@ -121,7 +121,7 @@ class HeroPreferences(object):
 
         self.data[preferences_type.base_name] = {'value': value,
                                                  'changed_at': time.mktime(change_time.timetuple())}
-        HeroPreferencesPrototype.update(self.hero_id, preferences_type.base_name, value)
+        HeroPreferencesPrototype.update(self.hero.id, preferences_type.base_name, value)
 
     def _reset(self, preferences_type):
         self._set(preferences_type, None, change_time=datetime.datetime.fromtimestamp(0))

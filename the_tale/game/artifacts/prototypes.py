@@ -190,7 +190,7 @@ class ArtifactPrototype(object):
 class ArtifactRecordPrototype(BasePrototype):
     _model_class = ArtifactRecord
     _readonly = ('id', 'editor_id', 'mob_id')
-    _bidirectional = ('level', 'uuid', 'name', 'description', 'type', 'state', 'power_type')
+    _bidirectional = ('level', 'uuid', 'name', 'description', 'type', 'state', 'power_type', 'rare_effect', 'epic_effect')
     _get_by = ('id', )
 
     def get_name_forms(self):
@@ -317,7 +317,8 @@ class ArtifactRecordPrototype(BasePrototype):
         artifacts_storage.update_cached_data(self)
         artifacts_storage.update_version()
 
-    def create_artifact(self, level, power):
+    def create_artifact(self, level, power, rarity=relations.RARITY.NORMAL):
         return ArtifactPrototype(record=self,
                                  power=power,
-                                 level=level)
+                                 level=level,
+                                 rarity=rarity)

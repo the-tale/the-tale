@@ -334,7 +334,8 @@ class HeroPrototype(BasePrototype,
     def preferences(self):
         from the_tale.game.heroes.preferences import HeroPreferences
 
-        preferences = HeroPreferences.deserialize(hero_id=self.id, data=s11n.from_json(self._model.preferences))
+        preferences = HeroPreferences.deserialize(hero=self, data=s11n.from_json(self._model.preferences))
+
         if preferences.energy_regeneration_type is None:
             preferences.set_energy_regeneration_type(self.race.energy_regeneration, change_time=datetime.datetime.fromtimestamp(0))
         if preferences.risk_level is None:

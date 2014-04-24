@@ -11,6 +11,7 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts.relations import RARITY
 
 from the_tale.game.abilities.deck import DropItem
 from the_tale.game.abilities.relations import ABILITY_RESULT
@@ -46,7 +47,7 @@ class DropItemAbilityTest(testcase.TestCase):
         self.assertEqual(self.hero.energy, self.hero.energy_maximum)
 
     def test_success(self):
-        self.hero.bag.put_artifact(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level))
+        self.hero.bag.put_artifact(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL))
 
         self.assertEqual(self.hero.bag.occupation, 1)
 
@@ -56,7 +57,7 @@ class DropItemAbilityTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.might_crit_chance', 1)
     def test_success__critical(self):
-        self.hero.bag.put_artifact(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level))
+        self.hero.bag.put_artifact(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL))
 
         old_money_stats = self.hero.statistics.money_earned_from_help
 

@@ -186,3 +186,54 @@ class EffectsTests(testcase.TestCase):
         self._set_effect(relations.ARTIFACT_EFFECT.VAMPIRE_STRIKE)
         self.assertEqual(len(self.hero.additional_abilities), 1)
         self.assertEqual(self.hero.additional_abilities[0].__class__, effects.VampireStrike.ABILITY)
+
+    def test_speedup(self):
+        self.assertEqual(self.hero.additional_abilities, [])
+        self._set_effect(relations.ARTIFACT_EFFECT.SPEEDUP)
+        self.assertEqual(len(self.hero.additional_abilities), 1)
+        self.assertEqual(self.hero.additional_abilities[0].__class__, effects.Speedup.ABILITY)
+
+    def test_critical_hit(self):
+        self.assertEqual(self.hero.additional_abilities, [])
+        self._set_effect(relations.ARTIFACT_EFFECT.CRITICAL_HIT)
+        self.assertEqual(len(self.hero.additional_abilities), 1)
+        self.assertEqual(self.hero.additional_abilities[0].__class__, effects.CriticalHit.ABILITY)
+
+    def test_astral_barrier(self):
+        self.assertEqual(self.hero.additional_abilities, [])
+        self._set_effect(relations.ARTIFACT_EFFECT.ASTRAL_BARRIER)
+        self.assertEqual(len(self.hero.additional_abilities), 1)
+        self.assertEqual(self.hero.additional_abilities[0].__class__, effects.AstralBarrier.ABILITY)
+
+    def test_esprit(self):
+        with self.check_decreased(lambda: self.hero.preferences_change_delay):
+            self._set_effect(relations.ARTIFACT_EFFECT.ESPRIT)
+
+    def test_terrible_view(self):
+        with self.check_increased(lambda: self.hero.leave_battle_in_fear_probability):
+            self._set_effect(relations.ARTIFACT_EFFECT.TERRIBLE_VIEW)
+
+    def test_clouded_mind(self):
+        self.assertFalse(self.hero.clouded_mind)
+        self._set_effect(relations.ARTIFACT_EFFECT.CLOUDED_MIND)
+        self.assertTrue(self.hero.clouded_mind)
+
+    def test_luck_of_stranger(self):
+        with self.check_increased(lambda: self.hero.rare_artifact_probability_multiplier):
+            self._set_effect(relations.ARTIFACT_EFFECT.LUCK_OF_STRANGER)
+
+    def test_luck_of_hero(self):
+        with self.check_increased(lambda: self.hero.epic_artifact_probability_multiplier):
+            self._set_effect(relations.ARTIFACT_EFFECT.LUCK_OF_HERO)
+
+    def test_ideological(self):
+        with self.check_increased(lambda: self.hero.habits_increase_modifier):
+            self._set_effect(relations.ARTIFACT_EFFECT.IDEOLOGICAL)
+
+    def test_fortitude(self):
+        with self.check_decreased(lambda: self.hero.habits_decrease_modifier):
+            self._set_effect(relations.ARTIFACT_EFFECT.FORTITUDE)
+
+    def test_unbreakable(self):
+        with self.check_increased(lambda: self.hero.safe_artifact_integrity_probability):
+            self._set_effect(relations.ARTIFACT_EFFECT.UNBREAKABLE)

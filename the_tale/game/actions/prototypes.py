@@ -374,8 +374,7 @@ class ActionBase(object):
             self.hero.change_money(MONEY_SOURCE.EARNED_FROM_HABITS, coins)
             self.hero.add_message(message_type, diary=True, hero=self.hero, coins=coins, **self.action_event_message_arguments())
         elif event_reward.is_ARTIFACT:
-            artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
-            self.hero.bag.put_artifact(artifact)
+            artifact, unequipped, sell_price = self.hero.receive_artifact(equip=False, better=False, prefered_slot=False, prefered_item=False, archetype=False)
             self.hero.add_message(message_type, diary=True, hero=self.hero, artifact=artifact, **self.action_event_message_arguments())
         elif event_reward.is_EXPERIENCE:
             experience = self.hero.add_experience(int(c.HABIT_EVENT_EXPERIENCE * random.uniform(1.0-c.HABIT_EVENT_EXPERIENCE_DELTA, 1.0+c.HABIT_EVENT_EXPERIENCE_DELTA)))
@@ -863,6 +862,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
 
         kill_before_battle = hero.can_kill_before_battle()
         can_peacefull_battle = hero.can_peacefull_battle(mob.mob_type)
+        can_leave_battle_in_fear = hero.can_leave_battle_in_fear()
 
         if kill_before_battle:
             percents = 1.0
@@ -872,6 +872,10 @@ class ActionBattlePvE1x1Prototype(ActionBase):
             percents = 1.0
             state = cls.STATE.PROCESSED
             hero.add_message('action_battlepve1x1_peacefull_battle', hero=hero, mob=mob)
+        elif can_leave_battle_in_fear:
+            percents = 1.0
+            state = cls.STATE.PROCESSED
+            hero.add_message('action_battlepve1x1_leave_battle_in_fear', hero=hero, mob=mob)
         else:
             percents = 0.0
             state = cls.STATE.BATTLE_RUNNING
@@ -925,7 +929,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
         self.mob.kill()
         self.hero.statistics.change_pve_kills(1)
 
-        loot = self.mob.get_loot(self.hero.artifacts_probability(), self.hero.loot_probability())
+        loot = artifacts_storage.generate_loot(self.hero, self.mob)
 
         if loot is not None:
             bag_uuid = self.hero.put_loot(loot)

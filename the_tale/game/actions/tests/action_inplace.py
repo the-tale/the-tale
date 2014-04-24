@@ -16,6 +16,8 @@ from the_tale.game.actions.prototypes import ActionInPlacePrototype, ActionRestP
 from the_tale.game.actions.tests.helpers import ActionEventsTestsMixin
 
 from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts.relations import RARITY
+
 from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.map.places.modifiers.prototypes import HolyCity, Resort
@@ -167,7 +169,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
     def test_trade_action_create(self):
 
         for i in xrange(int(c.MAX_BAG_SIZE * c.BAG_SIZE_TO_SELL_LOOT_FRACTION) + 1):
-            artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 1)
+            artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 1, rarity=RARITY.NORMAL)
             self.hero.bag.put_artifact(artifact)
 
         self.storage.process_turn()
@@ -177,7 +179,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.storage._test_save()
 
     def test_equip_action_create(self):
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1)
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1, rarity=RARITY.NORMAL)
         artifact.power = Power(666, 666)
         self.hero.bag.put_artifact(artifact)
 
@@ -340,7 +342,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
             self.hero.switch_spending()
 
         # fill all slots with artifacts
-        self.hero.equipment.test_equip_in_all_slots(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level))
+        self.hero.equipment.test_equip_in_all_slots(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL))
 
         money = self.hero.spend_amount
 

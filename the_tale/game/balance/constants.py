@@ -65,9 +65,9 @@ GET_LOOT_PROBABILITY = float(0.33) # вероятность получить д�
 
 # вероятности получить разный тип добычи
 
-NORMAL_LOOT_PROBABILITY = float(0.99)
-RARE_LOOT_PROBABILITY = float(0.0099)
-EPIC_LOOT_PROBABILITY = 1 - NORMAL_LOOT_PROBABILITY - RARE_LOOT_PROBABILITY
+EPIC_ARTIFACT_PROBABILITY = float(0.005)
+RARE_ARTIFACT_PROBABILITY = float(0.05)
+NORMAL_ARTIFACT_PROBABILITY = float(1 - RARE_ARTIFACT_PROBABILITY - EPIC_ARTIFACT_PROBABILITY)
 
 #стоимость разной добычи на единицу уровня
 NORMAL_LOOT_COST = float(1.5)

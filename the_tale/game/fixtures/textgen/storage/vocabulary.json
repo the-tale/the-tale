@@ -12847,11 +12847,50 @@
       "template": "Жители %(e_0)s и %(e_1)s выдвинули закон «%(e_2)s» об обмене ресурсами. Со стороны %(e_0)s — «%(e_4)s», со стороны %(e_1)s — «%(e_6)s»."
     }
   ], 
-  "quest_spying_choice_current_open_up": [
+  "angel_ability_healhero_crit": [
     {
       "internals": [], 
-      "externals": [], 
-      "template": "планирует прийти с повинной"
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "hero"
+        ], 
+        [
+          "health", 
+          [], 
+          "e_1", 
+          [], 
+          "health"
+        ]
+      ], 
+      "template": "Зелёный луч ударил с небес, исцеляя %(e_0)s на %(e_1)s HP."
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "hero", 
+          [], 
+          "e_0", 
+          [
+            "вн"
+          ], 
+          "hero"
+        ], 
+        [
+          "health", 
+          [], 
+          "e_1", 
+          [], 
+          "health"
+        ]
+      ], 
+      "template": "Снег посыпался на %(e_0)s, восстанавливая %(e_1)s HP."
     }
   ], 
   "quest_caravan_diary_choose_attack": [
@@ -15322,50 +15361,11 @@
       "template": "скупщик краденого"
     }
   ], 
-  "angel_ability_healhero_crit": [
+  "quest_spying_choice_current_open_up": [
     {
       "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "вн"
-          ], 
-          "hero"
-        ], 
-        [
-          "health", 
-          [], 
-          "e_1", 
-          [], 
-          "health"
-        ]
-      ], 
-      "template": "Зелёный луч ударил с небес, исцеляя %(e_0)s на %(e_1)s HP."
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "hero", 
-          [], 
-          "e_0", 
-          [
-            "вн"
-          ], 
-          "hero"
-        ], 
-        [
-          "health", 
-          [], 
-          "e_1", 
-          [], 
-          "health"
-        ]
-      ], 
-      "template": "Снег посыпался на %(e_0)s, восстанавливая %(e_1)s HP."
+      "externals": [], 
+      "template": "планирует прийти с повинной"
     }
   ], 
   "chronicle_place_change_description_bill_started": [
@@ -45648,6 +45648,44 @@
       ], 
       "externals": [], 
       "template": "«Какие-то жалкого вида разбойники потребовали еды. %(i_0)s. Ну их, в самом деле»."
+    }
+  ], 
+  "action_battlepve1x1_leave_battle_in_fear": [
+    {
+      "internals": [
+        [
+          "встреченный", 
+          [
+            "mob"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "встреченный"
+        ], 
+        [
+          "бросился", 
+          [
+            "mob"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "бросился"
+        ]
+      ], 
+      "externals": [
+        [
+          "mob", 
+          [], 
+          "e_0", 
+          [], 
+          "mob"
+        ]
+      ], 
+      "template": "Едва рассмотрев героя, %(i_0)s %(e_0)s в ужасе %(i_1)s прочь."
     }
   ]
 }

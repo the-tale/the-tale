@@ -48,9 +48,9 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.TURNS_TO_RESURRECT, 18)
 
         self.assertEqual(c.GET_LOOT_PROBABILITY, 0.33)
-        self.assertEqual(c.NORMAL_LOOT_PROBABILITY, 0.99)
-        self.assertEqual(c.RARE_LOOT_PROBABILITY, 0.0099)
-        self.assertTrue(c.EPIC_LOOT_PROBABILITY - 0.0001 < 1e-10)
+        self.assertEqual(c.NORMAL_ARTIFACT_PROBABILITY, 1 - 0.05 - 0.005)
+        self.assertEqual(c.RARE_ARTIFACT_PROBABILITY, 0.05)
+        self.assertTrue(c.EPIC_ARTIFACT_PROBABILITY, 0.005)
         self.assertEqual(c.NORMAL_LOOT_COST, 1.5)
         self.assertEqual(c.RARE_LOOT_COST, 25.0)
         self.assertEqual(c.EPIC_LOOT_COST, 250.0)

@@ -12,6 +12,7 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts.relations import RARITY
 
 from the_tale.game.heroes.conf import heroes_settings
 from the_tale.game.heroes import relations
@@ -98,17 +99,17 @@ class HeroLogicAccessorsTest(testcase.TestCase):
                                        OPTION_MARKERS.UNAGGRESSIVE]))
 
     def test_can_safe_artifact_integrity(self):
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL)
         self.hero.preferences.set_favorite_item(None)
         self.assertFalse(any(self.hero.can_safe_artifact_integrity(artifact) for i in xrange(100)))
 
     def test_can_safe_artifact_integrity__favorite_item(self):
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL)
         self.hero.preferences.set_favorite_item(artifact.type.equipment_slot)
         self.assertTrue(any(self.hero.can_safe_artifact_integrity(artifact) for i in xrange(100)))
 
     def test_can_safe_artifact_integrity__favorite_item__wrong_slot(self):
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL)
 
         wrong_slot = None
         for slot in relations.EQUIPMENT_SLOT.records:

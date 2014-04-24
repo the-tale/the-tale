@@ -13,6 +13,7 @@ from the_tale.game.logic import create_test_map
 from the_tale.game.actions.prototypes import ActionEquippingPrototype
 
 from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts.relations import RARITY
 
 from the_tale.game.prototypes import TimePrototype
 
@@ -52,7 +53,7 @@ class ActionEquippingTest(testcase.TestCase):
 
 
     def test_equip(self):
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL)
         artifact.power = Power(666, 666)
 
         equip_slot = artifact.type.equipment_slot
@@ -72,7 +73,7 @@ class ActionEquippingTest(testcase.TestCase):
 
 
     def test_switch_artifact(self):
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level)
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL)
         artifact.power = Power(13, 13)
 
         equip_slot = artifact.type.equipment_slot
@@ -80,7 +81,7 @@ class ActionEquippingTest(testcase.TestCase):
         self.hero.equipment.unequip(equip_slot)
         self.hero.equipment.equip(equip_slot, artifact)
 
-        new_artifact = artifacts_storage.generate_artifact_from_list([artifact.record], self.hero.level+1)
+        new_artifact = artifacts_storage.generate_artifact_from_list([artifact.record], self.hero.level+1, rarity=RARITY.NORMAL)
         new_artifact.power = Power(666, 666)
 
         self.hero.bag.put_artifact(new_artifact)

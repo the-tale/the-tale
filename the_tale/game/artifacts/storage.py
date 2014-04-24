@@ -3,12 +3,13 @@ import random
 import itertools
 
 from the_tale.common.utils.storage import create_storage_class
+from the_tale.common.utils.logic import random_value_by_priority
 
 from the_tale.game.balance.power import Power
 
 from the_tale.game.artifacts import exceptions
 from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
-from the_tale.game.artifacts.relations import ARTIFACT_TYPE
+from the_tale.game.artifacts import relations
 
 
 class ArtifactsStorage(create_storage_class('artifacts records change time', ArtifactRecordPrototype, exceptions.ArtifactsStorageError)):
@@ -17,7 +18,7 @@ class ArtifactsStorage(create_storage_class('artifacts records change time', Art
         self._artifacts_by_uuids = {}
         self.artifacts = []
         self.loot = []
-        self._artifacts_by_types = { artifact_type: [] for artifact_type in ARTIFACT_TYPE.records}
+        self._artifacts_by_types = { artifact_type: [] for artifact_type in relations.ARTIFACT_TYPE.records}
         self._mob_artifacts = {}
         self._mob_loot = {}
 
@@ -60,7 +61,7 @@ class ArtifactsStorage(create_storage_class('artifacts records change time', Art
     def artifacts_for_type(self, types):
         return list(itertools.chain(*[self._artifacts_by_types[type_] for type_ in types] ))
 
-    def generate_artifact_from_list(self, artifacts_list, level):
+    def generate_artifact_from_list(self, artifacts_list, level, rarity):
 
         artifact_choices = []
 
@@ -79,7 +80,9 @@ class ArtifactsStorage(create_storage_class('artifacts records change time', Art
             power = Power.artifact_power_randomized(distribution=artifact_record.power_type.distribution,
                                                     level=level)
 
-        return artifact_record.create_artifact(level=level, power=power)
+        return artifact_record.create_artifact(level=level,
+                                               power=power,
+                                               rarity=rarity)
 
 
     def get_mob_artifacts(self, mob_id):
@@ -96,14 +99,19 @@ class ArtifactsStorage(create_storage_class('artifacts records change time', Art
             self._mob_loot[mob_id] = filter(lambda artifact: artifact.mob_id == mob_id, self.loot) # pylint: disable=W0110
         return self._mob_loot[mob_id]
 
+    def get_rarity_type(self, hero):
+        choices = ( (relations.RARITY.NORMAL, relations.RARITY.NORMAL.probability),
+                    (relations.RARITY.RARE, relations.RARITY.RARE.probability * hero.rare_artifact_probability_multiplier),
+                    (relations.RARITY.EPIC, relations.RARITY.EPIC.probability * hero.epic_artifact_probability_multiplier))
+        return random_value_by_priority(choices)
 
-    def generate_loot(self, mob, artifacts_probability, loot_probability):
+    def generate_loot(self, hero, mob):
 
-        if random.uniform(0, 1) < artifacts_probability:
-            return self.generate_artifact_from_list(self.get_mob_artifacts(mob.record.id), mob.level)
+        if random.uniform(0, 1) < hero.artifacts_probability():
+            return self.generate_artifact_from_list(self.get_mob_artifacts(mob.record.id), mob.level, rarity=self.get_rarity_type(hero))
 
-        if random.uniform(0, 1) < loot_probability:
-            return self.generate_artifact_from_list(self.get_mob_loot(mob.record.id), mob.record.level)
+        if random.uniform(0, 1) < hero.loot_probability():
+            return self.generate_artifact_from_list(self.get_mob_loot(mob.record.id), mob.record.level, rarity=relations.RARITY.NORMAL)
 
         return None
 

@@ -27,7 +27,7 @@ from the_tale.game.map.places.relations import CITY_MODIFIERS
 from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
-from the_tale.game.heroes.habilities import ABILITY_TYPE, ABILITIES, battle
+from the_tale.game.heroes.habilities import ABILITY_TYPE, ABILITIES, battle, ABILITY_AVAILABILITY
 from the_tale.game.heroes.conf import heroes_settings
 from the_tale.game.heroes import relations
 from the_tale.game.heroes import messages
@@ -752,11 +752,13 @@ class HeroLevelUpTests(testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.next_ability_type', ABILITY_TYPE.BATTLE)
     def test_get_abilities_for_choose_all_slots_busy_but_one_not_max_level(self):
-        passive_abilities = filter(lambda a: a.activation_type.is_PASSIVE, [a(level=a.MAX_LEVEL) for a in battle.ABILITIES.values()])
+        passive_abilities = filter(lambda a: a.activation_type.is_PASSIVE and a.availability.value & ABILITY_AVAILABILITY.FOR_PLAYERS.value,
+                                   [a(level=a.MAX_LEVEL) for a in battle.ABILITIES.values()])
         for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
-        active_abilities = filter(lambda a: a.activation_type.is_ACTIVE, [a(level=a.MAX_LEVEL) for a in battle.ABILITIES.values()])
+        active_abilities = filter(lambda a: a.activation_type.is_ACTIVE and a.availability.value & ABILITY_AVAILABILITY.FOR_PLAYERS.value,
+                                  [a(level=a.MAX_LEVEL) for a in battle.ABILITIES.values()])
         for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
