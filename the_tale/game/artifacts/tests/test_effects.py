@@ -237,3 +237,7 @@ class EffectsTests(testcase.TestCase):
     def test_unbreakable(self):
         with self.check_increased(lambda: self.hero.safe_artifact_integrity_probability):
             self._set_effect(relations.ARTIFACT_EFFECT.UNBREAKABLE)
+
+    def test_no_effect(self):
+        with self.check_not_changed(lambda: effects.EFFECTS[self.artifact.record.rare_effect].modify_attribute(None, 100)):
+            self._set_effect(relations.ARTIFACT_EFFECT.NO_EFFECT)

@@ -59,6 +59,7 @@
       <tr><td>доля урона герою</td><td class="center">{{c.DAMAGE_TO_HERO_PER_HIT_FRACTION}}</td></tr>
       <tr><td>точный опыт за квест</td><td class="center">{{exp_for_quest}}</td><tr>
       <tr><td>длина среднего пути</td><td class="center">{{average_path_length}}</td><tr>
+      <tr><td>артефактов в день</td><td class="center">{{c.ARTIFACTS_LOOT_PER_DAY}}</td><tr>
     </tbody>
   </table>
 
@@ -107,8 +108,6 @@
       {{ time_row("проведено битв до уровня", tmp_total_battles)}}
       {{ time_row("артефактов всего (до уровня)", tmp_artifacts_total)}}
       {{ time_row("артефактов за битву", tmp_artifacts_per_battle, 5)}}
-      {{ time_row("артефактов в час", tmp_artifacts_per_hour, 3)}}
-      {{ time_row("артефактов в день", tmp_artifacts_per_day, 2)}}
       {{ time_row("добытое золото на уровне", tmp_gold_at_lvl)}}
       {{ time_row("золота в день", tmp_gold_in_day)}}
       {{ time_row("всего добыто золота до уровня", tmp_total_gold_at_lvl)}}

@@ -96,7 +96,7 @@ class Power(object):
         return Damage(physic=float(self.physic)/total_power * expected_damage,
                       magic=float(self.magic)/total_power * expected_damage)
 
-    def __repr__(self): return u'Power(physic=%d, magic=%d)' % (self.physic, self.magic)
+    def __repr__(self): return u'Power(%d, %d)' % (self.physic, self.magic)
 
     def __eq__(self, other):
         return (self.physic == other.physic and
@@ -109,6 +109,15 @@ class Power(object):
     def __iadd__(self, other):
         self.physic += other.physic
         self.magic += other.magic
+        return self
+
+    def __sub__(self, other):
+        return self.__class__(physic=self.physic - other.physic,
+                              magic=self.magic - other.magic)
+
+    def __isub__(self, other):
+        self.physic -= other.physic
+        self.magic -= other.magic
         return self
 
 
@@ -154,7 +163,7 @@ class Damage(object):
     def __idiv__(self, other):
         return self.multiply(1.0/other, 1.0/other)
 
-    def __repr__(self): return u'Damage(physic=%f, magic=%f)' % (self.physic, self.magic)
+    def __repr__(self): return u'Damage(%f, %f)' % (self.physic, self.magic)
 
     def __eq__(self, other):
         return (self.physic == other.physic and

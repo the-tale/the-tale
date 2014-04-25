@@ -11,6 +11,8 @@ from the_tale.game.artifacts.models import ArtifactRecord
 from the_tale.game.artifacts import relations
 
 
+EFFECT_CHOICES = sorted(relations.ARTIFACT_EFFECT.choices(), key=lambda v: v[1])
+
 class ArtifactRecordBaseForm(forms.Form):
 
     level = fields.IntegerField(label=u'минимальный уровень')
@@ -19,6 +21,9 @@ class ArtifactRecordBaseForm(forms.Form):
 
     type = fields.TypedChoiceField(label=u'тип', choices=relations.ARTIFACT_TYPE.choices(), coerce=relations.ARTIFACT_TYPE.get_from_name)
     power_type = fields.TypedChoiceField(label=u'тип силы', choices=relations.ARTIFACT_POWER_TYPE.choices(), coerce=relations.ARTIFACT_POWER_TYPE.get_from_name)
+
+    rare_effect = fields.TypedChoiceField(label=u'редкий эффект', choices=EFFECT_CHOICES, coerce=relations.ARTIFACT_EFFECT.get_from_name)
+    epic_effect = fields.TypedChoiceField(label=u'редкий эффект', choices=EFFECT_CHOICES, coerce=relations.ARTIFACT_EFFECT.get_from_name)
 
     mob = fields.ChoiceField(label=u'Монстр', required=False)
 

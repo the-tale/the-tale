@@ -8,7 +8,9 @@ from the_tale.common.utils.resources import Resource
 
 from the_tale.game.map.roads.storage import waymarks_storage
 
-from the_tale.game.balance import constants as c, formulas as f
+from the_tale.game.balance import constants as c
+from the_tale.game.balance import formulas as f
+from the_tale.game.balance.power import Power, PowerDistribution
 
 class BalanceResource(Resource):
 
@@ -32,23 +34,23 @@ class BalanceResource(Resource):
         tmp_quests_to_level = map(math.ceil, (exp/float(exp_for_quest) for exp in tmp_exp_to_level))
         tmp_quests_total = map(math.ceil, (exp/float(exp_for_quest) for exp in tmp_exp_total))
 
+        dstr = PowerDistribution(0.5, 0.5)
+
         tmp_hp = map(f.hp_on_lvl, tmp_lvls)
         tmp_turns = map(f.turns_on_lvl, tmp_lvls)
         tmp_turns_to_time = map(int, map(f.hours_to_turns, tmp_times))
         tmp_expected_damage_to_hero_per_hit = map(f.expected_damage_to_hero_per_hit, tmp_lvls)
         tmp_expected_damage_to_hero_per_hit_interval = [ (int(round(dmg*(1-c.DAMAGE_DELTA))), int(round(dmg*(1+c.DAMAGE_DELTA)))) for dmg in tmp_expected_damage_to_hero_per_hit]
         tmp_mob_hp = map(f.mob_hp_to_lvl, tmp_lvls)
-        tmp_power = map(f.power_to_lvl, tmp_lvls)
+        tmp_power = map(lambda lvl: Power.power_to_level(dstr, lvl), tmp_lvls)
         tmp_expected_damage_to_mob_per_hit = map(f.expected_damage_to_mob_per_hit, tmp_lvls)
-        tmp_real_damage_to_mob_per_hit = map(f.damage_from_power, tmp_power)
+        tmp_real_damage_to_mob_per_hit = map(lambda p: p.damage().total, tmp_power)
         tmp_real_damage_to_mob_per_hit_interval = [ (int(round(dmg*(1-c.DAMAGE_DELTA))), int(round(dmg*(1+c.DAMAGE_DELTA)))) for dmg in tmp_real_damage_to_mob_per_hit]
-        tmp_power_per_slot = [f.power_to_artifact(x) for x in tmp_lvls]
+        tmp_power_per_slot = [Power.power_to_artifact(dstr, lvl) for lvl in tmp_lvls]
         tmp_battles_at_lvl = map(math.floor, [x * c.BATTLES_PER_HOUR for x in map(f.time_on_lvl, tmp_lvls)])
         tmp_total_battles = map(math.floor, [x * c.BATTLES_PER_HOUR for x in map(f.total_time_for_lvl, tmp_lvls)])
-        tmp_artifacts_per_battle = map(f.artifacts_per_battle, tmp_lvls)
-        tmp_artifacts_total = [(lvl-1)*c.ARTIFACTS_PER_LVL for lvl in tmp_lvls]
-        tmp_artifacts_per_hour = [x*c.BATTLES_PER_HOUR for x in map(f.artifacts_per_battle, tmp_lvls)]
-        tmp_artifacts_per_day = [x*c.BATTLES_PER_HOUR*24 for x in map(f.artifacts_per_battle, tmp_lvls)]
+        tmp_artifacts_per_battle = [c.ARTIFACTS_PER_BATTLE]* len(tmp_lvls)
+        tmp_artifacts_total = [c.ARTIFACTS_LOOT_PER_DAY * f.total_time_for_lvl(lvl-1)/24.0 for lvl in tmp_lvls]
 
         tmp_gold_at_lvl = map(f.expected_gold_at_lvl, tmp_lvls)
         tmp_gold_in_day = map(f.expected_gold_in_day, tmp_lvls)
@@ -82,8 +84,6 @@ class BalanceResource(Resource):
                               'tmp_total_battles': tmp_total_battles,
                               'tmp_artifacts_total': tmp_artifacts_total,
                               'tmp_artifacts_per_battle': tmp_artifacts_per_battle,
-                              'tmp_artifacts_per_hour': tmp_artifacts_per_hour,
-                              'tmp_artifacts_per_day': tmp_artifacts_per_day,
 
                               'tmp_gold_at_lvl': tmp_gold_at_lvl,
                               'tmp_gold_in_day': tmp_gold_in_day,

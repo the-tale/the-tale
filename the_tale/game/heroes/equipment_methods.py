@@ -56,7 +56,7 @@ class EquipmentMethodsMixin(object):
                     distribution = self.preferences.archetype.power_distribution
                     min_power, max_power = Power.artifact_power_interval(distribution, self.level) # pylint: disable=W0612
 
-                    if artifact.preference_rating(distribution) >= ArtifactPrototype._preference_rating(max_power, distribution):
+                    if artifact.preference_rating(distribution) >= ArtifactPrototype._preference_rating(artifact.rarity, max_power, distribution):
                         continue
 
                 result_choices.append(slot)

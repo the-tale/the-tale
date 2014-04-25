@@ -52,8 +52,6 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.RARE_ARTIFACT_PROBABILITY, 0.05)
         self.assertTrue(c.EPIC_ARTIFACT_PROBABILITY, 0.005)
         self.assertEqual(c.NORMAL_LOOT_COST, 1.5)
-        self.assertEqual(c.RARE_LOOT_COST, 25.0)
-        self.assertEqual(c.EPIC_LOOT_COST, 250.0)
         self.assertEqual(c.NORMAL_ACTION_PRICE_MULTIPLYER, 1.2)
         self.assertEqual(c.BASE_EXPERIENCE_FOR_MONEY_SPEND, 96)
         self.assertEqual(c.EXPERIENCE_DELTA_FOR_MONEY_SPEND, 0.5)
@@ -65,6 +63,11 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.ARTIFACT_BETTER_MIN_POWER_DELTA, 5)
         self.assertEqual(c.ARTIFACT_INTEGRITY_DAMAGE_PER_BATTLE, 1)
         self.assertEqual(c.ARTIFACT_INTEGRITY_SAFE_PROBABILITY_FOR_FAVORITE_ITEM, 0.5)
+
+        self.assertEqual(c.ARTIFACT_RARE_MAX_INTEGRITY_MULTIPLIER, 1.5)
+        self.assertEqual(c.ARTIFACT_EPIC_MAX_INTEGRITY_MULTIPLIER, 2)
+        self.assertEqual(c.ARTIFACT_MAX_INTEGRITY_DELTA, 0.25)
+
         self.assertEqual(c.ARTIFACT_MAX_INTEGRITY, 20000)
         self.assertEqual(c.ARTIFACT_SHARP_MAX_INTEGRITY_LOST_FRACTION, 0.02)
         self.assertEqual(c.ARTIFACT_INTEGRITY_SAFE_BARRIER, 0.1)

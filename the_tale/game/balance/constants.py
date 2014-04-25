@@ -71,8 +71,6 @@ NORMAL_ARTIFACT_PROBABILITY = float(1 - RARE_ARTIFACT_PROBABILITY - EPIC_ARTIFAC
 
 #стоимость разной добычи на единицу уровня
 NORMAL_LOOT_COST = float(1.5)
-RARE_LOOT_COST = float(25)
-EPIC_LOOT_COST = float(250)
 
 MAX_BAG_SIZE = int(12) # максимальный размер рюкзака героя
 BAG_SIZE_TO_SELL_LOOT_FRACTION = float(0.33) # процент заполненности рюкзака, после которого герой начнёт продавать вещи
@@ -124,6 +122,10 @@ ARTIFACT_INTEGRITY_DAMAGE_PER_BATTLE = int(1) # уменьшение целос�
 ARTIFACT_INTEGRITY_SAFE_PROBABILITY_FOR_FAVORITE_ITEM = float(0.5) # вероятность неуменьшения целостности любимого предмета
 
 _INTEGRITY_LOST_IN_DAY = BATTLES_PER_HOUR * 24 * ARTIFACT_INTEGRITY_DAMAGE_PER_BATTLE
+
+ARTIFACT_RARE_MAX_INTEGRITY_MULTIPLIER = float(1.5) # коофициент увеличения максимальной целостности для редких артефактов
+ARTIFACT_EPIC_MAX_INTEGRITY_MULTIPLIER = float(2) # коофициент увеличения максимальной целостности для эпических артефактов
+ARTIFACT_MAX_INTEGRITY_DELTA = float(0.25) # разброс допустимой максимальной целостности
 
 ARTIFACT_MAX_INTEGRITY = int(round(2 * _INTEGRITY_LOST_IN_DAY * 30, -4)) # максимальная целостность обычного артефакта
 ARTIFACT_SHARP_MAX_INTEGRITY_LOST_FRACTION = float(0.02) # доля максимальной целостности, теряемая при заточке

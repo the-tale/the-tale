@@ -101,7 +101,7 @@ class GuideMobResource(MobResourceBase):
             mobs = filter(lambda mob: mob.type == type, mobs) # pylint: disable=W0110
 
         if archetype is not None:
-            mobs = filter(lambda mob: mob.archetype == type, mobs) # pylint: disable=W0110
+            mobs = filter(lambda mob: mob.archetype == archetype, mobs) # pylint: disable=W0110
 
         url_builder = UrlBuilder(reverse('guide:mobs:'), arguments={ 'state': state.value if state is not None else None,
                                                                      'terrain': terrain.value if terrain is not None else None,

@@ -6,23 +6,46 @@ from django.core.urlresolvers import reverse
 from dext.views import handler, validator, validate_argument
 from dext.utils.urls import UrlBuilder
 
+from the_tale.common.utils import list_filter
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.decorators import login_required
-from the_tale.common.utils.enum import create_enum
 
 from the_tale.game.map.relations import TERRAIN
 
 from the_tale.game.artifacts import relations
+from the_tale.game.artifacts import effects
 from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
 from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.artifacts.forms import ArtifactRecordForm, ModerateArtifactRecordForm
 
+EFFECTS_CHOICES = sorted(relations.ARTIFACT_EFFECT.select('value', 'text'),
+                         key=lambda v: v[1])
 
-INDEX_ORDER_TYPE = create_enum('INDEX_ORDER_TYPE', (('BY_LEVEL', 'by_level', u'по уровню'),
-                                                    ('BY_NAME', 'by_name', u'по имени'),))
+BASE_INDEX_FILTERS = [list_filter.reset_element(),
+                      list_filter.choice_element(u'экипировка:', attribute='type', choices=[(None, u'все')] + list(relations.ARTIFACT_TYPE.select('value', 'text'))),
+                      list_filter.choice_element(u'сила:', attribute='power_type', choices=[(None, u'все')] + list(relations.ARTIFACT_POWER_TYPE.select('value', 'text'))),
+                      list_filter.choice_element(u'эффекты:', attribute='effect', choices=[(None, u'все')] + EFFECTS_CHOICES),
+                      list_filter.choice_element(u'сортировка:',
+                                                 attribute='order_by',
+                                                 choices=[(None, u'все')] + list(relations.INDEX_ORDER_TYPE.select('value', 'text')),
+                                                 default_value=relations.INDEX_ORDER_TYPE.BY_NAME.value) ]
+
+MODERATOR_INDEX_FILTERS = list(BASE_INDEX_FILTERS)
+MODERATOR_INDEX_FILTERS.append(list_filter.choice_element(u'состояние:',
+                                                          attribute='state',
+                                                          choices=list(relations.ARTIFACT_RECORD_STATE.select('value', 'text')),
+                                                          default_value=relations.ARTIFACT_RECORD_STATE.ENABLED.value))
+
+class BaseIndexFilter(list_filter.ListFilter):
+    ELEMENTS = BASE_INDEX_FILTERS
+
+class ModeratorIndexFilter(list_filter.ListFilter):
+    ELEMENTS = MODERATOR_INDEX_FILTERS
 
 def argument_to_artifact_type(value): return relations.ARTIFACT_TYPE(int(value))
 def argument_to_artifact(value): return artifacts_storage.get(int(value), None)
+def argument_to_effect_type(value): return relations.ARTIFACT_EFFECT(int(value))
+def argument_to_power_type(value): return relations.ARTIFACT_POWER_TYPE(int(value))
 
 
 class ArtifactResourceBase(Resource):
@@ -45,61 +68,81 @@ class GuideArtifactResource(ArtifactResourceBase):
 
 
     @validate_argument('state', lambda v: relations.ARTIFACT_RECORD_STATE.index_value[int(v)], 'artifacts', u'неверное состояние записи об артефакте')
-    @validate_argument('type', argument_to_artifact_type, 'artifacts', u'неверный тип артефакта')
-    @validate_argument('order_by', INDEX_ORDER_TYPE, 'artifacts', u'неверный тип сортировки')
+    @validate_argument('type', argument_to_artifact_type, 'artifacts', u'неверный тип слота экипировки')
+    @validate_argument('effect', argument_to_effect_type, 'artifacts', u'неверный тип эффекта')
+    @validate_argument('power_type', argument_to_power_type, 'artifacts', u'неверный тип артефакта')
+    @validate_argument('order_by', relations.INDEX_ORDER_TYPE, 'artifacts', u'неверный тип сортировки')
     @handler('', method='get')
     def index(self,
               state=relations.ARTIFACT_RECORD_STATE.ENABLED,
+              effect=None,
               type=None, # pylint: disable=W0622
-              order_by=INDEX_ORDER_TYPE(INDEX_ORDER_TYPE.BY_NAME)):
+              power_type=None, # pylint: disable=W0622
+              order_by=relations.INDEX_ORDER_TYPE.BY_NAME):
 
         artifacts = artifacts_storage.all()
 
         if not self.can_create_artifact and not self.can_moderate_artifact:
             artifacts = filter(lambda artifact: artifact.state.is_ENABLED, artifacts) # pylint: disable=W0110
 
-        is_filtering = False
-
         if state is not None:
-            if not state.is_ENABLED: # if not default
-                is_filtering = True
             artifacts = filter(lambda artifact: artifact.state == state, artifacts) # pylint: disable=W0110
 
+        if effect is not None:
+            artifacts = filter(lambda artifact: artifact.rare_effect == effect or artifact.epic_effect == effect, artifacts) # pylint: disable=W0110
+
         if type is not None:
-            is_filtering = True
             artifacts = filter(lambda artifact: artifact.type == type, artifacts) # pylint: disable=W0110
 
-        if order_by.is_by_name:
+        if power_type is not None:
+            artifacts = filter(lambda artifact: artifact.power_type == power_type, artifacts) # pylint: disable=W0110
+
+        if order_by.is_BY_NAME:
             artifacts = sorted(artifacts, key=lambda artifact: artifact.name)
-        elif order_by.is_by_level:
+        elif order_by.is_BY_LEVEL:
             artifacts = sorted(artifacts, key=lambda artifact: artifact.level)
+
+        if self.can_create_artifact or self.can_moderate_artifact:
+            IndexFilter = ModeratorIndexFilter
+        else:
+            IndexFilter = BaseIndexFilter
 
         url_builder = UrlBuilder(reverse('guide:artifacts:'), arguments={ 'state': state.value if state else None,
                                                                           'type': type.value if type else None,
+                                                                          'power_type': power_type.value if power_type else None,
+                                                                          'effect': effect.value if effect else None,
                                                                           'order_by': order_by.value})
+
+        index_filter = IndexFilter(url_builder=url_builder, values={'state': state.value if state else None,
+                                                                    'type': type.value if type else None,
+                                                                    'power_type': power_type.value if power_type else None,
+                                                                    'effect': effect.value if effect else None,
+                                                                    'order_by': order_by.value if order_by else None})
+
         return self.template('artifacts/index.html',
                              {'artifacts': artifacts,
-                              'is_filtering': is_filtering,
                               'ARTIFACT_RECORD_STATE': relations.ARTIFACT_RECORD_STATE,
                               'TERRAIN': TERRAIN,
                               'ARTIFACT_TYPE': relations.ARTIFACT_TYPE,
                               'state': state,
                               'type': type,
                               'order_by': order_by,
-                              'INDEX_ORDER_TYPE': INDEX_ORDER_TYPE,
-                              'url_builder': url_builder,
-                              'section': 'artifacts'} )
+                              'index_filter': index_filter,
+                              'section': 'artifacts',
+                              'EFFECTS': sorted(effects.EFFECTS.values(), key=lambda v: v.TYPE.text)} )
 
     @validate_artifact_disabled()
     @handler('#artifact', name='show', method='get')
     def show(self):
         return self.template('artifacts/show.html', {'artifact': self.artifact,
-                                                     'section': 'artifacts'})
+                                                     'section': 'artifacts',
+                                                     'EFFECTS': effects.EFFECTS})
 
     @validate_artifact_disabled()
     @handler('#artifact', 'info', method='get')
     def show_dialog(self):
-        return self.template('artifacts/info.html', {'artifact': self.artifact})
+        return self.template('artifacts/info.html', {'artifact': self.artifact,
+                                                     'EFFECTS': effects.EFFECTS})
 
 
 class GameArtifactResource(ArtifactResourceBase):
@@ -117,7 +160,8 @@ class GameArtifactResource(ArtifactResourceBase):
     @validate_create_rights()
     @handler('new', method='get')
     def new(self):
-        return self.template('artifacts/new.html', {'form': ArtifactRecordForm()})
+        return self.template('artifacts/new.html', {'form': ArtifactRecordForm(initial={'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
+                                                                                        'epic_effect': relations.ARTIFACT_EFFECT.NO_EFFECT})})
 
     @login_required
     @validate_create_rights()
@@ -137,6 +181,8 @@ class GameArtifactResource(ArtifactResourceBase):
                                                   editor=self.account,
                                                   state=relations.ARTIFACT_RECORD_STATE.DISABLED,
                                                   power_type=form.c.power_type,
+                                                  rare_effect=form.c.rare_effect,
+                                                  epic_effect=form.c.epic_effect,
                                                   mob=form.c.mob)
         return self.json_ok(data={'next_url': reverse('guide:artifacts:show', args=[artifact.id])})
 
@@ -148,8 +194,10 @@ class GameArtifactResource(ArtifactResourceBase):
     def edit(self):
         form = ArtifactRecordForm(initial={'name': self.artifact.name,
                                            'level': self.artifact.level,
-                                           'type': self.artifact.type.value,
-                                           'power_type': self.artifact.power_type.value,
+                                           'type': self.artifact.type,
+                                           'power_type': self.artifact.power_type,
+                                           'rare_effect': self.artifact.rare_effect,
+                                           'epic_effect': self.artifact.epic_effect,
                                            'description': self.artifact.description,
                                            'mob': self.artifact.mob.id if self.artifact.mob is not None else None})
 
@@ -177,7 +225,10 @@ class GameArtifactResource(ArtifactResourceBase):
     def moderation_page(self):
         form = ModerateArtifactRecordForm(initial={'name': self.artifact.name,
                                                    'level': self.artifact.level,
-                                                   'type': self.artifact.type.value,
+                                                   'type': self.artifact.type,
+                                                   'power_type': self.artifact.power_type,
+                                                   'rare_effect': self.artifact.rare_effect,
+                                                   'epic_effect': self.artifact.epic_effect,
                                                    'description': self.artifact.description,
                                                    'uuid': self.artifact.uuid,
                                                    'name_forms': self.artifact.name_forms.serialize(),

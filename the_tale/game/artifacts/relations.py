@@ -7,6 +7,11 @@ from the_tale.game.balance import constants as c
 from the_tale.game.balance.power import PowerDistribution
 
 
+class INDEX_ORDER_TYPE(DjangoEnum):
+   records = ( ('BY_LEVEL', 'by_level', u'по уровню'),
+               ('BY_NAME', 'by_name', u'по имени') )
+
+
 class ARTIFACT_TYPE(DjangoEnum):
 
     records = ( ('USELESS', 0, u'хлам'),
@@ -27,11 +32,11 @@ class ARTIFACT_TYPE(DjangoEnum):
 class ARTIFACT_POWER_TYPE(DjangoEnum):
     distribution = Column()
 
-    records = ( ('MOST_MAGICAL', 0, u'магический', PowerDistribution(0.1, 0.9)),
-                ('MAGICAL', 1, u'больше магический', PowerDistribution(0.25, 0.75)),
-                ('NEUTRAL', 2, u'нейтральный', PowerDistribution(0.5, 0.5)),
-                ('PHYSICAL', 3, u'больше физический', PowerDistribution(0.75, 0.25)),
-                ('MOST_PHYSICAL', 4, u'физический', PowerDistribution(0.9, 0.1)) )
+    records = ( ('MOST_MAGICAL', 0, u'магическая', PowerDistribution(0.1, 0.9)),
+                ('MAGICAL', 1, u'ближе к магии', PowerDistribution(0.25, 0.75)),
+                ('NEUTRAL', 2, u'равновесие', PowerDistribution(0.5, 0.5)),
+                ('PHYSICAL', 3, u'ближе к физике', PowerDistribution(0.75, 0.25)),
+                ('MOST_PHYSICAL', 4, u'физическая', PowerDistribution(0.9, 0.1)) )
 
 
 class ARTIFACT_RECORD_STATE(DjangoEnum):
@@ -41,10 +46,13 @@ class ARTIFACT_RECORD_STATE(DjangoEnum):
 
 class RARITY(DjangoEnum):
     probability = Column()
+    max_integrity = Column()
+    preference_rating = Column()
+    cost = Column()
 
-    records = ( ('NORMAL', 0, u'обычный артефакт', c.NORMAL_ARTIFACT_PROBABILITY),
-                ('RARE', 1, u'редкий артефакт', c.RARE_ARTIFACT_PROBABILITY),
-                ('EPIC', 2, u'эпический артефакт', c.EPIC_ARTIFACT_PROBABILITY) )
+    records = ( ('NORMAL', 0, u'обычный артефакт', c.NORMAL_ARTIFACT_PROBABILITY, c.ARTIFACT_MAX_INTEGRITY, 1.0, 1.0),
+                ('RARE', 1, u'редкий артефакт', c.RARE_ARTIFACT_PROBABILITY, int(c.ARTIFACT_MAX_INTEGRITY*c.ARTIFACT_RARE_MAX_INTEGRITY_MULTIPLIER), 1.5, 3.0),
+                ('EPIC', 2, u'эпический артефакт', c.EPIC_ARTIFACT_PROBABILITY, int(c.ARTIFACT_MAX_INTEGRITY*c.ARTIFACT_EPIC_MAX_INTEGRITY_MULTIPLIER), 2.0, 9.0) )
 
 
 class ARTIFACT_EFFECT(DjangoEnum):
@@ -58,6 +66,8 @@ class ARTIFACT_EFFECT(DjangoEnum):
                 ('ENERGY', 6, u'астральный сосуд'),
                 ('SPEED', 7, u'скороход'),
                 ('BAG', 8, u'карманы'),
+
+                ('NO_EFFECT', 666, u'нет эффекта'),
 
                 ('GREAT_PHYSICAL_DAMAGE', 1000, u'небывалая мощь'),
                 ('GREAT_MAGICAL_DAMAGE', 1001, u'могучее колдовство'),

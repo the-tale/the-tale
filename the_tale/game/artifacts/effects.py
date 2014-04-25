@@ -418,6 +418,13 @@ class Unbreakable(BaseEffect):
     def modify_attribute(cls, type_, value):
         return value + cls.MULTIPLIER if type_.is_SAFE_INTEGRITY else value
 
+class NoEffect(BaseEffect):
+    TYPE = relations.ARTIFACT_EFFECT.NO_EFFECT
+    DESCRIPTION = u'нет эффекта'
+
+    @classmethod
+    def modify_attribute(cls, type_, value): return value
+
 
 
 EFFECTS = {effect.TYPE: effect

@@ -64,7 +64,7 @@ class TestIndexRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('guide:artifacts:')), texts=(('pgf-no-artifacts-message', 1),))
 
     def test_simple(self):
-        texts = ['loot_1', 'loot_2', 'boots_1', ('pgf-create-artifact-button', 0), ('pgf-artifact-state-filter', 0)]
+        texts = ['loot_1', 'loot_2', 'boots_1', ('pgf-create-artifact-button', 0), ('pgf-filter-state', 0)]
         self.check_html_ok(self.request_html(reverse('guide:artifacts:')), texts=texts)
 
     def test_create_artifact_button(self):
@@ -75,11 +75,11 @@ class TestIndexRequests(BaseTestRequests):
     def test_artifact_state_filter(self):
         self.request_logout()
         self.request_login('test_user_2@test.com')
-        self.check_html_ok(self.request_html(reverse('guide:artifacts:')), texts=[('pgf-artifact-state-filter', 1)])
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:')), texts=[('pgf-filter-state', 1)])
 
         self.request_logout()
         self.request_login('test_user_3@test.com')
-        self.check_html_ok(self.request_html(reverse('guide:artifacts:')), texts=[('pgf-artifact-state-filter', 1)])
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:')), texts=[('pgf-filter-state', 1)])
 
     def test_disabled_artifacts(self):
         ArtifactRecordPrototype.create_random(uuid='bandit_loot', state=relations.ARTIFACT_RECORD_STATE.DISABLED)
@@ -139,6 +139,8 @@ class TestCreateRequests(BaseTestRequests):
                 'level': 1,
                 'type': relations.ARTIFACT_TYPE.RING,
                 'power_type': relations.ARTIFACT_POWER_TYPE.NEUTRAL,
+                'rare_effect': relations.ARTIFACT_EFFECT.GREAT_PHYSICAL_DAMAGE,
+                'epic_effect': relations.ARTIFACT_EFFECT.POISON,
                 'description': 'artifact description',
                 'mob': self.mob.id}
 
@@ -168,6 +170,8 @@ class TestCreateRequests(BaseTestRequests):
         self.assertTrue(artifact_record.type.is_RING)
         self.assertEqual(artifact_record.description, 'artifact description')
         self.assertTrue(artifact_record.state.is_DISABLED)
+        self.assertTrue(artifact_record.rare_effect.is_GREAT_PHYSICAL_DAMAGE)
+        self.assertTrue(artifact_record.epic_effect.is_POISON)
         self.assertTrue(artifact_record.editor_id, self.account_2.id)
         self.assertTrue(artifact_record.mob.id, self.mob.id)
 
@@ -319,6 +323,8 @@ class TestUpdateRequests(BaseTestRequests):
                 'level': 1,
                 'type': relations.ARTIFACT_TYPE.RING,
                 'power_type': relations.ARTIFACT_POWER_TYPE.NEUTRAL,
+                'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
+                'epic_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
                 'description': 'artifact description'}
 
     def get_update_data(self):
@@ -326,6 +332,8 @@ class TestUpdateRequests(BaseTestRequests):
                 'level': 2,
                 'type': relations.ARTIFACT_TYPE.AMULET,
                 'power_type': relations.ARTIFACT_POWER_TYPE.PHYSICAL,
+                'rare_effect': relations.ARTIFACT_EFFECT.FLAME,
+                'epic_effect': relations.ARTIFACT_EFFECT.ICE,
                 'description': 'new artifact description',
                 'mob': self.mob.id}
 
@@ -333,6 +341,8 @@ class TestUpdateRequests(BaseTestRequests):
         self.assertEqual(artifact.name, data['name'])
         self.assertEqual(artifact.level, data['level'])
         self.assertEqual(artifact.type, data['type'])
+        self.assertEqual(artifact.rare_effect, data['rare_effect'])
+        self.assertEqual(artifact.epic_effect, data['epic_effect'])
         self.assertEqual(artifact.power_type, data['power_type'])
         self.assertEqual(artifact.description, data['description'])
 
@@ -419,6 +429,8 @@ class TestModerateRequests(BaseTestRequests):
                 'level': 1,
                 'type': relations.ARTIFACT_TYPE.RING,
                 'power_type': relations.ARTIFACT_POWER_TYPE.NEUTRAL,
+                'rare_effect': relations.ARTIFACT_EFFECT.POISON,
+                'epic_effect': relations.ARTIFACT_EFFECT.GREAT_PHYSICAL_DAMAGE,
                 'description': 'artifact description',
                 'mob': self.mob.id}
 
@@ -429,6 +441,8 @@ class TestModerateRequests(BaseTestRequests):
                 'level': 2,
                 'type': relations.ARTIFACT_TYPE.AMULET,
                 'power_type': relations.ARTIFACT_POWER_TYPE.MAGICAL,
+                'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
+                'epic_effect': relations.ARTIFACT_EFFECT.POISON,
                 'description': 'new artifact description'}
 
     def test_unlogined(self):
@@ -459,6 +473,8 @@ class TestModerateRequests(BaseTestRequests):
         self.assertEqual(artifact_record.description, 'new artifact description')
         self.assertTrue(artifact_record.state.is_ENABLED)
         self.assertTrue(artifact_record.type.is_AMULET)
+        self.assertTrue(artifact_record.rare_effect.is_NO_EFFECT)
+        self.assertTrue(artifact_record.epic_effect.is_POISON)
         self.assertTrue(artifact_record.power_type.is_MAGICAL)
         self.assertTrue(artifact_record.editor_id, self.account_3.id)
         self.assertEqual(artifact_record.mob, None)

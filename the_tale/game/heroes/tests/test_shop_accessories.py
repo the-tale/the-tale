@@ -14,6 +14,7 @@ from the_tale.game.balance.power import Power
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.artifacts.prototypes import ArtifactPrototype
+from the_tale.game.artifacts.relations import RARITY
 
 from the_tale.game.map.places.storage import places_storage
 from the_tale.game.mobs.storage import mobs_storage
@@ -111,11 +112,13 @@ class ShopAccessoriesTest(testcase.TestCase):
 
     def test_purchase_artifact__better_artifact__min_level(self):
         self.assertEqual(self.hero.level, 1)
+
+        rarity = RARITY.NORMAL
         distribution = self.hero.preferences.archetype.power_distribution
         middle_power = Power.power_to_artifact(distribution, self.hero.level)
 
         for i in xrange(100):
-            self.assertTrue(self.hero.purchase_artifact().preference_rating(distribution) > ArtifactPrototype._preference_rating(middle_power, distribution))
+            self.assertTrue(self.hero.purchase_artifact().preference_rating(distribution) > ArtifactPrototype._preference_rating(rarity, middle_power, distribution))
 
 
     def test_purchase_artifact__better_artifact__large_level(self):
@@ -123,6 +126,7 @@ class ShopAccessoriesTest(testcase.TestCase):
 
         self.assertEqual(self.hero.level, 100)
 
+        rarity = RARITY.NORMAL
         distribution = self.hero.preferences.archetype.power_distribution
         middle_power = Power.power_to_artifact(distribution, self.hero.level)
 
@@ -130,6 +134,6 @@ class ShopAccessoriesTest(testcase.TestCase):
 
         with mock.patch('the_tale.game.actions.container.ActionsContainer.request_replane') as request_replane:
             for i in xrange(N):
-                self.assertTrue(self.hero.purchase_artifact().preference_rating(distribution) > ArtifactPrototype._preference_rating(middle_power, distribution))
+                self.assertTrue(self.hero.purchase_artifact().preference_rating(distribution) > ArtifactPrototype._preference_rating(rarity, middle_power, distribution))
 
         self.assertEqual(request_replane.call_count, N)

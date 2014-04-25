@@ -214,8 +214,12 @@ class PrototypeTests(testcase.TestCase):
         form = ModerateArtifactRecordForm({'level': '1',
                                            'type': relations.ARTIFACT_TYPE.USELESS,
                                            'power_type': relations.ARTIFACT_POWER_TYPE.NEUTRAL,
+                                           'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
+                                           'epic_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
                                            'uuid': 'new_uid',
                                            'name_forms': s11n.to_json(Noun.fast_construct('artifact name').serialize())})
+        form.is_valid()
+
         self.assertTrue(form.is_valid())
         self.assertEqual(loot.uuid, artifacts_storage.get_by_uuid(loot.uuid).uuid)
 
@@ -230,6 +234,8 @@ class PrototypeTests(testcase.TestCase):
                                            'type': relations.ARTIFACT_TYPE.USELESS,
                                            'power_type': relations.ARTIFACT_POWER_TYPE.NEUTRAL,
                                            'uuid': 'artifact_uuid',
+                                           'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
+                                           'epic_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
                                            'name_forms': s11n.to_json(Noun(normalized='artifact name',
                                                                            forms=['artifact name'] * Noun.FORMS_NUMBER,
                                                                            properties=(u'мр',)).serialize())})
@@ -247,6 +253,8 @@ class PrototypeTests(testcase.TestCase):
                                            'type': relations.ARTIFACT_TYPE.USELESS,
                                            'power_type': relations.ARTIFACT_POWER_TYPE.NEUTRAL,
                                            'uuid': artifact_uid,
+                                           'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
+                                           'epic_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
                                            'name_forms': s11n.to_json(Noun(normalized='artifact name',
                                                                            forms=['artifact name'] * Noun.FORMS_NUMBER,
                                                                            properties=(u'мр',)).serialize())})
@@ -257,17 +265,22 @@ class PrototypeTests(testcase.TestCase):
         self.assertRaises(exceptions.DisableDefaultEquipmentError, default_artifact.update_by_moderator, form)
 
     def test_preference_rating(self):
-        self.assertEqual(ArtifactPrototype._preference_rating(Power(100, 100), PowerDistribution(0.5, 0.5)), 100)
-        self.assertEqual(ArtifactPrototype._preference_rating(Power(100, 100), PowerDistribution(0.2, 0.8)), 100)
-        self.assertEqual(ArtifactPrototype._preference_rating(Power(100, 100), PowerDistribution(0.8, 0.2)), 100)
+        self.assertEqual(ArtifactPrototype._preference_rating(relations.RARITY.NORMAL, Power(100, 100), PowerDistribution(0.5, 0.5)), 100)
+        self.assertEqual(ArtifactPrototype._preference_rating(relations.RARITY.NORMAL, Power(100, 100), PowerDistribution(0.2, 0.8)), 100)
+        self.assertEqual(ArtifactPrototype._preference_rating(relations.RARITY.NORMAL, Power(100, 100), PowerDistribution(0.8, 0.2)), 100)
 
-        self.assertEqual(ArtifactPrototype._preference_rating(Power(100, 200), PowerDistribution(0.5, 0.5)), 150)
-        self.assertEqual(ArtifactPrototype._preference_rating(Power(100, 200), PowerDistribution(0.2, 0.8)), 180)
-        self.assertEqual(ArtifactPrototype._preference_rating(Power(100, 200), PowerDistribution(0.8, 0.2)), 120)
+        self.assertEqual(ArtifactPrototype._preference_rating(relations.RARITY.NORMAL, Power(100, 200), PowerDistribution(0.5, 0.5)), 150)
+        self.assertEqual(ArtifactPrototype._preference_rating(relations.RARITY.NORMAL, Power(100, 200), PowerDistribution(0.2, 0.8)), 180)
+        self.assertEqual(ArtifactPrototype._preference_rating(relations.RARITY.NORMAL, Power(100, 200), PowerDistribution(0.8, 0.2)), 120)
 
-        self.assertEqual(ArtifactPrototype._preference_rating(Power(200, 100), PowerDistribution(0.5, 0.5)), 150)
-        self.assertEqual(ArtifactPrototype._preference_rating(Power(200, 100), PowerDistribution(0.2, 0.8)), 120)
-        self.assertEqual(ArtifactPrototype._preference_rating(Power(200, 100), PowerDistribution(0.8, 0.2)), 180)
+        self.assertEqual(ArtifactPrototype._preference_rating(relations.RARITY.NORMAL, Power(200, 100), PowerDistribution(0.5, 0.5)), 150)
+        self.assertEqual(ArtifactPrototype._preference_rating(relations.RARITY.NORMAL, Power(200, 100), PowerDistribution(0.2, 0.8)), 120)
+        self.assertEqual(ArtifactPrototype._preference_rating(relations.RARITY.NORMAL, Power(200, 100), PowerDistribution(0.8, 0.2)), 180)
+
+    def test_preference_rating__rarity(self):
+        self.assertTrue(ArtifactPrototype._preference_rating(relations.RARITY.NORMAL, Power(100, 100), PowerDistribution(0.5, 0.5)) <
+                        ArtifactPrototype._preference_rating(relations.RARITY.RARE, Power(100, 100), PowerDistribution(0.5, 0.5)) <
+                        ArtifactPrototype._preference_rating(relations.RARITY.EPIC, Power(100, 100), PowerDistribution(0.5, 0.5)))
 
 
     def test_make_better_than__already_better(self):

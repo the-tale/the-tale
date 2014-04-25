@@ -24,14 +24,14 @@ class ArtifactPrototype(object):
 
     __slots__ = ('record', 'power', 'level', 'bag_uuid', 'max_integrity', 'integrity', 'rarity')
 
-    def __init__(self, record=None, power=None, bag_uuid=None, level=0, max_integrity=c.ARTIFACT_MAX_INTEGRITY, integrity=c.ARTIFACT_MAX_INTEGRITY, rarity=relations.RARITY.NORMAL):
+    def __init__(self, record=None, power=None, bag_uuid=None, level=0, max_integrity=None, integrity=None, rarity=relations.RARITY.NORMAL):
         self.record = record
         self.power = power
         self.level = level
         self.rarity = rarity
 
-        self.max_integrity = max_integrity
-        self.integrity = integrity
+        self.max_integrity = max_integrity if max_integrity is not None else rarity.max_integrity * random.uniform(1-c.ARTIFACT_MAX_INTEGRITY_DELTA, 1+c.ARTIFACT_MAX_INTEGRITY_DELTA)
+        self.integrity = integrity if integrity is not None else self.max_integrity
 
         self.bag_uuid = bag_uuid
 
@@ -67,7 +67,7 @@ class ArtifactPrototype(object):
         if self.is_useless:
             gold_amount = 1 + int(f.normal_loot_cost_at_lvl(self.level))
         else:
-            gold_amount = 1 + int(f.sell_artifact_price(self.level))
+            gold_amount = 1 + int(f.sell_artifact_price(self.level) * self.rarity.cost)
 
         return gold_amount
 
@@ -115,11 +115,11 @@ class ArtifactPrototype(object):
                    level=data.get('level', 1))
 
     @classmethod
-    def _preference_rating(cls, power, distribution):
-        return power.physic * distribution.physic + power.magic * distribution.magic
+    def _preference_rating(cls, rarity, power, distribution):
+        return (power.physic * distribution.physic + power.magic * distribution.magic) * rarity.preference_rating
 
     def preference_rating(self, distribution):
-        return self._preference_rating(self.power, distribution)
+        return self._preference_rating(self.rarity, self.power, distribution)
 
     def make_better_than(self, artifact, distribution):
         while self.preference_rating(distribution) <= artifact.preference_rating(distribution):
@@ -230,9 +230,8 @@ class ArtifactRecordPrototype(BasePrototype):
                editor=None,
                state=relations.ARTIFACT_RECORD_STATE.DISABLED,
                name_forms=None,
-               rare_effect=relations.ARTIFACT_EFFECT.MAGICAL_DAMAGE,
-               epic_effect=relations.ARTIFACT_EFFECT.MAGICAL_DAMAGE):
-
+               rare_effect=relations.ARTIFACT_EFFECT.NO_EFFECT,
+               epic_effect=relations.ARTIFACT_EFFECT.NO_EFFECT):
 
         from the_tale.game.artifacts.storage import artifacts_storage
 
@@ -277,6 +276,8 @@ class ArtifactRecordPrototype(BasePrototype):
         self.level = form.c.level
         self.type = form.c.type
         self.power_type = form.c.power_type
+        self.rare_effect = form.c.rare_effect
+        self.epic_effect = form.c.epic_effect
         self.description = form.c.description
         self.editor = editor._model
         self.mob = form.c.mob
@@ -296,6 +297,8 @@ class ArtifactRecordPrototype(BasePrototype):
         self.level = form.c.level
         self.type = form.c.type
         self.power_type = form.c.power_type
+        self.rare_effect = form.c.rare_effect
+        self.epic_effect = form.c.epic_effect
         self.description = form.c.description
         self.editor = editor._model if editor else None
         self.mob = form.c.mob

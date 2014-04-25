@@ -45,15 +45,11 @@ def battles_on_lvl(lvl): return int(time_on_lvl(lvl) * c.BATTLES_PER_HOUR)
 # таким образом, нет необходимости поддерживать добычу для каждого моба для каждого уровня, достаточно по одному предмету каждого качества,
 # а остальное по мере фантазии чисто для разнообразия
 def normal_loot_cost_at_lvl(lvl): return  int(math.ceil(c.NORMAL_LOOT_COST * lvl))
-def rare_loot_cost_at_lvl(lvl): return int(math.ceil(c.RARE_LOOT_COST * lvl))
-def epic_loot_cost_at_lvl(lvl): return int(math.ceil(c.EPIC_LOOT_COST * lvl))
 
 def expected_normal_gold_at_lvl(lvl):
+    MAGIC = 1.5
     loot_cost = battles_on_lvl(lvl) * c.GET_LOOT_PROBABILITY * (c.NORMAL_ARTIFACT_PROBABILITY * normal_loot_cost_at_lvl(lvl))
-    artifacts_cost = battles_on_lvl(lvl) * c.GET_LOOT_PROBABILITY * (c.NORMAL_ARTIFACT_PROBABILITY * normal_loot_cost_at_lvl(lvl) +
-                                                                     c.RARE_ARTIFACT_PROBABILITY * rare_loot_cost_at_lvl(lvl) +
-                                                                     c.EPIC_ARTIFACT_PROBABILITY * epic_loot_cost_at_lvl(lvl))
-    return int(loot_cost + artifacts_cost)
+    return int(loot_cost * MAGIC)
 
 # при рассчётах принимаем, что герой будет встречать мобов разных уровней с одинаковой вероятностью
 def expected_gold_at_lvl(lvl): return int(math.floor(sum(expected_normal_gold_at_lvl(x) for x in xrange(1, lvl+1)) / lvl))

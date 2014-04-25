@@ -1,5 +1,6 @@
 {% extends "guide/base.html" %}
 {% import 'guide/macros.html' as guide_macros with context %}
+{% import 'utils/list_filter.html' as list_filter_macros with context %}
 
 {% block title %}Артефакты | {{ super() }}{% endblock %}
 {% block description %}Список всех артефактов игры.{% endblock %}
@@ -15,65 +16,47 @@
   Особое внимание следует обратить на то, что каждому предмету приписан уровень. Кроме того, что предметы высокого уровня стоят дороже, следует помнить, что герои, чей уровень меньше уровня предмета, не могут определить его назначение и выкидывают (считая полным хламом).
 <p>
 
+<div class="accordion" id="pgf-artifact-effects-accordion">
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-artifact-effects-accordion" href="#pgf-effects">
+        Список свойств редких и эпических артефактов
+      </a>
+    </div>
+    <div id="pgf-effects" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner">
+        <table class="table table-condensed">
+          <thead>
+            <tr>
+              <th>название</th>
+              <th>описание</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for effect in EFFECTS %}
+              {% if effect.TYPE.is_NO_EFFECT %}{% continue %}{% endif %}
+              <tr>
+                <td>{{effect.TYPE.text}}</td>
+                <td>{{effect.DESCRIPTION}}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
 {% if resource.can_create_artifact %}
 <a class="btn btn-danger pgf-create-artifact-button" href="{{url('game:artifacts:new')}}">создать артефакт</a>
 {% endif %}
 
-<div>
-  <div class="btn-toolbar">
-
-    <div class="btn-group">
-      <a class="btn {% if not is_filtering %}disabled{% endif %}"
-         href="{% if is_filtering %}{{ url('guide:artifacts:') }}{%else%}javascript: return none;{%endif%}">сбросить фильтрацию</a>
-    </div>
-
-    {% if resource.can_create_artifact or resource.can_moderate_artifact %}
-    <div class="btn-group pgf-artifact-state-filter">
-      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-        состояние:
-        {% if state.is_ENABLED %} в игре
-        {% elif state.is_DISABLED %} вне игры
-        {% endif %}
-        <span class="caret"></span>
-      </a>
-      <ul class="dropdown-menu">
-        <li><a href="{{ url_builder(state=ARTIFACT_RECORD_STATE.ENABLED) }}">в игре</a></li>
-        <li><a href="{{ url_builder(state=ARTIFACT_RECORD_STATE.DISABLED) }}">вне игры</a></li>
-      </ul>
-    </div>
-    {% endif %}
-
-    <div class="btn-group">
-      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-        тип:
-        {% if type is not none %} {{ type.text }}
-        {% else %} все
-        {% endif %}
-        <span class="caret"></span>
-      </a>
-      <ul class="dropdown-menu">
-        <li><a href="{{ url_builder(type=none) }}">все</a></li>
-        {% for artifact_type in ARTIFACT_TYPE.records %}
-        <li><a href="{{ url_builder(type=artifact_type.value) }}">{{artifact_type.text}}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
-
-    <div class="btn-group">
-      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-        сортировка: {{order_by.verbose}}
-        <span class="caret"></span>
-      </a>
-      <ul class="dropdown-menu">
-        {% for order_id, order_text in INDEX_ORDER_TYPE._ID_TO_TEXT.items() %}
-        <li><a href="{{ url_builder(order_by=order_id) }}">{{order_text}}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
-
-  </div>
-
-</div>
+{{ list_filter_macros.html_filter(index_filter) }}
 
 {% if artifacts %}
 
@@ -83,8 +66,8 @@
       <th width="20px">уровень</th>
       <th>название</th>
       <th>добывается из</th>
-      <th width="120px">тип</th>
-      <th width="120px">редкость</th>
+      <th width="120px">экипировка</th>
+      <th width="120px">сила</th>
     </tr>
   </thead>
   <tbody>
@@ -102,6 +85,7 @@
         {% endif %}
       </td>
       <td>{{artifact.type.text}}</td>
+      <td>{% if not artifact.type.is_USELESS %}{{artifact.power_type.text}}{% else %}—{% endif %}</td>
     </tr>
     {% endfor %}
   </tbody>

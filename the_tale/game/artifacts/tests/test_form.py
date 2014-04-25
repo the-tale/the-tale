@@ -23,6 +23,8 @@ class ArtifactFormsTests(testcase.TestCase):
         form = ArtifactRecordForm({'level': '1',
                                    'type': relations.ARTIFACT_TYPE.USELESS,
                                    'power_type': relations.ARTIFACT_POWER_TYPE.NEUTRAL,
+                                   'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
+                                   'epic_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
                                    'name': 'mob name'})
         self.assertTrue(form.is_valid())
 
@@ -30,6 +32,8 @@ class ArtifactFormsTests(testcase.TestCase):
         form = ModerateArtifactRecordForm({'level': '1',
                                            'type': relations.ARTIFACT_TYPE.USELESS,
                                            'power_type': relations.ARTIFACT_POWER_TYPE.NEUTRAL,
+                                           'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
+                                           'epic_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
                                            'uuid': 'artifact_uuid',
                                            'name_forms': s11n.to_json(Noun(normalized='artifact name',
                                                                            forms=['artifact name'] * Noun.FORMS_NUMBER,

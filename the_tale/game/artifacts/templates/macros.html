@@ -18,7 +18,39 @@
           {% endif %}
         </td>
       </tr>
-      <tr><th>тип</th><td>{{ artifact.type.text }}</td></tr>
+      <tr><th>экипировка</th><td>{{ artifact.type.text }}</td></tr>
+      <tr>
+        <th>сила</th>
+        <td>{% if not artifact.type.is_USELESS %}{{artifact.power_type.text}}{% else %}—{% endif %}</td>
+      </tr>
+      <tr>
+        <th>бонус редкого артефакта</th>
+        <td>
+          {% if not artifact.rare_effect.is_NO_EFFECT %}
+            {{ artifact.rare_effect.text }}
+            <i class="icon-info-sign"
+               style="vertical-align: middle"
+               rel="tooltip"
+               title="{{EFFECTS[artifact.rare_effect].DESCRIPTION}}"></i>
+          {% else %}
+            —
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <th>бонус эпического артеакта</th>
+        <td>
+          {% if not artifact.epic_effect.is_NO_EFFECT %}
+            {{ artifact.epic_effect.text }}
+            <i class="icon-info-sign"
+               style="vertical-align: middle"
+               rel="tooltip"
+               title="{{EFFECTS[artifact.epic_effect].DESCRIPTION}}"></i>
+          {% else %}
+            —
+          {% endif %}
+        </td>
+      </tr>
     </tbody>
   </table>
 

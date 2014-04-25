@@ -131,7 +131,11 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
         self.assertTrue(unequipped is None)
         self.assertEqual(equipped, artifact)
 
-        self.hero.change_equipment(slot, unequipped, equipped)
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+            self.hero.change_equipment(slot, unequipped, equipped)
+
+        self.assertEqual(reset_accessors_cache.call_count, 1)
+
         self.assertTrue(not self.hero.bag.items())
         self.assertEqual(self.hero.equipment.get(slot), artifact)
 
@@ -145,7 +149,11 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
         self.assertEqual(unequipped, artifact)
         self.assertEqual(equipped, new_artifact)
 
-        self.hero.change_equipment(slot, unequipped, equipped)
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+            self.hero.change_equipment(slot, unequipped, equipped)
+
+        self.assertEqual(reset_accessors_cache.call_count, 1)
+
         self.assertEqual(self.hero.bag.items()[0][1], artifact)
         self.assertEqual(len(self.hero.bag.items()), 1)
         self.assertEqual(self.hero.equipment.get(slot), new_artifact)
@@ -573,6 +581,8 @@ class ReceiveArtifactsTests(_HeroEquipmentTestsBase):
 
         for i in xrange(100):
             old_artifact = self.hero.equipment.get(relations.EQUIPMENT_SLOT.PLATE)
+            old_artifact.power = max_power - Power(1, 1)
+
             self.hero.receive_artifact(equip=True, better=True, prefered_slot=True, prefered_item=True, archetype=True)
             self.assertTrue(self.hero.equipment.get(relations.EQUIPMENT_SLOT.PLATE).preference_rating(distribution) > old_artifact.preference_rating(distribution))
 

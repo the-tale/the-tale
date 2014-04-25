@@ -32,6 +32,7 @@
     <tr>
       <th width="20px">уровень</th>
       <th>название</th>
+      <th>архетип</th>
       <th width="120px">способности</th>
       <th width="80px">добыча</th>
       <th width="120px">места обитания</th>
@@ -41,9 +42,8 @@
     {% for mob in mobs %}
     <tr>
       <td>{{mob.level}}</td>
-      <td>
-        <a href="{{url('guide:mobs:show', mob.id)}}">{{mob.name}}</a>
-      </td>
+      <td><a href="{{url('guide:mobs:show', mob.id)}}">{{mob.name}}</a></td>
+      <td>{{mob.archetype.text}}</td>
       <td>
         <a class="info-link"
            href="#"
