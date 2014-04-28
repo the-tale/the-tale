@@ -49,7 +49,7 @@ class BattleContext(object):
 
         self.pvp_advantage = 0
         self.pvp_advantage_used = False
-        self.pvp_advantage_strike_damage = 0
+        self.pvp_advantage_strike_damage = Damage(0, 0)
         self.turn = 0
 
     def use_ability_magic_mushroom(self, damage_factors): self.ability_magic_mushroom = [None] + damage_factors
@@ -66,7 +66,8 @@ class BattleContext(object):
 
     def use_first_strike(self): self.first_strike = True
 
-    def use_last_chance_probability(self, probability): self.last_chance_probability = probability
+    def use_last_chance_probability(self, probability):
+        self.last_chance_probability = max(probability, self.last_chance_probability)
 
     def use_damage_queue_fire(self, damage_queue):
         self.damage_queue_fire = map(lambda queue, delta: (delta if delta else Damage(0, 0)) + (queue if queue else Damage(0, 0)),
@@ -130,7 +131,7 @@ class BattleContext(object):
 
         if self.pvp_advantage > c.PVP_ADVANTAGE_BARIER:
             # make full reset of damage, since it can be really huge delta in damage with different abilities
-            damage = Damage(physic=self.pvp_advantage_strike_damage/2.0, magic=self.pvp_advantage_strike_damage/2.0)
+            damage = self.pvp_advantage_strike_damage
             self.pvp_advantage_used = True
 
         elif self.pvp_advantage > 0:
@@ -188,8 +189,8 @@ class BattleContext(object):
                  'crit_chance': self.crit_chance,
                  'berserk_damage_modifier': self.berserk_damage_modifier,
                  'ninja': self.ninja,
-                 'damage_queue_fire': self.damage_queue_fire,
-                 'damage_queue_poison': self.damage_queue_poison,
+                 'damage_queue_fire': [damage.serialize() for damage in self.damage_queue_fire],
+                 'damage_queue_poison': [damage.serialize() for damage in self.damage_queue_poison],
                  'initiative_queue': self.initiative_queue,
                  'incoming_magic_damage_modifier': self.incoming_magic_damage_modifier,
                  'incoming_physic_damage_modifier': self.incoming_physic_damage_modifier,
@@ -198,7 +199,7 @@ class BattleContext(object):
 
                  'pvp_advantage': self.pvp_advantage,
                  'pvp_advantage_used': self.pvp_advantage_used,
-                 'pvp_advantage_strike_damage': self.pvp_advantage_strike_damage,
+                 'pvp_advantage_strike_damage': self.pvp_advantage_strike_damage.serialize(),
 
                  'first_strike': self.first_strike,
                  'last_chance_probability': self.last_chance_probability,
@@ -213,8 +214,8 @@ class BattleContext(object):
         context.crit_chance = data.get('crit_chance', 0)
         context.berserk_damage_modifier = data.get('berserk_damage_modifier', 1.0)
         context.ninja = data.get('ninja', 0)
-        context.damage_queue_fire = data.get('damage_queue_fire', [])
-        context.damage_queue_poison = data.get('damage_queue_poison', [])
+        context.damage_queue_fire = [Damage.deserialize(damage) for damage in data.get('damage_queue_fire', [])]
+        context.damage_queue_poison = [Damage.deserialize(damage) for damage in data.get('damage_queue_poison', [])]
         context.initiative_queue = data.get('initiative_queue', [])
 
         context.incoming_magic_damage_modifier = data.get('incoming_magic_damage_modifier', 1.0)
@@ -224,7 +225,7 @@ class BattleContext(object):
 
         context.pvp_advantage = data.get('pvp_advantage', 0)
         context.pvp_advantage_used = data.get('pvp_advantage_used', False)
-        context.pvp_advantage_strike_damage = data.get('pvp_advantage_strike_damage', 0)
+        context.pvp_advantage_strike_damage = Damage.deserialize(data.get('pvp_advantage_strike_damage', (0, 0)))
 
         context.first_strike = data.get('first_strike', False)
         context.last_chance_probability = data.get('last_chance_probability', 0)

@@ -34,8 +34,8 @@ class Bag(object):
         return { 'next_uuid': self.next_uuid,
                  'bag': dict( (uuid, artifact.serialize()) for uuid, artifact in self.bag.items() )  }
 
-    def ui_info(self):
-        return dict( (int(uuid), artifact.ui_info()) for uuid, artifact in self.bag.items() )
+    def ui_info(self, hero):
+        return dict( (int(uuid), artifact.ui_info(hero)) for uuid, artifact in self.bag.items() )
 
     def put_artifact(self, artifact):
         self.updated = True
@@ -120,8 +120,8 @@ class Equipment(object):
                 power += artifact.power
         return power
 
-    def ui_info(self):
-        return dict( (slot, artifact.ui_info()) for slot, artifact in self.equipment.items() if artifact )
+    def ui_info(self, hero):
+        return dict( (slot, artifact.ui_info(hero)) for slot, artifact in self.equipment.items() if artifact )
 
     def serialize(self):
         return dict( (slot, artifact.serialize()) for slot, artifact in self.equipment.items() if artifact )

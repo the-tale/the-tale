@@ -68,14 +68,14 @@ jQuery(document).ready(function(e) {
     </div>
     {% endif %}
 
-    <div class="attribute-record pgf-might-record">
-      <i class="game-ui-icon might"></i>
-      <span class="pgf-might value"></span>
+    <div class="attribute-record" rel="tooltip" title="физическая сила" data-tooltip-placement="bottom">
+      <i class="game-ui-icon physic-power"></i>
+      <span class="pgf-physic-power value"></span>
     </div>
 
-    <div class="attribute-record" rel="tooltip" title="сила" data-tooltip-placement="bottom">
-      <i class="game-ui-icon power"></i>
-      <span class="pgf-power value"></span>
+    <div class="attribute-record" rel="tooltip" title="магическая сила" data-tooltip-placement="bottom">
+      <i class="game-ui-icon magic-power"></i>
+      <span class="pgf-magic-power value"></span>
     </div>
 
     {% if is_owner %}
@@ -87,13 +87,16 @@ jQuery(document).ready(function(e) {
 
   </div>
 
-  <div>
-    {% if clan %}
-    <strong>гильдия:</strong> <a href="{{ url('accounts:clans:show', clan.id) }}">{{clan.name}}</a>
-    {% elif no_clan_placement %}
-    <strong>гильдия:</strong> <small>не состоит в гильдии</small>
-    {% endif %}
-  </div>
+  <ul class="unstyled" style="margin-top: 0.5em;">
+    <li><strong>могущество:</strong> <span class="pgf-might-record pgf-might value attribute-record"></span></li>
+    <li>
+      {% if clan %}
+      <strong>гильдия:</strong> <a href="{{ url('accounts:clans:show', clan.id) }}">{{clan.name}}</a>
+      {% elif no_clan_placement %}
+      <strong>гильдия:</strong> <small>не состоит в гильдии</small>
+      {% endif %}
+    </li>
+  </ul>
 
   {% if master_account and not is_owner %}
   <div>

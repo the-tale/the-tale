@@ -22,6 +22,24 @@ pgf.game.constants = {
     GAME_STATE: {{game_state|safe}},
 };
 
+pgf.game.constants.RARITY = {
+    {% for record in RARITY.records %}
+    "{{record.name}}": {
+        "id": {{record.value}},
+        "name": "{{record.text}}"
+    }{%- if not loop.last -%},{%- endif -%}
+    {% endfor %}
+};
+
+pgf.game.constants.EFFECTS = {
+    {% for effect in EFFECTS.values() %}
+    "{{effect.TYPE.value}}": {
+        "name": "{{effect.TYPE.text}}",
+        "description": "{{effect.DESCRIPTION}}"
+    }{%- if not loop.last -%},{%- endif -%}
+    {% endfor %}
+};
+
 pgf.game.constants.abilities = {
 
     {% for ability_type in ABILITY_TYPE.records %}
@@ -35,7 +53,7 @@ pgf.game.constants.abilities = {
 
     {% endfor %}
 
-}
+};
 
 pgf.game.constants.sprites = {
 

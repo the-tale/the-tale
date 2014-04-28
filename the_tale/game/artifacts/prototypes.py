@@ -30,7 +30,9 @@ class ArtifactPrototype(object):
         self.level = level
         self.rarity = rarity
 
-        self.max_integrity = max_integrity if max_integrity is not None else rarity.max_integrity * random.uniform(1-c.ARTIFACT_MAX_INTEGRITY_DELTA, 1+c.ARTIFACT_MAX_INTEGRITY_DELTA)
+        self.max_integrity = int(max_integrity
+                                 if max_integrity is not None
+                                 else rarity.max_integrity * random.uniform(1-c.ARTIFACT_MAX_INTEGRITY_DELTA, 1+c.ARTIFACT_MAX_INTEGRITY_DELTA))
         self.integrity = integrity if integrity is not None else self.max_integrity
 
         self.bag_uuid = bag_uuid
@@ -76,15 +78,18 @@ class ArtifactPrototype(object):
         multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
         return int(self.absolute_sell_price() * multiplier)
 
-    def modify_attribute(self, type_, value):
+    def _effect(self):
         if self.rarity.is_NORMAL:
-            return value
+            return effects.NoEffect
         elif self.rarity.is_RARE:
-            return effects.EFFECTS[self.record.rare_effect].modify_attribute(type_, value)
+            return effects.EFFECTS[self.record.rare_effect]
         elif self.rarity.is_EPIC:
-            return effects.EFFECTS[self.record.epic_effect].modify_attribute(type_, value)
+            return effects.EFFECTS[self.record.epic_effect]
         else:
             raise exceptions.UnknownRarityType(type=self.rarity)
+
+    def modify_attribute(self, type_, value):
+        return self._effect().modify_attribute(type_, value)
 
     def serialize(self):
         return {'id': self.id,
@@ -169,14 +174,17 @@ class ArtifactPrototype(object):
     def repair_it(self):
         self.integrity = self.max_integrity
 
-    def ui_info(self):
+    def ui_info(self, hero):
         return {'type': self.type.value,
                 'id': self.record.id,
                 'equipped': self.can_be_equipped,
                 'name': self.name,
-                'integrity': self.integrity,
-                'max_integrity': self.max_integrity,
-                'power': self.power.ui_info()}
+                'integrity': self.integrity if not self.type.is_USELESS else None,
+                'max_integrity': self.max_integrity if not self.type.is_USELESS else None,
+                'rarity': self.rarity.value if not self.type.is_USELESS else None,
+                'effect': self._effect().TYPE.value if not self.type.is_USELESS else None,
+                'preference_rating': self.preference_rating(hero.preferences.archetype.power_distribution) if not self.type.is_USELESS else None,
+                'power': self.power.ui_info() if not self.type.is_USELESS else None}
 
     def __eq__(self, other):
         return (self.record.id == other.record.id and

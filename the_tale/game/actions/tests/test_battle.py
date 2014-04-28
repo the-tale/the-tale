@@ -208,6 +208,7 @@ class BattleTests(testcase.TestCase):
         actor_1, actor_2 = self.get_actors()
         actor_2.change_health(-actor_2.health)
         self.assertEqual(actor_2.health, 0)
+
         actor_2.context.use_last_chance_probability(1.0)
         battle.strike(actor_1, actor_2, mock.Mock())
         self.assertEqual(actor_2.health, 1)

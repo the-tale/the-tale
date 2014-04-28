@@ -169,10 +169,11 @@ jQuery(document).ready(function(e){
     {% set pref_enemy = resource.hero.preferences.enemy and resource.hero.preferences.enemy.name_from %}
     {% set pref_equipment_slot = resource.hero.preferences.equipment_slot and resource.hero.preferences.equipment_slot.text %}
     {% set pref_risk_level = resource.hero.preferences.risk_level and resource.hero.preferences.risk_level.text %}
+    {% set pref_archetype = resource.hero.preferences.archetype and resource.hero.preferences.archetype.text %}
 
     {% if resource.hero.preferences.favorite_item %}
       {% set pref_favorite_item = resource.hero.equipment.get(resource.hero.preferences.favorite_item) %}
-      {% set pref_favorite_item = '%s +%d' % (pref_favorite_item.name, pref_favorite_item.power) %}
+      {% set pref_favorite_item = '%s +%d / %d' % (pref_favorite_item.name, pref_favorite_item.power.physic, pref_favorite_item.power.magic ) %}
     {% else %}
       {% set pref_favorite_item = none %}
     {% endif %}
@@ -185,6 +186,7 @@ jQuery(document).ready(function(e){
     {{ preferences_record(PREFERENCE_TYPE.FRIEND, current_time, pref_friend) }}
     {{ preferences_record(PREFERENCE_TYPE.FAVORITE_ITEM, current_time, pref_favorite_item) }}
     {{ preferences_record(PREFERENCE_TYPE.ENEMY, current_time, pref_enemy) }}
+    {{ preferences_record(PREFERENCE_TYPE.ARCHETYPE, current_time, pref_archetype) }}
     {{ preferences_record(PREFERENCE_TYPE.EQUIPMENT_SLOT, current_time, pref_equipment_slot) }}
     {{ preferences_record(PREFERENCE_TYPE.MOB, current_time, pref_mob) }}
   </ul>

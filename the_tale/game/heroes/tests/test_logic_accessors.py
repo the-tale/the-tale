@@ -132,3 +132,18 @@ class HeroLogicAccessorsTest(testcase.TestCase):
         self.assertEqual(additional_ability.update_context.call_count, 2)
         self.assertEqual(honor.update_context.call_count, 1)
         self.assertEqual(peacefulness.update_context.call_count, 1)
+
+
+    def test_prefered_mob_loot_multiplier(self):
+        from the_tale.game.mobs.storage import mobs_storage
+
+        self.hero._model.level = relations.PREFERENCE_TYPE.MOB.level_required
+        self.hero._model.save()
+
+        self.mob = mobs_storage.get_available_mobs_list(level=self.hero.level)[0].create_mob(self.hero)
+
+        self.assertEqual(self.hero.preferences.mob, None)
+
+        with self.check_increased(lambda: self.hero.loot_probability(self.mob)):
+            with self.check_increased(lambda: self.hero.artifacts_probability(self.mob)):
+                self.hero.preferences.set_mob(self.mob.record)

@@ -284,11 +284,17 @@ class LogicAccessorsMixin(object):
     def quest_markers_rewards_bonus(self):
         return self.attribute_modifier(relations.MODIFIERS.QUEST_MARKERS_REWARD_BONUS)
 
-    def loot_probability(self):
-        return c.GET_LOOT_PROBABILITY * self.attribute_modifier(relations.MODIFIERS.LOOT_PROBABILITY)
+    def loot_probability(self, mob):
+        probability = c.GET_LOOT_PROBABILITY * self.attribute_modifier(relations.MODIFIERS.LOOT_PROBABILITY)
+        if self.preferences.mob and self.preferences.mob.type == mob.mob_type:
+            probability *= c.PREFERED_MOB_LOOT_PROBABILITY_MULTIPLIER
+        return probability
 
-    def artifacts_probability(self):
-        return c.ARTIFACTS_PER_BATTLE * self.attribute_modifier(relations.MODIFIERS.LOOT_PROBABILITY)
+    def artifacts_probability(self, mob):
+        probability = c.ARTIFACTS_PER_BATTLE * self.attribute_modifier(relations.MODIFIERS.LOOT_PROBABILITY)
+        if self.preferences.mob and self.preferences.mob.type == mob.mob_type:
+            probability *= c.PREFERED_MOB_LOOT_PROBABILITY_MULTIPLIER
+        return probability
 
     def habit_events(self):
         return self.attribute_modifier(relations.MODIFIERS.HONOR_EVENTS)

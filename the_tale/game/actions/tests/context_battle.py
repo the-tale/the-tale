@@ -35,7 +35,7 @@ class BattleContextTest(testcase.TestCase):
 
         self.assertEqual(self.context.pvp_advantage, 0)
         self.assertFalse(self.context.pvp_advantage_used)
-        self.assertEqual(self.context.pvp_advantage_strike_damage, 0)
+        self.assertEqual(self.context.pvp_advantage_strike_damage, Damage(0, 0))
 
 
     def test_create(self):
@@ -77,6 +77,8 @@ class BattleContextTest(testcase.TestCase):
         self.context.on_own_turn()
         self.assertEqual(self.context.fire_damage, Damage(1, 1))
 
+        self.assertEqual(self.context.serialize(), BattleContext.deserialize(self.context.serialize()).serialize())
+
     def test_damage_queue_poison(self):
         self.assertEqual(self.context.poison_damage, None)
         self.context.use_damage_queue_poison([Damage(0, 0)])
@@ -102,6 +104,8 @@ class BattleContextTest(testcase.TestCase):
         self.context.on_own_turn()
         self.assertEqual(self.context.damage_queue_poison, [Damage(6, 6), Damage(1, 1), Damage(1, 1), Damage(1, 1)])
         self.assertEqual(self.context.poison_damage, Damage(6, 6))
+
+        self.assertEqual(self.context.serialize(), BattleContext.deserialize(self.context.serialize()).serialize())
 
     def test_initiative_queue(self):
         self.assertEqual(self.context.initiative, 1.0)
@@ -195,19 +199,22 @@ class BattleContextTest(testcase.TestCase):
 
         # advantage_modifier
         self.context.use_pvp_advantage(0.75)
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(20, 10)).total, int(round((1+c.DAMAGE_PVP_ADVANTAGE_MODIFIER*0.75)*30)))
+        self.assertEqual(self.context.modify_outcoming_damage(Damage(20, 10)),
+                         Damage(20*(1+c.DAMAGE_PVP_ADVANTAGE_MODIFIER*0.75), 10*(1+c.DAMAGE_PVP_ADVANTAGE_MODIFIER*0.75)))
         self.assertFalse(self.context.pvp_advantage_used)
 
         self.context.use_pvp_advantage(-0.75)
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(20, 10)).total, 30) # only damage from hero with heigh advantage modified
+        self.assertEqual(self.context.modify_outcoming_damage(Damage(20, 10)), Damage(20, 10))
         self.assertFalse(self.context.pvp_advantage_used)
+
+        self.assertEqual(self.context.serialize(), BattleContext.deserialize(self.context.serialize()).serialize())
 
     @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_modify_outcoming_damage_advantage_strike(self):
         self.context.use_pvp_advantage(1.0)
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(20, 10)).total, 0) # pvp_advantage_strike_damage not set
-        self.context.use_pvp_advantage_stike_damage(666)
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(20, 10)).total, 666)
+        self.assertEqual(self.context.modify_outcoming_damage(Damage(20, 10)), Damage(0, 0)) # pvp_advantage_strike_damage not set
+        self.context.use_pvp_advantage_stike_damage(Damage(333, 666))
+        self.assertEqual(self.context.modify_outcoming_damage(Damage(20, 10)), Damage(333, 666))
         self.assertTrue(self.context.pvp_advantage_used)
 
 

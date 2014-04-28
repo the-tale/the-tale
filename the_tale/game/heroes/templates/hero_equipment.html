@@ -19,76 +19,33 @@ jQuery(document).ready(function(e) {
 });
 </script>
 
+{% macro equip_record(slot) %}
+  <tr class="equip-record pgf-equip-record pgf-slot-{{slot.value}}">
+    <td width="20px"><i class="game-ui-icon {{slot.name|lower}}"></i></td>
+    <td class="name pgf-name"></td>
+    <td width="50px">
+      <span class="power-container pgf-power-container pgf-hidden">
+        <span class="pgf-physic-power power" style="color: #aa4444;"></span> <span class="pgf-magic-power power" style="color: #4444aa;"></span>
+      </span>
+    </td>
+  </tr>
+{% endmacro %}
+
 <div id="{{block_id}}" class="hero-equipment-block">
 
   <table style="width: 100%; table-layout: fixed;">
     <tbody>
-      <tr class="equip-record pgf-equip-record pgf-slot-{{EQUIPMENT_SLOT.HAND_PRIMARY.value}}" rel="tooltip" title="основная рука">
-        <td width="20px"><i class="game-ui-icon main-hand"></i></td>
-        <td class="name pgf-name"></td>
-        <td width="40px"><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
-      </tr>
-
-      <tr class="equip-record pgf-equip-record pgf-slot-{{EQUIPMENT_SLOT.HAND_SECONDARY.value}}" rel="tooltip" title="вспомогательная рука">
-        <td width="20px"><i class="game-ui-icon off-hand"></i></td>
-        <td class="name pgf-name"></td>
-        <td width="40px"><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
-      </tr>
-
-      <tr class="equip-record pgf-equip-record pgf-slot-{{EQUIPMENT_SLOT.HELMET.value}}" rel="tooltip" title="шлем">
-        <td width="20px"><i class="game-ui-icon helmet"></i></td>
-        <td class="name pgf-name"></td>
-        <td width="40px"><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
-      </tr>
-
-      <tr class="equip-record pgf-equip-record  pgf-slot-{{EQUIPMENT_SLOT.AMULET.value}}" rel="tooltip" title="амулет">
-        <td width="20px"><i class="game-ui-icon amulet"></i></td>
-        <td class="name pgf-name"></td>
-        <td width="40px"><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
-      </tr>
-
-      <tr class="equip-record pgf-equip-record pgf-slot-{{EQUIPMENT_SLOT.SHOULDERS.value}}" rel="tooltip" title="наплечники">
-        <td width="20px"><i class="game-ui-icon shoulders"></i></td>
-        <td class="name pgf-name"></td>
-        <td width="40px"><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
-      </tr>
-
-      <tr class="equip-record pgf-equip-record pgf-slot-{{EQUIPMENT_SLOT.PLATE.value}}" rel="tooltip" title="доспех">
-        <td width="20px"><i class="game-ui-icon plate"></i></td>
-        <td class="name pgf-name"></td>
-        <td width="40px"><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
-      </tr>
-
-      <tr class="equip-record pgf-equip-record pgf-slot-{{EQUIPMENT_SLOT.GLOVES.value}}" rel="tooltip" title="перчатки">
-        <td width="20px"><i class="game-ui-icon gloves"></i></td>
-        <td class="name pgf-name"></td>
-        <td width="40px"><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
-      </tr>
-
-      <tr class="equip-record pgf-equip-record pgf-slot-{{EQUIPMENT_SLOT.CLOAK.value}}" rel="tooltip" title="плащ">
-        <td width="20px"><i class="game-ui-icon cloak"></i></td>
-        <td class="name pgf-name"></td>
-        <td width="40px"><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
-      </tr>
-
-      <tr class="equip-record pgf-equip-record pgf-slot-{{EQUIPMENT_SLOT.PANTS.value}}" rel="tooltip" title="штаны">
-        <td width="20px"><i class="game-ui-icon pants"></i></td>
-        <td class="name pgf-name"></td>
-        <td width="40px"><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
-      </tr>
-
-      <tr class="equip-record pgf-equip-record pgf-slot-{{EQUIPMENT_SLOT.BOOTS.value}}" rel="tooltip" title="обувь">
-        <td width="20px"><i class="game-ui-icon boots"></i></td>
-        <td class="name pgf-name"></td>
-        <td width="40px"><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
-      </tr>
-
-      <tr class="equip-record pgf-equip-record pgf-slot-{{EQUIPMENT_SLOT.RING.value}}" rel="tooltip" title="кольцо">
-        <td width="20px"><i class="game-ui-icon ring"></i></td>
-        <td class="name pgf-name"></td>
-        <td width="40px"><span class="power-container pgf-power-container pgf-hidden">+<span class="pgf-power power"></span></span></td>
-      </tr>
-
+      {{ equip_record(EQUIPMENT_SLOT.HAND_PRIMARY) }}
+      {{ equip_record(EQUIPMENT_SLOT.HAND_SECONDARY) }}
+      {{ equip_record(EQUIPMENT_SLOT.HELMET) }}
+      {{ equip_record(EQUIPMENT_SLOT.AMULET) }}
+      {{ equip_record(EQUIPMENT_SLOT.SHOULDERS) }}
+      {{ equip_record(EQUIPMENT_SLOT.PLATE) }}
+      {{ equip_record(EQUIPMENT_SLOT.GLOVES) }}
+      {{ equip_record(EQUIPMENT_SLOT.CLOAK) }}
+      {{ equip_record(EQUIPMENT_SLOT.PANTS) }}
+      {{ equip_record(EQUIPMENT_SLOT.BOOTS) }}
+      {{ equip_record(EQUIPMENT_SLOT.RING) }}
     </tbody>
   </table>
 

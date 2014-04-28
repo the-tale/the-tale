@@ -133,7 +133,8 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-health-percents', widget).width( (100 * data.base.health / data.base.max_health) + '%');
         jQuery('.pgf-experience-percents', widget).width( (100 * data.base.experience / data.base.experience_to_level) + '%');
 
-        jQuery('.pgf-power', widget).text(data.secondary.power);
+        jQuery('.pgf-physic-power', widget).text(data.secondary.power[0]);
+        jQuery('.pgf-magic-power', widget).text(data.secondary.power[1]);
         jQuery('.pgf-money', widget).text(parseInt(data.base.money));
         jQuery('.pgf-might', widget).text(Math.round(data.might.value*100)/100);
         jQuery('.pgf-might-crit-chance', widget).text(Math.round(data.might.crit_chance*10000)/100.0);
@@ -676,12 +677,24 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
     var data = {};
 
     function RenderItem(index, item, element) {
+        element.toggleClass('rare-artifact-label', data.rarity == pgf.game.constants.RARITY.RARE.id);
+        element.toggleClass('epic-artifact-label', data.rarity == pgf.game.constants.RARITY.EPIC.id);
+
+        var tooltip = pgf.game.widgets.CreateArtifactTooltip(item);
+        if (element.attr('title') != tooltip) {
+            pgf.base.HideTooltips(element, 'pgf-artifact-tooltip');
+            element.attr('title', tooltip);
+            element.tooltip(pgf.base.tooltipsArgs);
+        }
+
         jQuery('.pgf-name', element).text(item.name);
         jQuery('.pgf-power-container', element).toggleClass('pgf-hidden', !item.equipped);
-        jQuery('.pgf-power', element).text(item.power);
+        if (item.power) {
+            jQuery('.pgf-physic-power', element).text(item.power[0]);
+            jQuery('.pgf-magic-power', element).text(item.power[1]);
+        }
         jQuery('.pgf-count-container', element).toggleClass('pgf-hidden', item.count <= 1);
         jQuery('.pgf-count', element).text(item.count);
-        jQuery('.pgf-quest-item-marker', element).toggleClass('pgf-hidden', !item.quest);
         element.data('artifact-id', item.id);
     }
 
@@ -744,6 +757,35 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
     });
 };
 
+pgf.game.widgets.CreateArtifactTooltip = function (data) {
+    var rarityName = undefined;
+    var rarityClass = undefined;
+    for (var i in pgf.game.constants.RARITY) {
+        if (data.rarity == pgf.game.constants.RARITY[i].id) {
+            rarityName = pgf.game.constants.RARITY[i].name;
+            rarityClass = i.toLowerCase() + '-artifact-label';
+            break;
+        }
+    }
+
+    if (!rarityClass) {
+        rarityClass = 'useless-artifact-label';
+        rarityName = 'хлам';
+    }
+
+    var tooltip = '<ul class="unstyled pgf-artifact-tooltip" style="text-align: left;">';
+    tooltip += '<li><h4 class="'+0+'">'+data.name+'</h4></li>';
+    tooltip += '<li class="'+rarityClass+'">'+rarityName+'</li>';
+    if (data.power) tooltip += '<li>физическая сила: '+data.power[0]+'</li>';
+    if (data.power) tooltip += '<li>магическая сила: '+data.power[1]+'</li>';
+    if (data.integrity && data.max_integrity) tooltip += '<li>целостность: '+data.integrity+'/'+data.max_integrity+'</li>';
+    if (data.preference_rating) tooltip += '<li>полезность: '+data.preference_rating+'</li>';
+    if (data.effect) tooltip += '<li><i>'+pgf.game.constants.EFFECTS[data.effect].description+'</i></li>';
+    tooltip += '</ul>';
+    return tooltip;
+};
+
+
 pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
     var instance = this;
 
@@ -751,10 +793,23 @@ pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
 
     var data = {};
 
+
     function RenderArtifact(element, data) {
+        element.toggleClass('rare-artifact-label', data.rarity == pgf.game.constants.RARITY.RARE.id);
+        element.toggleClass('epic-artifact-label', data.rarity == pgf.game.constants.RARITY.EPIC.id);
+
+        var tooltip = pgf.game.widgets.CreateArtifactTooltip(data);
+        if (element.attr('title') != tooltip) {
+            pgf.base.HideTooltips(element, 'pgf-artifact-tooltip');
+            element.attr('title', tooltip);
+            element.tooltip(pgf.base.tooltipsArgs);
+        }
+
         jQuery('.pgf-name', element).text(data.name);
-        jQuery('.pgf-power', element).text(data.power);
+        jQuery('.pgf-physic-power', element).text(data.power[0]);
+        jQuery('.pgf-magic-power', element).text(data.power[1]);
         jQuery('.pgf-power-container', element).toggleClass('pgf-hidden', false);
+
         element.addClass('has-artifact').data('artifact-id', data.id);
     }
 

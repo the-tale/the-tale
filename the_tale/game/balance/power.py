@@ -129,6 +129,13 @@ class Damage(object):
         self.physic = physic
         self.magic = magic
 
+    def serialize(self):
+        return [self.physic, self.magic]
+
+    @classmethod
+    def deserialize(cls, data):
+        return cls(*data)
+
     @property
     def total(self): return int(round(self.physic + self.magic))
 

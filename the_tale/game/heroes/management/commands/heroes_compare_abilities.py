@@ -187,13 +187,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options): # pylint: disable=R0914
 
-        account = AccountPrototype.get_by_nick('compare_abilities_user')
-        if account:
-            account.remove()
+        # account = AccountPrototype.get_by_nick('compare_abilities_user')
+        # if account:
+        #     account.remove()
 
-        account = AccountPrototype.get_by_nick('compare_abilities_user_2')
-        if account:
-            account.remove()
+        # account = AccountPrototype.get_by_nick('compare_abilities_user_2')
+        # if account:
+        #     account.remove()
 
         result, account_1_id, bundle_id = register_user('compare_abilities_user') # pylint: disable=W0612
         result, account_2_id, bundle_id = register_user('compare_abilities_user_2') # pylint: disable=W0612

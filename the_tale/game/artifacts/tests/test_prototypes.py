@@ -136,27 +136,27 @@ class PrototypeTests(testcase.TestCase):
         artifact_1 = ArtifactRecordPrototype.create_random('bandit_loot', mob=mob_record, type_=relations.ARTIFACT_TYPE.USELESS, state=relations.ARTIFACT_RECORD_STATE.ENABLED)
         artifact_2 = ArtifactRecordPrototype.create_random('bandit_artifact', mob=mob_record, type_=relations.ARTIFACT_TYPE.HELMET, state=relations.ARTIFACT_RECORD_STATE.ENABLED)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.artifacts_probability', lambda self: 1.0):
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.loot_probability', lambda self: 1.0):
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.artifacts_probability', lambda self, mob: 1.0):
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.loot_probability', lambda self, mob: 1.0):
                 artifact = artifacts_storage.generate_loot(self.hero, mob)
 
         self.assertEqual(artifact.level, mob.level)
         self.assertFalse(artifact.type.is_USELESS)
         self.assertEqual(artifact_2.id, artifact.record.id)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.artifacts_probability', lambda self: 0.0):
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.loot_probability', lambda self: 1.0):
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.artifacts_probability', lambda self, mob: 0.0):
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.loot_probability', lambda self, mob: 1.0):
                 artifact = artifacts_storage.generate_loot(self.hero, mob)
         self.assertEqual(artifact.level, mob.record.level)
         self.assertTrue(artifact.type.is_USELESS)
         self.assertEqual(artifact_1.id, artifact.record.id)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.artifacts_probability', lambda self: 0.0):
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.loot_probability', lambda self: 0.0):
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.artifacts_probability', lambda self, mob: 0.0):
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.loot_probability', lambda self, mob: 0.0):
                 self.assertEqual(artifacts_storage.generate_loot(self.hero, mob), None)
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.artifacts_probability', lambda self: 1.0)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.artifacts_probability', lambda self, mob: 1.0)
     def test_generate_artifact__rarity(self):
         from the_tale.game.mobs.prototypes import MobPrototype, MobRecordPrototype
         from the_tale.game.mobs.models import MOB_RECORD_STATE

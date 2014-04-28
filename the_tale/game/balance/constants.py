@@ -133,8 +133,9 @@ ARTIFACT_INTEGRITY_SAFE_BARRIER = float(0.1) # доля от максималь�
 ARTIFACT_BREAK_POWER_FRACTIONS = (float(0.1), float(0.2)) # на сколько артефакт может сломаться за раз
 ARTIFACT_BREAK_INTEGRITY_FRACTIONS = (float(0.1), float(0.2)) # на сколько артефакт может сломаться за раз
 
-
 PREFERENCES_CHANGE_DELAY = int(60*60*24*7) # время блокировки возможности изменять предпочтение
+
+PREFERED_MOB_LOOT_PROBABILITY_MULTIPLIER = float(2) # множитель вероятности получения лута из любимой добычи
 
 DAMAGE_TO_HERO_PER_HIT_FRACTION = float(1.0 / (BATTLES_BEFORE_HEAL * BATTLE_LENGTH / 2)) # доля урона, наносимого герою за удар
 DAMAGE_TO_MOB_PER_HIT_FRACTION = float(1.0 / (BATTLE_LENGTH / 2)) # доля урона, наносимого мобу за удар
