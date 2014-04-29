@@ -14,7 +14,7 @@ class CHARISMA(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = u'Герой настолько обаятелен, что умудряется получать больше денег за выполнение заданий.'
 
-    MONEY_MULTIPLIER = [2, 2.5, 3, 3.5, 4]
+    MONEY_MULTIPLIER = [1.5, 2.0, 2.5, 3.0, 3.5]
 
     @property
     def money_multiplier(self): return self.MONEY_MULTIPLIER[self.level-1]
@@ -62,7 +62,7 @@ class DANDY(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = u'Увеличивает вероятность траты денег на заточку, ремонт и покупку артефактов.'
 
-    PRIORITY_MULTIPLIER = [1.25, 1.5, 1.75, 2, 2.25]
+    PRIORITY_MULTIPLIER = [1.2, 1.4, 1.6, 1.8, 2.0]
 
     @property
     def priority_multiplier(self): return self.PRIORITY_MULTIPLIER[self.level-1]
@@ -101,14 +101,20 @@ class PICKY(AbilityPrototype):
 
     NAME = u'Придирчивый'
     normalized_name = NAME
-    DESCRIPTION = u'Герой с большей вероятностью покупает полезные артефакты (лучше, чем экипированные).'
+    DESCRIPTION = u'Герой с большей вероятностью получает редкие и эпические артефакты.'
 
-    PROBABILITY = [0.05, 0.1, 0.15, 0.2, 0.25]
+    PROBABILITY = [1.2, 1.4, 1.6, 1.8, 2.0]
 
     @property
     def probability(self): return self.PROBABILITY[self.level-1]
 
-    def modify_attribute(self, type_, value): return (value + self.probability) if type_.is_BUY_BETTER_ARTIFACT else value
+    def modify_attribute(self, type_, value):
+        if type_.is_RARE:
+            return value * self.probability
+        if type_.is_EPIC:
+            return value * self.probability
+        return value
+
 
 
 class ETHEREAL_MAGNET(AbilityPrototype):
@@ -183,24 +189,6 @@ class DIPLOMATIC(AbilityPrototype):
     def power_multiplier(self): return self.POWER_MULTIPLIER[self.level-1]
 
     def modify_attribute(self, type_, value): return value*self.power_multiplier if type_.is_POWER else value
-
-
-# class CAREFUL(AbilityPrototype):
-
-#     TYPE = ABILITY_TYPE.NONBATTLE
-#     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
-#     AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
-
-#     NAME = u'Аккуратный'
-#     normalized_name = NAME
-#     DESCRIPTION = u'Герой аккуратно обращается со своей экипировкой, благодаря чему она ломается медленнее.'
-
-#     PROBABILITY = [0.04, 0.08, 0.12, 0.16, 0.2]
-
-#     @property
-#     def sage_integrity_probability(self): return self.PROBABILITY[self.level-1]
-
-#     def modify_attribute(self, type_, value): return value + self.sage_integrity_probability if type_.is_SAFE_ARTIFACT_INTEGRITY else value
 
 
 class THRIFTY(AbilityPrototype):

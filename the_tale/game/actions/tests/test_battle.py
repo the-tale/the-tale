@@ -72,6 +72,22 @@ class BattleTests(testcase.TestCase):
 
         self.storage._test_save()
 
+    def test_choose_ability__additional_abilities(self):
+        from the_tale.game.heroes.habilities import ABILITIES
+        all_abilities = [ability(level=ability.MAX_LEVEL) for ability in ABILITIES.values()]
+
+        active_abilities = set(ability.TYPE for ability in all_abilities if ability.activation_type.is_ACTIVE)
+
+        actor = battle.Actor(self.hero, BattleContext())
+
+        chosen_abilities = set()
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.additional_abilities', all_abilities):
+            for i in xrange(1000):
+                chosen_abilities.add(actor.choose_ability().TYPE)
+
+        self.assertEqual(active_abilities, chosen_abilities)
+
     def test_initiative_change(self):
         actor = battle.Actor(self.hero, BattleContext())
         actor.context.use_initiative([2])

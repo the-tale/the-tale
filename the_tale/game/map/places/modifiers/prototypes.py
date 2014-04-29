@@ -124,7 +124,7 @@ class CraftCenter(PlaceModifierBase):
 
     PRODUCTION_MODIFIER = c.PLACE_GOODS_BONUS
 
-    def modify_buy_better_artifact(self, probability): return probability + 0.1
+    def modify_buy_better_artifact(self, probability): return probability * 1.1
 
 
 class Fort(PlaceModifierBase):

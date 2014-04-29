@@ -179,6 +179,26 @@ class PrototypeTests(testcase.TestCase):
             artifact = artifacts_storage.generate_loot(self.hero, mob)
             self.assertTrue(artifact.rarity.is_EPIC)
 
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.artifacts_probability', lambda self, mob: 1.0)
+    def test_generate_artifact__rarity_with_normal_probabilities(self):
+        from the_tale.game.mobs.prototypes import MobPrototype, MobRecordPrototype
+        from the_tale.game.mobs.models import MOB_RECORD_STATE
+
+        self.hero._model.level = 5
+
+        mob_record = MobRecordPrototype.create_random(uuid='bandit', level=2, state=MOB_RECORD_STATE.ENABLED)
+        mob = MobPrototype(record=mob_record, level=3)
+        ArtifactRecordPrototype.create_random('bandit_artifact', mob=mob_record, type_=relations.ARTIFACT_TYPE.HELMET, state=relations.ARTIFACT_RECORD_STATE.ENABLED)
+
+        rarities = set()
+
+        for i in xrange(10000):
+            artifact = artifacts_storage.generate_loot(self.hero, mob)
+            rarities.add(artifact.rarity)
+
+        self.assertEqual(rarities, set(relations.RARITY.records))
+
     @mock.patch('the_tale.game.artifacts.relations.RARITY.NORMAL.probability', 1)
     @mock.patch('the_tale.game.artifacts.relations.RARITY.RARE.probability', 0)
     @mock.patch('the_tale.game.artifacts.relations.RARITY.EPIC.probability', 0)

@@ -675,14 +675,17 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
     var tabButton = jQuery('.pgf-bag-tab-button');
 
     var data = {};
+    var oldData = {};
 
     function RenderItem(index, item, element) {
         element.toggleClass('rare-artifact-label', data.rarity == pgf.game.constants.RARITY.RARE.id);
         element.toggleClass('epic-artifact-label', data.rarity == pgf.game.constants.RARITY.EPIC.id);
 
-        var tooltip = pgf.game.widgets.CreateArtifactTooltip(item);
+        var tooltipClass = 'pgf-bag-artifact-tooltip';
+
+        var tooltip = pgf.game.widgets.CreateArtifactTooltip(item, tooltipClass);
         if (element.attr('title') != tooltip) {
-            pgf.base.HideTooltips(element, 'pgf-artifact-tooltip');
+            pgf.base.HideTooltips(element, tooltipClass);
             element.attr('title', tooltip);
             element.tooltip(pgf.base.tooltipsArgs);
         }
@@ -729,17 +732,29 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
 
         var hero = widgets.heroes.CurrentHero();
 
+        var newData = {};
+
         if (hero) {
-            data.bag = hero.bag;
-            data.quest_items_count = hero.secondary.quest_items_count;
-            data.loot_items_count = hero.secondary.loot_items_count;
-            data.max_bag_size = hero.secondary.max_bag_size;
+            newData.bag = hero.bag;
+            newData.loot_items_count = hero.secondary.loot_items_count;
+            newData.max_bag_size = hero.secondary.max_bag_size;
         }
         else {
-            data = { bag: {},
-                     loot_items_count: 0,
-                     max_bag_size: 0};
+            newData = { bag: {},
+                        loot_items_count: 0,
+                        max_bag_size: 0};
         }
+
+        var dataChanged = true;
+
+        if (pgf.base.CompareObjects(oldData, newData)) {
+            dataChanged = false;
+        }
+
+        oldData = jQuery.extend(true, {}, newData);
+        data = newData;
+
+        return dataChanged;
     };
 
     this.Render = function() {
@@ -752,12 +767,13 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
     };
 
     jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
-        instance.Refresh(game_data);
-        instance.Render();
+        if (instance.Refresh(game_data)) {
+            instance.Render();
+        }
     });
 };
 
-pgf.game.widgets.CreateArtifactTooltip = function (data) {
+pgf.game.widgets.CreateArtifactTooltip = function (data, cssClass) {
     var rarityName = undefined;
     var rarityClass = undefined;
     for (var i in pgf.game.constants.RARITY) {
@@ -773,7 +789,7 @@ pgf.game.widgets.CreateArtifactTooltip = function (data) {
         rarityName = 'хлам';
     }
 
-    var tooltip = '<ul class="unstyled pgf-artifact-tooltip" style="text-align: left;">';
+    var tooltip = '<ul class="unstyled '+cssClass+'" style="text-align: left;">';
     tooltip += '<li><h4 class="'+0+'">'+data.name+'</h4></li>';
     tooltip += '<li class="'+rarityClass+'">'+rarityName+'</li>';
     if (data.power) tooltip += '<li>физическая сила: '+data.power[0]+'</li>';
@@ -798,9 +814,11 @@ pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
         element.toggleClass('rare-artifact-label', data.rarity == pgf.game.constants.RARITY.RARE.id);
         element.toggleClass('epic-artifact-label', data.rarity == pgf.game.constants.RARITY.EPIC.id);
 
-        var tooltip = pgf.game.widgets.CreateArtifactTooltip(data);
+        var tooltipClass = 'pgf-equipment-artifact-tooltip';
+
+        var tooltip = pgf.game.widgets.CreateArtifactTooltip(data, tooltipClass);
         if (element.attr('title') != tooltip) {
-            pgf.base.HideTooltips(element, 'pgf-artifact-tooltip');
+            pgf.base.HideTooltips(element, tooltipClass);
             element.attr('title', tooltip);
             element.tooltip(pgf.base.tooltipsArgs);
         }

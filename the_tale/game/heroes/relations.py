@@ -18,10 +18,10 @@ class RISK_LEVEL(DjangoEnum):
     reward_modifier = Column()
 
     records = ( ('VERY_HIGH', 0, u'очень высокий', 0.70, 1.30, 1.30, 1.30),
-                 ('HIGH',      1, u'высокий', 0.85, 1.15, 1.15, 1.15),
-                 ('NORMAL',    2, u'обычный', 1.00, 1.00, 1.00, 1.00),
-                 ('LOW',       3, u'низкий', 1.15, 0.85, 0.85, 0.85),
-                 ('VERY_LOW',  4, u'очень низкий', 1.30, 0.70, 0.70, 0.70) )
+                ('HIGH',      1, u'высокий', 0.85, 1.15, 1.15, 1.15),
+                ('NORMAL',    2, u'обычный', 1.00, 1.00, 1.00, 1.00),
+                ('LOW',       3, u'низкий', 1.15, 0.85, 0.85, 0.85),
+                ('VERY_LOW',  4, u'очень низкий', 1.30, 0.70, 0.70, 0.70) )
 
 
 class ARCHETYPE(DjangoEnum):
@@ -91,11 +91,11 @@ class ITEMS_OF_EXPENDITURE(DjangoEnum):
                   u'Собирает на улучшение экипировки.'),
                  ('USELESS',             3, u'бесполезные траты', 'useless',    2,  0.4, MONEY_SOURCE.SPEND_FOR_USELESS,
                   u'Копит золото для не очень полезных но безусловно необходимых трат.'),
-                 ('IMPACT',              4, u'изменение влияния', 'impact',     4,  2.5, MONEY_SOURCE.SPEND_FOR_IMPACT,
+                 ('IMPACT',              4, u'изменение влияния', 'impact',     4,  2.0, MONEY_SOURCE.SPEND_FOR_IMPACT,
                   u'Планирует накопить деньжат, чтобы повлиять на «запомнившегося» горожанина.'),
                  ('EXPERIENCE',          5, u'обучение',          'experience', 2,  5.0, MONEY_SOURCE.SPEND_FOR_EXPERIENCE,
                   u'Копит деньги в надежде немного повысить свою грамотность.'),
-                 ('REPAIRING_ARTIFACT',  6, u'починка артефакта', 'repairing', 3, 1.0, MONEY_SOURCE.SPEND_FOR_REPAIRING,
+                 ('REPAIRING_ARTIFACT',  6, u'починка артефакта', 'repairing', 15, 1.0, MONEY_SOURCE.SPEND_FOR_REPAIRING,
                   u'Копит на починку экипировки'))
 
 

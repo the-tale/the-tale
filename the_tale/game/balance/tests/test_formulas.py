@@ -54,12 +54,12 @@ class AchievementsBarriers(testcase.TestCase):
         self.assertTrue(self.money_after_months(months) <= money <= self.money_after_months(months+0.25))
 
     def test_money(self):
-        self.check_money(0.1, 1000)
-        self.check_money(0.5, 10000)
-        self.check_money(1.4, 50000)
-        self.check_money(7, 500000)
-        self.check_money(11.25, 1000000)
-        self.check_money(33.5, 5000000)
+        self.check_money(0.03, 1000)
+        self.check_money(0.3, 10000)
+        self.check_money(0.9, 50000)
+        self.check_money(4.8, 500000)
+        self.check_money(7.8, 1000000)
+        self.check_money(23, 5000000)
 
 
     def mobs_after_months(self, months):

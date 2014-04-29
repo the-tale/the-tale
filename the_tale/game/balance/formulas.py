@@ -45,16 +45,29 @@ def battles_on_lvl(lvl): return int(time_on_lvl(lvl) * c.BATTLES_PER_HOUR)
 # таким образом, нет необходимости поддерживать добычу для каждого моба для каждого уровня, достаточно по одному предмету каждого качества,
 # а остальное по мере фантазии чисто для разнообразия
 def normal_loot_cost_at_lvl(lvl): return  int(math.ceil(c.NORMAL_LOOT_COST * lvl))
+def medium_loot_cost_at_lvl(lvl): return sum(normal_loot_cost_at_lvl(i) for i in xrange(1, lvl+1)) / lvl
+
+def sell_artifact_price(lvl): return normal_loot_cost_at_lvl(lvl) * c.SELL_ARTIFACT_PRICE_MULTIPLIER
 
 def expected_normal_gold_at_lvl(lvl):
-    MAGIC = 1.5
-    loot_cost = battles_on_lvl(lvl) * c.GET_LOOT_PROBABILITY * (c.NORMAL_ARTIFACT_PROBABILITY * normal_loot_cost_at_lvl(lvl))
-    return int(loot_cost * MAGIC)
+    MAGIC = 1.0
+    QUESTS_IN_DAY = 2.0
+
+    battles = battles_on_lvl(lvl)
+    artifact_price = sell_artifact_price(lvl)
+
+    loot_cost = battles * c.GET_LOOT_PROBABILITY * medium_loot_cost_at_lvl(lvl)
+    artifacts_cost = battles * c.ARTIFACTS_PER_BATTLE * artifact_price
+    quests_cost = QUESTS_IN_DAY * time_on_lvl(lvl) / 24 * artifact_price
+
+    return int((loot_cost + artifacts_cost + quests_cost) * MAGIC)
 
 # при рассчётах принимаем, что герой будет встречать мобов разных уровней с одинаковой вероятностью
-def expected_gold_at_lvl(lvl): return int(math.floor(sum(expected_normal_gold_at_lvl(x) for x in xrange(1, lvl+1)) / lvl))
-def expected_gold_in_day(lvl): return int(math.floor(expected_gold_at_lvl(lvl) / (time_on_lvl(lvl) / 24)))
-def total_gold_at_lvl(lvl): return int(sum(expected_gold_at_lvl(x) for x in xrange(1, lvl)))
+def expected_gold_in_day(lvl): return int(math.floor(expected_normal_gold_at_lvl(lvl) / (time_on_lvl(lvl) / 24)))
+def total_gold_at_lvl(lvl): return int(sum(expected_normal_gold_at_lvl(x) for x in xrange(1, lvl+1)))
+
+def normal_action_price(lvl):
+    return int(expected_gold_in_day(lvl))
 
 # в общем случае, за уровень герой должен тратить процентов на 10 меньше золота, чем зарабатывать
 # тратить деньги можно на следующие вещи:
@@ -72,10 +85,6 @@ def total_gold_at_lvl(lvl): return int(sum(expected_gold_at_lvl(x) for x in xran
 # при этом на него копятся деньги, а по накоплении оно может возникнуть с какой-то большой вероятностью (что бы срабатывать достаточно быстро, не не сиюминуту)
 # выбираем второй вараинт, как более управляемый
 
-def normal_action_price(lvl): return int(expected_gold_in_day(lvl) * c.NORMAL_ACTION_PRICE_MULTIPLYER)
-
-def sell_artifact_price(lvl):
-    return int(expected_gold_in_day(lvl) * c.SELL_ARTIFACT_PRICE_FRACTION)
 
 # задания (квесты)
 #  - игрок всегда должен получать полезную/интересную награду за выполнение задания

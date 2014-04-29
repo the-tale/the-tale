@@ -50,7 +50,9 @@ class Actor(object):
 
     def choose_ability(self):
         choice_abilities = [ (ability, ability.priority) for ability in self.actor.abilities.active_abilities if ability.can_be_used(self)]
-        choice_abilities += [ (ability, ability.priority) for ability in self.actor.additional_abilities if ability.can_be_used(self)]
+        choice_abilities += [ (ability, ability.priority)
+                              for ability in self.actor.additional_abilities
+                              if ability.activation_type.is_ACTIVE and ability.can_be_used(self)]
         return random_value_by_priority(choice_abilities)
 
     def update_context(self, enemy):

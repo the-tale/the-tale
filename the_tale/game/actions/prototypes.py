@@ -959,6 +959,8 @@ class ActionBattlePvE1x1Prototype(ActionBase):
 
         artifacts = self.hero.artifacts_to_break()
 
+        # print 'BREAK CANDIDATES: %d' % len(artifacts)
+
         if not len(artifacts):
             return
 
@@ -1105,6 +1107,7 @@ class ActionInPlacePrototype(ActionBase):
             gold_amount = min(self.hero.money, int(gold_amount * (1 + random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA))))
             gold_amount = self.hero.modify_buy_price(gold_amount)
             self.hero.change_money(self.hero.next_spending.money_source, -gold_amount)
+            # print '!_! SPEND for %s' % self.hero.next_spending
             self.hero.switch_spending()
             return gold_amount
 

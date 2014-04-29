@@ -156,7 +156,7 @@ RANDOM_PREMIUM_CHEST = goods.PurchaseGroup(uid='random-premium-chest',
                                                                             transaction_description=u'Подписка в подарок случайному игроку') ])
 
 
-PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
+PRICE_GROUPS = [#RANDOM_PREMIUM_CHEST,
 
                 goods.PurchaseGroup(uid='subscription',
                                     name=u'Подписка',
