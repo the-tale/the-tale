@@ -95,8 +95,7 @@ class ArtifactPrototype(object):
         return {'id': self.id,
                 'power': self.power.serialize(),
                 'bag_uuid': self.bag_uuid,
-                'integrity': self.integrity,
-                'max_integrity': self.max_integrity,
+                'integrity': (self.integrity, self.max_integrity),
                 'rarity': self.rarity.value,
                 'level': self.level}
 
@@ -111,11 +110,13 @@ class ArtifactPrototype(object):
         if record is None or record.state.is_DISABLED:
             record = random.choice(artifacts_storage.artifacts)
 
+        integrity = data.get('integrity', [c.ARTIFACT_MAX_INTEGRITY, c.ARTIFACT_MAX_INTEGRITY])
+
         return cls(record=record,
                    power=Power.deserialize(data['power']),
                    bag_uuid=data['bag_uuid'],
-                   max_integrity=data.get('max_integrity', c.ARTIFACT_MAX_INTEGRITY),
-                   integrity=data.get('integrity', c.ARTIFACT_MAX_INTEGRITY),
+                   integrity=integrity[0],
+                   max_integrity=integrity[1],
                    rarity=relations.RARITY.index_value[data.get('rarity', relations.RARITY.NORMAL.value)],
                    level=data.get('level', 1))
 
@@ -188,8 +189,8 @@ class ArtifactPrototype(object):
                 'id': self.record.id,
                 'equipped': self.can_be_equipped,
                 'name': self.name,
-                'integrity': self.integrity if not self.type.is_USELESS else None,
-                'max_integrity': self.max_integrity if not self.type.is_USELESS else None,
+                'integrity': (self.integrity if not self.type.is_USELESS else None,
+                              self.max_integrity if not self.type.is_USELESS else None),
                 'rarity': self.rarity.value if not self.type.is_USELESS else None,
                 'effect': self._effect().TYPE.value if not self.type.is_USELESS else None,
                 'preference_rating': self.preference_rating(hero.preferences.archetype.power_distribution) if not self.type.is_USELESS else None,

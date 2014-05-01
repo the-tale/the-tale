@@ -11,10 +11,12 @@
                {{ ability.availability.text }},
                {{ ability.activation_type.text -}}
 
-               {%- if ability.type.is_BATTLE -%},
+               {%- if ability.type.is_BATTLE-%},
+               {%- if ability.HAS_DAMAGE %}
                прямой урон
                {% else %}
                нет прямого урона
+               {% endif %}
                {% endif %}">
     <dt class="ability-name">
       {{ ability.NAME }}

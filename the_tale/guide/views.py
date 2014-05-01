@@ -67,7 +67,7 @@ def get_api_methods():
 
 def get_api_types():
     from the_tale.game.relations import GENDER, RACE
-    from the_tale.game.artifacts.relations import ARTIFACT_TYPE
+    from the_tale.game.artifacts.relations import ARTIFACT_TYPE, RARITY, ARTIFACT_EFFECT
     from the_tale.game.heroes.relations import EQUIPMENT_SLOT
     from the_tale.game.persons.relations import PERSON_TYPE
     from the_tale.game.abilities.relations import ABILITY_TYPE as ANGEL_ABILITY_TYPE
@@ -77,8 +77,10 @@ def get_api_types():
 
     return [TypeReference('gender', u'Пол', GENDER),
             TypeReference('race', u'Раса', RACE),
+            TypeReference('rarity', u'Редкость артефакта', RARITY),
             TypeReference('artifact_type', u'Тип артефакта', ARTIFACT_TYPE),
             TypeReference('equipment_slot', u'Тип экипировки', EQUIPMENT_SLOT),
+            TypeReference('artifact_effect', u'Эффекты артефактов', ARTIFACT_EFFECT),
             TypeReference('person_profession', u'Профессия жителя', PERSON_TYPE),
             TypeReference('ability_type', u'Тип способности игрока', ANGEL_ABILITY_TYPE,
                          fields=((u'значение', 'value'), (u'описание', 'text'), (u'атрибуты запроса', 'request_attributes'))),

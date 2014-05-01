@@ -684,14 +684,14 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
         var tooltipClass = 'pgf-bag-artifact-tooltip';
 
         var tooltip = pgf.game.widgets.CreateArtifactTooltip(item, tooltipClass);
-        if (element.attr('title') != tooltip) {
+        if (element.data('current-tooltip') != tooltip) {
             pgf.base.HideTooltips(element, tooltipClass);
-            element.attr('title', tooltip);
-            element.tooltip(pgf.base.tooltipsArgs);
+            element.data('current-tooltip', tooltip);
+            element.tooltip(jQuery.extend(true, {}, pgf.base.tooltipsArgs, {title: tooltip}));
         }
 
         jQuery('.pgf-name', element).text(item.name);
-        jQuery('.pgf-power-container', element).toggleClass('pgf-hidden', !item.equipped);
+        jQuery('.pgf-power-container', element).toggleClass('pgf-hidden', pgf.game.constants.ARTIFACT_TYPE.USELESS == item.type);
         if (item.power) {
             jQuery('.pgf-physic-power', element).text(item.power[0]);
             jQuery('.pgf-magic-power', element).text(item.power[1]);
@@ -794,7 +794,7 @@ pgf.game.widgets.CreateArtifactTooltip = function (data, cssClass) {
     tooltip += '<li class="'+rarityClass+'">'+rarityName+'</li>';
     if (data.power) tooltip += '<li>физическая сила: '+data.power[0]+'</li>';
     if (data.power) tooltip += '<li>магическая сила: '+data.power[1]+'</li>';
-    if (data.integrity && data.max_integrity) tooltip += '<li>целостность: '+data.integrity+'/'+data.max_integrity+'</li>';
+    if (data.integrity[0] && data.integrity[1]) tooltip += '<li>целостность: '+data.integrity[0]+'/'+data.integrity[1]+'</li>';
     if (data.preference_rating) tooltip += '<li>полезность: '+data.preference_rating+'</li>';
     if (data.effect) tooltip += '<li><i>'+pgf.game.constants.EFFECTS[data.effect].description+'</i></li>';
     tooltip += '</ul>';
@@ -817,10 +817,10 @@ pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
         var tooltipClass = 'pgf-equipment-artifact-tooltip';
 
         var tooltip = pgf.game.widgets.CreateArtifactTooltip(data, tooltipClass);
-        if (element.attr('title') != tooltip) {
+        if (element.data('current-tooltip') != tooltip) {
             pgf.base.HideTooltips(element, tooltipClass);
-            element.attr('title', tooltip);
-            element.tooltip(pgf.base.tooltipsArgs);
+            element.data('current-tooltip', tooltip);
+            element.tooltip(jQuery.extend(true, {}, pgf.base.tooltipsArgs, {title: tooltip}));
         }
 
         jQuery('.pgf-name', element).text(data.name);

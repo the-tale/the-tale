@@ -10,6 +10,7 @@ class AbilityPrototype(object):
     LOGIC_TYPE = None
     PRIORITY = None
     AVAILABILITY = relations.ABILITY_AVAILABILITY.FOR_ALL
+    HAS_DAMAGE = False
 
     NAME = u''
     normalized_name = u''

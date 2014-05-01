@@ -178,5 +178,25 @@ def form_game_info(account=None, is_own=False):
 
 def game_info_url(account_id=None):
     if account_id is not None:
-        return url('game:api-info', account=account_id, api_version='1.0', api_client=project_settings.API_CLIENT)
-    return url('game:api-info', api_version='1.0', api_client=project_settings.API_CLIENT)
+        return url('game:api-info', account=account_id, api_version='1.1', api_client=project_settings.API_CLIENT)
+    return url('game:api-info', api_version='1.1', api_client=project_settings.API_CLIENT)
+
+
+def _game_info_from_1_1_to_1_0__heroes(data):
+    data['secondary']['power'] = sum(data['secondary']['power'])
+
+    for artifact in data['equipment'].values():
+        artifact['power'] = sum(artifact['power'])
+
+    for artifact in data['bag'].values():
+        artifact['power'] = sum(artifact['power'])
+
+
+def game_info_from_1_1_to_1_0(data):
+    if data['account'] is not None:
+        _game_info_from_1_1_to_1_0__heroes(data['account']['hero'])
+
+    if data['enemy'] is not None:
+        _game_info_from_1_1_to_1_0__heroes(data['enemy']['hero'])
+
+    return data

@@ -20,6 +20,8 @@ pgf.game.constants = {
     RACE_TO_STR: {{race_to_str|safe}},
 
     GAME_STATE: {{game_state|safe}},
+
+    ARTIFACT_TYPE: {{game_state|safe}},
 };
 
 pgf.game.constants.RARITY = {

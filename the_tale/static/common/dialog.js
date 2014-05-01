@@ -77,6 +77,8 @@ pgf.ui.dialog.Create = function(params) {
         var OnShow = function(e) {
             if (!$(e.target).is(dialog)) return;
 
+            pgf.base.HideTooltips();
+
             jQuery('.modal').not(dialog).toggleClass('nested-modal', true);
 
             jQuery('.pgf-close-dialog', dialog).click(function(e){
@@ -229,7 +231,7 @@ pgf.ui.dialog.wait = function(command, stopCallback) {
     }
 
     if (command == 'start') {
-        pgf.base.HideTooltips(jQuery(document));
+        // pgf.base.HideTooltips(jQuery(document));
 
         pgf.ui.dialog._wait_counter += 1;
         if (pgf.ui.dialog._wait_counter > 1) {

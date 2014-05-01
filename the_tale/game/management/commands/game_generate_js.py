@@ -14,7 +14,7 @@ from the_tale.game.map.relations import SPRITES
 from the_tale.game.persons.relations import PERSON_TYPE
 from the_tale.game.abilities.relations import ABILITY_TYPE
 from the_tale.game.relations import GAME_STATE
-from the_tale.game.artifacts.relations import RARITY
+from the_tale.game.artifacts.relations import RARITY, ARTIFACT_TYPE
 from the_tale.game.artifacts.effects import EFFECTS
 
 
@@ -37,6 +37,7 @@ class Command(BaseCommand):
                             'race_to_text': s11n.to_json(dict(RACE.select('value', 'text'))),
                             'race_to_str': s11n.to_json(dict(RACE.select('value', 'name'))),
                             'game_state': s11n.to_json(dict(GAME_STATE.select('name', 'value'))),
+                            'artifact_type': s11n.to_json(dict(ARTIFACT_TYPE.select('name', 'value'))),
                             'EFFECTS': EFFECTS,
                             'RARITY': RARITY,
                             'ABILITY_TYPE': ABILITY_TYPE,

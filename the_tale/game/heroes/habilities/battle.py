@@ -14,6 +14,7 @@ class HIT(AbilityPrototype):
     LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITH_CONTACT
     PRIORITY = [100]
     MAX_LEVEL = 1
+    HAS_DAMAGE = True
 
     NAME = u'Удар'
     normalized_name = NAME
@@ -40,6 +41,7 @@ class STRONG_HIT(AbilityPrototype):
     TYPE = relations.ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITH_CONTACT
+    HAS_DAMAGE = True
 
     PRIORITY = [15, 16, 17, 18, 19]
 
@@ -122,6 +124,7 @@ class RUN_UP_PUSH(AbilityPrototype):
     ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITH_CONTACT
     PRIORITY = [7, 8, 9, 10, 11]
+    HAS_DAMAGE = True
 
     NAME = u'Разбег-толчок'
     normalized_name = NAME
@@ -238,6 +241,7 @@ class FIREBALL(AbilityPrototype):
     ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITH_CONTACT
     PRIORITY = [4, 5, 6, 7, 8]
+    HAS_DAMAGE = True
 
     NAME = u'Шар огня'
     normalized_name = NAME
@@ -274,6 +278,7 @@ class POISON_CLOUD(AbilityPrototype):
     ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
     PRIORITY = [6, 7, 8, 9, 10]
+    HAS_DAMAGE = True
 
     NAME = u'Ядовитое облако'
     normalized_name = NAME
@@ -301,6 +306,7 @@ class VAMPIRE_STRIKE(AbilityPrototype):
     ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITH_CONTACT
     PRIORITY = [14, 15, 16, 17, 18]
+    HAS_DAMAGE = True
 
     NAME = u'Удар вампира'
     normalized_name = NAME
