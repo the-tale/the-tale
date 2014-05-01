@@ -39,6 +39,27 @@ class SpoilerTag(postmarkup.TagBase):
         return u'</div></div></div></div>'
 
 
+class SafeSpoilerTag(postmarkup.TagBase):
+
+    def __init__(self, name, **kwargs):
+        super(SafeSpoilerTag, self).__init__(name, inline=False)
+        self.tag_key = u'SafeSpoilerTag.nest_level'
+
+    def render_open(self, parser, node_index):
+        parser.tag_data[self.tag_key] = parser.tag_data.setdefault(self.tag_key, 0) + 1
+
+        if self.params:
+            caption = self.params.strip()
+        else:
+            caption = u'спойлер'
+
+        return u'--------------%(caption)s--------------' % {'caption': caption}
+
+    def render_close(self, parser, node_index):
+        parser.tag_data[self.tag_key] -= 1
+        return u'--------------'
+
+
 
 _renderer = postmarkup.create(use_pygments=False, annotate_links=False)
 _renderer.tag_factory.add_tag(SpoilerTag, 'spoiler')
@@ -46,6 +67,16 @@ _renderer.tag_factory.add_tag(SpoilerTag, 'spoiler')
 def render(*argv, **kwargs):
     try:
         return _renderer.render_to_html(*argv, **kwargs)
+    except:
+        return u'Текст нельзя отформатировать. Возможно Вы ошиблись при вводе тегов.'
+
+
+_safe_renderer = postmarkup.create(use_pygments=False, annotate_links=False)
+_safe_renderer.tag_factory.add_tag(SafeSpoilerTag, 'spoiler')
+
+def safe_render(*argv, **kwargs):
+    try:
+        return _safe_renderer.render_to_html(*argv, **kwargs)
     except:
         return u'Текст нельзя отформатировать. Возможно Вы ошиблись при вводе тегов.'
 

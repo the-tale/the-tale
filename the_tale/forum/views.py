@@ -550,10 +550,12 @@ class ForumResource(BaseForumResource):
 
             post = PostPrototype(model=Post.objects.filter(thread_id=thread.id).order_by('created_at')[0])
 
+            url = self.request.build_absolute_uri(reverse('forum:threads:show', args=[thread.id]))
+
             feed.add_item(title=thread.caption,
-                          link=self.request.build_absolute_uri(reverse('forum:threads:show', args=[thread.id])),
-                          description=post.html,
+                          link=url,
+                          description=post.safe_html,
                           pubdate=thread.created_at,
-                          unique_id=str(thread.id))
+                          unique_id=url)
 
         return self.atom(feed.writeString('utf-8'))

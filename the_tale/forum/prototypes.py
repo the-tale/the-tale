@@ -275,6 +275,13 @@ class PostPrototype(BasePrototype):
             return markdown.markdown(self.text)
 
     @property
+    def safe_html(self):
+        if self.markup_method.is_POSTMARKUP:
+            return bbcode.safe_render(self.text)
+        elif self.markup_method.is_MARKDOWN:
+            return markdown.markdown(self.text)
+
+    @property
     def is_removed(self): return self.state.is_REMOVED
 
     @property
