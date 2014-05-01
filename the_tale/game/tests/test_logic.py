@@ -106,7 +106,10 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         hero = HeroPrototype.get_by_account_id(self.account_1.id)
 
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero',
-                        mock.Mock(return_value={'actual_on_turn': hero.saved_at_turn, 'pvp__actual':'actual', 'pvp__last_turn':'last_turn'})) as cached_ui_info_for_hero:
+                        mock.Mock(return_value={'actual_on_turn': hero.saved_at_turn,
+                                                'pvp__actual':'actual',
+                                                'pvp__last_turn':'last_turn',
+                                                'ui_caching_started_at': 0})) as cached_ui_info_for_hero:
             with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
                 data = form_game_info(self.account_1, is_own=True)
 
@@ -124,7 +127,10 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         hero = HeroPrototype.get_by_account_id(self.account_1.id)
 
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info',
-                        mock.Mock(return_value={'actual_on_turn': hero.saved_at_turn, 'pvp__actual':'actual', 'pvp__last_turn':'last_turn'})) as ui_info:
+                        mock.Mock(return_value={'actual_on_turn': hero.saved_at_turn,
+                                                'pvp__actual':'actual',
+                                                'pvp__last_turn':'last_turn',
+                                                'ui_caching_started_at': 0})) as ui_info:
             data = form_game_info(self.account_1, is_own=False)
 
         self.assertEqual(data['account']['hero']['pvp'], 'last_turn')
@@ -214,9 +220,15 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
 
         def get_ui_info(self, **kwargs):
             if self.id == hero_1.id:
-                return {'actual_on_turn': hero_1.saved_at_turn, 'pvp__actual':'actual', 'pvp__last_turn':'last_turn'}
+                return {'actual_on_turn': hero_1.saved_at_turn,
+                        'pvp__actual':'actual',
+                        'pvp__last_turn':'last_turn',
+                        'ui_caching_started_at': 0}
             else:
-                return {'actual_on_turn': hero_2.saved_at_turn, 'pvp__actual':'actual', 'pvp__last_turn':'last_turn'}
+                return {'actual_on_turn': hero_2.saved_at_turn,
+                        'pvp__actual':'actual',
+                        'pvp__last_turn':'last_turn',
+                        'ui_caching_started_at': 0}
 
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info', get_ui_info):
             data = form_game_info(self.account_1, is_own=True)

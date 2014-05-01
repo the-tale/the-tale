@@ -31,14 +31,14 @@ jQuery(document).ready(function(e){
 
     setTimeout(function RefreshData() {
         if (updater) {
-            updater.Refresh(true);
+            updater.Refresh();
         }
     }, 0);
 
     pgf.base.ToggleWait(jQuery(".pgf-hero-data-wait"), true);
 
     {% if game_settings.ENABLE_DATA_REFRESH %}
-    updater.SetRefreshInterval( {{ game_settings.TURN_DELAY*1000 }}, true );
+    updater.SetRefreshInterval( {{ game_settings.TURN_DELAY*1000 }});
     {% endif %}
 
     pgf.base.InitializeTabs('game-tab-main', 'map', [['.pgf-journal-tab-button', 'journal'], ['.pgf-map-tab-button', 'map']]);

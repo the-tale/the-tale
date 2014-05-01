@@ -67,7 +67,7 @@ jQuery(document).ready(function(e){
     function DoTurns(number) {
         if (number == 0) {
             setTimeout(function() {
-                updater.Refresh(true);
+                updater.Refresh();
             }, 1000 );
             return;
         }
@@ -82,7 +82,7 @@ jQuery(document).ready(function(e){
 
     jQuery('.pgf-refresh').click(function(e){
         e.preventDefault();
-        updater.Refresh(true);
+        updater.Refresh();
     });
 
     jQuery('.pgf-next-turn').click(function(e){

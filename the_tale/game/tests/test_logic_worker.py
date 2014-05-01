@@ -47,7 +47,7 @@ class LogicWorkerTests(testcase.TestCase):
         current_time = datetime.datetime.now()
         self.worker.process_register_account(self.account.id)
         self.assertTrue(self.worker.storage.heroes[self.hero.id].ui_caching_started_at < current_time)
-        self.worker.process_start_hero_caching(self.account.id, self.hero.id)
+        self.worker.process_start_hero_caching(self.account.id)
         self.assertTrue(self.worker.storage.heroes[self.hero.id].ui_caching_started_at > current_time)
 
     def test_process_next_turn(self):

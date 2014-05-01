@@ -31,20 +31,12 @@ pgf.game.Updater = function(params) {
 
     this.data = {};
 
-    this.SetRefreshInterval = function(intervalTime, requireNewData) {
+    this.SetRefreshInterval = function(intervalTime) {
         refreshInterval = intervalTime;
         refreshTimer = setInterval(function(e){
-            instance.Refresh(requireNewData);
+            instance.Refresh();
         }, refreshInterval );
         autoRefreshStopped = false;
-    };
-
-    this.ResetRefreshInterval = function(requireNewData) {
-        if (!refreshInterval) return;
-
-        clearInterval(refreshTimer);
-
-        instance.SetRefreshInterval(refreshInterval, requireNewData);
     };
 
     this.StopAutoRefresh = function() {
@@ -54,7 +46,7 @@ pgf.game.Updater = function(params) {
         autoRefreshStopped = true;
     };
 
-    this.Refresh = function(requireNewData) {
+    this.Refresh = function() {
 
         jQuery.ajax({
             dataType: 'json',
@@ -62,12 +54,12 @@ pgf.game.Updater = function(params) {
             url: params.url,
             success: function(data, request, status) {
 
-                if (data && data.data && data.data.account && data.data.account.is_old && requireNewData) {
+                if (data && data.data && data.data.account && data.data.account.is_old) {
 
                     setTimeout(function(e){
                         refreshDelay *= 1.618; //the golden ratio
                         instance.StopAutoRefresh();
-                        instance.Refresh(requireNewData);
+                        instance.Refresh();
                     }, refreshDelay);
                     return;
                 }
@@ -75,7 +67,7 @@ pgf.game.Updater = function(params) {
                 refreshDelay = INITIAL_REFRESH_DELAY;
 
                 if (autoRefreshStopped) {
-                    instance.SetRefreshInterval(refreshInterval, requireNewData);
+                    instance.SetRefreshInterval(refreshInterval);
                 }
 
                 instance.data = data.data;

@@ -57,14 +57,14 @@ class LogicStorage(object):
     def recache_account_data(self, account_id):
         # probably, here we need recache all bundle
         hero = self.accounts_to_heroes[account_id]
-        cache.set(hero.cached_ui_info_key, hero.ui_info_for_cache(actual_guaranteed=True), heroes_settings.UI_CACHING_TIMEOUT)
+        cache.set(hero.cached_ui_info_key, hero.ui_info(actual_guaranteed=True), heroes_settings.UI_CACHING_TIMEOUT)
 
     def _save_hero_data(self, hero_id, update_cache):
         hero = self.heroes[hero_id]
         hero.save()
 
         if update_cache:
-            cache.set(hero.cached_ui_info_key, hero.ui_info_for_cache(actual_guaranteed=True), heroes_settings.UI_CACHING_TIMEOUT)
+            cache.set(hero.cached_ui_info_key, hero.ui_info(actual_guaranteed=True), heroes_settings.UI_CACHING_TIMEOUT)
 
 
     def _add_hero(self, hero):
@@ -259,7 +259,7 @@ class LogicStorage(object):
         for hero_id, hero in self.heroes.iteritems():
 
             if hero.actions.current_action.bundle_id in cached_bundles:
-                cached_ui_info[hero.cached_ui_info_key] = hero.ui_info_for_cache(actual_guaranteed=True)
+                cached_ui_info[hero.cached_ui_info_key] = hero.ui_info(actual_guaranteed=True)
 
             if hero.actions.current_action.bundle_id in saved_bundles:
                 self._save_hero_data(hero_id, update_cache=False)

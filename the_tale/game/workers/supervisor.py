@@ -292,13 +292,11 @@ class Worker(BaseWorker):
                                                                               'ban_end_at': ban_end_at,
                                                                               'might': might} )
 
-    def cmd_start_hero_caching(self, account_id, hero_id):
-        self.send_cmd('start_hero_caching', {'hero_id': hero_id,
-                                             'account_id': account_id})
+    def cmd_start_hero_caching(self, account_id):
+        self.send_cmd('start_hero_caching', {'account_id': account_id})
 
-    def process_start_hero_caching(self, account_id, hero_id):
-        self.dispatch_logic_cmd(account_id, 'start_hero_caching', {'account_id': account_id,
-                                                                   'hero_id': hero_id} )
+    def process_start_hero_caching(self, account_id):
+        self.dispatch_logic_cmd(account_id, 'start_hero_caching', {'account_id': account_id} )
 
     def cmd_highlevel_data_updated(self):
         self.send_cmd('highlevel_data_updated')

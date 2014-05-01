@@ -94,9 +94,9 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.worker.process_start_hero_caching(self.account_1.id, self.hero_1.id)
         self.worker.process_start_hero_caching(self.account_2.id, self.hero_2.id)
         self.worker.process_logic_task(self.account_1.id, 666)
-        self.assertEqual(self.worker.accounts_queues, { self.account_1.id: [('start_hero_caching', {'account_id': self.account_1.id, 'hero_id': self.hero_1.id}),
+        self.assertEqual(self.worker.accounts_queues, { self.account_1.id: [('start_hero_caching', {'account_id': self.account_1.id}),
                                                                             ('logic_task', {'account_id': self.account_1.id, 'task_id': 666}),],
-                                                        self.account_2.id: [('start_hero_caching', {'account_id': self.account_2.id, 'hero_id': self.hero_2.id})]})
+                                                        self.account_2.id: [('start_hero_caching', {'account_id': self.account_2.id})]})
 
         self.worker.process_account_released(self.account_2.id)
         self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'logic', self.account_2.id: 'logic'})

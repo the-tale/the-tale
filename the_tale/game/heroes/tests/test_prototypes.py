@@ -288,7 +288,15 @@ class HeroTest(testcase.TestCase):
 
 
     @mock.patch('dext.utils.cache.get', lambda x: {'ui_caching_started_at': 0})
-    def test_cached_ui_info_for_hero__continue_caching_required(self):
+    def test_cached_ui_info_for_hero__continue_caching_required__cache_exists(self):
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)
+        self.assertEqual(cmd_start_hero_caching.call_count, 1)
+        self.assertEqual(ui_info.call_count, 0)
+
+    @mock.patch('dext.utils.cache.get', lambda x: None)
+    def test_cached_ui_info_for_hero__continue_caching_required__cache_not_exists(self):
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
             with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
                 HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)
@@ -296,7 +304,17 @@ class HeroTest(testcase.TestCase):
         self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
 
     @mock.patch('dext.utils.cache.get', lambda x: {'ui_caching_started_at': 0})
-    def test_cached_ui_info_for_hero__continue_caching_required__game_stopped(self):
+    def test_cached_ui_info_for_hero__continue_caching_required__game_stopped__cache_exists(self):
+        GameState.stop()
+
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)
+        self.assertEqual(cmd_start_hero_caching.call_count, 0)
+        self.assertEqual(ui_info.call_count, 0)
+
+    @mock.patch('dext.utils.cache.get', lambda x: None)
+    def test_cached_ui_info_for_hero__continue_caching_required__game_stopped__cache_not_exists(self):
         GameState.stop()
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:

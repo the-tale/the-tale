@@ -535,10 +535,6 @@ class HeroPrototype(BasePrototype,
         del data['pvp__actual']
 
 
-    def ui_info_for_cache(self, actual_guaranteed):
-        return self.ui_info(actual_guaranteed=actual_guaranteed)
-
-
     @classmethod
     def cached_ui_info_key_for_hero(cls, account_id):
         return heroes_settings.UI_CACHING_KEY % account_id
@@ -553,12 +549,12 @@ class HeroPrototype(BasePrototype,
 
         data = cache.get(cls.cached_ui_info_key_for_hero(account_id))
 
-        if data is None or cls.is_ui_continue_caching_required(data['ui_caching_started_at']):
+        if data is None:
             hero = cls.get_by_account_id(account_id)
-            data = hero.ui_info_for_cache(actual_guaranteed=False)
+            data = hero.ui_info(actual_guaranteed=False)
 
-            if GameState.is_working():
-                game_workers_environment.supervisor.cmd_start_hero_caching(hero.account_id, hero.id)
+        if cls.is_ui_continue_caching_required(data['ui_caching_started_at']) and GameState.is_working():
+            game_workers_environment.supervisor.cmd_start_hero_caching(account_id)
 
         return data
 
