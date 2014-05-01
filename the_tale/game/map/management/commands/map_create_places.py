@@ -50,22 +50,65 @@ class Command(BaseCommand):
 
         with transaction.atomic():
 
-            self.create_place(name=u'Новогодний',
-                              name_forms=Noun(normalized=u'Новогодний',
-                                              forms=(u'Новогодний', u'Новогоднего', u'Новогоднему', u'Новогодний', u'Новогодним', u'Новогоднем',
-                                                     u'Новогодние', u'Новогодних', u'Новогодним', u'Новогодние', u'Новогодними', u'Новогодних'),
+            self.create_place(name_forms=Noun(normalized=u'Карахен',
+                                              forms=(u'Карахен', u'Карахена', u'Карахену', u'Карахен', u'Карахеном', u'Карахене',
+                                                     u'Карахены', u'Карахенов', u'Карахенам', u'Карахены', u'Карахенами', u'Карахенах'),
                                               properties=(u'мр')),
-                          x=23,
-                          y=2,
-                          size=1,
-                          roads_to=[places_storage[21]])
+                              x=26,
+                              y=35,
+                              size=1,
+                              roads_to=[places_storage[20], places_storage[22]])
+
+            self.create_place(name_forms=Noun(normalized=u'Коркатталь',
+                                              forms=(u'Коркатталь', u'Коркатталя', u'Коркатталю', u'Коркатталь', u'Коркатталем', u'Коркаттале',
+                                                     u'Коркаттали', u'Коркатталей', u'Коркатталям', u'Коркаттали', u'Коркатталями', u'Коркатталях'),
+                                              properties=(u'мр')),
+                              x=4,
+                              y=18,
+                              size=1,
+                              roads_to=[places_storage[5]])
+
+            persons = [ (Noun(normalized=u'Бранд',
+                              forms=(u'Бранд', u'Бранда', u'Бранду', u'Бранда', u'Брандом', u'Бранде',
+                                     u'Бранды', u'Брандов', u'Брандам', u'Брандов', u'Брандами', u'Брандах'),
+                              properties=(u'мр')),
+                         0.33,
+                         RACE.DWARF,
+                         GENDER.MASCULINE,
+                         PERSON_TYPE.MAGICIAN),
+                        (Noun(normalized=u'Доркин',
+                              forms=(u'Доркин', u'Доркина', u'Доркину', u'Доркина', u'Доркином', u'Доркине',
+                                     u'Доркины', u'Доркинов', u'Доркинам', u'Доркинов', u'Доркинами', u'Доркинах'),
+                              properties=(u'мр')),
+                         0.33,
+                         RACE.DWARF,
+                         GENDER.MASCULINE,
+                         PERSON_TYPE.BLACKSMITH),
+                        (Noun(normalized=u'Горкин',
+                              forms=(u'Горкин', u'Горкина', u'Горкину', u'Горкина', u'Горкином', u'Горкине',
+                                     u'Горкины', u'Горкинов', u'Горкинам', u'Горкинов', u'Горкинами', u'Горкинах'),
+                              properties=(u'мр')),
+                         0.33,
+                         RACE.DWARF,
+                         GENDER.MASCULINE,
+                         PERSON_TYPE.MINER) ]
+
+            self.create_place(name_forms=Noun(normalized=u'Карнгард',
+                                              forms=(u'Карнгард', u'Карнгарда', u'Карнгарду', u'Карнгард', u'Карнгардом', u'Карнгарде',
+                                                     u'Карнгарды', u'Карнгардов', u'Карнгардам', u'Карнгарды', u'Карнгардами', u'Карнгардах'),
+                                              properties=(u'мр')),
+                              x=31,
+                              y=1,
+                              size=1,
+                              roads_to=[places_storage[24]],
+                              persons=persons)
 
         # update map with new places
         run_django_command(['map_update_map'])
 
 
     @transaction.atomic
-    def create_place(self, name, x, y, size, roads_to, persons=(), name_forms=None): # pylint: disable=R0914
+    def create_place(self, x, y, size, roads_to, persons=(), name_forms=None): # pylint: disable=R0914
 
         place_power = int(max(place.power for place in places_storage.all()) * float(size) / places_settings.MAX_SIZE)
 
@@ -74,22 +117,19 @@ class Command(BaseCommand):
 
         place = PlacePrototype.create( x=x,
                                        y=y,
-                                       name_forms=Noun.fast_construct(name) if name_forms is None else name_forms,
+                                       name_forms=name_forms,
                                        size=size)
 
         initial_turn = TimePrototype.get_current_turn_number() - places_settings.POWER_HISTORY_LENGTH
         for i in xrange(place_power_steps):
             place.push_power(int(initial_turn+i*c.MAP_SYNC_TIME), int(place_power_per_step))
 
-        for name, power_percent, race, gender, tp in persons:
-            if name is None:
-                name = names.generator.get_name(race, gender)
-
+        for name_form, power_percent, race, gender, tp in persons:
             person = PersonPrototype.create(place=place,
                                             race=race,
                                             gender=gender,
                                             tp=tp,
-                                            name=name)
+                                            name_forms=name_forms)
 
             person_power = place_power * power_percent
             person_power_steps = int(persons_settings.POWER_HISTORY_LENGTH / c.MAP_SYNC_TIME)
