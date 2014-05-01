@@ -124,12 +124,12 @@ class Command(BaseCommand):
         for i in xrange(place_power_steps):
             place.push_power(int(initial_turn+i*c.MAP_SYNC_TIME), int(place_power_per_step))
 
-        for name_form, power_percent, race, gender, tp in persons:
+        for person_name_forms, power_percent, race, gender, tp in persons:
             person = PersonPrototype.create(place=place,
                                             race=race,
                                             gender=gender,
                                             tp=tp,
-                                            name_forms=name_forms)
+                                            name_forms=person_name_forms)
 
             person_power = place_power * power_percent
             person_power_steps = int(persons_settings.POWER_HISTORY_LENGTH / c.MAP_SYNC_TIME)
