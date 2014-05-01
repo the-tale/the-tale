@@ -11,12 +11,15 @@ from the_tale.common.utils.decorators import staff_required
 from the_tale.common.utils.resources import Resource
 
 from the_tale.bank.prototypes import AccountPrototype as BankAccountPrototype, InvoicePrototype
-from the_tale.bank.relations import ENTITY_TYPE as BANK_ENTITY_TYPE
+from the_tale.bank.relations import ENTITY_TYPE as BANK_ENTITY_TYPE, INVOICE_STATE
 
 from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.portal.developers_info.relations import PAYMENT_GROUPS
 from the_tale.portal.conf import portal_settings
+
+
+InvoiceQuery = InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED))
 
 
 class RefererStatistics(collections.namedtuple('RefererStatisticsBase', ('domain', 'count', 'active_accounts', 'premium_accounts', 'active_and_premium', 'premium_currency'))):
@@ -74,7 +77,7 @@ def get_referers_statistics():
 
 def get_invoice_statistics():
 
-    raw_statistics = InvoicePrototype._model_class.objects.values('operation_uid').order_by().annotate(models.Count('operation_uid'), models.Sum('amount'))
+    raw_statistics = InvoiceQuery.values('operation_uid').order_by().annotate(models.Count('operation_uid'), models.Sum('amount'))
 
     statistics = []
 
@@ -88,11 +91,11 @@ def get_invoice_statistics():
 
 def get_repeatable_payments_statistics():
     # группы по количеству оплат
-    payments_count = collections.Counter(InvoicePrototype._db_filter(sender_type=BANK_ENTITY_TYPE.XSOLLA).values_list('recipient_id', flat=True))
+    payments_count = collections.Counter(InvoiceQuery.filter(sender_type=BANK_ENTITY_TYPE.XSOLLA).values_list('recipient_id', flat=True))
     payments_count_groups = collections.Counter(payments_count.values())
 
     # группы по заплаченным деньгам
-    gold_count = InvoicePrototype._db_filter(sender_type=BANK_ENTITY_TYPE.XSOLLA).values_list('recipient_id', 'amount')
+    gold_count = InvoiceQuery.filter(sender_type=BANK_ENTITY_TYPE.XSOLLA).values_list('recipient_id', 'amount')
     accounts_spend = {}
     for account_id, amount in gold_count:
         accounts_spend[account_id] = accounts_spend.get(account_id, 0) + amount
@@ -106,13 +109,13 @@ def get_repeatable_payments_statistics():
                 break
 
     # группы по повторным подпискам
-    subscriptions_count = collections.Counter(InvoicePrototype._db_filter(recipient_type=BANK_ENTITY_TYPE.GAME_ACCOUNT,
-                                                                          operation_uid__startswith='ingame-purchase-<subscription').values_list('recipient_id', flat=True))
+    subscriptions_count = collections.Counter(InvoiceQuery.filter(recipient_type=BANK_ENTITY_TYPE.GAME_ACCOUNT,
+                                                                  operation_uid__startswith='ingame-purchase-<subscription').values_list('recipient_id', flat=True))
     subscriptions_count_groups = collections.Counter(subscriptions_count.values())
 
     # группы по повторным покупкам энергии
-    energy_count = collections.Counter(InvoicePrototype._db_filter(recipient_type=BANK_ENTITY_TYPE.GAME_ACCOUNT,
-                                                                   operation_uid__startswith='ingame-purchase-<energy-').values_list('recipient_id', flat=True))
+    energy_count = collections.Counter(InvoiceQuery.filter(recipient_type=BANK_ENTITY_TYPE.GAME_ACCOUNT,
+                                                           operation_uid__startswith='ingame-purchase-<energy-').values_list('recipient_id', flat=True))
     energy_count_groups = collections.Counter(energy_count.values())
 
 
@@ -187,7 +190,7 @@ class DevelopersInfoResource(Resource):
                               'real_gold_in_game': real_gold_in_game,
                               'referers_statistics': get_referers_statistics(),
                               'invoice_statistics': get_invoice_statistics(),
-                              'invoice_count': InvoicePrototype._model_class.objects.all().count(),
+                              'invoice_count': InvoiceQuery.count(),
                               'repeatable_payments_statistics': get_repeatable_payments_statistics(),
                               'PAYMENT_GROUPS': PAYMENT_GROUPS,
                               'PREMIUM_DAYS_FOR_HERO_OF_THE_DAY': portal_settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY,

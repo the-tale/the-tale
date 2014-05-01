@@ -67,7 +67,7 @@
   <tr>
     <th>и активные и рефералы</th><td>{{accounts_referrals_and_active}}</td>
     <td>
-      {% if accounts_referrals %}
+      {% if accounts_active %}
       {{(accounts_referrals_and_active|float/accounts_active)|percents}} от активных
       {% endif %}
     </td>
