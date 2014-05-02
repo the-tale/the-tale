@@ -543,44 +543,6 @@ class HeroTest(testcase.TestCase):
                                                                         new_value=1)])
 
 
-    @mock.patch('the_tale.game.heroes.conf.heroes_settings.RARE_OPERATIONS_INTERVAL', 1)
-    def test_process_rare_operations__update_habits(self):
-        game_time = TimePrototype.get_current_time()
-        game_time.increment_turn()
-
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
-            self.hero.process_rare_operations()
-
-        self.assertEqual(update_habits.call_args_list, [mock.call(relations.HABIT_CHANGE_SOURCE.PERIODIC_LEFT, multuplier=0.00011574074074074075),
-                                                        mock.call(relations.HABIT_CHANGE_SOURCE.PERIODIC_RIGHT, multuplier=0.00011574074074074075)])
-
-    @mock.patch('the_tale.game.heroes.conf.heroes_settings.RARE_OPERATIONS_INTERVAL', 1)
-    def test_process_rare_operations__update_habits__from_left(self):
-        game_time = TimePrototype.get_current_time()
-        game_time.increment_turn()
-
-        self.hero.habit_honor.change(-500)
-        self.hero.habit_peacefulness.change(-500)
-
-        self.hero.process_rare_operations()
-
-        self.assertTrue(self.hero.habit_honor.raw_value > -500)
-        self.assertTrue(self.hero.habit_peacefulness.raw_value > -500)
-
-    @mock.patch('the_tale.game.heroes.conf.heroes_settings.RARE_OPERATIONS_INTERVAL', 1)
-    def test_process_rare_operations__update_habits__from_right(self):
-        game_time = TimePrototype.get_current_time()
-        game_time.increment_turn()
-
-        self.hero.habit_honor.change(500)
-        self.hero.habit_peacefulness.change(500)
-
-        self.hero.process_rare_operations()
-
-        self.assertTrue(self.hero.habit_honor.raw_value < 500)
-        self.assertTrue(self.hero.habit_peacefulness.raw_value < 500)
-
-
     def test_get_achievement_type_value(self):
         for achievement_type in ACHIEVEMENT_TYPE.records:
             if achievement_type.source.is_ACCOUNT:

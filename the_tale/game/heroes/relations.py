@@ -221,10 +221,7 @@ class HABIT_CHANGE_SOURCE(DjangoEnum):
                 ('HELP_AGGRESSIVE', 8, u'помощь в бою', None, None, None,       0.0, -c.HABITS_HELP_ABILITY_DELTA),
                 ('HELP_UNAGGRESSIVE', 9, u'помощь вне боя', None, None, None,   0.0, c.HABITS_HELP_ABILITY_DELTA),
                 ('ARENA_SEND', 10, u'отправка на арену', None, None, None,      0.0, -c.HABITS_ARENA_ABILITY_DELTA),
-                ('ARENA_LEAVE', 11, u'покидание арены', None, None, None,       0.0, c.HABITS_ARENA_ABILITY_DELTA),
-
-                ('PERIODIC_LEFT', 12, u'периодическое изменение (слева)', None, None, False, c.HABITS_PERIODIC_DELTA, c.HABITS_PERIODIC_DELTA),
-                ('PERIODIC_RIGHT', 13, u'периодическое изменение (справа)', None, None, False, -c.HABITS_PERIODIC_DELTA, -c.HABITS_PERIODIC_DELTA) )
+                ('ARENA_LEAVE', 11, u'покидание арены', None, None, None,       0.0, c.HABITS_ARENA_ABILITY_DELTA) )
 
 
 class HABIT_TYPE(DjangoEnum):

@@ -702,13 +702,6 @@ class HeroPrototype(BasePrototype,
             self.last_rare_operation_at_turn = current_turn
 
 
-        habits_multiplier = float(passed_interval) / (24 * c.TURNS_IN_HOUR)
-
-        self.update_habits(relations.HABIT_CHANGE_SOURCE.PERIODIC_LEFT, multuplier=habits_multiplier)
-        self.update_habits(relations.HABIT_CHANGE_SOURCE.PERIODIC_RIGHT, multuplier=habits_multiplier)
-
-
-
 
 class HeroPositionPrototype(object):
 
