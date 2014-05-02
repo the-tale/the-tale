@@ -304,7 +304,7 @@ HABITS_HELP_ABILITY_DELTA = float(float(HABITS_BORDER) / (30 * _ANGEL_ENERGY_IN_
 HABITS_ARENA_ABILITY_DELTA = float(float(HABITS_BORDER) / (30 * _ANGEL_ENERGY_IN_DAY / ANGEL_ARENA_COST)) # за использование способности
 
 # скорость автоматического уменьшения (в день)
-HABITS_PERIODIC_DELTA = float(0.1 * HABITS_QUEST_ACTIVE_DELTA)
+HABITS_PERIODIC_DELTA = float(0.05 * HABITS_QUEST_ACTIVE_DELTA)
 
 HABITS_QUEST_ACTIVE_PREMIUM_MULTIPLIER = float(1.5) # бонус к начисляемому влиянию за выбор игрока для подписчиков
 

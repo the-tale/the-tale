@@ -183,7 +183,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.HABITS_QUEST_PASSIVE_DELTA, 0.6)
         self.assertEqual(round(c.HABITS_HELP_ABILITY_DELTA, 5), 2.77778)
         self.assertEqual(round(c.HABITS_ARENA_ABILITY_DELTA, 5), 0.69444)
-        self.assertEqual(round(c.HABITS_PERIODIC_DELTA, 5), 2.0)
+        self.assertEqual(round(c.HABITS_PERIODIC_DELTA, 5), 1.0)
 
         self.assertEqual(c.HABITS_QUEST_ACTIVE_PREMIUM_MULTIPLIER, 1.5)
 
