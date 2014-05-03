@@ -21,7 +21,7 @@ pgf.game.constants = {
 
     GAME_STATE: {{game_state|safe}},
 
-    ARTIFACT_TYPE: {{game_state|safe}},
+    ARTIFACT_TYPE: {{artifact_type|safe}},
 };
 
 pgf.game.constants.RARITY = {

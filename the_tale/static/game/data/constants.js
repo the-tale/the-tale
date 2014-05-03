@@ -21,7 +21,7 @@ pgf.game.constants = {
 
     GAME_STATE: {"STOPPED": 0, "WORKING": 1},
 
-    ARTIFACT_TYPE: {"STOPPED": 0, "WORKING": 1},
+    ARTIFACT_TYPE: {"MAIN_HAND": 1, "HELMET": 5, "SHOULDERS": 7, "PLATE": 3, "CLOAK": 6, "BOOTS": 10, "AMULET": 4, "GLOVES": 8, "USELESS": 0, "OFF_HAND": 2, "RING": 11, "PANTS": 9},
 };
 
 pgf.game.constants.RARITY = {
