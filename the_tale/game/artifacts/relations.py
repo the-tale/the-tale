@@ -96,7 +96,7 @@ class ARTIFACT_EFFECT(DjangoEnum):
                 ('TERRIBLE_VIEW', 1024, u'ужасный вид'),
                 ('CRITICAL_HIT', 1025, u'точные атаки'),
                 ('ASTRAL_BARRIER', 1026, u'астральная преграда'),
-                ('CLOUDED_MIND', 1027, u'затуманеный разум'),
+                ('CLOUDED_MIND', 1027, u'затуманенный разум'),
                 ('LUCK_OF_STRANGER', 1028, u'удача странника'),
                 ('LUCK_OF_HERO', 1029, u'удача героя'),
                 ('FORTITUDE', 1030, u'крепость духа'),

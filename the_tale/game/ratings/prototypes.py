@@ -127,7 +127,7 @@ JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %
 JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.level DESC, %(ratings)s.account_id) AS level_place FROM %(ratings)s) as level_table
     ON might_table.account_id=level_table.account_id
 JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.magic_power DESC, %(ratings)s.account_id) AS magic_power_place FROM %(ratings)s) as magic_power_table
-    ON might_table.account_id=physic_power_table.account_id
+    ON might_table.account_id=magic_power_table.account_id
 JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.physic_power DESC, %(ratings)s.account_id) AS physic_power_place FROM %(ratings)s) as physic_power_table
     ON might_table.account_id=physic_power_table.account_id
 JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.phrases_count DESC, %(ratings)s.account_id) AS phrases_count_place FROM %(ratings)s) as phrases_count_table

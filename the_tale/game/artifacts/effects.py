@@ -381,7 +381,7 @@ class LuckOfStranger(BaseEffect):
 
 class LuckOfHero(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.LUCK_OF_HERO
-    DESCRIPTION = u'Увеличивается шанс получения редких артефактов'
+    DESCRIPTION = u'Увеличивается шанс получения эпических артефактов'
     MULTIPLIER = 2
 
     @classmethod

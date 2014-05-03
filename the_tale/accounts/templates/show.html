@@ -206,7 +206,8 @@ jQuery(document).ready(function(){
 
                   <tr><td>могущество</td><td> {% if rating_values.might > 0 %}{{ rating_places.might_place }} место{% else %}не участвует{% endif %}</td></tr>
                   <tr><td>принятые законы</td><td> {% if rating_values.bills_count > 0 %}{{ rating_places.bills_count_place }} место{% else %}не участвует{% endif %}</td></tr>
-                  <tr><td>сила героя</td><td> {{ rating_places.power_place }} место</td></tr>
+                  <tr><td>физическая сила героя</td><td> {{ rating_places.physic_power_place }} место</td></tr>
+                  <tr><td>магическая сила героя</td><td> {{ rating_places.magic_power_place }} место</td></tr>
                   <tr><td>уровень героя</td><td> {{ rating_places.level_place }} место</td></tr>
                   <tr><td>добавленные фразы</td><td> {% if rating_values.phrases_count > 0 %}{{ rating_places.phrases_count_place }} место{% else %}не участвует{% endif %}</td></tr>
                   <tr><td>сражений PvP</td><td> {% if rating_values.pvp_battles_1x1_number > 0 %}{{ rating_places.pvp_battles_1x1_number_place }} место{% else %}не участвует{% endif %}</td></tr>
