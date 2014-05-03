@@ -7,6 +7,7 @@ global-include *.json
 global-include *.js
 global-include *.html
 global-include *.css
+global-include *.csv
 global-include *.png
 global-include *.jpg
 global-include *.gif
