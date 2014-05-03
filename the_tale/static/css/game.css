@@ -46,6 +46,23 @@
 .hero-base-block .attribute-record .value {
   vertical-align: middle;
 }
+.rare-artifact-label {
+  color: #0070dd;
+  font-weight: bold;
+}
+.epic-artifact-label {
+  color: #a335ee;
+  font-weight: bold;
+}
+.normal-artifact-label {
+  font-weight: bold;
+}
+.physic-power {
+  color: #aa4444;
+}
+.magic-power {
+  color: #4444aa;
+}
 .hero-equipment-block .equip-record {
   padding-top: 0.1em;
 }
@@ -320,19 +337,19 @@
 .game-ui-icon.energy {
   background: url('../game/images/game_ui.png') no-repeat scroll 0 -32px transparent;
 }
-.game-ui-icon.power {
+.game-ui-icon.physic-power {
   background: url('../game/images/game_ui.png') no-repeat scroll 0 -48px transparent;
 }
-.game-ui-icon.might {
+.game-ui-icon.magic-power {
   background: url('../game/images/game_ui.png') no-repeat scroll 0 -64px transparent;
 }
 .game-ui-icon.gold {
   background: url('../game/images/game_ui.png') no-repeat scroll 0 -80px transparent;
 }
-.game-ui-icon.main-hand {
+.game-ui-icon.hand_primary {
   background: url('../game/images/game_ui.png') no-repeat scroll 0 -96px transparent;
 }
-.game-ui-icon.off-hand {
+.game-ui-icon.hand_secondary {
   background: url('../game/images/game_ui.png') no-repeat scroll 0 -112px transparent;
 }
 .game-ui-icon.helmet {
