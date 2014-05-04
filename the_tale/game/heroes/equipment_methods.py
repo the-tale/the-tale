@@ -38,11 +38,11 @@ class EquipmentMethodsMixin(object):
         allowed_slots = list(relations.EQUIPMENT_SLOT.records)
         slot_choices = list(allowed_slots)
 
-        if prefered_item and self.preferences.favorite_item:
-            slot_choices.remove(self.preferences.favorite_item)
-
         if prefered_slot and self.preferences.equipment_slot and self.can_upgrade_prefered_slot:
             slot_choices = [self.preferences.equipment_slot]
+
+        if prefered_item and self.preferences.favorite_item: #after prefered slot, since prefered item is more important
+            slot_choices.remove(self.preferences.favorite_item)
 
         result_choices = []
 

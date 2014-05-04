@@ -481,6 +481,19 @@ class ReceiveArtifactsChoicesTests(_HeroEquipmentTestsBase):
                          set(relations.EQUIPMENT_SLOT.records))
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_upgrade_prefered_slot', True)
+    def test_prefered_slot_conflics_with_prefered_item__can_upgrade(self):
+        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.HELMET)
+        self.hero.preferences.set_favorite_item(relations.EQUIPMENT_SLOT.HELMET)
+        self.assertEqual(self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=True, prefered_item=True), [])
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_upgrade_prefered_slot', False)
+    def test_prefered_slot_conflics_with_prefered_item__can_not_upgrade(self):
+        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.HELMET)
+        self.hero.preferences.set_favorite_item(relations.EQUIPMENT_SLOT.HELMET)
+        self.assertFalse(relations.EQUIPMENT_SLOT.HELMET in self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=True, prefered_item=True))
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_upgrade_prefered_slot', True)
     def test_receive_artifacts_slots_choices__prefered_slot__no_preference(self):
         self.hero.preferences.set_equipment_slot(None)
         self.assertEqual(set(self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=True, prefered_item=False)),
