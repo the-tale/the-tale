@@ -69,4 +69,6 @@ portal_settings = app_settings('PORTAL',
                                AWS_SECRET_KEY='amazon secret key',
                                AWS_S3_BACKUP_BUCKET='tale-backups',
 
-                               LAST_BACKUP_PATH='/tmp/last_backup.gztar')
+                               LAST_BACKUP_PATH='/tmp/last_backup.gztar',
+
+                               LANDING_MOB_DESCRIPTION_MAX_LENGTH=1000)

@@ -24,6 +24,9 @@ class TestRequests(testcase.TestCase):
     def test_search(self):
         self.check_html_ok(self.request_html(url('portal:search')))
 
+    def test_landing(self):
+        self.check_html_ok(self.request_html(url('portal:landing')))
+
     def test_preview(self):
         text = 'simple test text'
         self.check_html_ok(self.client.post(url('portal:preview'), {'text': text}), texts=[text])

@@ -1,4 +1,5 @@
 # coding: utf-8
+import random
 
 from django.conf import settings as project_settings
 
@@ -86,6 +87,19 @@ class PortalResource(Resource):
     @handler('search')
     def search(self):
         return self.template('portal/search.html', {})
+
+    @handler('landing')
+    def landing(self):
+        from the_tale.game.map.storage import map_info_storage
+        from the_tale.game.mobs.storage import mobs_storage
+
+        mobs = [mob
+                for mob in mobs_storage.get_available_mobs_list(level=666)
+                if len(mob.description) < portal_settings.LANDING_MOB_DESCRIPTION_MAX_LENGTH]
+
+        return self.template('portal/landing.html',
+                             {'current_map_version': map_info_storage.version,
+                              'mob': random.choice(mobs)})
 
     @handler('csrf')
     def handlerCSRF(self, reason=u''):

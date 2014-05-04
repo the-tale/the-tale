@@ -529,7 +529,13 @@ pgf.game.map.Map = function(selector, params) {
 
     function Activate() {
         activated = true;
-        OnMove(0, 0);
+
+        var data = mapManager.GetMapDataForRect(pos.x, pos.y, canvasWidth, canvasHeight).mapData;
+
+        var x = data.width * TILE_SIZE / 2 - canvasWidth / 2;
+        var y = data.height * TILE_SIZE / 2- canvasHeight / 2;
+
+        OnMove(x, y);
         CenterOnHero();
     }
 
