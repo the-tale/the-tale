@@ -25,12 +25,14 @@ ABILITY_CHOICES_DICT = dict( (ability.get_id(), ability.NAME) for ability in Mob
 
 ABILITY_CHOICES = sorted(ABILITY_CHOICES_DICT.items(), key=lambda choice: choice[1])
 
+MOB_TYPE_CHOICES = sorted(MOB_TYPE.choices(), key=lambda choice: choice[1])
+
 
 class MobRecordBaseForm(forms.Form):
 
     level = fields.IntegerField(label=u'минимальный уровень')
 
-    type = fields.TypedChoiceField(label=u'тип', choices=MOB_TYPE.choices(), coerce=MOB_TYPE.get_from_name)
+    type = fields.TypedChoiceField(label=u'тип', choices=MOB_TYPE_CHOICES, coerce=MOB_TYPE.get_from_name)
     archetype = fields.TypedChoiceField(label=u'тип', choices=ARCHETYPE.choices(), coerce=ARCHETYPE.get_from_name)
 
     terrains = fields.TypedMultipleChoiceField(label=u'места обитания', choices=TERRAIN.choices(), coerce=TERRAIN.get_from_name)
