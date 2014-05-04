@@ -23,6 +23,9 @@ class MessagePrototype(BasePrototype):
     @property
     def text_html(self): return bbcode.render(self._model.text)
 
+    @property
+    def text_safe_html(self): return bbcode.safe_render(self._model.text)
+
     @lazy_property
     def recipient(self): return AccountPrototype(self._model.recipient)
 

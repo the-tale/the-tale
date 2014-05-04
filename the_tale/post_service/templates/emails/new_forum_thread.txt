@@ -8,7 +8,7 @@
 
 {{post.author.nick_verbose}}:
 
-{{ post.html|striptags }}
+{{ post.safe_html|striptags }}
 
 P.S.: Вы получили это письмо, так как подписаны на новые темы в категории «{{thread.subcategory.caption}}» (full_url('http', 'forum:subcategory:show', thread.subcategory.slug))
 {% endblock %}

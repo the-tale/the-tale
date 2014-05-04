@@ -4,7 +4,7 @@
 
 {{post.author.nick_verbose}}:
 
-{{ post.html|striptags }}
+{{ post.safe_html|striptags }}
 
 
 
