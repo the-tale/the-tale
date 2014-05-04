@@ -127,6 +127,7 @@ pgf.base.HideTooltips = function(clearedContainer, child_class) {
     pgf.base._FindParentsForChildren('tooltip', child_class).remove();
 
     if (clearedContainer) {
+        // TODO: data('x').enabled = false — totally disabled toltips, we need other way to hide them
         // TODO: is first processing needed????
         jQuery('.pgf-has-popover', clearedContainer).each(function(i, el){
                                                               el = jQuery(el);
@@ -140,6 +141,8 @@ pgf.base.HideTooltips = function(clearedContainer, child_class) {
                                                              el = jQuery(el);
                                                              el.data('tooltip').enabled = false;
                                                          });
+        if (clearedContainer.data('tooltip')) clearedContainer.data('tooltip').enabled = false;
+        if (clearedContainer.data('popover')) clearedContainer.data('tooltip').enabled = false;
     }
 };
 

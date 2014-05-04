@@ -679,7 +679,13 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
         if (element.data('current-tooltip') != tooltip) {
             pgf.base.HideTooltips(element, tooltipClass);
             element.data('current-tooltip', tooltip);
-            element.tooltip(jQuery.extend(true, {}, pgf.base.tooltipsArgs, {title: tooltip}));
+            if (element.data('tooltip')) {
+                element.data('tooltip').options.title = tooltip;
+                element.data('tooltip').enabled = true;
+            }
+            else {
+                element.tooltip(jQuery.extend(true, {}, pgf.base.tooltipsArgs, {title: tooltip}));
+            }
         }
 
         jQuery('.pgf-name', element).text(item.name);
@@ -812,7 +818,13 @@ pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
         if (element.data('current-tooltip') != tooltip) {
             pgf.base.HideTooltips(element, tooltipClass);
             element.data('current-tooltip', tooltip);
-            element.tooltip(jQuery.extend(true, {}, pgf.base.tooltipsArgs, {title: tooltip}));
+            if (element.data('tooltip')) {
+                element.data('tooltip').options.title = tooltip;
+                element.data('tooltip').enabled = true;
+            }
+            else {
+                element.tooltip(jQuery.extend(true, {}, pgf.base.tooltipsArgs, {title: tooltip}));
+            }
         }
 
         jQuery('.pgf-name', element).text(data.name);
