@@ -87,6 +87,18 @@ class PortalResource(Resource):
     def search(self):
         return self.template('portal/search.html', {})
 
+    @handler('csrf')
+    def handlerCSRF(self, reason=u''):
+        return self.auto_error('common.csrf',
+                               u'Неверный csrf токен. Если Вы разработчик, проверьте формирование своего запроса. Если Вы обычный игрок, возможно, Вы нашли ошибку в игре или Вас пытаются «хакнуть». [%s]' % reason,
+                               status_code=403)
+
+    @handler('403')
+    def handler403(self):
+        return self.auto_error('common.403',
+                               u'Вы не имеете прав для проведение этой операции.',
+                               status_code=403)
+
     @handler('404')
     def handler404(self):
         return self.auto_error('common.404',
