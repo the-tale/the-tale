@@ -20,7 +20,7 @@
       Выберите уровень риска
       {% elif type.is_FAVORITE_ITEM %}
       Выберите любимую вещь
-      {% elif type.is_FAVORITE_ITEM %}
+      {% elif type.is_ARCHETYPE %}
       Выберите архетип героя
       {% endif %}
     </h3>
@@ -29,7 +29,7 @@
   <div class="modal-body">
 
     <p class="alert alert-info">
-      Обратите внимание, что предпочтение можно выбирать раз в {{ PREFERENCES_CHANGE_DELAY|verbose_timedelta }}
+      Обратите внимание, что предпочтение можно изменять раз в {{ PREFERENCES_CHANGE_DELAY|verbose_timedelta }}
     </p>
 
     {% if type.is_ENERGY_REGENERATION_TYPE %}

@@ -42,11 +42,18 @@ jQuery(document).ready(function(e){
         var preferenceType = target.data('preference-type')
         var actionUrl = "{{ url('game:heroes:choose-preferences', resource.hero.id) }}";
 
-        pgf.forms.Post({ action: actionUrl,
-                         data: {preference_type: preferenceType},
-                         OnSuccess: function(data) { location.reload(); }
-                       });
+        var DeleteRequest = function() {
+            pgf.forms.Post({ action: actionUrl,
+                             data: {preference_type: preferenceType},
+                             OnSuccess: function(data) { location.reload(); }
+                           });
+        }
 
+        pgf.ui.dialog.Question({message: 'Вы уверены, что хотите удалить предпочтение?<br/>Его можно изменять только раз в {{ PREFERENCES_CHANGE_DELAY|verbose_timedelta }}.',
+                                title: 'Подтвердите удаление предпочтения',
+                                buttons: [{text: 'Удалить', classes: 'btn-danger', callback: DeleteRequest},
+                                          {text: 'Отменить', classes: 'btn-success'}]
+                               });
     });
 
 {% endif %}

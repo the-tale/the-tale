@@ -98,6 +98,7 @@ class HeroResource(Resource):
                               'master_clan': master_clan,
                               'EQUIPMENT_SLOT': relations.EQUIPMENT_SLOT,
                               'PREFERENCE_TYPE': relations.PREFERENCE_TYPE,
+                              'PREFERENCES_CHANGE_DELAY': datetime.timedelta(seconds=c.PREFERENCES_CHANGE_DELAY),
                               'HABIT_TYPE': relations.HABIT_TYPE,
                               'HABITS_BORDER': c.HABITS_BORDER} )
 
