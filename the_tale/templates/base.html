@@ -256,10 +256,15 @@ jQuery(document).ready(function() {
         {% block content_header %}
 
         {% if resource.account.is_authenticated() and resource.account.is_fast %}
-        <div class="alert alert-info">
-          {% block fast_account_warning %}
-          ВНИМАНИЕ! Ваша игра доступна только с этого компьютера. Для игры из другого места необходимо указать имя, email и пароль в своём <a href="{{ url('accounts:profile:show') }}">профиле</a> (подробнее о быстрой регистрации можно почитать в <a href="{{ url('guide:') }}">Путеводителе по Сказке</a>).
-          {% endblock %}
+        <div class="block">
+          <a class="btn btn-success"
+             href="{{ url('accounts:profile:show') }}"
+             style="height: 2em; width: 200px; float: left; margin-right: 0.5em; margin-top: 0.2em;">
+            <span style="vertical-align: middle; font-size: 11pt; font-weight: bold;">Завершить регистрацию</span>
+          </a>
+          <p>
+            ВНИМАНИЕ! Ваша игра доступна только с этого компьютера. Для игры из другого места необходимо указать имя, email и пароль в своём <a href="{{ url('accounts:profile:show') }}">профиле</a> (подробнее о быстрой регистрации можно почитать в <a href="{{ url('guide:') }}">Путеводителе по Сказке</a>).
+          </p>
         </div>
         {% endif %}
         {% endblock %}

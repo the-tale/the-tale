@@ -33,7 +33,7 @@ jQuery(document).ready(function(e) {
       </a>
     {% endif %}
 
-    {% if not resource.account.is_premium %}
+    {% if not resource.account.is_fast and not resource.account.is_premium %}
       {{ accounts_macros.account_type_label(resource.account, additional_text='— поддержите проект рублём!') }}
     {% endif %}
 
