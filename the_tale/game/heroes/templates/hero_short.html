@@ -1,5 +1,5 @@
 
-{% macro hero_short(block_id, is_owner, show_hero_link, master_account=none, health_bar=true, data_mode='pve', clan=none, no_clan_placement=false) %}
+{% macro hero_short(block_id, is_owner, show_hero_link, master_account=none, data_mode='pve', clan=none, no_clan_placement=false) %}
 
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
@@ -27,7 +27,6 @@ jQuery(document).ready(function(e) {
     {% endif %}
   </h3>
 
-  {% if health_bar %}
   <div class="record-with-progress" rel="tooltip" title="здоровье героя">
     <i class="game-ui-icon health"></i>
     <div class="progress progress-danger" style="">
@@ -35,7 +34,6 @@ jQuery(document).ready(function(e) {
     </div>
     <span class="text-values"><span class="pgf-health"></span>/<span class="pgf-max-health"></span></span>
   </div>
-  {% endif %}
 
   {% if is_owner %}
   <div class="record-with-progress" rel="tooltip" title="опыта до следующего уровня<br/>выдаётся за выполнение заданий">
@@ -61,34 +59,31 @@ jQuery(document).ready(function(e) {
 
   <div>
 
-    {% if not is_owner and not health_bar %}
-    <div class="attribute-record" rel="tooltip" title="здоровье">
-      <i class="game-ui-icon health"></i>
-      <span class="pgf-max-health"></span>
-    </div>
-    {% endif %}
-
     <div class="attribute-record" rel="tooltip" title="физическая сила" data-tooltip-placement="bottom">
       <i class="game-ui-icon physic-power"></i>
       <span class="pgf-physic-power value"></span>
     </div>
+
+    <div class="attribute-record" rel="tooltip" title="собранное золото" data-tooltip-placement="bottom">
+      <i class="game-ui-icon gold"></i>
+      <span class="pgf-money"></span>
+    </div>
+
+    <br/>
 
     <div class="attribute-record" rel="tooltip" title="магическая сила" data-tooltip-placement="bottom">
       <i class="game-ui-icon magic-power"></i>
       <span class="pgf-magic-power value"></span>
     </div>
 
-    {% if is_owner %}
-    <div class="attribute-record" rel="tooltip" title="собранное золото" data-tooltip-placement="bottom">
-      <i class="game-ui-icon gold"></i>
-      <span class="pgf-money"></span>
+    <div class="attribute-record pgf-might-record" data-tooltip-placement="bottom">
+      <i class="game-ui-icon might"></i>
+      <span class="pgf-might value attribute-record"></span>
     </div>
-    {% endif %}
 
   </div>
 
   <ul class="unstyled" style="margin-top: 0.5em;">
-    <li><strong>могущество:</strong> <span class="pgf-might-record pgf-might value attribute-record"></span></li>
     <li>
       {% if clan %}
       <strong>гильдия:</strong> <a href="{{ url('accounts:clans:show', clan.id) }}">{{clan.name}}</a>
