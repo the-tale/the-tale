@@ -64,13 +64,14 @@ class RANDOM_PREMIUM_CHEST_REWARD(DjangoEnum):
 
 
 class GOODS_GROUP(DjangoEnum):
+    uid = Column()
     uid_prefix = Column(unique=False)
 
-    records = ( ('PREMIUM', 0, u'подписка', 'subscription-'),
-                ('ENERGY', 1, u'энергия', 'energy-'),
-                ('CHEST', 2, u'сундук', 'random-premium-chest'),
-                ('PREFERENCES', 3, u'предпочтения', 'preference-'),
-                ('PREFERENCE_RESET', 4 , u'сброс предпочтений', 'hero-preference-reset-'),
-                ('HABITS', 5, u'черты', 'hero-habits-'),
-                ('ABILITIES', 6, u'способности', 'hero-abilities-'),
-                ('CLANS', 7, u'гильдии', 'clan-')  )
+    records = ( ('PREMIUM', 0, u'подписка', 'subscription', 'subscription-'),
+                ('ENERGY', 1, u'энергия', 'energy', 'energy-'),
+                ('CHEST', 2, u'сундук', 'random-premium-chest', 'random-premium-chest'),
+                ('PREFERENCES', 3, u'предпочтения', 'preference', 'preference-'),
+                ('PREFERENCES_RESET', 4, u'сброс предпочтений', 'preference-reset','hero-preference-reset-'),
+                ('HABITS', 5, u'черты', 'habits', 'hero-habits-'),
+                ('ABILITIES', 6, u'способности', 'abilities', 'hero-abilities-'),
+                ('CLANS', 7, u'гильдии', 'clans', 'clan-')  )

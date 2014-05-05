@@ -143,10 +143,9 @@ def change_hero_habits(habit, value, cost):
                                   habit_value=value)
 
 
-RANDOM_PREMIUM_CHEST = goods.PurchaseGroup(uid='random-premium-chest',
+RANDOM_PREMIUM_CHEST = goods.PurchaseGroup(type=relations.GOODS_GROUP.CHEST,
                                            name=u'Делай добро и дари подписку!',
                                            short_name=u'Сделать добро',
-                                           featured=True,
                                            description=RANDOM_PREMIUM_CHEST_DESCRIPTION,
                                            items=[ goods.RandomPremiumChest(uid='random-premium-chest',
                                                                             cost=200,
@@ -158,7 +157,7 @@ RANDOM_PREMIUM_CHEST = goods.PurchaseGroup(uid='random-premium-chest',
 
 PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
 
-                goods.PurchaseGroup(uid='subscription',
+                goods.PurchaseGroup(type=relations.GOODS_GROUP.PREMIUM,
                                     name=u'Подписка',
                                     description=PREMIUM_DAYS_DESCRIPTION,
                                     items=[ goods.PremiumDays(uid=u'subscription-90',
@@ -192,7 +191,7 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                                                               cost=100,
                                                               days=7,
                                                               transaction_description=u'Продление подписки на 7 дней.') ]),
-                goods.PurchaseGroup(uid='energy',
+                goods.PurchaseGroup(type=relations.GOODS_GROUP.ENERGY,
                                     name=u'Энергия',
                                     description=ENERGY_CHARGES_DESCRIPTION,
                                     items=[ goods.Energy(uid=u'energy-2000',
@@ -217,7 +216,7 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                                                          transaction_description=u'Покупка 20 единиц энергии.')
                                                          ]),
 
-                goods.PurchaseGroup(uid='preference',
+                goods.PurchaseGroup(type=relations.GOODS_GROUP.PREFERENCES,
                                     name=u'Предпочтения',
                                     description=PREFERENCES_DESCRIPTION,
                                     items=[ permanent_permission_purchase(uid=u'preference-place',
@@ -253,7 +252,7 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_MOB) ]),
 
 
-                goods.PurchaseGroup(uid='preference-reset',
+                goods.PurchaseGroup(type=relations.GOODS_GROUP.PREFERENCES_RESET,
                                     name=u'Сброс предпочтений',
                                     description=PREFERENCES_RESET_DESCRIPTION,
                                     items=[ reset_hero_preference(uid='hero-preference-reset-energy-regeneration-type', preference_type=PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, cost=10),
@@ -267,7 +266,7 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                                             reset_hero_preference(uid='hero-preference-reset-mob', preference_type=PREFERENCE_TYPE.MOB, cost=25)
                                             ]),
 
-                goods.PurchaseGroup(uid='habits',
+                goods.PurchaseGroup(type=relations.GOODS_GROUP.HABITS,
                                     name=u'Черты',
                                     description=HABITS_DESCRIPTION,
                                     items=[ change_hero_habits(habit=HABIT_TYPE.HONOR, value=1000, cost=HABIT_MAJOR_COST),
@@ -280,7 +279,7 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                                             change_hero_habits(habit=HABIT_TYPE.PEACEFULNESS, value=250, cost=HABIT_MINOR_COST),
                                             change_hero_habits(habit=HABIT_TYPE.PEACEFULNESS, value=-250, cost=HABIT_MINOR_COST),]),
 
-                goods.PurchaseGroup(uid='abilities',
+                goods.PurchaseGroup(type=relations.GOODS_GROUP.ABILITIES,
                                     name=u'Способности',
                                     description=ABILITIES_DESCRIPTION,
                                     items=[ goods.ResetHeroAbilities(uid='hero-abilities-reset',
@@ -291,7 +290,7 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
 
                                             rechoose_hero_abilities ]),
 
-                goods.PurchaseGroup(uid='clans',
+                goods.PurchaseGroup(type=relations.GOODS_GROUP.CLANS,
                                     name=u'Гильдии',
                                     description=GUILDS_DESCRIPTION,
                                     items=[ permanent_purchase(uid=u'clan-ownership-right',

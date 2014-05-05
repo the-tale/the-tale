@@ -41,7 +41,7 @@
 
 {% macro group_record(group) %}
 
-  <div class="offset2" style="{% if group.featured %}padding: 1em; background-color: #aaffaa; border-radius: 10px;{% endif %}">
+  <div class="offset2" style="{% if group.type == featured_group %}padding: 1em; background-color: #aaffaa; border-radius: 10px;{% endif %}">
     <div id="price-group-{{group.uid}}" class="anchor"></div>
     <h2>{{group.name}}</h2>
 
@@ -77,7 +77,7 @@
   {% for group in PRICE_GROUPS %}
     {{ group_record(group) }}
 
-    {% if not loop.last and not group.featured %}
+    {% if not loop.last and group.type != featured_group %}
       <hr class="offset2" style="margin-top: 1em; margin-bottom: 1em;"/>
     {% endif %}
   {% endfor %}

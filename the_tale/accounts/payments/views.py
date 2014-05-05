@@ -16,6 +16,7 @@ from the_tale.accounts.payments import price_list
 from the_tale.accounts.payments.forms import GMForm
 from the_tale.accounts.payments.conf import payments_settings
 from the_tale.accounts.payments.logic import real_amount_to_game, transaction_gm
+from the_tale.accounts.payments import relations
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 
@@ -75,12 +76,21 @@ class PaymentsResource(Resource):
     @handler('shop', method='get')
     def shop(self):
         hero = HeroPrototype.get_by_account_id(self.account.id)
+
+        if hero.is_premium:
+            featured_group = relations.GOODS_GROUP.CHEST
+        else:
+            featured_group = relations.GOODS_GROUP.PREMIUM
+
+        price_groups = [group for group in price_list.PRICE_GROUPS if group.type == featured_group]
+        price_groups += [group for group in price_list.PRICE_GROUPS if group.type != featured_group]
+
         return self.template('payments/shop.html',
-                             {'PRICE_GROUPS': price_list.PRICE_GROUPS,
-                              'FEATURED_GROUP': price_list.RANDOM_PREMIUM_CHEST,
+                             {'PRICE_GROUPS': price_groups,
                               'hero': hero,
                               'payments_settings': payments_settings,
                               'account': self.account,
+                              'featured_group': featured_group,
                               'page_type': 'shop'})
 
     @handler('history', method='get')

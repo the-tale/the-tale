@@ -10,13 +10,15 @@ from the_tale.accounts.payments.conf import payments_settings
 
 class PurchaseGroup(object):
 
-    def __init__(self, uid, name, description, items, short_name=None, featured=False):
-        self.uid = uid
+    def __init__(self, type, name, description, items, short_name=None):
+        self.type = type
         self.name = name
         self.short_name = short_name if short_name is not None else self.name
         self.description = description
         self.items = items
-        self.featured = featured
+
+    @property
+    def uid(self): return self.type.uid
 
     def items_table(self, columns):
         table = []

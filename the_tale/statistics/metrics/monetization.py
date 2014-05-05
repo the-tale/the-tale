@@ -298,8 +298,8 @@ class IncomeFromGoodsPeferences(IncomeFromGoodsBase):
     GROUP = GOODS_GROUP.PREFERENCES
 
 class IncomeFromGoodsPreferencesReset(IncomeFromGoodsBase):
-    TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCE_RESET
-    GROUP = GOODS_GROUP.PREFERENCE_RESET
+    TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCES_RESET
+    GROUP = GOODS_GROUP.PREFERENCES_RESET
 
 class IncomeFromGoodsHabits(IncomeFromGoodsBase):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_HABITS
@@ -322,7 +322,7 @@ class IncomeFromGoodsOther(IncomeFromGoodsBase):
                  models.Q(operation_uid__contains='<%s' % GOODS_GROUP.ENERGY.uid_prefix) |
                  models.Q(operation_uid__contains='<%s' % GOODS_GROUP.CHEST.uid_prefix) |
                  models.Q(operation_uid__contains='<%s' % GOODS_GROUP.PREFERENCES.uid_prefix) |
-                 models.Q(operation_uid__contains='<%s' % GOODS_GROUP.PREFERENCE_RESET.uid_prefix) |
+                 models.Q(operation_uid__contains='<%s' % GOODS_GROUP.PREFERENCES_RESET.uid_prefix) |
                  models.Q(operation_uid__contains='<%s' % GOODS_GROUP.HABITS.uid_prefix) |
                  models.Q(operation_uid__contains='<%s' % GOODS_GROUP.ABILITIES.uid_prefix) |
                  models.Q(operation_uid__contains='<%s' % GOODS_GROUP.CLANS.uid_prefix) )
@@ -520,7 +520,7 @@ _GOODS_GROUPS = [relations.RECORD_TYPE.INCOME_FROM_GOODS_PREMIUM,
                  relations.RECORD_TYPE.INCOME_FROM_GOODS_ENERGY,
                  relations.RECORD_TYPE.INCOME_FROM_GOODS_CHEST,
                  relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCES,
-                 relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCE_RESET,
+                 relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCES_RESET,
                  relations.RECORD_TYPE.INCOME_FROM_GOODS_HABITS,
                  relations.RECORD_TYPE.INCOME_FROM_GOODS_ABILITIES,
                  relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS]
@@ -542,8 +542,8 @@ class IncomeFromGoodsPeferencesPercents(BasePercentsFromSumCombination):
     SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCES] + _GOODS_GROUPS
 
 class IncomeFromGoodsPreferencesResetPercents(BasePercentsFromSumCombination):
-    TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCE_RESET_PERCENTS
-    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCE_RESET] + _GOODS_GROUPS
+    TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCES_RESET_PERCENTS
+    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCES_RESET] + _GOODS_GROUPS
 
 class IncomeFromGoodsHabitsPercents(BasePercentsFromSumCombination):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_HABITS_PERCENTS
