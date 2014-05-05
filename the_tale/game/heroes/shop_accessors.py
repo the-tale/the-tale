@@ -42,10 +42,16 @@ class ShopAccessorsMixin(object):
     def purchase_experience(self, experience):
         self.add_experience(experience)
 
-    def purchase_artifact(self):
+    def purchase_artifact(self, rarity, better):
         distribution = self.preferences.archetype.power_distribution
+
+        power = Power.better_artifact_power_randomized(distribution, self.level) if better else Power.artifact_power_randomized(distribution, self.level)
+
+        artifacts_storage.sync()
+
         artifact = random.choice(artifacts_storage.artifacts).create_artifact(level=self.level,
-                                                                              power=Power.better_artifact_power_randomized(distribution, self.level))
+                                                                              power=power,
+                                                                              rarity=rarity)
         self.bag.put_artifact(artifact)
 
         self.actions.request_replane()

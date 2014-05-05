@@ -96,17 +96,32 @@ class ShopAccessoriesTest(testcase.TestCase):
         self.hero.purchase_experience(1)
         self.assertEqual(self.hero.experience, 1)
 
-    def test_purchase_artifact(self):
+    def test_purchase_artifact__normal(self):
         with self.check_delta(lambda: self.hero.bag.occupation, 1):
-            artifact = self.hero.purchase_artifact()
+            artifact = self.hero.purchase_artifact(rarity=RARITY.NORMAL, better=False)
 
+        self.assertTrue(artifact.rarity.is_NORMAL)
+        self.assertEqual(artifact, self.hero.bag.values()[0])
+
+    def test_purchase_artifact__rare(self):
+        with self.check_delta(lambda: self.hero.bag.occupation, 1):
+            artifact = self.hero.purchase_artifact(rarity=RARITY.RARE, better=False)
+
+        self.assertTrue(artifact.rarity.is_RARE)
+        self.assertEqual(artifact, self.hero.bag.values()[0])
+
+    def test_purchase_artifact__epic(self):
+        with self.check_delta(lambda: self.hero.bag.occupation, 1):
+            artifact = self.hero.purchase_artifact(rarity=RARITY.EPIC, better=False)
+
+        self.assertTrue(artifact.rarity.is_EPIC)
         self.assertEqual(artifact, self.hero.bag.values()[0])
 
     def test_purchase_artifact__full_bag(self):
         self.assertEqual(self.hero.bag.occupation, 0)
 
         for i in xrange(self.hero.max_bag_size*2):
-            self.hero.purchase_artifact()
+            self.hero.purchase_artifact(rarity=RARITY.NORMAL, better=True)
 
         self.assertEqual(self.hero.bag.occupation, self.hero.max_bag_size*2)
 
@@ -118,7 +133,8 @@ class ShopAccessoriesTest(testcase.TestCase):
         middle_power = Power.power_to_artifact(distribution, self.hero.level)
 
         for i in xrange(100):
-            self.assertTrue(self.hero.purchase_artifact().preference_rating(distribution) > ArtifactPrototype._preference_rating(rarity, middle_power, distribution))
+            self.assertTrue(self.hero.purchase_artifact(rarity=RARITY.NORMAL, better=True).preference_rating(distribution) >
+                            ArtifactPrototype._preference_rating(rarity, middle_power, distribution))
 
 
     def test_purchase_artifact__better_artifact__large_level(self):
@@ -134,6 +150,29 @@ class ShopAccessoriesTest(testcase.TestCase):
 
         with mock.patch('the_tale.game.actions.container.ActionsContainer.request_replane') as request_replane:
             for i in xrange(N):
-                self.assertTrue(self.hero.purchase_artifact().preference_rating(distribution) > ArtifactPrototype._preference_rating(rarity, middle_power, distribution))
+                self.assertTrue(self.hero.purchase_artifact(rarity=RARITY.NORMAL, better=True).preference_rating(distribution) >
+                                ArtifactPrototype._preference_rating(rarity, middle_power, distribution))
 
+        self.assertEqual(request_replane.call_count, N)
+
+
+    def test_purchase_artifact__not_better_artifact__large_level(self):
+        self.hero._model.level = 100
+
+        self.assertEqual(self.hero.level, 100)
+
+        rarity = RARITY.NORMAL
+        distribution = self.hero.preferences.archetype.power_distribution
+        middle_power = Power.power_to_artifact(distribution, self.hero.level)
+
+        N = 100
+
+        results = set()
+
+        with mock.patch('the_tale.game.actions.container.ActionsContainer.request_replane') as request_replane:
+            for i in xrange(N):
+                results.add(self.hero.purchase_artifact(rarity=RARITY.NORMAL, better=False).preference_rating(distribution) >
+                            ArtifactPrototype._preference_rating(rarity, middle_power, distribution))
+
+        self.assertEqual(results, set([True, False]))
         self.assertEqual(request_replane.call_count, N)

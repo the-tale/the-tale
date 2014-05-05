@@ -670,8 +670,8 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
     var oldData = {};
 
     function RenderItem(index, item, element) {
-        element.toggleClass('rare-artifact-label', data.rarity == pgf.game.constants.RARITY.RARE.id);
-        element.toggleClass('epic-artifact-label', data.rarity == pgf.game.constants.RARITY.EPIC.id);
+        element.toggleClass('rare-artifact-label', item.rarity == pgf.game.constants.RARITY.RARE.id);
+        element.toggleClass('epic-artifact-label', item.rarity == pgf.game.constants.RARITY.EPIC.id);
 
         var tooltipClass = 'pgf-bag-artifact-tooltip';
 

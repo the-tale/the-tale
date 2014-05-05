@@ -6,6 +6,7 @@ from rels.django import DjangoEnum
 from the_tale.accounts.clans.conf import clans_settings
 
 from the_tale.game.heroes.relations import PREFERENCE_TYPE
+from the_tale.game.artifacts.relations import RARITY
 
 
 CLAN_OWNERSHIP_RIGHT_DESCRIPTION = u'Если вам не хватает могущества для владения гильдией, Вы можете приобрести разрешение на владение ей за печеньки.'
@@ -48,11 +49,18 @@ class RANDOM_PREMIUM_CHEST_REWARD(DjangoEnum):
     priority = Column(unique=False)
     description = Column(unique=False)
     arguments = Column(unique=False, no_index=True)
-    hero_method = Column()
+    hero_method = Column(unique=False)
 
-    records = ( ('ARTIFACT', 0, u'артефакт', 6, u'случайный артефакт (лучше среднего для текущего уровня героя)', {}, 'purchase_artifact'),
-                ('ENERGY', 1, u'энергия', 3, u'750 энергии', {'energy': 750}, 'purchase_energy_bonus'),
-                ('EXPERIENCE', 2, u'опыт', 1, u'1500 опыта', {'experience': 1500}, 'purchase_experience') )
+    records = ( ('NORMAL_ARTIFACT', 0, u'обычный артефакт', 60, u'случайный обычный артефакт (лучше среднего для текущего уровня героя)',
+                 {'rarity': RARITY.NORMAL, 'better': True}, 'purchase_artifact'),
+                ('ENERGY', 1, u'энергия',                   20, u'750 энергии',
+                 {'energy': 750}, 'purchase_energy_bonus'),
+                ('RARE_ARTIFACT', 2, u'редкий артефакт',    15, u'случайный редкий артефакт',
+                 {'rarity': RARITY.RARE, 'better': False}, 'purchase_artifact'),
+                ('EXPERIENCE', 3, u'опыт',                  4,  u'1500 опыта',
+                 {'experience': 1500}, 'purchase_experience'),
+                ('EPIC_ARTIFACT', 4, u'эпический артефакт', 1,  u'случайный эпический артефакт',
+                 {'rarity': RARITY.EPIC, 'better': False}, 'purchase_artifact'),)
 
 
 class GOODS_GROUP(DjangoEnum):

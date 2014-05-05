@@ -298,6 +298,10 @@ class BuyRandomPremiumChest(BaseBuyHeroMethod):
 Вы получаете <strong>%(reward)s</strong><br/>
 '''
 
+    NORMAL_ARTIFACT_LABEL = u'%s <span class="physic-label">%d</span> <span class="magic-label">%d</span>'
+    RARE_ARTIFACT_LABEL = u'<span class="rare-artifact-label">%s</span> <span class="physic-label">%d</span> <span class="magic-label">%d</span>'
+    EPIC_ARTIFACT_LABEL = u'<span class="epic-artifact-label">%s</span> <span class="physic-label">%d</span> <span class="magic-label">%d</span>'
+
     def get_reward_type(self):
         return random_value_by_priority([(record, record.priority)
                                          for record in relations.RANDOM_PREMIUM_CHEST_REWARD.records])
@@ -307,8 +311,12 @@ class BuyRandomPremiumChest(BaseBuyHeroMethod):
 
         result = getattr(hero, reward.hero_method)(**reward.arguments)
 
-        if reward.is_ARTIFACT:
-            message = self.MESSAGE % {'reward': (u'%s %d/%d' % (result.name, result.power.physic, result.power.magic))}
+        if reward.is_NORMAL_ARTIFACT:
+            message = self.MESSAGE % {'reward': (self.NORMAL_ARTIFACT_LABEL % (result.name, result.power.physic, result.power.magic))}
+        elif reward.is_RARE_ARTIFACT:
+            message = self.MESSAGE % {'reward': (self.RARE_ARTIFACT_LABEL % (result.name, result.power.physic, result.power.magic))}
+        elif reward.is_EPIC_ARTIFACT:
+            message = self.MESSAGE % {'reward': (self.EPIC_ARTIFACT_LABEL % (result.name, result.power.physic, result.power.magic))}
         else:
             message = self.MESSAGE % {'reward': reward.description}
 

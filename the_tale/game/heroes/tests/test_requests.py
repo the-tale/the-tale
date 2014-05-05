@@ -92,15 +92,15 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
                                   ('pgf-reset-abilities-button', 1)))
 
     def test_other_hero_page(self):
-        texts = (('pgf-health-percents', 0),
+        texts = (('pgf-health-percents', 1),
                  ('pgf-reset-abilities-timeout-button', 0),
                  ('pgf-reset-abilities-button', 0),
                  ('pgf-experience-percents', 0),
                  ('pgf-energy-percents', 0),
                  ('pgf-physic-power value', 1),
                  ('pgf-magic-power value', 1),
-                 ('pgf-money', 0),
-                 ('"pgf-health"', 0),
+                 ('pgf-money', 1),
+                 ('"pgf-health"', 1),
                  ('pgf-max-health', 1),
                  ('pgf-choose-ability-button', 0),
                  ('pgf-choose-preference-button', 0),
