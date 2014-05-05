@@ -17,7 +17,7 @@ class AccountManager(BaseUserManager):
         email = super(AccountManager, cls).normalize_email(email)
         return email if email else None
 
-    def create_user(self, nick, email, is_fast=None, password=None, active_end_at=None, referer=None, referer_domain=None, referral_of=None, is_bot=False):
+    def create_user(self, nick, email, is_fast=None, password=None, active_end_at=None, referer=None, referer_domain=None, referral_of=None, action_id=None, is_bot=False):
 
         if not nick:
             raise ValueError('Users must have nick')
@@ -29,7 +29,8 @@ class AccountManager(BaseUserManager):
                              referer=referer,
                              referer_domain=referer_domain,
                              is_bot=is_bot,
-                             referral_of=referral_of)
+                             referral_of=referral_of,
+                             action_id=action_id)
         account.set_password(password)
         account.save(using=self._db)
         return account
@@ -54,6 +55,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     MAX_NICK_LENGTH = 128
     MAX_EMAIL_LENGTH = 254
+    MAX_ACTION_LENGTH = 128
 
     nick = models.CharField(null=False, default=u'', max_length=MAX_NICK_LENGTH, unique=True, db_index=True)
 
@@ -91,6 +93,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     referral_of = models.ForeignKey('accounts.Account', null=True, blank=True, db_index=True, default=None, on_delete=models.SET_NULL)
     referrals_number = models.IntegerField(default=0)
+
+    action_id = models.CharField(null=True, blank=True, db_index=True, default=None, max_length=MAX_ACTION_LENGTH)
 
     permanent_purchases = models.TextField(default='[]')
 

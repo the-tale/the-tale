@@ -85,7 +85,11 @@ class RegistrationResource(BaseAccountsResource):
         if accounts_settings.SESSION_REGISTRATION_REFERRAL_KEY in self.request.session:
             referral_of_id = self.request.session[accounts_settings.SESSION_REGISTRATION_REFERRAL_KEY]
 
-        registration_task = RegistrationTask(account_id=None, referer=referer, referral_of_id=referral_of_id)
+        action_id = None
+        if accounts_settings.SESSION_REGISTRATION_ACTION_KEY in self.request.session:
+            action_id = self.request.session[accounts_settings.SESSION_REGISTRATION_ACTION_KEY]
+
+        registration_task = RegistrationTask(account_id=None, referer=referer, referral_of_id=referral_of_id, action_id=action_id)
 
         task = PostponedTaskPrototype.create(registration_task,
                                              live_time=accounts_settings.REGISTRATION_TIMEOUT)

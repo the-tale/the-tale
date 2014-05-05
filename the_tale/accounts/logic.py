@@ -55,7 +55,7 @@ def get_system_user():
     return account
 
 
-def register_user(nick, email=None, password=None, referer=None, referral_of_id=None, is_bot=False):
+def register_user(nick, email=None, password=None, referer=None, referral_of_id=None, action_id=None, is_bot=False):
 
     if Account.objects.filter(nick=nick).exists():
         return REGISTER_USER_RESULT.DUPLICATE_USERNAME, None, None
@@ -85,7 +85,8 @@ def register_user(nick, email=None, password=None, referer=None, referral_of_id=
                                       is_bot=is_bot,
                                       password=password,
                                       referer=referer,
-                                      referral_of=referral_of)
+                                      referral_of=referral_of,
+                                      action_id=action_id)
 
     AccountAchievementsPrototype.create(account)
     AccountItemsPrototype.create(account)

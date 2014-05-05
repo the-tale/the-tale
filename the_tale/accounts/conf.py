@@ -12,10 +12,12 @@ accounts_settings = app_settings('ACCOUNTS',
                                  SESSION_REGISTRATION_TASK_ID_KEY='accounts_registration_task_id',
                                  SESSION_REGISTRATION_REFERER_KEY='accounts_registration_referer_key',
                                  SESSION_REGISTRATION_REFERRAL_KEY='accounts_registration_referral_key',
+                                 SESSION_REGISTRATION_ACTION_KEY='accounts_registration_action_key',
 
                                  SESSION_REMEMBER_TIME=365*24*60*60,
 
                                  REFERRAL_URL_ARGUMENT='referral',
+                                 ACTION_URL_ARGUMENT='action',
 
                                  FORUM_COMPLAINT_THEME='/forum/threads/1177',
 

@@ -42,6 +42,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                  'referer',
                  'referer_domain',
                  'referral_of_id',
+                 'action_id',
                  'clan_id',
                  'referrals_number',
                  'might')
@@ -278,7 +279,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
 
     @classmethod
-    def create(cls, nick, email, is_fast, password=None, referer=None, referral_of=None, is_bot=False):
+    def create(cls, nick, email, is_fast, password=None, referer=None, referral_of=None, action_id=None, is_bot=False):
         referer_domain = None
         if referer:
             referer_info = urlparse(referer)
@@ -292,7 +293,8 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                                                                   active_end_at=cls._next_active_end_at(),
                                                                   referer=referer,
                                                                   referer_domain=referer_domain,
-                                                                  referral_of=referral_of._model if referral_of else None))
+                                                                  referral_of=referral_of._model if referral_of else None,
+                                                                  action_id=action_id))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self._model == other._model

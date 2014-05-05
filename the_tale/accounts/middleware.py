@@ -30,6 +30,13 @@ class HANDLE_REFERRAL_RESULT(DjangoEnum):
                  ('SAVED', 4, u'владелец реферала сохранён'))
 
 
+class HANDLE_ACTION_RESULT(DjangoEnum):
+    records = ( ('NOT_ANONYMOUS', 0, u'пользователь уже зарегистрирован'),
+                ('NO_ACTION', 1, u'акция не указана'),
+                ('ALREADY_SAVED', 2, u'акция уже сохранёна'),
+                ('SAVED', 4, u'акция сохранена'))
+
+
 class RegistrationMiddleware(object):
 
     def handle_registration(self, request):
@@ -84,7 +91,25 @@ class RegistrationMiddleware(object):
         return HANDLE_REFERRAL_RESULT.SAVED
 
 
+    def handle_action(self, request):
+
+        if not request.user.is_anonymous():
+            return HANDLE_ACTION_RESULT.NOT_ANONYMOUS
+
+        if accounts_settings.ACTION_URL_ARGUMENT not in request.GET:
+            return HANDLE_ACTION_RESULT.NO_ACTION
+
+        action_id = request.GET[accounts_settings.ACTION_URL_ARGUMENT]
+
+        if accounts_settings.SESSION_REGISTRATION_ACTION_KEY in request.session:
+            return HANDLE_ACTION_RESULT.ALREADY_SAVED
+
+        request.session[accounts_settings.SESSION_REGISTRATION_ACTION_KEY] = action_id
+        return HANDLE_ACTION_RESULT.SAVED
+
+
     def process_request(self, request):
         self.handle_registration(request)
         self.handle_referer(request)
         self.handle_referral(request)
+        self.handle_action(request)

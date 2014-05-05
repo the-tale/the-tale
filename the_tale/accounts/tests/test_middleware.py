@@ -25,6 +25,7 @@ class MiddlewareTests(testcase.TestCase):
         self.middleware = RegistrationMiddleware()
 
         self.referral_link = '/?%s=%d' % (accounts_settings.REFERRAL_URL_ARGUMENT, self.account.id)
+        self.action_link = '/?%s=action' % accounts_settings.ACTION_URL_ARGUMENT
 
         postponed_tasks.autodiscover()
 
@@ -52,7 +53,7 @@ class MiddlewareTests(testcase.TestCase):
         self.assertEqual(login_user.call_count, 0)
 
     def test_handle_registration__task_not_processed(self):
-        registration_task = RegistrationTask(account_id=None, referer=None, referral_of_id=None)
+        registration_task = RegistrationTask(account_id=None, referer=None, referral_of_id=None, action_id=None)
         task = postponed_tasks.PostponedTaskPrototype.create(registration_task)
 
         with mock.patch('the_tale.accounts.middleware.login_user') as login_user:
@@ -64,7 +65,7 @@ class MiddlewareTests(testcase.TestCase):
     def test_handle_registration__task_processed(self):
         # self.request_login('test_user@test.com')
 
-        registration_task = RegistrationTask(account_id=None, referer=None, referral_of_id=None)
+        registration_task = RegistrationTask(account_id=None, referer=None, referral_of_id=None, action_id=None)
         task = postponed_tasks.PostponedTaskPrototype.create(registration_task)
         task.process(logger=mock.Mock)
 
@@ -109,4 +110,22 @@ class MiddlewareTests(testcase.TestCase):
 
     def test_handle_referral__referral_not_in_session(self):
         result = self.middleware.handle_referral(self.make_request_html(self.referral_link))
+        self.assertTrue(result.is_SAVED)
+
+
+    def test_handle_action__not_anonymous(self):
+        result = self.middleware.handle_action(self.make_request_html(self.action_link, user=self.account._model))
+        self.assertTrue(result.is_NOT_ANONYMOUS)
+
+    def test_handle_action__no_action(self):
+        result = self.middleware.handle_action(self.make_request_html('/'))
+        self.assertTrue(result.is_NO_ACTION)
+
+    def test_handle_action__action_already_in_session(self):
+        result = self.middleware.handle_action(self.make_request_html(self.action_link,
+                                                                      session={accounts_settings.SESSION_REGISTRATION_ACTION_KEY: 'action2'}))
+        self.assertTrue(result.is_ALREADY_SAVED)
+
+    def test_handle_action__action_not_in_session(self):
+        result = self.middleware.handle_action(self.make_request_html(self.action_link))
         self.assertTrue(result.is_SAVED)

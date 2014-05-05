@@ -43,14 +43,15 @@ class AccountChangeForm(forms.ModelForm):
 class AccountAdmin(DjangoUserAdmin):
     form = AccountChangeForm
 
-    list_display = ('id', 'email', 'nick', 'referral_of', 'referer_domain', 'last_login', 'created_at')
+    list_display = ('id', 'email', 'nick', 'action_id', 'referral_of', 'referer_domain', 'last_login', 'created_at')
     ordering = ('-created_at',)
 
     search_fields = ('nick', 'email')
     fieldsets = ( (None, {'fields': ('nick', 'password')}),
                   (_('Personal info'), {'fields': ('email',
                                                    'referer_domain',
-                                                   'referer')}),
+                                                   'referer',
+                                                   'action_id')}),
                   (_('Permissions'), {'fields': ('is_fast',
                                                  'is_bot',
                                                  'is_active',

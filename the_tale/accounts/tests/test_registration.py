@@ -70,6 +70,7 @@ class TestRegistration(testcase.TestCase):
         self.assertEqual(account.referer, None)
         self.assertEqual(account.referer_domain, None)
         self.assertEqual(account.referral_of_id, None)
+        self.assertEqual(account.action_id, None)
 
         self.assertEqual(account.is_bot, False)
 
@@ -113,6 +114,23 @@ class TestRegistration(testcase.TestCase):
 
         self.assertEqual(account.referral_of_id, None)
 
+
+    def test_successfull_result__action(self):
+        result, owner_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+
+        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111', action_id='action')
+
+        account = AccountPrototype.get_by_id(account_id)
+
+        self.assertEqual(account.action_id, 'action')
+
+    def test_successfull_result__unexisted_action(self):
+        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111', action_id=None)
+
+        account = AccountPrototype.get_by_id(account_id)
+
+        self.assertEqual(account.action_id, None)
+
     def test_duplicate_nick(self):
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
         self.assertEqual(result, REGISTER_USER_RESULT.OK)
@@ -143,7 +161,7 @@ class TestRegistrationTask(testcase.TestCase):
     def setUp(self):
         super(TestRegistrationTask, self).setUp()
         create_test_map()
-        self.task = RegistrationTask(account_id=None, referer=None, referral_of_id=None)
+        self.task = RegistrationTask(account_id=None, referer=None, referral_of_id=None, action_id=None)
 
     def test_create(self):
         self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.UNPROCESSED)
@@ -160,7 +178,7 @@ class TestRegistrationTask(testcase.TestCase):
 
     def test_process_success__with_referer(self):
         referer = 'http://example.com/forum/post/1/'
-        task = RegistrationTask(account_id=None, referer=referer, referral_of_id=None)
+        task = RegistrationTask(account_id=None, referer=referer, referral_of_id=None, action_id=None)
         self.assertEqual(task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, REGISTRATION_TASK_STATE.PROCESSED)
         self.assertTrue(task.account)
@@ -169,11 +187,19 @@ class TestRegistrationTask(testcase.TestCase):
 
     def test_process_success__with_referral(self):
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        task = RegistrationTask(account_id=None, referer=None, referral_of_id=account_id)
+        task = RegistrationTask(account_id=None, referer=None, referral_of_id=account_id, action_id=None)
         self.assertEqual(task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, REGISTRATION_TASK_STATE.PROCESSED)
         self.assertTrue(task.account)
         self.assertEqual(task.account.referral_of_id, account_id)
+
+    def test_process_success__with_action(self):
+        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        task = RegistrationTask(account_id=None, referer=None, referral_of_id=None, action_id='action')
+        self.assertEqual(task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+        self.assertEqual(task.state, REGISTRATION_TASK_STATE.PROCESSED)
+        self.assertTrue(task.account)
+        self.assertEqual(task.account.action_id, 'action')
 
     @mock.patch('the_tale.accounts.logic.register_user', lambda *argv, **kwargs: (REGISTER_USER_RESULT.OK+1, None, None))
     def test_process_unknown_error(self):

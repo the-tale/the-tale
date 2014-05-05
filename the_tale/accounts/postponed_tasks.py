@@ -26,18 +26,20 @@ class RegistrationTask(PostponedLogic):
 
     TYPE = 'registration'
 
-    def __init__(self, account_id, referer, referral_of_id, state=REGISTRATION_TASK_STATE.UNPROCESSED):
+    def __init__(self, account_id, referer, referral_of_id, action_id, state=REGISTRATION_TASK_STATE.UNPROCESSED):
         super(RegistrationTask, self).__init__()
         self.account_id = account_id
         self.referer = referer
         self.referral_of_id = referral_of_id
+        self.action_id = action_id
         self.state = state
 
     def serialize(self):
         return { 'state': self.state,
                  'account_id': self.account_id,
                  'referer': self.referer,
-                 'referral_of_id': self.referral_of_id}
+                 'referral_of_id': self.referral_of_id,
+                 'action_id': self.action_id}
 
     @property
     def error_message(self): return REGISTRATION_TASK_STATE._CHOICES[self.state][1]
@@ -54,7 +56,7 @@ class RegistrationTask(PostponedLogic):
 
         with transaction.atomic():
 
-            result, account_id, bundle_id = register_user(nick=self.get_unique_nick(), referer=self.referer, referral_of_id=self.referral_of_id)
+            result, account_id, bundle_id = register_user(nick=self.get_unique_nick(), referer=self.referer, referral_of_id=self.referral_of_id, action_id=self.action_id)
 
             if result != REGISTER_USER_RESULT.OK:
                 main_task.comment = 'unknown error'
