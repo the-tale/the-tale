@@ -266,6 +266,16 @@
               </a>
             </td>
           </tr>
+          <tr>
+            <th>{{PlaceParametersDescription.TAX[0]}}</th> <td>{{place.tax|percents(2)}}</td>
+            <td>
+              <a href="javascript: return;" class="info-link" rel="tooltip"
+                 title="{{map_macros.power_incoming_tooltip(PlaceParametersDescription.TAX[1],
+                                                            place.get_tax_powers(), percents=true)}}">
+                подробнее
+              </a>
+            </td>
+          </tr>
         </table>
 
       </div>
@@ -291,11 +301,16 @@
             {% if not bill.duration.is_UNLIMITED %}
             <tr><td>Прекратит действовать через: {{bill.time_before_end|verbose_timedelta}}</td></tr>
             {% endif %}
-            {% if not resource_1.is_NONE %}
-            <tr><td>{{place_2.name}} получает {{resource_1.text}}</td></tr>
-            {% endif %}
-            {% if not resource_2.is_NONE %}
-            <tr><td>{{place_2.name}} отправляет {{resource_2.text}}</td></tr>
+
+            {% if place_2 %}
+              {% if not resource_1.is_NONE %}
+                <tr><td>{{place_2.name}} получает {{resource_1.text}}</td></tr>
+              {% endif %}
+              {% if not resource_2.is_NONE %}
+                <tr><td>{{place_2.name}} отправляет {{resource_2.text}}</td></tr>
+              {% endif %}
+            {% else %}
+                <tr><td>{{resource_1.text}} за {{resource_2.text}}</td></tr>
             {% endif %}
           </tbody>
         </table>

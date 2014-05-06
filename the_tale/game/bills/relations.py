@@ -16,14 +16,15 @@ class BILL_STATE(DjangoEnum):
 
 class BILL_TYPE(DjangoEnum):
     records = ( ('PLACE_RENAMING', 0, u'переименование города'),
-                 ('PERSON_REMOVE', 1, u'исключить горожанина из Совет'),
-                 ('PLACE_DESCRIPTION', 2, u'изменить описание города'),
-                 ('PLACE_MODIFIER', 3, u'изменить тип места'),
-                 ('BUILDING_CREATE', 4, u'возвести постройку'),
-                 ('BUILDING_DESTROY', 5, u'разрушить постройку'),
-                 ('BUILDING_RENAMING', 6, u'переименовать постройку'),
-                 ('PLACE_RESOURCE_EXCHANGE', 7, u'обмен ресурсами'),
-                 ('BILL_DECLINE', 8, u'отмена закона'))
+                ('PERSON_REMOVE', 1, u'исключить горожанина из Совет'),
+                ('PLACE_DESCRIPTION', 2, u'изменить описание города'),
+                ('PLACE_MODIFIER', 3, u'изменить тип места'),
+                ('BUILDING_CREATE', 4, u'возвести постройку'),
+                ('BUILDING_DESTROY', 5, u'разрушить постройку'),
+                ('BUILDING_RENAMING', 6, u'переименовать постройку'),
+                ('PLACE_RESOURCE_EXCHANGE', 7, u'обмен ресурсами'),
+                ('BILL_DECLINE', 8, u'отмена закона'),
+                ('PLACE_RESOURCE_CONVERSION', 9, u'изменение параметров города') )
 
 
 class VOTE_TYPE(DjangoEnum):

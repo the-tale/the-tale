@@ -1,0 +1,6 @@
+
+<li><strong>Текущее название города</strong>: {{bill.data.place.name}}</li>
+{% if bill.data.place_name_changed %}
+<li><strong>Название города во время создания закона</strong>: {{bill.data.old_place_name}}</li>
+{% endif %}
+<li><strong>Изменение ресурсов</strong>: {{bill.data.conversion.text}}</li>

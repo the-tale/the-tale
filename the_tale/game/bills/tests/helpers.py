@@ -12,6 +12,9 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.logic import create_test_map
 from the_tale.game.bills.conf import bills_settings
 
+from the_tale.game.bills.bills.place_resource_exchange import ALLOWED_EXCHANGE_TYPES
+from the_tale.game.bills.bills.place_resource_conversion import CONVERSION
+
 
 class BaseTestPrototypes(TestCase):
 
@@ -53,9 +56,17 @@ class BaseTestPrototypes(TestCase):
                                    category=forum_category)
 
 
-def choose_resources():
+def choose_exchange_resources():
     resource_1, resource_2 = RESOURCE_EXCHANGE_TYPE.NONE, RESOURCE_EXCHANGE_TYPE.NONE
     while resource_1.parameter == resource_2.parameter:
-        resource_1 = random.choice(RESOURCE_EXCHANGE_TYPE.records)
-        resource_2 = random.choice(RESOURCE_EXCHANGE_TYPE.records)
+        resource_1 = random.choice(ALLOWED_EXCHANGE_TYPES)
+        resource_2 = random.choice(ALLOWED_EXCHANGE_TYPES)
     return resource_1, resource_2
+
+
+def choose_conversions():
+    conversion_1, conversion_2 = None, None
+    while conversion_1 == conversion_2:
+        conversion_1 = random.choice(CONVERSION.records)
+        conversion_2 = random.choice(CONVERSION.records)
+    return conversion_1, conversion_2

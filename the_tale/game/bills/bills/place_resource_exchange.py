@@ -3,7 +3,6 @@
 from django.forms import ValidationError
 
 from textgen.words import Noun
-
 from dext.forms import fields
 
 from the_tale.game.balance import constants as c
@@ -19,13 +18,32 @@ from the_tale.game.map.places.relations import RESOURCE_EXCHANGE_TYPE
 from the_tale.game.map.roads.storage import roads_storage
 
 
+ALLOWED_EXCHANGE_TYPES = [
+    RESOURCE_EXCHANGE_TYPE.NONE,
+
+    RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL,
+    RESOURCE_EXCHANGE_TYPE.PRODUCTION_NORMAL,
+    RESOURCE_EXCHANGE_TYPE.PRODUCTION_LARGE,
+
+    RESOURCE_EXCHANGE_TYPE.SAFETY_SMALL,
+    RESOURCE_EXCHANGE_TYPE.SAFETY_NORMAL,
+    RESOURCE_EXCHANGE_TYPE.SAFETY_LARGE,
+
+    RESOURCE_EXCHANGE_TYPE.TRANSPORT_SMALL,
+    RESOURCE_EXCHANGE_TYPE.TRANSPORT_NORMAL,
+    RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE
+    ]
+
+ALLOWED_EXCHANGE_TYPES_CHOICES = [(record, record.text) for record in ALLOWED_EXCHANGE_TYPES]
+
+
 class UserForm(BaseUserForm):
 
     place_1 = fields.ChoiceField(label=u'Первый город')
     place_2 = fields.ChoiceField(label=u'Второй город')
 
-    resource_1 = fields.TypedChoiceField(label=u'Ресурс от первого города', choices=RESOURCE_EXCHANGE_TYPE.choices(), coerce=RESOURCE_EXCHANGE_TYPE.get_from_name)
-    resource_2 = fields.TypedChoiceField(label=u'Ресурс от второго города', choices=RESOURCE_EXCHANGE_TYPE.choices(), coerce=RESOURCE_EXCHANGE_TYPE.get_from_name)
+    resource_1 = fields.TypedChoiceField(label=u'Ресурс от первого города', choices=ALLOWED_EXCHANGE_TYPES_CHOICES, coerce=RESOURCE_EXCHANGE_TYPE.get_from_name)
+    resource_2 = fields.TypedChoiceField(label=u'Ресурс от второго города', choices=ALLOWED_EXCHANGE_TYPES_CHOICES, coerce=RESOURCE_EXCHANGE_TYPE.get_from_name)
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
@@ -41,12 +59,24 @@ class UserForm(BaseUserForm):
         if roads_storage.get_by_places(place_1, place_2) is None:
             raise ValidationError(u'Обмениваться ресурсами могут только города связаные дорогой')
 
-        if (c.PLACE_MAX_EXCHANGED_NUMBER > resource_exchange_storage.get_exchanges_for_place(place_1) or
-            c.PLACE_MAX_EXCHANGED_NUMBER > resource_exchange_storage.get_exchanges_for_place(place_2) ):
-            raise ValidationError(u'Один город может поддерживать не более чем %(max_exchanges)d договора обмена' %  {'max_exchanges': c.PLACE_MAX_EXCHANGED_NUMBER})
+        if (c.PLACE_MAX_BILLS_NUMBER <= len(resource_exchange_storage.get_exchanges_for_place(place_1)) or
+            c.PLACE_MAX_BILLS_NUMBER <= len(resource_exchange_storage.get_exchanges_for_place(place_2)) ):
+            raise ValidationError(u'Один город может поддерживать не более чем %(max_exchanges)d активных законов' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER})
 
-        resource_1 = cleaned_data['resource_1']
-        resource_2 = cleaned_data['resource_2']
+        resource_1 = cleaned_data.get('resource_1')
+        resource_2 = cleaned_data.get('resource_2')
+
+        if resource_1 is None:
+            raise ValidationError(u'Не указан ресурс от первого города')
+
+        if resource_2 is None:
+            raise ValidationError(u'Не указан ресурс от второго города')
+
+        if resource_1 not in ALLOWED_EXCHANGE_TYPES:
+            raise ValidationError(u'Нельзя заключить договор на обмен ресурса «%s»' % resource_1.text)
+
+        if resource_2 not in ALLOWED_EXCHANGE_TYPES:
+            raise ValidationError(u'Нельзя заключить договор на обмен ресурса «%s»' % resource_2.text)
 
         if resource_1.parameter == resource_2.parameter:
             raise ValidationError(u'Нельзя заключить договор на обмен одинаковыми ресурсами')
@@ -72,7 +102,7 @@ class PlaceResourceExchange(BaseBill):
     SHOW_TEMPLATE = 'bills/bills/place_resource_exchange_show.html'
 
     CAPTION = u'Обмен ресурсами между городами'
-    DESCRIPTION = u'Устанавливает обмен ресурсами между городами. Обмен разрешён только между соседними городами (связанными прямой дорогой), один город может иметь не более %(max_exchanges)d активных договоров обмена. Обмен не обязан быть равноценным.' %  {'max_exchanges': c.PLACE_MAX_EXCHANGED_NUMBER}
+    DESCRIPTION = u'Устанавливает обмен ресурсами между городами. Обмен разрешён только между соседними городами (связанными прямой дорогой), один город может иметь не более %(max_exchanges)d активных законов. Обмен не обязан быть равноценным.' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER}
 
     def __init__(self, place_1_id=None, place_2_id=None, resource_1=None, resource_2=None, old_place_1_name_forms=None, old_place_2_name_forms=None):
         super(PlaceResourceExchange, self).__init__()

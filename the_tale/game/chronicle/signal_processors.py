@@ -70,10 +70,21 @@ def _get_bill_place_resource_exchange_arguments(bill):
                                'resource_2': FakeWord(bill.data.resource_2.text),
                                'bill': FakeWord(bill.caption)} }
 
+def _get_bill_place_resource_conversion_arguments(bill):
+    return { 'actors': [(ACTOR_ROLE.BILL, bill),
+                        (ACTOR_ROLE.PLACE, bill.data.place)],
+             'substitutions': {'place': bill.data.place,
+                               'conversion': FakeWord(bill.data.conversion.text),
+                               'bill': FakeWord(bill.caption)} }
+
 def _get_bill_decline_bill_arguments(bill):
-    actors = [(ACTOR_ROLE.BILL, bill),
-              (ACTOR_ROLE.PLACE, bill.data.declined_bill.data.place_1),
-              (ACTOR_ROLE.PLACE, bill.data.declined_bill.data.place_2)]
+    if bill.data.declined_bill.data.type.is_PLACE_RESOURCE_EXCHANGE:
+        actors = [(ACTOR_ROLE.BILL, bill),
+                  (ACTOR_ROLE.PLACE, bill.data.declined_bill.data.place_1),
+                  (ACTOR_ROLE.PLACE, bill.data.declined_bill.data.place_2)]
+    elif bill.data.declined_bill.data.type.is_PLACE_RESOURCE_CONVERSION:
+        actors = [(ACTOR_ROLE.BILL, bill),
+                  (ACTOR_ROLE.PLACE, bill.data.declined_bill.data.place)]
 
     actors_ids = [(role, actor.id) for role, actor in actors]
 
@@ -97,7 +108,8 @@ BILL_ARGUMENT_GETTERS = {
     BILL_TYPE.BUILDING_DESTROY: _get_bill_building_arguments,
     BILL_TYPE.BUILDING_RENAMING: _get_bill_building_rename_arguments,
     BILL_TYPE.PLACE_RESOURCE_EXCHANGE: _get_bill_place_resource_exchange_arguments,
-    BILL_TYPE.BILL_DECLINE: _get_bill_decline_bill_arguments}
+    BILL_TYPE.BILL_DECLINE: _get_bill_decline_bill_arguments,
+    BILL_TYPE.PLACE_RESOURCE_CONVERSION: _get_bill_place_resource_conversion_arguments,}
 
 
 
@@ -123,6 +135,8 @@ def chronicle_bill_moderated(sender, bill, **kwargs): # pylint: disable=W0613
         records.PlaceResourceExchangeStarted(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
     elif bill.data.type == BILL_TYPE.BILL_DECLINE:
         records.BillDeclineStarted(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
+    elif bill.data.type == BILL_TYPE.PLACE_RESOURCE_CONVERSION:
+        records.PlaceResourceConversionStarted(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
 
 @receiver(bills_signals.bill_processed, dispatch_uid='chronicle_bill_processed')
 def chronicle_bill_processed(sender, bill, **kwargs): # pylint: disable=R0912,W0613
@@ -181,11 +195,19 @@ def chronicle_bill_processed(sender, bill, **kwargs): # pylint: disable=R0912,W0
             record_type = records.BillDeclineSuccessed
         record_type(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
 
+    elif bill.data.type == BILL_TYPE.PLACE_RESOURCE_CONVERSION:
+        record_type = records.PlaceResourceConversionFailed
+        if bill.state.is_ACCEPTED:
+            record_type = records.PlaceResourceConversionSuccessed
+        record_type(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
+
 
 @receiver(bills_signals.bill_ended, dispatch_uid='chronicle_bill_ended')
 def chronicle_bill_ended(sender, bill, **kwargs): # pylint: disable=R0912,W0613
     if bill.data.type == BILL_TYPE.PLACE_RESOURCE_EXCHANGE:
         records.PlaceResourceExchangeEnded(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
+    elif bill.data.type == BILL_TYPE.PLACE_RESOURCE_CONVERSION:
+        records.PlaceResourceConversionEnded(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
 
 
 

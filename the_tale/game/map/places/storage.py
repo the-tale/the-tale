@@ -77,7 +77,8 @@ class ResourceExchangeStorage(create_storage_class('resource exchange change tim
     def get_exchanges_for_place(self, place):
         exchanges = []
         for exchange in self.all():
-            if place.id in (exchange.place_1.id, exchange.place_2.id):
+            if place.id in (exchange.place_1.id if exchange.place_1 is not None else None,
+                            exchange.place_2.id if exchange.place_2 is not None else None):
                 exchanges.append(exchange)
         return exchanges
 

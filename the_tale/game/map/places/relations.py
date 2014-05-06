@@ -16,7 +16,8 @@ class CITY_PARAMETERS(DjangoEnum):
     records = ( ('PRODUCTION', 0, u'Производство'),
                  ('SAFETY', 1, u'Безопасность'),
                  ('FREEDOM', 2, u'Свободы'),
-                 ('TRANSPORT', 3, u'Транспорт'),)
+                 ('TRANSPORT', 3, u'Транспорт'),
+                 ('TAX', 4, u'Пошлина'))
 
 
 class BUILDING_TYPE(DjangoEnum):
@@ -48,21 +49,30 @@ class BUILDING_TYPE(DjangoEnum):
 class RESOURCE_EXCHANGE_TYPE(DjangoEnum):
     parameter = Column(unique=False, primary=False, single_type=False)
     amount = Column(unique=False, primary=False, single_type=False)
+    direction = Column(unique=False, primary=False)
 
     PRODUCTION_BASE = int(c.PLACE_GOODS_BONUS / 2)
     SAFETY_BASE = c.PLACE_SAFETY_FROM_BEST_PERSON / 10.0
     TRANSPORT_BASE = c.PLACE_TRANSPORT_FROM_BEST_PERSON / 10.0
+    TAX_BASE = 0.05
 
-    records = ( ('NONE',  0, u'ничего', None, 0),
-                 ('PRODUCTION_SMALL',  1, u'%d продукции' % PRODUCTION_BASE, CITY_PARAMETERS.PRODUCTION, PRODUCTION_BASE),
-                 ('PRODUCTION_NORMAL', 2, u'%d продукции' % (PRODUCTION_BASE * 2), CITY_PARAMETERS.PRODUCTION, PRODUCTION_BASE * 2),
-                 ('PRODUCTION_LARGE',  3, u'%d продукции' % (PRODUCTION_BASE * 4), CITY_PARAMETERS.PRODUCTION, PRODUCTION_BASE * 4),
-                 ('SAFETY_SMALL',      4, u'%.1f%% безопасности' % float(SAFETY_BASE * 100), CITY_PARAMETERS.SAFETY, SAFETY_BASE),
-                 ('SAFETY_NORMAL',     5, u'%.1f%% безопасности' % float(SAFETY_BASE * 2 * 100), CITY_PARAMETERS.SAFETY, SAFETY_BASE * 2),
-                 ('SAFETY_LARGE',      6, u'%.1f%% безопасности' % float(SAFETY_BASE * 4 * 100), CITY_PARAMETERS.SAFETY, SAFETY_BASE * 4),
-                 ('TRANSPORT_SMALL',   7, u'%.1f%% транспорта' % float(TRANSPORT_BASE * 100), CITY_PARAMETERS.TRANSPORT, TRANSPORT_BASE),
-                 ('TRANSPORT_NORMAL',  8, u'%.1f%% транспорта' % float(TRANSPORT_BASE * 2 * 100), CITY_PARAMETERS.TRANSPORT, TRANSPORT_BASE * 2),
-                 ('TRANSPORT_LARGE',   9, u'%.1f%% транспорта' % float(TRANSPORT_BASE * 4 * 100), CITY_PARAMETERS.TRANSPORT, TRANSPORT_BASE * 4) )
+    records = ( ('NONE',  0, u'ничего', None, 0, 0),
+
+                ('PRODUCTION_SMALL',  1, u'%d продукции' % PRODUCTION_BASE, CITY_PARAMETERS.PRODUCTION, PRODUCTION_BASE, 1),
+                ('PRODUCTION_NORMAL', 2, u'%d продукции' % (PRODUCTION_BASE * 2), CITY_PARAMETERS.PRODUCTION, PRODUCTION_BASE * 2, 1),
+                ('PRODUCTION_LARGE',  3, u'%d продукции' % (PRODUCTION_BASE * 4), CITY_PARAMETERS.PRODUCTION, PRODUCTION_BASE * 4, 1),
+
+                ('SAFETY_SMALL',      4, u'%.1f%% безопасности' % float(SAFETY_BASE * 100), CITY_PARAMETERS.SAFETY, SAFETY_BASE, 1),
+                ('SAFETY_NORMAL',     5, u'%.1f%% безопасности' % float(SAFETY_BASE * 2 * 100), CITY_PARAMETERS.SAFETY, SAFETY_BASE * 2, 1),
+                ('SAFETY_LARGE',      6, u'%.1f%% безопасности' % float(SAFETY_BASE * 4 * 100), CITY_PARAMETERS.SAFETY, SAFETY_BASE * 4, 1),
+
+                ('TRANSPORT_SMALL',   7, u'%.1f%% транспорта' % float(TRANSPORT_BASE * 100), CITY_PARAMETERS.TRANSPORT, TRANSPORT_BASE, 1),
+                ('TRANSPORT_NORMAL',  8, u'%.1f%% транспорта' % float(TRANSPORT_BASE * 2 * 100), CITY_PARAMETERS.TRANSPORT, TRANSPORT_BASE * 2, 1),
+                ('TRANSPORT_LARGE',   9, u'%.1f%% транспорта' % float(TRANSPORT_BASE * 4 * 100), CITY_PARAMETERS.TRANSPORT, TRANSPORT_BASE * 4, 1),
+
+                ('TAX_SMALL',   10, u'%.1f%% пошлины' % float(TAX_BASE * 100), CITY_PARAMETERS.TAX, TAX_BASE, -1),
+                ('TAX_NORMAL',  11, u'%.1f%% пошлины' % float(TAX_BASE * 2 * 100), CITY_PARAMETERS.TAX, TAX_BASE * 2, -1),
+                ('TAX_LARGE',   12, u'%.1f%% пошлины' % float(TAX_BASE * 4 * 100), CITY_PARAMETERS.TAX, TAX_BASE * 4, -1) )
 
 
 

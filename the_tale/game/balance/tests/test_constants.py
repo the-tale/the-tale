@@ -237,7 +237,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(round(c.PLACE_TRANSPORT_FROM_BEST_PERSON, 5), 0.33333)
         self.assertEqual(round(c.PLACE_FREEDOM_FROM_BEST_PERSON, 5), 0.33333)
 
-        self.assertEqual(c.PLACE_MAX_EXCHANGED_NUMBER, 3)
+        self.assertEqual(c.PLACE_MAX_BILLS_NUMBER, 3)
 
         self.assertEqual(c.PLACE_RACE_CHANGE_DELTA_IN_DAY, 0.1)
         self.assertEqual(c.PLACE_RACE_CHANGE_DELTA, 0.1 / 24)

@@ -4,11 +4,11 @@ from django.db import models
 
 from rels.django import RelationIntegerField
 
+from the_tale.game.balance import constants as c
+
 from the_tale.game.relations import RACE
 
-from the_tale.game.map.places.relations import BUILDING_TYPE, BUILDING_STATE, RESOURCE_EXCHANGE_TYPE, CITY_MODIFIERS
-
-from the_tale.game.balance import constants as c
+from the_tale.game.map.places import relations
 
 
 class Place(models.Model):
@@ -36,12 +36,13 @@ class Place(models.Model):
     safety = models.FloatField(default=1.0-c.BATTLES_PER_TURN)
     freedom = models.FloatField(default=1.0)
     transport = models.FloatField(default=1.0)
+    tax = models.FloatField(default=0.0)
 
     data = models.TextField(null=False, default=u'{}')
 
     heroes_number = models.IntegerField(default=0)
 
-    modifier = RelationIntegerField(relation=CITY_MODIFIERS, null=True, default=None, blank=True)
+    modifier = RelationIntegerField(relation=relations.CITY_MODIFIERS, null=True, default=None, blank=True)
     race = RelationIntegerField(relation=RACE)
 
     persons_changed_at_turn = models.BigIntegerField(default=0)
@@ -63,8 +64,8 @@ class Building(models.Model):
     x = models.BigIntegerField(null=False)
     y = models.BigIntegerField(null=False)
 
-    state = RelationIntegerField(relation=BUILDING_STATE, relation_column='value', db_index=True)
-    type = RelationIntegerField(relation=BUILDING_TYPE, relation_column='value')
+    state = RelationIntegerField(relation=relations.BUILDING_STATE, relation_column='value', db_index=True)
+    type = RelationIntegerField(relation=relations.BUILDING_TYPE, relation_column='value')
 
     integrity = models.FloatField(default=1.0, null=False)
 
@@ -77,10 +78,10 @@ class ResourceExchange(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    place_1 = models.ForeignKey(Place, related_name='+', on_delete=models.CASCADE)
-    place_2 = models.ForeignKey(Place, related_name='+', on_delete=models.CASCADE)
+    place_1 = models.ForeignKey(Place, related_name='+', null=True, on_delete=models.CASCADE)
+    place_2 = models.ForeignKey(Place, related_name='+', null=True, on_delete=models.CASCADE)
 
-    resource_1 = RelationIntegerField(relation=RESOURCE_EXCHANGE_TYPE, relation_column='value')
-    resource_2 = RelationIntegerField(relation=RESOURCE_EXCHANGE_TYPE, relation_column='value')
+    resource_1 = RelationIntegerField(relation=relations.RESOURCE_EXCHANGE_TYPE, relation_column='value')
+    resource_2 = RelationIntegerField(relation=relations.RESOURCE_EXCHANGE_TYPE, relation_column='value')
 
     bill = models.ForeignKey('bills.Bill', blank=True, null=True, related_name='+', on_delete=models.SET_NULL)

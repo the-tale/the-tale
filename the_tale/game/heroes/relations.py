@@ -72,7 +72,8 @@ class MONEY_SOURCE(DjangoEnum):
                 ('SPEND_FOR_USELESS', 1003, u'потрачено без пользы'),
                 ('SPEND_FOR_IMPACT', 1004, u'потрачено на изменение влияния'),
                 ('SPEND_FOR_EXPERIENCE', 1005, u'потрачено на обучение'),
-                ('SPEND_FOR_REPAIRING', 1006, u'потрачено на починку'))
+                ('SPEND_FOR_REPAIRING', 1006, u'потрачено на починку'),
+                ('SPEND_FOR_TAX', 1007, u'потрачено на пошлину'))
 
 
 

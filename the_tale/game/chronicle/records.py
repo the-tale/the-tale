@@ -210,6 +210,26 @@ class PlaceChangeRace(RecordBase):
     ACTORS = [ACTOR_ROLE.PLACE]
     SUBSTITUTIONS  = ['place', 'old_race', 'new_race']
 
+
+# place resource conversion
+class _PlaceResourceConversionBillBase(RecordBase):
+    ACTORS = [ACTOR_ROLE.BILL, ACTOR_ROLE.PLACE]
+    SUBSTITUTIONS = ['place', 'conversion', 'bill']
+
+class PlaceResourceConversionStarted(_PlaceResourceConversionBillBase):
+    TYPE = RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_STARTED
+
+class PlaceResourceConversionSuccessed(_PlaceResourceConversionBillBase):
+    TYPE = RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_SUCCESSED
+
+class PlaceResourceConversionFailed(_PlaceResourceConversionBillBase):
+    TYPE = RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_FAILED
+
+class PlaceResourceConversionEnded(_PlaceResourceConversionBillBase):
+    TYPE = RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_ENDED
+
+
+
 RECORDS = {}
 for class_name, record_class in globals().items():
     if not isinstance(record_class, type) or not issubclass(record_class, RecordBase):

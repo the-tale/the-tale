@@ -128,6 +128,12 @@ class PlacePrototypeTests(testcase.TestCase):
                                          resource_2=RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE,
                                          bill=None)
 
+        ResourceExchangePrototype.create(place_1=self.p1,
+                                         place_2=None,
+                                         resource_1=RESOURCE_EXCHANGE_TYPE.TAX_NORMAL,
+                                         resource_2=RESOURCE_EXCHANGE_TYPE.NONE,
+                                         bill=None)
+
 
     @mock.patch('the_tale.game.balance.formulas.place_goods_production', lambda size: 100 if size < 5 else 1000)
     @mock.patch('the_tale.game.map.places.modifiers.prototypes.CraftCenter.PRODUCTION_MODIFIER', 10000)
@@ -172,6 +178,17 @@ class PlacePrototypeTests(testcase.TestCase):
                               RESOURCE_EXCHANGE_TYPE.TRANSPORT_SMALL.amount + RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE.amount)
 
         self.assertTrue(-0.001 < self.p1.transport - expected_transport < 0.001)
+
+    def test_sync_sync_parameters__tax(self):
+
+        self._create_test_exchanges()
+
+        self.assertEqual(self.p1.tax, 0)
+
+        self.p1.sync_parameters()
+
+        self.assertEqual(self.p1.tax, 0.1)
+
 
     @mock.patch('the_tale.game.map.places.modifiers.prototypes.Polic.FREEDOM_MODIFIER', 0.01)
     @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.freedom', 0.001)

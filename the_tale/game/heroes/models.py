@@ -113,6 +113,7 @@ class Hero(models.Model):
     stat_money_spend_for_impact = models.BigIntegerField(default=0, null=False)
     stat_money_spend_for_experience = models.BigIntegerField(default=0, null=False)
     stat_money_spend_for_repairing = models.BigIntegerField(default=0, null=False)
+    stat_money_spend_for_tax = models.BigIntegerField(default=0, null=False)
 
     stat_artifacts_had = models.BigIntegerField(default=0, null=False)
     stat_loot_had = models.BigIntegerField(default=0, null=False)

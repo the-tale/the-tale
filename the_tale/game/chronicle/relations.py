@@ -47,7 +47,12 @@ class RECORD_TYPE(DjangoEnum):
                 ('BILL_DECLINE_BILL_SUCCESSED', 30, u'отмена закона: принят закон'),
                 ('BILL_DECLINE_BILL_FAILED', 31, u'отмена закона: отклонён закон'),
 
-                ('PLACE_RESOURCE_EXCHANGE_BILL_ENDED', 32, u'обмен ресурсами: действие закона окончено'))
+                ('PLACE_RESOURCE_EXCHANGE_BILL_ENDED', 32, u'обмен ресурсами: действие закона окончено'),
+
+                ('PLACE_RESOURCE_CONVERSION_BILL_STARTED', 33, u'изменение параметров города: предложен закон'),
+                ('PLACE_RESOURCE_CONVERSION_BILL_SUCCESSED', 34, u'изменение параметров города: принят закон'),
+                ('PLACE_RESOURCE_CONVERSION_BILL_FAILED', 35, u'изменение параметров города: отклонён закон'),
+                ('PLACE_RESOURCE_CONVERSION_BILL_ENDED', 36, u'оизменение параметров города: действие закона окончено'),)
 
 
 class ACTOR_ROLE(DjangoEnum):

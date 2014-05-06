@@ -7,7 +7,7 @@ from the_tale.game.map.places.storage import resource_exchange_storage
 
 from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
 from the_tale.game.bills.bills import PlaceResourceExchange, BillDecline, PlaceDescripton
-from the_tale.game.bills.tests.helpers import choose_resources, BaseTestPrototypes
+from the_tale.game.bills.tests.helpers import choose_exchange_resources, BaseTestPrototypes
 from the_tale.game.bills.relations import BILL_STATE
 
 
@@ -18,7 +18,7 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
     def setUp(self):
         super(BillDeclineResourceExchangeTests, self).setUp()
 
-        self.resource_1, self.resource_2 = choose_resources()
+        self.resource_1, self.resource_2 = choose_exchange_resources()
 
         self.declined_bill_data = PlaceResourceExchange(place_1_id=self.place1.id,
                                                         place_2_id=self.place2.id,

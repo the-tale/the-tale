@@ -12,7 +12,7 @@ from the_tale.game.relations import RACE
 
 from the_tale.game.bills.prototypes import BillPrototype
 from the_tale.game.bills import bills
-from the_tale.game.bills.tests.prototype_tests import BaseTestPrototypes
+from the_tale.game.bills.tests.test_prototype import BaseTestPrototypes
 
 from the_tale.game.chronicle.models import Record, RECORD_TYPE
 
@@ -119,12 +119,12 @@ class BillPlaceChangeModifierTests(BaseTestPrototypes):
 class BillPlaceExchangeResourcesTests(BaseTestPrototypes):
 
     def setUp(self):
-        from the_tale.game.bills.tests.helpers import choose_resources
+        from the_tale.game.bills.tests.helpers import choose_exchange_resources
         from the_tale.game.bills.bills import PlaceResourceExchange
 
         super(BillPlaceExchangeResourcesTests, self).setUp()
 
-        self.resource_1, self.resource_2 = choose_resources()
+        self.resource_1, self.resource_2 = choose_exchange_resources()
 
         self.bill_data = PlaceResourceExchange(place_1_id=self.place1.id,
                                                place_2_id=self.place2.id,
@@ -156,6 +156,47 @@ class BillPlaceExchangeResourcesTests(BaseTestPrototypes):
         process_bill(self.bill, True)
 
         with check_record_created(self, RECORD_TYPE.PLACE_RESOURCE_EXCHANGE_BILL_ENDED):
+            self.bill.end()
+
+
+class BillPlaceConversionResourcesTests(BaseTestPrototypes):
+
+    def setUp(self):
+        from the_tale.game.bills.tests.helpers import choose_conversions
+        from the_tale.game.bills.bills import PlaceResourceConversion
+
+        super(BillPlaceConversionResourcesTests, self).setUp()
+
+        self.conversion_1, self.conversion_2 = choose_conversions()
+
+        self.bill_data = PlaceResourceConversion(place_id=self.place1.id,
+                                                 conversion=self.conversion_1)
+
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data)
+
+        self.form = bills.PlaceModifier.ModeratorForm({'approved': True})
+        self.assertTrue(self.form.is_valid())
+
+    def test_bill_started(self):
+        with check_record_created(self, RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_STARTED):
+            self.bill.update_by_moderator(self.form)
+
+
+    def test_bill_successed(self):
+        self.bill.update_by_moderator(self.form)
+        with check_record_created(self, RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_SUCCESSED):
+            process_bill(self.bill, True)
+
+    def test_bill_failed(self):
+        self.bill.update_by_moderator(self.form)
+        with check_record_created(self, RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_FAILED):
+            process_bill(self.bill, False)
+
+    def test_bill_ended(self):
+        self.bill.update_by_moderator(self.form)
+        process_bill(self.bill, True)
+
+        with check_record_created(self, RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_ENDED):
             self.bill.end()
 
 

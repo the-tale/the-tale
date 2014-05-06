@@ -38,13 +38,14 @@ class PlaceParametersDescription(object):
     SAFETY = (u'безопасность', u'Насколько безопасно в окрестностях города (вероятность пройти по дороге не подвергнувшись нападению).')
     TRANSPORT = (u'транспорт', u'Уровень развития транспортной инфраструктуры (с какой скоростью герои путешествуют в окрестностях города).')
     FREEDOM = (u'свобода', u'Насколько активна политическая жизнь в городе (как сильно изменяется влияние его жителей от действий героев).')
+    TAX = (u'пошлина', u'Размер пошлины, которую платят герои при посещении города.')
 
 
 @add_power_management(places_settings.POWER_HISTORY_LENGTH, exceptions.PlacesPowerError)
 class PlacePrototype(BasePrototype):
     _model_class = Place
     _readonly = ('id', 'x', 'y', 'name', 'heroes_number', 'updated_at')
-    _bidirectional = ('description', 'size', 'expected_size', 'goods', 'production', 'safety', 'freedom', 'transport', 'race', 'persons_changed_at_turn')
+    _bidirectional = ('description', 'size', 'expected_size', 'goods', 'production', 'safety', 'freedom', 'transport', 'race', 'persons_changed_at_turn', 'tax')
     _get_by = ('id',)
 
     @property
@@ -204,6 +205,7 @@ class PlacePrototype(BasePrototype):
         self.safety = sum(power[1] for power in self.get_safety_powers())
         self.freedom = sum(power[1] for power in self.get_freedom_powers())
         self.transport = sum(power[1] for power in self.get_transport_powers())
+        self.tax = sum(power[1] for power in self.get_tax_powers())
 
     def set_expected_size(self, expected_size):
         self.expected_size = expected_size
@@ -235,9 +237,9 @@ class PlacePrototype(BasePrototype):
         for exchange in resource_exchange_storage.get_exchanges_for_place(self):
             resource_1, resource_2, place_2 = exchange.get_resources_for_place(self)
             if resource_1.parameter == parameter:
-                powers.append((place_2.name, -resource_1.amount))
+                powers.append((place_2.name if place_2 is not None else resource_2.text, -resource_1.amount * resource_1.direction))
             if resource_2.parameter == parameter:
-                powers.append((place_2.name, resource_2.amount))
+                powers.append((place_2.name if place_2 is not None else resource_1.text, resource_2.amount * resource_2.direction))
 
 
     def get_production_powers(self):
@@ -287,6 +289,13 @@ class PlacePrototype(BasePrototype):
 
         persons_powers = [(person.full_name, person.freedom) for person in self.persons]
         powers.extend(sorted(persons_powers, key=lambda p: -p[1]))
+        return powers
+
+    def get_tax_powers(self):
+        powers = [(u'город', 0.0)]
+
+        self._update_powers(powers, CITY_PARAMETERS.TAX)
+
         return powers
 
 
@@ -505,12 +514,12 @@ class ResourceExchangePrototype(BasePrototype):
     @property
     def place_1(self):
         from the_tale.game.map.places.storage import places_storage
-        return places_storage[self._model.place_1_id]
+        return places_storage.get(self._model.place_1_id)
 
     @property
     def place_2(self):
         from the_tale.game.map.places.storage import places_storage
-        return places_storage[self._model.place_2_id]
+        return places_storage.get(self._model.place_2_id)
 
     @lazy_property
     def bill(self):
@@ -529,8 +538,8 @@ class ResourceExchangePrototype(BasePrototype):
         from the_tale.game.map.places.storage import resource_exchange_storage
 
         model = cls._model_class.objects.create(bill=bill._model if bill is not None else None,
-                                                place_1=place_1._model,
-                                                place_2=place_2._model,
+                                                place_1=place_1._model if place_1 is not None else None,
+                                                place_2=place_2._model if place_2 is not None else None,
                                                 resource_1=resource_1,
                                                 resource_2=resource_2)
         prototype = cls(model=model)

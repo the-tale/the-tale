@@ -5,11 +5,13 @@ import datetime
 
 from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
 from the_tale.game.bills.bills import PlaceResourceExchange
+from the_tale.game.bills.bills.place_resource_exchange import ALLOWED_EXCHANGE_TYPES
 
-from the_tale.game.bills.tests.helpers import choose_resources, BaseTestPrototypes
+from the_tale.game.bills.tests.helpers import choose_exchange_resources, BaseTestPrototypes
 
 from the_tale.game.map.places.storage import resource_exchange_storage
 from the_tale.game.map.places.prototypes import ResourceExchangePrototype
+from the_tale.game.map.places.relations import RESOURCE_EXCHANGE_TYPE
 
 
 class PlaceResourceExchangeTests(BaseTestPrototypes):
@@ -17,7 +19,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
     def setUp(self):
         super(PlaceResourceExchangeTests, self).setUp()
 
-        self.resource_1, self.resource_2 = choose_resources()
+        self.resource_1, self.resource_2 = choose_exchange_resources()
 
         self.bill_data = PlaceResourceExchange(place_1_id=self.place1.id,
                                                place_2_id=self.place2.id,
@@ -94,7 +96,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
         self.assertTrue(form.is_valid())
 
     def test_user_form_validation__not_connected(self):
-        form = self.bill.data.get_user_form_update(post={'caption': 'caption',
+        form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
                                                          'rationale': 'rationale',
                                                          'place_1': self.place1.id,
                                                          'place_2': self.place3.id,
@@ -102,9 +104,9 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
                                                          'resource_2': self.resource_1})
         self.assertFalse(form.is_valid())
 
-    @mock.patch('the_tale.game.balance.constants.PLACE_MAX_EXCHANGED_NUMBER', 0)
+    @mock.patch('the_tale.game.balance.constants.PLACE_MAX_BILLS_NUMBER', 0)
     def test_user_form_validation__maximum_exchanges_reached(self):
-        form = self.bill.data.get_user_form_update(post={'caption': 'caption',
+        form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
                                                          'rationale': 'rationale',
                                                          'place_1': self.place1.id,
                                                          'place_2': self.place2.id,
@@ -113,13 +115,27 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
         self.assertFalse(form.is_valid())
 
     def test_user_form_validation__equal_parameters(self):
-        form = self.bill.data.get_user_form_update(post={'caption': 'caption',
+        form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
                                                          'rationale': 'rationale',
                                                          'place_1': self.place1.id,
                                                          'place_2': self.place2.id,
                                                          'resource_1': self.resource_1,
                                                          'resource_2': self.resource_1})
         self.assertFalse(form.is_valid())
+
+    def test_user_form_validation__not_allowed_resources(self):
+        for resource in RESOURCE_EXCHANGE_TYPE.records:
+            if resource.is_NONE:
+                continue
+
+            form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
+                                                             'rationale': 'rationale',
+                                                             'place_1': self.place1.id,
+                                                             'place_2': self.place2.id,
+                                                             'resource_1': resource,
+                                                             'resource_2': RESOURCE_EXCHANGE_TYPE.NONE})
+
+            self.assertEqual(form.is_valid(), resource in ALLOWED_EXCHANGE_TYPES)
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))

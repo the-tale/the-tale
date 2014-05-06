@@ -1086,6 +1086,16 @@ class ActionInPlacePrototype(ActionBase):
             hero.change_energy(c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE)
             hero.add_message('action_inplace_instant_energy_regen', hero=hero, place=hero.position.place)
 
+        if (hero.position.place.tax > 0 and
+            hero.position.place != hero.position.previous_place):
+
+            if hero.money > 0:
+                tax = int(hero.money * hero.position.place.tax)
+                hero.change_money(MONEY_SOURCE.SPEND_FOR_TAX, -tax)
+                hero.add_message('action_inplace_tax', hero=hero, place=hero.position.place, coins=tax, diary=True)
+            else:
+                hero.add_message('action_inplace_tax_no_money', hero=hero, place=hero.position.place, diary=True)
+
         hero.position.visit_current_place()
 
         return prototype

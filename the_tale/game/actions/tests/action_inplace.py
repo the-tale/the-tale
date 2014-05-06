@@ -135,6 +135,70 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.storage._test_save()
 
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.tax', 0.2)
+    def test_tax(self):
+        self.hero._model.money = 100
+        self.hero._model.pos_previous_place_id = None
+
+        self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
+
+        with self.check_delta(lambda: len(self.hero.messages.messages), 1):
+            with self.check_delta(lambda: self.hero.statistics.money_spend, 20):
+                with self.check_delta(lambda: self.hero.statistics.money_spend_for_tax, 20):
+                    ActionInPlacePrototype.create(hero=self.hero)
+
+        self.assertEqual(self.hero.money, 80)
+
+        self.storage._test_save()
+
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.tax', 0.2)
+    def test_tax__no_money(self):
+        self.hero._model.money = 0
+        self.hero._model.pos_previous_place_id = None
+
+        self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
+
+        with self.check_delta(lambda: len(self.hero.messages.messages), 1):
+            with self.check_delta(lambda: self.hero.statistics.money_spend, 0):
+                with self.check_delta(lambda: self.hero.statistics.money_spend_for_tax, 0):
+                    ActionInPlacePrototype.create(hero=self.hero)
+
+        self.assertEqual(self.hero.money, 0)
+
+        self.storage._test_save()
+
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.tax', 0.0)
+    def test_tax__no_tax(self):
+        self.hero._model.money = 100
+        self.hero._model.pos_previous_place_id = None
+
+        self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
+
+        with self.check_delta(lambda: len(self.hero.messages.messages), 0):
+            with self.check_delta(lambda: self.hero.statistics.money_spend, 0):
+                with self.check_delta(lambda: self.hero.statistics.money_spend_for_tax, 0):
+                    ActionInPlacePrototype.create(hero=self.hero)
+
+        self.assertEqual(self.hero.money, 100)
+
+        self.storage._test_save()
+
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.tax', 0.2)
+    def test_tax__place_not_changed(self):
+        self.hero._model.money = 100
+
+        self.hero.position.visit_current_place()
+        self.assertEqual(self.hero.position.place, self.hero.position.previous_place)
+
+        with self.check_delta(lambda: len(self.hero.messages.messages), 0):
+            with self.check_delta(lambda: self.hero.statistics.money_spend, 0):
+                with self.check_delta(lambda: self.hero.statistics.money_spend_for_tax, 0):
+                    ActionInPlacePrototype.create(hero=self.hero)
+
+        self.assertEqual(self.hero.money, 100)
+
+        self.storage._test_save()
+
     def test_processed(self):
         self.storage.process_turn(second_step_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
