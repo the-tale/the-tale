@@ -68,7 +68,16 @@ jQuery(document).ready(function(e){
       {% if resource.can_moderate_heroes %}
       <li class=""><a href="#pgf-moderation-container" class="pgf-moderation-tab-button" data-toggle="tab">Модерация</a></li>
       {% endif %}
-    </ul>
+
+      <li>
+        <a class="disabled">
+          <span>данные на</span>
+          <span class="pgf-format-datetime" data-timestamp="{{ resource.hero.saved_at|timestamp}}"></span>
+          <i class="icon-info-sign"
+             rel="tooltip"
+             title="Информация о способностях и предпочтениях героя обновляется с задержкой в несколько часов.<br/> Из-за этого их выбор и изменение становятся доступными с задержкой."></i>
+        </a>
+      </li>
 
     <div class="row tab-content">
       <div class="tab-pane" id="pgf-attributes-container">

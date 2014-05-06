@@ -173,17 +173,20 @@ class EquipmentMethodsMixin(object):
                 artifact.damage_integrity()
 
 
-    def artifacts_to_break(self):
-        artifacts = [artifact
-                     for artifact in self.equipment.values()
-                     if artifact.can_be_broken()]
+    def artifacts_to_break(self, from_all=False):
+        if from_all:
+            artifacts = self.equipment.values()
+        else:
+            artifacts = [artifact
+                         for artifact in self.equipment.values()
+                         if artifact.can_be_broken()]
         return sorted(artifacts, key=lambda a: a.integrity_fraction)[:int(c.EQUIP_SLOTS_NUMBER * c.EQUIPMENT_BREAK_FRACTION) + 1]
 
     def repair_artifact(self):
         artifacts = self.artifacts_to_break()
 
         if not artifacts:
-            artifacts = self.equipment.values()
+            artifacts = self.artifacts_to_break(from_all=True)
 
         if not artifacts:
             return None

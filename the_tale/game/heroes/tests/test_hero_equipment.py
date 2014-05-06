@@ -365,14 +365,30 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
         self.hero.equipment._remove_all()
         for slot in relations.EQUIPMENT_SLOT.records:
             artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL)
-
             artifact.integrity = slot.value
+            artifact.max_integrity = 100
 
             self.hero.equipment.equip(slot, artifact)
             self.assertTrue(artifact.can_be_broken())
 
-        for candidate in self.hero.artifacts_to_break():
-            self.assertTrue(candidate.integrity <= int(c.EQUIP_SLOTS_NUMBER * c.EQUIPMENT_BREAK_FRACTION) + 1)
+        for i in xrange(100):
+            for candidate in self.hero.artifacts_to_break():
+                self.assertTrue(candidate.integrity <= int(c.EQUIP_SLOTS_NUMBER * c.EQUIPMENT_BREAK_FRACTION) + 1)
+
+    def test_artifacts_to_break__all_broken__from_all(self):
+        self.hero.equipment._remove_all()
+        for slot in relations.EQUIPMENT_SLOT.records:
+            artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL)
+            artifact.integrity = slot.value
+            artifact.max_integrity = 100
+
+            self.hero.equipment.equip(slot, artifact)
+            self.assertTrue(artifact.can_be_broken())
+
+        for i in xrange(100):
+            for candidate in self.hero.artifacts_to_break(from_all=True):
+                self.assertTrue(candidate.integrity <= int(c.EQUIP_SLOTS_NUMBER * c.EQUIPMENT_BREAK_FRACTION) + 1)
+
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_safe_artifact_integrity', lambda self: False)
     def test_damage_integrity(self):
