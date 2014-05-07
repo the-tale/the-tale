@@ -351,7 +351,7 @@ class Esprit(BaseEffect):
 
 class TerribleView(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.TERRIBLE_VIEW
-    DESCRIPTION = u'Герой выглядит настолько ужасно, что некоторые противнике в ужасе убегают, не вступая в бой'
+    DESCRIPTION = u'Герой выглядит настолько ужасно, что некоторые противники в ужасе убегают, не вступая в бой'
     MULTIPLIER = c.KILL_BEFORE_BATTLE_PROBABILITY # just to be equal to some similar behavour
 
     @classmethod
