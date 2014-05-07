@@ -1,9 +1,19 @@
 {% macro preference_record(item, choosen_id, artifact) %}
+
+  {% if artifact.rarity.is_NORMAL %}
+    {% set artifact_template = '%s <span class="physic-label">%d</span> <span class="magic-label">%d</span>' %}
+  {% elif artifact.rarity.is_RARE %}
+    {% set artifact_template = '<span class="rare-artifact-label">%s</span> <span class="physic-label">%d</span> <span class="magic-label">%d</span>' %}
+  {% elif artifact.rarity.is_EPIC %}
+    {% set artifact_template = '<span class="epic-artifact-label">%s</span> <span class="physic-label">%d</span> <span class="magic-label">%d</span>' %}
+  {% endif %}
+  {% set artifact_text = artifact_template % (artifact.name, artifact.power.physic, artifact.power.magic ) %}
+
 <td class="hero-preference-choise {% if item == choosen_id %}choosen{% endif %}">
   {% if item != choosen_id %}
-  <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ item.value }}">{{ artifact.name }} +{{artifact.power}}</a>
+  <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ item.value }}">{{artifact_text|safe}}</a>
   {% else %}
-  <a href="#" class="current-choice pgf-close-dialog">{{ artifact.name }} +{{artifact.power}}</a>
+  <a href="#" class="current-choice pgf-close-dialog">{{artifact_text|safe}}</a>
   {% endif %}
 </td>
 {% endmacro %}

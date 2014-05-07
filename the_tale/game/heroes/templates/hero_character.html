@@ -83,7 +83,7 @@ jQuery(document).ready(function(e){
       {% if type.purchase_type in master_account.permanent_purchases or resource.hero.level >= type.level_required %}
 
         {% if value %}
-          {{value}}
+          {{value|safe}}
         {% else %}
 
           {% if is_owner and time_before_update.total_seconds() == 0 %}
@@ -181,7 +181,14 @@ jQuery(document).ready(function(e){
 
     {% if resource.hero.preferences.favorite_item %}
       {% set pref_favorite_item = resource.hero.equipment.get(resource.hero.preferences.favorite_item) %}
-      {% set pref_favorite_item = '%s +%d / %d' % (pref_favorite_item.name, pref_favorite_item.power.physic, pref_favorite_item.power.magic ) %}
+      {% if pref_favorite_item.rarity.is_NORMAL %}
+        {% set favorite_template = '%s <span class="physic-label">%d</span> <span class="magic-label">%d</span>' %}
+      {% elif pref_favorite_item.rarity.is_RARE %}
+        {% set favorite_template = '<span class="rare-artifact-label">%s</span> <span class="physic-label">%d</span> <span class="magic-label">%d</span>' %}
+      {% elif pref_favorite_item.rarity.is_EPIC %}
+        {% set favorite_template = '<span class="epic-artifact-label">%s</span> <span class="physic-label">%d</span> <span class="magic-label">%d</span>' %}
+      {% endif %}
+      {% set pref_favorite_item = favorite_template % (pref_favorite_item.name, pref_favorite_item.power.physic, pref_favorite_item.power.magic ) %}
     {% else %}
       {% set pref_favorite_item = none %}
     {% endif %}
