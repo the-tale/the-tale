@@ -35,7 +35,7 @@
 .hero-base-block .attribute-record {
   display: inline-block;
   white-space: nowrap;
-  width: 31%;
+  width: 49%;
 }
 .hero-base-block .attribute-record:hover {
   background-color: #dddddd;
@@ -45,6 +45,12 @@
 }
 .hero-base-block .attribute-record .value {
   vertical-align: middle;
+}
+.physic-label {
+  color: #aa4444;
+}
+.magic-label {
+  color: #4444aa;
 }
 .rare-artifact-label {
   color: #0070dd;
@@ -378,6 +384,9 @@
 }
 .game-ui-icon.ring {
   background: url('../game/images/game_ui.png') no-repeat scroll 0 -256px transparent;
+}
+.game-ui-icon.might {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -288px transparent;
 }
 .profession-icon-container {
   vertical-align: middle !important;
