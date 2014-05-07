@@ -186,10 +186,10 @@ def _game_info_from_1_1_to_1_0__heroes(data):
     data['secondary']['power'] = sum(data['secondary']['power'])
 
     for artifact in data['equipment'].values():
-        artifact['power'] = sum(artifact['power'])
+        artifact['power'] = sum(artifact['power']) if artifact['power'] else 0
 
     for artifact in data['bag'].values():
-        artifact['power'] = sum(artifact['power'])
+        artifact['power'] = sum(artifact['power']) if artifact['power'] else 0
 
 
 def game_info_from_1_1_to_1_0(data):
