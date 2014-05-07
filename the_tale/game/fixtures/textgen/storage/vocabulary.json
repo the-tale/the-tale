@@ -78,6 +78,30 @@
       "template": "«%(i_0)s %(e_0)s %(i_1)s от раскаивающегося вора»."
     }
   ], 
+  "chronicle_place_resource_conversion_bill_failed": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "bill", 
+          [], 
+          "e_0", 
+          [], 
+          "bill"
+        ], 
+        [
+          "place", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "Закон «%(e_0)s» не получил необходимую поддержку и экономика %(e_1)s изменяться не будет."
+    }
+  ], 
   "chronicle_place_change_name_bill_successed": [
     {
       "internals": [
@@ -14427,7 +14451,7 @@
     {
       "internals": [], 
       "externals": [], 
-      "template": "«А это что за трактир, в прошлый раз его не было, пожалуй стоит проверить чем тут потчуют»."
+      "template": "«А это что за трактир, в прошлый раз его не было, пожалуй, стоит проверить, чем тут потчуют»."
     }, 
     {
       "internals": [], 
@@ -16149,6 +16173,28 @@
         ]
       ], 
       "template": "%(e_0)s %(i_0)s обряд."
+    }
+  ], 
+  "action_regenerate_energy_description_pray": [
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "усердно молится поглядывая на небо"
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "возносит молитвы своему ангелу"
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "нараспев читает молитву"
+    }, 
+    {
+      "internals": [], 
+      "externals": [], 
+      "template": "наизусть повторяет священные слова"
     }
   ], 
   "action_event_habit_in_place_peaceable_artifact": [
@@ -24738,47 +24784,11 @@
       "template": "проводит рекогносцировку"
     }
   ], 
-  "chronicle_building_create_bill_failed": [
+  "quest_hometown_journal_stagger_streets_description": [
     {
-      "internals": [
-        [
-          "должен", 
-          [
-            "person"
-          ], 
-          "i_0", 
-          [], 
-          "должен"
-        ], 
-        [
-          "был", 
-          [
-            "person"
-          ], 
-          "i_1", 
-          [
-            "прш"
-          ], 
-          "был"
-        ]
-      ], 
-      "externals": [
-        [
-          "bill", 
-          [], 
-          "e_0", 
-          [], 
-          "bill"
-        ], 
-        [
-          "person", 
-          [], 
-          "e_1", 
-          [], 
-          "person"
-        ]
-      ], 
-      "template": "Закон «%(e_0)s» не получил необходимую поддержку и здание, владельцем которого %(i_0)s %(i_1)s стать %(e_1)s, не возведено."
+      "internals": [], 
+      "externals": [], 
+      "template": "шатается по знакомым улочкам, пялясь на новые постройки"
     }
   ], 
   "quest_delivery_choice_variant_steal": [
@@ -30462,11 +30472,305 @@
       "template": "Одним неловким движением %(e_0)s %(i_0)s коню под хвост весь свой труд."
     }
   ], 
-  "quest_help_friend_action_intro": [
+  "hero_ability_poison_cloud": [
+    {
+      "internals": [
+        [
+          "создал", 
+          [
+            "attacker"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "создал"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "им", 
+            "загл"
+          ], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "defender"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s ядовитое облако вокруг %(e_1)s."
+    }, 
+    {
+      "internals": [
+        [
+          "создал", 
+          [
+            "attacker"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "создал"
+        ], 
+        [
+          "тот", 
+          [
+            "defender"
+          ], 
+          "i_1", 
+          [
+            "им"
+          ], 
+          "тот"
+        ], 
+        [
+          "начал", 
+          [
+            "defender"
+          ], 
+          "i_2", 
+          [
+            "прш"
+          ], 
+          "начал"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "им", 
+            "загл"
+          ], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "defender"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s странный пар вокруг %(e_1)s и %(i_1)s %(i_2)s задыхаться."
+    }, 
     {
       "internals": [], 
-      "externals": [], 
-      "template": "идёт в гости"
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "тв"
+          ], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "defender"
+        ]
+      ], 
+      "template": "Ядовитое облако, сотворённое %(e_0)s, окутало %(e_1)s."
+    }, 
+    {
+      "internals": [
+        [
+          "окутал", 
+          [
+            "attacker"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "окутал"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "defender"
+        ]
+      ], 
+      "template": "Быстро создав ядовитое облако, %(e_0)s %(i_0)s им %(e_1)s."
+    }, 
+    {
+      "internals": [
+        [
+          "создал", 
+          [
+            "attacker"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "создал"
+        ]
+      ], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "defender"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s вокруг %(e_1)s ядовитое облако."
+    }, 
+    {
+      "internals": [
+        [
+          "оказался", 
+          [
+            "defender"
+          ], 
+          "i_0", 
+          [
+            "прш"
+          ], 
+          "оказался"
+        ]
+      ], 
+      "externals": [
+        [
+          "defender", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "defender"
+        ], 
+        [
+          "attacker", 
+          [], 
+          "e_1", 
+          [
+            "тв"
+          ], 
+          "attacker"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s в созданном %(e_1)s облаке яда."
+    }, 
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "attacker", 
+          [], 
+          "e_0", 
+          [
+            "тв"
+          ], 
+          "attacker"
+        ], 
+        [
+          "defender", 
+          [], 
+          "e_1", 
+          [
+            "вн"
+          ], 
+          "defender"
+        ]
+      ], 
+      "template": "Ядовитое облако, созданное %(e_0)s, обволокло %(e_1)s."
+    }, 
+    {
+      "internals": [
+        [
+          "задыхался", 
+          [
+            "defender"
+          ], 
+          "i_0", 
+          [
+            "нст", 
+            "3л"
+          ], 
+          "задыхался"
+        ], 
+        [
+          "кашлял", 
+          [
+            "defender"
+          ], 
+          "i_1", 
+          [
+            "нст", 
+            "3л"
+          ], 
+          "кашлял"
+        ]
+      ], 
+      "externals": [
+        [
+          "defender", 
+          [], 
+          "e_0", 
+          [
+            "загл"
+          ], 
+          "defender"
+        ], 
+        [
+          "attacker", 
+          [], 
+          "e_1", 
+          [
+            "тв"
+          ], 
+          "attacker"
+        ]
+      ], 
+      "template": "%(e_0)s %(i_0)s и %(i_1)s в созданном %(e_1)s ядовитом облаке."
     }
   ], 
   "quest_delivery_diary_delivery_returned": [
@@ -35937,26 +36241,28 @@
       "template": "%(e_0)s %(i_0)s в сторону и, воспользовавшись короткой паузой, %(i_1)s %(e_1)s HP."
     }
   ], 
-  "action_regenerate_energy_description_pray": [
+  "chronicle_place_resource_conversion_bill_ended": [
     {
       "internals": [], 
-      "externals": [], 
-      "template": "усердно молится поглядывая на небо"
-    }, 
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "возносит молитвы своему ангелу"
-    }, 
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "нараспев читает молитву"
-    }, 
-    {
-      "internals": [], 
-      "externals": [], 
-      "template": "наизусть повторяет священные слова"
+      "externals": [
+        [
+          "bill", 
+          [], 
+          "e_0", 
+          [], 
+          "bill"
+        ], 
+        [
+          "place", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "Истёк срок действия закона «%(e_0)s». Изменение экономики %(e_1)s прекращено."
     }
   ], 
   "quest_spying_diary_open_up_lying_artifact": [
@@ -38006,6 +38312,30 @@
       "template": "«Только что %(i_0)s, что меня обокрали и забрали письмо! Теперь придётся перебирать всех, кого %(i_1)s на тракте. Но ничего! Далеко вор точно уйти не мог»!"
     }
   ], 
+  "chronicle_place_resource_conversion_bill_started": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "place", 
+          [], 
+          "e_0", 
+          [
+            "рд"
+          ], 
+          "place"
+        ], 
+        [
+          "bill", 
+          [], 
+          "e_1", 
+          [], 
+          "bill"
+        ]
+      ], 
+      "template": "Жители %(e_0)s выдвинули закон «%(e_1)s» об изменении экономики города."
+    }
+  ], 
   "quest_spying_diary_report_data_artifact": [
     {
       "internals": [
@@ -39163,6 +39493,30 @@
       "template": "«%(i_0)s %(e_0)s %(i_1)s в награду за хорошую охрану каравана»."
     }
   ], 
+  "chronicle_place_resource_conversion_bill_successed": [
+    {
+      "internals": [], 
+      "externals": [
+        [
+          "bill", 
+          [], 
+          "e_0", 
+          [], 
+          "bill"
+        ], 
+        [
+          "place", 
+          [], 
+          "e_1", 
+          [
+            "рд"
+          ], 
+          "place"
+        ]
+      ], 
+      "template": "Принят закон «%(e_0)s» об изменении экономики %(e_1)s»."
+    }
+  ], 
   "action_equipping_description": [
     {
       "internals": [], 
@@ -39425,312 +39779,54 @@
       "template": "«%(e_0)s — прекрасный мастер! %(e_1)s — моя мечта, за такую работу и %(e_2)s %(i_0)s не жалко»!"
     }
   ], 
-  "hero_ability_poison_cloud": [
-    {
-      "internals": [
-        [
-          "создал", 
-          [
-            "attacker"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "создал"
-        ]
-      ], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [
-            "им", 
-            "загл"
-          ], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "рд"
-          ], 
-          "defender"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s ядовитое облако вокруг %(e_1)s."
-    }, 
-    {
-      "internals": [
-        [
-          "создал", 
-          [
-            "attacker"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "создал"
-        ], 
-        [
-          "тот", 
-          [
-            "defender"
-          ], 
-          "i_1", 
-          [
-            "им"
-          ], 
-          "тот"
-        ], 
-        [
-          "начал", 
-          [
-            "defender"
-          ], 
-          "i_2", 
-          [
-            "прш"
-          ], 
-          "начал"
-        ]
-      ], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [
-            "им", 
-            "загл"
-          ], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "рд"
-          ], 
-          "defender"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s странный пар вокруг %(e_1)s и %(i_1)s %(i_2)s задыхаться."
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [
-            "тв"
-          ], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "defender"
-        ]
-      ], 
-      "template": "Ядовитое облако, сотворённое %(e_0)s, окутало %(e_1)s."
-    }, 
-    {
-      "internals": [
-        [
-          "окутал", 
-          [
-            "attacker"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "окутал"
-        ]
-      ], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "defender"
-        ]
-      ], 
-      "template": "Быстро создав ядовитое облако, %(e_0)s %(i_0)s им %(e_1)s."
-    }, 
-    {
-      "internals": [
-        [
-          "создал", 
-          [
-            "attacker"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "создал"
-        ]
-      ], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "рд"
-          ], 
-          "defender"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s вокруг %(e_1)s ядовитое облако."
-    }, 
-    {
-      "internals": [
-        [
-          "оказался", 
-          [
-            "defender"
-          ], 
-          "i_0", 
-          [
-            "прш"
-          ], 
-          "оказался"
-        ]
-      ], 
-      "externals": [
-        [
-          "defender", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "defender"
-        ], 
-        [
-          "attacker", 
-          [], 
-          "e_1", 
-          [
-            "тв"
-          ], 
-          "attacker"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s в созданном %(e_1)s облаке яда."
-    }, 
-    {
-      "internals": [], 
-      "externals": [
-        [
-          "attacker", 
-          [], 
-          "e_0", 
-          [
-            "тв"
-          ], 
-          "attacker"
-        ], 
-        [
-          "defender", 
-          [], 
-          "e_1", 
-          [
-            "вн"
-          ], 
-          "defender"
-        ]
-      ], 
-      "template": "Ядовитое облако, созданное %(e_0)s, обволокло %(e_1)s."
-    }, 
-    {
-      "internals": [
-        [
-          "задыхался", 
-          [
-            "defender"
-          ], 
-          "i_0", 
-          [
-            "нст", 
-            "3л"
-          ], 
-          "задыхался"
-        ], 
-        [
-          "кашлял", 
-          [
-            "defender"
-          ], 
-          "i_1", 
-          [
-            "нст", 
-            "3л"
-          ], 
-          "кашлял"
-        ]
-      ], 
-      "externals": [
-        [
-          "defender", 
-          [], 
-          "e_0", 
-          [
-            "загл"
-          ], 
-          "defender"
-        ], 
-        [
-          "attacker", 
-          [], 
-          "e_1", 
-          [
-            "тв"
-          ], 
-          "attacker"
-        ]
-      ], 
-      "template": "%(e_0)s %(i_0)s и %(i_1)s в созданном %(e_1)s ядовитом облаке."
-    }
-  ], 
-  "quest_hometown_journal_stagger_streets_description": [
+  "quest_help_friend_action_intro": [
     {
       "internals": [], 
       "externals": [], 
-      "template": "шатается по знакомым улочкам, пялясь на новые постройки"
+      "template": "идёт в гости"
+    }
+  ], 
+  "chronicle_building_create_bill_failed": [
+    {
+      "internals": [
+        [
+          "должен", 
+          [
+            "person"
+          ], 
+          "i_0", 
+          [], 
+          "должен"
+        ], 
+        [
+          "был", 
+          [
+            "person"
+          ], 
+          "i_1", 
+          [
+            "прш"
+          ], 
+          "был"
+        ]
+      ], 
+      "externals": [
+        [
+          "bill", 
+          [], 
+          "e_0", 
+          [], 
+          "bill"
+        ], 
+        [
+          "person", 
+          [], 
+          "e_1", 
+          [], 
+          "person"
+        ]
+      ], 
+      "template": "Закон «%(e_0)s» не получил необходимую поддержку и здание, владельцем которого %(i_0)s %(i_1)s стать %(e_1)s, не возведено."
     }
   ], 
   "action_battlepve1x1_peacefull_battle": [
@@ -45108,7 +45204,7 @@
           "hero"
         ]
       ], 
-      "template": "лавочник подкатывает глаза, %(e_0)s размахивает товаром"
+      "template": "лавочник закатывает глаза, %(e_0)s размахивает товаром"
     }, 
     {
       "internals": [], 
