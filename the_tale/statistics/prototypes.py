@@ -59,6 +59,11 @@ class RecordPrototype(BasePrototype):
             return list(query.values_list('date', 'value_float'))
 
     @classmethod
+    def select_values(cls, *argv, **kwargs):
+        data = cls.select(*argv, **kwargs)
+        return zip(*data)[1]
+
+    @classmethod
     def select_for_js(cls, type, date_from, date_to):
         data = cls.select(type=type, date_from=date_from, date_to=date_to)
         return [(date.date().isoformat(), value) for date, value in data]
