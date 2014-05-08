@@ -71,7 +71,7 @@ PLOTS_GROUPS = [
                title=u'Активны и зарегистрировались N дней назад',
                y_label=u'',
                y2_label=u'количество аккаунтов',
-               plots=[Plot(relations.RECORD_TYPE.ACTIVE, y_axis='y2'),
+               plots=[Plot(relations.RECORD_TYPE.DAU, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.ACTIVE_OLDER_DAY, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.ACTIVE_OLDER_WEEK, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.ACTIVE_OLDER_MONTH, y_axis='y2'),
