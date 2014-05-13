@@ -14,6 +14,10 @@ from the_tale.game.heroes.relations import HABIT_TYPE
 
 class TestRequests(TestCase):
 
+    def setUp(self):
+        super(TestRequests, self).setUp()
+        create_test_map()
+
     def test_index(self):
         self.check_redirect(url('guide:'), url('guide:game'))
 
@@ -79,7 +83,6 @@ class TestRequests(TestCase):
         self.check_html_ok(self.client.get(url('guide:referrals')))
 
     def test_referrals__logined(self):
-        create_test_map()
         register_user('test_user', 'test_user@test.com', '111111')
         self.request_login('test_user@test.com')
         self.check_html_ok(self.client.get(url('guide:referrals')))
@@ -89,6 +92,9 @@ class TestRequests(TestCase):
 
     def test_hero_habits(self):
         self.check_html_ok(self.client.get(url('guide:hero-habits')))
+
+    def test_press_kit(self):
+        self.check_html_ok(self.client.get(url('guide:press-kit')))
 
     def test_hero_habit_info(self):
         for habit in HABIT_TYPE.records:

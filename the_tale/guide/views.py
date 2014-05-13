@@ -1,4 +1,5 @@
 # coding: utf-8
+import random
 
 import markdown
 
@@ -250,3 +251,10 @@ class GuideResource(Resource):
     def habit_info(self, habit):
         return self.template('guide/hero-habit-info.html', {'habit': habit,
                                                             'HABIT_TYPE': HABIT_TYPE})
+
+    @handler('press-kit', name='press-kit')
+    def press_kit(self):
+        from the_tale.game.mobs.storage import mobs_storage
+        return self.template('guide/press_kit.html',
+                             {'section': 'press-kit',
+                              'mob': random.choice(mobs_storage.get_available_mobs_list(level=666))})
