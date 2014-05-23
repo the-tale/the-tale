@@ -198,6 +198,11 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
         self.assertTrue(old_hero_power.magic < self.hero.power.magic or
                         old_hero_power.physic < self.hero.power.physic)
 
+        for slot in relations.EQUIPMENT_SLOT.records:
+            artifact = self.hero.equipment.get(slot)
+            if artifact:
+                self.assertEqual(artifact.type.equipment_slot, slot)
+
 
     def test_compare_drop__none(self):
         distribution = self.hero.preferences.archetype.power_distribution

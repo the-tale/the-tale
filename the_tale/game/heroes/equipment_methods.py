@@ -254,6 +254,8 @@ class EquipmentMethodsMixin(object):
 
             artifacts_list = self.receive_artifacts_choices(better=False, prefered_slot=False, prefered_item=False, archetype=True)
 
+            artifacts_list = [artifact for artifact in artifacts_list if artifact.type.equipment_slot == slot]
+
             if not artifacts_list:
                 continue
 
