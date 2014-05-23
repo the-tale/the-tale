@@ -20,8 +20,15 @@ pgf.game.constants = {
     RACE_TO_STR: {{race_to_str|safe}},
 
     GAME_STATE: {{game_state|safe}},
+};
 
-    ARTIFACT_TYPE: {{artifact_type|safe}},
+pgf.game.constants.ARTIFACT_TYPE = {
+    {% for type in ARTIFACT_TYPE.records %}
+    "{{ type.name }}": {
+        "id": {{type.value}},
+        "name": "{{type.text}}"
+    }{%- if not loop.last -%},{%- endif -%}
+    {% endfor %}
 };
 
 pgf.game.constants.RARITY = {

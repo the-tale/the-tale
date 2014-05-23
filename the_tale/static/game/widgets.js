@@ -689,7 +689,7 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
         }
 
         jQuery('.pgf-name', element).text(item.name);
-        jQuery('.pgf-power-container', element).toggleClass('pgf-hidden', pgf.game.constants.ARTIFACT_TYPE.USELESS == item.type);
+        jQuery('.pgf-power-container', element).toggleClass('pgf-hidden', pgf.game.constants.ARTIFACT_TYPE.USELESS.id == item.type);
         if (item.power) {
             jQuery('.pgf-physic-power', element).text(item.power[0]);
             jQuery('.pgf-magic-power', element).text(item.power[1]);
@@ -787,12 +787,25 @@ pgf.game.widgets.CreateArtifactTooltip = function (data, cssClass) {
         rarityName = 'хлам';
     }
 
+    var type = undefined;
+    for (var i in pgf.game.constants.ARTIFACT_TYPE) {
+        if (data.type == pgf.game.constants.ARTIFACT_TYPE[i].id) {
+            type = pgf.game.constants.ARTIFACT_TYPE[i].name;
+            break;
+        }
+    }
+
     var tooltip = '<ul class="unstyled '+cssClass+'" style="text-align: left;">';
     tooltip += '<li><h4 class="'+0+'">'+data.name+'</h4></li>';
     tooltip += '<li class="'+rarityClass+'">'+rarityName+'</li>';
+    tooltip += '<li>экипировка: '+type+'</li>';
     if (data.power) tooltip += '<li>физическая сила: '+data.power[0]+'</li>';
     if (data.power) tooltip += '<li>магическая сила: '+data.power[1]+'</li>';
-    if (data.integrity[0] && data.integrity[1]) tooltip += '<li>целостность: '+data.integrity[0]+'/'+data.integrity[1]+'</li>';
+
+    if (data.integrity[0] && data.integrity[1]) {
+        var integrityPercent = Math.round(data.integrity[0] / data.integrity[1] * 10000) / 100;
+        tooltip += '<li>целостность: '+integrityPercent+'% '+'('+data.integrity[0]+' из '+data.integrity[1]+')'+'</li>';
+    }
     if (data.preference_rating != null) tooltip += '<li>полезность: '+data.preference_rating+'</li>';
     if (data.effect != null) tooltip += '<li><i>'+pgf.game.constants.EFFECTS[data.effect].description+'</i></li>';
     tooltip += '</ul>';

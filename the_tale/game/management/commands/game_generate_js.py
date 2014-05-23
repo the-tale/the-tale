@@ -37,7 +37,7 @@ class Command(BaseCommand):
                             'race_to_text': s11n.to_json(dict(RACE.select('value', 'text'))),
                             'race_to_str': s11n.to_json(dict(RACE.select('value', 'name'))),
                             'game_state': s11n.to_json(dict(GAME_STATE.select('name', 'value'))),
-                            'artifact_type': s11n.to_json(dict(ARTIFACT_TYPE.select('name', 'value'))),
+                            'ARTIFACT_TYPE': ARTIFACT_TYPE,
                             'EFFECTS': EFFECTS,
                             'RARITY': RARITY,
                             'ABILITY_TYPE': ABILITY_TYPE,
