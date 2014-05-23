@@ -25,7 +25,10 @@
   <a href="{{ url('game:heroes:show', hero.id) }}">{{ hero.name }}</a>
 </td>
 <td>{{ hero.level }}</td>
-<td>{{ hero.power }}</td>
+<td>
+  <span class="power physic-label">{{ hero.power.physic }}</span>
+  <span class="power magic-label">{{ hero.power.magic }}</span>
+</td>
 {% endmacro %}
 
 {% macro account_type_label(account, additional_text='') %}
