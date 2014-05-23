@@ -94,6 +94,12 @@ class PostsResource(BaseForumResource):
 
         return self.json_ok()
 
+
+    def get_post_url(self, post):
+        thread_posts_ids = list(PostPrototype._db_filter(thread_id=post.thread_id).order_by('created_at').values_list('id', flat=True))
+        page = Paginator.get_page_numbers(thread_posts_ids.index(post.id)+1, forum_settings.POSTS_ON_PAGE)
+        return url('forum:threads:show', post.thread_id, page=page) + ('#m%d' % post.id)
+
     @login_required
     @validate_fast_account()
     @validate_ban_forum()
@@ -109,6 +115,7 @@ class PostsResource(BaseForumResource):
                               'subcategory': self.subcategory,
                               'thread': self.thread,
                               'post': self.post,
+                              'post_url': self.get_post_url(self.post),
                               'new_post_form': forms.NewPostForm(initial={'text': self.post.text})} )
 
     @login_required
@@ -127,11 +134,7 @@ class PostsResource(BaseForumResource):
 
         self.post.update(edit_post_form.c.text)
 
-        thread_posts_ids = list(PostPrototype._db_filter(thread_id=self.post.thread_id).order_by('created_at').values_list('id', flat=True))
-
-        page = Paginator.get_page_numbers(thread_posts_ids.index(self.post.id)+1, forum_settings.POSTS_ON_PAGE)
-
-        return self.json_ok(data={'next_url':url('forum:threads:show', self.thread.id, page=page) + ('#m%d' % self.post.id)})
+        return self.json_ok(data={'next_url': self.get_post_url(self.post)})
 
 
 class ThreadsResource(BaseForumResource):
