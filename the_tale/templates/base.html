@@ -234,7 +234,7 @@ jQuery(document).ready(function() {
                                            (logout_url(), "Выход")] ) }}
 
             {% else %}
-            <li><a href="{{ login_page_url(resource.request.get_full_path()) }}">Войти</a></li>
+            <li><a href="{{ login_page_url(resource.request.get_full_path())|safe }}">Войти</a></li>
             {% endif %}
           </ul>
 
