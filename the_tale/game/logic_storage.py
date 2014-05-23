@@ -240,6 +240,11 @@ class LogicStorage(object):
 
         bundles.update(hero.actions.current_action.bundle_id for hero in unsaved_heroes[:saved_uncached_heroes_number])
 
+        for hero in self.heroes.itervalues():
+            if hero.force_save_required:
+                hero.force_save_required = False
+                bundles.add(hero.actions.current_action.bundle_id)
+
         return bundles
 
     def _get_bundles_to_cache(self):

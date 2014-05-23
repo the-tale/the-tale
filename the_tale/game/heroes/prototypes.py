@@ -76,6 +76,10 @@ class HeroPrototype(BasePrototype,
                               ('bag', bag.Bag, None),
                               ('equipment', bag.Equipment, None))
 
+    def __init__(self, *argv, **kwargs):
+        super(HeroPrototype, self).__init__(*argv, **kwargs)
+        self.force_save_required = False
+
     @classmethod
     def live_query(cls): return cls._model_class.objects.filter(is_fast=False, is_bot=False)
 
@@ -133,6 +137,8 @@ class HeroPrototype(BasePrototype,
 
         self._model.level += 1
         self.add_message('hero_common_journal_level_up', hero=self, level=self.level)
+
+        self.force_save_required = True
 
         if send_message:
             account = AccountPrototype.get_by_id(self.account_id)

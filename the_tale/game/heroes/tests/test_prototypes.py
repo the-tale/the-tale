@@ -48,6 +48,8 @@ class HeroTest(testcase.TestCase):
         self.hero = self.storage.accounts_to_heroes[account_id]
 
     def test_create(self):
+        self.assertFalse(self.hero.force_save_required)
+
         self.assertTrue(self.hero.is_alive)
         self.assertEqual(self.hero.created_at_turn, TimePrototype.get_current_time().turn_number)
         self.assertEqual(self.hero.abilities.get('hit').level, 1)
@@ -623,6 +625,11 @@ class HeroLevelUpTests(testcase.TestCase):
     def test_increment_level__message(self):
         with self.check_delta(MessagePrototype._db_count, 1):
             self.hero.increment_level(send_message=True)
+
+    def test_increment_level__force_save(self):
+        self.assertFalse(self.hero.force_save_required)
+        self.hero.increment_level()
+        self.assertTrue(self.hero.force_save_required)
 
     def test_max_ability_points_number(self):
         level_to_points_number = { 1: 2,

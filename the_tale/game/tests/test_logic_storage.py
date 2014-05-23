@@ -430,6 +430,44 @@ class LogicStorageTests(testcase.TestCase):
         self.assertEqual(self.storage._get_bundles_to_save(), set([self.bundle_2_id, bundle_3_id, bundle_5_id]))
 
 
+    @mock.patch('the_tale.game.heroes.conf.heroes_settings.DUMP_CACHED_HEROES', True)
+    @mock.patch('the_tale.game.conf.game_settings.SAVED_UNCACHED_HEROES_FRACTION', 0)
+    def test_get_bundles_to_save__force_save_required(self):
+        # hero 1 not saved
+        # hero 2 saved by quota
+        # hero 3 saved by caching
+        # hero 4 saved by force
+
+        result, account_3_id, bundle_3_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
+        result, account_4_id, bundle_4_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
+        result, account_5_id, bundle_5_id = register_user('test_user_5', 'test_user_5@test.com', '111111')
+
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_3_id))
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_4_id))
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_5_id))
+
+        hero_3 = self.storage.accounts_to_heroes[account_3_id]
+        hero_4 = self.storage.accounts_to_heroes[account_4_id]
+
+        hero_4.force_save_required = True
+
+        self.hero_1._model.saved_at = datetime.datetime.now()
+        self.hero_1.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
+        self.hero_2.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
+        hero_4.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
+
+        self.assertTrue(self.hero_1.saved_at > self.hero_2.saved_at)
+
+        self.assertFalse(self.hero_1.is_ui_caching_required)
+        self.assertFalse(self.hero_2.is_ui_caching_required)
+        self.assertTrue(hero_3.is_ui_caching_required)
+        self.assertFalse(hero_4.is_ui_caching_required)
+
+        self.assertEqual(self.storage._get_bundles_to_save(), set([self.bundle_2_id, bundle_3_id, bundle_4_id, bundle_5_id]))
+
+        self.assertFalse(hero_4.force_save_required)
+
+
     @mock.patch('the_tale.game.heroes.conf.heroes_settings.DUMP_CACHED_HEROES', False)
     @mock.patch('the_tale.game.conf.game_settings.SAVED_UNCACHED_HEROES_FRACTION', 0)
     def test_get_bundles_to_save__without_cache_dump(self):
