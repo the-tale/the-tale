@@ -126,9 +126,17 @@ class HeroPrototype(BasePrototype,
     @property
     def race_verbose(self): return self.race.text
 
-    def increment_level(self):
+    def increment_level(self, send_message=False):
+        from the_tale.accounts.prototypes import AccountPrototype
+        from the_tale.accounts.personal_messages.prototypes import MessagePrototype
+        from the_tale.accounts.logic import get_system_user
+
         self._model.level += 1
         self.add_message('hero_common_journal_level_up', hero=self, level=self.level)
+
+        if send_message:
+            account = AccountPrototype.get_by_id(self.account_id)
+            MessagePrototype.create(get_system_user(), account, text=u'Поздравляем, Ваш герой получил %d уровень!' % self.level)
 
     def add_experience(self, value):
         real_experience = int(value * self.experience_modifier)
@@ -136,7 +144,7 @@ class HeroPrototype(BasePrototype,
 
         while f.exp_on_lvl(self.level) <= self._model.experience:
             self._model.experience -= f.exp_on_lvl(self.level)
-            self.increment_level()
+            self.increment_level(send_message=True)
 
         return real_experience
 

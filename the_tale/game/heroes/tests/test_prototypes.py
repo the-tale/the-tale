@@ -11,6 +11,8 @@ from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
+from the_tale.accounts.personal_messages.prototypes import MessagePrototype
+
 from the_tale.game.logic import create_test_map
 from the_tale.game.prototypes import TimePrototype, GameState
 
@@ -592,25 +594,35 @@ class HeroLevelUpTests(testcase.TestCase):
         self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
         self.hero = self.storage.accounts_to_heroes[account_id]
 
-    def test_lvl_up(self):
-        self.assertEqual(self.hero.level, 1)
-        self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
+    def test_level_up(self):
 
-        self.hero.add_experience(f.exp_on_lvl(1)/2 / self.hero.experience_modifier)
-        self.assertEqual(self.hero.level, 1)
+        with self.check_delta(MessagePrototype._db_count, 4):
+            self.assertEqual(self.hero.level, 1)
+            self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
-        self.hero.add_experience(f.exp_on_lvl(1) / self.hero.experience_modifier)
-        self.assertEqual(self.hero.level, 2)
-        self.assertEqual(self.hero.experience, f.exp_on_lvl(1)/2)
+            self.hero.add_experience(f.exp_on_lvl(1)/2 / self.hero.experience_modifier)
+            self.assertEqual(self.hero.level, 1)
 
-        self.hero.add_experience(f.exp_on_lvl(2) / self.hero.experience_modifier)
-        self.assertEqual(self.hero.level, 3)
+            self.hero.add_experience(f.exp_on_lvl(1) / self.hero.experience_modifier)
+            self.assertEqual(self.hero.level, 2)
+            self.assertEqual(self.hero.experience, f.exp_on_lvl(1)/2)
 
-        self.hero.add_experience(f.exp_on_lvl(3) / self.hero.experience_modifier)
-        self.assertEqual(self.hero.level, 4)
+            self.hero.add_experience(f.exp_on_lvl(2) / self.hero.experience_modifier)
+            self.assertEqual(self.hero.level, 3)
 
-        self.hero.add_experience(f.exp_on_lvl(4) / self.hero.experience_modifier)
-        self.assertEqual(self.hero.level, 5)
+            self.hero.add_experience(f.exp_on_lvl(3) / self.hero.experience_modifier)
+            self.assertEqual(self.hero.level, 4)
+
+            self.hero.add_experience(f.exp_on_lvl(4) / self.hero.experience_modifier)
+            self.assertEqual(self.hero.level, 5)
+
+    def test_increment_level__no_message(self):
+        with self.check_not_changed(MessagePrototype._db_count):
+            self.hero.increment_level()
+
+    def test_increment_level__message(self):
+        with self.check_delta(MessagePrototype._db_count, 1):
+            self.hero.increment_level(send_message=True)
 
     def test_max_ability_points_number(self):
         level_to_points_number = { 1: 2,
