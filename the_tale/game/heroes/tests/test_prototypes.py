@@ -466,6 +466,14 @@ class HeroTest(testcase.TestCase):
         self.assertEqual(self.hero.change_energy(-100), -57)
         self.assertEqual(self.hero.energy_bonus, 0)
 
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.energy_discount', 100)
+    def test_change_energy__discount__no_less_1(self):
+        self.hero._model.energy = 6
+        self.hero.add_energy_bonus(-heroes_settings.START_ENERGY_BONUS)
+
+        self.assertEqual(self.hero.change_energy(-50), -1)
+        self.assertEqual(self.hero.energy, 5)
+
 
     def check_rests_from_risk(self, method):
         results = []

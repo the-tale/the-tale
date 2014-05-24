@@ -83,7 +83,10 @@ class ArenaPvP1x1LeaveQueueAbilityTest(testcase.TestCase):
     def test_update_habits(self):
         from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
 
+        self.pvp_balancer.add_to_arena_queue(self.hero.id)
+
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
-            self.assertEqual(self.ability.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id)), (ABILITY_RESULT.SUCCESSED, None, ()))
+            self.assertEqual(self.ability.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id))[:2],
+                             (ABILITY_RESULT.CONTINUE, ABILITY_TASK_STEP.PVP_BALANCER))
 
         self.assertEqual(update_habits.call_args_list, [mock.call(HABIT_CHANGE_SOURCE.ARENA_LEAVE)])

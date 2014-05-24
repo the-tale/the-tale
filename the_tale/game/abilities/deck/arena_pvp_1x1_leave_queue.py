@@ -22,7 +22,6 @@ class ArenaPvP1x1LeaveQueue(AbilityPrototype):
     def use(self, data, step, main_task_id, storage, pvp_balancer, **kwargs):
 
         if step is None:
-
             hero = storage.heroes[data['hero_id']]
 
             battle = Battle1x1Prototype.get_by_account_id(hero.account_id)

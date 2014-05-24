@@ -225,7 +225,7 @@ class HeroPrototype(BasePrototype,
         old_energy = self.energy_full
 
         if value < -1:
-            value += self.energy_discount
+            value = min(-1, value + self.energy_discount)
 
         self._model.energy += value
 
