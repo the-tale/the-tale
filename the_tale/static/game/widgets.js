@@ -761,7 +761,7 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
         jQuery('.pgf-item-count-container', tabButton).removeClass('pgf-hidden');
         RenderItems();
 
-        jQuery('[rel="tooltip"]', widget).tooltip(pgf.base.tooltipsArgs);
+        // jQuery('[rel="tooltip"]', widget).tooltip(pgf.base.tooltipsArgs);
     };
 
     jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
@@ -798,7 +798,8 @@ pgf.game.widgets.CreateArtifactTooltip = function (data, cssClass) {
     var tooltip = '<ul class="unstyled '+cssClass+'" style="text-align: left;">';
     tooltip += '<li><h4 class="'+0+'">'+data.name+'</h4></li>';
     tooltip += '<li class="'+rarityClass+'">'+rarityName+'</li>';
-    tooltip += '<li>экипировка: '+type+'</li>';
+
+    if (pgf.game.constants.ARTIFACT_TYPE.USELESS.id != data.type) tooltip += '<li>экипировка: '+type+'</li>';
     if (data.power) tooltip += '<li>физическая сила: '+data.power[0]+'</li>';
     if (data.power) tooltip += '<li>магическая сила: '+data.power[1]+'</li>';
 
