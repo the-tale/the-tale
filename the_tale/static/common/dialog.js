@@ -100,14 +100,6 @@ pgf.ui.dialog.Create = function(params) {
                 params.OnOpened(dialog);
             }
 
-            dialog.bind('mousewheel', function(e){
-                var target = jQuery(e.target);
-                if (target.closest('.pgf-scrollable').length == 0) {
-                    // if event will not processed by main scroll event processor
-                    e.preventDefault();
-                }
-            });
-
             jQuery(document).trigger(pgf.ui.dialog.DIALOG_OPENED, dialog);
         };
 
