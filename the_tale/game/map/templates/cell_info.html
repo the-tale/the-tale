@@ -36,6 +36,10 @@
 
   <div class="modal-body tabbable tabs-left">
 
+    {% if place and place.is_new %}
+    <p class="alert alert-info pgf-new-place-message">Это город считается новым до <span class="pgf-format-datetime" data-timestamp="{{ place.new_for|timestamp }}"></span></p>
+    {% endif %}
+
     <ul class="nav nav-tabs">
       {% if place %}
       <li><a href="#pgf-cell-description" class="pgf-cell-description-button" data-toggle="tab">Описание</a></li>

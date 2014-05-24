@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 
 from django.db import models
 
@@ -17,6 +18,9 @@ class Place(models.Model):
 
     x = models.BigIntegerField(null=False)
     y = models.BigIntegerField(null=False)
+
+    created_at = models.DateTimeField(auto_now_add=True, default=datetime.datetime.fromtimestamp(0))
+    created_at_turn = models.BigIntegerField(default=0)
 
     updated_at_turn = models.BigIntegerField(default=0)
     updated_at = models.DateTimeField(auto_now=True, null=False)

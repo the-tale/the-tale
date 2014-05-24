@@ -2,6 +2,8 @@
 import jinja2
 import datetime
 
+import mock
+
 from django.test import client
 from django.core.urlresolvers import reverse
 
@@ -79,6 +81,15 @@ class CellInfoTests(RequestsTestsBase):
         person._model.created_at = datetime.datetime(2000, 1, 1)
         person.save()
         self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
+
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', True)
+    def test_place_new_oplace_message(self):
+        self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=['pgf-new-place-message'])
+
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', False)
+    def test_place_new_oplace_message__not_new(self):
+        self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=[('pgf-new-place-message', 0)])
+
 
     def test_place_chronicle(self):
         texts = [jinja2.escape(record.text) for record in ChronicleRecordPrototype.get_last_actor_records(self.place_1, 1000)]

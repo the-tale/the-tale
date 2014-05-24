@@ -138,6 +138,10 @@ class BillPrototype(BasePrototype):
 
         for actor in self.data.actors:
             if isinstance(actor, PlacePrototype):
+
+                if actor.is_new:
+                    return True
+
                 place_found = True
                 if actor.id in allowed_places_ids:
                     place_allowed = True

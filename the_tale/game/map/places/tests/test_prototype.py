@@ -29,6 +29,14 @@ class PlacePrototypeTests(testcase.TestCase):
     def test_initialize(self):
         self.assertEqual(self.p1.heroes_number, 0)
 
+    @mock.patch('the_tale.game.map.places.conf.places_settings.NEW_PLACE_LIVETIME', 0)
+    def test_is_new__false(self):
+        self.assertFalse(self.p1.is_new)
+
+    @mock.patch('the_tale.game.map.places.conf.places_settings.NEW_PLACE_LIVETIME', 60)
+    def test_is_new__true(self):
+        self.assertTrue(self.p1.is_new)
+
     def test_sync_race_no_signal_when_race_not_changed(self):
         with mock.patch('the_tale.game.map.places.races.Races.dominant_race', self.p1.race):
             with mock.patch('the_tale.game.map.places.signals.place_race_changed.send') as signal_counter:
@@ -187,7 +195,7 @@ class PlacePrototypeTests(testcase.TestCase):
 
         self.p1.sync_parameters()
 
-        self.assertEqual(self.p1.tax, 0.1)
+        self.assertEqual(self.p1.tax, 0.05)
 
 
     @mock.patch('the_tale.game.map.places.modifiers.prototypes.Polic.FREEDOM_MODIFIER', 0.01)

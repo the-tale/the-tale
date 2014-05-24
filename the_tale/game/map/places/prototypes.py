@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 import random
 import math
 
@@ -45,12 +46,20 @@ class PlaceParametersDescription(object):
 @add_power_management(places_settings.POWER_HISTORY_LENGTH, exceptions.PlacesPowerError)
 class PlacePrototype(BasePrototype):
     _model_class = Place
-    _readonly = ('id', 'x', 'y', 'name', 'heroes_number', 'updated_at')
+    _readonly = ('id', 'x', 'y', 'name', 'heroes_number', 'updated_at', 'created_at')
     _bidirectional = ('description', 'size', 'expected_size', 'goods', 'production', 'safety', 'freedom', 'transport', 'race', 'persons_changed_at_turn', 'tax')
     _get_by = ('id',)
 
     @property
     def updated_at_game_time(self): return GameTime(*f.turns_to_game_time(self._model.updated_at_turn))
+
+    @property
+    def is_new(self):
+        return (datetime.datetime.now() - self.created_at).total_seconds() < places_settings.NEW_PLACE_LIVETIME
+
+    @property
+    def new_for(self):
+        return self.created_at + datetime.timedelta(seconds=places_settings.NEW_PLACE_LIVETIME)
 
     def shift(self, dx, dy):
         self._model.x += dx
@@ -306,6 +315,7 @@ class PlacePrototype(BasePrototype):
 
         model = Place.objects.create( x=x,
                                       y=y,
+                                      created_at_turn=TimePrototype.get_current_turn_number(),
                                       name=name_forms.normalized,
                                       name_forms=s11n.to_json(name_forms.serialize()),
                                       race=race,

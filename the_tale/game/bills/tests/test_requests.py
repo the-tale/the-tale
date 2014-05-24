@@ -348,6 +348,7 @@ class TestShowRequests(BaseTestRequests):
         self.account1.save()
         self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-can-not-participate-in-politics', 1),))
 
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', False)
     def test_can_not_participate_in_politics__voted(self):
         # one vote automaticaly created for bill author
         bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
@@ -358,6 +359,7 @@ class TestShowRequests(BaseTestRequests):
         self.account1.save()
         self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-can-not-participate-in-politics', 0),))
 
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', False)
     def test_can_not_vote(self):
         self.hero.places_history._reset()
         self.hero.save()
@@ -368,6 +370,7 @@ class TestShowRequests(BaseTestRequests):
 
         self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-can-not-vote-message', 1),))
 
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', False)
     def test_can_not_voted(self):
         self.assertEqual(HeroPrototype.get_by_account_id(self.account1.id).places_history.history, [])
 
@@ -621,6 +624,7 @@ class TestVoteRequests(BaseTestRequests):
         self.check_vote(vote, self.account2, VOTE_TYPE.FOR, self.bill.id)
         self.check_bill_votes(self.bill.id, 2, 0)
 
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', False)
     def test_can_not_vote(self):
         self.hero.places_history._reset()
         self.hero.save()
