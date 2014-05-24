@@ -227,7 +227,8 @@ class GameResource(Resource):
     <quest_actor_info> = <quest_actor_place_info>|<quest_actor_person_info>|<quest_actor_spending_info>
 
     <quest_actor_place_info> = { // информация о городе
-      "id": <целое числое>       // идентификатор
+      "id": <целое числое>,      // идентификатор
+      "name": "строка"           // название города
     }
 
     <quest_actor_person_info> = {     // информация о жителе города

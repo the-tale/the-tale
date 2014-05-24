@@ -79,7 +79,8 @@ class QuestInfo(object):
 
         actor_id, actor_name = self.actors[role]
         if actor_type.is_PLACE:
-            return (actor_name, actor_type.value, {'id': actor_id})
+            return (actor_name, actor_type.value, {'id': actor_id,
+                                                   'name': places_storage[actor_id].name})
         if actor_type.is_PERSON:
             return (actor_name, actor_type.value, persons_storage[actor_id].ui_info())
         if actor_type.is_MONEY_SPENDING:
