@@ -6,7 +6,7 @@ from the_tale.common.utils import testcase
 from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype
 
-from the_tale.game.heroes.relations import HABIT_HONOR_INTERVAL
+from the_tale.game.relations import HABIT_HONOR_INTERVAL
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.balance import formulas as f, constants as c, enums as e

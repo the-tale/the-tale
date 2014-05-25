@@ -48,15 +48,13 @@
       <li><a href="#pgf-cell-place-demographics" class="pgf-cell-place-demographics-button" data-toggle="tab">Демография</a></li>
       <li><a href="#pgf-cell-place-bills" class="pgf-cell-place-bills-button" data-toggle="tab">Законы</a></li>
       <li><a href="#pgf-cell-place-modifiers" class="pgf-cell-place-modifiers-button" data-toggle="tab">Специализация</a></li>
+      <li><a href="#pgf-cell-place-character" class="pgf-cell-place-character-button" data-toggle="tab">Характер</a></li>
       <li><a href="#pgf-cell-place-chronicle" class="pgf-cell-place-chronicle-button" data-toggle="tab">События</a></li>
       {% endif %}
       {% if building %}
       <li><a href="#pgf-cell-building" class="pgf-cell-building-button" data-toggle="tab">Строение</a></li>
       {% endif %}
       <li><a href="#pgf-cell-map" class="pgf-cell-map-button" data-toggle="tab">Карта</a></li>
-      {% if resource.account.is_authenticated() and resource.account.is_staff %}
-      <li><a href="#pgf-cell-debug" class="pgf-cell-debug-button" data-toggle="tab">Отладка</a></li>
-      {% endif %}
     </ul>
 
     <div class="pgf-scrollable tab-content" style="max-height: 360px; overflow-y: auto;">
@@ -231,6 +229,16 @@
             </td>
           </tr>
           <tr>
+            <th>{{PlaceParametersDescription.STABILITY[0]}}</th> <td>{{place.stability|percents(2)}}</td>
+            <td>
+              <a href="javascript: return;" class="info-link" rel="tooltip"
+                 title="{{map_macros.power_incoming_tooltip(PlaceParametersDescription.STABILITY[1],
+                                                            place.get_stability_powers(), percents=true)}}">
+                подробнее
+              </a>
+            </td>
+          </tr>
+          <tr>
             <th>{{PlaceParametersDescription.PRODUCTION[0]}}</th> <td>{{place.production}}</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
@@ -365,14 +373,81 @@
                  rel="tooltip"
                  title="{{map_macros.power_incoming_tooltip(modifier.DESCRIPTION,
                                                             modifier.power_effects_for_template,
-                                                            'размер города',
-                                                             modifier.size_modifier|round(2))}}">
+                                                            [('размер города', modifier.size_modifier|round(2))])}}">
                 подробнее
               </a>
             </td>
           </tr>
           {% endfor %}
         </table>
+      </div>
+
+      <div class="tab-pane active description" id="pgf-cell-place-character">
+
+        <p>
+          Характер города определяется героями подписчиков, связанными с ним (установившими его родным или выбравшими в нём соратника/противника).
+        </p>
+
+        <table class="table table-striped table-condensed table-no-highlighting">
+          <tbody>
+
+            <tr>
+              <th colspan="2">честь</th>
+            </tr>
+
+            <tr>
+              <td>{{place.habit_honor.verbose_value}}</td>
+              <td>
+                {{place.habit_honor.raw_value|round(2)}}
+
+                {% set speed = place.habit_honor_change_speed %}
+                {% if speed > 0.00001%}+{% elif speed < -0.00001%}-{% else %}&nbsp;{%endif%}
+                <span style="color:{%if speed > 0.0001 %}green{%elif speed < -0.0001%}red{%else%}black{%endif%};">{{speed|abs|round(2)}}</span>
+              </td>
+            </tr>
+
+            <tr>
+              <th colspan="2">миролюбие</th>
+            </tr>
+
+            <tr>
+              <td>{{place.habit_peacefulness.verbose_value}}</td>
+              <td>
+                {{place.habit_peacefulness.raw_value|round(2)}}
+
+                {% set speed = place.habit_peacefulness_change_speed %}
+                {% if speed > 0.00001%}+{% elif speed < -0.00001%}-{% else %}&nbsp;{%endif%}
+                <span style="color:{%if speed > 0.0001 %}green{%elif speed < -0.0001%}red{%else%}black{%endif%};">{{speed|abs|round(2)}}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>сумма черт героев</h4>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>черта</th>
+              <th>влево</th>
+              <th>вправо</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>честь</td>
+              <td>{{place.habit_honor_negative|round(2)}}</td>
+              <td>{{place.habit_honor_positive|round(2)}}</td>
+            </tr>
+
+            <tr>
+              <td>миролюбие</td>
+              <td>{{place.habit_peacefulness_negative|round(2)}}</td>
+              <td>{{place.habit_peacefulness_positive|round(2)}}</td>
+            </tr>
+          </tbody>
+        </table>
+
       </div>
 
       <div class="tab-pane active description" id="pgf-cell-place-chronicle">
@@ -462,10 +537,6 @@
         </ul>
       </div>
 
-      {% if resource.account.is_authenticated() and resource.account.is_staff %}
-      <div class="tab-pane" id="pgf-cell-debug">
-      </div>
-      {% endif %}
     </div>
 
   </div>

@@ -21,6 +21,8 @@ from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.balance import constants as c
 
+from the_tale.game.map.places.prototypes import PlacePrototype
+
 from the_tale.forum.prototypes import ThreadPrototype, PostPrototype, SubCategoryPrototype
 from the_tale.forum.models import MARKUP_METHOD
 
@@ -129,8 +131,6 @@ class BillPrototype(BasePrototype):
         return [cls(model=model) for model in cls._model_class.objects.exclude(state=BILL_STATE.REMOVED).order_by('-updated_at')[:bills_number]]
 
     def can_vote(self, hero):
-        from the_tale.game.map.places.prototypes import PlacePrototype
-
         allowed_places_ids = hero.places_history.get_allowed_places_ids(bills_settings.PLACES__TO_ACCESS_VOTING)
 
         place_found = False
@@ -198,6 +198,11 @@ class BillPrototype(BasePrototype):
                              get_system_user(),
                              u'Законопроект принят. Изменения вступят в силу в ближайшее время.\n\n%s' % results_text,
                              technical=True)
+
+
+        for actor in self.data.actors:
+            if isinstance(actor, PlacePrototype):
+                actor.stability_modifiers.append((u'закон №%d' % self.id, -c.PLACE_STABILITY_PER_BILL))
 
         signals.bill_processed.send(self.__class__, bill=self)
         return True

@@ -26,6 +26,7 @@ from the_tale.game.persons.storage import persons_storage
 from the_tale.game.workers.environment import workers_environment
 
 from the_tale.game import names
+from the_tale.game.relations import HABIT_TYPE
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes.postponed_tasks import ChangeHeroTask, ChooseHeroAbilityTask, ChoosePreferencesTask, ResetHeroAbilitiesTask
@@ -99,7 +100,7 @@ class HeroResource(Resource):
                               'EQUIPMENT_SLOT': relations.EQUIPMENT_SLOT,
                               'PREFERENCE_TYPE': relations.PREFERENCE_TYPE,
                               'PREFERENCES_CHANGE_DELAY': datetime.timedelta(seconds=c.PREFERENCES_CHANGE_DELAY),
-                              'HABIT_TYPE': relations.HABIT_TYPE,
+                              'HABIT_TYPE': HABIT_TYPE,
                               'HABITS_BORDER': c.HABITS_BORDER} )
 
     @login_required

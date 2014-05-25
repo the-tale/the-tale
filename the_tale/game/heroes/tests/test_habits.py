@@ -19,10 +19,10 @@ from the_tale.game.mobs.relations import MOB_TYPE
 
 from the_tale.game.balance import constants as c
 from the_tale.game.logic import create_test_map
-from the_tale.game.relations import GENDER
+from the_tale.game.relations import GENDER, HABIT_HONOR_INTERVAL, HABIT_PEACEFULNESS_INTERVAL
 from the_tale.game.logic_storage import LogicStorage
 
-from the_tale.game.heroes.relations import HABIT_HONOR_INTERVAL, HABIT_PEACEFULNESS_INTERVAL, MODIFIERS
+from the_tale.game.heroes.relations import MODIFIERS
 from the_tale.game.heroes import habits
 
 

@@ -9,7 +9,8 @@ from the_tale.common.utils.logic import random_value_by_priority
 
 from the_tale.bank.transaction import Transaction
 
-from the_tale.game.heroes.relations import PREFERENCE_TYPE, HABIT_TYPE
+from the_tale.game.relations import HABIT_TYPE
+from the_tale.game.heroes.relations import PREFERENCE_TYPE
 
 from the_tale.accounts.workers.environment import workers_environment as accounts_workers_environment
 from the_tale.accounts.prototypes import AccountPrototype, RandomPremiumRequestPrototype

@@ -10,9 +10,9 @@ from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.balance import constants as c
 from the_tale.game.balance.power import Power
+from the_tale.game.relations import HABIT_HONOR_INTERVAL, HABIT_PEACEFULNESS_INTERVAL
 
 from the_tale.game.heroes.logic import create_mob_for_hero
-from the_tale.game.heroes.relations import HABIT_HONOR_INTERVAL, HABIT_PEACEFULNESS_INTERVAL
 
 from the_tale.game.mobs.storage import mobs_storage
 

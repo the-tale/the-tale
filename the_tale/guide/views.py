@@ -11,9 +11,11 @@ from dext.utils.urls import UrlBuilder, full_url
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.decorators import lazy_property
 
+from the_tale.game.relations import HABIT_TYPE
+
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
 from the_tale.game.heroes.conf import heroes_settings
-from the_tale.game.heroes.relations import PREFERENCE_TYPE, HABIT_TYPE
+from the_tale.game.heroes.relations import PREFERENCE_TYPE
 
 from the_tale.game.map.places.conf import places_settings
 from the_tale.game.persons.conf import persons_settings

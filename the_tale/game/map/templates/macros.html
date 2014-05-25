@@ -1,6 +1,6 @@
 
 
-{% macro power_incoming_tooltip(description, power_effects, result_text=none, result_multiplier=none, percents=false) %}
+{% macro power_incoming_tooltip(description, power_effects, multiplier_effects=none, percents=false) %}
 
 <p style='text-align: left;'>
   <i>{{description}}</i>
@@ -10,6 +10,11 @@
   {% for name, power in  power_effects %}
   <li>
     {{name}}
+
+    {% if -0.0000001 < power < 0.000001 %}
+      {% set power = 0 %}
+    {% endif %}
+
     {% if not percents %}
     <span class='pull-right'
           style='margin-right: 5em; color:{%if power>1%}Chartreuse{%elif power<-1%}red{%else%}yellow{%endif%};'>{{power|round(2)}}</span>
@@ -20,12 +25,14 @@
   </li>
   {% endfor %}
 
-  {% if result_text %}
-  <hr style='margin-right: 5em;'/>
-  <li>
-    {{result_text}}
-    <span class='pull-right' style='margin-right: 5em;'>x {{result_multiplier}}</span>
-  </li>
+  {% if multiplier_effects %}
+    <hr style='margin-right: 5em;'/>
+    {% for text, multiplier in multiplier_effects %}
+      <li>
+        {{text}}
+        <span class='pull-right' style='margin-right: 5em;'>x {{multiplier}}</span>
+      </li>
+    {% endfor %}
   {% endif %}
 </ul>
 

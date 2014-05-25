@@ -31,6 +31,7 @@ from the_tale.game.heroes.postponed_tasks import ChoosePreferencesTask, CHOOSE_P
 from the_tale.game.heroes.preferences import HeroPreferences
 
 
+
 class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
 
     def setUp(self):
@@ -285,6 +286,7 @@ class HeroPreferencesPlaceTest(TestCase):
 
         self.place = place_1
         self.place_2 = place_2
+        self.place_3 = place_3
 
     def test_preferences_serialization(self):
         self.hero.preferences.set_place(self.place)
@@ -386,20 +388,17 @@ class HeroPreferencesPlaceTest(TestCase):
 
     def test_get_citizens_number(self):
         hero_1 = self.hero
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        hero_2 = HeroPrototype.get_by_account_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        hero_3 = HeroPrototype.get_by_account_id(account_id)
-
         hero_1.preferences.set_place(self.place)
         hero_1.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_1.save()
 
+        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
+        hero_2 = HeroPrototype.get_by_account_id(account_id)
         hero_2.preferences.set_place(self.place)
         hero_2.save()
 
+        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
+        hero_3 = HeroPrototype.get_by_account_id(account_id)
         hero_3.preferences.set_place(self.place)
         hero_3.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_3.save()
@@ -415,10 +414,54 @@ class HeroPreferencesPlaceTest(TestCase):
         hero_5.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_5.save()
 
+        result, account_id, bundle_id = register_user('test_user_6', 'test_user_6@test.com', '111111')
+        hero_6 = HeroPrototype.get_by_account_id(account_id)
+        hero_6.preferences.set_place(self.place_2)
+        hero_6.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        hero_6.save()
+
         self.assertEqual(HeroPreferences.count_citizens_of(self.place), 2)
-        self.assertEqual(HeroPreferences.count_citizens_of(self.place_2), 0)
+        self.assertEqual(HeroPreferences.count_citizens_of(self.place_2), 1)
+        self.assertEqual(HeroPreferences.count_citizens_of(self.place_3), 0)
 
         self.assertEqual(set([h.id for h in HeroPreferences.get_citizens_of(self.place)]), set([hero_1.id, hero_3.id]))
+
+
+    def test_count_habit_values(self):
+        hero_1 = self.hero
+        hero_1.preferences.set_place(self.place)
+        hero_1.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        hero_1.habit_honor.change(-1)
+        hero_1.habit_peacefulness.change(1)
+        hero_1.save()
+
+        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
+        hero_2 = HeroPrototype.get_by_account_id(account_id)
+        hero_2.preferences.set_place(self.place)
+        hero_2.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        hero_2.habit_honor.change(2)
+        hero_2.habit_peacefulness.change(-2)
+        hero_2.save()
+
+        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
+        hero_3 = HeroPrototype.get_by_account_id(account_id)
+        hero_3.preferences.set_place(self.place_2)
+        hero_3.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=30)
+        hero_3.habit_honor.change(-4)
+        hero_3.habit_peacefulness.change(4)
+        hero_3.save()
+
+        result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
+        hero_4 = HeroPrototype.get_by_account_id(account_id)
+        hero_4.preferences.set_place(self.place)
+        hero_4.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=30)
+        hero_4.habit_honor.change(8)
+        hero_4.habit_peacefulness.change(-8)
+        hero_4.save()
+
+        self.assertEqual(HeroPreferences.count_habit_values(self.place), ((10, -1), (1, -10)))
+        self.assertEqual(HeroPreferences.count_habit_values(self.place_2), ((0, -4), (4, 0)))
+
 
 
 class HeroPreferencesFriendTest(TestCase):
@@ -436,9 +479,13 @@ class HeroPreferencesFriendTest(TestCase):
         self.hero._model.level = relations.PREFERENCE_TYPE.FRIEND.level_required
         self.hero._model.save()
 
-        self.friend_id = Person.objects.all()[0].id
-        self.friend_2_id = Person.objects.all()[1].id
-        self.enemy_id = Person.objects.all()[2].id
+        self.friend = self.place_1.persons[0]
+        self.friend_2 = self.place_2.persons[0]
+        self.enemy = self.place_3.persons[0]
+
+        self.friend_id = self.friend.id
+        self.friend_2_id = self.friend_2.id
+        self.enemy_id = self.enemy.id
 
     def test_preferences_serialization(self):
         self.hero.preferences.set_friend(persons_storage[self.friend_id])
@@ -608,6 +655,42 @@ class HeroPreferencesFriendTest(TestCase):
         self.assertEqual(self.hero.preferences.friend, None)
 
 
+    def test_count_habit_values(self):
+        hero_1 = self.hero
+        hero_1.preferences.set_friend(self.friend)
+        hero_1.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        hero_1.habit_honor.change(-1)
+        hero_1.habit_peacefulness.change(1)
+        hero_1.save()
+
+        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
+        hero_2 = HeroPrototype.get_by_account_id(account_id)
+        hero_2.preferences.set_friend(self.friend)
+        hero_2.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        hero_2.habit_honor.change(2)
+        hero_2.habit_peacefulness.change(-2)
+        hero_2.save()
+
+        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
+        hero_3 = HeroPrototype.get_by_account_id(account_id)
+        hero_3.preferences.set_friend(self.friend_2)
+        hero_3.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=30)
+        hero_3.habit_honor.change(-4)
+        hero_3.habit_peacefulness.change(4)
+        hero_3.save()
+
+        result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
+        hero_4 = HeroPrototype.get_by_account_id(account_id)
+        hero_4.preferences.set_friend(self.friend)
+        hero_4.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=30)
+        hero_4.habit_honor.change(8)
+        hero_4.habit_peacefulness.change(-8)
+        hero_4.save()
+
+        self.assertEqual(HeroPreferences.count_habit_values(self.place_1), ((10, -1), (1, -10)))
+        self.assertEqual(HeroPreferences.count_habit_values(self.place_2), ((0, -4), (4, 0)))
+
+
 
 class HeroPreferencesEnemyTest(TestCase):
 
@@ -624,9 +707,13 @@ class HeroPreferencesEnemyTest(TestCase):
         self.hero._model.level = relations.PREFERENCE_TYPE.ENEMY.level_required
         self.hero._model.save()
 
-        self.enemy_id = Person.objects.all()[0].id
-        self.enemy_2_id = Person.objects.all()[1].id
-        self.friend_id = Person.objects.all()[2].id
+        self.enemy = self.place_1.persons[0]
+        self.enemy_2 = self.place_2.persons[0]
+        self.friend = self.place_3.persons[0]
+
+        self.enemy_id = self.enemy.id
+        self.enemy_2_id = self.enemy_2.id
+        self.friend_id =  self.friend.id
 
     def test_preferences_serialization(self):
         self.hero.preferences.set_enemy(persons_storage[self.enemy_id])
@@ -792,6 +879,42 @@ class HeroPreferencesEnemyTest(TestCase):
         self.storage.on_highlevel_data_updated()
 
         self.assertEqual(self.hero.preferences.enemy, None)
+
+
+    def test_count_habit_values(self):
+        hero_1 = self.hero
+        hero_1.preferences.set_enemy(self.enemy)
+        hero_1.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        hero_1.habit_honor.change(-1)
+        hero_1.habit_peacefulness.change(1)
+        hero_1.save()
+
+        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
+        hero_2 = HeroPrototype.get_by_account_id(account_id)
+        hero_2.preferences.set_enemy(self.enemy)
+        hero_2.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        hero_2.habit_honor.change(2)
+        hero_2.habit_peacefulness.change(-2)
+        hero_2.save()
+
+        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
+        hero_3 = HeroPrototype.get_by_account_id(account_id)
+        hero_3.preferences.set_enemy(self.enemy_2)
+        hero_3.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=30)
+        hero_3.habit_honor.change(-4)
+        hero_3.habit_peacefulness.change(4)
+        hero_3.save()
+
+        result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
+        hero_4 = HeroPrototype.get_by_account_id(account_id)
+        hero_4.preferences.set_enemy(self.enemy)
+        hero_4.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=30)
+        hero_4.habit_honor.change(8)
+        hero_4.habit_peacefulness.change(-8)
+        hero_4.save()
+
+        self.assertEqual(HeroPreferences.count_habit_values(self.place_1), ((10, -1), (1, -10)))
+        self.assertEqual(HeroPreferences.count_habit_values(self.place_2), ((0, -4), (4, 0)))
 
 
 

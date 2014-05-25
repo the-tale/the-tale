@@ -29,6 +29,8 @@ from the_tale.game.map.places.modifiers import MODIFIERS, PlaceModifierBase
 from the_tale.game.map.places.relations import BUILDING_STATE, RESOURCE_EXCHANGE_TYPE, CITY_PARAMETERS
 from the_tale.game.map.places import signals
 from the_tale.game.map.places.races import Races
+from the_tale.game.map.places import habits
+
 
 class PlaceParametersDescription(object):
     PLACE_SIZE = (u'размер города', u'Влияет на количество жителей в городе, развитие специализаций и на потребление товаров жителями. Зависит от производства товаров.')
@@ -41,13 +43,14 @@ class PlaceParametersDescription(object):
     TRANSPORT = (u'транспорт', u'Уровень развития транспортной инфраструктуры (с какой скоростью герои путешествуют в окрестностях города).')
     FREEDOM = (u'свобода', u'Насколько активна политическая жизнь в городе (как сильно изменяется влияние его жителей от действий героев).')
     TAX = (u'пошлина', u'Размер пошлины, которую платят герои при посещении города (процент от монет на руках у героя).')
+    STABILITY = (u'стабильность', u'Отражает текущую ситуацию в городе и влияет на многие его параметры. Уменьшается от изменений, происходящих в городе (при принятии законов) и постепенно восстанавливается до 100%.')
 
 
 @add_power_management(places_settings.POWER_HISTORY_LENGTH, exceptions.PlacesPowerError)
 class PlacePrototype(BasePrototype):
     _model_class = Place
-    _readonly = ('id', 'x', 'y', 'name', 'heroes_number', 'updated_at', 'created_at')
-    _bidirectional = ('description', 'size', 'expected_size', 'goods', 'production', 'safety', 'freedom', 'transport', 'race', 'persons_changed_at_turn', 'tax')
+    _readonly = ('id', 'x', 'y', 'name', 'heroes_number', 'updated_at', 'created_at', 'habit_honor_positive', 'habit_honor_negative', 'habit_peacefulness_positive', 'habit_peacefulness_negative', )
+    _bidirectional = ('description', 'size', 'expected_size', 'goods', 'production', 'safety', 'freedom', 'transport', 'race', 'persons_changed_at_turn', 'tax', 'stability')
     _get_by = ('id',)
 
     @property
@@ -111,6 +114,55 @@ class PlacePrototype(BasePrototype):
     def update_heroes_number(self):
         from the_tale.game.heroes.preferences import HeroPreferences
         self._model.heroes_number = HeroPreferences.count_citizens_of(self)
+
+    def update_heroes_habits(self):
+        from the_tale.game.heroes.preferences import HeroPreferences
+
+        habits_values = HeroPreferences.count_habit_values(self)
+
+        self._model.habit_honor_positive = habits_values[0][0]
+        self._model.habit_honor_negative = habits_values[0][1]
+        self._model.habit_peacefulness_positive = habits_values[1][0]
+        self._model.habit_peacefulness_negative = habits_values[1][1]
+
+    @classmethod
+    def _habit_change_speed(cls, current_value, positive, negative):
+        positive = abs(positive)
+        negative = abs(negative)
+
+        if positive < negative:
+            if positive < 0.0001:
+                result = -c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM
+            else:
+                result = -min(c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM, negative / positive)
+        elif positive > negative:
+            if negative < 0.0001:
+                result = c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM
+            else:
+                result = min(c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM, positive / negative)
+        else:
+            result = 0
+
+        return result - c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM_PENALTY * (float(current_value) / c.HABITS_BORDER)
+
+    @property
+    def habit_honor_change_speed(self):
+        return self._habit_change_speed(self.habit_honor.raw_value, self.habit_honor_positive, self.habit_honor_negative)
+
+    @property
+    def habit_peacefulness_change_speed(self):
+        return self._habit_change_speed(self.habit_peacefulness.raw_value, self.habit_peacefulness_positive, self.habit_peacefulness_negative)
+
+    def sync_habits(self):
+        self.habit_honor.change(self.habit_honor_change_speed)
+        self.habit_peacefulness.change(self.habit_peacefulness_change_speed)
+
+    @lazy_property
+    def habit_honor(self): return habits.Honor(self, 'honor')
+
+    @lazy_property
+    def habit_peacefulness(self): return habits.Peacefulness(self, 'peacefulness')
+
 
     @property
     def persons(self):
@@ -191,6 +243,12 @@ class PlacePrototype(BasePrototype):
             self.data['races'] = {}
         return Races(data=self.data['races'])
 
+    @lazy_property
+    def stability_modifiers(self):
+        if 'stability_modifiers' not in self.data:
+            self.data['stability_modifiers'] = []
+        return self.data['stability_modifiers']
+
     @property
     def terrains(self):
         from the_tale.game.map.storage import map_info_storage
@@ -210,11 +268,37 @@ class PlacePrototype(BasePrototype):
             self.race = dominant_race
             signals.place_race_changed.send(self.__class__, place=self, old_race=old_race, new_race=self.race)
 
+    def _stability_renewing_speed(self):
+        if not self.stability_modifiers:
+            return 0
+
+        delta = c.PLACE_STABILITY_PER_HOUR / len(self.stability_modifiers)
+
+        if self.modifier:
+            delta = self.modifier.modify_stability_renewing_speed(delta)
+
+        return delta
+
+    def sync_stability(self):
+        if not self.stability_modifiers:
+            return
+
+        delta = self._stability_renewing_speed()
+
+        new_modifiers = [(text, (value + delta) if value < 0 else (value - delta))
+                         for text, value in self.stability_modifiers]
+
+        self.stability_modifiers[:] = []
+        self.stability_modifiers.extend(new_modifiers)
+
     def sync_parameters(self):
+        self.stability = min(1.0, sum(power[1] for power in self.get_stability_powers()))
+
         self.production = sum(power[1] for power in self.get_production_powers())
         self.safety = sum(power[1] for power in self.get_safety_powers())
         self.freedom = sum(power[1] for power in self.get_freedom_powers())
         self.transport = sum(power[1] for power in self.get_transport_powers())
+
         self.tax = sum(power[1] for power in self.get_tax_powers())
 
     def set_expected_size(self, expected_size):
@@ -252,10 +336,18 @@ class PlacePrototype(BasePrototype):
                 powers.append((place_2.name if place_2 is not None else resource_1.text, resource_2.amount * resource_2.direction))
 
 
+    def get_stability_powers(self):
+
+        powers = [ (u'город', 1.0) ]
+        powers += self.stability_modifiers
+
+        return powers
+
     def get_production_powers(self):
 
         powers = [ (u'производство', f.place_goods_production(self.expected_size)),
-                   (u'потребление', -f.place_goods_consumption(self.size))]
+                   (u'потребление', -f.place_goods_consumption(self.size)),
+                   (u'стабильность', (1.0-self.stability) * c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY)]
 
         self._update_powers(powers, CITY_PARAMETERS.PRODUCTION)
 
@@ -268,7 +360,8 @@ class PlacePrototype(BasePrototype):
 
     def get_safety_powers(self):
         powers = [(u'город', 1.0),
-                  (u'монстры', -c.BATTLES_PER_TURN)]
+                  (u'монстры', -c.BATTLES_PER_TURN),
+                  (u'стабильность', (1.0-self.stability) * c.PLACE_STABILITY_MAX_SAFETY_PENALTY)]
 
         self._update_powers(powers, CITY_PARAMETERS.SAFETY)
 
@@ -280,7 +373,8 @@ class PlacePrototype(BasePrototype):
         return powers
 
     def get_transport_powers(self):
-        powers = [(u'дороги', 1.0)]
+        powers = [(u'дороги', 1.0),
+                  (u'стабильность', (1.0-self.stability) * c.PLACE_STABILITY_MAX_TRANSPORT_PENALTY)]
 
         self._update_powers(powers, CITY_PARAMETERS.TRANSPORT)
 
@@ -292,7 +386,8 @@ class PlacePrototype(BasePrototype):
         return powers
 
     def get_freedom_powers(self):
-        powers = [(u'город', 1.0)]
+        powers = [(u'город', 1.0),
+                  (u'стабильность', (1.0-self.stability) * c.PLACE_STABILITY_MAX_FREEDOM_PENALTY)]
 
         if self.modifier and self.modifier.FREEDOM_MODIFIER:
             powers.append((self.modifier.NAME, self.modifier.FREEDOM_MODIFIER))

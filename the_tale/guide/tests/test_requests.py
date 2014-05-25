@@ -9,7 +9,7 @@ from the_tale.accounts.logic import register_user
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.heroes.relations import HABIT_TYPE
+from the_tale.game.relations import HABIT_TYPE
 
 
 class TestRequests(TestCase):

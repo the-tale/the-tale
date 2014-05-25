@@ -41,10 +41,19 @@ class Place(models.Model):
     freedom = models.FloatField(default=1.0)
     transport = models.FloatField(default=1.0)
     tax = models.FloatField(default=0.0)
+    stability = models.FloatField(default=1.0)
 
     data = models.TextField(null=False, default=u'{}')
 
     heroes_number = models.IntegerField(default=0)
+
+    habit_honor_positive = models.FloatField(default=0)
+    habit_honor_negative = models.FloatField(default=0)
+    habit_peacefulness_positive = models.FloatField(default=0)
+    habit_peacefulness_negative = models.FloatField(default=0)
+
+    habit_honor = models.FloatField(default=0)
+    habit_peacefulness = models.FloatField(default=0)
 
     modifier = RelationIntegerField(relation=relations.CITY_MODIFIERS, null=True, default=None, blank=True)
     race = RelationIntegerField(relation=RACE)

@@ -4,6 +4,8 @@ import datetime
 
 import rels
 
+from django.db import models
+
 from the_tale.common.utils.prototypes import BasePrototype
 
 from the_tale.game.balance import enums as e
@@ -185,6 +187,16 @@ class HeroPreferences(object):
         return HeroPrototype._model_class.objects.filter(ban_state_end_at__lt=current_time, premium_state_end_at__gte=current_time)
 
     @classmethod
+    def _place_heroes_query(cls, place):
+        persons_ids = [person.id for person in place.persons]
+
+        db_filter = models.Q(place_id=place.id)
+        db_filter |= models.Q(friend_id__in=persons_ids)
+        db_filter |= models.Q(enemy_id__in=persons_ids)
+
+        return cls._preferences_query().filter(db_filter)
+
+    @classmethod
     def count_friends_of(cls, person):
         return cls._preferences_query().filter(friend_id=person.id).count()
 
@@ -207,3 +219,25 @@ class HeroPreferences(object):
     @classmethod
     def get_citizens_of(cls, place):
         return [HeroPrototype(model=record) for record in cls._heroes_query().filter(heropreferences__place_id=place.id)]
+
+    @classmethod
+    def count_habit_values(cls, place):
+
+        honor_positive = 0
+        honor_negative = 0
+        peacefulness_positive = 0
+        peacefulness_negative = 0
+
+        for honor, peacefulness in cls._place_heroes_query(place).values_list('hero__habit_honor', 'hero__habit_peacefulness'):
+            if honor > 0:
+                honor_positive += honor
+            elif honor < 0:
+                honor_negative += honor
+
+            if peacefulness > 0:
+                peacefulness_positive += peacefulness
+            elif peacefulness < 0:
+                peacefulness_negative += peacefulness
+
+        return ( (honor_positive, honor_negative),
+                 (peacefulness_positive, peacefulness_negative) )

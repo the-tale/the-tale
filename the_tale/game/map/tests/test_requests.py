@@ -49,12 +49,7 @@ class IndexTests(RequestsTestsBase):
 class CellInfoTests(RequestsTestsBase):
 
     def test_place_info_logined(self):
-        self.check_html_ok(self.request_html(reverse('game:map:cell-info') + '?x=2&y=3'), texts=[('pgf-cell-debug', 0)])
-
-    def test_place_info_logined_staff(self):
-        self.account._model.is_staff = True
-        self.account.save()
-        self.check_html_ok(self.request_html(reverse('game:map:cell-info') + '?x=3&y=2'), texts=[('pgf-cell-debug', 3)])
+        self.check_html_ok(self.request_html(reverse('game:map:cell-info') + '?x=2&y=3'), texts=[])
 
     def test_place_info_no_modifier(self):
         texts = [('pgf-current-modifier-marker', 0)] + [(modifier.text, 1) for modifier in CITY_MODIFIERS.records]

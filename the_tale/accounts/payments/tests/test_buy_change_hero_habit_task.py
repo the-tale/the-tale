@@ -7,7 +7,7 @@ from the_tale.accounts.payments.tests import base_buy_task
 
 from the_tale.game.logic_storage import LogicStorage
 
-from the_tale.game.heroes.relations import HABIT_TYPE
+from the_tale.game.relations import HABIT_TYPE
 
 
 class BuyChangeHeroHabitsTaskTests(base_buy_task._BaseBuyHeroMethodPosponedTaskTests):

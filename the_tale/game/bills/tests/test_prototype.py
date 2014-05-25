@@ -153,6 +153,9 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         places_storage.sync(force=True)
 
+        self.place1.sync_parameters()
+        self.assertEqual(self.place1.stability, 1.0)
+
         self.check_place(self.place1.id, self.place1.name, self.place1.normalized_name.forms)
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
@@ -187,6 +190,9 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.assertTrue(bill.state.is_ACCEPTED)
 
         places_storage.sync(force=True)
+
+        self.place1.sync_parameters()
+        self.assertTrue(self.place1.stability < 1.0)
 
         self.check_place(self.place1.id, 'new_name_1', self.NAME_FORMS)
 

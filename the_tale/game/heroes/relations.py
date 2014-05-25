@@ -174,34 +174,6 @@ class MODIFIERS(DjangoEnum):
 
 
 
-class HABIT_INTERVAL(DjangoEnum):
-    female_text = Column()
-    neuter_text = Column()
-    left_border = Column()
-    right_border = Column()
-
-
-class HABIT_HONOR_INTERVAL(HABIT_INTERVAL):
-
-    records = ( ('LEFT_3', 0, u'бесчестный', u'бесчестная', u'бесчестное', -c.HABITS_BORDER, c.HABITS_RIGHT_BORDERS[0]),
-                ('LEFT_2', 1, u'подлый', u'подлая', u'подлое', c.HABITS_RIGHT_BORDERS[0], c.HABITS_RIGHT_BORDERS[1]),
-                ('LEFT_1', 2, u'порочный', u'порочная', u'порочное', c.HABITS_RIGHT_BORDERS[1], c.HABITS_RIGHT_BORDERS[2]),
-                ('NEUTRAL', 3, u'себе на уме', u'себе на уме', u'себе на уме', c.HABITS_RIGHT_BORDERS[2], c.HABITS_RIGHT_BORDERS[3]),
-                ('RIGHT_1', 4, u'порядочный', u'порядочная', u'порядочное', c.HABITS_RIGHT_BORDERS[3], c.HABITS_RIGHT_BORDERS[4]),
-                ('RIGHT_2', 5, u'благородный', u'благородная', u'благородное', c.HABITS_RIGHT_BORDERS[4], c.HABITS_RIGHT_BORDERS[5]),
-                ('RIGHT_3', 6, u'хозяин своего слова', u'хозяйка своего слова', u'хозяин своего слова', c.HABITS_RIGHT_BORDERS[5], c.HABITS_BORDER) )
-
-
-class HABIT_PEACEFULNESS_INTERVAL(HABIT_INTERVAL):
-    records = ( ('LEFT_3', 0, u'скорый на расправу', u'скорая на расправу', u'скорое на расправу', -c.HABITS_BORDER, c.HABITS_RIGHT_BORDERS[0]),
-                ('LEFT_2', 1, u'вспыльчивый', u'вспыльчивая', u'вспыльчивое', c.HABITS_RIGHT_BORDERS[0], c.HABITS_RIGHT_BORDERS[1]),
-                ('LEFT_1', 2, u'задира', u'задира', u'задира', c.HABITS_RIGHT_BORDERS[1], c.HABITS_RIGHT_BORDERS[2]),
-                ('NEUTRAL', 3, u'сдержанный', u'сдержанная', u'сдержаное', c.HABITS_RIGHT_BORDERS[2], c.HABITS_RIGHT_BORDERS[3]),
-                ('RIGHT_1', 4, u'доброхот', u'доброхот', u'доброхот', c.HABITS_RIGHT_BORDERS[3], c.HABITS_RIGHT_BORDERS[4]),
-                ('RIGHT_2', 5, u'миролюбивый', u'миролюбивая', u'миролюбивое', c.HABITS_RIGHT_BORDERS[4], c.HABITS_RIGHT_BORDERS[5]),
-                ('RIGHT_3', 6, u'гуманист', u'гуманист', u'гуманист', c.HABITS_RIGHT_BORDERS[5], c.HABITS_BORDER) )
-
-
 class HABIT_CHANGE_SOURCE(DjangoEnum):
     quest_marker = Column(unique=False, single_type=False)
     quest_default = Column(unique=False, single_type=False)
@@ -223,10 +195,3 @@ class HABIT_CHANGE_SOURCE(DjangoEnum):
                 ('HELP_UNAGGRESSIVE', 9, u'помощь вне боя', None, None, None,   0.0, c.HABITS_HELP_ABILITY_DELTA),
                 ('ARENA_SEND', 10, u'отправка на арену', None, None, None,      0.0, -c.HABITS_ARENA_ABILITY_DELTA),
                 ('ARENA_LEAVE', 11, u'покидание арены', None, None, None,       0.0, c.HABITS_ARENA_ABILITY_DELTA) )
-
-
-class HABIT_TYPE(DjangoEnum):
-    intervals = Column()
-
-    records = ( ('HONOR', 0, u'честь', HABIT_HONOR_INTERVAL),
-                ('PEACEFULNESS', 1, u'миролюбие', HABIT_PEACEFULNESS_INTERVAL) )

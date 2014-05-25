@@ -276,10 +276,10 @@ pgf.game.map.Map = function(selector, params) {
                                                             [jQuery('.pgf-cell-place-demographics-button', dialog),'place-demographics'],
                                                             [jQuery('.pgf-cell-place-bills-button', dialog),'place-bills'],
                                                             [jQuery('.pgf-cell-place-modifiers-button', dialog), 'place-modifiers'],
+                                                            [jQuery('.pgf-cell-place-character-button', dialog), 'place-character'],
                                                             [jQuery('.pgf-cell-place-chronicle-button', dialog), 'place-chronicle'],
                                                             [jQuery('.pgf-cell-building-button', dialog), 'building'],
-                                                            [jQuery('.pgf-cell-map-button', dialog), 'map'],
-                                                            [jQuery('.pgf-cell-debug-button', dialog), 'debug']]);
+                                                            [jQuery('.pgf-cell-map-button', dialog), 'map']]);
                                    jQuery('[rel="tooltip"]', dialog).tooltip(pgf.base.tooltipsArgs);
 
                                    if (widgets.abilities) {

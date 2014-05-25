@@ -99,8 +99,10 @@ class PlaceModifierBase(object):
     def modify_economic_size(self, size): return size
     def modify_terrain_change_power(self, power): return power
     def modify_terrain_owning_radius(self, radius): return radius
-    def full_regen_allowed(self): return False
     def modify_experience(self, exp): return exp
+    def modify_stability_renewing_speed(self, stability): return stability
+
+    def full_regen_allowed(self): return False
     def energy_regen_allowed(self): return False
 
 
@@ -137,11 +139,13 @@ class Fort(PlaceModifierBase):
 class PoliticalCenter(PlaceModifierBase):
 
     TYPE = CITY_MODIFIERS.POLITICAL_CENTER
-    DESCRIPTION = u'Активная политическая жизнь приводит к тому, что усиливаются все изменения влияния (и положительные и отрицательные) — увеличивается уровень свободы в городе. Также увеличивается радиус влияния города.'
+    DESCRIPTION = u'Активная политическая жизнь приводит к тому, что усиливаются все изменения влияния (и положительные и отрицательные) — увеличивается уровень свободы в городе. Также увеличивается радиус влияния города и ускоряется восстановление стабильности.'
 
     FREEDOM_MODIFIER = 0.25
 
     def modify_terrain_owning_radius(self, radius): return radius * 1.25
+
+    def modify_stability_renewing_speed(self, stability): return stability * 2
 
 
 class Polic(PlaceModifierBase):

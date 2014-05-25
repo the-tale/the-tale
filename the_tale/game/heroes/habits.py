@@ -4,8 +4,6 @@ import random
 
 from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS
 
-from the_tale.common.utils.decorators import lazy_property
-
 from the_tale.game.mobs.storage import mobs_storage
 from the_tale.game.mobs.relations import MOB_TYPE
 
@@ -13,74 +11,47 @@ from the_tale.game.balance import constants as c
 
 from the_tale.game.actions.relations import ACTION_EVENT
 
-from the_tale.game.heroes import relations
+from the_tale.game.habits import HabitBase
+from the_tale.game.relations import HABIT_TYPE
 
 from the_tale.accounts.achievements.storage import achievements_storage
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
 
-class Habit(object):
-    __slots__ = ('hero', 'field_name', 'intervals', '_interval__lazy')
-
-    TYPE = None
-
-    def __init__(self, hero, name):
-        super(Habit, self).__init__()
-        self.hero = hero
-        self.field_name = 'habit_%s' % name
-
-    @property
-    def raw_value(self):
-        return getattr(self.hero._model, self.field_name)
-
-    @lazy_property
-    def interval(self):
-        for interval, right_border in zip(self.TYPE.intervals.records, c.HABITS_RIGHT_BORDERS):
-            if right_border > self.raw_value:
-                return interval
+class Habit(HabitBase):
 
     @property
     def _real_interval(self):
-        if self.hero.clouded_mind:
+        if self.owner.clouded_mind:
             return random.choice(self.TYPE.intervals.records)
         return self.interval
 
     @property
     def verbose_value(self):
-        if self.hero.gender.is_MASCULINE:
+        if self.owner.gender.is_MASCULINE:
             return self.interval.text
-        if self.hero.gender.is_FEMININE:
+        if self.owner.gender.is_FEMININE:
             return self.interval.female_text
         return self.interval.neuter_text
 
-    def change(self, delta):
-        if (self.raw_value > 0 and delta > 0) or (self.raw_value < 0 and delta < 0):
-            delta *= self.hero.habits_increase_modifier
-        elif (self.raw_value < 0 and delta > 0) or (self.raw_value > 0 and delta < 0):
-            delta *= self.hero.habits_decrease_modifier
+    def reset_accessors_cache(self):
+        self.owner.reset_accessors_cache()
 
-        setattr(self.hero._model, self.field_name, max(-c.HABITS_BORDER, min(c.HABITS_BORDER, self.raw_value + delta)))
+    @property
+    def increase_modifier(self):
+        return self.owner.habits_increase_modifier
 
-        del self.interval
-        self.hero.reset_accessors_cache()
-
-
-    def modify_attribute(self, modifier, value):
-        return value
-
-    def check_attribute(self, modifier):
-        return False
-
-    def update_context(self, actor, enemy):
-        pass
+    @property
+    def decrease_modifier(self):
+        return self.owner.habits_decrease_modifier
 
 
 class Honor(Habit):
 
-    TYPE = relations.HABIT_TYPE.HONOR
+    TYPE = HABIT_TYPE.HONOR
 
     def change(self, delta):
-        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.HABITS_HONOR, object=self.hero):
+        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.HABITS_HONOR, object=self.owner):
             super(Honor, self).change(delta)
 
     def modify_attribute(self, modifier, value):
@@ -136,10 +107,10 @@ class Honor(Habit):
 
 class Peacefulness(Habit):
 
-    TYPE = relations.HABIT_TYPE.PEACEFULNESS
+    TYPE = HABIT_TYPE.PEACEFULNESS
 
     def change(self, delta):
-        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.HABITS_PEACEFULNESS, object=self.hero):
+        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.HABITS_PEACEFULNESS, object=self.owner):
             super(Peacefulness, self).change(delta)
 
     def modify_attribute(self, modifier, value):

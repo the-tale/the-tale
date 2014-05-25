@@ -38,11 +38,15 @@ class ModifiersTests(testcase.TestCase):
         self.assertEqual(PoliticalCenter.FREEDOM_MODIFIER, 0.25)
         self.assertEqual(PoliticalCenter(self.place_1).modify_terrain_owning_radius(100), 125)
 
+        self.place_1.stability_modifiers.append(('x', -0.5))
+
         old_radius = self.place_1.terrain_owning_radius
+        old_stability_renewing_speed = self.place_1._stability_renewing_speed()
 
         self.place_1.modifier = PoliticalCenter(self.place_1)
 
         self.assertTrue(old_radius < self.place_1.terrain_owning_radius)
+        self.assertTrue(old_stability_renewing_speed < self.place_1._stability_renewing_speed())
 
     def test_polic(self):
         self.assertEqual(CraftCenter(self.place_1).modify_economic_size(100), 100)

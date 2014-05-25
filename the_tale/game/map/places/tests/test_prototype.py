@@ -14,7 +14,7 @@ from the_tale.game.balance import constants as c
 from the_tale.game.map.conf import map_settings
 
 from the_tale.game.map.places.models import Building
-from the_tale.game.map.places.prototypes import BuildingPrototype, ResourceExchangePrototype
+from the_tale.game.map.places.prototypes import PlacePrototype, BuildingPrototype, ResourceExchangePrototype
 from the_tale.game.map.places.storage import places_storage, buildings_storage
 from the_tale.game.map.places.relations import RESOURCE_EXCHANGE_TYPE
 from the_tale.game.map.places import modifiers
@@ -209,12 +209,80 @@ class PlacePrototypeTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.freedom - (1.0 + 0.01 + 0.001 * len(self.p1.persons)) < 0.001)
 
+
+    def test_sync_sync_parameters__stability(self):
+
+        self.p1.stability_modifiers.append(('x', -0.5))
+        self.p1.stability_modifiers.append(('y', 0.25))
+
+        with self.check_delta(lambda: self.p1.stability, -0.25):
+            self.p1.sync_parameters()
+
+
+    def test_sync_sync_parameters__stability_maximum(self):
+
+        self.p1.stability_modifiers.append(('x', 0.5))
+        self.p1.stability_modifiers.append(('y', 0.25))
+
+        self.assertEqual(self.p1.stability, 1.0)
+
+        with self.check_not_changed(lambda: self.p1.stability):
+            self.p1.sync_parameters()
+
+
+    def test_sync_stability(self):
+
+        self.p1.stability_modifiers.append(('x', -0.5))
+        self.p1.stability_modifiers.append(('y', 0.25))
+
+        self.assertEqual(self.p1.stability_modifiers, [('x', -0.5), ('y', 0.25)])
+
+        self.p1.sync_stability()
+
+        self.assertEqual(self.p1.stability_modifiers, [('x', -0.5 + c.PLACE_STABILITY_PER_HOUR / 2), ('y', 0.25 - c.PLACE_STABILITY_PER_HOUR / 2)])
+
+
+    def test_sync_sync_parameters__stability__parameters_descreased(self):
+
+        self._create_test_exchanges()
+        self.p1.sync_parameters()
+
+        self.p1.stability_modifiers.append(('x', -1.0))
+
+        with self.check_decreased(lambda: self.p1.production):
+            with self.check_increased(lambda: self.p1.freedom):
+                with self.check_decreased(lambda: self.p1.transport):
+                    with self.check_decreased(lambda: self.p1.safety):
+                        self.p1.sync_parameters()
+
+
     def test_get_experience_modifier(self):
         self.assertEqual(self.p1.get_experience_modifier(), 0.0)
         self.p1.modifier = modifiers.Polic.get_id()
         self.assertEqual(self.p1.get_experience_modifier(), 0.0)
         self.p1.modifier = modifiers.Outlaws.get_id()
         self.assertEqual(self.p1.get_experience_modifier(), 0.25)
+
+
+    def test_habit_change_speed(self):
+        self.assertEqual(PlacePrototype._habit_change_speed(0, 100, 100), 0)
+        self.assertEqual(PlacePrototype._habit_change_speed(0, 100, -100), 0)
+        self.assertEqual(PlacePrototype._habit_change_speed(0, -100, 100), 0)
+
+        self.assertEqual(PlacePrototype._habit_change_speed(0, 100, 0), c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
+        self.assertEqual(PlacePrototype._habit_change_speed(0, 0, 100), -c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
+        self.assertEqual(PlacePrototype._habit_change_speed(0, -100, 0), c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
+        self.assertEqual(PlacePrototype._habit_change_speed(0, 0, -100), -c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
+        self.assertEqual(PlacePrototype._habit_change_speed(0, 100, 1), c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
+        self.assertEqual(PlacePrototype._habit_change_speed(0, -100, 1), c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
+        self.assertEqual(PlacePrototype._habit_change_speed(0, 1, 100), -c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
+        self.assertEqual(PlacePrototype._habit_change_speed(0, -1, 100), -c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
+
+
+    def test_habit_change_speed__penaltuy(self):
+        self.assertEqual(PlacePrototype._habit_change_speed(0, 0, 0), 0)
+        self.assertEqual(PlacePrototype._habit_change_speed(500, 0, 0), -5)
+        self.assertEqual(PlacePrototype._habit_change_speed(-500, 0, 0), 5)
 
 
 class BuildingPrototypeTests(testcase.TestCase):

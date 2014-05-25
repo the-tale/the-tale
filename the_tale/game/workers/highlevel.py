@@ -83,6 +83,7 @@ class Worker(BaseWorker):
 
             if self.turn_number % (bills_settings.BILLS_PROCESS_INTERVAL / c.TURN_DELTA) == 0:
                 if self.apply_bills():
+                    self.sync_data(sheduled=False)
                     map_update_needed = True
 
         if map_update_needed:
@@ -133,7 +134,7 @@ class Worker(BaseWorker):
     @places_storage.postpone_version_update
     @buildings_storage.postpone_version_update
     @persons_storage.postpone_version_update
-    def sync_data(self):
+    def sync_data(self, sheduled=True):
 
         self.logger.info('sync data')
 
@@ -214,14 +215,21 @@ class Worker(BaseWorker):
             expected_size = int(places_settings.MAX_SIZE * float(i) / places_number) + 1
             if place.modifier:
                 expected_size = place.modifier.modify_economic_size(expected_size)
-            place.set_expected_size(expected_size)
 
-            place.sync_size(c.MAP_SYNC_TIME_HOURS)
-            place.sync_persons(force_add=False)
+            if sheduled:
+                place.set_expected_size(expected_size)
+                place.sync_size(c.MAP_SYNC_TIME_HOURS)
+                place.sync_persons(force_add=False)
+
+            place.sync_stability()
             place.sync_modifier()
+            place.sync_habits()
+
             place.sync_parameters() # must be last operation to display and use real data
 
             place.update_heroes_number()
+            place.update_heroes_habits()
+
             place.mark_as_updated()
 
         places_storage.save_all()
@@ -229,12 +237,14 @@ class Worker(BaseWorker):
         persons_storage.remove_out_game_persons()
         persons_storage.save_all()
 
-        for building in buildings_storage.all():
-            building.amortize(c.MAP_SYNC_TIME)
+        if sheduled:
+            for building in buildings_storage.all():
+                building.amortize(c.MAP_SYNC_TIME)
 
         buildings_storage.save_all()
 
         self.logger.info('sync data completed')
+
 
     def apply_bills(self):
         from the_tale.game.bills.prototypes import BillPrototype

@@ -5,7 +5,8 @@ from the_tale.accounts.payments import exceptions
 from the_tale.accounts.payments import relations
 from the_tale.accounts.payments.conf import payments_settings
 
-from the_tale.game.heroes.relations import PREFERENCE_TYPE, HABIT_TYPE
+from the_tale.game.relations import HABIT_TYPE
+from the_tale.game.heroes.relations import PREFERENCE_TYPE
 
 
 PREMIUM_DAYS_DESCRIPTION = u'''

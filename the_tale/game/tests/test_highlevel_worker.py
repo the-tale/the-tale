@@ -149,6 +149,8 @@ class HighlevelTest(testcase.TestCase):
         set_expected_size = mock.Mock()
         sync_size = mock.Mock()
         sync_persons = mock.Mock()
+        sync_stability = mock.Mock()
+        sync_habits = mock.Mock()
         sync_modifier = mock.Mock()
         sync_parameters = mock.Mock()
         update_heroes_number = mock.Mock()
@@ -157,6 +159,8 @@ class HighlevelTest(testcase.TestCase):
         with contextlib.nested(mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.set_expected_size', set_expected_size),
                                mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_size', sync_size),
                                mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_persons', sync_persons),
+                               mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_stability', sync_stability),
+                               mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_habits', sync_habits),
                                mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_modifier', sync_modifier),
                                mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_parameters', sync_parameters),
                                mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.update_heroes_number', update_heroes_number),
@@ -168,6 +172,8 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(set_expected_size.call_count, places_number)
         self.assertEqual(sync_size.call_count, places_number)
         self.assertEqual(sync_persons.call_count, places_number)
+        self.assertEqual(sync_stability.call_count, places_number)
+        self.assertEqual(sync_habits.call_count, places_number)
         self.assertEqual(sync_modifier.call_count, places_number)
         self.assertEqual(sync_parameters.call_count, places_number)
         self.assertEqual(update_heroes_number.call_count, places_number)
