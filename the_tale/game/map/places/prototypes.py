@@ -163,6 +163,8 @@ class PlacePrototype(BasePrototype):
     @lazy_property
     def habit_peacefulness(self): return habits.Peacefulness(self, 'peacefulness')
 
+    def can_habit_event(self):
+        return random.uniform(0, 1) < c.PLACE_HABITS_EVENT_PROBABILITY
 
     @property
     def persons(self):

@@ -199,6 +199,64 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.storage._test_save()
 
+    @mock.patch('the_tale.game.balance.constants.PLACE_HABITS_EVENT_PROBABILITY', 1.0)
+    def test_habit_event(self):
+        from the_tale.game.relations import HABIT_HONOR_INTERVAL, HABIT_PEACEFULNESS_INTERVAL
+
+        for honor in HABIT_HONOR_INTERVAL.records:
+            if honor.is_LEFT_1 or honor.is_NEUTRAL or honor.is_RIGHT_1:
+                continue
+
+            for peacefulness in HABIT_PEACEFULNESS_INTERVAL.records:
+                if peacefulness.is_LEFT_1 or peacefulness.is_NEUTRAL or peacefulness.is_RIGHT_1:
+                    continue
+
+                self.hero._model.pos_previous_place_id = None
+                self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
+
+                with mock.patch('the_tale.game.map.places.habits.Honor.interval', honor):
+                    with mock.patch('the_tale.game.map.places.habits.Peacefulness.interval', peacefulness):
+                        with self.check_delta(self.hero.diary.messages_number, 1):
+                            ActionInPlacePrototype.create(hero=self.hero)
+
+        for honor in HABIT_HONOR_INTERVAL.records:
+            if not (honor.is_LEFT_1 or honor.is_NEUTRAL or honor.is_RIGHT_1):
+                continue
+
+            for peacefulness in HABIT_PEACEFULNESS_INTERVAL.records:
+                if not (peacefulness.is_LEFT_1 or peacefulness.is_NEUTRAL or peacefulness.is_RIGHT_1):
+                    continue
+
+                self.hero._model.pos_previous_place_id = None
+                self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
+
+                with mock.patch('the_tale.game.map.places.habits.Honor.interval', honor):
+                    with mock.patch('the_tale.game.map.places.habits.Peacefulness.interval', peacefulness):
+                        with self.check_not_changed(lambda: len(self.hero.diary.messages)):
+                            ActionInPlacePrototype.create(hero=self.hero)
+
+        self.storage._test_save()
+
+    @mock.patch('the_tale.game.balance.constants.PLACE_HABITS_EVENT_PROBABILITY', 0.0)
+    def test_habit_event__no_event(self):
+        self.hero._model.pos_previous_place_id = None
+
+        self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
+
+        with self.check_not_changed(lambda: len(self.hero.diary.messages)):
+            ActionInPlacePrototype.create(hero=self.hero)
+
+        self.storage._test_save()
+
+    @mock.patch('the_tale.game.balance.constants.PLACE_HABITS_EVENT_PROBABILITY', 1.0)
+    def test_habit_event__not_visit(self):
+        self.assertEqual(self.hero.position.place, self.hero.position.previous_place)
+
+        with self.check_not_changed(lambda: len(self.hero.diary.messages)):
+            ActionInPlacePrototype.create(hero=self.hero)
+
+        self.storage._test_save()
+
     def test_processed(self):
         self.storage.process_turn(second_step_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)

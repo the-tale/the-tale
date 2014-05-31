@@ -1096,6 +1096,15 @@ class ActionInPlacePrototype(ActionBase):
             else:
                 hero.add_message('action_inplace_tax_no_money', hero=hero, place=hero.position.place, diary=True)
 
+        if ( hero.position.place.can_habit_event and
+             hero.position.place != hero.position.previous_place ):
+            if random.uniform(0, 1) < 0.5:
+                hero.add_message('action_inplace_habit_event_honor_%s' % hero.position.place.habit_honor.interval.name.lower(),
+                                 hero=hero, place=hero.position.place, diary=True)
+            else:
+                hero.add_message('action_inplace_habit_event_peacefulness_%s' % hero.position.place.habit_peacefulness.interval.name.lower(),
+                                 hero=hero, place=hero.position.place, diary=True)
+
         hero.position.visit_current_place()
 
         return prototype
