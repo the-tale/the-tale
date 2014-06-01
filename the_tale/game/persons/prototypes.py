@@ -155,13 +155,13 @@ class PersonPrototype(BasePrototype):
     def friends_number(self): return self._model.friends_number
     def update_friends_number(self):
         from the_tale.game.heroes.preferences import HeroPreferences
-        self._model.friends_number = HeroPreferences.count_friends_of(self)
+        self._model.friends_number = HeroPreferences.count_friends_of(self, all=self.place.is_frontier)
 
     @property
     def enemies_number(self): return self._model.enemies_number
     def update_enemies_number(self):
         from the_tale.game.heroes.preferences import HeroPreferences
-        self._model.enemies_number = HeroPreferences.count_enemies_of(self)
+        self._model.enemies_number = HeroPreferences.count_enemies_of(self, all=self.place.is_frontier)
 
     def save(self):
         from the_tale.game.persons.storage import persons_storage

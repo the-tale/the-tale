@@ -6,14 +6,11 @@ from django.conf import settings as project_settings
 
 from dext.utils.app_settings import app_settings
 
-from the_tale.game.balance import constants as c
-
 GEN_MAP_DIR = os.path.join(project_settings.DCONT_DIR, './map/')
 
 map_settings = app_settings('MAP',
                             WIDTH=56 if not project_settings.TESTS_RUNNING else 4,
                             HEIGHT=46 if not project_settings.TESTS_RUNNING else 4,
-                            CELL_LENGTH=c.MAP_CELL_LENGTH,
                             CHRONICLE_RECORDS_NUMBER=10,
 
                             CELL_RANDOMIZE_FRACTION=0.1,

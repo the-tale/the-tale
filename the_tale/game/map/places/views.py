@@ -34,13 +34,13 @@ class PlaceResource(Resource):
         persons_heroes = {}
         persons_numbers = {}
 
-        city_heroes = HeroPreferences.get_citizens_of(self.place)
+        city_heroes = HeroPreferences.get_citizens_of(self.place, all=self.place.depends_from_all_heroes)
 
         accounts_ids = [hero.account_id for hero in city_heroes]
 
         for person in persons:
-            friends = HeroPreferences.get_friends_of(person)
-            enemies = HeroPreferences.get_enemies_of(person)
+            friends = HeroPreferences.get_friends_of(person, all=self.place.depends_from_all_heroes)
+            enemies = HeroPreferences.get_enemies_of(person, all=self.place.depends_from_all_heroes)
 
             persons_heroes[person.id] = map(None, friends, enemies)
             persons_numbers[person.id] = (len(friends), len(enemies))

@@ -26,7 +26,7 @@ class BalanceResource(Resource):
 
         # Всё, что ниже, должно зависеть от уровня, не от времени, т.к. время в данном случае не точный параметр, а анализ всё равно ориентируется на уровень.
 
-        exp_for_quest = f.experience_for_quest__real(waymarks_storage.average_path_length)
+        exp_for_quest = f.experience_for_quest__real(c.QUEST_AREA_RADIUS)
 
         tmp_exp_to_level = map(math.floor, map(f.exp_on_lvl, tmp_lvls))
         tmp_exp_total = map(math.floor, map(f.total_exp_to_lvl, tmp_lvls))
@@ -61,7 +61,7 @@ class BalanceResource(Resource):
                               'f': f ,
 
                               'exp_for_quest': exp_for_quest,
-                              'average_path_length':waymarks_storage.average_path_length,
+                              'average_path_length': c.QUEST_AREA_RADIUS,
 
                               'tmp_time': tmp_time,
                               'tmp_lvls': tmp_lvls,

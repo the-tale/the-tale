@@ -78,12 +78,20 @@ class CellInfoTests(RequestsTestsBase):
         self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
 
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', True)
-    def test_place_new_oplace_message(self):
+    def test_place_new_place_message(self):
         self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=['pgf-new-place-message'])
 
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', False)
-    def test_place_new_oplace_message__not_new(self):
+    def test_place_new_place_message__not_new(self):
         self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=[('pgf-new-place-message', 0)])
+
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_frontier', True)
+    def test_place_frontier_message(self):
+        self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=['pgf-frontier-message'])
+
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_frontier', False)
+    def test_place_frontier_message__not_new(self):
+        self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=[('pgf-frontier-message', 0)])
 
 
     def test_place_chronicle(self):

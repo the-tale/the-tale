@@ -60,7 +60,7 @@ class Command(BaseCommand):
             exp_to_next_level = float(self.hero.experience) / f.exp_on_lvl(self.hero.level) * 100
             exp_from_expected = float(f.total_exp_to_lvl(self.hero.level)+self.hero.experience)/f.total_exp_to_lvl(level+1)*100
             exp_untaken = f.total_exp_to_lvl(level+1) - f.total_exp_to_lvl(self.hero.level) - self.hero.experience
-            quests_untaken = float(exp_untaken) / f.experience_for_quest(waymarks_storage.average_path_length)
+            quests_untaken = float(exp_untaken) / f.experience_for_quest(c.QUEST_AREA_RADIUS)
             print u'hero level: %d\texp: %.2f%%\texp from expected: %.2f%% (%d exp, %.2f quests)\ttotal quests %d' % (self.hero.level,
                                                                                                                       exp_to_next_level,
                                                                                                                       exp_from_expected,

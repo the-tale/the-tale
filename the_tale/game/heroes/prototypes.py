@@ -306,8 +306,20 @@ class HeroPrototype(BasePrototype,
     # Permissions
     ###########################################
 
-    @property
-    def can_change_persons_power(self): return self.is_premium and not self.is_banned
+    def can_change_person_power(self, person):
+       if self.is_banned:
+           return False
+
+       return self.can_change_place_power(person.place)
+
+    def can_change_place_power(self, place):
+       if self.is_banned:
+           return False
+
+       if place.depends_from_all_heroes:
+           return True
+
+       return self.is_premium
 
     @property
     def can_participate_in_pvp(self): return not self.is_fast and not self.is_banned
@@ -864,7 +876,7 @@ class HeroPositionPrototype(object):
         if dominant_place is not None:
             battles_per_turn = 1.0 - dominant_place.safety
         else:
-            battles_per_turn = c.BATTLES_PER_TURN
+            battles_per_turn = c.BATTLES_PER_TURN + c.WHILD_BATTLES_PER_TURN_BONUS
 
         return random.uniform(0, 1) <= battles_per_turn
 

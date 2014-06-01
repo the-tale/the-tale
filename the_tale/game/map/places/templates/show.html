@@ -23,9 +23,15 @@
 
 {% block places_content %}
 
-<h3>{{place.name}} <small>подробная информация о населении</small></h3>
+<h3>{{place.name}} <small>подробная информация о населении</small></h3><br/>
 
-<br/>
+{% if place and place.is_new %}
+  <h4 class="pgf-new-place-message">Это город считается <a href="{{url('guide:cities')}}" target="_blank">новым</a> <small>до <span class="pgf-format-datetime" data-timestamp="{{ place.new_for|timestamp }}"></span></small></h4><br/>
+{% endif %}
+
+{% if place and place.is_frontier %}
+  <h4 class="pgf-frontier-message">Город находится на <a href="{{url('guide:cities')}}" target="_blank">Фронтире</a></h4></br>
+{% endif %}
 
 <p>
   Размер города: {{place.size}}

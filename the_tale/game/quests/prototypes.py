@@ -188,7 +188,7 @@ class QuestInfo(object):
 
     @classmethod
     def get_expirience_for_quest(cls, hero):
-        experience = f.experience_for_quest(waymarks_storage.average_path_length)
+        experience = f.experience_for_quest(c.QUEST_AREA_RADIUS)
         if hero.statistics.quests_done == 0:
             # since we get shortest path for first quest
             # and want to give exp as fast as can
@@ -198,7 +198,7 @@ class QuestInfo(object):
 
     @classmethod
     def get_person_power_for_quest(cls, hero):# pylint: disable=W0613
-        return f.person_power_for_quest(waymarks_storage.average_path_length)
+        return f.person_power_for_quest(c.QUEST_AREA_RADIUS)
 
     def get_real_reward_scale(self, hero, scale):
 
@@ -375,7 +375,7 @@ class QuestPrototype(object):
             positive_bonus /= len(PERSON_TYPE.records)
             negative_bonus /= len(PERSON_TYPE.records)
 
-        if not hero.can_change_persons_power:
+        if not hero.can_change_person_power(person):
             return 0
 
         person.cmd_change_power(power, positive_bonus, negative_bonus)
@@ -389,7 +389,7 @@ class QuestPrototype(object):
 
         power, positive_bonus, negative_bonus = hero.modify_power(power, place=place)
 
-        if not hero.can_change_persons_power:
+        if not hero.can_change_place_power(place):
             return 0
 
         place.cmd_change_power(power, positive_bonus, negative_bonus)

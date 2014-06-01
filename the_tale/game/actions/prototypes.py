@@ -1200,7 +1200,7 @@ class ActionInPlacePrototype(ActionBase):
                 power_direction = -1
                 self.hero.add_message('action_inplace_diary_impact_bad', diary=True, hero=self.hero, coins=coins, person=person)
 
-            if not self.hero.can_change_persons_power:
+            if not self.hero.can_change_person_power(person):
                 return
 
             power, positive_bonus, negative_bonus = self.hero.modify_power(f.person_power_from_random_spend(power_direction, self.hero.level), person=person)

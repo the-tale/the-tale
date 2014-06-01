@@ -587,7 +587,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         money = self.hero.spend_amount
         self.hero._model.money = money
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_change_persons_power', True):
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_change_person_power', lambda self, person: True):
             with mock.patch('the_tale.game.persons.prototypes.PersonPrototype.cmd_change_power') as cmd_change_power:
                 self.storage.process_turn()
 

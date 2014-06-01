@@ -148,13 +148,42 @@ class HeroTest(testcase.TestCase):
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_banned', True):
             self.assertFalse(self.hero.can_participate_in_pvp)
 
-    def test_can_change_persons_power(self):
-        self.assertFalse(self.hero.can_change_persons_power)
-        self.hero._model.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
-        self.assertTrue(self.hero.can_change_persons_power)
+    def test_can_change_person_power(self):
+        self.assertFalse(self.hero.can_change_person_power(self.place_1.persons[0]))
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_banned', True):
-            self.assertFalse(self.hero.can_change_persons_power)
+    def test_can_change_person_power__premium(self):
+        self.hero._model.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        self.assertTrue(self.hero.can_change_person_power(self.place_1.persons[0]))
+
+    def test_can_change_person_power__depends_from_all_heroes(self):
+        with mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.depends_from_all_heroes', True):
+            self.assertTrue(self.hero.can_change_person_power(self.place_1.persons[0]))
+
+    def test_can_change_person_power__banned(self):
+        self.hero._model.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+
+        with mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.depends_from_all_heroes', True):
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_banned', True):
+                self.assertFalse(self.hero.can_change_person_power(self.place_1.persons[0]))
+
+
+    def test_can_change_place_power(self):
+        self.assertFalse(self.hero.can_change_place_power(self.place_1))
+
+    def test_can_change_place_power__premium(self):
+        self.hero._model.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        self.assertTrue(self.hero.can_change_place_power(self.place_1))
+
+    def test_can_change_place_power__depends_from_all_heroes(self):
+        with mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.depends_from_all_heroes', True):
+            self.assertTrue(self.hero.can_change_place_power(self.place_1))
+
+    def test_can_change_place_power__banned(self):
+        self.hero._model.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+
+        with mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.depends_from_all_heroes', True):
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_banned', True):
+                self.assertFalse(self.hero.can_change_person_power(self.place_1))
 
     def test_can_repair_building(self):
         self.assertFalse(self.hero.can_repair_building)

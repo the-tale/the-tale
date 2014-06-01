@@ -6,7 +6,9 @@ from the_tale.game.map.places.models import Place, Building, ResourceExchange
 
 
 class PlaceAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'size', 'x', 'y')
+    list_display = ('id', 'name', 'is_frontier', 'size', 'x', 'y')
+
+    list_filter = ('is_frontier',)
 
 
 class BuildingAdmin(admin.ModelAdmin):

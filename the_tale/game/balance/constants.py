@@ -96,6 +96,7 @@ BATTLES_LINE_LENGTH = int(BATTLES_BEFORE_HEAL * (BATTLE_LENGTH + INTERVAL_BETWEE
 
 # количество битв в ход в промежутке непрерывных боёв
 BATTLES_PER_TURN = float(1.0 / (INTERVAL_BETWEEN_BATTLES + 1) )
+WHILD_BATTLES_PER_TURN_BONUS = float(0.05)
 
 HEAL_LENGTH = int(math.floor(BATTLES_LINE_LENGTH * HEAL_TIME_FRACTION)) # ходов - длительность лечения героя
 
@@ -256,6 +257,9 @@ GAME_SECONDS_IN_TURN = int(GAME_SECONDS_IN_GAME_DAY / _TURNS_IN_GAME_DAY)
 ##########################
 
 MAP_CELL_LENGTH = float(3.0) # длина клетки в километрах
+
+QUEST_AREA_RADIUS = float(60 * MAP_CELL_LENGTH) # радиус от позиции героя в котором ОБЫЧНО выбираются города для его заданий
+QUEST_AREA_MAXIMUM_RADIUS = float(1000000 * MAP_CELL_LENGTH) # максимальный радиус для выбора городов для заданий
 
 MAP_SYNC_TIME_HOURS = int(1)
 MAP_SYNC_TIME = int(TURNS_IN_HOUR * MAP_SYNC_TIME_HOURS) # синхронизируем карту раз в N часов

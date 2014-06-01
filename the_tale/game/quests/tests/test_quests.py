@@ -89,7 +89,6 @@ def create_test_method(quest, quests):
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_first_quest_path_required', False)
     @mock.patch('the_tale.game.quests.logic.QUESTS_BASE._quests', internal_quests)
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.get_quests', lambda hero: [(quest, 10000000)] + [(q, 0) for q in quests if q != quest])
-    @mock.patch('the_tale.game.map.roads.storage.WaymarksStorage.average_path_length', 9999)
     def quest_test_method(self):
 
         # defends from first quest rule

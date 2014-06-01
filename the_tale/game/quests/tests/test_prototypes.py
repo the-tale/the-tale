@@ -120,7 +120,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertNotEqual(self.hero.quests.interfered_persons, {})
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_change_persons_power', True)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_change_person_power', lambda self, person: True)
     def test_give_person_power__profession(self):
 
         person = persons_storage.all()[0]
@@ -174,6 +174,24 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertTrue(len(self.hero.places_history.history) > 0)
 
         self.assertEqual(fake_cmd.call_count, 0)
+
+
+    @mock.patch('the_tale.game.quests.prototypes.QuestInfo.get_person_power_for_quest', classmethod(lambda cls, hero: 1))
+    def test_power_on_end_quest_for_normal_account_hero__in_frontier(self):
+
+        for place in places_storage.all():
+            place._model.is_frontier = True
+
+        self.hero.is_fast = False
+
+        self.assertEqual(self.hero.places_history.history, [])
+
+        with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as fake_cmd:
+            self.complete_quest()
+
+        self.assertTrue(len(self.hero.places_history.history) > 0)
+
+        self.assertTrue(fake_cmd.call_count > 0)
 
     def test_power_on_end_quest__give_power_called(self):
 

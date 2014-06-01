@@ -17,3 +17,7 @@ class WaymarksStorageError(RoadError):
 
 class RoadsAlreadyExistsError(RoadError):
     MSG = u'road (%(start)d, %(stop)d) has already exist'
+
+
+class WaymarkAlreadyExistsError(RoadError):
+    MSG = u'waymark (%(start)d, %(stop)d) has already exist'

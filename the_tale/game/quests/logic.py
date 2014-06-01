@@ -19,6 +19,8 @@ from questgen.relations import PLACE_TYPE as QUEST_PLACE_TYPE
 
 from the_tale.common.utils.logic import shuffle_values_by_priority
 
+from the_tale.game.balance import constants as c
+
 from the_tale.game.map.places.storage import places_storage
 from the_tale.game.map.roads.storage import waymarks_storage
 
@@ -53,8 +55,24 @@ def choose_quest_path_url():
     return url('game:quests:api-choose', api_version='1.0', api_client=project_settings.API_CLIENT)
 
 
+def fact_place(place):
+    return facts.Place(uid=uids.place(place),
+                       terrains=[terrain.value for terrain in place.terrains],
+                       externals={'id': place.id},
+                       type=place.modifier.TYPE.quest_type if place.modifier else QUEST_PLACE_TYPE.NONE)
+
+def fact_mob(mob):
+    return facts.Mob(uid=uids.mob(mob),
+                     terrains=[terrain.value for terrain in mob.terrains],
+                     externals={'id': mob.id})
+
+def fact_person(person):
+    return facts.Person(uid=uids.person(person),
+                        profession=person.type.quest_profession,
+                        externals={'id': person.id})
+
 def fill_places_for_first_quest(kb, hero):
-    best_distance = waymarks_storage.average_path_length * 2
+    best_distance = c.QUEST_AREA_MAXIMUM_RADIUS
     best_destination = None
 
     for place in places_storage.all():
@@ -65,27 +83,100 @@ def fill_places_for_first_quest(kb, hero):
             best_distance = path_length
             best_destination = place
 
-    kb += facts.Place(uid=uids.place(best_destination),
-                      terrains=[terrain.value for terrain in best_destination.terrains],
-                      externals={'id': best_destination.id},
-                      type=best_destination.modifier.TYPE.quest_type if best_destination.modifier else QUEST_PLACE_TYPE.NONE)
-    kb += facts.Place(uid=uids.place(hero.position.place),
-                      terrains=[terrain.value for terrain in hero.position.place.terrains],
-                      externals={'id': hero.position.place.id},
-                      type=hero.position.place.modifier.TYPE.quest_type if hero.position.place.modifier else QUEST_PLACE_TYPE.NONE)
+    kb += fact_place(best_destination)
+    kb += fact_place(hero.position.place)
 
 
-def fill_places_for_short_paths(kb, hero):
+def fill_places(kb, hero, max_distance):
     for place in places_storage.all():
+
         if place.id != hero.position.place.id:
             path_length = waymarks_storage.look_for_road(hero.position.place, place).length
-            if path_length > waymarks_storage.average_path_length:
+            if path_length > max_distance:
                 continue
 
-        kb += facts.Place(uid=uids.place(place),
-                          terrains=[terrain.value for terrain in place.terrains],
-                          externals={'id': place.id},
-                          type=place.modifier.TYPE.quest_type if place.modifier else QUEST_PLACE_TYPE.NONE)
+        uid = uids.place(place)
+
+        if uid in kb:
+            continue
+
+        kb += fact_place(place)
+
+
+def setup_places(kb, hero):
+    if hero.is_first_quest_path_required:
+        fill_places_for_first_quest(kb, hero)
+    elif hero.is_short_quest_path_required:
+        fill_places(kb, hero, max_distance=c.QUEST_AREA_RADIUS)
+    else:
+        pass
+
+    hero_position_uid = uids.place(hero.position.place)
+    if hero_position_uid not in kb:
+        kb += fact_place(hero.position.place)
+
+    kb += facts.LocatedIn(object=uids.hero(hero), place=hero_position_uid)
+
+    if len(list(kb.filter(facts.Place))) < 2:
+        fill_places(kb, hero, max_distance=c.QUEST_AREA_MAXIMUM_RADIUS)
+
+
+def setup_persons(kb, hero):
+    for person in persons_storage.filter(state=PERSON_STATE.IN_GAME):
+        place_uid = uids.place(person.place)
+
+        if place_uid not in kb:
+            continue
+
+        f_person = fact_person(person)
+        kb += f_person
+        kb += facts.LocatedIn(object=f_person.uid, place=place_uid)
+
+
+def setup_preferences(kb, hero):
+    hero_uid = uids.hero(hero)
+
+    if hero.preferences.mob:
+        f_mob = fact_mob(hero.preferences.mob)
+        if f_mob.uid not in kb:
+            kb += f_mob
+        kb += facts.PreferenceMob(object=hero_uid, mob=f_mob.uid)
+
+    if hero.preferences.place:
+        f_place = fact_place(hero.preferences.place)
+        if f_place.uid not in kb:
+            kb += f_place
+        kb += facts.PreferenceHometown(object=hero_uid, place=f_place.uid)
+
+    if hero.preferences.friend:
+        f_place = fact_place(hero.preferences.friend.place)
+        f_person = fact_person(hero.preferences.friend)
+
+        if f_place.uid not in kb:
+            kb += f_place
+
+        if f_person.uid not in kb:
+            kb += f_person
+
+        kb += facts.PreferenceFriend(object=hero_uid, person=f_person.uid)
+        kb += facts.ExceptBadBranches(object=f_person.uid)
+
+    if hero.preferences.enemy:
+        f_place = fact_place(hero.preferences.enemy.place)
+        f_person = fact_person(hero.preferences.enemy)
+
+        if f_place.uid not in kb:
+            kb += f_place
+
+        if f_person.uid not in kb:
+            kb += f_person
+
+        kb += facts.PreferenceEnemy(object=hero_uid, person=f_person.uid)
+        kb += facts.ExceptGoodBranches(object=f_person.uid)
+
+    if hero.preferences.equipment_slot:
+        kb += facts.PreferenceEquipmentSlot(object=hero_uid, equipment_slot=hero.preferences.equipment_slot.value)
+
 
 
 def get_knowledge_base(hero, without_restrictions=False): # pylint: disable=R0912
@@ -96,71 +187,9 @@ def get_knowledge_base(hero, without_restrictions=False): # pylint: disable=R091
 
     kb += facts.Hero(uid=hero_uid, externals={'id': hero.id})
 
-    # fill places
-    if hero.is_first_quest_path_required:
-        fill_places_for_first_quest(kb, hero)
-    elif hero.is_short_quest_path_required:
-        fill_places_for_short_paths(kb, hero)
-    else:
-        pass
-
-    hero_position_uid = uids.place(hero.position.place)
-    if hero_position_uid not in kb:
-        kb += facts.Place(uid=hero_position_uid,
-                          terrains=[terrain.value for terrain in hero.position.place.terrains],
-                          externals={'id': hero.position.place.id},
-                          type=hero.position.place.modifier.TYPE.quest_type if hero.position.place.modifier else QUEST_PLACE_TYPE.NONE)
-
-    kb += facts.LocatedIn(object=hero_uid, place=hero_position_uid)
-
-    if len(list(kb.filter(facts.Place))) < 2:
-        for place in places_storage.all():
-            place_uid = uids.place(place)
-            if place_uid not in kb:
-                kb += facts.Place(uid=place_uid,
-                                  terrains=[terrain.value for terrain in place.terrains],
-                                  externals={'id': place.id},
-                                  type=place.modifier.TYPE.quest_type if place.modifier else QUEST_PLACE_TYPE.NONE)
-
-
-    # fill persons
-    for person in persons_storage.filter(state=PERSON_STATE.IN_GAME):
-        person_uid = uids.person(person)
-        place_uid = uids.place(person.place)
-
-        if place_uid not in kb:
-            continue
-
-        kb += facts.Person(uid=person_uid, profession=person.type.quest_profession, externals={'id': person.id})
-        kb += facts.LocatedIn(object=person_uid, place=place_uid)
-
-    pref_mob = hero.preferences.mob
-    if pref_mob:
-        mob_uid = uids.mob(pref_mob)
-        kb += ( facts.Mob(uid=mob_uid, terrains=[terrain.value for terrain in pref_mob.terrains], externals={'id': pref_mob.id}),
-                facts.PreferenceMob(object=hero_uid, mob=mob_uid) )
-
-    pref_place = hero.preferences.place
-    place_uid = uids.place(pref_place) if pref_place is not None else None
-    if place_uid in kb:
-        kb += facts.PreferenceHometown(object=hero_uid, place=place_uid)
-
-    pref_friend = hero.preferences.friend
-    friend_uid = uids.person(pref_friend) if pref_friend is not None else None
-    if friend_uid in kb:
-        kb += ( facts.PreferenceFriend(object=hero_uid, person=friend_uid),
-                facts.ExceptBadBranches(object=friend_uid) )
-
-    pref_enemy = hero.preferences.enemy
-    enemy_uid = uids.person(pref_enemy) if pref_enemy is not None else None
-    if enemy_uid in kb:
-        kb += ( facts.PreferenceEnemy(object=hero_uid, person=enemy_uid),
-                facts.ExceptGoodBranches(object=enemy_uid) )
-
-    pref_equipment_slot = hero.preferences.equipment_slot
-    if pref_equipment_slot:
-        kb += facts.PreferenceEquipmentSlot(object=hero_uid, equipment_slot=pref_equipment_slot.value)
-
+    setup_places(kb, hero)
+    setup_persons(kb, hero)
+    setup_preferences(kb, hero)
 
     if not without_restrictions:
 
@@ -169,7 +198,6 @@ def get_knowledge_base(hero, without_restrictions=False): # pylint: disable=R091
                 kb += facts.NotFirstInitiator(person=uids.person(person))
 
     kb.validate_consistency(WORLD_RESTRICTIONS)
-
 
     kb += [facts.UpgradeEquipmentCost(money=QuestPrototype.upgrade_equipment_cost(hero))]
 

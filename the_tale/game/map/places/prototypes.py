@@ -49,7 +49,7 @@ class PlaceParametersDescription(object):
 @add_power_management(places_settings.POWER_HISTORY_LENGTH, exceptions.PlacesPowerError)
 class PlacePrototype(BasePrototype):
     _model_class = Place
-    _readonly = ('id', 'x', 'y', 'name', 'heroes_number', 'updated_at', 'created_at', 'habit_honor_positive', 'habit_honor_negative', 'habit_peacefulness_positive', 'habit_peacefulness_negative', )
+    _readonly = ('id', 'x', 'y', 'name', 'heroes_number', 'updated_at', 'created_at', 'habit_honor_positive', 'habit_honor_negative', 'habit_peacefulness_positive', 'habit_peacefulness_negative', 'is_frontier')
     _bidirectional = ('description', 'size', 'expected_size', 'goods', 'production', 'safety', 'freedom', 'transport', 'race', 'persons_changed_at_turn', 'tax', 'stability')
     _get_by = ('id',)
 
@@ -111,14 +111,18 @@ class PlacePrototype(BasePrototype):
     def terrain_radius(self):
         return self.terrain_change_power
 
+    @property
+    def depends_from_all_heroes(self):
+        return self.is_frontier
+
     def update_heroes_number(self):
         from the_tale.game.heroes.preferences import HeroPreferences
-        self._model.heroes_number = HeroPreferences.count_citizens_of(self)
+        self._model.heroes_number = HeroPreferences.count_citizens_of(self, all=self.depends_from_all_heroes)
 
     def update_heroes_habits(self):
         from the_tale.game.heroes.preferences import HeroPreferences
 
-        habits_values = HeroPreferences.count_habit_values(self)
+        habits_values = HeroPreferences.count_habit_values(self, all=self.depends_from_all_heroes)
 
         self._model.habit_honor_positive = habits_values[0][0]
         self._model.habit_honor_negative = habits_values[0][1]
@@ -362,8 +366,12 @@ class PlacePrototype(BasePrototype):
 
     def get_safety_powers(self):
         powers = [(u'город', 1.0),
-                  (u'монстры', -c.BATTLES_PER_TURN),
-                  (u'стабильность', (1.0-self.stability) * c.PLACE_STABILITY_MAX_SAFETY_PENALTY)]
+                  (u'монстры', -c.BATTLES_PER_TURN)]
+
+        if self.is_frontier:
+            powers.append((u'дикие земли', -c.WHILD_BATTLES_PER_TURN_BONUS))
+
+        powers.append((u'стабильность', (1.0-self.stability) * c.PLACE_STABILITY_MAX_SAFETY_PENALTY))
 
         self._update_powers(powers, CITY_PARAMETERS.SAFETY)
 

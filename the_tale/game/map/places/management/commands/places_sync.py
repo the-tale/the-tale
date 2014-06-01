@@ -14,7 +14,7 @@ class Command(BaseCommand):
 
         for place in places_storage.all():
             place.sync_persons(force_add=True)
-            place.sync_habbits()
+            place.sync_habits()
 
             place.sync_parameters() # must be last operation to display and use real data
 

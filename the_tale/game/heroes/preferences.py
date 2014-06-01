@@ -177,58 +177,64 @@ class HeroPreferences(object):
     # helpers
 
     @classmethod
-    def _preferences_query(cls):
+    def _preferences_query(cls, all):
         current_time = datetime.datetime.now()
-        return HeroPreferencesPrototype._model_class.objects.filter(hero__ban_state_end_at__lt=current_time, hero__premium_state_end_at__gte=current_time)
+        if all:
+            return HeroPreferencesPrototype._model_class.objects.filter(hero__is_fast=False, hero__ban_state_end_at__lt=current_time, hero__active_state_end_at__gte=current_time)
+
+        return HeroPreferencesPrototype._model_class.objects.filter(hero__is_fast=False, hero__ban_state_end_at__lt=current_time, hero__premium_state_end_at__gte=current_time)
 
     @classmethod
-    def _heroes_query(cls):
+    def _heroes_query(cls, all):
         current_time = datetime.datetime.now()
-        return HeroPrototype._model_class.objects.filter(ban_state_end_at__lt=current_time, premium_state_end_at__gte=current_time)
+        if all:
+            return HeroPrototype._model_class.objects.filter(is_fast=False, ban_state_end_at__lt=current_time, active_state_end_at__gte=current_time)
+
+        return HeroPrototype._model_class.objects.filter(is_fast=False, ban_state_end_at__lt=current_time, premium_state_end_at__gte=current_time)
 
     @classmethod
-    def _place_heroes_query(cls, place):
+    def _place_heroes_query(cls, place, all):
         persons_ids = [person.id for person in place.persons]
 
         db_filter = models.Q(place_id=place.id)
         db_filter |= models.Q(friend_id__in=persons_ids)
         db_filter |= models.Q(enemy_id__in=persons_ids)
 
-        return cls._preferences_query().filter(db_filter)
+        return cls._preferences_query(all=all).filter(db_filter)
 
     @classmethod
-    def count_friends_of(cls, person):
-        return cls._preferences_query().filter(friend_id=person.id).count()
+    def count_friends_of(cls, person, all):
+        return cls._preferences_query(all=all).filter(friend_id=person.id).count()
 
     @classmethod
-    def count_enemies_of(cls, person):
-        return cls._preferences_query().filter(enemy_id=person.id).count()
+    def count_enemies_of(cls, person, all):
+        return cls._preferences_query(all=all).filter(enemy_id=person.id).count()
 
     @classmethod
-    def count_citizens_of(cls, place):
-        return cls._preferences_query().filter(place_id=place.id).count()
+    def count_citizens_of(cls, place, all):
+        return cls._preferences_query(all=all).filter(place_id=place.id).count()
 
     @classmethod
-    def get_friends_of(cls, person):
-        return [HeroPrototype(model=record) for record in cls._heroes_query().filter(heropreferences__friend_id=person.id)]
+    def get_friends_of(cls, person, all):
+        return [HeroPrototype(model=record) for record in cls._heroes_query(all=all).filter(heropreferences__friend_id=person.id)]
 
     @classmethod
-    def get_enemies_of(cls, person):
-        return [HeroPrototype(model=record) for record in cls._heroes_query().filter(heropreferences__enemy_id=person.id)]
+    def get_enemies_of(cls, person, all):
+        return [HeroPrototype(model=record) for record in cls._heroes_query(all=all).filter(heropreferences__enemy_id=person.id)]
 
     @classmethod
-    def get_citizens_of(cls, place):
-        return [HeroPrototype(model=record) for record in cls._heroes_query().filter(heropreferences__place_id=place.id)]
+    def get_citizens_of(cls, place, all):
+        return [HeroPrototype(model=record) for record in cls._heroes_query(all=all).filter(heropreferences__place_id=place.id)]
 
     @classmethod
-    def count_habit_values(cls, place):
+    def count_habit_values(cls, place, all):
 
         honor_positive = 0
         honor_negative = 0
         peacefulness_positive = 0
         peacefulness_negative = 0
 
-        for honor, peacefulness in cls._place_heroes_query(place).values_list('hero__habit_honor', 'hero__habit_peacefulness'):
+        for honor, peacefulness in cls._place_heroes_query(place, all=all).values_list('hero__habit_honor', 'hero__habit_peacefulness'):
             if honor > 0:
                 honor_positive += honor
             elif honor < 0:

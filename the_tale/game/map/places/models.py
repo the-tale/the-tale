@@ -25,6 +25,8 @@ class Place(models.Model):
     updated_at_turn = models.BigIntegerField(default=0)
     updated_at = models.DateTimeField(auto_now=True, null=False)
 
+    is_frontier = models.BooleanField(default=False)
+
     name = models.CharField(max_length=MAX_NAME_LENGTH, null=False, db_index=True)
 
     name_forms = models.TextField(null=False, default=u'')

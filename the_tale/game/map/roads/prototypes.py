@@ -3,6 +3,8 @@ import math
 
 from the_tale.common.utils.prototypes import BasePrototype
 
+from the_tale.game.balance import constants as c
+
 from the_tale.game.map.conf import map_settings
 from the_tale.game.map.places.storage import places_storage
 
@@ -31,6 +33,10 @@ class RoadPrototype(BasePrototype):
     def save(self): self._model.save(force_update=True)
 
     @classmethod
+    def _distance_in_cells(cls, point_1, point_2):
+        return abs(point_1.x - point_2.x) + abs(point_1.y - point_2.y)
+
+    @classmethod
     def create(cls, point_1, point_2):
         from the_tale.game.map.roads.storage import roads_storage
 
@@ -44,11 +50,11 @@ class RoadPrototype(BasePrototype):
         except Road.DoesNotExist:
             pass
 
-        distance = math.sqrt( (point_1.x - point_2.x)**2 + (point_1.y - point_2.y)**2 )
+        distance = cls._distance_in_cells(point_1, point_2)
 
         model = Road.objects.create(point_1=point_1._model,
                                     point_2=point_2._model,
-                                    length=distance * map_settings.CELL_LENGTH)
+                                    length=distance * c.MAP_CELL_LENGTH)
 
         prototype = cls(model)
 
@@ -59,11 +65,9 @@ class RoadPrototype(BasePrototype):
 
 
     def update(self):
-        # distance = math.sqrt( (self.point_1.x - self.point_2.x)**2 + (self.point_1.y - self.point_2.y)**2 )
-
         # since road paved only vertically and horizontally
-        distance = abs(self.point_1.x - self.point_2.x) + abs(self.point_1.y - self.point_2.y)
-        self.length = distance * map_settings.CELL_LENGTH
+        distance = self._distance_in_cells(self.point_1, self.point_2)
+        self.length = distance * c.MAP_CELL_LENGTH
 
         if self.point_1.id > self.point_2.id:
             self._model.point_1, self._model.point_2 = self._model.point_2, self._model.point_1
@@ -156,7 +160,7 @@ class WaymarkPrototype(BasePrototype):
         try:
             Waymark.objects.get(point_from=point_from.id,
                                 point_to=point_to.id)
-            raise RoadsException('waymark (%i, %i) has already exist' % (point_from.id, point_to.id) )
+            raise exceptions.WaymarkAlreadyExistsError(start=point_from.id, stop=point_to.id)
         except Waymark.DoesNotExist:
             pass
 

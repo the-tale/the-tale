@@ -74,6 +74,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.ARTIFACT_BREAK_INTEGRITY_FRACTIONS, (0.1, 0.2))
         self.assertEqual(c.BATTLES_LINE_LENGTH, 8*(16+3)-3)
         self.assertEqual(c.BATTLES_PER_TURN, 1.0 / (3+1) )
+        self.assertEqual(c.WHILD_BATTLES_PER_TURN_BONUS, 0.05)
         self.assertEqual(c.HEAL_LENGTH, int((8*(16+3)-3) * 0.2))
         self.assertEqual(c.ACTIONS_CYCLE_LENGTH, int(8*(16+3)-3 + (8*(16+3)-3) * 0.2))
         self.assertEqual(c.BATTLES_PER_HOUR, 360.0 / (int(8*(16+3)-3 + (8*(16+3)-3) * 0.2)) * 8)
@@ -152,6 +153,9 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.GAME_SECONDS_IN_TURN, 120)
 
         self.assertEqual(c.MAP_CELL_LENGTH, 3.0)
+        self.assertEqual(c.QUEST_AREA_RADIUS, 180)
+        self.assertEqual(c.QUEST_AREA_MAXIMUM_RADIUS, 3000000)
+
         self.assertEqual(c.MAP_SYNC_TIME_HOURS, 1)
         self.assertEqual(c.MAP_SYNC_TIME, 360)
 

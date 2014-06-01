@@ -16,6 +16,7 @@ from the_tale.game.persons.storage import persons_storage
 
 from the_tale.game.map.places.storage import places_storage, buildings_storage
 from the_tale.game.map.places.conf import places_settings
+from the_tale.game.map.places.prototypes import PlacePrototype
 
 from the_tale.game.bills.conf import bills_settings
 from the_tale.game.workers.environment import workers_environment as game_environment
@@ -131,62 +132,63 @@ class Worker(BaseWorker):
         return 0.0, (positive_power - negative_power * c.POSITIVE_NEGATIVE_POWER_RELATION) / c.POSITIVE_NEGATIVE_POWER_RELATION
 
 
-    @places_storage.postpone_version_update
-    @buildings_storage.postpone_version_update
-    @persons_storage.postpone_version_update
-    def sync_data(self, sheduled=True):
-
-        self.logger.info('sync data')
+    def sync_persons_powers(self, persons):
+        if not persons:
+            return
 
         total_positive_power = 0
         total_negative_power = 0
 
-        for person in persons_storage.filter(state=PERSON_STATE.IN_GAME):
+        for person in persons:
 
-            if person.id in self.persons_power:
+            if person.id not in self.persons_power:
+                continue
 
-                positive_power, negative_power, positive_bonus, negative_bonus = self.persons_power[person.id]
+            positive_power, negative_power, positive_bonus, negative_bonus = self.persons_power[person.id]
 
-                power_multiplier = 1
-                if person.has_building:
-                    power_multiplier *= c.BUILDING_PERSON_POWER_MULTIPLIER
+            power_multiplier = 1
+            if person.has_building:
+                power_multiplier *= c.BUILDING_PERSON_POWER_MULTIPLIER
 
-                # this power will go to person and to place
-                positive_power *= (1 + person.power_positive) * power_multiplier
-                negative_power *= (1 + person.power_negative) * power_multiplier
+            # this power will go to person and to place
+            positive_power *= (1 + person.power_positive) * power_multiplier
+            negative_power *= (1 + person.power_negative) * power_multiplier
 
-                # this power, only to person
-                power = (positive_power + negative_power) * person.place.freedom
+            # this power, only to person
+            power = (positive_power + negative_power) * person.place.freedom
 
-                total_positive_power += positive_power * person.place.freedom
-                total_negative_power += negative_power * person.place.freedom
+            total_positive_power += positive_power * person.place.freedom
+            total_negative_power += negative_power * person.place.freedom
 
-                person.push_power(self.turn_number, power)
-                person.push_power_positive(self.turn_number, positive_bonus)
-                person.push_power_negative(self.turn_number, negative_bonus)
+            person.push_power(self.turn_number, power)
+            person.push_power_positive(self.turn_number, positive_bonus)
+            person.push_power_negative(self.turn_number, negative_bonus)
 
-                self.change_place_power(person.place_id, 0, 0, positive_power)
-                self.change_place_power(person.place_id, 0, 0, negative_power)
+            self.change_place_power(person.place_id, 0, 0, positive_power)
+            self.change_place_power(person.place_id, 0, 0, negative_power)
+
 
         person_positive_delta, person_negative_delta = self.get_power_correction(total_positive_power, total_negative_power)
-        person_power_delta = (person_positive_delta - person_negative_delta) / len(persons_storage.filter(state=PERSON_STATE.IN_GAME))
+        person_power_delta = (person_positive_delta - person_negative_delta) / len(persons)
 
-        for person in persons_storage.filter(state=PERSON_STATE.IN_GAME):
+        for person in persons:
             person.push_power(self.turn_number, person_power_delta)
 
-            person.update_friends_number()
-            person.update_enemies_number()
 
-        self.persons_power = {}
+    def sync_places_powers(self, places):
+
+        if not places:
+            return
 
         total_positive_power = 0
         total_negative_power = 0
 
-        for place_id in self.places_power:
+        for place in places:
 
-            positive_power, negative_power, positive_bonus, negative_bonus = self.places_power[place_id]
+            if place.id not in self.places_power:
+                continue
 
-            place = places_storage[place_id]
+            positive_power, negative_power, positive_bonus, negative_bonus = self.places_power[place.id]
 
             positive_power *= (1 + place.power_positive)
             negative_power *= (1 + place.power_negative)
@@ -200,27 +202,66 @@ class Worker(BaseWorker):
             place.push_power_positive(self.turn_number, positive_bonus)
             place.push_power_negative(self.turn_number, negative_bonus)
 
-        self.places_power = {}
-
         place_positive_delta, place_negative_delta = self.get_power_correction(total_positive_power, total_negative_power)
-        place_power_delta = (place_positive_delta - place_negative_delta) / len(places_storage.all())
+        place_power_delta = (place_positive_delta - place_negative_delta) / len(places)
 
-        for place in places_storage.all():
+        for place in places:
             place.push_power(self.turn_number, place_power_delta)
 
-        # update size
-        places_by_power = sorted(places_storage.all(), key=lambda x: x.power)
-        places_number = len(places_by_power)
-        for i, place in enumerate(places_by_power):
-            expected_size = int(places_settings.MAX_SIZE * float(i) / places_number) + 1
+
+    def sync_sizes(self, places, hours, max_size):
+        if not places:
+            return
+
+        places = sorted(places, key=lambda x: x.power)
+        places_number = len(places)
+
+        for i, place in enumerate(places):
+            expected_size = int(max_size * float(i) / places_number) + 1
+
             if place.modifier:
                 expected_size = place.modifier.modify_economic_size(expected_size)
 
-            if sheduled:
-                place.set_expected_size(expected_size)
-                place.sync_size(c.MAP_SYNC_TIME_HOURS)
-                place.sync_persons(force_add=False)
+            place.set_expected_size(expected_size)
+            place.sync_size(hours)
+            place.sync_persons(force_add=False)
 
+
+    @places_storage.postpone_version_update
+    @buildings_storage.postpone_version_update
+    @persons_storage.postpone_version_update
+    def sync_data(self, sheduled=True):
+
+        self.logger.info('sync data')
+
+        all_persons = persons_storage.filter(state=PERSON_STATE.IN_GAME)
+
+        self.sync_persons_powers(persons=[person for person in all_persons if person.place.is_frontier])
+        self.sync_persons_powers(persons=[person for person in all_persons if not person.place.is_frontier])
+
+        for person in all_persons:
+            person.update_friends_number()
+            person.update_enemies_number()
+
+        self.persons_power = {}
+
+        self.sync_places_powers(places=[place for place in places_storage.all() if place.is_frontier])
+        self.sync_places_powers(places=[place for place in places_storage.all() if not place.is_frontier])
+
+        self.places_power = {}
+
+        # update size
+        if sheduled:
+            self.sync_sizes([place for place in places_storage.all() if place.is_frontier],
+                            hours=c.MAP_SYNC_TIME_HOURS,
+                            max_size=places_settings.MAX_FRONTIER_SIZE)
+
+            self.sync_sizes([place for place in places_storage.all() if not place.is_frontier],
+                            hours=c.MAP_SYNC_TIME_HOURS,
+                            max_size=places_settings.MAX_SIZE)
+
+
+        for place in places_storage.all():
             place.sync_stability()
             place.sync_modifier()
             place.sync_habits()

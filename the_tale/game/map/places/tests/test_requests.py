@@ -2,6 +2,8 @@
 import datetime
 import jinja2
 
+import mock
+
 from django.core.urlresolvers import reverse
 
 from the_tale.common.utils.testcase import TestCase
@@ -22,6 +24,22 @@ class TestShowRequests(TestCase):
 
         result, account_id, bundle_id = register_user('user', 'user@test.com', '111111')
         self.account = AccountPrototype.get_by_id(account_id)
+
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', True)
+    def test_place_new_place_message(self):
+        self.check_html_ok(self.request_html(reverse('game:map:places:show', args=[self.place_1.id])), texts=['pgf-new-place-message'])
+
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', False)
+    def test_place_new_place_message__not_new(self):
+        self.check_html_ok(self.request_html(reverse('game:map:places:show', args=[self.place_1.id])), texts=[('pgf-new-place-message', 0)])
+
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_frontier', True)
+    def test_place_frontier_message(self):
+        self.check_html_ok(self.request_html(reverse('game:map:places:show', args=[self.place_1.id])), texts=['pgf-frontier-message'])
+
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_frontier', False)
+    def test_place_frontier_message__not_new(self):
+        self.check_html_ok(self.request_html(reverse('game:map:places:show', args=[self.place_1.id])), texts=[('pgf-frontier-message', 0)])
 
     def test_wrong_place_id(self):
         self.check_html_ok(self.request_html(reverse('game:map:places:show', args=['wrong_id'])), texts=['places.place.wrong_format'])
