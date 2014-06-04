@@ -3,6 +3,8 @@ import functools
 
 from the_tale.game.prototypes import TimePrototype
 
+from the_tale.game.balance import constants as c
+
 
 def _sum_raw_power_points(history_length, points):
     if not points:
@@ -65,6 +67,44 @@ def _create_power_points_push(method_name, history_length, exception_class, name
 
 
 
+def _create_add_power_evenly(method_name, history_length):
+
+    def add_power_evenly(self, delta):
+        cells_number = len(self.power_points)
+
+        turn_number = TimePrototype.get_current_turn_number()
+
+        self.power_points[:] = [ (turn, value+delta/cells_number / (1 - float(turn_number- turn) / history_length))
+                                 for turn, value in self.power_points ]
+
+    add_power_evenly.__name__ = method_name
+
+    return add_power_evenly
+
+
+def _create_fill_power_evenly(method_name, history_length):
+
+    def fill_power_evenly(self, delta):
+        turn_number = TimePrototype.get_current_turn_number()
+
+        TURNS_STEP = int(c.TURNS_IN_HOUR)
+
+        cells_number = history_length / TURNS_STEP
+
+        for i in xrange(cells_number):
+            turn = turn_number - (cells_number - i) * TURNS_STEP
+            divider = 1 - float(turn_number- turn) / history_length
+
+            if divider > 0.01:
+                self.power_points.append((turn,  delta/cells_number / divider))
+
+
+    fill_power_evenly.__name__ = method_name
+
+    return fill_power_evenly
+
+
+
 def add_power_management(history_length, exception_class):
     '''
     manage powers in persons and places
@@ -85,6 +125,9 @@ def add_power_management(history_length, exception_class):
         cls.power_negative_points = property(_create_power_points_getter('power_negative_points'))
         cls.power_negative = property(_create_power_points_sum('power_negative', history_length, 'power_negative_points'))
         cls.push_power_negative = _create_power_points_push('push_power_negative', history_length, exception_class, 'power_negative_points')
+
+        cls.add_power_evenly = _create_add_power_evenly('add_power_evenly', history_length)
+        cls.fill_power_evenly = _create_fill_power_evenly('fill_power_evenly', history_length)
 
         return cls
 

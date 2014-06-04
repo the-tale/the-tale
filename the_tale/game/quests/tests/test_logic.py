@@ -101,6 +101,27 @@ class FillPlacesTest(LogicTestsBase):
 
         self.check_facts(places=[f_place_1, f_place_2])
 
+    def test_diameter(self):
+        self.hero.position.set_place(self.place_2)
+
+        f_place_2 = logic.fact_place(self.place_2)
+        f_place_3 = logic.fact_place(self.place_3)
+
+        logic.fill_places(self.knowledge_base, self.hero, waymarks_storage.look_for_road(self.place_1, self.place_3).length - 1)
+
+        self.check_facts(places=[f_place_2, f_place_3])
+
+    def test_diameter__full(self):
+        self.hero.position.set_place(self.place_2)
+
+        f_place_1 = logic.fact_place(self.place_1)
+        f_place_2 = logic.fact_place(self.place_2)
+        f_place_3 = logic.fact_place(self.place_3)
+
+        logic.fill_places(self.knowledge_base, self.hero, waymarks_storage.look_for_road(self.place_1, self.place_3).length + 1)
+
+        self.check_facts(places=[f_place_2, f_place_3, f_place_1])
+
 
 class SetupPreferencesTest(LogicTestsBase):
 

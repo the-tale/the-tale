@@ -44,11 +44,6 @@ class Command(BaseCommand):
 
         power_delta = (percent * all_powers**2) / (all_powers - person.power - percent*all_powers)
 
-        cells_number = len(person.power_points)
-
-        turn_number = TimePrototype.get_current_turn_number()
-
-        person.power_points[:] = [ (turn, value+power_delta/cells_number / (1 - float(turn_number- turn) / persons_settings.POWER_HISTORY_LENGTH))
-                                   for turn, value in person.power_points ]
+        person.add_power_evenly(power_delta)
 
         person.save()

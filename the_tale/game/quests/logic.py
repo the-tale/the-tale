@@ -87,14 +87,50 @@ def fill_places_for_first_quest(kb, hero):
     kb += fact_place(hero.position.place)
 
 
+# def fill_places(kb, hero, max_distance):
+#     for place in places_storage.all():
+
+#         if place.id != hero.position.place.id:
+#             path_length = waymarks_storage.look_for_road(hero.position.place, place).length
+#             if path_length > max_distance:
+#                 continue
+
+#         uid = uids.place(place)
+
+#         if uid in kb:
+#             continue
+
+#         kb += fact_place(place)
+
+
 def fill_places(kb, hero, max_distance):
+    places = []
+
     for place in places_storage.all():
+        path_length = waymarks_storage.look_for_road(hero.position.place, place).length
 
-        if place.id != hero.position.place.id:
-            path_length = waymarks_storage.look_for_road(hero.position.place, place).length
+        if path_length > max_distance:
+            continue
+
+        places.append((path_length, place))
+
+    places.sort()
+
+
+    chosen_places = []
+
+    for base_distance, place in places:
+        for chosen_place in chosen_places:
+            path_length = waymarks_storage.look_for_road(chosen_place, place).length
+
             if path_length > max_distance:
-                continue
+                break
 
+        else:
+            chosen_places.append(place)
+
+
+    for place in chosen_places:
         uid = uids.place(place)
 
         if uid in kb:

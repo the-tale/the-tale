@@ -15,8 +15,6 @@ from the_tale.game.balance.power import Power
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.logic_storage import LogicStorage
 
-from the_tale.game.map.roads.storage import waymarks_storage
-
 
 class Command(BaseCommand):
 
@@ -37,6 +35,8 @@ class Command(BaseCommand):
 
 
     @mock.patch('dext.settings.conf.dext_settings_settings.UPDATE_DATABASE', False)
+    @mock.patch('the_tale.game.heroes.habilities.nonbattle.WANDERER.modify_attribute', lambda self, t, v: v)
+    @mock.patch('the_tale.game.heroes.habilities.nonbattle.GIFTED.modify_attribute', lambda self, t, v: v)
     def test_corridor(self):
 
         result, account_id, bundle_id = register_user(uuid.uuid4().hex) # pylint: disable=W0612

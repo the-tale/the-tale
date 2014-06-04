@@ -415,7 +415,7 @@ class PlacePrototype(BasePrototype):
 
 
     @classmethod
-    def create(cls, x, y, size, name_forms, race=RACE.HUMAN):
+    def create(cls, x, y, size, name_forms, race=RACE.HUMAN, is_frontier=False):
         from the_tale.game.map.places.storage import places_storage
 
         model = Place.objects.create( x=x,
@@ -423,6 +423,7 @@ class PlacePrototype(BasePrototype):
                                       created_at_turn=TimePrototype.get_current_turn_number(),
                                       name=name_forms.normalized,
                                       name_forms=s11n.to_json(name_forms.serialize()),
+                                      is_frontier=is_frontier,
                                       race=race,
                                       size=size)
         prototype = cls(model)

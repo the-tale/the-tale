@@ -16,7 +16,7 @@ jQuery(document).ready(function(e) {
     widgets.map = new pgf.game.map.Map('#pgf-game-map',
                                        {spritesManager: spritesManager,
                                         tileSize: tileset.TILE_SIZE,
-                                        canvasWidth: {{height}},
+                                        canvasHeight: {{height}},
                                         widgets: widgets});
 
     jQuery('.pgf-center-on-hero').click(function(e){

@@ -31,8 +31,8 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.EXP_PER_HOUR, 10)
         self.assertEqual(c.EXP_PER_QUEST_FRACTION, 0.33)
-        self.assertEqual(c.EXP_FOR_PREMIUM_ACCOUNT, 0.8)
-        self.assertEqual(c.EXP_FOR_NORMAL_ACCOUNT, 0.528)
+        self.assertEqual(c.EXP_FOR_PREMIUM_ACCOUNT, 1.0)
+        self.assertEqual(c.EXP_FOR_NORMAL_ACCOUNT, 0.66)
 
         self.assertEqual(c.HERO_MOVE_SPEED, 0.3)
         self.assertEqual(c.BATTLE_LENGTH, 16)

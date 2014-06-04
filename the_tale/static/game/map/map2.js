@@ -211,11 +211,11 @@ pgf.game.map.Map = function(selector, params) {
     var canvas = jQuery('.pgf-map-canvas', selector);
 
     var canvasWidth = undefined;
-    var canvasHeight = undefined;params.canvasWidth;
+    var canvasHeight = undefined;
 
     function SyncCanvasSize() {
         canvasWidth = jQuery('#pgf-map-container').width()-20;
-        canvasHeight = params.canvasWidth;
+        canvasHeight = params.canvasHeight;
 
         canvas.get(0).width = canvasWidth;
         canvas.get(0).height = canvasHeight;

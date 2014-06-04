@@ -36,4 +36,16 @@ class PersonsStorage(create_storage_class('persons change time', PersonPrototype
             self.update_version()
 
 
+    def get_total_power(self):
+        return sum(person.power for person in self.filter(state=PERSON_STATE.IN_GAME))
+
+    def get_medium_power_for_person(self):
+        persons_number = len(self.filter(state=PERSON_STATE.IN_GAME))
+
+        if persons_number == 0:
+            return 0
+
+        return self.get_total_power() / persons_number
+
+
 persons_storage = PersonsStorage()
