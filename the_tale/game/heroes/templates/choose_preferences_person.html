@@ -4,13 +4,16 @@
 
 <tr>
   <td class="hero-preference-choise {% if choosen and item.id == choosen.id %}choosen{% endif %}">
+
+    {% set power_percent = item.power / places_powers[item.place_id] if places_powers[item.place_id] > 0.001 else 0 %}
+
     {% if item.id not in (resource.hero.preferences.friend.id if resource.hero.preferences.friend else -1,
                           resource.hero.preferences.enemy.id if resource.hero.preferences.enemy else -1) %}
     <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ item.id }}">{{ item.name }}</a>
-    <small>{{item.race_verbose}}-{{item.type.text}}</small>
+    <small>{{item.race_verbose}}-{{item.type.text}} {{power_percent|percents(2)}}</small>
     {% else %}
     <a href="#" class="current-choice pgf-close-dialog">{{ item.name }}</a>
-    <small>{{item.race_verbose}}-{{item.type.text}}</small>
+    <small>{{item.race_verbose}}-{{item.type.text}} {{power_percent|percents(2)}}</small>
     {% if resource.hero.preferences.friend and item.id == resource.hero.preferences.friend.id %}<span class="label label-success">соратник</span>{% endif %}
     {% if resource.hero.preferences.enemy and item.id == resource.hero.preferences.enemy.id %}<span class="label label-important">противник</span>{% endif %}
     {% endif %}

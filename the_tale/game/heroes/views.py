@@ -239,6 +239,7 @@ class HeroResource(Resource):
                               'mobs': mobs,
                               'places': places,
                               'all_places': places_storage.get_choices(),
+                              'places_powers': {place.id: place.total_persons_power for place in all_places},
                               'friends': friends,
                               'enemies': enemies,
                               'equipment_slots': equipment_slots,
