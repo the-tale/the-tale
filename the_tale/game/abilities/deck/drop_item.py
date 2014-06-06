@@ -5,7 +5,9 @@ import random
 from the_tale.game.heroes.relations import MONEY_SOURCE
 
 from the_tale.game.abilities.prototypes import AbilityPrototype
-from the_tale.game.abilities.relations import ABILITY_TYPE, ABILITY_RESULT
+from the_tale.game.abilities.relations import ABILITY_TYPE
+
+from the_tale.game.postponed_tasks import ComplexChangeTask
 
 
 class DropItem(AbilityPrototype):
@@ -16,7 +18,7 @@ class DropItem(AbilityPrototype):
         hero = storage.heroes[data['hero_id']]
 
         if hero.bag.is_empty:
-            return ABILITY_RESULT.FAILED, None, ()
+            return ComplexChangeTask.RESULT.FAILED, None, ()
 
         dropped_item = hero.bag.drop_cheapest_item(hero.preferences.archetype.power_distribution)
 
@@ -29,4 +31,4 @@ class DropItem(AbilityPrototype):
             hero.change_money(MONEY_SOURCE.EARNED_FROM_HELP, sell_price)
             hero.add_message('angel_ability_drop_item_crit', hero=hero, dropped_item=dropped_item, coins=sell_price)
 
-        return ABILITY_RESULT.SUCCESSED, None, ()
+        return ComplexChangeTask.RESULT.SUCCESSED, None, ()

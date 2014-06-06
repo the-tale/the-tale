@@ -185,6 +185,7 @@ INSTALLED_APPS = (
     'the_tale.game.pvp',
     'the_tale.game.phrase_candidates',
     'the_tale.game.chronicle',
+    'the_tale.game.cards',
 
     'the_tale.cms',
     'the_tale.cms.news',

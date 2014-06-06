@@ -1,0 +1,44 @@
+
+<div class="modal hide hero-deck-dialog">
+
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3 class="pgf-dialog-title dialog-title">Карты судьбы</h3>
+  </div>
+
+  <div class="modal-body">
+
+    <p>
+      Карты судьбы — это особые одноразовые действия, позволяющие Хранителю оказать существенное влияние на героя или мир. Список всех карт можно найти на соответствующей <a href="{{url('guide:cards')}}">странице путеводителя</a>.
+    </p>
+
+    <p class="alert alert-info">
+      На текущий момент большинство карт находится в процессе разработки и не введено в игру (ожидаются в следующем обновлении). Хранители будут получать карты за помощь герою. Большинство карт будет доступно всем игрокам, часть — только подписчикам.
+    </p>
+
+    <h4>Ваша колода</h4>
+
+    {% if hero.cards.has_cards %}
+
+      <ul>
+        {% for card_type, count in hero.cards.cards %}
+          <li>
+            <a href="{{url('game:cards:use-dialog', card=card_type.value)}}"
+               class="pgf-dialog-simple"
+               rel="tooltip"
+               title="{{card_type.description}}">
+              {{card_type.text}}
+            </a> x {{count}}
+          </li>
+        {% endfor %}
+      </ul>
+
+    {% else %}
+      <p class="alert alert-info pgf-no-cards-message">
+        В колоде сейчас нет карт.
+      </p>
+    {% endif %}
+
+  </div>
+
+</div>

@@ -55,7 +55,13 @@ class PlacePrototypeTests(testcase.TestCase):
             with mock.patch('the_tale.game.map.places.signals.place_race_changed.send') as signal_counter:
                 self.p1.sync_race()
 
+
         self.assertEqual(signal_counter.call_count, 1)
+
+    def test_sync_size__keepers_goods(self):
+        self.p1.keepers_goods = c.PLACE_GOODS_BONUS + 50
+        self.p1.sync_size(2)
+        self.assertEqual(self.p1.keepers_goods, 50)
 
     def test_sync_size__good_changing(self):
         self.p1.production = 10
@@ -146,6 +152,7 @@ class PlacePrototypeTests(testcase.TestCase):
     @mock.patch('the_tale.game.balance.formulas.place_goods_production', lambda size: 100 if size < 5 else 1000)
     @mock.patch('the_tale.game.map.places.modifiers.prototypes.CraftCenter.PRODUCTION_MODIFIER', 10000)
     @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.production', 1)
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.keepers_goods', c.PLACE_GOODS_BONUS)
     def test_sync_sync_parameters__production(self):
         self.p1.modifier = modifiers.CraftCenter.get_id()
         self.p1.size = 1
@@ -155,7 +162,7 @@ class PlacePrototypeTests(testcase.TestCase):
 
         self.p1.sync_parameters()
 
-        expected_production = 10900 + len(self.p1.persons) - RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL.amount + RESOURCE_EXCHANGE_TYPE.PRODUCTION_LARGE.amount
+        expected_production = 10900 + len(self.p1.persons) - RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL.amount + RESOURCE_EXCHANGE_TYPE.PRODUCTION_LARGE.amount + c.PLACE_GOODS_BONUS
 
         self.assertTrue(-0.001 < self.p1.production - expected_production < 0.001)
 
@@ -283,6 +290,24 @@ class PlacePrototypeTests(testcase.TestCase):
         self.assertEqual(PlacePrototype._habit_change_speed(0, 0, 0), 0)
         self.assertEqual(PlacePrototype._habit_change_speed(500, 0, 0), -5)
         self.assertEqual(PlacePrototype._habit_change_speed(-500, 0, 0), 5)
+
+
+    def test_get_next_keepers_goods_spend_amount__0(self):
+        self.assertEqual(self.p1.keepers_goods, 0)
+        self.assertEqual(self.p1.get_next_keepers_goods_spend_amount(), 0)
+
+    def test_get_next_keepers_goods_spend_amount__less_then_production(self):
+        self.p1.keepers_goods = c.PLACE_GOODS_BONUS - 1
+        self.assertEqual(self.p1.get_next_keepers_goods_spend_amount(), c.PLACE_GOODS_BONUS - 1)
+
+    def test_get_next_keepers_goods_spend_amount__less_then_production_barrier(self):
+        self.p1.keepers_goods = int((c.PLACE_GOODS_BONUS - 1) / c.PLACE_KEEPERS_GOODS_SPENDING)
+        self.assertTrue(self.p1.keepers_goods > c.PLACE_GOODS_BONUS)
+        self.assertEqual(self.p1.get_next_keepers_goods_spend_amount(), c.PLACE_GOODS_BONUS)
+
+    def test_get_next_keepers_goods_spend_amount__greater_then_production(self):
+        self.p1.keepers_goods = int((c.PLACE_GOODS_BONUS + 1) / c.PLACE_KEEPERS_GOODS_SPENDING)
+        self.assertEqual(self.p1.get_next_keepers_goods_spend_amount(), c.PLACE_GOODS_BONUS + 1)
 
 
 class BuildingPrototypeTests(testcase.TestCase):

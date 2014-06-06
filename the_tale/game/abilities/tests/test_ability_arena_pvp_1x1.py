@@ -10,9 +10,11 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.workers.environment import workers_environment
 
 from the_tale.game.logic import create_test_map
-from the_tale.game.abilities.deck.arena_pvp_1x1 import ArenaPvP1x1, ABILITY_TASK_STEP
-from the_tale.game.abilities.relations import ABILITY_RESULT
+from the_tale.game.abilities.deck.arena_pvp_1x1 import ArenaPvP1x1
 from the_tale.game.pvp.models import Battle1x1
+
+from the_tale.game.postponed_tasks import ComplexChangeTask
+
 
 class ArenaPvP1x1AbilityTest(testcase.TestCase):
 
@@ -43,7 +45,7 @@ class ArenaPvP1x1AbilityTest(testcase.TestCase):
         self.pvp_balancer = workers_environment.pvp_balancer
         self.pvp_balancer.process_initialize('pvp_balancer')
 
-    def use_attributes(self, hero, step=None, storage=None, pvp_balancer=None):
+    def use_attributes(self, hero, step=ComplexChangeTask.STEP.LOGIC, storage=None, pvp_balancer=None):
         return {'data': {'hero_id': hero.id,
                          'account_id': hero.account_id},
                 'step': step,
@@ -56,7 +58,7 @@ class ArenaPvP1x1AbilityTest(testcase.TestCase):
 
         result, step, postsave_actions = self.ability_1.use(**self.use_attributes(hero=self.hero_1, storage=self.storage))
 
-        self.assertEqual((result, step), (ABILITY_RESULT.CONTINUE, ABILITY_TASK_STEP.PVP_BALANCER))
+        self.assertEqual((result, step), (ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.PVP_BALANCER))
         self.assertEqual(len(postsave_actions), 1)
 
         with mock.patch('the_tale.game.pvp.workers.balancer.Worker.cmd_logic_task') as pvp_balancer_logic_task_counter:
@@ -70,7 +72,7 @@ class ArenaPvP1x1AbilityTest(testcase.TestCase):
                                                                                   step=step,
                                                                                   pvp_balancer=self.pvp_balancer))
 
-        self.assertEqual((result, step, postsave_actions), (ABILITY_RESULT.SUCCESSED, ABILITY_TASK_STEP.SUCCESS, ()))
+        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(Battle1x1.objects.all().count(), 1)
 
@@ -82,7 +84,7 @@ class ArenaPvP1x1AbilityTest(testcase.TestCase):
 
         result, step, postsave_actions = self.ability_1.use(**self.use_attributes(hero=self.hero_1, storage=self.storage))
 
-        self.assertEqual((result, step), (ABILITY_RESULT.CONTINUE, ABILITY_TASK_STEP.PVP_BALANCER))
+        self.assertEqual((result, step), (ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.PVP_BALANCER))
         self.assertEqual(len(postsave_actions), 1)
 
         with mock.patch('the_tale.game.pvp.workers.balancer.Worker.cmd_logic_task') as pvp_balancer_logic_task_counter:
@@ -105,7 +107,7 @@ class ArenaPvP1x1AbilityTest(testcase.TestCase):
 
         self.assertTrue((result_1, step_1, postsave_actions_1) ==
                         (result_2, step_2, postsave_actions_2) ==
-                        (ABILITY_RESULT.SUCCESSED, ABILITY_TASK_STEP.SUCCESS, ()))
+                        (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(Battle1x1.objects.all().count(), 1)
 
@@ -117,7 +119,7 @@ class ArenaPvP1x1AbilityTest(testcase.TestCase):
     def test_use_for_fast_account(self):
         self.assertEqual(Battle1x1.objects.all().count(), 0)
 
-        self.assertEqual(self.ability_2.use(**self.use_attributes(hero=self.hero_2, storage=self.storage)), (ABILITY_RESULT.FAILED, ABILITY_TASK_STEP.ERROR, ()))
+        self.assertEqual(self.ability_2.use(**self.use_attributes(hero=self.hero_2, storage=self.storage)), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
         self.assertEqual(Battle1x1.objects.all().count(), 0)
 

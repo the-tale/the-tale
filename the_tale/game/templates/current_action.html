@@ -15,6 +15,11 @@ jQuery(document).ready(function(e) {
         pgf.ui.dialog.Create({ fromUrl: url});
     });
 
+    jQuery('.pgf-use-card-form').live('click', function(e){
+        var cardForm = new pgf.forms.Form(jQuery('.pgf-use-card-form'),
+                                          {OnSuccess: function(instance, data){location.reload();}});
+    });
+
 
 });
 </script>
@@ -59,13 +64,17 @@ jQuery(document).ready(function(e) {
 
   <div id="abilities-block">
 
-    <a href="#" class="angel-ability pgf-ability-help pgf-hidden" style="display: inline-block; width: 48%;">
+    <a href="{{url('game:cards:deck')}}" class="pgf-dialog-simple" style="display: inline-block; width: 30%; font-size: 11pt;">
+      <span rel="tooltip" title="открыть колоду">карты</span>
+    </a>
+
+    <a href="#" class="angel-ability pgf-ability-help pgf-hidden" style="display: inline-block; width: 30%;">
       <i class="icon-tint" rel="tooltip" title="недостаточно энергии"></i>
       <i class="icon-ban-circle" rel="tooltip" title="необходимо завершить регистрацию"></i>
       <span rel="tooltip" title="Помочь герою">помочь</span>
     </a>
 
-    <a href="#" class="angel-ability pgf-ability-arena_pvp_1x1 pgf-hidden" style="display: inline-block; width: 48%; font-size: 11pt;">
+    <a href="#" class="angel-ability pgf-ability-arena_pvp_1x1 pgf-hidden" style="display: inline-block; width: 30%; font-size: 11pt;">
       <i class="icon-tint" rel="tooltip" title="недостаточно энергии"></i>
       <i class="icon-ban-circle" rel="tooltip" title="необходимо завершить регистрацию"></i>
       <span rel="tooltip" title="Отправить героя на арену">на арену</span>

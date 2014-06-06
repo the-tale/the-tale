@@ -57,3 +57,6 @@ class ShopAccessorsMixin(object):
         self.actions.request_replane()
 
         return artifact
+
+    def purchase_card(self, card_type, count):
+        self.cards.add_card(card_type, count=count)

@@ -48,6 +48,9 @@ class TestRequests(TestCase):
     def test_cities(self):
         self.check_html_ok(self.client.get(url('guide:cities')))
 
+    def test_cards(self):
+        self.check_html_ok(self.client.get(url('guide:cards')))
+
     def test_map(self):
         self.check_html_ok(self.client.get(url('guide:map')))
 

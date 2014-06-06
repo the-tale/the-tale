@@ -53,11 +53,11 @@ class SafeSpoilerTag(postmarkup.TagBase):
         else:
             caption = u'спойлер'
 
-        return u'--------------%(caption)s--------------' % {'caption': caption}
+        return u'--------------%(caption)s--------------<br/>' % {'caption': caption}
 
     def render_close(self, parser, node_index):
         parser.tag_data[self.tag_key] -= 1
-        return u'--------------'
+        return u'<br/>--------------'
 
 
 

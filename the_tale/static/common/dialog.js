@@ -267,5 +267,11 @@ jQuery('.pgf-dialog-simple').live('click', function(e) {
 
     var el = jQuery(this);
 
-    pgf.ui.dialog.Create({ fromUrl: el.attr("href") });
+    pgf.ui.dialog.Create({ fromUrl: el.attr("href"),
+                           OnOpened: function(dialog) {
+                               jQuery('[rel="tooltip"]', dialog).tooltip(pgf.base.tooltipsArgs);
+                           },
+                           OnClosed: function(dialog) {
+                               pgf.base.HideTooltips(dialog);
+                           } });
 });

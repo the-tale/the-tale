@@ -12,6 +12,8 @@ from the_tale.bank.transaction import Transaction
 from the_tale.game.relations import HABIT_TYPE
 from the_tale.game.heroes.relations import PREFERENCE_TYPE
 
+from the_tale.game.cards.relations import CARD_TYPE
+
 from the_tale.accounts.workers.environment import workers_environment as accounts_workers_environment
 from the_tale.accounts.prototypes import AccountPrototype, RandomPremiumRequestPrototype
 
@@ -327,3 +329,21 @@ class BuyRandomPremiumChest(BaseBuyHeroMethod):
 
     @property
     def processed_data(self): return {'message': self.arguments['message'] }
+
+
+
+class BuyCards(BaseBuyHeroMethod):
+    TYPE = 'purchase-cards'
+    ARGUMENTS = ('card_type', 'count')
+    METHOD = 'purchase_card'
+
+
+    def serialize_arguments(self):
+        return {'card_type': self.arguments['card_type'].value,
+                'count': self.arguments['count']}
+
+    @classmethod
+    def deserialize_arguments(cls, arguments):
+        card_type = arguments['card_type']
+        return {'card_type': card_type if isinstance(card_type, rels.Record) else CARD_TYPE(card_type),
+                'count': arguments['count']}

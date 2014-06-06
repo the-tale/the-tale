@@ -37,6 +37,7 @@ class Place(models.Model):
     expected_size = models.IntegerField(default=0)
 
     goods = models.IntegerField(default=0)
+    keepers_goods = models.IntegerField(default=0)
 
     production = models.IntegerField(default=c.PLACE_GOODS_BONUS)
     safety = models.FloatField(default=1.0-c.BATTLES_PER_TURN)

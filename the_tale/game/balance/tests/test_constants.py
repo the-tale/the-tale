@@ -237,6 +237,8 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PLACE_GOODS_TO_LEVEL, 6000)
         self.assertEqual(c.PLACE_GOODS_AFTER_LEVEL_UP, 0.25)
         self.assertEqual(c.PLACE_GOODS_AFTER_LEVEL_DOWN, 0.75)
+        self.assertEqual(c.PLACE_KEEPERS_GOODS_SPENDING, 0.05)
+
         self.assertEqual(c.PLACE_SAFETY_FROM_BEST_PERSON, 0.05)
         self.assertEqual(round(c.PLACE_TRANSPORT_FROM_BEST_PERSON, 5), 0.33333)
         self.assertEqual(round(c.PLACE_FREEDOM_FROM_BEST_PERSON, 5), 0.33333)

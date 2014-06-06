@@ -154,6 +154,13 @@ class GuideResource(Resource):
                                                    'PlaceParametersDescription': PlaceParametersDescription,
                                                    'MODIFIERS': sorted(MODIFIERS.values(), key=lambda modifier: modifier.NAME) })
 
+
+    @handler('cards', method='get')
+    def cards(self):
+        from the_tale.game.cards.relations import CARD_TYPE
+        return self.template('guide/cards.html', {'section': 'cards',
+                                                   'CARD_TYPE': CARD_TYPE })
+
     @handler('politics', method='get')
     def politics(self):
         from the_tale.game.bills.conf import bills_settings

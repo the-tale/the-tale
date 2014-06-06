@@ -39,6 +39,7 @@ class PlaceParametersDescription(object):
     POLITIC_RADIUS = (u'радиус владений', u'Максимальное расстояние, на которое могут распространяться границы владений города (в клетках).')
     PRODUCTION = (u'производство', u'Скорость производства товаров, зависит от размера экономики города и его жителей.')
     GOODS = (u'товары', u'Чтобы расти, город должен производить товары. Если их накапливается достаточно, то размер города увеличивается. Если товары кончаются, то уменьшается.')
+    KEEPERS_GOODS = (u'дары Хранителей', u'Хранители могут подарить городу дополнительные товары, которые будут постепенно переводиться в производство (%2.2f%% в час, но не менее %d). Для создания даров Вы можете использовать соответствующую карту судьбы, найдя её и или приобретя в магазине.' % (c.PLACE_KEEPERS_GOODS_SPENDING*100, c.PLACE_GOODS_BONUS))
     SAFETY = (u'безопасность', u'Насколько безопасно в окрестностях города (вероятность пройти по миру не подвергнувшись нападению).')
     TRANSPORT = (u'транспорт', u'Уровень развития транспортной инфраструктуры (с какой скоростью герои путешествуют в окрестностях города).')
     FREEDOM = (u'свобода', u'Насколько активна политическая жизнь в городе (как сильно изменяется влияние его жителей от действий героев).')
@@ -50,7 +51,7 @@ class PlaceParametersDescription(object):
 class PlacePrototype(BasePrototype):
     _model_class = Place
     _readonly = ('id', 'x', 'y', 'name', 'heroes_number', 'updated_at', 'created_at', 'habit_honor_positive', 'habit_honor_negative', 'habit_peacefulness_positive', 'habit_peacefulness_negative', 'is_frontier')
-    _bidirectional = ('description', 'size', 'expected_size', 'goods', 'production', 'safety', 'freedom', 'transport', 'race', 'persons_changed_at_turn', 'tax', 'stability')
+    _bidirectional = ('description', 'size', 'expected_size', 'goods', 'keepers_goods', 'production', 'safety', 'freedom', 'transport', 'race', 'persons_changed_at_turn', 'tax', 'stability')
     _get_by = ('id',)
 
     @property
@@ -311,7 +312,9 @@ class PlacePrototype(BasePrototype):
         self.expected_size = expected_size
 
     def sync_size(self, hours):
+
         self.goods += hours * self.production
+        self.keepers_goods -= self.get_next_keepers_goods_spend_amount()
 
         if self.goods >= c.PLACE_GOODS_TO_LEVEL:
             self.size += 1
@@ -349,11 +352,17 @@ class PlacePrototype(BasePrototype):
 
         return powers
 
+    def get_next_keepers_goods_spend_amount(self):
+        return min(self.keepers_goods, max(int(self.keepers_goods * c.PLACE_KEEPERS_GOODS_SPENDING), c.PLACE_GOODS_BONUS))
+
     def get_production_powers(self):
 
         powers = [ (u'производство', f.place_goods_production(self.expected_size)),
                    (u'потребление', -f.place_goods_consumption(self.size)),
                    (u'стабильность', (1.0-self.stability) * c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY)]
+
+        if self.get_next_keepers_goods_spend_amount():
+            powers.append((u'дары Хранителей', self.get_next_keepers_goods_spend_amount()))
 
         self._update_powers(powers, CITY_PARAMETERS.PRODUCTION)
 

@@ -27,7 +27,7 @@ game_settings = app_settings('GAME',
 
                              JS_CONSTNATS_FILE_LOCATION='./the_tale/static/game/data/constants.js',
 
-                             COLLECT_GARBAGE=False,
+                             COLLECT_GARBAGE=True,
                              UNLOAD_OBJECTS=False,
 
                              GAME_STATE_KEY = 'game state',

@@ -416,6 +416,8 @@ PLACE_GOODS_TO_LEVEL = int(PLACE_GOODS_BONUS * (1 + 3.0/2) * 24) # 1 город 
 PLACE_GOODS_AFTER_LEVEL_UP = float(0.25) # процент товаров, остающихся при увеличении размера города
 PLACE_GOODS_AFTER_LEVEL_DOWN = float(0.75) # процент товаров, возвращающихся при уменьшении размера города
 
+PLACE_KEEPERS_GOODS_SPENDING = float(0.05) # доля трат даров хранителей за один час
+
 # исходим из того, что в первую очередь надо балансировать вероятность нападения монстров как самый важный параметр
 PLACE_SAFETY_FROM_BEST_PERSON = float(0.05)
 PLACE_TRANSPORT_FROM_BEST_PERSON = h.speed_from_safety(PLACE_SAFETY_FROM_BEST_PERSON, BATTLES_PER_TURN)

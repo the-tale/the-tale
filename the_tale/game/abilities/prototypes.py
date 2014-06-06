@@ -6,9 +6,6 @@ from the_tale.common.postponed_tasks import PostponedTaskPrototype
 class AbilityPrototype(object):
     TYPE = None
 
-    # def ui_info(self):
-    #     return {'type': self.TYPE.value}
-
     def activate(self, hero, data):
         from the_tale.game.workers.environment import workers_environment
         from the_tale.game.abilities.postponed_tasks import UseAbilityTask
@@ -16,7 +13,7 @@ class AbilityPrototype(object):
         data['hero_id'] = hero.id
         data['account_id'] = hero.account_id
 
-        ability_task = UseAbilityTask(ability_type=self.TYPE,
+        ability_task = UseAbilityTask(processor_id=self.TYPE.value,
                                       hero_id=hero.id,
                                       data=data)
 
@@ -28,3 +25,11 @@ class AbilityPrototype(object):
 
     def use(self, *argv, **kwargs):
         raise NotImplementedError
+
+
+    def check_hero_conditions(self, hero):
+        return hero.energy_full >= max(1, self.TYPE.cost - hero.energy_discount)
+
+
+    def hero_actions(self, hero):
+        hero.change_energy(-self.TYPE.cost)

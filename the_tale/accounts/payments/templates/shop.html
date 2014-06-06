@@ -12,7 +12,12 @@
 
       {% set is_purchasable = purchase.is_purchasable(resource.account, hero) %}
 
-      <div style="font-size: 12pt; padding-bottom: 0.5em;">{{purchase.name|upper}}</div>
+      <div style="font-size: 12pt; padding-bottom: 0.5em;">
+        <span style="vertical-align: middle;">{{purchase.name|upper}}</span>
+        {% if purchase.tooltip %}
+        <i class="icon-info-sign" rel="tooltip" title="{{purchase.tooltip}}" style="vertical-align: middle;"></i>
+        {% endif %}
+      </div>
 
       <a class="btn pgf-forms-post-simple {% if purchase.cost > account.bank_account.amount or not is_purchasable %}disabled pgf-disabled{% else %}btn-info{% endif %}"
          data-confirmation="Вы уверены, что хотите купить <strong>«{{purchase.full_name}}»</strong>, потратив {{purchase.cost}} печенек?"

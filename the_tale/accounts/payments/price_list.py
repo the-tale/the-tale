@@ -7,6 +7,7 @@ from the_tale.accounts.payments.conf import payments_settings
 
 from the_tale.game.relations import HABIT_TYPE
 from the_tale.game.heroes.relations import PREFERENCE_TYPE
+from the_tale.game.cards.relations import CARD_TYPE
 
 
 PREMIUM_DAYS_DESCRIPTION = u'''
@@ -21,6 +22,12 @@ PREMIUM_DAYS_DESCRIPTION = u'''
   <li>игроки получают возможность голосовать за законы других игроков;</li>
   <li>герой сохраняет скорость получения опыта при длительном отсутствии игрока в игре.</li>
 </ul>
+'''
+
+CARDS_DESCRIPTION = u'''
+<p>
+Карты судьбы — это особые одноразовые действия, позволяющие Хранителю оказать существенное влияние на героя или мир. Некоторые из них можно купить в магазине.
+</p>
 '''
 
 ENERGY_CHARGES_DESCRIPTION = u'''
@@ -104,6 +111,17 @@ def permanent_permission_purchase(uid, purchase_type, cost):
                               purchase_type=purchase_type,
                               cost=cost,
                               transaction_description=u'Снятие ограничения уровня на предпочтение героя «%s»' % purchase_type.preference_type.text)
+
+
+def card_purchase(uid, card_type, count, cost):
+    return goods.Cards(uid=u'%s-%d' % (uid, count),
+                       cost=cost,
+                       card_type=card_type,
+                       count=count,
+                       name=card_type.text,
+                       tooltip=card_type.description,
+                       description=u'Покупка карты судьбы «%s» (%d шт.).' % (card_type.text, count),
+                       transaction_description=u'Покупка карты судьбы «%s» (%d шт.).' % (card_type.text, count))
 
 def reset_hero_preference(uid, preference_type, cost):
     return goods.ResetHeroPreference(uid=uid,
@@ -297,7 +315,15 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                                     items=[ permanent_purchase(uid=u'clan-ownership-right',
                                                                cost=150,
                                                                purchase_type=relations.PERMANENT_PURCHASE_TYPE.CLAN_OWNERSHIP_RIGHT,
-                                                               transaction_description=u'Приобретение разрешения на владение гильдией.') ]) ]
+                                                               transaction_description=u'Приобретение разрешения на владение гильдией.') ]),
+
+                goods.PurchaseGroup(type=relations.GOODS_GROUP.CARDS,
+                                    name=u'Карты судьбы',
+                                    description=CARDS_DESCRIPTION,
+                                    items=[ card_purchase(uid='card-keepers-goods-',
+                                                          card_type=CARD_TYPE.KEEPERS_GOODS,
+                                                          count=1,
+                                                          cost=1000)]) ]
 
 
 PURCHASES_BY_UID = {}

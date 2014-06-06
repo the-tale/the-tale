@@ -74,4 +74,5 @@ class GOODS_GROUP(DjangoEnum):
                 ('PREFERENCES_RESET', 4, u'сброс предпочтений', 'preference-reset','hero-preference-reset-'),
                 ('HABITS', 5, u'черты', 'habits', 'hero-habits-'),
                 ('ABILITIES', 6, u'способности', 'abilities', 'hero-abilities-'),
-                ('CLANS', 7, u'гильдии', 'clans', 'clan-')  )
+                ('CLANS', 7, u'гильдии', 'clans', 'clan-'),
+                ('CARDS', 8, u'Карты судьбы', 'cards', 'cards-') )

@@ -14,7 +14,9 @@ from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.artifacts.relations import RARITY
 
 from the_tale.game.abilities.deck import DropItem
-from the_tale.game.abilities.relations import ABILITY_RESULT
+
+
+from the_tale.game.postponed_tasks import ComplexChangeTask
 
 
 
@@ -43,7 +45,7 @@ class DropItemAbilityTest(testcase.TestCase):
 
     def test_no_items(self):
         self.assertEqual(self.hero.bag.occupation, 0)
-        self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.FAILED, None, ()))
+        self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.FAILED, None, ()))
         self.assertEqual(self.hero.energy, self.hero.energy_maximum)
 
     def test_success(self):
@@ -51,7 +53,7 @@ class DropItemAbilityTest(testcase.TestCase):
 
         self.assertEqual(self.hero.bag.occupation, 1)
 
-        self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.SUCCESSED, None, ()))
+        self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, None, ()))
 
         self.assertEqual(self.hero.bag.occupation, 0)
 
@@ -63,7 +65,7 @@ class DropItemAbilityTest(testcase.TestCase):
 
         self.assertEqual(self.hero.bag.occupation, 1)
 
-        self.assertEqual(self.ability.use(**self.use_attributes), (ABILITY_RESULT.SUCCESSED, None, ()))
+        self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, None, ()))
 
         self.assertEqual(self.hero.bag.occupation, 0)
 

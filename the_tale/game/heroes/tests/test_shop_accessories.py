@@ -176,3 +176,13 @@ class ShopAccessoriesTest(testcase.TestCase):
 
         self.assertEqual(results, set([True, False]))
         self.assertEqual(request_replane.call_count, N)
+
+
+    def test_purchase_card(self):
+        from the_tale.game.cards.relations import CARD_TYPE
+
+        self.assertFalse(self.hero.cards.has_cards)
+
+        self.hero.purchase_card(CARD_TYPE.KEEPERS_GOODS, count=3)
+
+        self.assertEqual(self.hero.cards.cards, [(CARD_TYPE.KEEPERS_GOODS, 3)])

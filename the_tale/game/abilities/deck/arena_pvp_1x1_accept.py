@@ -2,23 +2,17 @@
 
 from rels.django import DjangoEnum
 
-from the_tale.common.utils.enum import create_enum
-
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
 
 from the_tale.game.workers.environment import workers_environment
 
 from the_tale.game.abilities.prototypes import AbilityPrototype
-from the_tale.game.abilities.relations import ABILITY_TYPE, ABILITY_RESULT
+from the_tale.game.abilities.relations import ABILITY_TYPE
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
 
-
-ABILITY_TASK_STEP = create_enum('ABILITY_TASK_STEP', (('ERROR', 0, u'ошибка'),
-                                                      ('LOGIC', 1, u'логика'),
-                                                      ('PVP_BALANCER', 2, u'pvp балансировщик'),
-                                                      ('SUCCESS', 3, u'обработка завершена') ))
+from the_tale.game.postponed_tasks import ComplexChangeTask
 
 
 class ACCEPT_BATTLE_RESULT(DjangoEnum):
@@ -63,19 +57,19 @@ class ArenaPvP1x1Accept(AbilityPrototype):
 
     def use(self, data, step, main_task_id, storage, pvp_balancer, **kwargs):
 
-        if step is None:
+        if step.is_LOGIC:
 
             hero = storage.heroes[data['hero_id']]
 
             hero.update_habits(HABIT_CHANGE_SOURCE.ARENA_SEND)
 
-            return ABILITY_RESULT.CONTINUE, ABILITY_TASK_STEP.PVP_BALANCER, ((lambda: workers_environment.pvp_balancer.cmd_logic_task(hero.account_id, main_task_id)), )
+            return ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.PVP_BALANCER, ((lambda: workers_environment.pvp_balancer.cmd_logic_task(hero.account_id, main_task_id)), )
 
-        elif step == ABILITY_TASK_STEP.PVP_BALANCER:
+        elif step.is_PVP_BALANCER:
 
             accept_result = self.accept_battle(pvp_balancer, data['battle'], data['hero_id'])
 
             if not accept_result.is_PROCESSED:
-                return ABILITY_RESULT.FAILED, ABILITY_TASK_STEP.ERROR, ()
+                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()
 
-            return ABILITY_RESULT.SUCCESSED, ABILITY_TASK_STEP.SUCCESS, ()
+            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()

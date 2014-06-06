@@ -22,12 +22,14 @@ from the_tale.game.balance import formulas as f
 from the_tale.game.balance.power import Power
 
 from the_tale.game import names
-
 from the_tale.game import text_generation
+
 from the_tale.game.prototypes import TimePrototype, GameState
 
 from the_tale.game.actions.container import ActionsContainer
 from the_tale.game.quests.container import QuestsContainer
+
+from the_tale.game.cards.container import CardsContainer
 
 from the_tale.game.heroes.statistics import HeroStatistics
 from the_tale.game.heroes.models import Hero, HeroPreferences
@@ -43,7 +45,6 @@ from the_tale.game.heroes import logic_accessors
 from the_tale.game.heroes import shop_accessors
 from the_tale.game.heroes import equipment_methods
 from the_tale.game.heroes import bag
-
 
 
 class HeroPrototype(BasePrototype,
@@ -70,6 +71,7 @@ class HeroPrototype(BasePrototype,
     _get_by = ('id', 'account_id')
     _serialization_proxies = (('quests', QuestsContainer, heroes_settings.UNLOAD_TIMEOUT),
                               ('places_history', PlacesHelpStatistics, heroes_settings.UNLOAD_TIMEOUT),
+                              ('cards', CardsContainer, heroes_settings.UNLOAD_TIMEOUT),
                               ('pvp', PvPData, heroes_settings.UNLOAD_TIMEOUT),
                               ('diary', messages.DiaryContainer, heroes_settings.UNLOAD_TIMEOUT),
                               ('abilities', AbilitiesPrototype, None),
@@ -434,6 +436,9 @@ class HeroPrototype(BasePrototype,
 
         if self.places_history.updated:
             self.places_history.serialize()
+
+        if self.cards.updated:
+            self.cards.serialize()
 
         if self.messages.updated:
             self._model.messages = s11n.to_json(self.messages.serialize())

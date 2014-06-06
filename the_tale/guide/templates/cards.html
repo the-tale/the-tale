@@ -1,0 +1,34 @@
+{% extends "guide/base.html" %}
+{% import 'guide/macros.html' as guide_macros with context %}
+
+{% block title %}Карты Судьбы | {{ super() }}{% endblock %}
+{% block description %}Описание карт судьбы и их список.{% endblock %}
+
+{% block guide_content %}
+
+  {{ guide_macros.page_caption("Карты Судьбы", "Описание карт судьбы и их список.") }}
+
+  <p>
+    Карты судьбы — это особые одноразовые действия, позволяющие Хранителю оказать существенное влияние на героя или мир.
+  </p>
+
+  <p class="alert alert-info">
+    На текущий момент большинство карт находится в процессе разработки и не введено в игру (ожидаются в следующем обновлении). Хранители будут получать карты за помощь герою. Большинство карт будет доступно всем игрокам, часть — только подписчикам.
+  </p>
+
+  <h4>Карты</h4>
+
+  <table class="table table-striped table-bordered table-condensed">
+    <caption><h4>Список карт</h4></caption>
+    <thead>
+      <tr><th>название</th><th>описание</th></tr>
+    </thead>
+    <tbody>
+      {% for card in CARD_TYPE.records %}
+        <tr><td width="150px;">{{card.text}}</td><td>{{card.description}}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+
+{% endblock %}

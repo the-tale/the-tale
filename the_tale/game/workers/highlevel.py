@@ -16,7 +16,6 @@ from the_tale.game.persons.storage import persons_storage
 
 from the_tale.game.map.places.storage import places_storage, buildings_storage
 from the_tale.game.map.places.conf import places_settings
-from the_tale.game.map.places.prototypes import PlacePrototype
 
 from the_tale.game.bills.conf import bills_settings
 from the_tale.game.workers.environment import workers_environment as game_environment
