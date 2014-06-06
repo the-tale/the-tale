@@ -11,7 +11,7 @@
 
 {% for request in requests %}
 
-{% set request_account = accounts[request.account_id] %}
+{% set request_account = accounts[request.initiator_id] %}
 {% set request_clan = clans[request.clan_id] %}
 
 <h4>

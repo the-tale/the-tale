@@ -245,7 +245,7 @@ class MembershipResource(Resource):
     @handler('for-account')
     def for_account(self):
         requests = MembershipRequestPrototype.get_for_account(self.account.id)
-        accounts = {model.id: AccountPrototype(model) for model in AccountPrototype._db_filter(id__in=[request.account_id for request in requests])}
+        accounts = {model.id: AccountPrototype(model) for model in AccountPrototype._db_filter(id__in=[request.account_id for request in requests] + [request.initiator_id for request in requests])}
         clans = {model.id: ClanPrototype(model) for model in ClanPrototype._db_filter(id__in=[request.clan_id for request in requests])}
         return self.template('clans/membership/for_account.html',
                              {'requests': requests,

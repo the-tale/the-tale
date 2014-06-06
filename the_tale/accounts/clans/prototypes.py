@@ -170,6 +170,7 @@ class MembershipRequestPrototype(BasePrototype): #pylint: disable=R0904
                  'updated_at',
                  'clan_id',
                  'account_id',
+                 'initiator_id',
                  'text')
     _bidirectional = ('type',)
     _get_by = ('id', 'clan_id', 'account_id')
