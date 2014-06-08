@@ -154,6 +154,7 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.MAP_CELL_LENGTH, 3.0)
         self.assertEqual(c.QUEST_AREA_RADIUS, 180)
+        self.assertEqual(c.QUEST_AREA_SHORT_RADIUS, 90)
         self.assertEqual(c.QUEST_AREA_MAXIMUM_RADIUS, 3000000)
 
         self.assertEqual(c.MAP_SYNC_TIME_HOURS, 1)

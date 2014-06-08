@@ -160,7 +160,7 @@ def path_to_turns(path_length):
     return path_length / distance_in_action_cycle * c.ACTIONS_CYCLE_LENGTH
 
 def experience_for_quest__real(max_path_length):
-    MAGIC_QUEST_MULTIPLIER = 0.875
+    MAGIC_QUEST_MULTIPLIER = 0.7
     return path_to_turns(max_path_length) / c.TURNS_IN_HOUR * c.EXP_PER_HOUR * MAGIC_QUEST_MULTIPLIER
 
 def experience_for_quest(max_path_length):

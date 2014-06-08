@@ -259,6 +259,7 @@ GAME_SECONDS_IN_TURN = int(GAME_SECONDS_IN_GAME_DAY / _TURNS_IN_GAME_DAY)
 MAP_CELL_LENGTH = float(3.0) # длина клетки в километрах
 
 QUEST_AREA_RADIUS = float(60 * MAP_CELL_LENGTH) # радиус от позиции героя в котором ОБЫЧНО выбираются города для его заданий
+QUEST_AREA_SHORT_RADIUS = QUEST_AREA_RADIUS / 2 # радиус от позиции героя в котором выбираются города для его заданий на начальных уровнях
 QUEST_AREA_MAXIMUM_RADIUS = float(1000000 * MAP_CELL_LENGTH) # максимальный радиус для выбора городов для заданий
 
 MAP_SYNC_TIME_HOURS = int(1)
