@@ -508,11 +508,20 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
         jQuery('.pgf-action-info-link', widget)
             .toggleClass('pgf-hidden', !action.info_link)
             .attr('href', action.info_link);
+
+        jQuery('.pgf-cards-choices .pgf-card', widget).toggleClass('pgf-hidden', true);
+        jQuery('.pgf-cards-choices .pgf-no-cards', widget).toggleClass('pgf-hidden', !jQuery.isEmptyObject(data.cards));
+
+        for (var i in data.cards) {
+            jQuery('.pgf-cards-choices .pgf-card-'+i, widget).toggleClass('pgf-hidden', false);
+            jQuery('.pgf-cards-choices .pgf-card-'+i+' .pgf-count', widget).text(data.cards[i]);
+        }
     }
 
     this.Refresh = function(game_data) {
 
         data.actions = [];
+        data.cards = game_data.account.hero.cards.cards;
 
         if (game_data.account.hero) {
             data.action = game_data.account.hero.action;

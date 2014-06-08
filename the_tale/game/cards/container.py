@@ -21,6 +21,9 @@ class CardsContainer(object):
         obj._cards = {relations.CARD_TYPE(int(card_type)): count for card_type, count in data.get('cards', {}).iteritems()}
         return obj
 
+    def ui_info(self):
+        return {'cards': {card_type.value: count for card_type, count in self._cards.iteritems()} }
+
     def add_card(self, card_type, count):
         self.updated = True
 

@@ -15,9 +15,20 @@ jQuery(document).ready(function(e) {
         pgf.ui.dialog.Create({ fromUrl: url});
     });
 
-    jQuery('.pgf-use-card-form').live('click', function(e){
-        var cardForm = new pgf.forms.Form(jQuery('.pgf-use-card-form'),
-                                          {OnSuccess: function(instance, data){location.reload();}});
+    jQuery('.pgf-card').click(function(e){
+        e.preventDefault();
+        var target = jQuery(e.currentTarget);
+        var url = jQuery('a', target).attr('href');
+
+        pgf.ui.dialog.Create({ fromUrl: url,
+                               OnOpen: function(dialog) {
+                                   var cardForm = new pgf.forms.Form(jQuery('.pgf-use-card-form', dialog),
+                                                                     {OnSuccess: function(data){
+                                                                         jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
+                                                                         dialog.modal('hide');
+                                                                     }});
+                               }
+                             });
     });
 
 
@@ -64,9 +75,28 @@ jQuery(document).ready(function(e) {
 
   <div id="abilities-block">
 
-    <a href="{{url('game:cards:deck')}}" class="pgf-dialog-simple" style="display: inline-block; width: 30%; font-size: 11pt;">
-      <span rel="tooltip" title="открыть колоду">карты</span>
-    </a>
+    <div class="dropdown" style="display: inline-block;  width: 30%; font-size: 11pt;">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">карты<b class="caret"></b></a>
+      <ul class="pgf-scrollable dropdown-menu pgf-cards-choices" role="menu" style="max-height: 310px; overflow-y: auto;">
+        {% for card in CARD_TYPE.records %}
+          <li class="pgf-card pgf-card-{{card.value}}">
+            <a href="{{url('game:cards:use-dialog', card=card.value)}}"
+               style="font-size: 10pt;"
+               rel="tooltip"
+               title="{{card.description}}">
+              {{card.text}} x <span class="pgf-count"></span>
+            </a>
+          </li>
+        {% endfor %}
+          <li class="pgf-no-cards" style="font-size: 10pt;">
+            <a href="#"
+               rel="tooltip"
+               title="Подробнее про Карты Судьбы Вы можете узнать в путеводителе.">
+              У Вас нет карт
+            </a>
+          </li>
+      </ul>
+    </div>
 
     <a href="#" class="angel-ability pgf-ability-help pgf-hidden" style="display: inline-block; width: 30%;">
       <i class="icon-tint" rel="tooltip" title="недостаточно энергии"></i>

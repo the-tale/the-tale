@@ -242,7 +242,7 @@ class Worker(BaseWorker):
 
         if game_settings.ENABLE_WORKER_HIGHLEVEL:
             game_environment.highlevel.cmd_stop()
-            self.wait_answers_from('stop', workers=['highlevel'])
+            self.wait_answers_from('stop', workers=['highlevel'], timeout=5*60)
 
         if game_settings.ENABLE_WORKER_TURNS_LOOP:
             game_environment.turns_loop.cmd_stop()

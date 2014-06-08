@@ -28,6 +28,7 @@ from the_tale.accounts.conf import accounts_settings
 from the_tale.guide.conf import guide_settings
 
 
+
 class APIReference(object):
 
     def __init__(self, id_, name, method):
@@ -77,6 +78,7 @@ def get_api_types():
     from the_tale.game.actions.relations import ACTION_TYPE
     from the_tale.game.relations import GAME_STATE
     from the_tale.game.quests.relations import ACTOR_TYPE
+    from the_tale.game.cards.relations import CARD_TYPE
 
     return [TypeReference('gender', u'Пол', GENDER),
             TypeReference('race', u'Раса', RACE),
@@ -89,7 +91,8 @@ def get_api_types():
                          fields=((u'значение', 'value'), (u'описание', 'text'), (u'атрибуты запроса', 'request_attributes'))),
             TypeReference('action_type', u'Тип действия героя', ACTION_TYPE),
             TypeReference('game_state', u'Состояние игры', GAME_STATE),
-            TypeReference('actor_types', u'Типы актёров в заданиях', ACTOR_TYPE)]
+            TypeReference('actor_types', u'Типы актёров в заданиях', ACTOR_TYPE),
+            TypeReference('cards_types', u'Типы Карт Судьбы', CARD_TYPE)]
 
 API_METHODS = get_api_methods()
 API_TYPES = get_api_types()

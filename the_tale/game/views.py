@@ -21,6 +21,8 @@ from the_tale.game.conf import game_settings
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
 from the_tale.game import logic as game_logic
 
+from the_tale.game.cards.relations import CARD_TYPE
+
 
 class GameResource(Resource):
 
@@ -46,6 +48,7 @@ class GameResource(Resource):
                               'EQUIPMENT_SLOT': EQUIPMENT_SLOT,
                               'current_map_version': map_info_storage.version,
                               'clan': clan,
+                              'CARD_TYPE': CARD_TYPE,
                               'hero': HeroPrototype.get_by_account_id(self.account.id)} )
 
     @api.handler(versions=('1.1', '1.0'))
@@ -110,6 +113,13 @@ class GameResource(Resource):
 
       "equipment":{                      // экипировка героя, словарь <идентификатор типа экипировки, информация об артефакте>
         "<целое число>": <artifact_info> // идентификатор типа экипировки: информация об артефакте
+      },
+
+      "cards":{                          // карты судьбы
+        "cards": {                       // список карт
+          "<целое число>": <целое число> // идентификатор карты: количество
+        }
+
       },
 
       "bag":{                            // содержимое рюкзака, словарь <внутренний идентификатор предмета, описание> ()
