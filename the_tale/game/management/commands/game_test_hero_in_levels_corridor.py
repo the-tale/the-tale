@@ -37,6 +37,7 @@ class Command(BaseCommand):
     @mock.patch('dext.settings.conf.dext_settings_settings.UPDATE_DATABASE', False)
     @mock.patch('the_tale.game.heroes.habilities.nonbattle.WANDERER.modify_attribute', lambda self, t, v: v)
     @mock.patch('the_tale.game.heroes.habilities.nonbattle.GIFTED.modify_attribute', lambda self, t, v: v)
+    @mock.patch('the_tale.game.quests.conf.quests_settings.INTERFERED_PERSONS_LIVE_TIME', 0)
     def test_corridor(self):
 
         result, account_id, bundle_id = register_user(uuid.uuid4().hex) # pylint: disable=W0612
