@@ -41,7 +41,7 @@ class BasePvPAbility(object):
 class Ice(BasePvPAbility):
     TYPE = 'ice'
     NAME = u'Лёд'
-    DESCRIPTION = u'Сконцентрироваться и увеличить прирост энергии. Чем больше энергии накоплено, тем вероятнее успех применения способности.'
+    DESCRIPTION = u'Сконцентрироваться и увеличить прирост энергии. Чем дольше копилась энергия, тем вероятнее успех применения способности.'
 
     @staticmethod
     def get_probability(energy, energy_speed): return min(1.0, energy * 10 / 100.0 / energy_speed)
@@ -77,7 +77,7 @@ class Blood(BasePvPAbility):
 class Flame(BasePvPAbility):
     TYPE = 'flame'
     NAME = u'Пламя'
-    DESCRIPTION = u'Нарушить концентрацию противника и уменьшить прирост его энергии. Чем больше энергии накоплено, тем вероятнее успех применения способности. Сбросить прирост энергии меньше 1 нельзя.'
+    DESCRIPTION = u'Нарушить концентрацию противника и уменьшить прирост его энергии. Чем дольше копилась энергия, тем вероятнее успех применения способности. Сбросить прирост энергии меньше 1 нельзя.'
 
     @staticmethod
     def get_probability(energy, energy_speed): return min(1.0, energy * 10 / 100.0 / energy_speed)

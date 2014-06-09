@@ -19,7 +19,6 @@ from the_tale.game.balance.power import Power
 from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.map.places.storage import places_storage
-from the_tale.game.map.roads.storage import waymarks_storage
 
 from the_tale.game.persons.storage import persons_storage
 from the_tale.game.persons.relations import PERSON_TYPE

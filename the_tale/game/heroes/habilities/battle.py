@@ -18,7 +18,7 @@ class HIT(AbilityPrototype):
 
     NAME = u'Удар'
     normalized_name = NAME
-    DESCRIPTION = u'Каждый уважающий себя герой должен быть в состоянии ударить противника, или пнуть.'
+    DESCRIPTION = u'Каждый уважающий себя герой должен быть в состоянии ударить противника… или пнуть.'
 
     DAMAGE_MODIFIER = [1.00]
 
@@ -245,7 +245,7 @@ class FIREBALL(AbilityPrototype):
 
     NAME = u'Шар огня'
     normalized_name = NAME
-    DESCRIPTION = u'Герой запускает в противника шар волшебного огня, нанося большой урон и поджигая врага.'
+    DESCRIPTION = u'Герой запускает в противника шар огня, нанося большой урон и поджигая врага.'
 
     DAMAGE_MODIFIER = [1.45, 1.50, 1.55, 1.60, 1.65]
     PERIODIC_DAMAGE_MODIFIERS = [ [0.18, 0.08],
