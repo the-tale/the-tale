@@ -14,13 +14,15 @@
   Шумные ярмарки, людные улицы, веселые трактиры - они есть в любом городе, но этот особенно по душе вашему герою. Здесь живут его близкие друзья и соратники, сюда он возвращается отдохнуть, и набрать сил перед новыми приключениями.
 </p>
 
-<table class="table table-bordered table-striped table-condensed">
-  {% for place_left, place_right in places %}
-  <tr>
-    {{ preference_record(place_left, resource.hero.preferences.place) }}
-    {% if place_right %}
-    {{ preference_record(place_right, resource.hero.preferences.place) }}
-    {% endif %}
-  </tr>
-  {% endfor %}
-</table>
+<div class="pgf-scrollable tab-content" style="max-height: 360px; overflow-y: auto;">
+  <table class="table table-bordered table-striped table-condensed">
+    {% for place_left, place_right in places %}
+    <tr>
+      {{ preference_record(place_left, resource.hero.preferences.place) }}
+      {% if place_right %}
+      {{ preference_record(place_right, resource.hero.preferences.place) }}
+      {% endif %}
+    </tr>
+    {% endfor %}
+  </table>
+</div>

@@ -38,14 +38,14 @@ class DropItemAbilityTest(testcase.TestCase):
     @property
     def use_attributes(self):
         return {'data': {'hero_id': self.hero.id},
-                'step': None,
+                'step': ComplexChangeTask.STEP.LOGIC,
                 'main_task_id': 0,
                 'storage': self.storage,
                 'pvp_balancer': None}
 
     def test_no_items(self):
         self.assertEqual(self.hero.bag.occupation, 0)
-        self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.FAILED, None, ()))
+        self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
         self.assertEqual(self.hero.energy, self.hero.energy_maximum)
 
     def test_success(self):
@@ -53,7 +53,7 @@ class DropItemAbilityTest(testcase.TestCase):
 
         self.assertEqual(self.hero.bag.occupation, 1)
 
-        self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, None, ()))
+        self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(self.hero.bag.occupation, 0)
 
@@ -65,7 +65,7 @@ class DropItemAbilityTest(testcase.TestCase):
 
         self.assertEqual(self.hero.bag.occupation, 1)
 
-        self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, None, ()))
+        self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(self.hero.bag.occupation, 0)
 

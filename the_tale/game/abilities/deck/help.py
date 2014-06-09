@@ -24,12 +24,12 @@ class Help(AbilityPrototype):
             heal_amount = int(hero.heal(hero.max_health * random.uniform(*c.ANGEL_HELP_HEAL_FRACTION)))
             hero.add_message('angel_ability_healhero', hero=hero, health=heal_amount)
         action.on_heal()
-        return (ComplexChangeTask.RESULT.SUCCESSED, None, ())
+        return (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ())
 
     def use_start_quest(self, action, hero, critical): # pylint: disable=W0613
         action.init_quest()
         hero.add_message('angel_ability_stimulate', hero=hero)
-        return (ComplexChangeTask.RESULT.SUCCESSED, None, ())
+        return (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ())
 
     def use_money(self, action, hero, critical): # pylint: disable=W0613
         multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
@@ -42,7 +42,7 @@ class Help(AbilityPrototype):
         else:
             hero.change_money(MONEY_SOURCE.EARNED_FROM_HELP, coins)
             hero.add_message('angel_ability_money', hero=hero, coins=coins)
-        return (ComplexChangeTask.RESULT.SUCCESSED, None, ())
+        return (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ())
 
     def use_teleport(self, action, hero, critical):
         if critical:
@@ -51,7 +51,7 @@ class Help(AbilityPrototype):
         else:
             action.short_teleport(c.ANGEL_HELP_TELEPORT_DISTANCE)
             hero.add_message('angel_ability_shortteleport', hero=hero)
-        return (ComplexChangeTask.RESULT.SUCCESSED, None, ())
+        return (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ())
 
     def use_lightning(self, action, hero, critical):
         if critical:
@@ -60,14 +60,14 @@ class Help(AbilityPrototype):
         else:
             action.bit_mob(random.uniform(*c.ANGEL_HELP_LIGHTING_FRACTION))
             hero.add_message('angel_ability_lightning', hero=hero, mob=action.mob)
-        return (ComplexChangeTask.RESULT.SUCCESSED, None, ())
+        return (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ())
 
     def use_resurrect(self, action, hero, critical): # pylint: disable=W0613
         if hero.is_alive:
-            return (ComplexChangeTask.RESULT.IGNORE, None, ())
+            return (ComplexChangeTask.RESULT.IGNORE, ComplexChangeTask.STEP.SUCCESS, ())
         action.fast_resurrect()
         hero.add_message('angel_ability_resurrect', hero=hero)
-        return (ComplexChangeTask.RESULT.SUCCESSED, None, ())
+        return (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ())
 
     def use_experience(self, action, hero, critical): # pylint: disable=W0613
 
@@ -80,7 +80,7 @@ class Help(AbilityPrototype):
             real_experience = hero.add_experience(experience)
             hero.add_message('angel_ability_experience', hero=hero, experience=real_experience)
 
-        return (ComplexChangeTask.RESULT.SUCCESSED, None, ())
+        return (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ())
 
     def use_stock_up_energy(self, action, hero, critical): # pylint: disable=W0613
 
@@ -93,7 +93,7 @@ class Help(AbilityPrototype):
 
         hero.add_energy_bonus(energy)
 
-        return (ComplexChangeTask.RESULT.SUCCESSED, None, ())
+        return (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ())
 
     def _use(self, choice, action, hero, critical):
         if choice.is_HEAL:
@@ -127,14 +127,14 @@ class Help(AbilityPrototype):
         battle = Battle1x1Prototype.get_by_account_id(hero.account_id)
 
         if battle and not battle.state.is_WAITING:
-            return (ComplexChangeTask.RESULT.FAILED, None, ())
+            return (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ())
 
         action = hero.actions.current_action
 
         choice = action.get_help_choice()
 
         if choice is None:
-            return (ComplexChangeTask.RESULT.FAILED, None, ())
+            return (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ())
 
         if action.AGGRESSIVE:
             hero.update_habits(HABIT_CHANGE_SOURCE.HELP_AGGRESSIVE)

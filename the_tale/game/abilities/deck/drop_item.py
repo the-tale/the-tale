@@ -18,7 +18,7 @@ class DropItem(AbilityPrototype):
         hero = storage.heroes[data['hero_id']]
 
         if hero.bag.is_empty:
-            return ComplexChangeTask.RESULT.FAILED, None, ()
+            return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()
 
         dropped_item = hero.bag.drop_cheapest_item(hero.preferences.archetype.power_distribution)
 
@@ -31,4 +31,4 @@ class DropItem(AbilityPrototype):
             hero.change_money(MONEY_SOURCE.EARNED_FROM_HELP, sell_price)
             hero.add_message('angel_ability_drop_item_crit', hero=hero, dropped_item=dropped_item, coins=sell_price)
 
-        return ComplexChangeTask.RESULT.SUCCESSED, None, ()
+        return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
