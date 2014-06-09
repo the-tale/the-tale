@@ -35,7 +35,7 @@ class FormulasTest(testcase.TestCase):
 
     def test_experience_for_quest(self):
         self.assertTrue(f.experience_for_quest(100) < f.experience_for_quest(1000)< f.experience_for_quest(10000))
-        self.assertEqual(int(f.experience_for_quest__real(100)), 151)
+        self.assertEqual(int(f.experience_for_quest__real(100)), 48)
 
     def test_person_power_for_quest(self):
         self.assertTrue(f.person_power_for_quest(100) < f.person_power_for_quest(1000)< f.person_power_for_quest(10000))

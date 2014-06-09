@@ -179,18 +179,24 @@ class HeroPreferences(object):
     @classmethod
     def _preferences_query(cls, all):
         current_time = datetime.datetime.now()
-        if all:
-            return HeroPreferencesPrototype._model_class.objects.filter(hero__is_fast=False, hero__ban_state_end_at__lt=current_time, hero__active_state_end_at__gte=current_time)
 
-        return HeroPreferencesPrototype._model_class.objects.filter(hero__is_fast=False, hero__ban_state_end_at__lt=current_time, hero__premium_state_end_at__gte=current_time)
+        filter = models.Q(hero__premium_state_end_at__gte=current_time)
+
+        if all:
+            filter |= models.Q(hero__active_state_end_at__gte=current_time)
+
+        return HeroPreferencesPrototype._model_class.objects.filter(filter, hero__is_fast=False, hero__ban_state_end_at__lt=current_time)
 
     @classmethod
     def _heroes_query(cls, all):
         current_time = datetime.datetime.now()
-        if all:
-            return HeroPrototype._model_class.objects.filter(is_fast=False, ban_state_end_at__lt=current_time, active_state_end_at__gte=current_time)
 
-        return HeroPrototype._model_class.objects.filter(is_fast=False, ban_state_end_at__lt=current_time, premium_state_end_at__gte=current_time)
+        filter = models.Q(premium_state_end_at__gte=current_time)
+
+        if all:
+            filter |= models.Q(active_state_end_at__gte=current_time)
+
+        return HeroPrototype._model_class.objects.filter(filter, is_fast=False, ban_state_end_at__lt=current_time)
 
     @classmethod
     def _place_heroes_query(cls, place, all):
