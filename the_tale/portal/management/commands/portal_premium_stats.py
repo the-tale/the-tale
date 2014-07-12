@@ -32,6 +32,9 @@ def get_premium_sequences(accounts_query):
 
     operations_by_accounts = {account_id: tuple(normalize(operations)) for account_id, operations in operations_by_accounts.iteritems()}
 
+    # allowed_accounts_ids = Account.objects.filter(created_at__lt=datetime.datetime(year=2014, month=1, day=1)).values_list('id', flat=True)
+    # operations_by_accounts = {k:v for k,v in operations_by_accounts.iteritems() if k in allowed_accounts_ids}
+
     return collections.Counter(operations_by_accounts.itervalues())
 
 
@@ -76,7 +79,9 @@ class StatsNode(simple_tree.Node):
     def conversion_total(self): return self.total_stop + self.total_next - self.active_stop
 
     @property
-    def conversion_percents(self): return float(self.conversion_passed) / self.conversion_total if self.conversion_total else 0
+    def conversion_percents(self):
+        return float(self.conversion_passed + self.active_stop) / (self.conversion_total + self.active_stop) if (self.conversion_total + self.active_stop) else 0
+        # return float(self.conversion_passed) / self.conversion_total if self.conversion_total else 0
 
     def label(self):
 
@@ -113,6 +118,10 @@ class Command(BaseCommand):
                                                                                premium_end_at__lt=datetime.datetime.now(),
                                                                                active_end_at__gt=datetime.datetime.now()))
         print 'old_premiums now active: ', sum(old_premiums_now_active.itervalues())
+
+        now_premiums = get_premium_sequences(Account.objects.filter(is_fast=False,
+                                                                    premium_end_at__gt=datetime.datetime.now()))
+        print 'now premiums: ', sum(now_premiums.itervalues())
 
         # print '-----PREMIUMS----'
         premiums = get_premium_sequences(Account.objects.filter(is_fast=False, premium_end_at__gt=datetime.datetime.now()))

@@ -2,6 +2,6 @@
 
 from dext.views import resource_patterns
 
-from .views import NewsResource
+from the_tale.cms.news.views import NewsResource
 
 urlpatterns = resource_patterns(NewsResource)

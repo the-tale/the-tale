@@ -335,7 +335,7 @@ class ArtifactRecordPrototype(BasePrototype):
 
         self._model.save()
 
-        artifacts_storage.update_cached_data(self)
+        artifacts_storage._update_cached_data(self)
         artifacts_storage.update_version()
 
     def create_artifact(self, level, power, rarity=relations.RARITY.NORMAL):

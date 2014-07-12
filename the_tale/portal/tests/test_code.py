@@ -5,6 +5,7 @@ from django.conf import settings as project_settings
 from django.utils.importlib import import_module
 
 from dext.utils.urls import url
+from dext.utils import storage
 
 from the_tale.common.utils import testcase
 
@@ -30,7 +31,8 @@ class CodeTests(testcase.TestCase):
                    '.pyc' not in filename and
                    '~' not in filename and
                    'code_tests.py' not in filename and
-                   (not only_models or 'models.py' in filename))]
+                   (not only_models or 'models.py' in filename) and
+                   filename.endswith('.py'))]
 
         return out
 
@@ -43,6 +45,40 @@ class CodeTests(testcase.TestCase):
         for code in self._filter_code('BooleanField'):
             self.assertTrue('default=' in code)
 
+    def check_starts(self, code, starts):
+        return any(code.startswith(start) for start in starts)
+
+    def test_only_absolute_imports__from(self):
+        for code in self._filter_code('^\s*from ', only_models=False):
+            code = code.strip()[len('from '):]
+            self.assertTrue(self.check_starts(code,
+                                              ['the_tale',
+                                               'dext',
+                                               'django',
+                                               'rels',
+                                               'optparse',
+                                               'textgen',
+                                               'kombu',
+                                               'decimal',
+                                               'south',
+                                               'questgen',
+                                               'pynames',
+                                               'deworld',
+                                               'urlparse',
+                                               'boto']))
+
+    def test_only_absolute_imports__import(self):
+
+        for code in self._filter_code('^\s*import ', only_models=False):
+            code = code.strip()[len('import '):]
+
+            for module_name in code.split(','):
+                self.assertTrue(self.check_starts(module_name,
+                                                ['sys', 'os', 'shutil', 'datetime', 'tempfile', 'subprocess', 'random', 'collections', 're', 'itertools', 'Queue', 'time',
+                                                 'jinja2', 'math', 'uuid', 'postmarkup', 'functools', 'urllib2', 'xlrd', 'copy', 'gv', 'string', 'traceback', 'newrelic',
+                                                 'markdown', 'md5', 'mock', 'pymorphy', 'numbers', 'gc', 'numpy', 'matplotlib', 'contextlib', 'pynames', 'json', 'PIL', 'deworld',
+                                                 'urllib']))
+
     def test_api_urls_not_changed(self):
         self.assertEqual(url('portal:api-info'), '/api/info')
         self.assertEqual(url('accounts:auth:api-login'), '/accounts/auth/api/login')
@@ -51,8 +87,6 @@ class CodeTests(testcase.TestCase):
 
 
     def test_storade_objects_got_only_from_storages(self):
-        from the_tale.common.utils.storage import BaseStorage
-
         # get all stored types
         prototypes = []
 
@@ -64,7 +98,7 @@ class CodeTests(testcase.TestCase):
                 continue
 
             for object in module.__dict__.values():
-                if isinstance(object, BaseStorage):
+                if isinstance(object, storage.BaseStorage):
                     prototypes.append(object.PROTOTYPE)
 
         # check

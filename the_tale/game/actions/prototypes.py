@@ -4,8 +4,8 @@ import random
 import copy
 
 from dext.utils.urls import url
+from dext.utils import discovering
 
-from the_tale.common.utils.discovering import discover_classes
 from the_tale.common.utils.logic import random_value_by_priority
 
 from the_tale.game.prototypes import TimePrototype
@@ -1709,4 +1709,4 @@ class ActionMetaProxyPrototype(ActionBase):
 
 
 ACTION_TYPES = { action_class.TYPE:action_class
-                 for action_class in discover_classes(globals().values(), ActionBase) }
+                 for action_class in discovering.discover_classes(globals().values(), ActionBase) }

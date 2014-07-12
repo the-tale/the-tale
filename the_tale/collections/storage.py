@@ -1,25 +1,34 @@
 # coding: utf-8
 
 
-from the_tale.common.utils.storage import create_storage_class
+from the_tale.common.utils import storage
 
 from the_tale.collections.prototypes import CollectionPrototype, KitPrototype, ItemPrototype
 from the_tale.collections import exceptions
 
 
-class CollectionsStorage(create_storage_class('collections change time', CollectionPrototype, exceptions.CollectionsError)):
+class CollectionsStorage(storage.Storage):
+    SETTINGS_KEY = 'collections change time'
+    EXCEPTION = exceptions.CollectionsError
+    PROTOTYPE = CollectionPrototype
 
     def get_form_choices(self):
         return [('', '----')] +  [(c.id, c.caption) for c in self.all()]
 
 
-class KitsStorage(create_storage_class('kits change time', KitPrototype, exceptions.CollectionsError)):
+class KitsStorage(storage.Storage):
+    SETTINGS_KEY = 'kits change time'
+    EXCEPTION = exceptions.CollectionsError
+    PROTOTYPE = KitPrototype
 
     def get_form_choices(self):
         return [('', '----')] +  [(k.id, k.caption) for k in self.all()]
 
 
-class ItemsStorage(create_storage_class('items change time', ItemPrototype, exceptions.CollectionsError)):
+class ItemsStorage(storage.Storage):
+    SETTINGS_KEY = 'items change time'
+    EXCEPTION = exceptions.CollectionsError
+    PROTOTYPE = ItemPrototype
 
     def form_choices(self):
         self.sync()

@@ -46,7 +46,7 @@ class Worker(BaseWorker):
             except Queue.Empty:
                 if self.next_task_process_time < datetime.datetime.now():
                     self.check_tasks()
-                    self.next_message_process_time = datetime.datetime.now() + datetime.timedelta(seconds=postponed_tasks_settings.TASK_WAIT_DELAY)
+                    self.next_task_process_time = datetime.datetime.now() + datetime.timedelta(seconds=postponed_tasks_settings.TASK_WAIT_DELAY)
                 time.sleep(0.1)
 
     def check_tasks(self):

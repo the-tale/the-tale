@@ -233,7 +233,7 @@ CACHE_MIDDLEWARE_SECONDS = 24*60*60
 CACHE_MIDDLEWARE_KEY_PREFIX = ''
 
 try:
-    from settings_local import * # pylint: disable=W0403,W0401,W0614
+    from the_tale.settings_local import * # pylint: disable=W0403,W0401,W0614
 except Exception: # pylint: disable=W0702,W0703
     pass
 

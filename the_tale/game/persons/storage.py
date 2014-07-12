@@ -1,15 +1,19 @@
 # coding: utf-8
 
-from the_tale.common.utils.storage import create_storage_class
+from the_tale.common.utils import storage
 
 from the_tale.game.persons.models import PERSON_STATE
 from the_tale.game.persons.prototypes import PersonPrototype
 from the_tale.game.persons import exceptions
 
 
-class PersonsStorage(create_storage_class('persons change time', PersonPrototype, exceptions.PersonsStorageError)):
+class PersonsStorage(storage.Storage):
+    SETTINGS_KEY = 'persons change time'
+    EXCEPTION = exceptions.PersonsStorageError
+    PROTOTYPE = PersonPrototype
 
-    def _get_all_query(self): return self.PROTOTYPE._db_exclude(state=PERSON_STATE.REMOVED)
+    def _get_all_query(self):
+        return self.PROTOTYPE._db_exclude(state=PERSON_STATE.REMOVED)
 
     def filter(self, place_id=None, state=None):
         return [person

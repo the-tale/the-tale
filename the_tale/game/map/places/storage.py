@@ -1,14 +1,17 @@
 # coding: utf-8
 import random
 
-from the_tale.common.utils.storage import create_storage_class
+from the_tale.common.utils import storage
 
 from the_tale.game.map.places.prototypes import PlacePrototype, BuildingPrototype, ResourceExchangePrototype
 from the_tale.game.map.places import exceptions
 from the_tale.game.map.places.relations import BUILDING_STATE
 
 
-class PlacesStorage(create_storage_class('places change time', PlacePrototype, exceptions.PlacesStorageError)):
+class PlacesStorage(storage.Storage):
+    SETTINGS_KEY = 'places change time'
+    EXCEPTION = exceptions.PlacesStorageError
+    PROTOTYPE = PlacePrototype
 
     def random_place(self):
         self.sync()
@@ -35,20 +38,17 @@ class PlacesStorage(create_storage_class('places change time', PlacePrototype, e
 places_storage = PlacesStorage()
 
 
-class BuildingsStorage(create_storage_class('buildings change time', BuildingPrototype, exceptions.BuildingsStorageError)):
+class BuildingsStorage(storage.CachedStorage):
+    SETTINGS_KEY = 'buildings change time'
+    EXCEPTION = exceptions.BuildingsStorageError
+    PROTOTYPE = BuildingPrototype
 
-    def _get_all_query(self): return BuildingPrototype._model_class.objects.exclude(state=BUILDING_STATE.DESTROYED)
+    def _get_all_query(self): return self.PROTOTYPE._model_class.objects.exclude(state=BUILDING_STATE.DESTROYED)
 
-    def __init__(self, *argv, **kwargs):
+    def _reset_cache(self):
         self._persons_to_buildings = {}
-        super(BuildingsStorage, self).__init__(*argv, **kwargs)
 
-    def clear(self):
-        self._persons_to_buildings = {}
-        super(BuildingsStorage, self).clear()
-
-    def add_item(self, id_, item):
-        super(BuildingsStorage, self).add_item(id_=id_, item=item)
+    def _update_cached_data(self, item):
         self._persons_to_buildings[item.person.id] = item
 
     def get_by_person_id(self, person_id):
@@ -72,7 +72,10 @@ class BuildingsStorage(create_storage_class('buildings change time', BuildingPro
 buildings_storage = BuildingsStorage()
 
 
-class ResourceExchangeStorage(create_storage_class('resource exchange change time', ResourceExchangePrototype, exceptions.ResourceExchangeStorageError)):
+class ResourceExchangeStorage(storage.Storage):
+    SETTINGS_KEY = 'resource exchange change time'
+    EXCEPTION = exceptions.ResourceExchangeStorageError
+    PROTOTYPE = ResourceExchangePrototype
 
     def get_exchanges_for_place(self, place):
         exchanges = []

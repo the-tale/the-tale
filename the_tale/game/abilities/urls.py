@@ -1,5 +1,5 @@
 # coding: utf-8
 from dext.views import resource_patterns
-from .views import AbilitiesResource
+from the_tale.game.abilities.views import AbilitiesResource
 
 urlpatterns = resource_patterns(AbilitiesResource)

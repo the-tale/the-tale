@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from the_tale.common.utils.discovering import discover_classes
+from dext.utils import discovering
 
 from the_tale.common.postponed_tasks import PostponedTaskPrototype
 
@@ -83,4 +83,4 @@ class KeepersGoods(CardBase):
 
 
 CARDS = {card_class.TYPE: card_class
-         for card_class in discover_classes(globals().values(), CardBase)}
+         for card_class in discovering.discover_classes(globals().values(), CardBase)}

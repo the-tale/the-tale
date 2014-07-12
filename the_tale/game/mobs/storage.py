@@ -1,35 +1,27 @@
 # coding: utf-8
 import random
 
-from the_tale.common.utils.storage import create_storage_class
+from the_tale.common.utils import storage
 
 from the_tale.game.mobs import exceptions
 from the_tale.game.mobs.prototypes import MobPrototype, MobRecordPrototype
 from the_tale.game.mobs import relations
 
 
-class MobsStorage(create_storage_class('mob records change time', MobRecordPrototype, exceptions.MobsStorageError)):
+class MobsStorage(storage.CachedStorage):
+    SETTINGS_KEY = 'mob records change time'
+    EXCEPTION = exceptions.MobsStorageError
+    PROTOTYPE = MobRecordPrototype
 
-    def __init__(self):
-        super(MobsStorage, self).__init__()
-        self._mobs_by_uuids = {}
-        self._types_count = {mob_type: 0 for mob_type in relations.MOB_TYPE.records}
-        self.mobs_number = 0
-
-    def update_cached_data(self, item):
+    def _update_cached_data(self, item):
         self._mobs_by_uuids[item.uuid] = item
         self._types_count[item.type] = len([mob for mob in self.all() if mob.type == item.type])
         self.mobs_number = len(self.all())
 
-    def clear(self):
-        super(MobsStorage, self).clear()
+    def _reset_cache(self):
         self._mobs_by_uuids = {}
         self._types_count = {mob_type: 0 for mob_type in relations.MOB_TYPE.records}
         self.mobs_number = 0
-
-    def add_item(self, id_, item):
-        super(MobsStorage, self).add_item(id_, item)
-        self.update_cached_data(item)
 
     def get_by_uuid(self, uuid):
         self.sync()

@@ -1,7 +1,7 @@
 # coding: utf-8
 import random
 
-from the_tale.common.utils.discovering import discover_classes
+from dext.utils import discovering
 
 from the_tale.game.balance import constants as c
 
@@ -91,4 +91,4 @@ class Flame(BasePvPAbility):
 
 
 ABILITIES = {ability.TYPE:ability
-             for ability in discover_classes(globals().values(), BasePvPAbility)}
+             for ability in discovering.discover_classes(globals().values(), BasePvPAbility)}

@@ -1,13 +1,15 @@
 # coding: utf-8
 
-from the_tale.common.utils.storage import create_storage_class
-from the_tale.common.utils.decorators import lazy_property
+from the_tale.common.utils import storage
 
 from the_tale.game.map.roads.prototypes import RoadPrototype, WaymarkPrototype
 from the_tale.game.map.roads import exceptions
 
 
-class RoadsStorage(create_storage_class('roads change time', RoadPrototype, exceptions.RoadsStorageError)):
+class RoadsStorage(storage.Storage):
+    SETTINGS_KEY = 'roads change time'
+    EXCEPTION = exceptions.RoadsStorageError
+    PROTOTYPE = RoadPrototype
 
     def all_exists_roads(self):
         return [road for road in self.all() if road.exists]
@@ -25,19 +27,16 @@ class RoadsStorage(create_storage_class('roads change time', RoadPrototype, exce
 roads_storage = RoadsStorage()
 
 
-class WaymarksStorage(create_storage_class('waymarks change time', WaymarkPrototype, exceptions.WaymarksStorageError)):
+class WaymarksStorage(storage.CachedStorage):
+    SETTINGS_KEY = 'waymarks change time'
+    EXCEPTION = exceptions.WaymarksStorageError
+    PROTOTYPE = WaymarkPrototype
 
-    def __init__(self, *argv, **kwargs):
-        super(WaymarksStorage, self).__init__(*argv, **kwargs)
-        self._waymarks_map = {}
-
-    def clear(self):
-        self._waymarks_map = {}
-        super(WaymarksStorage, self).clear()
-
-    def add_item(self, id_, item):
-        super(WaymarksStorage, self).add_item(id_, item)
+    def _update_cached_data(self, item):
         self._waymarks_map[(item.point_from_id, item.point_to_id)] = item
+
+    def _reset_cache(self):
+        self._waymarks_map = {}
 
     def look_for_road(self, point_from, point_to):
         self.sync()

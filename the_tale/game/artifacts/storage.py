@@ -2,7 +2,7 @@
 import random
 import itertools
 
-from the_tale.common.utils.storage import create_storage_class
+from the_tale.common.utils import storage
 from the_tale.common.utils.logic import random_value_by_priority
 
 from the_tale.game.balance.power import Power
@@ -12,7 +12,10 @@ from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
 from the_tale.game.artifacts import relations
 
 
-class ArtifactsStorage(create_storage_class('artifacts records change time', ArtifactRecordPrototype, exceptions.ArtifactsStorageError)):
+class ArtifactsStorage(storage.CachedStorage):
+    SETTINGS_KEY = 'artifacts records change time'
+    EXCEPTION = exceptions.ArtifactsStorageError
+    PROTOTYPE = ArtifactRecordPrototype
 
     def _reset_cache(self):
         self._artifacts_by_uuids = {}
@@ -22,15 +25,7 @@ class ArtifactsStorage(create_storage_class('artifacts records change time', Art
         self._mob_artifacts = {}
         self._mob_loot = {}
 
-    def refresh(self):
-        self._reset_cache()
-        super(ArtifactsStorage, self).refresh()
-
-    def clear(self):
-        self._reset_cache()
-        super(ArtifactsStorage, self).clear()
-
-    def update_cached_data(self, item):
+    def _update_cached_data(self, item):
         self._artifacts_by_uuids[item.uuid] = item
 
         if not item.state.is_ENABLED:
@@ -45,10 +40,6 @@ class ArtifactsStorage(create_storage_class('artifacts records change time', Art
 
         self._mob_artifacts = {}
         self._mob_loot = {}
-
-    def add_item(self, id_, item):
-        super(ArtifactsStorage, self).add_item(id_, item)
-        self.update_cached_data(item)
 
     def get_by_uuid(self, uuid):
         self.sync()

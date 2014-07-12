@@ -2,6 +2,6 @@
 
 from dext.views import resource_patterns
 
-from .views import HeroResource
+from the_tale.game.heroes.views import HeroResource
 
 urlpatterns = resource_patterns(HeroResource)

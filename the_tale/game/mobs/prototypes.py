@@ -273,5 +273,5 @@ class MobRecordPrototype(BasePrototype):
 
         self._model.save()
 
-        mobs_storage.update_cached_data(self)
+        mobs_storage._update_cached_data(self)
         mobs_storage.update_version()

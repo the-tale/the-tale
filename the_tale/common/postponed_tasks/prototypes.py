@@ -6,10 +6,9 @@ import datetime
 from django.core.urlresolvers import reverse
 
 from dext.utils import s11n
+from dext.utils import discovering
 
-from the_tale.common.utils import discovering
 from the_tale.common.utils.prototypes import BasePrototype
-from the_tale.common.utils.discovering import discover_classes
 
 from the_tale.common.postponed_tasks.models import PostponedTask, POSTPONED_TASK_STATE, POSTPONED_TASK_LOGIC_RESULT
 from the_tale.common.postponed_tasks.exceptions import PostponedTaskException
@@ -49,7 +48,7 @@ class PostponedLogic(object):
 
 def _register_postponed_tasks(container, objects):
 
-    for obj in discover_classes(objects, PostponedLogic):
+    for obj in discovering.discover_classes(objects, PostponedLogic):
         if obj.TYPE in container:
             raise PostponedTaskException(u'interanl logic "%s" for postponed task has being registered already' % obj.TYPE)
         if obj.TYPE is None:

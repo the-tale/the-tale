@@ -9,7 +9,7 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game.map.roads.models import Road
 from the_tale.game.map.roads.storage import RoadsStorage
-from the_tale.game.map.roads.exceptions import RoadsException
+from the_tale.game.map.roads import exceptions
 
 class RoadsStorageTest(testcase.TestCase):
 
@@ -53,7 +53,7 @@ class RoadsStorageTest(testcase.TestCase):
         self.assertTrue(self.storage[road.id].length == 666)
 
     def test_getitem_wrong_id(self):
-        self.assertRaises(RoadsException, self.storage.__getitem__, 666)
+        self.assertRaises(exceptions.RoadsStorageError, self.storage.__getitem__, 666)
 
     def test_getitem(self):
         road = Road.objects.order_by('?')[0]

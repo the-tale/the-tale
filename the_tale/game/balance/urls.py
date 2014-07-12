@@ -2,6 +2,6 @@
 
 from dext.views import resource_patterns
 
-from .views import BalanceResource
+from the_tale.game.balance.views import BalanceResource
 
 urlpatterns = resource_patterns(BalanceResource)

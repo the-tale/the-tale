@@ -2,14 +2,17 @@
 import contextlib
 import collections
 
-from the_tale.common.utils.storage import create_storage_class
+from the_tale.common.utils import storage
 
 from the_tale.accounts.achievements.prototypes import AchievementPrototype, AccountAchievementsPrototype
 from the_tale.accounts.achievements.exceptions import AchievementsError
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_GROUP
 
 
-class AchievementsStorage(create_storage_class('achievements change time', AchievementPrototype, AchievementsError)):
+class AchievementsStorage(storage.Storage):
+    SETTINGS_KEY = 'achievements change time'
+    EXCEPTION = AchievementsError
+    PROTOTYPE = AchievementPrototype
 
     def by_group(self, group, only_approved):
         by_group =  (achievement for achievement in self.all() if achievement.group == group)
