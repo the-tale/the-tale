@@ -48,7 +48,7 @@ class PostPrototype(BasePrototype):
         model = Post.objects.create(author=author._model,
                                     caption=caption,
                                     text=text,
-                                    state=POST_STATE.NOT_MODERATED,
+                                    state=POST_STATE.ACCEPTED,
                                     votes=1)
 
         thread = ForumThreadPrototype.create(ForumSubCategoryPrototype.get_by_uid(blogs_settings.FORUM_CATEGORY_UID),

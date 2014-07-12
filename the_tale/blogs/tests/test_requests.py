@@ -17,7 +17,8 @@ from the_tale.accounts.clans.conf import clans_settings
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.blogs.models import Post, Vote, POST_STATE
+from the_tale.blogs.models import Post, Vote
+from the_tale.blogs import relations
 from the_tale.blogs.prototypes import PostPrototype, VotePrototype
 from the_tale.blogs.conf import blogs_settings
 
@@ -71,7 +72,7 @@ class TestIndexRequests(BaseTestRequests):
         self.create_posts(3, self.account_2, 'caption-a2-%d', 'text-a2-%d')
 
         declined_post = PostPrototype(Post.objects.get(caption='caption-a1-0'))
-        declined_post.state = POST_STATE.DECLINED
+        declined_post.state = relations.POST_STATE.DECLINED
         declined_post.save()
 
         texts = [('pgf-no-posts-message', 0),
@@ -250,20 +251,38 @@ class TestShowRequests(BaseTestRequests):
                                    ('pgf-remove-vote-button', 1)])
 
 
-    def test_show_moderator(self):
+    def test_show_moderator__not_moderated(self):
 
         self.request_logout()
         self.request_login('test_user_2@test.com')
         group = sync_group('folclor moderation group', ['blogs.moderate_post'])
         group.user_set.add(self.account_2._model)
 
+        self.post.state = relations.POST_STATE.NOT_MODERATED
+        self.post.save()
+
         texts = [(reverse('blogs:posts:accept', args=[self.post.id]), 1),
                  (reverse('blogs:posts:decline', args=[self.post.id]), 1) ]
 
         self.check_html_ok(self.request_html(reverse('blogs:posts:show', args=[self.post.id])), texts=texts)
 
+    def test_show_moderator__accepted(self):
+
+        self.request_logout()
+        self.request_login('test_user_2@test.com')
+        group = sync_group('folclor moderation group', ['blogs.moderate_post'])
+        group.user_set.add(self.account_2._model)
+
+        self.post.state = relations.POST_STATE.ACCEPTED
+        self.post.save()
+
+        texts = [(reverse('blogs:posts:accept', args=[self.post.id]), 0),
+                 (reverse('blogs:posts:decline', args=[self.post.id]), 1) ]
+
+        self.check_html_ok(self.request_html(reverse('blogs:posts:show', args=[self.post.id])), texts=texts)
+
     def test_wrong_state(self):
-        self.post.state = POST_STATE.DECLINED
+        self.post.state = relations.POST_STATE.DECLINED
         self.post.save()
         self.check_html_ok(self.request_html(reverse('blogs:posts:show', args=[self.post.id])), texts=(('blogs.posts.post_declined', 1),))
 
@@ -303,6 +322,7 @@ class TestCreateRequests(BaseTestRequests):
         self.assertEqual(post.caption, 'post-caption')
         self.assertEqual(post.text, 'post-text')
         self.assertEqual(post.votes, 1)
+        self.assertTrue(post.state.is_ACCEPTED)
 
         vote = VotePrototype(Vote.objects.all()[0])
         self.check_vote(vote, self.account_1, post.id)
@@ -436,7 +456,7 @@ class TestEditRequests(BaseTestRequests):
                                                                                                      (self.post.text, 1)))
 
     def test_wrong_state(self):
-        self.post.state = POST_STATE.DECLINED
+        self.post.state = relations.POST_STATE.DECLINED
         self.post.save()
         self.check_html_ok(self.request_html(reverse('blogs:posts:edit', args=[self.post.id])), texts=(('blogs.posts.post_declined', 1),))
 
@@ -484,7 +504,7 @@ class TestUpdateRequests(BaseTestRequests):
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:update', args=[self.post.id]), self.get_post_data()))
 
     def test_wrong_state(self):
-        self.post.state = POST_STATE.DECLINED
+        self.post.state = relations.POST_STATE.DECLINED
         self.post.save()
         self.check_ajax_error(self.client.post(reverse('blogs:posts:update', args=[self.post.id]), self.get_post_data()), 'blogs.posts.post_declined')
 
@@ -504,6 +524,8 @@ class TestUpdateRequests(BaseTestRequests):
 
         self.assertEqual(self.post.caption, 'new-X-caption')
         self.assertEqual(self.post.text, 'new-X-text')
+
+        self.assertTrue(self.post.state.is_ACCEPTED)
 
         self.assertEqual(Post.objects.all().count(), 1)
         self.assertEqual(Thread.objects.all()[0].caption, 'new-X-caption')

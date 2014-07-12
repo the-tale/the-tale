@@ -168,7 +168,7 @@ class PostResource(Resource):
 
         self.post.caption = form.c.caption
         self.post.text = form.c.text
-        self.post.state = POST_STATE.NOT_MODERATED
+        # self.post.state = POST_STATE.NOT_MODERATED
 
         if self.can_moderate_post:
             self.post.moderator_id = self.account.id

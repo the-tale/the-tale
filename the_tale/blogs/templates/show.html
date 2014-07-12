@@ -21,6 +21,10 @@
   <li class="pull-right" style="margin-left: 0.5em;">
     <a href="{{ url('blogs:posts:edit', post.id) }}">редактировать</a>
   </li>
+  {% else %}
+  <li class="pull-right" style="margin-left: 0.5em;">
+    <a href="{{forum_complaint_theme()}}">пожаловаться</a>
+  </li>
   {% endif %}
 
   {% if resource.can_moderate_post %}
