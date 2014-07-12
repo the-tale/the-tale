@@ -44,7 +44,13 @@
 
     <tr>
       <td>{{ place_getter(rating) }}</td>
-      <td><a href="{{url('accounts:show', rating.account_id)}}">{{ rating.account.nick_verbose }}</a></td>
+      <td>
+        <a href="{{url('accounts:show', rating.account_id)}}">{{ rating.account.nick_verbose }}</a>
+        {% set clan = clans.get(rating.account.clan_id) %}
+        {% if clan is not none %}
+        <a href="{{url('accounts:clans:show', clan.id)}}">[{{clan.abbr}}]</a>
+        {% endif %}
+      </td>
       <td>{{ hero.gender_verbose}} {{ hero.race_verbose }} <a href="{{url('game:heroes:show', hero.id)}}">{{ hero.name }}</a></td>
       <td>{{ value_getter(values[rating.account_id]) }}</td>
     </tr>

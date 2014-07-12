@@ -9,6 +9,9 @@ from dext.settings import settings
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.pagination import Paginator
 
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.clans.prototypes import ClanPrototype
+
 from the_tale.game.heroes.models import Hero
 from the_tale.game.heroes.prototypes import HeroPrototype
 
@@ -112,16 +115,20 @@ class RatingResource(Resource):
         ratings = [ RatingPlacesPrototype(rating_model) for rating_model in ratings_query[rating_from:rating_to] ]
 
         accounts_ids = [rating.account_id for rating in ratings]
+        clans_ids = set(AccountPrototype._db_filter(id__in=accounts_ids).exclude(clan_id=None).values_list('clan_id', flat=True))
 
         heroes = dict( (hero_model.account_id, HeroPrototype(model=hero_model)) for hero_model in Hero.objects.filter(account_id__in=accounts_ids))
 
         values = dict( (values_model.account_id, RatingValuesPrototype(values_model)) for values_model in RatingValues.objects.filter(account_id__in=accounts_ids))
+
+        clans = {clan.id:clan for clan in ClanPrototype.get_list_by_id(list(clans_ids))}
 
         return self.template('ratings/show.html',
                              {'ratings': ratings,
                               'ratings_updated_at_timestamp': ratings_updated_at_timestamp,
                               'heroes': heroes,
                               'values': values,
+                              'clans': clans,
                               'paginator': paginator,
                               'place_getter': place_getter,
                               'value_getter': value_getter,
