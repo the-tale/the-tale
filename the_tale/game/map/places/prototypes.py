@@ -292,7 +292,7 @@ class PlacePrototype(BasePrototype):
 
         delta = self._stability_renewing_speed()
 
-        new_modifiers = [(text, (value + delta) if value < 0 else (value - delta))
+        new_modifiers = [(text, min(0, value + delta) if value < 0 else max(0, value - delta))
                          for text, value in self.stability_modifiers]
 
         self.stability_modifiers[:] = []
