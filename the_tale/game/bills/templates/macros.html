@@ -9,14 +9,14 @@
 
 {% if bill.state.is_VOTING %}
 <span class="pgf-bills-results-summary">
-  проголосовало: {{bill.votes_for + bill.votes_against}} (необходимо {{ min_votes_percents|percents }} «за»),
+  проголосовало: {{bill.votes_for + bill.votes_against}} (необходимо {{ min_votes_percents|percents(1) }} «за»),
   воздержалось: {{bill.votes_refrained}}
 </span>
 {% else %}
 <span class="pgf-bills-results-detailed">
   «за» {{ bill.votes_for }},
   «против» {{ bill.votes_against }}
-  (итого «за»: {{ bill.votes_for_percents|percents }} из {{min_votes_percents|percents}});
+  (итого «за»: {{ bill.votes_for_percents|percents(1) }} из {{min_votes_percents|percents}});
   «воздержалось» {{ bill.votes_refrained }}
 </span>
 {% endif %}
