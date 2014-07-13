@@ -35,17 +35,9 @@ jQuery(document).ready(function(e) {
 
   <table style="width: 100%; table-layout: fixed;">
     <tbody>
-      {{ equip_record(EQUIPMENT_SLOT.HAND_PRIMARY) }}
-      {{ equip_record(EQUIPMENT_SLOT.HAND_SECONDARY) }}
-      {{ equip_record(EQUIPMENT_SLOT.HELMET) }}
-      {{ equip_record(EQUIPMENT_SLOT.AMULET) }}
-      {{ equip_record(EQUIPMENT_SLOT.SHOULDERS) }}
-      {{ equip_record(EQUIPMENT_SLOT.PLATE) }}
-      {{ equip_record(EQUIPMENT_SLOT.GLOVES) }}
-      {{ equip_record(EQUIPMENT_SLOT.CLOAK) }}
-      {{ equip_record(EQUIPMENT_SLOT.PANTS) }}
-      {{ equip_record(EQUIPMENT_SLOT.BOOTS) }}
-      {{ equip_record(EQUIPMENT_SLOT.RING) }}
+      {% for record in EQUIPMENT_SLOT.records %}
+      {{ equip_record(record) }}
+      {% endfor %}
     </tbody>
   </table>
 
