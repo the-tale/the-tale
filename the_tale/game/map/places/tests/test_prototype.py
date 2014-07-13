@@ -248,6 +248,20 @@ class PlacePrototypeTests(testcase.TestCase):
 
         self.assertEqual(self.p1.stability_modifiers, [('x', -0.5 + c.PLACE_STABILITY_PER_HOUR / 2), ('y', 0.25 - c.PLACE_STABILITY_PER_HOUR / 2)])
 
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype._stability_renewing_speed', lambda self: 0.25)
+    def test_sync_stability__parameters_removed(self):
+        self.p1.stability_modifiers.append(('x', -0.5))
+        self.p1.stability_modifiers.append(('y', 0.25))
+
+        self.assertEqual(self.p1.stability_modifiers, [('x', -0.5), ('y', 0.25)])
+
+        self.p1.sync_stability()
+        self.assertEqual(self.p1.stability_modifiers, [('x', -0.25)])
+
+        self.p1.sync_stability()
+        self.assertEqual(self.p1.stability_modifiers, [])
+
+
 
     def test_sync_sync_parameters__stability__parameters_descreased(self):
 

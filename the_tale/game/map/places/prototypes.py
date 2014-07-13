@@ -295,6 +295,8 @@ class PlacePrototype(BasePrototype):
         new_modifiers = [(text, min(0, value + delta) if value < 0 else max(0, value - delta))
                          for text, value in self.stability_modifiers]
 
+        new_modifiers = [modifier for modifier in new_modifiers if not (-0.001 < modifier[1] < 0.001)]
+
         self.stability_modifiers[:] = []
         self.stability_modifiers.extend(new_modifiers)
 
