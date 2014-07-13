@@ -1,6 +1,9 @@
 
 @import "constants.less";
 
+@post-border-color: #dddddd;
+@post-background-color: #f9f9f9;
+@post-developer-background-color: #e9f9e9;
 
 .forum-table {
 
@@ -53,9 +56,9 @@
       padding-top: 0.5em;
       padding-bottom: 0.5em;
       margin-bottom:0.5em;
-      border-top: 1px solid #dddddd;
-      border-bottom: 1px solid #dddddd;
-      background-color: #f9f9f9;
+      border-top: 1px solid @post-border-color;
+      border-bottom: 1px solid @post-border-color;
+      background-color: @post-background-color;
 
       div {
          display: inline-block;
@@ -69,9 +72,9 @@
       padding-top: 0.5em;
       padding-bottom: 0.5em;
       margin-bottom:0.5em;
-      border-right: 1px solid #dddddd;
-      border-bottom: 1px solid #dddddd;
-      background-color: #f9f9f9;
+      border-right: 1px solid @post-border-color;
+      border-bottom: 1px solid @post-border-color;
+      background-color: @post-background-color;
       height: 100px;
       vertical-align: top;
       text-align: center;
@@ -79,10 +82,22 @@
    }
 
    .info-head {
-      border-top: 1px solid #dddddd;
-      background-color: #f9f9f9;
+      border-top: 1px solid @post-border-color;
+      background-color: @post-background-color;
       text-align: center;
       font-size: 12pt;
+   }
+
+   &.developer .head {
+      background-color: @post-developer-background-color;
+   }
+
+   &.developer .info {
+      background-color: @post-developer-background-color;
+   }
+
+   &.developer .info-head {
+      background-color: @post-developer-background-color;
    }
 
    .message {

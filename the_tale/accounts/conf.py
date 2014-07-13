@@ -31,6 +31,7 @@ accounts_settings = app_settings('ACCOUNTS',
                                  ACTIVE_STATE_TIMEOUT = 3*24*60*60,
                                  ACTIVE_STATE_REFRESH_PERIOD=3*60*60,
                                  SYSTEM_USER_NICK=u'Смотритель',
+                                 DEVELOPERS_IDS=[1, 1022],
 
                                  ACCOUNTS_ON_PAGE=25,
 

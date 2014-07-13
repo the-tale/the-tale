@@ -60,6 +60,10 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         return self.nick == accounts_settings.SYSTEM_USER_NICK
 
     @lazy_property
+    def is_developer(self):
+        return self.id in accounts_settings.DEVELOPERS_IDS
+
+    @lazy_property
     def permanent_purchases(self):
         from the_tale.accounts.payments.logic import PermanentRelationsStorage
         return PermanentRelationsStorage.deserialize(s11n.from_json(self._model.permanent_purchases))
