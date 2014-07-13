@@ -498,6 +498,20 @@
           <tbody>
             <tr><th width="200px">строение</th><td>{{building.type.text}}</td></tr>
             <tr><th width="200px">название</th><td>{{building.name}}</td></tr>
+            <tr>
+	      <th width="200px">гостиная</th>
+	      <td>
+		<a href="http://tlk.io/the-tale-building-{{building.id}}" target="_blank">войти</a>
+                <i class="icon-info-sign"
+                   style="vertical-align: middle;"
+                   rel="tooltip"
+                   title="По этой ссылке находится чат, привязанный к строению<br/>
+                          ВНИМАНИЕ!!!<br/>
+                          Это эксперимент. Чат находится на стороннем сервисе.<br/>
+                          НИКИ ИГРОКОВ В ЧАТЕ МОГУТ НЕ СОВПАДАТЬ С ИГРОВЫМИ!">
+                </i>
+	      </td>
+	    </tr>
             <tr><th width="200px">город</th><td>{{building.place.name}}</td></tr>
             <tr><th width="200px">владелец</th><td>{{building.person.name}} {{ building.person.race_verbose }}-{{ building.person.type.text }}</td></tr>
             <tr><th width="200px">возведено</th><td>{{building.created_at_turn|verbose_game_date}}</td></tr>
