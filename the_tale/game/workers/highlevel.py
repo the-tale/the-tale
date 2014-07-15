@@ -7,7 +7,6 @@ from django.db import transaction
 
 from the_tale.common.amqp_queues import BaseWorker
 from the_tale.common import postponed_tasks
-from the_tale.common.utils.logic import run_django_command
 
 from the_tale.game.balance import constants as c
 
@@ -87,15 +86,11 @@ class Worker(BaseWorker):
                     map_update_needed = True
 
         if map_update_needed:
-            self.logger.info('update map')
-            run_django_command(['map_update_map'])
-            self.logger.info('update map completed')
+            self.update_map()
 
-            # send command to main supervisor queue
-            game_environment.supervisor.cmd_highlevel_data_updated()
-
-        # send command to supervisor answer queue
-        game_environment.supervisor.cmd_answer('next_turn', self.worker_id)
+    def update_map(self):
+        self.logger.info('initialize map update')
+        game_environment.long_commands.cmd_update_map()
 
     def cmd_stop(self):
         return self.send_cmd('stop')
@@ -103,8 +98,6 @@ class Worker(BaseWorker):
     def process_stop(self):
         with transaction.atomic():
             self.sync_data()
-
-        run_django_command(['map_update_map'])
 
         self.initialized = False
 

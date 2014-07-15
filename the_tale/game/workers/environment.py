@@ -9,6 +9,7 @@ class Environment(BaseEnvironment):
         from the_tale.game.workers.logic import Worker as Logic
         from the_tale.game.workers.highlevel import Worker as Highlevel
         from the_tale.game.workers.turns_loop import Worker as TurnsLoop
+        from the_tale.game.workers.long_commands import Worker as LongCommands
         from the_tale.game.pvp.workers.balancer import Worker as PvPBalancer
 
 
@@ -19,6 +20,7 @@ class Environment(BaseEnvironment):
         self.highlevel = Highlevel(highlevel_queue='highlevel_queue')
         self.turns_loop = TurnsLoop(game_queue='turns_loop_queue')
         self.pvp_balancer = PvPBalancer(game_queue='pvp_balancer')
+        self.long_commands = LongCommands(command_queue='game_long_commands', stop_queue='game_long_commands_stop')
 
 
 workers_environment = Environment()

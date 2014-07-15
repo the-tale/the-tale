@@ -16,8 +16,6 @@ from the_tale.game.workers.supervisor import SupervisorException
 
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
 
-_wait_answers_state = 'logic' # for one specific test
-
 
 @mock.patch('the_tale.game.workers.supervisor.Worker.wait_answers_from', lambda self, name, workers: None)
 class SupervisorWorkerTests(testcase.TestCase):
@@ -60,6 +58,7 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'logic', self.account_2.id: 'logic'})
         self.assertEqual(self.worker.accounts_queues, {})
         self.assertTrue(self.worker.initialized)
+        self.assertFalse(self.worker.wait_next_turn_answer)
         self.assertTrue(GameState.is_working())
 
     def test_register_task(self):
@@ -213,30 +212,34 @@ class SupervisorWorkerTests(testcase.TestCase):
     @mock.patch('the_tale.game.conf.game_settings.ENABLE_WORKER_HIGHLEVEL', True)
     def test_process_next_turn(self):
         self.worker.process_initialize()
+
+        self.assertFalse(self.worker.wait_next_turn_answer)
+
         with mock.patch('the_tale.game.workers.supervisor.Worker.wait_answers_from') as wait_answers_from:
             self.worker.process_next_turn()
 
-        self.assertEqual(wait_answers_from.call_count, 2)
+        self.assertEqual(wait_answers_from.call_count, 0)
+        self.assertTrue(self.worker.wait_next_turn_answer)
+
+        with mock.patch('the_tale.game.workers.supervisor.Worker.wait_answers_from') as wait_answers_from:
+            self.worker.process_next_turn()
+
+        self.assertEqual(wait_answers_from.call_count, 1)
+        self.assertTrue(self.worker.wait_next_turn_answer)
 
     @mock.patch('the_tale.game.conf.game_settings.ENABLE_WORKER_HIGHLEVEL', True)
     @mock.patch('the_tale.game.workers.supervisor.Worker.logger.error', mock.Mock())
-    def test_process_next_turn__timeout_in_highlevel(self):
+    def test_process_next_turn__timeout(self):
         from the_tale.common.amqp_queues import exceptions as amqp_exceptions
 
         self.worker.process_initialize()
 
-
         def wait_answers_from(worker, code, workers=(), timeout=60.0):
-            global _wait_answers_state
-            if _wait_answers_state == 'logic':
-                _wait_answers_state = 'highlevel'
-                return
-            if _wait_answers_state == 'highlevel':
-                _wait_answers_state = 'stop'
-                raise amqp_exceptions.WaitAnswerTimeoutError(code='code', workers='workers', timeout=60.0)
+            raise amqp_exceptions.WaitAnswerTimeoutError(code='code', workers='workers', timeout=60.0)
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.wait_answers_from', wait_answers_from):
             with mock.patch('the_tale.game.workers.logic.Worker.cmd_stop') as logic_cmd_stop:
+                self.worker.process_next_turn()
                 self.assertRaises(amqp_exceptions.WaitAnswerTimeoutError, self.worker.process_next_turn)
 
         self.assertEqual(logic_cmd_stop.call_count, 1)

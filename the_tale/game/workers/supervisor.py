@@ -55,6 +55,10 @@ class Worker(BaseWorker):
         game_environment.logic.cmd_initialize(turn_number=self.time.turn_number, worker_id='logic')
         self.wait_answers_from('initialize', workers=['logic'])
 
+        self.logger.info('initialize long commands')
+        game_environment.long_commands.cmd_initialize(worker_id='game_long_commands')
+        self.wait_answers_from('initialize', workers=['game_long_commands'])
+
         if game_settings.ENABLE_WORKER_HIGHLEVEL:
             self.logger.info('initialize highlevel')
             game_environment.highlevel.cmd_initialize(turn_number=self.time.turn_number, worker_id='highlevel')
@@ -109,6 +113,7 @@ class Worker(BaseWorker):
             self.register_account(account_id)
 
         self.initialized = True
+        self.wait_next_turn_answer = False
 
         GameState.start()
 
@@ -180,77 +185,86 @@ class Worker(BaseWorker):
     def cmd_next_turn(self):
         return self.send_cmd('next_turn')
 
-    def process_next_turn(self):
-        from the_tale.game.workers.environment import workers_environment as game_environment
-        self.time.increment_turn()
 
-        settings.refresh()
+    def wait_answer_from_next_turn(self):
 
-        game_environment.logic.cmd_next_turn(turn_number=self.time.turn_number)
+        if not self.wait_next_turn_answer:
+            return
+
         try:
+            # wait answer from previouse turn processing
+            # we do not want to increment turn number in middle of turn processing
             self.wait_answers_from('next_turn', workers=['logic'], timeout=game_settings.PROCESS_TURN_WAIT_LOGIC_TIMEOUT)
         except amqp_exceptions.WaitAnswerTimeoutError:
             self.logger.error('next turn timeout while getting answer from logic')
             self._force_stop()
             raise
 
+    def process_next_turn(self):
+        from the_tale.game.workers.environment import workers_environment as game_environment
+
+        self.wait_answer_from_next_turn()
+
+        self.time.increment_turn()
+
+        settings.refresh()
+
+        game_environment.logic.cmd_next_turn(turn_number=self.time.turn_number)
+        self.wait_next_turn_answer = True
+
         try:
             if game_settings.ENABLE_WORKER_HIGHLEVEL:
                 game_environment.highlevel.cmd_next_turn(turn_number=self.time.turn_number)
-                self.wait_answers_from('next_turn', workers=['highlevel'], timeout=game_settings.PROCESS_TURN_WAIT_HIGHLEVEL_TIMEOUT)
         except amqp_exceptions.WaitAnswerTimeoutError:
             self.logger.error('next turn timeout while getting answer from highlevel')
             self._force_stop()
             raise
 
-    def stop_logic(self):
-        from the_tale.game.workers.environment import workers_environment as game_environment
-        game_environment.logic.cmd_stop()
-        self.wait_answers_from('stop', workers=['logic'], timeout=5*60.0)
-
     def cmd_stop(self):
         return self.send_cmd('stop')
 
     def _force_stop(self):
-        from the_tale.game.workers.environment import workers_environment as game_environment
-
         self.logger.error('force stop all workers, send signals.')
 
         GameState.stop()
 
-        game_environment.logic.cmd_stop()
-
-        if game_settings.ENABLE_WORKER_HIGHLEVEL:
-            game_environment.highlevel.cmd_stop()
-        if game_settings.ENABLE_WORKER_TURNS_LOOP:
-            game_environment.turns_loop.cmd_stop()
-        if game_settings.ENABLE_PVP:
-            game_environment.pvp_balancer.cmd_stop()
+        self._send_stop_signals()
 
         self.logger.error('signals sent')
 
-    def process_stop(self):
+    def _send_stop_signals(self):
         from the_tale.game.workers.environment import workers_environment as game_environment
 
-        GameState.stop()
-
-        # stop logic first
-        # at normal stop it save all it's data
-        # if another worker broken, it save all it's data
-        # and only if logic broken, it crash supervisor
-        self.stop_logic()
+        game_environment.logic.cmd_stop()
+        game_environment.long_commands.cmd_stop()
 
         if game_settings.ENABLE_WORKER_HIGHLEVEL:
             game_environment.highlevel.cmd_stop()
-            self.wait_answers_from('stop', workers=['highlevel'], timeout=5*60)
-
         if game_settings.ENABLE_WORKER_TURNS_LOOP:
             game_environment.turns_loop.cmd_stop()
-            self.wait_answers_from('stop', workers=['turns_loop'])
-
         if game_settings.ENABLE_PVP:
             game_environment.pvp_balancer.cmd_stop()
-            self.wait_answers_from('stop', workers=['pvp_balancer'])
+
+    def process_stop(self):
+
+        self.wait_answer_from_next_turn()
+
+        GameState.stop()
+
+        self._send_stop_signals()
+
+        wait_answers_from = ['logic', 'game_long_commands']
+
+        if game_settings.ENABLE_WORKER_HIGHLEVEL:
+            wait_answers_from.append('highlevel')
+
+        if game_settings.ENABLE_WORKER_TURNS_LOOP:
+            wait_answers_from.append('turns_loop')
+
+        if game_settings.ENABLE_PVP:
+            wait_answers_from.append('pvp_balancer')
+
+        self.wait_answers_from('stop', workers=wait_answers_from, timeout=game_settings.STOP_WAIT_TIMEOUT)
 
         self.stop_queue.put({'code': 'stopped', 'worker': 'supervisor'}, serializer='json', compression=None)
 

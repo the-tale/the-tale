@@ -13,6 +13,7 @@ _BaseCommand = construct_workers_manager(help='run game workers',
                                                   workers_environment.logic,
                                                   workers_environment.highlevel if game_settings.ENABLE_WORKER_HIGHLEVEL else None,
                                                   workers_environment.turns_loop if game_settings.ENABLE_WORKER_TURNS_LOOP else None,
+                                                  workers_environment.long_commands,
                                                   workers_environment.pvp_balancer if game_settings.ENABLE_PVP else None) )
 
 class Command(_BaseCommand):

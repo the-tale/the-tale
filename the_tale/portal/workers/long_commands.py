@@ -4,7 +4,6 @@ import Queue
 import time
 import datetime
 
-from django.conf import settings as project_settings
 from django.utils.log import getLogger
 
 from dext.settings import settings
@@ -118,7 +117,7 @@ class Worker(BaseWorker):
     def process_stop(self):
         self.initialized = False
         self.stop_required = True
-        self.stop_queue.put({'code': 'stopped', 'worker': 'long commands'}, serializer='json', compression=None)
+        self.stop_queue.put({'code': 'stopped', 'worker': 'portal long commands'}, serializer='json', compression=None)
         self.logger.info('LONG COMMANDS STOPPED')
 
     def _run_django_subprocess(self, name, cmd):
