@@ -117,6 +117,8 @@ pgf.ui.dialog.Create = function(params) {
         var OnHidden = function(e) {
             if (!$(e.target).is(dialog)) return;
 
+            pgf.base.HideTooltips();
+
             if (params.OnClosed) {
                 params.OnClosed(dialog);
             }

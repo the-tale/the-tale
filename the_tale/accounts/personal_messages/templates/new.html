@@ -11,13 +11,25 @@
 
     <p>
       {% if recipients|length == 1 %}
-      Сообщение для игрока <a href="{{ url('accounts:show', recipients[0].id) }}">{{recipients[0].nick_verbose}}</a>
+      Сообщение для игрока <strong>{{recipients[0].nick_verbose}}</strong>
       {% else %}
       Сообщение для игроков:
-      {% for recipient in recipients -%}
+      {% for recipient in recipients[:3] -%}
       {%- if loop.index != 1 %},{% endif %}
-      <a href="{{ url('accounts:show', recipient.id) }}">{{recipient.nick_verbose}}</a>
-      {%- endfor %}
+      <strong>{{recipient.nick_verbose}}</strong>
+      {%- endfor -%}
+
+      {%- if recipients|length > 3%},
+      <a href="#"
+         rel="tooltip"
+         title="{% for recipient in recipients[3:] -%}
+                {%- if loop.index != 1 %},{% endif %}
+                {{recipient.nick_verbose}}
+                {%- endfor -%}">
+        остальные…
+      </a>
+      {% endif %}
+
       {% endif %}
     </p>
 
