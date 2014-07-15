@@ -79,9 +79,7 @@
 {% endif %}
 
 {% if can_create_thread %}
-<form action="{{ url('forum:subcategories:new-thread', subcategory.id)}}" method="get">
-  <input type="submit" value="Добавить обсуждение" class="btn pgf-new-thread-button"/>
-</form>
+<a href="{{ url('forum:subcategories:new-thread', subcategory.id)}}" class="btn btn-success pgf-new-thread-button">Добавить обсуждение</a>
 {% endif %}
 
 {% endblock %}
