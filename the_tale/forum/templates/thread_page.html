@@ -122,6 +122,23 @@ jQuery(document).ready( function(e) {
 
         jQuery('html, body').scrollTop(newPostInput.offset().top)
     });
+
+    jQuery('.pgf-quote-short').click(function(e){
+        e.preventDefault();
+
+        var target = jQuery(e.currentTarget);
+
+        var post = target.parents('.pgf-post').eq(0);
+
+        var content = jQuery('.pgf-message', post);
+
+        var text = '[b]'+ post.data('author-name') +'[/b]\r';
+
+        var newPostInput = jQuery('#pgf-new-post-form #id_text');
+        newPostInput.val(newPostInput.val() + text);
+
+        jQuery('html, body').scrollTop(newPostInput.offset().top)
+    });
     {% endif %}
 
     {% if thread_data.can_delete_posts or thread_data.has_post_on_page %}
@@ -217,6 +234,8 @@ jQuery(document).ready( function(e) {
 
           {% if thread_data.can_post %}
           <a href="#" class="pgf-quote" style="font-size: 11pt;" rel="tooltip" title="цитировать">«»</a>
+          &nbsp;
+          <a href="#" class="pgf-quote-short" rel="tooltip" title="ответить">ответить</a>
           {% endif %}
 
           <div style="float: right;">
