@@ -972,14 +972,14 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
             if (turnMessages[i][0] <= lastTimestamp) continue;
 
-            if (lastGameTime == turnMessages[i][1]) {
+            if (lastGameTime == turnMessages[i][1] + turnMessages[i][3]) {
                 messages[0][1].push(turnMessages[i]);
             }
             else {
                 messages.unshift([turnMessages[i][1], [turnMessages[i]]]);
             }
 
-            lastGameTime = turnMessages[i][1];
+            lastGameTime = turnMessages[i][1] + turnMessages[i][3];
         }
 
         for (var i=0; i<=messages.length - MESSAGES_MAX_LENGTH; i++){
