@@ -812,8 +812,11 @@ pgf.game.widgets.CreateArtifactTooltip = function (data, cssClass) {
     if (data.power) tooltip += '<li>физическая сила: '+data.power[0]+'</li>';
     if (data.power) tooltip += '<li>магическая сила: '+data.power[1]+'</li>';
 
-    if (data.integrity[0] && data.integrity[1]) {
-        var integrityPercent = Math.round(data.integrity[0] / data.integrity[1] * 10000) / 100;
+    if (typeof data.integrity[0] == 'number' && typeof data.integrity[1] == 'number') {
+        var integrityPercent = 0;
+        if (data.integrity[1] > 0) {
+            integrityPercent = Math.round(data.integrity[0] / data.integrity[1] * 10000) / 100;
+        }
         tooltip += '<li>целостность: '+integrityPercent+'% '+'('+data.integrity[0]+' из '+data.integrity[1]+')'+'</li>';
     }
     if (data.preference_rating != null) tooltip += '<li>полезность: '+data.preference_rating+'</li>';
