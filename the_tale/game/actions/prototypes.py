@@ -198,8 +198,11 @@ class ActionBase(object):
     @property
     def ui_type(self): return self.TYPE.value
 
+    @property
+    def ui_percents(self): return self.percents
+
     def ui_info(self):
-        return {'percents': self.percents,
+        return {'percents': self.ui_percents,
                 'type': self.ui_type,
                 'description': self.description,
                 'info_link': self.info_link,
@@ -755,6 +758,13 @@ class ActionMoveToPrototype(ActionBase):
             self.percents += move_speed / real_length
         else:
             self.percents = 1
+
+    @property
+    def ui_percents(self):
+        if self.break_at is None:
+            return self.percents
+
+        return self.percents * self.break_at
 
     def picked_up_in_road(self):
         self.short_teleport(c.PICKED_UP_IN_ROAD_TELEPORT_LENGTH)

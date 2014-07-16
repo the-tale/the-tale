@@ -1,4 +1,6 @@
 # coding: utf-8
+import random
+
 import mock
 
 from the_tale.common.utils import testcase
@@ -136,6 +138,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.action_move.short_teleport(1)
         self.assertEqual(self.hero.position.percents, 1)
         self.assertEqual(self.action_move.percents, 1)
+        self.assertEqual(self.action_move.ui_percents, 1)
         self.assertTrue(self.action_move.updated)
 
         current_time.increment_turn()
@@ -262,12 +265,14 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.assertEqual(self.action_move.state, ActionMoveToPrototype.STATE.MOVING)
 
         self.assertTrue(self.action_move.percents < 1)
+        self.assertTrue(self.action_move.ui_percents < 1)
 
         self.action_move.length = 0
 
         self.storage.process_turn(second_step_if_needed=False)
 
         self.assertEqual(self.action_move.percents, 1)
+        self.assertEqual(self.action_move.ui_percents, 1)
 
 
 @mock.patch('the_tale.game.balance.constants.PICKED_UP_IN_ROAD_PROBABILITY', 0)
@@ -299,10 +304,18 @@ class MoveToActionWithBreaksTest(testcase.TestCase):
         self.assertEqual(self.hero.position.road.point_1_id, self.p2.id)
         self.assertEqual(self.hero.position.road.point_2_id, self.p3.id)
 
+        real_percents = None
+        ui_percents = None
+
         ActionMoveToPrototype.create(hero=self.hero, destination=self.p1, break_at=0.9)
         while self.hero.actions.current_action != self.action_idl:
+            real_percents = self.hero.actions.current_action.percents
+            ui_percents = self.hero.actions.current_action.ui_percents
             self.storage.process_turn(second_step_if_needed=False)
             current_time.increment_turn()
+
+        self.assertEqual(round(real_percents, 1), 1.0)
+        self.assertEqual(round(ui_percents, 1), 0.9)
 
         self.assertEqual(self.hero.position.road.point_1_id, self.p1.id)
         self.assertEqual(self.hero.position.road.point_2_id, self.p2.id)
@@ -314,6 +327,31 @@ class MoveToActionWithBreaksTest(testcase.TestCase):
 
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionInPlacePrototype.TYPE)
         self.storage._test_save()
+
+
+    def test_ui_percents(self):
+
+        expected_percents = random.random()
+
+        current_time = TimePrototype.get_current_time()
+
+        while self.hero.actions.current_action != self.action_idl:
+            self.storage.process_turn(second_step_if_needed=False)
+            current_time.increment_turn()
+
+        real_percents = None
+        ui_percents = None
+
+        ActionMoveToPrototype.create(hero=self.hero, destination=self.p1, break_at=expected_percents)
+        while self.hero.actions.current_action != self.action_idl:
+            real_percents = self.hero.actions.current_action.percents
+            ui_percents = self.hero.actions.current_action.ui_percents
+            self.storage.process_turn(second_step_if_needed=False)
+            current_time.increment_turn()
+
+        self.assertEqual(round(real_percents, 1), 1.0)
+        self.assertEqual(round(ui_percents, 1), round(expected_percents, 1))
+
 
 
 @mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.RIGHT_3)
