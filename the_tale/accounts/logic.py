@@ -1,5 +1,4 @@
 # coding: utf-8
-import urllib
 import datetime
 
 from django.conf import settings as project_settings
@@ -21,7 +20,7 @@ from the_tale.collections.prototypes import AccountItemsPrototype
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.bundles import BundlePrototype
-from the_tale.game.logic import dress_new_hero
+from the_tale.game.logic import dress_new_hero, messages_for_new_hero
 
 
 class REGISTER_USER_RESULT:
@@ -95,6 +94,7 @@ def register_user(nick, email=None, password=None, referer=None, referral_of_id=
 
     hero = HeroPrototype.create(account=account, bundle=bundle)
     dress_new_hero(hero)
+    messages_for_new_hero(hero)
     hero.save()
 
     return REGISTER_USER_RESULT.OK, account.id, bundle.id

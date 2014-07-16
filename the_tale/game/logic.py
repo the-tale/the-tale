@@ -105,6 +105,13 @@ def dress_new_hero(hero):
     hero.equipment.equip(EQUIPMENT_SLOT.GLOVES, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.GLOVES).create_artifact(level=1, power=Power(0, 0)))
     hero.equipment.equip(EQUIPMENT_SLOT.HAND_PRIMARY, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.WEAPON).create_artifact(level=1, power=Power(0, 0)))
 
+def messages_for_new_hero(hero):
+    hero.add_message('hero_common_diary_create', diary=True, journal=False, hero=hero)
+    hero.add_message('hero_common_journal_create_1', hero=hero, turn_delta=-4)
+    hero.add_message('hero_common_journal_create_2', hero=hero, turn_delta=-3)
+    hero.add_message('hero_common_journal_create_3', hero=hero, turn_delta=-2)
+    hero.add_message('hero_common_journal_create_4', hero=hero, turn_delta=-1)
+
 
 def log_sql_queries(turn_number):
     from django.db import connection

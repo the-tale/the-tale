@@ -606,19 +606,6 @@ class HeroPrototype(BasePrototype,
 
         name = names.generator.get_name(race, gender)
 
-        journal = messages.JournalContainer()
-        journal.push_message(messages.prepair_message(u'«Тучи сгущаются (и как быстро!), к непогоде»', turn_delta=-7))
-        journal.push_message(messages.prepair_message(u'«Аааааа, повсюду молнии, спрячусь ка я под этим большим дубом».', turn_delta=-6))
-        journal.push_message(messages.prepair_message(u'Бабах!!!', turn_delta=-5))
-        journal.push_message(messages.prepair_message(u'«Темно, страшно, кажется, я в коридоре»…', turn_delta=-4))
-        journal.push_message(messages.prepair_message(u'«Свет! Надо идти на свет»!', turn_delta=-3))
-        journal.push_message(messages.prepair_message(u'«Свет сказал, что избрал меня для великих дел, взял кровь из пальца и поставил ей крестик в каком-то пергаменте».', turn_delta=-2))
-        journal.push_message(messages.prepair_message(u'«Приказано идти обратно и геройствовать, как именно геройствовать — не уточняется».', turn_delta=-1))
-        journal.push_message(messages.prepair_message(u'«Эх, опять в этом мире, в том было хотя бы чисто и сухо. Голова болит. Палец болит. Тянет на подвиги».', turn_delta=-0))
-
-        diary = messages.DiaryContainer()
-        diary.push_message(messages.prepair_message(u'«Вот же ж угораздило. У всех Хранители нормальные, сидят себе и попаданию подопечных в загробный мир не мешают. А у моего, значит, шило в заднице! Где ты был, когда я лотерейные билеты покупал?! Молнию отвести он значит не может, а воскресить — запросто. Как же всё болит, кажется теперь у меня две печёнки (это, конечно, тебе спасибо, всегда пригодится). Ну ничего, рано или поздно я к твоему начальству попаду и там уж всё расскажу! А пока буду записывать в свой дневник».'))
-
         hero = Hero.objects.create(created_at_turn=current_turn_number,
                                    saved_at_turn=current_turn_number,
                                    active_state_end_at=account.active_end_at,
@@ -629,8 +616,8 @@ class HeroPrototype(BasePrototype,
                                    is_fast=account.is_fast,
                                    is_bot=account.is_bot,
                                    abilities=s11n.to_json(AbilitiesPrototype.create().serialize()),
-                                   messages=s11n.to_json(journal.serialize()),
-                                   diary=s11n.to_json(diary.serialize()),
+                                   messages=s11n.to_json(messages.JournalContainer().serialize()),
+                                   diary=s11n.to_json(messages.DiaryContainer().serialize()),
                                    name_forms=s11n.to_json(name.serialize()),
                                    settings_approved=False,
                                    next_spending=relations.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT,
