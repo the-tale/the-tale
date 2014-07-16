@@ -22,6 +22,10 @@ jQuery(document).ready( function(e) {
 
 <h2>Создание нового произведения</h2>
 
+<ul>
+  <li>Произведение должно содержать минимум {{form.MIN_TEXT_LENGTH}} символов.</li>
+</ul>
+
 <form id="pgf-new-post-form" method="post" action="{{ url('blogs:posts:create') }}">
 
   {{ form.errors_container }}

@@ -21,6 +21,10 @@ jQuery(document).ready( function(e) {
 
 <h2>Редактирование произведения</h2>
 
+<ul>
+  <li>Произведение должно содержать минимум {{form.MIN_TEXT_LENGTH}} символов.</li>
+</ul>
+
 <form id="pgf-edit-post-form" method="post" action="{{ url('blogs:posts:update', resource.post.id) }}">
 
   {{ form.errors_container }}
