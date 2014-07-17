@@ -319,6 +319,12 @@ class Worker(BaseWorker):
         from the_tale.game.workers.environment import workers_environment as game_environment
         game_environment.logic.cmd_highlevel_data_updated()
 
+    def cmd_force_save(self, account_id):
+        self.send_cmd('force_save', {'account_id': account_id})
+
+    def process_force_save(self, account_id):
+        self.dispatch_logic_cmd(account_id, 'force_save', {'account_id': account_id} )
+
     def cmd_account_release_required(self, account_id):
         return self.send_cmd('account_release_required', {'account_id': account_id})
 

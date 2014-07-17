@@ -1,6 +1,8 @@
 # coding: utf-8
 import datetime
+
 import jinja2
+import mock
 
 from django.test import client
 from django.core.urlresolvers import reverse
@@ -270,3 +272,32 @@ class ResetNameRequestsTests(HeroRequestsTestBase):
         self.assertNotEqual(task.internal_logic.name, self.hero.name)
         self.assertEqual(task.internal_logic.gender, self.hero.gender)
         self.assertEqual(task.internal_logic.race, self.hero.race)
+
+
+class ForceSaveRequestsTests(HeroRequestsTestBase):
+
+    def setUp(self):
+        super(ForceSaveRequestsTests, self).setUp()
+
+        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
+        self.account_2 = AccountPrototype.get_by_id(account_id)
+
+        group = sync_group('accounts moderators group', ['accounts.moderate_account'])
+        group.user_set.add(self.account_2._model)
+
+        self.request_login('test_user_2@test.com')
+
+    def test_no_moderation_rights(self):
+        self.request_logout()
+        self.request_login('test_user@test.com')
+
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_force_save') as cmd_force_save:
+            self.check_ajax_error(self.client.post(reverse('game:heroes:force-save', args=[self.hero.id])), 'heroes.moderator_rights_required')
+
+        self.assertEqual(cmd_force_save.call_args_list, [])
+
+    def test_force_save(self):
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_force_save') as cmd_force_save:
+            self.check_ajax_ok(self.client.post(reverse('game:heroes:force-save', args=[self.hero.id])))
+
+        self.assertEqual(cmd_force_save.call_args_list, [mock.call(account_id=self.hero.account_id)])

@@ -171,6 +171,13 @@ class HeroResource(Resource):
         return self.json_processing(task.status_url)
 
 
+    @login_required
+    @validate_moderator_rights()
+    @handler('#hero', 'force-save', method='post')
+    def force_save(self):
+        workers_environment.supervisor.cmd_force_save(account_id=self.hero.account_id)
+        return self.json_ok()
+
 
     @login_required
     @validate_ownership()

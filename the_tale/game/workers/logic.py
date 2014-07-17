@@ -156,6 +156,16 @@ class Worker(BaseWorker):
             self.storage.recache_account_data(account_id)
 
 
+    def cmd_force_save(self, account_id):
+        return self.send_cmd('force_save', {'account_id': account_id})
+
+    def process_force_save(self, account_id): # pylint: disable=W0613
+        settings.refresh()
+
+        hero = self.storage.accounts_to_heroes[account_id]
+        bundle_id = hero.actions.current_action.bundle_id
+        self.storage.save_bundle_data(bundle_id=bundle_id, update_cache=True)
+
     def cmd_start_hero_caching(self, account_id):
         self.send_cmd('start_hero_caching', {'account_id': account_id})
 
