@@ -10,7 +10,8 @@ from the_tale.game.pvp.abilities import ABILITIES
 
 SAY_IN_HERO_LOG_TASK_STATE = create_enum('SAY_IN_HERO_LOG_TASK_STATE', ( ('UNPROCESSED', 0, u'в очереди'),
                                                                          ('ACCOUNT_HERO_NOT_FOUND', 1, u'герой не найден'),
-                                                                         ('PROCESSED', 2, u'обработана') ) )
+                                                                         ('PROCESSED', 2, u'обработана'),
+                                                                         ('BATTLE_NOT_FOUND', 3, u'битва не найдена') ) )
 
 
 
@@ -35,6 +36,11 @@ class SayInBattleLogTask(PostponedLogic):
     def process(self, main_task, storage):
 
         battle = Battle1x1Prototype.get_by_id(self.battle_id)
+
+        if battle is None: # battle ended, for example
+            self.state = SAY_IN_HERO_LOG_TASK_STATE.BATTLE_NOT_FOUND
+            main_task.comment = 'battle %d not found' % self.battle_id
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         account_hero = storage.accounts_to_heroes.get(battle.account_id)
         enemy_hero = storage.accounts_to_heroes.get(battle.enemy_id)

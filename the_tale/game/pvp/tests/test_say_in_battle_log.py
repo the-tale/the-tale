@@ -51,6 +51,12 @@ class SayInBattleLogTests(testcase.TestCase):
         self.task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(self.task.state, SAY_IN_HERO_LOG_TASK_STATE.ACCOUNT_HERO_NOT_FOUND)
 
+    def test_process_battle_not_found(self):
+        self.storage.release_account_data(self.account_1)
+        self.battle.remove()
+        self.task.process(FakePostpondTaskPrototype(), self.storage)
+        self.assertEqual(self.task.state, SAY_IN_HERO_LOG_TASK_STATE.BATTLE_NOT_FOUND)
+
     def test_process_success(self):
         old_hero_1_last_message = self.hero_1.messages.messages[-1]
         old_hero_2_last_message = self.hero_2.messages.messages[-1]
