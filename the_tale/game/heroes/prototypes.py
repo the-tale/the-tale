@@ -864,7 +864,6 @@ class HeroPositionPrototype(object):
         return place
 
     def is_battle_start_needed(self):
-        return False
         dominant_place = self.get_dominant_place()
 
         if dominant_place is not None:
