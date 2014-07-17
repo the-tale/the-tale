@@ -336,11 +336,17 @@ pgf.base.HTMLToBBcode = function(text) {
         .replace(/\s+/g, ' ')
 
         .replace(/<br>/g, '\r')
+        .replace(/<hr>/g, '[hr]')
 
         .replace(/<p>/g, '\r\r')
-        .replace(/<\/p>/g, '');
+        .replace(/<\/p>/g, '')
 
-    text = text.replace(/<[^>]*>/g, "");
+        .replace(/&nbsp;/g, ' ');
+
+    text = text
+        .replace(/<[^>]*>/g, "")
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>');
 
     return text;
 };

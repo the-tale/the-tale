@@ -288,7 +288,8 @@ jQuery(document).ready( function(e) {
             системный пользователь
           {% endif %}
         </td>
-        <td class="message pgf-message">
+        <td class="message">
+          <div class="pgf-message">
           {% if post.is_removed %}
             <span class="post-removed-message">
               {% if post.is_removed_by_author %}
@@ -302,6 +303,7 @@ jQuery(document).ready( function(e) {
           {% else %}
             {{ post.html|safe }}
           {% endif %}
+          </div>
 
           {% if post.is_updated %}
             <div class="pgf-edit-time-message">
