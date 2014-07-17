@@ -82,8 +82,22 @@ class PaymentsResource(Resource):
         else:
             featured_group = relations.GOODS_GROUP.PREMIUM
 
-        price_groups = [group for group in price_list.PRICE_GROUPS if group.type == featured_group]
-        price_groups += [group for group in price_list.PRICE_GROUPS if group.type != featured_group]
+        price_types = [group.type for group in price_list.PRICE_GROUPS]
+
+        def _cmp(x, y):
+            choices = { (relations.GOODS_GROUP.PREMIUM, relations.GOODS_GROUP.CHEST, False): -1,
+                        (relations.GOODS_GROUP.PREMIUM, relations.GOODS_GROUP.CHEST, True): 1,
+                        (relations.GOODS_GROUP.CHEST, relations.GOODS_GROUP.PREMIUM, False): 1,
+                        (relations.GOODS_GROUP.CHEST, relations.GOODS_GROUP.PREMIUM, True): -1,
+
+                        (relations.GOODS_GROUP.PREMIUM, relations.GOODS_GROUP.ENERGY, False): -1,
+                        (relations.GOODS_GROUP.PREMIUM, relations.GOODS_GROUP.ENERGY, True): 1,
+                        (relations.GOODS_GROUP.ENERGY, relations.GOODS_GROUP.PREMIUM, False): 1,
+                        (relations.GOODS_GROUP.ENERGY, relations.GOODS_GROUP.PREMIUM, True): -1 }
+
+            return choices.get((x.type, y.type, self.account.is_premium), cmp(price_types.index(x.type), price_types.index(y.type)))
+
+        price_groups = sorted(price_list.PRICE_GROUPS, cmp=_cmp)
 
         return self.template('payments/shop.html',
                              {'PRICE_GROUPS': price_groups,

@@ -81,6 +81,9 @@ class PremiumDays(PurchaseItem):
     def construct_postponed_task(self, account, transaction):
         return postponed_tasks.BuyPremium(account_id=account.id, days=self.days, transaction=transaction)
 
+    def is_purchasable(self, account, hero):
+        return not account.is_premium_infinit
+
 
 class Energy(PurchaseItem):
 

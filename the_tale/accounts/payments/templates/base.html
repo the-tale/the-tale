@@ -53,7 +53,9 @@
 
       <th>окончание подписки</th>
       <td>
-        {% if account.is_premium %}
+        {% if account.is_premium_infinit %}
+        <span class="updated-at">Вечная подписка!</spann>
+        {% elif account.is_premium %}
         <span class="updated-at pgf-format-datetime" data-timestamp="{{ account.premium_end_at|timestamp }}"></spann>
         {% else %}
         —

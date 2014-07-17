@@ -5,6 +5,8 @@ from the_tale.accounts.payments import exceptions
 from the_tale.accounts.payments import relations
 from the_tale.accounts.payments.conf import payments_settings
 
+from the_tale.accounts.conf import accounts_settings
+
 from the_tale.game.relations import HABIT_TYPE
 from the_tale.game.heroes.relations import PREFERENCE_TYPE
 from the_tale.game.cards.relations import CARD_TYPE
@@ -179,13 +181,13 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                 goods.PurchaseGroup(type=relations.GOODS_GROUP.PREMIUM,
                                     name=u'Подписка',
                                     description=PREMIUM_DAYS_DESCRIPTION,
-                                    items=[ goods.PremiumDays(uid=u'subscription-90',
-                                                              name=u'90 дней',
-                                                              full_name=u'90 дней подписки',
+                                    items=[ goods.PremiumDays(uid=u'subscription-15',
+                                                              name=u'15 дней',
+                                                              full_name=u'15 дней подписки',
                                                               description=PREMIUM_DAYS_DESCRIPTION,
-                                                              cost=750,
-                                                              days=90,
-                                                              transaction_description=u'Продление подписки на 90 дней.'),
+                                                              cost=180,
+                                                              days=15,
+                                                              transaction_description=u'Продление подписки на 15 дней.'),
 
                                             goods.PremiumDays(uid=u'subscription-30',
                                                               name=u'30 дней',
@@ -195,21 +197,22 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                                                               days=30,
                                                               transaction_description=u'Продление подписки на 30 дней.'),
 
-                                            goods.PremiumDays(uid=u'subscription-15',
-                                                              name=u'15 дней',
-                                                              full_name=u'15 дней подписки',
+                                            goods.PremiumDays(uid=u'subscription-90',
+                                                              name=u'90 дней',
+                                                              full_name=u'90 дней подписки',
                                                               description=PREMIUM_DAYS_DESCRIPTION,
-                                                              cost=180,
-                                                              days=15,
-                                                              transaction_description=u'Продление подписки на 15 дней.'),
+                                                              cost=750,
+                                                              days=90,
+                                                              transaction_description=u'Продление подписки на 90 дней.'),
 
-                                            goods.PremiumDays(uid=u'subscription-7',
-                                                              name=u'7 дней',
-                                                              full_name=u'7 дней подписки',
+                                            goods.PremiumDays(uid=u'subscription-infinit',
+                                                              name=u'Вечность',
+                                                              full_name=u'Вечная подписка',
                                                               description=PREMIUM_DAYS_DESCRIPTION,
-                                                              cost=100,
-                                                              days=7,
-                                                              transaction_description=u'Продление подписки на 7 дней.') ]),
+                                                              cost=3000,
+                                                              days=accounts_settings.PREMIUM_UNFINIT_DAYS,
+                                                              transaction_description=u'Приобретение вечной подписки.') ]),
+
                 goods.PurchaseGroup(type=relations.GOODS_GROUP.ENERGY,
                                     name=u'Энергия',
                                     description=ENERGY_CHARGES_DESCRIPTION,

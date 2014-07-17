@@ -13,6 +13,7 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
+from the_tale.accounts.conf import accounts_settings
 
 from the_tale.accounts.clans.conf import clans_settings
 
@@ -100,6 +101,15 @@ class PremiumDaysTests(testcase.TestCase):
 
     def test_is_purchasable(self):
         self.assertTrue(self.purchase.is_purchasable(self.account, self.hero))
+
+    def test_is_purchasable__premium(self):
+        self.account.prolong_premium(30)
+        self.assertTrue(self.purchase.is_purchasable(self.account, self.hero))
+
+    def test_is_purchasable__premium_infinit(self):
+        self.account.prolong_premium(days=accounts_settings.PREMIUM_UNFINIT_DAYS)
+        self.assertFalse(self.purchase.is_purchasable(self.account, self.hero))
+
 
 
 
