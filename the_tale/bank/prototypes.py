@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 
 from django.db import models, IntegrityError, transaction
 
@@ -159,6 +160,10 @@ class InvoicePrototype(BasePrototype):
             return cls(model=cls._model_class.objects.filter(state__in=(INVOICE_STATE.REQUESTED, INVOICE_STATE.FORCED)).order_by('created_at')[0])
         except IndexError:
             return None
+
+    @classmethod
+    def check_frozen_expired_invoices(cls):
+        return cls._db_filter(state=INVOICE_STATE.FROZEN, updated_at__lt=datetime.datetime.now()-bank_settings.FROZEN_INVOICE_EXPIRED_TIME).exists()
 
     @classmethod
     def create(cls, recipient_type, recipient_id, sender_type, sender_id, currency, amount, description, operation_uid, force=False):

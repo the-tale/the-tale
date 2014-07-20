@@ -1,6 +1,7 @@
 # coding: utf-8
 import datetime
 import Queue
+import time
 
 from django.utils.log import getLogger
 
@@ -41,8 +42,6 @@ class Worker(BaseWorker):
         while not self.exception_raised and not self.stop_required:
             try:
                 cmd = self.command_queue.get(block=True, timeout=0.25)
-                # cmd.ack()
-
                 settings.refresh()
                 self.process_cmd(cmd.payload)
             except Queue.Empty:
@@ -51,6 +50,19 @@ class Worker(BaseWorker):
 
     def run_commands(self):
         self.process_init_invoice()
+        self.check_frozen_expired_invoices()
+
+    def check_frozen_expired_invoices(self):
+
+        if time.time() - float(settings.get(bank_settings.SETTINGS_LAST_FROZEN_EXPIRED_CHECK_KEY, 0)) < bank_settings.FROZEN_INVOICE_EXPIRED_CHECK_TIMEOUT:
+            return
+
+        settings[bank_settings.SETTINGS_LAST_FROZEN_EXPIRED_CHECK_KEY] = str(time.time())
+
+        if not InvoicePrototype.check_frozen_expired_invoices():
+            return
+
+        self.logger.error('We have some expired frozen invoices. Please, check them and remove or find error.')
 
     def cmd_init_invoice(self):
         return self.send_cmd('init_invoice', {})

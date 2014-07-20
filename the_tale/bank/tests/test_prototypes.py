@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 
 from django.db import IntegrityError
 
@@ -560,3 +561,23 @@ class InvoicePrototypeTests(testcase.TestCase, BankTestsMixin):
             self.create_invoice(state=state)
 
         self.assertEqual(InvoicePrototype.get_unprocessed_invoice(), None)
+
+
+    def test_check_frozen_expired_invoices__wrong_state(self):
+        for state in INVOICE_STATE.records:
+            if state.is_FROZEN:
+                continue
+
+            self.create_invoice(state=state)
+            self.assertFalse(InvoicePrototype.check_frozen_expired_invoices())
+            InvoicePrototype._db_all().delete()
+
+
+    def test_check_frozen_expired_invoices__wrong_time(self):
+        self.create_invoice(state=INVOICE_STATE.FROZEN)
+        self.assertFalse(InvoicePrototype.check_frozen_expired_invoices())
+
+    def test_check_frozen_expired_invoices__exist(self):
+        invoice = self.create_invoice(state=INVOICE_STATE.FROZEN)
+        InvoicePrototype._db_filter(id=invoice.id).update(updated_at=datetime.datetime.now()-bank_settings.FROZEN_INVOICE_EXPIRED_TIME)
+        self.assertTrue(InvoicePrototype.check_frozen_expired_invoices())
