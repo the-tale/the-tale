@@ -296,7 +296,7 @@ class TestCreateRequests(BaseTestRequests):
 
     def get_post_data(self):
         return {'caption': 'post-caption',
-                'text': 'post-text'}
+                'text': 'post-text-'+'1'*1000}
 
     def test_unlogined(self):
         self.request_logout()
@@ -320,7 +320,7 @@ class TestCreateRequests(BaseTestRequests):
 
         post = PostPrototype(Post.objects.all()[0])
         self.assertEqual(post.caption, 'post-caption')
-        self.assertEqual(post.text, 'post-text')
+        self.assertEqual(post.text, 'post-text-'+'1'*1000)
         self.assertEqual(post.votes, 1)
         self.assertTrue(post.state.is_ACCEPTED)
 
@@ -342,7 +342,7 @@ class TestVoteRequests(BaseTestRequests):
 
         self.request_login('test_user_1@test.com')
         self.client.post(reverse('blogs:posts:create'), {'caption': 'post-caption',
-                                                         'text': 'post-text'})
+                                                         'text': 'post-text-'+'1'*1000})
         self.post = PostPrototype(Post.objects.all()[0])
 
         self.request_logout()
@@ -380,7 +380,7 @@ class TestUnvoteRequests(BaseTestRequests):
 
         self.request_login('test_user_1@test.com')
         self.client.post(reverse('blogs:posts:create'), {'caption': 'post-caption',
-                                                         'text': 'post-text'})
+                                                         'text': 'post-text-'+'1'*1000})
         self.post = PostPrototype(Post.objects.all()[0])
 
         self.request_logout()
@@ -422,7 +422,7 @@ class TestEditRequests(BaseTestRequests):
         self.request_login('test_user_1@test.com')
 
         self.client.post(reverse('blogs:posts:create'), {'caption': 'post-X-caption',
-                                                         'text': 'post-X-text'})
+                                                         'text': 'post-X-text'+'1'*1000})
         self.post = PostPrototype(Post.objects.all()[0])
 
     def test_unlogined(self):
@@ -471,12 +471,12 @@ class TestUpdateRequests(BaseTestRequests):
         super(TestUpdateRequests, self).setUp()
         self.request_login('test_user_1@test.com')
         self.client.post(reverse('blogs:posts:create'), {'caption': 'post-X-caption',
-                                                         'text': 'post-X-text'})
+                                                         'text': 'post-X-text-'+'1'*1000})
         self.post = PostPrototype(Post.objects.all()[0])
 
     def get_post_data(self):
         return {'caption': 'new-X-caption',
-                'text': 'new-X-text'}
+                'text': 'new-X-text-'+'1'*1000}
 
     def test_unlogined(self):
         self.request_logout()
@@ -523,7 +523,7 @@ class TestUpdateRequests(BaseTestRequests):
         self.assertTrue(old_updated_at < self.post.updated_at)
 
         self.assertEqual(self.post.caption, 'new-X-caption')
-        self.assertEqual(self.post.text, 'new-X-text')
+        self.assertEqual(self.post.text, 'new-X-text-'+'1'*1000)
 
         self.assertTrue(self.post.state.is_ACCEPTED)
 
@@ -539,7 +539,7 @@ class TestModerateRequests(BaseTestRequests):
         self.request_login('test_user_1@test.com')
 
         self.client.post(reverse('blogs:posts:create'), {'caption': 'post-caption',
-                                                         'text': 'post-text'})
+                                                         'text': 'post-text-'+'1'*1000})
         self.post = PostPrototype(Post.objects.all()[0])
 
         self.request_logout()

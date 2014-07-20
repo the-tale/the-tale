@@ -65,7 +65,8 @@ class CodeTests(testcase.TestCase):
                                                'pynames',
                                                'deworld',
                                                'urlparse',
-                                               'boto']))
+                                               'boto',
+                                               'Queue']))
 
     def test_only_absolute_imports__import(self):
 
@@ -77,7 +78,7 @@ class CodeTests(testcase.TestCase):
                                                 ['sys', 'os', 'shutil', 'datetime', 'tempfile', 'subprocess', 'random', 'collections', 're', 'itertools', 'Queue', 'time',
                                                  'jinja2', 'math', 'uuid', 'postmarkup', 'functools', 'urllib2', 'xlrd', 'copy', 'gv', 'string', 'traceback', 'newrelic',
                                                  'markdown', 'md5', 'mock', 'pymorphy', 'numbers', 'gc', 'numpy', 'matplotlib', 'contextlib', 'pynames', 'json', 'PIL', 'deworld',
-                                                 'urllib']))
+                                                 'urllib', 'socket']))
 
     def test_api_urls_not_changed(self):
         self.assertEqual(url('portal:api-info'), '/api/info')

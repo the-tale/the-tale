@@ -17,7 +17,7 @@ class Worker(BaseWorker):
 
     def __init__(self, messages_queue, stop_queue):
         super(Worker, self).__init__(command_queue=messages_queue)
-        self.stop_queue = connection.SimpleQueue(stop_queue)
+        self.stop_queue = connection.create_simple_buffer(stop_queue)
 
     def clean_queues(self):
         super(Worker, self).clean_queues()

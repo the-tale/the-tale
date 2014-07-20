@@ -25,7 +25,7 @@ class BaseWorker(object):
     stop_signal_required = True
 
     def __init__(self, command_queue):
-        self.command_queue = connection.SimpleQueue(command_queue, no_ack=True)
+        self.command_queue = connection.create_simple_buffer(command_queue, no_ack=True)
 
         self.exception_raised = False
         self.stop_required = False
