@@ -12,5 +12,5 @@ class BATTLE_1X1_RESULT(DjangoEnum):
 
 class BATTLE_1X1_STATE(DjangoEnum):
     records = ( ('WAITING', 1, u'в очереди'),
-                 ('PREPAIRING', 2, u'подготовка'),
-                 ('PROCESSING', 3, u'идёт бой') )
+                ('PREPAIRING', 2, u'подготовка'),
+                ('PROCESSING', 3, u'идёт бой') )
