@@ -18,7 +18,7 @@
 
       {% if resource.account.is_authenticated() %}
       <li>
-        <a href="{{ url('forum:read-all', subcategory.id) }}" class="pgf-forms-post-simple">«прочитать» всё</a>
+        <a href="{{ url('forum:read-all-in-subcategory', subcategory.id) }}" class="pgf-forms-post-simple">«прочитать» всё</a>
       </li>
       {% endif %}
 

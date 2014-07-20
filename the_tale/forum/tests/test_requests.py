@@ -15,6 +15,7 @@ from the_tale.forum.models import Category, SubCategory, Thread, Post, Subscript
 from the_tale.forum.prototypes import (ThreadPrototype,
                                        PostPrototype,
                                        ThreadReadInfoPrototype,
+                                       SubCategoryPrototype,
                                        SubCategoryReadInfoPrototype)
 from the_tale.forum.conf import forum_settings
 from the_tale.forum.tests.helpers import ForumFixture
@@ -59,20 +60,40 @@ class BaseTestRequests(testcase.TestCase):
         self.post1 = self.fixture.post_1
 
 
-class ForumResourceReadAllTests(BaseTestRequests):
+class ForumResourceReadAllInSubcategoryTests(BaseTestRequests):
 
     def test_unlogined(self):
         self.request_logout()
-        self.check_ajax_error(self.client.post(url('forum:read-all', self.subcat1.id)), 'common.login_required')
+        self.check_ajax_error(self.client.post(url('forum:read-all-in-subcategory', self.subcat1.id)), 'common.login_required')
         self.assertEqual(SubCategoryReadInfoPrototype._db_count(), 0)
 
     def test_success(self):
-        self.check_ajax_ok(self.client.post(url('forum:read-all', self.subcat1.id)))
+        self.check_ajax_ok(self.client.post(url('forum:read-all-in-subcategory', self.subcat1.id)))
         self.assertEqual(SubCategoryReadInfoPrototype._db_count(), 1)
         read_info = SubCategoryReadInfoPrototype._db_get_object(0)
         self.assertEqual(read_info.account_id, self.account.id)
         self.assertEqual(read_info.subcategory_id, self.subcat1.id)
         self.assertTrue(read_info.all_read_at > datetime.datetime.now() - datetime.timedelta(seconds=1))
+
+
+class ForumResourceReadAllTests(BaseTestRequests):
+
+    def test_unlogined(self):
+        self.request_logout()
+        self.check_ajax_error(self.client.post(url('forum:read-all')), 'common.login_required')
+        self.assertEqual(SubCategoryReadInfoPrototype._db_count(), 0)
+
+    def test_success(self):
+        self.assertTrue(SubCategoryPrototype._db_count() > 0)
+
+        self.check_ajax_ok(self.client.post(url('forum:read-all')))
+        self.assertEqual(SubCategoryReadInfoPrototype._db_count(), SubCategoryPrototype._db_count())
+
+        for read_info in SubCategoryReadInfoPrototype.from_query(SubCategoryReadInfoPrototype._db_all()):
+            read_info = SubCategoryReadInfoPrototype._db_get_object(0)
+            self.assertEqual(read_info.account_id, self.account.id)
+            self.assertEqual(read_info.subcategory_id, self.subcat1.id)
+            self.assertTrue(read_info.all_read_at > datetime.datetime.now() - datetime.timedelta(seconds=1))
 
 
 class TestRequests(BaseTestRequests):

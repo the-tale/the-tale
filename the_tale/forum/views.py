@@ -531,9 +531,16 @@ class ForumResource(BaseForumResource):
                               'read_states': read_states} )
 
     @login_required
-    @handler('categories', '#subcategory', 'read-all', name='read-all', method='post')
-    def read_all(self):
+    @handler('categories', '#subcategory', 'read-all-in-subcategory', name='read-all-in-subcategory', method='post')
+    def read_all__one(self):
         SubCategoryReadInfoPrototype.read_all_in_subcategory(subcategory=self.subcategory, account=self.account)
+        return self.json_ok()
+
+    @login_required
+    @handler('categories', 'read-all', name='read-all', method='post')
+    def read_all__all(self):
+        for subcategory in SubCategoryPrototype.subcategories_visible_to_account(account=self.account):
+            SubCategoryReadInfoPrototype.read_all_in_subcategory(subcategory=subcategory, account=self.account)
         return self.json_ok()
 
     @handler('feed', method='get')
