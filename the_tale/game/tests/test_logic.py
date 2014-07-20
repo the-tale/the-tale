@@ -86,9 +86,9 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         self.pvp_create_battle(self.account_2, self.account_1, state=BATTLE_1X1_STATE.PREPAIRING)
 
         data = form_game_info(self.account_1)
-        self.assertEqual(data['mode'], 'pvp')
+        self.assertEqual(data['mode'], 'pve')
         self.assertFalse(data['account']['in_pvp_queue'])
-        self.assertNotEqual(data['enemy'], None)
+        self.assertEqual(data['enemy'], None)
 
     def test_pvp_processing(self):
         self.pvp_create_battle(self.account_1, self.account_2, state=BATTLE_1X1_STATE.PROCESSING)
