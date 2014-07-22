@@ -148,4 +148,6 @@ class Help(AbilityPrototype):
         if result[0].is_SUCCESSED:
             hero.statistics.change_help_count(1)
 
+        hero.cards_help_count += 1
+
         return result

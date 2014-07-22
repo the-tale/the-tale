@@ -67,7 +67,8 @@ class HeroPrototype(BasePrototype,
                       'energy_bonus',
                       'last_rare_operation_at_turn',
                       'health',
-                      'settings_approved')
+                      'settings_approved',
+                      'cards_help_count')
     _get_by = ('id', 'account_id')
     _serialization_proxies = (('quests', QuestsContainer, heroes_settings.UNLOAD_TIMEOUT),
                               ('places_history', PlacesHelpStatistics, heroes_settings.UNLOAD_TIMEOUT),
@@ -485,6 +486,15 @@ class HeroPrototype(BasePrototype,
             else:
                 self.abilities.add(new_ability.get_id())
 
+    def get_new_card(self):
+        from the_tale.game.cards.relations import CARD_TYPE
+
+        card = random.choice(CARD_TYPE.records)
+        self.cards.add_card(card, 1)
+
+        return card
+
+
     def __eq__(self, other):
 
         return (self.id == other.id and
@@ -546,7 +556,9 @@ class HeroPrototype(BasePrototype,
                                'move_speed': float(self.move_speed),
                                'initiative': self.initiative,
                                'max_bag_size': self.max_bag_size,
-                               'loot_items_count': self.bag.occupation},
+                               'loot_items_count': self.bag.occupation,
+                               'cards_help_count': self.cards_help_count,
+                               'cards_help_barrier': c.CARDS_HELP_COUNT_TO_NEW_CARD},
                 'habits': { 'honor': {'verbose': self.habit_honor.verbose_value,
                                       'raw': self.habit_honor.raw_value},
                             'peacefulness': {'verbose': self.habit_peacefulness.verbose_value,

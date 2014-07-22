@@ -270,3 +270,5 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.BUILDING_WORKERS_ENERGY_COST, 3)
         self.assertEqual(c.BUILDING_PERSON_POWER_MULTIPLIER, 1.1)
         self.assertEqual(c.BUILDING_TERRAIN_POWER_MULTIPLIER, 0.5)
+
+        self.assertEqual(c.CARDS_HELP_COUNT_TO_NEW_CARD, 18)

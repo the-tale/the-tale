@@ -29,7 +29,7 @@ from the_tale.game import names
 from the_tale.game.relations import HABIT_TYPE
 
 from the_tale.game.heroes.prototypes import HeroPrototype
-from the_tale.game.heroes.postponed_tasks import ChangeHeroTask, ChooseHeroAbilityTask, ChoosePreferencesTask, ResetHeroAbilitiesTask
+from the_tale.game.heroes import postponed_tasks
 from the_tale.game.heroes import relations
 from the_tale.game.heroes.forms import ChoosePreferencesForm, EditNameForm
 from the_tale.game.heroes.conf import heroes_settings
@@ -127,7 +127,7 @@ class HeroResource(Resource):
         forms = edit_name_form.c.name_forms
         gender = edit_name_form.c.gender
 
-        change_task = ChangeHeroTask(hero_id=self.hero.id,
+        change_task = postponed_tasks.ChangeHeroTask(hero_id=self.hero.id,
                                      name=Noun(normalized=forms[0], forms=forms*2, properties=(gender.text_id, )),
                                      race=edit_name_form.c.race,
                                      gender=gender)
@@ -146,7 +146,7 @@ class HeroResource(Resource):
         if not self.hero.abilities.can_reset:
             return self.json_error('heroes.reset_abilities.reset_timeout', u'Сброс способностей пока не доступен')
 
-        reset_task = ResetHeroAbilitiesTask(hero_id=self.hero.id)
+        reset_task = postponed_tasks.ResetHeroAbilitiesTask(hero_id=self.hero.id)
 
         task = PostponedTaskPrototype.create(reset_task)
 
@@ -159,7 +159,7 @@ class HeroResource(Resource):
     @validate_moderator_rights()
     @handler('#hero', 'reset-name', method='post')
     def reset_name(self):
-        change_task = ChangeHeroTask(hero_id=self.hero.id,
+        change_task = postponed_tasks.ChangeHeroTask(hero_id=self.hero.id,
                                      name=names.generator.get_name(self.hero.race, self.hero.gender),
                                      race=self.hero.race,
                                      gender=self.hero.gender)
@@ -184,13 +184,27 @@ class HeroResource(Resource):
     @handler('#hero', 'choose-ability', method='post')
     def choose_ability(self, ability_id):
 
-        choose_task = ChooseHeroAbilityTask(hero_id=self.hero.id, ability_id=ability_id)
+        choose_task = postponed_tasks.ChooseHeroAbilityTask(hero_id=self.hero.id, ability_id=ability_id)
 
         task = PostponedTaskPrototype.create(choose_task)
 
         workers_environment.supervisor.cmd_logic_task(self.account.id, task.id)
 
         return self.json_processing(task.status_url)
+
+    @login_required
+    @validate_ownership()
+    @handler('#hero', 'get-card', method='post')
+    def get_card(self):
+
+        choose_task = postponed_tasks.GetCardTask(hero_id=self.hero.id)
+
+        task = PostponedTaskPrototype.create(choose_task)
+
+        workers_environment.supervisor.cmd_logic_task(self.account.id, task.id)
+
+        return self.json_processing(task.status_url)
+
 
     @login_required
     @validate_ownership()
@@ -266,7 +280,7 @@ class HeroResource(Resource):
         if not choose_preferences_form.is_valid():
             return self.json_error('heroes.choose_preferences.form_errors', choose_preferences_form.errors)
 
-        choose_task = ChoosePreferencesTask(hero_id=self.hero.id,
+        choose_task = postponed_tasks.ChoosePreferencesTask(hero_id=self.hero.id,
                                             preference_type=choose_preferences_form.c.preference_type,
                                             preference_id=choose_preferences_form.c.preference_id if choose_preferences_form.c.preference_id != '' else None)
 

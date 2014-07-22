@@ -160,9 +160,10 @@ class GuideResource(Resource):
 
     @handler('cards', method='get')
     def cards(self):
-        from the_tale.game.cards.relations import CARD_TYPE
+        from the_tale.game.cards.relations import CARD_TYPE, RARITY
         return self.template('guide/cards.html', {'section': 'cards',
-                                                   'CARD_TYPE': CARD_TYPE })
+                                                   'CARD_TYPE': CARD_TYPE,
+                                                   'CARD_RARITY': RARITY})
 
     @handler('politics', method='get')
     def politics(self):

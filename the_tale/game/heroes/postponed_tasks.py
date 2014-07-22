@@ -7,7 +7,6 @@ from rels.django import DjangoEnum
 from textgen.words import Noun
 
 from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
-from the_tale.common.utils.enum import create_enum
 
 from the_tale.accounts.prototypes import AccountPrototype
 
@@ -21,14 +20,17 @@ from the_tale.game.persons.storage import persons_storage
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
 from the_tale.game.heroes import relations
 
+from the_tale.game.cards.relations import CARD_TYPE
 
-CHOOSE_HERO_ABILITY_STATE = create_enum('CHOOSE_HERO_ABILITY_STATE', ( ('UNPROCESSED', 0, u'в очереди'),
-                                                                       ('PROCESSED', 1, u'обработана'),
-                                                                       ('WRONG_ID', 2, u'неверный идентификатор способности'),
-                                                                       ('NOT_IN_CHOICE_LIST', 3, u'способность недоступна для выбора'),
-                                                                       ('NOT_FOR_PLAYERS', 4, u'способность не для игроков'),
-                                                                       ('MAXIMUM_ABILITY_POINTS_NUMBER', 5, u'все доступные способности выбраны'),
-                                                                       ('ALREADY_MAX_LEVEL', 6, u'способность уже имеет максимальный уровень') ) )
+
+class CHOOSE_HERO_ABILITY_STATE(DjangoEnum):
+    records = ( ('UNPROCESSED', 0, u'в очереди'),
+                ('PROCESSED', 1, u'обработана'),
+                ('WRONG_ID', 2, u'неверный идентификатор способности'),
+                ('NOT_IN_CHOICE_LIST', 3, u'способность недоступна для выбора'),
+                ('NOT_FOR_PLAYERS', 4, u'способность не для игроков'),
+                ('MAXIMUM_ABILITY_POINTS_NUMBER', 5, u'все доступные способности выбраны'),
+                ('ALREADY_MAX_LEVEL', 6, u'способность уже имеет максимальный уровень') )
 
 class ChooseHeroAbilityTask(PostponedLogic):
 
@@ -38,15 +40,15 @@ class ChooseHeroAbilityTask(PostponedLogic):
         super(ChooseHeroAbilityTask, self).__init__()
         self.hero_id = hero_id
         self.ability_id = ability_id
-        self.state = state
+        self.state = state if isinstance(state, rels.Record) else CHOOSE_HERO_ABILITY_STATE(state)
 
     def serialize(self):
         return { 'hero_id': self.hero_id,
                  'ability_id': self.ability_id,
-                 'state': self.state}
+                 'state': self.state.value}
 
     @property
-    def error_message(self): return CHOOSE_HERO_ABILITY_STATE._CHOICES[self.state][1]
+    def error_message(self): return self.state.text
 
     def process(self, main_task, storage):
 
@@ -93,8 +95,9 @@ class ChooseHeroAbilityTask(PostponedLogic):
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
 
-CHANGE_HERO_TASK_STATE = create_enum('CHANGE_HERO_TASK_STATE', ( ('UNPROCESSED', 0, u'в очереди'),
-                                                                 ('PROCESSED', 1, u'обработана') ) )
+class CHANGE_HERO_TASK_STATE(DjangoEnum):
+    records = ( ('UNPROCESSED', 0, u'в очереди'),
+                ('PROCESSED', 1, u'обработана') )
 
 class ChangeHeroTask(PostponedLogic):
 
@@ -106,17 +109,17 @@ class ChangeHeroTask(PostponedLogic):
         self.name = name if isinstance(name, Noun) else Noun.deserialize(name)
         self.race = race if isinstance(race, rels.Record) else RACE.index_value[race]
         self.gender = gender if isinstance(gender, rels.Record) else GENDER.index_value[gender]
-        self.state = state
+        self.state = state if isinstance(state, rels.Record) else CHANGE_HERO_TASK_STATE(state)
 
     def serialize(self):
         return { 'hero_id': self.hero_id,
                  'name': self.name.serialize(),
                  'race': self.race.value,
                  'gender': self.gender.value,
-                 'state': self.state}
+                 'state': self.state.value}
 
     @property
-    def error_message(self): return CHANGE_HERO_TASK_STATE._CHOICES[self.state][1]
+    def error_message(self): return self.state.text
 
     def process(self, main_task, storage):
 
@@ -173,25 +176,26 @@ class ResetHeroAbilitiesTask(PostponedLogic):
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
 
-CHOOSE_PREFERENCES_TASK_STATE = create_enum('CHOOSE_PREFERENCES_TASK_STATE', ( ('UNPROCESSED', 0, u'в очереди'),
-                                                                               ('PROCESSED', 1, u'обработана'),
-                                                                               ('COOLDOWN', 2, u'смена способности недоступна'),
-                                                                               ('LOW_LEVEL', 3, u'низкий уровень героя'),
-                                                                               ('UNAVAILABLE_PERSON', 4, u'житель недоступен'),
-                                                                               ('OUTGAME_PERSON', 5, u'житель выведен из игры'),
-                                                                               ('UNSPECIFIED_PREFERENCE', 6, u'предпочтение неуказано'),
-                                                                               ('UNKNOWN_ENERGY_REGENERATION_TYPE', 7, u'неизвестный тип восстановления энергии'),
-                                                                               ('UNKNOWN_MOB', 8, u'неизвестный тип монстра'),
-                                                                               ('LARGE_MOB_LEVEL', 9, u'слишком сильный монстр'),
-                                                                               ('UNKNOWN_PLACE', 10, u'неизвестное место'),
-                                                                               ('ENEMY_AND_FRIEND', 11, u'житель одновременно и друг и враг'),
-                                                                               ('UNKNOWN_PERSON', 12, u'неизвестный житель'),
-                                                                               ('UNKNOWN_EQUIPMENT_SLOT', 13, u'неизвестный тип экипировки'),
-                                                                               ('UNKNOWN_PREFERENCE', 14, u'неизвестный тип предпочтения'),
-                                                                               ('MOB_NOT_IN_GAME', 15, u'этот тип противника выведен из игры'),
-                                                                               ('UNKNOWN_RISK_LEVEL', 16, u'неизвестный уровень риска'),
-                                                                               ('EMPTY_EQUIPMENT_SLOT', 17, u'пустой слот экипировки'),
-                                                                               ('UNKNOWN_ARCHETYPE', 18, u'неизвестный архетип'), ) )
+class CHOOSE_PREFERENCES_TASK_STATE(DjangoEnum):
+    records = ( ('UNPROCESSED', 0, u'в очереди'),
+                ('PROCESSED', 1, u'обработана'),
+                ('COOLDOWN', 2, u'смена способности недоступна'),
+                ('LOW_LEVEL', 3, u'низкий уровень героя'),
+                ('UNAVAILABLE_PERSON', 4, u'житель недоступен'),
+                ('OUTGAME_PERSON', 5, u'житель выведен из игры'),
+                ('UNSPECIFIED_PREFERENCE', 6, u'предпочтение неуказано'),
+                ('UNKNOWN_ENERGY_REGENERATION_TYPE', 7, u'неизвестный тип восстановления энергии'),
+                ('UNKNOWN_MOB', 8, u'неизвестный тип монстра'),
+                ('LARGE_MOB_LEVEL', 9, u'слишком сильный монстр'),
+                ('UNKNOWN_PLACE', 10, u'неизвестное место'),
+                ('ENEMY_AND_FRIEND', 11, u'житель одновременно и друг и враг'),
+                ('UNKNOWN_PERSON', 12, u'неизвестный житель'),
+                ('UNKNOWN_EQUIPMENT_SLOT', 13, u'неизвестный тип экипировки'),
+                ('UNKNOWN_PREFERENCE', 14, u'неизвестный тип предпочтения'),
+                ('MOB_NOT_IN_GAME', 15, u'этот тип противника выведен из игры'),
+                ('UNKNOWN_RISK_LEVEL', 16, u'неизвестный уровень риска'),
+                ('EMPTY_EQUIPMENT_SLOT', 17, u'пустой слот экипировки'),
+                ('UNKNOWN_ARCHETYPE', 18, u'неизвестный архетип'), )
 
 
 class ChoosePreferencesTask(PostponedLogic):
@@ -203,16 +207,16 @@ class ChoosePreferencesTask(PostponedLogic):
         self.hero_id = hero_id
         self.preference_type = preference_type if isinstance(preference_type, rels.Record) else relations.PREFERENCE_TYPE(preference_type)
         self.preference_id = preference_id
-        self.state = state
+        self.state = state if isinstance(state, rels.Record) else CHOOSE_PREFERENCES_TASK_STATE(state)
 
     def serialize(self):
         return { 'hero_id': self.hero_id,
                  'preference_type': self.preference_type.value,
                  'preference_id': self.preference_id,
-                 'state': self.state }
+                 'state': self.state.value }
 
     @property
-    def error_message(self): return CHOOSE_PREFERENCES_TASK_STATE._CHOICES[self.state][1]
+    def error_message(self): return self.state.text
 
     def process_energy_regeneration(self, main_task, hero):
 
@@ -499,3 +503,64 @@ class ChoosePreferencesTask(PostponedLogic):
             self.state = CHOOSE_PREFERENCES_TASK_STATE.PROCESSED
 
         return result
+
+
+
+
+class GET_CARD_TASK_STATE(DjangoEnum):
+   records = ( ('UNPROCESSED', 0, u'в очереди'),
+               ('PROCESSED', 1, u'обработана'),
+               ('CAN_NOT_GET', 2, u'Вы пока не можете взять новую карту'))
+
+class GetCardTask(PostponedLogic):
+
+    TYPE = 'get-card'
+
+    MESSAGE = u'''
+Вы получаете новую карту!<br/>
+
+<span class="%(rarity)s-card-label">%(name)s</span><br/>
+
+<blockquote>%(description)s</blockquote>
+'''
+
+
+    def __init__(self, hero_id, state=GET_CARD_TASK_STATE.UNPROCESSED, card=None):
+        super(GetCardTask, self).__init__()
+        self.hero_id = hero_id
+        self.state = state if isinstance(state, rels.Record) else GET_CARD_TASK_STATE(state)
+        self.card = card if card is None or isinstance(card, rels.Record) else CARD_TYPE(card)
+
+    def serialize(self):
+        return { 'hero_id': self.hero_id,
+                 'state': self.state.value,
+                 'card': self.card.value if self.card else None}
+
+    @property
+    def error_message(self): return self.state.text
+
+    @property
+    def processed_data(self):
+        message = self.MESSAGE % {'name': self.card.text,
+                                  'description': self.card.description,
+                                  'rarity': self.card.rarity.name.lower()}
+        return {'message': message }
+
+    def process(self, main_task, storage):
+
+        hero = storage.heroes[self.hero_id]
+
+        if hero.cards_help_count < c.CARDS_HELP_COUNT_TO_NEW_CARD:
+            main_task.comment = u'can not get new card'
+            self.state = GET_CARD_TASK_STATE.CAN_NOT_GET
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+        self.card = hero.get_new_card()
+
+        hero.cards_help_count -= c.CARDS_HELP_COUNT_TO_NEW_CARD
+
+        storage.save_bundle_data(hero.actions.current_action.bundle_id, update_cache=True)
+
+        self.state = RESET_HERO_ABILITIES_TASK_STATE.PROCESSED
+
+        return POSTPONED_TASK_LOGIC_RESULT.SUCCESS

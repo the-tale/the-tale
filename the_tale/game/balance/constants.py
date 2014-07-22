@@ -466,3 +466,9 @@ BUILDING_WORKERS_ENERGY_COST = int(3) # цена вызова одного ра�
 
 BUILDING_PERSON_POWER_MULTIPLIER = float(1.1)
 BUILDING_TERRAIN_POWER_MULTIPLIER = float(0.5) # building terrain power is percent from city power
+
+###########################
+# Карты
+###########################
+
+CARDS_HELP_COUNT_TO_NEW_CARD = int(1.5 * _ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST)

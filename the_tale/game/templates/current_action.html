@@ -31,6 +31,20 @@ jQuery(document).ready(function(e) {
                              });
     });
 
+    jQuery('.pgf-get-card-button').click(function(e){
+        e.preventDefault();
+        pgf.forms.Post({ action: "{{url('game:heroes:get-card', hero.id)}}",
+                         OnSuccess: function(data){
+                             jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
+                             pgf.ui.dialog.Alert({message: data.data.message,
+                                                  title: 'Операция завершена',
+                                                  OnOk: function(e){}});
+                                 return;
+                             }
+                         });
+    });
+
+
 
 });
 </script>
@@ -76,15 +90,35 @@ jQuery(document).ready(function(e) {
   <div id="abilities-block">
 
     <div class="dropdown" style="display: inline-block;  width: 30%; font-size: 11pt;">
+      <i class="icon-gift pgf-new-card-icon" style="margin-top: 1px;" rel="tooltip" title="Вы можете получить новую карту!"></i>
       <a href="#" class="dropdown-toggle" data-toggle="dropdown">карты<b class="caret"></b></a>
-      <ul class="pgf-scrollable dropdown-menu pgf-cards-choices" role="menu" style="max-height: 310px; overflow-y: auto;">
+      <ul class="pgf-scrollable dropdown-menu pgf-cards-choices" role="menu" style="max-height: 310px; overflow-y: auto; font-size: 10pt;">
+
+        <div class="pgf-get-card-statistics">
+          помощи до новой карты <br/>
+
+          <div class="progress progress-info" style="margin: 0.25em; height: 18px; position: relative;">
+            <div class="bar pgf-new-card-progress"></div>
+            <div class="" style="width: 100%; position: absolute; top: 0;">
+              <span class="pgf-helps-count-to-new-card"></span> / {{c.CARDS_HELP_COUNT_TO_NEW_CARD}}
+            </div>
+          </div>
+
+        </div>
+
+        <a href="#"
+           class="pgf-get-card-button pgf-hidden"
+           style="margin: 0.25em; height: 18px; color: #0088cc;">Взять карту!</a>
+
+        <hr/>
+
         {% for card in CARD_TYPE.records %}
           <li class="pgf-card pgf-card-{{card.value}}">
             <a href="{{url('game:cards:use-dialog', card=card.value)}}"
                style="font-size: 10pt;"
                rel="tooltip"
                title="{{card.description}}">
-              {{card.text}} x <span class="pgf-count"></span>
+               <span class="{{card.rarity.name|lower}}-card-label">{{card.text}}</span> x <span class="pgf-count"></span>
             </a>
           </li>
         {% endfor %}

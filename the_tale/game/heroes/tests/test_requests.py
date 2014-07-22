@@ -16,6 +16,8 @@ from the_tale.common.utils.permissions import sync_group
 from the_tale.accounts.logic import register_user, login_page_url
 from the_tale.accounts.prototypes import AccountPrototype
 
+from the_tale.game.balance import constants as c
+
 from the_tale.game.relations import GENDER, RACE
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
@@ -232,6 +234,28 @@ class ResetAbilitiesRequestsTests(HeroRequestsTestBase):
         self.assertEqual(PostponedTask.objects.all().count(), 0)
         response = self.post_ajax_json(reverse('game:heroes:reset-abilities', args=[self.hero.id]))
         self.assertEqual(PostponedTask.objects.all().count(), 1)
+
+        task = PostponedTaskPrototype._db_get_object(0)
+
+        self.check_ajax_processing(response, task.status_url)
+
+
+class GetCardRequestsTests(HeroRequestsTestBase):
+
+    def setUp(self):
+        super(GetCardRequestsTests, self).setUp()
+
+    def test_wrong_ownership(self):
+        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
+        self.request_logout()
+        self.request_login('test_user_2@test.com')
+        self.check_ajax_error(self.post_ajax_json(reverse('game:heroes:get-card', args=[self.hero.id])),
+                              'heroes.not_owner')
+
+
+    def test_created(self):
+        with self.check_delta(PostponedTask.objects.all().count, 1):
+            response = self.post_ajax_json(reverse('game:heroes:get-card', args=[self.hero.id]))
 
         task = PostponedTaskPrototype._db_get_object(0)
 
