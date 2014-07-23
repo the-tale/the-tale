@@ -116,12 +116,13 @@ def permanent_permission_purchase(uid, purchase_type, cost):
 
 
 def card_purchase(uid, card_type, count, cost):
+    from the_tale.game.cards.prototypes import CARDS
     return goods.Cards(uid=u'%s-%d' % (uid, count),
                        cost=cost,
                        card_type=card_type,
                        count=count,
                        name=card_type.text,
-                       tooltip=card_type.description,
+                       tooltip=CARDS[card_type]().DESCRIPTION,
                        description=u'Покупка карты судьбы «%s» (%d шт.).' % (card_type.text, count),
                        transaction_description=u'Покупка карты судьбы «%s» (%d шт.).' % (card_type.text, count))
 

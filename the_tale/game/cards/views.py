@@ -46,6 +46,6 @@ class CardsResource(Resource):
             return self.json_error('cards.use.form_errors', form.errors)
 
 
-        task = CARDS[card]().activate(hero, data={'place_id': int(form.c.place)})
+        task = CARDS[card]().activate(hero, data={'place_id': form.get_card_data()})
 
         return self.json_processing(task.status_url)

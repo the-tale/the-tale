@@ -263,6 +263,10 @@ class LogicAccessorsMixin(object):
         return modifier * self.attribute_modifier(relations.MODIFIERS.EXPERIENCE)
 
     @property
+    def experience_to_next_level(self):
+        return f.exp_on_lvl(self.level)
+
+    @property
     def person_power_modifier(self):
         return max(math.log(self.level, 2), 0.5) * self.attribute_modifier(relations.MODIFIERS.POWER) * self.preferences.risk_level.power_modifier
 

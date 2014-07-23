@@ -151,8 +151,8 @@ class HeroPrototype(BasePrototype,
         real_experience = int(value * self.experience_modifier)
         self._model.experience += real_experience
 
-        while f.exp_on_lvl(self.level) <= self._model.experience:
-            self._model.experience -= f.exp_on_lvl(self.level)
+        while self.experience_to_next_level <= self._model.experience:
+            self._model.experience -= self.experience_to_next_level
             self.increment_level(send_message=True)
 
         return real_experience
@@ -304,6 +304,14 @@ class HeroPrototype(BasePrototype,
                 self.habit_honor.change(change_source.honor*multuplier)
             if self.habit_peacefulness.raw_value * change_source.peacefulness < 0:
                 self.habit_peacefulness.change(change_source.peacefulness*multuplier)
+
+    def change_habits(self, habit_type, habit_value):
+
+        if habit_type == self.habit_honor.TYPE:
+            self.habit_honor.change(habit_value)
+
+        if habit_type == self.habit_peacefulness.TYPE:
+            self.habit_peacefulness.change(habit_value)
 
     ###########################################
     # Permissions
@@ -547,7 +555,7 @@ class HeroPrototype(BasePrototype,
                           'health': int(self.health),
                           'max_health': int(self.max_health),
                           'experience': int(self.experience),
-                          'experience_to_level': int(f.exp_on_lvl(self.level)),
+                          'experience_to_level': int(self.experience_to_next_level),
                           'gender': self.gender.value,
                           'race': self.race.value,
                           'money': self.money,

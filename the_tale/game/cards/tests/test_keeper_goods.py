@@ -13,11 +13,12 @@ from the_tale.game.workers.environment import workers_environment
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.cards.prototypes import KeepersGoods
+from the_tale.game.cards.tests.helpers import CardsTestMixin
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
 
-class KeepersGoodsTest(testcase.TestCase):
+class KeepersGoodsTest(testcase.TestCase, CardsTestMixin):
 
     def setUp(self):
         super(KeepersGoodsTest, self).setUp()
@@ -44,17 +45,9 @@ class KeepersGoodsTest(testcase.TestCase):
         self.highlevel.process_initialize(0, 'highlevel')
 
 
-    def use_attributes(self, hero_id, place_id=None, step=ComplexChangeTask.STEP.LOGIC, storage=None, highlevel=None, critical=False):
-        return {'data': {'hero_id': hero_id,
-                         'place_id': self.place_1.id if place_id is None else place_id},
-                'step': step,
-                'main_task_id': 0,
-                'storage': storage,
-                'highlevel': highlevel}
-
     def test_use(self):
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(hero_id=self.hero.id, storage=self.storage))
+        result, step, postsave_actions = self.card.use(**self.use_attributes(hero_id=self.hero.id, storage=self.storage, place_id=self.place_1.id))
 
         self.assertEqual((result, step), (ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.HIGHLEVEL))
         self.assertEqual(len(postsave_actions), 1)
@@ -66,8 +59,9 @@ class KeepersGoodsTest(testcase.TestCase):
 
         with self.check_delta(lambda: self.place_1.keepers_goods, KeepersGoods.GOODS):
             result, step, postsave_actions = self.card.use(**self.use_attributes(hero_id=self.hero.id,
-                                                                                      step=step,
-                                                                                      highlevel=self.highlevel))
+                                                                                 step=step,
+                                                                                 highlevel=self.highlevel,
+                                                                                 place_id=self.place_1.id))
 
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
@@ -76,9 +70,3 @@ class KeepersGoodsTest(testcase.TestCase):
         with self.check_not_changed(lambda: self.place_1.keepers_goods):
             self.assertEqual(self.card.use(**self.use_attributes(hero_id=self.hero.id, place_id=666, storage=self.storage)),
                              (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
-
-    def test_use_without_place(self):
-        with self.check_not_changed(lambda: self.place_1.keepers_goods):
-            arguments = self.use_attributes(hero_id=self.hero.id, storage=self.storage)
-            del arguments['data']['place_id']
-            self.assertEqual(self.card.use(**arguments), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))

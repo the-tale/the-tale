@@ -26,12 +26,7 @@ class ShopAccessorsMixin(object):
             self.preferences._reset(preference_type)
 
     def purchase_change_habits(self, habit_type, habit_value):
-
-        if habit_type == self.habit_honor.TYPE:
-            self.habit_honor.change(habit_value)
-
-        if habit_type == self.habit_peacefulness.TYPE:
-            self.habit_peacefulness.change(habit_value)
+        self.change_habits(habit_type=habit_type, habit_value=habit_value)
 
     def purchase_reset_abilities(self):
         self.abilities.reset()

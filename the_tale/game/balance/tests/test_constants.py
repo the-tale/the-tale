@@ -272,3 +272,4 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.BUILDING_TERRAIN_POWER_MULTIPLIER, 0.5)
 
         self.assertEqual(c.CARDS_HELP_COUNT_TO_NEW_CARD, 18)
+        self.assertEqual(c.CARDS_COMBINE_TO_UP_RARITY, 3)

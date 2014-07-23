@@ -14,6 +14,7 @@ from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.cards import relations
 from the_tale.game.cards.prototypes import CARDS
+from the_tale.game.cards import forms
 
 
 class CardsRequestsTestsBase(testcase.TestCase):
@@ -74,6 +75,10 @@ class UseDialogRequestTests(CardsRequestsTestsBase):
         for card_type in relations.CARD_TYPE.records:
             self.hero.cards.add_card(card_type, count=3)
             self.hero.save()
+
+            if card_type.form is forms.EmptyForm:
+                continue
+
             self.check_ajax_error(self.post_ajax_json(url('game:cards:use', card=card_type.value), self.post_data(card_type, place_id=666)), 'cards.use.form_errors')
 
 
