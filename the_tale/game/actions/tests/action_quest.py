@@ -49,6 +49,11 @@ class QuestActionTest(testcase.TestCase):
         self.storage._test_save()
 
 
+    def test_step_with_no_quest(self):
+        self.hero.quests.pop_quest()
+        self.storage.process_turn()
+        self.assertEqual(self.action_idl.leader, True)
+
     def test_full_quest(self):
 
         current_time = TimePrototype.get_current_time()

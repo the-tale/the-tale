@@ -122,7 +122,7 @@ def card_purchase(uid, card_type, count, cost):
                        card_type=card_type,
                        count=count,
                        name=card_type.text,
-                       tooltip=CARDS[card_type]().DESCRIPTION,
+                       tooltip=CARDS[card_type].DESCRIPTION,
                        description=u'Покупка карты судьбы «%s» (%d шт.).' % (card_type.text, count),
                        transaction_description=u'Покупка карты судьбы «%s» (%d шт.).' % (card_type.text, count))
 
@@ -325,7 +325,7 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                                     name=u'Карты судьбы',
                                     description=CARDS_DESCRIPTION,
                                     items=[ card_purchase(uid='card-keepers-goods-',
-                                                          card_type=CARD_TYPE.KEEPERS_GOODS,
+                                                          card_type=CARD_TYPE.KEEPERS_GOODS_LEGENDARY,
                                                           count=1,
                                                           cost=1000)]) ]
 

@@ -26,9 +26,9 @@ class PrototypesTests(TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.card = CARDS[relations.CARD_TYPE.KEEPERS_GOODS]()
+        self.card = CARDS[relations.CARD_TYPE.KEEPERS_GOODS_COMMON]
 
-        self.hero.cards.add_card(relations.CARD_TYPE.KEEPERS_GOODS, count=3)
+        self.hero.cards.add_card(relations.CARD_TYPE.KEEPERS_GOODS_COMMON, count=3)
 
 
     def test_check_hero_conditions__has_card(self):
@@ -36,13 +36,13 @@ class PrototypesTests(TestCase):
 
 
     def test_check_hero_conditions__has_no_card(self):
-        self.hero.cards.remove_card(relations.CARD_TYPE.KEEPERS_GOODS, count=3)
+        self.hero.cards.remove_card(relations.CARD_TYPE.KEEPERS_GOODS_COMMON, count=3)
         self.assertFalse(self.card.check_hero_conditions(self.hero))
 
 
     def test_hero_actions(self):
         self.card.hero_actions(self.hero)
-        self.assertEqual(self.hero.cards.card_count(relations.CARD_TYPE.KEEPERS_GOODS), 2)
+        self.assertEqual(self.hero.cards.card_count(relations.CARD_TYPE.KEEPERS_GOODS_COMMON), 2)
 
 
     def test_activate(self):

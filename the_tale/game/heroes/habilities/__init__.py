@@ -214,11 +214,17 @@ class AbilitiesPrototype(object):
 
         return abilities
 
-    def can_rechoose_abilities_choices(self):
+    def _can_rechoose_abilities_choices(self):
         candidates = self._get_candidates()
 
         return not (all(self.has(ability.get_id()) for ability in candidates) and
                     len(candidates) <= c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM)
+
+    def can_rechoose_abilities_choices(self):
+        if not self.can_choose_new_ability:
+            return False
+
+        return self._can_rechoose_abilities_choices()
 
     def rechooce_choices(self):
         if not self.can_rechoose_abilities_choices():

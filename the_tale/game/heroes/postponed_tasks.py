@@ -21,6 +21,7 @@ from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
 from the_tale.game.heroes import relations
 
 from the_tale.game.cards.relations import CARD_TYPE
+from the_tale.game.cards.prototypes import CARDS
 
 
 class CHOOSE_HERO_ABILITY_STATE(DjangoEnum):
@@ -542,7 +543,7 @@ class GetCardTask(PostponedLogic):
     @property
     def processed_data(self):
         message = self.MESSAGE % {'name': self.card.text,
-                                  'description': self.card.description,
+                                  'description': CARDS[self.card].DESCRIPTION,
                                   'rarity': self.card.rarity.name.lower()}
         return {'message': message }
 

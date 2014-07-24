@@ -115,8 +115,18 @@ class HabilitiesContainerTest(TestCase):
             new_choices = set(ability.get_id() for ability in self.abilities.get_for_choose())
             self.assertNotEqual(old_choices, new_choices)
 
+    def test_can_rechoose_abilities_choices__when_no_points(self):
+        self.hero.randomized_level_up()
+
+        self.assertFalse(self.abilities.can_choose_new_ability)
+        self.assertFalse(self.abilities.can_rechoose_abilities_choices())
+
+        with mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.can_choose_new_ability', True):
+            self.assertTrue(self.abilities.can_rechoose_abilities_choices())
+
+
     def test_rechooce_choices__can_not_rechoose(self):
-        while self.abilities.can_rechoose_abilities_choices():
+        while self.abilities._can_rechoose_abilities_choices():
             self.hero.randomized_level_up(increment_level=True)
 
         # here we should have only c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM unchosen abilities

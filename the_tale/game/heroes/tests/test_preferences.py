@@ -31,8 +31,18 @@ from the_tale.game.heroes.postponed_tasks import ChoosePreferencesTask, CHOOSE_P
 from the_tale.game.heroes.preferences import HeroPreferences
 
 
+class PreferencesTestMixin(object):
 
-class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
+    def test_reset_change_time(self):
+        value = self.hero.preferences._get(self.PREFERENCE_TYPE)
+        self.hero.preferences._set(self.PREFERENCE_TYPE, value)
+        self.assertFalse(self.hero.preferences.can_update(self.PREFERENCE_TYPE, datetime.datetime.now()))
+        self.hero.preferences.reset_change_time(self.PREFERENCE_TYPE)
+        self.assertTrue(self.hero.preferences.can_update(self.PREFERENCE_TYPE, datetime.datetime.now()))
+
+
+class HeroPreferencesEnergyRegenerationTypeTest(PreferencesTestMixin, TestCase):
+    PREFERENCE_TYPE = relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE
 
     def setUp(self):
         super(HeroPreferencesEnergyRegenerationTypeTest, self).setUp()
@@ -120,7 +130,8 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
         self.check_change_energy_regeneration_type(None, e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
 
-class HeroPreferencesMobTest(TestCase):
+class HeroPreferencesMobTest(PreferencesTestMixin, TestCase):
+    PREFERENCE_TYPE = relations.PREFERENCE_TYPE.MOB
 
     def setUp(self):
         super(HeroPreferencesMobTest, self).setUp()
@@ -269,7 +280,8 @@ class HeroPreferencesMobTest(TestCase):
         self.check_change_mob(None, self.mob_uuid, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
 
-class HeroPreferencesPlaceTest(TestCase):
+class HeroPreferencesPlaceTest(PreferencesTestMixin, TestCase):
+    PREFERENCE_TYPE = relations.PREFERENCE_TYPE.PLACE
 
     def setUp(self):
         super(HeroPreferencesPlaceTest, self).setUp()
@@ -480,7 +492,8 @@ class HeroPreferencesPlaceTest(TestCase):
 
 
 
-class HeroPreferencesFriendTest(TestCase):
+class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
+    PREFERENCE_TYPE = relations.PREFERENCE_TYPE.FRIEND
 
     def setUp(self):
         super(HeroPreferencesFriendTest, self).setUp()
@@ -725,7 +738,8 @@ class HeroPreferencesFriendTest(TestCase):
 
 
 
-class HeroPreferencesEnemyTest(TestCase):
+class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
+    PREFERENCE_TYPE = relations.PREFERENCE_TYPE.ENEMY
 
     def setUp(self):
         super(HeroPreferencesEnemyTest, self).setUp()
@@ -968,7 +982,8 @@ class HeroPreferencesEnemyTest(TestCase):
 
 
 
-class HeroPreferencesEquipmentSlotTest(TestCase):
+class HeroPreferencesEquipmentSlotTest(PreferencesTestMixin, TestCase):
+    PREFERENCE_TYPE = relations.PREFERENCE_TYPE.EQUIPMENT_SLOT
 
     def setUp(self):
         super(HeroPreferencesEquipmentSlotTest, self).setUp()
@@ -1072,7 +1087,8 @@ class HeroPreferencesEquipmentSlotTest(TestCase):
         self.check_change_equipment_slot(None, self.slot_1, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
 
-class HeroPreferencesFavoriteItemTest(TestCase):
+class HeroPreferencesFavoriteItemTest(PreferencesTestMixin, TestCase):
+    PREFERENCE_TYPE = relations.PREFERENCE_TYPE.FAVORITE_ITEM
 
     def setUp(self):
         super(HeroPreferencesFavoriteItemTest, self).setUp()
@@ -1183,7 +1199,8 @@ class HeroPreferencesFavoriteItemTest(TestCase):
 
 
 
-class HeroPreferencesRiskLevelTest(TestCase):
+class HeroPreferencesRiskLevelTest(PreferencesTestMixin, TestCase):
+    PREFERENCE_TYPE = relations.PREFERENCE_TYPE.RISK_LEVEL
 
     def setUp(self):
         super(HeroPreferencesRiskLevelTest, self).setUp()
@@ -1281,7 +1298,8 @@ class HeroPreferencesRiskLevelTest(TestCase):
         self.check_change_risk_level(self.risk_2, self.risk_1, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
 
-class HeroPreferencesArchetypeTest(TestCase):
+class HeroPreferencesArchetypeTest(PreferencesTestMixin, TestCase):
+    PREFERENCE_TYPE = relations.PREFERENCE_TYPE.ARCHETYPE
 
     def setUp(self):
         super(HeroPreferencesArchetypeTest, self).setUp()

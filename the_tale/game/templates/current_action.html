@@ -112,13 +112,13 @@ jQuery(document).ready(function(e) {
 
         <hr/>
 
-        {% for card in CARD_TYPE.records %}
-          <li class="pgf-card pgf-card-{{card.value}}">
-            <a href="{{url('game:cards:use-dialog', card=card.value)}}"
+        {% for card in CARDS %}
+          <li class="pgf-card pgf-card-{{card.TYPE.value}}">
+            <a href="{{url('game:cards:use-dialog', card=card.TYPE.value)}}"
                style="font-size: 10pt;"
                rel="tooltip"
-               title="{{card.description}}">
-               <span class="{{card.rarity.name|lower}}-card-label">{{card.text}}</span> x <span class="pgf-count"></span>
+               title="{{card.DESCRIPTION}}">
+               <span class="{{card.TYPE.rarity.name|lower}}-card-label">{{card.TYPE.text}}</span> x <span class="pgf-count"></span>
             </a>
           </li>
         {% endfor %}

@@ -23,7 +23,7 @@ from the_tale.game.conf import game_settings
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
 from the_tale.game import logic as game_logic
 
-from the_tale.game.cards.relations import CARD_TYPE
+from the_tale.game.cards.prototypes import CARDS
 
 
 class GameResource(Resource):
@@ -50,7 +50,7 @@ class GameResource(Resource):
                               'EQUIPMENT_SLOT': EQUIPMENT_SLOT,
                               'current_map_version': map_info_storage.version,
                               'clan': clan,
-                              'CARD_TYPE': CARD_TYPE,
+                              'CARDS': CARDS.values(),
                               'hero': HeroPrototype.get_by_account_id(self.account.id)} )
 
     @api.handler(versions=('1.1', '1.0'))

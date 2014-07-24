@@ -22,7 +22,7 @@ class BuyRechoceHeroAbilitiesChoicesTaskTests(base_buy_task._BaseBuyHeroMethodPo
 
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.hero._model.level = 5
+        self.hero._model.level = 7
 
         self.hero.randomized_level_up()
         self.hero.randomized_level_up()

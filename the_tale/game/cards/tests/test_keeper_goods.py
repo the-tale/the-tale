@@ -12,16 +12,17 @@ from the_tale.game.workers.environment import workers_environment
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards.prototypes import KeepersGoods
+from the_tale.game.cards import prototypes
 from the_tale.game.cards.tests.helpers import CardsTestMixin
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
 
-class KeepersGoodsTest(testcase.TestCase, CardsTestMixin):
+class KeepersGoodsMixin(CardsTestMixin):
+    CARD = None
 
     def setUp(self):
-        super(KeepersGoodsTest, self).setUp()
+        super(KeepersGoodsMixin, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
         result, account_1_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
@@ -36,7 +37,7 @@ class KeepersGoodsTest(testcase.TestCase, CardsTestMixin):
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
-        self.card = KeepersGoods()
+        self.card = self.CARD()
 
         workers_environment.deinitialize()
         workers_environment.initialize()
@@ -57,7 +58,7 @@ class KeepersGoodsTest(testcase.TestCase, CardsTestMixin):
 
         self.assertEqual(highlevel_logic_task_counter.call_count, 1)
 
-        with self.check_delta(lambda: self.place_1.keepers_goods, KeepersGoods.GOODS):
+        with self.check_delta(lambda: self.place_1.keepers_goods, self.CARD.GOODS):
             result, step, postsave_actions = self.card.use(**self.use_attributes(hero_id=self.hero.id,
                                                                                  step=step,
                                                                                  highlevel=self.highlevel,
@@ -70,3 +71,19 @@ class KeepersGoodsTest(testcase.TestCase, CardsTestMixin):
         with self.check_not_changed(lambda: self.place_1.keepers_goods):
             self.assertEqual(self.card.use(**self.use_attributes(hero_id=self.hero.id, place_id=666, storage=self.storage)),
                              (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
+
+
+class KeepersGoodsCommonTests(KeepersGoodsMixin, testcase.TestCase):
+    CARD = prototypes.KeepersGoodsCommon
+
+class KeepersGoodsUncommonTests(KeepersGoodsMixin, testcase.TestCase):
+    CARD = prototypes.KeepersGoodsUncommon
+
+class KeepersGoodsRareTests(KeepersGoodsMixin, testcase.TestCase):
+    CARD = prototypes.KeepersGoodsRare
+
+class KeepersGoodsEpicTests(KeepersGoodsMixin, testcase.TestCase):
+    CARD = prototypes.KeepersGoodsEpic
+
+class KeepersGoodsLegendaryTests(KeepersGoodsMixin, testcase.TestCase):
+    CARD = prototypes.KeepersGoodsLegendary

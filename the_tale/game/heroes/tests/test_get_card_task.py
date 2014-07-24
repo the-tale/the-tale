@@ -10,6 +10,8 @@ from the_tale.game.balance import constants as c
 from the_tale.game.logic import create_test_map
 from the_tale.game.logic_storage import LogicStorage
 
+from the_tale.game.cards.prototypes import CARDS
+
 from the_tale.game.heroes.postponed_tasks import GetCardTask
 
 
@@ -54,6 +56,6 @@ class GetCardTaskTest(TestCase):
         self.assertTrue(self.hero.cards.has_cards)
 
         self.assertTrue(self.hero.cards.cards[0][0].text in task.processed_data['message'])
-        self.assertTrue(self.hero.cards.cards[0][0].description in task.processed_data['message'])
+        self.assertTrue(CARDS[self.hero.cards.cards[0][0]].DESCRIPTION in task.processed_data['message'])
 
         self.assertTrue(task.state.is_PROCESSED)

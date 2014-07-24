@@ -12,7 +12,7 @@ class BuyEnergyTaskTests(base_buy_task._BaseBuyHeroMethodPosponedTaskTests):
 
     def setUp(self):
         super(BuyEnergyTaskTests, self).setUp()
-        self.card_type = CARD_TYPE.KEEPERS_GOODS
+        self.card_type = CARD_TYPE.KEEPERS_GOODS_COMMON
         self.count = 666
 
         self.task = BuyCards(account_id=self.account.id,

@@ -8,13 +8,14 @@ from the_tale.game.quests.conf import quests_settings
 
 class QuestsContainer(object):
 
-    __slots__ = ('updated', 'quests_list', 'history', 'interfered_persons')
+    __slots__ = ('updated', 'quests_list', 'history', 'interfered_persons', 'hero')
 
     def __init__(self):
         self.updated = False
         self.quests_list = []
         self.history = {}
         self.interfered_persons = {}
+        self.hero = None
 
     def serialize(self):
         return {'quests': [quest.serialize() for quest in self.quests_list],
@@ -27,6 +28,7 @@ class QuestsContainer(object):
         obj.quests_list = [QuestPrototype.deserialize(hero=hero, data=quest_data) for quest_data in data.get('quests', [])]
         obj.history = data.get('history', {})
         obj.interfered_persons = {int(person_id): person_time for person_id, person_time in data.get('interfered_persons', {}).iteritems()}
+        obj.hero = hero
         return obj
 
     def ui_info(self, hero):
@@ -39,11 +41,13 @@ class QuestsContainer(object):
 
     def push_quest(self, quest):
         self.updated = True
+        self.hero.actions.request_replane()
         self.quests_list.append(quest)
 
     def pop_quest(self):
         self.updated = True
-        return  self.quests_list.pop()
+        self.hero.actions.request_replane()
+        return self.quests_list.pop()
 
     @property
     def current_quest(self): return self.quests_list[-1]

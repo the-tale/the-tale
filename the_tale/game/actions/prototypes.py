@@ -552,7 +552,6 @@ class ActionQuestPrototype(ActionBase):
 
     def on_remove(self):
         super(ActionQuestPrototype, self).on_remove()
-        self.hero.quests.pop_quest()
 
     @classmethod
     def _create(cls, hero, bundle_id, quest):
@@ -565,12 +564,18 @@ class ActionQuestPrototype(ActionBase):
 
         if self.state == self.STATE.PROCESSING:
 
+            if not self.hero.quests.has_quests:
+                self.percents = 1
+                self.state = self.STATE.PROCESSED
+                return
+
             percents = self.hero.quests.current_quest.process()
 
             self.percents = percents
 
             if self.hero.quests.current_quest.is_processed:
                 self.percents = 1
+                self.hero.quests.pop_quest()
                 self.state = self.STATE.PROCESSED
 
 

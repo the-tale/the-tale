@@ -52,7 +52,7 @@ class HeroPrototype(BasePrototype,
                     shop_accessors.ShopAccessorsMixin,
                     equipment_methods.EquipmentMethodsMixin):
     _model_class = Hero
-    _readonly = ('id', 'account_id', 'created_at_turn', 'experience', 'money', 'next_spending', 'energy', 'level', 'saved_at_turn', 'saved_at', 'is_bot')
+    _readonly = ('id', 'account_id', 'created_at_turn', 'experience', 'money', 'energy', 'level', 'saved_at_turn', 'saved_at', 'is_bot')
     _bidirectional = ('is_alive',
                       'is_fast',
                       'gender',
@@ -68,6 +68,7 @@ class HeroPrototype(BasePrototype,
                       'last_rare_operation_at_turn',
                       'health',
                       'settings_approved',
+                      'next_spending',
                       'cards_help_count')
     _get_by = ('id', 'account_id')
     _serialization_proxies = (('quests', QuestsContainer, heroes_settings.UNLOAD_TIMEOUT),

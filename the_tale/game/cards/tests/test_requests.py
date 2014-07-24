@@ -30,7 +30,7 @@ class CardsRequestsTestsBase(testcase.TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.card = CARDS[relations.CARD_TYPE.KEEPERS_GOODS]()
+        self.card = CARDS[relations.CARD_TYPE.KEEPERS_GOODS_COMMON]
 
 
 class UseDialogRequestTests(CardsRequestsTestsBase):
@@ -46,7 +46,7 @@ class UseDialogRequestTests(CardsRequestsTestsBase):
 
     def test_has_cards(self):
         for card_type in relations.CARD_TYPE.records:
-            self.hero.cards.add_card(relations.CARD_TYPE.KEEPERS_GOODS, count=3)
+            self.hero.cards.add_card(relations.CARD_TYPE.KEEPERS_GOODS_COMMON, count=3)
             self.hero.save()
 
             self.request_login(self.account.email)

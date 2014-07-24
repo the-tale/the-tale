@@ -183,6 +183,6 @@ class ShopAccessoriesTest(testcase.TestCase):
 
         self.assertFalse(self.hero.cards.has_cards)
 
-        self.hero.purchase_card(CARD_TYPE.KEEPERS_GOODS, count=3)
+        self.hero.purchase_card(CARD_TYPE.KEEPERS_GOODS_COMMON, count=3)
 
-        self.assertEqual(self.hero.cards.cards, [(CARD_TYPE.KEEPERS_GOODS, 3)])
+        self.assertEqual(self.hero.cards.cards, [(CARD_TYPE.KEEPERS_GOODS_COMMON, 3)])
