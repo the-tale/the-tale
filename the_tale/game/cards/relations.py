@@ -21,10 +21,6 @@ class CARD_TYPE(DjangoEnum):
 
     records = ( ('LEVEL_UP', 1, u'?увеличить уровень', RARITY.LEGENDARY, forms.EmptyForm,),
 
-                ('ADD_EXPERIENCE_UNCOMMON', 2, u'?добавить опыт 1', RARITY.UNCOMMON, forms.EmptyForm,),
-                ('ADD_EXPERIENCE_RARE', 3, u'?добавить опыт 2', RARITY.RARE, forms.EmptyForm,),
-                ('ADD_EXPERIENCE_EPIC', 4, u'?добавить опыт 3', RARITY.EPIC, forms.EmptyForm,),
-
                 ('ADD_BONUS_ENERGY_COMMON', 5, u'?добавить энергию 1', RARITY.COMMON, forms.EmptyForm,),
                 ('ADD_BONUS_ENERGY_UNCOMMON', 6, u'?добавить энергию 2', RARITY.UNCOMMON, forms.EmptyForm,),
                 ('ADD_BONUS_ENERGY_RARE', 7, u'?добавить энергию 3', RARITY.RARE, forms.EmptyForm,),
@@ -92,5 +88,45 @@ class CARD_TYPE(DjangoEnum):
                 ('KEEPERS_GOODS_RARE', 54, u'?Дары Хранителей 3', RARITY.RARE, forms.PlaceForm),
                 ('KEEPERS_GOODS_EPIC', 55, u'?Дары Хранителей 4', RARITY.EPIC, forms.PlaceForm),
                 ('KEEPERS_GOODS_LEGENDARY', 56, u'?Дары Хранителей 5', RARITY.LEGENDARY, forms.PlaceForm),
+
+                ('REPAIR_BUILDING', 57, u'?Починка строения', RARITY.EPIC, forms.BuildingForm),
+
+                ('PERSON_POWER_BONUS_POSITIVE_UNCOMMON', 58, u'?бонус к влиянию соратника позитивный 1', RARITY.UNCOMMON, forms.PersonForm),
+                ('PERSON_POWER_BONUS_POSITIVE_RARE', 59, u'?бонус к влиянию соратника позитивный 2', RARITY.RARE, forms.PersonForm),
+                ('PERSON_POWER_BONUS_POSITIVE_EPIC', 60, u'?бонус к влиянию соратника позитивный 3', RARITY.EPIC, forms.PersonForm),
+                ('PERSON_POWER_BONUS_POSITIVE_LEGENDARY', 61, u'?бонус к влиянию соратника позитивный 4', RARITY.LEGENDARY, forms.PersonForm),
+
+                ('PLACE_POWER_BONUS_POSITIVE_UNCOMMON', 62, u'?бонус к влиянию города позитивный 1', RARITY.UNCOMMON, forms.PlaceForm),
+                ('PLACE_POWER_BONUS_POSITIVE_RARE', 63, u'?бонус к влиянию города позитивный 2', RARITY.RARE, forms.PlaceForm),
+                ('PLACE_POWER_BONUS_POSITIVE_EPIC', 64, u'?бонус к влиянию города позитивный 3', RARITY.EPIC, forms.PlaceForm),
+                ('PLACE_POWER_BONUS_POSITIVE_LEGENDARY', 65, u'?бонус к влиянию города позитивный 4', RARITY.LEGENDARY, forms.PlaceForm),
+
+                ('PLACE_POWER_BONUS_NEGATIVE_UNCOMMON', 66, u'?бонус к влиянию города негативный 1', RARITY.UNCOMMON, forms.PlaceForm),
+                ('PLACE_POWER_BONUS_NEGATIVE_RARE', 67, u'?бонус к влиянию города негативный 2', RARITY.RARE, forms.PlaceForm),
+                ('PLACE_POWER_BONUS_NEGATIVE_EPIC', 68, u'?бонус к влиянию города негативный 3', RARITY.EPIC, forms.PlaceForm),
+                ('PLACE_POWER_BONUS_NEGATIVE_LEGENDARY', 69, u'?бонус к влиянию города негативный 4', RARITY.LEGENDARY, forms.PlaceForm),
+
+                ('MOST_COMMON_PLACES_UNCOMMON', 70, u'?внеочередная момощь городу 1', RARITY.UNCOMMON, forms.PlaceForm),
+                ('MOST_COMMON_PLACES_RARE', 71, u'?внеочередная момощь городу 2', RARITY.RARE, forms.PlaceForm),
+                ('MOST_COMMON_PLACES_EPIC', 72, u'?внеочередная момощь городу 3', RARITY.EPIC, forms.PlaceForm),
+                ('MOST_COMMON_PLACES_LEGENDARY', 73, u'?внеочередная момощь городу 4', RARITY.LEGENDARY, forms.PlaceForm),
+
+                ('ADD_EXPERIENCE_COMMON', 74, u'?добавить опыт 1', RARITY.UNCOMMON, forms.EmptyForm,),
+                ('ADD_EXPERIENCE_UNCOMMON', 75, u'?добавить опыт 2', RARITY.UNCOMMON, forms.EmptyForm,),
+                ('ADD_EXPERIENCE_RARE', 76, u'?добавить опыт 3', RARITY.RARE, forms.EmptyForm,),
+                ('ADD_EXPERIENCE_EPIC', 77, u'?добавить опыт 4', RARITY.EPIC, forms.EmptyForm,),
+
+                ('ADD_POWER_COMMON', 78, u'?добавить влияние 1', RARITY.UNCOMMON, forms.EmptyForm,),
+                ('ADD_POWER_UNCOMMON', 79, u'?добавить влияние 2', RARITY.UNCOMMON, forms.EmptyForm,),
+                ('ADD_POWER_RARE', 80, u'?добавить влияние 3', RARITY.RARE, forms.EmptyForm,),
+                ('ADD_POWER_EPIC', 81, u'?добавить влияние 4', RARITY.EPIC, forms.EmptyForm,),
+
+                ('SHORT_TELEPORT', 82, u'?короткий телепрт', RARITY.UNCOMMON, forms.EmptyForm,),
+                ('LONG_TELEPORT', 83, u'?длинный телепорт', RARITY.RARE, forms.EmptyForm,),
+
+                ('EXPERIENCE_TO_ENERGY_UNCOMMON', 84, u'?опыт в энергию 1', RARITY.UNCOMMON, forms.EmptyForm,),
+                ('EXPERIENCE_TO_ENERGY_RARE', 85, u'?опыт в энергию 2', RARITY.RARE, forms.EmptyForm,),
+                ('EXPERIENCE_TO_ENERGY_EPIC', 86, u'?опыт в энергию 3', RARITY.EPIC, forms.EmptyForm,),
+                ('EXPERIENCE_TO_ENERGY_LEGENDARY', 87, u'?опыт в энергию 4', RARITY.LEGENDARY, forms.EmptyForm,),
 
                 )

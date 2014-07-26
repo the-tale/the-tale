@@ -158,6 +158,10 @@ class HeroPrototype(BasePrototype,
 
         return real_experience
 
+    def convert_experience_to_energy(self, energy_cost):
+        self.energy_bonus += int(math.ceil(float(self.experience) / energy_cost))
+        self._model.experience = 0
+
     @property
     def health_percents(self): return float(self.health) / self.max_health
 

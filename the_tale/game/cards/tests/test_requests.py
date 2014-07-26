@@ -2,6 +2,8 @@
 
 from dext.utils.urls import url
 
+from textgen.words import Noun
+
 from the_tale.common.utils import testcase
 from the_tale.common.postponed_tasks import PostponedTaskPrototype
 
@@ -15,6 +17,8 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.cards import relations
 from the_tale.game.cards.prototypes import CARDS
 from the_tale.game.cards import forms
+
+from the_tale.game.map.places.prototypes import BuildingPrototype
 
 
 class CardsRequestsTestsBase(testcase.TestCase):
@@ -31,6 +35,8 @@ class CardsRequestsTestsBase(testcase.TestCase):
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.card = CARDS[relations.CARD_TYPE.KEEPERS_GOODS_COMMON]
+
+        self.building_1 = BuildingPrototype.create(person=self.place_1.persons[0], name_forms=Noun.fast_construct('building-1-name'))
 
 
 class UseDialogRequestTests(CardsRequestsTestsBase):
@@ -56,8 +62,10 @@ class UseDialogRequestTests(CardsRequestsTestsBase):
 
 class UseDialogRequestTests(CardsRequestsTestsBase):
 
-    def post_data(self, card_type, place_id=None):
-        return {'place': self.place_1.id if place_id is None else place_id}
+    def post_data(self, card_type, place_id=None, person_id=None, building_id=None):
+        return {'place': self.place_1.id if place_id is None else place_id,
+                'person': self.place_1.persons[0].id if person_id is None else person_id,
+                'building': self.building_1.id if building_id is None else building_id,}
 
     def test_unlogined(self):
         for card_type in relations.CARD_TYPE.records:
@@ -79,7 +87,7 @@ class UseDialogRequestTests(CardsRequestsTestsBase):
             if card_type.form is forms.EmptyForm:
                 continue
 
-            self.check_ajax_error(self.post_ajax_json(url('game:cards:use', card=card_type.value), self.post_data(card_type, place_id=666)), 'cards.use.form_errors')
+            self.check_ajax_error(self.post_ajax_json(url('game:cards:use', card=card_type.value), self.post_data(card_type, place_id=666, building_id=666, person_id=666)), 'cards.use.form_errors')
 
 
     def test_success(self):

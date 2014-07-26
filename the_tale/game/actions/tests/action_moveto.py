@@ -16,6 +16,8 @@ from the_tale.game.balance import formulas as f, constants as c, enums as e
 from the_tale.game.logic import create_test_map
 from the_tale.game.prototypes import TimePrototype
 
+from the_tale.game.map.roads.storage import waymarks_storage
+
 from the_tale.game.actions.prototypes import ActionMoveToPrototype, ActionInPlacePrototype, ActionRestPrototype
 from the_tale.game.actions.prototypes import ActionResurrectPrototype, ActionBattlePvE1x1Prototype, ActionRegenerateEnergyPrototype
 from the_tale.game.actions.tests.helpers import ActionEventsTestsMixin
@@ -107,8 +109,6 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
     @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_short_teleport(self):
 
-        current_time = TimePrototype.get_current_time()
-
         self.storage.process_turn(second_step_if_needed=False)
 
         old_road_percents = self.hero.position.percents
@@ -116,15 +116,39 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.assertTrue(old_road_percents < self.hero.position.percents)
 
         self.action_move.short_teleport(self.hero.position.road.length)
-        self.assertEqual(self.hero.position.percents, 1)
+        self.assertEqual(self.hero.position.place.id, self.p2.id)
+        self.assertTrue(self.action_move.updated)
+
+        self.storage._test_save()
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    def test_teleport_to_place(self):
+
+        self.storage.process_turn(second_step_if_needed=False)
+
+        self.action_move.teleport_to_place()
+        self.assertEqual(self.hero.position.place.id, self.p2.id)
+
+        self.storage._test_save()
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    def test_teleport_to_end(self):
+        current_time = TimePrototype.get_current_time()
+
+        self.storage.process_turn(second_step_if_needed=False)
+
+        self.action_move.teleport_to_end()
+        self.assertEqual(self.hero.position.place.id, self.p3.id)
         self.assertTrue(self.action_move.updated)
 
         current_time.increment_turn()
         self.storage.process_turn(second_step_if_needed=False)
 
-        self.assertEqual(self.hero.position.place.id, self.p2.id)
+        self.assertEqual(self.hero.position.place.id, self.p3.id)
 
         self.storage._test_save()
+
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_short_teleport__length_is_0(self):
@@ -278,6 +302,8 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
 @mock.patch('the_tale.game.balance.constants.PICKED_UP_IN_ROAD_PROBABILITY', 0)
 class MoveToActionWithBreaksTest(testcase.TestCase):
 
+    FIRST_BREAK_AT = 0.75
+
     def setUp(self):
         super(MoveToActionWithBreaksTest, self).setUp()
         self.p1, self.p2, self.p3 = create_test_map()
@@ -291,7 +317,7 @@ class MoveToActionWithBreaksTest(testcase.TestCase):
 
         self.hero.position.set_place(self.p1)
 
-        self.action_move = ActionMoveToPrototype.create(hero=self.hero, destination=self.p3, break_at=0.75)
+        self.action_move = ActionMoveToPrototype.create(hero=self.hero, destination=self.p3, break_at=self.FIRST_BREAK_AT)
 
     def test_sequence_move(self):
 
@@ -343,14 +369,66 @@ class MoveToActionWithBreaksTest(testcase.TestCase):
         ui_percents = None
 
         ActionMoveToPrototype.create(hero=self.hero, destination=self.p1, break_at=expected_percents)
+
+        length = waymarks_storage.look_for_road(point_from=self.p3.id, point_to=self.p1.id).length * self.FIRST_BREAK_AT
+
+        ui_percents_max_delta = self.hero.move_speed / length
+        real_percents_max_delta = ui_percents_max_delta / expected_percents
+
         while self.hero.actions.current_action != self.action_idl:
-            real_percents = self.hero.actions.current_action.percents
-            ui_percents = self.hero.actions.current_action.ui_percents
+            if self.hero.actions.current_action.TYPE.is_MOVE_TO:
+                real_percents = self.hero.actions.current_action.percents
+                ui_percents = self.hero.actions.current_action.ui_percents
             self.storage.process_turn(second_step_if_needed=False)
             current_time.increment_turn()
 
-        self.assertEqual(round(real_percents, 1), 1.0)
-        self.assertEqual(round(ui_percents, 1), round(expected_percents, 1))
+        self.assertTrue(abs(real_percents - 1.0) < real_percents_max_delta)
+        self.assertTrue(abs(ui_percents - expected_percents) < ui_percents_max_delta)
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    def test_teleport_to_place__break_at(self):
+
+        self.storage.process_turn(second_step_if_needed=False)
+
+        self.action_move.teleport_to_place()
+        self.assertEqual(self.hero.position.place.id, self.p2.id)
+
+        while not self.hero.actions.current_action.TYPE.is_MOVE_TO:
+            self.storage.process_turn(second_step_if_needed=False)
+
+        self.storage.process_turn(second_step_if_needed=False)
+        self.assertTrue(self.action_move.teleport_to_place())
+
+        self.assertNotEqual(self.hero.position.road, None)
+        self.assertTrue(self.hero.position.percents < 1)
+
+        self.assertTrue(self.hero.actions.current_action.TYPE.is_MOVE_TO)
+        self.assertEqual(self.hero.actions.current_action.percents, 1.0)
+        self.assertEqual(self.hero.actions.current_action.ui_percents, self.FIRST_BREAK_AT)
+
+        self.assertEqual(self.hero.position.place, None)
+
+        self.storage._test_save()
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    def test_teleport_to_end__break_at(self):
+
+        self.storage.process_turn(second_step_if_needed=False)
+
+        self.action_move.teleport_to_end()
+
+        self.assertNotEqual(self.hero.position.road, None)
+        self.assertTrue(self.hero.position.percents < 1.0)
+
+        self.assertEqual(self.p2.id, self.hero.position.road.point_1_id)
+        self.assertEqual(self.p3.id, self.hero.position.road.point_2_id)
+
+        self.assertTrue(self.hero.actions.current_action.TYPE.is_MOVE_TO)
+        self.assertEqual(self.hero.actions.current_action.percents, 1.0)
+        self.assertEqual(self.hero.actions.current_action.ui_percents, self.FIRST_BREAK_AT)
+
+        self.storage._test_save()
 
 
 

@@ -245,6 +245,10 @@ class QuestPrototype(object):
         self.created_at =datetime.datetime.now() if created_at is None else created_at
         self.states_to_percents = states_to_percents if states_to_percents is not None else {}
 
+    @property
+    def current_info(self):
+        return self.quests_stack[-1]
+
     def serialize(self):
         return {'quests_stack': [info.serialize() for info in self.quests_stack],
                 'knowledge_base': self.knowledge_base.serialize(short=True),
@@ -285,7 +289,7 @@ class QuestPrototype(object):
         self.machine.sync_pointer()
 
         if self.quests_stack:
-            self.quests_stack[-1].sync_choices(self.knowledge_base, self.hero, *self.get_nearest_choice())
+            self.current_info.sync_choices(self.knowledge_base, self.hero, *self.get_nearest_choice())
 
         self.hero.actions.request_replane()
         return True
@@ -300,7 +304,7 @@ class QuestPrototype(object):
         step_result = self.machine.do_step()
 
         if self.quests_stack:
-            self.quests_stack[-1].sync_choices(self.knowledge_base, self.hero, *self.get_nearest_choice())
+            self.current_info.sync_choices(self.knowledge_base, self.hero, *self.get_nearest_choice())
 
         if step_result:
             return self.percents
@@ -353,7 +357,7 @@ class QuestPrototype(object):
 
 
     def _give_power(self, hero, place, power):
-        power = power * self.quests_stack[-1].power
+        power = power * self.current_info.power
 
         if power > 0:
             hero.places_history.add_place(place.id)
@@ -412,7 +416,7 @@ class QuestPrototype(object):
 
     def _finish_quest(self, finish, hero):
 
-        experience = self.quests_stack[-1].experience
+        experience = self.current_info.experience
         experience = self.modify_experience(experience)
 
         hero.add_experience(experience)
@@ -423,7 +427,7 @@ class QuestPrototype(object):
             if result == QUEST_RESULTS.FAILED:
                 hero.quests.add_interfered_person(self.knowledge_base[person_uid].externals['id'])
 
-        for marker, default in self.quests_stack[-1].used_markers.iteritems():
+        for marker, default in self.current_info.used_markers.iteritems():
             for change_source in HABIT_CHANGE_SOURCE.records:
                 if change_source.quest_marker == marker and change_source.quest_default == default:
                     self.hero.update_habits(change_source)
@@ -433,7 +437,7 @@ class QuestPrototype(object):
 
     def _give_reward(self, hero, reward_type, scale):
 
-        quest_info = self.quests_stack[-1]
+        quest_info = self.current_info
 
         scale = quest_info.get_real_reward_scale(hero, scale)
 
@@ -465,7 +469,7 @@ class QuestPrototype(object):
 
         donothing = relations.DONOTHING_TYPE.index_value[donothing_type]
 
-        writer = writers.get_writer(type=self.quests_stack[-1].type, message=donothing_type, substitution={})
+        writer = writers.get_writer(type=self.current_info.type, message=donothing_type, substitution={})
 
         ActionDoNothingPrototype.create(hero=self.hero,
                                         duration=donothing.duration,
@@ -556,7 +560,7 @@ class QuestPrototype(object):
     def modify_experience(self, experience):
         from the_tale.game.persons.storage import persons_storage
 
-        quest_uid = self.quests_stack[-1].uid
+        quest_uid = self.current_info.uid
 
         experience_modifiers = {}
 
@@ -602,7 +606,7 @@ class QuestPrototype(object):
 
         path = (path for path in self.knowledge_base.filter(facts.ChoicePath) if path.option == jump.uid).next()
 
-        used_markers = self.quests_stack[-1].used_markers
+        used_markers = self.current_info.used_markers
         for marker in jump.markers:
             for markers_group in OPTION_MARKERS_GROUPS:
                 if marker not in markers_group:
@@ -620,7 +624,7 @@ class QuestPrototype(object):
     ################################
 
     def do_message(self, action):
-        self.quests_stack[-1].process_message(self.knowledge_base, self.hero, action.type)
+        self.current_info.process_message(self.knowledge_base, self.hero, action.type)
 
     def do_give_power(self, action):
         recipient = self.knowledge_base[action.object]
@@ -641,7 +645,7 @@ class QuestPrototype(object):
         self._donothing(action.type)
 
     def do_upgrade_equipment(self, action):
-        self._upgrade_equipment(self.quests_stack[-1].process_message, self.hero, self.knowledge_base, cost=action.cost)
+        self._upgrade_equipment(self.current_info.process_message, self.hero, self.knowledge_base, cost=action.cost)
 
     def do_move_near(self, action):
         if action.place:

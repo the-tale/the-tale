@@ -5,7 +5,6 @@ from the_tale.common.utils.prototypes import BasePrototype
 
 from the_tale.game.balance import constants as c
 
-from the_tale.game.map.conf import map_settings
 from the_tale.game.map.places.storage import places_storage
 
 from the_tale.game.map.roads.models import Road, Waymark

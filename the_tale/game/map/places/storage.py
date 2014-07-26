@@ -68,6 +68,10 @@ class BuildingsStorage(storage.CachedStorage):
             building.shift(dx, dy)
         self.save_all()
 
+    def get_choices(self):
+        self.sync()
+        return [(building.id, building.name) for building in sorted(self.all(), key=lambda p: p.name)]
+
 
 buildings_storage = BuildingsStorage()
 

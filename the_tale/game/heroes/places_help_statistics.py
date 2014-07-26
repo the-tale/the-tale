@@ -31,8 +31,11 @@ class PlacesHelpStatistics(object):
         if len(self.history) > heroes_settings.PLACE_HELP_HISTORY_SIZE:
             self.history.pop(0)
 
+    def _get_places_statisitcs(self):
+        return collections.Counter(self.history)
+
     def _get_most_common_places(self):
-        return collections.Counter(self.history).most_common()
+        return self._get_places_statisitcs().most_common()
 
     def get_most_common_places(self):
         return [ (places_storage[place_id], number) for place_id, number in  self._get_most_common_places()]

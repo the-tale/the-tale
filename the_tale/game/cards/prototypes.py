@@ -15,9 +15,11 @@ from the_tale.game.cards import relations
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
-from the_tale.game.map.places.storage import places_storage
+from the_tale.game.map.places.storage import places_storage, buildings_storage
+from the_tale.game.persons.storage import persons_storage
 
 from the_tale.game.balance import constants as c
+from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.relations import HABIT_TYPE
 from the_tale.game.heroes.relations import PREFERENCE_TYPE, ITEMS_OF_EXPENDITURE
@@ -74,17 +76,25 @@ class AddExperienceBase(CardBase):
 
     @property
     def DESCRIPTION(self):
-        return u'Ваш герой получает %(experience)d очков опыта.' % {'experience': self.EXPERIENCE}
+        return u'Увеличивает опыт за текущее задание на %(experience)d очков опыта.' % {'experience': self.EXPERIENCE}
 
     def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
         if step.is_LOGIC:
             hero = storage.heroes[data['hero_id']]
-            hero.add_experience(self.EXPERIENCE)
+
+            if not hero.quests.has_quests:
+                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()
+
+            hero.quests.current_quest.current_info.experience += self.EXPERIENCE
             return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+
+class AddExperienceCommon(AddExperienceBase):
+    TYPE = relations.CARD_TYPE.ADD_EXPERIENCE_COMMON
+    EXPERIENCE = 25
 
 class AddExperienceUncommon(AddExperienceBase):
     TYPE = relations.CARD_TYPE.ADD_EXPERIENCE_UNCOMMON
-    EXPERIENCE = 100
+    EXPERIENCE = AddExperienceCommon.EXPERIENCE * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
 
 class AddExperienceRare(AddExperienceBase):
     TYPE = relations.CARD_TYPE.ADD_EXPERIENCE_RARE
@@ -93,6 +103,41 @@ class AddExperienceRare(AddExperienceBase):
 class AddExperienceEpic(AddExperienceBase):
     TYPE = relations.CARD_TYPE.ADD_EXPERIENCE_EPIC
     EXPERIENCE = AddExperienceRare.EXPERIENCE * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+
+class AddPowerBase(CardBase):
+    TYPE = None
+    POWER = None
+
+    @property
+    def DESCRIPTION(self):
+        return u'Увеличивает влияние за текущее задание на %(power)d очков опыта.' % {'power': self.POWER}
+
+    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
+        if step.is_LOGIC:
+            hero = storage.heroes[data['hero_id']]
+
+            if not hero.quests.has_quests:
+                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()
+
+            hero.quests.current_quest.current_info.power += self.POWER
+            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+
+class AddPowerCommon(AddPowerBase):
+    TYPE = relations.CARD_TYPE.ADD_POWER_COMMON
+    POWER = 500
+
+class AddPowerUncommon(AddPowerBase):
+    TYPE = relations.CARD_TYPE.ADD_POWER_UNCOMMON
+    POWER = AddPowerCommon.POWER * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+class AddPowerRare(AddPowerBase):
+    TYPE = relations.CARD_TYPE.ADD_POWER_RARE
+    POWER = AddPowerUncommon.POWER * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+class AddPowerEpic(AddPowerBase):
+    TYPE = relations.CARD_TYPE.ADD_POWER_EPIC
+    POWER = AddPowerRare.POWER * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
 
 
 class AddBonusEnergyBase(CardBase):
@@ -555,6 +600,280 @@ class KeepersGoodsEpic(KeepersGoodsBase):
 class KeepersGoodsLegendary(KeepersGoodsBase):
     TYPE = relations.CARD_TYPE.KEEPERS_GOODS_LEGENDARY
     GOODS = KeepersGoodsEpic.GOODS * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+
+
+class RepairBuilding(CardBase):
+    TYPE = relations.CARD_TYPE.REPAIR_BUILDING
+
+    DESCRIPTION = u'Полностью ремонтирует указанное строение.'
+
+    def use(self, data, step, main_task_id, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
+
+        building_id = data.get('building_id')
+
+        if building_id not in buildings_storage:
+            return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()
+
+        if step.is_LOGIC:
+            hero = storage.heroes[data['hero_id']]
+
+            return ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.HIGHLEVEL, ((lambda: workers_environment.highlevel.cmd_logic_task(hero.account_id, main_task_id)), )
+
+        elif step.is_HIGHLEVEL:
+            building = buildings_storage[building_id]
+
+            while building.need_repair:
+                building.repair()
+
+            building.save()
+
+            buildings_storage.update_version()
+
+            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+
+
+
+class PersonPowerBonusBase(CardBase):
+    TYPE = None
+    BONUS = None
+
+    @property
+    def DESCRIPTION(self):
+        return u'Увеличивает бонус к начисляемому положительному влиянию соратника героя на %(bonus).1f%%.' % {'bonus': round(self.BONUS*100, 1)}
+
+    def use(self, data, step, main_task_id, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
+
+        person_id = data.get('person_id')
+
+        if person_id not in persons_storage:
+            return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()
+
+        person = persons_storage[person_id]
+
+        if step.is_LOGIC:
+            hero = storage.heroes[data['hero_id']]
+
+            return ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.HIGHLEVEL, ((lambda: workers_environment.highlevel.cmd_logic_task(hero.account_id, main_task_id)), )
+
+        elif step.is_HIGHLEVEL:
+            person_id = data.get('person_id')
+
+            person = persons_storage[person_id]
+
+            person.push_power_positive(TimePrototype.get_current_turn_number(), self.BONUS)
+
+            person.save()
+
+            persons_storage.update_version()
+
+            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+
+
+class PersonPowerBonusUncommon(PersonPowerBonusBase):
+    TYPE = relations.CARD_TYPE.PERSON_POWER_BONUS_POSITIVE_UNCOMMON
+    BONUS = c.HERO_POWER_BONUS / 4
+
+class PersonPowerBonusRare(PersonPowerBonusBase):
+    TYPE = relations.CARD_TYPE.PERSON_POWER_BONUS_POSITIVE_RARE
+    BONUS = PersonPowerBonusUncommon.BONUS * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+class PersonPowerBonusEpic(PersonPowerBonusBase):
+    TYPE = relations.CARD_TYPE.PERSON_POWER_BONUS_POSITIVE_EPIC
+    BONUS = PersonPowerBonusRare.BONUS * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+class PersonPowerBonusLegendary(PersonPowerBonusBase):
+    TYPE = relations.CARD_TYPE.PERSON_POWER_BONUS_POSITIVE_LEGENDARY
+    BONUS = PersonPowerBonusEpic.BONUS * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+
+
+class PlacePowerBonusBase(CardBase):
+    TYPE = None
+    BONUS = None
+
+    @property
+    def DESCRIPTION(self):
+        if self.BONUS > 0:
+            return u'Увеличивает бонус к начисляемому положительному влиянию города на %(bonus).1f%%.' % {'bonus': round(self.BONUS*100, 1)}
+
+        return u'Увеличивает бонус к начисляемому негативному влиянию города на %(bonus).1f%%.' % {'bonus': round(self.BONUS*100, 1)}
+
+    def use(self, data, step, main_task_id, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
+
+        place_id = data.get('place_id')
+
+        if place_id not in places_storage:
+            return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()
+
+        if step.is_LOGIC:
+            hero = storage.heroes[data['hero_id']]
+
+            return ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.HIGHLEVEL, ((lambda: workers_environment.highlevel.cmd_logic_task(hero.account_id, main_task_id)), )
+
+        elif step.is_HIGHLEVEL:
+            place = places_storage[place_id]
+
+            if self.BONUS > 0:
+                place.push_power_positive(TimePrototype.get_current_turn_number(), self.BONUS)
+            else:
+                place.push_power_negative(TimePrototype.get_current_turn_number(), self.BONUS)
+
+            place.save()
+
+            places_storage.update_version()
+
+            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+
+
+
+class PlacePowerBonusPositiveUncommon(PlacePowerBonusBase):
+    TYPE = relations.CARD_TYPE.PLACE_POWER_BONUS_POSITIVE_UNCOMMON
+    BONUS = c.HERO_POWER_BONUS / 4
+
+class PlacePowerBonusPositiveRare(PlacePowerBonusBase):
+    TYPE = relations.CARD_TYPE.PLACE_POWER_BONUS_POSITIVE_RARE
+    BONUS = PlacePowerBonusPositiveUncommon.BONUS * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+class PlacePowerBonusPositiveEpic(PlacePowerBonusBase):
+    TYPE = relations.CARD_TYPE.PLACE_POWER_BONUS_POSITIVE_EPIC
+    BONUS = PlacePowerBonusPositiveRare.BONUS * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+class PlacePowerBonusPositiveLegendary(PlacePowerBonusBase):
+    TYPE = relations.CARD_TYPE.PLACE_POWER_BONUS_POSITIVE_LEGENDARY
+    BONUS = PlacePowerBonusPositiveEpic.BONUS * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+
+class PlacePowerBonusNegativeUncommon(PlacePowerBonusBase):
+    TYPE = relations.CARD_TYPE.PLACE_POWER_BONUS_NEGATIVE_UNCOMMON
+    BONUS = c.HERO_POWER_BONUS / 4
+
+class PlacePowerBonusNegativeRare(PlacePowerBonusBase):
+    TYPE = relations.CARD_TYPE.PLACE_POWER_BONUS_NEGATIVE_RARE
+    BONUS = PlacePowerBonusNegativeUncommon.BONUS * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+class PlacePowerBonusNegativeEpic(PlacePowerBonusBase):
+    TYPE = relations.CARD_TYPE.PLACE_POWER_BONUS_NEGATIVE_EPIC
+    BONUS = PlacePowerBonusNegativeRare.BONUS * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+class PlacePowerBonusNegativeLegendary(PlacePowerBonusBase):
+    TYPE = relations.CARD_TYPE.PLACE_POWER_BONUS_NEGATIVE_LEGENDARY
+    BONUS = PlacePowerBonusNegativeEpic.BONUS * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+
+class HelpPlaceBase(CardBase):
+    TYPE = None
+    HELPS = None
+
+    @property
+    def DESCRIPTION(self):
+        if self.HELPS > 0:
+            return u'В документах города появляются %(helps)d дополнительные записи о помощи, полученной от героя.' % {'helps': self.HELPS}
+        return u'В документах города появляется дополнительная запись о помощи, полученной от героя.'
+
+    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
+        if step.is_LOGIC:
+            hero = storage.heroes[data['hero_id']]
+
+            place_id = data.get('place_id')
+
+            if place_id not in places_storage:
+                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()
+
+            for i in xrange(self.HELPS):
+                hero.places_history.add_place(place_id)
+
+            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+
+
+class HelpPlaceUncommon(HelpPlaceBase):
+    TYPE = relations.CARD_TYPE.MOST_COMMON_PLACES_UNCOMMON
+    HELPS = 1
+
+class HelpPlaceRare(HelpPlaceBase):
+    TYPE = relations.CARD_TYPE.MOST_COMMON_PLACES_RARE
+    HELPS =  HelpPlaceUncommon.HELPS * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+class HelpPlaceEpic(HelpPlaceBase):
+    TYPE = relations.CARD_TYPE.MOST_COMMON_PLACES_EPIC
+    HELPS =  HelpPlaceRare.HELPS * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+class HelpPlaceLegendary(HelpPlaceBase):
+    TYPE = relations.CARD_TYPE.MOST_COMMON_PLACES_LEGENDARY
+    HELPS =  HelpPlaceEpic.HELPS * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+
+class ShortTeleport(CardBase):
+    TYPE = relations.CARD_TYPE.SHORT_TELEPORT
+
+    DESCRIPTION = u'Телепортируе героя до ближайшего города либо до ближайшей ключевой точки задания. Работает только во время движения по дорогам.'
+
+    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
+        if step.is_LOGIC:
+            hero = storage.heroes[data['hero_id']]
+
+            if not hero.actions.current_action.TYPE.is_MOVE_TO:
+                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, () #TODO: return correct message
+
+            if not hero.actions.current_action.teleport_to_place():
+                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, () #TODO: return correct message
+
+            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+
+
+class LongTeleport(CardBase):
+    TYPE = relations.CARD_TYPE.LONG_TELEPORT
+
+    DESCRIPTION = u'Телепортируе героя в конечную точку назначения либо до ближайшей ключевой точки задания. Работает только во время движения по дорогам.'
+
+    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
+        if step.is_LOGIC:
+            hero = storage.heroes[data['hero_id']]
+
+            if not hero.actions.current_action.TYPE.is_MOVE_TO:
+                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, () #TODO: return correct message
+
+            if not hero.actions.current_action.teleport_to_end():
+                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, () #TODO: return correct message
+
+            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+
+
+class ExperienceToEnergyBase(CardBase):
+    TYPE = None
+    EXPERIENCE = None
+
+    @property
+    def DESCRIPTION(self):
+        return u'Преобразует опыт героя на текущем уровне в дополнительную энергию по курсу %(experience)s единиц опыта за единицу энергии.' % {'experience': self.EXPERIENCE}
+
+    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
+        if step.is_LOGIC:
+            hero = storage.heroes[data['hero_id']]
+
+            if hero.experience == 0:
+                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()
+
+            hero.convert_experience_to_energy(self.EXPERIENCE)
+
+            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+
+
+class ExperienceToEnergyUncommon(ExperienceToEnergyBase):
+    TYPE = relations.CARD_TYPE.EXPERIENCE_TO_ENERGY_UNCOMMON
+    EXPERIENCE = 50
+
+class ExperienceToEnergyRare(ExperienceToEnergyBase):
+    TYPE = relations.CARD_TYPE.EXPERIENCE_TO_ENERGY_RARE
+    EXPERIENCE = 40
+
+class ExperienceToEnergyEpic(ExperienceToEnergyBase):
+    TYPE = relations.CARD_TYPE.EXPERIENCE_TO_ENERGY_EPIC
+    EXPERIENCE = 30
+
+class ExperienceToEnergyLegendary(ExperienceToEnergyBase):
+    TYPE = relations.CARD_TYPE.EXPERIENCE_TO_ENERGY_LEGENDARY
+    EXPERIENCE = 20
 
 
 CARDS = {card_class.TYPE: card_class()

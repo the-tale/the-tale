@@ -632,19 +632,50 @@ class ActionMoveToPrototype(ActionBase):
             self.updated = True
             return True
 
+        max_road_distance = self.hero.position.road.length * (1 - self.hero.position.percents)
+        max_action_distance = self.length * (1 - self.percents)
+
+        distance = min(distance, min(max_road_distance, max_action_distance))
+
         self.hero.position.percents += distance / self.hero.position.road.length
         self.percents += distance / self.length
 
-        if self.hero.position.percents >= 1:
+        if self.hero.position.percents >= 0.99999:
             self.percents -= (self.hero.position.percents - 1) * self.hero.position.road.length / self.length
             self.hero.position.percents = 1
 
+        if self.hero.position.percents >= 0.9999:
+            self.place_hero_in_current_destination(create_action=False)
+
         if self.percents >= 1:
             self.percents = 1
+            self.state = self.STATE.PROCESSED
 
         self.hero.actions.current_action.percents = self.percents
 
         self.updated = True
+
+        return True
+
+    def teleport_to_place(self):
+
+        if self.state != self.STATE.MOVING:
+            return False
+
+        return self.short_teleport(distance=self.hero.position.road.length+1)
+
+    def teleport_to_end(self):
+        if self.state != self.STATE.MOVING:
+            return False
+
+        while True:
+            if not self.teleport_to_place():
+                return False
+
+            if self.state == self.STATE.PROCESSED:
+                return True
+
+            self.process_choose_road()
 
         return True
 
@@ -705,7 +736,7 @@ class ActionMoveToPrototype(ActionBase):
         if invert:
             length = length_left + delta_left
         else:
-            length = delta_rigth + length_right
+            length = length_right + delta_rigth
 
         percents = self.hero.position.percents
         if self.hero.position.invert_direction and not invert:
@@ -714,10 +745,7 @@ class ActionMoveToPrototype(ActionBase):
             percents = 1 - percents
 
         if length < 0.01:
-            current_destination = self.current_destination
-            self.hero.position.set_place(current_destination)
-            ActionInPlacePrototype.create(hero=self.hero)
-            self.state = self.STATE.IN_CITY
+            self.place_hero_in_current_destination()
         else:
             self.hero.position.set_road(self.hero.position.road, invert=invert, percents=percents)
             self.state = self.STATE.MOVING
@@ -782,7 +810,6 @@ class ActionMoveToPrototype(ActionBase):
 
 
     def process_moving(self):
-        current_destination = self.current_destination
 
         if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
             ActionRegenerateEnergyPrototype.create(hero=self.hero)
@@ -800,14 +827,18 @@ class ActionMoveToPrototype(ActionBase):
                 self.normal_move()
 
             if self.hero.position.percents >= 1:
-                self.hero.position.percents = 1
-                self.hero.position.set_place(current_destination)
-                self.state = self.STATE.IN_CITY
-                ActionInPlacePrototype.create(hero=self.hero)
+                self.place_hero_in_current_destination()
 
             elif self.break_at and self.percents >= 1:
                 self.percents = 1
                 self.state = self.STATE.PROCESSED
+
+    def place_hero_in_current_destination(self, create_action=True):
+        self.hero.position.percents = 1
+        self.hero.position.set_place(self.current_destination)
+        self.state = self.STATE.IN_CITY
+        if create_action:
+            ActionInPlacePrototype.create(hero=self.hero)
 
     def process(self):
 

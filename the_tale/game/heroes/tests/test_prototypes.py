@@ -93,6 +93,20 @@ class HeroTest(testcase.TestCase):
 
         self.assertTrue(hero.created_at_turn != self.hero.created_at_turn)
 
+    def test_convert_experience_to_energy__no_experience(self):
+        with self.check_not_changed(lambda: self.hero.experience):
+            with self.check_not_changed(lambda: self.hero.energy_bonus):
+                self.hero.convert_experience_to_energy(10)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.experience_modifier', 1.0)
+    def test_convert_experience_to_energy(self):
+        self.hero.add_experience(41)
+        self.assertEqual(self.hero.experience, 41)
+
+        with self.check_delta(lambda: self.hero.experience, -41):
+            with self.check_delta(lambda: self.hero.energy_bonus, 5):
+                self.hero.convert_experience_to_energy(10)
+
     def test_experience_modifier__banned(self):
         self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
         self.hero.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
