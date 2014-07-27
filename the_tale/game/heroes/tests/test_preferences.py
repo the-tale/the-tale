@@ -40,6 +40,11 @@ class PreferencesTestMixin(object):
         self.hero.preferences.reset_change_time(self.PREFERENCE_TYPE)
         self.assertTrue(self.hero.preferences.can_update(self.PREFERENCE_TYPE, datetime.datetime.now()))
 
+    def test_reset_change_time__not_registered(self):
+        self.hero.preferences.data = {}
+        self.hero.preferences.reset_change_time(self.PREFERENCE_TYPE)
+        self.assertTrue(self.hero.preferences.can_update(self.PREFERENCE_TYPE, datetime.datetime.now()))
+
 
 class HeroPreferencesEnergyRegenerationTypeTest(PreferencesTestMixin, TestCase):
     PREFERENCE_TYPE = relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE

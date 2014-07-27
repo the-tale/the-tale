@@ -3,16 +3,16 @@
 
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal">×</button>
-    <h3 class="pgf-dialog-title dialog-title">Использование карты «{{card.text}}»</h3>
+    <h3 class="pgf-dialog-title dialog-title">Использование карты «{{card.TYPE.text}}»</h3>
   </div>
 
   <div class="modal-body">
 
     <p>
-      {{card.description}}
+      {{card.DESCRIPTION}}
     </p>
 
-    <form class="pgf-use-card-form" method="post" action="{{ url('game:cards:use', card=card.value) }}">
+    <form class="pgf-use-card-form" method="post" action="{{ url('game:cards:use', card=card.TYPE.value) }}">
 
       {{ form.errors_container }}
 

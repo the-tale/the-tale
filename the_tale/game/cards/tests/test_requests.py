@@ -60,7 +60,7 @@ class UseDialogRequestTests(CardsRequestsTestsBase):
 
 
 
-class UseDialogRequestTests(CardsRequestsTestsBase):
+class UseRequestTests(CardsRequestsTestsBase):
 
     def post_data(self, card_type, place_id=None, person_id=None, building_id=None):
         return {'place': self.place_1.id if place_id is None else place_id,
@@ -103,3 +103,23 @@ class UseDialogRequestTests(CardsRequestsTestsBase):
             self.check_ajax_processing(response, task.status_url)
 
             task.remove()
+
+
+class TestIndexRequests(CardsRequestsTestsBase):
+
+    def setUp(self):
+        super(TestIndexRequests, self).setUp()
+
+    def test_simple(self):
+        texts = [card.TYPE.text for card in CARDS.values()]
+        self.check_html_ok(self.request_html(url('guide:cards:')), texts=texts)
+
+    def test_rarity_filter(self):
+        for rarity in relations.RARITY.records:
+            texts = [card.TYPE.text for card in CARDS.values() if card.TYPE.rarity == rarity]
+            self.check_html_ok(self.request_html(url('guide:cards:')), texts=texts)
+
+    def test_availability_filter(self):
+        for availability in relations.AVAILABILITY.records:
+            texts = [card.TYPE.text for card in CARDS.values() if card.TYPE.availability == availability]
+            self.check_html_ok(self.request_html(url('guide:cards:')), texts=texts)

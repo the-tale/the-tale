@@ -61,7 +61,7 @@ class CardBase(object):
 
 class LevelUp(CardBase):
     TYPE = relations.CARD_TYPE.LEVEL_UP
-    DESCRIPTION = u'Ваш герой получает новый уровень. Накопленные очки опыта не сбрасываются.'
+    DESCRIPTION = u'Герой получает новый уровень. Накопленный опыт не сбрасываются.'
 
     def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
         if step.is_LOGIC:
@@ -76,7 +76,7 @@ class AddExperienceBase(CardBase):
 
     @property
     def DESCRIPTION(self):
-        return u'Увеличивает опыт за текущее задание на %(experience)d очков опыта.' % {'experience': self.EXPERIENCE}
+        return u'Увеличивает опыт, который герой получит за выполнение текущего задания, на %(experience)d единиц.' % {'experience': self.EXPERIENCE}
 
     def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
         if step.is_LOGIC:
@@ -111,7 +111,7 @@ class AddPowerBase(CardBase):
 
     @property
     def DESCRIPTION(self):
-        return u'Увеличивает влияние за текущее задание на %(power)d очков опыта.' % {'power': self.POWER}
+        return u'Увеличивает влияние, которое окажет герой после выполнения текущего задания, на %(power)d единиц.' % {'power': self.POWER}
 
     def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
         if step.is_LOGIC:
@@ -181,7 +181,7 @@ class AddGoldBase(CardBase):
 
     @property
     def DESCRIPTION(self):
-        return u'Ваш герой получает %(gold)d монет.' % {'gold': self.GOLD}
+        return u'Герой получает %(gold)d монет.' % {'gold': self.GOLD}
 
     def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
         from the_tale.game.heroes.relations import MONEY_SOURCE
@@ -374,7 +374,7 @@ class PreferencesCooldownsResetAll(CardBase):
 
 class ChangeAbilitiesChoices(CardBase):
     TYPE = relations.CARD_TYPE.CHANGE_ABILITIES_CHOICES
-    DESCRIPTION = u'Изменяет список новых способностей.'
+    DESCRIPTION = u'Изменяет список предлагаемых герою способностей (при выборе новой способности).'
 
     def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
         if step.is_LOGIC:
@@ -392,7 +392,7 @@ class ChangeItemOfExpenditureBase(CardBase):
 
     @property
     def DESCRIPTION(self):
-        return u'Текущей целью трат героев становится %(item)s.' % {'item': self.ITEM.text}
+        return u'Текущей целью трат героя становится %(item)s.' % {'item': self.ITEM.text}
 
     def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
         if step.is_LOGIC:
@@ -512,7 +512,7 @@ class GetArtifactBase(CardBase):
 
 class GetArtifactCommon(GetArtifactBase):
     TYPE = relations.CARD_TYPE.GET_ARTIFACT_COMMON
-    DESCRIPTION = u'Герой получает случайный бесполезный предмет или артефакт'
+    DESCRIPTION = u'Герой получает случайный бесполезный предмет или артефакт.'
     INTERVAL = 4
 
 class GetArtifactUncommon(GetArtifactBase):
@@ -640,7 +640,7 @@ class PersonPowerBonusBase(CardBase):
 
     @property
     def DESCRIPTION(self):
-        return u'Увеличивает бонус к начисляемому положительному влиянию соратника героя на %(bonus).1f%%.' % {'bonus': round(self.BONUS*100, 1)}
+        return u'Увеличивает бонус к начисляемому положительному влиянию соратника героя на %(bonus).2f%%.' % {'bonus': self.BONUS*100}
 
     def use(self, data, step, main_task_id, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
 
@@ -695,9 +695,9 @@ class PlacePowerBonusBase(CardBase):
     @property
     def DESCRIPTION(self):
         if self.BONUS > 0:
-            return u'Увеличивает бонус к начисляемому положительному влиянию города на %(bonus).1f%%.' % {'bonus': round(self.BONUS*100, 1)}
+            return u'Увеличивает бонус к начисляемому городу положительному влиянию на %(bonus).2f%%.' % {'bonus': self.BONUS*100}
 
-        return u'Увеличивает бонус к начисляемому негативному влиянию города на %(bonus).1f%%.' % {'bonus': round(self.BONUS*100, 1)}
+        return u'Увеличивает бонус к начисляемому городу негативному влиянию на %(bonus).2f%%.' % {'bonus': -self.BONUS*100}
 
     def use(self, data, step, main_task_id, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
 
@@ -717,7 +717,7 @@ class PlacePowerBonusBase(CardBase):
             if self.BONUS > 0:
                 place.push_power_positive(TimePrototype.get_current_turn_number(), self.BONUS)
             else:
-                place.push_power_negative(TimePrototype.get_current_turn_number(), self.BONUS)
+                place.push_power_negative(TimePrototype.get_current_turn_number(), -self.BONUS)
 
             place.save()
 
@@ -746,7 +746,7 @@ class PlacePowerBonusPositiveLegendary(PlacePowerBonusBase):
 
 class PlacePowerBonusNegativeUncommon(PlacePowerBonusBase):
     TYPE = relations.CARD_TYPE.PLACE_POWER_BONUS_NEGATIVE_UNCOMMON
-    BONUS = c.HERO_POWER_BONUS / 4
+    BONUS = -c.HERO_POWER_BONUS / 4
 
 class PlacePowerBonusNegativeRare(PlacePowerBonusBase):
     TYPE = relations.CARD_TYPE.PLACE_POWER_BONUS_NEGATIVE_RARE
@@ -767,7 +767,7 @@ class HelpPlaceBase(CardBase):
 
     @property
     def DESCRIPTION(self):
-        if self.HELPS > 0:
+        if self.HELPS != 1:
             return u'В документах города появляются %(helps)d дополнительные записи о помощи, полученной от героя.' % {'helps': self.HELPS}
         return u'В документах города появляется дополнительная запись о помощи, полученной от героя.'
 

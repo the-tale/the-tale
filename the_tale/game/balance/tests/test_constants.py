@@ -169,7 +169,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PERSON_POWER_FOR_RANDOM_SPEND, 200)
         self.assertEqual(c.HERO_POWER_BONUS, 0.01)
 
-        self.assertEqual(c.PREFERENCES_CHANGE_DELAY, 60*60*24*7)
+        self.assertEqual(c.PREFERENCES_CHANGE_DELAY, 2*7*24*60*60)
         self.assertEqual(c.PREFERED_MOB_LOOT_PROBABILITY_MULTIPLIER, 2)
 
         self.assertEqual(c.POSITIVE_NEGATIVE_POWER_RELATION, 4.0)

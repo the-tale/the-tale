@@ -53,8 +53,8 @@ class RANDOM_PREMIUM_CHEST_REWARD(DjangoEnum):
 
     records = ( ('NORMAL_ARTIFACT', 0, u'обычный артефакт', 60, u'случайный обычный артефакт (лучше среднего для текущего уровня героя)',
                  {'rarity': RARITY.NORMAL, 'better': True}, 'purchase_artifact'),
-                ('ENERGY', 1, u'энергия',                   20, u'750 энергии',
-                 {'energy': 750}, 'purchase_energy_bonus'),
+                ('ENERGY', 1, u'энергия',                   20, u'500 энергии',
+                 {'energy': 500}, 'purchase_energy_bonus'),
                 ('RARE_ARTIFACT', 2, u'редкий артефакт',    15, u'случайный редкий артефакт',
                  {'rarity': RARITY.RARE, 'better': False}, 'purchase_artifact'),
                 ('EXPERIENCE', 3, u'опыт',                  4,  u'1500 опыта',

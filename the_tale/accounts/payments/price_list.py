@@ -217,26 +217,26 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                 goods.PurchaseGroup(type=relations.GOODS_GROUP.ENERGY,
                                     name=u'Энергия',
                                     description=ENERGY_CHARGES_DESCRIPTION,
-                                    items=[ goods.Energy(uid=u'energy-2000',
-                                                         name=u'2000 энергии',
+                                    items=[ goods.Energy(uid=u'energy-1000',
+                                                         name=u'1000 энергии',
                                                          description=ENERGY_CHARGES_DESCRIPTION,
                                                          cost=700,
-                                                         energy=2000,
-                                                         transaction_description=u'Покупка 2000 единиц энергии.'),
+                                                         energy=1000,
+                                                         transaction_description=u'Покупка 1000 единиц энергии.'),
 
-                                            goods.Energy(uid=u'energy-200',
-                                                         name=u'200 энергии',
+                                            goods.Energy(uid=u'energy-100',
+                                                         name=u'100 энергии',
                                                          description=ENERGY_CHARGES_DESCRIPTION,
                                                          cost=80,
-                                                         energy=200,
-                                                         transaction_description=u'Покупка 200 единиц энергии.'),
+                                                         energy=100,
+                                                         transaction_description=u'Покупка 100 единиц энергии.'),
 
-                                            goods.Energy(uid=u'energy-20',
-                                                         name=u'20 энергии',
+                                            goods.Energy(uid=u'energy-10',
+                                                         name=u'10 энергии',
                                                          description=ENERGY_CHARGES_DESCRIPTION,
                                                          cost=10,
-                                                         energy=20,
-                                                         transaction_description=u'Покупка 20 единиц энергии.')
+                                                         energy=10,
+                                                         transaction_description=u'Покупка 10 единиц энергии.')
                                                          ]),
 
                 goods.PurchaseGroup(type=relations.GOODS_GROUP.PREFERENCES,
@@ -320,14 +320,17 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                                                                cost=150,
                                                                purchase_type=relations.PERMANENT_PURCHASE_TYPE.CLAN_OWNERSHIP_RIGHT,
                                                                transaction_description=u'Приобретение разрешения на владение гильдией.') ]),
+                ]
 
-                goods.PurchaseGroup(type=relations.GOODS_GROUP.CARDS,
-                                    name=u'Карты судьбы',
-                                    description=CARDS_DESCRIPTION,
-                                    items=[ card_purchase(uid='card-keepers-goods-',
-                                                          card_type=CARD_TYPE.KEEPERS_GOODS_LEGENDARY,
-                                                          count=1,
-                                                          cost=1000)]) ]
+
+                # goods.PurchaseGroup(type=relations.GOODS_GROUP.CARDS,
+                #                     name=u'Карты судьбы',
+                #                     description=CARDS_DESCRIPTION,
+                #                     items=[ card_purchase(uid='card-keepers-goods-',
+                #                                           card_type=CARD_TYPE.KEEPERS_GOODS_LEGENDARY,
+                #                                           count=1,
+                #                                           cost=1000)])
+
 
 
 PURCHASES_BY_UID = {}

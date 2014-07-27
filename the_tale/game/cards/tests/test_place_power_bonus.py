@@ -58,7 +58,7 @@ class PlacePowerBonusMixin(CardsTestMixin):
 
         self.assertEqual(highlevel_logic_task_counter.call_count, 1)
 
-        with self.check_delta(lambda: self.place_1.power_positive if self.CARD.BONUS > 0 else self.place_1.power_negative, self.CARD.BONUS):
+        with self.check_delta(lambda: self.place_1.power_positive if self.CARD.BONUS > 0 else self.place_1.power_negative, abs(self.CARD.BONUS)):
             result, step, postsave_actions = self.card.use(**self.use_attributes(hero_id=self.hero.id,
                                                                                  step=step,
                                                                                  highlevel=self.highlevel,
