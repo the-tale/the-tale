@@ -38,7 +38,7 @@ class AddGoldTestMixin(CardsTestMixin):
         with self.check_delta(lambda: self.hero.money, self.CARD.GOLD):
             with self.check_delta(lambda: self.hero.statistics.money_earned_from_help, self.CARD.GOLD):
                 with self.check_delta(lambda: self.hero.statistics.money_earned, self.CARD.GOLD):
-                    result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id))
+                    result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
 
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 

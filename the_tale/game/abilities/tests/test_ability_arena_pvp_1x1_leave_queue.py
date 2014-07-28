@@ -17,8 +17,11 @@ from the_tale.game.pvp.models import BATTLE_1X1_STATE, Battle1x1
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
+from the_tale.game.abilities.tests.helpers import UseAbilityTaskMixin
 
-class ArenaPvP1x1LeaveQueueAbilityTest(testcase.TestCase):
+
+class ArenaPvP1x1LeaveQueueAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
+    PROCESSOR = ArenaPvP1x1LeaveQueue
 
     def setUp(self):
         super(ArenaPvP1x1LeaveQueueAbilityTest, self).setUp()
@@ -33,7 +36,7 @@ class ArenaPvP1x1LeaveQueueAbilityTest(testcase.TestCase):
 
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.ability = ArenaPvP1x1LeaveQueue()
+        self.ability = self.PROCESSOR()
 
         workers_environment.deinitialize()
         workers_environment.initialize()
@@ -41,17 +44,10 @@ class ArenaPvP1x1LeaveQueueAbilityTest(testcase.TestCase):
         self.pvp_balancer = workers_environment.pvp_balancer
         self.pvp_balancer.process_initialize('pvp_balancer')
 
-    def use_attributes(self, hero_id, step=ComplexChangeTask.STEP.LOGIC, storage=None, pvp_balancer=None):
-        return {'data': {'hero_id': hero_id},
-                'step': step,
-                'main_task_id': 0,
-                'storage': storage,
-                'pvp_balancer': pvp_balancer}
-
     def test_use_no_battle(self):
 
         with mock.patch('the_tale.game.pvp.workers.balancer.Worker.leave_arena_queue') as balancer_cmd_counter:
-            self.assertEqual(self.ability.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id)),
+            self.assertEqual(self.ability.use(**self.use_attributes(storage=self.storage, hero=self.hero)),
                              (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(balancer_cmd_counter.call_count, 0)
@@ -60,7 +56,7 @@ class ArenaPvP1x1LeaveQueueAbilityTest(testcase.TestCase):
 
         self.pvp_balancer.add_to_arena_queue(self.hero.id)
 
-        result, step, postsave_actions = self.ability.use(**self.use_attributes(hero_id=self.hero.id, storage=self.storage))
+        result, step, postsave_actions = self.ability.use(**self.use_attributes(hero=self.hero, storage=self.storage))
 
         self.assertEqual((result, step), (ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.PVP_BALANCER))
         self.assertEqual(len(postsave_actions), 1)
@@ -72,7 +68,7 @@ class ArenaPvP1x1LeaveQueueAbilityTest(testcase.TestCase):
 
         self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.WAITING).count(), 1)
 
-        result, step, postsave_actions = self.ability.use(**self.use_attributes(hero_id=self.hero.id,
+        result, step, postsave_actions = self.ability.use(**self.use_attributes(hero=self.hero,
                                                                                 step=step,
                                                                                 pvp_balancer=self.pvp_balancer))
 
@@ -88,7 +84,7 @@ class ArenaPvP1x1LeaveQueueAbilityTest(testcase.TestCase):
         self.pvp_balancer.add_to_arena_queue(self.hero.id)
 
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
-            self.assertEqual(self.ability.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id))[:2],
+            self.assertEqual(self.ability.use(**self.use_attributes(hero=self.hero, storage=self.storage))[:2],
                              (ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.PVP_BALANCER))
 
         self.assertEqual(update_habits.call_args_list, [mock.call(HABIT_CHANGE_SOURCE.ARENA_LEAVE)])

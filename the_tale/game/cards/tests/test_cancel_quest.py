@@ -35,7 +35,7 @@ class CancelQuestTests(CardsTestMixin, testcase.TestCase):
     def test_no_quests(self):
         self.assertFalse(self.hero.quests.has_quests)
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id))
+        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
         self.assertFalse(self.hero.quests.has_quests)
@@ -44,7 +44,7 @@ class CancelQuestTests(CardsTestMixin, testcase.TestCase):
         self.hero.quests.push_quest('QUEST')
         self.assertTrue(self.hero.quests.has_quests)
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id))
+        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertFalse(self.hero.quests.has_quests)

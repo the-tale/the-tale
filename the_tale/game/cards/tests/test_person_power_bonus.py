@@ -50,7 +50,7 @@ class PersonPowerBonusMixin(CardsTestMixin):
 
         person = self.place_1.persons[0]
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(hero_id=self.hero.id, storage=self.storage, person_id=person.id))
+        result, step, postsave_actions = self.card.use(**self.use_attributes(hero=self.hero, storage=self.storage, person_id=person.id))
 
         self.assertEqual((result, step), (ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.HIGHLEVEL))
         self.assertEqual(len(postsave_actions), 1)
@@ -61,7 +61,7 @@ class PersonPowerBonusMixin(CardsTestMixin):
         self.assertEqual(highlevel_logic_task_counter.call_count, 1)
 
         with self.check_delta(lambda: person.power_positive, self.CARD.BONUS):
-            result, step, postsave_actions = self.card.use(**self.use_attributes(hero_id=self.hero.id,
+            result, step, postsave_actions = self.card.use(**self.use_attributes(hero=self.hero,
                                                                                  step=step,
                                                                                  highlevel=self.highlevel,
                                                                                  person_id=person.id))
@@ -70,7 +70,7 @@ class PersonPowerBonusMixin(CardsTestMixin):
 
 
     def test_no_person(self):
-        self.assertEqual(self.card.use(**self.use_attributes(hero_id=self.hero.id, person_id=666, storage=self.storage)),
+        self.assertEqual(self.card.use(**self.use_attributes(hero=self.hero, person_id=666, storage=self.storage)),
                         (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
 

@@ -55,7 +55,7 @@ class ResetPreferenceMinix(CardsTestMixin):
     def test_use(self):
         self.assertFalse(self.hero.preferences.can_update(self.CARD.PREFERENCE, datetime.datetime.now()))
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id))
+        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
 
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
@@ -115,7 +115,7 @@ class ResetPreferenceAllTests(CardsTestMixin, testcase.TestCase):
         for preference in PREFERENCE_TYPE.records:
             self.assertFalse(self.hero.preferences.can_update(preference, datetime.datetime.now()))
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id))
+        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
 
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 

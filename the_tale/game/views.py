@@ -44,13 +44,15 @@ class GameResource(Resource):
         if self.account.clan_id is not None:
             clan = ClanPrototype.get_by_id(self.account.clan_id)
 
+        cards = sorted(CARDS.values(), key=lambda x: (x.TYPE.rarity.value, x.TYPE.text))
+
         return self.template('game/game_page.html',
                              {'map_settings': map_settings,
                               'game_settings': game_settings,
                               'EQUIPMENT_SLOT': EQUIPMENT_SLOT,
                               'current_map_version': map_info_storage.version,
                               'clan': clan,
-                              'CARDS': CARDS.values(),
+                              'CARDS': cards,
                               'hero': HeroPrototype.get_by_account_id(self.account.id)} )
 
     @api.handler(versions=('1.1', '1.0'))

@@ -49,5 +49,7 @@ class CardsContainer(object):
 
     def card_count(self, card_type): return self._cards.get(card_type, 0)
 
+    def has_card(self, card_type): return self._cards.get(card_type, 0) > 0
+
     @property
     def has_cards(self): return len(self._cards)

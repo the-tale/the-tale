@@ -127,3 +127,40 @@ class QuestInfoTests(testcase.TestCase, QuestTestsMixin):
 
         self.quest_info.used_markers[QUEST_OPTION_MARKERS.UNAGGRESSIVE] =  True
         self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.3*1.4*1.2*1.5)
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.experience_modifier', 1)
+    def test_ui_info__experience(self):
+        experience = self.quest_info.ui_info(self.hero)['experience']
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.experience_modifier', self.hero.experience_modifier * 2):
+            self.assertEqual(self.quest_info.ui_info(self.hero)['experience'], experience * 2)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.experience_modifier', 1)
+    def test_ui_info__experience__bonus(self):
+        experience = self.quest_info.ui_info(self.hero)['experience']
+
+        self.quest_info.experience_bonus = 100
+
+        self.assertEqual(self.quest_info.ui_info(self.hero)['experience'], experience + 100)
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.experience_modifier', self.hero.experience_modifier * 2):
+            self.assertEqual(self.quest_info.ui_info(self.hero)['experience'], experience * 2 + 100)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.person_power_modifier', 1)
+    def test_ui_info__power(self):
+        power = self.quest_info.ui_info(self.hero)['power']
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.person_power_modifier', self.hero.person_power_modifier * 2):
+            self.assertEqual(self.quest_info.ui_info(self.hero)['power'], power * 2)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.person_power_modifier', 1)
+    def test_ui_info__power__bonus(self):
+        power = self.quest_info.ui_info(self.hero)['power']
+
+        self.quest_info.power_bonus = 100
+
+        self.assertEqual(self.quest_info.ui_info(self.hero)['power'], power + 100)
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.person_power_modifier', self.hero.person_power_modifier * 2):
+            self.assertEqual(self.quest_info.ui_info(self.hero)['power'], power * 2 + 100)

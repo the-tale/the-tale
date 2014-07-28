@@ -16,7 +16,7 @@
 
       {{ form.errors_container }}
 
-      {{ form.place.widget }}
+      {% if form.TEMPLATE %}{% include form.TEMPLATE %}{% endif %}
 
       <div class="widget">
         <input type="submit" class="btn btn-success" value="Использовать"/>

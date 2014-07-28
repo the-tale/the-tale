@@ -8,12 +8,13 @@ from the_tale.game.persons.prototypes import PersonPrototype
 
 
 class EmptyForm(forms.Form):
+    TEMPLATE = None
     def get_card_data(self):
         return {}
 
 
 class PersonForm(forms.Form):
-
+    TEMPLATE = 'cards/person_form.html'
     person = fields.ChoiceField(label=u'Советник')
 
     def __init__(self, *args, **kwargs):
@@ -25,7 +26,7 @@ class PersonForm(forms.Form):
 
 
 class PlaceForm(forms.Form):
-
+    TEMPLATE = 'cards/place_form.html'
     place = fields.ChoiceField(label=u'Город')
 
     def __init__(self, *args, **kwargs):
@@ -37,7 +38,7 @@ class PlaceForm(forms.Form):
 
 
 class BuildingForm(forms.Form):
-
+    TEMPLATE = 'cards/building_form.html'
     building = fields.ChoiceField(label=u'Строение')
 
     def __init__(self, *args, **kwargs):

@@ -7,7 +7,7 @@ from the_tale.game.cards import forms
 
 
 class RARITY(DjangoEnum):
-    probability = Column()
+    priority = Column()
 
     records = ( ('COMMON', 0, u'обычная', 3**4),
                 ('UNCOMMON', 1, u'необычная', 3**3),
@@ -28,10 +28,10 @@ class CARD_TYPE(DjangoEnum):
     records = ( ('LEVEL_UP', 1, u'озарение', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm,),
 
                 ('ADD_BONUS_ENERGY_COMMON', 5, u'капля энергии', AVAILABILITY.FOR_ALL, RARITY.COMMON, forms.EmptyForm,),
-                ('ADD_BONUS_ENERGY_UNCOMMON', 6, u'чаша силы', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
+                ('ADD_BONUS_ENERGY_UNCOMMON', 6, u'чаша Силы', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
                 ('ADD_BONUS_ENERGY_RARE', 7, u'магический вихрь', AVAILABILITY.FOR_ALL, RARITY.RARE, forms.EmptyForm,),
                 ('ADD_BONUS_ENERGY_EPIC', 8, u'энергетический шторм', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm,),
-                ('ADD_BONUS_ENERGY_LEGENDARY', 9, u'шквал силы', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm,),
+                ('ADD_BONUS_ENERGY_LEGENDARY', 9, u'шквал Силы', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm,),
 
                 ('ADD_GOLD_COMMON', 10, u'горсть монет', AVAILABILITY.FOR_ALL, RARITY.COMMON, forms.EmptyForm,),
                 ('ADD_GOLD_UNCOMMON', 11, u'увесистый кошель', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
@@ -49,13 +49,13 @@ class CARD_TYPE(DjangoEnum):
 
                 ('CHANGE_HABIT_HONOR_PLUS_EPIC', 21, u'скромность', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm,),
                 ('CHANGE_HABIT_HONOR_MINUS_EPIC', 22, u'тщеславие', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm,),
-                ('CHANGE_HABIT_PEACEFULNESS_PLUS_EPIC', 23, u'миролюбие', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm,),
-                ('CHANGE_HABIT_PEACEFULNESS_MINUS_EPIC', 24, u'ярость', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm,),
+                ('CHANGE_HABIT_PEACEFULNESS_PLUS_EPIC', 23, u'сдержанность', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm,),
+                ('CHANGE_HABIT_PEACEFULNESS_MINUS_EPIC', 24, u'гнев', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm,),
 
                 ('CHANGE_HABIT_HONOR_PLUS_LEGENDARY', 25, u'смирение', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm,),
                 ('CHANGE_HABIT_HONOR_MINUS_LEGENDARY', 26, u'гордыня', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm,),
-                ('CHANGE_HABIT_PEACEFULNESS_PLUS_LEGENDARY', 27, u'сдержанность', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm,),
-                ('CHANGE_HABIT_PEACEFULNESS_MINUS_LEGENDARY', 28, u'гнев', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm,),
+                ('CHANGE_HABIT_PEACEFULNESS_PLUS_LEGENDARY', 27, u'миролюбие', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm,),
+                ('CHANGE_HABIT_PEACEFULNESS_MINUS_LEGENDARY', 28, u'ярость', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm,),
 
                 ('PREFERENCES_COOLDOWNS_RESET_MOB', 29, u'знание врага', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
                 ('PREFERENCES_COOLDOWNS_RESET_PLACE', 30, u'новая родина', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
@@ -71,11 +71,11 @@ class CARD_TYPE(DjangoEnum):
 
                 ('CHANGE_ABILITIES_CHOICES', 39, u'альтернатива', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
 
-                ('CHANGE_HERO_SPENDINGS_TO_INSTANT_HEAL', 40, u'?изменить траты 1', AVAILABILITY.FOR_ALL, RARITY.COMMON, forms.EmptyForm,),
+                ('CHANGE_HERO_SPENDINGS_TO_INSTANT_HEAL', 40, u'странный зуд', AVAILABILITY.FOR_ALL, RARITY.COMMON, forms.EmptyForm,),
                 ('CHANGE_HERO_SPENDINGS_TO_BUYING_ARTIFACT', 41, u'магазинный импульс', AVAILABILITY.FOR_ALL, RARITY.COMMON, forms.EmptyForm,),
                 ('CHANGE_HERO_SPENDINGS_TO_SHARPENING_ARTIFACT', 42, u'стремление к совершенству', AVAILABILITY.FOR_ALL, RARITY.COMMON, forms.EmptyForm,),
                 ('CHANGE_HERO_SPENDINGS_TO_EXPERIENCE', 43, u'тяга к знаниям', AVAILABILITY.FOR_ALL, RARITY.COMMON, forms.EmptyForm,),
-                ('CHANGE_HERO_SPENDINGS_TO_REPAIRING_ARTIFACT', 44, u'?изменить траты 5', AVAILABILITY.FOR_ALL, RARITY.COMMON, forms.EmptyForm,),
+                ('CHANGE_HERO_SPENDINGS_TO_REPAIRING_ARTIFACT', 44, u'забота об имуществе', AVAILABILITY.FOR_ALL, RARITY.COMMON, forms.EmptyForm,),
 
                 ('REPAIR_RANDOM_ARTIFACT', 45, u'фея-мастерица', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
                 ('REPAIR_ALL_ARTIFACTS', 46, u'благословение Великого Творца', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm,),
@@ -92,7 +92,7 @@ class CARD_TYPE(DjangoEnum):
                 ('KEEPERS_GOODS_COMMON', 53, u'неразменная монета', AVAILABILITY.FOR_PREMIUMS, RARITY.COMMON, forms.PlaceForm),
                 ('KEEPERS_GOODS_UNCOMMON', 54, u'волшебный горшочек', AVAILABILITY.FOR_PREMIUMS, RARITY.UNCOMMON, forms.PlaceForm),
                 ('KEEPERS_GOODS_RARE', 55, u'скатерть самобранка', AVAILABILITY.FOR_PREMIUMS, RARITY.RARE, forms.PlaceForm),
-                ('KEEPERS_GOODS_EPIC', 56, u'?Дары Хранителей 4', AVAILABILITY.FOR_PREMIUMS, RARITY.EPIC, forms.PlaceForm),
+                ('KEEPERS_GOODS_EPIC', 56, u'несметные богатсва', AVAILABILITY.FOR_PREMIUMS, RARITY.EPIC, forms.PlaceForm),
                 ('KEEPERS_GOODS_LEGENDARY', 0, u'рог изобилия', AVAILABILITY.FOR_PREMIUMS, RARITY.LEGENDARY, forms.PlaceForm),
 
                 ('REPAIR_BUILDING', 57, u'волшебный инструмент', AVAILABILITY.FOR_PREMIUMS, RARITY.EPIC, forms.BuildingForm),
@@ -112,10 +112,10 @@ class CARD_TYPE(DjangoEnum):
                 ('PLACE_POWER_BONUS_NEGATIVE_EPIC', 68, u'нашествие крыс', AVAILABILITY.FOR_PREMIUMS, RARITY.EPIC, forms.PlaceForm),
                 ('PLACE_POWER_BONUS_NEGATIVE_LEGENDARY', 69, u'экономический спад', AVAILABILITY.FOR_PREMIUMS, RARITY.LEGENDARY, forms.PlaceForm),
 
-                ('MOST_COMMON_PLACES_UNCOMMON', 70, u'?внеочередная момощь городу 1', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.PlaceForm),
-                ('MOST_COMMON_PLACES_RARE', 71, u'?внеочередная момощь городу 2', AVAILABILITY.FOR_ALL, RARITY.RARE, forms.PlaceForm),
-                ('MOST_COMMON_PLACES_EPIC', 72, u'?внеочередная момощь городу 3', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.PlaceForm),
-                ('MOST_COMMON_PLACES_LEGENDARY', 73, u'?внеочередная момощь городу 4', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.PlaceForm),
+                ('MOST_COMMON_PLACES_UNCOMMON', 70, u'ошибка в архивах', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.PlaceForm),
+                ('MOST_COMMON_PLACES_RARE', 71, u'фальшивые рекомендации', AVAILABILITY.FOR_ALL, RARITY.RARE, forms.PlaceForm),
+                ('MOST_COMMON_PLACES_EPIC', 72, u'застолье в Совете', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.PlaceForm),
+                ('MOST_COMMON_PLACES_LEGENDARY', 73, u'интриги', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.PlaceForm),
 
                 ('ADD_EXPERIENCE_COMMON', 74, u'удачная мысль', AVAILABILITY.FOR_ALL, RARITY.COMMON, forms.EmptyForm,),
                 ('ADD_EXPERIENCE_UNCOMMON', 75, u'неожиданные осложнения', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
@@ -133,6 +133,6 @@ class CARD_TYPE(DjangoEnum):
                 ('EXPERIENCE_TO_ENERGY_UNCOMMON', 84, u'?опыт в энергию 1', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
                 ('EXPERIENCE_TO_ENERGY_RARE', 85, u'?опыт в энергию 2', AVAILABILITY.FOR_ALL, RARITY.RARE, forms.EmptyForm,),
                 ('EXPERIENCE_TO_ENERGY_EPIC', 86, u'?опыт в энергию 3', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm,),
-                ('EXPERIENCE_TO_ENERGY_LEGENDARY', 87, u'?опыт в энергию 4', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm,),
+                ('EXPERIENCE_TO_ENERGY_LEGENDARY', 87, u'ритуал Силы', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm,),
 
                 )

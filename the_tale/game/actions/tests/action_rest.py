@@ -14,7 +14,10 @@ from the_tale.game.abilities.deck.help import Help
 from the_tale.game.abilities.relations import HELP_CHOICES
 from the_tale.game.prototypes import TimePrototype
 
-class RestActionTest(testcase.TestCase):
+from the_tale.game.abilities.tests.helpers import UseAbilityTaskMixin
+
+class RestActionTest(UseAbilityTaskMixin, testcase.TestCase):
+    PROCESSOR = Help
 
     def setUp(self):
         super(RestActionTest, self).setUp()
@@ -56,14 +59,14 @@ class RestActionTest(testcase.TestCase):
 
     def test_ability_heal(self):
 
-        ability = Help()
-
         self.hero.health = 1
 
         old_percents = self.action_rest.percents
 
+        ability = self.PROCESSOR()
+
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL):
-            self.assertTrue(ability.use(storage=self.storage, data={'hero_id': self.hero.id}, step=None, main_task_id=0, pvp_balancer=None))
+            self.assertTrue(ability.use(**self.use_attributes(hero=self.hero, storage=self.storage)))
             self.assertTrue(self.hero.health > 1)
             self.assertTrue(old_percents < self.action_rest.percents)
             self.assertEqual(self.hero.actions.current_action.percents, self.action_rest.percents)

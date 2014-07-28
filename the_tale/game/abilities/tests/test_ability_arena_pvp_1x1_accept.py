@@ -19,8 +19,10 @@ from the_tale.game.pvp.models import BATTLE_1X1_STATE, Battle1x1
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
+from the_tale.game.abilities.tests.helpers import UseAbilityTaskMixin
 
-class ArenaPvP1x1AcceptBaseTests(testcase.TestCase):
+
+class ArenaPvP1x1AcceptBaseTests(UseAbilityTaskMixin, testcase.TestCase):
 
     def setUp(self):
         super(ArenaPvP1x1AcceptBaseTests, self).setUp()
@@ -51,19 +53,14 @@ class ArenaPvP1x1AcceptBaseTests(testcase.TestCase):
 
 
 class ArenaPvP1x1LeaveQueueAbilityTest(ArenaPvP1x1AcceptBaseTests):
+    PROCESSOR =  ArenaPvP1x1Accept
 
     def setUp(self):
         super(ArenaPvP1x1LeaveQueueAbilityTest, self).setUp()
-
-        self.ability = ArenaPvP1x1Accept()
+        self.ability = self.PROCESSOR()
 
     def use_attributes(self, step=ComplexChangeTask.STEP.LOGIC, storage=None, pvp_balancer=None):
-        return {'data': {'hero_id': self.hero_2.id,
-                         'battle': self.battle.id},
-                'step': step,
-                'main_task_id': 0,
-                'storage': storage,
-                'pvp_balancer': pvp_balancer}
+        return super(ArenaPvP1x1LeaveQueueAbilityTest, self).use_attributes(hero=self.hero_2, step=step, storage=storage, pvp_balancer=pvp_balancer, battle_id=self.battle.id)
 
     def process_ability(self, success=True):
         result, step, postsave_actions = self.ability.use(**self.use_attributes(storage=self.storage))

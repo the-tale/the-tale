@@ -5,6 +5,8 @@ from rels.django import DjangoEnum
 
 from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 
+from the_tale.game import exceptions
+
 
 class ComplexChangeTask(PostponedLogic):
     TYPE = None
@@ -34,45 +36,77 @@ class ComplexChangeTask(PostponedLogic):
     def construct_processor(self):
         raise NotImplementedError()
 
-    def __init__(self, processor_id, hero_id, data, step=STEP.LOGIC, state=STATE.UNPROCESSED):
+    def __init__(self, processor_id, hero_id, data, step=STEP.LOGIC, state=STATE.UNPROCESSED, message=None):
         super(ComplexChangeTask, self).__init__()
         self.processor_id = processor_id
         self.hero_id = hero_id
         self.data = data
         self.state = state if isinstance(state, rels.Record) else self.STATE(state)
         self.step = step if isinstance(step, rels.Record) else self.STEP(step)
+        self.message = message
+
+        # temporary values to reduce number or methods' arguments
+        self.hero = None
+        self.main_task = None
 
     def serialize(self):
         return { 'processor_id': self.processor_id,
                  'hero_id': self.hero_id,
                  'data': self.data,
                  'state': self.state.value,
-                 'step': self.step.value}
+                 'step': self.step.value,
+                 'message': self.message}
 
     @property
-    def error_message(self): return self.state.text
+    def processed_data(self): return {}
+
+    @property
+    def error_message(self):
+        if self.message is None:
+            return self.state.text
+
+        return self.message
+
+    def logic_result(self, next_step=STEP.SUCCESS, message=None):
+        from the_tale.game.workers.environment import workers_environment
+
+        self.message = message
+
+        if next_step.is_SUCCESS:
+            return self.RESULT.SUCCESSED, next_step, ()
+
+        if next_step.is_ERROR:
+            return self.RESULT.FAILED, next_step, ()
+
+        if next_step.is_HIGHLEVEL:
+            return self.RESULT.CONTINUE, next_step, ((lambda: workers_environment.highlevel.cmd_logic_task(self.hero.account_id, self.main_task.id)), )
+
+        if next_step.is_PVP_BALANCER:
+            return self.RESULT.CONTINUE, next_step, ((lambda: workers_environment.pvp_balancer.cmd_logic_task(self.hero.account_id, self.main_task.id)), )
+
+        raise exceptions.UnknownNextStepError(next_step=next_step)
 
     def process(self, main_task, storage=None, highlevel=None, pvp_balancer=None): # pylint: disable=R0911
+
+        self.main_task = main_task
 
         processor = self.construct_processor()
 
         if self.step.is_LOGIC:
 
-            hero = storage.heroes[self.hero_id]
+            self.hero = storage.heroes[self.hero_id]
 
-            if hero.is_banned:
+            if self.hero.is_banned:
                 main_task.comment = 'hero is banned'
                 self.state = self.STATE.BANNED
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            if not processor.check_hero_conditions(hero):
+            if not processor.check_hero_conditions(self.hero):
                 main_task.comment = 'hero conditions not passed'
                 self.state = self.STATE.HERO_CONDITIONS_NOT_PASSED
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            result, self.step, postsave_actions = processor.use(data=self.data,
-                                                                step=self.step,
-                                                                main_task_id=main_task.id,
+            result, self.step, postsave_actions = processor.use(task=self,
                                                                 storage=storage,
                                                                 pvp_balancer=pvp_balancer,
                                                                 highlevel=highlevel)
@@ -89,7 +123,7 @@ class ComplexChangeTask(PostponedLogic):
                 self.state = self.STATE.CAN_NOT_PROCESS
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            processor.hero_actions(hero)
+            processor.hero_actions(self.hero)
 
             if result.is_SUCCESSED:
                 self.state = self.STATE.PROCESSED
@@ -103,9 +137,7 @@ class ComplexChangeTask(PostponedLogic):
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         else:
-            result, self.step, postsave_actions = processor.use(data=self.data,
-                                                                step=self.step,
-                                                                main_task_id=main_task.id,
+            result, self.step, postsave_actions = processor.use(task=self,
                                                                 storage=storage,
                                                                 pvp_balancer=pvp_balancer,
                                                                 highlevel=highlevel)

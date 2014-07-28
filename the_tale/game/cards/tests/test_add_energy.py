@@ -36,7 +36,7 @@ class AddBonusEnergyTestMixin(CardsTestMixin):
 
     def test_use(self):
         with self.check_delta(lambda: self.hero.energy_bonus, self.CARD.ENERGY):
-            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id))
+            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
 
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 

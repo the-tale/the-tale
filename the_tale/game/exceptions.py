@@ -15,6 +15,9 @@ class RemoveActionFromMiddleError(GameError):
 class SupervisorTaskMemberMissedError(GameError):
     MSG = u'try process supervisor task %(task_id)d when not all members captured; members: %(members)r, captured members: %(captured_members)r'
 
+class UnknownNextStepError(GameError):
+    MSG = u'unknown next_step value %(next_step)s in ComplexChangeTask'
+
 
 #########################
 # highlevel

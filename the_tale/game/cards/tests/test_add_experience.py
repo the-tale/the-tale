@@ -43,14 +43,15 @@ class AddExperienceTestMixin(CardsTestMixin):
 
         with self.check_not_changed(lambda: self.hero.experience):
             with self.check_not_changed(lambda: self.hero.level):
-                with self.check_delta(lambda: self.hero.quests.current_quest.current_info.experience, self.CARD.EXPERIENCE):
-                    result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id))
-                    self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+                with self.check_not_changed(lambda: self.hero.quests.current_quest.current_info.experience):
+                    with self.check_delta(lambda: self.hero.quests.current_quest.current_info.experience_bonus, self.CARD.EXPERIENCE):
+                        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+                        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
     def test_no_quest(self):
         self.assertFalse(self.hero.quests.has_quests)
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id))
+        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
 

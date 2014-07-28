@@ -518,9 +518,7 @@ class GetCardTask(PostponedLogic):
     TYPE = 'get-card'
 
     MESSAGE = u'''
-Вы получаете новую карту!<br/>
-
-<span class="%(rarity)s-card-label">%(name)s</span><br/>
+<span class="%(rarity)s-card-label">%(name)s</span><br/><br/>
 
 <blockquote>%(description)s</blockquote>
 '''
@@ -542,7 +540,7 @@ class GetCardTask(PostponedLogic):
 
     @property
     def processed_data(self):
-        message = self.MESSAGE % {'name': self.card.text,
+        message = self.MESSAGE % {'name': self.card.text[0].upper() + self.card.text[1:],
                                   'description': CARDS[self.card].DESCRIPTION,
                                   'rarity': self.card.rarity.name.lower()}
         return {'message': message }

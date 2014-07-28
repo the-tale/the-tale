@@ -246,7 +246,7 @@ def create_random_quest_for_hero(hero):
                        {'hero_id': hero.id,
                         'spent_time': spent_time,
                         'is_normal': normal_mode,
-                        'quest_type': quest.quests_stack[-1].type,
+                        'quest_type': quest.current_info.type,
                         'allowed': ', '.join(quest.quest_class.TYPE for quest in quests),
                         'excluded': ', '.join(excluded_quests)})
 

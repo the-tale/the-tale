@@ -37,7 +37,7 @@ class InstantMonsterKillTests(CardsTestMixin, testcase.TestCase):
     def test_no_battle(self):
         self.assertFalse(self.hero.actions.current_action.TYPE.is_BATTLE_PVE_1X1)
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id))
+        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
     def test_use(self):
@@ -51,7 +51,7 @@ class InstantMonsterKillTests(CardsTestMixin, testcase.TestCase):
         self.assertTrue(self.hero.actions.current_action.mob.health > 0)
         self.assertTrue(self.hero.actions.current_action.percents < 1)
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id))
+        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertTrue(self.hero.actions.current_action.mob.health <= 0)

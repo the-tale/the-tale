@@ -15,13 +15,15 @@ from the_tale.game.pvp.models import Battle1x1
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
+from the_tale.game.abilities.tests.helpers import UseAbilityTaskMixin
 
-class ArenaPvP1x1AbilityTest(testcase.TestCase):
+
+class ArenaPvP1x1AbilityTest(UseAbilityTaskMixin, testcase.TestCase):
+    PROCESSOR = ArenaPvP1x1
 
     def setUp(self):
         super(ArenaPvP1x1AbilityTest, self).setUp()
         self.p1, self.p2, self.p3 = create_test_map()
-
 
         result, account_1_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
         result, account_2_id, bundle_id = register_user('test_user_2')
@@ -36,23 +38,14 @@ class ArenaPvP1x1AbilityTest(testcase.TestCase):
         self.hero_1 = self.storage.accounts_to_heroes[self.account_1.id]
         self.hero_2 = self.storage.accounts_to_heroes[self.account_2.id]
 
-        self.ability_1 = ArenaPvP1x1()
-        self.ability_2 = ArenaPvP1x1()
+        self.ability_1 = self.PROCESSOR()
+        self.ability_2 = self.PROCESSOR()
 
         workers_environment.deinitialize()
         workers_environment.initialize()
 
         self.pvp_balancer = workers_environment.pvp_balancer
         self.pvp_balancer.process_initialize('pvp_balancer')
-
-    def use_attributes(self, hero, step=ComplexChangeTask.STEP.LOGIC, storage=None, pvp_balancer=None):
-        return {'data': {'hero_id': hero.id,
-                         'account_id': hero.account_id},
-                'step': step,
-                'main_task_id': 0,
-                'storage': storage,
-                'pvp_balancer': pvp_balancer}
-
 
     def test_use(self):
 

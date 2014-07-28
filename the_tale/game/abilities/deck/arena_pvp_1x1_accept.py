@@ -4,8 +4,6 @@ from rels.django import DjangoEnum
 
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
 
-from the_tale.game.workers.environment import workers_environment
-
 from the_tale.game.abilities.prototypes import AbilityPrototype
 from the_tale.game.abilities.relations import ABILITY_TYPE
 
@@ -55,21 +53,19 @@ class ArenaPvP1x1Accept(AbilityPrototype):
         return ACCEPT_BATTLE_RESULT.PROCESSED
 
 
-    def use(self, data, step, main_task_id, storage, pvp_balancer, **kwargs):
+    def use(self, task, storage, pvp_balancer=None, **kwargs):
 
-        if step.is_LOGIC:
+        if task.step.is_LOGIC:
 
-            hero = storage.heroes[data['hero_id']]
+            task.hero.update_habits(HABIT_CHANGE_SOURCE.ARENA_SEND)
 
-            hero.update_habits(HABIT_CHANGE_SOURCE.ARENA_SEND)
+            return task.logic_result(next_step=ComplexChangeTask.STEP.PVP_BALANCER)
 
-            return ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.PVP_BALANCER, ((lambda: workers_environment.pvp_balancer.cmd_logic_task(hero.account_id, main_task_id)), )
+        elif task.step.is_PVP_BALANCER:
 
-        elif step.is_PVP_BALANCER:
-
-            accept_result = self.accept_battle(pvp_balancer, data['battle'], data['hero_id'])
+            accept_result = self.accept_battle(pvp_balancer, task.data['battle_id'], task.data['hero_id'])
 
             if not accept_result.is_PROCESSED:
-                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()
+                return task.logic_result(next_step=ComplexChangeTask.STEP.ERROR)
 
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+            return task.logic_result()

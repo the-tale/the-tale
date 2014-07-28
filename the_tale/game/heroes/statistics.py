@@ -148,6 +148,18 @@ class HeroStatistics(object):
             self.hero._model.stat_help_count += value
 
     @property
+    def cards_used(self): return self.hero._model.stat_cards_used
+    def change_cards_used(self, value):
+        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.KEEPER_CARDS_USED, object=self.hero):
+            self.hero._model.stat_cards_used += value
+
+    @property
+    def cards_combined(self): return self.hero._model.stat_cards_combined
+    def change_cards_combined(self, value):
+        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.KEEPER_CARDS_COMBINED, object=self.hero):
+            self.hero._model.stat_cards_combined += value
+
+    @property
     def quests_done(self): return self.hero._model.stat_quests_done
     def change_quests_done(self, value):
         with achievements_storage.verify(type=ACHIEVEMENT_TYPE.QUESTS, object=self.hero):

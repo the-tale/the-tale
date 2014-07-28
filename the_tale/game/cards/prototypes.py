@@ -9,11 +9,7 @@ from rels.django import DjangoEnum
 from the_tale.common.postponed_tasks import PostponedTaskPrototype
 from the_tale.common.utils.logic import random_value_by_priority
 
-from the_tale.game.workers.environment import workers_environment
-
 from the_tale.game.cards import relations
-
-from the_tale.game.postponed_tasks import ComplexChangeTask
 
 from the_tale.game.map.places.storage import places_storage, buildings_storage
 from the_tale.game.persons.storage import persons_storage
@@ -27,12 +23,14 @@ from the_tale.game.heroes.relations import PREFERENCE_TYPE, ITEMS_OF_EXPENDITURE
 from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.artifacts.relations import RARITY as ARTIFACT_RARITY
 
+from the_tale.game.cards.postponed_tasks import UseCardTask
+
 
 class CardBase(object):
     TYPE = None
 
     def activate(self, hero, data):
-        from the_tale.game.cards.postponed_tasks import UseCardTask
+        from the_tale.game.workers.environment import workers_environment
 
         data['hero_id'] = hero.id
         data['account_id'] = hero.account_id
@@ -63,11 +61,9 @@ class LevelUp(CardBase):
     TYPE = relations.CARD_TYPE.LEVEL_UP
     DESCRIPTION = u'Герой получает новый уровень. Накопленный опыт не сбрасываются.'
 
-    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
-            hero.increment_level(send_message=False)
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        task.hero.increment_level(send_message=False)
+        return task.logic_result()
 
 
 class AddExperienceBase(CardBase):
@@ -78,15 +74,12 @@ class AddExperienceBase(CardBase):
     def DESCRIPTION(self):
         return u'Увеличивает опыт, который герой получит за выполнение текущего задания, на %(experience)d единиц.' % {'experience': self.EXPERIENCE}
 
-    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        if not task.hero.quests.has_quests:
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя нет задания.')
 
-            if not hero.quests.has_quests:
-                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()
-
-            hero.quests.current_quest.current_info.experience += self.EXPERIENCE
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+        task.hero.quests.current_quest.current_info.experience_bonus += self.EXPERIENCE
+        return task.logic_result()
 
 class AddExperienceCommon(AddExperienceBase):
     TYPE = relations.CARD_TYPE.ADD_EXPERIENCE_COMMON
@@ -113,15 +106,12 @@ class AddPowerBase(CardBase):
     def DESCRIPTION(self):
         return u'Увеличивает влияние, которое окажет герой после выполнения текущего задания, на %(power)d единиц.' % {'power': self.POWER}
 
-    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        if not task.hero.quests.has_quests:
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя нет задания')
 
-            if not hero.quests.has_quests:
-                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()
-
-            hero.quests.current_quest.current_info.power += self.POWER
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+        task.hero.quests.current_quest.current_info.power_bonus += self.POWER
+        return task.logic_result()
 
 class AddPowerCommon(AddPowerBase):
     TYPE = relations.CARD_TYPE.ADD_POWER_COMMON
@@ -148,11 +138,9 @@ class AddBonusEnergyBase(CardBase):
     def DESCRIPTION(self):
         return u'Вы получаете %(energy)d единиц дополнительной энергии.' % {'energy': self.ENERGY}
 
-    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
-            hero.add_energy_bonus(self.ENERGY)
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        task.hero.add_energy_bonus(self.ENERGY)
+        return task.logic_result()
 
 class AddBonusEnergyCommon(AddBonusEnergyBase):
     TYPE = relations.CARD_TYPE.ADD_BONUS_ENERGY_COMMON
@@ -183,13 +171,11 @@ class AddGoldBase(CardBase):
     def DESCRIPTION(self):
         return u'Герой получает %(gold)d монет.' % {'gold': self.GOLD}
 
-    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         from the_tale.game.heroes.relations import MONEY_SOURCE
 
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
-            hero.change_money(MONEY_SOURCE.EARNED_FROM_HELP, self.GOLD)
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+        task.hero.change_money(MONEY_SOURCE.EARNED_FROM_HELP, self.GOLD)
+        return task.logic_result()
 
 class AddGoldCommon(AddGoldBase):
     TYPE = relations.CARD_TYPE.ADD_GOLD_COMMON
@@ -217,11 +203,9 @@ class ChangeHabitBase(CardBase):
         return u'Уменьшает %(habit)s героя на %(points)d единиц.' % {'habit': self.HABIT.text,
                                                                     'points': -self.POINTS}
 
-    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
-            hero.change_habits(self.HABIT, self.POINTS)
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        task.hero.change_habits(self.HABIT, self.POINTS)
+        return task.logic_result()
 
 
 class ChangeHabitHonorPlusUncommon(ChangeHabitBase):
@@ -316,11 +300,9 @@ class PreferencesCooldownsResetBase(CardBase):
     def DESCRIPTION(self):
         return u'Сбрасывает задержку на изменение предпочтения «%(preference)s».' % {'preference': self.PREFERENCE.text}
 
-    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
-            hero.preferences.reset_change_time(self.PREFERENCE)
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        task.hero.preferences.reset_change_time(self.PREFERENCE)
+        return task.logic_result()
 
 class PreferencesCooldownsResetMob(PreferencesCooldownsResetBase):
     TYPE = relations.CARD_TYPE.PREFERENCES_COOLDOWNS_RESET_MOB
@@ -364,26 +346,21 @@ class PreferencesCooldownsResetAll(CardBase):
 
     DESCRIPTION = u'Сбрасывает задержку на изменение всех предпочтений.'
 
-    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
-            for preference in PREFERENCE_TYPE.records:
-                hero.preferences.reset_change_time(preference)
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        for preference in PREFERENCE_TYPE.records:
+            task.hero.preferences.reset_change_time(preference)
+        return task.logic_result()
 
 
 class ChangeAbilitiesChoices(CardBase):
     TYPE = relations.CARD_TYPE.CHANGE_ABILITIES_CHOICES
     DESCRIPTION = u'Изменяет список предлагаемых герою способностей (при выборе новой способности).'
 
-    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        if not task.hero.abilities.rechooce_choices():
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Герой не может изменить выбор способностей (возможно, больше не из чего выбирать).')
 
-            if hero.abilities.rechooce_choices():
-                return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
-
-            return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, () #TODO: return correct message
+        return task.logic_result()
 
 
 class ChangeItemOfExpenditureBase(CardBase):
@@ -394,11 +371,9 @@ class ChangeItemOfExpenditureBase(CardBase):
     def DESCRIPTION(self):
         return u'Текущей целью трат героя становится %(item)s.' % {'item': self.ITEM.text}
 
-    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
-            hero.next_spending = self.ITEM
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        task.hero.next_spending = self.ITEM
+        return task.logic_result()
 
 class ChangeHeroSpendingsToInstantHeal(ChangeItemOfExpenditureBase):
     TYPE = relations.CARD_TYPE.CHANGE_HERO_SPENDINGS_TO_INSTANT_HEAL
@@ -425,53 +400,44 @@ class RepairRandomArtifact(CardBase):
     TYPE = relations.CARD_TYPE.REPAIR_RANDOM_ARTIFACT
     DESCRIPTION = u'Чинит случайный артефакт из экиприровки героя.'
 
-    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        choices = [item for item in task.hero.equipment.values() if item.integrity < item.max_integrity]
 
-            choices = [item for item in hero.equipment.values() if item.integrity < item.max_integrity]
+        if not choices:
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Экипировка не нуждается в ремонте.')
 
-            if not choices:
-                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, () #TODO: return correct message
+        artifact = random.choice(choices)
 
-            artifact = random.choice(choices)
+        artifact.repair_it()
 
-            artifact.repair_it()
-
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+        return task.logic_result()
 
 
 class RepairAllArtifacts(CardBase):
     TYPE = relations.CARD_TYPE.REPAIR_ALL_ARTIFACTS
     DESCRIPTION = u'Чинит все артефакты из экиприровки героя.'
 
-    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        if not [item for item in task.hero.equipment.values() if item.integrity < item.max_integrity]:
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Экиприровка не нуждается в ремонте.')
 
-            if not [item for item in hero.equipment.values() if item.integrity < item.max_integrity]:
-                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, () #TODO: return correct message
+        for item in task.hero.equipment.values():
+            item.repair_it()
 
-            for item in hero.equipment.values():
-                item.repair_it()
-
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+        return task.logic_result()
 
 
 class CancelQuest(CardBase):
     TYPE = relations.CARD_TYPE.CANCEL_QUEST
     DESCRIPTION = u'Отменяет текущее задание героя.'
 
-    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        if not task.hero.quests.has_quests:
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя нет задания.')
 
-            if not hero.quests.has_quests:
-                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, () #TODO: return correct message
+        task.hero.quests.pop_quest()
 
-            hero.quests.pop_quest()
-
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+        return task.logic_result()
 
 
 class GetArtifactBase(CardBase):
@@ -497,17 +463,14 @@ class GetArtifactBase(CardBase):
 
         return artifacts_storage.artifacts, artifact_type.rarity
 
-    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        artifacts_list, rarity = self.get_new_artifact_data()
 
-            artifacts_list, rarity = self.get_new_artifact_data()
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_list, task.hero.level, rarity=rarity)
 
-            artifact = artifacts_storage.generate_artifact_from_list(artifacts_list, hero.level, rarity=rarity)
+        task.hero.put_loot(artifact)
 
-            hero.put_loot(artifact)
-
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+        return task.logic_result()
 
 
 class GetArtifactCommon(GetArtifactBase):
@@ -535,16 +498,14 @@ class InstantMonsterKill(CardBase):
     TYPE = relations.CARD_TYPE.INSTANT_MONSTER_KILL
     DESCRIPTION = u'Мгновенно убивает монстра, с которым сражается герой.'
 
-    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
 
-            if not hero.actions.current_action.TYPE.is_BATTLE_PVE_1X1:
-                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, () #TODO: return correct message
+        if not task.hero.actions.current_action.TYPE.is_BATTLE_PVE_1X1:
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Герой ни с кем не сражается.')
 
-            hero.actions.current_action.bit_mob(1.01)
+        task.hero.actions.current_action.bit_mob(1.01)
 
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+        return task.logic_result()
 
 
 
@@ -556,19 +517,17 @@ class KeepersGoodsBase(CardBase):
     def DESCRIPTION(self):
         return u'Создаёт в указанном городе %(goods)d «даров Хранителей». Город будет постепенно переводить их в продукцию, пока дары не кончатся.' % {'goods': self.GOODS}
 
-    def use(self, data, step, main_task_id, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
+    def use(self, task, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
 
-        place_id = data.get('place_id')
+        place_id = task.data.get('place_id')
 
         if place_id not in places_storage:
-            return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Город не найден.')
 
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
+        if task.step.is_LOGIC:
+            return task.logic_result(next_step=UseCardTask.STEP.HIGHLEVEL)
 
-            return ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.HIGHLEVEL, ((lambda: workers_environment.highlevel.cmd_logic_task(hero.account_id, main_task_id)), )
-
-        elif step.is_HIGHLEVEL:
+        elif task.step.is_HIGHLEVEL:
             place = places_storage[place_id]
 
             place.keepers_goods += self.GOODS
@@ -578,7 +537,7 @@ class KeepersGoodsBase(CardBase):
 
             places_storage.update_version()
 
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+            return task.logic_result()
 
 
 class KeepersGoodsCommon(KeepersGoodsBase):
@@ -608,19 +567,17 @@ class RepairBuilding(CardBase):
 
     DESCRIPTION = u'Полностью ремонтирует указанное строение.'
 
-    def use(self, data, step, main_task_id, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
+    def use(self, task, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
 
-        building_id = data.get('building_id')
+        building_id = task.data.get('building_id')
 
         if building_id not in buildings_storage:
-            return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Строение не найдено.')
 
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
+        if task.step.is_LOGIC:
+            return task.logic_result(next_step=UseCardTask.STEP.HIGHLEVEL)
 
-            return ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.HIGHLEVEL, ((lambda: workers_environment.highlevel.cmd_logic_task(hero.account_id, main_task_id)), )
-
-        elif step.is_HIGHLEVEL:
+        elif task.step.is_HIGHLEVEL:
             building = buildings_storage[building_id]
 
             while building.need_repair:
@@ -630,7 +587,7 @@ class RepairBuilding(CardBase):
 
             buildings_storage.update_version()
 
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+            return task.logic_result()
 
 
 
@@ -640,26 +597,21 @@ class PersonPowerBonusBase(CardBase):
 
     @property
     def DESCRIPTION(self):
-        return u'Увеличивает бонус к начисляемому положительному влиянию соратника героя на %(bonus).2f%%.' % {'bonus': self.BONUS*100}
+        return u'Увеличивает бонус к начисляемому положительному влиянию советника на %(bonus).2f%%.' % {'bonus': self.BONUS*100}
 
-    def use(self, data, step, main_task_id, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
+    def use(self, task, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
 
-        person_id = data.get('person_id')
+        person_id = task.data.get('person_id')
 
         if person_id not in persons_storage:
-            return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Советник не найден.')
 
         person = persons_storage[person_id]
 
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
+        if task.step.is_LOGIC:
+            return task.logic_result(next_step=UseCardTask.STEP.HIGHLEVEL)
 
-            return ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.HIGHLEVEL, ((lambda: workers_environment.highlevel.cmd_logic_task(hero.account_id, main_task_id)), )
-
-        elif step.is_HIGHLEVEL:
-            person_id = data.get('person_id')
-
-            person = persons_storage[person_id]
+        elif task.step.is_HIGHLEVEL:
 
             person.push_power_positive(TimePrototype.get_current_turn_number(), self.BONUS)
 
@@ -667,7 +619,7 @@ class PersonPowerBonusBase(CardBase):
 
             persons_storage.update_version()
 
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+            return task.logic_result(next_step=UseCardTask.STEP.SUCCESS)
 
 
 class PersonPowerBonusUncommon(PersonPowerBonusBase):
@@ -699,19 +651,17 @@ class PlacePowerBonusBase(CardBase):
 
         return u'Увеличивает бонус к начисляемому городу негативному влиянию на %(bonus).2f%%.' % {'bonus': -self.BONUS*100}
 
-    def use(self, data, step, main_task_id, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
+    def use(self, task, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
 
-        place_id = data.get('place_id')
+        place_id = task.data.get('place_id')
 
         if place_id not in places_storage:
-            return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Город не найден.')
 
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
+        if task.step.is_LOGIC:
+            return task.logic_result(next_step=UseCardTask.STEP.HIGHLEVEL)
 
-            return ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.HIGHLEVEL, ((lambda: workers_environment.highlevel.cmd_logic_task(hero.account_id, main_task_id)), )
-
-        elif step.is_HIGHLEVEL:
+        elif task.step.is_HIGHLEVEL:
             place = places_storage[place_id]
 
             if self.BONUS > 0:
@@ -723,7 +673,7 @@ class PlacePowerBonusBase(CardBase):
 
             places_storage.update_version()
 
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+            return task.logic_result()
 
 
 
@@ -771,19 +721,16 @@ class HelpPlaceBase(CardBase):
             return u'В документах города появляются %(helps)d дополнительные записи о помощи, полученной от героя.' % {'helps': self.HELPS}
         return u'В документах города появляется дополнительная запись о помощи, полученной от героя.'
 
-    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        place_id = task.data.get('place_id')
 
-            place_id = data.get('place_id')
+        if place_id not in places_storage:
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Город не найден.')
 
-            if place_id not in places_storage:
-                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()
+        for i in xrange(self.HELPS):
+            task.hero.places_history.add_place(place_id)
 
-            for i in xrange(self.HELPS):
-                hero.places_history.add_place(place_id)
-
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+        return task.logic_result()
 
 
 class HelpPlaceUncommon(HelpPlaceBase):
@@ -808,17 +755,14 @@ class ShortTeleport(CardBase):
 
     DESCRIPTION = u'Телепортируе героя до ближайшего города либо до ближайшей ключевой точки задания. Работает только во время движения по дорогам.'
 
-    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        if not task.hero.actions.current_action.TYPE.is_MOVE_TO:
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Герой не находится в движении.')
 
-            if not hero.actions.current_action.TYPE.is_MOVE_TO:
-                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, () #TODO: return correct message
+        if not task.hero.actions.current_action.teleport_to_place():
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Телепортировать героя не получилось.')
 
-            if not hero.actions.current_action.teleport_to_place():
-                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, () #TODO: return correct message
-
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+        return task.logic_result()
 
 
 class LongTeleport(CardBase):
@@ -826,17 +770,15 @@ class LongTeleport(CardBase):
 
     DESCRIPTION = u'Телепортируе героя в конечную точку назначения либо до ближайшей ключевой точки задания. Работает только во время движения по дорогам.'
 
-    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
 
-            if not hero.actions.current_action.TYPE.is_MOVE_TO:
-                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, () #TODO: return correct message
+        if not task.hero.actions.current_action.TYPE.is_MOVE_TO:
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Герой не находится в движении.')
 
-            if not hero.actions.current_action.teleport_to_end():
-                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, () #TODO: return correct message
+        if not task.hero.actions.current_action.teleport_to_end():
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Телепортировать героя не получилось.')
 
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+        return task.logic_result()
 
 
 class ExperienceToEnergyBase(CardBase):
@@ -847,16 +789,14 @@ class ExperienceToEnergyBase(CardBase):
     def DESCRIPTION(self):
         return u'Преобразует опыт героя на текущем уровне в дополнительную энергию по курсу %(experience)s единиц опыта за единицу энергии.' % {'experience': self.EXPERIENCE}
 
-    def use(self, data, step, main_task_id, storage, **kwargs): # pylint: disable=R0911,W0613
-        if step.is_LOGIC:
-            hero = storage.heroes[data['hero_id']]
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
 
-            if hero.experience == 0:
-                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()
+        if task.hero.experience == 0:
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя нет свободного опыта.')
 
-            hero.convert_experience_to_energy(self.EXPERIENCE)
+        task.hero.convert_experience_to_energy(self.EXPERIENCE)
 
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+        return task.logic_result()
 
 
 class ExperienceToEnergyUncommon(ExperienceToEnergyBase):

@@ -48,7 +48,7 @@ class PlacePowerBonusMixin(CardsTestMixin):
 
     def test_use(self):
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(hero_id=self.hero.id, storage=self.storage, place_id=self.place_1.id))
+        result, step, postsave_actions = self.card.use(**self.use_attributes(hero=self.hero, storage=self.storage, place_id=self.place_1.id))
 
         self.assertEqual((result, step), (ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.HIGHLEVEL))
         self.assertEqual(len(postsave_actions), 1)
@@ -59,7 +59,7 @@ class PlacePowerBonusMixin(CardsTestMixin):
         self.assertEqual(highlevel_logic_task_counter.call_count, 1)
 
         with self.check_delta(lambda: self.place_1.power_positive if self.CARD.BONUS > 0 else self.place_1.power_negative, abs(self.CARD.BONUS)):
-            result, step, postsave_actions = self.card.use(**self.use_attributes(hero_id=self.hero.id,
+            result, step, postsave_actions = self.card.use(**self.use_attributes(hero=self.hero,
                                                                                  step=step,
                                                                                  highlevel=self.highlevel,
                                                                                  place_id=self.place_1.id))
@@ -68,7 +68,7 @@ class PlacePowerBonusMixin(CardsTestMixin):
 
 
     def test_no_place(self):
-        self.assertEqual(self.card.use(**self.use_attributes(hero_id=self.hero.id, place_id=666, storage=self.storage)),
+        self.assertEqual(self.card.use(**self.use_attributes(hero=self.hero, place_id=666, storage=self.storage)),
                         (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
 

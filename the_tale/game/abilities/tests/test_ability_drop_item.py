@@ -17,10 +17,11 @@ from the_tale.game.abilities.deck import DropItem
 
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
+from the_tale.game.abilities.tests.helpers import UseAbilityTaskMixin
 
 
-
-class DropItemAbilityTest(testcase.TestCase):
+class DropItemAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
+    PROCESSOR = DropItem
 
     def setUp(self):
         super(DropItemAbilityTest, self).setUp()
@@ -33,15 +34,11 @@ class DropItemAbilityTest(testcase.TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.ability = DropItem()
+        self.ability = self.PROCESSOR()
 
     @property
     def use_attributes(self):
-        return {'data': {'hero_id': self.hero.id},
-                'step': ComplexChangeTask.STEP.LOGIC,
-                'main_task_id': 0,
-                'storage': self.storage,
-                'pvp_balancer': None}
+        return super(DropItemAbilityTest, self).use_attributes(hero=self.hero, storage=self.storage)
 
     def test_no_items(self):
         self.assertEqual(self.hero.bag.occupation, 0)

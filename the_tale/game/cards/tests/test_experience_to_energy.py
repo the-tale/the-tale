@@ -43,7 +43,7 @@ class ExperienceToEnergyMixin(CardsTestMixin):
 
         with self.check_delta(lambda: self.hero.experience, -39):
             with self.check_delta(lambda: self.hero.energy_bonus, int(math.ceil(39.0 / self.CARD.EXPERIENCE))):
-                result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id))
+                result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
 
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
@@ -52,7 +52,7 @@ class ExperienceToEnergyMixin(CardsTestMixin):
 
         with self.check_not_changed(lambda: self.hero.experience):
             with self.check_not_changed(lambda: self.hero.energy_bonus):
-                result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id))
+                result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
 
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 

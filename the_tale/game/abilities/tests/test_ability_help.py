@@ -23,8 +23,11 @@ from the_tale.game.pvp.models import BATTLE_1X1_STATE
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
+from the_tale.game.abilities.tests.helpers import UseAbilityTaskMixin
 
-class HelpAbilityTest(testcase.TestCase):
+
+class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
+    ABILITY = Help
 
     def setUp(self):
         super(HelpAbilityTest, self).setUp()
@@ -39,15 +42,11 @@ class HelpAbilityTest(testcase.TestCase):
         self.hero = self.storage.accounts_to_heroes[self.account.id]
         self.action_idl = self.hero.actions.current_action
 
-        self.ability = Help()
+        self.ability = self.ABILITY()
 
     @property
     def use_attributes(self):
-        return {'data': {'hero_id': self.hero.id},
-                'step': ComplexChangeTask.STEP.LOGIC,
-                'main_task_id': 0,
-                'storage': self.storage,
-                'pvp_balancer': None}
+        return super(HelpAbilityTest, self).use_attributes(hero=self.hero, storage=self.storage)
 
     def test_none(self):
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: None):

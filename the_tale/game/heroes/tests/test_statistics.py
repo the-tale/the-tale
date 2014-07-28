@@ -36,6 +36,8 @@ class HeroStatisticsTest(TestCase):
         self.hero.statistics.change_pvp_battles_1x1_number(15)
         self.hero.statistics.change_pvp_battles_1x1_victories(16)
         self.hero.statistics.change_help_count(17)
+        self.hero.statistics.change_cards_used(18)
+        self.hero.statistics.change_cards_combined(19)
 
 
     def test_change_money__achievements(self):
@@ -145,3 +147,24 @@ class HeroStatisticsTest(TestCase):
                                                                         type=ACHIEVEMENT_TYPE.KEEPER_HELP_COUNT,
                                                                         old_value=17,
                                                                         new_value=17+666)])
+
+    def test_change_cards_used__achievements(self):
+
+        with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
+            self.hero.statistics.change_cards_used(666)
+
+        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
+                                                                        type=ACHIEVEMENT_TYPE.KEEPER_CARDS_USED,
+                                                                        old_value=18,
+                                                                        new_value=18+666)])
+
+
+    def test_change_cards_combined__achievements(self):
+
+        with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
+            self.hero.statistics.change_cards_combined(666)
+
+        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
+                                                                        type=ACHIEVEMENT_TYPE.KEEPER_CARDS_COMBINED,
+                                                                        old_value=19,
+                                                                        new_value=19+666)])

@@ -272,7 +272,7 @@ class PrototypeTests(PrototypeTestsBase):
     @mock.patch('the_tale.game.quests.prototypes.QuestPrototype._get_upgrdade_choice', classmethod(lambda *argv, **kwargs: relations.UPGRADE_EQUIPMENT_VARIANTS.BUY))
     def test_upgrade_equipment__buy(self):
         self.assertEqual(self.hero.statistics.artifacts_had, 0)
-        self.quest._upgrade_equipment(process_message=self.quest.quests_stack[-1].process_message,
+        self.quest._upgrade_equipment(process_message=self.quest.current_info.process_message,
                                       hero=self.hero,
                                       knowledge_base=self.quest.knowledge_base,
                                       cost=666)
@@ -283,7 +283,7 @@ class PrototypeTests(PrototypeTestsBase):
         old_power = self.hero.power.clone()
         self.assertEqual(self.hero.statistics.artifacts_had, 0)
 
-        self.quest._upgrade_equipment(process_message=self.quest.quests_stack[-1].process_message,
+        self.quest._upgrade_equipment(process_message=self.quest.current_info.process_message,
                                       hero=self.hero,
                                       knowledge_base=self.quest.knowledge_base,
                                       cost=666)
@@ -301,7 +301,7 @@ class PrototypeTests(PrototypeTestsBase):
         old_power = self.hero.power.clone()
         self.assertEqual(self.hero.statistics.artifacts_had, 0)
 
-        self.quest._upgrade_equipment(process_message=self.quest.quests_stack[-1].process_message,
+        self.quest._upgrade_equipment(process_message=self.quest.current_info.process_message,
                                       hero=self.hero,
                                       knowledge_base=self.quest.knowledge_base,
                                       cost=666)
@@ -313,7 +313,7 @@ class PrototypeTests(PrototypeTestsBase):
     def test_upgrade_equipment__money_limit(self):
         self.hero._model.money = 99999999
 
-        self.quest._upgrade_equipment(process_message=self.quest.quests_stack[-1].process_message,
+        self.quest._upgrade_equipment(process_message=self.quest.current_info.process_message,
                                       hero=self.hero,
                                       knowledge_base=self.quest.knowledge_base,
                                       cost=666)
@@ -358,6 +358,26 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.assertEqual(self.hero.money - not_scaled_money, int(1 + f.sell_artifact_price(self.hero.level) * 1.5))
 
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.modify_experience', lambda self, exp: exp)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.experience_modifier', 2)
+    def test_finish_quest__add_bonus_experience(self):
+
+        self.quest.current_info.experience = 10
+        self.quest.current_info.experience_bonus = 1
+
+        # we don't modify power bonus like main power, becouse of possible experience_modifier < 1
+        with self.check_delta(lambda: self.hero.experience, 21):
+            self.quest._finish_quest(mock.Mock(results=mock.Mock(iteritems=lambda: [])), self.hero)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True)
+    def test_give_power__add_bonus_power(self):
+
+        self.quest.current_info.power = 10
+        self.quest.current_info.power_bonus = 1
+
+        # we modify power bonus like main power
+        self.assertEqual(self.quest._give_power(self.hero, self.place_1, 2), 22)
+
 
 class InterpreterCallbacksTests(PrototypeTestsBase):
 
@@ -375,9 +395,9 @@ class InterpreterCallbacksTests(PrototypeTestsBase):
             for marker in group:
                 all_markers[marker] = random.choice([True, False])
 
-        self.quest.quests_stack[-1].used_markers = all_markers
+        self.quest.current_info.used_markers = all_markers
 
-        self.assertEqual(set(self.quest.quests_stack[-1].used_markers.keys()), set([QUEST_OPTION_MARKERS.HONORABLE,
+        self.assertEqual(set(self.quest.current_info.used_markers.keys()), set([QUEST_OPTION_MARKERS.HONORABLE,
                                                                                     QUEST_OPTION_MARKERS.DISHONORABLE,
                                                                                     QUEST_OPTION_MARKERS.AGGRESSIVE,
                                                                                     QUEST_OPTION_MARKERS.UNAGGRESSIVE]))
@@ -389,7 +409,7 @@ class InterpreterCallbacksTests(PrototypeTestsBase):
 
         self.quest.on_jump_end__after_actions(jump)
 
-        self.assertEqual(set(self.quest.quests_stack[-1].used_markers.keys()), set([QUEST_OPTION_MARKERS.HONORABLE, QUEST_OPTION_MARKERS.AGGRESSIVE]))
+        self.assertEqual(set(self.quest.current_info.used_markers.keys()), set([QUEST_OPTION_MARKERS.HONORABLE, QUEST_OPTION_MARKERS.AGGRESSIVE]))
 
     def test_update_habits__on_jump_end__after_actions__no_markers__default(self):
         jump = facts.Jump(state_from='state_from', state_to='state_to')
@@ -416,7 +436,7 @@ class InterpreterCallbacksTests(PrototypeTestsBase):
 
         self.quest.on_jump_end__after_actions(jump)
 
-        self.assertEqual(self.quest.quests_stack[-1].used_markers,
+        self.assertEqual(self.quest.current_info.used_markers,
                          {QUEST_OPTION_MARKERS.HONORABLE: True,
                           QUEST_OPTION_MARKERS.AGGRESSIVE: True})
 
@@ -463,7 +483,7 @@ class InterpreterCallbacksTests(PrototypeTestsBase):
 
         self.quest.on_jump_end__after_actions(jump)
 
-        self.assertEqual(self.quest.quests_stack[-1].used_markers,
+        self.assertEqual(self.quest.current_info.used_markers,
                          {QUEST_OPTION_MARKERS.HONORABLE: False,
                           QUEST_OPTION_MARKERS.AGGRESSIVE: False})
 
@@ -960,5 +980,3 @@ class PrototypeMoveHeroTests(PrototypeTestsBase):
         self.assertTrue(isinstance(self.hero.actions.current_action, ActionMoveToPrototype))
         self.assertEqual(self.hero.actions.current_action.destination.id, self.place_3.id)
         self.assertEqual(round(self.hero.actions.current_action.break_at, 4), 0.9000)
-
-# TODO test actions

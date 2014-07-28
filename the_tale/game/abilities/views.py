@@ -45,6 +45,6 @@ class AbilitiesResource(Resource):
 
         task = self.ability.activate(HeroPrototype.get_by_account_id(self.account.id),
                                      data={'building_id': building,
-                                           'battle': battle})
+                                           'battle_id': battle})
 
         return self.processing(task.status_url)

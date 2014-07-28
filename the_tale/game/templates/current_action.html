@@ -37,7 +37,7 @@ jQuery(document).ready(function(e) {
                          OnSuccess: function(data){
                              jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
                              pgf.ui.dialog.Alert({message: data.data.message,
-                                                  title: 'Операция завершена',
+                                                  title: 'Вы получаете новую карту!',
                                                   OnOk: function(e){}});
                                  return;
                              }
@@ -92,7 +92,9 @@ jQuery(document).ready(function(e) {
     <div class="dropdown" style="display: inline-block;  width: 30%; font-size: 11pt;">
       <i class="icon-gift pgf-new-card-icon" style="margin-top: 1px;" rel="tooltip" title="Вы можете получить новую карту!"></i>
       <a href="#" class="dropdown-toggle" data-toggle="dropdown">карты<b class="caret"></b></a>
-      <ul class="pgf-scrollable dropdown-menu pgf-cards-choices" role="menu" style="max-height: 310px; overflow-y: auto; font-size: 10pt;">
+      <ul class="pgf-scrollable dropdown-menu pgf-cards-choices"
+          role="menu"
+          style="max-height: 310px; overflow-y: auto; font-size: 10pt; z-index: 1011; text-align: left;">
 
         <div class="pgf-get-card-statistics">
           помощи до новой карты <br/>

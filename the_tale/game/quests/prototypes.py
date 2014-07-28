@@ -34,9 +34,9 @@ from the_tale.game.quests import uids
 E = 0.001
 
 class QuestInfo(object):
-    __slots__ = ('type', 'uid', 'name', 'action', 'choice', 'choice_alternatives', 'experience', 'power', 'actors', 'used_markers')
+    __slots__ = ('type', 'uid', 'name', 'action', 'choice', 'choice_alternatives', 'experience', 'power', 'experience_bonus', 'power_bonus', 'actors', 'used_markers')
 
-    def __init__(self, type, uid, name, action, choice, choice_alternatives, experience, power, actors, used_markers):
+    def __init__(self, type, uid, name, action, choice, choice_alternatives, experience, power, experience_bonus, power_bonus, actors, used_markers):
         self.type = type
         self.uid = uid
         self.name = name
@@ -45,6 +45,8 @@ class QuestInfo(object):
         self.choice_alternatives = choice_alternatives
         self.experience = experience
         self.power = power
+        self.experience_bonus = experience_bonus
+        self.power_bonus = power_bonus
         self.actors = actors
         self.used_markers = used_markers
 
@@ -57,18 +59,22 @@ class QuestInfo(object):
                 'choice_alternatives': self.choice_alternatives,
                 'experience': self.experience,
                 'power': self.power,
+                'experience_bonus': self.experience_bonus,
+                'power_bonus': self.power_bonus,
                 'actors': self.actors,
                 'used_markers': self.used_markers}
 
     def ui_info(self, hero):
+        experience = int(self.experience * hero.experience_modifier) if hero is not None else self.experience # show experience modified by hero level and abilities
+        power = int(self.power * hero.person_power_modifier) if hero is not None else self.power # show power modified by hero level and abilities
         return {'type': self.type,
                 'uid': self.uid,
                 'name': self.name,
                 'action': self.action,
                 'choice': self.choice,
                 'choice_alternatives': self.choice_alternatives,
-                'experience': int(self.experience * hero.experience_modifier) if hero is not None else self.experience,# show experience modified by hero level and abilities
-                'power': int(self.power * hero.person_power_modifier) if hero is not None else self.power, # show power modified by hero level and abilities
+                'experience': experience + self.experience_bonus,
+                'power': power + self.power_bonus,
                 'actors': self.actors_ui_info()}
 
 
@@ -121,6 +127,8 @@ class QuestInfo(object):
                    choice_alternatives=[],
                    experience=cls.get_expirience_for_quest(hero),
                    power=cls.get_person_power_for_quest(hero),
+                   experience_bonus=0,
+                   power_bonus=0,
                    actors=actors,
                    used_markers={})
 
@@ -218,6 +226,8 @@ NO_QUEST_INFO__IN_PLACE = QuestInfo(type='no-quest',
                                     choice=None,
                                     choice_alternatives=(),
                                     experience=0,
+                                    experience_bonus=0,
+                                    power_bonus=0,
                                     power=0,
                                     actors={},
                                     used_markers=set())
@@ -230,6 +240,8 @@ NO_QUEST_INFO__OUT_PLACE = QuestInfo(type='no-quest',
                                      choice_alternatives=(),
                                      experience=0,
                                      power=0,
+                                     experience_bonus=0,
+                                     power_bonus=0,
                                      actors={},
                                      used_markers=set())
 
@@ -357,7 +369,7 @@ class QuestPrototype(object):
 
 
     def _give_power(self, hero, place, power):
-        power = power * self.current_info.power
+        power = power * (self.current_info.power + self.current_info.power_bonus)
 
         if power > 0:
             hero.places_history.add_place(place.id)
@@ -416,10 +428,11 @@ class QuestPrototype(object):
 
     def _finish_quest(self, finish, hero):
 
-        experience = self.current_info.experience
-        experience = self.modify_experience(experience)
+        experience = self.modify_experience(self.current_info.experience)
+        experience_bonus = self.modify_experience(self.current_info.experience_bonus)
 
         hero.add_experience(experience)
+        hero.add_experience(experience_bonus, without_modifications=True)
 
         hero.statistics.change_quests_done(1)
 
@@ -816,6 +829,8 @@ class QuestPrototype(object):
                                        choice_alternatives=(),
                                        experience=0,
                                        power=0,
+                                       experience_bonus=0,
+                                       power_bonus=0,
                                        actors={'goal': (spending, u'цель')},
                                        used_markers=set())
         return {'line': [NEXT_SPENDING_INFO.ui_info(None)]}

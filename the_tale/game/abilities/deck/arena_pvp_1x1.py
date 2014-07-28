@@ -1,7 +1,5 @@
 # coding: utf-8
 
-from the_tale.game.workers.environment import workers_environment
-
 from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
 
 from the_tale.game.abilities.prototypes import AbilityPrototype
@@ -15,26 +13,24 @@ from the_tale.game.postponed_tasks import ComplexChangeTask
 class ArenaPvP1x1(AbilityPrototype):
     TYPE = ABILITY_TYPE.ARENA_PVP_1x1
 
-    def use(self, data, step, main_task_id, storage, pvp_balancer, **kwargs):
+    def use(self, task, storage, pvp_balancer, **kwargs):
 
-        if step.is_LOGIC:
+        if task.step.is_LOGIC:
 
-            hero = storage.heroes[data['hero_id']]
+            if not task.hero.can_participate_in_pvp:
+                return task.logic_result(next_step=ComplexChangeTask.STEP.ERROR)
 
-            if not hero.can_participate_in_pvp:
-                return ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()
+            task.hero.add_message('angel_ability_arena_pvp_1x1', hero=task.hero)
 
-            hero.add_message('angel_ability_arena_pvp_1x1', hero=hero)
+            task.hero.update_habits(HABIT_CHANGE_SOURCE.ARENA_SEND)
 
-            hero.update_habits(HABIT_CHANGE_SOURCE.ARENA_SEND)
+            return task.logic_result(next_step=ComplexChangeTask.STEP.PVP_BALANCER)
 
-            return ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.PVP_BALANCER, ((lambda: workers_environment.pvp_balancer.cmd_logic_task(hero.account_id, main_task_id)), )
+        elif task.step.is_PVP_BALANCER:
 
-        elif step.is_PVP_BALANCER:
-
-            battle = Battle1x1Prototype.get_by_account_id(data['account_id'])
+            battle = Battle1x1Prototype.get_by_account_id(task.data['account_id'])
 
             if battle is None:
-                pvp_balancer.add_to_arena_queue(data['hero_id'])
+                pvp_balancer.add_to_arena_queue(task.data['hero_id'])
 
-            return ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()
+            return task.logic_result()

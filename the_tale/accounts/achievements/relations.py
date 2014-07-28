@@ -16,7 +16,8 @@ class ACHIEVEMENT_GROUP(DjangoEnum): # visualization
                 ('PVP', 6, u'PvP', 'pvp'),
                 ('POLITICS', 7, u'Политика', 'politics'),
                 ('KEEPER', 8, u'Хранитель', 'keeper'),
-                ('CHARACTER', 9, u'Характер', 'character'))
+                ('CHARACTER', 9, u'Характер', 'character'),
+                ('CARDS', 10, u'Карты Судьбы', 'cards'))
 
 
 class ACHIEVEMENTS_SOURCE(DjangoEnum):
@@ -43,5 +44,7 @@ class ACHIEVEMENT_TYPE(DjangoEnum): # filtration
                 ('KEEPER_HELP_COUNT', 12, u'Помощь герою', ACHIEVEMENTS_SOURCE.GAME_OBJECT),
                 ('KEEPER_MIGHT', 13, u'Могущество', ACHIEVEMENTS_SOURCE.ACCOUNT),
                 ('HABITS_HONOR', 14, u'Черты: Честь', ACHIEVEMENTS_SOURCE.GAME_OBJECT),
-                ('HABITS_PEACEFULNESS', 15, u'Черты: Миролюбие', ACHIEVEMENTS_SOURCE.GAME_OBJECT)
+                ('HABITS_PEACEFULNESS', 15, u'Черты: Миролюбие', ACHIEVEMENTS_SOURCE.GAME_OBJECT),
+                ('KEEPER_CARDS_USED', 16, u'Использовано карт', ACHIEVEMENTS_SOURCE.GAME_OBJECT),
+                ('KEEPER_CARDS_COMBINED', 17, u'Объединено карт', ACHIEVEMENTS_SOURCE.GAME_OBJECT),
         )

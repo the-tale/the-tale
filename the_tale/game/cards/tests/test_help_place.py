@@ -36,13 +36,13 @@ class HelpPlaceMixin(CardsTestMixin):
 
     def test_use(self):
         with self.check_delta(lambda: self.hero.places_history._get_places_statisitcs().get(self.place_1.id, 0), self.CARD.HELPS):
-            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id, place_id=self.place_1.id))
+            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero, place_id=self.place_1.id))
 
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
     def test_wrong_place(self):
         with self.check_not_changed(lambda: self.hero.places_history._get_places_statisitcs().get(self.place_1.id, 0)):
-            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id, place_id=666))
+            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero, place_id=666))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
 

@@ -24,6 +24,7 @@ from the_tale.game.map.places.prototypes import BuildingPrototype
 
 
 class RepairBuildingTests(CardsTestMixin, testcase.TestCase):
+    CARD = prototypes.RepairBuilding
 
     def setUp(self):
         super(RepairBuildingTests, self).setUp()
@@ -41,7 +42,7 @@ class RepairBuildingTests(CardsTestMixin, testcase.TestCase):
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
-        self.card = prototypes.RepairBuilding()
+        self.card = self.CARD()
 
         workers_environment.deinitialize()
         workers_environment.initialize()
@@ -60,7 +61,7 @@ class RepairBuildingTests(CardsTestMixin, testcase.TestCase):
         self.assertTrue(self.building_1.need_repair)
         self.assertTrue(self.building_2.need_repair)
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(hero_id=self.hero.id, storage=self.storage, building_id=self.building_2.id))
+        result, step, postsave_actions = self.card.use(**self.use_attributes(hero=self.hero, storage=self.storage, building_id=self.building_2.id))
 
         self.assertEqual((result, step), (ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.HIGHLEVEL))
         self.assertEqual(len(postsave_actions), 1)
@@ -70,7 +71,7 @@ class RepairBuildingTests(CardsTestMixin, testcase.TestCase):
 
         self.assertEqual(highlevel_logic_task_counter.call_count, 1)
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(hero_id=self.hero.id,
+        result, step, postsave_actions = self.card.use(**self.use_attributes(hero=self.hero,
                                                                              step=step,
                                                                              highlevel=self.highlevel,
                                                                              building_id=self.building_2.id))
@@ -82,5 +83,5 @@ class RepairBuildingTests(CardsTestMixin, testcase.TestCase):
 
 
     def test_use_for_wrong_place_id(self):
-        self.assertEqual(self.card.use(**self.use_attributes(hero_id=self.hero.id, building_id=666, storage=self.storage)),
+        self.assertEqual(self.card.use(**self.use_attributes(hero=self.hero, building_id=666, storage=self.storage)),
                         (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))

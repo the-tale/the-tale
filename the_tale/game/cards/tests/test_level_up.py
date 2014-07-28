@@ -16,6 +16,7 @@ from the_tale.game.cards.tests.helpers import CardsTestMixin
 
 
 class LevelUpTest(testcase.TestCase, CardsTestMixin):
+    CARD = LevelUp
 
     def setUp(self):
         super(LevelUpTest, self).setUp()
@@ -30,7 +31,7 @@ class LevelUpTest(testcase.TestCase, CardsTestMixin):
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
-        self.card = LevelUp()
+        self.card = self.CARD()
 
 
     def test_use(self):
@@ -42,6 +43,6 @@ class LevelUpTest(testcase.TestCase, CardsTestMixin):
 
         with self.check_not_changed(lambda: self.hero.experience):
             with self.check_delta(lambda: self.hero.level, 1):
-                result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id))
+                result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
 
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))

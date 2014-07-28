@@ -61,7 +61,7 @@ class ChangeHeroSpendingsMixin(CardsTestMixin):
         for item in ITEMS_OF_EXPENDITURE.records:
             self.hero.next_spending = item
 
-            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id))
+            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
 
             self.assertEqual(self.hero.next_spending, self.CARD.ITEM)
 

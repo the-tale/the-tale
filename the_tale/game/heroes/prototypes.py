@@ -148,8 +148,8 @@ class HeroPrototype(BasePrototype,
             account = AccountPrototype.get_by_id(self.account_id)
             MessagePrototype.create(get_system_user(), account, text=u'Поздравляем, Ваш герой получил %d уровень!' % self.level)
 
-    def add_experience(self, value):
-        real_experience = int(value * self.experience_modifier)
+    def add_experience(self, value, without_modifications=False):
+        real_experience = int(value) if without_modifications else int(value * self.experience_modifier)
         self._model.experience += real_experience
 
         while self.experience_to_next_level <= self._model.experience:
@@ -502,7 +502,15 @@ class HeroPrototype(BasePrototype,
     def get_new_card(self):
         from the_tale.game.cards.relations import CARD_TYPE
 
-        card = random.choice(CARD_TYPE.records)
+        cards = CARD_TYPE.records
+
+        if not self.is_premium:
+            cards = [card for card in cards if not card.availability.is_FOR_PREMIUMS]
+
+        prioritites = [(card, card.rarity.priority) for card in cards]
+
+        card = random_value_by_priority(prioritites)
+
         self.cards.add_card(card, 1)
 
         return card
@@ -726,6 +734,10 @@ class HeroPrototype(BasePrototype,
             return self.habit_honor.raw_value
         elif achievement_type.is_HABITS_PEACEFULNESS:
             return self.habit_peacefulness.raw_value
+        elif achievement_type.is_KEEPER_CARDS_USED:
+            return self.statistics.cards_used
+        elif achievement_type.is_KEEPER_CARDS_COMBINED:
+            return self.statistics.cards_combined
 
         raise exceptions.UnkwnownAchievementTypeError(achievement_type=achievement_type)
 

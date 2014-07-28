@@ -3,11 +3,15 @@ import math
 import random
 import subprocess
 import datetime
+import types
 
 def random_value_by_priority(values):
 
     if not values:
         return None
+
+    if isinstance(values, types.GeneratorType):
+        values = tuple(values)
 
     domain = 0
 

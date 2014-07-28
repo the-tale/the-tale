@@ -127,7 +127,11 @@ class Hero(models.Model):
     stat_pvp_battles_1x1_victories = models.BigIntegerField(default=0, null=False)
     stat_pvp_battles_1x1_draws = models.BigIntegerField(default=0, null=False)
 
+    stat_cards_used = models.BigIntegerField(default=0, null=False)
+    stat_cards_combined = models.BigIntegerField(default=0, null=False)
+
     cards_help_count = models.BigIntegerField(default=0, null=False)
+
 
     def __unicode__(self): return u'hero[%s] — %s' % (self.id, s11n.from_json(self.name_forms)['normalized'])
 

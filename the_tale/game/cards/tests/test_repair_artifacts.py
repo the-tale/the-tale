@@ -44,7 +44,7 @@ class RepairRandomArtifactTests(RepairArtifacsTestMixin, testcase.TestCase):
     def test_all_repaired(self):
         self.check_all_equipment_repaired(True)
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id))
+        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
         self.check_all_equipment_repaired(True)
@@ -60,12 +60,12 @@ class RepairRandomArtifactTests(RepairArtifacsTestMixin, testcase.TestCase):
 
         self.check_all_equipment_repaired(False)
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id))
+        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.check_all_equipment_repaired(False)
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id))
+        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.check_all_equipment_repaired(True)
@@ -93,7 +93,7 @@ class RepairAllArtifactsTests(RepairArtifacsTestMixin, testcase.TestCase):
     def test_all_repaired(self):
         self.check_all_equipment_repaired(True)
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id))
+        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
         self.check_all_equipment_repaired(True)
@@ -109,7 +109,7 @@ class RepairAllArtifactsTests(RepairArtifacsTestMixin, testcase.TestCase):
 
         self.check_all_equipment_repaired(False)
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero_id=self.hero.id))
+        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.check_all_equipment_repaired(True)
