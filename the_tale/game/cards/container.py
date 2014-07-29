@@ -44,6 +44,9 @@ class CardsContainer(object):
         if not self._cards[card_type]:
             del self._cards[card_type]
 
+    def cards_count(self):
+        return sum(self._cards.values())
+
     @property
     def cards(self): return sorted(self._cards.iteritems(), key=lambda x: x[0].text)
 

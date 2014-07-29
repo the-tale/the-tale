@@ -58,7 +58,11 @@ class ComplexChangeTask(PostponedLogic):
                  'message': self.message}
 
     @property
-    def processed_data(self): return {}
+    def processed_data(self):
+        if self.message is None:
+            return {}
+
+        return {'message': self.message}
 
     @property
     def error_message(self):

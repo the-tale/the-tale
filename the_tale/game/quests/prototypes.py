@@ -36,7 +36,7 @@ E = 0.001
 class QuestInfo(object):
     __slots__ = ('type', 'uid', 'name', 'action', 'choice', 'choice_alternatives', 'experience', 'power', 'experience_bonus', 'power_bonus', 'actors', 'used_markers')
 
-    def __init__(self, type, uid, name, action, choice, choice_alternatives, experience, power, experience_bonus, power_bonus, actors, used_markers):
+    def __init__(self, type, uid, name, action, choice, choice_alternatives, experience, power, actors, used_markers, experience_bonus=0, power_bonus=0,):
         self.type = type
         self.uid = uid
         self.name = name

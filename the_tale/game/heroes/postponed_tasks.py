@@ -20,7 +20,7 @@ from the_tale.game.persons.storage import persons_storage
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
 from the_tale.game.heroes import relations
 
-from the_tale.game.cards.relations import CARD_TYPE
+from the_tale.game.cards.relations import CARD_TYPE, RARITY as CARD_RARITY
 from the_tale.game.cards.prototypes import CARDS
 
 
@@ -560,6 +560,76 @@ class GetCardTask(PostponedLogic):
 
         storage.save_bundle_data(hero.actions.current_action.bundle_id, update_cache=True)
 
-        self.state = RESET_HERO_ABILITIES_TASK_STATE.PROCESSED
+        self.state = GET_CARD_TASK_STATE.PROCESSED
+
+        return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
+
+
+
+class COMBINE_CARDS_STATE(DjangoEnum):
+   records = ( ('UNPROCESSED', 0, u'в очереди'),
+               ('PROCESSED', 1, u'обработана'),
+               ('CAN_NOT_COMBINE', 2, u'не удалось объединить карты'))
+
+class CombineCardsTask(PostponedLogic):
+
+    TYPE = 'combine-cards'
+
+    MESSAGE = u'''
+<p>Вы получаете новую карту: <span class="%(rarity)s-card-label">%(name)s</span><br/><br/></p>
+
+<blockquote>%(description)s</blockquote>
+'''
+
+
+    def __init__(self, hero_id, cards=[], state=GET_CARD_TASK_STATE.UNPROCESSED, card=None):
+        super(CombineCardsTask, self).__init__()
+        self.hero_id = hero_id
+        self.cards = [card if isinstance(card, rels.Record) else CARD_TYPE(card) for card in cards]
+        self.state = state if isinstance(state, rels.Record) else GET_CARD_TASK_STATE(state)
+        self.card = card if card is None or isinstance(card, rels.Record) else CARD_TYPE(card)
+
+    def serialize(self):
+        return { 'hero_id': self.hero_id,
+                 'state': self.state.value,
+                 'cards': [card.value for card in self.cards],
+                 'card': self.card.value if self.card else None}
+
+    @property
+    def error_message(self): return self.state.text
+
+    @property
+    def processed_data(self):
+        message = self.MESSAGE % {'name': self.card.text[0].upper() + self.card.text[1:],
+                                  'description': CARDS[self.card].DESCRIPTION,
+                                  'rarity': self.card.rarity.name.lower()}
+        return {'message': message }
+
+    def process(self, main_task, storage):
+
+        hero = storage.heroes[self.hero_id]
+
+        can_combine_cards = hero.can_combine_cards(self.cards)
+
+        if not can_combine_cards.is_ALLOWED:
+            main_task.comment = u'can not get combine cards (status: %r)' % can_combine_cards
+            self.state = COMBINE_CARDS_STATE.CAN_NOT_COMBINE
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+        for card in self.cards:
+            hero.cards.remove_card(card, 1)
+
+        if len(self.cards) == 2:
+            rarity = self.cards[0].rarity
+        else:
+            rarity=CARD_RARITY(self.cards[0].rarity.value+1)
+
+        self.card = hero.get_new_card(rarity=rarity, exclude=self.cards)
+
+        hero.statistics.change_cards_combined(len(self.cards))
+
+        storage.save_bundle_data(hero.actions.current_action.bundle_id, update_cache=True)
+
+        self.state = COMBINE_CARDS_STATE.PROCESSED
 
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS

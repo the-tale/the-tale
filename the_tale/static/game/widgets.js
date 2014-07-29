@@ -519,11 +519,22 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
         jQuery('.pgf-get-card-statistics', widget).toggleClass('pgf-hidden', data.cards_help_count >= data.cards_help_barrier);
         jQuery('.pgf-get-card-button', widget).toggleClass('pgf-hidden', data.cards_help_count < data.cards_help_barrier);
 
-        for (var i in data.cards) {
-            jQuery('.pgf-cards-choices .pgf-card-'+i, widget).toggleClass('pgf-hidden', false);
-            jQuery('.pgf-cards-choices .pgf-card-'+i+' .pgf-count', widget).text(data.cards[i]);
-        }
+        var cardsCount = instance.ShowCards(jQuery('.pgf-cards-choices', widget))
+
+        jQuery('.pgf-combine-card-button', widget).toggleClass('pgf-hidden', cardsCount < 2);
     }
+
+    this.ShowCards = function(container) {
+        var cardsCount = 0;
+
+        for (var i in data.cards) {
+            jQuery('.pgf-card-'+i, container).toggleClass('pgf-hidden', false);
+            jQuery('.pgf-card-'+i+' .pgf-count', container).text(data.cards[i]);
+            cardsCount += 1;
+        }
+
+        return cardsCount;
+    };
 
     this.Refresh = function(game_data) {
 
@@ -1193,4 +1204,69 @@ pgf.game.widgets.Abilities = function() {
 
     this.RenderAbility = RenderAbility;
     this.UpdateButtons = UpdateButtons;
+};
+
+pgf.game.CombineCardsDialog = function(dialog) {
+    widgets.actions.ShowCards(jQuery('.pgf-card-choices', dialog));
+
+    function CanChoseCard() {
+        var cardsCount = 0;
+
+        jQuery('.pgf-chosen-cards .pgf-card').not('.pgf-hidden').each(function(i, e){
+            cardsCount += parseInt(jQuery('.pgf-count', e).text());
+        });
+
+        return cardsCount < 3;
+    }
+
+    function ChoseCard(cardId) {
+        var chosenCard = jQuery('.pgf-chosen-cards .pgf-card-'+cardId, dialog);
+        var chosenCardCount = parseInt(jQuery('.pgf-count', chosenCard).text());
+
+        var unchosenCard = jQuery('.pgf-card-choices .pgf-card-'+cardId, dialog);
+        var unchosenCardCount = parseInt(jQuery('.pgf-count', unchosenCard).text());
+
+        chosenCardCount += 1;
+        unchosenCardCount -= 1;
+
+        chosenCard.toggleClass('pgf-hidden', chosenCardCount == 0)
+        unchosenCard.toggleClass('pgf-hidden', unchosenCardCount == 0)
+
+        jQuery('.pgf-count', unchosenCard).text(unchosenCardCount);
+        jQuery('.pgf-count', chosenCard).text(chosenCardCount);
+    }
+
+    function UnchoseCard(cardId) {
+        var chosenCard = jQuery('.pgf-chosen-cards .pgf-card-'+cardId, dialog);
+        var chosenCardCount = parseInt(jQuery('.pgf-count', chosenCard).text());
+
+        var unchosenCard = jQuery('.pgf-card-choices .pgf-card-'+cardId, dialog);
+        var unchosenCardCount = parseInt(jQuery('.pgf-count', unchosenCard).text());
+
+        chosenCardCount -= 1;
+        unchosenCardCount += 1;
+
+        chosenCard.toggleClass('pgf-hidden', chosenCardCount == 0)
+        unchosenCard.toggleClass('pgf-hidden', unchosenCardCount == 0)
+
+        jQuery('.pgf-count', unchosenCard).text(unchosenCardCount);
+        jQuery('.pgf-count', chosenCard).text(chosenCardCount);
+    }
+
+    jQuery('.pgf-card-choices .pgf-card', dialog).click(function(e){
+        e.preventDefault();
+
+        if (!CanChoseCard()) {
+            return;
+        }
+
+        var el = jQuery(e.currentTarget);
+        ChoseCard(el.data('card-id'));
+    });
+
+    jQuery('.pgf-chosen-cards .pgf-card', dialog).click(function(e){
+        e.preventDefault();
+        var el = jQuery(e.currentTarget);
+        UnchoseCard(el.data('card-id'));
+    });
 };

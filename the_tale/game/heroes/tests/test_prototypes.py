@@ -30,7 +30,7 @@ from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.relations import HABIT_PEACEFULNESS_INTERVAL, HABIT_HONOR_INTERVAL
 
-from the_tale.game.cards.relations import CARD_TYPE
+from the_tale.game.cards.relations import CARD_TYPE, RARITY as CARD_RARITY
 
 from the_tale.game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
 from the_tale.game.heroes.habilities import ABILITY_TYPE, ABILITIES, battle, ABILITY_AVAILABILITY
@@ -956,10 +956,14 @@ class GetNewCardTest(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True)
     def test_simple(self):
 
+        rarities = set()
+
         for i in xrange(len(CARD_TYPE.records)*1000):
-            self.hero.get_new_card()
+            card = self.hero.get_new_card()
+            rarities.add(card.rarity)
 
         self.assertEqual(len(CARD_TYPE.records), len(self.hero.cards.cards))
+        self.assertEqual(rarities, set(CARD_RARITY.records))
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', False)
     def test_not_premium(self):
@@ -981,3 +985,20 @@ class GetNewCardTest(testcase.TestCase):
         for card, count in sorted(self.hero.cards.cards, key=lambda x: -x[1]):
             self.assertTrue(last_rarity_value <= card.rarity.value)
             last_rarity_value = card.rarity.value
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True)
+    def test_rarity(self):
+        for rarity in CARD_RARITY.records:
+            for i in xrange(100):
+                card = self.hero.get_new_card(rarity=rarity)
+                self.assertEqual(card.rarity, rarity)
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True)
+    def test_exclude(self):
+        cards = set()
+
+        for i in xrange(len(CARD_TYPE.records)):
+            cards.add(self.hero.get_new_card(exclude=cards))
+
+        self.assertEqual(cards, set(CARD_TYPE.records))

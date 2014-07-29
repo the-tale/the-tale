@@ -198,3 +198,12 @@ class HABIT_CHANGE_SOURCE(DjangoEnum):
                 ('HELP_UNAGGRESSIVE', 9, u'помощь вне боя', None, None, None,   0.0, c.HABITS_HELP_ABILITY_DELTA),
                 ('ARENA_SEND', 10, u'отправка на арену', None, None, None,      0.0, -c.HABITS_ARENA_ABILITY_DELTA),
                 ('ARENA_LEAVE', 11, u'покидание арены', None, None, None,       0.0, c.HABITS_ARENA_ABILITY_DELTA) )
+
+
+class CARDS_COMBINING_STATUS(DjangoEnum):
+    records = ( ('ALLOWED', 0, u'Объединение разрешено'),
+                ('NOT_ENOUGH_CARDS', 1, u'Не хватает карт'),
+                ('TO_MANY_CARDS', 2, u'Слишком много карт'),
+                ('EQUAL_RARITY_REQUIRED', 3, u'Карты должны быть одной редкости'),
+                ('LEGENDARY_X3_DISALLOWED', 4, u'Нельзя объединять 3 легендарных карты'),
+                ('HAS_NO_CARDS', 5, u'У героя нет таких карт') )

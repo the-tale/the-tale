@@ -72,6 +72,14 @@ class CardsResource(CardsResourceBase):
 
         return self.json_processing(task.status_url)
 
+    @login_required
+    @handler('combine-dialog', method='get')
+    def combine_dialog(self):
+        cards = sorted(prototypes.CARDS.values(), key=lambda x: (x.TYPE.rarity.value, x.TYPE.text))
+
+        return self.template('cards/combine_dialog.html',
+                             {'CARDS': cards} )
+
 
 class GuideCardsResource(CardsResourceBase):
 

@@ -11,7 +11,6 @@ from the_tale.common.utils.logic import random_value_by_priority
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
 
-from the_tale.game.heroes.logic import create_mob_for_hero
 from the_tale.game.heroes.relations import MONEY_SOURCE
 
 from the_tale.game.balance import constants as c, formulas as f, enums as e
@@ -19,6 +18,7 @@ from the_tale.game.balance import constants as c, formulas as f, enums as e
 from the_tale.game.quests.logic import create_random_quest_for_hero
 
 from the_tale.game.mobs.prototypes import MobPrototype
+from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.artifacts.storage import artifacts_storage
 
@@ -816,7 +816,7 @@ class ActionMoveToPrototype(ActionBase):
             self.state = self.STATE.REGENERATE_ENERGY
 
         elif self.hero.position.is_battle_start_needed():
-            mob = create_mob_for_hero(self.hero)
+            mob = mobs_storage.create_mob_for_hero(self.hero)
             ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
             self.state = self.STATE.BATTLE
 
@@ -1545,7 +1545,7 @@ class ActionMoveNearPlacePrototype(ActionBase):
             self.state = self.STATE.REGENERATE_ENERGY
 
         elif self.hero.position.is_battle_start_needed():
-            mob = create_mob_for_hero(self.hero)
+            mob = mobs_storage.create_mob_for_hero(self.hero)
             ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
             self.state = self.STATE.BATTLE
 

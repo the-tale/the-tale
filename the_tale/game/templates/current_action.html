@@ -26,6 +26,13 @@ jQuery(document).ready(function(e) {
                                                                      {OnSuccess: function(data){
                                                                          jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
                                                                          dialog.modal('hide');
+
+                                                                         if (data.data.message) {
+                                                                             pgf.ui.dialog.Alert({message: data.data.message,
+                                                                                                  title: 'Карта использована',
+                                                                                                  OnOk: function(e){}});
+                                                                         }
+
                                                                      }});
                                }
                              });
@@ -44,7 +51,15 @@ jQuery(document).ready(function(e) {
                          });
     });
 
+    jQuery('.pgf-combine-card-button').click(function(e){
+        e.preventDefault();
 
+        pgf.ui.dialog.Create({ fromUrl: "{{url('game:cards:combine-dialog')}}",
+                               OnOpen: function(dialog) {
+                                   pgf.game.CombineCardsDialog(dialog);
+                               }
+                             });
+    });
 
 });
 </script>
@@ -108,9 +123,13 @@ jQuery(document).ready(function(e) {
 
         </div>
 
-        <a href="#"
-           class="pgf-get-card-button pgf-hidden"
-           style="margin: 0.25em; height: 18px; color: #0088cc;">Взять карту!</a>
+        <div class="pgf-get-card-button pgf-hidden">
+          <a href="#" style="margin: 0.25em; height: 18px; color: #0088cc;">Взять карту!</a>
+        </div>
+
+        <div class="pgf-combine-card-button pgf-hidden">
+          <a href="#" style="margin: 0.25em; height: 18px; color: #0088cc;">Объединить карты</a>
+        </div>
 
         <hr/>
 
@@ -118,6 +137,7 @@ jQuery(document).ready(function(e) {
           <li class="pgf-card pgf-card-{{card.TYPE.value}}">
             <a href="{{url('game:cards:use-dialog', card=card.TYPE.value)}}"
                style="font-size: 10pt;"
+               data-tooltip-placement="right"
                rel="tooltip"
                title="{{card.DESCRIPTION}}">
                <span class="{{card.TYPE.rarity.name|lower}}-card-label">{{card.TYPE.text}}</span> x <span class="pgf-count"></span>

@@ -1,0 +1,63 @@
+
+{% macro card_record(card) %}
+  <li class="pgf-card pgf-card-{{card.TYPE.value}} pgf-hidden" data-card-id="{{card.TYPE.value}}">
+    <a href="#"
+       style="font-size: 10pt;"
+       data-tooltip-placement="right"
+       rel="tooltip"
+       title="{{card.DESCRIPTION}}">
+       <span class="{{card.TYPE.rarity.name|lower}}-card-label">{{card.TYPE.text}}</span> x <span class="pgf-count">0</span>
+    </a>
+  </li>
+{% endmacro %}
+
+<div class="modal hide hero-deck-use-card">
+
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3 class="pgf-dialog-title dialog-title">Объединение карт</h3>
+  </div>
+
+  <div class="modal-body">
+
+    <ul>
+      <li>Объединять можно только карты одинаковой редкости.</li>
+      <li>Объединив две карты Вы получите новую карту такой же редкости, но другого типа.</li>
+      <li>Объединив три карты Вы получите новую карту следующей редкости.</li>
+      <li>Нельзя объединять три легендарные карты.</li>
+    </ul>
+
+    <table width="100%">
+      <thead>
+        <tr>
+          <th>Выбранные карты</th>
+          <th width="50%">Ваши карты</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="vertical-align: top;">
+            <ul style="height: 60px; overflow-y: auto; font-size: 10pt;" class="pgf-chosen-cards">
+              {% for card in CARDS %}
+                {{ card_record(card) }}
+              {% endfor %}
+            </ul>
+          </td>
+          <td>
+            <div class="pgf-scrollable" style="max-height: 200px; overflow-y: auto; font-size: 10pt;">
+              <ul class="pgf-card-choices unstyled" style="">
+                {% for card in CARDS %}
+                  {{ card_record(card) }}
+                {% endfor %}
+              </ul>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <a href="#" class="btn btn-success pgf-combine-cards-button" style="display: block; margin-top: 10px;">Объединить карты</a>
+
+  </div>
+
+</div>

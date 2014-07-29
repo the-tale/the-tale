@@ -15,7 +15,3 @@ class DuplicatePermanentPurchaseError(PaymentsError):
 
 class BuyHeroMethodSerializationError(PaymentsError):
     MSG = 'can not serialize BuyHeroMethod postponed task'
-
-
-class UnknownHabit(PaymentsError):
-    MSG = u'unknown habit: %(habit)s'

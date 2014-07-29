@@ -144,17 +144,8 @@ rechoose_hero_abilities = goods.RechooseHeroAbilitiesChoices(uid='hero-abilities
 
 
 def change_hero_habits(habit, value, cost):
-
-    if habit.is_HONOR:
-        name = u'%s чести' % value
-        transaction_description = u'Покупка %s очков чести' % value
-
-    elif habit.is_PEACEFULNESS:
-        name = u'%s миролюбия' % value
-        transaction_description = u'Покупка %s очков миролюбия' % value
-
-    else:
-        raise exceptions.UnknownHabit(habit=habit)
+    name = u'%s %s' % (value, habit.plural_accusative)
+    transaction_description = u'Покупка %s очков %s' % (value, habit.plural_accusative)
 
     return goods.ChangeHeroHabits(uid='hero-habits-%s-%d' % (habit.name.lower(), value),
                                   cost=cost,

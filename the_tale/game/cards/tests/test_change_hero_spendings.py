@@ -59,6 +59,9 @@ class ChangeHeroSpendingsMixin(CardsTestMixin):
     def test_use(self):
 
         for item in ITEMS_OF_EXPENDITURE.records:
+            if item == self.CARD.ITEM:
+                continue
+
             self.hero.next_spending = item
 
             result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
@@ -66,6 +69,15 @@ class ChangeHeroSpendingsMixin(CardsTestMixin):
             self.assertEqual(self.hero.next_spending, self.CARD.ITEM)
 
             self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+
+
+    def test_equal(self):
+        self.hero.next_spending = self.CARD.ITEM
+
+        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+
+        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
+
 
 
 class ChangeHeroSpendingsToInstantHealTests(ChangeHeroSpendingsMixin, testcase.TestCase):

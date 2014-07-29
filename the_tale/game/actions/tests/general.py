@@ -12,6 +12,8 @@ from the_tale.game.logic import create_test_map
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.balance import constants as c
 
+from the_tale.game.mobs.storage import mobs_storage
+
 from the_tale.game.abilities.relations import HELP_CHOICES
 
 from the_tale.game.actions.prototypes import ACTION_TYPES
@@ -145,9 +147,7 @@ class GeneralTest(testcase.TestCase):
 
 
     def test_action_full_serialization(self):
-        from the_tale.game.heroes.logic import create_mob_for_hero
-
-        mob = create_mob_for_hero(self.hero)
+        mob = mobs_storage.create_mob_for_hero(self.hero)
 
         default_action = TestAction( hero=self.hero,
                                      bundle_id=self.bundle_id,

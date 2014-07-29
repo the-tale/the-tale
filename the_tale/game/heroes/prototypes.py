@@ -159,8 +159,10 @@ class HeroPrototype(BasePrototype,
         return real_experience
 
     def convert_experience_to_energy(self, energy_cost):
-        self.energy_bonus += int(math.ceil(float(self.experience) / energy_cost))
+        bonus = int(math.ceil(float(self.experience) / energy_cost))
+        self.energy_bonus += bonus
         self._model.experience = 0
+        return bonus
 
     @property
     def health_percents(self): return float(self.health) / self.max_health
@@ -499,13 +501,19 @@ class HeroPrototype(BasePrototype,
             else:
                 self.abilities.add(new_ability.get_id())
 
-    def get_new_card(self):
+    def get_new_card(self, rarity=None, exclude=()):
         from the_tale.game.cards.relations import CARD_TYPE
 
         cards = CARD_TYPE.records
 
         if not self.is_premium:
             cards = [card for card in cards if not card.availability.is_FOR_PREMIUMS]
+
+        if rarity:
+            cards = [card for card in cards if card.rarity == rarity]
+
+        if exclude:
+            cards = [card for card in cards if card not in exclude]
 
         prioritites = [(card, card.rarity.priority) for card in cards]
 

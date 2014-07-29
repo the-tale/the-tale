@@ -204,6 +204,18 @@ class ArtifactPrototype(object):
                 self.max_integrity == other.max_integrity and
                 self.bag_uuid == other.bag_uuid)
 
+    NORMAL_ARTIFACT_LABEL = u'%s <span class="physic-label">%d</span> <span class="magic-label">%d</span>'
+    RARE_ARTIFACT_LABEL = u'<span class="rare-artifact-label">%s</span> <span class="physic-label">%d</span> <span class="magic-label">%d</span>'
+    EPIC_ARTIFACT_LABEL = u'<span class="epic-artifact-label">%s</span> <span class="physic-label">%d</span> <span class="magic-label">%d</span>'
+
+    def html_label(self):
+        if self.rarity.is_NORMAL:
+            return self.NORMAL_ARTIFACT_LABEL % (self.name, self.power.physic, self.power.magic)
+        if self.rarity.is_RARE:
+            return self.RARE_ARTIFACT_LABEL % (self.name, self.power.physic, self.power.magic)
+        if self.rarity.is_EPIC:
+            return self.EPIC_ARTIFACT_LABEL % (self.name, self.power.physic, self.power.magic)
+
 
 class ArtifactRecordPrototype(BasePrototype):
     _model_class = ArtifactRecord

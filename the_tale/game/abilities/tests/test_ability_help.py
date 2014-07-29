@@ -12,8 +12,9 @@ from the_tale.game.logic import create_test_map
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.actions import prototypes as actions_prototypes
 
-from the_tale.game.heroes.logic import create_mob_for_hero
 from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
+
+from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.abilities.deck.help import Help
 from the_tale.game.abilities.relations import HELP_CHOICES
@@ -136,7 +137,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
 
     def test_lighting(self):
         current_time = TimePrototype.get_current_time()
-        action_battle = actions_prototypes.ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=create_mob_for_hero(self.hero))
+        action_battle = actions_prototypes.ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.create_mob_for_hero(self.hero))
 
         current_time.increment_turn()
         self.storage.process_turn()
@@ -156,7 +157,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
 
     def test_lighting_when_mob_killed(self):
         current_time = TimePrototype.get_current_time()
-        action_battle = actions_prototypes.ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=create_mob_for_hero(self.hero))
+        action_battle = actions_prototypes.ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.create_mob_for_hero(self.hero))
 
         current_time.increment_turn()
         self.storage.process_turn()

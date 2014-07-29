@@ -12,8 +12,6 @@ from the_tale.game.balance import constants as c
 from the_tale.game.balance.power import Power
 from the_tale.game.relations import HABIT_HONOR_INTERVAL, HABIT_PEACEFULNESS_INTERVAL
 
-from the_tale.game.heroes.logic import create_mob_for_hero
-
 from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.logic import create_test_map
@@ -41,7 +39,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.action_idl = self.hero.actions.current_action
 
         with mock.patch('the_tale.game.balance.constants.KILL_BEFORE_BATTLE_PROBABILITY', 0):
-            self.action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=create_mob_for_hero(self.hero))
+            self.action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.create_mob_for_hero(self.hero))
 
     def tearDown(self):
         pass
@@ -164,7 +162,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.hero.actions.pop_action()
 
         with self.check_delta(lambda: self.hero.statistics.pve_kills, 1):
-            action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=create_mob_for_hero(self.hero))
+            action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.create_mob_for_hero(self.hero))
 
         self.assertEqual(action_battle.percents, 1.0)
         self.assertEqual(action_battle.state, self.action_battle.STATE.PROCESSED)
@@ -181,7 +179,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.hero.actions.pop_action()
 
         with self.check_delta(lambda: self.hero.statistics.pve_kills, 0):
-            action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=create_mob_for_hero(self.hero))
+            action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.create_mob_for_hero(self.hero))
 
         self.assertEqual(action_battle.percents, 1.0)
         self.assertEqual(action_battle.state, self.action_battle.STATE.PROCESSED)
@@ -212,7 +210,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
     @mock.patch('the_tale.game.balance.constants.EXP_FOR_KILL_DELTA', 0)
     @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', HABIT_PEACEFULNESS_INTERVAL.LEFT_3)
     def test_experience_for_kill(self):
-        mob = create_mob_for_hero(self.hero)
+        mob = mobs_storage.create_mob_for_hero(self.hero)
         mob.health = 0
 
         with self.check_delta(lambda: self.hero.statistics.pve_kills, 1):

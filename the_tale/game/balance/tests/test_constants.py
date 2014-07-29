@@ -253,10 +253,10 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PLACE_STABILITY_PER_BILL, 0.1)
         self.assertEqual(round(c.PLACE_STABILITY_PER_HOUR, 4), 0.0006)
 
-        self.assertEqual(c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY, -100)
-        self.assertEqual(c.PLACE_STABILITY_MAX_SAFETY_PENALTY, -0.10)
-        self.assertEqual(round(c.PLACE_STABILITY_MAX_TRANSPORT_PENALTY, 2), -0.38)
-        self.assertEqual(round(c.PLACE_STABILITY_MAX_FREEDOM_PENALTY, 2), 0.38)
+        self.assertEqual(c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY, -200)
+        self.assertEqual(c.PLACE_STABILITY_MAX_SAFETY_PENALTY, -0.25)
+        self.assertEqual(round(c.PLACE_STABILITY_MAX_TRANSPORT_PENALTY, 2), -0.67)
+        self.assertEqual(round(c.PLACE_STABILITY_MAX_FREEDOM_PENALTY, 2), 0.67)
 
         self.assertEqual(c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM, 10)
         self.assertEqual(c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM_PENALTY, 10)

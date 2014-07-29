@@ -63,7 +63,7 @@ class LevelUp(CardBase):
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         task.hero.increment_level(send_message=False)
-        return task.logic_result()
+        return task.logic_result(message=u'Ваш герой получил новый уровень!')
 
 
 class AddExperienceBase(CardBase):
@@ -79,7 +79,7 @@ class AddExperienceBase(CardBase):
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя нет задания.')
 
         task.hero.quests.current_quest.current_info.experience_bonus += self.EXPERIENCE
-        return task.logic_result()
+        return task.logic_result(message=u'Количество опыта за текущее задание увеличено на %(experience)d единиц.' % {'experience': self.EXPERIENCE})
 
 class AddExperienceCommon(AddExperienceBase):
     TYPE = relations.CARD_TYPE.ADD_EXPERIENCE_COMMON
@@ -111,7 +111,7 @@ class AddPowerBase(CardBase):
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя нет задания')
 
         task.hero.quests.current_quest.current_info.power_bonus += self.POWER
-        return task.logic_result()
+        return task.logic_result(message=u'Количество влияния за текущее задание увеличено на %(power)d единиц.' % {'power': self.POWER})
 
 class AddPowerCommon(AddPowerBase):
     TYPE = relations.CARD_TYPE.ADD_POWER_COMMON
@@ -140,7 +140,7 @@ class AddBonusEnergyBase(CardBase):
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         task.hero.add_energy_bonus(self.ENERGY)
-        return task.logic_result()
+        return task.logic_result(message=u'Вы получили %(energy)d единиц дополнительной энергии.' % {'energy': self.ENERGY})
 
 class AddBonusEnergyCommon(AddBonusEnergyBase):
     TYPE = relations.CARD_TYPE.ADD_BONUS_ENERGY_COMMON
@@ -175,7 +175,7 @@ class AddGoldBase(CardBase):
         from the_tale.game.heroes.relations import MONEY_SOURCE
 
         task.hero.change_money(MONEY_SOURCE.EARNED_FROM_HELP, self.GOLD)
-        return task.logic_result()
+        return task.logic_result(message=u'Ваш герой получил %(gold)d монет.' % {'gold': self.GOLD})
 
 class AddGoldCommon(AddGoldBase):
     TYPE = relations.CARD_TYPE.ADD_GOLD_COMMON
@@ -203,9 +203,17 @@ class ChangeHabitBase(CardBase):
         return u'Уменьшает %(habit)s героя на %(points)d единиц.' % {'habit': self.HABIT.text,
                                                                     'points': -self.POINTS}
 
+    @property
+    def success_message(self):
+        if self.POINTS > 0:
+            return u'Увеличивает %(habit)s героя на %(points)d единиц.' % {'habit': self.HABIT.text,
+                                                                          'points': self.POINTS}
+        return u'Уменьшает %(habit)s героя на %(points)d единиц.' % {'habit': self.HABIT.text,
+                                                                    'points': -self.POINTS}
+
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         task.hero.change_habits(self.HABIT, self.POINTS)
-        return task.logic_result()
+        return task.logic_result(message=u'Герой получает %(points)d очков %(habit)s.' % {'points': self.POINTS, 'habit': self.HABIT.plural_accusative})
 
 
 class ChangeHabitHonorPlusUncommon(ChangeHabitBase):
@@ -302,7 +310,7 @@ class PreferencesCooldownsResetBase(CardBase):
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         task.hero.preferences.reset_change_time(self.PREFERENCE)
-        return task.logic_result()
+        return task.logic_result(message=u'Сброшена задержка на изменение предпочтения «%(preference)s».' % {'preference': self.PREFERENCE.text})
 
 class PreferencesCooldownsResetMob(PreferencesCooldownsResetBase):
     TYPE = relations.CARD_TYPE.PREFERENCES_COOLDOWNS_RESET_MOB
@@ -349,7 +357,7 @@ class PreferencesCooldownsResetAll(CardBase):
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         for preference in PREFERENCE_TYPE.records:
             task.hero.preferences.reset_change_time(preference)
-        return task.logic_result()
+        return task.logic_result(message=u'Сброшены все задержки на изменение предпочтений.')
 
 
 class ChangeAbilitiesChoices(CardBase):
@@ -360,7 +368,7 @@ class ChangeAbilitiesChoices(CardBase):
         if not task.hero.abilities.rechooce_choices():
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Герой не может изменить выбор способностей (возможно, больше не из чего выбирать).')
 
-        return task.logic_result()
+        return task.logic_result(message=u'Изменён список предлагаемых герою способностей.')
 
 
 class ChangeItemOfExpenditureBase(CardBase):
@@ -372,8 +380,11 @@ class ChangeItemOfExpenditureBase(CardBase):
         return u'Текущей целью трат героя становится %(item)s.' % {'item': self.ITEM.text}
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        if task.hero.next_spending == self.ITEM:
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Герой уже копит деньги на эту цель.')
+
         task.hero.next_spending = self.ITEM
-        return task.logic_result()
+        return task.logic_result(message= u'Новой целью трат героя становится %(item)s.' % {'item': self.ITEM.text})
 
 class ChangeHeroSpendingsToInstantHeal(ChangeItemOfExpenditureBase):
     TYPE = relations.CARD_TYPE.CHANGE_HERO_SPENDINGS_TO_INSTANT_HEAL
@@ -410,7 +421,7 @@ class RepairRandomArtifact(CardBase):
 
         artifact.repair_it()
 
-        return task.logic_result()
+        return task.logic_result(message=u'Целостность артефакта %(artifact)s полностью восстановлена.' % {'artifact': artifact.html_label()})
 
 
 class RepairAllArtifacts(CardBase):
@@ -424,7 +435,7 @@ class RepairAllArtifacts(CardBase):
         for item in task.hero.equipment.values():
             item.repair_it()
 
-        return task.logic_result()
+        return task.logic_result(message=u'Экипировка полностью отремонтирована.')
 
 
 class CancelQuest(CardBase):
@@ -437,7 +448,7 @@ class CancelQuest(CardBase):
 
         task.hero.quests.pop_quest()
 
-        return task.logic_result()
+        return task.logic_result(message=u'Герой «забыл» о текущем задании.')
 
 
 class GetArtifactBase(CardBase):
@@ -470,7 +481,7 @@ class GetArtifactBase(CardBase):
 
         task.hero.put_loot(artifact)
 
-        return task.logic_result()
+        return task.logic_result(message=u'В рюкзаке героя появился новый артефакт: %(artifact)s' % {'artifact': artifact.html_label()})
 
 
 class GetArtifactCommon(GetArtifactBase):
@@ -505,7 +516,7 @@ class InstantMonsterKill(CardBase):
 
         task.hero.actions.current_action.bit_mob(1.01)
 
-        return task.logic_result()
+        return task.logic_result(message=u'Противник героя уничтожен!')
 
 
 
@@ -537,7 +548,7 @@ class KeepersGoodsBase(CardBase):
 
             places_storage.update_version()
 
-            return task.logic_result()
+            return task.logic_result(message=u'%(place)s получает %(goods)s «даров Хранителей».' % {'goods': self.GOODS, 'place': place.name})
 
 
 class KeepersGoodsCommon(KeepersGoodsBase):
@@ -587,7 +598,7 @@ class RepairBuilding(CardBase):
 
             buildings_storage.update_version()
 
-            return task.logic_result()
+            return task.logic_result(message=u'Строение %(building)s полностью отремонтировано.' % {'building': building.name})
 
 
 
@@ -619,7 +630,7 @@ class PersonPowerBonusBase(CardBase):
 
             persons_storage.update_version()
 
-            return task.logic_result(next_step=UseCardTask.STEP.SUCCESS)
+            return task.logic_result(message=u'Бонус начисляемого положительного влияния советника увеличен на %(bonus).2f%%' % {'bonus': self.BONUS*100})
 
 
 class PersonPowerBonusUncommon(PersonPowerBonusBase):
@@ -651,6 +662,13 @@ class PlacePowerBonusBase(CardBase):
 
         return u'Увеличивает бонус к начисляемому городу негативному влиянию на %(bonus).2f%%.' % {'bonus': -self.BONUS*100}
 
+    @property
+    def success_message(self):
+        if self.BONUS > 0:
+            return u'Бонус к начисляемому городу положительному влиянию увеличен на%(bonus).2f%%.' % {'bonus': self.BONUS*100}
+
+        return u'Бонус к начисляемому городу негативному влиянию увеличен на %(bonus).2f%%.' % {'bonus': -self.BONUS*100}
+
     def use(self, task, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
 
         place_id = task.data.get('place_id')
@@ -673,7 +691,7 @@ class PlacePowerBonusBase(CardBase):
 
             places_storage.update_version()
 
-            return task.logic_result()
+            return task.logic_result(message=self.success_message)
 
 
 
@@ -721,6 +739,12 @@ class HelpPlaceBase(CardBase):
             return u'В документах города появляются %(helps)d дополнительные записи о помощи, полученной от героя.' % {'helps': self.HELPS}
         return u'В документах города появляется дополнительная запись о помощи, полученной от героя.'
 
+    @property
+    def success_message(self):
+        if self.HELPS != 1:
+            return u'Герою записано %(helps)d дополнительных фактов помощи городу.' % {'helps': self.HELPS}
+        return u'Герою записан один дополнительный факт помощи городу.'
+
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         place_id = task.data.get('place_id')
 
@@ -730,7 +754,7 @@ class HelpPlaceBase(CardBase):
         for i in xrange(self.HELPS):
             task.hero.places_history.add_place(place_id)
 
-        return task.logic_result()
+        return task.logic_result(message=self.success_message)
 
 
 class HelpPlaceUncommon(HelpPlaceBase):
@@ -762,7 +786,7 @@ class ShortTeleport(CardBase):
         if not task.hero.actions.current_action.teleport_to_place():
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Телепортировать героя не получилось.')
 
-        return task.logic_result()
+        return task.logic_result(message=u'Герой успешно телепортирован.')
 
 
 class LongTeleport(CardBase):
@@ -778,7 +802,7 @@ class LongTeleport(CardBase):
         if not task.hero.actions.current_action.teleport_to_end():
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Телепортировать героя не получилось.')
 
-        return task.logic_result()
+        return task.logic_result(message=u'Герой успешно телепортирован.')
 
 
 class ExperienceToEnergyBase(CardBase):
@@ -787,33 +811,33 @@ class ExperienceToEnergyBase(CardBase):
 
     @property
     def DESCRIPTION(self):
-        return u'Преобразует опыт героя на текущем уровне в дополнительную энергию по курсу %(experience)s единиц опыта за единицу энергии.' % {'experience': self.EXPERIENCE}
+        return u'Преобразует опыт героя на текущем уровне в дополнительную энергию по курсу %(experience)s опыта за 1 энергии.' % {'experience': self.EXPERIENCE}
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
 
         if task.hero.experience == 0:
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя нет свободного опыта.')
 
-        task.hero.convert_experience_to_energy(self.EXPERIENCE)
+        energy = task.hero.convert_experience_to_energy(self.EXPERIENCE)
 
-        return task.logic_result()
+        return task.logic_result(message=u'Герой потерял весь накопленный опыт. Вы получили %(energy)d энергии.' % {'energy': energy})
 
 
 class ExperienceToEnergyUncommon(ExperienceToEnergyBase):
     TYPE = relations.CARD_TYPE.EXPERIENCE_TO_ENERGY_UNCOMMON
-    EXPERIENCE = 50
+    EXPERIENCE = 5
 
 class ExperienceToEnergyRare(ExperienceToEnergyBase):
     TYPE = relations.CARD_TYPE.EXPERIENCE_TO_ENERGY_RARE
-    EXPERIENCE = 40
+    EXPERIENCE = 4
 
 class ExperienceToEnergyEpic(ExperienceToEnergyBase):
     TYPE = relations.CARD_TYPE.EXPERIENCE_TO_ENERGY_EPIC
-    EXPERIENCE = 30
+    EXPERIENCE = 3
 
 class ExperienceToEnergyLegendary(ExperienceToEnergyBase):
     TYPE = relations.CARD_TYPE.EXPERIENCE_TO_ENERGY_LEGENDARY
-    EXPERIENCE = 20
+    EXPERIENCE = 2
 
 
 CARDS = {card_class.TYPE: card_class()
