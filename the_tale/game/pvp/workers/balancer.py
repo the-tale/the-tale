@@ -221,7 +221,7 @@ class Worker(BaseWorker):
             battle_1.set_enemy(account_2)
             battle_2.set_enemy(account_1)
 
-            if calculate_ratings and abs(record_1.hero_level - record_2.hero_level) < pvp_settings.BALANCING_MIN_LEVEL_DELTA:
+            if calculate_ratings and abs(record_1.hero_level - record_2.hero_level) <= pvp_settings.BALANCING_MIN_LEVEL_DELTA:
                 battle_1.calculate_rating = True
                 battle_2.calculate_rating = True
 
