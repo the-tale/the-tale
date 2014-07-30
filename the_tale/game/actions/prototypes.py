@@ -800,12 +800,14 @@ class ActionMoveToPrototype(ActionBase):
         return self.percents * self.break_at
 
     def picked_up_in_road(self):
-        self.short_teleport(c.PICKED_UP_IN_ROAD_TELEPORT_LENGTH)
+        current_destination = self.current_destination # save destination befor telefort, since it can be reseted after we perfom it
 
-        self.hero.add_message('action_moveto_picked_up_in_road',
-                              hero=self.hero,
-                              destination=self.destination,
-                              current_destination=self.current_destination)
+        if self.short_teleport(c.PICKED_UP_IN_ROAD_TELEPORT_LENGTH):
+
+            self.hero.add_message('action_moveto_picked_up_in_road',
+                                hero=self.hero,
+                                destination=self.destination,
+                                current_destination=current_destination)
 
 
 

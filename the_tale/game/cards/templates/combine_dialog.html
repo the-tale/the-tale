@@ -20,11 +20,12 @@
 
   <div class="modal-body">
 
+
     <ul>
       <li>Объединять можно только карты одинаковой редкости.</li>
-      <li>Объединив две карты Вы получите новую карту такой же редкости, но другого типа.</li>
-      <li>Объединив три карты Вы получите новую карту следующей редкости.</li>
-      <li>Нельзя объединять три легендарные карты.</li>
+      <li>При объединении 2-ух карт появляется карта такой же редкости, но другого типа.</li>
+      <li>При объединении 3-ёх карт появляется карта следующей редкости.</li>
+      <li>Нельзя объединить 3 легендарных карты.</li>
     </ul>
 
     <table width="100%">
@@ -56,7 +57,9 @@
       </tbody>
     </table>
 
-    <a href="#" class="btn btn-success pgf-combine-cards-button" style="display: block; margin-top: 10px;">Объединить карты</a>
+    <a href="{{url('game:heroes:combine-cards', hero.id)}}"
+       class="btn btn-success pgf-do-combine-cards"
+       style="display: block; margin-top: 10px;">Объединить карты</a>
 
   </div>
 

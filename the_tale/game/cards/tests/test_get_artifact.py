@@ -57,6 +57,14 @@ class GetArtifactMixin(CardsTestMixin):
         self.assertEqual(rarities, self.RARITIES)
 
 
+    def test_use__full_bag(self):
+        with self.check_delta(lambda: self.hero.bag.occupation, 1000):
+            for i in xrange(1000):
+                result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+                self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+
+
+
 class GetArtifactCommonTests(GetArtifactMixin, testcase.TestCase):
     CARD = prototypes.GetArtifactCommon
     RARITIES = set([ARTIFACT_RARITY.NORMAL, ARTIFACT_RARITY.RARE, ARTIFACT_RARITY.EPIC])

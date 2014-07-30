@@ -11,9 +11,9 @@ class RARITY(DjangoEnum):
 
     records = ( ('COMMON', 0, u'обычная', 3**4),
                 ('UNCOMMON', 1, u'необычная', 3**3),
-                ('RARE', 3, u'редкая', 3**2),
-                ('EPIC', 4, u'эпическая', 3**1),
-                ('LEGENDARY', 5, u'легендарная', 3**0) )
+                ('RARE', 2, u'редкая', 3**2),
+                ('EPIC', 3, u'эпическая', 3**1),
+                ('LEGENDARY', 4, u'легендарная', 3**0) )
 
 class AVAILABILITY(DjangoEnum):
     records = ( ('FOR_ALL', 0, u'для всех'),
@@ -64,7 +64,7 @@ class CARD_TYPE(DjangoEnum):
                 ('PREFERENCES_COOLDOWNS_RESET_ENERGY_REGENERATION', 33, u'прозрение', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
                 ('PREFERENCES_COOLDOWNS_RESET_EQUIPMEN_SLOT', 34, u'вкусы в экипировке', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
                 ('PREFERENCES_COOLDOWNS_RESET_RISK_LEVEL', 35, u'определение лихости', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
-                ('PREFERENCES_COOLDOWNS_RESET_FAVORITE_ITEM', 36, u'наскучивашая вещь', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
+                ('PREFERENCES_COOLDOWNS_RESET_FAVORITE_ITEM', 36, u'наскучившая вещь', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
                 ('PREFERENCES_COOLDOWNS_RESET_ARCHETYPE', 37, u'пересмотр стиля боя', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
 
                 ('PREFERENCES_COOLDOWNS_RESET_ALL', 38, u'пересмотр ценностей', AVAILABILITY.FOR_ALL, RARITY.RARE, forms.EmptyForm,),
@@ -92,7 +92,7 @@ class CARD_TYPE(DjangoEnum):
                 ('KEEPERS_GOODS_COMMON', 53, u'неразменная монета', AVAILABILITY.FOR_PREMIUMS, RARITY.COMMON, forms.PlaceForm),
                 ('KEEPERS_GOODS_UNCOMMON', 54, u'волшебный горшочек', AVAILABILITY.FOR_PREMIUMS, RARITY.UNCOMMON, forms.PlaceForm),
                 ('KEEPERS_GOODS_RARE', 55, u'скатерть самобранка', AVAILABILITY.FOR_PREMIUMS, RARITY.RARE, forms.PlaceForm),
-                ('KEEPERS_GOODS_EPIC', 56, u'несметные богатсва', AVAILABILITY.FOR_PREMIUMS, RARITY.EPIC, forms.PlaceForm),
+                ('KEEPERS_GOODS_EPIC', 56, u'несметные богатства', AVAILABILITY.FOR_PREMIUMS, RARITY.EPIC, forms.PlaceForm),
                 ('KEEPERS_GOODS_LEGENDARY', 0, u'рог изобилия', AVAILABILITY.FOR_PREMIUMS, RARITY.LEGENDARY, forms.PlaceForm),
 
                 ('REPAIR_BUILDING', 57, u'волшебный инструмент', AVAILABILITY.FOR_PREMIUMS, RARITY.EPIC, forms.BuildingForm),
@@ -130,9 +130,9 @@ class CARD_TYPE(DjangoEnum):
                 ('SHORT_TELEPORT', 82, u'телепорт', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
                 ('LONG_TELEPORT', 83, u'ТАРДИС', AVAILABILITY.FOR_ALL, RARITY.RARE, forms.EmptyForm,),
 
-                ('EXPERIENCE_TO_ENERGY_UNCOMMON', 84, u'?опыт в энергию 1', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
-                ('EXPERIENCE_TO_ENERGY_RARE', 85, u'?опыт в энергию 2', AVAILABILITY.FOR_ALL, RARITY.RARE, forms.EmptyForm,),
-                ('EXPERIENCE_TO_ENERGY_EPIC', 86, u'?опыт в энергию 3', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm,),
+                ('EXPERIENCE_TO_ENERGY_UNCOMMON', 84, u'амнезия', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
+                ('EXPERIENCE_TO_ENERGY_RARE', 85, u'донор Силы', AVAILABILITY.FOR_ALL, RARITY.RARE, forms.EmptyForm,),
+                ('EXPERIENCE_TO_ENERGY_EPIC', 86, u'взыскание долга', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm,),
                 ('EXPERIENCE_TO_ENERGY_LEGENDARY', 87, u'ритуал Силы', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm,),
 
                 )

@@ -84,7 +84,7 @@ class CombineCardsTaskTest(TestCase):
 
         self.assertTrue(self.hero.cards.cards[0][0].rarity.is_UNCOMMON)
 
-        self.assertTrue(self.hero.cards.cards[0][0].text in task.processed_data['message'].lower())
+        self.assertTrue(self.hero.cards.cards[0][0].text.lower() in task.processed_data['message'].lower())
         self.assertTrue(CARDS[self.hero.cards.cards[0][0]].DESCRIPTION.lower() in task.processed_data['message'].lower())
 
         self.assertTrue(task.state.is_PROCESSED)

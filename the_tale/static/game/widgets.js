@@ -1209,6 +1209,8 @@ pgf.game.widgets.Abilities = function() {
 pgf.game.CombineCardsDialog = function(dialog) {
     widgets.actions.ShowCards(jQuery('.pgf-card-choices', dialog));
 
+    var button = jQuery('.pgf-do-combine-cards', dialog);
+
     function CanChoseCard() {
         var cardsCount = 0;
 
@@ -1217,6 +1219,28 @@ pgf.game.CombineCardsDialog = function(dialog) {
         });
 
         return cardsCount < 3;
+    }
+
+
+    function GetUrl() {
+        var cards = GetChoosenCards();
+        return button.attr('href')+'?cards='+cards.join(',');
+    }
+
+
+    function GetChoosenCards() {
+        var cards = [];
+
+        jQuery('.pgf-chosen-cards .pgf-card').not('.pgf-hidden').each(function(i, e){
+            cardId = jQuery(e).data('card-id');
+            count = parseInt(jQuery('.pgf-count', e).text());
+            for (var i=0; i<count; ++i) {
+                cards.push(cardId);
+            }
+
+        });
+
+        return cards;
     }
 
     function ChoseCard(cardId) {
@@ -1269,4 +1293,21 @@ pgf.game.CombineCardsDialog = function(dialog) {
         var el = jQuery(e.currentTarget);
         UnchoseCard(el.data('card-id'));
     });
+
+    button.click(function(e){
+        e.preventDefault();
+
+        pgf.forms.Post({ action: GetUrl(),
+                         OnSuccess: function(data){
+                             jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
+                             dialog.modal('hide');
+
+                             pgf.ui.dialog.Alert({message: data.data.message,
+                                                  title: 'Карты объеденены'});
+                         }
+                       });
+
+
+    });
+
 };

@@ -23,7 +23,7 @@ jQuery(document).ready(function(e) {
         pgf.ui.dialog.Create({ fromUrl: url,
                                OnOpen: function(dialog) {
                                    var cardForm = new pgf.forms.Form(jQuery('.pgf-use-card-form', dialog),
-                                                                     {OnSuccess: function(data){
+                                                                     {OnSuccess: function(form, data){
                                                                          jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
                                                                          dialog.modal('hide');
 
@@ -111,44 +111,44 @@ jQuery(document).ready(function(e) {
           role="menu"
           style="max-height: 310px; overflow-y: auto; font-size: 10pt; z-index: 1011; text-align: left;">
 
-        <div class="pgf-get-card-statistics">
-          помощи до новой карты <br/>
+          <li class="pgf-get-card-statistics" style="text-align: center;">
+            помощи до новой карты <br/>
 
-          <div class="progress progress-info" style="margin: 0.25em; height: 18px; position: relative;">
-            <div class="bar pgf-new-card-progress"></div>
-            <div class="" style="width: 100%; position: absolute; top: 0;">
-              <span class="pgf-helps-count-to-new-card"></span> / {{c.CARDS_HELP_COUNT_TO_NEW_CARD}}
+            <div class="progress progress-info" style="margin: 0.25em; height: 18px; position: relative;">
+              <div class="bar pgf-new-card-progress"></div>
+              <div class="" style="width: 100%; position: absolute; top: 0;">
+                <span class="pgf-helps-count-to-new-card"></span> / {{c.CARDS_HELP_COUNT_TO_NEW_CARD}}
+              </div>
             </div>
-          </div>
 
-        </div>
-
-        <div class="pgf-get-card-button pgf-hidden">
-          <a href="#" style="margin: 0.25em; height: 18px; color: #0088cc;">Взять карту!</a>
-        </div>
-
-        <div class="pgf-combine-card-button pgf-hidden">
-          <a href="#" style="margin: 0.25em; height: 18px; color: #0088cc;">Объединить карты</a>
-        </div>
-
-        <hr/>
-
-        {% for card in CARDS %}
-          <li class="pgf-card pgf-card-{{card.TYPE.value}}">
-            <a href="{{url('game:cards:use-dialog', card=card.TYPE.value)}}"
-               style="font-size: 10pt;"
-               data-tooltip-placement="right"
-               rel="tooltip"
-               title="{{card.DESCRIPTION}}">
-               <span class="{{card.TYPE.rarity.name|lower}}-card-label">{{card.TYPE.text}}</span> x <span class="pgf-count"></span>
-            </a>
           </li>
-        {% endfor %}
+
+          <li class="pgf-get-card-button pgf-hidden">
+            <a href="#" style="margin: 0.25em; height: 18px; color: #0088cc;">Взять карту!</a>
+          </li>
+
+          <li class="pgf-combine-card-button pgf-hidden">
+            <a href="#" style="margin: 0.25em; height: 18px; color: #0088cc;">Объединить карты</a>
+          </li>
+
+          <li class="divider"></li>
+
+          {% for card in CARDS %}
+            <li class="pgf-card pgf-card-{{card.TYPE.value}}">
+              <a href="{{url('game:cards:use-dialog', card=card.TYPE.value)}}"
+                 style="font-size: 10pt;"
+                 data-tooltip-placement="right"
+                 rel="tooltip"
+                 title="{{card.DESCRIPTION}}">
+                 <span class="{{card.TYPE.rarity.name|lower}}-card-label">{{card.TYPE.text}}</span> x <span class="pgf-count"></span>
+              </a>
+            </li>
+          {% endfor %}
           <li class="pgf-no-cards" style="font-size: 10pt;">
             <a href="#"
                rel="tooltip"
                title="Подробнее про Карты Судьбы Вы можете узнать в путеводителе.">
-              У Вас нет карт
+               У Вас нет карт
             </a>
           </li>
       </ul>

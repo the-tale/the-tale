@@ -15,8 +15,8 @@ from the_tale.game.artifacts.relations import RARITY
 
 class EquipmentMethodsMixin(object):
 
-    def put_loot(self, artifact):
-        if not self.bag_is_full:
+    def put_loot(self, artifact, force=False):
+        if force or not self.bag_is_full:
             if not artifact.type.is_USELESS:
                 artifact.power += self.bonus_artifact_power
             self.bag.put_artifact(artifact)

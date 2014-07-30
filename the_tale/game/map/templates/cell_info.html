@@ -87,10 +87,10 @@
             <a href="{{url('game:map:places:show', place.id)}}" target="_blank">подробнее</a>
           </li>
           <li>
-            бонус к положительному влиянию на город: {{place.power_positive|percents(1)}}
+            бонус к положительному влиянию на город: {{place.power_positive|percents(2)}}
           </li>
           <li>
-            бонус к отрицательному влиянию на город: {{place.power_negative|percents(1)}}
+            бонус к отрицательному влиянию на город: {{place.power_negative|percents(2)}}
           </li>
         </ul>
 
@@ -137,7 +137,7 @@
                   <th>бонусы к влиянию</th>
                   <td colspan="2" style="vertical-align: middle;">
                     <span>
-                      {{person.power_positive|percents(1)}} <strong>и</strong> {{person.power_negative|percents(1)}}
+                      {{person.power_positive|percents(2)}} <strong>и</strong> {{person.power_negative|percents(2)}}
                     </span>
                     <span class="pull-right">
                       <i class="icon-info-sign"

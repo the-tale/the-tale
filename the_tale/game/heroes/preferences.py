@@ -130,6 +130,7 @@ class HeroPreferences(object):
 
     def reset_change_time(self, preferences_type):
         if preferences_type.base_name in self.data:
+            self.updated = True
             self.data[preferences_type.base_name]['changed_at'] = 0
 
     def _prepair_value(self, value):

@@ -585,9 +585,9 @@ class CombineCardsTask(PostponedLogic):
     def __init__(self, hero_id, cards=[], state=GET_CARD_TASK_STATE.UNPROCESSED, card=None):
         super(CombineCardsTask, self).__init__()
         self.hero_id = hero_id
+        self.card = card if card is None or isinstance(card, rels.Record) else CARD_TYPE(card)
         self.cards = [card if isinstance(card, rels.Record) else CARD_TYPE(card) for card in cards]
         self.state = state if isinstance(state, rels.Record) else GET_CARD_TASK_STATE(state)
-        self.card = card if card is None or isinstance(card, rels.Record) else CARD_TYPE(card)
 
     def serialize(self):
         return { 'hero_id': self.hero_id,

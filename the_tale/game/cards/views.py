@@ -21,7 +21,7 @@ class CARDS_ORDER(DjangoEnum):
 
 CARDS_FILTER = [list_filter.reset_element(),
                 list_filter.choice_element(u'редкость:', attribute='rarity', choices=[(None, u'все')] + list(relations.RARITY.select('value', 'text'))),
-                list_filter.choice_element(u'достпуность:', attribute='availability', choices=[(None, u'все')] + list(relations.AVAILABILITY.select('value', 'text'))),
+                list_filter.choice_element(u'доступность:', attribute='availability', choices=[(None, u'все')] + list(relations.AVAILABILITY.select('value', 'text'))),
                 list_filter.choice_element(u'сортировка:',
                                            attribute='order_by',
                                            choices=list(CARDS_ORDER.select('value', 'text')),
@@ -75,10 +75,13 @@ class CardsResource(CardsResourceBase):
     @login_required
     @handler('combine-dialog', method='get')
     def combine_dialog(self):
+        hero = HeroPrototype.get_by_account_id(self.account.id)
+
         cards = sorted(prototypes.CARDS.values(), key=lambda x: (x.TYPE.rarity.value, x.TYPE.text))
 
         return self.template('cards/combine_dialog.html',
-                             {'CARDS': cards} )
+                             {'CARDS': cards,
+                              'hero': hero} )
 
 
 class GuideCardsResource(CardsResourceBase):

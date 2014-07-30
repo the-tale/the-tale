@@ -37,13 +37,17 @@ class PreferencesTestMixin(object):
         value = self.hero.preferences._get(self.PREFERENCE_TYPE)
         self.hero.preferences._set(self.PREFERENCE_TYPE, value)
         self.assertFalse(self.hero.preferences.can_update(self.PREFERENCE_TYPE, datetime.datetime.now()))
+        self.hero.preferences.updated = False
         self.hero.preferences.reset_change_time(self.PREFERENCE_TYPE)
         self.assertTrue(self.hero.preferences.can_update(self.PREFERENCE_TYPE, datetime.datetime.now()))
+        self.assertTrue(self.hero.preferences.updated)
 
     def test_reset_change_time__not_registered(self):
         self.hero.preferences.data = {}
         self.hero.preferences.reset_change_time(self.PREFERENCE_TYPE)
+        self.assertFalse(self.hero.preferences.updated)
         self.assertTrue(self.hero.preferences.can_update(self.PREFERENCE_TYPE, datetime.datetime.now()))
+        self.assertFalse(self.hero.preferences.updated)
 
 
 class HeroPreferencesEnergyRegenerationTypeTest(PreferencesTestMixin, TestCase):

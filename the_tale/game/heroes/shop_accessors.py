@@ -47,7 +47,7 @@ class ShopAccessorsMixin(object):
         artifact = random.choice(artifacts_storage.artifacts).create_artifact(level=self.level,
                                                                               power=power,
                                                                               rarity=rarity)
-        self.bag.put_artifact(artifact)
+        self.put_loot(artifact, force=True)
 
         self.actions.request_replane()
 
