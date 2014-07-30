@@ -162,6 +162,7 @@ jQuery(document).ready(function() {
 
           <ul class="nav">
             {{ base_macros.main_menu_item("forum", url("forum:"), "Форум") }}
+            {{ base_macros.main_menu_item("chat", url("portal:chat"), "Чат") }}
             {{ base_macros.main_menu_item("guide", "#", "Путеводитель", [(url("guide:game"), "Описание игры"),
                                                                          (url("guide:keepers"), "Хранители"),
                                                                          (url("guide:hero-abilities"), "Способности героев"),

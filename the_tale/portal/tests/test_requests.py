@@ -24,6 +24,9 @@ class TestRequests(testcase.TestCase):
     def test_search(self):
         self.check_html_ok(self.request_html(url('portal:search')))
 
+    def test_chat(self):
+        self.check_html_ok(self.request_html(url('portal:chat')))
+
     def test_landing(self):
         self.check_html_ok(self.request_html(url('portal:landing')))
 

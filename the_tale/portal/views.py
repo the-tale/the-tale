@@ -88,6 +88,10 @@ class PortalResource(Resource):
     def search(self):
         return self.template('portal/search.html', {})
 
+    @handler('chat')
+    def chat(self):
+        return self.template('portal/chat.html', {})
+
     @handler('landing')
     def landing(self):
         from the_tale.game.map.storage import map_info_storage

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Чат |{{ super() }}{% endblock %}
+{% block description %}Чат.{% endblock %}
+
+{% block content %}
+
+<div class="row">
+  <div class="span12">
+    <h3 style="margin-left: 13px;">Чат<h3>
+  </div>
+</div>
+
+<div class="row">
+  <div class="span12">
+
+    <p class="alert alert-info">
+      ВНИМАНИЕ!!! Чат находится в состоянии эксперимента. Ники в чате не привязаны к никам игроков, будьте внимательны. Администрация игры в чате не общается.
+    </p>
+
+    <div id="tlkio" data-channel="the-tale" style="width:100%;height:600px;"></div><script async src="http://tlk.io/embed.js" type="text/javascript"></script>
+
+  </div>
+</div>
+
+
+{% endblock %}

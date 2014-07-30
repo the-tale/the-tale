@@ -9,6 +9,7 @@ from dext.utils.app_settings import app_settings
 SITE_SECTIONS = ( (re.compile(r'^/$'), 'index'),
                   (re.compile(r'^/news.*$'), 'news'),
                   (re.compile(r'^/forum.*$'), 'forum'),
+                  (re.compile(r'^/chat.*$'), 'chat'),
                   (re.compile(r'^/accounts/auth.*$'), 'auth'),
                   (re.compile(r'^/accounts/profile.*$'), 'profile'),
                   (re.compile(r'^/accounts/messages.*$'), 'personal_messages'),
