@@ -59,7 +59,7 @@ class HABIT_HONOR_INTERVAL(HABIT_INTERVAL):
 class HABIT_PEACEFULNESS_INTERVAL(HABIT_INTERVAL):
     records = ( ('LEFT_3', 0, u'скорый на расправу', u'скорая на расправу', u'скорое на расправу', u'территория вендетт', -c.HABITS_BORDER, c.HABITS_RIGHT_BORDERS[0]),
                 ('LEFT_2', 1, u'вспыльчивый', u'вспыльчивая', u'вспыльчивое', u'пристанище горячих голов', c.HABITS_RIGHT_BORDERS[0], c.HABITS_RIGHT_BORDERS[1]),
-                ('LEFT_1', 2, u'задира', u'задира', u'задира', u'беспокойной место', c.HABITS_RIGHT_BORDERS[1], c.HABITS_RIGHT_BORDERS[2]),
+                ('LEFT_1', 2, u'задира', u'задира', u'задира', u'беспокойное место', c.HABITS_RIGHT_BORDERS[1], c.HABITS_RIGHT_BORDERS[2]),
                 ('NEUTRAL', 3, u'сдержанный', u'сдержанная', u'сдержаное', u'неприметное поселение', c.HABITS_RIGHT_BORDERS[2], c.HABITS_RIGHT_BORDERS[3]),
                 ('RIGHT_1', 4, u'доброхот', u'доброхот', u'доброхот', u'спокойное место', c.HABITS_RIGHT_BORDERS[3], c.HABITS_RIGHT_BORDERS[4]),
                 ('RIGHT_2', 5, u'миролюбивый', u'миролюбивая', u'миролюбивое', u'мирное поселение', c.HABITS_RIGHT_BORDERS[4], c.HABITS_RIGHT_BORDERS[5]),
