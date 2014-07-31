@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from django.conf import settings as project_settings
+
 from dext.forms import forms, fields
 
 from the_tale.common.utils import bbcode
@@ -9,7 +11,7 @@ from the_tale.game.bills.relations import BILL_DURATION
 
 
 class BaseUserForm(forms.Form):
-    RATIONALE_MIN_LENGTH = 250
+    RATIONALE_MIN_LENGTH = 250 if not project_settings.TESTS_RUNNING else 0
 
     caption = fields.CharField(label=u'Название закона', max_length=Bill.CAPTION_MAX_LENGTH, min_length=Bill.CAPTION_MIN_LENGTH)
     rationale = bbcode.BBField(label=u'Обоснование', min_length=RATIONALE_MIN_LENGTH)
