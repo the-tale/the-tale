@@ -61,6 +61,15 @@
   text-align: center;
   font-size: 12pt;
 }
+.post.developer .head {
+  background-color: #e9f9e9;
+}
+.post.developer .info {
+  background-color: #e9f9e9;
+}
+.post.developer .info-head {
+  background-color: #e9f9e9;
+}
 .post .message {
   padding: 0.5em;
   vertical-align: top;

@@ -27,6 +27,7 @@ html {
 body {
   padding-top: 44px;
   height: 100%;
+  word-wrap: break-word;
 }
 body #main-container {
   height: 100%;
