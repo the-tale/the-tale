@@ -1112,7 +1112,7 @@ pgf.game.widgets.Abilities = function() {
                                 var newIntegrity = Math.min(buildingIntegrity + buildingRepairDelta, 1.0);
                                 jQuery('.pgf-building-integrity')
                                     .data('building-integrity', newIntegrity)
-                                    .text(Math.round(newIntegrity*100)+'%');
+                                    .text(Math.round(newIntegrity*10000)/100+'%');
 
                                 var buildingWorkers = jQuery('.pgf-building-workers').data('building-workers');
                                 buildingWorkers = Math.max(0, buildingWorkers-1);
