@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from dext.utils.app_settings import app_settings
+from dext.common.utils.app_settings import app_settings
 
 postponed_tasks_settings = app_settings('POSTPONED_TASKS', # pylint: disable=C0103
                                         TASK_WAIT_DELAY = 0.5,

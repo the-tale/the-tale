@@ -4,8 +4,8 @@ import subprocess
 from django.conf import settings as project_settings
 from django.utils.importlib import import_module
 
-from dext.utils.urls import url
-from dext.utils import storage
+from dext.common.utils.urls import url
+from dext.common.utils import storage
 
 from the_tale.common.utils import testcase
 

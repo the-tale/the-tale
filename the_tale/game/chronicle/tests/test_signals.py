@@ -4,7 +4,7 @@ import datetime
 
 from contextlib import contextmanager
 
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 from textgen.words import Noun
 

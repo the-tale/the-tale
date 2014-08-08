@@ -6,7 +6,7 @@ from optparse import make_option
 
 from django.core.management.base import BaseCommand
 
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 from textgen.conf import textgen_settings
 from textgen import logic as textgen_logic

@@ -2,7 +2,7 @@
 
 from django.conf import settings as project_settings
 
-from dext.utils.urls import url
+from dext.common.utils.urls import url
 
 
 def use_ability_url(ability, building=None, battle=None):

@@ -3,7 +3,7 @@
 from rels.django import DjangoEnum
 
 from dext.views import handler, validate_argument
-from dext.utils.urls import UrlBuilder, url
+from dext.common.utils.urls import UrlBuilder, url
 
 from the_tale.common.utils import list_filter
 from the_tale.common.utils.resources import Resource

@@ -7,10 +7,12 @@ import collections
 
 import Queue
 
-from django.utils.log import getLogger
 from django.db import transaction
 
-from the_tale.common.amqp_queues import BaseWorker
+from dext.common.amqp_queues import BaseWorker
+
+from the_tale.amqp_environment import environment
+
 from the_tale.common import postponed_tasks
 
 from the_tale.accounts.prototypes import AccountPrototype
@@ -21,7 +23,6 @@ from the_tale.game.prototypes import SupervisorTaskPrototype
 
 from the_tale.game.pvp.conf import pvp_settings
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
-from the_tale.game.workers.environment import workers_environment as game_environment
 
 
 class PvPBalancerException(Exception): pass
@@ -43,15 +44,10 @@ class BalancingRecord(collections.namedtuple('BalancingRecord', ('min_level', 'm
 
 
 class Worker(BaseWorker):
+    STOP_SIGNAL_REQUIRED = False
 
-    logger = getLogger('the-tale.workers.game_pvp_balancer')
-    name = 'game pvp balancer'
-    command_name = 'pvp_balancer'
-    stop_signal_required = False
-
-    def __init__(self, game_queue):
-        super(Worker, self).__init__(command_queue=game_queue)
-        self.worker_id = None
+    def __init__(self, *argv, **kwargs):
+        super(Worker, self).__init__(*argv, **kwargs)
         self.arena_queue = {}
 
     def run(self):
@@ -89,14 +85,14 @@ class Worker(BaseWorker):
 
         self.logger.info('PVP BALANCER INITIALIZED')
 
-        game_environment.supervisor.cmd_answer('initialize', self.worker_id)
+        environment.workers.supervisor.cmd_answer('initialize', self.worker_id)
 
     def cmd_stop(self):
         return self.send_cmd('stop')
 
     def process_stop(self):
         self.initialized = False
-        game_environment.supervisor.cmd_answer('stop', self.worker_id)
+        environment.workers.supervisor.cmd_answer('stop', self.worker_id)
         self.stop_required = True
         self.logger.info('PVP BALANCER STOPPED')
 
@@ -230,7 +226,7 @@ class Worker(BaseWorker):
 
             task = SupervisorTaskPrototype.create_arena_pvp_1x1(account_1, account_2)
 
-        game_environment.supervisor.cmd_add_task(task.id)
+        environment.workers.supervisor.cmd_add_task(task.id)
 
     def _initiate_battle_with_bot(self, record):
 

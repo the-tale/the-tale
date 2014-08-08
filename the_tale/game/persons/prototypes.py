@@ -1,7 +1,9 @@
 # coding: utf-8
 import datetime
 
-from dext.utils import s11n
+from dext.common.utils import s11n
+
+from the_tale.amqp_environment import environment
 
 from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils.logic import choose_from_interval
@@ -116,8 +118,7 @@ class PersonPrototype(BasePrototype):
         self._model.state = PERSON_STATE.REMOVED
 
     def cmd_change_power(self, power, positive_bonus, negative_bonus):
-        from the_tale.game.workers.environment import workers_environment
-        workers_environment.highlevel.cmd_change_power(power_delta=power, positive_bonus=positive_bonus, negative_bonus=negative_bonus, person_id=self.id, place_id=None)
+        environment.workers.highlevel.cmd_change_power(power_delta=power, positive_bonus=positive_bonus, negative_bonus=negative_bonus, person_id=self.id, place_id=None)
 
     @property
     def time_before_unfreeze(self):

@@ -5,7 +5,7 @@ from optparse import make_option
 from django.core.management.base import BaseCommand
 from django.conf import settings as project_settings
 
-from the_tale.common.utils.logic import run_django_command
+from dext.common.utils.logic import run_django_command
 
 META_CONFIG = project_settings.META_CONFIG
 

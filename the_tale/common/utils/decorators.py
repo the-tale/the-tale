@@ -11,7 +11,7 @@ def login_required(func):
         if resource.account.is_authenticated():
             return func(resource, *argv, **kwargs)
         else:
-            from dext.utils.response import mime_type_to_response_type
+            from dext.common.utils.response import mime_type_to_response_type
             response_type = mime_type_to_response_type(resource.request.META.get('HTTP_ACCEPT'))
 
             if resource.request.is_ajax() or response_type == 'json':

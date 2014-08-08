@@ -1,5 +1,5 @@
 # coding: utf-8
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 from textgen.words import Noun
 

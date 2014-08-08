@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from dext.utils import s11n
+from dext.common.utils import s11n
 from dext.views import handler
 
 from the_tale.common.utils.resources import Resource

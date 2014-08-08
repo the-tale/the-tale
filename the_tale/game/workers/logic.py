@@ -2,18 +2,18 @@
 import gc
 import datetime
 
-from django.utils.log import getLogger
 from django.conf import settings as project_settings
 
 from dext.settings import settings
-# from dext.utils.profile import profile_decorator
+# from dext.common.utils.profile import profile_decorator
 
-from the_tale.common.amqp_queues import BaseWorker
+from the_tale.amqp_environment import environment
+
+from the_tale.common.utils.workers import BaseWorker
 from the_tale.common import postponed_tasks
 
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.workers.environment import workers_environment as game_environment
 from the_tale.game.conf import game_settings
 
 
@@ -22,14 +22,7 @@ class LogicException(Exception): pass
 
 
 class Worker(BaseWorker):
-
-    logger = getLogger('the-tale.workers.game_logic')
-    name = 'game logic'
-    command_name = 'game_logic'
-    stop_signal_required = False
-
-    def __init__(self, game_queue):
-        super(Worker, self).__init__(command_queue=game_queue)
+    STOP_SIGNAL_REQUIRED = False
 
     # run = profile_decorator('game_logic.profiled')(BaseWorker.run_simple)
     run = BaseWorker.run_simple
@@ -57,7 +50,7 @@ class Worker(BaseWorker):
 
         self.logger.info('GAME INITIALIZED')
 
-        game_environment.supervisor.cmd_answer('initialize', self.worker_id)
+        environment.workers.supervisor.cmd_answer('initialize', self.worker_id)
 
     def cmd_next_turn(self, turn_number):
         return self.send_cmd('next_turn', data={'turn_number': turn_number})
@@ -84,9 +77,9 @@ class Worker(BaseWorker):
             log_sql_queries(turn_number)
 
         for hero_id in list(self.storage.skipped_heroes):
-            game_environment.supervisor.cmd_account_release_required(self.storage.heroes[hero_id].account_id)
+            environment.workers.supervisor.cmd_account_release_required(self.storage.heroes[hero_id].account_id)
 
-        game_environment.supervisor.cmd_answer('next_turn', self.worker_id)
+        environment.workers.supervisor.cmd_answer('next_turn', self.worker_id)
 
         if game_settings.COLLECT_GARBAGE:
             gc.collect()
@@ -95,7 +88,7 @@ class Worker(BaseWorker):
         from the_tale.accounts.prototypes import AccountPrototype
 
         if account_id not in self.storage.accounts_to_heroes:
-            game_environment.supervisor.cmd_account_released(account_id)
+            environment.workers.supervisor.cmd_account_released(account_id)
             return
 
         hero = self.storage.accounts_to_heroes[account_id]
@@ -106,7 +99,7 @@ class Worker(BaseWorker):
                                             data=(hero.id, bundle_id),
                                             excluded_bundle_id=bundle_id):
             self.storage.release_account_data(AccountPrototype.get_by_id(account_id))
-            game_environment.supervisor.cmd_account_released(account_id)
+            environment.workers.supervisor.cmd_account_released(account_id)
 
     def cmd_stop(self):
         return self.send_cmd('stop')
@@ -115,7 +108,7 @@ class Worker(BaseWorker):
         # no need to save data, since they automaticaly saved on every turn
         self.initialized = False
         self.storage.save_all(logger=self.logger)
-        game_environment.supervisor.cmd_answer('stop', self.worker_id)
+        environment.workers.supervisor.cmd_answer('stop', self.worker_id)
         self.stop_required = True
         self.logger.info('LOGIC STOPPED')
 

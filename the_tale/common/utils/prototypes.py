@@ -1,7 +1,7 @@
 # coding: utf-8
 import time
 
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 from the_tale.common.utils.decorators import lazy_property
 

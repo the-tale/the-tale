@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 from django.conf import settings as project_settings
 
 from dext.settings import settings
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 from the_tale.common.utils import currencies
 

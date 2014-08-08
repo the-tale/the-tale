@@ -1,7 +1,7 @@
 # coding: utf-8
 import mock
 
-from dext.utils.urls import url
+from dext.common.utils.urls import url
 
 from the_tale.common.utils.testcase import TestCase
 

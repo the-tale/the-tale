@@ -3,7 +3,7 @@
 from django.core.management.base import BaseCommand
 
 from textgen import words
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 from the_tale.game.map.places.storage import places_storage
 

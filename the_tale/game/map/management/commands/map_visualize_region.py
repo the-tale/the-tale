@@ -8,7 +8,7 @@ from optparse import make_option
 
 from django.core.management.base import BaseCommand
 
-from the_tale.common.utils.logic import run_django_command
+from dext.common.utils.logic import run_django_command
 
 from the_tale.game.map.relations import SPRITES
 from the_tale.game.map.storage import map_info_storage

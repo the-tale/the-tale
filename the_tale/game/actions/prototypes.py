@@ -3,8 +3,8 @@
 import random
 import copy
 
-from dext.utils.urls import url
-from dext.utils import discovering
+from dext.common.utils.urls import url
+from dext.common.utils import discovering
 
 from the_tale.common.utils.logic import random_value_by_priority
 

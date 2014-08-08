@@ -1,11 +1,12 @@
 # coding: utf-8
 import datetime
 
+from the_tale.amqp_environment import environment
+
 from the_tale.common.utils import testcase
 
 from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, autodiscover, POSTPONED_TASK_LOGIC_RESULT
 from the_tale.common.postponed_tasks.postponed_tasks import FakePostponedInternalTask
-from the_tale.common.postponed_tasks.workers.environment import workers_environment as postponed_tasks_workers_environment
 
 
 class RefrigeratorTests(testcase.TestCase):
@@ -14,10 +15,10 @@ class RefrigeratorTests(testcase.TestCase):
         super(RefrigeratorTests, self).setUp()
         autodiscover()
 
-        postponed_tasks_workers_environment.deinitialize()
-        postponed_tasks_workers_environment.initialize()
+        environment.deinitialize()
+        environment.initialize()
 
-        self.worker = postponed_tasks_workers_environment.refrigerator
+        self.worker = environment.workers.refrigerator
         self.worker.initialize()
 
         self.task_1 = PostponedTaskPrototype.create(FakePostponedInternalTask(result_state=POSTPONED_TASK_LOGIC_RESULT.WAIT))

@@ -4,7 +4,7 @@ import random
 
 import mock
 
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 from questgen import facts
 from questgen import actions as questgen_actions

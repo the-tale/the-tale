@@ -125,10 +125,6 @@ def get_or_create(get_method, create_method, exception, kwargs):
         return get_method(**kwargs)
 
 
-def run_django_command(command):
-    return subprocess.call(['django-admin.py']+command+['--settings', 'the_tale.settings'])
-
-
 def days_range(date_from, date_to):
     for days in xrange((date_to-date_from).days):
         current_date = (date_from + datetime.timedelta(days=days))

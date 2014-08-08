@@ -10,8 +10,10 @@ from urlparse import urlparse
 from django.contrib.auth.hashers import make_password
 from django.db import models, transaction
 
-from dext.utils.urls import full_url
-from dext.utils import s11n
+from dext.common.utils.urls import full_url
+from dext.common.utils import s11n
+
+from the_tale.amqp_environment import environment
 
 from the_tale.common.postponed_tasks import PostponedTaskPrototype
 from the_tale.common.utils.logic import verbose_timedelta
@@ -204,7 +206,6 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
     def change_credentials(self, new_email=None, new_password=None, new_nick=None):
         from the_tale.game.heroes.prototypes import HeroPrototype
-        from the_tale.accounts.workers.environment import workers_environment
 
         if new_password:
             self._model.password = new_password
@@ -223,7 +224,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
             HeroPrototype.get_by_account_id(self.id).cmd_update_with_account_data(self)
 
             if self.referral_of_id is not None:
-                workers_environment.accounts_manager.cmd_run_account_method(account_id=self.referral_of_id,
+                environment.workers.accounts_manager.cmd_run_account_method(account_id=self.referral_of_id,
                                                                             method_name=self.update_referrals_number.__name__,
                                                                             data={})
 
@@ -346,12 +347,11 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
 
     def change_credentials(self):
         from the_tale.accounts.postponed_tasks import ChangeCredentials
-        from the_tale.accounts.workers.environment import workers_environment
 
         change_credentials_task = ChangeCredentials(task_id=self.id)
         task = PostponedTaskPrototype.create(change_credentials_task)
 
-        workers_environment.accounts_manager.cmd_task(task.id)
+        environment.workers.accounts_manager.cmd_task(task.id)
 
         return task
 

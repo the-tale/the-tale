@@ -6,8 +6,8 @@ import mock
 from django.test import client
 from django.core.urlresolvers import reverse
 
-from dext.utils import s11n
-from dext.utils.urls import url
+from dext.common.utils import s11n
+from dext.common.utils.urls import url
 
 from textgen.words import Noun
 

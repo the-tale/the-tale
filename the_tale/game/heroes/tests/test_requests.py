@@ -6,7 +6,7 @@ import mock
 
 from django.test import client
 
-from dext.utils.urls import url
+from dext.common.utils.urls import url
 
 from textgen.words import Noun
 

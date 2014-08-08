@@ -3,6 +3,8 @@ import datetime
 
 import mock
 
+from the_tale.amqp_environment import environment
+
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.prototypes import AccountPrototype
@@ -11,7 +13,6 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.heroes.prototypes import HeroPrototype
 
 from the_tale.game.logic import create_test_map
-from the_tale.game.workers.environment import workers_environment
 from the_tale.game.prototypes import TimePrototype
 
 
@@ -27,10 +28,10 @@ class LogicWorkerTests(testcase.TestCase):
         self.hero = HeroPrototype.get_by_account_id(account_id)
         self.account = AccountPrototype.get_by_id(self.hero.account_id)
 
-        workers_environment.deinitialize()
-        workers_environment.initialize()
+        environment.deinitialize()
+        environment.initialize()
 
-        self.worker = workers_environment.logic
+        self.worker = environment.workers.logic
         self.worker.process_initialize(TimePrototype.get_current_turn_number(), 'logic')
 
     def tearDown(self):

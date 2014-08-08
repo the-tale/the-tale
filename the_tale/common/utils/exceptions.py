@@ -1,7 +1,7 @@
 # coding: utf-8
 
-class TheTaleError(Exception):
-    MSG = None
+from dext.common.utils import exceptions
 
-    def __init__(self, **kwargs):
-        super(TheTaleError, self).__init__(self.MSG % kwargs)
+
+class TheTaleError(exceptions.DextError):
+    pass

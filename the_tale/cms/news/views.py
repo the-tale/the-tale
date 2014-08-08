@@ -8,7 +8,7 @@ from django.utils.feedgenerator import Atom1Feed
 from django.db import transaction
 
 from dext.views import handler
-from dext.utils.urls import UrlBuilder
+from dext.common.utils.urls import UrlBuilder
 
 from the_tale.common.utils.decorators import staff_required
 from the_tale.common.utils.resources import Resource

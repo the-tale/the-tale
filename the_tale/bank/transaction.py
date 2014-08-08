@@ -1,8 +1,8 @@
 # coding: utf-8
 
+from the_tale.amqp_environment import environment
 
 from the_tale.bank.prototypes import InvoicePrototype
-from the_tale.bank.workers.environment import workers_environment as bank_workers_environment
 
 
 class Transaction(object):
@@ -29,7 +29,7 @@ class Transaction(object):
                                           operation_uid=operation_uid,
                                           force=force)
 
-        bank_workers_environment.bank_processor.cmd_init_invoice()
+        environment.workers.bank_processor.cmd_init_invoice()
 
         return cls(invoice_id=invoice.id)
 
@@ -40,7 +40,7 @@ class Transaction(object):
         return InvoicePrototype.get_by_id(self.invoice_id).state
 
     def confirm(self):
-        bank_workers_environment.bank_processor.cmd_confirm_invoice(self.invoice_id)
+        environment.workers.bank_processor.cmd_confirm_invoice(self.invoice_id)
 
     def cancel(self):
-        bank_workers_environment.bank_processor.cmd_cancel_invoice(self.invoice_id)
+        environment.workers.bank_processor.cmd_cancel_invoice(self.invoice_id)

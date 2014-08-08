@@ -7,12 +7,12 @@ from rels.django import DjangoEnum
 from django.core.urlresolvers import reverse
 from django.db import transaction
 
+from the_tale.amqp_environment import environment
+
 from the_tale.common.utils.enum import create_enum
 from the_tale.common.utils.decorators import lazy_property
 
 from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
-
-from the_tale.game.workers.environment import workers_environment as game_workers_environment
 
 from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
 
@@ -68,7 +68,7 @@ class RegistrationTask(PostponedLogic):
             self.state = REGISTRATION_TASK_STATE.BUNDLE_NOT_FOUND
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        game_workers_environment.supervisor.cmd_register_new_account(account_id)
+        environment.workers.supervisor.cmd_register_new_account(account_id)
 
         self.state = REGISTRATION_TASK_STATE.PROCESSED
         self.account_id = int(account_id)

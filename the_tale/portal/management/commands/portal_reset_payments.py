@@ -4,7 +4,9 @@ import datetime
 from django.core.management.base import BaseCommand
 from django.db import models
 
-from dext.utils import pid
+from dext.common.utils import pid
+
+from the_tale.amqp_environment import environment
 
 from the_tale.accounts.models import Account, Award
 from the_tale.accounts.prototypes import AccountPrototype
@@ -19,7 +21,6 @@ from the_tale.bank.relations import INVOICE_STATE
 from the_tale.bank.xsolla.models import Invoice as XsollaInvoice
 
 from the_tale.game.heroes.models import Hero
-from the_tale.game.workers.environment import workers_environment
 
 class Command(BaseCommand):
 
@@ -36,7 +37,7 @@ class Command(BaseCommand):
             print u'can not reset payments: first disable payments_settings.ENABLE_REAL_PAYMENTS'
             return
 
-        if pid.check(workers_environment.supervisor.pid):
+        if pid.check(environment.workers.supervisor.pid):
             print u'stop game before reseting payments'
             return
 

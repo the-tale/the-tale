@@ -4,7 +4,7 @@ import datetime
 
 import mock
 
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 from django.test import client
 from django.core.urlresolvers import reverse

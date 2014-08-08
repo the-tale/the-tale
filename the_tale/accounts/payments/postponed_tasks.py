@@ -14,7 +14,7 @@ from the_tale.game.heroes.relations import PREFERENCE_TYPE
 
 from the_tale.game.cards.relations import CARD_TYPE
 
-from the_tale.accounts.workers.environment import workers_environment as accounts_workers_environment
+from the_tale.amqp_environment import environment
 from the_tale.accounts.prototypes import AccountPrototype, RandomPremiumRequestPrototype
 
 from the_tale.accounts.payments import relations
@@ -87,7 +87,7 @@ class BaseBuyTask(PostponedLogic):
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
     def on_process_transaction_requested__transaction_frozen(self, main_task):
-        main_task.extend_postsave_actions((lambda: accounts_workers_environment.accounts_manager.cmd_task(main_task.id),))
+        main_task.extend_postsave_actions((lambda: environment.workers.accounts_manager.cmd_task(main_task.id),))
 
     def on_process_transaction_frozen(self, storage):
         raise NotImplementedError
@@ -154,8 +154,7 @@ class BaseBuyTask(PostponedLogic):
 class BaseLogicBuyTask(BaseBuyTask):
 
     def on_process_transaction_requested__transaction_frozen(self, main_task):
-        from the_tale.game.workers.environment import workers_environment as game_workers_environment
-        main_task.extend_postsave_actions((lambda: game_workers_environment.supervisor.cmd_logic_task(self.account_id, main_task.id),))
+        main_task.extend_postsave_actions((lambda: environment.workers.supervisor.cmd_logic_task(self.account_id, main_task.id),))
 
 
 class BuyPremium(BaseBuyTask):

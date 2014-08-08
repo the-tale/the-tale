@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from dext.utils import discovering
+from dext.common.utils import discovering
 
 from the_tale.bank.conf import bank_settings
 

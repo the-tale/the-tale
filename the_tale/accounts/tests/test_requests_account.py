@@ -4,7 +4,7 @@ import random
 
 from django.core.urlresolvers import reverse
 
-from dext.utils.urls import url
+from dext.common.utils.urls import url
 
 from the_tale.common.utils.testcase import TestCase
 from the_tale.common.utils.permissions import sync_group

@@ -2,6 +2,8 @@
 
 from dext.views import BaseResource
 
+from the_tale.amqp_environment import environment
+
 from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.game.prototypes import TimePrototype
@@ -24,8 +26,7 @@ class Resource(BaseResource):
         super(Resource, self).initialize(*args, **kwargs)
 
         if self.account.is_authenticated() and self.account.is_update_active_state_needed:
-            from the_tale.accounts.workers.environment import workers_environment
-            workers_environment.accounts_manager.cmd_run_account_method(account_id=self.account.id,
+            environment.workers.accounts_manager.cmd_run_account_method(account_id=self.account.id,
                                                                         method_name=AccountPrototype.update_active_state.__name__,
                                                                         data={})
 

@@ -3,15 +3,15 @@
 from django.core.urlresolvers import reverse
 
 from dext.views import handler, validate_argument_with_resource
-from dext.utils.decorators import debug_required
+from dext.common.utils.decorators import debug_required
+
+from the_tale.amqp_environment import environment
 
 from the_tale.common.utils.decorators import staff_required, login_required
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils import api
 
 from the_tale.accounts.clans.prototypes import ClanPrototype
-
-from the_tale.game.workers.environment import workers_environment
 
 from the_tale.game.heroes.relations import EQUIPMENT_SLOT
 from the_tale.game.heroes.prototypes import HeroPrototype
@@ -294,6 +294,6 @@ class GameResource(Resource):
     @staff_required()
     @handler('next-turn', method=['post'])
     def next_turn(self):
-        workers_environment.supervisor.cmd_next_turn()
+        environment.workers.supervisor.cmd_next_turn()
 
         return self.json(status='ok')

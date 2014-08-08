@@ -9,7 +9,8 @@ from the_tale.common.utils import testcase
 from the_tale.post_service.prototypes import MessagePrototype
 from the_tale.post_service.conf import post_service_settings
 from the_tale.post_service.message_handlers import TestHandler
-from the_tale.post_service.workers.environment import workers_environment as post_service_workers_environment
+
+from the_tale.amqp_environment import environment
 
 
 @mock.patch('the_tale.post_service.conf.post_service_settings.ENABLE_MESSAGE_SENDER', True)
@@ -19,10 +20,10 @@ class MessageSenderTests(testcase.TestCase):
         super(MessageSenderTests, self).setUp()
         self.message = MessagePrototype.create(TestHandler())
 
-        post_service_workers_environment.deinitialize()
-        post_service_workers_environment.initialize()
+        environment.deinitialize()
+        environment.initialize()
 
-        self.worker = post_service_workers_environment.message_sender
+        self.worker = environment.workers.message_sender
 
     def test_send_message_skipped(self):
         self.worker.send_message(self.message)

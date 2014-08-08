@@ -1,13 +1,13 @@
 # coding: utf-8
 import mock
 
+from the_tale.amqp_environment import environment
+
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
 from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game.workers.environment import workers_environment
 
 from the_tale.game.logic import create_test_map
 from the_tale.game.abilities.deck.arena_pvp_1x1 import ArenaPvP1x1
@@ -41,10 +41,10 @@ class ArenaPvP1x1AbilityTest(UseAbilityTaskMixin, testcase.TestCase):
         self.ability_1 = self.PROCESSOR()
         self.ability_2 = self.PROCESSOR()
 
-        workers_environment.deinitialize()
-        workers_environment.initialize()
+        environment.deinitialize()
+        environment.initialize()
 
-        self.pvp_balancer = workers_environment.pvp_balancer
+        self.pvp_balancer = environment.workers.pvp_balancer
         self.pvp_balancer.process_initialize('pvp_balancer')
 
     def test_use(self):

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from dext.utils import storage
+from dext.common.utils import storage
 
 
 class Storage(storage.Storage):

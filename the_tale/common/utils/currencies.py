@@ -2,7 +2,7 @@
 
 import urllib2
 
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 from the_tale.common.utils.conf import utils_settings
 

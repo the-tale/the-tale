@@ -3,9 +3,11 @@ import datetime
 import random
 import math
 
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 from textgen import words
+
+from the_tale.amqp_environment import environment
 
 from the_tale.common.utils import bbcode
 from the_tale.common.utils.prototypes import BasePrototype
@@ -455,8 +457,7 @@ class PlacePrototype(BasePrototype):
         places_storage.update_version()
 
     def cmd_change_power(self, power, positive_bonus, negative_bonus):
-        from the_tale.game.workers.environment import workers_environment
-        workers_environment.highlevel.cmd_change_power(power_delta=power, positive_bonus=positive_bonus, negative_bonus=negative_bonus, person_id=None, place_id=self.id)
+        environment.workers.highlevel.cmd_change_power(power_delta=power, positive_bonus=positive_bonus, negative_bonus=negative_bonus, person_id=None, place_id=self.id)
 
 
     def map_info(self):

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from dext.utils.urls import url
+from dext.common.utils.urls import url
 
 from the_tale.common.utils import testcase
 from the_tale.common.utils.permissions import sync_group

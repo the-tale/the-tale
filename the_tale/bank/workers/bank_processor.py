@@ -3,11 +3,9 @@ import datetime
 import Queue
 import time
 
-from django.utils.log import getLogger
-
 from dext.settings import settings
 
-from the_tale.common.amqp_queues import connection, BaseWorker
+from the_tale.common.utils.workers import BaseWorker
 
 from the_tale.bank.prototypes import InvoicePrototype
 from the_tale.bank.conf import bank_settings
@@ -17,14 +15,6 @@ class BankException(Exception): pass
 
 
 class Worker(BaseWorker):
-
-    logger = getLogger('the-tale.workers.bank_bank_processor')
-    name = 'bank processor'
-    command_name = 'bank_bank_processor'
-
-    def __init__(self, messages_queue, stop_queue):
-        super(Worker, self).__init__(command_queue=messages_queue)
-        self.stop_queue = connection.create_simple_buffer(stop_queue)
 
     def clean_queues(self):
         super(Worker, self).clean_queues()

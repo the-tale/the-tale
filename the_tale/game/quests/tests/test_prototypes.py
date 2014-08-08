@@ -8,7 +8,7 @@ from questgen import actions as questgen_actions
 from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS
 from questgen.relations import OPTION_MARKERS_GROUPS
 
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 from the_tale.common.utils import testcase
 

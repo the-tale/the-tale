@@ -7,7 +7,9 @@ from django.contrib.auth import logout as django_logout
 from django.utils.log import getLogger
 
 from dext.views import handler, validator, validate_argument
-from dext.utils.urls import UrlBuilder
+from dext.common.utils.urls import UrlBuilder
+
+from the_tale.amqp_environment import environment
 
 from the_tale.common.postponed_tasks import PostponedTaskPrototype
 from the_tale.common.utils.resources import Resource
@@ -31,7 +33,6 @@ from the_tale.accounts import relations
 from the_tale.accounts import forms
 from the_tale.accounts.conf import accounts_settings
 from the_tale.accounts.logic import logout_user, login_user, get_system_user
-from the_tale.accounts.workers.environment import workers_environment as infrastructure_workers_environment
 from the_tale.accounts.achievements.prototypes import AccountAchievementsPrototype
 
 from the_tale.accounts.clans.prototypes import ClanPrototype
@@ -96,7 +97,7 @@ class RegistrationResource(BaseAccountsResource):
 
         self.request.session[accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY] = task.id
 
-        infrastructure_workers_environment.registration.cmd_task(task.id)
+        environment.workers.registration.cmd_task(task.id)
 
         return self.json_processing(task.status_url)
 

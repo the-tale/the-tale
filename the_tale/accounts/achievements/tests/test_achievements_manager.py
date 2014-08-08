@@ -1,6 +1,8 @@
 # coding: utf-8
 import mock
 
+from the_tale.amqp_environment import environment
+
 from the_tale.common.utils import testcase
 from the_tale.common.utils.permissions import sync_group
 
@@ -10,7 +12,6 @@ from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_GROUP, ACHIEVEMENT_TYPE
 from the_tale.accounts.achievements.prototypes import AchievementPrototype, AccountAchievementsPrototype, GiveAchievementTaskPrototype
-from the_tale.accounts.achievements.workers.environment import workers_environment
 
 
 from the_tale.game.logic import create_test_map
@@ -46,7 +47,7 @@ class AchievementsManagerTests(testcase.TestCase):
         self.account_achievements_1.achievements.add_achievement(self.achievement_1)
         self.account_achievements_1.save()
 
-        self.worker = workers_environment.achievements_manager
+        self.worker = environment.workers.achievements_manager
         self.worker.initialize()
 
     def test_add_achievements__not_tasks(self):

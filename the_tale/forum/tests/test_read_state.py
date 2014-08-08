@@ -4,7 +4,7 @@ import mock
 
 import datetime
 
-from dext.utils.urls import url
+from dext.common.utils.urls import url
 
 from the_tale.common.utils import testcase
 

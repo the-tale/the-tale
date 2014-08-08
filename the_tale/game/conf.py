@@ -1,7 +1,7 @@
 # coding: utf-8
 import os
 
-from dext.utils.app_settings import app_settings
+from dext.common.utils.app_settings import app_settings
 
 from the_tale.game.balance import constants as c
 

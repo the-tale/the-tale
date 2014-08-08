@@ -1,8 +1,10 @@
 # coding: utf-8
 
-from dext.utils.testcase import TestCase as DextTestCase, TransactionTestCase as DextTransactionTestCase
+from dext.common.utils.testcase import TestCase as DextTestCase, TransactionTestCase as DextTransactionTestCase
+from dext.common.utils.urls import url
+
 from dext.settings import settings
-from dext.utils.urls import url
+
 
 def setUp(self):
     from the_tale.accounts.achievements.storage import achievements_storage

@@ -3,12 +3,12 @@ import random
 
 from textgen.words import Noun
 
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from the_tale.common.utils.logic import run_django_command
+from dext.common.utils.logic import run_django_command
 
 from the_tale.game.balance import constants as c
 from the_tale.game import names

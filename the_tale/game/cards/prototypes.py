@@ -1,10 +1,12 @@
 # coding: utf-8
 import random
 
-from dext.utils import discovering
+from dext.common.utils import discovering
 
 from rels import Column
 from rels.django import DjangoEnum
+
+from the_tale.amqp_environment import environment
 
 from the_tale.common.postponed_tasks import PostponedTaskPrototype
 from the_tale.common.utils.logic import random_value_by_priority
@@ -30,8 +32,6 @@ class CardBase(object):
     TYPE = None
 
     def activate(self, hero, data):
-        from the_tale.game.workers.environment import workers_environment
-
         data['hero_id'] = hero.id
         data['account_id'] = hero.account_id
 
@@ -41,7 +41,7 @@ class CardBase(object):
 
         task = PostponedTaskPrototype.create(card_task)
 
-        workers_environment.supervisor.cmd_logic_task(hero.account_id, task.id)
+        environment.workers.supervisor.cmd_logic_task(hero.account_id, task.id)
 
         return task
 

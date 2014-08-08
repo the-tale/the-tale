@@ -2,7 +2,7 @@
 
 from django.core.management.base import BaseCommand
 
-from dext.utils import pid
+from dext.common.utils import pid
 
 from the_tale.accounts.logic import block_expired_accounts
 

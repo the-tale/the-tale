@@ -3,13 +3,13 @@ import mock
 
 from dext.settings import settings
 
+from the_tale.amqp_environment import environment
+
 from the_tale.common.utils import testcase
 
 from the_tale.bank.tests.helpers import BankTestsMixin
 
 from the_tale.bank.conf import bank_settings
-
-from the_tale.bank.workers.environment import workers_environment as bank_workers_environment
 
 
 class BankTests(testcase.TestCase, BankTestsMixin):
@@ -17,12 +17,12 @@ class BankTests(testcase.TestCase, BankTestsMixin):
     def setUp(self):
         super(BankTests, self).setUp()
 
-        bank_workers_environment.deinitialize()
-        bank_workers_environment.initialize()
+        environment.deinitialize()
+        environment.initialize()
 
         settings[bank_settings.SETTINGS_ALLOWED_KEY] = 'allowed'
 
-        self.worker = bank_workers_environment.bank_processor
+        self.worker = environment.workers.bank_processor
 
     def test_initialize__reset_invoices(self):
         with mock.patch('the_tale.bank.prototypes.InvoicePrototype.reset_all') as reset_all:

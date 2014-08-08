@@ -6,7 +6,7 @@ from the_tale.common.utils import testcase
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
 
-from the_tale.game.workers.environment import workers_environment
+from the_tale.amqp_environment import environment
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
@@ -42,10 +42,10 @@ class ArenaPvP1x1AcceptBaseTests(UseAbilityTaskMixin, testcase.TestCase):
         self.hero_1 = self.storage.accounts_to_heroes[self.account_1.id]
         self.hero_2 = self.storage.accounts_to_heroes[self.account_2.id]
 
-        workers_environment.deinitialize()
-        workers_environment.initialize()
+        environment.deinitialize()
+        environment.initialize()
 
-        self.pvp_balancer = workers_environment.pvp_balancer
+        self.pvp_balancer = environment.workers.pvp_balancer
         self.pvp_balancer.process_initialize('pvp_balancer')
 
         self.battle = self.pvp_balancer.add_to_arena_queue(self.hero_1.id)

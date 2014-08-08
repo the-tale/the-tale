@@ -1,7 +1,9 @@
 # coding: utf-8
 import datetime
 
-from dext.utils import s11n
+from dext.common.utils import s11n
+
+from the_tale.amqp_environment import environment
 
 from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils.decorators import lazy_property
@@ -51,15 +53,13 @@ class MessagePrototype(BasePrototype):
 
     @classmethod
     def create(cls, handler, now=False):
-        from the_tale.post_service.workers.environment import workers_environment as post_service_workers_environment
-
         model = cls._model_class.objects.create(state=MESSAGE_STATE.WAITING,
                                                 handler=s11n.to_json(handler.serialize()))
 
         prototype = cls(model=model)
 
         if now:
-            post_service_workers_environment.message_sender.cmd_send_now(prototype.id)
+            environment.workers.message_sender.cmd_send_now(prototype.id)
 
         return prototype
 

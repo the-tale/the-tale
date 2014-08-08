@@ -3,11 +3,9 @@ import time
 import datetime
 import Queue
 
-from django.utils.log import getLogger
-
 from dext.settings import settings
 
-from the_tale.common.amqp_queues import connection, BaseWorker
+from the_tale.common.utils.workers import BaseWorker
 from the_tale.common import postponed_tasks
 
 from the_tale.accounts.prototypes import AccountPrototype, RandomPremiumRequestPrototype
@@ -19,20 +17,12 @@ class AccountManagerException(Exception): pass
 
 class Worker(BaseWorker):
 
-    logger = getLogger('the-tale.workers.accounts_accounts_manager')
-    name = 'accounts manager'
-    command_name = 'accounts_accounts_manager'
-
-    def __init__(self, messages_queue, stop_queue):
-        super(Worker, self).__init__(command_queue=messages_queue)
-        self.stop_queue = connection.create_simple_buffer(stop_queue)
-        self.initialized = True
-
     def clean_queues(self):
         super(Worker, self).clean_queues()
         self.stop_queue.queue.purge()
 
     def initialize(self):
+        self.initialized = True
         postponed_tasks.autodiscover()
         postponed_tasks.PostponedTaskPrototype.reset_all()
         self.logger.info('ACCOUNT_MANAGER INITIALIZED')

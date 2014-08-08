@@ -4,9 +4,9 @@ import datetime
 
 import mock
 
-from the_tale.common.utils import testcase
 from django.contrib.auth import authenticate as django_authenticate
 
+from the_tale.common.utils import testcase
 from the_tale.common.utils.fake import FakeLogger, FakeWorkerCommand
 
 from the_tale.post_service.models import Message
@@ -65,7 +65,7 @@ class TestChangeCredentialsTask(testcase.TestCase):
 
         self.assertTrue(AccountPrototype.get_by_id(self.fast_account.id).is_fast)
 
-        with mock.patch('the_tale.game.workers.environment.workers_environment.supervisor.cmd_update_hero_with_account_data') as fake_cmd:
+        with mock.patch('the_tale.amqp_environment.environment.workers.supervisor.cmd_update_hero_with_account_data') as fake_cmd:
             postponed_task = task.change_credentials()
 
         self.assertNotEqual(postponed_task, None)
@@ -83,7 +83,7 @@ class TestChangeCredentialsTask(testcase.TestCase):
 
         fake_cmd = FakeWorkerCommand()
 
-        with mock.patch('the_tale.game.workers.environment.workers_environment.supervisor.cmd_update_hero_with_account_data') as fake_cmd:
+        with mock.patch('the_tale.amqp_environment.environment.workers.supervisor.cmd_update_hero_with_account_data') as fake_cmd:
             postponed_task = task.change_credentials()
 
         self.assertNotEqual(postponed_task, None)

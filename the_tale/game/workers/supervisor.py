@@ -1,11 +1,14 @@
 # coding: utf-8
 import time
 
-from django.utils.log import getLogger
 
 from dext.settings import settings
 
-from the_tale.common.amqp_queues import connection, BaseWorker, exceptions as amqp_exceptions
+from dext.common.amqp_queues import exceptions as amqp_exceptions
+
+from the_tale.amqp_environment import environment
+
+from the_tale.common.utils.workers import BaseWorker
 from the_tale.common import postponed_tasks
 
 from the_tale.accounts.models import Account
@@ -20,15 +23,7 @@ class SupervisorException(Exception): pass
 
 
 class Worker(BaseWorker):
-
-    logger = getLogger('the-tale.workers.game_supervisor')
-    name = 'game supervisor'
-    command_name = 'game_supervisor'
-
-    def __init__(self, supervisor_queue, answers_queue, stop_queue):
-        super(Worker, self).__init__(command_queue=supervisor_queue)
-        self.answers_queue = connection.create_simple_buffer(answers_queue)
-        self.stop_queue = connection.create_simple_buffer(stop_queue)
+    RECEIVE_ANSWERS = True
 
     def clean_queues(self):
         super(Worker, self).clean_queues()
@@ -44,38 +39,36 @@ class Worker(BaseWorker):
         self.send_cmd('initialize', {})
 
     def process_initialize(self):
-        from the_tale.game.workers.environment import workers_environment as game_environment
-
         self.time = TimePrototype.get_current_time()
 
         postponed_tasks.PostponedTaskPrototype.reset_all()
 
         #initialization
         self.logger.info('initialize logic')
-        game_environment.logic.cmd_initialize(turn_number=self.time.turn_number, worker_id='logic')
+        environment.workers.logic.cmd_initialize(turn_number=self.time.turn_number, worker_id='logic')
         self.wait_answers_from('initialize', workers=['logic'])
 
         self.logger.info('initialize long commands')
-        game_environment.long_commands.cmd_initialize(worker_id='game_long_commands')
+        environment.workers.game_long_commands.cmd_initialize(worker_id='game_long_commands')
         self.wait_answers_from('initialize', workers=['game_long_commands'])
 
         if game_settings.ENABLE_WORKER_HIGHLEVEL:
             self.logger.info('initialize highlevel')
-            game_environment.highlevel.cmd_initialize(turn_number=self.time.turn_number, worker_id='highlevel')
+            environment.workers.highlevel.cmd_initialize(turn_number=self.time.turn_number, worker_id='highlevel')
             self.wait_answers_from('initialize', workers=['highlevel'])
         else:
             self.logger.info('skip initialization of highlevel')
 
         if game_settings.ENABLE_WORKER_TURNS_LOOP:
             self.logger.info('initialize turns loop')
-            game_environment.turns_loop.cmd_initialize(worker_id='turns_loop')
+            environment.workers.turns_loop.cmd_initialize(worker_id='turns_loop')
             self.wait_answers_from('initialize', workers=['turns_loop'])
         else:
             self.logger.info('skip initialization of turns loop')
 
         if game_settings.ENABLE_PVP:
             self.logger.info('initialize pvp balancer')
-            game_environment.pvp_balancer.cmd_initialize(worker_id='pvp_balancer')
+            environment.workers.pvp_balancer.cmd_initialize(worker_id='pvp_balancer')
             self.wait_answers_from('initialize', workers=['pvp_balancer'])
         else:
             self.logger.info('skip initialization of pvp balancer')
@@ -155,26 +148,23 @@ class Worker(BaseWorker):
         self.send_register_account_cmd(account_id)
 
     def send_register_account_cmd(self, account_id):
-        from the_tale.game.workers.environment import workers_environment as game_environment
         self.accounts_owners[account_id] = 'logic'
 
-        game_environment.logic.cmd_register_account(account_id)
+        environment.workers.logic.cmd_register_account(account_id)
 
         if account_id in self.accounts_queues:
             for cmd_name, kwargs in self.accounts_queues[account_id]:
-                getattr(game_environment.logic, 'cmd_' + cmd_name)(**kwargs)
+                getattr(environment.workers.logic, 'cmd_' + cmd_name)(**kwargs)
             del self.accounts_queues[account_id]
 
     def send_release_account_cmd(self, account_id):
-        from the_tale.game.workers.environment import workers_environment as game_environment
         if self.accounts_owners[account_id] is not None:
             self.accounts_owners[account_id] = None
-            game_environment.logic.cmd_release_account(account_id)
+            environment.workers.logic.cmd_release_account(account_id)
 
     def dispatch_logic_cmd(self, account_id, cmd_name, kwargs):
-        from the_tale.game.workers.environment import workers_environment as game_environment
         if account_id in self.accounts_owners and self.accounts_owners[account_id] == 'logic':
-            getattr(game_environment.logic, 'cmd_' + cmd_name)(**kwargs)
+            getattr(environment.workers.logic, 'cmd_' + cmd_name)(**kwargs)
         else:
             if account_id not in self.accounts_owners:
                 self.logger.warn('try to dispatch command for unregistered account %d (command "%s" args %r)' % (account_id, cmd_name, kwargs))
@@ -201,20 +191,18 @@ class Worker(BaseWorker):
             raise
 
     def process_next_turn(self):
-        from the_tale.game.workers.environment import workers_environment as game_environment
-
         self.wait_answer_from_next_turn()
 
         self.time.increment_turn()
 
         settings.refresh()
 
-        game_environment.logic.cmd_next_turn(turn_number=self.time.turn_number)
+        environment.workers.logic.cmd_next_turn(turn_number=self.time.turn_number)
         self.wait_next_turn_answer = True
 
         try:
             if game_settings.ENABLE_WORKER_HIGHLEVEL:
-                game_environment.highlevel.cmd_next_turn(turn_number=self.time.turn_number)
+                environment.workers.highlevel.cmd_next_turn(turn_number=self.time.turn_number)
         except amqp_exceptions.WaitAnswerTimeoutError:
             self.logger.error('next turn timeout while getting answer from highlevel')
             self._force_stop()
@@ -233,17 +221,15 @@ class Worker(BaseWorker):
         self.logger.error('signals sent')
 
     def _send_stop_signals(self):
-        from the_tale.game.workers.environment import workers_environment as game_environment
-
-        game_environment.logic.cmd_stop()
-        game_environment.long_commands.cmd_stop()
+        environment.workers.logic.cmd_stop()
+        environment.workers.game_long_commands.cmd_stop()
 
         if game_settings.ENABLE_WORKER_HIGHLEVEL:
-            game_environment.highlevel.cmd_stop()
+            environment.workers.highlevel.cmd_stop()
         if game_settings.ENABLE_WORKER_TURNS_LOOP:
-            game_environment.turns_loop.cmd_stop()
+            environment.workers.turns_loop.cmd_stop()
         if game_settings.ENABLE_PVP:
-            game_environment.pvp_balancer.cmd_stop()
+            environment.workers.pvp_balancer.cmd_stop()
 
     def process_stop(self):
 
@@ -316,8 +302,7 @@ class Worker(BaseWorker):
         self.send_cmd('highlevel_data_updated')
 
     def process_highlevel_data_updated(self):
-        from the_tale.game.workers.environment import workers_environment as game_environment
-        game_environment.logic.cmd_highlevel_data_updated()
+        environment.workers.logic.cmd_highlevel_data_updated()
 
     def cmd_force_save(self, account_id):
         self.send_cmd('force_save', {'account_id': account_id})

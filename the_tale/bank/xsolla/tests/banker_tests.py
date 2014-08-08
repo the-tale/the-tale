@@ -2,9 +2,9 @@
 
 import mock
 
-from the_tale.common.utils import testcase
+from the_tale.amqp_environment import environment
 
-from the_tale.bank.workers.environment import workers_environment as bank_workers_environment
+from the_tale.common.utils import testcase
 
 from the_tale.bank.xsolla.tests.helpers import TestInvoiceFabric
 
@@ -16,10 +16,10 @@ class BankerTests(testcase.TestCase):
         self.fabric = TestInvoiceFabric()
         self.invoice = self.fabric.pay()
 
-        bank_workers_environment.deinitialize()
-        bank_workers_environment.initialize()
+        environment.deinitialize()
+        environment.initialize()
 
-        self.worker = bank_workers_environment.xsolla_banker
+        self.worker = environment.workers.xsolla_banker
 
     def test_initialize(self):
         self.worker.initialize()

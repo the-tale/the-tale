@@ -2,11 +2,9 @@
 
 import Queue
 
-from django.utils.log import getLogger
-
 from dext.settings import settings
 
-from the_tale.common.amqp_queues import connection, BaseWorker
+from the_tale.common.utils.workers import BaseWorker
 
 from the_tale.collections.prototypes import GiveItemTaskPrototype, AccountItemsPrototype
 from the_tale.collections.storage import items_storage
@@ -14,20 +12,12 @@ from the_tale.collections.storage import items_storage
 
 class Worker(BaseWorker):
 
-    logger = getLogger('the-tale.workers.collections_items_manager')
-    name = 'items manager'
-    command_name = 'collections_items_manager'
-
-    def __init__(self, messages_queue, stop_queue):
-        super(Worker, self).__init__(command_queue=messages_queue)
-        self.stop_queue = connection.create_simple_buffer(stop_queue)
-        self.initialized = True
-
     def clean_queues(self):
         super(Worker, self).clean_queues()
         self.stop_queue.queue.purge()
 
     def initialize(self):
+        self.initialized = True
         self.logger.info('ITEMS_MANAGER INITIALIZED')
 
     def run(self):

@@ -4,12 +4,10 @@ import Queue
 import time
 import datetime
 
-from django.utils.log import getLogger
-
 from dext.settings import settings
 
-from the_tale.common.amqp_queues import connection, BaseWorker
-from the_tale.common.utils.logic import run_django_command
+from the_tale.common.utils.workers import BaseWorker
+from dext.common.utils.logic import run_django_command
 
 from the_tale.portal.conf import portal_settings
 from the_tale.portal import signals as portal_signals
@@ -18,14 +16,6 @@ from the_tale.portal import signal_processors # DO NOT REMOVE
 
 
 class Worker(BaseWorker):
-
-    logger = getLogger('the-tale.workers.portal_long_commands')
-    name = 'portal long commands'
-    command_name = 'portal_long_commands'
-
-    def __init__(self, command_queue, stop_queue):
-        super(Worker, self).__init__(command_queue=command_queue)
-        self.stop_queue = connection.create_simple_buffer(stop_queue)
 
     def run(self):
         while not self.exception_raised and not self.stop_required:

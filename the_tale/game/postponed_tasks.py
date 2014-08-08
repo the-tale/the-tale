@@ -3,6 +3,8 @@
 import rels
 from rels.django import DjangoEnum
 
+from the_tale.amqp_environment import environment
+
 from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 
 from the_tale.game import exceptions
@@ -72,8 +74,6 @@ class ComplexChangeTask(PostponedLogic):
         return self.message
 
     def logic_result(self, next_step=STEP.SUCCESS, message=None):
-        from the_tale.game.workers.environment import workers_environment
-
         self.message = message
 
         if next_step.is_SUCCESS:
@@ -83,10 +83,10 @@ class ComplexChangeTask(PostponedLogic):
             return self.RESULT.FAILED, next_step, ()
 
         if next_step.is_HIGHLEVEL:
-            return self.RESULT.CONTINUE, next_step, ((lambda: workers_environment.highlevel.cmd_logic_task(self.hero.account_id, self.main_task.id)), )
+            return self.RESULT.CONTINUE, next_step, ((lambda: environment.workers.highlevel.cmd_logic_task(self.hero.account_id, self.main_task.id)), )
 
         if next_step.is_PVP_BALANCER:
-            return self.RESULT.CONTINUE, next_step, ((lambda: workers_environment.pvp_balancer.cmd_logic_task(self.hero.account_id, self.main_task.id)), )
+            return self.RESULT.CONTINUE, next_step, ((lambda: environment.workers.pvp_balancer.cmd_logic_task(self.hero.account_id, self.main_task.id)), )
 
         raise exceptions.UnknownNextStepError(next_step=next_step)
 

@@ -4,7 +4,7 @@ from the_tale.common.utils import testcase
 
 from textgen.words import Noun
 
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 from the_tale.game.logic import create_test_map
 

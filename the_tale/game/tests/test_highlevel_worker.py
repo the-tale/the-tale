@@ -4,6 +4,8 @@ import contextlib
 
 from dext.settings import settings
 
+from the_tale.amqp_environment import environment
+
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
@@ -16,7 +18,6 @@ from the_tale.game.map.places.storage import places_storage
 
 from the_tale.game.balance import constants as c
 from the_tale.game.logic import create_test_map
-from the_tale.game.workers.environment import workers_environment
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.bills.conf import bills_settings
 from the_tale.game.logic_storage import LogicStorage
@@ -44,10 +45,10 @@ class HighlevelTest(testcase.TestCase):
         self.hero = self.storage.accounts_to_heroes[account_id]
         self.action_idl = self.hero.actions.current_action
 
-        workers_environment.deinitialize()
-        workers_environment.initialize()
+        environment.deinitialize()
+        environment.initialize()
 
-        self.worker = workers_environment.highlevel
+        self.worker = environment.workers.highlevel
         self.worker.process_initialize(TimePrototype.get_current_turn_number(), 'highlevel')
 
     def tearDown(self):

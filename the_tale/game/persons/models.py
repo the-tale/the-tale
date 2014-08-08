@@ -4,7 +4,7 @@ import datetime
 
 from django.db import models
 
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 from rels.django import RelationIntegerField
 

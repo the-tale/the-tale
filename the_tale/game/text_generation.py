@@ -5,7 +5,7 @@ import numbers
 from django.utils.log import getLogger
 from django.conf import settings as project_settings
 
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 from textgen.words import WordBase
 from textgen.templates import Vocabulary, Dictionary

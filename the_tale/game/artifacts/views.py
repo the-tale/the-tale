@@ -4,7 +4,7 @@ import uuid
 from django.core.urlresolvers import reverse
 
 from dext.views import handler, validator, validate_argument
-from dext.utils.urls import UrlBuilder
+from dext.common.utils.urls import UrlBuilder
 
 from the_tale.common.utils import list_filter
 from the_tale.common.utils.resources import Resource

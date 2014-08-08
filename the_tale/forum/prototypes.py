@@ -6,7 +6,7 @@ import markdown
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError, transaction, models
 
-from dext.utils.urls import UrlBuilder
+from dext.common.utils.urls import UrlBuilder
 
 from the_tale.accounts.models import Account
 from the_tale.accounts.prototypes import AccountPrototype

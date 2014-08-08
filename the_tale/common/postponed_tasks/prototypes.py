@@ -5,8 +5,10 @@ import datetime
 
 from django.core.urlresolvers import reverse
 
-from dext.utils import s11n
-from dext.utils import discovering
+from dext.common.utils import s11n
+from dext.common.utils import discovering
+
+from the_tale.amqp_environment import environment
 
 from the_tale.common.utils.prototypes import BasePrototype
 
@@ -137,8 +139,7 @@ class PostponedTaskPrototype(BasePrototype):
                 action()
 
     def cmd_wait(self):
-        from the_tale.common.postponed_tasks.workers.environment import workers_environment
-        workers_environment.refrigerator.cmd_wait_task(self.id)
+        environment.workers.refrigerator.cmd_wait_task(self.id)
 
     def process(self, logger, **kwargs):
 

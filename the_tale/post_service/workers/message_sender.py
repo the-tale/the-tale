@@ -3,11 +3,9 @@ import time
 import Queue
 import datetime
 
-from django.utils.log import getLogger
-
 from dext.settings import settings
 
-from the_tale.common.amqp_queues import connection, BaseWorker
+from the_tale.common.utils.workers import BaseWorker
 
 from the_tale.post_service.prototypes import MessagePrototype
 from the_tale.post_service.conf import post_service_settings
@@ -16,14 +14,6 @@ from the_tale.post_service.conf import post_service_settings
 class MessageSenderException(Exception): pass
 
 class Worker(BaseWorker):
-
-    logger = getLogger('the-tale.workers.post_service_message_sender')
-    name = 'message sender'
-    command_name = 'post_service_message_sender'
-
-    def __init__(self, messages_queue, stop_queue):
-        super(Worker, self).__init__(command_queue=messages_queue)
-        self.stop_queue = connection.create_simple_buffer(stop_queue)
 
     def clean_queues(self):
         super(Worker, self).clean_queues()

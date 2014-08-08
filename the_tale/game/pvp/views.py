@@ -4,6 +4,8 @@ from django.core.urlresolvers import reverse
 
 from dext.views import handler, validate_argument, validator
 
+from the_tale.amqp_environment import environment
+
 from the_tale.common.utils.decorators import login_required, lazy_property
 from the_tale.common.utils.resources import Resource
 from the_tale.common.postponed_tasks import PostponedTaskPrototype
@@ -13,8 +15,6 @@ from the_tale.accounts.views import validate_fast_account
 from the_tale.accounts.clans.prototypes import ClanPrototype
 
 from the_tale.game.conf import game_settings
-
-from the_tale.game.workers.environment import workers_environment
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes.models import Hero
@@ -109,7 +109,7 @@ class PvPResource(Resource):
 
         task = PostponedTaskPrototype.create(say_task)
 
-        workers_environment.supervisor.cmd_logic_task(self.account.id, task.id)
+        environment.workers.supervisor.cmd_logic_task(self.account.id, task.id)
 
         return self.json_processing(task.status_url)
 
@@ -169,6 +169,6 @@ class PvPResource(Resource):
 
         task = PostponedTaskPrototype.create(use_ability_task)
 
-        workers_environment.supervisor.cmd_logic_task(self.account.id, task.id)
+        environment.workers.supervisor.cmd_logic_task(self.account.id, task.id)
 
         return self.json_processing(task.status_url)

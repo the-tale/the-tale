@@ -2,12 +2,14 @@
 import os
 import sys
 
-from dext.utils.meta_config import MetaConfig
+from dext.common.utils.meta_config import MetaConfig
 
 TESTS_RUNNING = 'test' in sys.argv or 'testserver' in sys.argv
 
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 HOME_DIR = os.getenv("HOME")
+
+PROJECT_MODULE = os.path.basename(PROJECT_DIR)
 
 META_CONFIG_FILE = os.path.join(PROJECT_DIR, 'meta_config.json')
 META_CONFIG = MetaConfig(config_path=META_CONFIG_FILE)
@@ -149,6 +151,8 @@ INSTALLED_APPS = (
     'dext.less',
     'dext.settings',
     'dext.forms',
+    'dext.common.utils',
+    'dext.common.amqp_queues',
 
     'the_tale.common.utils',
     'the_tale.common.postponed_tasks',

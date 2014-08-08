@@ -3,7 +3,7 @@ import os
 
 import deworld
 
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 from django.conf import settings as project_settings
 

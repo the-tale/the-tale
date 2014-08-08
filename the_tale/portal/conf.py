@@ -4,7 +4,7 @@ import datetime
 
 from django.core.urlresolvers import reverse_lazy
 
-from dext.utils.app_settings import app_settings
+from dext.common.utils.app_settings import app_settings
 
 SITE_SECTIONS = ( (re.compile(r'^/$'), 'index'),
                   (re.compile(r'^/news.*$'), 'news'),

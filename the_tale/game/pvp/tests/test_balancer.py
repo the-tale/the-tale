@@ -3,6 +3,8 @@ import mock
 import datetime
 import random
 
+from the_tale.amqp_environment import environment
+
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.prototypes import AccountPrototype
@@ -11,7 +13,6 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.heroes.prototypes import HeroPrototype
 
 from the_tale.game.logic import create_test_map
-from the_tale.game.workers.environment import workers_environment
 
 from the_tale.game.models import SupervisorTask
 
@@ -39,12 +40,12 @@ class BalancerTestsBase(testcase.TestCase):
         self.hero_1 = HeroPrototype.get_by_account_id(account_1_id)
         self.hero_2 = HeroPrototype.get_by_account_id(account_2_id)
 
-        workers_environment.deinitialize()
-        workers_environment.initialize()
+        environment.deinitialize()
+        environment.initialize()
 
         Battle1x1Prototype.create(self.account_1)
 
-        self.worker = workers_environment.pvp_balancer
+        self.worker = environment.workers.pvp_balancer
         self.worker.process_initialize('pvp_balancer')
 
 

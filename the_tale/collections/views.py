@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from dext.views import handler, validate_argument, validator
-from dext.utils.urls import url
+from dext.common.utils.urls import url
 
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.decorators import login_required, lazy_property

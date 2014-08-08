@@ -6,6 +6,8 @@ from django.core.urlresolvers import reverse
 
 from dext.views import handler, validator, validate_argument
 
+from the_tale.amqp_environment import environment
+
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.decorators import login_required
 from the_tale.common.postponed_tasks import PostponedTaskPrototype
@@ -22,8 +24,6 @@ from the_tale.game.map.places.storage import places_storage
 
 from the_tale.game.persons.models import PERSON_STATE
 from the_tale.game.persons.storage import persons_storage
-
-from the_tale.game.workers.environment import workers_environment
 
 from the_tale.game import names
 from the_tale.game.relations import HABIT_TYPE
@@ -139,7 +139,7 @@ class HeroResource(Resource):
 
         task = PostponedTaskPrototype.create(change_task)
 
-        workers_environment.supervisor.cmd_logic_task(self.account.id, task.id)
+        environment.workers.supervisor.cmd_logic_task(self.account.id, task.id)
 
         return self.json_processing(task.status_url)
 
@@ -155,7 +155,7 @@ class HeroResource(Resource):
 
         task = PostponedTaskPrototype.create(reset_task)
 
-        workers_environment.supervisor.cmd_logic_task(self.account.id, task.id)
+        environment.workers.supervisor.cmd_logic_task(self.account.id, task.id)
 
         return self.json_processing(task.status_url)
 
@@ -171,7 +171,7 @@ class HeroResource(Resource):
 
         task = PostponedTaskPrototype.create(change_task)
 
-        workers_environment.supervisor.cmd_logic_task(self.account.id, task.id)
+        environment.workers.supervisor.cmd_logic_task(self.account.id, task.id)
 
         return self.json_processing(task.status_url)
 
@@ -180,7 +180,7 @@ class HeroResource(Resource):
     @validate_moderator_rights()
     @handler('#hero', 'force-save', method='post')
     def force_save(self):
-        workers_environment.supervisor.cmd_force_save(account_id=self.hero.account_id)
+        environment.workers.supervisor.cmd_force_save(account_id=self.hero.account_id)
         return self.json_ok()
 
 
@@ -193,7 +193,7 @@ class HeroResource(Resource):
 
         task = PostponedTaskPrototype.create(choose_task)
 
-        workers_environment.supervisor.cmd_logic_task(self.account.id, task.id)
+        environment.workers.supervisor.cmd_logic_task(self.account.id, task.id)
 
         return self.json_processing(task.status_url)
 
@@ -206,7 +206,7 @@ class HeroResource(Resource):
 
         task = PostponedTaskPrototype.create(choose_task)
 
-        workers_environment.supervisor.cmd_logic_task(self.account.id, task.id)
+        environment.workers.supervisor.cmd_logic_task(self.account.id, task.id)
 
         return self.json_processing(task.status_url)
 
@@ -225,7 +225,7 @@ class HeroResource(Resource):
 
         task = PostponedTaskPrototype.create(choose_task)
 
-        workers_environment.supervisor.cmd_logic_task(self.account.id, task.id)
+        environment.workers.supervisor.cmd_logic_task(self.account.id, task.id)
 
         return self.json_processing(task.status_url)
 
@@ -310,6 +310,6 @@ class HeroResource(Resource):
 
         task = PostponedTaskPrototype.create(choose_task)
 
-        workers_environment.supervisor.cmd_logic_task(self.account.id, task.id)
+        environment.workers.supervisor.cmd_logic_task(self.account.id, task.id)
 
         return self.json_processing(status_url=task.status_url)

@@ -4,8 +4,8 @@ import time
 from django.conf import settings as project_settings
 from django.utils.log import getLogger
 
-from dext.utils.decorators import retry_on_exception
-from dext.utils.urls import url
+from dext.common.utils.decorators import retry_on_exception
+from dext.common.utils.urls import url
 
 from questgen import facts
 from questgen import restrictions

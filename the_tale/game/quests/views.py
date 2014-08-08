@@ -7,7 +7,7 @@ from the_tale.common.utils.decorators import login_required
 from the_tale.common.postponed_tasks import PostponedTaskPrototype
 from the_tale.common.utils import api
 
-from the_tale.game.workers.environment import workers_environment
+from the_tale.amqp_environment import environment
 
 from the_tale.game.quests.postponed_tasks import MakeChoiceTask
 
@@ -37,6 +37,6 @@ class QuestsResource(Resource):
 
         task = PostponedTaskPrototype.create(choose_task)
 
-        workers_environment.supervisor.cmd_logic_task(self.account.id, task.id)
+        environment.workers.supervisor.cmd_logic_task(self.account.id, task.id)
 
         return self.processing(status_url=task.status_url)

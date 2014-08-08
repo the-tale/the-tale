@@ -3,7 +3,7 @@ import random
 
 from textgen.words import Noun
 
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 from the_tale.common.utils import bbcode
 from the_tale.common.utils.prototypes import BasePrototype

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from dext.utils import discovering
+from dext.common.utils import discovering
 
 from the_tale.game.balance import constants as c
 from the_tale.game.balance.power import Power

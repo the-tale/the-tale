@@ -5,8 +5,8 @@ from django.conf import settings as project_settings
 from django.contrib.auth import login as django_login, authenticate as django_authenticate, logout as django_logout
 from django.db import transaction
 
-from dext.utils.logic import normalize_email
-from dext.utils.urls import url
+from dext.common.utils.logic import normalize_email
+from dext.common.utils.urls import url
 
 from the_tale.common.utils.password import generate_password
 

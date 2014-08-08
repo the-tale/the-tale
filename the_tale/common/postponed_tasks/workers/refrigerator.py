@@ -4,9 +4,7 @@ import time
 import Queue
 import datetime
 
-from django.utils.log import getLogger
-
-from the_tale.common.amqp_queues import connection, BaseWorker
+from the_tale.common.utils.workers import BaseWorker
 
 from the_tale.common.postponed_tasks.conf import postponed_tasks_settings
 from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, POSTPONED_TASK_LOGIC_RESULT, autodiscover
@@ -14,15 +12,8 @@ from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, P
 
 class RefrigeratorException(Exception): pass
 
+
 class Worker(BaseWorker):
-
-    logger = getLogger('the-tale.workers.postponed_tasks_refrigerator')
-    name = 'postponed tasks refrigerator'
-    command_name = 'postponed_tasks_refrigerator'
-
-    def __init__(self, messages_queue, stop_queue):
-        super(Worker, self).__init__(command_queue=messages_queue)
-        self.stop_queue = connection.create_simple_buffer(stop_queue)
 
     def clean_queues(self):
         super(Worker, self).clean_queues()

@@ -3,7 +3,7 @@
 from django.core.management.base import BaseCommand
 
 from dext.jinja2 import render
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 from the_tale.game.conf import game_settings
 

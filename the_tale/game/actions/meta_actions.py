@@ -3,7 +3,7 @@ import random
 
 from django.db import transaction
 
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils.decorators import lazy_property

@@ -3,7 +3,7 @@ from django.test import client
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate as django_authenticate
 
-from dext.utils.urls import url
+from dext.common.utils.urls import url
 
 from the_tale.common.utils.fake import FakeLogger
 from the_tale.common.utils.testcase import TestCase

@@ -3,7 +3,7 @@ import md5
 
 from dext.views import handler, validate_argument, validator
 from dext.settings import settings
-from dext.utils.urls import UrlBuilder
+from dext.common.utils.urls import UrlBuilder
 
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.decorators import login_required, superuser_required

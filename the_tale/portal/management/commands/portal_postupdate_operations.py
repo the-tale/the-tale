@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 from the_tale.game.prototypes import TimePrototype
 
 from the_tale.common.utils.permissions import sync_group
-from the_tale.common.utils.logic import run_django_command
+from dext.common.utils.logic import run_django_command
 
 from the_tale.forum.conf import forum_settings
 

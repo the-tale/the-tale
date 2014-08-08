@@ -4,8 +4,8 @@ import sys
 from django.utils.log import getLogger
 
 from dext.views import handler
-from dext.utils.decorators import debug_required
-from dext.utils.urls import url
+from dext.common.utils.decorators import debug_required
+from dext.common.utils.urls import url
 
 from the_tale.common.utils.decorators import superuser_required
 from the_tale.common.utils.resources import Resource

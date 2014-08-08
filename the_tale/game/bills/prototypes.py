@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings as project_settings
 from django.db import transaction
 
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 from the_tale.common.utils.decorators import lazy_property
 from the_tale.common.utils import bbcode

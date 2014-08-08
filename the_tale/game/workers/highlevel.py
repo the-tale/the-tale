@@ -2,10 +2,11 @@
 
 from dext.settings import settings
 
-from django.utils.log import getLogger
 from django.db import transaction
 
-from the_tale.common.amqp_queues import BaseWorker
+from the_tale.amqp_environment import environment
+
+from the_tale.common.utils.workers import BaseWorker
 from the_tale.common import postponed_tasks
 
 from the_tale.game.balance import constants as c
@@ -17,7 +18,6 @@ from the_tale.game.map.places.storage import places_storage, buildings_storage
 from the_tale.game.map.places.conf import places_settings
 
 from the_tale.game.bills.conf import bills_settings
-from the_tale.game.workers.environment import workers_environment as game_environment
 
 from the_tale.game import exceptions
 
@@ -26,14 +26,7 @@ E = 0.001
 
 
 class Worker(BaseWorker):
-
-    logger = getLogger('the-tale.workers.game_highlevel')
-    name = 'game highlevel'
-    command_name = 'game_highlevel'
-    stop_signal_required = False
-
-    def __init__(self, highlevel_queue):
-        super(Worker, self).__init__(command_queue=highlevel_queue)
+    STOP_SIGNAL_REQUIRED = False
 
     run = BaseWorker.run_simple
 
@@ -59,7 +52,7 @@ class Worker(BaseWorker):
 
         self.logger.info('HIGHLEVEL INITIALIZED')
 
-        game_environment.supervisor.cmd_answer('initialize', self.worker_id)
+        environment.workers.supervisor.cmd_answer('initialize', self.worker_id)
 
 
     def cmd_next_turn(self, turn_number):
@@ -90,7 +83,7 @@ class Worker(BaseWorker):
 
     def update_map(self):
         self.logger.info('initialize map update')
-        game_environment.long_commands.cmd_update_map()
+        environment.workers.game_long_commands.cmd_update_map()
 
     def cmd_stop(self):
         return self.send_cmd('stop')
@@ -101,7 +94,7 @@ class Worker(BaseWorker):
 
         self.initialized = False
 
-        game_environment.supervisor.cmd_answer('stop', self.worker_id)
+        environment.workers.supervisor.cmd_answer('stop', self.worker_id)
 
         self.stop_required = True
         self.logger.info('HIGHLEVEL STOPPED')

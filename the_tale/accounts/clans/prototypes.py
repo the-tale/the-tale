@@ -2,7 +2,7 @@
 
 from django.db import models, IntegrityError, transaction
 
-from dext.utils.urls import full_url
+from dext.common.utils.urls import full_url
 
 from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils import bbcode

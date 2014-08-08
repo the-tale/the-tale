@@ -4,7 +4,7 @@ import datetime
 
 from django.conf import settings as project_settings
 
-from dext.utils.app_settings import app_settings
+from dext.common.utils.app_settings import app_settings
 
 
 GEN_DATA_DIR = os.path.join(project_settings.DCONT_DIR, './statistics/')

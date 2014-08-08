@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 
 from dext.views import handler, validator, validate_argument
-from dext.utils.urls import UrlBuilder
+from dext.common.utils.urls import UrlBuilder
 
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.pagination import Paginator

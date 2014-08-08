@@ -1,6 +1,8 @@
 # coding: utf-8
 import mock
 
+from the_tale.amqp_environment import environment
+
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.prototypes import AccountPrototype
@@ -10,7 +12,6 @@ from the_tale.game.heroes.prototypes import HeroPrototype
 
 from the_tale.game.models import SupervisorTask
 from the_tale.game.logic import create_test_map
-from the_tale.game.workers.environment import workers_environment
 from the_tale.game.prototypes import SupervisorTaskPrototype, GameState
 from the_tale.game.workers.supervisor import SupervisorException
 
@@ -34,10 +35,10 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.account_1 = AccountPrototype.get_by_id(account_1_id)
         self.account_2 = AccountPrototype.get_by_id(account_2_id)
 
-        workers_environment.deinitialize()
-        workers_environment.initialize()
+        environment.deinitialize()
+        environment.initialize()
 
-        self.worker = workers_environment.supervisor
+        self.worker = environment.workers.supervisor
 
         self.worker.logger = mock.Mock()
 
@@ -228,9 +229,8 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.assertTrue(self.worker.wait_next_turn_answer)
 
     @mock.patch('the_tale.game.conf.game_settings.ENABLE_WORKER_HIGHLEVEL', True)
-    @mock.patch('the_tale.game.workers.supervisor.Worker.logger.error', mock.Mock())
     def test_process_next_turn__timeout(self):
-        from the_tale.common.amqp_queues import exceptions as amqp_exceptions
+        from dext.common.amqp_queues import exceptions as amqp_exceptions
 
         self.worker.process_initialize()
 

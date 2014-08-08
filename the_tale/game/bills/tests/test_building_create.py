@@ -5,7 +5,7 @@ import datetime
 
 from textgen.words import Noun
 
-from dext.utils import s11n
+from dext.common.utils import s11n
 
 from the_tale.game.map.places.models import Building
 from the_tale.game.map.places.storage import buildings_storage

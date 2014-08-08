@@ -6,8 +6,9 @@ import mock
 
 from the_tale.common.utils import testcase
 
+from the_tale.amqp_environment import environment
+
 from the_tale.accounts.logic import register_user
-from the_tale.accounts.workers.environment import workers_environment
 from the_tale.accounts.prototypes import AccountPrototype, RandomPremiumRequestPrototype
 from the_tale.accounts.conf import accounts_settings
 
@@ -25,10 +26,10 @@ class AccountsManagerTest(testcase.TestCase):
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
         self.account = AccountPrototype.get_by_id(account_id)
 
-        workers_environment.deinitialize()
-        workers_environment.initialize()
+        environment.deinitialize()
+        environment.initialize()
 
-        self.worker = workers_environment.accounts_manager
+        self.worker = environment.workers.accounts_manager
         self.worker.initialize()
 
     def tearDown(self):

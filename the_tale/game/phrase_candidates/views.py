@@ -3,7 +3,7 @@
 from django.core.urlresolvers import reverse
 
 from dext.views import handler, validator, validate_argument
-from dext.utils.urls import UrlBuilder
+from dext.common.utils.urls import UrlBuilder
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.views import validate_fast_account, validate_ban_forum

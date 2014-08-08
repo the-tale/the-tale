@@ -5,7 +5,7 @@ from optparse import make_option
 from django.core.management.base import BaseCommand
 
 from dext.jinja2 import render
-from dext.utils import s11n
+from dext.common.utils import s11n
 from dext.settings import settings
 
 from the_tale.statistics.conf import statistics_settings

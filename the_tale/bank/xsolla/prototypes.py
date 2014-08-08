@@ -6,6 +6,8 @@ from decimal import Decimal
 
 from django.db import IntegrityError
 
+from the_tale.amqp_environment import environment
+
 from the_tale.common.utils.prototypes import BasePrototype
 
 from the_tale.bank import logic as bank_logic
@@ -61,8 +63,6 @@ class InvoicePrototype(BasePrototype):
 
     @classmethod
     def create(cls, v1, v2, v3, xsolla_id, payment_sum, test, date, request_url):
-        from the_tale.bank.workers.environment import workers_environment
-
         user_email = v1
 
         results = []
@@ -116,7 +116,7 @@ class InvoicePrototype(BasePrototype):
         prototype = cls(model=model)
 
         if prototype.state.is_CREATED:
-            workers_environment.xsolla_banker.cmd_handle_invoices()
+            environment.workers.xsolla_banker.cmd_handle_invoices()
 
         return prototype
 

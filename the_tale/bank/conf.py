@@ -1,7 +1,7 @@
 # coding: utf-8
 import datetime
 
-from dext.utils.app_settings import app_settings
+from dext.common.utils.app_settings import app_settings
 
 
 bank_settings = app_settings('BANK',

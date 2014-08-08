@@ -3,7 +3,7 @@
 import time
 import contextlib
 
-from dext.utils import cache
+from dext.common.utils import cache
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes.conf import heroes_settings

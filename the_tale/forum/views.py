@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.utils.feedgenerator import Atom1Feed
 
 from dext.views import handler, validate_argument
-from dext.utils.urls import UrlBuilder, url
+from dext.common.utils.urls import UrlBuilder, url
 
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.pagination import Paginator

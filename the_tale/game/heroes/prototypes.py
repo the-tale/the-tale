@@ -6,7 +6,9 @@ import random
 
 from textgen.words import Noun
 
-from dext.utils import s11n, database, cache
+from dext.common.utils import s11n, database, cache
+
+from the_tale.amqp_environment import environment
 
 from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils.logic import random_value_by_priority
@@ -618,7 +620,6 @@ class HeroPrototype(BasePrototype,
 
     @classmethod
     def cached_ui_info_for_hero(cls, account_id):
-        from the_tale.game.workers.environment import workers_environment as game_workers_environment
 
         data = cache.get(cls.cached_ui_info_key_for_hero(account_id))
 
@@ -627,7 +628,7 @@ class HeroPrototype(BasePrototype,
             data = hero.ui_info(actual_guaranteed=False)
 
         if cls.is_ui_continue_caching_required(data['ui_caching_started_at']) and GameState.is_working():
-            game_workers_environment.supervisor.cmd_start_hero_caching(account_id)
+            environment.workers.supervisor.cmd_start_hero_caching(account_id)
 
         return data
 
@@ -689,9 +690,7 @@ class HeroPrototype(BasePrototype,
         self.might = might
 
     def cmd_update_with_account_data(self, account):
-        from the_tale.game.workers.environment import workers_environment as game_workers_environment
-
-        game_workers_environment.supervisor.cmd_update_hero_with_account_data(account.id,
+        environment.workers.supervisor.cmd_update_hero_with_account_data(account.id,
                                                                               self.id,
                                                                               is_fast=account.is_fast,
                                                                               premium_end_at=account.premium_end_at,

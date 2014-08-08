@@ -6,7 +6,7 @@ import markdown
 from django.core.urlresolvers import reverse
 
 from dext.views import handler, validate_argument
-from dext.utils.urls import UrlBuilder, full_url
+from dext.common.utils.urls import UrlBuilder, full_url
 
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.decorators import lazy_property
