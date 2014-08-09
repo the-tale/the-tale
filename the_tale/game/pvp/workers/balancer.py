@@ -1,11 +1,8 @@
 # coding: utf-8
-import time
 import datetime
 import math
 import itertools
 import collections
-
-import Queue
 
 from django.db import transaction
 
@@ -45,22 +42,16 @@ class BalancingRecord(collections.namedtuple('BalancingRecord', ('min_level', 'm
 
 class Worker(BaseWorker):
     STOP_SIGNAL_REQUIRED = False
+    GET_CMD_TIMEOUT = 0
+    NO_CMD_TIMEOUT = pvp_settings.BALANCER_SLEEP_TIME
 
     def __init__(self, *argv, **kwargs):
         super(Worker, self).__init__(*argv, **kwargs)
         self.arena_queue = {}
 
-    def run(self):
-
-        while not self.exception_raised and not self.stop_required:
-            try:
-                cmd = self.command_queue.get_nowait()
-                # cmd.ack()
-                self.process_cmd(cmd.payload)
-            except Queue.Empty:
-                if self.initialized:
-                    self._do_balancing()
-                time.sleep(pvp_settings.BALANCER_SLEEP_TIME)
+    def process_no_cmd(self):
+        if self.initialized:
+            self._do_balancing()
 
     def initialize(self):
         # worker initialized by supervisor

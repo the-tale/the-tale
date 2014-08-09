@@ -16,9 +16,6 @@ META_CONFIG = MetaConfig(config_path=META_CONFIG_FILE)
 
 DEBUG = False
 
-DEBUG_DATABASE_USAGE = False
-DEBUG_DATABASE_USAGE_OUTPUT_DIR = '/tmp/'
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',

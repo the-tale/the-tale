@@ -1,7 +1,5 @@
 # coding: utf-8
 
-from dext.settings import settings
-
 from django.db import transaction
 
 from the_tale.amqp_environment import environment
@@ -27,8 +25,6 @@ E = 0.001
 
 class Worker(BaseWorker):
     STOP_SIGNAL_REQUIRED = False
-
-    run = BaseWorker.run_simple
 
     def initialize(self):
         # worker initialized by supervisor
@@ -59,8 +55,6 @@ class Worker(BaseWorker):
         return self.send_cmd('next_turn', data={'turn_number': turn_number})
 
     def process_next_turn(self, turn_number):
-
-        settings.refresh()
 
         map_update_needed = False
         with transaction.atomic():
@@ -323,8 +317,6 @@ class Worker(BaseWorker):
                                             'account_id': account_id})
 
     def process_logic_task(self, account_id, task_id): # pylint: disable=W0613
-        settings.refresh()
-
         task = postponed_tasks.PostponedTaskPrototype.get_by_id(task_id)
         task.process(self.logger, highlevel=self)
         task.do_postsave_actions()

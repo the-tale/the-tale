@@ -2,11 +2,6 @@
 import gc
 import datetime
 
-from django.conf import settings as project_settings
-
-from dext.settings import settings
-# from dext.common.utils.profile import profile_decorator
-
 from the_tale.amqp_environment import environment
 
 from the_tale.common.utils.workers import BaseWorker
@@ -23,9 +18,6 @@ class LogicException(Exception): pass
 
 class Worker(BaseWorker):
     STOP_SIGNAL_REQUIRED = False
-
-    # run = profile_decorator('game_logic.profiled')(BaseWorker.run_simple)
-    run = BaseWorker.run_simple
 
     def initialize(self):
         # worker initialized by supervisor
@@ -56,9 +48,6 @@ class Worker(BaseWorker):
         return self.send_cmd('next_turn', data={'turn_number': turn_number})
 
     def process_next_turn(self, turn_number):
-        from the_tale.game.logic import log_sql_queries
-
-        settings.refresh()
 
         self.turn_number += 1
 
@@ -72,9 +61,6 @@ class Worker(BaseWorker):
 
         self.storage.process_turn(logger=self.logger)
         self.storage.save_changed_data(logger=self.logger)
-
-        if project_settings.DEBUG_DATABASE_USAGE:
-            log_sql_queries(turn_number)
 
         for hero_id in list(self.storage.skipped_heroes):
             environment.workers.supervisor.cmd_account_release_required(self.storage.heroes[hero_id].account_id)
@@ -133,8 +119,6 @@ class Worker(BaseWorker):
                                             'account_id': account_id})
 
     def process_logic_task(self, account_id, task_id): # pylint: disable=W0613
-        settings.refresh()
-
         hero = self.storage.accounts_to_heroes[account_id]
         bundle_id = hero.actions.current_action.bundle_id
 
@@ -153,8 +137,6 @@ class Worker(BaseWorker):
         return self.send_cmd('force_save', {'account_id': account_id})
 
     def process_force_save(self, account_id): # pylint: disable=W0613
-        settings.refresh()
-
         hero = self.storage.accounts_to_heroes[account_id]
         bundle_id = hero.actions.current_action.bundle_id
         self.storage.save_bundle_data(bundle_id=bundle_id, update_cache=True)
@@ -188,5 +170,4 @@ class Worker(BaseWorker):
         self.send_cmd('highlevel_data_updated')
 
     def process_highlevel_data_updated(self):
-        settings.refresh()
         self.storage.on_highlevel_data_updated()

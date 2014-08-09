@@ -1,7 +1,5 @@
 # coding: utf-8
 
-import time
-import Queue
 import datetime
 
 from the_tale.common.utils.workers import BaseWorker
@@ -14,6 +12,9 @@ class RefrigeratorException(Exception): pass
 
 
 class Worker(BaseWorker):
+    GET_CMD_TIMEOUT = 0
+    NO_CMD_TIMEOUT = 0.1
+    REFRESH_SETTINGS = False
 
     def clean_queues(self):
         super(Worker, self).clean_queues()
@@ -27,18 +28,10 @@ class Worker(BaseWorker):
         PostponedTaskPrototype.reset_all()
         self.logger.info('REFRIGERATOR INITIALIZED')
 
-    def run(self):
-
-        while not self.exception_raised and not self.stop_required:
-            try:
-                cmd = self.command_queue.get_nowait()
-                # cmd.ack()
-                self.process_cmd(cmd.payload)
-            except Queue.Empty:
-                if self.next_task_process_time < datetime.datetime.now():
-                    self.check_tasks()
-                    self.next_task_process_time = datetime.datetime.now() + datetime.timedelta(seconds=postponed_tasks_settings.TASK_WAIT_DELAY)
-                time.sleep(0.1)
+    def process_no_cmd(self):
+        if self.next_task_process_time < datetime.datetime.now():
+            self.check_tasks()
+            self.next_task_process_time = datetime.datetime.now() + datetime.timedelta(seconds=postponed_tasks_settings.TASK_WAIT_DELAY)
 
     def check_tasks(self):
 

@@ -1,6 +1,5 @@
 # coding: utf-8
 import subprocess
-import Queue
 import time
 
 from dext.settings import settings
@@ -14,24 +13,7 @@ from dext.common.utils.logic import run_django_command
 
 class Worker(BaseWorker):
     STOP_SIGNAL_REQUIRED = False
-
-    def run(self):
-        while not self.exception_raised and not self.stop_required:
-            try:
-                self.logger.info('wait for amqp command')
-                cmd = self.command_queue.get(block=True, timeout=60)
-
-                settings.refresh()
-                self.process_cmd(cmd.payload)
-            except Queue.Empty:
-                self.logger.info('try to run command')
-                settings.refresh()
-                self.run_commands()
-
-
-        while not self.exception_raised and not self.stop_required:
-            cmd = self.command_queue.get(block=True)
-            self.process_cmd(cmd.payload)
+    GET_CMD_TIMEOUT = 60
 
     def initialize(self):
         pass
@@ -60,10 +42,6 @@ class Worker(BaseWorker):
             return True
 
         return False
-
-    def run_commands(self):
-        return
-
 
     def cmd_stop(self):
         return self.send_cmd('stop')

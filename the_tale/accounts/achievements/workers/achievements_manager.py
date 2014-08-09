@@ -1,9 +1,4 @@
 # coding: utf-8
-
-import Queue
-
-from dext.settings import settings
-
 from the_tale.common.utils.workers import BaseWorker
 
 from the_tale.accounts.achievements.prototypes import GiveAchievementTaskPrototype, AccountAchievementsPrototype
@@ -11,6 +6,7 @@ from the_tale.accounts.achievements.storage import achievements_storage
 
 
 class Worker(BaseWorker):
+    GET_CMD_TIMEOUT = 10
 
     def clean_queues(self):
         super(Worker, self).clean_queues()
@@ -19,20 +15,6 @@ class Worker(BaseWorker):
     def initialize(self):
         self.initialized = True
         self.logger.info('ACHIEVEMENT_MANAGER INITIALIZED')
-
-    def run(self):
-
-        while not self.exception_raised and not self.stop_required:
-            try:
-                cmd = self.command_queue.get(block=True, timeout=10)
-                # cmd.ack()
-
-                settings.refresh()
-                self.process_cmd(cmd.payload)
-            except Queue.Empty:
-                self.logger.info('try to update commands')
-                settings.refresh()
-                self.add_achievements()
 
     def add_achievement(self, achievement, account_id, notify):
         achievements = AccountAchievementsPrototype.get_by_account_id(account_id)
@@ -43,6 +25,9 @@ class Worker(BaseWorker):
         achievements = AccountAchievementsPrototype.get_by_account_id(account_id)
         achievements.remove_achievement(achievement)
         achievements.save()
+
+    def process_no_cmd(self):
+        self.add_achievements()
 
     def add_achievements(self):
         for task in GiveAchievementTaskPrototype.from_query(GiveAchievementTaskPrototype._db_all()):

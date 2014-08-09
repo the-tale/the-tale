@@ -1,7 +1,6 @@
 # coding: utf-8
 import time
 import datetime
-import Queue
 
 from dext.settings import settings
 
@@ -16,6 +15,7 @@ class AccountManagerException(Exception): pass
 
 
 class Worker(BaseWorker):
+    GET_CMD_TIMEOUT = 60
 
     def clean_queues(self):
         super(Worker, self).clean_queues()
@@ -27,21 +27,7 @@ class Worker(BaseWorker):
         postponed_tasks.PostponedTaskPrototype.reset_all()
         self.logger.info('ACCOUNT_MANAGER INITIALIZED')
 
-    def run(self):
-
-        while not self.exception_raised and not self.stop_required:
-            try:
-                cmd = self.command_queue.get(block=True, timeout=60)
-                # cmd.ack()
-
-                settings.refresh()
-                self.process_cmd(cmd.payload)
-            except Queue.Empty:
-                self.logger.info('try to run command')
-                settings.refresh()
-                self.run_commands()
-
-    def run_commands(self):
+    def process_no_cmd(self):
 
         # is send premium expired notifications needed
         if (time.time() - float(settings.get(accounts_settings.SETTINGS_PREV_PREIMIUM_EXPIRED_NOTIFICATION_RUN_TIME_KEY, 0)) > 23.5*60*60 and

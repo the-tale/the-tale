@@ -1,9 +1,5 @@
 # coding: utf-8
 
-import Queue
-
-from dext.settings import settings
-
 from the_tale.common.utils.workers import BaseWorker
 
 from the_tale.collections.prototypes import GiveItemTaskPrototype, AccountItemsPrototype
@@ -11,6 +7,7 @@ from the_tale.collections.storage import items_storage
 
 
 class Worker(BaseWorker):
+    GET_CMD_TIMEOUT = 10
 
     def clean_queues(self):
         super(Worker, self).clean_queues()
@@ -20,24 +17,13 @@ class Worker(BaseWorker):
         self.initialized = True
         self.logger.info('ITEMS_MANAGER INITIALIZED')
 
-    def run(self):
-
-        while not self.exception_raised and not self.stop_required:
-            try:
-                cmd = self.command_queue.get(block=True, timeout=10)
-                # cmd.ack()
-
-                settings.refresh()
-                self.process_cmd(cmd.payload)
-            except Queue.Empty:
-                self.logger.info('try to update commands')
-                settings.refresh()
-                self.add_items()
-
     def add_item(self, item, account_id, notify):
         account_items = AccountItemsPrototype.get_by_account_id(account_id)
         account_items.add_item(item, notify=notify)
         account_items.save()
+
+    def process_no_cmd(self):
+        self.add_items()
 
     def add_items(self):
         for task in GiveItemTaskPrototype.from_query(GiveItemTaskPrototype._db_all()):

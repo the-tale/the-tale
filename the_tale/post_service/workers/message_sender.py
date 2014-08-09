@@ -1,6 +1,4 @@
 # coding: utf-8
-import time
-import Queue
 import datetime
 
 from dext.settings import settings
@@ -14,6 +12,8 @@ from the_tale.post_service.conf import post_service_settings
 class MessageSenderException(Exception): pass
 
 class Worker(BaseWorker):
+    GET_CMD_TIMEOUT = 0
+    NO_CMD_TIMEOUT = 1.0
 
     def clean_queues(self):
         super(Worker, self).clean_queues()
@@ -24,22 +24,12 @@ class Worker(BaseWorker):
         self.next_message_process_time = datetime.datetime.now()
         self.logger.info('MESSAGE SENDER INITIALIZED')
 
-    def run(self):
-
-        while not self.exception_raised and not self.stop_required:
-            try:
-                cmd = self.command_queue.get_nowait()
-                # cmd.ack()
-                self.process_cmd(cmd.payload)
-            except Queue.Empty:
-                if self.next_message_process_time < datetime.datetime.now():
-                    if not self.send_message(MessagePrototype.get_priority_message()):
-                        self.next_message_process_time = datetime.datetime.now() + datetime.timedelta(seconds=post_service_settings.MESSAGE_SENDER_DELAY)
-                time.sleep(1.0)
+    def process_no_cmd(self):
+        if self.next_message_process_time < datetime.datetime.now():
+            if not self.send_message(MessagePrototype.get_priority_message()):
+                self.next_message_process_time = datetime.datetime.now() + datetime.timedelta(seconds=post_service_settings.MESSAGE_SENDER_DELAY)
 
     def send_message(self, message):
-
-        settings.refresh()
 
         if message is None:
             return False

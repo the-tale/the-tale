@@ -1,9 +1,6 @@
 # coding: utf-8
 import time
 
-
-from dext.settings import settings
-
 from dext.common.amqp_queues import exceptions as amqp_exceptions
 
 from the_tale.amqp_environment import environment
@@ -29,8 +26,6 @@ class Worker(BaseWorker):
         super(Worker, self).clean_queues()
         self.answers_queue.queue.purge()
         self.stop_queue.queue.purge()
-
-    run = BaseWorker.run_simple
 
     def initialize(self):
         self.cmd_initialize()
@@ -194,8 +189,6 @@ class Worker(BaseWorker):
         self.wait_answer_from_next_turn()
 
         self.time.increment_turn()
-
-        settings.refresh()
 
         environment.workers.logic.cmd_next_turn(turn_number=self.time.turn_number)
         self.wait_next_turn_answer = True

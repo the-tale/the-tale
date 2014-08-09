@@ -116,7 +116,7 @@ def messages_for_new_hero(hero):
 def log_sql_queries(turn_number):
     from django.db import connection
 
-    with open(os.path.join(project_settings.DEBUG_DATABASE_USAGE_OUTPUT_DIR, '%d.turn' % turn_number), 'w') as f:
+    with open(os.path.join('/tmp/', '%d.turn' % turn_number), 'w') as f:
         f.write('total queries: %d\n\n' % len(connection.queries))
         for querie in connection.queries:
             f.write('%s\t %s\n\n' % (querie['time'], querie['sql']))
