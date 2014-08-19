@@ -40,9 +40,7 @@ jQuery(document).ready(function(e){
 </p>
 
 {% if not resource.account.is_authenticated() %}
-<p class="pgf-unlogined-message">
-  <strong>Вам необходимо <a href="{{login_url(resource.request.get_full_path())}}">войти</a> или <a href="{{ url('accounts:registration:fast') }}" class="pgf-fast-registration attention-link">создать героя</a>, чтобы принимать участие в PvP.</strong>
-</p>
+{{ base_macros.registration_required_message("принимать участие в PvP.")
 {% else %}
 {% if resource.can_participate %}
 <p class="pgf-level-restrictions-message">

@@ -14,10 +14,11 @@ from the_tale.common.utils.decorators import login_required
 
 from the_tale.game.text_generation import get_phrases_types, get_phrase_module_id_by_subtype
 
-from the_tale.game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
+from the_tale.game.phrase_candidates.models import PhraseCandidate
+from the_tale.game.phrase_candidates import relations
 from the_tale.game.phrase_candidates.forms import PhraseCandidateNewForm, PhraseCandidateEditForm, UNKNOWN_TYPE_ID, SUBTYPE_CHOICES_IDS
 from the_tale.game.phrase_candidates.conf import phrase_candidates_settings
-from the_tale.game.phrase_candidates.prototypes import PhraseCandidatePrototype
+from the_tale.game.phrase_candidates import prototypes
 
 
 class PhraseCandidateResource(Resource):
@@ -33,7 +34,7 @@ class PhraseCandidateResource(Resource):
 
         if phrase_id is not None:
             self.phrase_id = int(phrase_id)
-            self.phrase = PhraseCandidatePrototype.get_by_id(self.phrase_id)
+            self.phrase = prototypes.PhraseCandidatePrototype.get_by_id(self.phrase_id)
             if self.phrase is None:
                 return self.auto_error('phrase_candidates.phrase_not_found', u'Фраза не найдена', status_code=404)
 
@@ -41,6 +42,7 @@ class PhraseCandidateResource(Resource):
         self.can_add_phrase_to_game = self.account.has_perm('phrase_candidates.add_to_game_phrasecandidate')
 
     @validate_argument('author', AccountPrototype.get_by_id, 'phrase_candidates.index', u'неверный идентификатор автора')
+    @validate_argument('state', lambda v: relations.PHRASE_CANDIDATE_STATE(int(v)), 'phrase_candidates.state', u'неверное состояние фразы')
     @handler('', method='get')
     def index(self, page=1, author=None, state=None):
         candidates_query = PhraseCandidate.objects.all()
@@ -58,7 +60,6 @@ class PhraseCandidateResource(Resource):
                 candidates_query = PhraseCandidate.objects.none()
 
         if state is not None:
-            state = int(state)
             is_filtering = True
             candidates_query = candidates_query.filter(state=state)
 
@@ -76,7 +77,8 @@ class PhraseCandidateResource(Resource):
 
         phrase_from, phrase_to = paginator.page_borders(page)
 
-        phrases = [ PhraseCandidatePrototype(phrase) for phrase in candidates_query.select_related().order_by('-created_at')[phrase_from:phrase_to]]
+        phrases = [ prototypes.PhraseCandidatePrototype(phrase)
+                    for phrase in candidates_query.select_related().order_by('-created_at')[phrase_from:phrase_to]]
 
         return self.template('phrase_candidates/index.html',
                              {'phrases': phrases,
@@ -85,7 +87,7 @@ class PhraseCandidateResource(Resource):
                               'current_page_number': page,
                               'author_account': author_account,
                               'state': state,
-                              'PHRASE_CANDIDATE_STATE': PHRASE_CANDIDATE_STATE,
+                              'PHRASE_CANDIDATE_STATE': relations.PHRASE_CANDIDATE_STATE,
                               'paginator': paginator,
                               'url_builder': url_builder} )
 
@@ -136,7 +138,7 @@ class PhraseCandidateResource(Resource):
         if new_form.c.phrase_subtype not in phrases_types['modules'][new_form.c.phrase_type]['types']:
             return self.auto_error('phrase_candidates.create.type_not_exist', u'неверный идентификатор фразы')
 
-        PhraseCandidatePrototype.create(type_=new_form.c.phrase_type,
+        prototypes.PhraseCandidatePrototype.create(type_=new_form.c.phrase_type,
                                         type_name=phrases_types['modules'][new_form.c.phrase_type]['name'],
                                         subtype=new_form.c.phrase_subtype,
                                         subtype_name=phrases_types['modules'][new_form.c.phrase_type]['types'][new_form.c.phrase_subtype]['name'],
@@ -178,7 +180,7 @@ class PhraseCandidateResource(Resource):
 
         self.phrase.text = edit_form.c.text
         self.phrase.moderator_id = self.account.id
-        self.phrase.state = int(edit_form.c.state)
+        self.phrase.state = edit_form.c.state
 
         if edit_form.c.subtype != UNKNOWN_TYPE_ID:
             phrases_types = get_phrases_types()
@@ -198,7 +200,7 @@ class PhraseCandidateResource(Resource):
     @validate_moderation_rights()
     @handler('#phrase_id', 'remove', method='post')
     def remove(self):
-        self.phrase.state = PHRASE_CANDIDATE_STATE.REMOVED
+        self.phrase.state = relations.PHRASE_CANDIDATE_STATE.REMOVED
         self.phrase.moderator_id = self.account.id
         self.phrase.save()
 
@@ -209,7 +211,7 @@ class PhraseCandidateResource(Resource):
     @validate_moderation_rights()
     @handler('#phrase_id', 'approve', method='post')
     def approve(self):
-        self.phrase.state = PHRASE_CANDIDATE_STATE.APPROVED
+        self.phrase.state = relations.PHRASE_CANDIDATE_STATE.APPROVED
         self.phrase.moderator_id = self.account.id
         self.phrase.save()
 
@@ -220,7 +222,7 @@ class PhraseCandidateResource(Resource):
     @validate_add_to_game_rights()
     @handler('#phrase_id', 'add', method='post')
     def add(self):
-        self.phrase.state = PHRASE_CANDIDATE_STATE.ADDED
+        self.phrase.state = relations.PHRASE_CANDIDATE_STATE.ADDED
         self.phrase.moderator_id = self.account.id
         self.phrase.save()
 

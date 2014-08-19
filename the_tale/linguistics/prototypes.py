@@ -4,14 +4,14 @@ from the_tale.common.utils.prototypes import BasePrototype
 
 from the_tale.accounts.prototypes import AccountPrototype
 
-from the_tale.game.phrase_candidates import models
-from the_tale.game.phrase_candidates import relations
+from the_tale.linguistics import models
+from the_tale.linguistics import relations
 
 
-class PhraseCandidatePrototype(BasePrototype):
-    _model_class = models.PhraseCandidate
-    _readonly = ('id', 'created_at', 'author_id')
-    _bidirectional = ('state', 'text', 'moderator_id', 'type', 'type_name', 'subtype', 'subtype_name')
+class WordPrototype(BasePrototype):
+    _model_class = models.Word
+    _readonly = ('id',)
+    _bidirectional = ('state', 'type', 'normal_form')
     _get_by = ('id', 'account_id')
 
     @property

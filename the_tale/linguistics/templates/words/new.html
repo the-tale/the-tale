@@ -1,0 +1,12 @@
+{% extends "linguistics/words/base.html" %}
+
+{% import 'linguistics/words/macros.html' as words_macros with context %}
+
+{% block title %}Новое слово|{{ super() }}{% endblock %}
+{% block description %}Создание нового слова.{% endblock %}
+
+{% block words_content %}
+
+{{words_macros.render_word(drawer)}}
+
+{% endblock %}

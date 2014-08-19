@@ -42,11 +42,7 @@
 {% if vote is none %}
 
 {% if not resource.account.is_authenticated() %}
-
-<p class="alert alert-info pgf-unlogined-message">
-  Вам необходимо <a href="{{login_url(resource.request.get_full_path())}}">войти</a> или <a href="{{ url('accounts:registration:fast') }}" class="pgf-fast-registration attention-link">создать героя</a>, чтобы иметь возможность голосовать.
-</p>
-
+{{ base_macros.registration_required_message("иметь возможность предлагать законы и голосовать.")
 {% elif not resource.can_vote %}
 
 <p class="alert alert-info pgf-can-not-participate-in-politics">

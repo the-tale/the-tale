@@ -2,7 +2,7 @@
 
 from dext.views import resource_patterns
 
+from the_tale.game.phrase_candidates import views
 
-from the_tale.game.phrase_candidates.views import PhraseCandidateResource
 
-urlpatterns = resource_patterns(PhraseCandidateResource)
+urlpatterns = resource_patterns(views.PhraseCandidateResource)

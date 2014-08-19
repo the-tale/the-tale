@@ -1,0 +1,38 @@
+
+{% macro render_word(drawer) %}
+
+  {% for leaf in drawer.get_structure() %}
+
+    <h3>{{ leaf.get_header() }}</h3>
+
+    {{ get_context()[leaf.macro_name](leaf) }}
+
+  {% endfor %}
+
+{% endmacro %}
+
+
+
+{% macro case_gender_number(leaf) %}
+
+        <table class="table table-condensed noun-forms-table">
+          <thead>
+            <tr>
+              <th>падеж</th>
+              <th>ед. число м. род</th>
+              <th>ед. число ср. род</th>
+              <th>ед. число ж. род</th>
+              <th>мн. число</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>кто/что?</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>
+            <tr><td>кого/чего?</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>
+            <tr><td>кому/чему?</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>
+            <tr><td>кого/что?</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>
+            <tr><td>кем/чем?</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>
+            <tr><td>о ком/о чём?</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>
+          </tbody>
+        </table>
+
+{% endmacro %}

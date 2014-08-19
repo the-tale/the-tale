@@ -10,11 +10,7 @@
 {% block bills_content %}
 
 {% if not resource.account.is_authenticated() %}
-
-<p class="alert alert-info pgf-unlogined-message">
-  Вам необходимо <a href="{{login_url(resource.request.get_full_path())}}">войти</a> или <a href="{{ url('accounts:registration:fast') }}" class="pgf-fast-registration attention-link">создать героя</a>, чтобы иметь возможность предлагать законы и голосовать.
-</p>
-
+{{ base_macros.registration_required_message("иметь возможность предлагать законы и голосовать.")
 {% elif active_bills_limit_reached %}
 
 <p class="alert alert-info pgf-active-bills-limit-reached">

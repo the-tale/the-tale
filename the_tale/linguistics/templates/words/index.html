@@ -1,0 +1,46 @@
+{% extends "linguistics/words/base.html" %}
+
+{% import 'macros.html' as base_macros with context %}
+{% import 'utils/list_filter.html' as list_filter_macros with context %}
+
+{% block title %}{{ super() }}{% endblock %}
+{% block description %}Слова для шаблонов фраз.{% endblock %}
+
+{% block words_content %}
+
+{% if not resource.account.is_authenticated() %}
+{{ base_macros.registration_required_message("иметь возможность добавлять слова в словарь.")
+{% else %}
+
+{{ list_filter_macros.html_filter(index_filter) }}
+
+{% if words %}
+
+{{ base_macros.render_paginator(paginator) }}
+
+<table>
+  <thead>
+    <tr>
+      <th>слово</th>
+      <th>часть речи</th>
+      <th>состояние</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for word in words %}
+    <tr>
+      <td>{{word.normal_form}}</td>
+      <td>{{word.type.text}}</td>
+      <td>{{word.state.text}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{{ base_macros.render_paginator(paginator) }}
+
+{% else %}
+<span class="pgf-no-words-message">Не найдено слов, отвечающих условиям поиска.</span>
+{% endif %}
+
+{% endblock %}

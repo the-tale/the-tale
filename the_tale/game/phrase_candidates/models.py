@@ -2,12 +2,10 @@
 
 from django.db import models
 
-from the_tale.common.utils.enum import create_enum
+from rels.django import RelationIntegerField
 
-PHRASE_CANDIDATE_STATE = create_enum('PHRASE_CANDIDATE_STATE', ( ('IN_QUEUE', 0, u'ожидает проверку'),
-                                                                 ('REMOVED', 1, u'удалена'),
-                                                                 ('APPROVED', 2, u'одобрена'),
-                                                                 ('ADDED', 3, u'добавлена') ) )
+from the_tale.game.phrase_candidates import relations
+
 
 
 class PhraseCandidate(models.Model):
@@ -28,7 +26,7 @@ class PhraseCandidate(models.Model):
     subtype = models.CharField(null=False, blank=False, max_length=256, default=u'')
     subtype_name = models.CharField(null=False, blank=False, max_length=256, default=u'')
 
-    state = models.IntegerField(null=False, default=PHRASE_CANDIDATE_STATE.IN_QUEUE, choices=PHRASE_CANDIDATE_STATE._CHOICES, db_index=True)
+    state = RelationIntegerField(relation=relations.PHRASE_CANDIDATE_STATE, db_index=True)
 
     class Meta:
         permissions = (('moderate_phrasecandidate', u'Может редактировать фразы-кандидаты'),  # game designer

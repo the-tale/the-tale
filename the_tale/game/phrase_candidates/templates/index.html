@@ -72,10 +72,10 @@ jQuery(document).ready( function(e) {
       </a>
       <ul class="dropdown-menu">
         <li><a href="{{ url_builder(state=none) }}">все</a></li>
-        <li><a href="{{ url_builder(state=PHRASE_CANDIDATE_STATE.IN_QUEUE) }}">ожидает проверку</a></li>
-        <li><a href="{{ url_builder(state=PHRASE_CANDIDATE_STATE.REMOVED) }}">не принята</a></li>
-        <li><a href="{{ url_builder(state=PHRASE_CANDIDATE_STATE.APPROVED) }}">одобрена</a></li>
-        <li><a href="{{ url_builder(state=PHRASE_CANDIDATE_STATE.ADDED) }}">добавлена</a></li>
+        <li><a href="{{ url_builder(state=PHRASE_CANDIDATE_STATE.IN_QUEUE.value) }}">ожидает проверку</a></li>
+        <li><a href="{{ url_builder(state=PHRASE_CANDIDATE_STATE.REMOVED.value) }}">не принята</a></li>
+        <li><a href="{{ url_builder(state=PHRASE_CANDIDATE_STATE.APPROVED.value) }}">одобрена</a></li>
+        <li><a href="{{ url_builder(state=PHRASE_CANDIDATE_STATE.ADDED.value) }}">добавлена</a></li>
       </ul>
     </div>
 
@@ -94,10 +94,10 @@ jQuery(document).ready( function(e) {
       <tbody>
         <tr>
           <td width="125px;">
-            {% if phrase.state.is_in_queue %}ожидает проверку
-            {% elif phrase.state.is_removed %}не принята
-            {% elif phrase.state.is_approved %}принята
-            {% elif phrase.state.is_added %}добавлена в игру
+            {% if phrase.state.is_IN_QUEUE %}ожидает проверку
+            {% elif phrase.state.is_REMOVED %}не принята
+            {% elif phrase.state.is_APPROVED %}принята
+            {% elif phrase.state.is_ADDED %}добавлена в игру
             {% endif %}
           </td>
           <th>{{ phrase.type_name }} :: {{ phrase.subtype_name }}</th>

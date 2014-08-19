@@ -15,7 +15,8 @@ from the_tale.accounts.achievements.models import AccountAchievements
 
 from the_tale.game.heroes.models import Hero
 from the_tale.game.bills.models import Bill, BILL_STATE
-from the_tale.game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
+from the_tale.game.phrase_candidates.models import PhraseCandidate
+from the_tale.game.phrase_candidates.relations import PHRASE_CANDIDATE_STATE
 
 from the_tale.game.ratings.models import RatingValues, RatingPlaces
 from the_tale.game.ratings.conf import ratings_settings
@@ -78,7 +79,7 @@ WHERE NOT %(accounts)s.is_fast AND NOT %(accounts)s.is_bot AND %(accounts)s.id <
                                      'bills': Bill._meta.db_table,
                                      'bill_accepted_state': BILL_STATE.ACCEPTED.value,
                                      'phrase_candidates': PhraseCandidate._meta.db_table,
-                                     'phrase_candidate_added_state': PHRASE_CANDIDATE_STATE.ADDED,
+                                     'phrase_candidate_added_state': PHRASE_CANDIDATE_STATE.ADDED.value,
                                      'min_pvp_battles': heroes_settings.MIN_PVP_BATTLES,
                                      'system_user_id': get_system_user().id}
 

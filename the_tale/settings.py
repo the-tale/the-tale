@@ -194,6 +194,7 @@ INSTALLED_APPS = (
     'the_tale.forum',
     'the_tale.blogs',
     'the_tale.collections',
+    'the_tale.linguistics',
 
     'the_tale.bank',
     'the_tale.bank.xsolla',
