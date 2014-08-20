@@ -42,7 +42,7 @@
 {% if vote is none %}
 
 {% if not resource.account.is_authenticated() %}
-{{ base_macros.registration_required_message("иметь возможность предлагать законы и голосовать.")
+{{ base_macros.registration_required_message("иметь возможность предлагать законы и голосовать.") }}
 {% elif not resource.can_vote %}
 
 <p class="alert alert-info pgf-can-not-participate-in-politics">

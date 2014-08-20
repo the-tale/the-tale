@@ -3,36 +3,115 @@
 
   {% for leaf in drawer.get_structure() %}
 
-    <h3>{{ leaf.get_header() }}</h3>
+    <h3>{{ leaf.get_header()|up_first }}</h3>
 
-    {{ get_context()[leaf.macro_name](leaf) }}
+    {{ get_context()[leaf.base.name](leaf) }}
 
-  {% endfor %}
+{% endfor %}
 
 {% endmacro %}
 
 
 
-{% macro case_gender_number(leaf) %}
+{% macro NCG(leaf) %}
 
-        <table class="table table-condensed noun-forms-table">
-          <thead>
-            <tr>
-              <th>падеж</th>
-              <th>ед. число м. род</th>
-              <th>ед. число ср. род</th>
-              <th>ед. число ж. род</th>
-              <th>мн. число</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>кто/что?</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>
-            <tr><td>кого/чего?</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>
-            <tr><td>кому/чему?</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>
-            <tr><td>кого/что?</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>
-            <tr><td>кем/чем?</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>
-            <tr><td>о ком/о чём?</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>
-          </tbody>
-        </table>
+  <table class="table table-condensed noun-forms-table">
+    <thead>
+      <tr>
+        <th>падеж</th>
+        <th>ед. число м. род</th>
+        <th>ед. число ср. род</th>
+        <th>ед. число ж. род</th>
+        <th>мн. число</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>кто/что?</td>
+        <td>{{leaf.get_form((0, 0, 0))}}</td><td>{{leaf.get_form((0, 0, 1))}}</td><td>{{leaf.get_form((0, 0, 2))}}</td><td>{{leaf.get_form((1, 0, none))}}</td></tr>
+      <tr>
+        <td>кого/чего?</td>
+        <td>{{leaf.get_form((0, 1, 0))}}</td><td>{{leaf.get_form((0, 1, 1))}}</td><td>{{leaf.get_form((0, 1, 2))}}</td><td>{{leaf.get_form((1, 1, none))}}</td></tr>
+      <tr>
+        <td>кому/чему?</td>
+        <td>{{leaf.get_form((0, 2, 0))}}</td><td>{{leaf.get_form((0, 2, 1))}}</td><td>{{leaf.get_form((0, 2, 2))}}</td><td>{{leaf.get_form((1, 2, none))}}</td></tr>
+      <tr>
+        <td>кого/что?</td>
+        <td>{{leaf.get_form((0, 3, 0))}}</td><td>{{leaf.get_form((0, 3, 1))}}</td><td>{{leaf.get_form((0, 3, 2))}}</td><td>{{leaf.get_form((1, 3, none))}}</td></tr>
+      <tr>
+        <td>кем/чем?</td>
+        <td>{{leaf.get_form((0, 4, 0))}}</td><td>{{leaf.get_form((0, 4, 1))}}</td><td>{{leaf.get_form((0, 4, 2))}}</td><td>{{leaf.get_form((1, 4, none))}}</td></tr>
+      <tr>
+        <td>о ком/о чём?</td>
+        <td>{{leaf.get_form((0, 5, 0))}}</td><td>{{leaf.get_form((0, 5, 1))}}</td><td>{{leaf.get_form((0, 5, 2))}}</td><td>{{leaf.get_form((1, 5, none))}}</td></tr>
+    </tbody>
+  </table>
 
+{% endmacro %}
+
+
+{% macro NC(leaf) %}
+
+  <table class="table table-condensed noun-forms-table">
+    <thead>
+      <tr>
+        <th>падеж</th>
+        <th>ед. число</th>
+        <th>мн. число</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>кто/что?</td>
+        <td>{{leaf.get_form((0, 0))}}</td><td>{{leaf.get_form((0, 0))}}</td></tr>
+      <tr>
+        <td>кого/чего?</td>
+        <td>{{leaf.get_form((0, 1))}}</td><td>{{leaf.get_form((0, 1))}}</td></tr>
+      <tr>
+        <td>кому/чему?</td>
+        <td>{{leaf.get_form((0, 2))}}</td><td>{{leaf.get_form((0, 2))}}</td></tr>
+      <tr>
+        <td>кого/что?</td>
+        <td>{{leaf.get_form((0, 3))}}</td><td>{{leaf.get_form((0, 3))}}</td></tr>
+      <tr>
+        <td>кем/чем?</td>
+        <td>{{leaf.get_form((0, 4))}}</td><td>{{leaf.get_form((0, 4))}}</td></tr>
+      <tr>
+        <td>о ком/о чём?</td>
+        <td>{{leaf.get_form((0, 5))}}</td><td>{{leaf.get_form((0, 5))}}</td></tr>
+    </tbody>
+  </table>
+
+{% endmacro %}
+
+
+{% macro TP(leaf) %}
+
+  <table class="table table-condensed noun-forms-table">
+    <thead>
+      <tr>
+        <th>время</th>
+        <th>1 лицо</th>
+        <th>2 лицо</th>
+        <th>3 лицо</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>прошлое</td>
+        <td>{{leaf.get_form((0, 0))}}</td><td>{{leaf.get_form((0, 1))}}</td><td>{{leaf.get_form((0, 2))}}</td></tr>
+      <tr>
+        <td>настоящее</td>
+        <td>{{leaf.get_form((1, 0))}}</td><td>{{leaf.get_form((1, 1))}}</td><td>{{leaf.get_form((1, 2))}}</td></tr>
+      <tr>
+        <td>будущее</td>
+        <td>{{leaf.get_form((2, 0))}}</td><td>{{leaf.get_form((2, 1))}}</td><td>{{leaf.get_form((2, 2))}}</td></tr>
+    </tbody>
+  </table>
+
+{% endmacro %}
+
+
+{% macro SINGLE(leaf) %}
+{{leaf.get_form(())}}
 {% endmacro %}

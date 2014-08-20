@@ -10,7 +10,7 @@
 {% block bills_content %}
 
 {% if not resource.account.is_authenticated() %}
-{{ base_macros.registration_required_message("иметь возможность предлагать законы и голосовать.")
+{{ base_macros.registration_required_message("иметь возможность предлагать законы и голосовать.") }}
 {% elif active_bills_limit_reached %}
 
 <p class="alert alert-info pgf-active-bills-limit-reached">

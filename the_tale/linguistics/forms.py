@@ -17,11 +17,12 @@ class BaseWordForm(forms.Form):
 def create_word_type_form(word_type):
 
     class WordForm(BaseWordForm):
-        pass
 
-    for i, key in enumerate(INVERTED_WORDS_CACHES):
-        name_form_field = fields.CharField(max_length=models.Word.MAX_FORM_LENGTH)
-        setattr(WordForm, 'field_%d' % i, name_form_field)
+        def __init__(self, *args, **kwargs):
+            super(WordForm, self).__init__(*args, **kwargs)
+
+            for i, key in enumerate(INVERTED_WORDS_CACHES[word_type]):
+                self.fields['field_%d' % i] = fields.CharField(label='', max_length=models.Word.MAX_FORM_LENGTH)
 
     return WordForm
 

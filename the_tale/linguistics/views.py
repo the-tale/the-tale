@@ -81,6 +81,8 @@ class WordResource(Resource):
     @validate_argument('type', lambda v: WORD_TYPE(int(v)), 'words.type', u'неверный тип слова', required=True)
     @handler('new', method='get')
     def new(self, type):
+        form = forms.WORD_FORMS[type]()
         return self.template('linguistics/words/new.html',
-                             {'form': forms.WORD_FORMS[type](),
-                              'drawer': word_drawer.Drawer(type)} )
+                             {'form': form,
+                              'type': type,
+                              'drawer': word_drawer.Drawer(type, form_drawer=word_drawer.FormFieldDrawer(type=type, form=form))} )
