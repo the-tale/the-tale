@@ -16,5 +16,6 @@ class WORD_BLOCK_BASE(DjangoEnum):
 
     records = ( ('NC', 0, u'число-падеж', (utg_relations.NUMBER, utg_relations.CASE)),
                 ('NCG', 1, u'число-падеж-род', (utg_relations.NUMBER, utg_relations.CASE, utg_relations.GENDER)),
-                ('TP', 2, u'время-лицо', (utg_relations.TIME, utg_relations.PERSON)),
-                ('SINGLE', 3, u'одна форма', ())  )
+                ('NP', 2, u'число-лицо', (utg_relations.NUMBER, utg_relations.PERSON)),
+                ('NPG', 3, u'число-лицо-род', (utg_relations.NUMBER, utg_relations.PERSON, utg_relations.GENDER)),
+                ('SINGLE', 4, u'одна форма', ())  )
