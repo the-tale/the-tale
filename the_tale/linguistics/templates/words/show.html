@@ -1,0 +1,16 @@
+{% extends "linguistics/words/base.html" %}
+
+{% import 'linguistics/words/macros.html' as words_macros with context %}
+
+{% block title %}Слово «{{word.utg_word.normal_form()}}» |{{ super() }}{% endblock %}
+{% block description %}Описание слова «{{word.utg_word.normal_form()}}».{% endblock %}
+
+{% block words_content %}
+
+<h2>{{word.utg_word.normal_form()|up_first}} <small>{{word.type.text}}</small></h2>
+
+{{words_macros.render_word(structure, drawer)}}
+
+<a class="btn" href="{{url('linguistics:words:new', type=word.type.value, parent=word.id)}}">Редактировать</a>
+
+{% endblock %}

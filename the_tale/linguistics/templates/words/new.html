@@ -5,10 +5,46 @@
 {% block title %}Новое {{type.text}} |{{ super() }}{% endblock %}
 {% block description %}Создание нового слова.{% endblock %}
 
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    var newForm = new pgf.forms.Form(jQuery('#pgf-new-word-form'),
+                                               {OnSuccess: function(instance, data){location.href = data.data.next_url;}});
+
+});
+
+</script>
+
+{% endblock %}
+
+
 {% block words_content %}
 
 <h2>{{type.text|up_first}}</h2>
 
-{{words_macros.render_word(structure, drawer)}}
+<form id="pgf-new-word-form"
+      method="post"
+      {% if parent is none %}
+      action="{{ url('linguistics:words:create', type=type.value) }}"
+      {% else %}
+      action="{{ url('linguistics:words:create', type=type.value, parent=parent.id) }}"
+      {% endif %}>
+
+  {{ form.errors_container }}
+
+
+  {{words_macros.render_word(structure, drawer)}}
+
+  <div class="widget">
+    {% if parent is none %}
+    <input type="submit" class="btn" value="Создать"/>
+    {% else %}
+    <input type="submit" class="btn" value="Создать копию"/>
+    {% endif %}
+  </div>
+
+</form>
 
 {% endblock %}

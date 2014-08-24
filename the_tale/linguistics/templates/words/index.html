@@ -9,8 +9,8 @@
 {% block words_content %}
 
 {% if not resource.account.is_authenticated() %}
-{{ base_macros.registration_required_message("иметь возможность добавлять слова в словарь.")
-{% else %}
+{{ base_macros.registration_required_message("иметь возможность добавлять слова в словарь.") }}
+{% endif %}
 
 {{ list_filter_macros.html_filter(index_filter) }}
 
@@ -18,7 +18,7 @@
 
 {{ base_macros.render_paginator(paginator) }}
 
-<table>
+<table class="table">
   <thead>
     <tr>
       <th>слово</th>
@@ -29,7 +29,7 @@
   <tbody>
     {% for word in words %}
     <tr>
-      <td>{{word.normal_form}}</td>
+      <td><a href="{{url('linguistics:words:show', word.id)}}">{{word.utg_word.normal_form()}}</a></td>
       <td>{{word.type.text}}</td>
       <td>{{word.state.text}}</td>
     </tr>

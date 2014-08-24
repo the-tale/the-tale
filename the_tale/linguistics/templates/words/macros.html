@@ -1,6 +1,10 @@
 
 {% macro render_word(structure, drawer) %}
 
+  {% for property in drawer.type.properties|sort %}
+    {{drawer.get_property(property)}}
+  {% endfor %}
+
   {% for leaf in structure %}
 
     <h3>{{ drawer.get_header(leaf.get_header_properties())|up_first }}</h3>

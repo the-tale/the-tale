@@ -231,4 +231,8 @@ class BasePrototype(object):
     #############################
     @classmethod
     def _db_get_object(cls, number=0):
-        return cls(model=cls._model_class.objects.all().order_by('id')[number])
+        return cls(model=cls._db_all().order_by('id')[number])
+
+    @classmethod
+    def _db_latest(cls):
+        return cls(model=cls._db_all().order_by('-id')[0])

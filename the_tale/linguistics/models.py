@@ -20,3 +20,6 @@ class Word(models.Model):
 
     state = RelationIntegerField(relation=relations.WORD_STATE, db_index=True)
     type = RelationIntegerField(relation=WORD_TYPE, db_index=True)
+
+    class Meta:
+        unique_together = (('normal_form', 'type', 'state'),)

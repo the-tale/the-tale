@@ -1,4 +1,5 @@
 # coding: utf-8
+import jinja2
 
 from utg import words
 from utg import relations as utg_relations
@@ -70,15 +71,26 @@ class Leaf(object):
         return relations.WORD_BLOCK_BASE.index_schema[real_properties]
 
 
+class BaseDrawer(object):
 
-class Drawer(object):
-
-    def __init__(self, type, form):
+    def __init__(self, type):
         self.type = type
-        self.form = form
 
     def get_header(self, properties):
         return u', '.join([k.text for k in properties])
+
+    def get_form(self, key):
+        raise NotImplementedError()
+
+    def get_property(self, property):
+        raise NotImplementedError()
+
+
+class FormDrawer(BaseDrawer):
+
+    def __init__(self, type, form):
+        super(FormDrawer, self).__init__(type=type)
+        self.form = form
 
     def get_form(self, key):
         cache = words.WORDS_CACHES[self.type]
@@ -87,6 +99,31 @@ class Drawer(object):
             return u''
 
         return self.form['field_%d' % cache[key]].widget
+
+    def get_property(self, property):
+        return self.form['field_%s' % property.__name__].widget
+
+
+class ShowDrawer(BaseDrawer):
+
+    def __init__(self, word):
+        super(ShowDrawer, self).__init__(type=word.type)
+        self.word = word
+
+    def get_form(self, key):
+        cache = words.WORDS_CACHES[self.type]
+
+        if key not in cache:
+            return u''
+
+        return self.word.utg_word.form(words.Properties(*key))
+
+    def get_property(self, property):
+        if property in self.type.properties:
+            if self.word.utg_word.properties.is_specified(property):
+                return jinja2.Markup(u'<strong>%s</strong>' % self.word.utg_word.properties.get(property).text)
+
+        return u''
 
 
 
