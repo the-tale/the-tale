@@ -9,7 +9,7 @@ from the_tale.linguistics import relations
 
 def get_best_base(word_type):
     best_base = None
-    best_size = 0
+    best_size = -1
 
     for base in relations.WORD_BLOCK_BASE.records:
         if set(base.schema).issubset(set(word_type.schema)) and len(base.schema) > best_size:

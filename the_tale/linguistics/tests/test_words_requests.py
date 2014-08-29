@@ -167,7 +167,7 @@ class CreateRequestsTests(BaseRequestsTests):
 
     def test_create_with_all_fields(self):
         for word_type in utg_relations.WORD_TYPE.records:
-            word = utg_words.Word.create_test_word(word_type)
+            word = utg_words.Word.create_test_word(word_type, prefix='w-')
             requested_url = url('linguistics:words:create', type=word_type.value)
 
             with self.check_delta(prototypes.WordPrototype._db_count, 1):

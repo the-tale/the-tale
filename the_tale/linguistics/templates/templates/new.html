@@ -1,0 +1,45 @@
+{% extends "linguistics/templates/base.html" %}
+
+{% block title %}Новый шаблон «{{key.text}}» |{{ super() }}{% endblock %}
+{% block description %}Создание нового шаблона «{{key.text}}».{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    var newForm = new pgf.forms.Form(jQuery('#pgf-new-template-form'),
+                                               {OnSuccess: function(instance, data){location.href = data.data.next_url;}});
+
+});
+
+</script>
+
+{% endblock %}
+
+
+{% block templates_content %}
+
+<h2>{{key.text|up_first}}</h2>
+
+<p>{{key.description}}</p>
+
+<form id="pgf-new-template-form"
+      method="post"
+      action="{{ url('linguistics:templates:create', key=key.value) }}">
+
+  {{ form.errors_container }}
+
+  {{ form.template.widget }}
+
+  {% for field in form.verificators_fields() %}
+  {{ field.widget }}
+  {% endfor %}
+
+  <div class="widget">
+    <input type="submit" class="btn" value="Создать"/>
+  </div>
+
+</form>
+
+{% endblock %}

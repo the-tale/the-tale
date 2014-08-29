@@ -1,0 +1,48 @@
+{% extends "linguistics/templates/base.html" %}
+
+{% import 'macros.html' as base_macros with context %}
+{% import 'utils/list_filter.html' as list_filter_macros with context %}
+
+{% block title %}{{key.text}} | {{ super() }}{% endblock %}
+{% block description %}Шаблоны для фразы «{{key.text}}».{% endblock %}
+
+{% block templates_content %}
+
+{% if not resource.account.is_authenticated() %}
+{{ base_macros.registration_required_message("иметь возможность добавлять шаблоны фраз.") }}
+{% endif %}
+
+<h3>{{key.group.text}}::{{key.text}}</h3>
+
+<p>{{key.group.description}}</p>
+
+<p>{{key.description}}</p>
+
+{{ list_filter_macros.html_filter(index_filter) }}
+
+<p>
+  <a href="{{url('linguistics:templates:new', key=key.value)}}">Добавить шаблон</a>
+</p>
+
+{% if templates %}
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>шаблон</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for template in templates %}
+    <tr>
+      <td><a href="{{url('linguistics:templates:show', template.id)}}">{{template.utg_template.template}}</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% else %}
+<span class="pgf-no-templates-message">Не найдено шаблонов, отвечающих условиям поиска.</span>
+{% endif %}
+
+{% endblock %}

@@ -28,7 +28,3 @@ class CachedStorage(storage.CachedStorage):
 class SingleStorage(storage.SingleStorage):
     SETTINGS_KEY = None
     EXCEPTION = None
-    PROTOTYPE = None
-
-    def _construct_object(self, model):
-        return self.PROTOTYPE(model=model)

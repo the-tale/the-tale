@@ -1,13 +1,15 @@
 # coding: utf-8
 
-
+from django import forms as django_forms
 from dext.forms import forms, fields
 
 from utg import relations as utg_relations
 from utg import words as utg_words
+from utg import templates as utg_templates
 
 
 from the_tale.linguistics import models
+from the_tale.linguistics.lexicon import logic as lexicon_logic
 
 
 class BaseWordForm(forms.Form):
@@ -69,3 +71,45 @@ def create_word_type_form(word_type):
 
 WORD_FORMS = {word_type: create_word_type_form(word_type)
               for word_type in utg_relations.WORD_TYPE.records}
+
+
+class TemplateForm(forms.Form):
+    template = fields.TextField(label=u'шаблон', min_length=1, widget=django_forms.Textarea(attrs={'rows': 3}))
+
+    def __init__(self, key, *args, **kwargs):
+        super(TemplateForm, self).__init__(*args, **kwargs)
+        self.key = key
+
+        verificators_externals = lexicon_logic.get_verificators_externals(self.key)
+
+        for i, externals in enumerate(verificators_externals):
+            label = u'проверка для %s' % u', '.join(u'%s=%s' % (variable, value) for variable, value in externals.iteritems())
+            self.fields['verificator_%d' % i] = fields.TextField(label=label, required=False, widget=django_forms.Textarea(attrs={'rows': 3}))
+
+    def verificators_fields(self):
+        verificators_externals = lexicon_logic.get_verificators_externals(self.key)
+        return [self['verificator_%d' % i] for i, externals in enumerate(verificators_externals)]
+
+    def verificators(self):
+        from the_tale.linguistics import prototypes
+
+        verificators_externals = lexicon_logic.get_verificators_externals(self.key)
+
+        verificators = []
+
+        for i, externals in enumerate(verificators_externals):
+            verificator_id = 'verificator_%d' % i
+            verificator_text = getattr(self.c, verificator_id)
+            verificators.append(prototypes.Verificator(text=verificator_text, externals=dict(externals)))
+
+        return verificators
+
+
+    def clean_template(self):
+        data = self.cleaned_data['template']
+
+        template = utg_templates.Template()
+
+        template.parse(data, externals=[v.value for v in self.key.variables])
+
+        return template

@@ -1,0 +1,47 @@
+{% extends "linguistics/base.html" %}
+
+{% block title %} {{ super() }}{% endblock %}
+
+{% block linguistics_content %}
+
+<a href="{{url('linguistics:words:')}}" class="btn">Словарь</a>
+
+<h3>Типы фраз</h3>
+
+<br/>
+
+<div class="accordion" id="pgf-phrases-accordion">
+
+  {% for group in GROUPS %}
+  {% set group_keys = LEXICON_KEY.index_group[group] %}
+
+  {% if not group_keys %}{% continue %}{% endif %}
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-phrases-accordion" href="#pgf-group-{{group.value}}">
+        {{group.text}}
+      </a>
+    </div>
+    <div id="pgf-group-{{group.value}}" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner">
+        <p>{{group.description}}</p>
+
+        <table class="table table-bordered table-condensed table-no-highlighting">
+          {% for key in group_keys %}
+          <tr>
+            <th><a href="{{url('linguistics:templates:', key=key.value)}}">{{key.text }}</a></th>
+            <td>{{key.description}}</td>
+          <tr/>
+          {% endfor %}
+        </table>
+
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+
+
+{% endblock %}

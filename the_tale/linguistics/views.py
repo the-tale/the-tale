@@ -7,7 +7,6 @@ from dext.views import handler, validate_argument
 from dext.common.utils.urls import UrlBuilder, url
 
 from utg import relations as utg_relations
-from utg import words as utg_words
 
 from the_tale.common.utils import list_filter
 
@@ -23,15 +22,33 @@ from the_tale.linguistics.conf import linguistics_settings
 from the_tale.linguistics import prototypes
 from the_tale.linguistics import forms
 from the_tale.linguistics import word_drawer
+from the_tale.linguistics.lexicon import relations as lexicon_relations
+from the_tale.linguistics.lexicon import keys
 
 
-INDEX_FILTERS = [list_filter.reset_element(),
-                 list_filter.choice_element(u'часть речи:', attribute='type', choices=[(None, u'все')] + list(utg_relations.WORD_TYPE.select('value', 'text')) ),
-                 list_filter.choice_element(u'состояние:', attribute='state', choices=[(None, u'все')] + list(relations.WORD_STATE.select('value', 'text'))) ]
+class WordsIndexFilter(list_filter.ListFilter):
+    ELEMENTS = [list_filter.reset_element(),
+                list_filter.choice_element(u'часть речи:', attribute='type', choices=[(None, u'все')] + list(utg_relations.WORD_TYPE.select('value', 'text')) ),
+                list_filter.choice_element(u'состояние:', attribute='state', choices=[(None, u'все')] + list(relations.WORD_STATE.select('value', 'text'))) ]
 
 
-class IndexFilter(list_filter.ListFilter):
-    ELEMENTS = INDEX_FILTERS
+class TemplatesIndexFilter(list_filter.ListFilter):
+    ELEMENTS = [list_filter.reset_element(),
+                list_filter.choice_element(u'состояние:', attribute='state', choices=[(None, u'все')] + list(relations.TEMPLATE_STATE.select('value', 'text'))) ]
+
+
+
+class LinguisticsResource(Resource):
+
+    def initialize(self, *args, **kwargs):
+        super(LinguisticsResource, self).initialize(*args, **kwargs)
+
+    @handler('', method='get')
+    def index(self):
+        return self.template('linguistics/index.html',
+                             {'GROUPS': sorted(lexicon_relations.LEXICON_GROUP.records, key=lambda group: group.text),
+                              'LEXICON_KEY': keys.LEXICON_KEY} )
+
 
 
 class WordResource(Resource):
@@ -58,8 +75,8 @@ class WordResource(Resource):
         url_builder = UrlBuilder(reverse('linguistics:words:'), arguments={ 'state': state.value if state else None,
                                                                             'type': type.value if type else None})
 
-        index_filter = IndexFilter(url_builder=url_builder, values={'state': state.value if state else None,
-                                                                    'type': type.value if type else None})
+        index_filter = WordsIndexFilter(url_builder=url_builder, values={'state': state.value if state else None,
+                                                                         'type': type.value if type else None})
 
         words_count = words_query.count()
 
@@ -72,7 +89,7 @@ class WordResource(Resource):
 
         words_from, words_to = paginator.page_borders(page)
 
-        words = [ prototypes.WordPrototype(word) for word in words_query[words_from:words_to]]
+        words = prototypes.WordPrototype.from_query(words_query[words_from:words_to])
 
         return self.template('linguistics/words/index.html',
                              {'words': words,
@@ -145,3 +162,69 @@ class WordResource(Resource):
                              {'word': self.word,
                               'structure': word_drawer.STRUCTURES[self.word.type],
                               'drawer': word_drawer.ShowDrawer(word=self.word)} )
+
+
+
+class TemplateResource(Resource):
+
+
+    def initialize(self, *args, **kwargs):
+        super(TemplateResource, self).initialize(*args, **kwargs)
+
+    @validate_argument('key', lambda v: keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', u'неверный ключ фразы', required=True)
+    @validate_argument('state', lambda v: relations.TEMPLATE_STATE.index_value.get(int(v)), 'linguistics.templates', u'неверное состояние шаблона')
+    @handler('', method='get')
+    def index(self, key, state=None):
+        templates_query = prototypes.TemplatePrototype._db_filter(key=key).order_by('template')
+
+        if state:
+            templates_query = templates_query.filter(state=state)
+
+        url_builder = UrlBuilder(reverse('linguistics:templates:'), arguments={ 'state': state.value if state else None,
+                                                                                'key': key.value})
+
+        index_filter = TemplatesIndexFilter(url_builder=url_builder, values={'state': state.value if state else None,
+                                                                             'key': key.value})
+
+        templates = prototypes.TemplatePrototype.from_query(templates_query)
+
+        return self.template('linguistics/templates/index.html',
+                             {'key': key,
+                              'templates': templates,
+                              'index_filter': index_filter,
+                              'LEXICON_KEY': keys.LEXICON_KEY} )
+
+
+
+    @validate_argument('key', lambda v: keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', u'неверный ключ фразы', required=True)
+    @handler('new', method='get')
+    def new(self, key):
+
+        form = forms.TemplateForm(key)
+
+        return self.template('linguistics/templates/new.html',
+                             {'key': key,
+                              'form': form,
+                              'LEXICON_KEY': keys.LEXICON_KEY} )
+
+
+    @validate_argument('key', lambda v: keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', u'неверный ключ фразы', required=True)
+    @handler('create', method='post')
+    def create(self, key):
+
+        form = forms.TemplateForm(key, self.request.POST)
+
+        if not form.is_valid():
+            return self.json_error('linguistics.templates.create.form_errors', form.errors)
+
+        template = prototypes.TemplatePrototype.create(key=key,
+                                                       utg_template=form.c.template,
+                                                       verificators=form.verificators())
+
+        return self.json_ok(data={'next_url': url('linguistics:templates:show', template.id)})
+
+
+    @handler('#template', name='show', method='get')
+    def show(self):
+        return self.template('linguistics/templates/show.html',
+                             {} )
