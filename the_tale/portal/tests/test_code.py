@@ -66,7 +66,8 @@ class CodeTests(testcase.TestCase):
                                                'deworld',
                                                'urlparse',
                                                'boto',
-                                               'Queue']))
+                                               'Queue',
+                                               'utg']))
 
     def test_only_absolute_imports__import(self):
 
@@ -99,7 +100,7 @@ class CodeTests(testcase.TestCase):
                 continue
 
             for object in module.__dict__.values():
-                if isinstance(object, storage.BaseStorage):
+                if isinstance(object, storage.BaseStorage) and hasattr(object, 'PROTOTYPE'):
                     prototypes.append(object.PROTOTYPE)
 
         # check

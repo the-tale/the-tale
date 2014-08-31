@@ -7,6 +7,7 @@ from dext.views import handler, validate_argument
 from dext.common.utils.urls import UrlBuilder, url
 
 from utg import relations as utg_relations
+from utg import templates as utg_templates
 
 from the_tale.common.utils import list_filter
 
@@ -22,6 +23,7 @@ from the_tale.linguistics.conf import linguistics_settings
 from the_tale.linguistics import prototypes
 from the_tale.linguistics import forms
 from the_tale.linguistics import word_drawer
+from the_tale.linguistics import storage
 from the_tale.linguistics.lexicon import relations as lexicon_relations
 from the_tale.linguistics.lexicon import keys
 
@@ -167,15 +169,16 @@ class WordResource(Resource):
 
 class TemplateResource(Resource):
 
-
-    def initialize(self, *args, **kwargs):
+    @validate_argument('template', lambda v: prototypes.TemplatePrototype.get_by_id(int(v)), 'linguistics.templates', u'неверный идентификатор шаблона')
+    def initialize(self, template=None, *args, **kwargs):
         super(TemplateResource, self).initialize(*args, **kwargs)
+        self._template = template
 
     @validate_argument('key', lambda v: keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', u'неверный ключ фразы', required=True)
     @validate_argument('state', lambda v: relations.TEMPLATE_STATE.index_value.get(int(v)), 'linguistics.templates', u'неверное состояние шаблона')
     @handler('', method='get')
     def index(self, key, state=None):
-        templates_query = prototypes.TemplatePrototype._db_filter(key=key).order_by('template')
+        templates_query = prototypes.TemplatePrototype._db_filter(key=key).order_by('raw_template')
 
         if state:
             templates_query = templates_query.filter(state=state)
@@ -217,8 +220,12 @@ class TemplateResource(Resource):
         if not form.is_valid():
             return self.json_error('linguistics.templates.create.form_errors', form.errors)
 
+        utg_template = utg_templates.Template()
+        utg_template.parse(form.c.template, externals=[v.value for v in key.variables])
+
         template = prototypes.TemplatePrototype.create(key=key,
-                                                       utg_template=form.c.template,
+                                                       raw_template=form.c.template,
+                                                       utg_template=utg_template,
                                                        verificators=form.verificators())
 
         return self.json_ok(data={'next_url': url('linguistics:templates:show', template.id)})
@@ -226,5 +233,9 @@ class TemplateResource(Resource):
 
     @handler('#template', name='show', method='get')
     def show(self):
+        dictionary = storage.raw_dictionary.item
+        errors = self._template.get_errors(dictionary)
+
         return self.template('linguistics/templates/show.html',
-                             {} )
+                             {'template': self._template,
+                              'errors': errors} )

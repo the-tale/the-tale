@@ -416,7 +416,8 @@ class AccountResource(BaseAccountsResource):
         from the_tale.forum.models import Thread
         from the_tale.game.bills.prototypes import BillPrototype
         from the_tale.game.ratings.prototypes import RatingPlacesPrototype, RatingValuesPrototype
-        from the_tale.game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
+        from the_tale.game.phrase_candidates.models import PhraseCandidate
+        from the_tale.game.phrase_candidates.relations import PHRASE_CANDIDATE_STATE
         from the_tale.accounts.clans.logic import ClanInfo
 
         bills_count = BillPrototype.accepted_bills_count(self.master_account.id)

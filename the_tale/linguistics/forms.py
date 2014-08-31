@@ -6,9 +6,11 @@ from dext.forms import forms, fields
 from utg import relations as utg_relations
 from utg import words as utg_words
 from utg import templates as utg_templates
+from utg import exceptions as utg_exceptions
 
 
 from the_tale.linguistics import models
+from the_tale.linguistics import prototypes
 from the_tale.linguistics.lexicon import logic as lexicon_logic
 
 
@@ -80,36 +82,38 @@ class TemplateForm(forms.Form):
         super(TemplateForm, self).__init__(*args, **kwargs)
         self.key = key
 
-        verificators_externals = lexicon_logic.get_verificators_externals(self.key)
+        verificators = prototypes.Verificator.get_verificators(key=self.key)
 
-        for i, externals in enumerate(verificators_externals):
-            label = u'проверка для %s' % u', '.join(u'%s=%s' % (variable, value) for variable, value in externals.iteritems())
+        for i, verificator in enumerate(verificators):
+            label = u'проверка для %s' % u', '.join(u'%s=%s' % (variable, value) for variable, value in verificator.externals.iteritems())
             self.fields['verificator_%d' % i] = fields.TextField(label=label, required=False, widget=django_forms.Textarea(attrs={'rows': 3}))
 
     def verificators_fields(self):
-        verificators_externals = lexicon_logic.get_verificators_externals(self.key)
-        return [self['verificator_%d' % i] for i, externals in enumerate(verificators_externals)]
+        verificators = prototypes.Verificator.get_verificators(key=self.key)
+        return [self['verificator_%d' % i] for i, verificator in enumerate(verificators)]
 
     def verificators(self):
-        from the_tale.linguistics import prototypes
 
-        verificators_externals = lexicon_logic.get_verificators_externals(self.key)
+        verificators = prototypes.Verificator.get_verificators(key=self.key)
 
-        verificators = []
-
-        for i, externals in enumerate(verificators_externals):
-            verificator_id = 'verificator_%d' % i
-            verificator_text = getattr(self.c, verificator_id)
-            verificators.append(prototypes.Verificator(text=verificator_text, externals=dict(externals)))
+        for i, verificator in enumerate(verificators):
+            verificator.text = getattr(self.c, 'verificator_%d' % i)
 
         return verificators
 
 
     def clean_template(self):
-        data = self.cleaned_data['template']
+        data = self.cleaned_data['template'].strip()
 
-        template = utg_templates.Template()
+        # TODO: test exceptions
+        try:
+            template = utg_templates.Template()
+            template.parse(data, externals=[v.value for v in self.key.variables])
+        except utg_exceptions.WrongDependencyFormatError, e:
+            raise django_forms.ValidationError(u'Ошибка в формате подстановки: %s' % e.arguments['dependency'])
+        except utg_exceptions.UnknownVerboseIdError, e:
+            raise django_forms.ValidationError(u'Неизвестная форма слова: %s' % e.arguments['verbose_id'])
+        except utg_exceptions.ExternalDependecyNotFoundError, e:
+            raise django_forms.ValidationError(u'Неизвестная переменная: %s' % e.arguments['dependency'])
 
-        template.parse(data, externals=[v.value for v in self.key.variables])
-
-        return template
+        return data

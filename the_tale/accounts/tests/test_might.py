@@ -22,7 +22,7 @@ from the_tale.game.bills.conf import bills_settings
 from the_tale.game.bills.relations import BILL_STATE, VOTE_TYPE
 
 from the_tale.game.phrase_candidates.prototypes import PhraseCandidatePrototype
-from the_tale.game.phrase_candidates.models import PHRASE_CANDIDATE_STATE
+from the_tale.game.phrase_candidates.relations import PHRASE_CANDIDATE_STATE
 
 from the_tale.accounts.might import calculate_might
 

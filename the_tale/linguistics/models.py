@@ -31,11 +31,11 @@ class Template(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now_add=True, null=False)
 
-    template = models.TextField()
+    raw_template = models.TextField()
     data = models.TextField()
 
     state = RelationIntegerField(relation=relations.TEMPLATE_STATE, db_index=True)
     key = RelationIntegerField(relation=keys.LEXICON_KEY, db_index=True)
 
     class Meta:
-        unique_together = (('template', 'key', 'state'),)
+        unique_together = (('raw_template', 'key', 'state'),)

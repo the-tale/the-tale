@@ -40,7 +40,7 @@ jQuery(document).ready(function(e){
 </p>
 
 {% if not resource.account.is_authenticated() %}
-{{ base_macros.registration_required_message("принимать участие в PvP.")
+{{ base_macros.registration_required_message("принимать участие в PvP.") }}
 {% else %}
 {% if resource.can_participate %}
 <p class="pgf-level-restrictions-message">

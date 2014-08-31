@@ -13,7 +13,7 @@ from the_tale.game.ratings.models import RatingValues
 from the_tale.game.ratings.prototypes import RatingValuesPrototype
 
 from the_tale.game.phrase_candidates.prototypes import PhraseCandidatePrototype
-from the_tale.game.phrase_candidates.models import PHRASE_CANDIDATE_STATE
+from the_tale.game.phrase_candidates.relations import PHRASE_CANDIDATE_STATE
 
 from the_tale.game.heroes.conf import heroes_settings
 

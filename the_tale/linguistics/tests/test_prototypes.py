@@ -29,7 +29,7 @@ class WordPrototypeTests(TestCase):
         with mock.patch('the_tale.linguistics.storage.raw_dictionary.refresh') as raw_refresh:
             with mock.patch('the_tale.linguistics.storage.game_dictionary.refresh') as game_refresh:
                 with self.check_changed(lambda: storage.raw_dictionary.version):
-                    # with self.check_not_changed(lambda: storage.raw_dictionary.version):
+                    with self.check_not_changed(lambda: storage.game_dictionary.version):
                         with self.check_delta(prototypes.WordPrototype._db_count, 1):
                             prototype = prototypes.WordPrototype.create(self.word_1)
 
@@ -140,32 +140,33 @@ class TemplatePrototypeTests(TestCase):
 
 
     def create_template(self, key, word):
-        TEXT = u'[%(external)s|загл] 1 [%(word)s|%(external)s|буд,вн]' % {'external': key.variables[0].value, 'word': word}
+        text = u'[%(external)s|загл] 1 [%(word)s|%(external)s|буд,вн]' % {'external': key.variables[0].value, 'word': word}
 
         template = utg_templates.Template()
 
-        template.parse(TEXT, externals=[v.value for v in key.variables])
+        template.parse(text, externals=[v.value for v in key.variables])
 
-        return template
+        return text, template
 
 
     def setUp(self):
         super(TemplatePrototypeTests, self).setUp()
         self.key_1, self.key_2 = random.sample(keys.LEXICON_KEY.records, 2)
         self.word_1 = u'пепельница'
-        self.template_1 = self.create_template(self.key_1, word=self.word_1)
+        self.text_1, self.template_1 = self.create_template(self.key_1, word=self.word_1)
 
     def test_create(self):
 
         with self.check_delta(prototypes.TemplatePrototype._db_count, 1):
-            prototype = prototypes.TemplatePrototype.create(key=self.key_1, utg_template=self.template_1, verificators=[])
+            prototype = prototypes.TemplatePrototype.create(key=self.key_1, raw_template=self.text_1, utg_template=self.template_1, verificators=[])
 
         self.assertTrue(prototype.state.is_ON_REVIEW)
         self.assertEqual(self.template_1, prototype.utg_template)
+        self.assertEqual(self.text_1, prototype.raw_template)
 
 
     def test_save(self):
-        prototype = prototypes.TemplatePrototype.create(key=self.key_1, utg_template=self.template_1, verificators=[])
+        prototype = prototypes.TemplatePrototype.create(key=self.key_1, raw_template=self.text_1, utg_template=self.template_1, verificators=[])
         prototype.utg_template.template = u'xxx'
 
         with self.check_not_changed(prototypes.TemplatePrototype._db_count):
@@ -199,14 +200,13 @@ class TemplatePrototypeTests(TestCase):
         dictionary.add_word(utg_words.Word(type=utg_relations.WORD_TYPE.NOUN, forms=[u'русалка'], properties=utg_words.Properties()))
 
         prototype = prototypes.TemplatePrototype.create(key=key,
+                                                        raw_template=TEXT,
                                                         utg_template=template,
                                                         verificators=[verificator_1, verificator_2, verificator_3])
 
-        words_errors, verificators_errors = prototype.get_errors(utg_dictionary=dictionary)
+        errors = prototype.get_errors(utg_dictionary=dictionary)
 
-
-        self.assertEqual(words_errors, [])
-        self.assertEqual(verificators_errors, [])
+        self.assertEqual(errors, [])
 
 
     def test_get_errors__word_errors(self):
@@ -230,13 +230,13 @@ class TemplatePrototypeTests(TestCase):
         dictionary.add_word(utg_words.Word(type=utg_relations.WORD_TYPE.NOUN, forms=[u'русалка'], properties=utg_words.Properties()))
 
         prototype = prototypes.TemplatePrototype.create(key=key,
+                                                        raw_template=TEXT,
                                                         utg_template=template,
                                                         verificators=[verificator_1, verificator_2, verificator_3])
 
-        words_errors, verificators_errors = prototype.get_errors(utg_dictionary=dictionary)
+        errors = prototype.get_errors(utg_dictionary=dictionary)
 
-        self.assertEqual(words_errors, [u'Неизвестное слово: «пепельница»'])
-        self.assertEqual(verificators_errors, [])
+        self.assertEqual(errors, [u'Неизвестное слово: «пепельница»'])
 
 
     def test_get_errors__verificators_errors(self):
@@ -264,13 +264,13 @@ class TemplatePrototypeTests(TestCase):
 
         prototype = prototypes.TemplatePrototype.create(key=key,
                                                         utg_template=template,
+                                                        raw_template=TEXT,
                                                         verificators=[verificator_1, verificator_2, verificator_3])
 
-        words_errors, verificators_errors = prototype.get_errors(utg_dictionary=dictionary)
+        errors = prototype.get_errors(utg_dictionary=dictionary)
 
-        self.assertEqual(words_errors, [])
-        self.assertEqual(verificators_errors, [u'Проверочный текст не совпадает с интерпретацией шаблона [Призрак 1 w-1-ед,вн]',
-                                               u'Проверочный текст не совпадает с интерпретацией шаблона [Русалка 1 w-1-ед,вн]'])
+        self.assertEqual(errors, [u'Проверочный текст не совпадает с интерпретацией шаблона [Призрак 1 w-1-ед,вн]',
+                                  u'Проверочный текст не совпадает с интерпретацией шаблона [Русалка 1 w-1-ед,вн]'])
 
 
 

@@ -27,7 +27,7 @@ class MapInfoStorage(storage.SingleStorage):
         self._version = settings[self.SETTINGS_KEY]
 
     def _get_next_version(self):
-        return '%d-%d' % (TimePrototype.get_current_turn_number(), time.time())
+        return '%d-%f' % (TimePrototype.get_current_turn_number(), time.time())
 
 
 map_info_storage = MapInfoStorage()

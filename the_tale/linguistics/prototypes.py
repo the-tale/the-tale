@@ -70,13 +70,9 @@ class WordPrototype(BasePrototype):
 
 class TemplatePrototype(BasePrototype):
     _model_class = models.Template
-    _readonly = ('id', 'key', 'created_at')
+    _readonly = ('id', 'key', 'created_at', 'raw_template')
     _bidirectional = ('state',)
     _get_by = ('id',)
-
-    @lazy_property
-    def utg_template(self):
-        return utg_templates.Template.deserialize(s11n.from_json(self._model.template))
 
     @lazy_property
     def _data(self):
@@ -86,11 +82,13 @@ class TemplatePrototype(BasePrototype):
     def verificators(self):
         return [Verificator.deserialize(v) for v in self._data['verificators']]
 
+    @lazy_property
+    def utg_template(self):
+        return utg_templates.Template.deserialize(self._data['template'])
 
     def get_errors(self, utg_dictionary):
 
-        word_errors = []
-        verificator_errors = []
+        errors = []
 
         verificators = Verificator.get_verificators(key=self.key, old_verificators=self.verificators)
 
@@ -98,27 +96,28 @@ class TemplatePrototype(BasePrototype):
                                                                      dictionary=utg_dictionary)
 
         for word in unexisted_words:
-            word_errors.append(u'Неизвестное слово: «%s»' % word)
+            errors.append(u'Неизвестное слово: «%s»' % word)
 
-        if word_errors:
-            return word_errors, []
+        if errors:
+            return errors
 
         for verificator in verificators:
             externals = {k: utg_dictionary.get_word(v) for k, v in verificator.externals.iteritems()}
             template_render = self.utg_template.substitute(externals=externals, dictionary=utg_dictionary)
 
             if verificator.text != template_render:
-                verificator_errors.append(u'Проверочный текст не совпадает с интерпретацией шаблона [%s]' % template_render)
+                errors.append(u'Проверочный текст не совпадает с интерпретацией шаблона [%s]' % template_render)
 
-        return [], verificator_errors
+        return errors
 
 
     @classmethod
-    def create(cls, key, utg_template, verificators):
+    def create(cls, key, raw_template, utg_template, verificators):
         model = cls._db_create(key=key,
                                state=relations.TEMPLATE_STATE.ON_REVIEW,
-                               template=s11n.to_json(utg_template.serialize()),
-                               data=s11n.to_json({'verificators': [v.serialize() for v in verificators]}))
+                               raw_template=raw_template,
+                               data=s11n.to_json({'verificators': [v.serialize() for v in verificators],
+                                                  'template': utg_template.serialize()}))
 
         return cls(model)
 

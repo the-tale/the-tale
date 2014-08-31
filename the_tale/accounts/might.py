@@ -12,7 +12,8 @@ from the_tale.blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STAT
 
 from the_tale.game.bills.models import Bill, Vote
 from the_tale.game.bills.relations import BILL_STATE, VOTE_TYPE
-from the_tale.game.phrase_candidates.models import PhraseCandidate, PHRASE_CANDIDATE_STATE
+from the_tale.game.phrase_candidates.models import PhraseCandidate
+from the_tale.game.phrase_candidates.relations import PHRASE_CANDIDATE_STATE
 from the_tale.game.heroes.prototypes import HeroPrototype
 
 
