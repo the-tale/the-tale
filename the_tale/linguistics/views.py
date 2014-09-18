@@ -197,8 +197,9 @@ class TemplateResource(Resource):
                               'index_filter': index_filter,
                               'LEXICON_KEY': keys.LEXICON_KEY} )
 
-
-
+    @login_required
+    @validate_fast_account()
+    @validate_ban_forum()
     @validate_argument('key', lambda v: keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', u'неверный ключ фразы', required=True)
     @handler('new', method='get')
     def new(self, key):
@@ -211,6 +212,9 @@ class TemplateResource(Resource):
                               'LEXICON_KEY': keys.LEXICON_KEY} )
 
 
+    @login_required
+    @validate_fast_account()
+    @validate_ban_forum()
     @validate_argument('key', lambda v: keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', u'неверный ключ фразы', required=True)
     @handler('create', method='post')
     def create(self, key):
@@ -226,7 +230,8 @@ class TemplateResource(Resource):
         template = prototypes.TemplatePrototype.create(key=key,
                                                        raw_template=form.c.template,
                                                        utg_template=utg_template,
-                                                       verificators=form.verificators())
+                                                       verificators=form.verificators(),
+                                                       author=self.account)
 
         return self.json_ok(data={'next_url': url('linguistics:templates:show', template.id)})
 
@@ -239,3 +244,52 @@ class TemplateResource(Resource):
         return self.template('linguistics/templates/show.html',
                              {'template': self._template,
                               'errors': errors} )
+
+
+    @login_required
+    @validate_fast_account()
+    @validate_ban_forum()
+    @handler('#template', 'edit', method='get')
+    def edit(self):
+
+        form = forms.TemplateForm(self._template.key, initial=forms.TemplateForm.get_initials(self._template))
+
+        return self.template('linguistics/templates/edit.html',
+                             {'template': self._template,
+                              'form': form,
+                              'LEXICON_KEY': keys.LEXICON_KEY} )
+
+
+    @login_required
+    @validate_fast_account()
+    @validate_ban_forum()
+    @handler('#template', 'update', method='post')
+    def update(self):
+
+        form = forms.TemplateForm(self._template.key, self.request.POST)
+
+        if not form.is_valid():
+            return self.json_error('linguistics.templates.update.form_errors', form.errors)
+
+        if self._template.author_id == self.account.id and self._template.state.is_ON_REVIEW:
+            utg_template = utg_templates.Template()
+            utg_template.parse(form.c.template, externals=[v.value for v in self._template.key.variables])
+
+            self._template.update(raw_template=form.c.template,
+                                  utg_template=utg_template,
+                                  verificators=form.verificators())
+
+            return self.json_ok(data={'next_url': url('linguistics:templates:show', self._template.id)})
+
+
+        utg_template = utg_templates.Template()
+        utg_template.parse(form.c.template, externals=[v.value for v in self._template.key.variables])
+
+        template = prototypes.TemplatePrototype.create(key=self._template.key,
+                                                       raw_template=form.c.template,
+                                                       utg_template=utg_template,
+                                                       verificators=form.verificators(),
+                                                       author=self.account,
+                                                       parent=self._template)
+
+        return self.json_ok(data={'next_url': url('linguistics:templates:show', template.id)})

@@ -117,3 +117,12 @@ class TemplateForm(forms.Form):
             raise django_forms.ValidationError(u'Неизвестная переменная: %s' % e.arguments['dependency'])
 
         return data
+
+    @classmethod
+    def get_initials(cls, template):
+        initials = {'template': template.raw_template}
+
+        for i, verificator in enumerate(prototypes.Verificator.get_verificators(template.key, old_verificators=template.verificators)):
+            initials['verificator_%d' % i] = verificator.text
+
+        return initials

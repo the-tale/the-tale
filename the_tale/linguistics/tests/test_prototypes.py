@@ -9,7 +9,12 @@ from utg import words as utg_words
 from utg import templates as utg_templates
 from utg import dictionary as utg_dictionary
 
-from the_tale.common.utils.testcase import TestCase
+from the_tale.common.utils import testcase
+
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import register_user
+
+from the_tale.game.logic import create_test_map
 
 from the_tale.linguistics import prototypes
 from the_tale.linguistics import relations
@@ -17,7 +22,7 @@ from the_tale.linguistics import storage
 from the_tale.linguistics.lexicon import keys
 
 
-class WordPrototypeTests(TestCase):
+class WordPrototypeTests(testcase.TestCase):
 
     def setUp(self):
         super(WordPrototypeTests, self).setUp()
@@ -136,8 +141,7 @@ class WordPrototypeTests(TestCase):
 
 
 
-class TemplatePrototypeTests(TestCase):
-
+class TemplatePrototypeTests(testcase.TestCase):
 
     def create_template(self, key, word):
         text = u'[%(external)s|загл] 1 [%(word)s|%(external)s|буд,вн]' % {'external': key.variables[0].value, 'word': word}
@@ -151,6 +155,12 @@ class TemplatePrototypeTests(TestCase):
 
     def setUp(self):
         super(TemplatePrototypeTests, self).setUp()
+
+        create_test_map()
+
+        result, account_id, bundle_id = register_user('test_user1', 'test_user_1@test.com', '111111')
+        self.account_1 = AccountPrototype.get_by_id(account_id)
+
         self.key_1, self.key_2 = random.sample(keys.LEXICON_KEY.records, 2)
         self.word_1 = u'пепельница'
         self.text_1, self.template_1 = self.create_template(self.key_1, word=self.word_1)
@@ -158,7 +168,7 @@ class TemplatePrototypeTests(TestCase):
     def test_create(self):
 
         with self.check_delta(prototypes.TemplatePrototype._db_count, 1):
-            prototype = prototypes.TemplatePrototype.create(key=self.key_1, raw_template=self.text_1, utg_template=self.template_1, verificators=[])
+            prototype = prototypes.TemplatePrototype.create(key=self.key_1, raw_template=self.text_1, utg_template=self.template_1, verificators=[], author=self.account_1)
 
         self.assertTrue(prototype.state.is_ON_REVIEW)
         self.assertEqual(self.template_1, prototype.utg_template)
@@ -166,7 +176,7 @@ class TemplatePrototypeTests(TestCase):
 
 
     def test_save(self):
-        prototype = prototypes.TemplatePrototype.create(key=self.key_1, raw_template=self.text_1, utg_template=self.template_1, verificators=[])
+        prototype = prototypes.TemplatePrototype.create(key=self.key_1, raw_template=self.text_1, utg_template=self.template_1, verificators=[], author=self.account_1)
         prototype.utg_template.template = u'xxx'
 
         with self.check_not_changed(prototypes.TemplatePrototype._db_count):
@@ -202,7 +212,8 @@ class TemplatePrototypeTests(TestCase):
         prototype = prototypes.TemplatePrototype.create(key=key,
                                                         raw_template=TEXT,
                                                         utg_template=template,
-                                                        verificators=[verificator_1, verificator_2, verificator_3])
+                                                        verificators=[verificator_1, verificator_2, verificator_3],
+                                                        author=self.account_1)
 
         errors = prototype.get_errors(utg_dictionary=dictionary)
 
@@ -232,7 +243,8 @@ class TemplatePrototypeTests(TestCase):
         prototype = prototypes.TemplatePrototype.create(key=key,
                                                         raw_template=TEXT,
                                                         utg_template=template,
-                                                        verificators=[verificator_1, verificator_2, verificator_3])
+                                                        verificators=[verificator_1, verificator_2, verificator_3],
+                                                        author=self.account_1)
 
         errors = prototype.get_errors(utg_dictionary=dictionary)
 
@@ -265,7 +277,8 @@ class TemplatePrototypeTests(TestCase):
         prototype = prototypes.TemplatePrototype.create(key=key,
                                                         utg_template=template,
                                                         raw_template=TEXT,
-                                                        verificators=[verificator_1, verificator_2, verificator_3])
+                                                        verificators=[verificator_1, verificator_2, verificator_3],
+                                                        author=self.account_1)
 
         errors = prototype.get_errors(utg_dictionary=dictionary)
 
@@ -275,7 +288,7 @@ class TemplatePrototypeTests(TestCase):
 
 
 
-class VerificatorTests(TestCase):
+class VerificatorTests(testcase.TestCase):
 
     def setUp(self):
         super(VerificatorTests, self).setUp()

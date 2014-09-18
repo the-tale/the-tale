@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from django.db import models
+from django.conf import settings as project_settings
 
 from rels.django import RelationIntegerField
 
@@ -30,6 +31,9 @@ class Word(models.Model):
 class Template(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now_add=True, null=False)
+
+    author = models.ForeignKey(project_settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    parent = models.ForeignKey('linguistics.Template', null=True, on_delete=models.SET_NULL)
 
     raw_template = models.TextField()
     data = models.TextField()

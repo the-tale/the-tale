@@ -23,7 +23,7 @@ class DictionaryStoragesTests(TestCase):
         self.utg_word_3 = utg_words.Word.create_test_word(self.word_type_3, prefix='w3-')
         self.utg_word_2_2 = utg_words.Word.create_test_word(self.word_type_2, prefix='w2_2-')
 
-        self.utg_word_2_2.forms[0] = self.utg_word_2_1.forms[0]
+        self.utg_word_2_2.forms = [f if f[4:] != self.utg_word_2_1.normal_form()[4:] else self.utg_word_2_1.normal_form() for f in self.utg_word_2_2.forms]
 
         self.word_1 = prototypes.WordPrototype.create(self.utg_word_1)
         self.word_2_1 = prototypes.WordPrototype.create(self.utg_word_2_1)

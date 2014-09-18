@@ -70,7 +70,7 @@ class WordPrototype(BasePrototype):
 
 class TemplatePrototype(BasePrototype):
     _model_class = models.Template
-    _readonly = ('id', 'key', 'created_at', 'raw_template')
+    _readonly = ('id', 'key', 'created_at', 'raw_template', 'author_id', 'parent_id')
     _bidirectional = ('state',)
     _get_by = ('id',)
 
@@ -112,14 +112,29 @@ class TemplatePrototype(BasePrototype):
 
 
     @classmethod
-    def create(cls, key, raw_template, utg_template, verificators):
+    def create(cls, key, raw_template, utg_template, verificators, author, parent=None):
         model = cls._db_create(key=key,
                                state=relations.TEMPLATE_STATE.ON_REVIEW,
                                raw_template=raw_template,
+                               author=None if author is None else author._model,
+                               parent=None if parent is None else parent._model,
                                data=s11n.to_json({'verificators': [v.serialize() for v in verificators],
                                                   'template': utg_template.serialize()}))
 
         return cls(model)
+
+
+    def update(self, raw_template, utg_template, verificators):
+        self._model.raw_template = raw_template
+        self._model.data = s11n.to_json({'verificators': [v.serialize() for v in verificators],
+                                         'template': utg_template.serialize()})
+
+        del self._data
+        del self.verificators
+        del self.utg_template
+
+        self.save()
+
 
     def save(self):
         self._model.template = s11n.to_json(self.utg_template.serialize())
@@ -155,8 +170,20 @@ class Verificator(object):
     def get_verificators(cls, key, old_verificators=()):
         externals = lexicon_logic.get_verificators_externals(key)
 
-        valid_verificators = [verificator for verificator in old_verificators if any(e == verificator.externals for e in externals)]
+        verificators = []
 
-        new_externals = [e for e in externals if all(e != verificator.externals for verificator in valid_verificators)]
+        for e in externals:
+            for verificator in old_verificators:
+                if e == verificator.externals:
+                    verificators.append(verificator)
+                    break
+            else:
+                verificators.append(cls(text=u'', externals=e))
 
-        return valid_verificators + [cls(text=u'', externals=e) for e in new_externals]
+        return verificators
+
+        # valid_verificators = [verificator for verificator in old_verificators if any(e == verificator.externals for e in externals)]
+
+        # new_externals = [e for e in externals if all(e != verificator.externals for verificator in valid_verificators)]
+
+        # return valid_verificators + [cls(text=u'', externals=e) for e in new_externals]
