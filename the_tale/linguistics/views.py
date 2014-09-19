@@ -3,7 +3,7 @@
 from django.core.urlresolvers import reverse
 from django.db import transaction
 
-from dext.views import handler, validate_argument
+from dext.views import handler, validate_argument, validator
 from dext.common.utils.urls import UrlBuilder, url
 
 from utg import relations as utg_relations
@@ -39,7 +39,6 @@ class TemplatesIndexFilter(list_filter.ListFilter):
                 list_filter.choice_element(u'состояние:', attribute='state', choices=[(None, u'все')] + list(relations.TEMPLATE_STATE.select('value', 'text'))) ]
 
 
-
 class LinguisticsResource(Resource):
 
     def initialize(self, *args, **kwargs):
@@ -55,10 +54,14 @@ class LinguisticsResource(Resource):
 
 class WordResource(Resource):
 
+    @validator(code='linguistics.words.moderation_rights', message=u'У вас нет прав для модерации слова')
+    def moderation_word_rights(self, *args, **kwargs): return self.can_moderate_words
+
     @validate_argument('word', lambda v: prototypes.WordPrototype.get_by_id(int(v)), 'linguistics.words', u'неверный идентификатор слова')
     def initialize(self, word=None, *args, **kwargs):
         super(WordResource, self).initialize(*args, **kwargs)
         self.word = word
+        self.can_moderate_words = self.account.has_perm('linguistics.moderate_word')
 
 
     @validate_argument('state', lambda v: relations.WORD_STATE.index_value.get(int(v)), 'linguistics.words', u'неверное состояние слова')
@@ -105,7 +108,7 @@ class WordResource(Resource):
     def new(self, type, parent=None):
 
         if parent and type != parent.type:
-            return self.auto_error('linguistics.words.new.unequal_types', u'Не совпадает тип создаваемого слов и тип слова-родителя')
+            return self.auto_error('linguistics.words.new.unequal_types', u'Не совпадает тип создаваемого слова и тип слова-родителя')
 
         if parent and parent.has_on_review_copy():
             return self.auto_error('linguistics.words.new.has_on_review_copy',
@@ -166,13 +169,51 @@ class WordResource(Resource):
                               'drawer': word_drawer.ShowDrawer(word=self.word)} )
 
 
+    @login_required
+    @moderation_word_rights()
+    @handler('#word', 'in-game', method='post')
+    def in_game(self):
+
+        if self.word.state.is_IN_GAME:
+            return self.json_ok()
+
+        word_query = prototypes.WordPrototype._db_filter(normal_form=self.word.utg_word.normal_form(), type=self.word.type, state=relations.WORD_STATE.IN_GAME)
+
+        parent = None
+
+        if word_query.exists():
+            parent = prototypes.WordPrototype(word_query[0])
+
+        with transaction.atomic():
+            if parent:
+                parent.remove()
+
+            self.word.state = relations.WORD_STATE.IN_GAME
+            self.word.save()
+
+        return self.json_ok()
+
+
+    @login_required
+    @moderation_word_rights()
+    @handler('#word', 'remove', method='post')
+    def remove(self):
+        self.word.remove()
+        return self.json_ok()
+
+
 
 class TemplateResource(Resource):
+
+    @validator(code='linguistics.templates.moderation_rights', message=u'У вас нет прав для модерации шаблонов')
+    def moderation_template_rights(self, *args, **kwargs): return self.can_moderate_templates
 
     @validate_argument('template', lambda v: prototypes.TemplatePrototype.get_by_id(int(v)), 'linguistics.templates', u'неверный идентификатор шаблона')
     def initialize(self, template=None, *args, **kwargs):
         super(TemplateResource, self).initialize(*args, **kwargs)
         self._template = template
+
+        self.can_moderate_templates = self.account.has_perm('linguistics.moderate_template')
 
     @validate_argument('key', lambda v: keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', u'неверный ключ фразы', required=True)
     @validate_argument('state', lambda v: relations.TEMPLATE_STATE.index_value.get(int(v)), 'linguistics.templates', u'неверное состояние шаблона')
@@ -293,3 +334,84 @@ class TemplateResource(Resource):
                                                        parent=self._template)
 
         return self.json_ok(data={'next_url': url('linguistics:templates:show', template.id)})
+
+
+    @login_required
+    @moderation_template_rights()
+    @handler('#template', 'replace', method='post')
+    def replace(self):
+
+        if self._template.parent_id is None:
+            return self.json_error('linguistics.templates.replace.no_parent', u'У шаблона нет родителя.')
+
+        parent_template = prototypes.TemplatePrototype.get_by_id(self._template.parent_id)
+
+        if parent_template.key != self._template.key:
+            return self.json_error('linguistics.templates.replace.not_equal_keys', u'Фразы предназначены для разных случаев.')
+
+        with transaction.atomic():
+            prototypes.TemplatePrototype._db_filter(parent_id=parent_template.id).update(parent=self._template.id)
+
+            self._template.parent_id = parent_template.parent_id
+            self._template.state = parent_template.state
+
+            parent_template.remove()
+
+            self._template.save()
+
+        return self.json_ok()
+
+
+    @login_required
+    @moderation_template_rights()
+    @handler('#template', 'detach', method='post')
+    def detach(self):
+        if self._template.parent_id is None:
+            return self.json_error('linguistics.templates.detach.no_parent', u'У шаблона нет родителя.')
+
+        self._template.parent_id = None
+        self._template.save()
+
+        return self.json_ok()
+
+
+    @login_required
+    @moderation_template_rights()
+    @handler('#template', 'in-game', method='post')
+    def in_game(self):
+
+        if self._template.parent_id is not None:
+            return self.json_error('linguistics.templates.in_game.has_parent',
+                                   u'У шаблона есть родитель. Текущий шаблон необходимо либо открепить либо использовать как замену родителю.')
+
+        if self._template.state.is_IN_GAME:
+            return self.json_ok()
+
+        self._template.state = relations.TEMPLATE_STATE.IN_GAME
+        self._template.save()
+
+        return self.json_ok()
+
+
+    @login_required
+    @moderation_template_rights()
+    @handler('#template', 'on-review', method='post')
+    def out_game(self):
+        if self._template.state.is_ON_REVIEW:
+            return self.json_ok()
+
+        self._template.state = relations.TEMPLATE_STATE.ON_REVIEW
+        self._template.save()
+
+        return self.json_ok()
+
+
+    @login_required
+    @moderation_template_rights()
+    @handler('#template', 'remove', method='post')
+    def remove(self):
+        with transaction.atomic():
+            prototypes.TemplatePrototype._db_filter(parent_id=self._template.id).update(parent=self._template.parent_id)
+            self._template.remove()
+
+        return self.json_ok()

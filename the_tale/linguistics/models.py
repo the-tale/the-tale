@@ -25,6 +25,7 @@ class Word(models.Model):
 
     class Meta:
         unique_together = (('normal_form', 'type', 'state'),)
+        permissions = (("moderate_word", u"Может модерировать слова"), )
 
 
 
@@ -42,4 +43,4 @@ class Template(models.Model):
     key = RelationIntegerField(relation=keys.LEXICON_KEY, db_index=True)
 
     class Meta:
-        unique_together = (('raw_template', 'key', 'state'),)
+        permissions = (("moderate_template", u"Может модерировать шаблоны фраз"), )

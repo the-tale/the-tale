@@ -27,8 +27,10 @@ from the_tale.linguistics import prototypes
 from the_tale.linguistics import storage
 from the_tale.linguistics import relations
 from the_tale.linguistics.lexicon import keys
+from the_tale.linguistics.conf import linguistics_settings
 
 from the_tale.linguistics.lexicon import logic as lexicon_logic
+
 
 
 class BaseRequestsTests(TestCase):
@@ -40,6 +42,10 @@ class BaseRequestsTests(TestCase):
 
         result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')
         self.account_1 = AccountPrototype.get_by_id(account_id)
+
+        storage.raw_dictionary.refresh()
+        storage.game_dictionary.refresh()
+
 
 
 
@@ -167,11 +173,6 @@ class CreateRequestsTests(BaseRequestsTests):
 
 class ShowRequestsTests(BaseRequestsTests):
 
-    def setUp(self):
-        super(ShowRequestsTests, self).setUp()
-        storage.raw_dictionary.refresh()
-        storage.game_dictionary.refresh()
-
     def test_template_errors(self):
         self.check_html_ok(self.request_html(url('linguistics:templates:show', 'www')), texts=['linguistics.templates.template.wrong_format'])
         self.check_html_ok(self.request_html(url('linguistics:templates:show', 666)), texts=['linguistics.templates.template.not_found'], status_code=404)
@@ -232,9 +233,6 @@ class EditRequestsTests(BaseRequestsTests):
     def setUp(self):
         super(EditRequestsTests, self).setUp()
         self.request_login(self.account_1.email)
-
-        storage.raw_dictionary.refresh()
-        storage.game_dictionary.refresh()
 
         self.key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
         self.text = u'[hero|загл] 1 [пепельница|hero|вн]'
@@ -306,13 +304,9 @@ class UpdateRequestsTests(BaseRequestsTests):
     def setUp(self):
         super(UpdateRequestsTests, self).setUp()
 
-        storage.raw_dictionary.refresh()
-        storage.game_dictionary.refresh()
-
         self.key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
 
         externals = lexicon_logic.get_verificators_externals(self.key)
-        self.template_text = u'[hero|загл] [level] [неизвестное слово|level]'
         self.text = u'[hero|загл] 1 [пепельница|hero|вн]'
         self.utg_template = utg_templates.Template()
         self.utg_template.parse(self.text, externals=['hero'])
@@ -449,3 +443,527 @@ class UpdateRequestsTests(BaseRequestsTests):
 
         self.assertEqual(last_prototype.author_id, account.id)
         self.assertEqual(last_prototype.parent_id, self.template.id)
+
+
+
+class ReplaceRequestsTests(BaseRequestsTests):
+
+    def setUp(self):
+        super(ReplaceRequestsTests, self).setUp()
+
+        self.key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
+
+        self.externals = lexicon_logic.get_verificators_externals(self.key)
+        self.text = u'[hero|загл] 1 [пепельница|hero|вн]'
+        self.utg_template = utg_templates.Template()
+        self.utg_template.parse(self.text, externals=['hero'])
+        self.template = prototypes.TemplatePrototype.create(key=self.key,
+                                                            raw_template=self.text,
+                                                            utg_template=self.utg_template,
+                                                            verificators=[prototypes.Verificator(u'verificator-1', externals=self.externals[0]),
+                                                                          prototypes.Verificator(u'verificator-2', externals=self.externals[2]),],
+                                                            author=self.account_1)
+
+        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
+        self.account_2 = AccountPrototype.get_by_id(account_id)
+
+        result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
+        self.moderator = AccountPrototype.get_by_id(account_id)
+
+        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_template'])
+        group.user_set.add(self.moderator._model)
+
+        self.request_login(self.account_1.email)
+
+        self.requested_url = url('linguistics:templates:replace', self.template.id)
+
+
+    def test_template_errors(self):
+        with self.check_not_changed(prototypes.TemplatePrototype._db_count):
+            self.check_ajax_error(self.client.post(url('linguistics:templates:replace', 'www'), {}), 'linguistics.templates.template.wrong_format')
+            self.check_ajax_error(self.client.post(url('linguistics:templates:replace', 666), {}), 'linguistics.templates.template.not_found')
+
+
+    def test_login_required(self):
+        self.request_logout()
+
+        with self.check_not_changed(prototypes.TemplatePrototype._db_count):
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'common.login_required')
+
+
+    def test_moderation_rights(self):
+        with self.check_not_changed(prototypes.TemplatePrototype._db_count) :
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.templates.moderation_rights')
+
+
+    def test_no_parent(self):
+        self.request_login(self.moderator.email)
+
+        self.assertEqual(self.template.parent_id, None)
+
+        with self.check_not_changed(prototypes.TemplatePrototype._db_count):
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.templates.replace.no_parent')
+
+
+    def test_replace__on_review(self):
+        self.request_login(self.moderator.email)
+
+        text = u'[hero|загл] 2 [пепельница|hero|вн]'
+        utg_template = utg_templates.Template()
+        utg_template.parse(text, externals=['hero'])
+        template = prototypes.TemplatePrototype.create(key=self.key,
+                                                       raw_template=text,
+                                                       utg_template=utg_template,
+                                                       verificators=[],
+                                                       author=self.account_2,
+                                                       parent=self.template)
+
+        self.assertTrue(self.template.state.is_ON_REVIEW)
+
+        with self.check_delta(prototypes.TemplatePrototype._db_count, -1):
+            self.check_ajax_ok(self.client.post(url('linguistics:templates:replace', template.id), {}))
+
+        self.assertEqual(prototypes.TemplatePrototype.get_by_id(self.template.id), None)
+
+        template.reload()
+
+        self.assertTrue(template.state.is_ON_REVIEW)
+        self.assertEqual(template.parent_id, None)
+
+
+    def test_replace__in_game(self):
+        self.request_login(self.moderator.email)
+
+        text = u'[hero|загл] 2 [пепельница|hero|вн]'
+        utg_template = utg_templates.Template()
+        utg_template.parse(text, externals=['hero'])
+        template = prototypes.TemplatePrototype.create(key=self.key,
+                                                       raw_template=text,
+                                                       utg_template=utg_template,
+                                                       verificators=[],
+                                                       author=self.account_2,
+                                                       parent=self.template)
+
+        self.template.state = relations.TEMPLATE_STATE.IN_GAME
+        self.template.save()
+
+        with self.check_delta(prototypes.TemplatePrototype._db_count, -1):
+            self.check_ajax_ok(self.client.post(url('linguistics:templates:replace', template.id), {}))
+
+        self.assertEqual(prototypes.TemplatePrototype.get_by_id(self.template.id), None)
+
+        template.reload()
+
+        self.assertTrue(template.state.is_IN_GAME)
+        self.assertEqual(template.parent_id, None)
+
+
+    def test_replace__tree(self):
+        self.request_login(self.moderator.email)
+
+        text = u'[hero|загл] 2 [пепельница|hero|вн]'
+        utg_template = utg_templates.Template()
+        utg_template.parse(text, externals=['hero'])
+
+        template_1 = prototypes.TemplatePrototype.create(key=self.key,
+                                                         raw_template=text,
+                                                         utg_template=utg_template,
+                                                         verificators=[],
+                                                         author=self.account_2,
+                                                         parent=self.template)
+
+
+        template_2 = prototypes.TemplatePrototype.create(key=self.key,
+                                                         raw_template=text,
+                                                         utg_template=utg_template,
+                                                         verificators=[],
+                                                         author=self.account_2,
+                                                         parent=self.template)
+
+        self.assertTrue(self.template.state.is_ON_REVIEW)
+
+        with self.check_delta(prototypes.TemplatePrototype._db_count, -1):
+            self.check_ajax_ok(self.client.post(url('linguistics:templates:replace', template_1.id), {}))
+
+        template_1.reload()
+        template_2.reload()
+
+        self.assertEqual(template_2.parent_id, template_1.id)
+        self.assertEqual(template_1.parent_id, None)
+
+
+    def test_replace__parent_inheritance(self):
+        self.request_login(self.moderator.email)
+
+        text = u'[hero|загл] 2 [пепельница|hero|вн]'
+        utg_template = utg_templates.Template()
+        utg_template.parse(text, externals=['hero'])
+
+        template_1 = prototypes.TemplatePrototype.create(key=self.key,
+                                                         raw_template=text,
+                                                         utg_template=utg_template,
+                                                         verificators=[],
+                                                         author=self.account_2,
+                                                         parent=self.template)
+
+
+        template_2 = prototypes.TemplatePrototype.create(key=self.key,
+                                                         raw_template=text,
+                                                         utg_template=utg_template,
+                                                         verificators=[],
+                                                         author=self.account_2,
+                                                         parent=template_1)
+
+        with self.check_delta(prototypes.TemplatePrototype._db_count, -1):
+            self.check_ajax_ok(self.client.post(url('linguistics:templates:replace', template_2.id), {}))
+
+        self.template.reload()
+        template_2.reload()
+
+        self.assertNotEqual(prototypes.TemplatePrototype.get_by_id(self.template.id), None)
+        self.assertEqual(prototypes.TemplatePrototype.get_by_id(template_1.id), None)
+        self.assertEqual(template_2.parent_id, self.template.id)
+
+
+    def test_replace__wrong_keys(self):
+        self.request_login(self.moderator.email)
+
+        text = u'[hero|загл] 2 [пепельница|hero|вн]'
+        utg_template = utg_templates.Template()
+        utg_template.parse(text, externals=['hero'])
+        template = prototypes.TemplatePrototype.create(key=keys.LEXICON_KEY.HERO_COMMON_DIARY_CREATE,
+                                                       raw_template=text,
+                                                       utg_template=utg_template,
+                                                       verificators=[],
+                                                       author=self.account_2,
+                                                       parent=self.template)
+
+        with self.check_not_changed(prototypes.TemplatePrototype._db_count):
+            self.check_ajax_error(self.client.post(url('linguistics:templates:replace', template.id), {}), 'linguistics.templates.replace.not_equal_keys')
+
+
+
+
+class DetachRequestsTests(BaseRequestsTests):
+
+    def setUp(self):
+        super(DetachRequestsTests, self).setUp()
+
+        self.key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
+
+        self.externals = lexicon_logic.get_verificators_externals(self.key)
+        self.text = u'[hero|загл] 1 [пепельница|hero|вн]'
+        self.utg_template = utg_templates.Template()
+        self.utg_template.parse(self.text, externals=['hero'])
+        self.template = prototypes.TemplatePrototype.create(key=self.key,
+                                                            raw_template=self.text,
+                                                            utg_template=self.utg_template,
+                                                            verificators=[prototypes.Verificator(u'verificator-1', externals=self.externals[0]),
+                                                                          prototypes.Verificator(u'verificator-2', externals=self.externals[2]),],
+                                                            author=self.account_1)
+
+        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
+        self.account_2 = AccountPrototype.get_by_id(account_id)
+
+        result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
+        self.moderator = AccountPrototype.get_by_id(account_id)
+
+        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_template'])
+        group.user_set.add(self.moderator._model)
+
+        self.request_login(self.account_1.email)
+
+        self.requested_url = url('linguistics:templates:detach', self.template.id)
+
+
+    def test_template_errors(self):
+        with self.check_not_changed(prototypes.TemplatePrototype._db_count):
+            self.check_ajax_error(self.client.post(url('linguistics:templates:detach', 'www'), {}), 'linguistics.templates.template.wrong_format')
+            self.check_ajax_error(self.client.post(url('linguistics:templates:detach', 666), {}), 'linguistics.templates.template.not_found')
+
+
+    def test_login_required(self):
+        self.request_logout()
+
+        with self.check_not_changed(prototypes.TemplatePrototype._db_count):
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'common.login_required')
+
+
+    def test_moderation_rights(self):
+        with self.check_not_changed(prototypes.TemplatePrototype._db_count) :
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.templates.moderation_rights')
+
+
+    def test_no_parent(self):
+        self.request_login(self.moderator.email)
+
+        self.assertEqual(self.template.parent_id, None)
+
+        with self.check_not_changed(prototypes.TemplatePrototype._db_count):
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.templates.detach.no_parent')
+
+
+    def test_detach(self):
+        self.request_login(self.moderator.email)
+
+        text = u'[hero|загл] 2 [пепельница|hero|вн]'
+        utg_template = utg_templates.Template()
+        utg_template.parse(text, externals=['hero'])
+        template = prototypes.TemplatePrototype.create(key=self.key,
+                                                       raw_template=text,
+                                                       utg_template=utg_template,
+                                                       verificators=[],
+                                                       author=self.account_2,
+                                                       parent=self.template)
+
+        self.assertTrue(self.template.state.is_ON_REVIEW)
+
+        self.check_ajax_ok(self.client.post(url('linguistics:templates:detach', template.id), {}))
+
+        template.reload()
+        self.assertEqual(template.parent_id, None)
+
+
+
+class InGameRequestsTests(BaseRequestsTests):
+
+    def setUp(self):
+        super(InGameRequestsTests, self).setUp()
+
+        self.key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
+
+        self.externals = lexicon_logic.get_verificators_externals(self.key)
+        self.text = u'[hero|загл] 1 [пепельница|hero|вн]'
+        self.utg_template = utg_templates.Template()
+        self.utg_template.parse(self.text, externals=['hero'])
+        self.template = prototypes.TemplatePrototype.create(key=self.key,
+                                                            raw_template=self.text,
+                                                            utg_template=self.utg_template,
+                                                            verificators=[prototypes.Verificator(u'verificator-1', externals=self.externals[0]),
+                                                                          prototypes.Verificator(u'verificator-2', externals=self.externals[2]),],
+                                                            author=self.account_1)
+
+        result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
+        self.moderator = AccountPrototype.get_by_id(account_id)
+
+        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_template'])
+        group.user_set.add(self.moderator._model)
+
+        self.request_login(self.account_1.email)
+
+        self.requested_url = url('linguistics:templates:in-game', self.template.id)
+
+
+    def test_template_errors(self):
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.IN_GAME).count):
+            self.check_ajax_error(self.client.post(url('linguistics:templates:in-game', 'www'), {}), 'linguistics.templates.template.wrong_format')
+            self.check_ajax_error(self.client.post(url('linguistics:templates:in-game', 666), {}), 'linguistics.templates.template.not_found')
+
+
+    def test_login_required(self):
+        self.request_logout()
+
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.IN_GAME).count):
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'common.login_required')
+
+
+    def test_moderation_rights(self):
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.IN_GAME).count) :
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.templates.moderation_rights')
+
+
+    def test_has_parent(self):
+        self.request_login(self.moderator.email)
+
+        text = u'[hero|загл] 2 [пепельница|hero|вн]'
+        utg_template = utg_templates.Template()
+        utg_template.parse(text, externals=['hero'])
+        template = prototypes.TemplatePrototype.create(key=self.key,
+                                                       raw_template=text,
+                                                       utg_template=utg_template,
+                                                       verificators=[],
+                                                       author=self.account_1,
+                                                       parent=self.template)
+
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.IN_GAME).count):
+            self.check_ajax_error(self.client.post(url('linguistics:templates:in-game', template.id), {}), 'linguistics.templates.in_game.has_parent')
+
+    def test_already_in_game(self):
+        self.request_login(self.moderator.email)
+
+        self.template.state = relations.TEMPLATE_STATE.IN_GAME
+        self.template.save()
+
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.IN_GAME).count):
+            self.check_ajax_ok(self.client.post(self.requested_url))
+
+
+    def test_in_game(self):
+        self.request_login(self.moderator.email)
+
+        self.assertTrue(self.template.state.is_ON_REVIEW)
+
+        self.check_ajax_ok(self.client.post(self.requested_url))
+
+        self.template.reload()
+        self.assertTrue(self.template.state.is_IN_GAME)
+
+
+
+class OnReviewRequestsTests(BaseRequestsTests):
+
+    def setUp(self):
+        super(OnReviewRequestsTests, self).setUp()
+
+        self.key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
+
+        self.externals = lexicon_logic.get_verificators_externals(self.key)
+        self.text = u'[hero|загл] 1 [пепельница|hero|вн]'
+        self.utg_template = utg_templates.Template()
+        self.utg_template.parse(self.text, externals=['hero'])
+        self.template = prototypes.TemplatePrototype.create(key=self.key,
+                                                            raw_template=self.text,
+                                                            utg_template=self.utg_template,
+                                                            verificators=[prototypes.Verificator(u'verificator-1', externals=self.externals[0]),
+                                                                          prototypes.Verificator(u'verificator-2', externals=self.externals[2]),],
+                                                            author=self.account_1)
+
+        result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
+        self.moderator = AccountPrototype.get_by_id(account_id)
+
+        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_template'])
+        group.user_set.add(self.moderator._model)
+
+        self.request_login(self.account_1.email)
+
+        self.requested_url = url('linguistics:templates:on-review', self.template.id)
+
+
+    def test_template_errors(self):
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.ON_REVIEW).count):
+            self.check_ajax_error(self.client.post(url('linguistics:templates:on-review', 'www'), {}), 'linguistics.templates.template.wrong_format')
+            self.check_ajax_error(self.client.post(url('linguistics:templates:on-review', 666), {}), 'linguistics.templates.template.not_found')
+
+
+    def test_login_required(self):
+        self.request_logout()
+
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.ON_REVIEW).count):
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'common.login_required')
+
+
+    def test_moderation_rights(self):
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.ON_REVIEW).count) :
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.templates.moderation_rights')
+
+
+    def test_already_on_review(self):
+        self.request_login(self.moderator.email)
+
+        self.template.state = relations.TEMPLATE_STATE.ON_REVIEW
+        self.template.save()
+
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.ON_REVIEW).count):
+            self.check_ajax_ok(self.client.post(self.requested_url))
+
+
+    def test_on_review(self):
+        self.request_login(self.moderator.email)
+
+        self.template.state = relations.TEMPLATE_STATE.IN_GAME
+        self.template.save()
+
+        self.check_ajax_ok(self.client.post(self.requested_url))
+
+        self.template.reload()
+        self.assertTrue(self.template.state.is_ON_REVIEW)
+
+
+
+class RemoveRequestsTests(BaseRequestsTests):
+
+    def setUp(self):
+        super(RemoveRequestsTests, self).setUp()
+
+        self.key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
+
+        self.externals = lexicon_logic.get_verificators_externals(self.key)
+        self.text = u'[hero|загл] 1 [пепельница|hero|вн]'
+        self.utg_template = utg_templates.Template()
+        self.utg_template.parse(self.text, externals=['hero'])
+        self.template = prototypes.TemplatePrototype.create(key=self.key,
+                                                            raw_template=self.text,
+                                                            utg_template=self.utg_template,
+                                                            verificators=[prototypes.Verificator(u'verificator-1', externals=self.externals[0]),
+                                                                          prototypes.Verificator(u'verificator-2', externals=self.externals[2]),],
+                                                            author=self.account_1)
+
+        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
+        self.account_2 = AccountPrototype.get_by_id(account_id)
+
+        result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
+        self.moderator = AccountPrototype.get_by_id(account_id)
+
+        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_template'])
+        group.user_set.add(self.moderator._model)
+
+        self.request_login(self.account_1.email)
+
+        self.requested_url = url('linguistics:templates:remove', self.template.id)
+
+
+    def test_template_errors(self):
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.ON_REVIEW).count):
+            self.check_ajax_error(self.client.post(url('linguistics:templates:remove', 'www'), {}), 'linguistics.templates.template.wrong_format')
+            self.check_ajax_error(self.client.post(url('linguistics:templates:remove', 666), {}), 'linguistics.templates.template.not_found')
+
+
+    def test_login_required(self):
+        self.request_logout()
+
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.ON_REVIEW).count):
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'common.login_required')
+
+
+    def test_moderation_rights(self):
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.ON_REVIEW).count) :
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.templates.moderation_rights')
+
+
+    def test_remove(self):
+        self.request_login(self.moderator.email)
+
+        self.check_ajax_ok(self.client.post(self.requested_url))
+
+        self.assertEqual(prototypes.TemplatePrototype.get_by_id(self.template.id), None)
+
+
+    def test_remove__from_chain(self):
+        text = u'[hero|загл] 2 [пепельница|hero|вн]'
+        utg_template = utg_templates.Template()
+        utg_template.parse(text, externals=['hero'])
+
+        template_1 = prototypes.TemplatePrototype.create(key=self.key,
+                                                         raw_template=text,
+                                                         utg_template=utg_template,
+                                                         verificators=[],
+                                                         author=self.account_2,
+                                                         parent=self.template)
+
+
+        template_2 = prototypes.TemplatePrototype.create(key=self.key,
+                                                         raw_template=text,
+                                                         utg_template=utg_template,
+                                                         verificators=[],
+                                                         author=self.account_2,
+                                                         parent=template_1)
+
+
+        self.request_login(self.moderator.email)
+
+        self.check_ajax_ok(self.client.post(url('linguistics:templates:remove', template_1.id)))
+
+        template_2.reload()
+
+        self.assertEqual(prototypes.TemplatePrototype.get_by_id(template_1.id), None)
+        self.assertEqual(template_2.parent_id, self.template.id)

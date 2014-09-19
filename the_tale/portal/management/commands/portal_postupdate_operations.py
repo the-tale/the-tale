@@ -9,6 +9,9 @@ from dext.common.utils.logic import run_django_command
 
 from the_tale.forum.conf import forum_settings
 
+from the_tale.linguistics.conf import linguistics_settings
+
+
 class Command(BaseCommand):
 
     help = 'do post update operations'
@@ -73,3 +76,7 @@ class Command(BaseCommand):
                                                     'collections.moderate_item'])
 
         sync_group('achievements editors group', ['achievements.edit_achievement'])
+
+
+        sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_word',
+                                                               'linguistics.moderate_template'])

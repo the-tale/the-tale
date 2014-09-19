@@ -70,8 +70,8 @@ class WordPrototype(BasePrototype):
 
 class TemplatePrototype(BasePrototype):
     _model_class = models.Template
-    _readonly = ('id', 'key', 'created_at', 'raw_template', 'author_id', 'parent_id')
-    _bidirectional = ('state',)
+    _readonly = ('id', 'key', 'created_at', 'raw_template', 'author_id')
+    _bidirectional = ('state', 'parent_id')
     _get_by = ('id',)
 
     @lazy_property

@@ -24,6 +24,7 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.linguistics import prototypes
 from the_tale.linguistics import relations
+from the_tale.linguistics.conf import linguistics_settings
 
 
 class BaseRequestsTests(TestCase):
@@ -302,3 +303,123 @@ class ShowRequestsTests(BaseRequestsTests):
             texts.append(form)
 
         self.check_html_ok(self.request_html(requested_url), texts=texts)
+
+
+class RemoveRequestsTests(BaseRequestsTests):
+
+    def setUp(self):
+        super(RemoveRequestsTests, self).setUp()
+        self.word_type = random.choice(utg_relations.WORD_TYPE.records)
+        self.word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True))
+
+        result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
+        self.moderator = AccountPrototype.get_by_id(account_id)
+
+        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_word'])
+        group.user_set.add(self.moderator._model)
+
+        self.request_login(self.account_1.email)
+
+        self.requested_url = url('linguistics:words:remove', self.word.id)
+
+    def test_word_errors(self):
+        with self.check_not_changed(prototypes.WordPrototype._db_count):
+            self.check_ajax_error(self.client.post(url('linguistics:words:remove', 'www')), 'linguistics.words.word.wrong_format')
+            self.check_ajax_error(self.client.post(url('linguistics:words:remove', 666)), 'linguistics.words.word.not_found')
+
+    def test_login_required(self):
+        self.request_logout()
+
+        with self.check_not_changed(prototypes.WordPrototype._db_count):
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'common.login_required')
+
+
+    def test_moderation_rights(self):
+        with self.check_not_changed(prototypes.WordPrototype._db_count):
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.words.moderation_rights')
+
+
+    def test_remove(self):
+        self.request_login(self.moderator.email)
+
+        with self.check_delta(prototypes.WordPrototype._db_count, -1):
+            self.check_ajax_ok(self.client.post(self.requested_url))
+
+
+
+class InGameRequestsTests(BaseRequestsTests):
+
+    def setUp(self):
+        super(InGameRequestsTests, self).setUp()
+        self.word_type = random.choice(utg_relations.WORD_TYPE.records)
+        self.word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True))
+
+        result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
+        self.moderator = AccountPrototype.get_by_id(account_id)
+
+        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_word'])
+        group.user_set.add(self.moderator._model)
+
+        self.request_login(self.account_1.email)
+
+        self.requested_url = url('linguistics:words:in-game', self.word.id)
+
+    def test_word_errors(self):
+        with self.check_not_changed(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.ON_REVIEW).count):
+            self.check_ajax_error(self.client.post(url('linguistics:words:in-game', 'www')), 'linguistics.words.word.wrong_format')
+            self.check_ajax_error(self.client.post(url('linguistics:words:in-game', 666)), 'linguistics.words.word.not_found')
+
+    def test_login_required(self):
+        self.request_logout()
+
+        with self.check_not_changed(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.ON_REVIEW).count):
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'common.login_required')
+
+
+    def test_moderation_rights(self):
+        with self.check_not_changed(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.ON_REVIEW).count):
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.words.moderation_rights')
+
+
+    def test_already_in_game(self):
+        self.request_login(self.moderator.email)
+
+        self.word.state = relations.WORD_STATE.IN_GAME
+        self.word.save()
+
+        with self.check_not_changed(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.IN_GAME).count):
+            with self.check_not_changed(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.ON_REVIEW).count):
+                self.check_ajax_ok(self.client.post(self.requested_url))
+
+
+    def test_in_game(self):
+        self.request_login(self.moderator.email)
+
+        self.assertTrue(self.word.state.is_ON_REVIEW)
+
+        with self.check_delta(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.IN_GAME).count, 1):
+            with self.check_delta(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.ON_REVIEW).count, -1):
+                self.check_ajax_ok(self.client.post(self.requested_url))
+
+        self.word.reload()
+
+        self.assertTrue(self.word.state.is_IN_GAME)
+
+
+    def test_in_game__with_replace(self):
+        self.request_login(self.moderator.email)
+
+        self.word.state = relations.WORD_STATE.IN_GAME
+        self.word.save()
+
+        word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True))
+
+        with self.check_not_changed(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.IN_GAME).count):
+            with self.check_delta(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.ON_REVIEW).count, -1):
+                with self.check_delta(prototypes.WordPrototype._db_count, -1):
+                    self.check_ajax_ok(self.client.post(url('linguistics:words:in-game', word_2.id)))
+
+        word_2.reload()
+
+        self.assertEqual(prototypes.WordPrototype.get_by_id(self.word.id), None)
+        self.assertTrue(word_2.state.is_IN_GAME)
