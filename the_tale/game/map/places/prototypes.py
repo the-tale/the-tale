@@ -393,6 +393,12 @@ class PlacePrototype(BasePrototype):
 
         persons_powers = [(person.full_name, person.safety) for person in self.persons]
         powers.extend(sorted(persons_powers, key=lambda p: -p[1]))
+
+        safety = sum(power[1] for power in powers)
+
+        if safety < places_settings.MIN_SAFETY:
+            powers.append((u'Серый Орден', places_settings.MIN_SAFETY - safety))
+
         return powers
 
     def get_transport_powers(self):

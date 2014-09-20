@@ -18,6 +18,7 @@ from the_tale.game.map.places.prototypes import PlacePrototype, BuildingPrototyp
 from the_tale.game.map.places.storage import places_storage, buildings_storage
 from the_tale.game.map.places.relations import RESOURCE_EXCHANGE_TYPE
 from the_tale.game.map.places import modifiers
+from the_tale.game.map.places.conf import places_settings
 
 
 class PlacePrototypeTests(testcase.TestCase):
@@ -179,6 +180,17 @@ class PlacePrototypeTests(testcase.TestCase):
                            RESOURCE_EXCHANGE_TYPE.SAFETY_SMALL.amount + RESOURCE_EXCHANGE_TYPE.SAFETY_LARGE.amount)
 
         self.assertTrue(-0.001 < self.p1.safety - expected_safety < 0.001)
+
+    @mock.patch('the_tale.game.map.places.modifiers.prototypes.Fort.SAFETY_MODIFIER', 0.01)
+    @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.safety', -1)
+    def test_sync_sync_parameters__safety__min_value(self):
+        self.p1.modifier = modifiers.Fort.get_id()
+
+        self._create_test_exchanges()
+
+        self.p1.sync_parameters()
+
+        self.assertTrue(-0.001 < self.p1.safety - places_settings.MIN_SAFETY < 0.001)
 
     @mock.patch('the_tale.game.map.places.modifiers.prototypes.TransportNode.TRANSPORT_MODIFIER', 0.01)
     @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.transport', 0.001)
