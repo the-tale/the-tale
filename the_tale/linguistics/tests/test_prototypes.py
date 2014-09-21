@@ -83,63 +83,6 @@ class WordPrototypeTests(testcase.TestCase):
         self.assertEqual(prototype.utg_word.forms[0], u'xxx')
 
 
-    def test_has_on_review_copy__on_review(self):
-        prototype_1 = prototypes.WordPrototype.create(self.word_1)
-
-        self.assertTrue(prototype_1.state.is_ON_REVIEW)
-        self.assertFalse(prototype_1.has_on_review_copy())
-
-        prototype_1.state = relations.WORD_STATE.IN_GAME
-        prototype_1.save()
-
-        prototype_2 = prototypes.WordPrototype.create(self.word_1)
-
-        self.assertTrue(prototype_2.state.is_ON_REVIEW)
-        self.assertFalse(prototype_2.has_on_review_copy())
-
-    def test_has_on_review_copy__no_copy(self):
-        prototype_1 = prototypes.WordPrototype.create(self.word_1)
-        prototype_1.state = relations.WORD_STATE.IN_GAME
-        prototype_1.save()
-
-        self.assertTrue(prototype_1.state.is_IN_GAME)
-        self.assertFalse(prototype_1.has_on_review_copy())
-
-    def test_has_on_review_copy__has_copy(self):
-        prototype_1 = prototypes.WordPrototype.create(self.word_1)
-        prototype_1.state = relations.WORD_STATE.IN_GAME
-        prototype_1.save()
-
-        prototypes.WordPrototype.create(self.word_1)
-
-        self.assertTrue(prototype_1.has_on_review_copy())
-
-
-    def test_has_on_review_copy__no_copy__different_type(self):
-        prototype_1 = prototypes.WordPrototype.create(self.word_1)
-        prototype_1.state = relations.WORD_STATE.IN_GAME
-        prototype_1.save()
-
-        prototype_2 = prototypes.WordPrototype.create(self.word_1)
-        prototype_2._model.type = self.word_type_2
-        prototype_2.save()
-
-        self.assertFalse(prototype_1.has_on_review_copy())
-
-
-    def test_has_on_review_copy__no_copy__different_normal_form(self):
-        prototype_1 = prototypes.WordPrototype.create(self.word_1)
-        prototype_1.state = relations.WORD_STATE.IN_GAME
-        prototype_1._model.save()
-
-        prototype_2 = prototypes.WordPrototype.create(self.word_1)
-        prototype_2._model.normal_form = u'new-normal-form'
-        prototype_2._model.save()
-
-        self.assertFalse(prototype_1.has_on_review_copy())
-
-
-
 
 class TemplatePrototypeTests(testcase.TestCase):
 
@@ -195,9 +138,10 @@ class TemplatePrototypeTests(testcase.TestCase):
 
         template.parse(TEXT, externals=['hero'])
 
-        verificator_1 = prototypes.Verificator(text=u'Призрак 1 w-1-ед,вн', externals={'hero': u'призрак', 'level': 13})
-        verificator_2 = prototypes.Verificator(text=u'Привидение 1 w-1-ед,вн', externals={'hero': u'привидение', 'level': 13})
-        verificator_3 = prototypes.Verificator(text=u'Русалка 1 w-1-ед,вн', externals={'hero': u'русалка', 'level': 13})
+        verificator_1 = prototypes.Verificator(text=u'Призрак 1 w-1-ед,вн', externals={'hero': u'герой', 'level': 1})
+        verificator_2 = prototypes.Verificator(text=u'Привидение 1 w-1-ед,вн', externals={'hero': u'привидение', 'level': 2})
+        verificator_3 = prototypes.Verificator(text=u'Русалка 1 w-1-ед,вн', externals={'hero': u'героиня', 'level': 5})
+        verificator_3 = prototypes.Verificator(text=u'Русалка 1 w-1-ед,вн', externals={'hero': (u'рыцарь', u'мн'), 'level': 1})
 
         dictionary = utg_dictionary.Dictionary()
 
@@ -297,7 +241,7 @@ class VerificatorTests(testcase.TestCase):
     def test_get_verificators__without_old(self):
         verificators = prototypes.Verificator.get_verificators(key=self.key)
 
-        self.assertEqual(len(verificators), 3)
+        self.assertEqual(len(verificators), 4)
 
         self.assertEqual(verificators[0], prototypes.Verificator(text=u'', externals={'hero': u'призрак', 'level': 13}))
         self.assertEqual(verificators[1], prototypes.Verificator(text=u'', externals={'hero': u'привидение', 'level': 13}))
@@ -311,7 +255,7 @@ class VerificatorTests(testcase.TestCase):
 
         verificators = prototypes.Verificator.get_verificators(key=self.key, old_verificators=old_verificators)
 
-        self.assertEqual(len(verificators), 3)
+        self.assertEqual(len(verificators), 4)
 
         self.assertEqual(verificators[0], prototypes.Verificator(text=u'', externals={'hero': u'призрак', 'level': 13}))
         self.assertEqual(verificators[1], prototypes.Verificator(text=u'', externals={'hero': u'русалка', 'level': 13}))

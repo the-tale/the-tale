@@ -207,6 +207,10 @@ class BasePrototype(object):
     #############################
 
     @classmethod
+    def _db_get(cls, **kwargs):
+        return cls._model_class.objects.get(**kwargs)
+
+    @classmethod
     def _db_create(cls, **kwargs):
         return cls._model_class.objects.create(**kwargs)
 

@@ -1,39 +1,45 @@
 
 {% macro html_filter(list_filter) %}
 
-<div>
-  <div class="btn-toolbar">
+  <div>
+    <div class="btn-toolbar">
 
-    {% for element in list_filter.elements %}
+      {% for element in list_filter.elements %}
 
-    {% if element.TYPE == 'reset' %}
-    <div class="btn-group pgf-filter-{{element.ATTRIBUTE}}">
-      <a class="btn {% if not list_filter.is_filtering %}disabled{% endif %}"
-         href="{% if list_filter.is_filtering %}{{ element.reset_url }}{%else%}javascript: return none;{%endif%}">{{element.CAPTION}}</a>
+        {% if element.TYPE == 'reset' %}
+          <div class="btn-group pgf-filter-{{element.ATTRIBUTE}}">
+            <a class="btn {% if not list_filter.is_filtering %}disabled{% endif %}"
+               href="{% if list_filter.is_filtering %}{{ element.reset_url }}{%else%}javascript: return none;{%endif%}">{{element.CAPTION}}</a>
+          </div>
+        {% elif element.TYPE == 'static' %}
+
+          {% if element.value is not none %}
+            <div class="btn-group pgf-filter-{{element.ATTRIBUTE}}">
+              <a class="btn disabled" href="#">{{element.CAPTION}} {{element.value}}</a>
+            </div>
+          {% endif %}
+
+        {% elif element.TYPE == 'filter' %}
+
+          <form method="GET" action="{{list_filter.url_builder()}}" style="display: inline-block; margin: 0; vertical-align: top;">
+            <input style="width: 150px;" name="{{element.ATTRIBUTE}}" type="text" value="{% if element.value %}{{element.value}}{% endif %}" placeholder="первые символы слова"/>
+          </form>
+
+        {% elif element.TYPE == 'choice' %}
+          <div class="btn-group pgf-filter-{{element.ATTRIBUTE}}">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+              {{element.CAPTION}} {{element.choice_name}} <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              {% for choice_id, choice_name in element.choices %}
+                <li><a href="{{ list_filter.url_builder(**{element.ATTRIBUTE: choice_id}) }}">{{choice_name}}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+
+      {% endfor %}
     </div>
-    {% elif element.TYPE == 'static' %}
-
-    {% if element.value is not none %}
-    <div class="btn-group pgf-filter-{{element.ATTRIBUTE}}">
-      <a class="btn disabled" href="#">{{element.CAPTION}} {{element.value}}</a>
-    </div>
-    {% endif %}
-
-    {% elif element.TYPE == 'choice' %}
-    <div class="btn-group pgf-filter-{{element.ATTRIBUTE}}">
-      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-        {{element.CAPTION}} {{element.choice_name}} <span class="caret"></span>
-      </a>
-      <ul class="dropdown-menu">
-        {% for choice_id, choice_name in element.choices %}
-        <li><a href="{{ list_filter.url_builder(**{element.ATTRIBUTE: choice_id}) }}">{{choice_name}}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
-    {% endif %}
-
-    {% endfor %}
   </div>
-</div>
 
 {% endmacro %}

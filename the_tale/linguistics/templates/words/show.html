@@ -7,10 +7,29 @@
 
 {% block words_content %}
 
-<h2>{{word.utg_word.normal_form()|up_first}} <small>{{word.type.text}}</small></h2>
+<h2>{{word.utg_word.normal_form()|up_first}} <small>{{word.type.text}}, {{word.state.text}}</small></h2>
+
+{% if child_word %}
+<p class="alert alert-success pgf-has-child-message">Это слово имеет непроверенную <a href="{{url('linguistics:words:show', child_word.id)}}">копию</a>.</p>
+{% endif %}
+
+{% if parent_word %}
+<p class="alert alert-success pgf-has-parent-message">Это слово явялется копией <a href="{{url('linguistics:words:show', parent_word.id)}}">слова из игры</a>.</p>
+{% endif %}
 
 {{words_macros.render_word(structure, drawer)}}
 
-<a class="btn" href="{{url('linguistics:words:new', type=word.type.value, parent=word.id)}}">Редактировать</a>
+<a class="btn btn-info" href="{{url('linguistics:words:new', type=word.type.value, parent=word.id)}}">Редактировать</a>
+
+{% if resource.can_moderate_words and word.state.is_ON_REVIEW %}
+<a class="btn btn-success pgf-forms-post-simple pgf-in-game-button" href="{{url('linguistics:words:in-game', word.id)}}">В игру</a>
+{% endif %}
+
+{% if resource.can_moderate_words %}
+<a class="btn btn-danger pgf-forms-post-simple pgf-remove-button"
+   href="{{url('linguistics:words:remove', word.id)}}"
+   data-action-type="redirect"
+   data-redirect-url="{{url('linguistics:words:')}}">Удалить</a>
+{% endif %}
 
 {% endblock %}

@@ -1,20 +1,28 @@
 # coding: utf-8
+import os
 
 from rels import Column
-from rels.django import DjangoEnum
+from rels import Enum
+
+from dext.common.utils import discovering
+
 
 def get_key_records():
-    from the_tale.linguistics.lexicon import hero_common
+    CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
+    GROUPS_DIR = os.path.join(CURRENT_DIR, 'groups')
 
     keys = []
-    keys.extend(hero_common.KEYS)
+
+    for module in discovering.discover_modules_in_directory(GROUPS_DIR, 'the_tale.linguistics.lexicon.groups'):
+        keys.extend(getattr(module, 'KEYS', ()))
 
     return keys
 
 
-class LEXICON_KEY(DjangoEnum):
+class LEXICON_KEY(Enum):
+    text = Column(unique=False)
     group = Column(unique=False)
-    description = Column()
+    description = Column(unique=False)
     variables = Column(unique=False, no_index=True)
 
     records = get_key_records()

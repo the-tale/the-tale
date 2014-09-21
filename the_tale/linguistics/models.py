@@ -17,11 +17,13 @@ class Word(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now_add=True, null=False)
 
+    parent = models.ForeignKey('linguistics.Word', null=True, on_delete=models.SET_NULL)
+
     normal_form = models.CharField(max_length=MAX_FORM_LENGTH)
     forms = models.TextField()
 
     state = RelationIntegerField(relation=relations.WORD_STATE, db_index=True)
-    type = RelationIntegerField(relation=utg_relations.WORD_TYPE, db_index=True)
+    type = RelationIntegerField(relation=utg_relations.WORD_TYPE, db_index=True, choices=[(record, record.text) for record in utg_relations.WORD_TYPE.records])
 
     class Meta:
         unique_together = (('normal_form', 'type', 'state'),)

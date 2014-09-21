@@ -40,6 +40,8 @@ jQuery(document).ready( function(e) {
   <div class="widget">
     {% if parent is none %}
     <input type="submit" class="btn" value="Создать"/>
+    {% elif parent.state.is_ON_REVIEW %}
+    <input type="submit" class="btn" value="Обновить"/>
     {% else %}
     <input type="submit" class="btn" value="Создать копию"/>
     {% endif %}

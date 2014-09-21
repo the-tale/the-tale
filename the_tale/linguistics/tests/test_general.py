@@ -10,6 +10,9 @@ from the_tale.common.utils.testcase import TestCase
 from the_tale.linguistics import models
 from the_tale.linguistics import relations
 
+from the_tale.linguistics.lexicon import relations as lexicon_relations
+from the_tale.linguistics.lexicon import dictionary as lexicon_dictinonary
+
 
 class GeneralTests(TestCase):
 
@@ -48,3 +51,12 @@ class GeneralTests(TestCase):
 
         with transaction.atomic():
             self.assertRaises(IntegrityError, models.Word.objects.create, **self.get_uniqueness_data(type=type_1, state=relations.WORD_STATE.IN_GAME))
+
+
+    def test_all_lexicon_verificators_in_dictionary(self):
+        for verificator in lexicon_relations.VARIABLE_VERIFICATOR.records:
+            if verificator.utg_type is None:
+                continue
+            for substitutions in verificator.substitutions:
+                for word, properties in substitutions:
+                    self.assertTrue(lexicon_dictinonary.DICTIONARY.has_words(word, verificator.utg_type))

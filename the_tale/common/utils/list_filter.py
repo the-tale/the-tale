@@ -13,7 +13,7 @@ class ListFilter(object):
         for ElementClass in self.ELEMENTS:
             element = ElementClass(self, value=values.get(ElementClass.ATTRIBUTE))
             self.elements.append(element)
-            self.is_filtering |= any(url_builder.default_arguments[argument_name] != argument_value
+            self.is_filtering |= any(argument_name in url_builder.default_arguments and url_builder.default_arguments[argument_name] != argument_value
                                     for argument_name, argument_value in element.default_arguments.items())
 
 
@@ -66,6 +66,22 @@ def static_element(caption, attribute, default_value=None):
         def default_arguments(self): return {self.ATTRIBUTE: self.DEFAULT_VALUE}
 
     return StaticElement
+
+
+def filter_element(caption, attribute, default_value=None):
+    class FilterElement(BaseElement):
+        TYPE = 'filter'
+        CAPTION = caption
+        ATTRIBUTE = attribute
+        DEFAULT_VALUE = default_value
+
+        def __init__(self, list_filter, value):
+            super(FilterElement, self).__init__(list_filter, value)
+
+        @property
+        def default_arguments(self): return {self.ATTRIBUTE: self.DEFAULT_VALUE}
+
+    return FilterElement
 
 
 def choice_element(caption, attribute, choices, default_value=None):

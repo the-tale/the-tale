@@ -8,6 +8,15 @@
   <div class="span12">
     <div class="block white">
 
+      <h2>Лингвистика</h2>
+
+      <ul class="nav nav-pills">
+        <li {% if page_type == 'keys' %}class="active"{% endif %}><a href="{{ url('linguistics:') }}">Типы фраз</a></li>
+        <li {% if page_type == 'new-templates' %}class="active"{% endif %}><a href="#">Новые фразы</a></li>
+        <li {% if page_type == 'dictionary' %}class="active"{% endif %}><a href="{{ url('linguistics:words:') }}">Словарь</a></li>
+      </ul>
+
+
       {% block linguistics_content %}
       {% endblock %}
 

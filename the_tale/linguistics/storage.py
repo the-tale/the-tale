@@ -1,10 +1,10 @@
 # coding: utf-8
 import time
+import copy
 
 from dext.common.utils import s11n
 from dext.settings import settings
 
-from utg import dictionary as utg_dictionary
 from utg import words as utg_words
 
 from the_tale.common.utils import storage
@@ -12,6 +12,7 @@ from the_tale.common.utils import storage
 from the_tale.linguistics import exceptions
 from the_tale.linguistics import prototypes
 from the_tale.linguistics import relations
+from the_tale.linguistics.lexicon import dictionary as lexicon_dictinonary
 
 
 class BaseGameDictionaryStorage(storage.SingleStorage):
@@ -24,7 +25,7 @@ class BaseGameDictionaryStorage(storage.SingleStorage):
     def refresh(self):
         self.clear()
 
-        self._item = utg_dictionary.Dictionary()
+        self._item = copy.deepcopy(lexicon_dictinonary.DICTIONARY)
 
         for forms in self._words_query():
             word = utg_words.Word.deserialize(s11n.from_json(forms))

@@ -16,28 +16,35 @@ from the_tale.linguistics.lexicon import logic as lexicon_logic
 
 class WordPrototype(BasePrototype):
     _model_class = models.Word
-    _readonly = ('id', 'type', 'created_at')
+    _readonly = ('id', 'type', 'created_at', 'parent_id')
     _bidirectional = ('state', )
-    _get_by = ('id',)
+    _get_by = ('id', 'parent_id')
 
     @lazy_property
     def utg_word(self):
         return utg_words.Word.deserialize(s11n.from_json(self._model.forms))
 
-    def has_on_review_copy(self):
-        if self.state.is_ON_REVIEW:
-            return False
+    def get_parent(self):
+        if self.parent_id is None:
+            return None
+        return WordPrototype.get_by_id(self.parent_id)
 
-        return self._db_filter(state=relations.WORD_STATE.ON_REVIEW, normal_form=self.utg_word.normal_form(), type=self.type).exists()
+    def get_child(self):
+        return self.get_by_parent_id(self.id)
+
+    def has_parent(self): return bool(self.get_parent())
+    def has_child(self): return bool(self.get_child())
+
 
     @classmethod
-    def create(cls, utg_word):
+    def create(cls, utg_word, parent=None):
         from the_tale.linguistics import storage
 
         model = cls._db_create(type=utg_word.type,
                                state=relations.WORD_STATE.ON_REVIEW,
                                normal_form=utg_word.normal_form(),
-                               forms=s11n.to_json(utg_word.serialize()))
+                               forms=s11n.to_json(utg_word.serialize()),
+                               parent=parent._model if parent is not None else None)
 
         prototype = cls(model)
 

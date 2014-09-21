@@ -354,6 +354,12 @@ class PlacePrototype(BasePrototype):
         powers = [ (u'город', 1.0) ]
         powers += self.stability_modifiers
 
+        stability = sum(power[1] for power in powers)
+
+        if stability < places_settings.MIN_STABILITY:
+            powers.append((u'Серый Орден', places_settings.MIN_STABILITY - stability))
+
+
         return powers
 
     def get_next_keepers_goods_spend_amount(self):
@@ -412,6 +418,12 @@ class PlacePrototype(BasePrototype):
 
         persons_powers = [(person.full_name, person.transport) for person in self.persons]
         powers.extend(sorted(persons_powers, key=lambda p: -p[1]))
+
+        transport = sum(power[1] for power in powers)
+
+        if transport < places_settings.MIN_TRANSPORT:
+            powers.append((u'Серый Орден', places_settings.MIN_TRANSPORT - transport))
+
         return powers
 
     def get_freedom_powers(self):

@@ -22,7 +22,7 @@ from the_tale.accounts.logic import register_user, login_page_url
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.linguistics.lexicon import relations as lexicon_relations
+from the_tale.linguistics.lexicon.groups import relations as lexicon_groups_relations
 from the_tale.linguistics.lexicon import keys
 
 
@@ -44,7 +44,7 @@ class IndexRequestsTests(BaseRequestsTests):
         self.check_html_ok(self.request_html(url('linguistics:')), texts=[])
 
     def test_all_groups(self):
-        texts = [group.text for group in lexicon_relations.LEXICON_GROUP.records]
+        texts = [group.text for group in lexicon_groups_relations.LEXICON_GROUP.records]
         self.check_html_ok(self.request_html(url('linguistics:')), texts=texts)
 
     def test_all_keys(self):

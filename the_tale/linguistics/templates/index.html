@@ -4,8 +4,6 @@
 
 {% block linguistics_content %}
 
-<a href="{{url('linguistics:words:')}}" class="btn">Словарь</a>
-
 <h3>Типы фраз</h3>
 
 <br/>
@@ -13,7 +11,7 @@
 <div class="accordion" id="pgf-phrases-accordion">
 
   {% for group in GROUPS %}
-  {% set group_keys = LEXICON_KEY.index_group[group] %}
+  {% set group_keys = LEXICON_KEY.index_group.get(group) %}
 
   {% if not group_keys %}{% continue %}{% endif %}
 

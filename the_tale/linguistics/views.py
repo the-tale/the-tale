@@ -24,14 +24,16 @@ from the_tale.linguistics import prototypes
 from the_tale.linguistics import forms
 from the_tale.linguistics import word_drawer
 from the_tale.linguistics import storage
-from the_tale.linguistics.lexicon import relations as lexicon_relations
+from the_tale.linguistics.lexicon.groups import relations as lexicon_groups_relations
 from the_tale.linguistics.lexicon import keys
 
 
 class WordsIndexFilter(list_filter.ListFilter):
     ELEMENTS = [list_filter.reset_element(),
+                list_filter.filter_element(u'поиск:', attribute='filter', default_value=None),
                 list_filter.choice_element(u'часть речи:', attribute='type', choices=[(None, u'все')] + list(utg_relations.WORD_TYPE.select('value', 'text')) ),
-                list_filter.choice_element(u'состояние:', attribute='state', choices=[(None, u'все')] + list(relations.WORD_STATE.select('value', 'text'))) ]
+                list_filter.choice_element(u'состояние:', attribute='state', choices=[(None, u'все')] + list(relations.WORD_STATE.select('value', 'text'))),
+                list_filter.static_element(u'количество:', attribute='count', default_value=0) ]
 
 
 class TemplatesIndexFilter(list_filter.ListFilter):
@@ -47,8 +49,9 @@ class LinguisticsResource(Resource):
     @handler('', method='get')
     def index(self):
         return self.template('linguistics/index.html',
-                             {'GROUPS': sorted(lexicon_relations.LEXICON_GROUP.records, key=lambda group: group.text),
-                              'LEXICON_KEY': keys.LEXICON_KEY} )
+                             {'GROUPS': sorted(lexicon_groups_relations.LEXICON_GROUP.records, key=lambda group: group.text),
+                              'LEXICON_KEY': keys.LEXICON_KEY,
+                              'page_type': 'keys',} )
 
 
 
@@ -67,7 +70,7 @@ class WordResource(Resource):
     @validate_argument('state', lambda v: relations.WORD_STATE.index_value.get(int(v)), 'linguistics.words', u'неверное состояние слова')
     @validate_argument('type', lambda v: utg_relations.WORD_TYPE.index_value.get(int(v)), 'linguistics.words', u'неверный тип слова')
     @handler('', method='get')
-    def index(self, page=1, state=None, type=None):
+    def index(self, page=1, state=None, type=None, filter=None):
 
         words_query = prototypes.WordPrototype._db_all().order_by('normal_form')
 
@@ -77,13 +80,19 @@ class WordResource(Resource):
         if type:
             words_query = words_query.filter(type=type)
 
-        url_builder = UrlBuilder(reverse('linguistics:words:'), arguments={ 'state': state.value if state else None,
-                                                                            'type': type.value if type else None})
-
-        index_filter = WordsIndexFilter(url_builder=url_builder, values={'state': state.value if state else None,
-                                                                         'type': type.value if type else None})
+        if filter:
+            words_query = words_query.filter(normal_form__istartswith=filter.lower())
 
         words_count = words_query.count()
+
+        url_builder = UrlBuilder(reverse('linguistics:words:'), arguments={ 'state': state.value if state else None,
+                                                                            'type': type.value if type else None,
+                                                                            'filter': filter})
+
+        index_filter = WordsIndexFilter(url_builder=url_builder, values={'state': state.value if state else None,
+                                                                         'type': type.value if type else None,
+                                                                         'filter': filter,
+                                                                         'count': words_count})
 
         page = int(page) - 1
 
@@ -98,6 +107,7 @@ class WordResource(Resource):
 
         return self.template('linguistics/words/index.html',
                              {'words': words,
+                              'page_type': 'dictionary',
                               'paginator': paginator,
                               'index_filter': index_filter} )
 
@@ -110,7 +120,7 @@ class WordResource(Resource):
         if parent and type != parent.type:
             return self.auto_error('linguistics.words.new.unequal_types', u'Не совпадает тип создаваемого слова и тип слова-родителя')
 
-        if parent and parent.has_on_review_copy():
+        if parent and parent.has_child():
             return self.auto_error('linguistics.words.new.has_on_review_copy',
                                    u'Для этого слова уже создана улучшенная копия. Отредактируйте её или подождите, пока её примут в игру.')
 
@@ -124,6 +134,7 @@ class WordResource(Resource):
         return self.template('linguistics/words/new.html',
                              {'form': form,
                               'type': type,
+                              'page_type': 'dictionary',
                               'parent': parent,
                               'structure': word_drawer.STRUCTURES[type],
                               'drawer': word_drawer.FormDrawer(type, form=form)} )
@@ -135,9 +146,9 @@ class WordResource(Resource):
     def create(self, type, parent=None):
 
         if parent and type != parent.type:
-            return self.json_error('linguistics.words.create.unequal_types', u'Не совпадает тип создаваемого слов и тип слова-родителя')
+            return self.json_error('linguistics.words.create.unequal_types', u'Не совпадает тип создаваемого слова и тип слова-родителя')
 
-        if parent and parent.has_on_review_copy():
+        if parent and parent.has_child():
             return self.auto_error('linguistics.words.create.has_on_review_copy',
                                    u'Для этого слова уже создана улучшенная копия. Отредактируйте её или подождите, пока её примут в игру.')
 
@@ -156,7 +167,9 @@ class WordResource(Resource):
         with transaction.atomic():
             if parent and parent.state.is_ON_REVIEW:
                 parent.remove()
-            word = prototypes.WordPrototype.create(new_word)
+                parent = None
+
+            word = prototypes.WordPrototype.create(new_word, parent=parent)
 
         return self.json_ok(data={'next_url': url('linguistics:words:show', word.id)})
 
@@ -165,6 +178,9 @@ class WordResource(Resource):
     def show(self):
         return self.template('linguistics/words/show.html',
                              {'word': self.word,
+                              'page_type': 'dictionary',
+                              'parent_word': self.word.get_parent(),
+                              'child_word': self.word.get_child(),
                               'structure': word_drawer.STRUCTURES[self.word.type],
                               'drawer': word_drawer.ShowDrawer(word=self.word)} )
 
@@ -236,6 +252,7 @@ class TemplateResource(Resource):
                              {'key': key,
                               'templates': templates,
                               'index_filter': index_filter,
+                              'page_type': 'keys',
                               'LEXICON_KEY': keys.LEXICON_KEY} )
 
     @login_required
@@ -250,6 +267,7 @@ class TemplateResource(Resource):
         return self.template('linguistics/templates/new.html',
                              {'key': key,
                               'form': form,
+                              'page_type': 'keys',
                               'LEXICON_KEY': keys.LEXICON_KEY} )
 
 
@@ -284,6 +302,7 @@ class TemplateResource(Resource):
 
         return self.template('linguistics/templates/show.html',
                              {'template': self._template,
+                              'page_type': 'keys',
                               'errors': errors} )
 
 
@@ -298,6 +317,7 @@ class TemplateResource(Resource):
         return self.template('linguistics/templates/edit.html',
                              {'template': self._template,
                               'form': form,
+                              'page_type': 'keys',
                               'LEXICON_KEY': keys.LEXICON_KEY} )
 
 

@@ -11,7 +11,6 @@ from utg import exceptions as utg_exceptions
 
 from the_tale.linguistics import models
 from the_tale.linguistics import prototypes
-from the_tale.linguistics.lexicon import logic as lexicon_logic
 
 
 class BaseWordForm(forms.Form):
@@ -58,7 +57,7 @@ class BaseWordForm(forms.Form):
             value = word.properties.is_specified(static_property)
             if not value:
                 continue
-            initials['field_%s' % static_property.__name__] = value
+            initials['field_%s' % static_property.__name__] = word.properties.get(static_property)
 
         return initials
 

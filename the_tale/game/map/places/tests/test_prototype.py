@@ -206,6 +206,17 @@ class PlacePrototypeTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.transport - expected_transport < 0.001)
 
+    @mock.patch('the_tale.game.map.places.modifiers.prototypes.TransportNode.TRANSPORT_MODIFIER', 0.01)
+    @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.transport', -1)
+    def test_sync_sync_parameters__transport__min_value(self):
+        self.p1.modifier = modifiers.TransportNode.get_id()
+
+        self._create_test_exchanges()
+
+        self.p1.sync_parameters()
+
+        self.assertTrue(-0.001 < self.p1.transport - places_settings.MIN_TRANSPORT < 0.001)
+
     def test_sync_sync_parameters__tax(self):
 
         self._create_test_exchanges()
@@ -236,6 +247,15 @@ class PlacePrototypeTests(testcase.TestCase):
 
         with self.check_delta(lambda: self.p1.stability, -0.25):
             self.p1.sync_parameters()
+
+    def test_sync_sync_parameters__stability__minimum(self):
+
+        self.p1.stability_modifiers.append(('x', -0.6))
+        self.p1.stability_modifiers.append(('y', -0.55))
+
+        self.p1.sync_parameters()
+
+        self.assertTrue(-0.001 < self.p1.stability - places_settings.MIN_STABILITY < 0.001)
 
 
     def test_sync_sync_parameters__stability_maximum(self):

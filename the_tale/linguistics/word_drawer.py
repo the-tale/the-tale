@@ -110,18 +110,55 @@ class ShowDrawer(BaseDrawer):
         super(ShowDrawer, self).__init__(type=word.type)
         self.word = word
 
+        word_parent = self.word.get_parent()
+
+        self.other_version = word_parent if word_parent else self.word.get_child()
+
     def get_form(self, key):
         cache = words.WORDS_CACHES[self.type]
 
         if key not in cache:
             return u''
 
-        return self.word.utg_word.form(words.Properties(*key))
+        form = self.word.utg_word.form(words.Properties(*key))
+        other_form = self.other_version.utg_word.form(words.Properties(*key)) if self.other_version else None
+
+        if other_form is None or form == other_form:
+            html = form
+        else:
+            html = u'<span class="changed-word" rel="tooltip" title="в копии: %s">%s</span>' % (other_form, form)
+
+        return jinja2.Markup(html)
+
+    def get_property_html(self, header, text, alternative=None):
+
+        if alternative is None or text == alternative:
+            html = u'<div><h4>%(header)s</h4><p>%(text)s</p></div>'
+            html = html % {'header': header, 'text': text}
+        else:
+            html = u'<div><h4><span class="changed-word" rel="tooltip" title="в копии: %(alternative)s">%(header)s</span></h4><p>%(text)s</p></div>'
+            html = html % {'header': header, 'text': text, 'alternative': alternative}
+
+        return jinja2.Markup(html)
 
     def get_property(self, property):
         if property in self.type.properties:
             if self.word.utg_word.properties.is_specified(property):
-                return jinja2.Markup(u'<strong>%s</strong>' % self.word.utg_word.properties.get(property).text)
+                return self.get_property_html(utg_relations.PROPERTY_TYPE.index_relation[property].text,
+                                              self.word.utg_word.properties.get(property).text,
+                                              self.other_version.utg_word.properties.get(property).text if self.other_version else None)
+            elif self.type.properties[property]:
+                return self.get_property_html(utg_relations.PROPERTY_TYPE.index_relation[property].text,
+                                              u'<strong style="color: red;">необходимо указать</strong>',
+                                              self.other_version.utg_word.properties.get(property).text if self.other_version else None)
+            else:
+                alternative = None
+                if self.other_version and self.other_version.utg_word.properties.is_specified(property):
+                    alternative = self.other_version.utg_word.properties.get(property).text
+
+                return self.get_property_html(utg_relations.PROPERTY_TYPE.index_relation[property].text,
+                                              u'может быть указано',
+                                              alternative=alternative)
 
         return u''
 

@@ -65,9 +65,16 @@ class IndexRequestsTests(BaseRequestsTests):
 
         texts = [word_1.utg_word.normal_form(),
                  word_2.utg_word.normal_form(),
-                 word_3.utg_word.normal_form() ]
+                 word_3.utg_word.normal_form(),
+                 ('pgf-no-words-message', 0)]
 
         self.check_html_ok(self.request_html(url('linguistics:words:')), texts=texts)
+
+
+    def test_success__no_messages(self):
+        texts = ['pgf-no-words-message']
+        self.check_html_ok(self.request_html(url('linguistics:words:')), texts=texts)
+
 
     def test_filter_state(self):
         word_1, word_2, word_3 = self.create_words()
@@ -138,7 +145,7 @@ class NewRequestsTests(BaseRequestsTests):
             self.check_html_ok(self.request_html(requested_url), texts=['linguistics.words.new.unequal_types'])
 
 
-    @mock.patch('the_tale.linguistics.prototypes.WordPrototype.has_on_review_copy', lambda self: True)
+    @mock.patch('the_tale.linguistics.prototypes.WordPrototype.has_child', lambda self: True)
     def test_has_on_review_copy(self):
         for word_type in utg_relations.WORD_TYPE.records:
             word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix=u'w-'))
@@ -199,6 +206,8 @@ class CreateRequestsTests(BaseRequestsTests):
             self.check_ajax_ok(response, data={'next_url': url('linguistics:words:show', last_prototype.id)})
 
             self.assertEqual(word, last_prototype.utg_word)
+            self.assertEqual(last_prototype.parent_id, None)
+
 
     def test_create__with_parent(self):
         for word_type in utg_relations.WORD_TYPE.records:
@@ -220,6 +229,7 @@ class CreateRequestsTests(BaseRequestsTests):
             self.check_ajax_ok(response, data={'next_url': url('linguistics:words:show', last_prototype.id)})
 
             self.assertEqual(word, last_prototype.utg_word)
+            self.assertEqual(last_prototype.parent_id, parent.id)
 
 
     def test_create__parent_not_cpecified(self):
@@ -258,7 +268,7 @@ class CreateRequestsTests(BaseRequestsTests):
             self.check_ajax_error(self.client.post(requested_url, {}), 'linguistics.words.create.unequal_types')
 
 
-    @mock.patch('the_tale.linguistics.prototypes.WordPrototype.has_on_review_copy', lambda self: True)
+    @mock.patch('the_tale.linguistics.prototypes.WordPrototype.has_child', lambda self: True)
     def test_has_on_review_copy(self):
         for word_type in utg_relations.WORD_TYPE.records:
             word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix=u'w-'))
@@ -269,9 +279,85 @@ class CreateRequestsTests(BaseRequestsTests):
 
 class ShowRequestsTests(BaseRequestsTests):
 
+    def setUp(self):
+        super(ShowRequestsTests, self).setUp()
+
+        self.word_type = random.choice(utg_relations.WORD_TYPE.records)
+
+        result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
+        self.moderator = AccountPrototype.get_by_id(account_id)
+
+        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_word'])
+        group.user_set.add(self.moderator._model)
+
+
     def test_word_errors(self):
         self.check_html_ok(self.request_html(url('linguistics:words:show', 'www')), texts=['linguistics.words.word.wrong_format'])
         self.check_html_ok(self.request_html(url('linguistics:words:show', 666)), texts=['linguistics.words.word.not_found'], status_code=404)
+
+    def test_success(self):
+        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True))
+        requested_url = url('linguistics:words:show', word.id)
+        self.check_html_ok(self.request_html(requested_url), texts=[('pgf-has-child-message', 0),
+                                                                    ('pgf-has-parent-message', 0),
+                                                                    ('pgf-in-game-button', 0),
+                                                                    ('pgf-remove-button', 0)])
+
+    def test_success__in_game(self):
+        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True))
+        word.state = relations.WORD_STATE.IN_GAME
+        word.save()
+        requested_url = url('linguistics:words:show', word.id)
+        self.check_html_ok(self.request_html(requested_url), texts=[('pgf-has-child-message', 0),
+                                                                    ('pgf-has-parent-message', 0),
+                                                                    ('pgf-in-game-button', 0),
+                                                                    ('pgf-remove-button', 0)])
+
+    def test_moderator(self):
+        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True))
+
+        self.request_login(self.moderator.email)
+
+        requested_url = url('linguistics:words:show', word.id)
+
+        self.check_html_ok(self.request_html(requested_url), texts=[('pgf-in-game-button', 1),
+                                                                    ('pgf-remove-button', 1)])
+
+    def test_moderator__in_game(self):
+        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True))
+        word.state = relations.WORD_STATE.IN_GAME
+        word.save()
+
+        self.request_login(self.moderator.email)
+
+        requested_url = url('linguistics:words:show', word.id)
+
+        self.check_html_ok(self.request_html(requested_url), texts=[('pgf-in-game-button', 0),
+                                                                    ('pgf-remove-button', 1)])
+
+    def test_success__has_parent(self):
+        word_1 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True))
+        word_1.state = relations.WORD_STATE.IN_GAME
+        word_1.save()
+
+        word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True),
+                                                 parent=word_1)
+
+        requested_url = url('linguistics:words:show', word_2.id)
+        self.check_html_ok(self.request_html(requested_url), texts=[('pgf-has-child-message', 0),
+                                                                    ('pgf-has-parent-message', 1)])
+
+    def test_success__has_child(self):
+        word_1 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True))
+        word_1.state = relations.WORD_STATE.IN_GAME
+        word_1.save()
+
+        prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True),
+                                        parent=word_1)
+
+        requested_url = url('linguistics:words:show', word_1.id)
+        self.check_html_ok(self.request_html(requested_url), texts=[('pgf-has-child-message', 1),
+                                                                    ('pgf-has-parent-message', 0)])
 
     def test_displaying_fields_for_all_forms(self):
         for word_type in utg_relations.WORD_TYPE.records:
