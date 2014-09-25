@@ -1,4 +1,5 @@
 # coding: utf-8
+import random
 import datetime
 
 from dext.common.utils import s11n
@@ -86,6 +87,10 @@ class TemplatePrototype(BasePrototype):
         return s11n.from_json(self._model.data)
 
     @lazy_property
+    def lexicon_groups(self):
+        return {key: tuple(value) for key, value in self._data['groups'].iteritems()}
+
+    @lazy_property
     def verificators(self):
         return [Verificator.deserialize(v) for v in self._data['verificators']]
 
@@ -93,11 +98,23 @@ class TemplatePrototype(BasePrototype):
     def utg_template(self):
         return utg_templates.Template.deserialize(self._data['template'])
 
+    @classmethod
+    def get_start_verificatos(self, key):
+        groups = lexicon_logic.get_verificators_groups(key=key, old_groups=())
+        verificators = Verificator.get_verificators(key=key, groups=groups, old_verificators=())
+        return verificators
+
+    def get_all_verificatos(self):
+        groups = lexicon_logic.get_verificators_groups(key=self.key, old_groups=self.lexicon_groups)
+        verificators = Verificator.get_verificators(key=self.key, groups=groups, old_verificators=self.verificators)
+        return verificators
+
     def get_errors(self, utg_dictionary):
+        from utg.data import VERBOSE_TO_PROPERTIES
 
         errors = []
 
-        verificators = Verificator.get_verificators(key=self.key, old_verificators=self.verificators)
+        verificators = self.get_all_verificatos()
 
         unexisted_words = self.utg_template.get_undictionaried_words(externals=[v.value for v in self.key.variables],
                                                                      dictionary=utg_dictionary)
@@ -109,7 +126,14 @@ class TemplatePrototype(BasePrototype):
             return errors
 
         for verificator in verificators:
-            externals = {k: utg_dictionary.get_word(v) for k, v in verificator.externals.iteritems()}
+            externals = {}
+            for k, (word_form, additional_properties) in verificator.externals.iteritems():
+                word_form = utg_dictionary.get_word(word_form)
+                if additional_properties:
+                    word_form.properties.update(*[VERBOSE_TO_PROPERTIES[prop.strip()] for prop in additional_properties.split(',') if prop])
+
+                externals[k] = word_form
+
             template_render = self.utg_template.substitute(externals=externals, dictionary=utg_dictionary)
 
             if verificator.text != template_render:
@@ -126,7 +150,8 @@ class TemplatePrototype(BasePrototype):
                                author=None if author is None else author._model,
                                parent=None if parent is None else parent._model,
                                data=s11n.to_json({'verificators': [v.serialize() for v in verificators],
-                                                  'template': utg_template.serialize()}))
+                                                  'template': utg_template.serialize(),
+                                                  'groups': lexicon_logic.get_verificators_groups(key=key)}))
 
         return cls(model)
 
@@ -139,6 +164,7 @@ class TemplatePrototype(BasePrototype):
         del self._data
         del self.verificators
         del self.utg_template
+        del self.lexicon_groups
 
         self.save()
 
@@ -167,30 +193,71 @@ class Verificator(object):
 
     @classmethod
     def deserialize(cls, data):
-        return cls(**data)
+        return cls(text=data['text'],
+                   externals={k: tuple(v) for k,v in data['externals'].iteritems()})
 
     def __eq__(self, other):
-        return (self.text == other.text,
+        return (self.text == other.text and
                 self.externals == other.externals)
 
+
     @classmethod
-    def get_verificators(cls, key, old_verificators=()):
-        externals = lexicon_logic.get_verificators_externals(key)
+    def get_verificators(cls, key, groups, old_verificators=()):
+        from the_tale.linguistics.lexicon.relations import VARIABLE_VERIFICATOR
+
+        random_state = random.getstate()
+        random.seed(key.value)
+
+        start_substitutions = {}
+        used_substitutions = {}
+        work_substitutions = {}
+
+        for variable_value, (verificator_value, substitution_index) in groups.iteritems():
+            verificator = VARIABLE_VERIFICATOR(verificator_value)
+            start_substitutions[variable_value] = set(verificator.substitutions[substitution_index])
+            work_substitutions[variable_value] = set(start_substitutions[variable_value])
+            used_substitutions[variable_value] = set()
 
         verificators = []
 
-        for e in externals:
-            for verificator in old_verificators:
-                if e == verificator.externals:
-                    verificators.append(verificator)
+        for old_verificator in old_verificators:
+            correct_verificator = True
+
+            for variable_value, substitution in old_verificator.externals.iteritems():
+                if substitution not in work_substitutions[variable_value]:
+                    correct_verificator = False
                     break
-            else:
-                verificators.append(cls(text=u'', externals=e))
+
+            if not correct_verificator:
+                continue
+
+            verificators.append(old_verificator)
+
+            for variable_value, substitution in old_verificator.externals.iteritems():
+                used_substitutions[variable_value].add(substitution)
+
+                work_substitution = work_substitutions[variable_value]
+                work_substitution.remove(substitution)
+                if not work_substitution:
+                    work_substitution |= start_substitutions[variable_value]
+
+        while used_substitutions != start_substitutions:
+            externals = {}
+
+            for variable_value, substitutions in work_substitutions.iteritems():
+                substitution = random.choice(list(substitutions))
+
+                used_substitutions[variable_value].add(substitution)
+
+                externals[variable_value] = substitution
+
+                substitutions.remove(substitution)
+
+                if not substitutions:
+                    substitutions |= start_substitutions[variable_value]
+
+            verificators.append(cls(text=u'', externals=externals))
+
+        random.setstate(random_state)
 
         return verificators
-
-        # valid_verificators = [verificator for verificator in old_verificators if any(e == verificator.externals for e in externals)]
-
-        # new_externals = [e for e in externals if all(e != verificator.externals for verificator in valid_verificators)]
-
-        # return valid_verificators + [cls(text=u'', externals=e) for e in new_externals]

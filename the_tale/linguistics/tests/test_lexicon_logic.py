@@ -1,10 +1,12 @@
 # coding: utf-8
+import mock
 
 from the_tale.common.utils.testcase import TestCase
 
 from the_tale.linguistics.lexicon import logic
 from the_tale.linguistics.lexicon import keys
 from the_tale.linguistics.lexicon import relations
+from the_tale.linguistics.lexicon import exceptions
 
 
 class LexiconLogicTests(TestCase):
@@ -12,11 +14,37 @@ class LexiconLogicTests(TestCase):
     def setUp(self):
         super(LexiconLogicTests, self).setUp()
 
+    def test_get_verificators_groups__first_substitution(self):
+        groups = logic.get_verificators_groups(key=keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP, old_groups={})
+        self.assertEqual(groups, {'hero': (0, 0), 'level': (1, 0)})
 
-    def test_get_verificators_externals(self):
-        verificators = logic.get_verificators_externals(keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP)
+    def test_get_verificators_groups__first_substitution__multiple(self):
+        groups = logic.get_verificators_groups(key=keys.LEXICON_KEY.QUEST_SEARCH_SMITH_DIARY_UPGRADE__BUY_AND_CHANGE, old_groups={})
+        self.assertEqual(groups,
+                         {'artifact': (4, 0),
+                          'coins': (1, 0),
+                          'hero': (0, 0),
+                          'receiver': (0, 1),
+                          'receiver_position': (2, 0),
+                          'sell_price': (1, 1),
+                          'unequipped': (4, 1)} )
 
-        self.assertEqual(verificators,
-                         [{relations.VARIABLE.HERO.value: u'призрак', relations.VARIABLE.LEVEL.value: 13},
-                          {relations.VARIABLE.HERO.value: u'привидение', relations.VARIABLE.LEVEL.value: 13},
-                          {relations.VARIABLE.HERO.value: u'русалка', relations.VARIABLE.LEVEL.value: 13}])
+    def test_get_verificators_groups__existed_substitutions(self):
+        old_groups = {'coins': (1, 1),
+                      'hero': (0, 2),
+                      'receiver': (0, 0),
+                      'unequipped': (4, 3)}
+        groups = logic.get_verificators_groups(key=keys.LEXICON_KEY.QUEST_SEARCH_SMITH_DIARY_UPGRADE__BUY_AND_CHANGE, old_groups=old_groups)
+        self.assertEqual(groups,
+                         {'artifact': (4, 0),
+                          'coins': (1, 1),
+                          'hero': (0, 2),
+                          'receiver': (0, 0),
+                          'receiver_position': (2, 0),
+                          'sell_price': (1, 0),
+                          'unequipped': (4, 3)} )
+
+    @mock.patch('the_tale.linguistics.lexicon.relations.VARIABLE_VERIFICATOR.ITEM.substitutions', relations.VARIABLE_VERIFICATOR.ITEM.substitutions[:1])
+    def test_get_verificators_groups__no_free_substitution(self):
+        self.assertRaises(exceptions.NoFreeVerificatorSubstitutionError,
+                          logic.get_verificators_groups, key=keys.LEXICON_KEY.QUEST_SEARCH_SMITH_DIARY_UPGRADE__BUY_AND_CHANGE, old_groups={})

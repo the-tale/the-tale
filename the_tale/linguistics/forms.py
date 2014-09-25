@@ -77,28 +77,25 @@ WORD_FORMS = {word_type: create_word_type_form(word_type)
 class TemplateForm(forms.Form):
     template = fields.TextField(label=u'шаблон', min_length=1, widget=django_forms.Textarea(attrs={'rows': 3}))
 
-    def __init__(self, key, *args, **kwargs):
+    def __init__(self, key, verificators, *args, **kwargs):
         super(TemplateForm, self).__init__(*args, **kwargs)
         self.key = key
+        self.verificators = verificators
 
-        verificators = prototypes.Verificator.get_verificators(key=self.key)
-
-        for i, verificator in enumerate(verificators):
+        for i, verificator in enumerate(self.verificators):
             label = u'проверка для %s' % u', '.join(u'%s=%s' % (variable, value) for variable, value in verificator.externals.iteritems())
             self.fields['verificator_%d' % i] = fields.TextField(label=label, required=False, widget=django_forms.Textarea(attrs={'rows': 3}))
 
     def verificators_fields(self):
-        verificators = prototypes.Verificator.get_verificators(key=self.key)
-        return [self['verificator_%d' % i] for i, verificator in enumerate(verificators)]
+        return [self['verificator_%d' % i] for i, verificator in enumerate(self.verificators)]
 
-    def verificators(self):
+    def clean(self):
+        cleaned_data = super(TemplateForm, self).clean()
 
-        verificators = prototypes.Verificator.get_verificators(key=self.key)
+        for i, verificator in enumerate(self.verificators):
+            verificator.text = cleaned_data['verificator_%d' % i]
 
-        for i, verificator in enumerate(verificators):
-            verificator.text = getattr(self.c, 'verificator_%d' % i)
-
-        return verificators
+        return cleaned_data
 
 
     def clean_template(self):
@@ -118,10 +115,10 @@ class TemplateForm(forms.Form):
         return data
 
     @classmethod
-    def get_initials(cls, template):
+    def get_initials(cls, template, verificators):
         initials = {'template': template.raw_template}
 
-        for i, verificator in enumerate(prototypes.Verificator.get_verificators(template.key, old_verificators=template.verificators)):
+        for i, verificator in enumerate(verificators):
             initials['verificator_%d' % i] = verificator.text
 
         return initials

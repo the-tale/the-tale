@@ -262,7 +262,7 @@ class TemplateResource(Resource):
     @handler('new', method='get')
     def new(self, key):
 
-        form = forms.TemplateForm(key)
+        form = forms.TemplateForm(key, prototypes.TemplatePrototype.get_start_verificatos(key=key))
 
         return self.template('linguistics/templates/new.html',
                              {'key': key,
@@ -278,7 +278,9 @@ class TemplateResource(Resource):
     @handler('create', method='post')
     def create(self, key):
 
-        form = forms.TemplateForm(key, self.request.POST)
+        form = forms.TemplateForm(key,
+                                  prototypes.TemplatePrototype.get_start_verificatos(key=key),
+                                  self.request.POST)
 
         if not form.is_valid():
             return self.json_error('linguistics.templates.create.form_errors', form.errors)
@@ -289,7 +291,7 @@ class TemplateResource(Resource):
         template = prototypes.TemplatePrototype.create(key=key,
                                                        raw_template=form.c.template,
                                                        utg_template=utg_template,
-                                                       verificators=form.verificators(),
+                                                       verificators=form.verificators,
                                                        author=self.account)
 
         return self.json_ok(data={'next_url': url('linguistics:templates:show', template.id)})
@@ -312,7 +314,11 @@ class TemplateResource(Resource):
     @handler('#template', 'edit', method='get')
     def edit(self):
 
-        form = forms.TemplateForm(self._template.key, initial=forms.TemplateForm.get_initials(self._template))
+        verificators = self._template.get_all_verificatos()
+
+        form = forms.TemplateForm(self._template.key,
+                                  verificators=verificators,
+                                  initial=forms.TemplateForm.get_initials(self._template, verificators))
 
         return self.template('linguistics/templates/edit.html',
                              {'template': self._template,
@@ -327,7 +333,9 @@ class TemplateResource(Resource):
     @handler('#template', 'update', method='post')
     def update(self):
 
-        form = forms.TemplateForm(self._template.key, self.request.POST)
+        form = forms.TemplateForm(self._template.key,
+                                  self._template.get_all_verificatos(),
+                                  self.request.POST)
 
         if not form.is_valid():
             return self.json_error('linguistics.templates.update.form_errors', form.errors)
@@ -338,7 +346,7 @@ class TemplateResource(Resource):
 
             self._template.update(raw_template=form.c.template,
                                   utg_template=utg_template,
-                                  verificators=form.verificators())
+                                  verificators=form.verificators)
 
             return self.json_ok(data={'next_url': url('linguistics:templates:show', self._template.id)})
 
@@ -349,7 +357,7 @@ class TemplateResource(Resource):
         template = prototypes.TemplatePrototype.create(key=self._template.key,
                                                        raw_template=form.c.template,
                                                        utg_template=utg_template,
-                                                       verificators=form.verificators(),
+                                                       verificators=form.verificators,
                                                        author=self.account,
                                                        parent=self._template)
 

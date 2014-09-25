@@ -161,10 +161,12 @@ class CreateRequestsTests(BaseRequestsTests):
         self.check_ajax_ok(response, data={'next_url': url('linguistics:templates:show', last_prototype.id)})
 
         self.assertEqual(last_prototype.utg_template.template, u'%s %s %s')
-        self.assertEqual(len(last_prototype.verificators), 3)
-        self.assertEqual(last_prototype.verificators[0], prototypes.Verificator(text=u'Призрак 13 неизвестное слово', externals={'hero': u'призрак', 'level': 13}))
-        self.assertEqual(last_prototype.verificators[1], prototypes.Verificator(text=u'Привидение 13', externals={'hero': u'привидение', 'level': 13}))
-        self.assertEqual(last_prototype.verificators[2], prototypes.Verificator(text=u'', externals={'hero': u'русалка', 'level': 13}))
+        self.assertEqual(len(last_prototype.verificators), 4)
+
+        self.assertEqual(last_prototype.verificators[0], prototypes.Verificator(text=u'Призрак 13 неизвестное слово', externals={'hero': (u'герой', u''), 'level': (1, u'')}))
+        self.assertEqual(last_prototype.verificators[1], prototypes.Verificator(text=u'Привидение 13', externals={'hero': (u'рыцарь', u'мн'), 'level': (2, u'')}))
+        self.assertEqual(last_prototype.verificators[2], prototypes.Verificator(text=u'', externals={'hero': (u'привидение', u''), 'level': (5, u'')}))
+        self.assertEqual(last_prototype.verificators[3], prototypes.Verificator(text=u'', externals={'hero': (u'героиня', u''), 'level': (5, u'')}))
 
         self.assertEqual(last_prototype.author_id, self.account_1.id)
         self.assertEqual(last_prototype.parent_id, None)
@@ -212,19 +214,21 @@ class ShowRequestsTests(BaseRequestsTests):
 
         template.parse(TEXT, externals=['hero'])
 
-        verificator_1 = prototypes.Verificator(text=u'Призрак 1 w-1-ед,вн', externals={'hero': u'призрак', 'level': 13})
-        verificator_2 = prototypes.Verificator(text=u'Привидение 1', externals={'hero': u'привидение', 'level': 13})
-        verificator_3 = prototypes.Verificator(text=u'Русалка abrakadabra', externals={'hero': u'русалка', 'level': 13})
+        verificators = prototypes.TemplatePrototype.get_start_verificatos(key=key)
+
+        verificators[0].text = u'Призрак 1 w-1-ед,вн'
+        verificators[1].text = u'Привидение 1'
+        verificators[2].text = u'Русалка abrakadabra'
 
         prototype = prototypes.TemplatePrototype.create(key=key,
                                                         raw_template=TEXT,
                                                         utg_template=template,
-                                                        verificators=[verificator_1, verificator_2, verificator_3],
+                                                        verificators=verificators[:3],
                                                         author=self.account_1)
 
-        self.check_html_ok(self.request_html(url('linguistics:templates:show', prototype.id)), texts=[verificator_1.text,
-                                                                                                      verificator_2.text,
-                                                                                                      verificator_3.text])
+        self.check_html_ok(self.request_html(url('linguistics:templates:show', prototype.id)), texts=[verificators[0].text,
+                                                                                                      verificators[1].text,
+                                                                                                      verificators[2].text])
 
 
 
@@ -274,11 +278,7 @@ class EditRequestsTests(BaseRequestsTests):
         self.check_html_ok(self.request_html(self.requested_url))
 
 
-    def test_validators(self):
-        externals = lexicon_logic.get_verificators_externals(self.key)
-
-        self.assertEqual(len(externals), 3)
-
+    def test_verificators(self):
         text = u'text_2'
         utg_template = utg_templates.Template()
         utg_template.parse(text, externals=['hero'])
@@ -286,16 +286,18 @@ class EditRequestsTests(BaseRequestsTests):
         template = prototypes.TemplatePrototype.create(key=self.key,
                                                        raw_template=text,
                                                        utg_template=utg_template,
-                                                       verificators=[prototypes.Verificator(u'right-verificator-1', externals=externals[0]),
-                                                                     prototypes.Verificator(u'wrong-verificator', externals=[{'hero': 12}]),
-                                                                     prototypes.Verificator(u'right-verificator-2', externals=externals[2]),],
+                                                       verificators=[prototypes.Verificator(u'right-verificator-1', externals={}),
+                                                                     prototypes.Verificator(u'wrong-verificator-1', externals={'hero': (u'абракадабра', u'')}),
+                                                                     prototypes.Verificator(u'right-verificator-2', externals={'hero': (u'герой', u''), 'level': (2, u'')}),
+                                                                     prototypes.Verificator(u'wrong-verificator-2', externals={'hero': (u'абракадабра', u''), 'level': (2, u'')}),],
                                                        author=self.account_1)
 
 
         self.check_html_ok(self.request_html(url('linguistics:templates:edit', template.id)),
                            texts=['right-verificator-1',
                                   'right-verificator-2',
-                                  ('wrong-verificator', 0)])
+                                  ('wrong-verificator-1', 0),
+                                  ('wrong-verificator-2', 0)])
 
 
 
@@ -306,15 +308,14 @@ class UpdateRequestsTests(BaseRequestsTests):
 
         self.key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
 
-        externals = lexicon_logic.get_verificators_externals(self.key)
-        self.text = u'[hero|загл] 1 [пепельница|hero|вн]'
+        self.text = u'[hero|загл] [level] [пепельница|hero|вн]'
         self.utg_template = utg_templates.Template()
         self.utg_template.parse(self.text, externals=['hero'])
         self.template = prototypes.TemplatePrototype.create(key=self.key,
                                                             raw_template=self.text,
                                                             utg_template=self.utg_template,
-                                                            verificators=[prototypes.Verificator(u'verificator-1', externals=externals[0]),
-                                                                          prototypes.Verificator(u'verificator-2', externals=externals[2]),],
+                                                            verificators=[prototypes.Verificator(u'verificator-1', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')}),
+                                                                          prototypes.Verificator(u'verificator-2', externals={'hero': (u'герой', u''), 'level': (2, u'')})],
                                                             author=self.account_1)
 
         self.request_login(self.account_1.email)
@@ -367,10 +368,12 @@ class UpdateRequestsTests(BaseRequestsTests):
         self.check_ajax_ok(response, data={'next_url': url('linguistics:templates:show', self.template.id)})
 
         self.assertEqual(self.template.utg_template.template, u'updated-template')
-        self.assertEqual(len(self.template.verificators), 3)
-        self.assertEqual(self.template.verificators[0], prototypes.Verificator(text=u'verificatorx-1', externals={'hero': u'призрак', 'level': 13}))
-        self.assertEqual(self.template.verificators[1], prototypes.Verificator(text=u'verificatorx-2', externals={'hero': u'привидение', 'level': 13}))
-        self.assertEqual(self.template.verificators[2], prototypes.Verificator(text=u'verificatorx-3', externals={'hero': u'русалка', 'level': 13}))
+        self.assertEqual(len(self.template.verificators), 4)
+
+        self.assertEqual(self.template.verificators[0], prototypes.Verificator(text=u'verificatorx-1', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')}))
+        self.assertEqual(self.template.verificators[1], prototypes.Verificator(text=u'verificatorx-2', externals={'hero': (u'герой', u''), 'level': (2, u'')}))
+        self.assertEqual(self.template.verificators[2], prototypes.Verificator(text=u'verificatorx-3', externals={'hero': (u'привидение', u''), 'level': (1, u'')}))
+        self.assertEqual(self.template.verificators[3], prototypes.Verificator(text=u'', externals={'hero': (u'героиня', u''), 'level': (1, u'')}))
 
         self.assertEqual(self.template.author_id, self.account_1.id)
         self.assertEqual(self.template.parent_id, None)
@@ -400,10 +403,12 @@ class UpdateRequestsTests(BaseRequestsTests):
         self.check_ajax_ok(response, data={'next_url': url('linguistics:templates:show', last_prototype.id)})
 
         self.assertEqual(last_prototype.utg_template.template, u'updated-template')
-        self.assertEqual(len(last_prototype.verificators), 3)
-        self.assertEqual(last_prototype.verificators[0], prototypes.Verificator(text=u'verificatorx-1', externals={'hero': u'призрак', 'level': 13}))
-        self.assertEqual(last_prototype.verificators[1], prototypes.Verificator(text=u'verificatorx-2', externals={'hero': u'привидение', 'level': 13}))
-        self.assertEqual(last_prototype.verificators[2], prototypes.Verificator(text=u'verificatorx-3', externals={'hero': u'русалка', 'level': 13}))
+        self.assertEqual(len(last_prototype.verificators), 4)
+
+        self.assertEqual(last_prototype.verificators[0], prototypes.Verificator(text=u'verificatorx-1', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')}))
+        self.assertEqual(last_prototype.verificators[1], prototypes.Verificator(text=u'verificatorx-2', externals={'hero': (u'герой', u''), 'level': (2, u'')}))
+        self.assertEqual(last_prototype.verificators[2], prototypes.Verificator(text=u'verificatorx-3', externals={'hero': (u'привидение', u''), 'level': (1, u'')}))
+        self.assertEqual(last_prototype.verificators[3], prototypes.Verificator(text=u'', externals={'hero': (u'героиня', u''), 'level': (1, u'')}))
 
         self.assertEqual(last_prototype.author_id, self.account_1.id)
         self.assertEqual(last_prototype.parent_id, self.template.id)
@@ -436,10 +441,14 @@ class UpdateRequestsTests(BaseRequestsTests):
         self.check_ajax_ok(response, data={'next_url': url('linguistics:templates:show', last_prototype.id)})
 
         self.assertEqual(last_prototype.utg_template.template, u'updated-template')
-        self.assertEqual(len(last_prototype.verificators), 3)
-        self.assertEqual(last_prototype.verificators[0], prototypes.Verificator(text=u'verificatorx-1', externals={'hero': u'призрак', 'level': 13}))
-        self.assertEqual(last_prototype.verificators[1], prototypes.Verificator(text=u'verificatorx-2', externals={'hero': u'привидение', 'level': 13}))
-        self.assertEqual(last_prototype.verificators[2], prototypes.Verificator(text=u'verificatorx-3', externals={'hero': u'русалка', 'level': 13}))
+
+        self.assertEqual(len(last_prototype.verificators), 4)
+
+        self.assertEqual(last_prototype.verificators[0], prototypes.Verificator(text=u'verificatorx-1', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')}))
+        self.assertEqual(last_prototype.verificators[1], prototypes.Verificator(text=u'verificatorx-2', externals={'hero': (u'герой', u''), 'level': (2, u'')}))
+        self.assertEqual(last_prototype.verificators[2], prototypes.Verificator(text=u'verificatorx-3', externals={'hero': (u'привидение', u''), 'level': (1, u'')}))
+        self.assertEqual(last_prototype.verificators[3], prototypes.Verificator(text=u'', externals={'hero': (u'героиня', u''), 'level': (1, u'')}))
+
 
         self.assertEqual(last_prototype.author_id, account.id)
         self.assertEqual(last_prototype.parent_id, self.template.id)
@@ -453,15 +462,17 @@ class ReplaceRequestsTests(BaseRequestsTests):
 
         self.key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
 
-        self.externals = lexicon_logic.get_verificators_externals(self.key)
+        self.verificators = prototypes.TemplatePrototype.get_start_verificatos(key=self.key)
+        self.verificators[0].text = u'verificator-1'
+        self.verificators[1].text = u'verificator-2'
+
         self.text = u'[hero|загл] 1 [пепельница|hero|вн]'
         self.utg_template = utg_templates.Template()
         self.utg_template.parse(self.text, externals=['hero'])
         self.template = prototypes.TemplatePrototype.create(key=self.key,
                                                             raw_template=self.text,
                                                             utg_template=self.utg_template,
-                                                            verificators=[prototypes.Verificator(u'verificator-1', externals=self.externals[0]),
-                                                                          prototypes.Verificator(u'verificator-2', externals=self.externals[2]),],
+                                                            verificators=self.verificators[:2],
                                                             author=self.account_1)
 
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
@@ -651,15 +662,19 @@ class DetachRequestsTests(BaseRequestsTests):
 
         self.key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
 
-        self.externals = lexicon_logic.get_verificators_externals(self.key)
         self.text = u'[hero|загл] 1 [пепельница|hero|вн]'
         self.utg_template = utg_templates.Template()
         self.utg_template.parse(self.text, externals=['hero'])
+
+        self.verificators = prototypes.TemplatePrototype.get_start_verificatos(key=self.key)
+
+        self.verificators[0].text = u'verificator-1'
+        self.verificators[1].text = u'verificator-2'
+
         self.template = prototypes.TemplatePrototype.create(key=self.key,
                                                             raw_template=self.text,
                                                             utg_template=self.utg_template,
-                                                            verificators=[prototypes.Verificator(u'verificator-1', externals=self.externals[0]),
-                                                                          prototypes.Verificator(u'verificator-2', externals=self.externals[2]),],
+                                                            verificators=self.verificators[:2],
                                                             author=self.account_1)
 
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
@@ -732,15 +747,17 @@ class InGameRequestsTests(BaseRequestsTests):
 
         self.key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
 
-        self.externals = lexicon_logic.get_verificators_externals(self.key)
+        self.verificators = prototypes.TemplatePrototype.get_start_verificatos(key=self.key)
+        self.verificators[0].text = u'verificator-1'
+        self.verificators[1].text = u'verificator-2'
+
         self.text = u'[hero|загл] 1 [пепельница|hero|вн]'
         self.utg_template = utg_templates.Template()
         self.utg_template.parse(self.text, externals=['hero'])
         self.template = prototypes.TemplatePrototype.create(key=self.key,
                                                             raw_template=self.text,
                                                             utg_template=self.utg_template,
-                                                            verificators=[prototypes.Verificator(u'verificator-1', externals=self.externals[0]),
-                                                                          prototypes.Verificator(u'verificator-2', externals=self.externals[2]),],
+                                                            verificators=self.verificators[:2],
                                                             author=self.account_1)
 
         result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
@@ -817,15 +834,17 @@ class OnReviewRequestsTests(BaseRequestsTests):
 
         self.key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
 
-        self.externals = lexicon_logic.get_verificators_externals(self.key)
+        self.verificators = prototypes.TemplatePrototype.get_start_verificatos(key=self.key)
+        self.verificators[0].text = u'verificator-1'
+        self.verificators[1].text = u'verificator-2'
+
         self.text = u'[hero|загл] 1 [пепельница|hero|вн]'
         self.utg_template = utg_templates.Template()
         self.utg_template.parse(self.text, externals=['hero'])
         self.template = prototypes.TemplatePrototype.create(key=self.key,
                                                             raw_template=self.text,
                                                             utg_template=self.utg_template,
-                                                            verificators=[prototypes.Verificator(u'verificator-1', externals=self.externals[0]),
-                                                                          prototypes.Verificator(u'verificator-2', externals=self.externals[2]),],
+                                                            verificators=self.verificators[:2],
                                                             author=self.account_1)
 
         result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
@@ -887,15 +906,17 @@ class RemoveRequestsTests(BaseRequestsTests):
 
         self.key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
 
-        self.externals = lexicon_logic.get_verificators_externals(self.key)
+        self.verificators = prototypes.TemplatePrototype.get_start_verificatos(key=self.key)
+        self.verificators[0].text = u'verificator-1'
+        self.verificators[1].text = u'verificator-2'
+
         self.text = u'[hero|загл] 1 [пепельница|hero|вн]'
         self.utg_template = utg_templates.Template()
         self.utg_template.parse(self.text, externals=['hero'])
         self.template = prototypes.TemplatePrototype.create(key=self.key,
                                                             raw_template=self.text,
                                                             utg_template=self.utg_template,
-                                                            verificators=[prototypes.Verificator(u'verificator-1', externals=self.externals[0]),
-                                                                          prototypes.Verificator(u'verificator-2', externals=self.externals[2]),],
+                                                            verificators=self.verificators[:2],
                                                             author=self.account_1)
 
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')

@@ -1,4 +1,5 @@
 # coding: utf-8
+import collections
 
 from django.db import IntegrityError
 from django.db import transaction
@@ -12,6 +13,7 @@ from the_tale.linguistics import relations
 
 from the_tale.linguistics.lexicon import relations as lexicon_relations
 from the_tale.linguistics.lexicon import dictionary as lexicon_dictinonary
+from the_tale.linguistics.lexicon import keys
 
 
 class GeneralTests(TestCase):
@@ -60,3 +62,11 @@ class GeneralTests(TestCase):
             for substitutions in verificator.substitutions:
                 for word, properties in substitutions:
                     self.assertTrue(lexicon_dictinonary.DICTIONARY.has_words(word, verificator.utg_type))
+
+
+    def test_all_lexicon_keys_have_suffient_number_of_verificator_substitutions(self):
+
+        for key in keys.LEXICON_KEY.records:
+            verificators = collections.Counter(v.verificator for v in key.variables)
+            for verificator, number in verificators.iteritems():
+                self.assertTrue(len(verificator.substitutions) >= number)

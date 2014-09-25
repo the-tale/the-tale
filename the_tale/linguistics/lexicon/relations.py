@@ -7,7 +7,7 @@ from utg.relations import WORD_TYPE
 
 
 def preprocess_s(row):
-    return [var if isinstance(var, tuple) else (var, ()) for var in row]
+    return [var if isinstance(var, tuple) else (var, u'') for var in row]
 
 def s(*substitutions):
     return [preprocess_s(row[i:] + row[:i]) for i, row in enumerate(substitutions)]
@@ -19,7 +19,8 @@ class VARIABLE_VERIFICATOR(DjangoEnum):
 
     records = ( ('PERSON', 0, u'любой персонаж', WORD_TYPE.NOUN, s([u'герой', u'привидение', u'героиня', (u'рыцарь', u'мн')],
                                                                    [u'призрак', u'чудовище', u'русалка', (u'боец', u'мн')],
-                                                                   [u'жираф', u'чучело', u'зебра', (u'слон', u'мн')])),
+                                                                   [u'жираф', u'чучело', u'зебра', (u'слон', u'мн')],
+                                                                   [u'гусь', u'пугало', u'свинья', (u'волк', u'мн')]  )),
 
                 ('NUMBER', 1, u'число', WORD_TYPE.INTEGER, s([1, 2, 5],
                                                              [21, 22, 25],
