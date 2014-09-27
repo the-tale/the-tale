@@ -2,6 +2,7 @@
 import jinja2
 
 from utg import words
+from utg import data as utg_data
 from utg import relations as utg_relations
 
 from the_tale.linguistics import relations
@@ -31,7 +32,7 @@ def get_structure(word_type):
 
     iterated_keys = set()
 
-    for key in words.INVERTED_WORDS_CACHES[word_type]:
+    for key in utg_data.INVERTED_WORDS_CACHES[word_type]:
         iterated_keys.add(tuple(k for k, p in zip(key, word_type.schema) if p in iterated))
 
     iterated_keys = sorted(iterated_keys,
@@ -67,7 +68,7 @@ class Leaf(object):
     def choose_base(self, base):
         real_properties = tuple(property
                                 for property in base.schema
-                                if all(property not in words.RESTRICTIONS.get(key, []) for key in self.key.values() if key is not None))
+                                if all(property not in utg_data.RESTRICTIONS.get(key, []) for key in self.key.values() if key is not None))
         return relations.WORD_BLOCK_BASE.index_schema[real_properties]
 
 
@@ -93,7 +94,7 @@ class FormDrawer(BaseDrawer):
         self.form = form
 
     def get_form(self, key):
-        cache = words.WORDS_CACHES[self.type]
+        cache = utg_data.WORDS_CACHES[self.type]
 
         if key not in cache:
             return u''
@@ -115,7 +116,7 @@ class ShowDrawer(BaseDrawer):
         self.other_version = word_parent if word_parent else self.word.get_child()
 
     def get_form(self, key):
-        cache = words.WORDS_CACHES[self.type]
+        cache = utg_data.WORDS_CACHES[self.type]
 
         if key not in cache:
             return u''

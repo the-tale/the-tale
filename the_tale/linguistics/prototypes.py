@@ -13,6 +13,7 @@ from the_tale.common.utils.decorators import lazy_property
 from the_tale.linguistics import models
 from the_tale.linguistics import relations
 from the_tale.linguistics.lexicon import logic as lexicon_logic
+from the_tale.linguistics.lexicon import dictionary as lexicon_dictionary
 
 
 class WordPrototype(BasePrototype):
@@ -128,7 +129,7 @@ class TemplatePrototype(BasePrototype):
         for verificator in verificators:
             externals = {}
             for k, (word_form, additional_properties) in verificator.externals.iteritems():
-                word_form = utg_dictionary.get_word(word_form)
+                word_form = lexicon_dictionary.DICTIONARY.get_word(word_form)
                 if additional_properties:
                     word_form.properties.update(*[VERBOSE_TO_PROPERTIES[prop.strip()] for prop in additional_properties.split(',') if prop])
 

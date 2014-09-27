@@ -78,6 +78,30 @@
 {% endmacro %}
 
 
+{% macro NG(leaf, drawer) %}
+
+  <table class="table table-condensed noun-forms-table">
+    <thead>
+      <tr>
+        <th>ед. число м. род</th>
+        <th>ед. число ср. род</th>
+        <th>ед. число ж. род</th>
+        <th>мн. число</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{drawer.get_form(leaf.get_form_key((0, 0)))}}</td>
+        <td>{{drawer.get_form(leaf.get_form_key((0, 1)))}}</td>
+        <td>{{drawer.get_form(leaf.get_form_key((0, 2)))}}</td>
+        <td>{{drawer.get_form(leaf.get_form_key((1, none)))}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+{% endmacro %}
+
+
 {% macro NC(leaf, drawer) %}
 
   <table class="table table-condensed noun-forms-table">

@@ -7,6 +7,7 @@ from the_tale.linguistics.lexicon import logic
 from the_tale.linguistics.lexicon import keys
 from the_tale.linguistics.lexicon import relations
 from the_tale.linguistics.lexicon import exceptions
+from the_tale.linguistics.lexicon import dictionary
 
 
 class LexiconLogicTests(TestCase):
@@ -48,3 +49,11 @@ class LexiconLogicTests(TestCase):
     def test_get_verificators_groups__no_free_substitution(self):
         self.assertRaises(exceptions.NoFreeVerificatorSubstitutionError,
                           logic.get_verificators_groups, key=keys.LEXICON_KEY.QUEST_SEARCH_SMITH_DIARY_UPGRADE__BUY_AND_CHANGE, old_groups={})
+
+    def test_all_verificators_substitutions_is_in_lexicon_dictionary(self):
+
+        for verificator in relations.VARIABLE_VERIFICATOR.records:
+            word_type = verificator.utg_type
+            for words in verificator.substitutions:
+                for word in words:
+                    self.assertTrue(dictionary.DICTIONARY.is_word_registered(word_type, word[0]))

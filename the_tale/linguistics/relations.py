@@ -18,7 +18,8 @@ class WORD_BLOCK_BASE(DjangoEnum):
                 ('NCG', 1, u'число-падеж-род', (utg_relations.NUMBER, utg_relations.CASE, utg_relations.GENDER)),
                 ('NP', 2, u'число-лицо', (utg_relations.NUMBER, utg_relations.PERSON)),
                 ('NPG', 3, u'число-лицо-род', (utg_relations.NUMBER, utg_relations.PERSON, utg_relations.GENDER)),
-                ('SINGLE', 4, u'одна форма', ())  )
+                ('SINGLE', 4, u'одна форма', ()),
+                ('NG', 5, u'число-род', (utg_relations.NUMBER, utg_relations.GENDER)),  )
 
 
 

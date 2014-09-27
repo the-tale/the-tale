@@ -5,6 +5,7 @@ from dext.forms import forms, fields
 
 from utg import relations as utg_relations
 from utg import words as utg_words
+from utg import data as utg_data
 from utg import templates as utg_templates
 from utg import exceptions as utg_exceptions
 
@@ -19,7 +20,7 @@ class BaseWordForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(BaseWordForm, self).__init__(*args, **kwargs)
 
-        for i, key in enumerate(utg_words.INVERTED_WORDS_CACHES[self.WORD_TYPE]):
+        for i, key in enumerate(utg_data.INVERTED_WORDS_CACHES[self.WORD_TYPE]):
             self.fields['field_%d' % i] = fields.CharField(label='', max_length=models.Word.MAX_FORM_LENGTH)
 
         for static_property, required in self.WORD_TYPE.properties.iteritems():
@@ -34,7 +35,7 @@ class BaseWordForm(forms.Form):
             self.fields['field_%s' % static_property.__name__] = field
 
     def get_word(self):
-        forms = [getattr(self.c, 'field_%d' % i) for i in xrange(len(utg_words.INVERTED_WORDS_CACHES[self.WORD_TYPE]))]
+        forms = [getattr(self.c, 'field_%d' % i) for i in xrange(len(utg_data.INVERTED_WORDS_CACHES[self.WORD_TYPE]))]
 
         properties = utg_words.Properties()
 
@@ -51,7 +52,7 @@ class BaseWordForm(forms.Form):
     @classmethod
     def get_initials(cls, word):
         initials = {('field_%d' % i): word.forms[i]
-                    for i in xrange(len(utg_words.INVERTED_WORDS_CACHES[cls.WORD_TYPE]))}
+                    for i in xrange(len(utg_data.INVERTED_WORDS_CACHES[cls.WORD_TYPE]))}
 
         for static_property, required in cls.WORD_TYPE.properties.iteritems():
             value = word.properties.is_specified(static_property)

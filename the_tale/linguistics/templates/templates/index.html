@@ -35,7 +35,7 @@
   <tbody>
     {% for template in templates %}
     <tr>
-      <td><a href="{{url('linguistics:templates:show', template.id)}}">{{template.utg_template.template}}</a></td>
+      <td><a href="{{url('linguistics:templates:show', template.id)}}">{{template.raw_template}}</a></td>
     </tr>
     {% endfor %}
   </tbody>

@@ -17,7 +17,6 @@ from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.pagination import Paginator
 from the_tale.common.utils.decorators import login_required
 
-
 from the_tale.linguistics import relations
 from the_tale.linguistics.conf import linguistics_settings
 from the_tale.linguistics import prototypes

@@ -1,5 +1,6 @@
 # coding: utf-8
 import os
+import copy
 
 from django.core.management.base import BaseCommand
 from django.conf import settings as project_settings
@@ -12,9 +13,10 @@ from textgen.logic import Args
 from utg.words import Word, Properties
 from utg.logic import get_verbose_to_relations
 from utg.relations import WORD_TYPE as U_WORD_TYPE
-
+from utg.relations import FORM as U_FORM
 
 from the_tale.game.text_generation import get_dictionary
+from the_tale.linguistics.lexicon import dictionary as lexicon_dictinonary
 
 
 VERBOSE_TO_RELATIONS = get_verbose_to_relations()
@@ -42,7 +44,12 @@ class Command(BaseCommand):
         forms = []
         for key in Word.get_keys(type):
             args = Args(*[p.verbose_id for p in key if p])
-            forms.append(textgen_word.get_form(args))
+            form = textgen_word.get_form(args)
+
+            if type.is_VERB and U_FORM.INFINITIVE in key:
+                form = u'%s-инфинитив' % form
+
+            forms.append(form)
 
         properties = Properties(*[VERBOSE_TO_RELATIONS.get(p) for p in textgen_word.properties])
 
@@ -57,13 +64,18 @@ class Command(BaseCommand):
 
         textgen_dict = get_dictionary()
 
-        words = []
+        utg_dictionary = copy.deepcopy(lexicon_dictinonary.DICTIONARY)
 
         for textgen_key, textgen_word in textgen_dict.data.iteritems():
             if textgen_key.lower() != textgen_key and textgen_key.lower() in textgen_dict:
                 continue
 
-            words.append(self.parse(textgen_word))
+            word = self.parse(textgen_word)
+
+            if utg_dictionary.is_word_registered(word.type, word.normal_form()):
+                continue
+
+            utg_dictionary.add_word(word)
 
         with open(os.path.join(project_settings.PROJECT_DIR, 'linguistics', 'fixtures', 'dictionary.json'), 'w') as f:
-            f.write(s11n.to_json([w.serialize() for w in words]).encode('utf-8'))
+            f.write(s11n.to_json([w.serialize() for w in utg_dictionary.iterwords()], indent=2).encode('utf-8'))
