@@ -17,7 +17,7 @@
 <p class="alert alert-success pgf-has-parent-message">Это слово явялется копией <a href="{{url('linguistics:words:show', parent_word.id)}}">слова из игры</a>.</p>
 {% endif %}
 
-{{words_macros.render_word(structure, drawer)}}
+{{words_macros.render_word(drawer)}}
 
 <a class="btn btn-info" href="{{url('linguistics:words:new', type=word.type.value, parent=word.id)}}">Редактировать</a>
 

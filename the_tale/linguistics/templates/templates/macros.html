@@ -1,0 +1,25 @@
+
+{% macro key_info(key) %}
+
+<h2>Группа: {{key.group.text}}</h2>
+
+<p>{{key.group.description}}</p>
+
+<h3>Тип: {{key.text}}</h3>
+
+<p>{{key.description}}</p>
+
+<h4>Переменные</h4>
+
+<table class="table" style="margin-top: 0.25em;">
+  <tbody>
+    {% for variable in key.variables %}
+    <tr>
+      <th width="100px">{{variable.value}}</th>
+      <td>{{key.group.variables[variable]}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endmacro %}

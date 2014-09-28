@@ -74,8 +74,9 @@ class Leaf(object):
 
 class BaseDrawer(object):
 
-    def __init__(self, type):
+    def __init__(self, type, is_patch=False):
         self.type = type
+        self.is_patch = is_patch
 
     def get_header(self, properties):
         return u', '.join([k.text for k in properties])
@@ -86,11 +87,21 @@ class BaseDrawer(object):
     def get_property(self, property):
         raise NotImplementedError()
 
+    def get_patch_drawer(self, patch):
+        raise NotImplementedError()
+
+    @classmethod
+    def get_structure(self, type):
+        return STRUCTURES[type]
+
+    def has_patches(self):
+        raise NotImplementedError()
+
 
 class FormDrawer(BaseDrawer):
 
-    def __init__(self, type, form):
-        super(FormDrawer, self).__init__(type=type)
+    def __init__(self, type, form, is_patch=False):
+        super(FormDrawer, self).__init__(type=type, is_patch=is_patch)
         self.form = form
 
     def get_form(self, key):
@@ -99,21 +110,32 @@ class FormDrawer(BaseDrawer):
         if key not in cache:
             return u''
 
-        return self.form['field_%d' % cache[key]].widget
+        if self.is_patch:
+            return self.form['patch_field_%d_%d' % (self.type.value, cache[key])].widget
+        else:
+            return self.form['field_%d' % cache[key]].widget
 
     def get_property(self, property):
-        return self.form['field_%s' % property.__name__].widget
+        if self.is_patch:
+            return u''
+        else:
+            return self.form['field_%s' % property.__name__].widget
+
+    def get_patch_drawer(self, patch):
+        return self.__class__(type=patch,
+                              is_patch=True,
+                              form=self.form)
+
+    def has_patches(self):
+        return bool(self.type.patches)
 
 
 class ShowDrawer(BaseDrawer):
 
-    def __init__(self, word):
-        super(ShowDrawer, self).__init__(type=word.type)
+    def __init__(self, word, other_version, is_patch=False):
+        super(ShowDrawer, self).__init__(type=word.type, is_patch=is_patch)
         self.word = word
-
-        word_parent = self.word.get_parent()
-
-        self.other_version = word_parent if word_parent else self.word.get_child()
+        self.other_version = other_version
 
     def get_form(self, key):
         cache = utg_data.WORDS_CACHES[self.type]
@@ -121,8 +143,8 @@ class ShowDrawer(BaseDrawer):
         if key not in cache:
             return u''
 
-        form = self.word.utg_word.form(words.Properties(*key))
-        other_form = self.other_version.utg_word.form(words.Properties(*key)) if self.other_version else None
+        form = self.word.form(words.Properties(*key))
+        other_form = self.other_version.form(words.Properties(*key)) if self.other_version else None
 
         if other_form is None or form == other_form:
             html = form
@@ -132,6 +154,8 @@ class ShowDrawer(BaseDrawer):
         return jinja2.Markup(html)
 
     def get_property_html(self, header, text, alternative=None):
+        if self.is_patch:
+            return u''
 
         if alternative is None or text == alternative:
             html = u'<div><h4>%(header)s</h4><p>%(text)s</p></div>'
@@ -143,25 +167,37 @@ class ShowDrawer(BaseDrawer):
         return jinja2.Markup(html)
 
     def get_property(self, property):
+        if self.is_patch:
+            return u''
+
         if property in self.type.properties:
-            if self.word.utg_word.properties.is_specified(property):
+            if self.word.properties.is_specified(property):
                 return self.get_property_html(utg_relations.PROPERTY_TYPE.index_relation[property].text,
-                                              self.word.utg_word.properties.get(property).text,
-                                              self.other_version.utg_word.properties.get(property).text if self.other_version else None)
+                                              self.word.properties.get(property).text,
+                                              self.other_version.properties.get(property).text if self.other_version else None)
             elif self.type.properties[property]:
                 return self.get_property_html(utg_relations.PROPERTY_TYPE.index_relation[property].text,
                                               u'<strong style="color: red;">необходимо указать</strong>',
-                                              self.other_version.utg_word.properties.get(property).text if self.other_version else None)
+                                              self.other_version.properties.get(property).text if self.other_version else None)
             else:
                 alternative = None
-                if self.other_version and self.other_version.utg_word.properties.is_specified(property):
-                    alternative = self.other_version.utg_word.properties.get(property).text
+                if self.other_version and self.other_version.properties.is_specified(property):
+                    alternative = self.other_version.properties.get(property).text
 
                 return self.get_property_html(utg_relations.PROPERTY_TYPE.index_relation[property].text,
                                               u'может быть указано',
                                               alternative=alternative)
 
         return u''
+
+    def get_patch_drawer(self, patch):
+        return self.__class__(is_patch=True,
+                              word=self.word.patches[patch],
+                              other_version=self.other_version.patches[patch] if self.other_version else None)
+
+    def has_patches(self):
+        return bool(self.word.patches)
+
 
 
 

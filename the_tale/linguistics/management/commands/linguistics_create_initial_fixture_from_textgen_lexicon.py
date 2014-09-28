@@ -16,7 +16,10 @@ from utg.templates import Template
 from utg.data import VERBOSE_TO_PROPERTIES
 from utg.logic import get_verbose_to_relations
 from utg.relations import WORD_TYPE as U_WORD_TYPE
+from utg.relations import CASE as U_CASE
+from utg.words import WordForm
 from utg import exceptions as utg_exceptions
+from utg import transformators
 
 from the_tale.game.text_generation import get_dictionary
 
@@ -87,19 +90,8 @@ class Command(BaseCommand):
 
                         for verificator in verificators:
                             try:
-                                # print '-------'
-                                # print raw_template
-                                externals = {}
-                                for k, (word_form, additional_properties) in verificator.externals.iteritems():
-                                    word_form = lexicon_dictionary.DICTIONARY.get_word(word_form)
-                                    if additional_properties:
-                                        word_form.properties.update(*[VERBOSE_TO_PROPERTIES[prop.strip()] for prop in additional_properties.split(',') if prop])
-                                    # print k, word_form.word.normal_form(), word_form.properties
-                                    externals[k] = word_form
-
+                                externals = verificator.preprocessed_externals()
                                 verificator.text = utg_template.substitute(externals=externals, dictionary=raw_dictionary.item)
-                                # print verificator.text
-                                # break
                             except utg_exceptions.NoWordsFoundError, e:
                                 print raw_template
                                 print u'%s' % e

@@ -6,6 +6,7 @@ from dext.common.utils import s11n
 
 from utg import words as utg_words
 from utg import templates as utg_templates
+from utg.data import VERBOSE_TO_PROPERTIES
 
 from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils.decorators import lazy_property
@@ -111,8 +112,6 @@ class TemplatePrototype(BasePrototype):
         return verificators
 
     def get_errors(self, utg_dictionary):
-        from utg.data import VERBOSE_TO_PROPERTIES
-
         errors = []
 
         verificators = self.get_all_verificatos()
@@ -127,13 +126,7 @@ class TemplatePrototype(BasePrototype):
             return errors
 
         for verificator in verificators:
-            externals = {}
-            for k, (word_form, additional_properties) in verificator.externals.iteritems():
-                word_form = lexicon_dictionary.DICTIONARY.get_word(word_form)
-                if additional_properties:
-                    word_form.properties.update(*[VERBOSE_TO_PROPERTIES[prop.strip()] for prop in additional_properties.split(',') if prop])
-
-                externals[k] = word_form
+            externals = verificator.preprocessed_externals()
 
             template_render = self.utg_template.substitute(externals=externals, dictionary=utg_dictionary)
 
@@ -201,6 +194,23 @@ class Verificator(object):
         return (self.text == other.text and
                 self.externals == other.externals)
 
+    def get_label(self):
+        externals = self.preprocessed_externals()
+        return u'Проверка для %s' % u', '.join(u'%s=%s' % (variable, value.form) for variable, value in externals.iteritems())
+
+    def preprocessed_externals(self):
+        externals = {}
+        for k, (word_form, additional_properties) in self.externals.iteritems():
+            word_form = lexicon_dictionary.DICTIONARY.get_word(word_form)
+            if additional_properties:
+                properties = utg_words.Properties(word_form.properties,
+                                                *[VERBOSE_TO_PROPERTIES[prop.strip()] for prop in additional_properties.split(',') if prop])
+                word_form = utg_words.WordForm(word=word_form.word,
+                                               properties=properties)
+
+            externals[k] = word_form
+
+        return externals
 
     @classmethod
     def get_verificators(cls, key, groups, old_verificators=()):

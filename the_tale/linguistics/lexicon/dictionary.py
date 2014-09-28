@@ -5,10 +5,21 @@ from utg.relations import WORD_TYPE
 from utg.data import VERBOSE_TO_PROPERTIES
 from utg.dictionary import Dictionary
 
+from the_tale.linguistics.lexicon import exceptions
 
-def noun(forms, properties):
+
+def noun(forms, properties, countable=None):
     properties = Properties(*[VERBOSE_TO_PROPERTIES[prop.strip()] for prop in properties.split(',')])
-    return Word(type=WORD_TYPE.NOUN, forms=forms, properties=properties)
+
+    if len(forms) != Word.get_forms_number(type=WORD_TYPE.NOUN):
+        raise exceptions.WrongFormNumberError()
+
+    patches = {}
+
+    if countable:
+        patches[WORD_TYPE.NOUN_COUNTABLE_FORM] = Word(type=WORD_TYPE.NOUN_COUNTABLE_FORM, forms=countable, properties=properties)
+
+    return Word(type=WORD_TYPE.NOUN, forms=forms, properties=properties, patches=patches)
 
 def text(form):
     return Word(type=WORD_TYPE.TEXT, forms=[form], properties=Properties())
@@ -111,14 +122,15 @@ words = [ noun([u'герой', u'героя', u'герою', u'героя', u'г
           noun([u'колония', u'колонии', u'колонии', u'колонию', u'колонией', u'колонии',
                 u'колонии', u'колоний', u'колониям', u'колонии', u'колониями', u'колониях'], u'но,жр'),
           noun([u'человек', u'человека', u'человеку', u'человека', u'человеком', u'человеке',
-                u'люди', u'людей', u'людям', u'людей', u'людьми', u'людях'], u'од,мр'),
+                u'люди', u'людей', u'людям', u'людей', u'людьми', u'людях'], u'од,мр',
+                countable=[u'человек', u'человек', u'человекам', u'человек', u'человеками', u'человеках']),
           noun([u'эльф', u'эльфа', u'эльфу', u'эльфа', u'эльфом', u'эльфе',
                 u'эльфы', u'эльфов', u'эльфам', u'эльфов', u'эльфами', u'эльфах'], u'од,мр'),
           noun([u'орк', u'орка', u'орку', u'орка', u'орком', u'орке',
                 u'орки', u'орков', u'оркам', u'орков', u'орками', u'орках'], u'од,мр'),
           noun([u'гоблин', u'гоблина', u'гоблину', u'гоблина', u'гоблином', u'гоблине',
                 u'гоблины', u'гоблинов', u'гоблинам', u'гоблинов', u'гоблинами', u'гоблинах'], u'од,мр'),
-          noun([u'дварф', u'двара', u'дварфу', u'дварфа', u'дварфом', u'дварфе',
+          noun([u'дварф', u'дварфа', u'дварфу', u'дварфа', u'дварфом', u'дварфе',
                 u'дварфы', u'дварфов', u'дварфам', u'дварфов', u'дварфами', u'дварфах'], u'од,мр'),
           text(u'любой текст'),
           text(u'текст текст текст'),

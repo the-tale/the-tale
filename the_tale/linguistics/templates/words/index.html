@@ -12,6 +12,25 @@
 {{ base_macros.registration_required_message("иметь возможность добавлять слова в словарь.") }}
 {% endif %}
 
+{% if resource.account.is_authenticated() %}
+<div class="btn-group pgf-create-new-word-buttons pull-left"
+     style="display: inline-block; vertical-align: middle; margin-right: 0.5em; margin-bottom: 0.5em;">
+  <a class="btn btn-success btn-primary dropdown-toggle" data-toggle="dropdown">
+    Добавить слово <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu">
+    {% for word_type in ALLOWED_WORD_TYPE.records %}
+    <li><a href="{{ url('linguistics:words:new', type=word_type.utg_type.value) }}">{{word_type.utg_type.text}}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+
+{% endif %}
+
+<p>
+  Список всех слов, используемых при создании фраз на основе шаблонов. Добавлять новые слова имеет смысла только если Вы уже добавили новый шаблон, который их использует.
+</p>
+
 {{ list_filter_macros.html_filter(index_filter) }}
 
 {% if words %}

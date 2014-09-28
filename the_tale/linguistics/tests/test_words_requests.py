@@ -376,8 +376,9 @@ class ShowRequestsTests(BaseRequestsTests):
 
     def test_displaying_fields_words_with_optional_properties(self):
         word_type = utg_relations.WORD_TYPE.NOUN
-        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix=u'w-'))
-        word.utg_word.properties.update(utg_relations.NUMBER.PLURAL)
+        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type,
+                                                                               prefix=u'w-',
+                                                                               properties=utg_words.Properties(utg_relations.NUMBER.PLURAL)))
         word.save()
 
         requested_url = url('linguistics:words:show', word.id)

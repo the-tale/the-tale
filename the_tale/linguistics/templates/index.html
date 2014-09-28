@@ -4,9 +4,12 @@
 
 {% block linguistics_content %}
 
-<h3>Типы фраз</h3>
+<h3>Типы фраз <small>всего: {{total_templates}} фраз</small></h3>
 
 <br/>
+
+  <strong style="width: 75px; display: inline-block; margin-left: 10px;">ко-во</strong>
+  <strong style="display: inline-block;" rel="tooltip">группа</strong>
 
 <div class="accordion" id="pgf-phrases-accordion">
 
@@ -18,6 +21,7 @@
   <div class="accordion-group">
     <div class="accordion-heading">
       <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-phrases-accordion" href="#pgf-group-{{group.value}}">
+        <span style="width: 50px; display: inline-block;" rel="tooltip" title="количество фраз">{{groups_count[group]}}</span>
         {{group.text}}
       </a>
     </div>
@@ -26,8 +30,14 @@
         <p>{{group.description}}</p>
 
         <table class="table table-bordered table-condensed table-no-highlighting">
+          <tr>
+            <th>количество</th>
+            <th>тип</th>
+            <th>описание</th>
+          </tr>
           {% for key in group_keys %}
           <tr>
+            <td width="50px">{{keys_count[key]}}</td>
             <th><a href="{{url('linguistics:templates:', key=key.value)}}">{{key.text }}</a></th>
             <td>{{key.description}}</td>
           <tr/>

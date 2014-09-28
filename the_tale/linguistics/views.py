@@ -23,6 +23,7 @@ from the_tale.linguistics import prototypes
 from the_tale.linguistics import forms
 from the_tale.linguistics import word_drawer
 from the_tale.linguistics import storage
+from the_tale.linguistics import logic
 from the_tale.linguistics.lexicon.groups import relations as lexicon_groups_relations
 from the_tale.linguistics.lexicon import keys
 
@@ -37,7 +38,8 @@ class WordsIndexFilter(list_filter.ListFilter):
 
 class TemplatesIndexFilter(list_filter.ListFilter):
     ELEMENTS = [list_filter.reset_element(),
-                list_filter.choice_element(u'состояние:', attribute='state', choices=[(None, u'все')] + list(relations.TEMPLATE_STATE.select('value', 'text'))) ]
+                list_filter.choice_element(u'состояние:', attribute='state', choices=[(None, u'все')] + list(relations.TEMPLATE_STATE.select('value', 'text'))),
+                list_filter.static_element(u'количество:', attribute='count', default_value=0) ]
 
 
 class LinguisticsResource(Resource):
@@ -47,9 +49,14 @@ class LinguisticsResource(Resource):
 
     @handler('', method='get')
     def index(self):
+        groups_count, keys_count = logic.get_templates_count()
+
         return self.template('linguistics/index.html',
                              {'GROUPS': sorted(lexicon_groups_relations.LEXICON_GROUP.records, key=lambda group: group.text),
                               'LEXICON_KEY': keys.LEXICON_KEY,
+                              'groups_count': groups_count,
+                              'keys_count': keys_count,
+                              'total_templates': sum(groups_count.values()),
                               'page_type': 'keys',} )
 
 
@@ -108,6 +115,7 @@ class WordResource(Resource):
                              {'words': words,
                               'page_type': 'dictionary',
                               'paginator': paginator,
+                              'ALLOWED_WORD_TYPE': relations.ALLOWED_WORD_TYPE,
                               'index_filter': index_filter} )
 
 
@@ -135,7 +143,6 @@ class WordResource(Resource):
                               'type': type,
                               'page_type': 'dictionary',
                               'parent': parent,
-                              'structure': word_drawer.STRUCTURES[type],
                               'drawer': word_drawer.FormDrawer(type, form=form)} )
 
 
@@ -175,13 +182,22 @@ class WordResource(Resource):
 
     @handler('#word', name='show', method='get')
     def show(self):
+        word_parent = self.word.get_parent()
+        word_child = self.word.get_child()
+
+        other_version = None
+        if word_child:
+            other_version = word_child.utg_word
+        if word_parent:
+            other_version = word_parent.utg_word
+
         return self.template('linguistics/words/show.html',
                              {'word': self.word,
                               'page_type': 'dictionary',
                               'parent_word': self.word.get_parent(),
                               'child_word': self.word.get_child(),
-                              'structure': word_drawer.STRUCTURES[self.word.type],
-                              'drawer': word_drawer.ShowDrawer(word=self.word)} )
+                              'drawer': word_drawer.ShowDrawer(word=self.word.utg_word,
+                                                               other_version=other_version)} )
 
 
     @login_required
@@ -243,9 +259,12 @@ class TemplateResource(Resource):
                                                                                 'key': key.value})
 
         index_filter = TemplatesIndexFilter(url_builder=url_builder, values={'state': state.value if state else None,
-                                                                             'key': key.value})
+                                                                             'key': key.value,
+                                                                             'count': templates_query.count()})
 
         templates = prototypes.TemplatePrototype.from_query(templates_query)
+
+        templates.sort(key=lambda t: t.raw_template)
 
         return self.template('linguistics/templates/index.html',
                              {'key': key,

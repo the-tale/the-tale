@@ -2,6 +2,7 @@
 
 {% import 'macros.html' as base_macros with context %}
 {% import 'utils/list_filter.html' as list_filter_macros with context %}
+{% import 'linguistics/templates/macros.html' as templates_macros with context %}
 
 {% block title %}{{key.text}} | {{ super() }}{% endblock %}
 {% block description %}Шаблоны для фразы «{{key.text}}».{% endblock %}
@@ -12,30 +13,32 @@
 {{ base_macros.registration_required_message("иметь возможность добавлять шаблоны фраз.") }}
 {% endif %}
 
-<h3>{{key.group.text}}::{{key.text}}</h3>
+{% if key %}
+{{ templates_macros.key_info(key)}}
+{% endif %}
 
-<p>{{key.group.description}}</p>
-
-<p>{{key.description}}</p>
+{% if resource.account.is_authenticated() %}
+<a class="btn btn-success" href="{{url('linguistics:templates:new', key=key.value)}}">Добавить шаблон</a>
+{% endif %}
 
 {{ list_filter_macros.html_filter(index_filter) }}
-
-<p>
-  <a href="{{url('linguistics:templates:new', key=key.value)}}">Добавить шаблон</a>
-</p>
 
 {% if templates %}
 
 <table class="table">
   <thead>
     <tr>
+      <th width="125px">состояние</th>
       <th>шаблон</th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
     {% for template in templates %}
     <tr>
-      <td><a href="{{url('linguistics:templates:show', template.id)}}">{{template.raw_template}}</a></td>
+      <td>{{template.state.text}}</td>
+      <td>{{template.raw_template}}</td>
+      <td><a href="{{url('linguistics:templates:show', template.id)}}">подробнее</a></td>
     </tr>
     {% endfor %}
   </tbody>

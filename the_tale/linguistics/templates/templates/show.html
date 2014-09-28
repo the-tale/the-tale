@@ -1,38 +1,46 @@
 {% extends "linguistics/templates/base.html" %}
 
+{% import 'linguistics/templates/macros.html' as templates_macros with context %}
+
 {% block title %}Шаблон «{{template.key.text}}» |{{ super() }}{% endblock %}
 {% block description %}Шаблон «{{template.key.text}}».{% endblock %}
 
 {% block templates_content %}
 
-  <h2>{{template.key.text|up_first}}</h2>
+{{ templates_macros.key_info(template.key)}}
 
-  <p>{{template.key.description}}</p>
+<a href="{{url('linguistics:templates:', key=template.key.value)}}">◀ вернуться к списку шаблонов</a>
 
-  <h3>Шаблон</h3>
+<br/>
+<br/>
 
-  <p>{{template.raw_template}}</p>
+<h4>Шаблон</h4>
 
-  {% if errors %}
-    <h3>Ошибки</h3>
+<p style="margin: 1em; margin-top: 0.25em;">
+  {{template.raw_template}}
+</p>
 
-    <ul class="pgf-errors-messages">
-      {% for error in errors %}
-        <li>{{error}}</li>
-      {% endfor %}
-    </ul>
+{% if errors %}
+<h4>Ошибки</h4>
 
-  {% endif %}
-
-  <h3>Проверки</h3>
-
-  {% for verificator in template.verificators %}
-
-    <h4></h4>
-
-    <p>{{verificator.text}}</p>
-
+<ul class="pgf-errors-messages">
+  {% for error in errors %}
+  <li>{{error}}</li>
   {% endfor %}
+</ul>
+
+{% endif %}
+
+
+
+{% for verificator in template.verificators %}
+<h4>{{verificator.get_label()}}</h4>
+<p style="margin: 1em; margin-top: 0.25em;">
+  {{verificator.text}}
+</p>
+{% endfor %}
+
+<a class="btn btn-success" href="{{url('linguistics:templates:edit', template.id)}}">Редактировать</a>
 
 
 {% endblock %}

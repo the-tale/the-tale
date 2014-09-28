@@ -11,7 +11,6 @@ from utg import exceptions as utg_exceptions
 
 
 from the_tale.linguistics import models
-from the_tale.linguistics import prototypes
 
 
 class BaseWordForm(forms.Form):
@@ -22,6 +21,10 @@ class BaseWordForm(forms.Form):
 
         for i, key in enumerate(utg_data.INVERTED_WORDS_CACHES[self.WORD_TYPE]):
             self.fields['field_%d' % i] = fields.CharField(label='', max_length=models.Word.MAX_FORM_LENGTH)
+
+        for patch in self.WORD_TYPE.patches:
+            for i, key in enumerate(utg_data.INVERTED_WORDS_CACHES[patch]):
+                self.fields['patch_field_%d_%d' % (patch.value, i)] = fields.CharField(label='', max_length=models.Word.MAX_FORM_LENGTH, required=False)
 
         for static_property, required in self.WORD_TYPE.properties.iteritems():
             property_type = utg_relations.PROPERTY_TYPE.index_relation[static_property]
@@ -37,22 +40,40 @@ class BaseWordForm(forms.Form):
     def get_word(self):
         forms = [getattr(self.c, 'field_%d' % i) for i in xrange(len(utg_data.INVERTED_WORDS_CACHES[self.WORD_TYPE]))]
 
+        patches = {}
+
+        for patch in self.WORD_TYPE.patches:
+            patch_forms = [getattr(self.c, 'patch_field_%d_%d' % (patch.value, i)) for i in xrange(len(utg_data.INVERTED_WORDS_CACHES[patch]))]
+
+            if not all(form for form in patch_forms):
+                continue
+
+            patches[patch] = utg_words.Word(type=patch,
+                                            forms=patch_forms,
+                                            properties=utg_words.Properties())
+
         properties = utg_words.Properties()
 
         for static_property, required in self.WORD_TYPE.properties.iteritems():
             value = getattr(self.c, 'field_%s' % static_property.__name__)
             if not value:
                 continue
-            properties.update(value)
+            properties = utg_words.Properties(properties, value)
 
         return utg_words.Word(type=self.WORD_TYPE,
                               forms=forms,
-                              properties=properties)
+                              properties=properties,
+                              patches=patches)
 
     @classmethod
     def get_initials(cls, word):
         initials = {('field_%d' % i): word.forms[i]
                     for i in xrange(len(utg_data.INVERTED_WORDS_CACHES[cls.WORD_TYPE]))}
+
+        for patch in word.type.patches:
+            for i, key in enumerate(utg_data.INVERTED_WORDS_CACHES[patch]):
+                initials['patch_field_%d_%d' % (patch.value, i)] = word.patches[patch].forms[i] if patch in word.patches else u''
+
 
         for static_property, required in cls.WORD_TYPE.properties.iteritems():
             value = word.properties.is_specified(static_property)
@@ -84,8 +105,7 @@ class TemplateForm(forms.Form):
         self.verificators = verificators
 
         for i, verificator in enumerate(self.verificators):
-            label = u'проверка для %s' % u', '.join(u'%s=%s' % (variable, value) for variable, value in verificator.externals.iteritems())
-            self.fields['verificator_%d' % i] = fields.TextField(label=label, required=False, widget=django_forms.Textarea(attrs={'rows': 3}))
+            self.fields['verificator_%d' % i] = fields.TextField(label=verificator.get_label(), required=False, widget=django_forms.Textarea(attrs={'rows': 3}))
 
     def verificators_fields(self):
         return [self['verificator_%d' % i] for i, verificator in enumerate(self.verificators)]

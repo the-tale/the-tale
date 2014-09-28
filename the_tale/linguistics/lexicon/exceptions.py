@@ -9,3 +9,6 @@ class LexiconError(exceptions.LinguisticsError):
 
 class NoFreeVerificatorSubstitutionError(exceptions.LinguisticsError):
     MSG = u'No free verificator substitution for key %(key)s and variable %(variable)s'
+
+class WrongFormNumberError(exceptions.LinguisticsError):
+    MSG = u'Wrong forms number'

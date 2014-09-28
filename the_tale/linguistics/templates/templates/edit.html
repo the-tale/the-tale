@@ -1,5 +1,7 @@
 {% extends "linguistics/templates/base.html" %}
 
+{% import 'linguistics/templates/macros.html' as templates_macros with context %}
+
 {% block title %}Редактирования шаблона «{{template.key.text}}» |{{ super() }}{% endblock %}
 {% block description %}Редактирование шаблона «{{template.key.text}}».{% endblock %}
 
@@ -20,9 +22,7 @@ jQuery(document).ready( function(e) {
 
 {% block templates_content %}
 
-<h2>{{template.key.text|up_first}}</h2>
-
-<p>{{template.key.description}}</p>
+{{ templates_macros.key_info(template.key)}}
 
 <form id="pgf-edit-template-form"
       method="post"
@@ -37,7 +37,7 @@ jQuery(document).ready( function(e) {
   {% endfor %}
 
   <div class="widget">
-    <input type="submit" class="btn" value="Сохранить"/>
+    <input type="submit" class="btn btn-success" value="Сохранить"/>
   </div>
 
 </form>
