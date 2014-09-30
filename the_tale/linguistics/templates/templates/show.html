@@ -9,6 +9,14 @@
 
 {{ templates_macros.key_info(template.key)}}
 
+{% if template_child %}
+<p class="alert alert-success pgf-has-child-message">Эта фраза имеет непроверенную <a href="{{url('linguistics:templates:show', template_child.id)}}">копию</a>.</p>
+{% endif %}
+
+{% if template_parent %}
+<p class="alert alert-success pgf-has-parent-message">Эта фраза явлется копией <a href="{{url('linguistics:templates:show', template_parent.id)}}">другой фразы</a>.</p>
+{% endif %}
+
 <a href="{{url('linguistics:templates:', key=template.key.value)}}">◀ вернуться к списку шаблонов</a>
 
 <br/>
@@ -23,11 +31,9 @@
 {% if errors %}
 <h4>Ошибки</h4>
 
-<ul class="pgf-errors-messages">
-  {% for error in errors %}
-  <li>{{error}}</li>
-  {% endfor %}
-</ul>
+{% for error in errors %}
+<p class="alert alert-danger pgf-verificator-error-message">{{error}}</p>
+{% endfor %}
 
 {% endif %}
 
@@ -41,6 +47,32 @@
 {% endfor %}
 
 <a class="btn btn-success" href="{{url('linguistics:templates:edit', template.id)}}">Редактировать</a>
+
+{% if resource.can_moderate_templates %}
+
+{% if template_parent %}
+<a class="btn btn-info pgf-forms-post-simple pgf-replace-button"
+   href="{{url('linguistics:templates:replace', template.id)}}">Заменить родителя</a>
+
+<a class="btn btn-info pgf-forms-post-simple pgf-detach-button"
+   href="{{url('linguistics:templates:detach', template.id)}}">Отцепить от родителя</a>
+{% endif %}
+
+{% if template.state.is_ON_REVIEW %}
+<a class="btn btn-success pgf-forms-post-simple pgf-in-game-button"
+   href="{{url('linguistics:templates:in-game', template.id)}}">В игру</a>
+{% endif %}
+
+{% if template.state.is_IN_GAME %}
+<a class="btn btn-warning pgf-forms-post-simple pgf-on-review-button"
+   href="{{url('linguistics:templates:on-review', template.id)}}">Из игры</a>
+{% endif %}
+
+<a class="btn btn-danger pgf-forms-post-simple pgf-remove-button"
+   href="{{url('linguistics:templates:remove', template.id)}}"
+   data-action-type="redirect"
+   data-redirect-url="{{url('linguistics:templates:')}}">Удалить</a>
+{% endif %}
 
 
 {% endblock %}

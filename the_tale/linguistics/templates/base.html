@@ -12,7 +12,7 @@
 
       <ul class="nav nav-pills">
         <li {% if page_type == 'keys' %}class="active"{% endif %}><a href="{{ url('linguistics:') }}">Типы фраз</a></li>
-        <li {% if page_type == 'new-templates' %}class="active"{% endif %}><a href="#">Новые фразы</a></li>
+        <li {% if page_type == 'all-templates' %}class="active"{% endif %}><a href="{{url('linguistics:templates:')}}">Все фразы</a></li>
         <li {% if page_type == 'dictionary' %}class="active"{% endif %}><a href="{{ url('linguistics:words:') }}">Словарь</a></li>
       </ul>
 

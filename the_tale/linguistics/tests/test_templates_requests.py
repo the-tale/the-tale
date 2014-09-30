@@ -58,7 +58,6 @@ class IndexRequestsTests(BaseRequestsTests):
                            texts=['linguistics.templates.state.not_found'], status_code=404)
 
     def test_key_errors(self):
-        self.check_html_ok(self.request_html(url('linguistics:templates:')), texts=['linguistics.templates.key.not_specified'])
         self.check_html_ok(self.request_html(url('linguistics:templates:', key='www')), texts=['linguistics.templates.key.wrong_format'])
         self.check_html_ok(self.request_html(url('linguistics:templates:', key=666)), texts=['linguistics.templates.key.not_found'], status_code=404)
 
@@ -67,6 +66,8 @@ class IndexRequestsTests(BaseRequestsTests):
         self.check_html_ok(self.request_html(url('linguistics:templates:', key=keys.LEXICON_KEY.HERO_COMMON_DIARY_CREATE.value)),
                            texts=['pgf-no-templates-message'])
 
+    def test_no_key(self):
+        self.check_html_ok(self.request_html(url('linguistics:templates:')), texts=[])
 
 
 class NewRequestsTests(BaseRequestsTests):
@@ -175,9 +176,82 @@ class CreateRequestsTests(BaseRequestsTests):
 
 class ShowRequestsTests(BaseRequestsTests):
 
+    def setUp(self):
+        super(ShowRequestsTests, self).setUp()
+
+        self.key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
+        self.TEXT = u'[hero|загл] 1 [пепельница|hero|вн]'
+        self.utg_template = utg_templates.Template()
+        self.utg_template.parse(self.TEXT, externals=['hero'])
+
+        self.template =  prototypes.TemplatePrototype.create(key=self.key,
+                                                             raw_template=self.TEXT,
+                                                             utg_template=self.utg_template,
+                                                             verificators=[],
+                                                             author=self.account_1)
+
+        result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
+        self.moderator = AccountPrototype.get_by_id(account_id)
+
+        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_template'])
+        group.user_set.add(self.moderator._model)
+
+        self.request_login(self.account_1.email)
+
+
     def test_template_errors(self):
         self.check_html_ok(self.request_html(url('linguistics:templates:show', 'www')), texts=['linguistics.templates.template.wrong_format'])
         self.check_html_ok(self.request_html(url('linguistics:templates:show', 666)), texts=['linguistics.templates.template.not_found'], status_code=404)
+
+    def test_success(self):
+        self.check_html_ok(self.request_html(url('linguistics:templates:show', self.template.id)), texts=[('pgf-has-parent-message', 0),
+                                                                                               ('pgf-has-child-message', 0),
+                                                                                               ('pgf-replace-button', 0),
+                                                                                               ('pgf-detach-button', 0),
+                                                                                               ('pgf-in-game-button', 0),
+                                                                                               ('pgf-on-review-button', 0),
+                                                                                               ('pgf-remove-button', 0) ])
+
+    def test_success__moderator(self):
+        self.template.state = relations.TEMPLATE_STATE.IN_GAME
+        self.template.save()
+
+        self.request_login(self.moderator.email)
+
+        child = prototypes.TemplatePrototype.create(key=self.key,
+                                                    raw_template=self.TEXT,
+                                                    utg_template=self.utg_template,
+                                                    verificators=[],
+                                                    author=self.account_1,
+                                                    parent=self.template)
+
+        self.check_html_ok(self.request_html(url('linguistics:templates:show', self.template.id)), texts=[('pgf-has-parent-message', 0),
+                                                                                                          ('pgf-has-child-message', 1),
+                                                                                                          ('pgf-replace-button', 0),
+                                                                                                          ('pgf-detach-button', 0),
+                                                                                                          ('pgf-in-game-button', 0),
+                                                                                                          ('pgf-on-review-button', 1),
+                                                                                                          ('pgf-remove-button', 1) ])
+        self.check_html_ok(self.request_html(url('linguistics:templates:show', child.id)), texts=[('pgf-has-parent-message', 1),
+                                                                                                  ('pgf-has-child-message', 0),
+                                                                                                  ('pgf-replace-button', 1),
+                                                                                                  ('pgf-detach-button', 1),
+                                                                                                  ('pgf-in-game-button', 1),
+                                                                                                  ('pgf-on-review-button', 0),
+                                                                                                  ('pgf-remove-button', 1) ])
+
+    def test_success__has_parent_or_child(self):
+        child = prototypes.TemplatePrototype.create(key=self.key,
+                                                    raw_template=self.TEXT,
+                                                    utg_template=self.utg_template,
+                                                    verificators=[],
+                                                    author=self.account_1,
+                                                    parent=self.template)
+
+        self.check_html_ok(self.request_html(url('linguistics:templates:show', child.id)), texts=[('pgf-has-parent-message', 1),
+                                                                                                  ('pgf-has-child-message', 0)])
+        self.check_html_ok(self.request_html(url('linguistics:templates:show', self.template.id)), texts=[('pgf-has-parent-message', 0),
+                                                                                                          ('pgf-has-child-message', 1)])
 
     def check_errors(self, errors):
 
@@ -196,7 +270,7 @@ class ShowRequestsTests(BaseRequestsTests):
                                                         author=self.account_1)
 
         with mock.patch('the_tale.linguistics.prototypes.TemplatePrototype.get_errors', lambda *argv, **kwargs: errors):
-            texts = errors+['pgf-errors-messages'] if errors else [('pgf-errors-messages', 0)]
+            texts = errors+['pgf-verificator-error-message'] if errors else [('pgf-verificator-error-message', 0)]
             self.check_html_ok(self.request_html(url('linguistics:templates:show', prototype.id)), texts=texts)
 
     def test_no_errors(self):

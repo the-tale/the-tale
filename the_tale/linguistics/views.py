@@ -246,31 +246,52 @@ class TemplateResource(Resource):
 
         self.can_moderate_templates = self.account.has_perm('linguistics.moderate_template')
 
-    @validate_argument('key', lambda v: keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', u'неверный ключ фразы', required=True)
+    @validate_argument('page', int, 'linguistics.templates', u'неверная страница')
+    @validate_argument('key', lambda v: keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', u'неверный ключ фразы')
     @validate_argument('state', lambda v: relations.TEMPLATE_STATE.index_value.get(int(v)), 'linguistics.templates', u'неверное состояние шаблона')
     @handler('', method='get')
-    def index(self, key, state=None):
-        templates_query = prototypes.TemplatePrototype._db_filter(key=key).order_by('raw_template')
+    def index(self, key=None, state=None, page=1):
+        templates_query = prototypes.TemplatePrototype._db_all().order_by('raw_template')
+
+        if key:
+            templates_query = templates_query.filter(key=key)
 
         if state:
             templates_query = templates_query.filter(state=state)
 
+        page = int(page) - 1
+
+        templates_count = templates_query.count()
+
         url_builder = UrlBuilder(reverse('linguistics:templates:'), arguments={ 'state': state.value if state else None,
-                                                                                'key': key.value})
+                                                                                'key': key.value if key is not None else None})
 
         index_filter = TemplatesIndexFilter(url_builder=url_builder, values={'state': state.value if state else None,
-                                                                             'key': key.value,
+                                                                             'key': key.value if key is not None else None,
                                                                              'count': templates_query.count()})
 
-        templates = prototypes.TemplatePrototype.from_query(templates_query)
 
-        templates.sort(key=lambda t: t.raw_template)
+        paginator = Paginator(page, templates_count, linguistics_settings.TEMPLATES_ON_PAGE, url_builder)
+
+        if paginator.wrong_page_number:
+            return self.redirect(paginator.last_page_url, permanent=False)
+
+        template_from, template_to = paginator.page_borders(page)
+
+        templates = prototypes.TemplatePrototype.from_query(templates_query[template_from:template_to])
+
+        dictionary = storage.raw_dictionary.item
+
+        templates_to_errors = {template.id: bool(template.get_errors(dictionary))
+                               for template in templates}
 
         return self.template('linguistics/templates/index.html',
                              {'key': key,
                               'templates': templates,
+                              'templates_to_errors': templates_to_errors,
                               'index_filter': index_filter,
-                              'page_type': 'keys',
+                              'page_type': 'keys' if key else 'all-templates',
+                              'paginator': paginator,
                               'LEXICON_KEY': keys.LEXICON_KEY} )
 
     @login_required
@@ -317,11 +338,16 @@ class TemplateResource(Resource):
 
     @handler('#template', name='show', method='get')
     def show(self):
+        template_parent = self._template.get_parent()
+        template_child = self._template.get_child()
+
         dictionary = storage.raw_dictionary.item
         errors = self._template.get_errors(dictionary)
 
         return self.template('linguistics/templates/show.html',
                              {'template': self._template,
+                              'template_parent': template_parent,
+                              'template_child': template_child,
                               'page_type': 'keys',
                               'errors': errors} )
 
@@ -442,7 +468,7 @@ class TemplateResource(Resource):
     @login_required
     @moderation_template_rights()
     @handler('#template', 'on-review', method='post')
-    def out_game(self):
+    def on_review(self):
         if self._template.state.is_ON_REVIEW:
             return self.json_ok()
 

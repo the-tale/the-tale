@@ -17,7 +17,8 @@ class DictionaryStoragesTests(TestCase):
 
     def setUp(self):
         super(DictionaryStoragesTests, self).setUp()
-        self.word_type_1, self.word_type_2, self.word_type_3 = random.sample([t for t in utg_relations.WORD_TYPE.records if not t.is_INTEGER], 3)
+        self.word_type_1, self.word_type_2, self.word_type_3 = random.sample([t for t in utg_relations.WORD_TYPE.records if not t.is_INTEGER and not t.is_TEXT], 3)
+
         self.utg_word_1 = utg_words.Word.create_test_word(self.word_type_1, prefix='w1-')
         self.utg_word_2_1 = utg_words.Word.create_test_word(self.word_type_2, prefix='w2_1-')
         self.utg_word_3 = utg_words.Word.create_test_word(self.word_type_3, prefix='w3-')

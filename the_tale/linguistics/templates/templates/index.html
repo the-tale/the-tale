@@ -4,8 +4,18 @@
 {% import 'utils/list_filter.html' as list_filter_macros with context %}
 {% import 'linguistics/templates/macros.html' as templates_macros with context %}
 
-{% block title %}{{key.text}} | {{ super() }}{% endblock %}
-{% block description %}Шаблоны для фразы «{{key.text}}».{% endblock %}
+{% block title %}
+  {% if key %}{{key.text}} | {{ super() }}
+  {% else %}{{ super() }}
+  {% endif %}
+{% endblock %}
+
+{% block description %}
+  {% if key %}Шаблоны для фразы «{{key.text}}».
+  {% else %}
+    Все шаблоны.
+  {% endif %}
+{% endblock %}
 
 {% block templates_content %}
 
@@ -17,7 +27,7 @@
 {{ templates_macros.key_info(key)}}
 {% endif %}
 
-{% if resource.account.is_authenticated() %}
+{% if key and resource.account.is_authenticated() %}
 <a class="btn btn-success" href="{{url('linguistics:templates:new', key=key.value)}}">Добавить шаблон</a>
 {% endif %}
 
@@ -25,24 +35,36 @@
 
 {% if templates %}
 
+{{ base_macros.render_paginator(paginator) }}
+
 <table class="table">
   <thead>
     <tr>
+      <th width="50px">ошибки</th>
       <th width="125px">состояние</th>
       <th>шаблон</th>
-      <th></th>
+      <th width="50px"></th>
     </tr>
   </thead>
   <tbody>
     {% for template in templates %}
     <tr>
+      <td>
+        {% if templates_to_errors[template.id] %}<span class="label label-important">ошибки</span>
+        {% else %}<span class="label label-success">чисто</span>
+        {% endif %}
+      </td>
       <td>{{template.state.text}}</td>
       <td>{{template.raw_template}}</td>
-      <td><a href="{{url('linguistics:templates:show', template.id)}}">подробнее</a></td>
+      <td>
+        <a href="{{url('linguistics:templates:show', template.id)}}">подробнее</a>
+      </td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
+
+{{ base_macros.render_paginator(paginator) }}
 
 {% else %}
 <span class="pgf-no-templates-message">Не найдено шаблонов, отвечающих условиям поиска.</span>

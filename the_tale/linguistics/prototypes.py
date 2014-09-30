@@ -82,7 +82,16 @@ class TemplatePrototype(BasePrototype):
     _model_class = models.Template
     _readonly = ('id', 'key', 'created_at', 'raw_template', 'author_id')
     _bidirectional = ('state', 'parent_id')
-    _get_by = ('id',)
+    _get_by = ('id', 'parent_id')
+
+    def get_parent(self):
+        if self.parent_id is None:
+            return None
+        return TemplatePrototype.get_by_id(self.parent_id)
+
+    def get_child(self):
+        return self.get_by_parent_id(self.id)
+
 
     @lazy_property
     def _data(self):
@@ -153,7 +162,8 @@ class TemplatePrototype(BasePrototype):
     def update(self, raw_template, utg_template, verificators):
         self._model.raw_template = raw_template
         self._model.data = s11n.to_json({'verificators': [v.serialize() for v in verificators],
-                                         'template': utg_template.serialize()})
+                                         'template': utg_template.serialize(),
+                                         'groups': self.lexicon_groups})
 
         del self._data
         del self.verificators
