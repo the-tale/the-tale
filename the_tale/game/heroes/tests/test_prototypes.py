@@ -444,26 +444,26 @@ class HeroTest(testcase.TestCase):
 
         self.assertTrue(self.hero.is_active)
 
-        with mock.patch('the_tale.game.text_generation.get_text', mock.Mock(return_value='message_1')):
+        with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_1')):
             self.hero.add_message('message_type', diary=True, journal=True)
 
         self.assertEqual(len(self.hero.messages), 1)
         self.assertEqual(len(self.hero.diary), 1)
 
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_active', False):
-            with mock.patch('the_tale.game.text_generation.get_text', mock.Mock(return_value='message_2')):
+            with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_2')):
                 self.hero.add_message('message_type', diary=True, journal=True)
 
             self.assertEqual(len(self.hero.messages), 2)
             self.assertEqual(len(self.hero.diary), 2)
 
-            with mock.patch('the_tale.game.text_generation.get_text', mock.Mock(return_value='message_2')):
+            with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_2')):
                 self.hero.add_message('message_type', diary=False, journal=True)
 
             self.assertEqual(len(self.hero.messages), 0)
             self.assertEqual(len(self.hero.diary), 2)
 
-            with mock.patch('the_tale.game.text_generation.get_text', mock.Mock(return_value='message_2')):
+            with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_2')):
                 with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True):
                     self.hero.add_message('message_type', diary=False, journal=True)
 

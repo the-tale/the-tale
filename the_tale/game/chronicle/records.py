@@ -2,8 +2,6 @@
 
 from the_tale.game.prototypes import TimePrototype
 
-from the_tale.game.text_generation import get_text
-
 from the_tale.game.chronicle.relations import RECORD_TYPE, ACTOR_ROLE
 from the_tale.game.chronicle.exceptions import ChronicleException
 from the_tale.game.chronicle.prototypes import RecordPrototype, create_external_actor
@@ -31,6 +29,7 @@ class RecordBase(object):
     def textgen_id(self): return self.TEXGEN_ID_BASE  % self.TYPE.name.lower()
 
     def get_text(self):
+        from the_tale.linguistics.logic import get_text
         text = get_text('chronicle:get_text', self.textgen_id, self.substitutions)
         return text if text is not None else u''
 

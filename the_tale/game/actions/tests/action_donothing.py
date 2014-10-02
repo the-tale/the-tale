@@ -27,7 +27,7 @@ class DoNothingActionTest(testcase.TestCase):
         self.hero = self.storage.accounts_to_heroes[account_id]
         self.action_idl = self.hero.actions.current_action
 
-        self.action_donothing = ActionDoNothingPrototype.create(hero=self.hero, duration=7, messages_prefix='abrakadabra', messages_probability=0.3)
+        self.action_donothing = ActionDoNothingPrototype.create(hero=self.hero, duration=7, messages_prefix='QUEST_HOMETOWN_JOURNAL_CHATTING', messages_probability=0.3)
 
 
     def tearDown(self):
@@ -36,7 +36,7 @@ class DoNothingActionTest(testcase.TestCase):
     def test_create(self):
         self.assertEqual(self.action_idl.leader, False)
         self.assertEqual(self.action_donothing.leader, True)
-        self.assertEqual(self.action_donothing.textgen_id, 'abrakadabra')
+        self.assertEqual(self.action_donothing.textgen_id, 'QUEST_HOMETOWN_JOURNAL_CHATTING')
         self.assertEqual(self.action_donothing.percents_barier, 7)
         self.assertEqual(self.action_donothing.extra_probability, 0.3)
         self.assertEqual(self.action_donothing.bundle_id, self.action_idl.bundle_id)

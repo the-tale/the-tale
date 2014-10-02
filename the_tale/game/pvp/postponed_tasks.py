@@ -1,7 +1,5 @@
 # coding: utf-8
 
-from textgen.words import Fake
-
 from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 from the_tale.common.utils.enum import create_enum
 

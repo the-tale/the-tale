@@ -3,7 +3,7 @@ from django import forms as django_forms
 
 from dext.forms import forms, fields
 
-from the_tale.game.text_generation import get_phrases_types
+# from the_tale.game.text_generation import get_phrases_types
 
 from the_tale.game.phrase_candidates.models import PhraseCandidate
 from the_tale.game.phrase_candidates import relations
@@ -19,13 +19,13 @@ class PhraseCandidateNewForm(forms.Form):
 UNKNOWN_TYPE_ID = '#unknown'
 SUBTYPE_CHOICES = [(UNKNOWN_TYPE_ID, u'неизвестный тип')]
 
-phrases_types = get_phrases_types()
+# phrases_types = get_phrases_types()
 
-for module in phrases_types['modules'].values():
-    module_name = module['name']
-    for subtype_id, subtype in module['types'].items():
-        subtype_name = subtype['name']
-        SUBTYPE_CHOICES.append((subtype_id, u'%s::%s' % (module_name, subtype_name)))
+# for module in phrases_types['modules'].values():
+#     module_name = module['name']
+#     for subtype_id, subtype in module['types'].items():
+#         subtype_name = subtype['name']
+#         SUBTYPE_CHOICES.append((subtype_id, u'%s::%s' % (module_name, subtype_name)))
 
 SUBTYPE_CHOICES = sorted(SUBTYPE_CHOICES, key=lambda x: x[0])
 

@@ -2,8 +2,6 @@
 
 from django.dispatch import receiver
 
-from textgen.words import Fake as FakeWord
-
 from the_tale.game.bills import signals as bills_signals
 from the_tale.game.bills.models import BILL_TYPE
 

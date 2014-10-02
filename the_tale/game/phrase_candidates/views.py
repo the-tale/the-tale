@@ -12,7 +12,7 @@ from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.pagination import Paginator
 from the_tale.common.utils.decorators import login_required
 
-from the_tale.game.text_generation import get_phrases_types, get_phrase_module_id_by_subtype
+# from the_tale.game.text_generation import get_phrases_types, get_phrase_module_id_by_subtype
 
 from the_tale.game.phrase_candidates.models import PhraseCandidate
 from the_tale.game.phrase_candidates import relations

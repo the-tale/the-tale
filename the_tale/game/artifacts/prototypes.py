@@ -1,8 +1,6 @@
 # coding: utf-8
 import random
 
-from textgen.words import Noun
-
 from dext.common.utils import s11n
 
 from the_tale.common.utils import bbcode

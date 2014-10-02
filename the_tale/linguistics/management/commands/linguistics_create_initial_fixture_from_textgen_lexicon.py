@@ -8,8 +8,8 @@ from django.conf import settings as project_settings
 
 from dext.common.utils import s11n
 
-from textgen.words import WORD_TYPE as T_WORD_TYPE
-from textgen.logic import Args
+# from textgen.words import WORD_TYPE as T_WORD_TYPE
+# from textgen.logic import Args
 
 from utg.words import Word, Properties
 from utg.templates import Template
@@ -20,8 +20,6 @@ from utg.relations import CASE as U_CASE
 from utg.words import WordForm
 from utg import exceptions as utg_exceptions
 from utg import transformators
-
-from the_tale.game.text_generation import get_dictionary
 
 from the_tale.game.conf import game_settings
 

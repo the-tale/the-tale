@@ -57,7 +57,6 @@ class CodeTests(testcase.TestCase):
                                                'django',
                                                'rels',
                                                'optparse',
-                                               'textgen',
                                                'kombu',
                                                'decimal',
                                                'south',

@@ -11,7 +11,7 @@ from dext.common.utils.urls import url
 from the_tale.common.utils.testcase import TestCase
 from the_tale.common.utils.permissions import sync_group
 
-from the_tale.game.text_generation import get_phrases_types
+# from the_tale.game.text_generation import get_phrases_types
 from the_tale.game.logic import create_test_map
 
 from the_tale.accounts.prototypes import AccountPrototype

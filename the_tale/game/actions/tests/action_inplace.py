@@ -204,12 +204,9 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         from the_tale.game.relations import HABIT_HONOR_INTERVAL, HABIT_PEACEFULNESS_INTERVAL
 
         for honor in HABIT_HONOR_INTERVAL.records:
-            if honor.is_LEFT_1 or honor.is_NEUTRAL or honor.is_RIGHT_1:
-                continue
-
             for peacefulness in HABIT_PEACEFULNESS_INTERVAL.records:
-                if peacefulness.is_LEFT_1 or peacefulness.is_NEUTRAL or peacefulness.is_RIGHT_1:
-                    continue
+
+                self.hero.diary.clear()
 
                 self.hero._model.pos_previous_place_id = None
                 self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
@@ -219,21 +216,6 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
                         with self.check_delta(self.hero.diary.messages_number, 1):
                             ActionInPlacePrototype.create(hero=self.hero)
 
-        for honor in HABIT_HONOR_INTERVAL.records:
-            if not (honor.is_LEFT_1 or honor.is_NEUTRAL or honor.is_RIGHT_1):
-                continue
-
-            for peacefulness in HABIT_PEACEFULNESS_INTERVAL.records:
-                if not (peacefulness.is_LEFT_1 or peacefulness.is_NEUTRAL or peacefulness.is_RIGHT_1):
-                    continue
-
-                self.hero._model.pos_previous_place_id = None
-                self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
-
-                with mock.patch('the_tale.game.map.places.habits.Honor.interval', honor):
-                    with mock.patch('the_tale.game.map.places.habits.Peacefulness.interval', peacefulness):
-                        with self.check_not_changed(lambda: len(self.hero.diary.messages)):
-                            ActionInPlacePrototype.create(hero=self.hero)
 
         self.storage._test_save()
 

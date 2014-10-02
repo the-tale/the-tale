@@ -120,4 +120,3 @@ KEYS = [(u'ACTION_INPLACE_DESCRIPTION', 80000, u'Описание', LEXICON_GROU
         [V.HERO, V.PLACE]),
 
         ]
-        

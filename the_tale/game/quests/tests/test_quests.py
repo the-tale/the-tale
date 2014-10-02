@@ -27,7 +27,6 @@ from the_tale.game.persons.relations import PERSON_TYPE
 from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.logic import create_test_map
-from the_tale.game.text_generation import get_vocabulary
 from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.actions.prototypes import ActionQuestPrototype, ActionIdlenessPrototype

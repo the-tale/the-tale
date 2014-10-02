@@ -2,8 +2,6 @@
 
 from django.utils.log import getLogger
 
-from the_tale.game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
-
 logger = getLogger('the-tale.workers.game_logic')
 
 
@@ -14,7 +12,7 @@ class Writer(object):
     def __init__(self, type, message, substitution):
         self.type = type
         self.message = message
-        self.substitution = prepair_substitution(substitution)
+        self.substitution = substitution
 
     def actor_id(self, actor): return 'quest_%s_actor_%s' % (self.type, actor)
 
@@ -53,25 +51,12 @@ class Writer(object):
 
 
     def get_message(self, type_, **kwargs):
+        from the_tale.linguistics.logic import get_text
 
-        vocabulary = get_vocabulary()
+        externals = kwargs
+        externals.update(self.substitution)
 
-        if type_ not in vocabulary:
-            return None
-
-        template = vocabulary.get_random_phrase(type_, None)
-
-        if template is None:
-            # if template type exists but empty
-            return None
-
-        if kwargs:
-            args = dict(self.substitution)
-            args.update(prepair_substitution(kwargs))
-        else:
-            args = self.substitution
-
-        return template.substitute(get_dictionary(), args)
+        return get_text('quest:writers', type_, externals, quiet=True)
 
 
 def get_writer(**kwargs):

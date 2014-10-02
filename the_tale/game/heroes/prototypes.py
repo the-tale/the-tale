@@ -22,7 +22,6 @@ from the_tale.game.balance import formulas as f
 from the_tale.game.balance.power import Power
 
 from the_tale.game import names
-from the_tale.game import text_generation
 
 from the_tale.game.prototypes import TimePrototype, GameState
 
@@ -399,13 +398,14 @@ class HeroPrototype(BasePrototype,
             self.diary.push_message(msg)
 
     def add_message(self, type_, diary=False, journal=True, turn_delta=0, **kwargs):
+        from the_tale.linguistics.logic import get_text
 
         if not diary and not self.is_active and not self.is_premium:
             # do not process journal messages for inactive heroes (and clear it if needed)
             self.messages.clear()
             return
 
-        msg = text_generation.get_text('hero:add_message', type_, kwargs)
+        msg = get_text('hero:add_message', type_, kwargs)
 
         if msg is None: return
 

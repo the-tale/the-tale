@@ -3,7 +3,7 @@ from django import forms as django_forms
 
 from dext.forms import fields
 
-from textgen.words import WordBase
+# from textgen.words import WordBase
 
 
 class NounFormsWithoutNumberWidget(django_forms.MultiWidget):

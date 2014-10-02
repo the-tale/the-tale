@@ -7,15 +7,15 @@ from django.conf import settings as project_settings
 
 from dext.common.utils import s11n
 
-from textgen.words import WORD_TYPE as T_WORD_TYPE
-from textgen.logic import Args
+# from textgen.words import WORD_TYPE as T_WORD_TYPE
+# from textgen.logic import Args
 
 from utg.words import Word, Properties
 from utg.logic import get_verbose_to_relations
 from utg.relations import WORD_TYPE as U_WORD_TYPE
 from utg.relations import FORM as U_FORM
 
-from the_tale.game.text_generation import get_dictionary
+# from the_tale.game.text_generation import get_dictionary
 from the_tale.linguistics.lexicon import dictionary as lexicon_dictinonary
 
 

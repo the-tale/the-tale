@@ -3,6 +3,9 @@ import datetime
 
 from dext.common.utils import s11n
 
+from utg import words as utg_words
+from utg import relations as utg_relations
+
 from the_tale.amqp_environment import environment
 
 from the_tale.common.utils.prototypes import BasePrototype
@@ -59,8 +62,7 @@ class PersonPrototype(BasePrototype):
 
     @lazy_property
     def name_from(self):
-        from textgen.logic import Args
-        return u'%s — %s из %s' % (self.name, self.race_verbose, self.place.normalized_name.get_form(Args(u'рд')))
+        return u'%s — %s из %s' % (self.name, self.race_verbose, self.place.utg_name.form(utg_words.Property(utg_relations.CASE.GENITIVE)))
 
     @property
     def race_verbose(self):

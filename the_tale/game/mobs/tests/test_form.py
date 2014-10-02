@@ -2,15 +2,7 @@
 
 from the_tale.common.utils import testcase
 
-from textgen.words import Noun
-
-from dext.common.utils import s11n
-
 from the_tale.game.logic import create_test_map
-
-from the_tale.game.heroes.relations import ARCHETYPE
-
-from the_tale.game.map.relations import TERRAIN
 
 from the_tale.game.mobs.forms import MobRecordForm, ModerateMobRecordForm
 from the_tale.game.mobs import relations

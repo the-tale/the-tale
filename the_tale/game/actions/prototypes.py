@@ -9,7 +9,6 @@ from dext.common.utils import discovering
 from the_tale.common.utils.logic import random_value_by_priority
 
 from the_tale.game.prototypes import TimePrototype
-from the_tale.game.text_generation import get_vocabulary, get_dictionary, prepair_substitution
 
 from the_tale.game.heroes.relations import MONEY_SOURCE
 
@@ -262,14 +261,8 @@ class ActionBase(object):
         return None
 
     def get_description(self):
-        args = prepair_substitution(self.get_description_arguments())
-        template = get_vocabulary().get_random_phrase(self.description_text_name)
-
-        if template is None:
-            raise Exception(self.description_text_name)
-
-        msg = template.substitute(get_dictionary(), args)
-        return msg
+        from the_tale.linguistics import logic as linguistics_logic
+        return linguistics_logic.get_text('actions:get_description', self.description_text_name, self.get_description_arguments())
 
     def get_description_arguments(self):
         return {'hero': self.hero}
@@ -1144,8 +1137,9 @@ class ActionInPlacePrototype(ActionBase):
             else:
                 hero.add_message('action_inplace_tax_no_money', hero=hero, place=hero.position.place, diary=True)
 
-        if ( hero.position.place.can_habit_event and
+        if ( hero.position.place.can_habit_event() and
              hero.position.place != hero.position.previous_place ):
+
             if random.uniform(0, 1) < 0.5:
                 hero.add_message('action_inplace_habit_event_honor_%s' % hero.position.place.habit_honor.interval.name.lower(),
                                  hero=hero, place=hero.position.place, diary=True)

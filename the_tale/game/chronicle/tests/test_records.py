@@ -1,7 +1,6 @@
 # coding: utf-8
 import mock
 import datetime
-from textgen.words import Fake as FakeWord
 
 from the_tale.common.utils.testcase import TestCase
 

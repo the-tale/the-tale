@@ -67,19 +67,20 @@ class GameLexiconDictionaryStorage(storage.SingleStorage):
         return prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.IN_GAME).values_list('key', 'data')
 
     def refresh(self):
+        from the_tale.linguistics.lexicon.keys import LEXICON_KEY
+
         self.clear()
 
         self._item = utg_lexicon.Lexicon()
 
         for key, data in self._templates_query():
             template = utg_templates.Template.deserialize(s11n.from_json(data)['template'])
-            self._item.add_template(key, template)
+            self._item.add_template(LEXICON_KEY(key), template)
 
         self._version = settings[self.SETTINGS_KEY]
 
     def _get_next_version(self):
         return '%f' % time.time()
-
 
 
 game_dictionary = GameDictionaryStorage()
