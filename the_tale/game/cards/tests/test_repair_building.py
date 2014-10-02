@@ -2,8 +2,6 @@
 
 import mock
 
-from textgen.words import Noun
-
 from the_tale.amqp_environment import environment
 
 from the_tale.common.utils import testcase
@@ -13,6 +11,8 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.logic import create_test_map
+
+from the_tale.game import names
 
 from the_tale.game.cards import prototypes
 from the_tale.game.cards.tests.helpers import CardsTestMixin
@@ -50,8 +50,8 @@ class RepairBuildingTests(CardsTestMixin, testcase.TestCase):
         self.highlevel = environment.workers.highlevel
         self.highlevel.process_initialize(0, 'highlevel')
 
-        self.building_1 = BuildingPrototype.create(person=self.place_1.persons[0], name_forms=Noun.fast_construct('building-1-name'))
-        self.building_2 = BuildingPrototype.create(person=self.place_2.persons[0], name_forms=Noun.fast_construct('building-1-name'))
+        self.building_1 = BuildingPrototype.create(person=self.place_1.persons[0], utg_name=names.generator.get_test_name('building-1-name'))
+        self.building_2 = BuildingPrototype.create(person=self.place_2.persons[0], utg_name=names.generator.get_test_name('building-1-name'))
 
         self.building_1.amortize(c.TURNS_IN_HOUR*24)
         self.building_2.amortize(c.TURNS_IN_HOUR*24)

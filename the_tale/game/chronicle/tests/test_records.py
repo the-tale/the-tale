@@ -3,14 +3,14 @@ import mock
 import datetime
 from textgen.words import Fake as FakeWord
 
-from textgen.words import Noun
-
 from the_tale.common.utils.testcase import TestCase
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
 
 from the_tale.forum.models import Category, SubCategory
+
+from the_tale.game import names
 
 from the_tale.game.logic import create_test_map
 
@@ -39,7 +39,7 @@ class RecordTests(TestCase):
                                    uid=bills_settings.FORUM_CATEGORY_UID,
                                    category=forum_category)
 
-        bill_data = bills.PlaceRenaming(place_id=self.place_1.id, base_name='new_name')
+        bill_data = bills.PlaceRenaming(place_id=self.place_1.id, name_forms=names.generator.get_test_name('new_name'))
         self.bill = BillPrototype.create(self.account, 'bill-caption', 'bill-rationale', bill_data)
 
     def test_records_for_every_type(self):
@@ -52,9 +52,7 @@ class RecordTests(TestCase):
         self.assertEqual(types, set())
 
     def create_test_word(self, index):
-        return Noun(normalized='new name %d' % index,
-                    forms=['new name %d %d' % (index, i) for i in xrange( Noun.FORMS_NUMBER)],
-                    properties=(u'мр',))
+        return names.generator.get_test_name('new name %d' % index)
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))

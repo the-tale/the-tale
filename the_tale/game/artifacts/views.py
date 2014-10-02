@@ -10,6 +10,8 @@ from the_tale.common.utils import list_filter
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.decorators import login_required
 
+from the_tale.linguistics import word_drawer
+
 from the_tale.game.map.relations import TERRAIN
 
 from the_tale.game.artifacts import relations
@@ -160,8 +162,10 @@ class GameArtifactResource(ArtifactResourceBase):
     @validate_create_rights()
     @handler('new', method='get')
     def new(self):
-        return self.template('artifacts/new.html', {'form': ArtifactRecordForm(initial={'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
-                                                                                        'epic_effect': relations.ARTIFACT_EFFECT.NO_EFFECT})})
+        form = ArtifactRecordForm(initial={'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
+                                           'epic_effect': relations.ARTIFACT_EFFECT.NO_EFFECT})
+        return self.template('artifacts/new.html', {'form': form,
+                                                    'name_drawer': word_drawer.FormDrawer(form.WORD_TYPE, form=form)})
 
     @login_required
     @validate_create_rights()
@@ -175,7 +179,7 @@ class GameArtifactResource(ArtifactResourceBase):
 
         artifact = ArtifactRecordPrototype.create(uuid=uuid.uuid4().hex,
                                                   level=form.c.level,
-                                                  name=form.c.name,
+                                                  utg_name=form.get_word(),
                                                   description=form.c.description,
                                                   type_=form.c.type,
                                                   editor=self.account,
@@ -192,17 +196,11 @@ class GameArtifactResource(ArtifactResourceBase):
     @validate_create_rights()
     @handler('#artifact', 'edit', name='edit', method='get')
     def edit(self):
-        form = ArtifactRecordForm(initial={'name': self.artifact.name,
-                                           'level': self.artifact.level,
-                                           'type': self.artifact.type,
-                                           'power_type': self.artifact.power_type,
-                                           'rare_effect': self.artifact.rare_effect,
-                                           'epic_effect': self.artifact.epic_effect,
-                                           'description': self.artifact.description,
-                                           'mob': self.artifact.mob.id if self.artifact.mob is not None else None})
+        form = ArtifactRecordForm(initial=ArtifactRecordForm.get_initials(self.artifact))
 
         return self.template('artifacts/edit.html', {'artifact': self.artifact,
-                                                     'form': form} )
+                                                     'form': form,
+                                                    'name_drawer': word_drawer.FormDrawer(form.WORD_TYPE, form=form)} )
 
     @login_required
     @validate_disabled_state()
@@ -223,20 +221,11 @@ class GameArtifactResource(ArtifactResourceBase):
     @validate_moderate_rights()
     @handler('#artifact', 'moderate', name='moderate', method='get')
     def moderation_page(self):
-        form = ModerateArtifactRecordForm(initial={'name': self.artifact.name,
-                                                   'level': self.artifact.level,
-                                                   'type': self.artifact.type,
-                                                   'power_type': self.artifact.power_type,
-                                                   'rare_effect': self.artifact.rare_effect,
-                                                   'epic_effect': self.artifact.epic_effect,
-                                                   'description': self.artifact.description,
-                                                   'uuid': self.artifact.uuid,
-                                                   'name_forms': self.artifact.name_forms.serialize(),
-                                                   'approved': self.artifact.state.is_ENABLED,
-                                                   'mob': self.artifact.mob.id if self.artifact.mob is not None else None})
+        form = ModerateArtifactRecordForm(initial=ModerateArtifactRecordForm.get_initials(self.artifact))
 
         return self.template('artifacts/moderate.html', {'artifact': self.artifact,
-                                                         'form': form} )
+                                                         'form': form,
+                                                    'name_drawer': word_drawer.FormDrawer(form.WORD_TYPE, form=form)} )
 
     @login_required
     @validate_moderate_rights()

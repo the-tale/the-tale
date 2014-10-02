@@ -9,3 +9,6 @@ class LinguisticsError(TheTaleError):
 
 class DictionaryStorageError(LinguisticsError):
     MSG = u'dictionary storage error: %(message)s'
+
+class LexiconStorageError(LinguisticsError):
+    MSG = u'lexicon storage error: %(message)s'

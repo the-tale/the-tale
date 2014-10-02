@@ -1,7 +1,5 @@
 # coding: utf-8
 
-from textgen.words import Noun
-
 from the_tale.common.utils.testcase import TestCase
 from the_tale.common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
@@ -11,6 +9,8 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.logic import create_test_map
 from the_tale.game.relations import GENDER, RACE
 from the_tale.game.logic_storage import LogicStorage
+
+from the_tale.game import names
 
 from the_tale.game.heroes.postponed_tasks import ChangeHeroTask, CHANGE_HERO_TASK_STATE
 
@@ -28,9 +28,7 @@ class ChangeHeroTest(TestCase):
 
         self.hero = self.storage.accounts_to_heroes[account_id]
 
-        self.noun = Noun(normalized=u'слово', forms=[u'слово', u'слова', u'слову', u'слово', u'словом', u'слове',
-                                                     u'слово', u'слова', u'слову', u'слово', u'словом', u'слове'], properties=(u'ср', ))
-        self.forms=[u'слово', u'слова', u'слову', u'слово', u'словом', u'слове']
+        self.noun = names.generator.get_test_name(name='test_name', gender=GENDER.NEUTER)
 
         self.race = RACE.ELF if RACE.ELF != self.hero.race else RACE.HUMAN
         self.gender = GENDER.NEUTER if not self.hero.gender.is_NEUTER else GENDER.FEMININE
@@ -53,7 +51,7 @@ class ChangeHeroTest(TestCase):
 
     def test_check_change(self):
         task = ChangeHeroTask(self.hero.id, name=self.noun, race=self.race, gender=self.gender)
-        self.assertNotEqual(self.hero.normalized_name, self.noun)
+        self.assertNotEqual(self.hero.utg_name, self.noun)
         self.assertNotEqual(self.hero.gender, self.gender)
         self.assertNotEqual(self.hero.race, self.race)
         self.assertFalse(self.hero.settings_approved)
@@ -61,8 +59,8 @@ class ChangeHeroTest(TestCase):
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertEqual(task.state, CHANGE_HERO_TASK_STATE.PROCESSED)
-        self.assertEqual(self.hero.normalized_name, self.noun)
-        self.assertEqual(self.hero.name, self.noun.normalized)
+        self.assertEqual(self.hero.utg_name, self.noun)
+        self.assertEqual(self.hero.name, self.noun.normal_form())
         self.assertEqual(self.hero.race, self.race)
         self.assertEqual(self.hero.gender, self.gender)
         self.assertTrue(self.hero.settings_approved)

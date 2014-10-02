@@ -7,11 +7,11 @@ from django.conf import settings as project_settings
 
 from dext.common.utils.urls import url
 
-from textgen import words
-
 from the_tale.common.utils.enum import create_enum
 
 from the_tale.accounts.conf import accounts_settings
+
+from the_tale.game import names
 
 from the_tale.game.balance.power import Power
 
@@ -57,9 +57,9 @@ DEFAULT_HERO_EQUIPMENT = create_enum('DEFAULT_HERO_EQUIPMENT', ( ('PANTS', 'defa
 @mobs_storage.postpone_version_update
 @artifacts_storage.postpone_version_update
 def create_test_map():
-    p1 = PlacePrototype.create( x=1, y=1, size=1, name_forms=words.Noun.fast_construct('1x1'))
-    p2 = PlacePrototype.create( x=3, y=3, size=3, name_forms=words.Noun.fast_construct('10x10'))
-    p3 = PlacePrototype.create( x=1, y=3, size=3, name_forms=words.Noun.fast_construct('1x10'))
+    p1 = PlacePrototype.create( x=1, y=1, size=1, utg_name=names.generator.get_test_name(name='1x1'))
+    p2 = PlacePrototype.create( x=3, y=3, size=3, utg_name=names.generator.get_test_name(name='10x10'))
+    p3 = PlacePrototype.create( x=1, y=3, size=3, utg_name=names.generator.get_test_name(name='1x10'))
 
     for place in places_storage.all():
         place.sync_persons(force_add=True)

@@ -4,12 +4,12 @@ import datetime
 
 from dext.common.utils import s11n
 
-from textgen.words import Noun
-
 
 from the_tale.forum.models import Post
 
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
+
+from the_tale.game import names
 
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.balance import constants as c
@@ -38,7 +38,7 @@ class BillPrototypeTests(BaseTestPrototypes):
     def create_bill(self, account=None):
         if account is None:
             account = self.account1
-        bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
         return BillPrototype.create(account, 'bill-1-caption', 'bill-1-rationale', bill_data)
 
     def test_accepted_bills_count(self):
@@ -98,7 +98,7 @@ class TestPrototypeApply(BaseTestPrototypes):
     def setUp(self):
         super(TestPrototypeApply, self).setUp()
 
-        bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
 
         self.bill.approved_by_moderator = True
@@ -106,7 +106,7 @@ class TestPrototypeApply(BaseTestPrototypes):
 
     def check_place(self, place_id, name, name_forms):
         self.assertEqual(places_storage[place_id].name, name)
-        self.assertEqual(places_storage[place_id].normalized_name.forms, name_forms)
+        self.assertEqual(places_storage[place_id].utg_name.forms, name_forms)
 
 
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', lambda x: datetime.timedelta(seconds=0))
@@ -117,7 +117,7 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         places_storage.sync(force=True)
 
-        self.check_place(self.place1.id, self.place1.name, self.place1.normalized_name.forms)
+        self.check_place(self.place1.id, self.place1.name, self.place1.utg_name.forms)
 
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', lambda x: datetime.timedelta(seconds=0))
     def test_not_approved(self):
@@ -128,12 +128,12 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         places_storage.sync(force=True)
 
-        self.check_place(self.place1.id, self.place1.name, self.place1.normalized_name.forms)
+        self.check_place(self.place1.id, self.place1.name, self.place1.utg_name.forms)
 
     def test_wrong_time(self):
         self.assertRaises(exceptions.ApplyUnapprovedBillError, self.bill.apply)
         places_storage.sync(force=True)
-        self.check_place(self.place1.id, self.place1.name, self.place1.normalized_name.forms)
+        self.check_place(self.place1.id, self.place1.name, self.place1.utg_name.forms)
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.51)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
@@ -156,7 +156,7 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.place1.sync_parameters()
         self.assertEqual(self.place1.stability, 1.0)
 
-        self.check_place(self.place1.id, self.place1.name, self.place1.normalized_name.forms)
+        self.check_place(self.place1.id, self.place1.name, self.place1.utg_name.forms)
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
@@ -167,12 +167,9 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         ##################################
         # set name forms
-        noun = Noun(normalized=self.bill.data.base_name.lower(),
-                    forms=self.NAME_FORMS,
-                    properties=(u'мр',))
-
-        form = PlaceRenaming.ModeratorForm({'approved': True,
-                                            'name_forms': s11n.to_json(noun.serialize()) })
+        data = PlaceRenaming.ModeratorForm.get_initials(self.bill.data.name_forms)
+        data.update({'approved': True})
+        form = PlaceRenaming.ModeratorForm(data)
 
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
@@ -194,7 +191,22 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.place1.sync_parameters()
         self.assertTrue(self.place1.stability < 1.0)
 
-        self.check_place(self.place1.id, 'new_name_1', self.NAME_FORMS)
+
+        NAME_FORMS = [u'new_name_1_0',
+                  u'new_name_1_1',
+                  u'new_name_1_2',
+                  u'new_name_1_3',
+                  u'new_name_1_4',
+                  u'new_name_1_5',
+                  u'new_name_1_6',
+                  u'new_name_1_7',
+                  u'new_name_1_8',
+                  u'new_name_1_9',
+                  u'new_name_1_10',
+                  u'new_name_1_11']
+
+
+        self.check_place(self.place1.id, 'new_name_1_0', NAME_FORMS)
 
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
@@ -203,12 +215,12 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         ##################################
         # set name forms
-        noun = Noun(normalized=self.bill.data.base_name.lower(),
-                    forms=self.NAME_FORMS,
-                    properties=(u'мр',))
+        noun = names.generator.get_test_name('place-name')
 
-        form = PlaceRenaming.ModeratorForm({'approved': True,
-                                            'name_forms': s11n.to_json(noun.serialize()) })
+        data = PlaceRenaming.ModeratorForm.get_initials(noun)
+        data.update({'approved': True})
+
+        form = PlaceRenaming.ModeratorForm(data)
 
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
@@ -230,7 +242,20 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         places_storage.sync(force=True)
 
-        self.check_place(self.place1.id, 'new_name_1', self.NAME_FORMS)
+        NAME_FORMS = [u'place-name_0',
+                  u'place-name_1',
+                  u'place-name_2',
+                  u'place-name_3',
+                  u'place-name_4',
+                  u'place-name_5',
+                  u'place-name_6',
+                  u'place-name_7',
+                  u'place-name_8',
+                  u'place-name_9',
+                  u'place-name_10',
+                  u'place-name_11']
+
+        self.check_place(self.place1.id, 'place-name_0', NAME_FORMS)
 
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
@@ -242,12 +267,9 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         ##################################
         # set name forms
-        noun = Noun(normalized=self.bill.data.base_name.lower(),
-                    forms=self.NAME_FORMS,
-                    properties=(u'мр',))
-
-        form = PlaceRenaming.ModeratorForm({'approved': True,
-                                            'name_forms': s11n.to_json(noun.serialize()) })
+        data = PlaceRenaming.ModeratorForm.get_initials(self.bill.data.name_forms)
+        data.update({'approved': True})
+        form = PlaceRenaming.ModeratorForm(data)
 
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
@@ -269,7 +291,7 @@ class TestPrototypeEnd(BaseTestPrototypes):
     def setUp(self):
         super(TestPrototypeEnd, self).setUp()
 
-        bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
 
         self.bill.state = relations.BILL_STATE.ACCEPTED
@@ -408,7 +430,7 @@ class TestActorPrototype(BaseTestPrototypes):
     def setUp(self):
         super(TestActorPrototype, self).setUp()
 
-        self.bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
+        self.bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data)
 
     def test_actors_created(self):
@@ -417,10 +439,14 @@ class TestActorPrototype(BaseTestPrototypes):
     def test_actors_after_user_update(self):
         old_actors_timestamps = list(Actor.objects.all().values_list('created_at', flat=True))
 
-        form = PlaceRenaming.UserForm({'caption': 'new-caption',
-                                       'rationale': 'new-rationale',
-                                       'place': self.place2.id,
-                                       'new_name': 'new-new-name'})
+        noun = names.generator.get_test_name('new-new-name')
+
+        data = PlaceRenaming.UserForm.get_initials(noun)
+        data.update({'caption': 'new-caption',
+                     'rationale': 'new-rationale',
+                    'place': self.place2.id})
+
+        form = PlaceRenaming.UserForm(data)
 
         self.assertTrue(form.is_valid())
         self.bill.update(form)
@@ -436,7 +462,7 @@ class TestVotePrototype(BaseTestPrototypes):
     def setUp(self):
         super(TestVotePrototype, self).setUp()
 
-        bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_1')
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
 
         self.bill.approved_by_moderator = True

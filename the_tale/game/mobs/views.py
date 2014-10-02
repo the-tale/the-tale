@@ -5,10 +5,12 @@ from django.core.urlresolvers import reverse
 
 from dext.views import handler, validator, validate_argument
 from dext.common.utils.urls import UrlBuilder
-from the_tale.common.utils import list_filter
 
+from the_tale.common.utils import list_filter
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.decorators import login_required
+
+from the_tale.linguistics import word_drawer
 
 from the_tale.game.map.relations import TERRAIN
 
@@ -158,7 +160,9 @@ class GameMobResource(MobResourceBase):
     @validate_create_rights()
     @handler('new', method='get')
     def new(self):
-        return self.template('mobs/new.html', {'form': MobRecordForm()})
+        form = MobRecordForm()
+        return self.template('mobs/new.html', {'form': form,
+                                               'name_drawer': word_drawer.FormDrawer(form.WORD_TYPE, form=form)})
 
     @login_required
     @validate_create_rights()
@@ -172,7 +176,7 @@ class GameMobResource(MobResourceBase):
 
         mob = MobRecordPrototype.create(uuid=uuid.uuid4().hex,
                                         level=form.c.level,
-                                        name=form.c.name,
+                                        utg_name=form.get_word(),
                                         type=form.c.type,
                                         archetype=form.c.archetype,
                                         description=form.c.description,
@@ -188,16 +192,11 @@ class GameMobResource(MobResourceBase):
     @validate_create_rights()
     @handler('#mob', 'edit', name='edit', method='get')
     def edit(self):
-        form = MobRecordForm(initial={'name': self.mob.name,
-                                      'description': self.mob.description,
-                                      'type': self.mob.type,
-                                      'archetype': self.mob.archetype,
-                                      'level': self.mob.level,
-                                      'terrains': self.mob.terrains,
-                                      'abilities': self.mob.abilities})
+        form = MobRecordForm(initial=MobRecordForm.get_initials(self.mob))
 
         return self.template('mobs/edit.html', {'mob': self.mob,
-                                                'form': form} )
+                                                'form': form,
+                                                'name_drawer': word_drawer.FormDrawer(form.WORD_TYPE, form=form)} )
 
     @login_required
     @validate_disabled_state()
@@ -218,18 +217,11 @@ class GameMobResource(MobResourceBase):
     @validate_moderate_rights()
     @handler('#mob', 'moderate', name='moderate', method='get')
     def moderation_page(self):
-        form = ModerateMobRecordForm(initial={'description': self.mob.description,
-                                              'level': self.mob.level,
-                                              'type': self.mob.type,
-                                              'archetype': self.mob.archetype,
-                                              'terrains': self.mob.terrains,
-                                              'abilities': self.mob.abilities,
-                                              'uuid': self.mob.uuid,
-                                              'name_forms': self.mob.name_forms.serialize(),
-                                              'approved': self.mob.state.is_ENABLED})
+        form = ModerateMobRecordForm(initial=ModerateMobRecordForm.get_initials(self.mob))
 
         return self.template('mobs/moderate.html', {'mob': self.mob,
-                                                    'form': form} )
+                                                    'form': form,
+                                                    'name_drawer': word_drawer.FormDrawer(form.WORD_TYPE, form=form)} )
 
     @login_required
     @validate_moderate_rights()

@@ -18,20 +18,6 @@ from the_tale.game.bills.bills.place_resource_conversion import CONVERSION
 
 class BaseTestPrototypes(TestCase):
 
-    NAME_FORMS = (u'new_name_1',
-                  u'new_name_2',
-                  u'new_name_3',
-                  u'new_name_4',
-                  u'new_name_5',
-                  u'new_name_6',
-                  u'new_name_7',
-                  u'new_name_8',
-                  u'new_name_9',
-                  u'new_name_10',
-                  u'new_name_11',
-                  u'new_name_12')
-
-
     def setUp(self):
         super(BaseTestPrototypes, self).setUp()
         self.place1, self.place2, self.place3 = create_test_map()

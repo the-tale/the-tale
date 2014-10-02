@@ -8,8 +8,6 @@ from django.test import client
 
 from dext.common.utils.urls import url
 
-from textgen.words import Noun
-
 from the_tale.common.utils.testcase import TestCase
 from the_tale.common.postponed_tasks import PostponedTask, PostponedTaskPrototype
 from the_tale.common.utils.permissions import sync_group
@@ -20,6 +18,8 @@ from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.game.relations import GENDER, RACE
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
+
+from the_tale.game import names
 
 from the_tale.game.cards.relations import CARD_TYPE
 
@@ -162,24 +162,11 @@ class ChangeHeroRequestsTests(HeroRequestsTestBase):
         self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)), texts=[('pgf-settings-approved-warning', 0)])
 
     def get_post_data(self, name='new_name', gender=GENDER.MASCULINE, race=RACE.DWARF):
-        return {'name_forms_0': u'%s_0' % name,
-                'name_forms_1': u'%s_1' % name,
-                'name_forms_2': u'%s_2' % name,
-                'name_forms_3': u'%s_3' % name,
-                'name_forms_4': u'%s_4' % name,
-                'name_forms_5': u'%s_5' % name,
-                'gender': gender,
-                'race': race}
-
-    def get_name(self, name='new_name', gender=GENDER.MASCULINE):
-        return Noun(normalized='%s_0' % name,
-                    forms=[u'%s_0' % name,
-                           u'%s_1' % name,
-                           u'%s_2' % name,
-                           u'%s_3' % name,
-                           u'%s_4' % name,
-                           u'%s_5' % name] * 2,
-                    properties=(gender.text_id, ))
+        data = {'field_%d' % i: u'%s_%d' % (name, i)
+                for i in xrange(12)}
+        data.update({'gender': gender,
+                    'race': race})
+        return data
 
     def test_chane_hero_ownership(self):
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
@@ -202,7 +189,7 @@ class ChangeHeroRequestsTests(HeroRequestsTestBase):
 
         self.check_ajax_processing(response, task.status_url)
 
-        self.assertEqual(task.internal_logic.name, self.get_name())
+        self.assertEqual(task.internal_logic.name, names.generator.get_test_name(name='new_name'))
         self.assertEqual(task.internal_logic.gender, GENDER.MASCULINE)
         self.assertEqual(task.internal_logic.race, RACE.DWARF)
 

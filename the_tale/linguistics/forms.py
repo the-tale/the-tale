@@ -13,14 +13,31 @@ from utg import exceptions as utg_exceptions
 from the_tale.linguistics import models
 
 
+def get_word_fields_dict(word_type):
+    form_fields = {}
+
+    for i, key in enumerate(utg_data.INVERTED_WORDS_CACHES[word_type]):
+        form_fields['field_%d' % i] = fields.CharField(label='', max_length=models.Word.MAX_FORM_LENGTH)
+
+    return form_fields
+
+
+def get_word_fields_initials(word):
+     return {('field_%d' % i): word.forms[i]
+             for i in xrange(len(utg_data.INVERTED_WORDS_CACHES[word.type]))}
+
+
+def get_word_forms(form, word_type):
+     return [getattr(form.c, 'field_%d' % i) for i in xrange(len(utg_data.INVERTED_WORDS_CACHES[word_type]))]
+
+
 class BaseWordForm(forms.Form):
     WORD_TYPE = None
 
     def __init__(self, *args, **kwargs):
         super(BaseWordForm, self).__init__(*args, **kwargs)
 
-        for i, key in enumerate(utg_data.INVERTED_WORDS_CACHES[self.WORD_TYPE]):
-            self.fields['field_%d' % i] = fields.CharField(label='', max_length=models.Word.MAX_FORM_LENGTH)
+        self.fields.update(get_word_fields_dict(self.WORD_TYPE))
 
         for patch in self.WORD_TYPE.patches:
             for i, key in enumerate(utg_data.INVERTED_WORDS_CACHES[patch]):
@@ -38,7 +55,7 @@ class BaseWordForm(forms.Form):
             self.fields['field_%s' % static_property.__name__] = field
 
     def get_word(self):
-        forms = [getattr(self.c, 'field_%d' % i) for i in xrange(len(utg_data.INVERTED_WORDS_CACHES[self.WORD_TYPE]))]
+        forms = get_word_forms(form=self, word_type=self.WORD_TYPE)
 
         patches = {}
 
@@ -67,8 +84,7 @@ class BaseWordForm(forms.Form):
 
     @classmethod
     def get_initials(cls, word):
-        initials = {('field_%d' % i): word.forms[i]
-                    for i in xrange(len(utg_data.INVERTED_WORDS_CACHES[cls.WORD_TYPE]))}
+        initials = get_word_fields_initials(word)
 
         for patch in word.type.patches:
             for i, key in enumerate(utg_data.INVERTED_WORDS_CACHES[patch]):

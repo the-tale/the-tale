@@ -2,7 +2,9 @@
 
 from dext.forms import fields
 
-from textgen.words import Noun
+from utg import words as utg_words
+
+from the_tale.game import names
 
 from the_tale.common.utils import bbcode
 
@@ -49,7 +51,7 @@ class PlaceDescripton(BaseBill):
         self.old_description = old_description
 
         if self.old_name_forms is None and self.place_id is not None:
-            self.old_name_forms = self.place.normalized_name
+            self.old_name_forms = self.place.utg_name
 
     @property
     def description_html(self): return bbcode.render(self.description)
@@ -58,7 +60,7 @@ class PlaceDescripton(BaseBill):
     def old_description_html(self): return bbcode.render(self.old_description)
 
     @property
-    def old_name(self): return self.old_name_forms.normalized
+    def old_name(self): return self.old_name_forms.normal_form()
 
     @property
     def place(self): return places_storage[self.place_id]
@@ -78,7 +80,7 @@ class PlaceDescripton(BaseBill):
     def initialize_with_user_data(self, user_form):
         self.place_id = int(user_form.c.place)
         self.description = user_form.c.new_description
-        self.old_name_forms = self.place.normalized_name
+        self.old_name_forms = self.place.utg_name
         self.old_description = self.place.description
 
     def apply(self, bill=None):
@@ -99,9 +101,9 @@ class PlaceDescripton(BaseBill):
         obj.place_id = data['place_id']
 
         if 'old_name_forms' in data:
-            obj.old_name_forms = Noun.deserialize(data['old_name_forms'])
+            obj.old_name_forms = utg_words.Word.deserialize(data['old_name_forms'])
         else:
-            obj.old_name_forms = Noun.fast_construct(u'название неизвестно')
+            obj.old_name_forms = names.generator.get_fast_name(u'название неизвестно')
 
         obj.old_description = data.get('old_description', u'неизвестно')
 

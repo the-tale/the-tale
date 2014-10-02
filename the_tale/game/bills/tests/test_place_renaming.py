@@ -2,9 +2,9 @@
 
 from dext.common.utils import s11n
 
-from textgen.words import Noun
-
 from the_tale.forum.models import Post, Thread, MARKUP_METHOD
+
+from the_tale.game import names
 
 from the_tale.game.bills.models import Vote
 from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
@@ -21,7 +21,7 @@ class PlaceRenamingTests(BaseTestPrototypes):
         self.bill = self.create_place_renaming_bill(1)
 
     def create_place_renaming_bill(self, index):
-        self.bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_%d' % index)
+        self.bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_%d' % index))
         return BillPrototype.create(self.account1, 'bill-%d-caption' % index, 'bill-%d-rationale' % index, self.bill_data)
 
     def test_create(self):
@@ -54,14 +54,18 @@ class PlaceRenamingTests(BaseTestPrototypes):
         self.assertEqual(self.bill.caption, 'bill-1-caption')
         self.assertEqual(self.bill.rationale, 'bill-1-rationale')
         self.assertEqual(self.bill.approved_by_moderator, True)
-        self.assertEqual(self.bill.data.base_name, 'new_name_1')
+        self.assertEqual(self.bill.data.base_name, 'new_name_1_0')
         self.assertEqual(self.bill.data.place_id, self.place1.id)
         self.assertEqual(Post.objects.all().count(), 1)
 
-        form = PlaceRenaming.UserForm({'caption': 'new-caption',
-                                       'rationale': 'new-rationale',
-                                       'place': self.place2.id,
-                                       'new_name': 'new-new-name'})
+        new_name = names.generator.get_test_name('new-new-name')
+
+        data = PlaceRenaming.UserForm.get_initials(new_name)
+        data.update({'caption': 'new-caption',
+                     'rationale': 'new-rationale',
+                     'place': self.place2.id})
+
+        form = PlaceRenaming.UserForm(data)
 
         self.assertTrue(form.is_valid())
 
@@ -78,7 +82,7 @@ class PlaceRenamingTests(BaseTestPrototypes):
         self.assertEqual(self.bill.caption, 'new-caption')
         self.assertEqual(self.bill.rationale, 'new-rationale')
         self.assertEqual(self.bill.approved_by_moderator, False)
-        self.assertEqual(self.bill.data.base_name, 'new-new-name')
+        self.assertEqual(self.bill.data.base_name, 'new-new-name_0')
         self.assertEqual(self.bill.data.place_id, self.place2.id)
         self.assertEqual(Post.objects.all().count(), 2)
         self.assertEqual(Thread.objects.get(id=self.bill.forum_thread_id).caption, 'new-caption')
@@ -87,14 +91,12 @@ class PlaceRenamingTests(BaseTestPrototypes):
 
         self.assertEqual(self.bill.approved_by_moderator, False)
 
-        self.assertEqual(self.bill.data.name_forms.forms, tuple([u'new_name_1']*12))
 
-        noun = Noun(normalized=self.bill.data.base_name.lower(),
-                    forms=self.NAME_FORMS,
-                    properties=(u'мр',))
+        noun = names.generator.get_test_name('new-name')
+        data = PlaceRenaming.ModeratorForm.get_initials(noun)
+        data.update({'approved': True})
 
-        form = PlaceRenaming.ModeratorForm({'approved': True,
-                                            'name_forms': s11n.to_json(noun.serialize()) })
+        form = PlaceRenaming.ModeratorForm(data)
 
         self.assertTrue(form.is_valid())
 
@@ -103,7 +105,10 @@ class PlaceRenamingTests(BaseTestPrototypes):
         self.bill = BillPrototype.get_by_id(self.bill.id)
         self.assertTrue(self.bill.state.is_VOTING)
         self.assertEqual(self.bill.approved_by_moderator, True)
-        self.assertEqual(self.bill.data.name_forms.forms, self.NAME_FORMS)
+
+        NAME_FORMS = [u'new-name_%d' % i for i in xrange(12)]
+
+        self.assertEqual(self.bill.data.name_forms.forms, NAME_FORMS)
 
     def test_remove(self):
         thread = Thread.objects.get(id=self.bill.forum_thread_id)

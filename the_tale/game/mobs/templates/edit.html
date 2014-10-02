@@ -1,5 +1,7 @@
 {% extends "mobs/base.html" %}
 
+{% import 'linguistics/words/macros.html' as words_macros with context %}
+
 {% block title %}Редактирование монстра | {{ super() }}{% endblock %}
 {% block description %}Редактирование монстра.{% endblock %}
 
@@ -23,7 +25,9 @@ jQuery(document).ready( function(e) {
 <form id="pgf-edit-mob-form" class="mobs-edit-form" method="post" action="{{ url('game:mobs:update', mob.id) }}">
 
   {{ form.errors_container }}
-  {{ form.name.widget }}
+
+  {{words_macros.render_word(name_drawer)}}
+
   {{ form.level.widget }}
   {{ form.type.widget }}
   {{ form.archetype.widget }}

@@ -39,7 +39,7 @@ class BattleTests(testcase.TestCase):
 
         self.assertEqual(self.hero.initiative, actor.initiative)
         self.assertEqual(self.hero.name, actor.name)
-        self.assertEqual(self.hero.normalized_name, actor.normalized_name)
+        self.assertEqual(self.hero.utg_name, actor.utg_name)
         self.assertEqual(self.hero.basic_damage, actor.basic_damage)
         self.assertEqual(self.hero.health, actor.health)
         self.assertEqual(self.hero.max_health, actor.max_health)
@@ -103,7 +103,7 @@ class BattleTests(testcase.TestCase):
 
         self.assertEqual(mob.initiative, actor.initiative)
         self.assertEqual(mob.name, actor.name)
-        self.assertEqual(mob.normalized_name, actor.normalized_name)
+        self.assertEqual(mob.utg_name, actor.utg_name)
         self.assertEqual(mob.basic_damage, actor.basic_damage)
         self.assertEqual(mob.health, actor.health)
         self.assertEqual(mob.max_health, actor.max_health)

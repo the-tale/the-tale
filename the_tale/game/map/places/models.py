@@ -27,6 +27,7 @@ class Place(models.Model):
 
     is_frontier = models.BooleanField(default=False)
 
+    # TODO: remove
     name = models.CharField(max_length=MAX_NAME_LENGTH, null=False, db_index=True)
 
     name_forms = models.TextField(null=False, default=u'')
@@ -88,6 +89,8 @@ class Building(models.Model):
     place = models.ForeignKey(Place, null=False, on_delete=models.CASCADE)
 
     person = models.ForeignKey('persons.Person', null=False, unique=True, on_delete=models.CASCADE)
+
+    data = models.TextField(null=False, default=u'{}')
 
 
 class ResourceExchange(models.Model):

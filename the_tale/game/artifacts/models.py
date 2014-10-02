@@ -36,6 +36,8 @@ class ArtifactRecord(models.Model):
 
     mob = models.ForeignKey('mobs.MobRecord', null=True, related_name='+', blank=True, on_delete=models.SET_NULL)
 
+    data = models.TextField(null=False, default='{}')
+
     class Meta:
         permissions = (("create_artifactrecord", u"Может предлагать артефакты"),
                        ("moderate_artifactrecord", u"Может утверждать артефакты"),)

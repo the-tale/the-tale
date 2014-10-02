@@ -1,6 +1,8 @@
 # coding: utf-8
 
-from textgen.words import Noun
+from utg import words as utg_words
+
+from the_tale.game import names
 
 from the_tale.game.relations import GENDER, RACE
 
@@ -56,7 +58,7 @@ class BasePersonBill(BaseBill):
 
     @property
     def old_place_name(self):
-        return self.old_place_name_forms.normalized
+        return self.old_place_name_forms.normal_form()
 
     @property
     def person_race_verbose(self):
@@ -72,7 +74,7 @@ class BasePersonBill(BaseBill):
 
     def initialize_with_user_data(self, user_form):
         self.person_id = int(user_form.c.person)
-        self.old_place_name_forms = self.person.place.normalized_name
+        self.old_place_name_forms = self.person.place.utg_name
 
         self.person_name = self.person.name
         self.person_race = self.person.race
@@ -113,9 +115,8 @@ class BasePersonBill(BaseBill):
         obj.place_id = data['place_id']
 
         if 'old_place_name_forms' in data:
-            obj.old_place_name_forms = Noun.deserialize(data['old_place_name_forms'])
+            obj.old_place_name_forms = utg_words.Word.deserialize(data['old_place_name_forms'])
         else:
-            obj.old_place_name_forms = Noun.fast_construct(u'название неизвестно')
-
+            obj.old_place_name_forms = names.generator.get_fast_name(u'название неизвестно')
 
         return obj

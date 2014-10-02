@@ -6,6 +6,7 @@ from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
 
 from the_tale.game.logic import create_test_map
+from the_tale.game import names
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 
@@ -96,7 +97,7 @@ class RatingPrototypeTests(PrototypeTestsBase):
         from the_tale.game.bills.bills import PlaceRenaming
         from the_tale.game.bills.prototypes import BillPrototype
 
-        bill_data = PlaceRenaming(place_id=self.place1.id, base_name='new_name_%d' % index)
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_%d' % index))
         bill = BillPrototype.create(owner, 'bill-%d-caption' % index, 'bill-%d-rationale' % index, bill_data)
         bill.state = state
         bill.save()

@@ -2,11 +2,14 @@
 
 from dext.forms import fields
 
-from textgen.words import Noun
+from utg import words as utg_words
+from utg import relations as utg_relations
 
-from the_tale.common.utils.forms import SimpleWordField
+from the_tale.game import names
 
-from the_tale.game.map.places.models import Place
+from the_tale.linguistics.forms import WORD_FORMS
+
+# from the_tale.game.map.places.models import Place
 
 from the_tale.game.bills.models import BILL_TYPE
 from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
@@ -14,19 +17,33 @@ from the_tale.game.bills.bills.base_bill import BaseBill
 
 from the_tale.game.map.places.storage import places_storage
 
-class UserForm(BaseUserForm):
+
+class UserForm(BaseUserForm, WORD_FORMS[utg_relations.WORD_TYPE.NOUN]):
 
     place = fields.ChoiceField(label=u'Город')
-    new_name = fields.CharField(label=u'Новое название', max_length=Place.MAX_NAME_LENGTH)
+
+    # TODO: restrict max place name
+    # new_name = fields.CharField(label=u'Новое название', max_length=Place.MAX_NAME_LENGTH)
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
         self.fields['place'].choices = places_storage.get_choices()
 
+    @property
+    def name_drawer(self):
+        from the_tale.linguistics import word_drawer
+        return word_drawer.FormDrawer(self.WORD_TYPE, form=self)
 
-class ModeratorForm(BaseModeratorForm):
 
-    name_forms = SimpleWordField(label=u'Формы названия')
+
+class ModeratorForm(BaseModeratorForm, WORD_FORMS[utg_relations.WORD_TYPE.NOUN]):
+    pass
+
+    @property
+    def name_drawer(self):
+        from the_tale.linguistics import word_drawer
+        return word_drawer.FormDrawer(self.WORD_TYPE, form=self)
+
 
 
 class PlaceRenaming(BaseBill):
@@ -43,17 +60,14 @@ class PlaceRenaming(BaseBill):
     CAPTION = u'Переименование города'
     DESCRIPTION = u'Изменяет название города. При выборе нового названия постарайтесь учесть, какой расе принадлежит город, кто является его жителями и в какую сторону он развивается.'
 
-    def __init__(self, place_id=None, base_name=None, name_forms=None, old_name_forms=None):
+    def __init__(self, place_id=None, name_forms=None, old_name_forms=None):
         super(PlaceRenaming, self).__init__()
         self.place_id = place_id
         self.name_forms = name_forms
         self.old_name_forms = old_name_forms
 
-        if self.name_forms is None and base_name is not None:
-            self.name_forms = Noun.fast_construct(base_name)
-
         if self.old_name_forms is None and self.place_id is not None:
-            self.old_name_forms = self.place.normalized_name
+            self.old_name_forms = self.place.utg_name
 
     @property
     def place(self): return places_storage[self.place_id]
@@ -62,10 +76,10 @@ class PlaceRenaming(BaseBill):
     def actors(self): return [self.place]
 
     @property
-    def base_name(self): return self.name_forms.normalized
+    def base_name(self): return self.name_forms.normal_form()
 
     @property
-    def old_name(self): return self.old_name_forms.normalized
+    def old_name(self): return self.old_name_forms.normal_form()
 
     @property
     def place_name_changed(self):
@@ -73,23 +87,25 @@ class PlaceRenaming(BaseBill):
 
     @property
     def user_form_initials(self):
-        return {'place': self.place_id,
-                'new_name': self.base_name}
+        initials = WORD_FORMS[utg_relations.WORD_TYPE.NOUN].get_initials(self.name_forms)
+        initials.update({'place': self.place_id})
+        return initials
 
     @property
     def moderator_form_initials(self):
-        return {'name_forms': self.name_forms.serialize()}
+        initials = WORD_FORMS[utg_relations.WORD_TYPE.NOUN].get_initials(self.name_forms)
+        return initials
 
     def initialize_with_user_data(self, user_form):
         self.place_id = int(user_form.c.place)
-        self.old_name_forms = self.place.normalized_name
-        self.name_forms = Noun.fast_construct(user_form.c.new_name)
+        self.old_name_forms = self.place.utg_name
+        self.name_forms = user_form.get_word()
 
     def initialize_with_moderator_data(self, moderator_form):
-        self.name_forms = moderator_form.c.name_forms
+        self.name_forms = moderator_form.get_word()
 
     def apply(self, bill=None):
-        self.place.set_name_forms(self.name_forms)
+        self.place.set_utg_name(self.name_forms)
         self.place.save()
 
     def serialize(self):
@@ -103,11 +119,11 @@ class PlaceRenaming(BaseBill):
         obj = cls()
 
         if 'old_name_forms' in data:
-            obj.old_name_forms = Noun.deserialize(data['old_name_forms'])
+            obj.old_name_forms = utg_words.Word.deserialize(data['old_name_forms'])
         else:
-            obj.old_name_forms = Noun.fast_construct(u'название неизвестно')
+            obj.old_name_forms = names.generator.get_fast_name(u'название неизвестно')
 
-        obj.name_forms = Noun.deserialize(data['name_forms'])
+        obj.name_forms = utg_words.Word.deserialize(data['name_forms'])
         obj.place_id = data['place_id']
 
         return obj

@@ -2,7 +2,9 @@
 
 from dext.forms import fields
 
-from textgen.words import Noun, WordBase
+from utg import words as utg_words
+
+from the_tale.game import names
 
 from the_tale.game.persons.prototypes import PersonPrototype
 
@@ -51,10 +53,10 @@ class BuildingDestroy(BasePersonBill):
         if self.building_name_forms is None:
             building = buildings_storage.get_by_person_id(self.person_id)
             if building is not None:
-                self.building_name_forms = building.normalized_name
+                self.building_name_forms = building.utg_name
 
     @property
-    def base_name(self): return self.building_name_forms.normalized
+    def base_name(self): return self.building_name_forms.normal_form()
 
     def apply(self, bill=None):
         building = buildings_storage.get_by_person_id(self.person.id)
@@ -69,7 +71,7 @@ class BuildingDestroy(BasePersonBill):
 
         building = buildings_storage.get_by_person_id(self.person_id)
         if building is not None:
-            self.building_name_forms = building.normalized_name
+            self.building_name_forms = building.utg_name
 
     def serialize(self):
         data = super(BuildingDestroy, self).serialize()
@@ -81,8 +83,8 @@ class BuildingDestroy(BasePersonBill):
         obj = super(BuildingDestroy, cls).deserialize(data)
 
         if 'building_name_forms' in data:
-            obj.building_name_forms = WordBase.deserialize(data['building_name_forms'])
+            obj.building_name_forms = utg_words.Word.deserialize(data['building_name_forms'])
         else:
-            obj.building_name_forms = Noun.fast_construct(u'название неизвестно')
+            obj.building_name_forms = names.generator.get_fast_name(u'название неизвестно')
 
         return obj

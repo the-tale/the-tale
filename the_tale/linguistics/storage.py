@@ -5,7 +5,9 @@ from dext.common.utils import s11n
 from dext.settings import settings
 
 from utg import words as utg_words
+from utg import templates as utg_templates
 from utg import dictionary as utg_dictionary
+from utg import lexicon as utg_lexicon
 
 from the_tale.common.utils import storage
 
@@ -57,5 +59,30 @@ class RawDictionaryStorage(BaseGameDictionaryStorage):
         return words.itervalues()
 
 
+class GameLexiconDictionaryStorage(storage.SingleStorage):
+    SETTINGS_KEY = 'game lexicn change time'
+    EXCEPTION = exceptions.LexiconStorageError
+
+    def _templates_query(self):
+        return prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.IN_GAME).values_list('key', 'data')
+
+    def refresh(self):
+        self.clear()
+
+        self._item = utg_lexicon.Lexicon()
+
+        for key, data in self._templates_query():
+            template = utg_templates.Template.deserialize(s11n.from_json(data)['template'])
+            self._item.add_template(key, template)
+
+        self._version = settings[self.SETTINGS_KEY]
+
+    def _get_next_version(self):
+        return '%f' % time.time()
+
+
+
 game_dictionary = GameDictionaryStorage()
 raw_dictionary = RawDictionaryStorage()
+
+game_lexicon = GameLexiconDictionaryStorage()

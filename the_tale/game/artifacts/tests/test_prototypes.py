@@ -3,13 +3,11 @@ import random
 
 import mock
 
-from textgen.words import Noun
-
-from dext.common.utils import s11n
-
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
+
+from the_tale.game import names
 
 from the_tale.game.balance import constants as c
 from the_tale.game.balance.power import Power, PowerDistribution
@@ -80,7 +78,7 @@ class PrototypeTests(testcase.TestCase):
     def test_artifacts_attributes(self):
         ArtifactRecordPrototype.create(uuid='bandit_loot',
                                        level=1,
-                                       name='bandit loot',
+                                       utg_name=names.generator.get_test_name('artifact'),
                                        description='bandit loot description',
                                        type_=relations.ARTIFACT_TYPE.HELMET,
                                        power_type=relations.ARTIFACT_POWER_TYPE.NEUTRAL)
@@ -231,14 +229,11 @@ class PrototypeTests(testcase.TestCase):
     def test_change_uuid(self):
         loot = ArtifactRecordPrototype.create_random('some_loot', type_=relations.ARTIFACT_TYPE.USELESS, state=relations.ARTIFACT_RECORD_STATE.DISABLED)
 
-        form = ModerateArtifactRecordForm({'level': '1',
-                                           'type': relations.ARTIFACT_TYPE.USELESS,
-                                           'power_type': relations.ARTIFACT_POWER_TYPE.NEUTRAL,
-                                           'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
-                                           'epic_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
-                                           'uuid': 'new_uid',
-                                           'name_forms': s11n.to_json(Noun.fast_construct('artifact name').serialize())})
-        form.is_valid()
+        data = ModerateArtifactRecordForm.get_initials(loot)
+        data['level'] = unicode(data['level'])
+        data['uuid'] = 'new_uid'
+
+        form = ModerateArtifactRecordForm(data)
 
         self.assertTrue(form.is_valid())
         self.assertEqual(loot.uuid, artifacts_storage.get_by_uuid(loot.uuid).uuid)
@@ -250,15 +245,13 @@ class PrototypeTests(testcase.TestCase):
 
 
     def test_change_uuid_of_default_equipment(self):
-        form = ModerateArtifactRecordForm({'level': '1',
-                                           'type': relations.ARTIFACT_TYPE.USELESS,
-                                           'power_type': relations.ARTIFACT_POWER_TYPE.NEUTRAL,
-                                           'uuid': 'artifact_uuid',
-                                           'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
-                                           'epic_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
-                                           'name_forms': s11n.to_json(Noun(normalized='artifact name',
-                                                                           forms=['artifact name'] * Noun.FORMS_NUMBER,
-                                                                           properties=(u'мр',)).serialize())})
+        artifact_uid = random.choice(DEFAULT_HERO_EQUIPMENT._ALL)
+
+        data = ModerateArtifactRecordForm.get_initials(artifacts_storage.get_by_uuid(artifact_uid))
+        data['level'] = unicode(data['level'])
+        data['uuid'] = 'new_uid'
+
+        form = ModerateArtifactRecordForm(data)
         self.assertTrue(form.is_valid())
 
         default_artifact = artifacts_storage.get_by_uuid(random.choice(DEFAULT_HERO_EQUIPMENT._ALL))
@@ -269,15 +262,11 @@ class PrototypeTests(testcase.TestCase):
     def test_disable_default_equipment(self):
         artifact_uid = random.choice(DEFAULT_HERO_EQUIPMENT._ALL)
 
-        form = ModerateArtifactRecordForm({'level': '1',
-                                           'type': relations.ARTIFACT_TYPE.USELESS,
-                                           'power_type': relations.ARTIFACT_POWER_TYPE.NEUTRAL,
-                                           'uuid': artifact_uid,
-                                           'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
-                                           'epic_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
-                                           'name_forms': s11n.to_json(Noun(normalized='artifact name',
-                                                                           forms=['artifact name'] * Noun.FORMS_NUMBER,
-                                                                           properties=(u'мр',)).serialize())})
+        initials = ModerateArtifactRecordForm.get_initials(artifacts_storage.get_by_uuid(artifact_uid))
+        initials['level'] = unicode(initials['level'])
+        initials['approved'] = False
+
+        form = ModerateArtifactRecordForm(initials)
         self.assertTrue(form.is_valid())
 
         default_artifact = artifacts_storage.get_by_uuid(artifact_uid)

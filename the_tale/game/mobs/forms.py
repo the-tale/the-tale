@@ -2,10 +2,13 @@
 
 from django.forms import ValidationError
 
-from dext.forms import forms, fields
+from dext.forms import fields
 
-from the_tale.common.utils.forms import SimpleWordField
+from utg import relations as utg_relations
+
 from the_tale.common.utils import bbcode
+
+from the_tale.linguistics.forms import WORD_FORMS
 
 from the_tale.game.map.relations import TERRAIN
 
@@ -28,7 +31,7 @@ ABILITY_CHOICES = sorted(ABILITY_CHOICES_DICT.items(), key=lambda choice: choice
 MOB_TYPE_CHOICES = sorted(MOB_TYPE.choices(), key=lambda choice: choice[1])
 
 
-class MobRecordBaseForm(forms.Form):
+class MobRecordBaseForm(WORD_FORMS[utg_relations.WORD_TYPE.NOUN]):
 
     level = fields.IntegerField(label=u'минимальный уровень')
 
@@ -57,7 +60,6 @@ class MobRecordBaseForm(forms.Form):
         return frozenset(abilities_ids)
 
     def clean_terrains(self):
-
         terrains = self.cleaned_data['terrains']
 
         if not terrains:
@@ -65,16 +67,33 @@ class MobRecordBaseForm(forms.Form):
 
         return frozenset(terrains)
 
+    @classmethod
+    def get_initials(cls, mob):
+        initials = super(MobRecordBaseForm, cls).get_initials(mob.utg_name)
+        initials.update({'description': mob.description,
+                         'type': mob.type,
+                         'archetype': mob.archetype,
+                         'level': mob.level,
+                         'terrains': mob.terrains,
+                         'abilities': mob.abilities})
+
+        return initials
+
 
 class MobRecordForm(MobRecordBaseForm):
-
-    name = fields.CharField(label=u'Название противника', max_length=MobRecord.MAX_NAME_LENGTH)
-
+    pass
 
 class ModerateMobRecordForm(MobRecordBaseForm):
 
     uuid = fields.CharField(label=u'уникальный идентификатор', max_length=MobRecord.MAX_NAME_LENGTH)
 
-    name_forms = SimpleWordField(label=u'Формы названия')
-
     approved = fields.BooleanField(label=u'одобрен', required=False)
+
+
+    @classmethod
+    def get_initials(cls, mob):
+        initials = super(ModerateMobRecordForm, cls).get_initials(mob)
+        initials.update({'uuid': mob.uuid,
+                         'approved': mob.state.is_ENABLED})
+
+        return initials

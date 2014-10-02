@@ -2,7 +2,8 @@
 
 from dext.views import handler
 
-from textgen.logic import Args
+from utg import relations as utg_relations
+from utg import words as utg_words
 
 from the_tale.common.utils.resources import Resource
 
@@ -43,7 +44,7 @@ class MapResource(Resource):
         nearest_place_name = None
         nearest_place = map_info.get_dominant_place(x, y)
         if nearest_place:
-            nearest_place_name = nearest_place.normalized_name.get_form(Args(u'рд'))
+            nearest_place_name = nearest_place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE))
 
         place = places_storage.get_by_coordinates(x, y)
 

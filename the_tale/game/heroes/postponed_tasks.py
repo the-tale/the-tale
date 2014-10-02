@@ -4,7 +4,7 @@ import datetime
 import rels
 from rels.django import DjangoEnum
 
-from textgen.words import Noun
+from utg import words as utg_words
 
 from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 
@@ -107,7 +107,7 @@ class ChangeHeroTask(PostponedLogic):
     def __init__(self, hero_id, name, race, gender, state=CHANGE_HERO_TASK_STATE.UNPROCESSED):
         super(ChangeHeroTask, self).__init__()
         self.hero_id = hero_id
-        self.name = name if isinstance(name, Noun) else Noun.deserialize(name)
+        self.name = name if isinstance(name, utg_words.Word) else utg_words.Word.deserialize(name)
         self.race = race if isinstance(race, rels.Record) else RACE.index_value[race]
         self.gender = gender if isinstance(gender, rels.Record) else GENDER.index_value[gender]
         self.state = state if isinstance(state, rels.Record) else CHANGE_HERO_TASK_STATE(state)

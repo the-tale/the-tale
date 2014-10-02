@@ -3,9 +3,6 @@
 from django.test import client
 from django.core.urlresolvers import reverse
 
-from textgen.words import Noun
-
-from dext.common.utils import s11n
 from dext.common.utils.urls import url
 
 from the_tale.common.utils.testcase import TestCase
@@ -13,6 +10,8 @@ from the_tale.common.utils.permissions import sync_group
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user, login_page_url
+
+from the_tale.game import names
 
 from the_tale.game.logic import create_test_map, DEFAULT_HERO_EQUIPMENT
 
@@ -22,6 +21,46 @@ from the_tale.game.artifacts.models import ArtifactRecord
 from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.artifacts import relations
 from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
+
+from the_tale.linguistics.tests import helpers as linguistics_helpers
+
+
+class PostMixin(object):
+    def get_create_data(self, mob=None):
+        word = names.generator.get_test_name(name='artifact')
+        data = linguistics_helpers.get_word_post_data(word)
+
+        data.update({
+                'level': 1,
+                'type': relations.ARTIFACT_TYPE.RING,
+                'power_type': relations.ARTIFACT_POWER_TYPE.NEUTRAL,
+                'rare_effect': relations.ARTIFACT_EFFECT.POISON,
+                'epic_effect': relations.ARTIFACT_EFFECT.GREAT_PHYSICAL_DAMAGE,
+                'description': 'artifact description',
+                'mob':  u'' if mob is None else mob.id})
+
+        return data
+
+    def get_moderate_data(self, approved=True):
+        data = self.get_update_data()
+        data['approved'] = approved
+        data['uuid'] = 'new_uuid'
+        return data
+
+    def get_update_data(self, mob=None):
+        word = names.generator.get_test_name(name='new name')
+        data = linguistics_helpers.get_word_post_data(word)
+
+        data.update({
+                'level': 2,
+                'type': relations.ARTIFACT_TYPE.AMULET,
+                'power_type': relations.ARTIFACT_POWER_TYPE.MAGICAL,
+                'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
+                'epic_effect': relations.ARTIFACT_EFFECT.POISON,
+                'description': 'new artifact description',
+                'mob': u'' if mob is None else mob.id})
+
+        return data
 
 
 
@@ -124,7 +163,7 @@ class TestNewRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('game:artifacts:new')), texts=[('pgf-new-artifact-form', 2)])
 
 
-class TestCreateRequests(BaseTestRequests):
+class TestCreateRequests(BaseTestRequests, PostMixin):
 
     def setUp(self):
         super(TestCreateRequests, self).setUp()
@@ -134,24 +173,14 @@ class TestCreateRequests(BaseTestRequests):
 
         self.mob = mobs_storage.all()[0]
 
-    def get_post_data(self):
-        return {'name': 'artifact name',
-                'level': 1,
-                'type': relations.ARTIFACT_TYPE.RING,
-                'power_type': relations.ARTIFACT_POWER_TYPE.NEUTRAL,
-                'rare_effect': relations.ARTIFACT_EFFECT.GREAT_PHYSICAL_DAMAGE,
-                'epic_effect': relations.ARTIFACT_EFFECT.POISON,
-                'description': 'artifact description',
-                'mob': self.mob.id}
-
     def test_unlogined(self):
         self.request_logout()
-        self.check_ajax_error(self.client.post(reverse('game:artifacts:create'), self.get_post_data()), 'common.login_required')
+        self.check_ajax_error(self.client.post(reverse('game:artifacts:create'), self.get_create_data()), 'common.login_required')
 
     def test_create_rights(self):
         self.request_logout()
         self.request_login('test_user_1@test.com')
-        self.check_ajax_error(self.client.post(reverse('game:artifacts:create'), self.get_post_data()), 'artifacts.create_artifact_rights_required')
+        self.check_ajax_error(self.client.post(reverse('game:artifacts:create'), self.get_create_data()), 'artifacts.create_artifact_rights_required')
 
     def test_form_errors(self):
         self.check_ajax_error(self.client.post(reverse('game:artifacts:create'), {}), 'artifacts.create.form_errors')
@@ -159,21 +188,21 @@ class TestCreateRequests(BaseTestRequests):
     def test_simple(self):
 
         with self.check_delta(ArtifactRecordPrototype._db_count, 1):
-            response = self.client.post(reverse('game:artifacts:create'), self.get_post_data())
+            response = self.client.post(reverse('game:artifacts:create'), self.get_create_data())
 
         artifact_record = ArtifactRecordPrototype(ArtifactRecord.objects.all().order_by('-created_at')[0])
 
         self.check_ajax_ok(response, data={'next_url': reverse('guide:artifacts:show', args=[artifact_record.id])})
 
-        self.assertEqual(artifact_record.name, 'artifact name')
+        self.assertEqual(artifact_record.name, 'artifact_0')
         self.assertEqual(artifact_record.level, 1)
         self.assertTrue(artifact_record.type.is_RING)
         self.assertEqual(artifact_record.description, 'artifact description')
         self.assertTrue(artifact_record.state.is_DISABLED)
-        self.assertTrue(artifact_record.rare_effect.is_GREAT_PHYSICAL_DAMAGE)
-        self.assertTrue(artifact_record.epic_effect.is_POISON)
-        self.assertTrue(artifact_record.editor_id, self.account_2.id)
-        self.assertTrue(artifact_record.mob.id, self.mob.id)
+        self.assertTrue(artifact_record.rare_effect.is_POISON)
+        self.assertTrue(artifact_record.epic_effect.is_GREAT_PHYSICAL_DAMAGE)
+        self.assertEqual(artifact_record.editor_id, self.account_2.id)
+        self.assertEqual(artifact_record.mob, None)
 
 
 class TestShowRequests(BaseTestRequests):
@@ -300,12 +329,12 @@ class TestEditRequests(BaseTestRequests):
         self.request_logout()
         self.request_login('test_user_2@test.com')
         self.check_html_ok(self.request_html(reverse('game:artifacts:edit', args=[self.artifact.id])), texts=[('pgf-edit-artifact-form', 2),
-                                                                                                            (self.artifact.name, 2), # +description
+                                                                                                            self.artifact.name,
                                                                                                             (self.artifact.description, 1) ])
 
 
 
-class TestUpdateRequests(BaseTestRequests):
+class TestUpdateRequests(BaseTestRequests, PostMixin):
 
     def setUp(self):
         super(TestUpdateRequests, self).setUp()
@@ -318,27 +347,8 @@ class TestUpdateRequests(BaseTestRequests):
 
         self.mob = mobs_storage.all()[0]
 
-    def get_create_data(self):
-        return {'name': 'artifact name',
-                'level': 1,
-                'type': relations.ARTIFACT_TYPE.RING,
-                'power_type': relations.ARTIFACT_POWER_TYPE.NEUTRAL,
-                'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
-                'epic_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
-                'description': 'artifact description'}
-
-    def get_update_data(self):
-        return {'name': 'new artifact name',
-                'level': 2,
-                'type': relations.ARTIFACT_TYPE.AMULET,
-                'power_type': relations.ARTIFACT_POWER_TYPE.PHYSICAL,
-                'rare_effect': relations.ARTIFACT_EFFECT.FLAME,
-                'epic_effect': relations.ARTIFACT_EFFECT.ICE,
-                'description': 'new artifact description',
-                'mob': self.mob.id}
-
     def check_artifact(self, artifact, data):
-        self.assertEqual(artifact.name, data['name'])
+        self.assertEqual(artifact.name, data['field_0'])
         self.assertEqual(artifact.level, data['level'])
         self.assertEqual(artifact.type, data['type'])
         self.assertEqual(artifact.rare_effect, data['rare_effect'])
@@ -347,7 +357,7 @@ class TestUpdateRequests(BaseTestRequests):
         self.assertEqual(artifact.description, data['description'])
 
         mob = data.get('mob')
-        if mob is not None:
+        if mob:
             self.assertEqual(artifact.mob.id, mob)
         else:
             self.assertEqual(artifact.mob, None)
@@ -400,11 +410,11 @@ class TestModerationPageRequests(BaseTestRequests):
         self.request_logout()
         self.request_login('test_user_3@test.com')
         self.check_html_ok(self.request_html(reverse('game:artifacts:moderate', args=[self.artifact.id])), texts=[('pgf-moderate-artifact-form', 2),
-                                                                                                                (self.artifact.name, 1 + 13), # description+name_forms
+                                                                                                                self.artifact.name,
                                                                                                                 (self.artifact.description, 1) ])
 
 
-class TestModerateRequests(BaseTestRequests):
+class TestModerateRequests(BaseTestRequests, PostMixin):
 
     def setUp(self):
         super(TestModerateRequests, self).setUp()
@@ -417,33 +427,10 @@ class TestModerateRequests(BaseTestRequests):
         self.check_ajax_ok(self.client.post(reverse('game:artifacts:create'), self.get_create_data()))
         self.artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all().order_by('-created_at')[0])
 
-        self.name = Noun(normalized='new name 0',
-                         forms=['new name %d' % i for i in xrange( Noun.FORMS_NUMBER)],
-                         properties=(u'мр',))
+        self.name = names.generator.get_test_name(name='new name')
 
         self.request_logout()
         self.request_login('test_user_3@test.com')
-
-    def get_create_data(self):
-        return {'name': 'artifact name',
-                'level': 1,
-                'type': relations.ARTIFACT_TYPE.RING,
-                'power_type': relations.ARTIFACT_POWER_TYPE.NEUTRAL,
-                'rare_effect': relations.ARTIFACT_EFFECT.POISON,
-                'epic_effect': relations.ARTIFACT_EFFECT.GREAT_PHYSICAL_DAMAGE,
-                'description': 'artifact description',
-                'mob': self.mob.id}
-
-    def get_moderate_data(self, approved=True):
-        return {'name_forms': s11n.to_json(self.name.serialize()),
-                'uuid': 'new_uuid',
-                'approved': approved,
-                'level': 2,
-                'type': relations.ARTIFACT_TYPE.AMULET,
-                'power_type': relations.ARTIFACT_POWER_TYPE.MAGICAL,
-                'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
-                'epic_effect': relations.ARTIFACT_EFFECT.POISON,
-                'description': 'new artifact description'}
 
     def test_unlogined(self):
         self.request_logout()
@@ -467,8 +454,8 @@ class TestModerateRequests(BaseTestRequests):
         self.check_ajax_ok(response, data={'next_url': reverse('guide:artifacts:show', args=[artifact_record.id])})
 
         self.assertEqual(artifact_record.uuid, 'new_uuid')
-        self.assertEqual(artifact_record.name, 'new name 0')
-        self.assertEqual(artifact_record.name_forms, self.name)
+        self.assertEqual(artifact_record.name, 'new name_0')
+        self.assertEqual(artifact_record.utg_name, self.name)
         self.assertEqual(artifact_record.level, 2)
         self.assertEqual(artifact_record.description, 'new artifact description')
         self.assertTrue(artifact_record.state.is_ENABLED)

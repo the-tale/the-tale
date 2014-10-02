@@ -8,11 +8,13 @@ from dext.common.utils import s11n
 from the_tale.common.utils import bbcode
 from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils.logic import random_value_by_priority
+from the_tale.common.utils.decorators import lazy_property
+
+from the_tale.game import names
 
 from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
 from the_tale.game.balance.power import Power
-
 
 from the_tale.game.artifacts import exceptions
 from the_tale.game.artifacts.models import ArtifactRecord
@@ -225,15 +227,20 @@ class ArtifactRecordPrototype(BasePrototype):
     _bidirectional = ('level', 'uuid', 'name', 'description', 'type', 'state', 'power_type', 'rare_effect', 'epic_effect')
     _get_by = ('id', )
 
-    def get_name_forms(self):
-        if not hasattr(self, '_name_forms'):
-            self._name_forms = Noun.deserialize(s11n.from_json(self._model.name_forms))
-        return self._name_forms
-    def set_name_forms(self, word):
-        self._name_forms = word
-        self._model.name = word.normalized
-        self._model.name_forms = s11n.to_json(word.serialize())
-    name_forms = property(get_name_forms, set_name_forms)
+    @lazy_property
+    def data(self):
+        return s11n.from_json(self._model.data)
+
+    @lazy_property
+    def utg_name(self):
+        from utg import words
+        return words.Word.deserialize(self.data['name'])
+
+    def set_utg_name(self, word):
+        del self.utg_name
+
+        self._model.name = word.normal_form()
+        self.data['name'] = word.serialize()
 
     @property
     def description_html(self): return bbcode.render(self._model.description)
@@ -254,29 +261,23 @@ class ArtifactRecordPrototype(BasePrototype):
     @classmethod
     def create(cls, uuid,
                level,
-               name,
+               utg_name,
                description,
                type_,
                power_type,
                mob=None,
                editor=None,
                state=relations.ARTIFACT_RECORD_STATE.DISABLED,
-               name_forms=None,
                rare_effect=relations.ARTIFACT_EFFECT.NO_EFFECT,
                epic_effect=relations.ARTIFACT_EFFECT.NO_EFFECT):
 
         from the_tale.game.artifacts.storage import artifacts_storage
 
-        if name_forms is None:
-            name_forms = Noun(normalized=name,
-                              forms=[name] * Noun.FORMS_NUMBER,
-                              properties=(u'мр',))
-
         model = ArtifactRecord.objects.create(uuid=uuid,
                                               level=level,
-                                              name=name,
-                                              name_forms=s11n.to_json(name_forms.serialize()),
+                                              name=utg_name.normal_form(),
                                               description=description,
+                                              data=s11n.to_json({'name': utg_name.serialize()}),
                                               mob=mob._model if mob else None,
                                               type=type_,
                                               power_type=power_type,
@@ -300,11 +301,12 @@ class ArtifactRecordPrototype(BasePrototype):
                       power_type=relations.ARTIFACT_POWER_TYPE.NEUTRAL,
                       state=relations.ARTIFACT_RECORD_STATE.ENABLED):
         name = u'artifact_'+uuid.lower()
-        return cls.create(uuid, level=level, name=name, description='description of %s' % name, mob=mob, type_=type_, power_type=power_type, state=state)
+        utg_name = names.generator.get_test_name(name=name)
+        return cls.create(uuid, level=level, utg_name=utg_name, description='description of %s' % name, mob=mob, type_=type_, power_type=power_type, state=state)
 
     def update_by_creator(self, form, editor):
+        self.set_utg_name(form.get_word())
 
-        self.name = form.c.name
         self.level = form.c.level
         self.type = form.c.type
         self.power_type = form.c.power_type
@@ -325,7 +327,8 @@ class ArtifactRecordPrototype(BasePrototype):
             if not form.c.approved:
                 raise exceptions.DisableDefaultEquipmentError(artifact=self.uuid)
 
-        self.name_forms = form.c.name_forms
+        self.set_utg_name(form.get_word())
+
         self.level = form.c.level
         self.type = form.c.type
         self.power_type = form.c.power_type
@@ -347,6 +350,7 @@ class ArtifactRecordPrototype(BasePrototype):
         if id(self) != id(artifacts_storage[self.id]):
             raise exceptions.SaveNotRegisteredArtifactError(mob=self.id)
 
+        self._model.data = s11n.to_json(self.data)
         self._model.save()
 
         artifacts_storage._update_cached_data(self)

@@ -2,7 +2,8 @@
 
 from django.forms import ValidationError
 
-from textgen.words import Noun
+from utg import words as utg_words
+
 from dext.forms import fields
 
 from the_tale.game.balance import constants as c
@@ -114,10 +115,10 @@ class PlaceResourceExchange(BaseBill):
         self.old_place_2_name_forms = old_place_2_name_forms
 
         if self.old_place_1_name_forms is None and self.place_1_id is not None:
-            self.old_place_1_name_forms = self.place_1.normalized_name
+            self.old_place_1_name_forms = self.place_1.utg_name
 
         if self.old_place_2_name_forms is None and self.place_2_id is not None:
-            self.old_place_2_name_forms = self.place_2.normalized_name
+            self.old_place_2_name_forms = self.place_2.utg_name
 
     @property
     def place_1(self): return places_storage[self.place_1_id]
@@ -144,18 +145,18 @@ class PlaceResourceExchange(BaseBill):
         return self.old_place_2_name != self.place_2.name
 
     @property
-    def old_place_1_name(self): return self.old_place_1_name_forms.normalized
+    def old_place_1_name(self): return self.old_place_1_name_forms.normal_form()
 
     @property
-    def old_place_2_name(self): return self.old_place_2_name_forms.normalized
+    def old_place_2_name(self): return self.old_place_2_name_forms.normal_form()
 
     def initialize_with_user_data(self, user_form):
         self.place_1_id = int(user_form.c.place_1)
         self.place_2_id = int(user_form.c.place_2)
         self.resource_1 = user_form.c.resource_1
         self.resource_2 = user_form.c.resource_2
-        self.old_place_1_name_forms = self.place_1.normalized_name
-        self.old_place_2_name_forms = self.place_2.normalized_name
+        self.old_place_1_name_forms = self.place_1.utg_name
+        self.old_place_2_name_forms = self.place_2.utg_name
 
     def apply(self, bill=None):
         ResourceExchangePrototype.create(place_1=self.place_1,
@@ -188,8 +189,8 @@ class PlaceResourceExchange(BaseBill):
         obj = cls()
         obj.place_1_id = data['place_1_id']
         obj.place_2_id = data['place_2_id']
-        obj.old_place_1_name_forms = Noun.deserialize(data['old_place_1_name_forms'])
-        obj.old_place_2_name_forms = Noun.deserialize(data['old_place_2_name_forms'])
+        obj.old_place_1_name_forms = utg_words.Word.deserialize(data['old_place_1_name_forms'])
+        obj.old_place_2_name_forms = utg_words.Word.deserialize(data['old_place_2_name_forms'])
         obj.resource_1 = RESOURCE_EXCHANGE_TYPE.index_value[data['resource_1']]
         obj.resource_2 = RESOURCE_EXCHANGE_TYPE.index_value[data['resource_2']]
 

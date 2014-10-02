@@ -5,17 +5,19 @@ from rels.django import DjangoEnum
 
 from pynames.relations import GENDER as PYNAMES_GENDER
 
+from utg import relations as utg_relations
+
 from the_tale.game.balance import enums as e
 from the_tale.game.balance import constants as c
 
 
 class GENDER(DjangoEnum):
-    text_id = Column()
+    utg_id = Column()
     pynames_id = Column(unique=False)
 
-    records = ( ('MASCULINE', 0, u'мужчина', u'мр', PYNAMES_GENDER.MALE),
-                 ('FEMININE', 1, u'женщина', u'жр', PYNAMES_GENDER.FEMALE),
-                 ('NEUTER', 2, u'оно', u'ср', PYNAMES_GENDER.MALE) )
+    records = ( ('MASCULINE', 0, u'мужчина', utg_relations.GENDER.MASCULINE, PYNAMES_GENDER.MALE),
+                 ('FEMININE', 1, u'женщина', utg_relations.GENDER.FEMININE, PYNAMES_GENDER.FEMALE),
+                 ('NEUTER', 2, u'оно', utg_relations.GENDER.NEUTER, PYNAMES_GENDER.MALE) )
 
 
 

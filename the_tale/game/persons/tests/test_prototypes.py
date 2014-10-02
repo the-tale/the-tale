@@ -2,11 +2,11 @@
 import mock
 import datetime
 
-from textgen.words import Noun
-
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
+
+from the_tale.game import names
 
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.logic import create_test_map
@@ -81,7 +81,7 @@ class PrototypeTests(testcase.TestCase):
         self.assertEqual(self.person.place.persons_changed_at_turn, TimePrototype.get_current_turn_number())
 
     def test_move_out_game_with_building(self):
-        building = BuildingPrototype.create(self.person, name_forms=Noun.fast_construct('building-name'))
+        building = BuildingPrototype.create(self.person, utg_name=names.generator.get_test_name('building-name'))
         self.assertTrue(building.state.is_WORKING)
         self.person.move_out_game()
         self.assertTrue(building.state.is_DESTROYED)
@@ -95,7 +95,7 @@ class PrototypeTests(testcase.TestCase):
             if old_mastery < 0.8:
                 break
 
-        building = BuildingPrototype.create(person, name_forms=Noun.fast_construct('building-name'))
+        building = BuildingPrototype.create(person, utg_name=names.generator.get_test_name('building-name'))
 
         max_mastery = person.mastery
 
@@ -110,7 +110,7 @@ class PrototypeTests(testcase.TestCase):
 
         self.assertEqual(change_person_power_call.call_args, mock.call(person_id=self.person.id, power_delta=100, place_id=None, positive_bonus=1, negative_bonus=2))
 
-        BuildingPrototype.create(self.person, name_forms=Noun.fast_construct('building-name'))
+        BuildingPrototype.create(self.person, utg_name=names.generator.get_test_name('building-name'))
 
         with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as change_person_power_call:
             self.person.cmd_change_power(100, -2, -1)

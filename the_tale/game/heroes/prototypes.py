@@ -4,8 +4,6 @@ import datetime
 import time
 import random
 
-from textgen.words import Noun
-
 from dext.common.utils import s11n, database, cache
 
 from the_tale.amqp_environment import environment
@@ -116,6 +114,10 @@ class HeroPrototype(BasePrototype,
     def is_ui_continue_caching_required(self, ui_caching_started_at):
         return ui_caching_started_at + heroes_settings.UI_CACHING_TIME - heroes_settings.UI_CACHING_CONTINUE_TIME < time.time()
 
+    @lazy_property
+    def data(self):
+        return s11n.from_json(self._model.data)
+
     ###########################################
     # Base attributes
     ###########################################
@@ -202,25 +204,18 @@ class HeroPrototype(BasePrototype,
         return created_at if created_at is not None else datetime.datetime.now()
 
     @lazy_property
-    def name(self): return self.name_forms.normalized
+    def utg_name(self):
+        from utg import words
+        return words.Word.deserialize(self.data['name'])
 
     @lazy_property
-    def name_forms(self):
-        if not self._model.name_forms:
-            # TODO: remove after v0.3.10
-            self._model.name_forms = s11n.to_json(names.generator.get_name(self.race, self.gender).serialize())
-
-        return Noun.deserialize(s11n.from_json(self._model.name_forms))
-
-    @lazy_property
-    def normalized_name(self): return self.name_forms
+    def name(self): return self.utg_name.normal_form()
 
     def set_name_forms(self, word):
-        del self.normalized_name
         del self.name
-        del self.name_forms
+        del self.utg_name
 
-        self._model.name_forms = s11n.to_json(word.serialize())
+        self.data['name'] = word.serialize()
 
 
     def switch_spending(self):
@@ -441,6 +436,8 @@ class HeroPrototype(BasePrototype,
         self._model.saved_at_turn = TimePrototype.get_current_turn_number()
         self._model.saved_at = datetime.datetime.now()
 
+        self._model.data = s11n.to_json(self.data)
+
         if self.bag.updated:
             self.bag.serialize()
 
@@ -646,7 +643,7 @@ class HeroPrototype(BasePrototype,
 
         current_turn_number = TimePrototype.get_current_turn_number()
 
-        name = names.generator.get_name(race, gender)
+        utg_name = names.generator.get_name(race, gender)
 
         hero = Hero.objects.create(created_at_turn=current_turn_number,
                                    saved_at_turn=current_turn_number,
@@ -660,13 +657,14 @@ class HeroPrototype(BasePrototype,
                                    abilities=s11n.to_json(AbilitiesPrototype.create().serialize()),
                                    messages=s11n.to_json(messages.JournalContainer().serialize()),
                                    diary=s11n.to_json(messages.DiaryContainer().serialize()),
-                                   name_forms=s11n.to_json(name.serialize()),
                                    settings_approved=False,
                                    next_spending=relations.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT,
                                    health=f.hp_on_lvl(1),
                                    energy=c.ANGEL_ENERGY_MAX,
                                    energy_bonus=heroes_settings.START_ENERGY_BONUS,
-                                   pos_place = start_place._model)
+                                   pos_place = start_place._model,
+
+                                   data=s11n.to_json({'name': utg_name.serialize()}))
 
         hero = cls(model=hero)
 

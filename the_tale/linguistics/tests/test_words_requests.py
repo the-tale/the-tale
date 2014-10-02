@@ -26,6 +26,8 @@ from the_tale.linguistics import prototypes
 from the_tale.linguistics import relations
 from the_tale.linguistics.conf import linguistics_settings
 
+from the_tale.linguistics.tests import helpers
+
 
 class BaseRequestsTests(TestCase):
 
@@ -160,26 +162,13 @@ class CreateRequestsTests(BaseRequestsTests):
         self.check_ajax_error(self.client.post(url('linguistics:words:create', type='www')), 'linguistics.words.type.wrong_format')
         self.check_ajax_error(self.client.post(url('linguistics:words:create', type=666)), 'linguistics.words.type.not_found')
 
-    def get_post_data(self, word):
-
-        data = {}
-
-        for i, form in enumerate(word.forms):
-            data['field_%d' % i] = form
-
-        for static_property, required in word.type.properties.iteritems():
-            if word.properties.is_specified(static_property):
-                data['field_%s' % static_property.__name__] = word.properties.get(static_property)
-
-        return data
-
     def test_create_with_all_fields(self):
         for word_type in utg_relations.WORD_TYPE.records:
             word = utg_words.Word.create_test_word(word_type, prefix='w-')
             requested_url = url('linguistics:words:create', type=word_type.value)
 
             with self.check_delta(prototypes.WordPrototype._db_count, 1):
-                response = self.client.post(requested_url, self.get_post_data(word))
+                response = self.client.post(requested_url, helpers.get_word_post_data(word))
 
             last_prototype = prototypes.WordPrototype._db_latest()
 
@@ -197,7 +186,7 @@ class CreateRequestsTests(BaseRequestsTests):
             requested_url = url('linguistics:words:create', type=word_type.value, parent=parent.id)
 
             with self.check_delta(prototypes.WordPrototype._db_count, 0):
-                response = self.client.post(requested_url, self.get_post_data(word))
+                response = self.client.post(requested_url, helpers.get_word_post_data(word))
 
             last_prototype = prototypes.WordPrototype._db_latest()
 
@@ -220,7 +209,7 @@ class CreateRequestsTests(BaseRequestsTests):
             requested_url = url('linguistics:words:create', type=word_type.value, parent=parent.id)
 
             with self.check_delta(prototypes.WordPrototype._db_count, 1):
-                response = self.client.post(requested_url, self.get_post_data(word))
+                response = self.client.post(requested_url, helpers.get_word_post_data(word))
 
             self.assertTrue(prototypes.WordPrototype._db_filter(id=parent.id).exists())
 
@@ -243,7 +232,7 @@ class CreateRequestsTests(BaseRequestsTests):
             requested_url = url('linguistics:words:create', type=word_type.value)
 
             with self.check_delta(prototypes.WordPrototype._db_count, 0):
-                self.check_ajax_error(self.client.post(requested_url, self.get_post_data(word)),
+                self.check_ajax_error(self.client.post(requested_url, helpers.get_word_post_data(word)),
                                       'linguistics.words.create.parent_exists')
 
     def test_form_errors(self):

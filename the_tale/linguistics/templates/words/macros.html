@@ -1,11 +1,13 @@
 
-{% macro render_word(drawer) %}
+{% macro render_word(drawer, show_properties=true, show_patches=true) %}
 
   {% set structure = drawer.get_structure(drawer.type) %}
 
-  {% for property in drawer.type.properties|sort %}
-    {{drawer.get_property(property)}}
-  {% endfor %}
+  {% if show_properties %}
+    {% for property in drawer.type.properties|sort %}
+      {{drawer.get_property(property)}}
+    {% endfor %}
+  {% endif %}
 
   {% for leaf in structure %}
 
@@ -15,7 +17,7 @@
 
   {% endfor %}
 
-  {% if drawer.has_patches() %}
+  {% if show_patches and drawer.has_patches() %}
     <div class="accordion" id="pgf-patches-accordion">
       {% for patch in drawer.type.patches %}
         <div class="accordion-group">

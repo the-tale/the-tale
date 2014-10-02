@@ -9,12 +9,12 @@ from django.core.urlresolvers import reverse
 
 from dext.common.utils.urls import url
 
-from textgen.words import Noun
-
 from the_tale.common.utils.testcase import TestCase
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
+
+from the_tale.game import names
 
 from the_tale.game.logic import create_test_map
 
@@ -99,7 +99,7 @@ class CellInfoTests(RequestsTestsBase):
         self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
 
     def test_building(self):
-        building = BuildingPrototype.create(self.place_1.persons[0], name_forms=Noun.fast_construct('building-name'))
+        building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator.get_test_name('building-name'))
         texts = [building.type.text, jinja2.escape(building.person.name), jinja2.escape(self.place_1.name)]
         self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (building.x, building.y))), texts=texts)
 

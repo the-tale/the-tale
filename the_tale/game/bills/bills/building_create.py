@@ -2,9 +2,12 @@
 
 from dext.forms import fields
 
-from textgen.words import Noun, WordBase
+from utg import words as utg_words
+from utg import relations as utg_relations
 
-from the_tale.common.utils.forms import SimpleWordField
+from the_tale.game import names
+
+from the_tale.linguistics.forms import WORD_FORMS
 
 from the_tale.game.persons.prototypes import PersonPrototype
 
@@ -15,18 +18,26 @@ from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
 from the_tale.game.bills.bills.base_person_bill import BasePersonBill
 
 
-class UserForm(BaseUserForm):
+class UserForm(BaseUserForm, WORD_FORMS[utg_relations.WORD_TYPE.NOUN]):
 
     person = fields.ChoiceField(label=u'Житель')
-    name = fields.CharField(label=u'Название')
 
     def __init__(self, choosen_person_id, *args, **kwargs):  # pylint: disable=W0613
         super(UserForm, self).__init__(*args, **kwargs)
         self.fields['person'].choices = PersonPrototype.form_choices(predicate=lambda place, person: not person.has_building)
 
+    @property
+    def name_drawer(self):
+        from the_tale.linguistics import word_drawer
+        return word_drawer.FormDrawer(self.WORD_TYPE, form=self)
 
-class ModeratorForm(BaseModeratorForm):
-    building_name_forms = SimpleWordField(label=u'Формы названия')
+
+class ModeratorForm(BaseModeratorForm, WORD_FORMS[utg_relations.WORD_TYPE.NOUN]):
+    @property
+    def name_drawer(self):
+        from the_tale.linguistics import word_drawer
+        return word_drawer.FormDrawer(self.WORD_TYPE, form=self)
+
 
 
 class BuildingCreate(BasePersonBill):
@@ -44,42 +55,38 @@ class BuildingCreate(BasePersonBill):
     # TODO: remove hardcoded url
     DESCRIPTION = u'Возводит здание, принадлежащее выбранному горожанину (и соответствующее его профессии). Один житель города может иметь только одну постройку. Помните, что для поддержания работы здания потребуется участие игроков, иначе оно обветшает и разрушится. О типах зданий можно узнать в <a href="/guide/persons">Путеводителе</a>.'
 
-    def __init__(self, base_name=None, building_name_forms=None, **kwargs):
+    def __init__(self, utg_name=None, **kwargs):
         super(BuildingCreate, self).__init__(**kwargs)
-
-        self.building_name_forms = building_name_forms
-
-        if self.building_name_forms is None and base_name is not None:
-            self.building_name_forms = Noun.fast_construct(base_name)
+        self.building_name_forms = utg_name
 
     @property
-    def base_name(self): return self.building_name_forms.normalized
+    def base_name(self): return self.building_name_forms.normal_form()
 
     def apply(self, bill=None):
         if self.person is None or self.person.out_game:
             return
 
-        BuildingPrototype.create(self.person, name_forms=self.building_name_forms)
+        BuildingPrototype.create(self.person, utg_name=self.building_name_forms)
 
     @property
     def user_form_initials(self):
         initials = super(BuildingCreate, self).user_form_initials
-        initials.update({'name': self.base_name})
+        initials.update(WORD_FORMS[utg_relations.WORD_TYPE.NOUN].get_initials(self.building_name_forms))
         return initials
 
     @property
     def moderator_form_initials(self):
         initials = super(BuildingCreate, self).moderator_form_initials
-        initials.update({'building_name_forms': self.building_name_forms.serialize()})
+        initials.update(WORD_FORMS[utg_relations.WORD_TYPE.NOUN].get_initials(self.building_name_forms))
         return initials
 
     def initialize_with_user_data(self, user_form):
         super(BuildingCreate, self).initialize_with_user_data(user_form)
-        self.building_name_forms = Noun.fast_construct(user_form.c.name)
+        self.building_name_forms = user_form.get_word()
 
     def initialize_with_moderator_data(self, moderator_form):
         super(BuildingCreate, self).initialize_with_moderator_data(moderator_form)
-        self.building_name_forms = moderator_form.c.building_name_forms
+        self.building_name_forms = moderator_form.get_word()
 
     def serialize(self):
         data = super(BuildingCreate, self).serialize()
@@ -91,8 +98,8 @@ class BuildingCreate(BasePersonBill):
         obj = super(BuildingCreate, cls).deserialize(data)
 
         if 'building_name_forms' in data:
-            obj.building_name_forms = WordBase.deserialize(data['building_name_forms'])
+            obj.building_name_forms = utg_words.Word.deserialize(data['building_name_forms'])
         else:
-            obj.building_name_forms = Noun.fast_construct(u'название неизвестно')
+            obj.building_name_forms = names.generator.get_fast_name(u'название неизвестно')
 
         return obj

@@ -33,14 +33,14 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
         self.assertEqual(self.bill.data.place_2_id, self.place2.id)
         self.assertEqual(self.bill.data.resource_1, self.resource_1)
         self.assertEqual(self.bill.data.resource_2, self.resource_2)
-        self.assertEqual(self.bill.data.old_place_1_name_forms, self.place1.normalized_name)
-        self.assertEqual(self.bill.data.old_place_2_name_forms, self.place2.normalized_name)
+        self.assertEqual(self.bill.data.old_place_1_name_forms, self.place1.utg_name)
+        self.assertEqual(self.bill.data.old_place_2_name_forms, self.place2.utg_name)
 
         self.assertEqual(self.bill.data.place_1.id, self.place1.id)
         self.assertEqual(self.bill.data.place_2.id, self.place2.id)
 
-        self.assertEqual(self.bill.data.old_place_1_name, self.place1.normalized_name.normalized)
-        self.assertEqual(self.bill.data.old_place_2_name, self.place2.normalized_name.normalized)
+        self.assertEqual(self.bill.data.old_place_1_name, self.place1.utg_name.normal_form())
+        self.assertEqual(self.bill.data.old_place_2_name, self.place2.utg_name.normal_form())
 
         self.assertFalse(self.bill.data.place_1_name_changed)
         self.assertFalse(self.bill.data.place_2_name_changed)
@@ -73,14 +73,14 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
         self.assertEqual(self.bill.data.place_2_id, self.place1.id)
         self.assertEqual(self.bill.data.resource_1, self.resource_2)
         self.assertEqual(self.bill.data.resource_2, self.resource_1)
-        self.assertEqual(self.bill.data.old_place_1_name_forms, self.place2.normalized_name)
-        self.assertEqual(self.bill.data.old_place_2_name_forms, self.place1.normalized_name)
+        self.assertEqual(self.bill.data.old_place_1_name_forms, self.place2.utg_name)
+        self.assertEqual(self.bill.data.old_place_2_name_forms, self.place1.utg_name)
 
         self.assertEqual(self.bill.data.place_1.id, self.place2.id)
         self.assertEqual(self.bill.data.place_2.id, self.place1.id)
 
-        self.assertEqual(self.bill.data.old_place_1_name, self.place2.normalized_name.normalized)
-        self.assertEqual(self.bill.data.old_place_2_name, self.place1.normalized_name.normalized)
+        self.assertEqual(self.bill.data.old_place_1_name, self.place2.utg_name.normal_form())
+        self.assertEqual(self.bill.data.old_place_2_name, self.place1.utg_name.normal_form())
 
         self.assertFalse(self.bill.data.place_2_name_changed)
         self.assertFalse(self.bill.data.place_1_name_changed)

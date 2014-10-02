@@ -2,9 +2,9 @@
 import mock
 import random
 
-from textgen.words import Noun
-
 from the_tale.common.utils import testcase
+
+from the_tale.game import names
 
 from the_tale.game.relations import RACE
 
@@ -365,7 +365,8 @@ class BuildingPrototypeTests(testcase.TestCase):
 
     def test_get_available_positions(self):
 
-        building = BuildingPrototype.create(self.place_1.persons[0], name_forms=Noun.fast_construct('building-name'))
+        building = BuildingPrototype.create(self.place_1.persons[0],
+                                            utg_name=names.generator.get_test_name(name='building-name'))
 
         positions = BuildingPrototype.get_available_positions(self.place_1.x, self.place_1.y)
 
@@ -396,9 +397,9 @@ class BuildingPrototypeTests(testcase.TestCase):
 
         old_version = buildings_storage.version
 
-        name = Noun.fast_construct('building-name')
+        name = names.generator.get_test_name(name='building-name')
 
-        building = BuildingPrototype.create(self.place_1.persons[0], name_forms=name)
+        building = BuildingPrototype.create(self.place_1.persons[0], utg_name=name)
 
         self.assertNotEqual(old_version, buildings_storage.version)
 
@@ -406,13 +407,13 @@ class BuildingPrototypeTests(testcase.TestCase):
 
         old_version = buildings_storage.version
 
-        name_2 = Noun.fast_construct('building-name-2')
-        building_2 = BuildingPrototype.create(self.place_1.persons[0], name_forms=name_2)
+        name_2 = names.generator.get_test_name(name='building-name-2')
+        building_2 = BuildingPrototype.create(self.place_1.persons[0], utg_name=name_2)
 
         self.assertEqual(old_version, buildings_storage.version)
         self.assertEqual(Building.objects.all().count(), 1)
         self.assertEqual(hash(building), hash(building_2))
-        self.assertEqual(building.normalized_name, name)
+        self.assertEqual(building.utg_name, name)
 
     def test_create_after_destroy(self):
         self.assertEqual(Building.objects.all().count(), 0)
@@ -421,20 +422,20 @@ class BuildingPrototypeTests(testcase.TestCase):
 
         person = self.place_1.persons[0]
 
-        name = Noun.fast_construct('building-name')
-        building = BuildingPrototype.create(person, name_forms=name)
+        name = names.generator.get_test_name(name='building-name')
+        building = BuildingPrototype.create(person, utg_name=name)
         building.destroy()
 
-        name_2 = Noun.fast_construct('building-name-2')
-        building = BuildingPrototype.create(person, name_forms=name_2)
+        name_2 = names.generator.get_test_name(name='building-name-2')
+        building = BuildingPrototype.create(person, utg_name=name_2)
 
         self.assertNotEqual(old_version, buildings_storage.version)
 
         self.assertEqual(Building.objects.all().count(), 1)
-        self.assertEqual(building.normalized_name, name_2)
+        self.assertEqual(building.utg_name, name_2)
 
     def test_amortize(self):
-        building = BuildingPrototype.create(self.place_1.persons[0], name_forms=Noun.fast_construct('building-name'))
+        building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator.get_test_name(name='building-name'))
 
         old_integrity = building.integrity
 
@@ -450,13 +451,13 @@ class BuildingPrototypeTests(testcase.TestCase):
 
 
     def test_amortization_grows(self):
-        building = BuildingPrototype.create(self.place_1.persons[0], name_forms=Noun.fast_construct('building-name'))
+        building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator.get_test_name(name='building-name'))
 
         old_integrity = building.integrity
         building.amortize(1000)
         amortization_delta = old_integrity - building.integrity
 
-        building_2 = BuildingPrototype.create(self.place_1.persons[1], name_forms=Noun.fast_construct('building-name-2'))
+        building_2 = BuildingPrototype.create(self.place_1.persons[1], utg_name=names.generator.get_test_name(name='building-name-2'))
 
         old_integrity_2 = building_2.integrity
         building_2.amortize(1000)
@@ -465,7 +466,7 @@ class BuildingPrototypeTests(testcase.TestCase):
         self.assertTrue(amortization_delta < amortization_delta_2)
 
     def test_save__update_storage(self):
-        building = BuildingPrototype.create(self.place_1.persons[0], name_forms=Noun.fast_construct('building-name'))
+        building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator.get_test_name(name='building-name'))
 
         old_version = buildings_storage.version
         building.save()
@@ -473,7 +474,7 @@ class BuildingPrototypeTests(testcase.TestCase):
 
 
     def test_destroy__update_storage(self):
-        building = BuildingPrototype.create(self.place_1.persons[0], name_forms=Noun.fast_construct('building-name'))
+        building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator.get_test_name(name='building-name'))
 
         old_version = buildings_storage.version
         building.destroy()

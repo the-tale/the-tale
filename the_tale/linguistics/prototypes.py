@@ -174,10 +174,16 @@ class TemplatePrototype(BasePrototype):
 
 
     def save(self):
+        from the_tale.linguistics import storage
+
         self._model.template = s11n.to_json(self.utg_template.serialize())
         self._model.data = s11n.to_json(self._data)
         self._model.updated_at = datetime.datetime.now()
         super(TemplatePrototype, self).save()
+
+        if self.state.is_IN_GAME:
+            storage.game_lexicon.update_version()
+            storage.game_lexicon.refresh()
 
     def remove(self):
         self._model.delete()

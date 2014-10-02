@@ -3,12 +3,14 @@
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
-from the_tale.game.heroes.prototypes import HeroPrototype
+
+from the_tale.game import names
 
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.mobs.prototypes import MobPrototype
 
+from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes.habilities import attributes
 
 class AttributeAbiliesForHeroTest(testcase.TestCase):
@@ -96,7 +98,7 @@ class AttributeAbiliesForMobTest(testcase.TestCase):
         uuid = 'test_mob %d' % index
         mob_record =  MobRecordPrototype.create(uuid,
                                                 level=1,
-                                                name=uuid,
+                                                utg_name=names.generator.get_test_name(uuid),
                                                 description='',
                                                 abilities=abilities,
                                                 terrains=[],

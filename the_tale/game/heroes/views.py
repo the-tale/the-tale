@@ -16,6 +16,8 @@ from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.clans.prototypes import ClanPrototype
 from the_tale.accounts.payments import price_list
 
+from the_tale.linguistics import word_drawer
+
 from the_tale.game.balance import constants as c
 
 from the_tale.game.mobs.storage import mobs_storage
@@ -83,9 +85,8 @@ class HeroResource(Resource):
         battle_active_abilities = filter(lambda a: a.type.is_BATTLE and a.activation_type.is_ACTIVE, abilities) # pylint: disable=W0110
         battle_passive_abilities = filter(lambda a: a.type.is_BATTLE and a.activation_type.is_PASSIVE, abilities)# pylint: disable=W0110
         nonbattle_abilities = filter(lambda a: a.type.is_NONBATTLE, abilities)# pylint: disable=W0110
-        edit_name_form = EditNameForm(initial={'name_forms': self.hero.normalized_name.forms[:6],
-                                               'gender': self.hero.gender,
-                                               'race': self.hero.race} )
+
+        edit_name_form = EditNameForm(initial=EditNameForm.get_initials(hero=self.hero))
 
         master_account = AccountPrototype.get_by_id(self.hero.account_id)
 
@@ -102,6 +103,7 @@ class HeroResource(Resource):
                               'edit_name_form': edit_name_form,
                               'master_account': master_account,
                               'master_clan': master_clan,
+                              'name_drawer': word_drawer.FormDrawer(self.hero.utg_name.type, form=edit_name_form),
                               'EQUIPMENT_SLOT': relations.EQUIPMENT_SLOT,
                               'PREFERENCE_TYPE': relations.PREFERENCE_TYPE,
                               'PREFERENCES_CHANGE_DELAY': datetime.timedelta(seconds=c.PREFERENCES_CHANGE_DELAY),
@@ -122,20 +124,18 @@ class HeroResource(Resource):
     @validate_ownership()
     @handler('#hero', 'change-hero', method='post')
     def change_hero(self):
-        from textgen.words import Noun
-
         edit_name_form = EditNameForm(self.request.POST)
 
         if not edit_name_form.is_valid():
             return self.json_error('heroes.change_name.form_errors', edit_name_form.errors)
 
-        forms = edit_name_form.c.name_forms
+        name = edit_name_form.get_name()
         gender = edit_name_form.c.gender
 
         change_task = postponed_tasks.ChangeHeroTask(hero_id=self.hero.id,
-                                     name=Noun(normalized=forms[0], forms=forms*2, properties=(gender.text_id, )),
-                                     race=edit_name_form.c.race,
-                                     gender=gender)
+                                                     name=name,
+                                                     race=edit_name_form.c.race,
+                                                     gender=gender)
 
         task = PostponedTaskPrototype.create(change_task)
 

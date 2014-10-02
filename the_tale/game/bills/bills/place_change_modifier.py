@@ -2,7 +2,7 @@
 
 from django.forms import ValidationError
 
-from textgen.words import Noun
+from utg import words as utg_words
 
 from dext.forms import fields
 
@@ -68,7 +68,7 @@ class PlaceModifier(BaseBill):
         self.old_modifier_name = old_modifier_name
 
         if self.old_name_forms is None and self.place_id is not None:
-            self.old_name_forms = self.place.normalized_name
+            self.old_name_forms = self.place.utg_name
 
     @property
     def place(self): return places_storage[self.place_id]
@@ -86,13 +86,13 @@ class PlaceModifier(BaseBill):
         return self.old_name != self.place.name
 
     @property
-    def old_name(self): return self.old_name_forms.normalized
+    def old_name(self): return self.old_name_forms.normal_form()
 
     def initialize_with_user_data(self, user_form):
         self.place_id = int(user_form.c.place)
         self.modifier_id = user_form.c.new_modifier
         self.modifier_name = self.modifier_id.text
-        self.old_name_forms = self.place.normalized_name
+        self.old_name_forms = self.place.utg_name
         self.old_modifier_name = self.place.modifier.NAME if self.place.modifier else None
 
     def apply(self, bill=None):
@@ -113,7 +113,7 @@ class PlaceModifier(BaseBill):
         obj.modifier_id = CITY_MODIFIERS(data['modifier_id'])
         obj.modifier_name = data['modifier_name']
         obj.place_id = data['place_id']
-        obj.old_name_forms = Noun.deserialize(data['old_name_forms'])
+        obj.old_name_forms = utg_words.Word.deserialize(data['old_name_forms'])
         obj.old_modifier_name = data.get('old_modifier_name')
 
         return obj

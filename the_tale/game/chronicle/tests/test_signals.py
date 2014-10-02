@@ -6,7 +6,7 @@ from contextlib import contextmanager
 
 from dext.common.utils import s11n
 
-from textgen.words import Noun
+from the_tale.game import names
 
 from the_tale.game.relations import RACE
 
@@ -38,12 +38,12 @@ class BillPlaceRenamingTests(BaseTestPrototypes):
     def setUp(self):
         super(BillPlaceRenamingTests, self).setUp()
 
-        bill_data = bills.PlaceRenaming(place_id=self.place1.id, base_name='new-name')
+        bill_data = bills.PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new-name'))
         self.bill = BillPrototype.create(self.account1, 'bill-caption', 'bill-rationale', bill_data)
 
-        noun = Noun.fast_construct(self.bill.data.base_name)
-        self.form = bills.PlaceRenaming.ModeratorForm({'approved': True,
-                                                       'name_forms': s11n.to_json(noun.serialize()) })
+        data = bills.PlaceRenaming.ModeratorForm.get_initials(bill_data.name_forms)
+        data.update({'approved': True})
+        self.form = bills.PlaceRenaming.ModeratorForm(data)
         self.assertTrue(self.form.is_valid())
 
 
@@ -205,7 +205,7 @@ class BillPersonRemoveTests(BaseTestPrototypes):
     def setUp(self):
         super(BillPersonRemoveTests, self).setUp()
 
-        bill_data = bills.PersonRemove(person_id=self.place1.persons[0].id, old_place_name_forms=self.place1.normalized_name)
+        bill_data = bills.PersonRemove(person_id=self.place1.persons[0].id, old_place_name_forms=self.place1.utg_name)
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
 
         self.form = bills.PersonRemove.ModeratorForm({'approved': True})
@@ -232,15 +232,15 @@ class BillBuildingCreateTests(BaseTestPrototypes):
     def setUp(self):
         super(BillBuildingCreateTests, self).setUp()
 
-        noun = Noun.fast_construct('building-name')
-
         bill_data = bills.BuildingCreate(person_id=self.place1.persons[0].id,
-                                         old_place_name_forms=self.place1.normalized_name,
-                                         building_name_forms=noun)
+                                         old_place_name_forms=self.place1.utg_name,
+                                         utg_name=names.generator.get_test_name('building-name'))
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
 
-        self.form = bills.BuildingCreate.ModeratorForm({'approved': True,
-                                                        'building_name_forms': s11n.to_json(noun.serialize())})
+        data = bills.BuildingCreate.UserForm.get_initials(bill_data.building_name_forms)
+        data.update({'approved': True})
+
+        self.form = bills.BuildingCreate.ModeratorForm(data)
         self.assertTrue(self.form.is_valid())
 
     def test_bill_started(self):
@@ -263,9 +263,9 @@ class BillBuildingDestroyTests(BaseTestPrototypes):
         super(BillBuildingDestroyTests, self).setUp()
 
         self.person = self.place1.persons[0]
-        self.building = BuildingPrototype.create(self.person, name_forms=Noun.fast_construct('building-name'))
+        self.building = BuildingPrototype.create(self.person, utg_name=names.generator.get_test_name('building-name'))
 
-        bill_data = bills.BuildingDestroy(person_id=self.person.id, old_place_name_forms=self.place1.normalized_name)
+        bill_data = bills.BuildingDestroy(person_id=self.person.id, old_place_name_forms=self.place1.utg_name)
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
 
         self.form = bills.BuildingDestroy.ModeratorForm({'approved': True})
@@ -291,17 +291,18 @@ class BillBuildingRenamingTests(BaseTestPrototypes):
         super(BillBuildingRenamingTests, self).setUp()
 
         self.person = self.place1.persons[0]
-        self.building = BuildingPrototype.create(self.person, name_forms=Noun.fast_construct('building-name'))
-
-        noun = Noun.fast_construct('new-building-name')
+        self.building = BuildingPrototype.create(self.person, utg_name=names.generator.get_test_name('building-name'))
 
         bill_data = bills.BuildingRenaming(person_id=self.person.id,
-                                           old_place_name_forms=self.place1.normalized_name,
-                                           new_building_name_forms=noun)
+                                           old_place_name_forms=self.place1.utg_name,
+                                           new_building_name_forms=names.generator.get_test_name('new-building-name'))
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
 
-        self.form = bills.BuildingRenaming.ModeratorForm({'approved': True,
-                                                          'new_building_name_forms': s11n.to_json(noun.serialize())})
+        data = bills.BuildingRenaming.UserForm.get_initials(bill_data.new_building_name_forms)
+        data.update({'approved': True})
+
+
+        self.form = bills.BuildingRenaming.ModeratorForm(data)
         self.assertTrue(self.form.is_valid())
 
     def test_bill_started(self):
@@ -356,7 +357,7 @@ class BuildingTests(BaseTestPrototypes):
 
     def setUp(self):
         super(BuildingTests, self).setUp()
-        self.building = BuildingPrototype.create(self.place1.persons[0], name_forms=Noun.fast_construct('building-name'))
+        self.building = BuildingPrototype.create(self.place1.persons[0], utg_name=names.generator.get_test_name('building-name'))
 
     # @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.is_stable', True)
     # @mock.patch('the_tale.game.chronicle.records.PlaceChangeRace.create_record', lambda x: None)

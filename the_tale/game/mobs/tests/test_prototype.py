@@ -1,20 +1,16 @@
 # coding: utf-8
-from dext.common.utils import s11n
-
-from textgen.words import Noun
 
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
+
+from the_tale.game import names
 
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.map.relations import TERRAIN
 from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes.relations import ARCHETYPE
-
-from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
-from the_tale.game.artifacts.relations import ARTIFACT_TYPE, ARTIFACT_RECORD_STATE
 
 from the_tale.game.mobs.storage import mobs_storage
 from the_tale.game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
@@ -73,7 +69,7 @@ class MobsPrototypeTests(testcase.TestCase):
     def test_mob_attributes(self):
         MobRecordPrototype.create(uuid='bandit',
                                   level=1,
-                                  name='bandint',
+                                  utg_name=names.generator.get_test_name(name='bandit'),
                                   description='bandint',
                                   abilities=['hit', 'thick', 'slow', 'extra_strong'],
                                   terrains=TERRAIN.records,
@@ -91,15 +87,15 @@ class MobsPrototypeTests(testcase.TestCase):
     def test_change_uuid(self):
         mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
 
-        form = ModerateMobRecordForm({'name_forms': s11n.to_json(Noun.fast_construct('artifact name').serialize()),
-                                      'uuid': 'new_uid',
-                                      'level': '667',
-                                      'terrains': [TERRAIN.PLANE_JUNGLE, TERRAIN.HILLS_JUNGLE],
-                                      'approved': True,
-                                      'type': MOB_TYPE.CIVILIZED,
-                                      'archetype': ARCHETYPE.NEUTRAL,
-                                      'abilities': ['hit', 'speedup'],
-                                      'description': 'new description'})
+        initials = ModerateMobRecordForm.get_initials(mob)
+        initials['uuid'] = 'new_uid'
+        initials['level'] = unicode(initials['level'])
+        initials['archetype'] = unicode(initials['archetype'])
+        initials['abilities'] = list(initials['abilities'])
+        initials['terrains'] = list(unicode(t) for t in initials['terrains'])
+
+        form = ModerateMobRecordForm(initials)
+
         self.assertTrue(form.is_valid())
         self.assertEqual(mob.uuid, mobs_storage.get_by_uuid(mob.uuid).uuid)
 

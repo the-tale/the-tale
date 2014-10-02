@@ -11,6 +11,8 @@ from the_tale.common.utils import testcase
 from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype
 
+from the_tale.game import names
+
 from the_tale.game.persons.storage import persons_storage
 from the_tale.game.persons.models import Person
 
@@ -288,12 +290,11 @@ class HighlevelTest(testcase.TestCase):
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.freedom', 1)
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
     def test_sync_data__power_from_building(self):
-        from textgen import words
         from the_tale.game.map.places.prototypes import BuildingPrototype
 
         person_1 = self.p1.persons[0]
 
-        BuildingPrototype.create(person_1, name_forms=words.Noun.fast_construct(u'noun'))
+        BuildingPrototype.create(person_1, utg_name=names.generator.get_test_name(u'noun'))
 
         self.assertEqual(self.p1.power, 0)
         self.assertEqual(person_1.power, 0)

@@ -4,7 +4,7 @@ import mock
 
 from the_tale.common.utils import testcase
 
-from textgen import words
+from the_tale.game import names
 
 from the_tale.game.balance import constants as c
 from the_tale.game.relations import RACE
@@ -28,7 +28,7 @@ class PlacePowerTest(testcase.TestCase):
         self.place = PlacePrototype.create(x=0,
                                            y=0,
                                            size=5,
-                                           name_forms=words.Noun.fast_construct('power_test_place'),
+                                           utg_name=names.generator.get_test_name(name='power_test_place'),
                                            race=RACE.HUMAN)
 
         self.place.sync_persons(force_add=True)

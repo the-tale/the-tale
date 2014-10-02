@@ -5,8 +5,6 @@ import math
 
 from dext.common.utils import s11n
 
-from textgen import words
-
 from the_tale.amqp_environment import environment
 
 from the_tale.common.utils import bbcode
@@ -52,7 +50,7 @@ class PlaceParametersDescription(object):
 @add_power_management(places_settings.POWER_HISTORY_LENGTH, exceptions.PlacesPowerError)
 class PlacePrototype(BasePrototype):
     _model_class = Place
-    _readonly = ('id', 'x', 'y', 'name', 'heroes_number', 'updated_at', 'created_at', 'habit_honor_positive', 'habit_honor_negative', 'habit_peacefulness_positive', 'habit_peacefulness_negative', 'is_frontier')
+    _readonly = ('id', 'x', 'y', 'heroes_number', 'updated_at', 'created_at', 'habit_honor_positive', 'habit_honor_negative', 'habit_peacefulness_positive', 'habit_peacefulness_negative', 'is_frontier')
     _bidirectional = ('description', 'size', 'expected_size', 'goods', 'keepers_goods', 'production', 'safety', 'freedom', 'transport', 'race', 'persons_changed_at_turn', 'tax', 'stability')
     _get_by = ('id',)
 
@@ -85,13 +83,19 @@ class PlacePrototype(BasePrototype):
             self.modifier = None
             signals.place_modifier_reseted.send(self.__class__, place=self, old_modifier=old_modifier)
 
-    @lazy_property
-    def normalized_name(self): return words.WordBase.deserialize(s11n.from_json(self._model.name_forms))
 
-    def set_name_forms(self, name_forms):
-        self._model.name_forms = s11n.to_json(name_forms.serialize())
-        del self.normalized_name
-        self._model.name = name_forms.normalized
+    @lazy_property
+    def utg_name(self):
+        from utg import words
+        return words.Word.deserialize(self.data['name'])
+
+    @lazy_property
+    def name(self): return self.utg_name.normal_form()
+
+    def set_utg_name(self, word):
+        del self.name
+        del self.utg_name
+        self.data['name'] = word.serialize()
 
     @property
     def description_html(self): return bbcode.render(self._model.description)
@@ -203,7 +207,7 @@ class PlacePrototype(BasePrototype):
                                             race=race,
                                             gender=gender,
                                             tp=random.choice(PERSON_TYPE.records),
-                                            name_forms=names.generator.get_name(race, gender))
+                                            utg_name=names.generator.get_name(race, gender))
 
         signals.place_person_arrived.send(self.__class__, place=self, person=new_person)
 
@@ -231,13 +235,12 @@ class PlacePrototype(BasePrototype):
 
         self.sync_race()
 
-    @property
+    @lazy_property
     def data(self):
-        if not hasattr(self, '_data'):
-            self._data = s11n.from_json(self._model.data)
-            if 'nearest_cells' in self._data:
-                self._data['nearest_cells'] = map(tuple, self._data['nearest_cells'])
-        return self._data
+        data = s11n.from_json(self._model.data)
+        if 'nearest_cells' in data:
+            data['nearest_cells'] = map(tuple, data['nearest_cells'])
+        return data
 
     def get_nearest_cells(self):
         if 'nearest_cells' not in self.data:
@@ -446,14 +449,13 @@ class PlacePrototype(BasePrototype):
 
 
     @classmethod
-    def create(cls, x, y, size, name_forms, race=RACE.HUMAN, is_frontier=False):
+    def create(cls, x, y, size, utg_name, race=RACE.HUMAN, is_frontier=False):
         from the_tale.game.map.places.storage import places_storage
 
         model = Place.objects.create( x=x,
                                       y=y,
                                       created_at_turn=TimePrototype.get_current_turn_number(),
-                                      name=name_forms.normalized,
-                                      name_forms=s11n.to_json(name_forms.serialize()),
+                                      data=s11n.to_json({'name': utg_name.serialize()}),
                                       is_frontier=is_frontier,
                                       race=race,
                                       size=size)
@@ -492,6 +494,10 @@ class BuildingPrototype(BasePrototype):
     _bidirectional = ('state',)
     _get_by = ('id',)
 
+    @lazy_property
+    def data(self):
+        return s11n.from_json(self._model.data)
+
     def shift(self, dx, dy):
         self._model.x += dx
         self._model.y += dy
@@ -503,15 +509,18 @@ class BuildingPrototype(BasePrototype):
         except Place.DoesNotExist:
             return None
 
-    @property
-    def name(self): return self.normalized_name.normalized
+    @lazy_property
+    def utg_name(self):
+        from utg import words
+        return words.Word.deserialize(self.data['name'])
 
     @lazy_property
-    def normalized_name(self): return words.WordBase.deserialize(s11n.from_json(self._model.name_forms))
+    def name(self): return self.utg_name.normal_form()
 
-    def set_name_forms(self, name_forms):
-        self._model.name_forms = s11n.to_json(name_forms.serialize())
-        del self.normalized_name
+    def set_utg_name(self, word):
+        del self.name
+        del self.utg_name
+        self.data['name'] = word.serialize()
 
     @property
     def person(self):
@@ -603,7 +612,7 @@ class BuildingPrototype(BasePrototype):
 
 
     @classmethod
-    def create(cls, person, name_forms):
+    def create(cls, person, utg_name):
         from the_tale.game.map.places.storage import buildings_storage
 
         building = buildings_storage.get_by_person_id(person.id)
@@ -618,7 +627,7 @@ class BuildingPrototype(BasePrototype):
 
         model = Building.objects.create(x=x,
                                         y=y,
-                                        name_forms=s11n.to_json(name_forms.serialize()),
+                                        data=s11n.to_json({'name': utg_name.serialize()}),
                                         place=person.place._model,
                                         person=person._model,
                                         state=BUILDING_STATE.WORKING,
@@ -648,6 +657,7 @@ class BuildingPrototype(BasePrototype):
 
     def save(self):
         from the_tale.game.map.places.storage import buildings_storage
+        self._model.data = s11n.to_json(self.data)
         self._model.save()
         buildings_storage.update_version()
 

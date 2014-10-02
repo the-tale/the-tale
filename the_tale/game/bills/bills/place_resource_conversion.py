@@ -4,7 +4,9 @@ from django.forms import ValidationError
 
 import rels
 from rels.django import DjangoEnum
-from textgen.words import Noun
+
+from utg import words as utg_words
+
 from dext.forms import fields
 
 from the_tale.game.balance import constants as c
@@ -95,7 +97,7 @@ class PlaceResourceConversion(BaseBill):
         self.old_place_name_forms = old_place_name_forms
 
         if self.old_place_name_forms is None and self.place_id is not None:
-            self.old_place_name_forms = self.place.normalized_name
+            self.old_place_name_forms = self.place.utg_name
 
     @property
     def place(self): return places_storage[self.place_id]
@@ -113,12 +115,12 @@ class PlaceResourceConversion(BaseBill):
         return self.old_place_name != self.place.name
 
     @property
-    def old_place_name(self): return self.old_place_name_forms.normalized
+    def old_place_name(self): return self.old_place_name_forms.normal_form()
 
     def initialize_with_user_data(self, user_form):
         self.place_id = int(user_form.c.place)
         self.conversion = user_form.c.conversion
-        self.old_place_name_forms = self.place.normalized_name
+        self.old_place_name_forms = self.place.utg_name
 
     def apply(self, bill=None):
         ResourceExchangePrototype.create(place_1=self.place,
@@ -147,6 +149,6 @@ class PlaceResourceConversion(BaseBill):
     def deserialize(cls, data):
         obj = cls()
         obj.place_id = data['place_id']
-        obj.old_place_name_forms = Noun.deserialize(data['old_place_name_forms'])
+        obj.old_place_name_forms = utg_words.Word.deserialize(data['old_place_name_forms'])
         obj.conversion = CONVERSION.index_value[data['conversion']]
         return obj

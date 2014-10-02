@@ -51,6 +51,8 @@ class Hero(models.Model):
 
     money = models.BigIntegerField(null=False, default=0)
 
+    data = models.TextField(null=False, default='{}')
+
     equipment = models.TextField(null=False, default='{}')
     bag = models.TextField(null=False, default='{}')
 

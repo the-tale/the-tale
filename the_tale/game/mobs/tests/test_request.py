@@ -3,9 +3,6 @@
 from django.test import client
 from django.core.urlresolvers import reverse
 
-from textgen.words import Noun
-
-from dext.common.utils import s11n
 from dext.common.utils.urls import url
 
 from the_tale.common.utils.testcase import TestCase
@@ -13,6 +10,8 @@ from the_tale.common.utils.permissions import sync_group
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user, login_page_url
+
+from the_tale.game import names
 
 from the_tale.game.logic import create_test_map
 
@@ -24,6 +23,44 @@ from the_tale.game.mobs.models import MobRecord
 from the_tale.game.mobs.storage import mobs_storage
 from the_tale.game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
 from the_tale.game.mobs.prototypes import MobRecordPrototype
+
+from the_tale.linguistics.tests import helpers as linguistics_helpers
+
+class PostMixin(object):
+    def get_create_data(self):
+        word = names.generator.get_test_name(name='mob name')
+
+        data = linguistics_helpers.get_word_post_data(word)
+
+        data.update( { 'level': 666,
+                'terrains': [TERRAIN.PLANE_GRASS, TERRAIN.HILLS_GRASS],
+                'abilities': ['hit', 'strong_hit', 'sidestep'],
+                'type': MOB_TYPE.CIVILIZED,
+                'archetype': ARCHETYPE.NEUTRAL,
+                'description': 'mob description'} )
+
+        return data
+
+    def get_update_data(self):
+        word = names.generator.get_test_name(name='new name')
+
+        data = linguistics_helpers.get_word_post_data(word)
+
+        data.update( {'level': 667,
+                'terrains': [TERRAIN.PLANE_JUNGLE, TERRAIN.HILLS_JUNGLE],
+                'abilities': ['hit', 'speedup'],
+                'type': MOB_TYPE.BARBARIAN,
+                'archetype': ARCHETYPE.MAGICAL,
+                'description': 'new description'})
+
+        return data
+
+    def get_moderate_data(self, approved=True):
+        data = self.get_update_data()
+        data['approved'] = approved
+        data['uuid'] = 'new_uuid'
+        return data
+
 
 
 class BaseTestRequests(TestCase):
@@ -139,7 +176,7 @@ class TestNewRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('game:mobs:new')), texts=[('pgf-new-mob-form', 2)])
 
 
-class TestCreateRequests(BaseTestRequests):
+class TestCreateRequests(BaseTestRequests, PostMixin):
 
     def setUp(self):
         super(TestCreateRequests, self).setUp()
@@ -147,23 +184,14 @@ class TestCreateRequests(BaseTestRequests):
         self.request_logout()
         self.request_login('test_user_2@test.com')
 
-    def get_post_data(self):
-        return {'name': 'mob name',
-                'level': 666,
-                'terrains': [TERRAIN.PLANE_GRASS, TERRAIN.HILLS_GRASS],
-                'abilities': ['hit', 'strong_hit', 'sidestep'],
-                'type': MOB_TYPE.CIVILIZED,
-                'archetype': ARCHETYPE.NEUTRAL,
-                'description': 'mob description'}
-
     def test_unlogined(self):
         self.request_logout()
-        self.check_ajax_error(self.client.post(reverse('game:mobs:create'), self.get_post_data()), 'common.login_required')
+        self.check_ajax_error(self.client.post(reverse('game:mobs:create'), self.get_create_data()), 'common.login_required')
 
     def test_create_rights(self):
         self.request_logout()
         self.request_login('test_user_1@test.com')
-        self.check_ajax_error(self.client.post(reverse('game:mobs:create'), self.get_post_data()), 'mobs.create_mob_rights_required')
+        self.check_ajax_error(self.client.post(reverse('game:mobs:create'), self.get_create_data()), 'mobs.create_mob_rights_required')
 
     def test_form_errors(self):
         self.check_ajax_error(self.client.post(reverse('game:mobs:create'), {}), 'mobs.create.form_errors')
@@ -171,14 +199,14 @@ class TestCreateRequests(BaseTestRequests):
     def test_simple(self):
         self.assertEqual(MobRecord.objects.count(), 3)
 
-        response = self.client.post(reverse('game:mobs:create'), self.get_post_data())
+        response = self.client.post(reverse('game:mobs:create'), self.get_create_data())
 
         self.assertEqual(MobRecord.objects.count(), 4)
         mob_record = MobRecordPrototype(MobRecord.objects.all().order_by('-created_at')[0])
 
         self.check_ajax_ok(response, data={'next_url': reverse('guide:mobs:show', args=[mob_record.id])})
 
-        self.assertEqual(mob_record.name, 'mob name')
+        self.assertEqual(mob_record.name, 'mob name_0')
         self.assertEqual(mob_record.level, 666)
         self.assertEqual(mob_record.terrains, frozenset([TERRAIN.PLANE_GRASS, TERRAIN.HILLS_GRASS]))
         self.assertEqual(mob_record.abilities, frozenset(['hit', 'strong_hit', 'sidestep']) )
@@ -312,12 +340,12 @@ class TestEditRequests(BaseTestRequests):
         self.request_logout()
         self.request_login('test_user_2@test.com')
         self.check_html_ok(self.request_html(reverse('game:mobs:edit', args=[self.mob.id])), texts=[('pgf-edit-mob-form', 2),
-                                                                                                  (self.mob.name, 2), # +description
+                                                                                                  self.mob.name,
                                                                                                   (self.mob.description, 1) ])
 
 
 
-class TestUpdateRequests(BaseTestRequests):
+class TestUpdateRequests(BaseTestRequests, PostMixin):
 
     def setUp(self):
         super(TestUpdateRequests, self).setUp()
@@ -328,26 +356,9 @@ class TestUpdateRequests(BaseTestRequests):
         self.check_ajax_ok(self.client.post(reverse('game:mobs:create'), self.get_create_data()))
         self.mob = MobRecordPrototype(MobRecord.objects.all().order_by('-created_at')[0])
 
-    def get_create_data(self):
-        return {'name': 'mob name',
-                'level': 666,
-                'terrains': [TERRAIN.PLANE_GRASS, TERRAIN.HILLS_GRASS],
-                'abilities': ['hit', 'strong_hit', 'sidestep'],
-                'type': MOB_TYPE.CIVILIZED,
-                'archetype': ARCHETYPE.NEUTRAL,
-                'description': 'mob description'}
-
-    def get_update_data(self):
-        return {'name': 'new name',
-                'level': 667,
-                'terrains': [TERRAIN.PLANE_JUNGLE, TERRAIN.HILLS_JUNGLE],
-                'abilities': ['hit', 'speedup'],
-                'type': MOB_TYPE.BARBARIAN,
-                'archetype': ARCHETYPE.MAGICAL,
-                'description': 'new description'}
 
     def check_mob(self, mob, data):
-        self.assertEqual(mob.name, data['name'])
+        self.assertEqual(mob.name, data['field_0'])
         self.assertEqual(mob.level, data['level'])
         self.assertEqual(mob.terrains, frozenset(data['terrains']) )
         self.assertEqual(mob.abilities, frozenset(data['abilities']) )
@@ -403,11 +414,11 @@ class TestModerationPageRequests(BaseTestRequests):
         self.request_logout()
         self.request_login('test_user_3@test.com')
         self.check_html_ok(self.request_html(reverse('game:mobs:moderate', args=[self.mob.id])), texts=[('pgf-moderate-mob-form', 2),
-                                                                                                      (self.mob.name, 1 + 13), # description+name_forms
+                                                                                                       self.mob.name,
                                                                                                       (self.mob.description, 1) ])
 
 
-class TestModerateRequests(BaseTestRequests):
+class TestModerateRequests(BaseTestRequests, PostMixin):
 
     def setUp(self):
         super(TestModerateRequests, self).setUp()
@@ -418,33 +429,10 @@ class TestModerateRequests(BaseTestRequests):
         self.check_ajax_ok(self.client.post(reverse('game:mobs:create'), self.get_create_data()))
         self.mob = MobRecordPrototype(MobRecord.objects.all().order_by('-created_at')[0])
 
-        self.name = Noun(normalized='new name 0',
-                         forms=['new name %d' % i for i in xrange( Noun.FORMS_NUMBER)],
-                         properties=(u'мр',))
+        self.name = names.generator.get_test_name(name='new name')
 
         self.request_logout()
         self.request_login('test_user_3@test.com')
-
-
-    def get_create_data(self):
-        return {'name': 'mob name',
-                'level': 666,
-                'terrains': [TERRAIN.PLANE_GRASS, TERRAIN.HILLS_GRASS],
-                'abilities': ['hit', 'strong_hit', 'sidestep'],
-                'type': MOB_TYPE.CIVILIZED,
-                'archetype': ARCHETYPE.NEUTRAL,
-                'description': 'mob description'}
-
-    def get_moderate_data(self, approved=True):
-        return {'name_forms': s11n.to_json(self.name.serialize()),
-                'uuid': 'new_uuid',
-                'level': 667,
-                'terrains': [TERRAIN.PLANE_JUNGLE, TERRAIN.HILLS_JUNGLE],
-                'approved': approved,
-                'abilities': ['hit', 'speedup'],
-                'type': MOB_TYPE.PLANT,
-                'archetype': ARCHETYPE.PHYSICAL,
-                'description': 'new description'}
 
     def test_unlogined(self):
         self.request_logout()
@@ -468,15 +456,15 @@ class TestModerateRequests(BaseTestRequests):
         self.check_ajax_ok(response, data={'next_url': reverse('guide:mobs:show', args=[mob_record.id])})
 
         self.assertEqual(mob_record.uuid, 'new_uuid')
-        self.assertEqual(mob_record.name, 'new name 0')
-        self.assertEqual(mob_record.name_forms, self.name)
+        self.assertEqual(mob_record.name, 'new name_0')
+        self.assertEqual(mob_record.utg_name, self.name)
         self.assertEqual(mob_record.level, 667)
         self.assertEqual(mob_record.terrains, frozenset([TERRAIN.PLANE_JUNGLE, TERRAIN.HILLS_JUNGLE]))
         self.assertEqual(mob_record.abilities, frozenset(['hit', 'speedup']) )
         self.assertEqual(mob_record.description, 'new description')
         self.assertTrue(mob_record.state.is_ENABLED)
-        self.assertTrue(mob_record.type.is_PLANT)
-        self.assertTrue(mob_record.archetype.is_PHYSICAL)
+        self.assertTrue(mob_record.type.is_BARBARIAN)
+        self.assertTrue(mob_record.archetype.is_MAGICAL)
         self.assertTrue(mob_record.editor_id, self.account_3.id)
 
     def test_simple_not_approved(self):

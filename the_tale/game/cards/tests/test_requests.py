@@ -2,8 +2,6 @@
 
 from dext.common.utils.urls import url
 
-from textgen.words import Noun
-
 from the_tale.common.utils import testcase
 from the_tale.common.postponed_tasks import PostponedTaskPrototype
 
@@ -11,6 +9,7 @@ from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.game.logic import create_test_map
+from the_tale.game import names
 
 from the_tale.game.logic_storage import LogicStorage
 
@@ -36,7 +35,7 @@ class CardsRequestsTestsBase(testcase.TestCase):
 
         self.card = CARDS[relations.CARD_TYPE.KEEPERS_GOODS_COMMON]
 
-        self.building_1 = BuildingPrototype.create(person=self.place_1.persons[0], name_forms=Noun.fast_construct('building-1-name'))
+        self.building_1 = BuildingPrototype.create(person=self.place_1.persons[0], utg_name=names.generator.get_test_name('building-1-name'))
 
 
 class UseDialogRequestTests(CardsRequestsTestsBase):

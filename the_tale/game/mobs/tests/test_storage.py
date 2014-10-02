@@ -5,6 +5,8 @@ from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
 
+from the_tale.game import names
+
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.map.relations import TERRAIN
@@ -35,7 +37,7 @@ class MobsStorageTests(testcase.TestCase):
 
         self.bandit = MobRecordPrototype.create(uuid='bandit',
                                                 level=1,
-                                                name='bandint',
+                                                utg_name=names.generator.get_test_name(name='bandint'),
                                                 description='description',
                                                 abilities=['hit'],
                                                 terrains=[TERRAIN.PLANE_SAND],
@@ -43,7 +45,7 @@ class MobsStorageTests(testcase.TestCase):
                                                 state=MOB_RECORD_STATE.ENABLED)
         self.bandint_wrong = MobRecordPrototype.create(uuid='bandit_wrong',
                                                        level=1,
-                                                       name='bandit_wrong',
+                                                       utg_name=names.generator.get_test_name(name='bandit_wrong'),
                                                        description='bandit_wrong description',
                                                        abilities=['hit'],
                                                        terrains=[TERRAIN.PLANE_SAND],

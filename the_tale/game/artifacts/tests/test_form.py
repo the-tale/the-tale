@@ -1,16 +1,11 @@
 # coding: utf-8
 
-
-from textgen.words import Noun
-
-from dext.common.utils import s11n
-
 from the_tale.common.utils import testcase
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.artifacts import relations
-from the_tale.game.artifacts.forms import ArtifactRecordForm, ModerateArtifactRecordForm
+from the_tale.game.artifacts import forms
+from the_tale.game.artifacts import prototypes
 
 
 class ArtifactFormsTests(testcase.TestCase):
@@ -19,24 +14,20 @@ class ArtifactFormsTests(testcase.TestCase):
         super(ArtifactFormsTests, self).setUp()
         create_test_map()
 
+    def get_form_data(self):
+        artifact = prototypes.ArtifactRecordPrototype.create_random(uuid='sword')
+        initials = forms.ModerateArtifactRecordForm.get_initials(artifact)
+        initials['level'] = unicode(initials['level'])
+
+        return initials
+
+
     def test_success_mob_record_form(self):
-        form = ArtifactRecordForm({'level': '1',
-                                   'type': relations.ARTIFACT_TYPE.USELESS,
-                                   'power_type': relations.ARTIFACT_POWER_TYPE.NEUTRAL,
-                                   'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
-                                   'epic_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
-                                   'name': 'mob name'})
+        data = self.get_form_data()
+        form = forms.ArtifactRecordForm(data)
         self.assertTrue(form.is_valid())
 
     def test_success_moderate_mob_record_form(self):
-        form = ModerateArtifactRecordForm({'level': '1',
-                                           'type': relations.ARTIFACT_TYPE.USELESS,
-                                           'power_type': relations.ARTIFACT_POWER_TYPE.NEUTRAL,
-                                           'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
-                                           'epic_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
-                                           'uuid': 'artifact_uuid',
-                                           'name_forms': s11n.to_json(Noun(normalized='artifact name',
-                                                                           forms=['artifact name'] * Noun.FORMS_NUMBER,
-                                                                           properties=(u'мр',)).serialize())})
+        data = self.get_form_data()
+        form = forms.ModerateArtifactRecordForm(data)
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.c.name_forms.__class__, Noun)

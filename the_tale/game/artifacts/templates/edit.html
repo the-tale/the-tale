@@ -1,5 +1,7 @@
 {% extends "artifacts/base.html" %}
 
+{% import 'linguistics/words/macros.html' as words_macros with context %}
+
 {% block title %}Редактирование артефакта | {{ super() }}{% endblock %}
 {% block description %}Редактирование артефакта.{% endblock %}
 
@@ -24,7 +26,7 @@ jQuery(document).ready( function(e) {
 
   {{ form.errors_container }}
 
-  {{ form.name.widget }}
+  {{words_macros.render_word(name_drawer)}}
 
   {{ form.mob.widget }}
 

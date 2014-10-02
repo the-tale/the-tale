@@ -1,8 +1,6 @@
 # coding: utf-8
 import mock
 
-from textgen.words import Noun
-
 from the_tale.amqp_environment import environment
 
 from the_tale.common.utils import testcase
@@ -12,6 +10,8 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.logic import create_test_map
+
+from the_tale.game import names
 
 from the_tale.game.map.places.prototypes import BuildingPrototype
 
@@ -50,7 +50,7 @@ class BuildingRepairTest(UseAbilityTaskMixin, testcase.TestCase):
         self.highlevel = environment.workers.highlevel
         self.highlevel.process_initialize(0, 'highlevel')
 
-        self.building = BuildingPrototype.create(self.place_1.persons[0], name_forms=Noun.fast_construct('building-name'))
+        self.building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator.get_test_name('building-name'))
         self.building._model.integrity = 0.5
         self.building.save()
 
@@ -124,7 +124,7 @@ class BuildingRepairTest(UseAbilityTaskMixin, testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_repair_building', True)
     def test_use_for_repaired_building(self):
-        self.building = BuildingPrototype.create(self.place_1.persons[0], name_forms=Noun.fast_construct('building-name'))
+        self.building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator.get_test_name('building-name'))
         self.building._model.integrity = 1.0
         self.building.save()
 

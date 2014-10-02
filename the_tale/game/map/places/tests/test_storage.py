@@ -6,6 +6,8 @@ from the_tale.common.utils import testcase
 
 from dext.settings import settings
 
+from the_tale.game import names
+
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.map.places.models import Place
@@ -31,31 +33,35 @@ class PlacesStorageTest(testcase.TestCase):
         self.assertEqual(len(self.storage._data), 3)
         self.assertTrue(self.storage._version > 0)
 
+        self.assertNotEqual(self.p1.size, 7)
+
         place = Place.objects.get(id=self.p1.id)
-        place.name = '!!!'
+        place.size = 7
         place.save()
 
         self.storage.sync()
-        self.assertFalse(self.storage[self.p1.id].name == '!!!')
+        self.assertNotEqual(self.storage[self.p1.id].size, 7)
 
         self.storage.sync(force=True)
-        self.assertTrue(self.storage[self.p1.id].name == '!!!')
+        self.assertEqual(self.storage[self.p1.id].size, 7)
 
     def test_sync_after_settings_update(self):
         self.assertEqual(len(self.storage._data), 3)
         self.assertTrue(self.storage._version > 0)
 
+        self.assertNotEqual(self.p1.size, 7)
+
         place = Place.objects.get(id=self.p1.id)
-        place.name = '!!!'
+        place.size = 7
         place.save()
 
         self.storage.sync()
-        self.assertFalse(self.storage[self.p1.id].name == '!!!')
+        self.assertNotEqual(self.storage[self.p1.id].size, 7)
 
         settings[self.storage.SETTINGS_KEY] = uuid.uuid4().hex
 
         self.storage.sync()
-        self.assertTrue(self.storage[self.p1.id].name == '!!!')
+        self.assertEqual(self.storage[self.p1.id].size, 7)
 
 
     def test_getitem_wrong_id(self):
@@ -156,7 +162,7 @@ class ResourceExchangeStorageTests(testcase.TestCase):
                                    uid=bills_settings.FORUM_CATEGORY_UID,
                                    category=forum_category)
 
-        bill_data = bills.PlaceRenaming(place_id=self.place_1.id, base_name='new_name')
+        bill_data = bills.PlaceRenaming(place_id=self.place_1.id, name_forms=names.generator.get_test_name('new_name'))
         bill = BillPrototype.create(account, 'bill-caption', 'bill-rationale', bill_data)
 
         ResourceExchangePrototype.create(place_1=self.place_1,

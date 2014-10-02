@@ -46,15 +46,12 @@ class PersonPrototype(BasePrototype):
     def place(self): return places_storage[self._model.place_id]
 
     @lazy_property
-    def name_forms(self):
-        from textgen.words import Noun
-        return Noun.deserialize(s11n.from_json(self._model.name_forms))
+    def utg_name(self):
+        from utg import words
+        return words.Word.deserialize(self.data['name'])
 
     @lazy_property
-    def name(self): return self.name_forms.normalized
-
-    @lazy_property
-    def normalized_name(self): return self.name_forms
+    def name(self): return self.utg_name.normal_form()
 
     @lazy_property
     def full_name(self):
@@ -177,7 +174,7 @@ class PersonPrototype(BasePrototype):
         self._model.remove()
 
     @classmethod
-    def create(cls, place, race, tp, name_forms, gender, state=None):
+    def create(cls, place, race, tp, utg_name, gender, state=None):
         from the_tale.game.persons.storage import persons_storage
 
         instance = Person.objects.create(place=place._model,
@@ -185,7 +182,7 @@ class PersonPrototype(BasePrototype):
                                          race=race,
                                          type=tp,
                                          gender=gender,
-                                         name_forms=s11n.to_json(name_forms.serialize()),
+                                         data=s11n.to_json({'name': utg_name.serialize()}),
                                          created_at_turn=TimePrototype.get_current_turn_number())
 
         prototype = cls(model=instance)

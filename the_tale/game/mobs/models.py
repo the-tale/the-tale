@@ -38,6 +38,8 @@ class MobRecord(models.Model):
 
     terrains = models.TextField(null=False)
 
+    data = models.TextField(null=False, default='{}')
+
     class Meta:
         permissions = (("create_mobrecord", u"Может предлагать мобов"),
                        ("moderate_mobrecord", u"Может утверждать мобов"),)

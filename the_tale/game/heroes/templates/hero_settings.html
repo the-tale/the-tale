@@ -1,4 +1,5 @@
 
+{% import 'linguistics/words/macros.html' as words_macros with context %}
 
 <script type="text/javascript">
 jQuery(document).ready( function(e) {
@@ -23,7 +24,7 @@ jQuery(document).ready( function(e) {
 
   {{ edit_name_form.gender.widget }}
 
-  {{ edit_name_form.name_forms.widget }}
+  {{words_macros.render_word(name_drawer, show_properties=false, show_patches=false)}}
 
   <div class="widget">
     <input type="submit" class="btn" value="Сохранить"/>

@@ -1,12 +1,13 @@
 # coding: utf-8
 import random
 
-from textgen.words import Noun
-
 from dext.common.utils import s11n
 
 from the_tale.common.utils import bbcode
 from the_tale.common.utils.prototypes import BasePrototype
+from the_tale.common.utils.decorators import lazy_property
+
+from the_tale.game import names
 
 from the_tale.game.heroes.habilities import AbilitiesPrototype
 
@@ -71,7 +72,7 @@ class MobPrototype(object):
     def name(self): return self.record.name
 
     @property
-    def normalized_name(self): return self.record.name_forms
+    def utg_name(self): return self.record.utg_name
 
     @property
     def health_percents(self): return float(self.health) / self.max_health
@@ -144,15 +145,20 @@ class MobRecordPrototype(BasePrototype):
     _bidirectional = ('level', 'uuid', 'name', 'description', 'state', 'type', 'archetype')
     _get_by = ('id', )
 
-    def get_name_forms(self):
-        if not hasattr(self, '_normalized_name'):
-            self._name_forms = Noun.deserialize(s11n.from_json(self._model.name_forms))
-        return self._name_forms
-    def set_name_forms(self, word):
-        self._normalized_name = word
-        self._model.name = word.normalized
-        self._model.name_forms = s11n.to_json(word.serialize())
-    name_forms = property(get_name_forms, set_name_forms)
+    @lazy_property
+    def data(self):
+        return s11n.from_json(self._model.data)
+
+    @lazy_property
+    def utg_name(self):
+        from utg import words
+        return words.Word.deserialize(self.data['name'])
+
+    def set_utg_name(self, word):
+        del self.utg_name
+
+        self._model.name = word.normal_form()
+        self.data['name'] = word.serialize()
 
     @property
     def description_html(self): return bbcode.render(self._model.description)
@@ -188,21 +194,16 @@ class MobRecordPrototype(BasePrototype):
     def loot(self): return artifacts_storage.get_mob_loot(self.id)
 
     @classmethod
-    def create(cls, uuid, level, name, description, abilities, terrains, type, archetype=ARCHETYPE.NEUTRAL, editor=None, state=MOB_RECORD_STATE.DISABLED, name_forms=None):
+    def create(cls, uuid, level, utg_name, description, abilities, terrains, type, archetype=ARCHETYPE.NEUTRAL, editor=None, state=MOB_RECORD_STATE.DISABLED):
 
         from the_tale.game.mobs.storage import mobs_storage
 
-        if name_forms is None:
-            name_forms = Noun(normalized=name,
-                              forms=[name] * Noun.FORMS_NUMBER,
-                              properties=(u'мр',))
-
         model = MobRecord.objects.create(uuid=uuid,
                                          level=level,
-                                         name=name,
+                                         name=utg_name.normal_form(),
                                          type=type,
                                          archetype=archetype,
-                                         name_forms=s11n.to_json(name_forms.serialize()),
+                                         data=s11n.to_json({'name': utg_name.serialize()}),
                                          description=description,
                                          abilities=s11n.to_json(list(abilities)),
                                          terrains=s11n.to_json([terrain.value for terrain in terrains]),
@@ -229,6 +230,8 @@ class MobRecordPrototype(BasePrototype):
 
         name = u'mob_'+uuid.lower()
 
+        utg_name = names.generator.get_test_name(name=name)
+
         battle_abilities = cls.get_available_abilities()
         battle_abilities = set([a.get_id() for a in battle_abilities])
 
@@ -237,10 +240,11 @@ class MobRecordPrototype(BasePrototype):
         for i in xrange(abilities_number-1): # pylint: disable=W0612
             abilities.add(random.choice(list(battle_abilities-abilities)))
 
-        return cls.create(uuid, level=level, type=type, name=name, description='description of %s' % name, abilities=abilities, terrains=terrains, state=state)
+        return cls.create(uuid, level=level, type=type, utg_name=utg_name, description='description of %s' % name, abilities=abilities, terrains=terrains, state=state)
 
     def update_by_creator(self, form, editor):
-        self.name = form.c.name
+        self.set_utg_name(form.get_word())
+
         self.description = form.c.description
         self.level = form.c.level
         self.terrains = form.c.terrains
@@ -252,7 +256,8 @@ class MobRecordPrototype(BasePrototype):
         self.save()
 
     def update_by_moderator(self, form, editor=None):
-        self.name_forms = form.c.name_forms
+        self.set_utg_name(form.get_word())
+
         self.description = form.c.description
         self.level = form.c.level
         self.terrains = form.c.terrains
@@ -271,6 +276,7 @@ class MobRecordPrototype(BasePrototype):
         if id(self) != id(mobs_storage[self.id]):
             raise exceptions.SaveNotRegisteredMobError(mob=self.id)
 
+        self._model.data = s11n.to_json(self.data)
         self._model.save()
 
         mobs_storage._update_cached_data(self)

@@ -25,7 +25,7 @@ class Actor(object):
     def level(self): return self.actor.level
 
     @property
-    def normalized_name(self): return self.actor.normalized_name
+    def utg_name(self): return self.actor.utg_name
 
     @property
     def basic_damage(self): return self.actor.basic_damage
