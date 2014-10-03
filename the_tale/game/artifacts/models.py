@@ -30,8 +30,6 @@ class ArtifactRecord(models.Model):
 
     name = models.CharField(max_length=MAX_NAME_LENGTH, unique=True, null=False, db_index=True)
 
-    name_forms = models.TextField(null=False)
-
     description = models.TextField(null=False, default=u'', blank=True)
 
     mob = models.ForeignKey('mobs.MobRecord', null=True, related_name='+', blank=True, on_delete=models.SET_NULL)

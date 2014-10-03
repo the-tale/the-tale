@@ -153,7 +153,7 @@ def create_test_create_method(record_class):
             if 'place' == argument:
                 substitutions['place'] = self.place_1
             elif 'bill' == argument:
-                substitutions['bill'] = FakeWord(self.bill.caption)
+                substitutions['bill'] = self.bill.caption
             elif 'person' == argument:
                 substitutions['person'] = self.place_1.persons[0]
             else:

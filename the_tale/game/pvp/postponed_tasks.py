@@ -48,10 +48,10 @@ class SayInBattleLogTask(PostponedLogic):
             main_task.comment = 'hero for account %d not found' % battle.account_id
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        account_hero.add_message('pvp_say', text=Fake(self.text))
+        account_hero.add_message('pvp_say', text=self.text)
 
         if enemy_hero is not None:
-            enemy_hero.add_message('pvp_say', text=Fake(self.text))
+            enemy_hero.add_message('pvp_say', text=self.text)
 
         self.state = SAY_IN_HERO_LOG_TASK_STATE.PROCESSED
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS

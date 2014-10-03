@@ -14,7 +14,7 @@ from the_tale.game.chronicle.relations import ACTOR_ROLE
 def _get_bill_place_renaming_arguments(bill):
     return { 'actors': [(ACTOR_ROLE.BILL, bill),
                         (ACTOR_ROLE.PLACE, bill.data.place)],
-             'substitutions': {'bill': FakeWord(bill.caption),
+             'substitutions': {'bill': bill.caption,
                                'old_name': bill.data.old_name_forms,
                                'new_name': bill.data.name_forms} }
 
@@ -22,13 +22,13 @@ def _get_bill_place_description_arguments(bill):
     return { 'actors': [(ACTOR_ROLE.BILL, bill),
                         (ACTOR_ROLE.PLACE, bill.data.place)],
              'substitutions': {'place': bill.data.place,
-                               'bill': FakeWord(bill.caption)} }
+                               'bill': bill.caption} }
 
 def _get_bill_place_modifier_arguments(bill):
     return { 'actors': [(ACTOR_ROLE.BILL, bill),
                         (ACTOR_ROLE.PLACE, bill.data.place)],
              'substitutions': {'place': bill.data.place,
-                               'bill': FakeWord(bill.caption),
+                               'bill': bill.caption,
                                'old_modifier': bill.data.place.modifier.NAME.lower() if bill.data.place.modifier is not None else None,
                                'new_modifier': bill.data.modifier_name.lower()} }
 
@@ -38,7 +38,7 @@ def _get_bill_person_remove_arguments(bill):
                         (ACTOR_ROLE.PERSON, bill.data.person)],
              'substitutions': {'place': bill.data.person.place,
                                'person': bill.data.person,
-                               'bill': FakeWord(bill.caption)} }
+                               'bill': bill.caption} }
 
 def _get_bill_building_arguments(bill):
     return { 'actors': [(ACTOR_ROLE.BILL, bill),
@@ -46,7 +46,7 @@ def _get_bill_building_arguments(bill):
                         (ACTOR_ROLE.PERSON, bill.data.person)],
              'substitutions': {'place': bill.data.person.place,
                                'person': bill.data.person,
-                               'bill': FakeWord(bill.caption)} }
+                               'bill': bill.caption} }
 
 def _get_bill_building_rename_arguments(bill):
     return { 'actors': [(ACTOR_ROLE.BILL, bill),
@@ -56,7 +56,7 @@ def _get_bill_building_rename_arguments(bill):
                                'person': bill.data.person,
                                'old_name': bill.data.old_building_name_forms,
                                'new_name': bill.data.new_building_name_forms,
-                               'bill': FakeWord(bill.caption)} }
+                               'bill': bill.caption} }
 
 def _get_bill_place_resource_exchange_arguments(bill):
     return { 'actors': [(ACTOR_ROLE.BILL, bill),
@@ -64,16 +64,16 @@ def _get_bill_place_resource_exchange_arguments(bill):
                         (ACTOR_ROLE.PLACE, bill.data.place_2)],
              'substitutions': {'place_1': bill.data.place_1,
                                'place_2': bill.data.place_2,
-                               'resource_1': FakeWord(bill.data.resource_1.text),
-                               'resource_2': FakeWord(bill.data.resource_2.text),
-                               'bill': FakeWord(bill.caption)} }
+                               'resource_1': bill.data.resource_1.text,
+                               'resource_2': bill.data.resource_2.text,
+                               'bill': bill.caption} }
 
 def _get_bill_place_resource_conversion_arguments(bill):
     return { 'actors': [(ACTOR_ROLE.BILL, bill),
                         (ACTOR_ROLE.PLACE, bill.data.place)],
              'substitutions': {'place': bill.data.place,
-                               'conversion': FakeWord(bill.data.conversion.text),
-                               'bill': FakeWord(bill.caption)} }
+                               'conversion': bill.data.conversion.text,
+                               'bill': bill.caption} }
 
 def _get_bill_decline_bill_arguments(bill):
     if bill.data.declined_bill.data.type.is_PLACE_RESOURCE_EXCHANGE:
@@ -93,8 +93,8 @@ def _get_bill_decline_bill_arguments(bill):
             actors.append((role, actor))
 
     return { 'actors': actors,
-             'substitutions': {'declined_bill': FakeWord(bill.data.declined_bill.caption),
-                               'bill': FakeWord(bill.caption)} }
+             'substitutions': {'declined_bill': bill.data.declined_bill.caption,
+                               'bill': bill.caption} }
 
 
 BILL_ARGUMENT_GETTERS = {

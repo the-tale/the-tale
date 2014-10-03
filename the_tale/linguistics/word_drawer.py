@@ -199,6 +199,37 @@ class ShowDrawer(BaseDrawer):
         return bool(self.word.patches)
 
 
+class FormFieldDrawer(BaseDrawer):
+
+    def __init__(self, type, widgets, is_patch=False):
+        super(FormFieldDrawer, self).__init__(type=type, is_patch=is_patch)
+        self.widgets = widgets
+
+    def get_form(self, key):
+        cache = utg_data.WORDS_CACHES[self.type]
+
+        if key not in cache:
+            return u''
+
+        if self.is_patch:
+            return jinja2.Markup(self.widgets['patch_field_%d_%d' % (self.type.value, cache[key])])
+        else:
+            return jinja2.Markup(self.widgets['field_%d' % cache[key]])
+
+    def get_property(self, property):
+        if self.is_patch:
+            return u''
+        else:
+            return jinja2.Markup(self.widgets['field_%s' % property.__name__])
+
+    def get_patch_drawer(self, patch):
+        return self.__class__(type=patch,
+                              is_patch=True,
+                              widgets=self.widgets)
+
+    def has_patches(self):
+        return bool(self.type.patches)
+
 
 
 STRUCTURES = { word_type: get_structure(word_type)

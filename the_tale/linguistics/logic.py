@@ -6,6 +6,7 @@ from django.utils.log import getLogger
 from django.conf import settings as project_settings
 
 from utg import words as utg_words
+from utg import relations as utg_relations
 
 from the_tale.linguistics import relations
 from the_tale.linguistics import prototypes
@@ -45,8 +46,11 @@ def prepair_externals(args):
     for k, v in args.items():
         if isinstance(v, utg_words.WordForm):
             externals[k] = v
-        elif isinstance(v, (basestring, numbers.Number)):
+        elif isinstance(v, numbers.Number):
             externals[k] = game_dictionary.item.get_word(v)
+        elif isinstance(v, basestring):
+            word = utg_words.Word(type=utg_relations.WORD_TYPE.TEXT, forms=[v], properties=utg_words.Properties())
+            externals[k] = utg_words.WordForm(word)
         else:
             externals[k] = utg_words.WordForm(v.utg_name)
 

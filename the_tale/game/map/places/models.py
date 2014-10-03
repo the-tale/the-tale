@@ -30,8 +30,6 @@ class Place(models.Model):
     # TODO: remove
     name = models.CharField(max_length=MAX_NAME_LENGTH, null=False, db_index=True)
 
-    name_forms = models.TextField(null=False, default=u'')
-
     description = models.TextField(null=False, default=u'', blank=True)
 
     size = models.IntegerField(null=False)
@@ -72,8 +70,6 @@ class Place(models.Model):
 
 
 class Building(models.Model):
-
-    name_forms = models.TextField(null=False, default=u'')
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     created_at_turn = models.BigIntegerField(default=0)

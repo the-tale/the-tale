@@ -30,8 +30,6 @@ class MobRecord(models.Model):
 
     name = models.CharField(max_length=MAX_NAME_LENGTH, unique=True, null=False, db_index=True)
 
-    name_forms = models.TextField(null=False)
-
     description = models.TextField(null=False, default=u'')
 
     abilities = models.TextField(null=False)

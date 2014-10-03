@@ -17,6 +17,8 @@ from the_tale.common.utils import testcase
 from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype
 
+from the_tale.linguistics.lexicon.keys import LEXICON_KEY
+
 from the_tale.game.heroes.relations import EQUIPMENT_SLOT
 from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE
 
@@ -124,7 +126,6 @@ class RawQuestsTest(QuestsTestBase):
 
     def setUp(self):
         super(RawQuestsTest, self).setUp()
-        self.vocabruary = get_vocabulary()
 
     def check_quest(self, knowledge_base):
         start = logic.get_absolute_start(knowledge_base)
@@ -153,9 +154,9 @@ class RawQuestsTest(QuestsTestBase):
         # print writer.diary_id()
         # print writer.action_id()
 
-        self.assertTrue(writer.journal_id() in self.vocabruary or
-                        writer.diary_id() in self.vocabruary or
-                        writer.action_id() in self.vocabruary)
+        self.assertTrue(writer.journal_id().upper() in LEXICON_KEY.index_name or
+                        writer.diary_id().upper() in LEXICON_KEY.index_name or
+                        writer.action_id().upper() in LEXICON_KEY.index_name)
 
     def _check_action_messages(self, quest_type, actions):
         for action in actions:
@@ -204,13 +205,13 @@ class RawQuestsTest(QuestsTestBase):
             starts.append((current_state.uid, current_state.type))
 
             writer = Writer(type=starts[-1][1], message=None, substitution={})
-            self.assertTrue(writer.name_id() in self.vocabruary)
+            self.assertTrue(writer.name_id().upper() in LEXICON_KEY.index_name)
 
             for participant in knowledge_base.filter(facts.QuestParticipant):
                 if knowledge_base[participant.start].type != starts[-1][1]:
                     continue
 
-                self.assertTrue(writer.actor_id(participant.role) in self.vocabruary)
+                self.assertTrue(writer.actor_id(participant.role).upper() in LEXICON_KEY.index_name)
 
         self._check_action_messages(starts[-1][1], current_state.actions)
 
@@ -232,8 +233,8 @@ class RawQuestsTest(QuestsTestBase):
 
             if isinstance(next_jump, facts.Option):
                 writer = Writer(type=starts[-1][1], message='choice', substitution={})
-                self.assertTrue(writer.choice_variant_id(next_jump.type) in self.vocabruary)
-                self.assertTrue(writer.current_choice_id(next_jump.type) in self.vocabruary)
+                self.assertTrue(writer.choice_variant_id(next_jump.type).upper() in LEXICON_KEY.index_name)
+                self.assertTrue(writer.current_choice_id(next_jump.type).upper() in LEXICON_KEY.index_name)
 
             path.append(next_jump.state_to)
             self._bruteforce(knowledge_base, path, table, list(starts), processed, powers )

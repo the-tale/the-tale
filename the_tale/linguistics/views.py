@@ -142,8 +142,7 @@ class WordResource(Resource):
                              {'form': form,
                               'type': type,
                               'page_type': 'dictionary',
-                              'parent': parent,
-                              'drawer': word_drawer.FormDrawer(type, form=form)} )
+                              'parent': parent} )
 
 
     @validate_argument('parent', lambda v: prototypes.WordPrototype.get_by_id(int(v)), 'linguistics.words', u'неверный идентификатор слова')
