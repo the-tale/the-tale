@@ -1,7 +1,5 @@
 {% extends "artifacts/base.html" %}
 
-{% import 'linguistics/words/macros.html' as words_macros with context %}
-
 {% block title %}Модерирование артефакта | {{ super() }}{% endblock %}
 {% block description %}Модерирование артефакта.{% endblock %}
 
@@ -36,7 +34,7 @@ jQuery(document).ready( function(e) {
     <strong>Внимание!</strong> Если название во вножественном числе, то необходимо заменить нормальную форму и добавить property "мн".
   </p>
 
-  {{words_macros.render_word(name_drawer)}}
+  {{ form.name.widget }}
 
   {{ form.level.widget }}
 

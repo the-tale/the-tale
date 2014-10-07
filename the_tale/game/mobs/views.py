@@ -10,7 +10,6 @@ from the_tale.common.utils import list_filter
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.decorators import login_required
 
-from the_tale.linguistics import word_drawer
 
 from the_tale.game.map.relations import TERRAIN
 
@@ -161,8 +160,7 @@ class GameMobResource(MobResourceBase):
     @handler('new', method='get')
     def new(self):
         form = MobRecordForm()
-        return self.template('mobs/new.html', {'form': form,
-                                               'name_drawer': word_drawer.FormDrawer(form.WORD_TYPE, form=form)})
+        return self.template('mobs/new.html', {'form': form})
 
     @login_required
     @validate_create_rights()
@@ -176,7 +174,7 @@ class GameMobResource(MobResourceBase):
 
         mob = MobRecordPrototype.create(uuid=uuid.uuid4().hex,
                                         level=form.c.level,
-                                        utg_name=form.get_word(),
+                                        utg_name=form.c.name,
                                         type=form.c.type,
                                         archetype=form.c.archetype,
                                         description=form.c.description,
@@ -195,8 +193,7 @@ class GameMobResource(MobResourceBase):
         form = MobRecordForm(initial=MobRecordForm.get_initials(self.mob))
 
         return self.template('mobs/edit.html', {'mob': self.mob,
-                                                'form': form,
-                                                'name_drawer': word_drawer.FormDrawer(form.WORD_TYPE, form=form)} )
+                                                'form': form} )
 
     @login_required
     @validate_disabled_state()
@@ -220,8 +217,7 @@ class GameMobResource(MobResourceBase):
         form = ModerateMobRecordForm(initial=ModerateMobRecordForm.get_initials(self.mob))
 
         return self.template('mobs/moderate.html', {'mob': self.mob,
-                                                    'form': form,
-                                                    'name_drawer': word_drawer.FormDrawer(form.WORD_TYPE, form=form)} )
+                                                    'form': form} )
 
     @login_required
     @validate_moderate_rights()

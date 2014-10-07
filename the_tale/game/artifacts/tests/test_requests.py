@@ -28,7 +28,7 @@ from the_tale.linguistics.tests import helpers as linguistics_helpers
 class PostMixin(object):
     def get_create_data(self, mob=None):
         word = names.generator.get_test_name(name='artifact')
-        data = linguistics_helpers.get_word_post_data(word)
+        data = linguistics_helpers.get_word_post_data(word, prefix='name')
 
         data.update({
                 'level': 1,
@@ -49,7 +49,7 @@ class PostMixin(object):
 
     def get_update_data(self, mob=None):
         word = names.generator.get_test_name(name='new name')
-        data = linguistics_helpers.get_word_post_data(word)
+        data = linguistics_helpers.get_word_post_data(word, prefix='name')
 
         data.update({
                 'level': 2,
@@ -348,7 +348,7 @@ class TestUpdateRequests(BaseTestRequests, PostMixin):
         self.mob = mobs_storage.all()[0]
 
     def check_artifact(self, artifact, data):
-        self.assertEqual(artifact.name, data['field_0'])
+        self.assertEqual(artifact.name, data['name_0'])
         self.assertEqual(artifact.level, data['level'])
         self.assertEqual(artifact.type, data['type'])
         self.assertEqual(artifact.rare_effect, data['rare_effect'])

@@ -10,8 +10,6 @@ from the_tale.common.utils import list_filter
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.decorators import login_required
 
-from the_tale.linguistics import word_drawer
-
 from the_tale.game.map.relations import TERRAIN
 
 from the_tale.game.artifacts import relations
@@ -164,8 +162,7 @@ class GameArtifactResource(ArtifactResourceBase):
     def new(self):
         form = ArtifactRecordForm(initial={'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
                                            'epic_effect': relations.ARTIFACT_EFFECT.NO_EFFECT})
-        return self.template('artifacts/new.html', {'form': form,
-                                                    'name_drawer': word_drawer.FormDrawer(form.WORD_TYPE, form=form)})
+        return self.template('artifacts/new.html', {'form': form})
 
     @login_required
     @validate_create_rights()
@@ -179,7 +176,7 @@ class GameArtifactResource(ArtifactResourceBase):
 
         artifact = ArtifactRecordPrototype.create(uuid=uuid.uuid4().hex,
                                                   level=form.c.level,
-                                                  utg_name=form.get_word(),
+                                                  utg_name=form.c.name,
                                                   description=form.c.description,
                                                   type_=form.c.type,
                                                   editor=self.account,
@@ -199,8 +196,7 @@ class GameArtifactResource(ArtifactResourceBase):
         form = ArtifactRecordForm(initial=ArtifactRecordForm.get_initials(self.artifact))
 
         return self.template('artifacts/edit.html', {'artifact': self.artifact,
-                                                     'form': form,
-                                                    'name_drawer': word_drawer.FormDrawer(form.WORD_TYPE, form=form)} )
+                                                     'form': form} )
 
     @login_required
     @validate_disabled_state()
@@ -224,8 +220,7 @@ class GameArtifactResource(ArtifactResourceBase):
         form = ModerateArtifactRecordForm(initial=ModerateArtifactRecordForm.get_initials(self.artifact))
 
         return self.template('artifacts/moderate.html', {'artifact': self.artifact,
-                                                         'form': form,
-                                                    'name_drawer': word_drawer.FormDrawer(form.WORD_TYPE, form=form)} )
+                                                         'form': form} )
 
     @login_required
     @validate_moderate_rights()

@@ -134,7 +134,7 @@ class WordResource(Resource):
         FormClass = forms.WORD_FORMS[type]
 
         if parent:
-            form = FormClass(initial=FormClass.get_initials(word=parent.utg_word))
+            form = FormClass(initial={'word': parent.utg_word})
         else:
             form = FormClass()
 
@@ -162,7 +162,7 @@ class WordResource(Resource):
         if not form.is_valid():
             return self.json_error('linguistics.words.create.form_errors', form.errors)
 
-        new_word = form.get_word()
+        new_word = form.c.word
 
         if parent is None and prototypes.WordPrototype._db_filter(normal_form=new_word.normal_form(), type=type).exists():
             return self.json_error('linguistics.words.create.parent_exists',

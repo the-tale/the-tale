@@ -46,6 +46,8 @@ def prepair_externals(args):
     for k, v in args.items():
         if isinstance(v, utg_words.WordForm):
             externals[k] = v
+        if isinstance(v, utg_words.Word):
+            externals[k] = utg_words.WordForm(v)
         elif isinstance(v, numbers.Number):
             externals[k] = game_dictionary.item.get_word(v)
         elif isinstance(v, basestring):

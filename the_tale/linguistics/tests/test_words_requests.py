@@ -1,13 +1,8 @@
 # coding: utf-8# coding: utf-8
-import datetime
 import random
 
 import mock
 
-from django.test import client
-from django.core.urlresolvers import reverse
-
-from dext.common.utils import s11n
 from dext.common.utils.urls import url
 
 from utg import relations as utg_relations
@@ -27,6 +22,7 @@ from the_tale.linguistics import relations
 from the_tale.linguistics.conf import linguistics_settings
 
 from the_tale.linguistics.tests import helpers
+from the_tale.linguistics.forms import WORD_FIELD_PREFIX, WORD_PATCH_FIELD_PREFIX
 
 
 class BaseRequestsTests(TestCase):
@@ -114,9 +110,9 @@ class NewRequestsTests(BaseRequestsTests):
         for word_type in utg_relations.WORD_TYPE.records:
             requested_url = url('linguistics:words:new', type=word_type.value)
 
-            texts = [('"field_%d"' % i, 2) for i in xrange(utg_words.Word.get_forms_number(word_type))]
+            texts = [('%s_%d ' % (WORD_FIELD_PREFIX, i), 1) for i in xrange(utg_words.Word.get_forms_number(word_type))]
             for static_property, required in word_type.properties.iteritems():
-                texts.append(('"field_%s"' % static_property.__name__, 2))
+                texts.append(('%s_%s ' % (WORD_FIELD_PREFIX, static_property.__name__), 1))
 
             self.check_html_ok(self.request_html(requested_url), texts=texts)
 
@@ -126,11 +122,11 @@ class NewRequestsTests(BaseRequestsTests):
             word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix=u'w-'))
             requested_url = url('linguistics:words:new', type=word.type.value, parent=word.id)
 
-            texts = [('"field_%d"' % i, 2) for i in xrange(utg_words.Word.get_forms_number(word_type))]
+            texts = [('%s_%d ' % (WORD_FIELD_PREFIX, i), 1) for i in xrange(utg_words.Word.get_forms_number(word_type))]
             texts.extend(word.utg_word.forms)
 
             for static_property, required in word.type.properties.iteritems():
-                texts.append(('"field_%s"' % static_property.__name__, 2))
+                texts.append(('%s_%s ' % (WORD_FIELD_PREFIX, static_property.__name__), 1))
 
             self.check_html_ok(self.request_html(requested_url), texts=texts)
 

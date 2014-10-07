@@ -243,7 +243,7 @@ class MobRecordPrototype(BasePrototype):
         return cls.create(uuid, level=level, type=type, utg_name=utg_name, description='description of %s' % name, abilities=abilities, terrains=terrains, state=state)
 
     def update_by_creator(self, form, editor):
-        self.set_utg_name(form.get_word())
+        self.set_utg_name(form.c.name)
 
         self.description = form.c.description
         self.level = form.c.level
@@ -256,7 +256,7 @@ class MobRecordPrototype(BasePrototype):
         self.save()
 
     def update_by_moderator(self, form, editor=None):
-        self.set_utg_name(form.get_word())
+        self.set_utg_name(form.c.name)
 
         self.description = form.c.description
         self.level = form.c.level

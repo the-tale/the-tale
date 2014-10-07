@@ -4,9 +4,11 @@ from the_tale.common.utils import testcase
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.mobs.forms import MobRecordForm, ModerateMobRecordForm
+from the_tale.game.mobs.forms import MobRecordForm
 from the_tale.game.mobs import relations
 from the_tale.game.mobs import prototypes
+
+from the_tale.linguistics.tests import helpers as linguistics_helpers
 
 
 class MobsFormsTests(testcase.TestCase):
@@ -17,13 +19,17 @@ class MobsFormsTests(testcase.TestCase):
 
     def get_form_data(self):
         mob = prototypes.MobRecordPrototype.create_random(uuid='bandit', state=relations.MOB_RECORD_STATE.DISABLED)
-        initials = ModerateMobRecordForm.get_initials(mob)
-        initials['level'] = unicode(initials['level'])
-        initials['archetype'] = unicode(initials['archetype'])
-        initials['abilities'] = list(initials['abilities'])
-        initials['terrains'] = list(unicode(t) for t in initials['terrains'])
 
-        return initials
+        data = linguistics_helpers.get_word_post_data(mob.utg_name, prefix='name')
+
+        data.update( { 'level': str(mob.level),
+                       'terrains': ['TERRAIN.PLANE_GRASS', 'TERRAIN.HILLS_GRASS'],
+                       'abilities': ['hit', 'strong_hit', 'sidestep'],
+                       'type': 'MOB_TYPE.CIVILIZED',
+                       'archetype': 'ARCHETYPE.NEUTRAL',
+                       'description': mob.description} )
+
+        return data
 
     def test_no_abilities_choosen(self):
         data = self.get_form_data()

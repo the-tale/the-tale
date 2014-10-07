@@ -4,10 +4,9 @@ from dext.forms import forms, fields
 
 from utg import relations as utg_relations
 
-from the_tale.common.utils.forms import SimpleWordField
 from the_tale.common.utils import bbcode
 
-from the_tale.linguistics.forms import WORD_FORMS
+from the_tale.linguistics.forms import WordField
 
 from the_tale.game.mobs.storage import mobs_storage
 
@@ -17,9 +16,12 @@ from the_tale.game.artifacts import relations
 
 EFFECT_CHOICES = sorted(relations.ARTIFACT_EFFECT.choices(), key=lambda v: v[1])
 
-class ArtifactRecordBaseForm(WORD_FORMS[utg_relations.WORD_TYPE.NOUN]):
+
+class ArtifactRecordBaseForm(forms.Form):
 
     level = fields.IntegerField(label=u'минимальный уровень')
+
+    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название')
 
     description = bbcode.BBField(label=u'Описание', required=False)
 
@@ -45,17 +47,14 @@ class ArtifactRecordBaseForm(WORD_FORMS[utg_relations.WORD_TYPE.NOUN]):
 
     @classmethod
     def get_initials(cls, artifact):
-        initials = super(ArtifactRecordBaseForm, cls).get_initials(artifact.utg_name)
-        initials.update({                  'level': artifact.level,
-                                           'type': artifact.type,
-                                           'power_type': artifact.power_type,
-                                           'rare_effect': artifact.rare_effect,
-                                           'epic_effect': artifact.epic_effect,
-                                           'description': artifact.description,
-                                           'mob': artifact.mob.id if artifact.mob is not None else None})
-
-        return initials
-
+        return {'level': artifact.level,
+                'name': artifact.utg_name,
+                'type': artifact.type,
+                'power_type': artifact.power_type,
+                'rare_effect': artifact.rare_effect,
+                'epic_effect': artifact.epic_effect,
+                'description': artifact.description,
+                'mob': artifact.mob.id if artifact.mob is not None else None}
 
 
 class ArtifactRecordForm(ArtifactRecordBaseForm):

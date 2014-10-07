@@ -7,9 +7,7 @@ from utg import relations as utg_relations
 
 from the_tale.game import names
 
-from the_tale.linguistics.forms import WORD_FORMS
-
-# from the_tale.game.map.places.models import Place
+from the_tale.linguistics.forms import WordField
 
 from the_tale.game.bills.models import BILL_TYPE
 from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
@@ -18,10 +16,10 @@ from the_tale.game.bills.bills.base_bill import BaseBill
 from the_tale.game.map.places.storage import places_storage
 
 
-class UserForm(BaseUserForm, WORD_FORMS[utg_relations.WORD_TYPE.NOUN]):
+class UserForm(BaseUserForm):
 
     place = fields.ChoiceField(label=u'Город')
-
+    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название')
     # TODO: restrict max place name
     # new_name = fields.CharField(label=u'Новое название', max_length=Place.MAX_NAME_LENGTH)
 
@@ -29,21 +27,8 @@ class UserForm(BaseUserForm, WORD_FORMS[utg_relations.WORD_TYPE.NOUN]):
         super(UserForm, self).__init__(*args, **kwargs)
         self.fields['place'].choices = places_storage.get_choices()
 
-    @property
-    def name_drawer(self):
-        from the_tale.linguistics import word_drawer
-        return word_drawer.FormDrawer(self.WORD_TYPE, form=self)
-
-
-
-class ModeratorForm(BaseModeratorForm, WORD_FORMS[utg_relations.WORD_TYPE.NOUN]):
-    pass
-
-    @property
-    def name_drawer(self):
-        from the_tale.linguistics import word_drawer
-        return word_drawer.FormDrawer(self.WORD_TYPE, form=self)
-
+class ModeratorForm(BaseModeratorForm):
+    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название')
 
 
 class PlaceRenaming(BaseBill):
@@ -87,22 +72,20 @@ class PlaceRenaming(BaseBill):
 
     @property
     def user_form_initials(self):
-        initials = WORD_FORMS[utg_relations.WORD_TYPE.NOUN].get_initials(self.name_forms)
-        initials.update({'place': self.place_id})
-        return initials
+        return {'place': self.place_id,
+                'name': self.name_forms}
 
     @property
     def moderator_form_initials(self):
-        initials = WORD_FORMS[utg_relations.WORD_TYPE.NOUN].get_initials(self.name_forms)
-        return initials
+        return {'name': self.name_forms}
 
     def initialize_with_user_data(self, user_form):
         self.place_id = int(user_form.c.place)
         self.old_name_forms = self.place.utg_name
-        self.name_forms = user_form.get_word()
+        self.name_forms = user_form.c.name
 
     def initialize_with_moderator_data(self, moderator_form):
-        self.name_forms = moderator_form.get_word()
+        self.name_forms = moderator_form.c.name
 
     def apply(self, bill=None):
         self.place.set_utg_name(self.name_forms)

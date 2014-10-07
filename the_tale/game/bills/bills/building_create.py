@@ -7,7 +7,7 @@ from utg import relations as utg_relations
 
 from the_tale.game import names
 
-from the_tale.linguistics.forms import WORD_FORMS
+from the_tale.linguistics.forms import WordField
 
 from the_tale.game.persons.prototypes import PersonPrototype
 
@@ -18,26 +18,20 @@ from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
 from the_tale.game.bills.bills.base_person_bill import BasePersonBill
 
 
-class UserForm(BaseUserForm, WORD_FORMS[utg_relations.WORD_TYPE.NOUN]):
+class UserForm(BaseUserForm):
 
     person = fields.ChoiceField(label=u'Житель')
+
+    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название')
 
     def __init__(self, choosen_person_id, *args, **kwargs):  # pylint: disable=W0613
         super(UserForm, self).__init__(*args, **kwargs)
         self.fields['person'].choices = PersonPrototype.form_choices(predicate=lambda place, person: not person.has_building)
 
-    @property
-    def name_drawer(self):
-        from the_tale.linguistics import word_drawer
-        return word_drawer.FormDrawer(self.WORD_TYPE, form=self)
 
+class ModeratorForm(BaseModeratorForm):
 
-class ModeratorForm(BaseModeratorForm, WORD_FORMS[utg_relations.WORD_TYPE.NOUN]):
-    @property
-    def name_drawer(self):
-        from the_tale.linguistics import word_drawer
-        return word_drawer.FormDrawer(self.WORD_TYPE, form=self)
-
+    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название')
 
 
 class BuildingCreate(BasePersonBill):
@@ -71,22 +65,22 @@ class BuildingCreate(BasePersonBill):
     @property
     def user_form_initials(self):
         initials = super(BuildingCreate, self).user_form_initials
-        initials.update(WORD_FORMS[utg_relations.WORD_TYPE.NOUN].get_initials(self.building_name_forms))
+        initials['name'] = self.building_name_forms
         return initials
 
     @property
     def moderator_form_initials(self):
         initials = super(BuildingCreate, self).moderator_form_initials
-        initials.update(WORD_FORMS[utg_relations.WORD_TYPE.NOUN].get_initials(self.building_name_forms))
+        initials['name'] = self.building_name_forms
         return initials
 
     def initialize_with_user_data(self, user_form):
         super(BuildingCreate, self).initialize_with_user_data(user_form)
-        self.building_name_forms = user_form.get_word()
+        self.building_name_forms = user_form.c.name
 
     def initialize_with_moderator_data(self, moderator_form):
         super(BuildingCreate, self).initialize_with_moderator_data(moderator_form)
-        self.building_name_forms = moderator_form.get_word()
+        self.building_name_forms = moderator_form.c.name
 
     def serialize(self):
         data = super(BuildingCreate, self).serialize()

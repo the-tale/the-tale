@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from django import forms as django_forms
+from django.utils.safestring import mark_safe
 
 import jinja2
 
@@ -16,6 +17,10 @@ from utg import exceptions as utg_exceptions
 from the_tale.linguistics import models
 
 
+WORD_FIELD_PREFIX = 'word_field'
+WORD_PATCH_FIELD_PREFIX = 'word_patch_field'
+
+
 def get_fields(word_type):
     form_fields = {}
 
@@ -23,7 +28,7 @@ def get_fields(word_type):
 
     for patch in word_type.patches:
         for i, key in enumerate(utg_data.INVERTED_WORDS_CACHES[patch]):
-            form_fields['patch_field_%d_%d' % (patch.value, i)] = fields.CharField(label='', max_length=models.Word.MAX_FORM_LENGTH, required=False)
+            form_fields['%s_%d_%d' % (WORD_PATCH_FIELD_PREFIX, patch.value, i)] = fields.CharField(label='', max_length=models.Word.MAX_FORM_LENGTH, required=False)
 
     for static_property, required in word_type.properties.iteritems():
         property_type = utg_relations.PROPERTY_TYPE.index_relation[static_property]
@@ -34,10 +39,38 @@ def get_fields(word_type):
                                         choices=choices,
                                         coerce=static_property.get_from_name,
                                         required=False)
-        form_fields['field_%s' % static_property.__name__] = field
+        form_fields['%s_%s' % (WORD_FIELD_PREFIX, static_property.__name__)] = field
 
     return form_fields
 
+
+
+def decompress_word(word_type, value):
+    if value:
+        initials = get_word_fields_initials(value)
+
+        for patch in value.type.patches:
+            for i, key in enumerate(utg_data.INVERTED_WORDS_CACHES[patch]):
+                initials['%s_%d_%d' % (WORD_PATCH_FIELD_PREFIX, patch.value, i)] = value.patches[patch].forms[i] if patch in value.patches else u''
+
+
+        for static_property, required in value.type.properties.iteritems():
+
+            v = value.properties.is_specified(static_property)
+
+            if not v:
+                continue
+
+            initials['%s_%s' % (WORD_FIELD_PREFIX, static_property.__name__)] = value.properties.get(static_property)
+
+    else:
+        initials = get_fields(word_type)
+        initials = {k: u'' for k in initials.iterkeys()}
+
+    fields = get_fields(word_type)
+    keys = sorted(fields.keys())
+
+    return [initials.get(key) for key in keys]
 
 
 class WordWidget(django_forms.MultiWidget):
@@ -52,30 +85,7 @@ class WordWidget(django_forms.MultiWidget):
         self.word_type = word_type
 
     def decompress(self, value):
-
-        if value:
-            initials = get_word_fields_initials(value)
-
-            for patch in value.type.patches:
-                for i, key in enumerate(utg_data.INVERTED_WORDS_CACHES[patch]):
-                    initials['patch_field_%d_%d' % (patch.value, i)] = value.patches[patch].forms[i] if patch in value.patches else u''
-
-
-            for static_property, required in value.type.properties.iteritems():
-                v = value.properties.is_specified(static_property)
-                if not v:
-                    continue
-                initials['field_%s' % static_property.__name__] = value.properties.get(static_property)
-
-        else:
-            initials = get_fields(self.word_type)
-            initials = {k: u'' for k in initials.iterkeys()}
-
-        fields = get_fields(self.word_type)
-        keys = sorted(fields.keys())
-
-        return [initials[key] for key in keys]
-
+        return decompress_word(self.word_type, value)
 
     def format_output(self, rendered_widgets):
         from dext.jinja2 import render
@@ -93,26 +103,105 @@ class WordWidget(django_forms.MultiWidget):
 
 @fields.pgf
 class WordField(django_forms.MultiValueField):
+    LABEL_SUFFIX = u''
+
     def __init__(self, word_type, **kwargs):
         fields = get_fields(word_type)
         keys = sorted(fields.keys())
 
+        self.fields_keys = dict(enumerate(keys))
+
+        requireds = [fields[key].required for key in keys]
+
+        label = kwargs.get('label')
+        if label:
+            label = mark_safe(u'<h3>%s</h3>' % label)
+            kwargs['label'] = label
+
         super(WordField, self).__init__(fields=[fields[key] for key in keys],
-                                        widget=WordWidget(word_type=word_type),
-                                        **kwargs)
+                                                     widget=WordWidget(word_type=word_type),
+                                                     **kwargs)
+        for key, required in zip(keys, requireds):
+            fields[key].required = required
 
         self.word_type = word_type
 
+    def get_extra_errors(self, value):
+        from django.forms.util import ErrorDict, ErrorList
+        from django.core.exceptions import ValidationError
+
+        errors = ErrorDict()
+
+        if not value or isinstance(value, (list, tuple)):
+            if not value or not [v for v in value if v not in self.empty_values]:
+                return errors
+        else:
+            return errors
+
+
+        for i, field in enumerate(self.fields):
+            try:
+                field_value = value[i]
+            except IndexError:
+                field_value = None
+
+            try:
+                field.clean(field_value)
+            except ValidationError as e:
+                errors[self.fields_keys[i]] = ErrorList(e.messages)
+
+        return errors
+
+
+    def clean(self, value):
+        from django.forms.util import ErrorList
+        from django.core.exceptions import ValidationError
+
+        clean_data = []
+        errors = ErrorList()
+        if not value or isinstance(value, (list, tuple)):
+            if not value or not [v for v in value if v not in self.empty_values]:
+                if self.required:
+                    raise ValidationError(self.error_messages['required'], code='required')
+                else:
+                    return self.compress([])
+        else:
+            raise ValidationError(self.error_messages['invalid'], code='invalid')
+
+        for i, field in enumerate(self.fields):
+            try:
+                field_value = value[i]
+            except IndexError:
+                field_value = None
+
+            # requered field will be checked in extra errors
+            # if self.required and field_value in self.empty_values:
+            #     raise ValidationError(self.error_messages['required'], code='required')
+
+            try:
+                clean_data.append(field.clean(field_value))
+            except ValidationError as e:
+                errors.extend(e.error_list)
+
+        if errors:
+            return None
+
+        out = self.compress(clean_data)
+        self.validate(out)
+        self.run_validators(out)
+        return out
+
     def compress(self, data_list):
+
         fields = get_fields(self.word_type)
         keys = {key: i for i, key in enumerate(sorted(fields.keys()))}
 
-        word_forms = [data_list[keys['field_%d' % i]] for i in xrange(len(utg_data.INVERTED_WORDS_CACHES[self.word_type]))]
+        word_forms = [data_list[keys['%s_%d' % (WORD_FIELD_PREFIX, i)]] for i in xrange(len(utg_data.INVERTED_WORDS_CACHES[self.word_type]))]
 
         patches = {}
 
         for patch in self.word_type.patches:
-            patch_forms = [data_list[keys['patch_field_%d_%d' % (patch.value, i)]] for i in xrange(len(utg_data.INVERTED_WORDS_CACHES[patch]))]
+            patch_forms = [data_list[keys['%s_%d_%d' % (WORD_PATCH_FIELD_PREFIX, patch.value, i)]] for i in xrange(len(utg_data.INVERTED_WORDS_CACHES[patch]))]
 
             if not all(form for form in patch_forms):
                 continue
@@ -124,7 +213,7 @@ class WordField(django_forms.MultiValueField):
         properties = utg_words.Properties()
 
         for static_property, required in self.word_type.properties.iteritems():
-            value = data_list[keys['field_%s' % static_property.__name__]]
+            value = data_list[keys['%s_%s' % (WORD_FIELD_PREFIX, static_property.__name__)]]
 
             if not value:
                 continue
@@ -142,47 +231,29 @@ def get_word_fields_dict(word_type):
     form_fields = {}
 
     for i, key in enumerate(utg_data.INVERTED_WORDS_CACHES[word_type]):
-        form_fields['field_%d' % i] = fields.CharField(label='', max_length=models.Word.MAX_FORM_LENGTH)
+        form_fields['%s_%d' % (WORD_FIELD_PREFIX, i)] = fields.CharField(label='', max_length=models.Word.MAX_FORM_LENGTH)
 
     return form_fields
 
 
 def get_word_fields_initials(word):
-    return {('field_%d' % i): word.forms[i]
+    return {('%s_%d' % (WORD_FIELD_PREFIX, i)): word.forms[i]
              for i in xrange(len(utg_data.INVERTED_WORDS_CACHES[word.type]))}
 
 
 def get_word_forms(form, word_type):
-     return [getattr(form.c, 'field_%d' % i) for i in xrange(len(utg_data.INVERTED_WORDS_CACHES[word_type]))]
+     return [getattr(form.c, '%s_%d' % (WORD_FIELD_PREFIX, i)) for i in xrange(len(utg_data.INVERTED_WORDS_CACHES[word_type]))]
 
 
 class BaseWordForm(forms.Form):
     WORD_TYPE = None
 
-    @classmethod
-    def get_initials(cls, word):
-        initials = get_word_fields_initials(word)
-
-        for patch in word.type.patches:
-            for i, key in enumerate(utg_data.INVERTED_WORDS_CACHES[patch]):
-                initials['patch_field_%d_%d' % (patch.value, i)] = word.patches[patch].forms[i] if patch in word.patches else u''
-
-
-        for static_property, required in cls.WORD_TYPE.properties.iteritems():
-            value = word.properties.is_specified(static_property)
-            if not value:
-                continue
-            initials['field_%s' % static_property.__name__] = word.properties.get(static_property)
-
-        return initials
-
 
 def create_word_type_form(word_type):
-
     class WordForm(BaseWordForm):
         WORD_TYPE = word_type
 
-        word = WordField(word_type=word_type)
+        word = WordField(word_type=word_type, label=word_type.text[0].upper() + word_type.text[1:])
 
     return WordForm
 

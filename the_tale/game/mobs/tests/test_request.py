@@ -30,7 +30,7 @@ class PostMixin(object):
     def get_create_data(self):
         word = names.generator.get_test_name(name='mob name')
 
-        data = linguistics_helpers.get_word_post_data(word)
+        data = linguistics_helpers.get_word_post_data(word, prefix='name')
 
         data.update( { 'level': 666,
                 'terrains': [TERRAIN.PLANE_GRASS, TERRAIN.HILLS_GRASS],
@@ -44,7 +44,7 @@ class PostMixin(object):
     def get_update_data(self):
         word = names.generator.get_test_name(name='new name')
 
-        data = linguistics_helpers.get_word_post_data(word)
+        data = linguistics_helpers.get_word_post_data(word, prefix='name')
 
         data.update( {'level': 667,
                 'terrains': [TERRAIN.PLANE_JUNGLE, TERRAIN.HILLS_JUNGLE],
@@ -358,7 +358,7 @@ class TestUpdateRequests(BaseTestRequests, PostMixin):
 
 
     def check_mob(self, mob, data):
-        self.assertEqual(mob.name, data['field_0'])
+        self.assertEqual(mob.name, data['name_0'])
         self.assertEqual(mob.level, data['level'])
         self.assertEqual(mob.terrains, frozenset(data['terrains']) )
         self.assertEqual(mob.abilities, frozenset(data['abilities']) )

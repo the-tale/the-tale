@@ -2,12 +2,11 @@
 import mock
 import datetime
 
-from dext.common.utils import s11n
-
-
 from the_tale.forum.models import Post
 
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
+
+from the_tale.linguistics.tests import helpers as linguistics_helpers
 
 from the_tale.game import names
 
@@ -167,7 +166,7 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         ##################################
         # set name forms
-        data = PlaceRenaming.ModeratorForm.get_initials(self.bill.data.name_forms)
+        data = linguistics_helpers.get_word_post_data(self.bill.data.name_forms, prefix='name')
         data.update({'approved': True})
         form = PlaceRenaming.ModeratorForm(data)
 
@@ -216,8 +215,7 @@ class TestPrototypeApply(BaseTestPrototypes):
         ##################################
         # set name forms
         noun = names.generator.get_test_name('place-name')
-
-        data = PlaceRenaming.ModeratorForm.get_initials(noun)
+        data = linguistics_helpers.get_word_post_data(noun, prefix='name')
         data.update({'approved': True})
 
         form = PlaceRenaming.ModeratorForm(data)
@@ -267,7 +265,7 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         ##################################
         # set name forms
-        data = PlaceRenaming.ModeratorForm.get_initials(self.bill.data.name_forms)
+        data = linguistics_helpers.get_word_post_data(self.bill.data.name_forms, prefix='name')
         data.update({'approved': True})
         form = PlaceRenaming.ModeratorForm(data)
 
@@ -441,7 +439,7 @@ class TestActorPrototype(BaseTestPrototypes):
 
         noun = names.generator.get_test_name('new-new-name')
 
-        data = PlaceRenaming.UserForm.get_initials(noun)
+        data = linguistics_helpers.get_word_post_data(noun, prefix='name')
         data.update({'caption': 'new-caption',
                      'rationale': 'new-rationale',
                     'place': self.place2.id})

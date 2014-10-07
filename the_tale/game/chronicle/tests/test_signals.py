@@ -4,7 +4,7 @@ import datetime
 
 from contextlib import contextmanager
 
-from dext.common.utils import s11n
+from the_tale.linguistics.tests import helpers as linguistics_helpers
 
 from the_tale.game import names
 
@@ -41,7 +41,7 @@ class BillPlaceRenamingTests(BaseTestPrototypes):
         bill_data = bills.PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new-name'))
         self.bill = BillPrototype.create(self.account1, 'bill-caption', 'bill-rationale', bill_data)
 
-        data = bills.PlaceRenaming.ModeratorForm.get_initials(bill_data.name_forms)
+        data = linguistics_helpers.get_word_post_data(bill_data.name_forms, prefix='name')
         data.update({'approved': True})
         self.form = bills.PlaceRenaming.ModeratorForm(data)
         self.assertTrue(self.form.is_valid())
@@ -237,7 +237,7 @@ class BillBuildingCreateTests(BaseTestPrototypes):
                                          utg_name=names.generator.get_test_name('building-name'))
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
 
-        data = bills.BuildingCreate.UserForm.get_initials(bill_data.building_name_forms)
+        data = linguistics_helpers.get_word_post_data(bill_data.building_name_forms, prefix='name')
         data.update({'approved': True})
 
         self.form = bills.BuildingCreate.ModeratorForm(data)
@@ -298,7 +298,7 @@ class BillBuildingRenamingTests(BaseTestPrototypes):
                                            new_building_name_forms=names.generator.get_test_name('new-building-name'))
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
 
-        data = bills.BuildingRenaming.UserForm.get_initials(bill_data.new_building_name_forms)
+        data = linguistics_helpers.get_word_post_data(bill_data.new_building_name_forms, prefix='name')
         data.update({'approved': True})
 
 

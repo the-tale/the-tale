@@ -303,7 +303,7 @@ class ArtifactRecordPrototype(BasePrototype):
         return cls.create(uuid, level=level, utg_name=utg_name, description='description of %s' % name, mob=mob, type_=type_, power_type=power_type, state=state)
 
     def update_by_creator(self, form, editor):
-        self.set_utg_name(form.get_word())
+        self.set_utg_name(form.c.name)
 
         self.level = form.c.level
         self.type = form.c.type
@@ -325,7 +325,7 @@ class ArtifactRecordPrototype(BasePrototype):
             if not form.c.approved:
                 raise exceptions.DisableDefaultEquipmentError(artifact=self.uuid)
 
-        self.set_utg_name(form.get_word())
+        self.set_utg_name(form.c.name)
 
         self.level = form.c.level
         self.type = form.c.type

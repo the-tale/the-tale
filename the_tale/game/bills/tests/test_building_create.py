@@ -3,7 +3,7 @@
 import mock
 import datetime
 
-from dext.common.utils import s11n
+from the_tale.linguistics.tests import helpers as linguistics_helpers
 
 from the_tale.game import names
 
@@ -36,7 +36,7 @@ class BuildingCreateTests(BaseTestPrototypes):
         self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.person_1.place)])
 
     def test_update(self):
-        data = BuildingCreate.UserForm.get_initials(names.generator.get_test_name('new-building-name'))
+        data = linguistics_helpers.get_word_post_data(names.generator.get_test_name('new-building-name'), prefix='name')
         data.update({'caption': 'new-caption',
                      'rationale': 'new-rationale',
                      'person': self.person_2.id })
@@ -87,7 +87,7 @@ class BuildingCreateTests(BaseTestPrototypes):
 
         noun = names.generator.get_test_name('r-building-name')
 
-        data = BuildingCreate.ModeratorForm.get_initials(noun)
+        data = linguistics_helpers.get_word_post_data(noun, prefix='name')
         data.update({'approved': True})
 
         form = BuildingCreate.ModeratorForm(data)
@@ -118,7 +118,7 @@ class BuildingCreateTests(BaseTestPrototypes):
         VotePrototype.create(self.account3, self.bill, True)
 
         noun = names.generator.get_test_name('building-name')
-        data = BuildingCreate.ModeratorForm.get_initials(noun)
+        data = linguistics_helpers.get_word_post_data(noun, prefix='name')
         data.update({'approved': True})
 
         form = BuildingCreate.ModeratorForm(data)
@@ -128,7 +128,7 @@ class BuildingCreateTests(BaseTestPrototypes):
         self.assertTrue(self.bill.apply())
 
         dup_noun = names.generator.get_test_name('dup-building-name')
-        data = BuildingCreate.ModeratorForm.get_initials(dup_noun)
+        data = linguistics_helpers.get_word_post_data(dup_noun, prefix='name')
         data.update({'approved': True})
 
         form = BuildingCreate.ModeratorForm(data)
@@ -157,7 +157,7 @@ class BuildingCreateTests(BaseTestPrototypes):
 
         noun = names.generator.get_test_name('building-name')
 
-        data = BuildingCreate.ModeratorForm.get_initials(noun)
+        data = linguistics_helpers.get_word_post_data(noun, prefix='name')
         data.update({'approved': True})
 
         form = BuildingCreate.ModeratorForm(data)

@@ -1,14 +1,12 @@
 # coding: utf-8
 
-def get_word_post_data(word):
+from the_tale.linguistics.forms import decompress_word
 
-    data = {}
+def get_word_post_data(word, prefix='word'):
 
-    for i, form in enumerate(word.forms):
-        data['field_%d' % i] = form
+    widgets_data = decompress_word(word.type, word)
 
-    for static_property, required in word.type.properties.iteritems():
-        if word.properties.is_specified(static_property):
-            data['field_%s' % static_property.__name__] = word.properties.get(static_property)
+    data = {'%s_%d' % (prefix, i): value if value is not None else u''
+            for i, value in enumerate(widgets_data)}
 
     return data

@@ -2,13 +2,13 @@
 
 from django.forms import ValidationError
 
-from dext.forms import fields
+from dext.forms import forms, fields
 
 from utg import relations as utg_relations
 
 from the_tale.common.utils import bbcode
 
-from the_tale.linguistics.forms import WORD_FORMS
+from the_tale.linguistics.forms import WordField
 
 from the_tale.game.map.relations import TERRAIN
 
@@ -31,9 +31,11 @@ ABILITY_CHOICES = sorted(ABILITY_CHOICES_DICT.items(), key=lambda choice: choice
 MOB_TYPE_CHOICES = sorted(MOB_TYPE.choices(), key=lambda choice: choice[1])
 
 
-class MobRecordBaseForm(WORD_FORMS[utg_relations.WORD_TYPE.NOUN]):
+class MobRecordBaseForm(forms.Form):
 
     level = fields.IntegerField(label=u'минимальный уровень')
+
+    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название')
 
     type = fields.TypedChoiceField(label=u'тип', choices=MOB_TYPE_CHOICES, coerce=MOB_TYPE.get_from_name)
     archetype = fields.TypedChoiceField(label=u'тип', choices=ARCHETYPE.choices(), coerce=ARCHETYPE.get_from_name)
@@ -69,15 +71,13 @@ class MobRecordBaseForm(WORD_FORMS[utg_relations.WORD_TYPE.NOUN]):
 
     @classmethod
     def get_initials(cls, mob):
-        initials = super(MobRecordBaseForm, cls).get_initials(mob.utg_name)
-        initials.update({'description': mob.description,
-                         'type': mob.type,
-                         'archetype': mob.archetype,
-                         'level': mob.level,
-                         'terrains': mob.terrains,
-                         'abilities': mob.abilities})
-
-        return initials
+        return {'description': mob.description,
+                'type': mob.type,
+                'name': mob.utg_name,
+                'archetype': mob.archetype,
+                'level': mob.level,
+                'terrains': mob.terrains,
+                'abilities': mob.abilities}
 
 
 class MobRecordForm(MobRecordBaseForm):

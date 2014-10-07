@@ -1,11 +1,14 @@
 # coding: utf-8
 import jinja2
 
+from dext.forms import forms
+
 from utg import words
 from utg import data as utg_data
 from utg import relations as utg_relations
 
 from the_tale.linguistics import relations
+from the_tale.linguistics.forms import WORD_FIELD_PREFIX, WORD_PATCH_FIELD_PREFIX
 
 
 def get_best_base(word_type):
@@ -111,15 +114,15 @@ class FormDrawer(BaseDrawer):
             return u''
 
         if self.is_patch:
-            return self.form['patch_field_%d_%d' % (self.type.value, cache[key])].widget
+            return self.form['%s_%d_%d' % (WORD_PATCH_FIELD_PREFIX, self.type.value, cache[key])].widget
         else:
-            return self.form['field_%d' % cache[key]].widget
+            return self.form['%s_%d' % (WORD_FIELD_PREFIX, cache[key])].widget
 
     def get_property(self, property):
         if self.is_patch:
             return u''
         else:
-            return self.form['field_%s' % property.__name__].widget
+            return self.form['%s_%s' % (WORD_FIELD_PREFIX, property.__name__)].widget
 
     def get_patch_drawer(self, patch):
         return self.__class__(type=patch,
@@ -205,6 +208,10 @@ class FormFieldDrawer(BaseDrawer):
         super(FormFieldDrawer, self).__init__(type=type, is_patch=is_patch)
         self.widgets = widgets
 
+    def widget_html(self, name):
+        content = self.widgets[name] + forms.HTML_ERROR_CONTAINER % {'name': name}
+        return forms.HTML_WIDGET_WRAPPER % {'content': content}
+
     def get_form(self, key):
         cache = utg_data.WORDS_CACHES[self.type]
 
@@ -212,15 +219,17 @@ class FormFieldDrawer(BaseDrawer):
             return u''
 
         if self.is_patch:
-            return jinja2.Markup(self.widgets['patch_field_%d_%d' % (self.type.value, cache[key])])
+            return jinja2.Markup(forms.HTML_WIDGET_WRAPPER % {'content': self.widget_html('%s_%d_%d' % (WORD_PATCH_FIELD_PREFIX, self.type.value, cache[key]))})
         else:
-            return jinja2.Markup(self.widgets['field_%d' % cache[key]])
+            return jinja2.Markup(forms.HTML_WIDGET_WRAPPER % {'content': self.widget_html('%s_%d' % (WORD_FIELD_PREFIX, cache[key]))})
 
     def get_property(self, property):
         if self.is_patch:
             return u''
         else:
-            return jinja2.Markup(self.widgets['field_%s' % property.__name__])
+            content = self.widget_html('%s_%s' % (WORD_FIELD_PREFIX, property.__name__))
+            content = u'<label>%s:</label> %s'% (utg_relations.PROPERTY_TYPE.index_relation[property].text, content)
+            return jinja2.Markup(forms.HTML_WIDGET_WRAPPER % {'content': content})
 
     def get_patch_drawer(self, patch):
         return self.__class__(type=patch,

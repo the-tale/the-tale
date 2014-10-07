@@ -3,7 +3,7 @@
 import mock
 import datetime
 
-from dext.common.utils import s11n
+from the_tale.linguistics.tests import helpers as linguistics_helpers
 
 from the_tale.game import names
 
@@ -43,7 +43,7 @@ class BuildingRenamingTests(BaseTestPrototypes):
         self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.person_1.place)])
 
     def test_update(self):
-        data = BuildingRenaming.UserForm.get_initials(names.generator.get_test_name('new-building-name-2'))
+        data = linguistics_helpers.get_word_post_data(names.generator.get_test_name('new-building-name-2'), prefix='name')
         data.update({'caption': 'new-caption',
                      'rationale': 'new-rationale',
                      'person': self.person_2.id})
@@ -77,7 +77,7 @@ class BuildingRenamingTests(BaseTestPrototypes):
 
         noun = names.generator.get_test_name('r-building-name')
 
-        data = BuildingRenaming.ModeratorForm.get_initials(noun)
+        data = linguistics_helpers.get_word_post_data(noun, prefix='name')
         data.update({'approved': True})
 
         form = BuildingRenaming.ModeratorForm(data)
@@ -105,7 +105,7 @@ class BuildingRenamingTests(BaseTestPrototypes):
 
         noun = names.generator.get_test_name('r-building-name')
 
-        data = BuildingRenaming.ModeratorForm.get_initials(noun)
+        data = linguistics_helpers.get_word_post_data(noun, prefix='name')
         data.update({'approved': True})
         form = BuildingRenaming.ModeratorForm(data)
 

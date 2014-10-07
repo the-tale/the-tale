@@ -57,7 +57,7 @@ pgf.forms.Form = function(selector, params) {
                 container = jQuery('.pgf-error-container.pgf-form-field-marker-'+name, form).toggleClass('pgf-hidden', false);
             }
 
-            container.parents().filter('.pgf-widget').toggleClass('error', true);
+            container.parents().eq(0).filter('.pgf-widget').toggleClass('error', true);
 
             var errors_list = errors[name];
             container.html('');

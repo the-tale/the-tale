@@ -1,8 +1,8 @@
 # coding: utf-8
 
-from dext.common.utils import s11n
-
 from the_tale.forum.models import Post, Thread, MARKUP_METHOD
+
+from the_tale.linguistics.tests import helpers as linguistics_helpers
 
 from the_tale.game import names
 
@@ -60,7 +60,7 @@ class PlaceRenamingTests(BaseTestPrototypes):
 
         new_name = names.generator.get_test_name('new-new-name')
 
-        data = PlaceRenaming.UserForm.get_initials(new_name)
+        data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'new-caption',
                      'rationale': 'new-rationale',
                      'place': self.place2.id})
@@ -93,7 +93,7 @@ class PlaceRenamingTests(BaseTestPrototypes):
 
 
         noun = names.generator.get_test_name('new-name')
-        data = PlaceRenaming.ModeratorForm.get_initials(noun)
+        data = linguistics_helpers.get_word_post_data(noun, prefix='name')
         data.update({'approved': True})
 
         form = PlaceRenaming.ModeratorForm(data)

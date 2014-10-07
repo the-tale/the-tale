@@ -18,6 +18,8 @@ from the_tale.game.mobs.prototypes import MobPrototype, MobRecordPrototype
 from the_tale.game.mobs.forms import ModerateMobRecordForm
 from the_tale.game.mobs import exceptions
 
+from the_tale.linguistics.tests import helpers as linguistics_helpers
+
 
 class MobsPrototypeTests(testcase.TestCase):
 
@@ -87,14 +89,17 @@ class MobsPrototypeTests(testcase.TestCase):
     def test_change_uuid(self):
         mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
 
-        initials = ModerateMobRecordForm.get_initials(mob)
-        initials['uuid'] = 'new_uid'
-        initials['level'] = unicode(initials['level'])
-        initials['archetype'] = unicode(initials['archetype'])
-        initials['abilities'] = list(initials['abilities'])
-        initials['terrains'] = list(unicode(t) for t in initials['terrains'])
+        data = linguistics_helpers.get_word_post_data(mob.utg_name, prefix='name')
 
-        form = ModerateMobRecordForm(initials)
+        data.update( { 'level': str(mob.level),
+                       'terrains': [str(t) for t in mob.terrains],
+                       'abilities': list(mob.abilities),
+                       'type': str(mob.type),
+                       'archetype': str(mob.archetype),
+                       'description': mob.description,
+                       'uuid': 'new_uid'} )
+
+        form = ModerateMobRecordForm(data)
 
         self.assertTrue(form.is_valid())
         self.assertEqual(mob.uuid, mobs_storage.get_by_uuid(mob.uuid).uuid)

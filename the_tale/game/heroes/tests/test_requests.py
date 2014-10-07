@@ -162,7 +162,7 @@ class ChangeHeroRequestsTests(HeroRequestsTestBase):
         self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)), texts=[('pgf-settings-approved-warning', 0)])
 
     def get_post_data(self, name='new_name', gender=GENDER.MASCULINE, race=RACE.DWARF):
-        data = {'field_%d' % i: u'%s_%d' % (name, i)
+        data = {'word_field_%d' % i: u'%s_%d' % (name, i)
                 for i in xrange(12)}
         data.update({'gender': gender,
                     'race': race})

@@ -226,11 +226,27 @@ class PrototypeTests(testcase.TestCase):
 
         self.assertEqual(artifacts_storage.generate_artifact_from_list([loot, artifact], level=1, rarity=relations.RARITY.NORMAL), None)
 
+    def get_form_data(self, artifact):
+        from the_tale.linguistics.tests import helpers as linguistics_helpers
+
+        data = linguistics_helpers.get_word_post_data(artifact.utg_name, prefix='name')
+
+        data.update({
+                'level': str(artifact.level),
+                'type': artifact.type,
+                'power_type': artifact.power_type,
+                'rare_effect': artifact.rare_effect,
+                'epic_effect': artifact.epic_effect,
+                'description': artifact.description,
+                'uuid': artifact.uuid,
+                'mob':  str(artifact.mob.id) if artifact.mob else u''})
+
+        return data
+
     def test_change_uuid(self):
         loot = ArtifactRecordPrototype.create_random('some_loot', type_=relations.ARTIFACT_TYPE.USELESS, state=relations.ARTIFACT_RECORD_STATE.DISABLED)
 
-        data = ModerateArtifactRecordForm.get_initials(loot)
-        data['level'] = unicode(data['level'])
+        data = self.get_form_data(loot)
         data['uuid'] = 'new_uid'
 
         form = ModerateArtifactRecordForm(data)
@@ -247,8 +263,7 @@ class PrototypeTests(testcase.TestCase):
     def test_change_uuid_of_default_equipment(self):
         artifact_uid = random.choice(DEFAULT_HERO_EQUIPMENT._ALL)
 
-        data = ModerateArtifactRecordForm.get_initials(artifacts_storage.get_by_uuid(artifact_uid))
-        data['level'] = unicode(data['level'])
+        data = self.get_form_data(artifacts_storage.get_by_uuid(artifact_uid))
         data['uuid'] = 'new_uid'
 
         form = ModerateArtifactRecordForm(data)
@@ -262,11 +277,10 @@ class PrototypeTests(testcase.TestCase):
     def test_disable_default_equipment(self):
         artifact_uid = random.choice(DEFAULT_HERO_EQUIPMENT._ALL)
 
-        initials = ModerateArtifactRecordForm.get_initials(artifacts_storage.get_by_uuid(artifact_uid))
-        initials['level'] = unicode(initials['level'])
-        initials['approved'] = False
+        data = self.get_form_data(artifacts_storage.get_by_uuid(artifact_uid))
+        data['approved'] = False
 
-        form = ModerateArtifactRecordForm(initials)
+        form = ModerateArtifactRecordForm(data)
         self.assertTrue(form.is_valid())
 
         default_artifact = artifacts_storage.get_by_uuid(artifact_uid)

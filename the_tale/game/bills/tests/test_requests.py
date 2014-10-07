@@ -6,7 +6,6 @@ import mock
 from django.test import client
 from django.core.urlresolvers import reverse
 
-from dext.common.utils import s11n
 from dext.common.utils.urls import url
 
 from the_tale.common.utils.testcase import TestCase
@@ -20,6 +19,8 @@ from the_tale.game import names
 from the_tale.game.logic import create_test_map
 
 from the_tale.forum.models import Post
+
+from the_tale.linguistics.tests import helpers as linguistics_helpers
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 
@@ -490,7 +491,8 @@ class TestCreateRequests(BaseTestRequests):
 
     def get_post_data(self):
         new_name = names.generator.get_test_name('new-name')
-        data = PlaceRenaming.UserForm.get_initials(new_name)
+
+        data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',
                      'rationale': 'bill-rationale',
                      'place': self.place1.id})
@@ -571,7 +573,8 @@ class TestVoteRequests(BaseTestRequests):
         self.hero.save()
 
         new_name = names.generator.get_test_name('new-name')
-        data = PlaceRenaming.UserForm.get_initials(new_name)
+
+        data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',
                      'rationale': 'bill-rationale',
                      'place': self.place1.id})
@@ -655,7 +658,8 @@ class TestEditRequests(BaseTestRequests):
         super(TestEditRequests, self).setUp()
 
         new_name = names.generator.get_test_name('new-name')
-        data = PlaceRenaming.UserForm.get_initials(new_name)
+
+        data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',
                      'rationale': 'bill-rationale',
                      'place': self.place1.id})
@@ -727,7 +731,8 @@ class TestUpdateRequests(BaseTestRequests):
         super(TestUpdateRequests, self).setUp()
 
         new_name = names.generator.get_test_name('new-name')
-        data = PlaceRenaming.UserForm.get_initials(new_name)
+
+        data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',
                      'rationale': 'bill-rationale',
                      'place': self.place1.id})
@@ -738,7 +743,8 @@ class TestUpdateRequests(BaseTestRequests):
 
     def get_post_data(self):
         new_name = names.generator.get_test_name('new-new-name')
-        data = PlaceRenaming.UserForm.get_initials(new_name)
+
+        data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'new-caption',
                      'rationale': 'new-rationale',
                      'place': self.place2.id})
@@ -827,7 +833,8 @@ class TestModerationPageRequests(BaseTestRequests):
         super(TestModerationPageRequests, self).setUp()
 
         new_name = names.generator.get_test_name('new-name')
-        data = PlaceRenaming.UserForm.get_initials(new_name)
+
+        data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',
                      'rationale': 'bill-rationale',
                      'place': self.place1.id})
@@ -879,7 +886,8 @@ class TestModerateRequests(BaseTestRequests):
         super(TestModerateRequests, self).setUp()
 
         new_name = names.generator.get_test_name('new-name')
-        data = PlaceRenaming.UserForm.get_initials(new_name)
+
+        data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',
                      'rationale': 'bill-rationale',
                      'place': self.place1.id})
@@ -895,7 +903,7 @@ class TestModerateRequests(BaseTestRequests):
 
 
     def get_post_data(self):
-        data = PlaceRenaming.UserForm.get_initials(self.bill.data.name_forms)
+        data = linguistics_helpers.get_word_post_data(self.bill.data.name_forms, prefix='name')
         data.update({'approved': True})
         return data
 
@@ -939,7 +947,8 @@ class TestDeleteRequests(BaseTestRequests):
         super(TestDeleteRequests, self).setUp()
 
         new_name = names.generator.get_test_name('new-name')
-        data = PlaceRenaming.UserForm.get_initials(new_name)
+
+        data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',
                      'rationale': 'bill-rationale',
                      'place': self.place1.id})
