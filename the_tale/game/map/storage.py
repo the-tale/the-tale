@@ -16,6 +16,9 @@ class MapInfoStorage(storage.SingleStorage):
     EXCEPTION = exceptions.MapStorageError
     PROTOTYPE = MapInfoPrototype
 
+    def _construct_zero_item(self):
+        return None
+
     def refresh(self):
         self.clear()
 

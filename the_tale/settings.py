@@ -359,6 +359,7 @@ LOGGING = {
         'file_game_turns_loop': get_worker_log_file_handler('game_turns_loop'),
         'file_game_long_commands': get_worker_log_file_handler('game_long_commands'),
         'file_portal_long_commands': get_worker_log_file_handler('portal_long_commands'),
+        'file_linguistics_manager': get_worker_log_file_handler('linguistics_manager'),
         'file_game_pvp_balancer': get_worker_log_file_handler('game_pvp_balancer'),
         'file_game_quests': get_worker_log_file_handler('game_quests'),
         'file_linguistics': get_worker_log_file_handler('linguistics'),
@@ -378,7 +379,7 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        'the-tale.workers': {
+        'the-tale': {
             'handlers': ['mail_admins', 'console'],
             'level': 'DEBUG' if DEBUG else 'INFO',
             'propagate': False
@@ -389,6 +390,7 @@ LOGGING = {
         'the-tale.workers.game_turns_loop': get_worker_logger('game_turns_loop'),
         'the-tale.workers.game_long_commands': get_worker_logger('game_long_commands'),
         'the-tale.workers.portal_long_commands': get_worker_logger('portal_long_commands'),
+        'the-tale.workers.linguistics_manager': get_worker_logger('linguistics_manager'),
         'the-tale.workers.game_pvp_balancer': get_worker_logger('game_pvp_balancer'),
         'the-tale.workers.accounts_registration': get_worker_logger('accounts_registration'),
         'the-tale.workers.accounts_accounts_manager': get_worker_logger('accounts_accounts_manager'),

@@ -23,7 +23,7 @@ from utg import transformators
 
 from the_tale.game.conf import game_settings
 
-from the_tale.linguistics.storage import raw_dictionary
+from the_tale.linguistics.storage import game_dictionary
 from the_tale.linguistics.prototypes import TemplatePrototype
 from the_tale.linguistics.lexicon import keys
 from the_tale.linguistics.lexicon import dictionary as lexicon_dictionary
@@ -89,7 +89,7 @@ class Command(BaseCommand):
                         for verificator in verificators:
                             try:
                                 externals = verificator.preprocessed_externals()
-                                verificator.text = utg_template.substitute(externals=externals, dictionary=raw_dictionary.item)
+                                verificator.text = utg_template.substitute(externals=externals, dictionary=game_dictionary.item)
                             except utg_exceptions.NoWordsFoundError, e:
                                 print raw_template
                                 print u'%s' % e

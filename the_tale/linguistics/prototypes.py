@@ -6,6 +6,7 @@ from dext.common.utils import s11n
 
 from utg import words as utg_words
 from utg import templates as utg_templates
+from utg import exceptions as utg_exceptions
 from utg.data import VERBOSE_TO_PROPERTIES
 
 from the_tale.common.utils.prototypes import BasePrototype
@@ -19,8 +20,8 @@ from the_tale.linguistics.lexicon import dictionary as lexicon_dictionary
 
 class WordPrototype(BasePrototype):
     _model_class = models.Word
-    _readonly = ('id', 'type', 'created_at', 'parent_id')
-    _bidirectional = ('state', )
+    _readonly = ('id', 'type', 'created_at')
+    _bidirectional = ('state', 'parent_id', 'used_in_ingame_templates', 'used_in_onreview_templates', 'used_in_status')
     _get_by = ('id', 'parent_id')
 
     @lazy_property
@@ -41,8 +42,6 @@ class WordPrototype(BasePrototype):
 
     @classmethod
     def create(cls, utg_word, parent=None):
-        from the_tale.linguistics import storage
-
         model = cls._db_create(type=utg_word.type,
                                state=relations.WORD_STATE.ON_REVIEW,
                                normal_form=utg_word.normal_form(),
@@ -50,9 +49,6 @@ class WordPrototype(BasePrototype):
                                parent=parent._model if parent is not None else None)
 
         prototype = cls(model)
-
-        storage.raw_dictionary.update_version()
-        storage.raw_dictionary.refresh()
 
         return prototype
 
@@ -65,9 +61,6 @@ class WordPrototype(BasePrototype):
 
         super(WordPrototype, self).save()
 
-        storage.raw_dictionary.update_version()
-        storage.raw_dictionary.refresh()
-
         if self.state.is_IN_GAME:
             storage.game_dictionary.update_version()
             storage.game_dictionary.refresh()
@@ -76,12 +69,30 @@ class WordPrototype(BasePrototype):
     def remove(self):
         self._model.delete()
 
+    def update_used_in_status(self, used_in_ingame_templates, used_in_onreview_templates, force_update=True):
+        changed = (self.used_in_ingame_templates != used_in_ingame_templates or self.used_in_onreview_templates != used_in_onreview_templates)
+
+        self.used_in_ingame_templates = used_in_ingame_templates
+        self.used_in_onreview_templates = used_in_onreview_templates
+
+        if self.used_in_ingame_templates > 0:
+            self.used_in_status = relations.WORD_USED_IN_STATUS.IN_INGAME_TEMPLATES
+        elif self.used_in_onreview_templates > 0:
+            self.used_in_status = relations.WORD_USED_IN_STATUS.IN_ONREVIEW_TEMPLATES
+        else:
+            self.used_in_status = relations.WORD_USED_IN_STATUS.NOT_USED
+
+        if force_update and changed:
+            self._db_filter(id=self.id).update(used_in_status=self.used_in_status,
+                                               used_in_ingame_templates=self.used_in_ingame_templates,
+                                               used_in_onreview_templates=self.used_in_onreview_templates)
+
 
 
 class TemplatePrototype(BasePrototype):
     _model_class = models.Template
     _readonly = ('id', 'key', 'created_at', 'raw_template', 'author_id')
-    _bidirectional = ('state', 'parent_id')
+    _bidirectional = ('state', 'parent_id', 'errors_status')
     _get_by = ('id', 'parent_id')
 
     def get_parent(self):
@@ -120,7 +131,11 @@ class TemplatePrototype(BasePrototype):
         verificators = Verificator.get_verificators(key=self.key, groups=groups, old_verificators=self.verificators)
         return verificators
 
-    def get_errors(self, utg_dictionary):
+    def get_errors(self):
+        from the_tale.linguistics import storage
+
+        utg_dictionary = storage.game_dictionary.item
+
         errors = []
 
         verificators = self.get_all_verificatos()
@@ -137,12 +152,20 @@ class TemplatePrototype(BasePrototype):
         for verificator in verificators:
             externals = verificator.preprocessed_externals()
 
-            template_render = self.utg_template.substitute(externals=externals, dictionary=utg_dictionary)
+            try:
+                template_render = self.utg_template.substitute(externals=externals, dictionary=utg_dictionary)
+            except utg_exceptions.MoreThenOneWordFoundError as e:
+                errors.append(u'Невозможно однозначно определить слово с формой «%s» — существует несколько слов с такими формами. Укажите более точные свойства.' %
+                              e.arguments['text'])
+                return errors
 
             if verificator.text != template_render:
                 errors.append(u'Проверочный текст не совпадает с интерпретацией шаблона [%s]' % template_render)
 
         return errors
+
+    def has_errors(self):
+        return bool(self.get_errors())
 
 
     @classmethod
@@ -155,20 +178,26 @@ class TemplatePrototype(BasePrototype):
                                data=s11n.to_json({'verificators': [v.serialize() for v in verificators],
                                                   'template': utg_template.serialize(),
                                                   'groups': lexicon_logic.get_verificators_groups(key=key)}))
+        prototype = cls(model)
 
-        return cls(model)
+        prototype.update_errors_status(force_update=True)
+
+        return prototype
 
 
-    def update(self, raw_template, utg_template, verificators):
-        self._model.raw_template = raw_template
-        self._model.data = s11n.to_json({'verificators': [v.serialize() for v in verificators],
-                                         'template': utg_template.serialize(),
-                                         'groups': self.lexicon_groups})
+    def update(self, raw_template=None, utg_template=None, verificators=None):
+        if raw_template is not None:
+            self._model.raw_template = raw_template
 
-        del self._data
-        del self.verificators
-        del self.utg_template
-        del self.lexicon_groups
+        self.del_lazy_properties()
+
+        if verificators is not None:
+            self._data['verificators'] = [v.serialize() for v in verificators]
+
+        if utg_template is not None:
+            self._data['template'] = utg_template.serialize()
+
+        self._data['groups'] = self.lexicon_groups
 
         self.save()
 
@@ -176,9 +205,16 @@ class TemplatePrototype(BasePrototype):
     def save(self):
         from the_tale.linguistics import storage
 
-        self._model.template = s11n.to_json(self.utg_template.serialize())
+        self._data['verificators'] = [v.serialize() for v in self.verificators]
+        self._data['template'] = self.utg_template.serialize()
+        self._data['groups'] = self.lexicon_groups
+
         self._model.data = s11n.to_json(self._data)
+
         self._model.updated_at = datetime.datetime.now()
+
+        self.update_errors_status(force_update=False)
+
         super(TemplatePrototype, self).save()
 
         if self.state.is_IN_GAME:
@@ -188,6 +224,18 @@ class TemplatePrototype(BasePrototype):
     def remove(self):
         self._model.delete()
 
+    def update_errors_status(self, force_update=False):
+        old_errors_status = self.errors_status
+
+        if self.has_errors():
+            self.errors_status = relations.TEMPLATE_ERRORS_STATUS.HAS_ERRORS
+        else:
+            self.errors_status = relations.TEMPLATE_ERRORS_STATUS.NO_ERRORS
+
+        if force_update and old_errors_status != self.errors_status:
+            self._db_filter(id=self.id).update(errors_status=self.errors_status)
+
+        return old_errors_status != self.errors_status
 
 
 class Verificator(object):

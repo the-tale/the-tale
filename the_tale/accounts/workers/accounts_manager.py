@@ -11,9 +11,6 @@ from the_tale.accounts.prototypes import AccountPrototype, RandomPremiumRequestP
 from the_tale.accounts.conf import accounts_settings
 
 
-class AccountManagerException(Exception): pass
-
-
 class Worker(BaseWorker):
     GET_CMD_TIMEOUT = 60
 

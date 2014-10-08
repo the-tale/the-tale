@@ -1,5 +1,7 @@
 # coding: utf-8
+import sys
 import numbers
+import collections
 
 from django.db import models
 from django.utils.log import getLogger
@@ -7,6 +9,8 @@ from django.conf import settings as project_settings
 
 from utg import words as utg_words
 from utg import relations as utg_relations
+from utg import exceptions as utg_exceptions
+from utg import dictionary as utg_dictionary
 
 from the_tale.linguistics import relations
 from the_tale.linguistics import prototypes
@@ -46,7 +50,7 @@ def prepair_externals(args):
     for k, v in args.items():
         if isinstance(v, utg_words.WordForm):
             externals[k] = v
-        if isinstance(v, utg_words.Word):
+        elif isinstance(v, utg_words.Word):
             externals[k] = utg_words.WordForm(v)
         elif isinstance(v, numbers.Number):
             externals[k] = game_dictionary.item.get_word(v)
@@ -73,7 +77,14 @@ def _get_text__real(error_prefix, key, args, quiet=False):
     externals = prepair_externals(args)
     template = game_lexicon.item.get_random_template(lexicon_key)
 
-    return template.substitute(externals, game_dictionary.item)
+    try:
+        return template.substitute(externals, game_dictionary.item)
+    except utg_exceptions.UtgError as e:
+        if not quiet:
+            logger.error(u'Exception in linguistics; %s key=%s, args=%r, message: "%s"' % (error_prefix, key, args, e),
+                         exc_info=sys.exc_info(),
+                         extra={} )
+        return None
 
 
 def _get_text__test(error_prefix, key, args, quiet=False):
@@ -94,3 +105,25 @@ def _get_text__test(error_prefix, key, args, quiet=False):
 
 
 get_text = _get_text__test if project_settings.TESTS_RUNNING else _get_text__real
+
+
+def update_words_usage_info():
+
+    in_game_words = collections.Counter()
+    on_review_words = collections.Counter()
+
+    empty_dictionary = utg_dictionary.Dictionary()
+
+    for template in prototypes.TemplatePrototype.from_query(prototypes.TemplatePrototype._db_all()):
+        words = template.utg_template.get_undictionaried_words(externals=[v.value for v in template.key.variables],
+                                                               dictionary=empty_dictionary)
+        if template.state.is_IN_GAME:
+            in_game_words.update(words)
+
+        if template.state.is_ON_REVIEW:
+            on_review_words.update(words)
+
+    for word in prototypes.WordPrototype.from_query(prototypes.WordPrototype._db_all()):
+        word.update_used_in_status( used_in_ingame_templates = sum((in_game_words.get(form, 0) for form in word.utg_word.forms), 0),
+                                    used_in_onreview_templates = sum((on_review_words.get(form, 0) for form in word.utg_word.forms), 0),
+                                    force_update=True)

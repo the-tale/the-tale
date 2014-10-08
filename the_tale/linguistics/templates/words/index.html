@@ -43,6 +43,9 @@
       <th>слово</th>
       <th>часть речи</th>
       <th>состояние</th>
+      <th>во фразах</th>
+      <th>в игровых</th>
+      <th>в рассматриваемых</th>
     </tr>
   </thead>
   <tbody>
@@ -51,6 +54,17 @@
       <td><a href="{{url('linguistics:words:show', word.id)}}">{{word.utg_word.normal_form()}}</a></td>
       <td>{{word.type.text}}</td>
       <td>{{word.state.text}}</td>
+      <td>
+        {% if word.used_in_status.is_IN_INGAME_TEMPLATES %}
+        <span class="label label-success">в игровых</span>
+        {% elif word.used_in_status.is_IN_ONREVIEW_TEMPLATES %}
+        <span class="label label-warning">в рассматриваемых</span>
+        {% else %}
+        <span class="label label-important">не используется</span>
+        {% endif %}
+      </td>
+      <td>{{word.used_in_ingame_templates}}</td>
+      <td>{{word.used_in_onreview_templates}}</td>
     </tr>
     {% endfor %}
   </tbody>

@@ -50,7 +50,7 @@
     {% for template in templates %}
     <tr>
       <td>
-        {% if templates_to_errors[template.id] %}<span class="label label-important">ошибки</span>
+        {% if template.errors_status.is_HAS_ERRORS %}<span class="label label-important">ошибки</span>
         {% else %}<span class="label label-success">чисто</span>
         {% endif %}
       </td>

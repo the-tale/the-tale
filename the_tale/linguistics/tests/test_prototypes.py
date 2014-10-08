@@ -32,14 +32,11 @@ class WordPrototypeTests(testcase.TestCase):
 
     def test_create(self):
 
-        with mock.patch('the_tale.linguistics.storage.raw_dictionary.refresh') as raw_refresh:
-            with mock.patch('the_tale.linguistics.storage.game_dictionary.refresh') as game_refresh:
-                with self.check_changed(lambda: storage.raw_dictionary.version):
-                    with self.check_not_changed(lambda: storage.game_dictionary.version):
-                        with self.check_delta(prototypes.WordPrototype._db_count, 1):
-                            prototype = prototypes.WordPrototype.create(self.word_1)
+        with mock.patch('the_tale.linguistics.storage.game_dictionary.refresh') as game_refresh:
+            with self.check_not_changed(lambda: storage.game_dictionary.version):
+                with self.check_delta(prototypes.WordPrototype._db_count, 1):
+                    prototype = prototypes.WordPrototype.create(self.word_1)
 
-        self.assertEqual(raw_refresh.call_count, 1)
         self.assertEqual(game_refresh.call_count, 0)
 
         self.assertTrue(prototype.state.is_ON_REVIEW)
@@ -51,14 +48,11 @@ class WordPrototypeTests(testcase.TestCase):
         prototype = prototypes.WordPrototype.create(self.word_1)
         prototype.utg_word.forms[0] = u'xxx'
 
-        with mock.patch('the_tale.linguistics.storage.raw_dictionary.refresh') as raw_refresh:
-            with mock.patch('the_tale.linguistics.storage.game_dictionary.refresh') as game_refresh:
-                with self.check_changed(lambda: storage.raw_dictionary.version):
-                    with self.check_not_changed(lambda: storage.game_dictionary.version):
-                        with self.check_not_changed(prototypes.WordPrototype._db_count):
-                            prototype.save()
+        with mock.patch('the_tale.linguistics.storage.game_dictionary.refresh') as game_refresh:
+            with self.check_not_changed(lambda: storage.game_dictionary.version):
+                with self.check_not_changed(prototypes.WordPrototype._db_count):
+                    prototype.save()
 
-        self.assertEqual(raw_refresh.call_count, 1)
         self.assertEqual(game_refresh.call_count, 0)
 
         prototype.reload()
@@ -70,19 +64,85 @@ class WordPrototypeTests(testcase.TestCase):
         prototype.utg_word.forms[0] = u'xxx'
         prototype.state = relations.WORD_STATE.IN_GAME
 
-        with mock.patch('the_tale.linguistics.storage.raw_dictionary.refresh') as raw_refresh:
-            with mock.patch('the_tale.linguistics.storage.game_dictionary.refresh') as game_refresh:
-                with self.check_changed(lambda: storage.raw_dictionary.version):
-                    with self.check_changed(lambda: storage.game_dictionary.version):
-                        with self.check_not_changed(prototypes.WordPrototype._db_count):
-                            prototype.save()
+        with mock.patch('the_tale.linguistics.storage.game_dictionary.refresh') as game_refresh:
+            with self.check_changed(lambda: storage.game_dictionary.version):
+                with self.check_not_changed(prototypes.WordPrototype._db_count):
+                    prototype.save()
 
-        self.assertEqual(raw_refresh.call_count, 1)
         self.assertEqual(game_refresh.call_count, 1)
 
         prototype.reload()
         self.assertEqual(prototype.utg_word.forms[0], u'xxx')
 
+    def test_update_used_in_status__in_game(self):
+        word = prototypes.WordPrototype.create(self.word_1)
+
+        word.update_used_in_status(used_in_ingame_templates=1, used_in_onreview_templates=2)
+
+        self.assertEqual(word.used_in_ingame_templates, 1)
+        self.assertEqual(word.used_in_onreview_templates, 2)
+        self.assertTrue(word.used_in_status.is_IN_INGAME_TEMPLATES)
+
+    def test_update_used_in_status__on_review(self):
+        word = prototypes.WordPrototype.create(self.word_1)
+
+        word.update_used_in_status(used_in_ingame_templates=0, used_in_onreview_templates=2)
+
+        self.assertEqual(word.used_in_ingame_templates, 0)
+        self.assertEqual(word.used_in_onreview_templates, 2)
+        self.assertTrue(word.used_in_status.is_IN_ONREVIEW_TEMPLATES)
+
+    def test_update_used_in_status__not_used(self):
+        word = prototypes.WordPrototype.create(self.word_1)
+
+        word.update_used_in_status(used_in_ingame_templates=0, used_in_onreview_templates=0)
+
+        self.assertEqual(word.used_in_ingame_templates, 0)
+        self.assertEqual(word.used_in_onreview_templates, 0)
+        self.assertTrue(word.used_in_status.is_NOT_USED)
+
+    def test_update_used_in_status__not_changed(self):
+        word = prototypes.WordPrototype.create(self.word_1)
+
+        self.assertEqual(word.used_in_ingame_templates, 0)
+        self.assertEqual(word.used_in_onreview_templates, 0)
+        self.assertTrue(word.used_in_status.is_NOT_USED)
+
+        word.update_used_in_status(used_in_ingame_templates=0, used_in_onreview_templates=0)
+
+        self.assertEqual(word.used_in_ingame_templates, 0)
+        self.assertEqual(word.used_in_onreview_templates, 0)
+        self.assertTrue(word.used_in_status.is_NOT_USED)
+
+    def test_update_used_in_status__without_force_update(self):
+        word = prototypes.WordPrototype.create(self.word_1)
+
+        word.update_used_in_status(used_in_ingame_templates=1, used_in_onreview_templates=2, force_update=False)
+
+        self.assertEqual(word.used_in_ingame_templates, 1)
+        self.assertEqual(word.used_in_onreview_templates, 2)
+        self.assertTrue(word.used_in_status.is_IN_INGAME_TEMPLATES)
+
+        word.reload()
+
+        self.assertEqual(word.used_in_ingame_templates, 0)
+        self.assertEqual(word.used_in_onreview_templates, 0)
+        self.assertTrue(word.used_in_status.is_NOT_USED)
+
+    def test_update_used_in_status__with_force_update(self):
+        word = prototypes.WordPrototype.create(self.word_1)
+
+        word.update_used_in_status(used_in_ingame_templates=1, used_in_onreview_templates=2, force_update=True)
+
+        self.assertEqual(word.used_in_ingame_templates, 1)
+        self.assertEqual(word.used_in_onreview_templates, 2)
+        self.assertTrue(word.used_in_status.is_IN_INGAME_TEMPLATES)
+
+        word.reload()
+
+        self.assertEqual(word.used_in_ingame_templates, 1)
+        self.assertEqual(word.used_in_onreview_templates, 2)
+        self.assertTrue(word.used_in_status.is_IN_INGAME_TEMPLATES)
 
 
 class TemplatePrototypeTests(testcase.TestCase):
@@ -105,11 +165,11 @@ class TemplatePrototypeTests(testcase.TestCase):
         result, account_id, bundle_id = register_user('test_user1', 'test_user_1@test.com', '111111')
         self.account_1 = AccountPrototype.get_by_id(account_id)
 
-        storage.raw_dictionary.refresh()
         storage.game_dictionary.refresh()
 
         self.key_1, self.key_2 = random.sample(keys.LEXICON_KEY.records, 2)
         self.word_1 = u'пепельница'
+        self.word_2 = u'герой'
         self.text_1, self.template_1 = self.create_template(self.key_1, word=self.word_1)
 
     def test_create(self):
@@ -121,16 +181,42 @@ class TemplatePrototypeTests(testcase.TestCase):
         self.assertEqual(self.template_1, prototype.utg_template)
         self.assertEqual(self.text_1, prototype.raw_template)
 
+        self.assertTrue(prototype.errors_status.is_HAS_ERRORS)
+
+    def test_update(self):
+        prototype = prototypes.TemplatePrototype.create(key=self.key_1, raw_template=self.text_1, utg_template=self.template_1, verificators=[], author=None)
+
+        with mock.patch('the_tale.linguistics.prototypes.TemplatePrototype.update_errors_status') as update_errors_status:
+            text, template = self.create_template(self.key_1, word=self.word_2)
+            prototype.update(raw_template=text,
+                             utg_template=template,
+                             verificators=[prototypes.Verificator(text=u'test-verificator', externals={})])
+
+        prototype.reload()
+
+        self.assertEqual(update_errors_status.call_count, 1)
+        self.assertEqual(prototype.raw_template, text)
+
+        self.assertEqual(prototype.utg_template, template)
+
+        self.assertEqual(prototype.verificators,
+                         [prototypes.Verificator(text=u'test-verificator', externals={})])
 
     def test_save(self):
         prototype = prototypes.TemplatePrototype.create(key=self.key_1, raw_template=self.text_1, utg_template=self.template_1, verificators=[], author=self.account_1)
         prototype.utg_template.template = u'xxx'
+        prototype.verificators.append(prototypes.Verificator(text=u'test-verificator', externals={}))
 
-        with self.check_not_changed(prototypes.TemplatePrototype._db_count):
-            prototype.save()
+        with mock.patch('the_tale.linguistics.prototypes.TemplatePrototype.update_errors_status') as update_errors_status:
+            with self.check_not_changed(prototypes.TemplatePrototype._db_count):
+                prototype.save()
 
         prototype.reload()
+
+        self.assertEqual(update_errors_status.call_count, 1)
         self.assertEqual(prototype.utg_template.template, u'xxx')
+        self.assertEqual(prototype.verificators,
+                         [prototypes.Verificator(text=u'test-verificator', externals={})])
 
 
     def test_get_errors__no_errors(self):
@@ -147,7 +233,7 @@ class TemplatePrototypeTests(testcase.TestCase):
         verificator_3 = prototypes.Verificator(text=u'Герой 2 w-1-ед,вн,мр,од,пол', externals={'hero': (u'герой', u''), 'level': (2, u'')})
         verificator_4 = prototypes.Verificator(text=u'Привидение 5 w-1-ед,вн,ср,од,пол', externals={'hero': (u'привидение', u''), 'level': (5, u'')})
 
-        dictionary = storage.raw_dictionary.item
+        dictionary = storage.game_dictionary.item
 
         word = utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.ADJECTIVE, prefix=u'w-1-', only_required=True)
         word.forms[0] = u'неизвестное слово'
@@ -159,13 +245,14 @@ class TemplatePrototypeTests(testcase.TestCase):
                                                         utg_template=template,
                                                         verificators=[verificator_1, verificator_2, verificator_3, verificator_4],
                                                         author=self.account_1)
+        self.assertTrue(prototype.errors_status.is_NO_ERRORS)
 
-        errors = prototype.get_errors(utg_dictionary=dictionary)
+        errors = prototype.get_errors()
 
         self.assertEqual(errors, [])
 
 
-    def test_get_errors__word_errors(self):
+    def test_get_errors__no_word_errors(self):
         key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
 
         TEXT = u'[hero|загл] [level] [неизвестное слово|hero|вн]'
@@ -186,9 +273,47 @@ class TemplatePrototypeTests(testcase.TestCase):
                                                         verificators=[verificator_1, verificator_2, verificator_3, verificator_4],
                                                         author=self.account_1)
 
-        errors = prototype.get_errors(utg_dictionary=storage.raw_dictionary.item)
+        errors = prototype.get_errors()
 
         self.assertEqual(errors, [u'Неизвестное слово: «неизвестное слово»'])
+
+    def test_get_errors__duplicate_word_errors(self):
+        key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
+
+        dictionary = storage.game_dictionary.item
+
+        word_1 = utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN, prefix=u'w-1-', only_required=True)
+        word_1.forms[2] = u'дубль'
+        self.assertEqual(word_1.form(utg_relations.CASE.DATIVE), u'дубль')
+
+        word_2 = utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN, prefix=u'w-2-', only_required=True)
+        word_2.forms[2] = u'дубль'
+        self.assertEqual(word_2.form(utg_relations.CASE.DATIVE), u'дубль')
+
+        dictionary.add_word(word_1)
+        dictionary.add_word(word_2)
+
+        TEXT = u'[hero|загл] [level] [дубль|hero|дт]'
+
+        template = utg_templates.Template()
+
+        template.parse(TEXT, externals=['hero'])
+
+        # verificators with error that would not be returned becouse of words_errors
+        verificator_1 = prototypes.Verificator(text=u'абракадабра', externals={'hero': (u'героиня', u''), 'level': (1, u'')})
+        verificator_2 = prototypes.Verificator(text=u'Рыцарь 5 w-1-ед,вн', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')})
+        verificator_3 = prototypes.Verificator(text=u'Герой 2 w-1-ед,вн', externals={'hero': (u'герой', u''), 'level': (2, u'')})
+        verificator_4 = prototypes.Verificator(text=u'', externals={'hero': (u'привидение', u''), 'level': (5, u'')})
+
+        prototype = prototypes.TemplatePrototype.create(key=key,
+                                                        raw_template=TEXT,
+                                                        utg_template=template,
+                                                        verificators=[verificator_1, verificator_2, verificator_3, verificator_4],
+                                                        author=self.account_1)
+
+        errors = prototype.get_errors()
+
+        self.assertEqual(errors, [u'Невозможно однозначно определить слово с формой «дубль» — существует несколько слов с такими формами. Укажите более точные свойства.'])
 
 
     def test_get_errors__verificators_errors(self):
@@ -205,7 +330,7 @@ class TemplatePrototypeTests(testcase.TestCase):
         verificator_3 = prototypes.Verificator(text=u'Герой 2 w-1-ед,вн', externals={'hero': (u'герой', u''), 'level': (2, u'')})
         verificator_4 = prototypes.Verificator(text=u'', externals={'hero': (u'привидение', u''), 'level': (5, u'')})
 
-        dictionary = storage.raw_dictionary.item
+        dictionary = storage.game_dictionary.item
 
         word = utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.ADJECTIVE, prefix=u'w-1-', only_required=True)
         word.forms[0] = u'неизвестное слово'
@@ -218,11 +343,40 @@ class TemplatePrototypeTests(testcase.TestCase):
                                                         verificators=[verificator_1, verificator_2, verificator_3, verificator_4],
                                                         author=self.account_1)
 
-        errors = prototype.get_errors(utg_dictionary=dictionary)
+        errors = prototype.get_errors()
 
         self.assertEqual(errors, [u'Проверочный текст не совпадает с интерпретацией шаблона [Героиня 1 w-1-ед,вн,жр,од,пол]',
                                   u'Проверочный текст не совпадает с интерпретацией шаблона [Герой 2 w-1-ед,вн,мр,од,пол]',
                                   u'Проверочный текст не совпадает с интерпретацией шаблона [Привидение 5 w-1-ед,вн,ср,од,пол]'])
+
+
+    def test_update_errors_status__without_force_update(self):
+        prototype = prototypes.TemplatePrototype.create(key=self.key_1, raw_template=self.text_1, utg_template=self.template_1, verificators=[], author=self.account_1)
+
+        self.assertTrue(prototype.errors_status.is_HAS_ERRORS)
+
+        with mock.patch('the_tale.linguistics.prototypes.TemplatePrototype.has_errors', lambda self: False):
+            prototype.update_errors_status(force_update=False)
+
+        self.assertTrue(prototype.errors_status.is_NO_ERRORS)
+
+        prototype.reload()
+
+        self.assertTrue(prototype.errors_status.is_HAS_ERRORS)
+
+    def test_update_errors_status__with_force_update(self):
+        prototype = prototypes.TemplatePrototype.create(key=self.key_1, raw_template=self.text_1, utg_template=self.template_1, verificators=[], author=self.account_1)
+
+        self.assertTrue(prototype.errors_status.is_HAS_ERRORS)
+
+        with mock.patch('the_tale.linguistics.prototypes.TemplatePrototype.has_errors', lambda self: False):
+            prototype.update_errors_status(force_update=True)
+
+        self.assertTrue(prototype.errors_status.is_NO_ERRORS)
+
+        prototype.reload()
+
+        self.assertTrue(prototype.errors_status.is_NO_ERRORS)
 
 
 

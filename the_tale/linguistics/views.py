@@ -22,7 +22,6 @@ from the_tale.linguistics.conf import linguistics_settings
 from the_tale.linguistics import prototypes
 from the_tale.linguistics import forms
 from the_tale.linguistics import word_drawer
-from the_tale.linguistics import storage
 from the_tale.linguistics import logic
 from the_tale.linguistics.lexicon.groups import relations as lexicon_groups_relations
 from the_tale.linguistics.lexicon import keys
@@ -39,6 +38,7 @@ class WordsIndexFilter(list_filter.ListFilter):
 class TemplatesIndexFilter(list_filter.ListFilter):
     ELEMENTS = [list_filter.reset_element(),
                 list_filter.choice_element(u'состояние:', attribute='state', choices=[(None, u'все')] + list(relations.TEMPLATE_STATE.select('value', 'text'))),
+                list_filter.choice_element(u'наличие ошибок:', attribute='errors_status', choices=[(None, u'все')] + list(relations.TEMPLATE_ERRORS_STATUS.select('value', 'text'))),
                 list_filter.static_element(u'количество:', attribute='count', default_value=0) ]
 
 
@@ -168,11 +168,13 @@ class WordResource(Resource):
             return self.json_error('linguistics.words.create.parent_exists',
                                    u'Такое слово уже существует и вы не можете создать аналогичное. Вместо этого отредактируйте существующее.')
 
-
         with transaction.atomic():
+            removed_word = None
+
             if parent and parent.state.is_ON_REVIEW:
-                parent.remove()
-                parent = None
+                removed_word = parent
+                parent = parent.get_parent()
+                removed_word.remove()
 
             word = prototypes.WordPrototype.create(new_word, parent=parent)
 
@@ -207,16 +209,22 @@ class WordResource(Resource):
         if self.word.state.is_IN_GAME:
             return self.json_ok()
 
-        word_query = prototypes.WordPrototype._db_filter(normal_form=self.word.utg_word.normal_form(), type=self.word.type, state=relations.WORD_STATE.IN_GAME)
+        parent = self.word.get_parent()
 
-        parent = None
+        existed_query = prototypes.WordPrototype._db_filter(normal_form=self.word.utg_word.normal_form(),
+                                                            type=self.word.type,
+                                                            state=relations.WORD_STATE.IN_GAME)
+        if parent:
+            existed_query = existed_query.exclude(id=parent.id)
 
-        if word_query.exists():
-            parent = prototypes.WordPrototype(word_query[0])
+        if existed_query.exists():
+            return self.json_error(u'linguistics.words.in_game.conflict_with_not_parent',
+                                   u'Вы не можете переместить слово в игру. Уже есть слово с аналогичной нормальной формой и не являющееся родителем текущего слова.')
 
         with transaction.atomic():
             if parent:
                 parent.remove()
+                self.word.parent_id = None
 
             self.word.state = relations.WORD_STATE.IN_GAME
             self.word.save()
@@ -248,8 +256,9 @@ class TemplateResource(Resource):
     @validate_argument('page', int, 'linguistics.templates', u'неверная страница')
     @validate_argument('key', lambda v: keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', u'неверный ключ фразы')
     @validate_argument('state', lambda v: relations.TEMPLATE_STATE.index_value.get(int(v)), 'linguistics.templates', u'неверное состояние шаблона')
+    @validate_argument('errors_status', lambda v: relations.TEMPLATE_ERRORS_STATUS.index_value.get(int(v)), 'linguistics.words', u'неверный статус ошибок')
     @handler('', method='get')
-    def index(self, key=None, state=None, page=1):
+    def index(self, key=None, state=None, errors_status=None, page=1):
         templates_query = prototypes.TemplatePrototype._db_all().order_by('raw_template')
 
         if key:
@@ -258,14 +267,19 @@ class TemplateResource(Resource):
         if state:
             templates_query = templates_query.filter(state=state)
 
+        if errors_status:
+            templates_query = templates_query.filter(errors_status=errors_status)
+
         page = int(page) - 1
 
         templates_count = templates_query.count()
 
         url_builder = UrlBuilder(reverse('linguistics:templates:'), arguments={ 'state': state.value if state else None,
+                                                                                'errors_status': errors_status.value if state else None,
                                                                                 'key': key.value if key is not None else None})
 
         index_filter = TemplatesIndexFilter(url_builder=url_builder, values={'state': state.value if state else None,
+                                                                             'errors_status': errors_status.value if state else None,
                                                                              'key': key.value if key is not None else None,
                                                                              'count': templates_query.count()})
 
@@ -279,15 +293,9 @@ class TemplateResource(Resource):
 
         templates = prototypes.TemplatePrototype.from_query(templates_query[template_from:template_to])
 
-        dictionary = storage.raw_dictionary.item
-
-        templates_to_errors = {template.id: bool(template.get_errors(dictionary))
-                               for template in templates}
-
         return self.template('linguistics/templates/index.html',
                              {'key': key,
                               'templates': templates,
-                              'templates_to_errors': templates_to_errors,
                               'index_filter': index_filter,
                               'page_type': 'keys' if key else 'all-templates',
                               'paginator': paginator,
@@ -340,8 +348,7 @@ class TemplateResource(Resource):
         template_parent = self._template.get_parent()
         template_child = self._template.get_child()
 
-        dictionary = storage.raw_dictionary.item
-        errors = self._template.get_errors(dictionary)
+        errors = self._template.get_errors()
 
         return self.template('linguistics/templates/show.html',
                              {'template': self._template,
@@ -419,6 +426,9 @@ class TemplateResource(Resource):
 
         if parent_template.key != self._template.key:
             return self.json_error('linguistics.templates.replace.not_equal_keys', u'Фразы предназначены для разных случаев.')
+
+        if parent_template.errors_status.is_NO_ERRORS and self._template.errors_status.is_HAS_ERRORS:
+            return self.json_error('linguistics.templates.replace.can_not_replace_with_errors', u'Нельзя заменить шаблон без ошибко на шаблон с ошибками.')
 
         with transaction.atomic():
             prototypes.TemplatePrototype._db_filter(parent_id=parent_template.id).update(parent=self._template.id)

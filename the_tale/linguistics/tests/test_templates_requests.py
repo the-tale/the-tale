@@ -1,19 +1,12 @@
 # coding: utf-8# coding: utf-8
-import datetime
-import random
 
 import mock
 
-from django.test import client
-from django.core.urlresolvers import reverse
-
-from dext.common.utils import s11n
 from dext.common.utils.urls import url
 
-from utg import relations as utg_relations
-from utg import words as utg_words
 from utg import templates as utg_templates
-from utg import dictionary as utg_dictionary
+from utg import words as utg_words
+from utg import relations as utg_relations
 
 from the_tale.common.utils.testcase import TestCase
 from the_tale.common.utils.permissions import sync_group
@@ -29,9 +22,6 @@ from the_tale.linguistics import relations
 from the_tale.linguistics.lexicon import keys
 from the_tale.linguistics.conf import linguistics_settings
 
-from the_tale.linguistics.lexicon import logic as lexicon_logic
-
-
 
 class BaseRequestsTests(TestCase):
 
@@ -43,7 +33,6 @@ class BaseRequestsTests(TestCase):
         result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')
         self.account_1 = AccountPrototype.get_by_id(account_id)
 
-        storage.raw_dictionary.refresh()
         storage.game_dictionary.refresh()
 
 
@@ -441,7 +430,9 @@ class UpdateRequestsTests(BaseRequestsTests):
 
         self.check_ajax_ok(response, data={'next_url': url('linguistics:templates:show', self.template.id)})
 
+        self.assertEqual(self.template.raw_template, u'updated-template')
         self.assertEqual(self.template.utg_template.template, u'updated-template')
+
         self.assertEqual(len(self.template.verificators), 4)
 
         self.assertEqual(self.template.verificators[0], prototypes.Verificator(text=u'verificatorx-1', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')}))
@@ -543,6 +534,7 @@ class ReplaceRequestsTests(BaseRequestsTests):
         self.text = u'[hero|загл] 1 [пепельница|hero|вн]'
         self.utg_template = utg_templates.Template()
         self.utg_template.parse(self.text, externals=['hero'])
+
         self.template = prototypes.TemplatePrototype.create(key=self.key,
                                                             raw_template=self.text,
                                                             utg_template=self.utg_template,
@@ -641,6 +633,42 @@ class ReplaceRequestsTests(BaseRequestsTests):
 
         self.assertTrue(template.state.is_IN_GAME)
         self.assertEqual(template.parent_id, None)
+
+
+    def test_replace__parent_with_no_errors_by_child_with_errors(self):
+        self.request_login(self.moderator.email)
+
+        verificators = [ prototypes.Verificator(text=u'Героиня 1 w-1-ед,вн', externals={'hero': (u'героиня', u''), 'level': (1, u'')}),
+                         prototypes.Verificator(text=u'Рыцари 1 w-1-мн,вн', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')}),
+                         prototypes.Verificator(text=u'Герой 1 w-1-ед,вн', externals={'hero': (u'герой', u''), 'level': (2, u'')}),
+                         prototypes.Verificator(text=u'Привидение 1 w-1-ед,вн', externals={'hero': (u'привидение', u''), 'level': (5, u'')}) ]
+
+        dictionary = storage.game_dictionary.item
+
+        word = utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN, prefix=u'w-1-', only_required=True)
+        word.forms[0] = u'пепельница'
+
+        dictionary.add_word(word)
+
+        self.template.update(verificators=verificators)
+
+        self.assertTrue(self.template.errors_status.is_NO_ERRORS)
+
+        text = u'[hero|загл] 2 [пепельница|hero|вн]'
+        utg_template = utg_templates.Template()
+        utg_template.parse(text, externals=['hero'])
+        template = prototypes.TemplatePrototype.create(key=self.key,
+                                                       raw_template=text,
+                                                       utg_template=utg_template,
+                                                       verificators=[],
+                                                       author=self.account_2,
+                                                       parent=self.template)
+
+        self.assertTrue(template.errors_status.is_HAS_ERRORS)
+
+        with self.check_not_changed(prototypes.TemplatePrototype._db_count):
+            self.check_ajax_error(self.client.post(url('linguistics:templates:replace', template.id), {}),
+                                  'linguistics.templates.replace.can_not_replace_with_errors')
 
 
     def test_replace__tree(self):

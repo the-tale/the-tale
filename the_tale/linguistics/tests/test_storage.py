@@ -1,9 +1,10 @@
 # coding: utf-8
-
+import mock
 import random
 
 from utg import relations as utg_relations
 from utg import words as utg_words
+from utg import templates as utg_templates
 
 from the_tale.common.utils.testcase import TestCase
 
@@ -11,6 +12,7 @@ from the_tale.linguistics import prototypes
 from the_tale.linguistics import relations
 from the_tale.linguistics import storage
 
+from the_tale.linguistics.lexicon import keys
 
 
 class DictionaryStoragesTests(TestCase):
@@ -38,7 +40,6 @@ class DictionaryStoragesTests(TestCase):
 
         self.word_2_2 = prototypes.WordPrototype.create(self.utg_word_2_2)
 
-        storage.raw_dictionary.refresh()
         storage.game_dictionary.refresh()
 
 
@@ -54,11 +55,43 @@ class DictionaryStoragesTests(TestCase):
         self.check_word_in_dictionary(dictionary, self.utg_word_3, True)
         self.check_word_in_dictionary(dictionary, self.utg_word_2_2, False)
 
+    def test_game_dictionary__update_version(self):
+        dictionary = storage.game_dictionary
 
-    def test_raw_dictionary(self):
-        dictionary = storage.raw_dictionary.item
+        with self.check_changed(lambda: dictionary._version):
+            with mock.patch('the_tale.linguistics.workers.linguistics_manager.Worker.cmd_game_dictionary_changed') as cmd_game_dictionary_changed:
+                dictionary.update_version()
 
-        self.check_word_in_dictionary(dictionary, self.utg_word_1, True)
-        self.check_word_in_dictionary(dictionary, self.utg_word_2_1, False)
-        self.check_word_in_dictionary(dictionary, self.utg_word_3, True)
-        self.check_word_in_dictionary(dictionary, self.utg_word_2_2, True)
+        self.assertEqual(cmd_game_dictionary_changed.call_count, 1)
+
+
+class LexiconStoragesTests(TestCase):
+
+    def setUp(self):
+        super(LexiconStoragesTests, self).setUp()
+        storage.game_dictionary.refresh()
+        storage.game_lexicon.refresh()
+
+
+    def test_templates_query(self):
+        key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
+
+        text = u'[w-1-ед,им|hero]'
+
+        utg_template = utg_templates.Template()
+        utg_template.parse(text, externals=['hero', 'level'])
+        template_1 = prototypes.TemplatePrototype.create(key=key, raw_template=text, utg_template=utg_template, verificators=[], author=None)
+        template_2 = prototypes.TemplatePrototype.create(key=key, raw_template=text, utg_template=utg_template, verificators=[], author=None)
+        template_3 = prototypes.TemplatePrototype.create(key=key, raw_template=text, utg_template=utg_template, verificators=[], author=None)
+
+        prototypes.TemplatePrototype._db_filter(id__in=[template_1.id, template_2.id]).update(state=relations.TEMPLATE_STATE.IN_GAME)
+
+        self.assertEqual(storage.game_lexicon._templates_query().count(), 0)
+
+        prototypes.TemplatePrototype._db_filter(id=template_2.id).update(errors_status=relations.TEMPLATE_ERRORS_STATUS.NO_ERRORS)
+
+        self.assertEqual(storage.game_lexicon._templates_query().count(), 1)
+
+        prototypes.TemplatePrototype._db_filter(id=template_3.id).update(errors_status=relations.TEMPLATE_ERRORS_STATUS.NO_ERRORS)
+
+        self.assertEqual(storage.game_lexicon._templates_query().count(), 1)

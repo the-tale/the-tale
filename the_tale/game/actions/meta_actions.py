@@ -94,9 +94,10 @@ class MetaActionPrototype(BasePrototype):
         BundlePrototype.delete_by_id(self._model.bundle_id)
 
     def save(self):
-        if hasattr(self, '_data'):
-            self._model.data = s11n.to_json(self._data)
-        self._model.save()
+        self._model.data = s11n.to_json(self.data)
+
+        super(MetaActionPrototype, self).save()
+
         self.updated = False
 
 

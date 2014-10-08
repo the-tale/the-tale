@@ -25,6 +25,10 @@ class Word(models.Model):
     state = RelationIntegerField(relation=relations.WORD_STATE, db_index=True)
     type = RelationIntegerField(relation=utg_relations.WORD_TYPE, db_index=True, choices=[(record, record.text) for record in utg_relations.WORD_TYPE.records])
 
+    used_in_ingame_templates = models.IntegerField(default=0)
+    used_in_onreview_templates = models.IntegerField(default=0)
+    used_in_status = RelationIntegerField(relation=relations.WORD_USED_IN_STATUS, default=2, db_index=True)
+
     class Meta:
         unique_together = (('normal_form', 'type', 'state'),)
         permissions = (("moderate_word", u"Может модерировать слова"), )
@@ -43,6 +47,8 @@ class Template(models.Model):
 
     state = RelationIntegerField(relation=relations.TEMPLATE_STATE, db_index=True)
     key = RelationIntegerField(relation=keys.LEXICON_KEY, db_index=True)
+
+    errors_status = RelationIntegerField(relation=relations.TEMPLATE_ERRORS_STATUS, default=0, db_index=True)
 
     class Meta:
         permissions = (("moderate_template", u"Может модерировать шаблоны фраз"), )

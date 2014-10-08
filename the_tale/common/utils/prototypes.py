@@ -177,6 +177,12 @@ class BasePrototype(object):
         self._model = self._model_class.objects.get(id=self._model.id)
         for field_name, Class, timeout in self._serialization_proxies:
             getattr(self, field_name)._load_object()
+        self.del_lazy_properties()
+
+    def del_lazy_properties(self):
+        for field_name in dir(self):
+            if hasattr(self, '_%s__lazy' % field_name):
+                delattr(self, field_name)
 
     def create(self, *argv, **kwargs):
         raise NotImplementedError

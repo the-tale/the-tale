@@ -9,7 +9,7 @@ from dext.settings import settings
 def setUp(self):
     from the_tale.accounts.achievements.storage import achievements_storage
     from the_tale.collections.storage import collections_storage, kits_storage, items_storage
-    from the_tale.linguistics.storage import raw_dictionary, game_dictionary
+    from the_tale.linguistics.storage import game_dictionary, game_lexicon
 
     from the_tale.game.prototypes import GameState
     from the_tale.game.persons.storage import persons_storage
@@ -34,24 +34,8 @@ def setUp(self):
     kits_storage.clear()
     items_storage.clear()
     achievements_storage.clear()
-    raw_dictionary.clear()
     game_dictionary.clear()
-
-    places_storage._setup_version()
-    buildings_storage._setup_version()
-    persons_storage._setup_version()
-    waymarks_storage._setup_version()
-    roads_storage._setup_version()
-    mobs_storage._setup_version()
-    artifacts_storage._setup_version()
-    map_info_storage._setup_version()
-    resource_exchange_storage._setup_version()
-    collections_storage._setup_version()
-    kits_storage._setup_version()
-    items_storage._setup_version()
-    achievements_storage._setup_version()
-    raw_dictionary._setup_version()
-    game_dictionary._setup_version()
+    game_lexicon.clear()
 
     GameState.start()
 

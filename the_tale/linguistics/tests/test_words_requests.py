@@ -22,7 +22,7 @@ from the_tale.linguistics import relations
 from the_tale.linguistics.conf import linguistics_settings
 
 from the_tale.linguistics.tests import helpers
-from the_tale.linguistics.forms import WORD_FIELD_PREFIX, WORD_PATCH_FIELD_PREFIX
+from the_tale.linguistics.forms import WORD_FIELD_PREFIX
 
 
 class BaseRequestsTests(TestCase):
@@ -230,6 +230,31 @@ class CreateRequestsTests(BaseRequestsTests):
             with self.check_delta(prototypes.WordPrototype._db_count, 0):
                 self.check_ajax_error(self.client.post(requested_url, helpers.get_word_post_data(word)),
                                       'linguistics.words.create.parent_exists')
+
+    def test_create__copy_of_onreview__when_ingame_parent_exists(self):
+        for word_type in utg_relations.WORD_TYPE.records:
+            word = utg_words.Word.create_test_word(word_type)
+
+            ingame_parent = prototypes.WordPrototype.create(word)
+            ingame_parent.state = relations.WORD_STATE.IN_GAME
+            ingame_parent.save()
+
+            onreview_parent = prototypes.WordPrototype.create(word, parent=ingame_parent)
+            onreview_parent.state = relations.WORD_STATE.ON_REVIEW
+            onreview_parent.save()
+
+            requested_url = url('linguistics:words:create', type=word_type.value, parent=onreview_parent.id)
+
+            with self.check_delta(prototypes.WordPrototype._db_count, 0):
+                self.check_ajax_ok(self.client.post(requested_url, helpers.get_word_post_data(word)))
+
+            last_prototype = prototypes.WordPrototype._db_latest()
+
+            self.assertTrue(last_prototype.created_at > onreview_parent.created_at)
+
+            self.assertEqual(last_prototype.parent_id, ingame_parent.id)
+
+
 
     def test_form_errors(self):
         for word_type in utg_relations.WORD_TYPE.records:
@@ -478,13 +503,35 @@ class InGameRequestsTests(BaseRequestsTests):
         self.assertTrue(self.word.state.is_IN_GAME)
 
 
-    def test_in_game__with_replace(self):
+    def test_in_game__no_parent_but_equal_word_already_in_game(self):
         self.request_login(self.moderator.email)
 
         self.word.state = relations.WORD_STATE.IN_GAME
         self.word.save()
 
         word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True))
+
+        self.assertEqual(self.word.utg_word.normal_form(), word_2.utg_word.normal_form())
+
+        with self.check_not_changed(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.IN_GAME).count):
+            with self.check_not_changed(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.ON_REVIEW).count):
+                with self.check_not_changed(prototypes.WordPrototype._db_count):
+                    self.check_ajax_error(self.client.post(url('linguistics:words:in-game', word_2.id)),
+                                          'linguistics.words.in_game.conflict_with_not_parent')
+
+        word_2.reload()
+
+        self.assertNotEqual(prototypes.WordPrototype.get_by_id(self.word.id), None)
+        self.assertTrue(word_2.state.is_ON_REVIEW)
+
+    def test_in_game__has_parent(self):
+        self.request_login(self.moderator.email)
+
+        self.word.state = relations.WORD_STATE.IN_GAME
+        self.word.save()
+
+        word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True),
+                                                 parent=self.word)
 
         with self.check_not_changed(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.IN_GAME).count):
             with self.check_delta(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.ON_REVIEW).count, -1):

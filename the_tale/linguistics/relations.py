@@ -29,6 +29,12 @@ class WORD_STATE(DjangoEnum):
                 ('IN_GAME', 1, u'в игре'))
 
 
+class WORD_USED_IN_STATUS(DjangoEnum):
+    records = ( ('IN_INGAME_TEMPLATES', 0, u'во фразах игры'),
+                ('IN_ONREVIEW_TEMPLATES', 1, u'только во фразах на рассмотрении'),
+                ('NOT_USED', 2, u'не используется'))
+
+
 class WORD_BLOCK_BASE(DjangoEnum):
     schema = Column()
 
@@ -45,3 +51,7 @@ class WORD_BLOCK_BASE(DjangoEnum):
 class TEMPLATE_STATE(DjangoEnum):
     records = ( ('ON_REVIEW', 0, u'на рассмотрении'),
                 ('IN_GAME', 1, u'в игре'))
+
+class TEMPLATE_ERRORS_STATUS(DjangoEnum):
+    records = ( ('NO_ERRORS', 0, u'нет ошибок'),
+                ('HAS_ERRORS', 1, u'есть ошибки'))
