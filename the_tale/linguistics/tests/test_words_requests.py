@@ -175,14 +175,15 @@ class CreateRequestsTests(BaseRequestsTests):
 
     def test_create__with_on_review_parent(self):
         for word_type in utg_relations.WORD_TYPE.records:
-            word = utg_words.Word.create_test_word(word_type)
+            parent_word = utg_words.Word.create_test_word(word_type, prefix=u'parent-')
+            child_word = utg_words.Word.create_test_word(word_type, prefix=u'child-')
 
-            parent = prototypes.WordPrototype.create(word)
+            parent = prototypes.WordPrototype.create(parent_word)
 
             requested_url = url('linguistics:words:create', type=word_type.value, parent=parent.id)
 
             with self.check_delta(prototypes.WordPrototype._db_count, 0):
-                response = self.client.post(requested_url, helpers.get_word_post_data(word))
+                response = self.client.post(requested_url, helpers.get_word_post_data(child_word))
 
             last_prototype = prototypes.WordPrototype._db_latest()
 
@@ -190,11 +191,34 @@ class CreateRequestsTests(BaseRequestsTests):
 
             self.check_ajax_ok(response, data={'next_url': url('linguistics:words:show', last_prototype.id)})
 
-            self.assertEqual(word, last_prototype.utg_word)
+            self.assertEqual(child_word, last_prototype.utg_word)
             self.assertEqual(last_prototype.parent_id, None)
 
 
     def test_create__with_parent(self):
+        for word_type in utg_relations.WORD_TYPE.records:
+            parent_word = utg_words.Word.create_test_word(word_type, prefix=u'parent-')
+            child_word = utg_words.Word.create_test_word(word_type, prefix=u'child-')
+
+            parent = prototypes.WordPrototype.create(parent_word)
+            parent.state = relations.WORD_STATE.IN_GAME
+            parent.save()
+
+            requested_url = url('linguistics:words:create', type=word_type.value, parent=parent.id)
+
+            with self.check_delta(prototypes.WordPrototype._db_count, 1):
+                response = self.client.post(requested_url, helpers.get_word_post_data(child_word))
+
+            self.assertTrue(prototypes.WordPrototype._db_filter(id=parent.id).exists())
+
+            last_prototype = prototypes.WordPrototype._db_latest()
+
+            self.check_ajax_ok(response, data={'next_url': url('linguistics:words:show', last_prototype.id)})
+
+            self.assertEqual(child_word, last_prototype.utg_word)
+            self.assertEqual(last_prototype.parent_id, parent.id)
+
+    def test_create__with_parent__full_copy(self):
         for word_type in utg_relations.WORD_TYPE.records:
             word = utg_words.Word.create_test_word(word_type)
 
@@ -204,17 +228,10 @@ class CreateRequestsTests(BaseRequestsTests):
 
             requested_url = url('linguistics:words:create', type=word_type.value, parent=parent.id)
 
-            with self.check_delta(prototypes.WordPrototype._db_count, 1):
-                response = self.client.post(requested_url, helpers.get_word_post_data(word))
+            with self.check_not_changed(prototypes.WordPrototype._db_count):
+                self.check_ajax_error(self.client.post(requested_url, helpers.get_word_post_data(parent.utg_word)),
+                                      'linguistics.words.create.full_copy_restricted')
 
-            self.assertTrue(prototypes.WordPrototype._db_filter(id=parent.id).exists())
-
-            last_prototype = prototypes.WordPrototype._db_latest()
-
-            self.check_ajax_ok(response, data={'next_url': url('linguistics:words:show', last_prototype.id)})
-
-            self.assertEqual(word, last_prototype.utg_word)
-            self.assertEqual(last_prototype.parent_id, parent.id)
 
 
     def test_create__parent_not_cpecified(self):
@@ -233,20 +250,22 @@ class CreateRequestsTests(BaseRequestsTests):
 
     def test_create__copy_of_onreview__when_ingame_parent_exists(self):
         for word_type in utg_relations.WORD_TYPE.records:
-            word = utg_words.Word.create_test_word(word_type)
+            ingame_parent_word = utg_words.Word.create_test_word(word_type, prefix=u'in-game-parent-')
+            onreview_parent_word = utg_words.Word.create_test_word(word_type, prefix=u'on-review-parent-')
+            child_word = utg_words.Word.create_test_word(word_type, prefix=u'child-')
 
-            ingame_parent = prototypes.WordPrototype.create(word)
+            ingame_parent = prototypes.WordPrototype.create(ingame_parent_word)
             ingame_parent.state = relations.WORD_STATE.IN_GAME
             ingame_parent.save()
 
-            onreview_parent = prototypes.WordPrototype.create(word, parent=ingame_parent)
+            onreview_parent = prototypes.WordPrototype.create(onreview_parent_word, parent=ingame_parent)
             onreview_parent.state = relations.WORD_STATE.ON_REVIEW
             onreview_parent.save()
 
             requested_url = url('linguistics:words:create', type=word_type.value, parent=onreview_parent.id)
 
             with self.check_delta(prototypes.WordPrototype._db_count, 0):
-                self.check_ajax_ok(self.client.post(requested_url, helpers.get_word_post_data(word)))
+                self.check_ajax_ok(self.client.post(requested_url, helpers.get_word_post_data(child_word)))
 
             last_prototype = prototypes.WordPrototype._db_latest()
 

@@ -32,12 +32,14 @@ class WordPrototypeTests(testcase.TestCase):
 
     def test_create(self):
 
-        with mock.patch('the_tale.linguistics.storage.game_dictionary.refresh') as game_refresh:
-            with self.check_not_changed(lambda: storage.game_dictionary.version):
-                with self.check_delta(prototypes.WordPrototype._db_count, 1):
-                    prototype = prototypes.WordPrototype.create(self.word_1)
+        with mock.patch('the_tale.linguistics.workers.linguistics_manager.Worker.cmd_game_dictionary_changed') as cmd_game_dictionary_changed:
+            with mock.patch('the_tale.linguistics.storage.game_dictionary.refresh') as game_refresh:
+                with self.check_not_changed(lambda: storage.game_dictionary.version):
+                    with self.check_delta(prototypes.WordPrototype._db_count, 1):
+                        prototype = prototypes.WordPrototype.create(self.word_1)
 
         self.assertEqual(game_refresh.call_count, 0)
+        self.assertEqual(cmd_game_dictionary_changed.call_count, 1)
 
         self.assertTrue(prototype.state.is_ON_REVIEW)
         self.assertEqual(self.word_1, prototype.utg_word)
@@ -48,12 +50,15 @@ class WordPrototypeTests(testcase.TestCase):
         prototype = prototypes.WordPrototype.create(self.word_1)
         prototype.utg_word.forms[0] = u'xxx'
 
-        with mock.patch('the_tale.linguistics.storage.game_dictionary.refresh') as game_refresh:
-            with self.check_not_changed(lambda: storage.game_dictionary.version):
-                with self.check_not_changed(prototypes.WordPrototype._db_count):
-                    prototype.save()
+
+        with mock.patch('the_tale.linguistics.workers.linguistics_manager.Worker.cmd_game_dictionary_changed') as cmd_game_dictionary_changed:
+            with mock.patch('the_tale.linguistics.storage.game_dictionary.refresh') as game_refresh:
+                with self.check_not_changed(lambda: storage.game_dictionary.version):
+                    with self.check_not_changed(prototypes.WordPrototype._db_count):
+                        prototype.save()
 
         self.assertEqual(game_refresh.call_count, 0)
+        self.assertEqual(cmd_game_dictionary_changed.call_count, 1)
 
         prototype.reload()
         self.assertEqual(prototype.utg_word.forms[0], u'xxx')
@@ -174,8 +179,11 @@ class TemplatePrototypeTests(testcase.TestCase):
 
     def test_create(self):
 
-        with self.check_delta(prototypes.TemplatePrototype._db_count, 1):
-            prototype = prototypes.TemplatePrototype.create(key=self.key_1, raw_template=self.text_1, utg_template=self.template_1, verificators=[], author=self.account_1)
+        with mock.patch('the_tale.linguistics.workers.linguistics_manager.Worker.cmd_game_lexicon_changed') as cmd_game_lexicon_changed:
+            with self.check_delta(prototypes.TemplatePrototype._db_count, 1):
+                prototype = prototypes.TemplatePrototype.create(key=self.key_1, raw_template=self.text_1, utg_template=self.template_1, verificators=[], author=self.account_1)
+
+        self.assertEqual(cmd_game_lexicon_changed.call_count, 1)
 
         self.assertTrue(prototype.state.is_ON_REVIEW)
         self.assertEqual(self.template_1, prototype.utg_template)
@@ -186,13 +194,17 @@ class TemplatePrototypeTests(testcase.TestCase):
     def test_update(self):
         prototype = prototypes.TemplatePrototype.create(key=self.key_1, raw_template=self.text_1, utg_template=self.template_1, verificators=[], author=None)
 
-        with mock.patch('the_tale.linguistics.prototypes.TemplatePrototype.update_errors_status') as update_errors_status:
-            text, template = self.create_template(self.key_1, word=self.word_2)
-            prototype.update(raw_template=text,
-                             utg_template=template,
-                             verificators=[prototypes.Verificator(text=u'test-verificator', externals={})])
+        text, template = self.create_template(self.key_1, word=self.word_2)
+
+        with mock.patch('the_tale.linguistics.workers.linguistics_manager.Worker.cmd_game_lexicon_changed') as cmd_game_lexicon_changed:
+            with mock.patch('the_tale.linguistics.prototypes.TemplatePrototype.update_errors_status') as update_errors_status:
+                prototype.update(raw_template=text,
+                                 utg_template=template,
+                                 verificators=[prototypes.Verificator(text=u'test-verificator', externals={})])
 
         prototype.reload()
+
+        self.assertEqual(cmd_game_lexicon_changed.call_count, 1)
 
         self.assertEqual(update_errors_status.call_count, 1)
         self.assertEqual(prototype.raw_template, text)
@@ -207,11 +219,14 @@ class TemplatePrototypeTests(testcase.TestCase):
         prototype.utg_template.template = u'xxx'
         prototype.verificators.append(prototypes.Verificator(text=u'test-verificator', externals={}))
 
-        with mock.patch('the_tale.linguistics.prototypes.TemplatePrototype.update_errors_status') as update_errors_status:
-            with self.check_not_changed(prototypes.TemplatePrototype._db_count):
-                prototype.save()
+        with mock.patch('the_tale.linguistics.workers.linguistics_manager.Worker.cmd_game_lexicon_changed') as cmd_game_lexicon_changed:
+            with mock.patch('the_tale.linguistics.prototypes.TemplatePrototype.update_errors_status') as update_errors_status:
+                with self.check_not_changed(prototypes.TemplatePrototype._db_count):
+                    prototype.save()
 
         prototype.reload()
+
+        self.assertEqual(cmd_game_lexicon_changed.call_count, 1)
 
         self.assertEqual(update_errors_status.call_count, 1)
         self.assertEqual(prototype.utg_template.template, u'xxx')

@@ -415,6 +415,17 @@ class UpdateRequestsTests(BaseRequestsTests):
             self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.templates.update.form_errors')
 
 
+    def test_update__full_copy_restriction(self):
+
+        data = {'template': self.template.raw_template,
+                'verificator_0': u'verificator-1',
+                'verificator_1': u'verificator-2'}
+
+        with self.check_not_changed(prototypes.TemplatePrototype._db_count):
+            self.check_ajax_error(self.client.post(self.requested_url, data),
+                                  'linguistics.templates.update.full_copy_restricted')
+
+
     def test_update__on_review_by_owner(self):
 
         data = {'template': 'updated-template',
@@ -442,6 +453,9 @@ class UpdateRequestsTests(BaseRequestsTests):
 
         self.assertEqual(self.template.author_id, self.account_1.id)
         self.assertEqual(self.template.parent_id, None)
+
+
+
 
 
     def test_update__in_game_by_owner(self):

@@ -168,6 +168,9 @@ class WordResource(Resource):
             return self.json_error('linguistics.words.create.parent_exists',
                                    u'Такое слово уже существует и вы не можете создать аналогичное. Вместо этого отредактируйте существующее.')
 
+        if parent and parent.utg_word == new_word:
+            return self.json_error('linguistics.words.create.full_copy_restricted', u'Вы пытаетесь создать полную копию слова, в этом нет необходимости.')
+
         with transaction.atomic():
             removed_word = None
 
@@ -275,11 +278,11 @@ class TemplateResource(Resource):
         templates_count = templates_query.count()
 
         url_builder = UrlBuilder(reverse('linguistics:templates:'), arguments={ 'state': state.value if state else None,
-                                                                                'errors_status': errors_status.value if state else None,
+                                                                                'errors_status': errors_status.value if errors_status else None,
                                                                                 'key': key.value if key is not None else None})
 
         index_filter = TemplatesIndexFilter(url_builder=url_builder, values={'state': state.value if state else None,
-                                                                             'errors_status': errors_status.value if state else None,
+                                                                             'errors_status': errors_status.value if errors_status else None,
                                                                              'key': key.value if key is not None else None,
                                                                              'count': templates_query.count()})
 
@@ -374,6 +377,7 @@ class TemplateResource(Resource):
                              {'template': self._template,
                               'form': form,
                               'page_type': 'keys',
+                              'copy_will_be_created': not (self._template.author_id == self.account.id and self._template.state.is_ON_REVIEW),
                               'LEXICON_KEY': keys.LEXICON_KEY} )
 
 
@@ -390,19 +394,21 @@ class TemplateResource(Resource):
         if not form.is_valid():
             return self.json_error('linguistics.templates.update.form_errors', form.errors)
 
-        if self._template.author_id == self.account.id and self._template.state.is_ON_REVIEW:
-            utg_template = utg_templates.Template()
-            utg_template.parse(form.c.template, externals=[v.value for v in self._template.key.variables])
+        utg_template = utg_templates.Template()
+        utg_template.parse(form.c.template, externals=[v.value for v in self._template.key.variables])
 
+        if (form.verificators == self._template.get_all_verificatos() and
+            form.c.template == self._template.raw_template):
+            return self.json_error('linguistics.templates.update.full_copy_restricted', u'Вы пытаетесь создать полную копию шаблона, в этом нет необходимости.')
+
+
+        if self._template.author_id == self.account.id and self._template.state.is_ON_REVIEW:
             self._template.update(raw_template=form.c.template,
                                   utg_template=utg_template,
                                   verificators=form.verificators)
 
             return self.json_ok(data={'next_url': url('linguistics:templates:show', self._template.id)})
 
-
-        utg_template = utg_templates.Template()
-        utg_template.parse(form.c.template, externals=[v.value for v in self._template.key.variables])
 
         template = prototypes.TemplatePrototype.create(key=self._template.key,
                                                        raw_template=form.c.template,

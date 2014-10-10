@@ -7,7 +7,13 @@
 
 {% block templates_content %}
 
-{{ templates_macros.key_info(template.key)}}
+{% if template.state.is_IN_GAME %}
+<p class="alert alert-success pgf-template-in-game-message">Фраза находится в игре.</p>
+{% endif %}
+
+{% if template.state.is_ON_REVIEW %}
+<p class="alert alert-warning pgf-template-on-review-message">Фраза находится на рассмотрении.</p>
+{% endif %}
 
 {% if template_child %}
 <p class="alert alert-success pgf-has-child-message">Эта фраза имеет непроверенную <a href="{{url('linguistics:templates:show', template_child.id)}}">копию</a>.</p>
@@ -16,6 +22,8 @@
 {% if template_parent %}
 <p class="alert alert-success pgf-has-parent-message">Эта фраза явлется копией <a href="{{url('linguistics:templates:show', template_parent.id)}}">другой фразы</a>.</p>
 {% endif %}
+
+{{ templates_macros.key_info(template.key)}}
 
 <a href="{{url('linguistics:templates:', key=template.key.value)}}">◀ вернуться к списку шаблонов</a>
 

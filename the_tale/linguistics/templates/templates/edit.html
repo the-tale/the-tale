@@ -37,7 +37,11 @@ jQuery(document).ready( function(e) {
   {% endfor %}
 
   <div class="widget">
-    <input type="submit" class="btn btn-success" value="Сохранить"/>
+    {% if copy_will_be_created %}
+    <input type="submit" class="btn btn-success" value="Создать копию"/>
+    {% else %}
+    <input type="submit" class="btn btn-success" value="Обновить"/>
+    {% endif %}
   </div>
 
 </form>

@@ -7,7 +7,13 @@
 
 {% block words_content %}
 
-<h2>{{word.utg_word.normal_form()|up_first}} <small>{{word.type.text}}, {{word.state.text}}</small></h2>
+{% if word.state.is_IN_GAME %}
+<p class="alert alert-success pgf-word-in-game-message">Слово находится в игре.</p>
+{% endif %}
+
+{% if word.state.is_ON_REVIEW %}
+<p class="alert alert-warning pgf-word-on-review-message">Слово находится на рассмотрении.</p>
+{% endif %}
 
 {% if child_word %}
 <p class="alert alert-success pgf-has-child-message">Это слово имеет непроверенную <a href="{{url('linguistics:words:show', child_word.id)}}">копию</a>.</p>
@@ -16,6 +22,13 @@
 {% if parent_word %}
 <p class="alert alert-success pgf-has-parent-message">Это слово явялется копией <a href="{{url('linguistics:words:show', parent_word.id)}}">слова из игры</a>.</p>
 {% endif %}
+
+<ul>
+  <li>в игровых фразах: {{word.used_in_ingame_templates}}</li>
+  <li>в рассматриваемых фразах: {{word.used_in_onreview_templates}}</li>
+</ul>
+
+<h2>{{word.utg_word.normal_form()|up_first}} <small>{{word.type.text}}, {{word.state.text}}</small></h2>
 
 {{words_macros.render_word(drawer)}}
 

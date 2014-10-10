@@ -45,12 +45,6 @@ class GameDictionaryStorage(BaseGameDictionaryStorage):
     def _words_query(self):
         return prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.IN_GAME).values_list('forms', flat=True)
 
-    def update_version(self):
-        from the_tale.amqp_environment import environment
-        super(GameDictionaryStorage, self).update_version()
-        environment.workers.linguistics_manager.cmd_game_dictionary_changed()
-
-
 
 class GameLexiconDictionaryStorage(storage.SingleStorage):
     SETTINGS_KEY = 'game lexicon change time'
@@ -76,6 +70,7 @@ class GameLexiconDictionaryStorage(storage.SingleStorage):
 
     def _get_next_version(self):
         return '%f' % time.time()
+
 
 
 game_dictionary = GameDictionaryStorage()

@@ -9,6 +9,8 @@ from utg import templates as utg_templates
 from utg import exceptions as utg_exceptions
 from utg.data import VERBOSE_TO_PROPERTIES
 
+from the_tale.amqp_environment import environment
+
 from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils.decorators import lazy_property
 
@@ -50,6 +52,8 @@ class WordPrototype(BasePrototype):
 
         prototype = cls(model)
 
+        environment.workers.linguistics_manager.cmd_game_dictionary_changed()
+
         return prototype
 
     def save(self):
@@ -64,6 +68,8 @@ class WordPrototype(BasePrototype):
         if self.state.is_IN_GAME:
             storage.game_dictionary.update_version()
             storage.game_dictionary.refresh()
+
+        environment.workers.linguistics_manager.cmd_game_dictionary_changed()
 
 
     def remove(self):
@@ -182,6 +188,8 @@ class TemplatePrototype(BasePrototype):
 
         prototype.update_errors_status(force_update=True)
 
+        environment.workers.linguistics_manager.cmd_game_lexicon_changed()
+
         return prototype
 
 
@@ -220,6 +228,8 @@ class TemplatePrototype(BasePrototype):
         if self.state.is_IN_GAME:
             storage.game_lexicon.update_version()
             storage.game_lexicon.refresh()
+
+        environment.workers.linguistics_manager.cmd_game_lexicon_changed()
 
     def remove(self):
         self._model.delete()

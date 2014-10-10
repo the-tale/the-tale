@@ -124,6 +124,18 @@ def update_words_usage_info():
             on_review_words.update(words)
 
     for word in prototypes.WordPrototype.from_query(prototypes.WordPrototype._db_all()):
-        word.update_used_in_status( used_in_ingame_templates = sum((in_game_words.get(form, 0) for form in word.utg_word.forms), 0),
-                                    used_in_onreview_templates = sum((on_review_words.get(form, 0) for form in word.utg_word.forms), 0),
+        word.update_used_in_status( used_in_ingame_templates = sum((in_game_words.get(form, 0) for form in set(word.utg_word.forms)), 0),
+                                    used_in_onreview_templates = sum((on_review_words.get(form, 0) for form in set(word.utg_word.forms)), 0),
                                     force_update=True)
+
+def update_templates_errors():
+    from the_tale.linguistics import storage
+
+    status_changed = False
+
+    for template in prototypes.TemplatePrototype.from_query(prototypes.TemplatePrototype._db_all()):
+        status_changed = template.update_errors_status(force_update=True) or status_changed
+
+    if status_changed:
+        # update lexicon version to unload new templates with errors
+        storage.game_lexicon.update_version()

@@ -171,3 +171,103 @@ class LogicTests(TestCase):
         self.assertEqual(word_3.used_in_ingame_templates, 0)
         self.assertEqual(word_3.used_in_onreview_templates, 0)
         self.assertTrue(word_3.used_in_status.is_NOT_USED)
+
+
+    def test_update_words_usage_info__ignore_duplicates(self):
+        word_1 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN, prefix=u'w-1-', only_required=True))
+        word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN, prefix=u'w-2-', only_required=True))
+        word_3 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN, prefix=u'w-3-', only_required=True))
+
+        key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
+
+        word_1.utg_word.forms[1] = word_1.utg_word.forms[0]
+        word_1.save()
+
+        text_1 = u'[w-1-ед,им|hero]'
+        text_2 = u'[w-1-ед,им|hero] [w-2-ед,им|hero]'
+
+        utg_template = utg_templates.Template()
+        utg_template.parse(text_1, externals=['hero', 'level'])
+        template = prototypes.TemplatePrototype.create(key=key, raw_template=text_1, utg_template=utg_template, verificators=[], author=None)
+        template.state = relations.TEMPLATE_STATE.IN_GAME
+        template.save()
+
+        utg_template = utg_templates.Template()
+        utg_template.parse(text_2, externals=['hero', 'level'])
+        template = prototypes.TemplatePrototype.create(key=key, raw_template=text_2, utg_template=utg_template, verificators=[], author=None)
+        self.assertTrue(template.state.is_ON_REVIEW)
+
+        utg_template = utg_templates.Template()
+        utg_template.parse(text_2, externals=['hero', 'level'])
+        template = prototypes.TemplatePrototype.create(key=key, raw_template=text_2, utg_template=utg_template, verificators=[], author=None)
+        self.assertTrue(template.state.is_ON_REVIEW)
+
+        logic.update_words_usage_info()
+
+        word_1.reload()
+        word_2.reload()
+        word_3.reload()
+
+        self.assertEqual(word_1.used_in_ingame_templates, 1)
+        self.assertEqual(word_1.used_in_onreview_templates, 2)
+        self.assertTrue(word_1.used_in_status.is_IN_INGAME_TEMPLATES)
+
+        self.assertEqual(word_2.used_in_ingame_templates, 0)
+        self.assertEqual(word_2.used_in_onreview_templates, 2)
+        self.assertTrue(word_2.used_in_status.is_IN_ONREVIEW_TEMPLATES)
+
+        self.assertEqual(word_3.used_in_ingame_templates, 0)
+        self.assertEqual(word_3.used_in_onreview_templates, 0)
+        self.assertTrue(word_3.used_in_status.is_NOT_USED)
+
+
+
+    def update_templates_errors(self):
+        key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
+
+        TEXT = u'[hero|загл] [level] [неизвестное слово|hero|вн]'
+
+        template = utg_templates.Template()
+
+        template.parse(TEXT, externals=['hero'])
+
+        verificator_1 = prototypes.Verificator(text=u'Героиня 1 w-1-ед,вн,жр,од,пол', externals={'hero': (u'героиня', u''), 'level': (1, u'')})
+        verificator_2 = prototypes.Verificator(text=u'Рыцари 5 w-1-мн,вн,од,пол', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')})
+        verificator_3 = prototypes.Verificator(text=u'Герой 2 w-1-ед,вн,мр,од,пол', externals={'hero': (u'герой', u''), 'level': (2, u'')})
+        verificator_4 = prototypes.Verificator(text=u'Привидение 5 w-1-ед,вн,ср,од,пол', externals={'hero': (u'привидение', u''), 'level': (5, u'')})
+
+        dictionary = storage.game_dictionary.item
+
+        word = utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.ADJECTIVE, prefix=u'w-1-', only_required=True)
+        word.forms[0] = u'неизвестное слово'
+
+        dictionary.add_word(word)
+
+        prototype_1 = prototypes.TemplatePrototype.create(key=key,
+                                                        raw_template=TEXT,
+                                                        utg_template=template,
+                                                        verificators=[verificator_1, verificator_2, verificator_3, verificator_4],
+                                                        author=self.account_1)
+
+        prototype_2 = prototypes.TemplatePrototype.create(key=key,
+                                                        raw_template=TEXT,
+                                                        utg_template=template,
+                                                        verificators=[],
+                                                        author=self.account_1)
+
+        prototypes.TemplatePrototype._db_filter(id=prototype_1.id).update(errors_status=relations.TEMPLATE_ERRORS_STATUS.HAS_ERRORS)
+        prototypes.TemplatePrototype._db_filter(id=prototype_2.id).update(errors_status=relations.TEMPLATE_ERRORS_STATUS.NO_ERRORS)
+
+        prototype_1.reload()
+        prototype_2.reload()
+
+        self.assertTrue(prototype_1.errors_status.is_HAS_ERRORS)
+        self.assertTrue(prototype_2.errors_status.is_NO_ERRORS)
+
+        logic.update_templates_errors()
+
+        prototype_1.reload()
+        prototype_2.reload()
+
+        self.assertTrue(prototype_1.errors_status.is_NO_ERRORS)
+        self.assertTrue(prototype_2.errors_status.is_HAS_ERRORS)

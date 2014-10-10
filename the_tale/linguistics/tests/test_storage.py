@@ -55,14 +55,6 @@ class DictionaryStoragesTests(TestCase):
         self.check_word_in_dictionary(dictionary, self.utg_word_3, True)
         self.check_word_in_dictionary(dictionary, self.utg_word_2_2, False)
 
-    def test_game_dictionary__update_version(self):
-        dictionary = storage.game_dictionary
-
-        with self.check_changed(lambda: dictionary._version):
-            with mock.patch('the_tale.linguistics.workers.linguistics_manager.Worker.cmd_game_dictionary_changed') as cmd_game_dictionary_changed:
-                dictionary.update_version()
-
-        self.assertEqual(cmd_game_dictionary_changed.call_count, 1)
 
 
 class LexiconStoragesTests(TestCase):
