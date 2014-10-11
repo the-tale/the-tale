@@ -1,5 +1,7 @@
 # coding: utf-8
 
+import copy
+
 from django import forms as django_forms
 from django.utils.safestring import mark_safe
 
@@ -268,7 +270,7 @@ class TemplateForm(forms.Form):
     def __init__(self, key, verificators, *args, **kwargs):
         super(TemplateForm, self).__init__(*args, **kwargs)
         self.key = key
-        self.verificators = verificators
+        self.verificators = copy.deepcopy(verificators)
 
         for i, verificator in enumerate(self.verificators):
             self.fields['verificator_%d' % i] = fields.TextField(label=verificator.get_label(), required=False, widget=django_forms.Textarea(attrs={'rows': 3}))

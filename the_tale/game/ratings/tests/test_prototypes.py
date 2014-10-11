@@ -13,8 +13,8 @@ from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.ratings.models import RatingValues
 from the_tale.game.ratings.prototypes import RatingValuesPrototype
 
-from the_tale.game.phrase_candidates.prototypes import PhraseCandidatePrototype
-from the_tale.game.phrase_candidates.relations import PHRASE_CANDIDATE_STATE
+from the_tale.linguistics.prototypes import ContributionPrototype
+from the_tale.linguistics.relations import CONTRIBUTION_TYPE
 
 from the_tale.game.heroes.conf import heroes_settings
 
@@ -128,26 +128,18 @@ class RatingPrototypeTests(PrototypeTestsBase):
         self.assertEqual([rv.bills_count for rv in RatingValues.objects.all().order_by('account__id')],
                          [0, 1, 2, 0])
 
-    def create_phrase_candidate(self, author, state=PHRASE_CANDIDATE_STATE.IN_QUEUE):
-        phrase = PhraseCandidatePrototype.create(type_='type',
-                                                 type_name=u'type name',
-                                                 subtype='subtype',
-                                                 subtype_name=u'subtype name',
-                                                 author=author,
-                                                 text=u'text')
-        if phrase.state != state:
-            phrase.state = state
-            phrase.save()
-
-        return phrase
+    def create_linguistic_contribution(self, account, type, entity_id):
+        ContributionPrototype.create(account_id=account.id,
+                                     type=type,
+                                     entity_id=entity_id)
 
     def test_phrases_count(self):
-        self.create_phrase_candidate(author=self.account_1, state=PHRASE_CANDIDATE_STATE.ADDED)
-        self.create_phrase_candidate(author=self.account_1)
-        self.create_phrase_candidate(author=self.account_1, state=PHRASE_CANDIDATE_STATE.ADDED)
-        self.create_phrase_candidate(author=self.account_3, state=PHRASE_CANDIDATE_STATE.ADDED)
-        self.create_phrase_candidate(author=self.account_3)
-        self.create_phrase_candidate(author=self.account_2)
+        self.create_linguistic_contribution(account=self.account_1, type=CONTRIBUTION_TYPE.TEMPLATE, entity_id=1)
+        self.create_linguistic_contribution(account=self.account_1, type=CONTRIBUTION_TYPE.WORD, entity_id=1)
+        self.create_linguistic_contribution(account=self.account_1, type=CONTRIBUTION_TYPE.TEMPLATE, entity_id=2)
+        self.create_linguistic_contribution(account=self.account_3, type=CONTRIBUTION_TYPE.TEMPLATE, entity_id=2)
+        self.create_linguistic_contribution(account=self.account_3, type=CONTRIBUTION_TYPE.WORD, entity_id=2)
+        self.create_linguistic_contribution(account=self.account_2, type=CONTRIBUTION_TYPE.WORD, entity_id=3)
 
         RatingValuesPrototype.recalculate()
         self.assertEqual([rv.phrases_count for rv in RatingValues.objects.all().order_by('account__id')],

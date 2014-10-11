@@ -199,7 +199,19 @@ class ShowRequestsTests(BaseRequestsTests):
                                                                                                ('pgf-detach-button', 0),
                                                                                                ('pgf-in-game-button', 0),
                                                                                                ('pgf-on-review-button', 0),
-                                                                                               ('pgf-remove-button', 0) ])
+                                                                                               ('pgf-remove-button', 0),
+                                                                                               ('pgf-edit-button', 1) ])
+
+    def test_success__unlogined(self):
+        self.request_logout()
+        self.check_html_ok(self.request_html(url('linguistics:templates:show', self.template.id)), texts=[('pgf-has-parent-message', 0),
+                                                                                               ('pgf-has-child-message', 0),
+                                                                                               ('pgf-replace-button', 0),
+                                                                                               ('pgf-detach-button', 0),
+                                                                                               ('pgf-in-game-button', 0),
+                                                                                               ('pgf-on-review-button', 0),
+                                                                                               ('pgf-remove-button', 0),
+                                                                                               ('pgf-edit-button', 0) ])
 
     def test_success__moderator(self):
         self.template.state = relations.TEMPLATE_STATE.IN_GAME
@@ -313,6 +325,9 @@ class EditRequestsTests(BaseRequestsTests):
 
         self.requested_url = url('linguistics:templates:edit', self.template.id)
 
+        result, account_id, bundle_id = register_user('test_user2', 'test_user2@test.com', '111111')
+        self.account_2 = AccountPrototype.get_by_id(account_id)
+
 
     def test_template_errors(self):
         self.check_html_ok(self.request_html(url('linguistics:templates:edit', 'www')), texts=['linguistics.templates.template.wrong_format'])
@@ -361,6 +376,25 @@ class EditRequestsTests(BaseRequestsTests):
                                   'right-verificator-2',
                                   ('wrong-verificator-1', 0),
                                   ('wrong-verificator-2', 0)])
+
+
+    def test_edit_anothers_author_template(self):
+        text = u'text_2'
+        utg_template = utg_templates.Template()
+        utg_template.parse(text, externals=['hero'])
+
+        template = prototypes.TemplatePrototype.create(key=self.key,
+                                                       raw_template=text,
+                                                       utg_template=utg_template,
+                                                       verificators=[prototypes.Verificator(u'right-verificator-1', externals={}),
+                                                                     prototypes.Verificator(u'wrong-verificator-1', externals={'hero': (u'абракадабра', u'')}),
+                                                                     prototypes.Verificator(u'right-verificator-2', externals={'hero': (u'герой', u''), 'level': (2, u'')}),
+                                                                     prototypes.Verificator(u'wrong-verificator-2', externals={'hero': (u'абракадабра', u''), 'level': (2, u'')}),],
+                                                       author=self.account_2)
+
+
+        self.check_html_ok(self.request_html(url('linguistics:templates:edit', template.id)),
+                           texts=['linguistics.templates.edit.can_not_edit_anothers_template'])
 
 
 
@@ -506,31 +540,26 @@ class UpdateRequestsTests(BaseRequestsTests):
                 'verificator_1': u'verificatorx-2',
                 'verificator_2': u'verificatorx-3'}
 
-        with self.check_delta(prototypes.TemplatePrototype._db_count, 1):
-            response = self.client.post(self.requested_url, data)
+        with self.check_not_changed(prototypes.TemplatePrototype._db_count):
+            self.check_ajax_error(self.client.post(self.requested_url, data),
+                                  'linguistics.templates.update.can_not_edit_anothers_template')
 
         self.template.reload()
         self.assertTrue(self.template.state.is_ON_REVIEW)
 
         last_prototype = prototypes.TemplatePrototype._db_latest()
         self.assertTrue(last_prototype.state.is_ON_REVIEW)
+        self.assertEqual(last_prototype.id, self.template.id)
 
-        self.assertNotEqual(last_prototype.id, self.template.id)
+        self.assertEqual(last_prototype.utg_template.template, '%s %s %s')
 
-        self.check_ajax_ok(response, data={'next_url': url('linguistics:templates:show', last_prototype.id)})
+        self.assertEqual(len(last_prototype.verificators), 2)
 
-        self.assertEqual(last_prototype.utg_template.template, u'updated-template')
+        self.assertEqual(last_prototype.verificators[0], prototypes.Verificator(text=u'verificator-1', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')}))
+        self.assertEqual(last_prototype.verificators[1], prototypes.Verificator(text=u'verificator-2', externals={'hero': (u'герой', u''), 'level': (2, u'')}))
 
-        self.assertEqual(len(last_prototype.verificators), 4)
-
-        self.assertEqual(last_prototype.verificators[0], prototypes.Verificator(text=u'verificatorx-1', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')}))
-        self.assertEqual(last_prototype.verificators[1], prototypes.Verificator(text=u'verificatorx-2', externals={'hero': (u'герой', u''), 'level': (2, u'')}))
-        self.assertEqual(last_prototype.verificators[2], prototypes.Verificator(text=u'verificatorx-3', externals={'hero': (u'привидение', u''), 'level': (1, u'')}))
-        self.assertEqual(last_prototype.verificators[3], prototypes.Verificator(text=u'', externals={'hero': (u'героиня', u''), 'level': (1, u'')}))
-
-
-        self.assertEqual(last_prototype.author_id, account.id)
-        self.assertEqual(last_prototype.parent_id, self.template.id)
+        self.assertEqual(last_prototype.author_id, self.account_1.id)
+        self.assertEqual(last_prototype.parent_id, None)
 
 
 
@@ -683,40 +712,6 @@ class ReplaceRequestsTests(BaseRequestsTests):
         with self.check_not_changed(prototypes.TemplatePrototype._db_count):
             self.check_ajax_error(self.client.post(url('linguistics:templates:replace', template.id), {}),
                                   'linguistics.templates.replace.can_not_replace_with_errors')
-
-
-    def test_replace__tree(self):
-        self.request_login(self.moderator.email)
-
-        text = u'[hero|загл] 2 [пепельница|hero|вн]'
-        utg_template = utg_templates.Template()
-        utg_template.parse(text, externals=['hero'])
-
-        template_1 = prototypes.TemplatePrototype.create(key=self.key,
-                                                         raw_template=text,
-                                                         utg_template=utg_template,
-                                                         verificators=[],
-                                                         author=self.account_2,
-                                                         parent=self.template)
-
-
-        template_2 = prototypes.TemplatePrototype.create(key=self.key,
-                                                         raw_template=text,
-                                                         utg_template=utg_template,
-                                                         verificators=[],
-                                                         author=self.account_2,
-                                                         parent=self.template)
-
-        self.assertTrue(self.template.state.is_ON_REVIEW)
-
-        with self.check_delta(prototypes.TemplatePrototype._db_count, -1):
-            self.check_ajax_ok(self.client.post(url('linguistics:templates:replace', template_1.id), {}))
-
-        template_1.reload()
-        template_2.reload()
-
-        self.assertEqual(template_2.parent_id, template_1.id)
-        self.assertEqual(template_1.parent_id, None)
 
 
     def test_replace__parent_inheritance(self):
@@ -927,8 +922,9 @@ class InGameRequestsTests(BaseRequestsTests):
         self.template.state = relations.TEMPLATE_STATE.IN_GAME
         self.template.save()
 
-        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.IN_GAME).count):
-            self.check_ajax_ok(self.client.post(self.requested_url))
+        with self.check_not_changed(prototypes.ContributionPrototype._db_count):
+            with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.IN_GAME).count):
+                self.check_ajax_ok(self.client.post(self.requested_url))
 
 
     def test_in_game(self):
@@ -936,10 +932,18 @@ class InGameRequestsTests(BaseRequestsTests):
 
         self.assertTrue(self.template.state.is_ON_REVIEW)
 
-        self.check_ajax_ok(self.client.post(self.requested_url))
+        with self.check_delta(prototypes.ContributionPrototype._db_count, 1):
+            self.check_ajax_ok(self.client.post(self.requested_url))
 
         self.template.reload()
         self.assertTrue(self.template.state.is_IN_GAME)
+
+        last_contribution = prototypes.ContributionPrototype._db_latest()
+
+        self.assertTrue(last_contribution.type.is_TEMPLATE)
+        self.assertEqual(last_contribution.account_id, self.template.author_id)
+        self.assertEqual(last_contribution.entity_id, self.template.id)
+
 
 
 
@@ -1073,34 +1077,3 @@ class RemoveRequestsTests(BaseRequestsTests):
         self.check_ajax_ok(self.client.post(self.requested_url))
 
         self.assertEqual(prototypes.TemplatePrototype.get_by_id(self.template.id), None)
-
-
-    def test_remove__from_chain(self):
-        text = u'[hero|загл] 2 [пепельница|hero|вн]'
-        utg_template = utg_templates.Template()
-        utg_template.parse(text, externals=['hero'])
-
-        template_1 = prototypes.TemplatePrototype.create(key=self.key,
-                                                         raw_template=text,
-                                                         utg_template=utg_template,
-                                                         verificators=[],
-                                                         author=self.account_2,
-                                                         parent=self.template)
-
-
-        template_2 = prototypes.TemplatePrototype.create(key=self.key,
-                                                         raw_template=text,
-                                                         utg_template=utg_template,
-                                                         verificators=[],
-                                                         author=self.account_2,
-                                                         parent=template_1)
-
-
-        self.request_login(self.moderator.email)
-
-        self.check_ajax_ok(self.client.post(url('linguistics:templates:remove', template_1.id)))
-
-        template_2.reload()
-
-        self.assertEqual(prototypes.TemplatePrototype.get_by_id(template_1.id), None)
-        self.assertEqual(template_2.parent_id, self.template.id)

@@ -42,6 +42,7 @@
     <tr>
       <th width="50px">ошибки</th>
       <th width="125px">состояние</th>
+      <th width="125px">автор</th>
       <th>шаблон</th>
       <th width="50px"></th>
     </tr>
@@ -55,6 +56,18 @@
         {% endif %}
       </td>
       <td>{{template.state.text}}</td>
+      <td>
+        {% set author = authors.get(template.author_id) %}
+        {% if author %}
+          <a href="{{url('accounts:show', template.author_id)}}">{{author.nick}}</a>
+          {% set clan = clans.get(author.clan_id) %}
+          {% if clan is not none %}
+            <a href="{{url('accounts:clans:show', clan.id)}}">[{{clan.abbr}}]</a>
+          {% endif %}
+        {% else %}
+          нет
+        {% endif %}
+      </td>
       <td>{{template.raw_template}}</td>
       <td>
         <a href="{{url('linguistics:templates:show', template.id)}}">подробнее</a>

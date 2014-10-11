@@ -1,5 +1,6 @@
 # coding: utf-8
 import time
+import collections
 
 from django.db import models
 
@@ -12,51 +13,53 @@ from the_tale.blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STAT
 
 from the_tale.game.bills.models import Bill, Vote
 from the_tale.game.bills.relations import BILL_STATE, VOTE_TYPE
-from the_tale.game.phrase_candidates.models import PhraseCandidate
-from the_tale.game.phrase_candidates.relations import PHRASE_CANDIDATE_STATE
 from the_tale.game.heroes.prototypes import HeroPrototype
+
+from the_tale.linguistics.prototypes import ContributionPrototype
+from the_tale.linguistics.relations import CONTRIBUTION_TYPE
+
+
+def calculate_linguistics_migth(account_id, contribution_type, might_per_entity):
+
+    entities_ids = ContributionPrototype._db_filter(account_id=account_id,
+                                                    type=contribution_type).values_list('entity_id', flat=True)
+
+    contributions_per_entity = collections.Counter(ContributionPrototype._db_filter(type=contribution_type,
+                                                                                    entity_id__in=entities_ids).values_list('entity_id', flat=True))
+
+    might = 0
+
+    might_per_entity = float(might_per_entity)
+
+    for contributions_count in contributions_per_entity.values():
+        might += might_per_entity / contributions_count
+
+    return might
 
 
 def calculate_might(account): # pylint: disable=R0914
 
-    MIGHT_FOR_FORUM_POST = 0.3
-    MIGHT_FOR_FORUM_THREAD = 3
-    MIGHT_FOR_BILL_VOTE = 1
-    MIGHT_FOR_BILL_ACCEPTED = 33
-    MIGHT_FOR_ADDED_PHRASE_CANDIDATE = 10
-    MIGHT_FOR_GOOD_FOLCLOR_POST = 100
-
     MIGHT_FROM_REFERRAL = 0.1
-
-    MIGHT_FOR_AWARD = { relations.AWARD_TYPE.BUG_MINOR: 111,
-                        relations.AWARD_TYPE.BUG_NORMAL: 222,
-                        relations.AWARD_TYPE.BUG_MAJOR: 333,
-                        relations.AWARD_TYPE.CONTEST_1_PLACE: 1000,
-                        relations.AWARD_TYPE.CONTEST_2_PLACE: 666,
-                        relations.AWARD_TYPE.CONTEST_3_PLACE: 333,
-                        relations.AWARD_TYPE.STANDARD_MINOR: 333,
-                        relations.AWARD_TYPE.STANDARD_NORMAL: 666,
-                        relations.AWARD_TYPE.STANDARD_MAJOR: 1000 }
-
 
     might = 0
 
-    might += Post.objects.filter(author_id=account.id, state=POST_STATE.DEFAULT).count() * MIGHT_FOR_FORUM_POST
-    might += Thread.objects.filter(author_id=account.id).count() * MIGHT_FOR_FORUM_THREAD
+    might += Post.objects.filter(author_id=account.id, state=POST_STATE.DEFAULT).count() * relations.MIGHT_AMOUNT.FOR_FORUM_POST.amount
+    might += Thread.objects.filter(author_id=account.id).count() * relations.MIGHT_AMOUNT.FOR_FORUM_THREAD.amount
 
-    might += Vote.objects.filter(owner_id=account.id).exclude(type=VOTE_TYPE.REFRAINED).count() * MIGHT_FOR_BILL_VOTE
-    might += Bill.objects.filter(owner_id=account.id, state=BILL_STATE.ACCEPTED).count() * MIGHT_FOR_BILL_ACCEPTED
+    might += Vote.objects.filter(owner_id=account.id).exclude(type=VOTE_TYPE.REFRAINED).count() * relations.MIGHT_AMOUNT.FOR_BILL_VOTE.amount
+    might += Bill.objects.filter(owner_id=account.id, state=BILL_STATE.ACCEPTED).count() * relations.MIGHT_AMOUNT.FOR_BILL_ACCEPTED.amount
 
-    might += PhraseCandidate.objects.filter(author_id=account.id, state=PHRASE_CANDIDATE_STATE.ADDED).count() * MIGHT_FOR_ADDED_PHRASE_CANDIDATE
+    might += calculate_linguistics_migth(account.id, contribution_type=CONTRIBUTION_TYPE.WORD, might_per_entity=relations.MIGHT_AMOUNT.FOR_ADDED_WORD.amount)
+    might += calculate_linguistics_migth(account.id, contribution_type=CONTRIBUTION_TYPE.TEMPLATE, might_per_entity=relations.MIGHT_AMOUNT.FOR_ADDED_TEMPLATE.amount)
 
-    might += BlogPost.objects.filter(author_id=account.id, state=BLOG_POST_STATE.ACCEPTED, votes__gt=1).count() * MIGHT_FOR_GOOD_FOLCLOR_POST
+    might += BlogPost.objects.filter(author_id=account.id, state=BLOG_POST_STATE.ACCEPTED, votes__gt=1).count() * relations.MIGHT_AMOUNT.FOR_GOOD_FOLCLOR_POST.amount
 
     referrals_mights = AccountPrototype._model_class.objects.filter(referral_of=account.id).aggregate(models.Sum('might'))['might__sum']
 
     might += referrals_mights * MIGHT_FROM_REFERRAL if referrals_mights else 0
 
-    for award_type, might_cooficient in MIGHT_FOR_AWARD.items():
-        might += Award.objects.filter(account_id=account.id, type=award_type).count() * might_cooficient
+    for award_type in relations.AWARD_TYPE.records:
+        might += Award.objects.filter(account_id=account.id, type=award_type).count() * relations.MIGHT_AMOUNT.index_award[award_type][0].amount
 
     return might
 

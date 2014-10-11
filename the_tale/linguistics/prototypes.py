@@ -2,6 +2,8 @@
 import random
 import datetime
 
+from django.db import IntegrityError
+
 from dext.common.utils import s11n
 
 from utg import words as utg_words
@@ -13,6 +15,7 @@ from the_tale.amqp_environment import environment
 
 from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils.decorators import lazy_property
+from the_tale.common.utils.logic import get_or_create
 
 from the_tale.linguistics import models
 from the_tale.linguistics import relations
@@ -22,7 +25,7 @@ from the_tale.linguistics.lexicon import dictionary as lexicon_dictionary
 
 class WordPrototype(BasePrototype):
     _model_class = models.Word
-    _readonly = ('id', 'type', 'created_at')
+    _readonly = ('id', 'type', 'created_at', 'author_id')
     _bidirectional = ('state', 'parent_id', 'used_in_ingame_templates', 'used_in_onreview_templates', 'used_in_status')
     _get_by = ('id', 'parent_id')
 
@@ -43,12 +46,13 @@ class WordPrototype(BasePrototype):
 
 
     @classmethod
-    def create(cls, utg_word, parent=None):
+    def create(cls, utg_word, parent=None, author=None):
         model = cls._db_create(type=utg_word.type,
                                state=relations.WORD_STATE.ON_REVIEW,
                                normal_form=utg_word.normal_form(),
                                forms=s11n.to_json(utg_word.serialize()),
-                               parent=parent._model if parent is not None else None)
+                               parent=parent._model if parent is not None else None,
+                               author=author._model if author is not None else None)
 
         prototype = cls(model)
 
@@ -346,3 +350,34 @@ class Verificator(object):
         random.setstate(random_state)
 
         return verificators
+
+
+
+class ContributionPrototype(BasePrototype):
+    _model_class = models.Contribution
+    _readonly = ('id', 'created_at', 'account_id', 'type', 'entity_id')
+    _bidirectional = ()
+    _get_by = ('id', 'account_id', 'entity_id')
+
+
+    @classmethod
+    def create(cls, type, account_id, entity_id):
+        return cls(cls._db_create(type=type,
+                                  account_id=account_id,
+                                  entity_id=entity_id))
+
+    @classmethod
+    def get_for(cls, type, account_id, entity_id):
+        try:
+            return cls(cls._db_get(type=type, account_id=account_id, entity_id=entity_id))
+        except cls._model_class.DoesNotExist:
+            return None
+
+    @classmethod
+    def get_for_or_create(cls, type, account_id, entity_id):
+        return get_or_create(get_method=cls.get_for,
+                             create_method=cls.create,
+                             exception=IntegrityError,
+                             kwargs={'type': type,
+                                     'account_id': account_id,
+                                     'entity_id': entity_id})

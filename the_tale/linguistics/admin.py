@@ -17,5 +17,12 @@ class TemplateAdmin(admin.ModelAdmin):
     list_filter = ('state', 'key')
 
 
+class ContributionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'type', 'account', 'entity_id')
+
+    list_filter = ('type',)
+
+
 admin.site.register(models.Word, WordAdmin)
 admin.site.register(models.Template, TemplateAdmin)
+admin.site.register(models.Contribution, ContributionAdmin)

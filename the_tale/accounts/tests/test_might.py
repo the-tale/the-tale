@@ -23,9 +23,6 @@ from the_tale.game.bills.models import Vote
 from the_tale.game.bills.conf import bills_settings
 from the_tale.game.bills.relations import BILL_STATE, VOTE_TYPE
 
-from the_tale.game.phrase_candidates.prototypes import PhraseCandidatePrototype
-from the_tale.game.phrase_candidates.relations import PHRASE_CANDIDATE_STATE
-
 from the_tale.accounts.might import calculate_might
 
 class CalculateMightTests(testcase.TestCase):
@@ -131,32 +128,43 @@ class CalculateMightTests(testcase.TestCase):
         VotePrototype.create(self.account, bill, VOTE_TYPE.REFRAINED)
         self.assertEqual(calculate_might(self.account), 0)
 
-    def test_phrase_candidate_might(self):
+
+    def test_might_for_linguistics(self):
+        from the_tale.linguistics.prototypes import ContributionPrototype
+        from the_tale.linguistics.relations import CONTRIBUTION_TYPE
+
+        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
+        account_3 = AccountPrototype.get_by_id(account_id)
+
         old_might = calculate_might(self.account)
-        phrase =  PhraseCandidatePrototype.create(type_='type',
-                                                  type_name=u'type name',
-                                                  subtype='subtype',
-                                                  subtype_name=u'subtype name',
-                                                  author=self.account,
-                                                  text=u'text')
 
-        self.assertEqual(old_might, calculate_might(self.account))
-        phrase.state = PHRASE_CANDIDATE_STATE.ADDED
-        phrase.save()
+        ContributionPrototype.create(type=CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=1)
 
-        new_might = calculate_might(self.account)
-        self.assertTrue(new_might > old_might)
+        ContributionPrototype.create(type=CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=2)
+        ContributionPrototype.create(type=CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=2)
 
-        phrase =  PhraseCandidatePrototype.create(type_='type',
-                                                  type_name=u'type name',
-                                                  subtype='subtype',
-                                                  subtype_name=u'subtype name',
-                                                  author=self.account_2,
-                                                  text=u'text')
-        phrase.state = PHRASE_CANDIDATE_STATE.ADDED
-        phrase.save()
+        ContributionPrototype.create(type=CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=3)
+        ContributionPrototype.create(type=CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=3)
+        ContributionPrototype.create(type=CONTRIBUTION_TYPE.WORD, account_id=account_3.id, entity_id=3)
 
-        self.assertEqual(new_might, calculate_might(self.account))
+        ContributionPrototype.create(type=CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=4)
+        ContributionPrototype.create(type=CONTRIBUTION_TYPE.WORD, account_id=account_3.id, entity_id=4)
+
+        self.assertEqual(calculate_might(self.account), old_might + 5.0 + 5.0 / 2 + 5.0 / 3)
+
+        ContributionPrototype.create(type=CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=1)
+
+        ContributionPrototype.create(type=CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=2)
+        ContributionPrototype.create(type=CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=2)
+
+        ContributionPrototype.create(type=CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=3)
+        ContributionPrototype.create(type=CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=3)
+        ContributionPrototype.create(type=CONTRIBUTION_TYPE.TEMPLATE, account_id=account_3.id, entity_id=3)
+
+        ContributionPrototype.create(type=CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=4)
+        ContributionPrototype.create(type=CONTRIBUTION_TYPE.TEMPLATE, account_id=account_3.id, entity_id=4)
+
+        self.assertEqual(calculate_might(self.account), old_might + 5.0 + 5.0 / 2 + 5.0 / 3 + 15.0 + 15.0 / 2 + 15.0 / 3)
 
 
     def test_folclor_might(self):

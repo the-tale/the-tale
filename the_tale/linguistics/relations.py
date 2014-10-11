@@ -55,3 +55,8 @@ class TEMPLATE_STATE(DjangoEnum):
 class TEMPLATE_ERRORS_STATUS(DjangoEnum):
     records = ( ('NO_ERRORS', 0, u'нет ошибок'),
                 ('HAS_ERRORS', 1, u'есть ошибки'))
+
+
+class CONTRIBUTION_TYPE(DjangoEnum):
+    records = ( ('WORD', 0, u'слово'),
+                ('TEMPLATE', 1, u'фраза'))

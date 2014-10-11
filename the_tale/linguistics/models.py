@@ -17,7 +17,8 @@ class Word(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now_add=True, null=False)
 
-    parent = models.ForeignKey('linguistics.Word', null=True, on_delete=models.SET_NULL)
+    author = models.ForeignKey(project_settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    parent = models.ForeignKey('linguistics.Word', null=True, unique=True, on_delete=models.SET_NULL)
 
     normal_form = models.CharField(max_length=MAX_FORM_LENGTH)
     forms = models.TextField()
@@ -40,7 +41,7 @@ class Template(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True, null=False)
 
     author = models.ForeignKey(project_settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
-    parent = models.ForeignKey('linguistics.Template', null=True, on_delete=models.SET_NULL)
+    parent = models.ForeignKey('linguistics.Template', null=True, unique=True, on_delete=models.SET_NULL)
 
     raw_template = models.TextField()
     data = models.TextField()
@@ -52,3 +53,17 @@ class Template(models.Model):
 
     class Meta:
         permissions = (("moderate_template", u"Может модерировать шаблоны фраз"), )
+
+
+class Contribution(models.Model):
+
+    created_at = models.DateTimeField(auto_now_add=True, null=False)
+    account = models.ForeignKey(project_settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    type = RelationIntegerField(relation=relations.CONTRIBUTION_TYPE, default=0, db_index=True)
+
+    # if entity_id < 0 it is id of old phrase_candidate entity
+    entity_id = models.BigIntegerField(db_index=True)
+
+    class Meta:
+        unique_together = (('type', 'account', 'entity_id'),)

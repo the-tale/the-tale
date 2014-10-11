@@ -1,31 +1,21 @@
-# coding: utf-8
-import os
-import json
-
+# -*- coding: utf-8 -*-
 from south.utils import datetime_utils as datetime
 from south.db import db
 from south.v2 import DataMigration
 from django.db import models
 
-from django.conf import settings as project_settings
-
-
 class Migration(DataMigration):
+    depends_on = ( ("phrase_candidates", "0008_auto__chg_field_phrasecandidate_moderator"), )
 
     def forwards(self, orm):
-        with open(os.path.join(os.path.join(project_settings.PROJECT_DIR, 'linguistics', 'fixtures', 'lexicon.json'))) as f:
-            templates = json.load(f)
 
-        TemplateModel = orm['linguistics.Template']
-
-        for template_data in templates:
-            TemplateModel.objects.create(raw_template=template_data['raw'],
-                                         data=json.dumps(template_data['data']),
-                                         state=1,
-                                         key=template_data['key'])
+        for phrase_candidate in orm['phrase_candidates.PhraseCandidate'].objects.filter(state=3).all():
+            orm['linguistics.Contribution'].objects.create(type=1,
+                                                           account_id=phrase_candidate.author_id,
+                                                           entity_id=-phrase_candidate.id)
 
     def backwards(self, orm):
-        orm['linguistics.Template'].objects.all().delete()
+        "Write your backwards methods here."
 
     models = {
         u'accounts.account': {
@@ -131,30 +121,57 @@ class Migration(DataMigration):
             'technical': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(1970, 1, 1, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'})
         },
+        u'linguistics.contribution': {
+            'Meta': {'unique_together': "(('type', 'account', 'entity_id'),)", 'object_name': 'Contribution'},
+            'account': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounts.Account']"}),
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'entity_id': ('django.db.models.fields.BigIntegerField', [], {'db_index': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'type': ('rels.django.RelationIntegerField', [], {'default': '0', 'db_index': 'True'})
+        },
         u'linguistics.template': {
             'Meta': {'object_name': 'Template'},
             'author': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounts.Account']", 'null': 'True', 'on_delete': 'models.SET_NULL'}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'data': ('django.db.models.fields.TextField', [], {}),
+            'errors_status': ('rels.django.RelationIntegerField', [], {'default': '0', 'db_index': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'key': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
-            'parent': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['linguistics.Template']", 'null': 'True', 'on_delete': 'models.SET_NULL'}),
+            'parent': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['linguistics.Template']", 'unique': 'True', 'null': 'True', 'on_delete': 'models.SET_NULL'}),
             'raw_template': ('django.db.models.fields.TextField', [], {}),
             'state': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'})
         },
         u'linguistics.word': {
             'Meta': {'unique_together': "(('normal_form', 'type', 'state'),)", 'object_name': 'Word'},
+            'author': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounts.Account']", 'null': 'True', 'on_delete': 'models.SET_NULL'}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'forms': ('django.db.models.fields.TextField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'normal_form': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
-            'parent': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['linguistics.Word']", 'null': 'True', 'on_delete': 'models.SET_NULL'}),
+            'parent': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['linguistics.Word']", 'unique': 'True', 'null': 'True', 'on_delete': 'models.SET_NULL'}),
             'state': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             'type': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
+            'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'used_in_ingame_templates': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'used_in_onreview_templates': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'used_in_status': ('rels.django.RelationIntegerField', [], {'default': '2', 'db_index': 'True'})
+        },
+        u'phrase_candidates.phrasecandidate': {
+            'Meta': {'object_name': 'PhraseCandidate'},
+            'author': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['accounts.Account']"}),
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'moderator': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': u"orm['accounts.Account']"}),
+            'state': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
+            'subtype': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '256'}),
+            'subtype_name': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '256'}),
+            'text': ('django.db.models.fields.TextField', [], {'max_length': '10240', 'blank': 'True'}),
+            'type': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
+            'type_name': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '256'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'})
         }
     }
 
-    complete_apps = ['linguistics']
+    complete_apps = ['phrase_candidates', 'linguistics']
     symmetrical = True

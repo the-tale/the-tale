@@ -26,13 +26,28 @@
 <ul>
   <li>в игровых фразах: {{word.used_in_ingame_templates}}</li>
   <li>в рассматриваемых фразах: {{word.used_in_onreview_templates}}</li>
+  <li>
+    автор:
+
+    {% if author %}
+      <a href="{{url('accounts:show', word.author_id)}}">{{author.nick}}</a>
+      {% if clan is not none %}
+        <a href="{{url('accounts:clans:show', clan.id)}}">[{{clan.abbr}}]</a>
+      {% endif %}
+    {% else %}
+      нет
+    {% endif %}
+
+  </li>
 </ul>
 
 <h2>{{word.utg_word.normal_form()|up_first}} <small>{{word.type.text}}, {{word.state.text}}</small></h2>
 
 {{words_macros.render_word(drawer)}}
 
-<a class="btn btn-info" href="{{url('linguistics:words:new', type=word.type.value, parent=word.id)}}">Редактировать</a>
+{% if resource.can_edit_words %}
+<a class="btn btn-info pgf-edit-button" href="{{url('linguistics:words:new', type=word.type.value, parent=word.id)}}">Редактировать</a>
+{% endif %}
 
 {% if resource.can_moderate_words and word.state.is_ON_REVIEW %}
 <a class="btn btn-success pgf-forms-post-simple pgf-in-game-button" href="{{url('linguistics:words:in-game', word.id)}}">В игру</a>

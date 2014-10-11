@@ -416,9 +416,9 @@ class AccountResource(BaseAccountsResource):
         from the_tale.forum.models import Thread
         from the_tale.game.bills.prototypes import BillPrototype
         from the_tale.game.ratings.prototypes import RatingPlacesPrototype, RatingValuesPrototype
-        from the_tale.game.phrase_candidates.models import PhraseCandidate
-        from the_tale.game.phrase_candidates.relations import PHRASE_CANDIDATE_STATE
         from the_tale.accounts.clans.logic import ClanInfo
+        from the_tale.linguistics.prototypes import ContributionPrototype
+        from the_tale.linguistics.relations import CONTRIBUTION_TYPE
 
         bills_count = BillPrototype.accepted_bills_count(self.master_account.id)
 
@@ -430,8 +430,11 @@ class AccountResource(BaseAccountsResource):
 
         rating_values = RatingValuesPrototype.get_by_account_id(self.master_account.id)
 
-        phrases_count = PhraseCandidate.objects.filter(author=self.master_account._model,
-                                                       state=PHRASE_CANDIDATE_STATE.ADDED).count()
+        templates_count = ContributionPrototype._db_filter(account_id=self.master_account.id,
+                                                           type=CONTRIBUTION_TYPE.TEMPLATE).count()
+
+        words_count = ContributionPrototype._db_filter(account_id=self.master_account.id,
+                                                       type=CONTRIBUTION_TYPE.WORD).count()
 
         folclor_posts_count = BlogPost.objects.filter(author=self.master_account._model, state=BLOG_POST_STATE.ACCEPTED).count()
 
@@ -453,7 +456,8 @@ class AccountResource(BaseAccountsResource):
                               'threads_with_posts': threads_with_posts,
                               'threads_count': threads_count,
                               'folclor_posts_count': folclor_posts_count,
-                              'phrases_count': phrases_count,
+                              'templates_count': templates_count,
+                              'words_count': words_count,
                               'master_clan_info': ClanInfo(self.master_account),
                               'own_clan_info': ClanInfo(self.account),
                               'friendship': friendship} )

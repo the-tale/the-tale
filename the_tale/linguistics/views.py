@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from django.core.urlresolvers import reverse
-from django.db import transaction
+from django.db import transaction, models
 
 from dext.views import handler, validate_argument, validator
 from dext.common.utils.urls import UrlBuilder, url
@@ -11,6 +11,8 @@ from utg import templates as utg_templates
 
 from the_tale.common.utils import list_filter
 
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.clans.prototypes import ClanPrototype
 from the_tale.accounts.views import validate_fast_account, validate_ban_forum
 
 from the_tale.common.utils.resources import Resource
@@ -29,6 +31,7 @@ from the_tale.linguistics.lexicon import keys
 
 class WordsIndexFilter(list_filter.ListFilter):
     ELEMENTS = [list_filter.reset_element(),
+                list_filter.static_element(u'автор:', attribute='contributor'),
                 list_filter.filter_element(u'поиск:', attribute='filter', default_value=None),
                 list_filter.choice_element(u'часть речи:', attribute='type', choices=[(None, u'все')] + list(utg_relations.WORD_TYPE.select('value', 'text')) ),
                 list_filter.choice_element(u'состояние:', attribute='state', choices=[(None, u'все')] + list(relations.WORD_STATE.select('value', 'text'))),
@@ -37,6 +40,7 @@ class WordsIndexFilter(list_filter.ListFilter):
 
 class TemplatesIndexFilter(list_filter.ListFilter):
     ELEMENTS = [list_filter.reset_element(),
+                list_filter.static_element(u'автор:', attribute='contributor'),
                 list_filter.choice_element(u'состояние:', attribute='state', choices=[(None, u'все')] + list(relations.TEMPLATE_STATE.select('value', 'text'))),
                 list_filter.choice_element(u'наличие ошибок:', attribute='errors_status', choices=[(None, u'все')] + list(relations.TEMPLATE_ERRORS_STATUS.select('value', 'text'))),
                 list_filter.static_element(u'количество:', attribute='count', default_value=0) ]
@@ -46,6 +50,7 @@ class LinguisticsResource(Resource):
 
     def initialize(self, *args, **kwargs):
         super(LinguisticsResource, self).initialize(*args, **kwargs)
+
 
     @handler('', method='get')
     def index(self):
@@ -71,14 +76,21 @@ class WordResource(Resource):
         super(WordResource, self).initialize(*args, **kwargs)
         self.word = word
         self.can_moderate_words = self.account.has_perm('linguistics.moderate_word')
+        self.can_edit_words = self.account.is_authenticated() and not self.account.is_fast
 
 
+    @validate_argument('contributor', AccountPrototype.get_by_id, 'linguistics.words', u'неверный сооавтор')
     @validate_argument('state', lambda v: relations.WORD_STATE.index_value.get(int(v)), 'linguistics.words', u'неверное состояние слова')
     @validate_argument('type', lambda v: utg_relations.WORD_TYPE.index_value.get(int(v)), 'linguistics.words', u'неверный тип слова')
     @handler('', method='get')
-    def index(self, page=1, state=None, type=None, filter=None):
+    def index(self, page=1, state=None, type=None, filter=None, contributor=None):
 
         words_query = prototypes.WordPrototype._db_all().order_by('normal_form')
+
+        if contributor is not None:
+            entities_ids = prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                                       account_id=contributor.id).values_list('entity_id', flat=True)
+            words_query = words_query.filter(models.Q(id__in=entities_ids)|models.Q(author_id=contributor.id))
 
         if state:
             words_query = words_query.filter(state=state)
@@ -93,11 +105,13 @@ class WordResource(Resource):
 
         url_builder = UrlBuilder(reverse('linguistics:words:'), arguments={ 'state': state.value if state else None,
                                                                             'type': type.value if type else None,
+                                                                            'contributor': contributor.id if contributor else None,
                                                                             'filter': filter})
 
         index_filter = WordsIndexFilter(url_builder=url_builder, values={'state': state.value if state else None,
                                                                          'type': type.value if type else None,
                                                                          'filter': filter,
+                                                                         'contributor': contributor.nick if contributor else None,
                                                                          'count': words_count})
 
         page = int(page) - 1
@@ -111,14 +125,23 @@ class WordResource(Resource):
 
         words = prototypes.WordPrototype.from_query(words_query[words_from:words_to])
 
+        authors = {account.id: account for account in AccountPrototype.from_query(AccountPrototype.get_list_by_id([word.author_id for word in words]))}
+        clans = {clan.id: clan for clan in ClanPrototype.from_query(ClanPrototype.get_list_by_id([author.clan_id for author in authors.itervalues()]))}
+
+
         return self.template('linguistics/words/index.html',
                              {'words': words,
                               'page_type': 'dictionary',
                               'paginator': paginator,
+                              'authors': authors,
+                              'clans': clans,
                               'ALLOWED_WORD_TYPE': relations.ALLOWED_WORD_TYPE,
                               'index_filter': index_filter} )
 
 
+    @login_required
+    @validate_fast_account()
+    @validate_ban_forum()
     @validate_argument('parent', lambda v: prototypes.WordPrototype.get_by_id(int(v)), 'linguistics.words', u'неверный идентификатор слова')
     @validate_argument('type', lambda v: utg_relations.WORD_TYPE.index_value.get(int(v)), 'linguistics.words', u'неверный тип слова', required=True)
     @handler('new', method='get')
@@ -130,6 +153,10 @@ class WordResource(Resource):
         if parent and parent.has_child():
             return self.auto_error('linguistics.words.new.has_on_review_copy',
                                    u'Для этого слова уже создана улучшенная копия. Отредактируйте её или подождите, пока её примут в игру.')
+
+        if parent and parent.state.is_ON_REVIEW and parent.author_id != self.account.id:
+            return self.auto_error('linguistics.words.new.can_not_edit_anothers_word',
+                                   u'Вы не можете редактировать вариант слова, созданный другим игрокоам. Подождите пока его проверит модератор.')
 
         FormClass = forms.WORD_FORMS[type]
 
@@ -145,6 +172,9 @@ class WordResource(Resource):
                               'parent': parent} )
 
 
+    @login_required
+    @validate_fast_account()
+    @validate_ban_forum()
     @validate_argument('parent', lambda v: prototypes.WordPrototype.get_by_id(int(v)), 'linguistics.words', u'неверный идентификатор слова')
     @validate_argument('type', lambda v: utg_relations.WORD_TYPE.index_value.get(int(v)), 'linguistics.words', u'неверный тип слова', required=True)
     @handler('create', method='post')
@@ -155,7 +185,11 @@ class WordResource(Resource):
 
         if parent and parent.has_child():
             return self.auto_error('linguistics.words.create.has_on_review_copy',
-                                   u'Для этого слова уже создана улучшенная копия. Отредактируйте её или подождите, пока её примут в игру.')
+                                   u'Для этого слова уже создана улучшенная копия. Отредактируйте её (если вы её автор) или подождите, пока её проверит модератор.')
+
+        if parent and parent.state.is_ON_REVIEW and parent.author_id != self.account.id:
+            return self.auto_error('linguistics.words.create.can_not_edit_anothers_word',
+                                   u'Вы не можете редактировать вариант слова, созданный другим игрокоам. Подождите пока его проверит модератор.')
 
         form = forms.WORD_FORMS[type](self.request.POST)
 
@@ -174,12 +208,14 @@ class WordResource(Resource):
         with transaction.atomic():
             removed_word = None
 
+            # remember, that we can replace only words from same author
+            # this is chicking in begining of view
             if parent and parent.state.is_ON_REVIEW:
                 removed_word = parent
                 parent = parent.get_parent()
                 removed_word.remove()
 
-            word = prototypes.WordPrototype.create(new_word, parent=parent)
+            word = prototypes.WordPrototype.create(new_word, parent=parent, author=self.account)
 
         return self.json_ok(data={'next_url': url('linguistics:words:show', word.id)})
 
@@ -195,9 +231,14 @@ class WordResource(Resource):
         if word_parent:
             other_version = word_parent.utg_word
 
+        author = AccountPrototype.get_by_id(self.word.author_id)
+        clan = ClanPrototype.get_by_id(author.clan_id) if author else None
+
         return self.template('linguistics/words/show.html',
                              {'word': self.word,
                               'page_type': 'dictionary',
+                              'author': author,
+                              'clan': clan,
                               'parent_word': self.word.get_parent(),
                               'child_word': self.word.get_child(),
                               'drawer': word_drawer.ShowDrawer(word=self.word.utg_word,
@@ -232,6 +273,11 @@ class WordResource(Resource):
             self.word.state = relations.WORD_STATE.IN_GAME
             self.word.save()
 
+            if self.word.author_id is not None:
+                prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                                   account_id=self.word.author_id,
+                                                                   entity_id=self.word.id)
+
         return self.json_ok()
 
 
@@ -253,16 +299,22 @@ class TemplateResource(Resource):
     def initialize(self, template=None, *args, **kwargs):
         super(TemplateResource, self).initialize(*args, **kwargs)
         self._template = template
-
         self.can_moderate_templates = self.account.has_perm('linguistics.moderate_template')
+        self.can_edit_templates = self.account.is_authenticated() and not self.account.is_fast
 
+    @validate_argument('contributor', AccountPrototype.get_by_id, 'linguistics.templates', u'неверный сооавтор')
     @validate_argument('page', int, 'linguistics.templates', u'неверная страница')
     @validate_argument('key', lambda v: keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', u'неверный ключ фразы')
     @validate_argument('state', lambda v: relations.TEMPLATE_STATE.index_value.get(int(v)), 'linguistics.templates', u'неверное состояние шаблона')
     @validate_argument('errors_status', lambda v: relations.TEMPLATE_ERRORS_STATUS.index_value.get(int(v)), 'linguistics.words', u'неверный статус ошибок')
     @handler('', method='get')
-    def index(self, key=None, state=None, errors_status=None, page=1):
+    def index(self, key=None, state=None, errors_status=None, page=1, contributor=None):
         templates_query = prototypes.TemplatePrototype._db_all().order_by('raw_template')
+
+        if contributor is not None:
+            entities_ids = prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                                       account_id=contributor.id).values_list('entity_id', flat=True)
+            templates_query = templates_query.filter(models.Q(id__in=entities_ids)|models.Q(author_id=contributor.id))
 
         if key:
             templates_query = templates_query.filter(key=key)
@@ -279,10 +331,12 @@ class TemplateResource(Resource):
 
         url_builder = UrlBuilder(reverse('linguistics:templates:'), arguments={ 'state': state.value if state else None,
                                                                                 'errors_status': errors_status.value if errors_status else None,
+                                                                                'contributor': contributor.id if contributor else None,
                                                                                 'key': key.value if key is not None else None})
 
         index_filter = TemplatesIndexFilter(url_builder=url_builder, values={'state': state.value if state else None,
                                                                              'errors_status': errors_status.value if errors_status else None,
+                                                                             'contributor': contributor.nick if contributor else None,
                                                                              'key': key.value if key is not None else None,
                                                                              'count': templates_query.count()})
 
@@ -296,12 +350,17 @@ class TemplateResource(Resource):
 
         templates = prototypes.TemplatePrototype.from_query(templates_query[template_from:template_to])
 
+        authors = {account.id: account for account in AccountPrototype.from_query(AccountPrototype.get_list_by_id([template.author_id for template in templates]))}
+        clans = {clan.id: clan for clan in ClanPrototype.from_query(ClanPrototype.get_list_by_id([author.clan_id for author in authors.itervalues()]))}
+
         return self.template('linguistics/templates/index.html',
                              {'key': key,
                               'templates': templates,
                               'index_filter': index_filter,
                               'page_type': 'keys' if key else 'all-templates',
                               'paginator': paginator,
+                              'authors': authors,
+                              'clans': clans,
                               'LEXICON_KEY': keys.LEXICON_KEY} )
 
     @login_required
@@ -353,10 +412,16 @@ class TemplateResource(Resource):
 
         errors = self._template.get_errors()
 
+        author = AccountPrototype.get_by_id(self._template.author_id)
+        clan = ClanPrototype.get_by_id(author.clan_id) if author else None
+
         return self.template('linguistics/templates/show.html',
                              {'template': self._template,
                               'template_parent': template_parent,
                               'template_child': template_child,
+                              'author': author,
+                              'clan': clan,
+                              'related_template': template_parent or template_child,
                               'page_type': 'keys',
                               'errors': errors} )
 
@@ -366,6 +431,10 @@ class TemplateResource(Resource):
     @validate_ban_forum()
     @handler('#template', 'edit', method='get')
     def edit(self):
+
+        if self._template.state.is_ON_REVIEW and self._template.author_id != self.account.id:
+            return self.auto_error('linguistics.templates.edit.can_not_edit_anothers_template',
+                                   u'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите пока его проверит модератор.')
 
         verificators = self._template.get_all_verificatos()
 
@@ -386,6 +455,11 @@ class TemplateResource(Resource):
     @validate_ban_forum()
     @handler('#template', 'update', method='post')
     def update(self):
+
+        if self._template.state.is_ON_REVIEW and self._template.author_id != self.account.id:
+            return self.auto_error('linguistics.templates.update.can_not_edit_anothers_template',
+                                   u'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите пока его проверит модератор.')
+
 
         form = forms.TemplateForm(self._template.key,
                                   self._template.get_all_verificatos(),
@@ -474,8 +548,14 @@ class TemplateResource(Resource):
         if self._template.state.is_IN_GAME:
             return self.json_ok()
 
-        self._template.state = relations.TEMPLATE_STATE.IN_GAME
-        self._template.save()
+        with transaction.atomic():
+            self._template.state = relations.TEMPLATE_STATE.IN_GAME
+            self._template.save()
+
+            if self._template.author_id is not None:
+                prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                                   account_id=self._template.author_id,
+                                                                   entity_id=self._template.id)
 
         return self.json_ok()
 

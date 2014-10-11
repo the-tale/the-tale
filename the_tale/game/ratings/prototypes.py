@@ -13,10 +13,12 @@ from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import get_system_user
 from the_tale.accounts.achievements.models import AccountAchievements
 
+from the_tale.linguistics.prototypes import ContributionPrototype
+from the_tale.linguistics.relations import CONTRIBUTION_TYPE
+
+
 from the_tale.game.heroes.models import Hero
 from the_tale.game.bills.models import Bill, BILL_STATE
-from the_tale.game.phrase_candidates.models import PhraseCandidate
-from the_tale.game.phrase_candidates.relations import PHRASE_CANDIDATE_STATE
 
 from the_tale.game.ratings.models import RatingValues, RatingPlaces
 from the_tale.game.ratings.conf import ratings_settings
@@ -65,9 +67,9 @@ LEFT OUTER JOIN ( SELECT %(bills)s.owner_id AS bills_owner_id, COUNT(%(bills)s.o
                   FROM %(bills)s
                   WHERE %(bills)s.state=%(bill_accepted_state)s GROUP BY %(bills)s.owner_id ) AS bills_subquery
            ON %(accounts)s.id=bills_owner_id
-LEFT OUTER JOIN ( SELECT %(phrase_candidates)s.author_id AS phrase_author_id, COUNT(%(phrase_candidates)s.author_id) AS raw_phrases_count
+LEFT OUTER JOIN ( SELECT %(phrase_candidates)s.account_id AS phrase_author_id, COUNT(%(phrase_candidates)s.account_id) AS raw_phrases_count
                   FROM %(phrase_candidates)s
-                  WHERE %(phrase_candidates)s.state=%(phrase_candidate_added_state)s GROUP BY %(phrase_candidates)s.author_id ) AS phrases_subquery
+                  WHERE %(phrase_candidates)s.type=%(phrase_candidate_type)s GROUP BY %(phrase_candidates)s.account_id ) AS phrases_subquery
            ON %(accounts)s.id=phrase_author_id
 WHERE NOT %(accounts)s.is_fast AND NOT %(accounts)s.is_bot AND %(accounts)s.id <> %(system_user_id)s AND %(accounts)s.ban_game_end_at < current_timestamp
 '''
@@ -78,8 +80,8 @@ WHERE NOT %(accounts)s.is_fast AND NOT %(accounts)s.is_bot AND %(accounts)s.id <
                                      'heroes': Hero._meta.db_table,
                                      'bills': Bill._meta.db_table,
                                      'bill_accepted_state': BILL_STATE.ACCEPTED.value,
-                                     'phrase_candidates': PhraseCandidate._meta.db_table,
-                                     'phrase_candidate_added_state': PHRASE_CANDIDATE_STATE.ADDED.value,
+                                     'phrase_candidates': ContributionPrototype._model_class._meta.db_table,
+                                     'phrase_candidate_type': CONTRIBUTION_TYPE.TEMPLATE.value,
                                      'min_pvp_battles': heroes_settings.MIN_PVP_BATTLES,
                                      'system_user_id': get_system_user().id}
 

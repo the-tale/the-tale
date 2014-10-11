@@ -1,31 +1,35 @@
-# coding: utf-8
-import os
-import json
-
+# -*- coding: utf-8 -*-
 from south.utils import datetime_utils as datetime
 from south.db import db
-from south.v2 import DataMigration
+from south.v2 import SchemaMigration
 from django.db import models
 
-from django.conf import settings as project_settings
 
-
-class Migration(DataMigration):
+class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        with open(os.path.join(os.path.join(project_settings.PROJECT_DIR, 'linguistics', 'fixtures', 'lexicon.json'))) as f:
-            templates = json.load(f)
+        # Adding field 'Word.author'
+        db.add_column(u'linguistics_word', 'author',
+                      self.gf('django.db.models.fields.related.ForeignKey')(to=orm['accounts.Account'], null=True, on_delete=models.SET_NULL),
+                      keep_default=False)
 
-        TemplateModel = orm['linguistics.Template']
+        # Adding unique constraint on 'Word', fields ['parent']
+        db.create_unique(u'linguistics_word', ['parent_id'])
 
-        for template_data in templates:
-            TemplateModel.objects.create(raw_template=template_data['raw'],
-                                         data=json.dumps(template_data['data']),
-                                         state=1,
-                                         key=template_data['key'])
+        # Adding unique constraint on 'Template', fields ['parent']
+        db.create_unique(u'linguistics_template', ['parent_id'])
+
 
     def backwards(self, orm):
-        orm['linguistics.Template'].objects.all().delete()
+        # Removing unique constraint on 'Template', fields ['parent']
+        db.delete_unique(u'linguistics_template', ['parent_id'])
+
+        # Removing unique constraint on 'Word', fields ['parent']
+        db.delete_unique(u'linguistics_word', ['parent_id'])
+
+        # Deleting field 'Word.author'
+        db.delete_column(u'linguistics_word', 'author_id')
+
 
     models = {
         u'accounts.account': {
@@ -136,25 +140,29 @@ class Migration(DataMigration):
             'author': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounts.Account']", 'null': 'True', 'on_delete': 'models.SET_NULL'}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'data': ('django.db.models.fields.TextField', [], {}),
+            'errors_status': ('rels.django.RelationIntegerField', [], {'default': '0', 'db_index': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'key': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
-            'parent': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['linguistics.Template']", 'null': 'True', 'on_delete': 'models.SET_NULL'}),
+            'parent': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['linguistics.Template']", 'unique': 'True', 'null': 'True', 'on_delete': 'models.SET_NULL'}),
             'raw_template': ('django.db.models.fields.TextField', [], {}),
             'state': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'})
         },
         u'linguistics.word': {
             'Meta': {'unique_together': "(('normal_form', 'type', 'state'),)", 'object_name': 'Word'},
+            'author': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounts.Account']", 'null': 'True', 'on_delete': 'models.SET_NULL'}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'forms': ('django.db.models.fields.TextField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'normal_form': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
-            'parent': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['linguistics.Word']", 'null': 'True', 'on_delete': 'models.SET_NULL'}),
+            'parent': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['linguistics.Word']", 'unique': 'True', 'null': 'True', 'on_delete': 'models.SET_NULL'}),
             'state': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             'type': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
-            'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'})
+            'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'used_in_ingame_templates': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'used_in_onreview_templates': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'used_in_status': ('rels.django.RelationIntegerField', [], {'default': '2', 'db_index': 'True'})
         }
     }
 
     complete_apps = ['linguistics']
-    symmetrical = True

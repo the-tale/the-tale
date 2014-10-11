@@ -23,6 +23,23 @@
 <p class="alert alert-success pgf-has-parent-message">Эта фраза явлется копией <a href="{{url('linguistics:templates:show', template_parent.id)}}">другой фразы</a>.</p>
 {% endif %}
 
+<ul>
+  <li>
+    автор:
+
+    {% if author %}
+      <a href="{{url('accounts:show', template.author_id)}}">{{author.nick}}</a>
+      {% if clan is not none %}
+        <a href="{{url('accounts:clans:show', clan.id)}}">[{{clan.abbr}}]</a>
+      {% endif %}
+    {% else %}
+      нет
+    {% endif %}
+
+  </li>
+</ul>
+
+
 {{ templates_macros.key_info(template.key)}}
 
 <a href="{{url('linguistics:templates:', key=template.key.value)}}">◀ вернуться к списку шаблонов</a>
@@ -33,7 +50,14 @@
 <h4>Шаблон</h4>
 
 <p style="margin: 1em; margin-top: 0.25em;">
-  {{template.raw_template}}
+  <span
+     {% if related_template and related_template.raw_template != template.raw_template %}
+     class="changed-template"
+     rel="tooltip"
+     title="в копии: {{related_template.raw_template}}"
+     {% endif %}>
+    {{template.raw_template}}
+  </span>
 </p>
 
 {% if errors %}
@@ -46,15 +70,23 @@
 {% endif %}
 
 
-
 {% for verificator in template.verificators %}
 <h4>{{verificator.get_label()}}</h4>
 <p style="margin: 1em; margin-top: 0.25em;">
-  {{verificator.text}}
+  <span
+     {% if related_template and verificator.text != related_template.verificators[loop.index-1].text %}
+     class="changed-template"
+     rel="tooltip"
+     title="в копии: {{related_template.verificators[loop.index-1].text}}"
+     {% endif %}>
+    {{verificator.text}}
+  </span>
 </p>
 {% endfor %}
 
-<a class="btn btn-success" href="{{url('linguistics:templates:edit', template.id)}}">Редактировать</a>
+{% if resource.can_edit_templates %}
+<a class="btn btn-success pgf-edit-button" href="{{url('linguistics:templates:edit', template.id)}}">Редактировать</a>
+{% endif %}
 
 {% if resource.can_moderate_templates %}
 

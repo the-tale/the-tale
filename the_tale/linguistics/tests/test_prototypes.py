@@ -434,3 +434,41 @@ class VerificatorTests(testcase.TestCase):
         self.assertEqual(verificators[1], prototypes.Verificator(text=u'5', externals={'hero': (u'герой', u''), 'level': (2, u'')}))
         self.assertEqual(verificators[2], prototypes.Verificator(text=u'', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')}))
         self.assertEqual(verificators[3], prototypes.Verificator(text=u'', externals={'hero': (u'героиня', u''), 'level': (5, u'')}))
+
+
+class ContributionTests(testcase.TestCase):
+
+    def setUp(self):
+        super(ContributionTests, self).setUp()
+
+        create_test_map()
+
+        result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')
+        self.account_1 = AccountPrototype.get_by_id(account_id)
+
+
+
+    def test_create(self):
+        with self.check_delta(prototypes.ContributionPrototype._db_count, 1):
+            prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                    account_id=self.account_1.id,
+                                                    entity_id=1)
+
+    def test_get_for_or_create(self):
+        with self.check_delta(prototypes.ContributionPrototype._db_count, 1):
+            prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                               account_id=self.account_1.id,
+                                                               entity_id=1)
+
+
+    def test_create__when_exists(self):
+        contribution_1 = prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                                 account_id=self.account_1.id,
+                                                                 entity_id=1)
+
+        with self.check_not_changed(prototypes.ContributionPrototype._db_count):
+            contribution_2 = prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                                                account_id=self.account_1.id,
+                                                                                entity_id=1)
+
+        self.assertEqual(contribution_1.id, contribution_2.id)

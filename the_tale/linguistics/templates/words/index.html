@@ -41,18 +41,33 @@
   <thead>
     <tr>
       <th>слово</th>
-      <th>часть речи</th>
-      <th>состояние</th>
-      <th>во фразах</th>
-      <th>в игровых</th>
-      <th>в рассматриваемых</th>
+      <th width="150px">часть речи</th>
+      <th width="125px">автор</th>
+      <th width="150px">состояние</th>
+      <th width="100px">во фразах</th>
+      <th width="100px">в игровых</th>
+      <th width="150px">в рассматриваемых</th>
     </tr>
-  </thead>
+  </thead
+>
   <tbody>
     {% for word in words %}
     <tr>
       <td><a href="{{url('linguistics:words:show', word.id)}}">{{word.utg_word.normal_form()}}</a></td>
       <td>{{word.type.text}}</td>
+      <td>
+        {% set author = authors.get(word.author_id) %}
+        {% if author %}
+          <a href="{{url('accounts:show', word.author_id)}}">{{author.nick}}</a>
+          {% set clan = clans.get(author.clan_id) %}
+          {% if clan is not none %}
+            <a href="{{url('accounts:clans:show', clan.id)}}">[{{clan.abbr}}]</a>
+          {% endif %}
+        {% else %}
+          нет
+        {% endif %}
+      </td>
+
       <td>{{word.state.text}}</td>
       <td>
         {% if word.used_in_status.is_IN_INGAME_TEMPLATES %}
