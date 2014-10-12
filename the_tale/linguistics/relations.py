@@ -60,3 +60,8 @@ class TEMPLATE_ERRORS_STATUS(DjangoEnum):
 class CONTRIBUTION_TYPE(DjangoEnum):
     records = ( ('WORD', 0, u'слово'),
                 ('TEMPLATE', 1, u'фраза'))
+
+
+class INDEX_ORDER_BY(DjangoEnum):
+    records = ( ('TEXT', 0, u'по тексту'),
+                ('UPDATED_AT', 1, u'по дате') )

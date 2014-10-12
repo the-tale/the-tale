@@ -51,15 +51,15 @@ KEYS = [(u'QUEST_CARAVAN_ACTION_ATTACK', 360000, u'Активность: нап�
         u'Краткое суммарное описание действий героя, когда он убегает с добычей',
         [V.INITIATOR, V.HERO, V.INITIATOR_POSITION, V.RECEIVER, V.ANTAGONIST_POSITION, V.RECEIVER_POSITION]),
 
-        (u'QUEST_CARAVAN_ACTOR_ANTAGONIST_POSITION', 360012, u'Чёрный рынок', LEXICON_GROUP.QUEST_CARAVAN,
+        (u'QUEST_CARAVAN_ACTOR_ANTAGONIST_POSITION', 360012, u'Актёр: чёрный рынок', LEXICON_GROUP.QUEST_CARAVAN,
         u'Название роли, чёрного рынка.',
         [V.INITIATOR, V.HERO, V.INITIATOR_POSITION, V.RECEIVER, V.ANTAGONIST_POSITION, V.RECEIVER_POSITION]),
 
-        (u'QUEST_CARAVAN_ACTOR_INITIATOR', 360013, u'Инициатор задания', LEXICON_GROUP.QUEST_CARAVAN,
+        (u'QUEST_CARAVAN_ACTOR_INITIATOR', 360013, u'Актёр: инициатор задания', LEXICON_GROUP.QUEST_CARAVAN,
         u'Название роли, инициирующей задание.',
         [V.INITIATOR, V.HERO, V.INITIATOR_POSITION, V.RECEIVER, V.ANTAGONIST_POSITION, V.RECEIVER_POSITION]),
 
-        (u'QUEST_CARAVAN_ACTOR_RECEIVER', 360014, u'Ожидающий караван', LEXICON_GROUP.QUEST_CARAVAN,
+        (u'QUEST_CARAVAN_ACTOR_RECEIVER', 360014, u'Актёр: ожидающий караван', LEXICON_GROUP.QUEST_CARAVAN,
         u'Название роли, ожидающего прибыитие каравана.',
         [V.INITIATOR, V.HERO, V.INITIATOR_POSITION, V.RECEIVER, V.ANTAGONIST_POSITION, V.RECEIVER_POSITION]),
 
@@ -140,4 +140,3 @@ KEYS = [(u'QUEST_CARAVAN_ACTION_ATTACK', 360000, u'Активность: нап�
         [V.INITIATOR, V.HERO, V.INITIATOR_POSITION, V.RECEIVER, V.ANTAGONIST_POSITION, V.RECEIVER_POSITION]),
 
         ]
-        

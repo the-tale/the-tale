@@ -1,6 +1,7 @@
 {% extends "linguistics/templates/base.html" %}
 
 {% import 'linguistics/templates/macros.html' as templates_macros with context %}
+{% import 'accounts/macros.html' as accounts_macros with context %}
 
 {% block title %}Шаблон «{{template.key.text}}» |{{ super() }}{% endblock %}
 {% block description %}Шаблон «{{template.key.text}}».{% endblock %}
@@ -24,14 +25,15 @@
 {% endif %}
 
 <ul>
+  <li>обновлено: <span class="pgf-format-date" data-timestamp="{{ template.updated_at|timestamp }}"></span></li>
   <li>
-    автор:
+    авторы:
 
-    {% if author %}
-      <a href="{{url('accounts:show', template.author_id)}}">{{author.nick}}</a>
-      {% if clan is not none %}
-        <a href="{{url('accounts:clans:show', clan.id)}}">[{{clan.abbr}}]</a>
-      {% endif %}
+    {% if contributors %}
+      {% for author in contributors %}
+        {% if loop.index > 1 %},{% endif %}
+        {{ accounts_macros.account_link(account=author, clan=clans.get(author.clan_id)) }}
+      {% endfor %}
     {% else %}
       нет
     {% endif %}
@@ -108,11 +110,13 @@
    href="{{url('linguistics:templates:on-review', template.id)}}">Из игры</a>
 {% endif %}
 
+{% endif %}
+
+{% if resource.can_moderate_templates or resource.can_be_removed_by_owner %}
 <a class="btn btn-danger pgf-forms-post-simple pgf-remove-button"
    href="{{url('linguistics:templates:remove', template.id)}}"
    data-action-type="redirect"
    data-redirect-url="{{url('linguistics:templates:')}}">Удалить</a>
 {% endif %}
-
 
 {% endblock %}

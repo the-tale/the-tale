@@ -15,7 +15,7 @@ KEYS = [(u'QUEST_PILGRIMAGE_ACTION_INTRO', 520000, u'Активность: ин�
         u'Краткое описание действий героя во время шатания по улицам.',
         [V.RECEIVER_POSITION, V.HERO]),
 
-        (u'QUEST_PILGRIMAGE_ACTOR_RECEIVER_POSITION', 520003, u'святой город', LEXICON_GROUP.QUEST_PILGRIMAGE,
+        (u'QUEST_PILGRIMAGE_ACTOR_RECEIVER_POSITION', 520003, u'Актёр: святой город', LEXICON_GROUP.QUEST_PILGRIMAGE,
         u'Название роли, святого города.',
         [V.RECEIVER_POSITION, V.HERO]),
 
@@ -60,4 +60,3 @@ KEYS = [(u'QUEST_PILGRIMAGE_ACTION_INTRO', 520000, u'Активность: ин�
         [V.RECEIVER_POSITION, V.HERO]),
 
         ]
-        

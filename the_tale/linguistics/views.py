@@ -35,6 +35,8 @@ class WordsIndexFilter(list_filter.ListFilter):
                 list_filter.filter_element(u'поиск:', attribute='filter', default_value=None),
                 list_filter.choice_element(u'часть речи:', attribute='type', choices=[(None, u'все')] + list(utg_relations.WORD_TYPE.select('value', 'text')) ),
                 list_filter.choice_element(u'состояние:', attribute='state', choices=[(None, u'все')] + list(relations.WORD_STATE.select('value', 'text'))),
+                list_filter.choice_element(u'сортировать:', attribute='order_by', choices=relations.INDEX_ORDER_BY.select('value', 'text'),
+                                           default_value=relations.INDEX_ORDER_BY.UPDATED_AT.value),
                 list_filter.static_element(u'количество:', attribute='count', default_value=0) ]
 
 
@@ -43,7 +45,22 @@ class TemplatesIndexFilter(list_filter.ListFilter):
                 list_filter.static_element(u'автор:', attribute='contributor'),
                 list_filter.choice_element(u'состояние:', attribute='state', choices=[(None, u'все')] + list(relations.TEMPLATE_STATE.select('value', 'text'))),
                 list_filter.choice_element(u'наличие ошибок:', attribute='errors_status', choices=[(None, u'все')] + list(relations.TEMPLATE_ERRORS_STATUS.select('value', 'text'))),
+                list_filter.choice_element(u'сортировать:', attribute='order_by', choices=relations.INDEX_ORDER_BY.select('value', 'text'),
+                                           default_value=relations.INDEX_ORDER_BY.UPDATED_AT.value),
                 list_filter.static_element(u'количество:', attribute='count', default_value=0) ]
+
+
+def get_contributors(entity_id, author_id):
+    contributors_ids = list(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                                        entity_id=entity_id).values_list('account_id', flat=True))
+
+    if author_id is not None and author_id not in contributors_ids:
+        contributors_ids.append(author_id)
+
+    contributors = AccountPrototype.from_query(AccountPrototype._db_filter(id__in=contributors_ids))
+    clans = {clan.id: clan for clan in ClanPrototype.from_query(ClanPrototype._db_filter(id__in=[account.clan_id for account in contributors if account.clan_id is not None]))}
+
+    return contributors, clans
 
 
 class LinguisticsResource(Resource):
@@ -77,13 +94,14 @@ class WordResource(Resource):
         self.word = word
         self.can_moderate_words = self.account.has_perm('linguistics.moderate_word')
         self.can_edit_words = self.account.is_authenticated() and not self.account.is_fast
-
+        self.can_be_removed_by_owner = self.word and self.word.state.is_ON_REVIEW and self.account.is_authenticated() and self.account.id == self.word.author_id
 
     @validate_argument('contributor', AccountPrototype.get_by_id, 'linguistics.words', u'неверный сооавтор')
     @validate_argument('state', lambda v: relations.WORD_STATE.index_value.get(int(v)), 'linguistics.words', u'неверное состояние слова')
     @validate_argument('type', lambda v: utg_relations.WORD_TYPE.index_value.get(int(v)), 'linguistics.words', u'неверный тип слова')
+    @validate_argument('order_by', lambda v: relations.INDEX_ORDER_BY.index_value.get(int(v)), 'linguistics.words', u'неверный тип сортировки')
     @handler('', method='get')
-    def index(self, page=1, state=None, type=None, filter=None, contributor=None):
+    def index(self, page=1, state=None, type=None, filter=None, contributor=None, order_by=relations.INDEX_ORDER_BY.UPDATED_AT):
 
         words_query = prototypes.WordPrototype._db_all().order_by('normal_form')
 
@@ -101,17 +119,24 @@ class WordResource(Resource):
         if filter:
             words_query = words_query.filter(normal_form__istartswith=filter.lower())
 
+        if order_by.is_UPDATED_AT:
+            words_query = words_query.order_by('-updated_at')
+        elif order_by.is_TEXT:
+            words_query = words_query.order_by('normal_form')
+
         words_count = words_query.count()
 
         url_builder = UrlBuilder(reverse('linguistics:words:'), arguments={ 'state': state.value if state else None,
                                                                             'type': type.value if type else None,
                                                                             'contributor': contributor.id if contributor else None,
+                                                                            'order_by': order_by.value,
                                                                             'filter': filter})
 
         index_filter = WordsIndexFilter(url_builder=url_builder, values={'state': state.value if state else None,
                                                                          'type': type.value if type else None,
                                                                          'filter': filter,
                                                                          'contributor': contributor.nick if contributor else None,
+                                                                         'order_by': order_by.value,
                                                                          'count': words_count})
 
         page = int(page) - 1
@@ -156,7 +181,7 @@ class WordResource(Resource):
 
         if parent and parent.state.is_ON_REVIEW and parent.author_id != self.account.id:
             return self.auto_error('linguistics.words.new.can_not_edit_anothers_word',
-                                   u'Вы не можете редактировать вариант слова, созданный другим игрокоам. Подождите пока его проверит модератор.')
+                                   u'Вы не можете редактировать вариант слова, созданный другим игроком. Подождите пока его проверит модератор.')
 
         FormClass = forms.WORD_FORMS[type]
 
@@ -189,7 +214,7 @@ class WordResource(Resource):
 
         if parent and parent.state.is_ON_REVIEW and parent.author_id != self.account.id:
             return self.auto_error('linguistics.words.create.can_not_edit_anothers_word',
-                                   u'Вы не можете редактировать вариант слова, созданный другим игрокоам. Подождите пока его проверит модератор.')
+                                   u'Вы не можете редактировать вариант слова, созданный другим игроком. Подождите пока его проверит модератор.')
 
         form = forms.WORD_FORMS[type](self.request.POST)
 
@@ -231,14 +256,13 @@ class WordResource(Resource):
         if word_parent:
             other_version = word_parent.utg_word
 
-        author = AccountPrototype.get_by_id(self.word.author_id)
-        clan = ClanPrototype.get_by_id(author.clan_id) if author else None
+        contributors, clans = get_contributors(entity_id=self.word.id, author_id=self.word.author_id)
 
         return self.template('linguistics/words/show.html',
                              {'word': self.word,
                               'page_type': 'dictionary',
-                              'author': author,
-                              'clan': clan,
+                              'contributors': contributors,
+                              'clans': clans,
                               'parent_word': self.word.get_parent(),
                               'child_word': self.word.get_child(),
                               'drawer': word_drawer.ShowDrawer(word=self.word.utg_word,
@@ -267,6 +291,8 @@ class WordResource(Resource):
 
         with transaction.atomic():
             if parent:
+                prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                            entity_id=parent.id).update(entity_id=self.word.id)
                 parent.remove()
                 self.word.parent_id = None
 
@@ -282,9 +308,12 @@ class WordResource(Resource):
 
 
     @login_required
-    @moderation_word_rights()
     @handler('#word', 'remove', method='post')
     def remove(self):
+
+        if not (self.can_moderate_words or self.can_be_removed_by_owner):
+            return self.json_error('linguistics.words.remove.no_rights', u'Удалить слово может только модератор либо автор слова, если оно не находится в игре.')
+
         self.word.remove()
         return self.json_ok()
 
@@ -301,14 +330,16 @@ class TemplateResource(Resource):
         self._template = template
         self.can_moderate_templates = self.account.has_perm('linguistics.moderate_template')
         self.can_edit_templates = self.account.is_authenticated() and not self.account.is_fast
+        self.can_be_removed_by_owner = self._template and self._template.state.is_ON_REVIEW and self.account.is_authenticated() and self.account.id == self._template.author_id
 
     @validate_argument('contributor', AccountPrototype.get_by_id, 'linguistics.templates', u'неверный сооавтор')
     @validate_argument('page', int, 'linguistics.templates', u'неверная страница')
     @validate_argument('key', lambda v: keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', u'неверный ключ фразы')
     @validate_argument('state', lambda v: relations.TEMPLATE_STATE.index_value.get(int(v)), 'linguistics.templates', u'неверное состояние шаблона')
+    @validate_argument('order_by', lambda v: relations.INDEX_ORDER_BY.index_value.get(int(v)), 'linguistics.templates', u'неверный тип сортировки')
     @validate_argument('errors_status', lambda v: relations.TEMPLATE_ERRORS_STATUS.index_value.get(int(v)), 'linguistics.words', u'неверный статус ошибок')
     @handler('', method='get')
-    def index(self, key=None, state=None, errors_status=None, page=1, contributor=None):
+    def index(self, key=None, state=None, errors_status=None, page=1, contributor=None, order_by=relations.INDEX_ORDER_BY.UPDATED_AT):
         templates_query = prototypes.TemplatePrototype._db_all().order_by('raw_template')
 
         if contributor is not None:
@@ -325,6 +356,11 @@ class TemplateResource(Resource):
         if errors_status:
             templates_query = templates_query.filter(errors_status=errors_status)
 
+        if order_by.is_UPDATED_AT:
+            templates_query = templates_query.order_by('-updated_at')
+        elif order_by.is_TEXT:
+            templates_query = templates_query.order_by('raw_template')
+
         page = int(page) - 1
 
         templates_count = templates_query.count()
@@ -332,11 +368,13 @@ class TemplateResource(Resource):
         url_builder = UrlBuilder(reverse('linguistics:templates:'), arguments={ 'state': state.value if state else None,
                                                                                 'errors_status': errors_status.value if errors_status else None,
                                                                                 'contributor': contributor.id if contributor else None,
+                                                                                'order_by': order_by.value,
                                                                                 'key': key.value if key is not None else None})
 
         index_filter = TemplatesIndexFilter(url_builder=url_builder, values={'state': state.value if state else None,
                                                                              'errors_status': errors_status.value if errors_status else None,
                                                                              'contributor': contributor.nick if contributor else None,
+                                                                             'order_by': order_by.value,
                                                                              'key': key.value if key is not None else None,
                                                                              'count': templates_query.count()})
 
@@ -412,15 +450,14 @@ class TemplateResource(Resource):
 
         errors = self._template.get_errors()
 
-        author = AccountPrototype.get_by_id(self._template.author_id)
-        clan = ClanPrototype.get_by_id(author.clan_id) if author else None
+        contributors, clans = get_contributors(entity_id=self._template.id, author_id=self._template.author_id)
 
         return self.template('linguistics/templates/show.html',
                              {'template': self._template,
                               'template_parent': template_parent,
                               'template_child': template_child,
-                              'author': author,
-                              'clan': clan,
+                              'contributors': contributors,
+                              'clans': clans,
                               'related_template': template_parent or template_child,
                               'page_type': 'keys',
                               'errors': errors} )
@@ -512,6 +549,8 @@ class TemplateResource(Resource):
 
         with transaction.atomic():
             prototypes.TemplatePrototype._db_filter(parent_id=parent_template.id).update(parent=self._template.id)
+            prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                        entity_id=parent_template.id).update(entity_id=self._template.id)
 
             self._template.parent_id = parent_template.parent_id
             self._template.state = parent_template.state
@@ -519,6 +558,11 @@ class TemplateResource(Resource):
             parent_template.remove()
 
             self._template.save()
+
+            if self._template.state.is_IN_GAME and self._template.author_id is not None:
+                prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                                   account_id=self._template.author_id,
+                                                                   entity_id=self._template.id)
 
         return self.json_ok()
 
@@ -574,9 +618,12 @@ class TemplateResource(Resource):
 
 
     @login_required
-    @moderation_template_rights()
     @handler('#template', 'remove', method='post')
     def remove(self):
+
+        if not (self.can_moderate_templates or self.can_be_removed_by_owner):
+            return self.json_error('linguistics.templates.remove.no_rights', u'Удалить фразу может только модератор либо автор фразы, если она не находится в игре.')
+
         with transaction.atomic():
             prototypes.TemplatePrototype._db_filter(parent_id=self._template.id).update(parent=self._template.parent_id)
             self._template.remove()

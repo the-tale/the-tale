@@ -15,7 +15,7 @@ KEYS = [(u'QUEST_HELP_FRIEND_ACTION_AFTER_HELP', 440000, u'Активность:
         u'Краткое суммарное описание действий героя в момент получения задания.',
         [V.RECEIVER_POSITION, V.HERO, V.RECEIVER]),
 
-        (u'QUEST_HELP_FRIEND_ACTOR_RECEIVER', 440003, u'Соратник', LEXICON_GROUP.QUEST_HELP_FRIEND,
+        (u'QUEST_HELP_FRIEND_ACTOR_RECEIVER', 440003, u'Актёр: Соратник', LEXICON_GROUP.QUEST_HELP_FRIEND,
         u'Название роли, соратника.',
         [V.RECEIVER_POSITION, V.HERO, V.RECEIVER]),
 
@@ -36,4 +36,3 @@ KEYS = [(u'QUEST_HELP_FRIEND_ACTION_AFTER_HELP', 440000, u'Активность:
         [V.RECEIVER_POSITION, V.HERO, V.RECEIVER]),
 
         ]
-        

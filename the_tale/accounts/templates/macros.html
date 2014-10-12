@@ -1,5 +1,13 @@
 
 
+{% macro account_link(account, clan) %}
+<a href="{{url('accounts:show', account.id)}}">{{account.nick}}</a>
+{% if clan is not none %}
+<a href="{{url('accounts:clans:show', clan.id)}}">[{{clan.abbr}}]</a>
+{% endif %}
+{% endmacro %}
+
+
 {% macro account_record_heading() %}
 <th>имя</th>
 <th>могущество</th>

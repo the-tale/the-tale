@@ -7,17 +7,16 @@ KEYS = [(u'ACTION_RESURRECT_DESCRIPTION', 200000, u'Описание', LEXICON_G
         u'Краткая декларация того, что делает герой.',
         [V.HERO]),
 
-        (u'ACTION_RESURRECT_FINISH', 200001, u'Воскрешение закончено', LEXICON_GROUP.ACTION_RESURRECT,
+        (u'ACTION_RESURRECT_FINISH', 200001, u'Журнал: Воскрешение закончено', LEXICON_GROUP.ACTION_RESURRECT,
         u'Герой закончил воскресать.',
         [V.HERO]),
 
-        (u'ACTION_RESURRECT_RESURRECTING', 200002, u'Воскрешание', LEXICON_GROUP.ACTION_RESURRECT,
+        (u'ACTION_RESURRECT_RESURRECTING', 200002, u'Журнал: Воскрешание', LEXICON_GROUP.ACTION_RESURRECT,
         u'Хранитель приводит героя в чувства.',
         [V.HERO]),
 
-        (u'ACTION_RESURRECT_START', 200003, u'Начало воскрешения', LEXICON_GROUP.ACTION_RESURRECT,
+        (u'ACTION_RESURRECT_START', 200003, u'Журнал: Начало воскрешения', LEXICON_GROUP.ACTION_RESURRECT,
         u'Герой только что умер и начинается его воскрешение.',
         [V.HERO]),
 
         ]
-        

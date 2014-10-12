@@ -11,9 +11,8 @@ KEYS = [(u'META_ACTION_ARENA_PVP_1X1_DESCRIPTION', 320000, u'Описание', 
         u'Один из противников нанёс завершающий удар.',
         [V.KILLER, V.VICTIM]),
 
-        (u'META_ACTION_ARENA_PVP_1X1_START', 320002, u'Начало боя', LEXICON_GROUP.META_ACTION_ARENA_PVP_1X1,
+        (u'META_ACTION_ARENA_PVP_1X1_START', 320002, u'Журнал: Начало боя', LEXICON_GROUP.META_ACTION_ARENA_PVP_1X1,
         u'Герои входят на арену',
         [V.DUELIST_2, V.DUELIST_1]),
 
         ]
-        

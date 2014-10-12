@@ -7,9 +7,8 @@ KEYS = [(u'ACTION_IDLENESS_DESCRIPTION', 60000, u'Описание', LEXICON_GRO
         u'Краткая декларация того, что делает герой.',
         [V.HERO]),
 
-        (u'ACTION_IDLENESS_WAITING', 60001, u'Ожидание', LEXICON_GROUP.ACTION_IDLENESS,
+        (u'ACTION_IDLENESS_WAITING', 60001, u'Журнал: Ожидание', LEXICON_GROUP.ACTION_IDLENESS,
         u'Герой занимается каким-нибудь бесполезным делом.',
         [V.HERO]),
 
         ]
-        

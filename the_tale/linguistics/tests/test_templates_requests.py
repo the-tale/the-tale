@@ -199,6 +199,19 @@ class ShowRequestsTests(BaseRequestsTests):
                                                                                                ('pgf-detach-button', 0),
                                                                                                ('pgf-in-game-button', 0),
                                                                                                ('pgf-on-review-button', 0),
+                                                                                               ('pgf-remove-button', 1),
+                                                                                               ('pgf-edit-button', 1) ])
+
+    def test_success__in_game(self):
+        self.template.state = relations.TEMPLATE_STATE.IN_GAME
+        self.template.save()
+
+        self.check_html_ok(self.request_html(url('linguistics:templates:show', self.template.id)), texts=[('pgf-has-parent-message', 0),
+                                                                                               ('pgf-has-child-message', 0),
+                                                                                               ('pgf-replace-button', 0),
+                                                                                               ('pgf-detach-button', 0),
+                                                                                               ('pgf-in-game-button', 0),
+                                                                                               ('pgf-on-review-button', 0),
                                                                                                ('pgf-remove-button', 0),
                                                                                                ('pgf-edit-button', 1) ])
 
@@ -764,6 +777,53 @@ class ReplaceRequestsTests(BaseRequestsTests):
             self.check_ajax_error(self.client.post(url('linguistics:templates:replace', template.id), {}), 'linguistics.templates.replace.not_equal_keys')
 
 
+    def test_reassigning_contributions(self):
+        self.request_login(self.moderator.email)
+
+        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
+        account_3 = AccountPrototype.get_by_id(account_id)
+
+        text = u'[hero|загл] 2 [пепельница|hero|вн]'
+        utg_template = utg_templates.Template()
+        utg_template.parse(text, externals=['hero'])
+        template = prototypes.TemplatePrototype.create(key=self.key,
+                                                       raw_template=text,
+                                                       utg_template=utg_template,
+                                                       verificators=[],
+                                                       author=account_3,
+                                                       parent=self.template)
+
+        self.template.state = relations.TEMPLATE_STATE.IN_GAME
+        self.template.save()
+
+        prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                account_id=self.account_1.id,
+                                                entity_id=self.template.id)
+
+        prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                account_id=self.account_2.id,
+                                                entity_id=self.template.id)
+
+        with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=self.template.id).count, -2):
+            with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=template.id).count, 3):
+                with self.check_delta(prototypes.TemplatePrototype._db_count, -1):
+                    self.check_ajax_ok(self.client.post(url('linguistics:templates:replace', template.id), {}))
+
+        self.assertEqual(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE, entity_id=self.template.id).count(), 0)
+        self.assertEqual(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE, entity_id=template.id).count(), 3)
+        self.assertEqual(set(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE).values_list('account_id', flat=True)),
+                         set([self.account_1.id, self.account_2.id, account_3.id]))
+
+        self.assertEqual(prototypes.TemplatePrototype.get_by_id(self.template.id), None)
+
+        template.reload()
+
+        self.assertTrue(template.state.is_IN_GAME)
+        self.assertEqual(template.parent_id, None)
+
+
+
+
 
 
 class DetachRequestsTests(BaseRequestsTests):
@@ -1065,14 +1125,34 @@ class RemoveRequestsTests(BaseRequestsTests):
         with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.ON_REVIEW).count):
             self.check_ajax_error(self.client.post(self.requested_url, {}), 'common.login_required')
 
-
     def test_moderation_rights(self):
+        self.request_login(self.account_2.email)
+
         with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.ON_REVIEW).count) :
-            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.templates.moderation_rights')
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.templates.remove.no_rights')
 
 
     def test_remove(self):
         self.request_login(self.moderator.email)
+
+        self.template.state = relations.TEMPLATE_STATE.IN_GAME
+        self.template.save()
+
+        self.check_ajax_ok(self.client.post(self.requested_url))
+
+        self.assertEqual(prototypes.TemplatePrototype.get_by_id(self.template.id), None)
+
+    def test_remove_by_owner(self):
+        self.request_login(self.account_1.email)
+
+        self.template.state = relations.TEMPLATE_STATE.IN_GAME
+        self.template.save()
+
+        with self.check_not_changed(prototypes.TemplatePrototype._db_count):
+            self.check_ajax_error(self.client.post(self.requested_url), 'linguistics.templates.remove.no_rights')
+
+        self.template.state = relations.TEMPLATE_STATE.ON_REVIEW
+        self.template.save()
 
         self.check_ajax_ok(self.client.post(self.requested_url))
 

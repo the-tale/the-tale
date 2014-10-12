@@ -47,11 +47,11 @@ KEYS = [(u'QUEST_SPYING_ACTION_ARRIVED_TO_TARGET', 560000, u'Активност�
         u'Краткое суммарное описание действий героя во время сражения со свидетелем.',
         [V.RECEIVER_POSITION, V.RECEIVER, V.HERO, V.INITIATOR, V.INITIATOR_POSITION]),
 
-        (u'QUEST_SPYING_ACTOR_INITIATOR', 560011, u'Инициатор задания', LEXICON_GROUP.QUEST_SPYING,
+        (u'QUEST_SPYING_ACTOR_INITIATOR', 560011, u'Актёр: инициатор задания', LEXICON_GROUP.QUEST_SPYING,
         u'Название роли, инициирующей задание.',
         [V.RECEIVER_POSITION, V.RECEIVER, V.HERO, V.INITIATOR, V.INITIATOR_POSITION]),
 
-        (u'QUEST_SPYING_ACTOR_RECEIVER', 560012, u'Цель слежки', LEXICON_GROUP.QUEST_SPYING,
+        (u'QUEST_SPYING_ACTOR_RECEIVER', 560012, u'Актёр: цель слежки', LEXICON_GROUP.QUEST_SPYING,
         u'Название роли, цели слежки.',
         [V.RECEIVER_POSITION, V.RECEIVER, V.HERO, V.INITIATOR, V.INITIATOR_POSITION]),
 
@@ -152,4 +152,3 @@ KEYS = [(u'QUEST_SPYING_ACTION_ARRIVED_TO_TARGET', 560000, u'Активност�
         [V.RECEIVER_POSITION, V.RECEIVER, V.HERO, V.INITIATOR, V.INITIATOR_POSITION]),
 
         ]
-        

@@ -384,10 +384,24 @@ class ShowRequestsTests(BaseRequestsTests):
         self.check_html_ok(self.request_html(url('linguistics:words:show', 'www')), texts=['linguistics.words.word.wrong_format'])
         self.check_html_ok(self.request_html(url('linguistics:words:show', 666)), texts=['linguistics.words.word.not_found'], status_code=404)
 
-    def test_success(self):
+    def test_success__for_owner(self):
         self.request_login(self.account_1.email)
 
-        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True))
+        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True), author=self.account_1)
+        requested_url = url('linguistics:words:show', word.id)
+        self.check_html_ok(self.request_html(requested_url), texts=[('pgf-has-child-message', 0),
+                                                                    ('pgf-has-parent-message', 0),
+                                                                    ('pgf-in-game-button', 0),
+                                                                    ('pgf-remove-button', 1),
+                                                                    ('pgf-edit-button', 1)])
+
+    def test_success__in_game__for_owner(self):
+        self.request_login(self.account_1.email)
+
+        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True), author=self.account_1)
+        word.state = relations.WORD_STATE.IN_GAME
+        word.save()
+
         requested_url = url('linguistics:words:show', word.id)
         self.check_html_ok(self.request_html(requested_url), texts=[('pgf-has-child-message', 0),
                                                                     ('pgf-has-parent-message', 0),
@@ -395,8 +409,9 @@ class ShowRequestsTests(BaseRequestsTests):
                                                                     ('pgf-remove-button', 0),
                                                                     ('pgf-edit-button', 1)])
 
+
     def test_success__unlogined(self):
-        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True))
+        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True), author=self.account_1)
         requested_url = url('linguistics:words:show', word.id)
         self.check_html_ok(self.request_html(requested_url), texts=[('pgf-has-child-message', 0),
                                                                     ('pgf-has-parent-message', 0),
@@ -405,9 +420,10 @@ class ShowRequestsTests(BaseRequestsTests):
                                                                     ('pgf-edit-button', 0)])
 
     def test_success__in_game(self):
-        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True))
+        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True), author=self.account_1)
         word.state = relations.WORD_STATE.IN_GAME
         word.save()
+
         requested_url = url('linguistics:words:show', word.id)
         self.check_html_ok(self.request_html(requested_url), texts=[('pgf-has-child-message', 0),
                                                                     ('pgf-has-parent-message', 0),
@@ -415,7 +431,7 @@ class ShowRequestsTests(BaseRequestsTests):
                                                                     ('pgf-remove-button', 0)])
 
     def test_moderator(self):
-        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True))
+        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True), author=self.account_1)
 
         self.request_login(self.moderator.email)
 
@@ -425,7 +441,7 @@ class ShowRequestsTests(BaseRequestsTests):
                                                                     ('pgf-remove-button', 1)])
 
     def test_moderator__in_game(self):
-        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True))
+        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True), author=self.account_1)
         word.state = relations.WORD_STATE.IN_GAME
         word.save()
 
@@ -437,7 +453,7 @@ class ShowRequestsTests(BaseRequestsTests):
                                                                     ('pgf-remove-button', 1)])
 
     def test_success__has_parent(self):
-        word_1 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True))
+        word_1 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True), author=self.account_1)
         word_1.state = relations.WORD_STATE.IN_GAME
         word_1.save()
 
@@ -449,7 +465,7 @@ class ShowRequestsTests(BaseRequestsTests):
                                                                     ('pgf-has-parent-message', 1)])
 
     def test_success__has_child(self):
-        word_1 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True))
+        word_1 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True), author=self.account_1)
         word_1.state = relations.WORD_STATE.IN_GAME
         word_1.save()
 
@@ -498,10 +514,14 @@ class RemoveRequestsTests(BaseRequestsTests):
     def setUp(self):
         super(RemoveRequestsTests, self).setUp()
         self.word_type = random.choice(utg_relations.WORD_TYPE.records)
-        self.word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True))
+        self.word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True),
+                                                    author=self.account_1)
 
         result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
         self.moderator = AccountPrototype.get_by_id(account_id)
+
+        result, account_id, bundle_id = register_user('account_2', 'account_2@test.com', '111111')
+        self.account_2 = AccountPrototype.get_by_id(account_id)
 
         group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_word'])
         group.user_set.add(self.moderator._model)
@@ -523,12 +543,42 @@ class RemoveRequestsTests(BaseRequestsTests):
 
 
     def test_moderation_rights(self):
+        self.word.state = relations.WORD_STATE.IN_GAME
+        self.word.save()
+
         with self.check_not_changed(prototypes.WordPrototype._db_count):
-            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.words.moderation_rights')
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.words.remove.no_rights')
+
+    def test_ownership(self):
+        self.request_login(self.account_2.email)
+
+        with self.check_not_changed(prototypes.WordPrototype._db_count):
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.words.remove.no_rights')
+
+        self.word.state = relations.WORD_STATE.IN_GAME
+        self.word.save()
+
+        with self.check_not_changed(prototypes.WordPrototype._db_count):
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.words.remove.no_rights')
 
 
     def test_remove(self):
         self.request_login(self.moderator.email)
+
+        with self.check_delta(prototypes.WordPrototype._db_count, -1):
+            self.check_ajax_ok(self.client.post(self.requested_url))
+
+    def test_remove__by_ownership(self):
+        self.request_login(self.account_1.email)
+
+        self.word.state = relations.WORD_STATE.IN_GAME
+        self.word.save()
+
+        with self.check_not_changed(prototypes.WordPrototype._db_count):
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.words.remove.no_rights')
+
+        self.word.state = relations.WORD_STATE.ON_REVIEW
+        self.word.save()
 
         with self.check_delta(prototypes.WordPrototype._db_count, -1):
             self.check_ajax_ok(self.client.post(self.requested_url))
@@ -638,6 +688,50 @@ class InGameRequestsTests(BaseRequestsTests):
             with self.check_delta(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.ON_REVIEW).count, -1):
                 with self.check_delta(prototypes.WordPrototype._db_count, -1):
                     self.check_ajax_ok(self.client.post(url('linguistics:words:in-game', word_2.id)))
+
+        word_2.reload()
+
+        self.assertEqual(prototypes.WordPrototype.get_by_id(self.word.id), None)
+        self.assertTrue(word_2.state.is_IN_GAME)
+
+
+    def test_in_game__has_parent__with_contributors(self):
+        result, account_id, bundle_id = register_user('account_2', 'account_2@test.com', '111111')
+        account_2 = AccountPrototype.get_by_id(account_id)
+
+        result, account_id, bundle_id = register_user('account_3', 'account_3@test.com', '111111')
+        account_3 = AccountPrototype.get_by_id(account_id)
+
+        self.request_login(self.moderator.email)
+
+        self.word.state = relations.WORD_STATE.IN_GAME
+        self.word.save()
+
+        prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                account_id=self.account_1.id,
+                                                entity_id=self.word.id)
+
+        prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                account_id=account_3.id,
+                                                entity_id=self.word.id)
+
+
+        word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True),
+                                                 parent=self.word,
+                                                 author=account_2)
+
+
+        with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=self.word.id).count, -2):
+            with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=word_2.id).count, 3):
+                with self.check_not_changed(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.IN_GAME).count):
+                    with self.check_delta(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.ON_REVIEW).count, -1):
+                        with self.check_delta(prototypes.WordPrototype._db_count, -1):
+                            self.check_ajax_ok(self.client.post(url('linguistics:words:in-game', word_2.id)))
+
+        self.assertEqual(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD, entity_id=self.word.id).count(), 0)
+        self.assertEqual(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD, entity_id=word_2.id).count(), 3)
+        self.assertEqual(set(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD).values_list('account_id', flat=True)),
+                         set([self.account_1.id, account_2.id, account_3.id]))
 
         word_2.reload()
 

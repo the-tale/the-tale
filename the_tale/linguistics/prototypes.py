@@ -25,7 +25,7 @@ from the_tale.linguistics.lexicon import dictionary as lexicon_dictionary
 
 class WordPrototype(BasePrototype):
     _model_class = models.Word
-    _readonly = ('id', 'type', 'created_at', 'author_id')
+    _readonly = ('id', 'type', 'created_at', 'updated_at', 'author_id')
     _bidirectional = ('state', 'parent_id', 'used_in_ingame_templates', 'used_in_onreview_templates', 'used_in_status')
     _get_by = ('id', 'parent_id')
 
@@ -101,7 +101,7 @@ class WordPrototype(BasePrototype):
 
 class TemplatePrototype(BasePrototype):
     _model_class = models.Template
-    _readonly = ('id', 'key', 'created_at', 'raw_template', 'author_id')
+    _readonly = ('id', 'key', 'created_at', 'updated_at', 'raw_template', 'author_id')
     _bidirectional = ('state', 'parent_id', 'errors_status')
     _get_by = ('id', 'parent_id')
 

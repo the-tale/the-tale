@@ -2,6 +2,7 @@
 
 {% import 'macros.html' as base_macros with context %}
 {% import 'utils/list_filter.html' as list_filter_macros with context %}
+{% import 'accounts/macros.html' as accounts_macros with context %}
 
 {% block title %}{{ super() }}{% endblock %}
 {% block description %}Слова для шаблонов фраз.{% endblock %}
@@ -40,9 +41,10 @@
 <table class="table">
   <thead>
     <tr>
+      <th widht="50px">обновлено</th>
       <th>слово</th>
       <th width="150px">часть речи</th>
-      <th width="125px">автор</th>
+      <th width="125px">последний редактор</th>
       <th width="150px">состояние</th>
       <th width="100px">во фразах</th>
       <th width="100px">в игровых</th>
@@ -53,16 +55,13 @@
   <tbody>
     {% for word in words %}
     <tr>
+      <td><span class="pgf-format-date" data-timestamp="{{ word.updated_at|timestamp }}"></span></td>
       <td><a href="{{url('linguistics:words:show', word.id)}}">{{word.utg_word.normal_form()}}</a></td>
       <td>{{word.type.text}}</td>
       <td>
         {% set author = authors.get(word.author_id) %}
         {% if author %}
-          <a href="{{url('accounts:show', word.author_id)}}">{{author.nick}}</a>
-          {% set clan = clans.get(author.clan_id) %}
-          {% if clan is not none %}
-            <a href="{{url('accounts:clans:show', clan.id)}}">[{{clan.abbr}}]</a>
-          {% endif %}
+          {{ accounts_macros.account_link(account=author, clan=clans.get(author.clan_id)) }}
         {% else %}
           нет
         {% endif %}

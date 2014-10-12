@@ -11,11 +11,11 @@ KEYS = [(u'QUEST_INTERFERE_ENEMY_ACTION_AFTER_INTERFERE', 500000, u'Активн
         u'Краткое суммарное описание действий героя в момент получения задания.',
         [V.ANTAGONIST_POSITION, V.RECEIVER_POSITION, V.HERO, V.RECEIVER]),
 
-        (u'QUEST_INTERFERE_ENEMY_ACTOR_ANTAGONIST_POSITION', 500002, u'Город, где противник дела делает', LEXICON_GROUP.QUEST_INTERFERE_ENEMY,
+        (u'QUEST_INTERFERE_ENEMY_ACTOR_ANTAGONIST_POSITION', 500002, u'Актёр: город, где противник дела делает', LEXICON_GROUP.QUEST_INTERFERE_ENEMY,
         u'Название роли города, где противник дела делает.',
         [V.ANTAGONIST_POSITION, V.RECEIVER_POSITION, V.HERO, V.RECEIVER]),
 
-        (u'QUEST_INTERFERE_ENEMY_ACTOR_RECEIVER', 500003, u'Противник', LEXICON_GROUP.QUEST_INTERFERE_ENEMY,
+        (u'QUEST_INTERFERE_ENEMY_ACTOR_RECEIVER', 500003, u'Актёр: противник', LEXICON_GROUP.QUEST_INTERFERE_ENEMY,
         u'Название роли противника.',
         [V.ANTAGONIST_POSITION, V.RECEIVER_POSITION, V.HERO, V.RECEIVER]),
 
@@ -36,4 +36,3 @@ KEYS = [(u'QUEST_INTERFERE_ENEMY_ACTION_AFTER_INTERFERE', 500000, u'Активн
         [V.ANTAGONIST_POSITION, V.RECEIVER_POSITION, V.HERO, V.RECEIVER]),
 
         ]
-        

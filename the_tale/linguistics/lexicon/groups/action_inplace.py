@@ -103,11 +103,11 @@ KEYS = [(u'ACTION_INPLACE_DESCRIPTION', 80000, u'Описание', LEXICON_GROU
         u'запись о характере города (Миролюбие: уровень 3)',
         [V.HERO, V.PLACE]),
 
-        (u'ACTION_INPLACE_INSTANT_ENERGY_REGEN', 80025, u'Восстановление энергии в святом городе', LEXICON_GROUP.ACTION_INPLACE,
+        (u'ACTION_INPLACE_INSTANT_ENERGY_REGEN', 80025, u'Журнал: Восстановление энергии в святом городе', LEXICON_GROUP.ACTION_INPLACE,
         u'Игрок восстанавливает немного энергии, когда герой посещает город.',
         [V.HERO, V.PLACE]),
 
-        (u'ACTION_INPLACE_INSTANT_HEAL', 80026, u'Лечение в курорте', LEXICON_GROUP.ACTION_INPLACE,
+        (u'ACTION_INPLACE_INSTANT_HEAL', 80026, u'Журнал: Лечение в курорте', LEXICON_GROUP.ACTION_INPLACE,
         u'Герой моментально излечивается благодаря типу города «Курорт.»',
         [V.HERO, V.PLACE]),
 
@@ -115,8 +115,8 @@ KEYS = [(u'ACTION_INPLACE_DESCRIPTION', 80000, u'Описание', LEXICON_GROU
         u'Герой платит процент от своего золота при входе в город.',
         [V.HERO, V.COINS, V.PLACE]),
 
-        (u'ACTION_INPLACE_TAX_NO_MONEY', 80028, u'Восстановление энергии в святом городе', LEXICON_GROUP.ACTION_INPLACE,
-        u'Игрок восстанавливает немного энергии, когда герой посещает город.',
+        (u'ACTION_INPLACE_TAX_NO_MONEY', 80028, u'Дневник: взимание пошлины', LEXICON_GROUP.ACTION_INPLACE,
+        u'Герой платит пошлину за посещение города.',
         [V.HERO, V.PLACE]),
 
         ]

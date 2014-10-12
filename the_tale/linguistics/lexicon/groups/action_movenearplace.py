@@ -7,9 +7,8 @@ KEYS = [(u'ACTION_MOVENEARPLACE_DESCRIPTION', 100000, u'Описание', LEXIC
         u'Краткая декларация того, что делает герой.',
         [V.HERO, V.PLACE]),
 
-        (u'ACTION_MOVENEARPLACE_WALK', 100001, u'Путешествие', LEXICON_GROUP.ACTION_MOVENEARPLACE,
+        (u'ACTION_MOVENEARPLACE_WALK', 100001, u'Журнал: Путешествие', LEXICON_GROUP.ACTION_MOVENEARPLACE,
         u'Герой путешествует.',
         [V.HERO, V.PLACE]),
 
         ]
-        

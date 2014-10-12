@@ -7,13 +7,12 @@ KEYS = [(u'ACTION_REST_DESCRIPTION', 180000, u'Описание', LEXICON_GROUP.
         u'Краткая декларация того, что делает герой.',
         [V.HERO]),
 
-        (u'ACTION_REST_RESRING', 180001, u'Отдых', LEXICON_GROUP.ACTION_REST,
+        (u'ACTION_REST_RESRING', 180001, u'Журнал: Отдых', LEXICON_GROUP.ACTION_REST,
         u'Герой отдыхает и восстанавливает немного здоровья.',
         [V.HERO, V.HEALTH]),
 
-        (u'ACTION_REST_START', 180002, u'Начало', LEXICON_GROUP.ACTION_REST,
+        (u'ACTION_REST_START', 180002, u'Журнал: Начало', LEXICON_GROUP.ACTION_REST,
         u'Герой начинает отдыхать.',
         [V.HERO]),
 
         ]
-        

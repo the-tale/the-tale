@@ -11,11 +11,11 @@ KEYS = [(u'QUEST_HELP_ACTION_AFTER_SUCCESSED_HELP', 420000, u'Активност
         u'Краткое суммарное описание действий героя в момент получения задания.',
         [V.RECEIVER_POSITION, V.RECEIVER, V.HERO, V.INITIATOR, V.INITIATOR_POSITION]),
 
-        (u'QUEST_HELP_ACTOR_INITIATOR', 420002, u'Инициатор задания', LEXICON_GROUP.QUEST_HELP,
+        (u'QUEST_HELP_ACTOR_INITIATOR', 420002, u'Актёр: инициатор задания', LEXICON_GROUP.QUEST_HELP,
         u'Название роли, инициирующей задание.',
         [V.RECEIVER_POSITION, V.RECEIVER, V.HERO, V.INITIATOR, V.INITIATOR_POSITION]),
 
-        (u'QUEST_HELP_ACTOR_RECEIVER', 420003, u'Цель задания', LEXICON_GROUP.QUEST_HELP,
+        (u'QUEST_HELP_ACTOR_RECEIVER', 420003, u'Актёр: цель задания', LEXICON_GROUP.QUEST_HELP,
         u'Название роли, цели задания.',
         [V.RECEIVER_POSITION, V.RECEIVER, V.HERO, V.INITIATOR, V.INITIATOR_POSITION]),
 
@@ -48,4 +48,3 @@ KEYS = [(u'QUEST_HELP_ACTION_AFTER_SUCCESSED_HELP', 420000, u'Активност
         [V.RECEIVER_POSITION, V.RECEIVER, V.HERO, V.INITIATOR, V.INITIATOR_POSITION]),
 
         ]
-        

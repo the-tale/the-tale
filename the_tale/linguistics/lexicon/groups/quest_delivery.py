@@ -27,15 +27,15 @@ KEYS = [(u'QUEST_DELIVERY_ACTION_DELIVERY_RETURNED', 400000, u'Активнос�
         u'Краткое суммарное описание действий героя при путешествии к скупщику.',
         [V.INITIATOR, V.HERO, V.ANTAGONIST_POSITION, V.COINS, V.INITIATOR_POSITION, V.RECEIVER, V.RECEIVER_POSITION, V.ANTAGONIST]),
 
-        (u'QUEST_DELIVERY_ACTOR_ANTAGONIST', 400006, u'Скупщик краденого', LEXICON_GROUP.QUEST_DELIVERY,
+        (u'QUEST_DELIVERY_ACTOR_ANTAGONIST', 400006, u'Актёр: скупщик краденого', LEXICON_GROUP.QUEST_DELIVERY,
         u'Название роли, скупщику краденого.',
         [V.INITIATOR, V.HERO, V.ANTAGONIST_POSITION, V.COINS, V.INITIATOR_POSITION, V.RECEIVER, V.RECEIVER_POSITION, V.ANTAGONIST]),
 
-        (u'QUEST_DELIVERY_ACTOR_INITIATOR', 400007, u'Отправитель', LEXICON_GROUP.QUEST_DELIVERY,
+        (u'QUEST_DELIVERY_ACTOR_INITIATOR', 400007, u'Актёр: отправитель', LEXICON_GROUP.QUEST_DELIVERY,
         u'Название роли, инициирующей задание.',
         [V.INITIATOR, V.HERO, V.ANTAGONIST_POSITION, V.COINS, V.INITIATOR_POSITION, V.RECEIVER, V.RECEIVER_POSITION, V.ANTAGONIST]),
 
-        (u'QUEST_DELIVERY_ACTOR_RECEIVER', 400008, u'Получатель', LEXICON_GROUP.QUEST_DELIVERY,
+        (u'QUEST_DELIVERY_ACTOR_RECEIVER', 400008, u'Актёр: получатель', LEXICON_GROUP.QUEST_DELIVERY,
         u'Название роли, цели слежки.',
         [V.INITIATOR, V.HERO, V.ANTAGONIST_POSITION, V.COINS, V.INITIATOR_POSITION, V.RECEIVER, V.RECEIVER_POSITION, V.ANTAGONIST]),
 
@@ -148,4 +148,3 @@ KEYS = [(u'QUEST_DELIVERY_ACTION_DELIVERY_RETURNED', 400000, u'Активнос�
         [V.INITIATOR, V.HERO, V.ANTAGONIST_POSITION, V.COINS, V.INITIATOR_POSITION, V.RECEIVER, V.RECEIVER_POSITION, V.ANTAGONIST]),
 
         ]
-        

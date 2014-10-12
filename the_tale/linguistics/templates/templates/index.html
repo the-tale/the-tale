@@ -3,6 +3,7 @@
 {% import 'macros.html' as base_macros with context %}
 {% import 'utils/list_filter.html' as list_filter_macros with context %}
 {% import 'linguistics/templates/macros.html' as templates_macros with context %}
+{% import 'accounts/macros.html' as accounts_macros with context %}
 
 {% block title %}
   {% if key %}{{key.text}} | {{ super() }}
@@ -40,9 +41,10 @@
 <table class="table">
   <thead>
     <tr>
+      <th width="50px">обновлено</th>
       <th width="50px">ошибки</th>
       <th width="125px">состояние</th>
-      <th width="125px">автор</th>
+      <th width="125px">последний редактор</th>
       <th>шаблон</th>
       <th width="50px"></th>
     </tr>
@@ -50,6 +52,7 @@
   <tbody>
     {% for template in templates %}
     <tr>
+      <td><span class="pgf-format-date" data-timestamp="{{ template.updated_at|timestamp }}"></span></td>
       <td>
         {% if template.errors_status.is_HAS_ERRORS %}<span class="label label-important">ошибки</span>
         {% else %}<span class="label label-success">чисто</span>
@@ -59,11 +62,7 @@
       <td>
         {% set author = authors.get(template.author_id) %}
         {% if author %}
-          <a href="{{url('accounts:show', template.author_id)}}">{{author.nick}}</a>
-          {% set clan = clans.get(author.clan_id) %}
-          {% if clan is not none %}
-            <a href="{{url('accounts:clans:show', clan.id)}}">[{{clan.abbr}}]</a>
-          {% endif %}
+          {{ accounts_macros.account_link(account=author, clan=clans.get(author.clan_id)) }}
         {% else %}
           нет
         {% endif %}

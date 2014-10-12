@@ -27,8 +27,8 @@ KEYS = [(u'QUEST_HOMETOWN_ACTION_CHATTING', 460000, u'Активность: об
         u'Краткое описание действий героя во время шатания по улицам.',
         [V.RECEIVER_POSITION, V.HERO]),
 
-        (u'QUEST_HOMETOWN_ACTOR_RECEIVER_POSITION', 460006, u'место охоты', LEXICON_GROUP.QUEST_HOMETOWN,
-        u'Название роли, места охоты.',
+        (u'QUEST_HOMETOWN_ACTOR_RECEIVER_POSITION', 460006, u'Актёр: родной город', LEXICON_GROUP.QUEST_HOMETOWN,
+        u'Название роли, родной город.',
         [V.RECEIVER_POSITION, V.HERO]),
 
         (u'QUEST_HOMETOWN_DIARY_FINISH_ARTIFACT', 460007, u'Дневник: награда (артефакт)', LEXICON_GROUP.QUEST_HOMETOWN,
@@ -108,4 +108,3 @@ KEYS = [(u'QUEST_HOMETOWN_ACTION_CHATTING', 460000, u'Активность: об
         [V.RECEIVER_POSITION, V.HERO]),
 
         ]
-        

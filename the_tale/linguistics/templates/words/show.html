@@ -1,6 +1,7 @@
 {% extends "linguistics/words/base.html" %}
 
 {% import 'linguistics/words/macros.html' as words_macros with context %}
+{% import 'accounts/macros.html' as accounts_macros with context %}
 
 {% block title %}Слово «{{word.utg_word.normal_form()}}» |{{ super() }}{% endblock %}
 {% block description %}Описание слова «{{word.utg_word.normal_form()}}».{% endblock %}
@@ -24,16 +25,17 @@
 {% endif %}
 
 <ul>
+  <li>обновлено: <span class="pgf-format-date" data-timestamp="{{ word.updated_at|timestamp }}"></span></li>
   <li>в игровых фразах: {{word.used_in_ingame_templates}}</li>
   <li>в рассматриваемых фразах: {{word.used_in_onreview_templates}}</li>
   <li>
-    автор:
+    авторы:
 
-    {% if author %}
-      <a href="{{url('accounts:show', word.author_id)}}">{{author.nick}}</a>
-      {% if clan is not none %}
-        <a href="{{url('accounts:clans:show', clan.id)}}">[{{clan.abbr}}]</a>
-      {% endif %}
+    {% if contributors %}
+      {% for author in contributors %}
+        {% if loop.index > 1 %},{% endif %}
+        {{ accounts_macros.account_link(account=author, clan=clans.get(author.clan_id)) }}
+      {% endfor %}
     {% else %}
       нет
     {% endif %}
@@ -53,7 +55,7 @@
 <a class="btn btn-success pgf-forms-post-simple pgf-in-game-button" href="{{url('linguistics:words:in-game', word.id)}}">В игру</a>
 {% endif %}
 
-{% if resource.can_moderate_words %}
+{% if resource.can_moderate_words or resource.can_be_removed_by_owner %}
 <a class="btn btn-danger pgf-forms-post-simple pgf-remove-button"
    href="{{url('linguistics:words:remove', word.id)}}"
    data-action-type="redirect"

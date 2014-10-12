@@ -196,7 +196,7 @@ class ShowDrawer(BaseDrawer):
     def get_patch_drawer(self, patch):
         return self.__class__(is_patch=True,
                               word=self.word.patches[patch],
-                              other_version=self.other_version.patches[patch] if self.other_version else None)
+                              other_version=self.other_version.patches[patch] if self.other_version and patch in self.other_version.patches else None)
 
     def has_patches(self):
         return bool(self.word.patches)

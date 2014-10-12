@@ -31,12 +31,12 @@ KEYS = [(u'QUEST_COLLECT_DEBT_ACTION_AFTER_FAILED_HELP', 380000, u'Активн�
         u'Краткое суммарное описание действий героя в момент получения задания.',
         [V.RECEIVER_POSITION, V.RECEIVER, V.HERO, V.INITIATOR, V.INITIATOR_POSITION]),
 
-        (u'QUEST_COLLECT_DEBT_ACTOR_INITIATOR', 380007, u'Инициатор задания', LEXICON_GROUP.QUEST_COLLECT_DEBT,
+        (u'QUEST_COLLECT_DEBT_ACTOR_INITIATOR', 380007, u'Актёр: Инициатор задания', LEXICON_GROUP.QUEST_COLLECT_DEBT,
         u'Название роли, инициирующей задание.',
         [V.RECEIVER_POSITION, V.RECEIVER, V.HERO, V.INITIATOR, V.INITIATOR_POSITION]),
 
-        (u'QUEST_COLLECT_DEBT_ACTOR_RECEIVER', 380008, u'Цель слежки', LEXICON_GROUP.QUEST_COLLECT_DEBT,
-        u'Название роли, цели слежки.',
+        (u'QUEST_COLLECT_DEBT_ACTOR_RECEIVER', 380008, u'Актёр: должник', LEXICON_GROUP.QUEST_COLLECT_DEBT,
+        u'Название роли, должник.',
         [V.RECEIVER_POSITION, V.RECEIVER, V.HERO, V.INITIATOR, V.INITIATOR_POSITION]),
 
         (u'QUEST_COLLECT_DEBT_CHOICE_CURRENT_ATTACK', 380009, u'Выбор: насилие', LEXICON_GROUP.QUEST_COLLECT_DEBT,
@@ -104,4 +104,3 @@ KEYS = [(u'QUEST_COLLECT_DEBT_ACTION_AFTER_FAILED_HELP', 380000, u'Активн�
         [V.RECEIVER_POSITION, V.RECEIVER, V.HERO, V.INITIATOR, V.INITIATOR_POSITION]),
 
         ]
-        

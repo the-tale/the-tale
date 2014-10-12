@@ -7,7 +7,7 @@ KEYS = [(u'QUEST_SEARCH_SMITH_ACTION_INTRO', 540000, u'Активность: и�
         u'Краткое суммарное описание действий героя в улучшения экипировки.',
         [V.RECEIVER_POSITION, V.HERO, V.RECEIVER]),
 
-        (u'QUEST_SEARCH_SMITH_ACTOR_RECEIVER', 540001, u'Мастер', LEXICON_GROUP.QUEST_SEARCH_SMITH,
+        (u'QUEST_SEARCH_SMITH_ACTOR_RECEIVER', 540001, u'Актёр: Мастер', LEXICON_GROUP.QUEST_SEARCH_SMITH,
         u'Название роли мастера.',
         [V.RECEIVER_POSITION, V.HERO, V.RECEIVER]),
 
@@ -72,4 +72,3 @@ KEYS = [(u'QUEST_SEARCH_SMITH_ACTION_INTRO', 540000, u'Активность: и�
         [V.RECEIVER_POSITION, V.HERO, V.RECEIVER]),
 
         ]
-        

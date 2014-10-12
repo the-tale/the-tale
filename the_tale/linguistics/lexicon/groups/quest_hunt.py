@@ -23,7 +23,7 @@ KEYS = [(u'QUEST_HUNT_ACTION_FIGHT', 480000, u'Активность: охота'
         u'Краткое суммарное описание действий героя во время выслеживания добычи.',
         [V.RECEIVER_POSITION, V.HERO]),
 
-        (u'QUEST_HUNT_ACTOR_RECEIVER_POSITION', 480005, u'место охоты', LEXICON_GROUP.QUEST_HUNT,
+        (u'QUEST_HUNT_ACTOR_RECEIVER_POSITION', 480005, u'Актёр: место охоты', LEXICON_GROUP.QUEST_HUNT,
         u'Название роли, места охоты.',
         [V.RECEIVER_POSITION, V.HERO]),
 
@@ -56,4 +56,3 @@ KEYS = [(u'QUEST_HUNT_ACTION_FIGHT', 480000, u'Активность: охота'
         [V.RECEIVER_POSITION, V.HERO]),
 
         ]
-        
