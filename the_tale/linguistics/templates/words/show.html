@@ -47,6 +47,9 @@
 
 {{words_macros.render_word(drawer)}}
 
+<br/>
+<br/>
+
 {% if resource.can_edit_words %}
 <a class="btn btn-info pgf-edit-button" href="{{url('linguistics:words:new', type=word.type.value, parent=word.id)}}">Редактировать</a>
 {% endif %}

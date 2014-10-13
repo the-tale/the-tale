@@ -14,7 +14,7 @@
 <div class="accordion" id="pgf-phrases-accordion">
 
   {% for group in GROUPS %}
-  {% set group_keys = LEXICON_KEY.index_group.get(group) %}
+  {% set group_keys = groups_keys.get(group) %}
 
   {% if not group_keys %}{% continue %}{% endif %}
 

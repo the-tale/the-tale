@@ -21,7 +21,8 @@ class ALLOWED_WORD_TYPE(DjangoEnum):
                 word_type_record('VERB'),
                 word_type_record('PARTICIPLE'),
                 word_type_record('SHORT_ADJECTIVE'),
-                word_type_record('SHORT_PARTICIPLE') )
+                word_type_record('SHORT_PARTICIPLE'),
+                word_type_record('PREPOSITION') )
 
 
 class WORD_STATE(DjangoEnum):
