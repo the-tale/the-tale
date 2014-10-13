@@ -47,8 +47,8 @@ KEYS = [(u'QUEST_HOMETOWN_ACTION_CHATTING', 460000, u'Активность: об
         u'Краткая декларация того, что герой болтает с друзьями.',
         [V.RECEIVER_POSITION, V.HERO]),
 
-        (u'QUEST_HOMETOWN_JOURNAL_CHATTING_DONOTHING', 460011, u'QUEST_HOMETOWN_JOURNAL_CHATTING_DONOTHING', LEXICON_GROUP.QUEST_HOMETOWN,
-        u'НЕТ ОПИСАНИЯ',
+        (u'QUEST_HOMETOWN_JOURNAL_CHATTING_DONOTHING', 460011, u'Журнал: фразы во время болтания с друзьями', LEXICON_GROUP.QUEST_HOMETOWN,
+        u'Фразы, которые герой говорит, болтая с друзьями',
         [V.RECEIVER_POSITION, V.HERO]),
 
         (u'QUEST_HOMETOWN_JOURNAL_CHATTING_START', 460012, u'Журнал: начало разговора с друзьями', LEXICON_GROUP.QUEST_HOMETOWN,
@@ -71,20 +71,20 @@ KEYS = [(u'QUEST_HOMETOWN_ACTION_CHATTING', 460000, u'Активность: об
         u'Краткая декларация того, что герой занимается вспоминанием имён.',
         [V.RECEIVER_POSITION, V.HERO]),
 
-        (u'QUEST_HOMETOWN_JOURNAL_REMEMBER_NAMES_DONOTHING', 460017, u'QUEST_HOMETOWN_JOURNAL_REMEMBER_NAMES_DONOTHING', LEXICON_GROUP.QUEST_HOMETOWN,
-        u'НЕТ ОПИСАНИЯ',
+        (u'QUEST_HOMETOWN_JOURNAL_REMEMBER_NAMES_DONOTHING', 460017, u'Журнал: герой вспоминает имена друзей', LEXICON_GROUP.QUEST_HOMETOWN,
+        u'фразы описывающие как герой вспоминает имена знакомых',
         [V.RECEIVER_POSITION, V.HERO]),
 
-        (u'QUEST_HOMETOWN_JOURNAL_REMEMBER_NAMES_START', 460018, u'QUEST_HOMETOWN_JOURNAL_REMEMBER_NAMES_START', LEXICON_GROUP.QUEST_HOMETOWN,
-        u'НЕТ ОПИСАНИЯ',
+        (u'QUEST_HOMETOWN_JOURNAL_REMEMBER_NAMES_START', 460018, u'Журнал: начало вспоминания имён', LEXICON_GROUP.QUEST_HOMETOWN,
+        u'герой начинает вспоминать имена друзей',
         [V.RECEIVER_POSITION, V.HERO]),
 
         (u'QUEST_HOMETOWN_JOURNAL_SEARCH_OLD_FRIENDS_DESCRIPTION', 460019, u'Описание: поиск друзей', LEXICON_GROUP.QUEST_HOMETOWN,
         u'Краткая декларация того, что герой ищет друзей.',
         [V.RECEIVER_POSITION, V.HERO]),
 
-        (u'QUEST_HOMETOWN_JOURNAL_SEARCH_OLD_FRIENDS_DONOTHING', 460020, u'QUEST_HOMETOWN_JOURNAL_SEARCH_OLD_FRIENDS_DONOTHING', LEXICON_GROUP.QUEST_HOMETOWN,
-        u'НЕТ ОПИСАНИЯ',
+        (u'QUEST_HOMETOWN_JOURNAL_SEARCH_OLD_FRIENDS_DONOTHING', 460020, u'Журнал: герой ищет старых друзей', LEXICON_GROUP.QUEST_HOMETOWN,
+        u'Фразы о том как герой ищет в городе старых друзей',
         [V.RECEIVER_POSITION, V.HERO]),
 
         (u'QUEST_HOMETOWN_JOURNAL_SEARCH_OLD_FRIENDS_START', 460021, u'Журнал: начало поиска друзей', LEXICON_GROUP.QUEST_HOMETOWN,

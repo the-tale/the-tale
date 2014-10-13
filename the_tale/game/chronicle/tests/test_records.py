@@ -12,11 +12,14 @@ from the_tale.forum.models import Category, SubCategory
 from the_tale.game import names
 
 from the_tale.game.logic import create_test_map
+from the_tale.game.relations import RACE
 
 from the_tale.game.bills.conf import bills_settings
 from the_tale.game.bills import bills
 from the_tale.game.bills.prototypes import BillPrototype
 from the_tale.game.bills.tests.helpers import choose_exchange_resources, choose_conversions
+
+from the_tale.game.map.places.relations import CITY_MODIFIERS
 
 from the_tale.game.chronicle import records
 from the_tale.game.chronicle.models import RECORD_TYPE, Record, Actor
@@ -152,12 +155,36 @@ def create_test_create_method(record_class):
         for index, argument in enumerate(record_class.SUBSTITUTIONS):
             if 'place' == argument:
                 substitutions['place'] = self.place_1
+            elif 'place_1' == argument:
+                substitutions['place_1'] = self.place_1
+            elif 'place_2' == argument:
+                substitutions['place_2'] = self.place_2
             elif 'bill' == argument:
                 substitutions['bill'] = self.bill.caption
             elif 'person' == argument:
                 substitutions['person'] = self.place_1.persons[0]
+            elif 'new_modifier' == argument:
+                substitutions['new_modifier'] = CITY_MODIFIERS.FORT
+            elif 'old_modifier' == argument:
+                substitutions['old_modifier'] = CITY_MODIFIERS.HOLY_CITY
+            elif 'new_race' == argument:
+                substitutions['new_race'] = RACE.HUMAN
+            elif 'old_race' == argument:
+                substitutions['old_race'] = RACE.ELF
+            elif 'declined_bill' == argument:
+                substitutions['declined_bill'] = self.create_test_word(index)
+            elif 'resource_1' == argument:
+                substitutions['resource_1'] = self.create_test_word(index)
+            elif 'resource_2' == argument:
+                substitutions['resource_2'] = self.create_test_word(index)
+            elif 'conversion' == argument:
+                substitutions['conversion'] = u'some text: %d' % index
+            elif 'new_name' == argument:
+                substitutions['new_name'] = self.create_test_word(index)
+            elif 'old_name' == argument:
+                substitutions['old_name'] = self.create_test_word(index)
             else:
-                substitutions[argument] = self.create_test_word(index)
+                raise Exception('unknown argument %s' % argument)
 
         for role in record_class.ACTORS:
             if role.is_PLACE:

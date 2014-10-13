@@ -48,7 +48,10 @@ class ArtifactPrototype(object):
     def name(self): return self.record.name
 
     @property
-    def normalized_name(self): return self.record.name_forms
+    def utg_name(self): return self.record.utg_name
+
+    @property
+    def utg_name_form(self): return self.record.utg_name_form
 
     @property
     def min_lvl(self): return self.record.min_lvl
@@ -219,26 +222,15 @@ class ArtifactPrototype(object):
             return self.EPIC_ARTIFACT_LABEL % (self.name, self.power.physic, self.power.magic)
 
 
-class ArtifactRecordPrototype(BasePrototype):
+class ArtifactRecordPrototype(BasePrototype, names.ManageNameMixin):
     _model_class = ArtifactRecord
     _readonly = ('id', 'editor_id', 'mob_id')
-    _bidirectional = ('level', 'uuid', 'name', 'description', 'type', 'state', 'power_type', 'rare_effect', 'epic_effect')
+    _bidirectional = ('level', 'uuid', 'description', 'type', 'state', 'power_type', 'rare_effect', 'epic_effect')
     _get_by = ('id', )
 
     @lazy_property
     def data(self):
         return s11n.from_json(self._model.data)
-
-    @lazy_property
-    def utg_name(self):
-        from utg import words
-        return words.Word.deserialize(self.data['name'])
-
-    def set_utg_name(self, word):
-        del self.utg_name
-
-        self._model.name = word.normal_form()
-        self.data['name'] = word.serialize()
 
     @property
     def description_html(self): return bbcode.render(self._model.description)

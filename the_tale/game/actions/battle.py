@@ -28,6 +28,9 @@ class Actor(object):
     def utg_name(self): return self.actor.utg_name
 
     @property
+    def utg_name_form(self): return self.actor.utg_name_form
+
+    @property
     def basic_damage(self): return self.actor.basic_damage
 
     @property

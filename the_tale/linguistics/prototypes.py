@@ -9,6 +9,7 @@ from dext.common.utils import s11n
 from utg import words as utg_words
 from utg import templates as utg_templates
 from utg import exceptions as utg_exceptions
+from utg import constructors as utg_constructors
 from utg.data import VERBOSE_TO_PROPERTIES
 
 from the_tale.amqp_environment import environment
@@ -279,7 +280,12 @@ class Verificator(object):
     def preprocessed_externals(self):
         externals = {}
         for k, (word_form, additional_properties) in self.externals.iteritems():
-            word_form = lexicon_dictionary.DICTIONARY.get_word(word_form)
+
+            if isinstance(word_form, (int, long)):
+                word_form = utg_constructors.construct_integer(word_form)
+            else:
+                word_form = lexicon_dictionary.DICTIONARY.get_word(word_form)
+
             if additional_properties:
                 properties = utg_words.Properties(word_form.properties,
                                                 *[VERBOSE_TO_PROPERTIES[prop.strip()] for prop in additional_properties.split(',') if prop])

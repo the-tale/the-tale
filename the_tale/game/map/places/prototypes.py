@@ -48,7 +48,7 @@ class PlaceParametersDescription(object):
 
 
 @add_power_management(places_settings.POWER_HISTORY_LENGTH, exceptions.PlacesPowerError)
-class PlacePrototype(BasePrototype):
+class PlacePrototype(BasePrototype, names.ManageNameMixin):
     _model_class = Place
     _readonly = ('id', 'x', 'y', 'heroes_number', 'updated_at', 'created_at', 'habit_honor_positive', 'habit_honor_negative', 'habit_peacefulness_positive', 'habit_peacefulness_negative', 'is_frontier')
     _bidirectional = ('description', 'size', 'expected_size', 'goods', 'keepers_goods', 'production', 'safety', 'freedom', 'transport', 'race', 'persons_changed_at_turn', 'tax', 'stability')
@@ -82,20 +82,6 @@ class PlacePrototype(BasePrototype):
             old_modifier = self.modifier
             self.modifier = None
             signals.place_modifier_reseted.send(self.__class__, place=self, old_modifier=old_modifier)
-
-
-    @lazy_property
-    def utg_name(self):
-        from utg import words
-        return words.Word.deserialize(self.data['name'])
-
-    @lazy_property
-    def name(self): return self.utg_name.normal_form()
-
-    def set_utg_name(self, word):
-        del self.name
-        del self.utg_name
-        self.data['name'] = word.serialize()
 
     @property
     def description_html(self): return bbcode.render(self._model.description)
@@ -488,7 +474,7 @@ class PlacePrototype(BasePrototype):
                 'size': self.size}
 
 
-class BuildingPrototype(BasePrototype):
+class BuildingPrototype(BasePrototype, names.ManageNameMixin):
     _model_class = Building
     _readonly = ('id', 'x', 'y', 'type', 'integrity', 'created_at_turn')
     _bidirectional = ('state',)
@@ -508,19 +494,6 @@ class BuildingPrototype(BasePrototype):
             return cls(Place.objects.get(x=x, y=y))
         except Place.DoesNotExist:
             return None
-
-    @lazy_property
-    def utg_name(self):
-        from utg import words
-        return words.Word.deserialize(self.data['name'])
-
-    @lazy_property
-    def name(self): return self.utg_name.normal_form()
-
-    def set_utg_name(self, word):
-        del self.name
-        del self.utg_name
-        self.data['name'] = word.serialize()
 
     @property
     def person(self):

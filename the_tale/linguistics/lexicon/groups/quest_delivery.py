@@ -43,8 +43,8 @@ KEYS = [(u'QUEST_DELIVERY_ACTION_DELIVERY_RETURNED', 400000, u'Активнос�
         u'Краткая констатация выбора героя в случае доставки предмета.',
         [V.INITIATOR, V.HERO, V.ANTAGONIST_POSITION, V.COINS, V.INITIATOR_POSITION, V.RECEIVER, V.RECEIVER_POSITION, V.ANTAGONIST]),
 
-        (u'QUEST_DELIVERY_CHOICE_CURRENT_DUMMY_LIE', 400010, u'QUEST_DELIVERY_CHOICE_CURRENT_DUMMY_LIE', LEXICON_GROUP.QUEST_DELIVERY,
-        u'НЕТ ОПИСАНИЯ',
+        (u'QUEST_DELIVERY_CHOICE_CURRENT_DUMMY_LIE', 400010, u'Технический тип', LEXICON_GROUP.QUEST_DELIVERY,
+        u'Технический тип, придумывать фразы для него не надо',
         [V.INITIATOR, V.HERO, V.ANTAGONIST_POSITION, V.COINS, V.INITIATOR_POSITION, V.RECEIVER, V.RECEIVER_POSITION, V.ANTAGONIST]),
 
         (u'QUEST_DELIVERY_CHOICE_CURRENT_FAKE', 400011, u'Выбор: подделка', LEXICON_GROUP.QUEST_DELIVERY,
@@ -59,8 +59,8 @@ KEYS = [(u'QUEST_DELIVERY_ACTION_DELIVERY_RETURNED', 400000, u'Активнос�
         u'Краткое описание варианта выбора, ведущего к доставке предмета получателю.',
         [V.INITIATOR, V.HERO, V.ANTAGONIST_POSITION, V.COINS, V.INITIATOR_POSITION, V.RECEIVER, V.RECEIVER_POSITION, V.ANTAGONIST]),
 
-        (u'QUEST_DELIVERY_CHOICE_VARIANT_DUMMY_LIE', 400014, u'QUEST_DELIVERY_CHOICE_VARIANT_DUMMY_LIE', LEXICON_GROUP.QUEST_DELIVERY,
-        u'НЕТ ОПИСАНИЯ',
+        (u'QUEST_DELIVERY_CHOICE_VARIANT_DUMMY_LIE', 400014, u'Технический тип', LEXICON_GROUP.QUEST_DELIVERY,
+        u'Технический тип, придумывать фразы для него не надо',
         [V.INITIATOR, V.HERO, V.ANTAGONIST_POSITION, V.COINS, V.INITIATOR_POSITION, V.RECEIVER, V.RECEIVER_POSITION, V.ANTAGONIST]),
 
         (u'QUEST_DELIVERY_CHOICE_VARIANT_FAKE', 400015, u'Вариант выбора: подделка', LEXICON_GROUP.QUEST_DELIVERY,

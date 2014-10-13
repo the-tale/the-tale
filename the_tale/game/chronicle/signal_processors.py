@@ -29,8 +29,8 @@ def _get_bill_place_modifier_arguments(bill):
                         (ACTOR_ROLE.PLACE, bill.data.place)],
              'substitutions': {'place': bill.data.place,
                                'bill': bill.caption,
-                               'old_modifier': bill.data.place.modifier.NAME.lower() if bill.data.place.modifier is not None else None,
-                               'new_modifier': bill.data.modifier_name.lower()} }
+                               'old_modifier': bill.data.place.modifier.TYPE if bill.data.place.modifier is not None else None,
+                               'new_modifier': bill.data.modifier_id} }
 
 def _get_bill_person_remove_arguments(bill):
     return { 'actors': [(ACTOR_ROLE.BILL, bill),
@@ -213,7 +213,7 @@ def chronicle_bill_ended(sender, bill, **kwargs): # pylint: disable=R0912,W0613
 def chronicle_place_modifier_reseted(sender, place, old_modifier, **kwargs): # pylint: disable=W0613
     records.PlaceLosedModifier(actors=[(ACTOR_ROLE.PLACE, place)],
                                substitutions={'place': place,
-                                              'old_modifier': old_modifier.NAME.lower()}).create_record()
+                                              'old_modifier': old_modifier.TYPE}).create_record()
 
 @receiver(places_signals.place_person_left, dispatch_uid='chronicle_place_person_left')
 def chronicle_place_person_left(sender, place, person, **kwargs): # pylint: disable=W0613
@@ -233,8 +233,8 @@ def chronicle_place_person_arrived(sender, place, person, **kwargs): # pylint: d
 def chronicle_place_race_changed(sender, place, old_race, new_race, **kwargs): # pylint: disable=W0613
     records.PlaceChangeRace(actors=[(ACTOR_ROLE.PLACE, place)],
                             substitutions={'place': place,
-                                           'old_race': old_race.text,
-                                           'new_race': new_race.text}).create_record()
+                                           'old_race': old_race,
+                                           'new_race': new_race}).create_record()
 
 
 @receiver(places_signals.building_destroyed_by_amortization, dispatch_uid='chronicle_building_destroyed_by_amortization')

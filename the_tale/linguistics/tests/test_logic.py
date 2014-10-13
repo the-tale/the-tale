@@ -1,6 +1,8 @@
 # coding: utf-8
 import random
 
+import mock
+
 from utg import templates as utg_templates
 from utg import words as utg_words
 from utg import relations as utg_relations
@@ -115,7 +117,9 @@ class LogicTests(TestCase):
                                                       state=relations.TEMPLATE_STATE.IN_GAME)
         storage.game_lexicon.refresh()
 
-        self.assertEqual(logic._get_text__real('tests', key.name, args={'hero': lexicon_dictinonary.DICTIONARY.get_word(u'герой'), 'level': 1}),
+        self.assertEqual(logic._get_text__real('tests',
+                                               key.name,
+                                               args={'hero': mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word(u'герой')), 'level': 1}),
                          u'Герой 1 дубль')
 
 
@@ -124,7 +128,10 @@ class LogicTests(TestCase):
         self.assertEqual(word_2.form(utg_relations.CASE.DATIVE), u'дубль')
         dictionary.add_word(word_2)
 
-        self.assertEqual(logic._get_text__real('tests', key.name, args={'hero': lexicon_dictinonary.DICTIONARY.get_word(u'герой'), 'level': 1}, quiet=True),
+        self.assertEqual(logic._get_text__real('tests',
+                                               key.name,
+                                               args={'hero': mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word(u'герой')), 'level': 1},
+                                               quiet=True),
                          None)
 
 

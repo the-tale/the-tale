@@ -75,6 +75,9 @@ class MobPrototype(object):
     def utg_name(self): return self.record.utg_name
 
     @property
+    def utg_name_form(self): return self.record.utg_name_form
+
+    @property
     def health_percents(self): return float(self.health) / self.max_health
 
     @property
@@ -139,26 +142,15 @@ class MobPrototype(object):
 
 
 
-class MobRecordPrototype(BasePrototype):
+class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
     _model_class = MobRecord
     _readonly = ('id', 'editor_id')
-    _bidirectional = ('level', 'uuid', 'name', 'description', 'state', 'type', 'archetype')
+    _bidirectional = ('level', 'uuid', 'description', 'state', 'type', 'archetype')
     _get_by = ('id', )
 
     @lazy_property
     def data(self):
         return s11n.from_json(self._model.data)
-
-    @lazy_property
-    def utg_name(self):
-        from utg import words
-        return words.Word.deserialize(self.data['name'])
-
-    def set_utg_name(self, word):
-        del self.utg_name
-
-        self._model.name = word.normal_form()
-        self.data['name'] = word.serialize()
 
     @property
     def description_html(self): return bbcode.render(self._model.description)

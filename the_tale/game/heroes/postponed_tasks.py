@@ -126,7 +126,7 @@ class ChangeHeroTask(PostponedLogic):
 
         hero = storage.heroes[self.hero_id]
 
-        hero.set_name_forms(self.name)
+        hero.set_utg_name(self.name)
         hero.gender = self.gender
         hero.race = self.race
         hero.settings_approved = True

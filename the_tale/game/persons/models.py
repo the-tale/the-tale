@@ -4,8 +4,6 @@ import datetime
 
 from django.db import models
 
-from dext.common.utils import s11n
-
 from rels.django import RelationIntegerField
 
 from the_tale.common.utils.enum import create_enum
@@ -20,6 +18,7 @@ PERSON_STATE = create_enum('PERSON_STATE', ( ('IN_GAME', 0,  u'в игре'),
 
 
 class Person(models.Model):
+    MAX_NAME_LENGTH = 100
 
     created_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime(2000, 1, 1))
     created_at_turn = models.IntegerField(null=False, default=0)
@@ -39,6 +38,8 @@ class Person(models.Model):
 
     enemies_number = models.IntegerField(default=0)
 
+    name = models.CharField(max_length=MAX_NAME_LENGTH, null=False, db_index=True)
+
     data = models.TextField(null=False, default=u'{}')
 
-    def __unicode__(self): return u'%s from %s' % (s11n.from_json(self.name_forms)['normalized'], self.place)
+    def __unicode__(self): return u'%s from %s' % (self.name, self.place)

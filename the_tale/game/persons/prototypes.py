@@ -15,6 +15,8 @@ from the_tale.common.utils.decorators import lazy_property
 from the_tale.game.power import add_power_management
 from the_tale.game.prototypes import TimePrototype
 
+from the_tale.game import names
+
 from the_tale.game.map.places.storage import places_storage, buildings_storage
 from the_tale.game.map.places.relations import CITY_PARAMETERS
 
@@ -40,7 +42,7 @@ MASTERY_VERBOSE = ( (0.0, u'полная непригодность'),
 
 
 @add_power_management(persons_settings.POWER_HISTORY_LENGTH, exceptions.PersonsPowerError)
-class PersonPrototype(BasePrototype):
+class PersonPrototype(BasePrototype, names.ManageNameMixin):
     _model_class = Person
     _readonly = ('id', 'created_at_turn', 'place_id', 'gender', 'race', 'type', 'state', 'out_game_at')
     _get_by = ('id', )
@@ -49,20 +51,12 @@ class PersonPrototype(BasePrototype):
     def place(self): return places_storage[self._model.place_id]
 
     @lazy_property
-    def utg_name(self):
-        from utg import words
-        return words.Word.deserialize(self.data['name'])
-
-    @lazy_property
-    def name(self): return self.utg_name.normal_form()
-
-    @lazy_property
     def full_name(self):
         return u'%s %s-%s' % (self.name, self.race_verbose, self.type.text)
 
     @lazy_property
     def name_from(self):
-        return u'%s — %s из %s' % (self.name, self.race_verbose, self.place.utg_name.form(utg_words.Property(utg_relations.CASE.GENITIVE)))
+        return u'%s — %s из %s' % (self.name, self.race_verbose, self.place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE)))
 
     @property
     def race_verbose(self):
@@ -184,6 +178,7 @@ class PersonPrototype(BasePrototype):
                                          race=race,
                                          type=tp,
                                          gender=gender,
+                                         name=utg_name.normal_form(),
                                          data=s11n.to_json({'name': utg_name.serialize()}),
                                          created_at_turn=TimePrototype.get_current_turn_number())
 

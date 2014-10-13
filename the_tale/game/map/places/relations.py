@@ -7,6 +7,7 @@ from questgen.relations import PLACE_TYPE as QUEST_PLACE_TYPE
 
 from the_tale.game.balance import constants as c
 
+from the_tale.game.map.places import technical_words
 
 class BUILDING_STATE(DjangoEnum):
     records = ( ('WORKING', 0, u'работает'),
@@ -78,16 +79,17 @@ class RESOURCE_EXCHANGE_TYPE(DjangoEnum):
 
 class CITY_MODIFIERS(DjangoEnum):
     quest_type = Column(unique=False)
+    utg_name_form = Column()
 
-    records = ( ('TRADE_CENTER', 0, u'Торговый центр', QUEST_PLACE_TYPE.NONE),
-                ('CRAFT_CENTER', 1, u'Город мастеров', QUEST_PLACE_TYPE.NONE),
-                ('FORT', 2, u'Форт', QUEST_PLACE_TYPE.NONE),
-                ('POLITICAL_CENTER', 3, u'Политический центр', QUEST_PLACE_TYPE.NONE),
-                ('POLIC', 4, u'Полис', QUEST_PLACE_TYPE.NONE),
-                ('RESORT', 5, u'Курорт', QUEST_PLACE_TYPE.NONE),
-                ('TRANSPORT_NODE', 6, u'Транспортный узел', QUEST_PLACE_TYPE.NONE),
-                ('OUTLAWS', 7, u'Вольница', QUEST_PLACE_TYPE.NONE),
-                ('HOLY_CITY', 8, u'Святой город', QUEST_PLACE_TYPE.HOLY_CITY) )
+    records = ( ('TRADE_CENTER', 0, u'Торговый центр', QUEST_PLACE_TYPE.NONE, technical_words.MODIFIER_TRADE_CENTER),
+                ('CRAFT_CENTER', 1, u'Город мастеров', QUEST_PLACE_TYPE.NONE, technical_words.MODIFIER_CRAFT_CENTER),
+                ('FORT', 2, u'Форт', QUEST_PLACE_TYPE.NONE, technical_words.MODIFIER_FORT),
+                ('POLITICAL_CENTER', 3, u'Политический центр', QUEST_PLACE_TYPE.NONE, technical_words.MODIFIER_POLITICAL_CENTER),
+                ('POLIC', 4, u'Полис', QUEST_PLACE_TYPE.NONE, technical_words.MODIFIER_POLIC),
+                ('RESORT', 5, u'Курорт', QUEST_PLACE_TYPE.NONE, technical_words.MODIFIER_RESORT),
+                ('TRANSPORT_NODE', 6, u'Транспортный узел', QUEST_PLACE_TYPE.NONE, technical_words.MODIFIER_TRANSPORT_NODE),
+                ('OUTLAWS', 7, u'Вольница', QUEST_PLACE_TYPE.NONE, technical_words.MODIFIER_OUTLAWS),
+                ('HOLY_CITY', 8, u'Святой город', QUEST_PLACE_TYPE.HOLY_CITY, technical_words.MODIFIER_HOLY_CITY) )
 
 
 class EFFECT_SOURCES(DjangoEnum):

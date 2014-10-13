@@ -3,6 +3,8 @@
 from rels import Column
 from rels.django import DjangoEnum
 
+from utg import words as utg_words
+from utg import constructors as utg_constructors
 from utg.relations import WORD_TYPE
 
 
@@ -46,54 +48,61 @@ class VARIABLE_VERIFICATOR(DjangoEnum):
                                                        [u'человек', u'эльф', u'орк', u'гоблин', u'дварф'])) )
 
 
+_construct_utg_name_form = lambda v: v.utg_name_form
+_construct_utg_name = lambda v: utg_words.WordForm(v)
+_construct_number = lambda v: utg_constructors.construct_integer(v)
+_construct_text = lambda v: utg_words.WordForm(utg_words.Word(type=WORD_TYPE.TEXT, forms=(v,)))
+
 class VARIABLE(DjangoEnum):
     verificator = Column(unique=False, no_index=True)
+    constructor = Column(unique=False, no_index=True)
 
-    records = ( ('HERO', 'hero', u'герой', VARIABLE_VERIFICATOR.PERSON),
-                ('LEVEL', 'level', u'уровень', VARIABLE_VERIFICATOR.NUMBER),
-                ('ANTAGONIST_POSITION', 'antagonist_position', u'позиция антаганиста', VARIABLE_VERIFICATOR.PLACE),
-                ('RECEIVER_POSITION', 'receiver_position', u'позиция получателя задания', VARIABLE_VERIFICATOR.PLACE),
-                ('ANTAGONIST', 'antagonist', u'антагонист', VARIABLE_VERIFICATOR.PERSON),
-                ('RECEIVER', 'receiver', u'получатель задания', VARIABLE_VERIFICATOR.PERSON),
-                ('ARTIFACT', 'artifact', u'артефакт', VARIABLE_VERIFICATOR.ITEM),
-                ('COINS', 'coins', u'монеты', VARIABLE_VERIFICATOR.NUMBER),
-                ('INITIATOR', 'initiator', u'инициатор задания', VARIABLE_VERIFICATOR.PERSON),
-                ('INITIATOR_POSITION', 'initiator_position', u'позиция инициатора задания', VARIABLE_VERIFICATOR.PLACE),
-                ('ITEM', 'item', u'предмет', VARIABLE_VERIFICATOR.ITEM),
-                ('UNEQUIPPED', 'unequipped', u'снимаемый предмет', VARIABLE_VERIFICATOR.ITEM),
-                ('EQUIPPED', 'equipped', u'экипируемый предмет', VARIABLE_VERIFICATOR.ITEM),
-                ('DESTINATION', 'destination', u'пункт назначения', VARIABLE_VERIFICATOR.PLACE),
-                ('CURRENT_DESTINATION', 'current_destination', u'текущий подпункт назначения', VARIABLE_VERIFICATOR.PLACE),
-                ('PLACE', 'place', u'город', VARIABLE_VERIFICATOR.PLACE),
-                ('KILLER', 'killer', u'победитель в pvp', VARIABLE_VERIFICATOR.PERSON),
-                ('VICTIM', 'victim', u'проигравший в pvp', VARIABLE_VERIFICATOR.PERSON),
-                ('DUELIST_1', 'duelist_1', u'1-ый участник pvp', VARIABLE_VERIFICATOR.PERSON),
-                ('DUELIST_2', 'duelist_2', u'2-ый участник pvp', VARIABLE_VERIFICATOR.PERSON),
-                ('DROPPED_ITEM', 'dropped_item', u'выпавший предмет', VARIABLE_VERIFICATOR.ITEM),
-                ('EXPERIENCE', 'experience', u'опыт', VARIABLE_VERIFICATOR.NUMBER),
-                ('HEALTH', 'health', u'здоровье', VARIABLE_VERIFICATOR.NUMBER),
-                ('MOB', 'mob', u'монстр', VARIABLE_VERIFICATOR.PERSON),
-                ('ENERGY', 'energy', u'энергия', VARIABLE_VERIFICATOR.NUMBER),
-                ('SELL_PRICE', 'sell_price', u'цена продажи', VARIABLE_VERIFICATOR.NUMBER),
-                ('COINS_DELTA', 'coins_delta', u'разница в монетах', VARIABLE_VERIFICATOR.NUMBER),
-                ('OLD_ARTIFACT', 'old_artifact', u'старый артефакт', VARIABLE_VERIFICATOR.ITEM),
-                ('PERSON', 'person', u'советник', VARIABLE_VERIFICATOR.PERSON),
-                ('DECLINED_BILL', 'declined_bill', u'название не прошедшего закона', VARIABLE_VERIFICATOR.TEXT),
-                ('BILL', 'bill', u'название закона', VARIABLE_VERIFICATOR.TEXT),
-                ('NEW_NAME', 'new_name', u'новое название города', VARIABLE_VERIFICATOR.PLACE),
-                ('OLD_NAME', 'old_name', u'старое название города', VARIABLE_VERIFICATOR.PLACE),
-                ('NEW_MODIFIER', 'new_modifier', u'новый модификатор города', VARIABLE_VERIFICATOR.MODIFIER),
-                ('OLD_MODIFIER', 'old_modifier', u'старый модификатор города', VARIABLE_VERIFICATOR.MODIFIER),
-                ('OLD_RACE', 'old_race', u'старая раса', VARIABLE_VERIFICATOR.RACE),
-                ('NEW_RACE', 'new_race', u'новая раса', VARIABLE_VERIFICATOR.RACE),
-                ('PLACE_1', 'place_1', u'1-ый город', VARIABLE_VERIFICATOR.PLACE),
-                ('PLACE_2', 'place_2', u'2-ой город', VARIABLE_VERIFICATOR.PLACE),
-                ('RESOURCE_1', 'resource_1', u'1-ый ресурс', VARIABLE_VERIFICATOR.TEXT),
-                ('RESOURCE_2', 'resource_2', u'2-ой ресурс', VARIABLE_VERIFICATOR.TEXT),
-                ('TEXT', 'text', u'любой текст', VARIABLE_VERIFICATOR.TEXT),
-                ('EFFECTIVENESS', 'effectiveness', u'эффективность', VARIABLE_VERIFICATOR.NUMBER),
-                ('ATTACKER', 'attacker', u'атакующий', VARIABLE_VERIFICATOR.PERSON),
-                ('DAMAGE', 'damage', u'урон', VARIABLE_VERIFICATOR.NUMBER),
-                ('DEFENDER', 'defender', u'защитник', VARIABLE_VERIFICATOR.PERSON),
-                ('ACTOR', 'actor', u'актор (герой или монстр)', VARIABLE_VERIFICATOR.PERSON),
+    records = ( ('HERO', 'hero', u'герой', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form),
+                ('LEVEL', 'level', u'уровень', VARIABLE_VERIFICATOR.NUMBER, _construct_number),
+                ('ANTAGONIST_POSITION', 'antagonist_position', u'позиция антаганиста', VARIABLE_VERIFICATOR.PLACE, _construct_utg_name_form),
+                ('RECEIVER_POSITION', 'receiver_position', u'позиция получателя задания', VARIABLE_VERIFICATOR.PLACE, _construct_utg_name_form),
+                ('ANTAGONIST', 'antagonist', u'антагонист', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form),
+                ('RECEIVER', 'receiver', u'получатель задания', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form),
+                ('ARTIFACT', 'artifact', u'артефакт', VARIABLE_VERIFICATOR.ITEM, _construct_utg_name_form),
+                ('COINS', 'coins', u'монеты', VARIABLE_VERIFICATOR.NUMBER, _construct_number),
+                ('INITIATOR', 'initiator', u'инициатор задания', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form),
+                ('INITIATOR_POSITION', 'initiator_position', u'позиция инициатора задания', VARIABLE_VERIFICATOR.PLACE, _construct_utg_name_form),
+                ('ITEM', 'item', u'предмет', VARIABLE_VERIFICATOR.ITEM, _construct_utg_name_form),
+                ('UNEQUIPPED', 'unequipped', u'снимаемый предмет', VARIABLE_VERIFICATOR.ITEM, _construct_utg_name_form),
+                ('EQUIPPED', 'equipped', u'экипируемый предмет', VARIABLE_VERIFICATOR.ITEM, _construct_utg_name_form),
+                ('DESTINATION', 'destination', u'пункт назначения', VARIABLE_VERIFICATOR.PLACE, _construct_utg_name_form),
+                ('CURRENT_DESTINATION', 'current_destination', u'текущий подпункт назначения', VARIABLE_VERIFICATOR.PLACE, _construct_utg_name_form),
+                ('PLACE', 'place', u'город', VARIABLE_VERIFICATOR.PLACE, _construct_utg_name_form),
+                ('KILLER', 'killer', u'победитель в pvp', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form),
+                ('VICTIM', 'victim', u'проигравший в pvp', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form),
+                ('DUELIST_1', 'duelist_1', u'1-ый участник pvp', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form),
+                ('DUELIST_2', 'duelist_2', u'2-ый участник pvp', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form),
+                ('DROPPED_ITEM', 'dropped_item', u'выпавший предмет', VARIABLE_VERIFICATOR.ITEM, _construct_utg_name_form),
+                ('EXPERIENCE', 'experience', u'опыт', VARIABLE_VERIFICATOR.NUMBER, _construct_number),
+                ('HEALTH', 'health', u'здоровье', VARIABLE_VERIFICATOR.NUMBER, _construct_number),
+                ('MOB', 'mob', u'монстр', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form),
+                ('ENERGY', 'energy', u'энергия', VARIABLE_VERIFICATOR.NUMBER, _construct_number),
+                ('SELL_PRICE', 'sell_price', u'цена продажи', VARIABLE_VERIFICATOR.NUMBER, _construct_number),
+                ('COINS_DELTA', 'coins_delta', u'разница в монетах', VARIABLE_VERIFICATOR.NUMBER, _construct_number),
+                ('OLD_ARTIFACT', 'old_artifact', u'старый артефакт', VARIABLE_VERIFICATOR.ITEM, _construct_utg_name_form),
+                ('PERSON', 'person', u'советник', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form),
+                ('DECLINED_BILL', 'declined_bill', u'название не прошедшего закона', VARIABLE_VERIFICATOR.TEXT, _construct_text),
+                ('BILL', 'bill', u'название закона', VARIABLE_VERIFICATOR.TEXT, _construct_text),
+                ('NEW_NAME', 'new_name', u'новое название города', VARIABLE_VERIFICATOR.PLACE, _construct_utg_name),
+                ('OLD_NAME', 'old_name', u'старое название города', VARIABLE_VERIFICATOR.PLACE, _construct_utg_name),
+                ('NEW_MODIFIER', 'new_modifier', u'новый модификатор города', VARIABLE_VERIFICATOR.MODIFIER, _construct_utg_name_form),
+                ('OLD_MODIFIER', 'old_modifier', u'старый модификатор города', VARIABLE_VERIFICATOR.MODIFIER, _construct_utg_name_form),
+                ('OLD_RACE', 'old_race', u'старая раса', VARIABLE_VERIFICATOR.RACE, _construct_utg_name_form),
+                ('NEW_RACE', 'new_race', u'новая раса', VARIABLE_VERIFICATOR.RACE, _construct_utg_name_form),
+                ('PLACE_1', 'place_1', u'1-ый город', VARIABLE_VERIFICATOR.PLACE, _construct_utg_name_form),
+                ('PLACE_2', 'place_2', u'2-ой город', VARIABLE_VERIFICATOR.PLACE, _construct_utg_name_form),
+                ('RESOURCE_1', 'resource_1', u'1-ый ресурс', VARIABLE_VERIFICATOR.TEXT, _construct_text),
+                ('RESOURCE_2', 'resource_2', u'2-ой ресурс', VARIABLE_VERIFICATOR.TEXT, _construct_text),
+                ('TEXT', 'text', u'любой текст', VARIABLE_VERIFICATOR.TEXT, _construct_text),
+                ('EFFECTIVENESS', 'effectiveness', u'эффективность', VARIABLE_VERIFICATOR.NUMBER, _construct_number),
+                ('ATTACKER', 'attacker', u'атакующий', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form),
+                ('DAMAGE', 'damage', u'урон', VARIABLE_VERIFICATOR.NUMBER, _construct_number),
+                ('DEFENDER', 'defender', u'защитник', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form),
+                ('ACTOR', 'actor', u'актор (герой или монстр)', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form),
+                ('CONVERSION', 'conversion', u'информация о конверсии параметров', VARIABLE_VERIFICATOR.TEXT, _construct_text),
                 )

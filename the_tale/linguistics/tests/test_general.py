@@ -61,7 +61,7 @@ class GeneralTests(TestCase):
                 continue
             for substitutions in verificator.substitutions:
                 for word, properties in substitutions:
-                    self.assertTrue(lexicon_dictinonary.DICTIONARY.has_words(word, verificator.utg_type))
+                    self.assertTrue(isinstance(word, (int, long)) or lexicon_dictinonary.DICTIONARY.has_words(word, verificator.utg_type))
 
 
     def test_all_lexicon_keys_have_suffient_number_of_verificator_substitutions(self):

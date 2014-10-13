@@ -49,7 +49,8 @@ from the_tale.game.heroes import bag
 class HeroPrototype(BasePrototype,
                     logic_accessors.LogicAccessorsMixin,
                     shop_accessors.ShopAccessorsMixin,
-                    equipment_methods.EquipmentMethodsMixin):
+                    equipment_methods.EquipmentMethodsMixin,
+                    names.ManageNameMixin):
     _model_class = Hero
     _readonly = ('id', 'account_id', 'created_at_turn', 'experience', 'money', 'energy', 'level', 'saved_at_turn', 'saved_at', 'is_bot')
     _bidirectional = ('is_alive',
@@ -201,21 +202,6 @@ class HeroPrototype(BasePrototype,
         from django.db.models import Min
         created_at = cls._model_class.objects.all().aggregate(Min('quest_created_time'))['quest_created_time__min']
         return created_at if created_at is not None else datetime.datetime.now()
-
-    @lazy_property
-    def utg_name(self):
-        from utg import words
-        return words.Word.deserialize(self.data['name'])
-
-    @lazy_property
-    def name(self): return self.utg_name.normal_form()
-
-    def set_name_forms(self, word):
-        del self.name
-        del self.utg_name
-
-        self.data['name'] = word.serialize()
-
 
     def switch_spending(self):
         self._model.next_spending = random_value_by_priority(list(self.spending_priorities().items()))

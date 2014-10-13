@@ -5,6 +5,8 @@ import pynames
 from utg import words as utg_words
 from utg import relations as utg_relations
 
+from the_tale.common.utils.decorators import lazy_property
+
 from the_tale.game import relations
 
 
@@ -60,5 +62,29 @@ class NamesGenerators(object):
                                                               gender.utg_id))
 
         return name
+
+
+class ManageNameMixin(object):
+
+    @lazy_property
+    def utg_name(self):
+        return utg_words.Word.deserialize(self.data['name'])
+
+    @lazy_property
+    def utg_name_form(self):
+        return utg_words.WordForm(self.utg_name)
+
+    @lazy_property
+    def name(self): return self.utg_name.normal_form()
+
+    def set_utg_name(self, word):
+        del self.name
+        del self.utg_name
+        del self.utg_name_form
+
+        self._model.name = word.normal_form()
+        self.data['name'] = word.serialize()
+
+
 
 generator = NamesGenerators()

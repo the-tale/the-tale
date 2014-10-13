@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from utg.words import Word, Properties
+from utg.words import WordForm, Word, Properties
 from utg.relations import WORD_TYPE
 from utg.data import VERBOSE_TO_PROPERTIES
 from utg.dictionary import Dictionary
@@ -19,13 +19,14 @@ def noun(forms, properties, countable=None):
     if countable:
         patches[WORD_TYPE.NOUN_COUNTABLE_FORM] = Word(type=WORD_TYPE.NOUN_COUNTABLE_FORM, forms=countable, properties=properties)
 
-    return Word(type=WORD_TYPE.NOUN, forms=forms, properties=properties, patches=patches)
+    return WordForm(Word(type=WORD_TYPE.NOUN, forms=forms, properties=properties, patches=patches))
+
 
 def text(form):
-    return Word(type=WORD_TYPE.TEXT, forms=[form], properties=Properties())
+    return WordForm(Word(type=WORD_TYPE.TEXT, forms=[form], properties=Properties()))
 
 
-words = [ noun([u'герой', u'героя', u'герою', u'героя', u'героем', u'герое',
+forms = [ noun([u'герой', u'героя', u'герою', u'героя', u'героем', u'герое',
                 u'герои', u'героев', u'героям', u'героев', u'героями', u'героях'], u'од,мр'),
           noun([u'привидение', u'привидения', u'привидению', u'привидение', u'привидением', u'привидении',
                 u'привидения', u'привидений', u'привидениям', u'привидения', u'привидениями', u'привидениях'], u'од,ср'),
@@ -138,4 +139,4 @@ words = [ noun([u'герой', u'героя', u'герою', u'героя', u'г
                  ]
 
 
-DICTIONARY = Dictionary(words=words)
+DICTIONARY = Dictionary(words=[form.word for form in forms])
