@@ -14,6 +14,9 @@
         <li {% if page_type == 'keys' %}class="active"{% endif %}><a href="{{ url('linguistics:') }}">Типы фраз</a></li>
         <li {% if page_type == 'all-templates' %}class="active"{% endif %}><a href="{{url('linguistics:templates:')}}">Все фразы</a></li>
         <li {% if page_type == 'dictionary' %}class="active"{% endif %}><a href="{{ url('linguistics:words:') }}">Словарь</a></li>
+        <li {% if page_type == 'how-add-phrase' %}class="active"{% endif %}><a href="{{ url('linguistics:how-add-phrase') }}">Как добавить фразу</a></li>
+        <li {% if page_type == 'templates-specification' %}class="active"{% endif %}><a href="{{ url('linguistics:templates:specification') }}">Спецификация шаблонов</a></li>
+        <li><a href="{{ url('forum:subcategories:show', linguistics_settings.FORUM_CATEGORY_ID) }}">Форум ➔</a></li>
       </ul>
 
 

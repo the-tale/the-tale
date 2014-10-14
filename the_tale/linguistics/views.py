@@ -85,6 +85,10 @@ class LinguisticsResource(Resource):
                               'total_templates': sum(groups_count.values()),
                               'page_type': 'keys',} )
 
+    @handler('how-add-phrase', method='get')
+    def how_add_phrase(self):
+        return self.template('linguistics/how_add_phrase.html',
+                             {'page_type': 'how-add-phrase'})
 
 
 class WordResource(Resource):
@@ -399,7 +403,7 @@ class TemplateResource(Resource):
                              {'key': key,
                               'templates': templates,
                               'index_filter': index_filter,
-                              'page_type': 'keys' if key else 'all-templates',
+                              'page_type': 'all-templates',
                               'paginator': paginator,
                               'authors': authors,
                               'clans': clans,
@@ -633,3 +637,9 @@ class TemplateResource(Resource):
             self._template.remove()
 
         return self.json_ok()
+
+
+    @handler('specification', method='get')
+    def pecification(self):
+        return self.template('linguistics/templates/specification.html',
+                             {'page_type': 'templates-specification'})

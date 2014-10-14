@@ -4,7 +4,33 @@
 
 {% block linguistics_content %}
 
-<h3>Типы фраз <small>всего: {{total_templates}} фраз</small></h3>
+<p>
+  Мир Пандоры находится далеко от нас, можно сказать, в другой реальности, и наблюдать за ним не просто. В основном мы знакомимся с ним через записки наших героев (в журнале и дневнике). Нашим подопечным сложно описывать мир на языке богов («ибо язык сей сложен яко квантовая физика»), поэтому нам следует помочь им, предоставив шаблоны для описания важных событий в жизни героев.
+</p>
+
+<p>
+  На этой странице находится список типов фраз, разбитых по ситуациям, в которых они встречаются. Каждый тип фразы имеет краткое описание, пример и список «переменных», которые в ней можно использовать. «Переменная» — это игровой объект, к которому относится фраза (примеры переменных: герой, монстр, артефакт, противник). Если вам кажется, что в одном из типов фраз не хватает переменных, сообщите об этом разработчикам — может быть о них просто забыли.
+</p>
+
+
+<div class="accordion" id="pgf-help-accordion">
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-help-accordion" href="#pgf-templates-description">
+        Подробнее
+      </a>
+    </div>
+    <div id="pgf-templates-description" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner">
+        {% include "linguistics/templates/templates_description.html" %}
+      </div>
+    </div>
+</div>
+
+<br/>
+
+<h3>Типы фраз <small>всего: {{total_templates}}</small></h3>
 
 <br/>
 

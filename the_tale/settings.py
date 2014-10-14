@@ -117,7 +117,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'the_tale.portal.context_processors.cdn_paths',
     'the_tale.portal.context_processors.currencies',
     'the_tale.game.balance.context_processors.balance',
-    'the_tale.game.bills.context_processors.bills_context'
+    'the_tale.game.bills.context_processors.bills_context',
+    'the_tale.linguistics.context_processors.linguistics_context'
     )
 
 

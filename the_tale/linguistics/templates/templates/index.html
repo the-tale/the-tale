@@ -28,6 +28,24 @@
 {{ templates_macros.key_info(key)}}
 {% endif %}
 
+<div class="accordion" id="pgf-help-accordion">
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-help-accordion" href="#pgf-templates-description">
+        Подробнее
+      </a>
+    </div>
+    <div id="pgf-templates-description" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner">
+        {% include "linguistics/templates/templates_description.html" %}
+      </div>
+    </div>
+</div>
+
+<br/>
+
+
 {% if key and resource.account.is_authenticated() %}
 <a class="btn btn-success" href="{{url('linguistics:templates:new', key=key.value)}}">Добавить шаблон</a>
 {% endif %}
