@@ -1157,3 +1157,9 @@ class RemoveRequestsTests(BaseRequestsTests):
         self.check_ajax_ok(self.client.post(self.requested_url))
 
         self.assertEqual(prototypes.TemplatePrototype.get_by_id(self.template.id), None)
+
+
+class SpecificationTests(BaseRequestsTests):
+
+    def test_success(self):
+        self.check_html_ok(self.request_html(url('linguistics:templates:specification')), texts=[])

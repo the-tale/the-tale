@@ -50,3 +50,9 @@ class IndexRequestsTests(BaseRequestsTests):
     def test_all_keys(self):
         texts = [key.text for key in keys.LEXICON_KEY.records]
         self.check_html_ok(self.request_html(url('linguistics:')), texts=texts)
+
+
+class HowAddPhraseTests(BaseRequestsTests):
+
+    def test_success(self):
+        self.check_html_ok(self.request_html(url('linguistics:how-add-phrase')), texts=[])

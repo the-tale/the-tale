@@ -640,6 +640,6 @@ class TemplateResource(Resource):
 
 
     @handler('specification', method='get')
-    def pecification(self):
+    def specification(self):
         return self.template('linguistics/templates/specification.html',
                              {'page_type': 'templates-specification'})
