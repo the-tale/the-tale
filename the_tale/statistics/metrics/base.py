@@ -129,7 +129,6 @@ class BaseCombination(BaseMetric):
             dates, values = zip(*source_record)
 
             if list(dates) != [dates[0]]*len(dates):
-                print dates
                 raise exceptions.UnequalDatesError()
 
             self.store_value(dates[0], self.get_combined_value(*values))

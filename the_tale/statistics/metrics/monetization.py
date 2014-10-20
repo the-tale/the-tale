@@ -496,8 +496,8 @@ class Revenue(BaseMetric):
 _FORUM_GROUPS = [relations.RECORD_TYPE.INCOME_FROM_FORUM,
                  relations.RECORD_TYPE.INCOME_FROM_SILENT]
 
-_GUIDS_GROUPS = [relations.RECORD_TYPE.INCOME_FROM_GUILD_MEMBERS,
-                 relations.RECORD_TYPE.REVENUE]
+_GUILDS_GROUPS = [relations.RECORD_TYPE.INCOME_FROM_GUILD_MEMBERS,
+                  relations.RECORD_TYPE.INCOME_FROM_SINGLES]
 
 class IncomeFromForumPercents(BasePercentsFromSumCombination):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_FORUM_PERCENTS
@@ -509,11 +509,11 @@ class IncomeFromSilentPercents(BasePercentsFromSumCombination):
 
 class IncomeFromGuildMembersPercents(BasePercentsFromSumCombination):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GUILD_MEMBERS_PERCENTS
-    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GUILD_MEMBERS] + _GUIDS_GROUPS
+    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GUILD_MEMBERS] + _GUILDS_GROUPS
 
 class IncomeFromSinglesPercents(BasePercentsFromSumCombination):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_SINGLES_PERCENTS
-    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_SINGLES] + _GUIDS_GROUPS
+    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_SINGLES] + _GUILDS_GROUPS
 
 
 _GOODS_GROUPS = [relations.RECORD_TYPE.INCOME_FROM_GOODS_PREMIUM,
