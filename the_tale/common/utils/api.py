@@ -41,7 +41,7 @@ def handler(versions):
                 return resource.json_error('api.no_method_version', u'Не указана версия метода')
 
             if not api_client:
-                return resource.json_error('api.no_client_indentificator', u'Не указана версия клиента')
+                return resource.json_error('api.no_client_identificator', u'Не указана версия клиента')
 
             if not check_client_version(api_client):
                 return resource.json_error('api.wrong_client_identificator_format',
