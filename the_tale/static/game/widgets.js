@@ -751,7 +751,16 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
             var name = item.name + '#' + item.power;
             item.count = counted_items[name];
         }
-        items.sort(function(a, b){return a.name > b.name || (a.name == b.name && a.power > b.power);})
+
+        items.sort(function(a, b){
+            if (a.name > b.name) return 1;
+            if (a.name < b.name) return -1;
+
+            if (a.power > b.power) return 1;
+            if (a.power < b.power) return -1;
+
+            return 0;
+        });
 
         pgf.base.RenderTemplateList(bagContainer, items, RenderItem, {});
     }
