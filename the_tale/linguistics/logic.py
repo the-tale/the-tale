@@ -42,7 +42,7 @@ def get_templates_count():
     return groups_count, keys_count
 
 
-def _get_text__real(error_prefix, key, args, quiet=False):
+def _prepair_get_text__real(key, args, quiet=False):
     lexicon_key = LEXICON_KEY.index_name.get(key.upper())
 
     if lexicon_key is None and not quiet:
@@ -50,23 +50,15 @@ def _get_text__real(error_prefix, key, args, quiet=False):
 
     if not game_lexicon.item.has_key(lexicon_key):
         if not quiet:
-            logger.error('%s: unknown template type: %s', error_prefix, lexicon_key)
-        return None
+            logger.error('unknown template type: %s', lexicon_key)
+        return None, {}
 
     externals = {k: VARIABLE(k).constructor(v) for k, v in args.iteritems()}
-    template = game_lexicon.item.get_random_template(lexicon_key)
 
-    try:
-        return template.substitute(externals, game_dictionary.item)
-    except utg_exceptions.UtgError as e:
-        if not quiet:
-            logger.error(u'Exception in linguistics; %s key=%s, args=%r, message: "%s"' % (error_prefix, key, args, e),
-                         exc_info=sys.exc_info(),
-                         extra={} )
-        return None
+    return lexicon_key, externals
 
 
-def _get_text__test(error_prefix, key, args, quiet=False):
+def _prepair_get_text__test(key, args, quiet=False):
 
     lexicon_key = LEXICON_KEY.index_name.get(key.upper())
 
@@ -77,16 +69,42 @@ def _get_text__test(error_prefix, key, args, quiet=False):
     # to test that functionality
     externals = {k: VARIABLE(k).constructor(v) for k, v in args.iteritems()}
 
+    return lexicon_key, externals
+
+
+def _render_text__real(lexicon_key, externals, quiet=False):
+    if lexicon_key is None:
+        return None
+
+    template = game_lexicon.item.get_random_template(lexicon_key)
+
+    try:
+        return template.substitute(externals, game_dictionary.item)
+    except utg_exceptions.UtgError as e:
+        if not quiet:
+            logger.error(u'Exception in linguistics; key=%s, args=%r, message: "%s"' % (lexicon_key, externals, e),
+                         exc_info=sys.exc_info(),
+                         extra={} )
+        return u''
+
+
+def _render_text__test(lexicon_key, externals, quiet=False):
+
     if not game_lexicon.item.has_key(lexicon_key):
         # return fake text
-        return key
+        return unicode(lexicon_key)
 
     template = game_lexicon.item.get_random_template(lexicon_key)
 
     return template.substitute(externals, game_dictionary.item)
 
 
-get_text = _get_text__test if project_settings.TESTS_RUNNING else _get_text__real
+prepair_get_text = _prepair_get_text__test if project_settings.TESTS_RUNNING else _prepair_get_text__real
+render_text = _render_text__test if project_settings.TESTS_RUNNING else _render_text__real
+
+def get_text(key, args, quiet=False):
+    lexicon_key, externals = prepair_get_text(key, args, quiet)
+    return render_text(lexicon_key, externals, quiet)
 
 
 def update_words_usage_info():

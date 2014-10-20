@@ -30,7 +30,7 @@ class RecordBase(object):
 
     def get_text(self):
         from the_tale.linguistics.logic import get_text
-        text = get_text('chronicle:get_text', self.textgen_id, self.substitutions)
+        text = get_text(self.textgen_id, self.substitutions)
         return text if text is not None else u''
 
     def create_record(self):

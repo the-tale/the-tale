@@ -71,12 +71,47 @@ class ContainerTests(testcase.TestCase):
         self.assertEqual(set(self.container.excluded_quests(7)), set(['q_1', 'q_2', 'q_3', 'q_4', 'q_5', 'q_6']))
 
     def test_push_quest(self):
-        with mock.patch('the_tale.game.actions.container.ActionsContainer.request_replane') as request_replane:
-            self.container.push_quest('QUEST')
+        with mock.patch('the_tale.game.quests.container.QuestsContainer.mark_updated') as mark_updated:
+            with mock.patch('the_tale.game.actions.container.ActionsContainer.request_replane') as request_replane:
+                self.container.push_quest('QUEST')
+
+        self.assertEqual(mark_updated.call_count, 1)
 
         self.assertEqual(request_replane.call_count, 1)
 
-        with mock.patch('the_tale.game.actions.container.ActionsContainer.request_replane') as request_replane:
-            self.container.pop_quest()
+        with mock.patch('the_tale.game.quests.container.QuestsContainer.mark_updated') as mark_updated:
+            with mock.patch('the_tale.game.actions.container.ActionsContainer.request_replane') as request_replane:
+                self.container.pop_quest()
+
+        self.assertEqual(mark_updated.call_count, 1)
 
         self.assertEqual(request_replane.call_count, 1)
+
+
+    def test_mark_updated(self):
+        self.container._ui_info = 'fake ui info'
+        self.container.updated = False
+
+        self.container.mark_updated()
+
+        self.assertEqual(self.container._ui_info, None)
+        self.assertTrue(self.container.updated)
+
+
+    def test_ui_info(self):
+
+        self.assertEqual(self.container._ui_info, None)
+
+        with mock.patch('the_tale.game.quests.container.QuestsContainer._get_ui_info', mock.Mock(return_value='fake ui info')) as get_ui_info:
+            self.container.ui_info(self.hero)
+
+        self.assertEqual(get_ui_info.call_count, 1)
+
+        self.assertEqual(self.container._ui_info, 'fake ui info')
+
+        with mock.patch('the_tale.game.quests.container.QuestsContainer._get_ui_info', mock.Mock(return_value='fake ui info 2')) as get_ui_info:
+            self.container.ui_info(self.hero)
+
+        self.assertEqual(get_ui_info.call_count, 0)
+
+        self.assertEqual(self.container._ui_info, 'fake ui info')

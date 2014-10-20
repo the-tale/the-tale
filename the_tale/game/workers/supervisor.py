@@ -97,7 +97,7 @@ class Worker(BaseWorker):
 
         self.logger.info('distribute accounts')
 
-        for account_id in Account.objects.all().values_list('id', flat=True):
+        for account_id in Account.objects.all().order_by('id').values_list('id', flat=True):
             self.register_account(account_id)
 
         self.initialized = True

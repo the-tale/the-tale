@@ -117,9 +117,10 @@ class LogicTests(TestCase):
                                                       state=relations.TEMPLATE_STATE.IN_GAME)
         storage.game_lexicon.refresh()
 
-        self.assertEqual(logic._get_text__real('tests',
-                                               key.name,
-                                               args={'hero': mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word(u'герой')), 'level': 1}),
+        lexicon_key, externals = logic._prepair_get_text__real(key.name,
+                                                               args={'hero': mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word(u'герой')), 'level': 1})
+
+        self.assertEqual(logic._render_text__real(lexicon_key, externals),
                          u'Герой 1 дубль')
 
 
@@ -128,11 +129,11 @@ class LogicTests(TestCase):
         self.assertEqual(word_2.form(utg_relations.CASE.DATIVE), u'дубль')
         dictionary.add_word(word_2)
 
-        self.assertEqual(logic._get_text__real('tests',
-                                               key.name,
-                                               args={'hero': mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word(u'герой')), 'level': 1},
-                                               quiet=True),
-                         None)
+        lexicon_key, externals = logic._prepair_get_text__real(key.name,
+                                                               args={'hero': mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word(u'герой')), 'level': 1})
+
+        self.assertEqual(logic._render_text__real(lexicon_key, externals, quiet=True),
+                         u'')
 
 
     def test_update_words_usage_info(self):

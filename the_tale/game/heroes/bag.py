@@ -11,12 +11,13 @@ class EquipmentException(Exception): pass
 
 class Bag(object):
 
-    __slots__ = ('next_uuid', 'updated', 'bag')
+    __slots__ = ('next_uuid', 'updated', 'bag', '_ui_info')
 
     def __init__(self):
         self.next_uuid = 0
         self.updated = True
         self.bag = {}
+        self._ui_info = None
 
     @classmethod
     def deserialize(cls, hero, data):
@@ -30,22 +31,29 @@ class Bag(object):
 
         return obj
 
+    def mark_updated(self):
+        self.updated = True
+        self._ui_info = None
+
     def serialize(self):
         return { 'next_uuid': self.next_uuid,
                  'bag': dict( (uuid, artifact.serialize()) for uuid, artifact in self.bag.items() )  }
 
     def ui_info(self, hero):
-        return dict( (int(uuid), artifact.ui_info(hero)) for uuid, artifact in self.bag.items() )
+        if self._ui_info is None:
+            self._ui_info = dict( (int(uuid), artifact.ui_info(hero)) for uuid, artifact in self.bag.items() )
+
+        return self._ui_info
 
     def put_artifact(self, artifact):
-        self.updated = True
+        self.mark_updated()
         uuid = self.next_uuid
         self.bag[uuid] = artifact
         artifact.set_bag_uuid(uuid)
         self.next_uuid += 1
 
     def pop_artifact(self, artifact):
-        self.updated = True
+        self.mark_updated()
         del self.bag[artifact.bag_uuid]
 
     def get(self, artifact_id):
@@ -106,11 +114,16 @@ class Bag(object):
 
 class Equipment(object):
 
-    __slots__ = ('equipment', 'updated')
+    __slots__ = ('equipment', 'updated', '_ui_info')
 
     def __init__(self):
         self.equipment = {}
         self.updated = True
+        self._ui_info = None
+
+    def mark_updated(self):
+        self.updated = True
+        self._ui_info = None
 
     def get_power(self):
         power = Power(0, 0)
@@ -121,7 +134,9 @@ class Equipment(object):
         return power
 
     def ui_info(self, hero):
-        return dict( (slot, artifact.ui_info(hero)) for slot, artifact in self.equipment.items() if artifact )
+        if self._ui_info is None:
+            self._ui_info = dict( (slot, artifact.ui_info(hero)) for slot, artifact in self.equipment.items() if artifact )
+        return self._ui_info
 
     def serialize(self):
         return dict( (slot, artifact.serialize()) for slot, artifact in self.equipment.items() if artifact )
@@ -135,7 +150,7 @@ class Equipment(object):
     def unequip(self, slot):
         if slot.value not in self.equipment:
             return None
-        self.updated = True
+        self.mark_updated()
         artifact = self.equipment[slot.value]
         del self.equipment[slot.value]
         return artifact
@@ -146,7 +161,7 @@ class Equipment(object):
         if slot not in EQUIPMENT_SLOT.records:
             raise EquipmentException('unknown slot id: %s' % slot)
 
-        self.updated = True
+        self.mark_updated()
         self.equipment[slot.value] = artifact
 
     def get(self, slot):
@@ -155,7 +170,7 @@ class Equipment(object):
     def _remove_all(self):
         for slot in EQUIPMENT_SLOT.records:
             self.unequip(slot)
-        self.updated = True
+        self.mark_updated()
 
     def items(self):
         return self.equipment.items()
@@ -173,7 +188,7 @@ class Equipment(object):
             if self.get(slot) is not None:
                 self.unequip(slot)
             self.equip(slot, artifact)
-        self.updated = True
+        self.mark_updated()
 
     def __eq__(self, other):
         return (self.equipment == other.equipment)

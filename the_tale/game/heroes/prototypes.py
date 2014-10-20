@@ -205,6 +205,7 @@ class HeroPrototype(BasePrototype,
 
     def switch_spending(self):
         self._model.next_spending = random_value_by_priority(list(self.spending_priorities().items()))
+        self.quests.mark_updated()
 
     @property
     def energy_full(self):
@@ -376,26 +377,33 @@ class HeroPrototype(BasePrototype,
     @lazy_property
     def messages(self): return messages.JournalContainer.deserialize(self, s11n.from_json(self._model.messages))
 
-    def push_message(self, msg, diary=False, journal=True):
+    def push_message(self, message, diary=False, journal=True):
         if journal:
-            self.messages.push_message(msg)
+            self.messages.push_message(message)
+
+            if diary:
+                message = message.clone()
 
         if diary:
-            self.diary.push_message(msg)
+            self.diary.push_message(message)
 
     def add_message(self, type_, diary=False, journal=True, turn_delta=0, **kwargs):
-        from the_tale.linguistics.logic import get_text
+        from the_tale.linguistics.logic import prepair_get_text
 
         if not diary and not self.is_active and not self.is_premium:
             # do not process journal messages for inactive heroes (and clear it if needed)
             self.messages.clear()
             return
 
-        msg = get_text('hero:add_message', type_, kwargs)
+        lexicon_key, externals = prepair_get_text(type_, kwargs)
 
-        if msg is None: return
+        if lexicon_key is None: return
 
-        self.push_message(messages.prepair_message(msg, turn_delta=turn_delta), diary=diary, journal=journal)
+        message = messages.MessageSurrogate.create(key=lexicon_key,
+                                                   externals=externals,
+                                                   turn_delta=turn_delta)
+
+        self.push_message(message, diary=diary, journal=journal)
 
 
     def heal(self, delta):

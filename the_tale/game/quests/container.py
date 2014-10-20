@@ -8,14 +8,19 @@ from the_tale.game.quests.conf import quests_settings
 
 class QuestsContainer(object):
 
-    __slots__ = ('updated', 'quests_list', 'history', 'interfered_persons', 'hero')
+    __slots__ = ('updated', 'quests_list', 'history', 'interfered_persons', 'hero', '_ui_info')
 
     def __init__(self):
-        self.updated = False
         self.quests_list = []
         self.history = {}
         self.interfered_persons = {}
         self.hero = None
+
+        self.mark_updated()
+
+    def mark_updated(self):
+        self.updated = True
+        self._ui_info = None
 
     def serialize(self):
         return {'quests': [quest.serialize() for quest in self.quests_list],
@@ -32,20 +37,27 @@ class QuestsContainer(object):
         return obj
 
     def ui_info(self, hero):
+        if self._ui_info is None:
+            self._ui_info = self._get_ui_info(hero)
+
+        return self._ui_info
+
+
+    def _get_ui_info(self, hero):
         spending_ui_info = QuestPrototype.next_spending_ui_info(hero.next_spending)
 
         if self.has_quests:
             return {'quests': [spending_ui_info] + [quest.ui_info() for quest in self.quests_list]}
 
-        return  {'quests': [spending_ui_info, QuestPrototype.no_quests_ui_info(in_place=hero.position.place is not None)]}
+        return {'quests': [spending_ui_info, QuestPrototype.no_quests_ui_info(in_place=hero.position.place is not None)]}
 
     def push_quest(self, quest):
-        self.updated = True
+        self.mark_updated()
         self.hero.actions.request_replane()
         self.quests_list.append(quest)
 
     def pop_quest(self):
-        self.updated = True
+        self.mark_updated()
         self.hero.actions.request_replane()
         return self.quests_list.pop()
 
@@ -66,7 +78,7 @@ class QuestsContainer(object):
 
     def update_history(self, quest_type, turn_number):
         self.history[quest_type] = turn_number
-        self.updated = True
+        self.mark_updated()
 
 
     def add_interfered_person(self, person_id):

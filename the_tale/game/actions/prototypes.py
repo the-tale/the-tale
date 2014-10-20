@@ -262,7 +262,7 @@ class ActionBase(object):
 
     def get_description(self):
         from the_tale.linguistics import logic as linguistics_logic
-        return linguistics_logic.get_text('actions:get_description', self.description_text_name, self.get_description_arguments())
+        return linguistics_logic.get_text(self.description_text_name, self.get_description_arguments())
 
     def get_description_arguments(self):
         return {'hero': self.hero}

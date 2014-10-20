@@ -2,6 +2,8 @@
 
 from django.utils.log import getLogger
 
+from the_tale.game.heroes import messages
+
 logger = getLogger('the-tale.workers.game_logic')
 
 
@@ -38,10 +40,10 @@ class Writer(object):
         return self.get_message(self.action_id())
 
     def journal(self, **kwargs):
-        return self.get_message(self.journal_id(), **kwargs)
+        return self.get_message_surrogate(self.journal_id(), externals=kwargs)
 
     def diary(self, **kwargs):
-        return self.get_message(self.diary_id(), **kwargs)
+        return self.get_message_surrogate(self.diary_id(), externals=kwargs)
 
     def choice_variant(self, variant):
         return self.get_message(self.choice_variant_id(variant))
@@ -49,6 +51,16 @@ class Writer(object):
     def current_choice(self, answer):
         return self.get_message(self.current_choice_id(answer))
 
+    def get_message_surrogate(self, type, externals):
+        from the_tale.linguistics.logic import prepair_get_text
+
+        externals.update(self.substitution)
+
+        lexicon_key, externals = prepair_get_text(type, externals, quiet=True)
+
+        if lexicon_key is None: return None
+
+        return messages.MessageSurrogate.create(key=lexicon_key, externals=externals)
 
     def get_message(self, type_, **kwargs):
         from the_tale.linguistics.logic import get_text
@@ -56,7 +68,7 @@ class Writer(object):
         externals = kwargs
         externals.update(self.substitution)
 
-        return get_text('quest:writers', type_, externals, quiet=True)
+        return get_text(type_, externals, quiet=True)
 
 
 def get_writer(**kwargs):
