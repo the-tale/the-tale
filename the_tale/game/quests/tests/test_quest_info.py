@@ -62,6 +62,18 @@ class QuestInfoTests(testcase.TestCase, QuestTestsMixin):
     def test_serialization(self):
         self.assertEqual(self.quest_info.serialize(), QuestInfo.deserialize(self.quest_info.serialize()).serialize())
 
+    def test_serialization__bonuses_saved(self):
+        self.quest_info.experience_bonus = 666
+        self.quest_info.power_bonus = 777
+        self.assertEqual(self.quest_info.serialize(), QuestInfo.deserialize(self.quest_info.serialize()).serialize())
+
+        new_quest_info = QuestInfo.deserialize(self.quest_info.serialize())
+
+        self.assertEqual(new_quest_info.experience_bonus, 666)
+        self.assertEqual(new_quest_info.power_bonus, 777)
+
+
+
     def get_choices(self, default=True):
         choice = self.quest.knowledge_base['[ns-0]choice_1']
         options = sorted((o for o in self.quest.knowledge_base.filter(facts.Option) if o.state_from == choice.uid),

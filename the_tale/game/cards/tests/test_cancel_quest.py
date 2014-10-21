@@ -1,4 +1,6 @@
 # coding: utf-8
+import mock
+
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.prototypes import AccountPrototype
@@ -44,7 +46,11 @@ class CancelQuestTests(CardsTestMixin, testcase.TestCase):
         self.hero.quests.push_quest('QUEST')
         self.assertTrue(self.hero.quests.has_quests)
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+        with mock.patch('the_tale.game.quests.container.QuestsContainer.mark_updated') as mark_updated:
+            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+
+        self.assertEqual(mark_updated.call_count, 2)
+
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertFalse(self.hero.quests.has_quests)

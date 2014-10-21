@@ -1,4 +1,6 @@
 # coding: utf-8
+import mock
+
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.prototypes import AccountPrototype
@@ -41,12 +43,15 @@ class AddExperienceTestMixin(CardsTestMixin):
 
         self.assertTrue(self.hero.quests.has_quests)
 
-        with self.check_not_changed(lambda: self.hero.experience):
-            with self.check_not_changed(lambda: self.hero.level):
-                with self.check_not_changed(lambda: self.hero.quests.current_quest.current_info.experience):
-                    with self.check_delta(lambda: self.hero.quests.current_quest.current_info.experience_bonus, self.CARD.EXPERIENCE):
-                        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
-                        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+        with mock.patch('the_tale.game.quests.container.QuestsContainer.mark_updated') as mark_updated:
+            with self.check_not_changed(lambda: self.hero.experience):
+                with self.check_not_changed(lambda: self.hero.level):
+                    with self.check_not_changed(lambda: self.hero.quests.current_quest.current_info.experience):
+                        with self.check_delta(lambda: self.hero.quests.current_quest.current_info.experience_bonus, self.CARD.EXPERIENCE):
+                            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+                            self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+
+        self.assertEqual(mark_updated.call_count, 1)
 
     def test_no_quest(self):
         self.assertFalse(self.hero.quests.has_quests)

@@ -80,6 +80,8 @@ class AddExperienceBase(CardBase):
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя нет задания.')
 
         task.hero.quests.current_quest.current_info.experience_bonus += self.EXPERIENCE
+        task.hero.quests.mark_updated()
+
         return task.logic_result()
 
 class AddExperienceCommon(AddExperienceBase):
@@ -112,6 +114,8 @@ class AddPowerBase(CardBase):
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя нет задания')
 
         task.hero.quests.current_quest.current_info.power_bonus += self.POWER
+        task.hero.quests.mark_updated()
+
         return task.logic_result()
 
 class AddPowerCommon(AddPowerBase):
@@ -450,6 +454,7 @@ class CancelQuest(CardBase):
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя нет задания.')
 
         task.hero.quests.pop_quest()
+        task.hero.quests.mark_updated()
 
         return task.logic_result()
 
