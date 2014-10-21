@@ -1182,7 +1182,9 @@ pgf.game.widgets.Abilities = function() {
 
         var hero = game_data.account.hero;
 
-        angelEnergy = hero.energy.value + hero.energy.bonus;
+        // total energy with discount bonus
+        angelEnergy = hero.energy.value + hero.energy.bonus + hero.energy.discount;
+
         pvpWaiting = game_data.account.in_pvp_queue;
         canParticipateInPvp = hero.permissions.can_participate_in_pvp;
         canRepairBuilding = hero.permissions.can_repair_building;

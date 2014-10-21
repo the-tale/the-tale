@@ -224,7 +224,7 @@ class LogicAccessorsMixin(object):
 
     @property
     def energy_discount(self):
-         return self.attribute_modifier(relations.MODIFIERS.ENERGY_DISCOUNT)
+        return self.attribute_modifier(relations.MODIFIERS.ENERGY_DISCOUNT)
 
     @property
     def might_crit_chance(self): return min(1, f.might_crit_chance(self.might) + self.attribute_modifier(relations.MODIFIERS.MIGHT_CRIT_CHANCE))
