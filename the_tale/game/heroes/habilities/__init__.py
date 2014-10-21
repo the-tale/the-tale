@@ -258,6 +258,10 @@ class AbilitiesPrototype(object):
         return self.current_ability_points_number < self.max_ability_points_number
 
     @property
+    def destiny_points_remained(self):
+        return self.max_ability_points_number - self.current_ability_points_number
+
+    @property
     def destiny_points(self):
         return self.max_ability_points_number - self.current_ability_points_number
 

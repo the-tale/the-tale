@@ -75,7 +75,8 @@ jQuery(document).ready(function(e){
 
   <div id="choose-ability-button" class="alert fade in pgf-choose-ability-button pgf-free-destiny-points pgf-hidden">
     {{ resource.hero.name }} может выучить новую способность. <br/>
-    Нажмите на это сообщение, чтобы выбрать её.
+    Нажмите на это сообщение, чтобы выбрать её.<br/>
+    Доступно способностей: {{resource.hero.abilities.destiny_points_remained}}
   </div>
 
   <div class="alert alert-info fade in pgf-choose-ability-button pgf-no-destiny-points">
