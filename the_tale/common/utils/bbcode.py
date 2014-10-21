@@ -109,6 +109,7 @@ _renderer.tag_factory.add_tag(RightSquareBracketTag, 'rsb')
 
 def render(*argv, **kwargs):
     try:
+        kwargs['cosmetic_replace'] = False
         return _renderer.render_to_html(*argv, **kwargs)
     except:
         return u'Текст нельзя отформатировать. Возможно Вы ошиблись при вводе тегов.'
@@ -120,6 +121,7 @@ _safe_renderer.tag_factory.add_tag(HRTag, 'hr')
 
 def safe_render(*argv, **kwargs):
     try:
+        kwargs['cosmetic_replace'] = False
         return _safe_renderer.render_to_html(*argv, **kwargs)
     except:
         return u'Текст нельзя отформатировать. Возможно Вы ошиблись при вводе тегов.'
