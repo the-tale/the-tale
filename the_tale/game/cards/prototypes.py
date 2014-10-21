@@ -54,6 +54,7 @@ class CardBase(object):
 
     def hero_actions(self, hero):
         hero.cards.remove_card(self.TYPE, count=1)
+        hero.statistics.change_cards_used(1)
 
 
 

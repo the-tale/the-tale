@@ -41,7 +41,8 @@ class PrototypesTests(TestCase):
 
 
     def test_hero_actions(self):
-        self.card.hero_actions(self.hero)
+        with self.check_delta(lambda: self.hero.statistics.cards_used, 1):
+            self.card.hero_actions(self.hero)
         self.assertEqual(self.hero.cards.card_count(relations.CARD_TYPE.KEEPERS_GOODS_COMMON), 2)
 
 
