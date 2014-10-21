@@ -148,7 +148,7 @@ jQuery(document).ready(function(){
 
         {% if master_account.is_ban_forum %}
           <p class="alert alert-error pgf-ban-forum-message">
-            Игроку запрещено общаться на форуме до <span class="pgf-format-datetime" data-timestamp="{{ master_account.ban_forum_end_at|timestamp }}"></span>
+            Игроку запрещено общаться до <span class="pgf-format-datetime" data-timestamp="{{ master_account.ban_forum_end_at|timestamp }}"></span>
           </p>
         {% endif %}
 

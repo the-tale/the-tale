@@ -214,7 +214,8 @@ jQuery(document).ready( function(e) {
   {% set game_object = thread_data.game_objects[post.author_id] %}
 
   {# give anchor to previous element, if we give anchor to current element#}
-  <table class="post pgf-post {% if author.is_developer%}developer{% endif %}" width="100%" data-author-name="{{author.nick_verbose}}" style="table-layout: fixed;">
+  <table class="post pgf-post {% if author.is_developer%}developer{% endif %} {% if author.is_ban_forum %}banned{% endif %}"
+         width="100%" data-author-name="{{author.nick_verbose}}" style="table-layout: fixed;">
     <thead>
       <tr>
         <td width="200px" class="info-head">
@@ -279,6 +280,7 @@ jQuery(document).ready( function(e) {
             {% endif %}
 
             {% if author.is_developer%}<strong>разработчик</strong>{% endif %}
+            {% if author.is_ban_forum %}<strong>игрок забанен</strong>{% endif %}
 
             <br/>
             {{game_object.gender_verbose}}-{{game_object.race_verbose}}<br/>

@@ -4,6 +4,7 @@
 @post-border-color: #dddddd;
 @post-background-color: #f9f9f9;
 @post-developer-background-color: #e9f9e9;
+@post-banned-background-color: #f9e9e9;
 
 .forum-table {
 
@@ -98,6 +99,18 @@
 
    &.developer .info-head {
       background-color: @post-developer-background-color;
+   }
+
+   &.banned .head {
+      background-color: @post-banned-background-color;
+   }
+
+   &.banned .info {
+      background-color: @post-banned-background-color;
+   }
+
+   &.banned .info-head {
+      background-color: @post-banned-background-color;
    }
 
    .message {
