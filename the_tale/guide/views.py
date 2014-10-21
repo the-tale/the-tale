@@ -47,12 +47,15 @@ class TypeReference(object):
 
     @lazy_property
     def records(self):
-        records = []
-        for record in self.relation.records:
-            if not self.filter(record):
-                continue
-            records.append([getattr(record, field_id) for field_name, field_id in self.fields])
-        return records
+        try:
+            records = []
+            for record in self.relation.records:
+                if not self.filter(record):
+                    continue
+                records.append([getattr(record, field_id) for field_name, field_id in self.fields])
+            return records
+        except Exception as e:
+            print e
 
 
 def get_api_methods():
@@ -80,6 +83,7 @@ def get_api_types():
     from the_tale.game.quests.relations import ACTOR_TYPE
     from the_tale.game.cards.relations import CARD_TYPE
 
+
     return [TypeReference('gender', u'Пол', GENDER),
             TypeReference('race', u'Раса', RACE),
             TypeReference('rarity', u'Редкость артефакта', RARITY),
@@ -92,7 +96,9 @@ def get_api_types():
             TypeReference('action_type', u'Тип действия героя', ACTION_TYPE),
             TypeReference('game_state', u'Состояние игры', GAME_STATE),
             TypeReference('actor_types', u'Типы актёров в заданиях', ACTOR_TYPE),
-            TypeReference('cards_types', u'Типы Карт Судьбы', CARD_TYPE)]
+            TypeReference('cards_types', u'Типы Карт Судьбы', CARD_TYPE),
+            TypeReference('habits', u'Типы Черт', HABIT_TYPE,
+                          fields=((u'значение', 'verbose_value'), (u'описание', 'text')))]
 
 API_METHODS = get_api_methods()
 API_TYPES = get_api_types()

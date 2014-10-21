@@ -22,6 +22,7 @@ from the_tale.game.balance import formulas as f
 from the_tale.game.balance.power import Power
 
 from the_tale.game import names
+from the_tale.game.relations import HABIT_TYPE
 
 from the_tale.game.prototypes import TimePrototype, GameState
 
@@ -582,10 +583,10 @@ class HeroPrototype(BasePrototype,
                                'loot_items_count': self.bag.occupation,
                                'cards_help_count': self.cards_help_count,
                                'cards_help_barrier': c.CARDS_HELP_COUNT_TO_NEW_CARD},
-                'habits': { 'honor': {'verbose': self.habit_honor.verbose_value,
-                                      'raw': self.habit_honor.raw_value},
-                            'peacefulness': {'verbose': self.habit_peacefulness.verbose_value,
-                                             'raw': self.habit_peacefulness.raw_value}},
+                'habits': { HABIT_TYPE.HONOR.verbose_value: {'verbose': self.habit_honor.verbose_value,
+                                                             'raw': self.habit_honor.raw_value},
+                            HABIT_TYPE.PEACEFULNESS.verbose_value: {'verbose': self.habit_peacefulness.verbose_value,
+                                                                    'raw': self.habit_peacefulness.raw_value}},
                 'quests': self.quests.ui_info(self),
                 'sprite': get_hero_sprite(self).value
                 }

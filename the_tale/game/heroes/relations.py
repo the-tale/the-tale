@@ -176,7 +176,6 @@ class MODIFIERS(DjangoEnum):
                 ('SAFE_INTEGRITY', 45, u'вероятность сохранить целостность артефакта после боя', lambda: 0))
 
 
-
 class HABIT_CHANGE_SOURCE(DjangoEnum):
     quest_marker = Column(unique=False, single_type=False)
     quest_default = Column(unique=False, single_type=False)

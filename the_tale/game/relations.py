@@ -71,6 +71,7 @@ class HABIT_PEACEFULNESS_INTERVAL(HABIT_INTERVAL):
 class HABIT_TYPE(DjangoEnum):
     intervals = Column()
     plural_accusative = Column()
+    verbose_value = Column()
 
-    records = ( ('HONOR', 0, u'честь', HABIT_HONOR_INTERVAL, u'чести'),
-                ('PEACEFULNESS', 1, u'миролюбие', HABIT_PEACEFULNESS_INTERVAL, u'миролюбия') )
+    records = ( ('HONOR', 0, u'честь', HABIT_HONOR_INTERVAL, u'чести', 'honor'),
+                ('PEACEFULNESS', 1, u'миролюбие', HABIT_PEACEFULNESS_INTERVAL, u'миролюбия', 'peacefulness') )
