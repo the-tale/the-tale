@@ -73,10 +73,39 @@ class HRTag(postmarkup.TagBase):
         return u''
 
 
+class LeftSquareBracketTag(postmarkup.TagBase):
+
+    def __init__(self, name, **kwargs):
+        super(LeftSquareBracketTag, self).__init__(name, inline=False)
+        self.tag_key = u'LeftSquareBracketTag.nest_level'
+
+    def render_open(self, parser, node_index):
+        return u'['
+
+    def render_close(self, parser, node_index):
+        return u''
+
+
+class RightSquareBracketTag(postmarkup.TagBase):
+
+    def __init__(self, name, **kwargs):
+        super(RightSquareBracketTag, self).__init__(name, inline=False)
+        self.tag_key = u'RightSquareBracketTag.nest_level'
+
+    def render_open(self, parser, node_index):
+        return u']'
+
+    def render_close(self, parser, node_index):
+        return u''
+
+
 
 _renderer = postmarkup.create(use_pygments=False, annotate_links=False)
 _renderer.tag_factory.add_tag(SpoilerTag, 'spoiler')
 _renderer.tag_factory.add_tag(HRTag, 'hr')
+_renderer.tag_factory.add_tag(LeftSquareBracketTag, 'lsb')
+_renderer.tag_factory.add_tag(RightSquareBracketTag, 'rsb')
+
 
 def render(*argv, **kwargs):
     try:
@@ -113,7 +142,9 @@ class BBField(fields.TextField):
 <a class="pgf-bb-command" href="#" data-tag="spoiler" rel="tooltip" title=\'[spoiler="опциональный текст"]скрытое содержимое[/spoiler]\'>[spoiler]</a>
 <a class="pgf-bb-command" href="#" data-tag="list" rel="tooltip" title="[list]список[/list]">[list]</a>
 <a class="pgf-bb-command" href="#" data-tag="*" data-single="true" rel="tooltip" title="[*]элемент списка">[*]</a>
-<a class="pgf-bb-command" href="#" data-tag="hr" data-single="true" rel="tooltip" title="[hr]">[hr]</a>
+<a class="pgf-bb-command" href="#" data-tag="hr" data-single="true" rel="tooltip" title="[hr] — вертикальная линия">[hr]</a>
+<a class="pgf-bb-command" href="#" data-tag="lsb" data-single="true" rel="tooltip" title="[lsb] — «[» левая квадратная скобка">[lsb]</a>
+<a class="pgf-bb-command" href="#" data-tag="rsb" data-single="true" rel="tooltip" title="[rsb] — «]» правая квадратная скобка">[rsb]</a>
 </div>
 '''
 
