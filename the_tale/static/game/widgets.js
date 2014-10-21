@@ -530,7 +530,7 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
         for (var i in data.cards) {
             jQuery('.pgf-card-'+i, container).toggleClass('pgf-hidden', false);
             jQuery('.pgf-card-'+i+' .pgf-count', container).text(data.cards[i]);
-            cardsCount += 1;
+            cardsCount += data.cards[i];
         }
 
         return cardsCount;
