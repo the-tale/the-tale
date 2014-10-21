@@ -6,6 +6,7 @@ from the_tale.common.utils import testcase
 
 from the_tale.collections.prototypes import CollectionPrototype, KitPrototype, ItemPrototype
 from the_tale.collections.container import ItemsContainer
+from the_tale.collections.storage import items_storage
 
 
 class ItemsContainerTests(testcase.TestCase):
@@ -54,6 +55,24 @@ class ItemsContainerTests(testcase.TestCase):
 
         self.assertEqual([item.id for item in self.container.last_items(number=2)],
                          [self.item_1_2.id, self.item_2_1.id])
+
+
+    def test_last_items__no_item_in_sotrage(self):
+        self.container.add_item(self.item_2_1)
+        self.container.add_item(self.item_1_1)
+        self.container.add_item(self.item_1_2)
+
+        self.item_1_2._model.delete()
+
+        items_storage.refresh()
+
+        self.assertEqual([item.id for item in self.container.last_items(number=2)],
+                         [self.item_2_1.id])
+
+        items_storage[self.item_1_1.id].approved = True
+
+        self.assertEqual([item.id for item in self.container.last_items(number=2)],
+                         [self.item_1_1.id, self.item_2_1.id])
 
 
     def test_has_item(self):

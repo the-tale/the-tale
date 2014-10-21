@@ -47,7 +47,8 @@ class ItemsContainer(object):
         from the_tale.collections.storage import items_storage
 
         items_ids = zip(*sorted((-item_time, item_id)
-                                for item_id, item_time in self.items.iteritems()))
+                                for item_id, item_time in self.items.iteritems()
+                                if item_id in items_storage))
 
         if items_ids:
             items_ids = items_ids[1]
