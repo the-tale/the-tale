@@ -171,23 +171,27 @@ class HeroStatistics(object):
 
     @property
     def pvp_battles_1x1_number(self): return self.hero._model.stat_pvp_battles_1x1_number
-    def change_pvp_battles_1x1_number(self, value):
-        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.PVP_BATTLES_1X1, object=self.hero):
-            self.hero._model.stat_pvp_battles_1x1_number += value
 
     @property
     def pvp_battles_1x1_victories(self): return self.hero._model.stat_pvp_battles_1x1_victories
     def change_pvp_battles_1x1_victories(self, value):
-        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.PVP_VICTORIES_1X1, object=self.hero):
-            self.hero._model.stat_pvp_battles_1x1_victories += value
+        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.PVP_BATTLES_1X1, object=self.hero):
+            with achievements_storage.verify(type=ACHIEVEMENT_TYPE.PVP_VICTORIES_1X1, object=self.hero):
+                self.hero._model.stat_pvp_battles_1x1_number += value
+                self.hero._model.stat_pvp_battles_1x1_victories += value
 
     @property
     def pvp_battles_1x1_draws(self): return self.hero._model.stat_pvp_battles_1x1_draws
-    def change_pvp_battles_1x1_draws(self, value): self.hero._model.stat_pvp_battles_1x1_draws += value
+    def change_pvp_battles_1x1_draws(self, value):
+        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.PVP_BATTLES_1X1, object=self.hero):
+            self.hero._model.stat_pvp_battles_1x1_number += value
+            self.hero._model.stat_pvp_battles_1x1_draws += value
 
     @property
     def pvp_battles_1x1_defeats(self): return self.pvp_battles_1x1_number - self.pvp_battles_1x1_draws - self.pvp_battles_1x1_victories
-
+    def change_pvp_battles_1x1_defeats(self, value):
+        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.PVP_BATTLES_1X1, object=self.hero):
+            self.hero._model.stat_pvp_battles_1x1_number += value
 
     def __eq__(self, other):
         return ( self.pve_deaths == other.pve_deaths and

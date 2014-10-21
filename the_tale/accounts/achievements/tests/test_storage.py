@@ -92,3 +92,12 @@ class StorageTests(testcase.TestCase):
         give_achievement_task = GiveAchievementTaskPrototype._db_get_object(0)
 
         self.assertEqual(give_achievement_task.achievement_id, self.achievement_5.id)
+
+
+    def test_verify_achievements__multiple_achievements(self):
+
+        with self.check_delta(GiveAchievementTaskPrototype._db_count, 2):
+            achievements_storage.verify_achievements(self.account_1.id,
+                                                     type=ACHIEVEMENT_TYPE.MONEY,
+                                                     old_value=0,
+                                                     new_value=self.achievement_4.barrier)

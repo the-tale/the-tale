@@ -248,10 +248,6 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         battle_1 = Battle1x1Prototype.get_by_account_id(self.hero_1.account_id)
         battle_2 = Battle1x1Prototype.get_by_account_id(self.hero_2.account_id)
 
-        if battle_1.calculate_rating and battle_2.calculate_rating:
-            self.hero_1.statistics.change_pvp_battles_1x1_number(1)
-            self.hero_2.statistics.change_pvp_battles_1x1_number(1)
-
         participant_1 = AccountPrototype.get_by_id(self.hero_1.account_id)
         participant_2 = AccountPrototype.get_by_id(self.hero_2.account_id)
 
@@ -267,11 +263,13 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
 
                 if battle_1.calculate_rating and battle_2.calculate_rating:
                     self.hero_2.statistics.change_pvp_battles_1x1_victories(1)
+                    self.hero_1.statistics.change_pvp_battles_1x1_defeats(1)
         else:
             Battle1x1ResultPrototype.create(participant_1=participant_1, participant_2=participant_2, result =BATTLE_1X1_RESULT.VICTORY)
 
             if battle_1.calculate_rating and battle_2.calculate_rating:
                 self.hero_1.statistics.change_pvp_battles_1x1_victories(1)
+                self.hero_2.statistics.change_pvp_battles_1x1_defeats(1)
 
         battle_1.remove()
         battle_2.remove()
