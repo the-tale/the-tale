@@ -464,11 +464,16 @@ class ActionIdlenessPrototype(ActionBase):
 
     def process_position(self):
         if self.hero.position.place is None:
-            destination = self.hero.position.get_nearest_dominant_place()
-
             if self.hero.position.road:
+                # choose nearest place in road
+                if bool(self.hero.position.percents < 0.5) != self.hero.position.invert_direction:
+                    destination = self.hero.position.road.point_1
+                else:
+                    destination = self.hero.position.road.point_2
+
                 ActionMoveToPrototype.create(hero=self.hero, destination=destination)
             else:
+                destination = self.hero.position.get_nearest_dominant_place()
                 ActionMoveNearPlacePrototype.create(hero=self.hero, place=destination, back=True)
 
             self.state = self.STATE.RETURN
@@ -695,7 +700,7 @@ class ActionMoveToPrototype(ActionBase):
     def process_choose_road__in_place(self):
         if self.hero.position.place_id != self.destination_id:
             waymark = waymarks_storage.look_for_road(point_from=self.hero.position.place_id, point_to=self.destination_id)
-            length =  waymark.length
+            length = waymark.length
             self.hero.position.set_road(waymark.road, invert=(self.hero.position.place_id != waymark.road.point_1_id))
             self.state = self.STATE.MOVING
         else:
