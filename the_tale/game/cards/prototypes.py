@@ -377,6 +377,8 @@ class ChangeAbilitiesChoices(CardBase):
         if not task.hero.abilities.rechooce_choices():
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Герой не может изменить выбор способностей (возможно, больше не из чего выбирать).')
 
+        storage.save_bundle_data(bundle_id=task.hero.actions.current_action.bundle_id, update_cache=False)
+
         return task.logic_result()
 
 

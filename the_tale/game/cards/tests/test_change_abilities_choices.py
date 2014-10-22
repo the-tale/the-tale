@@ -38,8 +38,11 @@ class ChangeAbilitiesChoicesTest(testcase.TestCase, CardsTestMixin):
     def test_use(self):
         self.assertTrue(self.hero.abilities.can_rechoose_abilities_choices())
 
-        with self.check_changed(lambda: self.hero.abilities.destiny_points_spend):
-            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+        with mock.patch('the_tale.game.logic_storage.LogicStorage.save_bundle_data') as save_bundle_data:
+            with self.check_changed(lambda: self.hero.abilities.destiny_points_spend):
+                result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+
+        self.assertEqual(save_bundle_data.call_count, 1)
 
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
