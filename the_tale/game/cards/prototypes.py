@@ -489,6 +489,8 @@ class GetArtifactBase(CardBase):
 
         task.hero.put_loot(artifact, force=True)
 
+        task.hero.actions.request_replane()
+
         return task.logic_result(message=u'В рюкзаке героя появился новый артефакт: %(artifact)s' % {'artifact': artifact.html_label()})
 
 

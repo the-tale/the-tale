@@ -64,6 +64,21 @@ class GetArtifactMixin(CardsTestMixin):
                 self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
 
+    def test_use_when_trading(self):
+        from the_tale.game.actions.prototypes import ActionTradingPrototype
+
+        action_idl = self.hero.actions.current_action
+        action_trade = ActionTradingPrototype.create(hero=self.hero)
+
+        self.test_use()
+
+        self.assertTrue(action_trade.replane_required)
+
+        self.storage.process_turn(second_step_if_needed=False)
+
+        self.assertEqual(self.hero.actions.current_action, action_idl)
+
+
 
 class GetArtifactCommonTests(GetArtifactMixin, testcase.TestCase):
     CARD = prototypes.GetArtifactCommon
