@@ -41,47 +41,48 @@
 
 {% if vote is none %}
 
-{% if not resource.account.is_authenticated() %}
-{{ base_macros.registration_required_message("иметь возможность предлагать законы и голосовать.") }}
-{% elif not resource.can_vote %}
+  {% if not bill.state.is_VOTING %}
+    {# display nothing #}
+  {% elif not resource.account.is_authenticated() %}
+    {{ base_macros.registration_required_message("иметь возможность предлагать законы и голосовать.") }}
+  {% elif not resource.can_vote %}
 
-<p class="alert alert-info pgf-can-not-participate-in-politics">
-  Голосовать могут только подписчики, оформить подписку можно на странице <a href="{{url('accounts:payments:shop')}}">магазина</a>.
-</p>
+    <p class="alert alert-info pgf-can-not-participate-in-politics">
+      Голосовать могут только подписчики, оформить подписку можно на странице <a href="{{url('accounts:payments:shop')}}">магазина</a>.
+    </p>
 
-{% elif not can_vote %}
+  {% elif not can_vote %}
 
-<div class="alert alert-info pgf-can-not-vote-message">
-  <p>
-    Вы не можете участвовать в голосовании по этому закону. Возможные причины:
-  </p>
+    <div class="alert alert-info pgf-can-not-vote-message">
+      <p>
+        Вы не можете участвовать в голосовании по этому закону. Возможные причины:
+      </p>
 
-  <ul>
-    <li>Закон касается городов, которым вы не помогаете.</li>
-  </ul>
-</div>
+      <ul>
+        <li>Закон касается городов, которым вы не помогаете.</li>
+      </ul>
+    </div>
 
-{% else %}
+  {% else %}
+    <div class="well pgf-voting-block">
+      <h3>Идёт голосование</h3>
 
-{% if bill.state.is_VOTING %}
-<div class="well pgf-voting-block">
-  <h3>Идёт голосование</h3>
+      <ul>
+        <li>Вы не сможете изменить своё решение, будьте аккуратны в выборе!</li>
+        <li>Отдав свой голос, пригласите своих друзей сделать то же самое.</li>
+        <li>Помните, закон будет принят только если количество проголосовавших «за» превысит как процентный барьер, так и количественный.</li>
+      </ul>
 
-  <ul>
-    <li>Вы не сможете изменить своё решение, будьте аккуратны в выборе!</li>
-    <li>Отдав свой голос, пригласите своих друзей сделать то же самое.</li>
-    <li>Помните, закон будет принят только если количество проголосовавших «за» превысит как процентный барьер, так и количественный.</li>
-  </ul>
+      <p>
+        голосовать
+        <a class="btn btn-success pgf-forms-post-simple" href="{{ url('game:bills:vote', bill.id) }}?type={{VOTE_TYPE.FOR.value}}">«за»</a>
+        <a class="btn btn-danger pgf-forms-post-simple" href="{{ url('game:bills:vote', bill.id) }}?type={{VOTE_TYPE.AGAINST.value}}">«против»</a>
+        <a class="btn btn-info pgf-forms-post-simple" href="{{ url('game:bills:vote', bill.id) }}?type={{VOTE_TYPE.REFRAINED.value}}">«воздержаться»</a>
+      </p>
 
-  голосовать
-  <a class="btn btn-success pgf-forms-post-simple" href="{{ url('game:bills:vote', bill.id) }}?type={{VOTE_TYPE.FOR.value}}">«за»</a>
-  <a class="btn btn-danger pgf-forms-post-simple" href="{{ url('game:bills:vote', bill.id) }}?type={{VOTE_TYPE.AGAINST.value}}">«против»</a>
-  <a class="btn btn-info pgf-forms-post-simple" href="{{ url('game:bills:vote', bill.id) }}?type={{VOTE_TYPE.REFRAINED.value}}">«воздержаться»</a>
+    </div>
 
-</div>
-{% endif %}
-
-{% endif %}
+  {% endif %}
 
 {% endif %}
 

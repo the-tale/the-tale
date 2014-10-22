@@ -92,13 +92,17 @@
         <span class="label label-info pgf-voted-refrained-marker" style="cursor: default;" rel="tooltip" title="Вы воздержались от голосования">«воздержался»</span>
         {% endif %}
         {% else %}
-        {% if resource.can_vote and resource.hero is not none and bill.can_vote(resource.hero) %}
-        —
-        {% else %}
-        <i class="icon-ban-circle"
-           rel="tooltip"
-           title="Вы не можете голосовать за этот закон, подробности смотрите на странице закона или в Путеводителе"></i>
-        {% endif %}
+          {% if not bill.state.is_VOTING %}
+            <i class="icon-ban-circle"
+               rel="tooltip"
+               title="Голосование по закону окончено"></i>
+          {% elif resource.can_vote and resource.hero is not none and bill.can_vote(resource.hero) %}
+            —
+          {% else %}
+            <i class="icon-ban-circle"
+               rel="tooltip"
+               title="Вы не можете голосовать за этот закон, подробности смотрите на странице закона или в Путеводителе"></i>
+          {% endif %}
         {% endif %}
       </td>
       <th>результаты</th>
