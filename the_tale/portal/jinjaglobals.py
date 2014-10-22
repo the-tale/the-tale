@@ -12,5 +12,9 @@ def faq_url():
     return jinja2.Markup(portal_settings.FAQ_URL)
 
 @jinjaglobal
+def players_projects_url():
+    return jinja2.Markup(portal_settings.PLAYERS_PROJECTS_URL)
+
+@jinjaglobal
 def get_edition_number():
     return (datetime.datetime.now() - portal_settings.FIRST_EDITION_DATE).days + 1
