@@ -54,7 +54,7 @@ accounts_settings = app_settings('ACCOUNTS',
                                  INFORMER_HEIGHT=50,
                                  INFORMER_FORUM_THREAD=515,
 
-                                 NICK_REGEX=ur'[a-zA-Z0-9\-\ _а-яА-Я]+',
+                                 NICK_REGEX=ur'^[a-zA-Z0-9\-\ _а-яА-Я]+$',
                                  NICK_MIN_LENGTH=3,
                                  NICK_MAX_LENGTH=30,
 
