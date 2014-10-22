@@ -52,7 +52,7 @@ class ApiTest(testcase.TestCase):
                          {'status': 'ok', 'data': {'arg_1': 6}, 'depricated': True })
 
     def test_handler__no_client_version(self):
-        self.check_api_error('api.no_client_indentificator', arg_1=6, api_version='1.1')
+        self.check_api_error('api.no_client_identificator', arg_1=6, api_version='1.1')
 
     def test_handler__wrong_client_version(self):
         self.check_api_error('api.wrong_client_identificator_format', arg_1=6, api_version='1.1', api_client='clientv0.1')

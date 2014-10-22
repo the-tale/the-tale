@@ -135,4 +135,7 @@ class CARD_TYPE(DjangoEnum):
                 ('EXPERIENCE_TO_ENERGY_EPIC', 86, u'взыскание долга', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm,),
                 ('EXPERIENCE_TO_ENERGY_LEGENDARY', 87, u'ритуал Силы', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm,),
 
+                ('SHARP_RANDOM_ARTIFACT', 88, u'волшебное точило', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
+                ('SHARP_ALL_ARTIFACTS', 89, u'суть вещей', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm,),
+
                 )

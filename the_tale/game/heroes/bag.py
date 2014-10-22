@@ -121,6 +121,8 @@ class Equipment(object):
         self.updated = True
         self._ui_info = None
 
+    # must be called on every attribute access, not only on updating of equipment
+    # since artifacts can be changed from outsice this container
     def mark_updated(self):
         self.updated = True
         self._ui_info = None
@@ -150,7 +152,9 @@ class Equipment(object):
     def unequip(self, slot):
         if slot.value not in self.equipment:
             return None
+
         self.mark_updated()
+
         artifact = self.equipment[slot.value]
         del self.equipment[slot.value]
         return artifact
@@ -162,21 +166,22 @@ class Equipment(object):
             raise EquipmentException('unknown slot id: %s' % slot)
 
         self.mark_updated()
+
         self.equipment[slot.value] = artifact
 
     def get(self, slot):
+        self.mark_updated()
         return self.equipment.get(slot.value, None)
+
+    def values(self):
+        self.mark_updated()
+        return self.equipment.values()
 
     def _remove_all(self):
         for slot in EQUIPMENT_SLOT.records:
             self.unequip(slot)
+
         self.mark_updated()
-
-    def items(self):
-        return self.equipment.items()
-
-    def values(self):
-        return self.equipment.values()
 
     def modify_attribute(self, type_, value):
         for artifact in self.equipment.values():
@@ -188,6 +193,7 @@ class Equipment(object):
             if self.get(slot) is not None:
                 self.unequip(slot)
             self.equip(slot, artifact)
+
         self.mark_updated()
 
     def __eq__(self, other):

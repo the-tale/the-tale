@@ -1,8 +1,4 @@
 # coding: utf-8
-import random
-
-import mock
-
 from the_tale.common.utils.testcase import TestCase
 
 from the_tale.accounts.prototypes import AccountPrototype
@@ -10,16 +6,13 @@ from the_tale.accounts.logic import register_user
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
 from the_tale.game.artifacts.storage import artifacts_storage
-from the_tale.game.artifacts.relations import ARTIFACT_POWER_TYPE, ARTIFACT_TYPE, RARITY
+from the_tale.game.artifacts.relations import RARITY
 
-from the_tale.game.balance import constants as c
-from the_tale.game.balance.power import Power
 from the_tale.game.logic_storage import LogicStorage
 
-from the_tale.game.heroes import relations
 from the_tale.game.heroes import bag
+from the_tale.game.heroes import relations
 
 
 class BagTests(TestCase):
@@ -164,3 +157,17 @@ class EquipmentTests(TestCase):
 
         self.assertTrue(self.equipment.updated)
         self.assertEqual(self.equipment._ui_info, None)
+
+    def test_get__mark_updated_called(self):
+        self.equipment.updated = False
+
+        self.equipment.get(relations.EQUIPMENT_SLOT.PLATE)
+
+        self.assertTrue(self.equipment.updated)
+
+    def test_values__mark_updated_called(self):
+        self.equipment.updated = False
+
+        self.equipment.values()
+
+        self.assertTrue(self.equipment.updated)

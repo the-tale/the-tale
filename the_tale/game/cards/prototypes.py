@@ -11,6 +11,8 @@ from the_tale.amqp_environment import environment
 from the_tale.common.postponed_tasks import PostponedTaskPrototype
 from the_tale.common.utils.logic import random_value_by_priority
 
+from the_tale.game.balance.power import Power
+
 from the_tale.game.cards import relations
 
 from the_tale.game.map.places.storage import places_storage, buildings_storage
@@ -850,6 +852,42 @@ class ExperienceToEnergyEpic(ExperienceToEnergyBase):
 class ExperienceToEnergyLegendary(ExperienceToEnergyBase):
     TYPE = relations.CARD_TYPE.EXPERIENCE_TO_ENERGY_LEGENDARY
     EXPERIENCE = 2
+
+
+class SharpRandomArtifact(CardBase):
+    TYPE = relations.CARD_TYPE.SHARP_RANDOM_ARTIFACT
+    DESCRIPTION = u'Улучшает случайный артефакт из экипировки героя.'
+
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        artifact = random.choice(task.hero.equipment.values())
+
+        distribution=task.hero.preferences.archetype.power_distribution
+        min_power, max_power = Power.artifact_power_interval(distribution, task.hero.level)
+
+        artifact.sharp(distribution=distribution,
+                       max_power=max_power,
+                       force=True)
+
+        return task.logic_result(message=u'Улучшена экипировка героя: %(artifact)s' % {'artifact': artifact.html_label()})
+
+
+
+class SharpAllArtifacts(CardBase):
+    TYPE = relations.CARD_TYPE.SHARP_ALL_ARTIFACTS
+    DESCRIPTION = u'Улучшает все артефакты из экипировки героя.'
+
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+
+        for artifact in task.hero.equipment.values():
+            distribution=task.hero.preferences.archetype.power_distribution
+            min_power, max_power = Power.artifact_power_interval(distribution, task.hero.level)
+
+            artifact.sharp(distribution=distribution,
+                           max_power=max_power,
+                           force=True)
+
+        return task.logic_result(message=u'Вся экипировка героя улучшена')
+
 
 
 CARDS = {card_class.TYPE: card_class()
