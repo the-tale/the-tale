@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 
 from django.core.urlresolvers import reverse
 from django.db import models, transaction
@@ -181,6 +182,10 @@ class BillResource(Resource):
     @validate_argument('bill_type', argument_to_bill_type, 'bills.create', u'неверный тип закона')
     @handler('create', method='post')
     def create(self, bill_type):
+
+        if datetime.datetime.now() - self.account.created_at < datetime.timedelta(days=bills_settings.MINIMUM_BILL_OWNER_AGE):
+            return self.json_error('bills.create.too_young_owner',
+                                   u'Новые игоки не могут выдвигать законы в %d течении дней с момент регистрации' % bills_settings.MINIMUM_BILL_OWNER_AGE)
 
         if BillPrototype.is_active_bills_limit_reached(self.account):
             return self.json_error('bills.create.active_bills_limit_reached', u'Вы не можете предложить закон, пока не закончилось голосование по вашему предыдущему предложению')

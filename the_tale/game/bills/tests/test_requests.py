@@ -44,11 +44,13 @@ class BaseTestRequests(TestCase):
         result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')
         self.account1 = AccountPrototype.get_by_id(account_id)
         self.account1.prolong_premium(30)
+        self.account1._model.created_at -= datetime.timedelta(days=bills_settings.MINIMUM_BILL_OWNER_AGE)
         self.account1.save()
 
         result, account_id, bundle_id = register_user('test_user2', 'test_user2@test.com', '111111')
         self.account2 = AccountPrototype.get_by_id(account_id)
         self.account2.prolong_premium(30)
+        self.account2._model.created_at -= datetime.timedelta(days=bills_settings.MINIMUM_BILL_OWNER_AGE)
         self.account2.save()
 
         self.client = client.Client()
@@ -536,7 +538,6 @@ class TestCreateRequests(BaseTestRequests):
 
         self.check_ajax_ok(response, data={'next_url': reverse('game:bills:show', args=[bill.id])})
 
-
     def test_success__duration(self):
 
         self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceResourceExchange.type.value), {'caption': 'bill-caption',
@@ -549,12 +550,17 @@ class TestCreateRequests(BaseTestRequests):
 
         self.assertTrue(BillPrototype._db_get_object(0).duration.is_YEAR)
 
-
     def test_success_second_bill_error(self):
         self.check_ajax_ok(self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type.value), self.get_post_data()))
         self.check_ajax_error(self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type.value), self.get_post_data()),
                               'bills.create.active_bills_limit_reached')
         self.assertEqual(Bill.objects.all().count(), 1)
+
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MINIMUM_BILL_OWNER_AGE', bills_settings.MINIMUM_BILL_OWNER_AGE + 1)
+    def test_too_young(self):
+        with self.check_not_changed(BillPrototype._db_count):
+            self.check_ajax_error(self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type.value), self.get_post_data()),
+                                  'bills.create.too_young_owner')
 
 
 
