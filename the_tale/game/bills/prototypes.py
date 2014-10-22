@@ -166,10 +166,10 @@ class BillPrototype(BasePrototype):
 
         self._model.min_votes_percents_required = bills_settings.MIN_VOTES_PERCENT
 
-        results_text = u'Итоги голосования: %d «за», %d «против» (итого %d%% «за»), %d «воздержалось».' % (self.votes_for,
-                                                                                                           self.votes_against,
-                                                                                                           round(self.votes_for_percents, 2)*100,
-                                                                                                           self.votes_refrained)
+        results_text = u'Итоги голосования: %d «за», %d «против» (итого %.1f%% «за»), %d «воздержалось».' % (self.votes_for,
+                                                                                                            self.votes_against,
+                                                                                                            round(self.votes_for_percents, 3)*100,
+                                                                                                            self.votes_refrained)
 
         self._model.voting_end_at = datetime.datetime.now()
         if not self.duration.is_UNLIMITED:
