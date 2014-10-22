@@ -10,6 +10,7 @@ from the_tale.accounts import relations
 
 from the_tale.forum.models import Post, Thread, POST_STATE
 from the_tale.blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
+from the_tale.blogs.conf import blogs_settings
 
 from the_tale.game.bills.models import Bill, Vote
 from the_tale.game.bills.relations import BILL_STATE, VOTE_TYPE
@@ -52,7 +53,10 @@ def calculate_might(account): # pylint: disable=R0914
     might += calculate_linguistics_migth(account.id, contribution_type=CONTRIBUTION_TYPE.WORD, might_per_entity=relations.MIGHT_AMOUNT.FOR_ADDED_WORD.amount)
     might += calculate_linguistics_migth(account.id, contribution_type=CONTRIBUTION_TYPE.TEMPLATE, might_per_entity=relations.MIGHT_AMOUNT.FOR_ADDED_TEMPLATE.amount)
 
-    might += BlogPost.objects.filter(author_id=account.id, state=BLOG_POST_STATE.ACCEPTED, votes__gt=1).count() * relations.MIGHT_AMOUNT.FOR_GOOD_FOLCLOR_POST.amount
+    folclor_texts = BlogPost.objects.filter(author_id=account.id, state=BLOG_POST_STATE.ACCEPTED).values_list('text', flat=True)
+    characters_count = sum(len(text) for text in folclor_texts)
+
+    might += float(characters_count) / blogs_settings.MIN_TEXT_LENGTH * relations.MIGHT_AMOUNT.FOR_MIN_FOLCLOR_POST.amount
 
     referrals_mights = AccountPrototype._model_class.objects.filter(referral_of=account.id).aggregate(models.Sum('might'))['might__sum']
 

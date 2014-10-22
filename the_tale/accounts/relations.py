@@ -56,7 +56,7 @@ class MIGHT_AMOUNT(DjangoEnum):
                 ('FOR_FORUM_THREAD', 2, u'со обсуждение на форуме', 3, None),
                 ('FOR_BILL_VOTE', 3, u'за отданый голос', 1, None),
                 ('FOR_BILL_ACCEPTED', 4, u'за принятый закон', 33, None),
-                ('FOR_GOOD_FOLCLOR_POST', 5, u'за фольклорное произведение', 100, None),
+                ('FOR_MIN_FOLCLOR_POST', 5, u'за фольклорное произведение', 15, None),
                 ('FOR_ADDED_WORD', 6, u'за слово в лингвистике', 5, None),
                 ('FOR_ADDED_TEMPLATE', 7, u'за фразу в лингвистике', 15, None),
                 ('AWARD_BUG_MINOR', 8, u'за небольшую ошибку', 111, AWARD_TYPE.BUG_MINOR),

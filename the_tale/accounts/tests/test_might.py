@@ -25,6 +25,7 @@ from the_tale.game.bills.relations import BILL_STATE, VOTE_TYPE
 
 from the_tale.accounts.might import calculate_might
 
+
 class CalculateMightTests(testcase.TestCase):
 
     def setUp(self):
@@ -169,19 +170,15 @@ class CalculateMightTests(testcase.TestCase):
 
     def test_folclor_might(self):
         old_might = calculate_might(self.account)
+
         post = BlogPostPrototype.create(author=self.account, caption='caption', text='text')
 
         Post.objects.all().delete()
         Thread.objects.all().delete()
         Vote.objects.all().delete()
 
-        self.assertEqual(old_might, calculate_might(self.account))
-
-        post.state = BLOG_POST_STATE.ACCEPTED
-        post._model.votes = 2
-        post.save()
-
         new_might = calculate_might(self.account)
+
         self.assertTrue(new_might > old_might)
 
         post = BlogPostPrototype.create(author=self.account_2, caption='caption', text='text')
@@ -195,6 +192,19 @@ class CalculateMightTests(testcase.TestCase):
         post.save()
 
         self.assertEqual(new_might, calculate_might(self.account))
+
+
+    def test_folclor_might__from_characters(self):
+
+        with self.check_delta(lambda: calculate_might(self.account), relations.MIGHT_AMOUNT.FOR_MIN_FOLCLOR_POST.amount*3):
+
+            BlogPostPrototype.create(author=self.account, caption='caption', text='x'*blogs_settings.MIN_TEXT_LENGTH)
+            BlogPostPrototype.create(author=self.account, caption='caption-2', text='y'*blogs_settings.MIN_TEXT_LENGTH*2)
+
+            Post.objects.all().delete()
+            Thread.objects.all().delete()
+            Vote.objects.all().delete()
+
 
     def test_custom_might(self):
         Award.objects.create(account=self.account._model, type=relations.AWARD_TYPE.BUG_MINOR)
