@@ -1,11 +1,12 @@
 
-{% macro abilities_list(abilities, show_description=true, show_type=true, max_level=false) -%}
+{% macro abilities_list(abilities, show_description=true, show_type=true, max_level=false, tooltip_placement="right") -%}
 
 <dl class="hero-abilities-list">
   {% for ability in abilities %}
   <div class="hero-ability-record pgf-hero-ability-record"
        data-ability-id="{{ability.get_id()}}"
        rel="tooltip"
+       data-tooltip-placement="{{tooltip_placement}}"
        title=" максимальный уровень {{ability.MAX_LEVEL}},
                {{ ability.type.text }},
                {{ ability.availability.text }},
