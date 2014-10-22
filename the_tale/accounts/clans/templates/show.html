@@ -21,7 +21,11 @@
   {{resource.clan.description_html|safe}}
 </p>
 
-<strong>всего героев: {{resource.clan.members_number}}</strong> <small>серым выделены игроки, остутствующие в игре дольше {{active_state_days}} дней.</small>
+<strong>
+  всего героев: {{resource.clan.members_number}}
+  (активных: {{active_accounts_number}}; отсутствующих: {{resource.clan.members_number-active_accounts_number}})
+</strong>
+<small style="white-space: nowrap;">серым выделены игроки, остутствующие в игре дольше {{active_state_days}} дней.</small>
 
 <table class="table table-condensed table-striped table-bordered table-no-highlighting">
   <tr>

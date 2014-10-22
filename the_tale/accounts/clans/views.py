@@ -134,11 +134,14 @@ class ClansResource(Resource):
         accounts = sorted(AccountPrototype.get_list_by_id(roles.keys()), key=lambda a: (roles[a.id].value, a.nick_verbose))
         heroes = {hero.account_id:hero for hero in HeroPrototype.get_list_by_account_id(roles.keys())}
 
+        active_accounts_number = sum((1 for account in accounts if account.is_active), 0)
+
         return self.template('clans/show.html',
                              {'page_id': PAGE_ID.SHOW,
                               'roles': roles,
                               'accounts': accounts,
                               'active_state_days': accounts_settings.ACTIVE_STATE_TIMEOUT / (24*60*60),
+                              'active_accounts_number': active_accounts_number,
                               'heroes': heroes})
 
     @login_required
