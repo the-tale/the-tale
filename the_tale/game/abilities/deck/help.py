@@ -46,10 +46,10 @@ class Help(AbilityPrototype):
 
     def use_teleport(self, task, action, hero, critical):
         if critical:
-            action.short_teleport(c.ANGEL_HELP_CRIT_TELEPORT_DISTANCE)
+            action.teleport(c.ANGEL_HELP_CRIT_TELEPORT_DISTANCE, create_inplace_action=True)
             hero.add_message('angel_ability_shortteleport_crit', hero=hero)
         else:
-            action.short_teleport(c.ANGEL_HELP_TELEPORT_DISTANCE)
+            action.teleport(c.ANGEL_HELP_TELEPORT_DISTANCE, create_inplace_action=True)
             hero.add_message('angel_ability_shortteleport', hero=hero)
         return task.logic_result(next_step=ComplexChangeTask.STEP.SUCCESS)
 
@@ -145,6 +145,11 @@ class Help(AbilityPrototype):
 
         if result[0].is_SUCCESSED:
             task.hero.statistics.change_help_count(1)
+
+            if task.hero.actions.current_action.state == task.hero.actions.current_action.STATE.PROCESSED:
+                storage.process_turn__single_hero(hero=task.hero,
+                                                  logger=None,
+                                                  continue_steps_if_needed=True)
 
         task.hero.cards_help_count += 1
 

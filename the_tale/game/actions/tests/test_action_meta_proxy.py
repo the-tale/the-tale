@@ -105,7 +105,7 @@ class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
         current_time = TimePrototype.get_current_time()
 
         while self.action_proxy_1.state != MetaActionArenaPvP1x1Prototype.STATE.PROCESSED:
-            self.storage.process_turn(second_step_if_needed=False)
+            self.storage.process_turn(continue_steps_if_needed=False)
             current_time.increment_turn()
 
         self.assertEqual(self.meta_action_battle.state, MetaActionArenaPvP1x1Prototype.STATE.PROCESSED)

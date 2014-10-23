@@ -44,7 +44,7 @@ class RestActionTest(UseAbilityTaskMixin, testcase.TestCase):
         self.storage._test_save()
 
     def test_processed(self):
-        self.storage.process_turn(second_step_if_needed=False)
+        self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
         self.storage._test_save()
@@ -67,9 +67,24 @@ class RestActionTest(UseAbilityTaskMixin, testcase.TestCase):
 
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL):
             self.assertTrue(ability.use(**self.use_attributes(hero=self.hero, storage=self.storage)))
-            self.assertTrue(self.hero.health > 1)
-            self.assertTrue(old_percents < self.action_rest.percents)
-            self.assertEqual(self.hero.actions.current_action.percents, self.action_rest.percents)
+
+        self.assertTrue(self.hero.health > 1)
+        self.assertTrue(old_percents < self.action_rest.percents)
+        self.assertEqual(self.hero.actions.current_action.percents, self.action_rest.percents)
+
+
+    def test_ability_heal__healed(self):
+
+        self.hero.health = self.hero.max_health - 1
+
+        ability = self.PROCESSOR()
+
+        with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL):
+            self.assertTrue(ability.use(**self.use_attributes(hero=self.hero, storage=self.storage)))
+
+        self.assertEqual(self.hero.health, self.hero.max_health)
+        self.assertTrue(self.action_rest.percents, 1)
+        self.assertEqual(self.action_rest.state, self.action_rest.STATE.PROCESSED)
 
     def test_full(self):
         self.hero.health = 1
@@ -77,7 +92,7 @@ class RestActionTest(UseAbilityTaskMixin, testcase.TestCase):
         current_time = TimePrototype.get_current_time()
 
         while len(self.hero.actions.actions_list) != 1:
-            self.storage.process_turn(second_step_if_needed=False)
+            self.storage.process_turn(continue_steps_if_needed=False)
             current_time.increment_turn()
 
         self.assertTrue(self.action_idl.leader)

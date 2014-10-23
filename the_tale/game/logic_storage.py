@@ -164,7 +164,42 @@ class LogicStorage(object):
             raise
 
 
-    def process_turn(self, logger=None, second_step_if_needed=True):
+    # this method can be colled outside of process_turn
+    # for example from help ability
+    def process_turn__single_hero(self, hero, logger, continue_steps_if_needed):
+        leader_action = hero.actions.current_action
+        bundle_id = leader_action.bundle_id
+
+        with self.save_on_exception(logger,
+                                    message='LogicStorage.process_turn catch exception, while processing hero %d, try to save all bundles except %d',
+                                    data=(hero.id, bundle_id),
+                                    excluded_bundle_id=bundle_id):
+
+            while True:
+                leader_action.process_turn()
+
+                # process new actions if it has been created or remove already processed actions
+                if (continue_steps_if_needed and
+                    leader_action != hero.actions.current_action and
+                    hero.actions.current_action.APPROVED_FOR_STEPS_CHAIN and
+                    leader_action.APPROVED_FOR_STEPS_CHAIN):
+
+                    leader_action = hero.actions.current_action
+                    continue
+
+                break
+
+
+        hero.process_rare_operations()
+
+        if leader_action.removed and leader_action.bundle_id != hero.actions.current_action.bundle_id:
+            self.unmerge_bundles(account_id=hero.account_id,
+                                 old_bundle_id=leader_action.bundle_id,
+                                 new_bundle_id=hero.actions.current_action.bundle_id)
+            self.skipped_heroes.add(hero.id)
+
+
+    def process_turn(self, logger=None, continue_steps_if_needed=True):
 
         timestamp = time.time()
 
@@ -180,34 +215,9 @@ class LogicStorage(object):
             if not hero.can_process_turn(turn_number):
                 continue
 
-            leader_action = hero.actions.current_action
-            bundle_id = leader_action.bundle_id
+            self.process_turn__single_hero(hero=hero, logger=logger, continue_steps_if_needed=continue_steps_if_needed)
 
             processed_heroes += 1
-
-            with self.save_on_exception(logger,
-                                        message='LogicStorage.process_turn catch exception, while processing hero %d, try to save all bundles except %d',
-                                        data=(hero.id, bundle_id),
-                                        excluded_bundle_id=bundle_id):
-                leader_action.process_turn()
-
-                # process new actions if it has been created
-                if (second_step_if_needed and
-                    leader_action != hero.actions.current_action and
-                    hero.actions.current_action.APPROVED_FOR_SECOND_STEP and
-                    leader_action.APPROVED_FOR_SECOND_STEP):
-
-                    leader_action = hero.actions.current_action
-                    leader_action.process_turn()
-
-
-            hero.process_rare_operations()
-
-            if leader_action.removed and leader_action.bundle_id != hero.actions.current_action.bundle_id:
-                self.unmerge_bundles(account_id=hero.account_id,
-                                     old_bundle_id=leader_action.bundle_id,
-                                     new_bundle_id=hero.actions.current_action.bundle_id)
-                self.skipped_heroes.add(hero.id)
 
             if game_settings.UNLOAD_OBJECTS:
                 hero.unload_serializable_items(timestamp)

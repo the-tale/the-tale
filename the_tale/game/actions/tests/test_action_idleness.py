@@ -64,14 +64,14 @@ class IdlenessActionTest(testcase.TestCase):
     def test_reset_percents_on_quest_end(self):
         self.action_idl.percents = 1.0
         self.action_idl.state = ActionIdlenessPrototype.STATE.QUEST
-        self.storage.process_turn(second_step_if_needed=False)
+        self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(self.action_idl.percents, 0.0)
 
 
     def test_inplace(self):
         self.action_idl.percents = 1.0
         self.action_idl.state = ActionIdlenessPrototype.STATE.QUEST
-        self.storage.process_turn(second_step_if_needed=False)
+        self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 2)
         self.assertEqual(self.hero.actions.current_action.TYPE, ActionInPlacePrototype.TYPE)
         self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.IN_PLACE)

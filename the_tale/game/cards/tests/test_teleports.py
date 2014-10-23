@@ -14,7 +14,7 @@ from the_tale.game.cards import prototypes
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
 from the_tale.game.cards.tests.helpers import CardsTestMixin
-from the_tale.game.actions.prototypes import ActionMoveToPrototype
+from the_tale.game.actions import prototypes as actions_prototypes
 
 class ShortTeleportTests(CardsTestMixin, testcase.TestCase):
     CARD = prototypes.ShortTeleport
@@ -44,35 +44,40 @@ class ShortTeleportTests(CardsTestMixin, testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_use(self):
-        ActionMoveToPrototype.create(hero=self.hero, destination=self.place_3)
+        action_move = actions_prototypes.ActionMoveToPrototype.create(hero=self.hero, destination=self.place_3)
 
-        self.storage.process_turn(second_step_if_needed=False)
+        self.storage.process_turn(continue_steps_if_needed=False)
 
-        self.assertTrue(self.hero.actions.current_action.state == ActionMoveToPrototype.STATE.MOVING)
+        self.assertTrue(self.hero.actions.current_action.state == actions_prototypes.ActionMoveToPrototype.STATE.MOVING)
 
         self.assertTrue(self.hero.position.percents < 1)
 
-        with self.check_increased(lambda: self.hero.actions.current_action.percents):
-            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
-            self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+
+        self.assertEqual(action_move.state, action_move.STATE.IN_CITY)
+        self.assertEqual(self.hero.actions.current_action.TYPE, actions_prototypes.ActionInPlacePrototype.TYPE)
 
         self.assertTrue(self.hero.position.place.id, self.place_2.id)
 
         result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
-        self.storage.process_turn(second_step_if_needed=False)
+        while not action_move.leader:
+            self.storage.process_turn(continue_steps_if_needed=False)
+
+        self.storage.process_turn(continue_steps_if_needed=False)
 
         result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertTrue(self.hero.position.place.id, self.place_3.id)
-        self.assertEqual(self.hero.actions.current_action.percents, 1)
+        self.assertEqual(action_move.state, action_move.STATE.PROCESSED)
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_use__wrong_state(self):
-        ActionMoveToPrototype.create(hero=self.hero, destination=self.place_3)
-        self.assertTrue(self.hero.actions.current_action.state != ActionMoveToPrototype.STATE.MOVING)
+        actions_prototypes.ActionMoveToPrototype.create(hero=self.hero, destination=self.place_3)
+        self.assertTrue(self.hero.actions.current_action.state != actions_prototypes.ActionMoveToPrototype.STATE.MOVING)
 
         with self.check_not_changed(lambda: self.hero.actions.current_action.percents):
             result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
@@ -109,11 +114,11 @@ class LongTeleportTests(CardsTestMixin, testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_use(self):
-        ActionMoveToPrototype.create(hero=self.hero, destination=self.place_3)
+        actions_prototypes.ActionMoveToPrototype.create(hero=self.hero, destination=self.place_3)
 
-        self.storage.process_turn(second_step_if_needed=False)
+        self.storage.process_turn(continue_steps_if_needed=False)
 
-        self.assertTrue(self.hero.actions.current_action.state == ActionMoveToPrototype.STATE.MOVING)
+        self.assertTrue(self.hero.actions.current_action.state == actions_prototypes.ActionMoveToPrototype.STATE.MOVING)
 
         self.assertTrue(self.hero.position.percents < 1)
 
@@ -121,12 +126,12 @@ class LongTeleportTests(CardsTestMixin, testcase.TestCase):
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertTrue(self.hero.position.place.id, self.place_3.id)
-        self.assertEqual(self.hero.actions.current_action.percents, 1)
+
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_use__wrong_state(self):
-        ActionMoveToPrototype.create(hero=self.hero, destination=self.place_3)
-        self.assertTrue(self.hero.actions.current_action.state != ActionMoveToPrototype.STATE.MOVING)
+        actions_prototypes.ActionMoveToPrototype.create(hero=self.hero, destination=self.place_3)
+        self.assertTrue(self.hero.actions.current_action.state != actions_prototypes.ActionMoveToPrototype.STATE.MOVING)
 
         with self.check_not_changed(lambda: self.hero.actions.current_action.percents):
             result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))

@@ -799,7 +799,7 @@ class ShortTeleport(CardBase):
         if not task.hero.actions.current_action.TYPE.is_MOVE_TO:
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Герой не находится в движении.')
 
-        if not task.hero.actions.current_action.teleport_to_place():
+        if not task.hero.actions.current_action.teleport_to_place(create_inplace_action=True):
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Телепортировать героя не получилось.')
 
         return task.logic_result()

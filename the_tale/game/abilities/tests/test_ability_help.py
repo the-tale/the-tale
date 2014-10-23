@@ -134,6 +134,27 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
         self.assertTrue(old_percents < action_move.percents)
         self.assertEqual(self.hero.actions.current_action.percents, action_move.percents)
 
+    @mock.patch('the_tale.game.balance.constants.ANGEL_HELP_CRIT_TELEPORT_DISTANCE', 9999999999)
+    @mock.patch('the_tale.game.balance.constants.ANGEL_HELP_TELEPORT_DISTANCE', 9999999999)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    def test_teleport__inplace_action_created(self):
+        move_place = self.p3
+        if move_place.id == self.hero.position.place.id:
+            move_place = self.p1
+
+        current_time = TimePrototype.get_current_time()
+
+        actions_prototypes.ActionMoveToPrototype.create(hero=self.hero, destination=move_place)
+
+        current_time.increment_turn()
+        self.storage.process_turn()
+
+        with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.TELEPORT):
+            with self.check_delta(lambda: self.hero.statistics.help_count, 1):
+                self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+
+        self.assertEqual(self.hero.actions.current_action.TYPE, actions_prototypes.ActionInPlacePrototype.TYPE)
+
 
     def test_lighting(self):
         current_time = TimePrototype.get_current_time()
@@ -172,18 +193,31 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
         self.hero.kill()
         action_resurrect = actions_prototypes.ActionResurrectPrototype.create(hero=self.hero)
 
-        old_percents = action_resurrect.percents
-
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.RESURRECT):
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
                 current_time.increment_turn()
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
-                self.storage.process_turn(second_step_if_needed=False)
 
         self.assertEqual(self.hero.health, self.hero.max_health)
         self.assertEqual(self.hero.is_alive, True)
-        self.assertTrue(old_percents < action_resurrect.percents)
-        self.assertEqual(self.hero.actions.current_action.percents, action_resurrect.percents)
+        self.assertEqual(action_resurrect.state, action_resurrect.STATE.PROCESSED)
+
+
+    def test_process_turn_called_if_current_action_processed(self):
+        current_time = TimePrototype.get_current_time()
+
+        self.hero.kill()
+        actions_prototypes.ActionResurrectPrototype.create(hero=self.hero)
+
+        with mock.patch('the_tale.game.logic_storage.LogicStorage.process_turn__single_hero') as process_turn__single_hero:
+            with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.RESURRECT):
+                with self.check_delta(lambda: self.hero.statistics.help_count, 1):
+                    current_time.increment_turn()
+                    self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+
+        self.assertEqual(process_turn__single_hero.call_args_list, [mock.call(hero=self.hero,
+                                                                              logger=None,
+                                                                              continue_steps_if_needed=True)])
 
 
     def test_resurrect__two_times(self):

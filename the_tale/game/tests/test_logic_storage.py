@@ -9,7 +9,7 @@ from the_tale.accounts.logic import register_user
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 
-from the_tale.game.actions.prototypes import ActionRegenerateEnergyPrototype, ActionMetaProxyPrototype
+from the_tale.game.actions import prototypes as actions_prototypes
 from the_tale.game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
 
 from the_tale.game.logic import create_test_map
@@ -70,7 +70,7 @@ class LogicStorageTests(testcase.TestCase):
         self.assertEqual(self.storage.bundles_to_accounts, {self.hero_1.actions.current_action.bundle_id: set([self.account_1.id]),
                                                             self.hero_2.actions.current_action.bundle_id: set([self.account_2.id])})
 
-        action_regenerate = ActionRegenerateEnergyPrototype.create(hero=self.hero_1)
+        action_regenerate = actions_prototypes.ActionRegenerateEnergyPrototype.create(hero=self.hero_1)
 
         self.assertEqual(self.action_idl_1.storage, self.storage)
         self.assertEqual(action_regenerate.storage, self.storage)
@@ -89,8 +89,8 @@ class LogicStorageTests(testcase.TestCase):
 
         meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2, bundle=bundle)
 
-        proxy_action_1 = ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=bundle.id, meta_action=meta_action_battle)
-        proxy_action_2 = ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=bundle.id, meta_action=meta_action_battle)
+        proxy_action_1 = actions_prototypes.ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=bundle.id, meta_action=meta_action_battle)
+        proxy_action_2 = actions_prototypes.ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=bundle.id, meta_action=meta_action_battle)
 
         self.assertEqual(len(self.storage.meta_actions), 1)
         self.assertEqual(len(self.storage.meta_actions_to_actions), 1)
@@ -117,7 +117,7 @@ class LogicStorageTests(testcase.TestCase):
 
     def test_action_release_account_data(self):
 
-        ActionRegenerateEnergyPrototype.create(hero=self.hero_1)
+        actions_prototypes.ActionRegenerateEnergyPrototype.create(hero=self.hero_1)
 
         self.storage.skipped_heroes.add(self.hero_1.id)
 
@@ -162,8 +162,8 @@ class LogicStorageTests(testcase.TestCase):
 
         meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2, bundle=bundle)
 
-        ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=bundle.id, meta_action=meta_action_battle)
-        ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=bundle.id, meta_action=meta_action_battle)
+        actions_prototypes.ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=bundle.id, meta_action=meta_action_battle)
+        actions_prototypes.ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=bundle.id, meta_action=meta_action_battle)
 
         with mock.patch('the_tale.game.actions.meta_actions.MetaActionPrototype.save') as save_counter:
             self.storage._save_hero_data(self.hero_1.id, update_cache=False)
@@ -198,6 +198,45 @@ class LogicStorageTests(testcase.TestCase):
             self.storage.save_changed_data()
 
         self.assertEqual(save_hero_data.call_count, 2)
+
+    def test_process_turn_single_hero__runned_outside_storage(self):
+        action_1 = actions_prototypes.ActionRegenerateEnergyPrototype.create(hero=self.hero_1)
+        action_1.state = action_1.STATE.PROCESSED
+
+        action_2 = actions_prototypes.ActionMoveToPrototype.create(hero=self.hero_1, destination=self.p1)
+        action_2.state = action_2.STATE.PROCESSED
+
+        action_3 = actions_prototypes.ActionInPlacePrototype.create(hero=self.hero_1)
+        action_3.state = action_3.STATE.PROCESSED
+
+        self.assertEqual(self.hero_1.actions.number, 4)
+
+        self.storage.process_turn__single_hero(hero=self.hero_1,
+                                               logger=None,
+                                               continue_steps_if_needed=True)
+
+        self.assertEqual(self.hero_1.actions.number, 2)
+        self.assertEqual(self.hero_1.actions.current_action.TYPE, actions_prototypes.ActionQuestPrototype.TYPE)
+
+        self.storage.process_turn() # just nothing was broken
+
+
+    def test_process_turn__process_action_chain(self):
+        action_1 = actions_prototypes.ActionRegenerateEnergyPrototype.create(hero=self.hero_1)
+        action_1.state = action_1.STATE.PROCESSED
+
+        action_2 = actions_prototypes.ActionMoveToPrototype.create(hero=self.hero_1, destination=self.p1)
+        action_2.state = action_2.STATE.PROCESSED
+
+        action_3 = actions_prototypes.ActionInPlacePrototype.create(hero=self.hero_1)
+        action_3.state = action_3.STATE.PROCESSED
+
+        self.assertEqual(self.hero_1.actions.number, 4)
+
+        self.storage.process_turn()
+
+        self.assertEqual(self.hero_1.actions.number, 2)
+        self.assertEqual(self.hero_1.actions.current_action.TYPE, actions_prototypes.ActionQuestPrototype.TYPE)
 
 
     @mock.patch('the_tale.game.heroes.conf.heroes_settings.DUMP_CACHED_HEROES', False)
@@ -259,14 +298,14 @@ class LogicStorageTests(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_process_turn', lambda self, turn: True)
     def test_process_turn__can_process_turn(self):
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.process_turn') as action_process_turn:
-            self.storage.process_turn(second_step_if_needed=False)
+            self.storage.process_turn(continue_steps_if_needed=False)
 
         self.assertEqual(action_process_turn.call_count, 2)
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_process_turn', lambda self, turn: False)
     def test_process_turn__can_not_process_turn(self):
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.process_turn') as action_process_turn:
-            self.storage.process_turn(second_step_if_needed=False)
+            self.storage.process_turn(continue_steps_if_needed=False)
 
         self.assertEqual(action_process_turn.call_count, 0)
 
@@ -369,7 +408,7 @@ class LogicStorageTests(testcase.TestCase):
         self.assertEqual(Hero.objects.all().count(), 0)
 
     def test_remove_action__from_middle(self):
-        ActionRegenerateEnergyPrototype.create(hero=self.hero_1)
+        actions_prototypes.ActionRegenerateEnergyPrototype.create(hero=self.hero_1)
         self.assertRaises(exceptions.RemoveActionFromMiddleError, self.storage.remove_action, self.action_idl_1)
 
     def test_remove_action__metaaction(self):
@@ -377,8 +416,8 @@ class LogicStorageTests(testcase.TestCase):
 
         meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2, bundle=bundle)
 
-        proxy_action_1 = ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=bundle.id, meta_action=meta_action_battle)
-        proxy_action_2 = ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=bundle.id, meta_action=meta_action_battle)
+        proxy_action_1 = actions_prototypes.ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=bundle.id, meta_action=meta_action_battle)
+        proxy_action_2 = actions_prototypes.ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=bundle.id, meta_action=meta_action_battle)
 
         self.assertEqual(len(self.storage.meta_actions), 1)
         self.assertEqual(len(self.storage.meta_actions_to_actions), 1)

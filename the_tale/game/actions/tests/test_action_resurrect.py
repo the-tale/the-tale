@@ -54,7 +54,7 @@ class ResurrectActionTest(testcase.TestCase):
             self.assertEqual(len(self.hero.actions.actions_list), 2)
             self.assertEqual(self.hero.actions.current_action, self.action_resurrect)
 
-        self.storage.process_turn(second_step_if_needed=False)
+        self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
@@ -68,7 +68,7 @@ class ResurrectActionTest(testcase.TestCase):
         current_time = TimePrototype.get_current_time()
 
         while len(self.hero.actions.actions_list) != 1:
-            self.storage.process_turn(second_step_if_needed=False)
+            self.storage.process_turn(continue_steps_if_needed=False)
             current_time.increment_turn()
 
         self.assertTrue(self.action_idl.leader)
@@ -82,7 +82,7 @@ class ResurrectActionTest(testcase.TestCase):
 
         self.action_resurrect.fast_resurrect()
 
-        self.storage.process_turn(second_step_if_needed=False)
+        self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
 

@@ -57,7 +57,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
     def test_mob_killed(self):
         self.assertEqual(self.hero.statistics.pve_kills, 0)
         self.action_battle.mob.health = 0
-        self.storage.process_turn(second_step_if_needed=False)
+        self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
         self.assertEqual(self.hero.statistics.pve_kills, 1)
@@ -91,7 +91,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
     def test_hero_killed(self):
         self.assertEqual(self.hero.statistics.pve_deaths, 0)
         self.hero.health = 0
-        self.storage.process_turn(second_step_if_needed=False)
+        self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
         self.assertTrue(not self.hero.is_alive)
@@ -127,6 +127,8 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(self.action_battle.mob.health, 0)
         self.assertEqual(self.action_battle.percents, 1)
         self.assertTrue(self.action_battle.updated)
+
+        self.assertEqual(self.action_battle.state, self.action_battle.STATE.PROCESSED)
 
     def test_fast_resurrect__not_processed(self):
         self.action_battle.hero.kill()
@@ -167,7 +169,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(action_battle.percents, 1.0)
         self.assertEqual(action_battle.state, self.action_battle.STATE.PROCESSED)
 
-        self.storage.process_turn(second_step_if_needed=False)
+        self.storage.process_turn(continue_steps_if_needed=False)
 
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
@@ -184,7 +186,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(action_battle.percents, 1.0)
         self.assertEqual(action_battle.state, self.action_battle.STATE.PROCESSED)
 
-        self.storage.process_turn(second_step_if_needed=False)
+        self.storage.process_turn(continue_steps_if_needed=False)
 
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
@@ -201,7 +203,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(action_battle.percents, 1.0)
         self.assertEqual(action_battle.state, self.action_battle.STATE.PROCESSED)
 
-        self.storage.process_turn(second_step_if_needed=False)
+        self.storage.process_turn(continue_steps_if_needed=False)
 
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
@@ -217,12 +219,11 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
             with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.add_experience') as add_experience:
                 with mock.patch('the_tale.game.actions.prototypes.ActionBattlePvE1x1Prototype.process_artifact_breaking') as process_artifact_breaking:
                     action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
-                    self.storage.process_turn(second_step_if_needed=False)
+                    self.storage.process_turn(continue_steps_if_needed=False)
 
         self.assertEqual(add_experience.call_args_list, [mock.call(c.EXP_FOR_KILL)])
         self.assertEqual(process_artifact_breaking.call_count, 1)
 
-        self.assertEqual(action_battle.percents, 1.0)
         self.assertEqual(action_battle.state, self.action_battle.STATE.PROCESSED)
 
 

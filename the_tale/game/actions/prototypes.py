@@ -74,7 +74,7 @@ class ActionBase(object):
     TEXTGEN_TYPE = None
     CONTEXT_MANAGER = None
     HELP_CHOICES = set()
-    APPROVED_FOR_SECOND_STEP = True
+    APPROVED_FOR_STEPS_CHAIN = True
     AGGRESSIVE = False # for hero habits
 
     def __init__(self,
@@ -197,11 +197,8 @@ class ActionBase(object):
     @property
     def ui_type(self): return self.TYPE.value
 
-    @property
-    def ui_percents(self): return self.percents
-
     def ui_info(self):
-        return {'percents': self.ui_percents,
+        return {'percents': max(0.0, min(1.0, self.percents)),
                 'type': self.ui_type,
                 'description': self.description,
                 'info_link': self.info_link,
@@ -216,9 +213,6 @@ class ActionBase(object):
 
     @property
     def place(self): return places_storage[self.place_id]
-
-    def remove_mob(self):
-        self.mob = None
 
     def get_destination(self): return self.destination_x, self.destination_y
     def set_destination(self, x, y):
@@ -536,7 +530,7 @@ class ActionQuestPrototype(ActionBase):
     TYPE = relations.ACTION_TYPE.QUEST
     TEXTGEN_TYPE = 'action_quest'
     HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
-    APPROVED_FOR_SECOND_STEP = False # all quest actions MUST be done on separated turns
+    APPROVED_FOR_STEPS_CHAIN = False # all quest actions MUST be done on separated turns
 
     class STATE(ActionBase.STATE):
         PROCESSING = 'processing'
@@ -563,7 +557,6 @@ class ActionQuestPrototype(ActionBase):
         if self.state == self.STATE.PROCESSING:
 
             if not self.hero.quests.has_quests:
-                self.percents = 1
                 self.state = self.STATE.PROCESSED
                 return
 
@@ -572,7 +565,6 @@ class ActionQuestPrototype(ActionBase):
             self.percents = percents
 
             if self.hero.quests.current_quest.is_processed:
-                self.percents = 1
                 self.hero.quests.pop_quest()
                 self.state = self.STATE.PROCESSED
 
@@ -582,7 +574,16 @@ class ActionMoveToPrototype(ActionBase):
     TYPE = relations.ACTION_TYPE.MOVE_TO
     TEXTGEN_TYPE = 'action_moveto'
     SHORT_DESCRIPTION = u'путешествует'
-    HELP_CHOICES = set((HELP_CHOICES.TELEPORT, HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
+
+    @property
+    def HELP_CHOICES(self):
+        choices = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
+
+        if self.state == self.STATE.MOVING:
+            choices.add(HELP_CHOICES.TELEPORT)
+
+        return choices
+
 
     class STATE(ActionBase.STATE):
         CHOOSE_ROAD = 'choose_road'
@@ -619,63 +620,55 @@ class ActionMoveToPrototype(ActionBase):
         args.update({'destination': self.place})
         return args
 
-    def short_teleport(self, distance):
+    def teleport(self, distance, create_inplace_action):
 
         if self.state != self.STATE.MOVING:
             return False
 
-        if self.length < E:
-            self.hero.position.percents = 1
-            self.percents = 1
-            self.updated = True
-            return True
+        stop_percents = self.break_at if self.break_at else 1
 
         max_road_distance = self.hero.position.road.length * (1 - self.hero.position.percents)
-        max_action_distance = self.length * (1 - self.percents)
+        max_action_distance = self.length * (stop_percents - self.percents )
 
         distance = min(distance, min(max_road_distance, max_action_distance))
 
         self.hero.position.percents += distance / self.hero.position.road.length
-        self.percents += distance / self.length
 
-        if self.hero.position.percents >= 0.99999:
-            self.percents -= (self.hero.position.percents - 1) * self.hero.position.road.length / self.length
+        if self.length > E:
+            self.percents += distance / self.length
+
+        if self.hero.position.percents + E > 1:
             self.hero.position.percents = 1
+            self.place_hero_in_current_destination(create_action=create_inplace_action)
 
-        if self.hero.position.percents >= 0.9999:
-            self.place_hero_in_current_destination(create_action=False)
-
-        if self.percents >= 1:
-            self.percents = 1
+        if self.percents + E > stop_percents:
             self.state = self.STATE.PROCESSED
-
-        self.hero.actions.current_action.percents = self.percents
 
         self.updated = True
 
         return True
 
-    def teleport_to_place(self):
+    def teleport_to_place(self, create_inplace_action):
 
         if self.state != self.STATE.MOVING:
             return False
 
-        return self.short_teleport(distance=self.hero.position.road.length+1)
+        return self.teleport(distance=self.hero.position.road.length+1, create_inplace_action=create_inplace_action)
 
     def teleport_to_end(self):
         if self.state != self.STATE.MOVING:
             return False
 
         while True:
-            if not self.teleport_to_place():
+            if not self.teleport_to_place(create_inplace_action=False):
                 return False
 
             if self.state == self.STATE.PROCESSED:
+                if self.hero.position.place:
+                    ActionInPlacePrototype.create(hero=self.hero)
                 return True
 
             self.process_choose_road()
-
-        return True
 
     @property
     def current_destination(self): return self.hero.position.road.point_2 if not self.hero.position.invert_direction else self.hero.position.road.point_1
@@ -705,8 +698,8 @@ class ActionMoveToPrototype(ActionBase):
             self.state = self.STATE.MOVING
         else:
             length = None
-            self.percents = 1
             self.state = self.STATE.PROCESSED
+
         return length
 
     def process_choose_road__in_road(self):
@@ -783,24 +776,15 @@ class ActionMoveToPrototype(ActionBase):
 
         self.hero.position.percents += delta
 
-        real_length = self.length if self.break_at is None else self.length * self.break_at
-
-        if real_length > 0.001:
-            self.percents += move_speed / real_length
+        if self.length > 0.001:
+            self.percents += move_speed / self.length
         else:
             self.percents = 1
-
-    @property
-    def ui_percents(self):
-        if self.break_at is None:
-            return self.percents
-
-        return self.percents * self.break_at
 
     def picked_up_in_road(self):
         current_destination = self.current_destination # save destination befor telefort, since it can be reseted after we perfom it
 
-        if self.short_teleport(c.PICKED_UP_IN_ROAD_TELEPORT_LENGTH):
+        if self.teleport(c.PICKED_UP_IN_ROAD_TELEPORT_LENGTH, create_inplace_action=True):
 
             self.hero.add_message('action_moveto_picked_up_in_road',
                                 hero=self.hero,
@@ -829,8 +813,10 @@ class ActionMoveToPrototype(ActionBase):
             if self.hero.position.percents >= 1:
                 self.place_hero_in_current_destination()
 
-            elif self.break_at and self.percents >= 1:
-                self.percents = 1
+            elif self.percents >= 1:
+                self.state = self.STATE.PROCESSED
+
+            elif self.break_at is not None and self.break_at < self.percents:
                 self.state = self.STATE.PROCESSED
 
     def place_hero_in_current_destination(self, create_action=True):
@@ -955,6 +941,9 @@ class ActionBattlePvE1x1Prototype(ActionBase):
         self.percents = 1.0 - self.mob.health_percents
         self.hero.actions.current_action.percents = self.percents
 
+        if self.mob.health <= 0:
+            self.on_mob_killed()
+
         self.updated = True
 
         return True
@@ -1005,8 +994,6 @@ class ActionBattlePvE1x1Prototype(ActionBase):
 
         artifacts = self.hero.artifacts_to_break()
 
-        # print 'BREAK CANDIDATES: %d' % len(artifacts)
-
         if not len(artifacts):
             return
 
@@ -1016,6 +1003,17 @@ class ActionBattlePvE1x1Prototype(ActionBase):
         artifact.break_it()
         self.hero.add_message('action_battlepve1x1_artifact_broken', hero=self.hero, mob=self.mob, diary=True, artifact=artifact)
 
+    def on_mob_killed(self):
+        self.hero.add_message('action_battlepve1x1_mob_killed', hero=self.hero, mob=self.mob)
+        self._kill_mob()
+        self.state = self.STATE.PROCESSED
+
+    def on_hero_killed(self):
+        self.hero.kill()
+        self.hero.statistics.change_pve_deaths(1)
+        self.hero.add_message('action_battlepve1x1_diary_hero_killed', diary=True, journal=False, hero=self.hero, mob=self.mob)
+        self.hero.add_message('action_battlepve1x1_journal_hero_killed', hero=self.hero, mob=self.mob)
+        self.state = self.STATE.PROCESSED
 
     def process(self):
 
@@ -1029,26 +1027,13 @@ class ActionBattlePvE1x1Prototype(ActionBase):
                 self.percents = 1.0 - self.mob.health_percents
 
             if self.hero.health <= 0:
-                self.hero.kill()
-                self.hero.statistics.change_pve_deaths(1)
-                self.hero.add_message('action_battlepve1x1_diary_hero_killed', diary=True, journal=False, hero=self.hero, mob=self.mob)
-                self.hero.add_message('action_battlepve1x1_journal_hero_killed', hero=self.hero, mob=self.mob)
-
-                self.state = self.STATE.PROCESSED
-                self.percents = 1.0
-
+                self.on_hero_killed()
 
             if self.mob.health <= 0:
-                self.hero.add_message('action_battlepve1x1_mob_killed', hero=self.hero, mob=self.mob)
-
-                self._kill_mob()
-
-                self.percents = 1.0
-                self.state = self.STATE.PROCESSED
+                self.on_mob_killed()
 
             if self.state == self.STATE.PROCESSED:
                 self.process_artifact_breaking()
-                self.remove_mob()
 
 
 class ActionResurrectPrototype(ActionBase):
@@ -1072,7 +1057,6 @@ class ActionResurrectPrototype(ActionBase):
         if self.state != self.STATE.RESURRECT:
             return False
 
-        self.percents = 1.0
         self.hero.actions.current_action.percents = self.percents
 
         self.hero.resurrect()
@@ -1092,7 +1076,6 @@ class ActionResurrectPrototype(ActionBase):
                 self.hero.add_message('action_resurrect_resurrecting', hero=self.hero)
 
             if self.percents >= 1:
-                self.percents = 1
                 self.hero.resurrect()
                 self.state = self.STATE.PROCESSED
                 self.hero.add_message('action_resurrect_finish', hero=self.hero)
@@ -1347,6 +1330,9 @@ class ActionRestPrototype(ActionBase):
         self.percents = float(self.hero.health)/self.hero.max_health
         self.hero.actions.current_action.percents = self.percents
 
+        if self.hero.health >= self.hero.max_health:
+            self.state = self.STATE.PROCESSED
+
     def process(self):
 
         if self.hero.health >= self.hero.max_health:
@@ -1452,7 +1438,6 @@ class ActionTradingPrototype(ActionBase):
                 self.percents = 1 - float(loot_items_count - 1) / self.percents_barier
             else:
                 self.state = self.STATE.PROCESSED
-                self.percents = 1
 
 
 class ActionMoveNearPlacePrototype(ActionBase):
@@ -1723,7 +1708,7 @@ class ActionMetaProxyPrototype(ActionBase):
     TEXTGEN_TYPE = 'no texgen type'
     SHORT_DESCRIPTION = u'no description'
     HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
-    APPROVED_FOR_SECOND_STEP = False
+    APPROVED_FOR_STEPS_CHAIN = False
 
     @property
     def description_text_name(self):

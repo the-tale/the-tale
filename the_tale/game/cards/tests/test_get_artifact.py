@@ -74,7 +74,7 @@ class GetArtifactMixin(CardsTestMixin):
 
         self.assertTrue(action_trade.replane_required)
 
-        self.storage.process_turn(second_step_if_needed=False)
+        self.storage.process_turn(continue_steps_if_needed=False)
 
         self.assertEqual(self.hero.actions.current_action, action_idl)
 
