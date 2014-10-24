@@ -11,6 +11,8 @@ from the_tale.amqp_environment import environment
 from the_tale.common.postponed_tasks import PostponedTaskPrototype
 from the_tale.common.utils.logic import random_value_by_priority
 
+from the_tale.accounts.prototypes import AccountPrototype
+
 from the_tale.game.balance.power import Power
 
 from the_tale.game.cards import relations
@@ -316,9 +318,14 @@ class PreferencesCooldownsResetBase(CardBase):
         return u'Сбрасывает задержку на изменение предпочтения «%(preference)s».' % {'preference': self.PREFERENCE.text}
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+
+        if not task.hero.preferences.is_available(self.PREFERENCE, account=AccountPrototype.get_by_id(task.hero.account_id)):
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Нельзя сбросить заждержку на изменение предпочтения (предпочтение ещё не доступно герою).')
+
         task.hero.preferences.reset_change_time(self.PREFERENCE)
         storage.save_bundle_data(bundle_id=task.hero.actions.current_action.bundle_id, update_cache=False)
         return task.logic_result()
+
 
 class PreferencesCooldownsResetMob(PreferencesCooldownsResetBase):
     TYPE = relations.CARD_TYPE.PREFERENCES_COOLDOWNS_RESET_MOB

@@ -100,6 +100,17 @@ class HeroPreferences(object):
     def can_update(self, preferences_type, current_time):
         return self.time_before_update(preferences_type, current_time).total_seconds() == 0
 
+    def is_available(self, preference_type, account):
+        purchased = False
+        if hasattr(preference_type, 'purchase_type'):
+            if preference_type.purchase_type in account.permanent_purchases:
+                purchased = True
+
+        if not purchased and self.hero.level < preference_type.level_required:
+            return False
+
+        return True
+
     def _time_before_update(self, changed_at, current_time):
         return max(datetime.timedelta(seconds=0), (changed_at + datetime.timedelta(seconds=self.hero.preferences_change_delay) - current_time))
 

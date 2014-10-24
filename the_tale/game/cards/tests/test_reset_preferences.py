@@ -1,6 +1,8 @@
 # coding: utf-8
 import datetime
 
+import mock
+
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.prototypes import AccountPrototype
@@ -52,6 +54,7 @@ class ResetPreferenceMinix(CardsTestMixin):
 
         self.card = self.CARD()
 
+    @mock.patch('the_tale.game.heroes.preferences.HeroPreferences.is_available', lambda self, preference_type, account: True)
     def test_use(self):
         self.assertFalse(self.hero.preferences.can_update(self.CARD.PREFERENCE, datetime.datetime.now()))
 
@@ -60,6 +63,17 @@ class ResetPreferenceMinix(CardsTestMixin):
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertTrue(self.hero.preferences.can_update(self.CARD.PREFERENCE, datetime.datetime.now()))
+
+
+    @mock.patch('the_tale.game.heroes.preferences.HeroPreferences.is_available', lambda self, preference_type, account: False)
+    def test_not_available(self):
+        self.assertFalse(self.hero.preferences.can_update(self.CARD.PREFERENCE, datetime.datetime.now()))
+
+        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+
+        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
+
+        self.assertFalse(self.hero.preferences.can_update(self.CARD.PREFERENCE, datetime.datetime.now()))
 
 
 class ResetPreferenceMobTests(ResetPreferenceMinix, testcase.TestCase):

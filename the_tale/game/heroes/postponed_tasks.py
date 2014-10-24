@@ -454,16 +454,10 @@ class ChoosePreferencesTask(PostponedLogic):
             self.state = CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        purchased = False
-        if hasattr(self.preference_type, 'purchase_type'):
-            if self.preference_type.purchase_type in account.permanent_purchases:
-                purchased = True
-
-        if not purchased and hero.level < self.preference_type.level_required:
+        if not hero.preferences.is_available(self.preference_type, account):
             main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, self.preference_type.level_required)
             self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
-
 
         if self.preference_type.is_ENERGY_REGENERATION_TYPE:
             result = self.process_energy_regeneration(main_task, hero)
