@@ -333,7 +333,11 @@ class ActionBase(object):
 
         self.process()
 
-        if not self.removed and self.state == self.STATE.PROCESSED:
+        # remove only leader action
+        # action can set PROCESSED state and create child action
+        # is that case we should not remove action
+        # it will be removed (by processing of chain actions in LogicStorage) when child action will be processed
+        if self.leader and not self.removed and self.state == self.STATE.PROCESSED:
             self.remove()
 
 
