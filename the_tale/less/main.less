@@ -38,6 +38,7 @@ body {
       }
    }
 
+   /* old style blocks */
    div.block, li.block {
       background-color: @block-background-color;
       border: 1px solid @border-color;
@@ -49,6 +50,13 @@ body {
       &.white {
          background-color: white;
       }
+   }
+
+   /* new style blocks */
+   div.easy-block, li.easy-block {
+      padding: 0.75em;
+      margin-top: 0;
+      margin-bottom: 10px;
    }
 
    hr {

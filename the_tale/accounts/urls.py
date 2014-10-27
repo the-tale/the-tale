@@ -15,5 +15,6 @@ urlpatterns = patterns('',
                        (r'^payments/', include('the_tale.accounts.payments.urls', namespace='payments')),
                        (r'^clans/', include('the_tale.accounts.clans.urls', namespace='clans')),
                        (r'^achievements/', include('the_tale.accounts.achievements.urls', namespace='achievements')),
+                       (r'^third-party/', include('the_tale.accounts.third_party.urls', namespace='third-party')),
                        (r'^', include(resource_patterns(AccountResource))),
 )

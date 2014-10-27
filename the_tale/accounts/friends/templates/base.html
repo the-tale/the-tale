@@ -2,9 +2,22 @@
 
 {% block title %}Друзья | {{ super() }}{% endblock %}
 
-{% block accounts_content %}
+{% block content %}
 
-{% block friends_content %}
-{% endblock %}
+<div class="row">
+
+  <div class="span3">
+    {{account_sidebar(user_account=resource.account, page_account=resource.account, page_caption="Друзья", page_type="friends")}}
+  </div>
+
+  <div class="span9">
+    <div class="easy-block">
+
+      {% block friends_content %}
+      {% endblock %}
+
+    </div>
+  </div>
+</div>
 
 {% endblock %}

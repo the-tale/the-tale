@@ -5,58 +5,67 @@
 {% block title %}Подписки | {{ super() }}{% endblock %}
 {% block description %}Список обсуждений на форуме, за которыми Вы следите.{% endblock %}
 
-{% block forum_content %}
+{% block content %}
 
-<h2>Подписки</h2>
+  <div class="row">
+    <div class="span3">
+      {{account_sidebar(user_account=resource.account, page_account=resource.account, page_caption="Подписки", page_type="subscriptions")}}
+    </div>
 
-<p>
-  Вы получаете сообщение о новых обсуждениях в перечисленных ниже разделах и о новых сообщениях в перечисленных обсуждениях.
-</p>
+    <div class="span9">
+      <div class="easy-block">
+        <p>
+          Вы получаете сообщение о новых обсуждениях в перечисленных ниже разделах на форуме и о новых сообщениях в перечисленных обсуждениях.
+        </p>
 
-<h3>Разделы</h3>
+        <h3>Разделы</h3>
 
-{% if subcategories %}
-<table class="table table-striped forum-table table-no-highlighting">
-  <thead>
-    <tr>
-      {{ forum_macros.subcategory_record_heading(subscription=true) }}
-    </tr>
-  </thead>
-  <tbody>
-    {% for subcategory in subcategories %}
-    <tr>
-      {{ forum_macros.subcategory_record(subcategory, subscription=true) }}
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% else %}
-<p class="pgf-no-subcategory-subscriptions-message">
-  Вы не подписаны ни на один из разделов.
-</p>
-{% endif %}
+        {% if subcategories %}
+          <table class="table table-striped forum-table table-no-highlighting">
+            <thead>
+              <tr>
+                {{ forum_macros.subcategory_record_heading(subscription=true) }}
+              </tr>
+            </thead>
+            <tbody>
+              {% for subcategory in subcategories %}
+                <tr>
+                  {{ forum_macros.subcategory_record(subcategory, subscription=true) }}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="pgf-no-subcategory-subscriptions-message">
+            Вы не подписаны ни на один из разделов.
+          </p>
+        {% endif %}
 
-<h3>Обсуждения</h3>
+        <h3>Обсуждения</h3>
 
-{% if threads %}
-<table class="table table-striped forum-table table-no-highlighting">
-  <thead>
-    <tr>
-      {{ forum_macros.thread_record_heading(subscription=true) }}
-    </tr>
-  </thead>
-  <tbody>
-    {% for thread in threads %}
-    <tr>
-      {{ forum_macros.thread_record(thread, subscription=true) }}
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% else %}
-<p  class="pgf-no-thread-subscriptions-message">
-  Вы не подписаны ни на одно из обсуждений.
-</p>
-{% endif %}
+        {% if threads %}
+          <table class="table table-striped forum-table table-no-highlighting">
+            <thead>
+              <tr>
+                {{ forum_macros.thread_record_heading(subscription=true) }}
+              </tr>
+            </thead>
+            <tbody>
+              {% for thread in threads %}
+                <tr>
+                  {{ forum_macros.thread_record(thread, subscription=true) }}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p  class="pgf-no-thread-subscriptions-message">
+            Вы не подписаны ни на одно из обсуждений.
+          </p>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
 
 {% endblock %}

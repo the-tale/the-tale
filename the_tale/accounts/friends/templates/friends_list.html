@@ -14,8 +14,6 @@
 
 {% block friends_content %}
 
-<h2 style="margin-bottom: 0.5em;">Друзья</h2>
-
 <ul class="nav nav-pills">
   <li class="active"><a href="{{ url('accounts:friends:') }}">список друзей</a></li>
   <li>
@@ -34,7 +32,7 @@
   <thead>
     <tr>
       <th width="16px;"><input type="checkbox" class="pgf-friends-checkbox-all" value="all"></th>
-      {{ accounts_macros.account_record_heading() }}
+      {{ accounts_macros.account_record_heading(short=true) }}
       <th>действия</th>
     </tr>
   </thead>
@@ -43,7 +41,7 @@
     {% for account in friends %}
     <tr class="pgf-account-record">
       <td><input type="checkbox" class="pgf-friends-checkbox" value="{{account.id}}"></td>
-      {{ accounts_macros.account_record(account, heroes[account.id], clan=clans.get(account.clan_id)) }}
+      {{ accounts_macros.account_record(account, heroes[account.id], clan=clans.get(account.clan_id), short=true) }}
       <td><a class="pgf-forms-post-simple" href="{{url('accounts:friends:remove', friend=account.id)}}">удалить</a></td>
     </tr>
     {% endfor %}

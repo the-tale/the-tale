@@ -1,0 +1,95 @@
+{% import 'accounts/macros.html' as accounts_macros with context %}
+
+<div class="block">
+  <h3 class="game-navigation-caption" style="padding-left: 2px;">{{page_caption}}</h3>
+  <ul class="game-navigation nav nav-list" style="padding-left: 2px;">
+
+    <li class="nav-element">
+      <small>
+        был в игре <span class="pgf-format-date" data-timestamp="{{ page_account.was_in_game_at|timestamp}}"></span>
+      </small>
+    </li>
+
+    {% if user_account.is_authenticated() and page_account.id != user_account.id %}
+
+      <li class="nav-element "><a class="pgf-new-message" data-recipient="{{page_account.id}}" href="#">личное сообщение</a></li>
+
+      {% if friendship is none %}
+        <li class="nav-element "><a class="pgf-friends-request-friendship" href="#">добавить в друзья</a></li>
+      {% elif friendship.is_confirmed %}
+        <li class="nav-element"><span class="pgf-friends-in-list">в списке друзей</span></li>
+      {% elif friendship.friend_1_id == page_account.id %}
+        <li class="nav-element ">
+          <span class="pgf-friends-request-from">
+            игрок предлагает дружить
+            <a class="pgf-forms-post-simple" href="{{url('accounts:friends:accept', friend=page_account.id)}}">принять</a> /
+            <a class="pgf-forms-post-simple" href="{{url('accounts:friends:remove', friend=page_account.id)}}">отказать</a>
+          </span>
+        </li>
+      {% else %}
+        <li class="nav-element"><span class="pgf-friends-request-to">вы предложили дружбу</span></li>
+      {% endif %}
+
+      <li class="nav-element "><a href="{{forum_complaint_theme()}}">пожаловаться</a></li>
+
+    {% endif %}
+
+    {% if user_account.is_authenticated() and page_account.id == user_account.id %}
+      <li class="nav-element {% if page_type=='profile' %}active{% endif %}"><a class="" href="{{url('accounts:profile:show')}}">профиль</a></li>
+      <li class="nav-element {% if page_type=='account' %}active{% endif %}"><a class="" href="{{url('accounts:show', page_account.id)}}">страница игрока</a></li>
+      <li class="nav-element {% if page_type=='hero' %}active{% endif %}"><a class="" href="{{url('game:heroes:my-hero')}}">страница героя</a></li>
+      <li class="nav-element {% if page_type=='friends' %}active{% endif %}"><a class="" href="{{url('accounts:friends:')}}">друзья</a></li>
+      <li class="nav-element {% if page_type=='messages' %}active{% endif %}"><a class="" href="{{url('accounts:messages:')}}">сообщения</a></li>
+      <li class="nav-element {% if page_type=='subscriptions' %}active{% endif %}"><a class="" href="{{url('forum:subscriptions:')}}">подписки</a></li>
+      <li class="nav-element {% if page_type=='third-party' %}active{% endif %}"><a class="" href="{{url('accounts:third-party:tokens:')}}">приложения</a></li>
+    {% endif %}
+
+    {% set can_invite_to_guild = user_account.is_authenticated() and page_account.id != user_account.id and own_clan_info and master_clan_info.membership is none and own_clan_info.can_invite %}
+
+    <li class="nav-header">Гильдия</li>
+    <li class="nav-element">
+      {% if master_clan_info.membership is not none %}
+        <a href="{{url('accounts:clans:show', master_clan_info.clan.id)}}">[{{master_clan_info.clan.abbr}}] {{master_clan_info.clan.name}}</a>
+      {% elif can_invite_to_guild %}
+        <script type="text/javascript">
+          jQuery(document).ready(function(){
+          jQuery('.pgf-create-invite-to-clan').click(function(e){
+          e.preventDefault();
+          pgf.ui.dialog.Create({ fromUrl: "{{ url('accounts:clans:membership:invite', account=page_account.id) }}",
+          OnOpen: function(dialog) {
+          var newMessageForm = new pgf.forms.Form(jQuery('#pgf-invite-form', dialog),
+          { OnSuccess: function(form, data){ dialog.modal('hide'); }
+          });
+          }
+          });
+          });
+          });
+        </script>
+
+        <a class="pgf-create-invite-to-clan" href="#">пригласить</a>
+
+      {% else %}
+        Не состоит в гильдии
+      {% endif %}
+    </li>
+
+    <li class="nav-header">Мир</li>
+    <li class="nav-element"><a href="{{ url('game:bills:') }}?owner={{page_account.id}}">законопроекты  ({{bills_count}})</a></li>
+    <li class="nav-element"><a href="{{ url('linguistics:templates:', contributor=page_account.id)}}">фразы ({{templates_count}})</a></li>
+    <li class="nav-element"><a href="{{ url('linguistics:words:', contributor=page_account.id) }}">слова ({{words_count}})</a></li>
+    <li class="nav-element"><a href="{{ url('blogs:posts:') }}?author_id={{page_account.id}}">произведения ({{folclor_posts_count}})</a></li>
+
+    <li class="nav-header">Форум</li>
+    <li class="nav-element"><a href="{{url('forum:threads:')}}?author={{page_account.id}}">созданые обсуждения ({{threads_count}})</a></li>
+    <li class="nav-element"><a href="{{url('forum:threads:')}}?participant={{page_account.id}}">обсуждения с комментариями ({{threads_with_posts}})</a></li>
+
+    {% if can_moderate %}
+      <li class="divider"></li>
+      <li class="nav-element">
+        <a class="pgf-account-admin-link" href="{{url('accounts:admin', page_account.id)}}">администрировать</a>
+      </li>
+    {% endif %}
+
+
+  </ul>
+</div>

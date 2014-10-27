@@ -1,31 +1,36 @@
 {% macro pages_links(thread) %}
 
-{% set paginator = thread.paginator %}
+  {% set paginator = thread.paginator %}
 
-{% if paginator.pages_count == 1 %}
-{% elif paginator.pages_count < 7 %}
-<span class="thread-page-links">
-[{% for page_number in range(1, paginator.pages_count) %}
-  <a href="{{ url('forum:threads:show', thread.id) }}?page={{page_number+1}}">{{page_number+1}}</a>
-{% endfor %}]
-{% else %}
-[ <a href="{{ url('forum:threads:show', thread.id) }}?page=2">2</a>
-  <a href="{{ url('forum:threads:show', thread.id) }}?page=3">3</a>
-  <a href="{{ url('forum:threads:show', thread.id) }}?page=4">4</a>
-  &hellip;
-{% for page_number in range(paginator.pages_count-3, paginator.pages_count) %}
-  <a href="{{ url('forum:threads:show', thread.id) }}?page={{page_number+1}}">{{page_number+1}}</a>
-{% endfor %}]
-{% endif %}
-</span>
+  {% if paginator.pages_count == 1 %}
+  {% elif paginator.pages_count < 7 %}
+    <span class="thread-page-links" style="white-space: nowrap;">
+      [
+      {% for page_number in range(1, paginator.pages_count) %}
+      <a href="{{ url('forum:threads:show', thread.id) }}?page={{page_number+1}}">{{page_number+1}}</a>
+      {% endfor %}
+      ]
+    </span>
+  {% else %}
+    <span class="thread-page-links" style="white-space: nowrap;">
+      [ <a href="{{ url('forum:threads:show', thread.id) }}?page=2">2</a>
+      <a href="{{ url('forum:threads:show', thread.id) }}?page=3">3</a>
+      <a href="{{ url('forum:threads:show', thread.id) }}?page=4">4</a>
+      &hellip;
+      {% for page_number in range(paginator.pages_count-3, paginator.pages_count) %}
+        <a href="{{ url('forum:threads:show', thread.id) }}?page={{page_number+1}}">{{page_number+1}}</a>
+      {% endfor %}]
+    </span>
+  {% endif %}
+
 {% endmacro %}
 
 
 {% macro thread_record_heading(subscription=false) %}
 <th class="caption">название</th>
-<th class="author">автор</th>
+{% if not subscription %}<th class="author">автор</th>{% endif %}
 <th class="posts-count">ответов</th>
-<th class="last-poster">последний</th>
+{% if not subscription %}<th class="last-poster">последний</th>{% endif %}
 <th class="updated-at">обновлено</th>
 {% if subscription %}<th class="subscription">подписка</th>{% endif %}
 {% endmacro %}
@@ -46,13 +51,17 @@
   <a href="{{ url('forum:threads:show', thread.id) }}">{{ thread.caption }}</a>
   {{ pages_links(thread) }}
 </td>
+{% if not subscription %}
 <td class="author">
   <a href="{{url('accounts:show', thread.author.id)}}">{{ thread.author.nick_verbose }}</a>
   {% if thread.author.clan %}
     <a href="{{url('accounts:clans:show', thread.author.clan.id)}}">[{{thread.author.clan.abbr}}]</a>
   {% endif %}
 </td>
+{% endif  %}
 <td class="posts-count">{{ thread.posts_count }}</td>
+
+{% if not subscription %}
 <td class="last-poster">
   {% if thread.last_poster %}
     <a href="{{url('accounts:show', thread.last_poster.id)}}">{{ thread.last_poster.nick_verbose }}</a>
@@ -66,6 +75,7 @@
     {% endif %}
   {% endif %}
 </td>
+{% endif %}
 <td class="updated-at pgf-format-datetime" data-timestamp="{{ thread.updated_at|timestamp }}"></td>
 {% if subscription %}
 <td><a href="{{ url('forum:threads:unsubscribe', thread.id) }}" class="pgf-forms-post-simple">отписаться</a></td>

@@ -8,35 +8,37 @@
 {% endmacro %}
 
 
-{% macro account_record_heading() %}
+{% macro account_record_heading(short=false) %}
 <th>имя</th>
-<th>могущество</th>
-<th>зарегистрирован</th>
+{% if not short %}<th>могущество</th>{% endif %}
+{% if not short %}<th>зарегистрирован</th>{% endif %}
 <th>герой</th>
 <th>уровень</th>
-<th>сила</th>
+{% if not short %}<th>сила</th>{% endif %}
 {% endmacro %}
 
 
-{% macro account_record(account, hero, clan=none) %}
+{% macro account_record(account, hero, clan=none, short=false) %}
 <td>
   <a href="{{ url('accounts:show', account.id) }}">{{ account.nick_verbose }}</a>
   {% if clan %}
   <a href="{{url('accounts:clans:show', clan.id)}}">[{{clan.abbr}}]</a>
   {% endif %}
 </td>
-<td>{{ hero.might|int }}</td>
-<td class="updated-at pgf-format-date" data-timestamp="{{ account.created_at|timestamp }}"></td>
+{% if not short %}<td>{{ hero.might|int }}</td>{% endif %}
+{% if not short %}<td class="updated-at pgf-format-date" data-timestamp="{{ account.created_at|timestamp }}"></td>{% endif %}
 <td>
   {{ hero.gender_verbose }}
   {{ hero.race_verbose }}
   <a href="{{ url('game:heroes:show', hero.id) }}">{{ hero.name }}</a>
 </td>
 <td>{{ hero.level }}</td>
+{% if not short %}
 <td>
   <span class="power physic-label">{{ hero.power.physic }}</span>
   <span class="power magic-label">{{ hero.power.magic }}</span>
 </td>
+{% endif %}
 {% endmacro %}
 
 {% macro account_type_label(account, additional_text='') %}

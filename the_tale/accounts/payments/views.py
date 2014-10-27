@@ -20,12 +20,15 @@ from the_tale.accounts.payments import relations
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 
+from the_tale.accounts.third_party import decorators
+
 
 class PaymentsResource(Resource):
 
     XSOLLA_DIALOG_WIDTH = payments_settings.XSOLLA_DIALOG_WIDTH
     XSOLLA_DIALOG_HEIGHT = payments_settings.XSOLLA_DIALOG_HEIGHT
 
+    @decorators.refuse_third_party
     @login_required
     @validate_fast_account()
     def initialize(self, *args, **kwargs):

@@ -32,18 +32,20 @@ jQuery(document).ready(function(){
 
 {% block messages_content %}
 
-<h2 style="margin-bottom: 0.5em;">Сообщения</h2>
-
-<ul class="nav nav-pills">
-  <li {% if incoming %}class="active"{% endif %}><a href="{{ url('accounts:messages:') }}">входящие</a></li>
-  <li {% if not incoming %}class="active"{% endif %}><a href="{{ url('accounts:messages:sent') }}">исходящие</a></li>
-</ul>
+  <ul class="nav nav-pills">
+    <li {% if incoming %}class="active"{% endif %}><a href="{{ url('accounts:messages:') }}">входящие</a></li>
+    <li {% if not incoming %}class="active"{% endif %}><a href="{{ url('accounts:messages:sent') }}">исходящие</a></li>
+    {% if messages %}
+      <li class="pull-right">
+        <a class="pgf-forms-post-simple"
+           href="{{ url('accounts:messages:delete-all') }}"
+           data-confirmation="Вы действительно хотите удалить все сообщения?">удалить все сообщения</a>
+      </li>
+    {% endif %}
+  </ul>
 
 {% if messages %}
 
-<a class="btn pgf-forms-post-simple"
-   href="{{ url('accounts:messages:delete-all') }}"
-   data-confirmation="Вы действительно хотите удалить все сообщения?">удалить все сообщения</a>
 
 {{ base_macros.render_paginator(paginator) }}
 

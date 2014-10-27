@@ -7,8 +7,6 @@
 
 {% block friends_content %}
 
-<h2 style="margin-bottom: 0.5em;">Предложения дружбы</h2>
-
 <ul class="nav nav-pills">
   <li><a href="{{ url('accounts:friends:') }}">список друзей</a></li>
   <li class="active">
@@ -24,7 +22,7 @@
 
   <thead>
     <tr>
-      {{ accounts_macros.account_record_heading() }}
+      {{ accounts_macros.account_record_heading(short=true) }}
       <th>действия</th>
     </tr>
   </thead>
@@ -32,7 +30,7 @@
   <tbody>
     {% for account in candidates %}
     <tr class="pgf-account-record">
-      {{ accounts_macros.account_record(account, heroes[account.id], clan=clans.get(account.clan_id)) }}
+      {{ accounts_macros.account_record(account, heroes[account.id], clan=clans.get(account.clan_id), short=true) }}
       <td>
         <a class="pgf-forms-post-simple" href="{{url('accounts:friends:accept', friend=account.id)}}">подтвердить</a> /
         <a class="pgf-forms-post-simple" href="{{url('accounts:friends:remove', friend=account.id)}}">отказать</a>

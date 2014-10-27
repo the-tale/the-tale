@@ -4,7 +4,20 @@
 
 {% block content %}
 
-{% block messages_content %}
-{% endblock %}
+<div class="row">
+  <div class="span3">
+    {{account_sidebar(user_account=resource.account, page_account=resource.account, page_caption="Сообщения", page_type="messages")}}
+  </div>
+
+  <div class="span9">
+    <div class="easy-block">
+
+      {% block messages_content %}
+      {% endblock %}
+
+    </div>
+  </div>
+</div>
+
 
 {% endblock %}

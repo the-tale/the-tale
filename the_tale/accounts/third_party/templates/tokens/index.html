@@ -1,0 +1,40 @@
+{% extends "third_party/base.html" %}
+
+
+{% block third_party_content %}
+
+  <h3>Разрешения, выданные сторонним приложениям</h3>
+
+  <p>
+    Сторонние приложения (разрабатываемые не авторами «Сказки», например, мобильные клиенты) могут работать с Вашими личными данными, только если вы выдадите им соответствующее разрешение. На этой странице представлены все выданные Вами разрешения. При необходимости Вы можете отозвать любое из них.
+  </p>
+
+  {% if tokens %}
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th width="125px">выдано</th>
+          <th>приложение</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for token in tokens %}
+          <tr>
+            <td><span class="pgf-format-datetime" data-timestamp="{{ token.created_at|timestamp }}"></span></td>
+            <td>
+              <a href="{{url('accounts:third-party:tokens:show', token.uid)}}">{{token.application_name}}</a>
+              <small>{{token.application_info}}</small>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  {% else %}
+    <p class="alert alert-info pgf-no-tokens-message">
+      Вы ещё не выдавали сторонним приложениям разрешений на доступ к Вашим данным.
+    </p>
+  {% endif %}
+
+{% endblock %}

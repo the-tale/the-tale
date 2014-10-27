@@ -37,6 +37,8 @@ from the_tale.accounts.achievements.prototypes import AccountAchievementsPrototy
 
 from the_tale.accounts.clans.prototypes import ClanPrototype
 
+from the_tale.accounts.third_party import decorators
+
 logger = getLogger('django.request')
 
 @validator(code='common.fast_account', message=u'Вы не закончили регистрацию и данная функция вам не доступна')
@@ -191,6 +193,10 @@ class AuthResource(BaseAccountsResource):
 
 
 class ProfileResource(BaseAccountsResource):
+
+    @decorators.refuse_third_party
+    def initialize(self, *argv, **kwargs):
+        super(ProfileResource, self).initialize(*argv, **kwargs)
 
     @login_required
     @handler('', name='show', method='get')
@@ -413,30 +419,11 @@ class AccountResource(BaseAccountsResource):
 
     @handler('#account', name='show', method='get')
     def show(self): # pylint: disable=R0914
-        from the_tale.forum.models import Thread
-        from the_tale.game.bills.prototypes import BillPrototype
         from the_tale.game.ratings.prototypes import RatingPlacesPrototype, RatingValuesPrototype
-        from the_tale.accounts.clans.logic import ClanInfo
-        from the_tale.linguistics.prototypes import ContributionPrototype
-        from the_tale.linguistics.relations import CONTRIBUTION_TYPE
-
-        bills_count = BillPrototype.accepted_bills_count(self.master_account.id)
-
-        threads_count = Thread.objects.filter(author=self.master_account._model).count()
-
-        threads_with_posts = Thread.objects.filter(post__author=self.master_account._model).distinct().count()
 
         rating_places = RatingPlacesPrototype.get_by_account_id(self.master_account.id)
 
         rating_values = RatingValuesPrototype.get_by_account_id(self.master_account.id)
-
-        templates_count = ContributionPrototype._db_filter(account_id=self.master_account.id,
-                                                           type=CONTRIBUTION_TYPE.TEMPLATE).count()
-
-        words_count = ContributionPrototype._db_filter(account_id=self.master_account.id,
-                                                       type=CONTRIBUTION_TYPE.WORD).count()
-
-        folclor_posts_count = BlogPost.objects.filter(author=self.master_account._model, state=BLOG_POST_STATE.ACCEPTED).count()
 
         friendship = FriendshipPrototype.get_for_bidirectional(self.account, self.master_account)
 
@@ -452,14 +439,6 @@ class AccountResource(BaseAccountsResource):
                               'informer_link': accounts_settings.INFORMER_LINK % {'account_id': self.master_account.id},
                               'rating_places': rating_places,
                               'rating_values': rating_values,
-                              'bills_count': bills_count,
-                              'threads_with_posts': threads_with_posts,
-                              'threads_count': threads_count,
-                              'folclor_posts_count': folclor_posts_count,
-                              'templates_count': templates_count,
-                              'words_count': words_count,
-                              'master_clan_info': ClanInfo(self.master_account),
-                              'own_clan_info': ClanInfo(self.account),
                               'friendship': friendship} )
 
     @login_required

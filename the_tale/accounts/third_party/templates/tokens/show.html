@@ -1,0 +1,60 @@
+{% extends "third_party/base.html" %}
+
+{% block third_party_content %}
+
+  <h3>
+    Разрешение для приложения {{token.application_name}}
+    <small>
+      {% if token.state.is_UNACCEPTED %}запрошено <span class="pgf-format-datetime" data-timestamp="{{ token.created_at|timestamp }}"></span>{% endif %}
+      {% if token.state.is_ACCEPTED %}выдано <span class="pgf-format-datetime" data-timestamp="{{ token.updated_at|timestamp }}"></span>{% endif %}
+    </small>
+  </h3>
+
+  {% if token.application_info %}
+    <p><small>{{token.application_info}}</small></p>
+  {% endif %}
+
+  {% if token.application_description %}
+    <h4>описание</h4>
+
+    <p>{{token.application_description}}</p>
+  {% endif %}
+
+  {% if token.state.is_UNACCEPTED %}
+    <p class="alert alert-info">
+      <strong>Приложение запрашивает разрешение на доступ и изменение Ваших игровых данных.</strong><br/>
+      Приложение <strong>не получит</strong> доступ к управлению вашим аккаунтом (включая смену логина/пароля) и к магазину (трате печенек).<br/>
+      Приложению будет доступно получение и изменение информации непосредственно связанной с игрой (например, помощь герою).
+    </p>
+
+    <a href="{{url('accounts:third-party:tokens:accept', token.uid)}}"
+       class="pgf-forms-post-simple btn btn-success pgf-accept-button">Разрешить</a>
+
+    <a href="{{url('accounts:third-party:tokens:remove', token.uid)}}"
+       class="pgf-forms-post-simple btn btn-danger pgf-remove-button"
+       data-action-type="redirect"
+       data-redirect-url="{{url('accounts:third-party:tokens:')}}">Отказать</a>
+
+  {% endif %}
+
+  {% if token.state.is_ACCEPTED %}
+
+    <p class="alert alert-info">
+      <strong>Приложение может получать и изменять Ваши игровые данные.</strong><br/>
+      Приложение <strong>не может</strong> управлять вашим аккаунтом (включая смену логина/пароля) и делать покупки в магазине.<br/>
+      Приложение может получать и изменять информации непосредственно связанную с игрой (например, помогать герою).
+    </p>
+
+    <a href="{{url('accounts:third-party:tokens:remove', token.uid)}}"
+       class="pgf-forms-post-simple btn btn-danger pgf-remove-button"
+       data-confirmation="Вы действительно хотите отозвать выданное разрешение?"
+       data-action-type="redirect"
+       data-redirect-url="{{url('accounts:third-party:tokens:')}}">Отозвать разрешение</a>
+
+   {% endif %}
+
+    &nbsp;<a href="{{url('accounts:third-party:tokens:')}}">к списку разрешений</a>
+
+
+
+{% endblock %}

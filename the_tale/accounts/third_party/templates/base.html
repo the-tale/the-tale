@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Сторонние приложения | {{ super() }}{% endblock %}
+
+{% block content %}
+
+<div class="row">
+  <div class="span3">
+    {{account_sidebar(user_account=resource.account, page_account=resource.account, page_caption="Приложения", page_type="third-party")}}
+  </div>
+  <div class="span9">
+    <div class="easy-block">
+      {% block third_party_content %}
+      {% endblock %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

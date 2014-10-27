@@ -21,6 +21,8 @@ from the_tale.accounts.payments.conf import payments_settings
 from the_tale.accounts.payments.relations import PERMANENT_PURCHASE_TYPE
 from the_tale.accounts.payments.goods import PermanentPurchase
 
+from the_tale.accounts.third_party.tests import helpers as third_party_helpers
+
 
 class PageRequestsMixin(object):
 
@@ -28,6 +30,11 @@ class PageRequestsMixin(object):
         self.account.is_fast = True
         self.account.save()
         self.check_html_ok(self.request_html(self.page_url), texts=['common.fast_account'])
+
+    def test_refuse_third_party__profile_page(self):
+        self.request_third_party_token(account=self.account)
+        self.check_html_ok(self.request_html(url('accounts:profile:show')), texts=['third_party.access_restricted'])
+
 
     def test_unlogined(self):
         self.request_logout()
@@ -57,7 +64,7 @@ class PageRequestsMixin(object):
 
 
 
-class RequestesTestsBase(testcase.TestCase):
+class RequestesTestsBase(testcase.TestCase, third_party_helpers.ThirdPartyTestsMixin):
 
     def setUp(self):
         super(RequestesTestsBase, self).setUp()
@@ -81,6 +88,12 @@ class ShopRequestesTests(RequestesTestsBase, PageRequestsMixin, BankTestsMixin):
     @mock.patch('the_tale.accounts.payments.price_list.PRICE_GROUPS', [])
     def test_no_goods(self):
         self.check_html_ok(self.request_html(self.page_url), texts=['pgf-no-goods-message'])
+
+
+    def test_refuse_third_party(self):
+        self.request_third_party_token(account=self.account)
+        self.check_html_ok(self.request_html(self.page_url), texts=['third_party.access_restricted'])
+
 
     def test_goods(self):
         self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-no-goods-message', 0)] + PURCHASES_BY_UID.keys())
@@ -111,6 +124,11 @@ class HistoryRequestesTests(RequestesTestsBase, BankTestsMixin, PageRequestsMixi
     def test_no_history(self):
         self.check_html_ok(self.request_html(self.page_url), texts=['pgf-no-history-message'])
 
+    def test_refuse_third_party(self):
+        self.request_third_party_token(account=self.account)
+        self.check_html_ok(self.request_html(self.page_url), texts=['third_party.access_restricted'])
+
+
     def test_history(self):
         self.create_bank_account(self.account.id)
         history = self.create_entity_history(self.account.id)
@@ -140,6 +158,11 @@ class PurchasesRequestesTests(RequestesTestsBase, PageRequestsMixin):
     def test_no_purchases(self):
         self.check_html_ok(self.request_html(self.page_url), texts=['pgf-no-permanent-purchases-message'])
 
+    def test_refuse_third_party(self):
+        self.request_third_party_token(account=self.account)
+        self.check_html_ok(self.request_html(self.page_url), texts=['third_party.access_restricted'])
+
+
     def test_purchases(self):
 
         texts = [('pgf-no-history-message', 0)]
@@ -165,6 +188,11 @@ class BuyRequestesTests(RequestesTestsBase, BankTestsMixin):
         self.account.is_fast = True
         self.account.save()
         self.check_ajax_error(self.client.post(url('accounts:payments:buy', purchase=self.purchase.uid)), 'common.fast_account')
+
+    def test_refuse_third_party(self):
+        self.request_third_party_token(account=self.account)
+        self.check_ajax_error(self.client.post(url('accounts:payments:buy', purchase=self.purchase.uid)), 'third_party.access_restricted')
+
 
     def test_unlogined(self):
         self.request_logout()
@@ -199,6 +227,11 @@ class GiveMoneyRequestesTests(RequestesTestsBase):
         self.account.save()
         self.check_ajax_error(self.client.post(url('accounts:payments:give-money', account=self.account.id), self.post_data()), 'payments.give_money.fast_account')
         self.assertEqual(BankInvoicePrototype._db_count(), 0)
+
+    def test_refuse_third_party(self):
+        self.request_third_party_token(account=self.account)
+        self.check_ajax_error(self.client.post(url('accounts:payments:give-money', account=self.account.id), self.post_data()), 'third_party.access_restricted')
+
 
     def test_for_wront_account(self):
         self.check_ajax_error(self.client.post(url('accounts:payments:give-money', account='xxx'), self.post_data()), 'payments.give_money.account.wrong_format')

@@ -5,6 +5,8 @@ from dext.common.utils.urls import url
 
 from dext.settings import settings
 
+from the_tale.common.utils.decorators import lazy_property
+
 
 def setUp(self):
     from the_tale.accounts.achievements.storage import achievements_storage
@@ -40,6 +42,30 @@ def setUp(self):
     GameState.start()
 
 
+
+class TestAccountsFactory(object):
+
+    def __init__(self):
+        self._next_account_uid = 0
+
+    def get_next_uid(self):
+        self._next_account_uid += 1
+        return self._next_account_uid
+
+    def create_account(self, is_fast=False, password='111111'):
+        from the_tale.accounts.logic import register_user
+        from the_tale.accounts.prototypes import AccountPrototype
+
+        account_uid = self.get_next_uid()
+
+        if is_fast:
+            result, account_id, bundle_id = register_user('fast-user-%d' % account_uid)
+        else:
+            result, account_id, bundle_id = register_user('test-user-%d' % account_uid, 'test-user-%d@test.com' % account_uid, password)
+
+        return AccountPrototype.get_by_id(account_id)
+
+
 class TestCaseMixin(object):
 
     def request_login(self, email, password='111111', remember=False):
@@ -53,11 +79,17 @@ class TestCaseMixin(object):
         response = self.client.post(url('accounts:auth:api-logout', api_version='1.0', api_client='test-1.0'))
         self.check_ajax_ok(response)
 
+    @lazy_property
+    def accounts_factory(self):
+        return TestAccountsFactory()
+
+
 
 class TestCase(DextTestCase, TestCaseMixin):
     def setUp(self):
         super(TestCase, self).setUp()
         setUp(self)
+
 
 class TransactionTestCase(DextTransactionTestCase, TestCaseMixin):
     def setUp(self):

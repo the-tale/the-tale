@@ -132,7 +132,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'dext.settings.middleware.SettingsMiddleware',
-    'the_tale.accounts.middleware.RegistrationMiddleware'
+    'the_tale.accounts.middleware.RegistrationMiddleware',
+    'the_tale.accounts.third_party.middleware.ThirdPartyMiddleware'
 )
 
 ROOT_URLCONF = 'the_tale.urls'
@@ -165,6 +166,7 @@ INSTALLED_APPS = (
     'the_tale.accounts.friends',
     'the_tale.accounts.payments',
     'the_tale.accounts.achievements',
+    'the_tale.accounts.third_party',
 
     'the_tale.guide',
 
