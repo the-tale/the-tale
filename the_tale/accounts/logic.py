@@ -1,4 +1,5 @@
 # coding: utf-8
+import time
 import datetime
 
 from django.conf import settings as project_settings
@@ -21,6 +22,8 @@ from the_tale.collections.prototypes import AccountItemsPrototype
 from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.bundles import BundlePrototype
 from the_tale.game.logic import dress_new_hero, messages_for_new_hero
+
+from the_tale.accounts import signals
 
 
 class REGISTER_USER_RESULT:
@@ -124,7 +127,10 @@ def force_login_user(request, user):
 
 
 def logout_user(request):
+    signals.on_before_logout.send(None, request=request)
+
     django_logout(request)
+
     request.session.flush()
 
 
@@ -147,3 +153,7 @@ def block_expired_accounts():
 def get_account_id_by_email(email):
     account = AccountPrototype.get_by_email(normalize_email(email))
     return account.id if account else None
+
+
+def get_session_expire_at_timestamp(request):
+    return time.mktime(request.session.get_expiry_date().timetuple())

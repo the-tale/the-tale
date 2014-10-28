@@ -16,7 +16,7 @@ class AccessTokenPrototype(BasePrototype): #pylint: disable=R0904
 
 
     @classmethod
-    def create(cls, application_name, application_info, application_description, account=None, state=relations.ACCESS_TOKEN_STATE.UNACCEPTED):
+    def create(cls, application_name, application_info, application_description, account=None, state=relations.ACCESS_TOKEN_STATE.UNPROCESSED):
         model = cls._db_create(uid=str(uuid.uuid4()),
                                application_name=application_name,
                                application_info=application_info,
@@ -41,7 +41,7 @@ class AccessTokenPrototype(BasePrototype): #pylint: disable=R0904
         self._model.delete()
 
     @classmethod
-    def fast_create(cls, id, account=None, state=relations.ACCESS_TOKEN_STATE.UNACCEPTED):
+    def fast_create(cls, id, account=None, state=relations.ACCESS_TOKEN_STATE.UNPROCESSED):
         token = cls.create(application_name='app-name-%d' % id,
                            application_info='app-info-%d' % id,
                            application_description='app-descr-%d' % id,

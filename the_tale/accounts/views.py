@@ -1,6 +1,5 @@
 # coding: utf-8
 import uuid
-import time
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth import logout as django_logout
@@ -17,8 +16,6 @@ from the_tale.common.utils.pagination import Paginator
 from the_tale.common.utils.decorators import login_required
 from the_tale.common.utils import api
 
-from the_tale.blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
-
 from the_tale.game.heroes.models import Hero
 from the_tale.game.heroes.prototypes import HeroPrototype
 
@@ -32,7 +29,7 @@ from the_tale.accounts.postponed_tasks import RegistrationTask
 from the_tale.accounts import relations
 from the_tale.accounts import forms
 from the_tale.accounts.conf import accounts_settings
-from the_tale.accounts.logic import logout_user, login_user, get_system_user
+from the_tale.accounts import logic
 from the_tale.accounts.achievements.prototypes import AccountAchievementsPrototype
 
 from the_tale.accounts.clans.prototypes import ClanPrototype
@@ -120,7 +117,7 @@ class AuthResource(BaseAccountsResource):
     @handler('api', 'login', name='api-login', method='post')
     def api_login(self, api_version, next_url='/'):
         u'''
-Вход в игру
+Вход в игру. Используйте этот метод только если разрабатываете приложение для себя и друзей. В остальных случаях пользуйтесь «авторизацией в игре».
 
 - **адрес:** /accounts/auth/api/login
 - **http-метод:** POST
@@ -159,12 +156,12 @@ class AuthResource(BaseAccountsResource):
             if not account.check_password(login_form.c.password):
                 return self.error('accounts.auth.login.wrong_credentials', u'Неверный логин или пароль')
 
-            login_user(self.request, nick=account.nick, password=login_form.c.password, remember=login_form.c.remember)
+            logic.login_user(self.request, nick=account.nick, password=login_form.c.password, remember=login_form.c.remember)
 
             return self.ok(data={'next_url': next_url,
                                  'account_id': account.id,
                                  'account_name': account.nick_verbose,
-                                 'session_expire_at': time.mktime(self.request.session.get_expiry_date().timetuple())})
+                                 'session_expire_at': logic.get_session_expire_at_timestamp(self.request)})
 
         return self.error('accounts.auth.login.form_errors', login_form.errors)
 
@@ -181,7 +178,7 @@ class AuthResource(BaseAccountsResource):
 - **возможные ошибки**: нет
         '''
 
-        logout_user(self.request)
+        logic.logout_user(self.request)
         return self.ok()
 
     @api.handler(versions=('1.0',))
@@ -502,7 +499,7 @@ class AccountResource(BaseAccountsResource):
         else:
             return self.json_error('accounts.account.ban.unknown_ban_type', u'Неизвестный тип бана')
 
-        MessagePrototype.create(get_system_user(),
+        MessagePrototype.create(logic.get_system_user(),
                                 self.master_account,
                                 message % {'message': form.c.description})
 
@@ -515,7 +512,7 @@ class AccountResource(BaseAccountsResource):
         self.master_account.ban_forum(0)
         self.master_account.ban_game(0)
 
-        MessagePrototype.create(get_system_user(),
+        MessagePrototype.create(logic.get_system_user(),
                                 self.master_account,
                                 u'С вас сняли все ограничения, наложенные ранее.')
 

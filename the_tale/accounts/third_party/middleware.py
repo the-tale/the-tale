@@ -25,7 +25,6 @@ class ThirdPartyMiddleware(object):
     def process_request(self, request):
         self.handle_third_party(request)
 
-
     def handle_third_party(self, request):
 
         if  third_party_settings.ACCESS_TOKEN_SESSION_KEY not in request.session:
@@ -42,6 +41,7 @@ class ThirdPartyMiddleware(object):
             if access_token is None:
                 if request.user.is_authenticated():
                     accounts_logic.logout_user(request)
+                    request.session[third_party_settings.ACCESS_TOKEN_SESSION_KEY] = access_token_uid
                     return HANDLE_THIRD_PARTY_RESULT.ACCESS_TOKEN_REJECTED__LOGOUT
                 else:
                     return HANDLE_THIRD_PARTY_RESULT.ACCESS_TOKEN_REJECTED
@@ -53,7 +53,11 @@ class ThirdPartyMiddleware(object):
         account_id = cached_data['account_id']
 
         if account_id is None:
-            accounts_logic.logout_user(request)
+            if request.user.is_authenticated():
+                accounts_logic.logout_user(request)
+                # resave token, since it will be removed on logout
+                request.session[third_party_settings.ACCESS_TOKEN_SESSION_KEY] = access_token_uid
+
             return HANDLE_THIRD_PARTY_RESULT.ACCESS_TOKEN_NOT_ACCEPTED_YET
 
         if not request.user.is_authenticated() or request.user.id != account_id:

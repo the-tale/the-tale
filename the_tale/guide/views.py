@@ -64,7 +64,11 @@ def get_api_methods():
     from the_tale.game.views import GameResource
     from the_tale.game.abilities.views import AbilitiesResource
     from the_tale.game.quests.views import QuestsResource
+    from the_tale.accounts.third_party.views import TokensResource
+
     return [APIReference('portal_info', u'Базовая информация', PortalResource.api_info),
+            APIReference('authorization', u'Авторизация в игре', getattr(TokensResource, 'api_request_authorisation')),
+            APIReference('authorization_state', u'Состояние авторизации', getattr(TokensResource, 'api_authorisation_state')),
             APIReference('login', u'Вход в игру', AuthResource.api_login),
             APIReference('logout', u'Выход из игры', AuthResource.api_logout),
             APIReference('game_info', u'Информация об игре/герое', GameResource.api_info),
@@ -82,9 +86,11 @@ def get_api_types():
     from the_tale.game.relations import GAME_STATE
     from the_tale.game.quests.relations import ACTOR_TYPE
     from the_tale.game.cards.relations import CARD_TYPE
+    from the_tale.accounts.third_party.relations import AUTHORISATION_STATE
 
 
-    return [TypeReference('gender', u'Пол', GENDER),
+    return [TypeReference('authorisation_state', u'Состояние авторизации', AUTHORISATION_STATE),
+            TypeReference('gender', u'Пол', GENDER),
             TypeReference('race', u'Раса', RACE),
             TypeReference('rarity', u'Редкость артефакта', RARITY),
             TypeReference('artifact_type', u'Тип артефакта', ARTIFACT_TYPE),

@@ -77,7 +77,7 @@ class MiddlewareTests(TestCase):
                                                                             session={third_party_settings.ACCESS_TOKEN_SESSION_KEY: token.uid}))
 
         self.assertTrue(result.is_ACCESS_TOKEN_NOT_ACCEPTED_YET)
-        self.assertEqual(logout_user.call_count, 1)
+        self.assertEqual(logout_user.call_count, 0)
 
     def test_no_cache(self):
         token = prototypes.AccessTokenPrototype.fast_create(id=1, account=self.account_1)
@@ -138,7 +138,7 @@ class MiddlewareRequestsTests(TestCase):
 
         self.account_1 = self.accounts_factory.create_account()
 
-        self.request_token_url = url('accounts:third-party:tokens:request-access', api_version='1.0', api_client=project_settings.API_CLIENT)
+        self.request_token_url = url('accounts:third-party:tokens:request-authorisation', api_version='1.0', api_client=project_settings.API_CLIENT)
 
     def do_test_request(self):
         self.request_html('/')
@@ -175,6 +175,8 @@ class MiddlewareRequestsTests(TestCase):
 
         self.check_logged_out()
 
+        self.assertIn(third_party_settings.ACCESS_TOKEN_SESSION_KEY, self.client.session)
+
     def test_rejected_token__not_authenticated(self):
 
         self.do_token_request()
@@ -184,6 +186,8 @@ class MiddlewareRequestsTests(TestCase):
         self.do_test_request()
 
         self.check_logged_out()
+
+        self.assertIn(third_party_settings.ACCESS_TOKEN_SESSION_KEY, self.client.session)
 
 
     def test_token_not_accepted_yet__authenticated(self):
@@ -198,6 +202,8 @@ class MiddlewareRequestsTests(TestCase):
 
         self.check_logged_out()
 
+        self.assertIn(third_party_settings.ACCESS_TOKEN_SESSION_KEY, self.client.session)
+
 
     def test_token_not_accepted_yet__not_authenticated(self):
 
@@ -206,6 +212,8 @@ class MiddlewareRequestsTests(TestCase):
         self.do_test_request()
 
         self.check_logged_out()
+
+        self.assertIn(third_party_settings.ACCESS_TOKEN_SESSION_KEY, self.client.session)
 
 
     def test_no_cache(self):
@@ -240,6 +248,8 @@ class MiddlewareRequestsTests(TestCase):
 
         self.check_logged_in(account=self.account_1)
 
+        self.assertIn(third_party_settings.ACCESS_TOKEN_SESSION_KEY, self.client.session)
+
 
     def test_not_authenticated(self):
         self.do_token_request()
@@ -251,3 +261,5 @@ class MiddlewareRequestsTests(TestCase):
         self.do_test_request()
 
         self.check_logged_in(account=self.account_1)
+
+        self.assertIn(third_party_settings.ACCESS_TOKEN_SESSION_KEY, self.client.session)

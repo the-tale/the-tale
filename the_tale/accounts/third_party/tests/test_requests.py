@@ -1,17 +1,20 @@
 # coding: utf-8
 import mock
 
+from django.test import Client
 from django.conf import settings as project_settings
 
 from dext.common.utils.urls import url
+from dext.common.utils import s11n
 
 from the_tale.common.utils.testcase import TestCase
 
-from the_tale.accounts.logic import login_page_url
+from the_tale.accounts.logic import login_page_url, logout_url
 
 from the_tale.game.logic import create_test_map
 
 from the_tale.accounts.third_party import prototypes
+from the_tale.accounts.third_party import relations
 from the_tale.accounts.third_party.conf import third_party_settings
 from the_tale.accounts.third_party.tests import helpers
 
@@ -85,7 +88,7 @@ class ShowRequestsTests(BaseRequestsTests):
         self.check_html_ok(self.request_html(self.requested_url), texts=['third_party.tokens.token.wrong_owner',
                                                                          ('app-name-1', 0), ('app-info-1', 0), ('app-descr-1', 0)])
 
-    def test_success__unaccepted(self):
+    def test_success__unprocessed(self):
         self.check_html_ok(self.request_html(self.requested_url), texts=['app-name-1',
                                                                          'app-info-1',
                                                                          'app-descr-1',
@@ -166,7 +169,7 @@ class AcceptTokenRequestsTests(BaseRequestsTests):
 
         self.token.reload()
         self.assertEqual(self.token.account_id, None)
-        self.assertTrue(self.token.state.is_UNACCEPTED)
+        self.assertTrue(self.token.state.is_UNPROCESSED)
 
     def test_login_required(self):
         self.request_logout()
@@ -175,7 +178,7 @@ class AcceptTokenRequestsTests(BaseRequestsTests):
 
         self.token.reload()
         self.assertEqual(self.token.account_id, None)
-        self.assertTrue(self.token.state.is_UNACCEPTED)
+        self.assertTrue(self.token.state.is_UNPROCESSED)
 
     def test_success(self):
         with mock.patch('dext.common.utils.cache.delete') as cache_delete:
@@ -193,7 +196,7 @@ class RequestAccessRequestsTests(BaseRequestsTests):
     def setUp(self):
         super(RequestAccessRequestsTests, self).setUp()
 
-        self.requested_url = url('accounts:third-party:tokens:request-access', api_version='1.0', api_client=project_settings.API_CLIENT)
+        self.requested_url = url('accounts:third-party:tokens:request-authorisation', api_version='1.0', api_client=project_settings.API_CLIENT)
 
 
     def test_form_errors(self):
@@ -215,7 +218,7 @@ class RequestAccessRequestsTests(BaseRequestsTests):
         self.assertEqual(self.client.session[third_party_settings.ACCESS_TOKEN_SESSION_KEY], token.uid)
 
         self.check_ajax_ok(response,
-                           data={'authorisation-page': url('accounts:third-party:tokens:show', token.uid)})
+                           data={'authorisation_page': url('accounts:third-party:tokens:show', token.uid)})
 
 
     def test_success_rerequest(self):
@@ -235,4 +238,201 @@ class RequestAccessRequestsTests(BaseRequestsTests):
         self.assertEqual(self.client.session[third_party_settings.ACCESS_TOKEN_SESSION_KEY], token.uid)
 
         self.check_ajax_ok(response,
-                           data={'authorisation-page': url('accounts:third-party:tokens:show', token.uid)})
+                           data={'authorisation_page': url('accounts:third-party:tokens:show', token.uid)})
+
+
+class AuthorisationStateRequestsTests(BaseRequestsTests, helpers.ThirdPartyTestsMixin):
+
+    def setUp(self):
+        super(AuthorisationStateRequestsTests, self).setUp()
+
+        self.authorisation_state_url = url('accounts:third-party:tokens:authorisation-state', api_version='1.0', api_client=project_settings.API_CLIENT)
+
+        self.request_logout()
+
+
+    @mock.patch('the_tale.accounts.logic.get_session_expire_at_timestamp', lambda request: 666.6)
+    def test_token_not_requested__anonimouse(self):
+
+        self.check_ajax_ok(self.request_ajax_json(self.authorisation_state_url),
+                           data={'account_id': None,
+                                 'account_name': None,
+                                 'state': relations.AUTHORISATION_STATE.NOT_REQUESTED.value,
+                                 'session_expire_at': 666.6})
+
+    @mock.patch('the_tale.accounts.logic.get_session_expire_at_timestamp', lambda request: 666.6)
+    def test_token_not_requested__loggined(self):
+        self.request_login(self.account_1.email)
+
+        self.check_ajax_ok(self.request_ajax_json(self.authorisation_state_url),
+                           data={'account_id': self.account_1.id,
+                                 'account_name': self.account_1.nick_verbose,
+                                 'state': relations.AUTHORISATION_STATE.NOT_REQUESTED.value,
+                                 'session_expire_at': 666.6})
+
+    @mock.patch('the_tale.accounts.logic.get_session_expire_at_timestamp', lambda request: 666.6)
+    def test_token_requested(self):
+
+        self.request_third_party_token()
+
+        self.check_ajax_ok(self.request_ajax_json(self.authorisation_state_url),
+                           data={'account_id': None,
+                                 'account_name': None,
+                                 'state': relations.AUTHORISATION_STATE.UNPROCESSED.value,
+                                 'session_expire_at': 666.6})
+
+    @mock.patch('the_tale.accounts.logic.get_session_expire_at_timestamp', lambda request: 666.6)
+    def test_token_accepted(self):
+        self.request_third_party_token(account=self.account_1)
+
+        self.check_ajax_ok(self.request_ajax_json(self.authorisation_state_url),
+                           data={'account_id': self.account_1.id,
+                                 'account_name': self.account_1.nick_verbose,
+                                 'state': relations.AUTHORISATION_STATE.ACCEPTED.value,
+                                 'session_expire_at': 666.6})
+
+
+    @mock.patch('the_tale.accounts.logic.get_session_expire_at_timestamp', lambda request: 666.6)
+    def test_token_rejected(self):
+        token = self.request_third_party_token()
+
+        token.remove()
+
+        self.check_ajax_ok(self.request_ajax_json(self.authorisation_state_url),
+                           data={'account_id': None,
+                                 'account_name': None,
+                                 'state': relations.AUTHORISATION_STATE.REJECTED.value,
+                                 'session_expire_at': 666.6})
+
+
+
+class FullTests(BaseRequestsTests):
+
+    def setUp(self):
+        super(FullTests, self).setUp()
+
+
+    @mock.patch('the_tale.accounts.logic.get_session_expire_at_timestamp', lambda request: 666.6)
+    def test_full__accepted(self):
+
+        api_client = Client()
+
+        request_token_url = url('accounts:third-party:tokens:request-authorisation', api_version='1.0', api_client=project_settings.API_CLIENT)
+
+        response = api_client.post(request_token_url, {'application_name': 'app-name',
+                                                       'application_info': 'app-info',
+                                                       'application_description': 'app-descr'})
+
+        self.check_ajax_ok(response)
+
+        token_url = s11n.from_json(response.content)['data']['authorisation_page']
+
+        token = prototypes.AccessTokenPrototype._db_latest()
+
+        self.assertEqual(url('accounts:third-party:tokens:show', token.uid), token_url)
+
+        self.check_html_ok(self.request_html(token_url), texts=['app-name', 'app-info', 'app-descr'])
+
+
+        authorisation_state_url = url('accounts:third-party:tokens:authorisation-state', api_version='1.0', api_client=project_settings.API_CLIENT)
+
+        self.check_ajax_ok(api_client.get(authorisation_state_url),
+                           data={'account_id': None,
+                                 'account_name': None,
+                                 'state': relations.AUTHORISATION_STATE.UNPROCESSED.value,
+                                 'session_expire_at': 666.6})
+
+        token.accept(self.account_1)
+
+        self.check_ajax_ok(api_client.get(authorisation_state_url),
+                           data={'account_id': self.account_1.id,
+                                 'account_name': self.account_1.nick_verbose,
+                                 'state': relations.AUTHORISATION_STATE.ACCEPTED.value,
+                                 'session_expire_at': 666.6})
+
+        self.assertIn('_auth_user_id', api_client.session)
+        self.assertIn(third_party_settings.ACCESS_TOKEN_SESSION_KEY, api_client.session)
+
+        self.check_ajax_ok(api_client.post(logout_url()))
+
+        self.assertNotIn('_auth_user_id', api_client.session)
+
+        self.assertEqual(prototypes.AccessTokenPrototype.get_by_uid(token.uid), None)
+        self.assertNotIn(third_party_settings.ACCESS_TOKEN_SESSION_KEY, api_client.session)
+
+
+    @mock.patch('the_tale.accounts.logic.get_session_expire_at_timestamp', lambda request: 666.6)
+    def test_full__reject(self):
+
+        api_client = Client()
+
+        request_token_url = url('accounts:third-party:tokens:request-authorisation', api_version='1.0', api_client=project_settings.API_CLIENT)
+
+        response = api_client.post(request_token_url, {'application_name': 'app-name',
+                                                       'application_info': 'app-info',
+                                                       'application_description': 'app-descr'})
+
+        self.check_ajax_ok(response)
+
+        token_url = s11n.from_json(response.content)['data']['authorisation_page']
+
+        token = prototypes.AccessTokenPrototype._db_latest()
+
+        self.assertEqual(url('accounts:third-party:tokens:show', token.uid), token_url)
+
+        self.check_html_ok(self.request_html(token_url), texts=['app-name', 'app-info', 'app-descr'])
+
+
+        authorisation_state_url = url('accounts:third-party:tokens:authorisation-state', api_version='1.0', api_client=project_settings.API_CLIENT)
+
+        self.check_ajax_ok(api_client.get(authorisation_state_url),
+                           data={'account_id': None,
+                                 'account_name': None,
+                                 'state': relations.AUTHORISATION_STATE.UNPROCESSED.value,
+                                 'session_expire_at': 666.6})
+
+        token.remove()
+
+        self.check_ajax_ok(api_client.get(authorisation_state_url),
+                           data={'account_id': None,
+                                 'account_name': None,
+                                 'state': relations.AUTHORISATION_STATE.REJECTED.value,
+                                 'session_expire_at': 666.6})
+
+
+    @mock.patch('the_tale.accounts.logic.get_session_expire_at_timestamp', lambda request: 666.6)
+    def test_full__logged_out_before_token_accept(self):
+
+        api_client = Client()
+
+        request_token_url = url('accounts:third-party:tokens:request-authorisation', api_version='1.0', api_client=project_settings.API_CLIENT)
+
+        response = api_client.post(request_token_url, {'application_name': 'app-name',
+                                                       'application_info': 'app-info',
+                                                       'application_description': 'app-descr'})
+
+        self.check_ajax_ok(response)
+
+        token_url = s11n.from_json(response.content)['data']['authorisation_page']
+
+        token = prototypes.AccessTokenPrototype._db_latest()
+
+        self.assertEqual(url('accounts:third-party:tokens:show', token.uid), token_url)
+
+        self.check_html_ok(self.request_html(token_url), texts=['app-name', 'app-info', 'app-descr'])
+
+
+        authorisation_state_url = url('accounts:third-party:tokens:authorisation-state', api_version='1.0', api_client=project_settings.API_CLIENT)
+
+        self.check_ajax_ok(api_client.get(authorisation_state_url),
+                           data={'account_id': None,
+                                 'account_name': None,
+                                 'state': relations.AUTHORISATION_STATE.UNPROCESSED.value,
+                                 'session_expire_at': 666.6})
+
+        self.check_ajax_ok(api_client.post(logout_url()))
+
+        self.assertNotIn('_auth_user_id', api_client.session)
+
+        self.assertNotEqual(prototypes.AccessTokenPrototype.get_by_uid(token.uid), None)
+        self.assertNotIn(third_party_settings.ACCESS_TOKEN_SESSION_KEY, api_client.session)

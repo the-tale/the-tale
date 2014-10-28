@@ -5,7 +5,7 @@
   <h3>
     Разрешение для приложения {{token.application_name}}
     <small>
-      {% if token.state.is_UNACCEPTED %}запрошено <span class="pgf-format-datetime" data-timestamp="{{ token.created_at|timestamp }}"></span>{% endif %}
+      {% if token.state.is_UNPROCESSED %}запрошено <span class="pgf-format-datetime" data-timestamp="{{ token.created_at|timestamp }}"></span>{% endif %}
       {% if token.state.is_ACCEPTED %}выдано <span class="pgf-format-datetime" data-timestamp="{{ token.updated_at|timestamp }}"></span>{% endif %}
     </small>
   </h3>
@@ -20,7 +20,7 @@
     <p>{{token.application_description}}</p>
   {% endif %}
 
-  {% if token.state.is_UNACCEPTED %}
+  {% if token.state.is_UNPROCESSED %}
     <p class="alert alert-info">
       <strong>Приложение запрашивает разрешение на доступ и изменение Ваших игровых данных.</strong><br/>
       Приложение <strong>не получит</strong> доступ к управлению вашим аккаунтом (включая смену логина/пароля) и к магазину (трате печенек).<br/>
@@ -39,10 +39,12 @@
 
   {% if token.state.is_ACCEPTED %}
 
-    <p class="alert alert-info">
-      <strong>Приложение может получать и изменять Ваши игровые данные.</strong><br/>
+    <p class="alert alert-success">
+      <strong>Вы разрешили приложению получать и изменять Ваши игровые данные.</strong><br/>
       Приложение <strong>не может</strong> управлять вашим аккаунтом (включая смену логина/пароля) и делать покупки в магазине.<br/>
-      Приложение может получать и изменять информации непосредственно связанную с игрой (например, помогать герою).
+      Приложение может получать и изменять информации непосредственно связанную с игрой (например, помогать герою).<br/><br/>
+
+      <strong>Теперь Вы можете вернуться к использованию приложения.</strong>
     </p>
 
     <a href="{{url('accounts:third-party:tokens:remove', token.uid)}}"

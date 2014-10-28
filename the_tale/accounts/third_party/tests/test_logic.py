@@ -23,9 +23,9 @@ class LogicTests(TestCase):
 
     def test_remove_expired_access_tokens(self):
 
-        old_created_at = datetime.datetime.now() - datetime.timedelta(minutes=third_party_settings.UNACCEPTED_ACCESS_TOKEN_LIVE_TIME)
+        old_created_at = datetime.datetime.now() - datetime.timedelta(minutes=third_party_settings.UNPROCESSED_ACCESS_TOKEN_LIVE_TIME)
 
-        t_1 = prototypes.AccessTokenPrototype.fast_create(1, account=None, state=relations.ACCESS_TOKEN_STATE.UNACCEPTED)
+        t_1 = prototypes.AccessTokenPrototype.fast_create(1, account=None, state=relations.ACCESS_TOKEN_STATE.UNPROCESSED)
         t_1._model.created_at = old_created_at
         t_1.save()
 
@@ -33,7 +33,7 @@ class LogicTests(TestCase):
         t_2._model.created_at = old_created_at
         t_2.save()
 
-        prototypes.AccessTokenPrototype.fast_create(3, account=None, state=relations.ACCESS_TOKEN_STATE.UNACCEPTED)
+        prototypes.AccessTokenPrototype.fast_create(3, account=None, state=relations.ACCESS_TOKEN_STATE.UNPROCESSED)
         prototypes.AccessTokenPrototype.fast_create(4, account=self.account_1, state=relations.ACCESS_TOKEN_STATE.ACCEPTED)
 
         with self.check_delta(prototypes.AccessTokenPrototype._db_count, -1):
