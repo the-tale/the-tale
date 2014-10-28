@@ -80,7 +80,7 @@
     <li class="nav-element"><a href="{{ url('blogs:posts:') }}?author_id={{page_account.id}}">произведения ({{folclor_posts_count}})</a></li>
 
     <li class="nav-header">Форум</li>
-    <li class="nav-element"><a href="{{url('forum:threads:')}}?author={{page_account.id}}">созданые обсуждения ({{threads_count}})</a></li>
+    <li class="nav-element"><a href="{{url('forum:threads:')}}?author={{page_account.id}}">созданные обсуждения ({{threads_count}})</a></li>
     <li class="nav-element"><a href="{{url('forum:threads:')}}?participant={{page_account.id}}">обсуждения с комментариями ({{threads_with_posts}})</a></li>
 
     {% if can_moderate %}

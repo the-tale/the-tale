@@ -64,7 +64,7 @@ class CardBase(object):
 
 class LevelUp(CardBase):
     TYPE = relations.CARD_TYPE.LEVEL_UP
-    DESCRIPTION = u'Герой получает новый уровень. Накопленный опыт не сбрасываются.'
+    DESCRIPTION = u'Герой получает новый уровень. Накопленный опыт не сбрасывается.'
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         task.hero.increment_level(send_message=False)
@@ -757,7 +757,7 @@ class HelpPlaceBase(CardBase):
     @property
     def DESCRIPTION(self):
         if self.HELPS != 1:
-            return u'В документах города появляются %(helps)d дополнительные записи о помощи, полученной от героя.' % {'helps': self.HELPS}
+            return u'В документах города появляются дополнительные записи о помощи, полученной от героя в количестве %(helps)d шт.' % {'helps': self.HELPS}
         return u'В документах города появляется дополнительная запись о помощи, полученной от героя.'
 
     @property
