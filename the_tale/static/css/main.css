@@ -21,6 +21,8 @@
 @import "blogs.css";
 
 @import "mobs.css";
+
+@import "linguistics.css";
 html {
   height: 100%;
 }
@@ -28,6 +30,10 @@ body {
   padding-top: 44px;
   height: 100%;
   word-wrap: break-word;
+  /* old style blocks */
+
+  /* new style blocks */
+
 }
 body #main-container {
   height: 100%;
@@ -49,6 +55,12 @@ body li.block {
 body div.block.white,
 body li.block.white {
   background-color: white;
+}
+body div.easy-block,
+body li.easy-block {
+  padding: 0.75em;
+  margin-top: 0;
+  margin-bottom: 10px;
 }
 body hr {
   border-top-color: #cccccc;
@@ -257,6 +269,9 @@ a.disabled {
 a.disabled:hover {
   color: #999999 !important;
   text-decoration: none !important;
+}
+a.btn.disabled {
+  color: black !important;
 }
 .dygraph-legend {
   background-color: transparent !important;

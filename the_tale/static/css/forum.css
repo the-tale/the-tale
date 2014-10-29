@@ -25,7 +25,7 @@
   color: #4A516B;
 }
 .forum-table .subscription {
-  width: 10em;
+  width: 6em;
 }
 .post {
   margin-bottom: 1em;
@@ -69,6 +69,15 @@
 }
 .post.developer .info-head {
   background-color: #e9f9e9;
+}
+.post.banned .head {
+  background-color: #f9e9e9;
+}
+.post.banned .info {
+  background-color: #f9e9e9;
+}
+.post.banned .info-head {
+  background-color: #f9e9e9;
 }
 .post .message {
   padding: 0.5em;

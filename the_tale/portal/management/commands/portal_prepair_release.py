@@ -44,12 +44,6 @@ class Command(BaseCommand):
         run_django_command(['less_generate_css'])
 
         print
-        print 'LOAD TEXTGEN TEXTS'
-        print
-
-        run_django_command(['game_load_texts'])
-
-        print
         print 'GENERATE META CONFIG'
         print
 
