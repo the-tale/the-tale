@@ -398,10 +398,12 @@ class ChangeItemOfExpenditureBase(CardBase):
         return u'Текущей целью трат героя становится %(item)s.' % {'item': self.ITEM.text}
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+
         if task.hero.next_spending == self.ITEM:
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Герой уже копит деньги на эту цель.')
 
         task.hero.next_spending = self.ITEM
+        task.hero.quests.mark_updated()
         return task.logic_result()
 
 class ChangeHeroSpendingsToInstantHeal(ChangeItemOfExpenditureBase):

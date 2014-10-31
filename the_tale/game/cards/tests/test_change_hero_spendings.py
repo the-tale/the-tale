@@ -1,4 +1,5 @@
 # coding: utf-8
+import mock
 
 from the_tale.common.utils import testcase
 
@@ -58,13 +59,19 @@ class ChangeHeroSpendingsMixin(CardsTestMixin):
 
     def test_use(self):
 
+        # sure that quests will be loaded and not cal mark_updated
+        self.hero.quests.mark_updated()
+
         for item in ITEMS_OF_EXPENDITURE.records:
             if item == self.CARD.ITEM:
                 continue
 
             self.hero.next_spending = item
 
-            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+            with mock.patch('the_tale.game.quests.container.QuestsContainer.mark_updated') as mark_updated:
+                result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+
+            self.assertEqual(mark_updated.call_count, 1)
 
             self.assertEqual(self.hero.next_spending, self.CARD.ITEM)
 
@@ -74,7 +81,10 @@ class ChangeHeroSpendingsMixin(CardsTestMixin):
     def test_equal(self):
         self.hero.next_spending = self.CARD.ITEM
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+        with mock.patch('the_tale.game.quests.container.QuestsContainer.mark_updated') as mark_updated:
+            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+
+        self.assertEqual(mark_updated.call_count, 0)
 
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
