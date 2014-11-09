@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 import collections
 
 from the_tale.common.utils.logic import days_range
@@ -21,6 +22,14 @@ class RegistrationsCompleted(BaseMetric):
 
     def get_value(self, date):
         return self.registrations_count.get(date, 0)
+
+
+class RegistrationsCompletedInMonth(RegistrationsCompleted):
+    TYPE = relations.RECORD_TYPE.REGISTRATIONS_COMPLETED_IN_MONTH
+    FULL_CLEAR_RECUIRED = True
+
+    def get_value(self, date):
+        return sum(self.registrations_count.get(date - datetime.timedelta(days=i), 0) for i in xrange(30) )
 
 
 class AccountsTotal(BaseMetric):
@@ -65,11 +74,26 @@ class RegistrationsTries(BaseMetric):
         return self.registrations_count.get(date, 0)
 
 
+class RegistrationsTriesInMonth(RegistrationsTries):
+    TYPE = relations.RECORD_TYPE.REGISTRATIONS_TRIES_IN_MONTH
+    FULL_CLEAR_RECUIRED = True
+
+    def get_value(self, date):
+        return sum(self.registrations_count.get(date - datetime.timedelta(days=i), 0) for i in xrange(30) )
+
+
 class RegistrationsCompletedPercents(BasePercentsCombination):
     TYPE = relations.RECORD_TYPE.REGISTRATIONS_COMPLETED_PERCENTS
     FULL_CLEAR_RECUIRED = True
     SOURCES = [relations.RECORD_TYPE.REGISTRATIONS_COMPLETED,
                relations.RECORD_TYPE.REGISTRATIONS_TRIES]
+
+
+class RegistrationsCompletedPercentsInMonth(RegistrationsCompletedPercents):
+    TYPE = relations.RECORD_TYPE.REGISTRATIONS_COMPLETED_PERCENTS_IN_MONTH
+    FULL_CLEAR_RECUIRED = True
+    SOURCES = [relations.RECORD_TYPE.REGISTRATIONS_COMPLETED_IN_MONTH,
+               relations.RECORD_TYPE.REGISTRATIONS_TRIES_IN_MONTH]
 
 
 class Referrals(BaseMetric):
@@ -83,6 +107,14 @@ class Referrals(BaseMetric):
 
     def get_value(self, date):
         return self.referrals_count.get(date, 0)
+
+
+class ReferralsInMonth(Referrals):
+    TYPE = relations.RECORD_TYPE.REFERRALS_IN_MONTH
+    FULL_CLEAR_RECUIRED = True
+
+    def get_value(self, date):
+        return sum(self.referrals_count.get(date - datetime.timedelta(days=i), 0) for i in xrange(30) )
 
 
 class ReferralsTotal(BaseMetric):

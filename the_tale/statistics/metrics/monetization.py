@@ -18,24 +18,38 @@ from the_tale.statistics import relations
 from the_tale.statistics.conf import statistics_settings
 
 
+ACCEPTED_INVOICE_FILTER = models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED)
+
+
 class Payers(BaseMetric):
     TYPE = relations.RECORD_TYPE.PAYERS
 
     def initialize(self):
         super(Payers, self).initialize()
-        invoices = list(InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED),
+        invoices = list(InvoicePrototype._db_filter(ACCEPTED_INVOICE_FILTER,
                                                     self.db_date_gte('created_at'),
                                                     sender_type=ENTITY_TYPE.XSOLLA,
-                                                    currency=CURRENCY_TYPE.PREMIUM).values_list('created_at', 'id'))
+                                                    currency=CURRENCY_TYPE.PREMIUM).values_list('created_at', 'recipient_id'))
 
-        self.invoices_count = {}
+        self.invoices = {}
 
-        if invoices:
-            invoice_dates = zip(*sorted({(created_at.date(), id_): True for created_at, id_ in invoices}.keys()))[0]
-            self.invoices_count = collections.Counter(invoice_dates)
+        for invoice_data, recipient_id in invoices:
+            created_at = invoice_data.date()
+
+            if created_at not in self.invoices:
+                self.invoices[created_at] = set()
+
+            self.invoices[created_at].add(recipient_id)
 
     def get_value(self, date):
-        return self.invoices_count.get(date, 0)
+        return len(self.invoices.get(date, frozenset()))
+
+
+class PayersInMonth(Payers):
+    TYPE = relations.RECORD_TYPE.PAYERS_IN_MONTH
+
+    def get_value(self, date):
+        return sum(len(self.invoices.get(date - datetime.timedelta(days=i), frozenset())) for i in xrange(30) )
 
 
 class Income(BaseMetric):
@@ -43,7 +57,7 @@ class Income(BaseMetric):
 
     def initialize(self):
         super(Income, self).initialize()
-        query = InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED),
+        query = InvoicePrototype._db_filter(ACCEPTED_INVOICE_FILTER,
                                             self.db_date_gte('created_at'),
                                             sender_type=ENTITY_TYPE.XSOLLA, currency=CURRENCY_TYPE.PREMIUM).values_list('created_at', 'amount')
         invoices = [(created_at.date(), amount) for created_at, amount in query]
@@ -56,12 +70,19 @@ class Income(BaseMetric):
         return self.invoices_values.get(date, 0)
 
 
+class IncomeInMonth(Income):
+    TYPE = relations.RECORD_TYPE.INCOME_IN_MONTH
+
+    def get_value(self, date):
+        return sum(self.invoices_values.get(date - datetime.timedelta(days=i), 0) for i in xrange(30) )
+
+
 class IncomeTotal(BaseMetric):
     TYPE = relations.RECORD_TYPE.INCOME_TOTAL
 
     def initialize(self):
         super(IncomeTotal, self).initialize()
-        query = InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED),
+        query = InvoicePrototype._db_filter(ACCEPTED_INVOICE_FILTER,
                                             self.db_date_gte('created_at'),
                                             sender_type=ENTITY_TYPE.XSOLLA,
                                             currency=CURRENCY_TYPE.PREMIUM).values_list('created_at', 'amount')
@@ -71,7 +92,7 @@ class IncomeTotal(BaseMetric):
         for created_at, amount in invoices:
             invoices_values[created_at] = invoices_values.get(created_at, 0) + amount
 
-        income = InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED),
+        income = InvoicePrototype._db_filter(ACCEPTED_INVOICE_FILTER,
                                              self.db_date_lt('created_at'),
                                              sender_type=ENTITY_TYPE.XSOLLA,
                                              currency=CURRENCY_TYPE.PREMIUM).aggregate(income=models.Sum('amount'))['income']
@@ -100,6 +121,18 @@ class ARPU(BaseFractionCombination):
                relations.RECORD_TYPE.DAU]
 
 
+class ARPPUInMonth(BaseFractionCombination):
+    TYPE = relations.RECORD_TYPE.ARPPU_IN_MONTH
+    SOURCES = [relations.RECORD_TYPE.INCOME_IN_MONTH,
+               relations.RECORD_TYPE.PAYERS_IN_MONTH]
+
+
+class ARPUInMonth(BaseFractionCombination):
+    TYPE = relations.RECORD_TYPE.ARPU_IN_MONTH
+    SOURCES = [relations.RECORD_TYPE.INCOME_IN_MONTH,
+               relations.RECORD_TYPE.MAU]
+
+
 class DaysBeforePayment(BaseMetric):
     TYPE = relations.RECORD_TYPE.DAYS_BEFORE_PAYMENT
     FULL_CLEAR_RECUIRED = True
@@ -113,7 +146,7 @@ class DaysBeforePayment(BaseMetric):
                              self.db_date_gte('created_at', date=statistics_settings.PAYMENTS_START_DATE.date()))
         accounts = dict(query.values_list('id', 'created_at'))
 
-        invoices = list(InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED),
+        invoices = list(InvoicePrototype._db_filter(ACCEPTED_INVOICE_FILTER,
                                                     sender_type=ENTITY_TYPE.XSOLLA,
                                                     currency=CURRENCY_TYPE.PREMIUM,
                                                     recipient_id__in=accounts.keys()).values_list('created_at', 'recipient_id'))
@@ -152,7 +185,7 @@ class ARPNU(BaseMetric):
 
         total_income = 0
         for account_id, created_at in accounts:
-            income = InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED),
+            income = InvoicePrototype._db_filter(ACCEPTED_INVOICE_FILTER,
                                                  self.db_date_interval('created_at', date=created_at, days=self.DAYS),
                                                  sender_type=ENTITY_TYPE.XSOLLA,
                                                  currency=CURRENCY_TYPE.PREMIUM,
@@ -193,7 +226,7 @@ class LTV(BaseMetric):
         if not accounts_ids:
             return 0
 
-        total_income = InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED),
+        total_income = InvoicePrototype._db_filter(ACCEPTED_INVOICE_FILTER,
                                                    sender_type=ENTITY_TYPE.XSOLLA,
                                                    currency=CURRENCY_TYPE.PREMIUM,
                                                    recipient_id__in=accounts_ids).aggregate(income=models.Sum('amount'))['income']
@@ -214,7 +247,7 @@ class IncomeFromGroupsBase(BaseMetric):
         raise NotImplementedError
 
     def get_value(self, date):
-        invoices = list(InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED),
+        invoices = list(InvoicePrototype._db_filter(ACCEPTED_INVOICE_FILTER,
                                                     self.db_date_interval('created_at', date=date, days=-self.PERIOD),
                                                     sender_type=ENTITY_TYPE.XSOLLA,
                                                     currency=CURRENCY_TYPE.PREMIUM).values_list('recipient_id', 'amount'))
@@ -269,7 +302,7 @@ class IncomeFromGoodsBase(BaseMetric):
         return models.Q(operation_uid__contains='<%s' % self.GROUP.uid_prefix)
 
     def get_value(self, date):
-        income = InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED),
+        income = InvoicePrototype._db_filter(ACCEPTED_INVOICE_FILTER,
                                              self.selector(),
                                              self.db_date_interval('created_at', date=date, days=-self.PERIOD),
                                              sender_type=ENTITY_TYPE.GAME_LOGIC,
@@ -333,7 +366,7 @@ class PU(BaseMetric):
     TYPE = relations.RECORD_TYPE.PU
 
     def get_value(self, date):
-        return InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED),
+        return InvoicePrototype._db_filter(ACCEPTED_INVOICE_FILTER,
                                            self.db_date_lte('created_at', date=date),
                                            sender_type=ENTITY_TYPE.XSOLLA,
                                            currency=CURRENCY_TYPE.PREMIUM).values_list('recipient_id').order_by('recipient_id').distinct().count()
@@ -350,7 +383,7 @@ class IncomeGroupBase(BaseMetric):
     BORDERS = (None, None)
 
     def get_value(self, date):
-        incomes = InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED),
+        incomes = InvoicePrototype._db_filter(ACCEPTED_INVOICE_FILTER,
                                               self.db_date_lte('created_at', date=date),
                                               sender_type=ENTITY_TYPE.XSOLLA,
                                               currency=CURRENCY_TYPE.PREMIUM).values_list('recipient_id', 'amount')
@@ -416,7 +449,7 @@ class IncomeGroupIncomeBase(BaseMetric):
     BORDERS = (None, None)
 
     def get_value(self, date):
-        incomes = InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED),
+        incomes = InvoicePrototype._db_filter(ACCEPTED_INVOICE_FILTER,
                                               self.db_date_lte('created_at', date=date),
                                               sender_type=ENTITY_TYPE.XSOLLA,
                                               currency=CURRENCY_TYPE.PREMIUM).values_list('recipient_id', 'amount')
@@ -484,7 +517,7 @@ class Revenue(BaseMetric):
     PERIOD = 7
 
     def get_value(self, date):
-        income = InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED),
+        income = InvoicePrototype._db_filter(ACCEPTED_INVOICE_FILTER,
                                              self.db_date_interval('created_at', date=date, days=-self.PERIOD),
                                              sender_type=ENTITY_TYPE.XSOLLA,
                                              currency=CURRENCY_TYPE.PREMIUM).aggregate(income=models.Sum('amount'))['income']

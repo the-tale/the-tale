@@ -21,11 +21,18 @@ METRICS = [
         registrations.RegistrationsCompleted,
         registrations.RegistrationsTries,
         registrations.RegistrationsCompletedPercents,
+
+        registrations.RegistrationsCompletedInMonth,
+        registrations.RegistrationsTriesInMonth,
+        registrations.RegistrationsCompletedPercentsInMonth,
+
         registrations.AccountsTotal,
 
         registrations.Referrals,
         registrations.ReferralsTotal,
         registrations.ReferralsPercents,
+
+        registrations.ReferralsInMonth,
 
         actual.Premiums,
         actual.PremiumPercents,
@@ -52,8 +59,12 @@ METRICS = [
 
         monetization.Payers,
         monetization.Income,
+        monetization.PayersInMonth,
+        monetization.IncomeInMonth,
         monetization.ARPPU,
         monetization.ARPU,
+        monetization.ARPPUInMonth,
+        monetization.ARPUInMonth,
         monetization.PU,
         monetization.PUPercents,
         monetization.IncomeTotal,

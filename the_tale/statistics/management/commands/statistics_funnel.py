@@ -21,27 +21,15 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list
 
-    def handle(self, *args, **options):
 
-        # APRIL
-        # DATE_FROM = datetime.datetime(2014, 4, 1)
-        # DATE_TO = datetime.datetime(2014, 5, 1)
-        # new_users = 3711
+    def print_funnel(self, year, month, new_users):
+        DATE_FROM = datetime.datetime(year, month, 1)
 
-        # MART
-        # DATE_FROM = datetime.datetime(2014, 3, 1)
-        # DATE_TO = datetime.datetime(2014, 4, 1)
-        # new_users = 8764
+        if month == 12:
+            year += 1
+            month = 0
 
-        # FEBRUARY
-        # DATE_FROM = datetime.datetime(2014, 2, 1)
-        # DATE_TO = datetime.datetime(2014, 3, 1)
-        # new_users = 2057
-
-        # HABRAHABR
-        DATE_FROM = datetime.datetime(2014, 3, 5)
-        DATE_TO = datetime.datetime(2014, 3, 8)
-        new_users = 4554
+        DATE_TO = datetime.datetime(year, month+1, 1)
 
         fast_registrations = sum(RecordPrototype.select_values(relations.RECORD_TYPE.REGISTRATIONS_TRIES, date_from=DATE_FROM, date_to=DATE_TO))
 
@@ -74,3 +62,38 @@ class Command(BaseCommand):
         print 'payers %d (%.3f)' % (payers, float(payers)/new_users)
         print 'alive after week %d (%.3f)' % (alive_after_week, float(alive_after_week)/new_users)
         print 'alive after month %d (%.3f)' % (alive_after_month, float(alive_after_month)/new_users)
+
+
+    def handle(self, *args, **options):
+
+        # FEBRUARY
+        # self.print_funnel(2014, 2, 2057)
+
+        # MART
+        # self.print_funnel(2014, 3, 8764)
+
+        # HABRAHABR
+        # DATE_FROM = datetime.datetime(2014, 3, 5)
+        # DATE_TO = datetime.datetime(2014, 3, 8)
+        # new_users = 4554
+
+        # APRIL
+        self.print_funnel(2014, 4, 3711)
+
+        #  may
+        self.print_funnel(2014, 5, 9935)
+
+        # june
+        self.print_funnel(2014, 6, 7603)
+
+        # july
+        self.print_funnel(2014, 7, 5497)
+
+        # august
+        self.print_funnel(2014, 8, 4198)
+
+        # september
+        self.print_funnel(2014, 9, 4597)
+
+        # october
+        self.print_funnel(2014, 10, 5864)

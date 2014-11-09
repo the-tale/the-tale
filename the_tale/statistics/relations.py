@@ -16,9 +16,9 @@ class RECORD_TYPE(DjangoEnum):
     records = ( ('TEST_INT', 0, u'тестовые данные (int)', VALUE_TYPE.INT, u'тестовые данные (int)'),
                 ('TEST_FLOAT', 1, u'тестовые данные (float)', VALUE_TYPE.FLOAT, u'тестовые данные (float)'),
 
-                ('REGISTRATIONS_COMPLETED', 10, u'завершённые регистрации', VALUE_TYPE.INT, u'завершённые регистрации (в день)'),
-                ('REGISTRATIONS_TRIES', 11, u'попытки регистраций', VALUE_TYPE.INT, u'все попытки регистраций (в день)'),
-                ('REGISTRATIONS_COMPLETED_PERCENTS', 12, u'процент завершённых регистрации', VALUE_TYPE.FLOAT, u'процент завершённх регистраций (в день)'),
+                ('REGISTRATIONS_COMPLETED', 10, u'завершённые регистрации в день', VALUE_TYPE.INT, u'завершённые регистрации (в день)'),
+                ('REGISTRATIONS_TRIES', 11, u'попытки регистраций в день', VALUE_TYPE.INT, u'все попытки регистраций (в день)'),
+                ('REGISTRATIONS_COMPLETED_PERCENTS', 12, u'процент завершённых регистрации в день', VALUE_TYPE.FLOAT, u'процент завершённх регистраций (в день)'),
                 ('REGISTRATIONS_TOTAL', 13, u'всего аккаунтов', VALUE_TYPE.INT, u'всего аккаунтов'),
 
                 ('ALIVE_AFTER_DAY', 14, u'конверсия 1-ого дня', VALUE_TYPE.INT, u'зарегистрировались и были в игре через день'),
@@ -32,13 +32,13 @@ class RECORD_TYPE(DjangoEnum):
                 ('LIFETIME', 21, u'lifetime', VALUE_TYPE.FLOAT, u'средне время жизни игроков, зарегистрировавшихся в течении недели'),
                 ('LIFETIME_PERCENT', 22, u'lifetime процент от максимума', VALUE_TYPE.FLOAT, u'процент времени жизни игроков, зарегистрировавшихся в течении недели, от максимума'),
 
-                ('REFERRALS', 23, u'рефералы', VALUE_TYPE.INT, u'завершённые рефералы (в день)'),
+                ('REFERRALS', 23, u'рефералы в день', VALUE_TYPE.INT, u'завершённые рефералы (в день)'),
                 ('REFERRALS_TOTAL', 24, u'всего рефералов', VALUE_TYPE.INT, u'всего рефералов'),
                 ('REFERRALS_PERCENTS', 25, u'процент рефералов', VALUE_TYPE.INT, u'процент рефералов'),
 
-                ('PAYERS', 26, u'количество плательщиков', VALUE_TYPE.INT, u'количество плательщиков за день'),
-                ('INCOME', 27, u'куплено печенек', VALUE_TYPE.INT, u'куплено печенек за день'),
-                ('ARPPU', 28, u'ARPPU', VALUE_TYPE.FLOAT, u'средний чек на плательщика (Average Revenue per Paying User)'),
+                ('PAYERS', 26, u'количество плательщиков в день', VALUE_TYPE.INT, u'количество плательщиков за день'),
+                ('INCOME', 27, u'куплено печенек в день', VALUE_TYPE.INT, u'куплено печенек за день'),
+                ('ARPPU', 28, u'ARPPU в день', VALUE_TYPE.FLOAT, u'средний чек на плательщика (Average Revenue per Paying User)'),
                 ('INCOME_TOTAL', 29, u'куплено печенек всего', VALUE_TYPE.INT, u'куплено печенек всего'),
                 ('DAYS_BEFORE_PAYMENT', 30, u'дней до 1-ой покупки', VALUE_TYPE.FLOAT, u'дней до 1-ой покупки'),
                 ('APRNU_WEEK', 31, u'APRNU за неделю', VALUE_TYPE.FLOAT, u'средний доход с нового игрока за неделю (Average Revenue per New User)'),
@@ -67,7 +67,7 @@ class RECORD_TYPE(DjangoEnum):
                 ('DAU', 51, u'DAU', VALUE_TYPE.INT, u'DAU'),
                 ('MAU', 52, u'MAU', VALUE_TYPE.INT, u'MAU'),
 
-                ('ARPU', 53, u'ARPU', VALUE_TYPE.FLOAT, u'средний доход на активного игрока'),
+                ('ARPU', 53, u'ARPU в день', VALUE_TYPE.FLOAT, u'средний доход на активного игрока в день'),
                 ('PU', 54, u'заплатившие хоть раз', VALUE_TYPE.FLOAT, u'заплатившие хоть раз'),
                 ('PU_PERCENTS', 55, u'процент заплативших хоть раз', VALUE_TYPE.FLOAT, u'процент заплативших хоть раз'),
 
@@ -119,4 +119,14 @@ class RECORD_TYPE(DjangoEnum):
 
                 ('REVENUE', 95, u'Доход (за предыдущую неделю)', VALUE_TYPE.INT, u'доход за предыдущую неделю'),
 
+                ('PAYERS_IN_MONTH', 96, u'количество плательщиков в месяц', VALUE_TYPE.INT, u'количество плательщиков за месяц'),
+                ('INCOME_IN_MONTH', 97, u'куплено печенек в месяц', VALUE_TYPE.INT, u'куплено печенек за месяц'),
+                ('ARPPU_IN_MONTH', 98, u'ARPPU в месяц', VALUE_TYPE.FLOAT, u'средний чек на плательщика за месяц'),
+                ('ARPU_IN_MONTH', 99, u'ARPU в месяц', VALUE_TYPE.FLOAT, u'средний чек на активного игрока за месяц'),
+
+                ('REGISTRATIONS_COMPLETED_IN_MONTH', 100, u'завершённые регистрации в месяц', VALUE_TYPE.INT, u'завершённые регистрации (в месяц)'),
+                ('REGISTRATIONS_TRIES_IN_MONTH', 101, u'попытки регистраций в месяц', VALUE_TYPE.INT, u'все попытки регистраций (в месяц)'),
+                ('REGISTRATIONS_COMPLETED_PERCENTS_IN_MONTH', 102, u'процент завершённых регистрации в месяц', VALUE_TYPE.FLOAT, u'процент завершённх регистраций (в месяц)'),
+
+                ('REFERRALS_IN_MONTH', 103, u'рефералы в месяц', VALUE_TYPE.INT, u'завершённые рефералы (в месяц)'),
         )
