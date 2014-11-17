@@ -43,6 +43,8 @@
   </li>
 </ul>
 
+{% include "linguistics/words/detailed_description.html" %}
+
 <h2>{{word.utg_word.normal_form()|up_first}} <small>{{word.type.text}}, {{word.state.text}}</small></h2>
 
 {{words_macros.render_word(drawer)}}

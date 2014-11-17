@@ -48,20 +48,46 @@ class Command(BaseCommand):
 
         alive_after_week = len(alive_after_week_ids & new_accounts_ids)
 
-        alive_after_month_ids = set(AccountPrototype._db_filter(created_at__gte=DATE_FROM,
-                                                                created_at__lte=DATE_TO,
-                                                                active_end_at__gte=models.F('created_at')+datetime.timedelta(days=30)).values_list('id', flat=True))
+        alive_after_1_month_ids = set(AccountPrototype._db_filter(created_at__gte=DATE_FROM,
+                                                                  created_at__lte=DATE_TO,
+                                                                  active_end_at__gte=models.F('created_at')+datetime.timedelta(days=30)).values_list('id', flat=True))
+        alive_after_2_month_ids = set(AccountPrototype._db_filter(created_at__gte=DATE_FROM,
+                                                                  created_at__lte=DATE_TO,
+                                                                  active_end_at__gte=models.F('created_at')+datetime.timedelta(days=60)).values_list('id', flat=True))
+        alive_after_3_month_ids = set(AccountPrototype._db_filter(created_at__gte=DATE_FROM,
+                                                                  created_at__lte=DATE_TO,
+                                                                  active_end_at__gte=models.F('created_at')+datetime.timedelta(days=90)).values_list('id', flat=True))
+        alive_after_4_month_ids = set(AccountPrototype._db_filter(created_at__gte=DATE_FROM,
+                                                                  created_at__lte=DATE_TO,
+                                                                  active_end_at__gte=models.F('created_at')+datetime.timedelta(days=120)).values_list('id', flat=True))
+        alive_after_5_month_ids = set(AccountPrototype._db_filter(created_at__gte=DATE_FROM,
+                                                                  created_at__lte=DATE_TO,
+                                                                  active_end_at__gte=models.F('created_at')+datetime.timedelta(days=150)).values_list('id', flat=True))
+        alive_after_6_month_ids = set(AccountPrototype._db_filter(created_at__gte=DATE_FROM,
+                                                                  created_at__lte=DATE_TO,
+                                                                  active_end_at__gte=models.F('created_at')+datetime.timedelta(days=180)).values_list('id', flat=True))
 
-        alive_after_month = len(alive_after_month_ids & new_accounts_ids)
+        alive_after_1_month = len(alive_after_1_month_ids & new_accounts_ids)
+        alive_after_2_month = len(alive_after_2_month_ids & new_accounts_ids)
+        alive_after_3_month = len(alive_after_3_month_ids & new_accounts_ids)
+        alive_after_4_month = len(alive_after_4_month_ids & new_accounts_ids)
+        alive_after_5_month = len(alive_after_5_month_ids & new_accounts_ids)
+        alive_after_6_month = len(alive_after_6_month_ids & new_accounts_ids)
+
 
         print '--------------------------------------'
         print 'from %s to %s' % (DATE_FROM.date(), DATE_TO.date())
-        print 'new users: %d' % new_users
-        print 'registration tries %d (%.3f)' % (fast_registrations, float(fast_registrations)/new_users)
-        print 'registration completed %d (%.3f)' % (registrations, float(registrations)/new_users)
-        print 'payers %d (%.3f)' % (payers, float(payers)/new_users)
-        print 'alive after week %d (%.3f)' % (alive_after_week, float(alive_after_week)/new_users)
-        print 'alive after month %d (%.3f)' % (alive_after_month, float(alive_after_month)/new_users)
+        print 'visitors: %d' % new_users
+        print 'registration tries %d (%.3f from visitors)' % (fast_registrations, float(fast_registrations)/new_users)
+        print 'registration completed %d (%.3f from visitors)' % (registrations, float(registrations)/new_users)
+        print 'payers %d (%.3f from registrations)' % (payers, float(payers)/registrations)
+        print 'alive after week %d (%.3f from registrations)' % (alive_after_week, float(alive_after_week)/registrations)
+        print 'alive after 1_month %d (%.3f from registrations)' % (alive_after_1_month, float(alive_after_1_month)/registrations)
+        print 'alive after 2 month %d (%.3f from registrations)' % (alive_after_2_month, float(alive_after_2_month)/registrations)
+        print 'alive after 3 month %d (%.3f from registrations)' % (alive_after_3_month, float(alive_after_3_month)/registrations)
+        print 'alive after 4 month %d (%.4f from registrations)' % (alive_after_4_month, float(alive_after_4_month)/registrations)
+        print 'alive after 5 month %d (%.5f from registrations)' % (alive_after_5_month, float(alive_after_5_month)/registrations)
+        print 'alive after 6 month %d (%.6f from registrations)' % (alive_after_6_month, float(alive_after_6_month)/registrations)
 
 
     def handle(self, *args, **options):

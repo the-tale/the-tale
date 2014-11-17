@@ -22,6 +22,8 @@ jQuery(document).ready( function(e) {
 
 <h2>Новое слово</h2>
 
+{% include "linguistics/words/detailed_description.html" %}
+
 <form id="pgf-new-word-form"
       method="post"
       {% if parent is none %}

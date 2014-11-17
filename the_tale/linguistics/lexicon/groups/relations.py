@@ -113,7 +113,7 @@ class LEXICON_GROUP(DjangoEnum):
 
                ('QUEST_INTERFERE_ENEMY', 25, u'Задание: навредить противнику', 250000,
                u'Тексты, относящиеся к заданию.',
-               {V.HERO: u'герой', V.ANTAGONIST_POSITION: u'место окончания задания', V.COINS: u'количество монет', V.ARTIFACT: u'артефакт', V.RECEIVER: u'житель, заканчивающий задание', V.RECEIVER_POSITION: u'место окончания задания'}),
+               {V.HERO: u'герой', V.ANTAGONIST_POSITION: u'место деятельности противника', V.COINS: u'количество монет', V.ARTIFACT: u'артефакт', V.RECEIVER: u'противник', V.RECEIVER_POSITION: u'место жительства противника'}),
 
                ('QUEST_PILGRIMAGE', 26, u'Задание: паломничество в святой город', 260000,
                u'Тексты, относящиеся к заданию.',
@@ -128,4 +128,3 @@ class LEXICON_GROUP(DjangoEnum):
                {V.INITIATOR: u'житель, начинающий задание', V.HERO: u'герой', V.COINS: u'количество монет', V.ARTIFACT: u'артефакт', V.INITIATOR_POSITION: u'место начала задания', V.RECEIVER: u'житель, заканчивающий задание', V.RECEIVER_POSITION: u'место окончания задания'}),
 
                )
-        

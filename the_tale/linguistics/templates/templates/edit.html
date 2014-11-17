@@ -24,9 +24,10 @@ jQuery(document).ready( function(e) {
 
 {{ templates_macros.key_info(template.key)}}
 
-<p>
-  Свойства слов приведены в описании <a href="{{url('linguistics:templates:specification')}}">формата шаблонов</a>.
-</p>
+<ul>
+  <li>Свойства слов приведены в описании <a href="{{url('linguistics:templates:specification')}}">формата шаблонов</a>.</li>
+  <li>Обязательно ознакомьтесь с <a href="{{url('linguistics:how-add-phrase')}}">требованиями к фразам</a>.</li>
+</ul>
 
 <form id="pgf-edit-template-form"
       method="post"
