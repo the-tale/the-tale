@@ -106,7 +106,6 @@ class BagTests(TestCase):
         self.assertEqual(self.bag._ui_info, None)
 
 
-
 class EquipmentTests(TestCase):
 
     def setUp(self):
@@ -121,7 +120,7 @@ class EquipmentTests(TestCase):
 
         self.hero = self.storage.accounts_to_heroes[account_id]
 
-        self.equipment = bag.Equipment()
+        self.equipment = bag.Equipment(hero=self.hero)
 
 
     def test_create(self):
@@ -171,3 +170,11 @@ class EquipmentTests(TestCase):
         self.equipment.values()
 
         self.assertTrue(self.equipment.updated)
+
+
+    def test_quests_cache_reseted(self):
+        self.hero.quests.updated = False
+
+        self.equipment.mark_updated()
+
+        self.assertTrue(self.hero.quests.updated)

@@ -114,18 +114,20 @@ class Bag(object):
 
 class Equipment(object):
 
-    __slots__ = ('equipment', 'updated', '_ui_info')
+    __slots__ = ('equipment', 'updated', '_ui_info', 'hero')
 
-    def __init__(self):
+    def __init__(self, hero=None):
         self.equipment = {}
         self.updated = True
         self._ui_info = None
+        self.hero = hero
 
     # must be called on every attribute access, not only on updating of equipment
     # since artifacts can be changed from outsice this container
     def mark_updated(self):
         self.updated = True
         self._ui_info = None
+        self.hero.quests.mark_updated()
 
     def get_power(self):
         power = Power(0, 0)
@@ -147,6 +149,7 @@ class Equipment(object):
     def deserialize(cls, hero, data):
         obj = cls()
         obj.equipment = dict( (int(slot), ArtifactPrototype.deserialize(artifact_data)) for slot, artifact_data in data.items() if  artifact_data)
+        obj.hero = hero
         return obj
 
     def unequip(self, slot):
