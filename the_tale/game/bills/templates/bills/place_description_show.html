@@ -1,8 +1,8 @@
 
 
-<li><strong>Текущее название города</strong>: {{bill.data.place.name}}</li>
+<li><strong>город:</strong> <a href="{{url('game:map:places:show', bill.data.place.id)}}">{{bill.data.place.name}}</a></li>
 {% if bill.data.place_name_changed %}
-<li><strong>Название города во время создания закона</strong>: {{bill.data.old_name}}</li>
+<li><strong>название города во время создания закона:</strong> {{bill.data.old_name}}</li>
 {% endif %}
-<li><strong>Описание города во время создания закона</strong>: {{ bill.data.old_description_html|safe }}</li>
-<li><strong>Новое описание города</strong>: {{ bill.data.description_html|safe }}</li>
+<li><strong>описание города во время создания закона:</strong> {{ bill.data.old_description_html|safe }}</li>
+<li><strong>новое описание города:</strong> {{ bill.data.description_html|safe }}</li>

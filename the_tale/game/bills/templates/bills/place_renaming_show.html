@@ -1,4 +1,4 @@
 
-<li><strong>Текущее название</strong>: {{bill.data.place.name}}</li>
-<li><strong>Старое название</strong>: {{bill.data.old_name}}</li>
-<li><strong>Новое название</strong>: {{ bill.data.base_name }}</li>
+<li><strong>город:</strong> <a href="{{url('game:map:places:show', bill.data.place.id)}}">{{bill.data.place.name}}</a></li>
+<li><strong>старое название:</strong> {{bill.data.old_name}}</li>
+<li><strong>новое название:</strong> {{ bill.data.base_name }}</li>

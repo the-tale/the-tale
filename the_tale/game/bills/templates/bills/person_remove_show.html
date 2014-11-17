@@ -1,6 +1,6 @@
 
-<li><strong>Исключаемый советник</strong>: {{bill.data.person_name}} {{ bill.data.person_gender_verbose }} {{ bill.data.person_race_verbose }} {{ bill.data.person_type.text }}</li>
-<li><strong>Из города</strong>: {{bill.data.place.name}}</li>
+<li><strong>исключаемый советник:</strong> {{bill.data.person_name}} {{ bill.data.person_gender_verbose }} {{ bill.data.person_race_verbose }} {{ bill.data.person_type.text }}</li>
+<li><strong>из города:</strong> {{bill.data.place.name}}</li>
 {% if bill.data.place_name_changed %}
-<li><strong>Название города во время создания закона</strong>: {{bill.data.old_place_name}}</li>
+<li><strong>название города во время создания закона:</strong> {{bill.data.old_place_name}}</li>
 {% endif %}

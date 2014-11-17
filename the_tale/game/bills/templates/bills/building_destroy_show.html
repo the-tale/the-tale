@@ -1,7 +1,7 @@
 
-<li><strong>Название</strong>: {{bill.data.base_name}}</li>
-<li><strong>Владелец строения</strong>: {{bill.data.person_name}} {{ bill.data.person_gender_verbose }} {{ bill.data.person_race_verbose }} {{ bill.data.person_type.text }}</li>
-<li><strong>Из города</strong>: {{bill.data.place.name}}</li>
+<li><strong>название:</strong> {{bill.data.base_name}}</li>
+<li><strong>владелец строения</strong>: {{bill.data.person_name}} {{ bill.data.person_gender_verbose }} {{ bill.data.person_race_verbose }} {{ bill.data.person_type.text }}</li>
+<li><strong>город:</strong> <a href="{{url('game:map:places:show', bill.data.place.id)}}">{{bill.data.place.name}}</a></li>
 {% if bill.data.place_name_changed %}
-<li><strong>Название города во время создания закона</strong>: {{bill.data.old_place_name}}</li>
+<li><strong>название города во время создания закона:</strong> {{bill.data.old_place_name}}</li>
 {% endif %}
