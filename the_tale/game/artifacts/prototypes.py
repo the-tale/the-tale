@@ -312,8 +312,6 @@ class ArtifactRecordPrototype(BasePrototype, names.ManageNameMixin):
         from the_tale.game.logic import DEFAULT_HERO_EQUIPMENT
 
         if self.uuid in DEFAULT_HERO_EQUIPMENT._ALL: # pylint: disable=E0203
-            if self.uuid != form.c.uuid:  # pylint: disable=E0203
-                raise exceptions.ChangeDefaultEquipmentUIDError(old_uid=self.uuid, new_uid=form.c.uuid)
             if not form.c.approved:
                 raise exceptions.DisableDefaultEquipmentError(artifact=self.uuid)
 
@@ -328,7 +326,6 @@ class ArtifactRecordPrototype(BasePrototype, names.ManageNameMixin):
         self.editor = editor._model if editor else None
         self.mob = form.c.mob
 
-        self.uuid = form.c.uuid
         self.state = relations.ARTIFACT_RECORD_STATE.ENABLED if form.c.approved else relations.ARTIFACT_RECORD_STATE.DISABLED
 
         self.save()

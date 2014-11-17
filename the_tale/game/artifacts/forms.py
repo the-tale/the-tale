@@ -10,7 +10,6 @@ from the_tale.linguistics.forms import WordField
 
 from the_tale.game.mobs.storage import mobs_storage
 
-from the_tale.game.artifacts.models import ArtifactRecord
 from the_tale.game.artifacts import relations
 
 
@@ -62,14 +61,11 @@ class ArtifactRecordForm(ArtifactRecordBaseForm):
 
 
 class ModerateArtifactRecordForm(ArtifactRecordBaseForm):
-    uuid = fields.CharField(label=u'уникальный идентификатор', max_length=ArtifactRecord.MAX_NAME_LENGTH)
-
     approved = fields.BooleanField(label=u'одобрен', required=False)
 
     @classmethod
     def get_initials(cls, mob):
         initials = super(ModerateArtifactRecordForm, cls).get_initials(mob)
-        initials.update({'uuid': mob.uuid,
-                         'approved': mob.state.is_ENABLED})
+        initials.update({'approved': mob.state.is_ENABLED})
 
         return initials

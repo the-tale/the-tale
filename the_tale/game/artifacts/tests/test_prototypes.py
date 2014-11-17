@@ -246,32 +246,14 @@ class PrototypeTests(testcase.TestCase):
     def test_change_uuid(self):
         loot = ArtifactRecordPrototype.create_random('some_loot', type_=relations.ARTIFACT_TYPE.USELESS, state=relations.ARTIFACT_RECORD_STATE.DISABLED)
 
-        data = self.get_form_data(loot)
-        data['uuid'] = 'new_uid'
-
-        form = ModerateArtifactRecordForm(data)
+        form = ModerateArtifactRecordForm(self.get_form_data(loot))
 
         self.assertTrue(form.is_valid())
         self.assertEqual(loot.uuid, artifacts_storage.get_by_uuid(loot.uuid).uuid)
 
         loot.update_by_moderator(form)
 
-        self.assertEqual(loot.uuid, 'new_uid')
         self.assertEqual(loot.uuid, artifacts_storage.get_by_uuid(loot.uuid).uuid)
-
-
-    def test_change_uuid_of_default_equipment(self):
-        artifact_uid = random.choice(DEFAULT_HERO_EQUIPMENT._ALL)
-
-        data = self.get_form_data(artifacts_storage.get_by_uuid(artifact_uid))
-        data['uuid'] = 'new_uid'
-
-        form = ModerateArtifactRecordForm(data)
-        self.assertTrue(form.is_valid())
-
-        default_artifact = artifacts_storage.get_by_uuid(random.choice(DEFAULT_HERO_EQUIPMENT._ALL))
-
-        self.assertRaises(exceptions.ChangeDefaultEquipmentUIDError, default_artifact.update_by_moderator, form)
 
 
     def test_disable_default_equipment(self):

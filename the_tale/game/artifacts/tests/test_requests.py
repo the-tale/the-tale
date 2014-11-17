@@ -453,7 +453,6 @@ class TestModerateRequests(BaseTestRequests, PostMixin):
 
         self.check_ajax_ok(response, data={'next_url': reverse('guide:artifacts:show', args=[artifact_record.id])})
 
-        self.assertEqual(artifact_record.uuid, 'new_uuid')
         self.assertEqual(artifact_record.name, 'new name_0')
         self.assertEqual(artifact_record.utg_name, self.name)
         self.assertEqual(artifact_record.level, 2)
