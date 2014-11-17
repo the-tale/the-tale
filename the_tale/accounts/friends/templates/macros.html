@@ -39,6 +39,8 @@ jQuery(document).ready(function(){
                              });
     });
 
+    newMessageButton.toggleClass('disabled', jQuery('.pgf-{{uid}}-checkbox:checked').length == 0);
+
 });
 </script>
 
