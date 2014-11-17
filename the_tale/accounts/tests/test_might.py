@@ -194,6 +194,23 @@ class CalculateMightTests(testcase.TestCase):
         self.assertEqual(new_might, calculate_might(self.account))
 
 
+    def test_folclor_might__only_text(self):
+        self.assertEqual(calculate_might(self.account), 0)
+
+        BlogPostPrototype.create(author=self.account, caption='caption', text='text')
+
+        Post.objects.all().delete()
+        Thread.objects.all().delete()
+        Vote.objects.all().delete()
+
+        might = calculate_might(self.account)
+
+        BlogPostPrototype.create(author=self.account, caption='caption', text='[b]text[/b]')
+
+        self.assertEqual(calculate_might(self.account), might * 2)
+
+
+
     def test_folclor_might__from_characters(self):
 
         with self.check_delta(lambda: calculate_might(self.account), relations.MIGHT_AMOUNT.FOR_MIN_FOLCLOR_POST.amount*3):

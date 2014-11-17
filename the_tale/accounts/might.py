@@ -3,13 +3,15 @@ import time
 import collections
 
 from django.db import models
+from django.utils.html import strip_tags
 
 from the_tale.accounts.models import Award
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts import relations
 
 from the_tale.forum.models import Post, Thread, POST_STATE
-from the_tale.blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
+from the_tale.blogs.relations import POST_STATE as BLOG_POST_STATE
+from the_tale.blogs.prototypes import PostPrototype as BlogPostProtype
 from the_tale.blogs.conf import blogs_settings
 
 from the_tale.game.bills.models import Bill, Vote
@@ -53,7 +55,8 @@ def calculate_might(account): # pylint: disable=R0914
     might += calculate_linguistics_migth(account.id, contribution_type=CONTRIBUTION_TYPE.WORD, might_per_entity=relations.MIGHT_AMOUNT.FOR_ADDED_WORD.amount)
     might += calculate_linguistics_migth(account.id, contribution_type=CONTRIBUTION_TYPE.TEMPLATE, might_per_entity=relations.MIGHT_AMOUNT.FOR_ADDED_TEMPLATE.amount)
 
-    folclor_texts = BlogPost.objects.filter(author_id=account.id, state=BLOG_POST_STATE.ACCEPTED).values_list('text', flat=True)
+    folclor_posts = BlogPostProtype.from_query(BlogPostProtype._db_filter(author_id=account.id, state=BLOG_POST_STATE.ACCEPTED))
+    folclor_texts = (strip_tags(post.text_html) for post in folclor_posts)
     characters_count = sum(len(text) for text in folclor_texts)
 
     might += float(characters_count) / blogs_settings.MIN_TEXT_LENGTH * relations.MIGHT_AMOUNT.FOR_MIN_FOLCLOR_POST.amount
