@@ -76,7 +76,7 @@
 {% endif %}
 
 
-{% for verificator in template.verificators %}
+{% for verificator in template.get_all_verificatos() %}
 <h4>{{verificator.get_label()}}</h4>
 <p style="margin: 1em; margin-top: 0.25em;">
   <span
@@ -85,7 +85,10 @@
      rel="tooltip"
      title="в копии: {{related_template.verificators[loop.index-1].text}}"
      {% endif %}>
-    {{verificator.text}}
+    {% if verificator.text %}{{verificator.text}}
+    {% else %}
+    <p class="alert alert-danger">Не указан проверочный текст.</p>
+    {% endif %}
   </span>
 </p>
 {% endfor %}
