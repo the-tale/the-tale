@@ -76,9 +76,10 @@ def _render_text__real(lexicon_key, externals, quiet=False):
     if lexicon_key is None:
         return None
 
-    template = game_lexicon.item.get_random_template(lexicon_key)
-
     try:
+        # dictionary & lexicon can be changed unexpectedly in any time
+        # and some rendered data can be obsolete
+        template = game_lexicon.item.get_random_template(lexicon_key)
         return template.substitute(externals, game_dictionary.item)
     except utg_exceptions.UtgError as e:
         if not quiet:
