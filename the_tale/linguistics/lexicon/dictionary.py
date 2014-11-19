@@ -9,17 +9,16 @@ from the_tale.linguistics.lexicon import exceptions
 
 
 def noun(forms, properties, countable=None):
+
+    if (len(forms) == 12):
+        forms = forms + forms[6:]
+
     properties = Properties(*[VERBOSE_TO_PROPERTIES[prop.strip()] for prop in properties.split(',')])
 
     if len(forms) != Word.get_forms_number(type=WORD_TYPE.NOUN):
         raise exceptions.WrongFormNumberError()
 
-    patches = {}
-
-    if countable:
-        patches[WORD_TYPE.NOUN_COUNTABLE_FORM] = Word(type=WORD_TYPE.NOUN_COUNTABLE_FORM, forms=countable, properties=properties)
-
-    return WordForm(Word(type=WORD_TYPE.NOUN, forms=forms, properties=properties, patches=patches))
+    return WordForm(Word(type=WORD_TYPE.NOUN, forms=forms, properties=properties))
 
 
 def text(form):
@@ -123,8 +122,8 @@ forms = [ noun([u'герой', u'героя', u'герою', u'героя', u'г
           noun([u'колония', u'колонии', u'колонии', u'колонию', u'колонией', u'колонии',
                 u'колонии', u'колоний', u'колониям', u'колонии', u'колониями', u'колониях'], u'но,жр'),
           noun([u'человек', u'человека', u'человеку', u'человека', u'человеком', u'человеке',
-                u'люди', u'людей', u'людям', u'людей', u'людьми', u'людях'], u'од,мр',
-                countable=[u'человек', u'человек', u'человекам', u'человек', u'человеками', u'человеках']),
+                u'люди', u'людей', u'людям', u'людей', u'людьми', u'людях',
+                u'человек', u'человек', u'человекам', u'человек', u'человеками', u'человеках'], u'од,мр'),
           noun([u'эльф', u'эльфа', u'эльфу', u'эльфа', u'эльфом', u'эльфе',
                 u'эльфы', u'эльфов', u'эльфам', u'эльфов', u'эльфами', u'эльфах'], u'од,мр'),
           noun([u'орк', u'орка', u'орку', u'орка', u'орком', u'орке',

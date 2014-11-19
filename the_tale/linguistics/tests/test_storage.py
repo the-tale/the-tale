@@ -1,5 +1,4 @@
 # coding: utf-8
-import mock
 import random
 
 from utg import relations as utg_relations
@@ -44,7 +43,11 @@ class DictionaryStoragesTests(TestCase):
 
 
     def check_word_in_dictionary(self, dictionary, word, result):
-        self.assertEqual(any(word.forms == w.word.forms for w in dictionary.get_words(word.normal_form(), type=word.type)), result)
+        if not dictionary.has_word(word.normal_form()):
+            self.assertFalse(result)
+            return
+
+        self.assertEqual(word.forms == dictionary.get_word(word.normal_form()).word.forms, result)
 
 
     def test_game_dictionary(self):

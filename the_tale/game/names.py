@@ -32,21 +32,23 @@ class NamesGenerators(object):
 
     def get_name(self, race, gender):
         name_forms = self._get_name(race, gender).get_forms_for(gender=gender.pynames_id, language=pynames.LANGUAGE.RU)
-        return utg_words.Word(type=utg_relations.WORD_TYPE.NOUN,
-                             forms=name_forms,
-                             properties=utg_words.Properties(utg_relations.ANIMALITY.ANIMATE,
-                                                             gender.utg_id))
+
+        name_forms += [u'']*6
+
+        name = utg_words.Word(type=utg_relations.WORD_TYPE.NOUN,
+                              forms=name_forms,
+                              properties=utg_words.Properties(utg_relations.ANIMALITY.ANIMATE, gender.utg_id))
+        name.autofill_missed_forms()
+
+        return name
 
     def get_fast_name(self, name, gender=relations.GENDER.MASCULINE):
         from utg import words as utg_words
         from utg import relations as utg_relations
 
-        forms = [name]*12
-
-        name = utg_words.Word(type=utg_relations.WORD_TYPE.NOUN,
-                              forms=forms,
-                              properties=utg_words.Properties(utg_relations.ANIMALITY.ANIMATE,
-                                                              gender.utg_id))
+        name = utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN,
+                                               properties=utg_words.Properties(utg_relations.ANIMALITY.ANIMATE, gender.utg_id))
+        name.forms = [name] * len(name.forms)
 
         return name
 
@@ -54,12 +56,9 @@ class NamesGenerators(object):
         from utg import words as utg_words
         from utg import relations as utg_relations
 
-        forms = [u'%s_%d' % (name, i) for i in xrange(12)]
-
-        name = utg_words.Word(type=utg_relations.WORD_TYPE.NOUN,
-                              forms=forms,
-                              properties=utg_words.Properties(utg_relations.ANIMALITY.ANIMATE,
-                                                              gender.utg_id))
+        name = utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN,
+                                               prefix=u'%s-' % name,
+                                               properties=utg_words.Properties(utg_relations.ANIMALITY.ANIMATE, gender.utg_id))
 
         return name
 

@@ -50,7 +50,7 @@ def _prepair_get_text__real(key, args, quiet=False):
 
     if not game_lexicon.item.has_key(lexicon_key):
         if not quiet:
-            logger.error('unknown template type: %s', lexicon_key)
+            logger.warn('unknown template type: %s', lexicon_key)
         return None, {}
 
     externals = {k: VARIABLE(k).constructor(v) for k, v in args.iteritems()}

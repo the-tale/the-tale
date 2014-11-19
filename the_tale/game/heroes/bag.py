@@ -132,7 +132,7 @@ class Equipment(object):
     def get_power(self):
         power = Power(0, 0)
         for slot in EQUIPMENT_SLOT.records:
-            artifact = self.get(slot)
+            artifact = self._get(slot)
             if artifact:
                 power += artifact.power
         return power
@@ -172,8 +172,14 @@ class Equipment(object):
 
         self.equipment[slot.value] = artifact
 
+    # this method is for external use
+    # we can not guaranty that artifact will not be changed
+    # so, mark all equipment as updated
     def get(self, slot):
         self.mark_updated()
+        return self._get(slot)
+
+    def _get(self, slot):
         return self.equipment.get(slot.value, None)
 
     def values(self):
@@ -193,7 +199,7 @@ class Equipment(object):
 
     def test_equip_in_all_slots(self, artifact):
         for slot in EQUIPMENT_SLOT.records:
-            if self.get(slot) is not None:
+            if self._get(slot) is not None:
                 self.unequip(slot)
             self.equip(slot, artifact)
 

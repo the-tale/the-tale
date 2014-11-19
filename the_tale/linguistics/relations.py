@@ -20,8 +20,6 @@ class ALLOWED_WORD_TYPE(DjangoEnum):
                 word_type_record('PRONOUN'),
                 word_type_record('VERB'),
                 word_type_record('PARTICIPLE'),
-                word_type_record('SHORT_ADJECTIVE'),
-                word_type_record('SHORT_PARTICIPLE'),
                 word_type_record('PREPOSITION') )
 
 
@@ -45,7 +43,8 @@ class WORD_BLOCK_BASE(DjangoEnum):
                 ('NPG', 3, u'число-лицо-род', (utg_relations.NUMBER, utg_relations.PERSON, utg_relations.GENDER)),
                 ('SINGLE', 4, u'одна форма', ()),
                 ('NG', 5, u'число-род', (utg_relations.NUMBER, utg_relations.GENDER)),
-                ('C', 6, u'падеж', (utg_relations.CASE, )),  )
+                ('C', 6, u'падеж', (utg_relations.CASE, )),
+                ('N', 7, u'число', (utg_relations.NUMBER, ))  )
 
 
 

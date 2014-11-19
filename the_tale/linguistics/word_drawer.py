@@ -6,9 +6,10 @@ from dext.forms import forms
 from utg import words
 from utg import data as utg_data
 from utg import relations as utg_relations
+from utg import logic as utg_logic
 
 from the_tale.linguistics import relations
-from the_tale.linguistics.forms import WORD_FIELD_PREFIX, WORD_PATCH_FIELD_PREFIX
+from the_tale.linguistics.forms import WORD_FIELD_PREFIX
 
 
 def get_best_base(word_type):
@@ -65,8 +66,11 @@ class Leaf(object):
         key = {base_properties: base_properties.records[base_key[i]] if base_key[i] is not None else None
                for i, base_properties in enumerate(self.base.schema)}
         key.update(self.key)
-        key = tuple(key.get(relation) for relation in self.type.schema)
-        return key
+        key = [key.get(relation) for relation in self.type.schema]
+
+        utg_logic._populate_key_with_presets(key, self.type.schema)
+
+        return tuple(key)
 
     def choose_base(self, base):
         real_properties = tuple(property
@@ -77,9 +81,10 @@ class Leaf(object):
 
 class BaseDrawer(object):
 
-    def __init__(self, type, is_patch=False):
+    def __init__(self, type, show_properties=True, skip_markers=()):
         self.type = type
-        self.is_patch = is_patch
+        self.skip_markers = skip_markers
+        self.show_properties = show_properties
 
     def get_header(self, properties):
         return u', '.join([k.text for k in properties])
@@ -90,53 +95,20 @@ class BaseDrawer(object):
     def get_property(self, property):
         raise NotImplementedError()
 
-    def get_patch_drawer(self, patch):
-        raise NotImplementedError()
-
     @classmethod
     def get_structure(self, type):
         return STRUCTURES[type]
 
-    def has_patches(self):
-        raise NotImplementedError()
+    def skip_leaf(self, leaf):
+        header_properties = leaf.get_header_properties()
+        return any(marker in header_properties for marker in self.skip_markers)
 
-
-class FormDrawer(BaseDrawer):
-
-    def __init__(self, type, form, is_patch=False):
-        super(FormDrawer, self).__init__(type=type, is_patch=is_patch)
-        self.form = form
-
-    def get_form(self, key):
-        cache = utg_data.WORDS_CACHES[self.type]
-
-        if key not in cache:
-            return u''
-
-        if self.is_patch:
-            return self.form['%s_%d_%d' % (WORD_PATCH_FIELD_PREFIX, self.type.value, cache[key])].widget
-        else:
-            return self.form['%s_%d' % (WORD_FIELD_PREFIX, cache[key])].widget
-
-    def get_property(self, property):
-        if self.is_patch:
-            return u''
-        else:
-            return self.form['%s_%s' % (WORD_FIELD_PREFIX, property.__name__)].widget
-
-    def get_patch_drawer(self, patch):
-        return self.__class__(type=patch,
-                              is_patch=True,
-                              form=self.form)
-
-    def has_patches(self):
-        return bool(self.type.patches)
 
 
 class ShowDrawer(BaseDrawer):
 
-    def __init__(self, word, other_version, is_patch=False):
-        super(ShowDrawer, self).__init__(type=word.type, is_patch=is_patch)
+    def __init__(self, word, other_version, skip_markers=(), **kwargs):
+        super(ShowDrawer, self).__init__(type=word.type, skip_markers=skip_markers, **kwargs)
         self.word = word
         self.other_version = other_version
 
@@ -157,9 +129,6 @@ class ShowDrawer(BaseDrawer):
         return jinja2.Markup(html)
 
     def get_property_html(self, header, text, alternative=None):
-        if self.is_patch:
-            return u''
-
         if alternative is None or text == alternative:
             html = u'<div><h4>%(header)s</h4><p>%(text)s</p></div>'
             html = html % {'header': header, 'text': text}
@@ -170,8 +139,6 @@ class ShowDrawer(BaseDrawer):
         return jinja2.Markup(html)
 
     def get_property(self, property):
-        if self.is_patch:
-            return u''
 
         if property in self.type.properties:
             if self.word.properties.is_specified(property):
@@ -193,19 +160,11 @@ class ShowDrawer(BaseDrawer):
 
         return u''
 
-    def get_patch_drawer(self, patch):
-        return self.__class__(is_patch=True,
-                              word=self.word.patches[patch],
-                              other_version=self.other_version.patches[patch] if self.other_version and patch in self.other_version.patches else None)
-
-    def has_patches(self):
-        return bool(self.word.patches)
-
 
 class FormFieldDrawer(BaseDrawer):
 
-    def __init__(self, type, widgets, is_patch=False):
-        super(FormFieldDrawer, self).__init__(type=type, is_patch=is_patch)
+    def __init__(self, type, widgets, skip_markers=(), **kwargs):
+        super(FormFieldDrawer, self).__init__(type=type, skip_markers=skip_markers, **kwargs)
         self.widgets = widgets
 
     def widget_html(self, name):
@@ -218,26 +177,12 @@ class FormFieldDrawer(BaseDrawer):
         if key not in cache:
             return u''
 
-        if self.is_patch:
-            return jinja2.Markup(forms.HTML_WIDGET_WRAPPER % {'content': self.widget_html('%s_%d_%d' % (WORD_PATCH_FIELD_PREFIX, self.type.value, cache[key]))})
-        else:
-            return jinja2.Markup(forms.HTML_WIDGET_WRAPPER % {'content': self.widget_html('%s_%d' % (WORD_FIELD_PREFIX, cache[key]))})
+        return jinja2.Markup(forms.HTML_WIDGET_WRAPPER % {'content': self.widget_html('%s_%d' % (WORD_FIELD_PREFIX, cache[key]))})
 
     def get_property(self, property):
-        if self.is_patch:
-            return u''
-        else:
-            content = self.widget_html('%s_%s' % (WORD_FIELD_PREFIX, property.__name__))
-            content = u'<label>%s:</label> %s'% (utg_relations.PROPERTY_TYPE.index_relation[property].text, content)
-            return jinja2.Markup(forms.HTML_WIDGET_WRAPPER % {'content': content})
-
-    def get_patch_drawer(self, patch):
-        return self.__class__(type=patch,
-                              is_patch=True,
-                              widgets=self.widgets)
-
-    def has_patches(self):
-        return bool(self.type.patches)
+        content = self.widget_html('%s_%s' % (WORD_FIELD_PREFIX, property.__name__))
+        content = u'<label>%s:</label> %s'% (utg_relations.PROPERTY_TYPE.index_relation[property].text, content)
+        return jinja2.Markup(forms.HTML_WIDGET_WRAPPER % {'content': content})
 
 
 

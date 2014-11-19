@@ -75,12 +75,15 @@
 
 {% endif %}
 
+{% if related_template %}
+{% set related_verificators = related_template.get_all_verificatos() %}
+{% endif %}
 
 {% for verificator in template.get_all_verificatos() %}
 <h4>{{verificator.get_label()}}</h4>
 <p style="margin: 1em; margin-top: 0.25em;">
   <span
-     {% if related_template and verificator.text != related_template.verificators[loop.index-1].text %}
+     {% if related_template and verificator.text != related_verificators[loop.index-1].text %}
      class="changed-template"
      rel="tooltip"
      title="в копии: {{related_template.verificators[loop.index-1].text}}"

@@ -104,12 +104,15 @@ class MakeChoiceTaskTest(testcase.TestCase, QuestTestsMixin):
 
     @mock.patch('questgen.quests.quests_base.QuestsBase._available_quests', lambda *argv, **kwargs: [QuestWith2ChoicePoints])
     def test_success(self):
+        self.hero.quests.updated = False
+
         self.assertTrue(all(not action.replane_required for action in self.hero.actions.actions_list))
         task = self.create_task(option_uid=self.option_1_1_uid)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertTrue(task.state.is_PROCESSED)
         self.assertTrue(all(action.replane_required for action in self.hero.actions.actions_list))
 
+        self.assertTrue(self.hero.quests.updated)
 
     @mock.patch('questgen.quests.quests_base.QuestsBase._available_quests', lambda *argv, **kwargs: [QuestWith2ChoicePoints])
     def test_choose_second_choice_before_first_completed(self):

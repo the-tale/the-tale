@@ -1,9 +1,9 @@
 
-{% macro render_word(drawer, show_properties=true, show_patches=true) %}
+{% macro render_word(drawer) %}
 
   {% set structure = drawer.get_structure(drawer.type) %}
 
-  {% if show_properties %}
+  {% if drawer.show_properties %}
     {% for property in drawer.type.properties|sort %}
       {{drawer.get_property(property)}}
     {% endfor %}
@@ -11,31 +11,13 @@
 
   {% for leaf in structure %}
 
+    {% if drawer.skip_leaf(leaf) %}{% continue %}{% endif %}
+
     <h3>{{ drawer.get_header(leaf.get_header_properties())|up_first }}</h3>
 
     {{ get_context()[leaf.base.name](leaf, drawer) }}
 
   {% endfor %}
-
-  {% if show_patches and drawer.has_patches() %}
-    <div class="accordion" id="pgf-patches-accordion">
-      {% for patch in drawer.type.patches %}
-        <div class="accordion-group">
-          <div class="accordion-heading">
-            <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-patches-accordion" href="#pgf-patch-{{patch.value}}">
-              {{patch.text}}
-            </a>
-          </div>
-          <div id="pgf-patch-{{patch.value}}" class="accordion-body collapse" style="height: 0px;">
-            <div class="accordion-inner">
-              {{render_word(drawer.get_patch_drawer(patch))}}
-            </div>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-
-  {% endif %}
 
 {% endmacro %}
 
@@ -119,6 +101,25 @@
         <td>{{drawer.get_form(leaf.get_form_key((0, 1)))}}</td>
         <td>{{drawer.get_form(leaf.get_form_key((0, 2)))}}</td>
         <td>{{drawer.get_form(leaf.get_form_key((1, none)))}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+{% endmacro %}
+
+{% macro N(leaf, drawer) %}
+
+  <table class="table table-condensed noun-forms-table">
+    <thead>
+      <tr>
+        <th>ед. число</th>
+        <th>мн. число</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{drawer.get_form(leaf.get_form_key((0,)))}}</td>
+        <td>{{drawer.get_form(leaf.get_form_key((1,)))}}</td>
       </tr>
     </tbody>
   </table>

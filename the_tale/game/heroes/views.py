@@ -16,8 +16,6 @@ from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.clans.prototypes import ClanPrototype
 from the_tale.accounts.payments import price_list
 
-from the_tale.linguistics import word_drawer
-
 from the_tale.game.balance import constants as c
 
 from the_tale.game.mobs.storage import mobs_storage
@@ -103,7 +101,6 @@ class HeroResource(Resource):
                               'edit_name_form': edit_name_form,
                               'master_account': master_account,
                               'master_clan': master_clan,
-                              'name_drawer': word_drawer.FormDrawer(self.hero.utg_name.type, form=edit_name_form),
                               'EQUIPMENT_SLOT': relations.EQUIPMENT_SLOT,
                               'PREFERENCE_TYPE': relations.PREFERENCE_TYPE,
                               'PREFERENCES_CHANGE_DELAY': datetime.timedelta(seconds=c.PREFERENCES_CHANGE_DELAY),
@@ -129,13 +126,10 @@ class HeroResource(Resource):
         if not edit_name_form.is_valid():
             return self.json_error('heroes.change_name.form_errors', edit_name_form.errors)
 
-        name = edit_name_form.get_name()
-        gender = edit_name_form.c.gender
-
         change_task = postponed_tasks.ChangeHeroTask(hero_id=self.hero.id,
-                                                     name=name,
+                                                     name=edit_name_form.c.name,
                                                      race=edit_name_form.c.race,
-                                                     gender=gender)
+                                                     gender=edit_name_form.c.gender)
 
         task = PostponedTaskPrototype.create(change_task)
 

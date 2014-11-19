@@ -94,9 +94,9 @@ class LogicTests(TestCase):
 
         dictionary = storage.game_dictionary.item
 
-        word_1 = utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN, prefix=u'w-1-', only_required=True)
-        word_1.forms[2] = u'дубль'
-        self.assertEqual(word_1.form(utg_relations.CASE.DATIVE), u'дубль')
+        word_1 = utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN, prefix=u'w-3-', only_required=True)
+        word_1.forms[3] = u'дубль'
+        self.assertEqual(word_1.form(utg_relations.CASE.ACCUSATIVE), u'дубль')
 
         dictionary.add_word(word_1)
 
@@ -121,19 +121,19 @@ class LogicTests(TestCase):
                                                                args={'hero': mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word(u'герой')), 'level': 1})
 
         self.assertEqual(logic._render_text__real(lexicon_key, externals),
-                         u'Герой 1 дубль')
+                         u'Герой 1 w-3-нс,ед,дт')
 
 
         word_2 = utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN, prefix=u'w-2-', only_required=True)
-        word_2.forms[2] = u'дубль'
-        self.assertEqual(word_2.form(utg_relations.CASE.DATIVE), u'дубль')
+        word_2.forms[1] = u'дубль'
+        self.assertEqual(word_2.form(utg_relations.CASE.GENITIVE), u'дубль')
         dictionary.add_word(word_2)
 
         lexicon_key, externals = logic._prepair_get_text__real(key.name,
                                                                args={'hero': mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word(u'герой')), 'level': 1})
 
-        self.assertEqual(logic._render_text__real(lexicon_key, externals, quiet=True),
-                         u'')
+        self.assertEqual(logic._render_text__real(lexicon_key, externals),
+                         u'Герой 1 w-2-нс,ед,дт')
 
 
     def test_update_words_usage_info(self):
@@ -143,8 +143,8 @@ class LogicTests(TestCase):
 
         key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
 
-        text_1 = u'[w-1-ед,им|hero]'
-        text_2 = u'[w-1-ед,им|hero] [w-2-ед,им|hero]'
+        text_1 = u'[w-1-нс,ед,им|hero]'
+        text_2 = u'[w-1-нс,ед,им|hero] [w-2-нс,ед,им|hero]'
 
         utg_template = utg_templates.Template()
         utg_template.parse(text_1, externals=['hero', 'level'])
@@ -191,8 +191,8 @@ class LogicTests(TestCase):
         word_1.utg_word.forms[1] = word_1.utg_word.forms[0]
         word_1.save()
 
-        text_1 = u'[w-1-ед,им|hero]'
-        text_2 = u'[w-1-ед,им|hero] [w-2-ед,им|hero]'
+        text_1 = u'[w-1-нс,ед,им|hero]'
+        text_2 = u'[w-1-нс,ед,им|hero] [w-2-нс,ед,им|hero]'
 
         utg_template = utg_templates.Template()
         utg_template.parse(text_1, externals=['hero', 'level'])

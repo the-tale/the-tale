@@ -1,4 +1,7 @@
 # coding: utf-8
+
+import numbers
+
 import mock
 
 from the_tale.common.utils.testcase import TestCase
@@ -53,7 +56,10 @@ class LexiconLogicTests(TestCase):
     def test_all_verificators_substitutions_is_in_lexicon_dictionary(self):
 
         for verificator in relations.VARIABLE_VERIFICATOR.records:
-            word_type = verificator.utg_type
             for words in verificator.substitutions:
                 for word in words:
-                    self.assertTrue(dictionary.DICTIONARY.is_word_registered(word_type, word[0]))
+                    if isinstance(word[0], numbers.Number):
+                        continue
+
+                    self.assertTrue(dictionary.DICTIONARY.has_word(word[0]))
+                    self.assertEqual(verificator.utg_type, dictionary.DICTIONARY.get_word(word[0]).word.type)

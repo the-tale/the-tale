@@ -74,5 +74,7 @@ class MakeChoiceTask(PostponedLogic):
             main_task.comment = u'can not make choice with option "%s"' % self.option_uid
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
+        hero.quests.mark_updated()
+
         self.state = MAKE_CHOICE_TASK_STATE.PROCESSED
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS

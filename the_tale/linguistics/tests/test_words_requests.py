@@ -48,10 +48,11 @@ class IndexRequestsTests(BaseRequestsTests):
         self.check_html_ok(self.request_html(url('linguistics:words:', type=666)), texts=['linguistics.words.type.not_found'], status_code=404)
 
     def create_words(self):
-        type_1, type_2, type_3 = random.sample(utg_relations.WORD_TYPE.records, 3)
-        word_1 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(type_1, prefix=u'w1-'))
-        word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(type_2, prefix=u'w2-'))
-        word_3 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(type_3, prefix=u'w3-'))
+        type_1, type_2, type_3 = random.sample(relations.ALLOWED_WORD_TYPE.records, 3)
+
+        word_1 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(type_1.utg_type, prefix=u'w1-'))
+        word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(type_2.utg_type, prefix=u'w2-'))
+        word_3 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(type_3.utg_type, prefix=u'w3-'))
 
         word_2.state = relations.WORD_STATE.IN_GAME
         word_2.save()

@@ -20,17 +20,12 @@ from the_tale.linguistics import models
 
 
 WORD_FIELD_PREFIX = 'word_field'
-WORD_PATCH_FIELD_PREFIX = 'word_patch_field'
 
 
 def get_fields(word_type):
     form_fields = {}
 
     form_fields.update(get_word_fields_dict(word_type))
-
-    for patch in word_type.patches:
-        for i, key in enumerate(utg_data.INVERTED_WORDS_CACHES[patch]):
-            form_fields['%s_%d_%d' % (WORD_PATCH_FIELD_PREFIX, patch.value, i)] = fields.CharField(label='', max_length=models.Word.MAX_FORM_LENGTH, required=False)
 
     for static_property, required in word_type.properties.iteritems():
         property_type = utg_relations.PROPERTY_TYPE.index_relation[static_property]
@@ -41,6 +36,7 @@ def get_fields(word_type):
                                         choices=choices,
                                         coerce=static_property.get_from_name,
                                         required=False)
+
         form_fields['%s_%s' % (WORD_FIELD_PREFIX, static_property.__name__)] = field
 
     return form_fields
@@ -50,11 +46,6 @@ def get_fields(word_type):
 def decompress_word(word_type, value):
     if value:
         initials = get_word_fields_initials(value)
-
-        for patch in value.type.patches:
-            for i, key in enumerate(utg_data.INVERTED_WORDS_CACHES[patch]):
-                initials['%s_%d_%d' % (WORD_PATCH_FIELD_PREFIX, patch.value, i)] = value.patches[patch].forms[i] if patch in value.patches else u''
-
 
         for static_property, required in value.type.properties.iteritems():
 
@@ -77,7 +68,7 @@ def decompress_word(word_type, value):
 
 class WordWidget(django_forms.MultiWidget):
 
-    def __init__(self, word_type, **kwargs):
+    def __init__(self, word_type, skip_markers=(), show_properties=True, **kwargs):
         fields = get_fields(word_type)
         keys = sorted(fields.keys())
 
@@ -85,6 +76,8 @@ class WordWidget(django_forms.MultiWidget):
                                          **kwargs)
 
         self.word_type = word_type
+        self.skip_markers = skip_markers
+        self.show_properties = show_properties
 
     def decompress(self, value):
         return decompress_word(self.word_type, value)
@@ -98,7 +91,7 @@ class WordWidget(django_forms.MultiWidget):
 
         widgets = {key: rendered_widgets[keys[key]] for key in keys}
 
-        drawer = FormFieldDrawer(type=self.word_type, widgets=widgets)
+        drawer = FormFieldDrawer(type=self.word_type, widgets=widgets, skip_markers=self.skip_markers, show_properties=self.show_properties)
 
         return jinja2.Markup(render.template('linguistics/words/field.html', context={'drawer': drawer}))
 
@@ -107,7 +100,7 @@ class WordWidget(django_forms.MultiWidget):
 class WordField(django_forms.MultiValueField):
     LABEL_SUFFIX = u''
 
-    def __init__(self, word_type, **kwargs):
+    def __init__(self, word_type, show_properties=True, skip_markers=(), **kwargs):
         fields = get_fields(word_type)
         keys = sorted(fields.keys())
 
@@ -121,7 +114,7 @@ class WordField(django_forms.MultiValueField):
             kwargs['label'] = label
 
         super(WordField, self).__init__(fields=[fields[key] for key in keys],
-                                                     widget=WordWidget(word_type=word_type),
+                                                     widget=WordWidget(word_type=word_type, skip_markers=skip_markers, show_properties=show_properties),
                                                      **kwargs)
         for key, required in zip(keys, requireds):
             fields[key].required = required
@@ -194,23 +187,10 @@ class WordField(django_forms.MultiValueField):
         return out
 
     def compress(self, data_list):
-
         fields = get_fields(self.word_type)
         keys = {key: i for i, key in enumerate(sorted(fields.keys()))}
 
         word_forms = [data_list[keys['%s_%d' % (WORD_FIELD_PREFIX, i)]] for i in xrange(len(utg_data.INVERTED_WORDS_CACHES[self.word_type]))]
-
-        patches = {}
-
-        for patch in self.word_type.patches:
-            patch_forms = [data_list[keys['%s_%d_%d' % (WORD_PATCH_FIELD_PREFIX, patch.value, i)]] for i in xrange(len(utg_data.INVERTED_WORDS_CACHES[patch]))]
-
-            if not all(form for form in patch_forms):
-                continue
-
-            patches[patch] = utg_words.Word(type=patch,
-                                            forms=patch_forms,
-                                            properties=utg_words.Properties())
 
         properties = utg_words.Properties()
 
@@ -222,10 +202,13 @@ class WordField(django_forms.MultiValueField):
 
             properties = utg_words.Properties(properties, value)
 
-        return utg_words.Word(type=self.word_type,
+        word = utg_words.Word(type=self.word_type,
                               forms=word_forms,
-                              properties=properties,
-                              patches=patches)
+                              properties=properties)
+
+        word.autofill_missed_forms()
+
+        return word
 
 
 
@@ -233,7 +216,7 @@ def get_word_fields_dict(word_type):
     form_fields = {}
 
     for i, key in enumerate(utg_data.INVERTED_WORDS_CACHES[word_type]):
-        form_fields['%s_%d' % (WORD_FIELD_PREFIX, i)] = fields.CharField(label='', max_length=models.Word.MAX_FORM_LENGTH)
+        form_fields['%s_%d' % (WORD_FIELD_PREFIX, i)] = fields.CharField(label='', max_length=models.Word.MAX_FORM_LENGTH, required=False)
 
     return form_fields
 

@@ -190,22 +190,7 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.place1.sync_parameters()
         self.assertTrue(self.place1.stability < 1.0)
 
-
-        NAME_FORMS = [u'new_name_1_0',
-                  u'new_name_1_1',
-                  u'new_name_1_2',
-                  u'new_name_1_3',
-                  u'new_name_1_4',
-                  u'new_name_1_5',
-                  u'new_name_1_6',
-                  u'new_name_1_7',
-                  u'new_name_1_8',
-                  u'new_name_1_9',
-                  u'new_name_1_10',
-                  u'new_name_1_11']
-
-
-        self.check_place(self.place1.id, 'new_name_1_0', NAME_FORMS)
+        self.check_place(self.place1.id, u'new_name_1-нс,ед,им', self.bill.data.name_forms.forms)
 
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
@@ -240,20 +225,7 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         places_storage.sync(force=True)
 
-        NAME_FORMS = [u'place-name_0',
-                  u'place-name_1',
-                  u'place-name_2',
-                  u'place-name_3',
-                  u'place-name_4',
-                  u'place-name_5',
-                  u'place-name_6',
-                  u'place-name_7',
-                  u'place-name_8',
-                  u'place-name_9',
-                  u'place-name_10',
-                  u'place-name_11']
-
-        self.check_place(self.place1.id, 'place-name_0', NAME_FORMS)
+        self.check_place(self.place1.id, u'place-name-нс,ед,им', self.bill.data.name_forms.forms)
 
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)

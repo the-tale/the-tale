@@ -694,10 +694,10 @@ class ReplaceRequestsTests(BaseRequestsTests):
     def test_replace__parent_with_no_errors_by_child_with_errors(self):
         self.request_login(self.moderator.email)
 
-        verificators = [ prototypes.Verificator(text=u'Героиня 1 w-1-ед,вн', externals={'hero': (u'героиня', u''), 'level': (1, u'')}),
-                         prototypes.Verificator(text=u'Рыцари 1 w-1-мн,вн', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')}),
-                         prototypes.Verificator(text=u'Герой 1 w-1-ед,вн', externals={'hero': (u'герой', u''), 'level': (2, u'')}),
-                         prototypes.Verificator(text=u'Привидение 1 w-1-ед,вн', externals={'hero': (u'привидение', u''), 'level': (5, u'')}) ]
+        verificators = [ prototypes.Verificator(text=u'Героиня 1 w-1-нс,ед,вн', externals={'hero': (u'героиня', u''), 'level': (1, u'')}),
+                         prototypes.Verificator(text=u'Рыцари 1 w-1-нс,мн,вн', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')}),
+                         prototypes.Verificator(text=u'Герой 1 w-1-нс,ед,вн', externals={'hero': (u'герой', u''), 'level': (2, u'')}),
+                         prototypes.Verificator(text=u'Привидение 1 w-1-нс,ед,вн', externals={'hero': (u'привидение', u''), 'level': (5, u'')}) ]
 
         dictionary = storage.game_dictionary.item
 

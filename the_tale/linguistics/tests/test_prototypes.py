@@ -243,10 +243,10 @@ class TemplatePrototypeTests(testcase.TestCase):
 
         template.parse(TEXT, externals=['hero'])
 
-        verificator_1 = prototypes.Verificator(text=u'Героиня 1 w-1-ед,вн,жр,од,пол', externals={'hero': (u'героиня', u''), 'level': (1, u'')})
-        verificator_2 = prototypes.Verificator(text=u'Рыцари 5 w-1-мн,вн,од,пол', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')})
-        verificator_3 = prototypes.Verificator(text=u'Герой 2 w-1-ед,вн,мр,од,пол', externals={'hero': (u'герой', u''), 'level': (2, u'')})
-        verificator_4 = prototypes.Verificator(text=u'Привидение 5 w-1-ед,вн,ср,од,пол', externals={'hero': (u'привидение', u''), 'level': (5, u'')})
+        verificator_1 = prototypes.Verificator(text=u'Героиня 1 w-1-полнприл,ед,вн,жр,од,пол', externals={'hero': (u'героиня', u''), 'level': (1, u'')})
+        verificator_2 = prototypes.Verificator(text=u'Рыцари 5 w-1-полнприл,мн,вн,од,пол', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')})
+        verificator_3 = prototypes.Verificator(text=u'Герой 2 w-1-полнприл,ед,вн,мр,од,пол', externals={'hero': (u'герой', u''), 'level': (2, u'')})
+        verificator_4 = prototypes.Verificator(text=u'Привидение 5 w-1-полнприл,ед,вн,ср,од,пол', externals={'hero': (u'привидение', u''), 'level': (5, u'')})
 
         dictionary = storage.game_dictionary.item
 
@@ -292,7 +292,7 @@ class TemplatePrototypeTests(testcase.TestCase):
 
         self.assertEqual(errors, [u'Неизвестное слово: «неизвестное слово»'])
 
-    def test_get_errors__duplicate_word_errors(self):
+    def test_get_errors__duplicate_word(self):
         key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
 
         dictionary = storage.game_dictionary.item
@@ -315,10 +315,10 @@ class TemplatePrototypeTests(testcase.TestCase):
         template.parse(TEXT, externals=['hero'])
 
         # verificators with error that would not be returned becouse of words_errors
-        verificator_1 = prototypes.Verificator(text=u'абракадабра', externals={'hero': (u'героиня', u''), 'level': (1, u'')})
-        verificator_2 = prototypes.Verificator(text=u'Рыцарь 5 w-1-ед,вн', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')})
-        verificator_3 = prototypes.Verificator(text=u'Герой 2 w-1-ед,вн', externals={'hero': (u'герой', u''), 'level': (2, u'')})
-        verificator_4 = prototypes.Verificator(text=u'', externals={'hero': (u'привидение', u''), 'level': (5, u'')})
+        verificator_1 = prototypes.Verificator(text=u'Героиня 1 дубль', externals={'hero': (u'героиня', u''), 'level': (1, u'')})
+        verificator_2 = prototypes.Verificator(text=u'Рыцари 5 w-1-нс,мн,дт', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')})
+        verificator_3 = prototypes.Verificator(text=u'Герой 2 дубль', externals={'hero': (u'герой', u''), 'level': (2, u'')})
+        verificator_4 = prototypes.Verificator(text=u'Привидение 5 дубль', externals={'hero': (u'привидение', u''), 'level': (5, u'')})
 
         prototype = prototypes.TemplatePrototype.create(key=key,
                                                         raw_template=TEXT,
@@ -328,7 +328,7 @@ class TemplatePrototypeTests(testcase.TestCase):
 
         errors = prototype.get_errors()
 
-        self.assertEqual(errors, [u'Невозможно однозначно определить слово с формой «дубль» — существует несколько слов с такими формами. Укажите более точные свойства.'])
+        self.assertEqual(errors, [])
 
 
     def test_get_errors__verificators_errors(self):
@@ -341,7 +341,7 @@ class TemplatePrototypeTests(testcase.TestCase):
         template.parse(TEXT, externals=['hero'])
 
         verificator_1 = prototypes.Verificator(text=u'абракадабра', externals={'hero': (u'героиня', u''), 'level': (1, u'')})
-        verificator_2 = prototypes.Verificator(text=u'Рыцари 5 w-1-мн,вн,од,пол', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')})
+        verificator_2 = prototypes.Verificator(text=u'Рыцари 5 w-1-полнприл,мн,вн,од,пол', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')})
         verificator_3 = prototypes.Verificator(text=u'Герой 2 w-1-ед,вн', externals={'hero': (u'герой', u''), 'level': (2, u'')})
         verificator_4 = prototypes.Verificator(text=u'', externals={'hero': (u'привидение', u''), 'level': (5, u'')})
 
@@ -360,9 +360,9 @@ class TemplatePrototypeTests(testcase.TestCase):
 
         errors = prototype.get_errors()
 
-        self.assertEqual(errors, [u'Проверочный текст не совпадает с интерпретацией шаблона [Героиня 1 w-1-ед,вн,жр,од,пол]',
-                                  u'Проверочный текст не совпадает с интерпретацией шаблона [Герой 2 w-1-ед,вн,мр,од,пол]',
-                                  u'Проверочный текст не совпадает с интерпретацией шаблона [Привидение 5 w-1-ед,вн,ср,од,пол]'])
+        self.assertEqual(errors, [u'Проверочный текст не совпадает с интерпретацией шаблона [Героиня 1 w-1-полнприл,ед,вн,жр,од,пол]',
+                                  u'Проверочный текст не совпадает с интерпретацией шаблона [Герой 2 w-1-полнприл,ед,вн,мр,од,пол]',
+                                  u'Проверочный текст не совпадает с интерпретацией шаблона [Привидение 5 w-1-полнприл,ед,вн,ср,од,пол]'])
 
 
     def test_update_errors_status__without_force_update(self):

@@ -194,7 +194,7 @@ class TestCreateRequests(BaseTestRequests, PostMixin):
 
         self.check_ajax_ok(response, data={'next_url': reverse('guide:artifacts:show', args=[artifact_record.id])})
 
-        self.assertEqual(artifact_record.name, 'artifact_0')
+        self.assertEqual(artifact_record.name, u'artifact-нс,ед,им')
         self.assertEqual(artifact_record.level, 1)
         self.assertTrue(artifact_record.type.is_RING)
         self.assertEqual(artifact_record.description, 'artifact description')
@@ -453,7 +453,7 @@ class TestModerateRequests(BaseTestRequests, PostMixin):
 
         self.check_ajax_ok(response, data={'next_url': reverse('guide:artifacts:show', args=[artifact_record.id])})
 
-        self.assertEqual(artifact_record.name, 'new name_0')
+        self.assertEqual(artifact_record.name, u'new name-нс,ед,им')
         self.assertEqual(artifact_record.utg_name, self.name)
         self.assertEqual(artifact_record.level, 2)
         self.assertEqual(artifact_record.description, 'new artifact description')

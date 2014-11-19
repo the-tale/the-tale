@@ -4,7 +4,9 @@ import collections
 from django.db import IntegrityError
 from django.db import transaction
 
+from utg import words as utg_words
 from utg import relations as utg_relations
+from utg import data as utg_data
 
 from the_tale.common.utils.testcase import TestCase
 
@@ -61,7 +63,7 @@ class GeneralTests(TestCase):
                 continue
             for substitutions in verificator.substitutions:
                 for word, properties in substitutions:
-                    self.assertTrue(isinstance(word, (int, long)) or lexicon_dictinonary.DICTIONARY.has_words(word, verificator.utg_type))
+                    self.assertTrue(isinstance(word, (int, long)) or lexicon_dictinonary.DICTIONARY.has_word(word))
 
 
     def test_all_lexicon_keys_have_suffient_number_of_verificator_substitutions(self):
@@ -70,3 +72,19 @@ class GeneralTests(TestCase):
             verificators = collections.Counter(v.verificator for v in key.variables)
             for verificator, number in verificators.iteritems():
                 self.assertTrue(len(verificator.substitutions) >= number)
+
+
+    def test_correct_autofill_of_noun_countable_form(self):
+        word = utg_words.Word.create_test_word(utg_relations.WORD_TYPE.NOUN)
+
+        for key, index in utg_data.WORDS_CACHES[word.type].iteritems():
+            if utg_relations.NOUN_FORM.COUNTABLE in key:
+                word.forms[index] = u''
+
+        word.autofill_missed_forms()
+
+        for key, index in utg_data.WORDS_CACHES[word.type].iteritems():
+            if utg_relations.NOUN_FORM.COUNTABLE in key:
+                modified_key = list(property if property != utg_relations.NOUN_FORM.COUNTABLE else utg_relations.NOUN_FORM.NORMAL for property in key)
+                self.assertEqual(word.form(utg_words.Properties(*key)),
+                                 word.form(utg_words.Properties(*modified_key)))

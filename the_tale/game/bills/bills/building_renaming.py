@@ -19,7 +19,7 @@ from the_tale.game.bills.bills.base_person_bill import BasePersonBill
 class UserForm(BaseUserForm):
 
     person = fields.ChoiceField(label=u'Житель')
-    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название')
+    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название', skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,))
 
     def __init__(self, choosen_person_id, *args, **kwargs): # pylint: disable=W0613
         super(UserForm, self).__init__(*args, **kwargs)

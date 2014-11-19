@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from utg import relations as utg_relations
+
 from the_tale.common.utils.testcase import TestCase
 from the_tale.common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
@@ -27,6 +29,7 @@ class ChangeHeroTest(TestCase):
         self.storage.load_account_data(self.account)
 
         self.hero = self.storage.accounts_to_heroes[account_id]
+        self.hero.utg_name.properties = self.hero.utg_name.properties.clone(self.hero.gender.utg_id)
 
         self.noun = names.generator.get_test_name(name='test_name', gender=GENDER.NEUTER)
 
@@ -59,7 +62,8 @@ class ChangeHeroTest(TestCase):
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertEqual(task.state, CHANGE_HERO_TASK_STATE.PROCESSED)
-        self.assertEqual(self.hero.utg_name, self.noun)
+        self.assertEqual(self.hero.utg_name.forms, self.noun.forms)
+        self.assertEqual(self.hero.utg_name.properties.get(utg_relations.GENDER), self.gender.utg_id)
         self.assertEqual(self.hero.name, self.noun.normal_form())
         self.assertEqual(self.hero.race, self.race)
         self.assertEqual(self.hero.gender, self.gender)

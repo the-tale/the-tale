@@ -17,7 +17,6 @@ def convert_textgen_noun_json_to_utg(textgen_data, aninality):
 
     utg_data = {'forms': textgen_data['forms'],
                 'type': 0,
-                'properties': properties,
-                'patches': {}}
+                'properties': properties}
 
     return utg_data

@@ -15,6 +15,8 @@ from the_tale.common.utils.permissions import sync_group
 from the_tale.accounts.logic import register_user, login_page_url
 from the_tale.accounts.prototypes import AccountPrototype
 
+from the_tale.linguistics.tests import helpers as linguistics_helpers
+
 from the_tale.game.relations import GENDER, RACE
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
@@ -162,10 +164,9 @@ class ChangeHeroRequestsTests(HeroRequestsTestBase):
         self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)), texts=[('pgf-settings-approved-warning', 0)])
 
     def get_post_data(self, name='new_name', gender=GENDER.MASCULINE, race=RACE.DWARF):
-        data = {'word_field_%d' % i: u'%s_%d' % (name, i)
-                for i in xrange(12)}
-        data.update({'gender': gender,
-                    'race': race})
+        data = {'gender': gender,
+                'race': race}
+        data.update(linguistics_helpers.get_word_post_data(names.generator.get_test_name(name='new_name'), prefix='name'))
         return data
 
     def test_chane_hero_ownership(self):

@@ -33,7 +33,7 @@ class WordsIndexFilter(list_filter.ListFilter):
     ELEMENTS = [list_filter.reset_element(),
                 list_filter.static_element(u'автор:', attribute='contributor'),
                 list_filter.filter_element(u'поиск:', attribute='filter', default_value=None),
-                list_filter.choice_element(u'часть речи:', attribute='type', choices=[(None, u'все')] + list(utg_relations.WORD_TYPE.select('value', 'text')) ),
+                list_filter.choice_element(u'часть речи:', attribute='type', choices=[(None, u'все')] + list(relations.ALLOWED_WORD_TYPE.select('value', 'text')) ),
                 list_filter.choice_element(u'состояние:', attribute='state', choices=[(None, u'все')] + list(relations.WORD_STATE.select('value', 'text'))),
                 list_filter.choice_element(u'сортировать:', attribute='order_by', choices=relations.INDEX_ORDER_BY.select('value', 'text'),
                                            default_value=relations.INDEX_ORDER_BY.UPDATED_AT.value),

@@ -528,7 +528,7 @@ class TestCreateRequests(BaseTestRequests):
         self.assertEqual(bill.caption, 'bill-caption')
         self.assertEqual(bill.rationale, 'bill-rationale')
         self.assertEqual(bill.data.place.id, self.place1.id)
-        self.assertEqual(bill.data.base_name, 'new-name_0')
+        self.assertEqual(bill.data.base_name, u'new-name-нс,ед,им')
         self.assertEqual(bill.votes_for, 1)
         self.assertEqual(bill.votes_against, 0)
         self.assertTrue(bill.duration.is_UNLIMITED)
