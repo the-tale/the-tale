@@ -113,6 +113,6 @@
 
 {% macro registration_required_message(text) %}
 <p class="alert alert-info pgf-unlogined-message">
-  Вам необходимо <a href="{{login_url(resource.request.get_full_path())}}">войти</a> или <a href="{{ url('accounts:registration:fast') }}" class="pgf-fast-registration attention-link">создать героя</a>, чтобы {{text}}.
+  Вам необходимо <a href="{{login_url(resource.request.get_full_path())}}" style="font-weight: bold;">войти</a> или <a href="{{ url('accounts:registration:fast') }}" class="pgf-fast-registration attention-link" style="font-weight: bold;">создать героя</a>, чтобы {{text}}.
 </p>
 {% endmacro %}

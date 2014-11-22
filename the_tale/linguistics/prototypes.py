@@ -144,6 +144,8 @@ class TemplatePrototype(BasePrototype):
 
     def get_errors(self):
         from the_tale.linguistics import storage
+        from the_tale.linguistics import logic
+
 
         utg_dictionary = storage.game_dictionary.item
 
@@ -170,7 +172,7 @@ class TemplatePrototype(BasePrototype):
                               e.arguments['text'])
                 return errors
 
-            if verificator.text != template_render:
+            if logic.efication(verificator.text) != logic.efication(template_render):
                 errors.append(u'Проверочный текст не совпадает с интерпретацией шаблона [%s]' % template_render)
 
         return errors
@@ -296,6 +298,26 @@ class Verificator(object):
 
         return externals
 
+
+    @classmethod
+    def _fill_externals(cls, externals, start_substitutions, work_substitutions, used_substitutions):
+        for variable_value, substitutions in work_substitutions.iteritems():
+
+            if variable_value in externals:
+                continue
+
+            substitution = random.choice(list(substitutions))
+
+            used_substitutions[variable_value].add(substitution)
+
+            externals[variable_value] = substitution
+
+            substitutions.remove(substitution)
+
+            if not substitutions:
+                substitutions |= start_substitutions[variable_value]
+
+
     @classmethod
     def get_verificators(cls, key, groups, old_verificators=()):
         from the_tale.linguistics.lexicon.relations import VARIABLE_VERIFICATOR
@@ -315,6 +337,7 @@ class Verificator(object):
 
         verificators = []
 
+        # filter old verificators which is correct now
         for old_verificator in old_verificators:
             correct_verificator = True
 
@@ -336,20 +359,15 @@ class Verificator(object):
                 if not work_substitution:
                     work_substitution |= start_substitutions[variable_value]
 
+        # fill verificator groups with new substitutions, if they are added to groups after template was created
+        for old_verificator in old_verificators:
+            cls._fill_externals(old_verificator.externals, start_substitutions, work_substitutions, used_substitutions)
+
+        # add lost verificators
         while used_substitutions != start_substitutions:
             externals = {}
 
-            for variable_value, substitutions in work_substitutions.iteritems():
-                substitution = random.choice(list(substitutions))
-
-                used_substitutions[variable_value].add(substitution)
-
-                externals[variable_value] = substitution
-
-                substitutions.remove(substitution)
-
-                if not substitutions:
-                    substitutions |= start_substitutions[variable_value]
+            cls._fill_externals(externals, start_substitutions, work_substitutions, used_substitutions)
 
             verificators.append(cls(text=u'', externals=externals))
 

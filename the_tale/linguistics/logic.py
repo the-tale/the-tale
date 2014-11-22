@@ -140,3 +140,7 @@ def update_templates_errors():
     if status_changed:
         # update lexicon version to unload new templates with errors
         storage.game_lexicon.update_version()
+
+
+def efication(text):
+    return text.replace(u'ё', u'е').replace(u'Ё', u'Е')

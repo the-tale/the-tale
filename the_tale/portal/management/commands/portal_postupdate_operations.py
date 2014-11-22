@@ -10,6 +10,7 @@ from dext.common.utils.logic import run_django_command
 from the_tale.forum.conf import forum_settings
 
 from the_tale.linguistics.conf import linguistics_settings
+from the_tale.linguistics import logic as linguistics_logic
 
 
 class Command(BaseCommand):
@@ -38,6 +39,12 @@ class Command(BaseCommand):
         print
 
         run_django_command(['map_update_map'])
+
+        print
+        print 'UPDATE LINGUISTICS'
+
+        linguistics_logic.update_templates_errors()
+        linguistics_logic.update_words_usage_info()
 
         print
         print 'SYNC GROUPS AND PERMISSIONS'
