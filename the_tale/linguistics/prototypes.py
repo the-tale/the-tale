@@ -172,8 +172,9 @@ class TemplatePrototype(BasePrototype):
                               e.arguments['text'])
                 return errors
 
+            import jinja2
             if logic.efication(verificator.text) != logic.efication(template_render):
-                errors.append(u'Проверочный текст не совпадает с интерпретацией шаблона [%s]' % template_render)
+                errors.append(u'Проверочный текст не совпадает с интерпретацией шаблона<br/>%s<br/>%s' % (jinja2.escape(template_render), jinja2.escape(verificator.text)) )
 
         return errors
 

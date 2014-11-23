@@ -15,7 +15,7 @@ KEYS = [(u'QUEST_DELIVERY_ACTION_DELIVERY_RETURNED', 400000, u'Активнос�
         u'Краткое суммарное описание действий героя в момент получения задания.',
         [V.INITIATOR, V.HERO, V.ANTAGONIST_POSITION, V.COINS, V.INITIATOR_POSITION, V.RECEIVER, V.RECEIVER_POSITION, V.ANTAGONIST]),
 
-        (u'QUEST_DELIVERY_ACTION_START_DELIVERY', 400003, u'Активность: путешествие к получателе.', LEXICON_GROUP.QUEST_DELIVERY,
+        (u'QUEST_DELIVERY_ACTION_START_DELIVERY', 400003, u'Активность: путешествие к получателю.', LEXICON_GROUP.QUEST_DELIVERY,
         u'Краткое суммарное описание действий героя при путешествии к получателю.',
         [V.INITIATOR, V.HERO, V.ANTAGONIST_POSITION, V.COINS, V.INITIATOR_POSITION, V.RECEIVER, V.RECEIVER_POSITION, V.ANTAGONIST]),
 

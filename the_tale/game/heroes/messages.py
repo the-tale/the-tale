@@ -70,7 +70,7 @@ class MessageSurrogate(object):
                               timestamp=self.timestamp,
                               key=self.key,
                               externals=self.externals,
-                              message=self._message)
+                              message=self.message) # access .message instead ._message to enshure, that two messages will have one text
 
 
 def _message_key(m): return (m.turn_number, m.timestamp)

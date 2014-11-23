@@ -6,6 +6,17 @@
 {% block title %}Шаблон «{{template.key.text}}» |{{ super() }}{% endblock %}
 {% block description %}Шаблон «{{template.key.text}}».{% endblock %}
 
+{% block head %}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+    {% if resource.account.is_authenticated() %}
+    {{  accounts_macros.personal_message_js() }}
+    {% endif %}
+});
+</script>
+{% endblock %}
+
+
 {% block templates_content %}
 
 {% if template.state.is_IN_GAME %}
@@ -30,10 +41,17 @@
     авторы:
 
     {% if contributors %}
+    <ul>
       {% for author in contributors %}
-        {% if loop.index > 1 %},{% endif %}
+      <li>
         {{ accounts_macros.account_link(account=author, clan=clans.get(author.clan_id)) }}
+        {% if resource.account.is_authenticated() and resource.account.id != author.id%}
+        —
+        <a class="pgf-new-message" data-recipient="{{author.id}}" href="#">личное сообщение</a><br/>
+        {% endif %}
+      </li>
       {% endfor %}
+    </ul>
     {% else %}
       нет
     {% endif %}
@@ -70,7 +88,7 @@
 <h4>Ошибки</h4>
 
 {% for error in errors %}
-<p class="alert alert-danger pgf-verificator-error-message">{{error}}</p>
+<p class="alert alert-danger pgf-verificator-error-message">{{error|safe}}</p>
 {% endfor %}
 
 {% endif %}

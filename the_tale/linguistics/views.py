@@ -43,6 +43,7 @@ class WordsIndexFilter(list_filter.ListFilter):
 class TemplatesIndexFilter(list_filter.ListFilter):
     ELEMENTS = [list_filter.reset_element(),
                 list_filter.static_element(u'автор:', attribute='contributor'),
+                list_filter.filter_element(u'поиск:', attribute='filter', default_value=None),
                 list_filter.choice_element(u'состояние:', attribute='state', choices=[(None, u'все')] + list(relations.TEMPLATE_STATE.select('value', 'text'))),
                 list_filter.choice_element(u'наличие ошибок:', attribute='errors_status', choices=[(None, u'все')] + list(relations.TEMPLATE_ERRORS_STATUS.select('value', 'text'))),
                 list_filter.choice_element(u'сортировать:', attribute='order_by', choices=relations.INDEX_ORDER_BY.select('value', 'text'),
@@ -52,13 +53,15 @@ class TemplatesIndexFilter(list_filter.ListFilter):
 
 def get_contributors(entity_id, author_id):
     contributors_ids = list(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
-                                                                        entity_id=entity_id).values_list('account_id', flat=True))
+                                                                        entity_id=entity_id).order_by('created_at').values_list('account_id', flat=True))
 
     if author_id is not None and author_id not in contributors_ids:
         contributors_ids.append(author_id)
 
     contributors = AccountPrototype.from_query(AccountPrototype._db_filter(id__in=contributors_ids))
     clans = {clan.id: clan for clan in ClanPrototype.from_query(ClanPrototype._db_filter(id__in=[account.clan_id for account in contributors if account.clan_id is not None]))}
+
+    contributors.sort(key=lambda c: contributors_ids.index(c.id))
 
     return contributors, clans
 
@@ -347,7 +350,7 @@ class TemplateResource(Resource):
     @validate_argument('order_by', lambda v: relations.INDEX_ORDER_BY.index_value.get(int(v)), 'linguistics.templates', u'неверный тип сортировки')
     @validate_argument('errors_status', lambda v: relations.TEMPLATE_ERRORS_STATUS.index_value.get(int(v)), 'linguistics.words', u'неверный статус ошибок')
     @handler('', method='get')
-    def index(self, key=None, state=None, errors_status=None, page=1, contributor=None, order_by=relations.INDEX_ORDER_BY.UPDATED_AT):
+    def index(self, key=None, state=None, filter=None, errors_status=None, page=1, contributor=None, order_by=relations.INDEX_ORDER_BY.UPDATED_AT):
         templates_query = prototypes.TemplatePrototype._db_all().order_by('raw_template')
 
         if contributor is not None:
@@ -364,6 +367,10 @@ class TemplateResource(Resource):
         if errors_status:
             templates_query = templates_query.filter(errors_status=errors_status)
 
+        if filter:
+            templates_query = templates_query.filter(raw_template__icontains=filter)
+
+
         if order_by.is_UPDATED_AT:
             templates_query = templates_query.order_by('-updated_at')
         elif order_by.is_TEXT:
@@ -377,12 +384,14 @@ class TemplateResource(Resource):
                                                                                 'errors_status': errors_status.value if errors_status else None,
                                                                                 'contributor': contributor.id if contributor else None,
                                                                                 'order_by': order_by.value,
+                                                                                'filter': filter,
                                                                                 'key': key.value if key is not None else None})
 
         index_filter = TemplatesIndexFilter(url_builder=url_builder, values={'state': state.value if state else None,
                                                                              'errors_status': errors_status.value if errors_status else None,
                                                                              'contributor': contributor.nick if contributor else None,
                                                                              'order_by': order_by.value,
+                                                                             'filter': filter,
                                                                              'key': key.value if key is not None else None,
                                                                              'count': templates_query.count()})
 

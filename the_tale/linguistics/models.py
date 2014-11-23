@@ -43,7 +43,7 @@ class Template(models.Model):
     author = models.ForeignKey(project_settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     parent = models.ForeignKey('linguistics.Template', null=True, unique=True, on_delete=models.SET_NULL)
 
-    raw_template = models.TextField()
+    raw_template = models.TextField(db_index=True)
     data = models.TextField()
 
     state = RelationIntegerField(relation=relations.TEMPLATE_STATE, db_index=True)
@@ -57,7 +57,7 @@ class Template(models.Model):
 
 class Contribution(models.Model):
 
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
+    created_at = models.DateTimeField(auto_now_add=True, null=False, db_index=True)
     account = models.ForeignKey(project_settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     type = RelationIntegerField(relation=relations.CONTRIBUTION_TYPE, default=0, db_index=True)
