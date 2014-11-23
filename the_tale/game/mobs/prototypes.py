@@ -254,7 +254,6 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
         self.level = form.c.level
         self.terrains = form.c.terrains
         self.abilities = form.c.abilities
-        self.uuid = form.c.uuid
         self.state = MOB_RECORD_STATE.ENABLED if form.c.approved else MOB_RECORD_STATE.DISABLED
         self.type = form.c.type
         self.archetype = form.c.archetype

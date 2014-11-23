@@ -85,10 +85,7 @@ class MobRecordForm(MobRecordBaseForm):
 
 class ModerateMobRecordForm(MobRecordBaseForm):
 
-    uuid = fields.CharField(label=u'уникальный идентификатор', max_length=MobRecord.MAX_NAME_LENGTH)
-
     approved = fields.BooleanField(label=u'одобрен', required=False)
-
 
     @classmethod
     def get_initials(cls, mob):

@@ -455,7 +455,7 @@ class TestModerateRequests(BaseTestRequests, PostMixin):
 
         self.check_ajax_ok(response, data={'next_url': reverse('guide:mobs:show', args=[mob_record.id])})
 
-        self.assertEqual(mob_record.uuid, 'new_uuid')
+        self.assertEqual(mob_record.uuid, self.mob.uuid)
         self.assertEqual(mob_record.name, u'new name-нс,ед,им')
         self.assertEqual(mob_record.utg_name, self.name)
         self.assertEqual(mob_record.level, 667)

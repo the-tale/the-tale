@@ -86,29 +86,6 @@ class MobsPrototypeTests(testcase.TestCase):
         self.assertEqual(bandit.initiative, 0.975)
         self.assertEqual(bandit.damage_modifier, 1.05)
 
-    def test_change_uuid(self):
-        mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
-
-        data = linguistics_helpers.get_word_post_data(mob.utg_name, prefix='name')
-
-        data.update( { 'level': str(mob.level),
-                       'terrains': [str(t) for t in mob.terrains],
-                       'abilities': list(mob.abilities),
-                       'type': str(mob.type),
-                       'archetype': str(mob.archetype),
-                       'description': mob.description,
-                       'uuid': 'new_uid'} )
-
-        form = ModerateMobRecordForm(data)
-
-        self.assertTrue(form.is_valid())
-        self.assertEqual(mob.uuid, mobs_storage.get_by_uuid(mob.uuid).uuid)
-
-        mob.update_by_moderator(form)
-
-        self.assertEqual(mob.uuid, 'new_uid')
-        self.assertEqual(mob.uuid, mobs_storage.get_by_uuid(mob.uuid).uuid)
-
     def test_save__not_stored_mob(self):
         mob = MobRecordPrototype.get_by_id(mobs_storage.all()[0].id)
 
