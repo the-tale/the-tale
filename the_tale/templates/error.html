@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
 {% block title %}Ошибка | {{ super() }}{% endblock %}
-{% block description %}Сообщение об ошибке: «{{ msg }}».{% endblock %}
+{% block description %}Сообщение об ошибке: «{{ error_message }}».{% endblock %}
 
 {% block content %}
 
 <div class="row">
   <div class="span12">
     <div class="alert alert-error pgf-error-{{ error_code }} pgf-error-page-message">
-      {{ msg }}
+      {{ error_message }}
     </div>
   </div>
 </div>

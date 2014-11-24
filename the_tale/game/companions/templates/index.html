@@ -1,0 +1,42 @@
+{% extends "guide/base.html" %}
+{% import 'guide/macros.html' as guide_macros with context %}
+{% import 'utils/list_filter.html' as list_filter_macros with context %}
+
+{% block title %}Спутники | {{ super() }}{% endblock %}
+{% block description %}Описание всех спутников, которые могут присоединиться к герою в его путешествиях.{% endblock %}
+
+{% block guide_content %}
+
+{{ guide_macros.page_caption("Спутники", "Описание всех спутников, которые могут присоединиться к герою в его путешествиях.") }}
+
+<p>
+  По трактам Пандоры путешествуют не только герои. На них можно встретить множество обычных (и необычных) странников. Они преследуют разные цели, но всем ясно одно — рядом с героем безопаснее, или веселее, или полезнее. Поэтому со временем у каждого героя появляется свой спутник, будь то дворовый пёс, странствующий сказитель, наёмник, учёный или даже сама Костлявая.
+</p>
+
+{% if context.companions_can_edit %}
+<a class="btn btn-danger pgf-create-companion-button" href="{{url('game:companions:new')}}">создать спутника</a>
+{% endif %}
+
+{{ list_filter_macros.html_filter(index_filter) }}
+
+{% if companions %}
+
+<table class="table table-condensed">
+  <thead>
+    <tr>
+      <th>название</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for companion in companions %}
+    <tr>
+      <td><a href="{{url('guide:companions:show', companion.id)}}">{{companion.name}}</a></td>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% else %}
+<p class="pgf-no-companions-message alert alert-info">Не найдено спутников, отвечающих условиям поиска.</p>
+{% endif %}
+
+{% endblock %}

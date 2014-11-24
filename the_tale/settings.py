@@ -184,6 +184,7 @@ INSTALLED_APPS = (
     'the_tale.game.map.places',
     'the_tale.game.artifacts',
     'the_tale.game.mobs',
+    'the_tale.game.companions',
     'the_tale.game.persons',
     'the_tale.game.balance',
     'the_tale.game.bills',

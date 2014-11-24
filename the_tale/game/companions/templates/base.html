@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Спутники | {{ super() }}{% endblock %}
+
+{% block content %}
+
+<div class="row">
+  <div class="span12">
+    <div class="easy-block">
+
+      {% block companions_content %}
+      {% endblock %}
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}

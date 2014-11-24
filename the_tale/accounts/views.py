@@ -5,8 +5,11 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import logout as django_logout
 from django.utils.log import getLogger
 
-from dext.views import handler, validator, validate_argument
+from dext.common.utils import views as dext_views
+from dext.common.utils import exceptions as dext_exceptions
 from dext.common.utils.urls import UrlBuilder
+from dext.views import handler, validator, validate_argument
+
 
 from the_tale.amqp_environment import environment
 
@@ -35,6 +38,44 @@ from the_tale.accounts.achievements.prototypes import AccountAchievementsPrototy
 from the_tale.accounts.clans.prototypes import ClanPrototype
 
 from the_tale.accounts.third_party import decorators
+
+###############################
+# new view processors
+###############################
+
+class AccountProcessor(dext_views.BaseViewProcessor):
+    __slots__ = dext_views.BaseViewProcessor.__slots__
+
+    def preprocess(self, context):
+        context.account = AccountPrototype(model=context.django_request.user) if context.django_request.user.is_authenticated() else context.django_request.user
+
+        if context.account.is_authenticated() and context.account.is_update_active_state_needed:
+            environment.workers.accounts_manager.cmd_run_account_method(account_id=context.account.id,
+                                                                        method_name=AccountPrototype.update_active_state.__name__,
+                                                                        data={})
+
+
+account_processor = AccountProcessor()
+
+class LoginRequiredProcessor(dext_views.BaseViewProcessor):
+
+    def login_page_url(self, target_url):
+        return logic.login_page_url(target_url)
+
+    def preprocess(self, context):
+        if context.account.is_authenticated():
+            return
+
+        if context.django_request.is_ajax():
+            raise dext_exceptions.ViewError(code='common.login_required', message=u'У Вас нет прав для проведения данной операции')
+
+        return dext_views.Redirect(target_url=self.login_page_url(context.django_request.get_full_path()))
+
+
+###############################
+# end of new view processors
+###############################
+
 
 logger = getLogger('django.request')
 

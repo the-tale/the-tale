@@ -16,6 +16,7 @@ urlpatterns = patterns('',
                        (r'^pvp/', include('the_tale.game.pvp.urls', namespace='pvp') ),
                        (r'^mobs/', include('the_tale.game.mobs.urls', namespace='mobs') ),
                        (r'^artifacts/', include('the_tale.game.artifacts.urls', namespace='artifacts') ),
+                       (r'^companions/', include('the_tale.game.companions.urls', namespace='companions') ),
                        (r'^cards/', include('the_tale.game.cards.urls', namespace='cards') ),
                        (r'^chronicle/', include('the_tale.game.chronicle.urls', namespace='chronicle') ),
 )

@@ -1,0 +1,29 @@
+{% extends "guide/base.html" %}
+{% import 'guide/macros.html' as guide_macros with context %}
+
+{% block title %}{{companion.name|up_first}} | Спутники | {{ super() }}{% endblock %}
+{% block description %}Описание спутника {{companion.name|up_first}}{% endblock %}
+
+{% block guide_content %}
+
+<ul class="breadcrumb">
+  <li><a href="{{url('guide:companions:')}}">Спутники</a><span class="divider">/</span></li>
+  <li class="active">{{companion.name|up_first}}</li>
+
+  {% if context.companions_can_moderate %}
+    {# TODO #}
+  {% endif %}
+
+  {% if context.companions_can_edit %}
+  <li class="pull-right pgf-edit-companion-button"><a href="{{url('game:companions:edit', companion.id)}}">редактировать</a></li>
+  {% endif %}
+
+</ul>
+
+{{ guide_macros.page_caption(companion.name|up_first, "Описание спутника") }}
+
+<p>
+  {{companion.description_html|safe}}
+</p>
+
+{% endblock %}
