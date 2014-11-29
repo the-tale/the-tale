@@ -7,6 +7,9 @@ from the_tale.common.utils import bbcode
 from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils.decorators import lazy_property
 
+from the_tale.linguistics import logic as linguistics_logic
+from the_tale.linguistics import relations as linguistics_relations
+
 from the_tale.game import names
 
 from the_tale.game.heroes.habilities import AbilitiesPrototype
@@ -206,6 +209,10 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
 
         prototype = cls(model)
 
+        linguistics_logic.sync_restriction(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.MOB,
+                                           external_id=prototype.id,
+                                           name=prototype.name)
+
         mobs_storage.add_item(prototype.id, prototype)
         mobs_storage.update_version()
 
@@ -271,6 +278,10 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
 
         self._model.data = s11n.to_json(self.data)
         self._model.save()
+
+        linguistics_logic.sync_restriction(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.MOB,
+                                           external_id=self.id,
+                                           name=self.name)
 
         mobs_storage._update_cached_data(self)
         mobs_storage.update_version()

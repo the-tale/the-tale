@@ -1,7 +1,9 @@
 # coding: utf-8
-
+import mock
 
 from the_tale.common.utils import testcase
+
+from the_tale.linguistics import relations as linguistics_relations
 
 from the_tale.game import names
 
@@ -49,6 +51,17 @@ class LogicTests(testcase.TestCase):
         self.assertTrue(companion_record.state.is_ENABLED)
 
 
+    def test_create_companion_record__linguistics_restriction_setupped(self):
+        with mock.patch('the_tale.linguistics.logic.sync_restriction') as sync_restriction:
+            companion_record = logic.create_companion_record(utg_name=names.generator.get_test_name(),
+                                                            description='description',
+                                                            state=relations.COMPANION_RECORD_STATE.ENABLED)
+
+        self.assertEqual(sync_restriction.call_args_list, [mock.call(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.COMPANION,
+                                                                     external_id=companion_record.id,
+                                                                     name=companion_record.name)])
+
+
     def test_update_companion_record(self):
         old_name = names.generator.get_test_name(name='old')
         new_name = names.generator.get_test_name(name='new')
@@ -71,3 +84,17 @@ class LogicTests(testcase.TestCase):
 
         self.assertEqual(companion_record.name, new_name.normal_form())
         self.assertEqual(companion_record.description, 'new-description')
+
+
+    def test_update_companion_record__linguistics_restrictions(self):
+        old_name = names.generator.get_test_name(name='old')
+        new_name = names.generator.get_test_name(name='new')
+
+        companion_record = logic.create_companion_record(utg_name=old_name, description='old-description')
+
+        with mock.patch('the_tale.linguistics.logic.sync_restriction') as sync_restriction:
+            logic.update_companion_record(companion_record, utg_name=new_name, description='new-description')
+
+        self.assertEqual(sync_restriction.call_args_list, [mock.call(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.COMPANION,
+                                                                     external_id=companion_record.id,
+                                                                     name=new_name.normal_form())])

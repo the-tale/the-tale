@@ -14,8 +14,9 @@ from the_tale.game.chronicle.relations import ACTOR_ROLE
 class WordFormWrapper(object):
     __slots__ = ('word', )
 
-    def __init__(self, word):
+    def __init__(self, word, restrictions=[]):
         self.word = word
+        self.restrictions = restrictions
 
     @property
     def utg_name_form(self):
@@ -23,9 +24,7 @@ class WordFormWrapper(object):
         return utg_words.WordForm(self.word)
 
     def linguistics_restrictions(self):
-        from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
-        from the_tale.linguistics.storage import restrictions_storage
-        return []
+        return self.restrictions
 
 
 
@@ -33,8 +32,8 @@ def _get_bill_place_renaming_arguments(bill):
     return { 'actors': [(ACTOR_ROLE.BILL, bill),
                         (ACTOR_ROLE.PLACE, bill.data.place)],
              'substitutions': {'bill': bill.caption,
-                               'old_name': WordFormWrapper(bill.data.old_name_forms),
-                               'new_name': WordFormWrapper(bill.data.name_forms)} }
+                               'old_name': WordFormWrapper(bill.data.old_name_forms, restrictions=bill.place.linguistics_restrictions()),
+                               'new_name': WordFormWrapper(bill.data.name_forms, restrictions=bill.place.linguistics_restrictions())} }
 
 def _get_bill_place_description_arguments(bill):
     return { 'actors': [(ACTOR_ROLE.BILL, bill),

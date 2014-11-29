@@ -8,6 +8,9 @@ from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils.logic import random_value_by_priority
 from the_tale.common.utils.decorators import lazy_property
 
+from the_tale.linguistics import logic as linguistics_logic
+from the_tale.linguistics import relations as linguistics_relations
+
 from the_tale.game import names
 
 from the_tale.game.balance import constants as c
@@ -286,6 +289,10 @@ class ArtifactRecordPrototype(BasePrototype, names.ManageNameMixin):
 
         prototype = cls(model)
 
+        linguistics_logic.sync_restriction(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT,
+                                           external_id=prototype.id,
+                                           name=prototype.name)
+
         artifacts_storage.add_item(prototype.id, prototype)
         artifacts_storage.update_version()
 
@@ -345,11 +352,16 @@ class ArtifactRecordPrototype(BasePrototype, names.ManageNameMixin):
         if id(self) != id(artifacts_storage[self.id]):
             raise exceptions.SaveNotRegisteredArtifactError(mob=self.id)
 
+        linguistics_logic.sync_restriction(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT,
+                                           external_id=self.id,
+                                           name=self.name)
+
         self._model.data = s11n.to_json(self.data)
         self._model.save()
 
         artifacts_storage._update_cached_data(self)
         artifacts_storage.update_version()
+
 
     def create_artifact(self, level, power, rarity=relations.RARITY.NORMAL):
         return ArtifactPrototype(record=self,

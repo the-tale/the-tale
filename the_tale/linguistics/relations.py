@@ -6,6 +6,9 @@ from rels.django import DjangoEnum
 from utg import relations as utg_relations
 
 from the_tale.game import relations as game_relations
+from the_tale.game.artifacts import relations as artifacts_relations
+from the_tale.game.mobs import relations as mobs_relations
+from the_tale.game.persons import relations as persons_relations
 from the_tale.game.map.places import relations as places_relations
 
 
@@ -76,4 +79,21 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
 
     records = ( ('GENDER', 0, u'пол', game_relations.GENDER),
                 ('RACE', 1, u'раса', game_relations.RACE),
-                ('CITY_MODIFIER', 2, u'специализация города', places_relations.CITY_MODIFIERS),)
+                ('CITY_MODIFIER', 2, u'специализация города', places_relations.CITY_MODIFIERS),
+                ('HABIT_HONOR', 3, u'честь', game_relations.HABIT_HONOR_INTERVAL),
+                ('HABIT_PEACEFULNESS', 4, u'миролюбие', game_relations.HABIT_PEACEFULNESS_INTERVAL),
+                ('PERSON_TYPE', 5, u'профессия', persons_relations.PERSON_TYPE),
+
+                ('ARTIFACT_TYPE', 6, u'тип экипировки', artifacts_relations.ARTIFACT_TYPE),
+                ('ARTIFACT_POWER_TYPE', 7, u'тип силы', artifacts_relations.ARTIFACT_POWER_TYPE),
+                ('ARTIFACT_RARITY', 8, u'редкость артефакта', artifacts_relations.RARITY),
+                ('ARTIFACT_EFFECT', 9, u'эффект артефакта', artifacts_relations.ARTIFACT_EFFECT),
+
+                ('MOB_TYPE', 10, u'тип монстра', mobs_relations.MOB_TYPE),
+
+                ('ARTIFACT', 11, u'артефакт', None),
+                ('MOB', 12, u'монстр', None),
+                ('COMPANION', 13, u'спутник', None)
+
+
+                 )

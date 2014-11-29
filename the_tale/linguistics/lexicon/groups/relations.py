@@ -11,7 +11,7 @@ class LEXICON_GROUP(DjangoEnum):
     description = Column(unique=False)
     variables = Column(unique=False, no_index=True)
 
-    records = (('ACTION_BATTLEPVE1X1', 0, u'Действие: Сражение с монстром', 0,
+    records = (('ACTION_BATTLEPVE1X1', 0, u'Действие: сражение с монстром', 0,
                u'Описание событий, происходящих при сражении с монстрами.',
                {V.HERO: u'герой', V.ACTOR: u'герой или монстр', V.DAMAGE: u'количество урона', V.EXPERIENCE: u'опыт', V.ARTIFACT: u'предмет', V.MOB: u'монстр'}),
 

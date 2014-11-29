@@ -167,6 +167,19 @@ def create_restriction(group, external_id, name):
     return restriction
 
 
+def sync_restriction(group, external_id, name):
+    restriction = restrictions_storage.get_restriction(group, external_id)
+
+    if restriction is None:
+        return create_restriction(group, external_id, name)
+
+    restriction.name = name
+    models.Restriction.objects.filter(id=restriction.id).update(name=name)
+    restrictions_storage.update_version()
+
+    return restriction
+
+
 def sync_static_restrictions():
     for restrictions_group in relations.TEMPLATE_RESTRICTION_GROUP.records:
 

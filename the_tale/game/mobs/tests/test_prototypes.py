@@ -1,8 +1,11 @@
 # coding: utf-8
+import mock
 
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
+
+from the_tale.linguistics import relations as linguistics_relations
 
 from the_tale.game import names
 
@@ -15,10 +18,7 @@ from the_tale.game.heroes.relations import ARCHETYPE
 from the_tale.game.mobs.storage import mobs_storage
 from the_tale.game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
 from the_tale.game.mobs.prototypes import MobPrototype, MobRecordPrototype
-from the_tale.game.mobs.forms import ModerateMobRecordForm
 from the_tale.game.mobs import exceptions
-
-from the_tale.linguistics.tests import helpers as linguistics_helpers
 
 
 class MobsPrototypeTests(testcase.TestCase):
@@ -62,11 +62,32 @@ class MobsPrototypeTests(testcase.TestCase):
         MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
         self.assertNotEqual(old_version, mobs_storage.version)
 
+    def test_linguistics_restrictions_on_create(self):
+        with mock.patch('the_tale.linguistics.logic.sync_restriction') as sync_restriction:
+            mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
+
+        self.assertEqual(sync_restriction.call_args_list, [mock.call(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.MOB,
+                                                                     external_id=mob.id,
+                                                                     name=mob.name)])
+
+
     def test_storage_version_update_on_save(self):
         mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
         old_version = mobs_storage.version
         mob.save()
         self.assertNotEqual(old_version, mobs_storage.version)
+
+    def test_linguistics_restrictions_update_on_save(self):
+        mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
+        mob.set_utg_name(names.generator.get_test_name('new-name'))
+
+        with mock.patch('the_tale.linguistics.logic.sync_restriction') as sync_restriction:
+            mob.save()
+
+        self.assertEqual(sync_restriction.call_args_list, [mock.call(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.MOB,
+                                                                     external_id=mob.id,
+                                                                     name=mob.name)])
+
 
     def test_mob_attributes(self):
         MobRecordPrototype.create(uuid='bandit',

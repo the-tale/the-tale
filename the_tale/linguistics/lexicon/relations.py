@@ -61,17 +61,33 @@ class VARIABLE_TYPE(DjangoEnum):
     restrictions = Column(unique=False, no_index=True)
 
     records = ( ('HERO', 0, u'герой', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.GENDER,
-                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.RACE)),
+                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.RACE,
+                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR,
+                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS,)),
                 ('NUMBER', 1, u'число', VARIABLE_VERIFICATOR.NUMBER, _construct_number, ()),
-                ('PLACE', 2, u'город', VARIABLE_VERIFICATOR.PLACE, _construct_utg_name_form, ()),
-                ('PERSON', 3, u'NPC', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.GENDER,
+                ('PLACE', 2, u'город', VARIABLE_VERIFICATOR.PLACE, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.CITY_MODIFIER,
+                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR,
+                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS)),
+                ('PERSON', 3, u'NPC', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.PERSON_TYPE,
+                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.GENDER,
                                                                                               relations.TEMPLATE_RESTRICTION_GROUP.RACE)),
-                ('ARTIFACT', 4, u'артефакт', VARIABLE_VERIFICATOR.ITEM, _construct_utg_name_form, ()),
-                ('MOB', 5, u'монстр', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, ()),
+                ('ARTIFACT', 4, u'артефакт', VARIABLE_VERIFICATOR.ITEM, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT_TYPE,
+                                                                                                   relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT_POWER_TYPE,
+                                                                                                   relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT_RARITY,
+                                                                                                   relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT_EFFECT,
+                                                                                                   relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT)),
+                ('MOB', 5, u'монстр', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.MOB_TYPE,
+                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.MOB)),
                 ('TEXT', 6, u'текст', VARIABLE_VERIFICATOR.TEXT, _construct_text, ()),
-                ('ACTOR', 7, u'герой или монстр', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, ()),
-                ('MODIFIER', 8, u'модификатор города', VARIABLE_VERIFICATOR.MODIFIER, _construct_utg_name_form, ()),
-                ('RACE', 9, u'раса', VARIABLE_VERIFICATOR.RACE, _construct_utg_name_form, ()) )
+                ('ACTOR', 7, u'герой или монстр', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.GENDER,
+                                                                                                          relations.TEMPLATE_RESTRICTION_GROUP.RACE,
+                                                                                                          relations.TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR,
+                                                                                                          relations.TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS,
+                                                                                                          relations.TEMPLATE_RESTRICTION_GROUP.MOB_TYPE)),
+                ('MODIFIER', 8, u'модификатор города', VARIABLE_VERIFICATOR.MODIFIER, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.CITY_MODIFIER,)),
+                ('RACE', 9, u'раса', VARIABLE_VERIFICATOR.RACE, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.RACE,)) )
+
+
 
 
 class VARIABLE(DjangoEnum):

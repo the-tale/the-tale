@@ -339,3 +339,43 @@ class LogicTests(TestCase):
 
             for record in restrictions_group.static_relation.records:
                 self.assertNotEqual(storage.restrictions_storage.get_restriction(restrictions_group, record.value), None)
+
+
+    def test_sync_restriction__not_exists(self):
+        group = random.choice(relations.TEMPLATE_RESTRICTION_GROUP.records)
+
+        with self.check_delta(models.Restriction.objects.count, 1):
+            with self.check_changed(lambda: storage.restrictions_storage._version):
+                with self.check_delta(storage.restrictions_storage.__len__, 1):
+                    restriction = logic.sync_restriction(group=group,
+                                                         external_id=666,
+                                                         name=u'bla-bla-name')
+
+        self.assertEqual(restriction.group, group)
+        self.assertEqual(restriction.external_id, 666)
+        self.assertEqual(restriction.name, u'bla-bla-name')
+
+        model = models.Restriction.objects.get(id=restriction.id)
+
+        loaded_restriction = objects.Restriction.from_model(model)
+
+        self.assertEqual(loaded_restriction, restriction)
+
+
+    def test_sync_restriction__exists(self):
+        group = random.choice(relations.TEMPLATE_RESTRICTION_GROUP.records)
+
+        restriction = logic.create_restriction(group=group, external_id=666, name=u'bla-bla-name')
+
+        with self.check_not_changed(models.Restriction.objects.count):
+            with self.check_changed(lambda: storage.restrictions_storage._version):
+                with self.check_not_changed(storage.restrictions_storage.__len__):
+                    synced_restriction = logic.sync_restriction(group=group, external_id=666, name=u'new-name')
+
+        self.assertEqual(synced_restriction.name, u'new-name')
+
+        model = models.Restriction.objects.get(id=restriction.id)
+
+        loaded_restriction = objects.Restriction.from_model(model)
+
+        self.assertEqual(loaded_restriction, synced_restriction)

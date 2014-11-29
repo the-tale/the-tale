@@ -75,7 +75,7 @@ class Restriction(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, null=False, db_index=True)
 
-    name = models.CharField(max_length=MAX_NAME_LENGTH, unique=True)
+    name = models.CharField(max_length=MAX_NAME_LENGTH)
 
     group = RelationIntegerField(relation=relations.TEMPLATE_RESTRICTION_GROUP, db_index=True)
     external_id = models.BigIntegerField(db_index=True)

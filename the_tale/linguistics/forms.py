@@ -263,7 +263,7 @@ class TemplateForm(forms.Form):
             for restrictions_group in variable.type.restrictions:
                 field_name = 'restriction_%s_%d' % (variable.value, restrictions_group.value)
                 restrictions = storage.restrictions_storage.get_restrictions(restrictions_group)
-                choices = [('', u'нет')] + [(restriction.id, restriction.name) for restriction in restrictions]
+                choices = [('', u'нет')] + sorted([(restriction.id, restriction.name) for restriction in restrictions], key=lambda r: r[1])
                 self.fields[field_name] = fields.ChoiceField(label=restrictions_group.text, required=False, choices=choices)
 
     def verificators_fields(self):

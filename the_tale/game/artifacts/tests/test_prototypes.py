@@ -7,6 +7,8 @@ from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
 
+from the_tale.linguistics import relations as linguistics_relations
+
 from the_tale.game import names
 
 from the_tale.game.balance import constants as c
@@ -69,11 +71,31 @@ class PrototypeTests(testcase.TestCase):
         ArtifactRecordPrototype.create_random(uuid='bandit_loot')
         self.assertNotEqual(old_version, artifacts_storage.version)
 
+    def test_linguistics_restriction_on_create(self):
+        with mock.patch('the_tale.linguistics.logic.sync_restriction') as sync_restriction:
+            artifact = ArtifactRecordPrototype.create_random(uuid='bandit_loot')
+
+        self.assertEqual(sync_restriction.call_args_list, [mock.call(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT,
+                                                                     external_id=artifact.id,
+                                                                     name=artifact.name)])
+
+
     def test_storage_version_update_on_save(self):
         artifact = ArtifactRecordPrototype.create_random(uuid='bandit_loot')
         old_version = artifacts_storage.version
         artifact.save()
         self.assertNotEqual(old_version, artifacts_storage.version)
+
+    def test_linguistics_restriction_version_update_on_save(self):
+        artifact = ArtifactRecordPrototype.create_random(uuid='bandit_loot')
+        artifact.set_utg_name(names.generator.get_test_name('new-name'))
+
+        with mock.patch('the_tale.linguistics.logic.sync_restriction') as sync_restriction:
+            artifact.save()
+
+        self.assertEqual(sync_restriction.call_args_list, [mock.call(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT,
+                                                                     external_id=artifact.id,
+                                                                     name=artifact.name)])
 
     def test_artifacts_attributes(self):
         ArtifactRecordPrototype.create(uuid='bandit_loot',
