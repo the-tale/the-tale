@@ -89,6 +89,8 @@ class MobPrototype(object):
     @property
     def mob_type(self): return self.record.type
 
+    def linguistics_restrictions(self): return self.record.linguistics_restrictions()
+
     def strike_by(self, percents):
         self.health = max(0, self.health - self.max_health * percents)
 
@@ -272,3 +274,8 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
 
         mobs_storage._update_cached_data(self)
         mobs_storage.update_version()
+
+    def linguistics_restrictions(self):
+        from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
+        from the_tale.linguistics.storage import restrictions_storage
+        return []

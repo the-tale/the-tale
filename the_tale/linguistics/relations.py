@@ -5,6 +5,10 @@ from rels.django import DjangoEnum
 
 from utg import relations as utg_relations
 
+from the_tale.game import relations as game_relations
+from the_tale.game.map.places import relations as places_relations
+
+
 def word_type_record(name):
     utg_type = utg_relations.WORD_TYPE.index_name[name]
     return (name,
@@ -65,3 +69,11 @@ class CONTRIBUTION_TYPE(DjangoEnum):
 class INDEX_ORDER_BY(DjangoEnum):
     records = ( ('TEXT', 0, u'по тексту'),
                 ('UPDATED_AT', 1, u'по дате') )
+
+
+class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
+    static_relation = Column(unique=False, single_type=False)
+
+    records = ( ('GENDER', 0, u'пол', game_relations.GENDER),
+                ('RACE', 1, u'раса', game_relations.RACE),
+                ('CITY_MODIFIER', 2, u'специализация города', places_relations.CITY_MODIFIERS),)

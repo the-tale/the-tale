@@ -3,6 +3,8 @@ import random
 
 import mock
 
+from django.db import IntegrityError, transaction
+
 from utg import templates as utg_templates
 from utg import words as utg_words
 from utg import relations as utg_relations
@@ -12,6 +14,8 @@ from the_tale.common.utils.testcase import TestCase
 from the_tale.linguistics import prototypes
 from the_tale.linguistics import relations
 from the_tale.linguistics import logic
+from the_tale.linguistics import models
+from the_tale.linguistics import objects
 
 from the_tale.linguistics.lexicon import dictionary as lexicon_dictinonary
 from the_tale.linguistics.lexicon import keys
@@ -117,10 +121,11 @@ class LogicTests(TestCase):
                                                       state=relations.TEMPLATE_STATE.IN_GAME)
         storage.game_lexicon.refresh()
 
-        lexicon_key, externals = logic._prepair_get_text__real(key.name,
-                                                               args={'hero': mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word(u'герой')), 'level': 1})
+        hero_mock = mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word(u'герой'), linguistics_restrictions=lambda: [])
 
-        self.assertEqual(logic._render_text__real(lexicon_key, externals),
+        lexicon_key, externals, restrictions = logic._prepair_get_text__real(key.name,  args={'hero': hero_mock, 'level': 1})
+
+        self.assertEqual(logic._render_text__real(lexicon_key, externals, restrictions),
                          u'Герой 1 w-3-нс,ед,дт')
 
 
@@ -129,10 +134,9 @@ class LogicTests(TestCase):
         self.assertEqual(word_2.form(utg_relations.CASE.GENITIVE), u'дубль')
         dictionary.add_word(word_2)
 
-        lexicon_key, externals = logic._prepair_get_text__real(key.name,
-                                                               args={'hero': mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word(u'герой')), 'level': 1})
+        lexicon_key, externals, restrictions = logic._prepair_get_text__real(key.name, args={'hero': hero_mock, 'level': 1})
 
-        self.assertEqual(logic._render_text__real(lexicon_key, externals),
+        self.assertEqual(logic._render_text__real(lexicon_key, externals, restrictions),
                          u'Герой 1 w-2-нс,ед,дт')
 
 
@@ -279,3 +283,59 @@ class LogicTests(TestCase):
 
         self.assertTrue(prototype_1.errors_status.is_NO_ERRORS)
         self.assertTrue(prototype_2.errors_status.is_HAS_ERRORS)
+
+
+    def test_create_restriction(self):
+
+        group = random.choice(relations.TEMPLATE_RESTRICTION_GROUP.records)
+
+        with self.check_delta(models.Restriction.objects.count, 1):
+            with self.check_changed(lambda: storage.restrictions_storage._version):
+                with self.check_delta(storage.restrictions_storage.__len__, 1):
+                    restriction = logic.create_restriction(group=group,
+                                                           external_id=666,
+                                                           name=u'bla-bla-name')
+
+        self.assertEqual(restriction.group, group)
+        self.assertEqual(restriction.external_id, 666)
+        self.assertEqual(restriction.name, u'bla-bla-name')
+
+        model = models.Restriction.objects.get(id=restriction.id)
+
+        loaded_restriction = objects.Restriction.from_model(model)
+
+        self.assertEqual(loaded_restriction, restriction)
+
+
+    def test_create_restriction__duplicate(self):
+
+        group = random.choice(relations.TEMPLATE_RESTRICTION_GROUP.records)
+
+        logic.create_restriction(group=group, external_id=666, name=u'bla-bla-name')
+
+        with self.check_not_changed(models.Restriction.objects.count):
+            with self.check_not_changed(lambda: storage.restrictions_storage._version):
+                with self.check_not_changed(storage.restrictions_storage.__len__):
+                    with transaction.atomic():
+                        self.assertRaises(IntegrityError, logic.create_restriction, group=group, external_id=666, name=u'bla-bla-name')
+
+
+    def test_sync_static_restrictions(self):
+        for restrictions_group in relations.TEMPLATE_RESTRICTION_GROUP.records:
+
+            if restrictions_group.static_relation is None:
+                continue
+
+            for record in restrictions_group.static_relation.records:
+                self.assertEqual(storage.restrictions_storage.get_restriction(restrictions_group, record.value), None)
+
+
+        logic.sync_static_restrictions()
+
+        for restrictions_group in relations.TEMPLATE_RESTRICTION_GROUP.records:
+
+            if restrictions_group.static_relation is None:
+                continue
+
+            for record in restrictions_group.static_relation.records:
+                self.assertNotEqual(storage.restrictions_storage.get_restriction(restrictions_group, record.value), None)

@@ -22,6 +22,7 @@ from the_tale.linguistics import models
 from the_tale.linguistics import relations
 from the_tale.linguistics.lexicon import logic as lexicon_logic
 from the_tale.linguistics.lexicon import dictionary as lexicon_dictionary
+from the_tale.linguistics.lexicon import relations as lexicon_relations
 
 
 class WordPrototype(BasePrototype):
@@ -128,6 +129,26 @@ class TemplatePrototype(BasePrototype):
         return [Verificator.deserialize(v) for v in self._data['verificators']]
 
     @lazy_property
+    def raw_restrictions(self):
+        return frozenset(tuple(key) for key in self._data.get('restrictions', ()))
+
+    @lazy_property
+    def restrictions(self):
+        from the_tale.linguistics import storage
+
+        data = {}
+
+        for variable_value, restriction_id in self.raw_restrictions:
+            variable = lexicon_relations.VARIABLE(variable_value)
+
+            if variable not in data:
+                data[variable] = []
+
+            data[variable].append(storage.restrictions_storage[restriction_id])
+
+        return data
+
+    @lazy_property
     def utg_template(self):
         return utg_templates.Template.deserialize(self._data['template'])
 
@@ -183,7 +204,7 @@ class TemplatePrototype(BasePrototype):
 
 
     @classmethod
-    def create(cls, key, raw_template, utg_template, verificators, author, parent=None):
+    def create(cls, key, raw_template, utg_template, verificators, author, parent=None, restrictions=frozenset()):
         model = cls._db_create(key=key,
                                state=relations.TEMPLATE_STATE.ON_REVIEW,
                                raw_template=raw_template,
@@ -191,6 +212,7 @@ class TemplatePrototype(BasePrototype):
                                parent=None if parent is None else parent._model,
                                data=s11n.to_json({'verificators': [v.serialize() for v in verificators],
                                                   'template': utg_template.serialize(),
+                                                  'restrictions': list(restrictions),
                                                   'groups': lexicon_logic.get_verificators_groups(key=key)}))
         prototype = cls(model)
 
@@ -201,7 +223,7 @@ class TemplatePrototype(BasePrototype):
         return prototype
 
 
-    def update(self, raw_template=None, utg_template=None, verificators=None):
+    def update(self, raw_template=None, utg_template=None, verificators=None, restrictions=None):
         if raw_template is not None:
             self._model.raw_template = raw_template
 
@@ -213,6 +235,9 @@ class TemplatePrototype(BasePrototype):
         if utg_template is not None:
             self._data['template'] = utg_template.serialize()
 
+        if restrictions is not None:
+            self._data['restrictions'] = list(restrictions)
+
         self._data['groups'] = self.lexicon_groups
 
         self.save()
@@ -222,6 +247,7 @@ class TemplatePrototype(BasePrototype):
         from the_tale.linguistics import storage
 
         self._data['verificators'] = [v.serialize() for v in self.verificators]
+        self._data['restrictions'] = list(self.raw_restrictions)
         self._data['template'] = self.utg_template.serialize()
         self._data['groups'] = self.lexicon_groups
 

@@ -17,6 +17,7 @@ from utg import exceptions as utg_exceptions
 
 
 from the_tale.linguistics import models
+from the_tale.linguistics import storage
 
 
 WORD_FIELD_PREFIX = 'word_field'
@@ -258,8 +259,19 @@ class TemplateForm(forms.Form):
         for i, verificator in enumerate(self.verificators):
             self.fields['verificator_%d' % i] = fields.TextField(label=verificator.get_label(), required=False, widget=django_forms.Textarea(attrs={'rows': 3}))
 
+        for variable in self.key.variables:
+            for restrictions_group in variable.type.restrictions:
+                field_name = 'restriction_%s_%d' % (variable.value, restrictions_group.value)
+                restrictions = storage.restrictions_storage.get_restrictions(restrictions_group)
+                choices = [('', u'нет')] + [(restriction.id, restriction.name) for restriction in restrictions]
+                self.fields[field_name] = fields.ChoiceField(label=restrictions_group.text, required=False, choices=choices)
+
     def verificators_fields(self):
         return [self['verificator_%d' % i] for i, verificator in enumerate(self.verificators)]
+
+    def variable_restrictions_fields(self, variable):
+        x = [self['restriction_%s_%d' % (variable.value, restrictions_group.value)] for restrictions_group in variable.type.restrictions]
+        return x
 
     def clean(self):
         cleaned_data = super(TemplateForm, self).clean()
@@ -268,6 +280,22 @@ class TemplateForm(forms.Form):
             verificator.text = cleaned_data['verificator_%d' % i]
 
         return cleaned_data
+
+    def get_restrictions(self):
+        restrictions = []
+
+        for variable in self.key.variables:
+            for restrictions_group in variable.type.restrictions:
+                field_name = 'restriction_%s_%d' % (variable.value, restrictions_group.value)
+
+                restriction_id = self.cleaned_data.get(field_name)
+
+                if not restriction_id:
+                    continue
+
+                restrictions.append((variable.value, int(restriction_id)))
+
+        return frozenset(restrictions)
 
 
     def clean_template(self):
@@ -292,5 +320,10 @@ class TemplateForm(forms.Form):
 
         for i, verificator in enumerate(verificators):
             initials['verificator_%d' % i] = verificator.text
+
+        for variable, restrictions in template.restrictions.iteritems():
+            for restriction in restrictions:
+                field_name = 'restriction_%s_%d' % (variable.value, restriction.group.value)
+                initials[field_name] = restriction.id
 
         return initials

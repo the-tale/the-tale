@@ -69,7 +69,7 @@ class GeneralTests(TestCase):
     def test_all_lexicon_keys_have_suffient_number_of_verificator_substitutions(self):
 
         for key in keys.LEXICON_KEY.records:
-            verificators = collections.Counter(v.verificator for v in key.variables)
+            verificators = collections.Counter(v.type.verificator for v in key.variables)
             for verificator, number in verificators.iteritems():
                 self.assertTrue(len(verificator.substitutions) >= number)
 

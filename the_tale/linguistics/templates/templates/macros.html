@@ -1,5 +1,5 @@
 
-{% macro key_info(key) %}
+{% macro key_info(key, restrictions=none) %}
 
 <h2>Группа: {{key.group.text}}</h2>
 
@@ -17,9 +17,45 @@
     <tr>
       <th width="100px">{{variable.value}}</th>
       <td>{{key.group.variables[variable]}}</td>
+      {% if restrictions %}
+        <td>
+          {% if restrictions.get(variable) %}
+            {% for restriction in restrictions[variable] %}
+              {% if loop.index > 1 %},{% endif %}
+              {{restriction.name}}
+            {% endfor %}
+          {% else %}
+            нет ограничений
+          {% endif %}
+        </td>
+      {% endif %}
     </tr>
     {% endfor %}
   </tbody>
 </table>
 
+{% endmacro %}
+
+
+{% macro form_restrictions(key, form) %}
+  <div class="accordion" id="pgf-template-restrictions-accordion">
+
+    <div class="accordion-group">
+      <div class="accordion-heading">
+        <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-template-restrictions-accordion" href="#pgf-template-restrictions">
+          Ограничения использования фразы
+        </a>
+      </div>
+      <div id="pgf-template-restrictions" class="accordion-body collapse" style="height: 0px;">
+        <div class="accordion-inner">
+          {% for variable in key.variables %}
+            <h5>{{variable.text}}</h5>
+            {% for field in form.variable_restrictions_fields(variable)%}
+              {{field.widget}}
+            {% endfor %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
 {% endmacro %}

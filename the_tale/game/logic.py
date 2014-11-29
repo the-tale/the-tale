@@ -11,6 +11,8 @@ from the_tale.common.utils.enum import create_enum
 
 from the_tale.accounts.conf import accounts_settings
 
+from the_tale.linguistics import logic as linguistics_logic
+
 from the_tale.game import names
 
 from the_tale.game.balance.power import Power
@@ -57,6 +59,8 @@ DEFAULT_HERO_EQUIPMENT = create_enum('DEFAULT_HERO_EQUIPMENT', ( ('PANTS', 'defa
 @mobs_storage.postpone_version_update
 @artifacts_storage.postpone_version_update
 def create_test_map():
+    linguistics_logic.sync_static_restrictions()
+
     p1 = PlacePrototype.create( x=1, y=1, size=1, utg_name=names.generator.get_test_name(name='1x1'))
     p2 = PlacePrototype.create( x=3, y=3, size=3, utg_name=names.generator.get_test_name(name='10x10'))
     p3 = PlacePrototype.create( x=1, y=3, size=3, utg_name=names.generator.get_test_name(name='1x10'))

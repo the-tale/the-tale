@@ -43,6 +43,7 @@ class Command(BaseCommand):
         print
         print 'UPDATE LINGUISTICS'
 
+        linguistics_logic.sync_static_restrictions()
         linguistics_logic.update_templates_errors()
         linguistics_logic.update_words_usage_info()
 

@@ -9,25 +9,27 @@ from the_tale.game.heroes.conf import heroes_settings
 
 
 class MessageSurrogate(object):
-    __slots__ = ('turn_number', 'timestamp', 'key', 'externals', '_ui_info', '_message')
+    __slots__ = ('turn_number', 'timestamp', 'key', 'externals', '_ui_info', '_message', 'restrictions')
 
-    def __init__(self, turn_number, timestamp, key, externals, message):
+    def __init__(self, turn_number, timestamp, key, externals, message, restrictions=frozenset()):
         self.turn_number = turn_number
         self.timestamp = timestamp
         self.key = key
         self.externals = externals
+        self.restrictions = restrictions
 
         self._ui_info = None
         self._message = message
 
 
     @classmethod
-    def create(cls, key, externals, turn_delta=0):
+    def create(cls, key, externals, turn_delta=0, restrictions=frozenset()):
         return cls(turn_number=TimePrototype.get_current_turn_number()+turn_delta,
                    timestamp=time.time()+turn_delta*c.TURN_DELTA,
                    key=key,
                    externals=externals,
-                   message=None)
+                   message=None,
+                   restrictions=restrictions)
 
     def serialize(self):
         return (self.turn_number, self.timestamp, self.message)
@@ -47,7 +49,7 @@ class MessageSurrogate(object):
         if self._message is not None:
             return self._message
 
-        self._message = render_text(lexicon_key=self.key, externals=self.externals)
+        self._message = render_text(lexicon_key=self.key, externals=self.externals, restrictions=self.restrictions)
 
         return self._message
 
@@ -74,6 +76,7 @@ class MessageSurrogate(object):
 
 
 def _message_key(m): return (m.turn_number, m.timestamp)
+
 
 class MessagesContainer(object):
 

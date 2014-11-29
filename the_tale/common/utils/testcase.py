@@ -11,7 +11,7 @@ from the_tale.common.utils.decorators import lazy_property
 def setUp(self):
     from the_tale.accounts.achievements.storage import achievements_storage
     from the_tale.collections.storage import collections_storage, kits_storage, items_storage
-    from the_tale.linguistics.storage import game_dictionary, game_lexicon
+    from the_tale.linguistics.storage import game_dictionary, game_lexicon, restrictions_storage
 
     from the_tale.game.prototypes import GameState
     from the_tale.game.persons.storage import persons_storage
@@ -40,6 +40,7 @@ def setUp(self):
     achievements_storage.clear()
     game_dictionary.clear()
     game_lexicon.clear()
+    restrictions_storage.clear()
 
     GameState.start()
 

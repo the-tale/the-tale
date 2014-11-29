@@ -11,12 +11,30 @@ from the_tale.game.chronicle import records
 from the_tale.game.chronicle.relations import ACTOR_ROLE
 
 
+class WordFormWrapper(object):
+    __slots__ = ('word', )
+
+    def __init__(self, word):
+        self.word = word
+
+    @property
+    def utg_name_form(self):
+        from utg import words as utg_words
+        return utg_words.WordForm(self.word)
+
+    def linguistics_restrictions(self):
+        from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
+        from the_tale.linguistics.storage import restrictions_storage
+        return []
+
+
+
 def _get_bill_place_renaming_arguments(bill):
     return { 'actors': [(ACTOR_ROLE.BILL, bill),
                         (ACTOR_ROLE.PLACE, bill.data.place)],
              'substitutions': {'bill': bill.caption,
-                               'old_name': bill.data.old_name_forms,
-                               'new_name': bill.data.name_forms} }
+                               'old_name': WordFormWrapper(bill.data.old_name_forms),
+                               'new_name': WordFormWrapper(bill.data.name_forms)} }
 
 def _get_bill_place_description_arguments(bill):
     return { 'actors': [(ACTOR_ROLE.BILL, bill),
@@ -54,8 +72,8 @@ def _get_bill_building_rename_arguments(bill):
                         (ACTOR_ROLE.PERSON, bill.data.person)],
              'substitutions': {'place': bill.data.person.place,
                                'person': bill.data.person,
-                               'old_name': bill.data.old_building_name_forms,
-                               'new_name': bill.data.new_building_name_forms,
+                               'old_name': WordFormWrapper(bill.data.old_building_name_forms),
+                               'new_name': WordFormWrapper(bill.data.new_building_name_forms),
                                'bill': bill.caption} }
 
 def _get_bill_place_resource_exchange_arguments(bill):

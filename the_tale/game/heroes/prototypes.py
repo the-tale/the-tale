@@ -396,15 +396,24 @@ class HeroPrototype(BasePrototype,
             self.messages.clear()
             return
 
-        lexicon_key, externals = prepair_get_text(type_, kwargs)
+        lexicon_key, externals, restrictions = prepair_get_text(type_, kwargs)
 
         if lexicon_key is None: return
 
         message = messages.MessageSurrogate.create(key=lexicon_key,
                                                    externals=externals,
-                                                   turn_delta=turn_delta)
+                                                   turn_delta=turn_delta,
+                                                   restrictions=restrictions)
 
         self.push_message(message, diary=diary, journal=journal)
+
+
+    def linguistics_restrictions(self):
+        from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
+        from the_tale.linguistics.storage import restrictions_storage
+
+        return [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.GENDER, self.gender.value),
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.RACE, self.race.value)]
 
 
     def heal(self, delta):

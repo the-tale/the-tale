@@ -3,6 +3,7 @@ import time
 
 from dext.common.utils import s11n
 from dext.settings import settings
+from dext.common.utils import storage as dext_storage
 
 from utg import words as utg_words
 from utg import templates as utg_templates
@@ -14,6 +15,8 @@ from the_tale.common.utils import storage
 from the_tale.linguistics import exceptions
 from the_tale.linguistics import prototypes
 from the_tale.linguistics import relations
+from the_tale.linguistics import objects
+from the_tale.linguistics import models
 
 
 class BaseGameDictionaryStorage(storage.SingleStorage):
@@ -63,8 +66,10 @@ class GameLexiconDictionaryStorage(storage.SingleStorage):
         self.clear()
 
         for key, data in self._templates_query():
-            template = utg_templates.Template.deserialize(s11n.from_json(data)['template'])
-            self._item.add_template(LEXICON_KEY(key), template)
+            data = s11n.from_json(data)
+            template = utg_templates.Template.deserialize(data['template'])
+            restrictions = frozenset(tuple(key) for key in data.get('restrictions', ()))
+            self._item.add_template(LEXICON_KEY(key), template, restrictions=restrictions)
 
         self._version = settings.get(self.SETTINGS_KEY)
 
@@ -75,3 +80,40 @@ class GameLexiconDictionaryStorage(storage.SingleStorage):
 
 game_dictionary = GameDictionaryStorage()
 game_lexicon = GameLexiconDictionaryStorage()
+
+
+
+class RestrictionsStorage(dext_storage.Storage):
+    SETTINGS_KEY = 'linguisitcs-restrictions-storage'
+    EXCEPTION = exceptions.RestrictionsStorageError
+
+    def _construct_object(self, model):
+        return objects.Restriction.from_model(model)
+
+    def _get_all_query(self):
+        return models.Restriction.objects.all()
+
+    def clear(self):
+        super(RestrictionsStorage, self).clear()
+        self._restrictions = {}
+        self._restrictions_by_group = {}
+
+    def add_item(self, id_, item):
+        super(RestrictionsStorage, self).add_item(id_, item)
+        self._restrictions[item.storage_key()] = item
+
+        if item.group not in self._restrictions_by_group:
+            self._restrictions_by_group[item.group] = []
+
+        self._restrictions_by_group[item.group].append(item)
+
+    def get_restriction(self, group, external_id):
+        self.sync()
+        return self._restrictions.get((group.value, external_id))
+
+    def get_restrictions(self, group):
+        self.sync()
+        return self._restrictions_by_group.get(group, ())
+
+
+restrictions_storage = RestrictionsStorage()

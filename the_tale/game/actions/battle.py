@@ -30,6 +30,8 @@ class Actor(object):
     @property
     def utg_name_form(self): return self.actor.utg_name_form
 
+    def linguistics_restrictions(self): return self.actor.linguistics_restrictions()
+
     @property
     def basic_damage(self): return self.actor.basic_damage
 

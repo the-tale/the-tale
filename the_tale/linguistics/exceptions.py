@@ -13,6 +13,9 @@ class DictionaryStorageError(LinguisticsError):
 class LexiconStorageError(LinguisticsError):
     MSG = u'lexicon storage error: %(message)s'
 
+class RestrictionsStorageError(LinguisticsError):
+    MSG = u'restrictions storage error: %(message)s'
+
 
 class NoLexiconKeyError(LinguisticsError):
     MSG = u'no lexicon key was found: %(key)s'

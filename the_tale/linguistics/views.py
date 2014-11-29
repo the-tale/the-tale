@@ -455,7 +455,8 @@ class TemplateResource(Resource):
                                                        raw_template=form.c.template,
                                                        utg_template=utg_template,
                                                        verificators=form.verificators,
-                                                       author=self.account)
+                                                       author=self.account,
+                                                       restrictions=form.get_restrictions())
 
         return self.json_ok(data={'next_url': url('linguistics:templates:show', template.id)})
 
@@ -526,14 +527,16 @@ class TemplateResource(Resource):
         utg_template.parse(form.c.template, externals=[v.value for v in self._template.key.variables])
 
         if (form.verificators == self._template.get_all_verificatos() and
-            form.c.template == self._template.raw_template):
+            form.c.template == self._template.raw_template and
+            form.get_restrictions() == self._template.raw_restrictions):
             return self.json_error('linguistics.templates.update.full_copy_restricted', u'Вы пытаетесь создать полную копию шаблона, в этом нет необходимости.')
 
 
         if self._template.author_id == self.account.id and self._template.state.is_ON_REVIEW:
             self._template.update(raw_template=form.c.template,
                                   utg_template=utg_template,
-                                  verificators=form.verificators)
+                                  verificators=form.verificators,
+                                  restrictions=form.get_restrictions())
 
             return self.json_ok(data={'next_url': url('linguistics:templates:show', self._template.id)})
 

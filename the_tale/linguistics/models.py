@@ -67,3 +67,18 @@ class Contribution(models.Model):
 
     class Meta:
         unique_together = (('type', 'account', 'entity_id'),)
+
+
+
+class Restriction(models.Model):
+    MAX_NAME_LENGTH = 128
+
+    created_at = models.DateTimeField(auto_now_add=True, null=False, db_index=True)
+
+    name = models.CharField(max_length=MAX_NAME_LENGTH, unique=True)
+
+    group = RelationIntegerField(relation=relations.TEMPLATE_RESTRICTION_GROUP, db_index=True)
+    external_id = models.BigIntegerField(db_index=True)
+
+    class Meta:
+        unique_together = (('group', 'external_id'),)

@@ -10,6 +10,7 @@ from the_tale.common.utils.testcase import TestCase
 from the_tale.linguistics import prototypes
 from the_tale.linguistics import relations
 from the_tale.linguistics import storage
+from the_tale.linguistics import logic
 
 from the_tale.linguistics.lexicon import keys
 
@@ -39,8 +40,6 @@ class DictionaryStoragesTests(TestCase):
 
         self.word_2_2 = prototypes.WordPrototype.create(self.utg_word_2_2)
 
-        storage.game_dictionary.refresh()
-
 
     def check_word_in_dictionary(self, dictionary, word, result):
         if not dictionary.has_word(word.normal_form()):
@@ -64,8 +63,6 @@ class LexiconStoragesTests(TestCase):
 
     def setUp(self):
         super(LexiconStoragesTests, self).setUp()
-        storage.game_dictionary.refresh()
-        storage.game_lexicon.refresh()
 
 
     def test_templates_query(self):
@@ -90,3 +87,54 @@ class LexiconStoragesTests(TestCase):
         prototypes.TemplatePrototype._db_filter(id=template_3.id).update(errors_status=relations.TEMPLATE_ERRORS_STATUS.NO_ERRORS)
 
         self.assertEqual(storage.game_lexicon._templates_query().count(), 1)
+
+
+class RestrictionsStorageTests(TestCase):
+
+    def setUp(self):
+        super(RestrictionsStorageTests, self).setUp()
+
+
+    def test_clear(self):
+        self.assertEqual(storage.restrictions_storage._data, {})
+        self.assertEqual(storage.restrictions_storage._restrictions, {})
+        self.assertEqual(storage.restrictions_storage._restrictions_by_group, {})
+
+
+    def test_add_item(self):
+        restriction_1 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.RACE, external_id=666, name=u'bla-bla-name')
+
+        self.assertEqual(storage.restrictions_storage._data, {restriction_1.id: restriction_1})
+        self.assertEqual(storage.restrictions_storage._restrictions, {restriction_1.storage_key(): restriction_1})
+        self.assertEqual(storage.restrictions_storage._restrictions_by_group, {restriction_1.group: [restriction_1]})
+
+        restriction_2 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.GENDER, external_id=667, name=u'name-2')
+        restriction_3 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.RACE, external_id=668, name=u'name-3')
+
+        self.assertEqual(storage.restrictions_storage._data, {restriction_1.id: restriction_1,
+                                                              restriction_2.id: restriction_2,
+                                                              restriction_3.id: restriction_3})
+        self.assertEqual(storage.restrictions_storage._restrictions, {restriction_1.storage_key(): restriction_1,
+                                                                      restriction_2.storage_key(): restriction_2,
+                                                                      restriction_3.storage_key(): restriction_3})
+        self.assertEqual(storage.restrictions_storage._restrictions_by_group, {restriction_1.group: [restriction_1, restriction_3],
+                                                                               restriction_2.group: [restriction_2]})
+
+
+    def test_get_restriction(self):
+        restriction_1 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.RACE, external_id=666, name=u'bla-bla-name')
+        restriction_2 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.GENDER, external_id=667, name=u'name-2')
+        restriction_3 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.RACE, external_id=668, name=u'name-3')
+
+        self.assertEqual(restriction_1, storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.RACE, 666))
+        self.assertEqual(restriction_2, storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.GENDER, 667))
+        self.assertEqual(restriction_3, storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.RACE, 668))
+
+
+    def test_get_restrictions(self):
+        restriction_1 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.RACE, external_id=666, name=u'bla-bla-name')
+        restriction_2 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.GENDER, external_id=667, name=u'name-2')
+        restriction_3 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.RACE, external_id=668, name=u'name-3')
+
+        self.assertEqual(storage.restrictions_storage.get_restrictions(relations.TEMPLATE_RESTRICTION_GROUP.RACE), [restriction_1, restriction_3])
+        self.assertEqual(storage.restrictions_storage.get_restrictions(relations.TEMPLATE_RESTRICTION_GROUP.GENDER), [restriction_2])

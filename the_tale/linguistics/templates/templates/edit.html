@@ -35,6 +35,8 @@ jQuery(document).ready( function(e) {
 
   {{ form.errors_container }}
 
+  {{ templates_macros.form_restrictions(template.key, form) }}
+
   {{ form.template.widget }}
 
   {% for field in form.verificators_fields() %}

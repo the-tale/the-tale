@@ -4,6 +4,8 @@ import mock
 
 from the_tale.common.utils import testcase
 
+from the_tale.linguistics import logic as linguistics_logic
+
 from the_tale.game import names
 
 from the_tale.game.balance import constants as c
@@ -22,6 +24,7 @@ class PlacePowerTest(testcase.TestCase):
 
     def setUp(self):
         super(PlacePowerTest, self).setUp()
+        linguistics_logic.sync_static_restrictions()
         places_storage.clear()
         persons_storage.clear()
 

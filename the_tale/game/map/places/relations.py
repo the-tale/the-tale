@@ -76,20 +76,37 @@ class RESOURCE_EXCHANGE_TYPE(DjangoEnum):
                 ('TAX_LARGE',   12, u'%.1f%% пошлины' % float(TAX_BASE * 4 * 100), CITY_PARAMETERS.TAX, TAX_BASE * 4, -1) )
 
 
+def _modifier_linguistics_restrictions(modifier):
+    def _linguistics_restrictions():
+        from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
+        from the_tale.linguistics.storage import restrictions_storage
+        return [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.CITY_MODIFIER, CITY_MODIFIERS.index_name[modifier].value)]
+    return _linguistics_restrictions
+
 
 class CITY_MODIFIERS(DjangoEnum):
     quest_type = Column(unique=False)
     utg_name_form = Column()
+    linguistics_restrictions = Column()
 
-    records = ( ('TRADE_CENTER', 0, u'Торговый центр', QUEST_PLACE_TYPE.NONE, technical_words.MODIFIER_TRADE_CENTER),
-                ('CRAFT_CENTER', 1, u'Город мастеров', QUEST_PLACE_TYPE.NONE, technical_words.MODIFIER_CRAFT_CENTER),
-                ('FORT', 2, u'Форт', QUEST_PLACE_TYPE.NONE, technical_words.MODIFIER_FORT),
-                ('POLITICAL_CENTER', 3, u'Политический центр', QUEST_PLACE_TYPE.NONE, technical_words.MODIFIER_POLITICAL_CENTER),
-                ('POLIC', 4, u'Полис', QUEST_PLACE_TYPE.NONE, technical_words.MODIFIER_POLIC),
-                ('RESORT', 5, u'Курорт', QUEST_PLACE_TYPE.NONE, technical_words.MODIFIER_RESORT),
-                ('TRANSPORT_NODE', 6, u'Транспортный узел', QUEST_PLACE_TYPE.NONE, technical_words.MODIFIER_TRANSPORT_NODE),
-                ('OUTLAWS', 7, u'Вольница', QUEST_PLACE_TYPE.NONE, technical_words.MODIFIER_OUTLAWS),
-                ('HOLY_CITY', 8, u'Святой город', QUEST_PLACE_TYPE.HOLY_CITY, technical_words.MODIFIER_HOLY_CITY) )
+    records = ( ('TRADE_CENTER', 0, u'Торговый центр', QUEST_PLACE_TYPE.NONE,
+                 technical_words.MODIFIER_TRADE_CENTER, _modifier_linguistics_restrictions('TRADE_CENTER')),
+                ('CRAFT_CENTER', 1, u'Город мастеров', QUEST_PLACE_TYPE.NONE,
+                 technical_words.MODIFIER_CRAFT_CENTER, _modifier_linguistics_restrictions('CRAFT_CENTER')),
+                ('FORT', 2, u'Форт', QUEST_PLACE_TYPE.NONE,
+                 technical_words.MODIFIER_FORT, _modifier_linguistics_restrictions('FORT')),
+                ('POLITICAL_CENTER', 3, u'Политический центр', QUEST_PLACE_TYPE.NONE,
+                 technical_words.MODIFIER_POLITICAL_CENTER, _modifier_linguistics_restrictions('POLITICAL_CENTER')),
+                ('POLIC', 4, u'Полис', QUEST_PLACE_TYPE.NONE,
+                 technical_words.MODIFIER_POLIC, _modifier_linguistics_restrictions('POLIC')),
+                ('RESORT', 5, u'Курорт', QUEST_PLACE_TYPE.NONE,
+                 technical_words.MODIFIER_RESORT, _modifier_linguistics_restrictions('RESORT')),
+                ('TRANSPORT_NODE', 6, u'Транспортный узел', QUEST_PLACE_TYPE.NONE,
+                 technical_words.MODIFIER_TRANSPORT_NODE, _modifier_linguistics_restrictions('TRANSPORT_NODE')),
+                ('OUTLAWS', 7, u'Вольница', QUEST_PLACE_TYPE.NONE,
+                 technical_words.MODIFIER_OUTLAWS, _modifier_linguistics_restrictions('OUTLAWS')),
+                ('HOLY_CITY', 8, u'Святой город', QUEST_PLACE_TYPE.HOLY_CITY,
+                 technical_words.MODIFIER_HOLY_CITY, _modifier_linguistics_restrictions('HOLY_CITY')) )
 
 
 class EFFECT_SOURCES(DjangoEnum):

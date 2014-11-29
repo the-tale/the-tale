@@ -86,6 +86,11 @@ class PlacePrototype(BasePrototype, names.ManageNameMixin):
     @property
     def description_html(self): return bbcode.render(self._model.description)
 
+    def linguistics_restrictions(self):
+        from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
+        from the_tale.linguistics.storage import restrictions_storage
+        return []
+
     @property
     def terrain_change_power(self):
         power = self.size
@@ -542,6 +547,12 @@ class BuildingPrototype(BasePrototype, names.ManageNameMixin):
 
     @property
     def need_repair(self): return self.integrity < 0.9999
+
+    def linguistics_restrictions(self):
+        from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
+        from the_tale.linguistics.storage import restrictions_storage
+        return []
+
 
     @classmethod
     def get_available_positions(cls, center_x, center_y, building_position_radius=places_settings.BUILDING_POSITION_RADIUS): # pylint: disable=R0914

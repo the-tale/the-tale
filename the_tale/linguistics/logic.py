@@ -2,7 +2,7 @@
 import sys
 import collections
 
-from django.db import models
+from django.db import models as django_models
 from django.utils.log import getLogger
 from django.conf import settings as project_settings
 
@@ -18,8 +18,11 @@ from the_tale.linguistics.lexicon.groups import relations as groups_relations
 
 from the_tale.linguistics.storage import game_dictionary
 from the_tale.linguistics.storage import game_lexicon
+from the_tale.linguistics.storage import restrictions_storage
 
 from the_tale.linguistics import exceptions
+from the_tale.linguistics import objects
+from the_tale.linguistics import models
 from the_tale.linguistics.lexicon.keys import LEXICON_KEY
 
 logger = getLogger('the-tale.linguistics')
@@ -27,7 +30,7 @@ logger = getLogger('the-tale.linguistics')
 
 
 def get_templates_count():
-    keys_count_data = prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.IN_GAME).values('key').annotate(models.Count('key'))
+    keys_count_data = prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.IN_GAME).values('key').annotate(django_models.Count('key'))
 
     keys_count = {key: 0 for key in keys.LEXICON_KEY.records}
 
@@ -42,6 +45,18 @@ def get_templates_count():
     return groups_count, keys_count
 
 
+def _process_arguments(args):
+    externals = {}
+    restrictions = []
+
+    for k, v in args.iteritems():
+        word_form, variable_restrictions = VARIABLE(k).type.constructor(v)
+        externals[k] = word_form
+        restrictions.extend((k, restriction.id) for restriction in variable_restrictions)
+
+    return externals, frozenset(restrictions)
+
+
 def _prepair_get_text__real(key, args, quiet=False):
     lexicon_key = LEXICON_KEY.index_name.get(key.upper())
 
@@ -53,9 +68,9 @@ def _prepair_get_text__real(key, args, quiet=False):
             logger.warn('unknown template type: %s', lexicon_key)
         return None, {}
 
-    externals = {k: VARIABLE(k).constructor(v) for k, v in args.iteritems()}
+    externals, restrictions = _process_arguments(args)
 
-    return lexicon_key, externals
+    return lexicon_key, externals, restrictions
 
 
 def _prepair_get_text__test(key, args, quiet=False):
@@ -65,21 +80,19 @@ def _prepair_get_text__test(key, args, quiet=False):
     if lexicon_key is None and not quiet:
         raise exceptions.NoLexiconKeyError(key=key)
 
-    # test arguments before cheking key
-    # to test that functionality
-    externals = {k: VARIABLE(k).constructor(v) for k, v in args.iteritems()}
+    externals, restrictions = _process_arguments(args)
 
-    return lexicon_key, externals
+    return lexicon_key, externals, restrictions
 
 
-def _render_text__real(lexicon_key, externals, quiet=False):
+def _render_text__real(lexicon_key, externals, quiet=False, restrictions=frozenset()):
     if lexicon_key is None:
         return None
 
     try:
         # dictionary & lexicon can be changed unexpectedly in any time
         # and some rendered data can be obsolete
-        template = game_lexicon.item.get_random_template(lexicon_key)
+        template = game_lexicon.item.get_random_template(lexicon_key, restrictions=restrictions)
         return template.substitute(externals, game_dictionary.item)
     except utg_exceptions.UtgError as e:
         if not quiet:
@@ -89,13 +102,13 @@ def _render_text__real(lexicon_key, externals, quiet=False):
         return u''
 
 
-def _render_text__test(lexicon_key, externals, quiet=False):
+def _render_text__test(lexicon_key, externals, quiet=False, restrictions=frozenset()):
 
     if not game_lexicon.item.has_key(lexicon_key):
         # return fake text
         return unicode(lexicon_key)
 
-    template = game_lexicon.item.get_random_template(lexicon_key)
+    template = game_lexicon.item.get_random_template(lexicon_key, restrictions=restrictions)
 
     return template.substitute(externals, game_dictionary.item)
 
@@ -104,8 +117,8 @@ prepair_get_text = _prepair_get_text__test if project_settings.TESTS_RUNNING els
 render_text = _render_text__test if project_settings.TESTS_RUNNING else _render_text__real
 
 def get_text(key, args, quiet=False):
-    lexicon_key, externals = prepair_get_text(key, args, quiet)
-    return render_text(lexicon_key, externals, quiet)
+    lexicon_key, externals, restrictions = prepair_get_text(key, args, quiet)
+    return render_text(lexicon_key, externals, quiet, restrictions=restrictions)
 
 
 def update_words_usage_info():
@@ -144,3 +157,26 @@ def update_templates_errors():
 
 def efication(text):
     return text.replace(u'ё', u'е').replace(u'Ё', u'Е')
+
+
+def create_restriction(group, external_id, name):
+    model = models.Restriction.objects.create(group=group, external_id=external_id, name=name)
+    restriction = objects.Restriction.from_model(model)
+    restrictions_storage.add_item(restriction.id, restriction)
+    restrictions_storage.update_version()
+    return restriction
+
+
+def sync_static_restrictions():
+    for restrictions_group in relations.TEMPLATE_RESTRICTION_GROUP.records:
+
+        if restrictions_group.static_relation is None:
+            continue
+
+        for record in restrictions_group.static_relation.records:
+            restriction = restrictions_storage.get_restriction(restrictions_group, record.value)
+
+            if restriction:
+                continue
+
+            create_restriction(restrictions_group, record.value, name=record.text)

@@ -25,6 +25,7 @@ from the_tale.game.chronicle import records
 from the_tale.game.chronicle.models import RECORD_TYPE, Record, Actor
 from the_tale.game.chronicle.prototypes import create_external_actor
 from the_tale.game.chronicle.relations import ACTOR_ROLE
+from the_tale.game.chronicle.signal_processors import WordFormWrapper
 
 
 class RecordTests(TestCase):
@@ -180,9 +181,9 @@ def create_test_create_method(record_class):
             elif 'conversion' == argument:
                 substitutions['conversion'] = u'some text: %d' % index
             elif 'new_name' == argument:
-                substitutions['new_name'] = self.create_test_word(index)
+                substitutions['new_name'] = WordFormWrapper(self.create_test_word(index))
             elif 'old_name' == argument:
-                substitutions['old_name'] = self.create_test_word(index)
+                substitutions['old_name'] = WordFormWrapper(self.create_test_word(index))
             else:
                 raise Exception('unknown argument %s' % argument)
 

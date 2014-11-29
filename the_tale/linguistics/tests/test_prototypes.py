@@ -181,13 +181,19 @@ class TemplatePrototypeTests(testcase.TestCase):
 
         with mock.patch('the_tale.linguistics.workers.linguistics_manager.Worker.cmd_game_lexicon_changed') as cmd_game_lexicon_changed:
             with self.check_delta(prototypes.TemplatePrototype._db_count, 1):
-                prototype = prototypes.TemplatePrototype.create(key=self.key_1, raw_template=self.text_1, utg_template=self.template_1, verificators=[], author=self.account_1)
+                prototype = prototypes.TemplatePrototype.create(key=self.key_1,
+                                                                raw_template=self.text_1,
+                                                                utg_template=self.template_1,
+                                                                verificators=[],
+                                                                author=self.account_1,
+                                                                restrictions=(('hero', 1), ('hero', 2)))
 
         self.assertEqual(cmd_game_lexicon_changed.call_count, 1)
 
         self.assertTrue(prototype.state.is_ON_REVIEW)
         self.assertEqual(self.template_1, prototype.utg_template)
         self.assertEqual(self.text_1, prototype.raw_template)
+        self.assertEqual(frozenset((('hero', 1), ('hero', 2))), prototype.raw_restrictions)
 
         self.assertTrue(prototype.errors_status.is_HAS_ERRORS)
 
@@ -200,7 +206,8 @@ class TemplatePrototypeTests(testcase.TestCase):
             with mock.patch('the_tale.linguistics.prototypes.TemplatePrototype.update_errors_status') as update_errors_status:
                 prototype.update(raw_template=text,
                                  utg_template=template,
-                                 verificators=[prototypes.Verificator(text=u'test-verificator', externals={})])
+                                 verificators=[prototypes.Verificator(text=u'test-verificator', externals={}),],
+                                 restrictions=(('a', 3), ('b', 4), ('c', 5)))
 
         prototype.reload()
 
@@ -208,6 +215,7 @@ class TemplatePrototypeTests(testcase.TestCase):
 
         self.assertEqual(update_errors_status.call_count, 1)
         self.assertEqual(prototype.raw_template, text)
+        self.assertEqual(prototype.raw_restrictions, frozenset((('a', 3), ('b', 4), ('c', 5))))
 
         self.assertEqual(prototype.utg_template, template)
 

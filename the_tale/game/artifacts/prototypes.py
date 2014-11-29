@@ -67,6 +67,8 @@ class ArtifactPrototype(object):
 
     def set_bag_uuid(self, uuid): self.bag_uuid = uuid
 
+    def linguistics_restrictions(self): return self.record.linguistics_restrictions()
+
     def absolute_sell_price(self):
 
         if self.is_useless:
@@ -247,6 +249,12 @@ class ArtifactRecordPrototype(BasePrototype, names.ManageNameMixin):
     def set_mob(self, value):
         self._model.mob = value._model if value is not None else value
     mob = property(get_mob, set_mob)
+
+    def linguistics_restrictions(self):
+        from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
+        from the_tale.linguistics.storage import restrictions_storage
+        return []
+
 
     @classmethod
     def create(cls, uuid,

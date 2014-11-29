@@ -107,7 +107,7 @@ class PostsResource(BaseForumResource):
     def edit_post(self):
 
         if not (can_change_posts(self.account) or self.post.author == self.account):
-            return self.template('error.html', {'msg': u'У Вас нет прав для редактирования сообщения',
+            return self.template('error.html', {'error_message': u'У Вас нет прав для редактирования сообщения',
                                                 'error_code': 'forum.edit_thread.no_permissions'})
 
         return self.template('forum/edit_post.html',
@@ -285,7 +285,7 @@ class ThreadsResource(BaseForumResource):
     def edit_thread(self):
 
         if not can_change_thread(self.account, self.thread):
-            return self.template('error.html', {'msg': u'Вы не можете редактировать эту тему',
+            return self.template('error.html', {'error_message': u'Вы не можете редактировать эту тему',
                                                 'error_code': 'forum.edit_thread.no_permissions'})
 
         account_is_moderator = is_moderator(self.account)
@@ -427,7 +427,7 @@ class SubCategoryResource(BaseForumResource):
     def new_thread(self):
 
         if not can_create_thread(self.account, self.subcategory):
-            return self.template('error.html', {'msg': u'Вы не можете создавать темы в данном разделе',
+            return self.template('error.html', {'error_message': u'Вы не можете создавать темы в данном разделе',
                                                 'error_code': 'forum.new_thread.no_permissions'})
 
         return self.template('forum/new_thread.html',

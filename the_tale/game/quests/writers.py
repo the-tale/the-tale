@@ -56,11 +56,11 @@ class Writer(object):
 
         externals.update(self.substitution)
 
-        lexicon_key, externals = prepair_get_text(type, externals, quiet=True)
+        lexicon_key, externals, restrictions = prepair_get_text(type, externals, quiet=True)
 
         if lexicon_key is None: return None
 
-        return messages.MessageSurrogate.create(key=lexicon_key, externals=externals)
+        return messages.MessageSurrogate.create(key=lexicon_key, externals=externals, restrictions=restrictions)
 
     def get_message(self, type_, **kwargs):
         from the_tale.linguistics.logic import get_text

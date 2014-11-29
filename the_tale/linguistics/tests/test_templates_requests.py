@@ -15,6 +15,7 @@ from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user, login_page_url
 
 from the_tale.game.logic import create_test_map
+from the_tale.game import relations as game_relations
 
 from the_tale.linguistics import prototypes
 from the_tale.linguistics import storage
@@ -138,10 +139,16 @@ class CreateRequestsTests(BaseRequestsTests):
 
 
     def test_create(self):
+
+        race_restriction = storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.RACE,
+                                                                        game_relations.RACE.ELF.value)
+
         data = {'template': self.template_text,
                 'verificator_0': u'Призрак 13 неизвестное слово',
                 'verificator_1': u'Привидение 13',
-                'verificator_2': u''}
+                'verificator_2': u'',
+                'restriction_hero_%d' % relations.TEMPLATE_RESTRICTION_GROUP.GENDER.value: '',
+                'restriction_hero_%d' % relations.TEMPLATE_RESTRICTION_GROUP.RACE.value:  race_restriction.id}
 
         with self.check_delta(prototypes.TemplatePrototype._db_count, 1):
             response = self.client.post(self.requested_url, data)
@@ -160,6 +167,8 @@ class CreateRequestsTests(BaseRequestsTests):
 
         self.assertEqual(last_prototype.author_id, self.account_1.id)
         self.assertEqual(last_prototype.parent_id, None)
+
+        self.assertEqual(last_prototype.raw_restrictions, frozenset([('hero', race_restriction.id)]))
 
 
 
@@ -475,10 +484,15 @@ class UpdateRequestsTests(BaseRequestsTests):
 
     def test_update__on_review_by_owner(self):
 
+        race_restriction = storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.RACE,
+                                                                        game_relations.RACE.ELF.value)
+
         data = {'template': 'updated-template',
                 'verificator_0': u'verificatorx-1',
                 'verificator_1': u'verificatorx-2',
-                'verificator_2': u'verificatorx-3'}
+                'verificator_2': u'verificatorx-3',
+                'restriction_hero_%d' % relations.TEMPLATE_RESTRICTION_GROUP.GENDER.value: '',
+                'restriction_hero_%d' % relations.TEMPLATE_RESTRICTION_GROUP.RACE.value:  race_restriction.id}
 
         with self.check_not_changed(prototypes.TemplatePrototype._db_count):
             response = self.client.post(self.requested_url, data)
@@ -501,7 +515,7 @@ class UpdateRequestsTests(BaseRequestsTests):
         self.assertEqual(self.template.author_id, self.account_1.id)
         self.assertEqual(self.template.parent_id, None)
 
-
+        self.assertEqual(self.template.raw_restrictions, frozenset([('hero', race_restriction.id)]))
 
 
 

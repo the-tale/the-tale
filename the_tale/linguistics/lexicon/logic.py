@@ -13,7 +13,7 @@ def get_verificators_groups(key, old_groups={}):
 
         used_verificator_substitutions = set()
 
-        verificator = variable.verificator
+        verificator = variable.type.verificator
 
         for variable_name, (verificator_value, row_index) in groups.iteritems():
             if verificator_value == verificator.value:
