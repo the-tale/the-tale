@@ -1,5 +1,5 @@
 # coding: utf-8
-
+import sys
 import time
 import contextlib
 
@@ -158,6 +158,9 @@ class LogicStorage(object):
         except Exception:
             if logger:
                 logger.error(message % data)
+                logger.error('Exception',
+                             exc_info=sys.exc_info(),
+                             extra={} )
             self._save_on_exception(excluded_bundle_id=excluded_bundle_id)
             if logger:
                 logger.error('bundles saved')

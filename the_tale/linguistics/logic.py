@@ -66,7 +66,7 @@ def _prepair_get_text__real(key, args, quiet=False):
     if not game_lexicon.item.has_key(lexicon_key):
         if not quiet:
             logger.warn('unknown template type: %s', lexicon_key)
-        return None, {}
+        return None, {}, frozenset()
 
     externals, restrictions = _process_arguments(args)
 
