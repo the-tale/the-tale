@@ -30,9 +30,16 @@
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
               {{element.CAPTION}} {{element.choice_name}} <span class="caret"></span>
             </a>
-            <ul class="dropdown-menu">
+            <ul class="dropdown-menu pgf-scrollable" style="max-height: 310px; overflow-y: auto;">
               {% for choice_id, choice_name in element.choices %}
-                <li><a href="{{ list_filter.url_builder(**{element.ATTRIBUTE: choice_id}) }}">{{choice_name}}</a></li>
+                {% if is_sequence(choice_name) %}
+                  <li>&nbsp;<strong>{{choice_id}}</strong></li>
+                  {% for subchoice_id, subchoice_name in choice_name %}
+                    <li><a href="{{ list_filter.url_builder(**{element.ATTRIBUTE: subchoice_id}) }}">{{subchoice_name}}</a></li>
+                  {% endfor %}
+                {% else %}
+                  <li><a href="{{ list_filter.url_builder(**{element.ATTRIBUTE: choice_id}) }}">{{choice_name}}</a></li>
+                {% endif %}
               {% endfor %}
             </ul>
           </div>

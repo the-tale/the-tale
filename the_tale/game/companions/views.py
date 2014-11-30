@@ -112,10 +112,14 @@ def show(context):
     if context.companion.state.is_DISABLED and not (context.companions_can_edit or context.companions_can_moderate):
         raise dext_views.exceptions.ViewError(code='companions.show.no_rights', message=u'Вы не можете просматривать информацию по данному спутнику.')
 
+    template_restriction, ingame_companion_phrases = logic.required_templates_count(context.companion)
+
     return dext_views.Page('companions/show.html',
                            content={'context': context,
                                     'resource': context.resource,
                                     'companion': context.companion,
+                                    'ingame_companion_phrases': ingame_companion_phrases,
+                                    'template_restriction': template_restriction,
                                     'section': 'companions'})
 
 

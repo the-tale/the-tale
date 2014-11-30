@@ -8,6 +8,7 @@ from rels.django import RelationIntegerField
 from utg import relations as utg_relations
 
 from the_tale.linguistics import relations
+from the_tale.linguistics.lexicon import relations as lexicon_relations
 from the_tale.linguistics.lexicon import keys
 
 
@@ -82,3 +83,13 @@ class Restriction(models.Model):
 
     class Meta:
         unique_together = (('group', 'external_id'),)
+
+
+class TemplateRestriction(models.Model):
+
+    restriction = models.ForeignKey(Restriction, on_delete=models.CASCADE)
+    template = models.ForeignKey(Template, on_delete=models.CASCADE)
+    variable = models.CharField(max_length=32, db_index=True)
+
+    class Meta:
+        unique_together = (('restriction', 'template', 'variable'),)

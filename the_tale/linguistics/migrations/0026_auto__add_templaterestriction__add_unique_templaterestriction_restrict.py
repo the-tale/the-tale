@@ -1,29 +1,33 @@
 # -*- coding: utf-8 -*-
-import json
-
 from south.utils import datetime_utils as datetime
 from south.db import db
-from south.v2 import DataMigration
+from south.v2 import SchemaMigration
 from django.db import models
 
-class Migration(DataMigration):
-    depends_on = ( ('companions', '0003_auto__del_field_companionrecord_name'),  )
+
+class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding model 'TemplateRestriction'
+        db.create_table(u'linguistics_templaterestriction', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('restriction', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['linguistics.Restriction'])),
+            ('template', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['linguistics.Template'])),
+            ('variable', self.gf('django.db.models.fields.CharField')(max_length=32, db_index=True)),
+        ))
+        db.send_create_signal(u'linguistics', ['TemplateRestriction'])
 
-        Restriction = orm['linguistics.Restriction']
+        # Adding unique constraint on 'TemplateRestriction', fields ['restriction', 'template', 'variable']
+        db.create_unique(u'linguistics_templaterestriction', ['restriction_id', 'template_id', 'variable'])
 
-        for artifact in list(orm['artifacts.ArtifactRecord'].objects.all()):
-            Restriction.objects.create(group=11, external_id=artifact.id, name=json.loads(artifact.data)['name']['forms'][0])
-
-        for mob in list(orm['mobs.MobRecord'].objects.all()):
-            Restriction.objects.create(group=12, external_id=mob.id, name=json.loads(mob.data)['name']['forms'][0])
-
-        for companion in list(orm['companions.CompanionRecord'].objects.all()):
-            Restriction.objects.create(group=13, external_id=companion.id, name=json.loads(companion.data)['name']['forms'][0])
 
     def backwards(self, orm):
-        orm['linguistics.Restriction'].objects.all().delete()
+        # Removing unique constraint on 'TemplateRestriction', fields ['restriction', 'template', 'variable']
+        db.delete_unique(u'linguistics_templaterestriction', ['restriction_id', 'template_id', 'variable'])
+
+        # Deleting model 'TemplateRestriction'
+        db.delete_table(u'linguistics_templaterestriction')
+
 
     models = {
         u'accounts.account': {
@@ -59,24 +63,6 @@ class Migration(DataMigration):
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(1970, 1, 1, 0, 0)', 'auto_now': 'True', 'db_index': 'True', 'blank': 'True'}),
             'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Permission']"})
         },
-        u'artifacts.artifactrecord': {
-            'Meta': {'object_name': 'ArtifactRecord'},
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'data': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
-            'description': ('django.db.models.fields.TextField', [], {'default': "u''", 'blank': 'True'}),
-            'editor': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'+'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': u"orm['accounts.Account']"}),
-            'epic_effect': ('rels.django.RelationIntegerField', [], {}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'level': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'mob': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'+'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': u"orm['mobs.MobRecord']"}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '32', 'db_index': 'True'}),
-            'power_type': ('rels.django.RelationIntegerField', [], {}),
-            'rare_effect': ('rels.django.RelationIntegerField', [], {}),
-            'state': ('rels.django.RelationIntegerField', [], {}),
-            'type': ('rels.django.RelationIntegerField', [], {}),
-            'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'uuid': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '32'})
-        },
         u'auth.group': {
             'Meta': {'object_name': 'Group'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -101,14 +87,6 @@ class Migration(DataMigration):
             'motto': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '128'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'db_index': 'True', 'blank': 'True'})
-        },
-        u'companions.companionrecord': {
-            'Meta': {'object_name': 'CompanionRecord'},
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'data': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'state': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
-            'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
         u'contenttypes.contenttype': {
             'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
@@ -169,7 +147,7 @@ class Migration(DataMigration):
             'external_id': ('django.db.models.fields.BigIntegerField', [], {'db_index': 'True'}),
             'group': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'False', 'max_length': '128'})
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         },
         u'linguistics.template': {
             'Meta': {'object_name': 'Template'},
@@ -183,6 +161,13 @@ class Migration(DataMigration):
             'raw_template': ('django.db.models.fields.TextField', [], {'db_index': 'True'}),
             'state': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'})
+        },
+        u'linguistics.templaterestriction': {
+            'Meta': {'unique_together': "(('restriction', 'template', 'variable'),)", 'object_name': 'TemplateRestriction'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'restriction': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['linguistics.Restriction']"}),
+            'template': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['linguistics.Template']"}),
+            'variable': ('django.db.models.fields.CharField', [], {'max_length': '32', 'db_index': 'True'})
         },
         u'linguistics.word': {
             'Meta': {'unique_together': "(('normal_form', 'type', 'state'),)", 'object_name': 'Word'},
@@ -198,25 +183,7 @@ class Migration(DataMigration):
             'used_in_ingame_templates': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'used_in_onreview_templates': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'used_in_status': ('rels.django.RelationIntegerField', [], {'default': '2', 'db_index': 'True'})
-        },
-        u'mobs.mobrecord': {
-            'Meta': {'object_name': 'MobRecord'},
-            'abilities': ('django.db.models.fields.TextField', [], {}),
-            'archetype': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'data': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
-            'description': ('django.db.models.fields.TextField', [], {'default': "u''"}),
-            'editor': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': u"orm['accounts.Account']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'level': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '32', 'db_index': 'True'}),
-            'state': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
-            'terrains': ('django.db.models.fields.TextField', [], {}),
-            'type': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
-            'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'uuid': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '32'})
         }
     }
 
-    complete_apps = ['artifacts', 'mobs', 'companions', 'linguistics']
-    symmetrical = True
+    complete_apps = ['linguistics']

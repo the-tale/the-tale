@@ -2,7 +2,7 @@
 import random
 import datetime
 
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 
 from dext.common.utils import s11n
 
@@ -202,6 +202,13 @@ class TemplatePrototype(BasePrototype):
     def has_errors(self):
         return bool(self.get_errors())
 
+    def sync_restrictions(self):
+        with transaction.atomic():
+            models.TemplateRestriction.objects.filter(template_id=self.id).delete()
+            for variable, restrictions in self.restrictions.iteritems():
+                for restriction in restrictions:
+                    models.TemplateRestriction.objects.create(template_id=self.id, variable=variable.value, restriction_id=restriction.id)
+
 
     @classmethod
     def create(cls, key, raw_template, utg_template, verificators, author, parent=None, restrictions=frozenset()):
@@ -217,6 +224,7 @@ class TemplatePrototype(BasePrototype):
         prototype = cls(model)
 
         prototype.update_errors_status(force_update=True)
+        prototype.sync_restrictions()
 
         environment.workers.linguistics_manager.cmd_game_lexicon_changed()
 
@@ -256,6 +264,7 @@ class TemplatePrototype(BasePrototype):
         self._model.updated_at = datetime.datetime.now()
 
         self.update_errors_status(force_update=False)
+        self.sync_restrictions()
 
         super(TemplatePrototype, self).save()
 

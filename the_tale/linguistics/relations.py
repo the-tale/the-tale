@@ -93,7 +93,4 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
 
                 ('ARTIFACT', 11, u'артефакт', None),
                 ('MOB', 12, u'монстр', None),
-                ('COMPANION', 13, u'спутник', None)
-
-
-                 )
+                ('COMPANION', 13, u'спутник', None) )

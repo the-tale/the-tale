@@ -25,6 +25,7 @@ from the_tale.linguistics import prototypes
 from the_tale.linguistics import forms
 from the_tale.linguistics import word_drawer
 from the_tale.linguistics import logic
+from the_tale.linguistics import storage
 from the_tale.linguistics.lexicon.groups import relations as lexicon_groups_relations
 from the_tale.linguistics.lexicon import keys
 
@@ -48,7 +49,9 @@ class TemplatesIndexFilter(list_filter.ListFilter):
                 list_filter.choice_element(u'наличие ошибок:', attribute='errors_status', choices=[(None, u'все')] + list(relations.TEMPLATE_ERRORS_STATUS.select('value', 'text'))),
                 list_filter.choice_element(u'сортировать:', attribute='order_by', choices=relations.INDEX_ORDER_BY.select('value', 'text'),
                                            default_value=relations.INDEX_ORDER_BY.UPDATED_AT.value),
-                list_filter.static_element(u'количество:', attribute='count', default_value=0) ]
+                list_filter.static_element(u'количество:', attribute='count', default_value=0),
+                list_filter.choice_element(u'ограничение:', attribute='restriction', choices=storage.restrictions_storage.get_form_choices) ]
+
 
 
 def get_contributors(entity_id, author_id):
@@ -348,9 +351,10 @@ class TemplateResource(Resource):
     @validate_argument('key', lambda v: keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', u'неверный ключ фразы')
     @validate_argument('state', lambda v: relations.TEMPLATE_STATE.index_value.get(int(v)), 'linguistics.templates', u'неверное состояние шаблона')
     @validate_argument('order_by', lambda v: relations.INDEX_ORDER_BY.index_value.get(int(v)), 'linguistics.templates', u'неверный тип сортировки')
-    @validate_argument('errors_status', lambda v: relations.TEMPLATE_ERRORS_STATUS.index_value.get(int(v)), 'linguistics.words', u'неверный статус ошибок')
+    @validate_argument('errors_status', lambda v: relations.TEMPLATE_ERRORS_STATUS.index_value.get(int(v)), 'linguistics.templates', u'неверный статус ошибок')
+    @validate_argument('restriction', lambda v: storage.restrictions_storage[int(v)], 'linguistics.templates', u'неверный тип ограничения')
     @handler('', method='get')
-    def index(self, key=None, state=None, filter=None, errors_status=None, page=1, contributor=None, order_by=relations.INDEX_ORDER_BY.UPDATED_AT):
+    def index(self, key=None, state=None, filter=None, restriction=None, errors_status=None, page=1, contributor=None, order_by=relations.INDEX_ORDER_BY.UPDATED_AT):
         templates_query = prototypes.TemplatePrototype._db_all().order_by('raw_template')
 
         if contributor is not None:
@@ -366,6 +370,9 @@ class TemplateResource(Resource):
 
         if errors_status:
             templates_query = templates_query.filter(errors_status=errors_status)
+
+        if restriction:
+            templates_query = templates_query.filter(templaterestriction__restriction_id=restriction.id)
 
         if filter:
             templates_query = templates_query.filter(raw_template__icontains=filter)
@@ -385,6 +392,7 @@ class TemplateResource(Resource):
                                                                                 'contributor': contributor.id if contributor else None,
                                                                                 'order_by': order_by.value,
                                                                                 'filter': filter,
+                                                                                'restriction': restriction.id if restriction is not None else None,
                                                                                 'key': key.value if key is not None else None})
 
         index_filter = TemplatesIndexFilter(url_builder=url_builder, values={'state': state.value if state else None,
@@ -392,6 +400,7 @@ class TemplateResource(Resource):
                                                                              'contributor': contributor.nick if contributor else None,
                                                                              'order_by': order_by.value,
                                                                              'filter': filter,
+                                                                             'restriction': restriction.id if restriction is not None else None,
                                                                              'key': key.value if key is not None else None,
                                                                              'count': templates_query.count()})
 

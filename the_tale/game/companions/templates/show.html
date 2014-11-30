@@ -26,4 +26,35 @@
   {{companion.description_html|safe}}
 </p>
 
+{% if context.companions_can_edit or context.companions_can_moderate %}
+
+  <h4>Количество обязательных фраз в игре</h4>
+
+  <p>
+    Спутника можно добавлять впускать в игру, когда для каждого типа фраз есть хотя бы одна внесённая в игру.
+  </p>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>тип фразы</th>
+      <th>количество фраз в игре</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for key, templates_count in ingame_companion_phrases%}
+    <tr>
+      <td><a href="{{url('linguistics:templates:', key=key.value, restriction=template_restriction.id)}}">{{key.text}}</a></td>
+      <td>
+        {% if templates_count == 0 %}<span style="color: red;">{% endif %}
+        {{templates_count}}
+        {% if templates_count == 0 %}</span>{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endif %}
+
 {% endblock %}

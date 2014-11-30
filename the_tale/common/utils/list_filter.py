@@ -99,7 +99,17 @@ def choice_element(caption, attribute, choices, default_value=None):
         def __init__(self, list_filter, value):
             super(ChoiceElement, self).__init__(list_filter, value)
             self.choices = self.CHOICES if not callable(self.CHOICES) else self.CHOICES()
-            self.choice_name = dict(self.choices)[self.value]
+
+            for choice_id, choice_name in self.choices:
+                if not isinstance(choice_name, basestring):
+                    for subchoice_id, subchoice_name in choice_name:
+                        if subchoice_id == self.value:
+                            self.choice_name = subchoice_name
+                            break
+                else:
+                    if choice_id == self.value:
+                        self.choice_name = choice_name
+                        break
 
         @property
         def default_arguments(self): return {self.ATTRIBUTE: self.DEFAULT_VALUE}

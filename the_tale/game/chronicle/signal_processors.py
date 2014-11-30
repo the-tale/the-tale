@@ -12,7 +12,7 @@ from the_tale.game.chronicle.relations import ACTOR_ROLE
 
 
 class WordFormWrapper(object):
-    __slots__ = ('word', )
+    __slots__ = ('word', 'restrictions')
 
     def __init__(self, word, restrictions=[]):
         self.word = word
@@ -32,8 +32,8 @@ def _get_bill_place_renaming_arguments(bill):
     return { 'actors': [(ACTOR_ROLE.BILL, bill),
                         (ACTOR_ROLE.PLACE, bill.data.place)],
              'substitutions': {'bill': bill.caption,
-                               'old_name': WordFormWrapper(bill.data.old_name_forms, restrictions=bill.place.linguistics_restrictions()),
-                               'new_name': WordFormWrapper(bill.data.name_forms, restrictions=bill.place.linguistics_restrictions())} }
+                               'old_name': WordFormWrapper(bill.data.old_name_forms, restrictions=bill.data.place.linguistics_restrictions()),
+                               'new_name': WordFormWrapper(bill.data.name_forms, restrictions=bill.data.place.linguistics_restrictions())} }
 
 def _get_bill_place_description_arguments(bill):
     return { 'actors': [(ACTOR_ROLE.BILL, bill),

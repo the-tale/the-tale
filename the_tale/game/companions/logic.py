@@ -47,3 +47,21 @@ def update_companion_record(companion, utg_name, description, state=relations.CO
 
 def get_last_companion():
     return objects.CompanionRecord.from_model(models.CompanionRecord.objects.order_by('-id')[0])
+
+
+def required_templates_count(companion_record):
+    from the_tale.linguistics import relations as linguistics_relations
+    from the_tale.linguistics import storage as linguistics_storage
+    from the_tale.linguistics.lexicon import keys as lexicon_keys
+    from the_tale.linguistics.lexicon import relations as lexicon_relations
+
+    companions_keys = [key for key in lexicon_keys.LEXICON_KEY.records if key.group.is_COMPANIONS]
+
+    restriction = linguistics_storage.restrictions_storage.get_restriction(linguistics_relations.TEMPLATE_RESTRICTION_GROUP.COMPANION, external_id=companion_record.id)
+
+    template_restrictions = frozenset([(lexicon_relations.VARIABLE.COMPANION.value, restriction.id)])
+
+    ingame_companion_phrases = [(key, len(linguistics_storage.game_lexicon.item.get_templates(key, restrictions=template_restrictions)))
+                                for key in companions_keys]
+
+    return restriction, ingame_companion_phrases

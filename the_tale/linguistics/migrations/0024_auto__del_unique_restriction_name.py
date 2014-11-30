@@ -135,7 +135,7 @@ class Migration(SchemaMigration):
             'external_id': ('django.db.models.fields.BigIntegerField', [], {'db_index': 'True'}),
             'group': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '128'})
+            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '128'})
         },
         u'linguistics.template': {
             'Meta': {'object_name': 'Template'},

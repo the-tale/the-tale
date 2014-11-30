@@ -85,7 +85,8 @@ class VARIABLE_TYPE(DjangoEnum):
                                                                                                           relations.TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS,
                                                                                                           relations.TEMPLATE_RESTRICTION_GROUP.MOB_TYPE)),
                 ('MODIFIER', 8, u'модификатор города', VARIABLE_VERIFICATOR.MODIFIER, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.CITY_MODIFIER,)),
-                ('RACE', 9, u'раса', VARIABLE_VERIFICATOR.RACE, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.RACE,)) )
+                ('RACE', 9, u'раса', VARIABLE_VERIFICATOR.RACE, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.RACE,)),
+                ('COMPANION', 10, u'спутник', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.COMPANION,)) )
 
 
 
@@ -140,5 +141,6 @@ class VARIABLE(DjangoEnum):
                 ('DAMAGE', 'damage', u'урон', VARIABLE_TYPE.NUMBER),
                 ('DEFENDER', 'defender', u'защитник', VARIABLE_TYPE.ACTOR),
                 ('ACTOR', 'actor', u'актор (герой или монстр)', VARIABLE_TYPE.ACTOR),
-                ('CONVERSION', 'conversion', u'информация о конверсии параметров', VARIABLE_TYPE.TEXT)
+                ('CONVERSION', 'conversion', u'информация о конверсии параметров', VARIABLE_TYPE.TEXT),
+                ('COMPANION', 'companion', u'спутник', VARIABLE_TYPE.COMPANION)
                 )

@@ -127,4 +127,8 @@ class LEXICON_GROUP(DjangoEnum):
                u'Тексты, относящиеся к заданию.',
                {V.INITIATOR: u'житель, начинающий задание', V.HERO: u'герой', V.COINS: u'количество монет', V.ARTIFACT: u'артефакт', V.INITIATOR_POSITION: u'место начала задания', V.RECEIVER: u'житель, заканчивающий задание', V.RECEIVER_POSITION: u'место окончания задания'}),
 
+               ('COMPANIONS', 29, u'Спутники', 290000,
+               u'Тексты, относящиеся к спутникам.',
+               {V.HERO: u'герой', V.COMPANION: u'спутник'}),
+
                )

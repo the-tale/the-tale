@@ -18,9 +18,12 @@ from the_tale.game.logic import create_test_map
 from the_tale.linguistics import prototypes
 from the_tale.linguistics import relations
 from the_tale.linguistics import storage
+from the_tale.linguistics import logic
+from the_tale.linguistics import models
 
 from the_tale.linguistics.lexicon import keys
 from the_tale.linguistics.lexicon import logic as lexicon_logic
+from the_tale.linguistics.lexicon import relations as lexicon_relations
 
 
 class WordPrototypeTests(testcase.TestCase):
@@ -179,6 +182,8 @@ class TemplatePrototypeTests(testcase.TestCase):
 
     def test_create(self):
 
+        restriction_1, restriction_2 = storage.restrictions_storage.all()[:2]
+
         with mock.patch('the_tale.linguistics.workers.linguistics_manager.Worker.cmd_game_lexicon_changed') as cmd_game_lexicon_changed:
             with self.check_delta(prototypes.TemplatePrototype._db_count, 1):
                 prototype = prototypes.TemplatePrototype.create(key=self.key_1,
@@ -186,14 +191,14 @@ class TemplatePrototypeTests(testcase.TestCase):
                                                                 utg_template=self.template_1,
                                                                 verificators=[],
                                                                 author=self.account_1,
-                                                                restrictions=(('hero', 1), ('hero', 2)))
+                                                                restrictions=(('hero', restriction_1.id), ('hero', restriction_2.id)))
 
         self.assertEqual(cmd_game_lexicon_changed.call_count, 1)
 
         self.assertTrue(prototype.state.is_ON_REVIEW)
         self.assertEqual(self.template_1, prototype.utg_template)
         self.assertEqual(self.text_1, prototype.raw_template)
-        self.assertEqual(frozenset((('hero', 1), ('hero', 2))), prototype.raw_restrictions)
+        self.assertEqual(frozenset((('hero', restriction_1.id), ('hero', restriction_2.id))), prototype.raw_restrictions)
 
         self.assertTrue(prototype.errors_status.is_HAS_ERRORS)
 
@@ -202,12 +207,14 @@ class TemplatePrototypeTests(testcase.TestCase):
 
         text, template = self.create_template(self.key_1, word=self.word_2)
 
+        restriction_1, restriction_2, restriction_3 = storage.restrictions_storage.all()[:3]
+
         with mock.patch('the_tale.linguistics.workers.linguistics_manager.Worker.cmd_game_lexicon_changed') as cmd_game_lexicon_changed:
             with mock.patch('the_tale.linguistics.prototypes.TemplatePrototype.update_errors_status') as update_errors_status:
                 prototype.update(raw_template=text,
                                  utg_template=template,
                                  verificators=[prototypes.Verificator(text=u'test-verificator', externals={}),],
-                                 restrictions=(('a', 3), ('b', 4), ('c', 5)))
+                                 restrictions=(('hero', restriction_1.id), ('level', restriction_2.id), ('hero', restriction_3.id)))
 
         prototype.reload()
 
@@ -215,7 +222,7 @@ class TemplatePrototypeTests(testcase.TestCase):
 
         self.assertEqual(update_errors_status.call_count, 1)
         self.assertEqual(prototype.raw_template, text)
-        self.assertEqual(prototype.raw_restrictions, frozenset((('a', 3), ('b', 4), ('c', 5))))
+        self.assertEqual(prototype.raw_restrictions, frozenset((('hero', restriction_1.id), ('level', restriction_2.id), ('hero', restriction_3.id))))
 
         self.assertEqual(prototype.utg_template, template)
 
@@ -400,6 +407,42 @@ class TemplatePrototypeTests(testcase.TestCase):
         prototype.reload()
 
         self.assertTrue(prototype.errors_status.is_NO_ERRORS)
+
+
+    def test_sync_restrictions(self):
+        key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
+
+        group_1, group_2, group_3 = random.sample(relations.TEMPLATE_RESTRICTION_GROUP.records, 3)
+
+        restriction_1_1 = logic.create_restriction(group=group_1, external_id=100500, name=u'name-1-1')
+        restriction_1_2 = logic.create_restriction(group=group_1, external_id=200500, name=u'name-1-2')
+        restriction_2_1 = logic.create_restriction(group=group_2, external_id=100500, name=u'name-2-1')
+        restriction_2_2 = logic.create_restriction(group=group_2, external_id=200500, name=u'name-2-2')
+        restriction_2_3 = logic.create_restriction(group=group_2, external_id=300500, name=u'name-2-3')
+        restriction_3_1 = logic.create_restriction(group=group_3, external_id=100500, name=u'name-3-1')
+
+        template_1 = prototypes.TemplatePrototype.create(key=key, raw_template=self.text_1, utg_template=self.template_1,
+                                                         verificators=[],  author=self.account_1,
+                                                         restrictions=(('hero', restriction_1_1.id), ('hero', restriction_2_2.id)))
+
+        template_2 = prototypes.TemplatePrototype.create(key=key, raw_template=self.text_1, utg_template=self.template_1,
+                                                         verificators=[],  author=self.account_1,
+                                                         restrictions=(('hero', restriction_1_2.id), ('level', restriction_2_1.id), ('hero', restriction_3_1.id)))
+
+        template_1.update(restrictions=(('level', restriction_2_3.id), ('hero', restriction_2_2.id), ('level', restriction_2_1.id)))
+
+        self.assertEqual(models.TemplateRestriction.objects.count(), 6)
+
+        existed_restrictions = frozenset(models.TemplateRestriction.objects.values_list('template_id', 'variable', 'restriction_id'))
+
+        expected_restrictions = frozenset([(template_1.id, 'hero', restriction_2_2.id),
+                                           (template_1.id, 'level', restriction_2_1.id),
+                                           (template_1.id, 'level', restriction_2_3.id),
+                                           (template_2.id, 'hero', restriction_1_2.id),
+                                           (template_2.id, 'level', restriction_2_1.id),
+                                           (template_2.id, 'hero', restriction_3_1.id)])
+
+        self.assertEqual(existed_restrictions, expected_restrictions)
 
 
 
