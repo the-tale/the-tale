@@ -1,4 +1,5 @@
 # coding: utf-8
+import mock
 
 from django.conf import settings as project_settings
 
@@ -14,6 +15,9 @@ from the_tale.game.logic import create_test_map
 from the_tale.game.balance import constants as c
 
 from the_tale.forum.tests.helpers import ForumFixture
+
+from the_tale.portal.conf import portal_settings
+
 
 class TestRequests(testcase.TestCase):
 
@@ -79,3 +83,17 @@ class IndexRequestTests(testcase.TestCase):
     def test_success(self):
         response = self.client.get(url('portal:'))
         self.assertEqual(response.status_code, 200)
+
+
+    def test_first_time_redirect(self):
+        with mock.patch('the_tale.portal.conf.portal_settings.ENABLE_FIRST_TIME_REDIRECT', True):
+            with mock.patch('the_tale.accounts.logic.is_first_time_visit', lambda request: True):
+                self.check_redirect('/', portal_settings.FIRST_TIME_LANDING_URL)
+            with mock.patch('the_tale.accounts.logic.is_first_time_visit', lambda request: False):
+                self.check_html_ok(self.request_html('/'))
+
+        with mock.patch('the_tale.portal.conf.portal_settings.ENABLE_FIRST_TIME_REDIRECT', False):
+            with mock.patch('the_tale.accounts.logic.is_first_time_visit', lambda request: True):
+                self.check_html_ok(self.request_html('/'))
+            with mock.patch('the_tale.accounts.logic.is_first_time_visit', lambda request: False):
+                self.check_html_ok(self.request_html('/'))

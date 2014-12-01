@@ -1,0 +1,55 @@
+
+{% macro map_statistics(MAP_STATISTICS, map_info) %}
+<table class="table table-condensed">
+  <tr><th>местность</th>  <th>распространение</th></tr>
+  <tr><th>{{MAP_STATISTICS.LOWLANDS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.LOWLANDS, 0)|percents }}</td></tr>
+  <tr><th>{{MAP_STATISTICS.PLAINS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.PLAINS, 0)|percents }}</td></tr>
+  <tr><th>{{MAP_STATISTICS.UPLANDS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.UPLANDS, 0)|percents }}</td></tr>
+  <tr><th>{{MAP_STATISTICS.DESERTS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.DESERTS, 0)|percents }}</td></tr>
+  <tr><th>{{MAP_STATISTICS.GRASS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.GRASS, 0)|percents }}</td></tr>
+  <tr><th>{{MAP_STATISTICS.FORESTS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.FORESTS, 0)|percents }}</td></tr>
+</table>
+{% endmacro %}
+
+
+{% macro race_statistics(RACE, map_info) %}
+<table class="table table-condensed">
+  <tr>
+    <th>раса</th>
+    <th>советы</th>
+    <th>жители</th>
+    <th>города</th>
+  </tr>
+  <tr>
+    <th>люди</th>
+    <td>{{ map_info.person_race_percents.get(RACE.HUMAN, 0)|percents }}</td>
+    <td>{{ map_info.race_percents.get(RACE.HUMAN, 0)|percents }}</td>
+    <td>{{ map_info.race_cities.get(RACE.HUMAN, 0) }}</td>
+  </tr>
+  <tr>
+    <th>гоблины</th>
+    <td>{{ map_info.person_race_percents.get(RACE.GOBLIN, 0)|percents }}</td>
+    <td>{{ map_info.race_percents.get(RACE.GOBLIN, 0)|percents }}</td>
+    <td>{{ map_info.race_cities.get(RACE.GOBLIN, 0) }}</td>
+  </tr>
+  <tr>
+    <th>эльфы</th>
+    <td>{{ map_info.person_race_percents.get(RACE.ELF, 0)|percents }}</td>
+    <td>{{ map_info.race_percents.get(RACE.ELF, 0)|percents }}</td>
+    <td>{{ map_info.race_cities.get(RACE.ELF, 0) }}</td>
+  </tr>
+  <tr>
+    <th>орки</th>
+    <td>{{ map_info.person_race_percents.get(RACE.ORC, 0)|percents }}</td>
+    <td>{{ map_info.race_percents.get(RACE.ORC, 0)|percents }}</td>
+    <td>{{ map_info.race_cities.get(RACE.ORC, 0) }}</td>
+  </tr>
+  <tr>
+    <th>дварфы</th>
+    <td>{{ map_info.person_race_percents.get(RACE.DWARF, 0)|percents }}</td>
+    <td>{{ map_info.race_percents.get(RACE.DWARF, 0)|percents }}</td>
+    <td>{{ map_info.race_cities.get(RACE.DWARF, 0) }}</td>
+  </tr>
+</table>
+
+{% endmacro %}

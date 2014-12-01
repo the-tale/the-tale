@@ -10,6 +10,7 @@ from the_tale.common.utils import bbcode
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils import api
 
+from the_tale.accounts import logic as accounts_logic
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.clans.prototypes import ClanPrototype
 
@@ -28,7 +29,8 @@ from the_tale.game.abilities.relations import ABILITY_TYPE
 from the_tale.game.map.storage import map_info_storage
 from the_tale.game.map.relations import TERRAIN, MAP_STATISTICS
 
-from the_tale.game.chronicle import RecordPrototype as ChronicleRecordPrototype
+from the_tale.game.chronicle.prototypes import RecordPrototype as ChronicleRecordPrototype
+from the_tale.game.chronicle.prototypes import RecordToActorPrototype
 
 from the_tale.game.bills.prototypes import BillPrototype
 
@@ -42,6 +44,10 @@ class PortalResource(Resource):
 
     @handler('', method='get')
     def index(self):
+
+        if portal_settings.ENABLE_FIRST_TIME_REDIRECT and accounts_logic.is_first_time_visit(self.request):
+            return self.redirect(portal_settings.FIRST_TIME_LANDING_URL)
+
         news = News.objects.all().order_by('-created_at')[:portal_settings.NEWS_ON_INDEX]
 
         bills = BillPrototype.get_recently_modified_bills(portal_settings.BILLS_ON_INDEX)
@@ -70,6 +76,8 @@ class PortalResource(Resource):
 
         chronicle_records = ChronicleRecordPrototype.get_last_records(portal_settings.CHRONICLE_RECORDS_ON_INDEX)
 
+        chronicle_actors = RecordToActorPrototype.get_actors_for_records(chronicle_records)
+
         return self.template('portal/index.html',
                              {'news': news,
                               'forum_threads': forum_threads,
@@ -82,6 +90,7 @@ class PortalResource(Resource):
                               'TERRAIN': TERRAIN,
                               'MAP_STATISTICS': MAP_STATISTICS,
                               'chronicle_records': chronicle_records,
+                              'chronicle_actors': chronicle_actors,
                               'RACE': RACE})
 
     @handler('search')

@@ -133,6 +133,8 @@ def logout_user(request):
 
     request.session.flush()
 
+    request.session[accounts_settings.SESSION_FIRST_TIME_VISIT_VISITED_KEY] = True
+
 
 def remove_account(account):
     from the_tale.game.logic import remove_game_data
@@ -157,3 +159,7 @@ def get_account_id_by_email(email):
 
 def get_session_expire_at_timestamp(request):
     return time.mktime(request.session.get_expiry_date().timetuple())
+
+
+def is_first_time_visit(request):
+    return not request.user.is_authenticated() and request.session.get(accounts_settings.SESSION_FIRST_TIME_VISIT_KEY)

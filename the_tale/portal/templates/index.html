@@ -1,56 +1,24 @@
 {% extends "base.html" %}
 
 {% import 'news/macros.html' as news_macros with context %}
+{% import 'portal/macros.html' as portal_macros with context %}
 
 {% block title %}{{ super() }}{% endblock %}
 {% block description %}{{super()}}{% endblock %}
 
+{% block head %}
+{{ super() }}
+
+<script type="text/javascript">
+jQuery(document).ready(function(e){
+    pgf.base.InitializeTabs('index-tabs', 'chronicle', [['.pgf-newspaper-news-button', 'news'],
+                                                        ['.pgf-newspaper-chronicle-button', 'chronicle'],
+                                                        ['.pgf-newspaper-statistics-button', 'statistics']]);
+});
+</script>
+{% endblock %}
+
 {% block content %}
-
-{% if not resource.account.is_authenticated() %}
-<div class="row">
-  <div class="span12">
-    <div class="block">
-      <a class="btn btn-danger pgf-fast-registration"
-         href="{{ url('accounts:registration:fast') }}"
-         style="width: 170px; height: 64px; font-size: 19pt; float: left; margin-right: 0.5em; margin-top: 0.3em;">
-        <span style="position: relative; top: 20px;">Создать героя</span>
-      </a>
-
-      <h2>Здравствуйте!</h2>
-
-      <p>
-        Добро пожаловать в Сказку — многопользовательскую ролевую ZPG (<a href="{{url('guide:zpg')}}">Zero Player Game</a>) с непрямым управлением персонажами.
-      </p>
-
-      <p>
-        Мы создаём игру, в которой важно каждое Ваше действие.
-      </p>
-
-      <h4>У нас есть живой мир</h4>
-      <p style="margin-left: 1em;">
-        Мир игры постоянно меняется и никогда не замирает. На месте равнин появляются горы, засушливые пустыни сменяются болотами. Растут и угасают города, их жители борются за власть. И все это под влиянием игроков. Решите каким Вы хотите видеть этот мир и измените его.
-      </p>
-
-      <h4>обладающий живой историей</h4>
-      <p style="margin-left: 1em;">
-        Историю делаете Вы. Все задания, которые получают герои, привязаны к текущей ситуации в мире, предоставляют возможность выбора и оказывают существенное влияние на развитие сюжета. От Ваших решений зависит кому будет принадлежать власть в городах и кто будет в них жить. Выберите любимый город и помогите ему стать жемчужиной этого мира.
-      </p>
-
-      <h4>и населённый живыми героями</h4>
-      <p style="margin-left: 1em;">
-        Герои нашей Сказки — не бездушные марионетки. Они обладают волей и в состоянии действовать без Вашей указки. Вы же можете помогать им и подталкивать к нужным решениям, меняя характер своего подопечного. Кем он станет? Подлым магом? Миролюбивым воином? Решать Вам.
-      </p>
-
-      <p>
-        Хотите узнать больше? — <a href="{{ url('guide:') }}">Путеводитель по Сказке</a> к Вашим услугам.
-      </p>
-
-    </div>
-  </div>
-</div>
-
-{% endif %}
 
 <div class="row">
   <div class="span3" style="min-height: 50px;">&nbsp;</div>
@@ -65,11 +33,11 @@
 <div class="row">
 
   <div class="span3">
-    <div class="block">
+    <div class="easy-block">
       <h4 class="newspaper-column-header">
         Герой дня
         <i style="margin-top: 2px; cursor: pointer;"
-           class="icon-info-sign pull-right"
+           class="icon-info-sign"
            rel="tooltip"
            title="Герой дня случайно выбирается из активных игроков без подписки и получает подписку на месяц "></i>
       </h4>
@@ -95,7 +63,7 @@
       {% endif %}
     </div>
 
-    <div class="block">
+    <div class="easy-block">
       <h4 class="newspaper-column-header">
         Горячие темы
         <a href="{{ url('forum:feed') }}" class="rss-link" rel="alternate" type="application/rss+xml" rel="tooltip" title="подписаться на rss форума">
@@ -119,120 +87,108 @@
       </ul>
     </div>
 
-    <div class="block">
-      <h4 class="newspaper-column-header">Фольклористика</h4>
-      <ul class="unstyled">
-        {% for blog_post in blog_posts %}
-        <li class="newspaper-link-list">
-          <span class="pgf-format-date newspaper-link-time" data-timestamp="{{ blog_post.created_at|timestamp }}"></span>
-          <span class="newspaper-forum-user">
-            {% if blog_post.author %}{{blog_post.author.nick_verbose}}
-            {% else %} —
-            {% endif %}
-          </span>
-          <br/>
-          {{ blog_post.caption }}&nbsp;<a style="font-size: 10pt;" href="{{ url('blogs:posts:show', blog_post.id) }}">➔</a>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
-
   </div>
 
   <div class="span6">
     <div class="row">
       <div class="span6">
-        <div class="block">
+        <div class="easy-block">
 
-          <h4 class="newspaper-column-header">
-            Новости
-            <a href="{{ url('news:feed') }}" class="rss-link" rel="alternate" type="application/rss+xml" rel="tooltip" title="подписаться на rss новостей">
-              <img src="{{STATIC_CONTENT}}images/rss.png" style="margin: 2px;"/>
-            </a>
-            <small><a href="{{ url('news:') }}">ещё…</a></small>
-          </h4>
+          <ul class="nav nav-tabs" style="margin-top: -10px;">
+            <li style="width: 33%;">
+              <a href="#pgf-newspaper-news" class="pgf-newspaper-news-button" data-toggle="tab" style="color: rgb(51, 51, 51);">
+                <h4 class="newspaper-column-header">новости</h4>
+              </a>
+            </li>
+            <li style="width: 33%;" class="active">
+              <a href="#pgf-newspaper-chronicle" class="pgf-newspaper-chronicle-button"  data-toggle="tab" style="color: rgb(51, 51, 51);">
+                <h4 class="newspaper-column-header">события</h4>
+              </a>
+            </li>
+            <li style="width: 33%;">
+              <a href="#pgf-newspaper-statistics" class="pgf-newspaper-statistics-button" data-toggle="tab" style="color: rgb(51, 51, 51);">
+                <h4 class="newspaper-column-header">статистика</h4>
+              </a>
+            </li>
+          </ul>
 
-          {% for record in news %}
-          {{ news_macros.news_record(record) }}
-          {% endfor %}
+          <div class="tab-content">
+
+            <div class="tab-pane" id="pgf-newspaper-news">
+              {% for record in news %}
+              {% if loop.index > 1%}<hr style="margin: 1em;"/>{% endif %}
+              {{ news_macros.news_record(record, center_captions=true) }}
+              {% endfor %}
+
+              <div>
+                <a href="{{ url('news:feed') }}" class="rss-link" rel="alternate" type="application/rss+xml" rel="tooltip" title="подписаться на rss новостей">
+                  <img src="{{STATIC_CONTENT}}images/rss.png" style="margin: 2px;"/>
+                </a>
+                <a href="{{ url('news:') }}" style="vertical-align: middle;">ВСЕ НОВОСТИ…</a>
+              </div>
+            </div>
+
+            <div class="tab-pane active" id="pgf-newspaper-chronicle">
+              <ul class="unstyled">
+                {% for record in chronicle_records %}
+                  <li class="newspaper-link-list">
+                    <span class="newspaper-link-time">
+                      {{record.game_time.verbose_date}}:
+                      {% for actor in chronicle_actors[record.id] %}
+                        {%- if loop.index > 1 -%},{% endif %}
+                        {% if actor.type.is_BILL %}<a href="{{url('game:bills:show', actor.bill_id)}}">{{actor.name}}</a>{% endif -%}
+                        {% if actor.type.is_PLACE %}<a href="{{url('game:map:places:show', actor.place_id)}}">{{actor.name}}</a>{% endif -%}
+                        {% if actor.type.is_PERSON %}{{actor.name}}{% endif -%}
+                      {% endfor %}
+                    </span>
+                    <br/>
+                    <span>{{ record.text }}</span>
+                  </li>
+                {% endfor %}
+              </ul>
+
+              <div>
+                <a href="{{ url('game:chronicle:') }}">ВСЕ СОБЫТИЯ…</a>
+              </div>
+            </div>
+
+            <div class="tab-pane" id="pgf-newspaper-statistics">
+
+                  <div class="easy-block">
+                    <h4 class="newspaper-column-header">Географический уголок</h4>
+                    <span style="font-size: 8pt;">Обзор географической ситуации любезно предоставлен Гоблинским Географическим Обществом.</span>
+                    {{ portal_macros.map_statistics(MAP_STATISTICS, map_info) }}
+                  </div>
+
+                  <div class="easy-block">
+                    <h4 class="newspaper-column-header">Политический обзор</h4>
+                    <span style="font-size: 8pt;">Политическая ситуация описана согласно данным полученным от ПандораСтат.</span>
+                    {{ portal_macros.race_statistics(RACE, map_info) }}
+                  </div>
+
+            </div>
+          </div>
+
+          <!-- <h4 class="newspaper-column-header"> -->
+          <!--   Новости -->
+          <!--   <a href="{{ url('news:feed') }}" class="rss-link" rel="alternate" type="application/rss+xml" rel="tooltip" title="подписаться на rss новостей"> -->
+          <!--     <img src="{{STATIC_CONTENT}}images/rss.png" style="margin: 2px;"/> -->
+          <!--   </a> -->
+          <!--   <small><a href="{{ url('news:') }}">ещё…</a></small> -->
+          <!-- </h4> -->
+
+
         </div>
 
       </div>
-    </div>
-
-    <div class="row">
-
-      <div class="span3" style="min-width: 270px;">
-        <div class="block">
-          <h4 class="newspaper-column-header">Географический уголок</h4>
-          <span style="font-size: 8pt;">от Гоблинского Географического Общества.</span>
-
-          <table class="table table-condensed">
-            <tr><th>местность</th>  <th>распространение</th></tr>
-            <tr><th>{{MAP_STATISTICS.LOWLANDS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.LOWLANDS, 0)|percents }}</td></tr>
-            <tr><th>{{MAP_STATISTICS.PLAINS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.PLAINS, 0)|percents }}</td></tr>
-            <tr><th>{{MAP_STATISTICS.UPLANDS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.UPLANDS, 0)|percents }}</td></tr>
-            <tr><th>{{MAP_STATISTICS.DESERTS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.DESERTS, 0)|percents }}</td></tr>
-            <tr><th>{{MAP_STATISTICS.GRASS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.GRASS, 0)|percents }}</td></tr>
-            <tr><th>{{MAP_STATISTICS.FORESTS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.FORESTS, 0)|percents }}</td></tr>
-          </table>
-
-        </div>
-      </div>
-
-      <div class="span3" style="min-width: 270px;">
-        <div class="block">
-          <h4 class="newspaper-column-header">Политический обзор</h4>
-          <span style="font-size: 8pt;">от ПандораСтат</span>
-          <table class="table table-condensed">
-            <tr>
-              <th>раса</th>
-              <th>советы</th>
-              <th>жители</th>
-              <th>города</th>
-            </tr>
-            <tr>
-              <th>люди</th>
-              <td>{{ map_info.person_race_percents.get(RACE.HUMAN, 0)|percents }}</td>
-              <td>{{ map_info.race_percents.get(RACE.HUMAN, 0)|percents }}</td>
-              <td>{{ map_info.race_cities.get(RACE.HUMAN, 0) }}</td>
-            </tr>
-            <tr>
-              <th>гоблины</th>
-              <td>{{ map_info.person_race_percents.get(RACE.GOBLIN, 0)|percents }}</td>
-              <td>{{ map_info.race_percents.get(RACE.GOBLIN, 0)|percents }}</td>
-              <td>{{ map_info.race_cities.get(RACE.GOBLIN, 0) }}</td>
-            </tr>
-            <tr>
-              <th>эльфы</th>
-              <td>{{ map_info.person_race_percents.get(RACE.ELF, 0)|percents }}</td>
-              <td>{{ map_info.race_percents.get(RACE.ELF, 0)|percents }}</td>
-              <td>{{ map_info.race_cities.get(RACE.ELF, 0) }}</td>
-            </tr>
-            <tr>
-              <th>орки</th>
-              <td>{{ map_info.person_race_percents.get(RACE.ORC, 0)|percents }}</td>
-              <td>{{ map_info.race_percents.get(RACE.ORC, 0)|percents }}</td>
-              <td>{{ map_info.race_cities.get(RACE.ORC, 0) }}</td>
-            </tr>
-            <tr>
-              <th>дварфы</th>
-              <td>{{ map_info.person_race_percents.get(RACE.DWARF, 0)|percents }}</td>
-              <td>{{ map_info.race_percents.get(RACE.DWARF, 0)|percents }}</td>
-              <td>{{ map_info.race_cities.get(RACE.DWARF, 0) }}</td>
-            </tr>
-          </table>
-        </div>
-      </div>
-
     </div>
 
   </div>
 
   <div class="span3">
 
-    <div class="block">
-      <h4 class="newspaper-column-header">Законотворчество</h4>
+    <div class="easy-block">
+      <h4 class="newspaper-column-header">Политика</h4>
 
       <ul class="unstyled">
         {% for bill in bills %}
@@ -249,14 +205,19 @@
       </ul>
     </div>
 
-    <div class="block">
-      <h4 class="newspaper-column-header">Последние события <small><a href="{{ url('game:chronicle:') }}">ещё…</a></small></h4>
-
+    <div class="easy-block">
+      <h4 class="newspaper-column-header">Фольклор</h4>
       <ul class="unstyled">
-        {% for record in chronicle_records %}
+        {% for blog_post in blog_posts %}
         <li class="newspaper-link-list">
-          <span class="newspaper-link-time">{{record.game_time.verbose_date}}</span><br/>
-          {{ record.text }}
+          <span class="pgf-format-date newspaper-link-time" data-timestamp="{{ blog_post.created_at|timestamp }}"></span>
+          <span class="newspaper-forum-user">
+            {% if blog_post.author %}{{blog_post.author.nick_verbose}}
+            {% else %} —
+            {% endif %}
+          </span>
+          <br/>
+          {{ blog_post.caption }}&nbsp;<a style="font-size: 10pt;" href="{{ url('blogs:posts:show', blog_post.id) }}">➔</a>
         </li>
         {% endfor %}
       </ul>

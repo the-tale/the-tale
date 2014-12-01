@@ -225,8 +225,7 @@ class AuthResource(BaseAccountsResource):
     @api.handler(versions=('1.0',))
     @handler('api', 'logout', name='api-logout', method=['get'])
     def logout_get(self, api_version):
-        django_logout(self.request)
-        self.request.session.flush()
+        logic.logout_user(self.request)
         return self.redirect('/')
 
 

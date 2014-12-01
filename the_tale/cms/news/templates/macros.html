@@ -1,8 +1,8 @@
 
-{% macro news_record(news, in_block=False) -%}
+{% macro news_record(news, in_block=False, center_captions=false) -%}
 
 <div class="news-record">
-  <h3 class="caption"><a href="{{ url('news:show', news.id) }}">{{ news.caption }}</a></h3>
+  <h3 class="caption" style="{% if center_captions %}text-align: center;{% endif %}"><a href="{{ url('news:show', news.id) }}">{{ news.caption }}</a></h3>
   <div class="">{{ news.html_description|safe }}</div>
 
   <div class="news-info">

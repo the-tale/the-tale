@@ -14,6 +14,9 @@ accounts_settings = app_settings('ACCOUNTS',
                                  SESSION_REGISTRATION_REFERRAL_KEY='accounts_registration_referral_key',
                                  SESSION_REGISTRATION_ACTION_KEY='accounts_registration_action_key',
 
+                                 SESSION_FIRST_TIME_VISIT_VISITED_KEY = 'first_time_visite_visited',
+                                 SESSION_FIRST_TIME_VISIT_KEY = 'first_time_visite',
+
                                  SESSION_REMEMBER_TIME=365*24*60*60,
 
                                  REFERRAL_URL_ARGUMENT='referral',

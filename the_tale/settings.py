@@ -133,7 +133,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'dext.settings.middleware.SettingsMiddleware',
     'the_tale.accounts.middleware.RegistrationMiddleware',
-    'the_tale.accounts.third_party.middleware.ThirdPartyMiddleware'
+    'the_tale.accounts.third_party.middleware.ThirdPartyMiddleware',
+    'the_tale.accounts.middleware.FirstTimeVisitMiddleware'
 )
 
 ROOT_URLCONF = 'the_tale.urls'

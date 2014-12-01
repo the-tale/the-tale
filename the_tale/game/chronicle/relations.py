@@ -60,3 +60,10 @@ class ACTOR_ROLE(DjangoEnum):
     records = ( ('BILL', 0, u'закон'),
                  ('PLACE', 1, u'город'),
                  ('PERSON', 2, u'житель') )
+
+
+class ACTOR_TYPE(DjangoEnum):
+
+    records = ( ('BILL', 0, u'закон'),
+                ('PLACE', 1, u'город'),
+                ('PERSON', 2, u'житель') )

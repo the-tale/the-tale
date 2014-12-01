@@ -113,3 +113,15 @@ class RegistrationMiddleware(object):
         self.handle_referer(request)
         self.handle_referral(request)
         self.handle_action(request)
+
+
+
+class FirstTimeVisitMiddleware(object):
+
+    def process_request(self, request):
+        if not request.session.get(accounts_settings.SESSION_FIRST_TIME_VISIT_VISITED_KEY):
+            request.session[accounts_settings.SESSION_FIRST_TIME_VISIT_KEY] = True
+            request.session[accounts_settings.SESSION_FIRST_TIME_VISIT_VISITED_KEY] = True
+        else:
+            if request.session.get(accounts_settings.SESSION_FIRST_TIME_VISIT_KEY):
+                request.session[accounts_settings.SESSION_FIRST_TIME_VISIT_KEY] = False

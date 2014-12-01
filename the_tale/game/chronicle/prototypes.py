@@ -7,7 +7,8 @@ from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.chronicle.models import Record, Actor, RecordToActor
-from the_tale.game.chronicle.exceptions import ChronicleException
+from the_tale.game.chronicle import exceptions
+from the_tale.game.chronicle import relations
 
 
 class RecordPrototype(BasePrototype):
@@ -48,6 +49,8 @@ class RecordPrototype(BasePrototype):
 
 
 class RecordToActorPrototype(BasePrototype):
+    _model_class = RecordToActor
+    _readonly = ('id', 'role', 'actor_id', 'record_id')
 
     @classmethod
     def create(cls, role, record, external_actor):
@@ -61,6 +64,28 @@ class RecordToActorPrototype(BasePrototype):
                                              record=record._model,
                                              actor=actor._model)
         return cls(model)
+
+    @classmethod
+    def get_actors_for_records(cls, records):
+        actors_relations = cls.from_query(cls._db_filter(record_id__in=[r.id for r in records]))
+
+        records_to_actors = {}
+
+        actors_ids = set()
+
+        for relation in actors_relations:
+            if relation.record_id not in records_to_actors:
+                records_to_actors[relation.record_id] = []
+
+            records_to_actors[relation.record_id].append(relation.actor_id)
+            actors_ids.add(relation.actor_id)
+
+        actors = {actor.id: actor for actor in ActorPrototype.from_query(ActorPrototype._db_filter(id__in=actors_ids))}
+
+        records_to_actors = {record_id: [actors[actor_id] for actor_id in record_actors_ids]
+                             for record_id, record_actors_ids in records_to_actors.iteritems()}
+
+        return records_to_actors
 
 
 
@@ -103,10 +128,12 @@ def create_external_actor(actor):
     if isinstance(actor, PersonPrototype): return ExternalPerson(actor)
     if isinstance(actor, PlacePrototype): return ExternalPlace(actor)
 
-    raise ChronicleException('can not create external actor: unknown actor type: %r' % actor)
+    raise exceptions.ChronicleException('can not create external actor: unknown actor type: %r' % actor)
+
 
 class ActorPrototype(BasePrototype):
     _model_class = Actor
+    _readonly = ('id', 'uid', 'bill_id', 'place_id', 'person_id')
     _get_by = ('uid',)
 
     @classmethod
@@ -118,3 +145,25 @@ class ActorPrototype(BasePrototype):
                                      person=external_object.person._model if external_object.person else None)
 
         return cls(model)
+
+    @property
+    def type(self):
+        if self.bill_id is not None:
+            return relations.ACTOR_ROLE.BILL
+        if self.place_id is not None:
+            return relations.ACTOR_ROLE.PLACE
+        if self.person_id is not None:
+            return relations.ACTOR_ROLE.PERSON
+
+    @property
+    def name(self):
+        from the_tale.game.bills.prototypes import BillPrototype
+        from the_tale.game.persons.storage import persons_storage
+        from the_tale.game.map.places.storage import places_storage
+
+        if self.bill_id is not None:
+            return BillPrototype.get_by_id(self.bill_id).caption
+        if self.place_id is not None:
+            return places_storage[self.place_id].name
+        if self.person_id is not None:
+            return persons_storage[self.person_id].name
