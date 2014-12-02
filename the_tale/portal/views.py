@@ -46,7 +46,7 @@ class PortalResource(Resource):
     def index(self):
 
         if portal_settings.ENABLE_FIRST_TIME_REDIRECT and accounts_logic.is_first_time_visit(self.request):
-            return self.redirect(portal_settings.FIRST_TIME_LANDING_URL)
+            return self.redirect(random.choice(portal_settings.FIRST_TIME_LANDING_URLS))
 
         news = News.objects.all().order_by('-created_at')[:portal_settings.NEWS_ON_INDEX]
 
@@ -102,7 +102,7 @@ class PortalResource(Resource):
         return self.template('portal/chat.html', {})
 
     @handler('landing')
-    def landing(self):
+    def landing(self, type="normal"):
         from the_tale.game.map.storage import map_info_storage
         from the_tale.game.mobs.storage import mobs_storage
 
@@ -112,6 +112,7 @@ class PortalResource(Resource):
 
         return self.template('portal/landing.html',
                              {'current_map_version': map_info_storage.version,
+                              'landing_type': type,
                               'mob': random.choice(mobs)})
 
     @handler('csrf')

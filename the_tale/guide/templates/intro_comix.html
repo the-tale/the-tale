@@ -1,0 +1,20 @@
+{% extends "guide/base.html" %}
+{% import 'guide/macros.html' as guide_macros with context %}
+{% import 'portal/macros.html' as portal_macros with context %}
+
+{% block title %}История Пандоры |{{ super() }}{% endblock %}
+{% block description %}История Пандоры.{% endblock %}
+
+{% block head %}
+{{ super() }}
+
+{{portal_macros.fancybox_comix_head(".pgf-open-galery")}}
+{% endblock %}
+
+{% block guide_content %}
+{{ guide_macros.page_caption("Среди людей ходит одна легенда…", "Комикс по истории Мира Игры.") }}
+<a href="#" class="pgf-open-galery"><img style="border-radius: 10px;" src="{{STATIC_CONTENT}}images/intro_comix/00.gif"></a>
+</div>
+
+
+{% endblock %}

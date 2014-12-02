@@ -16,8 +16,6 @@ from the_tale.game.balance import constants as c
 
 from the_tale.forum.tests.helpers import ForumFixture
 
-from the_tale.portal.conf import portal_settings
-
 
 class TestRequests(testcase.TestCase):
 
@@ -33,6 +31,9 @@ class TestRequests(testcase.TestCase):
 
     def test_landing(self):
         self.check_html_ok(self.request_html(url('portal:landing')))
+
+    def test_intro_comix(self):
+        self.check_html_ok(self.request_html(url('portal:intro-comix')))
 
     def test_preview(self):
         text = 'simple test text'
@@ -85,10 +86,11 @@ class IndexRequestTests(testcase.TestCase):
         self.assertEqual(response.status_code, 200)
 
 
+    @mock.patch('the_tale.portal.conf.portal_settings.FIRST_TIME_LANDING_URLS', ['/x', '/x'])
     def test_first_time_redirect(self):
         with mock.patch('the_tale.portal.conf.portal_settings.ENABLE_FIRST_TIME_REDIRECT', True):
             with mock.patch('the_tale.accounts.logic.is_first_time_visit', lambda request: True):
-                self.check_redirect('/', portal_settings.FIRST_TIME_LANDING_URL)
+                self.check_redirect('/', '/x')
             with mock.patch('the_tale.accounts.logic.is_first_time_visit', lambda request: False):
                 self.check_html_ok(self.request_html('/'))
 

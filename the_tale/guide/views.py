@@ -275,3 +275,7 @@ class GuideResource(Resource):
         return self.template('guide/press_kit.html',
                              {'section': 'press-kit',
                               'mob': random.choice(mobs_storage.get_available_mobs_list(level=666))})
+
+    @handler('intro-comix')
+    def intro_comix(self):
+        return self.template('guide/intro_comix.html', {'section': 'intro-comix'})

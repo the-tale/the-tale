@@ -350,3 +350,28 @@ pgf.base.HTMLToBBcode = function(text) {
 
     return text;
 };
+
+
+pgf.base.OpenFancybox = function(images) {
+          jQuery.fancybox.open(images, {  padding: 0,
+                                          nextClick: true,
+                                          openEffect: "fade",
+                                          closeEffect: "fade",
+                                          nextEffect: "fade",
+                                          prevEffect: "fade",
+                                          openSpeed: 500,
+                                          closeSpeed: 500,
+                                          nextSpeed: 500,
+                                          prevSpeed: 500});
+};
+
+pgf.base.OpenFancyboxIntroComix = function(staticContent) {
+    var images = [];
+
+    for (var i=0; i < 24; ++i) {
+        var name = i < 10 ? '0'+i : i;
+        images.push({href : staticContent + "images/intro_comix/"+name+".gif"});
+    }
+
+    pgf.base.OpenFancybox(images);
+};

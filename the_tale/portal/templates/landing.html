@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% import 'map/map.html' as map_macros with context %}
+{% import 'portal/macros.html' as portal_macros with context %}
 
 {% block title %}Регистрация |{{ super() }}{% endblock %}
 {% block description %}Регистрация в игре{% endblock %}
@@ -11,6 +12,8 @@
 <script src="{{ STATIC_CONTENT }}game/data/constants.js" type="text/javascript"></script>
 <script src="{{ STATIC_CONTENT }}game/widgets.js" type="text/javascript"></script>
 <script src="{{ STATIC_CONTENT }}game/map/map2.js" type="text/javascript"></script>
+
+{{portal_macros.fancybox_comix_head(".pgf-open-galery")}}
 
 <script type="text/javascript">
 
@@ -43,35 +46,16 @@ jQuery(document).ready(function(e){
 
 <div class="row">
   <div class="span6" style="text-align: justify;">
-      <h4>У нас есть живой мир</h4>
-      <p style="margin-left: 1em;">
-        Мир игры постоянно меняется и никогда не замирает. На месте равнин появляются горы, засушливые пустыни сменяются болотами. Растут и угасают города, их жители борются за власть. И все это под влиянием игроков. Решите каким Вы хотите видеть этот мир и измените его.
-      </p>
-
-      <h4>обладающий живой историей</h4>
-      <p style="margin-left: 1em;">
-        Историю делаете Вы. Все задания, которые получают герои, привязаны к текущей ситуации в мире, предоставляют возможность выбора и оказывают существенное влияние на развитие сюжета. От Ваших решений зависит кому будет принадлежать власть в городах и кто будет в них жить. Выберите любимый город и помогите ему стать жемчужиной этого мира.
-      </p>
-
-      <h4>и населённый живыми героями</h4>
-      <p style="margin-left: 1em;">
-        Герои нашей Сказки — не бездушные марионетки. Они обладают волей и в состоянии действовать без Вашей указки. Вы же можете помогать им и подталкивать к нужным решениям, меняя характер своего подопечного. Кем он станет? Подлым магом? Миролюбивым воином? Решать Вам.
-      </p>
-
-      <div style="text-align: center">
-      <a class="btn btn-danger pgf-fast-registration"
-         href="{{ url('accounts:registration:fast') }}"
-         style="text-align: center; font-size: 14pt; padding: 0.5em;">
-         Создать героя
-      </a>
-      </div>
+    {% include "portal/landing_intro.html" %}
   </div>
 
   <div class="span6">
-    <div>
-      <h4><a href="{{url('guide:mobs:show', mob.id)}}" target="_blank">{{mob.name|up_first}}</a> <small>случайный монстр</small></h4>
-      {{mob.description_html|safe}}
-    </div>
+    {% if landing_type == "legend" %}
+    <a href="#" class="pgf-open-galery"><img style="border-radius: 10px;" src="{{STATIC_CONTENT}}images/intro_comix/00.gif"></a>
+    {% else %}
+    <h4><a href="{{url('guide:mobs:show', mob.id)}}" target="_blank">{{mob.name|up_first}}</a> <small>случайный монстр</small></h4>
+    {{mob.description_html|safe}}
+    {% endif %}
   </div>
 </div>
 

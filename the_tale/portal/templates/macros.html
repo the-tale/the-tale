@@ -53,3 +53,24 @@
 </table>
 
 {% endmacro %}
+
+
+{% macro fancybox_comix_head(js_selector) %}
+<style>
+    body .fancybox-overlay {background: black !important;}
+</style>
+
+<link rel="stylesheet" href="{{ STATIC_CONTENT }}plugins/fancybox/source/jquery.fancybox.css" type="text/css"/>
+<script src="{{ STATIC_CONTENT }}plugins/fancybox/source/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+  jQuery(document).ready(function() {
+
+      jQuery("{{js_selector}}").click(function(e) {
+          e.preventDefault();
+          pgf.base.OpenFancyboxIntroComix("{{STATIC_CONTENT}}");
+      });
+  });
+</script>
+
+{% endmacro %}
