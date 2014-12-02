@@ -40,6 +40,23 @@ def calculate_linguistics_migth(account_id, contribution_type, might_per_entity)
     return might
 
 
+def folclor_post_might(characters_count):
+    might = relations.MIGHT_AMOUNT.FOR_MIN_FOLCLOR_POST.amount
+
+    characters_count -= blogs_settings.MIN_TEXT_LENGTH
+
+    might += min(float(characters_count) / blogs_settings.MIN_TEXT_LENGTH, 2) * relations.MIGHT_AMOUNT.FOR_MIN_FOLCLOR_POST.amount * 0.5
+
+    characters_count -= 2 * blogs_settings.MIN_TEXT_LENGTH
+
+    if characters_count < 0:
+        return might
+
+    might += float(characters_count) / blogs_settings.MIN_TEXT_LENGTH * relations.MIGHT_AMOUNT.FOR_MIN_FOLCLOR_POST.amount * 0.1
+
+    return might
+
+
 def calculate_might(account): # pylint: disable=R0914
 
     MIGHT_FROM_REFERRAL = 0.1
@@ -57,9 +74,10 @@ def calculate_might(account): # pylint: disable=R0914
 
     folclor_posts = BlogPostProtype.from_query(BlogPostProtype._db_filter(author_id=account.id, state=BLOG_POST_STATE.ACCEPTED))
     folclor_texts = (strip_tags(post.text_html) for post in folclor_posts)
-    characters_count = sum(len(text) for text in folclor_texts)
 
-    might += float(characters_count) / blogs_settings.MIN_TEXT_LENGTH * relations.MIGHT_AMOUNT.FOR_MIN_FOLCLOR_POST.amount
+    for text in folclor_texts:
+        characters_count = len(text)
+        might += folclor_post_might(characters_count)
 
     referrals_mights = AccountPrototype._model_class.objects.filter(referral_of=account.id).aggregate(models.Sum('might'))['might__sum']
 

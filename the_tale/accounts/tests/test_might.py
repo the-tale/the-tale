@@ -23,7 +23,7 @@ from the_tale.game.bills.models import Vote
 from the_tale.game.bills.conf import bills_settings
 from the_tale.game.bills.relations import BILL_STATE, VOTE_TYPE
 
-from the_tale.accounts.might import calculate_might
+from the_tale.accounts.might import calculate_might, folclor_post_might
 
 
 class CalculateMightTests(testcase.TestCase):
@@ -213,10 +213,11 @@ class CalculateMightTests(testcase.TestCase):
 
     def test_folclor_might__from_characters(self):
 
-        with self.check_delta(lambda: calculate_might(self.account), relations.MIGHT_AMOUNT.FOR_MIN_FOLCLOR_POST.amount*3):
+        with self.check_delta(lambda: calculate_might(self.account), relations.MIGHT_AMOUNT.FOR_MIN_FOLCLOR_POST.amount*(1 + 1.5 + 2.1)):
 
             BlogPostPrototype.create(author=self.account, caption='caption', text='x'*blogs_settings.MIN_TEXT_LENGTH)
             BlogPostPrototype.create(author=self.account, caption='caption-2', text='y'*blogs_settings.MIN_TEXT_LENGTH*2)
+            BlogPostPrototype.create(author=self.account, caption='caption-3', text='z'*blogs_settings.MIN_TEXT_LENGTH*4)
 
             Post.objects.all().delete()
             Thread.objects.all().delete()
@@ -231,3 +232,20 @@ class CalculateMightTests(testcase.TestCase):
         self.account_2.set_might(666)
 
         self.assertTrue(calculate_might(self.account) > 0)
+
+
+
+class CalculateMightHelpersTests(testcase.TestCase):
+
+    def setUp(self):
+        super(CalculateMightHelpersTests, self).setUp()
+
+    def test_folclor_post_might(self):
+        MIN = blogs_settings.MIN_TEXT_LENGTH
+        BASE = relations.MIGHT_AMOUNT.FOR_MIN_FOLCLOR_POST.amount
+
+        self.assertEqual(folclor_post_might(MIN), BASE)
+        self.assertEqual(folclor_post_might(MIN*2), BASE*1.5)
+        self.assertEqual(folclor_post_might(MIN*3), BASE*2)
+        self.assertEqual(folclor_post_might(MIN*4), BASE*2.1)
+        self.assertEqual(folclor_post_might(MIN*10), BASE*2.7)
