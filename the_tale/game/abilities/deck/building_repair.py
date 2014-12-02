@@ -34,6 +34,8 @@ class BuildingRepair(AbilityPrototype):
 
             task.data['critical'] = critical
 
+            task.hero.cards_help_count += 1
+
             if critical:
                 task.hero.add_message('angel_ability_building_repair_crit', hero=task.hero)
             else:
