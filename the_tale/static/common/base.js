@@ -368,6 +368,10 @@ pgf.base.OpenFancybox = function(images) {
 pgf.base.OpenFancyboxIntroComix = function(staticContent) {
     var images = [];
 
+    if (staticContent.indexOf('http:') == -1) {
+        staticContent = 'http:'+staticContent;
+    }
+
     for (var i=0; i < 24; ++i) {
         var name = i < 10 ? '0'+i : i;
         images.push({href : staticContent + "images/intro_comix/"+name+".gif"});
