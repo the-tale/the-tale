@@ -193,7 +193,9 @@ jQuery(document).ready(function() {
                                                                            ('-', '<li class="divider"></li>'),
                                                                            (settings.SOCIAL_VK_GROUP_URL, "ВКонтакте"),
                                                                            (settings.SOCIAL_FACEBOOK_GROUP_URL, "Facebook"),
-                                                                           (settings.SOCIAL_TWITTER_GROUP_URL, "Twitter")]) }}
+                                                                           (settings.SOCIAL_TWITTER_GROUP_URL, "Twitter"),
+                                                                           ('-', '<li class="divider"></li>'),
+                                                                           (standy_statistics_url(), "Статистика от standy")]) }}
 
 
             {{ base_macros.main_menu_item("world", "#", "Мир", [(url("game:bills:"), "Политика"),

@@ -154,17 +154,15 @@ jQuery(document).ready(function(e){
 
             <div class="tab-pane" id="pgf-newspaper-statistics">
 
-                  <div class="easy-block">
-                    <h4 class="newspaper-column-header">Географический уголок</h4>
-                    <span style="font-size: 8pt;">Обзор географической ситуации любезно предоставлен Гоблинским Географическим Обществом.</span>
-                    {{ portal_macros.map_statistics(MAP_STATISTICS, map_info) }}
-                  </div>
+              <h4 class="newspaper-column-header">Географический уголок</h4>
+              <span style="font-size: 8pt;">Обзор географической ситуации любезно предоставлен Гоблинским Географическим Обществом.</span>
+              {{ portal_macros.map_statistics(MAP_STATISTICS, map_info) }}
 
-                  <div class="easy-block">
-                    <h4 class="newspaper-column-header">Политический обзор</h4>
-                    <span style="font-size: 8pt;">Политическая ситуация описана согласно данным полученным от ПандораСтат.</span>
-                    {{ portal_macros.race_statistics(RACE, map_info) }}
-                  </div>
+              <h4 class="newspaper-column-header">Политический обзор</h4>
+              <span style="font-size: 8pt;">Политическая ситуация описана согласно данным полученным от ПандораСтат.</span>
+              {{ portal_macros.race_statistics(RACE, map_info) }}
+
+              <a href="{{standy_statistics_url()}}">СТАТИСТИКА ОТ STANDY</a>
 
             </div>
           </div>

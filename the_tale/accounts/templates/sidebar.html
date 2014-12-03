@@ -83,6 +83,9 @@
     <li class="nav-element"><a href="{{url('forum:threads:')}}?author={{page_account.id}}">созданные обсуждения ({{threads_count}})</a></li>
     <li class="nav-element"><a href="{{url('forum:threads:')}}?participant={{page_account.id}}">обсуждения с комментариями ({{threads_with_posts}})</a></li>
 
+    <li class="nav-header">Прочее</li>
+    <li class="nav-element"><a href="{{standy_statistics_account_url(page_account.id)}}">статистика от standy</a></li>
+
     {% if can_moderate %}
       <li class="divider"></li>
       <li class="nav-element">
