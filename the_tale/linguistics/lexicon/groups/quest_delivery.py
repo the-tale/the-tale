@@ -72,7 +72,7 @@ KEYS = [(u'QUEST_DELIVERY_ACTION_DELIVERY_RETURNED', 400000, u'Активнос�
         [V.INITIATOR, V.HERO, V.ANTAGONIST_POSITION, V.COINS, V.INITIATOR_POSITION, V.RECEIVER, V.RECEIVER_POSITION, V.ANTAGONIST]),
 
         (u'QUEST_DELIVERY_DIARY_DELIVERY_RETURNED', 400017, u'Дневник: вор убит', LEXICON_GROUP.QUEST_DELIVERY,
-        u'Герой убил вора и забрал письма.',
+        u'Герой убил вора и забрал письмо.',
         [V.INITIATOR, V.HERO, V.ANTAGONIST_POSITION, V.COINS, V.INITIATOR_POSITION, V.RECEIVER, V.RECEIVER_POSITION, V.ANTAGONIST]),
 
         (u'QUEST_DELIVERY_DIARY_DELIVERY_STEALED', 400018, u'Дневник: письмо украдено', LEXICON_GROUP.QUEST_DELIVERY,

@@ -12,7 +12,7 @@ KEYS = [(u'ACTION_EVENT_HABIT_IN_PLACE_AGGRESSIVE_ARTIFACT', 40000, u'Дневн
         [V.HERO, V.PLACE, V.EXPERIENCE]),
 
         (u'ACTION_EVENT_HABIT_IN_PLACE_AGGRESSIVE_MONEY', 40002, u'Дневник: В городе, черты, агрессивность (деньги)', LEXICON_GROUP.ACTION_EVENT,
-        u'События при посещении города агрессивным героем (опыт)',
+        u'События при посещении города агрессивным героем (деньги)',
         [V.HERO, V.COINS, V.PLACE]),
 
         (u'ACTION_EVENT_HABIT_IN_PLACE_AGGRESSIVE_NOTHING', 40003, u'Дневник: В городе, черты, агрессивность (без бонуса)', LEXICON_GROUP.ACTION_EVENT,

@@ -44,7 +44,7 @@ KEYS = [(u'HERO_ABILITY_FIREBALL', 280000, u'Журнал: Шар огня', LEX
         [V.ATTACKER, V.DAMAGE, V.DEFENDER]),
 
         (u'HERO_ABILITY_RUNUPPUSH_MISS', 280010, u'Журнал: Разбег-толчок (промах)', LEXICON_GROUP.HERO_ABILITY,
-        u'Промах при использовании способности «Разбег—толчок»',
+        u'Промах при использовании способности «Разбег-толчок».',
         [V.ATTACKER, V.DAMAGE, V.DEFENDER]),
 
         (u'HERO_ABILITY_SIDESTEP', 280011, u'Журнал: Шаг в сторону', LEXICON_GROUP.HERO_ABILITY,

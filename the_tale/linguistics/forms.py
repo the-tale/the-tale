@@ -249,7 +249,7 @@ WORD_FORMS = {word_type: create_word_type_form(word_type)
 
 
 class TemplateForm(forms.Form):
-    template = fields.TextField(label=u'шаблон', min_length=1, widget=django_forms.Textarea(attrs={'rows': 3}))
+    template = fields.TextField(label=u'Шаблон', min_length=1, widget=django_forms.Textarea(attrs={'rows': 3}))
 
     def __init__(self, key, verificators, *args, **kwargs):
         super(TemplateForm, self).__init__(*args, **kwargs)

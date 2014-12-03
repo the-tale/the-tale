@@ -72,7 +72,7 @@ KEYS = [(u'QUEST_HOMETOWN_ACTION_CHATTING', 460000, u'Активность: об
         [V.RECEIVER_POSITION, V.HERO]),
 
         (u'QUEST_HOMETOWN_JOURNAL_REMEMBER_NAMES_DONOTHING', 460017, u'Журнал: герой вспоминает имена друзей', LEXICON_GROUP.QUEST_HOMETOWN,
-        u'фразы описывающие как герой вспоминает имена знакомых',
+        u'фразы, описывающие как герой вспоминает имена знакомых',
         [V.RECEIVER_POSITION, V.HERO]),
 
         (u'QUEST_HOMETOWN_JOURNAL_REMEMBER_NAMES_START', 460018, u'Журнал: начало вспоминания имён', LEXICON_GROUP.QUEST_HOMETOWN,
@@ -84,7 +84,7 @@ KEYS = [(u'QUEST_HOMETOWN_ACTION_CHATTING', 460000, u'Активность: об
         [V.RECEIVER_POSITION, V.HERO]),
 
         (u'QUEST_HOMETOWN_JOURNAL_SEARCH_OLD_FRIENDS_DONOTHING', 460020, u'Журнал: герой ищет старых друзей', LEXICON_GROUP.QUEST_HOMETOWN,
-        u'Фразы о том как герой ищет в городе старых друзей',
+        u'Фразы о том, как герой ищет в городе старых друзей',
         [V.RECEIVER_POSITION, V.HERO]),
 
         (u'QUEST_HOMETOWN_JOURNAL_SEARCH_OLD_FRIENDS_START', 460021, u'Журнал: начало поиска друзей', LEXICON_GROUP.QUEST_HOMETOWN,

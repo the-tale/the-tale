@@ -320,7 +320,7 @@ class PreferencesCooldownsResetBase(CardBase):
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
 
         if not task.hero.preferences.is_available(self.PREFERENCE, account=AccountPrototype.get_by_id(task.hero.account_id)):
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Нельзя сбросить заждержку на изменение предпочтения (предпочтение ещё не доступно герою).')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Нельзя сбросить задержку на изменение предпочтения (предпочтение ещё не доступно герою).')
 
         task.hero.preferences.reset_change_time(self.PREFERENCE)
         storage.save_bundle_data(bundle_id=task.hero.actions.current_action.bundle_id, update_cache=False)

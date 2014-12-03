@@ -8,7 +8,7 @@ KEYS = [(u'QUEST_HELP_FRIEND_ACTION_AFTER_HELP', 440000, u'Активность:
         [V.RECEIVER_POSITION, V.HERO, V.RECEIVER]),
 
         (u'QUEST_HELP_FRIEND_ACTION_BEFORE_HELP', 440001, u'Активность: перед взятием задания на помощь', LEXICON_GROUP.QUEST_HELP_FRIEND,
-        u'Краткое суммарное описание действий героя перед взятием заданяи на помощь.',
+        u'Краткое суммарное описание действий героя перед взятием задания на помощь.',
         [V.RECEIVER_POSITION, V.HERO, V.RECEIVER]),
 
         (u'QUEST_HELP_FRIEND_ACTION_INTRO', 440002, u'Активность: интро', LEXICON_GROUP.QUEST_HELP_FRIEND,

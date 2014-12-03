@@ -452,8 +452,8 @@ class TestEditRequests(BaseTestRequests):
         self.request_login('test_user_2@test.com')
         group = sync_group('folclor moderation group', ['blogs.moderate_post'])
         group.user_set.add(self.account_2._model)
-        self.check_html_ok(self.request_html(reverse('blogs:posts:edit', args=[self.post.id])), texts=((self.post.caption, 1),
-                                                                                                     (self.post.text, 1)))
+        self.check_html_ok(self.request_html(reverse('blogs:posts:edit', args=[self.post.id])), texts=(self.post.caption,
+                                                                                                       self.post.text))
 
     def test_wrong_state(self):
         self.post.state = relations.POST_STATE.DECLINED
@@ -461,8 +461,8 @@ class TestEditRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('blogs:posts:edit', args=[self.post.id])), texts=(('blogs.posts.post_declined', 1),))
 
     def test_success(self):
-        self.check_html_ok(self.request_html(reverse('blogs:posts:edit', args=[self.post.id])), texts=((self.post.caption, 1),
-                                                                                                     (self.post.text, 1)))
+        self.check_html_ok(self.request_html(reverse('blogs:posts:edit', args=[self.post.id])), texts=(self.post.caption,
+                                                                                                        self.post.text))
 
 
 class TestUpdateRequests(BaseTestRequests):

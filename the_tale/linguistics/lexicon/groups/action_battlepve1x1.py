@@ -43,8 +43,8 @@ KEYS = [(u'ACTION_BATTLEPVE1X1_ARTIFACT_BROKEN', 0, u'Дневник: Артеф
         u'Герой не получил добычу.',
         [V.MOB, V.HERO]),
 
-        (u'ACTION_BATTLEPVE1X1_PEACEFULL_BATTLE', 10, u'Журнал: Мирно разойтись с цивилизованных гуманоидом', LEXICON_GROUP.ACTION_BATTLEPVE1X1,
-        u'Герой договорился с цивилизованным моснтром о том, чтобы драки не было',
+        (u'ACTION_BATTLEPVE1X1_PEACEFULL_BATTLE', 10, u'Журнал: Мирно разойтись с цивилизованным противником', LEXICON_GROUP.ACTION_BATTLEPVE1X1,
+        u'Герой договорился с цивилизованным противником о том, чтобы драки не было',
         [V.MOB, V.HERO]),
 
         (u'ACTION_BATTLEPVE1X1_PERIODICAL_FIRE_DAMAGE', 11, u'Журнал: Периодический урон огнём', LEXICON_GROUP.ACTION_BATTLEPVE1X1,

@@ -144,7 +144,7 @@ class BBField(fields.TextField):
 <a class="pgf-bb-command" href="#" data-tag="spoiler" rel="tooltip" title=\'[spoiler="опциональный текст"]скрытое содержимое[/spoiler]\'>[spoiler]</a>
 <a class="pgf-bb-command" href="#" data-tag="list" rel="tooltip" title="[list]список[/list]">[list]</a>
 <a class="pgf-bb-command" href="#" data-tag="*" data-single="true" rel="tooltip" title="[*]элемент списка">[*]</a>
-<a class="pgf-bb-command" href="#" data-tag="hr" data-single="true" rel="tooltip" title="[hr] — вертикальная линия">[hr]</a>
+<a class="pgf-bb-command" href="#" data-tag="hr" data-single="true" rel="tooltip" title="[hr] — горизонтальная линия">[hr]</a>
 <a class="pgf-bb-command" href="#" data-tag="lsb" data-single="true" rel="tooltip" title="[lsb] — «[» левая квадратная скобка">[lsb]</a>
 <a class="pgf-bb-command" href="#" data-tag="rsb" data-single="true" rel="tooltip" title="[rsb] — «]» правая квадратная скобка">[rsb]</a>
 </div>

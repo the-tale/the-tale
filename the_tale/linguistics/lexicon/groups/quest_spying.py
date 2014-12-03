@@ -32,7 +32,7 @@ KEYS = [(u'QUEST_SPYING_ACTION_ARRIVED_TO_TARGET', 560000, u'Активност�
         [V.RECEIVER_POSITION, V.RECEIVER, V.HERO, V.INITIATOR, V.INITIATOR_POSITION]),
 
         (u'QUEST_SPYING_ACTION_START_OPEN_UP', 560007, u'Активность: начало «раскрытия»', LEXICON_GROUP.QUEST_SPYING,
-        u'Краткое суммарное описание действий героя при начале расскрытия.',
+        u'Краткое суммарное описание действий героя при начале раскрытия.',
         [V.RECEIVER_POSITION, V.RECEIVER, V.HERO, V.INITIATOR, V.INITIATOR_POSITION]),
 
         (u'QUEST_SPYING_ACTION_START_SPYING', 560008, u'Активность: начало шпионажа', LEXICON_GROUP.QUEST_SPYING,
@@ -84,7 +84,7 @@ KEYS = [(u'QUEST_SPYING_ACTION_ARRIVED_TO_TARGET', 560000, u'Активност�
         [V.RECEIVER_POSITION, V.RECEIVER, V.HERO, V.INITIATOR, V.INITIATOR_POSITION]),
 
         (u'QUEST_SPYING_DIARY_BLACKMAIL_FINISH_ARTIFACT', 560020, u'Дневник: награда при самостоятельном шантаже (артефакт)', LEXICON_GROUP.QUEST_SPYING,
-        u'Герой получает награду за задание при самостоятельном шатнтаже (деньги).',
+        u'Герой получает награду за задание при самостоятельном шантаже (деньги).',
         [V.INITIATOR, V.HERO, V.ARTIFACT, V.INITIATOR_POSITION, V.RECEIVER, V.RECEIVER_POSITION]),
 
         (u'QUEST_SPYING_DIARY_BLACKMAIL_FINISH_MONEY', 560021, u'Дневник: награда при самостоятельном шантаже (деньги)', LEXICON_GROUP.QUEST_SPYING,
@@ -112,7 +112,7 @@ KEYS = [(u'QUEST_SPYING_ACTION_ARRIVED_TO_TARGET', 560000, u'Активност�
         [V.INITIATOR, V.HERO, V.INITIATOR_POSITION, V.RECEIVER, V.RECEIVER_POSITION, V.COINS]),
 
         (u'QUEST_SPYING_DIARY_OPEN_UP_LYING_ARTIFACT', 560027, u'Дневник: награда при сообщении ложной информации (артефакт)', LEXICON_GROUP.QUEST_SPYING,
-        u'Герой получает награду за задание при сообщении заказчику ложной информации (деньги).',
+        u'Герой получает награду за задание при сообщении заказчику ложной информации (артефакт).',
         [V.INITIATOR, V.HERO, V.INITIATOR_POSITION, V.RECEIVER, V.RECEIVER_POSITION, V.ARTIFACT]),
 
         (u'QUEST_SPYING_DIARY_OPEN_UP_LYING_MONEY', 560028, u'Дневник: награда при сообщении ложной информации (деньги)', LEXICON_GROUP.QUEST_SPYING,
@@ -136,7 +136,7 @@ KEYS = [(u'QUEST_SPYING_ACTION_ARRIVED_TO_TARGET', 560000, u'Активност�
         [V.RECEIVER_POSITION, V.RECEIVER, V.HERO, V.INITIATOR, V.INITIATOR_POSITION]),
 
         (u'QUEST_SPYING_DIARY_WITNESS_FAILED', 560033, u'Дневник: свидетель ушёл от погони (герой убит)', LEXICON_GROUP.QUEST_SPYING,
-        u'Свидетель скрылся и шпионаж становится бесспользеным.',
+        u'Свидетель скрылся и шпионаж становится беспользеным.',
         [V.INITIATOR, V.HERO, V.ARTIFACT, V.INITIATOR_POSITION, V.RECEIVER, V.RECEIVER_POSITION]),
 
         (u'QUEST_SPYING_JOURNAL_ARRIVED_TO_TARGET', 560034, u'Журнал: шпионаж', LEXICON_GROUP.QUEST_SPYING,

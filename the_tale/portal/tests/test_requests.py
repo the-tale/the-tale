@@ -32,9 +32,6 @@ class TestRequests(testcase.TestCase):
     def test_landing(self):
         self.check_html_ok(self.request_html(url('portal:landing')))
 
-    def test_intro_comix(self):
-        self.check_html_ok(self.request_html(url('portal:intro-comix')))
-
     def test_preview(self):
         text = 'simple test text'
         self.check_html_ok(self.client.post(url('portal:preview'), {'text': text}), texts=[text])
