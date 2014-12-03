@@ -19,11 +19,15 @@ jQuery(document).ready( function(e) {
 
 {% block blogs_content %}
 
+<ul class="breadcrumb" style="margin-bottom: 0px;">
+  <li><a href="{{ url('blogs:posts:') }}">Фольклор</a><span class="divider">/</span></li>
+  <li><a href="{{ url('blogs:posts:show', resource.post.id) }}">{{post.caption}}</a><span class="divider">/</span></li>
+  <li class="active">Редактирование</li>
+</ul>
+
 <h2>Редактирование произведения</h2>
 
-<ul>
-  <li>Произведение должно содержать минимум {{form.text.field.min_length}} символов.</li>
-</ul>
+{% include "blogs/recomendations.html" %}
 
 <form id="pgf-edit-post-form" method="post" action="{{ url('blogs:posts:update', resource.post.id) }}">
 
