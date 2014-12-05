@@ -8,7 +8,6 @@ from rels.django import RelationIntegerField
 from utg import relations as utg_relations
 
 from the_tale.linguistics import relations
-from the_tale.linguistics.lexicon import relations as lexicon_relations
 from the_tale.linguistics.lexicon import keys
 
 
@@ -18,8 +17,8 @@ class Word(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now_add=True, null=False)
 
-    author = models.ForeignKey(project_settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
-    parent = models.ForeignKey('linguistics.Word', null=True, unique=True, on_delete=models.SET_NULL)
+    author = models.ForeignKey(project_settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    parent = models.ForeignKey('linguistics.Word', null=True, unique=True, blank=True, on_delete=models.SET_NULL)
 
     normal_form = models.CharField(max_length=MAX_FORM_LENGTH)
     forms = models.TextField()
@@ -41,8 +40,8 @@ class Template(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now_add=True, null=False)
 
-    author = models.ForeignKey(project_settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
-    parent = models.ForeignKey('linguistics.Template', null=True, unique=True, on_delete=models.SET_NULL)
+    author = models.ForeignKey(project_settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    parent = models.ForeignKey('linguistics.Template', null=True, unique=True, blank=True, on_delete=models.SET_NULL)
 
     raw_template = models.TextField(db_index=True)
     data = models.TextField()

@@ -151,7 +151,8 @@ class PersonPrototype(BasePrototype, names.ManageNameMixin):
         from the_tale.linguistics.storage import restrictions_storage
 
         return [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.GENDER, self.gender.value),
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.RACE, self.race.value)]
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.RACE, self.race.value),
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.PERSON_TYPE, self.type.value)]
 
     @property
     def friends_number(self): return self._model.friends_number
