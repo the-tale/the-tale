@@ -100,6 +100,8 @@ def choice_element(caption, attribute, choices, default_value=None):
             super(ChoiceElement, self).__init__(list_filter, value)
             self.choices = self.CHOICES if not callable(self.CHOICES) else self.CHOICES()
 
+            self.choice_name = None
+
             for choice_id, choice_name in self.choices:
                 if not isinstance(choice_name, basestring):
                     for subchoice_id, subchoice_name in choice_name:

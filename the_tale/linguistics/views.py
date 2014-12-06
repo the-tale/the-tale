@@ -112,7 +112,7 @@ class WordResource(Resource):
 
     @validate_argument('contributor', AccountPrototype.get_by_id, 'linguistics.words', u'неверный сооавтор')
     @validate_argument('state', lambda v: relations.WORD_STATE.index_value.get(int(v)), 'linguistics.words', u'неверное состояние слова')
-    @validate_argument('type', lambda v: utg_relations.WORD_TYPE.index_value.get(int(v)), 'linguistics.words', u'неверный тип слова')
+    @validate_argument('type', lambda v: relations.ALLOWED_WORD_TYPE.index_value.get(int(v)), 'linguistics.words', u'неверный тип слова')
     @validate_argument('order_by', lambda v: relations.INDEX_ORDER_BY.index_value.get(int(v)), 'linguistics.words', u'неверный тип сортировки')
     @handler('', method='get')
     def index(self, page=1, state=None, type=None, filter=None, contributor=None, order_by=relations.INDEX_ORDER_BY.UPDATED_AT):
@@ -128,7 +128,7 @@ class WordResource(Resource):
             words_query = words_query.filter(state=state)
 
         if type:
-            words_query = words_query.filter(type=type)
+            words_query = words_query.filter(type=type.utg_type)
 
         if filter:
             words_query = words_query.filter(normal_form__istartswith=filter.lower())
