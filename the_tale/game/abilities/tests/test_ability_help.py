@@ -16,6 +16,9 @@ from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
 
 from the_tale.game.mobs.storage import mobs_storage
 
+from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts import relations as artifacts_relations
+
 from the_tale.game.abilities.deck.help import Help
 from the_tale.game.abilities.relations import HELP_CHOICES
 
@@ -252,3 +255,25 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(update_habits.call_args_list, [mock.call(HABIT_CHANGE_SOURCE.HELP_AGGRESSIVE)])
+
+
+    @mock.patch('the_tale.game.artifacts.effects.Health.REMOVE_ON_HELP', True)
+    def test_return_child_gifts(self):
+        not_child_gift, child_gift, removed_artifact = artifacts_storage.all()[:3]
+
+        child_gift.special_effect = artifacts_relations.ARTIFACT_EFFECT.CHILD_GIFT
+        removed_artifact.rare_effect = artifacts_relations.ARTIFACT_EFFECT.HEALTH
+
+        self.hero.bag.put_artifact(not_child_gift.create_artifact(level=1, power=0))
+        self.hero.bag.put_artifact(not_child_gift.create_artifact(level=1, power=0))
+        self.hero.bag.put_artifact(not_child_gift.create_artifact(level=1, power=0))
+
+        self.hero.bag.put_artifact(child_gift.create_artifact(level=1, power=0))
+        self.hero.bag.put_artifact(child_gift.create_artifact(level=1, power=0))
+
+        self.hero.bag.put_artifact(removed_artifact.create_artifact(level=1, power=0))
+        self.hero.bag.put_artifact(removed_artifact.create_artifact(level=1, power=0, rarity=artifacts_relations.RARITY.RARE))
+
+        with self.check_delta(lambda: self.hero.statistics.gifts_returned, 2):
+            with self.check_delta(lambda: self.hero.bag.occupation, -3):
+                self.ability.use(**self.use_attributes)

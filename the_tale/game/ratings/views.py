@@ -99,6 +99,11 @@ class RatingResource(Resource):
             place_getter = lambda places: places.help_count_place
             value_getter = lambda values: values.help_count
 
+        elif self.rating_type.is_GIFTS_RETURNED:
+            ratings_query = ratings_query.filter(account__ratingvalues__gifts_returned__gt=0).order_by('gifts_returned_place')
+            place_getter = lambda places: places.gifts_returned_place
+            value_getter = lambda values: values.gifts_returned
+
         ratings_count = ratings_query.count()
 
         page = int(page) - 1

@@ -161,7 +161,8 @@ class GameArtifactResource(ArtifactResourceBase):
     @handler('new', method='get')
     def new(self):
         form = ArtifactRecordForm(initial={'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
-                                           'epic_effect': relations.ARTIFACT_EFFECT.NO_EFFECT})
+                                           'epic_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
+                                           'special_effect': relations.ARTIFACT_EFFECT.NO_EFFECT})
         return self.template('artifacts/new.html', {'form': form})
 
     @login_required
@@ -184,6 +185,7 @@ class GameArtifactResource(ArtifactResourceBase):
                                                   power_type=form.c.power_type,
                                                   rare_effect=form.c.rare_effect,
                                                   epic_effect=form.c.epic_effect,
+                                                  special_effect=form.c.special_effect,
                                                   mob=form.c.mob)
         return self.json_ok(data={'next_url': reverse('guide:artifacts:show', args=[artifact.id])})
 

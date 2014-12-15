@@ -36,6 +36,7 @@ class PostMixin(object):
                 'power_type': relations.ARTIFACT_POWER_TYPE.NEUTRAL,
                 'rare_effect': relations.ARTIFACT_EFFECT.POISON,
                 'epic_effect': relations.ARTIFACT_EFFECT.GREAT_PHYSICAL_DAMAGE,
+                'special_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
                 'description': 'artifact description',
                 'mob':  u'' if mob is None else mob.id})
 
@@ -57,6 +58,7 @@ class PostMixin(object):
                 'power_type': relations.ARTIFACT_POWER_TYPE.MAGICAL,
                 'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
                 'epic_effect': relations.ARTIFACT_EFFECT.POISON,
+                'special_effect': relations.ARTIFACT_EFFECT.CHILD_GIFT,
                 'description': 'new artifact description',
                 'mob': u'' if mob is None else mob.id})
 

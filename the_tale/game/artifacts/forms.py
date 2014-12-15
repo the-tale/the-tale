@@ -28,7 +28,9 @@ class ArtifactRecordBaseForm(forms.Form):
     power_type = fields.TypedChoiceField(label=u'тип силы', choices=relations.ARTIFACT_POWER_TYPE.choices(), coerce=relations.ARTIFACT_POWER_TYPE.get_from_name)
 
     rare_effect = fields.TypedChoiceField(label=u'редкий эффект', choices=EFFECT_CHOICES, coerce=relations.ARTIFACT_EFFECT.get_from_name)
-    epic_effect = fields.TypedChoiceField(label=u'редкий эффект', choices=EFFECT_CHOICES, coerce=relations.ARTIFACT_EFFECT.get_from_name)
+    epic_effect = fields.TypedChoiceField(label=u'эпический эффект', choices=EFFECT_CHOICES, coerce=relations.ARTIFACT_EFFECT.get_from_name)
+
+    special_effect = fields.TypedChoiceField(label=u'особое свойство', choices=EFFECT_CHOICES, coerce=relations.ARTIFACT_EFFECT.get_from_name)
 
     mob = fields.ChoiceField(label=u'Монстр', required=False)
 
@@ -52,6 +54,7 @@ class ArtifactRecordBaseForm(forms.Form):
                 'power_type': artifact.power_type,
                 'rare_effect': artifact.rare_effect,
                 'epic_effect': artifact.epic_effect,
+                'special_effect': artifact.special_effect,
                 'description': artifact.description,
                 'mob': artifact.mob.id if artifact.mob is not None else None}
 

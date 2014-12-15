@@ -16,7 +16,6 @@ from the_tale.game.heroes.habilities import ABILITIES
 from the_tale.game.heroes.habilities.battle import HIT
 from the_tale.game.heroes.relations import ARCHETYPE
 
-from the_tale.game.mobs.models import MobRecord
 from the_tale.game.mobs.prototypes import MobRecordPrototype
 from the_tale.game.mobs.relations import MOB_TYPE
 
@@ -39,6 +38,8 @@ class MobRecordBaseForm(forms.Form):
 
     type = fields.TypedChoiceField(label=u'тип', choices=MOB_TYPE_CHOICES, coerce=MOB_TYPE.get_from_name)
     archetype = fields.TypedChoiceField(label=u'тип', choices=ARCHETYPE.choices(), coerce=ARCHETYPE.get_from_name)
+
+    global_action_probability = fields.FloatField(label=u'вероятность встретить монстра, если идёт его набег (от 0 до 1, 0 — нет набега)')
 
     terrains = fields.TypedMultipleChoiceField(label=u'места обитания', choices=TERRAIN.choices(), coerce=TERRAIN.get_from_name)
 
@@ -76,6 +77,7 @@ class MobRecordBaseForm(forms.Form):
                 'name': mob.utg_name,
                 'archetype': mob.archetype,
                 'level': mob.level,
+                'global_action_probability': mob.global_action_probability,
                 'terrains': mob.terrains,
                 'abilities': mob.abilities}
 

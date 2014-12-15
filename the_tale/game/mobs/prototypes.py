@@ -158,8 +158,12 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
     _get_by = ('id', )
 
     @lazy_property
-    def data(self):
-        return s11n.from_json(self._model.data)
+    def data(self): return s11n.from_json(self._model.data)
+
+
+    def get_global_action_probability(self): return self.data.get('global_action_probability', 0)
+    def set_global_action_probability(self, probability): self.data['global_action_probability'] = probability
+    global_action_probability = property(get_global_action_probability, set_global_action_probability)
 
     @property
     def description_html(self): return bbcode.render(self._model.description)
@@ -195,7 +199,7 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
     def loot(self): return artifacts_storage.get_mob_loot(self.id)
 
     @classmethod
-    def create(cls, uuid, level, utg_name, description, abilities, terrains, type, archetype=ARCHETYPE.NEUTRAL, editor=None, state=MOB_RECORD_STATE.DISABLED):
+    def create(cls, uuid, level, utg_name, description, abilities, terrains, type, archetype=ARCHETYPE.NEUTRAL, editor=None, state=MOB_RECORD_STATE.DISABLED, global_action_probability=0):
 
         from the_tale.game.mobs.storage import mobs_storage
 
@@ -204,7 +208,8 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
                                          name=utg_name.normal_form(),
                                          type=type,
                                          archetype=archetype,
-                                         data=s11n.to_json({'name': utg_name.serialize()}),
+                                         data=s11n.to_json({'name': utg_name.serialize(),
+                                                            'global_action_probability': global_action_probability}),
                                          description=description,
                                          abilities=s11n.to_json(list(abilities)),
                                          terrains=s11n.to_json([terrain.value for terrain in terrains]),
@@ -231,7 +236,7 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
         return MobPrototype(record=self, level=hero.level, is_boss=is_boss)
 
     @classmethod
-    def create_random(cls, uuid, type=MOB_TYPE.CIVILIZED, level=1, abilities_number=3, terrains=TERRAIN.records, state=MOB_RECORD_STATE.ENABLED): # pylint: disable=W0102
+    def create_random(cls, uuid, type=MOB_TYPE.CIVILIZED, level=1, abilities_number=3, terrains=TERRAIN.records, state=MOB_RECORD_STATE.ENABLED, global_action_probability=0): # pylint: disable=W0102
 
         name = u'mob_'+uuid.lower()
 
@@ -245,7 +250,7 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
         for i in xrange(abilities_number-1): # pylint: disable=W0612
             abilities.add(random.choice(list(battle_abilities-abilities)))
 
-        return cls.create(uuid, level=level, type=type, utg_name=utg_name, description='description of %s' % name, abilities=abilities, terrains=terrains, state=state)
+        return cls.create(uuid, level=level, type=type, utg_name=utg_name, description='description of %s' % name, abilities=abilities, terrains=terrains, state=state, global_action_probability=global_action_probability)
 
     def update_by_creator(self, form, editor):
         self.set_utg_name(form.c.name)
@@ -256,6 +261,7 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
         self.abilities = form.c.abilities
         self.type = form.c.type
         self.archetype = form.c.archetype
+        self.global_action_probability = form.c.global_action_probability
         self.editor = editor._model
 
         self.save()
@@ -270,6 +276,7 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
         self.state = MOB_RECORD_STATE.ENABLED if form.c.approved else MOB_RECORD_STATE.DISABLED
         self.type = form.c.type
         self.archetype = form.c.archetype
+        self.global_action_probability = form.c.global_action_probability
         self.editor = editor._model if editor is not None else None
 
         self.save()

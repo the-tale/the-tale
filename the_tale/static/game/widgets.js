@@ -850,7 +850,11 @@ pgf.game.widgets.CreateArtifactTooltip = function (data, cssClass) {
         tooltip += '<li>целостность: '+integrityPercent+'% '+'('+data.integrity[0]+' из '+data.integrity[1]+')'+'</li>';
     }
     if (data.preference_rating != null) tooltip += '<li>полезность: '+data.preference_rating+'</li>';
+
     if (data.effect != null) tooltip += '<li><i>'+pgf.game.constants.EFFECTS[data.effect].description+'</i></li>';
+
+    if (data.special_effect != null) tooltip += '<li><i>'+pgf.game.constants.EFFECTS[data.special_effect].description+'</i></li>';
+
     tooltip += '</ul>';
     return tooltip;
 };

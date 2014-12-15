@@ -29,7 +29,7 @@ from the_tale.game.heroes.conf import heroes_settings
 class RatingValuesPrototype(BasePrototype):
     _model_class = RatingValues
     _readonly = ('id', 'account_id', 'might', 'bills_count', 'magic_power', 'physic_power', 'level',
-                 'phrases_count', 'pvp_battles_1x1_number', 'pvp_battles_1x1_victories', 'referrals_number', 'achievements_points', 'help_count')
+                 'phrases_count', 'pvp_battles_1x1_number', 'pvp_battles_1x1_victories', 'referrals_number', 'achievements_points', 'help_count', 'gifts_returned')
     _bidirectional = ()
     _get_by = ('account_id', )
 
@@ -47,7 +47,7 @@ class RatingValuesPrototype(BasePrototype):
 
 
         sql_request = '''
-INSERT INTO %(ratings)s (account_id, might, bills_count, magic_power, physic_power, level, phrases_count, pvp_battles_1x1_number, pvp_battles_1x1_victories, referrals_number, achievements_points, help_count)
+INSERT INTO %(ratings)s (account_id, might, bills_count, magic_power, physic_power, level, phrases_count, pvp_battles_1x1_number, pvp_battles_1x1_victories, referrals_number, achievements_points, help_count, gifts_returned)
 SELECT %(accounts)s.id AS account_id,
        %(heroes)s.might AS might,
        CASE WHEN raw_bills_count IS NULL THEN 0 ELSE raw_bills_count END AS bills_count,
@@ -59,7 +59,8 @@ SELECT %(accounts)s.id AS account_id,
        CASE WHEN %(heroes)s.stat_pvp_battles_1x1_number < %(min_pvp_battles)s THEN 0 ELSE CAST(%(heroes)s.stat_pvp_battles_1x1_victories AS FLOAT) / %(heroes)s.stat_pvp_battles_1x1_number END AS pvp_battles_1x1_victories,
        %(accounts)s.referrals_number as referrals_number,
        %(achievements)s.points as achievements_points,
-       %(heroes)s.stat_help_count as help_count
+       %(heroes)s.stat_help_count as help_count,
+       %(heroes)s.stat_gifts_returned as gifts_returned
 FROM %(accounts)s
 JOIN %(heroes)s ON %(accounts)s.id=%(heroes)s.account_id
 JOIN %(achievements)s ON %(accounts)s.id=%(achievements)s.account_id
@@ -95,7 +96,8 @@ WHERE NOT %(accounts)s.is_fast AND NOT %(accounts)s.is_bot AND %(accounts)s.id <
 class RatingPlacesPrototype(BasePrototype):
     _model_class = RatingPlaces
     _readonly = ('id', 'account_id', 'might_place', 'bills_count_place', 'magic_power_place', 'physic_power_place', 'level_place',
-                 'phrases_count_place', 'pvp_battles_1x1_number_place', 'pvp_battles_1x1_victories_place', 'referrals_number_place', 'achievements_points_place', 'help_count_place')
+                 'phrases_count_place', 'pvp_battles_1x1_number_place', 'pvp_battles_1x1_victories_place', 'referrals_number_place',
+                 'achievements_points_place', 'help_count_place', 'gifts_returned_place')
     _bidirectional = ()
     _get_by = ('account_id', )
 
@@ -111,7 +113,7 @@ class RatingPlacesPrototype(BasePrototype):
         cursor = connection.cursor()
 
         sql_request = '''
-INSERT INTO %(places)s (account_id, might_place, bills_count_place, magic_power_place, physic_power_place, level_place, phrases_count_place, pvp_battles_1x1_number_place, pvp_battles_1x1_victories_place, referrals_number_place, achievements_points_place, help_count_place)
+INSERT INTO %(places)s (account_id, might_place, bills_count_place, magic_power_place, physic_power_place, level_place, phrases_count_place, pvp_battles_1x1_number_place, pvp_battles_1x1_victories_place, referrals_number_place, achievements_points_place, help_count_place, gifts_returned_place)
 SELECT might_table.account_id AS account_id,
        might_table.might_place AS might_place,
        bills_count_table.bills_count_place AS bills_count_place,
@@ -123,7 +125,8 @@ SELECT might_table.account_id AS account_id,
        pvp_battles_1x1_victories_table.pvp_battles_1x1_victories_place AS pvp_battles_1x1_victories_place,
        referrals_number_table.referrals_number_place AS referrals_number_place,
        achievements_points_place_table.achievements_points_place AS achievements_points_place,
-       help_count_table.help_count_place AS help_count_place
+       help_count_table.help_count_place AS help_count_place,
+       gifts_returned_table.gifts_returned_place AS gifts_returned_place
 FROM (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.might DESC, %(ratings)s.account_id) AS might_place FROM %(ratings)s) as might_table
 JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.bills_count DESC, %(ratings)s.account_id) AS bills_count_place FROM %(ratings)s) as bills_count_table
     ON might_table.account_id=bills_count_table.account_id
@@ -145,6 +148,8 @@ JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %
     ON might_table.account_id=achievements_points_place_table.account_id
 JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.help_count DESC, %(ratings)s.account_id) AS help_count_place FROM %(ratings)s) as help_count_table
     ON might_table.account_id=help_count_table.account_id
+JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %(ratings)s.gifts_returned DESC, %(ratings)s.account_id) AS gifts_returned_place FROM %(ratings)s) as gifts_returned_table
+    ON might_table.account_id=gifts_returned_table.account_id
 '''
 
         sql_request = sql_request % {'places': RatingPlaces._meta.db_table,

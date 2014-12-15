@@ -27,4 +27,7 @@ KEYS = [(u'HERO_COMMON_DIARY_CREATE', 300000, u'Дневник: Создание
         u'Герой получает уровень.',
         [V.HERO, V.LEVEL]),
 
+        (u'HERO_COMMON_JOURNAL_RETURN_CHILD_GIFT', 300006, u'Журнал: Детский подарок вернулся к ребёнку', LEXICON_GROUP.HERO_COMMON,
+        u'Найденный деткий подарок пропадает из рюкзака и возвращается к ребёнку.',
+        [V.HERO, V.ARTIFACT]),
         ]

@@ -130,6 +130,8 @@ class Hero(models.Model):
     stat_cards_used = models.BigIntegerField(default=0, null=False)
     stat_cards_combined = models.BigIntegerField(default=0, null=False)
 
+    stat_gifts_returned = models.BigIntegerField(default=0, null=False)
+
     cards_help_count = models.BigIntegerField(default=0, null=False)
 
 

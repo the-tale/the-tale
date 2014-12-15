@@ -1,5 +1,5 @@
 
-{% macro mob_info(mob, limit_content=false, link_in_blank=false) %}
+{% macro mob_info(mob, limit_content=false, link_in_blank=false, for_moderator=false) %}
 
 {% if limit_content %}
 <div class="pgf-scrollable" style="overflow-y: auto; max-height: 400px;">
@@ -41,6 +41,12 @@
           </ul>
         </td>
       </tr>
+      {% if for_moderator %}
+      <tr>
+        <th>участие в событии</th>
+        <td>{{mob.global_action_probability}}</td>
+      </tr>
+      {% endif %}
     </tbody>
   </table>
 

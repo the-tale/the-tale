@@ -37,6 +37,7 @@ class PostMixin(object):
                 'abilities': ['hit', 'strong_hit', 'sidestep'],
                 'type': MOB_TYPE.CIVILIZED,
                 'archetype': ARCHETYPE.NEUTRAL,
+                'global_action_probability': 0.5,
                 'description': 'mob description'} )
 
         return data
@@ -51,6 +52,7 @@ class PostMixin(object):
                 'abilities': ['hit', 'speedup'],
                 'type': MOB_TYPE.BARBARIAN,
                 'archetype': ARCHETYPE.MAGICAL,
+                'global_action_probability': 0.1,
                 'description': 'new description'})
 
         return data
@@ -214,6 +216,7 @@ class TestCreateRequests(BaseTestRequests, PostMixin):
         self.assertTrue(mob_record.state.is_DISABLED)
         self.assertTrue(mob_record.type.is_CIVILIZED)
         self.assertTrue(mob_record.archetype.is_NEUTRAL)
+        self.assertEqual(mob_record.global_action_probability, 0.5)
         self.assertTrue(mob_record.editor_id, self.account_2.id)
 
 
@@ -366,6 +369,7 @@ class TestUpdateRequests(BaseTestRequests, PostMixin):
         self.assertTrue(mob.state.is_DISABLED)
         self.assertTrue(mob.type, data['type'])
         self.assertTrue(mob.archetype, data['archetype'])
+        self.assertTrue(mob.global_action_probability, data['global_action_probability'])
         self.assertTrue(mob.editor_id, self.account_2.id)
 
     def test_unlogined(self):

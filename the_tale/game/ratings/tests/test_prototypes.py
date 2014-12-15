@@ -62,7 +62,7 @@ class RatingPrototypeTests(PrototypeTestsBase):
         self.assertEqual([rv.account_id for rv in RatingValues.objects.all().order_by('account__id')],
                          [self.account_1.id, self.account_2.id, self.account_3.id, self.account_4.id, ])
 
-    def set_values(self, account, might=0, level=0, magic_power=0, physic_power=0, pvp_battles_1x1_number=0, pvp_battles_1x1_victories=0, help_count=0):
+    def set_values(self, account, might=0, level=0, magic_power=0, physic_power=0, pvp_battles_1x1_number=0, pvp_battles_1x1_victories=0, help_count=0, gifts_returned=0):
         hero = HeroPrototype.get_by_account_id(account.id)
         hero._model.might = might
         hero._model.level = level
@@ -71,6 +71,7 @@ class RatingPrototypeTests(PrototypeTestsBase):
         hero._model.stat_pvp_battles_1x1_number = pvp_battles_1x1_number
         hero._model.stat_pvp_battles_1x1_victories = pvp_battles_1x1_victories
         hero._model.stat_help_count = help_count
+        hero._model.stat_gifts_returned = gifts_returned
         hero._model.save()
 
     def test_might(self):
@@ -193,3 +194,14 @@ class RatingPrototypeTests(PrototypeTestsBase):
 
         self.assertEqual([rv.pvp_battles_1x1_victories for rv in RatingValues.objects.all().order_by('account__id')],
                          [0, 0.0, 0.02, 0.015])
+
+
+    def test_gifts_returned(self):
+        self.set_values(self.account_1, gifts_returned=9)
+        self.set_values(self.account_2, gifts_returned=10)
+        self.set_values(self.account_3, gifts_returned=7)
+        self.set_values(self.account_4, gifts_returned=1)
+
+        RatingValuesPrototype.recalculate()
+        self.assertEqual([rv.gifts_returned for rv in RatingValues.objects.all().order_by('account__id')],
+                         [9, 10, 7, 1 ])

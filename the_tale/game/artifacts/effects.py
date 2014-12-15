@@ -14,10 +14,11 @@ from the_tale.game.artifacts import relations
 class BaseEffect(object):
     TYPE = None
     DESCRIPTION = None
+    REMOVE_ON_HELP = False
 
     @classmethod
     def modify_attribute(cls, type_, value):
-        raise NotImplementedError
+        return value
 
 
 class PhysicalDamage(BaseEffect):
@@ -422,9 +423,11 @@ class NoEffect(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.NO_EFFECT
     DESCRIPTION = u'нет эффекта'
 
-    @classmethod
-    def modify_attribute(cls, type_, value): return value
 
+class ChildGift(BaseEffect):
+    TYPE = relations.ARTIFACT_EFFECT.CHILD_GIFT
+    DESCRIPTION = u'Это потерянный подарок ребёнка. Помогите герою, когда артефакт лежит в рюкзаке, и подарок вернётся к ребёнку.'
+    REMOVE_ON_HELP = True
 
 
 EFFECTS = {effect.TYPE: effect

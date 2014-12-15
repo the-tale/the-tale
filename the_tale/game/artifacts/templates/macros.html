@@ -51,6 +51,20 @@
           {% endif %}
         </td>
       </tr>
+      <tr>
+        <th>особое свойство</th>
+        <td>
+          {% if not artifact.special_effect.is_NO_EFFECT %}
+            {{ artifact.special_effect.text }}
+            <i class="icon-info-sign"
+               style="vertical-align: middle"
+               rel="tooltip"
+               title="{{EFFECTS[artifact.special_effect].DESCRIPTION}}"></i>
+          {% else %}
+            —
+          {% endif %}
+        </td>
+      </tr>
     </tbody>
   </table>
 

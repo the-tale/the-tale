@@ -24,6 +24,8 @@ class ArtifactRecord(models.Model):
     rare_effect = RelationIntegerField(relation=relations.ARTIFACT_EFFECT, relation_column='value')
     epic_effect = RelationIntegerField(relation=relations.ARTIFACT_EFFECT, relation_column='value')
 
+    special_effect = RelationIntegerField(relation=relations.ARTIFACT_EFFECT, relation_column='value', default=relations.ARTIFACT_EFFECT.NO_EFFECT.value)
+
     level = models.IntegerField(default=0)
 
     uuid = models.CharField(max_length=MAX_UUID_LENGTH, unique=True)

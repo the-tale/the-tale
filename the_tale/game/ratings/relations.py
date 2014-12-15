@@ -20,4 +20,6 @@ class RATING_TYPE(DjangoEnum):
                  u'Для участия в рейтинге необходимо провести минимум %(min_pvp_battles)s боёв' % {'min_pvp_battles': heroes_settings.MIN_PVP_BATTLES}),
                 ('REFERRALS_NUMBER', 'referrals_number', u'Последователи', u''),
                 ('ACHIEVEMENTS_POINTS', 'achievements_points', u'Очки достижений', u''),
-                ('HELP_COUNT', 'help_count', u'Помощь герою', u''))
+                ('HELP_COUNT', 'help_count', u'Помощь герою', u''),
+                ('GIFTS_RETURNED', 'gifts_returned', u'Возвращено подарков',
+                 u'Во время путешествия герой может найти потерянный детский подарок. Если помочь герою, когда подарок находится в рюкзаке, то он вернётся к ребёнку.'))

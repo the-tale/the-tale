@@ -259,6 +259,7 @@ class PrototypeTests(testcase.TestCase):
                 'power_type': artifact.power_type,
                 'rare_effect': artifact.rare_effect,
                 'epic_effect': artifact.epic_effect,
+                'special_effect': artifact.special_effect,
                 'description': artifact.description,
                 'uuid': artifact.uuid,
                 'mob':  str(artifact.mob.id) if artifact.mob else u''})

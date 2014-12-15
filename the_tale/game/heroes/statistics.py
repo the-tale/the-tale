@@ -165,6 +165,11 @@ class HeroStatistics(object):
         with achievements_storage.verify(type=ACHIEVEMENT_TYPE.QUESTS, object=self.hero):
             self.hero._model.stat_quests_done += value
 
+    @property
+    def gifts_returned(self): return self.hero._model.stat_gifts_returned
+    def change_gifts_returned(self, value):
+        self.hero._model.stat_gifts_returned += value
+
     #########################################
     # pvp
     #########################################

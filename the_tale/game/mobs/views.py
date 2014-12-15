@@ -181,6 +181,7 @@ class GameMobResource(MobResourceBase):
                                         abilities=form.c.abilities,
                                         terrains=form.c.terrains,
                                         editor=self.account,
+                                        global_action_probability=form.c.global_action_probability,
                                         state=MOB_RECORD_STATE.DISABLED)
         return self.json_ok(data={'next_url': reverse('guide:mobs:show', args=[mob.id])})
 

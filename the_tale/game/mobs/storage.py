@@ -2,6 +2,7 @@
 import random
 
 from the_tale.common.utils import storage
+from the_tale.common.utils.logic import random_value_by_priority
 
 from the_tale.game.mobs import exceptions
 from the_tale.game.mobs.prototypes import MobPrototype, MobRecordPrototype
@@ -45,6 +46,25 @@ class MobsStorage(storage.CachedStorage):
 
         return list(mobs)
 
+
+    def choose_mob(self, mobs_choices):
+        global_actions_mobs = []
+        normal_mobs = []
+
+        for mob in mobs_choices:
+            if mob.global_action_probability > 0:
+                global_actions_mobs.append(mob)
+            else:
+                normal_mobs.append(mob)
+
+        action_probability = sum(mob.global_action_probability for mob in global_actions_mobs if mob.global_action_probability)
+
+        if random.random() > action_probability:
+            return random.choice(normal_mobs)
+
+        return random_value_by_priority((mob, mob.global_action_probability) for mob in global_actions_mobs)
+
+
     def get_random_mob(self, hero, mercenary=None, is_boss=False):
         self.sync()
 
@@ -53,7 +73,8 @@ class MobsStorage(storage.CachedStorage):
         if not choices:
             return None
 
-        mob_record = random.choice(choices)
+        mob_record = self.choose_mob(choices)
+
         return MobPrototype(record=mob_record, level=hero.level, is_boss=is_boss)
 
     def create_mob_for_hero(self, hero):

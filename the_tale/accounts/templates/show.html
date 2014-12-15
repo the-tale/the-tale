@@ -134,6 +134,7 @@ jQuery(document).ready(function(){
                   <tr><td>очки достижений</td><td> {% if rating_values.achievements_points > 0 %}{{ rating_places.achievements_points_place }} место{% else %}не участвует{% endif %}</td></tr>
                   <tr><td>последователи</td><td> {% if rating_values.referrals_number > 0 %}{{ rating_places.referrals_number_place }} место{% else %}не участвует{% endif %}</td></tr>
                   <tr><td>помощь</td><td> {% if rating_values.help_count > 0 %}{{ rating_places.help_count_place }} место{% else %}не участвует{% endif %}</td></tr>
+                  <tr><td>возвращено подарков</td><td> {% if rating_values.gifts_returned > 0 %}{{ rating_places.gifts_returned_place }} место{% else %}не участвует{% endif %}</td></tr>
                 </tbody>
               </table>
             {% else %}

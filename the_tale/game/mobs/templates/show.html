@@ -23,6 +23,6 @@
 
 {{ guide_macros.page_caption(mob.name|up_first, "Описание монстра") }}
 
-{{ mobs_macros.mob_info(mob) }}
+{{ mobs_macros.mob_info(mob, for_moderator=resource.can_create_mob or resource.can_moderate_mob) }}
 
 {% endblock %}

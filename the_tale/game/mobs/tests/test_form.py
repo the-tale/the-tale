@@ -23,6 +23,7 @@ class MobsFormsTests(testcase.TestCase):
         data = linguistics_helpers.get_word_post_data(mob.utg_name, prefix='name')
 
         data.update( { 'level': str(mob.level),
+                       'global_action_probability': '0.25',
                        'terrains': ['TERRAIN.PLANE_GRASS', 'TERRAIN.HILLS_GRASS'],
                        'abilities': ['hit', 'strong_hit', 'sidestep'],
                        'type': 'MOB_TYPE.CIVILIZED',

@@ -103,8 +103,22 @@ class ArtifactPrototype(object):
         else:
             raise exceptions.UnknownRarityType(type=self.rarity)
 
+    def special_effect(self):
+        return effects.EFFECTS[self.record.special_effect]
+
+    def all_effects(self):
+        return (self._effect(), self.special_effect())
+
     def modify_attribute(self, type_, value):
-        return self._effect().modify_attribute(type_, value)
+        for effect in self.all_effects():
+            value = self._effect().modify_attribute(type_, value)
+        return value
+
+    def must_be_removed_on_help(self):
+        return any(effect.REMOVE_ON_HELP for effect in self.all_effects())
+
+    def is_child_gift(self):
+        return any(effect.TYPE.is_CHILD_GIFT for effect in self.all_effects())
 
     def serialize(self):
         return {'id': self.id,
@@ -200,6 +214,9 @@ class ArtifactPrototype(object):
         # print '  REPAIRED'
 
     def ui_info(self, hero):
+        effect = self._effect().TYPE
+        special_effect = self.special_effect().TYPE
+
         return {'type': self.type.value,
                 'id': self.record.id,
                 'equipped': self.can_be_equipped,
@@ -207,7 +224,8 @@ class ArtifactPrototype(object):
                 'integrity': (self.integrity if not self.type.is_USELESS else None,
                               self.max_integrity if not self.type.is_USELESS else None),
                 'rarity': self.rarity.value if not self.type.is_USELESS else None,
-                'effect': self._effect().TYPE.value if not self.type.is_USELESS else None,
+                'effect': effect.value if not effect.is_NO_EFFECT else None, #not self.type.is_USELESS else None,
+                'special_effect': special_effect.value if not special_effect.is_NO_EFFECT else None,
                 'preference_rating': self.preference_rating(hero.preferences.archetype.power_distribution) if not self.type.is_USELESS else None,
                 'power': self.power.ui_info() if not self.type.is_USELESS else None}
 
@@ -237,7 +255,7 @@ class ArtifactPrototype(object):
 class ArtifactRecordPrototype(BasePrototype, names.ManageNameMixin):
     _model_class = ArtifactRecord
     _readonly = ('id', 'editor_id', 'mob_id')
-    _bidirectional = ('level', 'uuid', 'description', 'type', 'state', 'power_type', 'rare_effect', 'epic_effect')
+    _bidirectional = ('level', 'uuid', 'description', 'type', 'state', 'power_type', 'rare_effect', 'epic_effect', 'special_effect')
     _get_by = ('id', )
 
     @lazy_property
@@ -271,7 +289,8 @@ class ArtifactRecordPrototype(BasePrototype, names.ManageNameMixin):
                editor=None,
                state=relations.ARTIFACT_RECORD_STATE.DISABLED,
                rare_effect=relations.ARTIFACT_EFFECT.NO_EFFECT,
-               epic_effect=relations.ARTIFACT_EFFECT.NO_EFFECT):
+               epic_effect=relations.ARTIFACT_EFFECT.NO_EFFECT,
+               special_effect=relations.ARTIFACT_EFFECT.NO_EFFECT):
 
         from the_tale.game.artifacts.storage import artifacts_storage
 
@@ -285,6 +304,7 @@ class ArtifactRecordPrototype(BasePrototype, names.ManageNameMixin):
                                               power_type=power_type,
                                               rare_effect=rare_effect,
                                               epic_effect=epic_effect,
+                                              special_effect=special_effect,
                                               state=state,
                                               editor=editor._model if editor else None)
 
@@ -318,6 +338,7 @@ class ArtifactRecordPrototype(BasePrototype, names.ManageNameMixin):
         self.power_type = form.c.power_type
         self.rare_effect = form.c.rare_effect
         self.epic_effect = form.c.epic_effect
+        self.special_effect = form.c.special_effect
         self.description = form.c.description
         self.editor = editor._model
         self.mob = form.c.mob
@@ -338,6 +359,7 @@ class ArtifactRecordPrototype(BasePrototype, names.ManageNameMixin):
         self.power_type = form.c.power_type
         self.rare_effect = form.c.rare_effect
         self.epic_effect = form.c.epic_effect
+        self.special_effect = form.c.special_effect
         self.description = form.c.description
         self.editor = editor._model if editor else None
         self.mob = form.c.mob

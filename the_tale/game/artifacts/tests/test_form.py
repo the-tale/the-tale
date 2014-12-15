@@ -27,6 +27,7 @@ class ArtifactFormsTests(testcase.TestCase):
                 'power_type': 'ARTIFACT_POWER_TYPE.NEUTRAL',
                 'rare_effect': 'ARTIFACT_EFFECT.POISON',
                 'epic_effect': 'ARTIFACT_EFFECT.GREAT_PHYSICAL_DAMAGE',
+                'special_effect': 'ARTIFACT_EFFECT.NO_EFFECT',
                 'description': 'artifact description',
                 'uuid': 'some-uuid',
                 'mob':  u''})

@@ -27,6 +27,8 @@ class RatingValues(models.Model):
 
     help_count = models.IntegerField(default=0, db_index=True)
 
+    gifts_returned = models.IntegerField(default=0, db_index=True)
+
 
 class RatingPlaces(models.Model):
 
@@ -51,3 +53,5 @@ class RatingPlaces(models.Model):
     achievements_points_place = models.IntegerField(default=0, db_index=True)
 
     help_count_place = models.IntegerField(default=0, db_index=True)
+
+    gifts_returned_place = models.IntegerField(default=0, db_index=True)

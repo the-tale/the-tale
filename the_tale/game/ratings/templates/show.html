@@ -20,6 +20,8 @@
   {% endfor %}
 </ul>
 
+{% if ratings %}
+
 {{ base_macros.render_paginator(paginator) }}
 
 <table class="table">
@@ -60,6 +62,14 @@
 </table>
 
 {{ base_macros.render_paginator(paginator) }}
+
+{% else %}
+
+<p class="alert alert-info">
+  В рейтинге пока нет ни одного игрока
+</p>
+
+{% endif %}
 
 
 {% endblock %}
