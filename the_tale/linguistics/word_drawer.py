@@ -75,7 +75,7 @@ class Leaf(object):
     def choose_base(self, base):
         real_properties = tuple(property
                                 for property in base.schema
-                                if all(property not in utg_data.RESTRICTIONS.get(key, []) for key in self.key.values() if key is not None))
+                                if all(property not in utg_data.RESTRICTIONS[self.type].get(key, []) for key in self.key.values() if key is not None))
         return relations.WORD_BLOCK_BASE.index_schema[real_properties]
 
 

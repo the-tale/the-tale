@@ -111,7 +111,7 @@ class ArtifactPrototype(object):
 
     def modify_attribute(self, type_, value):
         for effect in self.all_effects():
-            value = self._effect().modify_attribute(type_, value)
+            value = effect.modify_attribute(type_, value)
         return value
 
     def must_be_removed_on_help(self):
