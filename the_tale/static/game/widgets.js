@@ -851,9 +851,9 @@ pgf.game.widgets.CreateArtifactTooltip = function (data, cssClass) {
     }
     if (data.preference_rating != null) tooltip += '<li>полезность: '+data.preference_rating+'</li>';
 
-    if (data.effect != null) tooltip += '<li><i>'+pgf.game.constants.EFFECTS[data.effect].description+'</i></li>';
+    if (data.effect != pgf.game.constants.NO_EFFECT_ID) tooltip += '<li><i>'+pgf.game.constants.EFFECTS[data.effect].description+'</i></li>';
 
-    if (data.special_effect != null) tooltip += '<li><i>'+pgf.game.constants.EFFECTS[data.special_effect].description+'</i></li>';
+    if (data.special_effect != pgf.game.constants.NO_EFFECT_ID) tooltip += '<li><i>'+pgf.game.constants.EFFECTS[data.special_effect].description+'</i></li>';
 
     tooltip += '</ul>';
     return tooltip;

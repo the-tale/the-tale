@@ -73,6 +73,8 @@ pgf.game.constants.RARITY = {
         "name": "эпический артефакт"
     }};
 
+pgf.game.constants.NO_EFFECT_ID = 666;
+
 pgf.game.constants.EFFECTS = {
         "1023": {
         "name": "живость ума",

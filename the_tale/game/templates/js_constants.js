@@ -40,6 +40,8 @@ pgf.game.constants.RARITY = {
     {% endfor %}
 };
 
+pgf.game.constants.NO_EFFECT_ID = {{NO_EFFECT.value}};
+
 pgf.game.constants.EFFECTS = {
     {% for effect in EFFECTS.values() %}
     "{{effect.TYPE.value}}": {

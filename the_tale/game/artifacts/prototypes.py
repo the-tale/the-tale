@@ -224,8 +224,8 @@ class ArtifactPrototype(object):
                 'integrity': (self.integrity if not self.type.is_USELESS else None,
                               self.max_integrity if not self.type.is_USELESS else None),
                 'rarity': self.rarity.value if not self.type.is_USELESS else None,
-                'effect': effect.value if not effect.is_NO_EFFECT else None, #not self.type.is_USELESS else None,
-                'special_effect': special_effect.value if not special_effect.is_NO_EFFECT else None,
+                'effect': effect.value,
+                'special_effect': special_effect.value,
                 'preference_rating': self.preference_rating(hero.preferences.archetype.power_distribution) if not self.type.is_USELESS else None,
                 'power': self.power.ui_info() if not self.type.is_USELESS else None}
 
