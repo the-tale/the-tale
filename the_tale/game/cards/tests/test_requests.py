@@ -16,6 +16,7 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.cards import relations
 from the_tale.game.cards.prototypes import CARDS
 from the_tale.game.cards import forms
+from the_tale.game.cards import objects
 
 from the_tale.game.map.places.prototypes import BuildingPrototype
 
@@ -51,7 +52,7 @@ class UseDialogRequestTests(CardsRequestsTestsBase):
 
     def test_has_cards(self):
         for card_type in relations.CARD_TYPE.records:
-            self.hero.cards.add_card(relations.CARD_TYPE.KEEPERS_GOODS_COMMON, count=3)
+            self.hero.cards.add_card(objects.Card(type=relations.CARD_TYPE.KEEPERS_GOODS_COMMON))
             self.hero.save()
 
             self.request_login(self.account.email)
@@ -80,7 +81,7 @@ class UseRequestTests(CardsRequestsTestsBase):
         self.request_login(self.account.email)
 
         for card_type in relations.CARD_TYPE.records:
-            self.hero.cards.add_card(card_type, count=3)
+            self.hero.cards.add_card(objects.Card(type=card_type))
             self.hero.save()
 
             if card_type.form is forms.EmptyForm:
@@ -93,7 +94,7 @@ class UseRequestTests(CardsRequestsTestsBase):
         self.request_login(self.account.email)
 
         for card_type in relations.CARD_TYPE.records:
-            self.hero.cards.add_card(card_type, count=3)
+            self.hero.cards.add_card(objects.Card(type=card_type))
             self.hero.save()
 
             response = self.post_ajax_json(url('game:cards:use', card=card_type.value), self.post_data(card_type))

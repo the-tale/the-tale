@@ -18,6 +18,7 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.cards import prototypes
+from the_tale.game.cards import objects
 from the_tale.game.cards.postponed_tasks import UseCardTask
 
 from the_tale.game.map.places.prototypes import BuildingPrototype
@@ -72,7 +73,7 @@ class UseCardTaskTests(testcase.TestCase):
         card = random.choice(prototypes.CARDS.values())
         task = card.activate(self.hero, data=self.task_data).internal_logic
 
-        self.hero.cards.add_card(card.TYPE, 1)
+        self.hero.cards.add_card(objects.Card(card.TYPE))
 
         with mock.patch.object(card, 'use', lambda **kwargs: (UseCardTask.RESULT.FAILED, None, ())):
             self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
@@ -82,7 +83,7 @@ class UseCardTaskTests(testcase.TestCase):
         card = random.choice(prototypes.CARDS.values())
         task = card.activate(self.hero, data=self.task_data).internal_logic
 
-        self.hero.cards.add_card(card.TYPE, 1)
+        self.hero.cards.add_card(objects.Card(card.TYPE))
 
         with mock.patch.object(card, 'use', lambda **kwargs: (UseCardTask.RESULT.SUCCESSED, None, ())):
             self.assertEqual(task.process(FakePostpondTaskPrototype(), storage=self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
@@ -94,7 +95,7 @@ class UseCardTaskTests(testcase.TestCase):
         card = random.choice(prototypes.CARDS.values())
         task = card.activate(self.hero, data=self.task_data).internal_logic
 
-        self.hero.cards.add_card(card.TYPE, 1)
+        self.hero.cards.add_card(objects.Card(card.TYPE))
 
         with mock.patch.object(card, 'use', lambda **kwargs: (UseCardTask.RESULT.CONTINUE, UseCardTask.STEP.HIGHLEVEL, ())):
             self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.CONTINUE)

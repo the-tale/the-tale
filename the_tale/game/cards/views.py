@@ -60,7 +60,7 @@ class CardsResource(CardsResourceBase):
     def use(self, card):
         hero = HeroPrototype.get_by_account_id(self.account.id)
 
-        if not hero.cards.card_count(card):
+        if not hero.cards.has_card(card):
             return self.auto_error('cards.no_card', u'У Вас нет такой карты')
 
         form = card.form(self.request.POST)

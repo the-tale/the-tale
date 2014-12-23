@@ -7,4 +7,7 @@ class CardsError(TheTaleError):
 
 
 class RemoveUnexistedCardError(CardsError):
-    MSG = u'try to remove unexisted card: %(card)r (count: %(count)d)'
+    MSG = u'try to remove unexisted card: %(card_uid)r'
+
+class HelpCountBelowZero(CardsError):
+    MSG = u'try decrease help count below zero (current_value: %(current_value)d, delta: %(delta)d)'
