@@ -2,7 +2,6 @@
 
 import math
 import random
-import collections
 
 from django.conf import settings as project_settings
 
@@ -328,25 +327,3 @@ class LogicAccessorsMixin(object):
         # делаем разброс обрабатываемых с задержкой героев в зависимости от их идентификатора
         # чтобы не делать скачкообразной нагрузки раз в c.INACTIVE_HERO_DELAY ходов
         return (turn_number % heroes_settings.INACTIVE_HERO_DELAY) == (self.id % heroes_settings.INACTIVE_HERO_DELAY)
-
-    def can_combine_cards(self, cards):
-        if len(cards) < 2:
-            return relations.CARDS_COMBINING_STATUS.NOT_ENOUGH_CARDS
-
-        if len(cards) > 3:
-            return relations.CARDS_COMBINING_STATUS.TO_MANY_CARDS
-
-        rarities = set([card.rarity for card in cards])
-
-        if len(rarities) != 1:
-            return relations.CARDS_COMBINING_STATUS.EQUAL_RARITY_REQUIRED
-
-        if list(rarities)[0].is_LEGENDARY and len(cards) == 3:
-            return relations.CARDS_COMBINING_STATUS.LEGENDARY_X3_DISALLOWED
-
-        cards_counter = collections.Counter(cards)
-
-        if not all(self.cards.card_count(card) >= cards_counter.get(card, 0) for card in cards):
-            return relations.CARDS_COMBINING_STATUS.HAS_NO_CARDS
-
-        return relations.CARDS_COMBINING_STATUS.ALLOWED

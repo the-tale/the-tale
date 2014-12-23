@@ -55,12 +55,12 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
     def test_none(self):
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: None):
             with self.check_not_changed(lambda: self.hero.statistics.help_count):
-                with self.check_not_changed(lambda: self.hero.cards_help_count):
+                with self.check_not_changed(lambda: self.hero.cards.help_count):
                     self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
     def test_success(self):
         with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-            with self.check_delta(lambda: self.hero.cards_help_count, 1):
+            with self.check_delta(lambda: self.hero.cards.help_count, 1):
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
     def test_help_when_battle_waiting(self):

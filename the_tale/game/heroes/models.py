@@ -132,8 +132,6 @@ class Hero(models.Model):
 
     stat_gifts_returned = models.BigIntegerField(default=0, null=False)
 
-    cards_help_count = models.BigIntegerField(default=0, null=False)
-
 
     def __unicode__(self): return u'hero[%s] — %s' % (self.id, s11n.from_json(self.data)['name']['forms'][0])
 

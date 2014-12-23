@@ -37,20 +37,20 @@ class GetCardTaskTest(TestCase):
         self.assertEqual(task.serialize(), GetCardTask.deserialize(task.serialize()).serialize())
 
     def test__can_not_get(self):
-        self.hero.cards_help_count = c.CARDS_HELP_COUNT_TO_NEW_CARD - 1
+        self.hero.cards.change_help_count(c.CARDS_HELP_COUNT_TO_NEW_CARD - 1)
         task = GetCardTask(self.hero.id)
 
-        with self.check_not_changed(lambda: self.hero.cards_help_count):
+        with self.check_not_changed(lambda: self.hero.cards.help_count):
             self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
 
         self.assertFalse(self.hero.cards.has_cards)
         self.assertTrue(task.state.is_CAN_NOT_GET)
 
     def test_success(self):
-        self.hero.cards_help_count = c.CARDS_HELP_COUNT_TO_NEW_CARD + 1
+        self.hero.cards.change_help_count(c.CARDS_HELP_COUNT_TO_NEW_CARD + 1)
         task = GetCardTask(self.hero.id)
 
-        with self.check_delta(lambda: self.hero.cards_help_count, -c.CARDS_HELP_COUNT_TO_NEW_CARD):
+        with self.check_delta(lambda: self.hero.cards.help_count, -c.CARDS_HELP_COUNT_TO_NEW_CARD):
             self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertTrue(self.hero.cards.has_cards)

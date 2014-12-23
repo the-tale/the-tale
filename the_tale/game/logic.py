@@ -189,8 +189,8 @@ def form_game_info(account=None, is_own=False):
 
 def game_info_url(account_id=None):
     if account_id is not None:
-        return url('game:api-info', account=account_id, api_version='1.1', api_client=project_settings.API_CLIENT)
-    return url('game:api-info', api_version='1.1', api_client=project_settings.API_CLIENT)
+        return url('game:api-info', account=account_id, api_version='1.2', api_client=project_settings.API_CLIENT)
+    return url('game:api-info', api_version='1.2', api_client=project_settings.API_CLIENT)
 
 
 def _game_info_from_1_1_to_1_0__heroes(data):
@@ -203,11 +203,26 @@ def _game_info_from_1_1_to_1_0__heroes(data):
         artifact['power'] = sum(artifact['power']) if artifact['power'] else 0
 
 
+def _game_info_from_1_2_to_1_1__heroes(data):
+    data['secondary']['cards_help_count'] = data['cards']['help_count']
+    data['secondary']['cards_help_barrier'] = data['cards']['help_barrier']
+
+
 def game_info_from_1_1_to_1_0(data):
     if data['account'] is not None:
         _game_info_from_1_1_to_1_0__heroes(data['account']['hero'])
 
     if data['enemy'] is not None:
         _game_info_from_1_1_to_1_0__heroes(data['enemy']['hero'])
+
+    return data
+
+
+def game_info_from_1_2_to_1_1(data):
+    if data['account'] is not None:
+        _game_info_from_1_2_to_1_1__heroes(data['account']['hero'])
+
+    if data['enemy'] is not None:
+        _game_info_from_1_2_to_1_1__heroes(data['enemy']['hero'])
 
     return data

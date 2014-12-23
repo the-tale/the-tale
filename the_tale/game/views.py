@@ -55,7 +55,7 @@ class GameResource(Resource):
                               'CARDS': cards,
                               'hero': HeroPrototype.get_by_account_id(self.account.id)} )
 
-    @api.handler(versions=('1.1', '1.0'))
+    @api.handler(versions=('1.2', '1.1', '1.0'))
     @validate_argument_with_resource('account', Resource.validate_account_argument, 'game.info', u'неверный идентификатор аккаунта', raw=True)
     @handler('api', 'info', name='api-info', method='get')
     def api_info(self, api_version=None, account=None):
@@ -123,8 +123,9 @@ class GameResource(Resource):
       "cards":{                          // карты судьбы
         "cards": {                       // список карт
           "<целое число>": <целое число> // идентификатор карты: количество
-        }
-
+        },
+        "help_count": <целое число>,     // сколько помощи накоплено для получения новой карты
+        "help_barrier": <целое число>    // сколько всего помощи надо накопить для новой карты
       },
 
       "bag":{                            // содержимое рюкзака, словарь <внутренний идентификатор предмета, описание> ()
@@ -151,8 +152,6 @@ class GameResource(Resource):
         "move_speed": <дробное число>,           // скорость движения
         "loot_items_count": <целое число>,       // количество лута в рюкзаке
         "initiative": <дробное число>            // инициатива героя
-        "cards_help_count": <целое число>,       // сколько помощи накоплено для получения новой карты
-        "cards_help_barrier": <целое число>      // сколько всего помощи надо накопить для новой карты
       },
 
       "diary":[        // список последних сообщений в дневнике
@@ -287,7 +286,10 @@ class GameResource(Resource):
 
         data = game_logic.form_game_info(account=account, is_own=False if account is None else (self.account.id == account.id))
 
-        if api_version=='1.0':
+        if api_version in ('1.1', '1.0'):
+            data = game_logic.game_info_from_1_2_to_1_1(data)
+
+        if api_version == '1.0':
             data = game_logic.game_info_from_1_1_to_1_0(data)
 
         return self.ok(data=data)

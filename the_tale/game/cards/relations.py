@@ -20,6 +20,16 @@ class AVAILABILITY(DjangoEnum):
                 ('FOR_PREMIUMS', 1, u'только для подписчиков') )
 
 
+class CARDS_COMBINING_STATUS(DjangoEnum):
+    records = ( ('ALLOWED', 0, u'Объединение разрешено'),
+                ('NOT_ENOUGH_CARDS', 1, u'Не хватает карт'),
+                ('TO_MANY_CARDS', 2, u'Слишком много карт'),
+                ('EQUAL_RARITY_REQUIRED', 3, u'Карты должны быть одной редкости'),
+                ('LEGENDARY_X3_DISALLOWED', 4, u'Нельзя объединять 3 легендарных карты'),
+                ('HAS_NO_CARDS', 5, u'У героя нет таких карт') )
+
+
+
 class CARD_TYPE(DjangoEnum):
     availability = Column(unique=False)
     rarity = Column(unique=False)

@@ -14,8 +14,6 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.artifacts.relations import RARITY
 
-from the_tale.game.cards.relations import CARD_TYPE
-
 from the_tale.game.heroes.conf import heroes_settings
 from the_tale.game.heroes import relations
 
@@ -151,62 +149,3 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
         with self.check_increased(lambda: self.hero.loot_probability(self.mob)):
             with self.check_increased(lambda: self.hero.artifacts_probability(self.mob)):
                 self.hero.preferences.set_mob(self.mob.record)
-
-
-class CanCombineCardsTests(HeroLogicAccessorsTestBase):
-
-    def test_not_enough_cards(self):
-        self.assertTrue(self.hero.can_combine_cards([]).is_NOT_ENOUGH_CARDS)
-        self.assertTrue(self.hero.can_combine_cards([CARD_TYPE.ADD_POWER_COMMON]).is_NOT_ENOUGH_CARDS)
-        self.assertFalse(self.hero.can_combine_cards([CARD_TYPE.ADD_POWER_COMMON]*2).is_NOT_ENOUGH_CARDS)
-
-    def test_to_many_cards(self):
-        self.assertFalse(self.hero.can_combine_cards([CARD_TYPE.ADD_POWER_COMMON]*2).is_TO_MANY_CARDS)
-        self.assertFalse(self.hero.can_combine_cards([CARD_TYPE.ADD_POWER_COMMON]*3).is_TO_MANY_CARDS)
-        self.assertTrue(self.hero.can_combine_cards([CARD_TYPE.ADD_POWER_COMMON]*4).is_TO_MANY_CARDS)
-
-    def test_equal_rarity_required(self):
-        self.assertNotEqual(CARD_TYPE.ADD_POWER_COMMON.rarity, CARD_TYPE.ADD_BONUS_ENERGY_LEGENDARY.rarity)
-        self.assertTrue(self.hero.can_combine_cards([CARD_TYPE.ADD_POWER_COMMON, CARD_TYPE.ADD_BONUS_ENERGY_LEGENDARY]).is_EQUAL_RARITY_REQUIRED)
-
-        self.assertEqual(CARD_TYPE.ADD_POWER_COMMON.rarity, CARD_TYPE.ADD_BONUS_ENERGY_COMMON.rarity)
-        self.assertFalse(self.hero.can_combine_cards([CARD_TYPE.ADD_POWER_COMMON, CARD_TYPE.ADD_BONUS_ENERGY_COMMON]).is_EQUAL_RARITY_REQUIRED)
-
-    def test_legendary_x3(self):
-        self.assertTrue(CARD_TYPE.ADD_BONUS_ENERGY_LEGENDARY.rarity.is_LEGENDARY)
-        self.assertTrue(self.hero.can_combine_cards([CARD_TYPE.ADD_BONUS_ENERGY_LEGENDARY]*3).is_LEGENDARY_X3_DISALLOWED)
-        self.assertFalse(self.hero.can_combine_cards([CARD_TYPE.ADD_BONUS_ENERGY_LEGENDARY]*2).is_LEGENDARY_X3_DISALLOWED)
-
-    def test_no_cards(self):
-        self.assertTrue(self.hero.can_combine_cards([CARD_TYPE.ADD_POWER_COMMON, CARD_TYPE.ADD_BONUS_ENERGY_COMMON]).is_HAS_NO_CARDS)
-
-        self.hero.cards.add_card(CARD_TYPE.ADD_POWER_COMMON, 1)
-
-        self.assertTrue(self.hero.can_combine_cards([CARD_TYPE.ADD_POWER_COMMON, CARD_TYPE.ADD_BONUS_ENERGY_COMMON]).is_HAS_NO_CARDS)
-
-        self.hero.cards.add_card(CARD_TYPE.ADD_BONUS_ENERGY_COMMON, 1)
-
-        self.assertFalse(self.hero.can_combine_cards([CARD_TYPE.ADD_POWER_COMMON, CARD_TYPE.ADD_BONUS_ENERGY_COMMON]).is_HAS_NO_CARDS)
-
-
-    def test_no_cards__stacked(self):
-        self.assertTrue(self.hero.can_combine_cards([CARD_TYPE.ADD_POWER_COMMON]*2).is_HAS_NO_CARDS)
-
-        self.hero.cards.add_card(CARD_TYPE.ADD_POWER_COMMON, 1)
-
-        self.assertTrue(self.hero.can_combine_cards([CARD_TYPE.ADD_POWER_COMMON]*2).is_HAS_NO_CARDS)
-
-        self.hero.cards.add_card(CARD_TYPE.ADD_POWER_COMMON, 1)
-
-        self.assertFalse(self.hero.can_combine_cards([CARD_TYPE.ADD_POWER_COMMON]*2).is_HAS_NO_CARDS)
-
-
-    def test_allowed(self):
-        self.hero.cards.add_card(CARD_TYPE.ADD_POWER_COMMON, 3)
-        self.hero.cards.add_card(CARD_TYPE.ADD_BONUS_ENERGY_COMMON, 3)
-        self.hero.cards.add_card(CARD_TYPE.ADD_GOLD_COMMON, 3)
-
-        self.assertTrue(self.hero.can_combine_cards([CARD_TYPE.ADD_POWER_COMMON]*2).is_ALLOWED)
-        self.assertTrue(self.hero.can_combine_cards([CARD_TYPE.ADD_POWER_COMMON]*2+[CARD_TYPE.ADD_BONUS_ENERGY_COMMON]).is_ALLOWED)
-        self.assertTrue(self.hero.can_combine_cards([CARD_TYPE.ADD_POWER_COMMON]*3).is_ALLOWED)
-        self.assertTrue(self.hero.can_combine_cards([CARD_TYPE.ADD_POWER_COMMON, CARD_TYPE.ADD_BONUS_ENERGY_COMMON, CARD_TYPE.ADD_GOLD_COMMON]).is_ALLOWED)

@@ -60,7 +60,7 @@ class BuildingRepairTest(UseAbilityTaskMixin, testcase.TestCase):
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_repair_building', True)
     def test_use(self):
 
-        with self.check_delta(lambda: self.hero_1.cards_help_count, 1):
+        with self.check_delta(lambda: self.hero_1.cards.help_count, 1):
             result, step, postsave_actions = self.ability_1.use(**self.use_attributes(hero=self.hero_1, storage=self.storage))
 
         self.assertEqual((result, step), (ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.HIGHLEVEL))

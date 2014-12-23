@@ -69,8 +69,7 @@ class HeroPrototype(BasePrototype,
                       'last_rare_operation_at_turn',
                       'health',
                       'settings_approved',
-                      'next_spending',
-                      'cards_help_count')
+                      'next_spending')
     _get_by = ('id', 'account_id')
     _serialization_proxies = (('quests', QuestsContainer, heroes_settings.UNLOAD_TIMEOUT),
                               ('places_history', PlacesHelpStatistics, heroes_settings.UNLOAD_TIMEOUT),
@@ -506,29 +505,6 @@ class HeroPrototype(BasePrototype,
             else:
                 self.abilities.add(new_ability.get_id())
 
-    def get_new_card(self, rarity=None, exclude=()):
-        from the_tale.game.cards.relations import CARD_TYPE
-
-        cards = CARD_TYPE.records
-
-        if not self.is_premium:
-            cards = [card for card in cards if not card.availability.is_FOR_PREMIUMS]
-
-        if rarity:
-            cards = [card for card in cards if card.rarity == rarity]
-
-        if exclude:
-            cards = [card for card in cards if card not in exclude]
-
-        prioritites = [(card, card.rarity.priority) for card in cards]
-
-        card = random_value_by_priority(prioritites)
-
-        self.cards.add_card(card, 1)
-
-        return card
-
-
     def __eq__(self, other):
 
         return (self.id == other.id and
@@ -591,9 +567,7 @@ class HeroPrototype(BasePrototype,
                                'move_speed': float(self.move_speed),
                                'initiative': self.initiative,
                                'max_bag_size': self.max_bag_size,
-                               'loot_items_count': self.bag.occupation,
-                               'cards_help_count': self.cards_help_count,
-                               'cards_help_barrier': c.CARDS_HELP_COUNT_TO_NEW_CARD},
+                               'loot_items_count': self.bag.occupation},
                 'habits': { HABIT_TYPE.HONOR.verbose_value: {'verbose': self.habit_honor.verbose_value,
                                                              'raw': self.habit_honor.raw_value},
                             HABIT_TYPE.PEACEFULNESS.verbose_value: {'verbose': self.habit_peacefulness.verbose_value,

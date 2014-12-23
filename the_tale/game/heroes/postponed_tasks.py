@@ -543,14 +543,14 @@ class GetCardTask(PostponedLogic):
 
         hero = storage.heroes[self.hero_id]
 
-        if hero.cards_help_count < c.CARDS_HELP_COUNT_TO_NEW_CARD:
+        if hero.cards.help_count < c.CARDS_HELP_COUNT_TO_NEW_CARD:
             main_task.comment = u'can not get new card'
             self.state = GET_CARD_TASK_STATE.CAN_NOT_GET
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        self.card = hero.get_new_card()
+        self.card = hero.cards.get_new_card()
 
-        hero.cards_help_count -= c.CARDS_HELP_COUNT_TO_NEW_CARD
+        hero.cards.change_help_count(-c.CARDS_HELP_COUNT_TO_NEW_CARD)
 
         storage.save_bundle_data(hero.actions.current_action.bundle_id, update_cache=True)
 
@@ -603,7 +603,7 @@ class CombineCardsTask(PostponedLogic):
 
         hero = storage.heroes[self.hero_id]
 
-        can_combine_cards = hero.can_combine_cards(self.cards)
+        can_combine_cards = hero.cards.can_combine_cards(self.cards)
 
         if not can_combine_cards.is_ALLOWED:
             main_task.comment = u'can not get combine cards (status: %r)' % can_combine_cards
@@ -618,7 +618,7 @@ class CombineCardsTask(PostponedLogic):
         else:
             rarity=CARD_RARITY(self.cards[0].rarity.value+1)
 
-        self.card = hero.get_new_card(rarity=rarity, exclude=self.cards)
+        self.card = hero.cards.get_new_card(rarity=rarity, exclude=self.cards)
 
         hero.statistics.change_cards_combined(len(self.cards))
 

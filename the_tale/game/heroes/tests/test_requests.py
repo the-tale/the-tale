@@ -23,7 +23,7 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game import names
 
-from the_tale.game.cards.relations import CARD_TYPE
+from the_tale.game.cards import relations as cards_relations
 
 from the_tale.game.heroes import relations
 
@@ -261,17 +261,17 @@ class CombineCardsRequestsTests(HeroRequestsTestBase):
         self.request_logout()
         self.request_login('test_user_2@test.com')
         with self.check_not_changed(PostponedTask.objects.all().count):
-            self.check_ajax_error(self.post_ajax_json(url('game:heroes:combine-cards', self.hero.id, cards='%d' % CARD_TYPE.ADD_GOLD_COMMON.value)),
+            self.check_ajax_error(self.post_ajax_json(url('game:heroes:combine-cards', self.hero.id, cards='%d' % cards_relations.CARD_TYPE.ADD_GOLD_COMMON.value)),
                                 'heroes.not_owner')
 
 
     def test_created(self):
 
-        self.hero.cards.add_card(CARD_TYPE.ADD_GOLD_COMMON, 2)
+        self.hero.cards.add_card(cards_relations.CARD_TYPE.ADD_GOLD_COMMON, 2)
         self.hero.save()
 
         with self.check_delta(PostponedTask.objects.all().count, 1):
-            response = self.post_ajax_json(url('game:heroes:combine-cards', self.hero.id, cards='%d,%d' % (CARD_TYPE.ADD_GOLD_COMMON.value, CARD_TYPE.ADD_GOLD_COMMON.value) ))
+            response = self.post_ajax_json(url('game:heroes:combine-cards', self.hero.id, cards='%d,%d' % (cards_relations.CARD_TYPE.ADD_GOLD_COMMON.value, cards_relations.CARD_TYPE.ADD_GOLD_COMMON.value) ))
 
         task = PostponedTaskPrototype._db_get_object(0)
 
@@ -279,12 +279,12 @@ class CombineCardsRequestsTests(HeroRequestsTestBase):
 
     def test_wrong_cards(self):
 
-        for combine_status in relations.CARDS_COMBINING_STATUS.records:
+        for combine_status in cards_relations.CARDS_COMBINING_STATUS.records:
             if combine_status.is_ALLOWED:
                 continue
 
             with self.check_not_changed(PostponedTask.objects.all().count):
-                self.check_ajax_error(self.post_ajax_json(url('game:heroes:combine-cards', self.hero.id, cards='%d' % CARD_TYPE.ADD_GOLD_COMMON.value)),
+                self.check_ajax_error(self.post_ajax_json(url('game:heroes:combine-cards', self.hero.id, cards='%d' % cards_relations.CARD_TYPE.ADD_GOLD_COMMON.value)),
                                     'heroes.combine_cards.wrong_cards')
 
 

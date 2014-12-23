@@ -1,7 +1,7 @@
 # coding: utf-8
 import mock
 
-from the_tale.common.utils.testcase import TestCase
+from the_tale.common.utils import testcase
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
@@ -13,7 +13,7 @@ from the_tale.game.cards import relations
 from the_tale.game.cards.prototypes import CARDS
 
 
-class PrototypesTests(TestCase):
+class PrototypesTests(testcase.TestCase):
 
     def setUp(self):
         super(PrototypesTests, self).setUp()

@@ -509,15 +509,15 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
             .toggleClass('pgf-hidden', !action.info_link)
             .attr('href', action.info_link);
 
-        jQuery('.pgf-helps-count-to-new-card', widget).text(data.cards_help_count);
-        jQuery('.pgf-new-card-progress', widget).width((data.cards_help_count / data.cards_help_barrier)*100+'%');
+        jQuery('.pgf-helps-count-to-new-card', widget).text(data.cardsHelpCount);
+        jQuery('.pgf-new-card-progress', widget).width((data.cardsHelpCount / data.cardsHelpBarrier)*100+'%');
 
         jQuery('.pgf-cards-choices .pgf-card', widget).toggleClass('pgf-hidden', true);
         jQuery('.pgf-cards-choices .pgf-no-cards', widget).toggleClass('pgf-hidden', !jQuery.isEmptyObject(data.cards));
 
-        jQuery('.pgf-new-card-icon', widget).toggleClass('pgf-hidden', data.cards_help_count < data.cards_help_barrier)
-        jQuery('.pgf-get-card-statistics', widget).toggleClass('pgf-hidden', data.cards_help_count >= data.cards_help_barrier);
-        jQuery('.pgf-get-card-button', widget).toggleClass('pgf-hidden', data.cards_help_count < data.cards_help_barrier);
+        jQuery('.pgf-new-card-icon', widget).toggleClass('pgf-hidden', data.cardsHelpCount < data.cardsHelpBarrier)
+        jQuery('.pgf-get-card-statistics', widget).toggleClass('pgf-hidden', data.cardsHelpCount >= data.cardsHelpBarrier);
+        jQuery('.pgf-get-card-button', widget).toggleClass('pgf-hidden', data.cardsHelpCount < data.cardsHelpBarrier);
 
         var cardsCount = instance.ShowCards(jQuery('.pgf-cards-choices', widget))
 
@@ -541,8 +541,8 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
         data.actions = [];
         data.cards = game_data.account.hero.cards.cards;
 
-        data.cards_help_count = game_data.account.hero.secondary.cards_help_count;
-        data.cards_help_barrier = game_data.account.hero.secondary.cards_help_barrier;
+        data.cardsHelpCount = game_data.account.hero.cards.help_count;
+        data.cardsHelpBarrier = game_data.account.hero.cards.help_barrier;
 
         if (game_data.account.hero) {
             data.action = game_data.account.hero.action;

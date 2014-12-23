@@ -210,7 +210,7 @@ class HeroResource(Resource):
     @handler('#hero', 'combine-cards', method='post')
     def combine_cards(self, cards):
 
-        can_combine_status = self.hero.can_combine_cards(cards)
+        can_combine_status = self.hero.cards.can_combine_cards(cards)
 
         if not can_combine_status.is_ALLOWED:
             return self.json_error('heroes.combine_cards.wrong_cards', can_combine_status.text)

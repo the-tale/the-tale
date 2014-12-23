@@ -161,7 +161,7 @@ class Help(AbilityPrototype):
                                                   logger=None,
                                                   continue_steps_if_needed=True)
 
-        task.hero.cards_help_count += 1
+        task.hero.cards.change_help_count(1)
 
         self.process_removed_artifacts(task.hero)
 
