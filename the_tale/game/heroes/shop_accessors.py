@@ -8,6 +8,7 @@ from the_tale.game.balance.power import Power
 from the_tale.game.heroes import relations
 
 from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.cards import objects as cards_objects
 
 
 class ShopAccessorsMixin(object):
@@ -54,4 +55,5 @@ class ShopAccessorsMixin(object):
         return artifact
 
     def purchase_card(self, card_type, count):
-        self.cards.add_card(card_type, count=count)
+        for i in xrange(count):
+            self.cards.add_card(cards_objects.Card(card_type, available_for_auction=True))

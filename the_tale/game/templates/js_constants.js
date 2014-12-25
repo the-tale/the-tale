@@ -31,11 +31,20 @@ pgf.game.constants.ARTIFACT_TYPE = {
     {% endfor %}
 };
 
-pgf.game.constants.RARITY = {
-    {% for record in RARITY.records %}
+pgf.game.constants.ARTIFACT_RARITY = {
+    {% for record in ARTIFACT_RARITY.records %}
     "{{record.name}}": {
         "id": {{record.value}},
         "name": "{{record.text}}"
+    }{%- if not loop.last -%},{%- endif -%}
+    {% endfor %}
+};
+
+pgf.game.constants.CARD_RARITY = {
+    {% for record in CARD_RARITY.records %}
+    "{{record.value}}": {
+        "name": "{{record.name}}",
+        "text": "{{record.text}}"
     }{%- if not loop.last -%},{%- endif -%}
     {% endfor %}
 };

@@ -37,4 +37,4 @@ class BuyEnergyTaskTests(base_buy_task._BaseBuyHeroMethodPosponedTaskTests):
         self.assertFalse(self.hero.cards.has_cards)
 
     def _check_used(self):
-        self.assertEqual(self.hero.cards.cards, [(self.card_type, self.count)])
+        self.assertEqual([card.type for card in self.hero.cards.all_cards()], [self.card_type]*self.count)

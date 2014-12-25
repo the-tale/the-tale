@@ -1,6 +1,7 @@
 # coding: utf-8
-
 from the_tale.common.utils.logic import random_value_by_priority
+
+from the_tale.game.balance import constants as c
 
 from the_tale.game.cards import relations
 from the_tale.game.cards import exceptions
@@ -47,11 +48,10 @@ class CardsContainer(object):
         obj._next_uid = data.get('next_uid', 0)
         return obj
 
-    # TODO
-    # def ui_info(self):
-    #     return {'cards': {card_type.value: count for card_type, count in self._cards.iteritems()},
-    #             'help_count': self._help_count,
-    #             'help_barrier': c.CARDS_HELP_COUNT_TO_NEW_CARD }
+    def ui_info(self):
+        return {'cards': [card.ui_info() for card in self._cards.itervalues()],
+                'help_count': self._help_count,
+                'help_barrier': c.CARDS_HELP_COUNT_TO_NEW_CARD }
 
     def add_card(self, card):
         self.updated = True
@@ -71,12 +71,9 @@ class CardsContainer(object):
     def cards_count(self):
         return len(self._cards)
 
-    def all_cards(self): return sorted(self._cards.itervalues(), key=lambda x: x.type.text)
+    def all_cards(self): return self._cards.itervalues()
 
-    def card_count(self, card_type):
-        return len([card for card in self._cards.itervalues() if card.type == card_type])
-
-    def has_card(self, card_type): return self.card_count(card_type) > 0
+    def has_card(self, card_uid): return card_uid in self._cards
 
     @property
     def has_cards(self): return bool(self._cards)
@@ -139,16 +136,5 @@ class CardsContainer(object):
 
         return relations.CARDS_COMBINING_STATUS.ALLOWED
 
-
-    def get_card_for_use(self, card_type):
-        choices = [card for card in self._cards.itervalues() if card.type == card_type]
-
-        if not choices:
-            return None
-
-        not_auction_choices = [card for card in choices if not card.available_for_auction]
-
-        if not_auction_choices:
-            return not_auction_choices[0]
-
-        return choices[0]
+    def get_card(self, card_uid):
+        return self._cards.get(card_uid)

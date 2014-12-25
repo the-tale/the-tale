@@ -45,8 +45,7 @@ def split_list(items):
 
 
 def parse_cards_list(value):
-    from the_tale.game.cards.relations import CARD_TYPE
-    return [CARD_TYPE(int(card_id.strip())) for card_id in value.split(',')]
+    return [int(card_id.strip()) for card_id in value.split(',')]
 
 
 class HeroResource(Resource):

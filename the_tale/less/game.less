@@ -95,36 +95,41 @@
 }
 
 .common-card-label {
-   color: #333333;
-   font-weight: bold;
+   color: #333333 !important;
+   font-weight: bold !important;
+}
+
+.tooltip .common-card-label {
+   color: white !important;
+   font-weight: bold !important;
 }
 
 .uncommon-card-label {
-   color: #30b030;
-   font-weight: bold;
+   color: #30b030 !important;
+   font-weight: bold !important;
 }
 
 .rare-card-label {
-   color: #0070dd;
-   font-weight: bold;
+   color: #0070dd !important;
+   font-weight: bold !important;
 }
 
 .epic-card-label {
-   color: #a335ee;
-   font-weight: bold;
+   color: #a335ee !important;
+   font-weight: bold !important;
 }
 
 .legendary-card-label {
-   color: #ff8000;
-   font-weight: bold;
+   color: #ff8000 !important;
+   font-weight: bold !important;
 }
 
 .dropdown-menu a:hover {
-   .common-card-label {color: white;}
-   .uncommon-card-label {color: white;}
-   .rare-card-label {color: white;}
-   .epic-card-label {color: white;}
-   .legendary-card-label {color: white;}
+   &.common-card-label {color: white !important;}
+   &.uncommon-card-label {color: white !important;}
+   &.rare-card-label {color: white !important;}
+   &.epic-card-label {color: white !important;}
+   &.legendary-card-label {color: white !important;}
 }
 
 .common-card-bg {

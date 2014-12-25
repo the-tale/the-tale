@@ -32,18 +32,20 @@ class PrototypesTests(TestCase):
 
         self.ability = ABILITIES[ABILITY_TYPE.HELP]()
 
+        self.task_data = {}
+
     def test_process_no_energy(self):
         self.hero._model.energy = 0
         self.hero._model.energy_bonus = 0
         self.hero.save()
-        self.assertFalse(self.ability.check_hero_conditions(self.hero))
+        self.assertFalse(self.ability.check_hero_conditions(self.hero, self.task_data))
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.energy_discount', 1)
     def test_process_energy_discount(self):
         self.hero._model.energy = ABILITY_TYPE.HELP.cost - 1
         self.hero._model.energy_bonus = 0
         self.hero.save()
-        self.assertTrue(self.ability.check_hero_conditions(self.hero))
+        self.assertTrue(self.ability.check_hero_conditions(self.hero, self.task_data))
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.energy_discount', 1)
     def test_process_energy_discount__no_energy(self):
@@ -51,7 +53,7 @@ class PrototypesTests(TestCase):
         self.hero._model.energy_bonus = 0
         self.hero.save()
 
-        self.assertFalse(self.ability.check_hero_conditions(self.hero))
+        self.assertFalse(self.ability.check_hero_conditions(self.hero, self.task_data))
 
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.energy_discount', 100)
@@ -60,10 +62,9 @@ class PrototypesTests(TestCase):
         self.hero._model.energy_bonus = 0
         self.hero.save()
 
+        self.assertTrue(self.ability.check_hero_conditions(self.hero, self.task_data))
 
-        self.assertTrue(self.ability.check_hero_conditions(self.hero))
-
-        self.ability.hero_actions(self.hero)
+        self.ability.hero_actions(self.hero, self.task_data)
 
         self.assertEqual(self.hero.energy, 1)
 
@@ -73,15 +74,15 @@ class PrototypesTests(TestCase):
         self.hero.add_energy_bonus(100)
         self.hero.save()
 
-        self.assertTrue(self.ability.check_hero_conditions(self.hero))
+        self.assertTrue(self.ability.check_hero_conditions(self.hero, self.task_data))
 
 
     def test_process_energy(self):
         self.hero._model.energy = self.hero.energy_maximum
         self.hero.save()
 
-        self.assertTrue(self.ability.check_hero_conditions(self.hero))
+        self.assertTrue(self.ability.check_hero_conditions(self.hero, self.task_data))
 
-        self.ability.hero_actions(self.hero)
+        self.ability.hero_actions(self.hero, self.task_data)
 
         self.assertTrue(self.hero.energy < self.hero.energy_maximum)

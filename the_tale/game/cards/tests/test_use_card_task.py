@@ -53,57 +53,74 @@ class UseCardTaskTests(testcase.TestCase):
 
     def test_create(self):
 
-        for card in prototypes.CARDS.values():
+        for card_effect in prototypes.CARDS.values():
+            card = objects.Card(card_effect.TYPE)
+            self.hero.cards.add_card(card)
+
             with self.check_delta(PostponedTaskPrototype._db_count, 1):
                 task = card.activate(self.hero, data=self.task_data)
 
             self.assertTrue(task.internal_logic.state.is_UNPROCESSED)
 
     def test_serialization(self):
-        task = random.choice(prototypes.CARDS.values()).activate(self.hero, data=self.task_data).internal_logic
+        card_effect = random.choice(prototypes.CARDS.values())
+        card = objects.Card(card_effect.TYPE)
+        self.hero.cards.add_card(card)
+
+        task = card.activate(self.hero, data=self.task_data).internal_logic
+
         self.assertEqual(task.serialize(), UseCardTask.deserialize(task.serialize()).serialize())
 
-    # def test_response_data(self):
-    #     task = random.choice(prototypes.CARDS.values()).activate(self.hero, data=self.task_data)
-    #     task.process()
-    #     self.assertEqual(task.processed_data, {})
+    def test_response_data(self):
+        card_effect = random.choice(prototypes.CARDS.values())
+        card = objects.Card(card_effect.TYPE)
+        self.hero.cards.add_card(card)
+
+        with mock.patch.object(card_effect, 'use', lambda **kwargs: (UseCardTask.RESULT.SUCCESSED, None, ())):
+            task = card.activate(self.hero, data=self.task_data).internal_logic
+            task.process(FakePostpondTaskPrototype(), self.storage)
+
+        self.assertEqual(task.processed_data, {})
 
     def test_process_can_not_process(self):
 
-        card = random.choice(prototypes.CARDS.values())
+        card_effect = random.choice(prototypes.CARDS.values())
+        card = objects.Card(card_effect.TYPE)
+        self.hero.cards.add_card(card)
+
         task = card.activate(self.hero, data=self.task_data).internal_logic
 
-        self.hero.cards.add_card(objects.Card(card.TYPE))
-
-        with mock.patch.object(card, 'use', lambda **kwargs: (UseCardTask.RESULT.FAILED, None, ())):
+        with mock.patch.object(card_effect, 'use', lambda **kwargs: (UseCardTask.RESULT.FAILED, None, ())):
             self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
             self.assertEqual(task.state, UseCardTask.STATE.CAN_NOT_PROCESS)
 
     def test_process_success(self):
-        card = random.choice(prototypes.CARDS.values())
+        card_effect = random.choice(prototypes.CARDS.values())
+        card = objects.Card(card_effect.TYPE)
+        self.hero.cards.add_card(card)
+
         task = card.activate(self.hero, data=self.task_data).internal_logic
 
-        self.hero.cards.add_card(objects.Card(card.TYPE))
-
-        with mock.patch.object(card, 'use', lambda **kwargs: (UseCardTask.RESULT.SUCCESSED, None, ())):
+        with mock.patch.object(card_effect, 'use', lambda **kwargs: (UseCardTask.RESULT.SUCCESSED, None, ())):
             self.assertEqual(task.process(FakePostpondTaskPrototype(), storage=self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertEqual(task.state, UseCardTask.STATE.PROCESSED)
 
     def test_process_second_step_error(self):
 
-        card = random.choice(prototypes.CARDS.values())
+        card_effect = random.choice(prototypes.CARDS.values())
+        card = objects.Card(card_effect.TYPE)
+        self.hero.cards.add_card(card)
+
         task = card.activate(self.hero, data=self.task_data).internal_logic
 
-        self.hero.cards.add_card(objects.Card(card.TYPE))
-
-        with mock.patch.object(card, 'use', lambda **kwargs: (UseCardTask.RESULT.CONTINUE, UseCardTask.STEP.HIGHLEVEL, ())):
+        with mock.patch.object(card_effect, 'use', lambda **kwargs: (UseCardTask.RESULT.CONTINUE, UseCardTask.STEP.HIGHLEVEL, ())):
             self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.CONTINUE)
 
         self.assertTrue(task.step.is_HIGHLEVEL)
         self.assertEqual(task.state, UseCardTask.STATE.UNPROCESSED)
 
-        with mock.patch.object(card, 'use', lambda **kwargs: (UseCardTask.RESULT.FAILED, None, ())):
+        with mock.patch.object(card_effect, 'use', lambda **kwargs: (UseCardTask.RESULT.FAILED, None, ())):
             self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
 
         self.assertEqual(task.state, UseCardTask.STATE.CAN_NOT_PROCESS)

@@ -518,26 +518,27 @@ class GetCardTask(PostponedLogic):
 '''
 
 
-    def __init__(self, hero_id, state=GET_CARD_TASK_STATE.UNPROCESSED, card=None):
+    def __init__(self, hero_id, state=GET_CARD_TASK_STATE.UNPROCESSED, message=None):
         super(GetCardTask, self).__init__()
         self.hero_id = hero_id
         self.state = state if isinstance(state, rels.Record) else GET_CARD_TASK_STATE(state)
-        self.card = card if card is None or isinstance(card, rels.Record) else CARD_TYPE(card)
+        self.message = message
 
     def serialize(self):
         return { 'hero_id': self.hero_id,
                  'state': self.state.value,
-                 'card': self.card.value if self.card else None}
+                 'message': self.message}
 
     @property
     def error_message(self): return self.state.text
 
+    def create_message(self, card):
+        return self.MESSAGE % {'name': card.name[0].upper() + card.name[1:],
+                               'description': card.effect.DESCRIPTION,
+                               'rarity': card.type.rarity.name.lower()}
     @property
     def processed_data(self):
-        message = self.MESSAGE % {'name': self.card.text[0].upper() + self.card.text[1:],
-                                  'description': CARDS[self.card].DESCRIPTION,
-                                  'rarity': self.card.rarity.name.lower()}
-        return {'message': message }
+        return {'message': self.message }
 
     def process(self, main_task, storage):
 
@@ -548,7 +549,9 @@ class GetCardTask(PostponedLogic):
             self.state = GET_CARD_TASK_STATE.CAN_NOT_GET
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        self.card = hero.cards.get_new_card()
+        card = hero.cards.get_new_card()
+
+        self.message = self.create_message(card)
 
         hero.cards.change_help_count(-c.CARDS_HELP_COUNT_TO_NEW_CARD)
 
@@ -576,28 +579,30 @@ class CombineCardsTask(PostponedLogic):
 '''
 
 
-    def __init__(self, hero_id, cards=[], state=GET_CARD_TASK_STATE.UNPROCESSED, card=None):
+    def __init__(self, hero_id, cards=[], state=GET_CARD_TASK_STATE.UNPROCESSED, message=None):
         super(CombineCardsTask, self).__init__()
         self.hero_id = hero_id
-        self.card = card if card is None or isinstance(card, rels.Record) else CARD_TYPE(card)
-        self.cards = [card if isinstance(card, rels.Record) else CARD_TYPE(card) for card in cards]
+        self.cards = cards
+        self.message = message
         self.state = state if isinstance(state, rels.Record) else GET_CARD_TASK_STATE(state)
 
     def serialize(self):
         return { 'hero_id': self.hero_id,
                  'state': self.state.value,
-                 'cards': [card.value for card in self.cards],
-                 'card': self.card.value if self.card else None}
+                 'cards': self.cards,
+                 'message': self.message}
 
     @property
     def error_message(self): return self.state.text
 
+    def create_message(self, card):
+        return self.MESSAGE % {'name': card.name[0].upper() + card.name[1:],
+                               'description': card.effect.DESCRIPTION,
+                               'rarity': card.type.rarity.name.lower()}
+
     @property
     def processed_data(self):
-        message = self.MESSAGE % {'name': self.card.text[0].upper() + self.card.text[1:],
-                                  'description': CARDS[self.card].DESCRIPTION,
-                                  'rarity': self.card.rarity.name.lower()}
-        return {'message': message }
+        return {'message': self.message }
 
     def process(self, main_task, storage):
 
@@ -610,15 +615,19 @@ class CombineCardsTask(PostponedLogic):
             self.state = COMBINE_CARDS_STATE.CAN_NOT_COMBINE
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        for card in self.cards:
-            hero.cards.remove_card(card, 1)
+        cards = [hero.cards.get_card(card_uid) for card_uid in self.cards]
+
+        for card_uid in self.cards:
+            hero.cards.remove_card(card_uid)
 
         if len(self.cards) == 2:
-            rarity = self.cards[0].rarity
+            rarity = cards[0].type.rarity
         else:
-            rarity=CARD_RARITY(self.cards[0].rarity.value+1)
+            rarity=CARD_RARITY(cards[0].type.rarity.value+1)
 
-        self.card = hero.cards.get_new_card(rarity=rarity, exclude=self.cards)
+        card = hero.cards.get_new_card(rarity=rarity, exclude=[card.type for card in cards])
+
+        self.message = self.create_message(card)
 
         hero.statistics.change_cards_combined(len(self.cards))
 

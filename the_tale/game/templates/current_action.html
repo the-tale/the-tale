@@ -15,10 +15,10 @@ jQuery(document).ready(function(e) {
         pgf.ui.dialog.Create({ fromUrl: url});
     });
 
-    jQuery('.pgf-card').click(function(e){
+    jQuery('.pgf-card-link').live('click', function(e){
         e.preventDefault();
         var target = jQuery(e.currentTarget);
-        var url = jQuery('a', target).attr('href');
+        var url = target.attr('href') + '?card=' +target.data('card-uid');
 
         pgf.ui.dialog.Create({ fromUrl: url,
                                OnOpen: function(dialog) {
@@ -133,17 +133,15 @@ jQuery(document).ready(function(e) {
 
           <li class="divider"></li>
 
-          {% for card in CARDS %}
-            <li class="pgf-card pgf-card-{{card.TYPE.value}}">
-              <a href="{{url('game:cards:use-dialog', card=card.TYPE.value)}}"
-                 style="font-size: 10pt;"
-                 data-tooltip-placement="right"
-                 rel="tooltip"
-                 title="{{card.DESCRIPTION}}">
-                 <span class="{{card.TYPE.rarity.name|lower}}-card-label">{{card.TYPE.text}}</span> x <span class="pgf-count"></span>
+          <ul class="pgf-cards-container unstyled">
+            <li class="pgf-template">
+              <a href="{{url('game:cards:use-dialog')}}"
+                 class="pgf-card-link pgf-card-record"
+                 style="font-size: 10pt;">
               </a>
             </li>
-          {% endfor %}
+          </ul>
+
           <li class="pgf-no-cards" style="font-size: 10pt;">
             <a href="#"
                rel="tooltip"

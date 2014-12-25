@@ -80,6 +80,11 @@ pgf.base.TooltipPlacement = function (tip, element) {
     var offset = element.offset();
     var placement = element.data('tooltip-placement');
 
+    // if owner was deleted
+    if (offset.left == 0 && offset.top == 0) {
+        jQuery(tip).addClass('pgf-hidden');
+    }
+
     if (!placement) {
         var height = jQuery(document).outerHeight();
         var width = jQuery(document).outerWidth();
@@ -97,6 +102,11 @@ pgf.base.HorizTooltipPlacement = function (tip, element) {
 
     var offset = element.offset();
     var placement = element.data('tooltip-placement');
+
+    // if owner was deleted
+    if (offset.left == 0 && offset.top == 0) {
+        jQuery(tip).addClass('pgf-hidden');
+    }
 
     if (!placement) {
         var width = jQuery(document).outerWidth();
@@ -150,7 +160,6 @@ pgf.base.RenderTemplateList = function(selector, data, newElementCallback, param
 
     var container = jQuery(selector);
     var template = jQuery('.pgf-template', container).eq(0);
-    var emptyTemplate = jQuery('.pgf-empty-template', container).eq(0);
 
     container.children().not('.pgf-template').not('.pgf-empty-template').remove();
 

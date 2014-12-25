@@ -28,9 +28,9 @@ class AbilityPrototype(object):
         raise NotImplementedError
 
 
-    def check_hero_conditions(self, hero):
+    def check_hero_conditions(self, hero, data):
         return hero.energy_full >= max(1, self.TYPE.cost - hero.energy_discount)
 
 
-    def hero_actions(self, hero):
+    def hero_actions(self, hero, data):
         hero.change_energy(-self.TYPE.cost)

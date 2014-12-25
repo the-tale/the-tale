@@ -24,6 +24,7 @@ from the_tale.game.logic import create_test_map
 from the_tale.game import names
 
 from the_tale.game.cards import relations as cards_relations
+from the_tale.game.cards import objects as cards_objects
 
 from the_tale.game.heroes import relations
 
@@ -266,12 +267,16 @@ class CombineCardsRequestsTests(HeroRequestsTestBase):
 
 
     def test_created(self):
+        card_1 = cards_objects.Card(cards_relations.CARD_TYPE.ADD_GOLD_COMMON)
+        card_2 = cards_objects.Card(cards_relations.CARD_TYPE.ADD_GOLD_COMMON)
 
-        self.hero.cards.add_card(cards_relations.CARD_TYPE.ADD_GOLD_COMMON, 2)
+        self.hero.cards.add_card(card_1)
+        self.hero.cards.add_card(card_2)
+
         self.hero.save()
 
         with self.check_delta(PostponedTask.objects.all().count, 1):
-            response = self.post_ajax_json(url('game:heroes:combine-cards', self.hero.id, cards='%d,%d' % (cards_relations.CARD_TYPE.ADD_GOLD_COMMON.value, cards_relations.CARD_TYPE.ADD_GOLD_COMMON.value) ))
+            response = self.post_ajax_json(url('game:heroes:combine-cards', self.hero.id, cards='%d,%d' % (card_1.uid, card_2.uid) ))
 
         task = PostponedTaskPrototype._db_get_object(0)
 
@@ -284,7 +289,7 @@ class CombineCardsRequestsTests(HeroRequestsTestBase):
                 continue
 
             with self.check_not_changed(PostponedTask.objects.all().count):
-                self.check_ajax_error(self.post_ajax_json(url('game:heroes:combine-cards', self.hero.id, cards='%d' % cards_relations.CARD_TYPE.ADD_GOLD_COMMON.value)),
+                self.check_ajax_error(self.post_ajax_json(url('game:heroes:combine-cards', self.hero.id, cards=666)),
                                     'heroes.combine_cards.wrong_cards')
 
 

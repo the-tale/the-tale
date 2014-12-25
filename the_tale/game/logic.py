@@ -204,8 +204,9 @@ def _game_info_from_1_1_to_1_0__heroes(data):
 
 
 def _game_info_from_1_2_to_1_1__heroes(data):
-    data['secondary']['cards_help_count'] = data['cards']['help_count']
+    data['secondary']['cards_help_count'] = 0
     data['secondary']['cards_help_barrier'] = data['cards']['help_barrier']
+    data['cards'] = {'cards': {}}
 
 
 def game_info_from_1_1_to_1_0(data):

@@ -12,6 +12,7 @@ from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.cards import relations as cards_relations
 from the_tale.game.cards.prototypes import CARDS
+from the_tale.game.cards import objects as cards_objects
 
 from the_tale.game.heroes.postponed_tasks import CombineCardsTask
 
@@ -36,7 +37,13 @@ class CombineCardsTaskTest(TestCase):
 
 
     def test_serialization(self):
-        task = CombineCardsTask(self.hero.id, cards=[cards_relations.CARD_TYPE.LEVEL_UP]*2, card=cards_relations.CARD_TYPE.ADD_GOLD_COMMON)
+        card_1 = cards_objects.Card(cards_relations.CARD_TYPE.ADD_GOLD_COMMON)
+        card_2 = cards_objects.Card(cards_relations.CARD_TYPE.ADD_GOLD_COMMON)
+
+        self.hero.cards.add_card(card_1)
+        self.hero.cards.add_card(card_2)
+
+        task = CombineCardsTask(self.hero.id, cards=[card_1.uid, card_2.uid], message='test message')
         self.assertEqual(task.serialize(), CombineCardsTask.deserialize(task.serialize()).serialize())
 
 
@@ -56,8 +63,13 @@ class CombineCardsTaskTest(TestCase):
 
 
     def test_success__2_cards(self):
-        self.hero.cards.add_card(cards_relations.CARD_TYPE.ADD_GOLD_COMMON, 2)
-        task = CombineCardsTask(self.hero.id, cards=[cards_relations.CARD_TYPE.ADD_GOLD_COMMON]*2)
+        card_1 = cards_objects.Card(cards_relations.CARD_TYPE.ADD_GOLD_COMMON)
+        card_2 = cards_objects.Card(cards_relations.CARD_TYPE.ADD_GOLD_COMMON)
+
+        self.hero.cards.add_card(card_1)
+        self.hero.cards.add_card(card_2)
+
+        task = CombineCardsTask(self.hero.id, cards=[card_1.uid, card_2.uid])
 
         with self.check_delta(self.hero.cards.cards_count, -1):
             self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
@@ -65,65 +77,86 @@ class CombineCardsTaskTest(TestCase):
         self.assertTrue(self.hero.cards.has_cards)
         self.assertEqual(self.hero.cards.cards_count(), 1)
 
-        self.assertTrue(self.hero.cards.cards[0][0].rarity.is_COMMON)
+        self.assertTrue(self.hero.cards.all_cards().next().type.rarity.is_COMMON)
 
-        self.assertTrue(self.hero.cards.cards[0][0].text.lower() in task.processed_data['message'].lower())
-        self.assertTrue(CARDS[self.hero.cards.cards[0][0]].DESCRIPTION.lower() in task.processed_data['message'].lower())
+        self.assertTrue(self.hero.cards.all_cards().next().type.text.lower() in task.processed_data['message'].lower())
+        self.assertTrue(self.hero.cards.all_cards().next().effect.DESCRIPTION.lower() in task.processed_data['message'].lower())
 
         self.assertTrue(task.state.is_PROCESSED)
 
     def test_success__3_cards(self):
-        self.hero.cards.add_card(cards_relations.CARD_TYPE.ADD_GOLD_COMMON, 3)
-        task = CombineCardsTask(self.hero.id, cards=[cards_relations.CARD_TYPE.ADD_GOLD_COMMON]*3)
+        card_1 = cards_objects.Card(cards_relations.CARD_TYPE.ADD_GOLD_COMMON)
+        card_2 = cards_objects.Card(cards_relations.CARD_TYPE.ADD_GOLD_COMMON)
+        card_3 = cards_objects.Card(cards_relations.CARD_TYPE.ADD_GOLD_COMMON)
+
+        self.hero.cards.add_card(card_1)
+        self.hero.cards.add_card(card_2)
+        self.hero.cards.add_card(card_3)
+
+        task = CombineCardsTask(self.hero.id, cards=[card_1.uid, card_2.uid, card_3.uid])
 
         with self.check_delta(self.hero.cards.cards_count, -2):
             self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertTrue(self.hero.cards.has_cards)
 
-        self.assertTrue(self.hero.cards.cards[0][0].rarity.is_UNCOMMON)
+        self.assertTrue(self.hero.cards.all_cards().next().type.rarity.is_UNCOMMON)
 
-        self.assertTrue(self.hero.cards.cards[0][0].text.lower() in task.processed_data['message'].lower())
-        self.assertTrue(CARDS[self.hero.cards.cards[0][0]].DESCRIPTION.lower() in task.processed_data['message'].lower())
+        self.assertTrue(self.hero.cards.all_cards().next().name.lower() in task.processed_data['message'].lower())
+        self.assertTrue(self.hero.cards.all_cards().next().effect.DESCRIPTION.lower() in task.processed_data['message'].lower())
 
         self.assertTrue(task.state.is_PROCESSED)
 
     def test_success__remove_cards(self):
-        self.hero.cards.add_card(cards_relations.CARD_TYPE.ADD_GOLD_COMMON, 1)
-        self.hero.cards.add_card(cards_relations.CARD_TYPE.ADD_EXPERIENCE_COMMON, 2)
-        self.hero.cards.add_card(cards_relations.CARD_TYPE.ADD_BONUS_ENERGY_COMMON, 1)
-        self.hero.cards.add_card(cards_relations.CARD_TYPE.CHANGE_HERO_SPENDINGS_TO_INSTANT_HEAL, 1)
-        self.hero.cards.add_card(cards_relations.CARD_TYPE.LEVEL_UP, 1)
+        cards = [cards_objects.Card(cards_relations.CARD_TYPE.ADD_GOLD_COMMON),
+                 cards_objects.Card(cards_relations.CARD_TYPE.ADD_EXPERIENCE_COMMON),
+                 cards_objects.Card(cards_relations.CARD_TYPE.ADD_EXPERIENCE_COMMON),
+                 cards_objects.Card(cards_relations.CARD_TYPE.ADD_BONUS_ENERGY_COMMON),
+                 cards_objects.Card(cards_relations.CARD_TYPE.CHANGE_HERO_SPENDINGS_TO_INSTANT_HEAL),
+                 cards_objects.Card(cards_relations.CARD_TYPE.LEVEL_UP) ]
 
-        task = CombineCardsTask(self.hero.id, cards=[cards_relations.CARD_TYPE.ADD_GOLD_COMMON, cards_relations.CARD_TYPE.ADD_EXPERIENCE_COMMON, cards_relations.CARD_TYPE.ADD_BONUS_ENERGY_COMMON])
+        for card in cards:
+            self.hero.cards.add_card(card)
+
+        task = CombineCardsTask(self.hero.id, cards=[cards[0].uid, cards[2].uid, cards[3].uid])
 
         with self.check_delta(self.hero.cards.cards_count, -2):
             self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
-        self.assertEqual(self.hero.cards.card_count(cards_relations.CARD_TYPE.ADD_GOLD_COMMON), 0)
-        self.assertEqual(self.hero.cards.card_count(cards_relations.CARD_TYPE.ADD_EXPERIENCE_COMMON), 1)
-        self.assertEqual(self.hero.cards.card_count(cards_relations.CARD_TYPE.ADD_BONUS_ENERGY_COMMON), 0)
-        self.assertEqual(self.hero.cards.card_count(cards_relations.CARD_TYPE.CHANGE_HERO_SPENDINGS_TO_INSTANT_HEAL), 1)
-        self.assertEqual(self.hero.cards.card_count(cards_relations.CARD_TYPE.LEVEL_UP), 1)
+        self.assertFalse(self.hero.cards.has_card(cards[0].uid))
+        self.assertTrue(self.hero.cards.has_card(cards[1].uid))
+        self.assertFalse(self.hero.cards.has_card(cards[2].uid))
+        self.assertFalse(self.hero.cards.has_card(cards[3].uid))
+        self.assertTrue(self.hero.cards.has_card(cards[4].uid))
+        self.assertTrue(self.hero.cards.has_card(cards[5].uid))
 
         self.assertTrue(task.state.is_PROCESSED)
 
     def test_success__remove_duplicates(self):
-        self.hero.cards.add_card(cards_relations.CARD_TYPE.ADD_GOLD_COMMON, 3)
-        self.hero.cards.add_card(cards_relations.CARD_TYPE.ADD_EXPERIENCE_COMMON, 2)
-        self.hero.cards.add_card(cards_relations.CARD_TYPE.ADD_BONUS_ENERGY_COMMON, 1)
-        self.hero.cards.add_card(cards_relations.CARD_TYPE.CHANGE_HERO_SPENDINGS_TO_INSTANT_HEAL, 1)
-        self.hero.cards.add_card(cards_relations.CARD_TYPE.LEVEL_UP, 1)
+        cards = [cards_objects.Card(cards_relations.CARD_TYPE.ADD_GOLD_COMMON),
+                 cards_objects.Card(cards_relations.CARD_TYPE.ADD_GOLD_COMMON),
+                 cards_objects.Card(cards_relations.CARD_TYPE.ADD_GOLD_COMMON),
+                 cards_objects.Card(cards_relations.CARD_TYPE.ADD_EXPERIENCE_COMMON),
+                 cards_objects.Card(cards_relations.CARD_TYPE.ADD_EXPERIENCE_COMMON),
+                 cards_objects.Card(cards_relations.CARD_TYPE.ADD_BONUS_ENERGY_COMMON),
+                 cards_objects.Card(cards_relations.CARD_TYPE.CHANGE_HERO_SPENDINGS_TO_INSTANT_HEAL),
+                 cards_objects.Card(cards_relations.CARD_TYPE.LEVEL_UP)]
 
-        task = CombineCardsTask(self.hero.id, cards=[cards_relations.CARD_TYPE.ADD_GOLD_COMMON, cards_relations.CARD_TYPE.ADD_GOLD_COMMON, cards_relations.CARD_TYPE.ADD_BONUS_ENERGY_COMMON])
+        for card in cards:
+            self.hero.cards.add_card(card)
+
+        task = CombineCardsTask(self.hero.id, cards=[cards[1].uid, cards[2].uid, cards[5].uid])
 
         with self.check_delta(self.hero.cards.cards_count, -2):
             self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
-        self.assertEqual(self.hero.cards.card_count(cards_relations.CARD_TYPE.ADD_GOLD_COMMON), 1)
-        self.assertEqual(self.hero.cards.card_count(cards_relations.CARD_TYPE.ADD_EXPERIENCE_COMMON), 2)
-        self.assertEqual(self.hero.cards.card_count(cards_relations.CARD_TYPE.ADD_BONUS_ENERGY_COMMON), 0)
-        self.assertEqual(self.hero.cards.card_count(cards_relations.CARD_TYPE.CHANGE_HERO_SPENDINGS_TO_INSTANT_HEAL), 1)
-        self.assertEqual(self.hero.cards.card_count(cards_relations.CARD_TYPE.LEVEL_UP), 1)
+        self.assertTrue(self.hero.cards.has_card(cards[0].uid))
+        self.assertFalse(self.hero.cards.has_card(cards[1].uid))
+        self.assertFalse(self.hero.cards.has_card(cards[2].uid))
+        self.assertTrue(self.hero.cards.has_card(cards[3].uid))
+        self.assertTrue(self.hero.cards.has_card(cards[4].uid))
+        self.assertFalse(self.hero.cards.has_card(cards[5].uid))
+        self.assertTrue(self.hero.cards.has_card(cards[6].uid))
+        self.assertTrue(self.hero.cards.has_card(cards[7].uid))
 
         self.assertTrue(task.state.is_PROCESSED)

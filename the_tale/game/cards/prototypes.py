@@ -35,9 +35,10 @@ from the_tale.game.cards.postponed_tasks import UseCardTask
 class CardBase(object):
     TYPE = None
 
-    def activate(self, hero, data):
+    def activate(self, hero, card_uid, data):
         data['hero_id'] = hero.id
         data['account_id'] = hero.account_id
+        data['card_uid'] = card_uid
 
         card_task = UseCardTask(processor_id=self.TYPE.value,
                                 hero_id=hero.id,
@@ -53,11 +54,11 @@ class CardBase(object):
     def use(self, *argv, **kwargs):
         raise NotImplementedError()
 
-    def check_hero_conditions(self, hero):
-        return hero.cards.card_count(self.TYPE)
+    def check_hero_conditions(self, hero, data):
+        return hero.cards.has_card(data['card_uid'])
 
-    def hero_actions(self, hero):
-        card = hero.cards.get_card_for_use(self.TYPE)
+    def hero_actions(self, hero, data):
+        card = hero.cards.get_card(data['card_uid'])
         hero.cards.remove_card(card.uid)
         hero.statistics.change_cards_used(1)
 

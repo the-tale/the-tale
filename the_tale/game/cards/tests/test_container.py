@@ -80,7 +80,7 @@ class ContainerTests(testcase.TestCase):
 
 
     def test_card_count(self):
-        self.assertEqual(self.container.card_count(relations.CARD_TYPE.KEEPERS_GOODS_COMMON), 0)
+        self.assertEqual(len(list(self.container.all_cards())), 0)
 
         card_1 = objects.Card(relations.CARD_TYPE.KEEPERS_GOODS_COMMON)
         card_2 = objects.Card(relations.CARD_TYPE.KEEPERS_GOODS_COMMON, available_for_auction=True)
@@ -90,9 +90,11 @@ class ContainerTests(testcase.TestCase):
         self.container.add_card(card_2)
         self.container.add_card(card_3)
 
-        self.assertEqual(self.container.card_count(relations.CARD_TYPE.KEEPERS_GOODS_COMMON), 2)
-        self.assertEqual(self.container.card_count(relations.CARD_TYPE.ADD_GOLD_COMMON), 1)
-        self.assertEqual(self.container.card_count(relations.CARD_TYPE.ADD_GOLD_RARE), 0)
+        cards_counter = collections.Counter(card.type for card in self.container.all_cards())
+
+        self.assertEqual(cards_counter.get(relations.CARD_TYPE.KEEPERS_GOODS_COMMON), 2)
+        self.assertEqual(cards_counter.get(relations.CARD_TYPE.ADD_GOLD_COMMON), 1)
+        self.assertEqual(cards_counter.get(relations.CARD_TYPE.ADD_GOLD_RARE), None)
 
 
     def test_has_cards(self):
@@ -133,29 +135,29 @@ class ContainerTests(testcase.TestCase):
         self.assertRaises(exceptions.HelpCountBelowZero, self.container.change_help_count, -5)
 
 
-    def test_get_card_for_use__no_card(self):
-        self.assertEqual(self.container.get_card_for_use(relations.CARD_TYPE.KEEPERS_GOODS_COMMON), None)
+    # def test_get_card_for_use__no_card(self):
+    #     self.assertEqual(self.container.get_card_for_use(relations.CARD_TYPE.KEEPERS_GOODS_COMMON), None)
 
 
-    def test_get_card_for_use__no_card__not_auction_first(self):
-        card_1 = objects.Card(relations.CARD_TYPE.KEEPERS_GOODS_COMMON)
-        card_2 = objects.Card(relations.CARD_TYPE.KEEPERS_GOODS_COMMON, available_for_auction=True)
-        card_3 = objects.Card(relations.CARD_TYPE.KEEPERS_GOODS_COMMON)
+    # def test_get_card_for_use__no_card__not_auction_first(self):
+    #     card_1 = objects.Card(relations.CARD_TYPE.KEEPERS_GOODS_COMMON)
+    #     card_2 = objects.Card(relations.CARD_TYPE.KEEPERS_GOODS_COMMON, available_for_auction=True)
+    #     card_3 = objects.Card(relations.CARD_TYPE.KEEPERS_GOODS_COMMON)
 
-        self.container.add_card(card_1)
-        self.container.add_card(card_2)
-        self.container.add_card(card_3)
+    #     self.container.add_card(card_1)
+    #     self.container.add_card(card_2)
+    #     self.container.add_card(card_3)
 
-        card = self.container.get_card_for_use(relations.CARD_TYPE.KEEPERS_GOODS_COMMON)
-        self.assertIn(card.uid, (card_1.uid, card_3.uid))
-        self.container.remove_card(card.uid)
+    #     card = self.container.get_card_for_use(relations.CARD_TYPE.KEEPERS_GOODS_COMMON)
+    #     self.assertIn(card.uid, (card_1.uid, card_3.uid))
+    #     self.container.remove_card(card.uid)
 
-        card = self.container.get_card_for_use(relations.CARD_TYPE.KEEPERS_GOODS_COMMON)
-        self.assertIn(card.uid, (card_1.uid, card_3.uid))
-        self.container.remove_card(card.uid)
+    #     card = self.container.get_card_for_use(relations.CARD_TYPE.KEEPERS_GOODS_COMMON)
+    #     self.assertIn(card.uid, (card_1.uid, card_3.uid))
+    #     self.container.remove_card(card.uid)
 
-        card = self.container.get_card_for_use(relations.CARD_TYPE.KEEPERS_GOODS_COMMON)
-        self.assertEqual(card.uid, card_2.uid)
+    #     card = self.container.get_card_for_use(relations.CARD_TYPE.KEEPERS_GOODS_COMMON)
+    #     self.assertEqual(card.uid, card_2.uid)
 
 
 
@@ -174,7 +176,7 @@ class GetNewCardTest(testcase.TestCase):
 
 
     def test_single_card(self):
-        self.assertTrue(self.hero.cards.has_card(self.hero.cards.get_new_card().type))
+        self.assertTrue(self.hero.cards.has_card(self.hero.cards.get_new_card().uid))
 
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True)
@@ -195,9 +197,8 @@ class GetNewCardTest(testcase.TestCase):
         for i in xrange(len(relations.CARD_TYPE.records)*10):
             self.hero.cards.get_new_card()
 
-        for card in relations.CARD_TYPE.records:
-            if self.hero.cards.has_card(card):
-                self.assertFalse(card.availability.is_FOR_PREMIUMS)
+        for card in self.hero.cards.all_cards():
+            self.assertFalse(card.type.availability.is_FOR_PREMIUMS)
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True)
     def test_priority(self):

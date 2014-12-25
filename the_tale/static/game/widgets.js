@@ -484,6 +484,18 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
     });
 };
 
+pgf.game.widgets.CreateCardTooltip = function (data, cssClass) {
+    var rarityClass = pgf.game.constants.CARD_RARITY[data.rarity].name.toLowerCase()+'-card-label';
+    var rarityName = pgf.game.constants.CARD_RARITY[data.rarity].text;
+
+    var tooltip = '<ul class="unstyled '+cssClass+'" style="text-align: left;">';
+    tooltip += '<li><h4>'+data.name+'</h4></li>';
+    tooltip += '<li class="'+rarityClass+'">'+rarityName+'</li>';
+    tooltip += '<li>'+data.description+'</li>';
+    tooltip += '</ul>';
+    return tooltip;
+};
+
 pgf.game.widgets.Action = function(selector, updater, widgets, params) {
     var instance = this;
 
@@ -492,7 +504,13 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
     var actionBlock = jQuery('.pgf-current-action-block', widget);
     var actionInfo = jQuery('.pgf-action-info', widget);
 
+    var cardsListContainer = jQuery('.pgf-cards-container', widget)
+
     var data = {};
+
+    instance.GetCards = function() {
+        return data.cards;
+    };
 
     function RenderAction() {
 
@@ -519,27 +537,65 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
         jQuery('.pgf-get-card-statistics', widget).toggleClass('pgf-hidden', data.cardsHelpCount >= data.cardsHelpBarrier);
         jQuery('.pgf-get-card-button', widget).toggleClass('pgf-hidden', data.cardsHelpCount < data.cardsHelpBarrier);
 
-        var cardsCount = instance.ShowCards(jQuery('.pgf-cards-choices', widget))
+        instance.ShowCards(cardsListContainer);
 
-        jQuery('.pgf-combine-card-button', widget).toggleClass('pgf-hidden', cardsCount < 2);
+        jQuery('.pgf-combine-card-button', widget).toggleClass('pgf-hidden', data.cards.length < 2);
     }
 
-    this.ShowCards = function(container) {
-        var cardsCount = 0;
+    this.ShowCards = function(container, filterUIDs) {
+        var cards = [];
 
-        for (var i in data.cards) {
-            jQuery('.pgf-card-'+i, container).toggleClass('pgf-hidden', false);
-            jQuery('.pgf-card-'+i+' .pgf-count', container).text(data.cards[i]);
-            cardsCount += data.cards[i];
+        if (filterUIDs != undefined) {
+            for (var i in data.cards) {
+                if (filterUIDs.indexOf(data.cards[i].uid) != -1) {
+                    cards.push(data.cards[i]);
+                }
+            };
+        }
+        else {
+            cards = data.cards;
         }
 
-        return cardsCount;
+        pgf.base.RenderTemplateList(container, cards, RenderCard, {});
     };
+
+    var cardTooltipArgs = jQuery.extend({}, pgf.base.tooltipsArgs);
+    cardTooltipArgs.placement = function(tip, element) {
+        var offset = jQuery(element).offset();
+        if (offset.left == 0 && offset.top == 0) {
+            jQuery(tip).addClass('pgf-hidden');
+        }
+        return 'right';
+    }
+
+    function RenderCard(index, item, element) {
+        jQuery('.pgf-card-record', element)
+            .text(item.name)
+            .addClass(pgf.game.constants.CARD_RARITY[item.rarity].name.toLowerCase()+'-card-label')
+            .data('card-uid', item.uid)
+            .addClass('pgf-card-uid-'+item.uid);
+
+        var tooltipClass = 'pgf-card-tooltip';
+        var tooltip = pgf.game.widgets.CreateCardTooltip(item, tooltipClass);
+        pgf.game.widgets.UpdateElementTooltip(element, tooltip, tooltipClass, cardTooltipArgs);
+    }
 
     this.Refresh = function(game_data) {
 
         data.actions = [];
         data.cards = game_data.account.hero.cards.cards;
+
+        data.cards.sort(function(a, b){
+            if (a.rarity < b.rarity) return -1;
+            if (a.rarity > b.rarity) return 1;
+
+            if (a.name < b.name) return -1;
+            if (a.name > b.name) return 1;
+
+            if (a.auction) return 1;
+
+            return -1;
+        });
 
         data.cardsHelpCount = game_data.account.hero.cards.help_count;
         data.cardsHelpBarrier = game_data.account.hero.cards.help_barrier;
@@ -687,6 +743,20 @@ pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
     });
 };
 
+pgf.game.widgets.UpdateElementTooltip = function(element, tooltip, tooltipClass, tooltipsArgs) {
+    if (element.data('current-tooltip') != tooltip) {
+        pgf.base.HideTooltips(element, tooltipClass);
+        element.data('current-tooltip', tooltip);
+        if (element.data('tooltip')) {
+            element.data('tooltip').options.title = tooltip;
+            element.data('tooltip').enabled = true;
+        }
+        else {
+            element.tooltip(jQuery.extend(true, {}, tooltipsArgs, {title: tooltip}));
+        }
+    }
+};
+
 
 pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
     var instance = this;
@@ -700,23 +770,12 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
     var oldData = {};
 
     function RenderItem(index, item, element) {
-        element.toggleClass('rare-artifact-label', item.rarity == pgf.game.constants.RARITY.RARE.id);
-        element.toggleClass('epic-artifact-label', item.rarity == pgf.game.constants.RARITY.EPIC.id);
+        element.toggleClass('rare-artifact-label', item.rarity == pgf.game.constants.ARTIFACT_RARITY.RARE.id);
+        element.toggleClass('epic-artifact-label', item.rarity == pgf.game.constants.ARTIFACT_RARITY.EPIC.id);
 
         var tooltipClass = 'pgf-bag-artifact-tooltip';
-
         var tooltip = pgf.game.widgets.CreateArtifactTooltip(item, tooltipClass);
-        if (element.data('current-tooltip') != tooltip) {
-            pgf.base.HideTooltips(element, tooltipClass);
-            element.data('current-tooltip', tooltip);
-            if (element.data('tooltip')) {
-                element.data('tooltip').options.title = tooltip;
-                element.data('tooltip').enabled = true;
-            }
-            else {
-                element.tooltip(jQuery.extend(true, {}, pgf.base.tooltipsArgs, {title: tooltip}));
-            }
-        }
+        pgf.game.widgets.UpdateElementTooltip(element, tooltip, tooltipClass, pgf.base.tooltipsArgs);
 
         jQuery('.pgf-name', element).text(item.name);
         jQuery('.pgf-power-container', element).toggleClass('pgf-hidden', pgf.game.constants.ARTIFACT_TYPE.USELESS.id == item.type);
@@ -813,9 +872,9 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
 pgf.game.widgets.CreateArtifactTooltip = function (data, cssClass) {
     var rarityName = undefined;
     var rarityClass = undefined;
-    for (var i in pgf.game.constants.RARITY) {
-        if (data.rarity == pgf.game.constants.RARITY[i].id) {
-            rarityName = pgf.game.constants.RARITY[i].name;
+    for (var i in pgf.game.constants.ARTIFACT_RARITY) {
+        if (data.rarity == pgf.game.constants.ARTIFACT_RARITY[i].id) {
+            rarityName = pgf.game.constants.ARTIFACT_RARITY[i].name;
             rarityClass = i.toLowerCase() + '-artifact-label';
             break;
         }
@@ -869,23 +928,13 @@ pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
 
 
     function RenderArtifact(element, data) {
-        element.toggleClass('rare-artifact-label', data.rarity == pgf.game.constants.RARITY.RARE.id);
-        element.toggleClass('epic-artifact-label', data.rarity == pgf.game.constants.RARITY.EPIC.id);
+        element.toggleClass('rare-artifact-label', data.rarity == pgf.game.constants.ARTIFACT_RARITY.RARE.id);
+        element.toggleClass('epic-artifact-label', data.rarity == pgf.game.constants.ARTIFACT_RARITY.EPIC.id);
 
         var tooltipClass = 'pgf-equipment-artifact-tooltip';
 
         var tooltip = pgf.game.widgets.CreateArtifactTooltip(data, tooltipClass);
-        if (element.data('current-tooltip') != tooltip) {
-            pgf.base.HideTooltips(element, tooltipClass);
-            element.data('current-tooltip', tooltip);
-            if (element.data('tooltip')) {
-                element.data('tooltip').options.title = tooltip;
-                element.data('tooltip').enabled = true;
-            }
-            else {
-                element.tooltip(jQuery.extend(true, {}, pgf.base.tooltipsArgs, {title: tooltip}));
-            }
-        }
+        pgf.game.widgets.UpdateElementTooltip(element, tooltip, tooltipClass, pgf.base.tooltipsArgs);
 
         jQuery('.pgf-name', element).text(data.name);
         jQuery('.pgf-physic-power', element).text(data.power[0]);
@@ -1222,18 +1271,19 @@ pgf.game.widgets.Abilities = function() {
 };
 
 pgf.game.CombineCardsDialog = function(dialog) {
-    widgets.actions.ShowCards(jQuery('.pgf-card-choices', dialog));
+    var unchosenCards = [];
+    var chosenCards = [];
+
+    var cards = widgets.actions.GetCards();
+
+    for (var i in cards) {
+        unchosenCards.push(cards[i].uid);
+    }
 
     var button = jQuery('.pgf-do-combine-cards', dialog);
 
     function CanChoseCard() {
-        var cardsCount = 0;
-
-        jQuery('.pgf-chosen-cards .pgf-card').not('.pgf-hidden').each(function(i, e){
-            cardsCount += parseInt(jQuery('.pgf-count', e).text());
-        });
-
-        return cardsCount < 3;
+        return chosenCards.length < 3;
     }
 
 
@@ -1247,7 +1297,7 @@ pgf.game.CombineCardsDialog = function(dialog) {
         var cards = [];
 
         jQuery('.pgf-chosen-cards .pgf-card').not('.pgf-hidden').each(function(i, e){
-            cardId = jQuery(e).data('card-id');
+            cardId = jQuery(e).data('card-uid');
             count = parseInt(jQuery('.pgf-count', e).text());
             for (var i=0; i<count; ++i) {
                 cards.push(cardId);
@@ -1258,56 +1308,41 @@ pgf.game.CombineCardsDialog = function(dialog) {
         return cards;
     }
 
-    function ChoseCard(cardId) {
-        var chosenCard = jQuery('.pgf-chosen-cards .pgf-card-'+cardId, dialog);
-        var chosenCardCount = parseInt(jQuery('.pgf-count', chosenCard).text());
+    function RefreshLists() {
+        widgets.actions.ShowCards(jQuery('.pgf-card-choices', dialog), unchosenCards);
+        widgets.actions.ShowCards(jQuery('.pgf-cards-chosen', dialog), chosenCards);
 
-        var unchosenCard = jQuery('.pgf-card-choices .pgf-card-'+cardId, dialog);
-        var unchosenCardCount = parseInt(jQuery('.pgf-count', unchosenCard).text());
+        jQuery('.pgf-card-choices .pgf-card', dialog).click(function(e){
+            e.preventDefault();
 
-        chosenCardCount += 1;
-        unchosenCardCount -= 1;
+            if (!CanChoseCard()) {
+                return;
+            }
 
-        chosenCard.toggleClass('pgf-hidden', chosenCardCount == 0)
-        unchosenCard.toggleClass('pgf-hidden', unchosenCardCount == 0)
+            var el = jQuery(e.currentTarget);
+            ChoseCard(el.data('card-uid'));
+        });
 
-        jQuery('.pgf-count', unchosenCard).text(unchosenCardCount);
-        jQuery('.pgf-count', chosenCard).text(chosenCardCount);
+        jQuery('.pgf-cards-chosen .pgf-card', dialog).click(function(e){
+            e.preventDefault();
+            var el = jQuery(e.currentTarget);
+            UnchoseCard(el.data('card-uid'));
+        });
     }
 
-    function UnchoseCard(cardId) {
-        var chosenCard = jQuery('.pgf-chosen-cards .pgf-card-'+cardId, dialog);
-        var chosenCardCount = parseInt(jQuery('.pgf-count', chosenCard).text());
+    RefreshLists();
 
-        var unchosenCard = jQuery('.pgf-card-choices .pgf-card-'+cardId, dialog);
-        var unchosenCardCount = parseInt(jQuery('.pgf-count', unchosenCard).text());
-
-        chosenCardCount -= 1;
-        unchosenCardCount += 1;
-
-        chosenCard.toggleClass('pgf-hidden', chosenCardCount == 0)
-        unchosenCard.toggleClass('pgf-hidden', unchosenCardCount == 0)
-
-        jQuery('.pgf-count', unchosenCard).text(unchosenCardCount);
-        jQuery('.pgf-count', chosenCard).text(chosenCardCount);
+    function ChoseCard(cardUID) {
+        unchosenCards.splice(unchosenCards.indexOf(cardUID), 1);
+        chosenCards.push(cardUID);
+        RefreshLists();
     }
 
-    jQuery('.pgf-card-choices .pgf-card', dialog).click(function(e){
-        e.preventDefault();
-
-        if (!CanChoseCard()) {
-            return;
-        }
-
-        var el = jQuery(e.currentTarget);
-        ChoseCard(el.data('card-id'));
-    });
-
-    jQuery('.pgf-chosen-cards .pgf-card', dialog).click(function(e){
-        e.preventDefault();
-        var el = jQuery(e.currentTarget);
-        UnchoseCard(el.data('card-id'));
-    });
+    function UnchoseCard(cardUID) {
+        chosenCards.splice(chosenCards.indexOf(cardUID), 1);
+        unchosenCards.push(cardUID);
+        RefreshLists();
+    }
 
     button.click(function(e){
         e.preventDefault();

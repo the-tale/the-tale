@@ -105,7 +105,7 @@ class ComplexChangeTask(PostponedLogic):
                 self.state = self.STATE.BANNED
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            if not processor.check_hero_conditions(self.hero):
+            if not processor.check_hero_conditions(self.hero, data=self.data):
                 main_task.comment = 'hero conditions not passed'
                 self.state = self.STATE.HERO_CONDITIONS_NOT_PASSED
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
@@ -127,7 +127,7 @@ class ComplexChangeTask(PostponedLogic):
                 self.state = self.STATE.CAN_NOT_PROCESS
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            processor.hero_actions(self.hero)
+            processor.hero_actions(self.hero, data=self.data)
 
             if result.is_SUCCESSED:
                 self.state = self.STATE.PROCESSED

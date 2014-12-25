@@ -41,34 +41,38 @@ class CardsResourceBase(Resource):
 class CardsResource(CardsResourceBase):
 
     @login_required
-    @validate_argument('card', lambda v: relations.CARD_TYPE(int(v)), 'cards', u'Неверный идентификатор карты')
+    @validate_argument('card', lambda v: int(v), 'cards', u'Неверный идентификатор карты')
     @handler('use-dialog', method='get')
     def use_dialog(self, card):
         hero = HeroPrototype.get_by_account_id(self.account.id)
 
-        if not hero.cards.card_count(card):
+        if not hero.cards.has_card(card_uid=card):
             return self.auto_error('cards.no_card', u'У Вас нет такой карты')
+
+        card = hero.cards.get_card(card)
 
         return self.template('cards/use_dialog.html',
                              {'hero': hero,
-                              'card': prototypes.CARDS[card],
-                              'form': card.form()} )
+                              'card': card,
+                              'form': card.type.form()} )
 
     @login_required
-    @validate_argument('card', lambda v: relations.CARD_TYPE(int(v)), 'cards', u'Неверный идентификатор карты')
+    @validate_argument('card', lambda v: int(v), 'cards', u'Неверный идентификатор карты')
     @handler('use', method='post')
     def use(self, card):
         hero = HeroPrototype.get_by_account_id(self.account.id)
 
-        if not hero.cards.has_card(card):
+        if not hero.cards.has_card(card_uid=card):
             return self.auto_error('cards.no_card', u'У Вас нет такой карты')
 
-        form = card.form(self.request.POST)
+        card = hero.cards.get_card(card)
+
+        form = card.type.form(self.request.POST)
 
         if not form.is_valid():
             return self.json_error('cards.use.form_errors', form.errors)
 
-        task = prototypes.CARDS[card].activate(hero, data=form.get_card_data())
+        task = card.activate(hero, data=form.get_card_data())
 
         return self.json_processing(task.status_url)
 
