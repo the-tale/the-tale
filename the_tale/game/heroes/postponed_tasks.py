@@ -20,8 +20,7 @@ from the_tale.game.persons.storage import persons_storage
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
 from the_tale.game.heroes import relations
 
-from the_tale.game.cards.relations import CARD_TYPE, RARITY as CARD_RARITY
-from the_tale.game.cards.prototypes import CARDS
+from the_tale.game.cards import relations as cards_relations
 
 
 class CHOOSE_HERO_ABILITY_STATE(DjangoEnum):
@@ -615,17 +614,7 @@ class CombineCardsTask(PostponedLogic):
             self.state = COMBINE_CARDS_STATE.CAN_NOT_COMBINE
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        cards = [hero.cards.get_card(card_uid) for card_uid in self.cards]
-
-        for card_uid in self.cards:
-            hero.cards.remove_card(card_uid)
-
-        if len(self.cards) == 2:
-            rarity = cards[0].type.rarity
-        else:
-            rarity=CARD_RARITY(cards[0].type.rarity.value+1)
-
-        card = hero.cards.get_new_card(rarity=rarity, exclude=[card.type for card in cards])
+        card = hero.cards.combine_cards(self.cards)
 
         self.message = self.create_message(card)
 

@@ -135,31 +135,6 @@ class ContainerTests(testcase.TestCase):
         self.assertRaises(exceptions.HelpCountBelowZero, self.container.change_help_count, -5)
 
 
-    # def test_get_card_for_use__no_card(self):
-    #     self.assertEqual(self.container.get_card_for_use(relations.CARD_TYPE.KEEPERS_GOODS_COMMON), None)
-
-
-    # def test_get_card_for_use__no_card__not_auction_first(self):
-    #     card_1 = objects.Card(relations.CARD_TYPE.KEEPERS_GOODS_COMMON)
-    #     card_2 = objects.Card(relations.CARD_TYPE.KEEPERS_GOODS_COMMON, available_for_auction=True)
-    #     card_3 = objects.Card(relations.CARD_TYPE.KEEPERS_GOODS_COMMON)
-
-    #     self.container.add_card(card_1)
-    #     self.container.add_card(card_2)
-    #     self.container.add_card(card_3)
-
-    #     card = self.container.get_card_for_use(relations.CARD_TYPE.KEEPERS_GOODS_COMMON)
-    #     self.assertIn(card.uid, (card_1.uid, card_3.uid))
-    #     self.container.remove_card(card.uid)
-
-    #     card = self.container.get_card_for_use(relations.CARD_TYPE.KEEPERS_GOODS_COMMON)
-    #     self.assertIn(card.uid, (card_1.uid, card_3.uid))
-    #     self.container.remove_card(card.uid)
-
-    #     card = self.container.get_card_for_use(relations.CARD_TYPE.KEEPERS_GOODS_COMMON)
-    #     self.assertEqual(card.uid, card_2.uid)
-
-
 
 class GetNewCardTest(testcase.TestCase):
 
@@ -199,6 +174,32 @@ class GetNewCardTest(testcase.TestCase):
 
         for card in self.hero.cards.all_cards():
             self.assertFalse(card.type.availability.is_FOR_PREMIUMS)
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', False)
+    def test_auction_availability_not_specified_not_premium(self):
+        self.assertFalse(self.hero.cards.get_new_card().available_for_auction)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True)
+    def test_auction_availability_not_specified_premium(self):
+        self.assertTrue(self.hero.cards.get_new_card().available_for_auction)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', False)
+    def test_auction_availability_false_not_premium(self):
+        self.assertFalse(self.hero.cards.get_new_card(available_for_auction=False).available_for_auction)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True)
+    def test_auction_availability_false_premium(self):
+        self.assertFalse(self.hero.cards.get_new_card(available_for_auction=False).available_for_auction)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', False)
+    def test_auction_availability_true_not_premium(self):
+        self.assertTrue(self.hero.cards.get_new_card(available_for_auction=True).available_for_auction)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True)
+    def test_auction_availability_true_premium(self):
+        self.assertTrue(self.hero.cards.get_new_card(available_for_auction=True).available_for_auction)
+
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True)
     def test_priority(self):
@@ -327,3 +328,128 @@ class CanCombineCardsTests(testcase.TestCase):
         self.assertTrue(self.hero.cards.can_combine_cards([self.card__add_power_common_1.uid,
                                                            self.card__add_bonus_energy_common_1.uid,
                                                            self.card__add_gold_common_1.uid]).is_ALLOWED)
+
+
+
+
+class CombineCardsTests(testcase.TestCase):
+
+    def setUp(self):
+        super(CombineCardsTests, self).setUp()
+
+        create_test_map()
+
+        self.account = self.accounts_factory.create_account()
+
+        self.storage = LogicStorage()
+        self.storage.load_account_data(self.account)
+        self.hero = self.storage.accounts_to_heroes[self.account.id]
+
+        self.card__add_power_common_1 = objects.Card(type=relations.CARD_TYPE.ADD_POWER_COMMON)
+        self.card__add_power_common_2 = objects.Card(type=relations.CARD_TYPE.ADD_POWER_COMMON)
+        self.card__add_power_common_3 = objects.Card(type=relations.CARD_TYPE.ADD_POWER_COMMON)
+        self.card__add_power_common_4 = objects.Card(type=relations.CARD_TYPE.ADD_POWER_COMMON)
+
+        self.card__add_bonus_energy_common_1 = objects.Card(type=relations.CARD_TYPE.ADD_BONUS_ENERGY_COMMON)
+
+        self.card__add_bonus_energy_legendary_1 = objects.Card(type=relations.CARD_TYPE.ADD_BONUS_ENERGY_LEGENDARY)
+        self.card__add_bonus_energy_legendary_2 = objects.Card(type=relations.CARD_TYPE.ADD_BONUS_ENERGY_LEGENDARY)
+        self.card__add_bonus_energy_legendary_3 = objects.Card(type=relations.CARD_TYPE.ADD_BONUS_ENERGY_LEGENDARY)
+
+        self.card__add_gold_common_1 = objects.Card(type=relations.CARD_TYPE.ADD_GOLD_COMMON)
+
+        self.hero.cards.add_card(self.card__add_power_common_1)
+        self.hero.cards.add_card(self.card__add_power_common_2)
+        self.hero.cards.add_card(self.card__add_power_common_3)
+        self.hero.cards.add_card(self.card__add_power_common_4)
+
+        self.hero.cards.add_card(self.card__add_bonus_energy_common_1)
+
+        self.hero.cards.add_card(self.card__add_bonus_energy_legendary_1)
+        self.hero.cards.add_card(self.card__add_bonus_energy_legendary_2)
+        self.hero.cards.add_card(self.card__add_bonus_energy_legendary_3)
+
+        self.hero.cards.add_card(self.card__add_gold_common_1)
+
+
+    def test_2_cards(self):
+        with self.check_delta(self.hero.cards.cards_count, -1):
+            card = self.hero.cards.combine_cards([self.card__add_power_common_1.uid, self.card__add_bonus_energy_common_1.uid])
+
+        self.assertFalse(self.hero.cards.has_card(self.card__add_power_common_1.uid))
+        self.assertFalse(self.hero.cards.has_card(self.card__add_bonus_energy_common_1.uid))
+        self.assertTrue(self.hero.cards.has_card(card.uid))
+
+        self.assertNotIn(card.type, (self.card__add_bonus_energy_common_1.type,
+                                     self.card__add_bonus_energy_common_1.type))
+        self.assertTrue(card.type.rarity.is_COMMON)
+
+
+    def test_3_cards(self):
+        with self.check_delta(self.hero.cards.cards_count, -2):
+            card = self.hero.cards.combine_cards([self.card__add_power_common_1.uid,
+                                                  self.card__add_bonus_energy_common_1.uid,
+                                                  self.card__add_gold_common_1.uid])
+
+        self.assertFalse(self.hero.cards.has_card(self.card__add_power_common_1.uid))
+        self.assertFalse(self.hero.cards.has_card(self.card__add_bonus_energy_common_1.uid))
+        self.assertFalse(self.hero.cards.has_card(self.card__add_gold_common_1.uid))
+
+        self.assertNotIn(card.type, (self.card__add_bonus_energy_common_1.type,
+                                     self.card__add_bonus_energy_common_1.type,
+                                     self.card__add_gold_common_1.type))
+
+        self.assertTrue(self.hero.cards.has_card(card.uid))
+        self.assertTrue(card.type.rarity.is_UNCOMMON)
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True)
+    def test_auction_availability__not_available__hero_premium(self):
+        self.card__add_power_common_1.available_for_auction = True
+        self.card__add_bonus_energy_common_1.available_for_auction = False
+        self.card__add_gold_common_1.available_for_auction = True
+
+        card = self.hero.cards.combine_cards([self.card__add_power_common_1.uid,
+                                              self.card__add_bonus_energy_common_1.uid,
+                                              self.card__add_gold_common_1.uid])
+
+        self.assertFalse(card.available_for_auction)
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True)
+    def test_auction_availability__available__hero_premium(self):
+        self.card__add_power_common_1.available_for_auction = True
+        self.card__add_bonus_energy_common_1.available_for_auction = True
+        self.card__add_gold_common_1.available_for_auction = True
+
+        card = self.hero.cards.combine_cards([self.card__add_power_common_1.uid,
+                                              self.card__add_bonus_energy_common_1.uid,
+                                              self.card__add_gold_common_1.uid])
+
+        self.assertTrue(card.available_for_auction)
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', False)
+    def test_auction_availability__not_available__hero_not_premium(self):
+        self.card__add_power_common_1.available_for_auction = True
+        self.card__add_bonus_energy_common_1.available_for_auction = False
+        self.card__add_gold_common_1.available_for_auction = True
+
+        card = self.hero.cards.combine_cards([self.card__add_power_common_1.uid,
+                                              self.card__add_bonus_energy_common_1.uid,
+                                              self.card__add_gold_common_1.uid])
+
+        self.assertFalse(card.available_for_auction)
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', False)
+    def test_auction_availability__available__hero_not_premium(self):
+        self.card__add_power_common_1.available_for_auction = True
+        self.card__add_bonus_energy_common_1.available_for_auction = True
+        self.card__add_gold_common_1.available_for_auction = True
+
+        card = self.hero.cards.combine_cards([self.card__add_power_common_1.uid,
+                                              self.card__add_bonus_energy_common_1.uid,
+                                              self.card__add_gold_common_1.uid])
+
+        self.assertTrue(card.available_for_auction)

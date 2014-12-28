@@ -91,8 +91,11 @@ class CardsContainer(object):
             self._premium_help_count = min(self._help_count, self._premium_help_count)
 
 
-    def get_new_card(self, rarity=None, exclude=()):
+    def get_new_card(self, rarity=None, exclude=(), available_for_auction=None):
         cards_types = relations.CARD_TYPE.records
+
+        if available_for_auction is None:
+            available_for_auction=self._hero.is_premium
 
         if not self._hero.is_premium:
             cards_types = [card for card in cards_types if not card.availability.is_FOR_PREMIUMS]
@@ -107,7 +110,7 @@ class CardsContainer(object):
 
         card_type = random_value_by_priority(prioritites)
 
-        card = objects.Card(type=card_type, available_for_auction=self._hero.is_premium)
+        card = objects.Card(type=card_type, available_for_auction=available_for_auction)
 
         self.add_card(card)
 
@@ -138,3 +141,24 @@ class CardsContainer(object):
 
     def get_card(self, card_uid):
         return self._cards.get(card_uid)
+
+
+    def combine_cards(self, cards_uids):
+        '''
+        here we expect that can_combine_cards was called and checked
+        '''
+        cards = [self.get_card(card_uid) for card_uid in cards_uids]
+
+        for card_uid in cards_uids:
+            self.remove_card(card_uid)
+
+        if len(cards_uids) == 2:
+            rarity = cards[0].type.rarity
+        else:
+            rarity=relations.RARITY(cards[0].type.rarity.value+1)
+
+        card = self.get_new_card(rarity=rarity,
+                                 exclude=[card.type for card in cards],
+                                 available_for_auction=all(card.available_for_auction for card in cards))
+
+        return card
