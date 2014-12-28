@@ -492,6 +492,11 @@ pgf.game.widgets.CreateCardTooltip = function (data, cssClass) {
     tooltip += '<li><h4>'+data.name+'</h4></li>';
     tooltip += '<li class="'+rarityClass+'">'+rarityName+'</li>';
     tooltip += '<li>'+data.description+'</li>';
+
+    if (data.auction) {
+        tooltip += '<hr/>';
+        tooltip += '<li><i>может быть продана на аукционе</i></li>';
+    }
     tooltip += '</ul>';
     return tooltip;
 };
@@ -1296,13 +1301,12 @@ pgf.game.CombineCardsDialog = function(dialog) {
     function GetChoosenCards() {
         var cards = [];
 
-        jQuery('.pgf-chosen-cards .pgf-card').not('.pgf-hidden').each(function(i, e){
-            cardId = jQuery(e).data('card-uid');
-            count = parseInt(jQuery('.pgf-count', e).text());
-            for (var i=0; i<count; ++i) {
-                cards.push(cardId);
-            }
+        jQuery('.pgf-cards-chosen .pgf-card', dialog).each(function(i, e){
+            var cardUID = jQuery(e).data('card-uid');
 
+            if (cardUID != undefined) {
+                cards.push(cardUID);
+            }
         });
 
         return cards;
