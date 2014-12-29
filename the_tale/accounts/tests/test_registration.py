@@ -14,6 +14,8 @@ from the_tale.accounts.achievements.prototypes import AccountAchievementsPrototy
 
 from the_tale.collections.prototypes import AccountItemsPrototype
 
+from the_tale.market import models as market_models
+
 from the_tale.game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
 
 from the_tale.game.heroes.relations import EQUIPMENT_SLOT
@@ -76,6 +78,7 @@ class TestRegistration(testcase.TestCase):
 
         self.assertEqual(AccountAchievementsPrototype._db_count(), 1)
         self.assertEqual(AccountItemsPrototype._db_count(), 1)
+        self.assertEqual(market_models.Goods.objects.count(), 1)
 
 
     def test_successfull_result__referer(self):

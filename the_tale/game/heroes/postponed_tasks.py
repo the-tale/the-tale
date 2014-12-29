@@ -20,8 +20,6 @@ from the_tale.game.persons.storage import persons_storage
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
 from the_tale.game.heroes import relations
 
-from the_tale.game.cards import relations as cards_relations
-
 
 class CHOOSE_HERO_ABILITY_STATE(DjangoEnum):
     records = ( ('UNPROCESSED', 0, u'в очереди'),

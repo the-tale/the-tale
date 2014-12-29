@@ -17,7 +17,9 @@ from the_tale.accounts import exceptions
 from the_tale.accounts.conf import accounts_settings
 
 from the_tale.accounts.achievements.prototypes import AccountAchievementsPrototype
+
 from the_tale.collections.prototypes import AccountItemsPrototype
+from the_tale.market import logic as market_logic
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.bundles import BundlePrototype
@@ -92,6 +94,8 @@ def register_user(nick, email=None, password=None, referer=None, referral_of_id=
 
     AccountAchievementsPrototype.create(account)
     AccountItemsPrototype.create(account)
+
+    market_logic.create_goods(account.id)
 
     bundle = BundlePrototype.create()
 

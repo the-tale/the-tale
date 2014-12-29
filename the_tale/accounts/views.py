@@ -2,7 +2,6 @@
 import uuid
 
 from django.core.urlresolvers import reverse
-from django.contrib.auth import logout as django_logout
 from django.utils.log import getLogger
 
 from dext.common.utils import views as dext_views
@@ -71,6 +70,7 @@ class LoginRequiredProcessor(dext_views.BaseViewProcessor):
 
         return dext_views.Redirect(target_url=self.login_page_url(context.django_request.get_full_path()))
 
+login_required_processor = LoginRequiredProcessor()
 
 ###############################
 # end of new view processors

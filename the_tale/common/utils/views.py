@@ -29,3 +29,43 @@ class FakeResourceProcessor(dext_views.BaseViewProcessor):
 
 
 fake_resource_processor = FakeResourceProcessor()
+
+
+class PageNumberProcessor(dext_views.ArgumentProcessor):
+    __slots__ = dext_views.BaseViewProcessor.__slots__
+
+    def __init__(self,
+                 context_name='page',
+                 error_message=u'Неверный номер страницы',
+                 get_name='page',
+                 default_value=1,
+                 **kwargs):
+        super(PageNumberProcessor, self).__init__(context_name=context_name,
+                                                  error_message=error_message,
+                                                  get_name=get_name,
+                                                  default_value=default_value,
+                                                  **kwargs)
+    def parse(self, context, raw_value):
+        return max(0, int(raw_value)-1)
+
+page_number_processor = PageNumberProcessor()
+
+
+class TextFilterProcessor(dext_views.ArgumentProcessor):
+    __slots__ = dext_views.BaseViewProcessor.__slots__
+
+    def __init__(self,
+                 context_name='filter',
+                 error_message=u'Неверный текст для фильтра',
+                 get_name='filter',
+                 default_value=None,
+                 **kwargs):
+        super(PageNumberProcessor, self).__init__(context_name=context_name,
+                                                  error_message=error_message,
+                                                  get_name=get_name,
+                                                  default_value=default_value,
+                                                  **kwargs)
+    def parse(self, context, raw_value):
+        return raw_value
+
+text_filter_processor = TextFilterProcessor()

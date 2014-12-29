@@ -18,6 +18,7 @@ class Environment(BaseEnvironment):
         from the_tale.accounts.achievements.workers import achievements_manager
         from the_tale.post_service.workers import message_sender
         from the_tale.linguistics.workers import linguistics_manager
+        from the_tale.market.workers import market_manager
 
         from the_tale.game.workers import supervisor
         from the_tale.game.workers import logic
@@ -37,6 +38,7 @@ class Environment(BaseEnvironment):
         self.workers.items_manager = items_manager.Worker(name='collections_items_manager', groups=['all', 'portal'])
         self.workers.portal_long_commands = portal_long_commands.Worker(name='portal_long_commands', groups=['all', 'portal'])
         self.workers.linguistics_manager = linguistics_manager.Worker(name='linguistics_manager', groups=['all', 'portal'])
+        self.workers.market_manager = market_manager.Worker(name='market_manager', groups=['all', 'portal'])
 
         self.workers.supervisor = supervisor.Worker(name='game_supervisor', groups=['all', 'game'])
         self.workers.logic = logic.Worker(name='game_logic', groups=['all', 'game'])
