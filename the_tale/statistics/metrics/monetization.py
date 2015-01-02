@@ -1,6 +1,5 @@
 # coding: utf-8
 import datetime
-import collections
 
 from django.db import models
 
@@ -23,11 +22,12 @@ ACCEPTED_INVOICE_FILTER = models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state
 
 class Payers(BaseMetric):
     TYPE = relations.RECORD_TYPE.PAYERS
+    PREFETCH_DELTA = datetime.timedelta(days=1)
 
     def initialize(self):
         super(Payers, self).initialize()
         invoices = list(InvoicePrototype._db_filter(ACCEPTED_INVOICE_FILTER,
-                                                    self.db_date_gte('created_at'),
+                                                    self.db_date_gte('created_at', date=self.free_date - self.PREFETCH_DELTA),
                                                     sender_type=ENTITY_TYPE.XSOLLA,
                                                     currency=CURRENCY_TYPE.PREMIUM).values_list('created_at', 'recipient_id'))
 
@@ -47,6 +47,7 @@ class Payers(BaseMetric):
 
 class PayersInMonth(Payers):
     TYPE = relations.RECORD_TYPE.PAYERS_IN_MONTH
+    PREFETCH_DELTA = datetime.timedelta(days=30)
 
     def get_value(self, date):
         return sum(len(self.invoices.get(date - datetime.timedelta(days=i), frozenset())) for i in xrange(30) )
@@ -54,11 +55,12 @@ class PayersInMonth(Payers):
 
 class Income(BaseMetric):
     TYPE = relations.RECORD_TYPE.INCOME
+    PREFETCH_DELTA = datetime.timedelta(days=1)
 
     def initialize(self):
         super(Income, self).initialize()
         query = InvoicePrototype._db_filter(ACCEPTED_INVOICE_FILTER,
-                                            self.db_date_gte('created_at'),
+                                            self.db_date_gte('created_at', date=self.free_date - self.PREFETCH_DELTA),
                                             sender_type=ENTITY_TYPE.XSOLLA, currency=CURRENCY_TYPE.PREMIUM).values_list('created_at', 'amount')
         invoices = [(created_at.date(), amount) for created_at, amount in query]
 
@@ -72,6 +74,7 @@ class Income(BaseMetric):
 
 class IncomeInMonth(Income):
     TYPE = relations.RECORD_TYPE.INCOME_IN_MONTH
+    PREFETCH_DELTA = datetime.timedelta(days=30)
 
     def get_value(self, date):
         return sum(self.invoices_values.get(date - datetime.timedelta(days=i), 0) for i in xrange(30) )

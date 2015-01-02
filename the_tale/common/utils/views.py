@@ -60,7 +60,7 @@ class TextFilterProcessor(dext_views.ArgumentProcessor):
                  get_name='filter',
                  default_value=None,
                  **kwargs):
-        super(PageNumberProcessor, self).__init__(context_name=context_name,
+        super(TextFilterProcessor, self).__init__(context_name=context_name,
                                                   error_message=error_message,
                                                   get_name=get_name,
                                                   default_value=default_value,
