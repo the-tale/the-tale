@@ -32,6 +32,8 @@ class LogicStorage(object):
                                       might=account.might)
         self._add_hero(hero)
 
+        return hero
+
     def release_account_data(self, account, save_required=True):
         hero = self.accounts_to_heroes[account.id]
 

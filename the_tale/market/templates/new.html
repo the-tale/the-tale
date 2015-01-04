@@ -1,0 +1,36 @@
+{% extends "market/base.html" %}
+
+{% block title %} Ваши товары | {{ super() }}{% endblock %}
+
+{% block market_content %}
+
+<p>
+</p>
+
+{% if context.account_goods.has_goods() %}
+
+  <table>
+    <thead>
+      <tr>
+        <th>название</th>
+        <th>операция</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for good in context.account_goods.all() %}
+        <tr>
+          <td>{{good.name}}</td>
+          <td><a href="{{url('market:new-dialog', good=good.uid)}}" class="pgf-dialog-simple">продать</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% else %}
+  <p class="pgf-no-goods-message alert alert-info">
+    Вам нечего выставить на продажу.
+  </p>
+{% endif %}
+
+
+{% endblock %}

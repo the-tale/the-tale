@@ -1,6 +1,9 @@
 # coding: utf-8
+import datetime
 
 from dext.common.utils import s11n
+
+from the_tale.market import conf
 
 
 class Good(object):
@@ -31,9 +34,9 @@ class Good(object):
 
 class Lot(object):
 
-    __slots__ = ('id', 'type', 'name', 'seller_id', 'buyer_id', 'state', 'good', 'price')
+    __slots__ = ('id', 'type', 'name', 'seller_id', 'buyer_id', 'state', 'good', 'price', 'created_at')
 
-    def __init__(self, id, type, name, seller_id, buyer_id, state, good, price):
+    def __init__(self, id, type, name, seller_id, buyer_id, state, good, price, created_at):
         self.id = id
         self.type = type
         self.name = name
@@ -42,12 +45,18 @@ class Lot(object):
         self.state = state
         self.good = good
         self.price = price
+        self.created_at = created_at
+
+    @property
+    def time_to_end(self):
+        return min(self.created_at + datetime.timedelta(days=conf.settings.LOT_LIVE_TIME) - datetime.datetime.now(), datetime.timedelta(days=0))
 
     @classmethod
     def from_model(cls, model):
         data = s11n.from_json(model.data)
 
         return cls(id=model.id,
+                   created_at=model.created_at,
                    type=model.type,
                    name=model.name,
                    seller_id=model.seller_id,
@@ -55,6 +64,17 @@ class Lot(object):
                    state=model.state,
                    good=Good.deserialize(data['good']),
                    price=model.price)
+
+    def to_model_fields(self):
+        data = {'type': self.type,
+                'name': self.name,
+                'seller': self.seller_id,
+                'buyer': self.buyer_id,
+                'state': self.state,
+                'good_uid': self.good.uid,
+                'data': s11n.to_json({'good': self.good.serialize()}),
+                'price': self.price}
+        return data
 
 
 class Goods(object):
@@ -98,3 +118,12 @@ class Goods(object):
 
     def goods_count(self):
         return len(self._goods)
+
+    def has_goods(self):
+        return bool(self.goods_count())
+
+    def all(self):
+        return sorted(self._goods.itervalues(), key=lambda good: good.name)
+
+    def _clear(self):
+        self._goods = {}

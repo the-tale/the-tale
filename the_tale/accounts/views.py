@@ -72,6 +72,25 @@ class LoginRequiredProcessor(dext_views.BaseViewProcessor):
 
 login_required_processor = LoginRequiredProcessor()
 
+
+class FullAccountProcessor(dext_views.BaseViewProcessor):
+
+    def preprocess(self, context):
+        if context.account.is_fast:
+            raise dext_exceptions.ViewError(code='common.fast_account', message=u'Вы не закончили регистрацию и данная функция вам не доступна')
+
+full_account_processor = FullAccountProcessor()
+
+
+class BanGameProcessor(dext_views.BaseViewProcessor):
+
+    def preprocess(self, context):
+        if context.account.is_ban_game:
+            raise dext_exceptions.ViewError(code='common.ban_game', message=u'Вам запрещено проводить эту операцию')
+
+ban_game_processor = BanGameProcessor()
+
+
 ###############################
 # end of new view processors
 ###############################

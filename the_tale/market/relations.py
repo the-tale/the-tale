@@ -9,7 +9,8 @@ class LOT_STATE(DjangoEnum):
                 ('ACTIVE', 1, u'Лот активен'),
                 ('CLOSED_BY_SELLER', 2, u'Лот закрыт продавцом'),
                 ('CLOSED_BY_TIMEOUT', 3, u'Лот закрыт по таймауту'),
-                ('CLOSED_BY_BUYER', 4, u'Лот закрыт покупателем') )
+                ('CLOSED_BY_BUYER', 4, u'Лот закрыт покупателем'),
+                ('FROZEN', 5, u'Лот заморожен') )
 
 
 class INDEX_ORDER_BY(DjangoEnum):

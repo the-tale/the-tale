@@ -1,0 +1,43 @@
+{% extends "market/base.html" %}
+
+{% import 'macros.html' as base_macros with context %}
+{% import 'utils/list_filter.html' as list_filter_macros with context %}
+
+{% block market_content %}
+
+  {{ list_filter_macros.html_filter(index_filter) }}
+
+  {% if lots %}
+
+    {{ base_macros.render_paginator(paginator) }}
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>название</th>
+          <th width="100px">цена</th>
+          <th width="100px">времени до окончания</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for lot in lots %}
+          <tr>
+            <td>{{lot.name}}</td>
+            <td>{{lot.price}}</td>
+            <td><span>{{lot.time_to_end|verbose_timedelta}}</span></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {{ base_macros.render_paginator(paginator) }}
+
+  {% else %}
+
+    <p class="pgf-no-lots-message alert alert-info">
+      На продажу ничего не выставлено.
+    </p>
+
+  {% endif %}
+
+{% endblock %}

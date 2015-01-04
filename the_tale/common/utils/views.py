@@ -38,7 +38,7 @@ class PageNumberProcessor(dext_views.ArgumentProcessor):
                  context_name='page',
                  error_message=u'Неверный номер страницы',
                  get_name='page',
-                 default_value=1,
+                 default_value=0,
                  **kwargs):
         super(PageNumberProcessor, self).__init__(context_name=context_name,
                                                   error_message=error_message,
@@ -46,7 +46,9 @@ class PageNumberProcessor(dext_views.ArgumentProcessor):
                                                   default_value=default_value,
                                                   **kwargs)
     def parse(self, context, raw_value):
+        print '?', raw_value
         return max(0, int(raw_value)-1)
+
 
 page_number_processor = PageNumberProcessor()
 

@@ -9,12 +9,16 @@ from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC
 
 from the_tale.accounts import prototypes as account_prototypes
 
+from the_tale.bank import transaction as bank_transaction
+
 from the_tale.market import logic
+from the_tale.market import objects
 from the_tale.market import goods_types
+from the_tale.market import relations
 
 
 class CreateLotTask(PostponedLogic):
-    TYPE = None
+    TYPE = 'create-lot-task'
 
     class STATE(DjangoEnum):
         records = ( ('UNPROCESSED', 1, u'в очереди'),
@@ -121,4 +125,217 @@ class CreateLotTask(PostponedLogic):
             logic.save_goods(goods)
             self.step = self.STEP.ACTIVATED
             self.state = self.STATE.PROCESSED
+            return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
+
+
+
+
+class BuyLotTask(PostponedLogic):
+    TYPE = 'buy-lot-task'
+
+    class STATE(DjangoEnum):
+        records = ( ('UNPROCESSED', 1, u'в очереди'),
+                    ('PROCESSED', 2, u'обработано'),
+                    ('WRONG_LOT_STATE', 3, u'неверное состояние лота'),
+                    ('WRONG_TRANSACTION_STATE', 4, u'неверное состояние транзакции'),
+                    ('TRANSACTION_REJECTED', 5, u'в транзакции отказано'),
+                    ('BUYER_BANNED', 6, u'игрок забанен'),
+                    )
+
+
+    class STEP(DjangoEnum):
+        records = ( ('FREEZE_LOT', 0, u'заморозить лот'),
+                    ('FREEZE_MONEY', 1, u'заморозить средства'),
+                    ('RECEIVE_GOOD', 2, u'получить предмет'),
+                    ('REMOVE_LOT', 3, u'удалить лот'),
+                    ('SUCCESS', 4, u'покупка завершена'),
+                    ('ERROR', 5, u'ошибка'))
+
+
+    def __init__(self, buyer_id, seller_id, lot_id, transaction, good_type=None, good=None, step=STEP.FREEZE_MONEY, state=STATE.UNPROCESSED):
+        super(BuyLotTask, self).__init__()
+        self.buyer_id = buyer_id
+        self.seller_id = seller_id
+        self.lot_id = lot_id
+        self.state = state if isinstance(state, rels.Record) else self.STATE(state)
+        self.step = step if isinstance(step, rels.Record) else self.STEP(step)
+        self.good_type = goods_types.get_type(good_type) if good_type else None
+        self.good = objects.Good.deserialize(good) if isinstance(good, dict) else good
+        self.transaction = bank_transaction.Transaction.deserialize(transaction) if isinstance(transaction, dict) else transaction
+
+    def serialize(self):
+        return { 'buyer_id': self.buyer_id,
+                 'seller_id': self.seller_id,
+                 'lot_id': self.lot_id,
+                 'state': self.state.value,
+                 'good_type': self.good_type.uid if self.good_type else None,
+                 'good': self.good.serialize() if self.good else None,
+                 'transaction': self.transaction.serialize(),
+                 'step': self.step.value}
+
+    @property
+    def error_message(self): return self.state.text
+
+    def process(self, main_task, storage=None): # pylint: disable=R0911
+
+        if self.step.is_FREEZE_MONEY:
+
+            transaction_state = self.transaction.get_invoice_state()
+
+            if transaction_state.is_REQUESTED:
+                return POSTPONED_TASK_LOGIC_RESULT.WAIT
+
+            if transaction_state.is_REJECTED:
+                self.state = self.STATE.TRANSACTION_REJECTED
+                main_task.comment = 'invoice %d rejected' % self.transaction.invoice_id
+                return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+            if not transaction_state.is_FROZEN:
+                self.state = self.STATE.WRONG_TRANSACTION_STATE
+                main_task.comment = 'wrong invoice %d state %r on freezing step' % (self.transaction.invoice_id, transaction_state)
+                return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+            main_task.extend_postsave_actions((lambda: environment.workers.market_manager.cmd_logic_task(self.buyer_id, main_task.id),))
+            self.step = self.STEP.FREEZE_LOT
+            return POSTPONED_TASK_LOGIC_RESULT.CONTINUE
+
+
+        if self.step.is_FREEZE_LOT:
+            buyer = account_prototypes.AccountPrototype.get_by_id(self.buyer_id)
+
+            if buyer.is_ban_game:
+                main_task.comment = 'account is banned'
+                self.transaction.cancel()
+                self.state = self.STATE.BUYER_BANNED
+                return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+            lot = logic.load_lot(self.lot_id)
+
+            if not lot.state.is_ACTIVE:
+                main_task.comment = 'lot is not active, real state is: %s' % lot.state.name
+                self.transaction.cancel()
+                self.state = self.STATE.WRONG_LOT_STATE
+                return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+            self.good_type = goods_types.get_type(lot.type)
+            self.good = lot.good
+
+            lot.state = relations.LOT_STATE.FROZEN
+            logic.save_lot(lot)
+
+            main_task.extend_postsave_actions((lambda: environment.workers.logic.cmd_logic_task(self.buyer_id, main_task.id),))
+
+            self.step = self.STEP.RECEIVE_GOOD
+            return POSTPONED_TASK_LOGIC_RESULT.CONTINUE
+
+
+        if self.step.is_RECEIVE_GOOD:
+            hero = storage.accounts_to_heroes[self.buyer_id]
+
+            # TODO: save hero after receive item? and after extract too?...
+            self.good_type.insert_good(hero, self.good)
+
+            main_task.extend_postsave_actions((lambda: environment.workers.market_manager.cmd_logic_task(self.buyer_id, main_task.id),))
+
+            self.step = self.STEP.REMOVE_LOT
+            return POSTPONED_TASK_LOGIC_RESULT.CONTINUE
+
+
+        if self.step.is_REMOVE_LOT:
+            lot = logic.load_lot(self.lot_id)
+
+            lot.buyer_id = self.buyer_id
+            lot.state = relations.LOT_STATE.CLOSED_BY_BUYER
+            logic.save_lot(lot)
+
+            self.transaction.confirm()
+
+            self.state = self.STATE.PROCESSED
+            self.step = self.STEP.SUCCESS
+            return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
+
+
+
+
+class CloseLotByTimoutTask(PostponedLogic):
+    TYPE = 'close-lot-by-timeout-task'
+
+    class STATE(DjangoEnum):
+        records = ( ('UNPROCESSED', 1, u'в очереди'),
+                    ('PROCESSED', 2, u'обработано'),
+                    ('WRONG_LOT_STATE', 3, u'неверное состояние лота'),
+                    )
+
+
+    class STEP(DjangoEnum):
+        records = ( ('FREEZE_LOT', 0, u'заморозить лот'),
+                    ('RETURN_GOOD', 2, u'вернуть предмет'),
+                    ('CLOSE_LOT', 3, u'закрыть лот'),
+                    ('SUCCESS', 4, u'операция завершена'),
+                    ('ERROR', 5, u'ошибка'))
+
+
+    def __init__(self, lot_id, account_id=None, good_type=None, good=None, step=STEP.FREEZE_LOT, state=STATE.UNPROCESSED):
+        super(CloseLotByTimoutTask, self).__init__()
+        self.account_id = account_id
+        self.lot_id = lot_id
+        self.state = state if isinstance(state, rels.Record) else self.STATE(state)
+        self.step = step if isinstance(step, rels.Record) else self.STEP(step)
+        self.good_type = goods_types.get_type(good_type) if good_type else None
+        self.good = objects.Good.deserialize(good) if isinstance(good, dict) else good
+
+    def serialize(self):
+        return { 'account_id': self.account_id,
+                 'lot_id': self.lot_id,
+                 'state': self.state.value,
+                 'good_type': self.good_type.uid if self.good_type else None,
+                 'good': self.good.serialize() if self.good else None,
+                 'step': self.step.value}
+
+    @property
+    def error_message(self): return self.state.text
+
+    def process(self, main_task, storage=None): # pylint: disable=R0911
+
+        if self.step.is_FREEZE_LOT:
+            lot = logic.load_lot(self.lot_id)
+
+            if not lot.state.is_ACTIVE:
+                main_task.comment = 'lot is not active, real state is: %s' % lot.state.name
+                self.state = self.STATE.WRONG_LOT_STATE
+                return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+            self.account_id = lot.seller_id
+            self.good_type = goods_types.get_type(lot.type)
+            self.good = lot.good
+
+            lot.state = relations.LOT_STATE.FROZEN
+            logic.save_lot(lot)
+
+            main_task.extend_postsave_actions((lambda: environment.workers.logic.cmd_logic_task(self.account_id, main_task.id),))
+
+            self.step = self.STEP.RETURN_GOOD
+            return POSTPONED_TASK_LOGIC_RESULT.CONTINUE
+
+
+        if self.step.is_RETURN_GOOD:
+            hero = storage.accounts_to_heroes[self.account_id]
+
+            # TODO: save hero after receive item? and after extract too?...
+            self.good_type.insert_good(hero, self.good)
+
+            main_task.extend_postsave_actions((lambda: environment.workers.market_manager.cmd_logic_task(self.account_id, main_task.id),))
+
+            self.step = self.STEP.CLOSE_LOT
+            return POSTPONED_TASK_LOGIC_RESULT.CONTINUE
+
+
+        if self.step.is_CLOSE_LOT:
+            lot = logic.load_lot(self.lot_id)
+
+            lot.state = relations.LOT_STATE.CLOSED_BY_TIMEOUT
+            logic.save_lot(lot)
+
+            self.state = self.STATE.PROCESSED
+            self.step = self.STEP.SUCCESS
             return POSTPONED_TASK_LOGIC_RESULT.SUCCESS

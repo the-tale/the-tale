@@ -36,5 +36,8 @@ class BaseGoodType(object):
     def extract_good(self, container, good_uid):
         raise NotImplementedError()
 
+    def insert_good(self, container, good):
+        raise NotImplementedError()
+
     # def get_goods(self, account_id):
     #     raise NotImplementedError()
