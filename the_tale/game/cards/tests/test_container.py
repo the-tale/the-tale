@@ -53,9 +53,14 @@ class ContainerTests(testcase.TestCase):
         card_2 = objects.Card(relations.CARD_TYPE.ADD_GOLD_COMMON, available_for_auction=True)
         card_3 = objects.Card(relations.CARD_TYPE.KEEPERS_GOODS_LEGENDARY)
 
-        self.container.add_card(card_1)
-        self.container.add_card(card_2)
-        self.container.add_card(card_3)
+        with mock.patch('the_tale.market.goods_types.BaseGoodType.sync_added_item') as sync_added_item:
+            self.container.add_card(card_1)
+            self.container.add_card(card_2)
+            self.container.add_card(card_3)
+
+        self.assertEqual(sync_added_item.call_args_list, [mock.call(self.account.id, card_1),
+                                                          mock.call(self.account.id, card_2),
+                                                          mock.call(self.account.id, card_3)])
 
         self.assertTrue(self.container.updated)
         self.assertEqual(self.container._cards, {card_1.uid: card_1,
@@ -64,7 +69,6 @@ class ContainerTests(testcase.TestCase):
 
 
     def test_remove_card(self):
-
         card_1 = objects.Card(relations.CARD_TYPE.KEEPERS_GOODS_COMMON)
         card_2 = objects.Card(relations.CARD_TYPE.ADD_GOLD_COMMON, available_for_auction=True)
 
@@ -73,7 +77,10 @@ class ContainerTests(testcase.TestCase):
 
         self.container.updated = False
 
-        self.container.remove_card(card_1.uid)
+        with mock.patch('the_tale.market.goods_types.BaseGoodType.sync_removed_item') as sync_removed_item:
+            self.container.remove_card(card_1.uid)
+
+        self.assertEqual(sync_removed_item.call_args_list, [mock.call(self.account.id, card_1)])
 
         self.assertTrue(self.container.updated)
         self.assertEqual(self.container._cards, {card_2.uid: card_2})

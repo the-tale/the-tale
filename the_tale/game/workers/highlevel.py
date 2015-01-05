@@ -38,7 +38,7 @@ class Worker(BaseWorker):
         if self.initialized:
             self.logger.warn('highlevel already initialized, do reinitialization')
 
-        postponed_tasks.autodiscover()
+        postponed_tasks.autodiscover(if_empty=True)
 
         self.initialized = True
         self.worker_id = worker_id

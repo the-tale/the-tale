@@ -15,8 +15,7 @@ from the_tale.game.logic import create_test_map
 from the_tale.market import logic
 from the_tale.market import models
 from the_tale.market import relations
-
-from the_tale.market.tests import helpers
+from the_tale.market import goods_types
 
 
 class RequestsTestsBase(testcase.TestCase):
@@ -26,15 +25,10 @@ class RequestsTestsBase(testcase.TestCase):
 
         create_test_map()
 
-        helpers.test_hero_good.register()
-
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
 
-
-    def tearDown(self):
-        helpers.test_hero_good.unregister()
-
+        goods_types.autodiscover(if_empty=True)
 
 
 class IndexRequestsTests(RequestsTestsBase):
@@ -42,10 +36,10 @@ class IndexRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(IndexRequestsTests, self).setUp()
 
-        self.good_1 = helpers.test_hero_good.create_good('good-1')
-        self.good_2 = helpers.test_hero_good.create_good('good-2')
-        self.good_3 = helpers.test_hero_good.create_good('good-3')
-        self.good_4 = helpers.test_hero_good.create_good('good-4')
+        self.good_1 = goods_types.test_hero_good.create_good('good-1')
+        self.good_2 = goods_types.test_hero_good.create_good('good-2')
+        self.good_3 = goods_types.test_hero_good.create_good('good-3')
+        self.good_4 = goods_types.test_hero_good.create_good('good-4')
 
         self.price_1 = 1
         self.price_2 = 2
@@ -57,9 +51,13 @@ class IndexRequestsTests(RequestsTestsBase):
         self.lot_3 = logic.reserve_lot(self.account_1.id, self.good_3, price=self.price_3)
         self.lot_4 = logic.reserve_lot(self.account_2.id, self.good_4, price=self.price_4)
 
-        logic.activate_lot(self.account_1.id, self.good_1)
-        logic.activate_lot(self.account_1.id, self.good_2)
-        logic.activate_lot(self.account_2.id, self.good_4)
+        self.lot_1.state = relations.LOT_STATE.ACTIVE
+        self.lot_2.state = relations.LOT_STATE.ACTIVE
+        self.lot_4.state = relations.LOT_STATE.ACTIVE
+
+        logic.save_lot(self.lot_1)
+        logic.save_lot(self.lot_2)
+        logic.save_lot(self.lot_4)
 
         self.requested_url = url('market:')
 
@@ -108,10 +106,10 @@ class NewRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(NewRequestsTests, self).setUp()
 
-        self.good_1 = helpers.test_hero_good.create_good('good-1')
-        self.good_2 = helpers.test_hero_good.create_good('good-2')
-        self.good_3 = helpers.test_hero_good.create_good('good-3')
-        self.good_4 = helpers.test_hero_good.create_good('good-4')
+        self.good_1 = goods_types.test_hero_good.create_good('good-1')
+        self.good_2 = goods_types.test_hero_good.create_good('good-2')
+        self.good_3 = goods_types.test_hero_good.create_good('good-3')
+        self.good_4 = goods_types.test_hero_good.create_good('good-4')
 
         self.goods_1 = logic.load_goods(self.account_1.id)
 
@@ -154,7 +152,7 @@ class NewDialogRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(NewDialogRequestsTests, self).setUp()
 
-        self.good_1 = helpers.test_hero_good.create_good('good-1')
+        self.good_1 = goods_types.test_hero_good.create_good('good-1')
 
         self.goods_1 = logic.load_goods(self.account_1.id)
 
@@ -192,7 +190,7 @@ class CreateRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(CreateRequestsTests, self).setUp()
 
-        self.good_1 = helpers.test_hero_good.create_good('good-1')
+        self.good_1 = goods_types.test_hero_good.create_good('good-1')
 
         self.goods_1 = logic.load_goods(self.account_1.id)
 
@@ -240,7 +238,7 @@ class PurchaseRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(PurchaseRequestsTests, self).setUp()
 
-        self.good_1 = helpers.test_hero_good.create_good('good-1')
+        self.good_1 = goods_types.test_hero_good.create_good('good-1')
 
         self.goods_1 = logic.load_goods(self.account_1.id)
 

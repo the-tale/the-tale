@@ -38,11 +38,12 @@ class CreateLotTask(PostponedLogic):
                     ('ROLLBACKED', 6, u'лот откачен') )
 
 
-    def __init__(self, account_id, good_type, good_uid, price, step=STEP.UNPROCESSED, state=STATE.UNPROCESSED):
+    def __init__(self, account_id, good_type, good_uid, price, step=STEP.UNPROCESSED, state=STATE.UNPROCESSED, lot_id=None):
         super(CreateLotTask, self).__init__()
         self.account_id = account_id
         self.good_type = good_type
         self.good_uid = good_uid
+        self.lot_id = lot_id
         self.price = price
         self.state = state if isinstance(state, rels.Record) else self.STATE(state)
         self.step = step if isinstance(step, rels.Record) else self.STEP(step)
@@ -53,7 +54,8 @@ class CreateLotTask(PostponedLogic):
                  'good_uid': self.good_uid,
                  'price': self.price,
                  'state': self.state.value,
-                 'step': self.step.value}
+                 'step': self.step.value,
+                 'lot_id': self.lot_id}
 
     @property
     def error_message(self): return self.state.text
@@ -83,7 +85,9 @@ class CreateLotTask(PostponedLogic):
                 self.state = self.STATE.ALREADY_RESERVED
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            logic.reserve_lot(self.account_id, goods.get_good(self.good_uid), price=self.price)
+            lot = logic.reserve_lot(self.account_id, goods.get_good(self.good_uid), price=self.price)
+
+            self.lot_id = lot.id
 
             main_task.extend_postsave_actions((lambda: environment.workers.logic.cmd_logic_task(self.account_id, main_task.id),))
 
@@ -111,7 +115,10 @@ class CreateLotTask(PostponedLogic):
 
         if self.step.is_ROLLBACK:
             goods = logic.load_goods(self.account_id)
-            logic.rollback_lot(self.account_id, goods.get_good(self.good_uid))
+
+            lot = logic.load_lot(self.lot_id)
+            lot.state = relations.LOT_STATE.CLOSED_BY_ERROR
+            logic.save_lot(lot)
 
             self.step = self.STEP.ROLLBACKED
             self.state = self.STATE.PROCESSED
@@ -120,7 +127,11 @@ class CreateLotTask(PostponedLogic):
 
         if self.step.is_GOTTEN:
             goods = logic.load_goods(self.account_id)
-            logic.activate_lot(self.account_id, goods.get_good(self.good_uid))
+
+            lot = logic.load_lot(self.lot_id)
+            lot.state = relations.LOT_STATE.ACTIVE
+            logic.save_lot(lot)
+
             goods.remove_good(self.good_uid)
             logic.save_goods(goods)
             self.step = self.STEP.ACTIVATED

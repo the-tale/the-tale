@@ -15,9 +15,12 @@ from the_tale.portal.views import PortalResource # pylint: disable=W0403
 
 from the_tale.common import postponed_tasks # pylint: disable=W0403
 
+from the_tale.market import goods_types
+
 admin.autodiscover()
 jinja2_next.autodiscover()
 postponed_tasks.autodiscover()
+goods_types.autodiscover()
 
 urlpatterns = patterns('',
                        (r'^', include('the_tale.cms.urls', namespace='cms') ),

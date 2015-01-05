@@ -6,6 +6,7 @@ from the_tale.game.balance import constants as c
 from the_tale.game.cards import relations
 from the_tale.game.cards import exceptions
 from the_tale.game.cards import objects
+from the_tale.game.cards import goods_types
 
 
 class CardsContainer(object):
@@ -57,6 +58,7 @@ class CardsContainer(object):
         self.updated = True
         card.uid = self._get_next_uid()
         self._cards[card.uid] = card
+        goods_types.cards_hero_good.sync_added_item(self._hero.account_id, card)
 
 
     def remove_card(self, card_uid):
@@ -64,6 +66,8 @@ class CardsContainer(object):
 
         if card_uid not in self._cards:
             raise exceptions.RemoveUnexistedCardError(card_uid=card_uid)
+
+        goods_types.cards_hero_good.sync_removed_item(self._hero.account_id, self._cards[card_uid])
 
         del self._cards[card_uid]
 

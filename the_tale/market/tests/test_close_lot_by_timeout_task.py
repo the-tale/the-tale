@@ -11,8 +11,7 @@ from the_tale.game import logic_storage
 from the_tale.market import postponed_tasks
 from the_tale.market import logic
 from the_tale.market import relations
-
-from the_tale.market.tests import helpers
+from the_tale.market import goods_types
 
 from the_tale.game.logic import create_test_map
 
@@ -24,14 +23,15 @@ class TaskTests(testcase.TestCase):
 
         create_test_map()
 
-        helpers.test_hero_good.register()
+        goods_types.autodiscover(if_empty=True)
+        goods_types.test_hero_good._clear()
 
         self.good_1_uid = 'good-1'
 
         self.account_1 = self.accounts_factory.create_account()
         self.goods_1 = logic.load_goods(self.account_1.id)
 
-        self.good_1 = helpers.test_hero_good.create_good(self.good_1_uid)
+        self.good_1 = goods_types.test_hero_good.create_good(self.good_1_uid)
 
         self.goods_1.add_good(self.good_1)
         logic.save_goods(self.goods_1)
@@ -41,17 +41,13 @@ class TaskTests(testcase.TestCase):
 
         self.price = 666
 
-        self.lot_1_id = logic.reserve_lot(self.account_1.id, self.good_1, price=self.price).id
-        logic.activate_lot(self.account_1.id, self.good_1)
-        self.lot_1 = logic.load_lot(self.lot_1_id)
+        self.lot_1 = logic.reserve_lot(self.account_1.id, self.good_1, price=self.price)
+        self.lot_1.state = relations.LOT_STATE.ACTIVE
+        logic.save_lot(self.lot_1)
 
-        self.task = postponed_tasks.CloseLotByTimoutTask(lot_id=self.lot_1_id)
+        self.task = postponed_tasks.CloseLotByTimoutTask(lot_id=self.lot_1.id)
 
         self.main_task = mock.Mock(comment=None, id=777)
-
-    def tearDown(self):
-        super(TaskTests, self).tearDown()
-        helpers.test_hero_good.unregister()
 
 
     def test_serialization(self):
@@ -61,7 +57,7 @@ class TaskTests(testcase.TestCase):
     def test_initialization(self):
         self.assertTrue(self.task.state.is_UNPROCESSED)
         self.assertTrue(self.task.step.is_FREEZE_LOT)
-        self.assertEqual(self.task.lot_id, self.lot_1_id)
+        self.assertEqual(self.task.lot_id, self.lot_1.id)
         self.assertEqual(self.task.account_id, None)
         self.assertEqual(self.task.good_type, None)
         self.assertEqual(self.task.good, None)
@@ -97,7 +93,7 @@ class TaskTests(testcase.TestCase):
         self.assertEqual(self.task.process(self.main_task), POSTPONED_TASK_LOGIC_RESULT.CONTINUE)
         self.assertEqual(self.task.process(self.main_task, storage=self.logic_storage), POSTPONED_TASK_LOGIC_RESULT.CONTINUE)
 
-        self.assertEqual(helpers.test_hero_good.inserted_goods, [(self.hero_1.id, self.good_1.uid)])
+        self.assertEqual(goods_types.test_hero_good.inserted_goods, [(self.hero_1.id, self.good_1.uid)])
 
         self.assertTrue(self.task.state.is_UNPROCESSED)
         self.assertTrue(self.task.step.is_CLOSE_LOT)

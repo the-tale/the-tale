@@ -1,12 +1,19 @@
 # coding: utf-8
+import datetime
 
 from dext.common.utils import s11n
 
 from the_tale import amqp_environment
 
+from the_tale.bank import transaction as bank_transaction
+from the_tale.bank import prototypes as bank_prototypes
+from the_tale.bank import relations as bank_relations
+
+
 from the_tale.market import models
 from the_tale.market import objects
 from the_tale.market import relations
+from the_tale.market import conf
 
 
 def load_lot(id):
@@ -16,6 +23,7 @@ def load_lot(id):
         return None
 
     return objects.Lot.from_model(model)
+
 
 def save_lot(lot):
     models.Lot.objects.filter(id=lot.id).update(**lot.to_model_fields())
@@ -38,13 +46,6 @@ def reserve_lot(account_id, good, price):
                                       price=price,
                                       data=s11n.to_json({'good': good.serialize()}))
     return objects.Lot.from_model(model)
-
-
-def rollback_lot(account_id, good):
-    models.Lot.objects.filter(type=good.type, good_uid=good.uid, seller_id=account_id, state=relations.LOT_STATE.RESERVED).delete()
-
-def activate_lot(account_id, good):
-    models.Lot.objects.filter(type=good.type, good_uid=good.uid, seller_id=account_id, state=relations.LOT_STATE.RESERVED).update(state=relations.LOT_STATE.ACTIVE)
 
 
 def load_goods(account_id):
@@ -82,9 +83,6 @@ def send_good_to_market(seller_id, good, price):
 
 def purchase_lot(buyer_id, lot):
     from the_tale.common.postponed_tasks import PostponedTaskPrototype
-    from the_tale.bank import transaction as bank_transaction
-    from the_tale.bank import prototypes as bank_prototypes
-    from the_tale.bank import relations as bank_relations
     from the_tale.market import postponed_tasks
 
     invoice = bank_prototypes.InvoicePrototype.create(recipient_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
@@ -106,6 +104,24 @@ def purchase_lot(buyer_id, lot):
 
     task = PostponedTaskPrototype.create(logic_task)
 
-    amqp_environment.environment.workers.market_manager.cmd_logic_task(buyer_id, task.id)
+    amqp_environment.environment.workers.refrigerator.cmd_wait_task(task.id)
 
     return task
+
+
+def close_lots_by_timeout():
+    from the_tale.common.postponed_tasks import PostponedTaskPrototype
+    from the_tale.market import postponed_tasks
+
+    expired_lots_query = models.Lot.objects.filter(state=relations.LOT_STATE.ACTIVE,
+                                                   created_at__lt=datetime.datetime.now()-datetime.timedelta(days=conf.settings.LOT_LIVE_TIME))
+
+    tasks = []
+
+    for lot_id, seller_id in expired_lots_query.values_list('id', 'seller_id'):
+        logic_task = postponed_tasks.CloseLotByTimoutTask(lot_id=lot_id)
+        task = PostponedTaskPrototype.create(logic_task)
+        amqp_environment.environment.workers.market_manager.cmd_logic_task(seller_id, task.id)
+        tasks.append(task)
+
+    return tasks

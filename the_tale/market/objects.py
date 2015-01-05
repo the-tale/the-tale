@@ -16,10 +16,11 @@ class Good(object):
         self.item = item
 
     def serialize(self):
+        from the_tale.market import goods_types
         return {'type': self.type,
                 'name': self.name,
                 'uid': self.uid,
-                'item': self.item.serialize()}
+                'item': goods_types.get_type(self.type).serialize_item(self.item)}
 
     @classmethod
     def deserialize(cls, data):
