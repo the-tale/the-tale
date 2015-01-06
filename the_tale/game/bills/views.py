@@ -59,6 +59,10 @@ class BillResource(Resource):
         return self.account.is_authenticated() and not self.account.is_fast
 
     @property
+    def active_bills_limit_reached(self):
+        return BillPrototype.is_active_bills_limit_reached(self.account)
+
+    @property
     def can_vote(self):
         return self.account.is_authenticated() and self.account.is_premium
 
@@ -159,10 +163,10 @@ class BillResource(Resource):
         return self.template('bills/index.html',
                              {'bills': bills,
                               'votes': votes,
+                              'page_type': 'index',
                               'BILLS_BY_ID': BILLS_BY_ID,
                               'paginator': paginator,
-                              'index_filter': index_filter,
-                              'active_bills_limit_reached': BillPrototype.is_active_bills_limit_reached(self.account)} )
+                              'index_filter': index_filter} )
 
     @login_required
     @validate_fast_account()
@@ -173,6 +177,7 @@ class BillResource(Resource):
     def new(self, bill_type):
         bill_class = BILLS_BY_ID[bill_type.value]
         return self.template('bills/new.html', {'bill_class': bill_class,
+                                                'page_type': 'new',
                                                 'form': bill_class.get_user_form_create()})
 
     @login_required
@@ -187,7 +192,7 @@ class BillResource(Resource):
             return self.json_error('bills.create.too_young_owner',
                                    u'Новые игоки не могут выдвигать законы в %d течении дней с момент регистрации' % bills_settings.MINIMUM_BILL_OWNER_AGE)
 
-        if BillPrototype.is_active_bills_limit_reached(self.account):
+        if self.active_bills_limit_reached:
             return self.json_error('bills.create.active_bills_limit_reached', u'Вы не можете предложить закон, пока не закончилось голосование по вашему предыдущему предложению')
 
         bill_data = BILLS_BY_ID[bill_type.value]()
@@ -216,6 +221,7 @@ class BillResource(Resource):
         return self.template('bills/show.html', {'bill': self.bill,
                                                  'thread_data': thread_data,
                                                  'VOTE_TYPE': VOTE_TYPE,
+                                                 'page_type': 'show',
                                                  'vote': VotePrototype.get_for(self.account, self.bill) if self.account.is_authenticated() else None,
                                                  'can_vote': self.bill.can_vote(self.hero) if self.hero is not None else None})
 
@@ -229,6 +235,7 @@ class BillResource(Resource):
     def edit(self):
         user_form = self.bill.data.get_user_form_update(initial=self.bill.user_form_initials)
         return self.template('bills/edit.html', {'bill': self.bill,
+                                                 'page_type': 'edit',
                                                  'form': user_form} )
 
     @login_required
@@ -263,6 +270,7 @@ class BillResource(Resource):
     def moderation_page(self):
         moderation_form = self.bill.data.ModeratorForm(initial=self.bill.moderator_form_initials)
         return self.template('bills/moderate.html', {'bill': self.bill,
+                                                     'page_type': 'moderate',
                                                      'form': moderation_form} )
 
     @login_required

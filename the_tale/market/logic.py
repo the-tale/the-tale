@@ -14,6 +14,7 @@ from the_tale.market import models
 from the_tale.market import objects
 from the_tale.market import relations
 from the_tale.market import conf
+from the_tale.market import goods_types
 
 
 def load_lot(id):
@@ -125,3 +126,17 @@ def close_lots_by_timeout():
         tasks.append(task)
 
     return tasks
+
+
+
+def sync_goods(account_id, container):
+
+    goods = load_goods(account_id)
+
+    goods.clear()
+
+    for goods_type in goods_types.get_types():
+        for good in goods_type.all_goods(container):
+            goods.add_good(good)
+
+    save_goods(goods)

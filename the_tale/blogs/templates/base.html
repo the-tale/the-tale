@@ -12,6 +12,16 @@
   <div class="span12">
     <div class="easy-block">
 
+      <h2 style="margin-bottom: 0.5em;">Фольклор</h2>
+
+      <ul class="nav nav-pills">
+        <li {% if page_type == 'index' %}class="active"{% endif %}><a href="{{ url('blogs:posts:') }}">Произведения</a></li>
+        {% if resource.account.is_authenticated() and not resource.account.is_fast %}
+        <li {% if page_type == 'new' %}class="active"{% endif %}><a href="{{url('blogs:posts:new')}}">Добавить произведение</a></li>
+        {% endif %}
+      </ul>
+
+
       {% block blogs_content %}
       {% endblock %}
 

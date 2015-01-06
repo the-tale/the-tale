@@ -125,7 +125,7 @@ class NewRequestsTests(RequestsTestsBase):
     def test_no_items(self):
         self.request_login(self.account_1.email)
 
-        self.goods_1._clear()
+        self.goods_1.clear()
         logic.save_goods(self.goods_1)
 
         self.check_html_ok(self.request_html(self.requested_url), texts=[('pgf-no-goods-message', 1),
@@ -165,7 +165,7 @@ class NewDialogRequestsTests(RequestsTestsBase):
     def test_no_items(self):
         self.request_login(self.account_1.email)
 
-        self.goods_1._clear()
+        self.goods_1.clear()
         logic.save_goods(self.goods_1)
 
         self.check_html_ok(self.request_ajax_html(self.requested_url), texts=[('market.new-dialog.good.wrong_value', 1)])
@@ -202,7 +202,7 @@ class CreateRequestsTests(RequestsTestsBase):
     def test_no_items(self):
         self.request_login(self.account_1.email)
 
-        self.goods_1._clear()
+        self.goods_1.clear()
         logic.save_goods(self.goods_1)
 
         with self.check_not_changed(postponed_tasks_models.PostponedTask.objects.count):

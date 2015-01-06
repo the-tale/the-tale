@@ -159,3 +159,19 @@ class LogicTests(testcase.TransactionTestCase):
 
         self.assertEqual(tasks[0].internal_logic.lot_id, self.lot_1.id)
         self.assertEqual(tasks[1].internal_logic.lot_id, lot_4.id)
+
+
+    @mock.patch('the_tale.market.goods_types.get_types', lambda: [goods_types.test_hero_good])
+    def test_sync_goods(self):
+        self.goods_1.clear()
+        logic.save_goods(self.goods_1)
+
+        goods_types.test_hero_good.all_goods_for_sync.extend([self.good_2, self.good_4])
+
+        logic.sync_goods(self.account_1.id, None)
+
+        goods_1 = logic.load_goods(self.account_1.id)
+
+        self.assertTrue(goods_1.has_good(self.good_2.uid))
+        self.assertFalse(goods_1.has_good(self.good_3.uid))
+        self.assertTrue(goods_1.has_good(self.good_4.uid))

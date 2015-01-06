@@ -8,16 +8,8 @@
 {% block blogs_content %}
 
 <p>
-  {% if resource.account.is_authenticated() and not resource.account.is_fast %}
-  <a class="btn btn-danger" href="{{url('blogs:posts:new')}}">
-    Добавить произведение
-  </a>
-  {% endif %}
-
   В этом разделе Вы можете опубликовать рассказы о жизни ваших героев, Пандоре и её обитателях.
 </p>
-
-<h2 style="margin-bottom: 0.5em;">Список произведений</h2>
 
 <div>
   <div class="btn-toolbar">

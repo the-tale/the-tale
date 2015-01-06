@@ -99,6 +99,7 @@ class PostResource(Resource):
 
         return self.template('blogs/index.html',
                              {'posts': posts,
+                              'page_type': 'index',
                               'votes': votes,
                               'order_by': order_by,
                               'ORDER_BY': ORDER_BY,
@@ -113,7 +114,8 @@ class PostResource(Resource):
     @validate_fast_account_restrictions()
     @handler('new', method='get')
     def new(self):
-        return self.template('blogs/new.html', {'form': PostForm()})
+        return self.template('blogs/new.html', {'form': PostForm(),
+                                                'page_type': 'new',})
 
     @login_required
     @validate_ban_forum()
@@ -138,6 +140,7 @@ class PostResource(Resource):
         thread_data.initialize(account=self.account, thread=self.post.forum_thread, page=1, inline=True)
 
         return self.template('blogs/show.html', {'post': self.post,
+                                                 'page_type': 'show',
                                                  'thread_data': thread_data,
                                                  'vote': None if not self.account.is_authenticated() else VotePrototype.get_for(self.account, self.post)})
 
@@ -151,6 +154,7 @@ class PostResource(Resource):
         form = PostForm(initial={'caption': self.post.caption,
                                  'text': self.post.text})
         return self.template('blogs/edit.html', {'post': self.post,
+                                                 'page_type': 'edit',
                                                  'form': form} )
 
     @login_required

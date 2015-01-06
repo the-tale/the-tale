@@ -10,38 +10,7 @@
 
 {% block blogs_content %}
 
-<ul class="breadcrumb" style="margin-bottom: 0px;">
-  <li><a href="{{ url('blogs:posts:') }}">Фольклор</a><span class="divider">/</span></li>
-  <li class="active">{{ post.caption }}</li>
-  <li class="pull-right" style="margin-top: 1px; margin-left: 1em;">
-    {{ base_macros.addthis(title=post.caption, description=post.text_html|safe) }}
-  </li>
-
-  {% if resource.account.is_authenticated() and resource.account.id == post.author.id %}
-  <li class="pull-right" style="margin-left: 0.5em;">
-    <a href="{{ url('blogs:posts:edit', post.id) }}">редактировать</a>
-  </li>
-  {% else %}
-  <li class="pull-right" style="margin-left: 0.5em;">
-    <a href="{{forum_complaint_theme()}}">пожаловаться</a>
-  </li>
-  {% endif %}
-
-  {% if resource.can_moderate_post %}
-  {% if not post.state.is_ACCEPTED %}
-  <li class="pull-right" style="margin-left: 0.5em;">
-    <a class="pgf-forms-post-simple" href="{{url('blogs:posts:accept', post.id)}}">принять</a>
-  </li>
-  {% endif %}
-
-  {% if not post.state.is_DECLINED %}
-  <li class="pull-right" style="margin-left: 0.5em;">
-    <a class="pgf-forms-post-simple" href="{{url('blogs:posts:decline', post.id)}}">заблокировать</a>
-  </li>
-  {% endif %}
-  {% endif %}
-</ul>
-
+<h3 style="display: inline-block;">{{ post.caption }}</h3>
 <div class="blog-post-info">
   <span class="text"><span class="pgf-format-datetime" data-timestamp="{{ post.created_at|timestamp }}"></span>,</span>
   <span class="text">автор:</span>
@@ -71,12 +40,46 @@
     {{ post.votes }}
   </span>
 
-  <a href="{{url('forum:threads:show', post.forum_thread_id)}}">обсуждение</a>
 </div>
 
 <br/>
 
-<h3 style="display: inline-block;">{{ post.caption }}</h3>
+<div class="pagination">
+  <ul>
+    <li>
+      {{ base_macros.addthis_short(post.caption, description=post.text_html|safe, url=full_url('http', 'blogs:posts:show', post.id)) }}
+    </li>
+
+    <li>
+      <a href="{{url('forum:threads:show', post.forum_thread_id)}}">форум</a>
+    </li>
+
+    {% if resource.account.is_authenticated() and resource.account.id == post.author.id %}
+    <li class="" style="margin-left: 0.5em;">
+      <a href="{{ url('blogs:posts:edit', post.id) }}">редактировать</a>
+    </li>
+    {% else %}
+    <li class="" style="margin-left: 0.5em;">
+      <a href="{{forum_complaint_theme()}}">пожаловаться</a>
+    </li>
+    {% endif %}
+
+    {% if resource.can_moderate_post %}
+    {% if not post.state.is_ACCEPTED %}
+    <li class="" style="margin-left: 0.5em;">
+      <a class="pgf-forms-post-simple" href="{{url('blogs:posts:accept', post.id)}}">принять</a>
+    </li>
+    {% endif %}
+
+    {% if not post.state.is_DECLINED %}
+    <li class="" style="margin-left: 0.5em;">
+      <a class="pgf-forms-post-simple" href="{{url('blogs:posts:decline', post.id)}}">заблокировать</a>
+    </li>
+    {% endif %}
+    {% endif %}
+  </ul>
+</div>
+
 
 <div class="blog-post-content">
   {{ post.text_html|safe }}

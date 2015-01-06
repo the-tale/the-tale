@@ -1,0 +1,19 @@
+# coding: utf-8
+
+from django.core.management.base import BaseCommand
+
+from the_tale.game.heroes import prototypes as heroes_prototypes
+
+from the_tale.market import logic
+
+
+class Command(BaseCommand):
+
+    help = 'sync all goods'
+
+    requires_model_validation = False
+
+    def handle(self, *args, **options):
+
+        for hero in heroes_prototypes.HeroPrototype.from_query(heroes_prototypes.HeroPrototype._db_all()):
+            logic.sync_goods(hero.account_id, hero)

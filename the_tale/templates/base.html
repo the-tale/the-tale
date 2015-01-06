@@ -199,9 +199,10 @@ jQuery(document).ready(function() {
 
 
             {{ base_macros.main_menu_item("world", "#", "Мир", [(url("game:bills:"), "Политика"),
+                                                                (url("market:"), "Рынок"),
                                                                 (url("linguistics:"), "Лингвистика"),
                                                                 (url("blogs:posts:"), "Фольклор"),
-                                                                (url("game:chronicle:"), "Летопись") ] ) }}
+                                                                (url("game:chronicle:"), "Летопись"), ] ) }}
 
             {% if resource.account.is_authenticated() %}
             {{ base_macros.main_menu_item("game", url("game:"), "<span class='game-link'>Игра</span>") }}

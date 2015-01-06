@@ -39,3 +39,13 @@ class Card(object):
                 'rarity': self.type.rarity.value,
                 'uid': self.uid,
                 'auction': self.available_for_auction}
+
+
+    def __eq__(self, other):
+        return (self.uid == other.uid and
+                self.type == other.type and
+                self.available_for_auction == other.available_for_auction)
+
+
+    def __ne__(self, other):
+        return not self.__eq__(other)

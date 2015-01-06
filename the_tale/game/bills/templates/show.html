@@ -9,12 +9,7 @@
 
 {% block bills_content %}
 
-<ul class="breadcrumb">
-  <li>
-    <a href="{{ url('game:bills:') }}">Политика</a><span class="divider">/</span>
-  </li>
-  <li class="active">{{ bill.caption }}</li>
-</ul>
+<h3>{{ bill.caption }}</h3>
 
 {{ bills_macros.bill_info(bill, vote) }}
 

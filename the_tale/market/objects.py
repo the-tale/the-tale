@@ -126,5 +126,5 @@ class Goods(object):
     def all(self):
         return sorted(self._goods.itervalues(), key=lambda good: good.name)
 
-    def _clear(self):
+    def clear(self):
         self._goods = {}

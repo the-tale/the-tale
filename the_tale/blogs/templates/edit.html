@@ -19,13 +19,7 @@ jQuery(document).ready( function(e) {
 
 {% block blogs_content %}
 
-<ul class="breadcrumb" style="margin-bottom: 0px;">
-  <li><a href="{{ url('blogs:posts:') }}">Фольклор</a><span class="divider">/</span></li>
-  <li><a href="{{ url('blogs:posts:show', resource.post.id) }}">{{post.caption}}</a><span class="divider">/</span></li>
-  <li class="active">Редактирование</li>
-</ul>
-
-<h2>Редактирование произведения</h2>
+<h3>Редактирование произведения <small><a href="{{ url('blogs:posts:show', resource.post.id) }}">вернуться</a></small></h3>
 
 {% include "blogs/recomendations.html" %}
 

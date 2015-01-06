@@ -98,8 +98,8 @@ class TestIndexRequests(BaseTestRequests):
         bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
         self.create_bills(1, self.account1, 'Caption-a1-%d', 'rationale-a1-%d', bill_data)
         self.check_html_ok(self.request_html(reverse('game:bills:')), texts=(('pgf-active-bills-limit-reached', 1),
-                                                                           ('pgf-create-new-bill-buttons', 0),
-                                                                           ('pgf-can-not-participate-in-politics', 0)))
+                                                                             ('pgf-create-new-bill-buttons', 0),
+                                                                             ('pgf-can-not-participate-in-politics', 0)))
 
     def test_bill_creation_unlocked_message(self):
         self.check_html_ok(self.request_html(reverse('game:bills:')), texts=(('pgf-active-bills-limit-reached', 0),

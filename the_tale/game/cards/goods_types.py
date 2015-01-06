@@ -15,22 +15,39 @@ class CardsGoodType(goods_types.BaseGoodType):
                                    item=item)
         return good
 
+    def all_goods(self, container):
+        goods = []
+
+        for card in container.cards.all_cards():
+            if card.available_for_auction:
+                goods.append(self.create_good(card))
+
+        return goods
+
     def serialize_item(self, item):
         return item.serialize()
 
     def deserialize_item(self, data):
         return objects.Card.deserialize(data)
 
+    def is_item_tradable(self, item):
+        return item.available_for_auction
+
+
+    def _extract_card_uid(self, good_uid):
+        try:
+            return int(good_uid[len(self.item_uid_prefix):])
+        except:
+            return None
+
     def has_good(self, container, good_uid):
-        card_uid = int(good_uid[len(self.item_uid_prefix):])
-        return container.cards.has_card(card_uid)
+        return container.cards.has_card(self._extract_card_uid(good_uid))
 
     def extract_good(self, container, good_uid):
-        card_uid = int(good_uid[len(self.item_uid_prefix):])
-        return container.cards.remove_card(card_uid)
+        container.cards.remove_card(self._extract_card_uid(good_uid))
 
     def insert_good(self, container, good):
-        return container.cards.add_card(good.item)
+        container.cards.add_card(good.item)
 
 
 cards_hero_good = CardsGoodType(uid='cards-hero-good', name=u'Карты Судьбы', description=u'Карты Судьбы', item_uid_prefix='cards#')

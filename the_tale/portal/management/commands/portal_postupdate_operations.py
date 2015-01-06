@@ -48,6 +48,10 @@ class Command(BaseCommand):
         linguistics_logic.update_words_usage_info()
 
         print
+        print 'SYNC MARKET'
+        run_django_command(['market_sync_goods'])
+
+        print
         print 'SYNC GROUPS AND PERMISSIONS'
         print
 

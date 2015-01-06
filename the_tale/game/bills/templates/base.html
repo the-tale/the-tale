@@ -6,7 +6,23 @@
 
 <div class="row">
   <div class="span12">
-    <div class="block white">
+    <div class="easy-block">
+
+      <h2>Политика</h2>
+
+      <ul class="nav nav-pills">
+        <li {% if page_type == 'index' %}class="active"{% endif %}><a href="{{ url('game:bills:') }}">Список законов</a></li>
+        {% if resource.account.is_authenticated() and resource.can_participate_in_politics and not resource.active_bills_limit_reached %}
+        <li class="dropdown">
+          <a class="dropdown-toggle pgf-create-new-bill-buttons" data-toggle="dropdown" href="#">Предложить закон <b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            {% for bill_id, bill_type in bills_menu_types() %}
+            <li><a href="{{ url('game:bills:new', bill_type=bill_id) }}">{{bill_type.CAPTION}}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+        {% endif %}
+      </ul>
 
       {% block bills_content %}
       {% endblock %}

@@ -11,7 +11,7 @@
 
 {% if not resource.account.is_authenticated() %}
 {{ base_macros.registration_required_message("иметь возможность предлагать законы и голосовать.") }}
-{% elif active_bills_limit_reached %}
+{% elif resource.active_bills_limit_reached %}
 
 <p class="alert alert-info pgf-active-bills-limit-reached">
   Вы не можете предложить закон, пока не закончилось голосование по вашему предыдущему предложению.
@@ -23,27 +23,16 @@
   Предлагать законы только игроки, завершившие регистрацию.
 </p>
 
-{% else %}
-
-<div class="btn-group pgf-create-new-bill-buttons pull-left"
-     style="display: inline-block; vertical-align: middle; margin-right: 0.5em; margin-bottom: 0.5em;">
-  <a class="btn btn-danger btn-primary dropdown-toggle" data-toggle="dropdown">
-    Предложить закон <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu">
-    {% for bill_id, bill_type in BILLS_BY_ID.items() %}
-    <li><a href="{{ url('game:bills:new', bill_type=bill_id) }}">{{bill_type.CAPTION}}</a></li>
-    {% endfor %}
-  </ul>
-</div>
-
 {% endif %}
 
 <p>
-  Жизнью Пандоры управляют игроки. В этом разделе Вы можете напрямую принять участие в управлении миром, жизни его городов и их жителей. Подробнее о системе политики можно почитать в <a href="{{url('guide:politics')}}">Путеводителе</a>.
+  Жизнью Пандоры управляют игроки. В этом разделе Вы можете напрямую принять участие в управлении миром, жизни его городов и их жителей.
 </p>
 
-<h2 style="margin-bottom: 0.5em;">Список законов</h2>
+<p>
+  Подробнее о системе политики можно почитать в <a href="{{url('guide:politics')}}">Путеводителе</a>.
+</p>
+
 
 {{ list_filter_macros.html_filter(index_filter) }}
 

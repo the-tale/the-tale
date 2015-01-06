@@ -19,13 +19,7 @@ jQuery(document).ready( function(e) {
 
 {% block bills_content %}
 
-<ul class="breadcrumb">
-  <li>
-    <a href="{{ url('game:bills:') }}">Политика</a><span class="divider">/</span>
-  </li>
-  <li><a href="{{ url('game:bills:show', bill.id) }}">{{ bill.caption|up_first }}</a><span class="divider">/</span></li>
-  <li class="active">Редактирование законопроекта</li>
-</ul>
+<h3>Редактирование законопроекта <small><a href="{{ url('game:bills:show', bill.id) }}">вернуться</a><small></h3>
 
 <div class="alert alert-info">
   <strong>ВНИМАНИЕ!</strong> После редактирования будут сброшены результаты голосования.

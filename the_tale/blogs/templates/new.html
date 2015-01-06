@@ -20,13 +20,6 @@ jQuery(document).ready( function(e) {
 
 {% block blogs_content %}
 
-<ul class="breadcrumb" style="margin-bottom: 0px;">
-  <li><a href="{{ url('blogs:posts:') }}">Фольклор</a><span class="divider">/</span></li>
-  <li class="active">Новое произведение</li>
-</ul>
-
-<h2>Создание нового произведения</h2>
-
 {% include "blogs/recomendations.html" %}
 
 <form id="pgf-new-post-form" method="post" action="{{ url('blogs:posts:create') }}">

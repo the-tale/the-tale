@@ -13,6 +13,8 @@ _GOODS_TYPES = {}
 def get_type(type):
     return _GOODS_TYPES[type]
 
+def get_types():
+    return _GOODS_TYPES.itervalues()
 
 
 class BaseGoodType(object):
@@ -33,11 +35,19 @@ class BaseGoodType(object):
         if self.uid in _GOODS_TYPES:
             del _GOODS_TYPES[self.uid]
 
+    def is_item_tradable(self, item):
+        raise NotImplementedError()
+
     def sync_added_item(self, account_id, item):
-        amqp_environment.environment.workers.market_manager.cmd_add_item(account_id, self.create_good(item))
+        if self.is_item_tradable(item):
+            amqp_environment.environment.workers.market_manager.cmd_add_item(account_id, self.create_good(item))
 
     def sync_removed_item(self, account_id, item):
-        amqp_environment.environment.workers.market_manager.cmd_remove_item(account_id, self.create_good(item))
+        if self.is_item_tradable(item):
+            amqp_environment.environment.workers.market_manager.cmd_remove_item(account_id, self.create_good(item))
+
+    def all_goods(self, container):
+        raise NotImplementedError()
 
     def create_good(self, item):
         raise NotImplementedError()
@@ -91,12 +101,16 @@ class TestHeroGood(BaseGoodType):
         self._goods = {}
         self.extracted_goods = []
         self.inserted_goods = []
+        self.all_goods_for_sync = []
 
     def serialize_item(self, item):
         return item.serialize()
 
     def deserialize_item(self, data):
         return TestGoodItem.deserialize(data)
+
+    def all_goods(self, container):
+        return self.all_goods_for_sync
 
     def has_good(self, container, good_uid):
         return good_uid in self._goods
