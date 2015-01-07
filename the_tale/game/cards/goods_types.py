@@ -50,4 +50,8 @@ class CardsGoodType(goods_types.BaseGoodType):
         container.cards.add_card(good.item)
 
 
-cards_hero_good = CardsGoodType(uid='cards-hero-good', name=u'Карты Судьбы', description=u'Карты Судьбы', item_uid_prefix='cards#')
+cards_hero_good = CardsGoodType(uid='cards-hero-good',
+                                name=u'Карты Судьбы',
+                                description=u'Карты Судьбы',
+                                item_uid_prefix='cards#',
+                                item_template='cards/card_template.html')

@@ -19,11 +19,13 @@ def get_types():
 
 class BaseGoodType(object):
 
-    def __init__(self, uid, name, description, item_uid_prefix):
+    def __init__(self, uid, name, description, item_uid_prefix, item_template):
         self.uid = uid
         self.name = name
         self.description = description
         self.item_uid_prefix = item_uid_prefix
+        self.item_template = item_template
+
 
     def register(self):
         if self.uid in _GOODS_TYPES:
@@ -34,6 +36,10 @@ class BaseGoodType(object):
     def unregister(self):
         if self.uid in _GOODS_TYPES:
             del _GOODS_TYPES[self.uid]
+
+    def item_html(self, item):
+        from dext.jinja2 import render
+        return render.template(self.item_template, {'item': item})
 
     def is_item_tradable(self, item):
         raise NotImplementedError()
@@ -66,9 +72,6 @@ class BaseGoodType(object):
 
     def insert_good(self, container, good):
         raise NotImplementedError()
-
-    # def get_goods(self, account_id):
-    #     raise NotImplementedError()
 
 
 @discovering.automatic_discover(_GOODS_TYPES, 'goods_types')
@@ -125,7 +128,7 @@ class TestHeroGood(BaseGoodType):
     def create_good(self, uid):
         from the_tale.market import objects
         good = objects.Good(type=self.uid,
-                            name=u'name-'+uid,
+                            name=uid,
                             uid=uid,
                             item=TestGoodItem(uid=uid))
 
@@ -140,4 +143,8 @@ class TestHeroGood(BaseGoodType):
         self._clear()
 
 
-test_hero_good = TestHeroGood(uid='test-hero-good', name='test-hero-good-name', description='test-hero-good-description', item_uid_prefix='test#')
+test_hero_good = TestHeroGood(uid='test-hero-good',
+                              name='test-hero-good-name',
+                              description='test-hero-good-description',
+                              item_uid_prefix='test#',
+                              item_template='market/test_item_template.html')

@@ -40,7 +40,8 @@ class Invoice(models.Model):
 
     operation_uid = models.CharField(max_length=64, db_index=True)
 
-    description = models.TextField()
+    description_for_recipient = models.TextField()
+    description_for_sender = models.TextField()
 
     class Meta:
         index_together = ( ('recipient_type', 'recipient_id', 'currency'),

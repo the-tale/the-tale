@@ -22,7 +22,8 @@ class BankTestsMixin(object):
                        currency=CURRENCY_TYPE.PREMIUM,
                        amount=317,
                        state=None,
-                       description='invoice-description',
+                       description_for_sender='invoice-description-for-sender',
+                       description_for_recipient='invoice-description-for-recipient',
                        operation_uid='test-uid',
                        force=False):
         invoice = InvoicePrototype.create(recipient_type=recipient_type,
@@ -31,7 +32,8 @@ class BankTestsMixin(object):
                                           sender_id=sender_id,
                                           currency=currency,
                                           amount=amount,
-                                          description=description,
+                                          description_for_sender=description_for_sender,
+                                          description_for_recipient=description_for_recipient,
                                           operation_uid=operation_uid,
                                           force=force)
         if state is not None:
@@ -44,17 +46,50 @@ class BankTestsMixin(object):
 
         for state in INVOICE_STATE.records:
             new_invoices = [
-                self.create_invoice(recipient_id=entity_id, description='first-invoice-description-%s' % state, state=state),
-                self.create_invoice(recipient_id=entity_id, description='second-invoice-description-%s' % state, state=state),
-                self.create_invoice(recipient_id=entity_id + 1, description='third-invoice-description-%s % state', state=state),
+                self.create_invoice(recipient_id=entity_id,
+                                    description_for_sender='first-invoice-description-for-sender-%s' % state,
+                                    description_for_recipient='first-invoice-description-for-recipient-%s' % state,
+                                    state=state),
+                self.create_invoice(recipient_id=entity_id,
+                                    description_for_sender='second-invoice-description-for-sender-%s' % state,
+                                    description_for_recipient='second-invoice-description-for-recipient-%s' % state,
+                                    state=state),
+                self.create_invoice(recipient_id=entity_id + 1,
+                                    description_for_sender='third-invoice-description-for-sender-%s % state',
+                                    description_for_recipient='third-invoice-description-for-recipient-%s % state',
+                                    state=state),
 
-                self.create_invoice(sender_id=entity_id, sender_type=ENTITY_TYPE.GAME_ACCOUNT, description='fourth-invoice-description-%s' % state, state=state),
-                self.create_invoice(sender_id=entity_id, sender_type=ENTITY_TYPE.GAME_ACCOUNT, description='fifth-invoice-description-%s' % state, state=state),
-                self.create_invoice(sender_id=entity_id + 1, sender_type=ENTITY_TYPE.GAME_ACCOUNT, description='sixth-invoice-description-%s' % state, state=state),
+                self.create_invoice(sender_id=entity_id,
+                                    sender_type=ENTITY_TYPE.GAME_ACCOUNT,
+                                    description_for_sender='fourth-invoice-description-for-sender-%s' % state,
+                                    description_for_recipient='fourth-invoice-description-for-recipient-%s' % state,
+                                    state=state),
+                self.create_invoice(sender_id=entity_id,
+                                    sender_type=ENTITY_TYPE.GAME_ACCOUNT,
+                                    description_for_sender='fifth-invoice-description-for-sender-%s' % state,
+                                    description_for_recipient='fifth-invoice-description-for-recipient-%s' % state,
+                                    state=state),
+                self.create_invoice(sender_id=entity_id + 1,
+                                    sender_type=ENTITY_TYPE.GAME_ACCOUNT,
+                                    description_for_sender='sixth-invoice-description-for-sender-%s' % state,
+                                    description_for_recipient='sixth-invoice-description-for-recipient-%s' % state,
+                                    state=state),
 
-                self.create_invoice(sender_id=entity_id, sender_type=ENTITY_TYPE.GAME_LOGIC, description='seventh-invoice-description-%s' % state, state=state),
-                self.create_invoice(sender_id=entity_id, sender_type=ENTITY_TYPE.GAME_LOGIC, description='eighth-invoice-description-%s' % state, state=state),
-                self.create_invoice(sender_id=entity_id + 1, sender_type=ENTITY_TYPE.GAME_LOGIC, description='ninth-invoice-description-%s' % state, state=state) ]
+                self.create_invoice(sender_id=entity_id,
+                                    sender_type=ENTITY_TYPE.GAME_LOGIC,
+                                    description_for_sender='seventh-invoice-description-for-sender-%s' % state,
+                                    description_for_recipient='seventh-invoice-description-for-recipient-%s' % state,
+                                    state=state),
+                self.create_invoice(sender_id=entity_id,
+                                    sender_type=ENTITY_TYPE.GAME_LOGIC,
+                                    description_for_sender='eighth-invoice-description-for-sender-%s' % state,
+                                    description_for_recipient='eighth-invoice-description-for-recipient-%s' % state,
+                                    state=state),
+                self.create_invoice(sender_id=entity_id + 1,
+                                    sender_type=ENTITY_TYPE.GAME_LOGIC,
+                                    description_for_sender='ninth-invoice-description-for-sender-%s' % state,
+                                    description_for_recipient='ninth-invoice-description-for-recipient-%s' % state,
+                                    state=state) ]
 
             if state.is_CONFIRMED:
                 invoices = new_invoices

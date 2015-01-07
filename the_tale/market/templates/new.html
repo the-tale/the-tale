@@ -2,14 +2,41 @@
 
 {% block title %} Ваши товары | {{ super() }}{% endblock %}
 
+{% block head %}
+{{super()}}
+
+<script type="text/javascript">
+jQuery(document).ready(function(e) {
+
+    jQuery('.pgf-good-link').click(function(e){
+        e.preventDefault();
+        var target = jQuery(e.currentTarget);
+        var url = target.attr('href');
+
+        pgf.ui.dialog.Create({ fromUrl: url,
+                               OnOpen: function(dialog) {
+                                   var form = new pgf.forms.Form(jQuery('#pgf-sell-good-form', dialog),
+                                                                     {OnSuccess: function(form, data){
+                                                                         location.reload();
+                                                                     }});
+                               }
+                             });
+    });
+});
+</script>
+
+
+{% endblock %}
+
 {% block market_content %}
 
 <p>
+  Перечень доступных для продажи товаров. Обратите внимание, товары попадают в этот список с небольшой задержкой. Для продажи доступны только товары полученные подписчиками.
 </p>
 
 {% if context.account_goods.has_goods() %}
 
-  <table>
+  <table class="table">
     <thead>
       <tr>
         <th>название</th>
@@ -19,8 +46,8 @@
     <tbody>
       {% for good in context.account_goods.all() %}
         <tr>
-          <td>{{good.name}}</td>
-          <td><a href="{{url('market:new-dialog', good=good.uid)}}" class="pgf-dialog-simple">продать</a></td>
+          <td>{{good.html_label()|safe}}</td>
+          <td><a href="{{url('market:new-dialog', good=good.uid)}}" class="pgf-good-link">продать</a></td>
         </tr>
       {% endfor %}
     </tbody>

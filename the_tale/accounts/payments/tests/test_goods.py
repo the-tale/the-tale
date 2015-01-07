@@ -97,7 +97,9 @@ class PremiumDaysTests(testcase.TestCase):
         self.assertEqual(invoice.sender_id, 0)
         self.assertEqual(invoice.currency, CURRENCY_TYPE.PREMIUM)
         self.assertEqual(invoice.amount, -self.cost)
-        self.assertEqual(invoice.description, u'premium-days-transaction-description')
+        self.assertEqual(invoice.description_for_sender, u'premium-days-transaction-description')
+        self.assertEqual(invoice.description_for_recipient, u'premium-days-transaction-description')
+
 
     def test_is_purchasable(self):
         self.assertTrue(self.purchase.is_purchasable(self.account, self.hero))
@@ -188,7 +190,8 @@ class PermanentPurchaseTests(testcase.TestCase):
         self.assertEqual(invoice.sender_id, 0)
         self.assertEqual(invoice.currency, CURRENCY_TYPE.PREMIUM)
         self.assertEqual(invoice.amount, -self.cost)
-        self.assertEqual(invoice.description, u'clan-creation-rights')
+        self.assertEqual(invoice.description_for_sender, u'clan-creation-rights')
+        self.assertEqual(invoice.description_for_recipient, u'clan-creation-rights')
 
     def test_is_purchasable(self):
         self.assertTrue(self.purchase.is_purchasable(self.account, self.hero))
@@ -270,7 +273,8 @@ class RechooseHeroAbilitiesChoicesTests(testcase.TestCase):
         self.assertEqual(invoice.sender_id, 0)
         self.assertEqual(invoice.currency, CURRENCY_TYPE.PREMIUM)
         self.assertEqual(invoice.amount, -self.cost)
-        self.assertEqual(invoice.description, u'rechoose-transaction-description')
+        self.assertEqual(invoice.description_for_sender, u'rechoose-transaction-description')
+        self.assertEqual(invoice.description_for_recipient, u'rechoose-transaction-description')
 
     def test_is_purchasable(self):
         self.assertTrue(self.purchase.is_purchasable(self.account, self.hero))

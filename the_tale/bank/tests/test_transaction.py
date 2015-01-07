@@ -22,7 +22,8 @@ class TransactionTests(testcase.TestCase, BankTestsMixin):
                                   sender_id=3,
                                   currency=CURRENCY_TYPE.PREMIUM,
                                   amount=113,
-                                  description='transaction description',
+                                  description_for_sender='transaction description for sender',
+                                  description_for_recipient='transaction description for recipient',
                                   operation_uid='transaction-operation-uid')
 
 
@@ -44,7 +45,8 @@ class TransactionTests(testcase.TestCase, BankTestsMixin):
         self.assertEqual(invoice.sender_id, 3)
         self.assertEqual(invoice.currency, CURRENCY_TYPE.PREMIUM)
         self.assertEqual(invoice.amount, 113)
-        self.assertEqual(invoice.description, 'transaction description')
+        self.assertEqual(invoice.description_for_sender, 'transaction description for sender')
+        self.assertEqual(invoice.description_for_recipient, 'transaction description for recipient')
         self.assertEqual(invoice.operation_uid, 'transaction-operation-uid')
 
     def test_confirm(self):

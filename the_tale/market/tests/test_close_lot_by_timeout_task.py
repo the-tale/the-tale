@@ -6,6 +6,11 @@ import mock
 from the_tale.common.utils import testcase
 from the_tale.common.postponed_tasks import POSTPONED_TASK_LOGIC_RESULT
 
+from the_tale.accounts import logic as accounts_logic
+
+from the_tale.accounts.personal_messages import prototypes as personal_messages_prototypes
+
+
 from the_tale.game import logic_storage
 
 from the_tale.market import postponed_tasks
@@ -108,7 +113,9 @@ class TaskTests(testcase.TestCase):
     def test_close_lot(self):
         self.assertEqual(self.task.process(self.main_task), POSTPONED_TASK_LOGIC_RESULT.CONTINUE)
         self.assertEqual(self.task.process(self.main_task, storage=self.logic_storage), POSTPONED_TASK_LOGIC_RESULT.CONTINUE)
-        self.assertEqual(self.task.process(self.main_task), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+
+        with self.check_delta(personal_messages_prototypes.MessagePrototype._db_count, 1):
+            self.assertEqual(self.task.process(self.main_task), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertTrue(self.task.state.is_PROCESSED)
         self.assertTrue(self.task.step.is_SUCCESS)
@@ -116,3 +123,8 @@ class TaskTests(testcase.TestCase):
         lot = logic.load_lot(self.task.lot_id)
         self.assertTrue(lot.state.is_CLOSED_BY_TIMEOUT)
         self.assertEqual(lot.buyer_id, None)
+
+        personal_message = personal_messages_prototypes.MessagePrototype._db_all().latest()
+
+        self.assertEqual(personal_message.recipient_id, self.account_1.id)
+        self.assertEqual(personal_message.sender_id, accounts_logic.get_system_user().id)

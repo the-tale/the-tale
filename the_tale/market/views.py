@@ -107,12 +107,18 @@ class LotsIndexFilter(list_filter.ListFilter):
 @dext_views.RelationArgumentProcessor.handler(relation=relations.INDEX_ORDER_BY, default_value=relations.INDEX_ORDER_BY.NAME_UP,
                                               error_message=u'неверный тип сортировки',
                                               context_name='order_by', get_name='order_by')
+@dext_views.RelationArgumentProcessor.handler(relation=relations.INDEX_MODE, default_value=relations.INDEX_MODE.ALL,
+                                              error_message=u'неверный режим отображения',
+                                              context_name='page_mode', get_name='page_mode')
 @utils_views.text_filter_processor.handler()
 @utils_views.page_number_processor.handler()
 @resource.handler('')
 def index(context):
 
     lots_query = models.Lot.objects.filter(state=relations.LOT_STATE.ACTIVE)
+
+    if context.page_mode.is_OWN:
+        lots_query = lots_query.filter(seller_id=context.account.id)
 
     if context.filter is not None:
         lots_query = lots_query.filter(name__icontains=context.filter)
@@ -142,13 +148,19 @@ def index(context):
                                     'index_filter': index_filter,
                                     'paginator': paginator,
                                     'lots': lots,
+                                    'page_type': 'index' if context.page_mode.is_ALL else 'own-lots',
                                     'resource': context.resource})
+
+@resource.handler('own-lots')
+def own_lots(context):
+    return dext_views.Redirect(url('market:', page_mode=relations.INDEX_MODE.OWN.value))
 
 
 @resource.handler('new')
 def new(context):
     return dext_views.Page('market/new.html',
                            content={'context': context,
+                                    'page_type': 'new',
                                     'resource': context.resource})
 
 @good_processor.handler()

@@ -8,6 +8,14 @@
   <div class="span12">
     <div class="easy-block">
 
+      <h2>Рынок</h2>
+
+      <ul class="nav nav-pills">
+        <li {% if page_type == 'index' %}class="active"{% endif %}><a href="{{ url('market:') }}">Все товары</a></li>
+        <li {% if page_type == 'new' %}class="active"{% endif %}><a href="{{url('market:new')}}">Выставить на продажу</a></li>
+        <li {% if page_type == 'own-lots' %}class="active"{% endif %}><a href="{{url('market:own-lots')}}">Ваш прилавок</a></li>
+      </ul>
+
       {% block market_content %}
       {% endblock %}
 

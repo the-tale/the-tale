@@ -18,14 +18,15 @@ class Transaction(object):
         return cls(**data)
 
     @classmethod
-    def create(cls, recipient_type, recipient_id, sender_type, sender_id, currency, amount, description, operation_uid, force=False):
+    def create(cls, recipient_type, recipient_id, sender_type, sender_id, currency, amount, description_for_sender, description_for_recipient, operation_uid, force=False):
         invoice = InvoicePrototype.create(recipient_type=recipient_type,
                                           recipient_id=recipient_id,
                                           sender_type=sender_type,
                                           sender_id=sender_id,
                                           currency=currency,
                                           amount=amount,
-                                          description=description,
+                                          description_for_sender=description_for_sender,
+                                          description_for_recipient=description_for_recipient,
                                           operation_uid=operation_uid,
                                           force=force)
 

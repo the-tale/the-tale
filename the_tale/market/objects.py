@@ -32,6 +32,11 @@ class Good(object):
         return obj
 
 
+    def html_label(self):
+        from the_tale.market import goods_types
+        return goods_types.get_type(self.type).item_html(self.item)
+
+
 
 class Lot(object):
 
@@ -50,7 +55,7 @@ class Lot(object):
 
     @property
     def time_to_end(self):
-        return min(self.created_at + datetime.timedelta(days=conf.settings.LOT_LIVE_TIME) - datetime.datetime.now(), datetime.timedelta(days=0))
+        return max(self.created_at + datetime.timedelta(days=conf.settings.LOT_LIVE_TIME) - datetime.datetime.now(), datetime.timedelta(days=0))
 
     @classmethod
     def from_model(cls, model):

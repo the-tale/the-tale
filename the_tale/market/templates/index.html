@@ -5,10 +5,26 @@
 
 {% block market_content %}
 
-  <h2>Рынок</h2>
-
   <p>
+    На рынке можно выставить на продажу свои Карты Судьбы или купить карты у других игроков.
   </p>
+
+  <div class="accordion" id="pgf-help-accordion">
+
+    <div class="accordion-group">
+      <div class="accordion-heading">
+        <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-help-accordion" href="#pgf-templates-description">
+          Правила торговли
+        </a>
+      </div>
+      <div id="pgf-templates-description" class="accordion-body collapse" style="height: 0px;">
+        <div class="accordion-inner">
+          {% include "market/trade_rules.html" %}
+        </div>
+      </div>
+    </div>
+
+
 
   {{ list_filter_macros.html_filter(index_filter) }}
 
@@ -21,15 +37,20 @@
         <tr>
           <th>название</th>
           <th width="100px">цена</th>
-          <th width="100px">времени до окончания</th>
+          <th width="150px">времени до окончания</th>
+          <th width="100px">операция</th>
         </tr>
       </thead>
       <tbody>
         {% for lot in lots %}
           <tr>
-            <td>{{lot.name}}</td>
+            <td>{{lot.good.html_label()|safe}}</td>
             <td>{{lot.price}}</td>
             <td><span>{{lot.time_to_end|verbose_timedelta}}</span></td>
+            <td><a href="{{url('market:purchase', lot.id)}}"
+                   class="pgf-forms-post-simple"
+                   data-confirmation="Вы уверены, что хотите купить «{{lot.name}}»?"
+                   data-success-message="Поздравляем! Вы успешно приобрели «{{lot.name}}»!">купить</a></td>
           </tr>
         {% endfor %}
       </tbody>

@@ -14,3 +14,6 @@ class Message(models.Model):
 
     hide_from_sender = models.BooleanField(default=False)
     hide_from_recipient = models.BooleanField(default=False)
+
+    class Meta:
+        get_latest_by = 'created_at'

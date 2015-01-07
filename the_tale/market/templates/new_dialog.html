@@ -10,6 +10,14 @@
 
   <div class="modal-body">
 
+    <p>
+      Товар выставляется на {{market_settings().LOT_LIVE_TIME}} дней. <strong>Выставленный на продажу товар нельзя отозвать.</strong>
+    </p>
+
+    <p>
+      Цена продажи должна  быть больше {{market_settings().MINIMUM_PRICE}} печенек.
+    </p>
+
     <form id="pgf-sell-good-form"
           method="post"
           action="{{ url('market:create', good=context.good.uid) }}">
@@ -19,7 +27,7 @@
       {{ form.price.widget }}
 
       <div class="widget">
-        <input type="submit" class="btn" value="Выставить на продажу"/>
+        <input type="submit" class="btn btn-success" value="Выставить на продажу"/>
       </div>
 
     </form>

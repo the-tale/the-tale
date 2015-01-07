@@ -141,10 +141,19 @@ class HistoryRequestesTests(RequestesTestsBase, BankTestsMixin, PageRequestsMixi
         for invoice in invoices:
             if invoice.id in histroy_ids:
                 continue
-            texts.append((invoice.description, 0))
+
+            if invoice.recipient_id == self.account.id:
+                texts.append((invoice.description_for_recipient, 0))
+            else:
+                texts.append((invoice.description_for_sender, 0))
 
         for invoice in history:
-            texts.append((invoice.description, 1))
+            if invoice.recipient_id == self.account.id:
+                texts.append((invoice.description_for_recipient, 1))
+                texts.append((invoice.description_for_sender, 0))
+            else:
+                texts.append((invoice.description_for_recipient, 0))
+                texts.append((invoice.description_for_sender, 1))
 
         self.check_html_ok(self.request_html(self.page_url), texts=texts)
 
@@ -260,7 +269,7 @@ class GiveMoneyRequestesTests(RequestesTestsBase):
         self.assertEqual(invoice.sender_id, self.superuser.id)
         self.assertTrue(invoice.currency.is_PREMIUM)
         self.assertEqual(invoice.amount, 5)
-        self.assertEqual(invoice.description, u'bla-bla')
+        self.assertEqual(invoice.description_for_recipient, u'bla-bla')
         self.assertTrue(invoice.state.is_FORCED)
 
         self.check_ajax_ok(response)

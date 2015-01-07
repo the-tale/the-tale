@@ -71,7 +71,8 @@ class AccountPrototypeTests(testcase.TestCase, BankTestsMixin):
                                           sender_id=0,
                                           currency=CURRENCY_TYPE.PREMIUM,
                                           amount=amount,
-                                          description='incoming invoice',
+                                          description_for_sender='incoming invoice for sender',
+                                          description_for_recipient='incoming invoice for recipient',
                                           operation_uid='incoming-operation-uid')
         invoice.state = state
         invoice.save()
@@ -83,7 +84,8 @@ class AccountPrototypeTests(testcase.TestCase, BankTestsMixin):
                                           recipient_id=0,
                                           currency=CURRENCY_TYPE.PREMIUM,
                                           amount=amount,
-                                          description='outcoming invoice',
+                                          description_for_sender='outcoming invoice for sender',
+                                          description_for_recipient='outcoming invoice for recipient',
                                           operation_uid='outcoming-operation-uid')
         invoice.state = state
         invoice.save()

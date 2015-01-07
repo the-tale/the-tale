@@ -8,7 +8,7 @@ class Migration(DataMigration):
 
     def forwards(self, orm):
 
-        for account_id in orm['accounts.Account'].objects.all().values_list('id', flat=True):
+        for account_id in orm['accounts.Account'].objects.all().order_by('id').values_list('id', flat=True):
             orm['market.Goods'].objects.create(account_id=account_id)
 
     def backwards(self, orm):

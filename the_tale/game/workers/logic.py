@@ -9,6 +9,8 @@ from the_tale.amqp_environment import environment
 from the_tale.common.utils.workers import BaseWorker
 from the_tale.common import postponed_tasks
 
+from the_tale.market import goods_types
+
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.conf import game_settings
@@ -34,6 +36,7 @@ class Worker(BaseWorker):
             self.logger.warn('WARNING: game already initialized, do reinitialization')
 
         postponed_tasks.autodiscover(if_empty=True)
+        goods_types.autodiscover(if_empty=True)
 
         self.storage = LogicStorage()
 

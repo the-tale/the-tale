@@ -92,7 +92,8 @@ def purchase_lot(buyer_id, lot):
                                                       sender_id=buyer_id,
                                                       currency=bank_relations.CURRENCY_TYPE.PREMIUM,
                                                       amount=lot.price,
-                                                      description=u'Покупка «%s»' % lot.name,
+                                                      description_for_sender=u'Продажа «%s»' % lot.name,
+                                                      description_for_recipient=u'Покупка «%s»' % lot.name,
                                                       operation_uid=u'market-buy-lot-%s' % lot.type)
 
 

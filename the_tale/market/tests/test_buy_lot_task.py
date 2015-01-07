@@ -6,6 +6,10 @@ import mock
 from the_tale.common.utils import testcase
 from the_tale.common.postponed_tasks import POSTPONED_TASK_LOGIC_RESULT
 
+from the_tale.accounts import logic as accounts_logic
+
+from the_tale.accounts.personal_messages import prototypes as personal_messages_prototypes
+
 from the_tale.bank import transaction as bank_transaction
 from the_tale.bank import prototypes as bank_prototypes
 from the_tale.bank import relations as bank_relations
@@ -26,6 +30,8 @@ class TaskTests(testcase.TestCase):
         super(TaskTests, self).setUp()
 
         create_test_map()
+
+        goods_types.autodiscover()
 
         self.good_1_uid = 'good-1'
 
@@ -56,7 +62,8 @@ class TaskTests(testcase.TestCase):
                                                                sender_id=self.account_2.id,
                                                                currency=bank_relations.CURRENCY_TYPE.PREMIUM,
                                                                amount=self.price,
-                                                               description='transaction-description',
+                                                               description_for_sender='transaction-description-for_sender',
+                                                               description_for_recipient='transaction-description-for-recipient',
                                                                operation_uid='transaction-operation-ui')
 
 
@@ -238,7 +245,8 @@ class TaskTests(testcase.TestCase):
         self.assertEqual(self.task.process(self.main_task, storage=self.logic_storage), POSTPONED_TASK_LOGIC_RESULT.CONTINUE)
 
         with mock.patch('the_tale.bank.transaction.Transaction.confirm') as confirm:
-            self.assertEqual(self.task.process(self.main_task), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+            with self.check_delta(personal_messages_prototypes.MessagePrototype._db_count, 1):
+                self.assertEqual(self.task.process(self.main_task), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertEqual(confirm.call_count, 1)
 
@@ -248,3 +256,8 @@ class TaskTests(testcase.TestCase):
         lot = logic.load_lot(self.task.lot_id)
         self.assertTrue(lot.state.is_CLOSED_BY_BUYER)
         self.assertEqual(lot.buyer_id, self.account_2.id)
+
+        personal_message = personal_messages_prototypes.MessagePrototype._db_all().latest()
+
+        self.assertEqual(personal_message.recipient_id, self.account_1.id)
+        self.assertEqual(personal_message.sender_id, accounts_logic.get_system_user().id)

@@ -22,8 +22,8 @@ class Lot(models.Model):
 
     name = models.CharField(max_length=NAME_MAX_LENGTH, db_index=True)
 
-    seller = models.ForeignKey('accounts.Account', related_name='+')
-    buyer = models.ForeignKey('accounts.Account', default=None, blank=True, null=True, related_name='+')
+    seller = models.ForeignKey('accounts.Account', related_name='+', on_delete=models.CASCADE)
+    buyer = models.ForeignKey('accounts.Account', default=None, blank=True, null=True, related_name='+', on_delete=models.SET_NULL)
 
     state = RelationIntegerField(relation=relations.LOT_STATE, db_index=True)
 
@@ -42,6 +42,6 @@ class Goods(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    account = models.ForeignKey('accounts.Account')
+    account = models.ForeignKey('accounts.Account', on_delete=models.CASCADE)
 
     data = models.TextField(default='{}')

@@ -42,7 +42,8 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
                                                sender_id=0,
                                                currency=CURRENCY_TYPE.PREMIUM,
                                                amount=-self.amount,
-                                               description='transaction-description',
+                                               description_for_sender='transaction-description-for-sender',
+                                               description_for_recipient='transaction-description-for-recipient',
                                                operation_uid='transaction-operation-ui')
 
         self.transaction = Transaction(self.invoice.id)

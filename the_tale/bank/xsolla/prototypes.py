@@ -138,7 +138,8 @@ class InvoicePrototype(BasePrototype):
                                          sender_id=0,
                                          currency=CURRENCY_TYPE.PREMIUM,
                                          amount=self.bank_amount,
-                                         description=u'Покупка печенек (через Xsolla)',
+                                         description_for_sender=u'Покупка печенек (через Xsolla)',
+                                         description_for_recipient=u'Покупка печенек (через Xsolla)',
                                          operation_uid='bank-xsolla',
                                          force=True)
 

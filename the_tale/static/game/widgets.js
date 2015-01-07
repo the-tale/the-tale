@@ -495,7 +495,7 @@ pgf.game.widgets.CreateCardTooltip = function (data, cssClass) {
 
     if (data.auction) {
         tooltip += '<hr/>';
-        tooltip += '<li><i>может быть продана на аукционе</i></li>';
+        tooltip += '<li><i>может быть продана на рынке</i></li>';
     }
     tooltip += '</ul>';
     return tooltip;

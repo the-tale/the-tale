@@ -35,7 +35,7 @@ class Worker(BaseWorker):
 
     def cmd_add_item(self, account_id, good):
         return self.send_cmd('add_item', {'account_id': account_id,
-                                          'good': good.serialize()})
+                                          'good_data': good.serialize()})
 
     def process_add_item(self, account_id, good_data):
         good = objects.Good.deserialize(good_data)
@@ -45,7 +45,7 @@ class Worker(BaseWorker):
 
     def cmd_remove_item(self, account_id, good):
         return self.send_cmd('remove_item', {'account_id': account_id,
-                                             'good': good.serialize()})
+                                             'good_data': good.serialize()})
 
     def process_remove_item(self, account_id, good_data):
         good = objects.Good.deserialize(good_data)

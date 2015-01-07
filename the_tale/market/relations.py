@@ -23,3 +23,9 @@ class INDEX_ORDER_BY(DjangoEnum):
                 ('COST_DOWN', 3, u'по цене ↓', '-price'),
                 ('NAME_DOWN', 4, u'по имени ↓', '-name'),
                 ('DATE_DOWN', 5, u'по окончанию ↓', '-created_at') )
+
+
+
+class INDEX_MODE(DjangoEnum):
+    records = ( ('ALL', 0, u'все товары'),
+                ('OWN', 1, u'товары игрока') )

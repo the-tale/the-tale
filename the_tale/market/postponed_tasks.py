@@ -8,6 +8,8 @@ from the_tale.amqp_environment import environment
 from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 
 from the_tale.accounts import prototypes as account_prototypes
+from the_tale.accounts.personal_messages import prototypes as personal_messages_prototypes
+from the_tale.accounts import logic as accounts_logic
 
 from the_tale.bank import transaction as bank_transaction
 
@@ -15,6 +17,22 @@ from the_tale.market import logic
 from the_tale.market import objects
 from the_tale.market import goods_types
 from the_tale.market import relations
+
+
+
+def good_bought_message(lot):
+    from the_tale.portal import logic as portal_logic
+
+    template = u'Поздравляем! Кто-то купил «%(good)s», Вы получаете %(price)d <img src="%(static_path)s" style="vertical-align: middle;"></img>!'
+    return template % {'good': lot.name,
+                       'price': lot.price,
+                       'static_path': (portal_logic.cdn_paths()['STATIC_CONTENT'] + 'images/cookies.png')}
+
+
+def good_timeout_message(lot):
+    template = u'Закончилось время продажи «%(good)s». Так как Ваш товар никто не купил, Вы получаете его обратно.'
+    return template % {'good': lot.name}
+
 
 
 class CreateLotTask(PostponedLogic):
@@ -261,6 +279,10 @@ class BuyLotTask(PostponedLogic):
 
             self.transaction.confirm()
 
+            seller = account_prototypes.AccountPrototype.get_by_id(lot.seller_id)
+
+            personal_messages_prototypes.MessagePrototype.create(accounts_logic.get_system_user(), seller, good_bought_message(lot))
+
             self.state = self.STATE.PROCESSED
             self.step = self.STEP.SUCCESS
             return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
@@ -346,6 +368,10 @@ class CloseLotByTimoutTask(PostponedLogic):
 
             lot.state = relations.LOT_STATE.CLOSED_BY_TIMEOUT
             logic.save_lot(lot)
+
+            seller = account_prototypes.AccountPrototype.get_by_id(lot.seller_id)
+
+            personal_messages_prototypes.MessagePrototype.create(accounts_logic.get_system_user(), seller, good_timeout_message(lot))
 
             self.state = self.STATE.PROCESSED
             self.step = self.STEP.SUCCESS

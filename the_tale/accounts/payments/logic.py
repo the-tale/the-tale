@@ -22,7 +22,8 @@ def transaction_logic(account, amount, description, uid, force=False):
                               sender_id=0,
                               currency=CURRENCY_TYPE.PREMIUM,
                               amount=amount,
-                              description=description,
+                              description_for_sender=description,
+                              description_for_recipient=description,
                               operation_uid=uid,
                               force=force)
 
@@ -35,7 +36,8 @@ def transaction_gm(account, amount, description, game_master):
                               sender_id=game_master.id,
                               currency=CURRENCY_TYPE.PREMIUM,
                               amount=amount,
-                              description=description,
+                              description_for_sender=description,
+                              description_for_recipient=description,
                               operation_uid='game-master-gift',
                               force=True)
 

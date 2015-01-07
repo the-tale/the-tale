@@ -150,7 +150,8 @@ class AccountPrototype(BasePrototype):
 
 class InvoicePrototype(BasePrototype):
     _model_class = Invoice
-    _readonly = ('id', 'updated_at', 'recipient_id', 'recipient_type', 'sender_id', 'sender_type', 'amount', 'currency', 'description', 'operation_uid')
+    _readonly = ('id', 'updated_at', 'recipient_id', 'recipient_type', 'sender_id', 'sender_type', 'amount', 'currency',
+                 'description_for_recipient', 'description_for_sender', 'operation_uid')
     _bidirectional = ('state',)
     _get_by = ('id', )
 
@@ -166,7 +167,7 @@ class InvoicePrototype(BasePrototype):
         return cls._db_filter(state=INVOICE_STATE.FROZEN, updated_at__lt=datetime.datetime.now()-bank_settings.FROZEN_INVOICE_EXPIRED_TIME).exists()
 
     @classmethod
-    def create(cls, recipient_type, recipient_id, sender_type, sender_id, currency, amount, description, operation_uid, force=False):
+    def create(cls, recipient_type, recipient_id, sender_type, sender_id, currency, amount, description_for_sender, description_for_recipient, operation_uid, force=False):
         model = cls._model_class.objects.create(recipient_type=recipient_type,
                                                 recipient_id=recipient_id,
                                                 sender_type=sender_type,
@@ -174,7 +175,8 @@ class InvoicePrototype(BasePrototype):
                                                 currency=currency,
                                                 amount=amount,
                                                 state=INVOICE_STATE.FORCED if force else INVOICE_STATE.REQUESTED,
-                                                description=description,
+                                                description_for_sender=description_for_sender,
+                                                description_for_recipient=description_for_recipient,
                                                 operation_uid=operation_uid)
 
         return cls(model=model)

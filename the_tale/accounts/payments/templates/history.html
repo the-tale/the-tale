@@ -20,7 +20,13 @@
     <tr>
       <td style="text-align: center" class="pgf-format-datetime" data-timestamp="{{ record.updated_at|timestamp }}"></td>
       <td style="text-align: center">{{ record.amount }}</td>
-      <td>{{ record.description }}</td>
+      <td>
+        {% if account.id == record.recipient_id %}
+        {{ record.description_for_recipient }}
+        {% else %}
+        {{ record.description_for_sender }}
+        {% endif %}
+      </td>
     </tr>
     {% endfor %}
   </tbody>
