@@ -16,6 +16,10 @@
         <li {% if page_type == 'own-lots' %}class="active"{% endif %}><a href="{{url('market:own-lots')}}">Ваш прилавок</a></li>
       </ul>
 
+      <p style="font-size: 14pt; vertical-align: middle;">
+        У Вас есть {{ context.account.bank_account.amount }} <img src="{{ STATIC_CONTENT }}images/cookies.png" style="vertical-align: middle;"></img>
+      </p>
+
       {% block market_content %}
       {% endblock %}
 

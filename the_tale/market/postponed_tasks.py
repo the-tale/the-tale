@@ -125,6 +125,8 @@ class CreateLotTask(PostponedLogic):
 
             good_type.extract_good(hero, self.good_uid)
 
+            storage.save_bundle_data(hero.actions.current_action.bundle_id, update_cache=True)
+
             main_task.extend_postsave_actions((lambda: environment.workers.market_manager.cmd_logic_task(self.account_id, main_task.id),))
 
             self.step = self.STEP.GOTTEN
@@ -264,6 +266,8 @@ class BuyLotTask(PostponedLogic):
             # TODO: save hero after receive item? and after extract too?...
             self.good_type.insert_good(hero, self.good)
 
+            storage.save_bundle_data(hero.actions.current_action.bundle_id, update_cache=True)
+
             main_task.extend_postsave_actions((lambda: environment.workers.market_manager.cmd_logic_task(self.buyer_id, main_task.id),))
 
             self.step = self.STEP.REMOVE_LOT
@@ -356,6 +360,8 @@ class CloseLotByTimoutTask(PostponedLogic):
 
             # TODO: save hero after receive item? and after extract too?...
             self.good_type.insert_good(hero, self.good)
+
+            storage.save_bundle_data(hero.actions.current_action.bundle_id, update_cache=True)
 
             main_task.extend_postsave_actions((lambda: environment.workers.market_manager.cmd_logic_task(self.account_id, main_task.id),))
 
