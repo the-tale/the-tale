@@ -42,7 +42,7 @@ class CompanionProcessor(dext_views.ArgumentProcessor):
         except ValueError:
             self.raise_wrong_format(context=context)
 
-        return storage.companions_storage.get(id)
+        return storage.companions.get(id)
 
 # TODO: sync semantics of CompanionProcessor and CompanionProcessor.handler
 companion_processor = CompanionProcessor.handler(error_message=u'Спутник не найден', url_name='companion', context_name='companion')
@@ -63,8 +63,8 @@ BASE_INDEX_FILTERS = [list_filter.reset_element()]
 
 MODERATOR_INDEX_FILTERS = BASE_INDEX_FILTERS + [list_filter.choice_element(u'состояние:',
                                                                            attribute='state',
-                                                                           default_value=relations.COMPANION_RECORD_STATE.ENABLED.value,
-                                                                           choices=relations.COMPANION_RECORD_STATE.select('value', 'text'))]
+                                                                           default_value=relations.STATE.ENABLED.value,
+                                                                           choices=relations.STATE.select('value', 'text'))]
 
 
 class NormalIndexFilter(list_filter.ListFilter):
@@ -78,13 +78,13 @@ class ModeratorIndexFilter(list_filter.ListFilter):
 # views
 ########################################
 
-@dext_views.RelationArgumentProcessor.handler(relation=relations.COMPANION_RECORD_STATE, default_value=relations.COMPANION_RECORD_STATE.ENABLED,
+@dext_views.RelationArgumentProcessor.handler(relation=relations.STATE, default_value=relations.STATE.ENABLED,
                                               error_message=u'неверное состояние записи о спутнике',
                                               context_name='companions_state', get_name='state')
 @resource.handler('')
 def index(context):
 
-    companions = storage.companions_storage.all()
+    companions = storage.companions.all()
 
     if not context.companions_can_edit and not context.companions_can_moderate:
         companions = filter(lambda companion: companion.state.is_ENABLED, companions) # pylint: disable=W0110
@@ -141,7 +141,11 @@ def new(context):
 @resource.handler('create', method='POST')
 def create(context):
     companion_record = logic.create_companion_record(utg_name=context.form.c.name,
-                                                     description=context.form.c.description)
+                                                     description=context.form.c.description,
+                                                     type=context.form.c.type,
+                                                     max_health=context.form.c.max_health,
+                                                     dedication=context.form.c.dedication,
+                                                     rarity=context.form.c.rarity)
     return dext_views.AjaxOk(content={'next_url': url('guide:companions:show', companion_record.id)})
 
 
@@ -167,5 +171,9 @@ def edit(context):
 def update(context):
     logic.update_companion_record(companion=context.companion,
                                   utg_name=context.form.c.name,
-                                  description=context.form.c.description)
+                                  description=context.form.c.description,
+                                  type=context.form.c.type,
+                                  max_health=context.form.c.max_health,
+                                  dedication=context.form.c.dedication,
+                                  rarity=context.form.c.rarity)
     return dext_views.AjaxOk(content={'next_url': url('guide:companions:show', context.companion.id)})

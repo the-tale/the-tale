@@ -47,20 +47,28 @@ class IndexRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(IndexRequestsTests, self).setUp()
         self.requested_url = url('game:companions:')
-        self.requested_url_disabled = url('game:companions:', state=relations.COMPANION_RECORD_STATE.DISABLED.value)
+        self.requested_url_disabled = url('game:companions:', state=relations.STATE.DISABLED.value)
 
         self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-1'),
                                                          description='companion-description',
-                                                         state=relations.COMPANION_RECORD_STATE.ENABLED)
+                                                         type=relations.TYPE.random(),
+                                                         max_health=10,
+                                                         dedication=relations.DEDICATION.random(),
+                                                         rarity=relations.RARITY.random(),
+                                                         state=relations.STATE.ENABLED)
 
         self.companion_2 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-2'),
                                                          description='companion-description',
-                                                         state=relations.COMPANION_RECORD_STATE.DISABLED)
+                                                         type=relations.TYPE.random(),
+                                                         max_health=10,
+                                                         dedication=relations.DEDICATION.random(),
+                                                         rarity=relations.RARITY.random(),
+                                                         state=relations.STATE.DISABLED)
 
 
     def test_no_items(self):
         models.CompanionRecord.objects.all().delete()
-        storage.companions_storage.refresh()
+        storage.companions.refresh()
         self.check_html_ok(self.request_html(self.requested_url), texts=[('pgf-no-companions-message', 1),
                                                                          (self.companion_1.name, 0),
                                                                          (self.companion_2.name, 0)])
@@ -156,7 +164,11 @@ class CreateRequestsTests(RequestsTestsBase):
         group_edit.user_set.add(self.account_2._model)
 
     def post_data(self):
-        data = {'description': 'some-description'}
+        data = {'description': 'some-description',
+                'type': relations.TYPE.random(),
+                'max_health': 666,
+                'dedication': relations.DEDICATION.random(),
+                'rarity': relations.RARITY.random()}
         data.update(linguistics_helpers.get_word_post_data(names.generator.get_test_name(name='name'), prefix='name'))
         return data
 
@@ -171,10 +183,12 @@ class CreateRequestsTests(RequestsTestsBase):
     def test_editor_user(self):
         self.request_login(self.account_2.email)
 
+        post_data = self.post_data()
+
         with self.check_delta(models.CompanionRecord.objects.count, 1):
-            with self.check_changed(lambda: storage.companions_storage._version):
-                with self.check_delta(lambda: len(storage.companions_storage), 1):
-                    response = self.post_ajax_json(self.requested_url, self.post_data())
+            with self.check_changed(lambda: storage.companions._version):
+                with self.check_delta(lambda: len(storage.companions), 1):
+                    response = self.post_ajax_json(self.requested_url, post_data)
 
         new_companion = logic.get_last_companion()
 
@@ -182,6 +196,10 @@ class CreateRequestsTests(RequestsTestsBase):
 
         self.assertEqual(new_companion.description, 'some-description')
         self.assertTrue(new_companion.state.is_DISABLED)
+        self.assertEqual(new_companion.type, post_data['type'])
+        self.assertEqual(new_companion.max_health, post_data['max_health'])
+        self.assertEqual(new_companion.dedication, post_data['dedication'])
+        self.assertEqual(new_companion.rarity, post_data['rarity'])
         self.assertEqual(new_companion.name, u'name-нс,ед,им')
 
 
@@ -189,8 +207,8 @@ class CreateRequestsTests(RequestsTestsBase):
         self.request_login(self.account_2.email)
 
         with self.check_not_changed(models.CompanionRecord.objects.count):
-            with self.check_not_changed(lambda: storage.companions_storage._version):
-                with self.check_not_changed(storage.companions_storage.__len__):
+            with self.check_not_changed(lambda: storage.companions._version):
+                with self.check_not_changed(storage.companions.__len__):
                     self.check_ajax_error(self.post_ajax_json(self.requested_url, {}), 'companions.create.form_errors')
 
 
@@ -201,11 +219,19 @@ class ShowRequestsTests(RequestsTestsBase):
 
         self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-1'),
                                                          description='companion-description-1',
-                                                         state=relations.COMPANION_RECORD_STATE.ENABLED)
+                                                         type=relations.TYPE.random(),
+                                                         max_health=10,
+                                                         dedication=relations.DEDICATION.random(),
+                                                         rarity=relations.RARITY.random(),
+                                                         state=relations.STATE.ENABLED)
 
         self.companion_2 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-2'),
                                                          description='companion-description-2',
-                                                         state=relations.COMPANION_RECORD_STATE.DISABLED)
+                                                         type=relations.TYPE.random(),
+                                                         max_health=10,
+                                                         dedication=relations.DEDICATION.random(),
+                                                         rarity=relations.RARITY.random(),
+                                                         state=relations.STATE.DISABLED)
 
         self.requested_url_1 = url('game:companions:show', self.companion_1.id)
         self.requested_url_2 = url('game:companions:show', self.companion_2.id)
@@ -264,7 +290,11 @@ class EditRequestsTests(RequestsTestsBase):
 
         self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-1'),
                                                        description='companion-description-1',
-                                                       state=relations.COMPANION_RECORD_STATE.DISABLED)
+                                                         type=relations.TYPE.random(),
+                                                         max_health=10,
+                                                         dedication=relations.DEDICATION.random(),
+                                                         rarity=relations.RARITY.random(),
+                                                       state=relations.STATE.DISABLED)
 
 
         self.requested_url = url('game:companions:edit', self.companion_1.id)
@@ -298,8 +328,12 @@ class UpdateRequestsTests(RequestsTestsBase):
         super(UpdateRequestsTests, self).setUp()
 
         self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-1'),
-                                                       description='companion-description-1',
-                                                       state=relations.COMPANION_RECORD_STATE.DISABLED)
+                                                         description='companion-description-1',
+                                                         type=relations.TYPE.random(),
+                                                         max_health=10,
+                                                         dedication=relations.DEDICATION.random(),
+                                                         rarity=relations.RARITY.random(),
+                                                         state=relations.STATE.DISABLED)
 
         self.requested_url = url('game:companions:update', self.companion_1.id)
 
@@ -310,7 +344,11 @@ class UpdateRequestsTests(RequestsTestsBase):
         group_edit.user_set.add(self.account_2._model)
 
     def post_data(self):
-        data = {'description': 'new-description'}
+        data = {'description': 'new-description',
+                'type': relations.TYPE.random(),
+                'max_health': 666,
+                'dedication': relations.DEDICATION.random(),
+                'rarity': relations.RARITY.random()}
         data.update(linguistics_helpers.get_word_post_data(names.generator.get_test_name(name='new_name'), prefix='name'))
         return data
 
@@ -324,16 +362,24 @@ class UpdateRequestsTests(RequestsTestsBase):
     def test_editor_user(self):
         self.request_login(self.account_2.email)
 
+        post_data = self.post_data()
+
         with self.check_not_changed(models.CompanionRecord.objects.count):
-            with self.check_changed(lambda: storage.companions_storage._version):
-                with self.check_not_changed(storage.companions_storage.__len__):
-                    self.check_ajax_ok(self.post_ajax_json(self.requested_url, self.post_data()),
+            with self.check_changed(lambda: storage.companions._version):
+                with self.check_not_changed(storage.companions.__len__):
+                    self.check_ajax_ok(self.post_ajax_json(self.requested_url, post_data),
                                        data={'next_url': url('guide:companions:show', self.companion_1.id)})
 
-        companion = storage.companions_storage[self.companion_1.id]
+        # storage.companions.refresh()
+
+        companion = storage.companions[self.companion_1.id]
 
         self.assertEqual(companion.description, 'new-description')
         self.assertTrue(companion.state.is_DISABLED)
+        self.assertEqual(companion.type, post_data['type'])
+        self.assertEqual(companion.max_health, post_data['max_health'])
+        self.assertEqual(companion.dedication, post_data['dedication'])
+        self.assertEqual(companion.rarity, post_data['rarity'])
         self.assertEqual(companion.name, u'new_name-нс,ед,им')
 
 
@@ -341,11 +387,11 @@ class UpdateRequestsTests(RequestsTestsBase):
         self.request_login(self.account_2.email)
 
         with self.check_not_changed(models.CompanionRecord.objects.count):
-            with self.check_not_changed(lambda: storage.companions_storage._version):
-                with self.check_not_changed(storage.companions_storage.__len__):
+            with self.check_not_changed(lambda: storage.companions._version):
+                with self.check_not_changed(storage.companions.__len__):
                     self.check_ajax_error(self.post_ajax_json(self.requested_url, {}), 'companions.update.form_errors')
 
-        companion = storage.companions_storage[self.companion_1.id]
+        companion = storage.companions[self.companion_1.id]
 
         self.assertEqual(companion.description, self.companion_1.description)
         self.assertEqual(companion.name, self.companion_1.name)

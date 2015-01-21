@@ -13,7 +13,7 @@ class ApplyBillInWrongStateError(BillError):
 class ApplyUnapprovedBillError(BillError):
     MSG = u'trying to apply bill %(bill_id)d which did not approved by moderator'
 
-class ApplyUnapprovedBillError(BillError):
+class ApplyBillBeforeVoteWasEndedError(BillError):
     MSG = u'trying to apply bill %(bill_id)d before voting period was end'
 
 

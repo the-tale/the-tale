@@ -11,7 +11,12 @@ class CompanionRecord(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now=True, null=False)
 
-    state = RelationIntegerField(relation=relations.COMPANION_RECORD_STATE, db_index=True)
+    state = RelationIntegerField(relation=relations.STATE, db_index=True)
+    type = RelationIntegerField(relation=relations.TYPE, db_index=True)
+    dedication = RelationIntegerField(relation=relations.DEDICATION, db_index=True)
+    rarity = RelationIntegerField(relation=relations.RARITY, db_index=True)
+
+    max_health = models.IntegerField(default=1)
 
     data = models.TextField(null=False, default='{}')
 

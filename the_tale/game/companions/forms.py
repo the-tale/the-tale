@@ -1,7 +1,5 @@
 # coding: utf-8
 
-from django.forms import ValidationError
-
 from dext.forms import forms, fields
 
 from utg import relations as utg_relations
@@ -10,24 +8,26 @@ from the_tale.common.utils import bbcode
 
 from the_tale.linguistics.forms import WordField
 
-from the_tale.game.map.relations import TERRAIN
-
-from the_tale.game.heroes.habilities import ABILITIES
-from the_tale.game.heroes.habilities.battle import HIT
-from the_tale.game.heroes.relations import ARCHETYPE
-
-from the_tale.game.mobs.models import MobRecord
-from the_tale.game.mobs.prototypes import MobRecordPrototype
-from the_tale.game.mobs.relations import MOB_TYPE
+from the_tale.game.companions import relations
 
 
 class CompanionRecordForm(forms.Form):
 
     name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название')
 
+    max_health = fields.IntegerField(label=u'здоровье', min_value=1)
+
+    type = fields.RelationField(label=u'тип', relation=relations.TYPE)
+    dedication = fields.RelationField(label=u'самоотверженность', relation=relations.DEDICATION)
+    rarity = fields.RelationField(label=u'редкость', relation=relations.RARITY)
+
     description = bbcode.BBField(label=u'Описание', required=False)
 
     @classmethod
     def get_initials(cls, companion):
         return {'description': companion.description,
+                'max_health': companion.max_health,
+                'type': companion.type,
+                'dedication': companion.dedication,
+                'rarity': companion.rarity,
                 'name': companion.utg_name}

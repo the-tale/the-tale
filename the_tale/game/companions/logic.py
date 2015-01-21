@@ -12,15 +12,25 @@ from the_tale.game.companions import relations
 from the_tale.game.companions import storage
 
 
-def create_companion_record(utg_name, description, state=relations.COMPANION_RECORD_STATE.DISABLED):
+def create_companion_record(utg_name,
+                            description,
+                            type,
+                            max_health,
+                            dedication,
+                            rarity,
+                            state=relations.STATE.DISABLED):
     model = models.CompanionRecord.objects.create(state=state,
+                                                  type=type,
+                                                  max_health=max_health,
+                                                  dedication=dedication,
+                                                  rarity=rarity,
                                                   data=s11n.to_json({'description': description,
                                                                      'name': utg_name.serialize()}))
 
     companion_record = objects.CompanionRecord.from_model(model)
 
-    storage.companions_storage.add_item(companion_record.id, companion_record)
-    storage.companions_storage.update_version()
+    storage.companions.add_item(companion_record.id, companion_record)
+    storage.companions.update_version()
 
     linguistics_logic.sync_restriction(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.COMPANION,
                                        external_id=companion_record.id,
@@ -29,16 +39,31 @@ def create_companion_record(utg_name, description, state=relations.COMPANION_REC
     return companion_record
 
 
-def update_companion_record(companion, utg_name, description, state=relations.COMPANION_RECORD_STATE.DISABLED):
+def update_companion_record(companion,
+                            utg_name,
+                            description,
+                            type,
+                            max_health,
+                            dedication,
+                            rarity,
+                            state=relations.STATE.DISABLED):
 
     companion.set_utg_name(utg_name)
     companion.description = description
+    companion.type = type
+    companion.max_health = max_health
+    companion.dedication = dedication
+    companion.rarity = rarity
 
     models.CompanionRecord.objects.filter(id=companion.id).update(state=companion.state,
+                                                                  type=type,
+                                                                  max_health=max_health,
+                                                                  dedication=dedication,
+                                                                  rarity=rarity,
                                                                   data=s11n.to_json(companion.data),
                                                                   updated_at=datetime.datetime.now())
 
-    storage.companions_storage.update_version()
+    storage.companions.update_version()
 
     linguistics_logic.sync_restriction(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.COMPANION,
                                        external_id=companion.id,

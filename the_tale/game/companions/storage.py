@@ -18,4 +18,4 @@ class CompanionsStorage(storage.Storage):
         return models.CompanionRecord.objects.all()
 
 
-companions_storage = CompanionsStorage()
+companions = CompanionsStorage()

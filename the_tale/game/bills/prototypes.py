@@ -160,7 +160,7 @@ class BillPrototype(BasePrototype):
             raise exceptions.ApplyUnapprovedBillError(bill_id=self.id)
 
         if self.time_before_voting_end != datetime.timedelta(seconds=0):
-            raise exceptions.ApplyUnapprovedBillError(bill_id=self.id)
+            raise exceptions.ApplyBillBeforeVoteWasEndedError(bill_id=self.id)
 
         self.recalculate_votes()
 

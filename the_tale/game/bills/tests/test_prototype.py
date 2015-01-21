@@ -130,7 +130,7 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.check_place(self.place1.id, self.place1.name, self.place1.utg_name.forms)
 
     def test_wrong_time(self):
-        self.assertRaises(exceptions.ApplyUnapprovedBillError, self.bill.apply)
+        self.assertRaises(exceptions.ApplyBillBeforeVoteWasEndedError, self.bill.apply)
         places_storage.sync(force=True)
         self.check_place(self.place1.id, self.place1.name, self.place1.utg_name.forms)
 
