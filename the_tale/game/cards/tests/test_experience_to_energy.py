@@ -11,7 +11,7 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import prototypes
+from the_tale.game.cards import effects
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
@@ -58,13 +58,13 @@ class ExperienceToEnergyMixin(CardsTestMixin):
 
 
 class ExperienceToEnergyUncommon(ExperienceToEnergyMixin, testcase.TestCase):
-    CARD = prototypes.ExperienceToEnergyUncommon
+    CARD = effects.ExperienceToEnergyUncommon
 
 class ExperienceToEnergyRare(ExperienceToEnergyMixin, testcase.TestCase):
-    CARD = prototypes.ExperienceToEnergyRare
+    CARD = effects.ExperienceToEnergyRare
 
 class ExperienceToEnergyEpic(ExperienceToEnergyMixin, testcase.TestCase):
-    CARD = prototypes.ExperienceToEnergyEpic
+    CARD = effects.ExperienceToEnergyEpic
 
 class ExperienceToEnergyLegendary(ExperienceToEnergyMixin, testcase.TestCase):
-    CARD = prototypes.ExperienceToEnergyLegendary
+    CARD = effects.ExperienceToEnergyLegendary

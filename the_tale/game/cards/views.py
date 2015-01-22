@@ -12,7 +12,7 @@ from the_tale.common.utils.decorators import login_required
 from the_tale.game.heroes.prototypes import HeroPrototype
 
 from the_tale.game.cards import relations
-from the_tale.game.cards import prototypes
+from the_tale.game.cards import effects
 
 
 class CARDS_ORDER(DjangoEnum):
@@ -81,7 +81,7 @@ class CardsResource(CardsResourceBase):
     def combine_dialog(self):
         hero = HeroPrototype.get_by_account_id(self.account.id)
 
-        cards = sorted(prototypes.CARDS.values(), key=lambda x: (x.TYPE.rarity.value, x.TYPE.text))
+        cards = sorted(effects.EFFECTS.values(), key=lambda x: (x.TYPE.rarity.value, x.TYPE.text))
 
         return self.template('cards/combine_dialog.html',
                              {'CARDS': cards,
@@ -96,9 +96,8 @@ class GuideCardsResource(CardsResourceBase):
     @handler('', method='get')
     def index(self, rarity=None, availability=None, order_by=CARDS_ORDER.RARITY):
         from the_tale.game.cards.relations import RARITY
-        from the_tale.game.cards.prototypes import CARDS
 
-        cards = CARDS.values()
+        cards = effects.EFFECTS.values()
 
         if availability:
             cards = [card for card in cards if card.TYPE.availability == availability]

@@ -31,6 +31,8 @@ from the_tale.game.quests.container import QuestsContainer
 
 from the_tale.game.cards.container import CardsContainer
 
+from the_tale.game.companions import objects as companions_objects
+
 from the_tale.game.heroes.statistics import HeroStatistics
 from the_tale.game.heroes.models import Hero, HeroPreferences
 from the_tale.game.heroes.habilities import AbilitiesPrototype
@@ -38,7 +40,7 @@ from the_tale.game.heroes.conf import heroes_settings
 from the_tale.game.heroes import exceptions
 from the_tale.game.heroes.pvp import PvPData
 from the_tale.game.heroes import messages
-from the_tale.game.heroes.places_help_statistics import PlacesHelpStatistics
+from the_tale.game.heroes import places_help_statistics
 from the_tale.game.heroes import relations
 from the_tale.game.heroes import habits
 from the_tale.game.heroes import logic_accessors
@@ -72,7 +74,7 @@ class HeroPrototype(BasePrototype,
                       'next_spending')
     _get_by = ('id', 'account_id')
     _serialization_proxies = (('quests', QuestsContainer, heroes_settings.UNLOAD_TIMEOUT),
-                              ('places_history', PlacesHelpStatistics, heroes_settings.UNLOAD_TIMEOUT),
+                              ('places_history', places_help_statistics.PlacesHelpStatistics, heroes_settings.UNLOAD_TIMEOUT),
                               ('cards', CardsContainer, heroes_settings.UNLOAD_TIMEOUT),
                               ('pvp', PvPData, heroes_settings.UNLOAD_TIMEOUT),
                               ('diary', messages.DiaryContainer, heroes_settings.UNLOAD_TIMEOUT),
@@ -375,6 +377,27 @@ class HeroPrototype(BasePrototype,
     def actions(self): return ActionsContainer.deserialize(self, s11n.from_json(self._model.actions))
 
     @lazy_property
+    def companion(self):
+        companion_data = self.data.get('companion')
+
+        if companion_data is None:
+            return None
+
+        return companions_objects.Companion.deserialize(companion_data)
+
+    def set_companion(self, companion):
+        del self.companion
+        self.data['companion'] = companion.serialize()
+
+    def serialize_companion(self):
+        if self.companion is None:
+            self.data['companion'] = None
+            return
+
+        self.data['companion'] = self.companion.serialize()
+
+
+    @lazy_property
     def messages(self): return messages.JournalContainer.deserialize(self, s11n.from_json(self._model.messages))
 
     def push_message(self, message, diary=False, journal=True):
@@ -440,6 +463,8 @@ class HeroPrototype(BasePrototype,
     def save(self):
         self._model.saved_at_turn = TimePrototype.get_current_turn_number()
         self._model.saved_at = datetime.datetime.now()
+
+        self.serialize_companion()
 
         self._model.data = s11n.to_json(self.data)
 
@@ -549,6 +574,7 @@ class HeroPrototype(BasePrototype,
                             'bonus': self.energy_bonus,
                             'discount': self.energy_discount},
                 'action': self.actions.current_action.ui_info(),
+                'companion': self.companion.ui_info() if self.companion else None,
                 # 'pvp' will be filled in modify_ui_info_with_turn
                 'pvp__actual': self.pvp.ui_info(),
                 'pvp__last_turn': self.pvp.turn_ui_info(),

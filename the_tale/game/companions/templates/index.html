@@ -24,13 +24,27 @@
 <table class="table table-condensed">
   <thead>
     <tr>
+      <th width="10px"></th>
       <th>название</th>
+      <th>тип</th>
+      <th>самоотверженность</th>
+      <th>максимум здоровья</th>
     </tr>
   </thead>
   <tbody>
     {% for companion in companions %}
     <tr>
+      <td>
+        <div class="{{companion.rarity.name|lower}}-card-bg"
+             style="height: 10px; width: 10px; margin-top: 5px; cursor: pointer;"
+             rel="tooltip"
+             title="{{companion.rarity.text}}"></div>
+      </td>
+
       <td><a href="{{url('guide:companions:show', companion.id)}}">{{companion.name}}</a></td>
+      <td>{{companion.type.text}}</td>
+      <td>{{companion.dedication.text}}</td>
+      <td>{{companion.max_health}}</td>
     {% endfor %}
   </tbody>
 </table>

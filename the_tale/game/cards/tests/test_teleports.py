@@ -9,7 +9,7 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import prototypes
+from the_tale.game.cards import effects
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
@@ -17,7 +17,7 @@ from the_tale.game.cards.tests.helpers import CardsTestMixin
 from the_tale.game.actions import prototypes as actions_prototypes
 
 class ShortTeleportTests(CardsTestMixin, testcase.TestCase):
-    CARD = prototypes.ShortTeleport
+    CARD = effects.ShortTeleport
 
     def setUp(self):
         super(ShortTeleportTests, self).setUp()
@@ -87,7 +87,7 @@ class ShortTeleportTests(CardsTestMixin, testcase.TestCase):
 
 
 class LongTeleportTests(CardsTestMixin, testcase.TestCase):
-    CARD = prototypes.LongTeleport
+    CARD = effects.LongTeleport
 
     def setUp(self):
         super(LongTeleportTests, self).setUp()

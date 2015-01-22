@@ -30,6 +30,9 @@ class Companion(object):
         return obj
 
     @property
+    def name(self): return self.record.name
+
+    @property
     def utg_name(self): return self.record.utg_name
 
     @property
@@ -37,11 +40,10 @@ class Companion(object):
 
 
     def ui_info(self):
-        return {'name': self.utg_name.normalize_name(),#TODO: optimzie call? through caching?
+        return {'name': self.name,
                 'health': self.health,
                 'max_health': self.max_health,
                 'coherence': self.coherence}
-
 
 
 class CompanionRecord(names.ManageNameMixin):
@@ -72,6 +74,7 @@ class CompanionRecord(names.ManageNameMixin):
                    max_health=model.max_health,
                    dedication=model.dedication,
                    rarity=model.rarity)
+
 
     def get_description(self): return self.data['description']
     def set_description(self, value): self.data['description'] = value

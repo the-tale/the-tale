@@ -8,7 +8,7 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import prototypes
+from the_tale.game.cards import effects
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
@@ -42,16 +42,16 @@ class AddBonusEnergyTestMixin(CardsTestMixin):
 
 
 class AddBonusEnergyCommonTests(AddBonusEnergyTestMixin, testcase.TestCase):
-    CARD = prototypes.AddBonusEnergyCommon
+    CARD = effects.AddBonusEnergyCommon
 
 class AddBonusEnergyUncommonTests(AddBonusEnergyTestMixin, testcase.TestCase):
-    CARD = prototypes.AddBonusEnergyUncommon
+    CARD = effects.AddBonusEnergyUncommon
 
 class AddBonusEnergyRareTests(AddBonusEnergyTestMixin, testcase.TestCase):
-    CARD = prototypes.AddBonusEnergyRare
+    CARD = effects.AddBonusEnergyRare
 
 class AddBonusEnergyEpicTests(AddBonusEnergyTestMixin, testcase.TestCase):
-    CARD = prototypes.AddBonusEnergyEpic
+    CARD = effects.AddBonusEnergyEpic
 
 class AddBonusEnergyLegendaryTests(AddBonusEnergyTestMixin, testcase.TestCase):
-    CARD = prototypes.AddBonusEnergyLegendary
+    CARD = effects.AddBonusEnergyLegendary

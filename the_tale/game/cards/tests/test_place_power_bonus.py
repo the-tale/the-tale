@@ -12,7 +12,7 @@ from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import prototypes
+from the_tale.game.cards import effects
 from the_tale.game.cards.tests.helpers import CardsTestMixin
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
@@ -73,26 +73,26 @@ class PlacePowerBonusMixin(CardsTestMixin):
 
 
 class PlacePowerBonusPositiveUncommonTests(PlacePowerBonusMixin, testcase.TestCase):
-    CARD = prototypes.PlacePowerBonusPositiveUncommon
+    CARD = effects.PlacePowerBonusPositiveUncommon
 
 class PlacePowerBonusPositiveRareTests(PlacePowerBonusMixin, testcase.TestCase):
-    CARD = prototypes.PlacePowerBonusPositiveRare
+    CARD = effects.PlacePowerBonusPositiveRare
 
 class PlacePowerBonusPositiveEpicTests(PlacePowerBonusMixin, testcase.TestCase):
-    CARD = prototypes.PlacePowerBonusPositiveEpic
+    CARD = effects.PlacePowerBonusPositiveEpic
 
 class PlacePowerBonusPositiveLegendaryTests(PlacePowerBonusMixin, testcase.TestCase):
-    CARD = prototypes.PlacePowerBonusPositiveLegendary
+    CARD = effects.PlacePowerBonusPositiveLegendary
 
 
 class PlacePowerBonusNegativeUncommonTests(PlacePowerBonusMixin, testcase.TestCase):
-    CARD = prototypes.PlacePowerBonusNegativeUncommon
+    CARD = effects.PlacePowerBonusNegativeUncommon
 
 class PlacePowerBonusNegativeRareTests(PlacePowerBonusMixin, testcase.TestCase):
-    CARD = prototypes.PlacePowerBonusNegativeRare
+    CARD = effects.PlacePowerBonusNegativeRare
 
 class PlacePowerBonusNegativeEpicTests(PlacePowerBonusMixin, testcase.TestCase):
-    CARD = prototypes.PlacePowerBonusNegativeEpic
+    CARD = effects.PlacePowerBonusNegativeEpic
 
 class PlacePowerBonusNegativeLegendaryTests(PlacePowerBonusMixin, testcase.TestCase):
-    CARD = prototypes.PlacePowerBonusNegativeLegendary
+    CARD = effects.PlacePowerBonusNegativeLegendary

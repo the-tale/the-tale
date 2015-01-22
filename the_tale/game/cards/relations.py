@@ -148,4 +148,10 @@ class CARD_TYPE(DjangoEnum):
                 ('SHARP_RANDOM_ARTIFACT', 88, u'волшебное точило', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
                 ('SHARP_ALL_ARTIFACTS', 89, u'суть вещей', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm,),
 
+                ('GET_COMPANION_COMMON', 90, u'обычный спутник', AVAILABILITY.FOR_ALL, RARITY.COMMON, forms.EmptyForm),
+                ('GET_COMPANION_UNCOMMON', 91, u'необычный спутник', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm),
+                ('GET_COMPANION_RARE', 92, u'редкий спутник', AVAILABILITY.FOR_ALL, RARITY.RARE, forms.EmptyForm),
+                ('GET_COMPANION_EPIC', 93, u'эпический спутник', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm),
+                ('GET_COMPANION_LEGENDARY', 94, u'легендарный спутник', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm),
+
                 )

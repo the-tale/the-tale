@@ -14,7 +14,7 @@ from the_tale.game import names
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.cards import relations
-from the_tale.game.cards.prototypes import CARDS
+from the_tale.game.cards.effects import EFFECTS
 from the_tale.game.cards import objects
 
 from the_tale.game.map.places.prototypes import BuildingPrototype
@@ -104,15 +104,15 @@ class TestIndexRequests(CardsRequestsTestsBase):
         super(TestIndexRequests, self).setUp()
 
     def test_simple(self):
-        texts = [card.TYPE.text for card in CARDS.values()]
+        texts = [card.TYPE.text for card in EFFECTS.values()]
         self.check_html_ok(self.request_html(url('guide:cards:')), texts=texts)
 
     def test_rarity_filter(self):
         for rarity in relations.RARITY.records:
-            texts = [card.TYPE.text for card in CARDS.values() if card.TYPE.rarity == rarity]
+            texts = [card.TYPE.text for card in EFFECTS.values() if card.TYPE.rarity == rarity]
             self.check_html_ok(self.request_html(url('guide:cards:')), texts=texts)
 
     def test_availability_filter(self):
         for availability in relations.AVAILABILITY.records:
-            texts = [card.TYPE.text for card in CARDS.values() if card.TYPE.availability == availability]
+            texts = [card.TYPE.text for card in EFFECTS.values() if card.TYPE.availability == availability]
             self.check_html_ok(self.request_html(url('guide:cards:')), texts=texts)

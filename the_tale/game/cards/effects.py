@@ -29,10 +29,15 @@ from the_tale.game.heroes.relations import PREFERENCE_TYPE, ITEMS_OF_EXPENDITURE
 from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.artifacts.relations import RARITY as ARTIFACT_RARITY
 
+from the_tale.game.companions import relations as companions_relations
+from the_tale.game.companions import storage as companions_storage
+from the_tale.game.companions import logic as companions_logic
+
 from the_tale.game.cards.postponed_tasks import UseCardTask
+from the_tale.game.cards import objects
 
 
-class CardBase(object):
+class BaseEffect(object):
     TYPE = None
 
     def activate(self, hero, card_uid, data):
@@ -63,8 +68,15 @@ class CardBase(object):
         hero.statistics.change_cards_used(1)
 
 
+    def create_card(self, available_for_auction):
+        return objects.Card(type=self.TYPE, available_for_auction=available_for_auction)
 
-class LevelUp(CardBase):
+    def name_for_card(self, card):
+        return self.TYPE.text
+
+
+
+class LevelUp(BaseEffect):
     TYPE = relations.CARD_TYPE.LEVEL_UP
     DESCRIPTION = u'Герой получает новый уровень. Накопленный опыт не сбрасывается.'
 
@@ -73,7 +85,7 @@ class LevelUp(CardBase):
         return task.logic_result()
 
 
-class AddExperienceBase(CardBase):
+class AddExperienceBase(BaseEffect):
     TYPE = None
     EXPERIENCE = None
 
@@ -107,7 +119,7 @@ class AddExperienceEpic(AddExperienceBase):
     EXPERIENCE = AddExperienceRare.EXPERIENCE * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
 
 
-class AddPowerBase(CardBase):
+class AddPowerBase(BaseEffect):
     TYPE = None
     POWER = None
 
@@ -141,7 +153,7 @@ class AddPowerEpic(AddPowerBase):
     POWER = AddPowerRare.POWER * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
 
 
-class AddBonusEnergyBase(CardBase):
+class AddBonusEnergyBase(BaseEffect):
     TYPE = None
     ENERGY = None
 
@@ -174,7 +186,7 @@ class AddBonusEnergyLegendary(AddBonusEnergyBase):
     ENERGY = AddBonusEnergyEpic.ENERGY * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
 
 
-class AddGoldBase(CardBase):
+class AddGoldBase(BaseEffect):
     TYPE = None
     GOLD = None
 
@@ -201,7 +213,7 @@ class AddGoldRare(AddGoldBase):
     GOLD = AddGoldUncommon.GOLD * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
 
 
-class ChangeHabitBase(CardBase):
+class ChangeHabitBase(BaseEffect):
     TYPE = None
     HABIT = None
     POINTS = None
@@ -311,7 +323,7 @@ class ChangeHabitPeacefulnessMinusLegendary(ChangeHabitBase):
     POINTS = ChangeHabitPeacefulnessMinusEpic.POINTS * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
 
 
-class PreferencesCooldownsResetBase(CardBase):
+class PreferencesCooldownsResetBase(BaseEffect):
     TYPE = None
     PREFERENCE = None
 
@@ -366,7 +378,7 @@ class PreferencesCooldownsResetArchetype(PreferencesCooldownsResetBase):
     PREFERENCE = PREFERENCE_TYPE.ARCHETYPE
 
 
-class PreferencesCooldownsResetAll(CardBase):
+class PreferencesCooldownsResetAll(BaseEffect):
     TYPE = relations.CARD_TYPE.PREFERENCES_COOLDOWNS_RESET_ALL
 
     DESCRIPTION = u'Сбрасывает задержку на изменение всех предпочтений.'
@@ -378,7 +390,7 @@ class PreferencesCooldownsResetAll(CardBase):
         return task.logic_result()
 
 
-class ChangeAbilitiesChoices(CardBase):
+class ChangeAbilitiesChoices(BaseEffect):
     TYPE = relations.CARD_TYPE.CHANGE_ABILITIES_CHOICES
     DESCRIPTION = u'Изменяет список предлагаемых герою способностей (при выборе новой способности).'
 
@@ -391,7 +403,7 @@ class ChangeAbilitiesChoices(CardBase):
         return task.logic_result()
 
 
-class ChangeItemOfExpenditureBase(CardBase):
+class ChangeItemOfExpenditureBase(BaseEffect):
     TYPE = None
     ITEM = None
 
@@ -429,7 +441,7 @@ class ChangeHeroSpendingsToRepairingArtifact(ChangeItemOfExpenditureBase):
     ITEM = ITEMS_OF_EXPENDITURE.REPAIRING_ARTIFACT
 
 
-class RepairRandomArtifact(CardBase):
+class RepairRandomArtifact(BaseEffect):
     TYPE = relations.CARD_TYPE.REPAIR_RANDOM_ARTIFACT
     DESCRIPTION = u'Чинит случайный артефакт из экипировки героя.'
 
@@ -446,7 +458,7 @@ class RepairRandomArtifact(CardBase):
         return task.logic_result(message=u'Целостность артефакта %(artifact)s полностью восстановлена.' % {'artifact': artifact.html_label()})
 
 
-class RepairAllArtifacts(CardBase):
+class RepairAllArtifacts(BaseEffect):
     TYPE = relations.CARD_TYPE.REPAIR_ALL_ARTIFACTS
     DESCRIPTION = u'Чинит все артефакты из экипировки героя.'
 
@@ -460,7 +472,7 @@ class RepairAllArtifacts(CardBase):
         return task.logic_result()
 
 
-class CancelQuest(CardBase):
+class CancelQuest(BaseEffect):
     TYPE = relations.CARD_TYPE.CANCEL_QUEST
     DESCRIPTION = u'Отменяет текущее задание героя.'
 
@@ -474,7 +486,7 @@ class CancelQuest(CardBase):
         return task.logic_result()
 
 
-class GetArtifactBase(CardBase):
+class GetArtifactBase(BaseEffect):
     TYPE = None
     DESCRIPTION = None
 
@@ -530,7 +542,7 @@ class GetArtifactEpic(GetArtifactBase):
     INTERVAL = 1
 
 
-class InstantMonsterKill(CardBase):
+class InstantMonsterKill(BaseEffect):
     TYPE = relations.CARD_TYPE.INSTANT_MONSTER_KILL
     DESCRIPTION = u'Мгновенно убивает монстра, с которым сражается герой.'
 
@@ -545,7 +557,7 @@ class InstantMonsterKill(CardBase):
 
 
 
-class KeepersGoodsBase(CardBase):
+class KeepersGoodsBase(BaseEffect):
     TYPE = None
     GOODS = None
 
@@ -598,7 +610,7 @@ class KeepersGoodsLegendary(KeepersGoodsBase):
 
 
 
-class RepairBuilding(CardBase):
+class RepairBuilding(BaseEffect):
     TYPE = relations.CARD_TYPE.REPAIR_BUILDING
 
     DESCRIPTION = u'Полностью ремонтирует указанное строение.'
@@ -627,7 +639,7 @@ class RepairBuilding(CardBase):
 
 
 
-class PersonPowerBonusBase(CardBase):
+class PersonPowerBonusBase(BaseEffect):
     TYPE = None
     BONUS = None
 
@@ -676,7 +688,7 @@ class PersonPowerBonusLegendary(PersonPowerBonusBase):
 
 
 
-class PlacePowerBonusBase(CardBase):
+class PlacePowerBonusBase(BaseEffect):
     TYPE = None
     BONUS = None
 
@@ -754,7 +766,7 @@ class PlacePowerBonusNegativeLegendary(PlacePowerBonusBase):
     BONUS = PlacePowerBonusNegativeEpic.BONUS * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
 
 
-class HelpPlaceBase(CardBase):
+class HelpPlaceBase(BaseEffect):
     TYPE = None
     HELPS = None
 
@@ -801,7 +813,7 @@ class HelpPlaceLegendary(HelpPlaceBase):
     HELPS =  HelpPlaceEpic.HELPS * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
 
 
-class ShortTeleport(CardBase):
+class ShortTeleport(BaseEffect):
     TYPE = relations.CARD_TYPE.SHORT_TELEPORT
 
     DESCRIPTION = u'Телепортирует героя до ближайшего города либо до ближайшей ключевой точки задания. Работает только во время движения по дорогам.'
@@ -816,7 +828,7 @@ class ShortTeleport(CardBase):
         return task.logic_result()
 
 
-class LongTeleport(CardBase):
+class LongTeleport(BaseEffect):
     TYPE = relations.CARD_TYPE.LONG_TELEPORT
 
     DESCRIPTION = u'Телепортирует героя в конечную точку назначения либо до ближайшей ключевой точки задания. Работает только во время движения по дорогам.'
@@ -832,7 +844,7 @@ class LongTeleport(CardBase):
         return task.logic_result()
 
 
-class ExperienceToEnergyBase(CardBase):
+class ExperienceToEnergyBase(BaseEffect):
     TYPE = None
     EXPERIENCE = None
 
@@ -867,7 +879,7 @@ class ExperienceToEnergyLegendary(ExperienceToEnergyBase):
     EXPERIENCE = 2
 
 
-class SharpRandomArtifact(CardBase):
+class SharpRandomArtifact(BaseEffect):
     TYPE = relations.CARD_TYPE.SHARP_RANDOM_ARTIFACT
     DESCRIPTION = u'Улучшает случайный артефакт из экипировки героя.'
 
@@ -885,7 +897,7 @@ class SharpRandomArtifact(CardBase):
 
 
 
-class SharpAllArtifacts(CardBase):
+class SharpAllArtifacts(BaseEffect):
     TYPE = relations.CARD_TYPE.SHARP_ALL_ARTIFACTS
     DESCRIPTION = u'Улучшает все артефакты из экипировки героя.'
 
@@ -902,7 +914,64 @@ class SharpAllArtifacts(CardBase):
         return task.logic_result(message=u'Вся экипировка героя улучшена')
 
 
+class GetCompanionBase(BaseEffect):
+    TYPE = None
+    RARITY = None
 
-CARDS = {card_class.TYPE: card_class()
-         for card_class in discovering.discover_classes(globals().values(), CardBase)
-         if card_class.TYPE is not None}
+    @property
+    def DESCRIPTION(self):
+        return u'Герой получает спутника, указанного в названии карты. Если у героя уже есть спутник, он покинет героя.'
+
+
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        card = task.hero.cards.get_card(task.data['card_uid'])
+
+        companion = companions_logic.create_companion(companions_storage.companions[card.data['companion_id']])
+
+        task.hero.set_companion(companion)
+
+        return task.logic_result(message=u'Поздравляем! Ваш герой получил нового спутника.')
+
+
+    def create_card(self, available_for_auction):
+        available_companions = [companion
+                                for companion in companions_storage.companions.all()
+                                if companion.rarity == self.RARITY]
+
+        if not available_companions:
+            available_companions = companions_storage.companions.all()
+
+        card_companion = random.choice(available_companions)
+
+        return objects.Card(type=self.TYPE, available_for_auction=available_for_auction, data={'companion_id': card_companion.id})
+
+
+    def name_for_card(self, card):
+        return self.TYPE.text + u': ' + companions_storage.companions[card.data['companion_id']].name
+
+
+
+class GetCompanionCommon(GetCompanionBase):
+    TYPE = relations.CARD_TYPE.GET_COMPANION_COMMON
+    RARITY = companions_relations.RARITY.COMMON
+
+class GetCompanionUncommon(GetCompanionBase):
+    TYPE = relations.CARD_TYPE.GET_COMPANION_UNCOMMON
+    RARITY = companions_relations.RARITY.UNCOMMON
+
+class GetCompanionRare(GetCompanionBase):
+    TYPE = relations.CARD_TYPE.GET_COMPANION_RARE
+    RARITY = companions_relations.RARITY.RARE
+
+class GetCompanionEpic(GetCompanionBase):
+    TYPE = relations.CARD_TYPE.GET_COMPANION_EPIC
+    RARITY = companions_relations.RARITY.EPIC
+
+class GetCompanionLegendary(GetCompanionBase):
+    TYPE = relations.CARD_TYPE.GET_COMPANION_LEGENDARY
+    RARITY = companions_relations.RARITY.LEGENDARY
+
+
+EFFECTS = {card_class.TYPE: card_class()
+           for card_class in discovering.discover_classes(globals().values(), BaseEffect)
+           if card_class.TYPE is not None}

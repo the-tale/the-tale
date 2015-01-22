@@ -9,7 +9,7 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import prototypes
+from the_tale.game.cards import effects
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
@@ -23,7 +23,7 @@ class RepairArtifacsTestMixin(CardsTestMixin):
 
 
 class RepairRandomArtifactTests(RepairArtifacsTestMixin, testcase.TestCase):
-    CARD = prototypes.RepairRandomArtifact
+    CARD = effects.RepairRandomArtifact
 
     def setUp(self):
         super(RepairRandomArtifactTests, self).setUp()
@@ -73,7 +73,7 @@ class RepairRandomArtifactTests(RepairArtifacsTestMixin, testcase.TestCase):
 
 
 class RepairAllArtifactsTests(RepairArtifacsTestMixin, testcase.TestCase):
-    CARD = prototypes.RepairAllArtifacts
+    CARD = effects.RepairAllArtifacts
 
     def setUp(self):
         super(RepairAllArtifactsTests, self).setUp()

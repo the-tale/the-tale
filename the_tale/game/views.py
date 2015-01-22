@@ -23,7 +23,7 @@ from the_tale.game.conf import game_settings
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
 from the_tale.game import logic as game_logic
 
-from the_tale.game.cards.prototypes import CARDS
+from the_tale.game.cards.effects import EFFECTS
 
 
 class GameResource(Resource):
@@ -44,7 +44,7 @@ class GameResource(Resource):
         if self.account.clan_id is not None:
             clan = ClanPrototype.get_by_id(self.account.clan_id)
 
-        cards = sorted(CARDS.values(), key=lambda x: (x.TYPE.rarity.value, x.TYPE.text))
+        cards = sorted(EFFECTS.values(), key=lambda x: (x.TYPE.rarity.value, x.TYPE.text))
 
         return self.template('game/game_page.html',
                              {'map_settings': map_settings,

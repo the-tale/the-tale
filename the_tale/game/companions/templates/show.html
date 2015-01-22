@@ -1,5 +1,6 @@
 {% extends "guide/base.html" %}
 {% import 'guide/macros.html' as guide_macros with context %}
+{% import 'companions/macros.html' as companions_macros with context %}
 
 {% block title %}{{companion.name|up_first}} | Спутники | {{ super() }}{% endblock %}
 {% block description %}Описание спутника {{companion.name|up_first}}{% endblock %}
@@ -14,7 +15,13 @@
     {# TODO #}
   {% endif %}
 
-  {% if context.companions_can_edit %}
+  {% if context.companions_can_moderate and companion.state.is_DISABLED %}
+  <li class="pull-right pgf-enable-companion-button" style="margin-left: 1em;">
+    <a class="pgf-forms-post-simple" href="{{url('game:companions:enable', companion.id)}}">в игру</a>
+  </li>
+  {% endif %}
+
+  {% if context.companions_can_edit or context.companions_can_moderate  %}
   <li class="pull-right pgf-edit-companion-button"><a href="{{url('game:companions:edit', companion.id)}}">редактировать</a></li>
   {% endif %}
 
@@ -22,16 +29,14 @@
 
 {{ guide_macros.page_caption(companion.name|up_first, "Описание спутника") }}
 
-<p>
-  {{companion.description_html|safe}}
-</p>
+{{ companions_macros.companion_info(companion) }}
 
 {% if context.companions_can_edit or context.companions_can_moderate %}
 
   <h4>Количество обязательных фраз в игре</h4>
 
   <p>
-    Спутника можно добавлять впускать в игру, когда для каждого типа фраз есть хотя бы одна внесённая в игру.
+    Спутника можно впускать в игру, когда для каждого типа фраз есть хотя бы одна внесённая в игру.
   </p>
 
 <table class="table">

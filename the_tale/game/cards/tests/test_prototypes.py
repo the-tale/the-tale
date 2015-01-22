@@ -10,7 +10,7 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.cards import relations
-from the_tale.game.cards import prototypes
+from the_tale.game.cards import effects
 from the_tale.game.cards import objects
 
 
@@ -27,7 +27,7 @@ class PrototypesTests(testcase.TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.card_effect = prototypes.CARDS[relations.CARD_TYPE.KEEPERS_GOODS_COMMON]
+        self.card_effect = effects.EFFECTS[relations.CARD_TYPE.KEEPERS_GOODS_COMMON]
         self.card_1 = objects.Card(relations.CARD_TYPE.KEEPERS_GOODS_COMMON)
 
         self.hero.cards.add_card(self.card_1)

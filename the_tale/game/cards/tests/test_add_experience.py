@@ -9,7 +9,7 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import prototypes
+from the_tale.game.cards import effects
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 from the_tale.game.quests.logic import create_random_quest_for_hero
@@ -61,16 +61,16 @@ class AddExperienceTestMixin(CardsTestMixin):
 
 
 class AddExperiencecommonTests(AddExperienceTestMixin, testcase.TestCase):
-    CARD = prototypes.AddExperienceCommon
+    CARD = effects.AddExperienceCommon
 
 
 class AddExperienceUncommonTests(AddExperienceTestMixin, testcase.TestCase):
-    CARD = prototypes.AddExperienceUncommon
+    CARD = effects.AddExperienceUncommon
 
 
 class AddExperienceRareTests(AddExperienceTestMixin, testcase.TestCase):
-    CARD = prototypes.AddExperienceRare
+    CARD = effects.AddExperienceRare
 
 
 class AddExperienceEpicTests(AddExperienceTestMixin, testcase.TestCase):
-    CARD = prototypes.AddExperienceEpic
+    CARD = effects.AddExperienceEpic

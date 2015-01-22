@@ -7,7 +7,7 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import prototypes
+from the_tale.game.cards import effects
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
@@ -15,7 +15,7 @@ from the_tale.game.cards.tests.helpers import CardsTestMixin
 
 
 class SharpRandomArtifactTests(CardsTestMixin, testcase.TestCase):
-    CARD = prototypes.SharpRandomArtifact
+    CARD = effects.SharpRandomArtifact
 
     def setUp(self):
         super(SharpRandomArtifactTests, self).setUp()
@@ -41,7 +41,7 @@ class SharpRandomArtifactTests(CardsTestMixin, testcase.TestCase):
 
 
 class SharpAllArtifactsTests(CardsTestMixin, testcase.TestCase):
-    CARD = prototypes.SharpAllArtifacts
+    CARD = effects.SharpAllArtifacts
 
     def setUp(self):
         super(SharpAllArtifactsTests, self).setUp()

@@ -26,6 +26,7 @@
           <li class="nav-element {% if section=='pvp' %}active{% endif %}"><a href="{{ url('guide:pvp') }}">PvP</a></li>
           <li class="nav-element {% if section=='mobs' %}active{% endif %}"><a href="{{ url('guide:mobs:') }}">Бестиарий</a></li>
           <li class="nav-element {% if section=='artifacts' %}active{% endif %}"><a href="{{ url('guide:artifacts:') }}">Артефакты</a></li>
+          <li class="nav-element {% if section=='companions' %}active{% endif %}"><a href="{{ url('guide:companions:') }}">Спутники</a></li>
 
           <li class="nav-header {% if section=='' %}active{% endif %}">{{get_cms_section_info("world").caption}}</li>
           <li class="nav-element {% if section=='intro-comix' %}active{% endif %}"><a href="{{ url('guide:intro-comix') }}">Комикс-предыстория</a></li>

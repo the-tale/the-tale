@@ -43,6 +43,9 @@ from the_tale.game.map.roads.storage import roads_storage, waymarks_storage
 from the_tale.game.map.roads.prototypes import RoadPrototype
 from the_tale.game.map.roads.logic import update_waymarks
 
+from the_tale.game.companions import logic as companions_logic
+from the_tale.game.companions import relations as companions_relations
+
 
 DEFAULT_HERO_EQUIPMENT = create_enum('DEFAULT_HERO_EQUIPMENT', ( ('PANTS', 'default_pants', u'штаны'),
                                                                  ('BOOTS', 'default_boots', u'обувь'),
@@ -98,6 +101,12 @@ def create_test_map():
     ArtifactRecordPrototype.create_random(DEFAULT_HERO_EQUIPMENT.PLATE, type_=ARTIFACT_TYPE.PLATE)
     ArtifactRecordPrototype.create_random(DEFAULT_HERO_EQUIPMENT.GLOVES, type_=ARTIFACT_TYPE.GLOVES)
     ArtifactRecordPrototype.create_random(DEFAULT_HERO_EQUIPMENT.WEAPON, type_=ARTIFACT_TYPE.MAIN_HAND)
+
+    companions_logic.create_random_companion_record('common', rarity=companions_relations.RARITY.COMMON, dedication=companions_relations.DEDICATION.HEROIC)
+    companions_logic.create_random_companion_record('uncommon', rarity=companions_relations.RARITY.UNCOMMON, dedication=companions_relations.DEDICATION.VALIANT)
+    companions_logic.create_random_companion_record('rare', rarity=companions_relations.RARITY.RARE, dedication=companions_relations.DEDICATION.BRAVE)
+    companions_logic.create_random_companion_record('epic', rarity=companions_relations.RARITY.EPIC, dedication=companions_relations.DEDICATION.BOLD)
+    companions_logic.create_random_companion_record('legendary', rarity=companions_relations.RARITY.LEGENDARY, dedication=companions_relations.DEDICATION.INDECISIVE)
 
     return p1, p2, p3
 

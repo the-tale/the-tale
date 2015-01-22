@@ -11,7 +11,6 @@ from the_tale.game.logic import create_test_map
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.cards import relations as cards_relations
-from the_tale.game.cards.prototypes import CARDS
 from the_tale.game.cards import objects as cards_objects
 
 from the_tale.game.heroes.postponed_tasks import CombineCardsTask

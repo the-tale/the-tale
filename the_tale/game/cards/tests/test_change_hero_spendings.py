@@ -9,7 +9,7 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import prototypes
+from the_tale.game.cards import effects
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
@@ -27,7 +27,7 @@ class ChangeHeroSpendingsCommonTests(testcase.TestCase):
     def test_no_new_spendigns(self):
         items = []
 
-        for card in prototypes.CARDS.values():
+        for card in effects.EFFECTS.values():
             if hasattr(card, 'ITEM'):
                 items.append(card.ITEM)
 
@@ -91,16 +91,16 @@ class ChangeHeroSpendingsMixin(CardsTestMixin):
 
 
 class ChangeHeroSpendingsToInstantHealTests(ChangeHeroSpendingsMixin, testcase.TestCase):
-    CARD = prototypes.ChangeHeroSpendingsToInstantHeal
+    CARD = effects.ChangeHeroSpendingsToInstantHeal
 
 class ChangeHeroSpendingsToBuyingArtifactTests(ChangeHeroSpendingsMixin, testcase.TestCase):
-    CARD = prototypes.ChangeHeroSpendingsToBuyingArtifact
+    CARD = effects.ChangeHeroSpendingsToBuyingArtifact
 
 class ChangeHeroSpendingsToSharpeingArtifactTests(ChangeHeroSpendingsMixin, testcase.TestCase):
-    CARD = prototypes.ChangeHeroSpendingsToSharpeingArtifact
+    CARD = effects.ChangeHeroSpendingsToSharpeingArtifact
 
 class ChangeHeroSpendingsToRepairingArtifactTests(ChangeHeroSpendingsMixin, testcase.TestCase):
-    CARD = prototypes.ChangeHeroSpendingsToRepairingArtifact
+    CARD = effects.ChangeHeroSpendingsToRepairingArtifact
 
 class ChangeHeroSpendingsToExperienceTests(ChangeHeroSpendingsMixin, testcase.TestCase):
-    CARD = prototypes.ChangeHeroSpendingsToExperience
+    CARD = effects.ChangeHeroSpendingsToExperience

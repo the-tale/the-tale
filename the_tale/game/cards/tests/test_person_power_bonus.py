@@ -12,7 +12,7 @@ from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import prototypes
+from the_tale.game.cards import effects
 from the_tale.game.cards.tests.helpers import CardsTestMixin
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
@@ -75,13 +75,13 @@ class PersonPowerBonusMixin(CardsTestMixin):
 
 
 class PersonPowerBonusUncommon(PersonPowerBonusMixin, testcase.TestCase):
-    CARD = prototypes.PersonPowerBonusUncommon
+    CARD = effects.PersonPowerBonusUncommon
 
 class PersonPowerBonusRare(PersonPowerBonusMixin, testcase.TestCase):
-    CARD = prototypes.PersonPowerBonusRare
+    CARD = effects.PersonPowerBonusRare
 
 class PersonPowerBonusEpic(PersonPowerBonusMixin, testcase.TestCase):
-    CARD = prototypes.PersonPowerBonusEpic
+    CARD = effects.PersonPowerBonusEpic
 
 class PersonPowerBonusLegendary(PersonPowerBonusMixin, testcase.TestCase):
-    CARD = prototypes.PersonPowerBonusLegendary
+    CARD = effects.PersonPowerBonusLegendary

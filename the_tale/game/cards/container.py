@@ -7,6 +7,7 @@ from the_tale.game.cards import relations
 from the_tale.game.cards import exceptions
 from the_tale.game.cards import objects
 from the_tale.game.cards import goods_types
+from the_tale.game.cards import logic
 
 
 class CardsContainer(object):
@@ -114,7 +115,7 @@ class CardsContainer(object):
 
         card_type = random_value_by_priority(prioritites)
 
-        card = objects.Card(type=card_type, available_for_auction=available_for_auction)
+        card = logic.create_card(type=card_type, available_for_auction=available_for_auction)
 
         self.add_card(card)
 

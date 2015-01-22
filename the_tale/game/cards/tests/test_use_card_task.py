@@ -17,7 +17,7 @@ from the_tale.game import names
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import prototypes
+from the_tale.game.cards import effects
 from the_tale.game.cards import objects
 from the_tale.game.cards.postponed_tasks import UseCardTask
 
@@ -53,7 +53,7 @@ class UseCardTaskTests(testcase.TestCase):
 
     def test_create(self):
 
-        for card_effect in prototypes.CARDS.values():
+        for card_effect in effects.EFFECTS.values():
             card = objects.Card(card_effect.TYPE)
             self.hero.cards.add_card(card)
 
@@ -63,7 +63,7 @@ class UseCardTaskTests(testcase.TestCase):
             self.assertTrue(task.internal_logic.state.is_UNPROCESSED)
 
     def test_serialization(self):
-        card_effect = random.choice(prototypes.CARDS.values())
+        card_effect = random.choice(effects.EFFECTS.values())
         card = objects.Card(card_effect.TYPE)
         self.hero.cards.add_card(card)
 
@@ -72,7 +72,7 @@ class UseCardTaskTests(testcase.TestCase):
         self.assertEqual(task.serialize(), UseCardTask.deserialize(task.serialize()).serialize())
 
     def test_response_data(self):
-        card_effect = random.choice(prototypes.CARDS.values())
+        card_effect = random.choice(effects.EFFECTS.values())
         card = objects.Card(card_effect.TYPE)
         self.hero.cards.add_card(card)
 
@@ -84,7 +84,7 @@ class UseCardTaskTests(testcase.TestCase):
 
     def test_process_can_not_process(self):
 
-        card_effect = random.choice(prototypes.CARDS.values())
+        card_effect = random.choice(effects.EFFECTS.values())
         card = objects.Card(card_effect.TYPE)
         self.hero.cards.add_card(card)
 
@@ -95,7 +95,7 @@ class UseCardTaskTests(testcase.TestCase):
             self.assertEqual(task.state, UseCardTask.STATE.CAN_NOT_PROCESS)
 
     def test_process_success(self):
-        card_effect = random.choice(prototypes.CARDS.values())
+        card_effect = random.choice(effects.EFFECTS.values())
         card = objects.Card(card_effect.TYPE)
         self.hero.cards.add_card(card)
 
@@ -108,7 +108,7 @@ class UseCardTaskTests(testcase.TestCase):
 
     def test_process_second_step_error(self):
 
-        card_effect = random.choice(prototypes.CARDS.values())
+        card_effect = random.choice(effects.EFFECTS.values())
         card = objects.Card(card_effect.TYPE)
         self.hero.cards.add_card(card)
 

@@ -8,7 +8,7 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import prototypes
+from the_tale.game.cards import effects
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
@@ -44,10 +44,10 @@ class AddGoldTestMixin(CardsTestMixin):
 
 
 class AddGoldCommonTests(AddGoldTestMixin, testcase.TestCase):
-    CARD = prototypes.AddGoldCommon
+    CARD = effects.AddGoldCommon
 
 class AddGoldUncommonTests(AddGoldTestMixin, testcase.TestCase):
-    CARD = prototypes.AddGoldUncommon
+    CARD = effects.AddGoldUncommon
 
 class AddGoldRareTests(AddGoldTestMixin, testcase.TestCase):
-    CARD = prototypes.AddGoldRare
+    CARD = effects.AddGoldRare

@@ -1,0 +1,31 @@
+
+{% macro companion_info(companion, limit_content=false, link_in_blank=false) %}
+
+{% if limit_content %}
+<div class="pgf-scrollable" style="overflow-y: auto; max-height: 400px;">
+  {% endif %}
+
+
+  <table class="table table-condensed table-striped table-bordered table-no-highlighting">
+    <tbody>
+      <tr><th>редкость</th><td>{{companion.rarity.text}}</td></tr>
+      <tr><th>тип</th><td>{{companion.type.text}}</td></tr>
+      <tr><th>самоотверженность</th><td>{{companion.dedication.text}}</td></tr>
+      <tr><th>максимальное здоровье</th><td>{{companion.max_health}}</td></tr>
+    </tbody>
+  </table>
+
+  {% if companion.description %}
+
+  {{companion.description_html|safe}}
+
+  {% else %}
+  <p class="pgf-no-description">нет описания<p>
+    {% endif %}
+
+    {% if limit_content %}
+</div>
+{% endif %}
+
+
+{% endmacro %}

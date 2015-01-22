@@ -8,7 +8,7 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import prototypes
+from the_tale.game.cards import effects
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
@@ -81,18 +81,18 @@ class GetArtifactMixin(CardsTestMixin):
 
 
 class GetArtifactCommonTests(GetArtifactMixin, testcase.TestCase):
-    CARD = prototypes.GetArtifactCommon
+    CARD = effects.GetArtifactCommon
     RARITIES = set([ARTIFACT_RARITY.NORMAL, ARTIFACT_RARITY.RARE, ARTIFACT_RARITY.EPIC])
     HAS_USELESS = True
 
 class GetArtifactUncommonTests(GetArtifactMixin, testcase.TestCase):
-    CARD = prototypes.GetArtifactUncommon
+    CARD = effects.GetArtifactUncommon
     RARITIES = set([ARTIFACT_RARITY.NORMAL, ARTIFACT_RARITY.RARE, ARTIFACT_RARITY.EPIC])
 
 class GetArtifactRareTests(GetArtifactMixin, testcase.TestCase):
-    CARD = prototypes.GetArtifactRare
+    CARD = effects.GetArtifactRare
     RARITIES = set([ARTIFACT_RARITY.RARE, ARTIFACT_RARITY.EPIC])
 
 class GetArtifactEpicTests(GetArtifactMixin, testcase.TestCase):
-    CARD = prototypes.GetArtifactEpic
+    CARD = effects.GetArtifactEpic
     RARITIES = set([ARTIFACT_RARITY.EPIC])

@@ -10,7 +10,7 @@ from the_tale.game.companions import models
 
 
 class CompanionRecordAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'state', 'created_at', 'updated_at')
+    list_display = ('id',  'state', 'name', 'type', 'rarity', 'dedication', 'max_health', 'created_at', 'updated_at')
     list_filter = ('state',)
 
     def name(self, obj):

@@ -132,6 +132,46 @@ class LogicTests(testcase.TestCase):
         self.assertEqual(companion_record.rarity, rarity)
 
 
+    def test_enable_companion_record(self):
+
+        type = relations.TYPE.random()
+        dedication = relations.DEDICATION.random()
+        rarity = relations.RARITY.random()
+        max_health = 666
+
+        companion_record = logic.create_companion_record(utg_name=names.generator.get_test_name(name='old'),
+                                                         description='old-description',
+                                                         type=type,
+                                                         max_health=max_health,
+                                                         dedication=dedication,
+                                                         rarity=rarity)
+
+        with self.check_increased(lambda: models.CompanionRecord.objects.get(id=companion_record.id).updated_at):
+            with self.check_not_changed(lambda: models.CompanionRecord.objects.get(id=companion_record.id).created_at):
+                with self.check_not_changed(models.CompanionRecord.objects.count):
+                    with self.check_changed(lambda: storage.companions._version):
+                        with self.check_not_changed(storage.companions.__len__):
+                            logic.enable_companion_record(companion_record)
+
+        self.assertEqual(companion_record.description, 'old-description')
+        self.assertEqual(companion_record.type, type)
+        self.assertEqual(companion_record.dedication, dedication)
+        self.assertEqual(companion_record.max_health, max_health)
+        self.assertEqual(companion_record.rarity, rarity)
+        self.assertTrue(companion_record.state.is_ENABLED)
+
+        storage.companions.refresh()
+
+        companion_record = storage.companions[companion_record.id]
+
+        self.assertEqual(companion_record.description, 'old-description')
+        self.assertEqual(companion_record.type, type)
+        self.assertEqual(companion_record.dedication, dedication)
+        self.assertEqual(companion_record.max_health, max_health)
+        self.assertEqual(companion_record.rarity, rarity)
+        self.assertTrue(companion_record.state.is_ENABLED)
+
+
     def test_update_companion_record__linguistics_restrictions(self):
         old_name = names.generator.get_test_name(name='old')
         new_name = names.generator.get_test_name(name='new')
@@ -155,3 +195,18 @@ class LogicTests(testcase.TestCase):
         self.assertEqual(sync_restriction.call_args_list, [mock.call(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.COMPANION,
                                                                      external_id=companion_record.id,
                                                                      name=new_name.normal_form())])
+
+    def test_create_companion(self):
+        companion_record = logic.create_companion_record(utg_name=names.generator.get_test_name(),
+                                                         description='description',
+                                                         type=relations.TYPE.random(),
+                                                         max_health=10,
+                                                         dedication=relations.DEDICATION.random(),
+                                                         rarity=relations.RARITY.random(),
+                                                         state=relations.STATE.ENABLED)
+
+        companion = logic.create_companion(companion_record)
+
+        self.assertEqual(companion.record.id, companion_record.id)
+        self.assertEqual(companion.health, companion_record.max_health)
+        self.assertEqual(companion.coherence, 0)

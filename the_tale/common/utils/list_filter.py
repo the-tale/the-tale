@@ -30,6 +30,22 @@ class BaseElement(object):
 
 
 
+def filter_relation(base_relation):
+    from rels import Column
+    from rels.django import DjangoEnum
+
+    class FILTER_RELATION(DjangoEnum):
+        original_relation = Column(unique=False, single_type=False)
+        records = [(u'FILTER_ALL', 0, u'все', None)] + [(r.name, 1+i, r.text, r) for i, r in enumerate(base_relation.records)]
+
+        @classmethod
+        def filter_choices(cls):
+            return cls.select('value', 'text')
+
+    FILTER_RELATION.__name__ = base_relation.__name__
+
+    return FILTER_RELATION
+
 def reset_element(caption=u'сбросить фильтрацию'):
     class ResetElement(BaseElement):
         TYPE = 'reset'

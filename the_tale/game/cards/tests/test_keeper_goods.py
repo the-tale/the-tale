@@ -12,7 +12,7 @@ from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import prototypes
+from the_tale.game.cards import effects
 from the_tale.game.cards.tests.helpers import CardsTestMixin
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
@@ -74,16 +74,16 @@ class KeepersGoodsMixin(CardsTestMixin):
 
 
 class KeepersGoodsCommonTests(KeepersGoodsMixin, testcase.TestCase):
-    CARD = prototypes.KeepersGoodsCommon
+    CARD = effects.KeepersGoodsCommon
 
 class KeepersGoodsUncommonTests(KeepersGoodsMixin, testcase.TestCase):
-    CARD = prototypes.KeepersGoodsUncommon
+    CARD = effects.KeepersGoodsUncommon
 
 class KeepersGoodsRareTests(KeepersGoodsMixin, testcase.TestCase):
-    CARD = prototypes.KeepersGoodsRare
+    CARD = effects.KeepersGoodsRare
 
 class KeepersGoodsEpicTests(KeepersGoodsMixin, testcase.TestCase):
-    CARD = prototypes.KeepersGoodsEpic
+    CARD = effects.KeepersGoodsEpic
 
 class KeepersGoodsLegendaryTests(KeepersGoodsMixin, testcase.TestCase):
-    CARD = prototypes.KeepersGoodsLegendary
+    CARD = effects.KeepersGoodsLegendary

@@ -11,7 +11,7 @@ from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import prototypes
+from the_tale.game.cards import effects
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
@@ -27,7 +27,7 @@ class ResetPreferenceCommon(testcase.TestCase):
     def test_one_card_for_one_preference(self):
         preferences = list()
 
-        for card in prototypes.CARDS.values():
+        for card in effects.EFFECTS.values():
             if hasattr(card, 'PREFERENCE'):
                 preferences.append(card.PREFERENCE)
 
@@ -77,35 +77,35 @@ class ResetPreferenceMinix(CardsTestMixin):
 
 
 class ResetPreferenceMobTests(ResetPreferenceMinix, testcase.TestCase):
-    CARD = prototypes.PreferencesCooldownsResetMob
+    CARD = effects.PreferencesCooldownsResetMob
 
 class ResetPreferencePlaceTests(ResetPreferenceMinix, testcase.TestCase):
-    CARD = prototypes.PreferencesCooldownsResetPlace
+    CARD = effects.PreferencesCooldownsResetPlace
 
 class ResetPreferenceFriendTests(ResetPreferenceMinix, testcase.TestCase):
-    CARD = prototypes.PreferencesCooldownsResetFriend
+    CARD = effects.PreferencesCooldownsResetFriend
 
 class ResetPreferenceEnemyTests(ResetPreferenceMinix, testcase.TestCase):
-    CARD = prototypes.PreferencesCooldownsResetEnemy
+    CARD = effects.PreferencesCooldownsResetEnemy
 
 class ResetPreferenceEnergyRegenerationTests(ResetPreferenceMinix, testcase.TestCase):
-    CARD = prototypes.PreferencesCooldownsResetEnergyRegeneration
+    CARD = effects.PreferencesCooldownsResetEnergyRegeneration
 
 class ResetPreferenceEquipmentSlotTests(ResetPreferenceMinix, testcase.TestCase):
-    CARD = prototypes.PreferencesCooldownsResetEquipmentSlot
+    CARD = effects.PreferencesCooldownsResetEquipmentSlot
 
 class ResetPreferenceRiskLevelTests(ResetPreferenceMinix, testcase.TestCase):
-    CARD = prototypes.PreferencesCooldownsResetRiskLevel
+    CARD = effects.PreferencesCooldownsResetRiskLevel
 
 class ResetPreferenceFavoriteItemTests(ResetPreferenceMinix, testcase.TestCase):
-    CARD = prototypes.PreferencesCooldownsResetFavoriteItem
+    CARD = effects.PreferencesCooldownsResetFavoriteItem
 
 class ResetPreferenceArchetypeTests(ResetPreferenceMinix, testcase.TestCase):
-    CARD = prototypes.PreferencesCooldownsResetArchetype
+    CARD = effects.PreferencesCooldownsResetArchetype
 
 
 class ResetPreferenceAllTests(CardsTestMixin, testcase.TestCase):
-    CARD = prototypes.PreferencesCooldownsResetAll
+    CARD = effects.PreferencesCooldownsResetAll
 
     def setUp(self):
         super(ResetPreferenceAllTests, self).setUp()

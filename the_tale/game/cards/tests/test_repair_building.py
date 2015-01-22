@@ -14,7 +14,7 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game import names
 
-from the_tale.game.cards import prototypes
+from the_tale.game.cards import effects
 from the_tale.game.cards.tests.helpers import CardsTestMixin
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
@@ -24,7 +24,7 @@ from the_tale.game.map.places.prototypes import BuildingPrototype
 
 
 class RepairBuildingTests(CardsTestMixin, testcase.TestCase):
-    CARD = prototypes.RepairBuilding
+    CARD = effects.RepairBuilding
 
     def setUp(self):
         super(RepairBuildingTests, self).setUp()

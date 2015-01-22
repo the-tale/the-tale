@@ -10,5 +10,5 @@ class UseCardTask(ComplexChangeTask):
     TYPE = 'use-card'
 
     def construct_processor(self):
-        from the_tale.game.cards.prototypes import CARDS
-        return CARDS[relations.CARD_TYPE(self.processor_id)]
+        from the_tale.game.cards import effects
+        return effects.EFFECTS[relations.CARD_TYPE(self.processor_id)]

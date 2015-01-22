@@ -9,7 +9,7 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import prototypes
+from the_tale.game.cards import effects
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 from the_tale.game.quests.logic import create_random_quest_for_hero
@@ -60,16 +60,16 @@ class AddPowerTestMixin(CardsTestMixin):
 
 
 class AddPowercommonTests(AddPowerTestMixin, testcase.TestCase):
-    CARD = prototypes.AddPowerCommon
+    CARD = effects.AddPowerCommon
 
 
 class AddPowerUncommonTests(AddPowerTestMixin, testcase.TestCase):
-    CARD = prototypes.AddPowerUncommon
+    CARD = effects.AddPowerUncommon
 
 
 class AddPowerRareTests(AddPowerTestMixin, testcase.TestCase):
-    CARD = prototypes.AddPowerRare
+    CARD = effects.AddPowerRare
 
 
 class AddPowerEpicTests(AddPowerTestMixin, testcase.TestCase):
-    CARD = prototypes.AddPowerEpic
+    CARD = effects.AddPowerEpic

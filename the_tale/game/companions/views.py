@@ -30,8 +30,10 @@ class EditorAccessProcessor(dext_views.AccessProcessor):
 
 
 class ModeratorAccessProcessor(dext_views.AccessProcessor):
-    ERROR_CODE = u'companions.no_moderator_rights'
+    ERROR_CODE = u'companions.no_moderate_rights'
     ERROR_MESSAGE = u'Вы не можете модерировать спутников'
+
+    def check(self, context): return context.companions_can_moderate
 
 
 class CompanionProcessor(dext_views.ArgumentProcessor):
@@ -59,7 +61,24 @@ resource.add_processor(moderate_companion_processor)
 ########################################
 # filters
 ########################################
-BASE_INDEX_FILTERS = [list_filter.reset_element()]
+
+INDEX_RARITY = list_filter.filter_relation(relations.RARITY)
+INDEX_TYPE = list_filter.filter_relation(relations.TYPE)
+INDEX_DEDICATION = list_filter.filter_relation(relations.DEDICATION)
+
+BASE_INDEX_FILTERS = [list_filter.reset_element(),
+                      list_filter.choice_element(u'редкость:',
+                                                 attribute='rarity',
+                                                 default_value=INDEX_RARITY.FILTER_ALL.value,
+                                                 choices=INDEX_RARITY.filter_choices()),
+                      list_filter.choice_element(u'тип:',
+                                                 attribute='type',
+                                                 default_value=INDEX_TYPE.FILTER_ALL.value,
+                                                 choices=INDEX_TYPE.filter_choices()),
+                      list_filter.choice_element(u'самоотверженность:',
+                                                 attribute='dedication',
+                                                 default_value=INDEX_DEDICATION.FILTER_ALL.value,
+                                                 choices=INDEX_DEDICATION.filter_choices()) ]
 
 MODERATOR_INDEX_FILTERS = BASE_INDEX_FILTERS + [list_filter.choice_element(u'состояние:',
                                                                            attribute='state',
@@ -81,21 +100,45 @@ class ModeratorIndexFilter(list_filter.ListFilter):
 @dext_views.RelationArgumentProcessor.handler(relation=relations.STATE, default_value=relations.STATE.ENABLED,
                                               error_message=u'неверное состояние записи о спутнике',
                                               context_name='companions_state', get_name='state')
+@dext_views.RelationArgumentProcessor.handler(relation=INDEX_RARITY, default_value=INDEX_RARITY.FILTER_ALL,
+                                              error_message=u'неверная редкость спутника',
+                                              context_name='companions_rarity', get_name='rarity')
+@dext_views.RelationArgumentProcessor.handler(relation=INDEX_TYPE, default_value=INDEX_TYPE.FILTER_ALL,
+                                              error_message=u'неверный тип спутника',
+                                              context_name='companions_type', get_name='type')
+@dext_views.RelationArgumentProcessor.handler(relation=INDEX_DEDICATION, default_value=INDEX_DEDICATION.FILTER_ALL,
+                                              error_message=u'неверный тип самоотверженности спутника',
+                                              context_name='companions_dedication', get_name='dedication')
 @resource.handler('')
 def index(context):
 
     companions = storage.companions.all()
+
+    if context.companions_rarity.original_relation is not None:
+        companions = [companion for companion in companions if companion.rarity == context.companions_rarity.original_relation]
+
+    if context.companions_type.original_relation is not None:
+        companions = [companion for companion in companions if companion.type == context.companions_type.original_relation]
+
+    if context.companions_dedication.original_relation is not None:
+        companions = [companion for companion in companions if companion.dedication == context.companions_dedication.original_relation]
 
     if not context.companions_can_edit and not context.companions_can_moderate:
         companions = filter(lambda companion: companion.state.is_ENABLED, companions) # pylint: disable=W0110
 
     companions = filter(lambda companion: companion.state == context.companions_state, companions) # pylint: disable=W0110
 
-    url_builder = UrlBuilder(url('guide:companions:'), arguments={ 'state': context.companions_state.value if context.companions_state is not None else None})
+    url_builder = UrlBuilder(url('guide:companions:'), arguments={ 'state': context.companions_state.value if context.companions_state is not None else None,
+                                                                   'rarity': context.companions_rarity.value,
+                                                                   'type': context.companions_type.value,
+                                                                   'dedication': context.companions_dedication.value})
 
     IndexFilter = ModeratorIndexFilter if context.companions_can_edit or context.companions_can_moderate else NormalIndexFilter #pylint: disable=C0103
 
-    index_filter = IndexFilter(url_builder=url_builder, values={'state': context.companions_state.value if context.companions_state is not None else None})
+    index_filter = IndexFilter(url_builder=url_builder, values={'state': context.companions_state.value if context.companions_state is not None else None,
+                                                                'rarity': context.companions_rarity.value,
+                                                                'type': context.companions_type.value,
+                                                                'dedication': context.companions_dedication.value})
 
     return dext_views.Page('companions/index.html',
                            content={'context': context,
@@ -177,3 +220,12 @@ def update(context):
                                   dedication=context.form.c.dedication,
                                   rarity=context.form.c.rarity)
     return dext_views.AjaxOk(content={'next_url': url('guide:companions:show', context.companion.id)})
+
+
+@accounts_views.LoginRequiredProcessor.handler()
+@ModeratorAccessProcessor.handler()
+@companion_processor
+@resource.handler('#companion', 'enable', method='POST')
+def enable(context):
+    logic.enable_companion_record(context.companion)
+    return dext_views.AjaxOk()

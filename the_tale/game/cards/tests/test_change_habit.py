@@ -8,7 +8,7 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import prototypes
+from the_tale.game.cards import effects
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 from the_tale.game.relations import HABIT_TYPE
@@ -53,49 +53,49 @@ class ChangeHabitTestMixin(CardsTestMixin):
 
 
 class ChangeHabitHonorPlusUncommonTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = prototypes.ChangeHabitHonorPlusUncommon
+    CARD = effects.ChangeHabitHonorPlusUncommon
 
 class ChangeHabitHonorMinusUncommonTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = prototypes.ChangeHabitHonorMinusUncommon
+    CARD = effects.ChangeHabitHonorMinusUncommon
 
 class ChangeHabitPeacefulnessPlusUncommonTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = prototypes.ChangeHabitPeacefulnessPlusUncommon
+    CARD = effects.ChangeHabitPeacefulnessPlusUncommon
 
 class ChangeHabitPeacefulnessMinusUncommonTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = prototypes.ChangeHabitPeacefulnessMinusUncommon
+    CARD = effects.ChangeHabitPeacefulnessMinusUncommon
 
 class ChangeHabitHonorPlusRareTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = prototypes.ChangeHabitHonorPlusRare
+    CARD = effects.ChangeHabitHonorPlusRare
 
 class ChangeHabitHonorMinusRareTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = prototypes.ChangeHabitHonorMinusRare
+    CARD = effects.ChangeHabitHonorMinusRare
 
 class ChangeHabitPeacefulnessPlusRareTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = prototypes.ChangeHabitPeacefulnessPlusRare
+    CARD = effects.ChangeHabitPeacefulnessPlusRare
 
 class ChangeHabitPeacefulnessMinusRareTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = prototypes.ChangeHabitPeacefulnessMinusRare
+    CARD = effects.ChangeHabitPeacefulnessMinusRare
 
 class ChangeHabitHonorPlusEpicTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = prototypes.ChangeHabitHonorPlusEpic
+    CARD = effects.ChangeHabitHonorPlusEpic
 
 class ChangeHabitHonorMinusEpicTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = prototypes.ChangeHabitHonorMinusEpic
+    CARD = effects.ChangeHabitHonorMinusEpic
 
 class ChangeHabitPeacefulnessPlusEpicTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = prototypes.ChangeHabitPeacefulnessPlusEpic
+    CARD = effects.ChangeHabitPeacefulnessPlusEpic
 
 class ChangeHabitPeacefulnessMinusEpicTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = prototypes.ChangeHabitPeacefulnessMinusEpic
+    CARD = effects.ChangeHabitPeacefulnessMinusEpic
 
 class ChangeHabitHonorPlusLegendaryTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = prototypes.ChangeHabitHonorPlusLegendary
+    CARD = effects.ChangeHabitHonorPlusLegendary
 
 class ChangeHabitHonorMinusLegendaryTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = prototypes.ChangeHabitHonorMinusLegendary
+    CARD = effects.ChangeHabitHonorMinusLegendary
 
 class ChangeHabitPeacefulnessPlusLegendaryTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = prototypes.ChangeHabitPeacefulnessPlusLegendary
+    CARD = effects.ChangeHabitPeacefulnessPlusLegendary
 
 class ChangeHabitPeacefulnessMinusLegendaryTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = prototypes.ChangeHabitPeacefulnessMinusLegendary
+    CARD = effects.ChangeHabitPeacefulnessMinusLegendary

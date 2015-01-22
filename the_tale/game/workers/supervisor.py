@@ -80,7 +80,7 @@ class Worker(BaseWorker):
         self.accounts_owners = {}
         self.accounts_queues = {}
 
-        for task_model in SupervisorTask.objects.filter(state=SUPERVISOR_TASK_STATE.WAITING):
+        for task_model in SupervisorTask.objects.filter(state=SUPERVISOR_TASK_STATE.WAITING).iterator():
             task = SupervisorTaskPrototype(task_model)
             self.register_task(task, release_accounts=False)
 
@@ -97,7 +97,7 @@ class Worker(BaseWorker):
 
         self.logger.info('distribute accounts')
 
-        for account_id in Account.objects.all().order_by('id').values_list('id', flat=True):
+        for account_id in Account.objects.all().order_by('id').values_list('id', flat=True).iterator():
             self.register_account(account_id)
 
         self.initialized = True

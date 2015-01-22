@@ -8,7 +8,7 @@ from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards.prototypes import LevelUp
+from the_tale.game.cards.effects import LevelUp
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 

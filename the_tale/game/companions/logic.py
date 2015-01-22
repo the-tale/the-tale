@@ -6,6 +6,8 @@ from dext.common.utils import s11n
 from the_tale.linguistics import logic as linguistics_logic
 from the_tale.linguistics import relations as linguistics_relations
 
+from the_tale.game import names
+
 from the_tale.game.companions import objects
 from the_tale.game.companions import models
 from the_tale.game.companions import relations
@@ -39,6 +41,21 @@ def create_companion_record(utg_name,
     return companion_record
 
 
+def create_random_companion_record(name,
+                                   type=relations.TYPE.LIVING,
+                                   max_health=10,
+                                   dedication=relations.DEDICATION.BRAVE,
+                                   rarity=relations.RARITY.COMMON,
+                                   state=relations.STATE.DISABLED):
+    return create_companion_record(utg_name=names.generator.get_test_name(name=name),
+                                   description=u'description-%s' % name,
+                                   type=type,
+                                   max_health=max_health,
+                                   dedication=dedication,
+                                   rarity=rarity,
+                                   state=state)
+
+
 def update_companion_record(companion,
                             utg_name,
                             description,
@@ -70,6 +87,20 @@ def update_companion_record(companion,
                                        name=companion.name)
 
 
+def enable_companion_record(companion):
+
+    companion.state = relations.STATE.ENABLED
+
+    models.CompanionRecord.objects.filter(id=companion.id).update(state=companion.state,
+                                                                  updated_at=datetime.datetime.now())
+
+    storage.companions.update_version()
+
+    linguistics_logic.sync_restriction(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.COMPANION,
+                                       external_id=companion.id,
+                                       name=companion.name)
+
+
 def get_last_companion():
     return objects.CompanionRecord.from_model(models.CompanionRecord.objects.order_by('-id')[0])
 
@@ -90,3 +121,9 @@ def required_templates_count(companion_record):
                                 for key in companions_keys]
 
     return restriction, ingame_companion_phrases
+
+
+def create_companion(companion_record):
+    return objects.Companion(record=companion_record,
+                             health=companion_record.max_health,
+                             coherence=0)

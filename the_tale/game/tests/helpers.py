@@ -15,6 +15,7 @@ class ComplexChangeTaskMixin(object):
                        highlevel=None,
                        pvp_balancer=None,
                        critical=False,
+                       card_uid=None,
                        battle_id=None):
 
         if step is None:
@@ -37,8 +38,8 @@ class ComplexChangeTaskMixin(object):
         if battle_id is not None:
             data['battle_id'] = battle_id
 
-        # if highlevel is not None:
-        #     data['highlevel'] = highlevel
+        if card_uid is not None:
+            data['card_uid'] = card_uid
 
         task = self.LOGIC(processor_id=self.PROCESSOR,
                           hero_id=hero.id,

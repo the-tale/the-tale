@@ -238,47 +238,72 @@ class ShowRequestsTests(RequestsTestsBase):
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
+        self.account_3 = self.accounts_factory.create_account()
 
         group_edit = sync_group('edit companions', ['companions.create_companionrecord'])
         group_edit.user_set.add(self.account_2._model)
+
+        group_moderate = sync_group('moderate companions', ['companions.moderate_companionrecord'])
+        group_moderate.user_set.add(self.account_3._model)
 
 
     def test_anonimouse_view(self):
         self.check_html_ok(self.request_html(self.requested_url_1), texts=[(self.companion_1.description, 1),
                                                                            ('companions.show.no_rights', 0),
-                                                                           ('pgf-edit-companion-button', 0)])
+                                                                           ('pgf-edit-companion-button', 0),
+                                                                           ('pgf-enable-companion-button', 0)])
 
     def test_anonimouse_view__companion_disabled(self):
         self.check_html_ok(self.request_html(self.requested_url_2), texts=[(self.companion_2.description, 0),
                                                                            ('companions.show.no_rights', 1),
-                                                                           ('pgf-edit-companion-button', 0)])
+                                                                           ('pgf-edit-companion-button', 0),
+                                                                           ('pgf-enable-companion-button', 0)])
 
 
     def test_normal_view(self):
         self.request_login(self.account_1.email)
         self.check_html_ok(self.request_html(self.requested_url_1), texts=[(self.companion_1.description, 1),
                                                                            ('companions.show.no_rights', 0),
-                                                                           ('pgf-edit-companion-button', 0)])
+                                                                           ('pgf-edit-companion-button', 0),
+                                                                           ('pgf-enable-companion-button', 0)])
 
     def test_normal_view__companion_disabled(self):
         self.request_login(self.account_1.email)
         self.check_html_ok(self.request_html(self.requested_url_2), texts=[(self.companion_2.description, 0),
                                                                            ('companions.show.no_rights', 1),
-                                                                           ('pgf-edit-companion-button', 0)])
+                                                                           ('pgf-edit-companion-button', 0),
+                                                                           ('pgf-enable-companion-button', 0)])
 
 
     def test_editor_view(self):
         self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(self.requested_url_1), texts=[(self.companion_1.description, 1),
                                                                            ('companions.show.no_rights', 0),
-                                                                           ('pgf-edit-companion-button', 1)])
+                                                                           ('pgf-edit-companion-button', 1),
+                                                                           ('pgf-enable-companion-button', 0)])
 
 
     def test_editor_view__companion_disabled(self):
         self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(self.requested_url_2), texts=[(self.companion_2.description, 1),
                                                                            ('companions.show.no_rights', 0),
-                                                                           ('pgf-edit-companion-button', 1)])
+                                                                           ('pgf-edit-companion-button', 1),
+                                                                           ('pgf-enable-companion-button', 0)])
+
+    def test_moderator_view(self):
+        self.request_login(self.account_3.email)
+        self.check_html_ok(self.request_html(self.requested_url_1), texts=[(self.companion_1.description, 1),
+                                                                           ('companions.show.no_rights', 0),
+                                                                           ('pgf-edit-companion-button', 1),
+                                                                           ('pgf-enable-companion-button', 0)])
+
+
+    def test_moderator_view__companion_disabled(self):
+        self.request_login(self.account_3.email)
+        self.check_html_ok(self.request_html(self.requested_url_2), texts=[(self.companion_2.description, 1),
+                                                                           ('companions.show.no_rights', 0),
+                                                                           ('pgf-edit-companion-button', 1),
+                                                                           ('pgf-enable-companion-button', 1)])
 
 
 
@@ -395,3 +420,52 @@ class UpdateRequestsTests(RequestsTestsBase):
 
         self.assertEqual(companion.description, self.companion_1.description)
         self.assertEqual(companion.name, self.companion_1.name)
+
+
+class EnableRequestsTests(RequestsTestsBase):
+
+    def setUp(self):
+        super(EnableRequestsTests, self).setUp()
+
+        self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-1'),
+                                                         description='companion-description-1',
+                                                         type=relations.TYPE.random(),
+                                                         max_health=10,
+                                                         dedication=relations.DEDICATION.random(),
+                                                         rarity=relations.RARITY.random(),
+                                                         state=relations.STATE.DISABLED)
+
+        self.requested_url = url('game:companions:enable', self.companion_1.id)
+
+        self.account_1 = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
+        self.account_3 = self.accounts_factory.create_account()
+
+        group_edit = sync_group('edit companions', ['companions.create_companionrecord'])
+        group_edit.user_set.add(self.account_2._model)
+
+        group_edit = sync_group('moderate companions', ['companions.moderate_companionrecord'])
+        group_edit.user_set.add(self.account_3._model)
+
+    def test_anonimouse_view(self):
+        self.check_ajax_error(self.post_ajax_json(self.requested_url), 'common.login_required')
+
+    def test_normal_user(self):
+        self.request_login(self.account_1.email)
+        self.check_ajax_error(self.post_ajax_json(self.requested_url), 'companions.no_moderate_rights')
+
+    def test_editor_user(self):
+        self.request_login(self.account_2.email)
+        self.check_ajax_error(self.post_ajax_json(self.requested_url), 'companions.no_moderate_rights')
+
+    def test_moderator_user(self):
+        self.request_login(self.account_3.email)
+
+        with self.check_not_changed(models.CompanionRecord.objects.count):
+            with self.check_changed(lambda: storage.companions._version):
+                with self.check_not_changed(storage.companions.__len__):
+                    self.check_ajax_ok(self.post_ajax_json(self.requested_url))
+
+        companion = storage.companions[self.companion_1.id]
+
+        self.assertTrue(companion.state.is_ENABLED)

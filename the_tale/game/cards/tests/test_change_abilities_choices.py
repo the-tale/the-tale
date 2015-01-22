@@ -9,7 +9,7 @@ from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import prototypes
+from the_tale.game.cards import effects
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
@@ -17,7 +17,7 @@ from the_tale.game.cards.tests.helpers import CardsTestMixin
 
 
 class ChangeAbilitiesChoicesTest(testcase.TestCase, CardsTestMixin):
-    CARD = prototypes.ChangeAbilitiesChoices
+    CARD = effects.ChangeAbilitiesChoices
 
     def setUp(self):
         super(ChangeAbilitiesChoicesTest, self).setUp()

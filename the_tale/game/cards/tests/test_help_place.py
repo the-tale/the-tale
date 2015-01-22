@@ -8,7 +8,7 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import prototypes
+from the_tale.game.cards import effects
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
@@ -47,13 +47,13 @@ class HelpPlaceMixin(CardsTestMixin):
 
 
 class HelpPlaceUncommonTests(HelpPlaceMixin, testcase.TestCase):
-    CARD = prototypes.HelpPlaceUncommon
+    CARD = effects.HelpPlaceUncommon
 
 class HelpPlaceRareTests(HelpPlaceMixin, testcase.TestCase):
-    CARD = prototypes.HelpPlaceRare
+    CARD = effects.HelpPlaceRare
 
 class HelpPlaceEpicTests(HelpPlaceMixin, testcase.TestCase):
-    CARD = prototypes.HelpPlaceEpic
+    CARD = effects.HelpPlaceEpic
 
 class HelpPlaceLegendaryTests(HelpPlaceMixin, testcase.TestCase):
-    CARD = prototypes.HelpPlaceLegendary
+    CARD = effects.HelpPlaceLegendary
