@@ -18,5 +18,6 @@ pgf.urls = {
         return url;
     },
     'game:map:cell_info': function(x, y){return '/game/map/cell-info?x='+x+'&y='+y;},
-    'guide:artifacts:info': function(id){return '/guide/artifacts/'+id+'/info';}
+    'guide:artifacts:info': function(id){return '/guide/artifacts/'+id+'/info';},
+    'guide:companions:info': function(id){return '/guide/companions/'+id+'/info';}
 };

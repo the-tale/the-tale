@@ -49,10 +49,9 @@
 
 {{ base_macros.render_paginator(paginator) }}
 
-<ul class="unstyled">
+<table class="table">
+  <tbody>
   {% for post in posts %}
-  <li style="margin-bottom: 1em;">
-    <table class="table">
       <tr>
         <td width="75px"><span class="pgf-format-date" data-timestamp="{{ post.created_at|timestamp }}"></span></td>
         <td width="20px" rel="tooltip" title="рейтинг" style="cursor: default;">
@@ -73,10 +72,9 @@
             {% endif %}
         </td>
       </tr>
-    </table>
-  </li>
   {% endfor %}
-</ul>
+  </tbody>
+</table>
 
 {{ base_macros.render_paginator(paginator) }}
 

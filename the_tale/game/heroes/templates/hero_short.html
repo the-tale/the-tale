@@ -3,12 +3,19 @@
 
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
-
     widgets.heroes = new pgf.game.widgets.Hero("#{{block_id}}", updater, widgets, {dataMode: "{{data_mode}}"});
+
+    jQuery('.pgf-companion-info-link').click(function(e){
+        e.preventDefault();
+        var target = jQuery(e.currentTarget);
+        var url = pgf.urls['guide:companions:info'](target.data('companion-id'));
+        pgf.ui.dialog.Create({ fromUrl: url});
+    });
+
 });
 </script>
 
-<div id="{{block_id}}" class="block hero-base-block" style="cursor: default;">
+<div id="{{block_id}}" class="easy-block hero-base-block" style="cursor: default;">
 
   <h3 class="" style="">
     <small class="pgf-hidden pgf-race-gender" style="vertical-align: bottom; line-height: 0px; display: block;">
@@ -98,6 +105,37 @@ jQuery(document).ready(function(e) {
     <strong>покровитель:</strong> <a href="{{ url('accounts:show', master_account.id) }}">{{master_account.nick_verbose}}</a>
   </div>
   {% endif %}
+
+  {# companion data #}
+  <div class="pgf-hidden pgf-companion">
+    <h4 class="" style="">
+      <span class="badge pgf-coherence hero-level" style="vertical-align: middle;" rel="tooltip" title="согласованность действий героя и спутника"></span>
+      <a href="" class="pgf-companion-link pgf-name pgf-companion-info-link" style="vertical-align: middle;"></a>
+    </h4>
+
+    <div class="record-with-progress" rel="tooltip" title="здоровье спутника">
+      <i class="game-ui-icon health"></i>
+      <div class="progress progress-danger" style="">
+        <div class="bar pgf-health-percents"></div>
+      </div>
+      <span class="text-values"><span class="pgf-health"></span>/<span class="pgf-max-health"></span></span>
+    </div>
+
+    {% if is_owner %}
+      <div class="record-with-progress" rel="tooltip" title="опыта до следующего уровня согласованности<br/>выдаётся за выполнение заданий">
+        <i class="game-ui-icon experience"></i>
+        <div class="progress progress-warning" style="">
+          <div class="bar pgf-experience-percents"></div>
+        </div>
+        <span class="text-values"><span class="pgf-experience"></span>/<span class="pgf-experience-to-level"></span></span>
+      </div>
+    {% endif %}
+
+  </div>
+
+  <div class="pgf-hidden pgf-no-companion">
+    нет спутника <i class="icon icon-info-sign" rel="tooltip" title="получить спутника можно использовав соответствующую карту судьбы" style="cursor: pointer;"></i>
+  </div>
 
   <div class="pgf-hidden pgf-might-tooltip">
     <strong>могущество</strong>

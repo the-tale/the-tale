@@ -47,7 +47,7 @@ jQuery(document).ready(function(e){
 
     {{ hero_short_macros.hero_short("hero-short-data", is_owner, false, master_account=master_account, clan=master_clan) }}
 
-    <div class="block">
+    <div class="easy-block">
       {{ hero_equipment_macros.hero_equipment("hero-equipment", data_mode="pve", EQUIPMENT_SLOT=EQUIPMENT_SLOT) }}
     </div>
   </div>
@@ -109,17 +109,19 @@ jQuery(document).ready(function(e){
       {% if resource.can_moderate_heroes %}
       <div class="tab-pane" id="pgf-moderation-container">
         <div class="span8">
-          <h3>Сброс имени героя</h3>
+          <div class="easy-block">
+            <h3>Сброс имени героя</h3>
 
-          <a class="btn btn-success pgf-forms-post-simple"
-             href="{{ url('game:heroes:reset-name', resource.hero.id) }}"
-             data-confirmation="Вы действительно хотите сбросить имя героя?">сбросить имя</a>
+            <a class="btn btn-success pgf-forms-post-simple"
+               href="{{ url('game:heroes:reset-name', resource.hero.id) }}"
+               data-confirmation="Вы действительно хотите сбросить имя героя?">сбросить имя</a>
 
-          <h3>Выгрузить в базу</h3>
+            <h3>Выгрузить в базу</h3>
 
-          <a class="btn btn-success pgf-forms-post-simple"
-             href="{{ url('game:heroes:force-save', resource.hero.id) }}">выгрузить в базу</a>
+            <a class="btn btn-success pgf-forms-post-simple"
+               href="{{ url('game:heroes:force-save', resource.hero.id) }}">выгрузить в базу</a>
 
+          </div>
         </div>
       </div>
       {% endif %}

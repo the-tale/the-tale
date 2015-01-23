@@ -11,7 +11,7 @@
 
 <div class="row">
   <div class="span3">
-    <div class="block">
+    <div class="easy-block">
       <ul class="game-navigation nav nav-list" style="padding-left: 2px;">
         {% block navigation %}
         {{ clan_macros.clan_navigation(page_id=page_id, own_clan_info=resource.clan_info, current_clan=resource.clan) }}
@@ -21,7 +21,7 @@
   </div>
 
   <div class="span9">
-    <div class="block white">
+    <div class="easy-block">
 
       {% block clans_content %}
       {% endblock %}

@@ -41,8 +41,7 @@ jQuery(document).ready(function(e){
     updater.SetRefreshInterval( {{ game_settings.TURN_DELAY*1000 }});
     {% endif %}
 
-    pgf.base.InitializeTabs('game-tab-main', 'map', [['.pgf-journal-tab-button', 'journal'], ['.pgf-map-tab-button', 'map']]);
-    pgf.base.InitializeTabs('game-tab-second', 'diary', [['.pgf-diary-tab-button', 'diary'], ['.pgf-quests-tab-button', 'quests']]);
+    pgf.base.InitializeTabs('game-tab-main', 'journal', [['.pgf-journal-tab-button', 'journal'], ['.pgf-diary-tab-button', 'diary'], ['.pgf-quests-tab-button', 'quests']]);
     pgf.base.InitializeTabs('game-tab-equipment', 'equipment', [['.pgf-equipment-tab-button', 'equipment'], ['.pgf-bag-tab-button', 'bag']]);
 
     widgets.placeAndTime = new pgf.game.widgets.Time('#time-block',
@@ -56,6 +55,24 @@ jQuery(document).ready(function(e){
         jQuery(".pgf-new-messages-signalization").toggleClass("pgf-hidden", game_data.account.new_messages == 0);
         jQuery(".pgf-new-messages-number").text(game_data.account.new_messages);
 
+    });
+
+    function SlideMap(slide) {
+        jQuery('.pgf-slide-map').toggleClass('pgf-hidden', slide);
+        jQuery('.pgf-unslide-map').toggleClass('pgf-hidden', !slide);
+        jQuery('.pgf-hero-column').toggleClass('pgf-hidden', slide);
+        jQuery('.pgf-map-column').toggleClass('span4', !slide).toggleClass('span7', slide);
+        jQuery(document).trigger(pgf.game.map.events.MAP_RESIZED);
+    }
+
+    jQuery('.pgf-slide-map').click(function(e){
+        e.preventDefault();
+        SlideMap(true);
+    });
+
+    jQuery('.pgf-unslide-map').click(function(e){
+        e.preventDefault();
+        SlideMap(false);
     });
 
 });
@@ -116,86 +133,85 @@ jQuery(document).ready(function(e){
 {{ game_macros.game_stopped_message() }}
 
 <div class="row pgf-game-data pgf-hidden">
-  <div class="span3">
-    {{ hero_short_macros.hero_short("hero-short-data", true, true, clan=clan) }}
+  <div class="span3 pgf-hero-column" >
+    <div class="first-row-block">
+      {{ hero_short_macros.hero_short("hero-short-data", true, true, clan=clan) }}
+    </div>
+
+    <div class="easy-block second-row-block">
+      <ul class="nav nav-tabs" id="equipment-tabs">
+        <li><a href="#pgf-equipment-container" class="pgf-equipment-tab-button" data-toggle="tab">экипировка</a></li>
+        <li><a href="#pgf-bag-container"
+               class="pgf-bag-tab-button"
+               data-toggle="tab"
+               rel="tooltip" title="сейчас / максимум">
+               рюкзак
+               <span class="pgf-item-count-container pgf-hidden">
+                 (<span class="pgf-loot-items-count"></span>/<span class="pgf-max-bag-size"></span>)
+               </span>
+        </a></li>
+      </ul>
+
+      <div class="tab-content">
+        <div class="tab-pane" id="pgf-equipment-container">
+          {{ hero_equipment_macros.hero_equipment("hero-equipment", data_mode="pve", EQUIPMENT_SLOT=EQUIPMENT_SLOT) }}
+        </div>
+        <div class="tab-pane" id="pgf-bag-container">
+          {% include "heroes/hero_bag.html" %}
+        </div>
+      </div>
+    </div>
   </div>
+
   <div class="span5">
-    {% include "game/current_action.html" %}
-  </div>
-  <div class="span4">
-    {% include "game/current_quest.html" %}
-  </div>
-</div>
 
-<div class="row second-row pgf-game-data pgf-hidden">
+    <div class="first-row-block">
+      {% include "game/current_quest.html" %}
+      {% include "game/current_action.html" %}
+    </div>
 
-  <div class="span8">
+    <div class="easy-block second-row-block">
 
-    <ul class="nav nav-tabs">
-      <li class="pull-right"><a href="#pgf-map-container" class="pgf-map-tab-button" data-toggle="tab">карта</a></li>
-      <li class="pull-right"><a href="#pgf-journal-container" class="pgf-journal-tab-button" data-toggle="tab">журнал</a></li>
-    </ul>
+      <ul class="nav nav-tabs">
+        <li><a href="#pgf-log-container" class="pgf-log-tab-button" data-toggle="tab">журнал</a></li>
+        <li><a href="#pgf-diary-container" class="pgf-diary-tab-button" data-toggle="tab">дневник</a></li>
+        <li><a href="#pgf-quests-container" class="pgf-quests-tab-button" data-toggle="tab">задания</a></li>
+        <li class="pull-right">
+          <a href="#" class="" style="color: #333333;" rel="tooltip" title="здоровье героя">
+            <i class="game-ui-icon health" style="margin: -3px;"></i>
+            <span class="text-values"><span class="pgf-diary-block-health"></span> / <span class="pgf-diary-block-max-health"></span></span>
+          </a>
+        </li>
+      </ul>
 
-    <div class="row tab-content">
-      <div class="tab-pane" id="pgf-journal-container">
-
-        <div class="span3">
-
-          <div class="block">
-            <ul class="nav nav-tabs" id="equipment-tabs">
-              <li><a href="#pgf-equipment-container" class="pgf-equipment-tab-button" data-toggle="tab">экипировка</a></li>
-              <li><a href="#pgf-bag-container"
-                     class="pgf-bag-tab-button"
-                     data-toggle="tab"
-                     rel="tooltip" title="сейчас / максимум">
-                  рюкзак
-                  <span class="pgf-item-count-container pgf-hidden">
-                    (<span class="pgf-loot-items-count"></span>/<span class="pgf-max-bag-size"></span>)
-                  </span>
-              </a></li>
-            </ul>
-
-            <div class="tab-content">
-              <div class="tab-pane" id="pgf-equipment-container">
-                {{ hero_equipment_macros.hero_equipment("hero-equipment", data_mode="pve", EQUIPMENT_SLOT=EQUIPMENT_SLOT) }}
-              </div>
-              <div class="tab-pane" id="pgf-bag-container">
-                {% include "heroes/hero_bag.html" %}
-              </div>
-            </div>
-          </div>
+      <div class="tab-content">
+        <div class="tab-pane" id="pgf-diary-container">
+          {% include "game/diary.html" %}
         </div>
 
-        <div class="span5">
+        <div class="tab-pane" id="pgf-log-container">
           {{ log_macros.log(data_mode="pve") }}
         </div>
-      </div>
 
-      <div class="tab-pane span8" id="pgf-map-container">
-        {{map_macros.render_map(height=400, current_map_version=current_map_version)}}
+        <div class="tab-pane" id="pgf-quests-container">
+          {% include "game/quests_line.html" %}
+        </div>
       </div>
 
     </div>
 
   </div>
 
-  <div class="span4">
-    <ul class="nav nav-tabs">
-      <li><a href="#pgf-diary-container" class="pgf-diary-tab-button" data-toggle="tab">дневник</a></li>
-      <li><a href="#pgf-quests-container" class="pgf-quests-tab-button" data-toggle="tab">задания</a></li>
-    </ul>
-
-    <div class="tab-content">
-      <div class="tab-pane block log-block" id="pgf-diary-container">
-        {% include "game/diary.html" %}
+  <div class="span4 pgf-map-column">
+    <div id="pgf-map-container">
+      <div style="position: absolute; margin-left: -20px; margin-top: 280px;">
+        <a href="#" class="pgf-slide-map" rel="tooltip" title="Увеличить карту"><i class="icon icon-chevron-left"></i></a>
+        <a href="#" class="pgf-hidden pgf-unslide-map" rel="tooltip" title="Уменьшить карту"><i class="icon icon-chevron-right"></i></a>
       </div>
-
-      <div class="tab-pane block" id="pgf-quests-container">
-        {% include "game/quests_line.html" %}
-      </div>
+      {{map_macros.render_map(height=713, current_map_version=current_map_version)}}
     </div>
-
   </div>
+</div>
 
   <div class="pgf-hidden" id="pgf-popover-person">
     <ul class="unstyled">
@@ -215,6 +231,5 @@ jQuery(document).ready(function(e){
     <span class="pgf-description"></span>
   </div>
 
-</div>
 
 {% endblock %}

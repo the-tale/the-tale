@@ -116,7 +116,7 @@ jQuery(document).ready(function(){
 
             {% if rating_values and rating_places%}
 
-              <table class="table table-condensed table-striped table-bordered table-no-highlighting">
+              <table class="table table-condensed table-striped table-bordered">
                 <tbody>
                   <tr>
                     <th >название</th>
@@ -149,9 +149,9 @@ jQuery(document).ready(function(){
             <p>Города, которым герой помогает чаще.</p>
 
             {% if most_common_places %}
-              <div class="pgf-scrollable" style="overflow-y: auto; max-height: {{1+27*(1+bills_settings.PLACES__TO_ACCESS_VOTING)}}px;">
+              <div class="pgf-scrollable" style="overflow-y: auto; max-height: {{1+27*(1+12)}}px;">
 
-                <table class="table table-condensed table-striped table-bordered table-no-highlighting">
+                <table class="table table-condensed table-striped table-bordered">
                   <tbody>
                     <tr>
                       <th width="30px">№</th>

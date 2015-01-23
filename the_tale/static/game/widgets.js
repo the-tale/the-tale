@@ -17,6 +17,7 @@ if (!pgf.game.events) {
 
 pgf.game.events.DATA_REFRESHED = 'pgf-data-refreshed';
 pgf.game.events.DATA_REFRESH_NEEDED = 'pgf-data-refresh-needed';
+pgf.game.events.GAME_DATA_SHOWED =  'pgf-game-data-showed';
 
 pgf.game.Updater = function(params) {
 
@@ -76,7 +77,11 @@ pgf.game.Updater = function(params) {
 
                 setTimeout(function(e){
                     jQuery('.pgf-wait-data').toggleClass('pgf-hidden', true);
-                    jQuery('.pgf-game-data').toggleClass('pgf-hidden', false);
+
+                    if (jQuery('.pgf-game-data').hasClass('pgf-hidden')) {
+                        jQuery('.pgf-game-data').toggleClass('pgf-hidden', false);
+                        jQuery(document).trigger(pgf.game.events.GAME_DATA_SHOWED);
+                    }
                 }, 750);
             },
             error: function() {
@@ -113,8 +118,13 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-name', widget).text(data.base.name);
         jQuery('.pgf-hero-page-link', widget).attr('href', heroPageUrl);
         jQuery('.pgf-free-destiny-points', widget).attr('href', heroPageUrl).toggleClass('pgf-hidden', !data.base.destiny_points);
+
         jQuery('.pgf-health', widget).text(parseInt(data.base.health));
         jQuery('.pgf-max-health', widget).text(data.base.max_health);
+
+        jQuery('.pgf-diary-block-health').text(parseInt(data.base.health));
+        jQuery('.pgf-diary-block-max-health').text(data.base.max_health);
+
         jQuery('.pgf-experience', widget).text(parseInt(data.base.experience));
         jQuery('.pgf-experience-to-level', widget).text(data.base.experience_to_level);
 
@@ -136,6 +146,26 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-max-energy', content).text(data.energy.max);
         jQuery('.pgf-energy-bonus', content).text(data.energy.bonus);
         jQuery('.pgf-energy-percents', content).width( (100 * data.energy.value / data.energy.max) + '%');
+
+        // companion data
+        jQuery('.pgf-companion', widget).toggleClass('pgf-hidden', !!(data.companion == null));
+        jQuery('.pgf-no-companion', widget).toggleClass('pgf-hidden', !(data.companion == null));
+
+        if (data.companion) {
+            jQuery('.pgf-companion-info-link', widget).data('companion-id', data.companion.id);
+
+            jQuery('.pgf-companion .pgf-name', widget).text(data.companion.name);
+            jQuery('.pgf-companion .pgf-coherence', widget).text(data.companion.coherence);
+
+            jQuery('.pgf-companion .pgf-health', widget).text(parseInt(data.companion.health));
+            jQuery('.pgf-companion .pgf-max-health', widget).text(data.companion.max_health);
+
+            jQuery('.pgf-companion .pgf-experience', widget).text(parseInt(data.companion.experience));
+            jQuery('.pgf-companion .pgf-experience-to-level', widget).text(data.companion.experience_to_level);
+
+            jQuery('.pgf-companion .pgf-health-percents', widget).width( (100 * data.companion.health / data.companion.max_health) + '%');
+            jQuery('.pgf-companion .pgf-experience-percents', widget).width( (100 * data.companion.experience / data.companion.experience_to_level) + '%');
+        }
     };
 
     this.CurrentHero = function() {

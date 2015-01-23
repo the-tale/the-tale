@@ -40,9 +40,12 @@ class Companion(object):
 
 
     def ui_info(self):
-        return {'name': self.name,
+        return {'id': self.record.id,
+                'name': self.name[0].upper() + self.name[1:],
                 'health': self.health,
                 'max_health': self.max_health,
+                'experience': 10,
+                'experience_to_level': 20,
                 'coherence': self.coherence}
 
 

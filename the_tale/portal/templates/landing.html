@@ -46,16 +46,20 @@ jQuery(document).ready(function(e){
 
 <div class="row">
   <div class="span6" style="text-align: justify;">
-    {% include "portal/landing_intro.html" %}
+    <div class="easy-block">
+      {% include "portal/landing_intro.html" %}
+    </div>
   </div>
 
   <div class="span6">
-    {% if landing_type == "legend" %}
-    <a href="#" class="pgf-open-galery"><img style="border-radius: 10px;" src="{{STATIC_CONTENT}}images/intro_comix/00.gif"></a>
-    {% else %}
-    <h4><a href="{{url('guide:mobs:show', mob.id)}}" target="_blank">{{mob.name|up_first}}</a> <small>случайный монстр</small></h4>
-    {{mob.description_html|safe}}
-    {% endif %}
+    <div class="easy-block">
+      {% if landing_type == "legend" %}
+      <a href="#" class="pgf-open-galery"><img style="border-radius: 10px;" src="{{STATIC_CONTENT}}images/intro_comix/00.gif"></a>
+      {% else %}
+      <h4><a href="{{url('guide:mobs:show', mob.id)}}" target="_blank">{{mob.name|up_first}}</a> <small>случайный монстр</small></h4>
+      {{mob.description_html|safe}}
+      {% endif %}
+    </div>
   </div>
 </div>
 

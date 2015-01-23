@@ -158,7 +158,7 @@ class BBField(fields.TextField):
     %(command_line)s
     %(bound_field)s
   </div>
-  <div class="pgf-preview-content pgf-hidden bbfield-preview pgf-scrollable block white"></div>
+  <div class="pgf-preview-content pgf-hidden bbfield-preview pgf-scrollable easy-block"></div>
   %(errors_container)s
   <div class="widget">
     <button type="button" class="btn pgf-preview-button">Предпросмотр</button>

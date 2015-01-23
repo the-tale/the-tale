@@ -24,6 +24,7 @@ if (!pgf.game.map.events) {
 
 pgf.game.resources.events.SPRITES_LOADED = 'pgf-game-resources-sprites-loaded';
 pgf.game.map.events.DATA_UPDATED = 'pgf-game-map-data-updated';
+pgf.game.map.events.MAP_RESIZED = 'pgf-game-map-resized';
 
 pgf.game.resources.Image = function(sourceImage, src, x, y, w, h) {
 
@@ -214,7 +215,7 @@ pgf.game.map.Map = function(selector, params) {
     var canvasHeight = undefined;
 
     function SyncCanvasSize() {
-        canvasWidth = jQuery('#pgf-map-container').width()-20;
+        canvasWidth = Math.max(jQuery('#pgf-map-container').width()-20, 1);
         canvasHeight = params.canvasHeight;
 
         canvas.get(0).width = canvasWidth;
@@ -550,6 +551,30 @@ pgf.game.map.Map = function(selector, params) {
                               if (IsInitialized() && !activated) Activate();
 
                               widgets.map.Refresh(game_data);
+                          });
+
+    jQuery(document).bind(pgf.game.events.GAME_DATA_SHOWED,
+                          function(e, game_data) {
+                              if (!IsInitialized()) return;
+
+                              SyncCanvasSize();
+                              navigationLayer.Resize();
+                              CenterOnHero();
+
+                              var data = mapManager.GetMapDataForRect(pos.x, pos.y, canvasWidth, canvasHeight);
+                              Draw(data);
+                          });
+
+    jQuery(document).bind(pgf.game.map.events.MAP_RESIZED,
+                          function(e, game_data) {
+                              if (!IsInitialized()) return;
+
+                              SyncCanvasSize();
+                              navigationLayer.Resize();
+                              // CenterOnHero();
+
+                              var data = mapManager.GetMapDataForRect(pos.x, pos.y, canvasWidth, canvasHeight);
+                              Draw(data);
                           });
 
     jQuery(document).bind(pgf.game.resources.events.SPRITES_LOADED,

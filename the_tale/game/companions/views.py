@@ -166,6 +166,18 @@ def show(context):
                                     'section': 'companions'})
 
 
+@companion_processor
+@resource.handler('#companion', 'info', name='info')
+def show_dialog(context):
+
+    if context.companion.state.is_DISABLED and not (context.companions_can_edit or context.companions_can_moderate):
+        raise dext_views.exceptions.ViewError(code='companions.info.no_rights', message=u'Вы не можете просматривать информацию по данному спутнику.')
+
+    return dext_views.Page('companions/info.html',
+                           content={'companion': context.companion,
+                                    'resource': context.resource})
+
+
 @accounts_views.LoginRequiredProcessor.handler()
 @EditorAccessProcessor.handler()
 @resource.handler('new')

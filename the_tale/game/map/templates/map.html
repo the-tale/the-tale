@@ -41,7 +41,7 @@ jQuery(document).ready(function(e) {
 });
 </script>
 
-<div class="block" id="pgf-map-block">
+<div class="easy-block" id="pgf-map-block">
   <div class="map-commands">
     <div class="dropdown" style="display: inline-block;">
       <a href="#" class="dropdown-toggle" data-toggle="dropdown">карта<b class="caret"></b></a>
@@ -54,7 +54,7 @@ jQuery(document).ready(function(e) {
     </div>
     |
     <div class="dropdown" style="display: inline-block;">
-      <a href="#" class="dropdown-toggle" data-toggle="dropdown">найти город<b class="caret"></b></a>
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">город<b class="caret"></b></a>
       <ul class="pgf-scrollable dropdown-menu" role="menu" style="max-height: 310px; overflow-y: auto;">
         {% for place in all_places() %}
         <li><a href="#" class="pgf-center-on-place" data-place-id="{{place.id}}">{{place.name}}</a></li>
@@ -64,10 +64,10 @@ jQuery(document).ready(function(e) {
 
     {% if resource.account.is_authenticated() %}
     |
-    <a href="#" class="pgf-center-on-hero">найти героя</a>
+    <a href="#" class="pgf-center-on-hero">герой</a>
     {% endif %}
     |
-    <a href="{{url('game:map:')}}" target="_blank" class="">в отдельном окне</a>
+    <a href="{{url('game:map:')}}" target="_blank" class="">в&nbsp;отдельном&nbsp;окне</a>
   </div>
 
   <div id="pgf-game-map">

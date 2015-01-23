@@ -1,75 +1,65 @@
-<div class="block hero-statistics">
-  <ul class="unstyled">
-    <li class="stat-record"><span class="name">начало путешествия</span><span class="value">{{ resource.hero.birthday.verbose_date }}</span></li>
-    <li class="stat-record"><span class="name">длительность путешествия (лет)</span><span class="value">{{ resource.hero.age.year }}</span></li>
-  </ul>
 
-  <h3>Сражения</h3>
-  <ul class="unstyled">
-    <li class="stat-record"><span class="name">смертей от монстров</span><span class="value">{{ resource.hero.statistics.pve_deaths }}</span></li>
-    <li class="stat-record"><span class="name">убито монстров</span><span class="value">{{ resource.hero.statistics.pve_kills }}</span></li>
-    <li class="stat-record"><span class="name">pvp: проведено боёв</span><span class="value">{{ resource.hero.statistics.pvp_battles_1x1_number }}</span></li>
-    <li class="stat-record"><span class="name">pvp: побед</span><span class="value">{{ resource.hero.statistics.pvp_battles_1x1_victories }}</span></li>
-    <li class="stat-record"><span class="name">pvp: вничью</span><span class="value">{{ resource.hero.statistics.pvp_battles_1x1_draws }}</span></li>
-    <li class="stat-record"><span class="name">pvp: поражений</span><span class="value">{{ resource.hero.statistics.pvp_battles_1x1_defeats }}</span></li>
-  </ul>
+{% macro record(name, value) %}
+<tr><td>{{name}}</td><td width="50%">{{value}}</td></tr>
+{% endmacro %}
 
-  <h3>Золото</h3>
-  <ul class="unstyled">
-    <li class="stat-record">
-      <span class="name">всего заработано</span><span class="value">{{ resource.hero.statistics.money_earned }}</span>
-    </li>
-    <li class="stat-record">
-      <span class="name">заработано продажей добычи</span><span class="value">{{ resource.hero.statistics.money_earned_from_loot }}</span>
-    </li>
-    <li class="stat-record">
-      <span class="name">заработано продажей артефактов</span><span class="value">{{ resource.hero.statistics.money_earned_from_artifacts }}</span>
-    </li>
-    <li class="stat-record">
-      <span class="name">заработано выполнением квестов</span><span class="value">{{ resource.hero.statistics.money_earned_from_quests }}</span>
-    </li>
-    <li class="stat-record">
-      <span class="name">заработано чертами</span><span class="value">{{ resource.hero.statistics.money_earned_from_habits }}</span>
-    </li>
-    <li class="stat-record">
-      <span class="name">получено от хранителя</span><span class="value">{{ resource.hero.statistics.money_earned_from_help }}</span>
-    </li>
-    <li class="stat-record">
-      <span class="name">всего потрачено</span><span class="value">{{ resource.hero.statistics.money_spend }}</span>
-    </li>
-    <li class="stat-record">
-      <span class="name">потрачено на лечение</span><span class="value">{{ resource.hero.statistics.money_spend_for_heal }}</span>
-    </li>
-    <li class="stat-record">
-      <span class="name">потрачено на покупку артефактов</span><span class="value">{{ resource.hero.statistics.money_spend_for_artifacts }}</span>
-    </li>
-    <li class="stat-record">
-      <span class="name">потрачено на заточку артефактов</span><span class="value">{{ resource.hero.statistics.money_spend_for_sharpening }}</span>
-    </li>
-    <li class="stat-record">
-      <span class="name">потрачено на починку экипировки</span><span class="value">{{ resource.hero.statistics.money_spend_for_repairing }}</span>
-    </li>
-    <li class="stat-record">
-      <span class="name">потрачено на пошлину</span><span class="value">{{ resource.hero.statistics.money_spend_for_tax }}</span>
-    </li>
-    <li class="stat-record">
-      <span class="name">потрачено на изменение влияния</span><span class="value">{{ resource.hero.statistics.money_spend_for_impact }}</span>
-    </li>
-    <li class="stat-record">
-      <span class="name">потрачено на обучение</span><span class="value">{{ resource.hero.statistics.money_spend_for_experience }}</span>
-    </li>
-    <li class="stat-record">
-      <span class="name">потрачено без пользы</span><span class="value">{{ resource.hero.statistics.money_spend_for_useless }}</span>
-    </li>
-  </ul>
-  <h3>Прочее</h3>
-  <ul class="unstyled">
-    <li class="stat-record"><span class="name">артефактов добыто</span><span class="value">{{ resource.hero.statistics.artifacts_had }}</span></li>
-    <li class="stat-record"><span class="name">добычи получено</span><span class="value">{{ resource.hero.statistics.loot_had }}</span></li>
-    <li class="stat-record"><span class="name">заданий выполнено</span><span class="value">{{ resource.hero.statistics.quests_done }}</span></li>
-    <li class="stat-record"><span class="name">получал помощь (раз)</span><span class="value">{{ resource.hero.statistics.help_count }}</span></li>
-    <li class="stat-record"><span class="name">использовано карт</span><span class="value">{{ resource.hero.statistics.cards_used }}</span></li>
-    <li class="stat-record"><span class="name">объединено карт</span><span class="value">{{ resource.hero.statistics.cards_combined }}</span></li>
-    <li class="stat-record"><span class="name">возвращено детских подарков</span><span class="value">{{ resource.hero.statistics.gifts_returned }}</span></li>
-  </ul>
+{% macro header(name) %}
+<h3>{{name}}</h3>
+{% endmacro %}
+
+<div class="easy-block hero-statistics">
+
+  <table class="table table-condensed"><tbody>
+      {{record("начало путешествия", resource.hero.birthday.verbose_date)}}
+      {{record("длительность путешествия (лет)", resource.hero.age.year)}}
+  </tbody></table>
+
+      {{header("Сражения")}}
+
+  <table class="table table-condensed"><tbody>
+      {{record("смертей от монстров", resource.hero.statistics.pve_deaths)}}
+      {{record("убито монстров", resource.hero.statistics.pve_kills)}}
+  </tbody></table>
+
+      {{header("PvP")}}
+
+  <table class="table table-condensed"><tbody>
+      {{record("проведено боёв", resource.hero.statistics.pvp_battles_1x1_number)}}
+      {{record("побед", resource.hero.statistics.pvp_battles_1x1_victories)}}
+      {{record("вничью", resource.hero.statistics.pvp_battles_1x1_draws)}}
+      {{record("поражений", resource.hero.statistics.pvp_battles_1x1_defeats)}}
+  </tbody></table>
+
+      {{header("Золото")}}
+
+  <table class="table table-condensed"><tbody>
+      {{record("всего заработано", resource.hero.statistics.money_earned)}}
+      {{record("заработано продажей добычи", resource.hero.statistics.money_earned_from_loot)}}
+      {{record("заработано продажей артефактов", resource.hero.statistics.money_earned_from_artifacts)}}
+      {{record("заработано выполнением квестов", resource.hero.statistics.money_earned_from_quests)}}
+      {{record("заработано чертами", resource.hero.statistics.money_earned_from_habits)}}
+      {{record("получено от хранителя", resource.hero.statistics.money_earned_from_help)}}
+      {{record("всего потрачено", resource.hero.statistics.money_spend)}}
+      {{record("потрачено на лечение", resource.hero.statistics.money_spend_for_heal)}}
+      {{record("потрачено на покупку артефактов", resource.hero.statistics.money_spend_for_artifacts)}}
+      {{record("потрачено на заточку артефактов", resource.hero.statistics.money_spend_for_sharpening)}}
+      {{record("потрачено на починку экипировки", resource.hero.statistics.money_spend_for_repairing)}}
+      {{record("потрачено на пошлину", resource.hero.statistics.money_spend_for_tax)}}
+      {{record("потрачено на изменение влияния", resource.hero.statistics.money_spend_for_impact)}}
+      {{record("потрачено на обучение", resource.hero.statistics.money_spend_for_experience)}}
+      {{record("потрачено без пользы", resource.hero.statistics.money_spend_for_useless)}}
+  </tbody></table>
+
+      {{header("Прочее")}}
+
+  <table class="table table-condensed"><tbody>
+      {{record("артефактов добыто", resource.hero.statistics.artifacts_had)}}
+      {{record("добычи получено", resource.hero.statistics.loot_had)}}
+      {{record("заданий выполнено", resource.hero.statistics.quests_done)}}
+      {{record("получал помощь (раз)", resource.hero.statistics.help_count)}}
+      {{record("использовано карт", resource.hero.statistics.cards_used)}}
+      {{record("объединено карт", resource.hero.statistics.cards_combined)}}
+      {{record("возвращено детских подарков", resource.hero.statistics.gifts_returned)}}
+  </tbody></table>
+
 </div>

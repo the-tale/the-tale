@@ -1,14 +1,9 @@
 
 @import "constants.less";
 
+@first-row-height: 300px;
 @second-row-height: 400px;
 
-.second-row {
-
-   .block {
-      min-height: @second-row-height;
-   }
-}
 
 .hero-base-block {
 
@@ -239,6 +234,13 @@
    &:last-child {
       border-bottom: none;
    }
+
+   .quest-record {
+      &:hover {
+         background-color: @hover-color;
+      }
+   }
+
 }
 
 .quest-icon {
@@ -305,10 +307,6 @@
    min-height: 84px;
    cursor: default;
 
-   &:hover {
-      background-color: @hover-color;
-   }
-
    .quest-body {
       padding-left: 70px;
    }
@@ -346,10 +344,18 @@
    }
 }
 
+.first-row-block {
+   min-height: @first-row-height;
+}
+
+.second-row-block {
+   min-height: @second-row-height;
+}
+
 .log-block {
    overflow-y: scroll;
    overflow-x: hidden;
-   height: @second-row-height;
+   height: @second-row-height - 50px;
 }
 
 .log-record {
@@ -406,9 +412,9 @@
       right: -1px;
       top: 0;
       z-index: 1001;
-      background-color: @block-background-color;
+      background-color: @easy-block-background-color;
 
-      border: 1px solid @border-color;
+      /* border: 1px solid @border-color; */
       border-bottom-left-radius: 8px;
       padding: 0.25em;
 
@@ -673,14 +679,5 @@
    &.miner {
       background: url('../game/images/professions.png') no-repeat scroll -32px -320px transparent;
    }
-
-
-
-
-
-
-
-
-
 
 }

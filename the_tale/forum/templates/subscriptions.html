@@ -21,7 +21,7 @@
         <h3>Разделы</h3>
 
         {% if subcategories %}
-          <table class="table table-striped forum-table table-no-highlighting">
+          <table class="table table-striped forum-table">
             <thead>
               <tr>
                 {{ forum_macros.subcategory_record_heading(subscription=true) }}
@@ -44,7 +44,7 @@
         <h3>Обсуждения</h3>
 
         {% if threads %}
-          <table class="table table-striped forum-table table-no-highlighting">
+          <table class="table table-striped forum-table">
             <thead>
               <tr>
                 {{ forum_macros.thread_record_heading(subscription=true) }}

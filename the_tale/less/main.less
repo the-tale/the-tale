@@ -28,6 +28,8 @@ body {
 
    word-wrap: break-word;
 
+   background-color: @background-color !important;
+
    #main-container {
       height: 100%;
       min-height: 100%;
@@ -57,6 +59,8 @@ body {
       padding: 0.75em;
       margin-top: 0;
       margin-bottom: 10px;
+      background-color: @easy-block-background-color;
+      border-radius: 8px;
    }
 
    hr {
@@ -72,6 +76,18 @@ body {
    .nav-tabs > li > a, .nav-pills > li > a {
       padding-right: 10px;
       padding-left: 10px;
+
+      &:hover {
+         background-color: @hover-color;
+      }
+   }
+
+   .nav-tabs > .active > a {
+      background-color: @easy-block-background-color;
+
+      &:hover {
+         background-color: @easy-block-background-color;
+      }
    }
 
    .navbar {
@@ -135,6 +151,16 @@ body {
 
             a {
                color: @disabled-text-color;
+
+               &:hover {
+                  background-color: @hover-color;
+               }
+            }
+         }
+
+         &:not(.active) a {
+            &:hover {
+               background-color: @hover-color;
             }
          }
       }
@@ -183,6 +209,10 @@ small {
    &.wait-backdrop {
       z-index:10000
    }
+}
+
+.dropdown-menu {
+   background-color: @easy-block-background-color !important;
 }
 
 .modal-body {
@@ -239,30 +269,86 @@ small {
    }
 }
 
-/* remove table row highlighting */
-table {
+table.table {
 
    &.table-no-highlighting {
-      &.table tbody tr:hover td {
-         background-color: white;
+
+      & tbody {
+         tr:nth-child(odd) {
+            &:hover td {
+               background-color: @background-color !important;
+            }
+
+            &:hover th {
+               background-color: @background-color !important;
+            }
+
+            & th {
+               background-color: @background-color !important;
+            }
+         }
+
+         tr:nth-child(even){
+            &:hover td {
+               background-color: @easy-block-background-color !important;
+            }
+
+            &:hover th {
+               background-color: @easy-block-background-color !important;
+            }
+         }
+      }
+   }
+
+
+   & tbody {
+      tr:nth-child(odd) {
+         &:hover td {
+            background-color: @hover-color !important;
+         }
+
+         & td {
+            background-color: @background-color !important;
+         }
+
+         &:hover th {
+            background-color: @hover-color !important;
+         }
+
+         & th {
+            background-color: @background-color !important;
+         }
       }
 
-      &.table tbody tr:hover th {
-         background-color: white;/* #F9F9F9; */
+      tr:nth-child(even){
+         &:hover td {
+            background-color: @hover-color !important;
+         }
+
+         & td {
+            background-color: @easy-block-background-color !important;
+         }
+
+         &:hover th {
+            background-color: @hover-color !important;
+         }
+
+         & th {
+            background-color: @easy-block-background-color !important;
+         }
       }
    }
+}
 
-   &.table-striped tbody tr:nth-child(odd):hover td {
-      background-color: #F9F9F9;
-   }
-
-   &.table-striped tbody tr:nth-child(odd):hover th {
-      background-color: #F9F9F9;
-   }
+ul.breadcrumb {
+   background: @background-color !important;
+   border: none;
+   box-shadow: none;
 }
 
 blockquote {
    font-style: italic;
+   border-left-color: @hover-color !important;
 }
 
 .addthis_toolbox {
