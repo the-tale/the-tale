@@ -100,24 +100,26 @@ jQuery(document).ready(function(e){
 
 <div class="row pgf-game-data pgf-hidden">
   <div class="span3">
-    <div class="block">
+    <div class="easy-block">
       {{ hero_equipment_macros.hero_equipment("own-equipment", data_mode="pvp_account", EQUIPMENT_SLOT=EQUIPMENT_SLOT) }}
     </div>
 
-    <div class="block">
+    <div class="easy-block">
       {{ render_abilities(own_abilities) }}
     </div>
 
   </div>
   <div class="span6">
-    {{ log_macros.log(data_mode="pvp") }}
+    <div class="easy-block">
+      {{ log_macros.log(data_mode="pvp") }}
+    </div>
   </div>
   <div class="span3">
-    <div class="block">
+    <div class="easy-block">
       {{ hero_equipment_macros.hero_equipment("enemy-equipment", data_mode="pvp_enemy", EQUIPMENT_SLOT=EQUIPMENT_SLOT) }}
     </div>
 
-    <div class="block">
+    <div class="easy-block">
       {{ render_abilities(enemy_abilities) }}
     </div>
 
