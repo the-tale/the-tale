@@ -129,6 +129,6 @@ class LEXICON_GROUP(DjangoEnum):
 
                ('COMPANIONS', 29, u'Спутники', 290000,
                u'Тексты, относящиеся к спутникам.',
-               {V.HERO: u'герой', V.COMPANION: u'спутник', V.MOB: u'монстр'}),
+               {V.COMPANION_OWNER: u'владелец спутника', V.COMPANION: u'спутник', V.ATTACKER: u'атакущий спутника'}),
 
                )

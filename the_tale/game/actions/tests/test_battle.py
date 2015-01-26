@@ -10,6 +10,9 @@ from the_tale.game.balance.power import Damage
 
 from the_tale.game.logic import create_test_map
 
+from the_tale.game.companions import storage as companions_storage
+from the_tale.game.companions import logic as companions_logic
+
 from the_tale.game.actions import battle
 from the_tale.game.actions.contexts import BattleContext
 
@@ -243,3 +246,124 @@ class BattleTests(testcase.TestCase):
         self.assertEqual(actor_1.health, 0)
         battle.strike(actor_1, actor_2, mock.Mock())
         self.assertEqual(actor_1.health, 1)
+
+    @mock.patch('the_tale.game.actions.battle.try_companion_block', mock.Mock(return_value=True))
+    def test_try_companion_block__successed(self):
+        actor_1, actor_2 = self.get_actors()
+
+        with mock.patch('the_tale.game.actions.battle.strike_without_contact') as strike_without_contact:
+            with mock.patch('the_tale.game.actions.battle.strike_with_contact') as strike_with_contact:
+                battle.make_turn(actor_1, actor_2, self.hero)
+
+        self.assertEqual(strike_without_contact.call_count, 0)
+        self.assertEqual(strike_with_contact.call_count, 0)
+
+    @mock.patch('the_tale.game.actions.battle.try_companion_block', mock.Mock(return_value=False))
+    def test_try_companion_block__failed(self):
+        actor_1, actor_2 = self.get_actors()
+
+        with mock.patch('the_tale.game.actions.battle.strike_without_contact') as strike_without_contact:
+            with mock.patch('the_tale.game.actions.battle.strike_with_contact') as strike_with_contact:
+                battle.make_turn(actor_1, actor_2, self.hero)
+
+        self.assertEqual(strike_without_contact.call_count+strike_with_contact.call_count, 1)
+
+    def set_hero_companion(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        companion = companions_logic.create_companion(companion_record)
+        self.hero.set_companion(companion)
+
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_DEFEND_IN_BATTLE_PROBABILITY', 1.0)
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY', 1.0)
+    def test_try_companion_block__no_companion(self):
+        actor_1, actor_2 = self.get_actors()
+
+        self.assertFalse(actor_1.has_companion)
+        self.assertFalse(actor_2.has_companion)
+
+        self.assertFalse(battle.try_companion_block(attacker=actor_2, defender=actor_1, messanger=self.hero))
+
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_DEFEND_IN_BATTLE_PROBABILITY', 1.0)
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY', 1.0)
+    def test_try_companion_block__no_companion__attacker_has_companion(self):
+        actor_1, actor_2 = self.get_actors()
+
+        self.set_hero_companion()
+
+        self.assertTrue(actor_1.has_companion)
+        self.assertFalse(actor_2.has_companion)
+
+        self.assertFalse(battle.try_companion_block(attacker=actor_1, defender=actor_2, messanger=self.hero))
+
+
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_DEFEND_IN_BATTLE_PROBABILITY', 0.0)
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY', 1.0)
+    def test_try_companion_block__not_defend(self):
+        actor_1, actor_2 = self.get_actors()
+
+        self.set_hero_companion()
+
+        self.assertTrue(actor_1.has_companion)
+        self.assertFalse(actor_2.has_companion)
+
+        with self.check_not_changed(self.hero.diary.__len__):
+            with self.check_not_changed(self.hero.messages.__len__):
+                with self.check_not_changed(lambda: self.hero.companion.health):
+                    self.assertFalse(battle.try_companion_block(attacker=actor_2, defender=actor_1, messanger=self.hero))
+
+
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_DEFEND_IN_BATTLE_PROBABILITY', 1.0)
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY', 0.0)
+    def test_try_companion_block__success_block(self):
+        actor_1, actor_2 = self.get_actors()
+
+        self.set_hero_companion()
+
+        self.assertTrue(actor_1.has_companion)
+        self.assertFalse(actor_2.has_companion)
+
+        with self.check_not_changed(self.hero.diary.__len__):
+            with self.check_delta(self.hero.messages.__len__, 1):
+                with self.check_not_changed(lambda: self.hero.companion.health):
+                    self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messanger=self.hero))
+
+        self.assertTrue(self.hero.messages.messages[-1].key.is_COMPANIONS_BLOCK)
+
+
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_DEFEND_IN_BATTLE_PROBABILITY', 1.0)
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY', 1.0)
+    def test_try_companion_block__wounded_on_block(self):
+        actor_1, actor_2 = self.get_actors()
+
+        self.set_hero_companion()
+
+        self.assertTrue(actor_1.has_companion)
+        self.assertFalse(actor_2.has_companion)
+
+        with self.check_not_changed(self.hero.diary.__len__):
+            with self.check_delta(self.hero.messages.__len__, 1):
+                with self.check_delta(lambda: self.hero.companion.health, -1):
+                    self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messanger=self.hero))
+
+        self.assertTrue(self.hero.messages.messages[-1].key.is_COMPANIONS_WOUND)
+
+
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_DEFEND_IN_BATTLE_PROBABILITY', 1.0)
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY', 1.0)
+    @mock.patch('the_tale.game.heroes.messages.JournalContainer.MESSAGES_LOG_LENGTH', 10000)
+    def test_try_companion_block__killed_on_block(self):
+        actor_1, actor_2 = self.get_actors()
+
+        self.set_hero_companion()
+
+        self.assertTrue(actor_1.has_companion)
+        self.assertFalse(actor_2.has_companion)
+
+        with self.check_delta(self.hero.diary.__len__, 1):
+            with self.check_delta(self.hero.messages.__len__,  self.hero.companion.max_health + 1):
+                for i in xrange(self.hero.companion.max_health):
+                    self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messanger=self.hero))
+
+        self.assertEqual(self.hero.companion, None)
+        self.assertFalse(actor_1.has_companion)
+        self.assertTrue(self.hero.messages.messages[-1].key.is_COMPANIONS_KILLED)

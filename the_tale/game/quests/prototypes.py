@@ -434,6 +434,9 @@ class QuestPrototype(object):
 
         hero.statistics.change_quests_done(1)
 
+        if hero.companion:
+            hero.companion.add_experience(c.COMPANIONS_COHERENCE_EXP_PER_QUEST)
+
         for person_uid, result in finish.results.iteritems():
             if result == QUEST_RESULTS.FAILED:
                 hero.quests.add_interfered_person(self.knowledge_base[person_uid].externals['id'])

@@ -934,12 +934,13 @@ class GetCompanionBase(BaseEffect):
 
 
     def create_card(self, available_for_auction):
+
         available_companions = [companion
-                                for companion in companions_storage.companions.all()
+                                for companion in companions_storage.companions.enabled_companions()
                                 if companion.rarity == self.RARITY]
 
         if not available_companions:
-            available_companions = companions_storage.companions.all()
+            available_companions = list(companions_storage.companions.enabled_companions())
 
         card_companion = random.choice(available_companions)
 

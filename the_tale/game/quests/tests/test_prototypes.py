@@ -369,6 +369,20 @@ class PrototypeTests(PrototypeTestsBase):
         with self.check_delta(lambda: self.hero.experience, 21):
             self.quest._finish_quest(mock.Mock(results=mock.Mock(iteritems=lambda: [])), self.hero)
 
+    def test_finish_quest__add_companion_experience(self):
+        from the_tale.game.companions import storage as companions_storage
+        from the_tale.game.companions import logic as companions_logic
+
+        companion_record = companions_storage.companions.enabled_companions().next()
+        companion = companions_logic.create_companion(companion_record)
+        companion.coherence = 5
+
+        self.hero.set_companion(companion)
+
+        with self.check_delta(lambda: self.hero.companion.experience, 1):
+            with self.check_not_changed(lambda: self.hero.companion.coherence):
+                self.quest._finish_quest(mock.Mock(results=mock.Mock(iteritems=lambda: [])), self.hero)
+
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True)
     def test_give_power__add_bonus_power(self):
 

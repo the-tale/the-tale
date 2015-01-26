@@ -14,8 +14,37 @@ from the_tale.game.postponed_tasks import ComplexChangeTask
 
 from the_tale.game.companions import storage as companions_storage
 from the_tale.game.companions import logic as companions_logic
+from the_tale.game.companions import relations as companions_relations
 
 from the_tale.game.cards.tests.helpers import CardsTestMixin
+
+
+class GetCompanionCreateTests(testcase.TestCase):
+
+    def setUp(self):
+        super(GetCompanionCreateTests, self).setUp()
+        create_test_map()
+
+        goods_types.autodiscover()
+
+        self.account_1 = self.accounts_factory.create_account()
+
+        self.storage = LogicStorage()
+        self.storage.load_account_data(self.account_1)
+
+        self.hero = self.storage.accounts_to_heroes[self.account_1.id]
+
+        self.disabled_companion = companions_logic.create_random_companion_record('disbled', rarity=companions_relations.RARITY.COMMON)
+
+        self.effect = effects.GetCompanionCommon()
+
+
+    def test__no_disabled_companions(self):
+
+        for i in xrange(100):
+            card = self.effect.create_card(available_for_auction=True)
+            self.assertNotEqual(card.data['companion_id'], self.disabled_companion.id)
+            self.assertTrue(companions_storage.companions[card.data['companion_id']].state.is_ENABLED)
 
 
 class GetCompanionMixin(CardsTestMixin):

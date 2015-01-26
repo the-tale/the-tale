@@ -24,13 +24,14 @@ from the_tale.game.balance.power import Damage
 
 from the_tale.game.logic_storage import LogicStorage
 
+from the_tale.game.companions import storage as companions_storage
+from the_tale.game.companions import logic as companions_logic
+
 from the_tale.game.map.places.storage import places_storage
 from the_tale.game.map.places.relations import CITY_MODIFIERS
 from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.relations import HABIT_PEACEFULNESS_INTERVAL, HABIT_HONOR_INTERVAL
-
-from the_tale.game.cards.relations import CARD_TYPE, RARITY as CARD_RARITY
 
 from the_tale.game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
 from the_tale.game.heroes.habilities import ABILITY_TYPE, ABILITIES, battle, ABILITY_AVAILABILITY
@@ -647,6 +648,37 @@ class HeroTest(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.physic_damage_modifier', 4)
     def test_basic_damage(self):
         self.assertEqual(self.hero.basic_damage, Damage(physic=8, magic=6))
+
+
+    def test_set_companion(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        companion = companions_logic.create_companion(companion_record)
+
+        self.assertEqual(self.hero.companion, None)
+
+        with self.check_delta(self.hero.diary.__len__, 1):
+            self.hero.set_companion(companion)
+
+        self.assertTrue(self.hero.diary.messages[-1].key.is_COMPANIONS_RECEIVED)
+        self.assertEqual(self.hero.companion.record.id, companion_record.id)
+
+
+    def test_set_companion__replace(self):
+        companion_record_1 = list(companions_storage.companions.enabled_companions())[0]
+        companion_record_2 = list(companions_storage.companions.enabled_companions())[1]
+
+        companion_1 = companions_logic.create_companion(companion_record_1)
+        companion_2 = companions_logic.create_companion(companion_record_2)
+
+        self.hero.set_companion(companion_1)
+
+        with self.check_delta(self.hero.diary.__len__, 2):
+            self.hero.set_companion(companion_2)
+
+        self.assertTrue(self.hero.diary.messages[-2].key.is_COMPANIONS_LEFT)
+        self.assertTrue(self.hero.diary.messages[-1].key.is_COMPANIONS_RECEIVED)
+
+        self.assertEqual(self.hero.companion.record.id, companion_record_2.id)
 
 
 class HeroLevelUpTests(testcase.TestCase):

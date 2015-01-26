@@ -2,6 +2,8 @@
 
 import random
 
+from the_tale.game.balance import constants as c
+
 
 from the_tale.common.utils.logic import random_value_by_priority
 
@@ -39,13 +41,22 @@ class Actor(object):
     def power(self): return self.actor.power
 
     @property
+    def has_companion(self): return getattr(self.actor, 'companion', None) is not None
+
+    @property
+    def companion(self): return self.actor.companion
+
+    def remove_companion(self):
+        self.actor.remove_companion()
+
+    @property
     def health(self): return self.actor.health
 
     @property
     def max_health(self): return self.actor.max_health
 
-    @property
-    def mob_type(self): return self.actor.mob_type
+    # @property
+    # def mob_type(self): return self.actor.mob_type
 
     def change_health(self, value):
         # TODO: change for heal & kick methods?
@@ -115,6 +126,9 @@ def strike(attacker, defender, messanger):
         messanger.add_message('action_battlepve1x1_battle_stun', actor=attacker)
         return
 
+    if try_companion_block(attacker, defender, messanger):
+        return
+
     ability = attacker.choose_ability()
 
     if ability.LOGIC_TYPE.is_WITHOUT_CONTACT:
@@ -142,3 +156,26 @@ def strike_with_contact(ability, attacker, defender, messanger):
 
 def strike_without_contact(ability, attacker, defender, messanger):
     ability.use(messanger, attacker, defender)
+
+
+def try_companion_block(attacker, defender, messanger):
+
+    if not defender.has_companion:
+        return False
+
+    if random.random() > c.COMPANIONS_DEFEND_IN_BATTLE_PROBABILITY:
+        return False
+
+    if random.random() > c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY:
+        messanger.add_message('companions_block', attacker=attacker, companion_owner=defender, companion=defender.companion)
+        return True
+
+    messanger.add_message('companions_wound', attacker=attacker, companion_owner=defender, companion=defender.companion)
+
+    defender.companion.hit()
+
+    if defender.companion.is_dead:
+        messanger.add_message('companions_killed', diary=True, attacker=attacker, companion_owner=defender, companion=defender.companion)
+        defender.remove_companion()
+
+    return True

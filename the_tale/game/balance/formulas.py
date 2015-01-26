@@ -156,8 +156,7 @@ def might_pvp_effectiveness_bonus(might):
 
 
 def path_to_turns(path_length):
-    distance_in_action_cycle = c.HERO_MOVE_SPEED * (c.INTERVAL_BETWEEN_BATTLES * c.BATTLES_BEFORE_HEAL)
-    return path_length / distance_in_action_cycle * c.ACTIONS_CYCLE_LENGTH
+    return path_length / c.DISTANCE_IN_ACTION_CYCLE * c.ACTIONS_CYCLE_LENGTH
 
 def experience_for_quest__real(max_path_length):
     MAGIC_QUEST_MULTIPLIER = 0.7
@@ -191,3 +190,7 @@ def place_goods_production(level):
 
 def place_goods_consumption(level):
     return level * c.PLACE_GOODS_BONUS
+
+def companions_coherence_for_level(level):
+    # если меняется, необходимо пересчитать количество опыта за квест для спутника
+    return level

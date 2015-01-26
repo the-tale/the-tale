@@ -17,5 +17,8 @@ class CompanionsStorage(storage.Storage):
     def _get_all_query(self):
         return models.CompanionRecord.objects.all()
 
+    def enabled_companions(self):
+        return (companion for companion in self.all() if companion.state.is_ENABLED)
+
 
 companions = CompanionsStorage()

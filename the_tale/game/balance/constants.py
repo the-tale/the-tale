@@ -51,6 +51,8 @@ INTERVAL_BETWEEN_BATTLES = int(3) # ходов - время, между двум
 
 BATTLES_BEFORE_HEAL = int(8) # количество боёв в непрерывной цепочке битв
 
+DISTANCE_IN_ACTION_CYCLE = HERO_MOVE_SPEED * (INTERVAL_BETWEEN_BATTLES * BATTLES_BEFORE_HEAL)
+
 HEAL_TIME_FRACTION = float(0.2) # доля времени от цепочки битв, которую занимает полный отхил героя
 HEAL_STEP_FRACTION = float(0.2) # разброс регенерации за один ход
 
@@ -134,7 +136,9 @@ PREFERENCES_CHANGE_DELAY = int(2*7*24*60*60) # время блокировки �
 
 PREFERED_MOB_LOOT_PROBABILITY_MULTIPLIER = float(2) # множитель вероятности получения лута из любимой добычи
 
-DAMAGE_TO_HERO_PER_HIT_FRACTION = float(1.0 / (BATTLES_BEFORE_HEAL * BATTLE_LENGTH / 2)) # доля урона, наносимого герою за удар
+COMPANIONS_DEFENDS_IN_BATTLE = float(1.5) # среднее количество «защит» героя средним спутником за 1 бой
+
+DAMAGE_TO_HERO_PER_HIT_FRACTION = float(1.0 / (BATTLES_BEFORE_HEAL * (BATTLE_LENGTH / 2 - COMPANIONS_DEFENDS_IN_BATTLE))) # доля урона, наносимого герою за удар
 DAMAGE_TO_MOB_PER_HIT_FRACTION = float(1.0 / (BATTLE_LENGTH / 2)) # доля урона, наносимого мобу за удар
 DAMAGE_DELTA = float(0.2) # разброс в значениях урона [1-DAMAGE_DELTA, 1+DAMAGE_DELTA]
 
@@ -261,6 +265,10 @@ MAP_CELL_LENGTH = float(3.0) # длина клетки в километрах
 QUEST_AREA_RADIUS = float(60 * MAP_CELL_LENGTH) # радиус от позиции героя в котором ОБЫЧНО выбираются города для его заданий
 QUEST_AREA_SHORT_RADIUS = QUEST_AREA_RADIUS / 2 # радиус от позиции героя в котором выбираются города для его заданий на начальных уровнях
 QUEST_AREA_MAXIMUM_RADIUS = float(1000000 * MAP_CELL_LENGTH) # максимальный радиус для выбора городов для заданий
+
+# примерное количество ходов на один квест вида «сходит туда и обратно»
+# средний квест предполагает среднее расстояние между городами, значит двойное расстоения надо поделить на 2
+TURNS_IN_QUEST = QUEST_AREA_RADIUS * 2 / 2 / DISTANCE_IN_ACTION_CYCLE * ACTIONS_CYCLE_LENGTH
 
 MAP_SYNC_TIME_HOURS = int(1)
 MAP_SYNC_TIME = int(TURNS_IN_HOUR * MAP_SYNC_TIME_HOURS) # синхронизируем карту раз в N часов
@@ -473,3 +481,44 @@ BUILDING_TERRAIN_POWER_MULTIPLIER = float(0.5) # building terrain power is perce
 
 CARDS_HELP_COUNT_TO_NEW_CARD = int(1.5 * _ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST)
 CARDS_COMBINE_TO_UP_RARITY = 3
+
+
+###########################
+# Спутники
+###########################
+
+# под средним спутником понимается спутник со
+# - средним здоровьем
+# - средней самоотверженностью
+# - средней слаженностью
+
+# рост слаженности огранизуется так, чтобы она росла сначала быстро, потом ооооооочень долго
+# в качестве опыта идёт 1 выполненного задания
+# для получения слаженности N требуется N опыта
+
+COMPANIONS_MIN_COHERENCE = int(0)   # минимальный уровень слаженности
+COMPANIONS_MAX_COHERENCE = int(100) # максимальный уровень слаженности
+
+# опыта к слаженности за выполненный квест
+# подбирается так, чтобы слаженность росла до максимума примерно за 9 месяцев
+_QUESTS_REQUIED = (9*30*24*60*60) / (TURNS_IN_QUEST * TURN_DELTA)
+COMPANIONS_COHERENCE_EXP_PER_QUEST = int(((1+100)*100/2) / _QUESTS_REQUIED)
+
+_COMPANIONS_MEDIUM_COHERENCE = float(COMPANIONS_MIN_COHERENCE + COMPANIONS_MAX_COHERENCE) / 2
+
+COMPANIONS_MIN_DEDICATION = int(0) # минимальный уровень самоотверженности
+COMPANIONS_MAX_DEDICATION = int(4) # максимальный уровень самоотверженности
+
+_COMPANIONS_MEDIUM_DEDEICATION = float(COMPANIONS_MIN_DEDICATION + COMPANIONS_MAX_DEDICATION) / 2
+
+COMPANIONS_MIN_HEALTH = int(30) # минимальное максимальное здоровье спутника
+COMPANIONS_MAX_HEALTH = int(70) # максимальное максимальное здоровье спутника
+
+_COMPANIONS_MEDIUM_HEALTH = float(COMPANIONS_MIN_HEALTH + COMPANIONS_MAX_HEALTH) / 2
+
+_COMPANIONS_MEDIUM_LIFETYME = int(10) # ожидаемое время жизни среднего спутника со средним здоровьем без лечения
+
+# вероятность того, что удар противника в бою встретит спутник
+COMPANIONS_DEFEND_IN_BATTLE_PROBABILITY = float(COMPANIONS_DEFENDS_IN_BATTLE) / (BATTLE_LENGTH / 2)
+
+COMPANIONS_WOUND_ON_DEFEND_PROBABILITY = float(_COMPANIONS_MEDIUM_LIFETYME) / COMPANIONS_DEFENDS_IN_BATTLE * BATTLES_PER_HOUR * 24

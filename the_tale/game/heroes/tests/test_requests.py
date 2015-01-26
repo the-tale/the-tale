@@ -73,16 +73,16 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
 
     def test_own_hero_page(self):
         self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)),
-                           texts=(('pgf-health-percents', 1),
+                           texts=(('pgf-health-percents', 2),
                                   ('pgf-reset-abilities-timeout-button', 1),
                                   ('pgf-reset-abilities-button', 0),
-                                  ('pgf-experience-percents', 1),
+                                  ('pgf-experience-percents', 2),
                                   ('pgf-energy-percents', 1),
                                   ('pgf-physic-power value', 1),
                                   ('pgf-magic-power value', 1),
                                   ('pgf-money', 1),
-                                  ('"pgf-health"', 1),
-                                  ('pgf-max-health', 1),
+                                  ('"pgf-health"', 2),
+                                  ('pgf-max-health', 2),
                                   ('pgf-choose-ability-button', 2),
                                   ('pgf-choose-preference-button', 2),
                                   ('pgf-free-destiny-points', 3),
@@ -100,7 +100,7 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
                                   ('pgf-reset-abilities-button', 1)))
 
     def test_other_hero_page(self):
-        texts = (('pgf-health-percents', 1),
+        texts = (('pgf-health-percents', 2),
                  ('pgf-reset-abilities-timeout-button', 0),
                  ('pgf-reset-abilities-button', 0),
                  ('pgf-experience-percents', 0),
@@ -108,8 +108,8 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
                  ('pgf-physic-power value', 1),
                  ('pgf-magic-power value', 1),
                  ('pgf-money', 1),
-                 ('"pgf-health"', 1),
-                 ('pgf-max-health', 1),
+                 ('"pgf-health"', 2),
+                 ('pgf-max-health', 2),
                  ('pgf-choose-ability-button', 0),
                  ('pgf-choose-preference-button', 0),
                  ('pgf-no-destiny-points', 0),

@@ -142,5 +142,6 @@ class VARIABLE(DjangoEnum):
                 ('DEFENDER', 'defender', u'защитник', VARIABLE_TYPE.ACTOR),
                 ('ACTOR', 'actor', u'актор (герой или монстр)', VARIABLE_TYPE.ACTOR),
                 ('CONVERSION', 'conversion', u'информация о конверсии параметров', VARIABLE_TYPE.TEXT),
-                ('COMPANION', 'companion', u'спутник', VARIABLE_TYPE.COMPANION)
+                ('COMPANION', 'companion', u'спутник', VARIABLE_TYPE.COMPANION),
+                ('COMPANION_OWNER', 'companion_owner', u'владелец спутника', VARIABLE_TYPE.ACTOR),
                 )

@@ -10,12 +10,14 @@ from the_tale.linguistics.forms import WordField
 
 from the_tale.game.companions import relations
 
+from the_tale.game.balance import constants as c
+
 
 class CompanionRecordForm(forms.Form):
 
     name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название')
 
-    max_health = fields.IntegerField(label=u'здоровье', min_value=1)
+    max_health = fields.IntegerField(label=u'здоровье', min_value=c.COMPANIONS_MIN_HEALTH, max_value=c.COMPANIONS_MAX_HEALTH)
 
     type = fields.RelationField(label=u'тип', relation=relations.TYPE)
     dedication = fields.RelationField(label=u'самоотверженность', relation=relations.DEDICATION)

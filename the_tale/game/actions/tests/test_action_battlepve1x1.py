@@ -1,12 +1,17 @@
 # coding: utf-8
 import mock
 
+import random
+
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.game.logic_storage import LogicStorage
+
+from the_tale.game.companions import storage as companions_storage
+from the_tale.game.companions import logic as companions_logic
 
 from the_tale.game.balance import constants as c
 from the_tale.game.balance.power import Power
@@ -35,6 +40,13 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.hero = self.storage.accounts_to_heroes[account_id]
 
         self.hero._model.level = 66
+
+        # do half of tests with companion
+        if random.random() < 0.5:
+            companion_record = companions_storage.companions.enabled_companions().next()
+            companion = companions_logic.create_companion(companion_record)
+            self.hero.set_companion(companion)
+            self.hero.companion.health = 1
 
         self.action_idl = self.hero.actions.current_action
 

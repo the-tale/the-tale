@@ -386,8 +386,19 @@ class HeroPrototype(BasePrototype,
         return companions_objects.Companion.deserialize(companion_data)
 
     def set_companion(self, companion):
-        del self.companion
+        if self.companion:
+            self.add_message('companions_left', diary=True, hero=self, companion=self.companion)
+
+        self.add_message('companions_received', diary=True, hero=self, companion=companion)
+
+        self.remove_companion()
+
         self.data['companion'] = companion.serialize()
+
+    def remove_companion(self):
+        del self.companion
+        self.data['companion'] = None
+
 
     def serialize_companion(self):
         if self.companion is None:

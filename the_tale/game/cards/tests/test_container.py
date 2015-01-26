@@ -6,6 +6,8 @@ import mock
 
 from the_tale.common.utils import testcase
 
+from the_tale.market import goods_types
+
 from the_tale.game.logic import create_test_map
 from the_tale.game.logic_storage import LogicStorage
 
@@ -19,6 +21,8 @@ class ContainerTests(testcase.TestCase):
 
     def setUp(self):
         super(ContainerTests, self).setUp()
+
+        goods_types.autodiscover(if_empty=True)
 
         create_test_map()
 
@@ -147,6 +151,8 @@ class GetNewCardTest(testcase.TestCase):
 
     def setUp(self):
         super(GetNewCardTest, self).setUp()
+
+        goods_types.autodiscover(if_empty=True)
 
         create_test_map()
 

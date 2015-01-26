@@ -6,37 +6,67 @@ from the_tale.common.utils import bbcode
 
 from the_tale.game import names
 
+from the_tale.game.balance import formulas as f
+from the_tale.game.balance import constants as c
+
 
 
 class Companion(object):
-    __slots__ = ('record', 'health', 'coherence')
+    __slots__ = ('record', 'health', 'coherence', 'experience')
 
-    def __init__(self, record, health, coherence):
+    def __init__(self, record, health, coherence, experience):
         self.record = record
         self.health = health
         self.coherence = coherence
+        self.experience = experience
 
     def serialize(self):
         return {'record': self.record.id,
                 'health': self.health,
-                'coherence': self.coherence}
+                'coherence': self.coherence,
+                'experience': self.experience}
 
     @classmethod
     def deserialize(cls, data):
         from the_tale.game.companions import storage
         obj = cls(record=storage.companions[data['record']],
                   health=data['health'],
-                  coherence=data['coherence'])
+                  coherence=data['coherence'],
+                  experience=data['experience'])
         return obj
 
     @property
     def name(self): return self.record.name
 
     @property
-    def utg_name(self): return self.record.utg_name
+    def utg_name_form(self): return self.record.utg_name_form
+
+    def linguistics_restrictions(self):
+        return []
 
     @property
     def max_health(self): return self.record.max_health
+
+    def hit(self): self.health -= 1
+
+    @property
+    def is_dead(self): return self.health <= 0
+
+
+    def add_experience(self, value):
+        self.experience += value
+
+        if self.coherence == c.COMPANIONS_MAX_COHERENCE:
+            self.experience = min(self.experience, self.experience_to_next_level)
+            return
+
+        while self.experience_to_next_level <= self.experience:
+            self.experience -= self.experience_to_next_level
+            self.coherence += 1
+
+    @property
+    def experience_to_next_level(self):
+        return f.companions_coherence_for_level(min(self.coherence + 1, c.COMPANIONS_MAX_COHERENCE))
 
 
     def ui_info(self):
@@ -44,8 +74,8 @@ class Companion(object):
                 'name': self.name[0].upper() + self.name[1:],
                 'health': self.health,
                 'max_health': self.max_health,
-                'experience': 10,
-                'experience_to_level': 20,
+                'experience': self.experience,
+                'experience_to_level': self.coherence_experience_to_next_level,
                 'coherence': self.coherence}
 
 

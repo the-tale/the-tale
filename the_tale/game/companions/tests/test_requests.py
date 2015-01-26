@@ -166,7 +166,7 @@ class CreateRequestsTests(RequestsTestsBase):
     def post_data(self):
         data = {'description': 'some-description',
                 'type': relations.TYPE.random(),
-                'max_health': 666,
+                'max_health': 65,
                 'dedication': relations.DEDICATION.random(),
                 'rarity': relations.RARITY.random()}
         data.update(linguistics_helpers.get_word_post_data(names.generator.get_test_name(name='name'), prefix='name'))
@@ -449,7 +449,7 @@ class UpdateRequestsTests(RequestsTestsBase):
     def post_data(self):
         data = {'description': 'new-description',
                 'type': relations.TYPE.random(),
-                'max_health': 666,
+                'max_health': 65,
                 'dedication': relations.DEDICATION.random(),
                 'rarity': relations.RARITY.random()}
         data.update(linguistics_helpers.get_word_post_data(names.generator.get_test_name(name='new_name'), prefix='name'))

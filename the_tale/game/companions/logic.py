@@ -8,6 +8,8 @@ from the_tale.linguistics import relations as linguistics_relations
 
 from the_tale.game import names
 
+from the_tale.game.balance import constants as c
+
 from the_tale.game.companions import objects
 from the_tale.game.companions import models
 from the_tale.game.companions import relations
@@ -43,7 +45,7 @@ def create_companion_record(utg_name,
 
 def create_random_companion_record(name,
                                    type=relations.TYPE.LIVING,
-                                   max_health=10,
+                                   max_health=c.COMPANIONS_MIN_HEALTH,
                                    dedication=relations.DEDICATION.BRAVE,
                                    rarity=relations.RARITY.COMMON,
                                    state=relations.STATE.DISABLED):
@@ -126,4 +128,5 @@ def required_templates_count(companion_record):
 def create_companion(companion_record):
     return objects.Companion(record=companion_record,
                              health=companion_record.max_health,
-                             coherence=0)
+                             coherence=c.COMPANIONS_MIN_COHERENCE,
+                             experience=0)
