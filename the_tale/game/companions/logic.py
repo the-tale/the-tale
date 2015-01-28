@@ -1,4 +1,5 @@
 # coding: utf-8
+import time
 import datetime
 
 from dext.common.utils import s11n
@@ -129,4 +130,5 @@ def create_companion(companion_record):
     return objects.Companion(record=companion_record,
                              health=companion_record.max_health,
                              coherence=c.COMPANIONS_MIN_COHERENCE,
-                             experience=0)
+                             experience=0,
+                             healed_at=time.time())

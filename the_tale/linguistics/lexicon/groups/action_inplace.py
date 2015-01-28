@@ -108,7 +108,7 @@ KEYS = [(u'ACTION_INPLACE_DESCRIPTION', 80000, u'Описание', LEXICON_GROU
         [V.HERO, V.PLACE]),
 
         (u'ACTION_INPLACE_INSTANT_HEAL', 80026, u'Журнал: Лечение в курорте', LEXICON_GROUP.ACTION_INPLACE,
-        u'Герой моментально излечивается благодаря типу города «Курорт.»',
+        u'Герой моментально излечивается благодаря типу города «Курорт».',
         [V.HERO, V.PLACE]),
 
         (u'ACTION_INPLACE_TAX', 80027, u'Дневник: Оплата пошлины при входе в город', LEXICON_GROUP.ACTION_INPLACE,
@@ -117,6 +117,10 @@ KEYS = [(u'ACTION_INPLACE_DESCRIPTION', 80000, u'Описание', LEXICON_GROU
 
         (u'ACTION_INPLACE_TAX_NO_MONEY', 80028, u'Дневник: взимание пошлины', LEXICON_GROUP.ACTION_INPLACE,
         u'Герой платит пошлину за посещение города.',
+        [V.HERO, V.PLACE]),
+
+        (u'ACTION_INPLACE_COMPANION_HEAL', 80029, u'Журнал: Лечение спутнкиа в курорте', LEXICON_GROUP.ACTION_INPLACE,
+        u'Спутник восстанавливает 1 здоровья благодаря типу города «Курорт».',
         [V.HERO, V.PLACE]),
 
         ]

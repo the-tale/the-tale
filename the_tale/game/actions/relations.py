@@ -27,21 +27,23 @@ class ACTION_EVENT_REWARD(DjangoEnum):
 class ACTION_TYPE(DjangoEnum):
     meta = Column(unique=False)
     technical = Column(unique=False)
-    old_type = Column()
 
-    records = ( ('IDLENESS', 0, u'безделие', False, False, 'IDLENESS'),
-                ('QUEST',    1, u'задание', False, False, 'QUEST'),
-                ('MOVE_TO', 2, u'путешествие между городами', False, False, 'MOVE_TO'),
-                ('BATTLE_PVE_1X1', 3, u'сражение 1x1 с монстром', False, False, 'BATTLE_PVE1x1'),
-                ('RESURRECT', 4, u'воскрешение', False, False, 'RESURRECT'),
-                ('IN_PLACE', 5, u'действия в городе', False, False, 'IN_PLACE'),
-                ('REST', 6, u'отдых', False, False, 'REST'),
-                ('EQUIPPING', 7, u'экипировка', False, False, 'EQUIPPING'),
-                ('TRADING', 8, u'торговля', False, False, 'TRADING'),
-                ('MOVE_NEAR_PLACE', 9, u'путешествие около города', False, False, 'MOVE_NEAR_PLACE'),
-                ('REGENERATE_ENERGY', 10, u'восстановление энергии', False, False, 'REGENERATE_ENERGY'),
-                ('DO_NOTHING', 11, u'действие без эффекта на игру', False, False, 'DO_NOTHING'),
-                ('META_PROXY', 12, u'прокси-действия для взаимодействия героев', False, True, 'META_PROXY'),
-                ('ARENA_PVP_1X1', 13, u'PvP 1x1', True, False, 'ARENA_PVP_1X1'),
+    records = ( ('IDLENESS', 0, u'безделие', False, False),
+                ('QUEST',    1, u'задание', False, False),
+                ('MOVE_TO', 2, u'путешествие между городами', False, False),
+                ('BATTLE_PVE_1X1', 3, u'сражение 1x1 с монстром', False, False),
+                ('RESURRECT', 4, u'воскрешение', False, False),
+                ('IN_PLACE', 5, u'действия в городе', False, False),
+                ('REST', 6, u'отдых', False, False),
+                ('EQUIPPING', 7, u'экипировка', False, False),
+                ('TRADING', 8, u'торговля', False, False),
+                ('MOVE_NEAR_PLACE', 9, u'путешествие около города', False, False),
+                ('REGENERATE_ENERGY', 10, u'восстановление энергии', False, False),
+                ('DO_NOTHING', 11, u'действие без эффекта на игру', False, False),
+                ('META_PROXY', 12, u'прокси-действия для взаимодействия героев', False, True),
+                ('ARENA_PVP_1X1', 13, u'PvP 1x1', True, False),
 
-                ('TEST', 14, u'проверочное действие', False, True, 'TEST'))
+                ('TEST', 14, u'проверочное действие', False, True),
+
+                ('HEAL_COMPANION', 15, u'уход за спутником', False, False),
+                )

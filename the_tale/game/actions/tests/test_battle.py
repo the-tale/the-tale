@@ -273,7 +273,8 @@ class BattleTests(testcase.TestCase):
         companion = companions_logic.create_companion(companion_record)
         self.hero.set_companion(companion)
 
-    @mock.patch('the_tale.game.balance.constants.COMPANIONS_DEFEND_IN_BATTLE_PROBABILITY', 1.0)
+
+    @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY', 1.0)
     def test_try_companion_block__no_companion(self):
         actor_1, actor_2 = self.get_actors()
@@ -283,7 +284,8 @@ class BattleTests(testcase.TestCase):
 
         self.assertFalse(battle.try_companion_block(attacker=actor_2, defender=actor_1, messanger=self.hero))
 
-    @mock.patch('the_tale.game.balance.constants.COMPANIONS_DEFEND_IN_BATTLE_PROBABILITY', 1.0)
+
+    @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY', 1.0)
     def test_try_companion_block__no_companion__attacker_has_companion(self):
         actor_1, actor_2 = self.get_actors()
@@ -296,7 +298,7 @@ class BattleTests(testcase.TestCase):
         self.assertFalse(battle.try_companion_block(attacker=actor_1, defender=actor_2, messanger=self.hero))
 
 
-    @mock.patch('the_tale.game.balance.constants.COMPANIONS_DEFEND_IN_BATTLE_PROBABILITY', 0.0)
+    @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=0.0))
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY', 1.0)
     def test_try_companion_block__not_defend(self):
         actor_1, actor_2 = self.get_actors()
@@ -312,7 +314,7 @@ class BattleTests(testcase.TestCase):
                     self.assertFalse(battle.try_companion_block(attacker=actor_2, defender=actor_1, messanger=self.hero))
 
 
-    @mock.patch('the_tale.game.balance.constants.COMPANIONS_DEFEND_IN_BATTLE_PROBABILITY', 1.0)
+    @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY', 0.0)
     def test_try_companion_block__success_block(self):
         actor_1, actor_2 = self.get_actors()
@@ -330,7 +332,7 @@ class BattleTests(testcase.TestCase):
         self.assertTrue(self.hero.messages.messages[-1].key.is_COMPANIONS_BLOCK)
 
 
-    @mock.patch('the_tale.game.balance.constants.COMPANIONS_DEFEND_IN_BATTLE_PROBABILITY', 1.0)
+    @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY', 1.0)
     def test_try_companion_block__wounded_on_block(self):
         actor_1, actor_2 = self.get_actors()
@@ -348,7 +350,7 @@ class BattleTests(testcase.TestCase):
         self.assertTrue(self.hero.messages.messages[-1].key.is_COMPANIONS_WOUND)
 
 
-    @mock.patch('the_tale.game.balance.constants.COMPANIONS_DEFEND_IN_BATTLE_PROBABILITY', 1.0)
+    @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY', 1.0)
     @mock.patch('the_tale.game.heroes.messages.JournalContainer.MESSAGES_LOG_LENGTH', 10000)
     def test_try_companion_block__killed_on_block(self):

@@ -100,9 +100,12 @@ BATTLES_LINE_LENGTH = int(BATTLES_BEFORE_HEAL * (BATTLE_LENGTH + INTERVAL_BETWEE
 BATTLES_PER_TURN = float(1.0 / (INTERVAL_BETWEEN_BATTLES + 1) )
 WHILD_BATTLES_PER_TURN_BONUS = float(0.05)
 
+COMPANIONS_DEFENDS_IN_BATTLE = float(1.5) # среднее количество «защит» героя средним спутником за 1 бой
+COMPANIONS_HEAL_FRACTION = float(0.05) # доля действия уход за спутнкиком со средним количеством здоровья от всех действий героя
+
 HEAL_LENGTH = int(math.floor(BATTLES_LINE_LENGTH * HEAL_TIME_FRACTION)) # ходов - длительность лечения героя
 
-ACTIONS_CYCLE_LENGTH = int(BATTLES_LINE_LENGTH + HEAL_LENGTH) # ходов - длинна одного "игрового цикла" - цепочка боёв + хил
+ACTIONS_CYCLE_LENGTH = int(math.ceil((BATTLES_LINE_LENGTH + HEAL_LENGTH) / (1 - COMPANIONS_HEAL_FRACTION))) # ходов - длинна одного "игрового цикла" - цепочка боёв + хил
 
 # примерное количество боёв, которое будет происходить в час игрового времени
 BATTLES_PER_HOUR = TURNS_IN_HOUR * (float(BATTLES_BEFORE_HEAL) / ACTIONS_CYCLE_LENGTH)
@@ -135,8 +138,6 @@ ARTIFACT_BREAK_INTEGRITY_FRACTIONS = (float(0.1), float(0.2)) # на сколь�
 PREFERENCES_CHANGE_DELAY = int(2*7*24*60*60) # время блокировки возможности изменять предпочтение
 
 PREFERED_MOB_LOOT_PROBABILITY_MULTIPLIER = float(2) # множитель вероятности получения лута из любимой добычи
-
-COMPANIONS_DEFENDS_IN_BATTLE = float(1.5) # среднее количество «защит» героя средним спутником за 1 бой
 
 DAMAGE_TO_HERO_PER_HIT_FRACTION = float(1.0 / (BATTLES_BEFORE_HEAL * (BATTLE_LENGTH / 2 - COMPANIONS_DEFENDS_IN_BATTLE))) # доля урона, наносимого герою за удар
 DAMAGE_TO_MOB_PER_HIT_FRACTION = float(1.0 / (BATTLE_LENGTH / 2)) # доля урона, наносимого мобу за удар
@@ -504,7 +505,7 @@ COMPANIONS_MAX_COHERENCE = int(100) # максимальный уровень с
 _QUESTS_REQUIED = (9*30*24*60*60) / (TURNS_IN_QUEST * TURN_DELTA)
 COMPANIONS_COHERENCE_EXP_PER_QUEST = int(((1+100)*100/2) / _QUESTS_REQUIED)
 
-_COMPANIONS_MEDIUM_COHERENCE = float(COMPANIONS_MIN_COHERENCE + COMPANIONS_MAX_COHERENCE) / 2
+COMPANIONS_MEDIUM_COHERENCE = float(COMPANIONS_MIN_COHERENCE + COMPANIONS_MAX_COHERENCE) / 2
 
 COMPANIONS_MIN_DEDICATION = int(0) # минимальный уровень самоотверженности
 COMPANIONS_MAX_DEDICATION = int(4) # максимальный уровень самоотверженности
@@ -518,7 +519,13 @@ _COMPANIONS_MEDIUM_HEALTH = float(COMPANIONS_MIN_HEALTH + COMPANIONS_MAX_HEALTH)
 
 _COMPANIONS_MEDIUM_LIFETYME = int(10) # ожидаемое время жизни среднего спутника со средним здоровьем без лечения
 
-# вероятность того, что удар противника в бою встретит спутник
-COMPANIONS_DEFEND_IN_BATTLE_PROBABILITY = float(COMPANIONS_DEFENDS_IN_BATTLE) / (BATTLE_LENGTH / 2)
-
+# вероятность того, что спутник будет ранен во время защиты героя
 COMPANIONS_WOUND_ON_DEFEND_PROBABILITY = float(_COMPANIONS_MEDIUM_LIFETYME) / COMPANIONS_DEFENDS_IN_BATTLE * BATTLES_PER_HOUR * 24
+
+# частота действия уход за спутником в час
+COMPANIONS_HEAL_MIN_IN_HOUR = float(1.0)
+COMPANIONS_HEAL_MAX_IN_HOUR = float(3.0)
+
+# величины лечения здоровья спутнкиа за одну помощь
+COMPANIONS_HEAL_AMOUNT = int(1)
+COMPANIONS_HEAL_CRIT_AMOUNT = int(2)

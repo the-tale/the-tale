@@ -63,3 +63,10 @@ class LexiconLogicTests(TestCase):
 
                     self.assertTrue(dictionary.DICTIONARY.has_word(word[0]))
                     self.assertEqual(verificator.utg_type, dictionary.DICTIONARY.get_word(word[0]).word.type)
+
+    # during some bug on linguistic migration all old key values was multiplier by 2
+    # so, we must folow that practice for new keys or change it (it longer )
+    # that test check if we follow that practice
+    def test_keys_values(self):
+        for key in keys.LEXICON_KEY.records:
+            self.assertEqual(key.value // 10000, key.group.index_group // 10000 * 2)

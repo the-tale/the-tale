@@ -1,4 +1,5 @@
 # coding: utf-8
+import mock
 
 from the_tale.common.utils import testcase
 
@@ -75,3 +76,50 @@ class CompanionTests(testcase.TestCase):
             self.companion.add_experience(66666666666)
 
         self.assertEqual(self.companion.experience, self.companion.experience_to_next_level)
+
+    @mock.patch('the_tale.game.balance.formulas.companions_heal_in_hour', mock.Mock(return_value=1))
+    def test_need_heal_in_move(self):
+        self.companion.healed_at -= 60*60
+        self.companion.health = self.companion.max_health
+
+        self.assertFalse(self.companion.need_heal_in_move)
+
+        self.companion.health -= 1
+
+        self.assertTrue(self.companion.need_heal_in_move)
+
+
+    @mock.patch('the_tale.game.balance.formulas.companions_heal_in_hour', mock.Mock(return_value=1))
+    def test_need_heal_in_move__no_time(self):
+        self.companion.healed_at -= 30*60
+        self.companion.health = self.companion.max_health
+
+        self.assertFalse(self.companion.need_heal_in_move)
+
+        self.companion.health -= 1
+
+        self.assertFalse(self.companion.need_heal_in_move)
+
+
+    @mock.patch('the_tale.game.balance.formulas.companions_heal_in_hour', mock.Mock(return_value=1))
+    def test_need_heal_in_settlement(self):
+        self.companion.healed_at -= 60*60
+        self.companion.health = self.companion.max_health
+
+        self.assertFalse(self.companion.need_heal_in_settlement)
+
+        self.companion.health -= 1
+
+        self.assertTrue(self.companion.need_heal_in_settlement)
+
+
+    @mock.patch('the_tale.game.balance.formulas.companions_heal_in_hour', mock.Mock(return_value=1))
+    def test_need_heal_in_settlement__no_time(self):
+        self.companion.healed_at -= 30*60
+        self.companion.health = self.companion.max_health
+
+        self.assertFalse(self.companion.need_heal_in_settlement)
+
+        self.companion.health -= 1
+
+        self.assertFalse(self.companion.need_heal_in_settlement)

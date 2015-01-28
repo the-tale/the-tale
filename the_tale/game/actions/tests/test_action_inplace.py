@@ -12,7 +12,10 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.heroes.relations import EQUIPMENT_SLOT
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.actions.prototypes import ActionInPlacePrototype, ActionRestPrototype, ActionTradingPrototype, ActionEquippingPrototype, ActionRegenerateEnergyPrototype
+from the_tale.game.companions import storage as companions_storage
+from the_tale.game.companions import logic as companions_logic
+
+from the_tale.game.actions import prototypes
 from the_tale.game.actions.tests.helpers import ActionEventsTestsMixin
 
 from the_tale.game.artifacts.storage import artifacts_storage
@@ -34,16 +37,17 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         super(InPlaceActionTest, self).setUp()
 
         create_test_map()
-        result, account_id, bundle_id = register_user('test_user')
+
+        self.account = self.accounts_factory.create_account()
 
         self.storage = LogicStorage()
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
-        self.hero = self.storage.accounts_to_heroes[account_id]
+        self.storage.load_account_data(self.account)
+        self.hero = self.storage.accounts_to_heroes[self.account.id]
         self.action_idl = self.hero.actions.current_action
 
         self.hero._model.pos_previous_place_id = None # test setting prevouse place in action constructor
 
-        self.action_inplace = ActionInPlacePrototype.create(hero=self.hero)
+        self.action_inplace = prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.action_event = self.action_inplace
 
@@ -60,7 +64,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.hero.health = 1
         self.hero.position.place.modifier = Resort(self.hero.position.place)
         old_messages_len = len (self.hero.messages.messages)
-        ActionInPlacePrototype.create(hero=self.hero)
+        prototypes.ActionInPlacePrototype.create(hero=self.hero)
         self.assertEqual(self.hero.health, self.hero.max_health)
         self.assertEqual(len(self.hero.messages.messages), old_messages_len + 1)
         self.storage._test_save()
@@ -69,9 +73,50 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.hero.health = self.hero.max_health
         self.hero.position.place.modifier = Resort(self.hero.position.place)
         old_messages_len = len (self.hero.messages.messages)
-        ActionInPlacePrototype.create(hero=self.hero)
+        prototypes.ActionInPlacePrototype.create(hero=self.hero)
         self.assertEqual(self.hero.health, self.hero.max_health)
         self.assertEqual(len(self.hero.messages.messages), old_messages_len)
+        self.storage._test_save()
+
+
+    def test_companion_heal_in_resort__no_companion(self):
+        self.assertEqual(self.hero.companion, None)
+
+        self.hero.position.place.modifier = Resort(self.hero.position.place)
+
+        prototypes.ActionInPlacePrototype.create(hero=self.hero)
+
+        self.assertEqual(self.hero.messages.messages[-1].key, None)
+        self.storage._test_save()
+
+    def test_companion_heal_in_resort__healed_companion(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+
+        self.assertEqual(self.hero.companion.health, self.hero.companion.max_health)
+
+        self.hero.position.place.modifier = Resort(self.hero.position.place)
+
+        prototypes.ActionInPlacePrototype.create(hero=self.hero)
+
+        self.assertFalse(self.hero.messages.messages[-1].key.is_ACTION_INPLACE_COMPANION_HEAL)
+
+        self.storage._test_save()
+
+
+    def test_companion_heal_in_resort__damaged_companion(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+
+        self.hero.companion.health = 1
+
+        self.hero.position.place.modifier = Resort(self.hero.position.place)
+
+        prototypes.ActionInPlacePrototype.create(hero=self.hero)
+
+        self.assertTrue(self.hero.messages.messages[-1].key.is_ACTION_INPLACE_COMPANION_HEAL)
+        self.assertEqual(self.hero.companion.health, 2)
+
         self.storage._test_save()
 
 
@@ -85,7 +130,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
         with self.check_delta(lambda: len(self.hero.messages.messages), 1):
-            ActionInPlacePrototype.create(hero=self.hero)
+            prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertEqual(self.hero.energy, c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE)
 
@@ -100,7 +145,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
         with self.check_not_changed(lambda: len(self.hero.messages.messages)):
-            ActionInPlacePrototype.create(hero=self.hero)
+            prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertEqual(self.hero.energy, self.hero.energy_maximum)
 
@@ -115,7 +160,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
         with self.check_not_changed(lambda: len(self.hero.messages.messages)):
-            ActionInPlacePrototype.create(hero=self.hero)
+            prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertEqual(self.hero.energy, 0)
 
@@ -129,7 +174,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.assertEqual(self.hero.position.place, self.hero.position.previous_place)
 
         with self.check_not_changed(lambda: len(self.hero.messages.messages)):
-            ActionInPlacePrototype.create(hero=self.hero)
+            prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertEqual(self.hero.energy, 0)
 
@@ -145,7 +190,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         with self.check_delta(lambda: len(self.hero.messages.messages), 1):
             with self.check_delta(lambda: self.hero.statistics.money_spend, 20):
                 with self.check_delta(lambda: self.hero.statistics.money_spend_for_tax, 20):
-                    ActionInPlacePrototype.create(hero=self.hero)
+                    prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertEqual(self.hero.money, 80)
 
@@ -161,7 +206,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         with self.check_delta(lambda: len(self.hero.messages.messages), 1):
             with self.check_delta(lambda: self.hero.statistics.money_spend, 0):
                 with self.check_delta(lambda: self.hero.statistics.money_spend_for_tax, 0):
-                    ActionInPlacePrototype.create(hero=self.hero)
+                    prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertEqual(self.hero.money, 0)
 
@@ -177,7 +222,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         with self.check_delta(lambda: len(self.hero.messages.messages), 0):
             with self.check_delta(lambda: self.hero.statistics.money_spend, 0):
                 with self.check_delta(lambda: self.hero.statistics.money_spend_for_tax, 0):
-                    ActionInPlacePrototype.create(hero=self.hero)
+                    prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertEqual(self.hero.money, 100)
 
@@ -193,7 +238,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         with self.check_delta(lambda: len(self.hero.messages.messages), 0):
             with self.check_delta(lambda: self.hero.statistics.money_spend, 0):
                 with self.check_delta(lambda: self.hero.statistics.money_spend_for_tax, 0):
-                    ActionInPlacePrototype.create(hero=self.hero)
+                    prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertEqual(self.hero.money, 100)
 
@@ -214,7 +259,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
                 with mock.patch('the_tale.game.map.places.habits.Honor.interval', honor):
                     with mock.patch('the_tale.game.map.places.habits.Peacefulness.interval', peacefulness):
                         with self.check_delta(self.hero.diary.messages_number, 1):
-                            ActionInPlacePrototype.create(hero=self.hero)
+                            prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
 
         self.storage._test_save()
@@ -226,7 +271,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
         with self.check_not_changed(lambda: len(self.hero.diary.messages)):
-            ActionInPlacePrototype.create(hero=self.hero)
+            prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.storage._test_save()
 
@@ -235,7 +280,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.assertEqual(self.hero.position.place, self.hero.position.previous_place)
 
         with self.check_not_changed(lambda: len(self.hero.diary.messages)):
-            ActionInPlacePrototype.create(hero=self.hero)
+            prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.storage._test_save()
 
@@ -251,7 +296,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
                                                            for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 3)
-        self.assertEqual(self.hero.actions.current_action.TYPE, ActionRegenerateEnergyPrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionRegenerateEnergyPrototype.TYPE)
         self.storage._test_save()
 
     def test_regenerate_energy_action_not_create_for_sacrifice(self):
@@ -267,7 +312,32 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.hero.health = 1
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 3)
-        self.assertEqual(self.hero.actions.current_action.TYPE, ActionRestPrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionRestPrototype.TYPE)
+        self.storage._test_save()
+
+    @mock.patch('the_tale.game.companions.objects.Companion.need_heal_in_settlement', True)
+    def test_heal_companion_action_create(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+
+        self.storage.process_turn(continue_steps_if_needed=False)
+        self.assertEqual(len(self.hero.actions.actions_list), 3)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionHealCompanionPrototype.TYPE)
+        self.assertEqual(self.action_inplace.state, prototypes.ActionInPlacePrototype.STATE.HEALING_COMPANION)
+        self.storage._test_save()
+
+        self.storage.process_turn(continue_steps_if_needed=False)
+        self.assertEqual(len(self.hero.actions.actions_list), 2)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionInPlacePrototype.TYPE)
+        self.storage._test_save()
+
+    @mock.patch('the_tale.game.companions.objects.Companion.need_heal_in_settlement', True)
+    def test_heal_companion_action_create__no_companion(self):
+        self.assertEqual(self.hero.companion, None)
+
+        self.storage.process_turn(continue_steps_if_needed=False)
+        self.assertEqual(len(self.hero.actions.actions_list), 1)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionIdlenessPrototype.TYPE)
         self.storage._test_save()
 
     def test_trade_action_create(self):
@@ -278,7 +348,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 3)
-        self.assertEqual(self.hero.actions.current_action.TYPE, ActionTradingPrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionTradingPrototype.TYPE)
 
         self.storage._test_save()
 
@@ -289,7 +359,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 3)
-        self.assertEqual(self.hero.actions.current_action.TYPE, ActionEquippingPrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionEquippingPrototype.TYPE)
 
         self.storage._test_save()
 
@@ -319,7 +389,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.hero = self.storage.accounts_to_heroes[account_id]
         self.action_idl = self.hero.actions.current_action
 
-        self.action_inplace = ActionInPlacePrototype.create(hero=self.hero)
+        self.action_inplace = prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
 
     def test_no_money(self):

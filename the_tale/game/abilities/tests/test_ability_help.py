@@ -14,6 +14,9 @@ from the_tale.game.actions import prototypes as actions_prototypes
 
 from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
 
+from the_tale.game.companions import storage as companions_storage
+from the_tale.game.companions import logic as companions_logic
+
 from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.artifacts.storage import artifacts_storage
@@ -277,3 +280,70 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
         with self.check_delta(lambda: self.hero.statistics.gifts_returned, 2):
             with self.check_delta(lambda: self.hero.bag.occupation, -3):
                 self.ability.use(**self.use_attributes)
+
+    @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL_COMPANION)
+    def test_heal_companion__no_companion(self):
+        self.assertEqual(self.hero.companion, None)
+
+        with self.check_not_changed(lambda: self.hero.statistics.help_count):
+            self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
+
+        self.assertEqual(self.hero.messages.messages[-1].key, None)
+
+
+    @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL_COMPANION)
+    def test_heal_companion(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+
+        self.hero.companion.health = 1
+
+        with self.check_delta(lambda: self.hero.companion.health, 1):
+            with self.check_delta(lambda: self.hero.statistics.help_count, 1):
+                self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+
+        self.assertTrue(self.hero.messages.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION)
+        self.assertFalse(self.hero.messages.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION_CRIT)
+
+    @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL_COMPANION)
+    def test_heal_companion__full_health(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+
+        self.assertEqual(self.hero.companion.health, self.hero.companion.max_health)
+
+        with self.check_not_changed(lambda: self.hero.companion.health):
+            with self.check_not_changed(lambda: self.hero.statistics.help_count):
+                self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
+
+        self.assertFalse(self.hero.messages.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION)
+        self.assertFalse(self.hero.messages.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION_CRIT)
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.might_crit_chance', 1)
+    @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL_COMPANION)
+    def test_heal_companion__crit(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+
+        self.hero.companion.health = 1
+
+        with self.check_delta(lambda: self.hero.companion.health, 2):
+            with self.check_delta(lambda: self.hero.statistics.help_count, 1):
+                self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+
+        self.assertFalse(self.hero.messages.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION)
+        self.assertTrue(self.hero.messages.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION_CRIT)
+
+
+    @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL_COMPANION)
+    def test_heal_companion__on_heal_called(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+
+        self.hero.companion.health = 1
+
+        with mock.patch('the_tale.game.actions.prototypes.ActionBase.on_heal_companion') as on_heal_companion:
+            self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+
+        self.assertEqual(on_heal_companion.call_count, 1)

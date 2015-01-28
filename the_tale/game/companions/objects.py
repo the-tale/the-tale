@@ -1,4 +1,5 @@
 # coding: utf-8
+import time
 
 from dext.common.utils import s11n
 
@@ -12,19 +13,21 @@ from the_tale.game.balance import constants as c
 
 
 class Companion(object):
-    __slots__ = ('record', 'health', 'coherence', 'experience')
+    __slots__ = ('record', 'health', 'coherence', 'experience', 'healed_at')
 
-    def __init__(self, record, health, coherence, experience):
+    def __init__(self, record, health, coherence, experience, healed_at):
         self.record = record
         self.health = health
         self.coherence = coherence
         self.experience = experience
+        self.healed_at = healed_at
 
     def serialize(self):
         return {'record': self.record.id,
                 'health': self.health,
                 'coherence': self.coherence,
-                'experience': self.experience}
+                'experience': self.experience,
+                'healed_at': self.healed_at}
 
     @classmethod
     def deserialize(cls, data):
@@ -32,7 +35,8 @@ class Companion(object):
         obj = cls(record=storage.companions[data['record']],
                   health=data['health'],
                   coherence=data['coherence'],
-                  experience=data['experience'])
+                  experience=data['experience'],
+                  healed_at=data['healed_at'])
         return obj
 
     @property
@@ -48,6 +52,29 @@ class Companion(object):
     def max_health(self): return self.record.max_health
 
     def hit(self): self.health -= 1
+
+    def on_heal_started(self):
+        self.healed_at = time.time()
+
+    @property
+    def need_heal_in_settlement(self):
+        if self.health == self.max_health:
+            return False
+
+        heals_in_hour = f.companions_heal_in_hour(self.health / 2, self.max_health)
+
+        return self.healed_at + 60*60 / heals_in_hour < time.time()
+
+
+    @property
+    def need_heal_in_move(self):
+        if self.health == self.max_health:
+            return False
+
+        heals_in_hour = f.companions_heal_in_hour(self.health, self.max_health)
+
+        return self.healed_at + 60*60 / heals_in_hour < time.time()
+
 
     @property
     def is_dead(self): return self.health <= 0

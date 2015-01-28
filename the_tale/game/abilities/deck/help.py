@@ -82,6 +82,27 @@ class Help(AbilityPrototype):
 
         return task.logic_result(next_step=ComplexChangeTask.STEP.SUCCESS)
 
+    def use_heal_companion(self, task, action, hero, critical): # pylint: disable=W0613
+
+        if hero.companion is None:
+            return task.logic_result(next_step=ComplexChangeTask.STEP.ERROR)
+
+        if hero.companion.health == hero.companion.max_health:
+            return task.logic_result(next_step=ComplexChangeTask.STEP.ERROR)
+
+        if critical:
+            hero.companion.health += c.COMPANIONS_HEAL_CRIT_AMOUNT
+            hero.add_message('angel_ability_heal_companion_crit', hero=hero, companion=hero.companion)
+        else:
+            hero.companion.health += c.COMPANIONS_HEAL_AMOUNT
+            hero.add_message('angel_ability_heal_companion', hero=hero, companion=hero.companion)
+
+        hero.companion.health = min(hero.companion.health, hero.companion.max_health)
+
+        action.on_heal_companion()
+
+        return task.logic_result(next_step=ComplexChangeTask.STEP.SUCCESS)
+
     def use_stock_up_energy(self, task, action, hero, critical): # pylint: disable=W0613
 
         if critical:
@@ -119,6 +140,9 @@ class Help(AbilityPrototype):
 
         elif choice.is_STOCK_UP_ENERGY:
             return self.use_stock_up_energy(task, action, hero, critical)
+
+        elif choice.is_HEAL_COMPANION:
+            return self.use_heal_companion(task, action, hero, critical)
 
 
     def process_removed_artifacts(self, hero):

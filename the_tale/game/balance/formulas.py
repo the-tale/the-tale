@@ -194,3 +194,21 @@ def place_goods_consumption(level):
 def companions_coherence_for_level(level):
     # если меняется, необходимо пересчитать количество опыта за квест для спутника
     return level
+
+def companions_defend_in_battle_probability(coherence):
+    # вероятность того, что удар противника в бою встретит спутник
+    # разброс делаем в 0.5 от среднего значения
+    coherence_multiplier = 1 + (float(coherence) / c.COMPANIONS_MAX_COHERENCE - 0.5)
+    return coherence_multiplier * float(c.COMPANIONS_DEFENDS_IN_BATTLE) / (c.BATTLE_LENGTH / 2)
+
+
+def companions_heal_in_hour(current_health, max_health):
+    health_fraction = float(current_health) / max_health
+    return c.COMPANIONS_HEAL_MIN_IN_HOUR + (c.COMPANIONS_HEAL_MAX_IN_HOUR - c.COMPANIONS_HEAL_MIN_IN_HOUR) * health_fraction
+
+
+def companions_heal_length(current_health, max_health):
+    # длительность действия ухода за спутнкиком считается с разбросом в 0.5 от среднего
+    heal_length = (c.COMPANIONS_HEAL_FRACTION * c.ACTIONS_CYCLE_LENGTH) * (1 - float(current_health) / max_health + 0.5)
+    heal_in_hour = companions_heal_in_hour(current_health, max_health)
+    return int(math.ceil(heal_length / heal_in_hour))

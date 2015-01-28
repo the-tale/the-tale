@@ -103,6 +103,7 @@ class PlaceModifierBase(object):
     def modify_stability_renewing_speed(self, stability): return stability
 
     def full_regen_allowed(self): return False
+    def companion_regen_allowed(self): return False
     def energy_regen_allowed(self): return False
 
 
@@ -161,12 +162,13 @@ class Polic(PlaceModifierBase):
 class Resort(PlaceModifierBase):
 
     TYPE = CITY_MODIFIERS.RESORT
-    DESCRIPTION = u'Город прославлен своими здравницами и особой атмосферой, в которой раны затягиваются особенно быстро. При посещении города герои полностью восстанавливают своё здоровье. Увеличивается уровень безопасности города и уровень свободы.'
+    DESCRIPTION = u'Город прославлен своими здравницами и особой атмосферой, в которой раны затягиваются особенно быстро. При посещении города герои полностью восстанавливают своё здоровье, их спутники восстанавливают 1 здоровья. Увеличивается уровень безопасности города и уровень свободы.'
 
     FREEDOM_MODIFIER = 0.1
     SAFETY_MODIFIER = 0.02
 
     def full_regen_allowed(self): return True
+    def companion_regen_allowed(self): return True
 
 
 class TransportNode(PlaceModifierBase):

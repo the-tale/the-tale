@@ -3,6 +3,7 @@
 import random
 
 from the_tale.game.balance import constants as c
+from the_tale.game.balance import formulas as f
 
 
 from the_tale.common.utils.logic import random_value_by_priority
@@ -163,7 +164,7 @@ def try_companion_block(attacker, defender, messanger):
     if not defender.has_companion:
         return False
 
-    if random.random() > c.COMPANIONS_DEFEND_IN_BATTLE_PROBABILITY:
+    if random.random() > f.companions_defend_in_battle_probability(defender.companion.coherence):
         return False
 
     if random.random() > c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY:

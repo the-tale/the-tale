@@ -12,6 +12,9 @@ from the_tale.game.logic import create_test_map
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.balance import constants as c
 
+from the_tale.game.companions import storage as companions_storage
+from the_tale.game.companions import logic as companions_logic
+
 from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.abilities.relations import HELP_CHOICES
@@ -62,6 +65,14 @@ class GeneralTest(testcase.TestCase):
 
         self.assertEqual(heal_found, result)
 
+
+    def check_heal_companion_in_choices(self, result):
+        heal_found = False
+        for i in xrange(100):
+            heal_found = heal_found or (self.action_idl.get_help_choice() == HELP_CHOICES.HEAL_COMPANION)
+
+        self.assertEqual(heal_found, result)
+
     @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL,)))
     def test_help_choice_has_heal__for_full_health_without_alternative(self):
         self.check_heal_in_choices(False)
@@ -89,6 +100,42 @@ class GeneralTest(testcase.TestCase):
     def test_help_choice_has_heal__for_low_health_with_alternative(self):
         self.hero.health = 1
         self.check_heal_in_choices(True)
+
+
+    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL_COMPANION,)))
+    def test_help_choice_has_heal_companion__for_no_companion(self):
+        self.check_heal_companion_in_choices(False)
+
+    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL_COMPANION, HELP_CHOICES.MONEY)))
+    def test_help_choice_has_heal_companion__for_no_companion_with_alternative(self):
+        self.check_heal_companion_in_choices(False)
+
+    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL_COMPANION,)))
+    def test_help_choice_has_heal_companion__for_full_health_without_alternative(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+        self.check_heal_companion_in_choices(False)
+
+    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL_COMPANION, HELP_CHOICES.MONEY)))
+    def test_help_choice_has_heal_companion__for_full_health_with_alternative(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+        self.check_heal_companion_in_choices(False)
+
+    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL_COMPANION,)))
+    def test_help_choice_has_heal_companion__for_low_health_without_alternative(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+        self.hero.companion.health = 1
+        self.check_heal_companion_in_choices(True)
+
+    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL_COMPANION, HELP_CHOICES.MONEY)))
+    def test_help_choice_has_heal_companion__for_low_health_with_alternative(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+        self.hero.companion.health = 1
+        self.check_heal_companion_in_choices(True)
+
 
     def check_stock_up_energy_in_choices(self, result):
         stock_found = False
