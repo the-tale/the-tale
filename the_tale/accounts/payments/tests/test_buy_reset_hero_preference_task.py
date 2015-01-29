@@ -5,10 +5,13 @@ from the_tale.accounts.payments.tests import base_buy_task
 
 from the_tale.game.balance import enums as e
 from the_tale.game.logic_storage import LogicStorage
+
+from the_tale.game.relations import ARCHETYPE
+
 from the_tale.game.mobs.storage import mobs_storage
 from the_tale.game.persons.storage import persons_storage
 from the_tale.game.map.places.storage import places_storage
-from the_tale.game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT, RISK_LEVEL, ARCHETYPE
+from the_tale.game.heroes.relations import PREFERENCE_TYPE, EQUIPMENT_SLOT, RISK_LEVEL, COMPANION_DEDICATION
 
 
 def _create_reset_hero_preference_test(preference_type):
@@ -39,6 +42,7 @@ def _create_reset_hero_preference_test(preference_type):
             self.hero.preferences.set_favorite_item(EQUIPMENT_SLOT.HAND_PRIMARY)
             self.hero.preferences.set_risk_level(RISK_LEVEL.VERY_HIGH)
             self.hero.preferences.set_archetype(ARCHETYPE.MAGICAL)
+            self.hero.preferences.set_companion_dedication(COMPANION_DEDICATION.EGOISM)
             self.hero.preferences.set_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE)
 
         def _get_expected_arguments(self):

@@ -15,9 +15,9 @@ from the_tale.game import names
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.map.relations import TERRAIN
+from the_tale.game import relations as game_relations
 
-from the_tale.game.heroes.relations import ARCHETYPE
+from the_tale.game.map.relations import TERRAIN
 
 from the_tale.game.mobs.models import MobRecord
 from the_tale.game.mobs.storage import mobs_storage
@@ -36,7 +36,7 @@ class PostMixin(object):
                 'terrains': [TERRAIN.PLANE_GRASS, TERRAIN.HILLS_GRASS],
                 'abilities': ['hit', 'strong_hit', 'sidestep'],
                 'type': MOB_TYPE.CIVILIZED,
-                'archetype': ARCHETYPE.NEUTRAL,
+                'archetype': game_relations.ARCHETYPE.NEUTRAL,
                 'global_action_probability': 0.5,
                 'description': 'mob description'} )
 
@@ -51,7 +51,7 @@ class PostMixin(object):
                 'terrains': [TERRAIN.PLANE_JUNGLE, TERRAIN.HILLS_JUNGLE],
                 'abilities': ['hit', 'speedup'],
                 'type': MOB_TYPE.BARBARIAN,
-                'archetype': ARCHETYPE.MAGICAL,
+                'archetype': game_relations.ARCHETYPE.MAGICAL,
                 'global_action_probability': 0.1,
                 'description': 'new description'})
 

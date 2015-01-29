@@ -7,9 +7,13 @@ from pynames.relations import GENDER as PYNAMES_GENDER
 
 from utg import relations as utg_relations
 
+from the_tale.game.balance.power import  PowerDistribution
+from the_tale.game.artifacts.relations import ARTIFACT_POWER_TYPE
+
 from the_tale.game.balance import enums as e
 from the_tale.game.balance import constants as c
 from the_tale.game import technical_words
+
 
 class GENDER(DjangoEnum):
     utg_id = Column()
@@ -88,3 +92,19 @@ class HABIT_TYPE(DjangoEnum):
 
     records = ( ('HONOR', 0, u'честь', HABIT_HONOR_INTERVAL, u'чести', 'honor'),
                 ('PEACEFULNESS', 1, u'миролюбие', HABIT_PEACEFULNESS_INTERVAL, u'миролюбия', 'peacefulness') )
+
+
+class ARCHETYPE(DjangoEnum):
+    power_distribution = Column()
+    description = Column()
+    allowed_power_types = Column(no_index=True, unique=False)
+
+    records = ( (u'MAGICAL', 0, u'маг', PowerDistribution(0.25, 0.75), u'герой предпочитает магию грубой силе', [ARTIFACT_POWER_TYPE.MOST_MAGICAL,
+                                                                                                                ARTIFACT_POWER_TYPE.MAGICAL,
+                                                                                                                ARTIFACT_POWER_TYPE.NEUTRAL]),
+                (u'NEUTRAL', 1, u'авантюрист', PowerDistribution(0.5, 0.5), u'герой соблюдает баланс между мечом и магией', [ARTIFACT_POWER_TYPE.MAGICAL,
+                                                                                                                            ARTIFACT_POWER_TYPE.NEUTRAL,
+                                                                                                                            ARTIFACT_POWER_TYPE.PHYSICAL]),
+                (u'PHYSICAL', 2, u'воин', PowerDistribution(0.75, 0.25), u'герой полагается на воинские умения', [ARTIFACT_POWER_TYPE.NEUTRAL,
+                                                                                                                 ARTIFACT_POWER_TYPE.PHYSICAL,
+                                                                                                                 ARTIFACT_POWER_TYPE.MOST_PHYSICAL]) )

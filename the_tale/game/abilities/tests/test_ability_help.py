@@ -298,7 +298,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
 
         self.hero.companion.health = 1
 
-        with self.check_delta(lambda: self.hero.companion.health, 1):
+        with self.check_delta(lambda: self.hero.companion.health, 2):
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
@@ -328,7 +328,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
 
         self.hero.companion.health = 1
 
-        with self.check_delta(lambda: self.hero.companion.health, 2):
+        with self.check_delta(lambda: self.hero.companion.health, 4):
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 

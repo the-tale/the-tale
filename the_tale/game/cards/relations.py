@@ -154,4 +154,6 @@ class CARD_TYPE(DjangoEnum):
                 ('GET_COMPANION_EPIC', 93, u'эпический спутник', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm),
                 ('GET_COMPANION_LEGENDARY', 94, u'легендарный спутник', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm),
 
+                ('PREFERENCES_COOLDOWNS_RESET_COMPANION_DEDICATION', 95, u'новый взгляд', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
+
                 )

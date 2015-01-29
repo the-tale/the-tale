@@ -16,6 +16,8 @@ from the_tale.game.map.places.storage import places_storage
 
 from the_tale.game.persons.storage import persons_storage
 
+from the_tale.game import relations as game_relations
+
 from the_tale.game.heroes import relations
 from the_tale.game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
 
@@ -170,7 +172,11 @@ class HeroPreferences(object):
 
     def _prepair_archetype(self, archetype_id):
         if archetype_id is None: return None
-        return relations.ARCHETYPE.index_value.get(int(archetype_id))
+        return game_relations.ARCHETYPE.index_value.get(int(archetype_id))
+
+    def _prepair_companion_dedication(self, companion_dedication_id):
+        if companion_dedication_id is None: return None
+        return relations.COMPANION_DEDICATION.index_value.get(int(companion_dedication_id))
 
     def _get(self, preferences_type):
         if preferences_type.base_name not in self.data:

@@ -4,6 +4,8 @@ from django.db import models
 
 from rels.django import RelationIntegerField
 
+from the_tale.game import relations as game_relations
+
 from the_tale.game.companions import relations
 
 
@@ -15,6 +17,7 @@ class CompanionRecord(models.Model):
     type = RelationIntegerField(relation=relations.TYPE, db_index=True)
     dedication = RelationIntegerField(relation=relations.DEDICATION, db_index=True)
     rarity = RelationIntegerField(relation=relations.RARITY, db_index=True)
+    archetype = RelationIntegerField(relation=game_relations.ARCHETYPE, null=True, default=None, blank=True)
 
     max_health = models.IntegerField(default=1)
 

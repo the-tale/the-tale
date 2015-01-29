@@ -375,11 +375,11 @@ class PrototypeTests(PrototypeTestsBase):
 
         companion_record = companions_storage.companions.enabled_companions().next()
         companion = companions_logic.create_companion(companion_record)
-        companion.coherence = 5
+        companion.coherence = 50
 
         self.hero.set_companion(companion)
 
-        with self.check_delta(lambda: self.hero.companion.experience, 1):
+        with self.check_increased(lambda: self.hero.companion.experience):
             with self.check_not_changed(lambda: self.hero.companion.coherence):
                 self.quest._finish_quest(mock.Mock(results=mock.Mock(iteritems=lambda: [])), self.hero)
 

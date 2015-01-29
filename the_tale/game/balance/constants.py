@@ -507,11 +507,6 @@ COMPANIONS_COHERENCE_EXP_PER_QUEST = int(((1+100)*100/2) / _QUESTS_REQUIED)
 
 COMPANIONS_MEDIUM_COHERENCE = float(COMPANIONS_MIN_COHERENCE + COMPANIONS_MAX_COHERENCE) / 2
 
-COMPANIONS_MIN_DEDICATION = int(0) # минимальный уровень самоотверженности
-COMPANIONS_MAX_DEDICATION = int(4) # максимальный уровень самоотверженности
-
-_COMPANIONS_MEDIUM_DEDEICATION = float(COMPANIONS_MIN_DEDICATION + COMPANIONS_MAX_DEDICATION) / 2
-
 COMPANIONS_MIN_HEALTH = int(30) # минимальное максимальное здоровье спутника
 COMPANIONS_MAX_HEALTH = int(70) # максимальное максимальное здоровье спутника
 
@@ -519,13 +514,19 @@ _COMPANIONS_MEDIUM_HEALTH = float(COMPANIONS_MIN_HEALTH + COMPANIONS_MAX_HEALTH)
 
 _COMPANIONS_MEDIUM_LIFETYME = int(10) # ожидаемое время жизни среднего спутника со средним здоровьем без лечения
 
+# дельты мультипликатора вероятности блока для
+COMPANIONS_BLOG_MULTIPLIER_COHERENCE_DELTA = float(0.15) # согласованности (от среднего)
+COMPANIONS_BLOG_MULTIPLIER_COMPANION_DEDICATION_DELTA = float(0.15) # самоотверженности спутника
+COMPANIONS_BLOG_MULTIPLIER_HERO_DEDICATION_DELTA = float(0.15) # самоотверженность героя
+
 # вероятность того, что спутник будет ранен во время защиты героя
-COMPANIONS_WOUND_ON_DEFEND_PROBABILITY = float(_COMPANIONS_MEDIUM_LIFETYME) / COMPANIONS_DEFENDS_IN_BATTLE * BATTLES_PER_HOUR * 24
+_COMPANIONS_WOUNDS_IN_HOUR = float(_COMPANIONS_MEDIUM_HEALTH) / (_COMPANIONS_MEDIUM_LIFETYME * 24)
+COMPANIONS_WOUND_ON_DEFEND_PROBABILITY =  _COMPANIONS_WOUNDS_IN_HOUR / (COMPANIONS_DEFENDS_IN_BATTLE * BATTLES_PER_HOUR)
 
 # частота действия уход за спутником в час
 COMPANIONS_HEAL_MIN_IN_HOUR = float(1.0)
-COMPANIONS_HEAL_MAX_IN_HOUR = float(3.0)
+COMPANIONS_HEAL_MAX_IN_HOUR = float(2.0)
 
-# величины лечения здоровья спутнкиа за одну помощь
-COMPANIONS_HEAL_AMOUNT = int(1)
-COMPANIONS_HEAL_CRIT_AMOUNT = int(2)
+# величины лечения здоровья спутника за одну помощь
+COMPANIONS_HEAL_AMOUNT = int(2)
+COMPANIONS_HEAL_CRIT_AMOUNT = COMPANIONS_HEAL_AMOUNT * 2

@@ -62,6 +62,7 @@ jQuery(document).ready(function(e){
         jQuery('.pgf-unslide-map').toggleClass('pgf-hidden', !slide);
         jQuery('.pgf-hero-column').toggleClass('pgf-hidden', slide);
         jQuery('.pgf-map-column').toggleClass('span4', !slide).toggleClass('span7', slide);
+        jQuery('.pgf-shortest-hero-info').toggleClass('pgf-hidden', !slide);
         jQuery(document).trigger(pgf.game.map.events.MAP_RESIZED);
     }
 
@@ -166,6 +167,32 @@ jQuery(document).ready(function(e){
   <div class="span5">
 
     <div class="first-row-block">
+      <div class="easy-block pgf-shortest-hero-info pgf-hidden">
+
+        <table class="" width="100%" style="text-align: center;">
+          <tbody>
+            <tr>
+              <td rel="tooltip" title="здоровье героя" class="shortests-hero-record">
+                <i class="game-ui-icon health"></i>
+                <span class="text-values"><span class="pgf-diary-block-health"></span> / <span class="pgf-diary-block-max-health"></span></span>
+              </td>
+
+              <td rel="tooltip" title="опыта до следующего уровня<br/>выдаётся за выполнение заданий" class="shortests-hero-record">
+                <i class="game-ui-icon experience"></i>
+                <span class="text-values"><span class="pgf-diary-block-experience"></span>/<span class="pgf-diary-block-experience-to-level"></span></span>
+              </td>
+
+              <td rel="tooltip" title="запас энергии (примерно +{{ (c.ANGEL_ENERGY_REGENERATION_AMAUNT/c.ANGEL_ENERGY_REGENERATION_TIME)|int}} в час)<br/> текущая энергия/максимум + дополнительная энергия" class="shortests-hero-record">
+                <i class="game-ui-icon energy"></i>
+                <span class="text-values">
+                  <span class="pgf-diary-block-energy"></span>/<span class="pgf-diary-block-max-energy"></span> + <span class="pgf-diary-block-energy-bonus"></span>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
       {% include "game/current_quest.html" %}
       {% include "game/current_action.html" %}
     </div>
@@ -176,12 +203,6 @@ jQuery(document).ready(function(e){
         <li><a href="#pgf-log-container" class="pgf-log-tab-button" data-toggle="tab">журнал</a></li>
         <li><a href="#pgf-diary-container" class="pgf-diary-tab-button" data-toggle="tab">дневник</a></li>
         <li><a href="#pgf-quests-container" class="pgf-quests-tab-button" data-toggle="tab">задания</a></li>
-        <li class="pull-right">
-          <a href="#" class="" style="color: #333333;" rel="tooltip" title="здоровье героя">
-            <i class="game-ui-icon health" style="margin: -3px;"></i>
-            <span class="text-values"><span class="pgf-diary-block-health"></span> / <span class="pgf-diary-block-max-health"></span></span>
-          </a>
-        </li>
       </ul>
 
       <div class="tab-content">

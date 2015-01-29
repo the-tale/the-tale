@@ -5,6 +5,8 @@ import datetime
 
 from the_tale.game.balance.power import Power
 
+from the_tale.game import relations as game_relations
+
 from the_tale.game.heroes import relations
 
 from the_tale.game.artifacts.storage import artifacts_storage
@@ -22,7 +24,9 @@ class ShopAccessorsMixin(object):
         elif preference_type.is_RISK_LEVEL:
             self.preferences.set_risk_level(relations.RISK_LEVEL.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
         elif preference_type.is_ARCHETYPE:
-            self.preferences.set_archetype(relations.ARCHETYPE.NEUTRAL, change_time=datetime.datetime.fromtimestamp(0))
+            self.preferences.set_archetype(game_relations.ARCHETYPE.NEUTRAL, change_time=datetime.datetime.fromtimestamp(0))
+        elif preference_type.is_COMPANION_DEDICATION:
+            self.preferences.set_companion_dedication(relations.COMPANION_DEDICATION.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
         else:
             self.preferences._reset(preference_type)
 

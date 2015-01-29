@@ -4,7 +4,7 @@ from django.db import models
 
 from rels.django import RelationIntegerField
 
-from the_tale.game.heroes.relations import ARCHETYPE
+from the_tale.game import relations as game_relations
 
 from the_tale.game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
 
@@ -22,7 +22,7 @@ class MobRecord(models.Model):
     state = RelationIntegerField(relation=MOB_RECORD_STATE, db_index=True)
     type = RelationIntegerField(relation=MOB_TYPE, db_index=True)
 
-    archetype = RelationIntegerField(relation=ARCHETYPE, db_index=True)
+    archetype = RelationIntegerField(relation=game_relations.ARCHETYPE, db_index=True)
 
     level = models.IntegerField(default=0)
 

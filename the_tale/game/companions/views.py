@@ -9,6 +9,8 @@ from the_tale.common.utils import views as utils_views
 
 from the_tale.accounts import views as accounts_views
 
+from the_tale.game import relations as game_relations
+
 from the_tale.game.companions import relations
 from the_tale.game.companions import forms
 from the_tale.game.companions import logic
@@ -64,6 +66,7 @@ resource.add_processor(moderate_companion_processor)
 
 INDEX_RARITY = list_filter.filter_relation(relations.RARITY)
 INDEX_TYPE = list_filter.filter_relation(relations.TYPE)
+INDEX_ARCHETYPE = list_filter.filter_relation(game_relations.ARCHETYPE)
 INDEX_DEDICATION = list_filter.filter_relation(relations.DEDICATION)
 
 BASE_INDEX_FILTERS = [list_filter.reset_element(),
@@ -75,6 +78,10 @@ BASE_INDEX_FILTERS = [list_filter.reset_element(),
                                                  attribute='type',
                                                  default_value=INDEX_TYPE.FILTER_ALL.value,
                                                  choices=INDEX_TYPE.filter_choices()),
+                      list_filter.choice_element(u'архетип:',
+                                                 attribute='archetype',
+                                                 default_value=INDEX_ARCHETYPE.FILTER_ALL.value,
+                                                 choices=INDEX_ARCHETYPE.filter_choices()),
                       list_filter.choice_element(u'самоотверженность:',
                                                  attribute='dedication',
                                                  default_value=INDEX_DEDICATION.FILTER_ALL.value,
@@ -106,6 +113,9 @@ class ModeratorIndexFilter(list_filter.ListFilter):
 @dext_views.RelationArgumentProcessor.handler(relation=INDEX_TYPE, default_value=INDEX_TYPE.FILTER_ALL,
                                               error_message=u'неверный тип спутника',
                                               context_name='companions_type', get_name='type')
+@dext_views.RelationArgumentProcessor.handler(relation=INDEX_ARCHETYPE, default_value=INDEX_ARCHETYPE.FILTER_ALL,
+                                              error_message=u'неверный архетип спутника',
+                                              context_name='companions_archetype', get_name='archetype')
 @dext_views.RelationArgumentProcessor.handler(relation=INDEX_DEDICATION, default_value=INDEX_DEDICATION.FILTER_ALL,
                                               error_message=u'неверный тип самоотверженности спутника',
                                               context_name='companions_dedication', get_name='dedication')
@@ -120,6 +130,9 @@ def index(context):
     if context.companions_type.original_relation is not None:
         companions = [companion for companion in companions if companion.type == context.companions_type.original_relation]
 
+    if context.companions_archetype.original_relation is not None:
+        companions = [companion for companion in companions if companion.archetype == context.companions_archetype.original_relation]
+
     if context.companions_dedication.original_relation is not None:
         companions = [companion for companion in companions if companion.dedication == context.companions_dedication.original_relation]
 
@@ -131,6 +144,7 @@ def index(context):
     url_builder = UrlBuilder(url('guide:companions:'), arguments={ 'state': context.companions_state.value if context.companions_state is not None else None,
                                                                    'rarity': context.companions_rarity.value,
                                                                    'type': context.companions_type.value,
+                                                                   'archetype': context.companions_archetype.value,
                                                                    'dedication': context.companions_dedication.value})
 
     IndexFilter = ModeratorIndexFilter if context.companions_can_edit or context.companions_can_moderate else NormalIndexFilter #pylint: disable=C0103
@@ -138,6 +152,7 @@ def index(context):
     index_filter = IndexFilter(url_builder=url_builder, values={'state': context.companions_state.value if context.companions_state is not None else None,
                                                                 'rarity': context.companions_rarity.value,
                                                                 'type': context.companions_type.value,
+                                                                'archetype': context.companions_archetype.value,
                                                                 'dedication': context.companions_dedication.value})
 
     return dext_views.Page('companions/index.html',
@@ -200,7 +215,8 @@ def create(context):
                                                      type=context.form.c.type,
                                                      max_health=context.form.c.max_health,
                                                      dedication=context.form.c.dedication,
-                                                     rarity=context.form.c.rarity)
+                                                     rarity=context.form.c.rarity,
+                                                     archetype=context.form.c.archetype)
     return dext_views.AjaxOk(content={'next_url': url('guide:companions:show', companion_record.id)})
 
 
@@ -230,7 +246,8 @@ def update(context):
                                   type=context.form.c.type,
                                   max_health=context.form.c.max_health,
                                   dedication=context.form.c.dedication,
-                                  rarity=context.form.c.rarity)
+                                  rarity=context.form.c.rarity,
+                                  archetype=context.form.c.archetype)
     return dext_views.AjaxOk(content={'next_url': url('guide:companions:show', context.companion.id)})
 
 

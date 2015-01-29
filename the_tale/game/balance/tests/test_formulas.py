@@ -35,11 +35,47 @@ class FormulasTest(testcase.TestCase):
 
     def test_experience_for_quest(self):
         self.assertTrue(f.experience_for_quest(100) < f.experience_for_quest(1000)< f.experience_for_quest(10000))
-        self.assertEqual(int(f.experience_for_quest__real(100)), 48)
+        self.assertEqual(int(f.experience_for_quest__real(100)), 50)
 
     def test_person_power_for_quest(self):
         self.assertTrue(f.person_power_for_quest(100) < f.person_power_for_quest(1000)< f.person_power_for_quest(10000))
-        self.assertEqual(int(f.person_power_for_quest__real(100)), 572)
+        self.assertEqual(int(f.person_power_for_quest__real(100)), 604)
+
+    def test_companions_defend_in_battle_probability(self):
+        self.assertEqual(round(f.companions_defend_in_battle_probability(0), 5), 0.15937)
+        self.assertEqual(round(f.companions_defend_in_battle_probability(25), 5), 0.17344)
+        self.assertEqual(round(f.companions_defend_in_battle_probability(50), 5), 0.1875)
+        self.assertEqual(round(f.companions_defend_in_battle_probability(75), 5), 0.20156)
+        self.assertEqual(round(f.companions_defend_in_battle_probability(100), 5), 0.21562)
+
+
+    def test_companions_heal_in_hour(self):
+        self.assertEqual(f.companions_heal_in_hour(0, 30), 1)
+        self.assertEqual(f.companions_heal_in_hour(15, 30), 1.5)
+        self.assertEqual(f.companions_heal_in_hour(30, 30), 2)
+
+        self.assertEqual(f.companions_heal_in_hour(0, 50), 1)
+        self.assertEqual(f.companions_heal_in_hour(25, 50), 1.5)
+        self.assertEqual(f.companions_heal_in_hour(50, 50), 2)
+
+        self.assertEqual(f.companions_heal_in_hour(0, 70), 1)
+        self.assertEqual(f.companions_heal_in_hour(35, 70), 1.5)
+        self.assertEqual(f.companions_heal_in_hour(70, 70), 2)
+
+
+    def test_companions_heal_length(self):
+        self.assertEqual(f.companions_heal_length(0, 30), 23)
+        self.assertEqual(f.companions_heal_length(15, 30), 12)
+        self.assertEqual(f.companions_heal_length(30, 30), 7)
+
+        self.assertEqual(f.companions_heal_length(0, 50), 23)
+        self.assertEqual(f.companions_heal_length(25, 50), 12)
+        self.assertEqual(f.companions_heal_length(50, 50), 7)
+
+        self.assertEqual(f.companions_heal_length(0, 70), 23)
+        self.assertEqual(f.companions_heal_length(35, 70), 12)
+        self.assertEqual(f.companions_heal_length(70, 70), 7)
+
 
 
 
@@ -59,7 +95,7 @@ class AchievementsBarriers(testcase.TestCase):
         self.check_money(0.9, 50000)
         self.check_money(4.8, 500000)
         self.check_money(7.8, 1000000)
-        self.check_money(23, 5000000)
+        self.check_money(23.5, 5000000)
 
 
     def mobs_after_months(self, months):
@@ -71,13 +107,13 @@ class AchievementsBarriers(testcase.TestCase):
 
     def test_mobs(self):
         self.check_mobs(0.08, 1000)
-        self.check_mobs(0.4, 5000)
-        self.check_mobs(1.25, 15000)
-        self.check_mobs(4.25, 50000)
-        self.check_mobs(8.6, 100500)
-        self.check_mobs(12.85, 150000)
-        self.check_mobs(21.45, 250000)
-        self.check_mobs(34.3, 400000)
+        self.check_mobs(0.45, 5000)
+        self.check_mobs(1.35, 15000)
+        self.check_mobs(4.5, 50000)
+        self.check_mobs(9.05, 100000)
+        self.check_mobs(13.55, 150000)
+        self.check_mobs(22.65, 250000)
+        self.check_mobs(36.25, 400000)
 
 
     def artifacts_after_months(self, months):

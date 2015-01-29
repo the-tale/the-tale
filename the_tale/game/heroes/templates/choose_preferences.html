@@ -67,6 +67,9 @@
     {% elif type.is_ARCHETYPE %}
     {% include "heroes/choose_preferences_archetype.html" with context %}
 
+    {% elif type.is_COMPANION_DEDICATION %}
+    {% include "heroes/choose_preferences_companion_dedication.html" with context %}
+
     {% endif %}
 
   </div>

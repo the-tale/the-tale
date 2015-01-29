@@ -18,6 +18,8 @@ from the_tale.game.balance import constants as c
 from the_tale.game.balance.power import Power
 from the_tale.game.logic_storage import LogicStorage
 
+from the_tale.game import relations as game_relations
+
 from the_tale.game.heroes import relations
 
 
@@ -459,19 +461,19 @@ class ReceiveArtifactsChoicesTests(_HeroEquipmentTestsBase):
 
 
     def test_get_allowed_artifact_types__with_archetype_magic(self):
-        self.hero.preferences.set_archetype(relations.ARCHETYPE.MAGICAL)
+        self.hero.preferences.set_archetype(game_relations.ARCHETYPE.MAGICAL)
         expected_artifact_types = self.base_artifacts + [self.artifact_most_magic, self.artifact_magic, self.artifact_neutral]
         self.check_artifacts_lists(self.hero.get_allowed_artifact_types(slots=relations.EQUIPMENT_SLOT.records, archetype=True),
                                    expected_artifact_types)
 
     def test_get_allowed_artifact_types__with_archetype_neutral(self):
-        self.hero.preferences.set_archetype(relations.ARCHETYPE.NEUTRAL)
+        self.hero.preferences.set_archetype(game_relations.ARCHETYPE.NEUTRAL)
         expected_artifact_types = self.base_artifacts + [self.artifact_magic, self.artifact_neutral, self.artifact_physic]
         self.check_artifacts_lists(self.hero.get_allowed_artifact_types(slots=relations.EQUIPMENT_SLOT.records, archetype=True),
                                    expected_artifact_types)
 
     def test_get_allowed_artifact_types__with_archetype_physic(self):
-        self.hero.preferences.set_archetype(relations.ARCHETYPE.PHYSICAL)
+        self.hero.preferences.set_archetype(game_relations.ARCHETYPE.PHYSICAL)
         expected_artifact_types = self.base_artifacts + [self.artifact_neutral, self.artifact_physic, self.artifact_most_physic]
         self.check_artifacts_lists(self.hero.get_allowed_artifact_types(slots=relations.EQUIPMENT_SLOT.records, archetype=True),
                                    expected_artifact_types)

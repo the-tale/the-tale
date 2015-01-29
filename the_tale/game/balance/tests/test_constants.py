@@ -67,7 +67,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.ARTIFACT_EPIC_MAX_INTEGRITY_MULTIPLIER, 2)
         self.assertEqual(c.ARTIFACT_MAX_INTEGRITY_DELTA, 0.25)
 
-        self.assertEqual(c.ARTIFACT_MAX_INTEGRITY, 12000)
+        self.assertEqual(c.ARTIFACT_MAX_INTEGRITY, 11000)
         self.assertEqual(c.ARTIFACT_SHARP_MAX_INTEGRITY_LOST_FRACTION, 0.02)
         self.assertEqual(c.ARTIFACT_INTEGRITY_SAFE_BARRIER, 0.2)
         self.assertEqual(c.ARTIFACT_BREAK_POWER_FRACTIONS, (0.2, 0.3))
@@ -76,14 +76,16 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.BATTLES_PER_TURN, 1.0 / (3+1) )
         self.assertEqual(c.WHILD_BATTLES_PER_TURN_BONUS, 0.05)
         self.assertEqual(c.HEAL_LENGTH, int((8*(16+3)-3) * 0.2))
-        self.assertEqual(c.ACTIONS_CYCLE_LENGTH, int(8*(16+3)-3 + (8*(16+3)-3) * 0.2))
-        self.assertEqual(c.BATTLES_PER_HOUR, 360.0 / (int(8*(16+3)-3 + (8*(16+3)-3) * 0.2)) * 8)
 
-        self.assertEqual(c.ARTIFACTS_PER_BATTLE, 0.0025752314814814817)
-        self.assertEqual(c.ARTIFACTS_BREAKS_PER_BATTLE, 0.0009442515432098765)
+        self.assertEqual(c.ACTIONS_CYCLE_LENGTH, int((8*(16+3)-3 + (8*(16+3)-3) * 0.2) / 0.95))
+
+        self.assertEqual(c.BATTLES_PER_HOUR, 15.319148936170212)
+
+        self.assertEqual(c.ARTIFACTS_PER_BATTLE, 0.0027199074074074074)
+        self.assertEqual(c.ARTIFACTS_BREAKS_PER_BATTLE, 0.0009972993827160493)
         self.assertEqual(c.ARTIFACT_FROM_PREFERED_SLOT_PROBABILITY, 0.25)
 
-        self.assertEqual(c.DAMAGE_TO_HERO_PER_HIT_FRACTION, 1.0 / (8*16/2))
+        self.assertEqual(c.DAMAGE_TO_HERO_PER_HIT_FRACTION, 0.019230769230769232)
         self.assertEqual(c.DAMAGE_TO_MOB_PER_HIT_FRACTION, 1.0 / (16/2))
         self.assertEqual(c.DAMAGE_DELTA, 0.2)
         self.assertEqual(c.DAMAGE_CRIT_MULTIPLIER, 2.0)
@@ -206,7 +208,7 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.EXP_FOR_KILL, 20)
         self.assertEqual(c.EXP_FOR_KILL_DELTA, 0.3)
-        self.assertEqual(round(c.EXP_FOR_KILL_PROBABILITY, 5), 0.0024)
+        self.assertEqual(round(c.EXP_FOR_KILL_PROBABILITY, 5), 0.00256)
 
         self.assertEqual(c.HABIT_EVENTS_IN_DAY, 1.33)
         self.assertEqual(round(c.HABIT_EVENTS_IN_TURN, 5), 0.00015)
@@ -273,3 +275,47 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.CARDS_HELP_COUNT_TO_NEW_CARD, 18)
         self.assertEqual(c.CARDS_COMBINE_TO_UP_RARITY, 3)
+
+        self.assertEqual(c.COMPANIONS_DEFENDS_IN_BATTLE, 1.5)
+        self.assertEqual(c.COMPANIONS_HEAL_FRACTION, 0.05)
+
+        self.assertEqual(c.COMPANIONS_MIN_COHERENCE, 0)
+        self.assertEqual(c.COMPANIONS_MAX_COHERENCE, 100)
+
+        self.assertEqual(round(c._QUESTS_REQUIED, 5), 496.34043)
+        self.assertEqual(c.COMPANIONS_COHERENCE_EXP_PER_QUEST, 10)
+
+        self.assertEqual(c.COMPANIONS_MEDIUM_COHERENCE, 50)
+
+        self.assertEqual(c.COMPANIONS_MIN_HEALTH, 30)
+        self.assertEqual(c.COMPANIONS_MAX_HEALTH, 70)
+
+        self.assertEqual(c._COMPANIONS_MEDIUM_HEALTH, 50)
+
+        self.assertEqual(c._COMPANIONS_MEDIUM_LIFETYME, 10)
+
+        self.assertEqual(c.COMPANIONS_BLOG_MULTIPLIER_COHERENCE_DELTA, 0.15)
+        self.assertEqual(c.COMPANIONS_BLOG_MULTIPLIER_COMPANION_DEDICATION_DELTA, 0.15)
+        self.assertEqual(c.COMPANIONS_BLOG_MULTIPLIER_HERO_DEDICATION_DELTA, 0.15)
+
+        self.assertEqual(round(c._COMPANIONS_WOUNDS_IN_HOUR, 5), 0.20833)
+        self.assertEqual(round(c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY, 5), 0.00907)
+
+        self.assertEqual(c.COMPANIONS_HEAL_MIN_IN_HOUR, 1.0)
+        self.assertEqual(c.COMPANIONS_HEAL_MAX_IN_HOUR, 2.0)
+
+        self.assertEqual(c.COMPANIONS_HEAL_AMOUNT, 2)
+        self.assertEqual(c.COMPANIONS_HEAL_CRIT_AMOUNT, 4)
+
+
+    def test_dedication_maximum_multiplier(self):
+        multiplier = ((1 + c.COMPANIONS_BLOG_MULTIPLIER_COHERENCE_DELTA) *
+                      (1 + c.COMPANIONS_BLOG_MULTIPLIER_COMPANION_DEDICATION_DELTA) *
+                      (1 + c.COMPANIONS_BLOG_MULTIPLIER_HERO_DEDICATION_DELTA))
+        self.assertTrue(multiplier < 1.521)
+
+
+    def test_energy_regeneration_vs_companion_heal(self):
+        energy_in_day = c._ANGEL_ENERGY_IN_DAY
+        energy_to_heal_in_day = c._COMPANIONS_WOUNDS_IN_HOUR / c.COMPANIONS_HEAL_AMOUNT  * 24 * c.ANGEL_HELP_COST
+        self.assertEqual(round(energy_to_heal_in_day / energy_in_day, 5), 0.20833)

@@ -261,24 +261,28 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                                                                           cost=30,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_FRIEND),
 
-                                            permanent_permission_purchase(uid=u'preference-favorite-item',
+                                            permanent_permission_purchase(uid=u'preference-companion-dedication',
                                                                           cost=40,
+                                                                          purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_COMPANION_DEDICATION),
+
+                                            permanent_permission_purchase(uid=u'preference-favorite-item',
+                                                                          cost=50,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_FAVORITE_ITEM),
 
                                             permanent_permission_purchase(uid=u'preference-enemy',
-                                                                          cost=50,
+                                                                          cost=60,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_ENEMY),
 
                                             permanent_permission_purchase(uid=u'preference-archetype',
-                                                                          cost=60,
+                                                                          cost=70,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_ARCHETYPE),
 
                                             permanent_permission_purchase(uid=u'preference-equipment-slot',
-                                                                          cost=70,
+                                                                          cost=80,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_EQUIPMENT_SLOT),
 
                                             permanent_permission_purchase(uid=u'preference-mob',
-                                                                          cost=80,
+                                                                          cost=90,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_MOB) ]),
 
 
@@ -289,6 +293,7 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                                             reset_hero_preference(uid='hero-preference-reset-place', preference_type=PREFERENCE_TYPE.PLACE, cost=50),
                                             reset_hero_preference(uid='hero-preference-reset-risk-level', preference_type=PREFERENCE_TYPE.RISK_LEVEL, cost=10),
                                             reset_hero_preference(uid='hero-preference-reset-friend', preference_type=PREFERENCE_TYPE.FRIEND, cost=75),
+                                            reset_hero_preference(uid='hero-preference-reset-companion-dedication', preference_type=PREFERENCE_TYPE.COMPANION_DEDICATION, cost=100),
                                             reset_hero_preference(uid='hero-preference-reset-favorite-item', preference_type=PREFERENCE_TYPE.FAVORITE_ITEM, cost=25),
                                             reset_hero_preference(uid='hero-preference-reset-enemy', preference_type=PREFERENCE_TYPE.ENEMY, cost=100),
                                             reset_hero_preference(uid='hero-preference-reset-archetype', preference_type=PREFERENCE_TYPE.ARCHETYPE, cost=25),

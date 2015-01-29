@@ -13,7 +13,7 @@ from the_tale.common.utils.decorators import login_required
 
 from the_tale.game.map.relations import TERRAIN
 
-from the_tale.game.heroes.relations import ARCHETYPE
+from the_tale.game import relations as game_relations
 
 from the_tale.game.mobs.relations import MOB_RECORD_STATE, INDEX_ORDER_TYPE, MOB_TYPE
 from the_tale.game.mobs.prototypes import MobRecordPrototype
@@ -23,7 +23,7 @@ from the_tale.game.mobs.forms import MobRecordForm, ModerateMobRecordForm
 
 BASE_INDEX_FILTERS = [list_filter.reset_element(),
                       list_filter.choice_element(u'тип:', attribute='type', choices=[(None, u'все')] + sorted(list(MOB_TYPE.select('value', 'text')), key=lambda x: x[1])),
-                      list_filter.choice_element(u'архетип:', attribute='archetype', choices=[(None, u'все')] + sorted(list(ARCHETYPE.select('value', 'text')), key=lambda x: x[1])),
+                      list_filter.choice_element(u'архетип:', attribute='archetype', choices=[(None, u'все')] + sorted(list(game_relations.ARCHETYPE.select('value', 'text')), key=lambda x: x[1])),
                       list_filter.choice_element(u'территория:', attribute='terrain', choices=[(None, u'все')] + sorted(list(TERRAIN.select('value', 'text')), key=lambda x: x[1])),
                       list_filter.choice_element(u'сортировка:',
                                                  attribute='order_by',
@@ -61,7 +61,7 @@ def argument_to_mob_state(value): return MOB_RECORD_STATE(int(value))
 
 def argument_to_mob_type(value): return MOB_TYPE(int(value))
 
-def argument_to_archetype(value): return ARCHETYPE(int(value))
+def argument_to_archetype(value): return game_relations.ARCHETYPE(int(value))
 
 
 class GuideMobResource(MobResourceBase):

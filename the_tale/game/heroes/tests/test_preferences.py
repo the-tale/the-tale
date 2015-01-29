@@ -22,6 +22,8 @@ from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.balance import enums as e
 
+from the_tale.game import relations as game_relations
+
 from the_tale.game.persons.models import Person, PERSON_STATE
 from the_tale.game.persons.storage import persons_storage
 
@@ -1323,8 +1325,8 @@ class HeroPreferencesArchetypeTest(PreferencesTestMixin, TestCase):
         self.hero._model.level = relations.PREFERENCE_TYPE.ARCHETYPE.level_required
         self.hero._model.save()
 
-        self.mage = relations.ARCHETYPE.MAGICAL
-        self.warior = relations.ARCHETYPE.PHYSICAL
+        self.mage = game_relations.ARCHETYPE.MAGICAL
+        self.warior = game_relations.ARCHETYPE.PHYSICAL
 
     def test_preferences_serialization(self):
         self.hero.preferences.set_archetype(self.mage)
@@ -1404,6 +1406,107 @@ class HeroPreferencesArchetypeTest(PreferencesTestMixin, TestCase):
 
     def test_change_archetype_cooldown(self):
         self.check_change_archetype(self.warior, self.mage, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
+
+
+class HeroPreferencesCompanionDedicationTest(PreferencesTestMixin, TestCase):
+    PREFERENCE_TYPE = relations.PREFERENCE_TYPE.COMPANION_DEDICATION
+
+    def setUp(self):
+        super(HeroPreferencesCompanionDedicationTest, self).setUp()
+        create_test_map()
+
+        self.account = self.accounts_factory.create_account()
+        self.storage = LogicStorage()
+        self.storage.load_account_data(self.account)
+        self.hero = self.storage.accounts_to_heroes[self.account.id]
+
+        self.hero._model.level = relations.PREFERENCE_TYPE.COMPANION_DEDICATION.level_required
+        self.hero._model.save()
+
+        self.egoism = relations.COMPANION_DEDICATION.EGOISM
+        self.altruism = relations.COMPANION_DEDICATION.ALTRUISM
+
+    def test_initialization(self):
+        self.assertTrue(self.hero.preferences.companion_dedication.is_NORMAL)
+
+    def test_preferences_serialization(self):
+        self.hero.preferences.set_companion_dedication(self.egoism)
+        data = self.hero.preferences.serialize()
+        self.assertEqual(data, HeroPreferences.deserialize(self.hero.id, data).serialize())
+
+    def test_save(self):
+        self.assertFalse(self.hero.preferences.updated)
+        self.hero.preferences.set_companion_dedication(self.egoism)
+        self.assertTrue(self.hero.preferences.updated)
+        self.hero.save()
+        self.assertFalse(self.hero.preferences.updated)
+        self.hero.reload()
+        self.assertEqual(self.hero.preferences.companion_dedication, self.egoism)
+
+    def test_create(self):
+        task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.COMPANION_DEDICATION, 'wrong_companion_dedication')
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNPROCESSED)
+        self.assertTrue(self.hero.preferences.companion_dedication.is_NORMAL )
+
+    def test_wrong_level(self):
+        self.assertTrue(relations.PREFERENCE_TYPE.COMPANION_DEDICATION.level_required > 1)
+        self.hero._model.level = 1
+        task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.COMPANION_DEDICATION, self.egoism.value)
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
+        self.assertTrue(self.hero.preferences.companion_dedication.is_NORMAL)
+
+    def check_set_companion_dedication(self, companion_dedication):
+        task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.COMPANION_DEDICATION , companion_dedication.value)
+        self.assertTrue(self.hero.preferences.companion_dedication.is_NORMAL)
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
+        self.assertEqual(self.hero.preferences.companion_dedication, companion_dedication)
+
+    def test_purchased(self):
+        self.assertTrue(relations.PREFERENCE_TYPE.COMPANION_DEDICATION.level_required > 1)
+        self.hero._model.level = 1
+        self.account.permanent_purchases.insert(relations.PREFERENCE_TYPE.COMPANION_DEDICATION.purchase_type)
+        self.account.save()
+
+        self.check_set_companion_dedication(self.egoism)
+
+    def test_wrong_companion_dedication(self):
+        task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.COMPANION_DEDICATION, 666)
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_COMPANION_DEDICATION)
+        self.assertTrue(self.hero.preferences.companion_dedication.is_NORMAL )
+
+    def test_wrong_format_of_companion_dedication(self):
+        task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.COMPANION_DEDICATION, '3.5')
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_COMPANION_DEDICATION)
+        self.assertTrue(self.hero.preferences.companion_dedication.is_NORMAL )
+
+    def test_set_companion_dedication(self):
+        changed_at = self.hero.preferences.companion_dedication_changed_at
+        self.check_set_companion_dedication(self.egoism)
+        self.assertTrue(changed_at < self.hero.preferences.companion_dedication_changed_at)
+
+    def check_change_companion_dedication(self, new_slot, expected_slot, expected_state):
+        task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.COMPANION_DEDICATION, self.egoism.value)
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+
+        task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.COMPANION_DEDICATION, new_slot.value if new_slot is not None else None)
+        self.assertEqual(self.hero.preferences.companion_dedication, self.egoism)
+        task_result = task.process(FakePostpondTaskPrototype(), self.storage)
+        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+        self.assertEqual(task.state, expected_state)
+        self.assertEqual(self.hero.preferences.companion_dedication, expected_slot)
+
+        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).companion_dedication, expected_slot)
+
+    @mock.patch('the_tale.game.balance.constants.PREFERENCES_CHANGE_DELAY', 0)
+    def test_change_companion_dedication(self):
+        self.check_change_companion_dedication(self.altruism, self.altruism, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
+
+    def test_change_companion_dedication_cooldown(self):
+        self.check_change_companion_dedication(self.altruism, self.egoism, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
 
 class HeroPreferencesRequestsTest(TestCase):
@@ -1497,7 +1600,13 @@ class HeroPreferencesRequestsTest(TestCase):
     def test_preferences_dialog_archetype(self):
         self.request_login('test_user@test.com')
         response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % relations.PREFERENCE_TYPE.ARCHETYPE.value))
-        self.check_html_ok(response, texts=[r.text for r in relations.ARCHETYPE.records])
+        self.check_html_ok(response, texts=[r.text for r in game_relations.ARCHETYPE.records])
+
+    def test_preferences_dialog_companion_dedication(self):
+        self.request_login('test_user@test.com')
+        response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % relations.PREFERENCE_TYPE.COMPANION_DEDICATION.value))
+        self.check_html_ok(response, texts=[r.text for r in relations.COMPANION_DEDICATION.records])
+
 
     def test_preferences_dialog_favorite_item(self):
         self.request_login('test_user@test.com')

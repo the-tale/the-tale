@@ -1125,7 +1125,7 @@ class ActionInPlacePrototype(ActionBase):
                 hero.add_message('action_inplace_instant_heal', hero=hero, place=hero.position.place)
 
             if hero.companion and hero.companion.health < hero.companion.max_health and hero.position.place.modifier.companion_regen_allowed():
-                hero.companion.health += 1
+                hero.companion.health += c.COMPANIONS_HEAL_AMOUNT
                 hero.add_message('action_inplace_companion_heal', hero=hero, place=hero.position.place, companion=hero.companion)
 
         if (hero.energy < hero.energy_maximum and
@@ -1175,7 +1175,6 @@ class ActionInPlacePrototype(ActionBase):
             gold_amount = min(self.hero.money, int(gold_amount * (1 + random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA))))
             gold_amount = self.hero.modify_buy_price(gold_amount)
             self.hero.change_money(self.hero.next_spending.money_source, -gold_amount)
-            # print '!_! SPEND for %s' % self.hero.next_spending
             self.hero.switch_spending()
             return gold_amount
 

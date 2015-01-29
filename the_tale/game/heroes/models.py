@@ -10,6 +10,8 @@ from rels.django import RelationIntegerField
 from the_tale.game.relations import GENDER, RACE
 from the_tale.game.balance.enums import ANGEL_ENERGY_REGENERATION_TYPES
 
+from the_tale.game import relations as game_relations
+
 from the_tale.game.heroes import relations
 
 
@@ -149,4 +151,5 @@ class HeroPreferences(models.Model):
     equipment_slot = RelationIntegerField(relation=relations.EQUIPMENT_SLOT, null=True, default=None, blank=True)
     risk_level = RelationIntegerField(relation=relations.RISK_LEVEL)
     favorite_item = RelationIntegerField(relation=relations.EQUIPMENT_SLOT, null=True, default=None, blank=True)
-    archetype = RelationIntegerField(relation=relations.ARCHETYPE, null=True, default=None, blank=True)
+    archetype = RelationIntegerField(relation=game_relations.ARCHETYPE, null=True, default=None, blank=True)
+    companion_dedication = RelationIntegerField(relation=relations.COMPANION_DEDICATION, null=True, default=None, blank=True)

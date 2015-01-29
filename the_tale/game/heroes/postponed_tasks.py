@@ -17,6 +17,8 @@ from the_tale.game.map.places.storage import places_storage
 from the_tale.game.mobs.storage import mobs_storage
 from the_tale.game.persons.storage import persons_storage
 
+from the_tale.game import relations as game_relations
+
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
 from the_tale.game.heroes import relations
 
@@ -193,7 +195,8 @@ class CHOOSE_PREFERENCES_TASK_STATE(DjangoEnum):
                 ('MOB_NOT_IN_GAME', 15, u'этот тип противника выведен из игры'),
                 ('UNKNOWN_RISK_LEVEL', 16, u'неизвестный уровень риска'),
                 ('EMPTY_EQUIPMENT_SLOT', 17, u'пустой слот экипировки'),
-                ('UNKNOWN_ARCHETYPE', 18, u'неизвестный архетип'), )
+                ('UNKNOWN_ARCHETYPE', 18, u'неизвестный архетип'),
+                ('UNKNOWN_COMPANION_DEDICATION', 19, u'неизвестное отношение со спутником'))
 
 
 class ChoosePreferencesTask(PostponedLogic):
@@ -429,16 +432,41 @@ class ChoosePreferencesTask(PostponedLogic):
 
         if archetype is not None:
 
-            if archetype not in relations.ARCHETYPE.index_value:
+            if archetype not in game_relations.ARCHETYPE.index_value:
                 main_task.comment = u'unknown archetype: %s' % (archetype, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_ARCHETYPE
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            archetype = relations.ARCHETYPE.index_value[archetype]
+            archetype = game_relations.ARCHETYPE.index_value[archetype]
 
         hero.preferences.set_archetype(archetype)
 
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
+
+
+    def process_companion_dedication(self, main_task, hero):
+
+        try:
+            companion_dedication = int(self.preference_id) if self.preference_id is not None else None
+        except:
+            main_task.comment = u'unknown companion dedication: %s' % (self.preference_id, )
+            self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_COMPANION_DEDICATION
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+
+        if companion_dedication is not None:
+
+            if companion_dedication not in relations.COMPANION_DEDICATION.index_value:
+                main_task.comment = u'unknown companion dedication: %s' % (companion_dedication, )
+                self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_COMPANION_DEDICATION
+                return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+            companion_dedication = relations.COMPANION_DEDICATION.index_value[companion_dedication]
+
+        hero.preferences.set_companion_dedication(companion_dedication)
+
+        return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
+
 
     def process(self, main_task, storage):
 
@@ -482,6 +510,9 @@ class ChoosePreferencesTask(PostponedLogic):
 
         elif self.preference_type.is_ARCHETYPE:
             result = self.process_archetype(main_task, hero)
+
+        elif self.preference_type.is_COMPANION_DEDICATION:
+            result = self.process_companion_dedication(main_task, hero)
 
         else:
             main_task.comment = u'unknown preference type: %s' % (self.preference_type, )

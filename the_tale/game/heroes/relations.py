@@ -6,9 +6,9 @@ from rels.django import DjangoEnum
 from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS
 
 from the_tale.game.balance import constants as c
-from the_tale.game.balance.power import Power, PowerDistribution
+from the_tale.game.balance.power import Power
 
-from the_tale.game.artifacts.relations import ARTIFACT_TYPE, ARTIFACT_POWER_TYPE
+from the_tale.game.artifacts.relations import ARTIFACT_TYPE
 
 
 class RISK_LEVEL(DjangoEnum):
@@ -23,21 +23,6 @@ class RISK_LEVEL(DjangoEnum):
                 ('LOW',       3, u'низкий', 1.15, 0.85, 0.85, 0.85),
                 ('VERY_LOW',  4, u'очень низкий', 1.30, 0.70, 0.70, 0.70) )
 
-
-class ARCHETYPE(DjangoEnum):
-    power_distribution = Column()
-    description = Column()
-    allowed_power_types = Column(no_index=True, unique=False)
-
-    records = ( ('MAGICAL', 0, u'маг', PowerDistribution(0.25, 0.75), u'герой предпочитает магию грубой силе', [ARTIFACT_POWER_TYPE.MOST_MAGICAL,
-                                                                                                                ARTIFACT_POWER_TYPE.MAGICAL,
-                                                                                                                ARTIFACT_POWER_TYPE.NEUTRAL]),
-                ('NEUTRAL', 1, u'авантюрист', PowerDistribution(0.5, 0.5), u'герой соблюдает баланс между мечом и магией', [ARTIFACT_POWER_TYPE.MAGICAL,
-                                                                                                                            ARTIFACT_POWER_TYPE.NEUTRAL,
-                                                                                                                            ARTIFACT_POWER_TYPE.PHYSICAL]),
-                ('PHYSICAL', 2, u'воин', PowerDistribution(0.75, 0.25), u'герой полагается на воинские умения', [ARTIFACT_POWER_TYPE.NEUTRAL,
-                                                                                                                 ARTIFACT_POWER_TYPE.PHYSICAL,
-                                                                                                                 ARTIFACT_POWER_TYPE.MOST_PHYSICAL]) )
 
 
 class PREFERENCE_TYPE(DjangoEnum):
@@ -55,7 +40,16 @@ class PREFERENCE_TYPE(DjangoEnum):
                 ('RISK_LEVEL', 6, u'уровень риска', 8, 'risk_level', '_prepair_risk_level', False),
                 ('FAVORITE_ITEM', 7, u'любимая вещь', 19, 'favorite_item', '_prepair_equipment_slot', True),
                 ('ARCHETYPE', 8, u'архетип', 34, 'archetype', '_prepair_archetype', False),
+                ('COMPANION_DEDICATION', 9, u'отношение со спутником', 15, 'companion_dedication', '_prepair_companion_dedication', False),
         )
+
+class COMPANION_DEDICATION(DjangoEnum):
+    block_multiplier = Column()
+    description = Column()
+
+    records = ( ('EGOISM', 0, u'эгоизм', 1.0 + c.COMPANIONS_BLOG_MULTIPLIER_HERO_DEDICATION_DELTA,  u'спутник чаще защищает героя в бою'),
+                ('NORMAL', 1, u'нейтралитет', 1.0, u'спутник защищает героя с обычной частотой'),
+                ('ALTRUISM', 2, u'альтруизм', 1.0 - c.COMPANIONS_BLOG_MULTIPLIER_HERO_DEDICATION_DELTA, u'спутник реже защищает героя в бою') )
 
 
 class MONEY_SOURCE(DjangoEnum):

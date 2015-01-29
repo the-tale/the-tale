@@ -128,6 +128,9 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-experience', widget).text(parseInt(data.base.experience));
         jQuery('.pgf-experience-to-level', widget).text(data.base.experience_to_level);
 
+        jQuery('.pgf-diary-block-experience').text(parseInt(data.base.experience));
+        jQuery('.pgf-diary-block-experience-to-level').text(data.base.experience_to_level);
+
         jQuery('.pgf-race-gender').removeClass('pgf-hidden');
         jQuery('.pgf-gender', widget).text(pgf.game.constants.GENDER_TO_TEXT[data.base.gender]);
         jQuery('.pgf-race', widget).text(pgf.game.constants.RACE_TO_TEXT[data.base.race]);
@@ -146,6 +149,10 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-max-energy', content).text(data.energy.max);
         jQuery('.pgf-energy-bonus', content).text(data.energy.bonus);
         jQuery('.pgf-energy-percents', content).width( (100 * data.energy.value / data.energy.max) + '%');
+
+        jQuery('.pgf-diary-block-energy').text(data.energy.value);
+        jQuery('.pgf-diary-block-max-energy').text(data.energy.max);
+        jQuery('.pgf-diary-block-energy-bonus').text(data.energy.bonus);
 
         // companion data
         jQuery('.pgf-companion', widget).toggleClass('pgf-hidden', !!(data.companion == null));

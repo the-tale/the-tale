@@ -27,6 +27,7 @@
       <th width="10px"></th>
       <th>название</th>
       <th>тип</th>
+      <th>архетип</th>
       <th>самоотверженность</th>
       <th>максимум здоровья</th>
     </tr>
@@ -43,6 +44,7 @@
 
       <td><a href="{{url('guide:companions:show', companion.id)}}">{{companion.name}}</a></td>
       <td>{{companion.type.text}}</td>
+      <td>{{companion.archetype.text}}</td>
       <td>{{companion.dedication.text}}</td>
       <td>{{companion.max_health}}</td>
     {% endfor %}

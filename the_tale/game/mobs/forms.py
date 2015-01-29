@@ -12,9 +12,12 @@ from the_tale.linguistics.forms import WordField
 
 from the_tale.game.map.relations import TERRAIN
 
+from the_tale.game import relations as game_relations
+
 from the_tale.game.heroes.habilities import ABILITIES
 from the_tale.game.heroes.habilities.battle import HIT
-from the_tale.game.heroes.relations import ARCHETYPE
+
+
 
 from the_tale.game.mobs.prototypes import MobRecordPrototype
 from the_tale.game.mobs.relations import MOB_TYPE
@@ -37,7 +40,7 @@ class MobRecordBaseForm(forms.Form):
     name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название')
 
     type = fields.TypedChoiceField(label=u'тип', choices=MOB_TYPE_CHOICES, coerce=MOB_TYPE.get_from_name)
-    archetype = fields.TypedChoiceField(label=u'тип', choices=ARCHETYPE.choices(), coerce=ARCHETYPE.get_from_name)
+    archetype = fields.TypedChoiceField(label=u'тип', choices=game_relations.ARCHETYPE.choices(), coerce=game_relations.ARCHETYPE.get_from_name)
 
     global_action_probability = fields.FloatField(label=u'вероятность встретить монстра, если идёт его набег (от 0 до 1, 0 — нет набега)')
 

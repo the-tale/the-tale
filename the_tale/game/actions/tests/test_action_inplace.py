@@ -112,10 +112,10 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.hero.position.place.modifier = Resort(self.hero.position.place)
 
-        prototypes.ActionInPlacePrototype.create(hero=self.hero)
+        with self.check_increased(lambda: self.hero.companion.health):
+            prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertTrue(self.hero.messages.messages[-1].key.is_ACTION_INPLACE_COMPANION_HEAL)
-        self.assertEqual(self.hero.companion.health, 2)
 
         self.storage._test_save()
 

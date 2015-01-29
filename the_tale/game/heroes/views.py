@@ -18,6 +18,8 @@ from the_tale.accounts.payments import price_list
 
 from the_tale.game.balance import constants as c
 
+from the_tale.game import relations as game_relations
+
 from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.map.places.storage import places_storage
@@ -267,6 +269,9 @@ class HeroResource(Resource):
         elif type.is_ARCHETYPE:
             pass
 
+        elif type.is_COMPANION_DEDICATION:
+            pass
+
         elif type.is_FAVORITE_ITEM:
             favorite_items = {slot: self.hero.equipment.get(slot)
                               for slot in relations.EQUIPMENT_SLOT.records
@@ -285,7 +290,8 @@ class HeroResource(Resource):
                               'PREFERENCES_CHANGE_DELAY': datetime.timedelta(seconds=c.PREFERENCES_CHANGE_DELAY),
                               'EQUIPMENT_SLOT': relations.EQUIPMENT_SLOT,
                               'RISK_LEVEL': relations.RISK_LEVEL,
-                              'ARCHETYPE': relations.ARCHETYPE} )
+                              'COMPANION_DEDICATION': relations.COMPANION_DEDICATION,
+                              'ARCHETYPE': game_relations.ARCHETYPE} )
 
     @login_required
     @validate_ownership()

@@ -103,6 +103,9 @@ class ResetPreferenceFavoriteItemTests(ResetPreferenceMinix, testcase.TestCase):
 class ResetPreferenceArchetypeTests(ResetPreferenceMinix, testcase.TestCase):
     CARD = effects.PreferencesCooldownsResetArchetype
 
+class ResetPreferenceCompanionDedicationTests(ResetPreferenceMinix, testcase.TestCase):
+    CARD = effects.PreferencesCooldownsResetCompanionDedication
+
 
 class ResetPreferenceAllTests(CardsTestMixin, testcase.TestCase):
     CARD = effects.PreferencesCooldownsResetAll

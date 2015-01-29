@@ -1,6 +1,6 @@
 
 {% macro preference_record(item, choosen) %}
-<td class="hero-preference-choise {% if choosen and item.id == choosen.id %}choosen{% endif %}">
+<td class="hero-preference-choise {% if choosen and item.id == choosen.id %}choosen{% endif %}" style="width: 50%;">
   <span class="badge" style="vertical-align: middle;" rel="tooltip" title="размер города">{{ item.size }}</span>
   {% if choosen is none or item.id != choosen.id %}
   <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ item.id }}">{{ item.name }}</a>

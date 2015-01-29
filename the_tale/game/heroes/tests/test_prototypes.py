@@ -661,6 +661,7 @@ class HeroTest(testcase.TestCase):
 
         self.assertTrue(self.hero.diary.messages[-1].key.is_COMPANIONS_RECEIVED)
         self.assertEqual(self.hero.companion.record.id, companion_record.id)
+        self.assertEqual(self.hero.companion._hero.id, self.hero.id)
 
 
     def test_set_companion__replace(self):

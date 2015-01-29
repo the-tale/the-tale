@@ -21,7 +21,8 @@ from the_tale.game.map.relations import TERRAIN
 
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
 from the_tale.game.heroes.relations import MODIFIERS as HERO_MODIFIERS
-from the_tale.game.heroes.relations import ARCHETYPE
+
+from the_tale.game import relations as game_relations
 
 from the_tale.game.artifacts.storage import artifacts_storage
 
@@ -199,7 +200,7 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
     def loot(self): return artifacts_storage.get_mob_loot(self.id)
 
     @classmethod
-    def create(cls, uuid, level, utg_name, description, abilities, terrains, type, archetype=ARCHETYPE.NEUTRAL, editor=None, state=MOB_RECORD_STATE.DISABLED, global_action_probability=0):
+    def create(cls, uuid, level, utg_name, description, abilities, terrains, type, archetype=game_relations.ARCHETYPE.NEUTRAL, editor=None, state=MOB_RECORD_STATE.DISABLED, global_action_probability=0):
 
         from the_tale.game.mobs.storage import mobs_storage
 

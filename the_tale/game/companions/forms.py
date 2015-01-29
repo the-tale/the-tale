@@ -8,6 +8,8 @@ from the_tale.common.utils import bbcode
 
 from the_tale.linguistics.forms import WordField
 
+from the_tale.game import relations as game_relations
+
 from the_tale.game.companions import relations
 
 from the_tale.game.balance import constants as c
@@ -21,6 +23,7 @@ class CompanionRecordForm(forms.Form):
 
     type = fields.RelationField(label=u'тип', relation=relations.TYPE)
     dedication = fields.RelationField(label=u'самоотверженность', relation=relations.DEDICATION)
+    archetype = fields.RelationField(label=u'архетип', relation=game_relations.ARCHETYPE)
     rarity = fields.RelationField(label=u'редкость', relation=relations.RARITY)
 
     description = bbcode.BBField(label=u'Описание', required=False)

@@ -1,0 +1,29 @@
+
+{% macro preference_record(item, choosen_id) %}
+<td class="hero-preference-choise {% if item == choosen_id %}choosen{% endif %}">
+  {% if item != choosen_id %}
+  <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ item.value }}">{{ item.text }}</a>
+  {% else %}
+  <a href="#" class="current-choice pgf-close-dialog">{{ item.text }}</a>
+  {% endif %}
+</td>
+<td>
+  {{item.description}}
+</td>
+{% endmacro %}
+
+<p>
+  Как герой относится к своему спутнику? Доверяет ли ему? Или старается уберечь от лишних опасностей?
+</p>
+
+<p>
+  Отношение со спутником определяет как часто спутник будет защищать героя в бою. Эгоистичный герой не мешает спутнику участвовать в сражениях и не против лишний раз укрыться за его спиной. Альтруистичный герой, наоборот, стремиться уберечь спутника от личшнего урона и не даёт последему лезть в бой через чур активно.
+</p>
+
+<table class="table table-bordered table-striped table-condensed">
+  {% for companion_dedication in COMPANION_DEDICATION.records %}
+  <tr>
+    {{ preference_record(companion_dedication, resource.hero.preferences.companion_dedication) }}
+  </tr>
+  {% endfor %}
+</table>

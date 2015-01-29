@@ -369,6 +369,10 @@ class PreferencesCooldownsResetRiskLevel(PreferencesCooldownsResetBase):
     TYPE = relations.CARD_TYPE.PREFERENCES_COOLDOWNS_RESET_RISK_LEVEL
     PREFERENCE = PREFERENCE_TYPE.RISK_LEVEL
 
+class PreferencesCooldownsResetCompanionDedication(PreferencesCooldownsResetBase):
+    TYPE = relations.CARD_TYPE.PREFERENCES_COOLDOWNS_RESET_COMPANION_DEDICATION
+    PREFERENCE = PREFERENCE_TYPE.COMPANION_DEDICATION
+
 class PreferencesCooldownsResetFavoriteItem(PreferencesCooldownsResetBase):
     TYPE = relations.CARD_TYPE.PREFERENCES_COOLDOWNS_RESET_FAVORITE_ITEM
     PREFERENCE = PREFERENCE_TYPE.FAVORITE_ITEM

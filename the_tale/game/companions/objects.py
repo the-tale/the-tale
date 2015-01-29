@@ -13,14 +13,15 @@ from the_tale.game.balance import constants as c
 
 
 class Companion(object):
-    __slots__ = ('record', 'health', 'coherence', 'experience', 'healed_at')
+    __slots__ = ('record', 'health', 'coherence', 'experience', 'healed_at', '_hero')
 
-    def __init__(self, record, health, coherence, experience, healed_at):
+    def __init__(self, record, health, coherence, experience, healed_at, _hero=None):
         self.record = record
         self.health = health
         self.coherence = coherence
         self.experience = experience
         self.healed_at = healed_at
+        self._hero = _hero
 
     def serialize(self):
         return {'record': self.record.id,
@@ -30,13 +31,14 @@ class Companion(object):
                 'healed_at': self.healed_at}
 
     @classmethod
-    def deserialize(cls, data):
+    def deserialize(cls, hero, data):
         from the_tale.game.companions import storage
         obj = cls(record=storage.companions[data['record']],
                   health=data['health'],
                   coherence=data['coherence'],
                   experience=data['experience'],
-                  healed_at=data['healed_at'])
+                  healed_at=data['healed_at'],
+                  _hero=hero)
         return obj
 
     @property
@@ -47,6 +49,10 @@ class Companion(object):
 
     def linguistics_restrictions(self):
         return []
+
+    @property
+    def defend_in_battle_probability(self):
+        return self.record.dedication.block_multiplier * self._hero.preferences.companion_dedication.block_multiplier * f.companions_defend_in_battle_probability(self.coherence)
 
     @property
     def max_health(self): return self.record.max_health
@@ -107,7 +113,7 @@ class Companion(object):
 
 
 class CompanionRecord(names.ManageNameMixin):
-    __slots__ = ('id', 'state', 'data', 'type', 'max_health', 'dedication', 'rarity')
+    __slots__ = ('id', 'state', 'data', 'type', 'max_health', 'dedication', 'rarity', 'archetype')
 
     def __init__(self,
                  id,
@@ -116,7 +122,8 @@ class CompanionRecord(names.ManageNameMixin):
                  type,
                  max_health,
                  dedication,
-                 rarity):
+                 rarity,
+                 archetype):
         self.id = id
         self.state = state
         self.data = data
@@ -124,6 +131,7 @@ class CompanionRecord(names.ManageNameMixin):
         self.max_health = max_health
         self.dedication = dedication
         self.rarity = rarity
+        self.archetype = archetype
 
     @classmethod
     def from_model(cls, model):
@@ -133,7 +141,8 @@ class CompanionRecord(names.ManageNameMixin):
                    type=model.type,
                    max_health=model.max_health,
                    dedication=model.dedication,
-                   rarity=model.rarity)
+                   rarity=model.rarity,
+                   archetype=model.archetype)
 
 
     def get_description(self): return self.data['description']

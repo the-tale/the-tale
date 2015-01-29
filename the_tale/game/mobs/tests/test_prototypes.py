@@ -13,7 +13,8 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game.map.relations import TERRAIN
 from the_tale.game.heroes.prototypes import HeroPrototype
-from the_tale.game.heroes.relations import ARCHETYPE
+
+from the_tale.game import relations as game_relations
 
 from the_tale.game.mobs.storage import mobs_storage
 from the_tale.game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
@@ -97,7 +98,7 @@ class MobsPrototypeTests(testcase.TestCase):
                                   abilities=['hit', 'thick', 'slow', 'extra_strong'],
                                   terrains=TERRAIN.records,
                                   type=MOB_TYPE.CIVILIZED,
-                                  archetype=ARCHETYPE.NEUTRAL,
+                                  archetype=game_relations.ARCHETYPE.NEUTRAL,
                                   state=MOB_RECORD_STATE.ENABLED)
         mobs_storage.sync(force=True)
 

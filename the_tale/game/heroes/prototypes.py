@@ -22,7 +22,7 @@ from the_tale.game.balance import formulas as f
 from the_tale.game.balance.power import Power
 
 from the_tale.game import names
-from the_tale.game.relations import HABIT_TYPE
+from the_tale.game import relations as game_relations
 
 from the_tale.game.prototypes import TimePrototype, GameState
 
@@ -370,7 +370,10 @@ class HeroPrototype(BasePrototype,
         if preferences.risk_level is None:
             preferences.set_risk_level(relations.RISK_LEVEL.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
         if preferences.archetype is None:
-            preferences.set_archetype(relations.ARCHETYPE.NEUTRAL, change_time=datetime.datetime.fromtimestamp(0))
+            preferences.set_archetype(game_relations.ARCHETYPE.NEUTRAL, change_time=datetime.datetime.fromtimestamp(0))
+        if preferences.companion_dedication is None:
+            preferences.set_companion_dedication(relations.COMPANION_DEDICATION.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
+
         return preferences
 
     @lazy_property
@@ -383,7 +386,7 @@ class HeroPrototype(BasePrototype,
         if companion_data is None:
             return None
 
-        return companions_objects.Companion.deserialize(companion_data)
+        return companions_objects.Companion.deserialize(self, companion_data)
 
     def set_companion(self, companion):
         if self.companion:
@@ -605,10 +608,10 @@ class HeroPrototype(BasePrototype,
                                'initiative': self.initiative,
                                'max_bag_size': self.max_bag_size,
                                'loot_items_count': self.bag.occupation},
-                'habits': { HABIT_TYPE.HONOR.verbose_value: {'verbose': self.habit_honor.verbose_value,
-                                                             'raw': self.habit_honor.raw_value},
-                            HABIT_TYPE.PEACEFULNESS.verbose_value: {'verbose': self.habit_peacefulness.verbose_value,
-                                                                    'raw': self.habit_peacefulness.raw_value}},
+                'habits': { game_relations.HABIT_TYPE.HONOR.verbose_value: {'verbose': self.habit_honor.verbose_value,
+                                                                            'raw': self.habit_honor.raw_value},
+                            game_relations.HABIT_TYPE.PEACEFULNESS.verbose_value: {'verbose': self.habit_peacefulness.verbose_value,
+                                                                                   'raw': self.habit_peacefulness.raw_value}},
                 'quests': self.quests.ui_info(self),
                 'sprite': get_hero_sprite(self).value
                 }
@@ -689,7 +692,8 @@ class HeroPrototype(BasePrototype,
         HeroPreferencesPrototype.create(hero,
                                         energy_regeneration_type=hero.preferences.energy_regeneration_type,
                                         risk_level=relations.RISK_LEVEL.NORMAL,
-                                        archetype=relations.ARCHETYPE.NEUTRAL)
+                                        archetype=game_relations.ARCHETYPE.NEUTRAL,
+                                        companion_dedication=relations.COMPANION_DEDICATION.NORMAL)
 
         storage = LogicStorage() # tmp storage for creating Idleness action
         ActionIdlenessPrototype.create(hero=hero, _bundle_id=bundle.id, _storage=None)
@@ -1064,7 +1068,8 @@ class HeroPreferencesPrototype(BasePrototype):
                  'equipment_slot',
                  'risk_level',
                  'favorite_item',
-                 'archetype')
+                 'archetype',
+                 'companion_dedication')
     _bidirectional = ()
     _get_by = ('id', 'hero_id')
 
@@ -1072,11 +1077,12 @@ class HeroPreferencesPrototype(BasePrototype):
         super(HeroPreferencesPrototype, self).__init__(**kwargs)
 
     @classmethod
-    def create(cls, hero, energy_regeneration_type, risk_level, archetype):
+    def create(cls, hero, energy_regeneration_type, risk_level, archetype, companion_dedication):
         return cls(model=cls._model_class.objects.create(hero=hero._model,
                                                          energy_regeneration_type=energy_regeneration_type,
                                                          risk_level=risk_level,
-                                                         archetype=archetype))
+                                                         archetype=archetype,
+                                                         companion_dedication=companion_dedication))
 
     @classmethod
     def update(cls, hero_id, field, value):
