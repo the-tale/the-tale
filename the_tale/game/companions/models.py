@@ -18,6 +18,7 @@ class CompanionRecord(models.Model):
     dedication = RelationIntegerField(relation=relations.DEDICATION, db_index=True)
     rarity = RelationIntegerField(relation=relations.RARITY, db_index=True)
     archetype = RelationIntegerField(relation=game_relations.ARCHETYPE, null=True, default=None, blank=True)
+    mode = RelationIntegerField(relation=relations.MODE, null=True, default=None, blank=True)
 
     max_health = models.IntegerField(default=1)
 

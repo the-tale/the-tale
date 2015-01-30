@@ -10,6 +10,7 @@ from the_tale.game.artifacts import relations as artifacts_relations
 from the_tale.game.mobs import relations as mobs_relations
 from the_tale.game.persons import relations as persons_relations
 from the_tale.game.map.places import relations as places_relations
+from the_tale.game.companions import relations as companions_relations
 
 
 def word_type_record(name):
@@ -93,4 +94,11 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
 
                 ('ARTIFACT', 11, u'артефакт', None),
                 ('MOB', 12, u'монстр', None),
-                ('COMPANION', 13, u'спутник', None) )
+                ('COMPANION', 13, u'спутник', None),
+
+                ('COMPANION_TYPE', 14, u'тип спутника', companions_relations.TYPE),
+                ('COMPANION_DEDICATION', 15, u'тип самоотверженности спутника', companions_relations.DEDICATION),
+                ('COMPANION_RARITY', 16, u'редкость спутника', companions_relations.RARITY),
+                ('COMPANION_ARCHETYPE', 17, u'архетип спутника', game_relations.ARCHETYPE),
+
+                 )

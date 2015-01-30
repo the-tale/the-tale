@@ -35,6 +35,7 @@ class GetCompanionCreateTests(testcase.TestCase):
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
         self.disabled_companion = companions_logic.create_random_companion_record('disbled', rarity=companions_relations.RARITY.COMMON)
+        self.manual_companion = companions_logic.create_random_companion_record('manual', rarity=companions_relations.RARITY.COMMON, mode=companions_relations.MODE.MANUAL)
 
         self.effect = effects.GetCompanionCommon()
 
@@ -45,6 +46,14 @@ class GetCompanionCreateTests(testcase.TestCase):
             card = self.effect.create_card(available_for_auction=True)
             self.assertNotEqual(card.data['companion_id'], self.disabled_companion.id)
             self.assertTrue(companions_storage.companions[card.data['companion_id']].state.is_ENABLED)
+
+
+    def test__no_manual_companions(self):
+
+        for i in xrange(100):
+            card = self.effect.create_card(available_for_auction=True)
+            self.assertNotEqual(card.data['companion_id'], self.manual_companion.id)
+            self.assertTrue(companions_storage.companions[card.data['companion_id']].mode.is_AUTOMATIC)
 
 
 class GetCompanionMixin(CardsTestMixin):
@@ -93,6 +102,16 @@ class GetCompanionMixin(CardsTestMixin):
 
         self.assertEqual(self.hero.companion.record.rarity.card_rarity, self.EFFECT.TYPE.rarity)
         self.assertNotEqual(self.hero.companion.record.id, old_companion_record.id)
+
+
+    def test_available(self):
+        self.assertTrue(self.EFFECT.available())
+
+        for companion in companions_storage.companions.all():
+            if companion.rarity.card_rarity == self.EFFECT.TYPE.rarity:
+                companion.state = companions_relations.STATE.DISABLED
+
+        self.assertFalse(self.EFFECT.available())
 
 
 class GetCompanionCommonTests(GetCompanionMixin, testcase.TestCase):

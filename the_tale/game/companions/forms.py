@@ -25,6 +25,7 @@ class CompanionRecordForm(forms.Form):
     dedication = fields.RelationField(label=u'самоотверженность', relation=relations.DEDICATION)
     archetype = fields.RelationField(label=u'архетип', relation=game_relations.ARCHETYPE)
     rarity = fields.RelationField(label=u'редкость', relation=relations.RARITY)
+    mode = fields.RelationField(label=u'режим появления в игре', relation=relations.MODE)
 
     description = bbcode.BBField(label=u'Описание', required=False)
 
@@ -35,4 +36,6 @@ class CompanionRecordForm(forms.Form):
                 'type': companion.type,
                 'dedication': companion.dedication,
                 'rarity': companion.rarity,
+                'archetype': companion.archetype,
+                'mode': companion.mode,
                 'name': companion.utg_name}

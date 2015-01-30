@@ -32,6 +32,7 @@ class LogicTests(testcase.TestCase):
         rarity = relations.RARITY.random()
         archetype = game_relations.ARCHETYPE.random()
         max_health = 10
+        mode = relations.MODE.random()
 
         with self.check_delta(models.CompanionRecord.objects.count, 1):
             with self.check_changed(lambda: storage.companions._version):
@@ -42,6 +43,7 @@ class LogicTests(testcase.TestCase):
                                                                      max_health=max_health,
                                                                      dedication=dedication,
                                                                      archetype=archetype,
+                                                                     mode=mode,
                                                                      rarity=rarity)
 
         self.assertTrue(companion_record.state.is_DISABLED)
@@ -53,6 +55,7 @@ class LogicTests(testcase.TestCase):
         self.assertEqual(companion_record.max_health, max_health)
         self.assertEqual(companion_record.rarity, rarity)
         self.assertEqual(companion_record.archetype, archetype)
+        self.assertEqual(companion_record.mode, mode)
         self.assertEqual(companion_record.dedication, dedication)
 
         model = models.CompanionRecord.objects.get(id=companion_record.id)
@@ -70,6 +73,7 @@ class LogicTests(testcase.TestCase):
                                                          dedication=relations.DEDICATION.random(),
                                                          rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
+                                                         mode=relations.MODE.random(),
                                                          state=relations.STATE.ENABLED)
 
         self.assertTrue(companion_record.state.is_ENABLED)
@@ -84,6 +88,7 @@ class LogicTests(testcase.TestCase):
                                                             dedication=relations.DEDICATION.random(),
                                                             rarity=relations.RARITY.random(),
                                                             archetype=game_relations.ARCHETYPE.random(),
+                                                            mode=relations.MODE.random(),
                                                             state=relations.STATE.ENABLED)
 
         self.assertEqual(sync_restriction.call_args_list, [mock.call(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.COMPANION,
@@ -99,6 +104,7 @@ class LogicTests(testcase.TestCase):
         dedication = relations.DEDICATION.random()
         rarity = relations.RARITY.random()
         archetype = game_relations.ARCHETYPE.random()
+        mode = relations.MODE.random()
         max_health = 666
 
         companion_record = logic.create_companion_record(utg_name=old_name,
@@ -107,6 +113,7 @@ class LogicTests(testcase.TestCase):
                                                          max_health=10,
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
+                                                         mode=relations.MODE.random(),
                                                          rarity=relations.RARITY.random())
 
         with self.check_increased(lambda: models.CompanionRecord.objects.get(id=companion_record.id).updated_at):
@@ -121,6 +128,7 @@ class LogicTests(testcase.TestCase):
                                                           max_health=max_health,
                                                           dedication=dedication,
                                                           archetype=archetype,
+                                                          mode=mode,
                                                           rarity=rarity)
 
         self.assertEqual(companion_record.name, new_name.normal_form())
@@ -129,6 +137,7 @@ class LogicTests(testcase.TestCase):
         self.assertEqual(companion_record.dedication, dedication)
         self.assertEqual(companion_record.max_health, max_health)
         self.assertEqual(companion_record.rarity, rarity)
+        self.assertEqual(companion_record.mode, mode)
         self.assertEqual(companion_record.archetype, archetype)
 
         storage.companions.refresh()
@@ -141,6 +150,7 @@ class LogicTests(testcase.TestCase):
         self.assertEqual(companion_record.dedication, dedication)
         self.assertEqual(companion_record.max_health, max_health)
         self.assertEqual(companion_record.rarity, rarity)
+        self.assertEqual(companion_record.mode, mode)
         self.assertEqual(companion_record.archetype, archetype)
 
 
@@ -150,6 +160,7 @@ class LogicTests(testcase.TestCase):
         dedication = relations.DEDICATION.random()
         rarity = relations.RARITY.random()
         archetype = game_relations.ARCHETYPE.random()
+        mode = relations.MODE.random()
         max_health = 666
 
         companion_record = logic.create_companion_record(utg_name=names.generator.get_test_name(name='old'),
@@ -158,6 +169,7 @@ class LogicTests(testcase.TestCase):
                                                          max_health=max_health,
                                                          dedication=dedication,
                                                          archetype=archetype,
+                                                         mode=mode,
                                                          rarity=rarity)
 
         with self.check_increased(lambda: models.CompanionRecord.objects.get(id=companion_record.id).updated_at):
@@ -173,6 +185,7 @@ class LogicTests(testcase.TestCase):
         self.assertEqual(companion_record.max_health, max_health)
         self.assertEqual(companion_record.rarity, rarity)
         self.assertEqual(companion_record.archetype, archetype)
+        self.assertEqual(companion_record.mode, mode)
         self.assertTrue(companion_record.state.is_ENABLED)
 
         storage.companions.refresh()
@@ -185,6 +198,7 @@ class LogicTests(testcase.TestCase):
         self.assertEqual(companion_record.max_health, max_health)
         self.assertEqual(companion_record.rarity, rarity)
         self.assertEqual(companion_record.archetype, archetype)
+        self.assertEqual(companion_record.mode, mode)
         self.assertTrue(companion_record.state.is_ENABLED)
 
 
@@ -198,6 +212,7 @@ class LogicTests(testcase.TestCase):
                                                          max_health=10,
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
+                                                         mode=relations.MODE.random(),
                                                          rarity=relations.RARITY.random())
 
         with mock.patch('the_tale.linguistics.logic.sync_restriction') as sync_restriction:
@@ -208,6 +223,7 @@ class LogicTests(testcase.TestCase):
                                           max_health=10,
                                           dedication=relations.DEDICATION.random(),
                                           archetype=game_relations.ARCHETYPE.random(),
+                                          mode=relations.MODE.random(),
                                           rarity=relations.RARITY.random())
 
         self.assertEqual(sync_restriction.call_args_list, [mock.call(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.COMPANION,
@@ -222,6 +238,7 @@ class LogicTests(testcase.TestCase):
                                                          dedication=relations.DEDICATION.random(),
                                                          rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
+                                                         mode=relations.MODE.random(),
                                                          state=relations.STATE.ENABLED)
 
         companion = logic.create_companion(companion_record)

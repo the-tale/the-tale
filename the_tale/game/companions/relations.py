@@ -19,6 +19,10 @@ class TYPE(DjangoEnum):
                 (u'UNUSUAL', 2, u'необычный') )
 
 
+class MODE(DjangoEnum):
+    records = ( (u'AUTOMATIC', 0, u'автоматический'),
+                (u'MANUAL', 1, u'ручной'),)
+
 class DEDICATION(DjangoEnum):
     block_multiplier = Column()
 

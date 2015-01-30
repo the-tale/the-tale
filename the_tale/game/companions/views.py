@@ -216,6 +216,7 @@ def create(context):
                                                      max_health=context.form.c.max_health,
                                                      dedication=context.form.c.dedication,
                                                      rarity=context.form.c.rarity,
+                                                     mode=context.form.c.mode,
                                                      archetype=context.form.c.archetype)
     return dext_views.AjaxOk(content={'next_url': url('guide:companions:show', companion_record.id)})
 
@@ -247,6 +248,7 @@ def update(context):
                                   max_health=context.form.c.max_health,
                                   dedication=context.form.c.dedication,
                                   rarity=context.form.c.rarity,
+                                  mode=context.form.c.mode,
                                   archetype=context.form.c.archetype)
     return dext_views.AjaxOk(content={'next_url': url('guide:companions:show', context.companion.id)})
 

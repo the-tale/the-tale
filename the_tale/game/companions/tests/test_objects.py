@@ -41,6 +41,7 @@ class CompanionTests(testcase.TestCase):
                                                               dedication=relations.DEDICATION.random(),
                                                               rarity=relations.RARITY.random(),
                                                               archetype=game_relations.ARCHETYPE.random(),
+                                                              mode=relations.MODE.random(),
                                                               state=relations.STATE.ENABLED)
 
         self.companion = logic.create_companion(self.companion_record)

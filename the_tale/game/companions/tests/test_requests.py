@@ -58,6 +58,7 @@ class IndexRequestsTests(RequestsTestsBase):
                                                          dedication=relations.DEDICATION.random(),
                                                          rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
+                                                         mode=relations.MODE.random(),
                                                          state=relations.STATE.ENABLED)
 
         self.companion_2 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-2'),
@@ -67,6 +68,7 @@ class IndexRequestsTests(RequestsTestsBase):
                                                          dedication=relations.DEDICATION.random(),
                                                          rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
+                                                         mode=relations.MODE.random(),
                                                          state=relations.STATE.DISABLED)
 
 
@@ -173,6 +175,7 @@ class CreateRequestsTests(RequestsTestsBase):
                 'max_health': 65,
                 'dedication': relations.DEDICATION.random(),
                 'archetype': game_relations.ARCHETYPE.random(),
+                'mode': relations.MODE.random(),
                 'rarity': relations.RARITY.random()}
         data.update(linguistics_helpers.get_word_post_data(names.generator.get_test_name(name='name'), prefix='name'))
         return data
@@ -206,6 +209,7 @@ class CreateRequestsTests(RequestsTestsBase):
         self.assertEqual(new_companion.dedication, post_data['dedication'])
         self.assertEqual(new_companion.rarity, post_data['rarity'])
         self.assertEqual(new_companion.archetype, post_data['archetype'])
+        self.assertEqual(new_companion.mode, post_data['mode'])
         self.assertEqual(new_companion.name, u'name-нс,ед,им')
 
 
@@ -230,6 +234,7 @@ class ShowRequestsTests(RequestsTestsBase):
                                                          dedication=relations.DEDICATION.random(),
                                                          rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
+                                                         mode=relations.MODE.random(),
                                                          state=relations.STATE.ENABLED)
 
         self.companion_2 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-2'),
@@ -239,6 +244,7 @@ class ShowRequestsTests(RequestsTestsBase):
                                                          dedication=relations.DEDICATION.random(),
                                                          rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
+                                                         mode=relations.MODE.random(),
                                                          state=relations.STATE.DISABLED)
 
         self.requested_url_1 = url('game:companions:show', self.companion_1.id)
@@ -326,6 +332,7 @@ class InfoRequestsTests(RequestsTestsBase):
                                                          dedication=relations.DEDICATION.random(),
                                                          rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
+                                                         mode=relations.MODE.random(),
                                                          state=relations.STATE.ENABLED)
 
         self.companion_2 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-2'),
@@ -335,6 +342,7 @@ class InfoRequestsTests(RequestsTestsBase):
                                                          dedication=relations.DEDICATION.random(),
                                                          rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
+                                                         mode=relations.MODE.random(),
                                                          state=relations.STATE.DISABLED)
 
         self.requested_url_1 = url('game:companions:info', self.companion_1.id)
@@ -408,6 +416,7 @@ class EditRequestsTests(RequestsTestsBase):
                                                          dedication=relations.DEDICATION.random(),
                                                          rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
+                                                         mode=relations.MODE.random(),
                                                          state=relations.STATE.DISABLED)
 
 
@@ -448,6 +457,7 @@ class UpdateRequestsTests(RequestsTestsBase):
                                                          dedication=relations.DEDICATION.random(),
                                                          rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
+                                                         mode=relations.MODE.random(),
                                                          state=relations.STATE.DISABLED)
 
         self.requested_url = url('game:companions:update', self.companion_1.id)
@@ -464,6 +474,7 @@ class UpdateRequestsTests(RequestsTestsBase):
                 'max_health': 65,
                 'dedication': relations.DEDICATION.random(),
                 'archetype': game_relations.ARCHETYPE.random(),
+                'mode': relations.MODE.random(),
                 'rarity': relations.RARITY.random()}
         data.update(linguistics_helpers.get_word_post_data(names.generator.get_test_name(name='new_name'), prefix='name'))
         return data
@@ -496,6 +507,7 @@ class UpdateRequestsTests(RequestsTestsBase):
         self.assertEqual(companion.max_health, post_data['max_health'])
         self.assertEqual(companion.dedication, post_data['dedication'])
         self.assertEqual(companion.rarity, post_data['rarity'])
+        self.assertEqual(companion.mode, post_data['mode'])
         self.assertEqual(companion.name, u'new_name-нс,ед,им')
 
 
@@ -525,6 +537,7 @@ class EnableRequestsTests(RequestsTestsBase):
                                                          dedication=relations.DEDICATION.random(),
                                                          rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
+                                                         mode=relations.MODE.random(),
                                                          state=relations.STATE.DISABLED)
 
         self.requested_url = url('game:companions:enable', self.companion_1.id)

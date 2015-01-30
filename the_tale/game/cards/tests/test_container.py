@@ -167,6 +167,24 @@ class GetNewCardTest(testcase.TestCase):
         self.assertTrue(self.hero.cards.has_card(self.hero.cards.get_new_card().uid))
 
 
+    def test_exclude_not_allowrd_effects(self):
+        effects = set()
+
+        @classmethod
+        def effect_availability(cls):
+            # print cls.TYPE, bool(cls.TYPE.value % 2)
+            return bool(cls.TYPE.value % 2)
+
+        with mock.patch('the_tale.game.cards.effects.BaseEffect.available', effect_availability):
+            with mock.patch('the_tale.game.cards.effects.GetCompanionBase.available', effect_availability):
+                for i in xrange(10000):
+                    effects.add(self.hero.cards.get_new_card().effect.TYPE)
+
+        for effect_type in relations.CARD_TYPE.records:
+            if effect_type.value % 2 == 0:
+                self.assertNotIn(effect_type, effects)
+
+
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True)
     def test_simple(self):
 

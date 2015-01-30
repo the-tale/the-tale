@@ -8,6 +8,7 @@ from the_tale.game.cards import exceptions
 from the_tale.game.cards import objects
 from the_tale.game.cards import goods_types
 from the_tale.game.cards import logic
+from the_tale.game.cards import effects
 
 
 class CardsContainer(object):
@@ -110,6 +111,8 @@ class CardsContainer(object):
 
         if exclude:
             cards_types = [card for card in cards_types if card not in exclude]
+
+        cards_types = [card for card in cards_types if effects.EFFECTS[card].available()]
 
         prioritites = [(card, card.rarity.priority) for card in cards_types]
 

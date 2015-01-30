@@ -48,7 +48,13 @@ class Companion(object):
     def utg_name_form(self): return self.record.utg_name_form
 
     def linguistics_restrictions(self):
-        return []
+        from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
+        from the_tale.linguistics.storage import restrictions_storage
+
+        return [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_TYPE, self.record.type.value),
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_DEDICATION, self.record.dedication.value),
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_RARITY, self.record.rarity.value),
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_ARCHETYPE, self.record.archetype.value)]
 
     @property
     def defend_in_battle_probability(self):
@@ -113,7 +119,7 @@ class Companion(object):
 
 
 class CompanionRecord(names.ManageNameMixin):
-    __slots__ = ('id', 'state', 'data', 'type', 'max_health', 'dedication', 'rarity', 'archetype')
+    __slots__ = ('id', 'state', 'data', 'type', 'max_health', 'dedication', 'rarity', 'archetype', 'mode')
 
     def __init__(self,
                  id,
@@ -123,7 +129,8 @@ class CompanionRecord(names.ManageNameMixin):
                  max_health,
                  dedication,
                  rarity,
-                 archetype):
+                 archetype,
+                 mode):
         self.id = id
         self.state = state
         self.data = data
@@ -132,6 +139,7 @@ class CompanionRecord(names.ManageNameMixin):
         self.dedication = dedication
         self.rarity = rarity
         self.archetype = archetype
+        self.mode = mode
 
     @classmethod
     def from_model(cls, model):
@@ -142,7 +150,8 @@ class CompanionRecord(names.ManageNameMixin):
                    max_health=model.max_health,
                    dedication=model.dedication,
                    rarity=model.rarity,
-                   archetype=model.archetype)
+                   archetype=model.archetype,
+                   mode=model.mode)
 
 
     def get_description(self): return self.data['description']

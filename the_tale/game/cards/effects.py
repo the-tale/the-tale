@@ -74,6 +74,10 @@ class BaseEffect(object):
     def name_for_card(self, card):
         return self.TYPE.text
 
+    @classmethod
+    def available(self):
+        return True
+
 
 
 class LevelUp(BaseEffect):
@@ -936,19 +940,24 @@ class GetCompanionBase(BaseEffect):
 
         return task.logic_result(message=u'Поздравляем! Ваш герой получил нового спутника.')
 
-
-    def create_card(self, available_for_auction):
-
+    @classmethod
+    def get_available_companions(cls):
         available_companions = [companion
                                 for companion in companions_storage.companions.enabled_companions()
-                                if companion.rarity == self.RARITY]
+                                if companion.rarity == cls.RARITY and companion.mode.is_AUTOMATIC]
 
-        if not available_companions:
-            available_companions = list(companions_storage.companions.enabled_companions())
+        return available_companions
+
+    def create_card(self, available_for_auction):
+        available_companions = self.get_available_companions()
 
         card_companion = random.choice(available_companions)
 
         return objects.Card(type=self.TYPE, available_for_auction=available_for_auction, data={'companion_id': card_companion.id})
+
+    @classmethod
+    def available(cls):
+        return bool(cls.get_available_companions())
 
 
     def name_for_card(self, card):
