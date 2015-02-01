@@ -1,0 +1,51 @@
+
+{% macro field(type) %}
+<td>{{type.text}}</td><td>{{ widgets[type.value]|safe }}</td>
+{% endmacro %}
+
+<table class="table table-condensed">
+  <thead>
+    <tr>
+      <th colspan="2">Начальные свойства</th>
+      <th colspan="2">Получаемые свойства</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      {{field(FIELDS.COHERENCE_SPEED)}}
+      {{field(FIELDS.ABILITY_1)}}
+    </tr>
+    <tr>
+      {{field(FIELDS.HONOR)}}
+      {{field(FIELDS.ABILITY_2)}}
+    </tr>
+    <tr>
+      {{field(FIELDS.PEACEFULNESS)}}
+      {{field(FIELDS.ABILITY_3)}}
+    </tr>
+    <tr>
+      {{field(FIELDS.START_1)}}
+      {{field(FIELDS.ABILITY_4)}}
+    </tr>
+    <tr>
+      {{field(FIELDS.START_2)}}
+      {{field(FIELDS.ABILITY_5)}}
+    </tr>
+    <tr>
+      {{field(FIELDS.START_3)}}
+      {{field(FIELDS.ABILITY_6)}}
+    </tr>
+    <tr>
+      <td></td><td></td>
+      {{field(FIELDS.ABILITY_7)}}
+    </tr>
+    <tr>
+      <td></td><td></td>
+      {{field(FIELDS.ABILITY_8)}}
+    </tr>
+    <tr>
+      <td></td><td></td>
+      {{field(FIELDS.ABILITY_9)}}
+    </tr>
+  </tbody>
+</table>

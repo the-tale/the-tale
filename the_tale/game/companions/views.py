@@ -16,6 +16,8 @@ from the_tale.game.companions import forms
 from the_tale.game.companions import logic
 from the_tale.game.companions import storage
 
+from the_tale.game.companions.abilities import effects as abilities_effects
+
 ########################################
 # processors definition
 ########################################
@@ -68,6 +70,7 @@ INDEX_RARITY = list_filter.filter_relation(relations.RARITY)
 INDEX_TYPE = list_filter.filter_relation(relations.TYPE)
 INDEX_ARCHETYPE = list_filter.filter_relation(game_relations.ARCHETYPE)
 INDEX_DEDICATION = list_filter.filter_relation(relations.DEDICATION)
+INDEX_ABILITIES = list_filter.filter_relation(abilities_effects.ABILITIES, sort_key=lambda r: r.text)
 
 BASE_INDEX_FILTERS = [list_filter.reset_element(),
                       list_filter.choice_element(u'редкость:',
@@ -85,7 +88,11 @@ BASE_INDEX_FILTERS = [list_filter.reset_element(),
                       list_filter.choice_element(u'самоотверженность:',
                                                  attribute='dedication',
                                                  default_value=INDEX_DEDICATION.FILTER_ALL.value,
-                                                 choices=INDEX_DEDICATION.filter_choices()) ]
+                                                 choices=INDEX_DEDICATION.filter_choices()),
+                      list_filter.choice_element(u'особенность:',
+                                                 attribute='ability',
+                                                 default_value=INDEX_ABILITIES.FILTER_ALL.value,
+                                                 choices=INDEX_ABILITIES.filter_choices()) ]
 
 MODERATOR_INDEX_FILTERS = BASE_INDEX_FILTERS + [list_filter.choice_element(u'состояние:',
                                                                            attribute='state',
@@ -119,6 +126,9 @@ class ModeratorIndexFilter(list_filter.ListFilter):
 @dext_views.RelationArgumentProcessor.handler(relation=INDEX_DEDICATION, default_value=INDEX_DEDICATION.FILTER_ALL,
                                               error_message=u'неверный тип самоотверженности спутника',
                                               context_name='companions_dedication', get_name='dedication')
+@dext_views.RelationArgumentProcessor.handler(relation=INDEX_ABILITIES, default_value=INDEX_ABILITIES.FILTER_ALL,
+                                              error_message=u'неверный тип особенности спутника',
+                                              context_name='companions_ability', get_name='ability')
 @resource.handler('')
 def index(context):
 
@@ -136,6 +146,9 @@ def index(context):
     if context.companions_dedication.original_relation is not None:
         companions = [companion for companion in companions if companion.dedication == context.companions_dedication.original_relation]
 
+    if context.companions_ability.original_relation is not None:
+        companions = [companion for companion in companions if companion.abilities.has(context.companions_ability.original_relation)]
+
     if not context.companions_can_edit and not context.companions_can_moderate:
         companions = filter(lambda companion: companion.state.is_ENABLED, companions) # pylint: disable=W0110
 
@@ -145,7 +158,8 @@ def index(context):
                                                                    'rarity': context.companions_rarity.value,
                                                                    'type': context.companions_type.value,
                                                                    'archetype': context.companions_archetype.value,
-                                                                   'dedication': context.companions_dedication.value})
+                                                                   'dedication': context.companions_dedication.value,
+                                                                   'ability': context.companions_ability.value})
 
     IndexFilter = ModeratorIndexFilter if context.companions_can_edit or context.companions_can_moderate else NormalIndexFilter #pylint: disable=C0103
 
@@ -153,7 +167,8 @@ def index(context):
                                                                 'rarity': context.companions_rarity.value,
                                                                 'type': context.companions_type.value,
                                                                 'archetype': context.companions_archetype.value,
-                                                                'dedication': context.companions_dedication.value})
+                                                                'dedication': context.companions_dedication.value,
+                                                                'ability': context.companions_ability.value})
 
     return dext_views.Page('companions/index.html',
                            content={'context': context,
@@ -217,7 +232,8 @@ def create(context):
                                                      dedication=context.form.c.dedication,
                                                      rarity=context.form.c.rarity,
                                                      mode=context.form.c.mode,
-                                                     archetype=context.form.c.archetype)
+                                                     archetype=context.form.c.archetype,
+                                                     abilities=context.form.c.abilities)
     return dext_views.AjaxOk(content={'next_url': url('guide:companions:show', companion_record.id)})
 
 
@@ -249,7 +265,8 @@ def update(context):
                                   dedication=context.form.c.dedication,
                                   rarity=context.form.c.rarity,
                                   mode=context.form.c.mode,
-                                  archetype=context.form.c.archetype)
+                                  archetype=context.form.c.archetype,
+                                  abilities=context.form.c.abilities)
     return dext_views.AjaxOk(content={'next_url': url('guide:companions:show', context.companion.id)})
 
 

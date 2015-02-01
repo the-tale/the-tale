@@ -29,7 +29,8 @@
       <th>тип</th>
       <th>архетип</th>
       <th>самоотверженность</th>
-      <th>максимум здоровья</th>
+      <th>здоровье</th>
+      <th>способности</th>
     </tr>
   </thead>
   <tbody>
@@ -47,6 +48,19 @@
       <td>{{companion.archetype.text}}</td>
       <td>{{companion.dedication.text}}</td>
       <td>{{companion.max_health}}</td>
+      <td>
+        <a class="info-link"
+           href="#"
+           onclick="return false;"
+           rel="tooltip"
+           title="<ul class='unstyled' style='text-align: left;'>
+                  {%- for coherence, ability in companion.abilities.all_abilities -%}
+                  <li>согласованность {{coherence}}: {{ability.text}}</li>
+                  {%- endfor -%}
+                  </ul>">
+          способности
+        </a>
+      </td>
     {% endfor %}
   </tbody>
 </table>

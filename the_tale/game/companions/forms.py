@@ -14,6 +14,8 @@ from the_tale.game.companions import relations
 
 from the_tale.game.balance import constants as c
 
+from the_tale.game.companions.abilities import forms as abilities_forms
+
 
 class CompanionRecordForm(forms.Form):
 
@@ -27,6 +29,8 @@ class CompanionRecordForm(forms.Form):
     rarity = fields.RelationField(label=u'редкость', relation=relations.RARITY)
     mode = fields.RelationField(label=u'режим появления в игре', relation=relations.MODE)
 
+    abilities = abilities_forms.AbilitiesField(label=u'', required=False)
+
     description = bbcode.BBField(label=u'Описание', required=False)
 
     @classmethod
@@ -38,4 +42,5 @@ class CompanionRecordForm(forms.Form):
                 'rarity': companion.rarity,
                 'archetype': companion.archetype,
                 'mode': companion.mode,
+                'abilities': companion.abilities,
                 'name': companion.utg_name}

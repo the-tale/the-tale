@@ -17,6 +17,7 @@ from the_tale.game.companions import objects
 from the_tale.game.companions import models
 from the_tale.game.companions import relations
 from the_tale.game.companions import storage
+from the_tale.game.companions.abilities import container as abilities_container
 
 
 def create_companion_record(utg_name,
@@ -27,6 +28,7 @@ def create_companion_record(utg_name,
                             rarity,
                             archetype,
                             mode,
+                            abilities,
                             state=relations.STATE.DISABLED):
     model = models.CompanionRecord.objects.create(state=state,
                                                   type=type,
@@ -36,7 +38,8 @@ def create_companion_record(utg_name,
                                                   archetype=archetype,
                                                   mode=mode,
                                                   data=s11n.to_json({'description': description,
-                                                                     'name': utg_name.serialize()}))
+                                                                     'name': utg_name.serialize(),
+                                                                     'abilities': abilities.serialize()}))
 
     companion_record = objects.CompanionRecord.from_model(model)
 
@@ -57,6 +60,7 @@ def create_random_companion_record(name,
                                    rarity=relations.RARITY.COMMON,
                                    archetype=game_relations.ARCHETYPE.NEUTRAL,
                                    state=relations.STATE.DISABLED,
+                                   abilities=abilities_container.Container(),
                                    mode=relations.MODE.AUTOMATIC):
     return create_companion_record(utg_name=names.generator.get_test_name(name=name),
                                    description=u'description-%s' % name,
@@ -66,6 +70,7 @@ def create_random_companion_record(name,
                                    rarity=rarity,
                                    archetype=archetype,
                                    mode=mode,
+                                   abilities=abilities,
                                    state=state)
 
 
@@ -78,6 +83,7 @@ def update_companion_record(companion,
                             rarity,
                             archetype,
                             mode,
+                            abilities,
                             state=relations.STATE.DISABLED):
 
     companion.set_utg_name(utg_name)
@@ -88,6 +94,7 @@ def update_companion_record(companion,
     companion.rarity = rarity
     companion.archetype = archetype
     companion.mode = mode
+    companion.abilities = abilities
 
     models.CompanionRecord.objects.filter(id=companion.id).update(state=companion.state,
                                                                   type=type,
@@ -96,7 +103,9 @@ def update_companion_record(companion,
                                                                   rarity=rarity,
                                                                   archetype=archetype,
                                                                   mode=mode,
-                                                                  data=s11n.to_json(companion.data),
+                                                                  data=s11n.to_json({'description': description,
+                                                                                     'name': utg_name.serialize(),
+                                                                                     'abilities': abilities.serialize()}),
                                                                   updated_at=datetime.datetime.now())
 
     storage.companions.update_version()

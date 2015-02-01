@@ -12,7 +12,28 @@
       <tr><th>тип</th><td>{{companion.type.text}}</td></tr>
       <tr><th>архетип</th><td>{{companion.archetype.text}}</td></tr>
       <tr><th>самоотверженность</th><td>{{companion.dedication.text}}</td></tr>
-      <tr><th>максимальное здоровье</th><td>{{companion.max_health}}</td></tr>
+      <tr><th>здоровье</th><td>{{companion.max_health}}</td></tr>
+      <tr>
+        <th>начальные особенности</th>
+        <td>
+          {%- for ability in companion.abilities.start_abilities -%}
+          {%- if loop.index != 1 -%},{%- endif %}
+          <a href="#" class="info-link" rel="tooltip" title="{{ability.description}}">{{ability.text}}</a>
+          {%- endfor -%}
+        </td>
+      </tr>
+      <tr>
+        <th>открываемые особенности</th>
+        <td>
+          <ul>
+            {%- for open_coherence, ability in companion.abilities.coherence_abilities -%}
+            <li>
+              слаженность {{open_coherence}}: <a href="#" class="info-link" rel="tooltip" title="{{ability.description}}">{{ability.text}}</a>
+            </li>
+            {% endfor %}
+          </ul>
+        </td>
+      </tr>
     </tbody>
   </table>
 

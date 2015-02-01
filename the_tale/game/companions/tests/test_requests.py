@@ -20,6 +20,8 @@ from the_tale.game.companions import models
 from the_tale.game.companions import storage
 from the_tale.game.companions import relations
 
+from the_tale.game.companions.tests import helpers
+
 
 
 class RequestsTestsBase(testcase.TestCase):
@@ -59,6 +61,7 @@ class IndexRequestsTests(RequestsTestsBase):
                                                          rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
+                                                         abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
                                                          state=relations.STATE.ENABLED)
 
         self.companion_2 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-2'),
@@ -69,6 +72,7 @@ class IndexRequestsTests(RequestsTestsBase):
                                                          rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
+                                                         abilities=helpers.FAKE_ABILITIES_CONTAINER_2,
                                                          state=relations.STATE.DISABLED)
 
 
@@ -178,6 +182,7 @@ class CreateRequestsTests(RequestsTestsBase):
                 'mode': relations.MODE.random(),
                 'rarity': relations.RARITY.random()}
         data.update(linguistics_helpers.get_word_post_data(names.generator.get_test_name(name='name'), prefix='name'))
+        data.update(helpers.get_abilities_post_data(helpers.FAKE_ABILITIES_CONTAINER_1),)
         return data
 
     def test_anonimouse_view(self):
@@ -212,6 +217,8 @@ class CreateRequestsTests(RequestsTestsBase):
         self.assertEqual(new_companion.mode, post_data['mode'])
         self.assertEqual(new_companion.name, u'name-нс,ед,им')
 
+        self.assertEqual(new_companion.abilities, helpers.FAKE_ABILITIES_CONTAINER_1)
+
 
     def test_form_errors(self):
         self.request_login(self.account_2.email)
@@ -235,6 +242,7 @@ class ShowRequestsTests(RequestsTestsBase):
                                                          rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
+                                                         abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
                                                          state=relations.STATE.ENABLED)
 
         self.companion_2 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-2'),
@@ -245,6 +253,7 @@ class ShowRequestsTests(RequestsTestsBase):
                                                          rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
+                                                         abilities=helpers.FAKE_ABILITIES_CONTAINER_2,
                                                          state=relations.STATE.DISABLED)
 
         self.requested_url_1 = url('game:companions:show', self.companion_1.id)
@@ -333,6 +342,7 @@ class InfoRequestsTests(RequestsTestsBase):
                                                          rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
+                                                         abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
                                                          state=relations.STATE.ENABLED)
 
         self.companion_2 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-2'),
@@ -343,6 +353,7 @@ class InfoRequestsTests(RequestsTestsBase):
                                                          rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
+                                                         abilities=helpers.FAKE_ABILITIES_CONTAINER_2,
                                                          state=relations.STATE.DISABLED)
 
         self.requested_url_1 = url('game:companions:info', self.companion_1.id)
@@ -417,6 +428,7 @@ class EditRequestsTests(RequestsTestsBase):
                                                          rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
+                                                         abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
                                                          state=relations.STATE.DISABLED)
 
 
@@ -458,6 +470,7 @@ class UpdateRequestsTests(RequestsTestsBase):
                                                          rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
+                                                         abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
                                                          state=relations.STATE.DISABLED)
 
         self.requested_url = url('game:companions:update', self.companion_1.id)
@@ -477,6 +490,7 @@ class UpdateRequestsTests(RequestsTestsBase):
                 'mode': relations.MODE.random(),
                 'rarity': relations.RARITY.random()}
         data.update(linguistics_helpers.get_word_post_data(names.generator.get_test_name(name='new_name'), prefix='name'))
+        data.update(helpers.get_abilities_post_data(helpers.FAKE_ABILITIES_CONTAINER_2),)
         return data
 
     def test_anonimouse_view(self):
@@ -509,6 +523,7 @@ class UpdateRequestsTests(RequestsTestsBase):
         self.assertEqual(companion.rarity, post_data['rarity'])
         self.assertEqual(companion.mode, post_data['mode'])
         self.assertEqual(companion.name, u'new_name-нс,ед,им')
+        self.assertEqual(companion.abilities, helpers.FAKE_ABILITIES_CONTAINER_2)
 
 
     def test_form_errors(self):
@@ -537,6 +552,7 @@ class EnableRequestsTests(RequestsTestsBase):
                                                          dedication=relations.DEDICATION.random(),
                                                          rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
+                                                         abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
                                                          mode=relations.MODE.random(),
                                                          state=relations.STATE.DISABLED)
 

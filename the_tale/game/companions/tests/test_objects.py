@@ -19,6 +19,7 @@ from the_tale.game.companions import logic
 from the_tale.game.companions import objects
 from the_tale.game.companions import relations
 
+from the_tale.game.companions.tests import helpers
 
 
 class CompanionTests(testcase.TestCase):
@@ -42,9 +43,10 @@ class CompanionTests(testcase.TestCase):
                                                               rarity=relations.RARITY.random(),
                                                               archetype=game_relations.ARCHETYPE.random(),
                                                               mode=relations.MODE.random(),
+                                                              abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
                                                               state=relations.STATE.ENABLED)
-
-        self.companion = logic.create_companion(self.companion_record)
+        self.hero.set_companion(logic.create_companion(self.companion_record))
+        self.companion = self.hero.companion
 
     def test_initialization(self):
         self.assertEqual(self.companion.health, 10)
@@ -70,16 +72,22 @@ class CompanionTests(testcase.TestCase):
     def test_add_experience__level_not_changed(self):
         self.companion.coherence = 5
 
-        with self.check_not_changed(lambda: self.companion.coherence):
-            self.companion.add_experience(1)
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+            with self.check_not_changed(lambda: self.companion.coherence):
+                self.companion.add_experience(1)
+
+        self.assertEqual(reset_accessors_cache.call_count, 0)
 
         self.assertEqual(self.companion.experience, 1)
 
     def test_add_experience__level_changed(self):
         self.companion.coherence = 5
 
-        with self.check_delta(lambda: self.companion.coherence, 1):
-            self.companion.add_experience(self.companion.experience_to_next_level+2)
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+            with self.check_delta(lambda: self.companion.coherence, 1):
+                self.companion.add_experience(self.companion.experience_to_next_level+2)
+
+        self.assertEqual(reset_accessors_cache.call_count, 1)
 
         self.assertEqual(self.companion.experience, 2)
 

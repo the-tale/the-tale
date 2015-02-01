@@ -10,6 +10,8 @@ from the_tale.game import names
 from the_tale.game.balance import formulas as f
 from the_tale.game.balance import constants as c
 
+from the_tale.game.companions.abilities import container as abilities_container
+
 
 
 class Companion(object):
@@ -102,6 +104,16 @@ class Companion(object):
         while self.experience_to_next_level <= self.experience:
             self.experience -= self.experience_to_next_level
             self.coherence += 1
+            self._hero.reset_accessors_cache()
+
+    def modify_attribute(self, modifier, value):
+        return self.record.abilities.modify_attribute(self.coherence, modifier, value)
+
+    def check_attribute(self, modifier):
+        return self.record.abilities.check_attribute(self.coherence, modifier)
+
+    def update_context(self, actor, enemy):
+        return self.record.abilities.update_context(self.coherence, actor, enemy)
 
     @property
     def experience_to_next_level(self):
@@ -119,7 +131,7 @@ class Companion(object):
 
 
 class CompanionRecord(names.ManageNameMixin):
-    __slots__ = ('id', 'state', 'data', 'type', 'max_health', 'dedication', 'rarity', 'archetype', 'mode')
+    __slots__ = ('id', 'state', 'data', 'type', 'max_health', 'dedication', 'rarity', 'archetype', 'mode', 'abilities')
 
     def __init__(self,
                  id,
@@ -133,13 +145,17 @@ class CompanionRecord(names.ManageNameMixin):
                  mode):
         self.id = id
         self.state = state
-        self.data = data
         self.type = type
         self.max_health = max_health
         self.dedication = dedication
         self.rarity = rarity
         self.archetype = archetype
         self.mode = mode
+
+        self.data = data
+
+        self.description = self.data['description']
+        self.abilities = abilities_container.Container.deserialize(self.data.get('abilities', {}))
 
     @classmethod
     def from_model(cls, model):
@@ -152,11 +168,6 @@ class CompanionRecord(names.ManageNameMixin):
                    rarity=model.rarity,
                    archetype=model.archetype,
                    mode=model.mode)
-
-
-    def get_description(self): return self.data['description']
-    def set_description(self, value): self.data['description'] = value
-    description = property(get_description, set_description)
 
     @property
     def description_html(self): return bbcode.render(self.description)
