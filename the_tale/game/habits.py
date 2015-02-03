@@ -40,13 +40,16 @@ class HabitBase(object):
     def decrease_modifier(self):
         return 1
 
+    def set_habit(self, value):
+        setattr(self.owner._model, self.field_name, max(-c.HABITS_BORDER, min(c.HABITS_BORDER, value)))
+
     def change(self, delta):
         if (self.raw_value > 0 and delta > 0) or (self.raw_value < 0 and delta < 0):
             delta *= self.increase_modifier
         elif (self.raw_value < 0 and delta > 0) or (self.raw_value > 0 and delta < 0):
             delta *= self.decrease_modifier
 
-        setattr(self.owner._model, self.field_name, max(-c.HABITS_BORDER, min(c.HABITS_BORDER, self.raw_value + delta)))
+        self.set_habit(self.raw_value + delta)
 
         del self.interval
 

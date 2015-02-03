@@ -75,7 +75,7 @@ class ActionBase(object):
     CONTEXT_MANAGER = None
     HELP_CHOICES = set()
     APPROVED_FOR_STEPS_CHAIN = True
-    AGGRESSIVE = False # for hero habits
+    HABIT_MODE = relations.ACTION_HABIT_MODE.PEACEFUL
 
     def __init__(self,
                  hero,
@@ -882,7 +882,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
     TYPE = relations.ACTION_TYPE.BATTLE_PVE_1X1
     TEXTGEN_TYPE = 'action_battlepve1x1'
     CONTEXT_MANAGER = contexts.BattleContext
-    AGGRESSIVE = True
+    HABIT_MODE = relations.ACTION_HABIT_MODE.AGGRESSIVE
 
     @property
     def HELP_CHOICES(self): # pylint: disable=C0103
@@ -1780,6 +1780,8 @@ class ActionHealCompanionPrototype(ActionBase):
     TYPE = relations.ACTION_TYPE.HEAL_COMPANION
     TEXTGEN_TYPE = 'action_heal_companion'
     HELP_CHOICES = set((HELP_CHOICES.HEAL_COMPANION, ))
+
+    HABIT_MODE = relations.ACTION_HABIT_MODE.COMPANION
 
     class STATE(ActionBase.STATE):
         HEALING = 'healing'

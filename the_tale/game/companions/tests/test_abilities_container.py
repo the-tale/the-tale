@@ -14,31 +14,31 @@ class ContainerTests(testcase.TestCase):
     def setUp(self):
         super(ContainerTests, self).setUp()
 
-        self.container_1 = abilities_container.Container(common=(effects.ABILITIES.ABILITY_5, effects.ABILITIES.ABILITY_9),
+        self.container_1 = abilities_container.Container(common=(effects.ABILITIES.PEACEFUL, effects.ABILITIES.SNEAKY),
                                                          start=frozenset(),
-                                                         coherence=effects.ABILITIES.ABILITY_3,
+                                                         coherence=effects.ABILITIES.MANAGING,
                                                          honor=None,
-                                                         peacefulness=effects.ABILITIES.ABILITY_4)
+                                                         peacefulness=effects.ABILITIES.AGGRESSIVE)
 
 
-        self.container_2 = abilities_container.Container(common=(effects.ABILITIES.ABILITY_5, effects.ABILITIES.ABILITY_8, effects.ABILITIES.ABILITY_7),
-                                                         start=frozenset((effects.ABILITIES.ABILITY_2, effects.ABILITIES.ABILITY_5)),
+        self.container_2 = abilities_container.Container(common=(effects.ABILITIES.PEACEFUL, effects.ABILITIES.HONEST, effects.ABILITIES.CANNY),
+                                                         start=frozenset((effects.ABILITIES.BONA_FIDE, effects.ABILITIES.PEACEFUL)),
                                                          coherence=None,
-                                                         honor=effects.ABILITIES.ABILITY_9,
-                                                         peacefulness=effects.ABILITIES.ABILITY_4)
+                                                         honor=effects.ABILITIES.SNEAKY,
+                                                         peacefulness=effects.ABILITIES.AGGRESSIVE)
 
     def test_initialization(self):
-        self.assertEqual(self.container_1.common, (effects.ABILITIES.ABILITY_5, effects.ABILITIES.ABILITY_9))
+        self.assertEqual(self.container_1.common, (effects.ABILITIES.PEACEFUL, effects.ABILITIES.SNEAKY))
         self.assertEqual(self.container_1.start, frozenset())
-        self.assertEqual(self.container_1.coherence, effects.ABILITIES.ABILITY_3)
+        self.assertEqual(self.container_1.coherence, effects.ABILITIES.MANAGING)
         self.assertEqual(self.container_1.honor, None)
-        self.assertEqual(self.container_1.peacefulness, effects.ABILITIES.ABILITY_4)
+        self.assertEqual(self.container_1.peacefulness, effects.ABILITIES.AGGRESSIVE)
 
-        self.assertEqual(self.container_2.common, (effects.ABILITIES.ABILITY_5, effects.ABILITIES.ABILITY_8, effects.ABILITIES.ABILITY_7))
-        self.assertEqual(self.container_2.start, frozenset((effects.ABILITIES.ABILITY_2, effects.ABILITIES.ABILITY_5)))
+        self.assertEqual(self.container_2.common, (effects.ABILITIES.PEACEFUL, effects.ABILITIES.HONEST, effects.ABILITIES.CANNY))
+        self.assertEqual(self.container_2.start, frozenset((effects.ABILITIES.BONA_FIDE, effects.ABILITIES.PEACEFUL)))
         self.assertEqual(self.container_2.coherence, None)
-        self.assertEqual(self.container_2.honor, effects.ABILITIES.ABILITY_9)
-        self.assertEqual(self.container_2.peacefulness, effects.ABILITIES.ABILITY_4)
+        self.assertEqual(self.container_2.honor, effects.ABILITIES.SNEAKY)
+        self.assertEqual(self.container_2.peacefulness, effects.ABILITIES.AGGRESSIVE)
 
 
     def test_serialization(self):
@@ -53,8 +53,8 @@ class ContainerTests(testcase.TestCase):
         self.assertTrue(self.container_1.has_same_effects())
         self.assertTrue(self.container_2.has_same_effects())
 
-        container_3 = abilities_container.Container(common=(effects.ABILITIES.ABILITY_0, effects.ABILITIES.ABILITY_5),
-                                                    start=frozenset((effects.ABILITIES.ABILITY_7,)),
+        container_3 = abilities_container.Container(common=(effects.ABILITIES.OBSTINATE, effects.ABILITIES.PEACEFUL),
+                                                    start=frozenset((effects.ABILITIES.CANNY,)),
                                                     coherence=None,
                                                     honor=None,
                                                     peacefulness=None)
@@ -63,30 +63,30 @@ class ContainerTests(testcase.TestCase):
 
     def test_not_ordered(self):
         self.assertRaises(abilities_exceptions.NotOrderedUIDSError, abilities_container.Container,
-                          common=set((effects.ABILITIES.ABILITY_5, effects.ABILITIES.ABILITY_8, effects.ABILITIES.ABILITY_7)))
+                          common=set((effects.ABILITIES.PEACEFUL, effects.ABILITIES.HONEST, effects.ABILITIES.CANNY)))
 
 
     def test_start_abilities(self):
         self.assertEqual(set(ability for ability in self.container_1.start_abilities),
-                         set((effects.ABILITIES.ABILITY_3, effects.ABILITIES.ABILITY_4)))
+                         set((effects.ABILITIES.MANAGING, effects.ABILITIES.AGGRESSIVE)))
         self.assertEqual(set(ability for ability in self.container_2.start_abilities),
-                         set((effects.ABILITIES.ABILITY_2, effects.ABILITIES.ABILITY_5, effects.ABILITIES.ABILITY_9, effects.ABILITIES.ABILITY_4)))
+                         set((effects.ABILITIES.BONA_FIDE, effects.ABILITIES.PEACEFUL, effects.ABILITIES.SNEAKY, effects.ABILITIES.AGGRESSIVE)))
 
 
     def test_coherence_abilities(self):
         self.assertEqual([(coherence, ability) for coherence, ability in self.container_1.coherence_abilities],
-                         [(33, effects.ABILITIES.ABILITY_5), (66, effects.ABILITIES.ABILITY_9)])
+                         [(33, effects.ABILITIES.PEACEFUL), (66, effects.ABILITIES.SNEAKY)])
 
         self.assertEqual([(coherence, ability) for coherence, ability in self.container_2.coherence_abilities],
-                         [(25, effects.ABILITIES.ABILITY_5), (50, effects.ABILITIES.ABILITY_8), (75, effects.ABILITIES.ABILITY_7)])
+                         [(25, effects.ABILITIES.PEACEFUL), (50, effects.ABILITIES.HONEST), (75, effects.ABILITIES.CANNY)])
 
 
     def test_all_abilities(self):
         self.assertEqual(set((coherence, ability) for coherence, ability in self.container_1.all_abilities),
-                         set(((33, effects.ABILITIES.ABILITY_5), (66, effects.ABILITIES.ABILITY_9), (0, effects.ABILITIES.ABILITY_3), (0, effects.ABILITIES.ABILITY_4))))
+                         set(((33, effects.ABILITIES.PEACEFUL), (66, effects.ABILITIES.SNEAKY), (0, effects.ABILITIES.MANAGING), (0, effects.ABILITIES.AGGRESSIVE))))
         self.assertEqual(set((coherence, ability) for coherence, ability in self.container_2.all_abilities),
-                         set(((25, effects.ABILITIES.ABILITY_5), (50, effects.ABILITIES.ABILITY_8), (75, effects.ABILITIES.ABILITY_7),
-                              (0, effects.ABILITIES.ABILITY_2), (0, effects.ABILITIES.ABILITY_5), (0, effects.ABILITIES.ABILITY_9), (0, effects.ABILITIES.ABILITY_4))))
+                         set(((25, effects.ABILITIES.PEACEFUL), (50, effects.ABILITIES.HONEST), (75, effects.ABILITIES.CANNY),
+                              (0, effects.ABILITIES.BONA_FIDE), (0, effects.ABILITIES.PEACEFUL), (0, effects.ABILITIES.SNEAKY), (0, effects.ABILITIES.AGGRESSIVE))))
 
 
     def check_abilities_for_coherence(self, container, coherence, uids):
@@ -111,7 +111,7 @@ class ContainerTests(testcase.TestCase):
 
 
     def test_modify_attribute(self):
-        with mock.patch('the_tale.game.companions.abilities.effects.Base.modify_attribute', lambda self, coherence, modifier, value: value * 2):
+        with mock.patch('the_tale.game.companions.abilities.effects.Base.modify_attribute', lambda self, modifier, value: value * 2):
             self.assertEqual(self.container_1.modify_attribute(100, None, 1), 16)
             self.assertEqual(self.container_1.modify_attribute(66, None, 1), 16)
             self.assertEqual(self.container_1.modify_attribute(50, None, 1), 8)
@@ -136,7 +136,7 @@ class ContainerTests(testcase.TestCase):
 
 
     def test_update_context(self):
-        with mock.patch('the_tale.game.companions.abilities.effects.Base.update_context', lambda self, coherence, context_1, context_2: (context_1.append(1), context_2.append(1))):
+        with mock.patch('the_tale.game.companions.abilities.effects.Base.update_context', lambda self, context_1, context_2: (context_1.append(1), context_2.append(1))):
             self.check_context(self.container_1, 100, 4)
             self.check_context(self.container_1, 66, 4)
             self.check_context(self.container_1, 50, 3)
@@ -153,7 +153,7 @@ class ContainerTests(testcase.TestCase):
 
 
     def check_attribute(self):
-        with mock.patch('the_tale.game.companions.abilities.effects.Base.check_attribute', lambda self, coherence, modifier: True):
+        with mock.patch('the_tale.game.companions.abilities.effects.Base.check_attribute', lambda self, modifier: True):
             self.assertEqual(self.container_1.modify_attribute(100, None), True)
             self.assertEqual(self.container_1.modify_attribute(66, None), True)
             self.assertEqual(self.container_1.modify_attribute(50, None), True)

@@ -10,6 +10,8 @@ from the_tale.game import names
 from the_tale.game.balance import formulas as f
 from the_tale.game.balance import constants as c
 
+from the_tale.game.heroes import relations as heroes_relations
+
 from the_tale.game.companions.abilities import container as abilities_container
 
 
@@ -95,7 +97,7 @@ class Companion(object):
 
 
     def add_experience(self, value):
-        self.experience += value
+        self.experience += int(round(self._hero.modify_attribute(heroes_relations.MODIFIERS.COHERENCE_EXPERIENCE, value)))
 
         if self.coherence == c.COMPANIONS_MAX_COHERENCE:
             self.experience = min(self.experience, self.experience_to_next_level)

@@ -167,7 +167,9 @@ class MODIFIERS(DjangoEnum):
                 ('EPIC', 42, u'увеличиена вероятность получить эпический артефакт', lambda: 1),
                 ('HABITS_INCREASE', 43, u'скорость роста черт', lambda: 1),
                 ('HABITS_DECREASE', 44, u'скорость уменьшения черт', lambda: 1),
-                ('SAFE_INTEGRITY', 45, u'вероятность сохранить целостность артефакта после боя', lambda: 0))
+                ('SAFE_INTEGRITY', 45, u'вероятность сохранить целостность артефакта после боя', lambda: 0),
+                ('COHERENCE_EXPERIENCE', 46, u'опыт слаженности спутника', lambda: 0),
+                ('HABITS_SOURCES', 47, u'источники изменения черт', lambda: set()))
 
 
 class HABIT_CHANGE_SOURCE(DjangoEnum):
@@ -177,17 +179,28 @@ class HABIT_CHANGE_SOURCE(DjangoEnum):
     honor = Column(unique=False)
     peacefulness = Column(unique=False)
 
-    records = ( ('QUEST_HONORABLE', 0, u'выбор чести в задании игроком', QUEST_OPTION_MARKERS.HONORABLE, False, None,           c.HABITS_QUEST_ACTIVE_DELTA, 0.0),
-                ('QUEST_DISHONORABLE', 1, u'выбор бесчестия в задании игроком', QUEST_OPTION_MARKERS.DISHONORABLE, False, None,  -c.HABITS_QUEST_ACTIVE_DELTA, 0.0),
+    records = ( ('QUEST_HONORABLE', 0, u'выбор чести в задании игроком', QUEST_OPTION_MARKERS.HONORABLE,            False, None, c.HABITS_QUEST_ACTIVE_DELTA, 0.0),
+                ('QUEST_DISHONORABLE', 1, u'выбор бесчестия в задании игроком', QUEST_OPTION_MARKERS.DISHONORABLE,  False, None, -c.HABITS_QUEST_ACTIVE_DELTA, 0.0),
                 ('QUEST_AGGRESSIVE', 2, u'выборе агрессивности в задании игроком', QUEST_OPTION_MARKERS.AGGRESSIVE, False, None, 0.0, -c.HABITS_QUEST_ACTIVE_DELTA),
-                ('QUEST_UNAGGRESSIVE', 3, u'выбор миролюбия в задании игроком', QUEST_OPTION_MARKERS.UNAGGRESSIVE, False, None,  0.0, c.HABITS_QUEST_ACTIVE_DELTA),
+                ('QUEST_UNAGGRESSIVE', 3, u'выбор миролюбия в задании игроком', QUEST_OPTION_MARKERS.UNAGGRESSIVE,  False, None, 0.0, c.HABITS_QUEST_ACTIVE_DELTA),
 
-                ('QUEST_HONORABLE_DEFAULT', 4, u'выбор чести в задании героем', QUEST_OPTION_MARKERS.HONORABLE, True, False,            c.HABITS_QUEST_PASSIVE_DELTA, 0.0),
-                ('QUEST_DISHONORABLE_DEFAULT', 5, u'выбор бесчестия в задании героем', QUEST_OPTION_MARKERS.DISHONORABLE, True, False,  -c.HABITS_QUEST_PASSIVE_DELTA, 0.0),
+                ('QUEST_HONORABLE_DEFAULT', 4, u'выбор чести в задании героем', QUEST_OPTION_MARKERS.HONORABLE,            True, False, c.HABITS_QUEST_PASSIVE_DELTA, 0.0),
+                ('QUEST_DISHONORABLE_DEFAULT', 5, u'выбор бесчестия в задании героем', QUEST_OPTION_MARKERS.DISHONORABLE,  True, False, -c.HABITS_QUEST_PASSIVE_DELTA, 0.0),
                 ('QUEST_AGGRESSIVE_DEFAULT', 6, u'выборе агрессивности в задании героем', QUEST_OPTION_MARKERS.AGGRESSIVE, True, False, 0.0, -c.HABITS_QUEST_PASSIVE_DELTA),
-                ('QUEST_UNAGGRESSIVE_DEFAULT', 7, u'выбор миролюбия в задании героем', QUEST_OPTION_MARKERS.UNAGGRESSIVE, True, False,  0.0, c.HABITS_QUEST_PASSIVE_DELTA),
+                ('QUEST_UNAGGRESSIVE_DEFAULT', 7, u'выбор миролюбия в задании героем', QUEST_OPTION_MARKERS.UNAGGRESSIVE,  True, False, 0.0, c.HABITS_QUEST_PASSIVE_DELTA),
 
-                ('HELP_AGGRESSIVE', 8, u'помощь в бою', None, None, None,       0.0, -c.HABITS_HELP_ABILITY_DELTA),
-                ('HELP_UNAGGRESSIVE', 9, u'помощь вне боя', None, None, None,   0.0, c.HABITS_HELP_ABILITY_DELTA),
-                ('ARENA_SEND', 10, u'отправка на арену', None, None, None,      0.0, -c.HABITS_ARENA_ABILITY_DELTA),
-                ('ARENA_LEAVE', 11, u'покидание арены', None, None, None,       0.0, c.HABITS_ARENA_ABILITY_DELTA) )
+                ('HELP_AGGRESSIVE', 8, u'помощь в бою',     None, None, None, 0.0, -c.HABITS_HELP_ABILITY_DELTA),
+                ('HELP_UNAGGRESSIVE', 9, u'помощь вне боя', None, None, None, 0.0, c.HABITS_HELP_ABILITY_DELTA),
+                ('ARENA_SEND', 10, u'отправка на арену',    None, None, None, 0.0, -c.HABITS_ARENA_ABILITY_DELTA),
+                ('ARENA_LEAVE', 11, u'покидание арены',     None, None, None, 0.0, c.HABITS_ARENA_ABILITY_DELTA),
+
+                ('COMPANION_DISHONORABLE', 12, u'спутник склоняет к бесчестию',                          None, None, None,  -c.HABITS_HELP_ABILITY_DELTA, 0.0),
+                ('COMPANION_HONOR_NEUTRAL_1', 13, u'спутник склоняет к нейтральной чести 1',             None, None, False, -c.HABITS_HELP_ABILITY_DELTA, 0.0),
+                ('COMPANION_HONOR_NEUTRAL_2', 14, u'спутник склоняет к нейтральной чести 2',             None, None, False, c.HABITS_HELP_ABILITY_DELTA, 0.0),
+                ('COMPANION_HONORABLE', 15, u'спутнки склоняет к чести',                                 None, None, None,  c.HABITS_HELP_ABILITY_DELTA, 0.0),
+                ('COMPANION_AGGRESSIVE', 16, u'спутнки склоняет к агрессивности',                        None, None, None,  0.0, -c.HABITS_HELP_ABILITY_DELTA),
+                ('COMPANION_PEACEFULL_NEUTRAL_1', 17, u'спутник склоняет к нейтральной агрессивности 1', None, None, False, 0.0, -c.HABITS_HELP_ABILITY_DELTA),
+                ('COMPANION_PEACEFULL_NEUTRAL_2', 18, u'спутник склоняет к нейтральной агрессивности 2', None, None, False, 0.0, c.HABITS_HELP_ABILITY_DELTA),
+                ('COMPANION_PEACEFULL', 19, u'спутник склоняет к миролюбию',                             None, None, None,  0.0, c.HABITS_HELP_ABILITY_DELTA),
+
+                 )

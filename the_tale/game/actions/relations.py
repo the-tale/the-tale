@@ -14,6 +14,13 @@ class ACTION_EVENT(DjangoEnum):
                 ('PEACEABLE', 3, u'миролюбивый герой'),)
 
 
+class ACTION_HABIT_MODE(DjangoEnum):
+
+    records = ( ('AGGRESSIVE', 0, u'агрессивное действие'),
+                ('PEACEFUL', 1, u'мирное действие'),
+                ('COMPANION', 2, u'зависит от спутника'))
+
+
 class ACTION_EVENT_REWARD(DjangoEnum):
     priority = Column(unique=False)
 

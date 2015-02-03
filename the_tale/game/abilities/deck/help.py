@@ -10,7 +10,11 @@ from the_tale.game.balance import constants as c, formulas as f
 
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
 
+from the_tale.game.heroes import relations as heroes_relations
+
 from the_tale.game.postponed_tasks import ComplexChangeTask
+
+from the_tale.game.abilities import exceptions
 
 
 class Help(AbilityPrototype):
@@ -168,10 +172,16 @@ class Help(AbilityPrototype):
         if choice is None:
             return task.logic_result(next_step=ComplexChangeTask.STEP.ERROR)
 
-        if action.AGGRESSIVE:
+        if action.HABIT_MODE.is_AGGRESSIVE:
             task.hero.update_habits(HABIT_CHANGE_SOURCE.HELP_AGGRESSIVE)
-        else:
+        elif action.HABIT_MODE.is_PEACEFULL:
             task.hero.update_habits(HABIT_CHANGE_SOURCE.HELP_UNAGGRESSIVE)
+        elif action.HABIT_MODE.is_COMPANION:
+            if task.hero.companion:
+                for habit_source in task.hero.companion.modify_attribute(heroes_relations.MODIFIERS.HABITS_SOURCES, set()):
+                    task.hero.update_habits(habit_source)
+        else:
+            raise exceptions.UnknownHabitModeError(mode=action.HABIT_MODE)
 
         critical = random.uniform(0, 1) < task.hero.might_crit_chance
 

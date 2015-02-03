@@ -77,16 +77,16 @@ class Container(object):
 
     def modify_attribute(self, coherence, modifier, value):
         for ability in self.abilities_for_coherence(coherence):
-            value = ability.effect.modify_attribute(coherence, modifier, value)
+            value = ability.effect.modify_attribute(modifier, value)
         return value
 
     def update_context(self, coherence, actor, enemy):
         for ability in self.abilities_for_coherence(coherence):
-            ability.effect.update_context(coherence, actor, enemy)
+            ability.effect.update_context(actor, enemy)
 
     def check_attribute(self, coherence, modifier):
         for ability in self.abilities_for_coherence(coherence):
-            if ability.effect.check_attribute(coherence, modifier):
+            if ability.effect.check_attribute(modifier):
                 return True
 
         return False

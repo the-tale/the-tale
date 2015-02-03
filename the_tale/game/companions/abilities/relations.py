@@ -6,7 +6,12 @@ from rels.django import DjangoEnum
 
 class EFFECT(DjangoEnum):
     records = ( (u'COHERENCE_SPEED', 0, u'скорость изменения слаженности'),
-                (u'CHANGE_HABITS', 1, u'изменение характера'), )
+                (u'CHANGE_HABITS', 1, u'изменение характера'),
+                (u'QUEST_MONEY_REWARD', 2, u'денежная награда за задание'),
+                (u'MAX_BAG_SIZE', 3, u'максимальный размер рюкзака'),
+                (u'POLITICS_POWER', 4, u'бонус к влиянию'),
+                (u'MAGIC_DAMAGE_BONUS', 5, u'бонус к магическому урону героя'),
+                (u'PHYSIC_DAMAGE_BONUS', 6, u'бонус к физическому урону героя'))
 
 
 

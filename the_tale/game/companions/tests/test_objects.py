@@ -19,7 +19,7 @@ from the_tale.game.companions import logic
 from the_tale.game.companions import objects
 from the_tale.game.companions import relations
 
-from the_tale.game.companions.tests import helpers
+from the_tale.game.companions.abilities import container as abilities_container
 
 
 class CompanionTests(testcase.TestCase):
@@ -43,7 +43,7 @@ class CompanionTests(testcase.TestCase):
                                                               rarity=relations.RARITY.random(),
                                                               archetype=game_relations.ARCHETYPE.random(),
                                                               mode=relations.MODE.random(),
-                                                              abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
+                                                              abilities=abilities_container.Container(),
                                                               state=relations.STATE.ENABLED)
         self.hero.set_companion(logic.create_companion(self.companion_record))
         self.companion = self.hero.companion
