@@ -11,7 +11,16 @@ class EFFECT(DjangoEnum):
                 (u'MAX_BAG_SIZE', 3, u'максимальный размер рюкзака'),
                 (u'POLITICS_POWER', 4, u'бонус к влиянию'),
                 (u'MAGIC_DAMAGE_BONUS', 5, u'бонус к магическому урону героя'),
-                (u'PHYSIC_DAMAGE_BONUS', 6, u'бонус к физическому урону героя'))
+                (u'PHYSIC_DAMAGE_BONUS', 6, u'бонус к физическому урону героя'),
+                (u'SPEED', 7, u'бонус к скорости движения героя'),
+                (u'BATTLE_ABILITY', 8, u'боевая способность'),
+                (u'INITIATIVE', 9, u'инициатива'),
+                (u'BATTLE_PROBABILITY', 10, u'вероятность начала боя'),
+                (u'LOOT_PROBABILITY', 11, u'вероятность получить добычу'),
+                (u'COMPANION_DAMAGE', 12, u'урон по спутнику'),
+                (u'COMPANION_DAMAGE_PROBABILITY', 13, u'вероятность получить урон'),
+                (u'COMPANION_STEAL_MONEY', 14, u'спутник крадёт деньги'),
+                (u'COMPANION_STEAL_ITEM', 15, u'спутник крадёт предметы'))
 
 
 

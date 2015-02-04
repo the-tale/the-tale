@@ -100,6 +100,9 @@ BATTLES_LINE_LENGTH = int(BATTLES_BEFORE_HEAL * (BATTLE_LENGTH + INTERVAL_BETWEE
 BATTLES_PER_TURN = float(1.0 / (INTERVAL_BETWEEN_BATTLES + 1) )
 WHILD_BATTLES_PER_TURN_BONUS = float(0.05)
 
+# максимально допустимое значение вероятности битв в час
+MAX_BATTLES_PER_TURN = float(0.9)
+
 COMPANIONS_DEFENDS_IN_BATTLE = float(1.5) # среднее количество «защит» героя средним спутником за 1 бой
 COMPANIONS_HEAL_FRACTION = float(0.05) # доля действия уход за спутнкиком со средним количеством здоровья от всех действий героя
 
@@ -530,3 +533,7 @@ COMPANIONS_HEAL_MAX_IN_HOUR = float(2.0)
 # величины лечения здоровья спутника за одну помощь
 COMPANIONS_HEAL_AMOUNT = int(2)
 COMPANIONS_HEAL_CRIT_AMOUNT = COMPANIONS_HEAL_AMOUNT * 2
+
+# вероятность того, что спутник использует способность во время боя
+# на столько же должны увеличивать инициативу особенности спутника с боевыми способностями
+COMPANION_BATTLE_STRIKE_PROBABILITY = float(0.1)

@@ -6,6 +6,7 @@ from the_tale.common.utils import storage
 from the_tale.common.utils.logic import random_value_by_priority
 
 from the_tale.game.balance.power import Power
+from the_tale.game.balance import constants as c
 
 from the_tale.game.artifacts import exceptions
 from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
@@ -105,6 +106,15 @@ class ArtifactsStorage(storage.CachedStorage):
             return self.generate_artifact_from_list(self.get_mob_loot(mob.record.id), mob.record.level, rarity=relations.RARITY.NORMAL)
 
         return None
+
+    def generate_any_artifact(self, hero):
+
+        artifact_level = random.randint(1, hero.level)
+
+        if random.uniform(0, 1) < hero.artifacts_probability(None) / c.GET_LOOT_PROBABILITY:
+            return self.generate_artifact_from_list(self.artifacts, artifact_level, rarity=self.get_rarity_type(hero))
+
+        return self.generate_artifact_from_list(self.loot, artifact_level, rarity=relations.RARITY.NORMAL)
 
 
 

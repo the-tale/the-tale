@@ -1289,6 +1289,29 @@ class ActionInPlacePrototype(ActionBase):
             raise exceptions.ActionException('wrong hero money spend type: %d' % self.hero.next_spending)
 
 
+    def process_companion_stealing(self):
+
+        if self.hero.companion is None:
+            return
+
+        if self.hero.can_companion_steal_money():
+            money = random.randint(1, f.normal_loot_cost_at_lvl(self.hero.level) * 2)
+            self.hero.change_money(MONEY_SOURCE.EARNED_FROM_COMPANIONS, money)
+            self.hero.add_message('action_inplace_journal_companion_steal_money', hero=self.hero, place=self.hero.position.place, companion=self.hero.companion, coins=money)
+
+        if self.hero.can_companion_steal_item() and not self.hero.bag_is_full:
+            loot = artifacts_storage.generate_any_artifact(self.hero)
+
+            self.hero.put_loot(loot)
+
+            if loot.is_useless:
+                self.hero.statistics.change_loot_had(1)
+            else:
+                self.hero.statistics.change_artifacts_had(1)
+
+            self.hero.add_message('action_inplace_journal_companion_steal_item', hero=self.hero, place=self.hero.position.place, artifact=loot, companion=self.hero.companion)
+
+
     def process_settlement(self):
 
         if self.state == self.STATE.SPEND_MONEY:
@@ -1325,6 +1348,9 @@ class ActionInPlacePrototype(ActionBase):
 
             else:
                 self.state = self.STATE.PROCESSED
+
+        if self.state == self.STATE.PROCESSED:
+            self.process_companion_stealing()
 
 
 class ActionRestPrototype(ActionBase):

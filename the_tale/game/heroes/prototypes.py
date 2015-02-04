@@ -354,7 +354,7 @@ class HeroPrototype(BasePrototype,
         return TimePrototype.get_current_turn_number() > self.last_energy_regeneration_at_turn + f.angel_energy_regeneration_delay(self.preferences.energy_regeneration_type)
 
     @lazy_property
-    def position(self): return HeroPositionPrototype(hero_model=self._model)
+    def position(self): return HeroPositionPrototype(hero=self)
 
     @lazy_property
     def statistics(self): return HeroStatistics(hero=self)
@@ -787,79 +787,80 @@ class HeroPrototype(BasePrototype,
 
 
 class HeroPositionPrototype(object):
+    __slots__ = ('hero', )
 
-    def __init__(self, hero_model):
-        self.hero_model = hero_model
-
-    @property
-    def place_id(self): return self.hero_model.pos_place_id
+    def __init__(self, hero):
+        self.hero = hero
 
     @property
-    def place(self): return places_storage.get(self.hero_model.pos_place_id)
+    def place_id(self): return self.hero._model.pos_place_id
 
     @property
-    def previous_place(self): return places_storage.get(self.hero_model.pos_previous_place_id)
+    def place(self): return places_storage.get(self.hero._model.pos_place_id)
+
+    @property
+    def previous_place(self): return places_storage.get(self.hero._model.pos_previous_place_id)
 
     def visit_current_place(self):
-        self.hero_model.pos_previous_place = self.hero_model.pos_place
+        self.hero._model.pos_previous_place = self.hero._model.pos_place
 
     def _reset_position(self):
-        self.hero_model.pos_place = None
-        self.hero_model.pos_road = None
-        self.hero_model.pos_invert_direction = None
-        self.hero_model.pos_percents = None
-        self.hero_model.pos_from_x = None
-        self.hero_model.pos_from_y = None
-        self.hero_model.pos_to_x = None
-        self.hero_model.pos_to_y = None
+        self.hero._model.pos_place = None
+        self.hero._model.pos_road = None
+        self.hero._model.pos_invert_direction = None
+        self.hero._model.pos_percents = None
+        self.hero._model.pos_from_x = None
+        self.hero._model.pos_from_y = None
+        self.hero._model.pos_to_x = None
+        self.hero._model.pos_to_y = None
 
     def set_place(self, place):
         self._reset_position()
-        self.hero_model.pos_place = place._model
+        self.hero._model.pos_place = place._model
 
     @property
-    def road_id(self): return self.hero_model.pos_road_id
+    def road_id(self): return self.hero._model.pos_road_id
 
     @property
-    def road(self): return roads_storage.get(self.hero_model.pos_road_id)
+    def road(self): return roads_storage.get(self.hero._model.pos_road_id)
 
     def set_road(self, road, percents=0, invert=False):
         self._reset_position()
-        self.hero_model.pos_road = road._model
-        self.hero_model.pos_invert_direction = invert
-        self.hero_model.pos_percents = percents
+        self.hero._model.pos_road = road._model
+        self.hero._model.pos_invert_direction = invert
+        self.hero._model.pos_percents = percents
 
-    def get_percents(self): return self.hero_model.pos_percents
-    def set_percents(self, value): self.hero_model.pos_percents = value
+    def get_percents(self): return self.hero._model.pos_percents
+    def set_percents(self, value): self.hero._model.pos_percents = value
     percents = property(get_percents, set_percents)
 
-    def get_invert_direction(self): return self.hero_model.pos_invert_direction
-    def set_invert_direction(self, value): self.hero_model.pos_invert_direction = value
+    def get_invert_direction(self): return self.hero._model.pos_invert_direction
+    def set_invert_direction(self, value): self.hero._model.pos_invert_direction = value
     invert_direction = property(get_invert_direction, set_invert_direction)
 
     @property
-    def coordinates_from(self): return self.hero_model.pos_from_x, self.hero_model.pos_from_y
+    def coordinates_from(self): return self.hero._model.pos_from_x, self.hero._model.pos_from_y
 
     @property
-    def coordinates_to(self): return self.hero_model.pos_to_x, self.hero_model.pos_to_y
+    def coordinates_to(self): return self.hero._model.pos_to_x, self.hero._model.pos_to_y
 
-    def subroad_len(self): return math.sqrt( (self.hero_model.pos_from_x-self.hero_model.pos_to_x)**2 +
-                                             (self.hero_model.pos_from_y-self.hero_model.pos_to_y)**2)
+    def subroad_len(self): return math.sqrt( (self.hero._model.pos_from_x-self.hero._model.pos_to_x)**2 +
+                                             (self.hero._model.pos_from_y-self.hero._model.pos_to_y)**2)
 
     def set_coordinates(self, from_x, from_y, to_x, to_y, percents):
         self._reset_position()
-        self.hero_model.pos_from_x = from_x
-        self.hero_model.pos_from_y = from_y
-        self.hero_model.pos_to_x = to_x
-        self.hero_model.pos_to_y = to_y
-        self.hero_model.pos_percents = percents
+        self.hero._model.pos_from_x = from_x
+        self.hero._model.pos_from_y = from_y
+        self.hero._model.pos_to_x = to_x
+        self.hero._model.pos_to_y = to_y
+        self.hero._model.pos_percents = percents
 
     @property
     def is_walking(self):
-        return (self.hero_model.pos_from_x is not None and
-                self.hero_model.pos_from_y is not None and
-                self.hero_model.pos_to_x is not None and
-                self.hero_model.pos_to_y is not None)
+        return (self.hero._model.pos_from_x is not None and
+                self.hero._model.pos_from_y is not None and
+                self.hero._model.pos_to_x is not None and
+                self.hero._model.pos_to_y is not None)
 
     @property
     def cell_coordinates(self):
@@ -935,7 +936,9 @@ class HeroPositionPrototype(object):
         else:
             battles_per_turn = c.BATTLES_PER_TURN + c.WHILD_BATTLES_PER_TURN_BONUS
 
-        return random.uniform(0, 1) <= battles_per_turn
+        battles_per_turn = min(c.MAX_BATTLES_PER_TURN, max(0, battles_per_turn + self.hero.battles_per_turn_summand))
+
+        return random.uniform(0, 1) <=  battles_per_turn
 
 
     def modify_move_speed(self, speed):

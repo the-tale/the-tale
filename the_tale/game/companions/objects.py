@@ -67,7 +67,8 @@ class Companion(object):
     @property
     def max_health(self): return self.record.max_health
 
-    def hit(self): self.health -= 1
+    def hit(self):
+        self.health -= self._hero.companion_damage
 
     def on_heal_started(self):
         self.healed_at = time.time()

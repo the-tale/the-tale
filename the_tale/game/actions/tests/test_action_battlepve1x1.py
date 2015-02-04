@@ -122,6 +122,31 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         self.storage._test_save()
 
+
+    def test_full_battle__with_companion(self):
+        from the_tale.game.companions.abilities import effects
+        from the_tale.game.companions.abilities import container
+        from the_tale.game.companions.abilities.relations import EFFECT
+
+        battle_ability = random.choice([ability for ability in effects.ABILITIES.records if ability.effect.TYPE == EFFECT.BATTLE_ABILITY])
+        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record.abilities = container.Container(start=(battle_ability,))
+
+        companion = companions_logic.create_companion(companion_record)
+        self.hero.set_companion(companion)
+
+        self.hero.reset_accessors_cache()
+
+        current_time = TimePrototype.get_current_time()
+
+        while len(self.hero.actions.actions_list) != 1:
+            self.storage.process_turn()
+            current_time.increment_turn()
+
+        self.assertTrue(self.action_idl.leader)
+
+        self.storage._test_save()
+
     def test_bit_mob(self):
         old_mob_health = self.action_battle.mob.health
         old_action_percents = self.action_battle.percents

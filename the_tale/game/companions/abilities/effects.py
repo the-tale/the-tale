@@ -4,7 +4,10 @@ from rels.django import DjangoEnum
 
 from the_tale.game import relations as game_relations
 
+from the_tale.game.balance import constants as c
+
 from the_tale.game.heroes import relations as heroes_relations
+from the_tale.game.heroes.habilities import battle as battle_abilities
 
 from the_tale.game.companions.abilities import relations
 
@@ -37,6 +40,13 @@ class Base(object):
 
     def _update_context(self, actor, enemy):
         pass
+
+
+class Checker(Base):
+    MODIFIER = None
+
+    def _check_attribute(self, modifier):
+        return modifier == self.MODIFIER
 
 
 class Multiplier(Base):
@@ -112,6 +122,63 @@ class PhysicDamageBonus(Multiplier):
     TYPE = relations.EFFECT.PHYSIC_DAMAGE_BONUS
     MODIFIER = heroes_relations.MODIFIERS.PHYSIC_DAMAGE
 
+class Speed(Multiplier):
+    TYPE = relations.EFFECT.SPEED
+    MODIFIER = heroes_relations.MODIFIERS.SPEED
+
+
+class BattleAbility(Base):
+    TYPE = relations.EFFECT.BATTLE_ABILITY
+
+    def __init__(self, ability, **kwargs):
+        super(BattleAbility, self).__init__(**kwargs)
+        self.ability = ability(ability.MAX_LEVEL)
+
+    @property
+    def uid(self):
+        return (self.TYPE, self.habit_type)
+
+    def _modify_attribute(self, modifier, value):
+        if modifier.is_INITIATIVE:
+            return value * (1 + c.COMPANION_BATTLE_STRIKE_PROBABILITY)
+        if modifier.is_ADDITIONAL_ABILITIES:
+            value.append(self.ability)
+            return value
+        return value
+
+
+class Initiative(Multiplier):
+    TYPE = relations.EFFECT.INITIATIVE
+    MODIFIER = heroes_relations.MODIFIERS.INITIATIVE
+
+
+class BattleProbability(Summand):
+    TYPE = relations.EFFECT.BATTLE_PROBABILITY
+    MODIFIER = heroes_relations.MODIFIERS.BATTLES_PER_TURN
+
+
+class LootProbability(Multiplier):
+    TYPE = relations.EFFECT.LOOT_PROBABILITY
+    MODIFIER = heroes_relations.MODIFIERS.LOOT_PROBABILITY
+
+
+class CompanionDamage(Summand):
+    TYPE = relations.EFFECT.COMPANION_DAMAGE
+    MODIFIER = heroes_relations.MODIFIERS.COMPANION_DAMAGE
+
+class CompanionDamageProbability(Multiplier):
+    TYPE = relations.EFFECT.COMPANION_DAMAGE_PROBABILITY
+    MODIFIER = heroes_relations.MODIFIERS.COMPANION_DAMAGE_PROBABILITY
+
+
+class CompanionStealMoney(Checker):
+    TYPE = relations.EFFECT.COMPANION_STEAL_MONEY
+    MODIFIER = heroes_relations.MODIFIERS.COMPANION_STEAL_MONEY
+
+class CompanionStealItem(Checker):
+    TYPE = relations.EFFECT.COMPANION_STEAL_ITEM
+    MODIFIER = heroes_relations.MODIFIERS.COMPANION_STEAL_ITEM
+
 
 class ABILITIES(DjangoEnum):
     description = Column()
@@ -153,4 +220,41 @@ class ABILITIES(DjangoEnum):
 
         (u'FIT_OF_ENERGY', 19, u'прилив сил', u'бонус к физическому урону, наносимому героем', False, MagicDamageBonus(multiplier=1.1)),
         (u'PEP', 20, u'бодрость духа', u'бонус к магическому урону, наносимому героем', False, PhysicDamageBonus(multiplier=1.1)),
+
+        (u'SLED', 21, u'ездовой', u'постоянный небольшой бонус к скорости героя', False, Speed(multiplier=1.1)),
+        (u'SLOW', 22, u'медлительный', u'постоянный небольшой штраф к скорости героя', True, Speed(multiplier=0.9)),
+        (u'FOOTED_SLED', 23, u'быстроногий ездовой', u'постоянный большой бонус к скорости героя', False, Speed(multiplier=1.2)),
+
+        (u'FIGHTER', 24, u'боец', u'увеличивает инициативу героя, в бою может применить способность «Удар»', False,
+         BattleAbility(ability=battle_abilities.HIT)),
+        (u'RAM', 25, u'громила', u'увеличивает инициативу героя, в бою может применить способность «тяжёлый удар»', False,
+         BattleAbility(ability=battle_abilities.STRONG_HIT)),
+        (u'HOUSEBREAKER', 26, u'таран', u'увеличивает инициативу героя, в бою может применить способность «Разбег-толчок»', False,
+         BattleAbility(ability=battle_abilities.RUN_UP_PUSH)),
+        (u'ARSONIST', 27, u'поджигатель', u'увеличивает инициативу героя, в бою может применить способность «Огненный шар»', False,
+         BattleAbility(ability=battle_abilities.FIREBALL)),
+        (u'POISONER', 28, u'отравитель', u'увеличивает инициативу героя, в бою может применить способность «Ядовитое облако»', False,
+         BattleAbility(ability=battle_abilities.POISON_CLOUD)),
+        (u'FROST', 29, u'морозко', u'увеличивает инициативу героя, в бою может применить способность «Заморозка»', False,
+         BattleAbility(ability=battle_abilities.FREEZING)),
+
+        (u'UNGAINLY', 30, u'неуклюжий', u'большой штраф к инициативе героя', True, Initiative(multiplier=0.8)),
+        (u'CLUMSY', 31, u'неповоротливый', u'малый штраф к инициативе героя', True, Initiative(multiplier=0.9)),
+        (u'CLEVER', 32, u'ловкий', u'малый бонус к инициативе героя', True, Initiative(multiplier=1.1)),
+        (u'IMPETUOUS', 33, u'стремительный', u'большой бонус к инициативе героя', True, Initiative(multiplier=1.2)),
+
+        (u'NOISY', 34, u'шумный', u'так сильно шумит, что привлекает внимание большего количесва врагов', True, BattleProbability(summand=0.05)),
+        (u'DEATHY', 35, u'смертельно страшный', u'распугивает чудищ, вероятность встретить врага стремится к нулю', True, BattleProbability(summand=-1)),
+
+        (u'TORTURER', 36, u'терзатель', u'растерзывает врагов в бою так сильно, что уменьшается шанс найти уцелевший лут с мобов', True, LootProbability(multiplier=0.8)),
+        (u'HUNTER', 37, u'охотник', u'увеличивает шанс поднятия лута со всех врагов', False, LootProbability(multiplier=1.2)),
+
+        (u'NOT_LIFER', 38, u'не жилец', u'получает дополнительную едину урона', True, CompanionDamage(summand=1)),
+        (u'PUNY', 39, u'тщедушный', u'получает дополнительные 2 единицы урона', True, CompanionDamage(summand=2)),
+
+        (u'CAMOUFLAGE', 40, u'камуфляж', u'реже получает урон в бою', False, CompanionDamageProbability(multiplier=0.9)),
+        (u'FLYING', 41, u'летающий', u'значительно реже получает урон в бою', False, CompanionDamageProbability(multiplier=0.8)),
+
+        (u'PICKPOCKET', 42, u'карманник', u'В каждом городе крадёт из карманов горожан немного денег', False, CompanionStealMoney()),
+        (u'ROBBER', 43, u'грабитель', u'В каждом городе крадёт у горожан что-нибудь, возможно артефакт', False, CompanionStealItem()),
     )

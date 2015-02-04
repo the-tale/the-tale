@@ -36,6 +36,7 @@ class HeroPositionTest(testcase.TestCase):
         self.assertTrue(all(not self.hero.position.is_battle_start_needed() for i in xrange(100)))
 
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.safety', 0.0)
+    @mock.patch('the_tale.game.balance.constants.MAX_BATTLES_PER_TURN', 1.0)
     def test_is_battle_start_needed__no_safety(self):
         self.assertTrue(all(self.hero.position.is_battle_start_needed() for i in xrange(100)))
 

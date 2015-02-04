@@ -1,4 +1,5 @@
 # coding: utf-8
+import contextlib
 
 import mock
 
@@ -14,6 +15,7 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game.companions import storage as companions_storage
 from the_tale.game.companions import logic as companions_logic
+from the_tale.game.companions import relations as companions_relations
 
 from the_tale.game.actions import prototypes
 from the_tale.game.actions.tests.helpers import ActionEventsTestsMixin
@@ -663,3 +665,115 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_experience, money - self.hero.money)
         self.storage._test_save()
+
+
+
+
+class InPlaceActionCompanionStealingTest(testcase.TestCase):
+
+    def setUp(self):
+        super(InPlaceActionCompanionStealingTest, self).setUp()
+        create_test_map()
+
+        self.account = self.accounts_factory.create_account()
+
+        self.storage = LogicStorage()
+        self.storage.load_account_data(self.account)
+        self.hero = self.storage.accounts_to_heroes[self.account.id]
+
+        self.action_idl = self.hero.actions.current_action
+
+        self.action_inplace = prototypes.ActionInPlacePrototype.create(hero=self.hero)
+
+        self.action_inplace.state = self.action_inplace.STATE.PROCESSED
+
+        self.companion_record = companions_logic.create_random_companion_record('thief', state=companions_relations.STATE.ENABLED)
+        self.hero.set_companion(companions_logic.create_companion(self.companion_record))
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_steal_money', lambda self: True)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_steal_item', lambda self: True)
+    def test_no_companion(self):
+        self.hero.remove_companion()
+
+        with contextlib.nested(
+                self.check_not_changed(lambda: self.hero.bag.occupation),
+                self.check_not_changed(lambda: self.hero.money),
+                self.check_not_changed(lambda: self.hero.statistics.money_earned_from_companions),
+                self.check_not_changed(lambda: self.hero.statistics.artifacts_had),
+                self.check_not_changed(lambda: self.hero.statistics.loot_had),
+                self.check_not_changed(lambda: len(self.hero.messages))
+                ):
+            self.storage.process_turn(continue_steps_if_needed=False)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_steal_money', lambda self: True)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_steal_item', lambda self: False)
+    def test_steal_money(self):
+        with contextlib.nested(
+                self.check_not_changed(lambda: self.hero.bag.occupation),
+                self.check_increased(lambda: self.hero.money),
+                self.check_increased(lambda: self.hero.statistics.money_earned_from_companions),
+                self.check_not_changed(lambda: self.hero.statistics.artifacts_had),
+                self.check_not_changed(lambda: self.hero.statistics.loot_had),
+                self.check_increased(lambda: len(self.hero.messages))
+                ):
+            self.storage.process_turn(continue_steps_if_needed=False)
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_steal_money', lambda self: False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_steal_item', lambda self: True)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.artifacts_probability', lambda self, mob: 0)
+    def test_steal_item__loot(self):
+        with contextlib.nested(
+                self.check_increased(lambda: self.hero.bag.occupation),
+                self.check_not_changed(lambda: self.hero.money),
+                self.check_not_changed(lambda: self.hero.statistics.money_earned_from_companions),
+                self.check_not_changed(lambda: self.hero.statistics.artifacts_had),
+                self.check_delta(lambda: self.hero.statistics.loot_had, 1),
+                self.check_increased(lambda: len(self.hero.messages))
+                ):
+            self.storage.process_turn(continue_steps_if_needed=False)
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_steal_money', lambda self: False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_steal_item', lambda self: True)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.artifacts_probability', lambda self, mob: 1)
+    def test_steal_item__artifact(self):
+        with contextlib.nested(
+                self.check_increased(lambda: self.hero.bag.occupation),
+                self.check_not_changed(lambda: self.hero.money),
+                self.check_not_changed(lambda: self.hero.statistics.money_earned_from_companions),
+                self.check_delta(lambda: self.hero.statistics.artifacts_had, 1),
+                self.check_not_changed(lambda: self.hero.statistics.loot_had),
+                self.check_increased(lambda: len(self.hero.messages))
+                ):
+            self.storage.process_turn(continue_steps_if_needed=False)
+
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_steal_money', lambda self: False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_steal_item', lambda self: True)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.bag_is_full', True)
+    def test_steal_item__bag_is_full(self):
+        with contextlib.nested(
+                self.check_not_changed(lambda: self.hero.bag.occupation),
+                self.check_not_changed(lambda: self.hero.money),
+                self.check_not_changed(lambda: self.hero.statistics.money_earned_from_companions),
+                self.check_not_changed(lambda: self.hero.statistics.artifacts_had),
+                self.check_not_changed(lambda: self.hero.statistics.loot_had),
+                self.check_not_changed(lambda: len(self.hero.messages))
+                ):
+            self.storage.process_turn(continue_steps_if_needed=False)
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_steal_money', lambda self: True)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_steal_item', lambda self: True)
+    def test_steal_all(self):
+        with contextlib.nested(
+                self.check_increased(lambda: self.hero.bag.occupation),
+                self.check_increased(lambda: self.hero.money),
+                self.check_increased(lambda: self.hero.statistics.money_earned_from_companions),
+                self.check_delta(lambda: self.hero.statistics.artifacts_had + self.hero.statistics.loot_had, 1),
+                self.check_increased(lambda: len(self.hero.messages))
+                ):
+            self.storage.process_turn(continue_steps_if_needed=False)

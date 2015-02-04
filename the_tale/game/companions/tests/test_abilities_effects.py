@@ -12,7 +12,10 @@ from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game import relations as game_relations
 
+from the_tale.game.mobs.storage import mobs_storage
+
 from the_tale.game.heroes import relations as heroes_relations
+from the_tale.game.heroes.habilities import battle as battle_abilities
 
 from the_tale.game.companions import logic
 from the_tale.game.companions import relations
@@ -276,4 +279,135 @@ class PhysicDamageBonusTests(BaseEffectsTests):
         ability = self.get_ability(effects.PhysicDamageBonus)
 
         with self.check_changed(lambda: self.hero.physic_damage_modifier):
+            self.apply_ability(ability)
+
+
+class SpeedTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.Speed(multiplier=2)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.SPEED, 10), 20)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.SPEED,)), 11), 11)
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.Speed)
+
+        with self.check_changed(lambda: self.hero.move_speed):
+            self.apply_ability(ability)
+
+
+class BattleAbilityTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.BattleAbility(ability=battle_abilities.FIREBALL)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.INITIATIVE, 10), 11)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.ADDITIONAL_ABILITIES, []), [effect.ability])
+        self.assertEqual(effect._modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.INITIATIVE, MODIFIERS.ADDITIONAL_ABILITIES)), 11), 11)
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.BattleAbility)
+
+        with self.check_changed(lambda: self.hero.initiative):
+            with self.check_changed(lambda: len(self.hero.companion.modify_attribute(heroes_relations.MODIFIERS.ADDITIONAL_ABILITIES,
+                                                                                     heroes_relations.MODIFIERS.ADDITIONAL_ABILITIES.default()))):
+                self.apply_ability(ability)
+
+
+class InitiativeTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.Initiative(multiplier=2)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.INITIATIVE, 10), 20)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.INITIATIVE,)), 11), 11)
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.Initiative)
+
+        with self.check_changed(lambda: self.hero.initiative):
+            self.apply_ability(ability)
+
+
+
+class BattleProbabilityTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.BattleProbability(summand=1.5)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.BATTLES_PER_TURN, 10), 11.5)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.BATTLES_PER_TURN,)), 11), 11)
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.BattleProbability)
+
+        with self.check_changed(lambda: self.hero.battles_per_turn_summand):
+            self.apply_ability(ability)
+
+
+class LootProbabilityTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.LootProbability(multiplier=2)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.LOOT_PROBABILITY, 10), 20)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.LOOT_PROBABILITY,)), 11), 11)
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.LootProbability)
+
+        with self.check_changed(lambda: self.hero.loot_probability(mobs_storage.all()[0])):
+            self.apply_ability(ability)
+
+
+
+class CompanionDamageTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.CompanionDamage(summand=3)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.COMPANION_DAMAGE, 10), 13)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_DAMAGE,)), 11), 11)
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.CompanionDamage)
+
+        with self.check_changed(lambda: self.hero.companion_damage):
+            self.apply_ability(ability)
+
+
+class CompanionDamageProbabilityTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.CompanionDamageProbability(multiplier=3)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.COMPANION_DAMAGE_PROBABILITY, 10), 30)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_DAMAGE_PROBABILITY,)), 11), 11)
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.CompanionDamageProbability)
+
+        with self.check_changed(lambda: self.hero.companion_damage_probability):
+            self.apply_ability(ability)
+
+
+class CompanionStealMoneyTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.CompanionStealMoney()
+        self.assertTrue(effect._check_attribute(MODIFIERS.COMPANION_STEAL_MONEY))
+        self.assertFalse(effect._check_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_STEAL_MONEY,))))
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.CompanionStealMoney)
+
+        with self.check_changed(lambda: self.hero.can_companion_steal_money()):
+            self.apply_ability(ability)
+
+
+class CompanionStealItemTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.CompanionStealItem()
+        self.assertTrue(effect._check_attribute(MODIFIERS.COMPANION_STEAL_ITEM))
+        self.assertFalse(effect._check_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_STEAL_ITEM,))))
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.CompanionStealItem)
+
+        with self.check_changed(lambda: self.hero.can_companion_steal_item()):
             self.apply_ability(ability)

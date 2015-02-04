@@ -74,6 +74,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.ARTIFACT_BREAK_INTEGRITY_FRACTIONS, (0.1, 0.2))
         self.assertEqual(c.BATTLES_LINE_LENGTH, 8*(16+3)-3)
         self.assertEqual(c.BATTLES_PER_TURN, 1.0 / (3+1) )
+        self.assertEqual(c.MAX_BATTLES_PER_TURN, 0.9 )
         self.assertEqual(c.WHILD_BATTLES_PER_TURN_BONUS, 0.05)
         self.assertEqual(c.HEAL_LENGTH, int((8*(16+3)-3) * 0.2))
 
@@ -306,6 +307,8 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.COMPANIONS_HEAL_AMOUNT, 2)
         self.assertEqual(c.COMPANIONS_HEAL_CRIT_AMOUNT, 4)
+
+        self.assertEqual(c.COMPANION_BATTLE_STRIKE_PROBABILITY, 0.1)
 
 
     def test_dedication_maximum_multiplier(self):

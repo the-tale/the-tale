@@ -174,7 +174,7 @@ class Help(AbilityPrototype):
 
         if action.HABIT_MODE.is_AGGRESSIVE:
             task.hero.update_habits(HABIT_CHANGE_SOURCE.HELP_AGGRESSIVE)
-        elif action.HABIT_MODE.is_PEACEFULL:
+        elif action.HABIT_MODE.is_PEACEFUL:
             task.hero.update_habits(HABIT_CHANGE_SOURCE.HELP_UNAGGRESSIVE)
         elif action.HABIT_MODE.is_COMPANION:
             if task.hero.companion:

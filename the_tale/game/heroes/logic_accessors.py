@@ -115,6 +115,12 @@ class LogicAccessorsMixin(object):
 
         return random.uniform(0, 1) < self.attribute_modifier(relations.MODIFIERS.BUY_BETTER_ARTIFACT)
 
+    def can_companion_steal_money(self):
+        return self.check_attribute(relations.MODIFIERS.COMPANION_STEAL_MONEY)
+
+    def can_companion_steal_item(self):
+        return self.check_attribute(relations.MODIFIERS.COMPANION_STEAL_ITEM)
+
     def can_kill_before_battle(self):
         return self.check_attribute(relations.MODIFIERS.KILL_BEFORE_BATTLE)
 
@@ -155,6 +161,10 @@ class LogicAccessorsMixin(object):
     ################################
     # attributes
     ################################
+
+    @property
+    def battles_per_turn_summand(self):
+        return self.attribute_modifier(relations.MODIFIERS.BATTLES_PER_TURN)
 
     @property
     def safe_artifact_integrity_probability(self):
@@ -311,9 +321,17 @@ class LogicAccessorsMixin(object):
 
     def artifacts_probability(self, mob):
         probability = c.ARTIFACTS_PER_BATTLE * self.attribute_modifier(relations.MODIFIERS.LOOT_PROBABILITY)
-        if self.preferences.mob and self.preferences.mob.type == mob.mob_type:
+        if mob and self.preferences.mob and self.preferences.mob.type == mob.mob_type:
             probability *= c.PREFERED_MOB_LOOT_PROBABILITY_MULTIPLIER
         return probability
+
+    @property
+    def companion_damage(self):
+        return 1 + self.attribute_modifier(relations.MODIFIERS.COMPANION_DAMAGE)
+
+    @property
+    def companion_damage_probability(self):
+        return self.attribute_modifier(relations.MODIFIERS.COMPANION_DAMAGE_PROBABILITY)
 
     def habit_events(self):
         return self.attribute_modifier(relations.MODIFIERS.HONOR_EVENTS)

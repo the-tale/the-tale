@@ -29,7 +29,7 @@ class LEXICON_GROUP(DjangoEnum):
 
                ('ACTION_INPLACE', 4, u'Действие: посещение города', 40000,
                u'Описание событий, происходящих при посещении героем города.',
-               {V.HERO: u'герой', V.COINS_DELTA: u'доплата', V.COINS: u'количество монет', V.ARTIFACT: u'предмет', V.SELL_PRICE: u'цена продажи', V.PERSON: u'житель', V.PLACE: u'город', V.EXPERIENCE: u'количество опыта', V.OLD_ARTIFACT: u'старый артефакт'}),
+               {V.HERO: u'герой', V.COINS_DELTA: u'доплата', V.COINS: u'количество монет', V.ARTIFACT: u'предмет', V.SELL_PRICE: u'цена продажи', V.PERSON: u'житель', V.PLACE: u'город', V.EXPERIENCE: u'количество опыта', V.OLD_ARTIFACT: u'старый артефакт', V.COMPANION: u'спутник'}),
 
                ('ACTION_MOVENEARPLACE', 5, u'Действие: путешествие в окрестностях города', 50000,
                u'Описание действий, происходящих при путешествии героя в окрестностях города.',

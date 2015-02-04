@@ -59,6 +59,7 @@ class MONEY_SOURCE(DjangoEnum):
                 ('EARNED_FROM_QUESTS', 2, u'заработано выполнением квестов'),
                 ('EARNED_FROM_HELP', 3, u'получено от хранителя'),
                 ('EARNED_FROM_HABITS', 4, u'получено от черт'),
+                ('EARNED_FROM_COMPANIONS', 5, u'получено от спутников'),
 
                 ('SPEND_FOR_HEAL', 1000, u'потрачено на лечение'),
                 ('SPEND_FOR_ARTIFACTS', 1001, u'потрачено на покупку артефактов'),
@@ -169,7 +170,13 @@ class MODIFIERS(DjangoEnum):
                 ('HABITS_DECREASE', 44, u'скорость уменьшения черт', lambda: 1),
                 ('SAFE_INTEGRITY', 45, u'вероятность сохранить целостность артефакта после боя', lambda: 0),
                 ('COHERENCE_EXPERIENCE', 46, u'опыт слаженности спутника', lambda: 0),
-                ('HABITS_SOURCES', 47, u'источники изменения черт', lambda: set()))
+                ('HABITS_SOURCES', 47, u'источники изменения черт', lambda: set()),
+                ('BATTLES_PER_TURN', 48, u'веротяность начала битвы', lambda: 0),
+                ('COMPANION_DAMAGE', 49, u'урон по спутнику', lambda: 0),
+                ('COMPANION_DAMAGE_PROBABILITY', 50, u'вероятность урона по спутнику', lambda: c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY),
+                ('COMPANION_STEAL_MONEY', 51, u'что спутник крадёт деньги при посещении города', lambda: False),
+                ('COMPANION_STEAL_ITEM', 52, u'что спутник крадёт предмет при посещении города', lambda: False),
+            )
 
 
 class HABIT_CHANGE_SOURCE(DjangoEnum):

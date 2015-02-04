@@ -7,15 +7,19 @@ from the_tale.game.balance import constants as c
 
 from the_tale.common.utils.logic import random_value_by_priority
 
+from the_tale.game.heroes import relations as heroes_relations
+
+from the_tale.game.actions import contexts
+
 
 class Actor(object):
 
-    __slots__ = ('actor', 'context', 'messages')
+    __slots__ = ('actor', 'context') #, 'messages')
 
     def __init__(self, actor, context):
         self.actor = actor
         self.context = context
-        self.messages = []
+        # self.messages = []
 
     @property
     def initiative(self): return self.actor.initiative * self.context.initiative
@@ -45,6 +49,9 @@ class Actor(object):
 
     @property
     def companion(self): return self.actor.companion
+
+    @property
+    def companion_damage_probability(self): return self.actor.companion_damage_probability
 
     def remove_companion(self):
         self.actor.remove_companion()
@@ -88,6 +95,36 @@ class Actor(object):
             messanger.add_message('action_battlepve1x1_periodical_poison_damage', actor=self, damage=damage.total)
 
 
+class CompanionActor(Actor):
+
+    __slots__ = ('actor', 'context')
+
+    def __init__(self, actor, context):
+        self.actor = actor
+        self.context = context
+
+    @property
+    def name(self): return self.actor.companion.name
+
+    @property
+    def utg_name(self): return self.actor.companion.utg_name
+
+    @property
+    def utg_name_form(self): return self.actor.companion.utg_name_form
+
+    def linguistics_restrictions(self): return self.actor.companion.linguistics_restrictions()
+
+    @property
+    def has_companion(self): return False
+
+    @property
+    def companion(self): return None
+
+    def remove_companion(self): raise NotImplementedError()
+
+    def choose_ability(self): raise NotImplementedError()
+
+
 def make_turn(actor_1, actor_2, messanger):
 
     if actor_1.context.turn == actor_2.context.turn == 0:
@@ -129,12 +166,9 @@ def strike(attacker, defender, messanger):
     if try_companion_block(attacker, defender, messanger):
         return
 
-    ability = attacker.choose_ability()
-
-    if ability.LOGIC_TYPE.is_WITHOUT_CONTACT:
-        strike_without_contact(ability, attacker, defender, messanger)
-    elif ability.LOGIC_TYPE.is_WITH_CONTACT:
-        strike_with_contact(ability, attacker, defender, messanger)
+    if not try_companion_strike(attacker, defender, messanger):
+        ability = attacker.choose_ability()
+        _strike(ability, attacker, defender, messanger)
 
     if attacker.health <= 0 and attacker.context.can_use_last_chance():
         attacker.change_health(-attacker.health+1)
@@ -143,6 +177,12 @@ def strike(attacker, defender, messanger):
     if defender.health <= 0 and defender.context.can_use_last_chance():
         defender.change_health(-defender.health+1)
         messanger.add_message('hero_ability_last_chance', actor=defender)
+
+def _strike(ability, attacker, defender, messanger):
+    if ability.LOGIC_TYPE.is_WITHOUT_CONTACT:
+        strike_without_contact(ability, attacker, defender, messanger)
+    elif ability.LOGIC_TYPE.is_WITH_CONTACT:
+        strike_with_contact(ability, attacker, defender, messanger)
 
 
 def strike_with_contact(ability, attacker, defender, messanger):
@@ -166,7 +206,7 @@ def try_companion_block(attacker, defender, messanger):
     if random.random() > defender.companion.defend_in_battle_probability:
         return False
 
-    if random.random() > c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY:
+    if random.random() > defender.companion_damage_probability:
         messanger.add_message('companions_block', attacker=attacker, companion_owner=defender, companion=defender.companion)
         return True
 
@@ -177,5 +217,28 @@ def try_companion_block(attacker, defender, messanger):
     if defender.companion.is_dead:
         messanger.add_message('companions_killed', diary=True, attacker=attacker, companion_owner=defender, companion=defender.companion)
         defender.remove_companion()
+
+    return True
+
+
+def try_companion_strike(attacker, defender, messanger):
+
+    if not attacker.has_companion:
+        return False
+
+    if random.random() > c.COMPANION_BATTLE_STRIKE_PROBABILITY:
+        return False
+
+    abilities = attacker.companion.modify_attribute(heroes_relations.MODIFIERS.ADDITIONAL_ABILITIES, heroes_relations.MODIFIERS.ADDITIONAL_ABILITIES.default())
+    battle_abilities = [ability for ability in abilities if ability.TYPE.is_BATTLE and ability.ACTIVATION_TYPE.is_ACTIVE]
+
+    if not battle_abilities:
+        return False
+
+    ability = random_value_by_priority([(ability, ability.priority) for ability in battle_abilities])
+
+    companion_actor = CompanionActor(attacker, contexts.BattleContext())
+
+    _strike(ability, companion_actor, defender, messanger)
 
     return True
