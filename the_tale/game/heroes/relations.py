@@ -68,7 +68,8 @@ class MONEY_SOURCE(DjangoEnum):
                 ('SPEND_FOR_IMPACT', 1004, u'потрачено на изменение влияния'),
                 ('SPEND_FOR_EXPERIENCE', 1005, u'потрачено на обучение'),
                 ('SPEND_FOR_REPAIRING', 1006, u'потрачено на починку'),
-                ('SPEND_FOR_TAX', 1007, u'потрачено на пошлину'))
+                ('SPEND_FOR_TAX', 1007, u'потрачено на пошлину'),
+                ('SPEND_FOR_COMPANIONS', 1008, u'потрачено на спутников') )
 
 
 
@@ -176,6 +177,12 @@ class MODIFIERS(DjangoEnum):
                 ('COMPANION_DAMAGE_PROBABILITY', 50, u'вероятность урона по спутнику', lambda: c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY),
                 ('COMPANION_STEAL_MONEY', 51, u'что спутник крадёт деньги при посещении города', lambda: False),
                 ('COMPANION_STEAL_ITEM', 52, u'что спутник крадёт предмет при посещении города', lambda: False),
+                ('COMPANION_SPARE_PARTS', 53, u'при смерти спутника, герой получает очень дорогие запчасти', lambda: False),
+                ('COMPANION_SAY_WISDOM', 54, u'спутник периодически изрекает мудрые мысли, дающие герою опыт', lambda: False),
+                ('COMPANION_EXP_PER_HEAL', 55, u'герой получает опыт за каждый уход за спутником', lambda: False),
+                ('COMPANION_EAT_CORPSES', 56, u'спутник восстанавливает здоровье, поедая трупы враго', lambda: False),
+                ('COMPANION_REGENERATE', 57, u'спутник восстанавливает здоровье, после ухода за ним героя', lambda: False),
+                ('COMPANION_MONEY_FOR_FOOD', 58, u'множитель денег, которые тратятся на еду для спутника', lambda: 1.0),
             )
 
 

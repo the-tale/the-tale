@@ -69,6 +69,9 @@ def total_gold_at_lvl(lvl): return int(sum(expected_normal_gold_at_lvl(x) for x 
 def normal_action_price(lvl):
     return int(expected_gold_in_day(lvl))
 
+def gold_in_path(lvl, path_length):
+    return int(expected_gold_in_day(lvl) * path_to_turns(path_length) / float(24 * c.TURNS_IN_HOUR))
+
 # в общем случае, за уровень герой должен тратить процентов на 10 меньше золота, чем зарабатывать
 # тратить деньги можно на следующие вещи:
 # - моментальное лечение

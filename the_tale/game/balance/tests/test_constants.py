@@ -211,6 +211,8 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.EXP_FOR_KILL_DELTA, 0.3)
         self.assertEqual(round(c.EXP_FOR_KILL_PROBABILITY, 5), 0.00256)
 
+        self.assertEqual(c.COMPANIONS_BONUS_EXP_FRACTION, 0.1)
+
         self.assertEqual(c.HABIT_EVENTS_IN_DAY, 1.33)
         self.assertEqual(round(c.HABIT_EVENTS_IN_TURN, 5), 0.00015)
 
@@ -309,6 +311,21 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.COMPANIONS_HEAL_CRIT_AMOUNT, 4)
 
         self.assertEqual(c.COMPANION_BATTLE_STRIKE_PROBABILITY, 0.1)
+
+        self.assertEqual(c.COMPANION_EXP_PER_MOVE_GET_EXP, 1)
+        self.assertEqual(c.COMPANION_GET_EXP_MOVE_EVENTS_PER_HOUR, -1)
+        self.assertEqual(c.COMPANION_EXP_PER_MOVE_PROBABILITY, -1)
+        self.assertEqual(c.MOVE_TURNS_IN_ACTION_CYCLE, -1)
+        self.assertEqual(c.MOVE_TURNS_IN_HOUR, -1)
+
+        self.assertEqual(c.COMPANION_EXP_PER_HEAL, -1)
+
+        self.assertEqual(c.COMPANIONS_HEAL_BONUS, 0.25)
+
+        self.assertEqual(c.COMPANIONS_REGEN_PER_HOUR, -1)
+
+        self.assertEqual(c.COMPANION_EATEN_CORPSES_PER_BATTLE, -1)
+        self.assertEqual(c.COMPANION_REGEN_ON_HEAL_PER_HEAL, -1)
 
 
     def test_dedication_maximum_multiplier(self):

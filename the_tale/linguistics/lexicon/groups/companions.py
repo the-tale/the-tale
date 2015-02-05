@@ -3,10 +3,6 @@
 from the_tale.linguistics.lexicon.relations import VARIABLE as V
 from the_tale.linguistics.lexicon.groups.relations import LEXICON_GROUP
 
-# hero -> companion_owner
-# mob -> attacker
-
-
 KEYS = [(u'COMPANIONS_RECEIVED', 580000, u'Дневник: появился спутник', LEXICON_GROUP.COMPANIONS,
         u'Описание того, как появился спутник.',
         [V.COMPANION_OWNER, V.COMPANION]),
@@ -26,4 +22,20 @@ KEYS = [(u'COMPANIONS_RECEIVED', 580000, u'Дневник: появился сп
         (u'COMPANIONS_WOUND', 580004, u'Журнал: спутник защитил своего владельца от удара, но получил рану', LEXICON_GROUP.COMPANIONS,
         u'Спутник защитил своего владельца от удара, но получил рану.',
         [V.COMPANION_OWNER, V.COMPANION, V.ATTACKER]),
+
+        (u'COMPANIONS_BROKE_TO_SPARE_PARTS', 580005, u'Дневник: после смерти спутника удалось выгодно продать его запчасти (способность «дорогой»)', LEXICON_GROUP.COMPANIONS,
+        u'После смерти спутника удалось выгодно продать его запчасти',
+        [V.COMPANION_OWNER, V.COMPANION, V.COINS]),
+
+        (u'COMPANIONS_SAY_WISDOM', 580006, u'Журнал: спутник говорит мудрость (способность «мудрый»)', LEXICON_GROUP.COMPANIONS,
+        u'Спутник говорит мудрость, героя получает немного опыта',
+        [V.COMPANION_OWNER, V.COMPANION, V.COINS, V.EXPERIENCE]),
+
+        (u'COMPANIONS_EAT_CORPSE', 580007, u'Журнал: спутник есть труп (способность «пожиратель»)', LEXICON_GROUP.COMPANIONS,
+        u'Спутник пожирает труп монстра и восстанавливает здоровье',
+        [V.COMPANION_OWNER, V.COMPANION, V.HEALTH]),
+
+        (u'COMPANIONS_REGENERATE', 580008, u'Журнал: спутник восстанавливает здоровье (способность «регенерация»)', LEXICON_GROUP.COMPANIONS,
+        u'Спутник восстанавливает здоровье, когда героя заканчивает «ухаживать» за ним',
+        [V.COMPANION_OWNER, V.COMPANION, V.HEALTH]),
         ]

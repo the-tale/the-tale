@@ -11,18 +11,19 @@ class MOB_RECORD_STATE(DjangoEnum):
 
 class MOB_TYPE(DjangoEnum):
     is_mercenary = rels.Column(unique=False)
+    is_eatable = rels.Column(unique=False)
 
-    records = ( ('PLANT', 0, u'растения', False),
-                ('ANIMAL', 1, u'животные', False),
-                ('SUPERNATURAL', 2, u'стихийные существа', False),
-                ('MECHANICAL', 3, u'конструкты', False),
-                ('BARBARIAN', 4, u'дикари', False),
-                ('CIVILIZED', 5, u'цивилизованные существа', True),
-                ('COLDBLOODED', 6, u'хладнокровные гады', False),
-                ('INSECT', 7, u'насекомые', False),
-                ('DEMON', 8, u'демоны', False),
-                ('UNDEAD', 9, u'нежить', False),
-                ('MONSTER', 10, u'чудовища', False))
+    records = ( ('PLANT', 0, u'растения', False, True),
+                ('ANIMAL', 1, u'животные', False, True),
+                ('SUPERNATURAL', 2, u'стихийные существа', False, False),
+                ('MECHANICAL', 3, u'конструкты', False, False),
+                ('BARBARIAN', 4, u'дикари', False, True),
+                ('CIVILIZED', 5, u'цивилизованные существа', True, True),
+                ('COLDBLOODED', 6, u'хладнокровные гады', False, True),
+                ('INSECT', 7, u'насекомые', False, True),
+                ('DEMON', 8, u'демоны', False, False),
+                ('UNDEAD', 9, u'нежить', False, False),
+                ('MONSTER', 10, u'чудовища', False, True))
 
 
 class INDEX_ORDER_TYPE(DjangoEnum):

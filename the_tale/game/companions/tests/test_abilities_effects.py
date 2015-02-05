@@ -61,7 +61,7 @@ class BaseEffectsTests(testcase.TestCase):
         self.hero.reset_accessors_cache()
 
     def get_ability(self, effect):
-        return random.choice([ability for ability in effects.ABILITIES.records if ability.effect.TYPE == effect.TYPE])
+        return random.choice([ability for ability in effects.ABILITIES.records if isinstance(ability.effect, effect)])
 
 
 
@@ -411,3 +411,106 @@ class CompanionStealItemTests(BaseEffectsTests):
 
         with self.check_changed(lambda: self.hero.can_companion_steal_item()):
             self.apply_ability(ability)
+
+
+class CompanionSparePartsTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.CompanionSpareParts()
+        self.assertTrue(effect._check_attribute(MODIFIERS.COMPANION_SPARE_PARTS))
+        self.assertFalse(effect._check_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_SPARE_PARTS,))))
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.CompanionSpareParts)
+
+        with self.check_changed(lambda: self.hero.can_companion_broke_to_spare_parts()):
+            self.apply_ability(ability)
+
+
+class CompanionSayWisdomTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.CompanionSayWisdom()
+        self.assertTrue(effect._check_attribute(MODIFIERS.COMPANION_SAY_WISDOM))
+        self.assertFalse(effect._check_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_SAY_WISDOM,))))
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.CompanionSayWisdom)
+
+        with self.check_changed(lambda: self.hero.can_companion_say_wisdom()):
+            self.apply_ability(ability)
+
+
+class CompanionExpPerHealTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.CompanionExpPerHeal()
+        self.assertTrue(effect._check_attribute(MODIFIERS.COMPANION_EXP_PER_HEAL))
+        self.assertFalse(effect._check_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_EXP_PER_HEAL,))))
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.CompanionExpPerHeal)
+
+        with self.check_changed(lambda: self.hero.can_companion_exp_per_heal()):
+            self.apply_ability(ability)
+
+
+class DoubleEnergyRegenerationTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.DoubleEnergyRegeneration(summand=0.1)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.DOUBLE_ENERGY_REGENERATION, 0), 0.1)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.DOUBLE_ENERGY_REGENERATION,)), 11), 11)
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.DoubleEnergyRegeneration)
+
+        with self.check_changed(lambda: self.hero.regenerate_double_energy_probability):
+            self.apply_ability(ability)
+
+
+class CompanionEatCorpsesTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.CompanionEatCorpses()
+        self.assertTrue(effect._check_attribute(MODIFIERS.COMPANION_EAT_CORPSES))
+        self.assertFalse(effect._check_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_EAT_CORPSES,))))
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.CompanionEatCorpses)
+
+        with self.check_changed(lambda: self.hero.can_companion_eat_corpses()):
+            self.apply_ability(ability)
+
+
+class CompanionRegenerateTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.CompanionRegenerate()
+        self.assertTrue(effect._check_attribute(MODIFIERS.COMPANION_REGENERATE))
+        self.assertFalse(effect._check_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_REGENERATE,))))
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.CompanionRegenerate)
+
+        with self.check_changed(lambda: self.hero.can_companion_regenerate()):
+            self.apply_ability(ability)
+
+
+class CompanionEatAndDiscountTest(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.CompanionEat(multiplier=0.5)
+
+        self.assertTrue(effect._check_attribute(MODIFIERS.COMPANION_MONEY_FOR_FOOD))
+        self.assertFalse(effect._check_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_MONEY_FOR_FOOD,))))
+
+        self.assertEqual(effect._modify_attribute(MODIFIERS.COMPANION_MONEY_FOR_FOOD, 2), 1.0)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_MONEY_FOR_FOOD,)), 11), 11)
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.CompanionEat)
+
+        with self.check_changed(lambda: self.hero.can_companion_eat()):
+            with self.check_changed(lambda: self.hero.companion_money_for_food_multiplier):
+                self.apply_ability(ability)

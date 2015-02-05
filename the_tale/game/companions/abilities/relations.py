@@ -20,7 +20,14 @@ class EFFECT(DjangoEnum):
                 (u'COMPANION_DAMAGE', 12, u'урон по спутнику'),
                 (u'COMPANION_DAMAGE_PROBABILITY', 13, u'вероятность получить урон'),
                 (u'COMPANION_STEAL_MONEY', 14, u'спутник крадёт деньги'),
-                (u'COMPANION_STEAL_ITEM', 15, u'спутник крадёт предметы'))
+                (u'COMPANION_STEAL_ITEM', 15, u'спутник крадёт предметы'),
+                (u'COMPANION_SPARE_PARTS', 16, u'спутник разваливается на дорогие запчасти'),
+                (u'COMPANION_EXPERIENCE', 17, u'спутник так или иначе приносит опыт'),
+                (u'COMPANION_DOUBLE_ENERGY_REGENERATION', 18, u'герой может восстновить в 2 раза больше энергии'),
+                (u'COMPANION_REGENERATION', 19, u'спутник как-либо восстанавливает своё здоровье'),
+                (u'COMPANION_EAT', 20, u'спутник требует покупки еды'),
+                (u'COMPANION_EAT_DISCOUNT', 21, u'у спутника есть скидка на покупку еды'),
+                )
 
 
 

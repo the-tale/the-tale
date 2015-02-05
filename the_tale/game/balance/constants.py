@@ -36,6 +36,8 @@ SPECIAL_SLOT_REPAIR_PRIORITY = float(2.0) # приоритет починки с
 EXP_PER_HOUR = int(10)  # опыт в час
 EXP_PER_QUEST_FRACTION = float(0.33) # разброс опыта за задание
 
+COMPANIONS_BONUS_EXP_FRACTION = float(0.2) # доля бонусного опыта, которую могут приносить спутники
+
 # с учётом возможных способностей (т.е. считаем, что при нужных абилках у премиума скорость получения опыта будет 1.0)
 EXP_FOR_PREMIUM_ACCOUNT = float(1.0) # модификатор опыта для премиум аккаунтов
 EXP_FOR_NORMAL_ACCOUNT = float(0.66) # модификатор опыта для обычных акканутов
@@ -51,7 +53,9 @@ INTERVAL_BETWEEN_BATTLES = int(3) # ходов - время, между двум
 
 BATTLES_BEFORE_HEAL = int(8) # количество боёв в непрерывной цепочке битв
 
-DISTANCE_IN_ACTION_CYCLE = HERO_MOVE_SPEED * (INTERVAL_BETWEEN_BATTLES * BATTLES_BEFORE_HEAL)
+MOVE_TURNS_IN_ACTION_CYCLE = INTERVAL_BETWEEN_BATTLES * BATTLES_BEFORE_HEAL
+
+DISTANCE_IN_ACTION_CYCLE = HERO_MOVE_SPEED * MOVE_TURNS_IN_ACTION_CYCLE
 
 HEAL_TIME_FRACTION = float(0.2) # доля времени от цепочки битв, которую занимает полный отхил героя
 HEAL_STEP_FRACTION = float(0.2) # разброс регенерации за один ход
@@ -109,6 +113,8 @@ COMPANIONS_HEAL_FRACTION = float(0.05) # доля действия уход за
 HEAL_LENGTH = int(math.floor(BATTLES_LINE_LENGTH * HEAL_TIME_FRACTION)) # ходов - длительность лечения героя
 
 ACTIONS_CYCLE_LENGTH = int(math.ceil((BATTLES_LINE_LENGTH + HEAL_LENGTH) / (1 - COMPANIONS_HEAL_FRACTION))) # ходов - длинна одного "игрового цикла" - цепочка боёв + хил
+
+MOVE_TURNS_IN_HOUR = MOVE_TURNS_IN_ACTION_CYCLE * (ACTIONS_CYCLE_LENGTH * TURN_DELTA / float(60*60))
 
 # примерное количество боёв, которое будет происходить в час игрового времени
 BATTLES_PER_HOUR = TURNS_IN_HOUR * (float(BATTLES_BEFORE_HEAL) / ACTIONS_CYCLE_LENGTH)
@@ -537,3 +543,21 @@ COMPANIONS_HEAL_CRIT_AMOUNT = COMPANIONS_HEAL_AMOUNT * 2
 # вероятность того, что спутник использует способность во время боя
 # на столько же должны увеличивать инициативу особенности спутника с боевыми способностями
 COMPANION_BATTLE_STRIKE_PROBABILITY = float(0.1)
+
+
+COMPANION_EXP_PER_MOVE_GET_EXP = int(1) # получаемый героем опыт за одно «действие получения опыта во время движения героя»
+
+# количество получений опыта от спутника в час
+COMPANION_GET_EXP_MOVE_EVENTS_PER_HOUR = float(EXP_PER_HOUR * COMPANIONS_BONUS_EXP_FRACTION) / COMPANION_EXP_PER_MOVE_GET_EXP
+COMPANION_EXP_PER_MOVE_PROBABILITY = COMPANION_GET_EXP_MOVE_EVENTS_PER_HOUR / MOVE_TURNS_IN_HOUR
+
+# количество опыта за каждое лечение спутника (при наличии нужной способности)
+COMPANION_EXP_PER_HEAL = int(EXP_PER_HOUR * COMPANIONS_BONUS_EXP_FRACTION / ((COMPANIONS_HEAL_MIN_IN_HOUR+COMPANIONS_HEAL_MAX_IN_HOUR) / 2))
+
+COMPANIONS_HEAL_BONUS = float(0.25) # доля отлечиваемого способностями спутников
+
+# количество лечений в час для спутников с лечебной способностью
+COMPANIONS_REGEN_PER_HOUR = _COMPANIONS_WOUNDS_IN_HOUR * COMPANIONS_HEAL_BONUS
+
+COMPANION_EATEN_CORPSES_PER_BATTLE = COMPANIONS_REGEN_PER_HOUR / BATTLES_PER_HOUR
+COMPANION_REGEN_ON_HEAL_PER_HEAL = COMPANIONS_REGEN_PER_HOUR / ((COMPANIONS_HEAL_MIN_IN_HOUR+COMPANIONS_HEAL_MAX_IN_HOUR) / 2)

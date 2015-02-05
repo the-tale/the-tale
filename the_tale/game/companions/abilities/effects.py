@@ -179,6 +179,45 @@ class CompanionStealItem(Checker):
     TYPE = relations.EFFECT.COMPANION_STEAL_ITEM
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_STEAL_ITEM
 
+class CompanionSpareParts(Checker):
+    TYPE = relations.EFFECT.COMPANION_SPARE_PARTS
+    MODIFIER = heroes_relations.MODIFIERS.COMPANION_SPARE_PARTS
+
+
+class CompanionSayWisdom(Checker):
+    TYPE = relations.EFFECT.COMPANION_EXPERIENCE
+    MODIFIER = heroes_relations.MODIFIERS.COMPANION_SAY_WISDOM
+
+class CompanionExpPerHeal(Checker):
+    TYPE = relations.EFFECT.COMPANION_EXPERIENCE
+    MODIFIER = heroes_relations.MODIFIERS.COMPANION_EXP_PER_HEAL
+
+
+class DoubleEnergyRegeneration(Summand):
+    TYPE = relations.EFFECT.COMPANION_DOUBLE_ENERGY_REGENERATION
+    MODIFIER = heroes_relations.MODIFIERS.DOUBLE_ENERGY_REGENERATION
+
+
+class CompanionEatCorpses(Checker):
+    TYPE = relations.EFFECT.COMPANION_REGENERATION
+    MODIFIER = heroes_relations.MODIFIERS.COMPANION_EAT_CORPSES
+
+class CompanionRegenerate(Checker):
+    TYPE = relations.EFFECT.COMPANION_REGENERATION
+    MODIFIER = heroes_relations.MODIFIERS.COMPANION_REGENERATE
+
+
+class CompanionEat(Multiplier):
+    TYPE = relations.EFFECT.COMPANION_EAT
+    MODIFIER = heroes_relations.MODIFIERS.COMPANION_MONEY_FOR_FOOD
+
+    def _check_attribute(self, modifier):
+        return modifier == self.MODIFIER
+
+
+class CompanionEatDiscount(CompanionEat):
+    TYPE = relations.EFFECT.COMPANION_EAT_DISCOUNT
+
 
 class ABILITIES(DjangoEnum):
     description = Column()
@@ -246,15 +285,35 @@ class ABILITIES(DjangoEnum):
         (u'NOISY', 34, u'шумный', u'так сильно шумит, что привлекает внимание большего количесва врагов', True, BattleProbability(summand=0.05)),
         (u'DEATHY', 35, u'смертельно страшный', u'распугивает чудищ, вероятность встретить врага стремится к нулю', True, BattleProbability(summand=-1)),
 
-        (u'TORTURER', 36, u'терзатель', u'растерзывает врагов в бою так сильно, что уменьшается шанс найти уцелевший лут с мобов', True, LootProbability(multiplier=0.8)),
-        (u'HUNTER', 37, u'охотник', u'увеличивает шанс поднятия лута со всех врагов', False, LootProbability(multiplier=1.2)),
+        (u'SHARP_EYE', 36, u'зоркий глаз', u'издали высматривает врагов, снижая вероятность встречи с ними', True, BattleProbability(summand=0.05)),
 
-        (u'NOT_LIFER', 38, u'не жилец', u'получает дополнительную едину урона', True, CompanionDamage(summand=1)),
-        (u'PUNY', 39, u'тщедушный', u'получает дополнительные 2 единицы урона', True, CompanionDamage(summand=2)),
+        (u'TORTURER', 37, u'терзатель', u'растерзывает врагов в бою так сильно, что уменьшается шанс найти уцелевший лут с мобов', True, LootProbability(multiplier=0.8)),
+        (u'HUNTER', 38, u'охотник', u'увеличивает шанс поднятия лута со всех врагов', False, LootProbability(multiplier=1.2)),
 
-        (u'CAMOUFLAGE', 40, u'камуфляж', u'реже получает урон в бою', False, CompanionDamageProbability(multiplier=0.9)),
-        (u'FLYING', 41, u'летающий', u'значительно реже получает урон в бою', False, CompanionDamageProbability(multiplier=0.8)),
+        (u'NOT_LIFER', 39, u'не жилец', u'получает дополнительную едину урона', True, CompanionDamage(summand=1)),
+        (u'PUNY', 40, u'тщедушный', u'получает дополнительные 2 единицы урона', True, CompanionDamage(summand=2)),
 
-        (u'PICKPOCKET', 42, u'карманник', u'В каждом городе крадёт из карманов горожан немного денег', False, CompanionStealMoney()),
-        (u'ROBBER', 43, u'грабитель', u'В каждом городе крадёт у горожан что-нибудь, возможно артефакт', False, CompanionStealItem()),
+        (u'CAMOUFLAGE', 41, u'камуфляж', u'реже получает урон в бою', False, CompanionDamageProbability(multiplier=0.9)),
+        (u'FLYING', 42, u'летающий', u'значительно реже получает урон в бою', False, CompanionDamageProbability(multiplier=0.8)),
+
+        (u'PICKPOCKET', 43, u'карманник', u'В каждом городе крадёт из карманов горожан немного денег', False, CompanionStealMoney()),
+        (u'ROBBER', 44, u'грабитель', u'В каждом городе крадёт у горожан что-нибудь, возможно артефакт', False, CompanionStealItem()),
+
+        (u'COSTLY', 45, u'дорогой', u'при потере спутника герой получает весьма дорогие запчасти, обращаемые в деньги.', False, CompanionSpareParts()),
+
+        (u'WISE', 46, u'мудрый', u'спутник иногда делится мудростью с героем, давая тому немного опыта.', False, CompanionSayWisdom()),
+        (u'DIFFICULT', 47, u'сложный', u'герой получает опыт каждый раз, когда ухаживает за спутником', False, CompanionExpPerHeal()),
+
+        (u'FAN', 48, u'поклонник', u'возносит хвалу Хранителю вместе с героем, с небольшой вероятностью даёт бонусную энергию', False, DoubleEnergyRegeneration(summand=0.1)),
+        (u'SAN', 49, u'сан', u'возносит хвалу Хранителю вместе с героем, с хорошей вероятностью даёт бонусную энергию', False, DoubleEnergyRegeneration(summand=0.2)),
+
+        (u'EAT_CORPSES', 50, u'пожиратель', u'иногда после боя ест труп врага, пополняя себе хиты. Не ест конструктов, нежить, демонов и стихийных.', False, CompanionEatCorpses()),
+        (u'REGENERATE', 51, u'регенерация', u'во время ухода за спутником может восстановить здоровье', False, CompanionRegenerate()),
+
+        (u'EATER', 52, u'едок', u'при каждом посещении города герой тратит деньги на еду для спутника', True, CompanionEat(multiplier=0.25)),
+        (u'GLUTTONOUS', 53, u'прожорливый', u'при каждом посещении города герой тратит много денег на еду для спутника', True, CompanionEat(multiplier=0.5)),
+        (u'INDEPENDENT', 54, u'самостоятельный', u'может кормиться сам, снижает стоимость кормёжки в 2 раза', False, CompanionEatDiscount(multiplier=0.5)),
+
+        (u'PARAPHERNALIA', 55, u'личные вещи', u'минус 1 место в инвентаре (занятое вещами спутника)', False, MaxBagSize(summand=-1)),
+        (u'SPARE_PARTS', 56, u'запчасти', u'минус 2 места в инвентаре (занятые запчастями для спутника)', False, MaxBagSize(summand=-2)),
     )

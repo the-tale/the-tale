@@ -3,6 +3,7 @@
 import random
 
 from the_tale.game.balance import constants as c
+from the_tale.game.balance import formulas as f
 
 
 from the_tale.common.utils.logic import random_value_by_priority
@@ -216,6 +217,12 @@ def try_companion_block(attacker, defender, messanger):
 
     if defender.companion.is_dead:
         messanger.add_message('companions_killed', diary=True, attacker=attacker, companion_owner=defender, companion=defender.companion)
+
+        if defender.actor.can_companion_broke_to_spare_parts():
+            coins = int(f.normal_action_price(defender.level) * sum(item.price_fraction for item in heroes_relations.ITEMS_OF_EXPENDITURE.records))
+            defender.actor.change_money(heroes_relations.MONEY_SOURCE.EARNED_FROM_COMPANIONS, coins)
+            messanger.add_message('companions_broke_to_spare_parts', diary=True, companion_owner=defender, companion=defender.companion, coins=coins)
+
         defender.remove_companion()
 
     return True

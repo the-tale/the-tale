@@ -5,6 +5,8 @@ from the_tale.common.utils import testcase
 
 from the_tale.game.logic_storage import LogicStorage
 
+from the_tale.game.balance import constants as c
+
 from the_tale.game.companions import storage as companions_storage
 from the_tale.game.companions import logic as companions_logic
 
@@ -104,6 +106,23 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
         self.assertEqual(self.action_heal_companion.state, self.action_heal_companion.STATE.PROCESSED)
 
 
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_exp_per_heal', lambda hero: True)
+    def test_ability_heal_companion__processed_when_healed__exp_per_heal(self):
+
+        self.hero.companion.health -= 1
+
+        with self.check_delta(lambda: self.hero.experience, c.COMPANION_EXP_PER_HEAL):
+            with self.check_increased(lambda: self.hero.companion.health):
+                ability = self.PROCESSOR()
+
+                with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL_COMPANION):
+                    self.assertTrue(ability.use(**self.use_attributes(hero=self.hero, storage=self.storage)))
+
+        self.assertTrue(self.action_heal_companion.percents, 1)
+        self.assertEqual(self.action_heal_companion.state, self.action_heal_companion.STATE.PROCESSED)
+
+
+
     def test_ability_heal_companion__full_action(self):
 
         self.hero.companion.health = 1
@@ -128,5 +147,40 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
 
         self.assertTrue(self.action_idl.leader)
         self.assertEqual(self.hero.companion.health, 1)
+
+        self.storage._test_save()
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_exp_per_heal', lambda hero: True)
+    def test_full__exp_per_heal(self):
+        self.hero.companion.health = 1
+
+        with self.check_delta(lambda: self.hero.experience, c.COMPANION_EXP_PER_HEAL):
+
+            current_time = TimePrototype.get_current_time()
+
+            while len(self.hero.actions.actions_list) != 1:
+                self.storage.process_turn(continue_steps_if_needed=False)
+                current_time.increment_turn()
+
+        self.assertTrue(self.action_idl.leader)
+        self.assertEqual(self.hero.companion.health, 1)
+
+        self.storage._test_save()
+
+
+    @mock.patch('the_tale.game.balance.constants.COMPANION_REGEN_ON_HEAL_PER_HEAL', 1.0)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_regenerate', lambda hero: True)
+    def test_full__regeneration(self):
+        self.hero.companion.health = 1
+
+        current_time = TimePrototype.get_current_time()
+
+        while len(self.hero.actions.actions_list) != 1:
+            self.storage.process_turn(continue_steps_if_needed=False)
+            current_time.increment_turn()
+
+        self.assertTrue(self.action_idl.leader)
+        self.assertEqual(self.hero.companion.health, 1+c.COMPANIONS_HEAL_AMOUNT)
 
         self.storage._test_save()

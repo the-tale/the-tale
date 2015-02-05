@@ -77,6 +77,8 @@ class FormulasTest(testcase.TestCase):
         self.assertEqual(f.companions_heal_length(70, 70), 7)
 
 
+    def test_gold_in_path(self):
+        self.assertEqual(f.gold_in_path(100), 0)
 
 
 # if one of this tests broken, we MUST review appropriate achievements' barriers

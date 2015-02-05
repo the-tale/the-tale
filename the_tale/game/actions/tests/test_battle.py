@@ -1,5 +1,6 @@
 # coding: utf-8
 import random
+import contextlib
 
 import mock
 
@@ -258,6 +259,9 @@ class BattleTests(TestsBase):
         battle.strike(actor_1, actor_2, mock.Mock())
         self.assertEqual(actor_1.health, 1)
 
+
+class TryCompanionBlockTests(TestsBase):
+
     @mock.patch('the_tale.game.actions.battle.try_companion_block', mock.Mock(return_value=True))
     def test_try_companion_block__successed(self):
         actor_1, actor_2 = self.get_actors()
@@ -279,8 +283,6 @@ class BattleTests(TestsBase):
 
         self.assertEqual(strike_without_contact.call_count+strike_with_contact.call_count, 1)
 
-
-class TryCompanionBlockTests(TestsBase):
 
     @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY', 1.0)
@@ -377,6 +379,31 @@ class TryCompanionBlockTests(TestsBase):
         self.assertEqual(self.hero.companion, None)
         self.assertFalse(actor_1.has_companion)
         self.assertTrue(self.hero.messages.messages[-1].key.is_COMPANIONS_KILLED)
+
+
+    @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY', 1.0)
+    @mock.patch('the_tale.game.heroes.messages.JournalContainer.MESSAGES_LOG_LENGTH', 10000)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_broke_to_spare_parts', lambda self: True)
+    def test_killed_on_block__has_spare_parts(self):
+        actor_1, actor_2 = self.get_actors()
+
+        self.set_hero_companion()
+
+        self.assertTrue(actor_1.has_companion)
+        self.assertFalse(actor_2.has_companion)
+
+        with contextlib.nested(
+            self.check_increased(lambda: self.hero.money),
+            self.check_increased(lambda: self.hero.statistics.money_earned_from_companions),
+            self.check_delta(self.hero.diary.__len__, 2)):
+
+            for i in xrange(self.hero.companion.max_health):
+                self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messanger=self.hero))
+
+        self.assertEqual(self.hero.companion, None)
+        self.assertFalse(actor_1.has_companion)
+        self.assertTrue(self.hero.messages.messages[-1].key.is_COMPANIONS_BROKE_TO_SPARE_PARTS)
 
 
 class TryCompanionStrikeTests(TestsBase):

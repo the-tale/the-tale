@@ -85,10 +85,10 @@ KEYS = [(u'ANGEL_ABILITY_ARENA_PVP_1X1', 240000, u'Журнал: Отправк�
 
         (u'ANGEL_ABILITY_HEAL_COMPANION', 240020, u'Журнал: Лечение спутника', LEXICON_GROUP.ANGEL_ABILITY,
         u'Спутник героя восстанавливает здоровье.',
-        [V.ENERGY, V.HERO]),
+        [V.HEALTH, V.HERO, V.COMPANION, V.HEALTH]),
 
         (u'ANGEL_ABILITY_HEAL_COMPANION_CRIT', 240021, u'Журнал: Лечение спутника (критический эффект)', LEXICON_GROUP.ANGEL_ABILITY,
         u'Спутник героя восстанавливает больше здоровья.',
-        [V.ENERGY, V.HERO]),
+        [V.HEALTH, V.HERO, V.COMPANION, V.HEALTH]),
 
         ]

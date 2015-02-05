@@ -67,6 +67,8 @@ class HeroStatistics(object):
                 self.hero._model.stat_money_spend_for_repairing += value
             elif source.is_SPEND_FOR_TAX:
                 self.hero._model.stat_money_spend_for_tax += value
+            elif source.is_SPEND_FOR_COMPANIONS:
+                self.hero._model.stat_money_spend_for_companions += value
 
             else:
                 raise exceptions.UnknownMoneySourceError(source=source)
@@ -88,7 +90,8 @@ class HeroStatistics(object):
                                    self.money_spend_for_sharpening +
                                    self.money_spend_for_experience +
                                    self.money_spend_for_repairing +
-                                   self.money_spend_for_tax)
+                                   self.money_spend_for_tax +
+                                   self.money_spend_for_companions)
 
     @property
     def money_earned_from_loot(self): return self.hero._model.stat_money_earned_from_loot
@@ -132,6 +135,9 @@ class HeroStatistics(object):
 
     @property
     def money_spend_for_tax(self): return self.hero._model.stat_money_spend_for_tax
+
+    @property
+    def money_spend_for_companions(self): return self.hero._model.stat_money_spend_for_companions
 
     #########################################
     # different values
@@ -210,6 +216,9 @@ class HeroStatistics(object):
                  self.money_earned_from_loot == other.money_earned_from_loot and
                  self.money_earned_from_artifacts == other.money_earned_from_artifacts and
                  self.money_earned_from_quests == other.money_earned_from_quests and
+                 self.money_earned_from_help == other.money_earned_from_help and
+                 self.money_earned_from_habits == other.money_earned_from_habits and
+                 self.money_earned_from_companions == other.money_earned_from_companions and
                  self.money_spend_for_heal == other.money_spend_for_heal and
                  self.money_spend_for_artifacts == other.money_spend_for_artifacts and
                  self.money_spend_for_sharpening == other.money_spend_for_sharpening and
@@ -218,6 +227,7 @@ class HeroStatistics(object):
                  self.money_spend_for_experience == other.money_spend_for_experience and
                  self.money_spend_for_repairing == other.money_spend_for_repairing and
                  self.money_spend_for_tax == other.money_spend_for_tax and
+                 self.money_spend_for_companions == other.money_spend_for_companions and
                  self.artifacts_had == other.artifacts_had and
                  self.loot_had == other.loot_had and
                  self.quests_done == other.quests_done )

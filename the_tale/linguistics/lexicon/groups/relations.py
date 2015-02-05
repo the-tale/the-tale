@@ -61,7 +61,7 @@ class LEXICON_GROUP(DjangoEnum):
 
                ('ANGEL_ABILITY', 12, u'Способности: Хранитель', 120000,
                u'Описание результата использование способностей игрока',
-               {V.HERO: u'герой', V.DROPPED_ITEM: u'выкидываемый предмет', V.ENERGY: u'энергия', V.COINS: u'количество монет', V.EXPERIENCE: u'количество опыта', V.HEALTH: u'количество здоровья', V.MOB: u'монстр'}),
+               {V.HERO: u'герой', V.DROPPED_ITEM: u'выкидываемый предмет', V.ENERGY: u'энергия', V.COINS: u'количество монет', V.EXPERIENCE: u'количество опыта', V.HEALTH: u'количество здоровья', V.MOB: u'монстр', V.COMPANION: u'спутник'}),
 
                ('CHRONICLE', 13, u'Летопись', 130000,
                u'Фразы, употребляющиеся в летописи.',
@@ -129,10 +129,9 @@ class LEXICON_GROUP(DjangoEnum):
 
                ('COMPANIONS', 29, u'Спутники', 290000,
                u'Тексты, относящиеся к спутникам.',
-               {V.COMPANION_OWNER: u'владелец спутника', V.COMPANION: u'спутник', V.ATTACKER: u'атакущий спутника'}),
+               {V.COMPANION_OWNER: u'владелец спутника', V.COMPANION: u'спутник', V.ATTACKER: u'атакущий спутника', V.COINS: u'вырученные средства', V.EXPERIENCE: u'опыт'}),
 
                ('ACTION_HEAL_COMPANION', 30, u'Действие: уход за спутником', 300000,
                u'Герой ухаживает за спутником (обрабатывает раны, смазывает детальки, чистит карму, в зависимости от спутника).',
-               {V.COMPANION_OWNER: u'владелец спутника', V.COMPANION: u'спутник'}),
-
+               {V.COMPANION_OWNER: u'владелец спутника', V.COMPANION: u'спутник', V.HEALTH: u'количество здоровья'}),
                )

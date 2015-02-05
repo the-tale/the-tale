@@ -774,10 +774,14 @@ class ActionMoveToPrototype(ActionBase):
 
     def normal_move(self):
 
-        if random.uniform(0, 1) < c.HABIT_MOVE_EVENTS_IN_TURN:
+        if self.hero.companion and self.hero.can_companion_say_wisdom() and random.random() < c.COMPANION_EXP_PER_MOVE_PROBABILITY:
+            self.hero.add_experience(c.COMPANION_EXP_PER_MOVE_GET_EXP, without_modifications=True)
+            self.hero.add_message('companions_say_wisdom', companion_owner=self.hero, companion=self.hero.companion, experience=c.COMPANION_EXP_PER_MOVE_GET_EXP)
+
+        elif random.uniform(0, 1) < c.HABIT_MOVE_EVENTS_IN_TURN:
             self.do_events()
 
-        if random.uniform(0, 1) < 0.33:
+        elif random.uniform(0, 1) < 0.33:
             if self.destination.id != self.current_destination.id and random.uniform(0, 1) < 0.04: # TODO: change probability, when there are move phrases
                 self.hero.add_message('action_moveto_move_long_path',
                                       hero=self.hero,
@@ -998,6 +1002,15 @@ class ActionBattlePvE1x1Prototype(ActionBase):
             real_experience = self.hero.add_experience(raw_experience)
             self.hero.add_message('action_battlepve1x1_exp_for_kill', hero=self.hero, mob=self.mob, diary=True, experience=real_experience)
 
+        if (self.hero.companion and
+            self.hero.companion.health < self.hero.companion.max_health and
+            self.hero.can_companion_eat_corpses() and
+            self.mob.mob_type.is_eatable and
+            random.random() < c.COMPANION_EATEN_CORPSES_PER_BATTLE):
+            self.hero.companion.health += c.COMPANIONS_HEAL_AMOUNT
+            self.hero.add_message('companions_eat_corpse', companion_owner=self.hero, companion=self.hero.companion, health=c.COMPANIONS_HEAL_AMOUNT)
+
+
     def process_artifact_breaking(self):
 
         self.hero.damage_integrity()
@@ -1153,6 +1166,16 @@ class ActionInPlacePrototype(ActionBase):
             else:
                 hero.add_message('action_inplace_habit_event_peacefulness_%s' % hero.position.place.habit_peacefulness.interval.name.lower(),
                                  hero=hero, place=hero.position.place, diary=True)
+
+        if ( hero.companion and
+             hero.can_companion_eat() and
+             hero.position.place != hero.position.previous_place and
+             hero.position.previous_place is not None):
+            waymark = waymarks_storage.look_for_road(point_from=hero.position.previous_place.id, point_to=hero.position.place)
+            coins = min(hero.money, int(f.gold_in_path(hero.level, waymark.length) * hero.companion_money_for_food_multiplier))
+            if coins > 0:
+                hero.change_money(MONEY_SOURCE.SPEND_FOR_COMPANIONS, -coins)
+                hero.add_message('action_inplace_companion_money_for_food', hero=hero, place=hero.position.place, companion=hero.companion, coins=coins)
 
         hero.position.visit_current_place()
 
@@ -1588,6 +1611,7 @@ class ActionMoveNearPlacePrototype(ActionBase):
 
     def process_moving(self):
 
+
         if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
             ActionRegenerateEnergyPrototype.create(hero=self.hero)
             self.state = self.STATE.REGENERATE_ENERGY
@@ -1598,8 +1622,14 @@ class ActionMoveNearPlacePrototype(ActionBase):
             self.state = self.STATE.BATTLE
 
         else:
-            if random.uniform(0, 1) < 0.2:
+
+            if self.hero.companion and self.hero.can_companion_say_wisdom() and random.random() < c.COMPANION_EXP_PER_MOVE_PROBABILITY:
+                self.hero.add_experience(c.COMPANION_EXP_PER_MOVE_GET_EXP, without_modifications=True)
+                self.hero.add_message('companions_say_wisdom', companion_owner=self.hero, companion=self.hero.companion, experience=c.COMPANION_EXP_PER_MOVE_GET_EXP)
+
+            elif random.uniform(0, 1) < 0.25:
                 self.hero.add_message('action_movenearplace_walk', hero=self.hero, place=self.place)
+
 
             if self.hero.position.subroad_len() == 0:
                 self.hero.position.percents += 0.1
@@ -1825,6 +1855,20 @@ class ActionHealCompanionPrototype(ActionBase):
         hero.add_message('action_heal_companion_start', hero=hero, companion=hero.companion)
         return prototype
 
+    def after_processed(self):
+        if self.hero.companion is None:
+            return
+
+        if self.hero.can_companion_exp_per_heal():
+            self.hero.add_experience(c.COMPANION_EXP_PER_HEAL, without_modifications=True)
+
+        if (self.hero.companion.health < self.hero.companion.max_health and
+            self.hero.can_companion_regenerate() and
+            random.random() < c.COMPANION_REGEN_ON_HEAL_PER_HEAL):
+            self.hero.companion.health += c.COMPANIONS_HEAL_AMOUNT
+            self.hero.add_message('companions_regenerate', companion_owner=self.hero, companion=self.hero.companion, health=c.COMPANIONS_HEAL_AMOUNT)
+
+
     def on_heal_companion(self):
         if self.hero.companion is None:
             self.state = self.STATE.PROCESSED
@@ -1846,11 +1890,9 @@ class ActionHealCompanionPrototype(ActionBase):
             self.state = self.STATE.PROCESSED
             return
 
-
         if self.hero.companion.health >= self.hero.companion.max_health:
             self.hero.companion.health = self.hero.companion.max_health
             self.state = self.STATE.PROCESSED
-
 
         if self.state == self.STATE.HEALING:
 
@@ -1864,6 +1906,11 @@ class ActionHealCompanionPrototype(ActionBase):
             if self.percents >= 1.0:
                 self.percents = 1
                 self.state = self.STATE.PROCESSED
+
+        if self.state == self.STATE.PROCESSED:
+            self.after_processed()
+
+
 
 
 

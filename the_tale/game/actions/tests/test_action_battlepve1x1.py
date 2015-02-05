@@ -18,12 +18,18 @@ from the_tale.game.balance.power import Power
 from the_tale.game.relations import HABIT_HONOR_INTERVAL, HABIT_PEACEFULNESS_INTERVAL
 
 from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.mobs import relations as mobs_relations
 
 from the_tale.game.logic import create_test_map
 from the_tale.game.actions.prototypes import ActionBattlePvE1x1Prototype
 from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.abilities.relations import HELP_CHOICES
+
+from the_tale.game.companions.abilities import effects
+from the_tale.game.companions.abilities import container
+from the_tale.game.companions.abilities.relations import EFFECT
+
 
 
 class BattlePvE1x1ActionTest(testcase.TestCase):
@@ -40,6 +46,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.hero = self.storage.accounts_to_heroes[account_id]
 
         self.hero._model.level = 66
+        self.hero.health = self.hero.max_health
 
         # do half of tests with companion
         if random.random() < 0.5:
@@ -124,10 +131,6 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
 
     def test_full_battle__with_companion(self):
-        from the_tale.game.companions.abilities import effects
-        from the_tale.game.companions.abilities import container
-        from the_tale.game.companions.abilities.relations import EFFECT
-
         battle_ability = random.choice([ability for ability in effects.ABILITIES.records if ability.effect.TYPE == EFFECT.BATTLE_ABILITY])
         companion_record = companions_storage.companions.enabled_companions().next()
         companion_record.abilities = container.Container(start=(battle_ability,))
@@ -144,6 +147,29 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
             current_time.increment_turn()
 
         self.assertTrue(self.action_idl.leader)
+
+        self.storage._test_save()
+
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY', 0)
+    @mock.patch('the_tale.game.balance.constants.COMPANION_EATEN_CORPSES_PER_BATTLE', 1.0)
+    @mock.patch('the_tale.game.mobs.prototypes.MobPrototype.mob_type', mobs_relations.MOB_TYPE.ANIMAL)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_eat_corpses', lambda hero: True)
+    def test_full_battle__with_companion__eat_corpse(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+        self.hero.reset_accessors_cache()
+
+        self.hero.companion.health = 1
+
+        current_time = TimePrototype.get_current_time()
+
+        while self.hero.actions.current_action.TYPE == ActionBattlePvE1x1Prototype.TYPE:
+            self.storage.process_turn(continue_steps_if_needed=False)
+            current_time.increment_turn()
+
+        self.storage.process_turn(continue_steps_if_needed=False)
+
+        self.assertEqual(self.hero.companion.health, 1 + c.COMPANIONS_HEAL_AMOUNT)
 
         self.storage._test_save()
 

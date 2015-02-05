@@ -351,6 +351,26 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.assertEqual(self.action_move.percents, 1)
 
 
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_say_wisdom', lambda hero: True)
+    @mock.patch('the_tale.game.balance.constants.COMPANION_EXP_PER_MOVE_PROBABILITY', 1.0)
+    def test_companion_say_wisdom(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+
+        self.storage.process_turn(continue_steps_if_needed=False)
+
+        self.assertEqual(self.action_move.state, self.action_move.STATE.MOVING)
+
+        with self.check_delta(lambda: self.hero.experience, c.COMPANION_EXP_PER_MOVE_GET_EXP):
+            self.storage.process_turn(continue_steps_if_needed=False)
+
+        self.assertTrue(self.hero.messages.messages[-1].key.is_COMPANIONS_SAY_WISDOM)
+
+        self.storage._test_save()
+
+
+
 @mock.patch('the_tale.game.balance.constants.PICKED_UP_IN_ROAD_PROBABILITY', 0)
 class MoveToActionWithBreaksTest(testcase.TestCase):
 

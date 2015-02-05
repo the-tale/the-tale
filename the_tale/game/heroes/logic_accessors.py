@@ -121,6 +121,25 @@ class LogicAccessorsMixin(object):
     def can_companion_steal_item(self):
         return self.check_attribute(relations.MODIFIERS.COMPANION_STEAL_ITEM)
 
+    def can_companion_broke_to_spare_parts(self):
+        return self.check_attribute(relations.MODIFIERS.COMPANION_SPARE_PARTS)
+
+    def can_companion_say_wisdom(self):
+        return self.check_attribute(relations.MODIFIERS.COMPANION_SAY_WISDOM)
+
+    def can_companion_exp_per_heal(self):
+        return self.check_attribute(relations.MODIFIERS.COMPANION_EXP_PER_HEAL)
+
+    def can_companion_eat_corpses(self):
+        return self.check_attribute(relations.MODIFIERS.COMPANION_EAT_CORPSES)
+
+    def can_companion_regenerate(self):
+        return self.check_attribute(relations.MODIFIERS.COMPANION_REGENERATE)
+
+    def can_companion_eat(self):
+        return self.check_attribute(relations.MODIFIERS.COMPANION_MONEY_FOR_FOOD)
+
+
     def can_kill_before_battle(self):
         return self.check_attribute(relations.MODIFIERS.KILL_BEFORE_BATTLE)
 
@@ -332,6 +351,10 @@ class LogicAccessorsMixin(object):
     @property
     def companion_damage_probability(self):
         return self.attribute_modifier(relations.MODIFIERS.COMPANION_DAMAGE_PROBABILITY)
+
+    @property
+    def companion_money_for_food_multiplier(self):
+        return self.attribute_modifier(relations.MODIFIERS.COMPANION_MONEY_FOR_FOOD)
 
     def habit_events(self):
         return self.attribute_modifier(relations.MODIFIERS.HONOR_EVENTS)
