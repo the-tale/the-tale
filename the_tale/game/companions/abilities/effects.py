@@ -214,9 +214,58 @@ class CompanionEat(Multiplier):
     def _check_attribute(self, modifier):
         return modifier == self.MODIFIER
 
-
 class CompanionEatDiscount(CompanionEat):
     TYPE = relations.EFFECT.COMPANION_EAT_DISCOUNT
+
+
+class CompanionDrinkArtifact(Checker):
+    TYPE = relations.EFFECT.COMPANION_DRINK_ARTIFACT
+    MODIFIER = heroes_relations.MODIFIERS.COMPANION_DRINK_ARTIFACT
+
+
+class CompanionExorcist(Checker):
+    TYPE = relations.EFFECT.COMPANION_EXORCIST
+    MODIFIER = heroes_relations.MODIFIERS.COMPANION_EXORCIST
+
+
+class RestLenght(Multiplier):
+    TYPE = relations.EFFECT.REST_LENGTH
+    MODIFIER = heroes_relations.MODIFIERS.REST_LENGTH
+
+
+class IDLELenght(Multiplier):
+    TYPE = relations.EFFECT.IDLE_LENGTH
+    MODIFIER = heroes_relations.MODIFIERS.IDLE_LENGTH
+
+
+class CompanionBlockProbability(Multiplier):
+    TYPE = relations.EFFECT.COMPANION_BLOCK_PROBABILITY
+    MODIFIER = heroes_relations.MODIFIERS.COMPANION_BLOCK_PROBABILITY
+
+
+class Huckster(Multiplier):
+    TYPE = relations.EFFECT.HUCKSTER
+
+    def __init__(self, buy_multiplier, sell_multiplier):
+        super(Multiplier, self).__init__()
+        self.buy_multiplier = buy_multiplier
+        self.sell_multiplier = sell_multiplier
+
+    def _modify_attribute(self, modifier, value):
+        if modifier.is_BUY_PRICE:
+            return value * self.buy_multiplier
+
+        if modifier.is_SELL_PRICE:
+            # +1 for increase price on low levels
+            return value * self.sell_multiplier + 1
+
+        return value
+
+
+class EtherealMagnet(Summand):
+    TYPE = relations.EFFECT.MIGHT_CRIT_CHANCE
+    MODIFIER = heroes_relations.MODIFIERS.MIGHT_CRIT_CHANCE
+
 
 
 class ABILITIES(DjangoEnum):
@@ -316,4 +365,22 @@ class ABILITIES(DjangoEnum):
 
         (u'PARAPHERNALIA', 55, u'личные вещи', u'минус 1 место в инвентаре (занятое вещами спутника)', False, MaxBagSize(summand=-1)),
         (u'SPARE_PARTS', 56, u'запчасти', u'минус 2 места в инвентаре (занятые запчастями для спутника)', False, MaxBagSize(summand=-2)),
+
+        (u'DRINKER', 57, u'пьяница', u'спутник пропивает артефакт при посещении героем города', True, CompanionDrinkArtifact()),
+
+        (u'EXORCIST', 58, u'экзорцист', u'спутник изгоняет встречных демонов', False, CompanionExorcist()),
+
+        (u'HEALER', 59, u'лекарь', u'ускоряет лечение героя на отдыхе', False, RestLenght(multiplier=0.5)),
+
+        (u'INSPIRATION', 60, u'воодушевление', u'воодушевляет героя на подвиги, снижая время бездействия между заданиями', False, IDLELenght(multiplier=0.5)),
+        (u'LAZY', 61, u'ленивый', u'увеличивает время бездействия между заданиями', True, IDLELenght(multiplier=2.0)),
+
+        (u'COWARDLY', 62, u'трусливый', u'реже защищает героя в бою', False, CompanionBlockProbability(multiplier=0.75)),
+        (u'BODYGUARD', 63, u'телохранитель', u'чаще защищает героя в бою', False, CompanionBlockProbability(multiplier=1.25)),
+
+        (u'HUCKSTER', 64, u'торгаш', u'бонус к ценам продажи и покупки', False, Huckster(buy_multiplier=0.8, sell_multiplier=1.2)),
+
+        (u'CONTACT', 65, u'связной', u'увеличивает шанс критической помощи хранителя', False, EtherealMagnet(summand=0.1)),
     )
+
+EtherealMagnet

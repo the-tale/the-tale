@@ -13,7 +13,7 @@ class LEXICON_GROUP(DjangoEnum):
 
     records = (('ACTION_BATTLEPVE1X1', 0, u'Действие: сражение с монстром', 0,
                u'Описание событий, происходящих при сражении с монстрами.',
-               {V.HERO: u'герой', V.ACTOR: u'герой или монстр', V.DAMAGE: u'количество урона', V.EXPERIENCE: u'опыт', V.ARTIFACT: u'предмет', V.MOB: u'монстр'}),
+               {V.HERO: u'герой', V.ACTOR: u'герой или монстр', V.DAMAGE: u'количество урона', V.EXPERIENCE: u'опыт', V.ARTIFACT: u'предмет', V.MOB: u'монстр', V.COMPANION: u'спутник'}),
 
                ('ACTION_EQUIPPING', 1, u'Действие: экипировка', 10000,
                u'Описание событий во время изменения экипировки героя.',

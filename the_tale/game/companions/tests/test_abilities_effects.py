@@ -514,3 +514,106 @@ class CompanionEatAndDiscountTest(BaseEffectsTests):
         with self.check_changed(lambda: self.hero.can_companion_eat()):
             with self.check_changed(lambda: self.hero.companion_money_for_food_multiplier):
                 self.apply_ability(ability)
+
+
+class CompanionDrinkArtifactTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.CompanionDrinkArtifact()
+        self.assertTrue(effect._check_attribute(MODIFIERS.COMPANION_DRINK_ARTIFACT))
+        self.assertFalse(effect._check_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_DRINK_ARTIFACT,))))
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.CompanionDrinkArtifact)
+
+        with self.check_changed(lambda: self.hero.can_companion_drink_artifact()):
+            self.apply_ability(ability)
+
+
+
+class CompanionExorcistTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.CompanionExorcist()
+        self.assertTrue(effect._check_attribute(MODIFIERS.COMPANION_EXORCIST))
+        self.assertFalse(effect._check_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_EXORCIST,))))
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.CompanionExorcist)
+
+        with self.check_changed(lambda: self.hero.can_companion_do_exorcism()):
+            self.apply_ability(ability)
+
+
+class RestLenghtTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.RestLenght(multiplier=3)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.REST_LENGTH, 12), 36)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.REST_LENGTH,)), 11), 11)
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.RestLenght)
+
+        with self.check_changed(lambda: self.hero.rest_length):
+            self.apply_ability(ability)
+
+
+
+class IDLELenghtTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.IDLELenght(multiplier=3)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.IDLE_LENGTH, 12), 36)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.IDLE_LENGTH,)), 11), 11)
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.IDLELenght)
+
+        with self.check_changed(lambda: self.hero.idle_length):
+            self.apply_ability(ability)
+
+
+class CompanionBlockProbabilityTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.CompanionBlockProbability(multiplier=3)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.COMPANION_BLOCK_PROBABILITY, 12), 36)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_BLOCK_PROBABILITY, )), 11), 11)
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.CompanionBlockProbability)
+
+        with self.check_changed(lambda: self.hero.companion_block_probability_multiplier):
+            self.apply_ability(ability)
+
+
+class HucksterTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.Huckster(buy_multiplier=3, sell_multiplier=2)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.BUY_PRICE, 12), 36)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.BUY_PRICE, MODIFIERS.SELL_PRICE)), 11), 11)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.SELL_PRICE, 12), 25)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.BUY_PRICE, MODIFIERS.SELL_PRICE)), 11), 11)
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.Huckster)
+
+        with self.check_changed(lambda: self.hero.modify_buy_price(100)):
+            with self.check_changed(lambda: self.hero.modify_sell_price(100)):
+                self.apply_ability(ability)
+
+
+class EtherealMagnetTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.EtherealMagnet(summand=0.1)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.MIGHT_CRIT_CHANCE, 0), 0.1)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.MIGHT_CRIT_CHANCE,)), 11), 11)
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.EtherealMagnet)
+
+        with self.check_changed(lambda: self.hero.might_crit_chance):
+            self.apply_ability(ability)

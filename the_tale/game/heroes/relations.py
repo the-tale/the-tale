@@ -183,7 +183,10 @@ class MODIFIERS(DjangoEnum):
                 ('COMPANION_EAT_CORPSES', 56, u'спутник восстанавливает здоровье, поедая трупы враго', lambda: False),
                 ('COMPANION_REGENERATE', 57, u'спутник восстанавливает здоровье, после ухода за ним героя', lambda: False),
                 ('COMPANION_MONEY_FOR_FOOD', 58, u'множитель денег, которые тратятся на еду для спутника', lambda: 1.0),
-            )
+                ('COMPANION_DRINK_ARTIFACT', 59, u'спутник пропивает артефакты', lambda: False),
+                ('COMPANION_EXORCIST', 60, u'спутник является экзорцистом', lambda: False),
+                ('COMPANION_BLOCK_PROBABILITY', 61, u'вероятность, что спутник заблокирует удар врага', lambda: 1.0),
+                )
 
 
 class HABIT_CHANGE_SOURCE(DjangoEnum):

@@ -139,6 +139,12 @@ class LogicAccessorsMixin(object):
     def can_companion_eat(self):
         return self.check_attribute(relations.MODIFIERS.COMPANION_MONEY_FOR_FOOD)
 
+    def can_companion_drink_artifact(self):
+        return self.check_attribute(relations.MODIFIERS.COMPANION_DRINK_ARTIFACT)
+
+    def can_companion_do_exorcism(self):
+        return self.check_attribute(relations.MODIFIERS.COMPANION_EXORCIST)
+
 
     def can_kill_before_battle(self):
         return self.check_attribute(relations.MODIFIERS.KILL_BEFORE_BATTLE)
@@ -351,6 +357,10 @@ class LogicAccessorsMixin(object):
     @property
     def companion_damage_probability(self):
         return self.attribute_modifier(relations.MODIFIERS.COMPANION_DAMAGE_PROBABILITY)
+
+    @property
+    def companion_block_probability_multiplier(self):
+        return self.attribute_modifier(relations.MODIFIERS.COMPANION_BLOCK_PROBABILITY)
 
     @property
     def companion_money_for_food_multiplier(self):

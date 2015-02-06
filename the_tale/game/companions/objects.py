@@ -62,7 +62,10 @@ class Companion(object):
 
     @property
     def defend_in_battle_probability(self):
-        return self.record.dedication.block_multiplier * self._hero.preferences.companion_dedication.block_multiplier * f.companions_defend_in_battle_probability(self.coherence)
+        return (self.record.dedication.block_multiplier *
+                self._hero.preferences.companion_dedication.block_multiplier *
+                f.companions_defend_in_battle_probability(self.coherence) *
+                self._hero.companion_block_probability_multiplier)
 
     @property
     def max_health(self): return self.record.max_health

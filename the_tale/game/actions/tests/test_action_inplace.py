@@ -702,8 +702,6 @@ class InPlaceActionCompanionBuyMealTests(testcase.TestCase):
                 ):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_money_for_food_multiplier', 0.5)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_eat', lambda hero: True)
     def check_not_used(self):
         with contextlib.nested(
                 self.check_not_changed(lambda: self.hero.money),
@@ -745,7 +743,73 @@ class InPlaceActionCompanionBuyMealTests(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_money_for_food_multiplier', 0.5)
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_eat', lambda hero: False)
     def test_companion_does_not_eat(self):
+        self.check_not_used()
+
+
+class InPlaceActionCompanionDrinkArtifactTests(testcase.TestCase):
+
+    def setUp(self):
+        super(InPlaceActionCompanionDrinkArtifactTests, self).setUp()
+        self.place_1, self.place_2, self.place_3 = create_test_map()
+
+        self.account = self.accounts_factory.create_account()
+
+        self.storage = LogicStorage()
+        self.storage.load_account_data(self.account)
+        self.hero = self.storage.accounts_to_heroes[self.account.id]
+
+        self.action_idl = self.hero.actions.current_action
+
+        self.companion_record = companions_logic.create_random_companion_record('thief', state=companions_relations.STATE.ENABLED)
+        self.hero.set_companion(companions_logic.create_companion(self.companion_record))
+
+        self.hero._model.money = f.expected_gold_in_day(self.hero.level)
+
+        self.hero.position.set_place(self.place_1)
         self.hero.position.visit_current_place()
+        self.hero.position.set_place(self.place_2)
+
+        self.artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 1, rarity=RARITY.NORMAL)
+        self.hero.put_loot(self.artifact)
+
+        self.assertEqual(self.hero.bag.occupation, 1)
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_drink_artifact', lambda hero: True)
+    def test_dring_artifact(self):
+        with contextlib.nested(
+                self.check_decreased(lambda: self.hero.bag.occupation),
+                self.check_increased(lambda: len(self.hero.messages))
+                ):
+            prototypes.ActionInPlacePrototype.create(hero=self.hero)
+
+        self.assertTrue(self.hero.messages.messages[-1].key.is_ACTION_INPLACE_JOURNAL_COMPANION_DRINK_ARTIFACT)
+
+
+    def check_not_used(self):
+        with contextlib.nested(
+                self.check_not_changed(lambda: self.hero.bag.occupation),
+                self.check_not_changed(lambda: len(self.hero.messages))
+                ):
+            prototypes.ActionInPlacePrototype.create(hero=self.hero)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_drink_artifact', lambda hero: True)
+    def test_no_previouse_place(self):
+        self.hero._model.pos_previous_place = None
+        self.check_not_used()
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_drink_artifact', lambda hero: True)
+    def test_previouse_place_is_equal(self):
+        self.hero.position.visit_current_place()
+        self.check_not_used()
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_drink_artifact', lambda hero: True)
+    def test_no_items(self):
+        self.hero.pop_loot(self.artifact)
+        self.check_not_used()
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_drink_artifact', lambda hero: False)
+    def test_companion_does_not_eat(self):
         self.check_not_used()
 
 

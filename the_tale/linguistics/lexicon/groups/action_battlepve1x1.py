@@ -67,4 +67,8 @@ KEYS = [(u'ACTION_BATTLEPVE1X1_ARTIFACT_BROKEN', 0, u'Дневник: Артеф
         u'Встреча с противником.',
         [V.MOB, V.HERO]),
 
+        (u'ACTION_BATTLEPVE1X1_COMPANION_DO_EXSORCIMS', 16, u'Журнал: спутник героя изгоняет демона', LEXICON_GROUP.ACTION_BATTLEPVE1X1,
+        u'Спутник героя изгоняет демона, завершая бой',
+        [V.MOB, V.HERO, V.COMPANION]),
+
         ]

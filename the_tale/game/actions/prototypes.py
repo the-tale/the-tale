@@ -912,11 +912,15 @@ class ActionBattlePvE1x1Prototype(ActionBase):
         kill_before_battle = hero.can_kill_before_battle()
         can_peacefull_battle = hero.can_peacefull_battle(mob.mob_type)
         can_leave_battle_in_fear = hero.can_leave_battle_in_fear()
+        companions_is_exorcist = hero.companion and hero.can_companion_do_exorcism
+
+        instant_kill_mob = False
 
         if kill_before_battle:
             percents = 1.0
             state = cls.STATE.PROCESSED
             hero.add_message('action_battlepve1x1_kill_before_start', hero=hero, mob=mob)
+            instant_kill_mob = True
         elif can_peacefull_battle:
             percents = 1.0
             state = cls.STATE.PROCESSED
@@ -925,6 +929,11 @@ class ActionBattlePvE1x1Prototype(ActionBase):
             percents = 1.0
             state = cls.STATE.PROCESSED
             hero.add_message('action_battlepve1x1_leave_battle_in_fear', hero=hero, mob=mob)
+        elif companions_is_exorcist and mob.mob_type.is_DEMON:
+            percents = 1.0
+            state = cls.STATE.PROCESSED
+            hero.add_message('action_battlepve1x1_companion_do_exorcims', hero=hero, mob=mob, companion=hero.companion)
+            instant_kill_mob = True
         else:
             percents = 0.0
             state = cls.STATE.BATTLE_RUNNING
@@ -938,7 +947,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
                          percents=percents,
                          state=state)
 
-        if kill_before_battle:
+        if instant_kill_mob:
             prototype._kill_mob()
 
         return prototype
@@ -1166,16 +1175,21 @@ class ActionInPlacePrototype(ActionBase):
             else:
                 hero.add_message('action_inplace_habit_event_peacefulness_%s' % hero.position.place.habit_peacefulness.interval.name.lower(),
                                  hero=hero, place=hero.position.place, diary=True)
+        if hero.companion and hero.position.place != hero.position.previous_place and hero.position.previous_place is not None:
 
-        if ( hero.companion and
-             hero.can_companion_eat() and
-             hero.position.place != hero.position.previous_place and
-             hero.position.previous_place is not None):
-            waymark = waymarks_storage.look_for_road(point_from=hero.position.previous_place.id, point_to=hero.position.place)
-            coins = min(hero.money, int(f.gold_in_path(hero.level, waymark.length) * hero.companion_money_for_food_multiplier))
-            if coins > 0:
-                hero.change_money(MONEY_SOURCE.SPEND_FOR_COMPANIONS, -coins)
-                hero.add_message('action_inplace_companion_money_for_food', hero=hero, place=hero.position.place, companion=hero.companion, coins=coins)
+            if hero.can_companion_eat():
+                waymark = waymarks_storage.look_for_road(point_from=hero.position.previous_place.id, point_to=hero.position.place)
+                coins = min(hero.money, int(f.gold_in_path(hero.level, waymark.length) * hero.companion_money_for_food_multiplier))
+
+                if coins > 0:
+                    hero.change_money(MONEY_SOURCE.SPEND_FOR_COMPANIONS, -coins)
+                    hero.add_message('action_inplace_companion_money_for_food', hero=hero, place=hero.position.place, companion=hero.companion, coins=coins)
+
+            if not hero.bag.is_empty and hero.can_companion_drink_artifact():
+                artifact = random.choice(hero.bag.values())
+                hero.pop_loot(artifact)
+                hero.add_message('action_inplace_journal_companion_drink_artifact', hero=hero, place=hero.position.place, artifact=artifact, companion=hero.companion)
+
 
         hero.position.visit_current_place()
 
