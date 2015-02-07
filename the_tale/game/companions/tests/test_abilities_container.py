@@ -135,23 +135,6 @@ class ContainerTests(testcase.TestCase):
         self.assertEqual(len(context_2), result)
 
 
-    def test_update_context(self):
-        with mock.patch('the_tale.game.companions.abilities.effects.Base.update_context', lambda self, context_1, context_2: (context_1.append(1), context_2.append(1))):
-            self.check_context(self.container_1, 100, 4)
-            self.check_context(self.container_1, 66, 4)
-            self.check_context(self.container_1, 50, 3)
-            self.check_context(self.container_1, 33, 3)
-            self.check_context(self.container_1, 32, 2)
-            self.check_context(self.container_1, 9, 2)
-
-            self.check_context(self.container_2, 100, 7)
-            self.check_context(self.container_2, 75, 7)
-            self.check_context(self.container_2, 50, 6)
-            self.check_context(self.container_2, 25, 5)
-            self.check_context(self.container_2, 24, 4)
-            self.check_context(self.container_2, 0, 4)
-
-
     def check_attribute(self):
         with mock.patch('the_tale.game.companions.abilities.effects.Base.check_attribute', lambda self, modifier: True):
             self.assertEqual(self.container_1.modify_attribute(100, None), True)

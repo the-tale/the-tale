@@ -15,7 +15,6 @@ from the_tale.game import relations as game_relations
 from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.heroes import relations as heroes_relations
-from the_tale.game.heroes.habilities import battle as battle_abilities
 
 from the_tale.game.companions import logic
 from the_tale.game.companions import relations
@@ -60,8 +59,10 @@ class BaseEffectsTests(testcase.TestCase):
         self.companion_record.abilities = container
         self.hero.reset_accessors_cache()
 
-    def get_ability(self, effect):
-        return random.choice([ability for ability in effects.ABILITIES.records if isinstance(ability.effect, effect)])
+    def get_ability(self, *argv):
+        return random.choice([ability
+                              for ability in effects.ABILITIES.records
+                              if any(isinstance(ability.effect, effect) for effect in argv)])
 
 
 
@@ -299,13 +300,17 @@ class SpeedTests(BaseEffectsTests):
 class BattleAbilityTests(BaseEffectsTests):
 
     def test_effect(self):
-        effect = effects.BattleAbility(ability=battle_abilities.FIREBALL)
-        self.assertEqual(effect._modify_attribute(MODIFIERS.INITIATIVE, 10), 11)
+        effect = effects.BattleAbilityFireball()
+        self.assertEqual(effect._modify_attribute(MODIFIERS.INITIATIVE, 10), 10.5)
         self.assertEqual(effect._modify_attribute(MODIFIERS.ADDITIONAL_ABILITIES, []), [effect.ability])
         self.assertEqual(effect._modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.INITIATIVE, MODIFIERS.ADDITIONAL_ABILITIES)), 11), 11)
 
     def test_in_game(self):
-        ability = self.get_ability(effects.BattleAbility)
+        ability = self.get_ability(effects.BattleAbilityHit,
+                                   effects.BattleAbilityStrongHit,
+                                   effects.BattleAbilityRunUpPush,
+                                   effects.BattleAbilityPoisonCloud,
+                                   effects.BattleAbilityFreezing)
 
         with self.check_changed(lambda: self.hero.initiative):
             with self.check_changed(lambda: len(self.hero.companion.modify_attribute(heroes_relations.MODIFIERS.ADDITIONAL_ABILITIES,
@@ -616,4 +621,32 @@ class EtherealMagnetTests(BaseEffectsTests):
         ability = self.get_ability(effects.EtherealMagnet)
 
         with self.check_changed(lambda: self.hero.might_crit_chance):
+            self.apply_ability(ability)
+
+
+class CompanionTeleportTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.CompanionTeleport(summand=0.1)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.COMPANION_TELEPORTATOR, 0), 0.1)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_TELEPORTATOR,)), 11), 11)
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.CompanionTeleport)
+
+        with self.check_changed(lambda: self.hero.companion_teleport_probability):
+            self.apply_ability(ability)
+
+
+class CompanionFly(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.CompanionFly(summand=0.1)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.COMPANION_FLYER, 0), 0.1)
+        self.assertEqual(effect._modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_FLYER,)), 11), 11)
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.CompanionFly)
+
+        with self.check_changed(lambda: self.hero.companion_fly_probability):
             self.apply_ability(ability)

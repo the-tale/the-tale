@@ -13,7 +13,7 @@ class EFFECT(DjangoEnum):
                 (u'MAGIC_DAMAGE_BONUS', 5, u'бонус к магическому урону героя'),
                 (u'PHYSIC_DAMAGE_BONUS', 6, u'бонус к физическому урону героя'),
                 (u'SPEED', 7, u'бонус к скорости движения героя'),
-                (u'BATTLE_ABILITY', 8, u'боевая способность'),
+
                 (u'INITIATIVE', 9, u'инициатива'),
                 (u'BATTLE_PROBABILITY', 10, u'вероятность начала боя'),
                 (u'LOOT_PROBABILITY', 11, u'вероятность получить добычу'),
@@ -34,8 +34,17 @@ class EFFECT(DjangoEnum):
                 (u'COMPANION_BLOCK_PROBABILITY', 26, u'вероятность блока спутника'),
                 (u'HUCKSTER', 27, u'спутник даёт бонус к цене продажи и покупки'),
                 (u'MIGHT_CRIT_CHANCE', 28, u'шанс критического срабатывания способности хранителя'),
-                )
 
+                (u'BATTLE_ABILITY_HIT', 29, u'небольшое увеличение инициативы и способность удар'),
+                (u'BATTLE_ABILITY_STRONG_HIT', 30, u'небольшое увеличение инициативы и способность тяжёлый удар'),
+                (u'BATTLE_ABILITY_RUN_UP_PUSH', 31, u'небольшое увеличение инициативы и способность разбег-толчёк'),
+                (u'BATTLE_ABILITY_FIREBALL', 32, u'небольшое увеличение инициативы и способность огненный шар'),
+                (u'BATTLE_ABILITY_POSION_CLOUD', 33, u'небольшое увеличение инициативы и способность отравленное облако'),
+                (u'BATTLE_ABILITY_FREEZING', 34, u'небольшое увеличение инициативы и способность заморозка'),
+
+                (u'COMPANION_TELEPORTATION', 35, u'спутник как-либо перемещает героя в пути')
+
+                )
 
 
 class FIELDS(DjangoEnum):

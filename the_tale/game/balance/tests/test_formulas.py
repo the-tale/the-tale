@@ -78,7 +78,7 @@ class FormulasTest(testcase.TestCase):
 
 
     def test_gold_in_path(self):
-        self.assertEqual(f.gold_in_path(100), 0)
+        self.assertEqual(f.gold_in_path(10, 100), 394)
 
 
 # if one of this tests broken, we MUST review appropriate achievements' barriers

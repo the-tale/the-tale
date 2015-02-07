@@ -5,17 +5,17 @@ from the_tale.game.companions.abilities import forms as abilities_forms
 from the_tale.game.companions.abilities import effects
 
 
-FAKE_ABILITIES_CONTAINER_1 = abilities_container.Container(common=(effects.ABILITIES.PEACEFUL, effects.ABILITIES.CANNY),
+FAKE_ABILITIES_CONTAINER_1 = abilities_container.Container(common=(effects.ABILITIES.HEALER, effects.ABILITIES.FAN, effects.ABILITIES.CUTE),
                                                            start=frozenset(),
                                                            coherence=effects.ABILITIES.OBSTINATE,
                                                            honor=None,
-                                                           peacefulness=None)
+                                                           peacefulness=effects.ABILITIES.PEACEFUL)
 
 
-FAKE_ABILITIES_CONTAINER_2 = abilities_container.Container(common=(),
-                                                           start=frozenset((effects.ABILITIES.RESERVED, effects.ABILITIES.HONEST)),
+FAKE_ABILITIES_CONTAINER_2 = abilities_container.Container(common=(effects.ABILITIES.HEALER, effects.ABILITIES.TORTURER),
+                                                           start=frozenset((effects.ABILITIES.CLEVER, effects.ABILITIES.CUTE)),
                                                            coherence=effects.ABILITIES.OBSTINATE,
-                                                           honor=None,
+                                                           honor=effects.ABILITIES.HONEST,
                                                            peacefulness=None)
 
 

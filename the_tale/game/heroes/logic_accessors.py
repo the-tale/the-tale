@@ -59,8 +59,8 @@ class LogicAccessorsMixin(object):
         self.habit_honor.update_context(hero_actor, enemy)
         self.habit_peacefulness.update_context(hero_actor, enemy)
 
-        if self.companion:
-            self.companion.update_context(hero_actor, enemy)
+        # if self.companion:
+        #     self.companion.update_context(hero_actor, enemy)
 
     ################################
     # modifiers
@@ -293,6 +293,12 @@ class LogicAccessorsMixin(object):
     def max_bag_size(self): return c.MAX_BAG_SIZE + self.attribute_modifier(relations.MODIFIERS.MAX_BAG_SIZE)
 
     @property
+    def companion_teleport_probability(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_TELEPORTATOR)
+
+    @property
+    def companion_fly_probability(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_FLYER)
+
+    @property
     def experience_modifier(self):
         if self.is_banned:
             return 0.0
@@ -365,6 +371,10 @@ class LogicAccessorsMixin(object):
     @property
     def companion_money_for_food_multiplier(self):
         return self.attribute_modifier(relations.MODIFIERS.COMPANION_MONEY_FOR_FOOD)
+
+    @property
+    def companion_leave_in_place_probability(self):
+        return self.attribute_modifier(relations.MODIFIERS.COMPANION_LEAVE_IN_PLACE)
 
     def habit_events(self):
         return self.attribute_modifier(relations.MODIFIERS.HONOR_EVENTS)

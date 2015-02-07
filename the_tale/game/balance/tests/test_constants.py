@@ -211,7 +211,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.EXP_FOR_KILL_DELTA, 0.3)
         self.assertEqual(round(c.EXP_FOR_KILL_PROBABILITY, 5), 0.00256)
 
-        self.assertEqual(c.COMPANIONS_BONUS_EXP_FRACTION, 0.1)
+        self.assertEqual(c.COMPANIONS_BONUS_EXP_FRACTION, 0.2)
 
         self.assertEqual(c.HABIT_EVENTS_IN_DAY, 1.33)
         self.assertEqual(round(c.HABIT_EVENTS_IN_TURN, 5), 0.00015)
@@ -310,22 +310,22 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.COMPANIONS_HEAL_AMOUNT, 2)
         self.assertEqual(c.COMPANIONS_HEAL_CRIT_AMOUNT, 4)
 
-        self.assertEqual(c.COMPANION_BATTLE_STRIKE_PROBABILITY, 0.1)
+        self.assertEqual(c.COMPANION_BATTLE_STRIKE_PROBABILITY, 0.05)
 
         self.assertEqual(c.COMPANION_EXP_PER_MOVE_GET_EXP, 1)
-        self.assertEqual(c.COMPANION_GET_EXP_MOVE_EVENTS_PER_HOUR, -1)
-        self.assertEqual(c.COMPANION_EXP_PER_MOVE_PROBABILITY, -1)
-        self.assertEqual(c.MOVE_TURNS_IN_ACTION_CYCLE, -1)
-        self.assertEqual(c.MOVE_TURNS_IN_HOUR, -1)
+        self.assertEqual(c.COMPANION_GET_EXP_MOVE_EVENTS_PER_HOUR, 2.0)
+        self.assertEqual(round(c.COMPANION_EXP_PER_MOVE_PROBABILITY, 5), 0.15957)
+        self.assertEqual(c.MOVE_TURNS_IN_ACTION_CYCLE, 24)
+        self.assertEqual(round(c.MOVE_TURNS_IN_HOUR, 5), 12.53333)
 
-        self.assertEqual(c.COMPANION_EXP_PER_HEAL, -1)
+        self.assertEqual(c.COMPANION_EXP_PER_HEAL, 1)
 
         self.assertEqual(c.COMPANIONS_HEAL_BONUS, 0.25)
 
-        self.assertEqual(c.COMPANIONS_REGEN_PER_HOUR, -1)
+        self.assertEqual(round(c.COMPANIONS_REGEN_PER_HOUR, 5), 0.05208)
 
-        self.assertEqual(c.COMPANION_EATEN_CORPSES_PER_BATTLE, -1)
-        self.assertEqual(c.COMPANION_REGEN_ON_HEAL_PER_HEAL, -1)
+        self.assertEqual(round(c.COMPANION_EATEN_CORPSES_PER_BATTLE, 5), 0.0034)
+        self.assertEqual(round(c.COMPANION_REGEN_ON_HEAL_PER_HEAL, 5), 0.03472)
 
 
     def test_dedication_maximum_multiplier(self):

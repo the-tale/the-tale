@@ -28,18 +28,11 @@ class Base(object):
     def check_attribute(self, modifier):
         return self._check_attribute(modifier)
 
-    def update_context(self, actor, enemy):
-        return self._update_context(actor, enemy)
-
-
     def _modify_attribute(self, modifier, value):
         return value
 
     def _check_attribute(self, modifier):
         return False
-
-    def _update_context(self, actor, enemy):
-        pass
 
 
 class Checker(Base):
@@ -127,24 +120,41 @@ class Speed(Multiplier):
     MODIFIER = heroes_relations.MODIFIERS.SPEED
 
 
-class BattleAbility(Base):
-    TYPE = relations.EFFECT.BATTLE_ABILITY
-
-    def __init__(self, ability, **kwargs):
-        super(BattleAbility, self).__init__(**kwargs)
-        self.ability = ability(ability.MAX_LEVEL)
-
-    @property
-    def uid(self):
-        return (self.TYPE, self.habit_type)
+class BaseBattleAbility(Base):
+    TYPE = None
+    ABILITY = None
 
     def _modify_attribute(self, modifier, value):
         if modifier.is_INITIATIVE:
             return value * (1 + c.COMPANION_BATTLE_STRIKE_PROBABILITY)
         if modifier.is_ADDITIONAL_ABILITIES:
-            value.append(self.ability)
+            value.append(self.ABILITY)
             return value
         return value
+
+class BattleAbilityHit(BaseBattleAbility):
+    TYPE = relations.EFFECT.BATTLE_ABILITY_HIT
+    ABILITY = battle_abilities.HIT(1)
+
+class BattleAbilityStrongHit(BaseBattleAbility):
+    TYPE = relations.EFFECT.BATTLE_ABILITY_STRONG_HIT
+    ABILITY = battle_abilities.STRONG_HIT(5)
+
+class BattleAbilityRunUpPush(BaseBattleAbility):
+    TYPE = relations.EFFECT.BATTLE_ABILITY_RUN_UP_PUSH
+    ABILITY = battle_abilities.RUN_UP_PUSH(5)
+
+class BattleAbilityFireball(BaseBattleAbility):
+    TYPE = relations.EFFECT.BATTLE_ABILITY_FIREBALL
+    ABILITY = ability=battle_abilities.FIREBALL(5)
+
+class BattleAbilityPoisonCloud(BaseBattleAbility):
+    TYPE = relations.EFFECT.BATTLE_ABILITY_POSION_CLOUD
+    ABILITY = battle_abilities.POISON_CLOUD(5)
+
+class BattleAbilityFreezing(BaseBattleAbility):
+    TYPE = relations.EFFECT.BATTLE_ABILITY_FREEZING
+    ABILITY = battle_abilities.FREEZING(5)
 
 
 class Initiative(Multiplier):
@@ -267,6 +277,14 @@ class EtherealMagnet(Summand):
     MODIFIER = heroes_relations.MODIFIERS.MIGHT_CRIT_CHANCE
 
 
+class CompanionTeleport(Summand):
+    TYPE = relations.EFFECT.COMPANION_TELEPORTATION
+    MODIFIER = heroes_relations.MODIFIERS.COMPANION_TELEPORTATOR
+
+class CompanionFly(Summand):
+    TYPE = relations.EFFECT.COMPANION_TELEPORTATION
+    MODIFIER = heroes_relations.MODIFIERS.COMPANION_FLYER
+
 
 class ABILITIES(DjangoEnum):
     description = Column()
@@ -310,21 +328,16 @@ class ABILITIES(DjangoEnum):
         (u'PEP', 20, u'бодрость духа', u'бонус к магическому урону, наносимому героем', False, PhysicDamageBonus(multiplier=1.1)),
 
         (u'SLED', 21, u'ездовой', u'постоянный небольшой бонус к скорости героя', False, Speed(multiplier=1.1)),
-        (u'SLOW', 22, u'медлительный', u'постоянный небольшой штраф к скорости героя', True, Speed(multiplier=0.9)),
-        (u'FOOTED_SLED', 23, u'быстроногий ездовой', u'постоянный большой бонус к скорости героя', False, Speed(multiplier=1.2)),
+        (u'SLOW', 22, u'медлительный', u'постоянный штраф к скорости героя', True, Speed(multiplier=0.8)),
+        (u'FOOTED_SLED', 23, u'быстроногий ездовой', u'постоянный бонус к скорости героя', False, Speed(multiplier=1.2)),
 
-        (u'FIGHTER', 24, u'боец', u'увеличивает инициативу героя, в бою может применить способность «Удар»', False,
-         BattleAbility(ability=battle_abilities.HIT)),
-        (u'RAM', 25, u'громила', u'увеличивает инициативу героя, в бою может применить способность «тяжёлый удар»', False,
-         BattleAbility(ability=battle_abilities.STRONG_HIT)),
-        (u'HOUSEBREAKER', 26, u'таран', u'увеличивает инициативу героя, в бою может применить способность «Разбег-толчок»', False,
-         BattleAbility(ability=battle_abilities.RUN_UP_PUSH)),
-        (u'ARSONIST', 27, u'поджигатель', u'увеличивает инициативу героя, в бою может применить способность «Огненный шар»', False,
-         BattleAbility(ability=battle_abilities.FIREBALL)),
-        (u'POISONER', 28, u'отравитель', u'увеличивает инициативу героя, в бою может применить способность «Ядовитое облако»', False,
-         BattleAbility(ability=battle_abilities.POISON_CLOUD)),
-        (u'FROST', 29, u'морозко', u'увеличивает инициативу героя, в бою может применить способность «Заморозка»', False,
-         BattleAbility(ability=battle_abilities.FREEZING)),
+        (u'FIGHTER', 24, u'боец', u'увеличивает инициативу героя, в бою может применить способность «Удар»', False, BattleAbilityHit()),
+        (u'RAM', 25, u'громила', u'увеличивает инициативу героя, в бою может применить способность «Тяжёлый удар»', False, BattleAbilityStrongHit()),
+        (u'HOUSEBREAKER', 26, u'таран', u'увеличивает инициативу героя, в бою может применить способность «Разбег-толчок»', False, BattleAbilityRunUpPush()),
+        (u'ARSONIST', 27, u'поджигатель', u'увеличивает инициативу героя, в бою может применить способность «Огненный шар»', False, BattleAbilityFireball()),
+        (u'POISONER', 28, u'отравитель', u'увеличивает инициативу героя, в бою может применить способность «Ядовитое облако»', False, BattleAbilityPoisonCloud()),
+        (u'FROST', 29, u'морозко', u'увеличивает инициативу героя, в бою может применить способность «Заморозка»', False, BattleAbilityFreezing()),
+
 
         (u'UNGAINLY', 30, u'неуклюжий', u'большой штраф к инициативе героя', True, Initiative(multiplier=0.8)),
         (u'CLUMSY', 31, u'неповоротливый', u'малый штраф к инициативе героя', True, Initiative(multiplier=0.9)),
@@ -339,8 +352,8 @@ class ABILITIES(DjangoEnum):
         (u'TORTURER', 37, u'терзатель', u'растерзывает врагов в бою так сильно, что уменьшается шанс найти уцелевший лут с мобов', True, LootProbability(multiplier=0.8)),
         (u'HUNTER', 38, u'охотник', u'увеличивает шанс поднятия лута со всех врагов', False, LootProbability(multiplier=1.2)),
 
-        (u'NOT_LIFER', 39, u'не жилец', u'получает дополнительную едину урона', True, CompanionDamage(summand=1)),
-        (u'PUNY', 40, u'тщедушный', u'получает дополнительные 2 единицы урона', True, CompanionDamage(summand=2)),
+        (u'NOT_LIFER', 39, u'тщедушный', u'получает дополнительную едину урона', True, CompanionDamage(summand=1)),
+        (u'PUNY', 40, u'не жилец', u'получает дополнительные 2 единицы урона', True, CompanionDamage(summand=2)),
 
         (u'CAMOUFLAGE', 41, u'камуфляж', u'реже получает урон в бою', False, CompanionDamageProbability(multiplier=0.9)),
         (u'FLYING', 42, u'летающий', u'значительно реже получает урон в бою', False, CompanionDamageProbability(multiplier=0.8)),
@@ -381,6 +394,9 @@ class ABILITIES(DjangoEnum):
         (u'HUCKSTER', 64, u'торгаш', u'бонус к ценам продажи и покупки', False, Huckster(buy_multiplier=0.8, sell_multiplier=1.2)),
 
         (u'CONTACT', 65, u'связной', u'увеличивает шанс критической помощи хранителя', False, EtherealMagnet(summand=0.1)),
-    )
 
-EtherealMagnet
+        (u'TELEPORTATOR', 66, u'телепортатор', u'периодически переносит героя между городами или ключевыми точками задания', False, CompanionTeleport(summand=0.1)),
+        (u'FLYER', 67, u'ездовой летун', u'часто  переносит героя на небольшое расстоение по воздуху', False, CompanionFly(summand=0.1)),
+
+        (u'SEDATE', 68, u'степенный', u'постоянный небольшой штраф к скорости героя', True, Speed(multiplier=0.9)),
+    )

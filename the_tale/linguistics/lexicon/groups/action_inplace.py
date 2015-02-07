@@ -123,11 +123,11 @@ KEYS = [(u'ACTION_INPLACE_DESCRIPTION', 80000, u'Описание', LEXICON_GROU
         u'Спутник восстанавливает 1 здоровья благодаря типу города «Курорт».',
         [V.HERO, V.PLACE, V.COMPANION]),
 
-        (u'ACTION_INPLACE_JOURNAL_COMPANION_STEAL_MONEY', 80030, u'Журнал: Спутник украл немного денег', LEXICON_GROUP.ACTION_INPLACE,
+        (u'ACTION_INPLACE_COMPANION_STEAL_MONEY', 80030, u'Журнал: Спутник украл немного денег', LEXICON_GROUP.ACTION_INPLACE,
         u'Спутник восстанавливает 1 здоровья благодаря типу города «Курорт».',
         [V.HERO, V.PLACE, V.COMPANION, V.COINS]),
 
-        (u'ACTION_INPLACE_JOURNAL_COMPANION_STEAL_ITEM', 80031, u'Журнал: Спутник украл предмет', LEXICON_GROUP.ACTION_INPLACE,
+        (u'ACTION_INPLACE_COMPANION_STEAL_ITEM', 80031, u'Журнал: Спутник украл предмет', LEXICON_GROUP.ACTION_INPLACE,
         u'Спутник восстанавливает 1 здоровья благодаря типу города «Курорт».',
         [V.HERO, V.PLACE, V.COMPANION, V.ARTIFACT]),
 
@@ -135,7 +135,11 @@ KEYS = [(u'ACTION_INPLACE_DESCRIPTION', 80000, u'Описание', LEXICON_GROU
         u'Герой приобрёт еду для спутника.',
         [V.HERO, V.PLACE, V.COMPANION, V.COINS]),
 
-        (u'ACTION_INPLACE_JOURNAL_COMPANION_DRINK_ARTIFACT', 80033, u'Журнал: Спутник пропил предмет из рюкзака героя', LEXICON_GROUP.ACTION_INPLACE,
+        (u'ACTION_INPLACE_COMPANION_DRINK_ARTIFACT', 80033, u'Журнал: Спутник пропил предмет из рюкзака героя', LEXICON_GROUP.ACTION_INPLACE,
         u'Спутник пропивает предмет из рюкзака героя. Особенность «пьяница».',
         [V.HERO, V.PLACE, V.COMPANION, V.ARTIFACT]),
+
+        (u'ACTION_INPLACE_COMPANION_LEAVE', 80034, u'Дневник: Спутник покинул героя из-за способности «нелюдимый»', LEXICON_GROUP.ACTION_INPLACE,
+        u'Спутник покинул героя из-за способности «нелюдимый».',
+        [V.HERO, V.PLACE, V.COMPANION]),
         ]

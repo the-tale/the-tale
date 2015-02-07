@@ -764,6 +764,7 @@ class ActionMoveToPrototype(ActionBase):
 
 
     def process_choose_road(self):
+
         if self.hero.position.place_id:
             length = self.process_choose_road__in_place()
         else:
@@ -771,6 +772,11 @@ class ActionMoveToPrototype(ActionBase):
 
         if self.length is None:
             self.length = length
+
+        if self.hero.companion and random.random() < self.hero.companion_teleport_probability:
+            self.hero.add_message('companions_teleport', companion_owner=self.hero, companion=self.hero.companion)
+            self.teleport_to_place(create_inplace_action=True)
+            return
 
     def normal_move(self):
 
@@ -792,6 +798,11 @@ class ActionMoveToPrototype(ActionBase):
                                       hero=self.hero,
                                       destination=self.destination,
                                       current_destination=self.current_destination)
+
+        if self.hero.companion and random.random() < self.hero.companion_fly_probability:
+            self.hero.add_message('companions_fly', companion_owner=self.hero, companion=self.hero.companion)
+            self.teleport(c.ANGEL_HELP_TELEPORT_DISTANCE, create_inplace_action=True)
+            return
 
         move_speed = self.hero.position.modify_move_speed(self.hero.move_speed)
 
@@ -1188,7 +1199,11 @@ class ActionInPlacePrototype(ActionBase):
             if not hero.bag.is_empty and hero.can_companion_drink_artifact():
                 artifact = random.choice(hero.bag.values())
                 hero.pop_loot(artifact)
-                hero.add_message('action_inplace_journal_companion_drink_artifact', hero=hero, place=hero.position.place, artifact=artifact, companion=hero.companion)
+                hero.add_message('action_inplace_companion_drink_artifact', hero=hero, place=hero.position.place, artifact=artifact, companion=hero.companion)
+
+            if random.random() < hero.companion_leave_in_place_probability:
+                hero.add_message('action_inplace_companion_leave', diary=True, hero=hero, place=hero.position.place, companion=hero.companion)
+                hero.remove_companion()
 
 
         hero.position.visit_current_place()
@@ -1334,7 +1349,7 @@ class ActionInPlacePrototype(ActionBase):
         if self.hero.can_companion_steal_money():
             money = random.randint(1, f.normal_loot_cost_at_lvl(self.hero.level) * 2)
             self.hero.change_money(MONEY_SOURCE.EARNED_FROM_COMPANIONS, money)
-            self.hero.add_message('action_inplace_journal_companion_steal_money', hero=self.hero, place=self.hero.position.place, companion=self.hero.companion, coins=money)
+            self.hero.add_message('action_inplace_companion_steal_money', hero=self.hero, place=self.hero.position.place, companion=self.hero.companion, coins=money)
 
         if self.hero.can_companion_steal_item() and not self.hero.bag_is_full:
             loot = artifacts_storage.generate_any_artifact(self.hero)
@@ -1346,7 +1361,7 @@ class ActionInPlacePrototype(ActionBase):
             else:
                 self.hero.statistics.change_artifacts_had(1)
 
-            self.hero.add_message('action_inplace_journal_companion_steal_item', hero=self.hero, place=self.hero.position.place, artifact=loot, companion=self.hero.companion)
+            self.hero.add_message('action_inplace_companion_steal_item', hero=self.hero, place=self.hero.position.place, artifact=loot, companion=self.hero.companion)
 
 
     def process_settlement(self):

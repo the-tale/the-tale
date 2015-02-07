@@ -134,7 +134,10 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
 
     def test_full_battle__with_companion(self):
-        battle_ability = random.choice([ability for ability in effects.ABILITIES.records if ability.effect.TYPE == EFFECT.BATTLE_ABILITY])
+        battle_ability = random.choice([ability
+                                        for ability in effects.ABILITIES.records
+                                        if isinstance(ability.effect, effects.BaseBattleAbility)])
+
         companion_record = companions_storage.companions.enabled_companions().next()
         companion_record.abilities = container.Container(start=(battle_ability,))
 
@@ -240,10 +243,10 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_do_exsorcism', lambda hero: True)
-    def test_companion_exsorcims__demon(self):
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_do_exorcism', lambda hero: True)
+    def test_companion_exorcims__demon(self):
 
-        self.companion_record = companions_logic.create_random_companion_record('exsorcist', state=companions_relations.STATE.ENABLED)
+        self.companion_record = companions_logic.create_random_companion_record('exorcist', state=companions_relations.STATE.ENABLED)
         self.hero.set_companion(companions_logic.create_companion(self.companion_record))
 
         demon_record = mobs_prototypes.MobRecordPrototype.create_random('demon', type=mobs_relations.MOB_TYPE.DEMON)
@@ -261,10 +264,10 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_do_exsorcism', lambda hero: True)
-    def test_companion_exsorcims__not_demon(self):
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_do_exorcism', lambda hero: True)
+    def test_companion_exorcims__not_demon(self):
 
-        self.companion_record = companions_logic.create_random_companion_record('exsorcist', state=companions_relations.STATE.ENABLED)
+        self.companion_record = companions_logic.create_random_companion_record('exorcist', state=companions_relations.STATE.ENABLED)
         self.hero.set_companion(companions_logic.create_companion(self.companion_record))
 
         not_demon_record = mobs_prototypes.MobRecordPrototype.create_random('demon', type=mobs_relations.MOB_TYPE.random(exclude=(mobs_relations.MOB_TYPE.DEMON, )))

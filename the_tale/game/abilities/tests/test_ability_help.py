@@ -11,6 +11,7 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.actions import prototypes as actions_prototypes
+from the_tale.game.actions import relations as actions_relations
 
 from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
 
@@ -242,22 +243,22 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
                 current_time.increment_turn()
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.IGNORE, ComplexChangeTask.STEP.SUCCESS, ()))
 
-    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.AGGRESSIVE', False)
+    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HABIT_MODE', actions_relations.ACTION_HABIT_MODE.AGGRESSIVE)
     def test_update_habits__aggressive_action(self):
 
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
-        self.assertEqual(update_habits.call_args_list, [mock.call(HABIT_CHANGE_SOURCE.HELP_UNAGGRESSIVE)])
+        self.assertEqual(update_habits.call_args_list, [mock.call(HABIT_CHANGE_SOURCE.HELP_AGGRESSIVE)])
 
-    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.AGGRESSIVE', True)
+    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HABIT_MODE', actions_relations.ACTION_HABIT_MODE.PEACEFUL)
     def test_update_habits__unaggressive_action(self):
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
-        self.assertEqual(update_habits.call_args_list, [mock.call(HABIT_CHANGE_SOURCE.HELP_AGGRESSIVE)])
+        self.assertEqual(update_habits.call_args_list, [mock.call(HABIT_CHANGE_SOURCE.HELP_UNAGGRESSIVE)])
 
 
     @mock.patch('the_tale.game.artifacts.effects.Health.REMOVE_ON_HELP', True)

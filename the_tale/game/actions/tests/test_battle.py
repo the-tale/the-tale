@@ -449,9 +449,10 @@ class TryCompanionStrikeTests(TestsBase):
     def test_strike(self):
         from the_tale.game.companions.abilities import effects
         from the_tale.game.companions.abilities import container
-        from the_tale.game.companions.abilities.relations import EFFECT
 
-        battle_ability = random.choice([ability for ability in effects.ABILITIES.records if ability.effect.TYPE == EFFECT.BATTLE_ABILITY])
+        battle_ability = random.choice([ability
+                                        for ability in effects.ABILITIES.records
+                                        if isinstance(ability.effect, effects.BaseBattleAbility)])
         self.hero.companion.record.abilities = container.Container(start=(battle_ability,))
         self.hero.reset_accessors_cache()
 

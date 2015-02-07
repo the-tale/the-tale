@@ -107,6 +107,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
 
         self.storage._test_save()
 
+
     @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_modify_speed(self):
 
@@ -115,6 +116,38 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
             self.storage.process_turn(continue_steps_if_needed=False)
 
         self.assertEqual(speed_modifier_call_counter.call_count, 1)
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_fly_probability', 1.0)
+    def test_teleport_by_flying_companion(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+
+        self.storage.process_turn(continue_steps_if_needed=False)
+
+        self.assertEqual(self.action_move.state, self.action_move.STATE.MOVING)
+
+        with self.check_increased(lambda: self.action_move.percents):
+            self.storage.process_turn(continue_steps_if_needed=False)
+
+        self.assertTrue(self.hero.messages.messages[-1].key.is_COMPANIONS_FLY)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_teleport_probability', 1.0)
+    def test_teleport_by_teleportator_companion(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+
+        self.assertEqual(self.action_move.state, self.action_move.STATE.CHOOSE_ROAD)
+
+        with self.check_increased(lambda: self.action_move.percents):
+            self.storage.process_turn(continue_steps_if_needed=False)
+
+        self.assertEqual(self.action_move.state, self.action_move.STATE.IN_CITY)
+
+        self.assertTrue(self.hero.messages.messages[-1].key.is_COMPANIONS_TELEPORT)
+
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_teleport(self):

@@ -123,10 +123,10 @@ class TestIndexRequests(BaseTestRequests):
         self.create_two_pages()
 
         account_1_texts = [('pgf-no-posts-message', 0),
-                           ('caption-a1-0', 1),
-                           ('caption-a1-1', 1),
-                           ('caption-a1-2', 1),
-                           ('caption-a1-3', 1),
+                           'caption-a1-0',
+                           'caption-a1-1',
+                           'caption-a1-2',
+                           'caption-a1-3',
                            ('caption-a2-0', 0),
                            ('caption-a2-2', 0),
                            ('test_user_1', blogs_settings.POSTS_ON_PAGE + 1), #1 for filter text

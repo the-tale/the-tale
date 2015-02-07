@@ -18,6 +18,7 @@ from the_tale.game.companions import models
 from the_tale.game.companions import relations
 from the_tale.game.companions import storage
 from the_tale.game.companions.abilities import container as abilities_container
+from the_tale.game.companions.abilities import effects as abilities_effects
 
 
 def create_companion_record(utg_name,

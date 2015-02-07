@@ -542,7 +542,7 @@ COMPANIONS_HEAL_CRIT_AMOUNT = COMPANIONS_HEAL_AMOUNT * 2
 
 # вероятность того, что спутник использует способность во время боя
 # на столько же должны увеличивать инициативу особенности спутника с боевыми способностями
-COMPANION_BATTLE_STRIKE_PROBABILITY = float(0.1)
+COMPANION_BATTLE_STRIKE_PROBABILITY = float(0.05)
 
 
 COMPANION_EXP_PER_MOVE_GET_EXP = int(1) # получаемый героем опыт за одно «действие получения опыта во время движения героя»

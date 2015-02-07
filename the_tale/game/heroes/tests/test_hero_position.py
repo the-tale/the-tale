@@ -40,6 +40,18 @@ class HeroPositionTest(testcase.TestCase):
     def test_is_battle_start_needed__no_safety(self):
         self.assertTrue(all(self.hero.position.is_battle_start_needed() for i in xrange(100)))
 
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.safety', 0.5)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.battles_per_turn_summand', 0.5)
+    @mock.patch('the_tale.game.balance.constants.MAX_BATTLES_PER_TURN', 1.0)
+    def test_is_battle_start_needed__hero_modifier(self):
+        self.assertTrue(all(self.hero.position.is_battle_start_needed() for i in xrange(100)))
+
+    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.safety', 0.5)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.battles_per_turn_summand', -0.5)
+    @mock.patch('the_tale.game.balance.constants.MAX_BATTLES_PER_TURN', 1.0)
+    def test_is_battle_start_needed__hero_modifier_2(self):
+        self.assertTrue(all(not self.hero.position.is_battle_start_needed() for i in xrange(100)))
+
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.transport', 0.5)
     def test_modify_move_speed__less(self):
         self.assertEqual(self.hero.position.modify_move_speed(10), 5)

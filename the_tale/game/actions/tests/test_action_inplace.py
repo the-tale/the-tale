@@ -783,7 +783,7 @@ class InPlaceActionCompanionDrinkArtifactTests(testcase.TestCase):
                 ):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
-        self.assertTrue(self.hero.messages.messages[-1].key.is_ACTION_INPLACE_JOURNAL_COMPANION_DRINK_ARTIFACT)
+        self.assertTrue(self.hero.messages.messages[-1].key.is_ACTION_INPLACE_COMPANION_DRINK_ARTIFACT)
 
 
     def check_not_used(self):
@@ -812,6 +812,55 @@ class InPlaceActionCompanionDrinkArtifactTests(testcase.TestCase):
     def test_companion_does_not_eat(self):
         self.check_not_used()
 
+
+
+class InPlaceActionCompanionLeaveTests(testcase.TestCase):
+
+    def setUp(self):
+        super(InPlaceActionCompanionLeaveTests, self).setUp()
+        self.place_1, self.place_2, self.place_3 = create_test_map()
+
+        self.account = self.accounts_factory.create_account()
+
+        self.storage = LogicStorage()
+        self.storage.load_account_data(self.account)
+        self.hero = self.storage.accounts_to_heroes[self.account.id]
+
+        self.action_idl = self.hero.actions.current_action
+
+        self.companion_record = companions_logic.create_random_companion_record('thief', state=companions_relations.STATE.ENABLED)
+        self.hero.set_companion(companions_logic.create_companion(self.companion_record))
+
+        self.hero._model.money = f.expected_gold_in_day(self.hero.level)
+
+        self.hero.position.set_place(self.place_1)
+        self.hero.position.visit_current_place()
+        self.hero.position.set_place(self.place_2)
+
+        self.artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 1, rarity=RARITY.NORMAL)
+        self.hero.put_loot(self.artifact)
+
+        self.assertEqual(self.hero.bag.occupation, 1)
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_leave_in_place_probability', 1.0)
+    def test_leave(self):
+        with self.check_increased(lambda: len(self.hero.diary)):
+            prototypes.ActionInPlacePrototype.create(hero=self.hero)
+
+        self.assertEqual(self.hero.companion, None)
+
+        self.assertTrue(self.hero.diary.messages[-1].key.is_ACTION_INPLACE_COMPANION_LEAVE)
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_leave_in_place_probability', 0.0)
+    def test_not_leave(self):
+        with self.check_not_changed(lambda: len(self.hero.diary)):
+            prototypes.ActionInPlacePrototype.create(hero=self.hero)
+
+        self.assertNotEqual(self.hero.companion, None)
+
+        self.assertFalse(self.hero.diary.messages[-1].key.is_ACTION_INPLACE_COMPANION_LEAVE)
 
 
 class InPlaceActionCompanionStealingTest(testcase.TestCase):

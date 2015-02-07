@@ -11,27 +11,35 @@ from the_tale.game.companions.abilities import effects
 from the_tale.game.companions.abilities import container
 from the_tale.game.companions.abilities import relations
 
-def ChoiceField(filter=lambda ability: True):
-    return fields.RelationField(label=u'', relation=effects.ABILITIES, filter=filter, required=False)
+def ChoiceField(filter=lambda ability: True, sort_key=None):
+    return fields.RelationField(label=u'', relation=effects.ABILITIES, filter=filter, sort_key=sort_key, required=False)
 
 
 def get_abilities_fields():
+    def common_filter(ability):
+        if ability.effect.TYPE.is_COHERENCE_SPEED:
+            return False
+        if ability.effect.TYPE.is_CHANGE_HABITS:
+            return False
+        return True
+
+    sort_key = lambda x: x[1]
     return {
         relations.FIELDS.COHERENCE_SPEED: ChoiceField(filter=lambda ability: ability.effect.TYPE.is_COHERENCE_SPEED),
         relations.FIELDS.HONOR: ChoiceField(filter=lambda ability: ability.effect.TYPE.is_CHANGE_HABITS and ability.effect.habit_type.is_HONOR),
         relations.FIELDS.PEACEFULNESS: ChoiceField(filter=lambda ability: ability.effect.TYPE.is_CHANGE_HABITS and ability.effect.habit_type.is_PEACEFULNESS),
-        relations.FIELDS.START_1: ChoiceField(),
-        relations.FIELDS.START_2: ChoiceField(),
-        relations.FIELDS.START_3: ChoiceField(),
-        relations.FIELDS.ABILITY_1: ChoiceField(),
-        relations.FIELDS.ABILITY_2: ChoiceField(),
-        relations.FIELDS.ABILITY_3: ChoiceField(),
-        relations.FIELDS.ABILITY_4: ChoiceField(),
-        relations.FIELDS.ABILITY_5: ChoiceField(),
-        relations.FIELDS.ABILITY_6: ChoiceField(),
-        relations.FIELDS.ABILITY_7: ChoiceField(),
-        relations.FIELDS.ABILITY_8: ChoiceField(),
-        relations.FIELDS.ABILITY_9: ChoiceField()
+        relations.FIELDS.START_1: ChoiceField(filter=common_filter, sort_key=sort_key),
+        relations.FIELDS.START_2: ChoiceField(filter=common_filter, sort_key=sort_key),
+        relations.FIELDS.START_3: ChoiceField(filter=common_filter, sort_key=sort_key),
+        relations.FIELDS.ABILITY_1: ChoiceField(filter=common_filter, sort_key=sort_key),
+        relations.FIELDS.ABILITY_2: ChoiceField(filter=common_filter, sort_key=sort_key),
+        relations.FIELDS.ABILITY_3: ChoiceField(filter=common_filter, sort_key=sort_key),
+        relations.FIELDS.ABILITY_4: ChoiceField(filter=common_filter, sort_key=sort_key),
+        relations.FIELDS.ABILITY_5: ChoiceField(filter=common_filter, sort_key=sort_key),
+        relations.FIELDS.ABILITY_6: ChoiceField(filter=common_filter, sort_key=sort_key),
+        relations.FIELDS.ABILITY_7: ChoiceField(filter=common_filter, sort_key=sort_key),
+        relations.FIELDS.ABILITY_8: ChoiceField(filter=common_filter, sort_key=sort_key),
+        relations.FIELDS.ABILITY_9: ChoiceField(filter=common_filter, sort_key=sort_key)
     }
 
 

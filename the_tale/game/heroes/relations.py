@@ -186,6 +186,9 @@ class MODIFIERS(DjangoEnum):
                 ('COMPANION_DRINK_ARTIFACT', 59, u'спутник пропивает артефакты', lambda: False),
                 ('COMPANION_EXORCIST', 60, u'спутник является экзорцистом', lambda: False),
                 ('COMPANION_BLOCK_PROBABILITY', 61, u'вероятность, что спутник заблокирует удар врага', lambda: 1.0),
+                ('COMPANION_TELEPORTATOR', 62, u'вероятность телепортировать героя между городами', lambda: 0),
+                ('COMPANION_FLYER', 63, u'вероятность телепортировать героя в движении', lambda: 0),
+                ('COMPANION_LEAVE_IN_PLACE', 64, u'вероятность, что спутник покинет героя в городе', lambda: 0)
                 )
 
 
