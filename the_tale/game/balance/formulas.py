@@ -182,10 +182,8 @@ def person_power_for_quest__real(path_length):
 def person_power_for_quest(path_length):
     return  int(math.ceil(person_power_for_quest__real(path_length) * random.uniform(1.0-c.PERSON_POWER_PER_QUEST_FRACTION, 1+c.PERSON_POWER_PER_QUEST_FRACTION)))
 
-# способности
 def max_ability_points_number(level):
-    # 1 for hit ability
-    return 1 + (level + 1) / 2
+    return level + 2
 
 # города
 def place_goods_production(level):
@@ -200,7 +198,7 @@ def companions_coherence_for_level(level):
 
 def companions_defend_in_battle_probability(coherence):
     # вероятность того, что удар противника в бою встретит спутник
-    coherence_multiplier = 1 + (float(coherence) / c.COMPANIONS_MAX_COHERENCE - 0.5) / 0.5 * c.COMPANIONS_BLOG_MULTIPLIER_COHERENCE_DELTA
+    coherence_multiplier = 1 + (float(coherence) / c.COMPANIONS_MAX_COHERENCE - 0.5) / 0.5 * c.COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA
     return coherence_multiplier * float(c.COMPANIONS_DEFENDS_IN_BATTLE) / (c.BATTLE_LENGTH / 2)
 
 

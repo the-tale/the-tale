@@ -310,7 +310,8 @@ ABILITIES_ACTIVE_MAXIMUM = int(5)
 ABILITIES_PASSIVE_MAXIMUM = int(2)
 
 ABILITIES_BATTLE_MAXIMUM = ABILITIES_ACTIVE_MAXIMUM + ABILITIES_PASSIVE_MAXIMUM
-ABILITIES_NONBATTLE_MAXUMUM = int(4)
+ABILITIES_NONBATTLE_MAXIMUM = int(4)
+ABILITIES_COMPANION_MAXIMUM = int(4)
 
 ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM = int(2)
 ABILITIES_FOR_CHOOSE_MAXIMUM = int(4)
@@ -524,9 +525,11 @@ _COMPANIONS_MEDIUM_HEALTH = float(COMPANIONS_MIN_HEALTH + COMPANIONS_MAX_HEALTH)
 _COMPANIONS_MEDIUM_LIFETYME = int(10) # ожидаемое время жизни среднего спутника со средним здоровьем без лечения
 
 # дельты мультипликатора вероятности блока для
-COMPANIONS_BLOG_MULTIPLIER_COHERENCE_DELTA = float(0.15) # согласованности (от среднего)
-COMPANIONS_BLOG_MULTIPLIER_COMPANION_DEDICATION_DELTA = float(0.15) # самоотверженности спутника
-COMPANIONS_BLOG_MULTIPLIER_HERO_DEDICATION_DELTA = float(0.15) # самоотверженность героя
+COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA = float(0.15) # согласованности (от среднего)
+COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA = float(0.15) # самоотверженности спутника
+COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA = float(0.15) # самоотверженность героя
+
+COMPANIONS_HABITS_DELTA = float(0.5) # дельта изменения черт от среднего в зависимости от предпочтения
 
 # вероятность того, что спутник будет ранен во время защиты героя
 _COMPANIONS_WOUNDS_IN_HOUR = float(_COMPANIONS_MEDIUM_HEALTH) / (_COMPANIONS_MEDIUM_LIFETYME * 24)

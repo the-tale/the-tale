@@ -75,14 +75,11 @@ class Container(object):
                 break
             yield ability
 
-    def modify_attribute(self, coherence, modifier, value):
+    def modify_attribute(self, coherence, abilities_levels, modifier, value):
         for ability in self.abilities_for_coherence(coherence):
-            value = ability.effect.modify_attribute(modifier, value)
+            value = ability.effect.modify_attribute(abilities_levels, modifier, value)
         return value
 
-    def update_context(self, coherence, actor, enemy):
-        for ability in self.abilities_for_coherence(coherence):
-            ability.effect.update_context(actor, enemy)
 
     def check_attribute(self, coherence, modifier):
         for ability in self.abilities_for_coherence(coherence):

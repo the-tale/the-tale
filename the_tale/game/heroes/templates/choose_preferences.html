@@ -22,6 +22,10 @@
       Выберите любимую вещь
       {% elif type.is_ARCHETYPE %}
       Выберите архетип героя
+      {% elif type.is_COMPANION_DEDICATION %}
+      Выберите тип отношений со спутником
+      {% elif type.is_COMPANION_EMPATHY %}
+      Выберите эмпатию героя
       {% endif %}
     </h3>
   </div>
@@ -69,6 +73,9 @@
 
     {% elif type.is_COMPANION_DEDICATION %}
     {% include "heroes/choose_preferences_companion_dedication.html" with context %}
+
+    {% elif type.is_COMPANION_EMPATHY %}
+    {% include "heroes/choose_preferences_companion_empathy.html" with context %}
 
     {% endif %}
 

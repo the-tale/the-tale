@@ -12,12 +12,14 @@ from the_tale.game.heroes.habilities.battle import ABILITIES as BATTLE_ABILITIES
 from the_tale.game.heroes.habilities.attributes import ABILITIES as ATTRIBUTES_ABILITIES
 from the_tale.game.heroes.habilities.modifiers import ABILITIES as MODIFIERS_ABILITIES
 from the_tale.game.heroes.habilities.nonbattle import ABILITIES as NONBATTLE_ABILITIES
+from the_tale.game.heroes.habilities.companions import ABILITIES as COMPANIONS_ABILITIES
 
 
 ABILITIES = dict(**BATTLE_ABILITIES)
 ABILITIES.update(**ATTRIBUTES_ABILITIES)
 ABILITIES.update(**MODIFIERS_ABILITIES)
 ABILITIES.update(**NONBATTLE_ABILITIES)
+ABILITIES.update(**COMPANIONS_ABILITIES)
 
 __all__ = ['ABILITIES', 'ABILITY_LOGIC_TYPE', 'ABILITY_TYPE', 'ABILITY_AVAILABILITY', 'ABILITY_ACTIVATION_TYPE']
 
@@ -76,8 +78,10 @@ class AbilitiesPrototype(object):
         return max(datetime.timedelta(seconds=0), (self.reseted_at + heroes_settings.ABILITIES_RESET_TIMEOUT - datetime.datetime.now()))
 
     def initialize(self):
-        ability = ABILITIES['hit'](level=1)
-        self.abilities = {ability.get_id(): ability}
+        hit = ABILITIES['hit'](level=1)
+        coherence = ABILITIES['coherence'](level=1)
+        self.abilities = {hit.get_id(): hit,
+                          coherence.get_id(): coherence}
 
     @classmethod
     def create(cls):
@@ -96,7 +100,8 @@ class AbilitiesPrototype(object):
 
     def has(self, ability_id): return ability_id in self.abilities
 
-    def get(self, ability_id): return self.abilities[ability_id]
+    def get(self, ability_id):
+        return self.abilities[ability_id]
 
     def add(self, ability_id, level=1):
         self.updated = True
@@ -172,14 +177,14 @@ class AbilitiesPrototype(object):
     def check_attribute(self, name):
         return any(ability.check_attribute(name) for ability in self.abilities.itervalues())
 
-    def randomized_level_up(self, levels):
+    def randomized_mob_level_up(self, levels):
 
         for i in xrange(levels):
 
             candidates = []
 
             for ability in self.abilities.values():
-                if not ability.has_max_level:
+                if ability.type.is_BATTLE and not ability.has_max_level:
                     candidates.append(ability)
 
             if not candidates: return levels - i
@@ -196,7 +201,8 @@ class AbilitiesPrototype(object):
     @property
     def ability_types_limitations(self):
         return {ABILITY_TYPE.BATTLE: (c.ABILITIES_ACTIVE_MAXIMUM, c.ABILITIES_PASSIVE_MAXIMUM),
-                ABILITY_TYPE.NONBATTLE: (c.ABILITIES_NONBATTLE_MAXUMUM, c.ABILITIES_NONBATTLE_MAXUMUM)}
+                ABILITY_TYPE.NONBATTLE: (c.ABILITIES_NONBATTLE_MAXIMUM, c.ABILITIES_NONBATTLE_MAXIMUM),
+                ABILITY_TYPE.COMPANION: (c.ABILITIES_COMPANION_MAXIMUM, c.ABILITIES_COMPANION_MAXIMUM)}
 
     def get_for_choose(self):
 
@@ -204,7 +210,6 @@ class AbilitiesPrototype(object):
         random.seed(self.hero.id + self.destiny_points_spend)
 
         candidates = self._get_candidates()
-
 
         abilities = self._get_for_choose(candidates,
                                          max_old_abilities_for_choose=c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM,
@@ -268,29 +273,20 @@ class AbilitiesPrototype(object):
     @property
     def next_ability_type(self):
         return {1: ABILITY_TYPE.BATTLE,
-                2: ABILITY_TYPE.BATTLE,
-                0: ABILITY_TYPE.NONBATTLE}[self.current_ability_points_number % 3]
+                2: ABILITY_TYPE.NONBATTLE,
+                0: ABILITY_TYPE.COMPANION}[self.current_ability_points_number % 3]
 
     @property
     def next_battle_ability_point_lvl(self):
-        delta = self.hero.level % 6
-        return {0: 1,
-                1: 2,
-                2: 1,
-                3: 4,
-                4: 3,
-                5: 2}[delta] + self.hero.level
+        return 1 + (self.hero.level-1) // 3 * 3 + 3
 
     @property
     def next_nonbattle_ability_point_lvl(self):
-        delta = self.hero.level % 6
-        return {0: 5,
-                1: 4,
-                2: 3,
-                3: 2,
-                4: 1,
-                5: 6}[delta] + self.hero.level
+        return 2 + (self.hero.level-2) // 3 * 3 + 3
 
+    @property
+    def next_companion_ability_point_lvl(self):
+        return 3 + (self.hero.level-3) // 3 * 3 + 3
 
     def __eq__(self, other):
         return set(self.abilities.keys()) == set(other.abilities.keys())

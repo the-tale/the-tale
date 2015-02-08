@@ -32,15 +32,15 @@ class BuyResetHeroAbilitiesTaskTests(base_buy_task._BaseBuyHeroMethodPosponedTas
 
         self.hero.save()
 
-        self.assertEqual(self.hero.abilities.current_ability_points_number, 4)
+        self.assertEqual(self.hero.abilities.current_ability_points_number, 5)
 
     def _get_expected_arguments(self):
         return {}
 
     def _check_not_used(self):
-        self.assertEqual(self.hero.abilities.current_ability_points_number, 4)
+        self.assertEqual(self.hero.abilities.current_ability_points_number, 5)
         self.assertTrue(len(self.hero.abilities.abilities) > 1)
 
     def _check_used(self):
-        self.assertEqual(self.hero.abilities.current_ability_points_number, 1)
+        self.assertEqual(self.hero.abilities.current_ability_points_number, 2)
         self.assertTrue(self.hero.abilities.abilities.keys(), [HIT.get_id()] )

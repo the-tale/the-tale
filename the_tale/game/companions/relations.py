@@ -26,11 +26,11 @@ class MODE(DjangoEnum):
 class DEDICATION(DjangoEnum):
     block_multiplier = Column()
 
-    records = ( (u'INDECISIVE', 0, u'нерешительный', 1.0 - c.COMPANIONS_BLOG_MULTIPLIER_COMPANION_DEDICATION_DELTA),
-                (u'BOLD', 1, u'смелый', 1.0 - c.COMPANIONS_BLOG_MULTIPLIER_COMPANION_DEDICATION_DELTA / 2),
+    records = ( (u'INDECISIVE', 0, u'нерешительный', 1.0 - c.COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA),
+                (u'BOLD', 1, u'смелый', 1.0 - c.COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA / 2),
                 (u'BRAVE', 2, u'храбрый', 1.0),
-                (u'VALIANT', 3, u'доблестный', 1.0 + c.COMPANIONS_BLOG_MULTIPLIER_COMPANION_DEDICATION_DELTA / 2),
-                (u'HEROIC', 4, u'героический', 1.0 + c.COMPANIONS_BLOG_MULTIPLIER_COMPANION_DEDICATION_DELTA) )
+                (u'VALIANT', 3, u'доблестный', 1.0 + c.COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA / 2),
+                (u'HEROIC', 4, u'героический', 1.0 + c.COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA) )
 
 
 class RARITY(DjangoEnum):

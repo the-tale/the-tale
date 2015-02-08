@@ -181,7 +181,8 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.ABILITIES_PASSIVE_MAXIMUM, 2)
 
         self.assertEqual(c.ABILITIES_BATTLE_MAXIMUM, 7)
-        self.assertEqual(c.ABILITIES_NONBATTLE_MAXUMUM, 4)
+        self.assertEqual(c.ABILITIES_NONBATTLE_MAXIMUM, 4)
+        self.assertEqual(c.ABILITIES_COMPANION_MAXIMUM, 4)
         self.assertEqual(c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM, 2)
         self.assertEqual(c.ABILITIES_FOR_CHOOSE_MAXIMUM, 4)
 
@@ -297,9 +298,11 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c._COMPANIONS_MEDIUM_LIFETYME, 10)
 
-        self.assertEqual(c.COMPANIONS_BLOG_MULTIPLIER_COHERENCE_DELTA, 0.15)
-        self.assertEqual(c.COMPANIONS_BLOG_MULTIPLIER_COMPANION_DEDICATION_DELTA, 0.15)
-        self.assertEqual(c.COMPANIONS_BLOG_MULTIPLIER_HERO_DEDICATION_DELTA, 0.15)
+        self.assertEqual(c.COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA, 0.15)
+        self.assertEqual(c.COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA, 0.15)
+        self.assertEqual(c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA, 0.15)
+
+        self.assertEqual(c.COMPANIONS_HABITS_DELTA, 0.5)
 
         self.assertEqual(round(c._COMPANIONS_WOUNDS_IN_HOUR, 5), 0.20833)
         self.assertEqual(round(c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY, 5), 0.00907)
@@ -329,9 +332,9 @@ class ConstantsTest(testcase.TestCase):
 
 
     def test_dedication_maximum_multiplier(self):
-        multiplier = ((1 + c.COMPANIONS_BLOG_MULTIPLIER_COHERENCE_DELTA) *
-                      (1 + c.COMPANIONS_BLOG_MULTIPLIER_COMPANION_DEDICATION_DELTA) *
-                      (1 + c.COMPANIONS_BLOG_MULTIPLIER_HERO_DEDICATION_DELTA))
+        multiplier = ((1 + c.COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA) *
+                      (1 + c.COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA) *
+                      (1 + c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA))
         self.assertTrue(multiplier < 1.521)
 
 

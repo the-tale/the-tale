@@ -124,15 +124,6 @@ class LogicAccessorsMixin(object):
     def can_companion_broke_to_spare_parts(self):
         return self.check_attribute(relations.MODIFIERS.COMPANION_SPARE_PARTS)
 
-    def can_companion_say_wisdom(self):
-        return self.check_attribute(relations.MODIFIERS.COMPANION_SAY_WISDOM)
-
-    def can_companion_exp_per_heal(self):
-        return self.check_attribute(relations.MODIFIERS.COMPANION_EXP_PER_HEAL)
-
-    def can_companion_eat_corpses(self):
-        return self.check_attribute(relations.MODIFIERS.COMPANION_EAT_CORPSES)
-
     def can_companion_regenerate(self):
         return self.check_attribute(relations.MODIFIERS.COMPANION_REGENERATE)
 
@@ -144,6 +135,13 @@ class LogicAccessorsMixin(object):
 
     def can_companion_do_exorcism(self):
         return self.check_attribute(relations.MODIFIERS.COMPANION_EXORCIST)
+
+    def can_companion_eat_corpses(self):
+        return self.check_attribute(relations.MODIFIERS.COMPANION_EAT_CORPSES)
+
+    def can_companion_say_wisdom(self): return self.check_attribute(relations.MODIFIERS.COMPANION_SAY_WISDOM)
+
+    def can_companion_exp_per_heal(self): return self.check_attribute(relations.MODIFIERS.COMPANION_EXP_PER_HEAL)
 
 
     def can_kill_before_battle(self):
@@ -293,12 +291,6 @@ class LogicAccessorsMixin(object):
     def max_bag_size(self): return c.MAX_BAG_SIZE + self.attribute_modifier(relations.MODIFIERS.MAX_BAG_SIZE)
 
     @property
-    def companion_teleport_probability(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_TELEPORTATOR)
-
-    @property
-    def companion_fly_probability(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_FLYER)
-
-    @property
     def experience_modifier(self):
         if self.is_banned:
             return 0.0
@@ -375,6 +367,67 @@ class LogicAccessorsMixin(object):
     @property
     def companion_leave_in_place_probability(self):
         return self.attribute_modifier(relations.MODIFIERS.COMPANION_LEAVE_IN_PLACE)
+
+    @property
+    def companion_broke_to_spare_parts_multiplier(self):
+        return self.attribute_modifier(relations.MODIFIERS.COMPANION_SPARE_PARTS_MULTIPLIER)
+
+    @property
+    def companion_teleport_probability(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_TELEPORTATOR)
+
+    @property
+    def companion_fly_probability(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_FLYER)
+
+    @property
+    def companion_abilities_levels(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_ABILITIES_LEVELS)
+
+    @property
+    def companion_steal_money_modifier(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_STEAL_MONEY_MULTIPLIER)
+
+    @property
+    def companion_steal_artifact_probability_multiplier(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_STEAL_ITEM_MULTIPLIER)
+
+    @property
+    def companion_say_wisdom_probability(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_SAY_WISDOM_PROBABILITY)
+
+    @property
+    def companion_exp_per_heal_probability(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_EXP_PER_HEAL_PROBABILITY)
+
+    @property
+    def companion_eat_corpses_probability(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_EAT_CORPSES_PROBABILITY)
+
+    @property
+    def companion_regenerate_probability(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_REGENERATE_PROBABILITY)
+
+    @property
+    def companion_drink_artifact_probability(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_DRINK_ARTIFACT_PROBABILITY)
+
+    @property
+    def companion_do_exorcism_probability(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_EXORCIST_PROBABILITY)
+
+    @property
+    def companion_max_health_multiplier(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_MAX_HEALTH)
+
+    @property
+    def companion_max_coherence(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_MAX_COHERENCE)
+
+    @property
+    def companion_living_heal_probability(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_LIVING_HEAL)
+
+    @property
+    def companion_construct_heal_probability(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_CONSTRUCT_HEAL)
+
+    @property
+    def companion_unusual_heal_probability(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_UNUSUAL_HEAL)
+
+    @property
+    def companion_living_coherence_speed(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_LIVING_COHERENCE_SPEED)
+
+    @property
+    def companion_construct_coherence_speed(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_CONSTRUCT_COHERENCE_SPEED)
+
+    @property
+    def companion_unusual_coherence_speed(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED)
 
     def habit_events(self):
         return self.attribute_modifier(relations.MODIFIERS.HONOR_EVENTS)

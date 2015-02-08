@@ -196,7 +196,8 @@ class CHOOSE_PREFERENCES_TASK_STATE(DjangoEnum):
                 ('UNKNOWN_RISK_LEVEL', 16, u'неизвестный уровень риска'),
                 ('EMPTY_EQUIPMENT_SLOT', 17, u'пустой слот экипировки'),
                 ('UNKNOWN_ARCHETYPE', 18, u'неизвестный архетип'),
-                ('UNKNOWN_COMPANION_DEDICATION', 19, u'неизвестное отношение со спутником'))
+                ('UNKNOWN_COMPANION_DEDICATION', 19, u'неизвестное отношение со спутником'),
+                ('UNKNOWN_COMPANION_EMPATHY', 20, u'неизвестная форма эмпатии'))
 
 
 class ChoosePreferencesTask(PostponedLogic):
@@ -468,6 +469,29 @@ class ChoosePreferencesTask(PostponedLogic):
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
 
+    def process_companion_empathy(self, main_task, hero):
+
+        try:
+            companion_empathy = int(self.preference_id) if self.preference_id is not None else None
+        except:
+            main_task.comment = u'unknown companion empathy: %s' % (self.preference_id, )
+            self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_COMPANION_EMPATHY
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+        if companion_empathy is not None:
+
+            if companion_empathy not in relations.COMPANION_EMPATHY.index_value:
+                main_task.comment = u'unknown companion empathy: %s' % (companion_empathy, )
+                self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_COMPANION_EMPATHY
+                return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+            companion_empathy = relations.COMPANION_EMPATHY.index_value[companion_empathy]
+
+        hero.preferences.set_companion_empathy(companion_empathy)
+
+        return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
+
+
     def process(self, main_task, storage):
 
         hero = storage.heroes[self.hero_id]
@@ -513,6 +537,9 @@ class ChoosePreferencesTask(PostponedLogic):
 
         elif self.preference_type.is_COMPANION_DEDICATION:
             result = self.process_companion_dedication(main_task, hero)
+
+        elif self.preference_type.is_COMPANION_EMPATHY:
+            result = self.process_companion_empathy(main_task, hero)
 
         else:
             main_task.comment = u'unknown preference type: %s' % (self.preference_type, )

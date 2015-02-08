@@ -283,7 +283,12 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
 
                                             permanent_permission_purchase(uid=u'preference-mob',
                                                                           cost=90,
-                                                                          purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_MOB) ]),
+                                                                          purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_MOB),
+
+                                            permanent_permission_purchase(uid=u'preference-companion-empathy',
+                                                                          cost=100,
+                                                                          purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_COMPANION_EMPATHY),
+                                                                           ]),
 
 
                 goods.PurchaseGroup(type=relations.GOODS_GROUP.PREFERENCES_RESET,
@@ -298,7 +303,8 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                                             reset_hero_preference(uid='hero-preference-reset-enemy', preference_type=PREFERENCE_TYPE.ENEMY, cost=100),
                                             reset_hero_preference(uid='hero-preference-reset-archetype', preference_type=PREFERENCE_TYPE.ARCHETYPE, cost=25),
                                             reset_hero_preference(uid='hero-preference-reset-equipment-slot', preference_type=PREFERENCE_TYPE.EQUIPMENT_SLOT, cost=25),
-                                            reset_hero_preference(uid='hero-preference-reset-mob', preference_type=PREFERENCE_TYPE.MOB, cost=25)
+                                            reset_hero_preference(uid='hero-preference-reset-mob', preference_type=PREFERENCE_TYPE.MOB, cost=25),
+                                            reset_hero_preference(uid='hero-preference-reset-companion-empathy', preference_type=PREFERENCE_TYPE.COMPANION_EMPATHY, cost=100),
                                             ]),
 
                 goods.PurchaseGroup(type=relations.GOODS_GROUP.HABITS,

@@ -49,6 +49,9 @@ class Companion(object):
     def name(self): return self.record.name
 
     @property
+    def type(self): return self.record.type
+
+    @property
     def utg_name_form(self): return self.record.utg_name_form
 
     def linguistics_restrictions(self):
@@ -69,7 +72,12 @@ class Companion(object):
                 self._hero.companion_block_probability_multiplier)
 
     @property
-    def max_health(self): return self.record.max_health
+    def max_health(self):
+        return int(self.record.max_health * self._hero.companion_max_health_multiplier)
+
+    @property
+    def max_coherence(self):
+        return self._hero.companion_max_coherence
 
     def hit(self):
         self.health -= self._hero.companion_damage
@@ -102,25 +110,36 @@ class Companion(object):
 
 
     def add_experience(self, value):
-        self.experience += int(round(self._hero.modify_attribute(heroes_relations.MODIFIERS.COHERENCE_EXPERIENCE, value)))
+        value = round(self._hero.modify_attribute(heroes_relations.MODIFIERS.COHERENCE_EXPERIENCE, value))
 
-        if self.coherence == c.COMPANIONS_MAX_COHERENCE:
-            self.experience = min(self.experience, self.experience_to_next_level)
-            return
+        if self.record.type.is_LIVING:
+            value *= self._hero.companion_living_coherence_speed
+        elif self.record.type.is_CONSTRUCT:
+            value *= self._hero.companion_construct_coherence_speed
+        elif self.record.type.is_UNUSUAL:
+            value *= self._hero.companion_unusual_coherence_speed
+
+        self.experience += int(value)
 
         while self.experience_to_next_level <= self.experience:
+
+            if self.coherence >= self.max_coherence:
+                self.experience = min(self.experience, self.experience_to_next_level)
+                return
+
             self.experience -= self.experience_to_next_level
             self.coherence += 1
+
             self._hero.reset_accessors_cache()
 
+
     def modify_attribute(self, modifier, value):
-        return self.record.abilities.modify_attribute(self.coherence, modifier, value)
+        if modifier.is_COMPANION_ABILITIES_LEVELS:
+            return value
+        return self.record.abilities.modify_attribute(self.coherence, self._hero.companion_abilities_levels, modifier, value)
 
     def check_attribute(self, modifier):
         return self.record.abilities.check_attribute(self.coherence, modifier)
-
-    def update_context(self, actor, enemy):
-        return self.record.abilities.update_context(self.coherence, actor, enemy)
 
     @property
     def experience_to_next_level(self):

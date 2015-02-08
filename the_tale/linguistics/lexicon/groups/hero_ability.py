@@ -71,4 +71,8 @@ KEYS = [(u'HERO_ABILITY_FIREBALL', 280000, u'Журнал: Шар огня', LEX
         u'Атакующий промахнулся при использовании способности «Удар вампира»',
         [V.ATTACKER, V.DEFENDER]),
 
+        (u'HERO_ABILITY_COMPANION_HEALING', 280017, u'Журнал: герой лечит спутника', LEXICON_GROUP.HERO_ABILITY,
+        u'Герой восстановил спутнику немного здоровья',
+        [V.HERO, V.COMPANION, V.HEALTH]),
+
         ]

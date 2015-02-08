@@ -49,7 +49,7 @@ class HabilitiesContainerTest(TestCase):
 
     def test_simple_level_up(self):
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
-            self.assertEqual(self.abilities.randomized_level_up(1), 1)
+            self.assertEqual(self.abilities.randomized_mob_level_up(1), 1)
 
         self.assertEqual(reset_accessors_cache.call_count, 0)
         self.assertEqual(self.abilities.get(battle_abilities.HIT.get_id()).level, 1)
@@ -58,28 +58,28 @@ class HabilitiesContainerTest(TestCase):
         self.abilities.add(battle_abilities.REGENERATION.get_id())
 
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
-            self.assertEqual(self.abilities.randomized_level_up(1), 0)
+            self.assertEqual(self.abilities.randomized_mob_level_up(1), 0)
 
         self.assertEqual(reset_accessors_cache.call_count, 1)
 
         self.assertEqual(self.abilities.get(battle_abilities.REGENERATION.get_id()).level, 2)
 
     def test_large_level_up(self):
-        self.assertEqual(self.abilities.randomized_level_up(battle_abilities.HIT.MAX_LEVEL+1), 2)
+        self.assertEqual(self.abilities.randomized_mob_level_up(battle_abilities.HIT.MAX_LEVEL+1), 2)
         self.assertEqual(self.abilities.get(battle_abilities.HIT.get_id()).level, battle_abilities.HIT.MAX_LEVEL)
 
     def test_multiply_level_up(self):
         self.abilities.add(battle_abilities.REGENERATION.get_id())
         self.abilities.add(battle_abilities.STRONG_HIT.get_id())
         levels = max([battle_abilities.HIT.MAX_LEVEL, battle_abilities.REGENERATION.MAX_LEVEL, battle_abilities.STRONG_HIT.MAX_LEVEL])
-        self.assertEqual(self.abilities.randomized_level_up(levels), 0)
+        self.assertEqual(self.abilities.randomized_mob_level_up(levels), 0)
         self.assertTrue(self.abilities.get(battle_abilities.HIT.get_id()).level, 1)
         self.assertTrue(self.abilities.get(battle_abilities.REGENERATION.get_id()).level > 1)
         self.assertTrue(self.abilities.get(battle_abilities.STRONG_HIT.get_id()).level > 1)
 
     def test_multiply_simple_level_up(self):
         self.abilities.add(battle_abilities.REGENERATION.get_id())
-        self.assertEqual(self.abilities.randomized_level_up(1), 0)
+        self.assertEqual(self.abilities.randomized_mob_level_up(1), 0)
         self.assertTrue(self.abilities.get(battle_abilities.HIT.get_id()).level in [1, 2])
         self.assertTrue(self.abilities.get(battle_abilities.REGENERATION.get_id()).level in [1, 2])
         self.assertEqual(self.abilities.get(battle_abilities.HIT.get_id()).level + self.abilities.get(battle_abilities.REGENERATION.get_id()).level, 3)
@@ -99,7 +99,7 @@ class HabilitiesContainerTest(TestCase):
 
         self.assertEqual(reset_accessors_cache.call_count, 1)
 
-        self.assertEqual(len(self.abilities.all), 1)
+        self.assertEqual(len(self.abilities.all), 2)
         self.assertEqual(old_destiny_points + 1, self.abilities.destiny_points_spend)
         self.assertFalse(self.abilities.can_reset)
 

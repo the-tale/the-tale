@@ -53,5 +53,5 @@ class ResetHeroAbilitiesTest(TestCase):
 
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
-        self.assertEqual(len(self.hero.abilities.all), 1)
+        self.assertEqual(len(self.hero.abilities.all), 2)
         self.assertTrue(task.state.is_PROCESSED)

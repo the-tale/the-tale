@@ -272,6 +272,9 @@ class HeroResource(Resource):
         elif type.is_COMPANION_DEDICATION:
             pass
 
+        elif type.is_COMPANION_EMPATHY:
+            pass
+
         elif type.is_FAVORITE_ITEM:
             favorite_items = {slot: self.hero.equipment.get(slot)
                               for slot in relations.EQUIPMENT_SLOT.records
@@ -291,6 +294,7 @@ class HeroResource(Resource):
                               'EQUIPMENT_SLOT': relations.EQUIPMENT_SLOT,
                               'RISK_LEVEL': relations.RISK_LEVEL,
                               'COMPANION_DEDICATION': relations.COMPANION_DEDICATION,
+                              'COMPANION_EMPATHY': relations.COMPANION_EMPATHY,
                               'ARCHETYPE': game_relations.ARCHETYPE} )
 
     @login_required

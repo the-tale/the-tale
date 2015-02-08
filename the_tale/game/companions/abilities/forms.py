@@ -31,6 +31,7 @@ def get_abilities_fields():
         relations.FIELDS.START_1: ChoiceField(filter=common_filter, sort_key=sort_key),
         relations.FIELDS.START_2: ChoiceField(filter=common_filter, sort_key=sort_key),
         relations.FIELDS.START_3: ChoiceField(filter=common_filter, sort_key=sort_key),
+        relations.FIELDS.START_4: ChoiceField(filter=common_filter, sort_key=sort_key),
         relations.FIELDS.ABILITY_1: ChoiceField(filter=common_filter, sort_key=sort_key),
         relations.FIELDS.ABILITY_2: ChoiceField(filter=common_filter, sort_key=sort_key),
         relations.FIELDS.ABILITY_3: ChoiceField(filter=common_filter, sort_key=sort_key),

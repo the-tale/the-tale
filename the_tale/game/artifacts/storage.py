@@ -107,11 +107,11 @@ class ArtifactsStorage(storage.CachedStorage):
 
         return None
 
-    def generate_any_artifact(self, hero):
+    def generate_any_artifact(self, hero, artifact_probability_multiplier=1.0):
 
         artifact_level = random.randint(1, hero.level)
 
-        if random.uniform(0, 1) < hero.artifacts_probability(None) / c.GET_LOOT_PROBABILITY:
+        if random.uniform(0, 1) < hero.artifacts_probability(None) * artifact_probability_multiplier / c.GET_LOOT_PROBABILITY:
             return self.generate_artifact_from_list(self.artifacts, artifact_level, rarity=self.get_rarity_type(hero))
 
         return self.generate_artifact_from_list(self.loot, artifact_level, rarity=relations.RARITY.NORMAL)

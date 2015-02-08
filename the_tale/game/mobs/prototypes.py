@@ -64,7 +64,7 @@ class MobPrototype(object):
         abilities = AbilitiesPrototype()
         for ability_id in record.abilities:
             abilities.add(ability_id, level=1)
-        abilities.randomized_level_up(f.max_ability_points_number(level)-len(record.abilities))
+        abilities.randomized_mob_level_up(f.max_ability_points_number(level)-len(record.abilities))
         return abilities
 
     additional_abilities = []

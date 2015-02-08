@@ -373,6 +373,8 @@ class HeroPrototype(BasePrototype,
             preferences.set_archetype(game_relations.ARCHETYPE.NEUTRAL, change_time=datetime.datetime.fromtimestamp(0))
         if preferences.companion_dedication is None:
             preferences.set_companion_dedication(relations.COMPANION_DEDICATION.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
+        if preferences.companion_empathy is None:
+            preferences.set_companion_empathy(relations.COMPANION_EMPATHY.ORDINAL, change_time=datetime.datetime.fromtimestamp(0))
 
         return preferences
 
@@ -693,7 +695,8 @@ class HeroPrototype(BasePrototype,
                                         energy_regeneration_type=hero.preferences.energy_regeneration_type,
                                         risk_level=relations.RISK_LEVEL.NORMAL,
                                         archetype=game_relations.ARCHETYPE.NEUTRAL,
-                                        companion_dedication=relations.COMPANION_DEDICATION.NORMAL)
+                                        companion_dedication=relations.COMPANION_DEDICATION.NORMAL,
+                                        companion_empathy=relations.COMPANION_EMPATHY.ORDINAL)
 
         storage = LogicStorage() # tmp storage for creating Idleness action
         ActionIdlenessPrototype.create(hero=hero, _bundle_id=bundle.id, _storage=None)
@@ -1072,7 +1075,8 @@ class HeroPreferencesPrototype(BasePrototype):
                  'risk_level',
                  'favorite_item',
                  'archetype',
-                 'companion_dedication')
+                 'companion_dedication',
+                 'companion_empathy')
     _bidirectional = ()
     _get_by = ('id', 'hero_id')
 
@@ -1080,12 +1084,13 @@ class HeroPreferencesPrototype(BasePrototype):
         super(HeroPreferencesPrototype, self).__init__(**kwargs)
 
     @classmethod
-    def create(cls, hero, energy_regeneration_type, risk_level, archetype, companion_dedication):
+    def create(cls, hero, energy_regeneration_type, risk_level, archetype, companion_dedication, companion_empathy):
         return cls(model=cls._model_class.objects.create(hero=hero._model,
                                                          energy_regeneration_type=energy_regeneration_type,
                                                          risk_level=risk_level,
                                                          archetype=archetype,
-                                                         companion_dedication=companion_dedication))
+                                                         companion_dedication=companion_dedication,
+                                                         companion_empathy=companion_empathy))
 
     @classmethod
     def update(cls, hero_id, field, value):

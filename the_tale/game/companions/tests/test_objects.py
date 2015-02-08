@@ -1,4 +1,5 @@
 # coding: utf-8
+import random
 import mock
 
 from the_tale.common.utils import testcase
@@ -14,12 +15,14 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game import relations as game_relations
 
 from the_tale.game.heroes import relations as heroes_relations
+from the_tale.game.heroes.habilities import companions as heroes_companions_abilities
 
 from the_tale.game.companions import logic
 from the_tale.game.companions import objects
 from the_tale.game.companions import relations
 
 from the_tale.game.companions.abilities import container as abilities_container
+from the_tale.game.companions.abilities import effects as companions_effects
 
 
 class CompanionTests(testcase.TestCase):
@@ -69,6 +72,60 @@ class CompanionTests(testcase.TestCase):
         with self.check_not_changed(lambda: self.companion.experience_to_next_level):
             self.companion.coherence = c.COMPANIONS_MAX_COHERENCE
 
+
+    def test_add_experience__coherence_speed__living(self):
+        self.companion.coherence = 95
+
+        self.companion.record.type = relations.TYPE.LIVING
+
+        with self.check_delta(lambda: self.companion.experience, 10):
+            self.companion.add_experience(10)
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_living_coherence_speed', 2):
+            with self.check_delta(lambda: self.companion.experience, 20):
+                self.companion.add_experience(10)
+
+            self.companion.record.type = relations.TYPE.random(exclude=(relations.TYPE.LIVING, ))
+
+            with self.check_delta(lambda: self.companion.experience, 10):
+                self.companion.add_experience(10)
+
+    def test_add_experience__coherence_speed__construct(self):
+        self.companion.coherence = 95
+
+        self.companion.record.type = relations.TYPE.CONSTRUCT
+
+        with self.check_delta(lambda: self.companion.experience, 10):
+            self.companion.add_experience(10)
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_construct_coherence_speed', 2):
+            with self.check_delta(lambda: self.companion.experience, 20):
+                self.companion.add_experience(10)
+
+            self.companion.record.type = relations.TYPE.random(exclude=(relations.TYPE.CONSTRUCT, ))
+
+            with self.check_delta(lambda: self.companion.experience, 10):
+                self.companion.add_experience(10)
+
+
+    def test_add_experience__coherence_speed__unusual(self):
+        self.companion.coherence = 95
+
+        self.companion.record.type = relations.TYPE.UNUSUAL
+
+        with self.check_delta(lambda: self.companion.experience, 10):
+            self.companion.add_experience(10)
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_unusual_coherence_speed', 2):
+            with self.check_delta(lambda: self.companion.experience, 20):
+                self.companion.add_experience(10)
+
+            self.companion.record.type = relations.TYPE.random(exclude=(relations.TYPE.UNUSUAL, ))
+
+            with self.check_delta(lambda: self.companion.experience, 10):
+                self.companion.add_experience(10)
+
+
     def test_add_experience__level_not_changed(self):
         self.companion.coherence = 5
 
@@ -106,6 +163,64 @@ class CompanionTests(testcase.TestCase):
             self.companion.add_experience(66666666666)
 
         self.assertEqual(self.companion.experience, self.companion.experience_to_next_level)
+
+    def test_max_health(self):
+
+        max_health = self.companion.max_health
+
+        with self.check_delta(lambda: max_health, max_health * 0.5):
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_max_health_multiplier', 1.5):
+                max_health = self.companion.max_health
+
+
+    def test_max_coherence(self):
+
+        max_coherence = self.companion.max_coherence
+
+        with self.check_delta(lambda: max_coherence, 40):
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_max_coherence', 60):
+                max_coherence = self.companion.max_coherence
+
+    def test_coherence_greater_then_maximum(self):
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_max_coherence', 60):
+            self.companion.add_experience(6666666)
+            self.assertEqual(self.companion.experience, self.companion.experience_to_next_level)
+
+        self.assertEqual(self.companion.max_coherence, 20)
+        self.assertEqual(self.companion.coherence, 60)
+        self.assertEqual(self.companion.experience, self.companion.experience_to_next_level)
+
+        self.companion.add_experience(6666666666666)
+
+        self.assertEqual(self.companion.max_coherence, 20)
+        self.assertEqual(self.companion.coherence, 60)
+        self.assertEqual(self.companion.experience, self.companion.experience_to_next_level)
+
+    def test_modify_attribute(self):
+        checked_abilities = [ability
+                             for ability in heroes_companions_abilities.ABILITIES.itervalues()
+                             if issubclass(ability, heroes_companions_abilities._CompanionAbilityModifier)]
+
+        for ability_class in checked_abilities:
+            for companion_ability in companions_effects.ABILITIES.records:
+                if ability_class.EFFECT_TYPE != companion_ability.effect.TYPE.metatype:
+                    continue
+
+                if hasattr(companion_ability.effect, 'ABILITY'): # skip battle abilities
+                    continue
+
+                if companion_ability.effect.MODIFIER is None: # skip complex abilities
+                    continue
+
+                self.hero.abilities.reset()
+                self.hero.reset_accessors_cache()
+
+                self.companion_record.abilities = abilities_container.Container(start=(companion_ability,))
+
+                with self.check_changed(lambda: self.companion.modify_attribute(companion_ability.effect.MODIFIER, companion_ability.effect.MODIFIER.default())):
+                    self.hero.abilities.add(ability_class.get_id(), random.randint(1, ability_class.MAX_LEVEL))
+
 
     @mock.patch('the_tale.game.balance.formulas.companions_heal_in_hour', mock.Mock(return_value=1))
     def test_need_heal_in_move(self):

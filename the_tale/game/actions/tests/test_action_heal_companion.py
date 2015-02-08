@@ -9,6 +9,7 @@ from the_tale.game.balance import constants as c
 
 from the_tale.game.companions import storage as companions_storage
 from the_tale.game.companions import logic as companions_logic
+from the_tale.game.companions import relations as companions_relations
 
 from the_tale.game.logic import create_test_map
 from the_tale.game.actions import prototypes
@@ -184,3 +185,52 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
         self.assertEqual(self.hero.companion.health, 1+c.COMPANIONS_HEAL_AMOUNT)
 
         self.storage._test_save()
+
+    def check_companion_healing_by_hero(self, companion_type):
+
+        current_time = TimePrototype.get_current_time()
+        self.hero.companion.health = 1
+
+        with self.check_increased(lambda: self.hero.companion.health):
+
+            self.companion_record.type = companion_type
+            self.action_heal_companion.state = self.action_heal_companion.STATE.PROCESSED
+            self.storage.process_turn(continue_steps_if_needed=False)
+            current_time.increment_turn()
+
+    def check_companion_healing_by_hero__not_healed(self, companion_type):
+
+        current_time = TimePrototype.get_current_time()
+        self.hero.companion.health = 1
+
+        with self.check_not_changed(lambda: self.hero.companion.health):
+            self.companion_record.type = companion_type
+            self.action_heal_companion.state = self.action_heal_companion.STATE.PROCESSED
+            self.storage.process_turn(continue_steps_if_needed=False)
+            current_time.increment_turn()
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_living_heal_probability', 1)
+    def test_companion_healing__living(self):
+        self.check_companion_healing_by_hero(companions_relations.TYPE.LIVING)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_construct_heal_probability', 1)
+    def test_companion_healing__construct(self):
+        self.check_companion_healing_by_hero(companions_relations.TYPE.CONSTRUCT)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_unusual_heal_probability', 1)
+    def test_companion_healing__unusual(self):
+        self.check_companion_healing_by_hero(companions_relations.TYPE.UNUSUAL)
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_living_heal_probability', 1)
+    def test_companion_healing__living__not_healed(self):
+        self.check_companion_healing_by_hero__not_healed(companions_relations.TYPE.random(exclude=(companions_relations.TYPE.LIVING,)))
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_construct_heal_probability', 1)
+    def test_companion_healing__construct__not_healed(self):
+        self.check_companion_healing_by_hero__not_healed(companions_relations.TYPE.random(exclude=(companions_relations.TYPE.CONSTRUCT,)))
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_unusual_heal_probability', 1)
+    def test_companion_healing__unusual__not_healed(self):
+        self.check_companion_healing_by_hero__not_healed(companions_relations.TYPE.random(exclude=(companions_relations.TYPE.UNUSUAL,)))

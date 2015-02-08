@@ -45,7 +45,8 @@ class ShopAccessoriesTest(testcase.TestCase):
         self.hero.preferences.set_favorite_item(relations.EQUIPMENT_SLOT.HAND_PRIMARY)
         self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_HIGH)
         self.hero.preferences.set_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE)
-
+        self.hero.preferences.set_companion_dedication(relations.COMPANION_DEDICATION.ALTRUISM)
+        self.hero.preferences.set_companion_empathy(relations.COMPANION_EMPATHY.EMPATH)
 
         for preference_type in relations.PREFERENCE_TYPE.records:
             self.hero.purchase_reset_preference(preference_type)

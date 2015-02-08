@@ -41,15 +41,25 @@ class PREFERENCE_TYPE(DjangoEnum):
                 ('FAVORITE_ITEM', 7, u'любимая вещь', 19, 'favorite_item', '_prepair_equipment_slot', True),
                 ('ARCHETYPE', 8, u'архетип', 34, 'archetype', '_prepair_archetype', False),
                 ('COMPANION_DEDICATION', 9, u'отношение со спутником', 15, 'companion_dedication', '_prepair_companion_dedication', False),
+                ('COMPANION_EMPATHY', 10, u'эмпатия', 60, 'companion_empathy', '_prepair_companion_empathy', False),
         )
 
 class COMPANION_DEDICATION(DjangoEnum):
     block_multiplier = Column()
     description = Column()
 
-    records = ( ('EGOISM', 0, u'эгоизм', 1.0 + c.COMPANIONS_BLOG_MULTIPLIER_HERO_DEDICATION_DELTA,  u'спутник чаще защищает героя в бою'),
+    records = ( ('EGOISM', 0, u'эгоизм', 1.0 + c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA,  u'спутник чаще защищает героя в бою'),
                 ('NORMAL', 1, u'нейтралитет', 1.0, u'спутник защищает героя с обычной частотой'),
-                ('ALTRUISM', 2, u'альтруизм', 1.0 - c.COMPANIONS_BLOG_MULTIPLIER_HERO_DEDICATION_DELTA, u'спутник реже защищает героя в бою') )
+                ('ALTRUISM', 2, u'альтруизм', 1.0 - c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA, u'спутник реже защищает героя в бою') )
+
+
+class COMPANION_EMPATHY(DjangoEnum):
+    block_multiplier = Column()
+    description = Column()
+
+    records = ( ('EGOCENTRIC', 0, u'эгоцентрик', 1.0 - c.COMPANIONS_HABITS_DELTA,  u'черты спутника оказывают меньшее влияния на черты героя'),
+                ('ORDINAL', 1, u'обыкновенный', 1.0, u'черты спутника оказывает обычное влияния на черты героя'),
+                ('EMPATH', 2, u'эмпат', 1.0 + c.COMPANIONS_HABITS_DELTA, u'черты спутника оказывает болешее влияния на черты героя') )
 
 
 class MONEY_SOURCE(DjangoEnum):
@@ -188,7 +198,27 @@ class MODIFIERS(DjangoEnum):
                 ('COMPANION_BLOCK_PROBABILITY', 61, u'вероятность, что спутник заблокирует удар врага', lambda: 1.0),
                 ('COMPANION_TELEPORTATOR', 62, u'вероятность телепортировать героя между городами', lambda: 0),
                 ('COMPANION_FLYER', 63, u'вероятность телепортировать героя в движении', lambda: 0),
-                ('COMPANION_LEAVE_IN_PLACE', 64, u'вероятность, что спутник покинет героя в городе', lambda: 0)
+                ('COMPANION_LEAVE_IN_PLACE', 64, u'вероятность, что спутник покинет героя в городе', lambda: 0),
+                ('COMPANION_ABILITIES_LEVELS', 65, u'уровень способностей спутника', lambda: {}),
+                ('COMPANION_STEAL_MONEY_MULTIPLIER', 66, u'множитель денег, когда спутник крадёт деньги при посещении города', lambda: 1.0),
+                ('COMPANION_STEAL_ITEM_MULTIPLIER', 67, u'вероятсноть артефакта, когда спутник крадёт предмет при посещении города', lambda: 1.0),
+                ('COMPANION_SPARE_PARTS_MULTIPLIER', 68, u'стоимость запчастей', lambda: 1.0),
+                ('COMPANION_EAT_CORPSES_PROBABILITY', 69, u'вероятность, что спутник восстанавливает здоровье, поедая трупы враго', lambda: c.COMPANION_EATEN_CORPSES_PER_BATTLE),
+                ('COMPANION_SAY_WISDOM_PROBABILITY', 70, u'вероятсность, что спутник периодически изрекает мудрые мысли, дающие герою опыт', lambda: c.COMPANION_EXP_PER_MOVE_PROBABILITY),
+                ('COMPANION_EXP_PER_HEAL_PROBABILITY', 71, u'вероятность, что герой получает опыт за каждый уход за спутником', lambda: 1.0),
+                ('COMPANION_REGENERATE_PROBABILITY', 72, u'вероятсность, что спутник восстанавливает здоровье, после ухода за ним героя', lambda: c.COMPANION_REGEN_ON_HEAL_PER_HEAL),
+                ('COMPANION_DRINK_ARTIFACT_PROBABILITY', 73, u'вероятсность, что спутник пропивает артефакты', lambda: 1.0),
+                ('COMPANION_EXORCIST_PROBABILITY', 74, u'шанс, что спутник изгонит демона', lambda: 1.0),
+                ('COMPANION_MAX_HEALTH', 75, u'множитель максимального здоровья спутника', lambda: 1.0),
+                ('COMPANION_MAX_COHERENCE', 76, u'максимальный уровень слаженности', lambda: 0),
+
+                ('COMPANION_LIVING_HEAL', 77, u'шанс подлечить живого спутника', lambda: 0),
+                ('COMPANION_CONSTRUCT_HEAL', 78, u'шанс подлечить конструкта', lambda: 0),
+                ('COMPANION_UNUSUAL_HEAL', 79, u'шанс подлечить необычного спутника', lambda: 0),
+
+                ('COMPANION_LIVING_COHERENCE_SPEED', 80, u'скорость развития живого спутника', lambda: 1.0),
+                ('COMPANION_CONSTRUCT_COHERENCE_SPEED', 81, u'скорость развития конструкта', lambda: 1.0),
+                ('COMPANION_UNUSUAL_COHERENCE_SPEED', 82, u'скорость развития необычного спутника', lambda: 1.0),
                 )
 
 

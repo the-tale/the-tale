@@ -155,3 +155,4 @@ class HeroPreferences(models.Model):
     favorite_item = RelationIntegerField(relation=relations.EQUIPMENT_SLOT, null=True, default=None, blank=True)
     archetype = RelationIntegerField(relation=game_relations.ARCHETYPE, null=True, default=None, blank=True)
     companion_dedication = RelationIntegerField(relation=relations.COMPANION_DEDICATION, null=True, default=None, blank=True)
+    companion_empathy = RelationIntegerField(relation=relations.COMPANION_EMPATHY, null=True, default=None, blank=True)

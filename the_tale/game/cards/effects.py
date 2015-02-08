@@ -385,6 +385,10 @@ class PreferencesCooldownsResetArchetype(PreferencesCooldownsResetBase):
     TYPE = relations.CARD_TYPE.PREFERENCES_COOLDOWNS_RESET_ARCHETYPE
     PREFERENCE = PREFERENCE_TYPE.ARCHETYPE
 
+class PreferencesCooldownsResetCompanionEmpathy(PreferencesCooldownsResetBase):
+    TYPE = relations.CARD_TYPE.PREFERENCES_COOLDOWNS_RESET_COMPANION_EMPATHY
+    PREFERENCE = PREFERENCE_TYPE.COMPANION_EMPATHY
+
 
 class PreferencesCooldownsResetAll(BaseEffect):
     TYPE = relations.CARD_TYPE.PREFERENCES_COOLDOWNS_RESET_ALL

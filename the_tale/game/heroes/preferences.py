@@ -178,6 +178,10 @@ class HeroPreferences(object):
         if companion_dedication_id is None: return None
         return relations.COMPANION_DEDICATION.index_value.get(int(companion_dedication_id))
 
+    def _prepair_companion_empathy(self, companion_empathy_id):
+        if companion_empathy_id is None: return None
+        return relations.COMPANION_EMPATHY.index_value.get(int(companion_empathy_id))
+
     def _get(self, preferences_type):
         if preferences_type.base_name not in self.data:
             return None

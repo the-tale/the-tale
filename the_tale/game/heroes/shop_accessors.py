@@ -27,6 +27,8 @@ class ShopAccessorsMixin(object):
             self.preferences.set_archetype(game_relations.ARCHETYPE.NEUTRAL, change_time=datetime.datetime.fromtimestamp(0))
         elif preference_type.is_COMPANION_DEDICATION:
             self.preferences.set_companion_dedication(relations.COMPANION_DEDICATION.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
+        elif preference_type.is_COMPANION_EMPATHY:
+            self.preferences.set_companion_empathy(relations.COMPANION_EMPATHY.ORDINAL, change_time=datetime.datetime.fromtimestamp(0))
         else:
             self.preferences._reset(preference_type)
 

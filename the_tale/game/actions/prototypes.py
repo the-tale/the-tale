@@ -780,7 +780,7 @@ class ActionMoveToPrototype(ActionBase):
 
     def normal_move(self):
 
-        if self.hero.companion and self.hero.can_companion_say_wisdom() and random.random() < c.COMPANION_EXP_PER_MOVE_PROBABILITY:
+        if self.hero.companion and self.hero.can_companion_say_wisdom() and random.random() < self.hero.companion_say_wisdom_probability:
             self.hero.add_experience(c.COMPANION_EXP_PER_MOVE_GET_EXP, without_modifications=True)
             self.hero.add_message('companions_say_wisdom', companion_owner=self.hero, companion=self.hero.companion, experience=c.COMPANION_EXP_PER_MOVE_GET_EXP)
 
@@ -923,7 +923,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
         kill_before_battle = hero.can_kill_before_battle()
         can_peacefull_battle = hero.can_peacefull_battle(mob.mob_type)
         can_leave_battle_in_fear = hero.can_leave_battle_in_fear()
-        companions_is_exorcist = hero.companion and hero.can_companion_do_exorcism
+        companions_is_exorcist = hero.companion and hero.can_companion_do_exorcism() and random.random() < hero.companion_do_exorcism_probability
 
         instant_kill_mob = False
 
@@ -1025,8 +1025,8 @@ class ActionBattlePvE1x1Prototype(ActionBase):
         if (self.hero.companion and
             self.hero.companion.health < self.hero.companion.max_health and
             self.hero.can_companion_eat_corpses() and
-            self.mob.mob_type.is_eatable and
-            random.random() < c.COMPANION_EATEN_CORPSES_PER_BATTLE):
+            random.random() < self.hero.companion_eat_corpses_probability and
+            self.mob.mob_type.is_eatable):
             self.hero.companion.health += c.COMPANIONS_HEAL_AMOUNT
             self.hero.add_message('companions_eat_corpse', companion_owner=self.hero, companion=self.hero.companion, health=c.COMPANIONS_HEAL_AMOUNT)
 
@@ -1196,7 +1196,7 @@ class ActionInPlacePrototype(ActionBase):
                     hero.change_money(MONEY_SOURCE.SPEND_FOR_COMPANIONS, -coins)
                     hero.add_message('action_inplace_companion_money_for_food', hero=hero, place=hero.position.place, companion=hero.companion, coins=coins)
 
-            if not hero.bag.is_empty and hero.can_companion_drink_artifact():
+            if not hero.bag.is_empty and hero.can_companion_drink_artifact() and random.random() < hero.companion_drink_artifact_probability:
                 artifact = random.choice(hero.bag.values())
                 hero.pop_loot(artifact)
                 hero.add_message('action_inplace_companion_drink_artifact', hero=hero, place=hero.position.place, artifact=artifact, companion=hero.companion)
@@ -1347,12 +1347,12 @@ class ActionInPlacePrototype(ActionBase):
             return
 
         if self.hero.can_companion_steal_money():
-            money = random.randint(1, f.normal_loot_cost_at_lvl(self.hero.level) * 2)
+            money = int(f.normal_loot_cost_at_lvl(self.hero.level) * random.uniform(0.8, 1.2) * self.hero.companion_steal_money_modifier) + 1
             self.hero.change_money(MONEY_SOURCE.EARNED_FROM_COMPANIONS, money)
             self.hero.add_message('action_inplace_companion_steal_money', hero=self.hero, place=self.hero.position.place, companion=self.hero.companion, coins=money)
 
         if self.hero.can_companion_steal_item() and not self.hero.bag_is_full:
-            loot = artifacts_storage.generate_any_artifact(self.hero)
+            loot = artifacts_storage.generate_any_artifact(self.hero, artifact_probability_multiplier=self.hero.companion_steal_artifact_probability_multiplier)
 
             self.hero.put_loot(loot)
 
@@ -1888,14 +1888,22 @@ class ActionHealCompanionPrototype(ActionBase):
         if self.hero.companion is None:
             return
 
-        if self.hero.can_companion_exp_per_heal():
+        if self.hero.can_companion_exp_per_heal() and random.random() < self.hero.companion_exp_per_heal_probability:
             self.hero.add_experience(c.COMPANION_EXP_PER_HEAL, without_modifications=True)
 
         if (self.hero.companion.health < self.hero.companion.max_health and
             self.hero.can_companion_regenerate() and
-            random.random() < c.COMPANION_REGEN_ON_HEAL_PER_HEAL):
+            random.random() < self.hero.companion_regenerate_probability):
             self.hero.companion.health += c.COMPANIONS_HEAL_AMOUNT
             self.hero.add_message('companions_regenerate', companion_owner=self.hero, companion=self.hero.companion, health=c.COMPANIONS_HEAL_AMOUNT)
+
+        if (self.hero.companion.health < self.hero.companion.max_health and
+            ( (self.hero.companion.type.is_LIVING and random.random() < self.hero.companion_living_heal_probability) or
+              (self.hero.companion.type.is_CONSTRUCT and random.random() < self.hero.companion_construct_heal_probability) or
+              (self.hero.companion.type.is_UNUSUAL and random.random() < self.hero.companion_unusual_heal_probability) )
+              ):
+            self.hero.companion.health += c.COMPANIONS_HEAL_AMOUNT
+            self.hero.add_message('hero_ability_companion_healing', hero=self.hero, companion=self.hero.companion, health=c.COMPANIONS_HEAL_AMOUNT)
 
 
     def on_heal_companion(self):

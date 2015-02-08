@@ -111,28 +111,20 @@ class ContainerTests(testcase.TestCase):
 
 
     def test_modify_attribute(self):
-        with mock.patch('the_tale.game.companions.abilities.effects.Base.modify_attribute', lambda self, modifier, value: value * 2):
-            self.assertEqual(self.container_1.modify_attribute(100, None, 1), 16)
-            self.assertEqual(self.container_1.modify_attribute(66, None, 1), 16)
-            self.assertEqual(self.container_1.modify_attribute(50, None, 1), 8)
-            self.assertEqual(self.container_1.modify_attribute(33, None, 1), 8)
-            self.assertEqual(self.container_1.modify_attribute(32, None, 1), 4)
-            self.assertEqual(self.container_1.modify_attribute(9, None, 1), 4)
+        with mock.patch('the_tale.game.companions.abilities.effects.Base.modify_attribute', lambda self, abilities_levels, modifier, value: value * 2):
+            self.assertEqual(self.container_1.modify_attribute(100, {}, None, 1), 16)
+            self.assertEqual(self.container_1.modify_attribute(66, {}, None, 1), 16)
+            self.assertEqual(self.container_1.modify_attribute(50, {}, None, 1), 8)
+            self.assertEqual(self.container_1.modify_attribute(33, {}, None, 1), 8)
+            self.assertEqual(self.container_1.modify_attribute(32, {}, None, 1), 4)
+            self.assertEqual(self.container_1.modify_attribute(9, {}, None, 1), 4)
 
-            self.assertEqual(self.container_2.modify_attribute(100, None, 1), 128)
-            self.assertEqual(self.container_2.modify_attribute(75, None, 1), 128)
-            self.assertEqual(self.container_2.modify_attribute(50, None, 1), 64)
-            self.assertEqual(self.container_2.modify_attribute(25, None, 1), 32)
-            self.assertEqual(self.container_2.modify_attribute(24, None, 1), 16)
-            self.assertEqual(self.container_2.modify_attribute(0, None, 1), 16)
-
-
-    def check_context(self, container, coherence, result):
-        context_1 = []
-        context_2 = []
-        container.update_context(coherence, context_1, context_2)
-        self.assertEqual(len(context_1), result)
-        self.assertEqual(len(context_2), result)
+            self.assertEqual(self.container_2.modify_attribute(100, {}, None, 1), 128)
+            self.assertEqual(self.container_2.modify_attribute(75, {}, None, 1), 128)
+            self.assertEqual(self.container_2.modify_attribute(50, {}, None, 1), 64)
+            self.assertEqual(self.container_2.modify_attribute(25, {}, None, 1), 32)
+            self.assertEqual(self.container_2.modify_attribute(24, {}, None, 1), 16)
+            self.assertEqual(self.container_2.modify_attribute(0, {}, None, 1), 16)
 
 
     def check_attribute(self):

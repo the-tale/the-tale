@@ -206,7 +206,8 @@ class THRIFTY(AbilityPrototype):
     @property
     def max_bag_size_modifier(self): return self.MAX_BAG_SIZE_MODIFIER[self.level-1]
 
-    def modify_attribute(self, type_, value): return value + self.max_bag_size_modifier if type_.is_MAX_BAG_SIZE else value
+    def modify_attribute(self, type_, value):
+        return value + self.max_bag_size_modifier if type_.is_MAX_BAG_SIZE else value
 
 
 ABILITIES = dict( (ability.get_id(), ability)

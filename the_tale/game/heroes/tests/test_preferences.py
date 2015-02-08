@@ -1509,6 +1509,108 @@ class HeroPreferencesCompanionDedicationTest(PreferencesTestMixin, TestCase):
         self.check_change_companion_dedication(self.altruism, self.egoism, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
 
+class HeroPreferencesCompanionEmpathyTest(PreferencesTestMixin, TestCase):
+    PREFERENCE_TYPE = relations.PREFERENCE_TYPE.COMPANION_EMPATHY
+
+    def setUp(self):
+        super(HeroPreferencesCompanionEmpathyTest, self).setUp()
+        create_test_map()
+
+        self.account = self.accounts_factory.create_account()
+        self.storage = LogicStorage()
+        self.storage.load_account_data(self.account)
+        self.hero = self.storage.accounts_to_heroes[self.account.id]
+
+        self.hero._model.level = relations.PREFERENCE_TYPE.COMPANION_EMPATHY.level_required
+        self.hero._model.save()
+
+        self.empath = relations.COMPANION_EMPATHY.EMPATH
+        self.egocentric = relations.COMPANION_EMPATHY.EGOCENTRIC
+
+    def test_initialization(self):
+        self.assertTrue(self.hero.preferences.companion_empathy.is_ORDINAL)
+
+    def test_preferences_serialization(self):
+        self.hero.preferences.set_companion_empathy(self.empath)
+        data = self.hero.preferences.serialize()
+        self.assertEqual(data, HeroPreferences.deserialize(self.hero.id, data).serialize())
+
+    def test_save(self):
+        self.assertFalse(self.hero.preferences.updated)
+        self.hero.preferences.set_companion_empathy(self.empath)
+        self.assertTrue(self.hero.preferences.updated)
+        self.hero.save()
+        self.assertFalse(self.hero.preferences.updated)
+        self.hero.reload()
+        self.assertEqual(self.hero.preferences.companion_empathy, self.empath)
+
+    def test_create(self):
+        task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.COMPANION_EMPATHY, 'wrong_companion_empathy')
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNPROCESSED)
+        self.assertTrue(self.hero.preferences.companion_empathy.is_ORDINAL )
+
+    def test_wrong_level(self):
+        self.assertTrue(relations.PREFERENCE_TYPE.COMPANION_EMPATHY.level_required > 1)
+        self.hero._model.level = 1
+        task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.COMPANION_EMPATHY, self.empath.value)
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
+        self.assertTrue(self.hero.preferences.companion_empathy.is_ORDINAL)
+
+    def check_set_companion_empathy(self, companion_empathy):
+        task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.COMPANION_EMPATHY , companion_empathy.value)
+        self.assertTrue(self.hero.preferences.companion_empathy.is_ORDINAL)
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
+        self.assertEqual(self.hero.preferences.companion_empathy, companion_empathy)
+
+    def test_purchased(self):
+        self.assertTrue(relations.PREFERENCE_TYPE.COMPANION_EMPATHY.level_required > 1)
+        self.hero._model.level = 1
+        self.account.permanent_purchases.insert(relations.PREFERENCE_TYPE.COMPANION_EMPATHY.purchase_type)
+        self.account.save()
+
+        self.check_set_companion_empathy(self.empath)
+
+    def test_wrong_companion_empathy(self):
+        task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.COMPANION_EMPATHY, 666)
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_COMPANION_EMPATHY)
+        self.assertTrue(self.hero.preferences.companion_empathy.is_ORDINAL )
+
+    def test_wrong_format_of_companion_empathy(self):
+        task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.COMPANION_EMPATHY, '3.5')
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_COMPANION_EMPATHY)
+        self.assertTrue(self.hero.preferences.companion_empathy.is_ORDINAL )
+
+    def test_set_companion_empathy(self):
+        changed_at = self.hero.preferences.companion_empathy_changed_at
+        self.check_set_companion_empathy(self.empath)
+        self.assertTrue(changed_at < self.hero.preferences.companion_empathy_changed_at)
+
+    def check_change_companion_empathy(self, new_slot, expected_slot, expected_state):
+        task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.COMPANION_EMPATHY, self.empath.value)
+        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+
+        task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.COMPANION_EMPATHY, new_slot.value if new_slot is not None else None)
+        self.assertEqual(self.hero.preferences.companion_empathy, self.empath)
+        task_result = task.process(FakePostpondTaskPrototype(), self.storage)
+        self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+        self.assertEqual(task.state, expected_state)
+        self.assertEqual(self.hero.preferences.companion_empathy, expected_slot)
+
+        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).companion_empathy, expected_slot)
+
+    @mock.patch('the_tale.game.balance.constants.PREFERENCES_CHANGE_DELAY', 0)
+    def test_change_companion_empathy(self):
+        self.check_change_companion_empathy(self.egocentric, self.egocentric, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
+
+    def test_change_companion_empathy_cooldown(self):
+        self.check_change_companion_empathy(self.egocentric, self.empath, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
+
+
+
 class HeroPreferencesRequestsTest(TestCase):
 
     def setUp(self):
@@ -1606,6 +1708,11 @@ class HeroPreferencesRequestsTest(TestCase):
         self.request_login('test_user@test.com')
         response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % relations.PREFERENCE_TYPE.COMPANION_DEDICATION.value))
         self.check_html_ok(response, texts=[r.text for r in relations.COMPANION_DEDICATION.records])
+
+    def test_preferences_dialog_companion_empathy(self):
+        self.request_login('test_user@test.com')
+        response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % relations.PREFERENCE_TYPE.COMPANION_EMPATHY.value))
+        self.check_html_ok(response, texts=[r.text for r in relations.COMPANION_EMPATHY.records])
 
 
     def test_preferences_dialog_favorite_item(self):
