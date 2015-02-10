@@ -90,7 +90,7 @@ class COHERENCE(AbilityPrototype):
 
 
 
-class CompanionHealBase(AbilityPrototype):
+class _CompanionHealBase(AbilityPrototype):
     TYPE = ABILITY_TYPE.COMPANION
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
@@ -112,23 +112,23 @@ class CompanionHealBase(AbilityPrototype):
 
 
 
-class HEALING(CompanionHealBase):
+class HEALING(_CompanionHealBase):
     NAME = u'Врачевание'
-    normalized_name = None
+    normalized_name = NAME
     DESCRIPTION = u'герой иногда лечит «живых» спутников.'
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_LIVING_HEAL
 
 
-class MAGE_MECHANICS(CompanionHealBase):
+class MAGE_MECHANICS(_CompanionHealBase):
     NAME = u'Магомеханика'
-    normalized_name = None
+    normalized_name = NAME
     DESCRIPTION = u'герой иногда лечит «механических» спутников'
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_CONSTRUCT_HEAL
 
 
-class WITCHCRAFT(CompanionHealBase):
+class WITCHCRAFT(_CompanionHealBase):
     NAME = u'Ведовство'
-    normalized_name = None
+    normalized_name = NAME
     DESCRIPTION = u'герой иногда лечит «необычных» спутников'
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL
 

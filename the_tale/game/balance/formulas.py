@@ -13,7 +13,7 @@ def turns_to_minutes(turns): return float(turns * c.TURN_DELTA)/60 # перев�
 
 def hours_to_turns(hours): return float(hours * c.TURNS_IN_HOUR) # перевод часов в ходы
 
-def time_on_lvl(lvl): return float(c.TIME_TO_LVL_DELTA * lvl) # время, которое игрок проведёт на одном уровне
+def time_on_lvl(lvl): return float(c.TIME_TO_LVL_DELTA * lvl * c.TIME_TO_LVL_MULTIPLIER ** lvl) # время, которое игрок проведёт на одном уровне
 
 def exp_on_lvl(lvl): return int(c.EXP_PER_HOUR * time_on_lvl(lvl)) # опыт, который игрок должен заработать на одном уровне
 
@@ -25,12 +25,13 @@ def total_time_for_lvl(lvl): return float(sum(time_on_lvl(x) for x in xrange(1, 
 
 def total_exp_to_lvl(lvl): return int(sum(exp_on_lvl(x) for x in xrange(1, lvl+1))) # общий опыт, получаемые героем для стижения уровня (с 1-ого)
 
-# находим зависимость уровня от проведённого времени
-
-# уровень героя, после проведения в игре time времени
-# решаем уравнение: Solve[time == totalTimeForLvl[lvl], lvl];
-# и добавляем 1
-def lvl_after_time(time): return int(1 + (-c.TIME_TO_LVL_DELTA + math.sqrt(c.TIME_TO_LVL_DELTA) * math.sqrt(8 * time + c.TIME_TO_LVL_DELTA)) / (2 * c.TIME_TO_LVL_DELTA))
+def lvl_after_time(time):
+    total_exp = c.EXP_PER_HOUR * time
+    level = 1
+    while total_exp > exp_on_lvl(level):
+        total_exp -= exp_on_lvl(level)
+        level += 1
+    return level
 
 def mob_hp_to_lvl(lvl): return int(hp_on_lvl(lvl) * c.MOB_HP_MULTIPLIER) # здоровье моба уровня героя
 def boss_hp_to_lvl(lvl): return int(hp_on_lvl(lvl) * c.BOSS_HP_MULTIPLIER) # здоровье босса уровня героя

@@ -36,6 +36,8 @@ from the_tale.game.heroes import relations
 from the_tale.game.heroes.forms import ChoosePreferencesForm, EditNameForm
 from the_tale.game.heroes.conf import heroes_settings
 
+from the_tale.game.heroes.habilities import relations as habilities_relations
+
 
 def split_list(items):
     half = (len(items)+1)/2
@@ -84,6 +86,7 @@ class HeroResource(Resource):
         battle_active_abilities = filter(lambda a: a.type.is_BATTLE and a.activation_type.is_ACTIVE, abilities) # pylint: disable=W0110
         battle_passive_abilities = filter(lambda a: a.type.is_BATTLE and a.activation_type.is_PASSIVE, abilities)# pylint: disable=W0110
         nonbattle_abilities = filter(lambda a: a.type.is_NONBATTLE, abilities)# pylint: disable=W0110
+        companion_abilities = filter(lambda a: a.type.is_COMPANION, abilities)# pylint: disable=W0110
 
         edit_name_form = EditNameForm(initial=EditNameForm.get_initials(hero=self.hero))
 
@@ -97,6 +100,7 @@ class HeroResource(Resource):
                              {'battle_active_abilities': battle_active_abilities,
                               'battle_passive_abilities': battle_passive_abilities,
                               'nonbattle_abilities': nonbattle_abilities,
+                              'companion_abilities': companion_abilities,
                               'heroes_settings': heroes_settings,
                               'is_owner': self.is_owner,
                               'edit_name_form': edit_name_form,
@@ -105,6 +109,7 @@ class HeroResource(Resource):
                               'EQUIPMENT_SLOT': relations.EQUIPMENT_SLOT,
                               'PREFERENCE_TYPE': relations.PREFERENCE_TYPE,
                               'PREFERENCES_CHANGE_DELAY': datetime.timedelta(seconds=c.PREFERENCES_CHANGE_DELAY),
+                              'ABILITY_TYPE': habilities_relations.ABILITY_TYPE,
                               'HABIT_TYPE': HABIT_TYPE,
                               'HABITS_BORDER': c.HABITS_BORDER} )
 

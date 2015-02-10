@@ -4,7 +4,8 @@ import math
 from the_tale.game.balance import enums as e
 from the_tale.game.balance import helpers as h
 
-TIME_TO_LVL_DELTA = float(5) # разница во времени получения двух соседних уровней
+TIME_TO_LVL_DELTA = float(7) # разница во времени получения двух соседних уровней
+TIME_TO_LVL_MULTIPLIER = float(1.02) # множитель опыта, возводится в степень уровня
 
 INITIAL_HP = int(500) # начальное здоровье героя
 

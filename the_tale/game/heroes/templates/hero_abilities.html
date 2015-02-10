@@ -73,39 +73,63 @@ jQuery(document).ready(function(e){
 
   {% if is_owner %}
 
-  <div id="choose-ability-button" class="alert fade in pgf-choose-ability-button pgf-free-destiny-points pgf-hidden">
+  <div id="choose-ability-button" class="alert alert-success fade in pgf-choose-ability-button pgf-free-destiny-points pgf-hidden">
     {{ resource.hero.name }} может выучить новую способность. <br/>
     Нажмите на это сообщение, чтобы выбрать её.<br/>
     Доступно способностей: {{resource.hero.abilities.destiny_points_remained}}
   </div>
 
   <div class="alert alert-info fade in pgf-choose-ability-button pgf-no-destiny-points">
-    {{ resource.hero.name }} cможет улучшить свои боевые навыки на уровне {{ resource.hero.abilities.next_battle_ability_point_lvl }}, небоевые на уровне {{ resource.hero.abilities.next_nonbattle_ability_point_lvl }} и навыки для спутника на  {{ resource.hero.abilities.next_companion_ability_point_lvl }}
+    {% if resource.hero.abilities.next_battle_ability_point_lvl or resource.hero.abilities.next_nonbattle_ability_point_lvl or resource.hero.abilities.next_companion_ability_point_lvl %}
+    {{ resource.hero.name }} cможет улучшить
+    <ul class="unstyled">
+      {% if resource.hero.abilities.next_battle_ability_point_lvl %}
+        <li>боевые навыки на уровне {{ resource.hero.abilities.next_battle_ability_point_lvl }}</li>
+      {% endif %}
+      {% if resource.hero.abilities.next_nonbattle_ability_point_lvl %}
+      <li>небоевые на уровне {{ resource.hero.abilities.next_nonbattle_ability_point_lvl }}</li>
+      {% endif %}
+      {% if resource.hero.abilities.next_companion_ability_point_lvl %}
+      <li>навыки для спутника на  {{ resource.hero.abilities.next_companion_ability_point_lvl }}</li>
+      {% endif %}
+    </ul>
+    {% else %}
+      {{ resource.hero.name }} достиг вершины геройского мастерства.
+    {% endif %}
   </div>
 
   {% endif %}
 
-  <h4>Боевые активные</h4>
+  <table class="table table-condensed table-highlighting" style="cursor: default;">
+    <tbody>
+      {% for ability in battle_active_abilities %}
+        {{macros.ability_record(ability)}}
+      {% endfor %}
+      {% for i in range(0, c.ABILITIES_ACTIVE_MAXIMUM - battle_active_abilities|length) %}
+        {{macros.ability_empty_record(ABILITY_TYPE.BATTLE)}}
+      {% endfor %}
 
-  {% if battle_active_abilities %}
-  {{ macros.abilities_list(battle_active_abilities) }}
-  {% else %}
-  <p style="margin-left:1em;">нет способностей</p>
-  {% endif %}
+      {% for ability in battle_passive_abilities %}
+        {{macros.ability_record(ability)}}
+      {% endfor %}
+      {% for i in range(0, c.ABILITIES_PASSIVE_MAXIMUM - battle_passive_abilities|length) %}
+        {{macros.ability_empty_record(ABILITY_TYPE.BATTLE)}}
+      {% endfor %}
 
-  <h4>Боевые пассивные</h4>
+      {% for ability in nonbattle_abilities %}
+        {{macros.ability_record(ability)}}
+      {% endfor %}
+      {% for i in range(0, c.ABILITIES_NONBATTLE_MAXIMUM - nonbattle_abilities|length) %}
+        {{macros.ability_empty_record(ABILITY_TYPE.NONBATTLE)}}
+      {% endfor %}
 
-  {% if battle_passive_abilities %}
-  {{ macros.abilities_list(battle_passive_abilities) }}
-  {% else %}
-  <p style="margin-left:1em;">нет способностей</p>
-  {% endif %}
+      {% for ability in companion_abilities %}
+        {{macros.ability_record(ability)}}
+      {% endfor %}
+      {% for i in range(0, c.ABILITIES_COMPANION_MAXIMUM - companion_abilities|length) %}
+        {{macros.ability_empty_record(ABILITY_TYPE.COMPANION)}}
+      {% endfor %}
+    </tbody>
+  </table>
 
-  <h4>Небоевые</h4>
-
-  {% if nonbattle_abilities %}
-  {{ macros.abilities_list(nonbattle_abilities) }}
-  {% else %}
-  <p style="margin-left:1em;">нет способностей</p>
-  {% endif %}
 </div>

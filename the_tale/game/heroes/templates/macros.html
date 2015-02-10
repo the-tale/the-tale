@@ -7,7 +7,8 @@
        data-ability-id="{{ability.get_id()}}"
        rel="tooltip"
        data-tooltip-placement="{{tooltip_placement}}"
-       title=" максимальный уровень {{ability.MAX_LEVEL}},
+       title=" {% if not show_description %}{{ability.DESCRIPTION}}<br/><br/>{% endif %}
+               максимальный уровень {{ability.MAX_LEVEL}},
                {{ ability.type.text }},
                {{ ability.availability.text }},
                {{ ability.activation_type.text -}}
@@ -33,5 +34,44 @@
   </div>
   {% endfor %}
 </dl>
+
+{%- endmacro %}
+
+
+{% macro ability_record(ability) -%}
+
+<tr rel="tooltip"
+    data-tooltip-placement="right"
+    title="<div style='text-align: left;'>{{ability.DESCRIPTION}}<br/><br/>
+           максимальный уровень {{ability.MAX_LEVEL}},
+               {{ ability.type.text }},
+               {{ ability.availability.text }},
+               {{ ability.activation_type.text -}}
+
+               {%- if ability.type.is_BATTLE-%},
+               {%- if ability.HAS_DAMAGE %}
+               прямой урон
+               {% else %}
+               нет прямого урона
+               {% endif %}
+               {% endif %}</div>">
+  <td>{{ ability.NAME }}</td>
+  <td>{{ability.TYPE.text}}</td>
+  <td>{{ability.level}}</td>
+</tr>
+
+{%- endmacro %}
+
+
+{% macro ability_empty_record(type) -%}
+
+<tr rel="tooltip"
+    class="hero-ability-empty-record"
+    data-tooltip-placement="right"
+    title="свободное место для способности">
+  <td>свободно</td>
+  <td>{{type.text}}</td>
+  <td>-</td>
+</tr>
 
 {%- endmacro %}

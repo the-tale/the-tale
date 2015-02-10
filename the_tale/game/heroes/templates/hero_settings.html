@@ -12,7 +12,7 @@ jQuery(document).ready( function(e) {
 
 <div class="easy-block hero-statistics">
 
-  <h2 style="cursor: default;">Формы имени</h2>
+  <h2 style="cursor: default;">Герой</h2>
 
   <form id="pgf-edit-hero-form" method="post" action="{{ url('game:heroes:change-hero', resource.hero.id) }}">
 
@@ -25,7 +25,7 @@ jQuery(document).ready( function(e) {
   {{ edit_name_form.name.widget }}
 
   <div class="widget">
-    <input type="submit" class="btn" value="Сохранить"/>
+    <input type="submit" class="btn btn-success" value="Изменить"/>
   </div>
 
 </div>

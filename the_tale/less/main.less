@@ -215,6 +215,10 @@ small {
    background-color: @easy-block-background-color !important;
 }
 
+.modal {
+   background-color: @easy-block-background-color !important;
+}
+
 .modal-body {
    max-height: none !important;
 
@@ -271,49 +275,13 @@ small {
 
 table.table {
 
-   &.table-no-highlighting {
-
-      & tbody {
-         tr:nth-child(odd) {
-            &:hover td {
-               background-color: @background-color !important;
-            }
-
-            &:hover th {
-               background-color: @background-color !important;
-            }
-
-            & th {
-               background-color: @background-color !important;
-            }
-         }
-
-         tr:nth-child(even){
-            &:hover td {
-               background-color: @easy-block-background-color !important;
-            }
-
-            &:hover th {
-               background-color: @easy-block-background-color !important;
-            }
-         }
-      }
-   }
-
-
    & tbody {
       tr:nth-child(odd) {
          &:hover td {
-            /* background-color: @hover-color !important; */
-            background-color: @background-color !important;
-         }
-
-         & td {
             background-color: @background-color !important;
          }
 
          &:hover th {
-            /* background-color: @hover-color !important; */
             background-color: @background-color !important;
          }
 
@@ -324,21 +292,51 @@ table.table {
 
       tr:nth-child(even){
          &:hover td {
-            /* background-color: @hover-color !important; */
-            background-color: @easy-block-background-color !important;
-         }
-
-         & td {
             background-color: @easy-block-background-color !important;
          }
 
          &:hover th {
-            /* background-color: @hover-color !important; */
             background-color: @easy-block-background-color !important;
          }
+      }
+   }
 
-         & th {
-            background-color: @easy-block-background-color !important;
+   &.table-highlighting {
+      & tbody {
+         tr:nth-child(odd) {
+            &:hover td {
+               background-color: @hover-color !important;
+            }
+
+            & td {
+               background-color: @background-color !important;
+            }
+
+            &:hover th {
+               background-color: @hover-color !important;
+            }
+
+            & th {
+               background-color: @background-color !important;
+            }
+         }
+
+         tr:nth-child(even){
+            &:hover td {
+               background-color: @hover-color !important;
+            }
+
+            & td {
+               background-color: @easy-block-background-color !important;
+            }
+
+            &:hover th {
+               background-color: @hover-color !important;
+            }
+
+            & th {
+               background-color: @easy-block-background-color !important;
+            }
          }
       }
    }

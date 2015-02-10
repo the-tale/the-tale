@@ -1,4 +1,3 @@
-
 <script type="text/javascript">
 
 jQuery(document).ready(function(e){
@@ -198,14 +197,14 @@ jQuery(document).ready(function(e){
 
     {{ preferences_record(PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, current_time,  pref_religion) }}
     {{ preferences_record(PREFERENCE_TYPE.PLACE, current_time, pref_place) }}
-    {{ preferences_record(PREFERENCE_TYPE.RISK_LEVEL, current_time, pref_risk_level) }}
+    {{ preferences_record(PREFERENCE_TYPE.MOB, current_time, pref_mob) }}
     {{ preferences_record(PREFERENCE_TYPE.FRIEND, current_time, pref_friend) }}
+    {{ preferences_record(PREFERENCE_TYPE.ARCHETYPE, current_time, pref_archetype) }}
+    {{ preferences_record(PREFERENCE_TYPE.ENEMY, current_time, pref_enemy) }}
     {{ preferences_record(PREFERENCE_TYPE.COMPANION_DEDICATION, current_time, pref_companion_dedication) }}
     {{ preferences_record(PREFERENCE_TYPE.FAVORITE_ITEM, current_time, pref_favorite_item) }}
-    {{ preferences_record(PREFERENCE_TYPE.ENEMY, current_time, pref_enemy) }}
-    {{ preferences_record(PREFERENCE_TYPE.ARCHETYPE, current_time, pref_archetype) }}
+    {{ preferences_record(PREFERENCE_TYPE.RISK_LEVEL, current_time, pref_risk_level) }}
     {{ preferences_record(PREFERENCE_TYPE.EQUIPMENT_SLOT, current_time, pref_equipment_slot) }}
-    {{ preferences_record(PREFERENCE_TYPE.MOB, current_time, pref_mob) }}
     {{ preferences_record(PREFERENCE_TYPE.COMPANION_EMPATHY, current_time, pref_companion_empathy) }}
   </ul>
 

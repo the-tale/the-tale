@@ -11,7 +11,8 @@ class ConstantsTest(testcase.TestCase):
 
     def test_constants_values(self): # pylint: disable=R0915
 
-        self.assertEqual(c.TIME_TO_LVL_DELTA, 5.0)
+        self.assertEqual(c.TIME_TO_LVL_DELTA, 7.0)
+        self.assertEqual(c.TIME_TO_LVL_MULTIPLIER, 1.02)
         self.assertEqual(c.INITIAL_HP, 500)
         self.assertEqual(c.HP_PER_LVL, 50)
         self.assertEqual(c.MOB_HP_MULTIPLIER, 0.25)

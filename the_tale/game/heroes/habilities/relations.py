@@ -5,7 +5,7 @@ from rels.django import DjangoEnum
 
 class ABILITY_TYPE(DjangoEnum):
     records = ( ('BATTLE', 0, u'боевая'),
-                ('NONBATTLE', 1, u'небоевая'),
+                ('NONBATTLE', 1, u'мирная'),
                 ('COMPANION', 2, u'для спутника'))
 
 

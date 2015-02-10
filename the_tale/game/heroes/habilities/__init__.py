@@ -123,6 +123,9 @@ class AbilitiesPrototype(object):
 
         ability_type=self.next_ability_type
 
+        if ability_type is None:
+            return []
+
         max_active_abilities, max_passive_abilities = self.ability_types_limitations[ability_type]
 
         # filter by type (battle, nonbattle, etc...)
@@ -270,23 +273,61 @@ class AbilitiesPrototype(object):
     def destiny_points(self):
         return self.max_ability_points_number - self.current_ability_points_number
 
+    NEXT_ABILITY = {2: ABILITY_TYPE.BATTLE,
+                    0: ABILITY_TYPE.NONBATTLE,
+                    1: ABILITY_TYPE.COMPANION}
+
+    @classmethod
+    def next_ability_type_order(cls, points):
+        return (cls.NEXT_ABILITY[points % 3], cls.NEXT_ABILITY[(points+1) % 3], cls.NEXT_ABILITY[(points+2) % 3])
+
     @property
     def next_ability_type(self):
-        return {1: ABILITY_TYPE.BATTLE,
-                2: ABILITY_TYPE.NONBATTLE,
-                0: ABILITY_TYPE.COMPANION}[self.current_ability_points_number % 3]
+        available_types = self.available_abilities_types()
+
+        if not available_types:
+            return None
+
+        for ability_type in self.next_ability_type_order(self.current_ability_points_number):
+            if ability_type in available_types:
+                return ability_type
+
+        return None
 
     @property
     def next_battle_ability_point_lvl(self):
+        available_types = self.available_abilities_types()
+        if ABILITY_TYPE.BATTLE not in available_types:
+            return None
         return 1 + (self.hero.level-1) // 3 * 3 + 3
 
     @property
     def next_nonbattle_ability_point_lvl(self):
+        available_types = self.available_abilities_types()
+        if ABILITY_TYPE.NONBATTLE not in available_types:
+            return None
         return 2 + (self.hero.level-2) // 3 * 3 + 3
 
     @property
     def next_companion_ability_point_lvl(self):
+        available_types = self.available_abilities_types()
+        if ABILITY_TYPE.COMPANION not in available_types:
+            return None
         return 3 + (self.hero.level-3) // 3 * 3 + 3
+
+    def available_abilities_types(self):
+        abilities_maximum = {ABILITY_TYPE.BATTLE: 1 * 1 + (c.ABILITIES_BATTLE_MAXIMUM - 1) * 5,
+                             ABILITY_TYPE.NONBATTLE: c.ABILITIES_NONBATTLE_MAXIMUM * 5,
+                             ABILITY_TYPE.COMPANION: c.ABILITIES_COMPANION_MAXIMUM * 5}
+
+        abilities_current = {ABILITY_TYPE.BATTLE: sum((ability.level for ability in self.all if ability.TYPE.is_BATTLE), 0),
+                             ABILITY_TYPE.NONBATTLE: sum((ability.level for ability in self.all if ability.TYPE.is_NONBATTLE), 0),
+                             ABILITY_TYPE.COMPANION: sum((ability.level for ability in self.all if ability.TYPE.is_COMPANION), 0)}
+
+        # print abilities_maximum
+        # print abilities_current
+
+        return set(type for type in ABILITY_TYPE.records if abilities_maximum[type] > abilities_current[type])
 
     def __eq__(self, other):
         return set(self.abilities.keys()) == set(other.abilities.keys())

@@ -175,6 +175,7 @@ def index(context):
                                     'resource': context.resource,
                                     'companions': companions,
                                     'section': 'companions',
+                                    'ABILITIES': abilities_effects.ABILITIES,
                                     'index_filter': index_filter})
 
 

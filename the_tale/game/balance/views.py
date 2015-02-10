@@ -6,8 +6,6 @@ from dext.views import handler
 from the_tale.common.utils.decorators import staff_required
 from the_tale.common.utils.resources import Resource
 
-from the_tale.game.map.roads.storage import waymarks_storage
-
 from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
 from the_tale.game.balance.power import Power, PowerDistribution
@@ -20,8 +18,8 @@ class BalanceResource(Resource):
     @staff_required()
     @handler('', method='get')
     def show_balance(self): # pylint: disable=R0914
-        tmp_time = [u'начало', u'8 часов', u'день', u'неделя', u'месяц', u'3 месяца', u'6 месяцев', u'1 год', u'2 года', u'3 года']
-        tmp_times = [0, 8, 24, 24*7, 24*30, 24*30*3, 24*30*6, 24*30*12, 24*30*12*2, 24*30*12*3]
+        tmp_time = [u'начало', u'8 часов', u'день', u'неделя', u'месяц', u'3 месяца', u'6 месяцев', u'1 год', u'2 года', u'3 года', u'4 года', u'5 лет', u'6 лет']
+        tmp_times = [0, 8, 24, 24*7, 24*30, 24*30*3, 24*30*6, 24*30*12, 24*30*12*2, 24*30*12*3, 24*30*12*4, 24*30*12*5, 24*30*12*6]
         tmp_lvls = map(f.lvl_after_time, tmp_times)
 
         # Всё, что ниже, должно зависеть от уровня, не от времени, т.к. время в данном случае не точный параметр, а анализ всё равно ориентируется на уровень.
@@ -52,7 +50,6 @@ class BalanceResource(Resource):
         tmp_artifacts_per_battle = [c.ARTIFACTS_PER_BATTLE]* len(tmp_lvls)
         tmp_artifacts_total = [c.ARTIFACTS_LOOT_PER_DAY * f.total_time_for_lvl(lvl-1)/24.0 for lvl in tmp_lvls]
 
-        tmp_gold_at_lvl = map(f.expected_gold_at_lvl, tmp_lvls)
         tmp_gold_in_day = map(f.expected_gold_in_day, tmp_lvls)
         tmp_total_gold_at_lvl = map(f.total_gold_at_lvl, tmp_lvls)
 
@@ -85,7 +82,7 @@ class BalanceResource(Resource):
                               'tmp_artifacts_total': tmp_artifacts_total,
                               'tmp_artifacts_per_battle': tmp_artifacts_per_battle,
 
-                              'tmp_gold_at_lvl': tmp_gold_at_lvl,
+                              # 'tmp_gold_at_lvl': tmp_gold_at_lvl,
                               'tmp_gold_in_day': tmp_gold_in_day,
                               'tmp_total_gold_at_lvl': tmp_total_gold_at_lvl
                               } )

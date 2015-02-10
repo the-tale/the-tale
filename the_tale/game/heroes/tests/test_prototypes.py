@@ -817,11 +817,40 @@ class HeroLevelUpTests(testcase.TestCase):
                                   3: ABILITY_TYPE.COMPANION,
                                   4: ABILITY_TYPE.BATTLE,
                                   5: ABILITY_TYPE.NONBATTLE,
-                                  6: ABILITY_TYPE.COMPANION}
+                                  6: ABILITY_TYPE.COMPANION,
+
+                                  50: ABILITY_TYPE.NONBATTLE,
+                                  51: ABILITY_TYPE.COMPANION,
+                                  52: ABILITY_TYPE.BATTLE,
+                                  53: ABILITY_TYPE.NONBATTLE,
+                                  54: ABILITY_TYPE.COMPANION,
+                                  55: ABILITY_TYPE.BATTLE,
+                                  56: ABILITY_TYPE.NONBATTLE,
+                                  57: ABILITY_TYPE.COMPANION,
+                                  58: ABILITY_TYPE.BATTLE,
+                                  59: ABILITY_TYPE.NONBATTLE,
+
+                                  60: ABILITY_TYPE.BATTLE,
+                                  61: ABILITY_TYPE.BATTLE,
+                                  62: ABILITY_TYPE.BATTLE,
+                                  63: ABILITY_TYPE.BATTLE,
+                                  64: ABILITY_TYPE.BATTLE,
+                                  65: ABILITY_TYPE.BATTLE,
+                                  66: ABILITY_TYPE.BATTLE,
+                                  67: ABILITY_TYPE.BATTLE,
+                                  68: ABILITY_TYPE.BATTLE,
+                                  69: ABILITY_TYPE.BATTLE,
+                                  70: None,
+                                  71: None,
+                                  72: None,
+                                  73: None}
 
         for ability_points, next_type in ability_points_to_type.iteritems():
-            with mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.current_ability_points_number', ability_points):
-                self.assertEqual(self.hero.abilities.next_ability_type, next_type)
+            self.hero.reset_level()
+            for i in xrange(ability_points-1):
+                self.hero.randomized_level_up(increment_level=True)
+
+            self.assertEqual(self.hero.abilities.next_ability_type, next_type)
 
 
     def test_get_abilities_for_choose_first_time(self):

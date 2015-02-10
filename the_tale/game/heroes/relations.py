@@ -31,17 +31,17 @@ class PREFERENCE_TYPE(DjangoEnum):
     prepair_method = Column(unique=False)
     nullable = Column(unique=False)
 
-    records = ( ('MOB', 0, u'любимая добыча', 53, 'mob', '_prepair_mob', True),
+    records = ( ('MOB', 0, u'любимая добыча', 8, 'mob', '_prepair_mob', True),
                 ('PLACE', 1, u'родной город', 4, 'place', '_prepair_place', True),
-                ('FRIEND', 2, u'соратник', 13, 'friend', '_prepair_person', True),
-                ('ENEMY', 3, u'противник', 26, 'enemy', '_prepair_person', True),
+                ('FRIEND', 2, u'соратник', 12, 'friend', '_prepair_person', True),
+                ('ENEMY', 3, u'противник', 20, 'enemy', '_prepair_person', True),
                 ('ENERGY_REGENERATION_TYPE', 4, u'религиозность', 1, 'energy_regeneration_type', '_prepair_value', False),
-                ('EQUIPMENT_SLOT', 5, u'экипировка', 43, 'equipment_slot', '_prepair_equipment_slot', True),
-                ('RISK_LEVEL', 6, u'уровень риска', 8, 'risk_level', '_prepair_risk_level', False),
-                ('FAVORITE_ITEM', 7, u'любимая вещь', 19, 'favorite_item', '_prepair_equipment_slot', True),
-                ('ARCHETYPE', 8, u'архетип', 34, 'archetype', '_prepair_archetype', False),
-                ('COMPANION_DEDICATION', 9, u'отношение со спутником', 15, 'companion_dedication', '_prepair_companion_dedication', False),
-                ('COMPANION_EMPATHY', 10, u'эмпатия', 60, 'companion_empathy', '_prepair_companion_empathy', False),
+                ('EQUIPMENT_SLOT', 5, u'экипировка', 36, 'equipment_slot', '_prepair_equipment_slot', True),
+                ('RISK_LEVEL', 6, u'уровень риска', 32, 'risk_level', '_prepair_risk_level', False),
+                ('FAVORITE_ITEM', 7, u'любимая вещь', 28, 'favorite_item', '_prepair_equipment_slot', True),
+                ('ARCHETYPE', 8, u'архетип', 16, 'archetype', '_prepair_archetype', False),
+                ('COMPANION_DEDICATION', 9, u'отношение со спутником', 24, 'companion_dedication', '_prepair_companion_dedication', False),
+                ('COMPANION_EMPATHY', 10, u'эмпатия', 40, 'companion_empathy', '_prepair_companion_empathy', False),
         )
 
 class COMPANION_DEDICATION(DjangoEnum):

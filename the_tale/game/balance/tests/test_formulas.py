@@ -10,12 +10,6 @@ class FormulasTest(testcase.TestCase):
 
     LVLS = [1, 2, 3, 4, 5, 7, 11, 17, 19, 25, 30, 40, 60, 71, 82, 99, 101]
 
-    def test_lvl_after_time(self):
-        for lvl in self.LVLS:
-            # print lvl, f.total_time_for_lvl(lvl), f.lvl_after_time(f.total_time_for_lvl(lvl))
-            self.assertEqual(lvl, f.lvl_after_time(f.total_time_for_lvl(lvl)))
-
-
     def test_sell_artifact_price(self):
 
         self.assertTrue(f.sell_artifact_price(1))
@@ -94,10 +88,10 @@ class AchievementsBarriers(testcase.TestCase):
     def test_money(self):
         self.check_money(0.03, 1000)
         self.check_money(0.3, 10000)
-        self.check_money(0.9, 50000)
-        self.check_money(4.8, 500000)
-        self.check_money(7.8, 1000000)
-        self.check_money(23.5, 5000000)
+        self.check_money(1.0, 50000)
+        self.check_money(5.6, 500000)
+        self.check_money(9.7, 1000000)
+        self.check_money(32, 5000000)
 
 
     def mobs_after_months(self, months):
