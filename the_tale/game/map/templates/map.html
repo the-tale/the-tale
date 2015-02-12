@@ -29,10 +29,6 @@ jQuery(document).ready(function(e) {
         widgets.map.CenterOnPlace(jQuery(e.currentTarget).data('place-id'));
     });
 
-    jQuery('.pgf-journal-tab-button').click(function(e) {
-        widgets.map.CenterOnHero();
-    });
-
     jQuery('.pgf-change-tileset').click(function(e){
         e.preventDefault();
         pgf.base.settings.set("game_map_tileset", jQuery(e.currentTarget).data("tileset"));

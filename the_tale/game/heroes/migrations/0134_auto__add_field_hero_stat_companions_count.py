@@ -1,44 +1,23 @@
 # -*- coding: utf-8 -*-
-import json
-import datetime
-
 from south.utils import datetime_utils as datetime
 from south.db import db
-from south.v2 import DataMigration
+from south.v2 import SchemaMigration
 from django.db import models
 
-class Migration(DataMigration):
+
+class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        for hero in orm['heroes.Hero'].objects.all():
-            cards_data = json.loads(hero.cards)
-
-            uid = 0
-
-            is_premium = hero.premium_state_end_at > datetime.datetime.now()
-
-            cards_list = []
-
-            for cards_type, cards_count in cards_data.get('cards', {}).iteritems():
-                for i in xrange(cards_count):
-                    uid += 1
-                    card_data = {'uid': uid,
-                                 'type': int(cards_type),
-                                 'auction': is_premium}
-                    cards_list.append(card_data)
-
-            cards_data['cards'] = cards_list
-            cards_data['next_uid'] = uid+1
-
-            cards_data['premium_help_count'] = cards_data['help_count'] if is_premium else 0
-
-            hero.cards = json.dumps(cards_data)
-
-            hero.save()
+        # Adding field 'Hero.stat_companions_count'
+        db.add_column(u'heroes_hero', 'stat_companions_count',
+                      self.gf('django.db.models.fields.BigIntegerField')(default=0),
+                      keep_default=False)
 
 
     def backwards(self, orm):
-        "Write your backwards methods here."
+        # Deleting field 'Hero.stat_companions_count'
+        db.delete_column(u'heroes_hero', 'stat_companions_count')
+
 
     models = {
         u'accounts.account': {
@@ -199,15 +178,18 @@ class Migration(DataMigration):
             'stat_artifacts_had': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'stat_cards_combined': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'stat_cards_used': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
+            'stat_companions_count': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'stat_gifts_returned': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'stat_help_count': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'stat_loot_had': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'stat_money_earned_from_artifacts': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
+            'stat_money_earned_from_companions': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'stat_money_earned_from_habits': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'stat_money_earned_from_help': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'stat_money_earned_from_loot': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'stat_money_earned_from_quests': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'stat_money_spend_for_artifacts': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
+            'stat_money_spend_for_companions': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'stat_money_spend_for_experience': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'stat_money_spend_for_heal': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
             'stat_money_spend_for_impact': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
@@ -226,6 +208,8 @@ class Migration(DataMigration):
         u'heroes.heropreferences': {
             'Meta': {'object_name': 'HeroPreferences'},
             'archetype': ('rels.django.RelationIntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
+            'companion_dedication': ('rels.django.RelationIntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
+            'companion_empathy': ('rels.django.RelationIntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
             'enemy': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'on_delete': 'models.PROTECT', 'default': 'None', 'to': u"orm['persons.Person']", 'blank': 'True', 'null': 'True'}),
             'energy_regeneration_type': ('django.db.models.fields.IntegerField', [], {'default': '0', 'blank': 'True'}),
             'equipment_slot': ('rels.django.RelationIntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
@@ -316,4 +300,3 @@ class Migration(DataMigration):
     }
 
     complete_apps = ['heroes']
-    symmetrical = True

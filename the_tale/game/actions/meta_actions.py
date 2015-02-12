@@ -20,6 +20,10 @@ from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.balance import constants as c
 
+from the_tale.game.companions import storage as companions_storage
+from the_tale.game.companions import logic as companions_logic
+
+
 from the_tale.game import relations as game_relations
 
 from the_tale.game.pvp.prototypes import Battle1x1Prototype, Battle1x1ResultPrototype
@@ -197,6 +201,10 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         for i in xrange(enemy.level-1):
             hero.randomized_level_up(increment_level=True)
         hero.randomize_equip()
+
+        if not companions_storage.companions.is_empty():
+            companion_record = random.choice(companions_storage.companions.all())
+            hero.set_companion(companions_logic.create_companion(companion_record))
 
 
     @classmethod

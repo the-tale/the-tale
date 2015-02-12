@@ -4,11 +4,13 @@ from rels import Column
 from rels.django import DjangoEnum
 
 class METATYPE(DjangoEnum):
-    records = ( (u'TRAVEL', 0, u'дорожная особенность'),
-                (u'BATTLE', 1, u'боевая особенность'),
-                (u'MONEY', 2, u'денежная особенность'),
-                (u'OTHER', 3, u'необычная особенность'),
-                (u'UNCHANGEBLE', 4, u'неизменная особенность') )
+    description = Column()
+
+    records = ( (u'TRAVEL', 0, u'дорожная', u'влияет на скорость путешествия героя'),
+                (u'BATTLE', 1, u'боевая', u'влияет на битвы'),
+                (u'MONEY', 2, u'денежная', u'влияет на деньги и предметы'),
+                (u'OTHER', 3, u'необычная', u'имеет особый эффект'),
+                (u'UNCHANGEBLE', 4, u'неизменная', u'оказывает постоянный эффект, независимо от других свойств спутника или героя') )
 
 class EFFECT(DjangoEnum):
     metatype = Column(unique=False)

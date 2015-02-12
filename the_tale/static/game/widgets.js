@@ -159,7 +159,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-no-companion', widget).toggleClass('pgf-hidden', !(data.companion == null));
 
         if (data.companion) {
-            jQuery('.pgf-companion-info-link', widget).data('companion-id', data.companion.id);
+            jQuery('.pgf-companion-info-link', widget).data('companion-id', data.companion.type);
 
             jQuery('.pgf-companion .pgf-name', widget).text(data.companion.name);
             jQuery('.pgf-companion .pgf-coherence', widget).text(data.companion.coherence);
@@ -624,10 +624,13 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
 
     this.Refresh = function(game_data) {
 
-        data.actions = [];
-        data.cards = game_data.account.hero.cards.cards;
+        var newData = {};
 
-        data.cards.sort(function(a, b){
+        data.actions = [];
+
+        newData.cards = game_data.account.hero.cards.cards;
+
+        newData.cards.sort(function(a, b){
             if (a.rarity < b.rarity) return -1;
             if (a.rarity > b.rarity) return 1;
 
@@ -639,12 +642,24 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
             return -1;
         });
 
-        data.cardsHelpCount = game_data.account.hero.cards.help_count;
-        data.cardsHelpBarrier = game_data.account.hero.cards.help_barrier;
+        newData.cardsHelpCount = game_data.account.hero.cards.help_count;
+        newData.cardsHelpBarrier = game_data.account.hero.cards.help_barrier;
 
         if (game_data.account.hero) {
             data.action = game_data.account.hero.action;
         }
+
+        if (!pgf.base.CompareObjects(data.cards, newData.cards) ||
+            data.cardsHelpCount != newData.cardsHelpCount ||
+            data.cardsHelpBarrier != newData.cardsHelpBarrier) {
+
+            data.cards = newData.cards;
+            data.cardsHelpCount = newData.cardsHelpCount;
+            data.cardsHelpBarrier = newData.cardsHelpBarrier;
+            return true;
+        }
+
+        return false
     };
 
     this.Render = function() {
@@ -656,8 +671,9 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
     };
 
     jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
-        instance.Refresh(game_data);
-        instance.Render();
+        if (instance.Refresh(game_data)) {
+            instance.Render();
+        }
     });
 };
 

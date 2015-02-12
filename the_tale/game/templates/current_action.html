@@ -79,7 +79,10 @@ jQuery(document).ready(function(e) {
     {% endif %}
 
     {% if not resource.account.is_fast and not resource.account.is_premium %}
-      {{ accounts_macros.account_type_label(resource.account, additional_text='— поддержите проект рублём!') }}
+      <a href="{{url('accounts:payments:shop')}}"
+         class="label label-info">
+        Станьте подписчиком — вмешайтесь в судьбу Пандоры!
+      </a>
     {% endif %}
 
   </div>

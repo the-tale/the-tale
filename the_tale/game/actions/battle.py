@@ -63,8 +63,8 @@ class Actor(object):
     @property
     def max_health(self): return self.actor.max_health
 
-    # @property
-    # def mob_type(self): return self.actor.mob_type
+    @property
+    def mob_type(self): return self.actor.mob_type
 
     def change_health(self, value):
         # TODO: change for heal & kick methods?
@@ -112,6 +112,9 @@ class CompanionActor(Actor):
 
     @property
     def utg_name_form(self): return self.actor.companion.utg_name_form
+
+    @property
+    def basic_damage(self): return self.actor.companion.basic_damage
 
     def linguistics_restrictions(self): return self.actor.companion.linguistics_restrictions()
 

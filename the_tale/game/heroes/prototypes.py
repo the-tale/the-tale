@@ -391,6 +391,8 @@ class HeroPrototype(BasePrototype,
         return companions_objects.Companion.deserialize(self, companion_data)
 
     def set_companion(self, companion):
+        self.statistics.change_companions_count(1)
+
         if self.companion:
             self.add_message('companions_left', diary=True, hero=self, companion=self.companion)
 

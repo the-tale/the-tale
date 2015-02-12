@@ -1,4 +1,6 @@
 # coding: utf-8
+import random
+
 import mock
 
 from the_tale.common.utils import testcase
@@ -17,6 +19,8 @@ from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
 
 from the_tale.game.companions import storage as companions_storage
 from the_tale.game.companions import logic as companions_logic
+from the_tale.game.companions.abilities import container as companions_container
+from the_tale.game.companions.abilities import effects as companions_effects
 
 from the_tale.game.mobs.storage import mobs_storage
 
@@ -348,3 +352,39 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
             self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(on_heal_companion.call_count, 1)
+
+
+    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HABIT_MODE', actions_relations.ACTION_HABIT_MODE.COMPANION)
+    @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL_COMPANION)
+    def test_heal_companion__on_heal_action_habits_changed(self):
+        habit_effect = random.choice([ability for ability in companions_effects.ABILITIES.records if isinstance(ability.effect, companions_effects.ChangeHabits)])
+
+        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record.abilities = companions_container.Container(start=[habit_effect])
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+
+        self.hero.habit_honor.change(100)
+        self.hero.habit_peacefulness.change(-100)
+
+        self.hero.companion.health = 1
+
+        with self.check_changed(lambda: self.hero.habit_honor.raw_value + self.hero.habit_peacefulness.raw_value):
+            self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+
+
+    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HABIT_MODE', actions_relations.ACTION_HABIT_MODE.COMPANION)
+    @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL_COMPANION)
+    def test_heal_companion__on_heal_action_habits_not_changed(self):
+        habit_effect = random.choice([ability for ability in companions_effects.ABILITIES.records if not isinstance(ability.effect, companions_effects.ChangeHabits)])
+
+        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record.abilities = companions_container.Container(start=[habit_effect])
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+
+        self.hero.habit_honor.change(100)
+        self.hero.habit_peacefulness.change(-100)
+
+        self.hero.companion.health = 1
+
+        with self.check_not_changed(lambda: self.hero.habit_honor.raw_value + self.hero.habit_peacefulness.raw_value):
+            self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))

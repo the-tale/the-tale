@@ -115,7 +115,7 @@ jQuery(document).ready(function(e){
           });
 </script>
 
-<div class="alert pgf-last-news-reminder">
+<div class="alert alert-success pgf-last-news-reminder">
   <button class="close pgf-close-last-news-reminder">×</button>
   <h4><a href="{{url('news:show', news_record.id)}}" style="color: #C09853;">{{ news_record.caption }}</a></h4>
   {{ news_record.html_description|safe }}
@@ -200,7 +200,7 @@ jQuery(document).ready(function(e){
     <div class="easy-block second-row-block">
 
       <ul class="nav nav-tabs">
-        <li><a href="#pgf-log-container" class="pgf-log-tab-button" data-toggle="tab">журнал</a></li>
+        <li><a href="#pgf-journal-container" class="pgf-journal-tab-button" data-toggle="tab">журнал</a></li>
         <li><a href="#pgf-diary-container" class="pgf-diary-tab-button" data-toggle="tab">дневник</a></li>
         <li><a href="#pgf-quests-container" class="pgf-quests-tab-button" data-toggle="tab">задания</a></li>
       </ul>
@@ -210,7 +210,7 @@ jQuery(document).ready(function(e){
           {% include "game/diary.html" %}
         </div>
 
-        <div class="tab-pane" id="pgf-log-container">
+        <div class="tab-pane" id="pgf-journal-container">
           {{ log_macros.log(data_mode="pve") }}
         </div>
 

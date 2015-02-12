@@ -28,29 +28,29 @@ class _CompanionAbilityModifier(AbilityPrototype):
 class WALKER(_CompanionAbilityModifier):
     NAME = u'Ходок'
     normalized_name = NAME
-    DESCRIPTION = u'усиливает способности спутника, связанные с путешествиям.'
+    DESCRIPTION = u'Ходоки знают как лучше использовать дорожные особенности спутников.'
     EFFECT_TYPE = companions_abilities_relations.METATYPE.TRAVEL
 
 
 class COMRADE(_CompanionAbilityModifier):
     NAME = u'Боевой товарищ'
     normalized_name = NAME
-    DESCRIPTION = u'усиливает способности спутиника, связанные с боем.'
+    DESCRIPTION = u'Герой обращается со спутником как с боевым товарищем, благодаря чему улучшаются все боевые особенности спутника.'
     EFFECT_TYPE = companions_abilities_relations.METATYPE.BATTLE
+
+
+class ECONOMIC(_CompanionAbilityModifier):
+    NAME = u'Бухгалтер'
+    normalized_name = NAME
+    DESCRIPTION = u'Герои с бухгалтерской жилкой ответственно подходят не только к своему имуществу, но и к имуществу спутника. Способность улучшают денежные особенности спутника.'
+    EFFECT_TYPE = companions_abilities_relations.METATYPE.MONEY
 
 
 class IMPROVISER(_CompanionAbilityModifier):
     NAME = u'Импровизатор'
     normalized_name = NAME
-    DESCRIPTION = u'усиливает способности спутника, не связанные с боем, путешествиями и имуществом.'
+    DESCRIPTION = u'Герой всегда готов помочь своему спутнику в любых его делах, что усиливает его необычные особенности.'
     EFFECT_TYPE = companions_abilities_relations.METATYPE.OTHER
-
-
-class ECONOMIC(_CompanionAbilityModifier):
-    NAME = u'Бережливый'
-    normalized_name = NAME
-    DESCRIPTION = u'усиливает способности спутника, связанные с деньгами и прочей добычей.'
-    EFFECT_TYPE = companions_abilities_relations.METATYPE.MONEY
 
 
 class THOUGHTFUL(AbilityPrototype):
@@ -61,7 +61,7 @@ class THOUGHTFUL(AbilityPrototype):
 
     NAME = u'Заботливый'
     normalized_name = NAME
-    DESCRIPTION = u'герой заботится о своём спутнике, увеличивая максимальную живучесть.'
+    DESCRIPTION = u'Окружённый заботой героя, спутник увеличивает своё максимальное здоровье.'
 
     MULTIPLIER = [1.1, 1.2, 1.3, 1.4, 1.5]
 
@@ -77,9 +77,9 @@ class COHERENCE(AbilityPrototype):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
 
-    NAME = u'Слаженность'
+    NAME = u'Товарищ'
     normalized_name = NAME
-    DESCRIPTION = u'Слаженность — определяет максимальный уровень слаженности, все герои начинает с этой способностью 1-ого уровня. (указать уровни для каждого уровн)'
+    DESCRIPTION = u'Путешествия со спутником сложны и требуют от героя особых навыков. Умение по-товарищески относиться к спутнику определяет максимальную слаженность спутника. Она увеличивается на 20 за уровень способности.'
 
     COHERENCE = [20, 40, 60, 80, 100]
 
@@ -115,21 +115,21 @@ class _CompanionHealBase(AbilityPrototype):
 class HEALING(_CompanionHealBase):
     NAME = u'Врачевание'
     normalized_name = NAME
-    DESCRIPTION = u'герой иногда лечит «живых» спутников.'
+    DESCRIPTION = u'Умение обращаться с ниткой, иголкой и хирургическим ножом позволяет иногда восстановить немного здоровья живому спутнику.'
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_LIVING_HEAL
 
 
 class MAGE_MECHANICS(_CompanionHealBase):
     NAME = u'Магомеханика'
     normalized_name = NAME
-    DESCRIPTION = u'герой иногда лечит «механических» спутников'
+    DESCRIPTION = u'С помощью плоскогубцев, проволоки и толики магии магомеханик иногда может отремонтировать своего магомеханического спутника.'
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_CONSTRUCT_HEAL
 
 
 class WITCHCRAFT(_CompanionHealBase):
     NAME = u'Ведовство'
     normalized_name = NAME
-    DESCRIPTION = u'герой иногда лечит «необычных» спутников'
+    DESCRIPTION = u'Герой, сведущий в нетрадиционных областях знаний, иногда может восстановить здоровье необычного спутника.'
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL
 
 
@@ -158,19 +158,19 @@ class _CompanionCoherenceSpeedBase(AbilityPrototype):
 class SOCIABILITY(_CompanionCoherenceSpeedBase):
     NAME = u'Коммуникабельность'
     normalized_name = NAME
-    DESCRIPTION = u'слаженность живых спутников героя растёт быстрее'
+    DESCRIPTION = u'Хороший разговор сближает лучше кровавой стычки, коммуникабельный герой быстрее увеличивает слаженность живого спутника.'
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_LIVING_COHERENCE_SPEED
 
 class SERVICE(_CompanionCoherenceSpeedBase):
     NAME = u'Обслуживание'
     normalized_name = NAME
-    DESCRIPTION = u'слаженность спутников-конструктов героя растёт быстрее'
+    DESCRIPTION = u'Каждому магомеханическому спутнику требуется регулярная смазка, или подзарядка кристаллов, или ещё какая-нибудь заумная операция. Чем ответственнее герой относится к обслуживанию своего спутника, тем быстрее растёт его слаженность.'
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_CONSTRUCT_COHERENCE_SPEED
 
 class SACREDNESS(_CompanionCoherenceSpeedBase):
     NAME = u'Сакральность'
     normalized_name = NAME
-    DESCRIPTION = u'слаженность необычных спутников героя растёт быстрее'
+    DESCRIPTION = u'Некоторые спутники настолько необычны, что герою приходится учиться думать как его напарник. Если герою удаётся найти схожие струны в душе спутника, то их слаженность начинает расти быстрее.'
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED
 
 

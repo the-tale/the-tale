@@ -109,18 +109,19 @@ class CardsContainer(object):
         if rarity:
             cards_types = [card for card in cards_types if card.rarity == rarity]
 
+        cards_choices = [logic.create_card(type=card_type, available_for_auction=available_for_auction)
+                         for card_type in cards_types
+                         if effects.EFFECTS[card_type].available()]
+
         if exclude:
-            cards_types = [card for card in cards_types if card not in exclude]
+            cards_choices = [card for card in cards_choices if not any(card.is_same_effect(excluded_card) for excluded_card in exclude)]
 
-        cards_types = [card for card in cards_types if effects.EFFECTS[card].available()]
+        prioritites = [(card, card.type.rarity.priority) for card in cards_choices]
 
-        prioritites = [(card, card.rarity.priority) for card in cards_types]
+        card = random_value_by_priority(prioritites)
 
-        card_type = random_value_by_priority(prioritites)
-
-        card = logic.create_card(type=card_type, available_for_auction=available_for_auction)
-
-        self.add_card(card)
+        if card:
+            self.add_card(card)
 
         return card
 
@@ -166,7 +167,7 @@ class CardsContainer(object):
             rarity=relations.RARITY(cards[0].type.rarity.value+1)
 
         card = self.get_new_card(rarity=rarity,
-                                 exclude=[card.type for card in cards],
+                                 exclude=[card for card in cards],
                                  available_for_auction=all(card.available_for_auction for card in cards))
 
         return card

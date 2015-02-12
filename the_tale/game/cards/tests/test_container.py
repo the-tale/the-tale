@@ -255,12 +255,31 @@ class GetNewCardTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True)
     def test_exclude(self):
-        cards = set()
+        cards = []
 
         for i in xrange(len(relations.CARD_TYPE.records)):
-            cards.add(self.hero.cards.get_new_card(exclude=cards).type)
+            card = self.hero.cards.get_new_card(exclude=cards)
+            cards.append(card)
 
-        self.assertEqual(cards, set(relations.CARD_TYPE.records))
+        self.assertEqual(self.hero.cards.get_new_card(exclude=cards), None)
+
+        self.assertEqual(set(card.type for card in cards), set(relations.CARD_TYPE.records))
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True)
+    def test_exclude__different_data(self):
+        cards = []
+
+        for i in xrange(len(relations.CARD_TYPE.records)):
+            card = self.hero.cards.get_new_card(exclude=cards)
+            cards.append(card)
+
+        self.assertEqual(self.hero.cards.get_new_card(exclude=cards), None)
+
+        cards[0].data = {'fake-data': True}
+        self.assertEqual(cards[0].type, self.hero.cards.get_new_card(exclude=cards).type)
+
+        self.assertEqual(set(card.type for card in cards), set(relations.CARD_TYPE.records))
 
 
 class CanCombineCardsTests(testcase.TestCase):

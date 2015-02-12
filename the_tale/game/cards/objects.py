@@ -49,8 +49,12 @@ class Card(object):
     def __eq__(self, other):
         return (self.uid == other.uid and
                 self.type == other.type and
-                self.available_for_auction == other.available_for_auction)
-
+                self.available_for_auction == other.available_for_auction and
+                self.data == other.data)
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def is_same_effect(self, other):
+        return (self.type == other.type and
+                self.data == other.data)

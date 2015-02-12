@@ -160,6 +160,11 @@ class HeroStatistics(object):
             self.hero._model.stat_help_count += value
 
     @property
+    def companions_count(self): return self.hero._model.stat_companions_count
+    def change_companions_count(self, value):
+        self.hero._model.stat_companions_count += value
+
+    @property
     def cards_used(self): return self.hero._model.stat_cards_used
     def change_cards_used(self, value):
         with achievements_storage.verify(type=ACHIEVEMENT_TYPE.KEEPER_CARDS_USED, object=self.hero):
@@ -230,4 +235,6 @@ class HeroStatistics(object):
                  self.money_spend_for_companions == other.money_spend_for_companions and
                  self.artifacts_had == other.artifacts_had and
                  self.loot_had == other.loot_had and
-                 self.quests_done == other.quests_done )
+                 self.quests_done == other.quests_done and
+                 self.help_count == other.help_count and
+                 self.companions_count == other.companions_count)

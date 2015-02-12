@@ -41,6 +41,8 @@ class HeroStatisticsTest(TestCase):
 
         self.hero.statistics.change_gifts_returned(20)
 
+        self.hero.statistics.change_companions_count(21)
+
         self.assertEqual(self.hero.statistics.pvp_battles_1x1_number, 16)
 
 

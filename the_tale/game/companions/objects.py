@@ -9,6 +9,7 @@ from the_tale.game import names
 
 from the_tale.game.balance import formulas as f
 from the_tale.game.balance import constants as c
+from the_tale.game.balance import power as p
 
 from the_tale.game.heroes import relations as heroes_relations
 
@@ -145,9 +146,15 @@ class Companion(object):
     def experience_to_next_level(self):
         return f.companions_coherence_for_level(min(self.coherence + 1, c.COMPANIONS_MAX_COHERENCE))
 
+    @property
+    def basic_damage(self):
+        distribution = self.record.archetype.power_distribution
+        raw_damage = f.expected_damage_to_mob_per_hit(self._hero.level)
+        return p.Damage(physic=raw_damage * distribution.physic, magic=raw_damage * distribution.magic)
+
 
     def ui_info(self):
-        return {'id': self.record.id,
+        return {'type': self.record.id,
                 'name': self.name[0].upper() + self.name[1:],
                 'health': self.health,
                 'max_health': self.max_health,
