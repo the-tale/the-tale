@@ -82,17 +82,17 @@ jQuery(document).ready(function(e){
   <div class="alert alert-info fade in pgf-choose-ability-button pgf-no-destiny-points">
     {% if resource.hero.abilities.next_battle_ability_point_lvl or resource.hero.abilities.next_nonbattle_ability_point_lvl or resource.hero.abilities.next_companion_ability_point_lvl %}
     {{ resource.hero.name }} cможет улучшить
-    <ul class="unstyled">
-      {% if resource.hero.abilities.next_battle_ability_point_lvl %}
-        <li>боевые навыки на уровне {{ resource.hero.abilities.next_battle_ability_point_lvl }}</li>
-      {% endif %}
-      {% if resource.hero.abilities.next_nonbattle_ability_point_lvl %}
-      <li>небоевые на уровне {{ resource.hero.abilities.next_nonbattle_ability_point_lvl }}</li>
-      {% endif %}
-      {% if resource.hero.abilities.next_companion_ability_point_lvl %}
-      <li>навыки для спутника на  {{ resource.hero.abilities.next_companion_ability_point_lvl }}</li>
-      {% endif %}
-    </ul>
+
+      {% if resource.hero.abilities.next_battle_ability_point_lvl -%}
+        боевые навыки на уровне {{ resource.hero.abilities.next_battle_ability_point_lvl }}
+      {%- endif -%}
+      {%- if resource.hero.abilities.next_nonbattle_ability_point_lvl -%}
+        , небоевые на уровне {{ resource.hero.abilities.next_nonbattle_ability_point_lvl }}
+      {%- endif -%}
+      {%- if resource.hero.abilities.next_companion_ability_point_lvl -%}
+      , навыки для спутника на уровен {{ resource.hero.abilities.next_companion_ability_point_lvl }}
+      {%- endif -%}
+      .
     {% else %}
       {{ resource.hero.name }} достиг вершины геройского мастерства.
     {% endif %}

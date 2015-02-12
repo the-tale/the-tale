@@ -211,9 +211,9 @@ class TemplatePrototype(BasePrototype):
 
 
     @classmethod
-    def create(cls, key, raw_template, utg_template, verificators, author, parent=None, restrictions=frozenset()):
+    def create(cls, key, raw_template, utg_template, verificators, author, parent=None, restrictions=frozenset(), state=relations.TEMPLATE_STATE.ON_REVIEW):
         model = cls._db_create(key=key,
-                               state=relations.TEMPLATE_STATE.ON_REVIEW,
+                               state=state,
                                raw_template=raw_template,
                                author=None if author is None else author._model,
                                parent=None if parent is None else parent._model,

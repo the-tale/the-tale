@@ -294,26 +294,32 @@ class AbilitiesPrototype(object):
 
         return None
 
+    def _next_ability_point_lvl(self, ability_type):
+        available_types = self.available_abilities_types()
+        available_abilities = [ability for ability in self.next_ability_type_order(self.current_ability_points_number) if ability in available_types]
+
+        if not available_abilities:
+            return None
+
+        available_abilities.append(available_abilities[0])
+        available_abilities.pop(0)
+
+        try:
+            return self.hero.level + available_abilities.index(ability_type) + 1
+        except ValueError:
+            return None
+
     @property
     def next_battle_ability_point_lvl(self):
-        available_types = self.available_abilities_types()
-        if ABILITY_TYPE.BATTLE not in available_types:
-            return None
-        return 1 + (self.hero.level-1) // 3 * 3 + 3
+        return self._next_ability_point_lvl(ABILITY_TYPE.BATTLE)
 
     @property
     def next_nonbattle_ability_point_lvl(self):
-        available_types = self.available_abilities_types()
-        if ABILITY_TYPE.NONBATTLE not in available_types:
-            return None
-        return 2 + (self.hero.level-2) // 3 * 3 + 3
+        return self._next_ability_point_lvl(ABILITY_TYPE.NONBATTLE)
 
     @property
     def next_companion_ability_point_lvl(self):
-        available_types = self.available_abilities_types()
-        if ABILITY_TYPE.COMPANION not in available_types:
-            return None
-        return 3 + (self.hero.level-3) // 3 * 3 + 3
+        return self._next_ability_point_lvl(ABILITY_TYPE.COMPANION)
 
     def available_abilities_types(self):
         abilities_maximum = {ABILITY_TYPE.BATTLE: 1 * 1 + (c.ABILITIES_BATTLE_MAXIMUM - 1) * 5,
@@ -323,9 +329,6 @@ class AbilitiesPrototype(object):
         abilities_current = {ABILITY_TYPE.BATTLE: sum((ability.level for ability in self.all if ability.TYPE.is_BATTLE), 0),
                              ABILITY_TYPE.NONBATTLE: sum((ability.level for ability in self.all if ability.TYPE.is_NONBATTLE), 0),
                              ABILITY_TYPE.COMPANION: sum((ability.level for ability in self.all if ability.TYPE.is_COMPANION), 0)}
-
-        # print abilities_maximum
-        # print abilities_current
 
         return set(type for type in ABILITY_TYPE.records if abilities_maximum[type] > abilities_current[type])
 

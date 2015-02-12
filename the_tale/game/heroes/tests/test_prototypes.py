@@ -765,7 +765,11 @@ class HeroLevelUpTests(testcase.TestCase):
                                 15: 16}
 
         for level, next_level in level_to_next_level.items():
-            self.hero._model.level = level
+            self.hero.reset_level()
+
+            for i in xrange(level-1):
+                self.hero.randomized_level_up(increment_level=True)
+
             self.assertEqual(self.hero.abilities.next_battle_ability_point_lvl, next_level)
 
     def test_next_nonbattle_ability_point_lvl(self):
@@ -787,7 +791,11 @@ class HeroLevelUpTests(testcase.TestCase):
                                 16: 17}
 
         for level, next_level in level_to_next_level.items():
-            self.hero._model.level = level
+            self.hero.reset_level()
+
+            for i in xrange(level-1):
+                self.hero.randomized_level_up(increment_level=True)
+
             self.assertEqual(self.hero.abilities.next_nonbattle_ability_point_lvl, next_level)
 
 
@@ -808,7 +816,11 @@ class HeroLevelUpTests(testcase.TestCase):
                                 14: 15}
 
         for level, next_level in level_to_next_level.items():
-            self.hero._model.level = level
+            self.hero.reset_level()
+
+            for i in xrange(level-1):
+                self.hero.randomized_level_up(increment_level=True)
+
             self.assertEqual(self.hero.abilities.next_companion_ability_point_lvl, next_level)
 
     def test_next_ability_type(self):

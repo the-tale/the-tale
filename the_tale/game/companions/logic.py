@@ -56,7 +56,7 @@ def create_companion_record(utg_name,
 
 def create_random_companion_record(name,
                                    type=relations.TYPE.LIVING,
-                                   max_health=c.COMPANIONS_MIN_HEALTH,
+                                   max_health=int(c._COMPANIONS_MEDIUM_HEALTH),
                                    dedication=relations.DEDICATION.BRAVE,
                                    rarity=relations.RARITY.COMMON,
                                    archetype=game_relations.ARCHETYPE.NEUTRAL,

@@ -23,14 +23,14 @@ game_settings = app_settings('GAME',
                              PROCESS_TURN_WAIT_LOGIC_TIMEOUT = 5*60,
                              PROCESS_TURN_WAIT_HIGHLEVEL_TIMEOUT = 10*60,
 
-                             STOP_WAIT_TIMEOUT = 15 * 60,
+                             STOP_WAIT_TIMEOUT = 20 * 60,
 
                              SAVED_UNCACHED_HEROES_FRACTION=0.00025,
 
                              JS_CONSTNATS_FILE_LOCATION='./the_tale/static/game/data/constants.js',
 
                              COLLECT_GARBAGE=True,
-                             COLLECT_GARBAGE_PERIOD=11, # in turns
+                             COLLECT_GARBAGE_PERIOD=20, # in turns
                              UNLOAD_OBJECTS=False,
 
                              GAME_STATE_KEY = 'game state',

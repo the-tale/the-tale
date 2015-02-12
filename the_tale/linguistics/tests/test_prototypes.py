@@ -23,7 +23,6 @@ from the_tale.linguistics import models
 
 from the_tale.linguistics.lexicon import keys
 from the_tale.linguistics.lexicon import logic as lexicon_logic
-from the_tale.linguistics.lexicon import relations as lexicon_relations
 
 
 class WordPrototypeTests(testcase.TestCase):

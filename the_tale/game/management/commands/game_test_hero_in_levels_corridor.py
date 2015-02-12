@@ -8,12 +8,45 @@ from django.core.management.base import BaseCommand
 from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype
 
+# from the_tale.linguistics.logic import fill_empty_keys_with_fake_phrases
+
 from the_tale.game.balance import formulas as f
 from the_tale.game.balance import constants as c
 from the_tale.game.balance.power import Power
 
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.logic_storage import LogicStorage
+
+
+def fake_modify_attribute(self, type_, value):
+    # from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE
+
+    for ability in self.abilities.values():
+        if ability.TYPE.is_BATTLE:
+            value = ability.modify_attribute(type_, value)
+
+    # return value * 10 if type_.is_QUEST_MONEY_REWARD else value
+
+    # if type_.is_BUY_PRICE: return value * 0.5
+    # if type_.is_SELL_PRICE: return value * 1.7 + 1
+
+    # if type_.is_ITEMS_OF_EXPENDITURE_PRIORITIES:
+    #     value[ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT] *= 5
+    #     value[ITEMS_OF_EXPENDITURE.SHARPENING_ARTIFACT] *= 5
+    #     value[ITEMS_OF_EXPENDITURE.REPAIRING_ARTIFACT] *= 5
+
+    # return (value + 0.2) if type_.is_GET_ARTIFACT_FOR_QUEST else value
+
+    if type_.is_RARE: return value * 4
+    if type_.is_EPIC: return value * 4
+
+    # return value * 1.2 if type_.is_SPEED else value
+
+    # return value*1.25 if type_.is_EXPERIENCE else value
+
+    # return value + 5 if type_.is_MAX_BAG_SIZE else value
+
+    return value
 
 
 class Command(BaseCommand):
@@ -33,17 +66,37 @@ class Command(BaseCommand):
         except Exception:
             traceback.print_exc()
 
+    def set_hero_companion(self):
+        from the_tale.game.companions import storage
+        from the_tale.game.companions import models
+        from the_tale.game.companions import logic
+
+        COMPANION_NAME = u'test_hero_level_companion'
+
+        for companion in storage.companions.all():
+            if companion.name.startswith(COMPANION_NAME):
+                models.CompanionRecord.objects.filter(id=companion.id).delete()
+                storage.companions.refresh()
+                break
+
+        companion_record = logic.create_random_companion_record(COMPANION_NAME)
+
+        self.hero.set_companion(logic.create_companion(companion_record))
+
 
     @mock.patch('dext.settings.conf.dext_settings_settings.UPDATE_DATABASE', False)
-    @mock.patch('the_tale.game.heroes.habilities.nonbattle.WANDERER.modify_attribute', lambda self, t, v: v)
-    @mock.patch('the_tale.game.heroes.habilities.nonbattle.GIFTED.modify_attribute', lambda self, t, v: v)
+    @mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.modify_attribute', fake_modify_attribute)
     @mock.patch('the_tale.game.quests.conf.quests_settings.INTERFERED_PERSONS_LIVE_TIME', 0)
     def test_corridor(self):
+
+        # fill_empty_keys_with_fake_phrases(u'test_hero_level_companion')
 
         result, account_id, bundle_id = register_user(uuid.uuid4().hex) # pylint: disable=W0612
         self.storage = LogicStorage()
         self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
         self.hero = self.storage.accounts_to_heroes[account_id]
+
+        self.set_hero_companion()
 
         current_time = TimePrototype.get_current_time()
 
@@ -55,7 +108,12 @@ class Command(BaseCommand):
             for i in xrange(f.turns_on_lvl(level)): # pylint: disable=W0612
                 self.storage.process_turn()
                 current_time.increment_turn()
-                self.hero.randomized_level_up()
+
+                # simulate user behaviour on healing companion
+                if self.hero.companion.health < self.hero.companion.max_health / 2:
+                    self.hero.companion.health = self.hero.companion.max_health
+
+            self.hero.randomized_level_up()
 
 
             exp_to_next_level = float(self.hero.experience) / f.exp_on_lvl(self.hero.level) * 100

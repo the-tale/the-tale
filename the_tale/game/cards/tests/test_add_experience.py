@@ -74,3 +74,6 @@ class AddExperienceRareTests(AddExperienceTestMixin, testcase.TestCase):
 
 class AddExperienceEpicTests(AddExperienceTestMixin, testcase.TestCase):
     CARD = effects.AddExperienceEpic
+
+class AddExperienceLegendaryTests(AddExperienceTestMixin, testcase.TestCase):
+    CARD = effects.AddExperienceLegendary

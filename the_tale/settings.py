@@ -390,7 +390,7 @@ LOGGING = {
             'propagate': True,
         },
         'the-tale': {
-            'handlers': ['mail_admins', 'console'],
+            'handlers': ['mail_admins'],#, 'console'],
             'level': 'DEBUG' if DEBUG else 'INFO',
             'propagate': False
         },

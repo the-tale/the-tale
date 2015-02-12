@@ -193,3 +193,29 @@ def sync_static_restrictions():
                 continue
 
             create_restriction(restrictions_group, record.value, name=record.text)
+
+
+def fill_empty_keys_with_fake_phrases(prefix):
+    from utg import templates as utg_templates
+    from the_tale.linguistics import prototypes
+
+    models.Template.objects.filter(raw_template__startswith=prefix).delete()
+
+    for i, key in enumerate(keys.LEXICON_KEY.records):
+        if not game_lexicon._item.has_key(key):
+            text = u'%s-%d' % (prefix, i)
+            template = utg_templates.Template()
+            template.parse(text, externals=[v.value for v in key.variables])
+            prototype = prototypes.TemplatePrototype.create(key=key,
+                                                raw_template=text,
+                                                utg_template=template,
+                                                verificators=[],
+                                                state=relations.TEMPLATE_STATE.IN_GAME,
+                                                author=None)
+            verifiactos = prototype.get_all_verificatos()
+            for verificator in verifiactos:
+                verificator.text = text
+
+            prototype.update(verificators=verifiactos)
+
+    game_lexicon.refresh()

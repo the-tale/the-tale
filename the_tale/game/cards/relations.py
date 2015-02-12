@@ -128,9 +128,9 @@ class CARD_TYPE(DjangoEnum):
                 ('MOST_COMMON_PLACES_LEGENDARY', 73, u'интриги', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.PlaceForm),
 
                 ('ADD_EXPERIENCE_COMMON', 74, u'удачная мысль', AVAILABILITY.FOR_ALL, RARITY.COMMON, forms.EmptyForm,),
-                ('ADD_EXPERIENCE_UNCOMMON', 75, u'неожиданные осложнения', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
-                ('ADD_EXPERIENCE_RARE', 76, u'слово Гзанзара', AVAILABILITY.FOR_ALL, RARITY.RARE, forms.EmptyForm,),
-                ('ADD_EXPERIENCE_EPIC', 77, u'благословление Гзанзара', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm,),
+                ('ADD_EXPERIENCE_UNCOMMON', 75, u'чистый разум', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
+                ('ADD_EXPERIENCE_RARE', 76, u'неожиданные осложнения', AVAILABILITY.FOR_ALL, RARITY.RARE, forms.EmptyForm,),
+                ('ADD_EXPERIENCE_EPIC', 77, u'слово Гзанзара', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm,),
 
                 ('ADD_POWER_COMMON', 78, u'новые обстоятельства', AVAILABILITY.FOR_PREMIUMS, RARITY.COMMON, forms.EmptyForm,),
                 ('ADD_POWER_UNCOMMON', 79, u'специальная операция', AVAILABILITY.FOR_PREMIUMS, RARITY.UNCOMMON, forms.EmptyForm,),
@@ -156,5 +156,7 @@ class CARD_TYPE(DjangoEnum):
 
                 ('PREFERENCES_COOLDOWNS_RESET_COMPANION_DEDICATION', 95, u'новый взгляд', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
                 ('PREFERENCES_COOLDOWNS_RESET_COMPANION_EMPATHY', 96, u'чуткость', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
+
+                ('ADD_EXPERIENCE_LEGENDARY', 97, u'благословление Гзанзара', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm,),
 
                 )

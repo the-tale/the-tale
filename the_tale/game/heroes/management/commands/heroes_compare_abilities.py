@@ -66,7 +66,29 @@ def get_battles_statistics(hero_1, hero_2):
     return hero_1_wins, hero_2_wins
 
 
+def set_heroes_companion(hero_1, hero_2):
+    from the_tale.game.companions import storage
+    from the_tale.game.companions import models
+    from the_tale.game.companions import logic
+
+    COMPANION_NAME = u'test_hero_battle_companion'
+
+    for companion in storage.companions.all():
+        if companion.name.startswith(COMPANION_NAME):
+            models.CompanionRecord.objects.filter(id=companion.id).delete()
+            storage.companions.refresh()
+            break
+
+    companion_record = logic.create_random_companion_record(COMPANION_NAME)
+
+    hero_1.set_companion(logic.create_companion(companion_record))
+    hero_2.set_companion(logic.create_companion(companion_record))
+
+
 def compare_abilities(hero_1, hero_2, abilities, level):
+
+    hero_1.companion.health = hero_1.companion.max_health
+    hero_2.companion.health = hero_2.companion.max_health
 
     ability_matches = {}
 
@@ -88,6 +110,7 @@ def compare_abilities(hero_1, hero_2, abilities, level):
             print 'compared "%s" with "%s": %d/%d' % (ability_1.get_id(), ability_2.get_id(), hero_1_wins, hero_2_wins)
 
     return ability_matches
+
 
 def save_ability_power_statistics(statistics):
     fig = plt.figure()
@@ -207,6 +230,8 @@ class Command(BaseCommand):
 
         hero_1 = storage.accounts_to_heroes[account_1_id]
         hero_2 = storage.accounts_to_heroes[account_2_id]
+
+        set_heroes_companion(hero_1, hero_2)
 
         try:
 
