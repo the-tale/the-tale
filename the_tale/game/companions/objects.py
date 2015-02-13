@@ -13,6 +13,8 @@ from the_tale.game.balance import power as p
 
 from the_tale.game.heroes import relations as heroes_relations
 
+from the_tale.game.companions import relations
+
 from the_tale.game.companions.abilities import container as abilities_container
 
 
@@ -159,12 +161,12 @@ class Companion(object):
                 'health': self.health,
                 'max_health': self.max_health,
                 'experience': self.experience,
-                'experience_to_level': self.coherence_experience_to_next_level,
+                'experience_to_level': self.experience_to_next_level,
                 'coherence': self.coherence}
 
 
 class CompanionRecord(names.ManageNameMixin):
-    __slots__ = ('id', 'state', 'data', 'type', 'max_health', 'dedication', 'rarity', 'archetype', 'mode', 'abilities')
+    __slots__ = ('id', 'state', 'data', 'type', 'max_health', 'dedication', 'archetype', 'mode', 'abilities')
 
     def __init__(self,
                  id,
@@ -173,7 +175,6 @@ class CompanionRecord(names.ManageNameMixin):
                  type,
                  max_health,
                  dedication,
-                 rarity,
                  archetype,
                  mode):
         self.id = id
@@ -181,7 +182,6 @@ class CompanionRecord(names.ManageNameMixin):
         self.type = type
         self.max_health = max_health
         self.dedication = dedication
-        self.rarity = rarity
         self.archetype = archetype
         self.mode = mode
 
@@ -189,6 +189,25 @@ class CompanionRecord(names.ManageNameMixin):
 
         self.description = self.data['description']
         self.abilities = abilities_container.Container.deserialize(self.data.get('abilities', {}))
+
+
+    def rarity_points(self):
+        points = [(u'здоровье', float(self.max_health - 50) / 20 * 1)]
+
+        # dedication does not affect rarity ?
+
+        for coherence, ability in self.abilities.all_abilities:
+            points.append((ability.text, ability.rarity_delta))
+
+        return points
+
+    @property
+    def raw_rarity(self):
+        return sum((points for text, points in self.rarity_points()), 0)
+
+    @property
+    def rarity(self):
+        return relations.RARITY(max(0, min(4, int(round(self.raw_rarity)))))
 
     @classmethod
     def from_model(cls, model):
@@ -198,7 +217,6 @@ class CompanionRecord(names.ManageNameMixin):
                    type=model.type,
                    max_health=model.max_health,
                    dedication=model.dedication,
-                   rarity=model.rarity,
                    archetype=model.archetype,
                    mode=model.mode)
 

@@ -43,7 +43,6 @@ class CompanionTests(testcase.TestCase):
                                                               type=relations.TYPE.random(),
                                                               max_health=10,
                                                               dedication=relations.DEDICATION.random(),
-                                                              rarity=relations.RARITY.random(),
                                                               archetype=game_relations.ARCHETYPE.random(),
                                                               mode=relations.MODE.random(),
                                                               abilities=abilities_container.Container(),

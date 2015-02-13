@@ -223,8 +223,7 @@ def try_companion_block(attacker, defender, messanger):
 
         if defender.actor.can_companion_broke_to_spare_parts():
             coins = int(f.normal_action_price(defender.level) *
-                        sum(item.price_fraction for item in heroes_relations.ITEMS_OF_EXPENDITURE.records) *
-                        defender.actor.companion_broke_to_spare_parts_multiplier)
+                        sum(item.price_fraction for item in heroes_relations.ITEMS_OF_EXPENDITURE.records))
             defender.actor.change_money(heroes_relations.MONEY_SOURCE.EARNED_FROM_COMPANIONS, coins)
             messanger.add_message('companions_broke_to_spare_parts', diary=True, companion_owner=defender, companion=defender.companion, coins=coins)
 

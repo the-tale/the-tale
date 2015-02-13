@@ -626,7 +626,7 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
 
         var newData = {};
 
-        data.actions = [];
+        data.action = [];
 
         newData.cards = game_data.account.hero.cards.cards;
 

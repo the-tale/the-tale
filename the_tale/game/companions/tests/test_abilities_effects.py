@@ -43,7 +43,6 @@ class BaseEffectsTests(testcase.TestCase):
                                                               type=relations.TYPE.random(),
                                                               max_health=10,
                                                               dedication=relations.DEDICATION.random(),
-                                                              rarity=relations.RARITY.random(),
                                                               archetype=game_relations.ARCHETYPE.random(),
                                                               mode=relations.MODE.random(),
                                                               abilities=abilities_container.Container(),
@@ -442,21 +441,15 @@ class CompanionStealItemTests(BaseEffectsTests):
 class CompanionSparePartsTests(BaseEffectsTests):
 
     def test_effect(self):
-        effect = effects.CompanionSpareParts(3)
+        effect = effects.CompanionSpareParts()
         self.assertTrue(effect._check_attribute(MODIFIERS.COMPANION_SPARE_PARTS))
-        self.assertFalse(effect._check_attribute(MODIFIERS.COMPANION_SPARE_PARTS_MULTIPLIER))
-        self.assertFalse(effect._check_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_SPARE_PARTS, MODIFIERS.COMPANION_SPARE_PARTS_MULTIPLIER))))
-
-        self.assertEqual(effect._modify_attribute({}, MODIFIERS.COMPANION_SPARE_PARTS, 10), 10)
-        self.assertEqual(effect._modify_attribute({}, MODIFIERS.COMPANION_SPARE_PARTS_MULTIPLIER, 10), 30)
-        self.assertEqual(effect._modify_attribute({}, MODIFIERS.random(exclude=(MODIFIERS.COMPANION_SPARE_PARTS_MULTIPLIER, MODIFIERS.COMPANION_SPARE_PARTS)), 11), 11)
+        self.assertFalse(effect._check_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_SPARE_PARTS,))))
 
     def test_in_game(self):
         ability = self.get_ability(effects.CompanionSpareParts)
 
         with self.check_changed(lambda: self.hero.can_companion_broke_to_spare_parts()):
-            with self.check_changed(lambda: self.hero.companion_broke_to_spare_parts_multiplier):
-                self.apply_ability(ability)
+            self.apply_ability(ability)
 
 
 class CompanionSayWisdomTests(BaseEffectsTests):

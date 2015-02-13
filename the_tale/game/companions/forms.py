@@ -26,7 +26,6 @@ class CompanionRecordForm(forms.Form):
     type = fields.RelationField(label=u'тип', relation=relations.TYPE)
     dedication = fields.RelationField(label=u'самоотверженность', relation=relations.DEDICATION)
     archetype = fields.RelationField(label=u'архетип', relation=game_relations.ARCHETYPE)
-    rarity = fields.RelationField(label=u'редкость', relation=relations.RARITY)
     mode = fields.RelationField(label=u'режим появления в игре', relation=relations.MODE)
 
     abilities = abilities_forms.AbilitiesField(label=u'', required=False)
@@ -39,7 +38,6 @@ class CompanionRecordForm(forms.Form):
                 'max_health': companion.max_health,
                 'type': companion.type,
                 'dedication': companion.dedication,
-                'rarity': companion.rarity,
                 'archetype': companion.archetype,
                 'mode': companion.mode,
                 'abilities': companion.abilities,

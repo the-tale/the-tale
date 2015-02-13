@@ -15,7 +15,6 @@ from the_tale.game.companions import logic as companions_logic
 from the_tale.game.companions import relations as companions_relations
 from the_tale.game.companions.abilities import effects
 from the_tale.game.companions.abilities import container
-from the_tale.game.companions.abilities.relations import EFFECT
 
 
 from the_tale.game.balance import constants as c
@@ -48,7 +47,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
         self.hero = self.storage.accounts_to_heroes[account_id]
 
-        self.hero._model.level = 66
+        self.hero._model.level = 6
         self.hero.health = self.hero.max_health
 
         # do half of tests with companion
@@ -165,7 +164,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.hero.set_companion(companions_logic.create_companion(companion_record))
         self.hero.reset_accessors_cache()
 
-        self.hero.companion.health = 1
+        self.hero.companion.health = 10
 
         current_time = TimePrototype.get_current_time()
 
@@ -175,7 +174,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         self.storage.process_turn(continue_steps_if_needed=False)
 
-        self.assertEqual(self.hero.companion.health, 1 + c.COMPANIONS_HEAL_AMOUNT)
+        self.assertEqual(self.hero.companion.health, 10 + c.COMPANIONS_HEAL_AMOUNT)
 
         self.storage._test_save()
 

@@ -16,6 +16,8 @@ from the_tale.game.companions import storage as companions_storage
 from the_tale.game.companions import logic as companions_logic
 from the_tale.game.companions import relations as companions_relations
 
+from the_tale.game.companions.tests import helpers as companions_helpers
+
 from the_tale.game.cards.tests.helpers import CardsTestMixin
 
 
@@ -34,8 +36,8 @@ class GetCompanionCreateTests(testcase.TestCase):
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
-        self.disabled_companion = companions_logic.create_random_companion_record('disbled', rarity=companions_relations.RARITY.COMMON)
-        self.manual_companion = companions_logic.create_random_companion_record('manual', rarity=companions_relations.RARITY.COMMON, mode=companions_relations.MODE.MANUAL)
+        self.disabled_companion = companions_logic.create_random_companion_record('disbled')
+        self.manual_companion = companions_logic.create_random_companion_record('manual', mode=companions_relations.MODE.MANUAL)
 
         self.effect = effects.GetCompanionCommon()
 
@@ -72,9 +74,16 @@ class GetCompanionMixin(CardsTestMixin):
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
+        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.iteritems():
+            companions_logic.create_random_companion_record('%s companion' % rarity,
+                                                            mode=companions_relations.MODE.AUTOMATIC,
+                                                            abilities=rarity_abilities,
+                                                            state=companions_relations.STATE.ENABLED)
+
         self.effect = self.EFFECT()
 
         self.card = self.effect.create_card(available_for_auction=True)
+
         self.hero.cards.add_card(self.card)
 
 

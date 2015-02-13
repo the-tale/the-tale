@@ -219,7 +219,6 @@ def create(context):
                                                      type=context.form.c.type,
                                                      max_health=context.form.c.max_health,
                                                      dedication=context.form.c.dedication,
-                                                     rarity=context.form.c.rarity,
                                                      mode=context.form.c.mode,
                                                      archetype=context.form.c.archetype,
                                                      abilities=context.form.c.abilities)
@@ -252,7 +251,6 @@ def update(context):
                                   type=context.form.c.type,
                                   max_health=context.form.c.max_health,
                                   dedication=context.form.c.dedication,
-                                  rarity=context.form.c.rarity,
                                   mode=context.form.c.mode,
                                   archetype=context.form.c.archetype,
                                   abilities=context.form.c.abilities)

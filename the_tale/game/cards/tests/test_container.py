@@ -11,6 +11,13 @@ from the_tale.market import goods_types
 from the_tale.game.logic import create_test_map
 from the_tale.game.logic_storage import LogicStorage
 
+from the_tale.game.companions import models as companions_models
+from the_tale.game.companions import storage as companions_storage
+from the_tale.game.companions import logic as companions_logic
+from the_tale.game.companions import relations as companions_relations
+from the_tale.game.companions.tests import helpers as companions_helpers
+
+
 from the_tale.game.cards import container
 from the_tale.game.cards import relations
 from the_tale.game.cards import exceptions
@@ -170,6 +177,16 @@ class GetNewCardTest(testcase.TestCase):
     def test_exclude_not_allowrd_effects(self):
         effects = set()
 
+        companions_models.CompanionRecord.objects.all().delete()
+        companions_storage.companions.refresh()
+
+        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.iteritems():
+            companions_logic.create_random_companion_record('%s companion' % rarity,
+                                                            mode=companions_relations.MODE.AUTOMATIC,
+                                                            abilities=rarity_abilities,
+                                                            state=companions_relations.STATE.ENABLED)
+
+
         @classmethod
         def effect_availability(cls):
             # print cls.TYPE, bool(cls.TYPE.value % 2)
@@ -189,6 +206,16 @@ class GetNewCardTest(testcase.TestCase):
     def test_simple(self):
 
         rarities = set()
+
+        companions_models.CompanionRecord.objects.all().delete()
+        companions_storage.companions.refresh()
+
+        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.iteritems():
+            companions_logic.create_random_companion_record('%s companion' % rarity,
+                                                            mode=companions_relations.MODE.AUTOMATIC,
+                                                            abilities=rarity_abilities,
+                                                            state=companions_relations.STATE.ENABLED)
+
 
         for i in xrange(len(relations.CARD_TYPE.records)*1000):
             card = self.hero.cards.get_new_card()
@@ -257,6 +284,15 @@ class GetNewCardTest(testcase.TestCase):
     def test_exclude(self):
         cards = []
 
+        companions_models.CompanionRecord.objects.all().delete()
+        companions_storage.companions.refresh()
+
+        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.iteritems():
+            companions_logic.create_random_companion_record('%s companion' % rarity,
+                                                            mode=companions_relations.MODE.AUTOMATIC,
+                                                            abilities=rarity_abilities,
+                                                            state=companions_relations.STATE.ENABLED)
+
         for i in xrange(len(relations.CARD_TYPE.records)):
             card = self.hero.cards.get_new_card(exclude=cards)
             cards.append(card)
@@ -269,6 +305,16 @@ class GetNewCardTest(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True)
     def test_exclude__different_data(self):
         cards = []
+
+        companions_models.CompanionRecord.objects.all().delete()
+        companions_storage.companions.refresh()
+
+        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.iteritems():
+            companions_logic.create_random_companion_record('%s companion' % rarity,
+                                                            mode=companions_relations.MODE.AUTOMATIC,
+                                                            abilities=rarity_abilities,
+                                                            state=companions_relations.STATE.ENABLED)
+
 
         for i in xrange(len(relations.CARD_TYPE.records)):
             card = self.hero.cards.get_new_card(exclude=cards)

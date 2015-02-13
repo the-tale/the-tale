@@ -18,7 +18,6 @@ from the_tale.game.companions import models
 from the_tale.game.companions import relations
 from the_tale.game.companions import storage
 from the_tale.game.companions.abilities import container as abilities_container
-from the_tale.game.companions.abilities import effects as abilities_effects
 
 
 def create_companion_record(utg_name,
@@ -26,7 +25,6 @@ def create_companion_record(utg_name,
                             type,
                             max_health,
                             dedication,
-                            rarity,
                             archetype,
                             mode,
                             abilities,
@@ -35,7 +33,6 @@ def create_companion_record(utg_name,
                                                   type=type,
                                                   max_health=max_health,
                                                   dedication=dedication,
-                                                  rarity=rarity,
                                                   archetype=archetype,
                                                   mode=mode,
                                                   data=s11n.to_json({'description': description,
@@ -58,7 +55,6 @@ def create_random_companion_record(name,
                                    type=relations.TYPE.LIVING,
                                    max_health=int(c._COMPANIONS_MEDIUM_HEALTH),
                                    dedication=relations.DEDICATION.BRAVE,
-                                   rarity=relations.RARITY.COMMON,
                                    archetype=game_relations.ARCHETYPE.NEUTRAL,
                                    state=relations.STATE.DISABLED,
                                    abilities=abilities_container.Container(),
@@ -68,7 +64,6 @@ def create_random_companion_record(name,
                                    type=type,
                                    max_health=max_health,
                                    dedication=dedication,
-                                   rarity=rarity,
                                    archetype=archetype,
                                    mode=mode,
                                    abilities=abilities,
@@ -81,18 +76,15 @@ def update_companion_record(companion,
                             type,
                             max_health,
                             dedication,
-                            rarity,
                             archetype,
                             mode,
-                            abilities,
-                            state=relations.STATE.DISABLED):
+                            abilities):
 
     companion.set_utg_name(utg_name)
     companion.description = description
     companion.type = type
     companion.max_health = max_health
     companion.dedication = dedication
-    companion.rarity = rarity
     companion.archetype = archetype
     companion.mode = mode
     companion.abilities = abilities
@@ -101,7 +93,6 @@ def update_companion_record(companion,
                                                                   type=type,
                                                                   max_health=max_health,
                                                                   dedication=dedication,
-                                                                  rarity=rarity,
                                                                   archetype=archetype,
                                                                   mode=mode,
                                                                   data=s11n.to_json({'description': description,

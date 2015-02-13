@@ -102,16 +102,9 @@ def create_test_map():
     ArtifactRecordPrototype.create_random(DEFAULT_HERO_EQUIPMENT.GLOVES, type_=ARTIFACT_TYPE.GLOVES)
     ArtifactRecordPrototype.create_random(DEFAULT_HERO_EQUIPMENT.WEAPON, type_=ARTIFACT_TYPE.MAIN_HAND)
 
-    companions_logic.create_random_companion_record('common', rarity=companions_relations.RARITY.COMMON,
-                                                    dedication=companions_relations.DEDICATION.HEROIC, state=companions_relations.STATE.ENABLED)
-    companions_logic.create_random_companion_record('uncommon', rarity=companions_relations.RARITY.UNCOMMON,
-                                                    dedication=companions_relations.DEDICATION.VALIANT, state=companions_relations.STATE.ENABLED)
-    companions_logic.create_random_companion_record('rare', rarity=companions_relations.RARITY.RARE,
-                                                    dedication=companions_relations.DEDICATION.BRAVE, state=companions_relations.STATE.ENABLED)
-    companions_logic.create_random_companion_record('epic', rarity=companions_relations.RARITY.EPIC,
-                                                    dedication=companions_relations.DEDICATION.BOLD, state=companions_relations.STATE.ENABLED)
-    companions_logic.create_random_companion_record('legendary', rarity=companions_relations.RARITY.LEGENDARY,
-                                                    dedication=companions_relations.DEDICATION.INDECISIVE, state=companions_relations.STATE.ENABLED)
+    companions_logic.create_random_companion_record('companion_1', dedication=companions_relations.DEDICATION.HEROIC, state=companions_relations.STATE.ENABLED)
+    companions_logic.create_random_companion_record('companion_2', dedication=companions_relations.DEDICATION.BOLD, state=companions_relations.STATE.ENABLED)
+    companions_logic.create_random_companion_record('companion_3', dedication=companions_relations.DEDICATION.BOLD, state=companions_relations.STATE.DISABLED)
 
     return p1, p2, p3
 

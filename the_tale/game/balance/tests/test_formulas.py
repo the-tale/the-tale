@@ -36,11 +36,11 @@ class FormulasTest(testcase.TestCase):
         self.assertEqual(int(f.person_power_for_quest__real(100)), 604)
 
     def test_companions_defend_in_battle_probability(self):
-        self.assertEqual(round(f.companions_defend_in_battle_probability(0), 5), 0.15937)
-        self.assertEqual(round(f.companions_defend_in_battle_probability(25), 5), 0.17344)
+        self.assertEqual(round(f.companions_defend_in_battle_probability(0), 5), 0.13125)
+        self.assertEqual(round(f.companions_defend_in_battle_probability(25), 5), 0.15937)
         self.assertEqual(round(f.companions_defend_in_battle_probability(50), 5), 0.1875)
-        self.assertEqual(round(f.companions_defend_in_battle_probability(75), 5), 0.20156)
-        self.assertEqual(round(f.companions_defend_in_battle_probability(100), 5), 0.21562)
+        self.assertEqual(round(f.companions_defend_in_battle_probability(75), 5), 0.21562)
+        self.assertEqual(round(f.companions_defend_in_battle_probability(100), 5), 0.24375)
 
 
     def test_companions_heal_in_hour(self):
@@ -72,7 +72,7 @@ class FormulasTest(testcase.TestCase):
 
 
     def test_gold_in_path(self):
-        self.assertEqual(f.gold_in_path(10, 100), 394)
+        self.assertEqual(f.gold_in_path(10, 100), 414)
 
 
 # if one of this tests broken, we MUST review appropriate achievements' barriers
@@ -89,9 +89,9 @@ class AchievementsBarriers(testcase.TestCase):
         self.check_money(0.03, 1000)
         self.check_money(0.3, 10000)
         self.check_money(1.0, 50000)
-        self.check_money(5.6, 500000)
-        self.check_money(9.7, 1000000)
-        self.check_money(32, 5000000)
+        self.check_money(8.4, 500000)
+        self.check_money(15.5, 1000000)
+        self.check_money(33.8, 2500000)
 
 
     def mobs_after_months(self, months):

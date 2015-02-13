@@ -48,15 +48,15 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.TURNS_TO_IDLE, 6)
         self.assertEqual(c.TURNS_TO_RESURRECT, 18)
 
-        self.assertEqual(c.GET_LOOT_PROBABILITY, 0.33)
+        self.assertEqual(c.GET_LOOT_PROBABILITY, 0.50)
         self.assertEqual(c.NORMAL_ARTIFACT_PROBABILITY, 1 - 0.05 - 0.005)
         self.assertEqual(c.RARE_ARTIFACT_PROBABILITY, 0.05)
         self.assertTrue(c.EPIC_ARTIFACT_PROBABILITY, 0.005)
-        self.assertEqual(c.NORMAL_LOOT_COST, 1.5)
+        self.assertEqual(c.NORMAL_LOOT_COST, 1.0)
         self.assertEqual(c.BASE_EXPERIENCE_FOR_MONEY_SPEND, 96)
         self.assertEqual(c.EXPERIENCE_DELTA_FOR_MONEY_SPEND, 0.5)
 
-        self.assertEqual(c.SELL_ARTIFACT_PRICE_MULTIPLIER, 7.5)
+        self.assertEqual(c.SELL_ARTIFACT_PRICE_MULTIPLIER, 10)
         self.assertEqual(c.PRICE_DELTA, 0.2)
         self.assertEqual(c.POWER_TO_LVL, 11.0)
         self.assertEqual(c.ARTIFACT_POWER_DELTA, 0.2)
@@ -299,9 +299,9 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c._COMPANIONS_MEDIUM_LIFETYME, 10)
 
-        self.assertEqual(c.COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA, 0.15)
-        self.assertEqual(c.COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA, 0.15)
-        self.assertEqual(c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA, 0.15)
+        self.assertEqual(c.COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA, 0.3)
+        self.assertEqual(c.COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA, 0.3)
+        self.assertEqual(c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA, 0.3)
 
         self.assertEqual(c.COMPANIONS_HABITS_DELTA, 0.5)
 
@@ -336,7 +336,7 @@ class ConstantsTest(testcase.TestCase):
         multiplier = ((1 + c.COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA) *
                       (1 + c.COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA) *
                       (1 + c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA))
-        self.assertTrue(multiplier < 1.521)
+        self.assertTrue(multiplier < 1.3**3+0.00001)
 
 
     def test_energy_regeneration_vs_companion_heal(self):

@@ -953,7 +953,6 @@ class GetCompanionBase(BaseEffect):
         available_companions = [companion
                                 for companion in companions_storage.companions.enabled_companions()
                                 if companion.rarity == cls.RARITY and companion.mode.is_AUTOMATIC]
-
         return available_companions
 
     def create_card(self, available_for_auction):

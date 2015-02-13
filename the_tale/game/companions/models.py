@@ -16,7 +16,6 @@ class CompanionRecord(models.Model):
     state = RelationIntegerField(relation=relations.STATE, db_index=True)
     type = RelationIntegerField(relation=relations.TYPE, db_index=True)
     dedication = RelationIntegerField(relation=relations.DEDICATION, db_index=True)
-    rarity = RelationIntegerField(relation=relations.RARITY, db_index=True)
     archetype = RelationIntegerField(relation=game_relations.ARCHETYPE, blank=True)
     mode = RelationIntegerField(relation=relations.MODE, blank=True)
 

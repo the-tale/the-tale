@@ -37,8 +37,8 @@ def fake_modify_attribute(self, type_, value):
 
     # return (value + 0.2) if type_.is_GET_ARTIFACT_FOR_QUEST else value
 
-    if type_.is_RARE: return value * 4
-    if type_.is_EPIC: return value * 4
+    # if type_.is_RARE: return value * 4
+    # if type_.is_EPIC: return value * 4
 
     # return value * 1.2 if type_.is_SPEED else value
 

@@ -202,7 +202,6 @@ class MODIFIERS(DjangoEnum):
                 ('COMPANION_ABILITIES_LEVELS', 65, u'уровень способностей спутника', lambda: {}),
                 ('COMPANION_STEAL_MONEY_MULTIPLIER', 66, u'множитель денег, когда спутник крадёт деньги при посещении города', lambda: 1.0),
                 ('COMPANION_STEAL_ITEM_MULTIPLIER', 67, u'вероятсноть артефакта, когда спутник крадёт предмет при посещении города', lambda: 1.0),
-                ('COMPANION_SPARE_PARTS_MULTIPLIER', 68, u'стоимость запчастей', lambda: 1.0),
                 ('COMPANION_EAT_CORPSES_PROBABILITY', 69, u'вероятность, что спутник восстанавливает здоровье, поедая трупы враго', lambda: c.COMPANION_EATEN_CORPSES_PER_BATTLE),
                 ('COMPANION_SAY_WISDOM_PROBABILITY', 70, u'вероятсность, что спутник периодически изрекает мудрые мысли, дающие герою опыт', lambda: c.COMPANION_EXP_PER_MOVE_PROBABILITY),
                 ('COMPANION_EXP_PER_HEAL_PROBABILITY', 71, u'вероятность, что герой получает опыт за каждый уход за спутником', lambda: 1.0),

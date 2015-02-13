@@ -2,6 +2,7 @@
 # pylint: disable=C0302
 import random
 import copy
+import math
 
 from dext.common.utils.urls import url
 from dext.common.utils import discovering
@@ -373,7 +374,7 @@ class ActionBase(object):
             self.hero.add_message(message_type, diary=True, hero=self.hero, **self.action_event_message_arguments())
         elif event_reward.is_MONEY:
             multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
-            coins = int(f.normal_loot_cost_at_lvl(self.hero.level) * multiplier)
+            coins = int(math.ceil(f.normal_loot_cost_at_lvl(self.hero.level) * multiplier))
             self.hero.change_money(MONEY_SOURCE.EARNED_FROM_HABITS, coins)
             self.hero.add_message(message_type, diary=True, hero=self.hero, coins=coins, **self.action_event_message_arguments())
         elif event_reward.is_ARTIFACT:

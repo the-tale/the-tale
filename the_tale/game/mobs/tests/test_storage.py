@@ -136,8 +136,8 @@ class MobsStorageTests(testcase.TestCase):
         MobRecordPrototype.create_random('action_1', global_action_probability=0.66)
         MobRecordPrototype.create_random('action_2', global_action_probability=0.66)
 
-        counter = collections.Counter([mobs_storage.get_random_mob(hero).id for i in xrange(1000)])
+        counter = collections.Counter([mobs_storage.get_random_mob(hero).id for i in xrange(10000)])
 
         self.assertEqual(sum([count for uuid, count in counter.iteritems() if uuid not in ('action_1', 'action_2')], 0), 0)
 
-        self.assertTrue(abs(counter['action_2'] - counter['action_1']) < 0.1 * counter['action_2'])
+        self.assertTrue(abs(counter['action_2'] - counter['action_1']) < 0.2 * counter['action_2'])

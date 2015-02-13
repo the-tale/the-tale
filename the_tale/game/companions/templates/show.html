@@ -33,6 +33,27 @@
 
 {% if context.companions_can_edit or context.companions_can_moderate %}
 
+<hr/>
+
+<h3>Для разработчиков</h3>
+
+  <h4>Редкость</h4>
+
+  <table class="table table-condensed table-highlighting">
+    <tbody>
+      {% for text, points in companion.rarity_points() %}
+      <tr>
+        <td width="200px">{{text}}</td>
+        <td>{{points}}</td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td width="200px"><strong>всего</strong></td>
+        <td><strong>{{companion.raw_rarity}}</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
   <h4>Количество обязательных фраз в игре</h4>
 
   <p>

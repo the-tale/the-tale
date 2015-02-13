@@ -369,10 +369,6 @@ class LogicAccessorsMixin(object):
         return self.attribute_modifier(relations.MODIFIERS.COMPANION_LEAVE_IN_PLACE)
 
     @property
-    def companion_broke_to_spare_parts_multiplier(self):
-        return self.attribute_modifier(relations.MODIFIERS.COMPANION_SPARE_PARTS_MULTIPLIER)
-
-    @property
     def companion_teleport_probability(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_TELEPORTATOR)
 
     @property

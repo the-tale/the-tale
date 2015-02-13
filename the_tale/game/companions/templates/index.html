@@ -76,6 +76,10 @@
           <thead>
             <tr>
               <th>название</th>
+              {% if context.companions_can_edit or context.companions_can_moderate %}
+                <th>дельта редкости</th>
+              {% endif %}
+              <th>название</th>
               <th>тип</th>
               <th>описание</th>
             </tr>
@@ -84,6 +88,9 @@
             {% for ability in ABILITIES.records|sort(attribute="text") %}
               <tr>
                 <td>{{ability.text}}</td>
+                {% if context.companions_can_edit or context.companions_can_moderate %}
+                  <td>{{ability.rarity_delta}}</td>
+                {% endif %}
                 <td>{{ability.effect.TYPE.metatype.text}}</td>
                 <td>{{ability.description}}</td>
               </tr>
@@ -139,7 +146,11 @@
            rel="tooltip"
            title="<ul class='unstyled' style='text-align: left;'>
                   {%- for coherence, ability in companion.abilities.all_abilities -%}
-                  <li>согласованность {{coherence}}: {{ability.text}}</li>
+                  {% if coherence %}
+                  <li>слаженность {{coherence}}: {{ability.text}}</li>
+                  {% else %}
+                  <li>{{ability.text}}</li>
+                  {% endif %}
                   {%- endfor -%}
                   </ul>">
           способности

@@ -12,7 +12,11 @@ from the_tale.game.companions.abilities import container
 from the_tale.game.companions.abilities import relations
 
 def ChoiceField(filter=lambda ability: True, sort_key=None):
-    return fields.RelationField(label=u'', relation=effects.ABILITIES, filter=filter, sort_key=sort_key, required=False)
+    choices = [('', u'---')] + sorted([(ability, u'%s [%d]' % (ability.text, ability.rarity_delta))
+                                       for ability in effects.ABILITIES.records
+                                       if filter(ability)],
+                                       key=sort_key)
+    return fields.TypedChoiceField(label=u'', choices=choices, required=False, coerce=effects.ABILITIES.get_from_name)
 
 
 def get_abilities_fields():
@@ -32,6 +36,7 @@ def get_abilities_fields():
         relations.FIELDS.START_2: ChoiceField(filter=common_filter, sort_key=sort_key),
         relations.FIELDS.START_3: ChoiceField(filter=common_filter, sort_key=sort_key),
         relations.FIELDS.START_4: ChoiceField(filter=common_filter, sort_key=sort_key),
+        relations.FIELDS.START_5: ChoiceField(filter=common_filter, sort_key=sort_key),
         relations.FIELDS.ABILITY_1: ChoiceField(filter=common_filter, sort_key=sort_key),
         relations.FIELDS.ABILITY_2: ChoiceField(filter=common_filter, sort_key=sort_key),
         relations.FIELDS.ABILITY_3: ChoiceField(filter=common_filter, sort_key=sort_key),

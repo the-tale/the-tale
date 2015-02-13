@@ -30,7 +30,6 @@ class LogicTests(testcase.TestCase):
 
         type = relations.TYPE.random()
         dedication = relations.DEDICATION.random()
-        rarity = relations.RARITY.random()
         archetype = game_relations.ARCHETYPE.random()
         max_health = 10
         mode = relations.MODE.random()
@@ -45,8 +44,7 @@ class LogicTests(testcase.TestCase):
                                                                      dedication=dedication,
                                                                      archetype=archetype,
                                                                      mode=mode,
-                                                                     abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
-                                                                     rarity=rarity)
+                                                                     abilities=helpers.FAKE_ABILITIES_CONTAINER_1)
 
         self.assertTrue(companion_record.state.is_DISABLED)
 
@@ -55,7 +53,6 @@ class LogicTests(testcase.TestCase):
         self.assertEqual(companion_record.description, description)
         self.assertEqual(companion_record.type, type)
         self.assertEqual(companion_record.max_health, max_health)
-        self.assertEqual(companion_record.rarity, rarity)
         self.assertEqual(companion_record.archetype, archetype)
         self.assertEqual(companion_record.mode, mode)
         self.assertEqual(companion_record.dedication, dedication)
@@ -74,7 +71,6 @@ class LogicTests(testcase.TestCase):
                                                          type=relations.TYPE.random(),
                                                          max_health=10,
                                                          dedication=relations.DEDICATION.random(),
-                                                         rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
@@ -90,7 +86,6 @@ class LogicTests(testcase.TestCase):
                                                             type=relations.TYPE.random(),
                                                             max_health=10,
                                                             dedication=relations.DEDICATION.random(),
-                                                            rarity=relations.RARITY.random(),
                                                             archetype=game_relations.ARCHETYPE.random(),
                                                             mode=relations.MODE.random(),
                                                             abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
@@ -107,7 +102,6 @@ class LogicTests(testcase.TestCase):
 
         type = relations.TYPE.random()
         dedication = relations.DEDICATION.random()
-        rarity = relations.RARITY.random()
         archetype = game_relations.ARCHETYPE.random()
         mode = relations.MODE.random()
         max_health = 666
@@ -119,8 +113,7 @@ class LogicTests(testcase.TestCase):
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
-                                                         abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
-                                                         rarity=relations.RARITY.random())
+                                                         abilities=helpers.FAKE_ABILITIES_CONTAINER_1)
 
         with self.check_increased(lambda: models.CompanionRecord.objects.get(id=companion_record.id).updated_at):
             with self.check_not_changed(lambda: models.CompanionRecord.objects.get(id=companion_record.id).created_at):
@@ -135,15 +128,13 @@ class LogicTests(testcase.TestCase):
                                                           dedication=dedication,
                                                           archetype=archetype,
                                                           mode=mode,
-                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_2,
-                                                          rarity=rarity)
+                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_2)
 
         self.assertEqual(companion_record.name, new_name.normal_form())
         self.assertEqual(companion_record.description, 'new-description')
         self.assertEqual(companion_record.type, type)
         self.assertEqual(companion_record.dedication, dedication)
         self.assertEqual(companion_record.max_health, max_health)
-        self.assertEqual(companion_record.rarity, rarity)
         self.assertEqual(companion_record.mode, mode)
         self.assertEqual(companion_record.archetype, archetype)
         self.assertEqual(companion_record.abilities, helpers.FAKE_ABILITIES_CONTAINER_2)
@@ -157,7 +148,6 @@ class LogicTests(testcase.TestCase):
         self.assertEqual(companion_record.type, type)
         self.assertEqual(companion_record.dedication, dedication)
         self.assertEqual(companion_record.max_health, max_health)
-        self.assertEqual(companion_record.rarity, rarity)
         self.assertEqual(companion_record.mode, mode)
         self.assertEqual(companion_record.archetype, archetype)
         self.assertEqual(companion_record.abilities, helpers.FAKE_ABILITIES_CONTAINER_2)
@@ -167,7 +157,6 @@ class LogicTests(testcase.TestCase):
 
         type = relations.TYPE.random()
         dedication = relations.DEDICATION.random()
-        rarity = relations.RARITY.random()
         archetype = game_relations.ARCHETYPE.random()
         mode = relations.MODE.random()
         max_health = 666
@@ -179,8 +168,7 @@ class LogicTests(testcase.TestCase):
                                                          dedication=dedication,
                                                          archetype=archetype,
                                                          mode=mode,
-                                                         abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
-                                                         rarity=rarity)
+                                                         abilities=helpers.FAKE_ABILITIES_CONTAINER_1)
 
         with self.check_increased(lambda: models.CompanionRecord.objects.get(id=companion_record.id).updated_at):
             with self.check_not_changed(lambda: models.CompanionRecord.objects.get(id=companion_record.id).created_at):
@@ -193,7 +181,6 @@ class LogicTests(testcase.TestCase):
         self.assertEqual(companion_record.type, type)
         self.assertEqual(companion_record.dedication, dedication)
         self.assertEqual(companion_record.max_health, max_health)
-        self.assertEqual(companion_record.rarity, rarity)
         self.assertEqual(companion_record.archetype, archetype)
         self.assertEqual(companion_record.mode, mode)
         self.assertTrue(companion_record.state.is_ENABLED)
@@ -207,7 +194,6 @@ class LogicTests(testcase.TestCase):
         self.assertEqual(companion_record.type, type)
         self.assertEqual(companion_record.dedication, dedication)
         self.assertEqual(companion_record.max_health, max_health)
-        self.assertEqual(companion_record.rarity, rarity)
         self.assertEqual(companion_record.archetype, archetype)
         self.assertEqual(companion_record.mode, mode)
         self.assertTrue(companion_record.state.is_ENABLED)
@@ -225,8 +211,7 @@ class LogicTests(testcase.TestCase):
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
-                                                         abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
-                                                         rarity=relations.RARITY.random())
+                                                         abilities=helpers.FAKE_ABILITIES_CONTAINER_1)
 
         with mock.patch('the_tale.linguistics.logic.sync_restriction') as sync_restriction:
             logic.update_companion_record(companion_record,
@@ -237,8 +222,7 @@ class LogicTests(testcase.TestCase):
                                           dedication=relations.DEDICATION.random(),
                                           archetype=game_relations.ARCHETYPE.random(),
                                           mode=relations.MODE.random(),
-                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_2,
-                                          rarity=relations.RARITY.random())
+                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_2)
 
         self.assertEqual(sync_restriction.call_args_list, [mock.call(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.COMPANION,
                                                                      external_id=companion_record.id,
@@ -250,7 +234,6 @@ class LogicTests(testcase.TestCase):
                                                          type=relations.TYPE.random(),
                                                          max_health=10,
                                                          dedication=relations.DEDICATION.random(),
-                                                         rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_1,

@@ -45,7 +45,7 @@ def battles_on_lvl(lvl): return int(time_on_lvl(lvl) * c.BATTLES_PER_HOUR)
 # цена добычи из моба указанного уровня (т.е. для моба, появляющегося на этом уровне)
 # таким образом, нет необходимости поддерживать добычу для каждого моба для каждого уровня, достаточно по одному предмету каждого качества,
 # а остальное по мере фантазии чисто для разнообразия
-def normal_loot_cost_at_lvl(lvl): return  int(math.ceil(c.NORMAL_LOOT_COST * lvl))
+def normal_loot_cost_at_lvl(lvl): return  int(c.NORMAL_LOOT_COST * math.log(lvl, 1.3)) + 1
 def medium_loot_cost_at_lvl(lvl): return sum(normal_loot_cost_at_lvl(i) for i in xrange(1, lvl+1)) / lvl
 
 def sell_artifact_price(lvl): return normal_loot_cost_at_lvl(lvl) * c.SELL_ARTIFACT_PRICE_MULTIPLIER

@@ -19,8 +19,8 @@ class Container(object):
         if not isinstance(common, (tuple, list)):
             raise exceptions.NotOrderedUIDSError()
 
-        self.common = tuple(common)
-        self.start = frozenset(start)
+        self.common = tuple(ability for ability in common if ability)
+        self.start = frozenset(ability for ability in start if ability)
         self.coherence = coherence
         self.honor = honor
         self.peacefulness = peacefulness

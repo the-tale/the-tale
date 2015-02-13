@@ -68,7 +68,7 @@ TURNS_TO_IDLE = int(6) # количество ходов на уровень, к
 TURNS_TO_RESURRECT = int(TURNS_TO_IDLE * 3) # количество ходов на уровень, необходимое для воскрешения
 
 
-GET_LOOT_PROBABILITY = float(0.33) # вероятность получить добычу после боя, если не получен артефакт
+GET_LOOT_PROBABILITY = float(0.50) # вероятность получить добычу после боя, если не получен артефакт
 
 # вероятности получить разный тип добычи
 
@@ -76,11 +76,12 @@ EPIC_ARTIFACT_PROBABILITY = float(0.005)
 RARE_ARTIFACT_PROBABILITY = float(0.05)
 NORMAL_ARTIFACT_PROBABILITY = float(1 - RARE_ARTIFACT_PROBABILITY - EPIC_ARTIFACT_PROBABILITY)
 
-#стоимость разной добычи на единицу уровня
-NORMAL_LOOT_COST = float(1.5)
+NORMAL_LOOT_COST = float(1) #стоимость разной добычи на единицу уровня
 
 MAX_BAG_SIZE = int(12) # максимальный размер рюкзака героя
 BAG_SIZE_TO_SELL_LOOT_FRACTION = float(0.33) # процент заполненности рюкзака, после которого герой начнёт продавать вещи
+
+SELL_ARTIFACT_PRICE_MULTIPLIER = int(10) # множитель стоимости артефакта от стоимости лута
 
 # относительные размеры различных трат
 
@@ -122,8 +123,6 @@ BATTLES_PER_HOUR = TURNS_IN_HOUR * (float(BATTLES_BEFORE_HEAL) / ACTIONS_CYCLE_L
 
 # вероятность выпаденя артефакта из моба (т.е. вероятноть получить артефакт после боя)
 ARTIFACTS_PER_BATTLE = float(ARTIFACTS_LOOT_PER_DAY / (BATTLES_PER_HOUR * 24))
-
-SELL_ARTIFACT_PRICE_MULTIPLIER = float(7.5) # цена продажи артефакта от цены лута
 
 # вероятность сломать артефакт после боя
 ARTIFACTS_BREAKS_PER_BATTLE = float(ARTIFACTS_BREAKING_SPEED / (BATTLES_PER_HOUR * 24))
@@ -526,9 +525,9 @@ _COMPANIONS_MEDIUM_HEALTH = float(COMPANIONS_MIN_HEALTH + COMPANIONS_MAX_HEALTH)
 _COMPANIONS_MEDIUM_LIFETYME = int(10) # ожидаемое время жизни среднего спутника со средним здоровьем без лечения
 
 # дельты мультипликатора вероятности блока для
-COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA = float(0.15) # согласованности (от среднего)
-COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA = float(0.15) # самоотверженности спутника
-COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA = float(0.15) # самоотверженность героя
+COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA = float(0.3) # слаженность (от среднего)
+COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA = float(0.3) # самоотверженности спутника
+COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA = float(0.3) # самоотверженность героя
 
 COMPANIONS_HABITS_DELTA = float(0.5) # дельта изменения черт от среднего в зависимости от предпочтения
 

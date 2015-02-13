@@ -58,7 +58,6 @@ class IndexRequestsTests(RequestsTestsBase):
                                                          type=relations.TYPE.random(),
                                                          max_health=10,
                                                          dedication=relations.DEDICATION.random(),
-                                                         rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
@@ -69,7 +68,6 @@ class IndexRequestsTests(RequestsTestsBase):
                                                          type=relations.TYPE.random(),
                                                          max_health=10,
                                                          dedication=relations.DEDICATION.random(),
-                                                         rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_2,
@@ -179,8 +177,7 @@ class CreateRequestsTests(RequestsTestsBase):
                 'max_health': 65,
                 'dedication': relations.DEDICATION.random(),
                 'archetype': game_relations.ARCHETYPE.random(),
-                'mode': relations.MODE.random(),
-                'rarity': relations.RARITY.random()}
+                'mode': relations.MODE.random()}
         data.update(linguistics_helpers.get_word_post_data(names.generator.get_test_name(name='name'), prefix='name'))
         data.update(helpers.get_abilities_post_data(helpers.FAKE_ABILITIES_CONTAINER_1),)
         return data
@@ -212,7 +209,6 @@ class CreateRequestsTests(RequestsTestsBase):
         self.assertEqual(new_companion.type, post_data['type'])
         self.assertEqual(new_companion.max_health, post_data['max_health'])
         self.assertEqual(new_companion.dedication, post_data['dedication'])
-        self.assertEqual(new_companion.rarity, post_data['rarity'])
         self.assertEqual(new_companion.archetype, post_data['archetype'])
         self.assertEqual(new_companion.mode, post_data['mode'])
         self.assertEqual(new_companion.name, u'name-нс,ед,им')
@@ -239,7 +235,6 @@ class ShowRequestsTests(RequestsTestsBase):
                                                          type=relations.TYPE.random(),
                                                          max_health=10,
                                                          dedication=relations.DEDICATION.random(),
-                                                         rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
@@ -250,7 +245,6 @@ class ShowRequestsTests(RequestsTestsBase):
                                                          type=relations.TYPE.random(),
                                                          max_health=10,
                                                          dedication=relations.DEDICATION.random(),
-                                                         rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_2,
@@ -339,7 +333,6 @@ class InfoRequestsTests(RequestsTestsBase):
                                                          type=relations.TYPE.random(),
                                                          max_health=10,
                                                          dedication=relations.DEDICATION.random(),
-                                                         rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
@@ -350,7 +343,6 @@ class InfoRequestsTests(RequestsTestsBase):
                                                          type=relations.TYPE.random(),
                                                          max_health=10,
                                                          dedication=relations.DEDICATION.random(),
-                                                         rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_2,
@@ -425,7 +417,6 @@ class EditRequestsTests(RequestsTestsBase):
                                                          type=relations.TYPE.random(),
                                                          max_health=10,
                                                          dedication=relations.DEDICATION.random(),
-                                                         rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
@@ -467,7 +458,6 @@ class UpdateRequestsTests(RequestsTestsBase):
                                                          type=relations.TYPE.random(),
                                                          max_health=10,
                                                          dedication=relations.DEDICATION.random(),
-                                                         rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
@@ -487,8 +477,7 @@ class UpdateRequestsTests(RequestsTestsBase):
                 'max_health': 65,
                 'dedication': relations.DEDICATION.random(),
                 'archetype': game_relations.ARCHETYPE.random(),
-                'mode': relations.MODE.random(),
-                'rarity': relations.RARITY.random()}
+                'mode': relations.MODE.random()}
         data.update(linguistics_helpers.get_word_post_data(names.generator.get_test_name(name='new_name'), prefix='name'))
         data.update(helpers.get_abilities_post_data(helpers.FAKE_ABILITIES_CONTAINER_2),)
         return data
@@ -520,7 +509,6 @@ class UpdateRequestsTests(RequestsTestsBase):
         self.assertEqual(companion.type, post_data['type'])
         self.assertEqual(companion.max_health, post_data['max_health'])
         self.assertEqual(companion.dedication, post_data['dedication'])
-        self.assertEqual(companion.rarity, post_data['rarity'])
         self.assertEqual(companion.mode, post_data['mode'])
         self.assertEqual(companion.name, u'new_name-нс,ед,им')
         self.assertEqual(companion.abilities, helpers.FAKE_ABILITIES_CONTAINER_2)
@@ -550,7 +538,6 @@ class EnableRequestsTests(RequestsTestsBase):
                                                          type=relations.TYPE.random(),
                                                          max_health=10,
                                                          dedication=relations.DEDICATION.random(),
-                                                         rarity=relations.RARITY.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
                                                          mode=relations.MODE.random(),

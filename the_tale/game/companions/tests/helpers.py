@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from the_tale.game.companions import relations
+
 from the_tale.game.companions.abilities import container as abilities_container
 from the_tale.game.companions.abilities import forms as abilities_forms
 from the_tale.game.companions.abilities import effects
@@ -29,3 +31,10 @@ def get_abilities_post_data(abilities, prefix='abilities'):
             if value is not None}
 
     return data
+
+
+RARITIES_ABILITIES = {relations.RARITY.COMMON: abilities_container.Container(),
+                      relations.RARITY.UNCOMMON: abilities_container.Container(start=(effects.ABILITIES.UNCOMMON,)),
+                      relations.RARITY.RARE: abilities_container.Container(start=(effects.ABILITIES.RARE,)),
+                      relations.RARITY.EPIC: abilities_container.Container(start=(effects.ABILITIES.RARE, effects.ABILITIES.HUCKSTER)),
+                      relations.RARITY.LEGENDARY: abilities_container.Container(start=(effects.ABILITIES.SPECIAL,))}

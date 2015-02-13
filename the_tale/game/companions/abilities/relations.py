@@ -31,7 +31,7 @@ class EFFECT(DjangoEnum):
                 (u'COMPANION_DAMAGE_PROBABILITY', 13, u'вероятность получить урон', METATYPE.BATTLE),
                 (u'COMPANION_STEAL_MONEY', 14, u'спутник крадёт деньги', METATYPE.MONEY),
                 (u'COMPANION_STEAL_ITEM', 15, u'спутник крадёт предметы', METATYPE.MONEY),
-                (u'COMPANION_SPARE_PARTS', 16, u'спутник разваливается на дорогие запчасти', METATYPE.MONEY),
+                (u'COMPANION_SPARE_PARTS', 16, u'спутник разваливается на дорогие запчасти', METATYPE.UNCHANGEBLE),
                 (u'COMPANION_EXPERIENCE', 17, u'спутник так или иначе приносит опыт', METATYPE.OTHER),
                 (u'COMPANION_DOUBLE_ENERGY_REGENERATION', 18, u'герой может восстновить в 2 раза больше энергии', METATYPE.OTHER),
                 (u'COMPANION_REGENERATION', 19, u'спутник как-либо восстанавливает своё здоровье', METATYPE.OTHER),
@@ -56,6 +56,8 @@ class EFFECT(DjangoEnum):
 
                 (u'DEATHY', 36, u'для смерти, распугивает всех', METATYPE.UNCHANGEBLE),
 
+                (u'RARITY', 37, u'редкость', METATYPE.UNCHANGEBLE),
+
                 )
 
 
@@ -69,12 +71,13 @@ class FIELDS(DjangoEnum):
                 ('START_2', 4, u'начальная 2', False),
                 ('START_3', 5, u'начальная 3', False),
                 ('START_4', 6, u'начальная 4', False),
-                ('ABILITY_1', 7, u'способность 1', True),
-                ('ABILITY_2', 8, u'способность 2', True),
-                ('ABILITY_3', 9, u'способность 3', True),
-                ('ABILITY_4', 10, u'способность 4', True),
-                ('ABILITY_5', 11, u'способность 5', True),
-                ('ABILITY_6', 12, u'способность 6', True),
-                ('ABILITY_7', 13, u'способность 7', True),
-                ('ABILITY_8', 14, u'способность 8', True),
-                ('ABILITY_9', 15, u'способность 9', True) )
+                ('START_5', 7, u'начальная 5', False),
+                ('ABILITY_1', 8, u'способность 1', True),
+                ('ABILITY_2', 9, u'способность 2', True),
+                ('ABILITY_3', 10, u'способность 3', True),
+                ('ABILITY_4', 11, u'способность 4', True),
+                ('ABILITY_5', 12, u'способность 5', True),
+                ('ABILITY_6', 13, u'способность 6', True),
+                ('ABILITY_7', 14, u'способность 7', True),
+                ('ABILITY_8', 15, u'способность 8', True),
+                ('ABILITY_9', 16, u'способность 9', True) )

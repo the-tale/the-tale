@@ -14,7 +14,7 @@ class CHARISMA(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = u'Герой настолько обаятелен, что умудряется получать больше денег за выполнение заданий.'
 
-    MONEY_MULTIPLIER = [1.5, 2.0, 2.5, 3.0, 3.5]
+    MONEY_MULTIPLIER = [2, 4, 6, 8, 10]
 
     @property
     def money_multiplier(self): return self.MONEY_MULTIPLIER[self.level-1]
@@ -32,8 +32,8 @@ class HUCKSTER(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = u'Увеличивается цена продажи и уменьшается цена покупки предметов.'
 
-    SELL_MULTIPLIER = [1.1, 1.15, 1.2, 1.25, 1.3]
-    BUY_MULTIPLIER = [0.9, 0.85, 0.8, 0.75, 0.7]
+    SELL_MULTIPLIER = [1.2, 1.4, 1.6, 1.8, 2.0]
+    BUY_MULTIPLIER = [0.9, 0.8, 0.7, 0.6, 0.5]
 
     @property
     def sell_multiplier(self): return self.SELL_MULTIPLIER[self.level-1]
@@ -62,7 +62,7 @@ class DANDY(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = u'Увеличивает вероятность траты денег на заточку, ремонт и покупку артефактов.'
 
-    PRIORITY_MULTIPLIER = [1.2, 1.4, 1.6, 1.8, 2.0]
+    PRIORITY_MULTIPLIER = [1.4, 1.8, 2.2, 2.6, 3.0]
 
     @property
     def priority_multiplier(self): return self.PRIORITY_MULTIPLIER[self.level-1]
@@ -85,7 +85,7 @@ class BUSINESSMAN(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = u'Герой имеет больше шансов получить артефакт в награду за выполнение задания.'
 
-    PROBABILITY = [0.02, 0.04, 0.06, 0.08, 0.1]
+    PROBABILITY = [0.03, 0.06, 0.09, 0.12, 0.15]
 
     @property
     def probability(self): return self.PROBABILITY[self.level-1]
@@ -103,7 +103,7 @@ class PICKY(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = u'Герой с большей вероятностью получает редкие и эпические артефакты.'
 
-    PROBABILITY = [1.2, 1.4, 1.6, 1.8, 2.0]
+    PROBABILITY = [1.4, 1.8, 2.2, 2.6, 3.0]
 
     @property
     def probability(self): return self.PROBABILITY[self.level-1]
@@ -147,7 +147,7 @@ class WANDERER(AbilityPrototype):
 
     # since experience not depends on time, this agruments MUST be equal or less then GIFTER.EXPERIENCE_MULTIPLIER
     # in other case, GIFTED will give less experience, then WANDERER
-    SPEED_MULTIPLIER = [1.04, 1.08, 1.12, 1.16, 1.20]
+    SPEED_MULTIPLIER = [1.03, 1.06, 1.09, 1.12, 1.15]
 
     @property
     def speed_multiplier(self): return self.SPEED_MULTIPLIER[self.level-1]
@@ -165,7 +165,7 @@ class GIFTED(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = u'Одарённые герои быстрее получают опыт.'
 
-    EXPERIENCE_MULTIPLIER = [1.05, 1.1, 1.15, 1.2, 1.25]
+    EXPERIENCE_MULTIPLIER = [1.04, 1.08, 1.12, 1.16, 1.2]
 
     @property
     def experience_multiplier(self): return self.EXPERIENCE_MULTIPLIER[self.level-1]
@@ -183,7 +183,7 @@ class DIPLOMATIC(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = u'Некоторые герои приноровились выполнять задание особенно хитро и тщательно, тем самым увеличивая своё влияние на участников задания.'
 
-    POWER_MULTIPLIER = [1.1, 1.2, 1.3, 1.4, 1.5]
+    POWER_MULTIPLIER = [1.2, 1.4, 1.6, 1.8, 2.0]
 
     @property
     def power_multiplier(self): return self.POWER_MULTIPLIER[self.level-1]
@@ -201,7 +201,7 @@ class THRIFTY(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = u'Запасливый герой не любит расставаться с добычей, поэтому носит с собой рюкзак большего размера.'
 
-    MAX_BAG_SIZE_MODIFIER = [1, 2, 3, 4, 5]
+    MAX_BAG_SIZE_MODIFIER = [2, 3, 4, 5, 6]
 
     @property
     def max_bag_size_modifier(self): return self.MAX_BAG_SIZE_MODIFIER[self.level-1]
