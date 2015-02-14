@@ -85,11 +85,11 @@ class RawCompanion(object):
         if self.id is not None:
             return self.update(storage.companions[self.id])
 
-        for companion in storage.companions.all():
-            if companion.name.lower().startswith(self.name.lower()):
-                return self.update(companion)
+        # for companion in storage.companions.all():
+        #     if companion.name.lower().startswith(self.name.lower()):
+        #         return self.update(companion)
 
-        self.create()
+        # self.create()
 
     def form_abilities(self):
         return abilities_container.Container(common=(self.ability_1, self.ability_2, self.ability_3, self.ability_4,
