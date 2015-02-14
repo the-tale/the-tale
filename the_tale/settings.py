@@ -42,6 +42,11 @@ SOCIAL_VK_GROUP_URL = 'http://vk.com/zpgtale'
 SOCIAL_TWITTER_GROUP_URL = 'https://twitter.com/zpg_tale'
 SOCIAL_FACEBOOK_GROUP_URL = 'https://www.facebook.com/groups/zpgtale/'
 
+SOCIAL_WIKI_URL = u'http://ru.the-tale.wikia.com/wiki/Сказка_вики'
+SOCIAL_ANDROID_URL = u'https://play.google.com/store/apps/details?id=com.lonebytesoft.thetaleclient'
+SOCIAL_CHROME_URL = u'https://chrome.google.com/webstore/detail/the-tale-extended/hafakbhcckdligdjpghlofaplaajpaje'
+SOCIAL_DARK_THEME_URL = u'http://the-tale.org/forum/threads/1407'
+
 YOUTUBE_TUTORIAL = 'https://www.youtube.com/watch?v=P6oSC3zhcUQ'
 
 X_FRAME_OPTIONS = 'DENY'
