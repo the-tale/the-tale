@@ -419,6 +419,19 @@ class EditRequestsTests(BaseRequestsTests):
                            texts=['linguistics.templates.edit.can_not_edit_anothers_template'])
 
 
+    def test_edit_when_template_has_child(self):
+        account_2 = self.accounts_factory.create_account()
+        prototypes.TemplatePrototype.create(key=self.template.key,
+                                            raw_template='updated-template',
+                                            utg_template=self.template.utg_template,
+                                            verificators=[],
+                                            author=account_2,
+                                            parent=self.template)
+
+        self.check_html_ok(self.request_html(url('linguistics:templates:edit', self.template.id)),
+                           texts=['linguistics.templates.edit.template_has_child'])
+
+
 
 class UpdateRequestsTests(BaseRequestsTests):
 
@@ -588,6 +601,30 @@ class UpdateRequestsTests(BaseRequestsTests):
         self.assertEqual(last_prototype.author_id, self.account_1.id)
         self.assertEqual(last_prototype.parent_id, None)
 
+
+    def test_update__has_child(self):
+        account_2 = self.accounts_factory.create_account()
+
+        child = prototypes.TemplatePrototype.create(key=self.template.key,
+                                                    raw_template='updated-template',
+                                                    utg_template=self.template.utg_template,
+                                                    verificators=[],
+                                                    author=account_2,
+                                                    parent=self.template)
+
+        data = {'template': 'updated-template',
+                'verificator_0': u'verificatorx-1',
+                'verificator_1': u'verificatorx-2',
+                'verificator_2': u'verificatorx-3'}
+
+        with self.check_not_changed(prototypes.TemplatePrototype._db_count):
+            self.check_ajax_error(self.client.post(self.requested_url, data),
+                                  'linguistics.templates.update.template_has_child')
+
+        self.template.reload()
+        self.assertTrue(self.template.state.is_ON_REVIEW)
+
+        self.assertEqual(prototypes.TemplatePrototype._db_latest().id, child.id)
 
 
 class ReplaceRequestsTests(BaseRequestsTests):

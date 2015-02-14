@@ -64,6 +64,12 @@ DEFAULT_HERO_EQUIPMENT = create_enum('DEFAULT_HERO_EQUIPMENT', ( ('PANTS', 'defa
 def create_test_map():
     linguistics_logic.sync_static_restrictions()
 
+    map_info_storage.set_item(MapInfoPrototype.create(turn_number=0,
+                                                      width=map_settings.WIDTH,
+                                                      height=map_settings.HEIGHT,
+                                                      terrain=[ [TERRAIN.PLANE_GREENWOOD for j in xrange(map_settings.WIDTH)] for i in xrange(map_settings.HEIGHT)], # pylint: disable=W0612
+                                                      world=WorldInfoPrototype.create(w=map_settings.WIDTH, h=map_settings.HEIGHT)))
+
     p1 = PlacePrototype.create( x=1, y=1, size=1, utg_name=names.generator.get_test_name(name='1x1'))
     p2 = PlacePrototype.create( x=3, y=3, size=3, utg_name=names.generator.get_test_name(name='10x10'))
     p3 = PlacePrototype.create( x=1, y=3, size=3, utg_name=names.generator.get_test_name(name='1x10'))
@@ -75,12 +81,6 @@ def create_test_map():
     RoadPrototype.create(point_1=p2, point_2=p3).update()
 
     update_waymarks()
-
-    map_info_storage.set_item(MapInfoPrototype.create(turn_number=0,
-                                                      width=map_settings.WIDTH,
-                                                      height=map_settings.HEIGHT,
-                                                      terrain=[ [TERRAIN.PLANE_GREENWOOD for j in xrange(map_settings.WIDTH)] for i in xrange(map_settings.HEIGHT)], # pylint: disable=W0612
-                                                      world=WorldInfoPrototype.create(w=map_settings.WIDTH, h=map_settings.HEIGHT)))
 
     update_nearest_cells()
 

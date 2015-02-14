@@ -1,24 +1,10 @@
 # coding: utf-8
-import datetime
-import random
-
-import mock
-
-from django.test import client
-from django.core.urlresolvers import reverse
-
-from dext.common.utils import s11n
 from dext.common.utils.urls import url
 
-from utg import relations as utg_relations
-from utg import words as utg_words
-
-
 from the_tale.common.utils.testcase import TestCase
-from the_tale.common.utils.permissions import sync_group
 
 from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_page_url
+from the_tale.accounts.logic import register_user
 
 from the_tale.game.logic import create_test_map
 

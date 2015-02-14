@@ -500,6 +500,11 @@ class TemplateResource(Resource):
             return self.auto_error('linguistics.templates.edit.can_not_edit_anothers_template',
                                    u'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите пока его проверит модератор.')
 
+        if self._template.get_child():
+            return self.auto_error('linguistics.templates.edit.template_has_child',
+                                   u'У этой фразы уже есть копия. Отредактируйте её или попросите автора копии сделать это.')
+
+
         verificators = self._template.get_all_verificatos()
 
         form = forms.TemplateForm(self._template.key,
@@ -523,6 +528,10 @@ class TemplateResource(Resource):
         if self._template.state.is_ON_REVIEW and self._template.author_id != self.account.id:
             return self.auto_error('linguistics.templates.update.can_not_edit_anothers_template',
                                    u'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите пока его проверит модератор.')
+
+        if self._template.get_child():
+            return self.auto_error('linguistics.templates.update.template_has_child',
+                                   u'У этой фразы уже есть копия. Отредактируйте её или попросите автора копии сделать это.')
 
 
         form = forms.TemplateForm(self._template.key,
