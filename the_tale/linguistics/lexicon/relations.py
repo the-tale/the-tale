@@ -63,7 +63,8 @@ class VARIABLE_TYPE(DjangoEnum):
     records = ( ('HERO', 0, u'герой', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.GENDER,
                                                                                               relations.TEMPLATE_RESTRICTION_GROUP.RACE,
                                                                                               relations.TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR,
-                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS,)),
+                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS,
+                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.ARCHETYPE)),
                 ('NUMBER', 1, u'число', VARIABLE_VERIFICATOR.NUMBER, _construct_number, ()),
                 ('PLACE', 2, u'город', VARIABLE_VERIFICATOR.PLACE, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.CITY_MODIFIER,
                                                                                               relations.TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR,
@@ -77,7 +78,8 @@ class VARIABLE_TYPE(DjangoEnum):
                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT_EFFECT,
                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT)),
                 ('MOB', 5, u'монстр', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.MOB_TYPE,
-                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.MOB)),
+                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.MOB,
+                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.ARCHETYPE)),
                 ('TEXT', 6, u'текст', VARIABLE_VERIFICATOR.TEXT, _construct_text, ()),
                 ('ACTOR', 7, u'герой, монстр или спутник', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.GENDER,
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.RACE,
@@ -89,14 +91,14 @@ class VARIABLE_TYPE(DjangoEnum):
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_TYPE,
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_DEDICATION,
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_RARITY,
-                                                                                                                   relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_ARCHETYPE)),
+                                                                                                                   relations.TEMPLATE_RESTRICTION_GROUP.ARCHETYPE)),
                 ('MODIFIER', 8, u'модификатор города', VARIABLE_VERIFICATOR.MODIFIER, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.CITY_MODIFIER,)),
                 ('RACE', 9, u'раса', VARIABLE_VERIFICATOR.RACE, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.RACE,)),
                 ('COMPANION', 10, u'спутник', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.COMPANION,
                                                                                                       relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_TYPE,
                                                                                                       relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_DEDICATION,
                                                                                                       relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_RARITY,
-                                                                                                      relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_ARCHETYPE)) )
+                                                                                                      relations.TEMPLATE_RESTRICTION_GROUP.ARCHETYPE)) )
 
 class VARIABLE(DjangoEnum):
     type = Column(unique=False, no_index=True)

@@ -65,7 +65,7 @@ class Companion(object):
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_TYPE, self.record.type.value),
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_DEDICATION, self.record.dedication.value),
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_RARITY, self.record.rarity.value),
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_ARCHETYPE, self.record.archetype.value)]
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARCHETYPE, self.record.archetype.value)]
 
     @property
     def defend_in_battle_probability(self):

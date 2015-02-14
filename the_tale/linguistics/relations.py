@@ -99,6 +99,7 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
                 ('COMPANION_TYPE', 14, u'тип спутника', companions_relations.TYPE),
                 ('COMPANION_DEDICATION', 15, u'тип самоотверженности спутника', companions_relations.DEDICATION),
                 ('COMPANION_RARITY', 16, u'редкость спутника', companions_relations.RARITY),
-                ('COMPANION_ARCHETYPE', 17, u'архетип спутника', game_relations.ARCHETYPE),
+
+                ('ARCHETYPE', 17, u'архетип спутника', game_relations.ARCHETYPE),
 
                  )
