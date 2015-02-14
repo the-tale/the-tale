@@ -323,9 +323,9 @@ ABILITIES_FOR_CHOOSE_MAXIMUM = int(4)
 HABITS_BORDER = int(1000) # модуль максимального значения черты
 HABITS_RIGHT_BORDERS = [-700, -300, -100, 100, 300, 700, 1001] # правые границы черт
 HABITS_QUEST_ACTIVE_DELTA = float(20) # за выбор в задании игроком
-HABITS_QUEST_PASSIVE_DELTA = float(0.03 * HABITS_QUEST_ACTIVE_DELTA) # за неверный выбор героем
-HABITS_HELP_ABILITY_DELTA = float(float(HABITS_BORDER) / (30 * _ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST)) # за использование способности
-HABITS_ARENA_ABILITY_DELTA = float(float(HABITS_BORDER) / (30 * _ANGEL_ENERGY_IN_DAY / ANGEL_ARENA_COST)) # за использование способности
+HABITS_QUEST_PASSIVE_DELTA = float(0.05 * HABITS_QUEST_ACTIVE_DELTA) # за неверный выбор героем
+HABITS_HELP_ABILITY_DELTA = float(float(HABITS_BORDER) / (60 * _ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST)) # за использование способности
+HABITS_ARENA_ABILITY_DELTA = float(float(HABITS_BORDER) / (60 * _ANGEL_ENERGY_IN_DAY / ANGEL_ARENA_COST)) # за использование способности
 
 HABITS_QUEST_ACTIVE_PREMIUM_MULTIPLIER = float(1.5) # бонус к начисляемому влиянию за выбор игрока для подписчиков
 
@@ -522,7 +522,7 @@ COMPANIONS_MAX_HEALTH = int(70) # максимальное максимальн�
 
 _COMPANIONS_MEDIUM_HEALTH = float(COMPANIONS_MIN_HEALTH + COMPANIONS_MAX_HEALTH) / 2
 
-_COMPANIONS_MEDIUM_LIFETYME = int(10) # ожидаемое время жизни среднего спутника со средним здоровьем без лечения
+_COMPANIONS_MEDIUM_LIFETYME = int(10) # ожидаемое время жизни среднего спутника со средним здоровьем без лечения в днях
 
 # дельты мультипликатора вероятности блока для
 COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA = float(0.3) # слаженность (от среднего)
@@ -531,9 +531,11 @@ COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA = float(0.3) # самоотв�
 
 COMPANIONS_HABITS_DELTA = float(0.5) # дельта изменения черт от среднего в зависимости от предпочтения
 
+COMPANIONS_DEFEND_PROBABILITY = float(COMPANIONS_DEFENDS_IN_BATTLE) / (BATTLE_LENGTH / 2)
+
 # вероятность того, что спутник будет ранен во время защиты героя
 _COMPANIONS_WOUNDS_IN_HOUR = float(_COMPANIONS_MEDIUM_HEALTH) / (_COMPANIONS_MEDIUM_LIFETYME * 24)
-COMPANIONS_WOUND_ON_DEFEND_PROBABILITY =  _COMPANIONS_WOUNDS_IN_HOUR / (COMPANIONS_DEFENDS_IN_BATTLE * BATTLES_PER_HOUR)
+COMPANIONS_WOUND_ON_DEFEND_PROBABILITY =  _COMPANIONS_WOUNDS_IN_HOUR / BATTLES_PER_HOUR / COMPANIONS_DEFEND_PROBABILITY
 
 # частота действия уход за спутником в час
 COMPANIONS_HEAL_MIN_IN_HOUR = float(1.0)

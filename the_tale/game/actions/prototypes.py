@@ -1916,7 +1916,8 @@ class ActionHealCompanionPrototype(ActionBase):
             self.state = self.STATE.PROCESSED
 
         heal_length = f.companions_heal_length(self.hero.companion.health, self.hero.companion.max_health)
-        self.percents += 1.0 / heal_length
+
+        self.percents += float(c.COMPANIONS_HEAL_AMOUNT) / heal_length
 
         if self.percents >= 1.0 or self.hero.companion.health == self.hero.companion.max_health:
             self.percents = 1

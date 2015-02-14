@@ -149,3 +149,11 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
         with self.check_increased(lambda: self.hero.loot_probability(self.mob)):
             with self.check_increased(lambda: self.hero.artifacts_probability(self.mob)):
                 self.hero.preferences.set_mob(self.mob.record)
+
+    def test_companion_damage__delayed_processing(self):
+        self.assertTrue(self.hero.real_time_processing)
+
+        normal_damage = self.hero.companion_damage
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.real_time_processing', False):
+            self.assertTrue(normal_damage < self.hero.companion_damage)

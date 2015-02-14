@@ -190,9 +190,9 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.HABITS_BORDER, 1000)
         self.assertEqual(c.HABITS_RIGHT_BORDERS, [-700, -300, -100, 100, 300, 700, 1001])
         self.assertEqual(c.HABITS_QUEST_ACTIVE_DELTA, 20.0)
-        self.assertEqual(c.HABITS_QUEST_PASSIVE_DELTA, 0.6)
-        self.assertEqual(round(c.HABITS_HELP_ABILITY_DELTA, 5), 2.77778)
-        self.assertEqual(round(c.HABITS_ARENA_ABILITY_DELTA, 5), 0.69444)
+        self.assertEqual(c.HABITS_QUEST_PASSIVE_DELTA, 1.0)
+        self.assertEqual(round(c.HABITS_HELP_ABILITY_DELTA, 5), 1.38889)
+        self.assertEqual(round(c.HABITS_ARENA_ABILITY_DELTA, 5), 0.34722)
 
         self.assertEqual(c.HABITS_QUEST_ACTIVE_PREMIUM_MULTIPLIER, 1.5)
 
@@ -305,8 +305,10 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.COMPANIONS_HABITS_DELTA, 0.5)
 
+        self.assertEqual(c.COMPANIONS_DEFEND_PROBABILITY, 0.1875)
+
         self.assertEqual(round(c._COMPANIONS_WOUNDS_IN_HOUR, 5), 0.20833)
-        self.assertEqual(round(c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY, 5), 0.00907)
+        self.assertEqual(round(c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY, 5), 0.07253)
 
         self.assertEqual(c.COMPANIONS_HEAL_MIN_IN_HOUR, 1.0)
         self.assertEqual(c.COMPANIONS_HEAL_MAX_IN_HOUR, 2.0)

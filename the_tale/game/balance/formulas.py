@@ -201,17 +201,17 @@ def companions_coherence_for_level(level):
 def companions_defend_in_battle_probability(coherence):
     # вероятность того, что удар противника в бою встретит спутник
     coherence_multiplier = 1 + (float(coherence) / c.COMPANIONS_MAX_COHERENCE - 0.5) / 0.5 * c.COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA
-    return coherence_multiplier * float(c.COMPANIONS_DEFENDS_IN_BATTLE) / (c.BATTLE_LENGTH / 2)
+    return coherence_multiplier * c.COMPANIONS_DEFEND_PROBABILITY
 
 
 def companions_heal_in_hour(current_health, max_health):
-    health_fraction = float(current_health) / max_health
+    health_fraction = 1 - float(current_health) / max_health
     return c.COMPANIONS_HEAL_MIN_IN_HOUR + (c.COMPANIONS_HEAL_MAX_IN_HOUR - c.COMPANIONS_HEAL_MIN_IN_HOUR) * health_fraction
 
 
 def companions_heal_length(current_health, max_health):
-    # длительность действия ухода за спутнкиком считается с разбросом в 0.25 от среднего
-    heal_multiplier = 1 + (0.5 - float(current_health) / max_health) / 0.5 * 0.25
+    # длительность действия ухода за спутнкиком считается с разбросом в 0.5 от среднего
+    heal_multiplier = 1 + (0.5 - float(current_health) / max_health) / 0.5 * 0.5
     heal_length = float(c.COMPANIONS_HEAL_FRACTION * c.TURNS_IN_HOUR) * heal_multiplier
     heal_in_hour = companions_heal_in_hour(current_health, max_health)
     return int(math.ceil(heal_length / heal_in_hour))

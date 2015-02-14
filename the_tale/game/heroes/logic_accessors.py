@@ -350,7 +350,13 @@ class LogicAccessorsMixin(object):
 
     @property
     def companion_damage(self):
-        return 1 + self.attribute_modifier(relations.MODIFIERS.COMPANION_DAMAGE)
+        damage = 1 + self.attribute_modifier(relations.MODIFIERS.COMPANION_DAMAGE)
+
+        if not self.real_time_processing:
+            # multiplay by delay modifier to emulate real time companion live cycle
+            damage *= heroes_settings.INACTIVE_HERO_DELAY
+
+        return damage
 
     @property
     def companion_damage_probability(self):
@@ -434,12 +440,16 @@ class LogicAccessorsMixin(object):
             return c.HABITS_QUEST_ACTIVE_PREMIUM_MULTIPLIER
         return 1.0
 
+    @property
+    def real_time_processing(self):
+        return self.is_bot or self.is_active or self.is_premium or (not self.actions.is_single)
+
     def can_process_turn(self, turn_number):
 
         if self.is_banned and self.actions.number == 1:
             return False
 
-        if self.is_bot or self.is_active or self.is_premium or (not self.actions.is_single):
+        if self.real_time_processing:
             return True
 
         # делаем разброс обрабатываемых с задержкой героев в зависимости от их идентификатора

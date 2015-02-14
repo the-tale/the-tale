@@ -568,7 +568,9 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
         jQuery('.pgf-action-info-link', widget)
             .toggleClass('pgf-hidden', !action.info_link)
             .attr('href', action.info_link);
+    }
 
+    function RenderCards() {
         jQuery('.pgf-helps-count-to-new-card', widget).text(data.cardsHelpCount);
         jQuery('.pgf-new-card-progress', widget).width((data.cardsHelpCount / data.cardsHelpBarrier)*100+'%');
 
@@ -664,6 +666,7 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
 
     this.Render = function() {
         RenderAction();
+        RenderCards();
     };
 
     this.GetCurrentAction = function() {
@@ -673,6 +676,9 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
     jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
         if (instance.Refresh(game_data)) {
             instance.Render();
+        }
+        else {
+            RenderAction();
         }
     });
 };

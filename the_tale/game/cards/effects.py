@@ -955,12 +955,12 @@ class GetCompanionBase(BaseEffect):
                                 if companion.rarity == cls.RARITY and companion.mode.is_AUTOMATIC]
         return available_companions
 
-    def create_card(self, available_for_auction):
-        available_companions = self.get_available_companions()
+    def create_card(self, available_for_auction, companion=None):
+        if companion is None:
+            available_companions = self.get_available_companions()
+            companion = random.choice(available_companions)
 
-        card_companion = random.choice(available_companions)
-
-        return objects.Card(type=self.TYPE, available_for_auction=available_for_auction, data={'companion_id': card_companion.id})
+        return objects.Card(type=self.TYPE, available_for_auction=available_for_auction, data={'companion_id': companion.id})
 
     @classmethod
     def available(cls):

@@ -394,9 +394,9 @@ class HeroPrototype(BasePrototype,
         self.statistics.change_companions_count(1)
 
         if self.companion:
-            self.add_message('companions_left', diary=True, hero=self, companion=self.companion)
+            self.add_message('companions_left', diary=True, companion_owner=self, companion=self.companion)
 
-        self.add_message('companions_received', diary=True, hero=self, companion=companion)
+        self.add_message('companions_received', diary=True, companion_owner=self, companion=companion)
 
         self.remove_companion()
 

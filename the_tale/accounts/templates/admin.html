@@ -42,7 +42,7 @@ jQuery(document).ready( function(e) {
 
 <h3>Выдать награду</h3>
 
-<form id="pgf-give-award-form" method="post" action="{{ url('accounts:give-award', master_account.id) }}" class="block">
+<form id="pgf-give-award-form" method="post" action="{{ url('accounts:give-award', master_account.id) }}" class="easy-block">
 
   {{ give_award_form.errors_container }}
 
@@ -55,7 +55,7 @@ jQuery(document).ready( function(e) {
 
 <h3>Выдать печеньки</h3>
 
-<form id="pgf-give-money-form" method="post" action="{{ url('accounts:payments:give-money', account=master_account.id) }}" class="block">
+<form id="pgf-give-money-form" method="post" action="{{ url('accounts:payments:give-money', account=master_account.id) }}" class="easy-block">
 
   {{ give_money_form.errors_container }}
 
@@ -80,7 +80,7 @@ jQuery(document).ready( function(e) {
    href="{{ url('accounts:reset-bans', master_account.id) }}"
    data-confirmation="Вы действительно хотите снять ограничения?">сбросить баны</a>
 
-<form id="pgf-ban-form" method="post" action="{{ url('accounts:ban', master_account.id) }}" class="block">
+<form id="pgf-ban-form" method="post" action="{{ url('accounts:ban', master_account.id) }}" class="easy-block">
 
   {{ ban_form.errors_container }}
 
