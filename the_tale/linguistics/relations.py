@@ -10,6 +10,7 @@ from the_tale.game.artifacts import relations as artifacts_relations
 from the_tale.game.mobs import relations as mobs_relations
 from the_tale.game.persons import relations as persons_relations
 from the_tale.game.map.places import relations as places_relations
+from the_tale.game.map import relations as map_relations
 from the_tale.game.companions import relations as companions_relations
 
 
@@ -101,5 +102,6 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
                 ('COMPANION_RARITY', 16, u'редкость спутника', companions_relations.RARITY),
 
                 ('ARCHETYPE', 17, u'архетип спутника', game_relations.ARCHETYPE),
-
+                ('TERRAIN', 18, u'местность', map_relations.TERRAIN),
+                ('BUILDING_TYPE', 19, u'тип здания', places_relations.BUILDING_TYPE),
                  )

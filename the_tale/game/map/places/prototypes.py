@@ -92,7 +92,8 @@ class PlacePrototype(BasePrototype, names.ManageNameMixin):
 
         restrictions = [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.RACE, self.race.value),
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR, self.habit_honor.interval.value),
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS, self.habit_honor.interval.value)]
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS, self.habit_honor.interval.value),
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, self.terrain)]
 
         if self.modifier:
             restrictions.extend(self.modifier.TYPE.linguistics_restrictions())
@@ -268,6 +269,13 @@ class PlacePrototype(BasePrototype, names.ManageNameMixin):
         for cell in self.nearest_cells:
             terrains.add(map_info.terrain[cell[1]][cell[0]])
         return terrains
+
+    @property
+    def terrain(self):
+        from the_tale.game.map.storage import map_info_storage
+        map_info = map_info_storage.item
+        x, y = self.cell_coordinates
+        return map_info.terrain[y][x]
 
     def sync_race(self):
         self.races.update(persons=self.persons)
@@ -556,10 +564,20 @@ class BuildingPrototype(BasePrototype, names.ManageNameMixin):
     @property
     def need_repair(self): return self.integrity < 0.9999
 
+    @property
+    def terrain(self):
+        from the_tale.game.map.storage import map_info_storage
+        map_info = map_info_storage.item
+        x, y = self.cell_coordinates
+        return map_info.terrain[y][x]
+
+
     def linguistics_restrictions(self):
         from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
         from the_tale.linguistics.storage import restrictions_storage
-        return []
+
+        return [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, self.terrain)]
+
 
 
     @classmethod

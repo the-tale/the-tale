@@ -456,8 +456,8 @@ class HeroPrototype(BasePrototype,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.RACE, self.race.value),
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR, self.habit_honor.interval.value),
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS, self.habit_honor.interval.value),
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARCHETYPE, self.archetype.value)]
-
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARCHETYPE, self.archetype.value),
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, self.position.get_terrain())]
 
     def heal(self, delta):
         if delta < 0:
