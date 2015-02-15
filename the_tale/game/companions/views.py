@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from rels.django import DjangoEnum
 
 from dext.common.utils import views as dext_views
 from dext.common.utils.urls import UrlBuilder, url
@@ -65,16 +66,15 @@ resource.add_processor(moderate_companion_processor)
 # filters
 ########################################
 
-INDEX_RARITY = list_filter.filter_relation(relations.RARITY)
 INDEX_TYPE = list_filter.filter_relation(relations.TYPE)
 INDEX_DEDICATION = list_filter.filter_relation(relations.DEDICATION)
 INDEX_ABILITIES = list_filter.filter_relation(abilities_effects.ABILITIES, sort_key=lambda r: r.text)
 
+class INDEX_ORDER(DjangoEnum):
+    records = ( ('RARITY', 0, u'по редкости'),
+                ('NAME', 1, u'по имени') )
+
 BASE_INDEX_FILTERS = [list_filter.reset_element(),
-                      list_filter.choice_element(u'редкость:',
-                                                 attribute='rarity',
-                                                 default_value=INDEX_RARITY.FILTER_ALL.value,
-                                                 choices=INDEX_RARITY.filter_choices()),
                       list_filter.choice_element(u'тип:',
                                                  attribute='type',
                                                  default_value=INDEX_TYPE.FILTER_ALL.value,
@@ -86,7 +86,11 @@ BASE_INDEX_FILTERS = [list_filter.reset_element(),
                       list_filter.choice_element(u'особенность:',
                                                  attribute='ability',
                                                  default_value=INDEX_ABILITIES.FILTER_ALL.value,
-                                                 choices=INDEX_ABILITIES.filter_choices()) ]
+                                                 choices=INDEX_ABILITIES.filter_choices()),
+                       list_filter.choice_element(u'сортировка:',
+                                                  attribute='order_by',
+                                                  choices=list(INDEX_ORDER.select('value', 'text')),
+                                                  default_value=INDEX_ORDER.RARITY.value) ]
 
 MODERATOR_INDEX_FILTERS = BASE_INDEX_FILTERS + [list_filter.choice_element(u'состояние:',
                                                                            attribute='state',
@@ -108,9 +112,6 @@ class ModeratorIndexFilter(list_filter.ListFilter):
 @dext_views.RelationArgumentProcessor.handler(relation=relations.STATE, default_value=relations.STATE.ENABLED,
                                               error_message=u'неверное состояние записи о спутнике',
                                               context_name='companions_state', get_name='state')
-@dext_views.RelationArgumentProcessor.handler(relation=INDEX_RARITY, default_value=INDEX_RARITY.FILTER_ALL,
-                                              error_message=u'неверная редкость спутника',
-                                              context_name='companions_rarity', get_name='rarity')
 @dext_views.RelationArgumentProcessor.handler(relation=INDEX_TYPE, default_value=INDEX_TYPE.FILTER_ALL,
                                               error_message=u'неверный тип спутника',
                                               context_name='companions_type', get_name='type')
@@ -120,13 +121,13 @@ class ModeratorIndexFilter(list_filter.ListFilter):
 @dext_views.RelationArgumentProcessor.handler(relation=INDEX_ABILITIES, default_value=INDEX_ABILITIES.FILTER_ALL,
                                               error_message=u'неверный тип особенности спутника',
                                               context_name='companions_ability', get_name='ability')
+@dext_views.RelationArgumentProcessor.handler(relation=INDEX_ORDER, default_value=INDEX_ORDER.RARITY,
+                                              error_message=u'неверный тип сортировки',
+                                              context_name='order_by', get_name='order_by')
 @resource.handler('')
 def index(context):
 
     companions = storage.companions.all()
-
-    if context.companions_rarity.original_relation is not None:
-        companions = [companion for companion in companions if companion.rarity == context.companions_rarity.original_relation]
 
     if context.companions_type.original_relation is not None:
         companions = [companion for companion in companions if companion.type == context.companions_type.original_relation]
@@ -140,21 +141,26 @@ def index(context):
     if not context.companions_can_edit and not context.companions_can_moderate:
         companions = filter(lambda companion: companion.state.is_ENABLED, companions) # pylint: disable=W0110
 
+    if context.order_by.is_RARITY:
+        companions = sorted(companions, key=lambda c: (c.rarity, c.name))
+    elif context.order_by.is_NAME:
+        companions = sorted(companions, key=lambda c: c.name)
+
     companions = filter(lambda companion: companion.state == context.companions_state, companions) # pylint: disable=W0110
 
     url_builder = UrlBuilder(url('guide:companions:'), arguments={ 'state': context.companions_state.value if context.companions_state is not None else None,
-                                                                   'rarity': context.companions_rarity.value,
                                                                    'type': context.companions_type.value,
                                                                    'dedication': context.companions_dedication.value,
-                                                                   'ability': context.companions_ability.value})
+                                                                   'ability': context.companions_ability.value,
+                                                                   'order_by': context.order_by.value})
 
     IndexFilter = ModeratorIndexFilter if context.companions_can_edit or context.companions_can_moderate else NormalIndexFilter #pylint: disable=C0103
 
     index_filter = IndexFilter(url_builder=url_builder, values={'state': context.companions_state.value if context.companions_state is not None else None,
-                                                                'rarity': context.companions_rarity.value,
                                                                 'type': context.companions_type.value,
                                                                 'dedication': context.companions_dedication.value,
-                                                                'ability': context.companions_ability.value})
+                                                                'ability': context.companions_ability.value,
+                                                                'order_by': context.order_by.value})
 
     return dext_views.Page('companions/index.html',
                            content={'context': context,
