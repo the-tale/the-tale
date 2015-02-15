@@ -45,13 +45,18 @@ jQuery(document).ready(function(e){
 </div>
 
 <div class="row">
-  <div class="span6" style="text-align: justify;">
+  <div class="{% if landing_type == 'banal' %}span3{% else %}span6{% endif %}"
+       style="text-align: justify;">
     <div class="easy-block">
+      {% if landing_type == "banal" %}
+      {% include "portal/landing_intro_banal.html" %}
+      {% else %}
       {% include "portal/landing_intro.html" %}
+      {% endif %}
     </div>
   </div>
 
-  <div class="span6">
+  <div class="{% if landing_type == 'banal' %}span9{% else %}span6{% endif %}">
     <div class="easy-block">
       {% if landing_type == "legend" %}
       <a href="#" class="pgf-open-galery"><img style="border-radius: 10px;" src="{{STATIC_CONTENT}}images/intro_comix/00.gif"></a>

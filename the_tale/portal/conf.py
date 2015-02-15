@@ -44,7 +44,8 @@ portal_settings = app_settings('PORTAL',
                                NEWS_ON_INDEX=3,
 
                                FIRST_TIME_LANDING_URLS=['/landing?action=first-time-visit',
-                                                        '/landing?type=legend&action=first-time-visit'],
+                                                        # '/landing?type=legend&action=first-time-visit',
+                                                        '/landing?type=banal&action=first-time-visit'],
                                ENABLE_FIRST_TIME_REDIRECT=not project_settings.TESTS_RUNNING,
 
                                SETTINGS_PREV_CLEANING_RUN_TIME_KEY='prev cleaning run time',
