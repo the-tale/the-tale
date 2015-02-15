@@ -21,8 +21,6 @@ from the_tale.common.utils import api
 from the_tale.game.heroes.models import Hero
 from the_tale.game.heroes.prototypes import HeroPrototype
 
-from the_tale.collections.prototypes import AccountItemsPrototype
-
 from the_tale.accounts.friends.prototypes import FriendshipPrototype
 from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 
@@ -32,7 +30,6 @@ from the_tale.accounts import relations
 from the_tale.accounts import forms
 from the_tale.accounts.conf import accounts_settings
 from the_tale.accounts import logic
-from the_tale.accounts.achievements.prototypes import AccountAchievementsPrototype
 
 from the_tale.accounts.clans.prototypes import ClanPrototype
 
@@ -475,27 +472,64 @@ class AccountResource(BaseAccountsResource):
 
     @handler('#account', name='show', method='get')
     def show(self): # pylint: disable=R0914
-        from the_tale.game.ratings.prototypes import RatingPlacesPrototype, RatingValuesPrototype
-
-        rating_places = RatingPlacesPrototype.get_by_account_id(self.master_account.id)
-
-        rating_values = RatingValuesPrototype.get_by_account_id(self.master_account.id)
-
         friendship = FriendshipPrototype.get_for_bidirectional(self.account, self.master_account)
 
         master_hero = HeroPrototype.get_by_account_id(self.master_account.id)
 
         return self.template('accounts/show.html',
                              {'master_hero': master_hero,
-                              'most_common_places': master_hero.places_history.get_most_common_places(),
+                              'account_info': logic.get_account_info(self.master_account, master_hero),
                               'master_account': self.master_account,
-                              'master_achievements': AccountAchievementsPrototype.get_by_account_id(self.master_account.id),
-                              'master_items': AccountItemsPrototype.get_by_account_id(self.master_account.id),
                               'accounts_settings': accounts_settings,
                               'informer_link': accounts_settings.INFORMER_LINK % {'account_id': self.master_account.id},
-                              'rating_places': rating_places,
-                              'rating_values': rating_values,
                               'friendship': friendship} )
+
+    @api.handler(versions=('1.0',))
+    @handler('#account', 'api', 'show', name='api-show', method=['get'])
+    def api_show(self, api_version):
+        u'''
+Получить информацию об игроке
+
+- **адрес:** /accounts/<account_id>/api/show
+- **http-метод:** GET
+- **версии:** 1.0
+- **параметры:**
+    * URL account_id — идентификатор игрока
+- **возможные ошибки**:
+    * accounts.account.account.not_found — аккаунт с таким идентификатором не найден
+
+формат данных в ответе:
+
+    {
+      "id": <целое число>,           // идентификатор игрока
+      "registered": true|false,      // маркер завершения регистрации
+      "name": "строка",              // имя игрока
+      "hero_id": <целое число>,      // идентификатор героя
+      "places_history": [            // список истории помощи городам
+        "place": {                   // город
+          "id": <целое число>,       // идентификатор города
+          "name": "строка"           // название города
+        },
+        "count": <целое число>       // количество фактов помощи
+      ],
+      "might": <дробное число>,      // могущество
+      "achievements": <целое число>, // очки достижений
+      "collections": <целое число>,  // количество предметов в коллекции
+      "referrals": <целое число>,    // количество последователей (рефералов)
+      "ratings": [                                 // рейтинги
+         {
+           "name": "строка",                       // название рейтинга
+           "place": <целое число>,                 // место
+           "value": <целое число>|<дробное число>  // величина рейтингового значения
+         }
+      ]
+    }
+        '''
+
+        master_hero = HeroPrototype.get_by_account_id(self.master_account.id)
+
+        return self.ok(data=logic.get_account_info(self.master_account, master_hero))
+
 
     @login_required
     @validate_moderator_rights()

@@ -83,22 +83,22 @@ jQuery(document).ready(function(){
             <tr>
               <td width="25%" style="vertical-align: middle;">
                 МОГУЩЕСТВО<br/>
-                <span style="font-size: 20pt;">{{ master_account.might|int }}</span></br>
+                <span style="font-size: 20pt;">{{ account_info.might|int }}</span></br>
                 <a href="{{url('guide:keepers')}}">путеводитель</a>
               </td>
               <td width="25%" style="vertical-align: middle;">
                 ОЧКИ ДОСТИЖЕНИЙ<br/>
-                <span style="font-size: 20pt;">{{master_achievements.points}}</span></br>
+                <span style="font-size: 20pt;">{{account_info.achievements}}</span></br>
                 <a href="{{url('accounts:achievements:', account=master_account.id)}}">все достижения</a>
               </td>
               <td width="25%" style="vertical-align: middle;">
                 ПРЕДМЕТОВ В КОЛЛЕКЦИИ<br/>
-                <span style="font-size: 20pt;">{{master_items.get_items_count()}}</span></br>
+                <span style="font-size: 20pt;">{{account_info.collections}}</span></br>
                 <a href="{{url('collections:collections:', account=master_account.id)}}">коллекция</a>
               </td>
               <td width="25%" style="vertical-align: middle;">
                 ПОСЛЕДОВАТЕЛИ<br/>
-                <span style="font-size: 20pt;">{{ master_account.referrals_number }}</span></br>
+                <span style="font-size: 20pt;">{{ account_info.referrals }}</span></br>
                 <a href="{{url('guide:referrals')}}">реферальная ссылка</a>
               </td>
             </tr>
@@ -114,7 +114,7 @@ jQuery(document).ready(function(){
 
             <p>Положение игрока в рейтингах.</p>
 
-            {% if rating_values and rating_places%}
+            {% if account_info.ratings %}
 
               <table class="table table-condensed table-striped table-bordered">
                 <tbody>
@@ -123,18 +123,13 @@ jQuery(document).ready(function(){
                     <th width="100px">место</th>
                   </tr>
 
-                  <tr><td>могущество</td><td> {% if rating_values.might > 0 %}{{ rating_places.might_place }} место{% else %}не участвует{% endif %}</td></tr>
-                  <tr><td>принятые законы</td><td> {% if rating_values.bills_count > 0 %}{{ rating_places.bills_count_place }} место{% else %}не участвует{% endif %}</td></tr>
-                  <tr><td>физическая сила героя</td><td> {{ rating_places.physic_power_place }} место</td></tr>
-                  <tr><td>магическая сила героя</td><td> {{ rating_places.magic_power_place }} место</td></tr>
-                  <tr><td>уровень героя</td><td> {{ rating_places.level_place }} место</td></tr>
-                  <tr><td>добавленные фразы</td><td> {% if rating_values.phrases_count > 0 %}{{ rating_places.phrases_count_place }} место{% else %}не участвует{% endif %}</td></tr>
-                  <tr><td>сражений PvP</td><td> {% if rating_values.pvp_battles_1x1_number > 0 %}{{ rating_places.pvp_battles_1x1_number_place }} место{% else %}не участвует{% endif %}</td></tr>
-                  <tr><td>побед PvP</td><td> {% if rating_values.pvp_battles_1x1_victories > 0 %}{{ rating_places.pvp_battles_1x1_victories_place }} место{% else %}не участвует{% endif %}</td></tr>
-                  <tr><td>очки достижений</td><td> {% if rating_values.achievements_points > 0 %}{{ rating_places.achievements_points_place }} место{% else %}не участвует{% endif %}</td></tr>
-                  <tr><td>последователи</td><td> {% if rating_values.referrals_number > 0 %}{{ rating_places.referrals_number_place }} место{% else %}не участвует{% endif %}</td></tr>
-                  <tr><td>помощь</td><td> {% if rating_values.help_count > 0 %}{{ rating_places.help_count_place }} место{% else %}не участвует{% endif %}</td></tr>
-                  <tr><td>возвращено подарков</td><td> {% if rating_values.gifts_returned > 0 %}{{ rating_places.gifts_returned_place }} место{% else %}не участвует{% endif %}</td></tr>
+                  {% for rating in account_info.ratings.values()|sort(attribute="name") %}
+                  <tr>
+                    <td>{{rating.name}}</td>
+                    <td>{% if rating.value > 0 %}{{rating.place}} место {% else %}не участвует{% endif %}</td>
+                  </tr>
+                  {% endfor %}
+
                 </tbody>
               </table>
             {% else %}
@@ -148,7 +143,7 @@ jQuery(document).ready(function(){
 
             <p>Города, которым герой помогает чаще.</p>
 
-            {% if most_common_places %}
+            {% if account_info.places_history %}
               <div class="pgf-scrollable" style="overflow-y: auto; max-height: {{1+27*(1+12)}}px;">
 
                 <table class="table table-condensed table-striped table-bordered">
@@ -158,11 +153,11 @@ jQuery(document).ready(function(){
                       <th >город</th>
                       <th width="100px">помогал (раз)</th>
                     </tr>
-                    {% for place, number in most_common_places %}
+                    {% for record in account_info.places_history %}
                       <tr>
                         <td>{{loop.index}}</td>
-                        <td>{{place.name}}</td>
-                        <td>{{number}}</td>
+                        <td><a href="{{url('game:map:places:show', record.place.id)}}">{{record.place.name}}</a></td>
+                        <td>{{record.count}}</td>
                       </tr>
                     {% endfor %}
                   </tbody>

@@ -25,6 +25,10 @@
 
 <h3>{{place.name}} <small>подробная информация о населении</small></h3><br/>
 
+<blockquote>
+  {{place.description_html|safe}}
+</blockquote>
+
 {% if place and place.is_new %}
   <h4 class="pgf-new-place-message">Это город считается <a href="{{url('guide:cities')}}" target="_blank">новым</a> <small>до <span class="pgf-format-datetime" data-timestamp="{{ place.new_for|timestamp }}"></span></small></h4><br/>
 {% endif %}

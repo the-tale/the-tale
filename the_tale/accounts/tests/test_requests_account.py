@@ -3,6 +3,7 @@ import mock
 import random
 
 from django.core.urlresolvers import reverse
+from django.conf import settings as project_settings
 
 from dext.common.utils.urls import url
 
@@ -18,7 +19,7 @@ from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 from the_tale.accounts.models import Award
 from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
 from the_tale.accounts.relations import AWARD_TYPE, BAN_TYPE, BAN_TIME
-from the_tale.accounts.logic import register_user, login_page_url
+from the_tale.accounts import logic
 from the_tale.accounts.conf import accounts_settings
 
 from the_tale.accounts.clans.prototypes import ClanPrototype
@@ -34,19 +35,19 @@ class AccountRequestsTests(TestCase):
         super(AccountRequestsTests, self).setUp()
         self.place1, self.place2, self.place3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')
+        result, account_id, bundle_id = logic.register_user('test_user1', 'test_user1@test.com', '111111')
         self.account1 = AccountPrototype.get_by_id(account_id)
 
-        result, account_id, bundle_id = register_user('test_user2', 'test_user2@test.com', '111111')
+        result, account_id, bundle_id = logic.register_user('test_user2', 'test_user2@test.com', '111111')
         self.account2 = AccountPrototype.get_by_id(account_id)
 
-        result, account_id, bundle_id = register_user('test_user3', 'test_user3@test.com', '111111')
+        result, account_id, bundle_id = logic.register_user('test_user3', 'test_user3@test.com', '111111')
         self.account3 = AccountPrototype.get_by_id(account_id)
 
-        result, account_id, bundle_id = register_user('test_user_bot', 'test_user_bot@test.com', '111111', is_bot=True)
+        result, account_id, bundle_id = logic.register_user('test_user_bot', 'test_user_bot@test.com', '111111', is_bot=True)
         self.account_bot = AccountPrototype.get_by_id(account_id)
 
-        result, account_id, bundle_id = register_user('test_user4')
+        result, account_id, bundle_id = logic.register_user('test_user4')
         self.account4 = AccountPrototype.get_by_id(account_id)
 
         CategoryPrototype.create(caption='category-1', slug=clans_settings.FORUM_CATEGORY_SLUG, order=0)
@@ -68,7 +69,7 @@ class IndexRequestsTests(AccountRequestsTests):
 
     def test_index_pagination(self):
         for i in xrange(accounts_settings.ACCOUNTS_ON_PAGE):
-            register_user('test_user_%d' % i, 'test_user_%d@test.com' % i, '111111')
+            logic.register_user('test_user_%d' % i, 'test_user_%d@test.com' % i, '111111')
         self.check_html_ok(self.request_html(reverse('accounts:')), texts=(('pgf-account-record', accounts_settings.ACCOUNTS_ON_PAGE),))
         self.check_html_ok(self.request_html(reverse('accounts:')+'?page=2'), texts=(('pgf-account-record', 3),))
 
@@ -87,10 +88,10 @@ class IndexRequestsTests(AccountRequestsTests):
         texts = [('pgf-account-record', 6),
                  ('pgf-no-accounts-message', 0),]
         for i in xrange(accounts_settings.ACCOUNTS_ON_PAGE):
-            register_user('test_user_a_%d' % i, 'test_user_a_%d@test.com' % i, '111111')
+            logic.register_user('test_user_a_%d' % i, 'test_user_a_%d@test.com' % i, '111111')
             texts.append(('test_user_a_%d' % i, 0))
         for i in xrange(6):
-            register_user('test_user_b_%d' % i, 'test_user_b_%d@test.com' % i, '111111')
+            logic.register_user('test_user_b_%d' % i, 'test_user_b_%d@test.com' % i, '111111')
             texts.append(('test_user_b_%d' % i, 1))
 
         self.check_html_ok(self.request_html(url('accounts:', prefix='test_user_b')), texts=texts)
@@ -99,14 +100,14 @@ class IndexRequestsTests(AccountRequestsTests):
         texts = [('pgf-account-record', 6),
                  ('pgf-no-accounts-message', 0),]
         for i in xrange(accounts_settings.ACCOUNTS_ON_PAGE):
-            register_user('test_user_a_%d' % i, 'test_user_a_%d@test.com' % i, '111111')
+            logic.register_user('test_user_a_%d' % i, 'test_user_a_%d@test.com' % i, '111111')
             texts.append(('test_user_a_%d' % i, 0))
         for i in xrange(6):
-            register_user('test_user_b_%d' % i, 'test_user_b_%d@test.com' % i, '111111')
+            logic.register_user('test_user_b_%d' % i, 'test_user_b_%d@test.com' % i, '111111')
             texts.append(('test_user_b_%d' % i, 1))
 
         for i in xrange(accounts_settings.ACCOUNTS_ON_PAGE):
-            register_user('test_user_b2_%d' % i, 'test_user_b2_%d@test.com' % i, '111111')
+            logic.register_user('test_user_b2_%d' % i, 'test_user_b2_%d@test.com' % i, '111111')
             texts.append(('test_user_b2_%d' % i, 0))
 
         self.check_html_ok(self.request_html(url('accounts:', prefix='test_user_b', page=2)), texts=texts)
@@ -203,6 +204,18 @@ class ShowRequestsTests(AccountRequestsTests):
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[666])), status_code=404, texts=['accounts.account.account.not_found'])
 
 
+class ShowApiRequestsTests(AccountRequestsTests):
+
+    def test_show(self):
+        hero = HeroPrototype.get_by_account_id(self.account1.id)
+        self.check_ajax_ok(self.request_ajax_json(url('accounts:api-show', self.account1.id, api_version='1.0', api_client=project_settings.API_CLIENT)),
+                                                  data=logic.get_account_info(self.account1, hero))
+
+    def test_404(self):
+        self.check_ajax_error(self.request_ajax_json(url('accounts:api-show', 666, api_version='1.0', api_client=project_settings.API_CLIENT)),
+                              'accounts.account.account.not_found')
+
+
 class AdminRequestsTests(AccountRequestsTests):
 
     def setUp(self):
@@ -228,7 +241,7 @@ class AdminRequestsTests(AccountRequestsTests):
     def test_unlogined(self):
         self.request_logout()
         requested_url = url('accounts:admin', self.account1.id)
-        self.check_redirect(requested_url, login_page_url(requested_url))
+        self.check_redirect(requested_url, logic.login_page_url(requested_url))
 
     def test_no_rights(self):
         self.request_login('test_user2@test.com')

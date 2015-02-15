@@ -167,3 +167,33 @@ def get_session_expire_at_timestamp(request):
 
 def is_first_time_visit(request):
     return not request.user.is_authenticated() and request.session.get(accounts_settings.SESSION_FIRST_TIME_VISIT_KEY)
+
+
+def get_account_info(account, hero):
+    from the_tale.game.ratings import prototypes as ratings_prototypes
+    from the_tale.game.ratings import relations as ratings_relations
+
+    ratings = {}
+
+    rating_places = ratings_prototypes.RatingPlacesPrototype.get_by_account_id(account.id)
+
+    rating_values = ratings_prototypes.RatingValuesPrototype.get_by_account_id(account.id)
+
+    if rating_values and rating_places:
+        for rating in ratings_relations.RATING_TYPE.records:
+            ratings[rating.value] = {'name': rating.text,
+                                     'place': getattr(rating_places, '%s_place' % rating.field, None),
+                                     'value': getattr(rating_values, rating.field, None)}
+
+    places_history = [{'place': {'id': place.id, 'name': place.name}, 'count': help_count} for place, help_count in hero.places_history.get_most_common_places()]
+
+    return {'id': account.id,
+            'registered': not account.is_fast,
+            'name': account.nick_verbose,
+            'hero_id': hero.id,
+            'places_history': places_history,
+            'might': account.might,
+            'achievements': AccountAchievementsPrototype.get_by_account_id(account.id).points,
+            'collections': AccountItemsPrototype.get_by_account_id(account.id).get_items_count(),
+            'referrals': account.referrals_number,
+            'ratings': ratings}
