@@ -20,6 +20,8 @@ jQuery(document).ready( function(e) {
 
 <h2>Редактирование спутника</h2>
 
+{% include "companions/editor_help.html" %}
+
 <form id="pgf-edit-companion-form" method="post" action="{{ url('game:companions:update', companion.id) }}">
 
   {{ form.errors_container }}

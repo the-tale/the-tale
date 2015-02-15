@@ -20,6 +20,8 @@ jQuery(document).ready( function(e) {
 
 <h2>Создание спутника</h2>
 
+{% include "companions/editor_help.html" %}
+
 <form id="pgf-new-companion-form" class="companions-edit-form" method="post" action="{{ url('game:companions:create') }}">
 
   {{ form.errors_container }}
