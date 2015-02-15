@@ -105,3 +105,6 @@ class TestRequests(TestCase):
 
     def test_intro_comix(self):
         self.check_html_ok(self.request_html(url('guide:intro-comix')))
+
+    def test_game_resources(self):
+        self.check_html_ok(self.request_html(url('guide:game-resources')))

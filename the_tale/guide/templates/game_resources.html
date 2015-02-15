@@ -1,0 +1,173 @@
+{% extends "guide/base.html" %}
+{% import 'guide/macros.html' as guide_macros with context %}
+{% import 'portal/macros.html' as portal_macros with context %}
+
+{% block title %}Ресурсы игры |{{ super() }}{% endblock %}
+{% block description %}Ресурсы игры.{% endblock %}
+
+{% block guide_content %}
+{{ guide_macros.page_caption("Ресурсы игры для сторонних разработчиков.", "Перечень ресурсов игры для использования сторонними разработчиками") }}
+
+<p>
+  На этой странице мы собрали все графические ресурсы, которые могут пригодиться в разработке ваших приложений для игры.
+</p>
+
+<h2>Текстуры карты</h2>
+
+<div class="accordion" id="pgf-map-accordion">
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-map-accordion" href="#pgf-map-1">обычная</a>
+    </div>
+    <div id="pgf-map-1" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner"><img src="{{STATIC_URL}}game/images/map.png"></img></div>
+    </div>
+  </div>
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-map-accordion" href="#pgf-map-2">альтернативная</a>
+    </div>
+    <div id="pgf-map-2" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner"><img src="{{STATIC_URL}}game/images/map_alternative.png"></img></div>
+    </div>
+  </div>
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-map-accordion" href="#pgf-map-3">зимняя</a>
+    </div>
+    <div id="pgf-map-3" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner"><img src="{{STATIC_URL}}game/images/map_winter.png"></img></div>
+    </div>
+  </div>
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-map-accordion" href="#pgf-map-4">крупный пиксель</a>
+    </div>
+    <div id="pgf-map-4" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner"><img src="{{STATIC_URL}}game/images/map_large_pixel.png"></img></div>
+    </div>
+  </div>
+</div>
+
+<h2>Прочие игровые текстуры</h2>
+
+<div class="accordion" id="pgf-game-textures-accordion">
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-game-textures-accordion" href="#pgf-icons">иконки</a>
+    </div>
+    <div id="pgf-icons" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner"><img src="{{STATIC_URL}}game/images/game_ui.png"></img></div>
+    </div>
+  </div>
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-game-textures-accordion" href="#pgf-quests">задания</a>
+    </div>
+    <div id="pgf-quests" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner"><img src="{{STATIC_URL}}game/images/quests.png"></img></div>
+    </div>
+  </div>
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-game-textures-accordion" href="#pgf-game-logo">лого</a>
+    </div>
+    <div id="pgf-game-logo" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner"><img src="{{STATIC_URL}}images/logo.png"></img></div>
+    </div>
+  </div>
+
+</div>
+
+<h2>Заставки</h2>
+
+<div class="accordion" id="pgf-logo-accordion">
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-logo-accordion" href="#pgf-logo-1">Заставка 1</a>
+    </div>
+    <div id="pgf-logo-1" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner"><img src="{{STATIC_URL}}images/resources/logo_1.png"></img></div>
+    </div>
+  </div>
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-logo-accordion" href="#pgf-logo-2">Заставка 2</a>
+    </div>
+    <div id="pgf-logo-2" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner"><img src="{{STATIC_URL}}images/resources/logo_2.png"></img></div>
+    </div>
+  </div>
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-logo-accordion" href="#pgf-logo-3">Заставка 3</a>
+    </div>
+    <div id="pgf-logo-3" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner"><img src="{{STATIC_URL}}images/resources/logo_3.png"></img></div>
+    </div>
+  </div>
+
+</div>
+
+<h2>Эмблемы</h2>
+
+<div class="accordion" id="pgf-emblem-accordion">
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-emblem-accordion" href="#pgf-emblem-1">Заставка 1</a>
+    </div>
+    <div id="pgf-emblem-1" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner"><img src="{{STATIC_URL}}images/resources/emblems_1.png"></img></div>
+    </div>
+  </div>
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-emblem-accordion" href="#pgf-emblem-2">Заставка 2</a>
+    </div>
+    <div id="pgf-emblem-2" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner"><img src="{{STATIC_URL}}images/resources/emblems_2.png"></img></div>
+    </div>
+  </div>
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-emblem-accordion" href="#pgf-emblem-3">Заставка 3</a>
+    </div>
+    <div id="pgf-emblem-3" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner"><img src="{{STATIC_URL}}images/resources/emblems_3.png"></img></div>
+    </div>
+  </div>
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-emblem-accordion" href="#pgf-emblem-4">Заставка 4</a>
+    </div>
+    <div id="pgf-emblem-4" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner"><img src="{{STATIC_URL}}images/resources/emblems_4.png"></img></div>
+    </div>
+  </div>
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-emblem-accordion" href="#pgf-emblem-5">Заставка 5</a>
+    </div>
+    <div id="pgf-emblem-5" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner"><img src="{{STATIC_URL}}images/resources/emblems_5.png"></img></div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

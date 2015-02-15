@@ -279,3 +279,7 @@ class GuideResource(Resource):
     @handler('intro-comix')
     def intro_comix(self):
         return self.template('guide/intro_comix.html', {'section': 'intro-comix'})
+
+    @handler('game-resources')
+    def game_resources(self):
+        return self.template('guide/game_resources.html', {'section': 'game-resources'})
