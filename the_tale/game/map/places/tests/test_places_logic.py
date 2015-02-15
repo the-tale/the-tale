@@ -15,6 +15,8 @@ from the_tale.game.prototypes import TimePrototype
 from the_tale.game.persons.storage import persons_storage
 from the_tale.game.persons.conf import persons_settings
 
+from the_tale.game.map import logic as map_logic
+
 from the_tale.game.map.places.prototypes import PlacePrototype
 from the_tale.game.map.places.conf import places_settings
 from the_tale.game.map.places import exceptions
@@ -25,6 +27,9 @@ class PlacePowerTest(testcase.TestCase):
     def setUp(self):
         super(PlacePowerTest, self).setUp()
         linguistics_logic.sync_static_restrictions()
+
+        map_logic.create_test_my_info()
+
         places_storage.clear()
         persons_storage.clear()
 

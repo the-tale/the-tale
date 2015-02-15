@@ -1,4 +1,5 @@
 # coding: utf-8
+import math
 import random
 
 from the_tale.game.heroes.relations import MONEY_SOURCE, HABIT_CHANGE_SOURCE
@@ -37,7 +38,8 @@ class Help(AbilityPrototype):
 
     def use_money(self, task, action, hero, critical): # pylint: disable=W0613
         multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
-        coins = int(f.normal_loot_cost_at_lvl(hero.level) * multiplier)
+        coins = int(math.ceil(f.normal_loot_cost_at_lvl(hero.level) * multiplier))
+
 
         if critical:
             coins *= c.ANGEL_HELP_CRIT_MONEY_MULTIPLIER
