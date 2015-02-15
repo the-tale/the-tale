@@ -923,7 +923,7 @@ class HeroLevelUpTests(testcase.TestCase):
         for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
-        ability = random.choice(self.hero.abilities.abilities.values())
+        ability = random.choice([ability for ability in self.hero.abilities.abilities.values() if ability.TYPE.is_BATTLE])
         ability.level -= 1
 
         for i in xrange(100):

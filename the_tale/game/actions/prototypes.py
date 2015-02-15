@@ -1191,7 +1191,7 @@ class ActionInPlacePrototype(ActionBase):
 
             if hero.can_companion_eat():
                 waymark = waymarks_storage.look_for_road(point_from=hero.position.previous_place.id, point_to=hero.position.place)
-                coins = min(hero.money, int(f.gold_in_path(hero.level, waymark.length) * hero.companion_money_for_food_multiplier))
+                coins = min(hero.money, int(math.ceil(f.gold_in_path(hero.level, waymark.length) * hero.companion_money_for_food_multiplier)+1))
 
                 if coins > 0:
                     hero.change_money(MONEY_SOURCE.SPEND_FOR_COMPANIONS, -coins)
