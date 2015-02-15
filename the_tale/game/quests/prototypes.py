@@ -219,7 +219,7 @@ class QuestInfo(object):
 
 NO_QUEST_INFO__IN_PLACE = QuestInfo(type='no-quest',
                                     uid='no-quest',
-                                    name=u'безделие',
+                                    name=u'безделье',
                                     action=u'имитирует бурную деятельность',
                                     choice=None,
                                     choice_alternatives=(),
@@ -232,7 +232,7 @@ NO_QUEST_INFO__IN_PLACE = QuestInfo(type='no-quest',
 
 NO_QUEST_INFO__OUT_PLACE = QuestInfo(type='no-quest',
                                      uid='no-quest',
-                                     name=u'безделие',
+                                     name=u'безделье',
                                      action=u'идёт в ближайший город',
                                      choice=None,
                                      choice_alternatives=(),

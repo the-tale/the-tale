@@ -214,7 +214,7 @@ class RestLength(BaseEffect):
 
 class ResurrectLength(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.RESURRECT_LENGTH
-    DESCRIPTION = u'Герой быстрее воскрешается'
+    DESCRIPTION = u'Герой быстрее восстаёт из мёртвых'
     MULTIPLIER = 0.75
 
     @classmethod

@@ -35,7 +35,7 @@ class ACTION_TYPE(DjangoEnum):
     meta = Column(unique=False)
     technical = Column(unique=False)
 
-    records = ( ('IDLENESS', 0, u'безделие', False, False),
+    records = ( ('IDLENESS', 0, u'безделье', False, False),
                 ('QUEST',    1, u'задание', False, False),
                 ('MOVE_TO', 2, u'путешествие между городами', False, False),
                 ('BATTLE_PVE_1X1', 3, u'сражение 1x1 с монстром', False, False),

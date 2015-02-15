@@ -55,7 +55,7 @@
         {% if resource.edit_item_permission or resource.moderate_item_permission %}
            {{item.text_html|safe}}
         {% elif account_items is none or not account_items.has_item(item) %}
-          Вы ещё не получили это предмет.
+          Вы ещё не получили этот предмет.
         {% elif master_account_items and master_account_items.has_item(item) %}
            {{item.text_html|safe}}
         {% else %}

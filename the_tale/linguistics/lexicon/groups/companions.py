@@ -12,7 +12,7 @@ KEYS = [(u'COMPANIONS_RECEIVED', 580000, u'Дневник: появился сп
         [V.COMPANION_OWNER, V.COMPANION, V.ATTACKER]),
 
         (u'COMPANIONS_LEFT', 580002, u'Дневник: спутник ушёл', LEXICON_GROUP.COMPANIONS,
-        u'Описание расстования со спутником (не смерти), например из-за того, что герой меняет спутника на другого.',
+        u'Описание расставания со спутником (не смерти), например из-за того, что герой меняет спутника на другого.',
         [V.COMPANION_OWNER, V.COMPANION]),
 
         (u'COMPANIONS_BLOCK', 580003, u'Журнал: спутник защитил своего владельца от удара', LEXICON_GROUP.COMPANIONS,
