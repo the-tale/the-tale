@@ -302,7 +302,6 @@ class AbilitiesPrototype(object):
             return None
 
         available_abilities.append(available_abilities[0])
-        available_abilities.pop(0)
 
         try:
             return self.hero.level + available_abilities.index(ability_type) + 1
