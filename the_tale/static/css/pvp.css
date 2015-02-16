@@ -3,7 +3,7 @@
   cursor: default;
 }
 .pvp-abilities-list li:hover {
-  background-color: #dddddd;
+  background-color: #e1e6e6;
 }
 .pvp-resources-record {
   margin: 1px;
@@ -15,12 +15,12 @@
   text-align: center !important;
 }
 .pvp-info-table td.pvp-effectiveness:hover {
-  background-color: #dddddd !important;
+  background-color: #e1e6e6 !important;
 }
 .pvp-ability {
   padding-left: 2em;
   padding-right: 2em;
 }
 .pvp-ability-probability:hover {
-  background-color: #dddddd !important;
+  background-color: #e1e6e6 !important;
 }

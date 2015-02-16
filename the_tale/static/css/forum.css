@@ -1,3 +1,4 @@
+/* #f9f9f9; */
 .forum-table .new-messages a {
   font-weight: bold;
   /* color: #FF6600 !important; */
@@ -36,7 +37,7 @@
   margin-bottom: 0.5em;
   border-top: 1px solid #dddddd;
   border-bottom: 1px solid #dddddd;
-  background-color: #f9f9f9;
+  background-color: #ebf0f0;
 }
 .post .head div {
   display: inline-block;
@@ -49,7 +50,7 @@
   margin-bottom: 0.5em;
   border-right: 1px solid #dddddd;
   border-bottom: 1px solid #dddddd;
-  background-color: #f9f9f9;
+  background-color: #ebf0f0;
   height: 100px;
   vertical-align: top;
   text-align: center;
@@ -57,7 +58,7 @@
 }
 .post .info-head {
   border-top: 1px solid #dddddd;
-  background-color: #f9f9f9;
+  background-color: #ebf0f0;
   text-align: center;
   font-size: 12pt;
 }

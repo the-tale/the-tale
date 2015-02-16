@@ -1,6 +1,3 @@
-.second-row .block {
-  min-height: 400px;
-}
 .hero-base-block .hero-level:hover {
   background-color: #BBB;
 }
@@ -14,7 +11,7 @@
   padding-right: 5.3em;
 }
 .hero-base-block .record-with-progress:hover {
-  background-color: #dddddd;
+  background-color: #e1e6e6;
 }
 .hero-base-block .record-with-progress .game-ui-icon {
   position: absolute;
@@ -38,13 +35,18 @@
   width: 49%;
 }
 .hero-base-block .attribute-record:hover {
-  background-color: #dddddd;
+  background-color: #e1e6e6;
 }
 .hero-base-block .attribute-record .game-ui-icon {
   vertical-align: middle;
 }
 .hero-base-block .attribute-record .value {
   vertical-align: middle;
+}
+.shortests-hero-record:hover {
+  background-color: #e1e6e6;
+  border-radius: 8px;
+  cursor: pointer;
 }
 .physic-label {
   color: #aa4444;
@@ -64,39 +66,43 @@
   font-weight: bold;
 }
 .common-card-label {
-  color: #333333;
-  font-weight: bold;
+  color: #333333 !important;
+  font-weight: bold !important;
+}
+.tooltip .common-card-label {
+  color: white !important;
+  font-weight: bold !important;
 }
 .uncommon-card-label {
-  color: #30b030;
-  font-weight: bold;
+  color: #30b030 !important;
+  font-weight: bold !important;
 }
 .rare-card-label {
-  color: #0070dd;
-  font-weight: bold;
+  color: #0070dd !important;
+  font-weight: bold !important;
 }
 .epic-card-label {
-  color: #a335ee;
-  font-weight: bold;
+  color: #a335ee !important;
+  font-weight: bold !important;
 }
 .legendary-card-label {
-  color: #ff8000;
-  font-weight: bold;
+  color: #ff8000 !important;
+  font-weight: bold !important;
 }
-.dropdown-menu a:hover .common-card-label {
-  color: white;
+.dropdown-menu a:hover.common-card-label {
+  color: white !important;
 }
-.dropdown-menu a:hover .uncommon-card-label {
-  color: white;
+.dropdown-menu a:hover.uncommon-card-label {
+  color: white !important;
 }
-.dropdown-menu a:hover .rare-card-label {
-  color: white;
+.dropdown-menu a:hover.rare-card-label {
+  color: white !important;
 }
-.dropdown-menu a:hover .epic-card-label {
-  color: white;
+.dropdown-menu a:hover.epic-card-label {
+  color: white !important;
 }
-.dropdown-menu a:hover .legendary-card-label {
-  color: white;
+.dropdown-menu a:hover.legendary-card-label {
+  color: white !important;
 }
 .common-card-bg {
   background-color: #333333;
@@ -126,7 +132,7 @@
   cursor: pointer;
 }
 .hero-equipment-block .equip-record:hover {
-  background-color: #dddddd;
+  background-color: #e1e6e6;
 }
 .hero-equipment-block .equip-record .game-ui-icon {
   vertical-align: middle;
@@ -150,7 +156,7 @@
   cursor: pointer;
 }
 #hero-bag-block .bag-record:hover {
-  background-color: #dddddd;
+  background-color: #e1e6e6;
 }
 #hero-bag-block .bag-record i {
   vertical-align: middle;
@@ -172,6 +178,9 @@
 }
 .quests-line:last-child {
   border-bottom: none;
+}
+.quests-line .quest-record:hover {
+  background-color: #e1e6e6;
 }
 .quest-icon {
   width: 64px;
@@ -223,9 +232,6 @@
   min-height: 84px;
   cursor: default;
 }
-.quest-record:hover {
-  background-color: #dddddd;
-}
 .quest-record .quest-body {
   padding-left: 70px;
 }
@@ -249,16 +255,22 @@
 .choice-record .character-warning {
   display: none;
 }
+.first-row-block {
+  min-height: 300px;
+}
+.second-row-block {
+  min-height: 400px;
+}
 .log-block {
   overflow-y: scroll;
   overflow-x: hidden;
-  height: 400px;
+  height: 350px;
 }
 .log-record {
   cursor: default;
 }
 .log-record:hover {
-  background-color: #dddddd;
+  background-color: #e1e6e6;
 }
 .log-record .time {
   display: inline;
@@ -276,7 +288,7 @@
   cursor: default;
 }
 .diary-record:hover {
-  background-color: #dddddd;
+  background-color: #e1e6e6;
 }
 .diary-record .datetime {
   font-weight: bold;
@@ -296,8 +308,9 @@
   right: -1px;
   top: 0;
   z-index: 1001;
-  background-color: WhiteSmoke;
-  border: 1px solid #cccccc;
+  background-color: #f5fafa;
+  /* border: 1px solid @border-color; */
+
   border-bottom-left-radius: 8px;
   padding: 0.25em;
   margin-right: 0.75em;
@@ -305,7 +318,6 @@
 }
 .place-description-dialog {
   cursor: default;
-  background-color: #ffffff !important;
 }
 .place-description-dialog .dialog-title span {
   vertical-align: middle;
@@ -443,7 +455,7 @@
   width: 32px;
 }
 .profession-icon-container:hover {
-  background-color: #dddddd !important;
+  background-color: #e1e6e6 !important;
 }
 .profession-icon {
   width: 32px;
