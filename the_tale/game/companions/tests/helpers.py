@@ -33,8 +33,8 @@ def get_abilities_post_data(abilities, prefix='abilities'):
     return data
 
 
-RARITIES_ABILITIES = {relations.RARITY.COMMON: abilities_container.Container(),
-                      relations.RARITY.UNCOMMON: abilities_container.Container(start=(effects.ABILITIES.UNCOMMON,)),
-                      relations.RARITY.RARE: abilities_container.Container(start=(effects.ABILITIES.RARE,)),
-                      relations.RARITY.EPIC: abilities_container.Container(start=(effects.ABILITIES.RARE, effects.ABILITIES.HUCKSTER)),
+RARITIES_ABILITIES = {relations.RARITY.COMMON: abilities_container.Container(start=(effects.ABILITIES.WISE,)),
+                      relations.RARITY.UNCOMMON: abilities_container.Container(start=(effects.ABILITIES.WISE,effects.ABILITIES.UNCOMMON,)),
+                      relations.RARITY.RARE: abilities_container.Container(start=(effects.ABILITIES.WISE,effects.ABILITIES.RARE,)),
+                      relations.RARITY.EPIC: abilities_container.Container(start=(effects.ABILITIES.WISE, effects.ABILITIES.RARE, effects.ABILITIES.CAMOUFLAGE)),
                       relations.RARITY.LEGENDARY: abilities_container.Container(start=(effects.ABILITIES.SPECIAL,))}

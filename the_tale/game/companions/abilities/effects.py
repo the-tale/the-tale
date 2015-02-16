@@ -469,7 +469,7 @@ class ABILITIES(DjangoEnum):
         (u'TELEPORTATOR', 66, u'телепортатор', u'периодически переносит героя между городами или ключевыми точками задания', CompanionTeleport(0.05, 0.1), RARITY_BIGEST),
         (u'FLYER', 67, u'ездовой летун', u'часто  переносит героя на небольшое расстояние по воздуху', CompanionFly(0.05, 0.1), RARITY_BIGEST),
 
-        (u'UNCOMMON', 70, u'редкий', u'спутник встречается реже обычного', Rarity(), RARITY_BIG),
+        (u'UNCOMMON', 70, u'редкий', u'спутник встречается реже обычного', Rarity(), RARITY_BIGER),
         (u'RARE', 71, u'очень редкий', u'спутник встречается очень редко', Rarity(), RARITY_BIGEST),
         (u'SPECIAL', 72, u'особый', u'особый спутник, которого нельзя получить обычным способом', Rarity(), RARITY_LEGENDARY),
     )

@@ -189,7 +189,6 @@ class GetNewCardTest(testcase.TestCase):
 
         @classmethod
         def effect_availability(cls):
-            # print cls.TYPE, bool(cls.TYPE.value % 2)
             return bool(cls.TYPE.value % 2)
 
         with mock.patch('the_tale.game.cards.effects.BaseEffect.available', effect_availability):

@@ -70,3 +70,9 @@ class LexiconLogicTests(TestCase):
     def test_keys_values(self):
         for key in keys.LEXICON_KEY.records:
             self.assertEqual(key.value // 10000, key.group.index_group // 10000 * 2)
+
+
+    def test_all_keys_variables_in_groups(self):
+        for key in keys.LEXICON_KEY.records:
+            for variable in key.variables:
+                self.assertIn(variable, key.group.variables)
