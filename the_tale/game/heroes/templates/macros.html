@@ -56,8 +56,8 @@
                {% endif %}
                {% endif %}</div>">
   <td>{{ ability.NAME }}</td>
-  <td>{{ability.TYPE.text}}</td>
-  <td>{{ability.level}}</td>
+  <td width="100px">{{ability.ACTIVATION_TYPE.text}}</td>
+  <td width="20px">{{ability.level}}</td>
 </tr>
 
 {%- endmacro %}
@@ -70,8 +70,8 @@
     data-tooltip-placement="right"
     title="свободное место для способности">
   <td>свободно</td>
-  <td>{{type.text}}</td>
-  <td>-</td>
+  <td width="100px">-</td>
+  <td width="20px">-</td>
 </tr>
 
 {%- endmacro %}
