@@ -563,6 +563,7 @@ class TemplateResource(Resource):
                                                        raw_template=form.c.template,
                                                        utg_template=utg_template,
                                                        verificators=form.verificators,
+                                                       restrictions=form.get_restrictions(),
                                                        author=self.account,
                                                        parent=self._template)
 
