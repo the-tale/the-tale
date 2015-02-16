@@ -524,11 +524,12 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
 pgf.game.widgets.CreateCardTooltip = function (data, cssClass) {
     var rarityClass = pgf.game.constants.CARD_RARITY[data.rarity].name.toLowerCase()+'-card-label';
     var rarityName = pgf.game.constants.CARD_RARITY[data.rarity].text;
+    var description = pgf.game.constants.CARD_TYPE[data.type].description;
 
     var tooltip = '<ul class="unstyled '+cssClass+'" style="text-align: left;">';
     tooltip += '<li><h4>'+data.name+'</h4></li>';
     tooltip += '<li class="'+rarityClass+'">'+rarityName+'</li>';
-    tooltip += '<li>'+data.description+'</li>';
+    tooltip += '<li>'+description+'</li>';
 
     if (data.auction) {
         tooltip += '<hr/>';

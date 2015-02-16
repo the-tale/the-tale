@@ -40,7 +40,7 @@ class Card(object):
 
     def ui_info(self):
         return {'name': self.name,
-                'description': self.effect.DESCRIPTION,
+                'type': self.type.value,
                 'rarity': self.type.rarity.value,
                 'uid': self.uid,
                 'auction': self.available_for_auction}

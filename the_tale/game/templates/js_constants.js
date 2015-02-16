@@ -49,6 +49,15 @@ pgf.game.constants.CARD_RARITY = {
     {% endfor %}
 };
 
+pgf.game.constants.CARD_TYPE = {
+    {% for card_type, effect in CARDS_EFFECTS.iteritems() %}
+    "{{card_type.value}}": {
+        "text": "{{card_type.text}}",
+        "description": "{{effect.DESCRIPTION}}"
+    }{%- if not loop.last -%},{%- endif -%}
+    {% endfor %}
+};
+
 pgf.game.constants.NO_EFFECT_ID = {{NO_EFFECT.value}};
 
 pgf.game.constants.EFFECTS = {
