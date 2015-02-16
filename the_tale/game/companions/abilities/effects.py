@@ -370,7 +370,7 @@ class ABILITIES(DjangoEnum):
          ChangeHabits(habit_type=game_relations.HABIT_TYPE.PEACEFULNESS, habit_sources=(heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_AGGRESSIVE, )), RARITY_NEUTRAL),
         (u'PEACEFUL', 5, u'миролюбивый', u'увеличивает миролюбие героя',
          ChangeHabits(habit_type=game_relations.HABIT_TYPE.PEACEFULNESS, habit_sources=(heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_PEACEFULL,)), RARITY_NEUTRAL),
-        (u'RESERVED', 6, u'сдержанный', u'склоняет героя балансу между агрессивностью и миролюбием',
+        (u'RESERVED', 6, u'сдержанный', u'склоняет героя к балансу между агрессивностью и миролюбием',
          ChangeHabits(habit_type=game_relations.HABIT_TYPE.PEACEFULNESS, habit_sources=(heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_PEACEFULL_NEUTRAL_1,
                                                                                         heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_PEACEFULL_NEUTRAL_2)), RARITY_NEUTRAL),
         (u'CANNY', 7, u'себе на уме', u'склоняет героя к балансу между честью и бесчестием',
