@@ -207,7 +207,7 @@ class CompanionRecord(names.ManageNameMixin):
 
     @property
     def rarity(self):
-        return relations.RARITY(max(0, min(4, int(round(self.raw_rarity)))))
+        return relations.RARITY(max(0, min(4, int(round(self.raw_rarity-0.0001))-1)))
 
     @classmethod
     def from_model(cls, model):

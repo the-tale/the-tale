@@ -142,7 +142,7 @@ def index(context):
         companions = filter(lambda companion: companion.state.is_ENABLED, companions) # pylint: disable=W0110
 
     if context.order_by.is_RARITY:
-        companions = sorted(companions, key=lambda c: (c.rarity, c.name))
+        companions = sorted(companions, key=lambda c: (c.rarity.value, c.name))
     elif context.order_by.is_NAME:
         companions = sorted(companions, key=lambda c: c.name)
 
