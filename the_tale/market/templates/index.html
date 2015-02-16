@@ -3,6 +3,39 @@
 {% import 'macros.html' as base_macros with context %}
 {% import 'utils/list_filter.html' as list_filter_macros with context %}
 
+{% block head %}
+{{ super() }}
+
+<script>
+  jQuery(document).ready(function(e){
+
+      jQuery('.pgf-purchase-lot').click(function(e){
+          e.preventDefault();
+
+          var target = jQuery(e.target);
+
+          var successMessage = target.data('success-message');
+
+          var Operation = function() {
+              pgf.forms.Post({ action: target.attr('href'),
+                               OnSuccess: function(data){
+                                   pgf.ui.dialog.Alert({message: successMessage,
+                                                        title: 'Покупка прошла успешно',
+                                                        OnOk: function(e){location.reload();}});
+                                   return;
+                               }
+                             }); };
+
+          pgf.ui.dialog.Question({message: jQuery('#'+target.data('dialog-id')).html(),
+                                  title: 'Подтвердите покупку',
+                                  buttons: [{text: 'Подтверждаю', classes: 'btn-success', callback: Operation},
+                                            {text: 'Отмена', classes: 'btn-danger'}]});
+      });
+
+  });
+</script>
+{% endblock %}
+
 {% block market_content %}
 
   <p>
@@ -47,10 +80,17 @@
             <td>{{lot.good.html_label()|safe}}</td>
             <td>{{lot.price}}</td>
             <td><span>{{lot.time_to_end|verbose_timedelta}}</span></td>
-            <td><a href="{{url('market:purchase', lot.id)}}"
-                   class="pgf-forms-post-simple"
-                   data-confirmation="Вы уверены, что хотите купить «{{lot.name}}»?"
-                   data-success-message="Поздравляем! Вы успешно приобрели «{{lot.name}}»!">купить</a></td>
+            <td>
+              <a href="{{url('market:purchase', lot.id)}}"
+                   class="pgf-purchase-lot"
+                   data-dialog-id="pgf-purchase-dialog-{{lot.id}}"
+                   data-success-message="Поздравляем! Вы успешно приобрели «{{lot.name}}»!">купить</a>
+              <div class="pgf-hidden" id="pgf-purchase-dialog-{{lot.id}}">
+                <div>
+                  Вы уверены, что хотите купить {{lot.good.html_label()|safe}} за {{lot.price}} <img src="{{STATIC_URL}}images/cookies.png"></img> ?
+                </div>
+              </div>
+            </td>
           </tr>
         {% endfor %}
       </tbody>

@@ -174,8 +174,15 @@ pgf.ui.dialog.Question = function(params) {
                                       jQuery('.pgf-dialog-button-'+i, dialog).click(button.callback);
                                   }
                               }
+
+                          },
+                          OnOpened: function(dialog) {
+                              jQuery('[rel="tooltip"]', dialog).tooltip(pgf.base.tooltipsArgs);
+                          },
+                          OnClosed: function(dialog) {
+                              pgf.base.HideTooltips(dialog);
                           }
-                         });
+                          });
 };
 
 pgf.ui.dialog.Alert = function(params) {
