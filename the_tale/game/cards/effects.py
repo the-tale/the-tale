@@ -124,7 +124,7 @@ class AddExperienceEpic(AddExperienceBase):
 
 class AddExperienceLegendary(AddExperienceBase):
     TYPE = relations.CARD_TYPE.ADD_EXPERIENCE_LEGENDARY
-    EXPERIENCE = AddExperienceRare.EXPERIENCE * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+    EXPERIENCE = AddExperienceEpic.EXPERIENCE * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
 
 
 class AddPowerBase(BaseEffect):
