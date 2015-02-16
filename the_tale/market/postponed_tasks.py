@@ -23,7 +23,7 @@ from the_tale.market import relations
 def good_bought_message(lot):
     from the_tale.portal import logic as portal_logic
 
-    template = u'Поздравляем! Кто-то купил «%(good)s», Вы получаете %(price)d <img src="%(static_path)s" style="vertical-align: middle;"></img>!'
+    template = u'Поздравляем! Кто-то купил «%(good)s», Вы получаете печеньки: %(price)d шт.'
     return template % {'good': lot.name,
                        'price': lot.price,
                        'static_path': (portal_logic.cdn_paths()['STATIC_CONTENT'] + 'images/cookies.png')}
