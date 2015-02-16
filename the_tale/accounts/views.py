@@ -493,7 +493,7 @@ class AccountResource(BaseAccountsResource):
         u'''
 Получить информацию об игроке
 
-- **адрес:** /accounts/<account_id>/api/show
+- **адрес:** /accounts/&lt;account_id&gt;/api/show
 - **http-метод:** GET
 - **версии:** 1.0
 - **параметры:**
