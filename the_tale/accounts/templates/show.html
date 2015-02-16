@@ -123,7 +123,8 @@ jQuery(document).ready(function(){
                     <th width="100px">место</th>
                   </tr>
 
-                  {% for rating in account_info.ratings.values()|sort(attribute="name") %}
+                  {% for menu_rating in RATING_TYPE.records %}
+                  {% set rating = account_info.ratings[menu_rating.value] %}
                   <tr>
                     <td>{{rating.name}}</td>
                     <td>{% if rating.value > 0 %}{{rating.place}} место {% else %}не участвует{% endif %}</td>

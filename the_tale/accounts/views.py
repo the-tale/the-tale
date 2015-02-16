@@ -472,6 +472,8 @@ class AccountResource(BaseAccountsResource):
 
     @handler('#account', name='show', method='get')
     def show(self): # pylint: disable=R0914
+        from the_tale.game.ratings import relations as ratings_relations
+
         friendship = FriendshipPrototype.get_for_bidirectional(self.account, self.master_account)
 
         master_hero = HeroPrototype.get_by_account_id(self.master_account.id)
@@ -481,6 +483,7 @@ class AccountResource(BaseAccountsResource):
                               'account_info': logic.get_account_info(self.master_account, master_hero),
                               'master_account': self.master_account,
                               'accounts_settings': accounts_settings,
+                              'RATING_TYPE': ratings_relations.RATING_TYPE,
                               'informer_link': accounts_settings.INFORMER_LINK % {'account_id': self.master_account.id},
                               'friendship': friendship} )
 
