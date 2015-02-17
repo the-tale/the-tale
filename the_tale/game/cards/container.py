@@ -88,6 +88,8 @@ class CardsContainer(object):
         if self._help_count + delta < 0:
             raise exceptions.HelpCountBelowZero(current_value=self._help_count, delta=delta)
 
+        self.updated = True
+
         self._help_count += delta
 
         if delta > 0 and self._hero.is_premium:

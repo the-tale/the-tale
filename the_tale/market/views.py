@@ -95,7 +95,7 @@ class LotsIndexFilter(list_filter.ListFilter):
     ELEMENTS = [list_filter.reset_element(),
                 list_filter.filter_element(u'поиск:', attribute='filter', default_value=None),
                 list_filter.choice_element(u'сортировать:', attribute='order_by', choices=relations.INDEX_ORDER_BY.select('value', 'text'),
-                                           default_value=relations.INDEX_ORDER_BY.NAME_UP.value),
+                                           default_value=relations.INDEX_ORDER_BY.DATE_DOWN.value),
                 list_filter.static_element(u'количество:', attribute='count', default_value=0) ]
 
 
@@ -104,7 +104,7 @@ class LotsIndexFilter(list_filter.ListFilter):
 ########################################
 
 
-@dext_views.RelationArgumentProcessor.handler(relation=relations.INDEX_ORDER_BY, default_value=relations.INDEX_ORDER_BY.NAME_UP,
+@dext_views.RelationArgumentProcessor.handler(relation=relations.INDEX_ORDER_BY, default_value=relations.INDEX_ORDER_BY.DATE_DOWN,
                                               error_message=u'неверный тип сортировки',
                                               context_name='order_by', get_name='order_by')
 @dext_views.RelationArgumentProcessor.handler(relation=relations.INDEX_MODE, default_value=relations.INDEX_MODE.ALL,
