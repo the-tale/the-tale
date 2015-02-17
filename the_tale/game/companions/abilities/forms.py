@@ -63,7 +63,7 @@ def decompress_abilities(value):
     decompressed[relations.FIELDS.HONOR.value] = value.honor
     decompressed[relations.FIELDS.PEACEFULNESS.value] = value.peacefulness
 
-    for field, ability in zip((relations.FIELDS.START_1, relations.FIELDS.START_2, relations.FIELDS.START_3), value.start):
+    for field, ability in zip((relations.FIELDS.START_1, relations.FIELDS.START_2, relations.FIELDS.START_3, relations.FIELDS.START_4, relations.FIELDS.START_5), value.start):
         decompressed[field.value] = ability
 
     for field, ability in zip((field for field in relations.FIELDS.records if field.common), value.common):
@@ -117,7 +117,7 @@ class AbilitiesField(django_forms.MultiValueField):
             if ability is u'':
                 continue
 
-            if field in (relations.FIELDS.START_1, relations.FIELDS.START_2, relations.FIELDS.START_3):
+            if field in (relations.FIELDS.START_1, relations.FIELDS.START_2, relations.FIELDS.START_3, relations.FIELDS.START_4, relations.FIELDS.START_5):
                 start.add(ability)
 
             elif field.is_COHERENCE_SPEED:

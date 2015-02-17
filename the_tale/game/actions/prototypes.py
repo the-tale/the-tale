@@ -1872,6 +1872,12 @@ class ActionHealCompanionPrototype(ActionBase):
     class STATE(ActionBase.STATE):
         HEALING = 'healing'
 
+    def get_description_arguments(self):
+        args = super(ActionHealCompanionPrototype, self).get_description_arguments()
+        if self.hero.companion:
+            args.update({'companion': self.hero.companion})
+        return args
+
     ###########################################
     # Object operations
     ###########################################
