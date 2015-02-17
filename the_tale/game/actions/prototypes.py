@@ -1029,7 +1029,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
             random.random() < self.hero.companion_eat_corpses_probability and
             self.mob.mob_type.is_eatable):
             self.hero.companion.health += c.COMPANIONS_HEAL_AMOUNT
-            self.hero.add_message('companions_eat_corpse', companion_owner=self.hero, companion=self.hero.companion, health=c.COMPANIONS_HEAL_AMOUNT)
+            self.hero.add_message('companions_eat_corpse', companion_owner=self.hero, companion=self.hero.companion, health=c.COMPANIONS_HEAL_AMOUNT, mob=self.mob)
 
 
     def process_artifact_breaking(self):

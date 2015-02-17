@@ -33,7 +33,7 @@ KEYS = [(u'COMPANIONS_RECEIVED', 580000, u'Дневник: появился сп
 
         (u'COMPANIONS_EAT_CORPSE', 580007, u'Журнал: спутник есть труп (способность «пожиратель»)', LEXICON_GROUP.COMPANIONS,
         u'Спутник пожирает труп монстра и восстанавливает здоровье',
-        [V.COMPANION_OWNER, V.COMPANION, V.HEALTH]),
+        [V.COMPANION_OWNER, V.COMPANION, V.HEALTH, V.MOB]),
 
         (u'COMPANIONS_REGENERATE', 580008, u'Журнал: спутник восстанавливает здоровье (способность «регенерация»)', LEXICON_GROUP.COMPANIONS,
         u'Спутник восстанавливает здоровье, когда героя заканчивает «ухаживать» за ним',
