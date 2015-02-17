@@ -129,7 +129,7 @@ class LEXICON_GROUP(DjangoEnum):
 
                ('COMPANIONS', 29, u'Спутники', 290000,
                u'Тексты, относящиеся к спутникам.',
-               {V.COMPANION_OWNER: u'владелец спутника', V.COMPANION: u'спутник', V.ATTACKER: u'атакущий спутника', V.COINS: u'вырученные средства', V.EXPERIENCE: u'опыт', V.HEALTH: u'количество здоровья', V.MOB: u'монстр'}),
+               {V.COMPANION_OWNER: u'владелец спутника', V.COMPANION: u'спутник', V.ATTACKER: u'атакущий спутника', V.COINS: u'вырученные средства', V.EXPERIENCE: u'опыт', V.HEALTH: u'количество здоровья', V.MOB: u'монстр', V.DESTINATION: u'место назначения'}),
 
                ('ACTION_HEAL_COMPANION', 30, u'Действие: уход за спутником', 300000,
                u'Герой ухаживает за спутником (обрабатывает раны, смазывает детальки, чистит карму, в зависимости от спутника).',

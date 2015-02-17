@@ -775,7 +775,7 @@ class ActionMoveToPrototype(ActionBase):
             self.length = length
 
         if self.hero.companion and random.random() < self.hero.companion_teleport_probability:
-            self.hero.add_message('companions_teleport', companion_owner=self.hero, companion=self.hero.companion)
+            self.hero.add_message('companions_teleport', companion_owner=self.hero, companion=self.hero.companion, destination=self.current_destination)
             self.teleport_to_place(create_inplace_action=True)
             return
 
