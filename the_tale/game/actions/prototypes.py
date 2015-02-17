@@ -1706,6 +1706,9 @@ class ActionMoveNearPlacePrototype(ActionBase):
         if self.state == self.STATE.REGENERATE_ENERGY:
             self.state = self.STATE.MOVING
 
+        if self.state == self.STATE.HEALING_COMPANION:
+            self.state = self.STATE.MOVING
+
         if self.state == self.STATE.IN_CITY:
             if self.percents >= 1:
                 self.state = self.STATE.PROCESSED
