@@ -1159,8 +1159,8 @@ class ActionInPlacePrototype(ActionBase):
                 hero.add_message('action_inplace_instant_heal', hero=hero, place=hero.position.place)
 
             if hero.companion and hero.companion.health < hero.companion.max_health and hero.position.place.modifier.companion_regen_allowed():
-                hero.companion.health += c.COMPANIONS_HEAL_AMOUNT
-                hero.add_message('action_inplace_companion_heal', hero=hero, place=hero.position.place, companion=hero.companion)
+                healed_health = hero.companion.heal(c.COMPANIONS_HEAL_AMOUNT)
+                hero.add_message('action_inplace_companion_heal', hero=hero, place=hero.position.place, companion=hero.companion, health=healed_health)
 
         if (hero.energy < hero.energy_maximum and
             hero.position.place.modifier and hero.position.place.modifier.energy_regen_allowed() and

@@ -8,3 +8,6 @@ class CompanionsError(TheTaleError):
 
 class CompanionsStorageError(CompanionsError):
     MSG = u'companions storage error: %(message)s'
+
+class HealCompanionForNegativeValueError(CompanionsError):
+    MSG = u'heal companion for negative value: %(delta)s'

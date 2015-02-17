@@ -14,6 +14,7 @@ from the_tale.game.balance import power as p
 from the_tale.game.heroes import relations as heroes_relations
 
 from the_tale.game.companions import relations
+from the_tale.game.companions import exceptions
 
 from the_tale.game.companions.abilities import container as abilities_container
 
@@ -77,6 +78,13 @@ class Companion(object):
     @property
     def max_health(self):
         return int(self.record.max_health * self._hero.companion_max_health_multiplier)
+
+    def heal(self, delta):
+        if delta < 0:
+            raise exceptions.HealCompanionForNegativeValueError(delta=delta)
+        old_health = self.health
+        self.health = int(min(self.health + delta, self.max_health))
+        return self.health - old_health
 
     @property
     def max_coherence(self):

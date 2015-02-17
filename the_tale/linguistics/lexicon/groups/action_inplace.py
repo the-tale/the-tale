@@ -121,7 +121,7 @@ KEYS = [(u'ACTION_INPLACE_DESCRIPTION', 80000, u'Описание', LEXICON_GROU
 
         (u'ACTION_INPLACE_COMPANION_HEAL', 80029, u'Журнал: Лечение спутника в курорте', LEXICON_GROUP.ACTION_INPLACE,
         u'Спутник восстанавливает 1 здоровья благодаря типу города «Курорт».',
-        [V.HERO, V.PLACE, V.COMPANION]),
+        [V.HERO, V.PLACE, V.COMPANION, V.HEALTH]),
 
         (u'ACTION_INPLACE_COMPANION_STEAL_MONEY', 80030, u'Журнал: Спутник украл немного денег', LEXICON_GROUP.ACTION_INPLACE,
         u'Спутник украл немного денег.',
