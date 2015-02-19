@@ -1913,7 +1913,7 @@ class ActionHealCompanionPrototype(ActionBase):
               (self.hero.companion.type.is_UNUSUAL and random.random() < self.hero.companion_unusual_heal_probability) )
               ):
             self.hero.companion.health += c.COMPANIONS_HEAL_AMOUNT
-            self.hero.add_message('hero_ability_companion_healing', actor=self.actor, companion=self.hero.companion, health=c.COMPANIONS_HEAL_AMOUNT)
+            self.hero.add_message('hero_ability_companion_healing', actor=self.hero, companion=self.hero.companion, health=c.COMPANIONS_HEAL_AMOUNT)
 
 
     def on_heal_companion(self):
