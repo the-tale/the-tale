@@ -128,11 +128,13 @@ def index(context):
     lots_count = lots_query.count()
 
     url_builder = UrlBuilder(url('market:'), arguments={ 'filter': context.filter,
-                                                         'order_by': context.order_by.value})
+                                                         'order_by': context.order_by.value,
+                                                         'page_mode': context.page_mode.value})
 
     index_filter = LotsIndexFilter(url_builder=url_builder, values={'filter': context.filter,
                                                                     'order_by': context.order_by.value,
-                                                                    'count': lots_count})
+                                                                    'count': lots_count,
+                                                                    'page_mode': context.page_mode.value})
 
     paginator = pagination.Paginator(context.page, lots_count, conf.settings.LOTS_ON_PAGE, url_builder)
 
