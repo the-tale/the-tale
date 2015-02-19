@@ -48,6 +48,9 @@ class CompanionProcessor(dext_views.ArgumentProcessor):
         except ValueError:
             self.raise_wrong_format(context=context)
 
+        if id not in storage.companions:
+            self.raise_wrong_value(context=context)
+
         return storage.companions.get(id)
 
 # TODO: sync semantics of CompanionProcessor and CompanionProcessor.handler
