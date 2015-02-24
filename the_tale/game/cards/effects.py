@@ -996,3 +996,7 @@ class GetCompanionLegendary(GetCompanionBase):
 EFFECTS = {card_class.TYPE: card_class()
            for card_class in discovering.discover_classes(globals().values(), BaseEffect)
            if card_class.TYPE is not None}
+
+
+PREFERENCE_RESET_CARDS = {card_class.PREFERENCE: card_class()
+                          for card_class in discovering.discover_classes(globals().values(), PreferencesCooldownsResetBase)}

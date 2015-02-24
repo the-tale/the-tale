@@ -30,6 +30,8 @@ from the_tale.game.persons.storage import persons_storage
 from the_tale.game import names
 from the_tale.game.relations import HABIT_TYPE
 
+from the_tale.game.cards import effects as cards_effects
+
 from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes import postponed_tasks
 from the_tale.game.heroes import relations
@@ -111,6 +113,7 @@ class HeroResource(Resource):
                               'PREFERENCES_CHANGE_DELAY': datetime.timedelta(seconds=c.PREFERENCES_CHANGE_DELAY),
                               'ABILITY_TYPE': habilities_relations.ABILITY_TYPE,
                               'HABIT_TYPE': HABIT_TYPE,
+                              'PREFERENCE_RESET_CARDS': cards_effects.PREFERENCE_RESET_CARDS,
                               'HABITS_BORDER': c.HABITS_BORDER} )
 
     @login_required

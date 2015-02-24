@@ -73,7 +73,9 @@ class GOODS_GROUP(DjangoEnum):
                 ('ENERGY', 1, u'энергия', 'energy', 'energy-'),
                 ('CHEST', 2, u'сундук', 'random-premium-chest', 'random-premium-chest'),
                 ('PREFERENCES', 3, u'предпочтения', 'preference', 'preference-'),
-                ('PREFERENCES_RESET', 4, u'сброс предпочтений', 'preference-reset','hero-preference-reset-'),
+
+                ('PREFERENCES_RESET', 4, u'сброс предпочтений', 'preference-reset','hero-preference-reset-'), # DEPRECATED
+
                 ('HABITS', 5, u'черты', 'habits', 'hero-habits-'),
                 ('ABILITIES', 6, u'способности', 'abilities', 'hero-abilities-'),
                 ('CLANS', 7, u'гильдии', 'clans', 'clan-'),

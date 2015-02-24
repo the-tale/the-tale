@@ -119,7 +119,7 @@ jQuery(document).ready(function(e){
           {% else %}
             <i class="icon-time pull-right"
                rel="tooltip"
-               title="Предпочтение можно будет изменить через {{ time_before_update|verbose_timedelta }}. <br/> Вы можете обнулить задержку, купив сброс этого предпочтения в магазине.">
+               title="Предпочтение можно будет изменить через {{ time_before_update|verbose_timedelta }}. <br/> Вы можете обнулить задержку, использовав карту судьбы «{{PREFERENCE_RESET_CARDS[type].TYPE.text}}».">
             </i>
           {% endif %}
 

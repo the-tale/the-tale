@@ -5,11 +5,8 @@ from the_tale.accounts.payments import exceptions
 from the_tale.accounts.payments import relations
 from the_tale.accounts.payments.conf import payments_settings
 
-from the_tale.accounts.conf import accounts_settings
-
 from the_tale.game.relations import HABIT_TYPE
 from the_tale.game.heroes.relations import PREFERENCE_TYPE
-from the_tale.game.cards.relations import CARD_TYPE
 
 
 PREMIUM_DAYS_DESCRIPTION = u'''
@@ -45,12 +42,6 @@ PREFERENCES_DESCRIPTION = u'''
 У каждого героя есть предпочтения, в соответствии с которыми он строит своё поведение.<br/>
 Они доступны не сразу, а открываются с ростом уровня.<br/>
 Вы можете не ждать и получить доступ к любому из них за небольшое количество печенек.
-</p>
-'''
-
-PREFERENCES_RESET_DESCRIPTION = u'''
-<p>
-Вы можете сбросить любое предпочтение героя, независимо от задержки на его изменение в игре.
 </p>
 '''
 
@@ -125,15 +116,6 @@ def card_purchase(uid, card_type, count, cost):
                        tooltip=CARDS[card_type].DESCRIPTION,
                        description=u'Покупка карты судьбы «%s» (%d шт.).' % (card_type.text, count),
                        transaction_description=u'Покупка карты судьбы «%s» (%d шт.).' % (card_type.text, count))
-
-def reset_hero_preference(uid, preference_type, cost):
-    return goods.ResetHeroPreference(uid=uid,
-                                     preference_type=preference_type,
-                                     cost=cost,
-                                     description=u'Сброс предпочтения героя: «%s» (вместо сброшенного предпочтения сразу можно выбрать новое)' % preference_type.text,
-                                     name=preference_type.text,
-                                     full_name=u'Сброс предпочтения "%s"' % preference_type.text,
-                                     transaction_description=u'Сброс предпочтения героя: «%s»' % preference_type.text)
 
 
 rechoose_hero_abilities = goods.RechooseHeroAbilitiesChoices(uid='hero-abilities-rechoose-choices',
@@ -290,22 +272,6 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_COMPANION_EMPATHY),
                                                                            ]),
 
-
-                goods.PurchaseGroup(type=relations.GOODS_GROUP.PREFERENCES_RESET,
-                                    name=u'Сброс предпочтений',
-                                    description=PREFERENCES_RESET_DESCRIPTION,
-                                    items=[ reset_hero_preference(uid='hero-preference-reset-energy-regeneration-type', preference_type=PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, cost=5),
-                                            reset_hero_preference(uid='hero-preference-reset-place', preference_type=PREFERENCE_TYPE.PLACE, cost=10),
-                                            reset_hero_preference(uid='hero-preference-reset-mob', preference_type=PREFERENCE_TYPE.MOB, cost=15),
-                                            reset_hero_preference(uid='hero-preference-reset-friend', preference_type=PREFERENCE_TYPE.FRIEND, cost=20),
-                                            reset_hero_preference(uid='hero-preference-reset-archetype', preference_type=PREFERENCE_TYPE.ARCHETYPE, cost=25),
-                                            reset_hero_preference(uid='hero-preference-reset-enemy', preference_type=PREFERENCE_TYPE.ENEMY, cost=30),
-                                            reset_hero_preference(uid='hero-preference-reset-companion-dedication', preference_type=PREFERENCE_TYPE.COMPANION_DEDICATION, cost=35),
-                                            reset_hero_preference(uid='hero-preference-reset-favorite-item', preference_type=PREFERENCE_TYPE.FAVORITE_ITEM, cost=40),
-                                            reset_hero_preference(uid='hero-preference-reset-risk-level', preference_type=PREFERENCE_TYPE.RISK_LEVEL, cost=45),
-                                            reset_hero_preference(uid='hero-preference-reset-equipment-slot', preference_type=PREFERENCE_TYPE.EQUIPMENT_SLOT, cost=50),
-                                            reset_hero_preference(uid='hero-preference-reset-companion-empathy', preference_type=PREFERENCE_TYPE.COMPANION_EMPATHY, cost=55),
-                                            ]),
 
                 goods.PurchaseGroup(type=relations.GOODS_GROUP.HABITS,
                                     name=u'Черты',
