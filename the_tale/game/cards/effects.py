@@ -419,6 +419,21 @@ class ChangeAbilitiesChoices(BaseEffect):
         return task.logic_result()
 
 
+class ResetAbilities(BaseEffect):
+    TYPE = relations.CARD_TYPE.RESET_ABILITIES
+    DESCRIPTION = u'Сбрасывает все способности героя.'
+
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        if task.hero.abilities.is_initial_state():
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Способности героя уже сброшены.')
+
+        task.hero.abilities.reset()
+
+        storage.save_bundle_data(bundle_id=task.hero.actions.current_action.bundle_id, update_cache=False)
+
+        return task.logic_result()
+
+
 class ChangeItemOfExpenditureBase(BaseEffect):
     TYPE = None
     ITEM = None
@@ -1000,3 +1015,6 @@ EFFECTS = {card_class.TYPE: card_class()
 
 PREFERENCE_RESET_CARDS = {card_class.PREFERENCE: card_class()
                           for card_class in discovering.discover_classes(globals().values(), PreferencesCooldownsResetBase)}
+
+HABIT_POINTS_CARDS = {card_class.TYPE: card_class()
+                      for card_class in discovering.discover_classes(globals().values(), ChangeHabitBase)}

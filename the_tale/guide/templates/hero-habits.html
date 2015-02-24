@@ -21,9 +21,38 @@
   Все молодые герои начинают с нейтральными значениями черт.
 </p>
 
-<p>
-  Изменение характера героя можно ускорить, приобретя очки черт в нашем <a href="{{url('accounts:payments:shop')}}">магазине</a>.
-</p>
+<div class="accordion" id="pgf-cards-accordion">
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-cards-accordion" href="#pgf-cards">
+        Изменение характера героя можно ускорить, использовав одну из следующих карт судьбы
+      </a>
+    </div>
+    <div id="pgf-cards" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner">
+<table class="table table-condensed">
+  <tbody>
+    {% for card in HABIT_POINTS_CARDS %}
+      <tr>
+        <td>
+          <div class="{{card.TYPE.rarity.name|lower}}-card-bg"
+               style="height: 10px; width: 10px; margin-top: 5px; cursor: pointer;"
+               rel="tooltip"
+               title="{{card.TYPE.rarity.text}}"></div>
+        </td>
+        <td width="150px;" class="">{{card.TYPE.text}}</td>
+        <td>{{card.DESCRIPTION}}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+      </div>
+    </div>
+  </div>
+
+</div>
 
 <h3>{{HABIT_TYPE.HONOR.text}}</h3>
 

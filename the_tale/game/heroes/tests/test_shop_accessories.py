@@ -16,12 +16,7 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.artifacts.prototypes import ArtifactPrototype
 from the_tale.game.artifacts.relations import RARITY
 
-from the_tale.game.map.places.storage import places_storage
-from the_tale.game.mobs.storage import mobs_storage
-from the_tale.game.persons.storage import persons_storage
 from the_tale.game.heroes.conf import heroes_settings
-
-from the_tale.game.heroes import relations
 
 
 class ShopAccessoriesTest(testcase.TestCase):
@@ -35,44 +30,6 @@ class ShopAccessoriesTest(testcase.TestCase):
         self.storage = LogicStorage()
         self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
         self.hero = self.storage.accounts_to_heroes[account_id]
-
-    def test_purchase_reset_preferences(self):
-        self.hero.preferences.set_mob(mobs_storage.all()[0])
-        self.hero.preferences.set_place(places_storage.all()[0])
-        self.hero.preferences.set_friend(persons_storage.all()[0])
-        self.hero.preferences.set_enemy(persons_storage.all()[1])
-        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.HAND_PRIMARY)
-        self.hero.preferences.set_favorite_item(relations.EQUIPMENT_SLOT.HAND_PRIMARY)
-        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_HIGH)
-        self.hero.preferences.set_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE)
-        self.hero.preferences.set_companion_dedication(relations.COMPANION_DEDICATION.ALTRUISM)
-        self.hero.preferences.set_companion_empathy(relations.COMPANION_EMPATHY.EMPATH)
-
-        for preference_type in relations.PREFERENCE_TYPE.records:
-            self.hero.purchase_reset_preference(preference_type)
-            self.assertEqual(self.hero.preferences.time_before_update(preference_type, datetime.datetime.now()), datetime.timedelta(seconds=0))
-            if preference_type.nullable:
-                self.assertEqual(self.hero.preferences._get(preference_type), None)
-            else:
-                self.assertNotEqual(self.hero.preferences._get(preference_type), None)
-
-    def test_purchase_change_habits__honor(self):
-        self.assertEqual(self.hero.habit_honor.raw_value, 0)
-
-        self.hero.purchase_change_habits(self.hero.habit_honor.TYPE, 500)
-        self.assertEqual(self.hero.habit_honor.raw_value, 500)
-
-        self.hero.purchase_change_habits(self.hero.habit_honor.TYPE, -1000)
-        self.assertEqual(self.hero.habit_honor.raw_value, -500)
-
-    def test_purchase_change_habits__peacefulness(self):
-        self.assertEqual(self.hero.habit_peacefulness.raw_value, 0)
-
-        self.hero.purchase_change_habits(self.hero.habit_peacefulness.TYPE, 500)
-        self.assertEqual(self.hero.habit_peacefulness.raw_value, 500)
-
-        self.hero.purchase_change_habits(self.hero.habit_peacefulness.TYPE, -1000)
-        self.assertEqual(self.hero.habit_peacefulness.raw_value, -500)
 
     def test_purchase_energy_bonus(self):
         self.assertEqual(self.hero.energy_bonus, heroes_settings.START_ENERGY_BONUS)

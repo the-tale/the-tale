@@ -159,4 +159,6 @@ class CARD_TYPE(DjangoEnum):
 
                 ('ADD_EXPERIENCE_LEGENDARY', 97, u'благословление Гзанзара', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm,),
 
+                ('RESET_ABILITIES', 98, u'новый путь', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
+
                 )

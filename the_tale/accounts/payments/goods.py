@@ -95,26 +95,6 @@ class Energy(PurchaseItem):
         return postponed_tasks.BuyEnergy(account_id=account.id, energy=self.energy, transaction=transaction)
 
 
-class ChangeHeroHabits(PurchaseItem):
-
-    def __init__(self, habit_type, habit_value, **kwargs):
-        super(ChangeHeroHabits, self).__init__(**kwargs)
-        self.habit_type = habit_type
-        self.habit_value = habit_value
-
-    def construct_postponed_task(self, account, transaction):
-        return postponed_tasks.BuyChangeHeroHabits(account_id=account.id, habit_type=self.habit_type, habit_value=self.habit_value, transaction=transaction)
-
-
-class ResetHeroAbilities(PurchaseItem):
-
-    def __init__(self, **kwargs):
-        super(ResetHeroAbilities, self).__init__(**kwargs)
-
-    def construct_postponed_task(self, account, transaction):
-        return postponed_tasks.BuyResetHeroAbilities(account_id=account.id, transaction=transaction)
-
-
 class RandomPremiumChest(PurchaseItem):
 
     def __init__(self, **kwargs):
@@ -122,18 +102,6 @@ class RandomPremiumChest(PurchaseItem):
 
     def construct_postponed_task(self, account, transaction):
         return postponed_tasks.BuyRandomPremiumChest(account_id=account.id, transaction=transaction)
-
-
-class RechooseHeroAbilitiesChoices(PurchaseItem):
-
-    def __init__(self, **kwargs):
-        super(RechooseHeroAbilitiesChoices, self).__init__(**kwargs)
-
-    def construct_postponed_task(self, account, transaction):
-        return postponed_tasks.BuyRechooseHeroAbilitiesChoices(account_id=account.id, transaction=transaction)
-
-    def is_purchasable(self, account, hero):
-        return hero.abilities.can_rechoose_abilities_choices()
 
 
 class PermanentPurchase(PurchaseItem):

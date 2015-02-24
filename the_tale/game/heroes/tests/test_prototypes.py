@@ -695,6 +695,17 @@ class HeroLevelUpTests(testcase.TestCase):
         self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
         self.hero = self.storage.accounts_to_heroes[account_id]
 
+    def test_is_initial_state(self):
+        self.assertTrue(self.hero.abilities.is_initial_state())
+
+        self.hero.randomized_level_up(increment_level=True)
+
+        self.assertFalse(self.hero.abilities.is_initial_state())
+
+        self.hero.abilities.reset()
+
+        self.assertTrue(self.hero.abilities.is_initial_state())
+
     def test_level_up(self):
 
         with self.check_delta(MessagePrototype._db_count, 4):

@@ -22,6 +22,8 @@ from the_tale.game.persons.conf import persons_settings
 from the_tale.game.pvp.conf import pvp_settings
 from the_tale.game.pvp import abilities as pvp_abilities
 
+from the_tale.game.cards import effects as cards_effects
+
 from the_tale.accounts.clans.conf import clans_settings
 from the_tale.accounts.conf import accounts_settings
 
@@ -261,8 +263,10 @@ class GuideResource(Resource):
 
     @handler('hero-habits', method='get')
     def habits(self):
+        cards = sorted(cards_effects.HABIT_POINTS_CARDS.itervalues(), key=lambda x: (x.TYPE.rarity.value, x.TYPE.text))
         return self.template('guide/hero-habits.html', {'section': 'hero-habits',
-                                                'HABIT_TYPE': HABIT_TYPE})
+                                                        'HABIT_TYPE': HABIT_TYPE,
+                                                        'HABIT_POINTS_CARDS': cards})
 
     @validate_argument('habit', lambda x: HABIT_TYPE(int(x)), 'guide.hero_habit_info', u'Неверный тип черты')
     @handler('hero-habit-info', method='get')

@@ -1,13 +1,8 @@
 # coding: utf-8
 
 import random
-import datetime
 
 from the_tale.game.balance.power import Power
-
-from the_tale.game import relations as game_relations
-
-from the_tale.game.heroes import relations
 
 from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.cards import objects as cards_objects
@@ -17,23 +12,6 @@ class ShopAccessorsMixin(object):
 
     def purchase_energy_bonus(self, energy):
         self.add_energy_bonus(energy)
-
-    def purchase_reset_preference(self, preference_type):
-        if preference_type.is_ENERGY_REGENERATION_TYPE:
-            self.preferences.set_energy_regeneration_type(self.race.energy_regeneration, change_time=datetime.datetime.fromtimestamp(0))
-        elif preference_type.is_RISK_LEVEL:
-            self.preferences.set_risk_level(relations.RISK_LEVEL.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
-        elif preference_type.is_ARCHETYPE:
-            self.preferences.set_archetype(game_relations.ARCHETYPE.NEUTRAL, change_time=datetime.datetime.fromtimestamp(0))
-        elif preference_type.is_COMPANION_DEDICATION:
-            self.preferences.set_companion_dedication(relations.COMPANION_DEDICATION.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
-        elif preference_type.is_COMPANION_EMPATHY:
-            self.preferences.set_companion_empathy(relations.COMPANION_EMPATHY.ORDINAL, change_time=datetime.datetime.fromtimestamp(0))
-        else:
-            self.preferences._reset(preference_type)
-
-    def purchase_change_habits(self, habit_type, habit_value):
-        self.change_habits(habit_type=habit_type, habit_value=habit_value)
 
     def purchase_reset_abilities(self):
         self.abilities.reset()

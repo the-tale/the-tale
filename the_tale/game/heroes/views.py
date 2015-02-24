@@ -31,6 +31,7 @@ from the_tale.game import names
 from the_tale.game.relations import HABIT_TYPE
 
 from the_tale.game.cards import effects as cards_effects
+from the_tale.game.cards import relations as cards_relations
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes import postponed_tasks
@@ -114,17 +115,16 @@ class HeroResource(Resource):
                               'ABILITY_TYPE': habilities_relations.ABILITY_TYPE,
                               'HABIT_TYPE': HABIT_TYPE,
                               'PREFERENCE_RESET_CARDS': cards_effects.PREFERENCE_RESET_CARDS,
+                              'CARD_TYPE': cards_relations.CARD_TYPE,
                               'HABITS_BORDER': c.HABITS_BORDER} )
 
     @login_required
     @validate_ownership()
     @handler('#hero', 'choose-ability-dialog', method='get')
     def choose_ability_dialog(self):
-        is_rechoose_purchasable = (price_list.rechoose_hero_abilities.cost <= self.account.bank_account.amount and
-                                   price_list.rechoose_hero_abilities.is_purchasable(account=self.account, hero=self.hero))
         return self.template('heroes/choose_ability.html',
-                             {'rechoose_hero_abilities': price_list.rechoose_hero_abilities,
-                              'is_rechoose_purchasable': is_rechoose_purchasable} )
+                             {'CARD_TYPE': cards_relations.CARD_TYPE,
+                              'hero': self.hero} )
 
     @login_required
     @validate_ownership()

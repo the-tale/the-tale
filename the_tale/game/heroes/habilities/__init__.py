@@ -73,6 +73,9 @@ class AbilitiesPrototype(object):
         if self.hero:
             self.hero.reset_accessors_cache()
 
+    def is_initial_state(self):
+        return self.current_ability_points_number == 2
+
     @property
     def time_before_reset(self):
         return max(datetime.timedelta(seconds=0), (self.reseted_at + heroes_settings.ABILITIES_RESET_TIMEOUT - datetime.datetime.now()))

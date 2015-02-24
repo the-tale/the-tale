@@ -5,10 +5,6 @@ from the_tale.accounts.payments import exceptions
 from the_tale.accounts.payments import relations
 from the_tale.accounts.payments.conf import payments_settings
 
-from the_tale.game.relations import HABIT_TYPE
-from the_tale.game.heroes.relations import PREFERENCE_TYPE
-
-
 PREMIUM_DAYS_DESCRIPTION = u'''
 <p>
 Подписка даёт следующие преимущества:
@@ -45,22 +41,6 @@ PREFERENCES_DESCRIPTION = u'''
 </p>
 '''
 
-HABITS_DESCRIPTION = u'''
-<p>
-Каждый герой обладает набором черт, определяющих его подход к жизни.<br/>
-Черты постепенно изменяются, в зависимости от действий героя и игрока.<br/>
-Вы можете ускорить их изменение, купив очки нужной черты.
-</p>
-'''
-
-ABILITIES_DESCRIPTION = u'''
-<p>
-Раз в несколько уровней герой получает возможность выучить новое умение, способное облегчить его жизнь.<br/>
-При этом нельзя выбрать любое умение — каждый раз герою предлагается на выбор лишь несколько из них.<br/>
-Однако, потратив печеньки, Вы можете изменить список предлагаемых способностей или сбросить все способности героя.
-</p>
-'''
-
 GUILDS_DESCRIPTION = u'''
 <p>
 Гильдии — это объединения игроков, преследующих одну и ту же цель и желающих согласовывать свои действия в Пандоре.<br/>
@@ -86,9 +66,6 @@ RANDOM_PREMIUM_CHEST_DESCRIPTION = u'''
 ''' % {'gifts': '\n'.join(u'<li>%s</li>' % reward.description
                           for reward in sorted(relations.RANDOM_PREMIUM_CHEST_REWARD.records, key=lambda r: -r.priority)),
         'days': payments_settings.RANDOM_PREMIUM_DAYS }
-
-HABIT_MINOR_COST = 200
-HABIT_MAJOR_COST = 450
 
 def permanent_purchase(uid, purchase_type, cost, transaction_description):
     return goods.PermanentPurchase(uid=uid,
@@ -116,26 +93,6 @@ def card_purchase(uid, card_type, count, cost):
                        tooltip=CARDS[card_type].DESCRIPTION,
                        description=u'Покупка карты судьбы «%s» (%d шт.).' % (card_type.text, count),
                        transaction_description=u'Покупка карты судьбы «%s» (%d шт.).' % (card_type.text, count))
-
-
-rechoose_hero_abilities = goods.RechooseHeroAbilitiesChoices(uid='hero-abilities-rechoose-choices',
-                                                       cost=50,
-                                                       description=u'Изменяет список новых способностей, доступных герою для выбора. Гарантируется, что как минимум одна способность в новом списке будет отличаться от старого.',
-                                                       name=u'Изменение списка новых способностей',
-                                                       transaction_description=u'Изменение списка новых способностей героя')
-
-
-def change_hero_habits(habit, value, cost):
-    name = u'%s %s' % (value, habit.plural_accusative)
-    transaction_description = u'Покупка %s очков %s' % (value, habit.plural_accusative)
-
-    return goods.ChangeHeroHabits(uid='hero-habits-%s-%d' % (habit.name.lower(), value),
-                                  cost=cost,
-                                  description=u'Мгновенное изменение очков черт героя на указанную величину',
-                                  name=name,
-                                  transaction_description=transaction_description,
-                                  habit_type=habit,
-                                  habit_value=value)
 
 
 RANDOM_PREMIUM_CHEST = goods.PurchaseGroup(type=relations.GOODS_GROUP.CHEST,
@@ -271,31 +228,6 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                                                                           cost=100,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_COMPANION_EMPATHY),
                                                                            ]),
-
-
-                goods.PurchaseGroup(type=relations.GOODS_GROUP.HABITS,
-                                    name=u'Черты',
-                                    description=HABITS_DESCRIPTION,
-                                    items=[ change_hero_habits(habit=HABIT_TYPE.HONOR, value=1000, cost=HABIT_MAJOR_COST),
-                                            change_hero_habits(habit=HABIT_TYPE.HONOR, value=-1000, cost=HABIT_MAJOR_COST),
-                                            change_hero_habits(habit=HABIT_TYPE.HONOR, value=250, cost=HABIT_MINOR_COST),
-                                            change_hero_habits(habit=HABIT_TYPE.HONOR, value=-250, cost=HABIT_MINOR_COST),
-
-                                            change_hero_habits(habit=HABIT_TYPE.PEACEFULNESS, value=1000, cost=HABIT_MAJOR_COST),
-                                            change_hero_habits(habit=HABIT_TYPE.PEACEFULNESS, value=-1000, cost=HABIT_MAJOR_COST),
-                                            change_hero_habits(habit=HABIT_TYPE.PEACEFULNESS, value=250, cost=HABIT_MINOR_COST),
-                                            change_hero_habits(habit=HABIT_TYPE.PEACEFULNESS, value=-250, cost=HABIT_MINOR_COST),]),
-
-                goods.PurchaseGroup(type=relations.GOODS_GROUP.ABILITIES,
-                                    name=u'Способности',
-                                    description=ABILITIES_DESCRIPTION,
-                                    items=[ goods.ResetHeroAbilities(uid='hero-abilities-reset',
-                                                                     cost=300,
-                                                                     description=u'Сброс способностей героя (после сброса сразу можно выбрать новые способности)',
-                                                                     name=u'Сброс способностей',
-                                                                     transaction_description=u'Сброс способностей героя'),
-
-                                            rechoose_hero_abilities ]),
 
                 goods.PurchaseGroup(type=relations.GOODS_GROUP.CLANS,
                                     name=u'Гильдии',

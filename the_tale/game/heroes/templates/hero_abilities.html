@@ -64,7 +64,7 @@ jQuery(document).ready(function(e){
     </a>
     {% else %}
     <a href="#" class="pgf-reset-abilities-timeout-button  pull-right"
-       rel="tooltip" title="способности можно будет сбросить через {{ resource.hero.abilities.time_before_reset|verbose_timedelta }}<br/> Вы можете сбросить их вне очереди в магазине">
+       rel="tooltip" title="способности можно будет сбросить через {{ resource.hero.abilities.time_before_reset|verbose_timedelta }}<br/> Вы можете сбросить их вне очереди использовав карту «{{CARD_TYPE.RESET_ABILITIES.text}}»">
       <i class="icon-time" style="vertical-align: middle;"></i>
     </a>
     {% endif %}

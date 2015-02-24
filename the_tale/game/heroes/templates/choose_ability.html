@@ -20,19 +20,16 @@
     {% set abilities = resource.hero.abilities.get_for_choose() %}
     {{ macros.abilities_list(abilities) }}
 
-    <a class="btn pgf-forms-post-simple {% if not is_rechoose_purchasable %}disabled pgf-disabled{% else %}btn-info{% endif %}"
-       data-confirmation="Вы уверены, что хотите купить <strong>«{{rechoose_hero_abilities.name}}»</strong>, потратив {{rechoose_hero_abilities.cost}} печенек?"
-       data-success-message="Поздравляем с покупкой! <strong>(«{{rechoose_hero_abilities.name}}»)</strong>"
-       data-action-type="event"
-       data-success-event="pgf-reopen-abilities-dialog"
-       href="{{url('accounts:payments:buy', purchase=rechoose_hero_abilities.uid)}}"
-       style="font-size: 12pt;">
-      Изменить предлагаемые варианты за {{rechoose_hero_abilities.cost}} <img src="{{ STATIC_CONTENT }}images/cookies.png"></img>
-    </a>
-
-    <p class="alert alert-info" style="margin-top: 0.25em;">
-      {{rechoose_hero_abilities.description}}
+{% if hero.abilities.can_rechoose_abilities_choices() %}
+    <p class="alert alert-info">
+      Вы можете изменить предлагаемы варианты, использовав карту «{{CARD_TYPE.CHANGE_ABILITIES_CHOICES.text}}».
     </p>
+{% else %}
+    <p class="alert alert-info">
+      Вы не можете изменить предлагаемые варианты.
+    </p>
+{% endif %}
+
   </div>
 
 </div>

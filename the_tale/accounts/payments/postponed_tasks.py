@@ -255,17 +255,6 @@ class BuyChangeHeroHabits(BaseBuyHeroMethod):
                 'habit_value': arguments['habit_value']}
 
 
-class BuyResetHeroAbilities(BaseBuyHeroMethod):
-    TYPE = 'purchase-reset-hero-abilities'
-    ARGUMENTS = ()
-    METHOD = 'purchase_reset_abilities'
-
-class BuyRechooseHeroAbilitiesChoices(BaseBuyHeroMethod):
-    TYPE = 'purchase-rechoose-hero-abilities-choices'
-    ARGUMENTS = ()
-    METHOD = 'purchase_rechooce_abilities_choices'
-
-
 class BuyPermanentPurchase(BaseBuyTask):
     TYPE = 'purchase-permanent-purchase'
 
