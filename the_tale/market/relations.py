@@ -27,5 +27,8 @@ class INDEX_ORDER_BY(DjangoEnum):
 
 
 class INDEX_MODE(DjangoEnum):
-    records = ( ('ALL', 0, u'все товары'),
-                ('OWN', 1, u'товары игрока') )
+    page = Column()
+
+    records = ( ('ALL', 0, u'все товары', 'index'),
+                ('OWN', 1, u'товары игрока', 'own-lots'),
+                ('HISTORY', 2, u'история', 'history') )

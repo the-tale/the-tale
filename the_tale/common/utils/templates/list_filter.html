@@ -22,7 +22,12 @@
         {% elif element.TYPE == 'filter' %}
 
           <form method="GET" action="{{list_filter.url_builder()}}" style="display: inline-block; margin: 0; vertical-align: top;">
-            <input style="width: 150px;" name="{{element.ATTRIBUTE}}" type="text" value="{% if element.value %}{{element.value}}{% endif %}" placeholder="первые символы слова"/>
+            <input style="width: 150px;" name="{{element.ATTRIBUTE}}" type="text" value="{% if element.value %}{{element.value}}{% endif %}" placeholder="символы слова"/>
+            {% for argument, value in list_filter.url_builder.default_arguments.iteritems() %}
+            {% if argument != element.ATTRIBUTE %}
+            <input name="{{argument}}" type="hidden" value="{{value}}"/>
+            {% endif %}
+            {% endfor %}
           </form>
 
         {% elif element.TYPE == 'choice' %}

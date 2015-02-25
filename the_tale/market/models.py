@@ -14,7 +14,7 @@ class Lot(models.Model):
     UID_MAX_LENGTH = 64
     NAME_MAX_LENGTH = 128
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     type = models.CharField(max_length=TYPE_MAX_LENGTH, db_index=True)

@@ -119,6 +119,24 @@ class OwnLotsRequestsTests(RequestsTestsBase):
         self.check_redirect(self.requested_url, accounts_logic.login_page_url(self.requested_url))
 
 
+class HistoryRequestsTests(RequestsTestsBase):
+
+    def setUp(self):
+        super(HistoryRequestsTests, self).setUp()
+        self.requested_url = url('market:history')
+
+
+    def test_redirect(self):
+        self.request_login(self.account_1.email)
+        self.check_redirect(self.requested_url, url('market:', page_mode=relations.INDEX_MODE.HISTORY.value))
+
+        self.request_login(self.account_2.email)
+        self.check_redirect(self.requested_url, url('market:', page_mode=relations.INDEX_MODE.HISTORY.value))
+
+    def test_anonimouse_view(self):
+        self.check_redirect(self.requested_url, accounts_logic.login_page_url(self.requested_url))
+
+
 class NewRequestsTests(RequestsTestsBase):
 
     def setUp(self):

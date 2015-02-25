@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 
 from dext.common.utils import views as dext_views
 from dext.common.utils.urls import UrlBuilder, url
@@ -115,10 +116,16 @@ class LotsIndexFilter(list_filter.ListFilter):
 @resource.handler('')
 def index(context):
 
-    lots_query = models.Lot.objects.filter(state=relations.LOT_STATE.ACTIVE)
+    lots_query = models.Lot.objects.all()
 
-    if context.page_mode.is_OWN:
+    if context.page_mode.is_ALL:
+        lots_query = lots_query.filter(state=relations.LOT_STATE.ACTIVE)
+
+    elif context.page_mode.is_OWN:
         lots_query = lots_query.filter(seller_id=context.account.id)
+
+    elif context.page_mode.is_HISTORY:
+        lots_query = lots_query.filter(state=relations.LOT_STATE.CLOSED_BY_BUYER, created_at__gt=datetime.datetime.now()-datetime.timedelta(days=conf.settings.HISTORY_TIME))
 
     if context.filter is not None:
         lots_query = lots_query.filter(name__icontains=context.filter)
@@ -150,12 +157,16 @@ def index(context):
                                     'index_filter': index_filter,
                                     'paginator': paginator,
                                     'lots': lots,
-                                    'page_type': 'index' if context.page_mode.is_ALL else 'own-lots',
+                                    'page_type': context.page_mode.page,
                                     'resource': context.resource})
 
 @resource.handler('own-lots')
 def own_lots(context):
     return dext_views.Redirect(url('market:', page_mode=relations.INDEX_MODE.OWN.value))
+
+@resource.handler('history')
+def history(context):
+    return dext_views.Redirect(url('market:', page_mode=relations.INDEX_MODE.HISTORY.value))
 
 
 @resource.handler('new')
