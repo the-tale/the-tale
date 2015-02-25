@@ -1,4 +1,5 @@
 # coding: utf-8
+import math
 import datetime
 
 from dext.common.utils import s11n
@@ -37,6 +38,13 @@ def load_lots_from_query(query):
 def has_lot(account_id, good_uid):
     return models.Lot.objects.filter(seller_id=account_id, good_uid=good_uid).exists()
 
+def get_commission(price):
+    commission = int(math.floor(price*conf.settings.COMMISSION))
+
+    if commission == 0:
+        commission = 1
+
+    return commission
 
 def reserve_lot(account_id, good, price):
     model = models.Lot.objects.create(type=good.type,
@@ -45,6 +53,7 @@ def reserve_lot(account_id, good, price):
                                       name=good.name,
                                       state=relations.LOT_STATE.RESERVED,
                                       price=price,
+                                      commission=get_commission(price),
                                       data=s11n.to_json({'good': good.serialize()}))
     return objects.Lot.from_model(model)
 
@@ -95,7 +104,6 @@ def purchase_lot(buyer_id, lot):
                                                       description_for_sender=u'Покупка «%s»' % lot.name,
                                                       description_for_recipient=u'Продажа «%s»' % lot.name,
                                                       operation_uid=u'market-buy-lot-%s' % lot.type)
-
 
     transaction = bank_transaction.Transaction(invoice.id)
 

@@ -174,7 +174,8 @@ def new(context):
     return dext_views.Page('market/new.html',
                            content={'context': context,
                                     'page_type': 'new',
-                                    'resource': context.resource})
+                                    'resource': context.resource,
+                                    'commission': conf.settings.COMMISSION})
 
 @good_processor.handler()
 @resource.handler('new-dialog')
@@ -185,7 +186,8 @@ def new_dialog(context):
     return dext_views.Page('market/new_dialog.html',
                            content={'context': context,
                                     'form': forms.PriceForm(initial={'price': conf.settings.MINIMUM_PRICE}),
-                                    'resource': context.resource})
+                                    'resource': context.resource,
+                                    'commission': conf.settings.COMMISSION})
 
 
 @good_processor.handler()

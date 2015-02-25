@@ -28,6 +28,7 @@ class Lot(models.Model):
     state = RelationIntegerField(relation=relations.LOT_STATE, db_index=True)
 
     price = models.IntegerField()
+    commission = models.IntegerField(default=0)
 
     data = models.TextField(default='{}')
 

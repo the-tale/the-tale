@@ -58,6 +58,13 @@ class LogicTests(testcase.TransactionTestCase):
 
         goods_types.autodiscover(if_empty=True)
 
+    def test_get_commission(self):
+        self.assertEqual(logic.get_commission(0), 1)
+        self.assertEqual(logic.get_commission(1), 1)
+        self.assertEqual(logic.get_commission(10), 1)
+        self.assertEqual(logic.get_commission(20), 1)
+        self.assertEqual(logic.get_commission(30), 2)
+        self.assertEqual(logic.get_commission(100), 7)
 
     def test_has_lot(self):
         self.assertTrue(logic.has_lot(account_id=self.account_1.id, good_uid=self.good_1.uid))
@@ -96,6 +103,7 @@ class LogicTests(testcase.TransactionTestCase):
         self.assertEqual(lot.name, self.good_2.name)
         self.assertTrue(lot.state.is_RESERVED)
         self.assertEqual(lot.price, 777)
+        self.assertEqual(lot.commission, 54)
         self.assertEqual(lot.good.serialize(), self.good_2.serialize())
 
 

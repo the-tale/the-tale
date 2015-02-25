@@ -245,8 +245,9 @@ class TaskTests(testcase.TestCase):
         self.assertEqual(self.task.process(self.main_task, storage=self.logic_storage), POSTPONED_TASK_LOGIC_RESULT.CONTINUE)
 
         with mock.patch('the_tale.bank.transaction.Transaction.confirm') as confirm:
-            with self.check_delta(personal_messages_prototypes.MessagePrototype._db_count, 1):
-                self.assertEqual(self.task.process(self.main_task), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+            with self.check_delta(bank_prototypes.InvoicePrototype._model_class.objects.count, 1):
+                with self.check_delta(personal_messages_prototypes.MessagePrototype._db_count, 1):
+                    self.assertEqual(self.task.process(self.main_task), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertEqual(confirm.call_count, 1)
 
@@ -261,3 +262,14 @@ class TaskTests(testcase.TestCase):
 
         self.assertEqual(personal_message.recipient_id, self.account_1.id)
         self.assertEqual(personal_message.sender_id, accounts_logic.get_system_user().id)
+
+        commission_ivoice = bank_prototypes.InvoicePrototype._db_latest()
+
+        self.assertTrue(commission_ivoice.recipient_type.is_GAME_ACCOUNT)
+        self.assertEqual(commission_ivoice.recipient_id, lot.seller_id)
+        self.assertTrue(commission_ivoice.sender_type.is_GAME_LOGIC)
+        self.assertEqual(commission_ivoice.sender_id, 0)
+        self.assertTrue(commission_ivoice.currency.is_PREMIUM)
+        self.assertEqual(commission_ivoice.amount, -lot.commission)
+        self.assertEqual(commission_ivoice.operation_uid, u'market-buy-commission-%s' % lot.type)
+        self.assertTrue(commission_ivoice.state.is_FORCED)

@@ -24,7 +24,23 @@
 
       {{ form.errors_container }}
 
-      {{ form.price.widget }}
+      <div class="pgf-seller-price">
+        {{ form.price.widget }}
+      </div>
+
+      <ul class="unstyled">
+        <li>
+          Ваш доход: <span class="pgf-seller-income"></span>
+          <img src="{{ STATIC_CONTENT }}images/cookies.png" style="vertical-align: middle;"></img>
+        </li>
+        <li>
+          Комиссия: <span class="pgf-seller-commission"></span>
+          <img src="{{ STATIC_CONTENT }}images/cookies.png" style="vertical-align: middle;"></img>
+        </li>
+        <li>
+          Комиссия взымается с каждой успешной торговой операции и составляет {{commission|percents()}}.
+        </li>
+      </ul>
 
       <div class="widget">
         <input type="submit" class="btn btn-success" value="Выставить на продажу"/>

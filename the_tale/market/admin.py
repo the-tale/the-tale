@@ -6,7 +6,7 @@ from the_tale.market import models
 
 
 class LotAdmin(admin.ModelAdmin):
-    list_display = ('id', 'type', 'state', 'good_uid', 'price', 'seller', 'buyer', 'created_at')
+    list_display = ('id', 'type', 'state', 'good_uid', 'price', 'commission', 'seller', 'buyer', 'created_at')
     list_filter = ('type', 'state',)
 
 

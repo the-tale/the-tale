@@ -12,6 +12,8 @@ from the_tale.accounts.personal_messages import prototypes as personal_messages_
 from the_tale.accounts import logic as accounts_logic
 
 from the_tale.bank import transaction as bank_transaction
+from the_tale.bank import prototypes as bank_prototypes
+from the_tale.bank import relations as bank_relations
 
 from the_tale.market import logic
 from the_tale.market import objects
@@ -286,6 +288,17 @@ class BuyLotTask(PostponedLogic):
             seller = account_prototypes.AccountPrototype.get_by_id(lot.seller_id)
 
             personal_messages_prototypes.MessagePrototype.create(accounts_logic.get_system_user(), seller, good_bought_message(lot))
+
+            bank_prototypes.InvoicePrototype.create(recipient_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                                                    recipient_id=seller.id,
+                                                    sender_type=bank_relations.ENTITY_TYPE.GAME_LOGIC,
+                                                    sender_id=0,
+                                                    currency=bank_relations.CURRENCY_TYPE.PREMIUM,
+                                                    amount=-lot.commission,
+                                                    description_for_sender=u'Комиссия с продажи «%s»' % lot.name,
+                                                    description_for_recipient=u'Комиссия с продажи «%s»' % lot.name,
+                                                    operation_uid=u'market-buy-commission-%s' % lot.type,
+                                                    force=True)
 
             self.state = self.STATE.PROCESSED
             self.step = self.STEP.SUCCESS

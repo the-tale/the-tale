@@ -8,6 +8,25 @@
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
 
+    function UpdateCommission() {
+        var input = jQuery('.pgf-seller-price input');
+
+        var price = parseInt(input.val());
+
+        if (price != input.val()) {
+            price = 1;
+        }
+
+        var commission = parseInt(Math.floor(price * {{commission}}));
+
+        if (commission == 0) {
+            commission = 1;
+        }
+
+        jQuery('.pgf-seller-commission').text(commission);
+        jQuery('.pgf-seller-income').text(price-commission);
+    }
+
     jQuery('.pgf-good-link').click(function(e){
         e.preventDefault();
         var target = jQuery(e.currentTarget);
@@ -19,9 +38,14 @@ jQuery(document).ready(function(e) {
                                                                      {OnSuccess: function(form, data){
                                                                          location.reload();
                                                                      }});
+                               },
+                               OnOpened: function(dialog) {
+                                   UpdateCommission();
                                }
                              });
     });
+
+    setInterval(UpdateCommission, 500);
 });
 </script>
 
