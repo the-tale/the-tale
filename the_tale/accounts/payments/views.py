@@ -80,7 +80,7 @@ class PaymentsResource(Resource):
     def shop(self):
         hero = HeroPrototype.get_by_account_id(self.account.id)
 
-        if hero.is_premium:
+        if self.account.is_premium:
             featured_group = relations.GOODS_GROUP.CHEST
         else:
             featured_group = relations.GOODS_GROUP.PREMIUM

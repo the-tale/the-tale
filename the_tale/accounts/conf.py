@@ -40,7 +40,6 @@ accounts_settings = app_settings('ACCOUNTS',
 
                                  PREMIUM_EXPIRED_NOTIFICATION_IN=datetime.timedelta(days=3),
                                  PREMIUM_INFINIT_TIMEOUT=datetime.timedelta(days=100*365),
-                                 PREMIUM_UNFINIT_DAYS=1000000,
 
                                  RANDOM_PREMIUM_CREATED_AT_BARRIER=datetime.timedelta(days=7),
 

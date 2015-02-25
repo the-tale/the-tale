@@ -37,7 +37,6 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                  'is_superuser',
                  'is_bot',
                  'has_perm',
-                 'premium_end_at',
                  'active_end_at',
                  'ban_game_end_at',
                  'ban_forum_end_at',
@@ -96,10 +95,18 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         HeroPrototype.get_by_account_id(self.id).cmd_update_with_account_data(self)
 
     @property
-    def is_premium(self): return self.premium_end_at > datetime.datetime.now()
+    def is_premium(self): return self.is_premium_infinit or self.premium_end_at > datetime.datetime.now()
 
     @property
-    def is_premium_infinit(self): return self.premium_end_at > datetime.datetime.now() + accounts_settings.PREMIUM_INFINIT_TIMEOUT
+    def premium_end_at(self):
+        if self.is_premium_infinit:
+            return datetime.datetime.now() + accounts_settings.PREMIUM_INFINIT_TIMEOUT
+        return self._model.premium_end_at
+
+    @property
+    def is_premium_infinit(self):
+        from the_tale.accounts.payments.relations import PERMANENT_PURCHASE_TYPE
+        return PERMANENT_PURCHASE_TYPE.INFINIT_SUBSCRIPTION in self.permanent_purchases
 
     @property
     def is_ban_game(self): return self.ban_game_end_at > datetime.datetime.now()

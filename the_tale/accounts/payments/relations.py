@@ -10,6 +10,7 @@ from the_tale.game.artifacts.relations import RARITY
 
 
 CLAN_OWNERSHIP_RIGHT_DESCRIPTION = u'Если вам не хватает могущества для владения гильдией, Вы можете приобрести разрешение на владение ей за печеньки.'
+INFINIT_PREMIUM_DESCRIPTION = u'Вечная подписка даёт вам все бонусы подписчика на всё время игры.'
 PREFERENCE_DESCRIPTION = u'Убрать ограничение на уровень героя'
 
 
@@ -44,7 +45,11 @@ class PERMANENT_PURCHASE_TYPE(DjangoEnum):
                   preference_record(8, PREFERENCE_TYPE.FAVORITE_ITEM),
                   preference_record(9, PREFERENCE_TYPE.ARCHETYPE),
                   preference_record(10, PREFERENCE_TYPE.COMPANION_DEDICATION),
-                  preference_record(11, PREFERENCE_TYPE.COMPANION_EMPATHY))
+                  preference_record(11, PREFERENCE_TYPE.COMPANION_EMPATHY),
+
+                ('INFINIT_SUBSCRIPTION', 12, u'Вечная подписка',
+                  INFINIT_PREMIUM_DESCRIPTION, None, None, NullObject(), u'Вечная подписка'),
+              )
 
 
 class RANDOM_PREMIUM_CHEST_REWARD(DjangoEnum):

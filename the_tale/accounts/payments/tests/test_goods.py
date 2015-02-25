@@ -108,11 +108,6 @@ class PremiumDaysTests(testcase.TestCase):
         self.account.prolong_premium(30)
         self.assertTrue(self.purchase.is_purchasable(self.account, self.hero))
 
-    def test_is_purchasable__premium_infinit(self):
-        self.account.prolong_premium(days=accounts_settings.PREMIUM_UNFINIT_DAYS)
-        self.assertFalse(self.purchase.is_purchasable(self.account, self.hero))
-
-
 
 
 # THIS TESTS NOW IS SPECIFIC TO CLAN_OWNERSHIP_RIGHT
