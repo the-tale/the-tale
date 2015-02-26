@@ -1,0 +1,18 @@
+{% extends "email.html" %}
+
+{% block content %}
+
+<h3><a href="{{ full_url('http', 'news:show', news.id) }}">{{news.caption}}</a></h3>
+
+{{ news.html_description|safe }}
+
+<br/>
+<br/>
+
+<a href="{{ full_url('http', 'news:show', news.id) }}">Подробнее</a>
+
+<br/>
+<br/>
+
+P.S. Вы получили это письмо, так как подписаны на рассылку новостей, отписаться можно на странице вашего профиля в игре: <a href="{{ full_url('http', 'accounts:profile:show') }}">{{ full_url('http', 'accounts:profile:show') }}</a><br/>
+{% endblock %}

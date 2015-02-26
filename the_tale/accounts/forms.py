@@ -22,6 +22,9 @@ class SettingsForm(forms.Form):
     personal_messages_subscription = fields.BooleanField(required=False,
                                                          label=u'получать письма о новых личных сообщениях')
 
+    news_subscription = fields.BooleanField(required=False,
+                                            label=u'получать письма о новостях')
+
 
 class LoginForm(forms.Form):
 

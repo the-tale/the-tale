@@ -8,16 +8,53 @@
 
 {% block news_content %}
 
-<div class="easy-block">
-
   <h2>{{news.caption}}</h2>
 
+  <div class="pagination">
+    <ul>
+      <li>
+        {{ base_macros.addthis_short(title=news.caption, description=news.html_description|striptags) }}
+      </li>
+
+      {% if news.forum_thread_id %}
+      <li>
+        <a class="pgf-forum-link" href="{{ url('forum:threads:show', news.forum_thread_id) }}">комментарии</a>
+      </li>
+      {% endif %}
+
+      {% if context.news_can_edit %}
+
+      {% if news.forum_thread_id is none %}
+      <li><a class="pgf-forms-post-simple" href="{{ url('news:publish-on-forum', news.id) }}">опубликовать на форуме</a></li>
+      {% endif %}
+
+      {% if news.emailed.is_DISABLED %}
+        <li><a href="#" style="color: green;">отправка в рассылку запрещана</a></li>
+      {% elif news.emailed.is_NOT_EMAILED %}
+        <li>
+          <a class="pgf-forms-post-simple"
+             data-confirmation="Вы уверены, что хотите разослать новость ВСЕМ пользователям?"
+             href="{{ url('news:send-mails', news.id) }}"
+             style="color: red;">
+            в рассылку
+          </a>
+          <a class="pgf-forms-post-simple"
+             data-confirmation="Вы уверены, что хотите ЗАПРЕТИТЬ рассылать новость?"
+             href="{{ url('news:disable-send-mails', news.id) }}"
+             style="color: green;">
+            запретить рассылку
+          </a>
+        </li>
+      {% elif news.emailed.is_EMAILED %}
+        <li><a href="#" style="color: green;">новость уже в рассылке</a></li>
+      {% endif %}
+
+      {% endif %}
+    </ul>
+  </div>
+
   <div class="news-info" style="margin-bottom: 1em;">
-    {{ base_macros.addthis(title=news.caption, description=news.html_description|striptags) }}
     <span class="publication-date">опубликовано: <span class="pgf-format-datetime" data-timestamp="{{ news.created_at|timestamp }}"></span></span>
-    {% if news.forum_thread %}
-    <a class="pgf-forum-link" href="{{ news.forum_thread.get_absolute_url() }}">комментарии</a>
-    {% endif %}
   </div>
 
   {{ news.html_content|safe }}
@@ -25,8 +62,5 @@
   {% if thread_data %}
   {{ thread_page.thread_page(thread_data) }}
   {% endif %}
-
-</div>
-
 
 {% endblock %}

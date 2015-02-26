@@ -16,7 +16,8 @@ from the_tale.accounts.clans.prototypes import ClanPrototype
 
 from the_tale.forum.prototypes import ThreadPrototype
 
-from the_tale.cms.news.models import News
+from the_tale.cms.news import logic as news_logic
+from the_tale.cms.news import models as news_models
 
 from the_tale.blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
 from the_tale.blogs.prototypes import PostPrototype as BlogPostPrototype
@@ -48,7 +49,7 @@ class PortalResource(Resource):
         if portal_settings.ENABLE_FIRST_TIME_REDIRECT and accounts_logic.is_first_time_visit(self.request):
             return self.redirect(random.choice(portal_settings.FIRST_TIME_LANDING_URLS))
 
-        news = News.objects.all().order_by('-created_at')[:portal_settings.NEWS_ON_INDEX]
+        news = news_logic.load_news_from_query(news_models.News.objects.all().order_by('-created_at')[:portal_settings.NEWS_ON_INDEX])
 
         bills = BillPrototype.get_recently_modified_bills(portal_settings.BILLS_ON_INDEX)
 

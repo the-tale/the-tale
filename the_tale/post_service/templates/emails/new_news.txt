@@ -1,0 +1,13 @@
+{% extends "email.txt" %}
+
+{% block content %}
+
+{{news.caption}}
+
+{{ news.html_description|striptags }}
+
+Подробнее: {{ full_url('http', 'news:show', news.id) }}
+
+P.S. Вы получили это письмо, так как подписаны на рассылку новостей, отписаться можно на странице вашего профиля в игре: {{ full_url('http', 'accounts:profile:show') }}
+
+{% endblock %}

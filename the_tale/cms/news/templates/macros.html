@@ -7,8 +7,8 @@
 
   <div class="news-info">
     <span class="publication-date"><span class="pgf-format-datetime" data-timestamp="{{ news.created_at|timestamp }}"></span></span>
-    {% if news.forum_thread %}
-    <a class="pgf-forum-link" href="{{ news.forum_thread.get_absolute_url() }}">комментарии</a>
+    {% if news.forum_thread_id %}
+    <a class="pgf-forum-link" href="{{ url('forum:threads:show', news.forum_thread_id) }}">комментарии</a>
     {% endif %}
   </div>
 </div>

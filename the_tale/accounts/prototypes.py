@@ -47,7 +47,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                  'clan_id',
                  'referrals_number',
                  'might')
-    _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription')
+    _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription', 'news_subscription')
     _get_by = ('id', 'email', 'nick')
 
     @property
@@ -84,8 +84,10 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         self._model.referrals_number = self._model_class.objects.filter(referral_of_id=self.id, is_fast=False).count()
 
     def update_settings(self, form):
-        self._model_class.objects.filter(id=self.id).update(personal_messages_subscription=form.c.personal_messages_subscription)
+        self._model_class.objects.filter(id=self.id).update(personal_messages_subscription=form.c.personal_messages_subscription,
+                                                            news_subscription=form.c.news_subscription)
         self._model.personal_messages_subscription = form.c.personal_messages_subscription
+        self._model.news_subscription = form.c.news_subscription
 
     def prolong_premium(self, days):
         from the_tale.game.heroes.prototypes import HeroPrototype

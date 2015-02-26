@@ -1,10 +1,13 @@
 # coding: utf-8
 
-import markdown
-
 from django.db import models
 
+from rels.django import RelationIntegerField
+
 from the_tale.forum.models import Thread
+
+from the_tale.cms.news import relations
+
 
 class News(models.Model):
 
@@ -18,10 +21,8 @@ class News(models.Model):
 
     forum_thread = models.ForeignKey(Thread, null=True, on_delete=models.SET_NULL)
 
-    @property
-    def html_description(self):
-        return markdown.markdown(self.description)
+    emailed = RelationIntegerField(relation=relations.EMAILED_STATE, db_index=True)
 
-    @property
-    def html_content(self):
-        return markdown.markdown(self.content)
+    class Meta:
+        permissions = (("edit_news", u"Может создавать новости"), )
+        get_latest_by = 'created_at'

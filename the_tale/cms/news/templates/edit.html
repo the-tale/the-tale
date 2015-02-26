@@ -1,0 +1,37 @@
+{% extends "news/base.html" %}
+
+{% block title %}Редактирование новости | {{ super() }}{% endblock %}
+{% block description %}Редактирование новости.{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    var newForm = new pgf.forms.Form(jQuery('#pgf-edit-news-form'),
+                                     {OnSuccess: function(instance, data){location.href = data.data.next_url;}});
+});
+
+</script>
+
+{% endblock %}
+
+{% block news_content %}
+
+<h2>Создание новости</h2>
+
+<form id="pgf-edit-news-form" method="post" action="{{ url('news:update', context.news.id) }}">
+
+  {{ form.errors_container }}
+
+  {{ form.caption.widget }}
+  {{ form.description.widget }}
+  {{ form.content.widget }}
+
+  <div class="widget">
+    <input type="submit" class="btn" value="Сохранить"/>
+  </div>
+
+</form>
+
+{% endblock %}

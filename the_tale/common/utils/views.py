@@ -46,7 +46,6 @@ class PageNumberProcessor(dext_views.ArgumentProcessor):
                                                   default_value=default_value,
                                                   **kwargs)
     def parse(self, context, raw_value):
-        print '?', raw_value
         return max(0, int(raw_value)-1)
 
 

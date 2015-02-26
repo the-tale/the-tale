@@ -258,7 +258,8 @@ class ProfileResource(BaseAccountsResource):
                 'nick': self.account.nick if not self.account.is_fast and self.account.nick else u'укажите ваше имя'}
         edit_profile_form = forms.EditProfileForm(data)
 
-        settings_form = forms.SettingsForm({'personal_messages_subscription': self.account.personal_messages_subscription})
+        settings_form = forms.SettingsForm({'personal_messages_subscription': self.account.personal_messages_subscription,
+                                            'news_subscription': self.account.news_subscription})
 
         return self.template('accounts/profile.html',
                              {'edit_profile_form': edit_profile_form,

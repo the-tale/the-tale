@@ -14,5 +14,5 @@
 
 Обсуждение находится на странице: <a href="{{ absolute_url(post.thread.paginator.first_page_url) }}">{{ absolute_url(post.thread.paginator.first_page_url) }}</a><br/>
 
-P.S.: Вы получили это письмо, так как подписаны на новые темы в категории <a href="full_url('http', 'forum:subcategory:show', thread.subcategory.slug)">«{{thread.subcategory.caption}}»</a>
+P.S. Вы получили это письмо, так как подписаны на новые темы в категории <a href="full_url('http', 'forum:subcategory:show', thread.subcategory.slug)">«{{thread.subcategory.caption}}»</a>
 {% endblock %}

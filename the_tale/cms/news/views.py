@@ -2,126 +2,243 @@
 
 import datetime
 
-from django.shortcuts import get_object_or_404
-from django.core.urlresolvers import reverse
-from django.utils.feedgenerator import Atom1Feed
+from django.utils import feedgenerator
 from django.db import transaction
 
-from dext.views import handler
-from dext.common.utils.urls import UrlBuilder
+from dext.common.utils import views as dext_views
+from dext.common.utils.urls import UrlBuilder, url
+from the_tale.common.utils import views as utils_views
 
-from the_tale.common.utils.decorators import staff_required
-from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.pagination import Paginator
 
-from the_tale.accounts.logic import get_system_user
+from the_tale.accounts import views as accounts_views
+from the_tale.accounts import logic as accounts_logic
 
-from the_tale.cms.news.models import News
-from the_tale.cms.news.conf import news_settings
+from the_tale.cms.news import models
+from the_tale.cms.news import conf
+from the_tale.cms.news import logic
+from the_tale.cms.news import forms
+from the_tale.cms.news import relations
 
-from the_tale.forum.prototypes import ThreadPrototype, SubCategoryPrototype
-from the_tale.forum.models import MARKUP_METHOD
-
-class NewsResource(Resource):
-
-    def initialize(self, news_id=None, *args, **kwargs):
-        super(NewsResource, self).initialize(*args, **kwargs)
-
-        self.news_id = int(news_id) if news_id is not None else None
-
-    @property
-    def news(self):
-        if not hasattr(self, '_news'):
-            self._news = get_object_or_404(News, id=self.news_id)
-        return self._news
+from the_tale.forum import prototypes as forum_prototypes
+from the_tale.forum import relations as forum_relations
 
 
-    @handler('', method='get')
-    def index(self, page=1):
+########################################
+# processors definition
+########################################
 
-        url_builder = UrlBuilder(reverse('news:'), arguments={'page': page})
+edit_news_processor = dext_views.PermissionProcessor(permission='news.edit_news', context_name='news_can_edit')
 
-        news_count = News.objects.all().count()
+class EditorAccessProcessor(dext_views.AccessProcessor):
+    ERROR_CODE = u'news.no_edit_rights'
+    ERROR_MESSAGE = u'Вы не можете редактировать новости'
 
-        page = int(page) - 1
-
-        paginator = Paginator(page, news_count, news_settings.NEWS_ON_PAGE, url_builder)
-
-        if paginator.wrong_page_number:
-            return self.redirect(paginator.last_page_url, permanent=False)
-
-        news_from, news_to = paginator.page_borders(page)
-
-        news = [ news for news in News.objects.all().order_by('-created_at')[news_from:news_to]]
-
-        return self.template('news/index.html',
-                             {'news': news,
-                              'paginator': paginator} )
+    def check(self, context): return context.news_can_edit
 
 
-    @handler('#news_id', name='show', method='get')
-    def show(self):
-        from the_tale.forum.views import ThreadPageData
+class NewsProcessor(dext_views.ArgumentProcessor):
 
-        thread_data = None
-
-        if self.news.forum_thread_id is not None:
-            thread_data = ThreadPageData()
-            thread_data.initialize(account=self.account,
-                                   thread=ThreadPrototype.get_by_id(self.news.forum_thread_id),
-                                   page=1,
-                                   inline=True)
-
-        return self.template('news/show.html', {'news': self.news,
-                                                'thread_data': thread_data} )
+    def __init__(self,
+                 context_name='news',
+                 error_message=u'Новость не найдена',
+                 url_name='news',
+                 **kwargs):
+        super(NewsProcessor, self).__init__(context_name=context_name,
+                                            error_message=error_message,
+                                            url_name=url_name,
+                                            **kwargs)
 
 
-    @handler('#news_id', 'publish-on-forum', method='get') #TODO: change to post
-    @staff_required()
-    @transaction.atomic
-    def publish_on_forum(self):
+    def parse(self, context, raw_value):
+        try:
+            id = int(raw_value)
+        except ValueError:
+            self.raise_wrong_format(context=context)
 
-        if news_settings.FORUM_CATEGORY_UID is None:
-            return self.json_error('news.publish_on_forum.forum_category_not_specified', u'try to publish news on forum when FORUM_CATEGORY_ID has not specified')
+        news = logic.load_news(id)
 
-        if SubCategoryPrototype.get_by_uid(news_settings.FORUM_CATEGORY_UID) is None:
-            return self.json_error('news.publish_on_forum.forum_category_not_exists', u'try to publish news on forum when FORUM_CATEGORY_ID has not exists')
+        if news is None:
+            self.raise_wrong_value(context=context)
 
-        if self.news.forum_thread is not None:
-            return self.json_error('news.publish_on_forum.forum_thread_already_exists', u'try to publish news on forum when FORUM_CATEGORY_ID has not specified')
+        return news
 
-        thread = ThreadPrototype.create(SubCategoryPrototype.get_by_uid(news_settings.FORUM_CATEGORY_UID ),
-                                        caption=self.news.caption,
-                                        author=get_system_user(),
-                                        text=self.news.content,
-                                        markup_method=MARKUP_METHOD.MARKDOWN)
+news_processor = NewsProcessor.handler(error_message=u'Новость не найдена', url_name='news', context_name='news')
 
-        self.news.forum_thread = thread._model
-        self.news.save()
-
-        return self.redirect(reverse('forum:threads:show', args=[thread.id]))
+########################################
+# resource and global processors
+########################################
+resource = dext_views.Resource(name='news')
+resource.add_processor(accounts_views.account_processor)
+resource.add_processor(utils_views.fake_resource_processor)
+resource.add_processor(edit_news_processor)
 
 
-    @handler('feed', method='get')
-    def feed(self):
-        feed = Atom1Feed(u'Сказка: Новости',
-                         self.request.build_absolute_uri('/'),
-                         u'Новости мморпг «Сказка»',
-                         language=u'ru',
-                         feed_url=self.request.build_absolute_uri(reverse('news:feed')))
+@utils_views.page_number_processor.handler()
+@resource.handler('')
+def index(context):
 
-        news = News.objects.order_by('-created_at')[:news_settings.FEED_ITEMS_NUMBER]
+    url_builder = UrlBuilder(url('news:'), arguments={'page': context.page})
 
-        for news_item in news:
+    news_count = models.News.objects.all().count()
 
-            if datetime.datetime.now() - news_item.created_at < datetime.timedelta(seconds=news_settings.FEED_ITEMS_DELAY):
-                continue
+    paginator = Paginator(context.page, news_count, conf.settings.NEWS_ON_PAGE, url_builder)
 
-            feed.add_item(title=news_item.caption,
-                          link=self.request.build_absolute_uri(reverse('news:show', args=[news_item.id])),
-                          description=news_item.html_content,
-                          pubdate=news_item.created_at,
-                          comments=news_item.forum_thread.get_absolute_url() if news_item.forum_thread else None,
-                          unique_id=str(news_item.id))
+    if paginator.wrong_page_number:
+        return dext_views.Redirect(paginator.last_page_url)
 
-        return self.atom(feed.writeString('utf-8'))
+    news_from, news_to = paginator.page_borders(context.page)
+
+    news = logic.load_news_from_query(models.News.objects.all().order_by('-created_at')[news_from:news_to])
+
+    return dext_views.Page('news/index.html',
+                           content={'news': news,
+                                    'paginator': paginator,
+                                    'resource': context.resource} )
+
+@accounts_views.LoginRequiredProcessor.handler()
+@EditorAccessProcessor.handler()
+@resource.handler('new')
+def new(context):
+    return dext_views.Page('news/new.html',
+                           content={'resource': context.resource,
+                                    'form': forms.NewNewsForm()})
+
+@accounts_views.LoginRequiredProcessor.handler()
+@EditorAccessProcessor.handler()
+@dext_views.FormProcessor.handler(form_class=forms.NewNewsForm)
+@resource.handler('create', method='POST')
+def create(context):
+    news = logic.create_news(caption=context.form.c.caption,
+                             description=context.form.c.description,
+                             content=context.form.c.content)
+    return dext_views.AjaxOk(content={'next_url': url('news:show', news.id)})
+
+
+@accounts_views.LoginRequiredProcessor.handler()
+@EditorAccessProcessor.handler()
+@news_processor
+@resource.handler('#news', 'edit')
+def edit(context):
+    return dext_views.Page('news/edit.html',
+                           content={'resource': context.resource,
+                                    'form': forms.NewNewsForm(initial=forms.NewNewsForm.get_initials(context.news))})
+
+@accounts_views.LoginRequiredProcessor.handler()
+@EditorAccessProcessor.handler()
+@news_processor
+@dext_views.FormProcessor.handler(form_class=forms.NewNewsForm)
+@resource.handler('#news', 'update', method='POST')
+def update(context):
+    context.news.caption = context.form.c.caption
+    context.news.description = context.form.c.description
+    context.news.content = context.form.c.content
+
+    logic.save_news(context.news)
+
+    return dext_views.AjaxOk(content={'next_url': url('news:show', context.news.id)})
+
+
+@news_processor
+@resource.handler('#news', name='show')
+def show(context):
+    from the_tale.forum.views import ThreadPageData
+
+    thread_data = None
+
+    if context.news.forum_thread_id is not None:
+        thread_data = ThreadPageData()
+        thread_data.initialize(account=context.account,
+                               thread=forum_prototypes.ThreadPrototype.get_by_id(context.news.forum_thread_id),
+                               page=1,
+                               inline=True)
+
+    return dext_views.Page('news/show.html',
+                           content={'news': context.news,
+                                    'thread_data': thread_data,
+                                    'resource': context.resource} )
+
+
+@accounts_views.LoginRequiredProcessor.handler()
+@EditorAccessProcessor.handler()
+@news_processor
+@resource.handler('#news', 'publish-on-forum', name='publish-on-forum', method='POST')
+@transaction.atomic
+def publish_on_forum(context):
+
+    if conf.settings.FORUM_CATEGORY_UID is None:
+        raise dext_views.exceptions.ViewError(code='news.publish_on_forum.forum_category_not_specified',
+                                              message=u'try to publish news on forum when FORUM_CATEGORY_ID has not specified')
+
+    if forum_prototypes.SubCategoryPrototype.get_by_uid(conf.settings.FORUM_CATEGORY_UID) is None:
+        raise dext_views.exceptions.ViewError(code='news.publish_on_forum.forum_category_not_exists',
+                                              message=u'try to publish news on forum when FORUM_CATEGORY_ID has not exists')
+
+    if context.news.forum_thread_id is not None:
+        raise dext_views.exceptions.ViewError(code='news.publish_on_forum.forum_thread_already_exists',
+                                              message=u'try to publish news on forum when FORUM_CATEGORY_ID has not specified')
+
+    thread = forum_prototypes.ThreadPrototype.create(forum_prototypes.SubCategoryPrototype.get_by_uid(conf.settings.FORUM_CATEGORY_UID ),
+                                    caption=context.news.caption,
+                                    author=accounts_logic.get_system_user(),
+                                    text=context.news.content,
+                                    markup_method=forum_relations.MARKUP_METHOD.MARKDOWN)
+
+    context.news.forum_thread_id = thread.id
+    logic.save_news(context.news)
+
+    return dext_views.AjaxOk(content={'next_url': url('forum:threads:show', thread.id)})
+
+
+@resource.handler('feed')
+def feed(context):
+    feed = feedgenerator.Atom1Feed(u'Сказка: Новости',
+                                   context.django_request.build_absolute_uri('/'),
+                                   u'Новости мморпг «Сказка»',
+                                   language=u'ru',
+                                   feed_url=context.django_request.build_absolute_uri(url('news:feed')))
+
+    news = logic.load_news_from_query(models.News.objects.order_by('-created_at')[:conf.settings.FEED_ITEMS_NUMBER])
+
+    for news_item in news:
+
+        if datetime.datetime.now() - news_item.created_at < datetime.timedelta(seconds=conf.settings.FEED_ITEMS_DELAY):
+            continue
+
+        feed.add_item(title=news_item.caption,
+                      link=context.django_request.build_absolute_uri(url('news:show', news_item.id)),
+                      description=news_item.html_content,
+                      pubdate=news_item.created_at,
+                      comments=url('forum:threads:show', news_item.forum_thread_id) if news_item.forum_thread_id else None,
+                      unique_id=str(news_item.id))
+
+    return dext_views.Atom(feed)
+
+
+@accounts_views.LoginRequiredProcessor.handler()
+@EditorAccessProcessor.handler()
+@news_processor
+@resource.handler('#news', 'send-mails', method='POST')
+def send_mails(context):
+    if not context.news.emailed.is_NOT_EMAILED:
+        raise dext_views.exceptions.ViewError(code='news.send_mail.wrong_mail_state',
+                                              message=u'Эту новость нельзя отправить в рассылку')
+
+    logic.send_mails(context.news)
+
+    return dext_views.AjaxOk()
+
+
+@accounts_views.LoginRequiredProcessor.handler()
+@EditorAccessProcessor.handler()
+@news_processor
+@resource.handler('#news', 'disable-send-mails', method='POST')
+def disable_send_mails(context):
+    if not context.news.emailed.is_NOT_EMAILED:
+        raise dext_views.exceptions.ViewError(code='news.send_mail.wrong_mail_state',
+                                              message=u'Рассылку этой новости нельзя запретить')
+
+    context.news.emailed = relations.EMAILED_STATE.DISABLED
+    logic.save_news(context.news)
+
+    return dext_views.AjaxOk()

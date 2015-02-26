@@ -275,9 +275,53 @@ class ChangeEmailNotificationHandler(BaseMessageHandler):
         return logic.send_mail([(task.account, task.new_email)], subject, text_content, html_content)
 
 
+class NewsHandler(BaseMessageHandler):
+    TYPE = 'news_post'
+    EMAIL_HTML_TEMPLATE = 'post_service/emails/new_news.html'
+    EMAIL_TEXT_TEMPLATE = 'post_service/emails/new_news.txt'
+
+    def __init__(self, news_id=None):
+        super(NewsHandler, self).__init__()
+        self.news_id = news_id
+
+    def serialize(self):
+        return {'type': self.TYPE,
+                'news_id': self.news_id}
+
+    @classmethod
+    def deserialize(cls, data):
+        obj = cls()
+        obj.news_id = data['news_id']
+        return obj
+
+    @property
+    def uid(self): return 'news-%d-message' % self.news_id
+
+    def process(self):
+        from the_tale.cms.news import logic as news_logic
+
+        news = news_logic.load_news(self.news_id)
+
+        if news is None:
+            return True
+
+        accounts = (AccountPrototype(model=account_model) for account_model in AccountPrototype._db_filter(news_subscription=True).iterator())
+
+        subject = u'«Сказка»::Новости: %s' % news.caption
+
+        context = {'news': news}
+
+        html_content = render.template(self.EMAIL_HTML_TEMPLATE, context)
+        text_content = render.template(self.EMAIL_TEXT_TEMPLATE, context)
+
+        return logic.send_mail(accounts, subject, text_content, html_content)
+
+
+
 HANDLERS = dict( (handler.TYPE, handler)
                  for handler in globals().values()
                  if isinstance(handler, type) and issubclass(handler, BaseMessageHandler) and handler != BaseMessageHandler)
+
 
 def deserialize_handler(data):
     return HANDLERS[data['type']].deserialize(data)

@@ -84,6 +84,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(_('active'), default=True, help_text=_('Designates whether this user should be treated as active. Unselect this instead of deleting accounts.'))
 
     personal_messages_subscription = models.BooleanField(blank=True, default=True)
+    news_subscription = models.BooleanField(blank=True, default=True)
 
     ban_game_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
     ban_forum_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))

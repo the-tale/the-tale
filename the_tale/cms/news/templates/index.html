@@ -8,14 +8,16 @@
 
 {% block news_content %}
 
-<div class="easy-block">
-
   <h2 style="margin-bottom: 0.5em;">
     Новости
     <a href="{{ url('news:feed') }}" class="rss-link" rel="alternate" type="application/rss+xml" rel="tooltip" title="подписаться на rss новостей">
       <img src="{{STATIC_CONTENT}}images/rss.png" style="margin: 2px;"/>
     </a>
   </h2>
+
+  {% if context.news_can_edit %}
+  <a href="{{url('news:new')}}" class="btn btn-success">Добавить новость</a>
+  {% endif %}
 
   {{ base_macros.render_paginator(paginator) }}
 
@@ -25,6 +27,5 @@
 
   {{ base_macros.render_paginator(paginator) }}
 
-</div>
 
 {% endblock %}

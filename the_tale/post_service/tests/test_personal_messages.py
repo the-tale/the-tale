@@ -3,6 +3,8 @@
 from django.core import mail
 from django.conf import settings as project_settings
 
+from dext import jinja2 as dext_jinja2
+
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
@@ -24,12 +26,14 @@ class PersonalMessagesTests(testcase.TestCase):
         register_user('user_1', 'user_1@test.com', '111111')
         self.account_1 = AccountPrototype.get_by_nick('user_1')
 
-        register_user('user_2', 'user_2n@test.com', '111111')
+        register_user('user_2', 'user_2@test.com', '111111')
         self.account_2 = AccountPrototype.get_by_nick('user_2')
 
         self.personal_message = PersonalMessagePrototype.create(self.account_1, self.account_2, 'test text')
 
         self.message = MessagePrototype.get_priority_message()
+
+        dext_jinja2.autodiscover()
 
 
     def test_register_message(self):

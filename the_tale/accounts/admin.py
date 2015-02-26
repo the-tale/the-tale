@@ -59,7 +59,7 @@ class AccountAdmin(DjangoUserAdmin):
                                                  'is_superuser',
                                                  'groups',
                                                  'user_permissions')}),
-                  (_('Settings'), {'fields': ('personal_messages_subscription',)}),
+                  (_('Settings'), {'fields': ('personal_messages_subscription', 'news_subscription')}),
                   (_('Data'), {'fields': ('permanent_purchases',)}),
                   (_('Important dates'), {'fields': ('last_login',
                                                     'active_end_at', 'premium_end_at',
