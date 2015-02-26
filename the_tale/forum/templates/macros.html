@@ -3,7 +3,7 @@
   {% set paginator = thread.paginator %}
 
   {% if paginator.pages_count == 1 %}
-  {% elif paginator.pages_count < 7 %}
+  {% elif paginator.pages_count <= 7 %}
     <span class="thread-page-links" style="white-space: nowrap;">
       [
       {% for page_number in range(1, paginator.pages_count) %}
