@@ -1028,8 +1028,8 @@ class ActionBattlePvE1x1Prototype(ActionBase):
             self.hero.can_companion_eat_corpses() and
             random.random() < self.hero.companion_eat_corpses_probability and
             self.mob.mob_type.is_eatable):
-            self.hero.companion.health += c.COMPANIONS_HEAL_AMOUNT
-            self.hero.add_message('companions_eat_corpse', companion_owner=self.hero, companion=self.hero.companion, health=c.COMPANIONS_HEAL_AMOUNT, mob=self.mob)
+            health = self.hero.companion.heal(c.COMPANIONS_HEAL_AMOUNT)
+            self.hero.add_message('companions_eat_corpse', companion_owner=self.hero, companion=self.hero.companion, health=health, mob=self.mob)
 
 
     def process_artifact_breaking(self):
@@ -1904,16 +1904,16 @@ class ActionHealCompanionPrototype(ActionBase):
         if (self.hero.companion.health < self.hero.companion.max_health and
             self.hero.can_companion_regenerate() and
             random.random() < self.hero.companion_regenerate_probability):
-            self.hero.companion.health += c.COMPANIONS_HEAL_AMOUNT
-            self.hero.add_message('companions_regenerate', companion_owner=self.hero, companion=self.hero.companion, health=c.COMPANIONS_HEAL_AMOUNT)
+            health = self.hero.companion.heal(c.COMPANIONS_HEAL_AMOUNT)
+            self.hero.add_message('companions_regenerate', companion_owner=self.hero, companion=self.hero.companion, health=health)
 
         if (self.hero.companion.health < self.hero.companion.max_health and
             ( (self.hero.companion.type.is_LIVING and random.random() < self.hero.companion_living_heal_probability) or
               (self.hero.companion.type.is_CONSTRUCT and random.random() < self.hero.companion_construct_heal_probability) or
               (self.hero.companion.type.is_UNUSUAL and random.random() < self.hero.companion_unusual_heal_probability) )
               ):
-            self.hero.companion.health += c.COMPANIONS_HEAL_AMOUNT
-            self.hero.add_message('hero_ability_companion_healing', actor=self.hero, companion=self.hero.companion, health=c.COMPANIONS_HEAL_AMOUNT)
+            health = self.hero.companion.heal(c.COMPANIONS_HEAL_AMOUNT)
+            self.hero.add_message('hero_ability_companion_healing', actor=self.hero, companion=self.hero.companion, health=health)
 
 
     def on_heal_companion(self):
