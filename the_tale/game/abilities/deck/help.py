@@ -97,11 +97,11 @@ class Help(AbilityPrototype):
             return task.logic_result(next_step=ComplexChangeTask.STEP.ERROR)
 
         if critical:
-            hero.companion.health += c.COMPANIONS_HEAL_CRIT_AMOUNT
-            hero.add_message('angel_ability_heal_companion_crit', hero=hero, companion=hero.companion, health=c.COMPANIONS_HEAL_AMOUNT)
+            health = hero.companion.heal(c.COMPANIONS_HEAL_CRIT_AMOUNT)
+            hero.add_message('angel_ability_heal_companion_crit', hero=hero, companion=hero.companion, health=health)
         else:
-            hero.companion.health += c.COMPANIONS_HEAL_AMOUNT
-            hero.add_message('angel_ability_heal_companion', hero=hero, companion=hero.companion, health=c.COMPANIONS_HEAL_AMOUNT)
+            health = hero.companion.heal(c.COMPANIONS_HEAL_AMOUNT)
+            hero.add_message('angel_ability_heal_companion', hero=hero, companion=hero.companion, health=health)
 
         hero.companion.health = min(hero.companion.health, hero.companion.max_health)
 
