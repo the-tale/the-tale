@@ -57,6 +57,14 @@ jQuery(document).ready(function(e){
         {% if clan_of_the_day %}
         <li><strong>гильдия:</strong> <a href="{{url('accounts:clans:show', clan_of_the_day.id)}}">{{clan_of_the_day.name}}</a></li>
         {% endif %}
+        {% if hero_of_the_day.companion %}
+        <li>
+          <strong>спутник:</strong>
+          <a href="{{url('game:companions:show', hero_of_the_day.companion.record.id)}}">
+            {{hero_of_the_day.companion.name}}
+          </a>
+        </li>
+        {% endif %}
       </ul>
       {% else %}
       Здесь может быть Ваша реклама.
