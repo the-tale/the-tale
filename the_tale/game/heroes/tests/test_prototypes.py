@@ -665,6 +665,16 @@ class HeroTest(testcase.TestCase):
         self.assertEqual(self.hero.companion._hero.id, self.hero.id)
 
 
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_max_health_multiplier', 2)
+    def test_set_companion__health_maximum(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        companion = companions_logic.create_companion(companion_record)
+
+        self.hero.set_companion(companion)
+
+        self.assertEqual(self.hero.companion.health, self.hero.companion.max_health)
+
+
     def test_set_companion__replace(self):
         companion_record_1 = list(companions_storage.companions.enabled_companions())[0]
         companion_record_2 = list(companions_storage.companions.enabled_companions())[1]

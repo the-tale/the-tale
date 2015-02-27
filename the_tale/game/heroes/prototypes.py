@@ -402,6 +402,8 @@ class HeroPrototype(BasePrototype,
 
         self.data['companion'] = companion.serialize()
 
+        self.companion.health = self.companion.max_health
+
     def remove_companion(self):
         del self.companion
         self.data['companion'] = None
