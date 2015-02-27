@@ -120,6 +120,7 @@ jQuery(document).ready(function(){
                 <tbody>
                   <tr>
                     <th >название</th>
+                    <th width="50px">значение</th>
                     <th width="100px">место</th>
                   </tr>
 
@@ -127,6 +128,7 @@ jQuery(document).ready(function(){
                   {% set rating = account_info.ratings[menu_rating.value] %}
                   <tr>
                     <td>{{rating.name}}</td>
+                    <td>{% if rating.value > 0 %}{{rating.value}}{% else %}—{% endif %}</td>
                     <td>{% if rating.value > 0 %}{{rating.place}} место {% else %}не участвует{% endif %}</td>
                   </tr>
                   {% endfor %}
