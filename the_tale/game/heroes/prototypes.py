@@ -407,6 +407,7 @@ class HeroPrototype(BasePrototype,
     def remove_companion(self):
         del self.companion
         self.data['companion'] = None
+        self.reset_accessors_cache()
 
 
     def serialize_companion(self):

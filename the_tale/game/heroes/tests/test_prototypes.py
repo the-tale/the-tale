@@ -692,6 +692,19 @@ class HeroTest(testcase.TestCase):
 
         self.assertEqual(self.hero.companion.record.id, companion_record_2.id)
 
+    def test_remove_companion(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        companion = companions_logic.create_companion(companion_record)
+
+        self.hero.set_companion(companion)
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+            self.hero.remove_companion()
+
+        self.assertEqual(reset_accessors_cache.call_count, 1)
+
+        self.assertEqual(self.hero.companion, None)
+
 
 class HeroLevelUpTests(testcase.TestCase):
 
