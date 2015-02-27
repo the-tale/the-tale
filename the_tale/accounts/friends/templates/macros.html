@@ -29,7 +29,9 @@ jQuery(document).ready(function(){
             recipients.push(jQuery(e).val());
         });
 
-        pgf.ui.dialog.Create({ fromUrl: "{{ url('accounts:messages:new') }}?recipients=" + recipients.join(','),
+        pgf.ui.dialog.Create({ fromUrl: "{{ url('accounts:messages:new') }}",
+                               method: "post",
+                               data: {"recipients": recipients.join(',')},
                                OnOpen: function(dialog) {
                                    var newMessageForm = new pgf.forms.Form(jQuery('#pgf-new-message-form', dialog),
                                                                            { OnSuccess: function(form, data){ dialog.modal('hide'); }

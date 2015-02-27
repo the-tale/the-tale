@@ -45,7 +45,10 @@ def load_news_from_query(query):
 
 
 def load_last_news():
-    return news_from_model(models.News.objects.latest())
+    try:
+        return news_from_model(models.News.objects.latest())
+    except models.News.DoesNotExist:
+        return None
 
 
 def send_mails(news):

@@ -18,8 +18,7 @@ from the_tale.game.logic import create_test_map, game_info_url
 from the_tale.game.pvp.models import BATTLE_1X1_STATE
 from the_tale.game.pvp.tests.helpers import PvPTestsMixin
 
-
-from the_tale.cms.news.models import News
+from the_tale.cms.news import logic as news_logic
 
 
 class RequestTestsBase(TestCase, PvPTestsMixin):
@@ -108,7 +107,7 @@ class NewsAlertsTests(TestCase):
         create_test_map()
         self.client = client.Client()
 
-        self.news = News.objects.create(caption='news-caption', description='news-description', content='news-content')
+        self.news = news_logic.create_news(caption='news-caption', description='news-description', content='news-content')
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
         self.account = AccountPrototype.get_by_id(account_id)

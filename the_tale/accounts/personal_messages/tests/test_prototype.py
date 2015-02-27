@@ -13,7 +13,7 @@ from the_tale.accounts.logic import register_user, get_system_user
 
 from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 from the_tale.accounts.personal_messages.models import Message
-from the_tale.accounts.personal_messages.conf import personal_messages_settings
+from the_tale.accounts.personal_messages import conf
 
 
 class PrototypeTests(testcase.TestCase):
@@ -105,7 +105,7 @@ class PrototypeTests(testcase.TestCase):
                      MessagePrototype.create(system_user, system_user, 'message 8') ]
 
         for message in messages[-4:]:
-            message._model.created_at = datetime.datetime.now() - personal_messages_settings.SYSTEM_MESSAGES_LEAVE_TIME
+            message._model.created_at = datetime.datetime.now() - conf.settings.SYSTEM_MESSAGES_LEAVE_TIME
             message.save()
 
         with self.check_delta(MessagePrototype._db_count, -3):

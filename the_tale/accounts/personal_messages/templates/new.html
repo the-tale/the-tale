@@ -33,13 +33,15 @@
       {% endif %}
     </p>
 
-    <form action="{{ url('accounts:messages:create', recipients=recipients_url_string) }}"
+    <form action="{{ url('accounts:messages:create') }}"
           method="post"
           id="pgf-new-message-form">
 
       {{ form.errors_container }}
 
       {{ form.text.widget }}
+
+      {{ form.recipients.widget }}
 
       <div class="widget">
         <input type="submit" class="btn btn-success" value="Отправить"/>

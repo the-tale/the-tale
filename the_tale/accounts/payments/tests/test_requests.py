@@ -109,6 +109,9 @@ class ShopRequestesTests(RequestesTestsBase, PageRequestsMixin, BankTestsMixin):
             existed_uids = PURCHASES_BY_UID.keys()
             existed_uids.remove(purchase.uid)
 
+            if purchase.purchase_type.is_INFINIT_SUBSCRIPTION:
+                existed_uids = [uid for uid in existed_uids if not uid.startswith('subscription-')]
+
             self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-no-goods-message', 0), (purchase.uid, 0)] + existed_uids )
 
             self.account.permanent_purchases._data = set()
@@ -179,7 +182,7 @@ class PurchasesRequestesTests(RequestesTestsBase, PageRequestsMixin):
         for record in PERMANENT_PURCHASE_TYPE.records:
             self.account.permanent_purchases.insert(record)
             texts.append(record.description)
-            texts.append((record.text, 1))
+            texts.append(record.text)
         self.account.save()
 
         self.check_html_ok(self.request_html(self.page_url), texts=texts)

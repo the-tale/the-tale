@@ -87,9 +87,18 @@
     jQuery('.pgf-new-message').click(function(e){
 
         var recipient = jQuery(e.currentTarget).data('recipient');
+        var answerTo = jQuery(e.currentTarget).data('answer-to');
+
+        var url = "{{ url('accounts:messages:new') }}";
+
+        if (answerTo) {
+            url += '?answer_to=' + answerTo;
+        }
 
         e.preventDefault();
-        pgf.ui.dialog.Create({ fromUrl: "{{ url('accounts:messages:new') }}?recipients=" + recipient,
+        pgf.ui.dialog.Create({ fromUrl: url,
+                               method: 'post',
+                               data: {'recipients': recipient},
                                OnOpen: function(dialog) {
                                    var newMessageForm = new pgf.forms.Form(jQuery('#pgf-new-message-form', dialog),
                                                                            { OnSuccess: function(form, data){ dialog.modal('hide'); }

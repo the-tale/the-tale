@@ -35,11 +35,14 @@ pgf.ui.dialog.Create = function(params) {
     else if (params.fromString) CreateFromString(params.fromString);
     else CreateFromSelector(params.fromSelector);
 
+    params.method = params.method || 'get';
+
     function CreateFromAjax(url) {
         pgf.ui.dialog.wait('start');
         jQuery.ajax({
             dataType: 'html',
-            type: 'get',
+            type: params.method,
+            data: params.data,
             url: url,
             success: function(data, request, status) {
                 pgf.ui.dialog.wait('stop',

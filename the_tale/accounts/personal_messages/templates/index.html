@@ -1,6 +1,7 @@
 {% extends "personal_messages/base.html" %}
 
 {% import 'macros.html' as base_macros with context %}
+{% import 'accounts/macros.html' as accounts_macros with context %}
 
 {% block title %}{% if incoming %}Входящие{% else %}Исходящие{% endif %} | {{ super() }}{% endblock %}
 {% block description %}{% if incoming %}Ваши входящие сообщения{% else %}Ваши исходящие сообщения{% endif %}{% endblock %}
@@ -9,23 +10,9 @@
 {{ super() }}
 
 <script type="text/javascript">
-
 jQuery(document).ready(function(){
-
-    jQuery('.pgf-answer-to-message').click(function(e){
-        e.preventDefault();
-        pgf.ui.dialog.Create({ fromUrl: jQuery(e.currentTarget).attr("href"),
-                               OnOpen: function(dialog) {
-                                   var newMessageForm = new pgf.forms.Form(jQuery('#pgf-new-message-form', dialog),
-                                                                           { OnSuccess: function(form, data){ dialog.modal('hide'); }
-                                                                           });
-                               }
-                             });
-    });
-
-
+  {{  accounts_macros.personal_message_js()|safe }}
 });
-
 </script>
 {% endblock %}
 
@@ -63,7 +50,7 @@ jQuery(document).ready(function(){
 
           {% if incoming %}
           <td style="width: 4em;">
-            <a class="pgf-answer-to-message" href="{{ url('accounts:messages:new', recipients=message.sender.id, answer_to=message.id) }}">ответить</a>
+            <a class="pgf-new-message" data-recipient="{{message.sender.id}}" data-answer-to="{{message.id}}" href="#">ответить</a><br/>
           </td>
           {% endif %}
 

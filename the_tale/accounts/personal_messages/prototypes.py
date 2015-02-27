@@ -11,7 +11,7 @@ from the_tale.accounts.logic import get_system_user
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.personal_messages.models import Message
-from the_tale.accounts.personal_messages.conf import personal_messages_settings
+from the_tale.accounts.personal_messages import conf
 
 
 class MessagePrototype(BasePrototype):
@@ -70,5 +70,5 @@ class MessagePrototype(BasePrototype):
 
         system_user = get_system_user()
 
-        cls._db_filter(recipient=system_user.id, created_at__lt=datetime.datetime.now() - personal_messages_settings.SYSTEM_MESSAGES_LEAVE_TIME).delete()
-        cls._db_filter(sender=system_user.id, created_at__lt=datetime.datetime.now() - personal_messages_settings.SYSTEM_MESSAGES_LEAVE_TIME).delete()
+        cls._db_filter(recipient=system_user.id, created_at__lt=datetime.datetime.now() - conf.settings.SYSTEM_MESSAGES_LEAVE_TIME).delete()
+        cls._db_filter(sender=system_user.id, created_at__lt=datetime.datetime.now() - conf.settings.SYSTEM_MESSAGES_LEAVE_TIME).delete()
