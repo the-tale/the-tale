@@ -986,7 +986,6 @@ class GetCompanionBase(BaseEffect):
         return self.TYPE.text + u': ' + companions_storage.companions[card.data['companion_id']].name
 
 
-
 class GetCompanionCommon(GetCompanionBase):
     TYPE = relations.CARD_TYPE.GET_COMPANION_COMMON
     RARITY = companions_relations.RARITY.COMMON
@@ -1006,6 +1005,23 @@ class GetCompanionEpic(GetCompanionBase):
 class GetCompanionLegendary(GetCompanionBase):
     TYPE = relations.CARD_TYPE.GET_COMPANION_LEGENDARY
     RARITY = companions_relations.RARITY.LEGENDARY
+
+
+
+class ReleaseCompanion(BaseEffect):
+    TYPE = relations.CARD_TYPE.RELEASE_COMPANION
+    DESCRIPTION = u'Спутник героя навсегда покидает его.'
+
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+
+        if task.hero.companion is None:
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя сейчас нет спутника.')
+
+        task.hero.add_message('companions_left', diary=True, companion_owner=task.hero, companion=task.hero.companion)
+        task.hero.remove_companion()
+
+        return task.logic_result(message=u'Поздравляем! Ваш герой получил нового спутника.')
+
 
 
 EFFECTS = {card_class.TYPE: card_class()

@@ -161,4 +161,6 @@ class CARD_TYPE(DjangoEnum):
 
                 ('RESET_ABILITIES', 98, u'новый путь', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
 
+                ('RELEASE_COMPANION', 99, u'четыре стороны', AVAILABILITY.FOR_ALL, RARITY.COMMON, forms.EmptyForm,),
+
                 )
