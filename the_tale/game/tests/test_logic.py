@@ -130,7 +130,14 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
                         mock.Mock(return_value={'actual_on_turn': hero.saved_at_turn,
                                                 'pvp__actual':'actual',
                                                 'pvp__last_turn':'last_turn',
-                                                'ui_caching_started_at': 0})) as ui_info:
+                                                'ui_caching_started_at': 0,
+                                                'cards': 'fake',
+                                                'permissions': {'can_participate_in_pvp': 'fake',
+                                                                'can_repair_building': 'fake'},
+                                                'energy': {'max': 'fake',
+                                                           'value': 'fake',
+                                                           'bonus': 'fake',
+                                                           'discount': 'fake'}})) as ui_info:
             data = form_game_info(self.account_1, is_own=False)
 
         self.assertEqual(data['account']['hero']['pvp'], 'last_turn')
@@ -138,6 +145,14 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
 
         self.assertFalse('pvp__actual' in data['account']['hero']['pvp'])
         self.assertFalse('pvp__last_turn' in data['account']['hero']['pvp'])
+
+        self.assertNotEqual(data['account']['hero']['cards'], 'fake')
+        self.assertFalse(data['account']['hero']['permissions']['can_participate_in_pvp'])
+        self.assertFalse(data['account']['hero']['permissions']['can_repair_building'])
+        self.assertEqual(data['account']['hero']['energy']['max'], 0)
+        self.assertEqual(data['account']['hero']['energy']['value'], 0)
+        self.assertEqual(data['account']['hero']['energy']['bonus'], 0)
+        self.assertEqual(data['account']['hero']['energy']['discount'], 0)
 
         self.assertEqual(ui_info.call_count, 1)
         self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
@@ -228,7 +243,14 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
                 return {'actual_on_turn': hero_2.saved_at_turn,
                         'pvp__actual':'actual',
                         'pvp__last_turn':'last_turn',
-                        'ui_caching_started_at': 0}
+                        'ui_caching_started_at': 0,
+                        'cards': 'fake',
+                        'permissions': {'can_participate_in_pvp': 'fake',
+                                        'can_repair_building': 'fake'},
+                        'energy': {'max': 'fake',
+                                   'value': 'fake',
+                                   'bonus': 'fake',
+                                   'discount': 'fake'}}
 
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info', get_ui_info):
             data = form_game_info(self.account_1, is_own=True)
@@ -240,3 +262,11 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         self.assertFalse('pvp__last_turn' in data['account']['hero']['pvp'])
         self.assertFalse('pvp__actual' in data['enemy']['hero']['pvp'])
         self.assertFalse('pvp__last_turn' in data['enemy']['hero']['pvp'])
+
+        self.assertNotEqual(data['enemy']['hero']['cards'], 'fake')
+        self.assertFalse(data['enemy']['hero']['permissions']['can_participate_in_pvp'])
+        self.assertFalse(data['enemy']['hero']['permissions']['can_repair_building'])
+        self.assertEqual(data['enemy']['hero']['energy']['max'], 0)
+        self.assertEqual(data['enemy']['hero']['energy']['value'], 0)
+        self.assertEqual(data['enemy']['hero']['energy']['bonus'], 0)
+        self.assertEqual(data['enemy']['hero']['energy']['discount'], 0)

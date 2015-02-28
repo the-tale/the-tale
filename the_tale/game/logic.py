@@ -30,6 +30,8 @@ from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
 from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.artifacts.relations import ARTIFACT_TYPE
 
+from the_tale.game.cards import container as cards_container
+
 from the_tale.game.map.storage import map_info_storage
 from the_tale.game.map import logic as map_logic
 
@@ -159,6 +161,15 @@ def _form_game_account_info(game_time, account, in_pvp_queue, is_own):
     data['hero'] = hero_data
 
     data['is_old'] = (data['hero']['actual_on_turn'] < game_time.turn_number)
+
+    if not is_own:
+        hero_data['cards'] = cards_container.CardsContainer.ui_info_null()
+        hero_data['permissions']['can_participate_in_pvp'] = False
+        hero_data['permissions']['can_repair_building'] = False
+        hero_data['energy']['max'] = 0
+        hero_data['energy']['value'] = 0
+        hero_data['energy']['bonus'] = 0
+        hero_data['energy']['discount'] = 0
 
     return data
 

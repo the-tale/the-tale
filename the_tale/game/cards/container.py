@@ -56,6 +56,12 @@ class CardsContainer(object):
                 'help_count': self._help_count,
                 'help_barrier': c.CARDS_HELP_COUNT_TO_NEW_CARD }
 
+    @classmethod
+    def ui_info_null(self):
+        return {'cards': [],
+                'help_count': 0,
+                'help_barrier': c.CARDS_HELP_COUNT_TO_NEW_CARD }
+
     def add_card(self, card):
         self.updated = True
         card.uid = self._get_next_uid()
