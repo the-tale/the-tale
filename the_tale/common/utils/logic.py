@@ -4,6 +4,9 @@ import random
 import datetime
 import types
 
+from django.conf import settings as project_settings
+
+
 def random_value_by_priority(values):
 
     if not values:
@@ -134,3 +137,7 @@ def days_range(date_from, date_to):
     for days in xrange((date_to-date_from).days):
         current_date = (date_from + datetime.timedelta(days=days))
         yield current_date.date() if isinstance(current_date, datetime.datetime) else current_date
+
+
+def absolutize_urls(text):
+    return text.replace(u'href="/', u'href="http://%s/' % project_settings.SITE_URL).replace(u'href=\'/', u'href=\'http://%s/' % project_settings.SITE_URL)

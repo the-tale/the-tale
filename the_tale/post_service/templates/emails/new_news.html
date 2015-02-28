@@ -4,7 +4,7 @@
 
 <h3><a href="{{ full_url('http', 'news:show', news.id) }}">{{news.caption}}</a></h3>
 
-{{ news.html_description|safe }}
+{{ news.html_description|absolutize_urls|safe }}
 
 <br/>
 <br/>

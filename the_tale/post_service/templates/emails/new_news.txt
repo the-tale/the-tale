@@ -4,7 +4,7 @@
 
 {{news.caption}}
 
-{{ news.html_description|striptags }}
+{{ news.html_description|absolutize_urls|striptags }}
 
 Подробнее: {{ full_url('http', 'news:show', news.id) }}
 

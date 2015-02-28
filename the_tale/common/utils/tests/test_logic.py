@@ -11,7 +11,8 @@ from the_tale.common.utils.logic import (random_value_by_priority,
                                          get_or_create,
                                          split_into_table,
                                          days_range,
-                                         randint_from_1)
+                                         randint_from_1,
+                                         absolutize_urls)
 from the_tale.common.utils.decorators import lazy_property
 
 _get_or_create_state = None # for get_or_create tests
@@ -176,3 +177,8 @@ class LogicTest(testcase.TestCase):
 
         self.assertEqual(set_2, set((1, 2, 3)))
         self.assertEqual(set_3, set((1, 2, 3, 4, 5)))
+
+    def test_absolutize_urls(self):
+        text = u'<a href=""></a> <a href="/">!</a> <a href=\'#\'></a> <a href="http://the-tale.org">!</a>'
+        self.assertEqual(absolutize_urls(text),
+                         u'<a href=""></a> <a href="http://localhost:8000/">!</a> <a href=\'#\'></a> <a href="http://the-tale.org">!</a>')
