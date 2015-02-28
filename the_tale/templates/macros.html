@@ -100,7 +100,7 @@
       {% if page_number is none %}
       <li class="active"><a href="#">…</a></li>
       {% elif page_number == paginator.current_page_number %}
-      <li class="active"><a>{{ page_number+1 }}</a></li>
+      <li class="active"><a href="">{{ page_number+1 }}</a></li>
       {% else %}
       <li><a href="{{ paginator.url_builder(page=page_number+1) }}">{{ page_number+1 }}</a></li>
       {% endif %}

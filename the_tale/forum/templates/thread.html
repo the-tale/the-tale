@@ -14,7 +14,7 @@
     <a href="{{ url('forum:') }}">Форум</a><span class="divider">/</span>
   </li>
   <li><a href="{{ url('forum:subcategories:show', thread.subcategory.id) }}">{{ thread.subcategory.caption }}</a><span class="divider">/</span></li>
-  <li class="active">{{ thread.caption }}</li>
+  <li class="active"><a href="">{{ thread.caption }}</a></li>
 </ul>
 {% endmacro %}
 
