@@ -307,11 +307,17 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.COMPANIONS_DEFEND_PROBABILITY, 0.1875)
 
-        self.assertEqual(round(c._COMPANIONS_WOUNDS_IN_HOUR, 5), 0.20833)
-        self.assertEqual(round(c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY, 5), 0.00907)
+        self.assertEqual(round(c._COMPANIONS_WOUNDS_IN_HOUR_FROM_HEAL, 5), 2.0)
+        self.assertEqual(round(c._COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS, 5), 0.20833)
+
+        self.assertEqual(round(c._COMPANIONS_WOUNDS_IN_HOUR, 5), 2.20833)
+        self.assertEqual(round(c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY, 5), 0.0961)
 
         self.assertEqual(c.COMPANIONS_HEAL_MIN_IN_HOUR, 1.0)
         self.assertEqual(c.COMPANIONS_HEAL_MAX_IN_HOUR, 2.0)
+
+        self.assertEqual(c.COMPANIONS_HEALTH_PER_HEAL, 1)
+        self.assertEqual(c.COMPANIONS_DAMAGE_PER_WOUND, 1)
 
         self.assertEqual(c.COMPANIONS_HEAL_AMOUNT, 2)
         self.assertEqual(c.COMPANIONS_HEAL_CRIT_AMOUNT, 4)
@@ -330,8 +336,12 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(round(c.COMPANIONS_REGEN_PER_HOUR, 5), 0.05208)
 
+        self.assertEqual(round(c.COMPANION_EATEN_CORPSES_HEAL_AMOUNT), 1)
+        self.assertEqual(round(c.COMPANION_REGEN_ON_HEAL_AMOUNT), 2)
+
         self.assertEqual(round(c.COMPANION_EATEN_CORPSES_PER_BATTLE, 5), 0.0034)
-        self.assertEqual(round(c.COMPANION_REGEN_ON_HEAL_PER_HEAL, 5), 0.03472)
+        self.assertEqual(round(c.COMPANION_REGEN_ON_HEAL_PER_HEAL, 5), 0.01736)
+        self.assertEqual(round(c.COMPANION_HERO_REGEN_ON_HEAL_PER_HEAL, 5), 0.01736)
 
 
     def test_dedication_maximum_multiplier(self):
@@ -343,5 +353,8 @@ class ConstantsTest(testcase.TestCase):
 
     def test_energy_regeneration_vs_companion_heal(self):
         energy_in_day = c._ANGEL_ENERGY_IN_DAY
-        energy_to_heal_in_day = c._COMPANIONS_WOUNDS_IN_HOUR / c.COMPANIONS_HEAL_AMOUNT  * 24 * c.ANGEL_HELP_COST
+
+        health_in_day = c._COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS * c.COMPANIONS_DAMAGE_PER_WOUND * 24
+
+        energy_to_heal_in_day = health_in_day / c.COMPANIONS_HEAL_AMOUNT  * c.ANGEL_HELP_COST
         self.assertEqual(round(energy_to_heal_in_day / energy_in_day, 5), 0.20833)

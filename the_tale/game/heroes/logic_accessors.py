@@ -350,7 +350,7 @@ class LogicAccessorsMixin(object):
 
     @property
     def companion_damage(self):
-        damage = 1 + self.attribute_modifier(relations.MODIFIERS.COMPANION_DAMAGE)
+        damage = c.COMPANIONS_DAMAGE_PER_WOUND + self.attribute_modifier(relations.MODIFIERS.COMPANION_DAMAGE)
 
         if not self.real_time_processing:
             # multiplay by delay modifier to emulate real time companion live cycle

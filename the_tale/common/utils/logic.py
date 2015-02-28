@@ -41,6 +41,12 @@ def shuffle_values_by_priority(values):
     return result
 
 
+def randint_from_1(value):
+    if value < 1:
+        return 0
+    return random.randint(1, 2 * value - 1)
+
+
 def pluralize_word(real_number, word_1, word_2_4, word_other):
     number = real_number % 100
 

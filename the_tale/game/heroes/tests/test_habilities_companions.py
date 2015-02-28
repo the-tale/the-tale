@@ -80,28 +80,28 @@ class HabilitiesCompanionsTest(testcase.TestCase):
         self.assertEqual(self.hero.companion_max_coherence, 60)
 
     def test_healing(self):
-        self.assertEqual(companions.HEALING().modify_attribute(MODIFIERS.COMPANION_LIVING_HEAL, 0), 0.01)
+        self.assertEqual(companions.HEALING().modify_attribute(MODIFIERS.COMPANION_LIVING_HEAL, 0), 0.0034722222222222225)
         self.assertEqual(companions.HEALING().modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_LIVING_HEAL,)), 0), 0)
 
         self.assertEqual(self.hero.companion_living_heal_probability, 0)
         self.hero.abilities.add(companions.HEALING.get_id(), 3)
-        self.assertEqual(self.hero.companion_living_heal_probability, 0.03)
+        self.assertEqual(self.hero.companion_living_heal_probability, 0.010416666666666666)
 
     def test_mage_mechanincs(self):
-        self.assertEqual(companions.MAGE_MECHANICS().modify_attribute(MODIFIERS.COMPANION_CONSTRUCT_HEAL, 0), 0.01)
+        self.assertEqual(companions.MAGE_MECHANICS().modify_attribute(MODIFIERS.COMPANION_CONSTRUCT_HEAL, 0), 0.0034722222222222225)
         self.assertEqual(companions.MAGE_MECHANICS().modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_CONSTRUCT_HEAL,)), 0), 0)
 
         self.assertEqual(self.hero.companion_construct_heal_probability, 0)
         self.hero.abilities.add(companions.MAGE_MECHANICS.get_id(), 3)
-        self.assertEqual(self.hero.companion_construct_heal_probability, 0.03)
+        self.assertEqual(self.hero.companion_construct_heal_probability, 0.010416666666666666)
 
     def test_witchcraft(self):
-        self.assertEqual(companions.WITCHCRAFT().modify_attribute(MODIFIERS.COMPANION_UNUSUAL_HEAL, 0), 0.01)
+        self.assertEqual(companions.WITCHCRAFT().modify_attribute(MODIFIERS.COMPANION_UNUSUAL_HEAL, 0), 0.0034722222222222225)
         self.assertEqual(companions.WITCHCRAFT().modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_UNUSUAL_HEAL,)), 0), 0)
 
         self.assertEqual(self.hero.companion_unusual_heal_probability, 0)
         self.hero.abilities.add(companions.WITCHCRAFT.get_id(), 3)
-        self.assertEqual(self.hero.companion_unusual_heal_probability, 0.03)
+        self.assertEqual(self.hero.companion_unusual_heal_probability, 0.010416666666666666)
 
     def test_sociability(self):
         self.assertEqual(companions.SOCIABILITY().modify_attribute(MODIFIERS.COMPANION_LIVING_COHERENCE_SPEED, 1), 1.2)

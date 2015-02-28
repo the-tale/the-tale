@@ -42,7 +42,7 @@ class Companion(object):
     def deserialize(cls, hero, data):
         from the_tale.game.companions import storage
         obj = cls(record=storage.companions[data['record']],
-                  health=data['health'],
+                  health=int(data['health']),
                   coherence=data['coherence'],
                   experience=data['experience'],
                   healed_at=data['healed_at'],

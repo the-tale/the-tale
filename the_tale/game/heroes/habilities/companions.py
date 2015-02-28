@@ -2,6 +2,8 @@
 
 from the_tale.game.companions.abilities import relations as companions_abilities_relations
 
+from the_tale.game.balance import constants as c
+
 from the_tale.game.heroes import relations as heroes_relations
 
 from the_tale.game.heroes.habilities.prototypes import AbilityPrototype
@@ -99,7 +101,11 @@ class _CompanionHealBase(AbilityPrototype):
     normalized_name = None
     DESCRIPTION = None
 
-    PROBABILITY = [0.01, 0.02, 0.03, 0.04, 0.05]
+    PROBABILITY = [c.COMPANION_HERO_REGEN_ON_HEAL_PER_HEAL * 0.2,
+                   c.COMPANION_HERO_REGEN_ON_HEAL_PER_HEAL * 0.4,
+                   c.COMPANION_HERO_REGEN_ON_HEAL_PER_HEAL * 0.6,
+                   c.COMPANION_HERO_REGEN_ON_HEAL_PER_HEAL * 0.8,
+                   c.COMPANION_HERO_REGEN_ON_HEAL_PER_HEAL * 1.0]
     MODIFIER = None
 
     @property

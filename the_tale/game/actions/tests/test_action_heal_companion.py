@@ -142,12 +142,12 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
 
         current_time = TimePrototype.get_current_time()
 
-        while len(self.hero.actions.actions_list) != 1:
-            self.storage.process_turn(continue_steps_if_needed=False)
-            current_time.increment_turn()
+        with self.check_delta(lambda: self.hero.companion.health, c.COMPANIONS_HEALTH_PER_HEAL):
+            while len(self.hero.actions.actions_list) != 1:
+                self.storage.process_turn(continue_steps_if_needed=False)
+                current_time.increment_turn()
 
         self.assertTrue(self.action_idl.leader)
-        self.assertEqual(self.hero.companion.health, 1)
 
         self.storage._test_save()
 
@@ -165,11 +165,11 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
                 current_time.increment_turn()
 
         self.assertTrue(self.action_idl.leader)
-        self.assertEqual(self.hero.companion.health, 1)
 
         self.storage._test_save()
 
 
+    @mock.patch('the_tale.common.utils.logic.randint_from_1', lambda v: v)
     @mock.patch('the_tale.game.balance.constants.COMPANION_REGEN_ON_HEAL_PER_HEAL', 1.0)
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_regenerate', lambda hero: True)
     def test_full__regeneration(self):
@@ -182,28 +182,29 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
             current_time.increment_turn()
 
         self.assertTrue(self.action_idl.leader)
-        self.assertEqual(self.hero.companion.health, 1+c.COMPANIONS_HEAL_AMOUNT)
+        self.assertEqual(self.hero.companion.health, 1+c.COMPANIONS_HEALTH_PER_HEAL+c.COMPANION_REGEN_ON_HEAL_AMOUNT)
 
         self.storage._test_save()
 
+    @mock.patch('the_tale.common.utils.logic.randint_from_1', lambda v: v)
     def check_companion_healing_by_hero(self, companion_type):
 
         current_time = TimePrototype.get_current_time()
         self.hero.companion.health = 1
 
-        with self.check_increased(lambda: self.hero.companion.health):
-
+        with self.check_delta(lambda: self.hero.companion.health, c.COMPANIONS_HEALTH_PER_HEAL+c.COMPANION_REGEN_BY_HERO):
             self.companion_record.type = companion_type
             self.action_heal_companion.state = self.action_heal_companion.STATE.PROCESSED
             self.storage.process_turn(continue_steps_if_needed=False)
             current_time.increment_turn()
 
+    @mock.patch('the_tale.common.utils.logic.randint_from_1', lambda v: v)
     def check_companion_healing_by_hero__not_healed(self, companion_type):
 
         current_time = TimePrototype.get_current_time()
         self.hero.companion.health = 1
 
-        with self.check_not_changed(lambda: self.hero.companion.health):
+        with self.check_delta(lambda: self.hero.companion.health, c.COMPANIONS_HEALTH_PER_HEAL):
             self.companion_record.type = companion_type
             self.action_heal_companion.state = self.action_heal_companion.STATE.PROCESSED
             self.storage.process_turn(continue_steps_if_needed=False)

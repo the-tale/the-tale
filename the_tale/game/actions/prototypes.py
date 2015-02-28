@@ -7,7 +7,7 @@ import math
 from dext.common.utils.urls import url
 from dext.common.utils import discovering
 
-from the_tale.common.utils.logic import random_value_by_priority
+from the_tale.common.utils import logic as utils_logic
 
 from the_tale.game.prototypes import TimePrototype
 
@@ -252,7 +252,7 @@ class ActionBase(object):
 
         choices = [(choice, choice.priority) for choice in self.help_choices]
 
-        return random_value_by_priority(choices)
+        return utils_logic.random_value_by_priority(choices)
 
     @property
     def description_text_name(self):
@@ -355,7 +355,7 @@ class ActionBase(object):
         self.process_action()
 
     def choose_event_reward(self):
-        return random_value_by_priority([(record, record.priority) for record in relations.ACTION_EVENT_REWARD.records])
+        return utils_logic.random_value_by_priority([(record, record.priority) for record in relations.ACTION_EVENT_REWARD.records])
 
     def do_events(self):
 
@@ -1028,7 +1028,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
             self.hero.can_companion_eat_corpses() and
             random.random() < self.hero.companion_eat_corpses_probability and
             self.mob.mob_type.is_eatable):
-            health = self.hero.companion.heal(c.COMPANIONS_HEAL_AMOUNT)
+            health = self.hero.companion.heal(c.COMPANION_EATEN_CORPSES_HEAL_AMOUNT)
             self.hero.add_message('companions_eat_corpse', companion_owner=self.hero, companion=self.hero.companion, health=health, mob=self.mob)
 
 
@@ -1044,7 +1044,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
         if not len(artifacts):
             return
 
-        artifact = random_value_by_priority([(artifact, 1 - artifact.integrity_fraction)
+        artifact = utils_logic.random_value_by_priority([(artifact, 1 - artifact.integrity_fraction)
                                              for artifact in artifacts])
 
         artifact.break_it()
@@ -1898,13 +1898,16 @@ class ActionHealCompanionPrototype(ActionBase):
         if self.hero.companion is None:
             return
 
+        health = self.hero.companion.heal(utils_logic.randint_from_1(c.COMPANIONS_HEALTH_PER_HEAL))
+        self.hero.add_message('action_heal_companion_finish', hero=self.hero, companion=self.hero.companion, health=health)
+
         if self.hero.can_companion_exp_per_heal() and random.random() < self.hero.companion_exp_per_heal_probability:
             self.hero.add_experience(c.COMPANION_EXP_PER_HEAL, without_modifications=True)
 
         if (self.hero.companion.health < self.hero.companion.max_health and
             self.hero.can_companion_regenerate() and
             random.random() < self.hero.companion_regenerate_probability):
-            health = self.hero.companion.heal(c.COMPANIONS_HEAL_AMOUNT)
+            health = self.hero.companion.heal(utils_logic.randint_from_1(c.COMPANION_REGEN_ON_HEAL_AMOUNT))
             self.hero.add_message('companions_regenerate', companion_owner=self.hero, companion=self.hero.companion, health=health)
 
         if (self.hero.companion.health < self.hero.companion.max_health and
@@ -1912,7 +1915,7 @@ class ActionHealCompanionPrototype(ActionBase):
               (self.hero.companion.type.is_CONSTRUCT and random.random() < self.hero.companion_construct_heal_probability) or
               (self.hero.companion.type.is_UNUSUAL and random.random() < self.hero.companion_unusual_heal_probability) )
               ):
-            health = self.hero.companion.heal(c.COMPANIONS_HEAL_AMOUNT)
+            health = self.hero.companion.heal(utils_logic.randint_from_1(c.COMPANION_REGEN_BY_HERO))
             self.hero.add_message('hero_ability_companion_healing', actor=self.hero, companion=self.hero.companion, health=health)
 
 

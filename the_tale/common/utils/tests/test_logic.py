@@ -10,7 +10,8 @@ from the_tale.common.utils.logic import (random_value_by_priority,
                                          verbose_timedelta,
                                          get_or_create,
                                          split_into_table,
-                                         days_range)
+                                         days_range,
+                                         randint_from_1)
 from the_tale.common.utils.decorators import lazy_property
 
 _get_or_create_state = None # for get_or_create tests
@@ -161,3 +162,17 @@ class LogicTest(testcase.TestCase):
                           datetime.date(666, 6, 7),
                           datetime.date(666, 6, 8),
                           datetime.date(666, 6, 9)])
+
+    def test_randint_from_1(self):
+        self.assertEqual(randint_from_1(0), 0)
+        self.assertEqual(randint_from_1(1), 1)
+
+        set_2 = set()
+        set_3 = set()
+
+        for i in xrange(1000):
+            set_2.add(randint_from_1(2))
+            set_3.add(randint_from_1(3))
+
+        self.assertEqual(set_2, set((1, 2, 3)))
+        self.assertEqual(set_3, set((1, 2, 3, 4, 5)))

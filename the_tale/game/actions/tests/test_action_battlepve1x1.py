@@ -174,7 +174,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         self.storage.process_turn(continue_steps_if_needed=False)
 
-        self.assertEqual(self.hero.companion.health, 10 + c.COMPANIONS_HEAL_AMOUNT)
+        self.assertEqual(self.hero.companion.health, 10 + c.COMPANION_EATEN_CORPSES_HEAL_AMOUNT)
 
         self.storage._test_save()
 
