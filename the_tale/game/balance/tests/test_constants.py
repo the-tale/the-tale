@@ -322,26 +322,28 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.COMPANIONS_HEAL_AMOUNT, 2)
         self.assertEqual(c.COMPANIONS_HEAL_CRIT_AMOUNT, 4)
 
-        self.assertEqual(c.COMPANION_BATTLE_STRIKE_PROBABILITY, 0.05)
+        self.assertEqual(c.COMPANIONS_BATTLE_STRIKE_PROBABILITY, 0.05)
 
-        self.assertEqual(c.COMPANION_EXP_PER_MOVE_GET_EXP, 1)
-        self.assertEqual(c.COMPANION_GET_EXP_MOVE_EVENTS_PER_HOUR, 2.0)
-        self.assertEqual(round(c.COMPANION_EXP_PER_MOVE_PROBABILITY, 5), 0.15957)
+        self.assertEqual(c.COMPANIONS_EXP_PER_MOVE_GET_EXP, 1)
+        self.assertEqual(c.COMPANIONS_GET_EXP_MOVE_EVENTS_PER_HOUR, 2.0)
+        self.assertEqual(round(c.COMPANIONS_EXP_PER_MOVE_PROBABILITY, 5), 0.15957)
         self.assertEqual(c.MOVE_TURNS_IN_ACTION_CYCLE, 24)
         self.assertEqual(round(c.MOVE_TURNS_IN_HOUR, 5), 12.53333)
 
-        self.assertEqual(c.COMPANION_EXP_PER_HEAL, 1)
+        self.assertEqual(c.COMPANIONS_EXP_PER_HEAL, 1)
 
         self.assertEqual(c.COMPANIONS_HEAL_BONUS, 0.25)
 
         self.assertEqual(round(c.COMPANIONS_REGEN_PER_HOUR, 5), 0.05208)
 
-        self.assertEqual(round(c.COMPANION_EATEN_CORPSES_HEAL_AMOUNT), 1)
-        self.assertEqual(round(c.COMPANION_REGEN_ON_HEAL_AMOUNT), 2)
+        self.assertEqual(round(c.COMPANIONS_EATEN_CORPSES_HEAL_AMOUNT), 1)
+        self.assertEqual(round(c.COMPANIONS_REGEN_ON_HEAL_AMOUNT), 2)
 
-        self.assertEqual(round(c.COMPANION_EATEN_CORPSES_PER_BATTLE, 5), 0.0034)
-        self.assertEqual(round(c.COMPANION_REGEN_ON_HEAL_PER_HEAL, 5), 0.01736)
-        self.assertEqual(round(c.COMPANION_HERO_REGEN_ON_HEAL_PER_HEAL, 5), 0.01736)
+        self.assertEqual(round(c.COMPANIONS_EATEN_CORPSES_PER_BATTLE, 5), 0.0034)
+        self.assertEqual(round(c.COMPANIONS_REGEN_ON_HEAL_PER_HEAL, 5), 0.01736)
+        self.assertEqual(round(c.COMPANIONS_HERO_REGEN_ON_HEAL_PER_HEAL, 5), 0.01736)
+
+        self.assertEqual(c.COMPANIONS_GIVE_COMPANION_AFTER, 24)
 
 
     def test_dedication_maximum_multiplier(self):

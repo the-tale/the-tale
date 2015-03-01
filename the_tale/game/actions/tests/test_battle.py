@@ -413,7 +413,7 @@ class TryCompanionStrikeTests(TestsBase):
         self.set_hero_companion()
 
 
-    @mock.patch('the_tale.game.balance.constants.COMPANION_BATTLE_STRIKE_PROBABILITY', 1.0)
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_BATTLE_STRIKE_PROBABILITY', 1.0)
     def test_no_companion(self):
         self.hero.remove_companion()
 
@@ -425,7 +425,7 @@ class TryCompanionStrikeTests(TestsBase):
         self.assertFalse(battle.try_companion_strike(attacker=actor_1, defender=actor_2, messanger=self.hero))
 
 
-    @mock.patch('the_tale.game.balance.constants.COMPANION_BATTLE_STRIKE_PROBABILITY', 0.0)
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_BATTLE_STRIKE_PROBABILITY', 0.0)
     def test_no_probability(self):
         actor_1, actor_2 = self.get_actors()
 
@@ -435,7 +435,7 @@ class TryCompanionStrikeTests(TestsBase):
         self.assertFalse(battle.try_companion_strike(attacker=actor_1, defender=actor_2, messanger=self.hero))
 
 
-    @mock.patch('the_tale.game.balance.constants.COMPANION_BATTLE_STRIKE_PROBABILITY', 1.0)
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_BATTLE_STRIKE_PROBABILITY', 1.0)
     def test_no_battle_abilities(self):
         actor_1, actor_2 = self.get_actors()
 
@@ -445,7 +445,7 @@ class TryCompanionStrikeTests(TestsBase):
         self.assertFalse(battle.try_companion_strike(attacker=actor_1, defender=actor_2, messanger=self.hero))
 
 
-    @mock.patch('the_tale.game.balance.constants.COMPANION_BATTLE_STRIKE_PROBABILITY', 1.0)
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_BATTLE_STRIKE_PROBABILITY', 1.0)
     def test_strike(self):
         from the_tale.game.companions.abilities import effects
         from the_tale.game.companions.abilities import container

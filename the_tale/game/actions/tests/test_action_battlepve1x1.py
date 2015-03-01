@@ -156,7 +156,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.storage._test_save()
 
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY', 0)
-    @mock.patch('the_tale.game.balance.constants.COMPANION_EATEN_CORPSES_PER_BATTLE', 1.0)
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_EATEN_CORPSES_PER_BATTLE', 1.0)
     @mock.patch('the_tale.game.mobs.prototypes.MobPrototype.mob_type', mobs_relations.MOB_TYPE.ANIMAL)
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_eat_corpses', lambda hero: True)
     def test_full_battle__with_companion__eat_corpse(self):
@@ -174,7 +174,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         self.storage.process_turn(continue_steps_if_needed=False)
 
-        self.assertEqual(self.hero.companion.health, 10 + c.COMPANION_EATEN_CORPSES_HEAL_AMOUNT)
+        self.assertEqual(self.hero.companion.health, 10 + c.COMPANIONS_EATEN_CORPSES_HEAL_AMOUNT)
 
         self.storage._test_save()
 

@@ -237,7 +237,7 @@ def try_companion_strike(attacker, defender, messanger):
     if not attacker.has_companion:
         return False
 
-    if random.random() > c.COMPANION_BATTLE_STRIKE_PROBABILITY:
+    if random.random() > c.COMPANIONS_BATTLE_STRIKE_PROBABILITY:
         return False
 
     abilities = attacker.companion.modify_attribute(heroes_relations.MODIFIERS.ADDITIONAL_ABILITIES, heroes_relations.MODIFIERS.ADDITIONAL_ABILITIES.default())

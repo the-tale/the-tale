@@ -782,8 +782,8 @@ class ActionMoveToPrototype(ActionBase):
     def normal_move(self):
 
         if self.hero.companion and self.hero.can_companion_say_wisdom() and random.random() < self.hero.companion_say_wisdom_probability:
-            self.hero.add_experience(c.COMPANION_EXP_PER_MOVE_GET_EXP, without_modifications=True)
-            self.hero.add_message('companions_say_wisdom', companion_owner=self.hero, companion=self.hero.companion, experience=c.COMPANION_EXP_PER_MOVE_GET_EXP)
+            self.hero.add_experience(c.COMPANIONS_EXP_PER_MOVE_GET_EXP, without_modifications=True)
+            self.hero.add_message('companions_say_wisdom', companion_owner=self.hero, companion=self.hero.companion, experience=c.COMPANIONS_EXP_PER_MOVE_GET_EXP)
 
         elif random.uniform(0, 1) < c.HABIT_MOVE_EVENTS_IN_TURN:
             self.do_events()
@@ -1028,7 +1028,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
             self.hero.can_companion_eat_corpses() and
             random.random() < self.hero.companion_eat_corpses_probability and
             self.mob.mob_type.is_eatable):
-            health = self.hero.companion.heal(c.COMPANION_EATEN_CORPSES_HEAL_AMOUNT)
+            health = self.hero.companion.heal(c.COMPANIONS_EATEN_CORPSES_HEAL_AMOUNT)
             self.hero.add_message('companions_eat_corpse', companion_owner=self.hero, companion=self.hero.companion, health=health, mob=self.mob)
 
 
@@ -1653,9 +1653,9 @@ class ActionMoveNearPlacePrototype(ActionBase):
 
         else:
 
-            if self.hero.companion and self.hero.can_companion_say_wisdom() and random.random() < c.COMPANION_EXP_PER_MOVE_PROBABILITY:
-                self.hero.add_experience(c.COMPANION_EXP_PER_MOVE_GET_EXP, without_modifications=True)
-                self.hero.add_message('companions_say_wisdom', companion_owner=self.hero, companion=self.hero.companion, experience=c.COMPANION_EXP_PER_MOVE_GET_EXP)
+            if self.hero.companion and self.hero.can_companion_say_wisdom() and random.random() < c.COMPANIONS_EXP_PER_MOVE_PROBABILITY:
+                self.hero.add_experience(c.COMPANIONS_EXP_PER_MOVE_GET_EXP, without_modifications=True)
+                self.hero.add_message('companions_say_wisdom', companion_owner=self.hero, companion=self.hero.companion, experience=c.COMPANIONS_EXP_PER_MOVE_GET_EXP)
 
             elif random.uniform(0, 1) < 0.25:
                 self.hero.add_message('action_movenearplace_walk', hero=self.hero, place=self.place)
@@ -1902,12 +1902,12 @@ class ActionHealCompanionPrototype(ActionBase):
         self.hero.add_message('action_heal_companion_finish', hero=self.hero, companion=self.hero.companion, health=health)
 
         if self.hero.can_companion_exp_per_heal() and random.random() < self.hero.companion_exp_per_heal_probability:
-            self.hero.add_experience(c.COMPANION_EXP_PER_HEAL, without_modifications=True)
+            self.hero.add_experience(c.COMPANIONS_EXP_PER_HEAL, without_modifications=True)
 
         if (self.hero.companion.health < self.hero.companion.max_health and
             self.hero.can_companion_regenerate() and
             random.random() < self.hero.companion_regenerate_probability):
-            health = self.hero.companion.heal(utils_logic.randint_from_1(c.COMPANION_REGEN_ON_HEAL_AMOUNT))
+            health = self.hero.companion.heal(utils_logic.randint_from_1(c.COMPANIONS_REGEN_ON_HEAL_AMOUNT))
             self.hero.add_message('companions_regenerate', companion_owner=self.hero, companion=self.hero.companion, health=health)
 
         if (self.hero.companion.health < self.hero.companion.max_health and
@@ -1915,7 +1915,7 @@ class ActionHealCompanionPrototype(ActionBase):
               (self.hero.companion.type.is_CONSTRUCT and random.random() < self.hero.companion_construct_heal_probability) or
               (self.hero.companion.type.is_UNUSUAL and random.random() < self.hero.companion_unusual_heal_probability) )
               ):
-            health = self.hero.companion.heal(utils_logic.randint_from_1(c.COMPANION_REGEN_BY_HERO))
+            health = self.hero.companion.heal(utils_logic.randint_from_1(c.COMPANIONS_REGEN_BY_HERO))
             self.hero.add_message('hero_ability_companion_healing', actor=self.hero, companion=self.hero.companion, health=health)
 
 

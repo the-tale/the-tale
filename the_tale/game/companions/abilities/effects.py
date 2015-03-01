@@ -157,8 +157,8 @@ class BaseBattleAbility(Base):
 
     def _modify_attribute(self, abilities_levels, modifier, value):
         if modifier.is_INITIATIVE:
-            return value * (1 + aprox(c.COMPANION_BATTLE_STRIKE_PROBABILITY / 2,
-                                      c.COMPANION_BATTLE_STRIKE_PROBABILITY,
+            return value * (1 + aprox(c.COMPANIONS_BATTLE_STRIKE_PROBABILITY / 2,
+                                      c.COMPANIONS_BATTLE_STRIKE_PROBABILITY,
                                       abilities_levels.get(self.TYPE.metatype, 0)))
         if modifier.is_ADDITIONAL_ABILITIES:
             value.append(self.ABILITY)

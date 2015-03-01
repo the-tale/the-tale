@@ -587,7 +587,25 @@ class HeroTest(testcase.TestCase):
         self.assertEqual(self.hero.last_rare_operation_at_turn, game_time.turn_number)
 
 
-    @mock.patch('the_tale.game.heroes.conf.heroes_settings.RARE_OPERATIONS_INTERVAL', 2)
+    def test_process_rare_operations__companion_added(self):
+        game_time = TimePrototype.get_current_time()
+        game_time.turn_number += c.TURNS_IN_GAME_YEAR - 1
+        game_time.save()
+
+        with self.check_changed(lambda: self.hero.companion):
+            self.hero.process_rare_operations()
+
+        self.assertTrue(self.hero.companion.record.rarity.is_COMMON)
+
+
+    @mock.patch('the_tale.game.heroes.conf.heroes_settings.RARE_OPERATIONS_INTERVAL', 0)
+    def test_process_rare_operations__companion_not_added(self):
+
+        for i in xrange(1000):
+            self.hero.process_rare_operations()
+            self.assertEqual(self.hero.companion, None)
+
+
     def test_process_rare_operations__age_changed(self):
         game_time = TimePrototype.get_current_time()
         game_time.turn_number += c.TURNS_IN_GAME_YEAR - 1

@@ -101,11 +101,11 @@ class _CompanionHealBase(AbilityPrototype):
     normalized_name = None
     DESCRIPTION = None
 
-    PROBABILITY = [c.COMPANION_HERO_REGEN_ON_HEAL_PER_HEAL * 0.2,
-                   c.COMPANION_HERO_REGEN_ON_HEAL_PER_HEAL * 0.4,
-                   c.COMPANION_HERO_REGEN_ON_HEAL_PER_HEAL * 0.6,
-                   c.COMPANION_HERO_REGEN_ON_HEAL_PER_HEAL * 0.8,
-                   c.COMPANION_HERO_REGEN_ON_HEAL_PER_HEAL * 1.0]
+    PROBABILITY = [c.COMPANIONS_HERO_REGEN_ON_HEAL_PER_HEAL * 0.2,
+                   c.COMPANIONS_HERO_REGEN_ON_HEAL_PER_HEAL * 0.4,
+                   c.COMPANIONS_HERO_REGEN_ON_HEAL_PER_HEAL * 0.6,
+                   c.COMPANIONS_HERO_REGEN_ON_HEAL_PER_HEAL * 0.8,
+                   c.COMPANIONS_HERO_REGEN_ON_HEAL_PER_HEAL * 1.0]
     MODIFIER = None
 
     @property

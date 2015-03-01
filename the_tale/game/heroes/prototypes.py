@@ -781,12 +781,20 @@ class HeroPrototype(BasePrototype,
         from the_tale.accounts.achievements.storage import achievements_storage
         from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
+        from the_tale.game.companions import storage as companions_storage
+        from the_tale.game.companions import logic as companions_logic
+
         current_turn = TimePrototype.get_current_turn_number()
 
         passed_interval = current_turn - self.last_rare_operation_at_turn
 
         if passed_interval < heroes_settings.RARE_OPERATIONS_INTERVAL:
             return
+
+        if self.companion is None and random.random() < float(passed_interval) / c.TURNS_IN_HOUR / c.COMPANIONS_GIVE_COMPANION_AFTER:
+            companions_choices = [companion for companion in companions_storage.companions.enabled_companions() if companion.rarity.is_COMMON]
+            if companions_choices:
+                self.set_companion(companions_logic.create_companion(random.choice(companions_choices)))
 
         self.quests.sync_interfered_persons()
 

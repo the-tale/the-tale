@@ -112,7 +112,7 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
 
         self.hero.companion.health -= 1
 
-        with self.check_delta(lambda: self.hero.experience, c.COMPANION_EXP_PER_HEAL):
+        with self.check_delta(lambda: self.hero.experience, c.COMPANIONS_EXP_PER_HEAL):
             with self.check_increased(lambda: self.hero.companion.health):
                 ability = self.PROCESSOR()
 
@@ -156,7 +156,7 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
     def test_full__exp_per_heal(self):
         self.hero.companion.health = 1
 
-        with self.check_delta(lambda: self.hero.experience, c.COMPANION_EXP_PER_HEAL):
+        with self.check_delta(lambda: self.hero.experience, c.COMPANIONS_EXP_PER_HEAL):
 
             current_time = TimePrototype.get_current_time()
 
@@ -170,7 +170,7 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
 
 
     @mock.patch('the_tale.common.utils.logic.randint_from_1', lambda v: v)
-    @mock.patch('the_tale.game.balance.constants.COMPANION_REGEN_ON_HEAL_PER_HEAL', 1.0)
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_REGEN_ON_HEAL_PER_HEAL', 1.0)
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_regenerate', lambda hero: True)
     def test_full__regeneration(self):
         self.hero.companion.health = 1
@@ -182,7 +182,7 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
             current_time.increment_turn()
 
         self.assertTrue(self.action_idl.leader)
-        self.assertEqual(self.hero.companion.health, 1+c.COMPANIONS_HEALTH_PER_HEAL+c.COMPANION_REGEN_ON_HEAL_AMOUNT)
+        self.assertEqual(self.hero.companion.health, 1+c.COMPANIONS_HEALTH_PER_HEAL+c.COMPANIONS_REGEN_ON_HEAL_AMOUNT)
 
         self.storage._test_save()
 
@@ -192,7 +192,7 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
         current_time = TimePrototype.get_current_time()
         self.hero.companion.health = 1
 
-        with self.check_delta(lambda: self.hero.companion.health, c.COMPANIONS_HEALTH_PER_HEAL+c.COMPANION_REGEN_BY_HERO):
+        with self.check_delta(lambda: self.hero.companion.health, c.COMPANIONS_HEALTH_PER_HEAL+c.COMPANIONS_REGEN_BY_HERO):
             self.companion_record.type = companion_type
             self.action_heal_companion.state = self.action_heal_companion.STATE.PROCESSED
             self.storage.process_turn(continue_steps_if_needed=False)
