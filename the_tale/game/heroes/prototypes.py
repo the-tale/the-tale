@@ -206,7 +206,12 @@ class HeroPrototype(BasePrototype,
         return created_at if created_at is not None else datetime.datetime.now()
 
     def switch_spending(self):
-        self._model.next_spending = random_value_by_priority(list(self.spending_priorities().items()))
+        spending_candidates = self.spending_priorities()
+
+        if self.companion is None:
+            del spending_candidates[relations.ITEMS_OF_EXPENDITURE.HEAL_COMPANION]
+
+        self._model.next_spending = random_value_by_priority(list(spending_candidates.items()))
         self.quests.mark_updated()
 
     @property
@@ -408,6 +413,9 @@ class HeroPrototype(BasePrototype,
         del self.companion
         self.data['companion'] = None
         self.reset_accessors_cache()
+
+        while self.next_spending.is_HEAL_COMPANION:
+            self.switch_spending()
 
 
     def serialize_companion(self):

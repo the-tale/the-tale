@@ -336,8 +336,10 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(round(c.COMPANIONS_REGEN_PER_HOUR, 5), 0.05208)
 
-        self.assertEqual(round(c.COMPANIONS_EATEN_CORPSES_HEAL_AMOUNT), 1)
-        self.assertEqual(round(c.COMPANIONS_REGEN_ON_HEAL_AMOUNT), 2)
+        self.assertEqual(c.COMPANIONS_EATEN_CORPSES_HEAL_AMOUNT, 1)
+        self.assertEqual(c.COMPANIONS_REGEN_ON_HEAL_AMOUNT, 2)
+        self.assertEqual(c.COMPANIONS_REGEN_BY_HERO, 2)
+        self.assertEqual(c.COMPANIONS_REGEN_BY_MONEY_SPEND, 1)
 
         self.assertEqual(round(c.COMPANIONS_EATEN_CORPSES_PER_BATTLE, 5), 0.0034)
         self.assertEqual(round(c.COMPANIONS_REGEN_ON_HEAL_PER_HEAL, 5), 0.01736)

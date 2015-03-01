@@ -724,6 +724,43 @@ class HeroTest(testcase.TestCase):
         self.assertEqual(self.hero.companion, None)
 
 
+    def test_remove_companion__switch_next_spending(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        companion = companions_logic.create_companion(companion_record)
+
+        self.hero.set_companion(companion)
+
+        while not self.hero.next_spending.is_HEAL_COMPANION:
+            self.hero.switch_spending()
+
+        self.hero.remove_companion()
+
+        self.assertFalse(self.hero.next_spending.is_HEAL_COMPANION)
+
+
+    def test_switch_next_spending__with_companion(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        companion = companions_logic.create_companion(companion_record)
+
+        self.hero.set_companion(companion)
+
+        spendings = set()
+
+        for i in xrange(1000):
+            self.hero.switch_spending()
+            spendings.add(self.hero.next_spending)
+
+        self.assertIn(relations.ITEMS_OF_EXPENDITURE.HEAL_COMPANION, spendings)
+
+
+    def test_switch_next_spending__without_companion(self):
+        self.assertEqual(self.hero.companion, None)
+
+        for i in xrange(1000):
+            self.hero.switch_spending()
+            self.assertFalse(self.hero.next_spending.is_HEAL_COMPANION)
+
+
 class HeroLevelUpTests(testcase.TestCase):
 
     def setUp(self):

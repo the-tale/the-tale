@@ -1316,6 +1316,14 @@ class ActionInPlacePrototype(ActionBase):
             self.hero.add_experience(experience)
             self.hero.add_message('action_inplace_diary_experience', diary=True, hero=self.hero, coins=coins, experience=experience)
 
+
+    def spend_money__heal_companion(self):
+        coins = self.try_to_spend_money()
+        if coins is not None:
+            self.hero.companion.heal(c.COMPANIONS_REGEN_BY_MONEY_SPEND)
+            self.hero.add_message('action_inplace_diary_heal_companion_healed',
+                                  diary=True, place=self.hero.position.place, hero=self.hero, coins=coins, companion=self.hero.companion)
+
     def spend_money(self):
 
         if self.hero.next_spending.is_INSTANT_HEAL:
@@ -1323,7 +1331,6 @@ class ActionInPlacePrototype(ActionBase):
 
         elif self.hero.next_spending.is_BUYING_ARTIFACT:
             self.spend_money__buying_artifact()
-
         elif self.hero.next_spending.is_SHARPENING_ARTIFACT:
             self.spend_money__sharpening_artifact()
 
@@ -1338,6 +1345,9 @@ class ActionInPlacePrototype(ActionBase):
 
         elif self.hero.next_spending.is_EXPERIENCE:
             self.spend_money__experience()
+
+        elif self.hero.next_spending.is_HEAL_COMPANION:
+            self.spend_money__heal_companion()
 
         else:
             raise exceptions.ActionException('wrong hero money spend type: %d' % self.hero.next_spending)

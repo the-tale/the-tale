@@ -667,6 +667,29 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.storage._test_save()
 
 
+    @mock.patch('the_tale.game.balance.constants.PRICE_DELTA', 0.0)
+    def test_heal_companion(self):
+        self.companion_record = companions_logic.create_random_companion_record('companion', state=companions_relations.STATE.ENABLED)
+        self.hero.set_companion(companions_logic.create_companion(self.companion_record))
+
+        self.hero.companion.health = 1
+
+        while not self.hero.next_spending.is_HEAL_COMPANION:
+            self.hero.switch_spending()
+
+        money = self.hero.spend_amount
+
+        self.hero._model.money = money + 666
+
+        with self.check_increased(lambda: self.hero.companion.health):
+            with self.check_delta(lambda: self.hero.money, -money):
+                self.storage.process_turn()
+
+        self.assertEqual(self.hero.statistics.money_spend, money)
+        self.assertEqual(self.hero.statistics.money_spend_for_companions, money)
+
+        self.storage._test_save()
+
 
 class InPlaceActionCompanionBuyMealTests(testcase.TestCase):
 

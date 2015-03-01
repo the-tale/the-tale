@@ -142,4 +142,8 @@ KEYS = [(u'ACTION_INPLACE_DESCRIPTION', 80000, u'Описание', LEXICON_GROU
         (u'ACTION_INPLACE_COMPANION_LEAVE', 80034, u'Дневник: Спутник покинул героя из-за способности «нелюдимый»', LEXICON_GROUP.ACTION_INPLACE,
         u'Спутник покинул героя из-за способности «нелюдимый».',
         [V.HERO, V.PLACE, V.COMPANION]),
+
+        (u'ACTION_INPLACE_DIARY_HEAL_COMPANION_HEALED', 80035, u'Дневник: Лечение спутника', LEXICON_GROUP.ACTION_INPLACE,
+        u'Герой восстановил спутнику немного здоровья, потратив деньги.',
+        [V.HERO, V.PLACE, V.COMPANION, V.COINS])
         ]
