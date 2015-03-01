@@ -39,7 +39,7 @@ class LogicAccessorsMixin(object):
         value = self.habit_peacefulness.modify_attribute(modifier, value)
         value = self.equipment.modify_attribute(modifier, value)
 
-        if self.companion:
+        if self.companion and not modifier.is_ADDITIONAL_ABILITIES:
             value = self.companion.modify_attribute(modifier, value)
 
         return value
@@ -59,8 +59,6 @@ class LogicAccessorsMixin(object):
         self.habit_honor.update_context(hero_actor, enemy)
         self.habit_peacefulness.update_context(hero_actor, enemy)
 
-        # if self.companion:
-        #     self.companion.update_context(hero_actor, enemy)
 
     ################################
     # modifiers

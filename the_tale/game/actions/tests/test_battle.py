@@ -98,7 +98,9 @@ class BattleTests(TestsBase):
         from the_tale.game.heroes.habilities import ABILITIES
         all_abilities = [ability(level=ability.MAX_LEVEL) for ability in ABILITIES.values()]
 
-        active_abilities = set(ability.TYPE for ability in all_abilities if ability.activation_type.is_ACTIVE)
+        active_abilities = set(ability.get_id() for ability in all_abilities if ability.activation_type.is_ACTIVE)
+
+        self.hero._model.health = 1 # allow regeneration
 
         actor = battle.Actor(self.hero, BattleContext())
 
@@ -106,9 +108,51 @@ class BattleTests(TestsBase):
 
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.additional_abilities', all_abilities):
             for i in xrange(1000):
-                chosen_abilities.add(actor.choose_ability().TYPE)
+                chosen_abilities.add(actor.choose_ability().get_id())
 
         self.assertEqual(active_abilities, chosen_abilities)
+
+
+    def test_choose_ability__additional_companion_abilities(self):
+        from the_tale.game.heroes.habilities import ABILITIES
+        from the_tale.game.companions.abilities import effects as companions_effects
+        from the_tale.game.companions.abilities import container as abilities_container
+        from the_tale.game.companions import logic as companions_logic
+        from the_tale.game.companions import relations as companions_relations
+
+        abilities = [ability for ability in companions_effects.ABILITIES.records
+                     if ( isinstance(ability.effect, companions_effects.BaseBattleAbility) and
+                          ability.effect.ABILITY.get_id() != 'hit' )]
+        companion_ability = random.choice(abilities)
+
+        all_abilities = [ability(level=ability.MAX_LEVEL)
+                         for ability in ABILITIES.values()
+                         if ability.get_id() != companion_ability.effect.ABILITY.get_id()]
+
+        active_abilities = set(ability.get_id() for ability in ABILITIES.values() if ability.ACTIVATION_TYPE.is_ACTIVE)
+
+        companion_record = companions_logic.create_random_companion_record(u'battle',
+                                                                           abilities=abilities_container.Container(start=(companion_ability,)),
+                                                                           state=companions_relations.STATE.ENABLED)
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+        self.hero._model.health = 1 # allow regeneration
+
+        actor = battle.Actor(self.hero, BattleContext())
+
+        chosen_abilities = set()
+
+        # mock abilities modify_attribute instead of hereos, since we test correct work of it
+        def modify_attribute(self, modifier, value):
+            if modifier.is_ADDITIONAL_ABILITIES:
+                return all_abilities
+            return value
+
+        with mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.modify_attribute', modify_attribute):
+            for i in xrange(1000):
+                chosen_abilities.add(actor.choose_ability().get_id())
+
+        self.assertEqual(len(active_abilities), len(chosen_abilities) + 1)
+        self.assertEqual(active_abilities - set([companion_ability.effect.ABILITY.get_id()]), chosen_abilities)
 
     def test_initiative_change(self):
         actor = battle.Actor(self.hero, BattleContext())

@@ -15,12 +15,11 @@ from the_tale.game.actions import contexts
 
 class Actor(object):
 
-    __slots__ = ('actor', 'context') #, 'messages')
+    __slots__ = ('actor', 'context')
 
     def __init__(self, actor, context):
         self.actor = actor
         self.context = context
-        # self.messages = []
 
     @property
     def initiative(self): return self.actor.initiative * self.context.initiative
@@ -126,7 +125,14 @@ class CompanionActor(Actor):
 
     def remove_companion(self): raise NotImplementedError()
 
+    @property
+    def companion_damage_probability(self): raise NotImplementedError()
+
     def choose_ability(self): raise NotImplementedError()
+
+    def process_effects(self, messanger): raise NotImplementedError()
+
+    def change_health(self, value): raise NotImplementedError()
 
 
 def make_turn(actor_1, actor_2, messanger):
