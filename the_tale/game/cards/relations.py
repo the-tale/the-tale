@@ -163,4 +163,10 @@ class CARD_TYPE(DjangoEnum):
 
                 ('RELEASE_COMPANION', 99, u'четыре стороны', AVAILABILITY.FOR_ALL, RARITY.COMMON, forms.EmptyForm,),
 
+                ('HEAL_COMPANION_COMMON', 100, u'передышка', AVAILABILITY.FOR_ALL, RARITY.COMMON, forms.EmptyForm,),
+                ('HEAL_COMPANION_UNCOMMON', 101, u'подорожник', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
+                ('HEAL_COMPANION_RARE', 102, u'священный мёд', AVAILABILITY.FOR_ALL, RARITY.RARE, forms.EmptyForm,),
+                ('HEAL_COMPANION_EPIC', 103, u'молодильное яблоко', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm,),
+                ('HEAL_COMPANION_LEGENDARY', 104, u'живая вода', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm,),
+
                 )

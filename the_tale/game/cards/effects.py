@@ -1024,6 +1024,48 @@ class ReleaseCompanion(BaseEffect):
 
 
 
+class HealCompanionBase(BaseEffect):
+    TYPE = None
+    HEALTH = None
+
+    @property
+    def DESCRIPTION(self):
+        return u'Восстанавливает спутнику %(health)d здоровья.' % {'health': self.HEALTH}
+
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+
+        if task.hero.companion is None:
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя нет спутника.')
+
+        if task.hero.companion.health == task.hero.companion.max_health:
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Спутник героя полностью здоров.')
+
+        health = task.hero.companion.heal(self.HEALTH)
+
+        return task.logic_result(message=u'Спутник вылечен на %(health)s HP.' % {'health': health})
+
+
+class HealCompanionCommon(HealCompanionBase):
+    TYPE = relations.CARD_TYPE.HEAL_COMPANION_COMMON
+    HEALTH = 1
+
+class HealCompanionUncommon(HealCompanionBase):
+    TYPE = relations.CARD_TYPE.HEAL_COMPANION_UNCOMMON
+    HEALTH = HealCompanionCommon.HEALTH * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+class HealCompanionRare(HealCompanionBase):
+    TYPE = relations.CARD_TYPE.HEAL_COMPANION_RARE
+    HEALTH = HealCompanionUncommon.HEALTH * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+class HealCompanionEpic(HealCompanionBase):
+    TYPE = relations.CARD_TYPE.HEAL_COMPANION_EPIC
+    HEALTH = HealCompanionRare.HEALTH * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+class HealCompanionLegendary(HealCompanionBase):
+    TYPE = relations.CARD_TYPE.HEAL_COMPANION_LEGENDARY
+    HEALTH = HealCompanionEpic.HEALTH * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+
 EFFECTS = {card_class.TYPE: card_class()
            for card_class in discovering.discover_classes(globals().values(), BaseEffect)
            if card_class.TYPE is not None}

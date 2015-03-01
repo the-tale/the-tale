@@ -1,10 +1,6 @@
 # coding: utf-8
 import random
 
-from the_tale.common.utils import testcase
-
-from the_tale.market import goods_types
-
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
@@ -14,13 +10,8 @@ from the_tale.game.postponed_tasks import ComplexChangeTask
 
 from the_tale.game.companions import storage as companions_storage
 from the_tale.game.companions import logic as companions_logic
-from the_tale.game.companions import relations as companions_relations
-
-from the_tale.game.companions.tests import helpers as companions_helpers
 
 from the_tale.game.cards.tests.helpers import CardsTestMixin
-
-
 
 
 class ReleaseCompanionTests(CardsTestMixin):
