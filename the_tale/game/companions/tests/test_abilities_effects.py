@@ -710,3 +710,18 @@ class CompanionFly(BaseEffectsTests):
 
         with self.check_changed(lambda: self.hero.companion_fly_probability):
             self.apply_ability(ability)
+
+
+class UnsociableTests(BaseEffectsTests):
+
+    def test_effect(self):
+        effect = effects.Unsociable(0.1)
+        self.assertEqual(effect._modify_attribute({}, MODIFIERS.COMPANION_LEAVE_IN_PLACE, 0), 0.1)
+        self.assertEqual(effect._modify_attribute({}, MODIFIERS.random(exclude=(MODIFIERS.COMPANION_LEAVE_IN_PLACE,)), 11), 11)
+
+
+    def test_in_game(self):
+        ability = self.get_ability(effects.Unsociable)
+
+        with self.check_changed(lambda: self.hero.companion_leave_in_place_probability):
+            self.apply_ability(ability)

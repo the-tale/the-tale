@@ -1187,6 +1187,7 @@ class ActionInPlacePrototype(ActionBase):
             else:
                 hero.add_message('action_inplace_habit_event_peacefulness_%s' % hero.position.place.habit_peacefulness.interval.name.lower(),
                                  hero=hero, place=hero.position.place, diary=True)
+
         if hero.companion and hero.position.place != hero.position.previous_place and hero.position.previous_place is not None:
 
             if hero.can_companion_eat():

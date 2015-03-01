@@ -345,6 +345,8 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.COMPANIONS_GIVE_COMPANION_AFTER, 24)
 
+        self.assertEqual(c.COMPANIONS_LEAVE_IN_PLACE, 0.05)
+
 
     def test_dedication_maximum_multiplier(self):
         multiplier = ((1 + c.COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA) *

@@ -209,6 +209,11 @@ class LootProbability(Multiplier):
     MODIFIER = heroes_relations.MODIFIERS.LOOT_PROBABILITY
 
 
+class Unsociable(Summand):
+    TYPE = relations.EFFECT.LEAVE_HERO
+    MODIFIER = heroes_relations.MODIFIERS.COMPANION_LEAVE_IN_PLACE
+
+
 class CompanionDamage(Summand):
     TYPE = relations.EFFECT.COMPANION_DAMAGE
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_DAMAGE
@@ -346,6 +351,7 @@ class Rarity(NoEffect):
 RARITY_LOW = -0.5
 RARITY_LOWER = -1.0
 RARITY_LOWEST = -2.0
+RARITY_LOWEST_2 = -3.0
 
 RARITY_NEUTRAL = 0.0
 
@@ -472,4 +478,9 @@ class ABILITIES(DjangoEnum):
         (u'UNCOMMON', 70, u'редкий', u'спутник встречается реже обычного', Rarity(), RARITY_BIGER),
         (u'RARE', 71, u'очень редкий', u'спутник встречается очень редко', Rarity(), RARITY_BIGEST),
         (u'SPECIAL', 72, u'особый', u'особый спутник, которого нельзя получить обычным способом', Rarity(), RARITY_LEGENDARY),
+
+        (u'TEMPORARY', 73, u'временный', u'спутник с небольшой вероятностью может покинуть героя при посещении города',
+         Unsociable(0.1 * c.COMPANIONS_LEAVE_IN_PLACE), RARITY_LOWEST),
+        (u'UNSOCIABLE', 74, u'нелюдимый', u'спутник может покинуть героя при посещении городас ',
+         Unsociable(c.COMPANIONS_LEAVE_IN_PLACE), RARITY_LOWEST_2),
     )

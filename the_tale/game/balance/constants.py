@@ -581,3 +581,5 @@ COMPANIONS_REGEN_ON_HEAL_PER_HEAL = float(COMPANIONS_REGEN_PER_HOUR) / _COMPANIO
 COMPANIONS_HERO_REGEN_ON_HEAL_PER_HEAL = float(COMPANIONS_REGEN_PER_HOUR) / _COMPANIONS_MEDIUM_HEALS_IN_HOUR / COMPANIONS_REGEN_BY_HERO
 
 COMPANIONS_GIVE_COMPANION_AFTER = int(24) # выдавать спутника герою без спутника примерно раз в N часов
+
+COMPANIONS_LEAVE_IN_PLACE = float(1.0 / 20) # вероятность того, что нелюдимый спутник покинет героя в городе

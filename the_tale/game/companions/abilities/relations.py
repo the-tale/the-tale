@@ -58,6 +58,8 @@ class EFFECT(DjangoEnum):
 
                 (u'RARITY', 37, u'редкость', METATYPE.UNCHANGEBLE),
 
+                (u'LEAVE_HERO', 38, u'покидает героя', METATYPE.UNCHANGEBLE),
+
                 )
 
 
