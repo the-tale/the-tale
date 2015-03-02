@@ -252,10 +252,7 @@ pgf.game.map.Map = function(selector, params) {
     var activated = false;
 
     jQuery(window).resize(function(e){
-        SyncCanvasSize();
-        navigationLayer.Resize();
-        var data = mapManager.GetMapDataForRect(pos.x, pos.y, canvasWidth, canvasHeight);
-        Draw(data);
+        jQuery(document).trigger(pgf.game.map.events.MAP_RESIZED);
     });
 
     function IsInitialized() {
