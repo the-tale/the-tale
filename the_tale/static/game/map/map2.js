@@ -413,13 +413,23 @@ pgf.game.map.Map = function(selector, params) {
 
         context.fillStyle="#000000";
         context.globalAlpha=0.75;
-        context.fillRect(x-rectDelta, y, textWidth+rectDelta*2, textHeight+rectDelta*2);
+        context.fillRect(x-rectDelta, y-rectDelta, textWidth+rectDelta*2, textHeight+rectDelta*2);
         context.globalAlpha=1;
         context.strokeStyle="#000000";
-        context.strokeRect(x-rectDelta, y, textWidth+rectDelta*2, textHeight+rectDelta*2);
+        context.strokeRect(x-rectDelta, y-rectDelta, textWidth+rectDelta*2, textHeight+rectDelta*2);
 
         context.fillStyle="#ffffff";
-        context.fillText(text, x, y);
+
+        var chromeY = -2;
+        var firefoxY = 1;
+
+        var dY = chromeY;
+
+        if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
+            dY = firefoxY;
+        }
+
+        context.fillText(text, x, y+dY);
     }
 
     function Draw(fullData) {
@@ -478,12 +488,15 @@ pgf.game.map.Map = function(selector, params) {
             var text = '('+place.size+') '+place.name;
             var textWidth = context.measureText(text).width;
 
+            var textX = Math.round(posX + place.pos.x * TILE_SIZE + TILE_SIZE / 2 - textWidth / 2);
+            var textY = Math.round(posY + (place.pos.y + 1) * TILE_SIZE)+2;
+
             DrawText(context,
                      text,
                      textWidth,
                      12,
-                     Math.round(posX + place.pos.x * TILE_SIZE + TILE_SIZE / 2 - textWidth / 2),
-                     Math.round(posY + (place.pos.y + 1) * TILE_SIZE) + 2);
+                     textX,
+                     textY);
         }
 
         var hero = dynamicData.hero;
