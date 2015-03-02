@@ -447,6 +447,9 @@ class ChangeItemOfExpenditureBase(BaseEffect):
         if task.hero.next_spending == self.ITEM:
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Герой уже копит деньги на эту цель.')
 
+        if self.ITEM.is_HEAL_COMPANION and task.hero.companion is None:
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя нет спутника, лечить некого.')
+
         task.hero.next_spending = self.ITEM
         task.hero.quests.mark_updated()
         return task.logic_result()
@@ -470,6 +473,10 @@ class ChangeHeroSpendingsToExperience(ChangeItemOfExpenditureBase):
 class ChangeHeroSpendingsToRepairingArtifact(ChangeItemOfExpenditureBase):
     TYPE = relations.CARD_TYPE.CHANGE_HERO_SPENDINGS_TO_REPAIRING_ARTIFACT
     ITEM = ITEMS_OF_EXPENDITURE.REPAIRING_ARTIFACT
+
+class ChangeHeroSpendingsToHealCompanion(ChangeItemOfExpenditureBase):
+    TYPE = relations.CARD_TYPE.CHANGE_HERO_SPENDINGS_TO_HEAL_COMPANION
+    ITEM = ITEMS_OF_EXPENDITURE.HEAL_COMPANION
 
 
 class RepairRandomArtifact(BaseEffect):

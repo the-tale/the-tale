@@ -169,4 +169,6 @@ class CARD_TYPE(DjangoEnum):
                 ('HEAL_COMPANION_EPIC', 103, u'молодильное яблоко', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm,),
                 ('HEAL_COMPANION_LEGENDARY', 104, u'живая вода', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm,),
 
+                ('CHANGE_HERO_SPENDINGS_TO_HEAL_COMPANION', 105, u'забота о ближнем', AVAILABILITY.FOR_ALL, RARITY.COMMON, forms.EmptyForm,),
+
                 )
