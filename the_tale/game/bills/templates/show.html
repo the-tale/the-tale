@@ -4,7 +4,7 @@
 {% import 'bills/macros.html' as bills_macros with context %}
 {% import 'forum/thread_page.html' as thread_page with context %}
 
-{% block title %} {{ bill.caption }} | {{ super() }}{% endblock %}
+{% block title %} {{ bill.caption }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Информация о законе «{{ bill.caption }}».{% endblock %}
 
 {% block bills_content %}

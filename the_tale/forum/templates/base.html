@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Форум | {{ super() }}{% endblock %}
+{% block title %}Форум | {{settings.PAGE_TITLE}}{% endblock %}
 
 {% block fast_account_warning %}
 ВНИМАНИЕ! Для Вас форум доступен только для чтения. Что бы создавать темы и отвечать в темах других игроков, необходимо указать имя, email и пароль в своём <a href="{{ url('accounts:profile:show') }}">профиле</a> (подробнее о регистрации можно почитать в <a href="{{ url('guide:') }}">Путеводителе по Сказке</a>).

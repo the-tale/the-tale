@@ -65,6 +65,8 @@ OWNER_COUNTRY = u'Республика Беларусь'
 NEWRELIC_ENABLED = True
 NEWRELIC_CONF_PATH = '/home/the-tale/conf/newrelic.ini'
 
+PAGE_TITLE = u'Сказка'
+
 API_CLIENT = 'the_tale-%s' % META_CONFIG.version
 
 ##############################

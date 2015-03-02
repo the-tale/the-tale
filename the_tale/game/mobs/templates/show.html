@@ -2,7 +2,7 @@
 {% import 'guide/macros.html' as guide_macros with context %}
 {% import 'mobs/macros.html' as mobs_macros with context %}
 
-{% block title %}{{mob.name|up_first}} | Бестиарий | {{ super() }}{% endblock %}
+{% block title %}{{mob.name|up_first}} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Описание монстра {{mob.name|up_first}}{% endblock %}
 
 {% block guide_content %}

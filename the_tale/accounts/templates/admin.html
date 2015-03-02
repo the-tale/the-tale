@@ -2,7 +2,7 @@
 
 {% import 'bills/macros.html' as bills_macros with context %}
 
-{% block title %} Администрирование{{ master_account.nick_verbose }} | {{ super() }}{% endblock %}
+{% block title %} Администрирование {{ master_account.nick_verbose }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Администрирование игрока{% endblock %}
 
 {% block accounts_content %}

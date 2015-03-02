@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% import 'clans/macros.html' as clan_macros with context %}
 
-{% block title %}Гильдии | {{ super() }}{% endblock %}
+{% block title %}Гильдии | {{settings.PAGE_TITLE}}{% endblock %}
 
 {% block fast_account_warning %}
 ВНИМАНИЕ! Для Вас этот раздел доступен только для чтения. Чтобы создать свою гильдию или вступить в существующую, необходимо указать имя, email и пароль в своём <a href="{{ url('accounts:profile:show') }}">профиле</a> (подробнее о регистрации можно почитать в <a href="{{ url('guide:') }}">Путеводителе по Сказке</a>).

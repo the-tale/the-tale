@@ -4,14 +4,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru">
   <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-    <!-- <meta name="description" content=""> -->
     <meta name="keywords" content="ZPG, ZRPG, Zero Player Game, самоиграйка, изменяемый мир, 0-player, тамагочи, браузерная игра, многопользовательская игра, инди игра, песочница">
     <meta name="description" content="{% block description %}Независимая многопользовательская браузерная ролевая Zero Player Game (ZPG или ZRPG) c «живыми» героями, изменяемым миром и системой политики.{% endblock %}"></meta>
     <meta name="author" content="Tiendil">
     <link href="{{ url('news:feed') }}" type="application/atom+xml" rel="alternate" title="Новости" />
     <link href="{{ url('forum:feed') }}" type="application/atom+xml" rel="alternate" title="Форум" />
     <link rel="shortcut icon" href="{{ STATIC_CONTENT }}favicon.ico" />
-    <title>{% block title%}Сказка — многопользовательская Zero Player Game с изменяемым миром {% endblock %}</title>
+    <title>{% block title%}{{settings.PAGE_TITLE}}{% endblock %}</title>
 
     {% if settings.GA_CODE %}
 <script>

@@ -3,7 +3,7 @@
 {% import 'macros.html' as base_macros with context %}
 {% import 'forum/thread_page.html' as thread_page with context %}
 
-{% block title %}{{ news.caption }} | {{ super() }}{% endblock %}
+{% block title %}{{ news.caption }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Новость: «{{news.caption}}».{% endblock %}
 
 {% block news_content %}

@@ -2,7 +2,7 @@
 
 {% import 'linguistics/templates/macros.html' as templates_macros with context %}
 
-{% block title %}Новый шаблон «{{key.text}}» |{{ super() }}{% endblock %}
+{% block title %}Новый шаблон «{{key.text}}» | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Создание нового шаблона «{{key.text}}».{% endblock %}
 
 {% block head %}

@@ -2,7 +2,7 @@
 {% import 'guide/macros.html' as guide_macros with context %}
 {% import 'artifacts/macros.html' as artifacts_macros with context %}
 
-{% block title %}{{artifact.name|up_first}} | Артефакты | {{ super() }}{% endblock %}
+{% block title %}{{artifact.name|up_first}} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Информация об артефакте «{{artifact.name|up_first}}».{% endblock %}
 
 {% block guide_content %}

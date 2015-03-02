@@ -4,7 +4,7 @@
 {% import 'bills/macros.html' as bills_macros with context %}
 {% import 'utils/list_filter.html' as list_filter_macros with context %}
 
-{% block title %}{{ super() }}{% endblock %}
+{% block title %}Политика | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Выдвинутые игроками законы.{% endblock %}
 
 {% block bills_content %}

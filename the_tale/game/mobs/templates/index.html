@@ -2,7 +2,7 @@
 {% import 'guide/macros.html' as guide_macros with context %}
 {% import 'utils/list_filter.html' as list_filter_macros with context %}
 
-{% block title %}Бестиарий | {{ super() }}{% endblock %}
+{% block title %}Бестиарий | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Описание всех опасных тварей, обитающих в «Сказке».{% endblock %}
 
 {% block guide_content %}

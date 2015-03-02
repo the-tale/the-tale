@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Ошибка | {{ super() }}{% endblock %}
+{% block title %}Ошибка | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Сообщение об ошибке: «{{ error_message }}».{% endblock %}
 
 {% block content %}

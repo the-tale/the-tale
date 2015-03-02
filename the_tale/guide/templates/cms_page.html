@@ -1,7 +1,7 @@
 {% extends "guide/base.html" %}
 {% import 'guide/macros.html' as guide_macros with context %}
 
-{% block title %}{{ resource.page.caption }} | {{resource.page.get_section().caption}}  | {{ super() }}{% endblock %}
+{% block title %}{{ resource.page.caption }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}{{ resource.page.caption }}{% endblock %}
 
 {% block guide_content %}

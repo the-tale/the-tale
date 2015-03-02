@@ -4,7 +4,7 @@
 {% import 'heroes/hero_equipment.html' as hero_equipment_macros with context %}
 {% import 'game/macros.html' as game_macros with context %}
 
-{% block title %}Страница героя | {{ super() }}{% endblock %}
+{% block title %}{{resource.hero.name}} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Информация о {{resource.hero.name}} — герое {{resource.hero.level}} уровня{% endblock %}
 
 {% block head %}

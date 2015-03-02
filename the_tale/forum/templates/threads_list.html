@@ -3,7 +3,7 @@
 {% import 'macros.html' as base_macros with context %}
 {% import 'forum/macros.html' as forum_macros with context %}
 
-{% block title %}Список обсуждений | {{ super() }}{% endblock %}
+{% block title %}Список обсуждений | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Список обсуждений на нашем форуме.{% endblock %}
 
 {% block forum_content %}

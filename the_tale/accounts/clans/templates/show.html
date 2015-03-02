@@ -2,7 +2,7 @@
 
 {% import 'friends/macros.html' as friends_macros with context %}
 
-{% block title %}{{resource.clan.name}} | {{ super() }}{% endblock %}
+{% block title %}{{resource.clan.name}} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Страница гильдии [{{resource.clan.abbr}}] {{resource.clan.name}}{% endblock %}
 
 {% block head %}

@@ -2,7 +2,7 @@
 {% import 'guide/macros.html' as guide_macros with context %}
 {% import 'heroes/macros.html' as macros with context %}
 
-{% block title %}Предпочтения героев | {{ super() }}{% endblock %}
+{% block title %}Предпочтения героев | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Описание характера героев и их предпочтений.{% endblock %}
 
 {% block guide_content %}

@@ -3,7 +3,7 @@
 {% import 'linguistics/templates/macros.html' as templates_macros with context %}
 {% import 'accounts/macros.html' as accounts_macros with context %}
 
-{% block title %}Шаблон «{{template.key.text}}» |{{ super() }}{% endblock %}
+{% block title %}{{template.key.text}} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Шаблон «{{template.key.text}}».{% endblock %}
 
 {% block head %}

@@ -35,7 +35,7 @@
 {% endmacro %}
 
 
-{% block title %}{{subcategory.caption}} | {{ super() }}{% endblock %}
+{% block title %}{{subcategory.caption}} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Список обсуждений в подкатегогии «{{subcategory.caption}}».{% endblock %}
 
 {% block forum_content %}

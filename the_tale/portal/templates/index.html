@@ -3,7 +3,7 @@
 {% import 'news/macros.html' as news_macros with context %}
 {% import 'portal/macros.html' as portal_macros with context %}
 
-{% block title %}{{ super() }}{% endblock %}
+{% block title %}{{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}{{super()}}{% endblock %}
 
 {% block head %}

@@ -1,7 +1,7 @@
 {% extends "forum/base.html" %}
 {% import 'forum/macros.html' as forum_macros with context %}
 
-{% block title %}{{ super() }}{% endblock %}
+{% block title %}Форум | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Главная страница форума игры.{% endblock %}
 
 {% block forum_content %}

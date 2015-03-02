@@ -2,7 +2,7 @@
 
 {% import 'forum/thread_page.html' as thread_page with context %}
 
-{% block title %}{{ thread.caption }} страница {{thread_data.paginator.current_page_number + 1}} | {{thread.subcategory.caption}} | {{ super() }}{% endblock %}
+{% block title %}{{ thread.caption }} страница {{thread_data.paginator.current_page_number + 1}} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}{{thread_data.paginator.current_page_number+1}} страница обсуждения «{{ thread.caption }}».{% endblock %}
 
 {% macro breadcrumb() %}

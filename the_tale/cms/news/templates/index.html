@@ -3,7 +3,7 @@
 {% import 'macros.html' as base_macros with context %}
 {% import 'news/macros.html' as macros with context %}
 
-{% block title %}{{ super() }}{% endblock %}
+{% block title %}Новости | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Последние новости ZPG «Сказка»{% endblock %}
 
 {% block news_content %}

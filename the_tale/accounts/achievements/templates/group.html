@@ -2,7 +2,7 @@
 
 {% import 'achievements/macros.html' as achievements_macros with context %}
 
-{% block title %}{{resource.group.text}} | {{ super() }}{% endblock %}
+{% block title %}{{resource.group.text}} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Достижения из группы «{{resource.group.text}}».{% endblock %}
 
 {% block achievements_content %}

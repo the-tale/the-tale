@@ -2,7 +2,7 @@
 
 {% import 'collections/macros.html' as collections_macros with context %}
 
-{% block title %}{{resource.collection.caption}} | {{ super() }}{% endblock %}
+{% block title %}{{resource.collection.caption}} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Список предметов в коллекции «{{resource.collection.caption}}».{% endblock %}
 
 {% block collections_content %}

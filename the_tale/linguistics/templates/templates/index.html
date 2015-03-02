@@ -6,8 +6,8 @@
 {% import 'accounts/macros.html' as accounts_macros with context %}
 
 {% block title %}
-  {% if key %}{{key.text}} | {{ super() }}
-  {% else %}{{ super() }}
+  {% if key %}{{key.text}} | {{settings.PAGE_TITLE}}
+  {% else %}{{settings.PAGE_TITLE}}
   {% endif %}
 {% endblock %}
 

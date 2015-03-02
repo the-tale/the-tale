@@ -2,7 +2,7 @@
 {% import 'guide/macros.html' as guide_macros with context %}
 {% import 'companions/macros.html' as companions_macros with context %}
 
-{% block title %}{{companion.name|up_first}} | Спутники | {{ super() }}{% endblock %}
+{% block title %}{{companion.name|up_first}} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Описание спутника {{companion.name|up_first}}{% endblock %}
 
 {% block guide_content %}

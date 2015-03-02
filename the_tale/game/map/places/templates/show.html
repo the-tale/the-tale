@@ -1,7 +1,7 @@
 {% extends "places/base.html" %}
 {% import 'places/macros.html' as places_macros with context %}
 
-{% block title %} {{ place.name }} | {{ super() }}{% endblock %}
+{% block title %} {{ place.name }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Информация о городе «{{place.name}}»{% endblock %}
 
 {% macro hero_record(hero) %}

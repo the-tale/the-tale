@@ -6,7 +6,7 @@
 {% import 'game/log.html' as log_macros with context %}
 {% import 'map/map.html' as map_macros with context %}
 
-{% block title %}Игра | {{ super() }}{% endblock %}
+{% block title %}Игра | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Страница игры{% endblock %}
 
 {% block head %}
