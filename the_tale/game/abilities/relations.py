@@ -15,9 +15,9 @@ class HELP_CHOICES(DjangoEnum):
                 ('START_QUEST', 3, u'начало задания', 800),
                 ('MONEY', 4, u'деньги', 40),
                 ('RESURRECT', 5, u'воскрешение', 800),
-                ('EXPERIENCE', 6, u'прозрение', 10),
+                ('EXPERIENCE', 6, u'прозрение', 5),
                 ('STOCK_UP_ENERGY', 7, u'запас энергии', 1),
-                ('HEAL_COMPANION', 8, u'лечение спутника', 5))
+                ('HEAL_COMPANION', 8, u'лечение спутника', 10))
 
 
 class ABILITY_TYPE(DjangoEnum):
