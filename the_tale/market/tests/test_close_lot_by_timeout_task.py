@@ -1,5 +1,6 @@
 # coding: utf-8
 import random
+import datetime
 
 import mock
 
@@ -122,6 +123,7 @@ class TaskTests(testcase.TestCase):
 
         lot = logic.load_lot(self.task.lot_id)
         self.assertTrue(lot.state.is_CLOSED_BY_TIMEOUT)
+        self.assertTrue(lot.closed_at < datetime.datetime.now())
         self.assertEqual(lot.buyer_id, None)
 
         personal_message = personal_messages_prototypes.MessagePrototype._db_all().latest()

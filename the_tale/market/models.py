@@ -15,7 +15,7 @@ class Lot(models.Model):
     NAME_MAX_LENGTH = 128
 
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    closed_at = models.DateTimeField(null=True, blank=True, default=None)
 
     type = models.CharField(max_length=TYPE_MAX_LENGTH, db_index=True)
     good_uid = models.CharField(max_length=UID_MAX_LENGTH, db_index=True)

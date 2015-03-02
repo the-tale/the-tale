@@ -78,7 +78,14 @@
 
           {% if page_type != 'history' %}
           <th width="150px">времени до окончания</th>
+          {% endif %}
+
+          {% if page_type not in ('history', 'own-lots') %}
           <th width="100px">операция</th>
+          {% endif %}
+
+          {% if page_type == 'history' %}
+          <th width="150px">закрыт</a>
           {% endif %}
         </tr>
       </thead>
@@ -90,6 +97,9 @@
 
             {% if page_type != 'history' %}
             <td><span>{{lot.time_to_end|verbose_timedelta}}</span></td>
+            {% endif %}
+
+            {% if page_type not in ('history', 'own-lots') %}
             <td>
               <a href="{{url('market:purchase', lot.id)}}"
                    class="pgf-purchase-lot"
@@ -101,6 +111,10 @@
                 </div>
               </div>
             </td>
+            {% endif %}
+
+            {% if page_type == 'history' %}
+              <td><span class="pgf-format-datetime" data-timestamp="{{lot.closed_at|timestamp}}"></span></td>
             {% endif %}
           </tr>
         {% endfor %}

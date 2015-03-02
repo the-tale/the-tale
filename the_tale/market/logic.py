@@ -54,6 +54,7 @@ def reserve_lot(account_id, good, price):
                                       state=relations.LOT_STATE.RESERVED,
                                       price=price,
                                       commission=get_commission(price),
+                                      closed_at=datetime.datetime.now() + datetime.timedelta(days=conf.settings.LOT_LIVE_TIME),
                                       data=s11n.to_json({'good': good.serialize()}))
     return objects.Lot.from_model(model)
 

@@ -40,9 +40,9 @@ class Good(object):
 
 class Lot(object):
 
-    __slots__ = ('id', 'type', 'name', 'seller_id', 'buyer_id', 'state', 'good', 'price', 'created_at', 'commission')
+    __slots__ = ('id', 'type', 'name', 'seller_id', 'buyer_id', 'state', 'good', 'price', 'created_at', 'commission', 'closed_at')
 
-    def __init__(self, id, type, name, seller_id, buyer_id, state, good, price, created_at, commission):
+    def __init__(self, id, type, name, seller_id, buyer_id, state, good, price, created_at, commission, closed_at):
         self.id = id
         self.type = type
         self.name = name
@@ -52,6 +52,7 @@ class Lot(object):
         self.good = good
         self.price = price
         self.created_at = created_at
+        self.closed_at = closed_at
         self.commission = commission
 
     @property
@@ -71,6 +72,7 @@ class Lot(object):
                    state=model.state,
                    good=Good.deserialize(data['good']),
                    price=model.price,
+                   closed_at=model.closed_at,
                    commission=model.commission)
 
     def to_model_fields(self):
@@ -82,6 +84,7 @@ class Lot(object):
                 'good_uid': self.good.uid,
                 'data': s11n.to_json({'good': self.good.serialize()}),
                 'price': self.price,
+                'closed_at': self.closed_at,
                 'commission': self.commission}
         return data
 

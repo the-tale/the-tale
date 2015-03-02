@@ -125,7 +125,8 @@ def index(context):
         lots_query = lots_query.filter(seller_id=context.account.id)
 
     elif context.page_mode.is_HISTORY:
-        lots_query = lots_query.filter(state=relations.LOT_STATE.CLOSED_BY_BUYER, created_at__gt=datetime.datetime.now()-datetime.timedelta(days=conf.settings.HISTORY_TIME))
+        lots_query = lots_query.filter(state=relations.LOT_STATE.CLOSED_BY_BUYER,
+                                       closed_at__gt=datetime.datetime.now()-datetime.timedelta(days=conf.settings.HISTORY_TIME))
 
     if context.filter is not None:
         lots_query = lots_query.filter(name__icontains=context.filter)

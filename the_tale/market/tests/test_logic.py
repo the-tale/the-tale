@@ -95,6 +95,7 @@ class LogicTests(testcase.TransactionTestCase):
         self.assertEqual(lot.name, lot_model.name)
         self.assertEqual(lot.state, lot_model.state)
         self.assertEqual(lot.price, lot_model.price)
+        self.assertTrue(lot.closed_at-lot.created_at > datetime.timedelta(days=conf.settings.LOT_LIVE_TIME, seconds=-1))
         self.assertEqual(lot.good.serialize(), s11n.from_json(lot_model.data)['good'])
 
         self.assertEqual(lot.type, self.good_2.type)
@@ -104,6 +105,7 @@ class LogicTests(testcase.TransactionTestCase):
         self.assertTrue(lot.state.is_RESERVED)
         self.assertEqual(lot.price, 777)
         self.assertEqual(lot.commission, 54)
+        self.assertTrue(lot.closed_at-lot.created_at > datetime.timedelta(days=conf.settings.LOT_LIVE_TIME, seconds=-1))
         self.assertEqual(lot.good.serialize(), self.good_2.serialize())
 
 

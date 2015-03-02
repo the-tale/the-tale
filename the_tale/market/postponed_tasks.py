@@ -1,5 +1,7 @@
 # coding: utf-8
 
+import datetime
+
 import rels
 from rels.django import DjangoEnum
 
@@ -281,6 +283,7 @@ class BuyLotTask(PostponedLogic):
 
             lot.buyer_id = self.buyer_id
             lot.state = relations.LOT_STATE.CLOSED_BY_BUYER
+            lot.closed_at = datetime.datetime.now()
             logic.save_lot(lot)
 
             self.transaction.confirm()
@@ -386,6 +389,7 @@ class CloseLotByTimoutTask(PostponedLogic):
             lot = logic.load_lot(self.lot_id)
 
             lot.state = relations.LOT_STATE.CLOSED_BY_TIMEOUT
+            lot.closed_at = datetime.datetime.now()
             logic.save_lot(lot)
 
             seller = account_prototypes.AccountPrototype.get_by_id(lot.seller_id)
