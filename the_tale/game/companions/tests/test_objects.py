@@ -220,6 +220,27 @@ class CompanionTests(testcase.TestCase):
                 with self.check_changed(lambda: self.companion.modify_attribute(companion_ability.effect.MODIFIER, companion_ability.effect.MODIFIER.default())):
                     self.hero.abilities.add(ability_class.get_id(), random.randint(1, ability_class.MAX_LEVEL))
 
+    def test_actual_coherence(self):
+        self.companion.coherence = 50
+
+        with mock.patch('the_tale.game.companions.objects.Companion.max_coherence', 20):
+            self.assertEqual(self.companion.actual_coherence, 20)
+
+        with mock.patch('the_tale.game.companions.objects.Companion.max_coherence', 70):
+            self.assertEqual(self.companion.actual_coherence, 50)
+
+
+    def test_modification_coherence(self):
+        self.companion.coherence = 50
+
+        with mock.patch('the_tale.game.companions.objects.Companion.max_coherence', 20):
+            self.assertEqual(self.companion.modification_coherence(heroes_relations.MODIFIERS.COMPANION_MAX_COHERENCE), 50)
+            self.assertEqual(self.companion.modification_coherence(heroes_relations.MODIFIERS.random(exclude=(heroes_relations.MODIFIERS.COMPANION_MAX_COHERENCE,))), 20)
+
+        with mock.patch('the_tale.game.companions.objects.Companion.max_coherence', 70):
+            self.assertEqual(self.companion.modification_coherence(heroes_relations.MODIFIERS.COMPANION_MAX_COHERENCE), 50)
+            self.assertEqual(self.companion.modification_coherence(heroes_relations.MODIFIERS.random(exclude=(heroes_relations.MODIFIERS.COMPANION_MAX_COHERENCE,))), 50)
+
 
     @mock.patch('the_tale.game.balance.formulas.companions_heal_in_hour', mock.Mock(return_value=1))
     def test_need_heal_in_move(self):

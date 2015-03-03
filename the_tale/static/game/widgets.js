@@ -164,6 +164,8 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
 
             jQuery('.pgf-companion .pgf-name', widget).text(data.companion.name);
             jQuery('.pgf-companion .pgf-coherence', widget).text(data.companion.coherence);
+            jQuery('.pgf-companion .pgf-real-coherence', widget).text(data.companion.real_coherence);
+            jQuery('.pgf-companion .pgf-real-coherence-block', widget).toggleClass('pgf-hidden', data.companion.real_coherence == data.companion.coherence);
 
             jQuery('.pgf-companion .pgf-health', widget).text(parseInt(data.companion.health));
             jQuery('.pgf-companion .pgf-max-health', widget).text(data.companion.max_health);

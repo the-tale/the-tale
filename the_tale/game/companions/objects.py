@@ -72,7 +72,7 @@ class Companion(object):
     def defend_in_battle_probability(self):
         return (self.record.dedication.block_multiplier *
                 self._hero.preferences.companion_dedication.block_multiplier *
-                f.companions_defend_in_battle_probability(self.coherence) *
+                f.companions_defend_in_battle_probability(self.actual_coherence) *
                 self._hero.companion_block_probability_multiplier)
 
     @property
@@ -143,14 +143,24 @@ class Companion(object):
 
             self._hero.reset_accessors_cache()
 
+    @property
+    def actual_coherence(self):
+        return min(self.max_coherence, self.coherence)
+
+    def modification_coherence(self, modifier):
+        if modifier.is_COMPANION_MAX_COHERENCE:
+            return self.coherence
+        else:
+            return self.actual_coherence
 
     def modify_attribute(self, modifier, value):
         if modifier.is_COMPANION_ABILITIES_LEVELS:
             return value
-        return self.record.abilities.modify_attribute(self.coherence, self._hero.companion_abilities_levels, modifier, value)
+
+        return self.record.abilities.modify_attribute(self.modification_coherence(modifier), self._hero.companion_abilities_levels, modifier, value)
 
     def check_attribute(self, modifier):
-        return self.record.abilities.check_attribute(self.coherence, modifier)
+        return self.record.abilities.check_attribute(self.modification_coherence(modifier), modifier)
 
     @property
     def experience_to_next_level(self):
@@ -170,7 +180,8 @@ class Companion(object):
                 'max_health': self.max_health,
                 'experience': self.experience,
                 'experience_to_level': self.experience_to_next_level,
-                'coherence': self.coherence}
+                'coherence': self.actual_coherence,
+                'real_coherence': self.coherence}
 
 
 class CompanionRecord(names.ManageNameMixin):
