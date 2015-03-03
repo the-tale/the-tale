@@ -91,11 +91,18 @@
   {% include bill.data.SHOW_TEMPLATE with context %}
 </ul>
 
-<h3>Обоснование</h3>
+{% if bill.chronicle_on_accepted %}
+<h4>Запись в летописи о принятии</h4>
+<p>{{ bill.chronicle_on_accepted }}</p>
+{% endif %}
 
-<p>
-  {{ bill.rationale_html|safe }}
-</p>
+{% if bill.chronicle_on_ended %}
+<h4>Запись в летописи об окончании действия</h4>
+<p>{{ bill.chronicle_on_ended }}</p>
+{% endif %}
+
+<h4>Обоснование</h4>
+<p>{{ bill.rationale_html|safe }}</p>
 
 {{ thread_page.thread_page(thread_data) }}
 

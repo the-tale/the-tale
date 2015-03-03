@@ -37,7 +37,7 @@ class BillPrototype(BasePrototype):
     _model_class = Bill
     _readonly = ('id', 'type', 'created_at', 'updated_at', 'caption', 'rationale', 'votes_for',
                  'votes_against', 'votes_refrained', 'forum_thread_id', 'min_votes_percents_required',
-                 'voting_end_at', 'ended_at', 'ends_at_turn', 'duration')
+                 'voting_end_at', 'ended_at', 'ends_at_turn', 'duration', 'chronicle_on_accepted', 'chronicle_on_ended')
     _bidirectional = ('approved_by_moderator', 'state', 'is_declined')
     _get_by = ('id', )
 
@@ -85,7 +85,9 @@ class BillPrototype(BasePrototype):
         special_initials = self.data.user_form_initials
         special_initials.update({'caption': self.caption,
                                  'rationale': self.rationale,
-                                 'duration': self.duration})
+                                 'duration': self.duration,
+                                 'chronicle_on_accepted': self.chronicle_on_accepted,
+                                 'chronicle_on_ended': self.chronicle_on_ended})
         return special_initials
 
     @property
@@ -269,6 +271,8 @@ class BillPrototype(BasePrototype):
         self._model.rationale = form.c.rationale
         self._model.duration = form.c.duration
         self._model.approved_by_moderator = False
+        self._model.chronicle_on_accepted = form.c.chronicle_on_accepted
+        self._model.chronicle_on_ended = form.c.chronicle_on_ended
 
         self.recalculate_votes()
 
@@ -301,7 +305,7 @@ class BillPrototype(BasePrototype):
 
     @classmethod
     @transaction.atomic
-    def create(cls, owner, caption, rationale, bill, duration=BILL_DURATION.UNLIMITED):
+    def create(cls, owner, caption, rationale, bill, chronicle_on_accepted, chronicle_on_ended=u'', duration=BILL_DURATION.UNLIMITED):
 
         model = Bill.objects.create(owner=owner._model,
                                     type=bill.type,
@@ -311,6 +315,8 @@ class BillPrototype(BasePrototype):
                                     technical_data=s11n.to_json(bill.serialize()),
                                     state=BILL_STATE.VOTING,
                                     duration=duration,
+                                    chronicle_on_accepted=chronicle_on_accepted,
+                                    chronicle_on_ended=chronicle_on_ended,
                                     votes_for=1) # author always wote for bill
 
         bill_prototype = cls(model)

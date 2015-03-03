@@ -26,7 +26,7 @@ class BuildingCreateTests(BaseTestPrototypes):
         self.person_2 = sorted(self.place2.persons, key=lambda p: -p.power)[-1]
 
         self.bill_data = BuildingCreate(person_id=self.person_1.id, old_place_name_forms=self.place1.utg_name, utg_name=names.generator.get_test_name(u'building-name'))
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
 
     def test_create(self):
@@ -39,6 +39,7 @@ class BuildingCreateTests(BaseTestPrototypes):
         data = linguistics_helpers.get_word_post_data(names.generator.get_test_name('new-building-name'), prefix='name')
         data.update({'caption': 'new-caption',
                      'rationale': 'new-rationale',
+                     'chronicle_on_accepted': 'chronicle-on-accepted',
                      'person': self.person_2.id })
 
         form = self.bill.data.get_user_form_update(post=data)

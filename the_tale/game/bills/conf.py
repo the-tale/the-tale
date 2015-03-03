@@ -1,8 +1,13 @@
 # coding: utf-8
+
+from django.conf import settings as project_settings
+
 from dext.common.utils.app_settings import app_settings
 
 bills_settings = app_settings('BILLS',
                               RATIONALE_MIN_LENGTH=100,
+                              CHRONICLE_MIN_LENGTH=100 if not project_settings.TESTS_RUNNING else 5,
+                              CHRONICLE_MAX_LENGTH=500,
                               MIN_VOTES_PERCENT=0.6,
                               BILL_LIVE_TIME=4*24*60*60,
                               MINIMUM_BILL_OWNER_AGE=2, # IN DAYS

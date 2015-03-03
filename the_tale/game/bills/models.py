@@ -36,7 +36,9 @@ class Bill(models.Model):
 
     rationale = models.TextField(null=False, blank=True)
     technical_data = models.TextField(null=False, blank=True, default={})
-    reject_reason = models.TextField(null=False, blank=True)
+
+    chronicle_on_accepted = models.TextField(null=False, blank=True, default=u'')
+    chronicle_on_ended = models.TextField(null=False, blank=True, default=u'')
 
     # we should not remove bill when ocasionally remove forum thread
     forum_thread = models.ForeignKey(Thread, null=True, blank=True, related_name='+', on_delete=models.SET_NULL)

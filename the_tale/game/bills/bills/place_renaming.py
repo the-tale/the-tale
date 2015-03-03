@@ -20,8 +20,6 @@ class UserForm(BaseUserForm):
 
     place = fields.ChoiceField(label=u'Город')
     name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название', skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,))
-    # TODO: restrict max place name
-    # new_name = fields.CharField(label=u'Новое название', max_length=Place.MAX_NAME_LENGTH)
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)

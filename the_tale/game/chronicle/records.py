@@ -13,7 +13,9 @@ class RecordBase(object):
     SUBSTITUTIONS = frozenset()
     TEXGEN_ID_BASE = 'chronicle_%s'
 
-    def __init__(self, actors, substitutions):
+    def __init__(self, actors, substitutions, text=None):
+
+        self.text = text
 
         self.actors = [ (role, create_external_actor(actor)) for role, actor in actors ]
         self.substitutions = substitutions
@@ -29,8 +31,12 @@ class RecordBase(object):
     def textgen_id(self): return self.TEXGEN_ID_BASE  % self.TYPE.name.lower()
 
     def get_text(self):
+        if self.text:
+            return self.text
+
         from the_tale.linguistics.logic import get_text
         text = get_text(self.textgen_id, self.substitutions)
+
         return text if text is not None else u''
 
     def create_record(self):
@@ -42,57 +48,24 @@ class RecordBase(object):
 # change place name
 class _PlaceChangeName(RecordBase):
     ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL]
-    SUBSTITUTIONS = ['bill', 'old_name', 'new_name']
-
-class PlaceChangeNameBillStarted(_PlaceChangeName):
-    TYPE = RECORD_TYPE.PLACE_CHANGE_NAME_BILL_STARTED
 
 class PlaceChangeNameBillSuccessed(_PlaceChangeName):
     TYPE = RECORD_TYPE.PLACE_CHANGE_NAME_BILL_SUCCESSED
 
-class PlaceChangeNameBillFailed(_PlaceChangeName):
-    TYPE = RECORD_TYPE.PLACE_CHANGE_NAME_BILL_FAILED
-
 # change place description
 class _PlaceChangeDescription(RecordBase):
     ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL]
-    SUBSTITUTIONS = ['place', 'bill']
-
-class PlaceChangeDescriptionBillStarted(_PlaceChangeDescription):
-    TYPE = RECORD_TYPE.PLACE_CHANGE_DESCRIPTION_BILL_STARTED
 
 class PlaceChangeDescriptionBillSuccessed(_PlaceChangeDescription):
     TYPE = RECORD_TYPE.PLACE_CHANGE_DESCRIPTION_BILL_SUCCESSED
 
-class PlaceChangeDescriptionBillFailed(_PlaceChangeDescription):
-    TYPE = RECORD_TYPE.PLACE_CHANGE_DESCRIPTION_BILL_FAILED
-
 # change place modifier
 class _PlaceChangeModifier(RecordBase):
     ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL]
-    SUBSTITUTIONS = ['place', 'bill', 'old_modifier', 'new_modifier']
-
-    def __init__(self, **kwargs):
-        super(_PlaceChangeModifier, self).__init__(**kwargs)
-
-        if self.substitutions['old_modifier'] is None:
-            del self.substitutions['old_modifier']
-
-    @property
-    def textgen_id(self):
-        if 'old_modifier' not in self.substitutions:
-            return self.TEXGEN_ID_BASE  % self.TYPE.name.lower() + '_without_old_modifier'
-        else:
-            return self.TEXGEN_ID_BASE  % self.TYPE.name.lower() + '_with_old_modifier'
-
-class PlaceChangeModifierBillStarted(_PlaceChangeModifier):
-    TYPE = RECORD_TYPE.PLACE_CHANGE_MODIFIER_BILL_STARTED
 
 class PlaceChangeModifierBillSuccessed(_PlaceChangeModifier):
     TYPE = RECORD_TYPE.PLACE_CHANGE_MODIFIER_BILL_SUCCESSED
 
-class PlaceChangeModifierBillFailed(_PlaceChangeModifier):
-    TYPE = RECORD_TYPE.PLACE_CHANGE_MODIFIER_BILL_FAILED
 
 class PlaceLosedModifier(RecordBase):
     TYPE = RECORD_TYPE.PLACE_LOSED_MODIFIER
@@ -102,16 +75,10 @@ class PlaceLosedModifier(RecordBase):
 # person moved out city
 class _PersonRemove(RecordBase):
     ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL, ACTOR_ROLE.PERSON]
-    SUBSTITUTIONS = ['place', 'person', 'bill']
-
-class PersonRemoveBillStarted(_PersonRemove):
-    TYPE = RECORD_TYPE.PERSON_REMOVE_BILL_STARTED
 
 class PersonRemoveBillSuccessed(_PersonRemove):
     TYPE = RECORD_TYPE.PERSON_REMOVE_BILL_SUCCESSED
 
-class PersonRemoveBillFailed(_PersonRemove):
-    TYPE = RECORD_TYPE.PERSON_REMOVE_BILL_FAILED
 
 class PersonLeftPlace(RecordBase):
     TYPE = RECORD_TYPE.PERSON_LEFT_PLACE
@@ -127,26 +94,13 @@ class PersonArrivedToPlace(RecordBase):
 # building create
 class _BuildingBase(RecordBase):
     ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL, ACTOR_ROLE.PERSON]
-    SUBSTITUTIONS = ['place', 'person', 'bill']
-
-class BuildingCreateBillStarted(_BuildingBase):
-    TYPE = RECORD_TYPE.BUILDING_CREATE_BILL_STARTED
 
 class BuildingCreateBillSuccessed(_BuildingBase):
     TYPE = RECORD_TYPE.BUILDING_CREATE_BILL_SUCCESSED
 
-class BuildingCreateBillFailed(_BuildingBase):
-    TYPE = RECORD_TYPE.BUILDING_CREATE_BILL_FAILED
-
 # building destroy
-class BuildingDestroyBillStarted(_BuildingBase):
-    TYPE = RECORD_TYPE.BUILDING_DESTROY_BILL_STARTED
-
 class BuildingDestroyBillSuccessed(_BuildingBase):
     TYPE = RECORD_TYPE.BUILDING_DESTROY_BILL_SUCCESSED
-
-class BuildingDestroyBillFailed(_BuildingBase):
-    TYPE = RECORD_TYPE.BUILDING_DESTROY_BILL_FAILED
 
 
 class BuildingDestroyedByAmortization(RecordBase):
@@ -157,33 +111,20 @@ class BuildingDestroyedByAmortization(RecordBase):
 
 # building renaming
 class _BuildingRenamingBillBase(_BuildingBase):
-    SUBSTITUTIONS = _BuildingBase.SUBSTITUTIONS + ['old_name', 'new_name']
-
-class BuildingRenamingBillStarted(_BuildingRenamingBillBase):
-    TYPE = RECORD_TYPE.BUILDING_RENAMING_BILL_STARTED
+    pass
 
 class BuildingRenamingBillSuccessed(_BuildingRenamingBillBase):
     TYPE = RECORD_TYPE.BUILDING_RENAMING_BILL_SUCCESSED
-
-class BuildingRenamingBillFailed(_BuildingRenamingBillBase):
-    TYPE = RECORD_TYPE.BUILDING_RENAMING_BILL_FAILED
 
 
 # place resource exchange
 class _PlaceResourceExchangeBillBase(RecordBase):
     ACTORS = [ACTOR_ROLE.BILL, ACTOR_ROLE.PLACE, ACTOR_ROLE.PLACE]
-    SUBSTITUTIONS = ['place_1', 'place_2', 'resource_1', 'resource_2', 'bill']
 
-class PlaceResourceExchangeStarted(_PlaceResourceExchangeBillBase):
-    TYPE = RECORD_TYPE.PLACE_RESOURCE_EXCHANGE_BILL_STARTED
-
-class PlaceResourceExchangeSuccessed(_PlaceResourceExchangeBillBase):
+class PlaceResourceExchangeBillSuccessed(_PlaceResourceExchangeBillBase):
     TYPE = RECORD_TYPE.PLACE_RESOURCE_EXCHANGE_BILL_SUCCESSED
 
-class PlaceResourceExchangeFailed(_PlaceResourceExchangeBillBase):
-    TYPE = RECORD_TYPE.PLACE_RESOURCE_EXCHANGE_BILL_FAILED
-
-class PlaceResourceExchangeEnded(_PlaceResourceExchangeBillBase):
+class PlaceResourceExchangeBillEnded(_PlaceResourceExchangeBillBase):
     TYPE = RECORD_TYPE.PLACE_RESOURCE_EXCHANGE_BILL_ENDED
 
 
@@ -191,16 +132,9 @@ class PlaceResourceExchangeEnded(_PlaceResourceExchangeBillBase):
 class _BillDeclineBillBase(RecordBase):
     IGNORE_ACTORS_CHECK = True
     ACTORS = [ACTOR_ROLE.BILL, ACTOR_ROLE.BILL]
-    SUBSTITUTIONS = ['bill', 'declined_bill']
-
-class BillDeclineStarted(_BillDeclineBillBase):
-    TYPE = RECORD_TYPE.BILL_DECLINE_BILL_STARTED
 
 class BillDeclineSuccessed(_BillDeclineBillBase):
     TYPE = RECORD_TYPE.BILL_DECLINE_BILL_SUCCESSED
-
-class BillDeclineFailed(_BillDeclineBillBase):
-    TYPE = RECORD_TYPE.BILL_DECLINE_BILL_FAILED
 
 
 # race
@@ -213,18 +147,11 @@ class PlaceChangeRace(RecordBase):
 # place resource conversion
 class _PlaceResourceConversionBillBase(RecordBase):
     ACTORS = [ACTOR_ROLE.BILL, ACTOR_ROLE.PLACE]
-    SUBSTITUTIONS = ['place', 'conversion', 'bill']
 
-class PlaceResourceConversionStarted(_PlaceResourceConversionBillBase):
-    TYPE = RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_STARTED
-
-class PlaceResourceConversionSuccessed(_PlaceResourceConversionBillBase):
+class PlaceResourceConversionBillSuccessed(_PlaceResourceConversionBillBase):
     TYPE = RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_SUCCESSED
 
-class PlaceResourceConversionFailed(_PlaceResourceConversionBillBase):
-    TYPE = RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_FAILED
-
-class PlaceResourceConversionEnded(_PlaceResourceConversionBillBase):
+class PlaceResourceConversionBillEnded(_PlaceResourceConversionBillBase):
     TYPE = RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_ENDED
 
 

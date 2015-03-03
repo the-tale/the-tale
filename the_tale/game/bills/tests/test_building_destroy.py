@@ -29,7 +29,7 @@ class BuildingDestroyTests(BaseTestPrototypes):
         self.building_2 = BuildingPrototype.create(self.person_2, utg_name=names.generator.get_test_name('building-name-2'))
 
         self.bill_data = BuildingDestroy(person_id=self.person_1.id, old_place_name_forms=self.place1.utg_name)
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
 
     def test_create(self):
@@ -41,6 +41,7 @@ class BuildingDestroyTests(BaseTestPrototypes):
     def test_update(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
                                                          'rationale': 'new-rationale',
+                                                         'chronicle_on_accepted': 'chronicle-on-accepted-2',
                                                          'person': self.person_2.id })
         self.assertTrue(form.is_valid())
 

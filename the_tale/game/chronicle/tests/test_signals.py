@@ -19,6 +19,8 @@ from the_tale.game.chronicle.models import Record, RECORD_TYPE
 from the_tale.game.map.places.prototypes import BuildingPrototype
 from the_tale.game.map.places.modifiers import TradeCenter, CraftCenter
 
+from the_tale.game.chronicle import prototypes
+
 @contextmanager
 def check_record_created(self, record_type, records_number=1):
     old_records_number = Record.objects.all().count()
@@ -39,28 +41,18 @@ class BillPlaceRenamingTests(BaseTestPrototypes):
         super(BillPlaceRenamingTests, self).setUp()
 
         bill_data = bills.PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new-name'))
-        self.bill = BillPrototype.create(self.account1, 'bill-caption', 'bill-rationale', bill_data)
+        self.bill = BillPrototype.create(self.account1, 'bill-caption', 'bill-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         data = linguistics_helpers.get_word_post_data(bill_data.name_forms, prefix='name')
         data.update({'approved': True})
         self.form = bills.PlaceRenaming.ModeratorForm(data)
         self.assertTrue(self.form.is_valid())
 
-
-    def test_bill_started(self):
-
-        with check_record_created(self, RECORD_TYPE.PLACE_CHANGE_NAME_BILL_STARTED):
-            self.bill.update_by_moderator(self.form)
-
     def test_bill_successed(self):
         self.bill.update_by_moderator(self.form)
         with check_record_created(self, RECORD_TYPE.PLACE_CHANGE_NAME_BILL_SUCCESSED):
             process_bill(self.bill, True)
-
-    def test_bill_failed(self):
-        self.bill.update_by_moderator(self.form)
-        with check_record_created(self, RECORD_TYPE.PLACE_CHANGE_NAME_BILL_FAILED):
-            process_bill(self.bill, False)
+        self.assertEqual(prototypes.RecordPrototype._db_latest().text, 'chronicle-on-accepted')
 
 
 class BillPlaceDescriptionTests(BaseTestPrototypes):
@@ -69,25 +61,16 @@ class BillPlaceDescriptionTests(BaseTestPrototypes):
         super(BillPlaceDescriptionTests, self).setUp()
 
         bill_data = bills.PlaceDescripton(place_id=self.place1.id, description='new description')
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.form = bills.PlaceDescripton.ModeratorForm({'approved': True})
         self.assertTrue(self.form.is_valid())
-
-    def test_bill_started(self):
-
-        with check_record_created(self, RECORD_TYPE.PLACE_CHANGE_DESCRIPTION_BILL_STARTED):
-            self.bill.update_by_moderator(self.form)
 
     def test_bill_successed(self):
         self.bill.update_by_moderator(self.form)
         with check_record_created(self, RECORD_TYPE.PLACE_CHANGE_DESCRIPTION_BILL_SUCCESSED):
             process_bill(self.bill, True)
-
-    def test_bill_failed(self):
-        self.bill.update_by_moderator(self.form)
-        with check_record_created(self, RECORD_TYPE.PLACE_CHANGE_DESCRIPTION_BILL_FAILED):
-            process_bill(self.bill, False)
+        self.assertEqual(prototypes.RecordPrototype._db_latest().text, 'chronicle-on-accepted')
 
 
 class BillPlaceChangeModifierTests(BaseTestPrototypes):
@@ -96,24 +79,16 @@ class BillPlaceChangeModifierTests(BaseTestPrototypes):
         super(BillPlaceChangeModifierTests, self).setUp()
 
         bill_data = bills.PlaceModifier(place_id=self.place1.id, modifier_id=TradeCenter.get_id(), modifier_name=TradeCenter.TYPE.text, old_modifier_name=None)
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.form = bills.PlaceModifier.ModeratorForm({'approved': True})
         self.assertTrue(self.form.is_valid())
-
-    def test_bill_started(self):
-        with check_record_created(self, RECORD_TYPE.PLACE_CHANGE_MODIFIER_BILL_STARTED):
-            self.bill.update_by_moderator(self.form)
 
     def test_bill_successed(self):
         self.bill.update_by_moderator(self.form)
         with check_record_created(self, RECORD_TYPE.PLACE_CHANGE_MODIFIER_BILL_SUCCESSED):
             process_bill(self.bill, True)
-
-    def test_bill_failed(self):
-        self.bill.update_by_moderator(self.form)
-        with check_record_created(self, RECORD_TYPE.PLACE_CHANGE_MODIFIER_BILL_FAILED):
-            process_bill(self.bill, False)
+        self.assertEqual(prototypes.RecordPrototype._db_latest().text, 'chronicle-on-accepted')
 
 
 class BillPlaceExchangeResourcesTests(BaseTestPrototypes):
@@ -131,14 +106,10 @@ class BillPlaceExchangeResourcesTests(BaseTestPrototypes):
                                                resource_1=self.resource_1,
                                                resource_2=self.resource_2)
 
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted', chronicle_on_ended='chronicle-on-ended')
 
         self.form = bills.PlaceModifier.ModeratorForm({'approved': True})
         self.assertTrue(self.form.is_valid())
-
-    def test_bill_started(self):
-        with check_record_created(self, RECORD_TYPE.PLACE_RESOURCE_EXCHANGE_BILL_STARTED):
-            self.bill.update_by_moderator(self.form)
 
 
     def test_bill_successed(self):
@@ -146,10 +117,8 @@ class BillPlaceExchangeResourcesTests(BaseTestPrototypes):
         with check_record_created(self, RECORD_TYPE.PLACE_RESOURCE_EXCHANGE_BILL_SUCCESSED):
             process_bill(self.bill, True)
 
-    def test_bill_failed(self):
-        self.bill.update_by_moderator(self.form)
-        with check_record_created(self, RECORD_TYPE.PLACE_RESOURCE_EXCHANGE_BILL_FAILED):
-            process_bill(self.bill, False)
+        self.assertEqual(prototypes.RecordPrototype._db_latest().text, 'chronicle-on-accepted')
+
 
     def test_bill_ended(self):
         self.bill.update_by_moderator(self.form)
@@ -157,6 +126,8 @@ class BillPlaceExchangeResourcesTests(BaseTestPrototypes):
 
         with check_record_created(self, RECORD_TYPE.PLACE_RESOURCE_EXCHANGE_BILL_ENDED):
             self.bill.end()
+
+        self.assertEqual(prototypes.RecordPrototype._db_latest().text, 'chronicle-on-ended')
 
 
 class BillPlaceConversionResourcesTests(BaseTestPrototypes):
@@ -172,25 +143,17 @@ class BillPlaceConversionResourcesTests(BaseTestPrototypes):
         self.bill_data = PlaceResourceConversion(place_id=self.place1.id,
                                                  conversion=self.conversion_1)
 
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted', chronicle_on_ended='chronicle-on-ended')
 
         self.form = bills.PlaceModifier.ModeratorForm({'approved': True})
         self.assertTrue(self.form.is_valid())
-
-    def test_bill_started(self):
-        with check_record_created(self, RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_STARTED):
-            self.bill.update_by_moderator(self.form)
 
 
     def test_bill_successed(self):
         self.bill.update_by_moderator(self.form)
         with check_record_created(self, RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_SUCCESSED):
             process_bill(self.bill, True)
-
-    def test_bill_failed(self):
-        self.bill.update_by_moderator(self.form)
-        with check_record_created(self, RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_FAILED):
-            process_bill(self.bill, False)
+        self.assertEqual(prototypes.RecordPrototype._db_latest().text, 'chronicle-on-accepted')
 
     def test_bill_ended(self):
         self.bill.update_by_moderator(self.form)
@@ -198,6 +161,7 @@ class BillPlaceConversionResourcesTests(BaseTestPrototypes):
 
         with check_record_created(self, RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_ENDED):
             self.bill.end()
+        self.assertEqual(prototypes.RecordPrototype._db_latest().text, 'chronicle-on-ended')
 
 
 class BillPersonRemoveTests(BaseTestPrototypes):
@@ -206,14 +170,10 @@ class BillPersonRemoveTests(BaseTestPrototypes):
         super(BillPersonRemoveTests, self).setUp()
 
         bill_data = bills.PersonRemove(person_id=self.place1.persons[0].id, old_place_name_forms=self.place1.utg_name)
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.form = bills.PersonRemove.ModeratorForm({'approved': True})
         self.assertTrue(self.form.is_valid())
-
-    def test_bill_started(self):
-        with check_record_created(self, RECORD_TYPE.PERSON_REMOVE_BILL_STARTED):
-            self.bill.update_by_moderator(self.form)
 
     @mock.patch('the_tale.game.chronicle.records.PlaceChangeRace.create_record', lambda x: None)
     @mock.patch('the_tale.game.chronicle.records.PersonArrivedToPlace.create_record', lambda x: None)
@@ -221,11 +181,8 @@ class BillPersonRemoveTests(BaseTestPrototypes):
         self.bill.update_by_moderator(self.form)
         with check_record_created(self, RECORD_TYPE.PERSON_REMOVE_BILL_SUCCESSED):
             process_bill(self.bill, True)
+        self.assertEqual(prototypes.RecordPrototype._db_latest().text, 'chronicle-on-accepted')
 
-    def test_bill_failed(self):
-        self.bill.update_by_moderator(self.form)
-        with check_record_created(self, RECORD_TYPE.PERSON_REMOVE_BILL_FAILED):
-            process_bill(self.bill, False)
 
 class BillBuildingCreateTests(BaseTestPrototypes):
 
@@ -235,7 +192,7 @@ class BillBuildingCreateTests(BaseTestPrototypes):
         bill_data = bills.BuildingCreate(person_id=self.place1.persons[0].id,
                                          old_place_name_forms=self.place1.utg_name,
                                          utg_name=names.generator.get_test_name('building-name'))
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         data = linguistics_helpers.get_word_post_data(bill_data.building_name_forms, prefix='name')
         data.update({'approved': True})
@@ -243,19 +200,13 @@ class BillBuildingCreateTests(BaseTestPrototypes):
         self.form = bills.BuildingCreate.ModeratorForm(data)
         self.assertTrue(self.form.is_valid())
 
-    def test_bill_started(self):
-        with check_record_created(self, RECORD_TYPE.BUILDING_CREATE_BILL_STARTED):
-            self.bill.update_by_moderator(self.form)
 
     def test_bill_successed(self):
         self.bill.update_by_moderator(self.form)
         with check_record_created(self, RECORD_TYPE.BUILDING_CREATE_BILL_SUCCESSED):
             process_bill(self.bill, True)
+        self.assertEqual(prototypes.RecordPrototype._db_latest().text, 'chronicle-on-accepted')
 
-    def test_bill_failed(self):
-        self.bill.update_by_moderator(self.form)
-        with check_record_created(self, RECORD_TYPE.BUILDING_CREATE_BILL_FAILED):
-            process_bill(self.bill, False)
 
 class BillBuildingDestroyTests(BaseTestPrototypes):
 
@@ -266,24 +217,16 @@ class BillBuildingDestroyTests(BaseTestPrototypes):
         self.building = BuildingPrototype.create(self.person, utg_name=names.generator.get_test_name('building-name'))
 
         bill_data = bills.BuildingDestroy(person_id=self.person.id, old_place_name_forms=self.place1.utg_name)
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.form = bills.BuildingDestroy.ModeratorForm({'approved': True})
         self.assertTrue(self.form.is_valid())
-
-    def test_bill_started(self):
-        with check_record_created(self, RECORD_TYPE.BUILDING_DESTROY_BILL_STARTED):
-            self.bill.update_by_moderator(self.form)
 
     def test_bill_successed(self):
         self.bill.update_by_moderator(self.form)
         with check_record_created(self, RECORD_TYPE.BUILDING_DESTROY_BILL_SUCCESSED):
             process_bill(self.bill, True)
-
-    def test_bill_failed(self):
-        self.bill.update_by_moderator(self.form)
-        with check_record_created(self, RECORD_TYPE.BUILDING_DESTROY_BILL_FAILED):
-            process_bill(self.bill, False)
+        self.assertEqual(prototypes.RecordPrototype._db_latest().text, 'chronicle-on-accepted')
 
 class BillBuildingRenamingTests(BaseTestPrototypes):
 
@@ -296,7 +239,7 @@ class BillBuildingRenamingTests(BaseTestPrototypes):
         bill_data = bills.BuildingRenaming(person_id=self.person.id,
                                            old_place_name_forms=self.place1.utg_name,
                                            new_building_name_forms=names.generator.get_test_name('new-building-name'))
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         data = linguistics_helpers.get_word_post_data(bill_data.new_building_name_forms, prefix='name')
         data.update({'approved': True})
@@ -305,19 +248,11 @@ class BillBuildingRenamingTests(BaseTestPrototypes):
         self.form = bills.BuildingRenaming.ModeratorForm(data)
         self.assertTrue(self.form.is_valid())
 
-    def test_bill_started(self):
-        with check_record_created(self, RECORD_TYPE.BUILDING_RENAMING_BILL_STARTED):
-            self.bill.update_by_moderator(self.form)
-
     def test_bill_successed(self):
         self.bill.update_by_moderator(self.form)
         with check_record_created(self, RECORD_TYPE.BUILDING_RENAMING_BILL_SUCCESSED):
             process_bill(self.bill, True)
-
-    def test_bill_failed(self):
-        self.bill.update_by_moderator(self.form)
-        with check_record_created(self, RECORD_TYPE.BUILDING_RENAMING_BILL_FAILED):
-            process_bill(self.bill, False)
+        self.assertEqual(prototypes.RecordPrototype._db_latest().text, 'chronicle-on-accepted')
 
 
 class PlaceLosedModifierTests(BaseTestPrototypes):

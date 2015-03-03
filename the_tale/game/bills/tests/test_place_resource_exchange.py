@@ -26,7 +26,8 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
                                                resource_1=self.resource_1,
                                                resource_2=self.resource_2)
 
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data,
+                                         chronicle_on_accepted='chronicle-on-accepted', chronicle_on_ended='chronicle-on-ended')
 
     def test_create(self):
         self.assertEqual(self.bill.data.place_1_id, self.place1.id)
@@ -59,6 +60,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
     def test_update(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
                                                          'rationale': 'new-rationale',
+                                                         'chronicle_on_accepted': 'chronicle-on-accepted-2',
                                                          'place_1': self.place2.id,
                                                          'place_2': self.place1.id,
                                                          'resource_1': self.resource_2,
@@ -89,6 +91,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
     def test_form_validation__success(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
                                                          'rationale': 'long rationale',
+                                                         'chronicle_on_accepted': 'chronicle-on-accepted',
                                                          'place_1': self.place1.id,
                                                          'place_2': self.place2.id,
                                                          'resource_1': self.resource_1,
@@ -98,6 +101,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
     def test_user_form_validation__not_connected(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
                                                          'rationale': 'rationale',
+                                                         'chronicle_on_accepted': 'chronicle-on-accepted',
                                                          'place_1': self.place1.id,
                                                          'place_2': self.place3.id,
                                                          'resource_1': self.resource_2,
@@ -108,6 +112,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
     def test_user_form_validation__maximum_exchanges_reached(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
                                                          'rationale': 'rationale',
+                                                         'chronicle_on_accepted': 'chronicle-on-accepted',
                                                          'place_1': self.place1.id,
                                                          'place_2': self.place2.id,
                                                          'resource_1': self.resource_1,
@@ -117,6 +122,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
     def test_user_form_validation__equal_parameters(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
                                                          'rationale': 'rationale',
+                                                         'chronicle_on_accepted': 'chronicle-on-accepted',
                                                          'place_1': self.place1.id,
                                                          'place_2': self.place2.id,
                                                          'resource_1': self.resource_1,
@@ -130,6 +136,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
 
             form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
                                                              'rationale': 'rationale',
+                                                             'chronicle_on_accepted': 'chronicle-on-accepted',
                                                              'place_1': self.place1.id,
                                                              'place_2': self.place2.id,
                                                              'resource_1': resource,
@@ -176,7 +183,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
 
         old_storage_version = resource_exchange_storage._version
 
-        decliner = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data)
+        decliner = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted-2')
 
         self.bill.decline(decliner)
 
@@ -196,7 +203,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
 
         old_storage_version = resource_exchange_storage._version
 
-        decliner = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data)
+        decliner = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted-2')
 
         self.bill.decline(decliner)
 

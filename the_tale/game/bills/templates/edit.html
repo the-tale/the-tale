@@ -32,9 +32,11 @@ jQuery(document).ready( function(e) {
   {{ form.errors_container }}
 
   {{ form.caption.widget }}
+  {{ form.chronicle_on_accepted.widget }}
 
   {% if bill.data.WITH_DURATION %}
   {{ form.duration.widget }}
+  {{ form.chronicle_on_ended.widget }}
   {% endif %}
 
   {% include bill.data.USER_FORM_TEMPLATE with context %}

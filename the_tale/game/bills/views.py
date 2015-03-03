@@ -205,6 +205,8 @@ class BillResource(Resource):
                                         caption=user_form.c.caption,
                                         rationale=user_form.c.rationale,
                                         duration=user_form.c.duration,
+                                        chronicle_on_accepted=user_form.c.chronicle_on_accepted,
+                                        chronicle_on_ended=user_form.c.chronicle_on_ended,
                                         bill=bill_data)
             return self.json_ok(data={'next_url': reverse('game:bills:show', args=[bill.id])})
 

@@ -23,7 +23,8 @@ class PlaceResourceConversionTests(BaseTestPrototypes):
         self.bill_data = PlaceResourceConversion(place_id=self.place1.id,
                                                  conversion=self.conversion_1)
 
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data,
+                                         chronicle_on_accepted='chronicle-on-accepted', chronicle_on_ended='chronicle-on-ended')
 
 
     def test_create(self):
@@ -48,6 +49,7 @@ class PlaceResourceConversionTests(BaseTestPrototypes):
     def test_update(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
                                                          'rationale': 'new-rationale',
+                                                         'chronicle_on_accepted': 'chronicle-on-accepted',
                                                          'place': self.place2.id,
                                                          'conversion': self.conversion_2})
         self.assertTrue(form.is_valid())
@@ -70,6 +72,7 @@ class PlaceResourceConversionTests(BaseTestPrototypes):
     def test_form_validation__success(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
                                                          'rationale': 'long rationale',
+                                                         'chronicle_on_accepted': 'chronicle-on-accepted',
                                                          'place': self.place1.id,
                                                          'conversion': self.conversion_1})
         self.assertTrue(form.is_valid())
@@ -78,6 +81,7 @@ class PlaceResourceConversionTests(BaseTestPrototypes):
     def test_user_form_validation__maximum_bills_reached(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
                                                          'rationale': 'rationale',
+                                                         'chronicle_on_accepted': 'chronicle-on-accepted',
                                                          'place': self.place1.id,
                                                          'conversion': self.conversion_1})
         self.assertFalse(form.is_valid())
@@ -122,7 +126,7 @@ class PlaceResourceConversionTests(BaseTestPrototypes):
 
         old_storage_version = resource_exchange_storage._version
 
-        decliner = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data)
+        decliner = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.bill.decline(decliner)
 
@@ -142,7 +146,7 @@ class PlaceResourceConversionTests(BaseTestPrototypes):
 
         old_storage_version = resource_exchange_storage._version
 
-        decliner = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data)
+        decliner = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.bill.decline(decliner)
 

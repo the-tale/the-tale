@@ -65,7 +65,7 @@ class BaseTestRequests(TestCase):
                                    category=forum_category)
 
     def create_bills(self, number, owner, caption_template, rationale_template, bill_data):
-        return [BillPrototype.create(owner, caption_template % i, rationale_template % i, bill_data) for i in xrange(number) ]
+        return [BillPrototype.create(owner, caption_template % i, rationale_template % i, bill_data, chronicle_on_accepted='chronicle-on-accepted-%d' % i) for i in xrange(number) ]
 
     def check_bill_votes(self, bill_id, votes_for, votes_against):
         bill = Bill.objects.get(id=bill_id)
@@ -497,6 +497,7 @@ class TestCreateRequests(BaseTestRequests):
         data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',
                      'rationale': 'bill-rationale',
+                     'chronicle_on_accepted': 'chronicle-on-accepted',
                      'place': self.place1.id})
         return data
 
@@ -531,6 +532,8 @@ class TestCreateRequests(BaseTestRequests):
         self.assertEqual(bill.data.base_name, u'new-name-нс,ед,им')
         self.assertEqual(bill.votes_for, 1)
         self.assertEqual(bill.votes_against, 0)
+        self.assertEqual(bill.chronicle_on_accepted, 'chronicle-on-accepted')
+        self.assertEqual(bill.chronicle_on_ended, '')
         self.assertTrue(bill.duration.is_UNLIMITED)
 
         vote = VotePrototype(Vote.objects.all()[0])
@@ -543,12 +546,15 @@ class TestCreateRequests(BaseTestRequests):
         self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceResourceExchange.type.value), {'caption': 'bill-caption',
                                                                                                                'rationale': 'bill-rationale',
                                                                                                                'duration': BILL_DURATION.YEAR,
+                                                                                                               'chronicle_on_accepted': 'chronicle-on-accepted',
+                                                                                                               'chronicle_on_ended': 'chronicle-on-ended',
                                                                                                                'place_1': self.place1.id,
                                                                                                                'place_2':  self.place2.id,
                                                                                                                'resource_1': RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL,
                                                                                                                'resource_2': RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE,})
 
         self.assertTrue(BillPrototype._db_get_object(0).duration.is_YEAR)
+        self.assertTrue(BillPrototype._db_get_object(0).chronicle_on_ended, 'chronicle-on-ended')
 
     def test_success_second_bill_error(self):
         self.check_ajax_ok(self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type.value), self.get_post_data()))
@@ -583,6 +589,7 @@ class TestVoteRequests(BaseTestRequests):
         data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',
                      'rationale': 'bill-rationale',
+                     'chronicle_on_accepted': 'chronicle-on-accepted',
                      'place': self.place1.id})
 
         self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type.value), data)
@@ -668,6 +675,7 @@ class TestEditRequests(BaseTestRequests):
         data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',
                      'rationale': 'bill-rationale',
+                     'chronicle_on_accepted': 'chronicle-on-accepted',
                      'place': self.place1.id})
 
         self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type.value), data)
@@ -711,7 +719,7 @@ class TestEditRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[self.bill.id])), texts=(('bills.voting_state_required', 1),))
 
     def test_success(self):
-        self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[self.bill.id])), texts=[('duration', 0)])
+        self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[self.bill.id])), texts=[('duration', 0), 'chronicle-on-accepted'])
 
     def test_success__duration(self):
         from the_tale.game.map.places.relations import RESOURCE_EXCHANGE_TYPE
@@ -719,12 +727,14 @@ class TestEditRequests(BaseTestRequests):
 
         self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceResourceExchange.type.value), {'caption': 'bill-caption',
                                                                                                                'rationale': 'bill-rationale',
+                                                                                                               'chronicle_on_accepted': 'chronicle-on-accepted',
+                                                                                                               # 'chronicle_on_ended': 'chronicle-on-ended',
                                                                                                                'place_1': self.place1.id,
                                                                                                                'place_2':  self.place2.id,
                                                                                                                'resource_1': RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL,
                                                                                                                'resource_2': RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE,})
         bill = BillPrototype._db_get_object(0)
-        self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[bill.id])), texts=['duration'])
+        self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[bill.id])), texts=['duration', 'chronicle-on-accepted'])
 
     def test_edit_place_renaming(self):
         texts = [('>'+place.name+'<', 1) for place in places_storage.all()]
@@ -741,6 +751,7 @@ class TestUpdateRequests(BaseTestRequests):
         data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',
                      'rationale': 'bill-rationale',
+                     'chronicle_on_accepted': 'chronicle-on-accepted',
                      'place': self.place1.id})
 
 
@@ -753,6 +764,7 @@ class TestUpdateRequests(BaseTestRequests):
         data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'new-caption',
                      'rationale': 'new-rationale',
+                     'chronicle_on_accepted': 'chronicle-on-accepted-2',
                      'place': self.place2.id})
         return data
 
@@ -806,6 +818,8 @@ class TestUpdateRequests(BaseTestRequests):
 
         self.assertEqual(Post.objects.all().count(), 2)
 
+        self.assertEqual(self.bill.chronicle_on_accepted, 'chronicle-on-accepted-2')
+
         self.bill._model.delete()
 
 
@@ -817,6 +831,8 @@ class TestUpdateRequests(BaseTestRequests):
                                                                                                                'duration': BILL_DURATION.YEAR,
                                                                                                                'place_1': self.place1.id,
                                                                                                                'place_2':  self.place2.id,
+                                                                                                               'chronicle_on_accepted': 'chronicle-on-accepted',
+                                                                                                               'chronicle_on_ended': 'chronicle-on-ended',
                                                                                                                'resource_1': RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL,
                                                                                                                'resource_2': RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE,})
 
@@ -827,10 +843,14 @@ class TestUpdateRequests(BaseTestRequests):
                                                                                             'duration': BILL_DURATION.YEAR_2,
                                                                                             'place_1': self.place1.id,
                                                                                             'place_2':  self.place2.id,
+                                                                                            'chronicle_on_accepted': 'chronicle-on-accepted-2',
+                                                                                            'chronicle_on_ended': 'chronicle-on-ended-2',
                                                                                             'resource_1': RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL,
                                                                                             'resource_2': RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE,}))
 
         self.assertTrue(BillPrototype._db_get_object(0).duration.is_YEAR_2)
+        self.assertTrue(BillPrototype._db_get_object(0).chronicle_on_accepted, 'chronicle-on-accepted-2')
+        self.assertTrue(BillPrototype._db_get_object(0).chronicle_on_ended, 'chronicle-on-ended-2')
 
 
 class TestModerationPageRequests(BaseTestRequests):
@@ -843,6 +863,7 @@ class TestModerationPageRequests(BaseTestRequests):
         data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',
                      'rationale': 'bill-rationale',
+                     'chronicle_on_accepted': 'chronicle-on-accepted',
                      'place': self.place1.id})
 
         self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type.value), data)
@@ -896,7 +917,8 @@ class TestModerateRequests(BaseTestRequests):
         data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',
                      'rationale': 'bill-rationale',
-                     'place': self.place1.id})
+                     'place': self.place1.id,
+                     'chronicle_on_accepted': 'chronicle-on-accepted'})
 
         self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type.value), data)
         self.bill = BillPrototype(Bill.objects.all()[0])
@@ -957,6 +979,7 @@ class TestDeleteRequests(BaseTestRequests):
         data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',
                      'rationale': 'bill-rationale',
+                     'chronicle_on_accepted': 'chronicle-on-accepted',
                      'place': self.place1.id})
 
         self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type.value), data)

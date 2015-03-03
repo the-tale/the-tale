@@ -22,11 +22,12 @@ class PlaceRenamingTests(BaseTestPrototypes):
 
     def create_place_renaming_bill(self, index):
         self.bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_%d' % index))
-        return BillPrototype.create(self.account1, 'bill-%d-caption' % index, 'bill-%d-rationale' % index, self.bill_data)
+        return BillPrototype.create(self.account1, 'bill-%d-caption' % index, 'bill-%d-rationale' % index, self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
     def test_create(self):
         self.assertEqual(self.bill.caption, 'bill-1-caption')
         self.assertEqual(self.bill.rationale, 'bill-1-rationale')
+        self.assertEqual(self.bill.chronicle_on_accepted, 'chronicle-on-accepted')
         self.assertEqual(self.bill.approved_by_moderator, False)
         self.assertEqual(self.bill.votes_for, 1)
         self.assertEqual(self.bill.votes_against, 0)
@@ -63,6 +64,7 @@ class PlaceRenamingTests(BaseTestPrototypes):
         data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'new-caption',
                      'rationale': 'new-rationale',
+                     'chronicle_on_accepted': 'chronicle-on-accepted-2',
                      'place': self.place2.id})
 
         form = PlaceRenaming.UserForm(data)
@@ -81,6 +83,7 @@ class PlaceRenamingTests(BaseTestPrototypes):
         self.assertEqual(Vote.objects.all().count(), 1)
         self.assertEqual(self.bill.caption, 'new-caption')
         self.assertEqual(self.bill.rationale, 'new-rationale')
+        self.assertEqual(self.bill.chronicle_on_accepted, 'chronicle-on-accepted-2')
         self.assertEqual(self.bill.approved_by_moderator, False)
         self.assertEqual(self.bill.data.base_name, u'new-new-name-нс,ед,им')
         self.assertEqual(self.bill.data.place_id, self.place2.id)

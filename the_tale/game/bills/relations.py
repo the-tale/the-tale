@@ -29,8 +29,8 @@ class BILL_TYPE(DjangoEnum):
 
 class VOTE_TYPE(DjangoEnum):
     records = (('REFRAINED', 0, u'воздержался'),
-                ('FOR', 1, u'«за»'),
-                ('AGAINST', 2, u'«против»'))
+               ('FOR', 1, u'«за»'),
+               ('AGAINST', 2, u'«против»'))
 
 class VOTED_TYPE(DjangoEnum):
     vote_type = rels.Column(unique=False, single_type=False)
