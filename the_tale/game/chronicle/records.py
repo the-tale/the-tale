@@ -155,6 +155,15 @@ class PlaceResourceConversionBillEnded(_PlaceResourceConversionBillBase):
     TYPE = RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_ENDED
 
 
+#chronicle
+class PersonChronicleBillSuccessed(RecordBase):
+    TYPE = RECORD_TYPE.PERSON_CHRONICLE_BILL_SUCCESSED
+    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL, ACTOR_ROLE.PERSON]
+
+class PlaceChronicleBillSuccessed(RecordBase):
+    TYPE = RECORD_TYPE.PLACE_CHRONICLE_BILL_SUCCESSED
+    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL]
+
 
 RECORDS = {}
 for class_name, record_class in globals().items():

@@ -53,6 +53,19 @@ def _get_bill_person_remove_arguments(bill):
              'substitutions': {},
              'text': bill.chronicle_on_accepted }
 
+def _get_bill_person_chronicle_arguments(bill):
+    return { 'actors': [(ACTOR_ROLE.BILL, bill),
+                        (ACTOR_ROLE.PLACE, bill.data.person.place),
+                        (ACTOR_ROLE.PERSON, bill.data.person)],
+             'substitutions': {},
+             'text': bill.chronicle_on_accepted }
+
+def _get_bill_place_chronicle_arguments(bill):
+    return { 'actors': [(ACTOR_ROLE.BILL, bill),
+                        (ACTOR_ROLE.PLACE, bill.data.place)],
+             'substitutions': {},
+             'text': bill.chronicle_on_accepted }
+
 def _get_bill_building_arguments(bill):
     return { 'actors': [(ACTOR_ROLE.BILL, bill),
                         (ACTOR_ROLE.PLACE, bill.data.person.place),
@@ -112,7 +125,9 @@ BILL_ARGUMENT_GETTERS = {
     BILL_TYPE.BUILDING_RENAMING: _get_bill_building_rename_arguments,
     BILL_TYPE.PLACE_RESOURCE_EXCHANGE: _get_bill_place_resource_exchange_arguments,
     BILL_TYPE.BILL_DECLINE: _get_bill_decline_bill_arguments,
-    BILL_TYPE.PLACE_RESOURCE_CONVERSION: _get_bill_place_resource_conversion_arguments,}
+    BILL_TYPE.PLACE_RESOURCE_CONVERSION: _get_bill_place_resource_conversion_arguments,
+    BILL_TYPE.PERSON_CHRONICLE: _get_bill_person_chronicle_arguments,
+    BILL_TYPE.PLACE_CHRONICLE: _get_bill_place_chronicle_arguments  }
 
 
 @receiver(bills_signals.bill_processed, dispatch_uid='chronicle_bill_processed')
@@ -159,6 +174,14 @@ def chronicle_bill_processed(sender, bill, **kwargs): # pylint: disable=R0912,W0
 
     elif bill.data.type == BILL_TYPE.PLACE_RESOURCE_CONVERSION:
         record_type = records.PlaceResourceConversionBillSuccessed
+        record_type(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
+
+    elif bill.data.type == BILL_TYPE.PERSON_CHRONICLE:
+        record_type = records.PersonChronicleBillSuccessed
+        record_type(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
+
+    elif bill.data.type == BILL_TYPE.PLACE_CHRONICLE:
+        record_type = records.PlaceChronicleBillSuccessed
         record_type(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
 
 

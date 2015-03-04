@@ -1,0 +1,7 @@
+
+<li><strong>советник:</strong> {{bill.data.person_name}} {{ bill.data.person_gender_verbose }} {{ bill.data.person_race_verbose }} {{ bill.data.person_type.text }}</li>
+<li><strong>из города:</strong> <a href="{{url('game:map:places:show', bill.data.place.id)}}">{{bill.data.place.name}}</a></li>
+<li><strong>изменение влияния:</strong> {{bill.data.power_bonus.text}}</li>
+{% if bill.data.place_name_changed %}
+<li><strong>название города во время создания закона:</strong> {{bill.data.old_place_name}}</li>
+{% endif %}

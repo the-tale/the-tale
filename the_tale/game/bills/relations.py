@@ -24,7 +24,10 @@ class BILL_TYPE(DjangoEnum):
                 ('BUILDING_RENAMING', 6, u'переименовать постройку'),
                 ('PLACE_RESOURCE_EXCHANGE', 7, u'обмен ресурсами'),
                 ('BILL_DECLINE', 8, u'отмена закона'),
-                ('PLACE_RESOURCE_CONVERSION', 9, u'изменение параметров города') )
+                ('PLACE_RESOURCE_CONVERSION', 9, u'изменение параметров города'),
+                ('PERSON_CHRONICLE', 10, u'запись в летописи о советнике'),
+                ('PLACE_CHRONICLE', 11, u'запись в летописи о городе'),
+                )
 
 
 class VOTE_TYPE(DjangoEnum):
@@ -59,3 +62,11 @@ class BILL_DURATION(DjangoEnum):
                  ('YEAR_3',    7, u'3 года (реальных дней: %.1f)' % days_from_game_months(12), 12),
                  ('YEAR_5',    8, u'5 лет (реальных дней: %.1f)' % days_from_game_months(20), 20),
                  ('YEAR_10',   9, u'10 лет (реальных дней: %.1f)' % days_from_game_months(40), 40) )
+
+
+class POWER_BONUS_CHANGES(DjangoEnum):
+    bonus_delta = rels.Column()
+
+    records = ( ('DOWN', 0, u'уменьшить на %.2f%%' % (c.HERO_POWER_BONUS*100), -c.HERO_POWER_BONUS),
+                ('NOT_CHANGE', 1, u'не изменять', 0.0),
+                ('UP', 2, u'увеличить на %.2f%%' % (c.HERO_POWER_BONUS*100), c.HERO_POWER_BONUS) )

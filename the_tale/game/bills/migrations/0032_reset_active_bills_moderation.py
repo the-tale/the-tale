@@ -7,41 +7,7 @@ from django.db import models
 class Migration(DataMigration):
 
     def forwards(self, orm):
-        orm['linguistics.Template'].objects.filter(key__in=[260000,
-                                                             260001,
-                                                             260002,
-                                                             260003,
-                                                             260004,
-                                                             260005,
-                                                             260006,
-                                                             260007,
-                                                             260008,
-                                                             260010,
-                                                             260011,
-                                                             260012,
-                                                             260015,
-                                                             260016,
-                                                             260017,
-                                                             260018,
-                                                             260019,
-                                                             260020,
-                                                             260021,
-                                                             260022,
-                                                             260023,
-                                                             260024,
-                                                             260025,
-                                                             260026,
-                                                             260027,
-                                                             260028,
-                                                             260029,
-                                                             260032,
-                                                             260033,
-                                                             260034,
-                                                             260035,
-                                                             260036,
-                                                             260037,
-                                                             260038,
-                                                             260039]).delete()
+        orm['bills.Bill'].objects.filter(state=1).update(approved_by_moderator=False)
 
     def backwards(self, orm):
         "Write your backwards methods here."
@@ -93,6 +59,49 @@ class Migration(DataMigration):
             'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contenttypes.ContentType']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
+        },
+        u'bills.actor': {
+            'Meta': {'object_name': 'Actor'},
+            'bill': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['bills.Bill']"}),
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'place': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': u"orm['places.Place']"})
+        },
+        u'bills.bill': {
+            'Meta': {'object_name': 'Bill'},
+            'approved_by_moderator': ('django.db.models.fields.BooleanField', [], {'default': 'False', 'db_index': 'True'}),
+            'caption': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
+            'chronicle_on_accepted': ('django.db.models.fields.TextField', [], {'default': "u''", 'blank': 'True'}),
+            'chronicle_on_ended': ('django.db.models.fields.TextField', [], {'default': "u''", 'blank': 'True'}),
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'created_at_turn': ('django.db.models.fields.IntegerField', [], {}),
+            'declined_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'on_delete': 'models.SET_NULL', 'default': 'None', 'to': u"orm['bills.Bill']", 'blank': 'True', 'null': 'True'}),
+            'duration': ('rels.django.RelationIntegerField', [], {}),
+            'ended_at': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
+            'ends_at_turn': ('django.db.models.fields.BigIntegerField', [], {'db_index': 'True', 'null': 'True', 'blank': 'True'}),
+            'forum_thread': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'+'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': u"orm['forum.Thread']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_declined': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'min_votes_percents_required': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
+            'owner': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': u"orm['accounts.Account']"}),
+            'rationale': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'remove_initiator': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'+'", 'null': 'True', 'on_delete': 'models.SET_NULL', 'to': u"orm['accounts.Account']"}),
+            'state': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
+            'technical_data': ('django.db.models.fields.TextField', [], {'default': '{}', 'blank': 'True'}),
+            'type': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
+            'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'votes_against': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'votes_for': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'votes_refrained': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'voting_end_at': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'})
+        },
+        u'bills.vote': {
+            'Meta': {'unique_together': "(('owner', 'bill'),)", 'object_name': 'Vote'},
+            'bill': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['bills.Bill']"}),
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'owner': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': u"orm['accounts.Account']"}),
+            'type': ('rels.django.RelationIntegerField', [], {'db_index': 'True'})
         },
         u'clans.clan': {
             'Meta': {'object_name': 'Clan'},
@@ -151,58 +160,41 @@ class Migration(DataMigration):
             'technical': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(1970, 1, 1, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'})
         },
-        u'linguistics.contribution': {
-            'Meta': {'unique_together': "(('type', 'account', 'entity_id'),)", 'object_name': 'Contribution'},
-            'account': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounts.Account']"}),
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'db_index': 'True', 'blank': 'True'}),
-            'entity_id': ('django.db.models.fields.BigIntegerField', [], {'db_index': 'True'}),
+        u'places.place': {
+            'Meta': {'ordering': "('name',)", 'object_name': 'Place'},
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(1970, 1, 1, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
+            'created_at_turn': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
+            'data': ('django.db.models.fields.TextField', [], {'default': "u'{}'"}),
+            'description': ('django.db.models.fields.TextField', [], {'default': "u''", 'blank': 'True'}),
+            'expected_size': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'freedom': ('django.db.models.fields.FloatField', [], {'default': '1.0'}),
+            'goods': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'habit_honor': ('django.db.models.fields.FloatField', [], {'default': '0'}),
+            'habit_honor_negative': ('django.db.models.fields.FloatField', [], {'default': '0'}),
+            'habit_honor_positive': ('django.db.models.fields.FloatField', [], {'default': '0'}),
+            'habit_peacefulness': ('django.db.models.fields.FloatField', [], {'default': '0'}),
+            'habit_peacefulness_negative': ('django.db.models.fields.FloatField', [], {'default': '0'}),
+            'habit_peacefulness_positive': ('django.db.models.fields.FloatField', [], {'default': '0'}),
+            'heroes_number': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'type': ('rels.django.RelationIntegerField', [], {'default': '0', 'db_index': 'True'})
-        },
-        u'linguistics.restriction': {
-            'Meta': {'unique_together': "(('group', 'external_id'),)", 'object_name': 'Restriction'},
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'db_index': 'True', 'blank': 'True'}),
-            'external_id': ('django.db.models.fields.BigIntegerField', [], {'db_index': 'True'}),
-            'group': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '128'})
-        },
-        u'linguistics.template': {
-            'Meta': {'object_name': 'Template'},
-            'author': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounts.Account']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'data': ('django.db.models.fields.TextField', [], {}),
-            'errors_status': ('rels.django.RelationIntegerField', [], {'default': '0', 'db_index': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'key': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
-            'parent': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['linguistics.Template']", 'unique': 'True', 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
-            'raw_template': ('django.db.models.fields.TextField', [], {'db_index': 'True'}),
-            'state': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
-            'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'})
-        },
-        u'linguistics.templaterestriction': {
-            'Meta': {'unique_together': "(('restriction', 'template', 'variable'),)", 'object_name': 'TemplateRestriction'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'restriction': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['linguistics.Restriction']"}),
-            'template': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['linguistics.Template']"}),
-            'variable': ('django.db.models.fields.CharField', [], {'max_length': '32', 'db_index': 'True'})
-        },
-        u'linguistics.word': {
-            'Meta': {'unique_together': "(('normal_form', 'type', 'state'),)", 'object_name': 'Word'},
-            'author': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['accounts.Account']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'forms': ('django.db.models.fields.TextField', [], {}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'normal_form': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
-            'parent': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['linguistics.Word']", 'unique': 'True', 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
-            'state': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
-            'type': ('rels.django.RelationIntegerField', [], {'db_index': 'True'}),
-            'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'used_in_ingame_templates': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'used_in_onreview_templates': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'used_in_status': ('rels.django.RelationIntegerField', [], {'default': '2', 'db_index': 'True'})
+            'is_frontier': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'keepers_goods': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'modifier': ('rels.django.RelationIntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '150', 'db_index': 'True'}),
+            'persons_changed_at_turn': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
+            'production': ('django.db.models.fields.IntegerField', [], {'default': '100'}),
+            'race': ('rels.django.RelationIntegerField', [], {}),
+            'safety': ('django.db.models.fields.FloatField', [], {'default': '0.75'}),
+            'size': ('django.db.models.fields.IntegerField', [], {}),
+            'stability': ('django.db.models.fields.FloatField', [], {'default': '1.0'}),
+            'tax': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
+            'transport': ('django.db.models.fields.FloatField', [], {'default': '1.0'}),
+            'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            'updated_at_turn': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
+            'x': ('django.db.models.fields.BigIntegerField', [], {}),
+            'y': ('django.db.models.fields.BigIntegerField', [], {})
         }
     }
 
-    complete_apps = ['linguistics']
+    complete_apps = ['bills']
     symmetrical = True

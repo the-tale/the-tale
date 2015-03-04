@@ -334,7 +334,6 @@ class BillPrototype(BasePrototype):
         model.forum_thread = thread._model
         model.save()
 
-
         ActorPrototype.update_actors(bill_prototype, bill_prototype.data.actors)
 
         VotePrototype.create(owner, bill_prototype, VOTE_TYPE.FOR)

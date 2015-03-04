@@ -12,6 +12,7 @@ from the_tale.game.relations import RACE
 
 from the_tale.game.bills.prototypes import BillPrototype
 from the_tale.game.bills import bills
+from the_tale.game.bills import relations as bills_relations
 from the_tale.game.bills.tests.test_prototype import BaseTestPrototypes
 
 from the_tale.game.chronicle.models import Record, RECORD_TYPE
@@ -316,3 +317,44 @@ class PlaceChangeRace(BaseTestPrototypes):
 
         with check_record_created(self, RECORD_TYPE.PLACE_CHANGE_RACE):
             self.place1.sync_race()
+
+
+
+class BillPersonChronicleTests(BaseTestPrototypes):
+
+    def setUp(self):
+        super(BillPersonChronicleTests, self).setUp()
+
+        bill_data = bills.PersonChronicle(person_id=self.place1.persons[0].id, old_place_name_forms=self.place1.utg_name, power_bonus=bills_relations.POWER_BONUS_CHANGES.DOWN)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+
+        self.form = bills.PersonChronicle.ModeratorForm({'approved': True})
+        self.assertTrue(self.form.is_valid())
+
+    @mock.patch('the_tale.game.chronicle.records.PlaceChangeRace.create_record', lambda x: None)
+    @mock.patch('the_tale.game.chronicle.records.PersonArrivedToPlace.create_record', lambda x: None)
+    def test_bill_successed(self):
+        self.bill.update_by_moderator(self.form)
+        with check_record_created(self, RECORD_TYPE.PERSON_CHRONICLE_BILL_SUCCESSED):
+            process_bill(self.bill, True)
+        self.assertEqual(prototypes.RecordPrototype._db_latest().text, 'chronicle-on-accepted')
+
+
+class BillPlaceChronicleTests(BaseTestPrototypes):
+
+    def setUp(self):
+        super(BillPlaceChronicleTests, self).setUp()
+
+        bill_data = bills.PlaceChronicle(place_id=self.place1.id, old_name_forms=self.place1.utg_name, power_bonus=bills_relations.POWER_BONUS_CHANGES.DOWN)
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+
+        self.form = bills.PersonChronicle.ModeratorForm({'approved': True})
+        self.assertTrue(self.form.is_valid())
+
+    @mock.patch('the_tale.game.chronicle.records.PlaceChangeRace.create_record', lambda x: None)
+    @mock.patch('the_tale.game.chronicle.records.PersonArrivedToPlace.create_record', lambda x: None)
+    def test_bill_successed(self):
+        self.bill.update_by_moderator(self.form)
+        with check_record_created(self, RECORD_TYPE.PLACE_CHRONICLE_BILL_SUCCESSED):
+            process_bill(self.bill, True)
+        self.assertEqual(prototypes.RecordPrototype._db_latest().text, 'chronicle-on-accepted')
