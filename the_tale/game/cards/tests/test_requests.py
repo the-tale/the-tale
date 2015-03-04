@@ -45,7 +45,7 @@ class UseDialogRequestTests(CardsRequestsTestsBase):
 
     def test_no_cards(self):
         self.request_login(self.account.email)
-        self.check_html_ok(self.request_ajax_html(url('game:cards:use-dialog', card=666)), texts=['cards.no_card'])
+        self.check_html_ok(self.request_ajax_html(url('game:cards:use-dialog', card=666)), texts=['cards.use-dialog.card.wrong_value'])
 
     def test_has_cards(self):
         self.hero.cards.add_card(self.card)
@@ -68,7 +68,7 @@ class UseRequestTests(CardsRequestsTestsBase):
 
     def test_no_cards(self):
         self.request_login(self.account.email)
-        self.check_ajax_error(self.post_ajax_json(url('game:cards:use', card=666)), 'cards.no_card')
+        self.check_ajax_error(self.post_ajax_json(url('game:cards:use', card=666)), 'cards.use.card.wrong_value')
 
 
     def test_form_invalid(self):

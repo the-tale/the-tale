@@ -4,6 +4,7 @@ import datetime
 
 from django.core.urlresolvers import reverse
 
+from dext.common.utils import views as dext_views
 from dext.views import handler, validator, validate_argument
 
 from the_tale.amqp_environment import environment
@@ -14,7 +15,6 @@ from the_tale.common.postponed_tasks import PostponedTaskPrototype
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.clans.prototypes import ClanPrototype
-from the_tale.accounts.payments import price_list
 
 from the_tale.game.balance import constants as c
 
@@ -40,6 +40,23 @@ from the_tale.game.heroes.forms import ChoosePreferencesForm, EditNameForm
 from the_tale.game.heroes.conf import heroes_settings
 
 from the_tale.game.heroes.habilities import relations as habilities_relations
+
+
+###############################
+# new view processors
+###############################
+
+class AccountHeroProcessor(dext_views.BaseViewProcessor):
+    __slots__ = dext_views.BaseViewProcessor.__slots__
+
+    def preprocess(self, context):
+        if not context.account.is_authenticated():
+            context.account_hero = None
+            return
+
+        context.account_hero = HeroPrototype.get_by_account_id(context.account.id)
+
+account_hero_processor = AccountHeroProcessor()
 
 
 def split_list(items):
