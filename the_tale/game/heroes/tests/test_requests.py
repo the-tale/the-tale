@@ -230,69 +230,6 @@ class ResetAbilitiesRequestsTests(HeroRequestsTestBase):
         self.check_ajax_processing(response, task.status_url)
 
 
-class GetCardRequestsTests(HeroRequestsTestBase):
-
-    def setUp(self):
-        super(GetCardRequestsTests, self).setUp()
-
-    def test_wrong_ownership(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.request_logout()
-        self.request_login('test_user_2@test.com')
-        self.check_ajax_error(self.post_ajax_json(url('game:heroes:get-card', self.hero.id)),
-                              'heroes.not_owner')
-
-
-    def test_created(self):
-        with self.check_delta(PostponedTask.objects.all().count, 1):
-            response = self.post_ajax_json(url('game:heroes:get-card', self.hero.id))
-
-        task = PostponedTaskPrototype._db_get_object(0)
-
-        self.check_ajax_processing(response, task.status_url)
-
-
-class CombineCardsRequestsTests(HeroRequestsTestBase):
-
-    def setUp(self):
-        super(CombineCardsRequestsTests, self).setUp()
-
-    def test_wrong_ownership(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.request_logout()
-        self.request_login('test_user_2@test.com')
-        with self.check_not_changed(PostponedTask.objects.all().count):
-            self.check_ajax_error(self.post_ajax_json(url('game:heroes:combine-cards', self.hero.id, cards='%d' % cards_relations.CARD_TYPE.ADD_GOLD_COMMON.value)),
-                                'heroes.not_owner')
-
-
-    def test_created(self):
-        card_1 = cards_objects.Card(cards_relations.CARD_TYPE.ADD_GOLD_COMMON)
-        card_2 = cards_objects.Card(cards_relations.CARD_TYPE.ADD_GOLD_COMMON)
-
-        self.hero.cards.add_card(card_1)
-        self.hero.cards.add_card(card_2)
-
-        self.hero.save()
-
-        with self.check_delta(PostponedTask.objects.all().count, 1):
-            response = self.post_ajax_json(url('game:heroes:combine-cards', self.hero.id, cards='%d,%d' % (card_1.uid, card_2.uid) ))
-
-        task = PostponedTaskPrototype._db_get_object(0)
-
-        self.check_ajax_processing(response, task.status_url)
-
-    def test_wrong_cards(self):
-
-        for combine_status in cards_relations.CARDS_COMBINING_STATUS.records:
-            if combine_status.is_ALLOWED:
-                continue
-
-            with self.check_not_changed(PostponedTask.objects.all().count):
-                self.check_ajax_error(self.post_ajax_json(url('game:heroes:combine-cards', self.hero.id, cards=666)),
-                                    'heroes.combine_cards.wrong_cards')
-
-
 class ResetNameRequestsTests(HeroRequestsTestBase):
 
     def setUp(self):

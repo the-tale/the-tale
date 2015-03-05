@@ -573,16 +573,18 @@ class GetCardTask(PostponedLogic):
 '''
 
 
-    def __init__(self, hero_id, state=GET_CARD_TASK_STATE.UNPROCESSED, message=None):
+    def __init__(self, hero_id, state=GET_CARD_TASK_STATE.UNPROCESSED, message=None, card_ui_info=None):
         super(GetCardTask, self).__init__()
         self.hero_id = hero_id
         self.state = state if isinstance(state, rels.Record) else GET_CARD_TASK_STATE(state)
         self.message = message
+        self.card_ui_info = card_ui_info
 
     def serialize(self):
         return { 'hero_id': self.hero_id,
                  'state': self.state.value,
-                 'message': self.message}
+                 'message': self.message,
+                 'card_ui_info': self.card_ui_info}
 
     @property
     def error_message(self): return self.state.text
@@ -593,7 +595,8 @@ class GetCardTask(PostponedLogic):
                                'rarity': card.type.rarity.name.lower()}
     @property
     def processed_data(self):
-        return {'message': self.message }
+        return {'message': self.message,
+                'card': self.card_ui_info }
 
     def process(self, main_task, storage):
 
@@ -609,6 +612,8 @@ class GetCardTask(PostponedLogic):
         self.message = self.create_message(card)
 
         hero.cards.change_help_count(-c.CARDS_HELP_COUNT_TO_NEW_CARD)
+
+        self.card_ui_info = card.ui_info()
 
         storage.save_bundle_data(hero.actions.current_action.bundle_id, update_cache=True)
 
@@ -634,18 +639,20 @@ class CombineCardsTask(PostponedLogic):
 '''
 
 
-    def __init__(self, hero_id, cards=[], state=GET_CARD_TASK_STATE.UNPROCESSED, message=None):
+    def __init__(self, hero_id, cards=[], state=GET_CARD_TASK_STATE.UNPROCESSED, message=None, card_ui_info=None):
         super(CombineCardsTask, self).__init__()
         self.hero_id = hero_id
         self.cards = cards
         self.message = message
         self.state = state if isinstance(state, rels.Record) else GET_CARD_TASK_STATE(state)
+        self.card_ui_info = card_ui_info
 
     def serialize(self):
         return { 'hero_id': self.hero_id,
                  'state': self.state.value,
                  'cards': self.cards,
-                 'message': self.message}
+                 'message': self.message,
+                 'card_ui_info': self.card_ui_info}
 
     @property
     def error_message(self): return self.state.text
@@ -657,7 +664,8 @@ class CombineCardsTask(PostponedLogic):
 
     @property
     def processed_data(self):
-        return {'message': self.message }
+        return {'message': self.message,
+                'card_ui_info': self.card_ui_info}
 
     def process(self, main_task, storage):
 
@@ -675,6 +683,8 @@ class CombineCardsTask(PostponedLogic):
         self.message = self.create_message(card)
 
         hero.statistics.change_cards_combined(len(self.cards))
+
+        self.card_ui_info = card.ui_info()
 
         storage.save_bundle_data(hero.actions.current_action.bundle_id, update_cache=True)
 

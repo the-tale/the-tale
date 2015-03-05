@@ -2,6 +2,8 @@
 
 import functools
 
+from dext.common.utils import views as dext_views
+
 
 def check_client_version(client_version):
     try:
@@ -66,3 +68,44 @@ def handler(versions):
         return view_wrapper
 
     return decorator
+
+
+class Processor(dext_views.BaseViewProcessor):
+    __slots__ = ('versions',)
+
+    def __init__(self, versions, **kwargs):
+        super(Processor, self).__init__(**kwargs)
+        self.versions = versions
+
+    def preprocess(self, context):
+
+        api_version = context.django_request.GET.get('api_version', '').strip()
+
+        if not api_version:
+            raise dext_views.ViewError(code='api.no_method_version', message=u'Не указана версия метода')
+
+        if api_version not in self.versions:
+            raise dext_views.ViewError(code='api.wrong_method_version',
+                                       message=u'Неверная версия метода, ожидается одна из: %s' % ', '.join(self.versions))
+
+        context.api_version = api_version
+
+        api_client = context.django_request.GET.get('api_client', '').strip()
+
+        if not api_client:
+            raise dext_views.ViewError(code='api.no_client_identificator', message=u'Не указана версия клиента')
+
+        if not check_client_version(api_client):
+            raise dext_views.ViewError(code='api.wrong_client_identificator_format',
+                                       message=u'Неверный идентификатор клиента, ожидается <название программы>-<версия программы>')
+
+        context.api_client = api_client
+
+
+    def postprocess(self, context, response):
+        response = super(Processor, self).postprocess(context, response)
+
+        if context.api_version != self.versions[0]:
+            response.content['depricated'] = True
+
+        return response

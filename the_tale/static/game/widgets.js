@@ -1357,7 +1357,7 @@ pgf.game.CombineCardsDialog = function(dialog) {
 
     function GetUrl() {
         var cards = GetChoosenCards();
-        return button.attr('href')+'?cards='+cards.join(',');
+        return button.attr('href')+'&cards='+cards.join(',');
     }
 
 

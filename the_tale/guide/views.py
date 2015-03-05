@@ -67,6 +67,7 @@ def get_api_methods():
     from the_tale.game.abilities.views import AbilitiesResource
     from the_tale.game.quests.views import QuestsResource
     from the_tale.accounts.third_party.views import TokensResource
+    from the_tale.game.cards import views as cards_views
 
     return [APIReference('portal_info', u'Базовая информация', PortalResource.api_info),
             APIReference('authorization', u'Авторизация в игре', getattr(TokensResource, 'api_request_authorisation')),
@@ -76,26 +77,30 @@ def get_api_methods():
             APIReference('account_info', u'Информация об игроке', AccountResource.api_show),
             APIReference('game_info', u'Информация об игре/герое', GameResource.api_info),
             APIReference('game_abilities', u'Использование способности', AbilitiesResource.use),
-            APIReference('game_quests', u'Выбор в задании', QuestsResource.api_choose)]
+            APIReference('game_quests', u'Выбор в задании', QuestsResource.api_choose),
+            APIReference('cards_get', u'Карты: взять', cards_views.api_get),
+            APIReference('cards_combine', u'Карты: объединить', cards_views.api_combine),
+            APIReference('cards_use', u'Карты: использовать', cards_views.api_use)]
 
 
 def get_api_types():
     from the_tale.game.relations import GENDER, RACE
-    from the_tale.game.artifacts.relations import ARTIFACT_TYPE, RARITY, ARTIFACT_EFFECT
+    from the_tale.game.artifacts.relations import ARTIFACT_TYPE, RARITY as ARTIFACT_RARITY, ARTIFACT_EFFECT
     from the_tale.game.heroes.relations import EQUIPMENT_SLOT
     from the_tale.game.persons.relations import PERSON_TYPE
     from the_tale.game.abilities.relations import ABILITY_TYPE as ANGEL_ABILITY_TYPE
     from the_tale.game.actions.relations import ACTION_TYPE
     from the_tale.game.relations import GAME_STATE
     from the_tale.game.quests.relations import ACTOR_TYPE
-    from the_tale.game.cards.relations import CARD_TYPE
+    from the_tale.game.cards.relations import CARD_TYPE, RARITY as CARD_RARITY
     from the_tale.accounts.third_party.relations import AUTHORISATION_STATE
 
 
     return [TypeReference('authorisation_state', u'Состояние авторизации', AUTHORISATION_STATE),
             TypeReference('gender', u'Пол', GENDER),
             TypeReference('race', u'Раса', RACE),
-            TypeReference('rarity', u'Редкость артефакта', RARITY),
+            TypeReference('artifact_rarity', u'Редкость артефакта', ARTIFACT_RARITY),
+            TypeReference('card_rarity', u'Редкость карты', CARD_RARITY),
             TypeReference('artifact_type', u'Тип артефакта', ARTIFACT_TYPE),
             TypeReference('equipment_slot', u'Тип экипировки', EQUIPMENT_SLOT),
             TypeReference('artifact_effect', u'Эффекты артефактов', ARTIFACT_EFFECT),

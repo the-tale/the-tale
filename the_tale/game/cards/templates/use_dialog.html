@@ -14,7 +14,7 @@
       {{card.effect.DESCRIPTION}}
     </p>
 
-    <form class="pgf-use-card-form" method="post" action="{{ url('game:cards:use', card=card.uid) }}">
+    <form class="pgf-use-card-form" method="post" action="{{ use_card_url(card.uid) }}">
 
       {{ form.errors_container }}
 

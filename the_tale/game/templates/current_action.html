@@ -40,7 +40,7 @@ jQuery(document).ready(function(e) {
 
     jQuery('.pgf-get-card-button').click(function(e){
         e.preventDefault();
-        pgf.forms.Post({ action: "{{url('game:heroes:get-card', hero.id)}}",
+        pgf.forms.Post({ action: "{{get_card_url()}}",
                          OnSuccess: function(data){
                              jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
                              pgf.ui.dialog.Alert({message: data.data.message,

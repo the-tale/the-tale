@@ -5,15 +5,23 @@ from rels.django import DjangoEnum
 from dext.common.utils import views as dext_views
 from dext.common.utils.urls import UrlBuilder, url
 
+from the_tale import amqp_environment
+
+from the_tale.common import postponed_tasks as common_postponed_tasks
+
+from the_tale.common.utils import api
 from the_tale.common.utils import list_filter
 from the_tale.common.utils import views as utils_views
 
 from the_tale.accounts import views as accounts_views
 
 from the_tale.game.heroes import views as heroes_views
+from the_tale.game.heroes import postponed_tasks as heroes_postponed_tasks
 
 from the_tale.game.cards import relations
 from the_tale.game.cards import effects
+from the_tale.game.cards import conf
+
 
 ########################################
 # processors definition
@@ -34,6 +42,28 @@ class AccountCardProcessor(dext_views.ArgumentProcessor):
 
 
 account_card_processor = AccountCardProcessor.handler(error_message=u'У Вас нет такой карты', get_name='card', context_name='account_card')
+
+
+def parse_cards_list(value):
+    return
+
+
+class AccountCardsProcessor(dext_views.ArgumentProcessor):
+
+    def parse(self, context, raw_value):
+        try:
+            cards_uids = [int(card_id.strip()) for card_id in raw_value.split(',')]
+        except ValueError:
+            self.raise_wrong_format(context=context)
+
+        for card_uid in cards_uids:
+            if not context.account_hero.cards.has_card(card_uid=card_uid):
+                self.raise_wrong_value(context=context)
+
+        return [context.account_hero.cards.get_card(card_uid) for card_uid in cards_uids]
+
+
+account_cards_processor = AccountCardsProcessor.handler(error_message=u'У вас нет как минимум одной из указанных карт', get_name='cards', context_name='account_cards')
 
 
 ########################################
@@ -85,8 +115,25 @@ def use_dialog(context):
 
 @accounts_views.LoginRequiredProcessor.handler()
 @account_card_processor
-@resource.handler('use', method='POST')
-def use(context):
+@api.Processor.handler(versions=(conf.settings.USE_API_VERSION, ))
+@resource.handler('api', 'use', method='POST')
+def api_use(context):
+    u'''
+Использовать карту из калоды игрока.
+
+- **адрес:** /game/cards/api/use
+- **http-метод:** POST
+- **версии:** 1.0
+- **параметры:**
+    * GET: card — уникальный идентификатор карты в калоде
+    * POST: person — идентификатор советника, если карта применяется к советнику
+    * POST: place — идентификатор города, если карта применяется к городу
+    * POST: building — идентификатор здания, если карта применяется к зданию
+- **возможные ошибки**:
+    * cards.use.form_errors — ошибка в одном из POST параметров
+
+Метод является «неблокирующей операцией» (см. документацию), формат ответа соответствует ответу для всех «неблокирующих операций».
+    '''
     form = context.account_card.type.form(context.django_request.POST)
 
     if not form.is_valid():
@@ -106,6 +153,76 @@ def combine_dialog(context):
                            content={'CARDS': cards,
                                     'hero': context.account_hero,
                                     'resource': context.resource} )
+
+
+@accounts_views.LoginRequiredProcessor.handler()
+@api.Processor.handler(versions=(conf.settings.GET_API_VERSION, ))
+@resource.handler('api', 'get', method='post')
+def api_get(context):
+    u'''
+Взять новую карту в колоду игрока.
+
+- **адрес:** /game/cards/api/get
+- **http-метод:** POST
+- **версии:** 1.0
+- **параметры:** нет
+- **возможные ошибки**: нет
+
+Метод является «неблокирующей операцией» (см. документацию), формат ответа соответствует ответу для всех «неблокирующих операций».
+
+При завершении операции возвращается дополнительная инфрмация:
+
+    {
+      "message": "строка",      // описание результата в формате html
+      "card": <card_info>|null  // описание полученной карты в случае успеха, формат см. в описании формата информации о герое
+    }
+    '''
+    choose_task = heroes_postponed_tasks.GetCardTask(hero_id=context.account_hero.id)
+
+    task = common_postponed_tasks.PostponedTaskPrototype.create(choose_task)
+
+    amqp_environment.environment.workers.supervisor.cmd_logic_task(context.account.id, task.id)
+
+    return dext_views.AjaxProcessing(task.status_url)
+
+
+@accounts_views.LoginRequiredProcessor.handler()
+@account_cards_processor
+@api.Processor.handler(versions=(conf.settings.COMBINE_API_VERSION, ))
+@resource.handler('api', 'combine', method='post')
+def api_combine(context):
+    u'''
+Объединить карты из колоды игрока.
+
+- **адрес:** /game/cards/api/combine
+- **http-метод:** POST
+- **версии:** 1.0
+- **параметры:**
+    * GET: cards — перечень уникальный идентификаторов карт в колоде игрока через запятую
+- **возможные ошибки**:
+    * cards.combine.wrong_cards — указанные карты нельзя объединить
+
+Метод является «неблокирующей операцией» (см. документацию), формат ответа соответствует ответу для всех «неблокирующих операций».
+
+При завершении операции возвращается дополнительная инфрмация:
+
+    {
+      "message": "строка",      // описание результата в формате html
+      "card": <card_info>|null  // описание полученной карты в случае успеха, формат см. в описании формата информации о герое
+    }
+    '''
+    can_combine_status = context.account_hero.cards.can_combine_cards([card.uid for card in context.account_cards])
+
+    if not can_combine_status.is_ALLOWED:
+        raise dext_views.ViewError(code=u'cards.combine.wrong_cards', message=can_combine_status.text)
+
+    choose_task = heroes_postponed_tasks.CombineCardsTask(hero_id=context.account_hero.id, cards=[card.uid for card in context.account_cards])
+
+    task = common_postponed_tasks.PostponedTaskPrototype.create(choose_task)
+
+    amqp_environment.environment.workers.supervisor.cmd_logic_task(context.account.id, task.id)
+
+    return dext_views.AjaxProcessing(task.status_url)
 
 
 

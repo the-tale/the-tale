@@ -3,7 +3,7 @@
 from dext.common.utils.urls import url
 
 from the_tale.common.utils import testcase
-from the_tale.common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common import postponed_tasks as common_postponed_tasks
 
 from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype
@@ -16,6 +16,7 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.cards import relations
 from the_tale.game.cards.effects import EFFECTS
 from the_tale.game.cards import objects
+from the_tale.game.cards import logic
 
 from the_tale.game.map.places.prototypes import BuildingPrototype
 
@@ -64,11 +65,11 @@ class UseRequestTests(CardsRequestsTestsBase):
                 'building': self.building_1.id if building_id is None else building_id,}
 
     def test_unlogined(self):
-        self.check_ajax_error(self.post_ajax_json(url('game:cards:use', card=666), self.post_data(666)), 'common.login_required')
+        self.check_ajax_error(self.post_ajax_json(logic.use_card_url(666), self.post_data(666)), 'common.login_required')
 
     def test_no_cards(self):
         self.request_login(self.account.email)
-        self.check_ajax_error(self.post_ajax_json(url('game:cards:use', card=666)), 'cards.use.card.wrong_value')
+        self.check_ajax_error(self.post_ajax_json(logic.use_card_url(666)), 'cards.use.card.wrong_value')
 
 
     def test_form_invalid(self):
@@ -77,10 +78,7 @@ class UseRequestTests(CardsRequestsTestsBase):
         self.hero.cards.add_card(self.card)
         self.hero.save()
 
-        # if card_type.form is forms.EmptyForm:
-        #     continue
-
-        self.check_ajax_error(self.post_ajax_json(url('game:cards:use', card=self.card.uid),
+        self.check_ajax_error(self.post_ajax_json(logic.use_card_url(self.card.uid),
                                                   self.post_data(self.card.uid, place_id=666, building_id=666, person_id=666)), 'cards.use.form_errors')
 
 
@@ -90,8 +88,8 @@ class UseRequestTests(CardsRequestsTestsBase):
         self.hero.cards.add_card(self.card)
         self.hero.save()
 
-        response = self.post_ajax_json(url('game:cards:use', card=self.card.uid), self.post_data(self.card.uid))
-        task = PostponedTaskPrototype._db_get_object(0)
+        response = self.post_ajax_json(logic.use_card_url(self.card.uid), self.post_data(self.card.uid))
+        task = common_postponed_tasks.PostponedTaskPrototype._db_get_object(0)
 
         self.check_ajax_processing(response, task.status_url)
 
@@ -116,3 +114,63 @@ class TestIndexRequests(CardsRequestsTestsBase):
         for availability in relations.AVAILABILITY.records:
             texts = [card.TYPE.text for card in EFFECTS.values() if card.TYPE.availability == availability]
             self.check_html_ok(self.request_html(url('guide:cards:')), texts=texts)
+
+
+class GetCardRequestsTests(CardsRequestsTestsBase):
+
+    def setUp(self):
+        super(GetCardRequestsTests, self).setUp()
+
+    def test_unlogined(self):
+        self.check_ajax_error(self.post_ajax_json(logic.get_card_url()), 'common.login_required')
+
+    def test_created(self):
+        self.request_login(self.account.email)
+
+        with self.check_delta(common_postponed_tasks.PostponedTaskPrototype._db_count, 1):
+            response = self.post_ajax_json(logic.get_card_url())
+
+        task = common_postponed_tasks.PostponedTaskPrototype._db_get_object(0)
+
+        self.check_ajax_processing(response, task.status_url)
+
+
+class CombineCardsRequestsTests(CardsRequestsTestsBase):
+
+    def setUp(self):
+        super(CombineCardsRequestsTests, self).setUp()
+
+
+    def test_unlogined(self):
+        self.check_ajax_error(self.post_ajax_json(logic.combine_cards_url(())), 'common.login_required')
+
+
+    def test_created(self):
+        self.request_login(self.account.email)
+
+        card_1 = objects.Card(relations.CARD_TYPE.ADD_GOLD_COMMON)
+        card_2 = objects.Card(relations.CARD_TYPE.ADD_GOLD_COMMON)
+
+        self.hero.cards.add_card(card_1)
+        self.hero.cards.add_card(card_2)
+
+        self.hero.save()
+
+        with self.check_delta(common_postponed_tasks.PostponedTaskPrototype._db_count, 1):
+            response = self.post_ajax_json(logic.combine_cards_url((card_1.uid, card_2.uid) ))
+
+        task = common_postponed_tasks.PostponedTaskPrototype._db_get_object(0)
+
+        self.check_ajax_processing(response, task.status_url)
+
+
+    def test_wrong_cards(self):
+        self.request_login(self.account.email)
+
+        for combine_status in relations.CARDS_COMBINING_STATUS.records:
+            if combine_status.is_ALLOWED:
+                continue
+
+            with self.check_not_changed(common_postponed_tasks.PostponedTaskPrototype._db_count):
+                self.check_ajax_error(self.post_ajax_json(logic.combine_cards_url((666,))),
+                                      'cards.combine.cards.wrong_value')

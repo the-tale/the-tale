@@ -68,10 +68,6 @@ def split_list(items):
     return zip(left, right)
 
 
-def parse_cards_list(value):
-    return [int(card_id.strip()) for card_id in value.split(',')]
-
-
 class HeroResource(Resource):
 
     @validate_argument('hero', HeroPrototype.get_by_id, 'heroes', u'Неверный идентификатор героя')
@@ -216,39 +212,6 @@ class HeroResource(Resource):
         environment.workers.supervisor.cmd_logic_task(self.account.id, task.id)
 
         return self.json_processing(task.status_url)
-
-    @login_required
-    @validate_ownership()
-    @handler('#hero', 'get-card', method='post')
-    def get_card(self):
-
-        choose_task = postponed_tasks.GetCardTask(hero_id=self.hero.id)
-
-        task = PostponedTaskPrototype.create(choose_task)
-
-        environment.workers.supervisor.cmd_logic_task(self.account.id, task.id)
-
-        return self.json_processing(task.status_url)
-
-    @login_required
-    @validate_ownership()
-    @validate_argument('cards', parse_cards_list, 'heroes.combine_cards', u'Ошибка в списке карт')
-    @handler('#hero', 'combine-cards', method='post')
-    def combine_cards(self, cards):
-
-        can_combine_status = self.hero.cards.can_combine_cards(cards)
-
-        if not can_combine_status.is_ALLOWED:
-            return self.json_error('heroes.combine_cards.wrong_cards', can_combine_status.text)
-
-        choose_task = postponed_tasks.CombineCardsTask(hero_id=self.hero.id, cards=cards)
-
-        task = PostponedTaskPrototype.create(choose_task)
-
-        environment.workers.supervisor.cmd_logic_task(self.account.id, task.id)
-
-        return self.json_processing(task.status_url)
-
 
     @login_required
     @validate_ownership()
