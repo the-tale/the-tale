@@ -39,9 +39,7 @@ from the_tale.accounts.third_party import decorators
 # new view processors
 ###############################
 
-class AccountProcessor(dext_views.BaseViewProcessor):
-    __slots__ = dext_views.BaseViewProcessor.__slots__
-
+class CurrentAccountProcessor(dext_views.BaseViewProcessor):
     def preprocess(self, context):
         context.account = AccountPrototype(model=context.django_request.user) if context.django_request.user.is_authenticated() else context.django_request.user
 
@@ -51,7 +49,38 @@ class AccountProcessor(dext_views.BaseViewProcessor):
                                                                         data={})
 
 
-account_processor = AccountProcessor()
+current_account_processor = CurrentAccountProcessor()
+
+
+class SuperuserProcessor(dext_views.BaseViewProcessor):
+    __slots__ = ('required', )
+
+    def __init__(self, required, **kwargs):
+        super(SuperuserProcessor, self).__init__(**kwargs)
+        self.required = required
+
+    def preprocess(self, context):
+        context.django_superuser = context.account.is_superuser
+
+        if self.required and not context.django_superuser:
+            raise dext_views.ViewError(code='common.superuser_required', message=u'У Вас нет прав для проведения данной операции')
+
+
+class AccountProcessor(dext_views.ArgumentProcessor):
+
+    def parse(self, context, raw_value):
+        try:
+            account_id = int(raw_value)
+        except ValueError:
+            self.raise_wrong_format(context=context)
+
+        account = AccountPrototype.get_by_id(account_id)
+
+        if account is None:
+            self.raise_wrong_value(context=context)
+
+        return account
+
 
 class LoginRequiredProcessor(dext_views.BaseViewProcessor):
 

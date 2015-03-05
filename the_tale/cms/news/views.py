@@ -69,7 +69,7 @@ news_processor = NewsProcessor.handler(error_message=u'Новость не на�
 # resource and global processors
 ########################################
 resource = dext_views.Resource(name='news')
-resource.add_processor(accounts_views.account_processor)
+resource.add_processor(accounts_views.current_account_processor)
 resource.add_processor(utils_views.fake_resource_processor)
 resource.add_processor(edit_news_processor)
 

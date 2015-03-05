@@ -33,7 +33,9 @@ game_settings = app_settings('GAME',
                              COLLECT_GARBAGE_PERIOD=20, # in turns
                              UNLOAD_OBJECTS=False,
 
-                             GAME_STATE_KEY = 'game state',
+                             GAME_STATE_KEY='game state',
+
+                             INFO_API_VERSION='1.2',
 
                              TEXTGEN_SOURCES_DIR=os.path.join(APP_DIR, 'fixtures', 'textgen', 'texts_src'),
                              TEXTGEN_VOCABULARY=os.path.join(APP_DIR, 'fixtures', 'textgen', 'vocabulary.json'),

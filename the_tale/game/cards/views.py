@@ -70,12 +70,12 @@ account_cards_processor = AccountCardsProcessor.handler(error_message=u'У ва�
 # resource and global processors
 ########################################
 resource = dext_views.Resource(name='cards')
-resource.add_processor(accounts_views.account_processor)
+resource.add_processor(accounts_views.current_account_processor)
 resource.add_processor(utils_views.fake_resource_processor)
-resource.add_processor(heroes_views.account_hero_processor)
+resource.add_processor(heroes_views.current_hero_processor)
 
 guide_resource = dext_views.Resource(name='cards')
-guide_resource.add_processor(accounts_views.account_processor)
+guide_resource.add_processor(accounts_views.current_account_processor)
 guide_resource.add_processor(utils_views.fake_resource_processor)
 
 ########################################
@@ -116,7 +116,7 @@ def use_dialog(context):
 @accounts_views.LoginRequiredProcessor.handler()
 @account_card_processor
 @api.Processor.handler(versions=(conf.settings.USE_API_VERSION, ))
-@resource.handler('api', 'use', method='POST')
+@resource.handler('api', 'use', name='api-use', method='POST')
 def api_use(context):
     u'''
 Использовать карту из калоды игрока.
@@ -137,7 +137,7 @@ def api_use(context):
     form = context.account_card.type.form(context.django_request.POST)
 
     if not form.is_valid():
-        raise dext_views.ViewError(code=u'cards.use.form_errors', message=form.errors)
+        raise dext_views.ViewError(code=u'cards.api-use.form_errors', message=form.errors)
 
     task = context.account_card.activate(context.account_hero, data=form.get_card_data())
 
@@ -157,7 +157,7 @@ def combine_dialog(context):
 
 @accounts_views.LoginRequiredProcessor.handler()
 @api.Processor.handler(versions=(conf.settings.GET_API_VERSION, ))
-@resource.handler('api', 'get', method='post')
+@resource.handler('api', 'get', name='api-get', method='post')
 def api_get(context):
     u'''
 Взять новую карту в колоду игрока.
@@ -189,7 +189,7 @@ def api_get(context):
 @accounts_views.LoginRequiredProcessor.handler()
 @account_cards_processor
 @api.Processor.handler(versions=(conf.settings.COMBINE_API_VERSION, ))
-@resource.handler('api', 'combine', method='post')
+@resource.handler('api', 'combine', name='api-combine', method='post')
 def api_combine(context):
     u'''
 Объединить карты из колоды игрока.
@@ -200,7 +200,7 @@ def api_combine(context):
 - **параметры:**
     * GET: cards — перечень уникальный идентификаторов карт в колоде игрока через запятую
 - **возможные ошибки**:
-    * cards.combine.wrong_cards — указанные карты нельзя объединить
+    * cards.api-combine.wrong_cards — указанные карты нельзя объединить
 
 Метод является «неблокирующей операцией» (см. документацию), формат ответа соответствует ответу для всех «неблокирующих операций».
 
@@ -214,7 +214,7 @@ def api_combine(context):
     can_combine_status = context.account_hero.cards.can_combine_cards([card.uid for card in context.account_cards])
 
     if not can_combine_status.is_ALLOWED:
-        raise dext_views.ViewError(code=u'cards.combine.wrong_cards', message=can_combine_status.text)
+        raise dext_views.ViewError(code=u'cards.api-combine.wrong_cards', message=can_combine_status.text)
 
     choose_task = heroes_postponed_tasks.CombineCardsTask(hero_id=context.account_hero.id, cards=[card.uid for card in context.account_cards])
 

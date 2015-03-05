@@ -308,116 +308,6 @@ class HeroTest(testcase.TestCase):
         self.assertEqual(self.hero.modify_power(place=self.place_1, power=100), (100 * self.hero.person_power_modifier, 0.005, 0.0))
         self.assertEqual(self.hero.modify_power(place=self.place_1, power=-100), (-100 * self.hero.person_power_modifier, 0.0, 0.005))
 
-    def test_is_ui_caching_required(self):
-        self.assertTrue(self.hero.is_ui_caching_required) # new hero must be cached, since player, who created him, is in game
-        self.hero.ui_caching_started_at -= datetime.timedelta(seconds=heroes_settings.UI_CACHING_TIME + 1)
-        self.assertFalse(self.hero.is_ui_caching_required)
-
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
-    def test_cached_ui_info_from_cache__from_cache_is_true__for_not_visited_heroes(self):
-        self.hero.ui_caching_started_at -= datetime.timedelta(seconds=heroes_settings.UI_CACHING_TIME + 1)
-        self.hero.save()
-
-        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)
-        self.assertEqual(cmd_start_hero_caching.call_count, 1)
-        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
-
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
-    def test_cached_ui_info_for_hero__data_is_none(self):
-        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)
-
-        self.assertEqual(cmd_start_hero_caching.call_count, 1)
-        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
-
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
-    def test_cached_ui_info_for_hero__data_is_none__game_stopped(self):
-        GameState.stop()
-
-        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)
-        self.assertEqual(cmd_start_hero_caching.call_count, 0)
-        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
-
-
-    @mock.patch('dext.common.utils.cache.get', lambda x: {'ui_caching_started_at': 0})
-    def test_cached_ui_info_for_hero__continue_caching_required__cache_exists(self):
-        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)
-        self.assertEqual(cmd_start_hero_caching.call_count, 1)
-        self.assertEqual(ui_info.call_count, 0)
-
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
-    @mock.patch('dext.common.utils.cache.get', lambda x: None)
-    def test_cached_ui_info_for_hero__continue_caching_required__cache_not_exists(self):
-        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)
-
-        self.assertEqual(cmd_start_hero_caching.call_count, 1)
-        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
-
-    @mock.patch('dext.common.utils.cache.get', lambda x: {'ui_caching_started_at': 0})
-    def test_cached_ui_info_for_hero__continue_caching_required__game_stopped__cache_exists(self):
-        GameState.stop()
-
-        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)
-        self.assertEqual(cmd_start_hero_caching.call_count, 0)
-        self.assertEqual(ui_info.call_count, 0)
-
-    @mock.patch('dext.common.utils.cache.get', lambda x: None)
-    def test_cached_ui_info_for_hero__continue_caching_required__game_stopped__cache_not_exists(self):
-        GameState.stop()
-
-        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)
-        self.assertEqual(cmd_start_hero_caching.call_count, 0)
-        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
-
-    @mock.patch('dext.common.utils.cache.get', lambda x: {'ui_caching_started_at': time.time()})
-    def test_cached_ui_info_for_hero__continue_caching_not_required(self):
-        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id)
-        self.assertEqual(cmd_start_hero_caching.call_count, 0)
-        self.assertEqual(ui_info.call_count, 0)
-
-    def test_ui_info__actual_guaranteed(self):
-        self.assertEqual(self.hero.saved_at_turn, 0)
-
-        self.assertEqual(self.hero.ui_info(actual_guaranteed=True)['actual_on_turn'], 0)
-        self.assertEqual(self.hero.ui_info(actual_guaranteed=False)['actual_on_turn'], 0)
-
-
-        TimePrototype(turn_number=666).save()
-
-        self.assertEqual(self.hero.ui_info(actual_guaranteed=True)['actual_on_turn'], 666)
-        self.assertEqual(self.hero.ui_info(actual_guaranteed=False)['actual_on_turn'], 0)
-
-        self.hero.save()
-
-        self.assertTrue(self.hero.saved_at_turn, 666)
-
-        self.assertEqual(self.hero.ui_info(actual_guaranteed=True)['actual_on_turn'], 666)
-        self.assertEqual(self.hero.ui_info(actual_guaranteed=False)['actual_on_turn'], 666)
-
-    def test_ui_caching_timeout_greate_then_turn_delta(self):
-        self.assertTrue(heroes_settings.UI_CACHING_TIMEOUT > c.TURN_DELTA)
-
-    def test_is_ui_continue_caching_required(self):
-        self.assertTrue(HeroPrototype.is_ui_continue_caching_required(0))
-        self.assertFalse(HeroPrototype.is_ui_continue_caching_required(time.time() - (heroes_settings.UI_CACHING_TIME - heroes_settings.UI_CACHING_CONTINUE_TIME - 1)))
-        self.assertTrue(HeroPrototype.is_ui_continue_caching_required(time.time() - (heroes_settings.UI_CACHING_TIME - heroes_settings.UI_CACHING_CONTINUE_TIME + 1)))
-        self.assertTrue(HeroPrototype.is_ui_continue_caching_required(time.time() - heroes_settings.UI_CACHING_TIME))
-
     def test_push_message(self):
         message = messages.MessageSurrogate(turn_number=TimePrototype.get_current_turn_number(),
                                             timestamp=time.time(),
@@ -1133,3 +1023,241 @@ class HeroQuestsTest(testcase.TestCase):
     def test_modify_quest_priority__enemy(self):
         self.assertEqual(self.hero.modify_quest_priority(QUESTS.HELP_FRIEND), QUESTS.HELP_FRIEND.priority)
         self.assertTrue(self.hero.modify_quest_priority(QUESTS.INTERFERE_ENEMY)> QUESTS.INTERFERE_ENEMY.priority)
+
+
+
+class HeroUiInfoTest(testcase.TestCase):
+
+    def setUp(self):
+        super(HeroUiInfoTest, self).setUp()
+        self.place_1, self.place_2, self.place_3 = create_test_map()
+
+        result, account_id, bundle_id = register_user('test_user')
+
+        self.storage = LogicStorage()
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
+        self.hero = self.storage.accounts_to_heroes[account_id]
+
+    def test_is_ui_caching_required(self):
+        self.assertTrue(self.hero.is_ui_caching_required) # new hero must be cached, since player, who created him, is in game
+        self.hero.ui_caching_started_at -= datetime.timedelta(seconds=heroes_settings.UI_CACHING_TIME + 1)
+        self.assertFalse(self.hero.is_ui_caching_required)
+
+
+    ########################
+    # recache required
+    ########################
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
+    def test_cached_ui_info_from_cache__from_cache_is_true__for_not_visited_heroes(self):
+        self.hero.ui_caching_started_at -= datetime.timedelta(seconds=heroes_settings.UI_CACHING_TIME + 1)
+        self.hero.save()
+
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turn=None)
+        self.assertEqual(cmd_start_hero_caching.call_count, 1)
+        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
+    def test_cached_ui_info_for_hero__data_is_none(self):
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turn=None)
+
+        self.assertEqual(cmd_start_hero_caching.call_count, 1)
+        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
+    def test_cached_ui_info_for_hero__data_is_none__game_stopped(self):
+        GameState.stop()
+
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turn=None)
+        self.assertEqual(cmd_start_hero_caching.call_count, 0)
+        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
+
+
+    @mock.patch('dext.common.utils.cache.get', lambda x: {'ui_caching_started_at': 0, 'changed_fields': []})
+    def test_cached_ui_info_for_hero__continue_caching_required__cache_exists(self):
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turn=None)
+        self.assertEqual(cmd_start_hero_caching.call_count, 1)
+        self.assertEqual(ui_info.call_count, 0)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
+    @mock.patch('dext.common.utils.cache.get', lambda x: None)
+    def test_cached_ui_info_for_hero__continue_caching_required__cache_not_exists(self):
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turn=None)
+
+        self.assertEqual(cmd_start_hero_caching.call_count, 1)
+        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
+
+    @mock.patch('dext.common.utils.cache.get', lambda x: {'ui_caching_started_at': 0, 'changed_fields': []})
+    def test_cached_ui_info_for_hero__continue_caching_required__game_stopped__cache_exists(self):
+        GameState.stop()
+
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turn=None)
+        self.assertEqual(cmd_start_hero_caching.call_count, 0)
+        self.assertEqual(ui_info.call_count, 0)
+
+    @mock.patch('dext.common.utils.cache.get', lambda x: None)
+    def test_cached_ui_info_for_hero__continue_caching_required__game_stopped__cache_not_exists(self):
+        GameState.stop()
+
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turn=None)
+        self.assertEqual(cmd_start_hero_caching.call_count, 0)
+        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
+
+    @mock.patch('dext.common.utils.cache.get', lambda x: {'ui_caching_started_at': time.time(), 'changed_fields': []})
+    def test_cached_ui_info_for_hero__continue_caching_not_required(self):
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turn=None)
+        self.assertEqual(cmd_start_hero_caching.call_count, 0)
+        self.assertEqual(ui_info.call_count, 0)
+
+
+    ########################
+    # recache not required
+    ########################
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
+    def test_cached_ui_info_from_cache__from_cache_is_true__for_not_visited_heroes__recache_not_required(self):
+        self.hero.ui_caching_started_at -= datetime.timedelta(seconds=heroes_settings.UI_CACHING_TIME + 1)
+        self.hero.save()
+
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turn=None)
+        self.assertEqual(cmd_start_hero_caching.call_count, 0)
+        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
+    def test_cached_ui_info_for_hero__data_is_none__recache_not_required(self):
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turn=None)
+
+        self.assertEqual(cmd_start_hero_caching.call_count, 0)
+        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
+    def test_cached_ui_info_for_hero__data_is_none__game_stopped__recache_not_required(self):
+        GameState.stop()
+
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turn=None)
+        self.assertEqual(cmd_start_hero_caching.call_count, 0)
+        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
+
+
+    @mock.patch('dext.common.utils.cache.get', lambda x: {'ui_caching_started_at': 0, 'changed_fields': []})
+    def test_cached_ui_info_for_hero__continue_caching_required__cache_exists__recache_not_required(self):
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turn=None)
+        self.assertEqual(cmd_start_hero_caching.call_count, 0)
+        self.assertEqual(ui_info.call_count, 0)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
+    @mock.patch('dext.common.utils.cache.get', lambda x: None)
+    def test_cached_ui_info_for_hero__continue_caching_required__cache_not_exists__recache_not_required(self):
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turn=None)
+
+        self.assertEqual(cmd_start_hero_caching.call_count, 0)
+        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
+
+    @mock.patch('dext.common.utils.cache.get', lambda x: {'ui_caching_started_at': 0, 'changed_fields': []})
+    def test_cached_ui_info_for_hero__continue_caching_required__game_stopped__cache_exists__recache_not_required(self):
+        GameState.stop()
+
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turn=None)
+        self.assertEqual(cmd_start_hero_caching.call_count, 0)
+        self.assertEqual(ui_info.call_count, 0)
+
+    @mock.patch('dext.common.utils.cache.get', lambda x: None)
+    def test_cached_ui_info_for_hero__continue_caching_required__game_stopped__cache_not_exists__recache_not_required(self):
+        GameState.stop()
+
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turn=None)
+        self.assertEqual(cmd_start_hero_caching.call_count, 0)
+        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
+
+    @mock.patch('dext.common.utils.cache.get', lambda x: {'ui_caching_started_at': time.time(), 'changed_fields': []})
+    def test_cached_ui_info_for_hero__continue_caching_not_required__recache_not_required(self):
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turn=None)
+        self.assertEqual(cmd_start_hero_caching.call_count, 0)
+        self.assertEqual(ui_info.call_count, 0)
+
+
+    @mock.patch('dext.common.utils.cache.get', lambda x: {'ui_caching_started_at': time.time(),
+                                                          'a': 1,
+                                                          'b': 2,
+                                                          'c': 3,
+                                                          'd': 4,
+                                                          'changed_fields': ['b', 'c', 'changed_fields']})
+    def test_cached_ui_info_for_hero__make_patch(self):
+        data = HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turn=666)
+        self.assertEqual(data,
+                         {'b': 2,
+                          'c': 3,
+                          'patch_turn': 666})
+
+
+    def test_ui_info_patch(self):
+        old_info = self.hero.ui_info(actual_guaranteed=True, old_info=None)
+
+        patched_fields = set(field for field in old_info.iterkeys() if random.random() < 0.5)
+        patched_fields.add('changed_fields')
+
+        for field in patched_fields:
+            old_info[field] = 'changed'
+
+        new_info = self.hero.ui_info(actual_guaranteed=True, old_info=old_info)
+
+        self.assertItemsEqual(new_info['changed_fields'], patched_fields)
+
+
+    def test_ui_info__actual_guaranteed(self):
+        self.assertEqual(self.hero.saved_at_turn, 0)
+
+        self.assertEqual(self.hero.ui_info(actual_guaranteed=True)['actual_on_turn'], 0)
+        self.assertEqual(self.hero.ui_info(actual_guaranteed=False)['actual_on_turn'], 0)
+
+        TimePrototype(turn_number=666).save()
+
+        self.assertEqual(self.hero.ui_info(actual_guaranteed=True)['actual_on_turn'], 666)
+        self.assertEqual(self.hero.ui_info(actual_guaranteed=False)['actual_on_turn'], 0)
+
+        self.hero.save()
+
+        self.assertTrue(self.hero.saved_at_turn, 666)
+
+        self.assertEqual(self.hero.ui_info(actual_guaranteed=True)['actual_on_turn'], 666)
+        self.assertEqual(self.hero.ui_info(actual_guaranteed=False)['actual_on_turn'], 666)
+
+    def test_ui_caching_timeout_greate_then_turn_delta(self):
+        self.assertTrue(heroes_settings.UI_CACHING_TIMEOUT > c.TURN_DELTA)
+
+    def test_is_ui_continue_caching_required(self):
+        self.assertTrue(HeroPrototype.is_ui_continue_caching_required(0))
+        self.assertFalse(HeroPrototype.is_ui_continue_caching_required(time.time() - (heroes_settings.UI_CACHING_TIME - heroes_settings.UI_CACHING_CONTINUE_TIME - 1)))
+        self.assertTrue(HeroPrototype.is_ui_continue_caching_required(time.time() - (heroes_settings.UI_CACHING_TIME - heroes_settings.UI_CACHING_CONTINUE_TIME + 1)))
+        self.assertTrue(HeroPrototype.is_ui_continue_caching_required(time.time() - heroes_settings.UI_CACHING_TIME))

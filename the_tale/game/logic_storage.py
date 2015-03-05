@@ -23,6 +23,10 @@ class LogicStorage(object):
         self.skipped_heroes = set()
         self.bundles_to_accounts = {}
 
+        self.previous_cache = {}
+        self.current_cache = {}
+        self.cache_queue = set()
+
     def load_account_data(self, account):
         hero = HeroPrototype.get_by_account_id(account.id)
         hero.update_with_account_data(is_fast=account.is_fast,
@@ -38,7 +42,7 @@ class LogicStorage(object):
         hero = self.accounts_to_heroes[account.id]
 
         if save_required:
-            self._save_hero_data(hero.id, update_cache=True)
+            self._save_hero_data(hero.id)
 
         if hero.id in self.skipped_heroes:
             self.skipped_heroes.remove(hero.id)
@@ -52,22 +56,22 @@ class LogicStorage(object):
         if not self.bundles_to_accounts[bundle_id]:
             del self.bundles_to_accounts[bundle_id]
 
-    def save_bundle_data(self, bundle_id, update_cache):
+    def save_bundle_data(self, bundle_id):
         for account_id in self.bundles_to_accounts[bundle_id]:
-            self._save_hero_data(self.accounts_to_heroes[account_id].id, update_cache=update_cache)
+            hero = self.accounts_to_heroes[account_id]
+            self._save_hero_data(hero.id)
+            self.cache_queue.add(hero.id)
 
-    def recache_account_data(self, account_id):
-        # probably, here we need recache all bundle
-        hero = self.accounts_to_heroes[account_id]
-        cache.set(hero.cached_ui_info_key, hero.ui_info(actual_guaranteed=True), heroes_settings.UI_CACHING_TIMEOUT)
+        self.process_cache_queue()
 
-    def _save_hero_data(self, hero_id, update_cache):
-        hero = self.heroes[hero_id]
-        hero.save()
+    def recache_bundle(self, bundle_id):
+        for account_id in self.bundles_to_accounts[bundle_id]:
+            self.cache_queue.add(self.accounts_to_heroes[account_id].id)
 
-        if update_cache:
-            cache.set(hero.cached_ui_info_key, hero.ui_info(actual_guaranteed=True), heroes_settings.UI_CACHING_TIMEOUT)
+        self.process_cache_queue()
 
+    def _save_hero_data(self, hero_id):
+        self.heroes[hero_id].save()
 
     def _add_hero(self, hero):
 
@@ -206,6 +210,8 @@ class LogicStorage(object):
 
     def process_turn(self, logger=None, continue_steps_if_needed=True):
 
+        self.switch_caches()
+
         timestamp = time.time()
 
         turn_number = TimePrototype.get_current_turn_number()
@@ -235,13 +241,13 @@ class LogicStorage(object):
         for hero_id, hero in self.heroes.iteritems():
             if hero.actions.current_action.bundle_id == excluded_bundle_id:
                 continue
-            self._save_hero_data(hero_id, update_cache=False)
+            self._save_hero_data(hero_id)
 
     def save_all(self, logger=None):
         for hero_id, hero in self.heroes.iteritems():
             if logger:
                 logger.info('save hero %d' % hero_id)
-            self._save_hero_data(hero_id, update_cache=False)
+            self._save_hero_data(hero_id)
 
     def _get_bundles_to_save(self):
         bundles = set()
@@ -268,8 +274,6 @@ class LogicStorage(object):
                    if hero.is_ui_caching_required)
 
     def save_changed_data(self, logger=None):
-        cached_ui_info = {}
-
         saved_bundles = self._get_bundles_to_save()
         cached_bundles = self._get_bundles_to_cache()
 
@@ -279,15 +283,37 @@ class LogicStorage(object):
         for hero_id, hero in self.heroes.iteritems():
 
             if hero.actions.current_action.bundle_id in cached_bundles:
-                cached_ui_info[hero.cached_ui_info_key] = hero.ui_info(actual_guaranteed=True)
+                self.cache_queue.add(hero_id)
 
             if hero.actions.current_action.bundle_id in saved_bundles:
-                self._save_hero_data(hero_id, update_cache=False)
+                self._save_hero_data(hero_id)
 
-        cache.set_many(cached_ui_info, heroes_settings.UI_CACHING_TIMEOUT)
+        cached_heroes_number = self.process_cache_queue()
 
         if logger:
-            logger.info('[save_changed_data] cached heroes: %d' % len(cached_ui_info))
+            logger.info('[save_changed_data] cached heroes: %d' % cached_heroes_number)
+
+
+    def process_cache_queue(self):
+        to_cache = {}
+
+        for hero_id in self.cache_queue:
+            hero = self.heroes[hero_id]
+            cache_key = hero.cached_ui_info_key
+            to_cache[cache_key] = hero.ui_info(actual_guaranteed=True, old_info=self.previous_cache.get(cache_key))
+
+        cache.set_many(to_cache, heroes_settings.UI_CACHING_TIMEOUT)
+
+        self.cache_queue.clear()
+
+        self.current_cache.update(to_cache)
+
+        return len(to_cache)
+
+
+    def switch_caches(self):
+        self.previous_cache = self.current_cache
+        self.current_cache = {}
 
     def _destroy_account_data(self, account):
 
@@ -302,7 +328,7 @@ class LogicStorage(object):
 
     def _test_save(self):
         for hero_id in self.heroes:
-            self._save_hero_data(hero_id, update_cache=False)
+            self._save_hero_data(hero_id)
 
         test_storage = LogicStorage()
         for hero_id in self.heroes:

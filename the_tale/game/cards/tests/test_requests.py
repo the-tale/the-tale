@@ -69,7 +69,7 @@ class UseRequestTests(CardsRequestsTestsBase):
 
     def test_no_cards(self):
         self.request_login(self.account.email)
-        self.check_ajax_error(self.post_ajax_json(logic.use_card_url(666)), 'cards.use.card.wrong_value')
+        self.check_ajax_error(self.post_ajax_json(logic.use_card_url(666)), 'cards.api-use.card.wrong_value')
 
 
     def test_form_invalid(self):
@@ -79,7 +79,7 @@ class UseRequestTests(CardsRequestsTestsBase):
         self.hero.save()
 
         self.check_ajax_error(self.post_ajax_json(logic.use_card_url(self.card.uid),
-                                                  self.post_data(self.card.uid, place_id=666, building_id=666, person_id=666)), 'cards.use.form_errors')
+                                                  self.post_data(self.card.uid, place_id=666, building_id=666, person_id=666)), 'cards.api-use.form_errors')
 
 
     def test_success(self):
@@ -173,4 +173,4 @@ class CombineCardsRequestsTests(CardsRequestsTestsBase):
 
             with self.check_not_changed(common_postponed_tasks.PostponedTaskPrototype._db_count):
                 self.check_ajax_error(self.post_ajax_json(logic.combine_cards_url((666,))),
-                                      'cards.combine.cards.wrong_value')
+                                      'cards.api-combine.cards.wrong_value')

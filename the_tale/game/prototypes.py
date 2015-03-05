@@ -159,7 +159,7 @@ class SupervisorTaskPrototype(BasePrototype):
 
         storage.merge_bundles([old_bundle_1_id, old_bundle_2_id], bundle.id)
 
-        storage.save_bundle_data(bundle.id, update_cache=True)
+        storage.save_bundle_data(bundle.id)
         # storage.save_changed_data()
 
         battle_1 = Battle1x1Prototype.get_by_account_id(account_1_id)

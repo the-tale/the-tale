@@ -88,7 +88,7 @@ class ChooseHeroAbilityTask(PostponedLogic):
         else:
             hero.abilities.add(self.ability_id)
 
-        storage.save_bundle_data(hero.actions.current_action.bundle_id, update_cache=True)
+        storage.save_bundle_data(hero.actions.current_action.bundle_id)
 
         self.state = CHOOSE_HERO_ABILITY_STATE.PROCESSED
 
@@ -130,7 +130,7 @@ class ChangeHeroTask(PostponedLogic):
         hero.race = self.race
         hero.settings_approved = True
 
-        storage.save_bundle_data(hero.actions.current_action.bundle_id, update_cache=True)
+        storage.save_bundle_data(hero.actions.current_action.bundle_id)
 
         self.state = CHANGE_HERO_TASK_STATE.PROCESSED
 
@@ -169,7 +169,7 @@ class ResetHeroAbilitiesTask(PostponedLogic):
 
         hero.abilities.reset()
 
-        storage.save_bundle_data(hero.actions.current_action.bundle_id, update_cache=True)
+        storage.save_bundle_data(hero.actions.current_action.bundle_id)
 
         self.state = RESET_HERO_ABILITIES_TASK_STATE.PROCESSED
 
@@ -548,7 +548,7 @@ class ChoosePreferencesTask(PostponedLogic):
 
         if result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS:
 
-            storage.save_bundle_data(hero.actions.current_action.bundle_id, update_cache=True)
+            storage.save_bundle_data(hero.actions.current_action.bundle_id)
 
             self.state = CHOOSE_PREFERENCES_TASK_STATE.PROCESSED
 
@@ -615,7 +615,7 @@ class GetCardTask(PostponedLogic):
 
         self.card_ui_info = card.ui_info()
 
-        storage.save_bundle_data(hero.actions.current_action.bundle_id, update_cache=True)
+        storage.save_bundle_data(hero.actions.current_action.bundle_id)
 
         self.state = GET_CARD_TASK_STATE.PROCESSED
 
@@ -686,7 +686,7 @@ class CombineCardsTask(PostponedLogic):
 
         self.card_ui_info = card.ui_info()
 
-        storage.save_bundle_data(hero.actions.current_action.bundle_id, update_cache=True)
+        storage.save_bundle_data(hero.actions.current_action.bundle_id)
 
         self.state = COMBINE_CARDS_STATE.PROCESSED
 

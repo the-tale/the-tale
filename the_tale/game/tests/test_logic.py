@@ -120,24 +120,41 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         self.assertFalse('pvp__last_turn' in data['account']['hero']['pvp'])
 
         self.assertEqual(cached_ui_info_for_hero.call_count, 1)
-        self.assertEqual(cached_ui_info_for_hero.call_args, mock.call(self.account_1.id))
+        self.assertEqual(cached_ui_info_for_hero.call_args, mock.call(self.account_1.id, recache_if_required=True, patch_turn=None))
+        self.assertEqual(ui_info.call_count, 0)
+
+    def create_not_own_ui_info(self, hero):
+        return {'actual_on_turn': hero.saved_at_turn,
+                                                   'pvp__actual':'actual',
+                                                    'pvp__last_turn':'last_turn',
+                                                    'ui_caching_started_at': 0,
+                                                    'cards': 'fake',
+                                                    'changed_fields': [],
+                                                    'permissions': {'can_participate_in_pvp': 'fake',
+                                                                    'can_repair_building': 'fake'},
+                                                    'energy': {'max': 'fake',
+                                                               'value': 'fake',
+                                                               'bonus': 'fake',
+                                                               'discount': 'fake'}}
+
+    def test_not_own_hero_get_cached_data__not_cached(self):
+        hero = HeroPrototype.get_by_account_id(self.account_1.id)
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero',
+                        mock.Mock(return_value=self.create_not_own_ui_info(hero))) as cached_ui_info_for_hero:
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info',
+                            mock.Mock(return_value=self.create_not_own_ui_info(hero))) as ui_info:
+                form_game_info(self.account_1, is_own=False)
+
+        self.assertEqual(cached_ui_info_for_hero.call_count, 1)
+        self.assertEqual(cached_ui_info_for_hero.call_args, mock.call(self.account_1.id, recache_if_required=False, patch_turn=None))
         self.assertEqual(ui_info.call_count, 0)
 
     def test_not_own_hero_get_cached_data(self):
         hero = HeroPrototype.get_by_account_id(self.account_1.id)
 
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info',
-                        mock.Mock(return_value={'actual_on_turn': hero.saved_at_turn,
-                                                'pvp__actual':'actual',
-                                                'pvp__last_turn':'last_turn',
-                                                'ui_caching_started_at': 0,
-                                                'cards': 'fake',
-                                                'permissions': {'can_participate_in_pvp': 'fake',
-                                                                'can_repair_building': 'fake'},
-                                                'energy': {'max': 'fake',
-                                                           'value': 'fake',
-                                                           'bonus': 'fake',
-                                                           'discount': 'fake'}})) as ui_info:
+                        mock.Mock(return_value=self.create_not_own_ui_info(hero))) as ui_info:
             data = form_game_info(self.account_1, is_own=False)
 
         self.assertEqual(data['account']['hero']['pvp'], 'last_turn')
@@ -233,24 +250,15 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         hero_1 = HeroPrototype.get_by_account_id(self.account_1.id)
         hero_2 = HeroPrototype.get_by_account_id(self.account_2.id)
 
-        def get_ui_info(self, **kwargs):
-            if self.id == hero_1.id:
+        def get_ui_info(hero, **kwargs):
+            if hero.id == hero_1.id:
                 return {'actual_on_turn': hero_1.saved_at_turn,
                         'pvp__actual':'actual',
                         'pvp__last_turn':'last_turn',
+                        'changed_fields': [],
                         'ui_caching_started_at': 0}
             else:
-                return {'actual_on_turn': hero_2.saved_at_turn,
-                        'pvp__actual':'actual',
-                        'pvp__last_turn':'last_turn',
-                        'ui_caching_started_at': 0,
-                        'cards': 'fake',
-                        'permissions': {'can_participate_in_pvp': 'fake',
-                                        'can_repair_building': 'fake'},
-                        'energy': {'max': 'fake',
-                                   'value': 'fake',
-                                   'bonus': 'fake',
-                                   'discount': 'fake'}}
+                return self.create_not_own_ui_info(hero_2)
 
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info', get_ui_info):
             data = form_game_info(self.account_1, is_own=True)

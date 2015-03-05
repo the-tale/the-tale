@@ -1,20 +1,18 @@
 # coding: utf-8
 
-from django.core.urlresolvers import reverse
-
-from dext.views import handler, validate_argument_with_resource
-from dext.common.utils.decorators import debug_required
+from dext.common.utils import views as dext_views
+from dext.common.utils.urls import url
 
 from the_tale.amqp_environment import environment
 
-from the_tale.common.utils.decorators import staff_required, login_required
-from the_tale.common.utils.resources import Resource
 from the_tale.common.utils import api
+from the_tale.common.utils import views as utils_views
 
+from the_tale.accounts import views as accounts_views
 from the_tale.accounts.clans.prototypes import ClanPrototype
 
+from the_tale.game.heroes import views as heroes_views
 from the_tale.game.heroes.relations import EQUIPMENT_SLOT
-from the_tale.game.heroes.prototypes import HeroPrototype
 
 from the_tale.game.map.conf import map_settings
 from the_tale.game.map.storage import map_info_storage
@@ -25,48 +23,57 @@ from the_tale.game import logic as game_logic
 
 from the_tale.game.cards.effects import EFFECTS
 
+########################################
+# resource and global processors
+########################################
+resource = dext_views.Resource(name='game')
+resource.add_processor(accounts_views.current_account_processor)
+resource.add_processor(utils_views.fake_resource_processor)
+resource.add_processor(heroes_views.current_hero_processor)
 
-class GameResource(Resource):
+########################################
+# views
+########################################
 
-    def initialize(self, *args, **kwargs):
-        super(GameResource, self).initialize(*args, **kwargs)
+@accounts_views.LoginRequiredProcessor.handler()
+@resource.handler('')
+def game_page(context):
 
-    @login_required
-    @handler('', method='get')
-    def game_page(self):
+    battle = Battle1x1Prototype.get_by_account_id(context.account.id)
 
-        battle = Battle1x1Prototype.get_by_account_id(self.account.id)
+    if battle and battle.state.is_PROCESSING:
+        return dext_views.Redirect(url('game:pvp:'))
 
-        if battle and battle.state.is_PROCESSING:
-            return self.redirect(reverse('game:pvp:'))
+    clan = None
+    if context.account.clan_id is not None:
+        clan = ClanPrototype.get_by_id(context.account.clan_id)
 
-        clan = None
-        if self.account.clan_id is not None:
-            clan = ClanPrototype.get_by_id(self.account.clan_id)
+    cards = sorted(EFFECTS.values(), key=lambda x: (x.TYPE.rarity.value, x.TYPE.text))
 
-        cards = sorted(EFFECTS.values(), key=lambda x: (x.TYPE.rarity.value, x.TYPE.text))
+    return dext_views.Page('game/game_page.html',
+                           content={'map_settings': map_settings,
+                                    'game_settings': game_settings,
+                                    'EQUIPMENT_SLOT': EQUIPMENT_SLOT,
+                                    'current_map_version': map_info_storage.version,
+                                    'clan': clan,
+                                    'CARDS': cards,
+                                    'resource': context.resource,
+                                    'hero': context.account_hero} )
 
-        return self.template('game/game_page.html',
-                             {'map_settings': map_settings,
-                              'game_settings': game_settings,
-                              'EQUIPMENT_SLOT': EQUIPMENT_SLOT,
-                              'current_map_version': map_info_storage.version,
-                              'clan': clan,
-                              'CARDS': cards,
-                              'hero': HeroPrototype.get_by_account_id(self.account.id)} )
-
-    @api.handler(versions=('1.2', '1.1', '1.0'))
-    @validate_argument_with_resource('account', Resource.validate_account_argument, 'game.info', u'неверный идентификатор аккаунта', raw=True)
-    @handler('api', 'info', name='api-info', method='get')
-    def api_info(self, api_version=None, account=None):
-        u'''
+@api.Processor.handler(versions=(game_settings.INFO_API_VERSION, '1.1', '1.0'))
+@dext_views.IntArgumentProcessor.handler(error_message=u'Неверный формат номера хода', get_name='last_turn', context_name='last_turn', default_value=None)
+@accounts_views.AccountProcessor.handler(error_message=u'Запрашиваемый Вами аккаунт не найден', get_name='account', context_name='requested_account', default_value=None)
+@resource.handler('api', 'info', name='api-info')
+def api_info(context):
+    u'''
 Информация о текущем ходе и герое
 
 - **адрес:** /game/api/info
 - **http-метод:** GET
 - **версии:** 1.2
 - **параметры:**
-    * GET: account — идентификатор аккаунта.
+    * GET: account — идентификатор аккаунта
+    * GET: last_turn — номер хода, с которого можно вернуть только изменения (изменения возвращаются только для последнего хода)
 - **возможные ошибки**: нет
 
 Если параметр account не будет указан, то вернётся информация об игре текущего пользователя, а на запрос от неавторизованного пользователя — общая информация об игре (без информации об аккаунте и герое).
@@ -76,11 +83,11 @@ class GameResource(Resource):
 формат данных в ответе:
 
     {
-      "mode": "pve"|"pvp",        // режим героя
-      "turn": {                   // информация о номере хода
-        "number": <целое число>,  // номер хода
-        "verbose_date": "строка", // дата для игроков (в мире Сказки)
-        "verbose_time": "строка"  // время для игроков (в мире Сказки)
+      "mode": "pve"|"pvp",             // режим героя
+      "turn": {                        // информация о номере хода
+        "number": <целое число>,       // номер хода
+        "verbose_date": "строка",      // дата для игроков (в мире Сказки)
+        "verbose_time": "строка"       // время для игроков (в мире Сказки)
       },
       "game_state": <целое число>,     // состояние игры (остановлена/запущена, см. в описании API)
       "map_version": "строка",         // версия актуальной карты игры
@@ -99,6 +106,7 @@ class GameResource(Resource):
     }
 
     <hero_info> = {
+      "patch_turn": null|<целое число>,  // номер хода, для которого возвращается патч или null, если информация полная
       "pvp":{                            // данные относящиеся к pvp
          "advantage": <целое число>,     // преимущество героя
          "effectiveness": <целое число>, // эффективность героя
@@ -301,25 +309,29 @@ class GameResource(Resource):
 
 - если информация о герое устаревшая (is_old == true), то следует повторить запрос через несколько секунд (но лучше не злоупотреблять)
 
-        '''
+    '''
+    account = context.requested_account
 
-        if account is None and self.account.is_authenticated():
-            account = self.account
+    if account is None and context.account.is_authenticated():
+        account = context.account
 
-        data = game_logic.form_game_info(account=account, is_own=False if account is None else (self.account.id == account.id))
+    data = game_logic.form_game_info(account=account,
+                                     is_own=False if account is None else (context.account.id == account.id),
+                                     last_turn=context.last_turn)
 
-        if api_version in ('1.1', '1.0'):
-            data = game_logic.game_info_from_1_2_to_1_1(data)
+    if context.api_version in ('1.1', '1.0'):
+        data = game_logic.game_info_from_1_2_to_1_1(data)
 
-        if api_version == '1.0':
-            data = game_logic.game_info_from_1_1_to_1_0(data)
+    if context.api_version == '1.0':
+        data = game_logic.game_info_from_1_1_to_1_0(data)
 
-        return self.ok(data=data)
+    return dext_views.AjaxOk(content=data)
 
-    @debug_required
-    @staff_required()
-    @handler('next-turn', method=['post'])
-    def next_turn(self):
-        environment.workers.supervisor.cmd_next_turn()
 
-        return self.json(status='ok')
+@dext_views.DebugProcessor.handler(required=True)
+@accounts_views.LoginRequiredProcessor.handler()
+@accounts_views.SuperuserProcessor.handler(required=True)
+@resource.handler('next-turn', method='POST')
+def next_turn(context):
+    environment.workers.supervisor.cmd_next_turn()
+    return dext_views.AjaxOk()

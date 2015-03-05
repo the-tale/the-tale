@@ -213,7 +213,7 @@ class BaseBuyHeroMethod(BaseLogicBuyTask):
     def on_process_transaction_frozen(self, storage, **kwargs):
         hero = storage.accounts_to_heroes[self.account_id]
         self.invoke_method(hero)
-        storage.save_bundle_data(hero.actions.current_action.bundle_id, update_cache=True)
+        storage.save_bundle_data(hero.actions.current_action.bundle_id)
 
     def invoke_method(self, hero):
         getattr(hero, self.METHOD)(**self.arguments)

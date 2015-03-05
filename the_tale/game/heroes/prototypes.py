@@ -582,10 +582,11 @@ class HeroPrototype(BasePrototype,
                 self.messages == other.messages and
                 self.diary == other.diary)
 
-    def ui_info(self, actual_guaranteed):
+    def ui_info(self, actual_guaranteed, old_info=None):
         from the_tale.game.map.generator.drawer import get_hero_sprite
 
-        return {'id': self.id,
+        new_info = {'id': self.id,
+                    'patch_turn': None,
                 'actual_on_turn': TimePrototype.get_current_turn_number() if actual_guaranteed else self.saved_at_turn,
                 'ui_caching_started_at': time.mktime(self.ui_caching_started_at.timetuple()),
                 'messages': self.messages.ui_info(),
@@ -629,8 +630,19 @@ class HeroPrototype(BasePrototype,
                             game_relations.HABIT_TYPE.PEACEFULNESS.verbose_value: {'verbose': self.habit_peacefulness.verbose_value,
                                                                                    'raw': self.habit_peacefulness.raw_value}},
                 'quests': self.quests.ui_info(self),
-                'sprite': get_hero_sprite(self).value
+                'sprite': get_hero_sprite(self).value,
                 }
+
+        changed_fields = ['changed_fields']
+
+        if old_info:
+            for key, value in new_info.iteritems():
+                if old_info[key] != value:
+                    changed_fields.append(key)
+
+        new_info['changed_fields'] = changed_fields
+
+        return new_info
 
     @classmethod
     def modify_ui_info_with_turn(self, data, for_last_turn):
@@ -653,7 +665,7 @@ class HeroPrototype(BasePrototype,
         return self.cached_ui_info_key_for_hero(self.account_id)
 
     @classmethod
-    def cached_ui_info_for_hero(cls, account_id):
+    def cached_ui_info_for_hero(cls, account_id, recache_if_required, patch_turn):
 
         data = cache.get(cls.cached_ui_info_key_for_hero(account_id))
 
@@ -661,8 +673,17 @@ class HeroPrototype(BasePrototype,
             hero = cls.get_by_account_id(account_id)
             data = hero.ui_info(actual_guaranteed=False)
 
-        if cls.is_ui_continue_caching_required(data['ui_caching_started_at']) and GameState.is_working():
+        if recache_if_required and cls.is_ui_continue_caching_required(data['ui_caching_started_at']) and GameState.is_working():
             environment.workers.supervisor.cmd_start_hero_caching(account_id)
+
+        if patch_turn is not None:
+            patch_fields = set(data['changed_fields'])
+            for field in data.keys():
+                if field not in patch_fields:
+                    del data[field]
+            data['patch_turn'] = patch_turn
+
+        del data['changed_fields']
 
         return data
 

@@ -68,7 +68,7 @@ class InfoRequestTests(RequestTestsBase):
 
     def test_unlogined(self):
         self.request_logout()
-        self.check_ajax_ok(self.client.get(self.game_info_url_1, HTTP_X_REQUESTED_WITH='XMLHttpRequest'))
+        self.check_ajax_ok(self.request_ajax_json(self.game_info_url_1))
 
     def test_logined(self):
         response = self.client.get(self.game_info_url_1)
@@ -93,11 +93,11 @@ class InfoRequestTests(RequestTestsBase):
 
     def test_account_not_exists(self):
         response = self.request_ajax_json(game_info_url(account_id=666))
-        self.check_ajax_error(response, 'game.info.account.not_found')
+        self.check_ajax_error(response, 'game.api-info.account.wrong_value')
 
     def test_wrong_account_id(self):
         response = self.request_ajax_json(game_info_url(account_id='sdsd'))
-        self.check_ajax_error(response, 'game.info.account.wrong_format')
+        self.check_ajax_error(response, 'game.api-info.account.wrong_format')
 
 
 class NewsAlertsTests(TestCase):

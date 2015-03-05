@@ -135,4 +135,4 @@ class LogicWorkerTests(testcase.TestCase):
         with mock.patch('the_tale.game.logic_storage.LogicStorage.save_bundle_data') as save_bundle_data:
             self.worker.process_force_save(account_id=self.account.id)
 
-        self.assertEqual(save_bundle_data.call_args_list, [mock.call(bundle_id=self.hero.actions.current_action.bundle_id, update_cache=True)])
+        self.assertEqual(save_bundle_data.call_args_list, [mock.call(bundle_id=self.hero.actions.current_action.bundle_id)])

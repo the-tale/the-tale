@@ -1,9 +1,8 @@
 #coding: utf-8
 
 from django.conf.urls import patterns, include
-from dext.views import resource_patterns
 
-from the_tale.game.views import GameResource
+from the_tale.game import views
 
 urlpatterns = patterns('',
                        (r'^heroes/', include('the_tale.game.heroes.urls', namespace='heroes') ),
@@ -21,4 +20,4 @@ urlpatterns = patterns('',
                        (r'^chronicle/', include('the_tale.game.chronicle.urls', namespace='chronicle') ),
 )
 
-urlpatterns += resource_patterns(GameResource)
+urlpatterns += views.resource.get_urls()

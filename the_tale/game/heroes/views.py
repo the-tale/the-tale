@@ -46,7 +46,7 @@ from the_tale.game.heroes.habilities import relations as habilities_relations
 # new view processors
 ###############################
 
-class AccountHeroProcessor(dext_views.BaseViewProcessor):
+class CurrentHeroProcessor(dext_views.BaseViewProcessor):
     __slots__ = dext_views.BaseViewProcessor.__slots__
 
     def preprocess(self, context):
@@ -56,7 +56,7 @@ class AccountHeroProcessor(dext_views.BaseViewProcessor):
 
         context.account_hero = HeroPrototype.get_by_account_id(context.account.id)
 
-account_hero_processor = AccountHeroProcessor()
+current_hero_processor = CurrentHeroProcessor()
 
 
 def split_list(items):

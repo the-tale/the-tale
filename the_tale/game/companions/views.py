@@ -60,7 +60,7 @@ companion_processor = CompanionProcessor.handler(error_message=u'Спутник 
 # resource and global processors
 ########################################
 resource = dext_views.Resource(name='companions')
-resource.add_processor(accounts_views.account_processor)
+resource.add_processor(accounts_views.current_account_processor)
 resource.add_processor(utils_views.fake_resource_processor)
 resource.add_processor(create_companion_processor)
 resource.add_processor(moderate_companion_processor)

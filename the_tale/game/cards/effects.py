@@ -345,7 +345,7 @@ class PreferencesCooldownsResetBase(BaseEffect):
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Нельзя сбросить задержку на изменение предпочтения (предпочтение ещё не доступно герою).')
 
         task.hero.preferences.reset_change_time(self.PREFERENCE)
-        storage.save_bundle_data(bundle_id=task.hero.actions.current_action.bundle_id, update_cache=False)
+        storage.save_bundle_data(bundle_id=task.hero.actions.current_action.bundle_id)
         return task.logic_result()
 
 
@@ -402,7 +402,7 @@ class PreferencesCooldownsResetAll(BaseEffect):
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         for preference in PREFERENCE_TYPE.records:
             task.hero.preferences.reset_change_time(preference)
-        storage.save_bundle_data(bundle_id=task.hero.actions.current_action.bundle_id, update_cache=False)
+        storage.save_bundle_data(bundle_id=task.hero.actions.current_action.bundle_id)
         return task.logic_result()
 
 
@@ -414,7 +414,7 @@ class ChangeAbilitiesChoices(BaseEffect):
         if not task.hero.abilities.rechooce_choices():
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Герой не может изменить выбор способностей (возможно, больше не из чего выбирать).')
 
-        storage.save_bundle_data(bundle_id=task.hero.actions.current_action.bundle_id, update_cache=False)
+        storage.save_bundle_data(bundle_id=task.hero.actions.current_action.bundle_id)
 
         return task.logic_result()
 
@@ -429,7 +429,7 @@ class ResetAbilities(BaseEffect):
 
         task.hero.abilities.reset()
 
-        storage.save_bundle_data(bundle_id=task.hero.actions.current_action.bundle_id, update_cache=False)
+        storage.save_bundle_data(bundle_id=task.hero.actions.current_action.bundle_id)
 
         return task.logic_result()
 
@@ -829,7 +829,7 @@ class HelpPlaceBase(BaseEffect):
         for i in xrange(self.HELPS):
             task.hero.places_history.add_place(place_id)
 
-        storage.save_bundle_data(bundle_id=task.hero.actions.current_action.bundle_id, update_cache=False)
+        storage.save_bundle_data(bundle_id=task.hero.actions.current_action.bundle_id)
 
         return task.logic_result()
 

@@ -143,7 +143,7 @@ def remove_game_data(account):
 
     bundle.remove()
 
-def _form_game_account_info(game_time, account, in_pvp_queue, is_own):
+def _form_game_account_info(game_time, account, in_pvp_queue, is_own, last_turn=None):
     from the_tale.game.heroes.prototypes import HeroPrototype
 
     data = { 'new_messages': account.new_messages_number if is_own else 0,
@@ -154,8 +154,9 @@ def _form_game_account_info(game_time, account, in_pvp_queue, is_own):
              'hero': None,
              'in_pvp_queue': in_pvp_queue }
 
-    hero_data = HeroPrototype.cached_ui_info_for_hero(account.id)
-
+    hero_data = HeroPrototype.cached_ui_info_for_hero(account.id,
+                                                      recache_if_required=is_own,
+                                                      patch_turn= last_turn if last_turn is not None and  game_time.turn_number - last_turn == 1 else None)
     HeroPrototype.modify_ui_info_with_turn(hero_data, for_last_turn=(not is_own))
 
     data['hero'] = hero_data
@@ -174,7 +175,7 @@ def _form_game_account_info(game_time, account, in_pvp_queue, is_own):
     return data
 
 
-def form_game_info(account=None, is_own=False):
+def form_game_info(account=None, is_own=False, last_turn=None):
     from the_tale.accounts.prototypes import AccountPrototype
     from the_tale.game.prototypes import GameState
     from the_tale.game.pvp.prototypes import Battle1x1Prototype
@@ -190,11 +191,19 @@ def form_game_info(account=None, is_own=False):
 
     if account:
         battle = Battle1x1Prototype.get_by_account_id(account.id)
-        data['account'] = _form_game_account_info(game_time, account, in_pvp_queue=False if battle is None else battle.state.is_WAITING, is_own=is_own)
+        data['account'] = _form_game_account_info(game_time,
+                                                  account,
+                                                  in_pvp_queue=False if battle is None else battle.state.is_WAITING,
+                                                  is_own=is_own,
+                                                  last_turn=last_turn)
 
         if battle and battle.state.is_PROCESSING:
             data['mode'] = 'pvp'
-            data['enemy'] = _form_game_account_info(game_time, AccountPrototype.get_by_id(battle.enemy_id), in_pvp_queue=False, is_own=False)
+            data['enemy'] = _form_game_account_info(game_time,
+                                                    AccountPrototype.get_by_id(battle.enemy_id),
+                                                    in_pvp_queue=False,
+                                                    is_own=False,
+                                                    last_turn=last_turn)
 
     return data
 
