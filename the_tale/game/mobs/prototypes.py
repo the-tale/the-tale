@@ -36,15 +36,15 @@ class MobException(Exception): pass
 
 class MobPrototype(object):
 
-    __slots__ = ('record', 'level', 'abilities', 'initiative', 'health_cooficient', 'damage_modifier', 'max_health', 'health', 'is_boss')
+    __slots__ = ('record_id', 'level', 'abilities', 'initiative', 'health_cooficient', 'damage_modifier', 'max_health', 'health', 'is_boss')
 
-    def __init__(self, record=None, level=None, health=None, abilities=None, is_boss=False):
+    def __init__(self, record_id=None, level=None, health=None, abilities=None, is_boss=False):
 
-        self.record = record
+        self.record_id = record_id
         self.level = level
         self.is_boss = is_boss
 
-        self.abilities = self._produce_abilities(record, level) if abilities is None else abilities
+        self.abilities = self._produce_abilities(self.record, level) if abilities is None else abilities
 
         self.initiative = self.abilities.modify_attribute(HERO_MODIFIERS.INITIATIVE, 1)
         self.health_cooficient = self.abilities.modify_attribute(HERO_MODIFIERS.HEALTH, 1)
@@ -57,7 +57,10 @@ class MobPrototype(object):
 
         self.health = self.max_health if health is None else health
 
-
+    @property
+    def record(self):
+        from the_tale.game.mobs import storage
+        return storage.mobs_storage[self.record_id]
 
     @staticmethod
     def _produce_abilities(record, level):
@@ -128,7 +131,7 @@ class MobPrototype(object):
 
         abilities = cls._produce_abilities(record, level)
 
-        return cls(record=record,
+        return cls(record_id=record.id,
                    level=level,
                    health=data['health'],
                    is_boss=data.get('is_boss', False),
@@ -235,7 +238,7 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
                       ABILITIES.values())
 
     def create_mob(self, hero, is_boss=False):
-        return MobPrototype(record=self, level=hero.level, is_boss=is_boss)
+        return MobPrototype(record_id=self.id, level=hero.level, is_boss=is_boss)
 
     @classmethod
     def create_random(cls, uuid, type=MOB_TYPE.CIVILIZED, level=1, abilities_number=3, terrains=TERRAIN.records, state=MOB_RECORD_STATE.ENABLED, global_action_probability=0): # pylint: disable=W0102

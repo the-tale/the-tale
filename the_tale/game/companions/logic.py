@@ -145,7 +145,7 @@ def required_templates_count(companion_record):
 
 
 def create_companion(companion_record):
-    return objects.Companion(record=companion_record,
+    return objects.Companion(record_id=companion_record.id,
                              health=companion_record.max_health,
                              coherence=c.COMPANIONS_MIN_COHERENCE,
                              experience=0,

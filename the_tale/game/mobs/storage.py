@@ -75,7 +75,7 @@ class MobsStorage(storage.CachedStorage):
 
         mob_record = self.choose_mob(choices)
 
-        return MobPrototype(record=mob_record, level=hero.level, is_boss=is_boss)
+        return MobPrototype(record_id=mob_record.id, level=hero.level, is_boss=is_boss)
 
     def create_mob_for_hero(self, hero):
         return self.get_random_mob(hero)

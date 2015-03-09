@@ -105,7 +105,7 @@ class PrototypeTests(testcase.TestCase):
                                        type_=relations.ARTIFACT_TYPE.HELMET,
                                        power_type=relations.ARTIFACT_POWER_TYPE.NEUTRAL)
 
-        loot = ArtifactPrototype(record=artifacts_storage.get_by_uuid('bandit_loot'), level=1)
+        loot = ArtifactPrototype(record_id=artifacts_storage.get_by_uuid('bandit_loot').id, level=1)
 
         self.assertFalse(loot.is_useless)
 
@@ -152,7 +152,7 @@ class PrototypeTests(testcase.TestCase):
         self.hero._model.level = 5
 
         mob_record = MobRecordPrototype.create_random(uuid='bandit', level=2, state=MOB_RECORD_STATE.ENABLED)
-        mob = MobPrototype(record=mob_record, level=3)
+        mob = MobPrototype(record_id=mob_record.id, level=3)
         artifact_1 = ArtifactRecordPrototype.create_random('bandit_loot', mob=mob_record, type_=relations.ARTIFACT_TYPE.USELESS, state=relations.ARTIFACT_RECORD_STATE.ENABLED)
         artifact_2 = ArtifactRecordPrototype.create_random('bandit_artifact', mob=mob_record, type_=relations.ARTIFACT_TYPE.HELMET, state=relations.ARTIFACT_RECORD_STATE.ENABLED)
 
@@ -184,7 +184,7 @@ class PrototypeTests(testcase.TestCase):
         self.hero._model.level = 5
 
         mob_record = MobRecordPrototype.create_random(uuid='bandit', level=2, state=MOB_RECORD_STATE.ENABLED)
-        mob = MobPrototype(record=mob_record, level=3)
+        mob = MobPrototype(record_id=mob_record.id, level=3)
         ArtifactRecordPrototype.create_random('bandit_artifact', mob=mob_record, type_=relations.ARTIFACT_TYPE.HELMET, state=relations.ARTIFACT_RECORD_STATE.ENABLED)
 
         with mock.patch('the_tale.game.artifacts.storage.ArtifactsStorage.get_rarity_type', lambda self, hero: relations.RARITY.NORMAL):
@@ -208,7 +208,7 @@ class PrototypeTests(testcase.TestCase):
         self.hero._model.level = 5
 
         mob_record = MobRecordPrototype.create_random(uuid='bandit', level=2, state=MOB_RECORD_STATE.ENABLED)
-        mob = MobPrototype(record=mob_record, level=3)
+        mob = MobPrototype(record_id=mob_record.id, level=3)
         ArtifactRecordPrototype.create_random('bandit_artifact', mob=mob_record, type_=relations.ARTIFACT_TYPE.HELMET, state=relations.ARTIFACT_RECORD_STATE.ENABLED)
 
         rarities = set()

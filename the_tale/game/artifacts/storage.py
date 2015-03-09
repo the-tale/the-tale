@@ -6,7 +6,6 @@ from the_tale.common.utils import storage
 from the_tale.common.utils.logic import random_value_by_priority
 
 from the_tale.game.balance.power import Power
-from the_tale.game.balance import constants as c
 
 from the_tale.game.artifacts import exceptions
 from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype

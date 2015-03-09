@@ -249,7 +249,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.hero.set_companion(companions_logic.create_companion(self.companion_record))
 
         demon_record = mobs_prototypes.MobRecordPrototype.create_random('demon', type=mobs_relations.MOB_TYPE.DEMON)
-        demon = mobs_prototypes.MobPrototype(record=demon_record, level=self.hero.level, is_boss=False)
+        demon = mobs_prototypes.MobPrototype(record_id=demon_record.id, level=self.hero.level, is_boss=False)
 
         self.hero.actions.pop_action()
 
@@ -270,7 +270,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.hero.set_companion(companions_logic.create_companion(self.companion_record))
 
         not_demon_record = mobs_prototypes.MobRecordPrototype.create_random('demon', type=mobs_relations.MOB_TYPE.random(exclude=(mobs_relations.MOB_TYPE.DEMON, )))
-        not_demon = mobs_prototypes.MobPrototype(record=not_demon_record, level=self.hero.level, is_boss=False)
+        not_demon = mobs_prototypes.MobPrototype(record_id=not_demon_record.id, level=self.hero.level, is_boss=False)
 
         self.hero.actions.pop_action()
 

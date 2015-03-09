@@ -32,7 +32,7 @@ class BaseGameDictionaryStorage(storage.SingleStorage):
     def refresh(self):
         self.clear()
 
-        for forms in self._words_query():
+        for forms in self._words_query().iterator():
             word = utg_words.Word.deserialize(s11n.from_json(forms))
             self._item.add_word(word)
 
@@ -65,7 +65,7 @@ class GameLexiconDictionaryStorage(storage.SingleStorage):
 
         self.clear()
 
-        for key, data in self._templates_query():
+        for key, data in self._templates_query().iterator():
             data = s11n.from_json(data)
             template = utg_templates.Template.deserialize(data['template'])
             restrictions = frozenset(tuple(key) for key in data.get('restrictions', ()))

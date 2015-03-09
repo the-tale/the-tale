@@ -21,18 +21,23 @@ from the_tale.game.companions.abilities import container as abilities_container
 
 
 class Companion(object):
-    __slots__ = ('record', 'health', 'coherence', 'experience', 'healed_at', '_hero')
+    __slots__ = ('record_id', 'health', 'coherence', 'experience', 'healed_at', '_hero')
 
-    def __init__(self, record, health, coherence, experience, healed_at, _hero=None):
-        self.record = record
+    def __init__(self, record_id, health, coherence, experience, healed_at, _hero=None):
+        self.record_id = record_id
         self.health = health
         self.coherence = coherence
         self.experience = experience
         self.healed_at = healed_at
         self._hero = _hero
 
+    @property
+    def record(self):
+        from the_tale.game.companions import storage
+        return storage.companions[self.record_id]
+
     def serialize(self):
-        return {'record': self.record.id,
+        return {'record': self.record_id,
                 'health': self.health,
                 'coherence': self.coherence,
                 'experience': self.experience,
@@ -40,8 +45,7 @@ class Companion(object):
 
     @classmethod
     def deserialize(cls, hero, data):
-        from the_tale.game.companions import storage
-        obj = cls(record=storage.companions[data['record']],
+        obj = cls(record_id=data['record'],
                   health=int(data['health']),
                   coherence=data['coherence'],
                   experience=data['experience'],

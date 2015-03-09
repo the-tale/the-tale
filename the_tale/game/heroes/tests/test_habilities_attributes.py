@@ -104,7 +104,7 @@ class AttributeAbiliesForMobTest(testcase.TestCase):
                                                 terrains=[],
                                                 type=MOB_TYPE.CIVILIZED,
                                                 state=MOB_RECORD_STATE.ENABLED)
-        return MobPrototype(level=1, record=mob_record)
+        return MobPrototype(level=1, record_id=mob_record.id)
 
     def tearDown(self):
         pass

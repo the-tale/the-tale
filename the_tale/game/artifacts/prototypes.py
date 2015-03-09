@@ -25,10 +25,10 @@ from the_tale.game.artifacts import effects
 
 class ArtifactPrototype(object):
 
-    __slots__ = ('record', 'power', 'level', 'bag_uuid', 'max_integrity', 'integrity', 'rarity')
+    __slots__ = ('record_id', 'power', 'level', 'bag_uuid', 'max_integrity', 'integrity', 'rarity')
 
-    def __init__(self, record=None, power=None, bag_uuid=None, level=0, max_integrity=None, integrity=None, rarity=relations.RARITY.NORMAL):
-        self.record = record
+    def __init__(self, record_id=None, power=None, bag_uuid=None, level=0, max_integrity=None, integrity=None, rarity=relations.RARITY.NORMAL):
+        self.record_id = record_id
         self.power = power
         self.level = level
         self.rarity = rarity
@@ -40,6 +40,10 @@ class ArtifactPrototype(object):
 
         self.bag_uuid = bag_uuid
 
+    @property
+    def record(self):
+        from the_tale.game.artifacts import storage
+        return storage.artifacts_storage[self.record_id]
 
     @property
     def id(self): return self.record.uuid
@@ -141,7 +145,7 @@ class ArtifactPrototype(object):
 
         integrity = data.get('integrity', [c.ARTIFACT_MAX_INTEGRITY, c.ARTIFACT_MAX_INTEGRITY])
 
-        return cls(record=record,
+        return cls(record_id=record.id,
                    power=Power.deserialize(data['power']),
                    bag_uuid=data['bag_uuid'],
                    integrity=integrity[0],
@@ -387,7 +391,7 @@ class ArtifactRecordPrototype(BasePrototype, names.ManageNameMixin):
 
 
     def create_artifact(self, level, power, rarity=relations.RARITY.NORMAL):
-        return ArtifactPrototype(record=self,
+        return ArtifactPrototype(record_id=self.id,
                                  power=power,
                                  level=level,
                                  rarity=rarity)

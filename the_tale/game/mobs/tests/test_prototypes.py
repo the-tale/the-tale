@@ -102,7 +102,7 @@ class MobsPrototypeTests(testcase.TestCase):
                                   state=MOB_RECORD_STATE.ENABLED)
         mobs_storage.sync(force=True)
 
-        bandit = MobPrototype(record=mobs_storage.get_by_uuid('bandit'), level=1)
+        bandit = MobPrototype(record_id=mobs_storage.get_by_uuid('bandit').id, level=1)
 
         self.assertEqual(bandit.health_cooficient, 1.025)
         self.assertEqual(bandit.initiative, 0.975)
