@@ -14,6 +14,7 @@ from the_tale.accounts.conf import accounts_settings
 from the_tale.linguistics import logic as linguistics_logic
 
 from the_tale.game import names
+from the_tale.game import conf
 
 from the_tale.game.balance.power import Power
 
@@ -143,7 +144,7 @@ def remove_game_data(account):
 
     bundle.remove()
 
-def _form_game_account_info(game_time, account, in_pvp_queue, is_own, last_turn=None):
+def _form_game_account_info(game_time, account, in_pvp_queue, is_own, client_turns=None):
     from the_tale.game.heroes.prototypes import HeroPrototype
 
     data = { 'new_messages': account.new_messages_number if is_own else 0,
@@ -154,28 +155,30 @@ def _form_game_account_info(game_time, account, in_pvp_queue, is_own, last_turn=
              'hero': None,
              'in_pvp_queue': in_pvp_queue }
 
-    hero_data = HeroPrototype.cached_ui_info_for_hero(account.id,
+    hero_data = HeroPrototype.cached_ui_info_for_hero(account_id=account.id,
                                                       recache_if_required=is_own,
-                                                      patch_turn= last_turn if last_turn is not None and  game_time.turn_number - last_turn == 1 else None)
-    HeroPrototype.modify_ui_info_with_turn(hero_data, for_last_turn=(not is_own))
-
+                                                      patch_turns=client_turns,
+                                                      for_last_turn=(not is_own))
     data['hero'] = hero_data
 
     data['is_old'] = (data['hero']['actual_on_turn'] < game_time.turn_number)
 
     if not is_own:
-        hero_data['cards'] = cards_container.CardsContainer.ui_info_null()
-        hero_data['permissions']['can_participate_in_pvp'] = False
-        hero_data['permissions']['can_repair_building'] = False
-        hero_data['energy']['max'] = 0
-        hero_data['energy']['value'] = 0
-        hero_data['energy']['bonus'] = 0
-        hero_data['energy']['discount'] = 0
+        if 'cards' in hero_data:
+            hero_data['cards'] = cards_container.CardsContainer.ui_info_null()
+        if 'permissions' in hero_data:
+            hero_data['permissions']['can_participate_in_pvp'] = False
+            hero_data['permissions']['can_repair_building'] = False
+        if 'energy' in hero_data:
+            hero_data['energy']['max'] = 0
+            hero_data['energy']['value'] = 0
+            hero_data['energy']['bonus'] = 0
+            hero_data['energy']['discount'] = 0
 
     return data
 
 
-def form_game_info(account=None, is_own=False, last_turn=None):
+def form_game_info(account=None, is_own=False, client_turns=None):
     from the_tale.accounts.prototypes import AccountPrototype
     from the_tale.game.prototypes import GameState
     from the_tale.game.pvp.prototypes import Battle1x1Prototype
@@ -195,7 +198,7 @@ def form_game_info(account=None, is_own=False, last_turn=None):
                                                   account,
                                                   in_pvp_queue=False if battle is None else battle.state.is_WAITING,
                                                   is_own=is_own,
-                                                  last_turn=last_turn)
+                                                  client_turns=client_turns)
 
         if battle and battle.state.is_PROCESSING:
             data['mode'] = 'pvp'
@@ -203,15 +206,22 @@ def form_game_info(account=None, is_own=False, last_turn=None):
                                                     AccountPrototype.get_by_id(battle.enemy_id),
                                                     in_pvp_queue=False,
                                                     is_own=False,
-                                                    last_turn=last_turn)
+                                                    client_turns=client_turns)
 
     return data
 
 
-def game_info_url(account_id=None):
+def game_info_url(account_id=None, client_turns=None):
+    arguments = {'api_version': conf.game_settings.INFO_API_VERSION,
+                 'api_client': project_settings.API_CLIENT}
+
     if account_id is not None:
-        return url('game:api-info', account=account_id, api_version='1.2', api_client=project_settings.API_CLIENT)
-    return url('game:api-info', api_version='1.2', api_client=project_settings.API_CLIENT)
+        arguments['account'] = account_id
+
+    if client_turns:
+        arguments['client_turns'] = ','.join(str(turn) for turn in client_turns)
+
+    return url('game:api-info', **arguments)
 
 
 def _game_info_from_1_1_to_1_0__heroes(data):

@@ -9,8 +9,9 @@ from the_tale.game.prototypes import GameTime
 
 
 @jinjaglobal
-def game_info_url(account=None):
-    return jinja2.Markup(logic.game_info_url(account_id=account.id if account is not None else None))
+def game_info_url(account=None, client_turns=None):
+    return jinja2.Markup(logic.game_info_url(account_id=account.id if account is not None else None,
+                                             client_turns=client_turns))
 
 
 @jinjafilter

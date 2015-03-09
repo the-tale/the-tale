@@ -107,8 +107,7 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
 
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero',
                         mock.Mock(return_value={'actual_on_turn': hero.saved_at_turn,
-                                                'pvp__actual':'actual',
-                                                'pvp__last_turn':'last_turn',
+                                                'pvp':'actual',
                                                 'ui_caching_started_at': 0})) as cached_ui_info_for_hero:
             with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
                 data = form_game_info(self.account_1, is_own=True)
@@ -116,11 +115,8 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         self.assertEqual(data['account']['hero']['pvp'], 'actual')
         self.assertEqual(data['enemy'], None)
 
-        self.assertFalse('pvp__actual' in data['account']['hero']['pvp'])
-        self.assertFalse('pvp__last_turn' in data['account']['hero']['pvp'])
-
         self.assertEqual(cached_ui_info_for_hero.call_count, 1)
-        self.assertEqual(cached_ui_info_for_hero.call_args, mock.call(self.account_1.id, recache_if_required=True, patch_turn=None))
+        self.assertEqual(cached_ui_info_for_hero.call_args, mock.call(account_id=self.account_1.id, recache_if_required=True, patch_turns=None, for_last_turn=False))
         self.assertEqual(ui_info.call_count, 0)
 
     def create_not_own_ui_info(self, hero):
@@ -147,7 +143,7 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
                 form_game_info(self.account_1, is_own=False)
 
         self.assertEqual(cached_ui_info_for_hero.call_count, 1)
-        self.assertEqual(cached_ui_info_for_hero.call_args, mock.call(self.account_1.id, recache_if_required=False, patch_turn=None))
+        self.assertEqual(cached_ui_info_for_hero.call_args, mock.call(account_id=self.account_1.id, recache_if_required=False, patch_turns=None, for_last_turn=True))
         self.assertEqual(ui_info.call_count, 0)
 
     def test_not_own_hero_get_cached_data(self):

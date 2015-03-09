@@ -61,7 +61,7 @@ def game_page(context):
                                     'hero': context.account_hero} )
 
 @api.Processor.handler(versions=(game_settings.INFO_API_VERSION, '1.1', '1.0'))
-@dext_views.IntArgumentProcessor.handler(error_message=u'Неверный формат номера хода', get_name='last_turn', context_name='last_turn', default_value=None)
+@dext_views.IntsArgumentProcessor.handler(error_message=u'Неверный формат номера хода', get_name='client_turns', context_name='client_turns', default_value=None)
 @accounts_views.AccountProcessor.handler(error_message=u'Запрашиваемый Вами аккаунт не найден', get_name='account', context_name='requested_account', default_value=None)
 @resource.handler('api', 'info', name='api-info')
 def api_info(context):
@@ -73,12 +73,24 @@ def api_info(context):
 - **версии:** 1.2
 - **параметры:**
     * GET: account — идентификатор аккаунта
-    * GET: last_turn — номер хода, с которого можно вернуть только изменения (изменения возвращаются только для последнего хода)
+    * GET: client_turns — номера ходов, по отношению к которым можно вернуть сокращённую информацию о герое (только изменённые с этого времени поля).
 - **возможные ошибки**: нет
 
 Если параметр account не будет указан, то вернётся информация об игре текущего пользователя, а на запрос от неавторизованного пользователя — общая информация об игре (без информации об аккаунте и герое).
 
 Часть информации в ответе является личной и доступна только залогиненному игроку, для остальных на её месте будет валидная с точки зрения формата заглушка. Такая информация обозначена следующим образом: **[личная информация]**.
+
+Полный ответ имеет большой размер, поэтому реализован следующий механизм его сжатия:
+
+- в параметре client_turns можно передать список номеров ходов (через запятую), для которых на клиенте есть полная информация;
+- если сервер сможет, в ответе он вернёт только изменившуюся информацию о герое;
+- сокращению подвергается только информация в <hero_info>;
+- сокращение происходит удалением неизменившихся полей <hero_info> (только на верхнем уровне, без рекурсии);
+- чтобы получить полную информацию, скопируйте недостаующие поля из закэшированной на стороне клиента информации для хода, указанного в .account.hero.patch_turn;
+- сервер не ганантриует, что вернёт сокращённую информацию;
+- сервер может вернуть патч для любого из переданных в client_turns ходов;
+- имеет смысл в параметре client_turns передавать последние 2-3 хода;
+- обратите внимание, сжатие ответа применяется и к информации о противнике в PvP! Поэтому первый запрос при PvP всегда долже требовать полную информацию.
 
 формат данных в ответе:
 
@@ -317,7 +329,7 @@ def api_info(context):
 
     data = game_logic.form_game_info(account=account,
                                      is_own=False if account is None else (context.account.id == account.id),
-                                     last_turn=context.last_turn)
+                                     client_turns=context.client_turns)
 
     if context.api_version in ('1.1', '1.0'):
         data = game_logic.game_info_from_1_2_to_1_1(data)

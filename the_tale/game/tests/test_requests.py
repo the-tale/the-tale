@@ -99,6 +99,26 @@ class InfoRequestTests(RequestTestsBase):
         response = self.request_ajax_json(game_info_url(account_id='sdsd'))
         self.check_ajax_error(response, 'game.api-info.account.wrong_format')
 
+    def test_client_turns(self):
+        self.check_ajax_error(self.request_ajax_json(game_info_url(client_turns=['dds'])), 'game.api-info.client_turns.wrong_format')
+        self.check_ajax_error(self.request_ajax_json(game_info_url(client_turns=['1', ''])), 'game.api-info.client_turns.wrong_format')
+        self.check_ajax_ok(self.request_ajax_json(game_info_url(client_turns=['1'])))
+        self.check_ajax_ok(self.request_ajax_json(game_info_url(client_turns=['1, 2, 3 ,4'])))
+        self.check_ajax_ok(self.request_ajax_json(game_info_url(client_turns=[1, 2, 3 ,4])))
+        self.check_ajax_ok(self.request_ajax_json(game_info_url(client_turns=['1',' 2',' 3 ','4'])))
+
+    def test_client_turns_passed_to_data_receiver(self):
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero',
+                        mock.Mock(return_value={'actual_on_turn': 666})) as cached_ui_info_for_hero:
+            self.check_ajax_ok(self.request_ajax_json(game_info_url(client_turns=[1, 2, 3 ,4])))
+
+        self.assertEqual(cached_ui_info_for_hero.call_args_list,
+                         [mock.call(account_id=self.account_1.id,
+                                    recache_if_required=True,
+                                    patch_turns=[1, 2, 3, 4],
+                                    for_last_turn=False)])
+
+
 
 class NewsAlertsTests(TestCase):
 

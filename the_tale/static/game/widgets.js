@@ -30,9 +30,13 @@ pgf.game.Updater = function(params) {
 
     var autoRefreshStopped = false;
 
-    this.data = {};
+    var oldDatas = {}; // turn_number: data
+    var currentTurn = undefined;
 
-    this.SetRefreshInterval = function(intervalTime) {
+
+    instance.data = {};
+
+    instance.SetRefreshInterval = function(intervalTime) {
         refreshInterval = intervalTime;
         refreshTimer = setInterval(function(e){
             instance.Refresh();
@@ -40,19 +44,77 @@ pgf.game.Updater = function(params) {
         autoRefreshStopped = false;
     };
 
-    this.StopAutoRefresh = function() {
+    instance.StopAutoRefresh = function() {
         if (!refreshInterval) return;
 
         clearInterval(refreshTimer);
         autoRefreshStopped = true;
     };
 
-    this.Refresh = function() {
+    instance.ApplyNewData = function(newData) {
+
+        currentTurn = newData.turn.number;
+
+        // apply patch for hero if received data is path
+        if (newData.account && newData.account.hero.patch_turn != null) {
+            var oldData = oldDatas[newData.account.hero.patch_turn];
+
+            if (!oldData) return false;
+
+            for (var field in oldData.account.hero) {
+                if (field in newData.account.hero) continue;
+                newData.account.hero[field] = oldData.account.hero[field];
+            }
+        }
+
+        // apply patch for enemy if received data is path
+        if (newData.enemy && newData.enemy.hero.patch_turn != null) {
+            var oldData = oldDatas[newData.enemy.hero.patch_turn];
+
+            if (!oldData) return false;
+
+            for (var field in oldData.enemy.hero) {
+                if (field in newData.enemy.hero) continue;
+                newData.enemy.hero[field] = oldData.enemy.hero[field];
+            }
+        }
+
+        instance.data = newData;
+
+        oldDatas[currentTurn] = newData;
+
+        // remove old turns data
+        var turns = [];
+        for (var turnNumber in oldDatas) {
+            turns.push(turnNumber);
+        }
+        turns.sort();
+        for (var i=0; i<turns.length-2; ++i) {
+            delete oldDatas[turns[i]];
+        }
+
+        return true;
+    };
+
+    instance.Refresh = function(fullRequest) {
+
+        var url = params.url;
+
+        if (!fullRequest && !jQuery.isEmptyObject(oldDatas)) {
+            var clientTurns = [];
+            for (var turnNumber in oldDatas) {
+                clientTurns.push(turnNumber);
+            }
+            clientTurns = clientTurns.join()
+
+            if (url.indexOf('?') != -1) {url += '&client_turns=' + clientTurns;}
+            else {url += '?client_turns=' + clientTurns;}
+        }
 
         jQuery.ajax({
             dataType: 'json',
             type: 'get',
-            url: params.url,
+            url: url,
             success: function(data, request, status) {
 
                 if (data && data.data && data.data.account && data.data.account.is_old && data.data.account.is_own) {
@@ -71,7 +133,10 @@ pgf.game.Updater = function(params) {
                     instance.SetRefreshInterval(refreshInterval);
                 }
 
-                instance.data = data.data;
+                if (!instance.ApplyNewData(data.data)) {
+                    instance.Refresh(true);
+                    return;
+                }
 
                 jQuery(document).trigger(pgf.game.events.DATA_REFRESHED, instance.data);
 
