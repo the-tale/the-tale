@@ -208,7 +208,7 @@ class HeroPrototype(BasePrototype,
     def switch_spending(self):
         spending_candidates = self.spending_priorities()
 
-        if self.companion is None:
+        if self.companion is None and relations.ITEMS_OF_EXPENDITURE.HEAL_COMPANION in spending_candidates:
             del spending_candidates[relations.ITEMS_OF_EXPENDITURE.HEAL_COMPANION]
 
         self._model.next_spending = random_value_by_priority(list(spending_candidates.items()))
