@@ -69,6 +69,14 @@ class CardsGoodTypeTests(testcase.TestCase):
     def test_deserialize_item(self):
         self.assertEqual(self.card_3, goods_types.cards_hero_good.deserialize_item(self.card_3.serialize()))
 
+    def test_groups(self):
+        self.assertEqual(len(goods_types.cards_hero_good.groups), 5)
+
+    def test_group_of(self):
+        for card_type in relations.CARD_TYPE.records:
+            card = objects.Card(card_type, available_for_auction=False)
+            self.assertEqual(goods_types.cards_hero_good.group_of(card).id, card.type.rarity.value)
+
 
     def test_is_item_tradable(self):
         self.assertTrue(goods_types.cards_hero_good.is_item_tradable(self.card_1))

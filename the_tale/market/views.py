@@ -17,6 +17,7 @@ from the_tale.market import forms
 from the_tale.market import logic
 from the_tale.market import models
 from the_tale.market import conf
+from the_tale.market import goods_types
 
 ########################################
 # processors definition
@@ -92,11 +93,25 @@ resource.add_processor(goods_processor)
 # filters
 ########################################
 
+def filter_groups_choices(choice_element):
+    choices = [(None, u'все')]
+
+    for group_uid, group in sorted(goods_types.get_groups().iteritems()):
+        if 'test' in group_uid:
+            continue
+
+        choices.append((group_uid, group.name))
+
+    return choices
+
+
 class LotsIndexFilter(list_filter.ListFilter):
     ELEMENTS = [list_filter.reset_element(),
                 list_filter.filter_element(u'поиск:', attribute='filter', default_value=None),
                 list_filter.choice_element(u'сортировать:', attribute='order_by', choices=relations.INDEX_ORDER_BY.select('value', 'text'),
                                            default_value=relations.INDEX_ORDER_BY.DATE_DOWN.value),
+                list_filter.choice_element(u'группа:', attribute='group', choices=filter_groups_choices,
+                                           default_value=None),
                 list_filter.static_element(u'количество:', attribute='count', default_value=0) ]
 
 
@@ -104,45 +119,42 @@ class LotsIndexFilter(list_filter.ListFilter):
 # views
 ########################################
 
+index_resource = dext_views.Resource(name='market')
 
-@dext_views.RelationArgumentProcessor.handler(relation=relations.INDEX_ORDER_BY, default_value=relations.INDEX_ORDER_BY.DATE_DOWN,
-                                              error_message=u'неверный тип сортировки',
-                                              context_name='order_by', get_name='order_by')
-@dext_views.RelationArgumentProcessor.handler(relation=relations.INDEX_MODE, default_value=relations.INDEX_MODE.ALL,
-                                              error_message=u'неверный режим отображения',
-                                              context_name='page_mode', get_name='page_mode')
-@utils_views.text_filter_processor.handler()
-@utils_views.page_number_processor.handler()
-@resource.handler('')
-def index(context):
+resource.add_child(index_resource)
 
-    lots_query = models.Lot.objects.all()
+index_resource.add_processor(dext_views.RelationArgumentProcessor(relation=relations.INDEX_ORDER_BY, default_value=relations.INDEX_ORDER_BY.DATE_DOWN,
+                                                                  error_message=u'неверный тип сортировки',
+                                                                  context_name='order_by', get_name='order_by'))
+index_resource.add_processor(dext_views.RelationArgumentProcessor(relation=relations.INDEX_MODE, default_value=relations.INDEX_MODE.ALL,
+                                                                  error_message=u'неверный режим отображения',
+                                                                  context_name='page_mode', get_name='page_mode'))
+index_resource.add_processor(dext_views.MapArgumentProcessor(mapping=goods_types.get_groups, default_value=None,
+                                                             error_message=u'неверный тип группы', context_name='goods_group', get_name='group'))
+index_resource.add_processor(utils_views.text_filter_processor)
+index_resource.add_processor(utils_views.page_number_processor)
 
-    if context.page_mode.is_ALL:
-        lots_query = lots_query.filter(state=relations.LOT_STATE.ACTIVE)
 
-    elif context.page_mode.is_OWN:
-        lots_query = lots_query.filter(seller_id=context.account.id)
-
-    elif context.page_mode.is_HISTORY:
-        lots_query = lots_query.filter(state=relations.LOT_STATE.CLOSED_BY_BUYER,
-                                       closed_at__gt=datetime.datetime.now()-datetime.timedelta(days=conf.settings.HISTORY_TIME))
-
+def render_index(context, lots_query, page_mode, base_url):
     if context.filter is not None:
         lots_query = lots_query.filter(name__icontains=context.filter)
+
+    if context.goods_group is not None:
+        lots_query = lots_query.filter(type=context.goods_group.type.uid,
+                                       group_id=context.goods_group.id)
 
     lots_query = lots_query.order_by(context.order_by.db_order)
 
     lots_count = lots_query.count()
 
-    url_builder = UrlBuilder(url('market:'), arguments={ 'filter': context.filter,
+    url_builder = UrlBuilder(base_url, arguments={ 'filter': context.filter,
                                                          'order_by': context.order_by.value,
-                                                         'page_mode': context.page_mode.value})
+                                                         'group': context.goods_group.uid if context.goods_group else None})
 
     index_filter = LotsIndexFilter(url_builder=url_builder, values={'filter': context.filter,
                                                                     'order_by': context.order_by.value,
                                                                     'count': lots_count,
-                                                                    'page_mode': context.page_mode.value})
+                                                                    'group': context.goods_group.uid if context.goods_group else None})
 
     paginator = pagination.Paginator(context.page, lots_count, conf.settings.LOTS_ON_PAGE, url_builder)
 
@@ -158,16 +170,30 @@ def index(context):
                                     'index_filter': index_filter,
                                     'paginator': paginator,
                                     'lots': lots,
-                                    'page_type': context.page_mode.page,
+                                    'page_type': page_mode.page,
                                     'resource': context.resource})
 
-@resource.handler('own-lots')
-def own_lots(context):
-    return dext_views.Redirect(url('market:', page_mode=relations.INDEX_MODE.OWN.value))
+@index_resource.handler('')
+def index(context):
+    return render_index(context,
+                        models.Lot.objects.filter(state=relations.LOT_STATE.ACTIVE),
+                        page_mode=relations.INDEX_MODE.ALL,
+                        base_url=url('market:'))
 
-@resource.handler('history')
+@index_resource.handler('own-lots')
+def own_lots(context):
+    return render_index(context,
+                        models.Lot.objects.filter(seller_id=context.account.id, state=relations.LOT_STATE.ACTIVE),
+                        page_mode=relations.INDEX_MODE.OWN,
+                        base_url=url('market:own-lots'))
+
+@index_resource.handler('history')
 def history(context):
-    return dext_views.Redirect(url('market:', page_mode=relations.INDEX_MODE.HISTORY.value))
+    return render_index(context,
+                        models.Lot.objects.filter(state=relations.LOT_STATE.CLOSED_BY_BUYER,
+                                                  closed_at__gt=datetime.datetime.now()-datetime.timedelta(days=conf.settings.HISTORY_TIME)),
+                        page_mode=relations.INDEX_MODE.HISTORY,
+                        base_url=url('market:history'))
 
 
 @resource.handler('new')

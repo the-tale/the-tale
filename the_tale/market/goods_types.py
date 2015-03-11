@@ -16,6 +16,28 @@ def get_type(type):
 def get_types():
     return _GOODS_TYPES.itervalues()
 
+def get_groups():
+    groups = {}
+
+    for goods_type in get_types():
+        for group in goods_type.groups:
+            groups[group.uid] = group
+
+    return groups
+
+
+class GoodsGroup(object):
+    __slots__ = ('id', 'name', 'type')
+
+    def __init__(self, id, name, type):
+        self.id = id
+        self.name = name
+        self.type = type
+
+    @property
+    def uid(self):
+        return u'%s-%s' % (self.type.uid, self.id)
+
 
 class BaseGoodType(object):
 
@@ -25,7 +47,6 @@ class BaseGoodType(object):
         self.description = description
         self.item_uid_prefix = item_uid_prefix
         self.item_template = item_template
-
 
     def register(self):
         if self.uid in _GOODS_TYPES:
@@ -72,6 +93,14 @@ class BaseGoodType(object):
 
     def insert_good(self, container, good):
         raise NotImplementedError()
+
+    @property
+    def groups(self):
+        raise NotImplementedError()
+
+    def group_of(self, item):
+        raise NotImplementedError()
+
 
 
 @discovering.automatic_discover(_GOODS_TYPES, 'goods_types')
@@ -141,6 +170,15 @@ class TestHeroGood(BaseGoodType):
     def register(self, *argv, **kwargs):
         super(TestHeroGood, self).register(*argv, **kwargs)
         self._clear()
+
+    def group_of(self, item):
+        return self.groups[hash(item.uid) % len(self.groups)]
+
+    @property
+    def groups(self):
+        return [GoodsGroup(id=0, name='test-goods-group-0', type=self),
+                GoodsGroup(id=1, name='test-goods-group-1', type=self)]
+
 
 
 test_hero_good = TestHeroGood(uid='test-hero-good',

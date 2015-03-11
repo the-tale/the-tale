@@ -20,6 +20,8 @@ class Lot(models.Model):
     type = models.CharField(max_length=TYPE_MAX_LENGTH, db_index=True)
     good_uid = models.CharField(max_length=UID_MAX_LENGTH, db_index=True)
 
+    group_id = models.IntegerField(default=0, db_index=True)
+
     name = models.CharField(max_length=NAME_MAX_LENGTH, db_index=True)
 
     seller = models.ForeignKey('accounts.Account', related_name='+', on_delete=models.CASCADE)

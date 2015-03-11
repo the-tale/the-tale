@@ -1,5 +1,6 @@
 # coding: utf-8
 
-from the_tale.market.views import resource
+from the_tale.market import views as market_views
 
-urlpatterns = resource.get_urls()
+urlpatterns = market_views.resource.get_urls()
+urlpatterns += market_views.index_resource.get_urls()

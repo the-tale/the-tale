@@ -36,10 +36,10 @@ class IndexRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(IndexRequestsTests, self).setUp()
 
-        self.good_1 = goods_types.test_hero_good.create_good('good-1')
-        self.good_2 = goods_types.test_hero_good.create_good('good-2')
-        self.good_3 = goods_types.test_hero_good.create_good('good-3')
-        self.good_4 = goods_types.test_hero_good.create_good('good-4')
+        self.good_1 = goods_types.test_hero_good.create_good('good-#-1')
+        self.good_2 = goods_types.test_hero_good.create_good('good-#-2')
+        self.good_3 = goods_types.test_hero_good.create_good('good-#-3')
+        self.good_4 = goods_types.test_hero_good.create_good('good-#-4')
 
         self.price_1 = 1
         self.price_2 = 2
@@ -102,39 +102,145 @@ class IndexRequestsTests(RequestsTestsBase):
 
 
 class OwnLotsRequestsTests(RequestsTestsBase):
-
     def setUp(self):
         super(OwnLotsRequestsTests, self).setUp()
+
+        self.good_1 = goods_types.test_hero_good.create_good('good-#-1')
+        self.good_2 = goods_types.test_hero_good.create_good('good-#-2')
+        self.good_3 = goods_types.test_hero_good.create_good('good-#-3')
+        self.good_4 = goods_types.test_hero_good.create_good('good-#-4')
+
+        self.price_1 = 1
+        self.price_2 = 2
+        self.price_3 = 3
+        self.price_4 = 4
+
+        self.lot_1 = logic.reserve_lot(self.account_1.id, self.good_1, price=self.price_1)
+        self.lot_2 = logic.reserve_lot(self.account_1.id, self.good_2, price=self.price_2)
+        self.lot_3 = logic.reserve_lot(self.account_1.id, self.good_3, price=self.price_3)
+        self.lot_4 = logic.reserve_lot(self.account_2.id, self.good_4, price=self.price_4)
+
+        self.lot_1.state = relations.LOT_STATE.CLOSED_BY_BUYER
+        self.lot_2.state = relations.LOT_STATE.ACTIVE
+        self.lot_4.state = relations.LOT_STATE.ACTIVE
+
+        logic.save_lot(self.lot_1)
+        logic.save_lot(self.lot_2)
+        logic.save_lot(self.lot_4)
+
         self.requested_url = url('market:own-lots')
 
 
-    def test_redirect(self):
+    def test_no_items(self):
         self.request_login(self.account_1.email)
-        self.check_redirect(self.requested_url, url('market:', page_mode=relations.INDEX_MODE.OWN.value))
+        models.Lot.objects.all().delete()
 
-        self.request_login(self.account_2.email)
-        self.check_redirect(self.requested_url, url('market:', page_mode=relations.INDEX_MODE.OWN.value))
+        self.check_html_ok(self.request_html(self.requested_url), texts=[('pgf-no-lots-message', 1),
+                                                                         (self.lot_1.name, 0),
+                                                                         (self.lot_2.name, 0),
+                                                                         (self.lot_3.name, 0),
+                                                                         (self.lot_4.name, 0)])
 
     def test_anonimouse_view(self):
         self.check_redirect(self.requested_url, accounts_logic.login_page_url(self.requested_url))
+
+    def test_normal_view(self):
+        self.request_login(self.account_1.email)
+        self.check_html_ok(self.request_html(self.requested_url), texts=[('pgf-no-lots-message', 0),
+                                                                         (self.lot_1.name, 0),
+                                                                         self.lot_2.name,
+                                                                         (self.lot_3.name, 0),
+                                                                         (self.lot_4.name, 0)])
+
+    def test_normal_view__disabled_records(self):
+
+        self.request_login(self.account_1.email)
+
+        for lot_state in relations.LOT_STATE.records:
+            if lot_state.is_ACTIVE:
+                continue
+
+            self.lot_2.state = lot_state
+            logic.save_lot(self.lot_2)
+
+            self.check_html_ok(self.request_html(self.requested_url), texts=[('pgf-no-lots-message', 1),
+                                                                             (self.lot_1.name, 0),
+                                                                             (self.lot_2.name, 0),
+                                                                             (self.lot_3.name, 0),
+                                                                             (self.lot_4.name, 0)])
+
+
 
 
 class HistoryRequestsTests(RequestsTestsBase):
 
     def setUp(self):
         super(HistoryRequestsTests, self).setUp()
+
+        self.good_1 = goods_types.test_hero_good.create_good('good-#-1')
+        self.good_2 = goods_types.test_hero_good.create_good('good-#-2')
+        self.good_3 = goods_types.test_hero_good.create_good('good-#-3')
+        self.good_4 = goods_types.test_hero_good.create_good('good-#-4')
+
+        self.price_1 = 1
+        self.price_2 = 2
+        self.price_3 = 3
+        self.price_4 = 4
+
+        self.lot_1 = logic.reserve_lot(self.account_1.id, self.good_1, price=self.price_1)
+        self.lot_2 = logic.reserve_lot(self.account_1.id, self.good_2, price=self.price_2)
+        self.lot_3 = logic.reserve_lot(self.account_1.id, self.good_3, price=self.price_3)
+        self.lot_4 = logic.reserve_lot(self.account_2.id, self.good_4, price=self.price_4)
+
+        self.lot_1.state = relations.LOT_STATE.CLOSED_BY_BUYER
+        self.lot_2.state = relations.LOT_STATE.ACTIVE
+        self.lot_4.state = relations.LOT_STATE.CLOSED_BY_BUYER
+
+        logic.save_lot(self.lot_1)
+        logic.save_lot(self.lot_2)
+        logic.save_lot(self.lot_4)
+
         self.requested_url = url('market:history')
 
 
-    def test_redirect(self):
+    def test_no_items(self):
         self.request_login(self.account_1.email)
-        self.check_redirect(self.requested_url, url('market:', page_mode=relations.INDEX_MODE.HISTORY.value))
+        models.Lot.objects.all().delete()
 
-        self.request_login(self.account_2.email)
-        self.check_redirect(self.requested_url, url('market:', page_mode=relations.INDEX_MODE.HISTORY.value))
+        self.check_html_ok(self.request_html(self.requested_url), texts=[('pgf-no-lots-message', 1),
+                                                                         (self.lot_1.name, 0),
+                                                                         (self.lot_2.name, 0),
+                                                                         (self.lot_3.name, 0),
+                                                                         (self.lot_4.name, 0)])
 
     def test_anonimouse_view(self):
         self.check_redirect(self.requested_url, accounts_logic.login_page_url(self.requested_url))
+
+    def test_normal_view(self):
+        self.request_login(self.account_1.email)
+        self.check_html_ok(self.request_html(self.requested_url), texts=[('pgf-no-lots-message', 0),
+                                                                         self.lot_1.name,
+                                                                         (self.lot_2.name, 0),
+                                                                         (self.lot_3.name, 0),
+                                                                         self.lot_4.name])
+
+    def test_normal_view__disabled_records(self):
+
+        self.request_login(self.account_1.email)
+
+        for lot_state in relations.LOT_STATE.records:
+            if lot_state.is_CLOSED_BY_BUYER:
+                continue
+
+            self.lot_1.state = lot_state
+            logic.save_lot(self.lot_1)
+
+            self.check_html_ok(self.request_html(self.requested_url), texts=[('pgf-no-lots-message', 0),
+                                                                             (self.lot_1.name, 0),
+                                                                             (self.lot_2.name, 0),
+                                                                             (self.lot_3.name, 0),
+                                                                             self.lot_4.name])
+
 
 
 class NewRequestsTests(RequestsTestsBase):

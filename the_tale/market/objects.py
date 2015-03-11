@@ -36,13 +36,17 @@ class Good(object):
         from the_tale.market import goods_types
         return goods_types.get_type(self.type).item_html(self.item)
 
+    def group(self):
+        from the_tale.market import goods_types
+        return goods_types.get_type(self.type).group_of(self.item)
+
 
 
 class Lot(object):
 
-    __slots__ = ('id', 'type', 'name', 'seller_id', 'buyer_id', 'state', 'good', 'price', 'created_at', 'commission', 'closed_at')
+    __slots__ = ('id', 'type', 'name', 'seller_id', 'buyer_id', 'state', 'good', 'price', 'created_at', 'commission', 'closed_at', 'group_id')
 
-    def __init__(self, id, type, name, seller_id, buyer_id, state, good, price, created_at, commission, closed_at):
+    def __init__(self, id, type, name, seller_id, buyer_id, state, good, price, created_at, commission, closed_at, group_id):
         self.id = id
         self.type = type
         self.name = name
@@ -54,6 +58,7 @@ class Lot(object):
         self.created_at = created_at
         self.closed_at = closed_at
         self.commission = commission
+        self.group_id = group_id
 
     @property
     def time_to_end(self):
@@ -73,7 +78,8 @@ class Lot(object):
                    good=Good.deserialize(data['good']),
                    price=model.price,
                    closed_at=model.closed_at,
-                   commission=model.commission)
+                   commission=model.commission,
+                   group_id=model.group_id)
 
     def to_model_fields(self):
         data = {'type': self.type,
@@ -85,7 +91,8 @@ class Lot(object):
                 'data': s11n.to_json({'good': self.good.serialize()}),
                 'price': self.price,
                 'closed_at': self.closed_at,
-                'commission': self.commission}
+                'commission': self.commission,
+                'group_id': self.group_id}
         return data
 
 

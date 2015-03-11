@@ -1,9 +1,12 @@
 # coding: utf-8
 
+from the_tale.common.utils.decorators import lazy_property
+
 from the_tale.market import goods_types
 from the_tale.market import objects as market_objects
 
 from the_tale.game.cards import objects
+from the_tale.game.cards import relations
 
 
 class CardsGoodType(goods_types.BaseGoodType):
@@ -49,6 +52,14 @@ class CardsGoodType(goods_types.BaseGoodType):
     def insert_good(self, container, good):
         container.cards.add_card(good.item)
 
+    @lazy_property
+    def groups(self):
+        return [goods_types.GoodsGroup(id=rarity.value, name=rarity.text, type=self) for rarity in relations.RARITY.records]
+
+    def group_of(self, item):
+        for group in self.groups:
+            if item.type.rarity.value == group.id:
+                return group
 
 cards_hero_good = CardsGoodType(uid='cards-hero-good',
                                 name=u'Карты Судьбы',
