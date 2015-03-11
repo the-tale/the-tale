@@ -483,6 +483,8 @@ class PlacePrototype(BasePrototype, names.ManageNameMixin):
         places_storage.update_version()
 
     def cmd_change_power(self, power, positive_bonus, negative_bonus):
+        if environment.workers.highlevel is None:
+            return
         environment.workers.highlevel.cmd_change_power(power_delta=power, positive_bonus=positive_bonus, negative_bonus=negative_bonus, person_id=None, place_id=self.id)
 
 

@@ -111,6 +111,8 @@ class PersonPrototype(BasePrototype, names.ManageNameMixin):
         self._model.state = PERSON_STATE.REMOVED
 
     def cmd_change_power(self, power, positive_bonus, negative_bonus):
+        if environment.workers.highlevel is None:
+            return
         environment.workers.highlevel.cmd_change_power(power_delta=power, positive_bonus=positive_bonus, negative_bonus=negative_bonus, person_id=self.id, place_id=None)
 
     @property

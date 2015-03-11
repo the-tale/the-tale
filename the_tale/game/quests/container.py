@@ -102,7 +102,7 @@ class QuestsContainer(object):
 
     def excluded_quests(self, max_number):
         excluded_quests = []
-        last_quests = sorted(self.history.items(), key=lambda item: -item[1])
+        last_quests = sorted(self.history.iteritems(), key=lambda item: -item[1])
         for last_quest in last_quests[:max_number]: # exclude half of the quests
             excluded_quests.append(last_quest[0])
 

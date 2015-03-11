@@ -1,14 +1,27 @@
 # coding: utf-8
 
+_UIDS_CACHE_PLACE = {}
+_UIDS_CACHE_PERSON = {}
+_UIDS_CACHE_HERO = {}
+_UIDS_CACHE_MOB = {}
+
 
 def place(place):
-    return 'pl_%d' % place.id
+    if place.id not in _UIDS_CACHE_PLACE:
+        _UIDS_CACHE_PLACE[place.id] = 'pl_%d' % place.id
+    return _UIDS_CACHE_PLACE[place.id]
 
 def person(person):
-    return 'pe_%d' % person.id
+    if person.id not in _UIDS_CACHE_PERSON:
+        _UIDS_CACHE_PERSON[person.id] = 'pe_%d' % person.id
+    return _UIDS_CACHE_PERSON[person.id]
 
 def hero(hero):
-    return 'he_%d' % hero.id
+    if hero.id not in _UIDS_CACHE_HERO:
+        _UIDS_CACHE_HERO[hero.id] = 'he_%d' % hero.id
+    return _UIDS_CACHE_HERO[hero.id]
 
 def mob(mob):
-    return 'mo_%d' % mob.id
+    if mob.id not in _UIDS_CACHE_MOB:
+        _UIDS_CACHE_MOB[mob.id] = 'mo_%d' % mob.id
+    return _UIDS_CACHE_MOB[mob.id]
