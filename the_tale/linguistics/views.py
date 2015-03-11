@@ -584,7 +584,7 @@ class TemplateResource(Resource):
             return self.json_error('linguistics.templates.replace.not_equal_keys', u'Фразы предназначены для разных случаев.')
 
         if parent_template.errors_status.is_NO_ERRORS and self._template.errors_status.is_HAS_ERRORS:
-            return self.json_error('linguistics.templates.replace.can_not_replace_with_errors', u'Нельзя заменить шаблон без ошибко на шаблон с ошибками.')
+            return self.json_error('linguistics.templates.replace.can_not_replace_with_errors', u'Нельзя заменить шаблон без ошибок на шаблон с ошибками.')
 
         with transaction.atomic():
             prototypes.TemplatePrototype._db_filter(parent_id=parent_template.id).update(parent=self._template.id)
