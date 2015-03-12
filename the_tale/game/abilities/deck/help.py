@@ -179,7 +179,7 @@ class Help(AbilityPrototype):
         elif action.HABIT_MODE.is_COMPANION:
             if task.hero.companion:
                 for habit_source in task.hero.companion.modify_attribute(heroes_relations.MODIFIERS.HABITS_SOURCES, set()):
-                    task.hero.update_habits(habit_source)
+                    task.hero.update_habits(habit_source, multuplier=task.hero.companion_habits_multiplier)
         else:
             raise exceptions.UnknownHabitModeError(mode=action.HABIT_MODE)
 

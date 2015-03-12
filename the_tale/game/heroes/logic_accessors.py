@@ -438,6 +438,10 @@ class LogicAccessorsMixin(object):
     @property
     def companion_unusual_coherence_speed(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED)
 
+    @property
+    def companion_habits_multiplier(self):
+        return self.preferences.companion_empathy.habit_multiplier
+
     def habit_events(self):
         return self.attribute_modifier(relations.MODIFIERS.HONOR_EVENTS)
 

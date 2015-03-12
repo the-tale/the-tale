@@ -56,7 +56,7 @@ class COMPANION_DEDICATION(DjangoEnum):
 
 
 class COMPANION_EMPATHY(DjangoEnum):
-    block_multiplier = Column()
+    habit_multiplier = Column()
     description = Column()
 
     records = ( ('EGOCENTRIC', 0, u'эгоцентрик', 1.0 - c.COMPANIONS_HABITS_DELTA,  u'черты спутника оказывают меньшее влияния на черты героя'),
