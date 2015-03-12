@@ -24,14 +24,14 @@ class Account(models.Model):
 
 class Invoice(models.Model):
 
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
-    updated_at = models.DateTimeField(auto_now=True, null=False)
+    created_at = models.DateTimeField(auto_now_add=True, null=False, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True, null=False, db_index=True)
 
     recipient_type = RelationIntegerField(relation=ENTITY_TYPE, relation_column='value', db_index=True)
-    recipient_id = models.BigIntegerField()
+    recipient_id = models.BigIntegerField(db_index=True)
 
     sender_type = RelationIntegerField(relation=ENTITY_TYPE, relation_column='value', db_index=True)
-    sender_id = models.BigIntegerField()
+    sender_id = models.BigIntegerField(db_index=True)
 
     state = RelationIntegerField(relation=INVOICE_STATE, relation_column='value', db_index=True)
 

@@ -21,6 +21,7 @@ from the_tale.market import logic
 from the_tale.market import objects
 from the_tale.market import goods_types
 from the_tale.market import relations
+from the_tale.market import conf
 
 
 
@@ -300,7 +301,7 @@ class BuyLotTask(PostponedLogic):
                                                     amount=-lot.commission,
                                                     description_for_sender=u'Комиссия с продажи «%s»' % lot.name,
                                                     description_for_recipient=u'Комиссия с продажи «%s»' % lot.name,
-                                                    operation_uid=u'market-buy-commission-%s' % lot.type,
+                                                    operation_uid=u'%s-%s' % (conf.settings.COMMISSION_OPERATION_UID, lot.type),
                                                     force=True)
 
             self.state = self.STATE.PROCESSED

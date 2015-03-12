@@ -12,6 +12,10 @@ from the_tale.accounts.payments.relations import GOODS_GROUP
 from the_tale.bank.prototypes import InvoicePrototype
 from the_tale.bank.relations import INVOICE_STATE, ENTITY_TYPE, CURRENCY_TYPE
 
+from the_tale.market import conf as market_conf
+
+from the_tale.forum import models as forum_models
+
 from the_tale.statistics.metrics.base import BaseMetric, BasePercentsCombination, BaseFractionCombination, BasePercentsFromSumCombination
 from the_tale.statistics import relations
 from the_tale.statistics.conf import statistics_settings
@@ -139,7 +143,7 @@ class ARPUInMonth(BaseFractionCombination):
 class DaysBeforePayment(BaseMetric):
     TYPE = relations.RECORD_TYPE.DAYS_BEFORE_PAYMENT
     FULL_CLEAR_RECUIRED = True
-    PERIOD = 7
+    PERIOD = 30
 
     def get_value(self, date):
         query = AccountPrototype._db_filter(is_fast=False, is_bot=False)
@@ -175,7 +179,7 @@ class ARPNU(BaseMetric):
     TYPE = None
     FULL_CLEAR_RECUIRED = True
     DAYS = None
-    PERIOD = 7
+    PERIOD = 30
 
     def get_value(self, date):
         query = AccountPrototype._db_filter(self.db_date_interval('created_at', date=date, days=-self.PERIOD),
@@ -243,7 +247,8 @@ class LTV(BaseMetric):
 
 class IncomeFromGroupsBase(BaseMetric):
     TYPE = None
-    PERIOD = 7
+    PERIOD = 30
+    FULL_CLEAR_RECUIRED = True # change to False after v0.3.17
 
     @classmethod
     def filter_recipients(cls, ids):
@@ -268,16 +273,14 @@ class IncomeFromForum(IncomeFromGroupsBase):
 
     @classmethod
     def filter_recipients(cls, ids):
-        return set(AccountPrototype._db_filter(forum_posts__author__in=ids).values_list('id', flat=True))
-
+        return set(forum_models.Post.objects.filter(author__in=ids).values_list('author_id', flat=True))
 
 class IncomeFromSilent(IncomeFromGroupsBase):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_SILENT
 
     @classmethod
     def filter_recipients(cls, ids):
-        return set(AccountPrototype._db_exclude(forum_posts__author__in=ids).values_list('id', flat=True))
-
+        return set(ids) - set(forum_models.Post.objects.filter(author__in=ids).values_list('author_id', flat=True))
 
 class IncomeFromGuildMembers(IncomeFromGroupsBase):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GUILD_MEMBERS
@@ -298,11 +301,12 @@ class IncomeFromSingles(IncomeFromGroupsBase):
 
 class IncomeFromGoodsBase(BaseMetric):
     TYPE = None
-    GROUP = None
-    PERIOD = 7
+    GROUP_PREFIX = None
+    PERIOD = 30
+    FULL_CLEAR_RECUIRED = True # change to False after v0.3.17
 
     def selector(self):
-        return models.Q(operation_uid__contains='<%s' % self.GROUP.uid_prefix)
+        return models.Q(operation_uid__contains=self.GROUP_PREFIX)
 
     def get_value(self, date):
         income = InvoicePrototype._db_filter(ACCEPTED_INVOICE_FILTER,
@@ -319,49 +323,55 @@ class IncomeFromGoodsBase(BaseMetric):
 
 class IncomeFromGoodsPremium(IncomeFromGoodsBase):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_PREMIUM
-    GROUP = GOODS_GROUP.PREMIUM
+    GROUP_PREFIX = '<%s' % GOODS_GROUP.PREMIUM.uid_prefix
 
 class IncomeFromGoodsEnergy(IncomeFromGoodsBase):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_ENERGY
-    GROUP = GOODS_GROUP.ENERGY
+    GROUP_PREFIX = '<%s' % GOODS_GROUP.ENERGY.uid_prefix
 
 class IncomeFromGoodsChest(IncomeFromGoodsBase):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_CHEST
-    GROUP = GOODS_GROUP.CHEST
+    GROUP_PREFIX = '<%s' % GOODS_GROUP.CHEST.uid_prefix
 
 class IncomeFromGoodsPeferences(IncomeFromGoodsBase):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCES
-    GROUP = GOODS_GROUP.PREFERENCES
+    GROUP_PREFIX = '<%s' % GOODS_GROUP.PREFERENCES.uid_prefix
 
 class IncomeFromGoodsPreferencesReset(IncomeFromGoodsBase):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCES_RESET
-    GROUP = GOODS_GROUP.PREFERENCES_RESET
+    GROUP_PREFIX = '<%s' % GOODS_GROUP.PREFERENCES_RESET.uid_prefix
 
 class IncomeFromGoodsHabits(IncomeFromGoodsBase):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_HABITS
-    GROUP = GOODS_GROUP.HABITS
+    GROUP_PREFIX = '<%s' % GOODS_GROUP.HABITS.uid_prefix
 
 class IncomeFromGoodsAbilities(IncomeFromGoodsBase):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_ABILITIES
-    GROUP = GOODS_GROUP.ABILITIES
+    GROUP_PREFIX = '<%s' % GOODS_GROUP.ABILITIES.uid_prefix
 
 class IncomeFromGoodsClans(IncomeFromGoodsBase):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS
-    GROUP = GOODS_GROUP.CLANS
+    GROUP_PREFIX = '<%s' % GOODS_GROUP.CLANS.uid_prefix
+
+class IncomeFromGoodsMarketCommission(IncomeFromGoodsBase):
+    TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_MARKET_COMMISSION
+    GROUP_PREFIX = market_conf.settings.COMMISSION_OPERATION_UID
+
 
 class IncomeFromGoodsOther(IncomeFromGoodsBase):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_OTHER
     GROUP = None
 
     def selector(self):
-        return ~(models.Q(operation_uid__contains='<%s' % GOODS_GROUP.PREMIUM.uid_prefix) |
-                 models.Q(operation_uid__contains='<%s' % GOODS_GROUP.ENERGY.uid_prefix) |
-                 models.Q(operation_uid__contains='<%s' % GOODS_GROUP.CHEST.uid_prefix) |
-                 models.Q(operation_uid__contains='<%s' % GOODS_GROUP.PREFERENCES.uid_prefix) |
-                 models.Q(operation_uid__contains='<%s' % GOODS_GROUP.PREFERENCES_RESET.uid_prefix) |
-                 models.Q(operation_uid__contains='<%s' % GOODS_GROUP.HABITS.uid_prefix) |
-                 models.Q(operation_uid__contains='<%s' % GOODS_GROUP.ABILITIES.uid_prefix) |
-                 models.Q(operation_uid__contains='<%s' % GOODS_GROUP.CLANS.uid_prefix) )
+        return ~(models.Q(operation_uid__contains='<%s' % IncomeFromGoodsPremium.GROUP_PREFIX) |
+                 models.Q(operation_uid__contains='<%s' % IncomeFromGoodsEnergy.GROUP_PREFIX) |
+                 models.Q(operation_uid__contains='<%s' % IncomeFromGoodsChest.GROUP_PREFIX) |
+                 models.Q(operation_uid__contains='<%s' % IncomeFromGoodsPeferences.GROUP_PREFIX) |
+                 models.Q(operation_uid__contains='<%s' % IncomeFromGoodsPreferencesReset.GROUP_PREFIX) |
+                 models.Q(operation_uid__contains='<%s' % IncomeFromGoodsHabits.GROUP_PREFIX) |
+                 models.Q(operation_uid__contains='<%s' % IncomeFromGoodsAbilities.GROUP_PREFIX) |
+                 models.Q(operation_uid__contains='<%s' % IncomeFromGoodsClans.GROUP_PREFIX) |
+                 models.Q(operation_uid__contains='<%s' % IncomeFromGoodsMarketCommission.GROUP_PREFIX) )
 
 
 
@@ -515,9 +525,9 @@ class IncomeGroupIncome10000Percents(BasePercentsCombination):
 
 class Revenue(BaseMetric):
     TYPE = relations.RECORD_TYPE.REVENUE
-    FULL_CLEAR_RECUIRED = False
+    FULL_CLEAR_RECUIRED = True # change to False after v0.3.18
     DAYS = None
-    PERIOD = 7
+    PERIOD = 30
 
     def get_value(self, date):
         income = InvoicePrototype._db_filter(ACCEPTED_INVOICE_FILTER,
@@ -536,18 +546,22 @@ _GUILDS_GROUPS = [relations.RECORD_TYPE.INCOME_FROM_GUILD_MEMBERS,
                   relations.RECORD_TYPE.INCOME_FROM_SINGLES]
 
 class IncomeFromForumPercents(BasePercentsFromSumCombination):
+    FULL_CLEAR_RECUIRED = True # change to False after v0.3.17
     TYPE = relations.RECORD_TYPE.INCOME_FROM_FORUM_PERCENTS
     SOURCES = [relations.RECORD_TYPE.INCOME_FROM_FORUM] + _FORUM_GROUPS
 
 class IncomeFromSilentPercents(BasePercentsFromSumCombination):
+    FULL_CLEAR_RECUIRED = True # change to False after v0.3.17
     TYPE = relations.RECORD_TYPE.INCOME_FROM_SILENT_PERCENTS
     SOURCES = [relations.RECORD_TYPE.INCOME_FROM_SILENT] + _FORUM_GROUPS
 
 class IncomeFromGuildMembersPercents(BasePercentsFromSumCombination):
+    FULL_CLEAR_RECUIRED = True # change to False after v0.3.17
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GUILD_MEMBERS_PERCENTS
     SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GUILD_MEMBERS] + _GUILDS_GROUPS
 
 class IncomeFromSinglesPercents(BasePercentsFromSumCombination):
+    FULL_CLEAR_RECUIRED = True # change to False after v0.3.17
     TYPE = relations.RECORD_TYPE.INCOME_FROM_SINGLES_PERCENTS
     SOURCES = [relations.RECORD_TYPE.INCOME_FROM_SINGLES] + _GUILDS_GROUPS
 
@@ -559,36 +573,50 @@ _GOODS_GROUPS = [relations.RECORD_TYPE.INCOME_FROM_GOODS_PREMIUM,
                  relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCES_RESET,
                  relations.RECORD_TYPE.INCOME_FROM_GOODS_HABITS,
                  relations.RECORD_TYPE.INCOME_FROM_GOODS_ABILITIES,
-                 relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS]
+                 relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS,
+                 relations.RECORD_TYPE.INCOME_FROM_GOODS_MARKET_COMMISSION]
 
 class IncomeFromGoodsPremiumPercents(BasePercentsFromSumCombination):
+    FULL_CLEAR_RECUIRED = True # change to False after v0.3.17
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_PREMIUM_PERCENTS
     SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_PREMIUM] + _GOODS_GROUPS
 
 class IncomeFromGoodsEnergyPercents(BasePercentsFromSumCombination):
+    FULL_CLEAR_RECUIRED = True # change to False after v0.3.17
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_ENERGY_PERCENTS
     SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_ENERGY] + _GOODS_GROUPS
 
 class IncomeFromGoodsChestPercents(BasePercentsFromSumCombination):
+    FULL_CLEAR_RECUIRED = True # change to False after v0.3.17
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_CHEST_PERCENTS
     SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_CHEST] + _GOODS_GROUPS
 
 class IncomeFromGoodsPeferencesPercents(BasePercentsFromSumCombination):
+    FULL_CLEAR_RECUIRED = True # change to False after v0.3.17
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCES_PERCENTS
     SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCES] + _GOODS_GROUPS
 
 class IncomeFromGoodsPreferencesResetPercents(BasePercentsFromSumCombination):
+    FULL_CLEAR_RECUIRED = True # change to False after v0.3.17
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCES_RESET_PERCENTS
     SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCES_RESET] + _GOODS_GROUPS
 
 class IncomeFromGoodsHabitsPercents(BasePercentsFromSumCombination):
+    FULL_CLEAR_RECUIRED = True # change to False after v0.3.17
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_HABITS_PERCENTS
     SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_HABITS] + _GOODS_GROUPS
 
 class IncomeFromGoodsAbilitiesPercents(BasePercentsFromSumCombination):
+    FULL_CLEAR_RECUIRED = True # change to False after v0.3.17
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_ABILITIES_PERCENTS
     SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_ABILITIES] + _GOODS_GROUPS
 
 class IncomeFromGoodsClansPercents(BasePercentsFromSumCombination):
+    FULL_CLEAR_RECUIRED = True # change to False after v0.3.17
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS_PERCENTS
     SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS] + _GOODS_GROUPS
+
+class IncomeFromGoodsMarketCommissionPercents(BasePercentsFromSumCombination):
+    FULL_CLEAR_RECUIRED = True # change to False after v0.3.17
+    TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_MARKET_COMMISSION_PERCENTS
+    SOURCES = [relations.RECORD_TYPE.INCOME_FROM_GOODS_MARKET_COMMISSION] + _GOODS_GROUPS

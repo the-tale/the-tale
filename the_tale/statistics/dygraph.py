@@ -128,14 +128,14 @@ PLOTS_GROUPS = [
                       Plot(relations.RECORD_TYPE.ARPU_IN_MONTH, y_axis='y2')] ),
 
     PlotsGroup(uid='first-payment',
-               title=u'Среднее время до 1-ого платежа (за предыдущую неделю)',
+               title=u'Среднее время до 1-ого платежа (за предыдущий месяц)',
                y_label=u'',
                y2_label=u'дни',
                plots=[Plot(relations.RECORD_TYPE.DAYS_BEFORE_PAYMENT, y_axis='y2')] ),
 
 
     PlotsGroup(uid='arpnu',
-               title=u'ARPNU (Average Revenue per New User) (за предыдущую неделю)',
+               title=u'ARPNU (Average Revenue per New User) (за предыдущий месяц)',
                y_label=u'',
                y2_label=u'печеньки',
                plots=[Plot(relations.RECORD_TYPE.APRNU_WEEK, y_axis='y2'),
@@ -144,13 +144,13 @@ PLOTS_GROUPS = [
                       Plot(relations.RECORD_TYPE.LTV, y_axis='y2')] ),
 
     PlotsGroup(uid='revenue',
-               title=u'Доход (за предыдущую неделю)',
+               title=u'Доход (за предыдущий месяц)',
                y_label=u'',
                y2_label=u'печеньки',
                plots=[Plot(relations.RECORD_TYPE.REVENUE, y_axis='y2')] ),
 
     PlotsGroup(uid='social-group',
-               title=u'Распределение доходов по социальным группам (за предыдущую неделю)',
+               title=u'Распределение доходов по социальным группам (за предыдущий месяц)',
                y_label=u'',
                y2_label=u'печеньки',
                plots=[Plot(relations.RECORD_TYPE.INCOME_FROM_FORUM, y_axis='y2'),
@@ -159,7 +159,7 @@ PLOTS_GROUPS = [
                       Plot(relations.RECORD_TYPE.INCOME_FROM_SINGLES, y_axis='y2')] ),
 
     PlotsGroup(uid='social-group-percents',
-               title=u'% доходов по социальным группам (за предыдущую неделю)',
+               title=u'% доходов по социальным группам (за предыдущий месяц)',
                y_label=u'',
                y2_label=u'проценты',
                y_value_range=[0, 100],
@@ -170,7 +170,7 @@ PLOTS_GROUPS = [
                       Plot(relations.RECORD_TYPE.INCOME_FROM_SINGLES_PERCENTS, y_axis='y2')] ),
 
     PlotsGroup(uid='goods',
-               title=u'Распределение доходов по группам товаров (за предыдущую неделю)',
+               title=u'Распределение доходов по группам товаров (за предыдущий месяц)',
                y_label=u'',
                y2_label=u'печеньки',
                plots=[Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_PREMIUM, y_axis='y2'),
@@ -180,10 +180,11 @@ PLOTS_GROUPS = [
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCES_RESET, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_HABITS, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_ABILITIES, y_axis='y2'),
-                      Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS, y_axis='y2')] ),
+                      Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS, y_axis='y2'),
+                      Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_MARKET_COMMISSION, y_axis='y2')] ),
 
     PlotsGroup(uid='goods-percents',
-               title=u'% доходов по группам товаров (за предыдущую неделю)',
+               title=u'% доходов по группам товаров (за предыдущий месяц)',
                y_label=u'',
                y2_label=u'проценты',
                y_value_range=[0, 100],
@@ -195,7 +196,8 @@ PLOTS_GROUPS = [
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_PREFERENCES_RESET_PERCENTS, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_HABITS_PERCENTS, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_ABILITIES_PERCENTS, y_axis='y2'),
-                      Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS_PERCENTS, y_axis='y2')] ),
+                      Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS_PERCENTS, y_axis='y2'),
+                      Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_MARKET_COMMISSION_PERCENTS, y_axis='y2')] ),
 
     PlotsGroup(uid='income-groups',
                title=u'Численность игроков по размеру трат',

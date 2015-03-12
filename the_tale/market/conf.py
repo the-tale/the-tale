@@ -7,5 +7,6 @@ settings = app_settings('MARKET_SETTINGS',
                         LOT_LIVE_TIME=7, # in days
                         MINIMUM_PRICE=10,
                         HISTORY_TIME=30, # in days
-                        COMMISSION=0.07
+                        COMMISSION=0.07,
+                        COMMISSION_OPERATION_UID='market-buy-commission'
                         )

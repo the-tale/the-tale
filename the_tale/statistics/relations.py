@@ -29,8 +29,8 @@ class RECORD_TYPE(DjangoEnum):
                 ('ALIVE_AFTER_YEAR', 19, u'конверсия 1-ого года', VALUE_TYPE.INT, u'зарегистрировались и были в игре через год'),
                 ('ALIVE_AFTER_0', 20, u'всего регистраций', VALUE_TYPE.INT, u'зарегистрировались'),
 
-                ('LIFETIME', 21, u'lifetime', VALUE_TYPE.FLOAT, u'средне время жизни игроков, зарегистрировавшихся в течении недели'),
-                ('LIFETIME_PERCENT', 22, u'lifetime процент от максимума', VALUE_TYPE.FLOAT, u'процент времени жизни игроков, зарегистрировавшихся в течении недели, от максимума'),
+                ('LIFETIME', 21, u'lifetime', VALUE_TYPE.FLOAT, u'средне время жизни игроков'),
+                ('LIFETIME_PERCENT', 22, u'lifetime процент от максимума', VALUE_TYPE.FLOAT, u'процент времени жизни игроков от максимума'),
 
                 ('REFERRALS', 23, u'рефералы в день', VALUE_TYPE.INT, u'завершённые рефералы (в день)'),
                 ('REFERRALS_TOTAL', 24, u'всего рефералов', VALUE_TYPE.INT, u'всего рефералов'),
@@ -117,7 +117,7 @@ class RECORD_TYPE(DjangoEnum):
                 ('INCOME_FROM_GOODS_CLANS_PERCENTS', 93, u'% дохода от гильдий', VALUE_TYPE.INT, u'% дохода от гильдий за день'),
                 ('INCOME_FROM_GOODS_OTHER_PERCENTS', 94, u'% дохода от остального', VALUE_TYPE.INT, u'% дохода от остального за день'),
 
-                ('REVENUE', 95, u'Доход (за предыдущую неделю)', VALUE_TYPE.INT, u'доход за предыдущую неделю'),
+                ('REVENUE', 95, u'Доход (за предыдущий месяц)', VALUE_TYPE.INT, u'доход за предыдущий месяц'),
 
                 ('PAYERS_IN_MONTH', 96, u'количество плательщиков в месяц', VALUE_TYPE.INT, u'количество плательщиков за месяц'),
                 ('INCOME_IN_MONTH', 97, u'куплено печенек в месяц', VALUE_TYPE.INT, u'куплено печенек за месяц'),
@@ -129,4 +129,7 @@ class RECORD_TYPE(DjangoEnum):
                 ('REGISTRATIONS_COMPLETED_PERCENTS_IN_MONTH', 102, u'процент завершённых регистрации в месяц', VALUE_TYPE.FLOAT, u'процент завершённх регистраций (в месяц)'),
 
                 ('REFERRALS_IN_MONTH', 103, u'рефералы в месяц', VALUE_TYPE.INT, u'завершённые рефералы (в месяц)'),
+
+                ('INCOME_FROM_GOODS_MARKET_COMMISSION', 104, u'доход от комиссии на рынке', VALUE_TYPE.INT, u'доход от комиссии на рынке'),
+                ('INCOME_FROM_GOODS_MARKET_COMMISSION_PERCENTS', 105, u'% дохода от комиссии на рынке', VALUE_TYPE.INT, u'% дохода от комиссии на рынке за день'),
         )
