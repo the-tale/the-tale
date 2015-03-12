@@ -470,6 +470,7 @@ class TestShowRequests(BaseTestRequests):
         bill = Bill.objects.all()[0]
         bill.state = BILL_STATE.ACCEPTED
         bill.voting_end_at = datetime.datetime.now()
+        bill.applyed_at_turn = 0
         bill.save()
 
         texts = [('pgf-bills-results-summary', 0),
