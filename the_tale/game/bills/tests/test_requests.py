@@ -205,10 +205,12 @@ class TestIndexRequests(BaseTestRequests):
 
         bill_accepted.state = BILL_STATE.ACCEPTED
         bill_accepted._model.voting_end_at = datetime.datetime.now()
+        bill_accepted.applyed_at_turn = 0
         bill_accepted.save()
 
         bill_rejected.state = BILL_STATE.REJECTED
         bill_rejected._model.voting_end_at = datetime.datetime.now()
+        bill_rejected.applyed_at_turn = 0
         bill_rejected.save()
 
         def check_state_filter(self, state, voting_number, accepted_number, rejected_number):
