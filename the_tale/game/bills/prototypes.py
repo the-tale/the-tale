@@ -38,7 +38,7 @@ class BillPrototype(BasePrototype):
     _readonly = ('id', 'type', 'created_at', 'updated_at', 'caption', 'rationale', 'votes_for',
                  'votes_against', 'votes_refrained', 'forum_thread_id', 'min_votes_percents_required',
                  'voting_end_at', 'ended_at', 'ends_at_turn', 'duration', 'chronicle_on_accepted', 'chronicle_on_ended')
-    _bidirectional = ('approved_by_moderator', 'state', 'is_declined')
+    _bidirectional = ('approved_by_moderator', 'state', 'is_declined', 'applyed_at_turn')
     _get_by = ('id', )
 
 
@@ -176,6 +176,8 @@ class BillPrototype(BasePrototype):
         self._model.voting_end_at = datetime.datetime.now()
         if not self.duration.is_UNLIMITED:
             self._model.ends_at_turn = TimePrototype.get_current_turn_number() + self.duration.game_months * c.TURNS_IN_GAME_MONTH
+
+        self.applyed_at_turn = TimePrototype.get_current_turn_number()
 
         if self.is_percents_barier_not_passed:
             self.state = BILL_STATE.REJECTED

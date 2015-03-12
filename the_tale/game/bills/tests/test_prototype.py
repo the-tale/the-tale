@@ -127,6 +127,8 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         places_storage.sync(force=True)
 
+        self.assertEqual(self.bill.applyed_at_turn, None)
+
         self.check_place(self.place1.id, self.place1.name, self.place1.utg_name.forms)
 
     def test_wrong_time(self):
@@ -137,6 +139,11 @@ class TestPrototypeApply(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.51)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_not_enough_voices_percents(self):
+
+        current_time = TimePrototype.get_current_time()
+        current_time.increment_turn()
+        current_time.increment_turn()
+
         VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
         VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.REFRAINED)
 
@@ -155,11 +162,18 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.place1.sync_parameters()
         self.assertEqual(self.place1.stability, 1.0)
 
+        self.assertEqual(bill.applyed_at_turn, current_time.turn_number)
+
         self.check_place(self.place1.id, self.place1.name, self.place1.utg_name.forms)
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_approved(self):
+        current_time = TimePrototype.get_current_time()
+        current_time.increment_turn()
+        current_time.increment_turn()
+        current_time.increment_turn()
+
         VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
         VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
         VotePrototype.create(self.account4, self.bill, relations.VOTE_TYPE.REFRAINED)
@@ -189,6 +203,8 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         self.place1.sync_parameters()
         self.assertTrue(self.place1.stability < 1.0)
+
+        self.assertEqual(bill.applyed_at_turn, current_time.turn_number)
 
         self.check_place(self.place1.id, u'new_name_1-нс,ед,им', self.bill.data.name_forms.forms)
 

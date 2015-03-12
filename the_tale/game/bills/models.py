@@ -18,6 +18,7 @@ class Bill(models.Model):
     voting_end_at = models.DateTimeField(null=True, blank=True)
 
     created_at_turn = models.IntegerField(null=False)
+    applyed_at_turn = models.IntegerField(null=True)
 
     ends_at_turn = models.BigIntegerField(null=True, blank=True, db_index=True)
     ended_at = models.DateTimeField(null=True, blank=True)

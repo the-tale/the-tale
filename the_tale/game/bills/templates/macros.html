@@ -60,20 +60,23 @@
           {% if bill.is_declined %}
             отменён законом <a target="_blank" href="{{url('game:bills:show', bill.declined_by.id)}}">«{{bill.declined_by.caption}}»</a>
           {% else %}
+            принят
+            <span class="pgf-format-datetime" data-timestamp="{{ bill.voting_end_at|timestamp }}"></span>
+            ({{bill.applyed_at_turn|verbose_game_date}})
             {% if not bill.duration.is_UNLIMITED %}
               {% if bill.ended_at is none %}
-                Прекратит действовать через {{bill.time_before_end|verbose_timedelta}}
+                прекратит действовать через {{bill.time_before_end|verbose_timedelta}}
               {% else %}
-                Прекратил действовать
+                прекратил действовать
               {% endif %}
-            {% else %}
-              принят <span class="pgf-format-datetime" data-timestamp="{{ bill.voting_end_at|timestamp }}"></span>
             {% endif %}
 
           {% endif %}
 
         {% elif bill.state.is_REJECTED %}
-          отклонён <span class="pgf-format-datetime" data-timestamp="{{ bill.voting_end_at|timestamp }}"></span>
+          отклонён
+          <span class="pgf-format-datetime" data-timestamp="{{ bill.voting_end_at|timestamp }}"></span>
+          ({{bill.applyed_at_turn|verbose_game_date}})
         {% elif bill.state.is_REMOVED %}
           удалён
         {% endif %}
