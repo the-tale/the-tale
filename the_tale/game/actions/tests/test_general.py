@@ -116,6 +116,13 @@ class GeneralTest(testcase.TestCase):
         self.hero.set_companion(companions_logic.create_companion(companion_record))
         self.check_heal_companion_in_choices(False)
 
+    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL_COMPANION,)))
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_heal_disabled', lambda hero: True)
+    def test_help_choice_has_heal_companion__for_companion_heal_disabled(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+        self.check_heal_companion_in_choices(False)
+
     @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL_COMPANION, HELP_CHOICES.MONEY)))
     def test_help_choice_has_heal_companion__for_full_health_with_alternative(self):
         companion_record = companions_storage.companions.enabled_companions().next()

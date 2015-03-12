@@ -237,9 +237,9 @@ class ActionBase(object):
                 choices.remove(HELP_CHOICES.HEAL)
 
         if HELP_CHOICES.HEAL_COMPANION in choices:
-            if self.hero.companion is None:
-                choices.remove(HELP_CHOICES.HEAL_COMPANION)
-            elif self.hero.companion.health == self.hero.companion.max_health:
+            if (self.hero.companion is None or
+                self.hero.companion_heal_disabled() or
+                self.hero.companion.health == self.hero.companion.max_health):
                 choices.remove(HELP_CHOICES.HEAL_COMPANION)
 
         if HELP_CHOICES.STOCK_UP_ENERGY in choices:
@@ -703,7 +703,7 @@ class ActionMoveToPrototype(ActionBase):
             self.state = self.STATE.RESTING
             return True
 
-        if self.hero.companion and self.hero.companion.need_heal_in_move:
+        if self.hero.companion_need_heal_in_move():
             ActionHealCompanionPrototype.create(hero=self.hero)
             self.state = self.STATE.HEALING_COMPANION
             return True
@@ -880,7 +880,7 @@ class ActionMoveToPrototype(ActionBase):
                 elif self.hero.need_regenerate_energy:
                     ActionRegenerateEnergyPrototype.create(hero=self.hero)
                     self.state = self.STATE.REGENERATE_ENERGY
-                elif self.hero.companion and self.hero.companion.need_heal_in_move:
+                elif self.hero.companion_need_heal_in_move():
                     ActionHealCompanionPrototype.create(hero=self.hero)
                     self.state = self.STATE.HEALING_COMPANION
                 else:
@@ -1398,7 +1398,7 @@ class ActionInPlacePrototype(ActionBase):
                 self.state = self.STATE.RESTING
                 ActionRestPrototype.create(hero=self.hero)
 
-            elif self.hero.companion and self.hero.companion.need_heal_in_settlement:
+            elif self.hero.companion_need_heal_in_settlement():
                 self.state = self.STATE.HEALING_COMPANION
                 ActionHealCompanionPrototype.create(hero=self.hero)
 
@@ -1628,7 +1628,7 @@ class ActionMoveNearPlacePrototype(ActionBase):
             self.state = self.STATE.RESTING
             return True
 
-        if self.hero.companion and self.hero.companion.need_heal_in_move:
+        if self.hero.companion_need_heal_in_move():
             ActionHealCompanionPrototype.create(hero=self.hero)
             self.state = self.STATE.HEALING_COMPANION
             return True

@@ -45,12 +45,14 @@ class PREFERENCE_TYPE(DjangoEnum):
         )
 
 class COMPANION_DEDICATION(DjangoEnum):
-    block_multiplier = Column()
+    block_multiplier = Column(unique=False)
     description = Column()
 
     records = ( ('EGOISM', 0, u'эгоизм', 1.0 + c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA,  u'спутник чаще защищает героя в бою'),
                 ('NORMAL', 1, u'нейтралитет', 1.0, u'спутник защищает героя с обычной частотой'),
-                ('ALTRUISM', 2, u'альтруизм', 1.0 - c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA, u'спутник реже защищает героя в бою') )
+                ('ALTRUISM', 2, u'альтруизм', 1.0 - c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA, u'спутник реже защищает героя в бою'),
+                ('EVERY_MAN_FOR_HIMSELF', 3, u'каждый сам за себя', 1.0 - c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA,
+                 u'спутник реже защищает героя в бою, герой ничего не делает для лечения спутника, помощь герою не лечит спутника') )
 
 
 class COMPANION_EMPATHY(DjangoEnum):
