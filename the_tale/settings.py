@@ -318,7 +318,7 @@ CDNS = ( ('STATIC_JQUERY_JS',
 
 
 
-CURRENCIES_BASE = 'BYR'
+CURRENCIES_BASE = 'USD'
 CURRENCIES_LIST = ['BYR', 'RUB', 'UAH', 'USD']
 
 ############################

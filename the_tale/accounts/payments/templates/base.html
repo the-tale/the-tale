@@ -66,19 +66,18 @@
     <tr>
       <th>стоимость одной печеньки</th>
       <td>
-        {{ payments_settings.XSOLLA_RUB_FOR_PREMIUM_CURRENCY }} белорусских рублей <a href="{{url('guide:payments')}}">[подробнее]</a>
+        {{ payments_settings.XSOLLA_RUB_FOR_PREMIUM_CURRENCY }} долларов США <a href="{{url('guide:payments')}}">[подробнее]</a>
         {%- if CURRENCIES -%}
           , это примерно:
           <ul>
             <li>{{(payments_settings.XSOLLA_RUB_FOR_PREMIUM_CURRENCY * CURRENCIES['RUB'])|round(2)}} рубля РФ;</li>
-            <li>{{(payments_settings.XSOLLA_RUB_FOR_PREMIUM_CURRENCY * CURRENCIES['USD'])|round(2)}} доллара США;</li>
             <li>{{(payments_settings.XSOLLA_RUB_FOR_PREMIUM_CURRENCY * CURRENCIES['UAH'])|round(2)}} гривны.</li>
+            <li>{{(payments_settings.XSOLLA_RUB_FOR_PREMIUM_CURRENCY * CURRENCIES['BYR'])|round(1)}} рубля РБ;</li>
           </ul>
         {% else %}
           <br/>
         {% endif %}
         Конечная стоимость может колебаться в зависимости от курсов валют, платежной системы и комиссии агрегатора.<br/>
-        В связи с особенностями налоговой системы Беларуси комиссия при оплате белорусскими рублями выше, чем валютой других стран.<br/>
         Перевести печеньки другому игроку можно, обратившись к администрации.
       </td>
     </tr>

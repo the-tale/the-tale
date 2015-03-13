@@ -17,7 +17,7 @@ payments_settings = app_settings('PAYMENTS',
 
                                  XSOLLA_ENABLED=False if not project_settings.TESTS_RUNNING else True,
 
-                                 XSOLLA_RUB_FOR_PREMIUM_CURRENCY=100,
+                                 XSOLLA_RUB_FOR_PREMIUM_CURRENCY=0.014,
 
                                  # default values was gotten from documentation
                                  XSOLLA_BASE_LINK= u'https://secure.xsolla.com/paystation2/',
