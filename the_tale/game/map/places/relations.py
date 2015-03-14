@@ -80,7 +80,7 @@ def _modifier_linguistics_restrictions(modifier):
     def _linguistics_restrictions():
         from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
         from the_tale.linguistics.storage import restrictions_storage
-        return [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.CITY_MODIFIER, CITY_MODIFIERS.index_name[modifier].value)]
+        return (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.CITY_MODIFIER, CITY_MODIFIERS.index_name[modifier].value).id, )
     return _linguistics_restrictions
 
 

@@ -14,7 +14,7 @@ from the_tale.game.chronicle.relations import ACTOR_ROLE
 class WordFormWrapper(object):
     __slots__ = ('word', 'restrictions')
 
-    def __init__(self, word, restrictions=[]):
+    def __init__(self, word, restrictions=()):
         self.word = word
         self.restrictions = restrictions
 

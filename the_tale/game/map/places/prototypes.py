@@ -90,15 +90,16 @@ class PlacePrototype(BasePrototype, names.ManageNameMixin):
         from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
         from the_tale.linguistics.storage import restrictions_storage
 
-        restrictions = [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.RACE, self.race.value),
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR, self.habit_honor.interval.value),
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS, self.habit_honor.interval.value),
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, self.terrain.value)]
+        restrictions = [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.RACE, self.race.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR, self.habit_honor.interval.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS, self.habit_honor.interval.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, self.terrain.value).id]
 
         if self.modifier:
             restrictions.extend(self.modifier.TYPE.linguistics_restrictions())
 
-        return restrictions
+        return tuple(restrictions)
+
 
     @property
     def terrain_change_power(self):

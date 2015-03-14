@@ -77,11 +77,11 @@ class ArtifactPrototype(object):
     def linguistics_restrictions(self):
         from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
         from the_tale.linguistics.storage import restrictions_storage
-        return [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARTIFACT_TYPE, self.type.value),
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARTIFACT_POWER_TYPE, self.record.power_type.value),
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARTIFACT_RARITY, self.rarity.value),
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARTIFACT_EFFECT, self._effect().TYPE.value),
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARTIFACT, self.record.id)]
+        return (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARTIFACT_TYPE, self.type.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARTIFACT_POWER_TYPE, self.record.power_type.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARTIFACT_RARITY, self.rarity.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARTIFACT_EFFECT, self._effect().TYPE.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARTIFACT, self.record.id).id)
 
     def absolute_sell_price(self):
 

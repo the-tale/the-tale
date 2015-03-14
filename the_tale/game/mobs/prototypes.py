@@ -99,9 +99,9 @@ class MobPrototype(object):
     def linguistics_restrictions(self):
         from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
         from the_tale.linguistics.storage import restrictions_storage
-        return [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB_TYPE, self.record.type.value),
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB, self.record.id),
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARCHETYPE, self.record.archetype.value) ]
+        return (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB_TYPE, self.record.type.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB, self.record.id).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARCHETYPE, self.record.archetype.value).id )
 
     def strike_by(self, percents):
         self.health = max(0, self.health - self.max_health * percents)

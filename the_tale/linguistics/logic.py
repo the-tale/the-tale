@@ -47,12 +47,12 @@ def get_templates_count():
 
 def _process_arguments(args):
     externals = {}
-    restrictions = []
+    restrictions = set()
 
     for k, v in args.iteritems():
         word_form, variable_restrictions = VARIABLE(k).type.constructor(v)
         externals[k] = word_form
-        restrictions.extend((k, restriction.id) for restriction in variable_restrictions)
+        restrictions.update((k, restriction_id) for restriction_id in variable_restrictions)
 
     return externals, frozenset(restrictions)
 

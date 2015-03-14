@@ -66,11 +66,11 @@ class Companion(object):
         from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
         from the_tale.linguistics.storage import restrictions_storage
 
-        return [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION, self.record.id),
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_TYPE, self.record.type.value),
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_DEDICATION, self.record.dedication.value),
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_RARITY, self.record.rarity.value),
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARCHETYPE, self.record.archetype.value)]
+        return (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION, self.record.id).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_TYPE, self.record.type.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_DEDICATION, self.record.dedication.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_RARITY, self.record.rarity.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARCHETYPE, self.record.archetype.value).id)
 
     @property
     def defend_in_battle_probability(self):
