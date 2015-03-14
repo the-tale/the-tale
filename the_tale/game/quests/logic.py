@@ -25,7 +25,7 @@ from the_tale.game.map.places.storage import places_storage
 from the_tale.game.map.roads.storage import waymarks_storage
 
 from the_tale.game.persons.storage import persons_storage
-from the_tale.game.persons.models import PERSON_STATE
+from the_tale.game.persons.relations import PERSON_STATE
 
 from the_tale.game.quests.conf import quests_settings
 from the_tale.game.quests.prototypes import QuestPrototype

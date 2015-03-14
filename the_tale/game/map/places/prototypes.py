@@ -181,7 +181,7 @@ class PlacePrototype(BasePrototype, names.ManageNameMixin):
     @property
     def persons(self):
         from the_tale.game.persons.storage import persons_storage
-        from the_tale.game.persons.models import PERSON_STATE
+        from the_tale.game.persons.relations import PERSON_STATE
         return sorted(persons_storage.filter(place_id=self.id, state=PERSON_STATE.IN_GAME), key=lambda p: -p.power)
 
     @property
@@ -211,6 +211,8 @@ class PlacePrototype(BasePrototype, names.ManageNameMixin):
                                             utg_name=names.generator.get_name(race, gender))
 
         signals.place_person_arrived.send(self.__class__, place=self, person=new_person)
+
+        return new_person
 
     @property
     def can_add_person(self): return self.persons_changed_at_turn + c.PLACE_ADD_PERSON_DELAY < TimePrototype.get_current_turn_number()

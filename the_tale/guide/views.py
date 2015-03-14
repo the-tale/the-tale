@@ -18,7 +18,7 @@ from the_tale.game.heroes.conf import heroes_settings
 from the_tale.game.heroes.relations import PREFERENCE_TYPE
 
 from the_tale.game.map.places.conf import places_settings
-from the_tale.game.persons.conf import persons_settings
+from the_tale.game.persons import conf as persons_conf
 from the_tale.game.pvp.conf import pvp_settings
 from the_tale.game.pvp import abilities as pvp_abilities
 
@@ -164,7 +164,7 @@ class GuideResource(Resource):
         from the_tale.game.persons.prototypes import MASTERY_VERBOSE
         from the_tale.game.persons.relations import PERSON_TYPE
         return self.template('guide/persons.html', {'section': 'persons',
-                                                    'persons_settings': persons_settings,
+                                                    'persons_settings': persons_conf.settings,
                                                     'MASTERY_LEVELS': [mastery[1] for mastery in MASTERY_VERBOSE],
                                                     'PERSON_TYPES': sorted(PERSON_TYPE.records, key=lambda r: r.text) })
 

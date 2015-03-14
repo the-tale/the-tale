@@ -6,7 +6,8 @@ import datetime
 from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
 from the_tale.game.bills.bills import PersonRemove
 
-from the_tale.game.persons.models import Person, PERSON_STATE
+from the_tale.game.persons.models import Person
+from the_tale.game.persons.relations import PERSON_STATE
 
 from the_tale.game.bills.tests.helpers import BaseTestPrototypes
 

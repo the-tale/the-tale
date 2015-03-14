@@ -13,7 +13,7 @@ from the_tale.game.relations import RACE
 from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.persons.storage import persons_storage
-from the_tale.game.persons.conf import persons_settings
+from the_tale.game.persons import conf as persons_conf
 
 from the_tale.game.map import logic as map_logic
 
@@ -138,7 +138,7 @@ class PlacePowerTest(testcase.TestCase):
     def test_sync_persons_remove_unstable_person(self):
         persons = self.place.persons
         unstable_person = persons[-1]
-        unstable_person._model.created_at_turn -= persons_settings.POWER_STABILITY_WEEKS*7*24*c.TURNS_IN_HOUR+1
+        unstable_person._model.created_at_turn -= persons_conf.settings.POWER_STABILITY_WEEKS*7*24*c.TURNS_IN_HOUR+1
         self.place.sync_persons(force_add=True)
         self.assertEqual([p.id for p in persons[:-1]], [p.id for p in self.place.persons[:-1]])
         self.assertNotEqual(unstable_person.id, self.place.persons[-1].id)

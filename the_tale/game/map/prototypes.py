@@ -13,7 +13,7 @@ from the_tale.common.utils.decorators import lazy_property
 
 from the_tale.game.relations import RACE
 
-from the_tale.game.persons.models import PERSON_STATE
+from the_tale.game.persons.relations import PERSON_STATE
 from the_tale.game.persons.storage import persons_storage
 
 from the_tale.game.map.places.models import Place

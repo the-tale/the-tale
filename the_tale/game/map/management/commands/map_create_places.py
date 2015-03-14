@@ -22,7 +22,7 @@ from the_tale.game.map.roads.storage import roads_storage
 
 from the_tale.game.persons.prototypes import PersonPrototype
 from the_tale.game.persons.storage import persons_storage
-from the_tale.game.persons.conf import persons_settings
+from the_tale.game.persons import conf import persons_conf
 from the_tale.game.persons.relations import PERSON_TYPE
 
 
@@ -181,9 +181,9 @@ class Command(BaseCommand):
                                             name_forms=person_name_forms)
 
             person_power = place_power * power_percent
-            person_power_steps = int(persons_settings.POWER_HISTORY_LENGTH / c.MAP_SYNC_TIME)
+            person_power_steps = int(persons_conf.settings.POWER_HISTORY_LENGTH / c.MAP_SYNC_TIME)
             person_power_per_step = (person_power / person_power_steps) + 1
-            initial_turn = TimePrototype.get_current_turn_number() - persons_settings.POWER_HISTORY_LENGTH
+            initial_turn = TimePrototype.get_current_turn_number() - persons_conf.settings.POWER_HISTORY_LENGTH
             for i in xrange(person_power_steps):
                 person.push_power(int(initial_turn+i*c.MAP_SYNC_TIME), int(person_power_per_step))
             person.save()

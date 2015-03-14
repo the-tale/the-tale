@@ -24,7 +24,8 @@ from the_tale.game.balance import enums as e
 
 from the_tale.game import relations as game_relations
 
-from the_tale.game.persons.models import Person, PERSON_STATE
+from the_tale.game.persons.models import Person
+from the_tale.game.persons.relations import PERSON_STATE
 from the_tale.game.persons.storage import persons_storage
 
 from the_tale.game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype

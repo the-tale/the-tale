@@ -22,10 +22,10 @@ from the_tale.game.map.places.relations import CITY_PARAMETERS
 
 from the_tale.game.balance import constants as c
 
-from the_tale.game.persons.models import Person, PERSON_STATE
-from the_tale.game.persons.conf import persons_settings
+from the_tale.game.persons.models import Person
+from the_tale.game.persons import conf as persons_conf
 from the_tale.game.persons import exceptions
-from the_tale.game.persons.relations import PROFESSION_TO_RACE_MASTERY, PROFESSION_TO_CITY_PARAMETERS
+from the_tale.game.persons.relations import PROFESSION_TO_RACE_MASTERY, PROFESSION_TO_CITY_PARAMETERS, PERSON_STATE
 
 
 MASTERY_VERBOSE = ( (0.0, u'полная непригодность'),
@@ -41,7 +41,7 @@ MASTERY_VERBOSE = ( (0.0, u'полная непригодность'),
                     (1.0, u'гений') )
 
 
-@add_power_management(persons_settings.POWER_HISTORY_LENGTH, exceptions.PersonsPowerError)
+@add_power_management(persons_conf.settings.POWER_HISTORY_LENGTH, exceptions.PersonsPowerError)
 class PersonPrototype(BasePrototype, names.ManageNameMixin):
     _model_class = Person
     _readonly = ('id', 'created_at_turn', 'place_id', 'gender', 'race', 'type', 'state', 'out_game_at')
@@ -119,27 +119,27 @@ class PersonPrototype(BasePrototype, names.ManageNameMixin):
     def time_before_unfreeze(self):
         current_time = datetime.datetime.now()
         return max(datetime.timedelta(seconds=0),
-                   self._model.created_at + datetime.timedelta(seconds=persons_settings.POWER_STABILITY_WEEKS*7*24*60*60) - current_time)
+                   self._model.created_at + datetime.timedelta(seconds=persons_conf.settings.POWER_STABILITY_WEEKS*7*24*60*60) - current_time)
 
     @property
     def is_stable(self):
-        if self.created_at_turn > TimePrototype.get_current_turn_number() - persons_settings.POWER_STABILITY_WEEKS*7*24*c.TURNS_IN_HOUR:
+        if self.created_at_turn > TimePrototype.get_current_turn_number() - persons_conf.settings.POWER_STABILITY_WEEKS*7*24*c.TURNS_IN_HOUR:
             return True
 
         total_persons_power = self.place.total_persons_power
 
         power_percent = float(self.power) / total_persons_power if total_persons_power > 0.0001 else 0.0
 
-        if power_percent  > persons_settings.POWER_STABILITY_PERCENT:
+        if power_percent  > persons_conf.settings.POWER_STABILITY_PERCENT:
             return True
 
         return False
 
     @property
-    def out_game(self): return self._model.state == PERSON_STATE.OUT_GAME
+    def out_game(self): return self._model.state.is_OUT_GAME
 
     @property
-    def in_game(self):  return self._model.state == PERSON_STATE.IN_GAME
+    def in_game(self):  return self._model.state.is_IN_GAME
 
     @property
     def data(self):

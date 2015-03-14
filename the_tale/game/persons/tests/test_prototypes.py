@@ -14,7 +14,7 @@ from the_tale.game.heroes.prototypes import HeroPrototype
 
 from the_tale.game.map.places.prototypes import BuildingPrototype
 
-from the_tale.game.persons.models import PERSON_STATE
+from the_tale.game.persons.relations import PERSON_STATE
 from the_tale.game.persons.tests.helpers import create_person
 
 class PrototypeTests(testcase.TestCase):
@@ -51,18 +51,18 @@ class PrototypeTests(testcase.TestCase):
         self.assertEqual(self.person.created_at_turn, TimePrototype.get_current_turn_number() - 1)
         self.assertTrue(self.person.is_stable)
 
-    @mock.patch('the_tale.game.persons.conf.persons_settings.POWER_STABILITY_PERCENT', 1.0)
-    @mock.patch('the_tale.game.persons.conf.persons_settings.POWER_STABILITY_WEEKS', -1.0)
+    @mock.patch('the_tale.game.persons.conf.settings.POWER_STABILITY_PERCENT', 1.0)
+    @mock.patch('the_tale.game.persons.conf.settings.POWER_STABILITY_WEEKS', -1.0)
     def test_is_stable_no_time_delay_no_percent(self):
         self.assertFalse(self.person.is_stable)
 
-    @mock.patch('the_tale.game.persons.conf.persons_settings.POWER_STABILITY_PERCENT', 1.0)
-    @mock.patch('the_tale.game.persons.conf.persons_settings.POWER_STABILITY_WEEKS', 10.0)
+    @mock.patch('the_tale.game.persons.conf.settings.POWER_STABILITY_PERCENT', 1.0)
+    @mock.patch('the_tale.game.persons.conf.settings.POWER_STABILITY_WEEKS', 10.0)
     def test_is_stable_with_time_delay(self):
         self.assertTrue(self.person.is_stable)
 
-    @mock.patch('the_tale.game.persons.conf.persons_settings.POWER_STABILITY_PERCENT', -1.0)
-    @mock.patch('the_tale.game.persons.conf.persons_settings.POWER_STABILITY_WEEKS', -1.0)
+    @mock.patch('the_tale.game.persons.conf.settings.POWER_STABILITY_PERCENT', -1.0)
+    @mock.patch('the_tale.game.persons.conf.settings.POWER_STABILITY_WEEKS', -1.0)
     def test_is_stable_with_percent(self):
         self.assertTrue(self.person.is_stable)
 

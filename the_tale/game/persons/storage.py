@@ -2,18 +2,19 @@
 
 from the_tale.common.utils import storage
 
-from the_tale.game.persons.models import PERSON_STATE
-from the_tale.game.persons.prototypes import PersonPrototype
+from the_tale.game.persons import models
+from the_tale.game.persons import prototypes
 from the_tale.game.persons import exceptions
+from the_tale.game.persons import relations
 
 
 class PersonsStorage(storage.Storage):
     SETTINGS_KEY = 'persons change time'
     EXCEPTION = exceptions.PersonsStorageError
-    PROTOTYPE = PersonPrototype
+    PROTOTYPE = prototypes.PersonPrototype
 
     def _get_all_query(self):
-        return self.PROTOTYPE._db_exclude(state=PERSON_STATE.REMOVED)
+        return self.PROTOTYPE._db_exclude(state=relations.PERSON_STATE.REMOVED)
 
     def filter(self, place_id=None, state=None):
         return [person
@@ -31,7 +32,7 @@ class PersonsStorage(storage.Storage):
         changed = False
 
         for person in self.all():
-            if person.state == PERSON_STATE.OUT_GAME and person.out_game_at < remove_time_border:
+            if person.state == relations.PERSON_STATE.OUT_GAME and person.out_game_at < remove_time_border:
                 person.remove_from_game()
                 person.save()
                 changed = True
@@ -41,10 +42,10 @@ class PersonsStorage(storage.Storage):
 
 
     def get_total_power(self):
-        return sum(person.power for person in self.filter(state=PERSON_STATE.IN_GAME))
+        return sum(person.power for person in self.filter(state=relations.PERSON_STATE.IN_GAME))
 
     def get_medium_power_for_person(self):
-        persons_number = len(self.filter(state=PERSON_STATE.IN_GAME))
+        persons_number = len(self.filter(state=relations.PERSON_STATE.IN_GAME))
 
         if persons_number == 0:
             return 0
@@ -53,3 +54,47 @@ class PersonsStorage(storage.Storage):
 
 
 persons_storage = PersonsStorage()
+
+
+
+class SocialConnectionsStorage(storage.CachedStorage):
+    SETTINGS_KEY = 'social-connections-storage'
+    EXCEPTION = exceptions.PersonsStorageError
+
+    def _construct_object(self, model):
+        from the_tale.game.persons import logic
+        return logic.social_connection_from_model(model)
+
+    def _get_all_query(self):
+        return models.SocialConnection.objects.filter(state=relations.SOCIAL_CONNECTION_STATE.IN_GAME)
+
+    def _reset_cache(self):
+        self._person_connections = {}
+
+    def _update_cached_data(self, item):
+        if item.person_1_id not in self._person_connections:
+            self._person_connections[item.person_1_id] = {}
+
+        if item.person_2_id not in self._person_connections:
+            self._person_connections[item.person_2_id] = {}
+
+        self._person_connections[item.person_1_id][item.person_2_id] = item
+        self._person_connections[item.person_2_id][item.person_1_id] = item
+
+    def get_person_connections(self, person):
+        self.sync()
+        connections = self._person_connections.get(person.id, {})
+        return [(item.connection, persons_storage[connected_person_id])
+                 for connected_person_id, item in connections.iteritems()]
+
+    def get_connected_persons_ids(self, person):
+        self.sync()
+        return self._person_connections.get(person.id, {}).keys()
+
+    def is_connected(self, person_1, person_2):
+        self.sync()
+        return person_2.id in self.get_connected_persons_ids(person_1)
+
+
+
+social_connections = SocialConnectionsStorage()

@@ -12,6 +12,11 @@ from the_tale.game.relations import RACE
 from the_tale.game.map.places.relations import CITY_PARAMETERS, BUILDING_TYPE, CITY_MODIFIERS
 
 
+class PERSON_STATE(DjangoEnum):
+    records = ( ('IN_GAME', 0,  u'в игре'),
+                ('OUT_GAME', 1, u'вне игры'),
+                ('REMOVED', 2, u'удален') )
+
 class PERSON_TYPE(DjangoEnum):
     building_type = Column(related_name='person_type')
     quest_profession = Column(unique=False)
@@ -53,3 +58,11 @@ PROFESSION_TO_CITY_MODIFIERS = xls.load_table_for_enums(_professions_xls_file, s
 PROFESSION_TO_CITY_PARAMETERS = xls.load_table_for_enums(_professions_xls_file, sheet_index=2,
                                                          rows_enum=PERSON_TYPE, columns_enum=CITY_PARAMETERS,
                                                          data_type=float)
+
+class SOCIAL_CONNECTION_TYPE(DjangoEnum):
+    records = ( ('PARTNER', 0, u'партнёр'),
+                ('CONCURRENT', 1, u'конкурент'), )
+
+class SOCIAL_CONNECTION_STATE(DjangoEnum):
+    records = ( ('IN_GAME', 0, u'в игре'),
+                ('OUT_GAME', 1, u'вне игры'), )

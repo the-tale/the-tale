@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from the_tale.game.persons.models import Person
+from the_tale.game.persons import models
 from the_tale.game.persons.prototypes import PersonPrototype
 
 class PersonAdmin(admin.ModelAdmin):
@@ -31,4 +31,10 @@ class PersonAdmin(admin.ModelAdmin):
         return PersonPrototype(model=obj).name
 
 
-admin.site.register(Person, PersonAdmin)
+class SocialConnectionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'state', 'connection', 'person_1', 'person_2', 'created_at')
+    list_filter = ('state', 'connection')
+
+
+admin.site.register(models.Person, PersonAdmin)
+admin.site.register(models.SocialConnection, SocialConnectionAdmin)

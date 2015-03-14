@@ -14,7 +14,7 @@ def setUp(self):
     from the_tale.linguistics.storage import game_dictionary, game_lexicon, restrictions_storage
 
     from the_tale.game.prototypes import GameState
-    from the_tale.game.persons.storage import persons_storage
+    from the_tale.game.persons import storage as persons_storage
     from the_tale.game.mobs.storage import mobs_storage
     from the_tale.game.companions import storage as companions_storage
     from the_tale.game.artifacts.storage import artifacts_storage
@@ -26,7 +26,8 @@ def setUp(self):
 
     places_storage.clear()
     buildings_storage.clear()
-    persons_storage.clear()
+    persons_storage.persons_storage.clear()
+    persons_storage.social_connections.clear()
     waymarks_storage.clear()
     roads_storage.clear()
     mobs_storage.clear()

@@ -45,22 +45,19 @@
 
 <p><a href="{{standy_statistics_place_url(place.id)}}">статистика от standy</a></p>
 
-<p>
-  Списки героев, выбравших город родным или сотрудничающих/враждующих с кем-либо из городского Совета.<br/>
-  <strong>Отображаются только герои, оказывающие влияние на город или его жителей.</strong>
-</p>
+<h4>Подробная информация о советниках</h4>
+
+<p>В списках отношений с героями указываются только герои, оказывающие влияние на город или его жителей.</p>
 
 <div class="accordion" id="pgf-place-heroes-accordion">
 
   <div class="accordion-group">
     <div class="accordion-heading">
       <div class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-place-heroes-accordion" href="#pgf-place-{{place.id}}">
-        <a href="#">
-          Герои, поселившиеся в городе
-          <small>
-            всего: {{city_heroes|length}},
-            бонусы влияния: {{place.power_positive|percents(1)}} и {{place.power_negative|percents(1)}}
-          </small>
+        <a href="#" style="color: #333333;">
+          <strong>Герои, поселившиеся в городе</strong>
+          всего: {{city_heroes|length}},
+          бонусы влияния: {{place.power_positive|percents(1)}} и {{place.power_negative|percents(1)}}
         </a>
         {% if hero and hero.preferences.place and hero.preferences.place.id == place.id %}
         <span class="badge badge-success">родной город</span>
@@ -95,21 +92,18 @@
   <div class="accordion-group">
     <div class="accordion-heading">
       <div class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-place-heroes-accordion" href="#pgf-person-{{person.id}}">
-        <a href="#">
-          {{ person.name }}
-          <small>
-            {{ person.race_verbose }}-{{ person.type.text }},
-            {{person.mastery_verbose}},
-            {% if place.total_persons_power %}
+        <a href="#" style="color: #333333;">
+          <strong>{{ person.name }}</strong>
+          {{ person.race_verbose }}-{{ person.type.text }},
+          {{person.mastery_verbose}},
+          {% if place.total_persons_power %}
             {% set power = (person.power/place.total_persons_power) %}
-            {% else %}
+          {% else %}
             {% set power = 0 %}
-            {% endif %}
-            влиятельность: {{ power|percents }},
-            бонусы: {{person.power_positive|percents(1)}} и {{person.power_negative|percents(1)}}
-            соратников/противников: {{persons_numbers[person.id][0]}}/{{persons_numbers[person.id][1]}}
-          </small>
-
+          {% endif %}
+          влиятельность: {{ power|percents }},
+          бонусы: {{person.power_positive|percents(1)}} и {{person.power_negative|percents(1)}}
+          соратников/противников: {{persons_numbers[person.id][0]}}/{{persons_numbers[person.id][1]}}
         </a>
         {% if hero and hero.preferences.friend and hero.preferences.friend.id == person.id %}
         <span class="badge badge-success">соратник</span>
@@ -122,33 +116,54 @@
     </div>
     <div id="pgf-person-{{person.id}}" class="accordion-body collapse" style="height: 0px;">
       <div class="accordion-inner">
-        {% if not persons_heroes[person.id] %}
-        <p class="pgf-no-heroes-message">У этого жителя нет друзей или врагов среди активных героев</p>
-        {% else %}
+
+        <p>Отношения с советниками</p>
 
         <table class="table table-condensed">
-          <thead>
-            <tr>
-              <th width="50%">друзья</th>
-              <th>враги</th>
-            </tr>
-          </thead>
           <tbody>
-            {% for friend, enemy in persons_heroes[person.id] %}
-            <tr>
-              {{ hero_record(friend) }}
-              {{ hero_record(enemy) }}
-            </tr>
+            {% for connection_type, connection_person in persons_connections[person.id] %}
+              <tr>
+                <td>{{connection_type.text}}</td>
+                <td>
+                  <strong>{{connection_person.name}}</strong>
+                  {{connection_person.race_verbose }}-{{ connection_person.type.text }},
+                  {{connection_person.mastery_verbose}}
+                  из города <a href="{{url('game:map:places:show', connection_person.place_id)}}" target="_blank">{{connection_person.place.name}}</a>
+                </td>
+              </tr>
             {% endfor %}
           </tbody>
         </table>
+
+        {% if not persons_heroes[person.id] %}
+          <p class="alert alert-info pgf-no-heroes-message">У этого жителя нет друзей или врагов среди активных героев</p>
+        {% else %}
+
+          <p>Отношения с героями</p>
+
+          <table class="table table-condensed">
+            <thead>
+              <tr>
+                <th width="50%">сортаники</th>
+                <th>противники</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for friend, enemy in persons_heroes[person.id] %}
+                <tr>
+                  {{ hero_record(friend) }}
+                  {{ hero_record(enemy) }}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
 
         {% endif %}
 
       </div>
     </div>
   </div>
-  {% endfor %}
+{% endfor %}
 
 </div>
 

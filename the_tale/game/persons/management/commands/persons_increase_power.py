@@ -5,10 +5,7 @@ from optparse import make_option
 
 from django.core.management.base import BaseCommand
 
-from the_tale.game.prototypes import TimePrototype
-
 from the_tale.game.persons.storage import persons_storage
-from the_tale.game.persons.conf import persons_settings
 
 
 class Command(BaseCommand):

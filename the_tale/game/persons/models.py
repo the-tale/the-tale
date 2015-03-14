@@ -6,15 +6,8 @@ from django.db import models
 
 from rels.django import RelationIntegerField
 
-from the_tale.common.utils.enum import create_enum
-
 from the_tale.game.relations import GENDER, RACE
-from the_tale.game.persons.relations import PERSON_TYPE
-
-
-PERSON_STATE = create_enum('PERSON_STATE', ( ('IN_GAME', 0,  u'в игре'),
-                                             ('OUT_GAME', 1, u'вне игры'),
-                                             ('REMOVED', 2, u'удален')))
+from the_tale.game.persons import relations
 
 
 class Person(models.Model):
@@ -27,12 +20,12 @@ class Person(models.Model):
 
     place = models.ForeignKey('places.Place', related_name='persons', on_delete=models.PROTECT)
 
-    state = models.IntegerField(default=PERSON_STATE.IN_GAME, choices=PERSON_STATE._CHOICES)
+    state = RelationIntegerField(relation=relations.PERSON_STATE)
 
     gender = RelationIntegerField(relation=GENDER, relation_column='value')
     race = RelationIntegerField(relation=RACE, relation_column='value')
 
-    type = RelationIntegerField(relation=PERSON_TYPE, relation_column='value')
+    type = RelationIntegerField(relation=relations.PERSON_TYPE, relation_column='value')
 
     friends_number = models.IntegerField(default=0)
 
@@ -43,3 +36,20 @@ class Person(models.Model):
     data = models.TextField(null=False, default=u'{}')
 
     def __unicode__(self): return u'%s from %s' % (self.name, self.place)
+
+
+
+class SocialConnection(models.Model):
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_at_turn = models.BigIntegerField()
+
+    out_game_at = models.DateTimeField(null=True, default=None)
+    out_game_at_turn = models.BigIntegerField(null=True, default=None)
+
+    person_1 = models.ForeignKey(Person, related_name='+')
+    person_2 = models.ForeignKey(Person, related_name='+')
+
+    connection = RelationIntegerField(relation=relations.SOCIAL_CONNECTION_TYPE)
+
+    state = RelationIntegerField(relation=relations.SOCIAL_CONNECTION_STATE)

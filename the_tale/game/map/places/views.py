@@ -9,6 +9,8 @@ from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.game.relations import RACE
 
+from the_tale.game.persons import storage as persons_storage
+
 from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes.preferences import HeroPreferences
 
@@ -38,6 +40,8 @@ class PlaceResource(Resource):
 
         accounts_ids = [hero.account_id for hero in city_heroes]
 
+        persons_connections = {}
+
         for person in persons:
             friends = HeroPreferences.get_friends_of(person, all=self.place.depends_from_all_heroes)
             enemies = HeroPreferences.get_enemies_of(person, all=self.place.depends_from_all_heroes)
@@ -48,11 +52,15 @@ class PlaceResource(Resource):
             accounts_ids.extend(hero.account_id for hero in friends)
             accounts_ids.extend(hero.account_id for hero in enemies)
 
+            persons_connections[person.id] = sorted(persons_storage.social_connections.get_person_connections(person),
+                                                    key=lambda x: (x[0].value, x[1].name))
+
         accounts = {record.id:AccountPrototype(record) for record in Account.objects.filter(id__in=accounts_ids)}
 
         return self.template('places/show.html',
                              {'place': self.place,
                               'hero': HeroPrototype.get_by_account_id(self.account.id) if self.account else None,
+                              'persons_connections': persons_connections,
                               'RACE': RACE,
                               'race_percents': race_percents,
                               'persons': persons,

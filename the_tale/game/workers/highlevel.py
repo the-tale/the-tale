@@ -9,7 +9,7 @@ from the_tale.common import postponed_tasks
 
 from the_tale.game.balance import constants as c
 
-from the_tale.game.persons.models import PERSON_STATE
+from the_tale.game.persons.relations import PERSON_STATE
 from the_tale.game.persons.storage import persons_storage
 
 from the_tale.game.map.places.storage import places_storage, buildings_storage
