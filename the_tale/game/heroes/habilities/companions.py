@@ -135,7 +135,7 @@ class MAGE_MECHANICS(_CompanionHealBase):
 class WITCHCRAFT(_CompanionHealBase):
     NAME = u'Ведовство'
     normalized_name = NAME
-    DESCRIPTION = u'Герой, сведущий в нетрадиционных областях знаний, иногда может восстановить здоровье необычного спутника.'
+    DESCRIPTION = u'Герой, сведущий в нетрадиционных областях знаний, иногда может восстановить здоровье особого спутника.'
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL
 
 
@@ -176,7 +176,7 @@ class SERVICE(_CompanionCoherenceSpeedBase):
 class SACREDNESS(_CompanionCoherenceSpeedBase):
     NAME = u'Сакральность'
     normalized_name = NAME
-    DESCRIPTION = u'Некоторые спутники настолько необычны, что герою приходится учиться думать как его напарник. Если герою удаётся найти схожие струны в душе спутника, то их слаженность начинает расти быстрее.'
+    DESCRIPTION = u'Особые спутники настолько необычны, что герою приходится учиться думать как его напарник. Если герою удаётся найти схожие струны в душе спутника, то их слаженность начинает расти быстрее.'
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED
 
 

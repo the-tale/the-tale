@@ -16,7 +16,7 @@ class STATE(DjangoEnum):
 class TYPE(DjangoEnum):
     records = ( (u'LIVING', 0, u'живой'),
                 (u'CONSTRUCT', 1, u'магомеханический'),
-                (u'UNUSUAL', 2, u'необычный') )
+                (u'UNUSUAL', 2, u'особый') )
 
 
 class MODE(DjangoEnum):

@@ -218,11 +218,11 @@ class MODIFIERS(DjangoEnum):
 
                 ('COMPANION_LIVING_HEAL', 77, u'шанс подлечить живого спутника', lambda: 0),
                 ('COMPANION_CONSTRUCT_HEAL', 78, u'шанс подлечить конструкта', lambda: 0),
-                ('COMPANION_UNUSUAL_HEAL', 79, u'шанс подлечить необычного спутника', lambda: 0),
+                ('COMPANION_UNUSUAL_HEAL', 79, u'шанс подлечить особого спутника', lambda: 0),
 
                 ('COMPANION_LIVING_COHERENCE_SPEED', 80, u'скорость развития живого спутника', lambda: 1.0),
                 ('COMPANION_CONSTRUCT_COHERENCE_SPEED', 81, u'скорость развития конструкта', lambda: 1.0),
-                ('COMPANION_UNUSUAL_COHERENCE_SPEED', 82, u'скорость развития необычного спутника', lambda: 1.0),
+                ('COMPANION_UNUSUAL_COHERENCE_SPEED', 82, u'скорость развития особого спутника', lambda: 1.0),
                 )
 
 
