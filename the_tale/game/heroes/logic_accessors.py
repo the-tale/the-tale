@@ -145,10 +145,10 @@ class LogicAccessorsMixin(object):
         return self.preferences.companion_dedication.is_EVERY_MAN_FOR_HIMSELF
 
     def companion_need_heal_in_move(self):
-        return self.companion and not self.companion_heal_disabled and self.companion.need_heal_in_move
+        return self.companion and not self.companion_heal_disabled() and self.companion.need_heal_in_move
 
     def companion_need_heal_in_settlement(self):
-        return self.companion and not self.companion_heal_disabled and self.companion.need_heal_in_settlement
+        return self.companion and not self.companion_heal_disabled() and self.companion.need_heal_in_settlement
 
 
     def can_kill_before_battle(self):

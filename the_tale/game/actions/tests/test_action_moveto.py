@@ -150,6 +150,23 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
 
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_teleport_probability', 1.0)
+    def test_teleport_by_teleportator_companion__not_moving_state(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+
+        self.assertEqual(self.action_move.state, self.action_move.STATE.CHOOSE_ROAD)
+        self.hero.position.set_place(self.p3) # hero in destination
+
+        with self.check_not_changed(lambda: self.action_move.percents):
+            self.storage.process_turn(continue_steps_if_needed=False)
+
+        self.assertEqual(self.action_move.state, self.action_move.STATE.PROCESSED)
+
+        self.assertFalse(self.hero.messages.messages[-1].key.is_COMPANIONS_TELEPORT)
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_teleport(self):
 
         self.storage.process_turn(continue_steps_if_needed=False)
@@ -352,6 +369,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.assertEqual(self.hero.actions.current_action.state, prototypes.ActionMoveToPrototype.STATE.HEALING_COMPANION)
 
 
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     @mock.patch('the_tale.game.companions.objects.Companion.need_heal_in_move', True)
     def test_hero_need_heal_companion__battle(self):
         self.action_move.state = self.action_move.STATE.BATTLE

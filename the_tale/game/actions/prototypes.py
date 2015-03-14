@@ -765,7 +765,6 @@ class ActionMoveToPrototype(ActionBase):
 
 
     def process_choose_road(self):
-
         if self.hero.position.place_id:
             length = self.process_choose_road__in_place()
         else:
@@ -774,7 +773,7 @@ class ActionMoveToPrototype(ActionBase):
         if self.length is None:
             self.length = length
 
-        if self.hero.companion and self.hero.position.road and random.random() < self.hero.companion_teleport_probability:
+        if self.hero.companion and self.state == self.STATE.MOVING and random.random() < self.hero.companion_teleport_probability:
             self.hero.add_message('companions_teleport', companion_owner=self.hero, companion=self.hero.companion, destination=self.current_destination)
             self.teleport_to_place(create_inplace_action=True)
             return
