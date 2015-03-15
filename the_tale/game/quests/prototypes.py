@@ -1,14 +1,15 @@
 # coding: utf-8
 import time
-import datetime
 import random
+import datetime
+import itertools
 
 from questgen.machine import Machine
 from questgen import facts
 from questgen.knowledge_base import KnowledgeBase
 from questgen import transformators
 from questgen.quests.base_quest import ROLES, RESULTS as QUEST_RESULTS
-from questgen.relations import OPTION_MARKERS_GROUPS
+from questgen import relations as questgen_relations
 
 from the_tale.game.prototypes import TimePrototype
 
@@ -20,7 +21,7 @@ from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.map.places.storage import places_storage
 
-from the_tale.game.persons.storage import persons_storage
+from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons.relations import PERSON_TYPE
 
 from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE, MONEY_SOURCE, HABIT_CHANGE_SOURCE
@@ -49,6 +50,14 @@ class QuestInfo(object):
         self.power_bonus = power_bonus
         self.actors = actors
         self.used_markers = used_markers
+
+    @property
+    def total_power(self):
+        return self.power + self.power_bonus
+
+    @property
+    def total_experience(self):
+        return self.experience + self.experience_bonus
 
     def serialize(self):
         return {'type': self.type,
@@ -87,7 +96,7 @@ class QuestInfo(object):
             return (actor_name, actor_type.value, {'id': actor_id,
                                                    'name': places_storage[actor_id].name})
         if actor_type.is_PERSON:
-            return (actor_name, actor_type.value, persons_storage[actor_id].ui_info())
+            return (actor_name, actor_type.value, persons_storage.persons_storage[actor_id].ui_info())
         if actor_type.is_MONEY_SPENDING:
             return (actor_name, actor_type.value, {'goal': actor_id.text,
                                                    'description': actor_id.description})
@@ -142,7 +151,7 @@ class QuestInfo(object):
             actor = knowledge_base[participant.participant]
 
             if isinstance(actor, facts.Person):
-                person = persons_storage[actor.externals['id']]
+                person = persons_storage.persons_storage[actor.externals['id']]
                 data[participant.role] = person
                 data[participant.role + '_position'] = person.place
             elif isinstance(actor, facts.Place):
@@ -367,7 +376,7 @@ class QuestPrototype(object):
 
 
     def _give_power(self, hero, place, power):
-        power = power * (self.current_info.power + self.current_info.power_bonus)
+        power = power * self.current_info.total_power
 
         if power > 0:
             hero.places_history.add_place(place.id)
@@ -423,6 +432,37 @@ class QuestPrototype(object):
 
         ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
 
+    def give_social_power(self, quest_results):
+        results = {persons_storage.persons_storage[self.knowledge_base[person_uid].externals['id']]: result
+                   for person_uid, result in quest_results.iteritems()}
+
+        VALUABLE_RESULTS = (QUEST_RESULTS.SUCCESSED, QUEST_RESULTS.FAILED)
+
+        for (person_1, quest_1_result), (person_2, quest_2_result) in itertools.combinations(results.iteritems(), 2):
+
+            if quest_1_result not in VALUABLE_RESULTS or quest_2_result not in VALUABLE_RESULTS:
+                continue
+
+            connection_type = persons_storage.social_connections.get_connection_type(person_1, person_2)
+
+            if connection_type is None:
+                continue
+
+            if ( not ( (connection_type.is_PARTNER and quest_1_result == quest_2_result) or
+                       (connection_type.is_CONCURRENT and quest_1_result != quest_2_result) ) ):
+                continue
+
+            power = self.current_info.total_power
+
+            self._give_person_power(hero=self.hero,
+                                    person=person_1,
+                                    power=power if quest_1_result == QUEST_RESULTS.SUCCESSED else -power)
+
+            self._give_person_power(hero=self.hero,
+                                    person=person_2,
+                                    power=power if quest_2_result == QUEST_RESULTS.SUCCESSED else -power)
+
+
 
     def _finish_quest(self, finish, hero):
 
@@ -445,6 +485,8 @@ class QuestPrototype(object):
             for change_source in HABIT_CHANGE_SOURCE.records:
                 if change_source.quest_marker == marker and change_source.quest_default == default:
                     self.hero.update_habits(change_source)
+
+        self.give_social_power(finish.results)
 
         self.quests_stack.pop()
 
@@ -572,8 +614,6 @@ class QuestPrototype(object):
 
 
     def modify_experience(self, experience):
-        from the_tale.game.persons.storage import persons_storage
-
         quest_uid = self.current_info.uid
 
         experience_modifiers = {}
@@ -583,7 +623,7 @@ class QuestPrototype(object):
                 continue
             fact = self.knowledge_base[participant.participant]
             if isinstance(fact, facts.Person):
-                place = persons_storage.get(fact.externals['id']).place
+                place = persons_storage.persons_storage.get(fact.externals['id']).place
             elif isinstance(fact, facts.Place):
                 place = places_storage.get(fact.externals['id'])
 
@@ -622,7 +662,7 @@ class QuestPrototype(object):
 
         used_markers = self.current_info.used_markers
         for marker in jump.markers:
-            for markers_group in OPTION_MARKERS_GROUPS:
+            for markers_group in questgen_relations.OPTION_MARKERS_GROUPS:
                 if marker not in markers_group:
                     continue
 
@@ -643,7 +683,7 @@ class QuestPrototype(object):
     def do_give_power(self, action):
         recipient = self.knowledge_base[action.object]
         if isinstance(recipient, facts.Person):
-            self._give_person_power(self.hero, persons_storage[recipient.externals['id']], action.power)
+            self._give_person_power(self.hero, persons_storage.persons_storage[recipient.externals['id']], action.power)
         elif isinstance(recipient, facts.Place):
             self._give_place_power(self.hero, places_storage[recipient.externals['id']], action.power)
         else:
@@ -678,7 +718,7 @@ class QuestPrototype(object):
         place = places_storage[place_fact.externals['id']]
 
         if isinstance(object_fact, facts.Person):
-            person = persons_storage[object_fact.externals['id']]
+            person = persons_storage.persons_storage[object_fact.externals['id']]
             return person.place.id == place.id
 
         if isinstance(object_fact, facts.Hero):

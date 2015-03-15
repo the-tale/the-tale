@@ -24,7 +24,7 @@ from the_tale.game.balance import constants as c
 from the_tale.game.map.places.storage import places_storage
 from the_tale.game.map.roads.storage import waymarks_storage
 
-from the_tale.game.persons.storage import persons_storage
+from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons.relations import PERSON_STATE
 
 from the_tale.game.quests.conf import quests_settings
@@ -70,6 +70,14 @@ def fact_person(person):
     return facts.Person(uid=uids.person(person),
                         profession=person.type.quest_profession,
                         externals={'id': person.id})
+
+def fact_social_connection(connection_type, person_uid, connected_person_uid):
+    return facts.SocialConnection(person_to=person_uid,
+                                  person_from=connected_person_uid,
+                                  type=connection_type.questgen_type)
+
+def fact_located_in(person):
+    return facts.LocatedIn(object=uids.person(person), place=uids.place(person.place))
 
 def fill_places_for_first_quest(kb, hero):
     best_distance = c.QUEST_AREA_MAXIMUM_RADIUS
@@ -142,7 +150,7 @@ def setup_places(kb, hero):
 
 
 def setup_persons(kb, hero):
-    for person in persons_storage.filter(state=PERSON_STATE.IN_GAME):
+    for person in persons_storage.persons_storage.filter(state=PERSON_STATE.IN_GAME):
         place_uid = uids.place(person.place)
 
         if place_uid not in kb:
@@ -151,6 +159,18 @@ def setup_persons(kb, hero):
         f_person = fact_person(person)
         kb += f_person
         kb += facts.LocatedIn(object=f_person.uid, place=place_uid)
+
+
+def setup_social_connections(kb):
+    persons_in_kb = {f_person.externals['id']: f_person.uid for f_person in kb.filter(facts.Person)}
+
+    for person_id, person_uid in persons_in_kb.iteritems():
+        person = persons_storage.persons_storage[person_id]
+
+        for connection_type, connected_person_id in persons_storage.social_connections.get_person_connections(person):
+            if connected_person_id not in persons_in_kb:
+                continue
+            kb += fact_social_connection(connection_type, person_uid, persons_in_kb[connected_person_id])
 
 
 def setup_preferences(kb, hero):
@@ -210,10 +230,11 @@ def get_knowledge_base(hero, without_restrictions=False): # pylint: disable=R091
     setup_places(kb, hero)
     setup_persons(kb, hero)
     setup_preferences(kb, hero)
+    setup_social_connections(kb)
 
     if not without_restrictions:
 
-        for person in persons_storage.filter(state=PERSON_STATE.IN_GAME):
+        for person in persons_storage.persons_storage.filter(state=PERSON_STATE.IN_GAME):
             if person.place.id == hero.position.place.id and hero.quests.is_person_interfered(person.id):
                 kb += facts.NotFirstInitiator(person=uids.person(person))
 
@@ -276,14 +297,12 @@ def try_to_create_random_quest_for_hero(hero, quests, excluded_quests, without_r
 def _create_random_quest_for_hero(hero, start_quests, without_restrictions=False):
     knowledge_base = get_knowledge_base(hero, without_restrictions=without_restrictions)
 
-    selector = Selector(knowledge_base, QUESTS_BASE)
+    selector = Selector(knowledge_base, QUESTS_BASE, social_connection_probability=c.QUESTS_SOCIAL_CONNECTIONS_FRACTION)
 
     hero_uid = uids.hero(hero)
 
-    start_place = selector.place_for(objects=(hero_uid,))
-
     quests_facts = selector.create_quest_from_place(nesting=0,
-                                                    initiator_position=start_place,
+                                                    initiator_position=selector.place_for(objects=(hero_uid,)),
                                                     allowed=start_quests,
                                                     excluded=[],
                                                     tags=('can_start', ))

@@ -7,6 +7,7 @@ from questgen import facts, requirements
 from questgen import actions as questgen_actions
 from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS
 from questgen.relations import OPTION_MARKERS_GROUPS
+from questgen.quests.base_quest import RESULTS as QUEST_RESULTS
 
 from dext.common.utils import s11n
 
@@ -26,7 +27,10 @@ from the_tale.game.actions.prototypes import ActionMoveToPrototype, ActionMoveNe
 
 from the_tale.game.map.places.storage import places_storage
 from the_tale.game.map.roads.storage import roads_storage
-from the_tale.game.persons.storage import persons_storage
+from the_tale.game.persons import storage as persons_storage
+from the_tale.game.persons import relations as persons_relations
+from the_tale.game.persons import logic as persons_logic
+from the_tale.game.persons import models as persons_models
 
 from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
@@ -37,7 +41,7 @@ from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
 from the_tale.game.artifacts.relations import ARTIFACT_TYPE
 from the_tale.game.artifacts.storage import artifacts_storage
 
-from the_tale.game.quests.logic import create_random_quest_for_hero
+from the_tale.game.quests import logic
 from the_tale.game.quests.prototypes import QuestPrototype
 from the_tale.game.quests import exceptions
 from the_tale.game.quests import uids
@@ -65,7 +69,7 @@ class PrototypeTestsBase(testcase.TestCase):
 
         self.action_idl.state = self.action_idl.STATE.QUEST
 
-        self.quest = create_random_quest_for_hero(self.hero)
+        self.quest = logic.create_random_quest_for_hero(self.hero)
         self.action_quest = ActionQuestPrototype.create(hero=self.hero, quest=self.quest)
 
 
@@ -123,7 +127,7 @@ class PrototypeTests(PrototypeTestsBase):
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_change_person_power', lambda self, person: True)
     def test_give_person_power__profession(self):
 
-        person = persons_storage.all()[0]
+        person = persons_storage.persons_storage.all()[0]
 
         power_without_profession = self.quest._give_person_power(self.hero, person, 1.0)
 
@@ -358,6 +362,70 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.assertEqual(self.hero.money - not_scaled_money, int(1 + f.sell_artifact_price(self.hero.level) * 1.5))
 
+    def test_give_social_power(self):
+        self.quest.current_info.power = 10
+        self.quest.current_info.power_bonus = 1
+
+        for person in persons_storage.persons_storage.all():
+            person_uid = uids.person(person)
+            if person_uid not in self.quest.knowledge_base:
+                self.quest.knowledge_base += logic.fact_person(person)
+
+        person_1_1 =  self.place_3.persons[0]
+        person_1_2 =  self.place_3.persons[1]
+        person_1_3 =  self.place_3.persons[2]
+        person_2_1 =  self.place_2.persons[0]
+        person_2_2 =  self.place_2.persons[1]
+        person_2_3 =  self.place_2.persons[2]
+
+        results = {uids.person(person_1_1): QUEST_RESULTS.SUCCESSED,
+                   uids.person(person_1_2): QUEST_RESULTS.FAILED,
+                   uids.person(person_1_3): QUEST_RESULTS.NEUTRAL,
+                   uids.person(person_2_1): QUEST_RESULTS.SUCCESSED,
+                   uids.person(person_2_2): QUEST_RESULTS.FAILED,
+                   uids.person(person_2_3): QUEST_RESULTS.NEUTRAL}
+
+        persons_models.SocialConnection.objects.all().delete()
+        persons_storage.social_connections.refresh()
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.PARTNER, person_1_1, person_2_1)
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.PARTNER, person_1_1, person_2_2)
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.PARTNER, person_1_1, person_2_3)
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.PARTNER, person_1_2, person_2_2)
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.PARTNER, person_1_2, person_2_3)
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.PARTNER, person_1_3, person_2_3)
+
+        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype._give_person_power') as give_person_power:
+            self.quest.give_social_power(results)
+
+        calls = set((call[1]['person'].id, call[1]['power'])
+                    for call in give_person_power.call_args_list)
+
+        self.assertEqual(calls,
+                         set(((person_1_1.id, 11),
+                              (person_2_1.id, 11),
+                              (person_1_2.id, -11),
+                              (person_2_2.id, -11))))
+
+        persons_models.SocialConnection.objects.all().delete()
+        persons_storage.social_connections.refresh()
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.CONCURRENT, person_1_1, person_2_1)
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.CONCURRENT, person_1_1, person_2_2)
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.CONCURRENT, person_1_1, person_2_3)
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.CONCURRENT, person_1_2, person_2_2)
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.CONCURRENT, person_1_2, person_2_3)
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.CONCURRENT, person_1_3, person_2_3)
+
+        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype._give_person_power') as give_person_power:
+            self.quest.give_social_power(results)
+
+        calls = set((call[1]['person'].id, call[1]['power'])
+                    for call in give_person_power.call_args_list)
+
+        self.assertEqual(calls,
+                         set(((person_1_1.id, 11),
+                              (person_2_2.id, -11))))
+
+
     @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.modify_experience', lambda self, exp: exp)
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.experience_modifier', 2)
     def test_finish_quest__add_bonus_experience(self):
@@ -527,7 +595,7 @@ class CheckRequirementsTests(PrototypeTestsBase):
         self.hero_fact = self.quest.knowledge_base.filter(facts.Hero).next()
         self.person_fact = self.quest.knowledge_base.filter(facts.Person).next()
 
-        self.person = persons_storage[self.person_fact.externals['id']]
+        self.person = persons_storage.persons_storage[self.person_fact.externals['id']]
 
         self.place_1_fact = facts.Place(uid='place_1', externals={'id': self.place_1.id})
         self.place_2_fact = facts.Place(uid='place_2', externals={'id': self.place_2.id})
@@ -750,7 +818,7 @@ class SatisfyRequirementsTests(PrototypeTestsBase):
         self.hero_fact = self.quest.knowledge_base.filter(facts.Hero).next()
         self.person_fact = self.quest.knowledge_base.filter(facts.Person).next()
 
-        self.person = persons_storage[self.person_fact.externals['id']]
+        self.person = persons_storage.persons_storage[self.person_fact.externals['id']]
 
         self.place_1_fact = facts.Place(uid='place_1', externals={'id': self.place_1.id})
         self.place_2_fact = facts.Place(uid='place_2', externals={'id': self.place_2.id})

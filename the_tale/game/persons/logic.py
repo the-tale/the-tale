@@ -110,3 +110,8 @@ def create_missing_connections():
                                      person_1=person,
                                      person_2=connected_person)
             connections.append(connected_person.id)
+
+
+def sync_social_connections():
+    out_game_obsolete_connections()
+    create_missing_connections()

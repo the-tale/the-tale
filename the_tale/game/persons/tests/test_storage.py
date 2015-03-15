@@ -93,12 +93,29 @@ class SocialConnectionsStorageTest(testcase.TestCase):
                          set((self.person_1_1.id, self.person_1_2.id, self.person_3_1.id)))
 
 
+    def test_get_connected_persons_ids__with_outgame_person(self):
+        self.person_1_1.move_out_game()
+
+        self.assertEqual(set(storage.social_connections.get_connected_persons_ids(self.person_1_1)),
+                         set((self.person_2_1.id,)))
+        self.assertEqual(set(storage.social_connections.get_connected_persons_ids(self.person_2_1)),
+                         set((self.person_1_2.id, self.person_3_1.id)))
+
+
     def test_get_person_connections(self):
         self.assertEqual(set(storage.social_connections.get_person_connections(self.person_1_1)),
                          set(((self.connection_1.connection, self.person_2_1.id),)))
         self.assertEqual(set(storage.social_connections.get_person_connections(self.person_2_1)),
                          set(((self.connection_1.connection, self.person_1_1.id),
                               (self.connection_2.connection, self.person_1_2.id),
+                              (self.connection_3.connection, self.person_3_1.id))))
+
+    def test_get_person_connections__with_outgame_persons(self):
+        self.person_1_1.move_out_game()
+        self.assertEqual(set(storage.social_connections.get_person_connections(self.person_1_1)),
+                         set(((self.connection_1.connection, self.person_2_1.id),)))
+        self.assertEqual(set(storage.social_connections.get_person_connections(self.person_2_1)),
+                         set(((self.connection_2.connection, self.person_1_2.id),
                               (self.connection_3.connection, self.person_3_1.id))))
 
 

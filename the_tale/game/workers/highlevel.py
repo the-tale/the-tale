@@ -10,7 +10,8 @@ from the_tale.common import postponed_tasks
 from the_tale.game.balance import constants as c
 
 from the_tale.game.persons.relations import PERSON_STATE
-from the_tale.game.persons.storage import persons_storage
+from the_tale.game.persons import storage as persons_storage
+from the_tale.game.persons import logic as persons_logic
 
 from the_tale.game.map.places.storage import places_storage, buildings_storage
 from the_tale.game.map.places.conf import places_settings
@@ -208,12 +209,12 @@ class Worker(BaseWorker):
 
     @places_storage.postpone_version_update
     @buildings_storage.postpone_version_update
-    @persons_storage.postpone_version_update
+    @persons_storage.persons_storage.postpone_version_update
     def sync_data(self, sheduled=True):
 
         self.logger.info('sync data')
 
-        all_persons = persons_storage.filter(state=PERSON_STATE.IN_GAME)
+        all_persons = persons_storage.persons_storage.filter(state=PERSON_STATE.IN_GAME)
 
         self.sync_persons_powers(persons=[person for person in all_persons if person.place.is_frontier])
         self.sync_persons_powers(persons=[person for person in all_persons if not person.place.is_frontier])
@@ -254,8 +255,10 @@ class Worker(BaseWorker):
 
         places_storage.save_all()
 
-        persons_storage.remove_out_game_persons()
-        persons_storage.save_all()
+        persons_storage.persons_storage.remove_out_game_persons()
+        persons_storage.persons_storage.save_all()
+
+        persons_logic.sync_social_connections()
 
         if sheduled:
             for building in buildings_storage.all():

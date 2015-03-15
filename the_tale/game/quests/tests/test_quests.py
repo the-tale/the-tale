@@ -25,6 +25,7 @@ from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.persons.relations import PERSON_TYPE
+from the_tale.game.persons import logic as persons_logic
 
 from the_tale.game.mobs.storage import mobs_storage
 
@@ -46,6 +47,16 @@ class QuestsTestBase(testcase.TestCase):
     def setUp(self):
         super(QuestsTestBase, self).setUp()
         self.p1, self.p2, self.p3 = create_test_map()
+
+        # add more persons, to lower conflicts
+        self.p1.add_person()
+        self.p1.add_person()
+        self.p2.add_person()
+        self.p2.add_person()
+        self.p3.add_person()
+        self.p3.add_person()
+
+        persons_logic.sync_social_connections()
 
         result, account_id, bundle_id = register_user('test_user')
 

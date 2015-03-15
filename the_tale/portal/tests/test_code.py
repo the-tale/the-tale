@@ -87,6 +87,7 @@ class CodeTests(testcase.TestCase):
         self.assertEqual(url('game:api-info'), '/game/api/info')
 
 
+    # TODO: check new style game objects
     def test_storade_objects_got_only_from_storages(self):
         # get all stored types
         prototypes = []

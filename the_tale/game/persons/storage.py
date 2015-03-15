@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from dext.common.utils import storage as dext_storage
+
 from the_tale.common.utils import storage
 
 from the_tale.game.persons import models
@@ -57,7 +59,7 @@ persons_storage = PersonsStorage()
 
 
 
-class SocialConnectionsStorage(storage.CachedStorage):
+class SocialConnectionsStorage(dext_storage.CachedStorage):
     SETTINGS_KEY = 'social-connections-storage'
     EXCEPTION = exceptions.PersonsStorageError
 
@@ -84,16 +86,30 @@ class SocialConnectionsStorage(storage.CachedStorage):
     def get_person_connections(self, person):
         self.sync()
         connections = self._person_connections.get(person.id, {})
-        return [(item.connection, persons_storage[connected_person_id])
-                 for connected_person_id, item in connections.iteritems()]
+
+        result = []
+
+        for connected_person_id, item in connections.iteritems():
+            connected_person = persons_storage[connected_person_id]
+            if not connected_person.state.is_IN_GAME:
+                continue
+            result.append((item.connection, connected_person.id))
+
+        return result
 
     def get_connected_persons_ids(self, person):
         self.sync()
-        return self._person_connections.get(person.id, {}).keys()
+        return [person_id
+                for person_id in self._person_connections.get(person.id, {}).iterkeys()
+                if persons_storage[person_id].state.is_IN_GAME]
 
     def is_connected(self, person_1, person_2):
-        self.sync()
         return person_2.id in self.get_connected_persons_ids(person_1)
+
+    def get_connection_type(self, person_1, person_2):
+        if not self.is_connected(person_1, person_2):
+            return None
+        return self._person_connections[person_1.id][person_2.id].connection
 
 
 

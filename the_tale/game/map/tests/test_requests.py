@@ -20,6 +20,8 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game.chronicle import RecordPrototype as ChronicleRecordPrototype
 
+from the_tale.game.persons import logic as persons_logic
+
 from the_tale.game.map.places.modifiers import TradeCenter
 from the_tale.game.map.places.relations import CITY_MODIFIERS
 from the_tale.game.map.places.prototypes import BuildingPrototype
@@ -31,6 +33,8 @@ class RequestsTestsBase(TestCase):
     def setUp(self):
         super(RequestsTestsBase, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
+
+        persons_logic.sync_social_connections()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
 

@@ -13,7 +13,7 @@ from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.game import names
 
-from the_tale.game.persons.storage import persons_storage
+from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons.models import Person
 
 from the_tale.game.map.places.storage import places_storage
@@ -65,8 +65,8 @@ class HighlevelTest(testcase.TestCase):
     def test_process_change_power__persons(self):
         self.assertEqual(self.worker.persons_power, {})
 
-        person_1 = persons_storage.all()[0]
-        person_2 = persons_storage.all()[1]
+        person_1 = persons_storage.persons_storage.all()[0]
+        person_2 = persons_storage.persons_storage.all()[1]
 
         self.worker.process_change_power(person_id=person_1.id, power_delta=1, positive_bonus=2, negative_bonus=-3, place_id=None)
         self.assertEqual(self.worker.persons_power, {person_1.id: (1, 0, 2, -3)})
@@ -182,6 +182,11 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(update_heroes_number.call_count, places_number)
         self.assertEqual(mark_as_updated.call_count, places_number)
 
+
+    def test_sync_data__social_connections_synced(self):
+        with self.check_increased(lambda: len(persons_storage.social_connections.all())):
+            self.worker.sync_data()
+
     @mock.patch('the_tale.game.workers.highlevel.Worker.get_power_correction', lambda self, positive, negative: (0.0, 0.0))
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.freedom', 1)
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
@@ -190,13 +195,13 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(self.p2.power, 0)
         self.assertEqual(self.p3.power, 0)
 
-        persons_version_0 = persons_storage._version
+        persons_version_0 = persons_storage.persons_storage._version
         places_version_0 = places_storage._version
 
         self.assertEqual(Person.objects.filter(place_id=self.p1.id).count(), 2)
         self.assertEqual(Person.objects.filter(place_id=self.p2.id).count(), 3)
         self.assertEqual(Person.objects.filter(place_id=self.p3.id).count(), 3)
-        self.assertEqual(len(persons_storage.all()), 8)
+        self.assertEqual(len(persons_storage.persons_storage.all()), 8)
 
         person_1_1 = self.p1.persons[0]
         person_2_1 = self.p2.persons[0]
@@ -216,7 +221,7 @@ class HighlevelTest(testcase.TestCase):
 
         self.assertEqual(self.p1.modifier, None)
 
-        persons_version_1 = persons_storage._version
+        persons_version_1 = persons_storage.persons_storage._version
         places_version_1 = places_storage._version
 
         self.assertEqual(person_1_1.power, 1)
@@ -260,7 +265,7 @@ class HighlevelTest(testcase.TestCase):
         self.worker.sync_data()
         self.assertEqual(self.worker.persons_power, {})
 
-        persons_version_2 = persons_storage._version
+        persons_version_2 = persons_storage.persons_storage._version
         places_version_2 = places_storage._version
 
         self.p1 = places_storage[self.p1.id]
@@ -282,7 +287,7 @@ class HighlevelTest(testcase.TestCase):
         self.assertTrue(len(set((persons_version_0, persons_version_1, persons_version_2))), 3)
         self.assertTrue(len(set((places_version_0, places_version_1, places_version_2))), 3)
 
-        self.assertEqual(settings[persons_storage.SETTINGS_KEY], persons_version_2)
+        self.assertEqual(settings[persons_storage.persons_storage.SETTINGS_KEY], persons_version_2)
         self.assertEqual(settings[places_storage.SETTINGS_KEY], places_version_2)
 
 
@@ -436,18 +441,18 @@ class HighlevelTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.balance.constants.POSITIVE_NEGATIVE_POWER_RELATION', 2.0)
     def test_sync_data__persons_power_relation__greater(self):
-        persons_number = len(persons_storage.all())
+        persons_number = len(persons_storage.persons_storage.all())
 
-        for place in persons_storage.all():
+        for place in persons_storage.persons_storage.all():
             place.push_power(TimePrototype.get_current_turn_number(), 10000)
 
-        test_place = persons_storage.all()[0]
+        test_place = persons_storage.persons_storage.all()[0]
 
         self.worker.process_change_power(person_id=test_place.id, power_delta=persons_number*1000, place_id=None, positive_bonus=0, negative_bonus=0)
 
         self.worker.sync_data()
 
-        for place in persons_storage.all():
+        for place in persons_storage.persons_storage.all():
             if place.id == test_place.id:
                 self.assertEqual(place.power, 10000 + persons_number*1000 - 500)
             else:
@@ -455,18 +460,18 @@ class HighlevelTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.balance.constants.POSITIVE_NEGATIVE_POWER_RELATION', 2.0)
     def test_sync_data__persons_power_relation__lower(self):
-        persons_number = len(persons_storage.all())
+        persons_number = len(persons_storage.persons_storage.all())
 
-        for place in persons_storage.all():
+        for place in persons_storage.persons_storage.all():
             place.push_power(TimePrototype.get_current_turn_number(), 10000)
 
-        test_place = persons_storage.all()[0]
+        test_place = persons_storage.persons_storage.all()[0]
 
         self.worker.process_change_power(person_id=test_place.id, power_delta=-persons_number*1000, place_id=None, positive_bonus=0, negative_bonus=0)
 
         self.worker.sync_data()
 
-        for place in persons_storage.all():
+        for place in persons_storage.persons_storage.all():
             if place.id == test_place.id:
                 self.assertEqual(place.power, 10000 - persons_number*1000 + 2000)
             else:

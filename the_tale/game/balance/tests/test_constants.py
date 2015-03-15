@@ -167,6 +167,7 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.QUESTS_SHORT_PATH_LEVEL_CAP, 4)
         self.assertEqual(c.QUESTS_PILGRIMAGE_FRACTION, 0.025)
+        self.assertEqual(c.QUESTS_SOCIAL_CONNECTIONS_FRACTION, 0.05)
 
         self.assertEqual(c.HERO_POWER_PER_DAY, 1000)
         self.assertEqual(c.PERSON_POWER_PER_QUEST_FRACTION, 0.33)

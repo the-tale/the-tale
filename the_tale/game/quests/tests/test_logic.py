@@ -12,6 +12,9 @@ from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
+from the_tale.game.persons import storage as persons_storage
+from the_tale.game.persons import logic as persons_logic
+
 from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.map.roads.storage import waymarks_storage
@@ -53,7 +56,8 @@ class LogicTestsBase(testcase.TestCase):
                     bad_branches=[],
                     enemies=[],
                     good_branches=[],
-                    equipment_slots=[]):
+                    equipment_slots=[],
+                    social_connections=[]):
         self.check_uids(self.knowledge_base.filter(facts.Place), places)
         self.check_uids(self.knowledge_base.filter(facts.Person), persons)
         self.check_uids(self.knowledge_base.filter(facts.LocatedIn), locations)
@@ -65,6 +69,7 @@ class LogicTestsBase(testcase.TestCase):
         self.check_uids(self.knowledge_base.filter(facts.PreferenceEnemy), enemies)
         self.check_uids(self.knowledge_base.filter(facts.ExceptGoodBranches), good_branches)
         self.check_uids(self.knowledge_base.filter(facts.PreferenceEquipmentSlot), equipment_slots)
+        self.check_uids(self.knowledge_base.filter(facts.SocialConnection), social_connections)
 
 
 class FillPlacesTest(LogicTestsBase):
@@ -240,3 +245,45 @@ class SetupPreferencesTest(LogicTestsBase):
         logic.setup_preferences(self.knowledge_base, self.hero)
 
         self.check_facts(equipment_slots=[facts.PreferenceEquipmentSlot(object=self.hero_uid, equipment_slot=slot.value)])
+
+
+
+class SetupPersonsTest(LogicTestsBase):
+
+    def test_no_social_connections(self):
+        self.hero.position.set_place(self.place_1)
+
+        logic.fill_places(self.knowledge_base, self.hero, waymarks_storage.look_for_road(self.place_1, self.place_2).length)
+        logic.setup_persons(self.knowledge_base, self.hero)
+        logic.setup_social_connections(self.knowledge_base)
+
+        self.check_facts(places=[logic.fact_place(self.place_1), logic.fact_place(self.place_2)],
+                         persons=[logic.fact_person(person) for person in persons_storage.persons_storage.all() if person.place_id != self.place_3.id],
+                         locations=[logic.fact_located_in(person) for person in persons_storage.persons_storage.all() if person.place_id != self.place_3.id],
+                         social_connections=[])
+
+
+    def test_social_connections(self):
+        persons_logic.sync_social_connections()
+
+        self.hero.position.set_place(self.place_1)
+
+        logic.fill_places(self.knowledge_base, self.hero, waymarks_storage.look_for_road(self.place_1, self.place_2).length)
+        logic.setup_persons(self.knowledge_base, self.hero)
+        logic.setup_social_connections(self.knowledge_base)
+
+        expected_connections = []
+
+        for person in persons_storage.persons_storage.all():
+            if person.place_id == self.place_3.id:
+                continue
+            for connection_type, connected_person_id in persons_storage.social_connections.get_person_connections(person):
+                connected_person = persons_storage.persons_storage[connected_person_id]
+                if connected_person.place_id == self.place_3.id:
+                    continue
+                expected_connections.append(logic.fact_social_connection(connection_type, uids.person(person), uids.person(connected_person)))
+
+        self.check_facts(places=[logic.fact_place(self.place_1), logic.fact_place(self.place_2)],
+                         persons=[logic.fact_person(person) for person in persons_storage.persons_storage.all() if person.place_id != self.place_3.id],
+                         locations=[logic.fact_located_in(person) for person in persons_storage.persons_storage.all() if person.place_id != self.place_3.id],
+                         social_connections=expected_connections)
