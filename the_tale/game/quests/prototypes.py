@@ -457,15 +457,13 @@ class QuestPrototype(object):
                        (connection_type.is_CONCURRENT and quest_1_result != quest_2_result) ) ):
                 continue
 
-            power = self.current_info.total_power
-
             self._give_person_power(hero=self.hero,
                                     person=person_1,
-                                    power=power if quest_1_result == QUEST_RESULTS.SUCCESSED else -power)
+                                    power=1 if quest_1_result == QUEST_RESULTS.SUCCESSED else -1)
 
             self._give_person_power(hero=self.hero,
                                     person=person_2,
-                                    power=power if quest_2_result == QUEST_RESULTS.SUCCESSED else -power)
+                                    power=1 if quest_2_result == QUEST_RESULTS.SUCCESSED else -1)
 
 
 
