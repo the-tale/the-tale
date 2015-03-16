@@ -388,13 +388,13 @@ class ABILITIES(DjangoEnum):
          ChangeHabits(habit_type=game_relations.HABIT_TYPE.HONOR, habit_sources=(heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_DISHONORABLE,)), RARITY_NEUTRAL),
 
         (u'CHARMING', 10, u'очаровательный', u'очень симпатичен горожанам, герой получает крупный бонус к денежной награде за задания', QuestMoneyReward(1.5, 3.0), RARITY_BIGER),
-        (u'CUTE', 11, u'милый', u'симпатичен горожанам, герой получает небольшой бонус к денежной награда за задания', QuestMoneyReward(1.25, 1.5), RARITY_BIG),
+        (u'CUTE', 11, u'милый', u'симпатичен горожанам, герой получает небольшой бонус к денежной награде за задания', QuestMoneyReward(1.25, 1.5), RARITY_BIG),
         (u'FRIGHTFUL', 12, u'страшный', u'пугает горожан, герой получает меньше денег за задание', QuestMoneyReward(0.5, 0.75), RARITY_LOW),
         (u'TERRIBLE', 13, u'мороз по коже', u'сильно пугает горожан, герой получает значительно меньше денег в награду за задание.', QuestMoneyReward(0.30, 0.60), RARITY_LOWER),
 
         (u'PACK', 14, u'вьючный', u'2 дополнительных места в рюкзаке', MaxBagSize(2), RARITY_BIG),
         (u'FREIGHT', 15, u'грузовой', u'4 дополнительных места в рюкзаке', MaxBagSize(4), RARITY_BIGER),
-        (u'DRAFT', 16, u'тягловой', u'6 дополнительных места в рюкзаке', MaxBagSize(6), RARITY_BIGEST),
+        (u'DRAFT', 16, u'тягловой', u'6 дополнительных мест в рюкзаке', MaxBagSize(6), RARITY_BIGEST),
 
         (u'PARAPHERNALIA', 55, u'личные вещи', u'забирает 2 места в рюкзаке для своих вещей', MaxBagSize(-2), RARITY_LOW),
         (u'SPARE_PARTS', 56, u'запчасти', u'забирает 4 места в рюкзаке для запчастей', MaxBagSize(-4), RARITY_LOWER),

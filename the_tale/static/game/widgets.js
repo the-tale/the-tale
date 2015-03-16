@@ -1485,7 +1485,7 @@ pgf.game.CombineCardsDialog = function(dialog) {
                              dialog.modal('hide');
 
                              pgf.ui.dialog.Alert({message: data.data.message,
-                                                  title: 'Карты объеденены'});
+                                                  title: 'Карты объединены'});
                          }
                        });
 

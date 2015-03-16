@@ -190,7 +190,7 @@ class BillResource(Resource):
 
         if datetime.datetime.now() - self.account.created_at < datetime.timedelta(days=bills_settings.MINIMUM_BILL_OWNER_AGE):
             return self.json_error('bills.create.too_young_owner',
-                                   u'Новые игоки не могут выдвигать законы в %d течении дней с момент регистрации' % bills_settings.MINIMUM_BILL_OWNER_AGE)
+                                   u'Новые игроки не могут выдвигать законы в %d течении дней с момент регистрации' % bills_settings.MINIMUM_BILL_OWNER_AGE)
 
         if self.active_bills_limit_reached:
             return self.json_error('bills.create.active_bills_limit_reached', u'Вы не можете предложить закон, пока не закончилось голосование по вашему предыдущему предложению')
