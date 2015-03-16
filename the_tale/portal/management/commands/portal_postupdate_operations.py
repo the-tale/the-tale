@@ -12,6 +12,8 @@ from the_tale.forum.conf import forum_settings
 from the_tale.linguistics.conf import linguistics_settings
 from the_tale.linguistics import logic as linguistics_logic
 
+from the_tale.game.persons import logic as persons_logic
+
 
 class Command(BaseCommand):
 
@@ -50,6 +52,11 @@ class Command(BaseCommand):
         print
         print 'SYNC MARKET'
         run_django_command(['market_sync_goods'])
+
+        print
+        print 'SYNC SOCIAL CONNECTIONS'
+
+        persons_logic.sync_social_connections()
 
         print
         print 'SYNC GROUPS AND PERMISSIONS'

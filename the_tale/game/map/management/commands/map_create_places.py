@@ -1,29 +1,25 @@
 # coding: utf-8
-import random
-
-from dext.common.utils import s11n
-
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from dext.common.utils.logic import run_django_command
 
 from the_tale.game.balance import constants as c
-from the_tale.game import names
-from the_tale.game.relations import GENDER, RACE
 from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.map.roads.models import Road
-from the_tale.game.map.places.models import Place
 from the_tale.game.map.places.prototypes import PlacePrototype
 from the_tale.game.map.places.conf import places_settings
 from the_tale.game.map.places.storage import places_storage
 from the_tale.game.map.roads.storage import roads_storage
+from the_tale.game.map.roads.logic import update_waymarks
 
 from the_tale.game.persons.prototypes import PersonPrototype
 from the_tale.game.persons.storage import persons_storage
-from the_tale.game.persons import conf import persons_conf
-from the_tale.game.persons.relations import PERSON_TYPE
+from the_tale.game.persons import conf as persons_conf
+from the_tale.game.persons import logic as persons_logic
+
+from the_tale.linguistics.lexicon.dictionary import noun
 
 
 class Command(BaseCommand):
@@ -42,11 +38,7 @@ class Command(BaseCommand):
             raise
 
 
-    def _create_place(self, x, y, roads_to, name_forms=None):
-
-        if name_forms is None:
-            name_forms=Noun.fast_construct(u'%dx%d' % (x, y))
-
+    def _create_place(self, x, y, roads_to, name_forms):
         return self.create_place(name_forms=name_forms,
                                  x=x,
                                  y=y,
@@ -63,92 +55,37 @@ class Command(BaseCommand):
 
         with transaction.atomic():
 
-            p27x47 = self._create_place(x=27, y=47, roads_to=[places_storage[25]],
-                               name_forms=Noun(normalized=u'Эльстер',
-                                               forms=(u'Эльстер', u'Эльстера', u'Эльстеру', u'Эльстер', u'Эльстером', u'Эльстере',
-                                                      u'Эльстеры', u'Эльстеров', u'Эльстерам', u'Эльстеры', u'Эльстерами', u'Эльстерах'),
-                                                      properties=(u'мр')))
-            self._create_place(x=19, y=45, roads_to=[p27x47],
-                               name_forms=Noun(normalized=u'Ол',
-                                               forms=(u'Ол', u'Ола', u'Олу', u'Ол', u'Олом', u'Оле',
-                                                      u'Олы', u'Олов', u'Олам', u'Олы', u'Олами', u'Олах'),
-                                                      properties=(u'мр')))
-            self._create_place(x=40, y=47, roads_to=[places_storage[25]],
-                               name_forms=Noun(normalized=u'Ад-Альхар',
-                                               forms=(u'Ад-Альхар', u'Ад-Альхара', u'Ад-Альхару', u'Ад-Альхар', u'Ад-Альхаром', u'Ад-Альхаре',
-                                                      u'Ад-Альхары', u'Ад-Альхаров', u'Ад-Альхарам', u'Ад-Альхары', u'Ад-Альхарами', u'Ад-Альхарах'),
-                                                      properties=(u'мр')))
+            p35 = places_storage[35]
+            p35._model.is_frontier = False
+            p35.save()
 
-            p16x34 = self._create_place(x=16, y=34, roads_to=[places_storage[20], places_storage[7]],
-                               name_forms=Noun(normalized=u'Мурмеллашум',
-                                               forms=(u'Мурмеллашум', u'Мурмеллашума', u'Мурмеллашуму', u'Мурмеллашум', u'Мурмеллашумом', u'Мурмеллашуме',
-                                                      u'Мурмеллашумы', u'Мурмеллашумов', u'Мурмеллашумам', u'Мурмеллашумы', u'Мурмеллашумами', u'Мурмеллашумах'),
-                                                      properties=(u'мр')))
-            self._create_place(x=14, y=28, roads_to=[p16x34, places_storage[26]],
-                               name_forms=Noun(normalized=u'Кайлердор',
-                                               forms=(u'Кайлердор', u'Кайлердора', u'Кайлердору', u'Кайлердор', u'Кайлердором', u'Кайлердоре',
-                                                      u'Кайлердоры', u'Кайлердоров', u'Кайлердорам', u'Кайлердоры', u'Кайлердорами', u'Кайлердорах'),
-                                                      properties=(u'мр')))
-            self._create_place(x=4, y=26, roads_to=[places_storage[26]],
-                               name_forms=Noun(normalized=u'Крепость',
-                                               forms=(u'Крепость', u'Крепости', u'Крепости', u'Крепость', u'Крепостью', u'Крепости',
-                                                      u'Крепости', u'Крепостей', u'Крепостям', u'Крепости', u'Крепостями', u'Крепостях'),
-                                                      properties=(u'мр')))
+            p8x13 = self._create_place(x=8, y=13, roads_to=[p35],
+                               name_forms=noun(forms=(u'Сольвейг', u'Сольвейга', u'Сольвейгу', u'Сольвейг', u'Сольвейгом', u'Сольвейге',
+                                                      u'Сольвейги', u'Сольвейгов', u'Сольвейгам', u'Сольвейги', u'Сольвейгами', u'Сольвейгах'),
+                                               properties=(u'мр,но')))
 
-            self._create_place(x=12, y=17, roads_to=[places_storage[26], places_storage[1]],
-                               name_forms=Noun(normalized=u'Пёстрая корова',
-                                               forms=(u'Пёстрая корова', u'Пёстрой коровы', u'Пёстрой корове', u'Пёструю корову', u'Пёстрой коровой', u'Пёстрой корове',
-                                                      u'Пёстрые коровы', u'Пёстрых коров', u'Пёстрым коровам', u'Пёстрых коров', u'Пёстрыми коровами', u'Пёстрых коровах'),
-                                                      properties=(u'мр')))
 
-            p15x6 = self._create_place(x=15, y=6, roads_to=[],
-                               name_forms=Noun(normalized=u'Истарост',
-                                               forms=(u'Истарост', u'Истароста', u'Истаросту', u'Истарост', u'Истаростом', u'Истаросте',
-                                                      u'Истаросты', u'Истаростов', u'Истаростам', u'Истаросты', u'Истаростами', u'Истаростах'),
-                                                      properties=(u'мр')))
-            p25x3 = self._create_place(x=25, y=3, roads_to=[p15x6, places_storage[24]],
-                               name_forms=Noun(normalized=u'Торбал-Морра',
-                                               forms=(u'Торбал-Морра', u'Торбал-Морра', u'Торбал-Морра', u'Торбал-Морра', u'Торбал-Морра', u'Торбал-Морра',
-                                                      u'Торбал-Морры', u'Торбал-Морров', u'Торбал-Моррам', u'Торбал-Морры', u'Торбал-Моррами', u'Торбал-Моррах'),
-                                                      properties=(u'мр')))
-            self._create_place(x=37, y=1, roads_to=[p25x3, places_storage[24], places_storage[27]],
-                               name_forms=Noun(normalized=u'Азарок',
-                                               forms=(u'Азарок', u'Азарока', u'Азароку', u'Азарок', u'Азароком', u'Азароке',
-                                                      u'Азароки', u'Азароков', u'Азарокам', u'Азароков', u'Азароками', u'Азароках'),
-                                                      properties=(u'мр')))
 
-            p48x7 = self._create_place(x=48, y=7, roads_to=[places_storage[27]],
-                               name_forms=Noun(normalized=u'Кель-Аба',
-                                               forms=(u'Кель-Аба', u'Кель-Аба', u'Кель-Аба', u'Кель-Аба', u'Кель-Аба', u'Кель-Аба',
-                                                      u'Кель-Абы', u'Кель-Аб', u'Кель-Абам', u'Кель-Абы', u'Кель-Абами', u'Кель-Абах'),
-                                                      properties=(u'мр')))
-            self._create_place(x=46, y=14, roads_to=[p48x7, places_storage[3]],
-                               name_forms=Noun(normalized=u'Сва-Лок',
-                                               forms=(u'Сва-Лок', u'Сва-Лока', u'Сва-Локу', u'Сва-Лок', u'Сва-Локом', u'Сва-Локе',
-                                                      u'Сва-Локи', u'Сва-Локов', u'Сва-Локам', u'Сва-Локов', u'Сва-Локами', u'Сва-Локах'),
-                                                      properties=(u'мр')))
+            p39 = places_storage[39]
+            p39._model.is_frontier = False
+            p39.save()
 
-            p59x21 = self._create_place(x=59, y=21, roads_to=[places_storage[23]],
-                               name_forms=Noun(normalized=u'Синам-Сиджас',
-                                               forms=(u'Синам-Сиджас', u'Синам-Сиджаса', u'Синам-Сиджасу', u'Синам-Сиджас', u'Синам-Сиджасом', u'Синам-Сиджасе',
-                                                      u'Синам-Сиджасы', u'Синам-Сиджасов', u'Синам-Сиджасам', u'Синам-Сиджасов', u'Синам-Сиджасами', u'Синам-Сиджасах'),
-                                                      properties=(u'мр')))
-            p62x29 = self._create_place(x=62, y=29, roads_to=[p59x21],
-                               name_forms=Noun(normalized=u'Сухой Дол',
-                                               forms=(u'Сухой Дол', u'Сухого Дола', u'Сухому Долу', u'Сухой Дол', u'Сухим Долом', u'Сухом Доле',
-                                                      u'Сухие Долы', u'Сухих Долов', u'Сухим Долом', u'Сухие Долы', u'Сухими Долами', u'Сухих Долах'),
-                                                      properties=(u'мр')))
-            p54x32 = self._create_place(x=54, y=32, roads_to=[p62x29, places_storage[23]],
-                               name_forms=Noun(normalized=u'Харир',
-                                               forms=(u'Харир', u'Харира', u'Хариру', u'Харир', u'Хариром', u'Харире',
-                                                      u'Хариры', u'Хариров', u'Харирам', u'Хариров', u'Харирами', u'Харирах'),
-                                                      properties=(u'мр')))
-            self._create_place(x=59, y=37, roads_to=[p54x32, places_storage[22]],
-                               name_forms=Noun(normalized=u'Эйндалион',
-                                               forms=(u'Эйндалион', u'Эйндалиона', u'Эйндалиону', u'Эйндалион', u'Эйндалионом', u'Эйндалионе',
-                                                      u'Эйндалионы', u'Эйндалионов', u'Эйндалионам', u'Эйндалионы', u'Эйндалионами', u'Эйндалионах'),
-                                                      properties=(u'мр')))
+            p52x26 = self._create_place(x=52, y=26, roads_to=[p39, places_storage[40]],
+                                       name_forms=noun(forms=(u'Аматир', u'Аматира', u'Аматиру', u'Аматир', u'Аматиром', u'Аматире',
+                                                              u'Аматиры', u'Аматиров', u'Аматирам', u'Аматиры', u'Аматирами', u'Аматирах'),
+                                                       properties=(u'мр,но')))
 
+            p36 = places_storage[36]
+            p36._model.is_frontier = False
+            p36.save()
+
+            p22x8 = self._create_place(x=22, y=8, roads_to=[p36],
+                                       name_forms=noun(forms=(u'Залесье', u'Залесья', u'Залесью', u'Залесье', u'Залесьем', u'Залесье',
+                                                              u'Залесьи', u'Залесьев', u'Залесьям', u'Залесьи', u'Залесьями', u'Залесьях'),
+                                                        properties=(u'ср,но')))
+
+        update_waymarks()
+        persons_logic.sync_social_connections()
 
 
         # update map with new places
@@ -165,7 +102,7 @@ class Command(BaseCommand):
 
         place = PlacePrototype.create( x=x,
                                        y=y,
-                                       name_forms=name_forms,
+                                       utg_name=name_forms.word,
                                        is_frontier=is_frontier,
                                        size=size)
 
@@ -206,5 +143,9 @@ class Command(BaseCommand):
         persons_storage.update_version()
         places_storage.update_version()
         roads_storage.update_version()
+
+        persons_storage.refresh()
+        places_storage.refresh()
+        roads_storage.refresh()
 
         return place

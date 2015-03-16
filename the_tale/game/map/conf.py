@@ -10,7 +10,7 @@ GEN_MAP_DIR = os.path.join(project_settings.DCONT_DIR, './map/')
 
 map_settings = app_settings('MAP',
                             WIDTH=70 if not project_settings.TESTS_RUNNING else 4,
-                            HEIGHT=56 if not project_settings.TESTS_RUNNING else 4,
+                            HEIGHT=70 if not project_settings.TESTS_RUNNING else 4,
                             CHRONICLE_RECORDS_NUMBER=10,
 
                             CELL_RANDOMIZE_FRACTION=0.1,
