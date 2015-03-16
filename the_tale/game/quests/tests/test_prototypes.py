@@ -425,6 +425,84 @@ class PrototypeTests(PrototypeTestsBase):
                          set(((person_1_1.id, 11),
                               (person_2_2.id, -11))))
 
+    def test_give_social_power__two_results(self):
+        self.quest.current_info.power = 10
+        self.quest.current_info.power_bonus = 1
+
+        for person in persons_storage.persons_storage.all():
+            person_uid = uids.person(person)
+            if person_uid not in self.quest.knowledge_base:
+                self.quest.knowledge_base += logic.fact_person(person)
+
+        person_1_1 =  self.place_3.persons[0]
+        person_2_1 =  self.place_2.persons[0]
+
+        results = {uids.person(person_1_1): QUEST_RESULTS.SUCCESSED,
+                   uids.person(person_2_1): QUEST_RESULTS.SUCCESSED}
+
+        persons_models.SocialConnection.objects.all().delete()
+        persons_storage.social_connections.refresh()
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.PARTNER, person_1_1, person_2_1)
+
+        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype._give_person_power') as give_person_power:
+            self.quest.give_social_power(results)
+
+        calls = set((call[1]['person'].id, call[1]['power'])
+                    for call in give_person_power.call_args_list)
+
+        self.assertEqual(calls,
+                         set(((person_1_1.id, 11),
+                              (person_2_1.id, 11))))
+
+
+    def test_give_social_power__one_result(self):
+        self.quest.current_info.power = 10
+        self.quest.current_info.power_bonus = 1
+
+        for person in persons_storage.persons_storage.all():
+            person_uid = uids.person(person)
+            if person_uid not in self.quest.knowledge_base:
+                self.quest.knowledge_base += logic.fact_person(person)
+
+        person_1_1 =  self.place_3.persons[0]
+
+        results = {uids.person(person_1_1): QUEST_RESULTS.SUCCESSED}
+
+        persons_models.SocialConnection.objects.all().delete()
+        persons_storage.social_connections.refresh()
+
+        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype._give_person_power') as give_person_power:
+            self.quest.give_social_power(results)
+
+        calls = set((call[1]['person'].id, call[1]['power'])
+                    for call in give_person_power.call_args_list)
+
+        self.assertEqual(calls, set())
+
+
+    def test_give_social_power__no_results(self):
+        self.quest.current_info.power = 10
+        self.quest.current_info.power_bonus = 1
+
+        for person in persons_storage.persons_storage.all():
+            person_uid = uids.person(person)
+            if person_uid not in self.quest.knowledge_base:
+                self.quest.knowledge_base += logic.fact_person(person)
+
+        results = {}
+
+        persons_models.SocialConnection.objects.all().delete()
+        persons_storage.social_connections.refresh()
+
+        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype._give_person_power') as give_person_power:
+            self.quest.give_social_power(results)
+
+        calls = set((call[1]['person'].id, call[1]['power'])
+                    for call in give_person_power.call_args_list)
+
+        self.assertEqual(calls, set())
+
+
 
     @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.modify_experience', lambda self, exp: exp)
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.experience_modifier', 2)

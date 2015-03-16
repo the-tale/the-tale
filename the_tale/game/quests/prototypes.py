@@ -433,8 +433,13 @@ class QuestPrototype(object):
         ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
 
     def give_social_power(self, quest_results):
-        results = {persons_storage.persons_storage[self.knowledge_base[person_uid].externals['id']]: result
-                   for person_uid, result in quest_results.iteritems()}
+        results = {}
+
+        for person_uid, result in quest_results.iteritems():
+            person_id = self.knowledge_base[person_uid].externals['id']
+            if person_id not in persons_storage.persons_storage:
+                continue
+            results[persons_storage.persons_storage[person_id]] = result
 
         VALUABLE_RESULTS = (QUEST_RESULTS.SUCCESSED, QUEST_RESULTS.FAILED)
 

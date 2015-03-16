@@ -52,7 +52,8 @@ class PlaceResource(Resource):
             accounts_ids.extend(hero.account_id for hero in friends)
             accounts_ids.extend(hero.account_id for hero in enemies)
 
-            persons_connections[person.id] = sorted(persons_storage.social_connections.get_person_connections(person),
+            persons_connections[person.id] = sorted(((connection_type, persons_storage.persons_storage[person_id])
+                                                    for connection_type, person_id in persons_storage.social_connections.get_person_connections(person)),
                                                     key=lambda x: (x[0].value, x[1].name))
 
         accounts = {record.id:AccountPrototype(record) for record in Account.objects.filter(id__in=accounts_ids)}
