@@ -189,7 +189,7 @@ class MODIFIERS(DjangoEnum):
                 ('HABITS_SOURCES', 47, u'источники изменения черт', lambda: set()),
                 ('BATTLES_PER_TURN', 48, u'веротяность начала битвы', lambda: 0),
                 ('COMPANION_DAMAGE', 49, u'урон по спутнику', lambda: 0),
-                ('COMPANION_DAMAGE_PROBABILITY', 50, u'вероятность урона по спутнику', lambda: c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY),
+                ('COMPANION_DAMAGE_PROBABILITY', 50, u'вероятность урона по спутнику', lambda: c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY_FROM_WOUNDS),
                 ('COMPANION_STEAL_MONEY', 51, u'что спутник крадёт деньги при посещении города', lambda: False),
                 ('COMPANION_STEAL_ITEM', 52, u'что спутник крадёт предмет при посещении города', lambda: False),
                 ('COMPANION_SPARE_PARTS', 53, u'при смерти спутника, герой получает очень дорогие запчасти', lambda: False),

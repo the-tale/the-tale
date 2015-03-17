@@ -431,8 +431,8 @@ class ABILITIES(DjangoEnum):
         (u'TORTURER', 37, u'терзатель', u'растерзывает врагов в бою так сильно, что уменьшается шанс найти уцелевшую в бою добычу', LootProbability(0.6, 0.8), RARITY_LOWER),
         (u'HUNTER', 38, u'охотник', u'помогает герою сражаться аккуратнее, благодаря чему увеличивает шанс найти уцелевшую в бою добычу', LootProbability(1.1, 1.2), RARITY_BIGER),
 
-        (u'NOT_LIFER', 39, u'тщедушный', u'при ранении получает дополнительную единицу урона', CompanionDamage(1), RARITY_LOWER),
-        (u'PUNY', 40, u'не жилец', u'при ранении получает 2 дополнительные единицы урона', CompanionDamage(2), RARITY_LOWEST),
+        (u'NOT_LIFER', 39, u'тщедушный', u'при ранении может получить дополнительную единицу урона', CompanionDamage(1), RARITY_LOWER),
+        (u'PUNY', 40, u'не жилец', u'при ранении может получить 2 дополнительные единицы урона', CompanionDamage(2), RARITY_LOWEST),
 
         (u'CAMOUFLAGE', 41, u'камуфляж', u'благодаря незаметности, реже получает урон в бою', CompanionDamageProbability(0.9, 0.8), RARITY_BIGER),
         (u'FLYING', 42, u'летающий', u'перемещаясь не только вокруг но и над противником, значительно реже получает урон в бою', CompanionDamageProbability(0.85, 0.7), RARITY_BIGEST),

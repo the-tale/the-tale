@@ -524,7 +524,7 @@ COMPANIONS_MAX_HEALTH = int(70) # максимальное максимальн�
 
 _COMPANIONS_MEDIUM_HEALTH = float(COMPANIONS_MIN_HEALTH + COMPANIONS_MAX_HEALTH) / 2
 
-_COMPANIONS_MEDIUM_LIFETYME = int(10) # ожидаемое время жизни среднего спутника со средним здоровьем без лечения в днях
+_COMPANIONS_MEDIUM_LIFETYME = int(15) # ожидаемое время жизни среднего спутника со средним здоровьем без лечения в днях
 
 # дельты мультипликатора вероятности блока для
 COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA = float(0.3) # слаженность (от среднего)
@@ -545,11 +545,12 @@ COMPANIONS_DAMAGE_PER_WOUND = int(1) # урон спутнику за ранен
 _COMPANIONS_MEDIUM_HEALS_IN_HOUR = (COMPANIONS_HEAL_MIN_IN_HOUR + COMPANIONS_HEAL_MAX_IN_HOUR) / 2
 
 # вероятность того, что спутник будет ранен во время защиты героя
-_COMPANIONS_WOUNDS_IN_HOUR_FROM_HEAL = COMPANIONS_HEAL_MAX_IN_HOUR * COMPANIONS_HEALTH_PER_HEAL / COMPANIONS_DAMAGE_PER_WOUND
-_COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS = float(_COMPANIONS_MEDIUM_HEALTH) / (COMPANIONS_DAMAGE_PER_WOUND * _COMPANIONS_MEDIUM_LIFETYME * 24)
-_COMPANIONS_WOUNDS_IN_HOUR = _COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS + _COMPANIONS_WOUNDS_IN_HOUR_FROM_HEAL
+COMPANIONS_WOUNDS_IN_HOUR_FROM_HEAL = _COMPANIONS_MEDIUM_HEALS_IN_HOUR * COMPANIONS_HEALTH_PER_HEAL / COMPANIONS_DAMAGE_PER_WOUND
+COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS = float(_COMPANIONS_MEDIUM_HEALTH) / (COMPANIONS_DAMAGE_PER_WOUND * _COMPANIONS_MEDIUM_LIFETYME * 24)
+COMPANIONS_WOUNDS_IN_HOUR = COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS + COMPANIONS_WOUNDS_IN_HOUR_FROM_HEAL
 
-COMPANIONS_WOUND_ON_DEFEND_PROBABILITY =  _COMPANIONS_WOUNDS_IN_HOUR / (BATTLES_PER_HOUR * COMPANIONS_DEFENDS_IN_BATTLE)
+COMPANIONS_WOUND_ON_DEFEND_PROBABILITY_FROM_WOUNDS =  COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS / (BATTLES_PER_HOUR * COMPANIONS_DEFENDS_IN_BATTLE)
+COMPANIONS_WOUND_ON_DEFEND_PROBABILITY_FROM_HEAL = COMPANIONS_WOUNDS_IN_HOUR_FROM_HEAL / (BATTLES_PER_HOUR * COMPANIONS_DEFENDS_IN_BATTLE)
 
 # величины лечения здоровья спутника за одну помощь
 COMPANIONS_HEAL_AMOUNT = int(2)
@@ -572,7 +573,7 @@ COMPANIONS_EXP_PER_HEAL = int(EXP_PER_HOUR * COMPANIONS_BONUS_EXP_FRACTION / ((C
 COMPANIONS_HEAL_BONUS = float(0.25) # доля отлечиваемого способностями спутников или героя
 
 # количество вылеченного здоровья в час для спутников с лечебной способностью (рассчитывается исходя только из ранений, не компенсирующих лечение действием ухода)
-COMPANIONS_REGEN_PER_HOUR = _COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS * COMPANIONS_DAMAGE_PER_WOUND * COMPANIONS_HEAL_BONUS
+COMPANIONS_REGEN_PER_HOUR = COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS * COMPANIONS_DAMAGE_PER_WOUND * COMPANIONS_HEAL_BONUS
 
 COMPANIONS_EATEN_CORPSES_HEAL_AMOUNT = int(1)
 COMPANIONS_REGEN_ON_HEAL_AMOUNT = int(2)

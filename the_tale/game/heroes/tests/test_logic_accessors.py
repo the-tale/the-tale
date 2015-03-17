@@ -10,6 +10,8 @@ from the_tale.accounts.logic import register_user
 
 from the_tale.game.logic import create_test_map
 
+from the_tale.game.balance import constants as c
+
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.artifacts.relations import RARITY
@@ -157,3 +159,23 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
 
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.real_time_processing', False):
             self.assertTrue(normal_damage < self.hero.companion_damage)
+
+    def test_companion_damage__bonus_damage(self):
+        with mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS', c.COMPANIONS_WOUNDS_IN_HOUR):
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.attribute_modifier', lambda s, t: 666 if t.is_COMPANION_DAMAGE else 0):
+                for i in xrange(1000):
+                    self.assertEqual(self.hero.companion_damage, c.COMPANIONS_DAMAGE_PER_WOUND + 666)
+
+
+    def test_companion_damage__bonus_damage__damage_from_heal(self):
+        with mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS', 0):
+            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.attribute_modifier', lambda s, t: 666 if t.is_COMPANION_DAMAGE else t.default()):
+                for i in xrange(1000):
+                    self.assertEqual(self.hero.companion_damage, c.COMPANIONS_DAMAGE_PER_WOUND)
+
+
+    def test_companion_damage_probability(self):
+        self.assertEqual(self.hero.companion_damage_probability, c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY_FROM_HEAL + c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY_FROM_WOUNDS)
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.attribute_modifier', lambda s, t: 2 if t.is_COMPANION_DAMAGE_PROBABILITY else t.default()):
+            self.assertEqual(self.hero.companion_damage_probability, c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY_FROM_HEAL + 2)

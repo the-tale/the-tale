@@ -1,6 +1,8 @@
 # coding: utf-8
 import random
 
+import mock
+
 from the_tale.common.utils import testcase
 
 from the_tale.game import names
@@ -380,8 +382,9 @@ class CompanionDamageTests(BaseEffectsTests):
     def test_in_game(self):
         ability = self.get_ability(effects.CompanionDamage)
 
-        with self.check_changed(lambda: self.hero.companion_damage):
-            self.apply_ability(ability)
+        with mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUNDS_IN_HOUR', c.COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS):
+            with self.check_changed(lambda: self.hero.companion_damage):
+                self.apply_ability(ability)
 
 
 class CompanionDamageProbabilityTests(BaseEffectsTests):
