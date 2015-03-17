@@ -119,7 +119,7 @@ def use_dialog(context):
 @resource.handler('api', 'use', name='api-use', method='POST')
 def api_use(context):
     u'''
-Использовать карту из калоды игрока.
+Использовать карту из колоды игрока.
 
 - **адрес:** /game/cards/api/use
 - **http-метод:** POST

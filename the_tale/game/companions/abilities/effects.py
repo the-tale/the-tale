@@ -481,6 +481,6 @@ class ABILITIES(DjangoEnum):
 
         (u'TEMPORARY', 73, u'временный', u'спутник с небольшой вероятностью может покинуть героя при посещении города',
          Unsociable(0.1 * c.COMPANIONS_LEAVE_IN_PLACE), RARITY_LOWEST),
-        (u'UNSOCIABLE', 74, u'нелюдимый', u'спутник может покинуть героя при посещении городас ',
+        (u'UNSOCIABLE', 74, u'нелюдимый', u'спутник может покинуть героя при посещении города',
          Unsociable(c.COMPANIONS_LEAVE_IN_PLACE), RARITY_LOWEST_2),
     )
