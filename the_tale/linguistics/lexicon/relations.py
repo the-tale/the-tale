@@ -51,7 +51,7 @@ class VARIABLE_VERIFICATOR(DjangoEnum):
 
 
 _construct_utg_name_form = lambda v: (v.utg_name_form, v.linguistics_restrictions())
-_construct_number = lambda v: (utg_constructors.construct_integer(v), [])
+_construct_number = lambda v: (utg_constructors.construct_integer(int(v)), [])
 _construct_text = lambda v: (utg_words.WordForm(utg_words.Word(type=WORD_TYPE.TEXT, forms=(v,))), [])
 
 
