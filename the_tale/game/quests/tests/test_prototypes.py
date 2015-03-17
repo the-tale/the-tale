@@ -401,10 +401,10 @@ class PrototypeTests(PrototypeTestsBase):
                     for call in give_person_power.call_args_list)
 
         self.assertEqual(calls,
-                         set(((person_1_1.id, 11),
-                              (person_2_1.id, 11),
-                              (person_1_2.id, -11),
-                              (person_2_2.id, -11))))
+                         set(((person_1_1.id, 1),
+                              (person_2_1.id, 1),
+                              (person_1_2.id, -1),
+                              (person_2_2.id, -1))))
 
         persons_models.SocialConnection.objects.all().delete()
         persons_storage.social_connections.refresh()
@@ -422,8 +422,8 @@ class PrototypeTests(PrototypeTestsBase):
                     for call in give_person_power.call_args_list)
 
         self.assertEqual(calls,
-                         set(((person_1_1.id, 11),
-                              (person_2_2.id, -11))))
+                         set(((person_1_1.id, 1),
+                              (person_2_2.id, -1))))
 
     def test_give_social_power__two_results(self):
         self.quest.current_info.power = 10
@@ -451,8 +451,8 @@ class PrototypeTests(PrototypeTestsBase):
                     for call in give_person_power.call_args_list)
 
         self.assertEqual(calls,
-                         set(((person_1_1.id, 11),
-                              (person_2_1.id, 11))))
+                         set(((person_1_1.id, 1),
+                              (person_2_1.id, 1))))
 
 
     def test_give_social_power__one_result(self):
