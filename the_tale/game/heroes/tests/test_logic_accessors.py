@@ -152,13 +152,13 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
             with self.check_increased(lambda: self.hero.artifacts_probability(self.mob)):
                 self.hero.preferences.set_mob(self.mob.record)
 
-    def test_companion_damage__delayed_processing(self):
-        self.assertTrue(self.hero.real_time_processing)
+    # def test_companion_damage__delayed_processing(self):
+    #     self.assertTrue(self.hero.real_time_processing)
 
-        normal_damage = self.hero.companion_damage
+    #     normal_damage = self.hero.companion_damage
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.real_time_processing', False):
-            self.assertTrue(normal_damage < self.hero.companion_damage)
+    #     with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.real_time_processing', False):
+    #         self.assertTrue(normal_damage < self.hero.companion_damage)
 
     def test_companion_damage__bonus_damage(self):
         with mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS', c.COMPANIONS_WOUNDS_IN_HOUR):
@@ -175,7 +175,7 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
 
 
     def test_companion_damage_probability(self):
-        self.assertEqual(self.hero.companion_damage_probability, c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY_FROM_HEAL + c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY_FROM_WOUNDS)
+        self.assertEqual(self.hero.companion_damage_probability, c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY_FROM_WOUNDS)
 
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.attribute_modifier', lambda s, t: 2 if t.is_COMPANION_DAMAGE_PROBABILITY else t.default()):
-            self.assertEqual(self.hero.companion_damage_probability, c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY_FROM_HEAL + 2)
+            self.assertEqual(self.hero.companion_damage_probability, 2)

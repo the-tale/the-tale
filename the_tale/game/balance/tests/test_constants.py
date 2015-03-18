@@ -313,7 +313,6 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(round(c.COMPANIONS_WOUNDS_IN_HOUR, 5), 1.63889)
         self.assertEqual(round(c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY_FROM_WOUNDS, 5), 0.00604)
-        self.assertEqual(round(c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY_FROM_HEAL, 5), 0.06528)
 
         self.assertEqual(c.COMPANIONS_HEAL_MIN_IN_HOUR, 1.0)
         self.assertEqual(c.COMPANIONS_HEAL_MAX_IN_HOUR, 2.0)

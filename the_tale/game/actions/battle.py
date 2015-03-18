@@ -208,15 +208,21 @@ def strike_without_contact(ability, attacker, defender, messanger):
     ability.use(messanger, attacker, defender)
 
 
-def try_companion_block(attacker, defender, messanger):
+def wound_probability(defender):
+    # TODO: test damage_from_heal
+    damage_from_heal_probability = ( c.COMPANIONS_WOUNDS_IN_HOUR_FROM_HEAL /
+                                     ( c.BATTLES_PER_HOUR * (c.BATTLE_LENGTH / 2) * defender.companion.defend_in_battle_probability ) )
 
+    return defender.companion_damage_probability + damage_from_heal_probability
+
+def try_companion_block(attacker, defender, messanger):
     if not defender.has_companion:
         return False
 
     if random.random() > defender.companion.defend_in_battle_probability:
         return False
 
-    if random.random() > defender.companion_damage_probability:
+    if random.random() > wound_probability(defender):
         messanger.add_message('companions_block', attacker=attacker, companion_owner=defender, companion=defender.companion)
         return True
 

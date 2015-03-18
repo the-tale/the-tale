@@ -370,6 +370,7 @@ class TryCompanionBlockTests(TestsBase):
 
     @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_damage_probability', 0.0)
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUNDS_IN_HOUR_FROM_HEAL', 0.0)
     def test_success_block(self):
         actor_1, actor_2 = self.get_actors()
 

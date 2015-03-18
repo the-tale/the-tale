@@ -156,6 +156,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.storage._test_save()
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_damage_probability', 0.0)
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUNDS_IN_HOUR_FROM_HEAL', 0.0)
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_EATEN_CORPSES_PER_BATTLE', 1.0)
     @mock.patch('the_tale.game.mobs.prototypes.MobPrototype.mob_type', mobs_relations.MOB_TYPE.ANIMAL)
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_eat_corpses', lambda hero: True)

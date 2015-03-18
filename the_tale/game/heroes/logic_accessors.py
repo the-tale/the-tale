@@ -359,21 +359,19 @@ class LogicAccessorsMixin(object):
     def companion_damage(self):
         damage = c.COMPANIONS_DAMAGE_PER_WOUND
 
+        # if not self.real_time_processing:
+        #     # multiplay by delay modifier to emulate real time companion live cycle
+        #     damage *= heroes_settings.INACTIVE_HERO_DELAY
+        #     return damage # do not apply any other modifiers
+
         if random.random() < c.COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS / c.COMPANIONS_WOUNDS_IN_HOUR:
             damage += self.attribute_modifier(relations.MODIFIERS.COMPANION_DAMAGE)
-
-        if not self.real_time_processing:
-            # multiplay by delay modifier to emulate real time companion live cycle
-            damage *= heroes_settings.INACTIVE_HERO_DELAY
 
         return damage
 
     @property
     def companion_damage_probability(self):
-        # COMPANIONS_WOUND_ON_DEFEND_PROBABILITY_FROM_HEAL is constant bonus to probability
-        # it MUSTn't be modified in any way
-        # its purpos — compensate heal from "companions heal" action
-        return c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY_FROM_HEAL + self.attribute_modifier(relations.MODIFIERS.COMPANION_DAMAGE_PROBABILITY)
+        return self.attribute_modifier(relations.MODIFIERS.COMPANION_DAMAGE_PROBABILITY)
 
     @property
     def companion_block_probability_multiplier(self):
