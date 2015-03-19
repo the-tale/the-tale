@@ -30,7 +30,7 @@ def good_bought_message(lot):
 
     template = u'Поздравляем! Кто-то купил «%(good)s», Вы получаете печеньки: %(price)d шт.'
     return template % {'good': lot.name,
-                       'price': lot.price,
+                       'price': lot.price - lot.commission,
                        'static_path': (portal_logic.cdn_paths()['STATIC_CONTENT'] + 'images/cookies.png')}
 
 
