@@ -650,6 +650,18 @@ class HeroTest(testcase.TestCase):
 
         self.assertIn(relations.ITEMS_OF_EXPENDITURE.HEAL_COMPANION, spendings)
 
+    def test_switch_next_spending__with_companion_dedication_is_EVERY_MAN_FOR_HIMSELF(self):
+        companion_record = companions_storage.companions.enabled_companions().next()
+        companion = companions_logic.create_companion(companion_record)
+
+        self.hero.set_companion(companion)
+
+        self.hero.preferences.set_companion_dedication(relations.COMPANION_DEDICATION.EVERY_MAN_FOR_HIMSELF)
+
+        for i in xrange(1000):
+            self.hero.switch_spending()
+            self.assertFalse(self.hero.next_spending.is_HEAL_COMPANION)
+
 
     def test_switch_next_spending__without_companion(self):
         self.assertEqual(self.hero.companion, None)
