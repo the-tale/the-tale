@@ -51,7 +51,12 @@ pgf.game.Updater = function(params) {
         autoRefreshStopped = true;
     };
 
+
     instance.ApplyNewData = function(newData) {
+
+        if (currentTurn > newData.turn.number) {
+            return true;
+        }
 
         currentTurn = newData.turn.number;
 

@@ -209,18 +209,29 @@ class LogicStorageTests(testcase.TestCase):
         self.assertEqual(self.storage.previous_cache, {5: 6})
         self.assertEqual(self.storage.current_cache, {})
 
-    def test_process_cache_queue(self):
+    def test_process_cache_queue__with_update(self):
         self.assertEqual(self.storage.cache_queue, set())
 
         self.storage.cache_queue.add(self.hero_2.id)
         self.storage.cache_queue.add(self.hero_1.id)
 
-        self.storage.process_cache_queue()
+        self.storage.process_cache_queue(update_cache=True)
 
         self.assertItemsEqual(self.storage.current_cache.keys(), (self.hero_1.cached_ui_info_key, self.hero_2.cached_ui_info_key))
         self.assertEqual(self.storage.cache_queue, set())
 
-    def test_process_cache_queue__update_cache(self):
+    def test_process_cache_queue__without_update(self):
+        self.assertEqual(self.storage.cache_queue, set())
+
+        self.storage.cache_queue.add(self.hero_2.id)
+        self.storage.cache_queue.add(self.hero_1.id)
+
+        self.storage.process_cache_queue(update_cache=False)
+
+        self.assertItemsEqual(self.storage.current_cache.keys(), ())
+        self.assertEqual(self.storage.cache_queue, set())
+
+    def test_process_cache_queue__update_cache__with_update(self):
         self.assertEqual(self.storage.cache_queue, set())
 
         self.storage.current_cache[self.hero_1.cached_ui_info_key] = 1
@@ -228,10 +239,23 @@ class LogicStorageTests(testcase.TestCase):
 
         self.storage.cache_queue.add(self.hero_2.id)
 
-        self.storage.process_cache_queue()
+        self.storage.process_cache_queue(update_cache=True)
 
         self.assertEqual(self.storage.current_cache[self.hero_1.cached_ui_info_key], 1)
         self.assertNotEqual(self.storage.current_cache[self.hero_2.cached_ui_info_key], 2)
+
+    def test_process_cache_queue__update_cache__without_update(self):
+        self.assertEqual(self.storage.cache_queue, set())
+
+        self.storage.current_cache[self.hero_1.cached_ui_info_key] = 1
+        self.storage.current_cache[self.hero_2.cached_ui_info_key] = 2
+
+        self.storage.cache_queue.add(self.hero_2.id)
+
+        self.storage.process_cache_queue(update_cache=False)
+
+        self.assertEqual(self.storage.current_cache[self.hero_1.cached_ui_info_key], 1)
+        self.assertEqual(self.storage.current_cache[self.hero_2.cached_ui_info_key], 2)
 
     @mock.patch('the_tale.game.heroes.conf.heroes_settings.DUMP_CACHED_HEROES', True)
     def test_process_turn(self):
@@ -421,10 +445,10 @@ class LogicStorageTests(testcase.TestCase):
 
         self.assertEqual(set_many.call_count, 1)
         self.assertEqual(ui_info.call_count, 2)
-        self.assertEqual(ui_info.call_args_list, [mock.call(actual_guaranteed=True, old_info=None, order=0), mock.call(actual_guaranteed=True, old_info=None, order=1)])
+        self.assertEqual(ui_info.call_args_list, [mock.call(actual_guaranteed=True, old_info=None), mock.call(actual_guaranteed=True, old_info=None)])
 
 
-    def test_order_reset(self):
+    def test_old_info(self):
         self.storage.process_turn()
 
         calls = []
@@ -438,10 +462,10 @@ class LogicStorageTests(testcase.TestCase):
             self.storage.process_turn()
             self.storage.save_changed_data()
 
-        self.assertEqual(calls, [{'actual_guaranteed': True, 'old_info': None, 'order': 0},
-                                 {'actual_guaranteed': True, 'old_info': None, 'order': 1},
-                                 {'actual_guaranteed': True, 'old_info': {'hero': self.hero_1.id}, 'order': 0},
-                                 {'actual_guaranteed': True, 'old_info': {'hero': self.hero_2.id}, 'order': 1}])
+        self.assertEqual(calls, [{'actual_guaranteed': True, 'old_info': None},
+                                 {'actual_guaranteed': True, 'old_info': None},
+                                 {'actual_guaranteed': True, 'old_info': {'hero': self.hero_1.id}},
+                                 {'actual_guaranteed': True, 'old_info': {'hero': self.hero_2.id}}])
 
 
     def test_save_changed_data__old_info(self):
@@ -472,7 +496,7 @@ class LogicStorageTests(testcase.TestCase):
                     self.storage.save_changed_data()
 
         self.assertEqual(ui_info.call_count, 2) # cache all heroes, since they are new
-        self.assertEqual(ui_info.call_args_list, [mock.call(actual_guaranteed=True, old_info=None, order=0), mock.call(actual_guaranteed=True, old_info=None, order=1)])
+        self.assertEqual(ui_info.call_args_list, [mock.call(actual_guaranteed=True, old_info=None), mock.call(actual_guaranteed=True, old_info=None)])
         self.assertEqual(save_hero_data.call_args, mock.call(self.hero_2.id))
 
     def test_save_changed_data__with_unsaved_bundles__without_dump(self):
@@ -488,7 +512,7 @@ class LogicStorageTests(testcase.TestCase):
                     self.storage.save_changed_data()
 
         self.assertEqual(ui_info.call_count, 1) # cache only first hero
-        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=True, old_info=None, order=0))
+        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=True, old_info=None))
         self.assertEqual(save_hero_data.call_args, mock.call(self.hero_2.id))
 
     def test__destroy_account_data(self):
@@ -674,7 +698,7 @@ class LogicStorageTests(testcase.TestCase):
         self.assertEqual(set_many.call_count, 1)
         self.assertEqual(save_hero_data.call_count, 3)
         self.assertEqual(ui_info.call_count, 2)
-        self.assertEqual(ui_info.call_args_list, [mock.call(actual_guaranteed=True, old_info=None, order=0), mock.call(actual_guaranteed=True, old_info=None, order=1)])
+        self.assertEqual(ui_info.call_args_list, [mock.call(actual_guaranteed=True, old_info=None), mock.call(actual_guaranteed=True, old_info=None)])
 
 
     @mock.patch('the_tale.game.heroes.conf.heroes_settings.DUMP_CACHED_HEROES', False)
@@ -712,7 +736,7 @@ class LogicStorageTests(testcase.TestCase):
         self.assertEqual(set_many.call_count, 1)
         self.assertEqual(save_hero_data.call_count, 2)
         self.assertEqual(ui_info.call_count, 1)
-        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=True, old_info=None, order=0))
+        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=True, old_info=None))
 
 
     def test_merge_bundles(self):
