@@ -244,7 +244,7 @@ class CompanionTests(testcase.TestCase):
 
     @mock.patch('the_tale.game.balance.formulas.companions_heal_in_hour', mock.Mock(return_value=1))
     def test_need_heal_in_move(self):
-        self.companion.healed_at -= 60*60
+        self.companion.healed_at_turn -= c.TURNS_IN_HOUR
         self.companion.health = self.companion.max_health
 
         self.assertFalse(self.companion.need_heal_in_move)
@@ -256,7 +256,7 @@ class CompanionTests(testcase.TestCase):
 
     @mock.patch('the_tale.game.balance.formulas.companions_heal_in_hour', mock.Mock(return_value=1))
     def test_need_heal_in_move__no_time(self):
-        self.companion.healed_at -= 30*60
+        self.companion.healed_at_turn -= c.TURNS_IN_HOUR / 2
         self.companion.health = self.companion.max_health
 
         self.assertFalse(self.companion.need_heal_in_move)
@@ -268,7 +268,7 @@ class CompanionTests(testcase.TestCase):
 
     @mock.patch('the_tale.game.balance.formulas.companions_heal_in_hour', mock.Mock(return_value=1))
     def test_need_heal_in_settlement(self):
-        self.companion.healed_at -= 60*60
+        self.companion.healed_at_turn -= c.TURNS_IN_HOUR
         self.companion.health = self.companion.max_health
 
         self.assertFalse(self.companion.need_heal_in_settlement)
@@ -280,7 +280,7 @@ class CompanionTests(testcase.TestCase):
 
     @mock.patch('the_tale.game.balance.formulas.companions_heal_in_hour', mock.Mock(return_value=1))
     def test_need_heal_in_settlement__no_time(self):
-        self.companion.healed_at -= 30*60
+        self.companion.healed_at_turn -= c.TURNS_IN_HOUR / 2
         self.companion.health = self.companion.max_health
 
         self.assertFalse(self.companion.need_heal_in_settlement)

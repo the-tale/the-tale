@@ -1,6 +1,4 @@
 # coding: utf-8
-import time
-
 from dext.common.utils import s11n
 
 from the_tale.common.utils import bbcode
@@ -10,6 +8,8 @@ from the_tale.game import names
 from the_tale.game.balance import formulas as f
 from the_tale.game.balance import constants as c
 from the_tale.game.balance import power as p
+
+from the_tale.game import prototypes as game_prototypes
 
 from the_tale.game.heroes import relations as heroes_relations
 
@@ -21,14 +21,14 @@ from the_tale.game.companions.abilities import container as abilities_container
 
 
 class Companion(object):
-    __slots__ = ('record_id', 'health', 'coherence', 'experience', 'healed_at', '_hero')
+    __slots__ = ('record_id', 'health', 'coherence', 'experience', 'healed_at_turn', '_hero')
 
-    def __init__(self, record_id, health, coherence, experience, healed_at, _hero=None):
+    def __init__(self, record_id, health, coherence, experience, healed_at_turn, _hero=None):
         self.record_id = record_id
         self.health = health
         self.coherence = coherence
         self.experience = experience
-        self.healed_at = healed_at
+        self.healed_at_turn = healed_at_turn
         self._hero = _hero
 
     @property
@@ -41,7 +41,7 @@ class Companion(object):
                 'health': self.health,
                 'coherence': self.coherence,
                 'experience': self.experience,
-                'healed_at': self.healed_at}
+                'healed_at_turn': self.healed_at_turn}
 
     @classmethod
     def deserialize(cls, hero, data):
@@ -49,7 +49,7 @@ class Companion(object):
                   health=int(data['health']),
                   coherence=data['coherence'],
                   experience=data['experience'],
-                  healed_at=data['healed_at'],
+                  healed_at_turn=data.get('healed_at_turn', 0),
                   _hero=hero)
         return obj
 
@@ -98,7 +98,7 @@ class Companion(object):
         self.health -= self._hero.companion_damage
 
     def on_heal_started(self):
-        self.healed_at = time.time()
+        self.healed_at_turn = game_prototypes.TimePrototype.get_current_turn_number()
 
     @property
     def need_heal_in_settlement(self):
@@ -107,7 +107,7 @@ class Companion(object):
 
         heals_in_hour = f.companions_heal_in_hour(self.health / 2, self.max_health)
 
-        return self.healed_at + 60*60 / heals_in_hour < time.time()
+        return self.healed_at_turn + c.TURNS_IN_HOUR / heals_in_hour <= game_prototypes.TimePrototype.get_current_turn_number()
 
 
     @property
@@ -117,7 +117,7 @@ class Companion(object):
 
         heals_in_hour = f.companions_heal_in_hour(self.health, self.max_health)
 
-        return self.healed_at + 60*60 / heals_in_hour < time.time()
+        return self.healed_at_turn + c.TURNS_IN_HOUR / heals_in_hour <= game_prototypes.TimePrototype.get_current_turn_number()
 
 
     @property

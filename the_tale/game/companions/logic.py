@@ -8,6 +8,7 @@ from the_tale.linguistics import logic as linguistics_logic
 from the_tale.linguistics import relations as linguistics_relations
 
 from the_tale.game import names
+from the_tale.game import prototypes as game_prototypes
 
 from the_tale.game.balance import constants as c
 
@@ -149,4 +150,4 @@ def create_companion(companion_record):
                              health=companion_record.max_health,
                              coherence=c.COMPANIONS_MIN_COHERENCE,
                              experience=0,
-                             healed_at=time.time())
+                             healed_at_turn=game_prototypes.TimePrototype.get_current_turn_number())

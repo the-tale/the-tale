@@ -40,7 +40,9 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
 
         self.action_idl = self.hero.actions.current_action
 
-        with self.check_increased(lambda: self.hero.companion.healed_at):
+        self.hero.companion.healed_at_turn = -1
+
+        with self.check_increased(lambda: self.hero.companion.healed_at_turn):
             self.action_heal_companion = prototypes.ActionHealCompanionPrototype.create(hero=self.hero)
 
 
