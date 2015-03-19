@@ -527,9 +527,9 @@ _COMPANIONS_MEDIUM_HEALTH = float(COMPANIONS_MIN_HEALTH + COMPANIONS_MAX_HEALTH)
 _COMPANIONS_MEDIUM_LIFETYME = int(15) # ожидаемое время жизни среднего спутника со средним здоровьем без лечения в днях
 
 # дельты мультипликатора вероятности блока для
-COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA = float(0.3) # слаженность (от среднего)
-COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA = float(0.3) # самоотверженности спутника
-COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA = float(0.3) # самоотверженность героя
+COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA = float(0.2) # слаженность (от среднего)
+COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA = float(0.2) # самоотверженности спутника
+COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA = float(0.2) # самоотверженность героя
 
 COMPANIONS_HABITS_DELTA = float(0.5) # дельта изменения черт от среднего в зависимости от предпочтения
 

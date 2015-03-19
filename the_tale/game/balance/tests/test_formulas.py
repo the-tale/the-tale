@@ -36,11 +36,11 @@ class FormulasTest(testcase.TestCase):
         self.assertEqual(int(f.person_power_for_quest__real(100)), 604)
 
     def test_companions_defend_in_battle_probability(self):
-        self.assertEqual(round(f.companions_defend_in_battle_probability(0), 5), 0.13125)
-        self.assertEqual(round(f.companions_defend_in_battle_probability(25), 5), 0.15937)
+        self.assertEqual(round(f.companions_defend_in_battle_probability(0), 5), 0.15)
+        self.assertEqual(round(f.companions_defend_in_battle_probability(25), 5), 0.16875)
         self.assertEqual(round(f.companions_defend_in_battle_probability(50), 5), 0.1875)
-        self.assertEqual(round(f.companions_defend_in_battle_probability(75), 5), 0.21562)
-        self.assertEqual(round(f.companions_defend_in_battle_probability(100), 5), 0.24375)
+        self.assertEqual(round(f.companions_defend_in_battle_probability(75), 5), 0.20625)
+        self.assertEqual(round(f.companions_defend_in_battle_probability(100), 5), 0.225)
 
 
     def test_companions_heal_in_hour(self):

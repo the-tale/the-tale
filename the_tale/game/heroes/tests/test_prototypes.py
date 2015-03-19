@@ -1290,7 +1290,7 @@ class HeroUiInfoTest(testcase.TestCase):
         old_info = self.hero.ui_info(actual_guaranteed=True, old_info=None)
 
         patched_fields = set(field for field in old_info.iterkeys() if random.random() < 0.5)
-        patched_fields |= set(('changed_fields', 'actual_on_turn', 'patch_turn'))
+        patched_fields |= set(('changed_fields', 'actual_on_turn', 'patch_turn', 'order'))
 
         for field in patched_fields:
             old_info[field] = 'changed'
@@ -1304,7 +1304,7 @@ class HeroUiInfoTest(testcase.TestCase):
         old_info = self.hero.ui_info(actual_guaranteed=True, old_info=None)
         new_info = self.hero.ui_info(actual_guaranteed=True, old_info=old_info)
 
-        self.assertEqual(set(new_info['changed_fields']), set(('changed_fields', 'actual_on_turn', 'patch_turn')))
+        self.assertEqual(set(new_info['changed_fields']), set(('changed_fields', 'actual_on_turn', 'patch_turn', 'order')))
 
     def test_ui_info__actual_guaranteed(self):
         self.assertEqual(self.hero.saved_at_turn, 0)

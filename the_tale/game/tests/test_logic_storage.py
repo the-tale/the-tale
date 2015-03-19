@@ -421,7 +421,27 @@ class LogicStorageTests(testcase.TestCase):
 
         self.assertEqual(set_many.call_count, 1)
         self.assertEqual(ui_info.call_count, 2)
-        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=True, old_info=None))
+        self.assertEqual(ui_info.call_args_list, [mock.call(actual_guaranteed=True, old_info=None, order=0), mock.call(actual_guaranteed=True, old_info=None, order=1)])
+
+
+    def test_order_reset(self):
+        self.storage.process_turn()
+
+        calls = []
+
+        def ui_info(hero, **kwargs):
+            calls.append(kwargs)
+            return {'hero': hero.id}
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info', ui_info):
+            self.storage.save_changed_data()
+            self.storage.process_turn()
+            self.storage.save_changed_data()
+
+        self.assertEqual(calls, [{'actual_guaranteed': True, 'old_info': None, 'order': 0},
+                                 {'actual_guaranteed': True, 'old_info': None, 'order': 1},
+                                 {'actual_guaranteed': True, 'old_info': {'hero': self.hero_1.id}, 'order': 0},
+                                 {'actual_guaranteed': True, 'old_info': {'hero': self.hero_2.id}, 'order': 1}])
 
 
     def test_save_changed_data__old_info(self):
@@ -452,7 +472,7 @@ class LogicStorageTests(testcase.TestCase):
                     self.storage.save_changed_data()
 
         self.assertEqual(ui_info.call_count, 2) # cache all heroes, since they are new
-        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=True, old_info=None))
+        self.assertEqual(ui_info.call_args_list, [mock.call(actual_guaranteed=True, old_info=None, order=0), mock.call(actual_guaranteed=True, old_info=None, order=1)])
         self.assertEqual(save_hero_data.call_args, mock.call(self.hero_2.id))
 
     def test_save_changed_data__with_unsaved_bundles__without_dump(self):
@@ -468,7 +488,7 @@ class LogicStorageTests(testcase.TestCase):
                     self.storage.save_changed_data()
 
         self.assertEqual(ui_info.call_count, 1) # cache only first hero
-        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=True, old_info=None))
+        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=True, old_info=None, order=0))
         self.assertEqual(save_hero_data.call_args, mock.call(self.hero_2.id))
 
     def test__destroy_account_data(self):
@@ -654,7 +674,7 @@ class LogicStorageTests(testcase.TestCase):
         self.assertEqual(set_many.call_count, 1)
         self.assertEqual(save_hero_data.call_count, 3)
         self.assertEqual(ui_info.call_count, 2)
-        self.assertEqual(ui_info.call_args_list, [mock.call(actual_guaranteed=True, old_info=None), mock.call(actual_guaranteed=True, old_info=None)])
+        self.assertEqual(ui_info.call_args_list, [mock.call(actual_guaranteed=True, old_info=None, order=0), mock.call(actual_guaranteed=True, old_info=None, order=1)])
 
 
     @mock.patch('the_tale.game.heroes.conf.heroes_settings.DUMP_CACHED_HEROES', False)
@@ -692,7 +712,7 @@ class LogicStorageTests(testcase.TestCase):
         self.assertEqual(set_many.call_count, 1)
         self.assertEqual(save_hero_data.call_count, 2)
         self.assertEqual(ui_info.call_count, 1)
-        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=True, old_info=None))
+        self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=True, old_info=None, order=0))
 
 
     def test_merge_bundles(self):

@@ -585,11 +585,12 @@ class HeroPrototype(BasePrototype,
                 self.messages == other.messages and
                 self.diary == other.diary)
 
-    def ui_info(self, actual_guaranteed, old_info=None):
+    def ui_info(self, actual_guaranteed, old_info=None, order=0):
         from the_tale.game.map.generator.drawer import get_hero_sprite
 
         new_info = {'id': self.id,
                     'patch_turn': None if old_info is None else old_info['actual_on_turn'],
+                    'order': order,
                 'actual_on_turn': TimePrototype.get_current_turn_number() if actual_guaranteed else self.saved_at_turn,
                 'ui_caching_started_at': time.mktime(self.ui_caching_started_at.timetuple()),
                 'messages': self.messages.ui_info(),
@@ -636,7 +637,7 @@ class HeroPrototype(BasePrototype,
                 'sprite': get_hero_sprite(self).value,
                 }
 
-        changed_fields = ['changed_fields', 'actual_on_turn', 'patch_turn']
+        changed_fields = ['changed_fields', 'actual_on_turn', 'patch_turn', 'order']
 
         if old_info:
             for key, value in new_info.iteritems():

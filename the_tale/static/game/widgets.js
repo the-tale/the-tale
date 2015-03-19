@@ -55,7 +55,7 @@ pgf.game.Updater = function(params) {
 
         currentTurn = newData.turn.number;
 
-        // apply patch for hero if received data is path
+        // apply patch for hero if received data is patch
         if (newData.account && newData.account.hero.patch_turn != null) {
             var oldData = oldDatas[newData.account.hero.patch_turn];
 
@@ -67,7 +67,7 @@ pgf.game.Updater = function(params) {
             }
         }
 
-        // apply patch for enemy if received data is path
+        // apply patch for enemy if received data is patch
         if (newData.enemy && newData.enemy.hero.patch_turn != null) {
             var oldData = oldDatas[newData.enemy.hero.patch_turn];
 

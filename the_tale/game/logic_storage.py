@@ -27,6 +27,8 @@ class LogicStorage(object):
         self.current_cache = {}
         self.cache_queue = set()
 
+        self.order = 0
+
     def load_account_data(self, account):
         hero = HeroPrototype.get_by_account_id(account.id)
         hero.update_with_account_data(is_fast=account.is_fast,
@@ -210,6 +212,8 @@ class LogicStorage(object):
 
     def process_turn(self, logger=None, continue_steps_if_needed=True):
 
+        self.order = 0
+
         self.switch_caches()
 
         timestamp = time.time()
@@ -300,7 +304,8 @@ class LogicStorage(object):
         for hero_id in self.cache_queue:
             hero = self.heroes[hero_id]
             cache_key = hero.cached_ui_info_key
-            to_cache[cache_key] = hero.ui_info(actual_guaranteed=True, old_info=self.previous_cache.get(cache_key))
+            to_cache[cache_key] = hero.ui_info(actual_guaranteed=True, old_info=self.previous_cache.get(cache_key), order=self.order)
+            self.order += 1
 
         cache.set_many(to_cache, heroes_settings.UI_CACHING_TIMEOUT)
 
