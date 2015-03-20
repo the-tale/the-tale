@@ -43,32 +43,18 @@ class FormulasTest(testcase.TestCase):
         self.assertEqual(round(f.companions_defend_in_battle_probability(100), 5), 0.225)
 
 
-    def test_companions_heal_in_hour(self):
-        self.assertEqual(f.companions_heal_in_hour(0, 30), 2)
-        self.assertEqual(f.companions_heal_in_hour(15, 30), 1.5)
-        self.assertEqual(f.companions_heal_in_hour(30, 30), 1)
-
-        self.assertEqual(f.companions_heal_in_hour(0, 50), 2)
-        self.assertEqual(f.companions_heal_in_hour(25, 50), 1.5)
-        self.assertEqual(f.companions_heal_in_hour(50, 50), 1)
-
-        self.assertEqual(f.companions_heal_in_hour(0, 70), 2)
-        self.assertEqual(f.companions_heal_in_hour(35, 70), 1.5)
-        self.assertEqual(f.companions_heal_in_hour(70, 70), 1)
-
-
     def test_companions_heal_length(self):
-        self.assertEqual(f.companions_heal_length(0, 30), 14)
+        self.assertEqual(f.companions_heal_length(0, 30), 18)
         self.assertEqual(f.companions_heal_length(15, 30), 12)
-        self.assertEqual(f.companions_heal_length(30, 30), 9)
+        self.assertEqual(f.companions_heal_length(30, 30), 6)
 
-        self.assertEqual(f.companions_heal_length(0, 50), 14)
+        self.assertEqual(f.companions_heal_length(0, 50), 18)
         self.assertEqual(f.companions_heal_length(25, 50), 12)
-        self.assertEqual(f.companions_heal_length(50, 50), 9)
+        self.assertEqual(f.companions_heal_length(50, 50), 6)
 
-        self.assertEqual(f.companions_heal_length(0, 70), 14)
+        self.assertEqual(f.companions_heal_length(0, 70), 18)
         self.assertEqual(f.companions_heal_length(35, 70), 12)
-        self.assertEqual(f.companions_heal_length(70, 70), 9)
+        self.assertEqual(f.companions_heal_length(70, 70), 6)
 
 
     def test_gold_in_path(self):

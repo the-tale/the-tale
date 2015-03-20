@@ -1,5 +1,4 @@
 # coding: utf-8
-import time
 import datetime
 
 from dext.common.utils import s11n

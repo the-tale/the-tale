@@ -144,12 +144,8 @@ class LogicAccessorsMixin(object):
     def companion_heal_disabled(self):
         return self.preferences.companion_dedication.is_EVERY_MAN_FOR_HIMSELF
 
-    def companion_need_heal_in_move(self):
-        return self.companion and not self.companion_heal_disabled() and self.companion.need_heal_in_move
-
-    def companion_need_heal_in_settlement(self):
-        return self.companion and not self.companion_heal_disabled() and self.companion.need_heal_in_settlement
-
+    def companion_need_heal(self):
+        return self.companion and not self.companion_heal_disabled() and self.companion.need_heal
 
     def can_kill_before_battle(self):
         return self.check_attribute(relations.MODIFIERS.KILL_BEFORE_BATTLE)
@@ -359,12 +355,11 @@ class LogicAccessorsMixin(object):
     def companion_damage(self):
         damage = c.COMPANIONS_DAMAGE_PER_WOUND
 
-        # if not self.real_time_processing:
-        #     # multiplay by delay modifier to emulate real time companion live cycle
-        #     damage *= heroes_settings.INACTIVE_HERO_DELAY
-        #     return damage # do not apply any other modifiers
+        bonus_damage_probability = (c.COMPANIONS_BONUS_DAMAGE_PROBABILITY *
+                                    self.companion_damage_probability /
+                                    (self.companion._damage_from_heal_probability() + self.companion_damage_probability) )
 
-        if random.random() < c.COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS / c.COMPANIONS_WOUNDS_IN_HOUR:
+        if random.random() < bonus_damage_probability:
             damage += self.attribute_modifier(relations.MODIFIERS.COMPANION_DAMAGE)
 
         return damage

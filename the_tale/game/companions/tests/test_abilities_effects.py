@@ -382,7 +382,7 @@ class CompanionDamageTests(BaseEffectsTests):
     def test_in_game(self):
         ability = self.get_ability(effects.CompanionDamage)
 
-        with mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUNDS_IN_HOUR', c.COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS):
+        with mock.patch('the_tale.game.balance.constants.COMPANIONS_BONUS_DAMAGE_PROBABILITY', 6666666666):
             with self.check_changed(lambda: self.hero.companion_damage):
                 self.apply_ability(ability)
 
@@ -486,7 +486,7 @@ class CompanionExpPerHealTests(BaseEffectsTests):
 
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.COMPANION_EXP_PER_HEAL, 10), 10)
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.COMPANION_EXP_PER_HEAL_PROBABILITY, 10), 20)
-        self.assertEqual(effect._modify_attribute({}, MODIFIERS.random(exclude=(MODIFIERS.COMPANION_EXP_PER_HEAL, MODIFIERS.COMPANION_EXP_PER_HEAL)), 11), 11)
+        self.assertEqual(effect._modify_attribute({}, MODIFIERS.random(exclude=(MODIFIERS.COMPANION_EXP_PER_HEAL, MODIFIERS.COMPANION_EXP_PER_HEAL_PROBABILITY)), 11), 11)
 
     def test_in_game(self):
         ability = self.get_ability(effects.CompanionExpPerHeal)

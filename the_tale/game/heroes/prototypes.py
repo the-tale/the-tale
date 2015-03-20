@@ -209,9 +209,7 @@ class HeroPrototype(BasePrototype,
         spending_candidates = self.spending_priorities()
 
         if relations.ITEMS_OF_EXPENDITURE.HEAL_COMPANION in spending_candidates:
-            if self.companion is None:
-                del spending_candidates[relations.ITEMS_OF_EXPENDITURE.HEAL_COMPANION]
-            if self.preferences.companion_dedication.is_EVERY_MAN_FOR_HIMSELF:
+            if self.companion is None or self.companion_heal_disabled():
                 del spending_candidates[relations.ITEMS_OF_EXPENDITURE.HEAL_COMPANION]
 
         self._model.next_spending = random_value_by_priority(list(spending_candidates.items()))

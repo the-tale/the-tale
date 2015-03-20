@@ -242,52 +242,28 @@ class CompanionTests(testcase.TestCase):
             self.assertEqual(self.companion.modification_coherence(heroes_relations.MODIFIERS.random(exclude=(heroes_relations.MODIFIERS.COMPANION_MAX_COHERENCE,))), 50)
 
 
-    @mock.patch('the_tale.game.balance.formulas.companions_heal_in_hour', mock.Mock(return_value=1))
-    def test_need_heal_in_move(self):
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_HEALS_IN_HOUR', 1)
+    def test_need_heal(self):
         self.companion.healed_at_turn -= c.TURNS_IN_HOUR
         self.companion.health = self.companion.max_health
 
-        self.assertFalse(self.companion.need_heal_in_move)
+        self.assertFalse(self.companion.need_heal)
 
         self.companion.health -= 1
 
-        self.assertTrue(self.companion.need_heal_in_move)
+        self.assertTrue(self.companion.need_heal)
 
 
-    @mock.patch('the_tale.game.balance.formulas.companions_heal_in_hour', mock.Mock(return_value=1))
-    def test_need_heal_in_move__no_time(self):
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_HEALS_IN_HOUR', 1)
+    def test_need_heal__no_time(self):
         self.companion.healed_at_turn -= c.TURNS_IN_HOUR / 2
         self.companion.health = self.companion.max_health
 
-        self.assertFalse(self.companion.need_heal_in_move)
+        self.assertFalse(self.companion.need_heal)
 
         self.companion.health -= 1
 
-        self.assertFalse(self.companion.need_heal_in_move)
-
-
-    @mock.patch('the_tale.game.balance.formulas.companions_heal_in_hour', mock.Mock(return_value=1))
-    def test_need_heal_in_settlement(self):
-        self.companion.healed_at_turn -= c.TURNS_IN_HOUR
-        self.companion.health = self.companion.max_health
-
-        self.assertFalse(self.companion.need_heal_in_settlement)
-
-        self.companion.health -= 1
-
-        self.assertTrue(self.companion.need_heal_in_settlement)
-
-
-    @mock.patch('the_tale.game.balance.formulas.companions_heal_in_hour', mock.Mock(return_value=1))
-    def test_need_heal_in_settlement__no_time(self):
-        self.companion.healed_at_turn -= c.TURNS_IN_HOUR / 2
-        self.companion.health = self.companion.max_health
-
-        self.assertFalse(self.companion.need_heal_in_settlement)
-
-        self.companion.health -= 1
-
-        self.assertFalse(self.companion.need_heal_in_settlement)
+        self.assertFalse(self.companion.need_heal)
 
 
     def test_defend_in_battle_probability__hero_dedication(self):

@@ -244,7 +244,7 @@ class MoveNearActionTest(testcase.TestCase):
         self.storage._test_save()
 
 
-    @mock.patch('the_tale.game.companions.objects.Companion.need_heal_in_move', True)
+    @mock.patch('the_tale.game.companions.objects.Companion.need_heal', True)
     def test_heal_companion(self):
 
         self.action_move.state = self.action_move.STATE.BATTLE

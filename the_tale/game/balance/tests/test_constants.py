@@ -314,8 +314,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(round(c.COMPANIONS_WOUNDS_IN_HOUR, 5), 1.63889)
         self.assertEqual(round(c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY_FROM_WOUNDS, 5), 0.00604)
 
-        self.assertEqual(c.COMPANIONS_HEAL_MIN_IN_HOUR, 1.0)
-        self.assertEqual(c.COMPANIONS_HEAL_MAX_IN_HOUR, 2.0)
+        self.assertEqual(c.COMPANIONS_HEALS_IN_HOUR, 1.5)
 
         self.assertEqual(c.COMPANIONS_HEALTH_PER_HEAL, 1)
         self.assertEqual(c.COMPANIONS_DAMAGE_PER_WOUND, 1)
@@ -349,6 +348,8 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.COMPANIONS_GIVE_COMPANION_AFTER, 24)
 
         self.assertEqual(c.COMPANIONS_LEAVE_IN_PLACE, 0.05)
+
+        self.assertEqual(c.COMPANIONS_BONUS_DAMAGE_PROBABILITY, 0.25)
 
 
     def test_dedication_maximum_multiplier(self):

@@ -317,7 +317,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionRestPrototype.TYPE)
         self.storage._test_save()
 
-    @mock.patch('the_tale.game.companions.objects.Companion.need_heal_in_settlement', True)
+    @mock.patch('the_tale.game.companions.objects.Companion.need_heal', True)
     def test_heal_companion_action_create(self):
         companion_record = companions_storage.companions.enabled_companions().next()
         self.hero.set_companion(companions_logic.create_companion(companion_record))
@@ -333,7 +333,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionInPlacePrototype.TYPE)
         self.storage._test_save()
 
-    @mock.patch('the_tale.game.companions.objects.Companion.need_heal_in_settlement', True)
+    @mock.patch('the_tale.game.companions.objects.Companion.need_heal', True)
     def test_heal_companion_action_create__no_companion(self):
         self.assertEqual(self.hero.companion, None)
 

@@ -703,7 +703,7 @@ class ActionMoveToPrototype(ActionBase):
             self.state = self.STATE.RESTING
             return True
 
-        if self.hero.companion_need_heal_in_move():
+        if self.hero.companion_need_heal():
             ActionHealCompanionPrototype.create(hero=self.hero)
             self.state = self.STATE.HEALING_COMPANION
             return True
@@ -879,7 +879,7 @@ class ActionMoveToPrototype(ActionBase):
                 elif self.hero.need_regenerate_energy:
                     ActionRegenerateEnergyPrototype.create(hero=self.hero)
                     self.state = self.STATE.REGENERATE_ENERGY
-                elif self.hero.companion_need_heal_in_move():
+                elif self.hero.companion_need_heal():
                     ActionHealCompanionPrototype.create(hero=self.hero)
                     self.state = self.STATE.HEALING_COMPANION
                 else:
@@ -1397,7 +1397,7 @@ class ActionInPlacePrototype(ActionBase):
                 self.state = self.STATE.RESTING
                 ActionRestPrototype.create(hero=self.hero)
 
-            elif self.hero.companion_need_heal_in_settlement():
+            elif self.hero.companion_need_heal():
                 self.state = self.STATE.HEALING_COMPANION
                 ActionHealCompanionPrototype.create(hero=self.hero)
 
@@ -1627,7 +1627,7 @@ class ActionMoveNearPlacePrototype(ActionBase):
             self.state = self.STATE.RESTING
             return True
 
-        if self.hero.companion_need_heal_in_move():
+        if self.hero.companion_need_heal():
             ActionHealCompanionPrototype.create(hero=self.hero)
             self.state = self.STATE.HEALING_COMPANION
             return True

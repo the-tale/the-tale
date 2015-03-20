@@ -21,15 +21,17 @@ from the_tale.game.companions.abilities import container as abilities_container
 
 
 class Companion(object):
-    __slots__ = ('record_id', 'health', 'coherence', 'experience', 'healed_at_turn', '_hero')
+    __slots__ = ('record_id', 'health', 'coherence', 'experience', 'healed_at_turn', '_hero', '_heals_count', '_heals_wounds_count')
 
-    def __init__(self, record_id, health, coherence, experience, healed_at_turn, _hero=None):
+    def __init__(self, record_id, health, coherence, experience, healed_at_turn, _hero=None, _heals_count=0, _heals_wounds_count=0):
         self.record_id = record_id
         self.health = health
         self.coherence = coherence
         self.experience = experience
         self.healed_at_turn = healed_at_turn
         self._hero = _hero
+        self._heals_count = _heals_count
+        self._heals_wounds_count = _heals_wounds_count
 
     @property
     def record(self):
@@ -41,7 +43,9 @@ class Companion(object):
                 'health': self.health,
                 'coherence': self.coherence,
                 'experience': self.experience,
-                'healed_at_turn': self.healed_at_turn}
+                'healed_at_turn': self.healed_at_turn,
+                '_heals_count': self._heals_count,
+                '_heals_wounds_count': self._heals_wounds_count}
 
     @classmethod
     def deserialize(cls, hero, data):
@@ -50,6 +54,8 @@ class Companion(object):
                   coherence=data['coherence'],
                   experience=data['experience'],
                   healed_at_turn=data.get('healed_at_turn', 0),
+                  _heals_count=data.get('_heals_count', 0),
+                  _heals_wounds_count=data.get('_heals_wounds_count', 0),
                   _hero=hero)
         return obj
 
@@ -95,30 +101,37 @@ class Companion(object):
         return self._hero.companion_max_coherence
 
     def hit(self):
+        import random
         self.health -= self._hero.companion_damage
+
+        if random.random() < self._damage_from_heal_probability() / (self._damage_from_heal_probability() + self._hero.companion_damage_probability):
+            self._heals_wounds_count += 1
 
     def on_heal_started(self):
         self.healed_at_turn = game_prototypes.TimePrototype.get_current_turn_number()
+        self._heals_count += 1
+
+    def _damage_from_heal_probability(self):
+        return ( c.COMPANIONS_WOUNDS_IN_HOUR_FROM_HEAL /
+                 ( c.BATTLES_PER_HOUR * (c.BATTLE_LENGTH / 2) * self.defend_in_battle_probability ) )
 
     @property
-    def need_heal_in_settlement(self):
+    def damage_from_heal_probability(self):
+
+        if self._hero.companion_heal_disabled():
+            return self._damage_from_heal_probability()
+
+        if self._heals_count < self._heals_wounds_count:
+            return 0
+
+        return self._damage_from_heal_probability() * 2
+
+    @property
+    def need_heal(self):
         if self.health == self.max_health:
             return False
 
-        heals_in_hour = f.companions_heal_in_hour(self.health / 2, self.max_health)
-
-        return self.healed_at_turn + c.TURNS_IN_HOUR / heals_in_hour <= game_prototypes.TimePrototype.get_current_turn_number()
-
-
-    @property
-    def need_heal_in_move(self):
-        if self.health == self.max_health:
-            return False
-
-        heals_in_hour = f.companions_heal_in_hour(self.health, self.max_health)
-
-        return self.healed_at_turn + c.TURNS_IN_HOUR / heals_in_hour <= game_prototypes.TimePrototype.get_current_turn_number()
-
+        return self.healed_at_turn + c.TURNS_IN_HOUR / c.COMPANIONS_HEALS_IN_HOUR <= game_prototypes.TimePrototype.get_current_turn_number()
 
     @property
     def is_dead(self): return self.health <= 0

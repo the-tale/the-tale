@@ -353,7 +353,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(self.action_move.state, prototypes.ActionMoveToPrototype.STATE.RESTING)
 
-    @mock.patch('the_tale.game.companions.objects.Companion.need_heal_in_move', True)
+    @mock.patch('the_tale.game.companions.objects.Companion.need_heal', True)
     def test_hero_need_heal_companion(self):
         companion_record = companions_storage.companions.enabled_companions().next()
         self.hero.set_companion(companions_logic.create_companion(companion_record))
@@ -370,7 +370,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
 
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
-    @mock.patch('the_tale.game.companions.objects.Companion.need_heal_in_move', True)
+    @mock.patch('the_tale.game.companions.objects.Companion.need_heal', True)
     def test_hero_need_heal_companion__battle(self):
         self.action_move.state = self.action_move.STATE.BATTLE
 
