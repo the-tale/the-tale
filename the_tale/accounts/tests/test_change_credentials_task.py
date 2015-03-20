@@ -40,14 +40,6 @@ class PostponedChangeCredentialsTaskTests(testcase.TestCase):
     def test_serialization(self):
         self.assertEqual(self.postponed_task.serialize(), ChangeCredentials.deserialize(self.postponed_task.serialize()).serialize())
 
-    def test_processed_view__simple(self):
-        resource = mock.Mock()
-        with mock.patch('the_tale.accounts.logic.force_login_user') as force_login_user:
-            self.postponed_task.processed_view(resource)
-
-        self.assertEqual(resource.account.id, self.account.id)
-        self.assertEqual(force_login_user.call_count, 1)
-
     def test_processed_view__real(self):
         from the_tale.common.postponed_tasks import autodiscover
         autodiscover()
@@ -56,7 +48,35 @@ class PostponedChangeCredentialsTaskTests(testcase.TestCase):
         postponed_taks = self.task.process(logger=mock.Mock()) # create task
         postponed_taks.process(logger=mock.Mock())
         self.check_ajax_ok(self.client.get(url('postponed-tasks:status', postponed_taks.id)))
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+    def test_processed_view__logout__same_user(self):
+        self.request_login(self.account.email)
+
+        from the_tale.common.postponed_tasks import autodiscover
+        autodiscover()
+
+        self.assertEqual(self.task.process(logger=mock.Mock()), None) # sent mail
+        postponed_taks = self.task.process(logger=mock.Mock()) # create task
+        postponed_taks.process(logger=mock.Mock())
+        self.check_ajax_ok(self.client.get(url('postponed-tasks:status', postponed_taks.id)))
+
         self.assertEqual(self.client.session['_auth_user_id'], self.account.id)
+
+    def test_processed_view__logout__other_user(self):
+        account_2 = self.accounts_factory.create_account()
+
+        self.request_login(account_2.email)
+
+        from the_tale.common.postponed_tasks import autodiscover
+        autodiscover()
+
+        self.assertEqual(self.task.process(logger=mock.Mock()), None) # sent mail
+        postponed_taks = self.task.process(logger=mock.Mock()) # create task
+        postponed_taks.process(logger=mock.Mock())
+        self.check_ajax_ok(self.client.get(url('postponed-tasks:status', postponed_taks.id)))
+
+        self.assertNotIn('_auth_user_id', self.client.session)
 
     def test_processed_view__real__without_relogin(self):
         from the_tale.common.postponed_tasks import autodiscover

@@ -15,6 +15,7 @@ from the_tale.common.utils.decorators import lazy_property
 from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 
 from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
+from the_tale.accounts import logic
 
 
 REGISTRATION_TASK_STATE = create_enum('REGISTRATION_TASK_STATE', ( ('UNPROCESSED', 0, u'ожидает обработки'),
@@ -99,15 +100,8 @@ class ChangeCredentials(PostponedLogic):
     def processed_data(self): return {'next_url': reverse('accounts:profile:edited') }
 
     def processed_view(self, resource):
-        from the_tale.accounts.logic import force_login_user
-
-        if not self.task.relogin_required:
-            return
-
-        force_login_user(resource.request, self.task.account._model)
-
-        # update account settuped on start of this request processing
-        resource.account = self.task.account
+        if resource.account.is_authenticated() and self.task.account.id != resource.account.id:
+            logic.logout_user(resource.request)
 
     @property
     def error_message(self): return self.state.text
