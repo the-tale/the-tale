@@ -64,20 +64,20 @@
     </tr>
 
     <tr>
-      <th>стоимость одной печеньки</th>
+      <th>{# стоимость одной печеньки #}</th>
       <td>
-        {{ payments_settings.XSOLLA_RUB_FOR_PREMIUM_CURRENCY }} долларов США <a href="{{url('guide:payments')}}">[подробнее]</a>
-        {%- if CURRENCIES -%}
-          , это примерно:
-          <ul>
-            <li>{{(payments_settings.XSOLLA_RUB_FOR_PREMIUM_CURRENCY * CURRENCIES['RUB'])|round(2)}} рубля РФ;</li>
-            <li>{{(payments_settings.XSOLLA_RUB_FOR_PREMIUM_CURRENCY * CURRENCIES['UAH'])|round(2)}} гривны.</li>
-            <li>{{(payments_settings.XSOLLA_RUB_FOR_PREMIUM_CURRENCY * CURRENCIES['BYR'])|round(1)}} рубля РБ;</li>
-          </ul>
-        {% else %}
-          <br/>
-        {% endif %}
-        Конечная стоимость может колебаться в зависимости от курсов валют, платежной системы и комиссии агрегатора.<br/>
+        {# {{ payments_settings.XSOLLA_RUB_FOR_PREMIUM_CURRENCY }} долларов США <a href="{{url('guide:payments')}}">[подробнее]</a> #}
+        {# {%- if CURRENCIES -%} #}
+        {#   , это примерно: #}
+        {#   <ul> #}
+        {#     <li>{{(payments_settings.XSOLLA_RUB_FOR_PREMIUM_CURRENCY * CURRENCIES['RUB'])|round(2)}} рубля РФ;</li> #}
+        {#     <li>{{(payments_settings.XSOLLA_RUB_FOR_PREMIUM_CURRENCY * CURRENCIES['UAH'])|round(2)}} гривны.</li> #}
+        {#     <li>{{(payments_settings.XSOLLA_RUB_FOR_PREMIUM_CURRENCY * CURRENCIES['BYR'])|round(1)}} рубля РБ;</li> #}
+        {#   </ul> #}
+        {# {% else %} #}
+        {#   <br/> #}
+        {# {% endif %} #}
+        Стоимость печенек может колебаться в зависимости от курсов валют, платежной системы и комиссии агрегатора.<br/>
         Перевести печеньки другому игроку можно, обратившись к администрации.
       </td>
     </tr>
