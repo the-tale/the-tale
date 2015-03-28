@@ -1,7 +1,6 @@
 # coding: utf-8
 import os
 import tempfile
-import shutil
 import subprocess
 
 from optparse import make_option
