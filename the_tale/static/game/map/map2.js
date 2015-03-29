@@ -109,7 +109,49 @@ pgf.game.resources.ImageManager =  function(spritesSettins, params) {
         }
     }
 
-    this.GetImage = function(name) {
+    var substitutionsMap = {17: 42,
+                            18: 42,
+                            24: 41,
+                            25: 23,
+                            26: 24,
+                            27: 43,
+                            28: 22,
+                            29: 19,
+                            30: 20,
+                            31: 21,
+                            32: 22,
+                            33: 23,
+                            34: 24,
+                            35: 41,
+                            36: 23,
+                            37: 24,
+                            38: 43,
+                            39: 22};
+
+    var namesMap = {};
+
+    function getRandom(index, n) {
+        var x = parseInt(Math.random() * 10000) % n;
+
+        while (x in namesMap) {
+            x = parseInt(Math.random() * 10000) % n;
+        }
+
+        return x;
+    }
+
+    for (var i=0; i<43-15; ++i) {
+        namesMap[i+15] = getRandom(i, 43-15) + 15;
+    }
+
+
+    this.GetImage = function(name, substitute) {
+        if (name in namesMap) {
+            name = namesMap[name];
+        }
+        if (substitute && name in substitutionsMap) {
+            name = substitutionsMap[name];
+        }
         var sprite = sprites[name];
         if (typeof(sprite)=='string') return this.GetImage(sprite);
         return sprite;
@@ -457,7 +499,7 @@ pgf.game.map.Map = function(selector, params) {
 
                 for (var sprite_id in sprites) {
                     var sprite_info = sprites[sprite_id];
-                    var image = spritesManager.GetImage(sprite_info[0]);
+                    var image = spritesManager.GetImage(sprite_info[0], (sprites.length > 1));
 
                     var rotate = sprite_info[1] * Math.PI / 180;
 
