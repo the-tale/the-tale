@@ -10,7 +10,7 @@ from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.game.logic_storage import LogicStorage
 
-from the_tale.game.heroes.relations import EQUIPMENT_SLOT
+from the_tale.game.heroes import relations as heroes_relations
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.companions import storage as companions_storage
@@ -561,19 +561,19 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         while not self.hero.next_spending.is_SHARPENING_ARTIFACT:
             self.hero.switch_spending()
 
-        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
+        self.hero.preferences.set_equipment_slot(heroes_relations.EQUIPMENT_SLOT.PLATE)
         self.hero.save()
 
         money = self.hero.spend_amount
 
         old_power = self.hero.power.clone()
-        old_plate_power = self.hero.equipment.get(EQUIPMENT_SLOT.PLATE).power.clone()
+        old_plate_power = self.hero.equipment.get(heroes_relations.EQUIPMENT_SLOT.PLATE).power.clone()
 
         self.hero._model.money = money
         self.storage.process_turn()
         self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
         self.assertEqual(old_power.total() + 1, self.hero.power.total())
-        self.assertEqual(old_plate_power.total() + 1, self.hero.equipment.get(EQUIPMENT_SLOT.PLATE).power.total())
+        self.assertEqual(old_plate_power.total() + 1, self.hero.equipment.get(heroes_relations.EQUIPMENT_SLOT.PLATE).power.total())
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_sharpening, money - self.hero.money)
@@ -689,6 +689,44 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend_for_companions, money)
 
         self.storage._test_save()
+
+
+    @mock.patch('the_tale.game.balance.constants.PRICE_DELTA', 0.0)
+    def test_healed_companion(self):
+        self.companion_record = companions_logic.create_random_companion_record('companion', state=companions_relations.STATE.ENABLED)
+        self.hero.set_companion(companions_logic.create_companion(self.companion_record))
+
+        self.hero.companion.health = self.hero.companion.max_health
+
+        while not self.hero.next_spending.is_HEAL_COMPANION:
+            self.hero.switch_spending()
+
+        money = self.hero.spend_amount
+
+        self.hero._model.money = money + 666
+
+        with self.check_not_changed(lambda: self.hero.statistics.money_spend):
+            with self.check_not_changed(lambda: self.hero.statistics.money_spend_for_companions):
+                with self.check_not_changed(lambda: self.hero.money):
+                    self.storage.process_turn()
+
+        self.storage._test_save()
+
+
+    @mock.patch('the_tale.game.balance.constants.PRICE_DELTA', 0.0)
+    def test_heal_companion__no_companion(self):
+        self.assertEqual(self.hero.companion, None)
+
+        self.hero._model.next_spending = heroes_relations.ITEMS_OF_EXPENDITURE.HEAL_COMPANION
+
+        money = self.hero.spend_amount
+
+        self.hero._model.money = money + 666
+
+        with self.check_not_changed(lambda: self.hero.statistics.money_spend):
+            with self.check_not_changed(lambda: self.hero.statistics.money_spend_for_companions):
+                with self.check_not_changed(lambda: self.hero.money):
+                    self.storage.process_turn()
 
 
 class InPlaceActionCompanionBuyMealTests(testcase.TestCase):

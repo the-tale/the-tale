@@ -1317,6 +1317,12 @@ class ActionInPlacePrototype(ActionBase):
 
 
     def spend_money__heal_companion(self):
+        if self.hero.companion is None:
+            return
+
+        if self.hero.companion.health == self.hero.companion.max_health:
+            return
+
         coins = self.try_to_spend_money()
         if coins is not None:
             self.hero.companion.heal(c.COMPANIONS_REGEN_BY_MONEY_SPEND)
