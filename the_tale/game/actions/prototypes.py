@@ -1325,9 +1325,9 @@ class ActionInPlacePrototype(ActionBase):
 
         coins = self.try_to_spend_money()
         if coins is not None:
-            self.hero.companion.heal(c.COMPANIONS_REGEN_BY_MONEY_SPEND)
+            health = self.hero.companion.heal(c.COMPANIONS_REGEN_BY_MONEY_SPEND)
             self.hero.add_message('action_inplace_diary_heal_companion_healed',
-                                  diary=True, place=self.hero.position.place, hero=self.hero, coins=coins, companion=self.hero.companion)
+                                  diary=True, place=self.hero.position.place, hero=self.hero, coins=coins, companion=self.hero.companion, health=health)
 
     def spend_money(self):
 

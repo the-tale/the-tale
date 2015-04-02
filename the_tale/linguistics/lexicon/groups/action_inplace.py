@@ -145,5 +145,5 @@ KEYS = [(u'ACTION_INPLACE_DESCRIPTION', 80000, u'Описание', LEXICON_GROU
 
         (u'ACTION_INPLACE_DIARY_HEAL_COMPANION_HEALED', 80035, u'Дневник: Лечение спутника', LEXICON_GROUP.ACTION_INPLACE,
         u'Герой восстановил спутнику немного здоровья, потратив деньги.',
-        [V.HERO, V.PLACE, V.COMPANION, V.COINS])
+        [V.HERO, V.PLACE, V.COMPANION, V.COINS, V.HEALTH])
         ]
