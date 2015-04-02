@@ -188,7 +188,6 @@ jQuery(document).ready(function() {
                                                                            (url("game:ratings:"), "Рейтинги"),
                                                                            (url("accounts:achievements:"), "Достижения"),
                                                                            (url("collections:collections:"), "Коллекции"),
-                                                                           (url("game:pvp:calls"), "Арена"),
                                                                            ('-', '<li class="divider"></li>'),
                                                                            (settings.SOCIAL_VK_GROUP_URL, "ВКонтакте"),
                                                                            (settings.SOCIAL_FACEBOOK_GROUP_URL, "Facebook"),
@@ -205,7 +204,8 @@ jQuery(document).ready(function() {
                                                                 (url("market:"), "Рынок"),
                                                                 (url("linguistics:"), "Лингвистика"),
                                                                 (url("blogs:posts:"), "Фольклор"),
-                                                                (url("game:chronicle:"), "Летопись"), ] ) }}
+                                                                (url("game:chronicle:"), "Летопись"),
+                                                                (url("game:pvp:calls"), "Арена"), ] ) }}
 
             {% if resource.account.is_authenticated() %}
             {{ base_macros.main_menu_item("game", url("game:"), "<span class='game-link'>Игра</span>") }}
