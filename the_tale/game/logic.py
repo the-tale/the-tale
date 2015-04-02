@@ -166,9 +166,6 @@ def _form_game_account_info(game_time, account, in_pvp_queue, is_own, client_tur
     if not is_own:
         if 'cards' in hero_data:
             hero_data['cards'] = cards_container.CardsContainer.ui_info_null()
-        if 'permissions' in hero_data:
-            hero_data['permissions']['can_participate_in_pvp'] = False
-            hero_data['permissions']['can_repair_building'] = False
         if 'energy' in hero_data:
             hero_data['energy']['max'] = 0
             hero_data['energy']['value'] = 0

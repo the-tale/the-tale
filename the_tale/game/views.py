@@ -247,7 +247,7 @@ def api_info(context):
         "dy": <дробное число>,          // направленеи взгляда по y
       },
 
-      "permissions": {                        // права на выполнение различных операций [личная информация]
+      "permissions": {                        // права на выполнение различных операций
         "can_participate_in_pvp": true|false, // может ли участвовать в pvp
         "can_repair_building": true|false,    // может ли чинить здания
       },

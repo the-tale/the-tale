@@ -107,6 +107,9 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
     def is_premium(self): return self.is_premium_infinit or self.premium_end_at > datetime.datetime.now()
 
     @property
+    def can_affect_game(self): return self.is_premium and not self.is_ban_game
+
+    @property
     def premium_end_at(self):
         if self.is_premium_infinit:
             return datetime.datetime.now() + accounts_settings.PREMIUM_INFINIT_TIMEOUT

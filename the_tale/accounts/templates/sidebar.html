@@ -6,7 +6,15 @@
 
     <li class="nav-element">
       <small>
-        был в игре <span class="pgf-format-date" data-timestamp="{{ page_account.was_in_game_at|timestamp}}"></span>
+        был <span class="pgf-format-date" data-timestamp="{{ page_account.was_in_game_at|timestamp}}"></span>
+      </small>
+    </li>
+
+    <li class="nav-element">
+      <small>
+        {% if page_account.can_affect_game %}влияет на игру
+        {% else %}не влияет на игру
+        {% endif %}
       </small>
     </li>
 

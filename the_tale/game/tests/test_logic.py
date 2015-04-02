@@ -126,8 +126,6 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
                                                     'ui_caching_started_at': 0,
                                                     'cards': 'fake',
                                                     'changed_fields': [],
-                                                    'permissions': {'can_participate_in_pvp': 'fake',
-                                                                    'can_repair_building': 'fake'},
                                                     'energy': {'max': 'fake',
                                                                'value': 'fake',
                                                                'bonus': 'fake',
@@ -160,8 +158,6 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         self.assertFalse('pvp__last_turn' in data['account']['hero']['pvp'])
 
         self.assertNotEqual(data['account']['hero']['cards'], 'fake')
-        self.assertFalse(data['account']['hero']['permissions']['can_participate_in_pvp'])
-        self.assertFalse(data['account']['hero']['permissions']['can_repair_building'])
         self.assertEqual(data['account']['hero']['energy']['max'], 0)
         self.assertEqual(data['account']['hero']['energy']['value'], 0)
         self.assertEqual(data['account']['hero']['energy']['bonus'], 0)
@@ -268,8 +264,6 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         self.assertFalse('pvp__last_turn' in data['enemy']['hero']['pvp'])
 
         self.assertNotEqual(data['enemy']['hero']['cards'], 'fake')
-        self.assertFalse(data['enemy']['hero']['permissions']['can_participate_in_pvp'])
-        self.assertFalse(data['enemy']['hero']['permissions']['can_repair_building'])
         self.assertEqual(data['enemy']['hero']['energy']['max'], 0)
         self.assertEqual(data['enemy']['hero']['energy']['value'], 0)
         self.assertEqual(data['enemy']['hero']['energy']['bonus'], 0)
