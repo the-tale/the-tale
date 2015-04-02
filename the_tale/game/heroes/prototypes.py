@@ -992,6 +992,10 @@ class HeroPositionPrototype(object):
 
         return random.uniform(0, 1) <=  battles_per_turn
 
+    @classmethod
+    def raw_transport(cls):
+        from the_tale.game.map.places import conf
+        return 1.0 - c.WHILD_TRANSPORT_PENALTY - c.TRANSPORT_FROM_PLACE_SIZE_PENALTY * conf.places_settings.MAX_SIZE
 
     def modify_move_speed(self, speed):
         dominant_place = self.get_dominant_place()
@@ -999,7 +1003,7 @@ class HeroPositionPrototype(object):
         if dominant_place is not None:
             return speed * dominant_place.transport
         else:
-            return speed
+            return speed * self.raw_transport()
 
     def get_minumum_distance_to(self, destination):
         from the_tale.game.map.roads.storage import waymarks_storage

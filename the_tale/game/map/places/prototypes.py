@@ -421,7 +421,12 @@ class PlacePrototype(BasePrototype, names.ManageNameMixin):
 
     def get_transport_powers(self):
         powers = [(u'дороги', 1.0),
-                  (u'стабильность', (1.0-self.stability) * c.PLACE_STABILITY_MAX_TRANSPORT_PENALTY)]
+                  (u'трафик', -c.TRANSPORT_FROM_PLACE_SIZE_PENALTY * self.size)]
+
+        if self.is_frontier:
+            powers.append((u'бездорожье', -c.WHILD_TRANSPORT_PENALTY))
+
+        powers.append((u'стабильность', (1.0-self.stability) * c.PLACE_STABILITY_MAX_TRANSPORT_PENALTY))
 
         self._update_powers(powers, CITY_PARAMETERS.TRANSPORT)
 

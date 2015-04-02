@@ -108,6 +108,31 @@ class SAFETY(rels.Relation):
                 (10, u'местность очень безопасная и ухоженная', 0.901) )
 
 
+class ROAD_TRANSPORT(rels.Relation):
+    value = rels.Column(external=True, unique=True)
+    text = rels.Column(unique=False)
+    transport = rels.Column()
+
+    records = ( (0, u'среди сплошного бездорожья нет и намёка на дорогу', 0.0),
+                (1, u'среди бездорожья иногда проглядывают остатки заваленной буреломом да разбитыми телегами дороги', 0.5),
+                (2, u'небольшая тропка петляет по округе, иногда переходя в широкие участки, как будто вспоминая о былых временах', 0.6),
+                (3, u'старая неухоженная дорога то и дело пропадает из виду, скрываемая недавними изменениями ландшафта', 0.7),
+                (4, u'колдобины на пару с остатками укатанного полотна пытаются сойти за дорогу', 0.8),
+                (5, u'слегка потрёпанная грунтовая дорога периодически оборачивается колдобинами в местах с ослабевшей магической защитой', 0.9),
+                (6, u'грунтовая дорога петляет, обходя наиболее изменчивые места ландшафта', 1.0),
+                (7, u'надёжная ухоженная грунтовая дорога так и приглашает ходоков быстрее двигаться к своей цели', 1.1),
+                (8, u'спрямлённая грунтовая дорога весело уходит вдаль, защищаемая от изменений редкими магическими башнями', 1.2),
+                (9, u'прямая мощёная дорога то и дело прерывается грунтовыми участками в самых изменчивых своих местах', 1.3),
+                (10, u'добротный мощёный тракт петляет, отгородившись магическими башнями от самых «диких» участков ландшафта', 1.4),
+                (11, u'от горизонта до горизонта стрелой протянулся широкий мощёный тракт; через равные промежутки вдоль дороги стоят ухоженные магические башни, защищающие его от изменений', 1.5) )
+
+class WILD_TRANSPORT(rels.Relation):
+    value = rels.Column(external=True, unique=True)
+    text = rels.Column(unique=False)
+    transport = rels.Column()
+
+    records = [ (r.value, u'видно, как %s' % r.text, r.transport) for r in ROAD_TRANSPORT.records ]
+
 # GROUND_WETNESS_POWERS = [(0.00, u'истрескавшаяся пыльная земля'),
 #                          (0.10, u'высохшая земля'),
 #                          (0.30, u'сухая земля'),
@@ -134,6 +159,12 @@ def _get_wetness(cell):
 
 def _get_safety(safety):
     return choose_from_interval(safety,  [(r.safety, r) for r in SAFETY.records])
+
+def _get_road_transport(transport):
+    return choose_from_interval(transport,  [(r.transport, r) for r in ROAD_TRANSPORT.records])
+
+def _get_wild_transport(transport):
+    return choose_from_interval(transport,  [(r.transport, r) for r in WILD_TRANSPORT.records])
 
 
 
@@ -174,6 +205,26 @@ class UICell(object):
             safety = 1.0 - c.BATTLES_PER_TURN - c.WHILD_BATTLES_PER_TURN_BONUS
 
         return _get_safety(safety)
+
+
+    @classmethod
+    def transport(self, x, y):
+        from the_tale.game.map.storage import map_info_storage
+        from the_tale.game.heroes.prototypes import HeroPositionPrototype
+
+        dominant_place = map_info_storage.item.get_dominant_place(x, y)
+
+        has_road = map_info_storage.item.roads_map[y][x].get('road')
+
+        if dominant_place:
+            transport = dominant_place.transport
+        else:
+            transport = HeroPositionPrototype.raw_transport()
+
+        if has_road:
+            return _get_road_transport(transport)
+        else:
+            return _get_wild_transport(transport)
 
 
 

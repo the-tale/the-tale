@@ -266,6 +266,9 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(round(c.PLACE_STABILITY_MAX_TRANSPORT_PENALTY, 2), -0.67)
         self.assertEqual(round(c.PLACE_STABILITY_MAX_FREEDOM_PENALTY, 2), 0.67)
 
+        self.assertEqual(c.WHILD_TRANSPORT_PENALTY, 0.1)
+        self.assertEqual(c.TRANSPORT_FROM_PLACE_SIZE_PENALTY, 0.05)
+
         self.assertEqual(c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM, 10)
         self.assertEqual(c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM_PENALTY, 10)
         self.assertEqual(c.PLACE_HABITS_EVENT_PROBABILITY, 0.025)

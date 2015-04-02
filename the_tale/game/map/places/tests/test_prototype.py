@@ -202,7 +202,8 @@ class PlacePrototypeTests(testcase.TestCase):
         self.p1.sync_parameters()
 
         expected_transport = (1.0 + 0.01 + 0.001 * len(self.p1.persons) -
-                              RESOURCE_EXCHANGE_TYPE.TRANSPORT_SMALL.amount + RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE.amount)
+                              RESOURCE_EXCHANGE_TYPE.TRANSPORT_SMALL.amount + RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE.amount -
+                              c.TRANSPORT_FROM_PLACE_SIZE_PENALTY * self.p1.size)
 
         self.assertTrue(-0.001 < self.p1.transport - expected_transport < 0.001)
 

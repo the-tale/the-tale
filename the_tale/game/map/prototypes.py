@@ -20,9 +20,13 @@ from the_tale.game.map.places.models import Place
 from the_tale.game.map.places.prototypes import PlacePrototype
 from the_tale.game.map.places.storage import places_storage
 
+from the_tale.game.map.roads.storage import roads_storage
+
 from the_tale.game.map.models import MapInfo, WorldInfo
 from the_tale.game.map.utils import get_person_race_percents, get_race_percents
 from the_tale.game.map.relations import MAP_STATISTICS, TERRAIN
+
+from the_tale.game.map import conf
 
 
 
@@ -59,6 +63,12 @@ class MapInfoPrototype(BasePrototype):
 
     @lazy_property
     def race_percents(self): return self.statistics['race_percents']
+
+    @lazy_property
+    def roads_map(self):
+        from the_tale.game.map.generator import drawer
+        return drawer.get_roads_map(w=conf.map_settings.WIDTH, h=conf.map_settings.HEIGHT, roads=roads_storage.all_exists_roads())
+
 
     @lazy_property
     def person_race_percents(self): return self.statistics['person_race_percents']
