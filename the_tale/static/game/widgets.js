@@ -125,7 +125,7 @@ pgf.game.Updater = function(params) {
                 if (data && data.data && data.data.account && data.data.account.is_old && data.data.account.is_own) {
 
                     setTimeout(function(e){
-                        refreshDelay *= 1.618; //the golden ratio
+                        refreshDelay = Math.min(refreshDelay * 1.618, 16.18*1000); //the golden ratio
                         instance.StopAutoRefresh();
                         instance.Refresh();
                     }, refreshDelay);
