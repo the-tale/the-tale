@@ -9,7 +9,7 @@ from the_tale.common.utils import bbcode
 
 class RecipientsForm(forms.Form):
 
-    recipients = fields.TextField(widget=HiddenInput())
+    recipients = fields.TextField(label='', widget=HiddenInput())
 
     def clean_recipients(self):
         recipients = self.cleaned_data['recipients']
