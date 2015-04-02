@@ -288,7 +288,8 @@ class ProfileResource(BaseAccountsResource):
         edit_profile_form = forms.EditProfileForm(data)
 
         settings_form = forms.SettingsForm({'personal_messages_subscription': self.account.personal_messages_subscription,
-                                            'news_subscription': self.account.news_subscription})
+                                            'news_subscription': self.account.news_subscription,
+                                            'description': self.account.description})
 
         return self.template('accounts/profile.html',
                              {'edit_profile_form': edit_profile_form,
@@ -555,7 +556,8 @@ class AccountResource(BaseAccountsResource):
            "place": <целое число>,                 // место
            "value": <целое число>|<дробное число>  // величина рейтингового значения
          }
-      }
+      },
+      "description": "строка"        // описание игока, введённое им сами (в формате html)
     }
         '''
 

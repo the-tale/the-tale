@@ -2,6 +2,8 @@
 
 from dext.forms import forms, fields
 
+from the_tale.common.utils import bbcode
+
 from the_tale.accounts.conf import accounts_settings
 from the_tale.accounts.relations import AWARD_TYPE, BAN_TYPE, BAN_TIME
 
@@ -24,6 +26,8 @@ class SettingsForm(forms.Form):
 
     news_subscription = fields.BooleanField(required=False,
                                             label=u'получать письма о новостях')
+
+    description = bbcode.BBField(required=False, label=u'Несколько слов о Вас, для страницы Вашего аккаунта', max_length=accounts_settings.MAX_ACCOUNT_DESCRIPTION_LENGTH)
 
 
 class LoginForm(forms.Form):

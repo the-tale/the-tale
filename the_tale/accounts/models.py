@@ -86,6 +86,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
     personal_messages_subscription = models.BooleanField(blank=True, default=True)
     news_subscription = models.BooleanField(blank=True, default=True)
 
+    description = models.TextField(blank=True, default=u'')
+
     ban_game_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
     ban_forum_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
 

@@ -267,9 +267,25 @@ class ProfileRequestsTests(TestCase, third_party_helpers.ThirdPartyTestsMixin):
         self.assertTrue(self.account.last_news_remind_time < AccountPrototype.get_by_id(self.account.id).last_news_remind_time)
 
 
-    def test_profile_update_settings(self):
+    def test_profile_update_settings__personal_messages(self):
         self.request_login(self.account.email)
         self.assertTrue(self.account.personal_messages_subscription)
         response = self.client.post(reverse('accounts:profile:update-settings'), {'personal_messages_subscription': False})
         self.assertFalse(AccountPrototype.get_by_id(self.account.id).personal_messages_subscription)
+        self.check_ajax_ok(response, data={'next_url': reverse('accounts:profile:edited')})
+
+
+    def test_profile_update_settings__bews(self):
+        self.request_login(self.account.email)
+        self.assertTrue(self.account.news_subscription)
+        response = self.client.post(reverse('accounts:profile:update-settings'), {'news_subscription': False})
+        self.assertFalse(AccountPrototype.get_by_id(self.account.id).news_subscription)
+        self.check_ajax_ok(response, data={'next_url': reverse('accounts:profile:edited')})
+
+
+    def test_profile_update_settings__description(self):
+        self.request_login(self.account.email)
+        self.assertEqual(self.account.description, u'')
+        response = self.client.post(reverse('accounts:profile:update-settings'), {'description': 'new-description'})
+        self.assertEqual(AccountPrototype.get_by_id(self.account.id).description, 'new-description')
         self.check_ajax_ok(response, data={'next_url': reverse('accounts:profile:edited')})

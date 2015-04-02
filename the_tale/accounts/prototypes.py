@@ -15,6 +15,7 @@ from dext.common.utils import s11n
 
 from the_tale.amqp_environment import environment
 
+from the_tale.common.utils import bbcode
 from the_tale.common.postponed_tasks import PostponedTaskPrototype
 from the_tale.common.utils.logic import verbose_timedelta
 
@@ -47,7 +48,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                  'clan_id',
                  'referrals_number',
                  'might')
-    _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription', 'news_subscription')
+    _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription', 'news_subscription', 'description')
     _get_by = ('id', 'email', 'nick')
 
     @property
@@ -63,6 +64,9 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
     @lazy_property
     def is_developer(self):
         return self.id in accounts_settings.DEVELOPERS_IDS
+
+    @property
+    def description_html(self): return bbcode.render(self.description)
 
     @lazy_property
     def permanent_purchases(self):
@@ -85,9 +89,12 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
     def update_settings(self, form):
         self._model_class.objects.filter(id=self.id).update(personal_messages_subscription=form.c.personal_messages_subscription,
-                                                            news_subscription=form.c.news_subscription)
+                                                            news_subscription=form.c.news_subscription,
+                                                            description=form.c.description)
         self._model.personal_messages_subscription = form.c.personal_messages_subscription
         self._model.news_subscription = form.c.news_subscription
+        self.description = form.c.description
+
 
     def prolong_premium(self, days):
         from the_tale.game.heroes.prototypes import HeroPrototype

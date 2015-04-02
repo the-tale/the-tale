@@ -24,7 +24,13 @@ jQuery(document).ready( function(e) {
         Изменения проведены успешно, <a href="{{ url('accounts:profile:show')}}">вернуться к профилю</a>
       </p>
 
-      <a href="{{ url('game:')}}">перейти на страницу игры</a>
+      <p>
+        <a href="{{ url('accounts:show', resource.account.id)}}">перейти на страницу аккаунта</a>
+      </p>
+
+      <p>
+        <a href="{{ url('game:')}}">перейти на страницу игры</a>
+      </p>
 
     </div>
   </div>

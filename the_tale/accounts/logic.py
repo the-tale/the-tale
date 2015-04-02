@@ -196,4 +196,5 @@ def get_account_info(account, hero):
             'achievements': AccountAchievementsPrototype.get_by_account_id(account.id).points,
             'collections': AccountItemsPrototype.get_by_account_id(account.id).get_items_count(),
             'referrals': account.referrals_number,
-            'ratings': ratings}
+            'ratings': ratings,
+            'description': account.description_html}

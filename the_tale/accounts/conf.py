@@ -67,4 +67,6 @@ accounts_settings = app_settings('ACCOUNTS',
                                  BOT_NICK_TEMPLATE=u'Существо №%d',
                                  BOT_HERO_NAME_FORMS=[u'Существо', u'Существа', u'Существу', u'Существо', u'Существом', u'Существе',
                                                       u'Существа', u'Существ', u'Существам', u'Существ', u'Существами', u'Существах'],
-                                 BOT_HERO_NAME_PROPERTIES=(u'ср', ))
+                                 BOT_HERO_NAME_PROPERTIES=(u'ср', ),
+
+                                 MAX_ACCOUNT_DESCRIPTION_LENGTH=10000)

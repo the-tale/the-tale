@@ -107,6 +107,12 @@ jQuery(document).ready(function(){
 
         <br/>
 
+        {% if account_info.description %}
+          <h3>Об игроке</h3>
+          {{account_info.description|safe}}
+          <br/><br/>
+        {% endif %}
+
         <div class="row-fluid">
           <div class="span6">
 
