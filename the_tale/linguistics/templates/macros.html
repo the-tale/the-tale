@@ -1,0 +1,20 @@
+{% macro contributors_list(contributors) %}
+авторы:
+
+{% if contributors %}
+<ul>
+  {% for author in contributors %}
+  <li>
+    {{ accounts_macros.account_link(account=author, clan=clans.get(author.clan_id)) }}
+    {% if resource.account.is_authenticated() and resource.account.id != author.id%}
+    —
+    <a class="pgf-new-message" data-recipient="{{author.id}}" href="#">личное сообщение</a><br/>
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+нет
+{% endif %}
+
+{% endmacro %}

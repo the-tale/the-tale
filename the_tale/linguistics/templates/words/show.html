@@ -2,9 +2,21 @@
 
 {% import 'linguistics/words/macros.html' as words_macros with context %}
 {% import 'accounts/macros.html' as accounts_macros with context %}
+{% import 'linguistics/macros.html' as linguistics_macros with context %}
 
 {% block title %}Слово «{{word.utg_word.normal_form()}}» | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Описание слова «{{word.utg_word.normal_form()}}».{% endblock %}
+
+{% block head %}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+    {% if resource.account.is_authenticated() %}
+    {{  accounts_macros.personal_message_js() }}
+    {% endif %}
+});
+</script>
+{% endblock %}
+
 
 {% block words_content %}
 
@@ -28,19 +40,7 @@
   <li>обновлено: <span class="pgf-format-date" data-timestamp="{{ word.updated_at|timestamp }}"></span></li>
   <li>в игровых фразах: {{word.used_in_ingame_templates}}</li>
   <li>в рассматриваемых фразах: {{word.used_in_onreview_templates}}</li>
-  <li>
-    авторы:
-
-    {% if contributors %}
-      {% for author in contributors %}
-        {% if loop.index > 1 %},{% endif %}
-        {{ accounts_macros.account_link(account=author, clan=clans.get(author.clan_id)) }}
-      {% endfor %}
-    {% else %}
-      нет
-    {% endif %}
-
-  </li>
+  <li>{{linguistics_macros.contributors_list(contributors)}}</li>
 </ul>
 
 {% include "linguistics/words/detailed_description.html" %}

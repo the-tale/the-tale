@@ -2,6 +2,7 @@
 
 {% import 'linguistics/templates/macros.html' as templates_macros with context %}
 {% import 'accounts/macros.html' as accounts_macros with context %}
+{% import 'linguistics/macros.html' as linguistics_macros with context %}
 
 {% block title %}{{template.key.text}} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Шаблон «{{template.key.text}}».{% endblock %}
@@ -37,26 +38,7 @@ jQuery(document).ready( function(e) {
 
 <ul>
   <li>обновлено: <span class="pgf-format-date" data-timestamp="{{ template.updated_at|timestamp }}"></span></li>
-  <li>
-    авторы:
-
-    {% if contributors %}
-    <ul>
-      {% for author in contributors %}
-      <li>
-        {{ accounts_macros.account_link(account=author, clan=clans.get(author.clan_id)) }}
-        {% if resource.account.is_authenticated() and resource.account.id != author.id%}
-        —
-        <a class="pgf-new-message" data-recipient="{{author.id}}" href="#">личное сообщение</a><br/>
-        {% endif %}
-      </li>
-      {% endfor %}
-    </ul>
-    {% else %}
-      нет
-    {% endif %}
-
-  </li>
+  <li>{{linguistics_macros.contributors_list(contributors)}}</li>
 </ul>
 
 
