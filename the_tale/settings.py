@@ -1,6 +1,7 @@
 # coding: utf-8
 import os
 import sys
+import time
 
 from dext.common.utils.meta_config import MetaConfig
 
@@ -309,7 +310,7 @@ CDNS = ( ('STATIC_JQUERY_JS',
 
          ('STATIC_CONTENT',
           STATIC_URL, STATIC_CDN,
-          'http:%simages/rss.png' % STATIC_CDN),
+          lambda: 'http:%simages/rss.png?_=%f' % (STATIC_CDN, time.time())), # prevent url from caching for cases, when portal closed to 503
 
          ('DCONT_CONTENT',
           DCONT_URL, None,

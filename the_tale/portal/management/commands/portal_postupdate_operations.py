@@ -2,6 +2,8 @@
 
 from django.core.management.base import BaseCommand
 
+from dext.settings import settings
+
 from the_tale.game.prototypes import TimePrototype
 
 from the_tale.common.utils.permissions import sync_group
@@ -13,6 +15,8 @@ from the_tale.linguistics.conf import linguistics_settings
 from the_tale.linguistics import logic as linguistics_logic
 
 from the_tale.game.persons import logic as persons_logic
+
+from the_tale.portal.conf import portal_settings
 
 
 class Command(BaseCommand):
@@ -57,6 +61,11 @@ class Command(BaseCommand):
         print 'SYNC SOCIAL CONNECTIONS'
 
         persons_logic.sync_social_connections()
+
+        print
+        print 'REMOVE OLD SDN INFO'
+        del settings[portal_settings.SETTINGS_CDN_INFO_KEY]
+        del settings[portal_settings.SETTINGS_PREV_CDN_SYNC_TIME_KEY]
 
         print
         print 'SYNC GROUPS AND PERMISSIONS'
