@@ -1243,6 +1243,10 @@ class ActionInPlacePrototype(ActionBase):
             self.hero.add_message('action_inplace_diary_instant_heal_for_money', diary=True, hero=self.hero, coins=coins)
 
     def spend_money__buying_artifact(self):
+        if self.hero.need_equipping_in_town:
+            # delay money spenging, becouse hero can buy artifact better then equipped but worse then he has in bag
+            return
+
         coins = self.try_to_spend_money()
         if coins is not None:
 

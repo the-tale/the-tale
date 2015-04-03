@@ -539,6 +539,26 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertTrue(self.hero.statistics.money_earned_from_artifacts > 0)
         self.storage._test_save()
 
+    def test_not_bying_artifact__when_has_equip_candidates_in_bag(self):
+        while not self.hero.next_spending.is_BUYING_ARTIFACT:
+            self.hero.switch_spending()
+
+        # fill all slots with artifacts
+        self.hero.equipment.test_equip_in_all_slots(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL))
+
+        money = self.hero.spend_amount
+        self.hero._model.money = money
+
+        self.hero.bag.put_artifact(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 666, rarity=RARITY.EPIC))
+
+        with self.check_not_changed(lambda: self.hero.statistics.money_spend):
+            with self.check_not_changed(lambda: self.hero.statistics.money_spend_for_artifacts):
+                with self.check_not_changed(lambda: self.hero.statistics.money_earned_from_artifacts):
+                    with self.check_not_changed(lambda: self.hero.statistics.artifacts_had):
+                        with self.check_not_changed(lambda: self.hero.bag.occupation):
+                            self.storage.process_turn()
+
+
     def test_sharpening_artifact(self):
         while not self.hero.next_spending.is_SHARPENING_ARTIFACT:
             self.hero.switch_spending()
