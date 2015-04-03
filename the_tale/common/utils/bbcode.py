@@ -63,7 +63,7 @@ class SafeSpoilerTag(postmarkup.TagBase):
 class HRTag(postmarkup.TagBase):
 
     def __init__(self, name, **kwargs):
-        super(HRTag, self).__init__(name, inline=False)
+        super(HRTag, self).__init__(name, inline=False, auto_close=True)
         self.tag_key = u'HRTag.nest_level'
 
     def render_open(self, parser, node_index):
@@ -76,11 +76,11 @@ class HRTag(postmarkup.TagBase):
 class LeftSquareBracketTag(postmarkup.TagBase):
 
     def __init__(self, name, **kwargs):
-        super(LeftSquareBracketTag, self).__init__(name, inline=False)
+        super(LeftSquareBracketTag, self).__init__(name, inline=True, auto_close=True)
         self.tag_key = u'LeftSquareBracketTag.nest_level'
 
     def render_open(self, parser, node_index):
-        return u'['
+        return u'&#91;'
 
     def render_close(self, parser, node_index):
         return u''
@@ -89,11 +89,11 @@ class LeftSquareBracketTag(postmarkup.TagBase):
 class RightSquareBracketTag(postmarkup.TagBase):
 
     def __init__(self, name, **kwargs):
-        super(RightSquareBracketTag, self).__init__(name, inline=False)
+        super(RightSquareBracketTag, self).__init__(name, inline=True, auto_close=True)
         self.tag_key = u'RightSquareBracketTag.nest_level'
 
     def render_open(self, parser, node_index):
-        return u']'
+        return u'&#93;'
 
     def render_close(self, parser, node_index):
         return u''
