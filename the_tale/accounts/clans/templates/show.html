@@ -21,11 +21,14 @@
   {{resource.clan.description_html|safe}}
 </p>
 
+<small style="white-space: nowrap;">серым выделены игроки, остутствующие в игре дольше {{active_state_days}} дней.</small></br>
 <strong>
-  всего героев: {{resource.clan.members_number}}
-  (активных: {{active_accounts_number}}; отсутствующих: {{resource.clan.members_number-active_accounts_number}})
+  все: {{resource.clan.members_number}};
+  активны: {{active_accounts_number}};
+  отсутствуют: {{resource.clan.members_number-active_accounts_number}};
+  влияют на игру: {{affect_game_accounts_number}}
 </strong>
-<small style="white-space: nowrap;">серым выделены игроки, остутствующие в игре дольше {{active_state_days}} дней.</small>
+
 
 <table class="table table-condensed table-striped table-bordered">
   <tr>
@@ -49,7 +52,15 @@
     {% if resource.clan_info.clan and resource.clan.id == resource.clan_info.clan_id %}
     <td><input type="checkbox" class="pgf-members-checkbox" value="{{account.id}}"></td>
     {% endif %}
-    <td>{{loop.index}}</td>
+    <td>
+      <span class="badge {% if account.can_affect_game%}badge-success{% endif %}"
+            style="cursor: pointer;"
+            rel="tooltip"
+            data-tooltip-placement="left"
+            title="{% if account.can_affect_game%}влияет на игру{% else %}не влияет на игру{% endif %}">
+        {{loop.index}}
+      </span>
+    </td>
     <td>
       <a href="{{url('accounts:show', account.id)}}"
          class="{% if not account.is_active %}disabled{% endif %}">
