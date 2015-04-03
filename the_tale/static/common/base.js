@@ -339,7 +339,7 @@ pgf.base.HTMLToBBcode = function(text) {
         .replace(/<img src="([^"]*)">/g, '[img]$1[/img]')
         .replace(/<\/img>/g, '')
 
-        .replace(/<a href="([^"]*)">/g, '[url=$1]')
+        .replace(/<a[^>]*href="([^"]*)"[^>]*>/g, '[url=$1]')
         .replace(/<\/a>/g, '[/url]')
 
         .replace(/\s+/g, ' ')
@@ -351,6 +351,17 @@ pgf.base.HTMLToBBcode = function(text) {
         .replace(/<\/p>/g, '')
 
         .replace(/&nbsp;/g, ' ');
+
+    // replace spolers
+    text = text
+        .replace(/\[url=#pgf-spoiler-element-[\w\d]+\]([^\]]*)\[\/url\]/g, "[spoiler=$1]\r")
+        .replace(/<\s*div\s*class="accordion-heading"\s*>([^<]*)<\/div>/g, "$1")
+        .replace(/<\s*div\s*class="accordion-inner"\s*>([^<]*)<\/div>/g, "$1")
+        .replace(/<\s*div[^>]+pgf-spoiler[^>]+>([^<]*)<\/div>/g, "$1")
+        .replace(/<\s*div\s*class="accordion-group"\s*>([^<]*)<\/div>/g, "$1")
+        .replace(/<\s*div[^>]+class="accordion"[^>]+>([^<]*)<\/div>/g, "$1\r[/spoiler]");
+
+    // replace any other html elements
 
     text = text
         .replace(/<[^>]*>/g, "")

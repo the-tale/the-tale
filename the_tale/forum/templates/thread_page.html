@@ -115,7 +115,7 @@ jQuery(document).ready( function(e) {
         text = text.replace(/\s+$/g, '');
         text = pgf.base.HTMLToBBcode(text);
 
-        text = '[b]'+ post.data('author-name') +'[/b]\r[quote]' + text + '\r[/quote]';
+        text = '[b]'+ post.data('author-name') +'[/b]\r[quote]\r' + text + '\r[/quote]';
 
         var newPostInput = jQuery('#pgf-new-post-form #id_text');
         newPostInput.val(newPostInput.val() + text);
