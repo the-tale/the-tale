@@ -95,7 +95,11 @@ class Post(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
 
+    created_at_turn = models.BigIntegerField(default=0)
+
     updated_at = models.DateTimeField(auto_now=True, null=True, default=None)
+
+    updated_at_turn = models.BigIntegerField(default=0)
 
     author = models.ForeignKey('accounts.Account', null=True, related_name='forum_posts', on_delete=models.SET_NULL)
 

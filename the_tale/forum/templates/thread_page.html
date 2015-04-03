@@ -231,7 +231,11 @@ jQuery(document).ready( function(e) {
             <div class="anchor" id="m{{post.id}}"></div>
           </div>
 
-          <div class="pgf-format-datetime" data-timestamp="{{ post.created_at|timestamp}}"></div>
+          <div class="pgf-format-datetime"
+               data-timestamp="{{ post.created_at|timestamp}}"
+               style="cursor: pointer;"
+               rel="tooltip"
+               title="{{post.created_at_turn|verbose_game_date}}"></div>
 
           {% if thread_data.can_post %}
           <a href="#" class="pgf-quote" style="font-size: 11pt;" rel="tooltip" title="цитировать">«»</a>
@@ -311,7 +315,14 @@ jQuery(document).ready( function(e) {
             <div class="pgf-edit-time-message">
               <br/><br/>
               <hr/>
-              <strong>Сообщение изменено <span class="pgf-format-datetime" data-timestamp="{{ post.updated_at|timestamp}}"></span></strong>
+              <strong>
+                Сообщение изменено
+                <span class="pgf-format-datetime"
+                      data-timestamp="{{ post.updated_at|timestamp}}"
+                      style="cursor: pointer;"
+                      rel="tooltip"
+                      title="{{post.created_at_turn|verbose_game_date}}"></span>
+              </strong>
             </div>
           {% endif %}
         </td>

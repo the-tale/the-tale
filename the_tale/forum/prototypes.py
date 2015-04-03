@@ -16,6 +16,8 @@ from the_tale.common.utils.pagination import Paginator
 from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils.decorators import lazy_property
 
+from the_tale.game.prototypes import TimePrototype
+
 from the_tale.forum.conf import forum_settings
 from the_tale.forum.models import Category, SubCategory, Thread, Post, Subscription, ThreadReadInfo, SubCategoryReadInfo, Permission
 from the_tale.forum.exceptions import ForumException
@@ -183,6 +185,7 @@ class ThreadPrototype(BasePrototype):
                             markup_method=markup_method,
                             technical=technical,
                             text=text,
+                            created_at_turn=TimePrototype.get_current_turn_number(),
                             state=POST_STATE.DEFAULT)
 
         prototype = cls(model=thread_model)
@@ -253,7 +256,7 @@ class ThreadPrototype(BasePrototype):
 
 class PostPrototype(BasePrototype):
     _model_class = Post
-    _readonly = ('id', 'created_at', 'updated_at', 'text', 'markup_method', 'state', 'removed_by', 'technical', 'author_id', 'thread_id')
+    _readonly = ('id', 'created_at', 'created_at_turn', 'updated_at', 'text', 'markup_method', 'state', 'removed_by', 'technical', 'author_id', 'thread_id')
     _bidirectional = ()
     _get_by = ('id', )
 
@@ -324,6 +327,7 @@ class PostPrototype(BasePrototype):
                                    text=text,
                                    technical=technical,
                                    markup_method=MARKUP_METHOD.POSTMARKUP,
+                                   created_at_turn=TimePrototype.get_current_turn_number(),
                                    state=POST_STATE.DEFAULT)
 
         thread.update()
@@ -357,6 +361,7 @@ class PostPrototype(BasePrototype):
 
     def update(self, text):
         self._model.text = text
+        self._model.updated_at_turn = TimePrototype.get_current_turn_number()
         self.save()
 
     def save(self):
