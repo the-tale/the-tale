@@ -185,7 +185,10 @@ jQuery(document).ready(function(e){
   <div class="span3">
 
     <div class="easy-block" style="padding-top: 1em;">
-      <h4 class="newspaper-column-header">Политика</h4>
+      <h4 class="newspaper-column-header">
+        Политика
+        <small><a href="{{ url('game:bills:') }}">ещё…</a></small>
+      </h4>
 
       <ul class="unstyled">
         {% for bill in bills %}
@@ -203,7 +206,10 @@ jQuery(document).ready(function(e){
     </div>
 
     <div class="easy-block">
-      <h4 class="newspaper-column-header">Фольклор</h4>
+      <h4 class="newspaper-column-header">
+        Фольклор
+        <small><a href="{{ url('blogs:posts:') }}">ещё…</a></small>
+      </h4>
       <ul class="unstyled">
         {% for blog_post in blog_posts %}
         <li class="newspaper-link-list">

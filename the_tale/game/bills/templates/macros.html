@@ -37,13 +37,6 @@
           {% endif %}
         </a>
       </td>
-      <th style="width: 150px;">тип</th>
-      <td>{{ bill.data.CAPTION }}</td>
-    </tr>
-
-    <tr>
-      <th>обсуждение</th>
-      <td><a href="{{ url('forum:threads:show', bill.forum_thread_id) }}">форум</a></td>
 
       <th>состояние</th>
       <td>
@@ -118,7 +111,17 @@
 
 {% macro bill_record(bill, vote=none) %}
 
-<h4 style="margin-bottom: 0.5em; display: inline-block;"><a href="{{ url('game:bills:show', bill.id) }}">{{ bill.caption }}</a></h4>
+<h4 style="margin-bottom: 0.5em; display: inline-block;">
+  <a href="{{ url('game:bills:show', bill.id) }}">{{ bill.caption }}</a>
+  <small>
+    {{bill.type.text}}:
+    {% for actor in bill.data.actors %}
+      {%- if loop.index > 1 -%},{% endif %}
+      {# TODO: here must be some check of actors types #}
+      <a href="{{url('game:map:places:show', actor.id)}}" target="_blank">{{ actor.name }}</a>
+    {% endfor %}
+  </small>
+</h4>
 
 {{ bill_info(bill, vote) }}
 
