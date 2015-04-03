@@ -98,9 +98,13 @@ class RightSquareBracketTag(postmarkup.TagBase):
     def render_close(self, parser, node_index):
         return u''
 
+class LinkTag(postmarkup.LinkTag):
+    _safe_chars = postmarkup.LinkTag._safe_chars | frozenset(u'+')
 
 
 _renderer = postmarkup.create(use_pygments=False, annotate_links=False)
+_renderer.tag_factory.add_tag(LinkTag, 'url', annotate_links=False)
+_renderer.tag_factory.add_tag(LinkTag, 'link', annotate_links=False)
 _renderer.tag_factory.add_tag(SpoilerTag, 'spoiler')
 _renderer.tag_factory.add_tag(HRTag, 'hr')
 _renderer.tag_factory.add_tag(LeftSquareBracketTag, 'lsb')
@@ -110,6 +114,7 @@ _renderer.tag_factory.add_tag(RightSquareBracketTag, 'rsb')
 def render(*argv, **kwargs):
     try:
         kwargs['cosmetic_replace'] = False
+        kwargs['encoding'] = 'utf-8'
         return _renderer.render_to_html(*argv, **kwargs)
     except:
         return u'Текст нельзя отформатировать. Возможно Вы ошиблись при вводе тегов.'
@@ -122,6 +127,7 @@ _safe_renderer.tag_factory.add_tag(HRTag, 'hr')
 def safe_render(*argv, **kwargs):
     try:
         kwargs['cosmetic_replace'] = False
+        kwargs['encoding'] = 'utf-8'
         return _safe_renderer.render_to_html(*argv, **kwargs)
     except:
         return u'Текст нельзя отформатировать. Возможно Вы ошиблись при вводе тегов.'
