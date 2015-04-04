@@ -177,45 +177,45 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                 goods.PurchaseGroup(type=relations.GOODS_GROUP.PREFERENCES,
                                     name=u'Предпочтения',
                                     description=PREFERENCES_DESCRIPTION,
-                                    items=[ permanent_permission_purchase(uid=u'preference-place',
+                                    items=[ permanent_permission_purchase(uid=u'preference-companion-dedication',
                                                                           cost=10,
+                                                                          purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_COMPANION_DEDICATION),
+
+                                            permanent_permission_purchase(uid=u'preference-place',
+                                                                          cost=20,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_PLACE),
 
                                             permanent_permission_purchase(uid=u'preference-mob',
-                                                                          cost=20,
+                                                                          cost=30,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_MOB),
 
                                             permanent_permission_purchase(uid=u'preference-friend',
-                                                                          cost=30,
+                                                                          cost=40,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_FRIEND),
 
                                             permanent_permission_purchase(uid=u'preference-archetype',
-                                                                          cost=40,
+                                                                          cost=50,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_ARCHETYPE),
 
                                             permanent_permission_purchase(uid=u'preference-enemy',
-                                                                          cost=50,
+                                                                          cost=60,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_ENEMY),
 
-                                            permanent_permission_purchase(uid=u'preference-companion-dedication',
-                                                                          cost=60,
-                                                                          purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_COMPANION_DEDICATION),
+                                            permanent_permission_purchase(uid=u'preference-companion-empathy',
+                                                                          cost=70,
+                                                                          purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_COMPANION_EMPATHY),
 
                                             permanent_permission_purchase(uid=u'preference-favorite-item',
-                                                                          cost=70,
+                                                                          cost=80,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_FAVORITE_ITEM),
 
                                             permanent_permission_purchase(uid=u'preference-risk-level',
-                                                                          cost=80,
+                                                                          cost=90,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_RISK_LEVEL),
 
                                             permanent_permission_purchase(uid=u'preference-equipment-slot',
-                                                                          cost=90,
-                                                                          purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_EQUIPMENT_SLOT),
-
-                                            permanent_permission_purchase(uid=u'preference-companion-empathy',
                                                                           cost=100,
-                                                                          purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_COMPANION_EMPATHY),
+                                                                          purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_EQUIPMENT_SLOT)
                                                                            ]),
 
                 goods.PurchaseGroup(type=relations.GOODS_GROUP.CLANS,

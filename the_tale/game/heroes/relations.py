@@ -40,8 +40,8 @@ class PREFERENCE_TYPE(DjangoEnum):
                 ('RISK_LEVEL', 6, u'уровень риска', 32, 'risk_level', '_prepair_risk_level', False),
                 ('FAVORITE_ITEM', 7, u'любимая вещь', 28, 'favorite_item', '_prepair_equipment_slot', True),
                 ('ARCHETYPE', 8, u'архетип', 16, 'archetype', '_prepair_archetype', False),
-                ('COMPANION_DEDICATION', 9, u'отношение со спутником', 24, 'companion_dedication', '_prepair_companion_dedication', False),
-                ('COMPANION_EMPATHY', 10, u'эмпатия', 40, 'companion_empathy', '_prepair_companion_empathy', False),
+                ('COMPANION_DEDICATION', 9, u'отношение со спутником', 2, 'companion_dedication', '_prepair_companion_dedication', False),
+                ('COMPANION_EMPATHY', 10, u'эмпатия', 24, 'companion_empathy', '_prepair_companion_empathy', False),
         )
 
 class COMPANION_DEDICATION(DjangoEnum):
