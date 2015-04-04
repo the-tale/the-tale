@@ -10,7 +10,7 @@ from the_tale.game.balance import constants as c
 from the_tale.game.heroes import relations
 
 from the_tale.game.artifacts.storage import artifacts_storage
-from the_tale.game.artifacts.relations import RARITY
+from the_tale.game.artifacts import relations as artifacts_relations
 
 
 class EquipmentMethodsMixin(object):
@@ -251,6 +251,12 @@ class EquipmentMethodsMixin(object):
 
         self.reset_accessors_cache()
 
+
+    def increment_equipment_rarity(self, artifact):
+        artifact.rarity = artifacts_relations.RARITY(artifact.rarity.value+1)
+        self.reset_accessors_cache()
+
+
     def randomize_equip(self):
         for slot in relations.EQUIPMENT_SLOT.records:
             self.equipment.unequip(slot)
@@ -262,6 +268,6 @@ class EquipmentMethodsMixin(object):
             if not artifacts_list:
                 continue
 
-            artifact = artifacts_storage.generate_artifact_from_list(artifacts_list, self.level, rarity=RARITY.NORMAL)
+            artifact = artifacts_storage.generate_artifact_from_list(artifacts_list, self.level, rarity=artifacts_relations.RARITY.NORMAL)
 
             self.equipment.equip(slot, artifact)

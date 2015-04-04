@@ -171,4 +171,6 @@ class CARD_TYPE(DjangoEnum):
 
                 ('CHANGE_HERO_SPENDINGS_TO_HEAL_COMPANION', 105, u'забота о ближнем', AVAILABILITY.FOR_ALL, RARITY.COMMON, forms.EmptyForm,),
 
+                ('INCREMENT_ARTIFACT_RARITY', 106, u'скрытый потенциал', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm,),
+
                 )

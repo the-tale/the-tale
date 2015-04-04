@@ -27,7 +27,7 @@ from the_tale.game.relations import HABIT_TYPE
 from the_tale.game.heroes.relations import PREFERENCE_TYPE, ITEMS_OF_EXPENDITURE
 
 from the_tale.game.artifacts.storage import artifacts_storage
-from the_tale.game.artifacts.relations import RARITY as ARTIFACT_RARITY
+from the_tale.game.artifacts import relations as artifacts_relations
 
 from the_tale.game.companions import relations as companions_relations
 from the_tale.game.companions import storage as companions_storage
@@ -532,10 +532,10 @@ class GetArtifactBase(BaseEffect):
         priority = Column()
         rarity = Column(unique=False, single_type=False)
 
-        records = ( ('LOOT', 0, u'лут', 1000, ARTIFACT_RARITY.NORMAL),
-                    ('COMMON', 1, u'обычные', 100, ARTIFACT_RARITY.NORMAL),
-                    ('RARE', 2, u'редкие', 10, ARTIFACT_RARITY.RARE),
-                    ('EPIC', 3, u'эпические', 1, ARTIFACT_RARITY.EPIC), )
+        records = ( ('LOOT', 0, u'лут', 1000, artifacts_relations.RARITY.NORMAL),
+                    ('COMMON', 1, u'обычные', 100, artifacts_relations.RARITY.NORMAL),
+                    ('RARE', 2, u'редкие', 10, artifacts_relations.RARITY.RARE),
+                    ('EPIC', 3, u'эпические', 1, artifacts_relations.RARITY.EPIC), )
 
     INTERVAL = None
 
@@ -1071,6 +1071,25 @@ class HealCompanionEpic(HealCompanionBase):
 class HealCompanionLegendary(HealCompanionBase):
     TYPE = relations.CARD_TYPE.HEAL_COMPANION_LEGENDARY
     HEALTH = HealCompanionEpic.HEALTH * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+
+class UpgradeArtifact(BaseEffect):
+    TYPE = relations.CARD_TYPE.INCREMENT_ARTIFACT_RARITY
+    DESCRIPTION = u'Улучшает на один уровень качество случайного экипированного не эпического артефакта.'
+
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+
+        artifacts = [artifact for artifact in task.hero.equipment.values() if not artifact.rarity.is_EPIC]
+
+        if not artifacts:
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя нет экипированных не эпических артефактов.')
+
+        artifact = random.choice(artifacts)
+
+        task.hero.increment_equipment_rarity(artifact)
+
+        return task.logic_result(message=u'Качество артефакта %(artifact)s улучшено.' % {'artifact': artifact.html_label()})
+
 
 
 EFFECTS = {card_class.TYPE: card_class()
