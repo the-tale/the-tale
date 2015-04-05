@@ -87,6 +87,25 @@ class HeroPrototype(BasePrototype,
         super(HeroPrototype, self).__init__(*argv, **kwargs)
         self.force_save_required = False
 
+        self.last_help_on_turn = 0
+        self.helps_in_turn = 0
+
+    def can_be_helped(self):
+        if (self.last_help_on_turn == TimePrototype.get_current_turn_number() and
+            self.helps_in_turn >= heroes_settings.MAX_HELPS_IN_TURN):
+            return False
+
+        return True
+
+    def on_help(self):
+        current_turn = TimePrototype.get_current_turn_number()
+
+        if self.last_help_on_turn != current_turn:
+            self.last_help_on_turn = current_turn
+            self.helps_in_turn = 0
+
+        self.helps_in_turn += 1
+
     @classmethod
     def live_query(cls): return cls._model_class.objects.filter(is_fast=False, is_bot=False)
 

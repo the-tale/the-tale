@@ -74,6 +74,33 @@ class HeroTest(testcase.TestCase):
         self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).energy_regeneration_type, self.hero.preferences.energy_regeneration_type)
         self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).risk_level, self.hero.preferences.risk_level)
 
+    def test_helps_number_restriction(self):
+        self.assertEqual(self.hero.last_help_on_turn, 0)
+        self.assertEqual(self.hero.helps_in_turn, 0)
+
+        self.assertTrue(self.hero.can_be_helped())
+
+        for i in xrange(heroes_settings.MAX_HELPS_IN_TURN-1):
+            self.hero.on_help()
+
+        self.assertEqual(self.hero.helps_in_turn, heroes_settings.MAX_HELPS_IN_TURN-1)
+
+        self.assertTrue(self.hero.can_be_helped())
+
+        self.hero.on_help()
+
+        self.assertFalse(self.hero.can_be_helped())
+
+        current_turn = TimePrototype.get_current_time()
+        current_turn.increment_turn()
+
+        self.assertTrue(self.hero.can_be_helped())
+
+        self.hero.on_help()
+
+        self.assertEqual(self.hero.last_help_on_turn, current_turn.turn_number)
+        self.assertEqual(self.hero.helps_in_turn, 1)
+
 
     def test_is_premium(self):
         self.assertFalse(self.hero.is_premium)

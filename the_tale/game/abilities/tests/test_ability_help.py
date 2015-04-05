@@ -67,9 +67,20 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
                     self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
     def test_success(self):
-        with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-            with self.check_delta(lambda: self.hero.cards.help_count, 1):
-                self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.on_help') as on_help:
+            with self.check_delta(lambda: self.hero.statistics.help_count, 1):
+                with self.check_delta(lambda: self.hero.cards.help_count, 1):
+                    self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+
+        self.assertEqual(on_help.call_count, 1)
+
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_be_helped', lambda hero: False)
+    def test_help_restricted(self):
+        with self.check_not_changed(lambda: self.hero.statistics.help_count):
+            with self.check_not_changed(lambda: self.hero.cards.help_count):
+                self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
+
 
     def test_help_when_battle_waiting(self):
         battle = Battle1x1Prototype.create(self.account)

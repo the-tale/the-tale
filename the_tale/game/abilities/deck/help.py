@@ -165,6 +165,11 @@ class Help(AbilityPrototype):
         if battle and not battle.state.is_WAITING:
             return task.logic_result(next_step=ComplexChangeTask.STEP.ERROR)
 
+        if not task.hero.can_be_helped():
+            return task.logic_result(next_step=ComplexChangeTask.STEP.ERROR)
+
+        task.hero.on_help()
+
         action = task.hero.actions.current_action
 
         choice = action.get_help_choice()
