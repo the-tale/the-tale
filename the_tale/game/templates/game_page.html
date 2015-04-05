@@ -57,23 +57,52 @@ jQuery(document).ready(function(e){
 
     });
 
-    function SlideMap(slide) {
-        jQuery('.pgf-slide-map').toggleClass('pgf-hidden', slide);
-        jQuery('.pgf-unslide-map').toggleClass('pgf-hidden', !slide);
-        jQuery('.pgf-hero-column').toggleClass('pgf-hidden', slide);
-        jQuery('.pgf-map-column').toggleClass('span4', !slide).toggleClass('span7', slide);
-        jQuery('.pgf-shortest-hero-info').toggleClass('pgf-hidden', !slide);
+    var mapMode = 'normal';
+
+    function SizeMap(mode) {
+        jQuery('.pgf-slide-map').toggleClass('pgf-hidden', mode == 'large');
+        jQuery('.pgf-unslide-map').toggleClass('pgf-hidden', mode == 'none');
+
+        if (mode == 'normal') {
+            jQuery('.pgf-hero-column').toggleClass('pgf-hidden', false);
+            jQuery('.pgf-info-column').toggleClass('span5', true).toggleClass('span9', false);
+            jQuery('.pgf-map-column').toggleClass('pgf-hidden', false).toggleClass('span4', true).toggleClass('span7', false);
+            jQuery('.pgf-shortest-hero-info').toggleClass('pgf-hidden', true);
+        }
+        if (mode == 'large') {
+            jQuery('.pgf-hero-column').toggleClass('pgf-hidden', true);
+            jQuery('.pgf-info-column').toggleClass('span5', true).toggleClass('span9', false);
+            jQuery('.pgf-map-column').toggleClass('pgf-hidden', false).toggleClass('span4', false).toggleClass('span7', true);
+            jQuery('.pgf-shortest-hero-info').toggleClass('pgf-hidden', false);
+        }
+        if (mode == 'none') {
+            jQuery('.pgf-hero-column').toggleClass('pgf-hidden', false);
+            jQuery('.pgf-info-column').toggleClass('span5', false).toggleClass('span9', true);
+            jQuery('.pgf-map-column').toggleClass('pgf-hidden', true);
+            jQuery('.pgf-shortest-hero-info').toggleClass('pgf-hidden', true);
+        }
+
         jQuery(document).trigger(pgf.game.map.events.MAP_RESIZED);
     }
 
+    // SizeMap(mapMode);
+
     jQuery('.pgf-slide-map').click(function(e){
         e.preventDefault();
-        SlideMap(true);
+
+        if (mapMode == 'normal') {mapMode = 'large';}
+        if (mapMode == 'none') {mapMode = 'normal';}
+
+        SizeMap(mapMode);
     });
 
     jQuery('.pgf-unslide-map').click(function(e){
         e.preventDefault();
-        SlideMap(false);
+
+        if (mapMode == 'normal') {mapMode = 'none';}
+        if (mapMode == 'large') {mapMode = 'normal';}
+
+        SizeMap(mapMode);
     });
 
 });
@@ -164,7 +193,12 @@ jQuery(document).ready(function(e){
     </div>
   </div>
 
-  <div class="span5">
+  <div class="span5 pgf-info-column" style="position: relative;">
+
+    <div style="position: absolute; margin-right: -28px; margin-top: 280px; right: 0px;">
+      <a href="#" class="pgf-slide-map" rel="tooltip" title="Увеличить карту"><i class="icon icon-chevron-left"></i></a>
+      <a href="#" class="pgf-unslide-map" rel="tooltip" title="Уменьшить карту"><i class="icon icon-chevron-right"></i></a>
+    </div>
 
     <div class="first-row-block">
       <div class="easy-block pgf-shortest-hero-info pgf-hidden">
@@ -225,10 +259,6 @@ jQuery(document).ready(function(e){
 
   <div class="span4 pgf-map-column">
     <div id="pgf-map-container">
-      <div style="position: absolute; margin-left: -20px; margin-top: 280px;">
-        <a href="#" class="pgf-slide-map" rel="tooltip" title="Увеличить карту"><i class="icon icon-chevron-left"></i></a>
-        <a href="#" class="pgf-hidden pgf-unslide-map" rel="tooltip" title="Уменьшить карту"><i class="icon icon-chevron-right"></i></a>
-      </div>
       {{map_macros.render_map(height=713, current_map_version=current_map_version)}}
     </div>
   </div>
