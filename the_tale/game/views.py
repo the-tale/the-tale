@@ -60,7 +60,7 @@ def game_page(context):
                                     'resource': context.resource,
                                     'hero': context.account_hero} )
 
-@api.Processor.handler(versions=(game_settings.INFO_API_VERSION, '1.1', '1.0'))
+@api.Processor.handler(versions=(game_settings.INFO_API_VERSION, '1.2', '1.1', '1.0'))
 @dext_views.IntsArgumentProcessor.handler(error_message=u'Неверный формат номера хода', get_name='client_turns', context_name='client_turns', default_value=None)
 @accounts_views.AccountProcessor.handler(error_message=u'Запрашиваемый Вами аккаунт не найден', get_name='account', context_name='requested_account', default_value=None)
 @resource.handler('api', 'info', name='api-info')
@@ -70,7 +70,7 @@ def api_info(context):
 
 - **адрес:** /game/api/info
 - **http-метод:** GET
-- **версии:** 1.2
+- **версии:** 1.3
 - **параметры:**
     * GET: account — идентификатор аккаунта
     * GET: client_turns — номера ходов, по отношению к которым можно вернуть сокращённую информацию о герое (только изменённые с этого времени поля).
@@ -183,7 +183,8 @@ def api_info(context):
           <timestamp>, // timestamp создания сообщения
           "строка",    // текстовое описание времени в игре
           "строка",    // текст
-          "строка"     // текстовое описание даты в игре
+          "строка",    // текстовое описание даты в игре
+          "строка"     // текстовое описание места, где герой находился во время создания записи
         ]
       ],
 
@@ -330,6 +331,9 @@ def api_info(context):
     data = game_logic.form_game_info(account=account,
                                      is_own=False if account is None else (context.account.id == account.id),
                                      client_turns=context.client_turns)
+
+    if context.api_version in ('1.2', '1.1', '1.0'):
+        data = game_logic.game_info_from_1_3_to_1_2(data)
 
     if context.api_version in ('1.1', '1.0'):
         data = game_logic.game_info_from_1_2_to_1_1(data)

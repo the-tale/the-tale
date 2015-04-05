@@ -231,6 +231,12 @@ def _game_info_from_1_1_to_1_0__heroes(data):
         artifact['power'] = sum(artifact['power']) if artifact['power'] else 0
 
 
+def _game_info_from_1_3_to_1_2__heroes(data):
+    data['diary'] = [message[:4] for message in data['diary']]
+    data['secondary']['cards_help_barrier'] = data['cards']['help_barrier']
+    data['cards'] = {'cards': {}}
+
+
 def _game_info_from_1_2_to_1_1__heroes(data):
     data['secondary']['cards_help_count'] = 0
     data['secondary']['cards_help_barrier'] = data['cards']['help_barrier']
@@ -253,5 +259,15 @@ def game_info_from_1_2_to_1_1(data):
 
     if data['enemy'] is not None:
         _game_info_from_1_2_to_1_1__heroes(data['enemy']['hero'])
+
+    return data
+
+
+def game_info_from_1_3_to_1_2(data):
+    if data['account'] is not None:
+        _game_info_from_1_3_to_1_2__heroes(data['account']['hero'])
+
+    if data['enemy'] is not None:
+        _game_info_from_1_3_to_1_2__heroes(data['enemy']['hero'])
 
     return data
