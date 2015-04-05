@@ -9,12 +9,13 @@ logger = getLogger('the-tale.workers.game_logic')
 
 class Writer(object):
 
-    __init__ = ('type', 'message', 'substitution')
+    __init__ = ('type', 'message', 'substitution', 'hero')
 
-    def __init__(self, type, message, substitution):
+    def __init__(self, type, message, substitution, hero):
         self.type = type
         self.message = message
         self.substitution = substitution
+        self.hero = hero
 
     def actor_id(self, actor): return 'quest_%s_actor_%s' % (self.type, actor)
 
@@ -60,7 +61,10 @@ class Writer(object):
 
         if lexicon_key is None: return None
 
-        return messages.MessageSurrogate.create(key=lexicon_key, externals=externals, restrictions=restrictions)
+        return messages.MessageSurrogate.create(key=lexicon_key,
+                                                externals=externals,
+                                                restrictions=restrictions,
+                                                position=self.hero.position.get_description())
 
     def get_message(self, type_, **kwargs):
         from the_tale.linguistics.logic import get_text

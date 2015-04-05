@@ -122,7 +122,7 @@ class QuestInfo(object):
     @classmethod
     def construct(cls, type, uid, knowledge_base, hero):
 
-        writer = writers.get_writer(type=type, message=None, substitution=cls.substitution(uid, knowledge_base, hero))
+        writer = writers.get_writer(hero=hero, type=type, message=None, substitution=cls.substitution(uid, knowledge_base, hero))
 
         actors = { participant.role: (knowledge_base[participant.participant].externals['id'], writer.actor(participant.role))
                    for participant in knowledge_base.filter(facts.QuestParticipant)
@@ -164,7 +164,7 @@ class QuestInfo(object):
         substitution = self.substitution(self.uid, knowledge_base, hero)
         substitution.update(ext_substitution)
 
-        writer = writers.get_writer(type=self.type, message=message, substitution=substitution)
+        writer = writers.get_writer(hero=hero, type=self.type, message=message, substitution=substitution)
 
         action_msg = writer.action()
         if action_msg:
@@ -187,7 +187,7 @@ class QuestInfo(object):
             return
 
         substitution = self.substitution(self.uid, knowledge_base, hero)
-        writer = writers.get_writer(type=self.type, message='choice', substitution=substitution)
+        writer = writers.get_writer(hero=hero, type=self.type, message='choice', substitution=substitution)
 
         choosen_option = knowledge_base[defaults[0].option]
 
@@ -528,7 +528,7 @@ class QuestPrototype(object):
 
         donothing = relations.DONOTHING_TYPE.index_value[donothing_type]
 
-        writer = writers.get_writer(type=self.current_info.type, message=donothing_type, substitution={})
+        writer = writers.get_writer(hero=self.hero, type=self.current_info.type, message=donothing_type, substitution={})
 
         ActionDoNothingPrototype.create(hero=self.hero,
                                         duration=donothing.duration,

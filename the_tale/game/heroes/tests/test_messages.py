@@ -14,12 +14,13 @@ class MessagesContainerTest(testcase.TestCase):
         super(MessagesContainerTest, self).setUp()
         self.messages = messages.JournalContainer()
 
-    def create_message(self, message, turn_delta=0, time_delta=0):
+    def create_message(self, message, turn_delta=0, time_delta=0, position=u'some position info'):
         return messages.MessageSurrogate(turn_number=TimePrototype.get_current_turn_number() + turn_delta,
                                          timestamp=time.time() + time_delta,
                                          key=None,
                                          externals=None,
-                                         message=message)
+                                         message=message,
+                                         position=position)
 
     def test_create(self):
         self.assertEqual(self.messages.messages, [])

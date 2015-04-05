@@ -18,11 +18,14 @@ def setUp(self):
     from the_tale.game.mobs.storage import mobs_storage
     from the_tale.game.companions import storage as companions_storage
     from the_tale.game.artifacts.storage import artifacts_storage
+    from the_tale.game.heroes import storage as heroes_storage
     from the_tale.game.map.storage import map_info_storage
     from the_tale.game.map.places.storage import places_storage, buildings_storage, resource_exchange_storage
     from the_tale.game.map.roads.storage import roads_storage, waymarks_storage
 
     settings.refresh(force=True)
+
+    heroes_storage.position_descriptions.clear()
 
     places_storage.clear()
     buildings_storage.clear()

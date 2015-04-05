@@ -158,7 +158,7 @@ class RawQuestsTest(QuestsTestBase):
             self.assertTrue((participant.start, participant.participant) in powers)
 
     def _check_messages(self, quest_type, message):
-        writer = Writer(type=quest_type, message=message, substitution={})
+        writer = Writer(type=quest_type, message=message, substitution={}, hero=self.hero)
 
         # print '--------'
         # print writer.journal_id()
@@ -215,7 +215,7 @@ class RawQuestsTest(QuestsTestBase):
         if isinstance(current_state, facts.Start):
             starts.append((current_state.uid, current_state.type))
 
-            writer = Writer(type=starts[-1][1], message=None, substitution={})
+            writer = Writer(type=starts[-1][1], message=None, substitution={}, hero=self.hero)
             self.assertTrue(writer.name_id().upper() in LEXICON_KEY.index_name)
 
             for participant in knowledge_base.filter(facts.QuestParticipant):
@@ -243,7 +243,7 @@ class RawQuestsTest(QuestsTestBase):
             powers |= self._get_powers(starts[-1][0], next_jump.end_actions)
 
             if isinstance(next_jump, facts.Option):
-                writer = Writer(type=starts[-1][1], message='choice', substitution={})
+                writer = Writer(type=starts[-1][1], message='choice', substitution={}, hero=self.hero)
                 self.assertTrue(writer.choice_variant_id(next_jump.type).upper() in LEXICON_KEY.index_name)
                 self.assertTrue(writer.current_choice_id(next_jump.type).upper() in LEXICON_KEY.index_name)
 

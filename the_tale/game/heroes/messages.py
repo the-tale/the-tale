@@ -8,31 +8,35 @@ from the_tale.game.prototypes import TimePrototype, GameTime
 from the_tale.game.heroes.conf import heroes_settings
 
 
-class MessageSurrogate(object):
-    __slots__ = ('turn_number', 'timestamp', 'key', 'externals', '_ui_info', '_message', 'restrictions')
 
-    def __init__(self, turn_number, timestamp, key, externals, message, restrictions=frozenset()):
+
+class MessageSurrogate(object):
+    __slots__ = ('turn_number', 'timestamp', 'key', 'externals', '_ui_info', '_message', 'restrictions', 'position')
+
+    def __init__(self, turn_number, timestamp, key, externals, message, restrictions=frozenset(), position=u''):
         self.turn_number = turn_number
         self.timestamp = timestamp
         self.key = key
         self.externals = externals
         self.restrictions = restrictions
+        self.position = position
 
         self._ui_info = None
         self._message = message
 
 
     @classmethod
-    def create(cls, key, externals, turn_delta=0, restrictions=frozenset()):
+    def create(cls, key, externals, turn_delta=0, restrictions=frozenset(), position=u''):
         return cls(turn_number=TimePrototype.get_current_turn_number()+turn_delta,
                    timestamp=time.time()+turn_delta*c.TURN_DELTA,
                    key=key,
                    externals=externals,
                    message=None,
-                   restrictions=restrictions)
+                   restrictions=restrictions,
+                   position=position)
 
     def serialize(self):
-        return (self.turn_number, self.timestamp, self.message)
+        return (self.turn_number, self.timestamp, self.message, self.position)
 
     @classmethod
     def deserialize(cls, data):
@@ -40,7 +44,8 @@ class MessageSurrogate(object):
                    timestamp=data[1],
                    message=data[2],
                    key=None,
-                   externals=None)
+                   externals=None,
+                   position=data[3])
 
     @property
     def message(self):
@@ -54,14 +59,18 @@ class MessageSurrogate(object):
         return self._message
 
 
-    def ui_info(self, with_date=False):
+    def ui_info(self, with_info=False):
         if self._ui_info is not None:
             return self._ui_info
 
         game_time = GameTime.create_from_turn(self.turn_number)
 
-        if with_date:
-            self._ui_info = (self.timestamp, game_time.verbose_time, self.message, game_time.verbose_date)
+        if with_info:
+            self._ui_info = (self.timestamp,
+                             game_time.verbose_time,
+                             self.message,
+                             game_time.verbose_date,
+                             self.position)
         else:
             self._ui_info = (self.timestamp, game_time.verbose_time, self.message)
 
@@ -72,7 +81,8 @@ class MessageSurrogate(object):
                               timestamp=self.timestamp,
                               key=self.key,
                               externals=self.externals,
-                              message=self.message) # access .message instead ._message to enshure, that two messages will have one text
+                              message=self.message, # access .message instead ._message to enshure, that two messages will have one text
+                              position=self.position)
 
 
 def _message_key(m): return (m.turn_number, m.timestamp)
@@ -110,7 +120,7 @@ class MessagesContainer(object):
     def __len__(self): return len(self.messages)
 
 
-    def ui_info(self, with_date=False):
+    def ui_info(self, with_info=False):
         current_turn = TimePrototype.get_current_turn_number()
 
         messages = []
@@ -119,7 +129,7 @@ class MessagesContainer(object):
             if message.turn_number > current_turn:
                 break
 
-            messages.append(message.ui_info(with_date=with_date))
+            messages.append(message.ui_info(with_info=with_info))
 
         return messages
 

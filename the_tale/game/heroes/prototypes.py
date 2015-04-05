@@ -47,6 +47,7 @@ from the_tale.game.heroes import logic_accessors
 from the_tale.game.heroes import shop_accessors
 from the_tale.game.heroes import equipment_methods
 from the_tale.game.heroes import bag
+from the_tale.game.heroes import storage
 
 
 class HeroPrototype(BasePrototype,
@@ -455,7 +456,8 @@ class HeroPrototype(BasePrototype,
         message = messages.MessageSurrogate.create(key=lexicon_key,
                                                    externals=externals,
                                                    turn_delta=turn_delta,
-                                                   restrictions=restrictions)
+                                                   restrictions=restrictions,
+                                                   position=self.position.get_description() if diary else u'')
 
         self.push_message(message, diary=diary, journal=journal)
 
@@ -591,7 +593,7 @@ class HeroPrototype(BasePrototype,
                 'actual_on_turn': TimePrototype.get_current_turn_number() if actual_guaranteed else self.saved_at_turn,
                 'ui_caching_started_at': time.mktime(self.ui_caching_started_at.timetuple()),
                 'messages': self.messages.ui_info(),
-                'diary': self.diary.ui_info(with_date=True),
+                'diary': self.diary.ui_info(with_info=True),
                 'position': self.position.ui_info(),
                 'bag': self.bag.ui_info(self),
                 'equipment': self.equipment.ui_info(self),
@@ -739,10 +741,10 @@ class HeroPrototype(BasePrototype,
                                         companion_dedication=relations.COMPANION_DEDICATION.NORMAL,
                                         companion_empathy=relations.COMPANION_EMPATHY.ORDINAL)
 
-        storage = LogicStorage() # tmp storage for creating Idleness action
+        logic_storage = LogicStorage() # tmp storage for creating Idleness action
         ActionIdlenessPrototype.create(hero=hero, _bundle_id=bundle.id, _storage=None)
 
-        storage._add_hero(hero)
+        logic_storage._add_hero(hero)
 
         return hero
 
@@ -837,12 +839,29 @@ class HeroPrototype(BasePrototype,
             self.last_rare_operation_at_turn = current_turn
 
 
-
 class HeroPositionPrototype(object):
     __slots__ = ('hero', )
 
     def __init__(self, hero):
         self.hero = hero
+
+    def get_description(self):
+        if self.place:
+            return storage.position_descriptions.text_in_place(self.place_id)
+
+        if self.road:
+            place_from_id, place_to_id = self.road.point_1_id, self.road.point_2_id
+            if self.invert_direction:
+                place_from_id, place_to_id = place_to_id, place_from_id
+            return storage.position_descriptions.text_on_road(place_from_id, place_to_id)
+
+        dominant_place = self.get_dominant_place()
+
+        if dominant_place:
+            return storage.position_descriptions.text_near_place(dominant_place.id)
+
+        return storage.position_descriptions.text_in_wild_lands()
+
 
     @property
     def place_id(self): return self.hero._model.pos_place_id

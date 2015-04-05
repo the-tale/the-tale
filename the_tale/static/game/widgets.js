@@ -1135,6 +1135,7 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
         jQuery('.pgf-time', element).text(message[1][0][3]);
         jQuery('.pgf-date', element).text(message[0]);
+        jQuery('.pgf-position', element).text(message[1][0][4].charAt(0).toUpperCase() + message[1][0][4].slice(1));
         jQuery('.pgf-message', element).html(text);
     }
 
