@@ -584,7 +584,7 @@ class HeroTest(testcase.TestCase):
 
         self.hero.reset_accessors_cache()
 
-        self.assertFalse(getattr(self.hero, '_cached_modifiers'))
+        self.assertEqual(self.hero._cached_modifiers, {relations.MODIFIERS.HEALTH: 1.0})
 
     @mock.patch('the_tale.game.balance.power.Power.damage', lambda self: Damage(1, 1))
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.damage_modifier', 2)

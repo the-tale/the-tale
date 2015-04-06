@@ -172,6 +172,16 @@ class CompanionTests(testcase.TestCase):
                 max_health = self.companion.max_health
 
 
+    def test_on_accessors_cache_changed(self):
+        self.companion.health = 1
+        self.companion.on_accessors_cache_changed()
+        self.assertEqual(self.companion.health, 1)
+
+        self.companion.health = self.companion.max_health + 1
+        self.companion.on_accessors_cache_changed()
+        self.assertEqual(self.companion.health, self.companion.max_health)
+
+
     def test_max_coherence(self):
 
         max_coherence = self.companion.max_coherence

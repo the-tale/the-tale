@@ -19,6 +19,13 @@ class LogicAccessorsMixin(object):
         else:
             self._cached_modifiers.clear()
 
+        # sync some parameters
+        self.health = min(self.health, self.max_health)
+
+        if self.companion:
+            self.companion.on_accessors_cache_changed()
+
+
     def attribute_modifier(self, modifier):
 
         if not hasattr(self, '_cached_modifiers'):

@@ -89,6 +89,9 @@ class Companion(object):
     def max_health(self):
         return int(self.record.max_health * self._hero.companion_max_health_multiplier)
 
+    def on_accessors_cache_changed(self):
+        self.health = min(self.health, self.max_health)
+
     def heal(self, delta):
         if delta < 0:
             raise exceptions.HealCompanionForNegativeValueError(delta=delta)
