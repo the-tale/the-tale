@@ -70,7 +70,7 @@ jQuery(document).ready( function(e) {
 <h4>Ошибки</h4>
 
 {% for error in errors %}
-<p class="alert alert-danger pgf-verificator-error-message">{{error|safe}}</p>
+<p class="alert alert-danger pgf-verificator-error-message" style="white-space: pre-wrap;">{{error|safe}}</p>
 {% endfor %}
 
 {% endif %}
@@ -88,7 +88,7 @@ jQuery(document).ready( function(e) {
      rel="tooltip"
      title="в копии: {{related_template.verificators[loop.index-1].text}}"
      {% endif %}>
-    {% if verificator.text %}{{verificator.text}}
+    {% if verificator.text %}<spen style="white-space: pre-wrap;">{{verificator.text}}</span>
     {% else %}
     <p class="alert alert-danger">Не указан проверочный текст.</p>
     {% endif %}
