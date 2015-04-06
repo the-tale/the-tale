@@ -18,4 +18,8 @@ KEYS = [(u'ACTION_HEAL_COMPANION_DESCRIPTION', 600000, u'Описание', LEXI
         (u'ACTION_HEAL_COMPANION_FINISH', 600003, u'Журнал: окончание', LEXICON_GROUP.ACTION_HEAL_COMPANION,
         u'Герой заканчивает ухаживать за спутником и восстанавливает ему немного здоровья.',
         [V.HERO, V.COMPANION, V.HEALTH]),
+
+        (u'ACTION_HEAL_COMPANION_FINISH_WITHOUT_HEALING', 600004, u'Журнал: окончание без лечения', LEXICON_GROUP.ACTION_HEAL_COMPANION,
+        u'Герой заканчивает ухаживать за спутником, но у того и так полное здоровье.',
+        [V.HERO, V.COMPANION]),
         ]

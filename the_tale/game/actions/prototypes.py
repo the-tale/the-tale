@@ -1919,7 +1919,10 @@ class ActionHealCompanionPrototype(ActionBase):
             return
 
         health = self.hero.companion.heal(utils_logic.randint_from_1(c.COMPANIONS_HEALTH_PER_HEAL))
-        self.hero.add_message('action_heal_companion_finish', hero=self.hero, companion=self.hero.companion, health=health)
+        if health > 0:
+            self.hero.add_message('action_heal_companion_finish', hero=self.hero, companion=self.hero.companion, health=health)
+        else:
+            self.hero.add_message('action_heal_companion_finish_without_healing', hero=self.hero, companion=self.hero.companion)
 
         if self.hero.can_companion_exp_per_heal() and random.random() < self.hero.companion_exp_per_heal_probability:
             self.hero.add_experience(c.COMPANIONS_EXP_PER_HEAL, without_modifications=True)
