@@ -3,10 +3,13 @@ import datetime
 
 from django.db import models
 
+from the_tale.portal import conf as portal_conf
+
 from the_tale.accounts.prototypes import AccountPrototype, RandomPremiumRequestPrototype
 from the_tale.accounts.conf import accounts_settings
 
 from the_tale.accounts.payments.relations import GOODS_GROUP
+from the_tale.accounts.payments import conf as payments_conf
 
 from the_tale.bank.prototypes import InvoicePrototype
 from the_tale.bank.relations import INVOICE_STATE, ENTITY_TYPE, CURRENCY_TYPE
@@ -14,6 +17,7 @@ from the_tale.bank.relations import INVOICE_STATE, ENTITY_TYPE, CURRENCY_TYPE
 from the_tale.statistics.metrics.base import BaseMetric, BasePercentsCombination
 from the_tale.statistics import relations
 from the_tale.statistics.conf import statistics_settings
+
 
 
 
@@ -48,27 +52,57 @@ class Premiums(ActiveBase):
                     for created_at in starts
                     if created_at <= datetime.datetime.combine(date, datetime.time()) < created_at + datetime.timedelta(days=days)] )
 
+    def get_invoice_infinit_intervals_count(self, date):
+        return InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED),
+                                           self.db_date_lte('created_at', date),
+                                           operation_uid__contains='<%sinfinit' % GOODS_GROUP.PREMIUM.uid_prefix,
+                                           sender_type=ENTITY_TYPE.GAME_LOGIC,
+                                           currency=CURRENCY_TYPE.PREMIUM).count()
+
     def get_chest_intervals_count(self, date):
         starts = RandomPremiumRequestPrototype._db_all().values_list('created_at', flat=True)
         return len([True
                     for created_at in starts
-                    if created_at.date() <= date < (created_at + datetime.timedelta(days=30)).date()] )
+                    if created_at.date() <= date < (created_at + datetime.timedelta(days=payments_conf.payments_settings.RANDOM_PREMIUM_DAYS)).date()] )
 
     def get_restored_value(self, date):
+        # TODO: now this method use euristic which give wrong results when user buy more then one subscription simultaneously
         if statistics_settings.PAYMENTS_START_DATE.date() > date:
             return 0
-        return ( 30 + # lottery
+
+        return ( portal_conf.portal_settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY +
                  self.get_chest_intervals_count(date) +
                  self.get_invoice_intervals_count(7, date) +
                  self.get_invoice_intervals_count(15, date) +
                  self.get_invoice_intervals_count(30, date) +
-                 self.get_invoice_intervals_count(90, date) )
+                 self.get_invoice_intervals_count(90, date) +
+                 self.get_invoice_infinit_intervals_count(date))
 
 
 class PremiumPercents(BasePercentsCombination):
     TYPE = relations.RECORD_TYPE.PREMIUMS_PERCENTS
+
     SOURCES = [relations.RECORD_TYPE.PREMIUMS,
                relations.RECORD_TYPE.REGISTRATIONS_TOTAL]
+
+
+class InfinitPremiums(ActiveBase):
+    TYPE = relations.RECORD_TYPE.INFINIT_PREMIUMS
+
+    def get_actual_value(self, date):
+        return self.get_invoice_infinit_intervals_count(date)
+
+    def get_invoice_infinit_intervals_count(self, date):
+        return InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED),
+                                           self.db_date_lte('created_at', date),
+                                           operation_uid__contains='<%sinfinit' % GOODS_GROUP.PREMIUM.uid_prefix,
+                                           sender_type=ENTITY_TYPE.GAME_LOGIC,
+                                           currency=CURRENCY_TYPE.PREMIUM).values_list('created_at', flat=True).count()
+
+    def get_restored_value(self, date):
+        if statistics_settings.PAYMENTS_START_DATE.date() > date:
+            return 0
+        return self.get_invoice_infinit_intervals_count(date)
 
 
 class ActiveAccountsBase(ActiveBase):

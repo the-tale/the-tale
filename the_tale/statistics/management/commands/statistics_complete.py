@@ -35,6 +35,7 @@ METRICS = [
         registrations.ReferralsInMonth,
 
         actual.Premiums,
+        actual.InfinitPremiums,
         actual.PremiumPercents,
         actual.Active,
         actual.DAU,

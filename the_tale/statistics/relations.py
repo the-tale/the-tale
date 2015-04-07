@@ -132,4 +132,6 @@ class RECORD_TYPE(DjangoEnum):
 
                 ('INCOME_FROM_GOODS_MARKET_COMMISSION', 104, u'доход от комиссии на рынке', VALUE_TYPE.INT, u'доход от комиссии на рынке'),
                 ('INCOME_FROM_GOODS_MARKET_COMMISSION_PERCENTS', 105, u'% дохода от комиссии на рынке', VALUE_TYPE.INT, u'% дохода от комиссии на рынке за день'),
+
+                ('INFINIT_PREMIUMS', 106, u'количество вечных подписчиков', VALUE_TYPE.INT, u'количество вечных подписчиков'),
         )

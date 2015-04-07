@@ -35,6 +35,7 @@ PLOTS_GROUPS = [
                plots=[Plot(relations.RECORD_TYPE.REGISTRATIONS_TOTAL, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.REFERRALS_TOTAL, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.PREMIUMS, y_axis='y2'),
+                      Plot(relations.RECORD_TYPE.INFINIT_PREMIUMS, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.ACTIVE, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.DAU, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.MAU, y_axis='y2'),
