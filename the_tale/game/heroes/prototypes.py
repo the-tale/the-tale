@@ -198,7 +198,7 @@ class HeroPrototype(BasePrototype,
         self.statistics.change_money(source, abs(value))
         self._model.money += value
 
-    def get_quests(self):
+    def get_quests_priorities(self):
         # always check hero position to prevent «bad» quests generation
         from the_tale.game.quests.relations import QUESTS
 

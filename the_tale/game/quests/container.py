@@ -89,6 +89,9 @@ class QuestsContainer(object):
             return False
         return self.interfered_persons[person_id] + quests_settings.INTERFERED_PERSONS_LIVE_TIME > time.time()
 
+    def get_interfered_persons(self):
+        return [person_id for person_id in self.interfered_persons.iterkeys() if self.is_person_interfered(person_id)]
+
     def sync_interfered_persons(self):
         to_remove = set()
         current_time = time.time()

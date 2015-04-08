@@ -4,6 +4,8 @@ import random
 import copy
 import math
 
+from django.conf import settings as project_settings
+
 from dext.common.utils.urls import url
 from dext.common.utils import discovering
 
@@ -15,7 +17,7 @@ from the_tale.game.heroes.relations import MONEY_SOURCE
 
 from the_tale.game.balance import constants as c, formulas as f, enums as e
 
-from the_tale.game.quests.logic import create_random_quest_for_hero
+from the_tale.game.quests import logic as quests_logic
 
 from the_tale.game.mobs.prototypes import MobPrototype
 from the_tale.game.mobs.storage import mobs_storage
@@ -387,6 +389,9 @@ class ActionBase(object):
     def action_event_message_arguments(self):
         return {}
 
+    def setup_quest(self, quest):
+        pass # do nothing if there is not Quest action
+
 
     def __eq__(self, other):
 
@@ -526,9 +531,7 @@ class ActionIdlenessPrototype(ActionBase):
 
             if self.percents >= 1.0:
                 self.state = self.STATE.QUEST
-
-                quest = create_random_quest_for_hero(self.hero)
-                ActionQuestPrototype.create(hero=self.hero, quest=quest)
+                ActionQuestPrototype.create(hero=self.hero)
 
             elif self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
                 ActionRegenerateEnergyPrototype.create(hero=self.hero)
@@ -547,26 +550,42 @@ class ActionQuestPrototype(ActionBase):
     APPROVED_FOR_STEPS_CHAIN = False # all quest actions MUST be done on separated turns
 
     class STATE(ActionBase.STATE):
+        SEARCHING = 'searching'
         PROCESSING = 'processing'
 
     ###########################################
     # Object operations
     ###########################################
 
-    def on_create(self):
-        super(ActionQuestPrototype, self).on_create()
-
-    def on_remove(self):
-        super(ActionQuestPrototype, self).on_remove()
-
     @classmethod
-    def _create(cls, hero, bundle_id, quest):
-        hero.quests.push_quest(quest)
+    def _create(cls, hero, bundle_id):
         return cls(hero=hero,
                    bundle_id=bundle_id,
-                   state=cls.STATE.PROCESSING)
+                   state=cls.STATE.SEARCHING)
+
+
+    def setup_quest(self, quest):
+        if self.state != self.STATE.SEARCHING:
+            return
+
+        self.hero.quests.push_quest(quest)
+
+        self.state = self.STATE.PROCESSING
+
 
     def process(self):
+
+        if self.state == self.STATE.SEARCHING:
+            if self.hero.quests.has_quests:
+                self.state = self.STATE.PROCESSING
+            else:
+                # a lot of test depans on complete processing of this action
+                # so it is easie to emulate quest generation here, then place everywere mock objects
+                if project_settings.TESTS_RUNNING:
+                    from the_tale.game.quests.tests import helpers as quests_helpers
+                    quests_helpers.setup_quest(self.hero)
+                else:
+                    quests_logic.request_quest_for_hero(self.hero)
 
         if self.state == self.STATE.PROCESSING:
 

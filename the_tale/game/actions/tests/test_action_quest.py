@@ -10,7 +10,7 @@ from the_tale.game.prototypes import TimePrototype
 from the_tale.game.logic import create_test_map
 from the_tale.game.logic_storage import LogicStorage
 
-from the_tale.game.quests.logic import create_random_quest_for_hero
+from the_tale.game.quests.tests import helpers as quests_helpers
 
 from the_tale.game.actions.prototypes import ActionQuestPrototype
 
@@ -29,16 +29,21 @@ class QuestActionTest(testcase.TestCase):
         self.hero = self.storage.accounts_to_heroes[account_id]
         self.action_idl = self.hero.actions.current_action
 
-        self.quest = create_random_quest_for_hero(self.hero)
-        self.action_quest = ActionQuestPrototype.create(hero=self.hero, quest=self.quest)
+        self.action_quest = ActionQuestPrototype.create(hero=self.hero)
 
-    def tearDown(self):
-        pass
 
     def test_create(self):
         self.assertEqual(self.action_idl.leader, False)
         self.assertEqual(self.action_quest.leader, True)
+        self.assertEqual(self.action_quest.state, self.action_quest.STATE.SEARCHING)
         self.assertEqual(self.action_quest.bundle_id, self.action_idl.bundle_id)
+        self.assertFalse(self.hero.quests.has_quests)
+        self.storage._test_save()
+
+    def test_setup_quest(self):
+        quests_helpers.setup_quest(self.hero)
+
+        self.assertEqual(self.action_quest.state, self.action_quest.STATE.PROCESSING)
         self.assertTrue(self.hero.quests.has_quests)
         self.storage._test_save()
 
@@ -50,12 +55,14 @@ class QuestActionTest(testcase.TestCase):
 
 
     def test_step_with_no_quest(self):
+        quests_helpers.setup_quest(self.hero)
+
         self.hero.quests.pop_quest()
         self.storage.process_turn()
         self.assertEqual(self.action_idl.leader, True)
 
-    def test_full_quest(self):
 
+    def test_full_quest(self):
         current_time = TimePrototype.get_current_time()
 
         # just test that quest will be ended

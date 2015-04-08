@@ -26,6 +26,7 @@ class Environment(BaseEnvironment):
         from the_tale.game.workers import turns_loop
         from the_tale.game.workers import long_commands as game_long_commands
         from the_tale.game.pvp.workers import balancer
+        from the_tale.game.quests.workers import quests_generator
 
         # bank processor MUST be placed first, to be stopped last
         self.workers.bank_processor = bank_processor.Worker(name='bank_bank_processor', groups=['all', 'portal'])
@@ -46,6 +47,7 @@ class Environment(BaseEnvironment):
         self.workers.turns_loop = turns_loop.Worker(name='game_turns_loop', groups=['all', 'game']) if game_settings.ENABLE_WORKER_TURNS_LOOP else None
         self.workers.game_long_commands = game_long_commands.Worker(name='game_long_commands', groups=['all', 'game'])
         self.workers.pvp_balancer = balancer.Worker(name='game_pvp_balancer', groups=['all', 'game']) if game_settings.ENABLE_PVP else None
+        self.workers.quests_generator = quests_generator.Worker(name='game_quests_generator', groups=['all', 'game'])
 
         super(Environment, self).initialize()
 

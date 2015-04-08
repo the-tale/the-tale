@@ -390,7 +390,7 @@ class QuestPrototype(object):
 
         power, positive_bonus, negative_bonus = hero.modify_power(power, person=person)
 
-        person_uid = uids.person(person)
+        person_uid = uids.person(person.id)
         has_profession_marker = [marker for marker in self.knowledge_base.filter(facts.ProfessionMarker) if marker.person == person_uid]
         if has_profession_marker:
             power /= len(PERSON_TYPE.records)
@@ -549,8 +549,8 @@ class QuestPrototype(object):
         return random.choice(choices)
 
     @classmethod
-    def upgrade_equipment_cost(cls, hero):
-        return int(f.normal_action_price(hero.level) * ITEMS_OF_EXPENDITURE.get_quest_upgrade_equipment_fraction())
+    def upgrade_equipment_cost(cls, hero_info):
+        return int(f.normal_action_price(hero_info.level) * ITEMS_OF_EXPENDITURE.get_quest_upgrade_equipment_fraction())
 
     @classmethod
     def _upgrade_equipment(cls, process_message, hero, knowledge_base, cost):

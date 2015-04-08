@@ -1,4 +1,5 @@
 # coding: utf-8
+import mock
 
 from questgen.quests.base_quest import BaseQuest, RESULTS
 from questgen import facts
@@ -8,6 +9,13 @@ from the_tale.game.prototypes import TimePrototype
 from the_tale.game.actions.prototypes import ActionQuestPrototype
 
 from the_tale.game.quests.writers import Writer
+from the_tale.game.quests import logic
+
+
+def setup_quest(hero):
+    hero_info = logic.create_hero_info(hero)
+    knowledge_base = logic.create_random_quest_for_hero(hero_info, mock.Mock())
+    logic.setup_quest_for_hero(hero, knowledge_base.serialize())
 
 
 
@@ -19,7 +27,7 @@ class QuestTestsMixin(object):
 
         hero = storage.heroes[hero_id]
 
-        while hero.actions.current_action.TYPE != ActionQuestPrototype.TYPE:
+        while hero.actions.current_action.TYPE != ActionQuestPrototype.TYPE or not self.hero.quests.has_quests:
             storage.process_turn()
             current_time.increment_turn()
 

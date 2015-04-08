@@ -49,6 +49,8 @@ from the_tale.game.quests import relations
 
 from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
 
+from the_tale.game.quests.tests import helpers
+
 
 class PrototypeTestsBase(testcase.TestCase):
 
@@ -69,9 +71,10 @@ class PrototypeTestsBase(testcase.TestCase):
 
         self.action_idl.state = self.action_idl.STATE.QUEST
 
-        self.quest = logic.create_random_quest_for_hero(self.hero)
-        self.action_quest = ActionQuestPrototype.create(hero=self.hero, quest=self.quest)
+        self.action_quest = ActionQuestPrototype.create(hero=self.hero)
+        helpers.setup_quest(self.hero)
 
+        self.quest = self.hero.quests.current_quest
 
 
 class PrototypeTests(PrototypeTestsBase):
@@ -131,7 +134,7 @@ class PrototypeTests(PrototypeTestsBase):
 
         power_without_profession = self.quest._give_person_power(self.hero, person, 1.0)
 
-        self.quest.knowledge_base += facts.ProfessionMarker(person=uids.person(person), profession=666)
+        self.quest.knowledge_base += facts.ProfessionMarker(person=uids.person(person.id), profession=666)
         power_with_profession = self.quest._give_person_power(self.hero, person, 1.0)
 
         self.assertTrue(power_with_profession < power_without_profession)
@@ -367,7 +370,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.quest.current_info.power_bonus = 1
 
         for person in persons_storage.persons_storage.all():
-            person_uid = uids.person(person)
+            person_uid = uids.person(person.id)
             if person_uid not in self.quest.knowledge_base:
                 self.quest.knowledge_base += logic.fact_person(person)
 
@@ -378,12 +381,12 @@ class PrototypeTests(PrototypeTestsBase):
         person_2_2 =  self.place_2.persons[1]
         person_2_3 =  self.place_2.persons[2]
 
-        results = {uids.person(person_1_1): QUEST_RESULTS.SUCCESSED,
-                   uids.person(person_1_2): QUEST_RESULTS.FAILED,
-                   uids.person(person_1_3): QUEST_RESULTS.NEUTRAL,
-                   uids.person(person_2_1): QUEST_RESULTS.SUCCESSED,
-                   uids.person(person_2_2): QUEST_RESULTS.FAILED,
-                   uids.person(person_2_3): QUEST_RESULTS.NEUTRAL}
+        results = {uids.person(person_1_1.id): QUEST_RESULTS.SUCCESSED,
+                   uids.person(person_1_2.id): QUEST_RESULTS.FAILED,
+                   uids.person(person_1_3.id): QUEST_RESULTS.NEUTRAL,
+                   uids.person(person_2_1.id): QUEST_RESULTS.SUCCESSED,
+                   uids.person(person_2_2.id): QUEST_RESULTS.FAILED,
+                   uids.person(person_2_3.id): QUEST_RESULTS.NEUTRAL}
 
         persons_models.SocialConnection.objects.all().delete()
         persons_storage.social_connections.refresh()
@@ -430,15 +433,15 @@ class PrototypeTests(PrototypeTestsBase):
         self.quest.current_info.power_bonus = 1
 
         for person in persons_storage.persons_storage.all():
-            person_uid = uids.person(person)
+            person_uid = uids.person(person.id)
             if person_uid not in self.quest.knowledge_base:
                 self.quest.knowledge_base += logic.fact_person(person)
 
         person_1_1 =  self.place_3.persons[0]
         person_2_1 =  self.place_2.persons[0]
 
-        results = {uids.person(person_1_1): QUEST_RESULTS.SUCCESSED,
-                   uids.person(person_2_1): QUEST_RESULTS.SUCCESSED}
+        results = {uids.person(person_1_1.id): QUEST_RESULTS.SUCCESSED,
+                   uids.person(person_2_1.id): QUEST_RESULTS.SUCCESSED}
 
         persons_models.SocialConnection.objects.all().delete()
         persons_storage.social_connections.refresh()
@@ -460,13 +463,13 @@ class PrototypeTests(PrototypeTestsBase):
         self.quest.current_info.power_bonus = 1
 
         for person in persons_storage.persons_storage.all():
-            person_uid = uids.person(person)
+            person_uid = uids.person(person.id)
             if person_uid not in self.quest.knowledge_base:
                 self.quest.knowledge_base += logic.fact_person(person)
 
         person_1_1 =  self.place_3.persons[0]
 
-        results = {uids.person(person_1_1): QUEST_RESULTS.SUCCESSED}
+        results = {uids.person(person_1_1.id): QUEST_RESULTS.SUCCESSED}
 
         persons_models.SocialConnection.objects.all().delete()
         persons_storage.social_connections.refresh()
@@ -485,7 +488,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.quest.current_info.power_bonus = 1
 
         for person in persons_storage.persons_storage.all():
-            person_uid = uids.person(person)
+            person_uid = uids.person(person.id)
             if person_uid not in self.quest.knowledge_base:
                 self.quest.knowledge_base += logic.fact_person(person)
 

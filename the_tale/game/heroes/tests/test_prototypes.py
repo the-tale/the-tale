@@ -986,63 +986,63 @@ class HeroQuestsTest(testcase.TestCase):
 
 
     def test_character_quests__hometown(self):
-        self.assertFalse(QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests()])
+        self.assertFalse(QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests_priorities()])
 
         self.hero.preferences.set_place(self.place)
         self.hero.position.set_place(self.place)
-        self.assertFalse(QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests()])
+        self.assertFalse(QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests_priorities()])
 
         self.hero.position.set_coordinates(0, 0, 0, 0, 0)
-        self.assertTrue(QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests()])
+        self.assertTrue(QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests__friend(self):
-        self.assertFalse(QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests()])
+        self.assertFalse(QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests_priorities()])
 
         self.hero.preferences.set_friend(self.person)
         self.hero.position.set_place(self.place)
-        self.assertFalse(QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests()])
+        self.assertFalse(QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests_priorities()])
 
         self.hero.position.set_coordinates(0, 0, 0, 0, 0)
-        self.assertTrue(QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests()])
+        self.assertTrue(QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests__enemy(self):
-        self.assertFalse(QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests()])
+        self.assertFalse(QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests_priorities()])
 
         self.hero.preferences.set_enemy(self.person)
         self.hero.position.set_place(self.place)
-        self.assertFalse(QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests()])
+        self.assertFalse(QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests_priorities()])
 
         self.hero.position.set_coordinates(0, 0, 0, 0, 0)
-        self.assertTrue(QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests()])
+        self.assertTrue(QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests__hunt(self):
-        self.assertFalse(QUESTS.HUNT in [quest for quest, priority in self.hero.get_quests()])
+        self.assertFalse(QUESTS.HUNT in [quest for quest, priority in self.hero.get_quests_priorities()])
         self.hero.preferences.set_mob(mobs_storage.all()[0])
-        self.assertTrue(QUESTS.HUNT in [quest for quest, priority in self.hero.get_quests()])
+        self.assertTrue(QUESTS.HUNT in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests_searchsmith_with_preferences_without_artifact(self):
         self.hero.equipment._remove_all()
         self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.PLATE)
         self.hero.save()
 
-        self.assertTrue(QUESTS.SEARCH_SMITH in [quest for quest, priority in self.hero.get_quests()])
+        self.assertTrue(QUESTS.SEARCH_SMITH in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests_searchsmith_with_preferences_with_artifact(self):
         self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.PLATE)
         self.hero.save()
 
         self.assertTrue(self.hero.equipment.get(relations.EQUIPMENT_SLOT.PLATE) is not None)
-        self.assertTrue(QUESTS.SEARCH_SMITH in [quest for quest, priority in self.hero.get_quests()])
+        self.assertTrue(QUESTS.SEARCH_SMITH in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_unique_quests__pilgrimage(self):
-        self.assertFalse(QUESTS.PILGRIMAGE in [quest for quest, priority in self.hero.get_quests()])
+        self.assertFalse(QUESTS.PILGRIMAGE in [quest for quest, priority in self.hero.get_quests_priorities()])
 
         self.place.modifier = CITY_MODIFIERS.HOLY_CITY
         self.hero.position.set_place(self.place)
-        self.assertFalse(QUESTS.PILGRIMAGE in [quest for quest, priority in self.hero.get_quests()])
+        self.assertFalse(QUESTS.PILGRIMAGE in [quest for quest, priority in self.hero.get_quests_priorities()])
 
         self.hero.position.set_coordinates(0, 0, 0, 0, 0)
-        self.assertTrue(QUESTS.PILGRIMAGE in [quest for quest, priority in self.hero.get_quests()])
+        self.assertTrue(QUESTS.PILGRIMAGE in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_get_minimum_created_time_of_active_quests(self):
         self.hero._model.quest_created_time = datetime.datetime.now() - datetime.timedelta(days=1)

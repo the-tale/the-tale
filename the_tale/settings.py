@@ -379,7 +379,7 @@ LOGGING = {
         'file_linguistics_manager': get_worker_log_file_handler('linguistics_manager'),
         'file_market_manager': get_worker_log_file_handler('market_manager'),
         'file_game_pvp_balancer': get_worker_log_file_handler('game_pvp_balancer'),
-        'file_game_quests': get_worker_log_file_handler('game_quests'),
+        'file_game_quests_generator': get_worker_log_file_handler('game_quests_generator'),
         'file_linguistics': get_worker_log_file_handler('linguistics'),
         'file_accounts_registration': get_worker_log_file_handler('accounts_registration'),
         'file_accounts_accounts_manager': get_worker_log_file_handler('accounts_accounts_manager'),
@@ -411,6 +411,7 @@ LOGGING = {
         'the-tale.workers.linguistics_manager': get_worker_logger('linguistics_manager'),
         'the-tale.workers.market_manager': get_worker_logger('market_manager'),
         'the-tale.workers.game_pvp_balancer': get_worker_logger('game_pvp_balancer'),
+        'the-tale.workers.game_quests_generator': get_worker_logger('game_quests_generator'),
         'the-tale.workers.accounts_registration': get_worker_logger('accounts_registration'),
         'the-tale.workers.accounts_accounts_manager': get_worker_logger('accounts_accounts_manager'),
         'the-tale.workers.achievements_achievements_manager': get_worker_logger('achievements_achievements_manager'),
@@ -420,7 +421,6 @@ LOGGING = {
         'the-tale.workers.bank_xsolla_banker': get_worker_logger('bank_xsolla_banker'),
         'the-tale.bank_xsolla_requests': get_worker_logger('bank_xsolla_requests'),
         'the-tale.workers.postponed_tasks_refrigerator': get_worker_logger('postponed_tasks_refrigerator'),
-        'the-tale.game.quests': get_worker_logger('game_quests'),
         'the-tale.linguistics': get_worker_logger('linguistics')
     } if not TESTS_RUNNING else {}
 }

@@ -12,7 +12,7 @@ from the_tale.game.logic import create_test_map
 from the_tale.game.cards import effects
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
-from the_tale.game.quests.logic import create_random_quest_for_hero
+from the_tale.game.quests.tests import helpers as quests_helpers
 from the_tale.game.actions.prototypes import ActionQuestPrototype
 
 from the_tale.game.cards.tests.helpers import CardsTestMixin
@@ -38,8 +38,8 @@ class AddExperienceTestMixin(CardsTestMixin):
 
 
     def test_use(self):
-        self.quest = create_random_quest_for_hero(self.hero)
-        self.action_quest = ActionQuestPrototype.create(hero=self.hero, quest=self.quest)
+        self.action_quest = ActionQuestPrototype.create(hero=self.hero)
+        quests_helpers.setup_quest(self.hero)
 
         self.assertTrue(self.hero.quests.has_quests)
 

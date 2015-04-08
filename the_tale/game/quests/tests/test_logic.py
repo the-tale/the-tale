@@ -38,9 +38,14 @@ class LogicTestsBase(testcase.TestCase):
         self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
         self.hero = self.storage.accounts_to_heroes[account_id]
 
-        self.hero_uid = uids.hero(self.hero)
+        self.hero_uid = uids.hero(self.hero.id)
 
         self.knowledge_base = KnowledgeBase()
+
+
+    def get_hero_info(self):
+        return logic.create_hero_info(self.hero)
+
 
     def check_uids(self, left, right):
         self.assertEqual(set(f.uid for f in left), set(f.uid for f in right))
@@ -72,6 +77,11 @@ class LogicTestsBase(testcase.TestCase):
         self.check_uids(self.knowledge_base.filter(facts.SocialConnection), social_connections)
 
 
+# class HeroQuestInfoTests(LogicTestsBase):
+
+
+
+
 class FillPlacesTest(LogicTestsBase):
 
     def test_prerequiries(self):
@@ -84,7 +94,7 @@ class FillPlacesTest(LogicTestsBase):
     def test_radius(self):
         self.hero.position.set_place(self.place_1)
 
-        logic.fill_places(self.knowledge_base, self.hero, waymarks_storage.look_for_road(self.place_1, self.place_2).length)
+        logic.fill_places(self.knowledge_base, self.get_hero_info(), waymarks_storage.look_for_road(self.place_1, self.place_2).length)
 
         self.check_facts(places=[logic.fact_place(self.place_1), logic.fact_place(self.place_2)])
 
@@ -92,7 +102,7 @@ class FillPlacesTest(LogicTestsBase):
     def test_maximum_radius(self):
         self.hero.position.set_place(self.place_1)
 
-        logic.fill_places(self.knowledge_base, self.hero, waymarks_storage.look_for_road(self.place_1, self.place_3).length)
+        logic.fill_places(self.knowledge_base, self.get_hero_info(), waymarks_storage.look_for_road(self.place_1, self.place_3).length)
 
         self.check_facts(places=[logic.fact_place(self.place_1), logic.fact_place(self.place_2), logic.fact_place(self.place_3)])
 
@@ -102,7 +112,7 @@ class FillPlacesTest(LogicTestsBase):
         f_place_1 = logic.fact_place(self.place_1)
         f_place_2 = logic.fact_place(self.place_2)
 
-        logic.fill_places(self.knowledge_base, self.hero, waymarks_storage.look_for_road(self.place_1, self.place_2).length)
+        logic.fill_places(self.knowledge_base, self.get_hero_info(), waymarks_storage.look_for_road(self.place_1, self.place_2).length)
 
         self.check_facts(places=[f_place_1, f_place_2])
 
@@ -112,7 +122,7 @@ class FillPlacesTest(LogicTestsBase):
         f_place_2 = logic.fact_place(self.place_2)
         f_place_3 = logic.fact_place(self.place_3)
 
-        logic.fill_places(self.knowledge_base, self.hero, waymarks_storage.look_for_road(self.place_1, self.place_3).length - 1)
+        logic.fill_places(self.knowledge_base, self.get_hero_info(), waymarks_storage.look_for_road(self.place_1, self.place_3).length - 1)
 
         self.check_facts(places=[f_place_2, f_place_3])
 
@@ -123,7 +133,7 @@ class FillPlacesTest(LogicTestsBase):
         f_place_2 = logic.fact_place(self.place_2)
         f_place_3 = logic.fact_place(self.place_3)
 
-        logic.fill_places(self.knowledge_base, self.hero, waymarks_storage.look_for_road(self.place_1, self.place_3).length + 1)
+        logic.fill_places(self.knowledge_base, self.get_hero_info(), waymarks_storage.look_for_road(self.place_1, self.place_3).length + 1)
 
         self.check_facts(places=[f_place_2, f_place_3, f_place_1])
 
@@ -131,14 +141,14 @@ class FillPlacesTest(LogicTestsBase):
 class SetupPreferencesTest(LogicTestsBase):
 
     def test_no_preferences(self):
-        logic.setup_preferences(self.knowledge_base, self.hero)
+        logic.setup_preferences(self.knowledge_base, self.get_hero_info())
         self.check_facts()
 
     def test_mob(self):
         mob = mobs_storage.all()[0]
         self.hero.preferences.set_mob(mob)
 
-        logic.setup_preferences(self.knowledge_base, self.hero)
+        logic.setup_preferences(self.knowledge_base, self.get_hero_info())
 
         f_mob = logic.fact_mob(mob)
         self.check_facts(mobs=[f_mob],
@@ -150,7 +160,7 @@ class SetupPreferencesTest(LogicTestsBase):
 
         f_place = logic.fact_place(place)
 
-        logic.setup_preferences(self.knowledge_base, self.hero)
+        logic.setup_preferences(self.knowledge_base, self.get_hero_info())
 
         self.check_facts(places=[f_place],
                          hometowns=[facts.PreferenceHometown(object=self.hero_uid, place=f_place.uid)])
@@ -162,7 +172,7 @@ class SetupPreferencesTest(LogicTestsBase):
         f_place = logic.fact_place(place)
         self.knowledge_base += f_place
 
-        logic.setup_preferences(self.knowledge_base, self.hero)
+        logic.setup_preferences(self.knowledge_base, self.get_hero_info())
 
         self.check_facts(places=[f_place],
                          hometowns=[facts.PreferenceHometown(object=self.hero_uid, place=f_place.uid)])
@@ -176,7 +186,7 @@ class SetupPreferencesTest(LogicTestsBase):
         f_place = logic.fact_place(place)
         f_person = logic.fact_person(person)
 
-        logic.setup_preferences(self.knowledge_base, self.hero)
+        logic.setup_preferences(self.knowledge_base, self.get_hero_info())
 
         self.check_facts(places=[f_place],
                          persons=[f_person],
@@ -195,7 +205,7 @@ class SetupPreferencesTest(LogicTestsBase):
         self.knowledge_base += f_place
         self.knowledge_base += f_person
 
-        logic.setup_preferences(self.knowledge_base, self.hero)
+        logic.setup_preferences(self.knowledge_base, self.get_hero_info())
 
         self.check_facts(places=[f_place],
                          persons=[f_person],
@@ -211,7 +221,7 @@ class SetupPreferencesTest(LogicTestsBase):
         f_place = logic.fact_place(place)
         f_person = logic.fact_person(person)
 
-        logic.setup_preferences(self.knowledge_base, self.hero)
+        logic.setup_preferences(self.knowledge_base, self.get_hero_info())
 
         self.check_facts(places=[f_place],
                          persons=[f_person],
@@ -230,7 +240,7 @@ class SetupPreferencesTest(LogicTestsBase):
         self.knowledge_base += f_place
         self.knowledge_base += f_person
 
-        logic.setup_preferences(self.knowledge_base, self.hero)
+        logic.setup_preferences(self.knowledge_base, self.get_hero_info())
 
         self.check_facts(places=[f_place],
                          persons=[f_person],
@@ -242,7 +252,7 @@ class SetupPreferencesTest(LogicTestsBase):
 
         self.hero.preferences.set_equipment_slot(slot)
 
-        logic.setup_preferences(self.knowledge_base, self.hero)
+        logic.setup_preferences(self.knowledge_base, self.get_hero_info())
 
         self.check_facts(equipment_slots=[facts.PreferenceEquipmentSlot(object=self.hero_uid, equipment_slot=slot.value)])
 
@@ -253,8 +263,8 @@ class SetupPersonsTest(LogicTestsBase):
     def test_no_social_connections(self):
         self.hero.position.set_place(self.place_1)
 
-        logic.fill_places(self.knowledge_base, self.hero, waymarks_storage.look_for_road(self.place_1, self.place_2).length)
-        logic.setup_persons(self.knowledge_base, self.hero)
+        logic.fill_places(self.knowledge_base, self.get_hero_info(), waymarks_storage.look_for_road(self.place_1, self.place_2).length)
+        logic.setup_persons(self.knowledge_base, self.get_hero_info())
         logic.setup_social_connections(self.knowledge_base)
 
         self.check_facts(places=[logic.fact_place(self.place_1), logic.fact_place(self.place_2)],
@@ -268,8 +278,8 @@ class SetupPersonsTest(LogicTestsBase):
 
         self.hero.position.set_place(self.place_1)
 
-        logic.fill_places(self.knowledge_base, self.hero, waymarks_storage.look_for_road(self.place_1, self.place_2).length)
-        logic.setup_persons(self.knowledge_base, self.hero)
+        logic.fill_places(self.knowledge_base, self.get_hero_info(), waymarks_storage.look_for_road(self.place_1, self.place_2).length)
+        logic.setup_persons(self.knowledge_base, self.get_hero_info())
         logic.setup_social_connections(self.knowledge_base)
 
         expected_connections = []
@@ -281,7 +291,7 @@ class SetupPersonsTest(LogicTestsBase):
                 connected_person = persons_storage.persons_storage[connected_person_id]
                 if connected_person.place_id == self.place_3.id:
                     continue
-                expected_connections.append(logic.fact_social_connection(connection_type, uids.person(person), uids.person(connected_person)))
+                expected_connections.append(logic.fact_social_connection(connection_type, uids.person(person.id), uids.person(connected_person.id)))
 
         self.check_facts(places=[logic.fact_place(self.place_1), logic.fact_place(self.place_2)],
                          persons=[logic.fact_person(person) for person in persons_storage.persons_storage.all() if person.place_id != self.place_3.id],

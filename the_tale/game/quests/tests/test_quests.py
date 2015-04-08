@@ -100,7 +100,7 @@ def create_test_method(quest, quests):
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_short_quest_path_required', False)
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_first_quest_path_required', False)
     @mock.patch('the_tale.game.quests.logic.QUESTS_BASE._quests', internal_quests)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.get_quests', lambda hero: [(quest, 10000000)] + [(q, 0) for q in quests if q != quest])
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.get_quests_priorities', lambda hero: [(quest, 10000000)] + [(q, 0) for q in quests if q != quest])
     def quest_test_method(self):
 
         # defends from first quest rule
@@ -111,7 +111,7 @@ def create_test_method(quest, quests):
 
         test_upgrade_equipment = random.randint(0, 1) # test child quest or upgrade equipment for SearchSmith
 
-        while self.hero.actions.current_action.TYPE != ActionQuestPrototype.TYPE:
+        while self.hero.actions.current_action.TYPE != ActionQuestPrototype.TYPE or not self.hero.quests.has_quests:
             if quest == SearchSmith and test_upgrade_equipment:
                 self.hero._model.money = QuestPrototype.upgrade_equipment_cost(self.hero) * 2
                 self.hero._model.next_spending = ITEMS_OF_EXPENDITURE.INSTANT_HEAL
@@ -261,17 +261,17 @@ def create_test_messages_method(quest, quests):
     def quest_test_method(self):
         from questgen.selectors import Selector
 
-        from the_tale.game.quests.logic import get_knowledge_base
+        from the_tale.game.quests import logic
         from the_tale.game.quests import uids
 
-        knowledge_base = get_knowledge_base(self.hero)
+        knowledge_base = logic.get_knowledge_base(logic.create_hero_info(self.hero))
 
         qb = QuestsBase()
         qb += [q.quest_class for q in quests]
 
         selector = Selector(knowledge_base, qb)
 
-        hero_uid = uids.hero(self.hero)
+        hero_uid = uids.hero(self.hero.id)
 
         quests_facts = selector.create_quest_from_place(nesting=0,
                                                         initiator_position=selector.place_for(objects=(hero_uid,)),
