@@ -1,31 +1,22 @@
 # coding: utf-8
 
-from the_tale.amqp_environment import environment
+from the_tale import amqp_environment
 
 from the_tale.common.utils.workers import BaseWorker
 
+from the_tale.game.quests import logic
+
 
 class Worker(BaseWorker):
-    STOP_SIGNAL_REQUIRED = False
     GET_CMD_TIMEOUT = 60
 
     def initialize(self):
-        pass
-
-    def cmd_initialize(self, worker_id):
-        self.send_cmd('initialize', {'worker_id': worker_id})
-
-    def process_initialize(self, worker_id):
-
         if self.initialized:
             self.logger.warn('WARNING: quests generator already initialized, do reinitialization')
 
         self.initialized = True
-        self.worker_id = worker_id
 
         self.logger.info('QUEST GENERATOR INITIALIZED')
-
-        environment.workers.supervisor.cmd_answer('initialize', self.worker_id)
 
     def cmd_stop(self):
         return self.send_cmd('stop')
@@ -33,5 +24,15 @@ class Worker(BaseWorker):
     def process_stop(self):
         self.initialized = False
         self.stop_required = True
-        environment.workers.supervisor.cmd_answer('stop', self.worker_id)
+
         self.logger.info('QUESTS GENERATOR STOPPED')
+
+        self.stop_queue.put({'code': 'stopped', 'worker': 'quests_generator'}, serializer='json', compression=None)
+
+    def cmd_request_quest(self, account_id, hero_info):
+        self.send_cmd('request_quest', {'account_id': account_id,
+                                        'hero_info': hero_info})
+
+    def process_request_quest(self, account_id, hero_info):
+        knowledge_base = logic.create_random_quest_for_hero(logic.HeroQuestInfo.deserialize(hero_info), logger=self.logger)
+        amqp_environment.environment.workers.supervisor.cmd_setup_quest(account_id, knowledge_base.serialize())

@@ -15,6 +15,8 @@ from the_tale.game.prototypes import TimePrototype
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.conf import game_settings
 
+from the_tale.game.quests import logic as quests_logic
+
 
 class LogicException(Exception): pass
 
@@ -180,3 +182,18 @@ class Worker(BaseWorker):
 
     def process_highlevel_data_updated(self):
         self.storage.on_highlevel_data_updated()
+
+    def cmd_setup_quest(self, account_id, knowledge_base):
+        return self.send_cmd('setup_quest', {'account_id': account_id,
+                                             'knowledge_base': knowledge_base})
+
+    def process_setup_quest(self, account_id, knowledge_base):
+        hero = self.storage.accounts_to_heroes[account_id]
+        bundle_id = hero.actions.current_action.bundle_id
+
+        with self.storage.save_on_exception(self.logger,
+                                            message='LogicWorker.process_logic_task catch exception, while processing hero %d, try to save all bundles except %d',
+                                            data=(hero.id, bundle_id),
+                                            excluded_bundle_id=bundle_id):
+            quests_logic.setup_quest_for_hero(hero, knowledge_base)
+            self.storage.recache_bundle(bundle_id)

@@ -64,21 +64,50 @@ jQuery(document).ready(function(e){
 
 {% macro game_debug_javascript() %}
 
+    function OnNextTurn(number) {
+        currentTurnNumber = updater.data.turn.number;
+
+        jQuery(document).one(pgf.game.events.DATA_REFRESHED, function(e){
+            if (currentTurnNumber == updater.data.turn.number) {
+                setTimeout(function(){OnNextTurn(number);}, 100);
+            }
+            else {
+                setTimeout(function(){DoTurns(number-1);}, 0);
+            }
+        });
+
+        updater.Refresh();
+    }
+
     function DoTurns(number) {
         if (number == 0) {
-            setTimeout(function() {
-                updater.Refresh();
-            }, 1000 );
             return;
         }
 
         pgf.forms.Post({ action: "{{ url('game:next-turn') }}",
-                         OnSuccess: function(e){
-                             DoTurns(number-1);
+                         OnSuccess: function(e) {
+                             OnNextTurn(number);
                          },
                          wait: false
                        });
+
     }
+
+    // function DoTurns(number) {
+    //     if (number == 0) {
+    //         setTimeout(function() {
+    //             updater.Refresh();
+    //         }, 1000 );
+    //         return;
+    //     }
+
+    //     pgf.forms.Post({ action: "{{ url('game:next-turn') }}",
+    //                      OnSuccess: function(e){
+    //                          DoTurns(number-1);
+    //                      },
+    //                      wait: false
+    //                    });
+    // }
 
     jQuery('.pgf-refresh').click(function(e){
         e.preventDefault();

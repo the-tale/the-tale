@@ -315,6 +315,14 @@ class Worker(BaseWorker):
     def process_account_released(self, account_id):
         self.register_account(account_id)
 
+    def cmd_setup_quest(self, account_id, knowledge_base):
+        return self.send_cmd('setup_quest', {'account_id': account_id,
+                                             'knowledge_base': knowledge_base})
+
+    def process_setup_quest(self, account_id, knowledge_base):
+        self.dispatch_logic_cmd(account_id, 'setup_quest', {'account_id': account_id,
+                                                            'knowledge_base': knowledge_base} )
+
     def cmd_add_task(self, task_id):
         return self.send_cmd('add_task', {'task_id': task_id})
 

@@ -28,13 +28,15 @@ from the_tale.game.mobs import storage as mobs_storage
 from the_tale.game.map.places.storage import places_storage
 from the_tale.game.map.roads.storage import waymarks_storage
 
+from the_tale.game.heroes import relations as heroes_relations
+
 from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons.relations import PERSON_STATE
 
 from the_tale.game.quests.conf import quests_settings
 from the_tale.game.quests.prototypes import QuestPrototype
 from the_tale.game.quests import uids
-from the_tale.game.quests.relations import QUESTS
+from the_tale.game.quests import relations
 
 QUESTS_LOGGER = getLogger('the-tale.game.quests')
 
@@ -52,7 +54,7 @@ QUEST_RESTRICTIONS =  [restrictions.SingleStartStateWithNoEnters(),
 
 
 QUESTS_BASE = QuestsBase()
-QUESTS_BASE += [quest.quest_class for quest in QUESTS.records]
+QUESTS_BASE += [quest.quest_class for quest in relations.QUESTS.records]
 
 
 class HeroQuestInfo(object):
@@ -111,11 +113,11 @@ class HeroQuestInfo(object):
                 'preferences_place_id': self.preferences_place_id,
                 'preferences_friend_id': self.preferences_friend_id,
                 'preferences_enemy_id': self.preferences_enemy_id,
-                'preferences_equipment_slot': self.preferences_equipment_slot,
+                'preferences_equipment_slot': self.preferences_equipment_slot.value if self.preferences_equipment_slot else None,
                 'interfered_persons': self.interfered_persons,
-                'quests_priorities': self.quests_priorities,
-                'excluded_quests': self.excluded_quests,
-                'prefered_quest_markers': self.prefered_quest_markers}
+                'quests_priorities': [(quest_type.value, priority) for quest_type, priority in self.quests_priorities],
+                'excluded_quests': list(self.excluded_quests),
+                'prefered_quest_markers': list(self.prefered_quest_markers)}
 
     @classmethod
     def deserialize(cls, data):
@@ -128,11 +130,11 @@ class HeroQuestInfo(object):
                    preferences_place_id=data['preferences_place_id'],
                    preferences_friend_id=data['preferences_friend_id'],
                    preferences_enemy_id=data['preferences_enemy_id'],
-                   preferences_equipment_slot=data['preferences_equipment_slot'],
+                   preferences_equipment_slot=heroes_relations.EQUIPMENT_SLOT(data['preferences_equipment_slot']) if data['preferences_equipment_slot'] is not None else None,
                    interfered_persons=data['interfered_persons'],
-                   quests_priorities=data['quests_priorities'],
-                   excluded_quests=data['excluded_quests'],
-                   prefered_quest_markers=data['prefered_quest_markers'])
+                   quests_priorities=[(relations.QUESTS(quest_type), priority) for quest_type, priority in data['quests_priorities']],
+                   excluded_quests=set(data['excluded_quests']),
+                   prefered_quest_markers=set(data['prefered_quest_markers']))
 
 
 
@@ -412,19 +414,19 @@ def _create_random_quest_for_hero(hero_info, start_quests, without_restrictions=
 def create_hero_info(hero):
     quests_priorities = hero.get_quests_priorities()
     return HeroQuestInfo(id=hero.id,
-                              level=hero.level,
-                              position_place_id=hero.position.place.id,
-                              is_first_quest_path_required=hero.is_first_quest_path_required,
-                              is_short_quest_path_required=hero.is_short_quest_path_required,
-                              preferences_mob_id=hero.preferences.mob.id if hero.preferences.mob else None,
-                              preferences_place_id=hero.preferences.place.id if hero.preferences.place else None,
-                              preferences_friend_id=hero.preferences.friend.id if hero.preferences.friend else None,
-                              preferences_enemy_id=hero.preferences.enemy.id if hero.preferences.enemy else None,
-                              preferences_equipment_slot=hero.preferences.equipment_slot,
-                              interfered_persons=hero.quests.get_interfered_persons(),
-                              quests_priorities=quests_priorities,
-                              excluded_quests=hero.quests.excluded_quests(len(quests_priorities) / 2),
-                              prefered_quest_markers=hero.prefered_quest_markers())
+                         level=hero.level,
+                         position_place_id=hero.position.place.id,
+                         is_first_quest_path_required=hero.is_first_quest_path_required,
+                         is_short_quest_path_required=hero.is_short_quest_path_required,
+                         preferences_mob_id=hero.preferences.mob.id if hero.preferences.mob else None,
+                         preferences_place_id=hero.preferences.place.id if hero.preferences.place else None,
+                         preferences_friend_id=hero.preferences.friend.id if hero.preferences.friend else None,
+                         preferences_enemy_id=hero.preferences.enemy.id if hero.preferences.enemy else None,
+                         preferences_equipment_slot=hero.preferences.equipment_slot,
+                         interfered_persons=hero.quests.get_interfered_persons(),
+                         quests_priorities=quests_priorities,
+                         excluded_quests=hero.quests.excluded_quests(len(quests_priorities) / 2),
+                         prefered_quest_markers=hero.prefered_quest_markers())
 
 def request_quest_for_hero(hero):
     hero_info = create_hero_info(hero)

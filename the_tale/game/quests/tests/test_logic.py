@@ -1,8 +1,14 @@
 # coding: utf-8
+import contextlib
+import random
 
+import mock
 
 from questgen.knowledge_base import KnowledgeBase
 from questgen import facts
+from questgen import relations as questgen_relations
+
+from dext.common.utils import s11n
 
 from the_tale.common.utils import testcase
 
@@ -23,6 +29,7 @@ from the_tale.game.heroes.relations import EQUIPMENT_SLOT
 
 from the_tale.game.quests import uids
 from the_tale.game.quests import logic
+from the_tale.game.quests import relations
 
 
 class LogicTestsBase(testcase.TestCase):
@@ -77,7 +84,80 @@ class LogicTestsBase(testcase.TestCase):
         self.check_uids(self.knowledge_base.filter(facts.SocialConnection), social_connections)
 
 
-# class HeroQuestInfoTests(LogicTestsBase):
+class HeroQuestInfoTests(LogicTestsBase):
+
+    def test_create_hero_info__all_properties(self):
+        self.hero._model.level = 11
+
+        self.hero.position.set_place(self.place_1)
+
+        mob = mobs_storage.all()[0]
+        self.hero.preferences.set_mob(mob)
+
+        place = self.place_1
+        self.hero.preferences.set_place(place)
+
+        friend = self.place_2.persons[0]
+        self.hero.preferences.set_friend(friend)
+
+        enemy = self.place_2.persons[1]
+        self.hero.preferences.set_enemy(enemy)
+
+        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.HELMET)
+
+        interfered_person = self.place_3.persons[0]
+
+        self.hero.quests.add_interfered_person(interfered_person.id)
+
+        is_first_quest_path_required = random.choice((True, False))
+        is_short_quest_path_required = random.choice((True, False))
+        prefered_quest_markers = set((questgen_relations.OPTION_MARKERS.HONORABLE, questgen_relations.OPTION_MARKERS.AGGRESSIVE))
+
+        self.hero.quests.update_history(quest_type='spying', turn_number=0)
+        self.hero.quests.update_history(quest_type='hunt', turn_number=0)
+
+        with contextlib.nested(
+                mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_first_quest_path_required', is_first_quest_path_required),
+                mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_short_quest_path_required', is_short_quest_path_required),
+                mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.prefered_quest_markers', lambda hero: prefered_quest_markers) ):
+            hero_info = logic.create_hero_info(self.hero)
+
+        self.assertEqual(hero_info.id, self.hero.id)
+        self.assertEqual(hero_info.level, self.hero.level)
+        self.assertEqual(hero_info.position_place_id, self.hero.position.place.id)
+        self.assertEqual(hero_info.preferences_mob_id, self.hero.preferences.mob.id)
+        self.assertEqual(hero_info.preferences_place_id, self.hero.preferences.place.id)
+        self.assertEqual(hero_info.preferences_friend_id, self.hero.preferences.friend.id)
+        self.assertEqual(hero_info.preferences_enemy_id, self.hero.preferences.enemy.id)
+        self.assertEqual(hero_info.preferences_equipment_slot, self.hero.preferences.equipment_slot)
+        self.assertEqual(hero_info.interfered_persons, [interfered_person.id])
+        self.assertEqual(hero_info.is_first_quest_path_required, is_first_quest_path_required)
+        self.assertEqual(hero_info.is_short_quest_path_required, is_short_quest_path_required)
+        self.assertItemsEqual(hero_info.excluded_quests, self.hero.quests.history.keys())
+        self.assertEqual(hero_info.prefered_quest_markers, prefered_quest_markers)
+        self.assertEqual(hero_info.quests_priorities, self.hero.get_quests_priorities())
+
+        self.check_serialization(hero_info)
+
+    def test_create_hero_info__no_properties(self):
+        hero_info = logic.create_hero_info(self.hero)
+
+        self.assertEqual(hero_info.id, self.hero.id)
+        self.assertEqual(hero_info.level, self.hero.level)
+        self.assertEqual(hero_info.position_place_id, self.hero.position.place.id)
+        self.assertEqual(hero_info.preferences_mob_id, None)
+        self.assertEqual(hero_info.preferences_place_id, None)
+        self.assertEqual(hero_info.preferences_friend_id, None)
+        self.assertEqual(hero_info.preferences_enemy_id, None)
+        self.assertEqual(hero_info.preferences_equipment_slot, None)
+        self.assertEqual(hero_info.interfered_persons, [])
+        self.assertEqual(hero_info.is_first_quest_path_required, self.hero.is_first_quest_path_required)
+        self.assertEqual(hero_info.is_short_quest_path_required, self.hero.is_short_quest_path_required)
+        self.assertItemsEqual(hero_info.excluded_quests, self.hero.quests.history.keys())
+        self.assertEqual(hero_info.prefered_quest_markers, set())
+        self.assertEqual(hero_info.quests_priorities, self.hero.get_quests_priorities())
+
+        self.check_serialization(hero_info)
 
 
 
