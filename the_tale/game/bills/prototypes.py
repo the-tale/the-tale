@@ -251,13 +251,25 @@ class BillPrototype(BasePrototype):
         self.save()
 
     def bill_info_text(self, text):
-        return u'''%s
+        rendered_text = u'''%(text)s
 
-[b]название:[/b] %s
+[b]название:[/b] %(caption)s
+
+[b]запись в летописи о принятии:[/b]
+%(on_accepted)s
+
+[b]запись в летописи об окончании действия:[/b]
+%(on_ended)s
 
 [b]обоснование:[/b]
-%s
-''' % (text, self.caption, self.rationale)
+%(rationale)s
+''' % {'text': text,
+       'caption': self.caption,
+       'rationale': self.rationale,
+       'on_accepted': self.chronicle_on_accepted if self.chronicle_on_accepted else '—',
+       'on_ended': self.chronicle_on_ended if self.chronicle_on_ended else u'—'}
+
+        return rendered_text
 
     @transaction.atomic
     def update(self, form):
@@ -323,7 +335,7 @@ class BillPrototype(BasePrototype):
 
         bill_prototype = cls(model)
 
-        text = u'обсуждение [url="%s%s"]закона[/url]' % (project_settings.SITE_URL,
+        text = u'Обсуждение [url="%s%s"]закона[/url]' % (project_settings.SITE_URL,
                                                          reverse('game:bills:show', args=[model.id]) )
 
         thread = ThreadPrototype.create(SubCategoryPrototype.get_by_uid(bills_settings.FORUM_CATEGORY_UID),
