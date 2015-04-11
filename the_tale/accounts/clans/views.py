@@ -263,6 +263,7 @@ class MembershipResource(Resource):
     @validate_invite_rights()
     @validate_other_not_in_clan()
     @validate_account_has_invite()
+    @validate_ban_any()
     @handler('invite', method='get')
     def invite_dialog(self, account):
         return self.template('clans/membership/invite_dialog.html',
@@ -273,6 +274,7 @@ class MembershipResource(Resource):
     @validate_argument('clan', ClanPrototype.get_by_id, 'clans.membership.request', u'неверный идентификатор гильдии')
     @validate_not_in_clan()
     @validate_clan_has_request()
+    @validate_ban_any()
     @handler('request', method='get')
     def request_dialog(self, clan):
         return self.template('clans/membership/request_dialog.html',
@@ -284,6 +286,7 @@ class MembershipResource(Resource):
     @validate_invite_rights()
     @validate_other_not_in_clan()
     @validate_account_has_invite()
+    @validate_ban_any()
     @handler('invite', method='post')
     def invite(self, account):
         form = MembershipRequestForm(self.request.POST)
@@ -304,6 +307,7 @@ class MembershipResource(Resource):
     @validate_argument('clan', ClanPrototype.get_by_id, 'clans.membership.request', u'неверный идентификатор гильдии')
     @validate_not_in_clan()
     @validate_clan_has_request()
+    @validate_ban_any()
     @handler('request', method='post')
     def request_post(self, clan):
         form = MembershipRequestForm(self.request.POST)
@@ -323,6 +327,7 @@ class MembershipResource(Resource):
     @transaction.atomic
     @validate_argument('request', MembershipRequestPrototype.get_by_id, 'clan.membership.accept_request', u'Неверный идентификатор приглашения')
     @validate_invite_rights()
+    @validate_ban_any()
     @validate_request_from_account()
     @handler('accept-request', method='post')
     def accept_request(self, request):
@@ -336,6 +341,7 @@ class MembershipResource(Resource):
     @validate_argument('request', MembershipRequestPrototype.get_by_id, 'clan.membership.accept_invite', u'Неверный идентификатор приглашения')
     @validate_not_in_clan()
     @validate_request_from_clan()
+    @validate_ban_any()
     @handler('accept-invite', method='post')
     def accept_invite(self, request):
         ClanPrototype.get_by_id(request.clan_id).add_member(self.account)
@@ -347,6 +353,7 @@ class MembershipResource(Resource):
     @validate_argument('request', MembershipRequestPrototype.get_by_id, 'clan.membership.reject_request', u'Неверный идентификатор приглашения')
     @validate_invite_rights()
     @validate_request_from_account()
+    @validate_ban_any()
     @handler('reject-request', method='post')
     def reject_request(self, request):
         request.create_reject_request_message(initiator=self.account)
@@ -357,6 +364,7 @@ class MembershipResource(Resource):
     @validate_argument('request', MembershipRequestPrototype.get_by_id, 'clan.membership.reject_invite', u'Неверный идентификатор приглашения')
     @validate_not_in_clan()
     @validate_request_from_clan()
+    @validate_ban_any()
     @handler('reject-invite', method='post')
     def reject_invite(self, request):
         request.remove()
@@ -365,6 +373,7 @@ class MembershipResource(Resource):
     @transaction.atomic
     @validate_argument('account', AccountPrototype.get_by_id, 'clan.membership.remove_from_clan', u'Неверный идентификатор пользователя')
     @validate_remove_rights()
+    @validate_ban_any()
     @handler('remove-from-clan', method='post')
     def remove_from_clan(self, account):
         other_clan_info = ClanInfo(account)
