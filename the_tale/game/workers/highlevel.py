@@ -193,7 +193,7 @@ class Worker(BaseWorker):
         if not places:
             return
 
-        places = sorted(places, key=lambda x: x.power)
+        places = sorted(places, key=lambda x: x.raw_power)
         places_number = len(places)
 
         for i, place in enumerate(places):
