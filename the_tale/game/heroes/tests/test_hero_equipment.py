@@ -76,8 +76,8 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
         artifact = self.hero.sharp_artifact()
         self.assertTrue(self.hero.power.physic > old_power.physic or
                         self.hero.power.magic > old_power.magic)
-        self.assertTrue(artifact.power == Power(1, 0) or
-                        artifact.power == Power(0, 1))
+        self.assertTrue(artifact.power == Power(2, 1) or
+                        artifact.power == Power(1, 2))
         self.assertTrue(self.hero.equipment.updated)
 
 

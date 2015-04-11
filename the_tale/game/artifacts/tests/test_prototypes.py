@@ -429,7 +429,7 @@ class PrototypeTests(testcase.TestCase):
         self.assertEqual(old_integrity, artifact.integrity)
 
     def test_break_it__zero(self):
-        artifact = self.artifact_record.create_artifact(level=1, power=Power(0, 0))
+        artifact = self.artifact_record.create_artifact(level=1, power=Power(1, 1))
         artifact.integrity = artifact.max_integrity / 2
 
         old_integrity = artifact.integrity
@@ -437,23 +437,23 @@ class PrototypeTests(testcase.TestCase):
 
         artifact.break_it()
 
-        self.assertEqual(artifact.power, Power(0, 0))
+        self.assertEqual(artifact.power, Power(1, 1))
         self.assertTrue(old_max_integrity > artifact.max_integrity)
         self.assertEqual(old_integrity, artifact.integrity)
 
     def test_break_it__large_integrity(self):
-        artifact = self.artifact_record.create_artifact(level=1, power=Power(0, 0))
+        artifact = self.artifact_record.create_artifact(level=1, power=Power(1, 1))
 
         old_max_integrity = artifact.max_integrity
 
         artifact.break_it()
 
-        self.assertEqual(artifact.power, Power(0, 0))
+        self.assertEqual(artifact.power, Power(1, 1))
         self.assertTrue(old_max_integrity > artifact.max_integrity)
         self.assertEqual(artifact.integrity, artifact.max_integrity)
 
     def test_repair_it(self):
-        artifact = self.artifact_record.create_artifact(level=1, power=Power(0, 0))
+        artifact = self.artifact_record.create_artifact(level=1, power=Power(1, 1))
         artifact.integrity = artifact.max_integrity - 1
         artifact.repair_it()
         self.assertEqual(artifact.integrity, artifact.max_integrity)

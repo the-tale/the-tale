@@ -200,18 +200,11 @@ class ArtifactPrototype(object):
         return self.integrity < self.max_integrity * (1.0 - c.ARTIFACT_INTEGRITY_SAFE_BARRIER)
 
     def break_it(self):
-        # old_power = self.power
-
-        self.power = Power(physic=max(0, int(self.power.physic * (1 - random.uniform(*c.ARTIFACT_BREAK_POWER_FRACTIONS)) - 1)),
-                           magic=max(0, int(self.power.magic * (1 - random.uniform(*c.ARTIFACT_BREAK_POWER_FRACTIONS)) - 1)) )
-
-        # old_max_integrity = self.max_integrity
-        # old_integrity = self.integrity
+        self.power = Power(physic=max(1, int(self.power.physic * (1 - random.uniform(*c.ARTIFACT_BREAK_POWER_FRACTIONS)) - 1)),
+                           magic=max(1, int(self.power.magic * (1 - random.uniform(*c.ARTIFACT_BREAK_POWER_FRACTIONS)) - 1)) )
 
         self.max_integrity = int(self.max_integrity * (1 - random.uniform(*c.ARTIFACT_BREAK_INTEGRITY_FRACTIONS)))
         self.integrity = min(self.integrity, self.max_integrity)
-
-        # print '  broken %r->%r (%d->%d)/(%d->%d)' % (old_power, self.power, old_integrity, self.integrity, old_max_integrity, self.max_integrity)
 
     def repair_it(self):
         self.integrity = self.max_integrity

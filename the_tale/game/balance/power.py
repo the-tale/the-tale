@@ -25,10 +25,6 @@ class Power(object):
     def deserialize(cls, data):
         return cls(*data)
 
-    @classmethod
-    def zero(cls):
-        return cls(0, 0)
-
     def clone(self):
         return self.__class__(physic=self.physic, magic=self.magic)
 
@@ -57,15 +53,15 @@ class Power(object):
     @classmethod
     def power_to_artifact(cls, distribution, level):
         power = float(cls.normal_power_to_level(level)) / c.EQUIP_SLOTS_NUMBER
-        return cls(physic=int(power*distribution.physic+0.5),
-                   magic=int(power*distribution.magic+0.5) )
+        return cls(physic=max(1, int(power*distribution.physic+0.5)),
+                   magic=max(1, int(power*distribution.magic+0.5))  )
 
     # функция, для получения случайного значения силы артефакта
     @classmethod
     def artifact_power_interval(cls, distribution, level):
         base_power = cls.power_to_artifact(distribution, level)
-        physic_delta = max(int(base_power.physic * c.ARTIFACT_POWER_DELTA), 0)
-        magic_delta = max(int(base_power.magic * c.ARTIFACT_POWER_DELTA), 0)
+        physic_delta = max(int(base_power.physic * c.ARTIFACT_POWER_DELTA), 1)
+        magic_delta = max(int(base_power.magic * c.ARTIFACT_POWER_DELTA), 1)
         min_power = cls(physic=max(base_power.physic - physic_delta, 1),
                         magic=max(base_power.magic - magic_delta, 1))
         max_power = cls(physic=max(base_power.physic + physic_delta, 1),

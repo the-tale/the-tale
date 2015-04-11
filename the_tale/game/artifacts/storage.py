@@ -66,7 +66,7 @@ class ArtifactsStorage(storage.CachedStorage):
         artifact_record = random.choice(artifact_choices)
 
         if artifact_record.is_useless:
-            power = Power.zero()
+            power = Power(0, 0)
         else:
             power = Power.artifact_power_randomized(distribution=artifact_record.power_type.distribution,
                                                     level=level)
