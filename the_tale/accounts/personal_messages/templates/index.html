@@ -2,6 +2,7 @@
 
 {% import 'macros.html' as base_macros with context %}
 {% import 'accounts/macros.html' as accounts_macros with context %}
+{% import 'utils/list_filter.html' as list_filter_macros with context %}
 
 {% block title %}{% if incoming %}Входящие{% else %}Исходящие{% endif %} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}{% if incoming %}Ваши входящие сообщения{% else %}Ваши исходящие сообщения{% endif %}{% endblock %}
@@ -31,8 +32,9 @@ jQuery(document).ready(function(){
     {% endif %}
   </ul>
 
-{% if messages %}
+{{ list_filter_macros.html_filter(index_filter) }}
 
+{% if messages %}
 
 {{ base_macros.render_paginator(paginator) }}
 

@@ -1,16 +1,15 @@
 # coding: utf-8
 
-from django.core.urlresolvers import reverse
-
-from dext.views import handler, validate_argument
-from dext.common.utils.urls import UrlBuilder
+from dext.common.utils import views as dext_views
+from dext.common.utils.urls import UrlBuilder, url
 
 from the_tale import amqp_environment
 
+
 from the_tale.common.postponed_tasks import PostponedTaskPrototype
-from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.pagination import Paginator
-from the_tale.common.utils.decorators import login_required
+from the_tale.common.utils import list_filter
+from the_tale.common.utils import views as utils_views
 
 from the_tale.accounts import prototypes as accounts_prototypes
 from the_tale.accounts import views as accounts_views
@@ -23,143 +22,209 @@ from the_tale.accounts.personal_messages import forms
 from the_tale.accounts.personal_messages import conf
 from the_tale.accounts.personal_messages import postponed_tasks
 
+########################################
+# processors definition
+########################################
+
+class MessageProcessor(dext_views.ArgumentProcessor):
+
+    def parse(self, context, raw_value):
+        try:
+            message_id = int(raw_value)
+        except ValueError:
+            self.raise_wrong_format(context=context)
+
+        message = prototypes.MessagePrototype.get_by_id(message_id)
+
+        if not message:
+            self.raise_wrong_value(context=context)
+
+        return message
+
+# # TODO: sync semantics of CompanionProcessor and CompanionProcessor.handler
+# message_processor = MessageProcessor.handler(error_message=u'Сообщение не найдено', url_name='message', context_name='message')
 
 
-class MessageResource(Resource):
+########################################
+# resource and global processors
+########################################
+resource = dext_views.Resource(name='personal_messages')
+resource.add_processor(accounts_views.current_account_processor)
+resource.add_processor(utils_views.fake_resource_processor)
+resource.add_processor(accounts_views.login_required_processor)
+resource.add_processor(accounts_views.full_account_processor)
 
-    @login_required
-    @accounts_views.validate_fast_account()
-    def initialize(self, message_id=None, *args, **kwargs):
-        super(MessageResource, self).initialize(*args, **kwargs)
+########################################
+# views
+########################################
 
-        self.message_id = message_id
+@utils_views.page_number_processor.handler()
+@accounts_views.AccountProcessor.handler(error_message=u'Отправитель не найден', get_name='sender', context_name='sender', default_value=None)
+@dext_views.ArgumentProcessor.handler(get_name='filter', context_name='filter', default_value=None)
+@resource.handler('')
+def index(context):
+    context.account.reset_new_messages_number()
+    query = models.Message.objects.filter(recipient_id=context.account.id, hide_from_recipient=False)
 
-    @property
-    def message(self):
-        if not hasattr(self, '_message'):
-            self._message = prototypes.MessagePrototype.get_by_id(self.message_id)
-        return self._message
+    senders_ids = list(set(query.values_list('sender_id', flat=True).order_by('sender').distinct()))
+    senders = sorted(accounts_prototypes.AccountPrototype.get_list_by_id(senders_ids), key=lambda account: account.nick)
 
-    def show_messages(self, query, page, incoming):
+    if context.sender is not None:
+        query = query.filter(sender_id=context.sender.id)
 
-        if incoming:
-            url_builder = UrlBuilder(reverse('accounts:messages:'), arguments={'page': page})
-        else:
-            url_builder = UrlBuilder(reverse('accounts:messages:sent'), arguments={'page': page})
+    if context.filter is not None:
+        query = query.filter(text__icontains=context.filter)
 
-        messages_count = query.count()
+    class Filter(list_filter.ListFilter):
+        ELEMENTS = [list_filter.reset_element(),
+                    list_filter.filter_element(u'поиск:', attribute='filter', default_value=None),
+                    list_filter.choice_element(u'отправитель:', attribute='sender', choices=[(None, u'все')] + [(account.id, account.nick) for account in senders] ),
+                    list_filter.static_element(u'количество:', attribute='count', default_value=0) ]
 
-        page = int(page) - 1
+    url_builder = UrlBuilder(url('accounts:messages:'), arguments={'page': context.page, 'sender': context.sender.id if context.sender is not None else None})
 
-        paginator = Paginator(page, messages_count, conf.settings.MESSAGES_ON_PAGE, url_builder)
+    messages_count = query.count()
 
-        if paginator.wrong_page_number:
-            return self.redirect(paginator.last_page_url, permanent=False)
+    index_filter = Filter(url_builder=url_builder, values={'sender': context.sender.id if context.sender is not None else None,
+                                                           'filter': context.filter,
+                                                           'count': messages_count})
 
-        message_from, message_to = paginator.page_borders(page)
+    # page = int(context.page) - 1
 
-        messages = [ prototypes.MessagePrototype(message_model) for message_model in query.order_by('-created_at')[message_from:message_to]]
+    paginator = Paginator(context.page, messages_count, conf.settings.MESSAGES_ON_PAGE, url_builder)
 
-        return self.template('personal_messages/index.html',
-                             {'messages': messages,
-                              'paginator': paginator,
-                              'incoming': incoming})
+    if paginator.wrong_page_number:
+        return dext_views.Redirect(paginator.last_page_url, permanent=False)
 
+    message_from, message_to = paginator.page_borders(context.page)
 
-    @handler('', method='get')
-    def index(self, page=1):
-        self.account.reset_new_messages_number()
-        return self.show_messages(models.Message.objects.filter(recipient_id=self.account.id, hide_from_recipient=False),
-                                  page,
-                                  True)
+    messages = [ prototypes.MessagePrototype(message_model) for message_model in query.order_by('-created_at')[message_from:message_to]]
 
-    @handler('sent', method='get')
-    def sent(self, page=1):
-        return self.show_messages(models.Message.objects.filter(sender_id=self.account.id, hide_from_sender=False),
-                                  page,
-                                  False)
-
-    def check_recipients(self, recipients_form):
-        system_user = accounts_logic.get_system_user()
-
-        if system_user.id in recipients_form.c.recipients:
-            return self.auto_error('personal_messages.new.system_user', u'Нельзя отправить сообщение системному пользователю')
-
-        if accounts_models.Account.objects.filter(is_fast=True, id__in=recipients_form.c.recipients).exists():
-            return self.auto_error('personal_messages.new.fast_account', u'Нельзя отправить сообщение пользователю, не завершившему регистрацию')
-
-        if accounts_models.Account.objects.filter(id__in=recipients_form.c.recipients).count() != len(recipients_form.c.recipients):
-            return self.auto_error('personal_messages.new.unexisted_account', u'Вы пытаетесь отправить сообщение несуществующему пользователю')
-
-        return None
+    return dext_views.Page('personal_messages/index.html',
+                           content= {'messages': messages,
+                                     'paginator': paginator,
+                                     'incoming': True,
+                                     'index_filter': index_filter,
+                                     'resource': context.resource})
 
 
-    @accounts_views.validate_ban_forum()
-    @validate_argument('answer_to', prototypes.MessagePrototype.get_by_id, 'personal_messages', u'Неверный идентификатор сообщения')
-    @handler('new', method='post')
-    def new(self, answer_to=None):
-        text = u''
+@utils_views.page_number_processor.handler()
+@accounts_views.AccountProcessor.handler(error_message=u'Получатель не найден', get_name='recipient', context_name='recipient', default_value=None)
+@dext_views.ArgumentProcessor.handler(get_name='filter', context_name='filter', default_value=None)
+@resource.handler('sent')
+def sent(context):
+    query = models.Message.objects.filter(sender_id=context.account.id, hide_from_sender=False)
 
-        if answer_to is not None:
-            if answer_to.recipient_id != self.account.id:
-                return self.auto_error('personal_messages.new.not_permissions_to_answer_to', u'Вы пытаетесь ответить на чужое сообщение')
+    recipients_ids = list(set(query.values_list('recipient_id', flat=True).order_by('recipient').distinct()))
+    recipients = sorted(accounts_prototypes.AccountPrototype.get_list_by_id(recipients_ids), key=lambda account: account.nick)
 
-            if answer_to:
-                text = u'[quote]\n%s\n[/quote]\n' % answer_to.text
+    if context.recipient is not None:
+        query = query.filter(recipient_id=context.recipient.id)
 
-        recipients_form = forms.RecipientsForm(self.request.POST)
+    if context.filter is not None:
+        query = query.filter(text__icontains=context.filter)
 
-        if not recipients_form.is_valid():
-            return self.auto_error('personal_messages.new.form_errors', u'Ошибка в запросе')
+    class Filter(list_filter.ListFilter):
+        ELEMENTS = [list_filter.reset_element(),
+                    list_filter.filter_element(u'поиск:', attribute='filter', default_value=None),
+                    list_filter.choice_element(u'получатель:', attribute='recipient', choices=[(None, u'все')] + [(account.id, account.nick) for account in recipients] ),
+                    list_filter.static_element(u'количество:', attribute='count', default_value=0) ]
 
-        check_result = self.check_recipients(recipients_form)
-        if check_result:
-            return check_result
+    url_builder=UrlBuilder(url('accounts:messages:sent'), arguments={'page': context.page, 'recipient': context.recipient.id if context.recipient is not None else None})
 
-        form = forms.NewMessageForm(initial={'text': text,
-                                             'recipients': ','.join(str(recipient_id) for recipient_id in recipients_form.c.recipients)})
+    messages_count = query.count()
 
-        return self.template('personal_messages/new.html',
-                             {'recipients': accounts_prototypes.AccountPrototype.get_list_by_id(recipients_form.c.recipients),
-                              'form': form})
+    index_filter = Filter(url_builder=url_builder, values={'recipient': context.recipient.id if context.recipient is not None else None,
+                                                           'filter': filter,
+                                                           'count': messages_count})
 
+    # page = int(page) - 1
 
-    @accounts_views.validate_ban_forum()
-    @handler('create', method='post')
-    def create(self):
-        form = forms.NewMessageForm(self.request.POST)
+    paginator = Paginator(context.page, messages_count, conf.settings.MESSAGES_ON_PAGE, url_builder)
 
-        if not form.is_valid():
-            return self.json_error('personal_messages.create.form_errors', form.errors)
+    if paginator.wrong_page_number:
+        return dext_views.Redirect(paginator.last_page_url, permanent=False)
 
-        check_result = self.check_recipients(form)
-        if check_result:
-            return check_result
+    message_from, message_to = paginator.page_borders(context.page)
 
-        logic_task = postponed_tasks.SendMessagesTask(account_id=self.account.id,
-                                                      recipients=form.c.recipients,
-                                                      message=form.c.text)
+    messages = [ prototypes.MessagePrototype(message_model) for message_model in query.order_by('-created_at')[message_from:message_to]]
 
-        task = PostponedTaskPrototype.create(logic_task)
-
-        amqp_environment.environment.workers.accounts_manager.cmd_task(task.id)
-
-        return self.json_processing(status_url=task.status_url)
+    return dext_views.Page('personal_messages/index.html',
+                           content={'messages': messages,
+                                    'paginator': paginator,
+                                    'incoming': False,
+                                    'index_filter': index_filter,
+                                    'resource': context.resource})
 
 
-    @handler('#message_id', 'delete', method='post')
-    def delete(self):
+def check_recipients(recipients_form):
+    system_user = accounts_logic.get_system_user()
 
-        if self.account.id not in (self.message.sender_id, self.message.recipient_id):
-            return self.auto_error('personal_messages.delete.no_permissions', u'Вы не можете влиять на это сообщение')
+    if system_user.id in recipients_form.c.recipients:
+        raise dext_views.ViewError(code='personal_messages.new.system_user', message=u'Нельзя отправить сообщение системному пользователю')
 
-        self.message.hide_from(sender=(self.account.id == self.message.sender_id),
-                               recipient=(self.account.id == self.message.recipient_id))
+    if accounts_models.Account.objects.filter(is_fast=True, id__in=recipients_form.c.recipients).exists():
+        raise dext_views.ViewError(code='personal_messages.new.fast_account', message=u'Нельзя отправить сообщение пользователю, не завершившему регистрацию')
 
-        return self.json_ok()
+    if accounts_models.Account.objects.filter(id__in=recipients_form.c.recipients).count() != len(recipients_form.c.recipients):
+        raise dext_views.ViewError(code='personal_messages.new.unexisted_account', message=u'Вы пытаетесь отправить сообщение несуществующему пользователю')
 
 
-    @handler('delete-all', method='post')
-    def delete_all(self):
-        prototypes.MessagePrototype.hide_all(account_id=self.account.id)
-        return self.json_ok()
+@accounts_views.ban_forum_processor.handler()
+@dext_views.FormProcessor.handler(form_class=forms.RecipientsForm)
+@MessageProcessor.handler(error_message=u'Сообщение не найдено', get_name='answer_to', context_name='answer_to', default_value=None)
+@resource.handler('new', method='POST')
+def new(context):
+    text = u''
+
+    if context.answer_to:
+        if context.answer_to.recipient_id != context.account.id:
+            raise dext_views.ViewError(code='personal_messages.new.not_permissions_to_answer_to', message=u'Вы пытаетесь ответить на чужое сообщение')
+
+        text = u'[quote]\n%s\n[/quote]\n' % context.answer_to.text
+
+    check_recipients(context.form)
+
+    form = forms.NewMessageForm(initial={'text': text,
+                                         'recipients': ','.join(str(recipient_id) for recipient_id in context.form.c.recipients)})
+
+    return dext_views.Page('personal_messages/new.html',
+                           content={'recipients': accounts_prototypes.AccountPrototype.get_list_by_id(context.form.c.recipients),
+                                    'form': form,
+                                    'resource': context.resource})
+
+
+@accounts_views.ban_forum_processor.handler()
+@dext_views.FormProcessor.handler(form_class=forms.NewMessageForm)
+@resource.handler('create', method='POST')
+def create(context):
+    check_recipients(context.form)
+
+    logic_task = postponed_tasks.SendMessagesTask(account_id=context.account.id,
+                                                  recipients=context.form.c.recipients,
+                                                  message=context.form.c.text)
+
+    task = PostponedTaskPrototype.create(logic_task)
+
+    amqp_environment.environment.workers.accounts_manager.cmd_task(task.id)
+
+    return dext_views.AjaxProcessing(status_url=task.status_url)
+
+
+@MessageProcessor.handler(error_message=u'Сообщение не найдено', url_name='message_id', context_name='message')
+@resource.handler('#message_id', 'delete', method='POST')
+def delete(context):
+
+    if context.account.id not in (context.message.sender_id, context.message.recipient_id):
+        raise dext_views.ViewError(code='personal_messages.delete.no_permissions', message=u'Вы не можете влиять на это сообщение')
+
+    context.message.hide_from(sender=(context.account.id == context.message.sender_id),
+                              recipient=(context.account.id == context.message.recipient_id))
+
+    return dext_views.AjaxOk()
+
+
+@resource.handler('delete-all', method='POST')
+def delete_all(context):
+    prototypes.MessagePrototype.hide_all(account_id=context.account.id)
+    return dext_views.AjaxOk()

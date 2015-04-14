@@ -117,6 +117,15 @@ class BanGameProcessor(dext_views.BaseViewProcessor):
 ban_game_processor = BanGameProcessor()
 
 
+class BanForumProcessor(dext_views.BaseViewProcessor):
+
+    def preprocess(self, context):
+        if context.account.is_ban_forum:
+            raise dext_exceptions.ViewError(code='common.ban_forum', message=u'Вам запрещено проводить эту операцию')
+
+ban_forum_processor = BanForumProcessor()
+
+
 ###############################
 # end of new view processors
 ###############################

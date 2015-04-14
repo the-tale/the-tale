@@ -140,15 +140,14 @@ class NewRequestsTests(BaseRequestsTests):
     def test_answer_wrong_message_id(self):
         MessagePrototype.create(self.account2, self.account1, 'message_2_1 1')
         self.check_html_ok(self.post_ajax_html(url('accounts:messages:new', answer_to='aaa'), {'recipients': self.account2.id}),
-                           texts=[('personal_messages.answer_to.wrong_format', 1)])
+                           texts=[('personal_messages.new.answer_to.wrong_format', 1)])
 
     def test_answer_to_not_found(self):
         MessagePrototype.create(self.account2, self.account1, 'message_2_1 1')
         self.check_html_ok(self.post_ajax_html(url('accounts:messages:new', answer_to=666), {'recipients': self.account2.id}),
-                           texts=[('personal_messages.answer_to.not_found', 1)],
-                           status_code=404)
+                           texts=[('personal_messages.new.answer_to.wrong_value', 1)])
 
-    def test_answer_to_no_permissionsd(self):
+    def test_answer_to_no_permissions(self):
         message = MessagePrototype.create(self.account2, self.account3, 'message_2_3 1')
         self.check_html_ok(self.post_ajax_html(url('accounts:messages:new', answer_to=message.id), {'recipients': self.account2.id}),
                            texts=[('personal_messages.new.not_permissions_to_answer_to', 1)])
@@ -191,32 +190,32 @@ class CreateRequestsTests(BaseRequestsTests):
 
     def test_unlogined(self):
         self.request_logout()
-        self.check_ajax_error(self.client.post(url('accounts:messages:create'), {'text': 'test-message'}), 'common.login_required')
+        self.check_ajax_error(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message'}), 'common.login_required')
         self.assertEqual(Message.objects.all().count(), 0)
 
     def test_fast_account(self):
         self.request_login(self.account1.email)
         self.account1.is_fast = True
         self.account1.save()
-        self.check_ajax_error(self.client.post(url('accounts:messages:create'), {'text': 'test-message'}), 'common.fast_account')
+        self.check_ajax_error(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message'}), 'common.fast_account')
 
     @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_banned_account(self):
         self.request_login(self.account1.email)
-        self.check_ajax_error(self.client.post(url('accounts:messages:create'), {'text': 'test-message'}), 'common.ban_forum')
+        self.check_ajax_error(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message'}), 'common.ban_forum')
 
     def test_wrong_recipient_id(self):
-        self.check_ajax_error(self.client.post(url('accounts:messages:create'), {'text': 'test-message', 'recipients': 'aaa'}),
+        self.check_ajax_error(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message', 'recipients': 'aaa'}),
                               'personal_messages.create.form_errors')
         self.assertEqual(Message.objects.all().count(), 0)
 
     def test_recipient_not_found(self):
-        self.check_ajax_error(self.client.post(url('accounts:messages:create'), {'text': 'test-message', 'recipients': '666'}),
+        self.check_ajax_error(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message', 'recipients': '666'}),
                               'personal_messages.new.unexisted_account')
         self.assertEqual(Message.objects.all().count(), 0)
 
     def test_form_errors(self):
-        self.check_ajax_error(self.client.post(url('accounts:messages:create'), {'text': '', 'recipients': self.account2.id}),
+        self.check_ajax_error(self.post_ajax_json(url('accounts:messages:create'), {'text': '', 'recipients': self.account2.id}),
                               'personal_messages.create.form_errors')
         self.assertEqual(Message.objects.all().count(), 0)
 
@@ -224,7 +223,7 @@ class CreateRequestsTests(BaseRequestsTests):
 
         with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_task') as cmd_task:
             with self.check_delta(PostponedTaskPrototype._db_count, 1):
-                self.check_ajax_processing(self.client.post(url('accounts:messages:create'), {'text': 'test-message', 'recipients': self.account2.id}))
+                self.check_ajax_processing(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message', 'recipients': self.account2.id}))
 
         task = PostponedTaskPrototype._db_latest()
 
@@ -237,7 +236,7 @@ class CreateRequestsTests(BaseRequestsTests):
 
     def test_success_multiply_accoutns(self):
         with self.check_delta(PostponedTaskPrototype._db_count, 1):
-            self.check_ajax_processing(self.client.post(url('accounts:messages:create'), {'text': 'test-message', 'recipients': ('%d,%d' % (self.account2.id, self.account3.id))}))
+            self.check_ajax_processing(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message', 'recipients': ('%d,%d' % (self.account2.id, self.account3.id))}))
 
         task = PostponedTaskPrototype._db_latest()
 
@@ -246,14 +245,14 @@ class CreateRequestsTests(BaseRequestsTests):
         self.assertEqual(task.internal_logic.recipients, [self.account2.id, self.account3.id])
 
     def test_sent_to_system_user(self):
-        self.check_ajax_error(self.client.post(url('accounts:messages:create'), {'text': 'test-message', 'recipients': ('%d,%d' % (self.account2.id, get_system_user().id))}),
+        self.check_ajax_error(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message', 'recipients': ('%d,%d' % (self.account2.id, get_system_user().id))}),
                               'personal_messages.new.system_user')
         self.assertEqual(Message.objects.all().count(), 0)
 
     def test_sent_to_fast_user(self):
         self.account3.is_fast = True
         self.account3.save()
-        self.check_ajax_error(self.client.post(url('accounts:messages:create'), {'text': 'test-message', 'recipients': ('%d,%d' % (self.account2.id, self.account3.id))}),
+        self.check_ajax_error(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message', 'recipients': ('%d,%d' % (self.account2.id, self.account3.id))}),
                               'personal_messages.new.fast_account')
         self.assertEqual(Message.objects.all().count(), 0)
 
@@ -266,28 +265,28 @@ class DeleteRequestsTests(BaseRequestsTests):
 
     def test_unlogined(self):
         self.request_logout()
-        self.check_ajax_error(self.client.post(url('accounts:messages:delete', self.message.id)), 'common.login_required')
+        self.check_ajax_error(self.post_ajax_json(url('accounts:messages:delete', self.message.id)), 'common.login_required')
 
     def test_fast_account(self):
         self.request_login(self.account1.email)
         self.account1.is_fast = True
         self.account1.save()
-        self.check_ajax_error(self.client.post(url('accounts:messages:delete', self.message.id)), 'common.fast_account')
+        self.check_ajax_error(self.post_ajax_json(url('accounts:messages:delete', self.message.id)), 'common.fast_account')
 
     def test_delete_no_permissions(self):
         self.request_login('test_user3@test.com')
-        self.check_ajax_error(self.client.post(url('accounts:messages:delete', self.message.id)), 'personal_messages.delete.no_permissions')
+        self.check_ajax_error(self.post_ajax_json(url('accounts:messages:delete', self.message.id)), 'personal_messages.delete.no_permissions')
 
     def test_delete_from_sender(self):
         self.request_login(self.account1.email)
-        self.check_ajax_ok(self.client.post(url('accounts:messages:delete', self.message.id)))
+        self.check_ajax_ok(self.post_ajax_json(url('accounts:messages:delete', self.message.id)))
         message = MessagePrototype.get_by_id(self.message.id)
         self.assertTrue(message.hide_from_sender)
         self.assertFalse(message.hide_from_recipient)
 
     def test_delete_from_recipient(self):
         self.request_login(self.account2.email)
-        self.check_ajax_ok(self.client.post(url('accounts:messages:delete', self.message.id)))
+        self.check_ajax_ok(self.post_ajax_json(url('accounts:messages:delete', self.message.id)))
         message = MessagePrototype.get_by_id(self.message.id)
         self.assertFalse(message.hide_from_sender)
         self.assertTrue(message.hide_from_recipient)
@@ -303,17 +302,17 @@ class DeleteAllRequestsTests(BaseRequestsTests):
 
     def test_unlogined(self):
         self.request_logout()
-        self.check_ajax_error(self.client.post(url('accounts:messages:delete-all')), 'common.login_required')
+        self.check_ajax_error(self.post_ajax_json(url('accounts:messages:delete-all')), 'common.login_required')
 
     def test_fast_account(self):
         self.request_login(self.account1.email)
         self.account1.is_fast = True
         self.account1.save()
-        self.check_ajax_error(self.client.post(url('accounts:messages:delete-all')), 'common.fast_account')
+        self.check_ajax_error(self.post_ajax_json(url('accounts:messages:delete-all')), 'common.fast_account')
 
     def test_delete(self):
         self.request_login(self.account1.email)
-        self.check_ajax_ok(self.client.post(url('accounts:messages:delete-all')))
+        self.check_ajax_ok(self.post_ajax_json(url('accounts:messages:delete-all')))
 
         self.message.reload()
         self.message_2.reload()
