@@ -347,7 +347,7 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.assertEqual(self.hero.bag.occupation, 2)
 
-        artifact_1, artifact_2 = list(self.hero.bag.values())
+        artifact_1, artifact_2 = sorted(self.hero.bag.values(), key=lambda artifact: artifact.bag_uuid)
 
         self.assertEqual(abs(artifact_1.power.total() - artifact_2.power.total()), 2 * int(c.POWER_TO_LVL * 0.25))
 

@@ -60,8 +60,8 @@ class Power(object):
     @classmethod
     def artifact_power_interval(cls, distribution, level):
         base_power = cls.power_to_artifact(distribution, level)
-        physic_delta = max(int(base_power.physic * c.ARTIFACT_POWER_DELTA), 1)
-        magic_delta = max(int(base_power.magic * c.ARTIFACT_POWER_DELTA), 1)
+        physic_delta = max(int(base_power.physic * c.ARTIFACT_POWER_DELTA), 0)
+        magic_delta = max(int(base_power.magic * c.ARTIFACT_POWER_DELTA), 0)
         min_power = cls(physic=max(base_power.physic - physic_delta, 1),
                         magic=max(base_power.magic - magic_delta, 1))
         max_power = cls(physic=max(base_power.physic + physic_delta, 1),
