@@ -60,7 +60,7 @@ resource.add_processor(accounts_views.full_account_processor)
 
 @utils_views.page_number_processor.handler()
 @accounts_views.AccountProcessor.handler(error_message=u'Отправитель не найден', get_name='sender', context_name='sender', default_value=None)
-@dext_views.ArgumentProcessor.handler(get_name='filter', context_name='filter', default_value=None)
+@utils_views.text_filter_processor.handler(get_name='filter', context_name='filter', default_value=None)
 @resource.handler('')
 def index(context):
     context.account.reset_new_messages_number()
@@ -81,7 +81,9 @@ def index(context):
                     list_filter.choice_element(u'отправитель:', attribute='sender', choices=[(None, u'все')] + [(account.id, account.nick) for account in senders] ),
                     list_filter.static_element(u'количество:', attribute='count', default_value=0) ]
 
-    url_builder = UrlBuilder(url('accounts:messages:'), arguments={'page': context.page, 'sender': context.sender.id if context.sender is not None else None})
+    url_builder = UrlBuilder(url('accounts:messages:'), arguments={'page': context.page,
+                                                                   'sender': context.sender.id if context.sender is not None else None,
+                                                                   'filter': context.filter})
 
     messages_count = query.count()
 
@@ -110,7 +112,7 @@ def index(context):
 
 @utils_views.page_number_processor.handler()
 @accounts_views.AccountProcessor.handler(error_message=u'Получатель не найден', get_name='recipient', context_name='recipient', default_value=None)
-@dext_views.ArgumentProcessor.handler(get_name='filter', context_name='filter', default_value=None)
+@utils_views.text_filter_processor.handler(get_name='filter', context_name='filter', default_value=None)
 @resource.handler('sent')
 def sent(context):
     query = models.Message.objects.filter(sender_id=context.account.id, hide_from_sender=False)
@@ -130,12 +132,14 @@ def sent(context):
                     list_filter.choice_element(u'получатель:', attribute='recipient', choices=[(None, u'все')] + [(account.id, account.nick) for account in recipients] ),
                     list_filter.static_element(u'количество:', attribute='count', default_value=0) ]
 
-    url_builder=UrlBuilder(url('accounts:messages:sent'), arguments={'page': context.page, 'recipient': context.recipient.id if context.recipient is not None else None})
+    url_builder=UrlBuilder(url('accounts:messages:sent'), arguments={'page': context.page,
+                                                                     'recipient': context.recipient.id if context.recipient is not None else None,
+                                                                     'filter': context.filter})
 
     messages_count = query.count()
 
     index_filter = Filter(url_builder=url_builder, values={'recipient': context.recipient.id if context.recipient is not None else None,
-                                                           'filter': filter,
+                                                           'filter': context.filter,
                                                            'count': messages_count})
 
     # page = int(page) - 1
