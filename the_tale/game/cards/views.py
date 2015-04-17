@@ -174,7 +174,7 @@ def api_get(context):
 
     {
       "message": "строка",      // описание результата в формате html
-      "card": <card_info>|null  // описание полученной карты в случае успеха, формат см. в описании формата информации о герое
+      "card": <card_info>       // описание полученной карты, формат см. в описании формата информации о герое
     }
     '''
     choose_task = heroes_postponed_tasks.GetCardTask(hero_id=context.account_hero.id)
@@ -208,7 +208,7 @@ def api_combine(context):
 
     {
       "message": "строка",      // описание результата в формате html
-      "card": <card_info>|null  // описание полученной карты в случае успеха, формат см. в описании формата информации о герое
+      "card": <card_info>       // описание полученной карты, формат см. в описании формата информации о герое
     }
     '''
     can_combine_status = context.account_hero.cards.can_combine_cards([card.uid for card in context.account_cards])
