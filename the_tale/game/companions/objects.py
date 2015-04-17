@@ -92,6 +92,9 @@ class Companion(object):
     def on_accessors_cache_changed(self):
         self.health = min(self.health, self.max_health)
 
+    def on_settupped(self):
+        self.health = self.max_health
+
     def heal(self, delta):
         if delta < 0:
             raise exceptions.HealCompanionForNegativeValueError(delta=delta)

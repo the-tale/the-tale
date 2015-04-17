@@ -430,7 +430,7 @@ class HeroPrototype(BasePrototype,
 
         del self.companion
 
-        self.companion.health = self.companion.max_health
+        self.companion.on_settupped()
 
     def remove_companion(self):
         del self.companion
