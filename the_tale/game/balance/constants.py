@@ -88,8 +88,6 @@ SELL_ARTIFACT_PRICE_MULTIPLIER = int(10) # множитель стоимости
 BASE_EXPERIENCE_FOR_MONEY_SPEND = int(24 * EXP_PER_HOUR * 0.4)
 EXPERIENCE_DELTA_FOR_MONEY_SPEND = float(0.5)
 
-PRICE_DELTA = float(0.2) # дельта на цену PRICE * (1 + random.uniform(-0.2, 0.2))
-
 POWER_TO_LVL = float(EQUIP_SLOTS_NUMBER) # бонус к ожидаемой силе на уровнеь героя
 
 # Разброс силы артефактов делаем от -ItemPowerDelta до +ItemPowerDelta.

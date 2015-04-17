@@ -403,7 +403,6 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.storage._test_save()
 
 
-    @mock.patch('the_tale.game.balance.constants.PRICE_DELTA', 0.0)
     def test_instant_heal(self):
         while not self.hero.next_spending.is_INSTANT_HEAL:
             self.hero.switch_spending()
@@ -420,7 +419,6 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend_for_heal, money)
         self.storage._test_save()
 
-    @mock.patch('the_tale.game.balance.constants.PRICE_DELTA', 0.0)
     def test_instant_heal__too_much_health(self):
         while not self.hero.next_spending.is_INSTANT_HEAL:
             self.hero.switch_spending()
@@ -438,7 +436,6 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend_for_heal, 0)
         self.storage._test_save()
 
-    @mock.patch('the_tale.game.balance.constants.PRICE_DELTA', 0.0)
     def test_instant_heal__low_health(self):
         while not self.hero.next_spending.is_INSTANT_HEAL:
             self.hero.switch_spending()
@@ -475,7 +472,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         #buy artifact
         self.hero._model.money = money
         self.storage.process_turn()
-        self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
+        self.assertTrue(self.hero.money < 1)
         self.assertEqual(len(self.hero.bag.items()), 0)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
@@ -505,7 +502,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.hero._model.money = money
 
         self.storage.process_turn()
-        self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
+        self.assertEqual(self.hero.money, 0)
         self.assertEqual(len(self.hero.bag.items()), 0)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
@@ -569,7 +566,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
         self.hero._model.money = money
         self.storage.process_turn()
-        self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
+        self.assertEqual(self.hero.money, 0)
         self.assertEqual(old_power.total() + 1, self.hero.power.total())
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
@@ -582,6 +579,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
             self.hero.switch_spending()
 
         self.hero.preferences.set_equipment_slot(heroes_relations.EQUIPMENT_SLOT.PLATE)
+        self.hero._model.level = 666 # enshure that equipment power will be less than max allowerd _power
         self.hero.save()
 
         money = self.hero.spend_amount
@@ -591,7 +589,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
         self.hero._model.money = money
         self.storage.process_turn()
-        self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
+        self.assertEqual(self.hero.money, 0)
         self.assertEqual(old_power.total() + 1, self.hero.power.total())
         self.assertEqual(old_plate_power.total() + 1, self.hero.equipment.get(heroes_relations.EQUIPMENT_SLOT.PLATE).power.total())
 
@@ -614,7 +612,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
         self.hero._model.money = money
         self.storage.process_turn()
-        self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
+        self.assertEqual(self.hero.money, 0)
 
         self.assertEqual(test_artifact.integrity, test_artifact.max_integrity)
 
@@ -629,7 +627,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         money = self.hero.spend_amount
         self.hero._model.money = money
         self.storage.process_turn()
-        self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
+        self.assertEqual(self.hero.money, 0)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_useless, money - self.hero.money)
@@ -648,7 +646,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
         self.assertEqual(cmd_change_power.call_count, 0)
 
-        self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
+        self.assertEqual(self.hero.money, 0)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_impact, money - self.hero.money)
@@ -667,7 +665,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
         self.assertEqual(cmd_change_power.call_count, 1)
 
-        self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
+        self.assertEqual(self.hero.money, 0)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_impact, money - self.hero.money)
@@ -680,14 +678,13 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         money = self.hero.spend_amount
         self.hero._model.money = money
         self.storage.process_turn()
-        self.assertTrue(self.hero.money < money * c.PRICE_DELTA + 1)
+        self.assertEqual(self.hero.money, 0)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_experience, money - self.hero.money)
         self.storage._test_save()
 
 
-    @mock.patch('the_tale.game.balance.constants.PRICE_DELTA', 0.0)
     def test_heal_companion(self):
         self.companion_record = companions_logic.create_random_companion_record('companion', state=companions_relations.STATE.ENABLED)
         self.hero.set_companion(companions_logic.create_companion(self.companion_record))
@@ -711,7 +708,6 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.storage._test_save()
 
 
-    @mock.patch('the_tale.game.balance.constants.PRICE_DELTA', 0.0)
     def test_healed_companion(self):
         self.companion_record = companions_logic.create_random_companion_record('companion', state=companions_relations.STATE.ENABLED)
         self.hero.set_companion(companions_logic.create_companion(self.companion_record))
@@ -733,7 +729,6 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.storage._test_save()
 
 
-    @mock.patch('the_tale.game.balance.constants.PRICE_DELTA', 0.0)
     def test_heal_companion__no_companion(self):
         self.assertEqual(self.hero.companion, None)
 

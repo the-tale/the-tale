@@ -334,7 +334,11 @@ class LogicAccessorsMixin(object):
         return self.preferences.risk_level.reward_modifier
 
     def spending_priorities(self):
-        return self.attribute_modifier(relations.MODIFIERS.ITEMS_OF_EXPENDITURE_PRIORITIES)
+        priorities = self.attribute_modifier(relations.MODIFIERS.ITEMS_OF_EXPENDITURE_PRIORITIES)
+
+        priorities[relations.ITEMS_OF_EXPENDITURE.HEAL_COMPANION] *= self.preferences.companion_dedication.heal_spending_priority
+
+        return priorities
 
     def prefered_quest_markers(self):
         markers = self.attribute_modifier(relations.MODIFIERS.QUEST_MARKERS)

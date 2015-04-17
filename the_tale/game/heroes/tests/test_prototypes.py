@@ -700,6 +700,15 @@ class HeroTest(testcase.TestCase):
             self.hero.switch_spending()
             self.assertFalse(self.hero.next_spending.is_HEAL_COMPANION)
 
+    def test_next_spending_priorities_depends_from_dedication(self):
+        heal_companion_priorities = set()
+
+        for dedication in relations.COMPANION_DEDICATION.records:
+            self.hero.preferences.set_companion_dedication(dedication)
+            heal_companion_priorities.add(self.hero.spending_priorities()[relations.ITEMS_OF_EXPENDITURE.HEAL_COMPANION])
+
+        self.assertEqual(len(heal_companion_priorities), len(relations.COMPANION_DEDICATION.records))
+
 
     def test_switch_next_spending__without_companion(self):
         self.assertEqual(self.hero.companion, None)

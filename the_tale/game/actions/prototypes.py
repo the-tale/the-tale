@@ -375,8 +375,7 @@ class ActionBase(object):
         if event_reward.is_NOTHING:
             self.hero.add_message(message_type, diary=True, hero=self.hero, **self.action_event_message_arguments())
         elif event_reward.is_MONEY:
-            multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
-            coins = int(math.ceil(f.normal_loot_cost_at_lvl(self.hero.level) * multiplier))
+            coins = int(math.ceil(f.normal_loot_cost_at_lvl(self.hero.level)))
             self.hero.change_money(MONEY_SOURCE.EARNED_FROM_HABITS, coins)
             self.hero.add_message(message_type, diary=True, hero=self.hero, coins=coins, **self.action_event_message_arguments())
         elif event_reward.is_ARTIFACT:
@@ -1242,10 +1241,8 @@ class ActionInPlacePrototype(ActionBase):
         return self.process_settlement()
 
     def try_to_spend_money(self):
-        gold_amount = self.hero.spend_amount
+        gold_amount = self.hero.modify_buy_price(self.hero.spend_amount)
         if gold_amount <= self.hero.money:
-            gold_amount = min(self.hero.money, int(gold_amount * (1 + random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA))))
-            gold_amount = self.hero.modify_buy_price(gold_amount)
             self.hero.change_money(self.hero.next_spending.money_source, -gold_amount)
             self.hero.switch_spending()
             return gold_amount

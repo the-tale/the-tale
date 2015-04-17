@@ -513,7 +513,7 @@ class QuestPrototype(object):
                                            ext_substitution={'artifact': artifact})
                 return
 
-        multiplier = (1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)) * scale
+        multiplier = scale
         money = 1 + int(f.sell_artifact_price(hero.level) * multiplier)
         money = int(money * hero.attribute_modifier(HERO_MODIFIERS.QUEST_MONEY_REWARD))
         hero.change_money(MONEY_SOURCE.EARNED_FROM_QUESTS, money)

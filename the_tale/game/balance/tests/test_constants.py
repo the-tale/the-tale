@@ -57,7 +57,6 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.EXPERIENCE_DELTA_FOR_MONEY_SPEND, 0.5)
 
         self.assertEqual(c.SELL_ARTIFACT_PRICE_MULTIPLIER, 10)
-        self.assertEqual(c.PRICE_DELTA, 0.2)
         self.assertEqual(c.POWER_TO_LVL, 11.0)
         self.assertEqual(c.ARTIFACT_POWER_DELTA, 0.2)
         self.assertEqual(c.ARTIFACT_BETTER_MIN_POWER_DELTA, 5)

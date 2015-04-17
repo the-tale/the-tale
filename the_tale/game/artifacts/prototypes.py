@@ -94,8 +94,7 @@ class ArtifactPrototype(object):
 
 
     def get_sell_price(self):
-        multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
-        return int(self.absolute_sell_price() * multiplier)
+        return int(self.absolute_sell_price())
 
     def _effect(self):
         if self.rarity.is_NORMAL:
@@ -208,7 +207,6 @@ class ArtifactPrototype(object):
 
     def repair_it(self):
         self.integrity = self.max_integrity
-        # print '  REPAIRED'
 
     def ui_info(self, hero):
         effect = self._effect().TYPE

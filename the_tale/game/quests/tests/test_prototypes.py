@@ -352,7 +352,6 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertEqual(abs(artifact_1.power.total() - artifact_2.power.total()), 2 * int(c.POWER_TO_LVL * 0.25))
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_get_artifact_for_quest', lambda hero: False)
-    @mock.patch('the_tale.game.balance.constants.PRICE_DELTA', 0.0)
     def test_give_reward__money_scale(self):
 
         self.assertEqual(self.hero.money, 0)

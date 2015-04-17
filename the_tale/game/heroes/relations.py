@@ -46,12 +46,13 @@ class PREFERENCE_TYPE(DjangoEnum):
 
 class COMPANION_DEDICATION(DjangoEnum):
     block_multiplier = Column(unique=False)
+    heal_spending_priority = Column()
     description = Column()
 
-    records = ( ('EGOISM', 0, u'эгоизм', 1.0 + c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA,  u'спутник чаще защищает героя в бою'),
-                ('NORMAL', 1, u'нейтралитет', 1.0, u'спутник защищает героя с обычной частотой'),
-                ('ALTRUISM', 2, u'альтруизм', 1.0 - c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA, u'спутник реже защищает героя в бою'),
-                ('EVERY_MAN_FOR_HIMSELF', 3, u'каждый сам за себя', 1.0 - c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA,
+    records = ( ('EGOISM', 0, u'эгоизм', 1.0 + c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA,  0.75, u'спутник чаще защищает героя в бою'),
+                ('NORMAL', 1, u'нейтралитет', 1.0, 1.0, u'спутник защищает героя с обычной частотой'),
+                ('ALTRUISM', 2, u'альтруизм', 1.0 - c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA, 1.25, u'спутник реже защищает героя в бою'),
+                ('EVERY_MAN_FOR_HIMSELF', 3, u'каждый сам за себя', 1.0 - c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA, 0.0,
                  u'спутник реже защищает героя в бою, герой ничего не делает для лечения спутника, помощь герою не лечит спутника') )
 
 
@@ -93,22 +94,22 @@ class ITEMS_OF_EXPENDITURE(DjangoEnum):
     description = Column()
 
     records = ( ('INSTANT_HEAL',        0, u'лечение',           'heal',       20, 0.3, MONEY_SOURCE.SPEND_FOR_HEAL,
-                  u'Собирает деньги, чтобы поправить здоровье, когда понадобится.'),
-                 ('BUYING_ARTIFACT',     1, u'покупка артефакта', 'artifact',   4,  1.5, MONEY_SOURCE.SPEND_FOR_ARTIFACTS,
-                  u'Планирует приобретение новой экипировки.'),
-                 ('SHARPENING_ARTIFACT', 2, u'заточка артефакта', 'sharpening', 3,  2.0, MONEY_SOURCE.SPEND_FOR_SHARPENING,
-                  u'Собирает на улучшение экипировки.'),
-                 ('USELESS',             3, u'бесполезные траты', 'useless',    7,  0.4, MONEY_SOURCE.SPEND_FOR_USELESS,
-                  u'Копит золото для не очень полезных но безусловно необходимых трат.'),
-                 ('IMPACT',              4, u'изменение влияния', 'impact',     4,  2.0, MONEY_SOURCE.SPEND_FOR_IMPACT,
-                  u'Планирует накопить деньжат, чтобы повлиять на «запомнившегося» горожанина.'),
-                 ('EXPERIENCE',          5, u'обучение',          'experience', 2,  5.0, MONEY_SOURCE.SPEND_FOR_EXPERIENCE,
-                  u'Копит деньги в надежде немного повысить свою грамотность.'),
-                 ('REPAIRING_ARTIFACT',  6, u'починка артефакта', 'repairing', 15, 1.0, MONEY_SOURCE.SPEND_FOR_REPAIRING,
-                  u'Копит на починку экипировки'),
-                 ('HEAL_COMPANION',  7, u'лечение спутника', 'heal_companion', 10, 0.6, MONEY_SOURCE.SPEND_FOR_COMPANIONS,
-                  u'Копит на лечение спутника')
-                  )
+                 u'Собирает деньги, чтобы поправить здоровье, когда понадобится.'),
+                ('BUYING_ARTIFACT',     1, u'покупка артефакта', 'artifact',   4,  1.5, MONEY_SOURCE.SPEND_FOR_ARTIFACTS,
+                 u'Планирует приобретение новой экипировки.'),
+                ('SHARPENING_ARTIFACT', 2, u'заточка артефакта', 'sharpening', 3,  2.0, MONEY_SOURCE.SPEND_FOR_SHARPENING,
+                 u'Собирает на улучшение экипировки.'),
+                ('USELESS',             3, u'бесполезные траты', 'useless',    7,  0.4, MONEY_SOURCE.SPEND_FOR_USELESS,
+                 u'Копит золото для не очень полезных но безусловно необходимых трат.'),
+                ('IMPACT',              4, u'изменение влияния', 'impact',     4,  2.0, MONEY_SOURCE.SPEND_FOR_IMPACT,
+                 u'Планирует накопить деньжат, чтобы повлиять на «запомнившегося» горожанина.'),
+                ('EXPERIENCE',          5, u'обучение',          'experience', 2,  5.0, MONEY_SOURCE.SPEND_FOR_EXPERIENCE,
+                 u'Копит деньги в надежде немного повысить свою грамотность.'),
+                ('REPAIRING_ARTIFACT',  6, u'починка артефакта', 'repairing', 15, 1.0, MONEY_SOURCE.SPEND_FOR_REPAIRING,
+                 u'Копит на починку экипировки'),
+                ('HEAL_COMPANION',  7, u'лечение спутника', 'heal_companion', 10, 0.6, MONEY_SOURCE.SPEND_FOR_COMPANIONS,
+                 u'Копит на лечение спутника')
+              )
 
 
     @classmethod
