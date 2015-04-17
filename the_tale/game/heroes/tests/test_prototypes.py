@@ -27,6 +27,9 @@ from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.companions import storage as companions_storage
 from the_tale.game.companions import logic as companions_logic
+from the_tale.game.companions import relations as companions_relations
+from the_tale.game.companions.abilities import effects as companions_effects
+from the_tale.game.companions.abilities import container as companions_abilities_container
 
 from the_tale.game.map.places.storage import places_storage
 from the_tale.game.map.places.relations import CITY_MODIFIERS
@@ -517,8 +520,16 @@ class HeroTest(testcase.TestCase):
         game_time.turn_number += c.TURNS_IN_GAME_YEAR - 1
         game_time.save()
 
+        self.assertTrue(len(list(companions_storage.companions.enabled_companions())) > 1)
+
+        companions_logic.create_random_companion_record('leaved_companions',
+                                                        abilities=companions_abilities_container.Container(start=(companions_effects.ABILITIES.TEMPORARY, )),
+                                                        state=companions_relations.STATE.ENABLED)
+
         with self.check_changed(lambda: self.hero.companion):
             self.hero.process_rare_operations()
+
+        self.assertTrue(any(ability.is_TEMPORARY for ability in self.hero.companion.record.abilities.start))
 
         self.assertTrue(self.hero.companion.record.rarity.is_COMMON)
 

@@ -850,7 +850,8 @@ class HeroPrototype(BasePrototype,
             return
 
         if self.companion is None and random.random() < float(passed_interval) / c.TURNS_IN_HOUR / c.COMPANIONS_GIVE_COMPANION_AFTER:
-            companions_choices = [companion for companion in companions_storage.companions.enabled_companions() if companion.rarity.is_COMMON]
+            companions_choices = [companion for companion in companions_storage.companions.enabled_companions()
+                                  if any(ability.effect.TYPE.is_LEAVE_HERO for ability in companion.abilities.start)]
             if companions_choices:
                 self.set_companion(companions_logic.create_companion(random.choice(companions_choices)))
 
