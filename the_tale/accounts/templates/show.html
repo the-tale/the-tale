@@ -139,7 +139,13 @@ jQuery(document).ready(function(){
                     {% else %}
                     <td>{% if rating.value > 0 %}{{rating.value}}{% else %}—{% endif %}</td>
                     {% endif %}
-                    <td>{% if rating.value > 0 %}{{rating.place}} место {% else %}не участвует{% endif %}</td>
+                    <td>
+                      {% if rating.value > 0 %}
+                        <a href="{{url('game:ratings:show', menu_rating.value, page=(rating.place-1) // ratings_on_page + 1)}}">{{rating.place}} место</a>
+                      {% else %}
+                        не участвует
+                      {% endif %}
+                    </td>
                   </tr>
                   {% endfor %}
 

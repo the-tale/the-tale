@@ -513,6 +513,7 @@ class AccountResource(BaseAccountsResource):
     @handler('#account', name='show', method='get')
     def show(self): # pylint: disable=R0914
         from the_tale.game.ratings import relations as ratings_relations
+        from the_tale.game.ratings import conf as ratings_conf
 
         friendship = FriendshipPrototype.get_for_bidirectional(self.account, self.master_account)
 
@@ -524,6 +525,7 @@ class AccountResource(BaseAccountsResource):
                               'master_account': self.master_account,
                               'accounts_settings': accounts_settings,
                               'RATING_TYPE': ratings_relations.RATING_TYPE,
+                              'ratings_on_page': ratings_conf.ratings_settings.ACCOUNTS_ON_PAGE,
                               'informer_link': accounts_settings.INFORMER_LINK % {'account_id': self.master_account.id},
                               'friendship': friendship} )
 

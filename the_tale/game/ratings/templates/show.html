@@ -44,7 +44,7 @@
 
     {% set hero = heroes[rating.account_id] %}
 
-    <tr>
+    <tr {% if resource.account.is_authenticated() and resource.account.id == rating.account.id %}style="font-weight: bold; font-size: 12pt;"{% endif %}>
       <td>{{ place_getter(rating) }}</td>
       <td>
         <a href="{{url('accounts:show', rating.account_id)}}">{{ rating.account.nick_verbose }}</a>
