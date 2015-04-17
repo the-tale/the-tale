@@ -124,17 +124,16 @@ class EQUIPMENT_SLOT(DjangoEnum):
 
     # records sorted in order in which they must be placed in UI
     records = ( ('HAND_PRIMARY', 0, u'основная рука', ARTIFACT_TYPE.MAIN_HAND),
-                 ('HAND_SECONDARY', 1, u'вспомогательная рука', ARTIFACT_TYPE.OFF_HAND),
-                 ('HELMET', 2, u'шлем', ARTIFACT_TYPE.HELMET),
-                 ('AMULET', 9, u'амулет', ARTIFACT_TYPE.AMULET),
-                 ('SHOULDERS', 3, u'наплечники', ARTIFACT_TYPE.SHOULDERS),
-                 ('PLATE', 4, u'доспех', ARTIFACT_TYPE.PLATE),
-                 ('GLOVES', 5, u'перчатки', ARTIFACT_TYPE.GLOVES),
-                 ('CLOAK', 6, u'плащ', ARTIFACT_TYPE.CLOAK),
-                 ('PANTS', 7, u'штаны', ARTIFACT_TYPE.PANTS),
-                 ('BOOTS', 8, u'сапоги', ARTIFACT_TYPE.BOOTS),
-
-                 ('RING', 10, u'кольцо', ARTIFACT_TYPE.RING) )
+                ('HAND_SECONDARY', 1, u'вспомогательная рука', ARTIFACT_TYPE.OFF_HAND),
+                ('HELMET', 2, u'шлем', ARTIFACT_TYPE.HELMET),
+                ('AMULET', 9, u'амулет', ARTIFACT_TYPE.AMULET),
+                ('SHOULDERS', 3, u'наплечники', ARTIFACT_TYPE.SHOULDERS),
+                ('PLATE', 4, u'доспех', ARTIFACT_TYPE.PLATE),
+                ('GLOVES', 5, u'перчатки', ARTIFACT_TYPE.GLOVES),
+                ('CLOAK', 6, u'плащ', ARTIFACT_TYPE.CLOAK),
+                ('PANTS', 7, u'штаны', ARTIFACT_TYPE.PANTS),
+                ('BOOTS', 8, u'сапоги', ARTIFACT_TYPE.BOOTS),
+                ('RING', 10, u'кольцо', ARTIFACT_TYPE.RING) )
 
 
 
@@ -154,7 +153,7 @@ class MODIFIERS(DjangoEnum):
                 ('SELL_PRICE', 10, u'цена продажи', lambda: 1.0),
                 ('ITEMS_OF_EXPENDITURE_PRIORITIES', 11, u'приортет трат', lambda: {record:record.priority for record in ITEMS_OF_EXPENDITURE.records}),
                 ('GET_ARTIFACT_FOR_QUEST', 12, u'получить артефакты за задания', lambda: c.ARTIFACT_FOR_QUEST_PROBABILITY),
-                ('BUY_BETTER_ARTIFACT', 13, u'купить лучший артефакт', lambda: 0),
+                # ('BUY_BETTER_ARTIFACT', 13, u'купить лучший артефакт', lambda: 0),
                 ('KILL_BEFORE_BATTLE', 14, u'убить монстра перед боем', lambda: False),
                 ('PICKED_UP_IN_ROAD', 15, u'ехать на попутных телегах', lambda: False),
                 ('POWER_TO_FRIEND', 16, u'бонус к влиянию на друга', lambda: 1.0),

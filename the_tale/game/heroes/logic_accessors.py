@@ -112,14 +112,6 @@ class LogicAccessorsMixin(object):
             probability += c.ARTIFACT_INTEGRITY_SAFE_PROBABILITY_FOR_FAVORITE_ITEM
         return random.uniform(0, 1) < probability
 
-    def can_buy_better_artifact(self):
-        probability = 0
-
-        if self.position.place and self.position.place.modifier:
-            probability = self.position.place.modifier.modify_buy_better_artifact(probability)
-
-        return random.uniform(0, 1) < self.attribute_modifier(relations.MODIFIERS.BUY_BETTER_ARTIFACT)
-
     def can_companion_steal_money(self):
         return self.check_attribute(relations.MODIFIERS.COMPANION_STEAL_MONEY)
 
@@ -194,6 +186,12 @@ class LogicAccessorsMixin(object):
     ################################
     # attributes
     ################################
+
+    def buy_artifact_power_bonus(self):
+        if self.position.place and self.position.place.modifier:
+            return self.position.place.modifier.buy_artifact_power_bonus()
+
+        return 0
 
     @property
     def battles_per_turn_summand(self):

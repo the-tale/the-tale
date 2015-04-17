@@ -95,13 +95,13 @@ class PlaceModifierBase(object):
 
     def modify_sell_price(self, price): return price
     def modify_buy_price(self, price): return price
-    def modify_buy_better_artifact(self, probability): return probability
     def modify_economic_size(self, size): return size
     def modify_terrain_change_power(self, power): return power
     def modify_terrain_owning_radius(self, radius): return radius
     def modify_experience(self, exp): return exp
     def modify_stability_renewing_speed(self, stability): return stability
 
+    def buy_artifact_power_bonus(self): return 0
     def full_regen_allowed(self): return False
     def companion_regen_allowed(self): return False
     def energy_regen_allowed(self): return False
@@ -127,7 +127,7 @@ class CraftCenter(PlaceModifierBase):
 
     PRODUCTION_MODIFIER = c.PLACE_GOODS_BONUS
 
-    def modify_buy_better_artifact(self, probability): return probability * 1.1
+    def buy_artifact_power_bonus(self): return 0.1
 
 
 class Fort(PlaceModifierBase):

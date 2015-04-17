@@ -1266,7 +1266,12 @@ class ActionInPlacePrototype(ActionBase):
         coins = self.try_to_spend_money()
         if coins is not None:
 
-            artifact, unequipped, sell_price = self.hero.receive_artifact(equip=True, better=True, prefered_slot=True, prefered_item=True, archetype=True)
+            artifact, unequipped, sell_price = self.hero.receive_artifact(equip=True,
+                                                                          better=True,
+                                                                          prefered_slot=True,
+                                                                          prefered_item=True,
+                                                                          archetype=True,
+                                                                          power_bonus=self.hero.buy_artifact_power_bonus())
 
             if unequipped is not None:
                 if artifact.id == unequipped.id:
