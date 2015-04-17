@@ -1,6 +1,8 @@
 # coding: utf-8
 import datetime
 
+from django.conf import settings as projects_settings
+
 from dext.common.utils.app_settings import app_settings
 
 from the_tale.game.balance import constants as c
@@ -21,6 +23,11 @@ heroes_settings = app_settings('HEROES',
 
                                START_ENERGY_BONUS=10,
                                MAX_HELPS_IN_TURN=10,
+
+                               NAME_REGEX=ur'^[\-\ а-яА-Я«»\']+$' if not projects_settings.TESTS_RUNNING else ur'^[\-\ а-яА-Я«»\'\,]+$',
+                               NAME_SYMBOLS_DESCRITION=u'пробел, -, а-я, А-Я, «», \' ',
+
+                               NAME_MIN_LENGHT=3,
 
                                ABILITIES_RESET_TIMEOUT=datetime.timedelta(days=30),
                                PLACE_HELP_HISTORY_SIZE=200,

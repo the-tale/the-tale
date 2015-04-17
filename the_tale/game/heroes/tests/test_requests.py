@@ -164,10 +164,10 @@ class ChangeHeroRequestsTests(HeroRequestsTestBase):
         self.hero.save()
         self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)), texts=[('pgf-settings-approved-warning', 0)])
 
-    def get_post_data(self, name='new_name', gender=GENDER.MASCULINE, race=RACE.DWARF):
+    def get_post_data(self, name=u'новое имя', gender=GENDER.MASCULINE, race=RACE.DWARF):
         data = {'gender': gender,
                 'race': race}
-        data.update(linguistics_helpers.get_word_post_data(names.generator.get_test_name(name='new_name'), prefix='name'))
+        data.update(linguistics_helpers.get_word_post_data(names.generator.get_test_name(name=name), prefix=u'name'))
         return data
 
     def test_chane_hero_ownership(self):
@@ -191,7 +191,7 @@ class ChangeHeroRequestsTests(HeroRequestsTestBase):
 
         self.check_ajax_processing(response, task.status_url)
 
-        self.assertEqual(task.internal_logic.name, names.generator.get_test_name(name='new_name'))
+        self.assertEqual(task.internal_logic.name, names.generator.get_test_name(name=u'новое имя'))
         self.assertEqual(task.internal_logic.gender, GENDER.MASCULINE)
         self.assertEqual(task.internal_logic.race, RACE.DWARF)
 

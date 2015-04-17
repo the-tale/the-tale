@@ -1,4 +1,5 @@
 #coding: utf-8
+import re
 
 from django.forms import ValidationError
 
@@ -8,16 +9,20 @@ from utg import relations as utg_relations
 
 from the_tale.linguistics.forms import WordField
 
-from the_tale.game.heroes.models import Hero
-from the_tale.game.heroes.relations import PREFERENCE_TYPE
-
 from the_tale.game.relations import GENDER, RACE
+
+from the_tale.game.heroes import models
+from the_tale.game.heroes import relations
+from the_tale.game.heroes import conf
+
+
+NAME_REGEX = re.compile(conf.heroes_settings.NAME_REGEX)
 
 
 class ChoosePreferencesForm(forms.Form):
 
     preference_id = fields.CharField(max_length=32, required=False)
-    preference_type = fields.TypedChoiceField(choices=PREFERENCE_TYPE.choices(), coerce=PREFERENCE_TYPE.get_from_name)
+    preference_type = fields.TypedChoiceField(choices=relations.PREFERENCE_TYPE.choices(), coerce=relations.PREFERENCE_TYPE.get_from_name)
 
 
 class EditNameForm(forms.Form):
@@ -33,10 +38,15 @@ class EditNameForm(forms.Form):
 
         if name is not None:
             for name_form in cleaned_data['name'].forms:
-                if len(name_form) > Hero.MAX_NAME_LENGTH:
-                    raise ValidationError(u'слишком длинное имя, максимальное число символов: %d' % Hero.MAX_NAME_LENGTH)
-                if len(name_form) < 3:
-                    raise ValidationError(u'слишком короткое имя, минимальное число символов: %d' % 3)
+                if len(name_form) > models.Hero.MAX_NAME_LENGTH:
+                    raise ValidationError(u'Слишком длинное имя, максимальное число символов: %d' % modelsHero.MAX_NAME_LENGTH)
+
+                if len(name_form) < conf.heroes_settings.NAME_MIN_LENGHT:
+                    raise ValidationError(u'Слишком короткое имя, минимальное число символов: %d' % conf.heroes_settings.NAME_MIN_LENGHT)
+
+                if NAME_REGEX.match(name_form) is None:
+                    print name_form
+                    raise ValidationError(u'Имя героя может содержать только следующие символы: %s' % conf.heroes_settings.NAME_SYMBOLS_DESCRITION)
 
             name.properties = name.properties.clone(cleaned_data['gender'].utg_id)
 
