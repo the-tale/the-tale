@@ -98,7 +98,7 @@ class TradingActionTest(testcase.TestCase):
         self.assertTrue(self.hero.money > old_money)
         self.storage._test_save()
 
-    def test_stop_when_quest_required_replane(self):
+    def test_no_stop_when_quest_required_replane(self):
 
         self.action_idl.percents = 0.0
 
@@ -126,8 +126,8 @@ class TradingActionTest(testcase.TestCase):
 
         current_time.increment_turn()
 
-        self.storage.process_turn()
-        self.assertEqual(self.hero.bag.occupation, 1)
+        self.storage.process_turn(continue_steps_if_needed=False)
+        self.assertEqual(self.hero.bag.occupation, 0)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
 
         self.assertEqual(self.action_trade.state, self.action_trade.STATE.PROCESSED)
