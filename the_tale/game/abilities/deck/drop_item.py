@@ -29,4 +29,6 @@ class DropItem(AbilityPrototype):
             task.hero.change_money(MONEY_SOURCE.EARNED_FROM_HELP, sell_price)
             task.hero.add_message('angel_ability_drop_item_crit', hero=task.hero, dropped_item=dropped_item, coins=sell_price)
 
+        task.hero.cards.change_help_count(1)
+
         return task.logic_result(next_step=ComplexChangeTask.STEP.SUCCESS)

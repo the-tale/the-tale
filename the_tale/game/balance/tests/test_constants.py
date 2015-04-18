@@ -120,6 +120,7 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.ANGEL_HELP_COST, 4)
         self.assertEqual(c.ANGEL_ARENA_COST, 1)
+        self.assertEqual(c.ANGEL_DROP_ITEM_COST, 3)
         self.assertEqual(c.ANGEL_HELP_HEAL_IF_LOWER_THEN, float(0.8))
 
         self.assertEqual(c.ANGEL_HELP_HEAL_FRACTION,  (float(0.25), float(0.5)))

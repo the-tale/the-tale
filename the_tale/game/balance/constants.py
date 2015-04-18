@@ -217,8 +217,9 @@ ANGEL_ENERGY_REGENERATION_STEPS = { e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 3,
 # абилки ангела
 ##########################
 
-ANGEL_HELP_COST = 4
-ANGEL_ARENA_COST = 1
+ANGEL_HELP_COST = int(4)
+ANGEL_ARENA_COST = int(1)
+ANGEL_DROP_ITEM_COST = int(3)
 
 ANGEL_HELP_HEAL_IF_LOWER_THEN = float(0.8) # можем лечить если здоровья меньше чем
 
