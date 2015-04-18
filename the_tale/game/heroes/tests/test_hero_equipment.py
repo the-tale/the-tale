@@ -118,7 +118,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
         self.assertFalse(artifact.type.is_MAIN_HAND)
 
     def test_equipping_process(self):
-        self.assertEqual(self.hero.get_equip_canditates(), (None, None, None))
+        self.assertEqual(self.hero.get_equip_candidates(), (None, None, None))
 
         #equip artefact in empty slot
         artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL)
@@ -128,7 +128,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
 
         self.hero.bag.put_artifact(artifact)
 
-        slot, unequipped, equipped = self.hero.get_equip_canditates()
+        slot, unequipped, equipped = self.hero.get_equip_candidates()
         self.assertTrue(slot)
         self.assertTrue(unequipped is None)
         self.assertEqual(equipped, artifact)
@@ -146,7 +146,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
         new_artifact.power = artifact.power + Power(1, 1)
         self.hero.bag.put_artifact(new_artifact)
 
-        slot, unequipped, equipped = self.hero.get_equip_canditates()
+        slot, unequipped, equipped = self.hero.get_equip_candidates()
         self.assertTrue(slot)
         self.assertEqual(unequipped, artifact)
         self.assertEqual(equipped, new_artifact)
@@ -162,7 +162,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
 
         self.storage._test_save()
 
-    def test_get_equip_canditates__ignore_favorite_item_slot(self):
+    def test_get_equip_candidates__ignore_favorite_item_slot(self):
         self.assertTrue(self.hero.bag.is_empty)
         self.assertTrue(self.hero.equipment.get(relations.EQUIPMENT_SLOT.HAND_PRIMARY))
         self.assertEqual(self.hero.preferences.favorite_item, None)
@@ -175,14 +175,52 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
         artifact.power = old_artifact.power + Power(1, 1)
         self.hero.bag.put_artifact(artifact)
 
-        slot, unequipped, equipped = self.hero.get_equip_canditates()
+        slot, unequipped, equipped = self.hero.get_equip_candidates()
         self.assertEqual(slot, relations.EQUIPMENT_SLOT.HAND_PRIMARY)
         self.assertEqual(unequipped, old_artifact)
         self.assertEqual(equipped, artifact)
 
         self.hero.preferences.set_favorite_item(relations.EQUIPMENT_SLOT.HAND_PRIMARY)
 
-        slot, unequipped, equipped = self.hero.get_equip_canditates()
+        slot, unequipped, equipped = self.hero.get_equip_candidates()
+        self.assertEqual(slot, None)
+        self.assertEqual(unequipped, None)
+        self.assertEqual(equipped, None)
+
+
+    def test_get_equip_candidates__better_integrity(self):
+        self.assertTrue(self.hero.bag.is_empty)
+        self.assertTrue(self.hero.equipment.get(relations.EQUIPMENT_SLOT.HAND_PRIMARY))
+
+        old_artifact = self.hero.equipment.get(relations.EQUIPMENT_SLOT.HAND_PRIMARY)
+
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts_for_type([relations.EQUIPMENT_SLOT.HAND_PRIMARY.artifact_type]),
+                                                                 self.hero.level,
+                                                                 rarity=artifacts_relations.RARITY.NORMAL)
+        artifact.power = old_artifact.power
+        artifact.integrity = old_artifact.integrity + 1
+        self.hero.bag.put_artifact(artifact)
+
+        slot, unequipped, equipped = self.hero.get_equip_candidates()
+        self.assertEqual(slot, relations.EQUIPMENT_SLOT.HAND_PRIMARY)
+        self.assertEqual(unequipped, old_artifact)
+        self.assertEqual(equipped, artifact)
+
+
+    def test_get_equip_candidates__worst_integrity(self):
+        self.assertTrue(self.hero.bag.is_empty)
+        self.assertTrue(self.hero.equipment.get(relations.EQUIPMENT_SLOT.HAND_PRIMARY))
+
+        old_artifact = self.hero.equipment.get(relations.EQUIPMENT_SLOT.HAND_PRIMARY)
+
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts_for_type([relations.EQUIPMENT_SLOT.HAND_PRIMARY.artifact_type]),
+                                                                 self.hero.level,
+                                                                 rarity=artifacts_relations.RARITY.NORMAL)
+        artifact.power = old_artifact.power
+        artifact.integrity = old_artifact.integrity - 1
+        self.hero.bag.put_artifact(artifact)
+
+        slot, unequipped, equipped = self.hero.get_equip_candidates()
         self.assertEqual(slot, None)
         self.assertEqual(unequipped, None)
         self.assertEqual(equipped, None)

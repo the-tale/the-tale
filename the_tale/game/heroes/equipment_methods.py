@@ -215,7 +215,7 @@ class EquipmentMethodsMixin(object):
         return artifact
 
 
-    def get_equip_canditates(self):
+    def get_equip_candidates(self):
 
         distribution = self.preferences.archetype.power_distribution
 
@@ -233,13 +233,19 @@ class EquipmentMethodsMixin(object):
             if equipped_artifact is None:
                 return slot, None, artifact
 
-            if equipped_artifact.preference_rating(distribution) < artifact.preference_rating(distribution):
+            equipped_preference_rating = equipped_artifact.preference_rating(distribution)
+            new_preference_rating = artifact.preference_rating(distribution)
+
+            if equipped_preference_rating < new_preference_rating:
+                return slot, equipped_artifact, artifact
+
+            if equipped_preference_rating == new_preference_rating and equipped_artifact.integrity < artifact.integrity:
                 return slot, equipped_artifact, artifact
 
         return None, None, None
 
     def equip_from_bag(self):
-        slot, unequipped, equipped = self.get_equip_canditates()
+        slot, unequipped, equipped = self.get_equip_candidates()
         self.change_equipment(slot, unequipped, equipped)
         return slot, unequipped, equipped
 

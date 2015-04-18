@@ -371,7 +371,7 @@ class HeroPrototype(BasePrototype,
 
     @property
     def need_equipping_in_town(self):
-        slot, unequipped, equipped = self.get_equip_canditates() # pylint: disable=W0612
+        slot, unequipped, equipped = self.get_equip_candidates() # pylint: disable=W0612
         return equipped is not None
 
     @property
