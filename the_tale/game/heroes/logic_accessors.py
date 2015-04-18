@@ -211,17 +211,11 @@ class LogicAccessorsMixin(object):
 
     @property
     def rare_artifact_probability_multiplier(self):
-        probability = self.attribute_modifier(relations.MODIFIERS.RARE)
-        if self.position.place and self.position.place.modifier:
-            probability = self.position.place.modifier.modify_buy_better_artifact(probability)
-        return probability
+        return self.attribute_modifier(relations.MODIFIERS.RARE)
 
     @property
     def epic_artifact_probability_multiplier(self):
-        probability = self.attribute_modifier(relations.MODIFIERS.EPIC)
-        if self.position.place and self.position.place.modifier:
-            probability = self.position.place.modifier.modify_buy_better_artifact(probability)
-        return probability
+        return self.attribute_modifier(relations.MODIFIERS.EPIC)
 
     @property
     def clouded_mind(self):
