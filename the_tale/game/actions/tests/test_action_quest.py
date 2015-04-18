@@ -1,4 +1,5 @@
 # coding: utf-8
+import mock
 
 from the_tale.common.utils import testcase
 
@@ -12,13 +13,13 @@ from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.quests.tests import helpers as quests_helpers
 
-from the_tale.game.actions.prototypes import ActionQuestPrototype
+from the_tale.game.actions import prototypes
 
 
-class QuestActionTest(testcase.TestCase):
+class QuestActionTests(testcase.TestCase):
 
     def setUp(self):
-        super(QuestActionTest, self).setUp()
+        super(QuestActionTests, self).setUp()
 
         create_test_map()
 
@@ -29,7 +30,7 @@ class QuestActionTest(testcase.TestCase):
         self.hero = self.storage.accounts_to_heroes[account_id]
         self.action_idl = self.hero.actions.current_action
 
-        self.action_quest = ActionQuestPrototype.create(hero=self.hero)
+        self.action_quest = prototypes.ActionQuestPrototype.create(hero=self.hero)
 
 
     def test_create(self):
@@ -60,6 +61,23 @@ class QuestActionTest(testcase.TestCase):
         self.hero.quests.pop_quest()
         self.storage.process_turn()
         self.assertEqual(self.action_idl.leader, True)
+
+
+    def test_need_equipping(self):
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.need_equipping', lambda hero: True):
+            self.storage.process_turn()
+
+        self.assertEqual(self.action_quest.state, self.action_quest.STATE.EQUIPPING)
+        self.assertTrue(self.hero.actions.current_action.TYPE.is_EQUIPPING)
+
+        self.storage.process_turn()
+
+        self.assertEqual(self.action_quest.state, self.action_quest.STATE.EQUIPPING)
+        self.assertTrue(self.hero.actions.current_action.TYPE.is_QUEST)
+
+        self.storage.process_turn()
+
+        self.assertEqual(self.action_quest.state, self.action_quest.STATE.PROCESSING)
 
 
     def test_full_quest(self):

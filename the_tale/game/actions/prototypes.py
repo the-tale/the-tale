@@ -389,7 +389,7 @@ class ActionBase(object):
         return {}
 
     def setup_quest(self, quest):
-        pass # do nothing if there is not Quest action
+        pass # do nothing if there is not quest action
 
 
     def __eq__(self, other):
@@ -515,7 +515,7 @@ class ActionIdlenessPrototype(ActionBase):
             self.state = self.STATE.WAITING
 
         if self.state == self.STATE.QUEST:
-            self.percents = 0 # reset percents only when end quest
+            self.percents = 0 # reset percents only on quest's ending
             if self.process_position():
                 return
             self.state = self.STATE.WAITING
@@ -551,6 +551,7 @@ class ActionQuestPrototype(ActionBase):
     class STATE(ActionBase.STATE):
         SEARCHING = 'searching'
         PROCESSING = 'processing'
+        EQUIPPING = 'equipping'
 
     ###########################################
     # Object operations
@@ -586,11 +587,18 @@ class ActionQuestPrototype(ActionBase):
                 else:
                     quests_logic.request_quest_for_hero(self.hero)
 
+        if self.state == self.STATE.EQUIPPING:
+            self.state = self.STATE.PROCESSING
+
         if self.state == self.STATE.PROCESSING:
 
             if not self.hero.quests.has_quests:
                 self.state = self.STATE.PROCESSED
                 return
+
+            if self.hero.need_equipping:
+                self.state = self.STATE.EQUIPPING
+                ActionEquippingPrototype.create(hero=self.hero)
 
             percents = self.hero.quests.current_quest.process()
 
@@ -1259,7 +1267,7 @@ class ActionInPlacePrototype(ActionBase):
             self.hero.add_message('action_inplace_diary_instant_heal_for_money', diary=True, hero=self.hero, coins=coins)
 
     def spend_money__buying_artifact(self):
-        if self.hero.need_equipping_in_town:
+        if self.hero.need_equipping:
             # delay money spenging, becouse hero can buy artifact better then equipped but worse then he has in bag
             return
 
@@ -1432,7 +1440,7 @@ class ActionInPlacePrototype(ActionBase):
                 self.state = self.STATE.HEALING_COMPANION
                 ActionHealCompanionPrototype.create(hero=self.hero)
 
-            elif self.hero.need_equipping_in_town:
+            elif self.hero.need_equipping:
                 self.state = self.STATE.EQUIPPING
                 ActionEquippingPrototype.create(hero=self.hero)
 

@@ -370,7 +370,7 @@ class HeroPrototype(BasePrototype,
         return float(self.bag.occupation) / self.max_bag_size > c.BAG_SIZE_TO_SELL_LOOT_FRACTION
 
     @property
-    def need_equipping_in_town(self):
+    def need_equipping(self):
         slot, unequipped, equipped = self.get_equip_candidates() # pylint: disable=W0612
         return equipped is not None
 
