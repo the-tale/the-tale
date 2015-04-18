@@ -295,6 +295,10 @@ class ActionBase(object):
         if hero.actions.has_actions:
             bundle_id = hero.actions.current_action.bundle_id
 
+            # change description of current action
+            # when new action ended, it will be illusion, that hero do other new action instead old one
+            hero.actions.current_action.description = hero.actions.current_action.get_description()
+
         _storage = None
         if '_storage' in kwargs:
             _storage = kwargs['_storage']
