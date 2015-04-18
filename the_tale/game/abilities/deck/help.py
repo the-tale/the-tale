@@ -7,7 +7,8 @@ from the_tale.game.heroes.relations import MONEY_SOURCE, HABIT_CHANGE_SOURCE
 from the_tale.game.abilities.prototypes import AbilityPrototype
 from the_tale.game.abilities.relations import ABILITY_TYPE
 
-from the_tale.game.balance import constants as c, formulas as f
+from the_tale.game.balance import constants as c
+from the_tale.game.balance import formulas as f
 
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
 
@@ -32,14 +33,12 @@ class Help(AbilityPrototype):
         return task.logic_result(next_step=ComplexChangeTask.STEP.SUCCESS)
 
     def use_start_quest(self, task, action, hero, critical): # pylint: disable=W0613
-        action.init_quest()
         hero.add_message('angel_ability_stimulate', hero=hero)
+        action.init_quest()
         return task.logic_result(next_step=ComplexChangeTask.STEP.SUCCESS)
 
     def use_money(self, task, action, hero, critical): # pylint: disable=W0613
-        multiplier = 1+random.uniform(-c.PRICE_DELTA, c.PRICE_DELTA)
-        coins = int(math.ceil(f.normal_loot_cost_at_lvl(hero.level) * multiplier))
-
+        coins = int(math.ceil(f.normal_loot_cost_at_lvl(hero.level)*random.uniform(*c.ANGEL_HELP_CRIT_MONEY_FRACTION)))
 
         if critical:
             coins *= c.ANGEL_HELP_CRIT_MONEY_MULTIPLIER
@@ -48,31 +47,40 @@ class Help(AbilityPrototype):
         else:
             hero.change_money(MONEY_SOURCE.EARNED_FROM_HELP, coins)
             hero.add_message('angel_ability_money', hero=hero, coins=coins)
+
         return task.logic_result(next_step=ComplexChangeTask.STEP.SUCCESS)
 
     def use_teleport(self, task, action, hero, critical):
         if critical:
-            action.teleport(c.ANGEL_HELP_CRIT_TELEPORT_DISTANCE, create_inplace_action=True)
             hero.add_message('angel_ability_shortteleport_crit', hero=hero)
+            distance = c.ANGEL_HELP_CRIT_TELEPORT_DISTANCE
         else:
-            action.teleport(c.ANGEL_HELP_TELEPORT_DISTANCE, create_inplace_action=True)
             hero.add_message('angel_ability_shortteleport', hero=hero)
+            distance = c.ANGEL_HELP_TELEPORT_DISTANCE
+
+        action.teleport(distance, create_inplace_action=True)
         return task.logic_result(next_step=ComplexChangeTask.STEP.SUCCESS)
 
     def use_lightning(self, task, action, hero, critical):
         if critical:
-            action.bit_mob(random.uniform(*c.ANGEL_HELP_CRIT_LIGHTING_FRACTION))
             hero.add_message('angel_ability_lightning_crit', hero=hero, mob=action.mob)
+            damage = random.uniform(*c.ANGEL_HELP_CRIT_LIGHTING_FRACTION)
         else:
-            action.bit_mob(random.uniform(*c.ANGEL_HELP_LIGHTING_FRACTION))
             hero.add_message('angel_ability_lightning', hero=hero, mob=action.mob)
+            damage = random.uniform(*c.ANGEL_HELP_LIGHTING_FRACTION)
+
+        action.bit_mob(damage)
+
         return task.logic_result(next_step=ComplexChangeTask.STEP.SUCCESS)
 
     def use_resurrect(self, task, action, hero, critical): # pylint: disable=W0613
         if hero.is_alive:
             return (ComplexChangeTask.RESULT.IGNORE, ComplexChangeTask.STEP.SUCCESS, ())
-        action.fast_resurrect()
+
         hero.add_message('angel_ability_resurrect', hero=hero)
+
+        action.fast_resurrect()
+
         return task.logic_result(next_step=ComplexChangeTask.STEP.SUCCESS)
 
     def use_experience(self, task, action, hero, critical): # pylint: disable=W0613

@@ -133,6 +133,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.ANGEL_HELP_CRIT_TELEPORT_DISTANCE, float(9.0))
         self.assertEqual(c.ANGEL_HELP_CRIT_LIGHTING_FRACTION, (float(0.5), float(0.75)))
         self.assertEqual(c.ANGEL_HELP_CRIT_MONEY_MULTIPLIER, int(10))
+        self.assertEqual(c.ANGEL_HELP_CRIT_MONEY_FRACTION, (0.75, 1.25))
         self.assertEqual(c.ANGEL_HELP_CRIT_EXPERIENCE, 60)
 
         self.assertEqual(c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE, 4)

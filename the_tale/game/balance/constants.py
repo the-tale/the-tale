@@ -236,6 +236,7 @@ ANGEL_HELP_CRIT_HEAL_FRACTION = (float(0.5), float(0.75)) # (min, max) проц�
 ANGEL_HELP_CRIT_TELEPORT_DISTANCE = float(9.0) # расстяние на которое происходит телепорт
 ANGEL_HELP_CRIT_LIGHTING_FRACTION = (float(0.5), float(0.75)) # (min, max) процент урона, который будет нанесён
 ANGEL_HELP_CRIT_MONEY_MULTIPLIER = int(10)
+ANGEL_HELP_CRIT_MONEY_FRACTION = (float(0.75), float(1.25))
 ANGEL_HELP_CRIT_EXPERIENCE = int(ANGEL_HELP_EXPERIENCE * 3)
 
 
