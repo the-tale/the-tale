@@ -57,7 +57,9 @@ class Worker(BaseWorker):
 
     def process_next_turn(self, turn_number):
 
-        map_update_needed = False
+        sync_data_sheduled = None
+        sync_data_required = False
+
         with transaction.atomic():
             self.turn_number += 1
 
@@ -65,15 +67,16 @@ class Worker(BaseWorker):
                 raise exceptions.WrongHighlevelTurnNumber(expected_turn_number=self.turn_number, new_turn_number=turn_number)
 
             if self.turn_number % c.MAP_SYNC_TIME == 0:
-                self.sync_data()
-                map_update_needed = True
+                sync_data_required = True
+                sync_data_sheduled = True
 
             if self.turn_number % (bills_settings.BILLS_PROCESS_INTERVAL / c.TURN_DELTA) == 0:
                 if self.apply_bills():
-                    self.sync_data(sheduled=False)
-                    map_update_needed = True
+                    sync_data_required = True
+                    sync_data_sheduled = False
 
-        if map_update_needed:
+        if sync_data_required:
+            self.sync_data(sheduled=sync_data_sheduled)
             self.update_map()
 
     def update_map(self):
