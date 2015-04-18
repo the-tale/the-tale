@@ -65,7 +65,6 @@ class HABIT_INTERVAL(DjangoEnum):
 
 
 class HABIT_HONOR_INTERVAL(HABIT_INTERVAL):
-
     records = ( ('LEFT_3', 0, u'бесчестный', u'бесчестная', u'бесчестное', u'криминальная столица', -c.HABITS_BORDER, c.HABITS_RIGHT_BORDERS[0]),
                 ('LEFT_2', 1, u'подлый', u'подлая', u'подлое', u'бандитская вотчина', c.HABITS_RIGHT_BORDERS[0], c.HABITS_RIGHT_BORDERS[1]),
                 ('LEFT_1', 2, u'порочный', u'порочная', u'порочное', u'неблагополучный город', c.HABITS_RIGHT_BORDERS[1], c.HABITS_RIGHT_BORDERS[2]),
@@ -100,11 +99,11 @@ class ARCHETYPE(DjangoEnum):
     allowed_power_types = Column(no_index=True, unique=False)
 
     records = ( (u'MAGICAL', 0, u'маг', PowerDistribution(0.25, 0.75), u'герой предпочитает магию грубой силе', [ARTIFACT_POWER_TYPE.MOST_MAGICAL,
-                                                                                                                ARTIFACT_POWER_TYPE.MAGICAL,
-                                                                                                                ARTIFACT_POWER_TYPE.NEUTRAL]),
+                                                                                                                 ARTIFACT_POWER_TYPE.MAGICAL,
+                                                                                                                 ARTIFACT_POWER_TYPE.NEUTRAL]),
                 (u'NEUTRAL', 1, u'авантюрист', PowerDistribution(0.5, 0.5), u'герой соблюдает баланс между мечом и магией', [ARTIFACT_POWER_TYPE.MAGICAL,
-                                                                                                                            ARTIFACT_POWER_TYPE.NEUTRAL,
-                                                                                                                            ARTIFACT_POWER_TYPE.PHYSICAL]),
+                                                                                                                             ARTIFACT_POWER_TYPE.NEUTRAL,
+                                                                                                                             ARTIFACT_POWER_TYPE.PHYSICAL]),
                 (u'PHYSICAL', 2, u'воин', PowerDistribution(0.75, 0.25), u'герой полагается на воинские умения', [ARTIFACT_POWER_TYPE.NEUTRAL,
-                                                                                                                 ARTIFACT_POWER_TYPE.PHYSICAL,
-                                                                                                                 ARTIFACT_POWER_TYPE.MOST_PHYSICAL]) )
+                                                                                                                  ARTIFACT_POWER_TYPE.PHYSICAL,
+                                                                                                                  ARTIFACT_POWER_TYPE.MOST_PHYSICAL]) )

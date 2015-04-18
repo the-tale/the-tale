@@ -4,9 +4,9 @@ import jinja2
 
 import mock
 
-from django.core.urlresolvers import reverse
+from dext.common.utils.urls import url
 
-from the_tale.common.utils.testcase import TestCase
+from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype
@@ -15,8 +15,23 @@ from the_tale.game.heroes.prototypes import HeroPrototype
 
 from the_tale.game.logic import create_test_map
 
+from the_tale.game.map.places import logic
+from the_tale.game.map.places import relations
+from the_tale.game.map.places import conf
 
-class TestShowRequests(TestCase):
+
+class APIListRequestTests(testcase.TestCase):
+
+    def setUp(self):
+        super(APIListRequestTests, self).setUp()
+        self.place_1, self.place_2, self.place_3 = create_test_map()
+
+    def test_success(self):
+        self.place_2.modifier = relations.CITY_MODIFIERS.random()
+        self.check_ajax_ok(self.request_ajax_json(logic.api_list_url()))
+
+
+class TestShowRequests(testcase.TestCase):
 
     def setUp(self):
         super(TestShowRequests, self).setUp()
@@ -27,29 +42,30 @@ class TestShowRequests(TestCase):
 
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', True)
     def test_place_new_place_message(self):
-        self.check_html_ok(self.request_html(reverse('game:map:places:show', args=[self.place_1.id])), texts=['pgf-new-place-message'])
+        self.check_html_ok(self.request_html(url('game:map:places:show', self.place_1.id)), texts=['pgf-new-place-message'])
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', False)
     def test_place_new_place_message__not_new(self):
-        self.check_html_ok(self.request_html(reverse('game:map:places:show', args=[self.place_1.id])), texts=[('pgf-new-place-message', 0)])
+        self.place_1._model.created_at -= datetime.timedelta(seconds=conf.places_settings.NEW_PLACE_LIVETIME)
+        self.place_1.save()
+        self.check_html_ok(self.request_html(url('game:map:places:show', self.place_1.id)), texts=[('pgf-new-place-message', 0)])
 
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_frontier', True)
     def test_place_frontier_message(self):
-        self.check_html_ok(self.request_html(reverse('game:map:places:show', args=[self.place_1.id])), texts=['pgf-frontier-message'])
+        self.check_html_ok(self.request_html(url('game:map:places:show', self.place_1.id)), texts=['pgf-frontier-message'])
 
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_frontier', False)
     def test_place_frontier_message__not_new(self):
-        self.check_html_ok(self.request_html(reverse('game:map:places:show', args=[self.place_1.id])), texts=[('pgf-frontier-message', 0)])
+        self.check_html_ok(self.request_html(url('game:map:places:show', self.place_1.id)), texts=[('pgf-frontier-message', 0)])
 
     def test_wrong_place_id(self):
-        self.check_html_ok(self.request_html(reverse('game:map:places:show', args=['wrong_id'])), texts=['places.place.wrong_format'])
+        self.check_html_ok(self.request_html(url('game:map:places:show', 'wrong_id')), texts=['places.show.place.wrong_format'])
 
     def test_place_does_not_exist(self):
-        self.check_html_ok(self.request_html(reverse('game:map:places:show', args=[666])), texts=['places.place.not_found'], status_code=404)
+        self.check_html_ok(self.request_html(url('game:map:places:show', 666)), texts=['places.show.place.wrong_value'])
 
     def check_no_heroes(self):
         texts = [('pgf-no-heroes-message', 1 + len(self.place_1.persons))]
-        self.check_html_ok(self.request_html(reverse('game:map:places:show', args=[self.place_1.id])), texts=texts)
+        self.check_html_ok(self.request_html(url('game:map:places:show', self.place_1.id)), texts=texts)
 
     def check_heroes(self):
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
@@ -82,7 +98,7 @@ class TestShowRequests(TestCase):
                  (jinja2.escape(hero_2.name), 3),
                  (jinja2.escape(hero_3.name), 0)]
 
-        self.check_html_ok(self.request_html(reverse('game:map:places:show', args=[self.place_1.id])), texts=texts)
+        self.check_html_ok(self.request_html(url('game:map:places:show', self.place_1.id)), texts=texts)
 
 
     def test_no_heroes__unlogined(self):

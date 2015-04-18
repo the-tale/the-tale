@@ -15,7 +15,10 @@ from the_tale.game.map.places.relations import CITY_MODIFIERS, EFFECT_SOURCES
 class PlaceModifierBase(object):
 
     TYPE = None
-    DESCRIPTION = None
+
+    @property
+    def DESCRIPTION(self): return self.TYPE.description
+
     PERSON_EFFECTS = None
     PERSON_POWER_MODIFIER = 20
 
@@ -109,10 +112,7 @@ class PlaceModifierBase(object):
 
 
 class TradeCenter(PlaceModifierBase):
-
     TYPE = CITY_MODIFIERS.TRADE_CENTER
-    DESCRIPTION = u'В городе идёт оживлённая торговля, поэтому герои всегда могут найти выгодную цену для продажи своих трофеев или покупки артефактов. Увеличивается производство и уровень свободы в городе.'
-
     PRODUCTION_MODIFIER = c.PLACE_GOODS_BONUS / 2
     FREEDOM_MODIFIER = 0.1
 
@@ -121,10 +121,7 @@ class TradeCenter(PlaceModifierBase):
 
 
 class CraftCenter(PlaceModifierBase):
-
     TYPE = CITY_MODIFIERS.CRAFT_CENTER
-    DESCRIPTION = u'Большое количество мастеров, трудящихся в городе, позволяет героям приобретать лучшие артефакты. Увеличивается уровень производства в городе.'
-
     PRODUCTION_MODIFIER = c.PLACE_GOODS_BONUS
 
     def buy_artifact_power_bonus(self): return 0.1
@@ -132,27 +129,19 @@ class CraftCenter(PlaceModifierBase):
 
 class Fort(PlaceModifierBase):
     TYPE = CITY_MODIFIERS.FORT
-    DESCRIPTION = u'Постоянное присутствие военных делает окрестности города безопаснее для путешествий.'
-
     SAFETY_MODIFIER = 0.05
 
 
 class PoliticalCenter(PlaceModifierBase):
-
     TYPE = CITY_MODIFIERS.POLITICAL_CENTER
-    DESCRIPTION = u'Активная политическая жизнь приводит к тому, что в городе увеличивается уровень свободы. Также увеличивается радиус влияния города и ускоряется восстановление стабильности.'
-
     FREEDOM_MODIFIER = 0.25
 
     def modify_terrain_owning_radius(self, radius): return radius * 1.25
-
     def modify_stability_renewing_speed(self, stability): return stability * 2
 
 
 class Polic(PlaceModifierBase):
     TYPE = CITY_MODIFIERS.POLIC
-    DESCRIPTION = u'Самостоятельная политика города вместе с большими свободами граждан способствуют увеличению размера экономики и уровня свободы в городе. Кроме того увеличивается радиус, в котором город влияет на изменение ландшафта.'
-
     FREEDOM_MODIFIER = 0.1
 
     def modify_economic_size(self, size): return size + 1
@@ -160,10 +149,7 @@ class Polic(PlaceModifierBase):
 
 
 class Resort(PlaceModifierBase):
-
     TYPE = CITY_MODIFIERS.RESORT
-    DESCRIPTION = u'Город прославлен своими здравницами и особой атмосферой, в которой раны затягиваются особенно быстро. При посещении города герои полностью восстанавливают своё здоровье, их спутники также восстанавливают немного здоровья. Увеличивается уровень безопасности города и уровень свободы.'
-
     FREEDOM_MODIFIER = 0.1
     SAFETY_MODIFIER = 0.02
 
@@ -173,15 +159,11 @@ class Resort(PlaceModifierBase):
 
 class TransportNode(PlaceModifierBase):
     TYPE = CITY_MODIFIERS.TRANSPORT_NODE
-    DESCRIPTION = u'Хорошие дороги и обилие гостиниц делают путешествие по дорогам в окрестностях города быстрым и комфортным. Увеличивается уровень транспорта в городе.'
-
     TRANSPORT_MODIFIER = 0.2
 
 
 class Outlaws(PlaceModifierBase):
     TYPE = CITY_MODIFIERS.OUTLAWS
-    DESCRIPTION = u'Город облюбован всевозможными авантюристами, бунтарями, беглыми преступниками, бастардами и просто свободолюбивыми людьми, которые готовы любыми средствами защищать свою свободу и свой уклад. Любое задание, связанное с этим городом, принесёт дополнительные опыт герою. Также в городе увеличен уровень свободы и уменьшен уровень безопасности.'
-
     FREEDOM_MODIFIER = 0.35
     SAFETY_MODIFIER = -0.1
     EXPERIENCE_MODIFIER = 0.25
@@ -189,8 +171,6 @@ class Outlaws(PlaceModifierBase):
 
 class HolyCity(PlaceModifierBase):
     TYPE = CITY_MODIFIERS.HOLY_CITY
-    DESCRIPTION = u'Город является средоточием религиозной жизни Пандоры. У каждого героя рано или поздно появляется желание посетить это святое место, чтобы дать отдых своему духу. Обилие паломников способствует развитию транспортной системы города, но излишняя религиозность жителей отрицательно сказывается на производстве и свободе. Сильная энергетика города позволяет Хранителям восстанавливать немного энергии, когда их герои посещают город.'
-
     PRODUCTION_MODIFIER = -c.PLACE_GOODS_BONUS / 2
     TRANSPORT_MODIFIER = 0.1
     FREEDOM_MODIFIER = -0.25

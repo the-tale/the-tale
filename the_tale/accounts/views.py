@@ -535,11 +535,11 @@ class AccountResource(BaseAccountsResource):
         u'''
 Получить информацию об игроке
 
-- **адрес:** /accounts/&lt;account_id&gt;/api/show
+- **адрес:** /accounts/&lt;account&gt;/api/show
 - **http-метод:** GET
 - **версии:** 1.0
 - **параметры:**
-    * URL account_id — идентификатор игрока
+    * URL account — идентификатор игрока
 - **возможные ошибки**:
     * accounts.account.account.not_found — аккаунт с таким идентификатором не найден
 

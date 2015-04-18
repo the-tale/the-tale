@@ -2,24 +2,43 @@
 {% import 'map/macros.html' as map_macros with context %}
 {% import 'places/macros.html' as places_macros with context %}
 
+{% macro habit_record(habit_type)%}
+  <tr>
+    <th colspan="2">{{habit_type.text}}</th>
+  </tr>
+
+  {% set habit = place_info.habits[habit_type.value] %}
+
+  <tr>
+    <td>{{habit_type.intervals(habit.interval).verbose_value}}</td>
+    <td>
+      {{habit.value|round(2)}}
+
+      {% set speed = habit.speed %}
+      {% if speed > 0.00001%}+{% elif speed < -0.00001%}-{% else %}&nbsp;{%endif%}
+      <span style="color:{%if speed > 0.0001 %}green{%elif speed < -0.0001%}red{%else%}black{%endif%};">{{speed|abs|round(2)}}</span>
+    </td>
+  </tr>
+{% endmacro %}
+
 <div class="modal hide place-description-dialog">
 
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal">×</button>
     <h3 class="pgf-dialog-title dialog-title">
-      {% if place %}
-      <span style="vertical-align: middle;" class="badge">{{ place.size }}</span>
+      {% if place_info %}
+      <span style="vertical-align: middle;" class="badge">{{ place_info.parameters.size.value }}</span>
       <span style="vertical-align: middle;">
-        {% if place.modifier %}{{ place.modifier.NAME }}{% endif %}
-        {{ place.name }}
+        {% if place_info.specializations.current is not none %}{{ CITY_MODIFIERS(place_info.specializations.current).text }}{% endif %}
+        {{ place_info.name }}
 
-        {% if hero and hero.preferences.place and hero.preferences.place.id == place.id %}
+        {% if hero and hero.preferences.place and hero.preferences.place.id == place_info.id %}
         <span class="badge badge-success">родной город</span>
         {% endif %}
 
         <small>
           обновлено в
-          <span class="pgf-format-time" data-timestamp="{{ place.updated_at|timestamp }}"></span>
+          <span class="pgf-format-time" data-timestamp="{{ place_info.updated_at }}"></span>
         </small>
 
       </span>
@@ -36,16 +55,16 @@
 
   <div class="modal-body tabbable tabs-left">
 
-    {% if place and place.is_new %}
-    <h4 class="pgf-new-place-message">Это город считается <a href="{{url('guide:cities')}}" target="_blank">новым</a> <small>до <span class="pgf-format-datetime" data-timestamp="{{ place.new_for|timestamp }}"></span></small></h4><br/>
+    {% if place_info and place_info.new_for > (now()|timestamp) %}
+    <h4 class="pgf-new-place-message">Это город считается <a href="{{url('guide:cities')}}" target="_blank">новым</a> <small>до <span class="pgf-format-datetime" data-timestamp="{{ place.new_for }}"></span></small></h4><br/>
     {% endif %}
 
-    {% if place and place.is_frontier %}
+    {% if place_info and place_info.frontier %}
     <h4 class="pgf-frontier-message">Город находится на <a href="{{url('guide:cities')}}" target="_blank">Фронтире</a></h4></br>
     {% endif %}
 
     <ul class="nav nav-tabs">
-      {% if place %}
+      {% if place_info %}
       <li><a href="#pgf-cell-description" class="pgf-cell-description-button" data-toggle="tab">Описание</a></li>
       <li><a href="#pgf-cell-persons" class="pgf-cell-persons-button" data-toggle="tab">Городской Совет</a></li>
       <li><a href="#pgf-cell-place-parameters" class="pgf-cell-place-parameters-button" data-toggle="tab">Параметры</a></li>
@@ -62,10 +81,10 @@
     </ul>
 
     <div class="pgf-scrollable tab-content" style="max-height: 360px; overflow-y: auto;">
-      {% if place %}
+      {% if place_info %}
       <div class="tab-pane active description" id="pgf-cell-description">
-        {% if place.description %}
-        {{ place.description_html|safe }}
+        {% if place_info.description %}
+        {{ place_info.description|safe }}
         {% else %}
         У этого места пока нет описания
         {% endif %}
@@ -83,14 +102,14 @@
 
         <ul class="unstyled">
           <li>
-            прописано героев: {{place.heroes_number}},
+            прописано героев: {{place_info.keepers.friends|length}},
             <a href="{{url('game:map:places:show', place.id)}}" target="_blank">подробнее</a>
           </li>
           <li>
-            бонус к положительному влиянию на город: {{place.power_positive|percents(2)}}
+            бонус к положительному влиянию на город: {{place_info.power.positive_bonus|percents(2)}}
           </li>
           <li>
-            бонус к отрицательному влиянию на город: {{place.power_negative|percents(2)}}
+            бонус к отрицательному влиянию на город: {{place_info.power.negative_bonus|percents(2)}}
           </li>
         </ul>
 
@@ -98,7 +117,7 @@
         <h3>Состав Совета <small>неигровые персонажи</small></h3>
 
         <ul class="unstyled">
-          {% for person in place.persons %}
+          {% for person in place_info.persons %}
           <li class="person-record">
 
             <table class="person-table table table-striped table-condensed table-no-highlighting">
@@ -107,8 +126,8 @@
                   <td rowspan="3"
                       class="profession-icon-container"
                       rel="tooltip"
-                      title="{{ person.type.text }}">
-                    <i class="profession-icon {{person.type.name.lower()}}"></i>
+                      title="{{ PERSON_TYPE(person.type).text }}">
+                    <i class="profession-icon {{PERSON_TYPE(person.type).name.lower()}}"></i>
                   </td>
 
                   <th>
@@ -123,21 +142,14 @@
                   </th>
 
                   <th width="100px">влиятельность</th>
-                  <td width="50px">
-                    {% if place.total_persons_power %}
-                    {% set power = (person.power/place.total_persons_power) %}
-                    {% else %}
-                    {% set power = 0 %}
-                    {% endif %}
-                    {{ power|percents(2) }}
-                  </td>
+                  <td width="50px">{{ person.power.total|percents }}</td>
                 </tr>
 
                 <tr>
                   <th>бонусы к влиянию</th>
                   <td colspan="2" style="vertical-align: middle;">
                     <span>
-                      {{person.power_positive|percents(2)}} <strong>и</strong> {{person.power_negative|percents(2)}}
+                      {{person.power.positive_bonus|percents(2)}} <strong>и</strong> {{person.power.negative_bonus|percents(2)}}
                     </span>
                     <span class="pull-right">
                       <i class="icon-info-sign"
@@ -153,17 +165,17 @@
 
                 <tr>
                   <th colspan="3">
-                      <small>{{ person.gender_verbose }}-{{ person.race_verbose }} {{person.mastery_verbose}}</small>
+                      <small>{{ GENDER(person.gender).text }}-{{ RACE(person.race).text }} {{person.mastery.name}}</small>
 
                       <span class="pull-right">
-                        {% if person.time_before_unfreeze.total_seconds() > 0 %}
+                        {% if person.unfreeze_in > 0 %}
                         <i class="icon-time pgf-time-before-unfreeze"
                            style="vertical-align: middle;"
                            rel="tooltip"
-                           title="недавно в городе и может его покинуть только через {{person.time_before_unfreeze|verbose_timedelta}}"></i>
+                           title="недавно в городе и может его покинуть только через {{person.unfreeze_in|verbose_timedelta}}"></i>
                         {% endif %}
 
-                        {% if person.has_building %}
+                        {% if person.building is not none %}
                         <i class="icon-home"
                            rel="tooltip"
                            style="vertical-align: middle;"
@@ -171,7 +183,7 @@
                         {% endif %}
 
                         <span rel="tooltip" title="количество соратников/противников" style="vertical-align: middle;">
-                          <i class="icon-user"></i> {{person.friends_number}}/{{person.enemies_number}}
+                          <i class="icon-user"></i> {{person.keepers.friends|length}}/{{person.keepers.enemies|length}}
                         </span>
                       </span>
                   </th>
@@ -198,7 +210,7 @@
             <th>информация</th>
           </tr>
           <tr>
-            <th>{{PlaceParametersDescription.PLACE_SIZE[0]}}</th><td>{{place.size}}</td>
+            <th>{{PlaceParametersDescription.PLACE_SIZE[0]}}</th><td>{{place_info.parameters.size.value}}</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
                  title="{{PlaceParametersDescription.PLACE_SIZE[1]}}">
@@ -206,7 +218,7 @@
               </a>
             </td>
           <tr>
-            <th>{{PlaceParametersDescription.ECONOMIC_SIZE[0]}}</th><td>{{place.expected_size}}</td>
+            <th>{{PlaceParametersDescription.ECONOMIC_SIZE[0]}}</th><td>{{place_info.parameters.econimic.value}}</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
                  title="{{PlaceParametersDescription.ECONOMIC_SIZE[1]}}">
@@ -215,7 +227,7 @@
             </td>
           </tr>
           <tr>
-            <th>{{PlaceParametersDescription.POLITIC_RADIUS[0]}}</th><td>{{place.terrain_owning_radius}} кл</td>
+            <th>{{PlaceParametersDescription.POLITIC_RADIUS[0]}}</th><td>{{place_info.parameters.politic_radius.value}} кл</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
                  title="{{PlaceParametersDescription.POLITIC_RADIUS[1]}}">
@@ -224,7 +236,7 @@
             </td>
           </tr>
           <tr>
-            <th>{{PlaceParametersDescription.TERRAIN_RADIUS[0]}}</th><td>{{place.terrain_radius}} кл</td>
+            <th>{{PlaceParametersDescription.TERRAIN_RADIUS[0]}}</th><td>{{place_info.parameters.terrain_radius.value}} кл</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
                  title="{{PlaceParametersDescription.TERRAIN_RADIUS[1]}}">
@@ -233,27 +245,27 @@
             </td>
           </tr>
           <tr>
-            <th>{{PlaceParametersDescription.STABILITY[0]}}</th> <td>{{place.stability|percents(2)}}</td>
+            <th>{{PlaceParametersDescription.STABILITY[0]}}</th> <td>{{place_info.parameters.stability.value|percents(2)}}</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
                  title="{{map_macros.power_incoming_tooltip(PlaceParametersDescription.STABILITY[1],
-                                                            place.get_stability_powers(), percents=true)}}">
+                                                            place_info.parameters.stability.modifiers, percents=true)}}">
                 подробнее
               </a>
             </td>
           </tr>
           <tr>
-            <th>{{PlaceParametersDescription.PRODUCTION[0]}}</th> <td>{{place.production}}</td>
+            <th>{{PlaceParametersDescription.PRODUCTION[0]}}</th> <td>{{place_info.parameters.production}}</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
                  title="{{map_macros.power_incoming_tooltip(PlaceParametersDescription.PRODUCTION[1],
-                                                            place.get_production_powers())}}">
+                                                            place_info.parameters.production.modifiers)}}">
                 подробнее
               </a>
             </td>
           </tr>
           <tr>
-            <th>{{PlaceParametersDescription.GOODS[0]}}</th> <td>{{place.goods}} / {{c.PLACE_GOODS_TO_LEVEL}}</td>
+            <th>{{PlaceParametersDescription.GOODS[0]}}</th> <td>{{place_info.parameters.goods.value}} / {{c.PLACE_GOODS_TO_LEVEL}}</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
                  title="{{PlaceParametersDescription.GOODS[1]}}">
@@ -263,7 +275,7 @@
           </tr>
 
           <tr>
-            <th>{{PlaceParametersDescription.KEEPERS_GOODS[0]}}</th> <td>{{place.keepers_goods}}</td>
+            <th>{{PlaceParametersDescription.KEEPERS_GOODS[0]}}</th> <td>{{place_info.parameters.keepers_goods.value}}</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
                  title="{{PlaceParametersDescription.KEEPERS_GOODS[1]}}">
@@ -273,41 +285,41 @@
           </tr>
 
           <tr>
-            <th>{{PlaceParametersDescription.SAFETY[0]}}</th> <td>{{place.safety|percents(2)}}</td>
+            <th>{{PlaceParametersDescription.SAFETY[0]}}</th> <td>{{place_info.parameters.safety.value|percents(2)}}</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
                  title="{{map_macros.power_incoming_tooltip(PlaceParametersDescription.SAFETY[1],
-                                                            place.get_safety_powers(), percents=true)}}">
+                                                            place_info.parameters.safety.modifiers, percents=true)}}">
                 подробнее
               </a>
             </td>
           </tr>
           <tr>
-            <th>{{PlaceParametersDescription.TRANSPORT[0]}}</th> <td>{{place.transport|percents(2)}}</td>
+            <th>{{PlaceParametersDescription.TRANSPORT[0]}}</th> <td>{{place_info.parameters.transport.value|percents(2)}}</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
                  title="{{map_macros.power_incoming_tooltip(PlaceParametersDescription.TRANSPORT[1],
-                                                            place.get_transport_powers(), percents=true)}}">
+                                                            place_info.parameters.transport.modifiers, percents=true)}}">
                 подробнее
               </a>
             </td>
           </tr>
           <tr>
-            <th>{{PlaceParametersDescription.FREEDOM[0]}}</th> <td>{{place.freedom|percents(2)}}</td>
+            <th>{{PlaceParametersDescription.FREEDOM[0]}}</th> <td>{{place_info.parameters.freedom.value|percents(2)}}</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
                  title="{{map_macros.power_incoming_tooltip(PlaceParametersDescription.FREEDOM[1],
-                                                            place.get_freedom_powers(), percents=true)}}">
+                                                            place_info.parameters.freedom.modifiers, percents=true)}}">
                 подробнее
               </a>
             </td>
           </tr>
           <tr>
-            <th>{{PlaceParametersDescription.TAX[0]}}</th> <td>{{place.tax|percents(2)}}</td>
+            <th>{{PlaceParametersDescription.TAX[0]}}</th> <td>{{place_info.parameters.tax.value|percents(2)}}</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
                  title="{{map_macros.power_incoming_tooltip(PlaceParametersDescription.TAX[1],
-                                                            place.get_tax_powers(), percents=true)}}">
+                                                            place_info.parameters.tax.modifiers, percents=true)}}">
                 подробнее
               </a>
             </td>
@@ -317,7 +329,7 @@
       </div>
 
       <div class="tab-pane active description" id="pgf-cell-place-demographics">
-        {{ places_macros.place_demographics(place)}}
+        {{ places_macros.place_demographics(place_info)}}
       </div>
 
 
@@ -326,34 +338,23 @@
           Список <strong>активных</strong> законов (действующих в текущий момент), связанных с городом.
         </p>
 
-        {% if exchanges %}
+        {% if place_info.bills %}
 
-        {% for resource_1, resource_2, place_2, bill in exchanges %}
-        <table class="table table-striped table-condensed table-no-highlighting">
-          <tbody>
-            <tr>
-              <td><a target="_blank" href="{{url('game:bills:show', bill.id)}}">{{bill.caption}}</a></td>
-            </tr>
-            {% if not bill.duration.is_UNLIMITED %}
-            <tr><td>Прекратит действовать через: {{bill.time_before_end|verbose_timedelta}}</td></tr>
-            {% endif %}
-
-            {% if place_2 %}
-              {% if not resource_1.is_NONE %}
-                <tr><td>{{place_2.name}} получает {{resource_1.text}}</td></tr>
-              {% endif %}
-              {% if not resource_2.is_NONE %}
-                <tr><td>{{place_2.name}} отправляет {{resource_2.text}}</td></tr>
-              {% endif %}
-            {% else %}
-                <tr><td>{{resource_1.text}} за {{resource_2.text}}</td></tr>
-            {% endif %}
-          </tbody>
-        </table>
-        {% endfor %}
+          {% for bill in place_info.bills %}
+            <table class="table table-striped table-condensed table-no-highlighting">
+              <tbody>
+                <tr>
+                  <td><a target="_blank" href="{{url('game:bills:show', bill.id)}}">{{bill.caption}}</a></td>
+                </tr>
+                {% for property in bill.properties %}
+                  <tr><td>{{property}}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% endfor %}
 
         {% else %}
-        <p class="alert alert-info">Нет активных законов.</p>
+          <p class="alert alert-info">Нет активных законов.</p>
         {% endif %}
       </div>
 
@@ -373,22 +374,22 @@
             <th>развитие</th>
             <th>информация</th>
           </tr>
-          {% for modifier in place_modifiers %}
+          {% for specialization in place_info.specializations.all %}
           <tr>
             <th>
-              {% if place.modifier == modifier %}
+              {% if place_info.specializations.current == specialization.value %}
               <i class="icon-star pgf-current-modifier-marker" style="vertical-align: middle;" rel="tooltip" title="текущий тип города"></i>
               {% endif %}
-              {{modifier.NAME}}
+              {{CITY_MODIFIERS(specialization.value).text}}
             </th>
-            <td>{{modifier.power|round(2)}}</td>
+            <td>{{specialization.power|round(2)}}</td>
             <td>
               <a href="javascript: return;"
                  class="info-link"
                  rel="tooltip"
-                 title="{{map_macros.power_incoming_tooltip(modifier.DESCRIPTION,
-                                                            modifier.power_effects_for_template,
-                                                            [('размер города', modifier.size_modifier|round(2))])}}">
+                 title="{{map_macros.power_incoming_tooltip(CITY_MODIFIERS(specialization.value).description,
+                                                            specialization.modifiers,
+                                                            [('размер города', specialization.size_modifier|round(2))])}}">
                 подробнее
               </a>
             </td>
@@ -405,36 +406,8 @@
 
         <table class="table table-striped table-condensed">
           <tbody>
-
-            <tr>
-              <th colspan="2">честь</th>
-            </tr>
-
-            <tr>
-              <td>{{place.habit_honor.verbose_value}}</td>
-              <td>
-                {{place.habit_honor.raw_value|round(2)}}
-
-                {% set speed = place.habit_honor_change_speed %}
-                {% if speed > 0.00001%}+{% elif speed < -0.00001%}-{% else %}&nbsp;{%endif%}
-                <span style="color:{%if speed > 0.0001 %}green{%elif speed < -0.0001%}red{%else%}black{%endif%};">{{speed|abs|round(2)}}</span>
-              </td>
-            </tr>
-
-            <tr>
-              <th colspan="2">миролюбие</th>
-            </tr>
-
-            <tr>
-              <td>{{place.habit_peacefulness.verbose_value}}</td>
-              <td>
-                {{place.habit_peacefulness.raw_value|round(2)}}
-
-                {% set speed = place.habit_peacefulness_change_speed %}
-                {% if speed > 0.00001%}+{% elif speed < -0.00001%}-{% else %}&nbsp;{%endif%}
-                <span style="color:{%if speed > 0.0001 %}green{%elif speed < -0.0001%}red{%else%}black{%endif%};">{{speed|abs|round(2)}}</span>
-              </td>
-            </tr>
+            {{ habit_record(HABIT_TYPE.HONOR) }}
+            {{ habit_record(HABIT_TYPE.PEACEFULNESS) }}
           </tbody>
         </table>
 

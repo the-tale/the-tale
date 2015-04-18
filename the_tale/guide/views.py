@@ -68,6 +68,7 @@ def get_api_methods():
     from the_tale.game.quests.views import QuestsResource
     from the_tale.accounts.third_party.views import TokensResource
     from the_tale.game.cards import views as cards_views
+    from the_tale.game.map.places import views as places_views
 
     return [APIReference('portal_info', u'Базовая информация', PortalResource.api_info),
             APIReference('authorization', u'Авторизация в игре', getattr(TokensResource, 'api_request_authorisation')),
@@ -80,7 +81,8 @@ def get_api_methods():
             APIReference('game_quests', u'Выбор в задании', QuestsResource.api_choose),
             APIReference('cards_get', u'Карты: взять', cards_views.api_get),
             APIReference('cards_combine', u'Карты: объединить', cards_views.api_combine),
-            APIReference('cards_use', u'Карты: использовать', cards_views.api_use)]
+            APIReference('cards_use', u'Карты: использовать', cards_views.api_use),
+            APIReference('places_list', u'Города: перечень всех городов', places_views.api_list)]
 
 
 def get_api_types():
@@ -93,6 +95,7 @@ def get_api_types():
     from the_tale.game.relations import GAME_STATE
     from the_tale.game.quests.relations import ACTOR_TYPE
     from the_tale.game.cards.relations import CARD_TYPE, RARITY as CARD_RARITY
+    from the_tale.game.map.places.relations import CITY_MODIFIERS
     from the_tale.accounts.third_party.relations import AUTHORISATION_STATE
 
 
@@ -111,6 +114,7 @@ def get_api_types():
             TypeReference('game_state', u'Состояние игры', GAME_STATE),
             TypeReference('actor_types', u'Типы актёров в заданиях', ACTOR_TYPE),
             TypeReference('cards_types', u'Типы Карт Судьбы', CARD_TYPE),
+            TypeReference('places_modifiers', u'Специализации городов', CITY_MODIFIERS),
             TypeReference('habits', u'Типы Черт', HABIT_TYPE,
                           fields=((u'значение', 'verbose_value'), (u'описание', 'text')))]
 

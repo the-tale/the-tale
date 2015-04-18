@@ -17,6 +17,12 @@ places_settings = app_settings('PLACES',
                                MIN_SAFETY=0.05,
                                MIN_TRANSPORT=0.1,
                                MIN_STABILITY=0,
+
+                               CHRONICLE_RECORDS_NUMBER=10,
+
+                               API_LIST_VERSION='1.0',
+                               API_SHOW_VERSION='1.0',
+
                                SIZE_TO_PERSONS_NUMBER={0: 2,
                                                        1: 2,
                                                        2: 3,
