@@ -220,8 +220,8 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.HABIT_EVENTS_IN_DAY, 1.33)
         self.assertEqual(round(c.HABIT_EVENTS_IN_TURN, 5), 0.00015)
 
-        self.assertEqual(round(c.HABIT_MOVE_EVENTS_IN_TURN, 5), 0.00015)
-        self.assertEqual(round(c.HABIT_IN_PLACE_EVENTS_IN_TURN, 5), 0.00154)
+        self.assertEqual(round(c.HABIT_MOVE_EVENTS_IN_TURN, 5), 0.00121)
+        self.assertEqual(round(c.HABIT_IN_PLACE_EVENTS_IN_TURN, 5), 0.01206)
 
         self.assertEqual(c.HABIT_EVENT_NOTHING_PRIORITY, 4)
         self.assertEqual(c.HABIT_EVENT_MONEY_PRIORITY, 4)
