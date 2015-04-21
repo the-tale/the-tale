@@ -31,7 +31,7 @@ class RecordBase(object):
     def textgen_id(self): return self.TEXGEN_ID_BASE  % self.TYPE.name.lower()
 
     def get_text(self):
-        if self.text:
+        if self.text is not None:
             return self.text
 
         from the_tale.linguistics.logic import get_text
