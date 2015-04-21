@@ -33,22 +33,22 @@ class PERMANENT_PURCHASE_TYPE(DjangoEnum):
     full_name = Column()
 
     records = ( ('CLAN_OWNERSHIP_RIGHT', 0, u'Разрешение на владение гильдией',
-                  CLAN_OWNERSHIP_RIGHT_DESCRIPTION, clans_settings.OWNER_MIGHT_REQUIRED, None, NullObject(), u'Разрешение на владение гильдией'),
+                 CLAN_OWNERSHIP_RIGHT_DESCRIPTION, clans_settings.OWNER_MIGHT_REQUIRED, None, NullObject(), u'Разрешение на владение гильдией'),
 
-                  preference_record(1, PREFERENCE_TYPE.MOB),
-                  preference_record(2, PREFERENCE_TYPE.PLACE),
-                  preference_record(3, PREFERENCE_TYPE.FRIEND),
-                  preference_record(4, PREFERENCE_TYPE.ENEMY),
-                  preference_record(5, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE),
-                  preference_record(6, PREFERENCE_TYPE.EQUIPMENT_SLOT),
-                  preference_record(7, PREFERENCE_TYPE.RISK_LEVEL),
-                  preference_record(8, PREFERENCE_TYPE.FAVORITE_ITEM),
-                  preference_record(9, PREFERENCE_TYPE.ARCHETYPE),
-                  preference_record(10, PREFERENCE_TYPE.COMPANION_DEDICATION),
-                  preference_record(11, PREFERENCE_TYPE.COMPANION_EMPATHY),
+                preference_record(1, PREFERENCE_TYPE.MOB),
+                preference_record(2, PREFERENCE_TYPE.PLACE),
+                preference_record(3, PREFERENCE_TYPE.FRIEND),
+                preference_record(4, PREFERENCE_TYPE.ENEMY),
+                preference_record(5, PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE),
+                preference_record(6, PREFERENCE_TYPE.EQUIPMENT_SLOT),
+                preference_record(7, PREFERENCE_TYPE.RISK_LEVEL),
+                preference_record(8, PREFERENCE_TYPE.FAVORITE_ITEM),
+                preference_record(9, PREFERENCE_TYPE.ARCHETYPE),
+                preference_record(10, PREFERENCE_TYPE.COMPANION_DEDICATION),
+                preference_record(11, PREFERENCE_TYPE.COMPANION_EMPATHY),
 
                 ('INFINIT_SUBSCRIPTION', 12, u'Вечная подписка',
-                  INFINIT_PREMIUM_DESCRIPTION, None, None, NullObject(), u'Вечная подписка'),
+                 INFINIT_PREMIUM_DESCRIPTION, None, None, NullObject(), u'Вечная подписка'),
               )
 
 

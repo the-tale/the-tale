@@ -19,20 +19,6 @@ PREMIUM_DAYS_DESCRIPTION = u'''
 </ul>
 '''
 
-CARDS_DESCRIPTION = u'''
-<p>
-Карты судьбы — это особые одноразовые действия, позволяющие Хранителю оказать существенное влияние на героя или мир. Некоторые из них можно купить в магазине.
-</p>
-'''
-
-ENERGY_CHARGES_DESCRIPTION = u'''
-<p>
-Количество дополнительной энергии не ограничено.<br/>
-Вы можете использовать её, когда закончится запас энергии полученной от героя.<br/>
-Всегда удобно иметь небольшой запас энергии на случай смерти героя или необходимости помочь ему в бою.
-</p>
-'''
-
 PREFERENCES_DESCRIPTION = u'''
 <p>
 У каждого героя есть предпочтения, в соответствии с которыми он строит своё поведение.<br/>
@@ -65,7 +51,7 @@ RANDOM_PREMIUM_CHEST_DESCRIPTION = u'''
 </p>
 ''' % {'gifts': '\n'.join(u'<li>%s</li>' % reward.description
                           for reward in sorted(relations.RANDOM_PREMIUM_CHEST_REWARD.records, key=lambda r: -r.priority)),
-        'days': payments_settings.RANDOM_PREMIUM_DAYS }
+       'days': payments_settings.RANDOM_PREMIUM_DAYS }
 
 def permanent_purchase(uid, purchase_type, cost, transaction_description):
     return goods.PermanentPurchase(uid=uid,
@@ -81,18 +67,6 @@ def permanent_permission_purchase(uid, purchase_type, cost):
                               purchase_type=purchase_type,
                               cost=cost,
                               transaction_description=u'Снятие ограничения уровня на предпочтение героя «%s»' % purchase_type.preference_type.text)
-
-
-def card_purchase(uid, card_type, count, cost):
-    from the_tale.game.cards.prototypes import CARDS
-    return goods.Cards(uid=u'%s-%d' % (uid, count),
-                       cost=cost,
-                       card_type=card_type,
-                       count=count,
-                       name=card_type.text,
-                       tooltip=CARDS[card_type].DESCRIPTION,
-                       description=u'Покупка карты судьбы «%s» (%d шт.).' % (card_type.text, count),
-                       transaction_description=u'Покупка карты судьбы «%s» (%d шт.).' % (card_type.text, count))
 
 
 RANDOM_PREMIUM_CHEST = goods.PurchaseGroup(type=relations.GOODS_GROUP.CHEST,
@@ -140,39 +114,6 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                                                                purchase_type=relations.PERMANENT_PURCHASE_TYPE.INFINIT_SUBSCRIPTION,
                                                                cost=6000,
                                                                transaction_description=u'Приобретение вечной подписки.')  ]),
-
-                goods.PurchaseGroup(type=relations.GOODS_GROUP.ENERGY,
-                                    name=u'Энергия',
-                                    description=ENERGY_CHARGES_DESCRIPTION,
-                                    items=[ goods.Energy(uid=u'energy-10',
-                                                         name=u'10 энергии',
-                                                         description=ENERGY_CHARGES_DESCRIPTION,
-                                                         cost=10,
-                                                         energy=10,
-                                                         transaction_description=u'Покупка 10 единиц энергии.'),
-
-                                            goods.Energy(uid=u'energy-100',
-                                                         name=u'100 энергии',
-                                                         description=ENERGY_CHARGES_DESCRIPTION,
-                                                         cost=90,
-                                                         energy=100,
-                                                         transaction_description=u'Покупка 100 единиц энергии.'),
-
-                                            goods.Energy(uid=u'energy-1000',
-                                                         name=u'1000 энергии',
-                                                         description=ENERGY_CHARGES_DESCRIPTION,
-                                                         cost=850,
-                                                         energy=1000,
-                                                         transaction_description=u'Покупка 1000 единиц энергии.'),
-
-                                            goods.Energy(uid=u'energy-10000',
-                                                         name=u'10000 энергии',
-                                                         description=ENERGY_CHARGES_DESCRIPTION,
-                                                         cost=8000,
-                                                         energy=10000,
-                                                         transaction_description=u'Покупка 10000 единиц энергии.'),
-
-                                                         ]),
 
                 goods.PurchaseGroup(type=relations.GOODS_GROUP.PREFERENCES,
                                     name=u'Предпочтения',
@@ -226,15 +167,6 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                                                                purchase_type=relations.PERMANENT_PURCHASE_TYPE.CLAN_OWNERSHIP_RIGHT,
                                                                transaction_description=u'Приобретение разрешения на владение гильдией.') ]),
                 ]
-
-
-                # goods.PurchaseGroup(type=relations.GOODS_GROUP.CARDS,
-                #                     name=u'Карты судьбы',
-                #                     description=CARDS_DESCRIPTION,
-                #                     items=[ card_purchase(uid='card-keepers-goods-',
-                #                                           card_type=CARD_TYPE.KEEPERS_GOODS_LEGENDARY,
-                #                                           count=1,
-                #                                           cost=1000)])
 
 
 

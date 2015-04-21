@@ -9,11 +9,6 @@ from the_tale.common.utils.logic import random_value_by_priority
 
 from the_tale.bank.transaction import Transaction
 
-from the_tale.game.relations import HABIT_TYPE
-from the_tale.game.heroes.relations import PREFERENCE_TYPE
-
-from the_tale.game.cards.relations import CARD_TYPE
-
 from the_tale.amqp_environment import environment
 from the_tale.accounts.prototypes import AccountPrototype, RandomPremiumRequestPrototype
 
@@ -25,13 +20,13 @@ from the_tale.accounts.payments import exceptions
 
 class BASE_BUY_TASK_STATE(DjangoEnum):
     records = ( ('TRANSACTION_REQUESTED', 1, u'запрошены средства'),
-                 ('TRANSACTION_REJECTED', 2, u'недостаточно средств'),
-                 ('TRANSACTION_FROZEN', 3, u'средства выделены'),
-                 ('WAIT_TRANSACTION_CONFIRMATION', 4, u'ожидает подтверждение платежа'),
-                 ('SUCCESSED', 5, u'операция выполнена'),
-                 ('ERROR_IN_FREEZING_TRANSACTION',6, u'неверное состояние транзакции при замарозке средств'),
-                 ('ERROR_IN_CONFIRM_TRANSACTION', 7, u'неверное состояние транзакции при подтверждении траты'),
-                 ('WRONG_TASK_STATE', 8, u'ошибка при обрабокте задачи — неверное состояние') )
+                ('TRANSACTION_REJECTED', 2, u'недостаточно средств'),
+                ('TRANSACTION_FROZEN', 3, u'средства выделены'),
+                ('WAIT_TRANSACTION_CONFIRMATION', 4, u'ожидает подтверждение платежа'),
+                ('SUCCESSED', 5, u'операция выполнена'),
+                ('ERROR_IN_FREEZING_TRANSACTION',6, u'неверное состояние транзакции при замарозке средств'),
+                ('ERROR_IN_CONFIRM_TRANSACTION', 7, u'неверное состояние транзакции при подтверждении траты'),
+                ('WRONG_TASK_STATE', 8, u'ошибка при обрабокте задачи — неверное состояние') )
 
 
 
@@ -219,42 +214,6 @@ class BaseBuyHeroMethod(BaseLogicBuyTask):
         getattr(hero, self.METHOD)(**self.arguments)
 
 
-class BuyEnergy(BaseBuyHeroMethod):
-    TYPE = 'purchase-energy'
-    ARGUMENTS = ('energy', )
-    METHOD = 'purchase_energy_bonus'
-
-
-class BuyResetHeroPreference(BaseBuyHeroMethod):
-    TYPE = 'purchase-reset-hero-preference'
-    ARGUMENTS = ('preference_type', )
-    METHOD = 'purchase_reset_preference'
-
-    def serialize_arguments(self):
-        return {'preference_type': self.arguments['preference_type'].value}
-
-    @classmethod
-    def deserialize_arguments(cls, arguments):
-        preference_type = arguments['preference_type']
-        return {'preference_type': preference_type if isinstance(preference_type, rels.Record) else PREFERENCE_TYPE(preference_type)}
-
-
-class BuyChangeHeroHabits(BaseBuyHeroMethod):
-    TYPE = 'purchase-change-hero-habits'
-    ARGUMENTS = ('habit_type', 'habit_value')
-    METHOD = 'purchase_change_habits'
-
-    def serialize_arguments(self):
-        return {'habit_type': self.arguments['habit_type'].value,
-                'habit_value': self.arguments['habit_value']}
-
-    @classmethod
-    def deserialize_arguments(cls, arguments):
-        habit_type = arguments['habit_type']
-        return {'habit_type': habit_type if isinstance(habit_type, rels.Record) else HABIT_TYPE(habit_type),
-                'habit_value': arguments['habit_value']}
-
-
 class BuyPermanentPurchase(BaseBuyTask):
     TYPE = 'purchase-permanent-purchase'
 
@@ -309,21 +268,3 @@ class BuyRandomPremiumChest(BaseBuyHeroMethod):
 
     @property
     def processed_data(self): return {'message': self.arguments['message'] }
-
-
-
-class BuyCards(BaseBuyHeroMethod):
-    TYPE = 'purchase-cards'
-    ARGUMENTS = ('card_type', 'count')
-    METHOD = 'purchase_card'
-
-
-    def serialize_arguments(self):
-        return {'card_type': self.arguments['card_type'].value,
-                'count': self.arguments['count']}
-
-    @classmethod
-    def deserialize_arguments(cls, arguments):
-        card_type = arguments['card_type']
-        return {'card_type': card_type if isinstance(card_type, rels.Record) else CARD_TYPE(card_type),
-                'count': arguments['count']}
