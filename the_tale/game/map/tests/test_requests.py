@@ -25,6 +25,7 @@ from the_tale.game.persons import logic as persons_logic
 from the_tale.game.map.places.modifiers import TradeCenter
 from the_tale.game.map.places.relations import CITY_MODIFIERS
 from the_tale.game.map.places.prototypes import BuildingPrototype
+from the_tale.game.map.places import conf as places_conf
 
 from the_tale.game.map.conf import map_settings
 
@@ -81,12 +82,13 @@ class CellInfoTests(RequestsTestsBase):
         person.save()
         self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', True)
     def test_place_new_place_message(self):
+        self.assertTrue(self.place_1.is_new)
         self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=['pgf-new-place-message'])
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', False)
     def test_place_new_place_message__not_new(self):
+        self.place_1._model.created_at -= datetime.timedelta(seconds=places_conf.places_settings.NEW_PLACE_LIVETIME)
+        self.place_1.save()
         self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=[('pgf-new-place-message', 0)])
 
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_frontier', True)

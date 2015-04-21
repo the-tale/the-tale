@@ -40,8 +40,8 @@ class TestShowRequests(testcase.TestCase):
         result, account_id, bundle_id = register_user('user', 'user@test.com', '111111')
         self.account = AccountPrototype.get_by_id(account_id)
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', True)
     def test_place_new_place_message(self):
+        self.assertTrue(self.place_1.is_new)
         self.check_html_ok(self.request_html(url('game:map:places:show', self.place_1.id)), texts=['pgf-new-place-message'])
 
     def test_place_new_place_message__not_new(self):

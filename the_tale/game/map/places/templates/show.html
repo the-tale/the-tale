@@ -97,7 +97,7 @@
           <strong>{{ person.name }}</strong>
           {{ RACE(person.race).text }}-{{ PERSON_TYPE(person.type).text }},
           {{person.mastery.name}},
-          влиятельность: {{ person.power.total|percents }},
+          влиятельность: {{ person.power.percents|percents }},
           бонусы: {{person.power.positive_bonus|percents(2)}} и {{person.power.negative_bonus|percents(2)}}
           соратников/противников: {{person.keepers.friends|length}}/{{person.keepers.enemies|length}}
         </a>

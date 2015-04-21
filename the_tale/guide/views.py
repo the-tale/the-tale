@@ -11,7 +11,7 @@ from dext.common.utils.urls import UrlBuilder, full_url
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.decorators import lazy_property
 
-from the_tale.game.relations import HABIT_TYPE
+from the_tale.game import relations as game_relations
 
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
 from the_tale.game.heroes.conf import heroes_settings
@@ -82,41 +82,56 @@ def get_api_methods():
             APIReference('cards_get', u'Карты: взять', cards_views.api_get),
             APIReference('cards_combine', u'Карты: объединить', cards_views.api_combine),
             APIReference('cards_use', u'Карты: использовать', cards_views.api_use),
-            APIReference('places_list', u'Города: перечень всех городов', places_views.api_list)]
+            APIReference('places_list', u'Города: перечень всех городов', places_views.api_list),
+            APIReference('places_show', u'Города: подробная информация о городе', places_views.api_show)]
 
 
 def get_api_types():
     from the_tale.game.relations import GENDER, RACE
     from the_tale.game.artifacts.relations import ARTIFACT_TYPE, RARITY as ARTIFACT_RARITY, ARTIFACT_EFFECT
     from the_tale.game.heroes.relations import EQUIPMENT_SLOT
-    from the_tale.game.persons.relations import PERSON_TYPE
+    from the_tale.game.persons import relations as persons_relations
     from the_tale.game.abilities.relations import ABILITY_TYPE as ANGEL_ABILITY_TYPE
     from the_tale.game.actions.relations import ACTION_TYPE
-    from the_tale.game.relations import GAME_STATE
     from the_tale.game.quests.relations import ACTOR_TYPE
     from the_tale.game.cards.relations import CARD_TYPE, RARITY as CARD_RARITY
-    from the_tale.game.map.places.relations import CITY_MODIFIERS
+    from the_tale.game.map.places import relations as places_relations
     from the_tale.accounts.third_party.relations import AUTHORISATION_STATE
 
 
-    return [TypeReference('authorisation_state', u'Состояние авторизации', AUTHORISATION_STATE),
-            TypeReference('gender', u'Пол', GENDER),
-            TypeReference('race', u'Раса', RACE),
-            TypeReference('artifact_rarity', u'Редкость артефакта', ARTIFACT_RARITY),
-            TypeReference('card_rarity', u'Редкость карты', CARD_RARITY),
-            TypeReference('artifact_type', u'Тип артефакта', ARTIFACT_TYPE),
-            TypeReference('equipment_slot', u'Тип экипировки', EQUIPMENT_SLOT),
-            TypeReference('artifact_effect', u'Эффекты артефактов', ARTIFACT_EFFECT),
-            TypeReference('person_profession', u'Профессия жителя', PERSON_TYPE),
-            TypeReference('ability_type', u'Тип способности игрока', ANGEL_ABILITY_TYPE,
-                         fields=((u'значение', 'value'), (u'описание', 'text'), (u'атрибуты запроса', 'request_attributes'))),
-            TypeReference('action_type', u'Тип действия героя', ACTION_TYPE),
-            TypeReference('game_state', u'Состояние игры', GAME_STATE),
-            TypeReference('actor_types', u'Типы актёров в заданиях', ACTOR_TYPE),
-            TypeReference('cards_types', u'Типы Карт Судьбы', CARD_TYPE),
-            TypeReference('places_modifiers', u'Специализации городов', CITY_MODIFIERS),
-            TypeReference('habits', u'Типы Черт', HABIT_TYPE,
-                          fields=((u'значение', 'verbose_value'), (u'описание', 'text')))]
+    return [TypeReference('artifact_rarity', u'Артефакты: редкость', ARTIFACT_RARITY),
+            TypeReference('artifact_type', u'Артефакты: типы', ARTIFACT_TYPE),
+            TypeReference('equipment_slot', u'Артефакты: типы экипировки', EQUIPMENT_SLOT),
+            TypeReference('artifact_effect', u'Артефакты: эффекты', ARTIFACT_EFFECT),
+
+            TypeReference('cards_types', u'Карты: типы', CARD_TYPE),
+            TypeReference('card_rarity', u'Карты: редкость', CARD_RARITY),
+
+            TypeReference('action_type', u'Герои: тип действия', ACTION_TYPE),
+
+            TypeReference('places_modifiers', u'Города: специализация', places_relations.CITY_MODIFIERS),
+
+            TypeReference('actor_types', u'Задания: Типы актёров', ACTOR_TYPE),
+
+            TypeReference('ability_type', u'Игрок: тип способности', ANGEL_ABILITY_TYPE,
+                          fields=((u'значение', 'value'), (u'описание', 'text'), (u'атрибуты запроса', 'request_attributes'))),
+
+            TypeReference('gender', u'Общее: пол', GENDER),
+            TypeReference('race', u'Общее: раса', RACE),
+            TypeReference('habits', u'Общее: черты', game_relations.HABIT_TYPE,
+                          fields=((u'значение целое', 'value'), (u'значение строковое', 'verbose_value'), (u'описание', 'text'))),
+            TypeReference('habits', u'Общее: честь', game_relations.HABIT_HONOR_INTERVAL,
+                          fields=((u'значение', 'value'), (u'для героя', 'text'), (u'для города', 'place_text'))),
+            TypeReference('habits', u'Общее: миролюбие', game_relations.HABIT_PEACEFULNESS_INTERVAL,
+                          fields=((u'значение', 'value'), (u'для героя', 'text'), (u'для города', 'place_text'))),
+
+            TypeReference('authorisation_state', u'Прочее: состояние авторизации', AUTHORISATION_STATE),
+            TypeReference('game_state', u'Прочее: состояние игры', game_relations.GAME_STATE),
+
+            TypeReference('person_profession', u'Советник: профессия', persons_relations.PERSON_TYPE),
+            TypeReference('person_profession', u'Советник: тип социальной связи', persons_relations.SOCIAL_CONNECTION_TYPE),
+           ]
+
 
 API_METHODS = get_api_methods()
 API_TYPES = get_api_types()
@@ -274,14 +289,14 @@ class GuideResource(Resource):
     def habits(self):
         cards = sorted(cards_effects.HABIT_POINTS_CARDS.itervalues(), key=lambda x: (x.TYPE.rarity.value, x.TYPE.text))
         return self.template('guide/hero-habits.html', {'section': 'hero-habits',
-                                                        'HABIT_TYPE': HABIT_TYPE,
+                                                        'HABIT_TYPE': game_relations.HABIT_TYPE,
                                                         'HABIT_POINTS_CARDS': cards})
 
-    @validate_argument('habit', lambda x: HABIT_TYPE(int(x)), 'guide.hero_habit_info', u'Неверный тип черты')
+    @validate_argument('habit', lambda x: game_relations.HABIT_TYPE(int(x)), 'guide.hero_habit_info', u'Неверный тип черты')
     @handler('hero-habit-info', method='get')
     def habit_info(self, habit):
         return self.template('guide/hero-habit-info.html', {'habit': habit,
-                                                            'HABIT_TYPE': HABIT_TYPE})
+                                                            'HABIT_TYPE': game_relations.HABIT_TYPE})
 
     @handler('press-kit', name='press-kit')
     def press_kit(self):

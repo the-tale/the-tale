@@ -10,14 +10,23 @@
   {% set habit = place_info.habits[habit_type.value] %}
 
   <tr>
-    <td>{{habit_type.intervals(habit.interval).verbose_value}}</td>
+    <td>{{habit_type.intervals(habit.interval).place_text}}</td>
     <td>
       {{habit.value|round(2)}}
 
-      {% set speed = habit.speed %}
-      {% if speed > 0.00001%}+{% elif speed < -0.00001%}-{% else %}&nbsp;{%endif%}
-      <span style="color:{%if speed > 0.0001 %}green{%elif speed < -0.0001%}red{%else%}black{%endif%};">{{speed|abs|round(2)}}</span>
+      {% set delta = habit.delta %}
+      {% if delta > 0.00001%}+{% elif delta < -0.00001%}-{% else %}&nbsp;{%endif%}
+      <span style="color:{%if delta > 0.0001 %}green{%elif delta < -0.0001%}red{%else%}black{%endif%};">{{delta|abs|round(2)}}</span>
     </td>
+  </tr>
+{% endmacro %}
+
+{% macro habit_points_record(habit_type) %}
+  {% set habit = place_info.habits[habit_type.value] %}
+  <tr>
+    <td>{{habit_type.intervals(habit.interval).text}}</td>
+    <td>{{habit.negative_points|round(2)}}</td>
+    <td>{{habit.positive_points|round(2)}}</td>
   </tr>
 {% endmacro %}
 
@@ -56,7 +65,7 @@
   <div class="modal-body tabbable tabs-left">
 
     {% if place_info and place_info.new_for > (now()|timestamp) %}
-    <h4 class="pgf-new-place-message">Это город считается <a href="{{url('guide:cities')}}" target="_blank">новым</a> <small>до <span class="pgf-format-datetime" data-timestamp="{{ place.new_for }}"></span></small></h4><br/>
+    <h4 class="pgf-new-place-message">Это город считается <a href="{{url('guide:cities')}}" target="_blank">новым</a> <small>до <span class="pgf-format-datetime" data-timestamp="{{ place_info.new_for }}"></span></small></h4><br/>
     {% endif %}
 
     {% if place_info and place_info.frontier %}
@@ -84,7 +93,9 @@
       {% if place_info %}
       <div class="tab-pane active description" id="pgf-cell-description">
         {% if place_info.description %}
-        {{ place_info.description|safe }}
+          <blockquote>
+            {{ place_info.description|safe }}
+          </blockquote>
         {% else %}
         У этого места пока нет описания
         {% endif %}
@@ -103,7 +114,7 @@
         <ul class="unstyled">
           <li>
             прописано героев: {{place_info.keepers.friends|length}},
-            <a href="{{url('game:map:places:show', place.id)}}" target="_blank">подробнее</a>
+            <a href="{{url('game:map:places:show', place_info.id)}}" target="_blank">подробнее</a>
           </li>
           <li>
             бонус к положительному влиянию на город: {{place_info.power.positive_bonus|percents(2)}}
@@ -142,7 +153,7 @@
                   </th>
 
                   <th width="100px">влиятельность</th>
-                  <td width="50px">{{ person.power.total|percents }}</td>
+                  <td width="50px">{{ person.power.percents|percents }}</td>
                 </tr>
 
                 <tr>
@@ -218,7 +229,7 @@
               </a>
             </td>
           <tr>
-            <th>{{PlaceParametersDescription.ECONOMIC_SIZE[0]}}</th><td>{{place_info.parameters.econimic.value}}</td>
+            <th>{{PlaceParametersDescription.ECONOMIC_SIZE[0]}}</th><td>{{place_info.parameters.economic.value}}</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
                  title="{{PlaceParametersDescription.ECONOMIC_SIZE[1]}}">
@@ -255,7 +266,7 @@
             </td>
           </tr>
           <tr>
-            <th>{{PlaceParametersDescription.PRODUCTION[0]}}</th> <td>{{place_info.parameters.production}}</td>
+            <th>{{PlaceParametersDescription.PRODUCTION[0]}}</th> <td>{{place_info.parameters.production.value}}</td>
             <td>
               <a href="javascript: return;" class="info-link" rel="tooltip"
                  title="{{map_macros.power_incoming_tooltip(PlaceParametersDescription.PRODUCTION[1],
@@ -422,17 +433,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>честь</td>
-              <td>{{place.habit_honor_negative|round(2)}}</td>
-              <td>{{place.habit_honor_positive|round(2)}}</td>
-            </tr>
-
-            <tr>
-              <td>миролюбие</td>
-              <td>{{place.habit_peacefulness_negative|round(2)}}</td>
-              <td>{{place.habit_peacefulness_positive|round(2)}}</td>
-            </tr>
+            {{ habit_points_record(HABIT_TYPE.HONOR) }}
+            {{ habit_points_record(HABIT_TYPE.PEACEFULNESS) }}
           </tbody>
         </table>
 
@@ -452,8 +454,8 @@
             </tr>
           </thead>
           <tbody>
-            {% for record in chronicle_records %}
-            {{ chronicle_macros.chronicle_record(record) }}
+            {% for date_short, date_long, text in place_info.chronicle %}
+            {{ chronicle_macros.chronicle_record_3(date_short, date_long, text) }}
             {% endfor %}
           </tbody>
         </table>

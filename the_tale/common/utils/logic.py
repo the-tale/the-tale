@@ -3,6 +3,7 @@ import math
 import random
 import datetime
 import types
+import numbers
 
 from django.conf import settings as project_settings
 
@@ -61,6 +62,9 @@ def pluralize_word(real_number, word_1, word_2_4, word_other):
         return '%d %s' % (real_number, word_other)
 
 def verbose_timedelta(value):
+
+    if isinstance(value, numbers.Number):
+        value = datetime.timedelta(seconds=value)
 
     if value.days > 0:
         return pluralize_word(value.days, u'день', u'дня', u'дней')

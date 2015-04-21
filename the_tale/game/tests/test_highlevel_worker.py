@@ -24,7 +24,7 @@ from the_tale.game.prototypes import TimePrototype
 from the_tale.game.bills.conf import bills_settings
 from the_tale.game.logic_storage import LogicStorage
 
-def fake_sync_data(self):
+def fake_sync_data(self, sheduled=True):
     self._data_synced = True
 
 def fake_apply_bills(self):

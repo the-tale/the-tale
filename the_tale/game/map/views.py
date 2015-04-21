@@ -72,7 +72,7 @@ def cell_info(context):
     if nearest_place:
         nearest_place_name = nearest_place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE))
 
-    place = places_storage.get_by_coordinates(x, y)
+    place = places_storage.places_storage.get_by_coordinates(x, y)
 
     place_modifiers = None
 

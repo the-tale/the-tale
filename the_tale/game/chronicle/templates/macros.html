@@ -1,10 +1,15 @@
 
 
 {% macro chronicle_record(record) %}
+{{chronicle_record_3(record.game_time.verbose_date_short, record.game_time.verbose_date, record.text)}}
+{% endmacro %}
+
+
+{% macro chronicle_record_3(date_short, date_long, text) %}
 
 <tr>
-  <td width="75px" rel="tooltip" title="{{ record.game_time.verbose_date }}">{{ record.game_time.verbose_date_short }}</td>
-  <td>{{ record.text }}</td>
+  <td width="75px" rel="tooltip" title="{{ date_long }}">{{ date_short }}</td>
+  <td>{{ text }}</td>
 </tr>
 
 {% endmacro %}

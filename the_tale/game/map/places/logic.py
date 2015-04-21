@@ -123,10 +123,10 @@ def place_info_persons_data(place):
                        'gender': person.gender.value,
                        'race': person.race.value,
                        'type': person.type.value,
-                       'unfreeze_in': time.mktime(person.time_before_unfreeze.timetuple()),
+                       'unfreeze_in': person.time_before_unfreeze.total_seconds(),
                        'mastery': {'value': person.mastery,
                                    'name': person.mastery_verbose},
-                       'power': { 'total': person.power / place.total_persons_power if place.total_persons_power > 0 else 0,
+                       'power': { 'percents': person.power / place.total_persons_power if place.total_persons_power > 0 else 0,
                                   'positive_bonus': person.power_positive,
                                   'negative_bonus': person.power_negative },
                        'building': building.id if building else None,
@@ -208,13 +208,17 @@ def place_info_specializations(place):
 def place_info_habits(place):
     return {game_relations.HABIT_TYPE.HONOR.value: {'interval': place.habit_honor.interval.value,
                                                     'value': place.habit_honor.raw_value,
-                                                    'speed': place.habit_honor_change_speed},
+                                                    'delta': place.habit_honor_change_speed,
+                                                    'positive_points': place.habit_honor_positive,
+                                                    'negative_points': place.habit_honor_negative},
             game_relations.HABIT_TYPE.PEACEFULNESS.value: {'interval': place.habit_peacefulness.interval.value,
                                                            'value': place.habit_peacefulness.raw_value,
-                                                           'speed': place.habit_peacefulness_change_speed} }
+                                                           'delta': place.habit_peacefulness_change_speed,
+                                                           'positive_points': place.habit_peacefulness_positive,
+                                                           'negative_points': place.habit_peacefulness_negative} }
 
 def place_info_cronicle(place):
-    return [(record.game_time, record.text)
+    return [(record.game_time.verbose_date_short, record.game_time.verbose_date, record.text)
             for record in chronicle_prototypes.RecordPrototype.get_last_actor_records(place, conf.places_settings.CHRONICLE_RECORDS_NUMBER)]
 
 
