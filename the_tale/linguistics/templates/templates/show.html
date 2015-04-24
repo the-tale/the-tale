@@ -86,7 +86,8 @@ jQuery(document).ready( function(e) {
      {% if related_template and verificator.text != related_verificators[loop.index-1].text %}
      class="changed-template"
      rel="tooltip"
-     title="в копии: {{related_template.verificators[loop.index-1].text}}"
+     {% set related_text = related_verificators[loop.index-1].text %}
+     title="в копии: {% if related_text %}{{related_text}}{% else %}нет текста{% endif %}"
      {% endif %}>
     {% if verificator.text %}<spen style="white-space: pre-wrap;">{{verificator.text}}</span>
     {% else %}
