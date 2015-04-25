@@ -9,7 +9,8 @@ from the_tale.common.utils import testcase
 from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype
 
-from the_tale.game.balance.power import Damage
+from the_tale.game.balance import power as p
+from the_tale.game.balance import constants as c
 
 from the_tale.game.logic import create_test_map
 
@@ -205,8 +206,8 @@ class BattleTests(TestsBase):
     def test_process_effects(self):
         actor = battle.Actor(self.hero, BattleContext())
 
-        actor.context.use_damage_queue_fire([Damage(50, 50), Damage(50, 50)])
-        actor.context.use_damage_queue_poison([Damage(50, 50), Damage(50, 50)])
+        actor.context.use_damage_queue_fire([p.Damage(50, 50), p.Damage(50, 50)])
+        actor.context.use_damage_queue_poison([p.Damage(50, 50), p.Damage(50, 50)])
         actor.context.on_own_turn()
 
         actor.context.use_incoming_damage_modifier(physic=1.0, magic=0.8)
@@ -399,7 +400,7 @@ class TryCompanionBlockTests(TestsBase):
 
         with self.check_not_changed(self.hero.diary.__len__):
             with self.check_delta(self.hero.messages.__len__, 1):
-                with self.check_delta(lambda: self.hero.companion.health, -1):
+                with self.check_delta(lambda: self.hero.companion.health, -c.COMPANIONS_DAMAGE_PER_WOUND):
                     self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messanger=self.hero))
 
         self.assertTrue(self.hero.messages.messages[-1].key.is_COMPANIONS_WOUND)
@@ -407,7 +408,6 @@ class TryCompanionBlockTests(TestsBase):
 
     @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_damage_probability', 1.0)
-    @mock.patch('the_tale.game.heroes.messages.JournalContainer.MESSAGES_LOG_LENGTH', 10000)
     def test_killed_on_block(self):
         actor_1, actor_2 = self.get_actors()
 
@@ -417,9 +417,8 @@ class TryCompanionBlockTests(TestsBase):
         self.assertFalse(actor_2.has_companion)
 
         with self.check_delta(self.hero.diary.__len__, 1):
-            with self.check_delta(self.hero.messages.__len__,  self.hero.companion.max_health + 1):
-                for i in xrange(self.hero.companion.max_health):
-                    self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messanger=self.hero))
+            while self.hero.companion:
+                self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messanger=self.hero))
 
         self.assertEqual(self.hero.companion, None)
         self.assertFalse(actor_1.has_companion)
@@ -443,7 +442,7 @@ class TryCompanionBlockTests(TestsBase):
             self.check_increased(lambda: self.hero.statistics.money_earned_from_companions),
             self.check_delta(self.hero.diary.__len__, 2)):
 
-            for i in xrange(self.hero.companion.max_health):
+            while self.hero.companion:
                 self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messanger=self.hero))
 
         self.assertEqual(self.hero.companion, None)

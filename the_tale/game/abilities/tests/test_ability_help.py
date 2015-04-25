@@ -15,6 +15,8 @@ from the_tale.game.prototypes import TimePrototype
 from the_tale.game.actions import prototypes as actions_prototypes
 from the_tale.game.actions import relations as actions_relations
 
+from the_tale.game.balance import constants as c
+
 from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
 
 from the_tale.game.companions import storage as companions_storage
@@ -314,7 +316,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
 
         self.hero.companion.health = 1
 
-        with self.check_delta(lambda: self.hero.companion.health, 2):
+        with self.check_delta(lambda: self.hero.companion.health, c.COMPANIONS_HEAL_AMOUNT):
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
@@ -344,7 +346,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
 
         self.hero.companion.health = 1
 
-        with self.check_delta(lambda: self.hero.companion.health, 4):
+        with self.check_delta(lambda: self.hero.companion.health, c.COMPANIONS_HEAL_CRIT_AMOUNT):
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 

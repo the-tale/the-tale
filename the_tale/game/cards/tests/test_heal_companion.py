@@ -40,7 +40,7 @@ class HealCompanionTestMixin(CardsTestMixin):
     def test_use(self):
         self.hero.companion.health = 1
 
-        with self.check_delta(lambda: self.hero.companion.health, self.CARD.HEALTH):
+        with self.check_delta(lambda: self.hero.companion.health, min(self.CARD.HEALTH, self.hero.companion.max_health-1)):
             result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
             self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 

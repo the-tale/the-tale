@@ -1054,7 +1054,7 @@ class HealCompanionBase(BaseEffect):
 
 class HealCompanionCommon(HealCompanionBase):
     TYPE = relations.CARD_TYPE.HEAL_COMPANION_COMMON
-    HEALTH = 1
+    HEALTH = 10
 
 class HealCompanionUncommon(HealCompanionBase):
     TYPE = relations.CARD_TYPE.HEAL_COMPANION_UNCOMMON

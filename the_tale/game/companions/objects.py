@@ -111,7 +111,7 @@ class Companion(object):
         self.health -= self._hero.companion_damage
 
         if random.random() < self._damage_from_heal_probability() / (self._damage_from_heal_probability() + self._hero.companion_damage_probability):
-            self._heals_wounds_count += 1
+            self._heals_wounds_count += float(c.COMPANIONS_DAMAGE_PER_WOUND) / c.COMPANIONS_HEALTH_PER_HEAL
 
     def on_heal_started(self):
         self.healed_at_turn = game_prototypes.TimePrototype.get_current_turn_number()
@@ -234,7 +234,7 @@ class CompanionRecord(names.ManageNameMixin):
 
 
     def rarity_points(self):
-        points = [(u'здоровье', float(self.max_health - 50) / 20 * 1)]
+        points = [(u'здоровье', float(self.max_health - c.COMPANIONS_MEDIUM_HEALTH) / (c.COMPANIONS_MEDIUM_HEALTH - c.COMPANIONS_MIN_HEALTH) * 1)]
 
         # dedication does not affect rarity ?
 

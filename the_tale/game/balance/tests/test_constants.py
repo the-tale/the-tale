@@ -297,10 +297,10 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.COMPANIONS_MEDIUM_COHERENCE, 50)
 
-        self.assertEqual(c.COMPANIONS_MIN_HEALTH, 30)
-        self.assertEqual(c.COMPANIONS_MAX_HEALTH, 70)
+        self.assertEqual(c.COMPANIONS_MIN_HEALTH, 300)
+        self.assertEqual(c.COMPANIONS_MAX_HEALTH, 700)
 
-        self.assertEqual(c._COMPANIONS_MEDIUM_HEALTH, 50)
+        self.assertEqual(c.COMPANIONS_MEDIUM_HEALTH, 500)
 
         self.assertEqual(c._COMPANIONS_MEDIUM_LIFETYME, 15)
 
@@ -312,19 +312,19 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.COMPANIONS_DEFEND_PROBABILITY, 0.1875)
 
-        self.assertEqual(round(c.COMPANIONS_WOUNDS_IN_HOUR_FROM_HEAL, 5), 1.5)
+        self.assertEqual(round(c.COMPANIONS_WOUNDS_IN_HOUR_FROM_HEAL, 5), 0.3)
         self.assertEqual(round(c.COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS, 5), 0.13889)
 
-        self.assertEqual(round(c.COMPANIONS_WOUNDS_IN_HOUR, 5), 1.63889)
+        self.assertEqual(round(c.COMPANIONS_WOUNDS_IN_HOUR, 5), 0.43889)
         self.assertEqual(round(c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY_FROM_WOUNDS, 5), 0.00604)
 
         self.assertEqual(c.COMPANIONS_HEALS_IN_HOUR, 1.5)
 
-        self.assertEqual(c.COMPANIONS_HEALTH_PER_HEAL, 1)
-        self.assertEqual(c.COMPANIONS_DAMAGE_PER_WOUND, 1)
+        self.assertEqual(c.COMPANIONS_HEALTH_PER_HEAL, 2)
+        self.assertEqual(c.COMPANIONS_DAMAGE_PER_WOUND, 10)
 
-        self.assertEqual(c.COMPANIONS_HEAL_AMOUNT, 2)
-        self.assertEqual(c.COMPANIONS_HEAL_CRIT_AMOUNT, 4)
+        self.assertEqual(c.COMPANIONS_HEAL_AMOUNT, 20)
+        self.assertEqual(c.COMPANIONS_HEAL_CRIT_AMOUNT, 40)
 
         self.assertEqual(c.COMPANIONS_BATTLE_STRIKE_PROBABILITY, 0.05)
 
@@ -338,16 +338,16 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.COMPANIONS_HEAL_BONUS, 0.25)
 
-        self.assertEqual(round(c.COMPANIONS_REGEN_PER_HOUR, 5), 0.03472)
+        self.assertEqual(round(c.COMPANIONS_REGEN_PER_HOUR, 5), 0.34722)
 
         self.assertEqual(c.COMPANIONS_EATEN_CORPSES_HEAL_AMOUNT, 1)
-        self.assertEqual(c.COMPANIONS_REGEN_ON_HEAL_AMOUNT, 2)
-        self.assertEqual(c.COMPANIONS_REGEN_BY_HERO, 2)
+        self.assertEqual(c.COMPANIONS_REGEN_ON_HEAL_AMOUNT, 1)
+        self.assertEqual(c.COMPANIONS_REGEN_BY_HERO, 1)
         self.assertEqual(c.COMPANIONS_REGEN_BY_MONEY_SPEND, 1)
 
-        self.assertEqual(round(c.COMPANIONS_EATEN_CORPSES_PER_BATTLE, 5), 0.00227)
-        self.assertEqual(round(c.COMPANIONS_REGEN_ON_HEAL_PER_HEAL, 5), 0.01157)
-        self.assertEqual(round(c.COMPANIONS_HERO_REGEN_ON_HEAL_PER_HEAL, 5), 0.01157)
+        self.assertEqual(round(c.COMPANIONS_EATEN_CORPSES_PER_BATTLE, 5), 0.02267)
+        self.assertEqual(round(c.COMPANIONS_REGEN_ON_HEAL_PER_HEAL, 5), 0.23148)
+        self.assertEqual(round(c.COMPANIONS_HERO_REGEN_ON_HEAL_PER_HEAL, 5), 0.23148)
 
         self.assertEqual(c.COMPANIONS_GIVE_COMPANION_AFTER, 24)
 

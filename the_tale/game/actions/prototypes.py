@@ -1948,7 +1948,7 @@ class ActionHealCompanionPrototype(ActionBase):
         if self.hero.companion is None:
             return
 
-        health = self.hero.companion.heal(utils_logic.randint_from_1(c.COMPANIONS_HEALTH_PER_HEAL))
+        health = self.hero.companion.heal(c.COMPANIONS_HEALTH_PER_HEAL)
         if health > 0:
             self.hero.add_message('action_heal_companion_finish', hero=self.hero, companion=self.hero.companion, health=health)
         else:
