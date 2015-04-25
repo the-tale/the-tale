@@ -91,7 +91,7 @@ class AchievementsManagerTests(testcase.TestCase):
         self.assertEqual(GiveAchievementTaskPrototype._db_count(), 0)
 
     @mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements', lambda *argv, **kwargs: None)
-    def test_add_achievements__all_accounts__remove_achievements(self):
+    def test_add_achievements__all_accounts__not_remove_already_received_achievements(self):
         self.account_achievements_1.achievements.add_achievement(self.achievement_3)
         self.account_achievements_1.save()
 
@@ -108,7 +108,7 @@ class AchievementsManagerTests(testcase.TestCase):
         self.account_achievements_1.reload()
         account_achievements_2.reload()
 
-        self.assertFalse(self.account_achievements_1.has_achievement(self.achievement_3))
+        self.assertTrue(self.account_achievements_1.has_achievement(self.achievement_3))
         self.assertFalse(account_achievements_2.has_achievement(self.achievement_3))
 
         self.assertEqual(GiveAchievementTaskPrototype._db_count(), 0)

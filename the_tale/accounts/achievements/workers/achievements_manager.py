@@ -58,7 +58,6 @@ class Worker(BaseWorker):
 
         for source in self.get_achievements_source_iterator(achievement):
             if not achievement.check(old_value=0, new_value=source.get_achievement_type_value(achievement.type)):
-                self.remove_achievement(achievement, source.account_id)
                 continue
             self.add_achievement(achievement, source.account_id, notify=False)
 
