@@ -39,6 +39,8 @@ class AccountPrototypeTests(testcase.TestCase):
         for achievement_type in ACHIEVEMENT_TYPE.records:
             if achievement_type.source.is_GAME_OBJECT:
                 continue
+            if achievement_type.source.is_NONE:
+                continue
             self.account.get_achievement_type_value(achievement_type)
 
 

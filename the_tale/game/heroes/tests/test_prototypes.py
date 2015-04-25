@@ -572,6 +572,8 @@ class HeroTest(testcase.TestCase):
         for achievement_type in ACHIEVEMENT_TYPE.records:
             if achievement_type.source.is_ACCOUNT:
                 continue
+            if achievement_type.source.is_NONE:
+                continue
             self.hero.get_achievement_type_value(achievement_type)
 
     def test_update_habits__premium(self):
