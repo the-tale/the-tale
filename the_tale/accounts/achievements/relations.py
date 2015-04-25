@@ -17,12 +17,14 @@ class ACHIEVEMENT_GROUP(DjangoEnum): # visualization
                 ('POLITICS', 7, u'Политика', 'politics'),
                 ('KEEPER', 8, u'Хранитель', 'keeper'),
                 ('CHARACTER', 9, u'Характер', 'character'),
-                ('CARDS', 10, u'Карты Судьбы', 'cards'))
+                ('CARDS', 10, u'Карты Судьбы', 'cards'),
+                ('LEGENDS', 11, u'Легенды', 'legends'))
 
 
 class ACHIEVEMENTS_SOURCE(DjangoEnum):
     records = ( ('ACCOUNT', 0, u'аккаунт'),
-                ('GAME_OBJECT', 1, u'игровой объект'))
+                ('GAME_OBJECT', 1, u'игровой объект'),
+                ('NONE', 2, u'нет источника'))
 
 
 class ACHIEVEMENT_TYPE(DjangoEnum): # filtration
@@ -47,4 +49,6 @@ class ACHIEVEMENT_TYPE(DjangoEnum): # filtration
                 ('HABITS_PEACEFULNESS', 15, u'Черты: Миролюбие', ACHIEVEMENTS_SOURCE.GAME_OBJECT),
                 ('KEEPER_CARDS_USED', 16, u'Использовано карт', ACHIEVEMENTS_SOURCE.GAME_OBJECT),
                 ('KEEPER_CARDS_COMBINED', 17, u'Объединено карт', ACHIEVEMENTS_SOURCE.GAME_OBJECT),
+
+                ('LEGENDS', 18, u'Легендарный подвиг', ACHIEVEMENTS_SOURCE.NONE)
         )

@@ -112,3 +112,28 @@ class AchievementsManagerTests(testcase.TestCase):
         self.assertFalse(account_achievements_2.has_achievement(self.achievement_3))
 
         self.assertEqual(GiveAchievementTaskPrototype._db_count(), 0)
+
+    def test_legendary_achievements(self):
+        achievement_4 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.LEGENDS, type=ACHIEVEMENT_TYPE.LEGENDS, barrier=0, points=0,
+                                                    caption=u'achievement_4', description=u'description_4', approved=True)
+
+        self.account_achievements_1.achievements.add_achievement(achievement_4)
+        self.account_achievements_1.save()
+
+        GiveAchievementTaskPrototype.create(account_id=None, achievement_id=achievement_4.id)
+
+        account_achievements_2 = AccountAchievementsPrototype.get_by_account_id(self.account_2.id)
+
+        self.assertTrue(self.account_achievements_1.has_achievement(achievement_4))
+        self.assertFalse(account_achievements_2.has_achievement(achievement_4))
+
+        with self.check_not_changed(MessagePrototype._db_count):
+            self.worker.add_achievements()
+
+        self.account_achievements_1.reload()
+        account_achievements_2.reload()
+
+        self.assertTrue(self.account_achievements_1.has_achievement(achievement_4))
+        self.assertFalse(account_achievements_2.has_achievement(achievement_4))
+
+        self.assertEqual(GiveAchievementTaskPrototype._db_count(), 0)

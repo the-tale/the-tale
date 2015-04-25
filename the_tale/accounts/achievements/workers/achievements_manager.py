@@ -56,6 +56,9 @@ class Worker(BaseWorker):
     def spread_achievement(self, achievement):
         self.logger.info('spread achievement %d' % achievement.id)
 
+        if achievement.type.source.is_NONE:
+            return
+
         for source in self.get_achievements_source_iterator(achievement):
             if not achievement.check(old_value=0, new_value=source.get_achievement_type_value(achievement.type)):
                 continue
