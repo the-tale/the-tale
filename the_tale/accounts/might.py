@@ -18,17 +18,19 @@ from the_tale.game.bills.models import Bill, Vote
 from the_tale.game.bills.relations import BILL_STATE, VOTE_TYPE
 from the_tale.game.heroes.prototypes import HeroPrototype
 
-from the_tale.linguistics.prototypes import ContributionPrototype
-from the_tale.linguistics.relations import CONTRIBUTION_TYPE
+from the_tale.linguistics import prototypes as linguistics_prototypes
+from the_tale.linguistics import relations as linguistics_relations
 
 
-def calculate_linguistics_migth(account_id, contribution_type, might_per_entity):
+def calculate_linguistics_migth(account_id, contribution_type, might_per_entity, source):
 
-    entities_ids = ContributionPrototype._db_filter(account_id=account_id,
-                                                    type=contribution_type).values_list('entity_id', flat=True)
+    entities_ids = linguistics_prototypes.ContributionPrototype._db_filter(account_id=account_id,
+                                                                           type=contribution_type,
+                                                                           source=source).values_list('entity_id', flat=True)
 
-    contributions_per_entity = collections.Counter(ContributionPrototype._db_filter(type=contribution_type,
-                                                                                    entity_id__in=entities_ids).values_list('entity_id', flat=True))
+    contributions_per_entity = collections.Counter(linguistics_prototypes.ContributionPrototype._db_filter(type=contribution_type,
+                                                                                                           entity_id__in=entities_ids,
+                                                                                                           source=source).values_list('entity_id', flat=True))
 
     might = 0
 
@@ -69,8 +71,22 @@ def calculate_might(account): # pylint: disable=R0914
     might += Vote.objects.filter(owner_id=account.id).exclude(type=VOTE_TYPE.REFRAINED).count() * relations.MIGHT_AMOUNT.FOR_BILL_VOTE.amount
     might += Bill.objects.filter(owner_id=account.id, state=BILL_STATE.ACCEPTED).count() * relations.MIGHT_AMOUNT.FOR_BILL_ACCEPTED.amount
 
-    might += calculate_linguistics_migth(account.id, contribution_type=CONTRIBUTION_TYPE.WORD, might_per_entity=relations.MIGHT_AMOUNT.FOR_ADDED_WORD.amount)
-    might += calculate_linguistics_migth(account.id, contribution_type=CONTRIBUTION_TYPE.TEMPLATE, might_per_entity=relations.MIGHT_AMOUNT.FOR_ADDED_TEMPLATE.amount)
+    might += calculate_linguistics_migth(account.id,
+                                         contribution_type=linguistics_relations.CONTRIBUTION_TYPE.WORD,
+                                         might_per_entity=relations.MIGHT_AMOUNT.FOR_ADDED_WORD_FOR_PLAYER.amount,
+                                         source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+    might += calculate_linguistics_migth(account.id,
+                                         contribution_type=linguistics_relations.CONTRIBUTION_TYPE.WORD,
+                                         might_per_entity=relations.MIGHT_AMOUNT.FOR_ADDED_WORD_FOR_MODERATOR.amount,
+                                         source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+    might += calculate_linguistics_migth(account.id,
+                                         contribution_type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                         might_per_entity=relations.MIGHT_AMOUNT.FOR_ADDED_TEMPLATE_FOR_PLAYER.amount,
+                                         source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+    might += calculate_linguistics_migth(account.id,
+                                         contribution_type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                         might_per_entity=relations.MIGHT_AMOUNT.FOR_ADDED_TEMPLATE_FOR_MODERATOR.amount,
+                                         source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
 
     folclor_posts = BlogPostProtype.from_query(BlogPostProtype._db_filter(author_id=account.id, state=BLOG_POST_STATE.ACCEPTED))
     folclor_texts = (strip_tags(post.text_html) for post in folclor_posts)

@@ -70,6 +70,10 @@ class CONTRIBUTION_TYPE(DjangoEnum):
     records = ( ('WORD', 0, u'слово'),
                 ('TEMPLATE', 1, u'фраза'))
 
+class CONTRIBUTION_SOURCE(DjangoEnum):
+    records = ( ('PLAYER', 0, u'игрок'),
+                ('MODERATOR', 1, u'модератор'))
+
 
 class INDEX_ORDER_BY(DjangoEnum):
     records = ( ('TEXT', 0, u'по тексту'),

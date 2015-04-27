@@ -654,6 +654,28 @@ class InGameRequestsTests(BaseRequestsTests):
         self.assertTrue(self.word.state.is_IN_GAME)
 
 
+    def test_in_game__author_not_moderator(self):
+        self.request_login(self.moderator.email)
+        self.check_ajax_ok(self.client.post(self.requested_url))
+
+        last_contribution = prototypes.ContributionPrototype._db_latest()
+        self.assertTrue(last_contribution.source.is_PLAYER)
+
+
+    def test_in_game__author_is_moderator(self):
+        moderator_2 = self.accounts_factory.create_account()
+        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_word'])
+        group.user_set.add(moderator_2._model)
+
+        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w2-', only_required=True), author=moderator_2)
+
+        self.request_login(self.moderator.email)
+        self.check_ajax_ok(self.client.post(url('linguistics:words:in-game', word.id)))
+
+        last_contribution = prototypes.ContributionPrototype._db_latest()
+        self.assertTrue(last_contribution.source.is_MODERATOR)
+
+
     def test_in_game__no_parent_but_equal_word_already_in_game(self):
         self.request_login(self.moderator.email)
 
@@ -710,11 +732,13 @@ class InGameRequestsTests(BaseRequestsTests):
 
         prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.WORD,
                                                 account_id=self.account_1.id,
-                                                entity_id=self.word.id)
+                                                entity_id=self.word.id,
+                                                source=relations.CONTRIBUTION_SOURCE.random())
 
         prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.WORD,
                                                 account_id=account_3.id,
-                                                entity_id=self.word.id)
+                                                entity_id=self.word.id,
+                                                source=relations.CONTRIBUTION_SOURCE.random())
 
 
         word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True),

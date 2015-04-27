@@ -314,9 +314,11 @@ class WordResource(Resource):
             self.word.save()
 
             if self.word.author_id is not None:
+                author_is_moderator = AccountPrototype.get_by_id(self.word.author_id).has_perm('linguistics.moderate_word')
                 prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.WORD,
                                                                    account_id=self.word.author_id,
-                                                                   entity_id=self.word.id)
+                                                                   entity_id=self.word.id,
+                                                                   source=relations.CONTRIBUTION_SOURCE.MODERATOR if author_is_moderator else relations.CONTRIBUTION_SOURCE.PLAYER)
 
         return self.json_ok()
 
@@ -599,9 +601,11 @@ class TemplateResource(Resource):
             self._template.save()
 
             if self._template.state.is_IN_GAME and self._template.author_id is not None:
+                author_is_moderator = AccountPrototype.get_by_id(self._template.author_id).has_perm('linguistics.moderate_template')
                 prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
                                                                    account_id=self._template.author_id,
-                                                                   entity_id=self._template.id)
+                                                                   entity_id=self._template.id,
+                                                                   source=relations.CONTRIBUTION_SOURCE.MODERATOR if author_is_moderator else relations.CONTRIBUTION_SOURCE.PLAYER)
 
         return self.json_ok()
 
@@ -636,9 +640,11 @@ class TemplateResource(Resource):
             self._template.save()
 
             if self._template.author_id is not None:
+                author_is_moderator = AccountPrototype.get_by_id(self._template.author_id).has_perm('linguistics.moderate_template')
                 prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
                                                                    account_id=self._template.author_id,
-                                                                   entity_id=self._template.id)
+                                                                   entity_id=self._template.id,
+                                                                   source=relations.CONTRIBUTION_SOURCE.MODERATOR if author_is_moderator else relations.CONTRIBUTION_SOURCE.PLAYER)
 
         return self.json_ok()
 

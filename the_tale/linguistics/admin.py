@@ -16,7 +16,7 @@ class TemplateAdmin(admin.ModelAdmin):
 
 
 class ContributionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'type', 'account', 'entity_id')
+    list_display = ('id', 'type', 'source', 'account', 'entity_id')
     list_filter = ('type',)
 
 

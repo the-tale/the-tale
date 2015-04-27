@@ -25,6 +25,9 @@ from the_tale.game.bills.relations import BILL_STATE, VOTE_TYPE
 
 from the_tale.accounts.might import calculate_might, folclor_post_might
 
+from the_tale.linguistics import prototypes as linguistics_prototypes
+from the_tale.linguistics import relations as linguistics_relations
+
 
 class CalculateMightTests(testcase.TestCase):
 
@@ -130,42 +133,174 @@ class CalculateMightTests(testcase.TestCase):
         self.assertEqual(calculate_might(self.account), 0)
 
 
-    def test_might_for_linguistics(self):
-        from the_tale.linguistics.prototypes import ContributionPrototype
-        from the_tale.linguistics.relations import CONTRIBUTION_TYPE
-
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        account_3 = AccountPrototype.get_by_id(account_id)
+    def test_might_for_linguistics__words(self):
+        account_3 = self.accounts_factory.create_account()
 
         old_might = calculate_might(self.account)
 
-        ContributionPrototype.create(type=CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=1)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=1,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
 
-        ContributionPrototype.create(type=CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=2)
-        ContributionPrototype.create(type=CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=2)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=2,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=2,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
 
-        ContributionPrototype.create(type=CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=3)
-        ContributionPrototype.create(type=CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=3)
-        ContributionPrototype.create(type=CONTRIBUTION_TYPE.WORD, account_id=account_3.id, entity_id=3)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=3,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=3,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=account_3.id, entity_id=3,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
 
-        ContributionPrototype.create(type=CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=4)
-        ContributionPrototype.create(type=CONTRIBUTION_TYPE.WORD, account_id=account_3.id, entity_id=4)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=4,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=account_3.id, entity_id=4,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
 
         self.assertEqual(calculate_might(self.account), old_might + 5.0 + 5.0 / 2 + 5.0 / 3)
 
-        ContributionPrototype.create(type=CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=1)
 
-        ContributionPrototype.create(type=CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=2)
-        ContributionPrototype.create(type=CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=2)
+    def test_might_for_linguistics__templates(self):
+        account_3 = self.accounts_factory.create_account()
 
-        ContributionPrototype.create(type=CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=3)
-        ContributionPrototype.create(type=CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=3)
-        ContributionPrototype.create(type=CONTRIBUTION_TYPE.TEMPLATE, account_id=account_3.id, entity_id=3)
+        old_might = calculate_might(self.account)
 
-        ContributionPrototype.create(type=CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=4)
-        ContributionPrototype.create(type=CONTRIBUTION_TYPE.TEMPLATE, account_id=account_3.id, entity_id=4)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=1,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
 
-        self.assertEqual(calculate_might(self.account), old_might + 5.0 + 5.0 / 2 + 5.0 / 3 + 15.0 + 15.0 / 2 + 15.0 / 3)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=2,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=2,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=3,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=3,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=account_3.id, entity_id=3,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=4,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=account_3.id, entity_id=4,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+
+        self.assertEqual(calculate_might(self.account), old_might + 15.0 + 15.0 / 2 + 15.0 / 3)
+
+    def test_might_for_linguistics__words___different_sources(self):
+        account_3 = self.accounts_factory.create_account()
+
+        old_might = calculate_might(self.account)
+
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=1,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=2,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=2,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=3,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=3,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=account_3.id, entity_id=3,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=4,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=account_3.id, entity_id=4,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+
+        self.assertEqual(calculate_might(self.account), old_might + 5.0 + 5.0 / 1 + 5.0 / 2)
+
+    def test_might_for_linguistics__templaes___different_sources(self):
+        account_3 = self.accounts_factory.create_account()
+
+        old_might = calculate_might(self.account)
+
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=1,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=2,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=2,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=3,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=3,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=account_3.id, entity_id=3,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=4,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=account_3.id, entity_id=4,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+
+        self.assertEqual(calculate_might(self.account), old_might + 15.0 + 15.0 / 1 + 15.0 / 2)
+
+
+    def test_might_for_linguistics__words___two_sources(self):
+        account_3 = self.accounts_factory.create_account()
+
+        old_might = calculate_might(self.account)
+
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=1,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=2,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=2,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=3,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=3,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=account_3.id, entity_id=3,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=4,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=4,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=account_3.id, entity_id=4,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+
+        self.assertEqual(calculate_might(self.account), old_might + 5.0 + 5.0 / 1 + 5.0 / 2 + 5.0 / 2)
+
+    def test_might_for_linguistics__templaes___different_sources(self):
+        account_3 = self.accounts_factory.create_account()
+
+        old_might = calculate_might(self.account)
+
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=1,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=2,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=2,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=3,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=3,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=account_3.id, entity_id=3,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=4,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=4,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=account_3.id, entity_id=4,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+
+        self.assertEqual(calculate_might(self.account), old_might + 15.0 + 15.0 / 1 + 15.0 / 2 + 15.0 / 2)
+
 
 
     def test_folclor_might(self):

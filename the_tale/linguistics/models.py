@@ -61,6 +61,7 @@ class Contribution(models.Model):
     account = models.ForeignKey(project_settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     type = RelationIntegerField(relation=relations.CONTRIBUTION_TYPE, default=0, db_index=True)
+    source = RelationIntegerField(relation=relations.CONTRIBUTION_SOURCE, db_index=True)
 
     # if entity_id < 0 it is id of old phrase_candidate entity
     entity_id = models.BigIntegerField(db_index=True)

@@ -849,11 +849,13 @@ class ReplaceRequestsTests(BaseRequestsTests):
 
         prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
                                                 account_id=self.account_1.id,
-                                                entity_id=self.template.id)
+                                                entity_id=self.template.id,
+                                                source=relations.CONTRIBUTION_SOURCE.random())
 
         prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
                                                 account_id=self.account_2.id,
-                                                entity_id=self.template.id)
+                                                entity_id=self.template.id,
+                                                source=relations.CONTRIBUTION_SOURCE.random())
 
         with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=self.template.id).count, -2):
             with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=template.id).count, 3):
@@ -1054,6 +1056,32 @@ class InGameRequestsTests(BaseRequestsTests):
         self.assertTrue(last_contribution.type.is_TEMPLATE)
         self.assertEqual(last_contribution.account_id, self.template.author_id)
         self.assertEqual(last_contribution.entity_id, self.template.id)
+
+
+    def test_in_game__author_not_moderator(self):
+        self.request_login(self.moderator.email)
+        self.check_ajax_ok(self.client.post(self.requested_url))
+
+        last_contribution = prototypes.ContributionPrototype._db_latest()
+        self.assertTrue(last_contribution.source.is_PLAYER)
+
+
+    def test_in_game__author_is_moderator(self):
+        moderator_2 = self.accounts_factory.create_account()
+        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_template'])
+        group.user_set.add(moderator_2._model)
+
+        template = prototypes.TemplatePrototype.create(key=self.key,
+                                                       raw_template=self.text,
+                                                       utg_template=self.utg_template,
+                                                       verificators=self.verificators[:2],
+                                                       author=moderator_2)
+
+        self.request_login(self.moderator.email)
+        self.check_ajax_ok(self.client.post(url('linguistics:templates:in-game', template.id)))
+
+        last_contribution = prototypes.ContributionPrototype._db_latest()
+        self.assertTrue(last_contribution.source.is_MODERATOR)
 
 
 

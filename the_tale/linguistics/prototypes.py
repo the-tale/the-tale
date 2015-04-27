@@ -415,29 +415,31 @@ class Verificator(object):
 
 class ContributionPrototype(BasePrototype):
     _model_class = models.Contribution
-    _readonly = ('id', 'created_at', 'account_id', 'type', 'entity_id')
+    _readonly = ('id', 'created_at', 'account_id', 'type', 'entity_id', 'source')
     _bidirectional = ()
     _get_by = ('id', 'account_id', 'entity_id')
 
 
     @classmethod
-    def create(cls, type, account_id, entity_id):
+    def create(cls, type, account_id, entity_id, source):
         return cls(cls._db_create(type=type,
                                   account_id=account_id,
-                                  entity_id=entity_id))
+                                  entity_id=entity_id,
+                                  source=source))
 
     @classmethod
-    def get_for(cls, type, account_id, entity_id):
+    def get_for(cls, type, account_id, entity_id, source):
         try:
             return cls(cls._db_get(type=type, account_id=account_id, entity_id=entity_id))
         except cls._model_class.DoesNotExist:
             return None
 
     @classmethod
-    def get_for_or_create(cls, type, account_id, entity_id):
+    def get_for_or_create(cls, type, account_id, entity_id, source):
         return get_or_create(get_method=cls.get_for,
                              create_method=cls.create,
                              exception=IntegrityError,
                              kwargs={'type': type,
                                      'account_id': account_id,
-                                     'entity_id': entity_id})
+                                     'entity_id': entity_id,
+                                     'source': source})
