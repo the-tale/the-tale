@@ -2,10 +2,7 @@
 
 from django.contrib import admin
 
-from the_tale.game.models import Bundle, SupervisorTask, SupervisorTaskMember
-
-class BundleAdmin(admin.ModelAdmin):
-    list_display = ('id', 'owner', 'type')
+from the_tale.game import models
 
 class SupervisorTaskAdmin(admin.ModelAdmin):
     list_display = ('id', 'type', 'state', 'created_at')
@@ -13,6 +10,5 @@ class SupervisorTaskAdmin(admin.ModelAdmin):
 class SupervisorTaskMemberAdmin(admin.ModelAdmin):
     list_display = ('id', 'task', 'account')
 
-admin.site.register(Bundle, BundleAdmin)
-admin.site.register(SupervisorTask, SupervisorTaskAdmin)
-admin.site.register(SupervisorTaskMember, SupervisorTaskMemberAdmin)
+admin.site.register(models.SupervisorTask, SupervisorTaskAdmin)
+admin.site.register(models.SupervisorTaskMember, SupervisorTaskMemberAdmin)

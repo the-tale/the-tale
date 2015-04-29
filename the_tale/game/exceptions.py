@@ -18,6 +18,9 @@ class SupervisorTaskMemberMissedError(GameError):
 class UnknownNextStepError(GameError):
     MSG = u'unknown next_step value %(next_step)s in ComplexChangeTask'
 
+class DublicateAccountRegistration(GameError):
+    MSG = u'try to double register one account: id=%(account_id)s, owner: %(owner)s'
+
 
 #########################
 # highlevel

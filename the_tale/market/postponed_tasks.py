@@ -112,7 +112,7 @@ class CreateLotTask(PostponedLogic):
 
             self.lot_id = lot.id
 
-            main_task.extend_postsave_actions((lambda: environment.workers.logic.cmd_logic_task(self.account_id, main_task.id),))
+            main_task.extend_postsave_actions((lambda: environment.workers.supervisor.cmd_logic_task(self.account_id, main_task.id),))
 
             self.step = self.STEP.RESERVED
             return POSTPONED_TASK_LOGIC_RESULT.CONTINUE
@@ -259,7 +259,7 @@ class BuyLotTask(PostponedLogic):
             lot.state = relations.LOT_STATE.FROZEN
             logic.save_lot(lot)
 
-            main_task.extend_postsave_actions((lambda: environment.workers.logic.cmd_logic_task(self.buyer_id, main_task.id),))
+            main_task.extend_postsave_actions((lambda: environment.workers.supervisor.cmd_logic_task(self.buyer_id, main_task.id),))
 
             self.step = self.STEP.RECEIVE_GOOD
             return POSTPONED_TASK_LOGIC_RESULT.CONTINUE
@@ -366,7 +366,7 @@ class CloseLotByTimoutTask(PostponedLogic):
             lot.state = relations.LOT_STATE.FROZEN
             logic.save_lot(lot)
 
-            main_task.extend_postsave_actions((lambda: environment.workers.logic.cmd_logic_task(self.account_id, main_task.id),))
+            main_task.extend_postsave_actions((lambda: environment.workers.supervisor.cmd_logic_task(self.account_id, main_task.id),))
 
             self.step = self.STEP.RETURN_GOOD
             return POSTPONED_TASK_LOGIC_RESULT.CONTINUE

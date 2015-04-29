@@ -6,7 +6,7 @@ import datetime
 
 from the_tale.amqp_environment import environment
 
-from the_tale.common.utils.workers import BaseWorker
+from the_tale.common.utils import workers
 from the_tale.common import postponed_tasks
 
 from the_tale.market import goods_types
@@ -22,7 +22,7 @@ class LogicException(Exception): pass
 
 
 
-class Worker(BaseWorker):
+class Worker(workers.BaseWorker):
     STOP_SIGNAL_REQUIRED = False
 
     def initialize(self):

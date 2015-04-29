@@ -92,10 +92,8 @@ class MetaActionPrototype(BasePrototype):
 
 
     def remove(self):
-        from the_tale.game.bundles import BundlePrototype
         MetaActionMemberPrototype._model_class.objects.filter(action_id=self.id).delete()
         self._model.delete()
-        BundlePrototype.delete_by_id(self._model.bundle_id)
 
     def save(self):
         self._model.data = s11n.to_json(self.data)
@@ -208,7 +206,7 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
 
 
     @classmethod
-    def create(cls, storage, hero_1, hero_2, bundle):
+    def create(cls, storage, hero_1, hero_2, bundle_id):
 
         cls.prepair_bot(hero_1, hero_2)
         cls.prepair_bot(hero_2, hero_1)
@@ -227,7 +225,7 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
                                               percents=0,
                                               data=s11n.to_json({'hero_1_old_health': hero_1_old_health,
                                                                  'hero_2_old_health': hero_2_old_health}),
-                                              bundle=bundle._model,
+                                              bundle_id=bundle_id,
                                               state=cls.STATE.BATTLE_RUNNING )
 
             member_1 = MetaActionMemberPrototype.create(meta_action_model=model, hero_model=hero_1._model, role=cls.ROLES.HERO_1)

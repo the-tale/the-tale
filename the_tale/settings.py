@@ -371,7 +371,8 @@ LOGGING = {
             'formatter': 'simple'
             },
         'file_game_supervisor': get_worker_log_file_handler('game_supervisor'),
-        'file_game_logic': get_worker_log_file_handler('game_logic'),
+        'file_game_logic_1': get_worker_log_file_handler('game_logic_1'),
+        'file_game_logic_2': get_worker_log_file_handler('game_logic_2'),
         'file_game_highlevel': get_worker_log_file_handler('game_highlevel'),
         'file_game_turns_loop': get_worker_log_file_handler('game_turns_loop'),
         'file_game_long_commands': get_worker_log_file_handler('game_long_commands'),
@@ -403,7 +404,8 @@ LOGGING = {
             'propagate': False
         },
         'the-tale.workers.game_supervisor': get_worker_logger('game_supervisor'),
-        'the-tale.workers.game_logic': get_worker_logger('game_logic'),
+        'the-tale.workers.game_logic_1': get_worker_logger('game_logic_1'),
+        'the-tale.workers.game_logic_2': get_worker_logger('game_logic_2'),
         'the-tale.workers.game_highlevel': get_worker_logger('game_highlevel'),
         'the-tale.workers.game_turns_loop': get_worker_logger('game_turns_loop'),
         'the-tale.workers.game_long_commands': get_worker_logger('game_long_commands'),

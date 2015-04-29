@@ -31,7 +31,7 @@ class LogicWorkerTests(testcase.TestCase):
         environment.deinitialize()
         environment.initialize()
 
-        self.worker = environment.workers.logic
+        self.worker = environment.workers.logic_1
         self.worker.process_initialize(TimePrototype.get_current_turn_number(), 'logic')
 
     def tearDown(self):

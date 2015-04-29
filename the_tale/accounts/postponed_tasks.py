@@ -20,8 +20,7 @@ from the_tale.accounts import logic
 
 REGISTRATION_TASK_STATE = create_enum('REGISTRATION_TASK_STATE', ( ('UNPROCESSED', 0, u'ожидает обработки'),
                                                                    ('PROCESSED', 1, u'обработкана'),
-                                                                   ('UNKNOWN_ERROR', 2, u'неизвестная ошибка'),
-                                                                   ('BUNDLE_NOT_FOUND', 3, u'аккаунт не создан'),))
+                                                                   ('UNKNOWN_ERROR', 2, u'неизвестная ошибка') ))
 
 class RegistrationTask(PostponedLogic):
 
@@ -53,7 +52,6 @@ class RegistrationTask(PostponedLogic):
 
     def process(self, main_task):
         from the_tale.accounts.logic import register_user, REGISTER_USER_RESULT
-        from the_tale.game.models import Bundle
 
         with transaction.atomic():
 
@@ -63,11 +61,6 @@ class RegistrationTask(PostponedLogic):
                 main_task.comment = 'unknown error'
                 self.state = REGISTRATION_TASK_STATE.UNKNOWN_ERROR
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
-
-        if not Bundle.objects.filter(id=bundle_id).exists():
-            main_task.comment = 'bundle %d does not found' % bundle_id
-            self.state = REGISTRATION_TASK_STATE.BUNDLE_NOT_FOUND
-            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         environment.workers.supervisor.cmd_register_new_account(account_id)
 

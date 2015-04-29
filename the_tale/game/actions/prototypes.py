@@ -392,6 +392,8 @@ class ActionBase(object):
     def action_event_message_arguments(self):
         return {}
 
+    searching_quest = False
+
     def setup_quest(self, quest):
         pass # do nothing if there is not quest action
 
@@ -567,6 +569,9 @@ class ActionQuestPrototype(ActionBase):
                    bundle_id=bundle_id,
                    state=cls.STATE.SEARCHING)
 
+    @property
+    def searching_quest(self):
+        return self.state == self.STATE.SEARCHING
 
     def setup_quest(self, quest):
         if self.state != self.STATE.SEARCHING:

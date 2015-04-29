@@ -9,7 +9,6 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.logic import create_test_map
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.prototypes import TimePrototype
-from the_tale.game.bundles import BundlePrototype
 from the_tale.game.actions.prototypes import ActionMetaProxyPrototype
 from the_tale.game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
 from the_tale.game.actions import relations
@@ -44,14 +43,14 @@ class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
 
-        bundle = BundlePrototype.create()
+        self.bundle_id = 666
 
-        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2, bundle=bundle)
+        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2, bundle_id=self.bundle_id)
 
-        self.action_proxy_1 = ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=bundle.id, meta_action=meta_action_battle)
-        self.action_proxy_2 = ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=bundle.id, meta_action=meta_action_battle)
+        self.action_proxy_1 = ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=self.bundle_id, meta_action=meta_action_battle)
+        self.action_proxy_2 = ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=self.bundle_id, meta_action=meta_action_battle)
 
-        self.storage.merge_bundles([self.action_idl_1.bundle_id, self.action_idl_2.bundle_id], bundle.id)
+        self.storage.merge_bundles([self.action_idl_1.bundle_id, self.action_idl_2.bundle_id], self.bundle_id)
 
         self.meta_action_battle = self.storage.meta_actions.values()[0]
 

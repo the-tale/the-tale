@@ -16,7 +16,6 @@ from the_tale.game.logic import create_test_map
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game import exceptions
 from the_tale.game.prototypes import TimePrototype
-from the_tale.game.bundles import BundlePrototype
 
 
 class LogicStorageTestsCommon(testcase.TestCase):
@@ -88,12 +87,12 @@ class LogicStorageTests(testcase.TestCase):
 
 
     def test_load_account_data_with_meta_action(self):
-        bundle = BundlePrototype.create()
+        bundle_id = 666
 
-        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2, bundle=bundle)
+        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2, bundle_id=bundle_id)
 
-        proxy_action_1 = actions_prototypes.ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=bundle.id, meta_action=meta_action_battle)
-        proxy_action_2 = actions_prototypes.ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=bundle.id, meta_action=meta_action_battle)
+        proxy_action_1 = actions_prototypes.ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=bundle_id, meta_action=meta_action_battle)
+        proxy_action_2 = actions_prototypes.ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=bundle_id, meta_action=meta_action_battle)
 
         self.assertEqual(len(self.storage.meta_actions), 1)
         self.assertEqual(len(self.storage.meta_actions_to_actions), 1)
@@ -161,12 +160,12 @@ class LogicStorageTests(testcase.TestCase):
         self.assertFalse(self.hero_1.actions.updated)
 
     def test_save_hero_data_with_meta_action(self):
-        bundle = BundlePrototype.create()
+        bundle_id = 666
 
-        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2, bundle=bundle)
+        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2, bundle_id=bundle_id)
 
-        actions_prototypes.ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=bundle.id, meta_action=meta_action_battle)
-        actions_prototypes.ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=bundle.id, meta_action=meta_action_battle)
+        actions_prototypes.ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=bundle_id, meta_action=meta_action_battle)
+        actions_prototypes.ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=bundle_id, meta_action=meta_action_battle)
 
         with mock.patch('the_tale.game.actions.meta_actions.MetaActionPrototype.save') as save_counter:
             self.storage._save_hero_data(self.hero_1.id)
@@ -407,7 +406,7 @@ class LogicStorageTests(testcase.TestCase):
                 self.assertRaises(Exception, self.storage.process_turn)
 
         self.assertEqual(_save_on_exception.call_count, 1)
-        self.assertEqual(_save_on_exception.call_args, mock.call(excluded_bundle_id=self.hero_2.id))
+        self.assertEqual(_save_on_exception.call_args, mock.call(excluded_bundle_id=self.hero_2.actions.current_action.bundle_id))
 
     def test_save_on_exception(self):
         # hero 1 not saved due to one bundle with hero 3
@@ -537,12 +536,12 @@ class LogicStorageTests(testcase.TestCase):
         self.assertRaises(exceptions.RemoveActionFromMiddleError, self.storage.remove_action, self.action_idl_1)
 
     def test_remove_action__metaaction(self):
-        bundle = BundlePrototype.create()
+        bundle_id = 666
 
-        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2, bundle=bundle)
+        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2, bundle_id=bundle_id)
 
-        proxy_action_1 = actions_prototypes.ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=bundle.id, meta_action=meta_action_battle)
-        proxy_action_2 = actions_prototypes.ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=bundle.id, meta_action=meta_action_battle)
+        proxy_action_1 = actions_prototypes.ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=bundle_id, meta_action=meta_action_battle)
+        proxy_action_2 = actions_prototypes.ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=bundle_id, meta_action=meta_action_battle)
 
         self.assertEqual(len(self.storage.meta_actions), 1)
         self.assertEqual(len(self.storage.meta_actions_to_actions), 1)

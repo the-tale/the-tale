@@ -14,7 +14,7 @@ from the_tale.game.ratings.models import RatingValues
 from the_tale.game.ratings.prototypes import RatingValuesPrototype
 
 from the_tale.linguistics.prototypes import ContributionPrototype
-from the_tale.linguistics.relations import CONTRIBUTION_TYPE
+from the_tale.linguistics import relations as linguistics_relations
 
 from the_tale.game.heroes.conf import heroes_settings
 
@@ -132,15 +132,16 @@ class RatingPrototypeTests(PrototypeTestsBase):
     def create_linguistic_contribution(self, account, type, entity_id):
         ContributionPrototype.create(account_id=account.id,
                                      type=type,
-                                     entity_id=entity_id)
+                                     entity_id=entity_id,
+                                     source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
 
     def test_phrases_count(self):
-        self.create_linguistic_contribution(account=self.account_1, type=CONTRIBUTION_TYPE.TEMPLATE, entity_id=1)
-        self.create_linguistic_contribution(account=self.account_1, type=CONTRIBUTION_TYPE.WORD, entity_id=1)
-        self.create_linguistic_contribution(account=self.account_1, type=CONTRIBUTION_TYPE.TEMPLATE, entity_id=2)
-        self.create_linguistic_contribution(account=self.account_3, type=CONTRIBUTION_TYPE.TEMPLATE, entity_id=2)
-        self.create_linguistic_contribution(account=self.account_3, type=CONTRIBUTION_TYPE.WORD, entity_id=2)
-        self.create_linguistic_contribution(account=self.account_2, type=CONTRIBUTION_TYPE.WORD, entity_id=3)
+        self.create_linguistic_contribution(account=self.account_1, type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, entity_id=1)
+        self.create_linguistic_contribution(account=self.account_1, type=linguistics_relations.CONTRIBUTION_TYPE.WORD, entity_id=1)
+        self.create_linguistic_contribution(account=self.account_1, type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, entity_id=2)
+        self.create_linguistic_contribution(account=self.account_3, type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, entity_id=2)
+        self.create_linguistic_contribution(account=self.account_3, type=linguistics_relations.CONTRIBUTION_TYPE.WORD, entity_id=2)
+        self.create_linguistic_contribution(account=self.account_2, type=linguistics_relations.CONTRIBUTION_TYPE.WORD, entity_id=3)
 
         RatingValuesPrototype.recalculate()
         self.assertEqual([rv.phrases_count for rv in RatingValues.objects.all().order_by('account__id')],

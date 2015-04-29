@@ -12,7 +12,6 @@ from the_tale.game.logic import create_test_map
 from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.balance import constants as c
-from the_tale.game.bundles import BundlePrototype
 
 from the_tale.game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
 from the_tale.game.actions.models import MetaAction, MetaActionMember
@@ -61,7 +60,9 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
         self.battle_2.calculate_rating = True
         self.battle_2.save()
 
-        self.meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2, bundle=BundlePrototype.create())
+        self.bundle_id = 666
+
+        self.meta_action_battle = MetaActionArenaPvP1x1Prototype.create(self.storage, self.hero_1, self.hero_2, bundle_id=self.bundle_id)
         self.meta_action_battle.set_storage(self.storage)
 
 
@@ -300,7 +301,7 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
         hero_1._model.level = 50
         self.assertEqual(hero_2.level, 1)
 
-        MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2, bundle=BundlePrototype.create())
+        MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2, bundle_id=self.bundle_id+1)
 
         self.assertEqual(hero_2.level, 50)
         self.assertTrue(len(hero_2.abilities.all) > 1)
@@ -324,7 +325,7 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
         hero_2._model.level = 50
         self.assertEqual(hero_1.level, 1)
 
-        MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2, bundle=BundlePrototype.create())
+        MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2, bundle_id=self.bundle_id+1)
 
         self.assertEqual(hero_1.level, 50)
         self.assertTrue(len(hero_1.abilities.all) > 1)
@@ -351,10 +352,10 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
         self.pvp_create_battle(account_1, account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(account_2, account_1, BATTLE_1X1_STATE.PROCESSING)
 
-        meta_action = MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2, bundle=BundlePrototype.create())
+        meta_action = MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2, bundle_id=self.bundle_id+1)
         meta_action.process_battle_ending()
 
-        MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2, bundle=BundlePrototype.create())
+        MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2, bundle_id=self.bundle_id+2)
 
         self.assertEqual(hero_2.level, 50)
         self.assertTrue(len(hero_2.abilities.all) > 1)
@@ -375,7 +376,7 @@ class ArenaPvP1x1MetaActionTest(testcase.TestCase, PvPTestsMixin):
         hero_1 = storage.accounts_to_heroes[account_1.id]
         hero_2 = storage.accounts_to_heroes[account_2.id]
 
-        MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2, bundle=BundlePrototype.create())
+        MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2, bundle_id=self.bundle_id+1)
 
         self.assertEqual(hero_2.pvp.energy_speed, 1)
 

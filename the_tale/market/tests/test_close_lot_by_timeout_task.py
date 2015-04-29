@@ -87,7 +87,7 @@ class TaskTests(testcase.TestCase):
         self.assertTrue(self.task.state.is_UNPROCESSED)
         self.assertTrue(self.task.step.is_RETURN_GOOD)
 
-        with mock.patch('the_tale.game.workers.logic.Worker.cmd_logic_task') as cmd_logic_task:
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_logic_task') as cmd_logic_task:
             for call in self.main_task.extend_postsave_actions.call_args_list:
                 for func in call[0][0]:
                     func()

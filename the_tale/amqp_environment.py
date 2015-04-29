@@ -42,7 +42,8 @@ class Environment(BaseEnvironment):
         self.workers.market_manager = market_manager.Worker(name='market_manager', groups=['all', 'portal'])
 
         self.workers.supervisor = supervisor.Worker(name='game_supervisor', groups=['all', 'game'])
-        self.workers.logic = logic.Worker(name='game_logic', groups=['all', 'game'])
+        self.workers.logic_1 = logic.Worker(name='game_logic_1', groups=['all', 'game'])
+        self.workers.logic_2 = logic.Worker(name='game_logic_2', groups=['all', 'game'])
         self.workers.highlevel = highlevel.Worker(name='game_highlevel', groups=['all', 'game']) if game_settings.ENABLE_WORKER_HIGHLEVEL else None
         self.workers.turns_loop = turns_loop.Worker(name='game_turns_loop', groups=['all', 'game']) if game_settings.ENABLE_WORKER_TURNS_LOOP else None
         self.workers.game_long_commands = game_long_commands.Worker(name='game_long_commands', groups=['all', 'game'])

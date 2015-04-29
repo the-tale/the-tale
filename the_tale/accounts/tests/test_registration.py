@@ -210,12 +210,6 @@ class TestRegistrationTask(testcase.TestCase):
         self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.UNKNOWN_ERROR)
         self.assertEqual(Account.objects.all().count(), 0)
 
-    @mock.patch('the_tale.accounts.logic.register_user', lambda *argv, **kwargs: (REGISTER_USER_RESULT.OK, 1, 1))
-    def test_process_bundle_not_foud(self):
-        self.assertEqual(self.task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.ERROR)
-        self.assertEqual(self.task.state, REGISTRATION_TASK_STATE.BUNDLE_NOT_FOUND)
-        self.assertEqual(Account.objects.all().count(), 0)
-
     @mock.patch('the_tale.accounts.logic.register_user', lambda *argv, **kwargs: raise_exception())
     def test_process_exceptin(self):
         self.assertRaises(Exception, self.task.process, FakePostpondTaskPrototype())

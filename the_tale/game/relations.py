@@ -107,3 +107,12 @@ class ARCHETYPE(DjangoEnum):
                 (u'PHYSICAL', 2, u'воин', PowerDistribution(0.75, 0.25), u'герой полагается на воинские умения', [ARTIFACT_POWER_TYPE.NEUTRAL,
                                                                                                                   ARTIFACT_POWER_TYPE.PHYSICAL,
                                                                                                                   ARTIFACT_POWER_TYPE.MOST_PHYSICAL]) )
+
+
+class SUPERVISOR_TASK_TYPE(DjangoEnum):
+    records = (('ARENA_PVP_1X1', 0, u'создать pvp бой на арене'),)
+
+class SUPERVISOR_TASK_STATE(DjangoEnum):
+    records = ( ('WAITING', 0, u'ожидает ресурсы'),
+                ('PROCESSED', 1, u'обработана'),
+                ('ERROR', 2, u'ошибка при обработке'), )

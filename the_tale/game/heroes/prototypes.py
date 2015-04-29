@@ -404,7 +404,10 @@ class HeroPrototype(BasePrototype,
         return preferences
 
     @lazy_property
-    def actions(self): return ActionsContainer.deserialize(self, s11n.from_json(self._model.actions))
+    def actions(self):
+        actions_container = ActionsContainer.deserialize(self, s11n.from_json(self._model.actions))
+        actions_container.initialize(hero=self)
+        return actions_container
 
     @lazy_property
     def companion(self):
@@ -716,7 +719,7 @@ class HeroPrototype(BasePrototype,
         return data
 
     @classmethod
-    def create(cls, account, bundle): # pylint: disable=R0914
+    def create(cls, account): # pylint: disable=R0914
         from the_tale.game.relations import GENDER, RACE
         from the_tale.game.actions.prototypes import ActionIdlenessPrototype
         from the_tale.game.logic_storage import LogicStorage
@@ -760,11 +763,6 @@ class HeroPrototype(BasePrototype,
                                         archetype=game_relations.ARCHETYPE.NEUTRAL,
                                         companion_dedication=relations.COMPANION_DEDICATION.NORMAL,
                                         companion_empathy=relations.COMPANION_EMPATHY.ORDINAL)
-
-        logic_storage = LogicStorage() # tmp storage for creating Idleness action
-        ActionIdlenessPrototype.create(hero=hero, _bundle_id=bundle.id, _storage=None)
-
-        logic_storage._add_hero(hero)
 
         return hero
 

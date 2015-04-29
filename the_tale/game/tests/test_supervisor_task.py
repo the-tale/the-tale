@@ -16,7 +16,6 @@ from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
 from the_tale.game.pvp.models import Battle1x1, BATTLE_1X1_STATE
 
-from the_tale.game.models import Bundle
 
 class SupervisorTaskTests(TestCase):
 
@@ -33,7 +32,7 @@ class SupervisorTaskTests(TestCase):
 
     def test_process_when_not_all_members_captured(self):
         task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
-        self.assertRaises(exceptions.GameError, task.process)
+        self.assertRaises(exceptions.GameError, task.process, bundle_id=666)
 
     def test_process_arena_pvp_1x1(self):
         task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
@@ -56,11 +55,7 @@ class SupervisorTaskTests(TestCase):
         old_hero.health = 1
         old_hero.save()
 
-        self.assertEqual(Bundle.objects.all().count(), 2)
-
-        task.process()
-
-        self.assertEqual(Bundle.objects.all().count(), 3)
+        task.process(bundle_id=666)
 
         new_hero = HeroPrototype.get_by_account_id(self.account_1.id)
         new_hero_2 = HeroPrototype.get_by_account_id(self.account_2.id)

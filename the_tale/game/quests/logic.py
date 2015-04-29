@@ -136,6 +136,12 @@ class HeroQuestInfo(object):
                    excluded_quests=set(data['excluded_quests']),
                    prefered_quest_markers=set(data['prefered_quest_markers']))
 
+    def __eq__(self, other):
+        return self.serialize() == other.serialize()
+
+    def __neq__(self, other):
+        return not self.__eq__(other)
+
 
 
 def choose_quest_path_url():
@@ -434,6 +440,10 @@ def request_quest_for_hero(hero):
 
 
 def setup_quest_for_hero(hero, knowledge_base_data):
+
+    # do nothing if hero has already had quest
+    if not hero.actions.current_action.searching_quest:
+        return
 
     knowledge_base = KnowledgeBase.deserialize(knowledge_base_data, fact_classes=facts.FACTS)
 

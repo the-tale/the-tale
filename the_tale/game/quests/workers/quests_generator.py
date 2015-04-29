@@ -1,5 +1,7 @@
 # coding: utf-8
 
+import collections
+
 from the_tale import amqp_environment
 
 from the_tale.common.utils.workers import BaseWorker
@@ -8,7 +10,8 @@ from the_tale.game.quests import logic
 
 
 class Worker(BaseWorker):
-    GET_CMD_TIMEOUT = 60
+    GET_CMD_TIMEOUT = 0
+    NO_CMD_TIMEOUT = 0.1
 
     def initialize(self):
         if self.initialized:
@@ -16,7 +19,14 @@ class Worker(BaseWorker):
 
         self.initialized = True
 
+        self.requests_query = collections.deque()
+        self.requests_heroes_infos = {}
+
         self.logger.info('QUEST GENERATOR INITIALIZED')
+
+    def process_no_cmd(self):
+        if self.initialized:
+            self.generate_quest()
 
     def cmd_stop(self):
         return self.send_cmd('stop')
@@ -34,5 +44,16 @@ class Worker(BaseWorker):
                                         'hero_info': hero_info})
 
     def process_request_quest(self, account_id, hero_info):
-        knowledge_base = logic.create_random_quest_for_hero(logic.HeroQuestInfo.deserialize(hero_info), logger=self.logger)
+        self.requests_heroes_infos[account_id] = logic.HeroQuestInfo.deserialize(hero_info)
+        if account_id not in self.requests_query:
+            self.requests_query.append(account_id)
+
+    def generate_quest(self):
+        if not self.requests_query:
+            return
+
+        account_id = self.requests_query.popleft()
+        hero_info = self.requests_heroes_infos.pop(account_id)
+
+        knowledge_base = logic.create_random_quest_for_hero(hero_info, logger=self.logger)
         amqp_environment.environment.workers.supervisor.cmd_setup_quest(account_id, knowledge_base.serialize())

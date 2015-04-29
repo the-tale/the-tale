@@ -14,7 +14,7 @@ from the_tale.common.utils.decorators import lazy_property
 
 from the_tale.game.balance import formulas as f
 
-from the_tale.game.models import SupervisorTask, SupervisorTaskMember, SUPERVISOR_TASK_TYPE
+from the_tale.game.models import SupervisorTask, SupervisorTaskMember
 
 from the_tale.game.conf import game_settings
 from the_tale.game import relations
@@ -25,9 +25,9 @@ class MONTHS(DjangoEnum):
     date_text = rels.Column()
 
     records = ( ('COLD',  1, u'холодный месяц', u'холодного месяца'),
-                 ('CRUDE', 2, u'сырой месяц',    u'сырого месяца'),
-                 ('HOT',   3, u'жаркий месяц',   u'жаркого месяца'),
-                 ('DRY',   4, u'сухой месяц',    u'сухого месяца') )
+                ('CRUDE', 2, u'сырой месяц',    u'сырого месяца'),
+                ('HOT',   3, u'жаркий месяц',   u'жаркого месяца'),
+                ('DRY',   4, u'сухой месяц',    u'сухого месяца') )
 
 
 class GameTime(collections.namedtuple('GameTimeTuple', ('year', 'month', 'day', 'hour', 'minute', 'second'))):
@@ -108,7 +108,8 @@ class SupervisorTaskPrototype(BasePrototype):
     @transaction.atomic
     def create_arena_pvp_1x1(cls, account_1, account_2):
 
-        model = cls._model_class.objects.create(type=SUPERVISOR_TASK_TYPE.ARENA_PVP_1X1)
+        model = cls._model_class.objects.create(type=relations.SUPERVISOR_TASK_TYPE.ARENA_PVP_1X1,
+                                                state=relations.SUPERVISOR_TASK_STATE.WAITING)
 
         SupervisorTaskMember.objects.create(task=model, account=account_1._model)
         SupervisorTaskMember.objects.create(task=model, account=account_2._model)
@@ -116,23 +117,22 @@ class SupervisorTaskPrototype(BasePrototype):
         return cls(model)
 
     @transaction.atomic
-    def process(self):
+    def process(self, bundle_id):
 
         if not self.all_members_captured:
             raise exceptions.SupervisorTaskMemberMissedError(task_id=self.id, members=self.members, captured_members=self.captured_members)
 
-        if self.type == SUPERVISOR_TASK_TYPE.ARENA_PVP_1X1:
-            return self.process_arena_pvp_1x1()
+        if self.type == relations.SUPERVISOR_TASK_TYPE.ARENA_PVP_1X1:
+            return self.process_arena_pvp_1x1(bundle_id)
 
 
-    def process_arena_pvp_1x1(self): # pylint: disable=R0914
+    def process_arena_pvp_1x1(self, bundle_id): # pylint: disable=R0914
         from the_tale.accounts.prototypes import AccountPrototype
         from the_tale.game.actions.prototypes import ActionMetaProxyPrototype
         from the_tale.game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
         from the_tale.game.logic_storage import LogicStorage
         from the_tale.game.pvp.prototypes import Battle1x1Prototype
         from the_tale.game.pvp.models import BATTLE_1X1_STATE
-        from the_tale.game.bundles import BundlePrototype
 
         storage = LogicStorage()
 
@@ -150,17 +150,14 @@ class SupervisorTaskPrototype(BasePrototype):
         old_bundle_1_id = hero_1.actions.current_action.bundle_id
         old_bundle_2_id = hero_2.actions.current_action.bundle_id
 
-        bundle = BundlePrototype.create()
+        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2, bundle_id=bundle_id)
 
-        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2, bundle=bundle)
+        ActionMetaProxyPrototype.create(hero=hero_1, _bundle_id=bundle_id, meta_action=meta_action_battle)
+        ActionMetaProxyPrototype.create(hero=hero_2, _bundle_id=bundle_id, meta_action=meta_action_battle)
 
-        ActionMetaProxyPrototype.create(hero=hero_1, _bundle_id=bundle.id, meta_action=meta_action_battle)
-        ActionMetaProxyPrototype.create(hero=hero_2, _bundle_id=bundle.id, meta_action=meta_action_battle)
+        storage.merge_bundles([old_bundle_1_id, old_bundle_2_id], bundle_id)
 
-        storage.merge_bundles([old_bundle_1_id, old_bundle_2_id], bundle.id)
-
-        storage.save_bundle_data(bundle.id)
-        # storage.save_changed_data()
+        storage.save_bundle_data(bundle_id)
 
         battle_1 = Battle1x1Prototype.get_by_account_id(account_1_id)
         battle_1.state = BATTLE_1X1_STATE.PROCESSING

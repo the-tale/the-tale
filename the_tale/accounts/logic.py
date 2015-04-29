@@ -22,7 +22,6 @@ from the_tale.collections.prototypes import AccountItemsPrototype
 from the_tale.market import logic as market_logic
 
 from the_tale.game.heroes.prototypes import HeroPrototype
-from the_tale.game.bundles import BundlePrototype
 from the_tale.game.logic import dress_new_hero, messages_for_new_hero
 
 from the_tale.accounts import signals
@@ -97,14 +96,12 @@ def register_user(nick, email=None, password=None, referer=None, referral_of_id=
 
     market_logic.create_goods(account.id)
 
-    bundle = BundlePrototype.create()
-
-    hero = HeroPrototype.create(account=account, bundle=bundle)
+    hero = HeroPrototype.create(account=account)
     dress_new_hero(hero)
     messages_for_new_hero(hero)
     hero.save()
 
-    return REGISTER_USER_RESULT.OK, account.id, bundle.id
+    return REGISTER_USER_RESULT.OK, account.id, hero.actions.current_action.bundle_id
 
 
 def login_user(request, nick=None, password=None, remember=False):

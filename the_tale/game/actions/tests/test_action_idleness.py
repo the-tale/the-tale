@@ -17,13 +17,8 @@ from the_tale.game.abilities.relations import HELP_CHOICES
 
 from the_tale.game.map.roads.storage import roads_storage
 
-from the_tale.game.actions.prototypes import (ActionIdlenessPrototype,
-                                     ActionQuestPrototype,
-                                     ActionInPlacePrototype,
-                                     ActionRegenerateEnergyPrototype,
-                                     ActionMoveToPrototype,
-                                     ActionMoveNearPlacePrototype,
-                                     ActionResurrectPrototype)
+from the_tale.game.actions import prototypes
+
 
 class IdlenessActionTest(testcase.TestCase):
 
@@ -55,35 +50,35 @@ class IdlenessActionTest(testcase.TestCase):
     def test_first_quest(self):
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 2)
-        self.assertEqual(self.hero.actions.current_action.TYPE, ActionQuestPrototype.TYPE)
-        self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.QUEST)
-        self.assertTrue(self.action_idl.bundle_id is not None)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionQuestPrototype.TYPE)
+        self.assertEqual(self.action_idl.state, prototypes.ActionIdlenessPrototype.STATE.QUEST)
+        self.assertEqual(self.action_idl.bundle_id, self.hero.account_id)
         self.storage._test_save()
 
 
     def test_reset_percents_on_quest_end(self):
         self.action_idl.percents = 1.0
-        self.action_idl.state = ActionIdlenessPrototype.STATE.QUEST
+        self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.QUEST
         self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(self.action_idl.percents, 0.0)
 
 
     def test_inplace(self):
         self.action_idl.percents = 1.0
-        self.action_idl.state = ActionIdlenessPrototype.STATE.QUEST
+        self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.QUEST
         self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 2)
-        self.assertEqual(self.hero.actions.current_action.TYPE, ActionInPlacePrototype.TYPE)
-        self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.IN_PLACE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionInPlacePrototype.TYPE)
+        self.assertEqual(self.action_idl.state, prototypes.ActionIdlenessPrototype.STATE.IN_PLACE)
         self.storage._test_save()
 
     def test_waiting(self):
         self.action_idl.percents = 0.0
-        self.action_idl.state = ActionIdlenessPrototype.STATE.IN_PLACE
+        self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.IN_PLACE
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
-        self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.WAITING)
+        self.assertEqual(self.action_idl.state, prototypes.ActionIdlenessPrototype.STATE.WAITING)
         self.storage._test_save()
 
     def test_regenerate_energy_action_create(self):
@@ -93,7 +88,7 @@ class IdlenessActionTest(testcase.TestCase):
         self.action_idl.percents = 0.0
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 2)
-        self.assertEqual(self.hero.actions.current_action.TYPE, ActionRegenerateEnergyPrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionRegenerateEnergyPrototype.TYPE)
         self.storage._test_save()
 
     def test_regenerate_energy_action_not_create_for_sacrifice(self):
@@ -108,7 +103,7 @@ class IdlenessActionTest(testcase.TestCase):
 
 
     def test_full_waiting(self):
-        self.action_idl.state = ActionIdlenessPrototype.STATE.WAITING
+        self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.WAITING
         self.action_idl.percents = 0
 
         current_time = TimePrototype.get_current_time()
@@ -122,13 +117,13 @@ class IdlenessActionTest(testcase.TestCase):
         self.storage.process_turn()
 
         self.assertEqual(len(self.hero.actions.actions_list), 2)
-        self.assertEqual(self.hero.actions.current_action.TYPE, ActionQuestPrototype.TYPE)
-        self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.QUEST)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionQuestPrototype.TYPE)
+        self.assertEqual(self.action_idl.state, prototypes.ActionIdlenessPrototype.STATE.QUEST)
 
         self.storage._test_save()
 
     def test_initiate_quest(self):
-        self.action_idl.state = ActionIdlenessPrototype.STATE.WAITING
+        self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.WAITING
         self.action_idl.percents = 0
 
         self.action_idl.init_quest()
@@ -136,13 +131,13 @@ class IdlenessActionTest(testcase.TestCase):
         self.storage.process_turn()
 
         self.assertEqual(len(self.hero.actions.actions_list), 2)
-        self.assertEqual(self.hero.actions.current_action.TYPE, ActionQuestPrototype.TYPE)
-        self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.QUEST)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionQuestPrototype.TYPE)
+        self.assertEqual(self.action_idl.state, prototypes.ActionIdlenessPrototype.STATE.QUEST)
 
         self.storage._test_save()
 
     def test_initiate_quest_just_after_quest(self):
-        self.action_idl.state = ActionIdlenessPrototype.STATE.QUEST
+        self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.QUEST
         self.action_idl.percents = 0
 
         self.action_idl.init_quest()
@@ -150,8 +145,8 @@ class IdlenessActionTest(testcase.TestCase):
         self.storage.process_turn()
 
         self.assertEqual(len(self.hero.actions.actions_list), 2)
-        self.assertEqual(self.hero.actions.current_action.TYPE, ActionQuestPrototype.TYPE)
-        self.assertEqual(self.action_idl.state, ActionIdlenessPrototype.STATE.QUEST)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionQuestPrototype.TYPE)
+        self.assertEqual(self.action_idl.state, prototypes.ActionIdlenessPrototype.STATE.QUEST)
 
         self.storage._test_save()
 
@@ -165,38 +160,38 @@ class IdlenessActionTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_return_from_road__after_quest(self):
-        self.action_idl.state = ActionIdlenessPrototype.STATE.QUEST
+        self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.QUEST
         self.hero.position.set_road(list(roads_storage.all())[0], percents=0.5)
         self.storage.process_turn()
         self.assertEqual(self.hero.actions.number, 2)
-        self.assertEqual(self.hero.actions.current_action.TYPE, ActionMoveToPrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionMoveToPrototype.TYPE)
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_return_from_wild_terrain__after_quest(self):
-        self.action_idl.state = ActionIdlenessPrototype.STATE.QUEST
+        self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.QUEST
         self.hero.position.set_coordinates(0, 0, 5, 5, percents=0)
         self.storage.process_turn()
         self.assertEqual(self.hero.actions.number, 2)
-        self.assertEqual(self.hero.actions.current_action.TYPE, ActionMoveNearPlacePrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionMoveNearPlacePrototype.TYPE)
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_return_from_road__after_resurrect(self):
-        self.action_idl.state = ActionIdlenessPrototype.STATE.RESURRECT
+        self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.RESURRECT
         self.hero.position.set_road(list(roads_storage.all())[0], percents=0.5)
         self.storage.process_turn()
         self.assertEqual(self.hero.actions.number, 2)
-        self.assertEqual(self.hero.actions.current_action.TYPE, ActionMoveToPrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionMoveToPrototype.TYPE)
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
     def test_return_from_wild_terrain__after_resurrect(self):
-        self.action_idl.state = ActionIdlenessPrototype.STATE.RESURRECT
+        self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.RESURRECT
         self.hero.position.set_coordinates(0, 0, 5, 5, percents=0)
         self.storage.process_turn()
         self.assertEqual(self.hero.actions.number, 2)
-        self.assertEqual(self.hero.actions.current_action.TYPE, ActionMoveNearPlacePrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionMoveNearPlacePrototype.TYPE)
 
     def test_resurrect(self):
         self.hero.is_alive = False
         self.storage.process_turn()
         self.assertEqual(self.hero.actions.number, 2)
-        self.assertEqual(self.hero.actions.current_action.TYPE, ActionResurrectPrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionResurrectPrototype.TYPE)

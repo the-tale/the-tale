@@ -21,7 +21,7 @@ class MetaAction(models.Model):
 
     data = models.TextField(null=False, default='{}')
 
-    bundle = models.ForeignKey('game.Bundle', null=True, on_delete=models.PROTECT)
+    bundle_id = models.BigIntegerField(null=True)
 
 
 class MetaActionMember(models.Model):

@@ -14,6 +14,7 @@ from the_tale.game.models import SupervisorTask
 from the_tale.game.logic import create_test_map
 from the_tale.game.prototypes import SupervisorTaskPrototype, GameState
 from the_tale.game.workers.supervisor import SupervisorException
+from the_tale.game import exceptions
 
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
 
@@ -56,7 +57,7 @@ class SupervisorWorkerTests(testcase.TestCase):
 
         self.assertEqual(self.worker.tasks, {})
         self.assertEqual(self.worker.accounts_for_tasks, {})
-        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'logic', self.account_2.id: 'logic'})
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'game_logic_1', self.account_2.id: 'game_logic_2'})
         self.assertEqual(self.worker.accounts_queues, {})
         self.assertTrue(self.worker.initialized)
         self.assertFalse(self.worker.wait_next_turn_answer)
@@ -88,7 +89,7 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.assertEqual(self.worker.accounts_queues, {})
 
         self.worker.process_account_released(self.account_1.id)
-        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'supervisor', self.account_2.id: None})
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'game_supervisor', self.account_2.id: None})
 
         #test commands queue
         self.worker.process_start_hero_caching(self.account_1.id)
@@ -99,7 +100,7 @@ class SupervisorWorkerTests(testcase.TestCase):
                                                         self.account_2.id: [('start_hero_caching', {'account_id': self.account_2.id})]})
 
         self.worker.process_account_released(self.account_2.id)
-        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'logic', self.account_2.id: 'logic'})
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'game_logic_1', self.account_2.id: 'game_logic_1'})
 
         self.assertEqual(len(self.worker.tasks), 0)
 
@@ -157,6 +158,8 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.assertEqual(set(self.worker.accounts_for_tasks.keys()), set([self.account_1.id, self.account_2.id]))
         self.assertEqual(self.worker.tasks.values()[0].captured_members, set())
 
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: None, self.account_2.id: None, account_id: 'game_logic_1'})
+
     def test_register_account_in_task(self):
         self.worker.process_initialize()
         task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
@@ -168,6 +171,8 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.assertEqual(register_account_counter.call_count, 0)
         self.assertEqual(set(self.worker.accounts_for_tasks.keys()), set([self.account_1.id, self.account_2.id]))
         self.assertEqual(self.worker.tasks.values()[0].captured_members, set([self.account_1.id]))
+
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'game_supervisor', self.account_2.id: None})
 
     def test_register_account_last_in_task(self):
         self.worker.process_initialize()
@@ -186,6 +191,80 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.assertEqual(set(self.worker.accounts_for_tasks.keys()), set())
         self.assertEqual(self.worker.tasks.values(), [])
         self.assertEqual(SupervisorTask.objects.all().count(), 0)
+
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'game_logic_1', self.account_2.id: 'game_logic_1'})
+
+    def test_register_accounts_chain(self):
+        self.worker.process_initialize()
+
+        account_3 = self.accounts_factory.create_account()
+        account_4 = self.accounts_factory.create_account()
+        account_5 = self.accounts_factory.create_account()
+
+        with mock.patch('the_tale.game.workers.logic.Worker.cmd_register_account') as register_account_counter:
+            self.worker.register_account(account_3.id)
+            self.worker.register_account(account_4.id)
+            self.worker.register_account(account_5.id)
+
+        self.assertEqual(register_account_counter.call_count, 3)
+
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'game_logic_1',
+                                                       self.account_2.id: 'game_logic_2',
+                                                       account_3.id: 'game_logic_1',
+                                                       account_4.id: 'game_logic_2',
+                                                       account_5.id: 'game_logic_1'})
+        self.assertEqual(self.worker.logic_accounts_number, {'game_logic_1': 3, 'game_logic_2': 2})
+
+    def test_register_accounts_on_initialization(self):
+        account_3 = self.accounts_factory.create_account()
+        account_4 = self.accounts_factory.create_account()
+        account_5 = self.accounts_factory.create_account()
+
+        self.worker.process_initialize()
+
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'game_logic_1',
+                                                       self.account_2.id: 'game_logic_2',
+                                                       account_3.id: 'game_logic_1',
+                                                       account_4.id: 'game_logic_2',
+                                                       account_5.id: 'game_logic_1'})
+        self.assertEqual(self.worker.logic_accounts_number, {'game_logic_1': 3, 'game_logic_2': 2})
+
+    def test_register_accounts_on_initialization__multiple_accounts_bandles(self):
+        account_3 = self.accounts_factory.create_account()
+        account_4 = self.accounts_factory.create_account()
+        account_5 = self.accounts_factory.create_account()
+        account_6 = self.accounts_factory.create_account()
+
+        hero_2 = HeroPrototype.get_by_account_id(self.account_2.id)
+        hero_3 = HeroPrototype.get_by_account_id(account_3.id)
+        hero_4 = HeroPrototype.get_by_account_id(account_4.id)
+        hero_6 = HeroPrototype.get_by_account_id(account_6.id)
+
+        hero_3.actions.current_action.bundle_id = hero_2.actions.current_action.bundle_id
+        hero_3.actions.updated = True
+        hero_3.save()
+
+        hero_4.actions.current_action.bundle_id = hero_2.actions.current_action.bundle_id
+        hero_4.actions.updated = True
+        hero_4.save()
+
+        hero_6.actions.current_action.bundle_id = hero_2.actions.current_action.bundle_id
+        hero_6.actions.updated = True
+        hero_6.save()
+
+        self.worker.process_initialize()
+
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'game_logic_1',
+                                                       self.account_2.id: 'game_logic_2',
+                                                       account_3.id: 'game_logic_2',
+                                                       account_4.id: 'game_logic_2',
+                                                       account_5.id: 'game_logic_1',
+                                                       account_6.id: 'game_logic_2'})
+        self.assertEqual(self.worker.logic_accounts_number, {'game_logic_1': 2, 'game_logic_2': 4})
+
+    def test_register_accounts__double_register(self):
+        self.worker.process_initialize()
+        self.assertRaises(exceptions.DublicateAccountRegistration, self.worker.register_account, self.account_1.id)
 
     def test_dispatch_command_for_unregistered_account(self):
         self.worker.process_initialize()
@@ -242,25 +321,25 @@ class SupervisorWorkerTests(testcase.TestCase):
                 self.worker.process_next_turn()
                 self.assertRaises(amqp_exceptions.WaitAnswerTimeoutError, self.worker.process_next_turn)
 
-        self.assertEqual(logic_cmd_stop.call_count, 1)
+        self.assertEqual(logic_cmd_stop.call_count, len(self.worker.logic_workers))
 
     def test_send_release_account_cmd(self):
         self.worker.process_initialize()
 
-        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'logic', self.account_2.id: 'logic'})
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'game_logic_1', self.account_2.id: 'game_logic_2'})
 
         with mock.patch('the_tale.game.workers.logic.Worker.cmd_release_account') as cmd_release_account:
             self.worker.send_release_account_cmd(self.account_2.id)
 
         self.assertEqual(cmd_release_account.call_args_list, [mock.call(self.account_2.id)])
 
-        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'logic', self.account_2.id: None})
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'game_logic_1', self.account_2.id: None})
 
 
     def test_send_release_account_cmd__second_try(self):
         self.worker.process_initialize()
 
-        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'logic', self.account_2.id: 'logic'})
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'game_logic_1', self.account_2.id: 'game_logic_2'})
 
         with mock.patch('the_tale.game.workers.logic.Worker.cmd_release_account') as cmd_release_account:
             self.worker.send_release_account_cmd(self.account_2.id)
@@ -273,5 +352,6 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.assertEqual(self.worker.accounts_owners, {self.account_1.id: None, self.account_2.id: None})
 
     def test_force_stop(self):
+        self.worker.process_initialize()
         self.worker._force_stop()
         self.assertTrue(GameState.is_stopped())
