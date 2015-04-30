@@ -1894,6 +1894,11 @@ class ActionMetaProxyPrototype(ActionBase):
     def description_text_name(self):
         return self.meta_action.description_text_name
 
+    def get_description_arguments(self):
+        hero_2 = self.meta_action.hero_2 if self.hero.id == self.meta_action.hero_1.id else self.meta_action.hero_1
+        return {'duelist_1': self.hero,
+                'duelist_2': hero_2}
+
     @property
     def ui_type(self):
         if self.meta_action is None:

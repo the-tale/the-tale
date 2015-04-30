@@ -34,8 +34,8 @@ class BasePvPAbility(object):
 
     def miss(self):
         self.hero.pvp.set_energy(0)
-        self.hero.add_message('pvp_miss_ability', hero=self.hero)
-        self.enemy.add_message('pvp_miss_ability', turn_delta=1, hero=self.hero)
+        self.hero.add_message('pvp_miss_ability', duelist_1=self.hero, duelist_2=self.enemy)
+        self.enemy.add_message('pvp_miss_ability', turn_delta=1, duelist_1=self.hero, duelist_2=self.enemy)
 
 
 class Ice(BasePvPAbility):
@@ -49,8 +49,8 @@ class Ice(BasePvPAbility):
     def apply(self):
         self.hero.pvp.set_energy_speed(self.hero.pvp.energy_speed + 1)
         self.hero.pvp.set_energy(0)
-        self.hero.add_message('pvp_use_ability_%s' % self.TYPE, hero=self.hero)
-        self.enemy.add_message('pvp_use_ability_%s' % self.TYPE, turn_delta=1, hero=self.hero)
+        self.hero.add_message('pvp_use_ability_%s' % self.TYPE, duelist_1=self.hero, duelist_2=self.enemy)
+        self.enemy.add_message('pvp_use_ability_%s' % self.TYPE, turn_delta=1, duelist_1=self.hero, duelist_2=self.enemy)
 
 
 
@@ -70,8 +70,8 @@ class Blood(BasePvPAbility):
         effectiveness_delta = int(round(c.PVP_EFFECTIVENESS_STEP * self.modify_effect(1.0)*(1 + self.hero.might_pvp_effectiveness_bonus)))
         self.hero.pvp.set_effectiveness(self.hero.pvp.effectiveness + effectiveness_delta)
         self.hero.pvp.set_energy(0)
-        self.hero.add_message('pvp_use_ability_%s' % self.TYPE, hero=self.hero, effectiveness=effectiveness_delta)
-        self.enemy.add_message('pvp_use_ability_%s' % self.TYPE, turn_delta=1, hero=self.hero, effectiveness=effectiveness_delta)
+        self.hero.add_message('pvp_use_ability_%s' % self.TYPE, duelist_1=self.hero, duelist_2=self.enemy, effectiveness=effectiveness_delta)
+        self.enemy.add_message('pvp_use_ability_%s' % self.TYPE, turn_delta=1, duelist_1=self.hero, duelist_2=self.enemy, effectiveness=effectiveness_delta)
 
 
 class Flame(BasePvPAbility):
@@ -86,8 +86,8 @@ class Flame(BasePvPAbility):
         if self.enemy.pvp.energy_speed > 1:
             self.enemy.pvp.set_energy_speed(self.enemy.pvp.energy_speed - 1)
         self.hero.pvp.set_energy(0)
-        self.hero.add_message('pvp_use_ability_%s' % self.TYPE, hero=self.hero)
-        self.enemy.add_message('pvp_use_ability_%s' % self.TYPE, turn_delta=1, hero=self.hero)
+        self.hero.add_message('pvp_use_ability_%s' % self.TYPE, duelist_1=self.hero, duelist_2=self.enemy)
+        self.enemy.add_message('pvp_use_ability_%s' % self.TYPE, turn_delta=1, duelist_1=self.hero, duelist_2=self.enemy)
 
 
 ABILITIES = {ability.TYPE:ability
