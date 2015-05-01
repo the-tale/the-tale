@@ -343,3 +343,6 @@ a.btn.disabled {
 .statistics-plot input {
   width: 3em;
 }
+textarea {
+  resize: vertical;
+}

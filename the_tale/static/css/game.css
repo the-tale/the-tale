@@ -291,7 +291,7 @@
   background-color: #e1e6e6;
 }
 .diary-record .datetime {
-  font-weight: bold;
+  font-style: italic;
 }
 .diary-record .message {
   margin-left: 1em;
@@ -307,7 +307,7 @@
   position: absolute;
   right: -1px;
   top: 0;
-  z-index: 1001;
+  z-index: 503;
   background-color: #f5fafa;
   /* border: 1px solid @border-color; */
 
