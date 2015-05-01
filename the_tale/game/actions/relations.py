@@ -35,22 +35,22 @@ class ACTION_TYPE(DjangoEnum):
     meta = Column(unique=False)
     technical = Column(unique=False)
 
-    records = ( ('IDLENESS', 0, u'безделье', False, False),
-                ('QUEST',    1, u'задание', False, False),
-                ('MOVE_TO', 2, u'путешествие между городами', False, False),
-                ('BATTLE_PVE_1X1', 3, u'сражение 1x1 с монстром', False, False),
-                ('RESURRECT', 4, u'воскрешение', False, False),
-                ('IN_PLACE', 5, u'действия в городе', False, False),
-                ('REST', 6, u'отдых', False, False),
-                ('EQUIPPING', 7, u'экипировка', False, False),
-                ('TRADING', 8, u'торговля', False, False),
-                ('MOVE_NEAR_PLACE', 9, u'путешествие около города', False, False),
-                ('REGENERATE_ENERGY', 10, u'восстановление энергии', False, False),
-                ('DO_NOTHING', 11, u'действие без эффекта на игру', False, False),
-                ('META_PROXY', 12, u'прокси-действия для взаимодействия героев', False, True),
-                ('ARENA_PVP_1X1', 13, u'PvP 1x1', True, False),
+    records = ( ('IDLENESS', 0, u'герой бездельничает', False, False),
+                ('QUEST',    1, u'герой выполненяет задание', False, False),
+                ('MOVE_TO', 2, u'герой путешествует между городами', False, False),
+                ('BATTLE_PVE_1X1', 3, u'герой сражается 1x1 с монстром', False, False),
+                ('RESURRECT', 4, u'герой воскресает', False, False),
+                ('IN_PLACE', 5, u'герой в городе', False, False),
+                ('REST', 6, u'герой лечится', False, False),
+                ('EQUIPPING', 7, u'герой экипируется', False, False),
+                ('TRADING', 8, u'герой торгует', False, False),
+                ('MOVE_NEAR_PLACE', 9, u'герой путешествует около города', False, False),
+                ('REGENERATE_ENERGY', 10, u'герой восстановливает энергию Хранителю', False, False),
+                ('DO_NOTHING', 11, u'техническое действие для особых действий героя в заданиях', False, False),
+                ('META_PROXY', 12, u'техническое прокси-действие для взаимодействия героев', False, True),
+                ('ARENA_PVP_1X1', 13, u'герой сражается 1x1 с другим героем', True, False),
 
-                ('TEST', 14, u'проверочное действие', False, True),
+                ('TEST', 14, u'техническое действие для тестов', False, True),
 
-                ('HEAL_COMPANION', 15, u'уход за спутником', False, False),
-                )
+                ('HEAL_COMPANION', 15, u'герой ухаживает за спутником', False, False),
+              )

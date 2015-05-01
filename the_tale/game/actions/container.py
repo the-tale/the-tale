@@ -33,7 +33,6 @@ class ActionsContainer(object):
                                                                         bundle_id=hero.account_id,
                                                                         percents=1.0,
                                                                         state=prototypes.ActionIdlenessPrototype.STATE.WAITING))
-            self.actions_list[-1].on_create()
             self.is_single = True
 
     def ui_info(self):

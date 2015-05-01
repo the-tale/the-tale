@@ -198,11 +198,17 @@ class ActionBase(object):
         return cls(hero=hero, **data)
 
     @property
-    def ui_type(self): return self.TYPE.value
+    def ui_type(self): return self.TYPE
 
     def ui_info(self):
+        if self.description is None:
+            self.description = self.get_description()
+
+        if self.info_link is None:
+            self.info_link = self.get_info_link()
+
         return {'percents': max(0.0, min(1.0, self.percents)),
-                'type': self.ui_type,
+                'type': self.ui_type.value,
                 'description': self.description,
                 'info_link': self.info_link,
                 'is_boss': self.mob.is_boss if self.mob else None}
@@ -279,11 +285,6 @@ class ActionBase(object):
     #####################################
     # management
     #####################################
-    def on_create(self):
-        self.description = self.get_description()
-        self.info_link = self.get_info_link()
-
-
     @classmethod
     def create(cls, hero, **kwargs):
         '''
@@ -315,8 +316,6 @@ class ActionBase(object):
 
         elif hero.actions.has_actions:
             hero.actions.current_action.storage.add_action(action)
-
-        action.on_create()
 
         hero.actions.push_action(action)
 
@@ -622,7 +621,6 @@ class ActionMoveToPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.MOVE_TO
     TEXTGEN_TYPE = 'action_moveto'
-    SHORT_DESCRIPTION = u'путешествует'
 
     @property
     def HELP_CHOICES(self):
@@ -1560,7 +1558,6 @@ class ActionTradingPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.TRADING
     TEXTGEN_TYPE = 'action_trading'
-    SHORT_DESCRIPTION = u'торгует'
     HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY, HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
@@ -1843,7 +1840,6 @@ class ActionDoNothingPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.DO_NOTHING
     TEXTGEN_TYPE = 'no texgen type'
-    SHORT_DESCRIPTION = u'торгует'
     HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY, HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
@@ -1886,7 +1882,6 @@ class ActionMetaProxyPrototype(ActionBase):
     SINGLE = False
     TYPE = relations.ACTION_TYPE.META_PROXY
     TEXTGEN_TYPE = 'no texgen type'
-    SHORT_DESCRIPTION = u'no description'
     HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY, HELP_CHOICES.HEAL_COMPANION))
     APPROVED_FOR_STEPS_CHAIN = False
 
@@ -1902,8 +1897,8 @@ class ActionMetaProxyPrototype(ActionBase):
     @property
     def ui_type(self):
         if self.meta_action is None:
-            return self.TYPE.value
-        return self.meta_action.TYPE.value
+            return self.TYPE
+        return self.meta_action.TYPE
 
     ###########################################
     # Object operations

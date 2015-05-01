@@ -187,12 +187,7 @@ def sync_static_restrictions():
             continue
 
         for record in restrictions_group.static_relation.records:
-            restriction = restrictions_storage.get_restriction(restrictions_group, record.value)
-
-            if restriction:
-                continue
-
-            create_restriction(restrictions_group, record.value, name=record.text)
+            sync_restriction(restrictions_group, record.value, name=record.text)
 
 
 def fill_empty_keys_with_fake_phrases(prefix):

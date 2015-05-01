@@ -6,6 +6,7 @@ from rels.django import DjangoEnum
 from utg import relations as utg_relations
 
 from the_tale.game import relations as game_relations
+from the_tale.game.actions import relations as actions_relations
 from the_tale.game.artifacts import relations as artifacts_relations
 from the_tale.game.mobs import relations as mobs_relations
 from the_tale.game.persons import relations as persons_relations
@@ -108,4 +109,6 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
                 ('ARCHETYPE', 17, u'архетип', game_relations.ARCHETYPE),
                 ('TERRAIN', 18, u'тип местности', map_relations.TERRAIN),
                 ('BUILDING_TYPE', 19, u'тип здания', places_relations.BUILDING_TYPE),
+
+                ('ACTION_TYPE', 20, u'тип действия героя', actions_relations.ACTION_TYPE),
                  )
