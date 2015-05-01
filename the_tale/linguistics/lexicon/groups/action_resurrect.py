@@ -11,7 +11,7 @@ KEYS = [(u'ACTION_RESURRECT_DESCRIPTION', 200000, u'Описание', LEXICON_G
         u'Герой закончил воскресать.',
         [V.HERO]),
 
-        (u'ACTION_RESURRECT_RESURRECTING', 200002, u'Журнал: Воскрешание', LEXICON_GROUP.ACTION_RESURRECT,
+        (u'ACTION_RESURRECT_RESURRECTING', 200002, u'Журнал: Идёт воскрешение', LEXICON_GROUP.ACTION_RESURRECT,
         u'Хранитель приводит героя в чувства.',
         [V.HERO]),
 

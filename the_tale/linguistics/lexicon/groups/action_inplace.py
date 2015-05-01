@@ -128,7 +128,7 @@ KEYS = [(u'ACTION_INPLACE_DESCRIPTION', 80000, u'Описание', LEXICON_GROU
         [V.HERO, V.PLACE, V.COMPANION, V.COINS]),
 
         (u'ACTION_INPLACE_COMPANION_STEAL_ITEM', 80031, u'Журнал: Спутник украл предмет', LEXICON_GROUP.ACTION_INPLACE,
-        u'Спутник спутник украл предмет.',
+        u'Спутник украл предмет.',
         [V.HERO, V.PLACE, V.COMPANION, V.ARTIFACT]),
 
         (u'ACTION_INPLACE_COMPANION_MONEY_FOR_FOOD', 80032, u'Журнал: Герой приобрёл еду для спутника', LEXICON_GROUP.ACTION_INPLACE,

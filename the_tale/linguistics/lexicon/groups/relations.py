@@ -75,7 +75,7 @@ class LEXICON_GROUP(DjangoEnum):
                u'Сообщение, относящиеся к герою и не вошедшие в другие модули',
                {V.HERO: u'герой', V.LEVEL: u'уровень', V.ARTIFACT: u'артефакт'}),
 
-               ('META_ACTION_ARENA_PVP_1X1', 16, u'PvP: дуэль на арене', 160000,
+               ('META_ACTION_ARENA_PVP_1X1', 16, u'Действие: дуэль на арене', 160000,
                u'Описание действий во время PvP дуэли на арене',
                {V.DUELIST_2: u'2-ой участник дуэли', V.DUELIST_1: u'1-ый участник дуэли', V.KILLER: u'победитель', V.ATTACKER: u'атакующий', V.VICTIM: u'проигравший'}),
 
