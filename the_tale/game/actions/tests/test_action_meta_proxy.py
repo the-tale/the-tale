@@ -130,11 +130,11 @@ class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
 
     def test_get_ui_type__without_storage(self):
         self.action_proxy_1.storage = None
-        self.assertEqual(self.action_proxy_1.ui_type, relations.ACTION_TYPE.META_PROXY.value)
+        self.assertEqual(self.action_proxy_1.ui_type, relations.ACTION_TYPE.META_PROXY)
 
     def test_get_ui_type__with_metaaction(self):
-        self.assertEqual(self.action_proxy_1.ui_type, relations.ACTION_TYPE.ARENA_PVP_1X1.value)
+        self.assertEqual(self.action_proxy_1.ui_type, relations.ACTION_TYPE.ARENA_PVP_1X1)
 
     def test_get_ui_type__without_metaaction(self):
         self.storage.meta_actions = {}
-        self.assertEqual(self.action_proxy_1.ui_type, relations.ACTION_TYPE.META_PROXY.value)
+        self.assertEqual(self.action_proxy_1.ui_type, relations.ACTION_TYPE.META_PROXY)
