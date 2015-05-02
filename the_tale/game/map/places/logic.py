@@ -175,7 +175,7 @@ def place_info_bills(place):
         bill = exchange.bill
 
         if not bill.duration.is_UNLIMITED:
-            properties.append(u'Прекратит действовать через: %s' % bill.time_before_end|utils_logic.verbose_timedelta)
+            properties.append(u'Прекратит действовать через: %s' % utils_logic.verbose_timedelta(bill.time_before_end))
 
         if place_2 is None:
             properties.append(u'%s за %s' % (resource_1.text, resource_2.text))
