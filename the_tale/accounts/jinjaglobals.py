@@ -1,32 +1,29 @@
 # coding: utf-8
 
-import jinja2
-
-from dext.jinja2 import render
-from dext.jinja2.decorators import jinjaglobal
+from dext.common.utils import jinja2
 
 from the_tale.accounts import logic
 from the_tale.accounts.conf import accounts_settings
 
 
-@jinjaglobal
+@jinja2.jinjaglobal
 def login_page_url(next_url='/'):
     return jinja2.Markup(logic.login_page_url(next_url))
 
-@jinjaglobal
+@jinja2.jinjaglobal
 def login_url(next_url='/'):
     return jinja2.Markup(logic.login_url(next_url))
 
-@jinjaglobal
+@jinja2.jinjaglobal
 def logout_url():
     return jinja2.Markup(logic.logout_url())
 
-@jinjaglobal
+@jinja2.jinjaglobal
 def forum_complaint_theme():
     return accounts_settings.FORUM_COMPLAINT_THEME
 
 
-@jinjaglobal
+@jinja2.jinjaglobal
 def account_sidebar(user_account, page_account, page_caption, page_type, can_moderate=False):
     from the_tale.forum.models import Thread
     from the_tale.game.bills.prototypes import BillPrototype
@@ -52,18 +49,18 @@ def account_sidebar(user_account, page_account, page_caption, page_type, can_mod
 
     friendship = FriendshipPrototype.get_for_bidirectional(user_account, page_account)
 
-    return jinja2.Markup(render.template('accounts/sidebar.html',
-                                         context={'user_account': user_account,
-                                                  'page_account': page_account,
-                                                  'page_caption': page_caption,
-                                                  'master_clan_info': ClanInfo(page_account),
-                                                  'own_clan_info': ClanInfo(user_account),
-                                                  'friendship': friendship,
-                                                  'bills_count': bills_count,
-                                                  'templates_count': templates_count,
-                                                  'words_count': words_count,
-                                                  'folclor_posts_count': folclor_posts_count,
-                                                  'threads_count': threads_count,
-                                                  'threads_with_posts': threads_with_posts,
-                                                  'can_moderate': can_moderate,
-                                                  'page_type': page_type}))
+    return jinja2.Markup(jinja2.render('accounts/sidebar.html',
+                                            context={'user_account': user_account,
+                                                     'page_account': page_account,
+                                                     'page_caption': page_caption,
+                                                     'master_clan_info': ClanInfo(page_account),
+                                                     'own_clan_info': ClanInfo(user_account),
+                                                     'friendship': friendship,
+                                                     'bills_count': bills_count,
+                                                     'templates_count': templates_count,
+                                                     'words_count': words_count,
+                                                     'folclor_posts_count': folclor_posts_count,
+                                                     'threads_count': threads_count,
+                                                     'threads_with_posts': threads_with_posts,
+                                                     'can_moderate': can_moderate,
+                                                     'page_type': page_type}))

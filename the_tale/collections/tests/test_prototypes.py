@@ -102,7 +102,8 @@ class AccountItemsPrototypeTests(PrototypeTestsBase):
         with self.check_not_changed(GiveItemTaskPrototype._db_count):
             self.account_1_items.give_item(self.account_1.id, self.item_1_1)
 
-    def test_give_item__unapproved(self):
+    # change tests order to fix sqlite segmentation fault
+    def test_1_give_item__unapproved(self):
         with self.check_delta(GiveItemTaskPrototype._db_count, 1):
             self.account_1_items.give_item(self.account_1.id, self.item_1_2)
 

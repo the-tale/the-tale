@@ -8,7 +8,6 @@ from django.contrib import admin
 from django.conf import settings as project_settings
 from django.views.generic.base import RedirectView
 
-from dext import jinja2 as jinja2_next
 from dext.views import create_handler_view
 
 from the_tale.portal.views import PortalResource # pylint: disable=W0403
@@ -16,8 +15,6 @@ from the_tale.portal.views import PortalResource # pylint: disable=W0403
 from the_tale.common import postponed_tasks # pylint: disable=W0403
 
 from the_tale.market import goods_types
-
-jinja2_next.autodiscover()
 
 
 urlpatterns = patterns('',

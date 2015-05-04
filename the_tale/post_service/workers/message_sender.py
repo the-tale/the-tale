@@ -1,7 +1,6 @@
 # coding: utf-8
 import datetime
 
-from dext import jinja2 as dext_jinja2
 from dext.settings import settings
 
 from the_tale.common.utils.workers import BaseWorker
@@ -23,7 +22,6 @@ class Worker(BaseWorker):
     def initialize(self):
         self.initialized = True
         self.next_message_process_time = datetime.datetime.now()
-        dext_jinja2.autodiscover()
         self.logger.info('MESSAGE SENDER INITIALIZED')
 
     def process_no_cmd(self):

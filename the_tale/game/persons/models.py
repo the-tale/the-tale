@@ -13,7 +13,7 @@ from the_tale.game.persons import relations
 class Person(models.Model):
     MAX_NAME_LENGTH = 100
 
-    created_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime(2000, 1, 1))
+    created_at = models.DateTimeField(auto_now_add=True, null=False)
     created_at_turn = models.IntegerField(null=False, default=0)
 
     out_game_at = models.DateTimeField(null=False, default=datetime.datetime(2000, 1, 1))

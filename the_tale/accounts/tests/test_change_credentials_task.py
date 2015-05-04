@@ -41,9 +41,6 @@ class PostponedChangeCredentialsTaskTests(testcase.TestCase):
         self.assertEqual(self.postponed_task.serialize(), ChangeCredentials.deserialize(self.postponed_task.serialize()).serialize())
 
     def test_processed_view__real(self):
-        from the_tale.common.postponed_tasks import autodiscover
-        autodiscover()
-
         self.assertEqual(self.task.process(logger=mock.Mock()), None) # sent mail
         postponed_taks = self.task.process(logger=mock.Mock()) # create task
         postponed_taks.process(logger=mock.Mock())
@@ -53,23 +50,17 @@ class PostponedChangeCredentialsTaskTests(testcase.TestCase):
     def test_processed_view__logout__same_user(self):
         self.request_login(self.account.email)
 
-        from the_tale.common.postponed_tasks import autodiscover
-        autodiscover()
-
         self.assertEqual(self.task.process(logger=mock.Mock()), None) # sent mail
         postponed_taks = self.task.process(logger=mock.Mock()) # create task
         postponed_taks.process(logger=mock.Mock())
         self.check_ajax_ok(self.client.get(url('postponed-tasks:status', postponed_taks.id)))
 
-        self.assertEqual(self.client.session['_auth_user_id'], self.account.id)
+        self.assertEqual(int(self.client.session['_auth_user_id']), self.account.id)
 
     def test_processed_view__logout__other_user(self):
         account_2 = self.accounts_factory.create_account()
 
         self.request_login(account_2.email)
-
-        from the_tale.common.postponed_tasks import autodiscover
-        autodiscover()
 
         self.assertEqual(self.task.process(logger=mock.Mock()), None) # sent mail
         postponed_taks = self.task.process(logger=mock.Mock()) # create task
@@ -79,9 +70,6 @@ class PostponedChangeCredentialsTaskTests(testcase.TestCase):
         self.assertNotIn('_auth_user_id', self.client.session)
 
     def test_processed_view__real__without_relogin(self):
-        from the_tale.common.postponed_tasks import autodiscover
-        autodiscover()
-
         self.task._model.relogin_required = False
         self.task._model.save()
 

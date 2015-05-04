@@ -23,7 +23,7 @@ class Hero(models.Model):
     saved_at_turn = models.IntegerField(null=False, default=0)
     last_rare_operation_at_turn = models.IntegerField(null=False, default=0)
 
-    saved_at = models.DateTimeField(auto_now=True, default=datetime.datetime.fromtimestamp(0))
+    saved_at = models.DateTimeField(auto_now=True)
 
     account = models.ForeignKey('accounts.Account', related_name='heroes', default=None, null=True, blank=True, on_delete=models.CASCADE)
 
@@ -37,7 +37,7 @@ class Hero(models.Model):
     ban_state_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
 
     # time when ui caching and model saving has started
-    ui_caching_started_at = models.DateTimeField(auto_now_add=True, default=datetime.datetime(2000, 1, 1))
+    ui_caching_started_at = models.DateTimeField(auto_now_add=True)
 
     #base
     gender = RelationIntegerField(relation=GENDER, relation_column='value')

@@ -1,9 +1,9 @@
 # coding: utf-8
 
-from dext.jinja2.decorators import jinjaglobal
+from dext.common.utils import jinja2
 
 from the_tale.game.map.places.storage import places_storage
 
-@jinjaglobal
+@jinja2.jinjaglobal
 def all_places():
     return sorted(places_storage.all(), key=lambda p: p.name)

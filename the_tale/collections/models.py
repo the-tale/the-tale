@@ -71,7 +71,7 @@ class Item(models.Model):
 
 class AccountItems(models.Model):
 
-    account = models.ForeignKey('accounts.Account', on_delete=models.CASCADE, unique=True)
+    account = models.OneToOneField('accounts.Account', on_delete=models.CASCADE)
 
     items = models.TextField(default='{}')
 

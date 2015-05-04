@@ -30,14 +30,12 @@ class ResetPasswordTaskTests(testcase.TestCase):
 
         self.task = ResetPasswordTaskPrototype.create(self.account)
 
-    def test_create(self):
+    # change methods order to prevent segmentation fault
+    def test_2_create(self):
         self.assertEqual(Message.objects.all().count(), 1)
         self.assertEqual(ResetPasswordTask.objects.all().count(), 1)
 
-    def test_process(self):
-        from the_tale.common.postponed_tasks import autodiscover
-        autodiscover()
-
+    def test_1_process(self):
         self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 0)
         self.assertEqual(ChangeCredentialsTaskPrototype._model_class.objects.all().count(), 0)
 

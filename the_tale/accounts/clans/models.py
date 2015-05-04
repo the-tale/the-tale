@@ -38,7 +38,7 @@ class Membership(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     clan = models.ForeignKey(Clan, on_delete=models.PROTECT)
-    account = models.ForeignKey('accounts.Account', unique=True, on_delete=models.PROTECT)
+    account = models.OneToOneField('accounts.Account', on_delete=models.PROTECT)
 
     role = RelationIntegerField(relation=MEMBER_ROLE, relation_column='value')
 

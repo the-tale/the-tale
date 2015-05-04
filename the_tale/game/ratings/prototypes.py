@@ -88,9 +88,6 @@ WHERE NOT %(accounts)s.is_fast AND NOT %(accounts)s.is_bot AND %(accounts)s.id <
 
         cursor.execute(sql_request)
 
-        transaction.commit_unless_managed()
-
-
 
 
 class RatingPlacesPrototype(BasePrototype):
@@ -157,7 +154,5 @@ JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %
                                      'accounts': Account._meta.db_table}
 
         cursor.execute(sql_request)
-
-        transaction.commit_unless_managed()
 
         settings[ratings_settings.SETTINGS_UPDATE_TIMESTEMP_KEY] = str(time.time())

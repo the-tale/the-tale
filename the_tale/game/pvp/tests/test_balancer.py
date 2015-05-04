@@ -362,8 +362,8 @@ class BalancerBalancingTests(BalancerTestsBase):
         self.assertEqual(battle_bot.enemy_id, self.account_1.id)
         self.assertFalse(battle_bot.calculate_rating)
 
-
-    def test_force_battle(self):
+    # change tests order to fix sqlite segmentation fault
+    def test_1_force_battle(self):
 
         self.assertEqual(SupervisorTask.objects.all().count(), 0)
         self.assertEqual(len(self.worker.arena_queue), 2)

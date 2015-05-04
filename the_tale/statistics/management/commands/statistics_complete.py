@@ -4,8 +4,8 @@ from optparse import make_option
 
 from django.core.management.base import BaseCommand
 
-from dext.jinja2 import render
 from dext.common.utils import s11n
+from dext.common.utils import jinja2
 from dext.settings import settings
 
 from the_tale.statistics.conf import statistics_settings
@@ -185,7 +185,7 @@ class Command(BaseCommand):
             os.makedirs(output_dir_name, 0755)
 
         with open(output_file, 'w') as f:
-            f.write(render('statistics/js_data.js',
-                           {'data': s11n.to_json(RecordPrototype.get_js_data())}).encode('utf-8'))
+            f.write(jinja2.render('statistics/js_data.js',
+                                  context={'data': s11n.to_json(RecordPrototype.get_js_data())}).encode('utf-8'))
 
         settings[statistics_settings.JS_DATA_FILE_VERSION_KEY] = str(data_version)

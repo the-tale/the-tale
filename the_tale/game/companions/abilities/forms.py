@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 import jinja2
 
 from dext.forms import fields
+from dext.common.utils import jinja2 as dext_jinja2
 
 from the_tale.game.companions.abilities import effects
 from the_tale.game.companions.abilities import container
@@ -82,9 +83,8 @@ class AbilitiesWidget(django_forms.MultiWidget):
         return decompress_abilities(value)
 
     def format_output(self, rendered_widgets):
-        from dext.jinja2 import render
-        return jinja2.Markup(render.template('companions/abilities/abilities_field.html', context={'widgets': rendered_widgets,
-                                                                                                   'FIELDS': relations.FIELDS}))
+        return jinja2.Markup(dext_jinja2.render('companions/abilities/abilities_field.html', context={'widgets': rendered_widgets,
+                                                                                                      'FIELDS': relations.FIELDS}))
 
 
 

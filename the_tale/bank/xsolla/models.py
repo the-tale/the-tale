@@ -23,7 +23,7 @@ class Invoice(models.Model):
 
     bank_id = models.BigIntegerField()
     bank_amount = models.BigIntegerField()
-    bank_invoice = models.ForeignKey('bank.Invoice', null=True, unique=True, related_name='+', on_delete=models.SET_NULL) # settuped when payments deposited to account
+    bank_invoice = models.OneToOneField('bank.Invoice', null=True, related_name='+', on_delete=models.SET_NULL) # settuped when payments deposited to account
 
     xsolla_id = models.CharField(max_length=XSOLLA_ID_MAX_LENGTH, db_index=True)
 

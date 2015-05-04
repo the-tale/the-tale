@@ -22,7 +22,7 @@ class Category(models.Model):
 
 class SubCategory(models.Model):
 
-    created_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime.fromtimestamp(0))
+    created_at = models.DateTimeField(auto_now_add=True, null=False)
 
     category = models.ForeignKey(Category, null=False, on_delete=models.PROTECT)
 
@@ -32,8 +32,8 @@ class SubCategory(models.Model):
 
     uid = models.CharField(max_length=16, blank=True, null=True, default=None, db_index=True)
 
-    updated_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime.fromtimestamp(0))
-    last_thread_created_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime.fromtimestamp(0))
+    updated_at = models.DateTimeField(auto_now_add=True, null=False)
+    last_thread_created_at = models.DateTimeField(auto_now_add=True, null=False)
 
     threads_count = models.IntegerField(default=0, null=False)
 
@@ -52,7 +52,7 @@ class SubCategory(models.Model):
 
 class Thread(models.Model):
 
-    created_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime.fromtimestamp(0))
+    created_at = models.DateTimeField(auto_now_add=True, null=False)
 
     subcategory = models.ForeignKey(SubCategory, null=False, on_delete=models.PROTECT)
 
@@ -64,7 +64,7 @@ class Thread(models.Model):
 
     posts_count = models.BigIntegerField(default=0, null=False)
 
-    updated_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime.fromtimestamp(0))
+    updated_at = models.DateTimeField(auto_now_add=True, null=False)
 
     technical = models.BooleanField(default=False)
 
@@ -97,7 +97,7 @@ class Post(models.Model):
 
     created_at_turn = models.BigIntegerField(default=0)
 
-    updated_at = models.DateTimeField(auto_now=True, null=True, default=None)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
 
     updated_at_turn = models.BigIntegerField(default=0)
 

@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from dext.common.utils import discovering
+from dext.common.utils import jinja2
 
 from the_tale import amqp_environment
 
@@ -59,8 +60,7 @@ class BaseGoodType(object):
             del _GOODS_TYPES[self.uid]
 
     def item_html(self, item):
-        from dext.jinja2 import render
-        return render.template(self.item_template, {'item': item})
+        return jinja2.render(self.item_template, context={'item': item})
 
     def is_item_tradable(self, item):
         raise NotImplementedError()

@@ -3,8 +3,6 @@
 from django.core import mail
 from django.conf import settings as project_settings
 
-from dext import jinja2 as dext_jinja2
-
 from the_tale.common.utils import testcase
 
 from the_tale.accounts import logic as accounts_logic
@@ -35,8 +33,6 @@ class NewNewsTests(testcase.TestCase):
 
         # enshure that system user exists
         accounts_logic.get_system_user()
-
-        dext_jinja2.autodiscover()
 
     def test_register_message(self):
         self.assertEqual(Message.objects.all().count(), 1)

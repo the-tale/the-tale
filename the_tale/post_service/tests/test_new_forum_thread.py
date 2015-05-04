@@ -3,8 +3,6 @@
 from django.core import mail
 from django.conf import settings as project_settings
 
-from dext import jinja2 as dext_jinja2
-
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
@@ -32,8 +30,6 @@ class NewForumThreadTests(testcase.TestCase):
         self.thread = ThreadPrototype.create(self.subcategory, 'thread_1-caption', self.account_1, 'thread-text')
 
         self.message = MessagePrototype.get_priority_message()
-
-        dext_jinja2.autodiscover()
 
 
     def test_register_message(self):

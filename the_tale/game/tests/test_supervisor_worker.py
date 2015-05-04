@@ -63,7 +63,8 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.assertFalse(self.worker.wait_next_turn_answer)
         self.assertTrue(GameState.is_working())
 
-    def test_register_task(self):
+    # change tests order to fix sqlite segmentation fault
+    def test_1_register_task(self):
         self.worker.process_initialize()
 
         task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)

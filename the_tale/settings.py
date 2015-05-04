@@ -2,6 +2,7 @@
 import os
 import sys
 import time
+import jinja2
 
 from dext.common.utils.meta_config import MetaConfig
 
@@ -110,26 +111,30 @@ EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 APPEND_SLASH = True
 #PREPEND_WWW = True
 
-#TODO: jinja
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-)
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'django.core.context_processors.static',
-    'django.contrib.messages.context_processors.messages',
-    'the_tale.portal.context_processors.section',
-    'the_tale.portal.context_processors.cdn_paths',
-    'the_tale.portal.context_processors.currencies',
-    'the_tale.game.balance.context_processors.balance',
-    'the_tale.game.bills.context_processors.bills_context',
-    'the_tale.linguistics.context_processors.linguistics_context'
-    )
+TEMPLATES = [ {'BACKEND': 'dext.common.utils.jinja2.Engine',
+               'OPTIONS': {
+                   'context_processors':( 'django.contrib.auth.context_processors.auth',
+                                          'django.template.context_processors.debug',
+                                          'django.template.context_processors.i18n',
+                                          'django.template.context_processors.media',
+                                          'django.template.context_processors.static',
+                                          'django.contrib.messages.context_processors.messages',
+                                          'the_tale.portal.context_processors.section',
+                                          'the_tale.portal.context_processors.cdn_paths',
+                                          'the_tale.portal.context_processors.currencies',
+                                          'the_tale.game.balance.context_processors.balance',
+                                          'the_tale.game.bills.context_processors.bills_context',
+                                          'the_tale.linguistics.context_processors.linguistics_context'
+                                        ),
+                   'directories': (os.path.join(PROJECT_DIR, 'templates'),),
+                   'auto_reload': False,
+                   'undefined': jinja2.StrictUndefined,
+                   'autoescape': True,
+                   'trim_blocks': True,
+                   'extensions': ['jinja2.ext.loopcontrols']
+                   }
+        },
+    ]
 
 
 MIDDLEWARE_CLASSES = (
@@ -147,11 +152,7 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'the_tale.urls'
 
-TEMPLATE_DIRS = (
-    os.path.join(PROJECT_DIR, 'templates'),
-)
-
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -214,8 +215,10 @@ INSTALLED_APPS = (
     'the_tale.bank',
     'the_tale.bank.xsolla',
 
-    'the_tale.statistics'
-)
+    'the_tale.statistics']
+
+if TESTS_RUNNING:
+    INSTALLED_APPS.append('test_without_migrations')
 
 ###############################
 # AMQP
@@ -251,8 +254,9 @@ try:
 except Exception: # pylint: disable=W0702,W0703
     pass
 
-if 'TEMPLATE_DEBUG' not in globals():
-    TEMPLATE_DEBUG = DEBUG
+if DEBUG:
+    for template in TEMPLATES:
+        template['OPTIONS']['auto_reload'] = True
 
 
 AMQP_CONNECTION_URL = 'amqp://%s:%s@%s/%s' % (AMQP_BROKER_USER,

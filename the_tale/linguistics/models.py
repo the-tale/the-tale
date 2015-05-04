@@ -18,7 +18,7 @@ class Word(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True, null=False)
 
     author = models.ForeignKey(project_settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
-    parent = models.ForeignKey('linguistics.Word', null=True, unique=True, blank=True, on_delete=models.SET_NULL)
+    parent = models.OneToOneField('linguistics.Word', null=True, blank=True, on_delete=models.SET_NULL)
 
     normal_form = models.CharField(max_length=MAX_FORM_LENGTH)
     forms = models.TextField()
@@ -41,7 +41,7 @@ class Template(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True, null=False)
 
     author = models.ForeignKey(project_settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
-    parent = models.ForeignKey('linguistics.Template', null=True, unique=True, blank=True, on_delete=models.SET_NULL)
+    parent = models.OneToOneField('linguistics.Template', null=True, blank=True, on_delete=models.SET_NULL)
 
     raw_template = models.TextField(db_index=True)
     data = models.TextField()

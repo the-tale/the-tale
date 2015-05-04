@@ -102,7 +102,8 @@ class ArenaPvP1x1LeaveQueueAbilityTest(ArenaPvP1x1AcceptBaseTests):
         self.pvp_balancer.arena_queue.clear()
         self.process_ability(success=False)
 
-    def test_process_success(self):
+    # change tests order to fix sqlite segmentation fault
+    def test_1_process_success(self):
         self.assertEqual(SupervisorTask.objects.all().count(), 0)
 
         self.process_ability()
@@ -176,7 +177,8 @@ class AcceptBattleMethodTests(ArenaPvP1x1AcceptBaseTests):
 
         self.assertEqual(SupervisorTask.objects.all().count(), 0)
 
-    def test_process_success(self):
+    # change tests order to fix sqlite segmentation fault
+    def test_1_process_success(self):
         self.assertEqual(SupervisorTask.objects.all().count(), 0)
 
         self.assertTrue(self.accept_battle().is_PROCESSED)

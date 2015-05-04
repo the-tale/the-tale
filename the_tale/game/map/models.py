@@ -12,7 +12,7 @@ class WorldInfo(models.Model):
 
 class MapInfo(models.Model):
 
-    created_at = models.DateTimeField(auto_now_add=True, null=False, default=datetime.datetime(2000, 1, 1))
+    created_at = models.DateTimeField(auto_now_add=True, null=False)
 
     turn_number = models.BigIntegerField(null=False, db_index=True)
 

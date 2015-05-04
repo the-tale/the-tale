@@ -19,7 +19,7 @@ class Place(models.Model):
     x = models.BigIntegerField(null=False)
     y = models.BigIntegerField(null=False)
 
-    created_at = models.DateTimeField(auto_now_add=True, default=datetime.datetime.fromtimestamp(0))
+    created_at = models.DateTimeField(auto_now_add=True)
     created_at_turn = models.BigIntegerField(default=0)
 
     updated_at_turn = models.BigIntegerField(default=0)
@@ -84,7 +84,7 @@ class Building(models.Model):
 
     place = models.ForeignKey(Place, null=False, on_delete=models.CASCADE)
 
-    person = models.ForeignKey('persons.Person', null=False, unique=True, on_delete=models.CASCADE)
+    person = models.OneToOneField('persons.Person', null=False, on_delete=models.CASCADE)
 
     data = models.TextField(null=False, default=u'{}')
 

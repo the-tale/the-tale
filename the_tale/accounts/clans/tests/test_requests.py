@@ -45,7 +45,8 @@ class TestAccountClanRequests(BaseTestRequests):
     def test_no_clan(self):
         self.check_html_ok(self.request_html(url('accounts:clans:account-clan', account=self.account.id)), texts=['clans.account_clan.no_clan'])
 
-    def test_success(self):
+    # change tests order to fix sqlite segmentation fault
+    def test_1_success(self):
         clan = self.create_clan(self.account, 0)
         self.check_redirect(self.account_clan_url, url('accounts:clans:show', clan.id))
 
@@ -431,7 +432,8 @@ class MembershipForAccountRequestsTests(BaseMembershipRequestsTests):
     def test_no_requests(self):
         self.check_html_ok(self.request_html(self.for_account_url), texts=[('pgf-no-requests-message', 1)])
 
-    def test_success(self):
+    # change tests order to fix sqlite segmentation fault
+    def test_1_success(self):
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
         account_2 = AccountPrototype.get_by_id(account_id)
 

@@ -59,9 +59,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     nick = models.CharField(null=False, default=u'', max_length=MAX_NICK_LENGTH, unique=True, db_index=True)
 
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True, default=datetime.datetime.fromtimestamp(0))
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
-    updated_at = models.DateTimeField(auto_now=True, db_index=True, default=datetime.datetime.fromtimestamp(0))
+    updated_at = models.DateTimeField(auto_now=True, db_index=True)
 
     premium_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
     active_end_at = models.DateTimeField(db_index=True)
@@ -76,7 +76,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     new_messages_number = models.IntegerField(null=False, default=0)
 
-    last_news_remind_time = models.DateTimeField(auto_now_add=True, default=datetime.datetime.fromtimestamp(0))
+    last_news_remind_time = models.DateTimeField(auto_now_add=True)
 
     clan = models.ForeignKey('clans.Clan', null=True, default=None, related_name='+', on_delete=models.SET_NULL)
 

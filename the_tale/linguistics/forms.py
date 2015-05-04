@@ -8,6 +8,7 @@ from django.utils.safestring import mark_safe
 import jinja2
 
 from dext.forms import forms, fields
+from dext.common.utils import jinja2 as dext_jinja2
 
 from utg import relations as utg_relations
 from utg import words as utg_words
@@ -84,7 +85,6 @@ class WordWidget(django_forms.MultiWidget):
         return decompress_word(self.word_type, value)
 
     def format_output(self, rendered_widgets):
-        from dext.jinja2 import render
         from the_tale.linguistics.word_drawer import FormFieldDrawer
 
         fields = get_fields(self.word_type)
@@ -94,7 +94,7 @@ class WordWidget(django_forms.MultiWidget):
 
         drawer = FormFieldDrawer(type=self.word_type, widgets=widgets, skip_markers=self.skip_markers, show_properties=self.show_properties)
 
-        return jinja2.Markup(render.template('linguistics/words/field.html', context={'drawer': drawer}))
+        return jinja2.Markup(dext_jinja2.render('linguistics/words/field.html', context={'drawer': drawer}))
 
 
 @fields.pgf

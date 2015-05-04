@@ -8,8 +8,8 @@ from the_tale.game.pvp.relations import BATTLE_1X1_STATE, BATTLE_1X1_RESULT
 
 class Battle1x1(models.Model):
 
-    account = models.ForeignKey('accounts.Account', null=False, unique=True, related_name='+', on_delete=models.PROTECT)
-    enemy = models.ForeignKey('accounts.Account', null=True, unique=True, related_name='+', on_delete=models.PROTECT)
+    account = models.OneToOneField('accounts.Account', null=False, related_name='+', on_delete=models.PROTECT)
+    enemy = models.OneToOneField('accounts.Account', null=True, related_name='+', on_delete=models.PROTECT)
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now=True, null=False)

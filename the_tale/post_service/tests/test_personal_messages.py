@@ -3,8 +3,6 @@
 from django.core import mail
 from django.conf import settings as project_settings
 
-from dext import jinja2 as dext_jinja2
-
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
@@ -32,9 +30,6 @@ class PersonalMessagesTests(testcase.TestCase):
         self.personal_message = PersonalMessagePrototype.create(self.account_1, self.account_2, 'test text')
 
         self.message = MessagePrototype.get_priority_message()
-
-        dext_jinja2.autodiscover()
-
 
     def test_register_message(self):
         self.assertEqual(Message.objects.all().count(), 1)

@@ -19,7 +19,7 @@ class InvoiceAdmin(admin.ModelAdmin):
                     'updated_at',
                     'date')
     list_filter = ('state', 'pay_result', 'test')
-    readonly_fields = [name for name in Invoice._meta.get_all_field_names() if name != 'bank_invoice_id']
+    readonly_fields = [field.name for field in Invoice._meta.get_fields()]
 
     def has_delete_permission(self, request, obj=None):
         return False
