@@ -1,139 +1,114 @@
-# encoding: utf-8
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from django.db import models, migrations
 import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
-
-class Migration(SchemaMigration):
-
-    depends_on = (
-        ("quests", "0001_initial"),
-    )
-
-    def forwards(self, orm):
-        
-        # Adding model 'Hero'
-        db.create_table('heroes_hero', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('angel', self.gf('django.db.models.fields.related.ForeignKey')(default=None, related_name='heroes', null=True, blank=True, to=orm['angels.Angel'])),
-            ('npc', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('alive', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('first', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=150)),
-            ('wisdom', self.gf('django.db.models.fields.IntegerField')()),
-            ('health', self.gf('django.db.models.fields.FloatField')(default=0.0)),
-            ('money', self.gf('django.db.models.fields.BigIntegerField')(default=0)),
-            ('equipment', self.gf('django.db.models.fields.TextField')(default='{}')),
-            ('bag', self.gf('django.db.models.fields.TextField')(default='{}')),
-            ('intellect', self.gf('django.db.models.fields.IntegerField')()),
-            ('constitution', self.gf('django.db.models.fields.IntegerField')()),
-            ('reflexes', self.gf('django.db.models.fields.IntegerField')()),
-            ('charisma', self.gf('django.db.models.fields.IntegerField')(default=3)),
-            ('chaoticity', self.gf('django.db.models.fields.IntegerField')()),
-        ))
-        db.send_create_signal('heroes', ['Hero'])
-
-        # Adding model 'HeroQuest'
-        db.create_table('heroes_heroquest', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('hero', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['heroes.Hero'])),
-            ('quest', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['quests.Quest'])),
-            ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-        ))
-        db.send_create_signal('heroes', ['HeroQuest'])
+import rels.django
 
 
-    def backwards(self, orm):
-        
-        # Deleting model 'Hero'
-        db.delete_table('heroes_hero')
+class Migration(migrations.Migration):
 
-        # Deleting model 'HeroQuest'
-        db.delete_table('heroes_heroquest')
+    dependencies = [
+    ]
 
-
-    models = {
-        'accounts.account': {
-            'Meta': {'object_name': 'Account'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'user': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['auth.User']", 'unique': 'True'})
-        },
-        'angels.angel': {
-            'Meta': {'object_name': 'Angel'},
-            'account': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['accounts.Account']", 'unique': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '150'})
-        },
-        'auth.group': {
-            'Meta': {'object_name': 'Group'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
-            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
-        },
-        'auth.permission': {
-            'Meta': {'ordering': "('content_type__app_label', 'content_type__model', 'codename')", 'unique_together': "(('content_type', 'codename'),)", 'object_name': 'Permission'},
-            'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
-        },
-        'auth.user': {
-            'Meta': {'object_name': 'User'},
-            'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
-            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
-        },
-        'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
-            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        'heroes.hero': {
-            'Meta': {'object_name': 'Hero'},
-            'alive': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'angel': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'heroes'", 'null': 'True', 'blank': 'True', 'to': "orm['angels.Angel']"}),
-            'bag': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
-            'chaoticity': ('django.db.models.fields.IntegerField', [], {}),
-            'charisma': ('django.db.models.fields.IntegerField', [], {'default': '3'}),
-            'constitution': ('django.db.models.fields.IntegerField', [], {}),
-            'equipment': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
-            'first': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'health': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'intellect': ('django.db.models.fields.IntegerField', [], {}),
-            'money': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '150'}),
-            'npc': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'reflexes': ('django.db.models.fields.IntegerField', [], {}),
-            'wisdom': ('django.db.models.fields.IntegerField', [], {})
-        },
-        'heroes.heroquest': {
-            'Meta': {'object_name': 'HeroQuest'},
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'hero': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['heroes.Hero']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'quest': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['quests.Quest']"})
-        },
-        'quests.quest': {
-            'Meta': {'object_name': 'Quest'},
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'percents': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
-            'state': ('django.db.models.fields.CharField', [], {'default': "'uninitialized'", 'max_length': '50'}),
-            'type': ('django.db.models.fields.CharField', [], {'max_length': '150'})
-        }
-    }
-
-    complete_apps = ['heroes']
+    operations = [
+        migrations.CreateModel(
+            name='Hero',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created_at_turn', models.IntegerField(default=0)),
+                ('saved_at_turn', models.IntegerField(default=0)),
+                ('last_rare_operation_at_turn', models.IntegerField(default=0)),
+                ('saved_at', models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0), auto_now=True)),
+                ('is_fast', models.BooleanField(default=True, db_index=True)),
+                ('is_bot', models.BooleanField(default=False)),
+                ('is_alive', models.BooleanField(default=True)),
+                ('active_state_end_at', models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0), db_index=True)),
+                ('premium_state_end_at', models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0), db_index=True)),
+                ('ban_state_end_at', models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0), db_index=True)),
+                ('ui_caching_started_at', models.DateTimeField(default=datetime.datetime(2000, 1, 1, 0, 0), auto_now_add=True)),
+                ('gender', rels.django.RelationIntegerField()),
+                ('race', rels.django.RelationIntegerField()),
+                ('level', models.IntegerField(default=1)),
+                ('experience', models.IntegerField(default=0)),
+                ('health', models.IntegerField(default=0.0)),
+                ('raw_power_magic', models.BigIntegerField(default=0)),
+                ('raw_power_physic', models.BigIntegerField(default=0)),
+                ('money', models.BigIntegerField(default=0)),
+                ('data', models.TextField(default=b'{}')),
+                ('equipment', models.TextField(default=b'{}')),
+                ('bag', models.TextField(default=b'{}')),
+                ('abilities', models.TextField(default=b'', blank=True)),
+                ('places_history', models.TextField(default=b'{}')),
+                ('cards', models.TextField(default=b'{}')),
+                ('messages', models.TextField(default=b'[]')),
+                ('diary', models.TextField(default=b'[]')),
+                ('actions', models.TextField(default=b'{}')),
+                ('quests', models.TextField(default=b'{}')),
+                ('quest_created_time', models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0), db_index=True)),
+                ('settings_approved', models.BooleanField(default=True)),
+                ('pvp', models.TextField(default=b'{}')),
+                ('next_spending', rels.django.RelationIntegerField()),
+                ('energy', models.IntegerField(default=0)),
+                ('last_energy_regeneration_at_turn', models.IntegerField(default=0)),
+                ('energy_bonus', models.BigIntegerField(default=0)),
+                ('might', models.FloatField(default=0.0)),
+                ('pos_percents', models.FloatField(default=None, null=True, blank=True)),
+                ('pos_invert_direction', models.NullBooleanField(default=False)),
+                ('pos_from_x', models.IntegerField(default=None, null=True, blank=True)),
+                ('pos_from_y', models.IntegerField(default=None, null=True, blank=True)),
+                ('pos_to_x', models.IntegerField(default=None, null=True, blank=True)),
+                ('pos_to_y', models.IntegerField(default=None, null=True, blank=True)),
+                ('preferences', models.TextField(default=b'{}')),
+                ('habit_honor', models.FloatField(default=0)),
+                ('habit_peacefulness', models.FloatField(default=0)),
+                ('stat_pve_deaths', models.BigIntegerField(default=0)),
+                ('stat_pve_kills', models.BigIntegerField(default=0)),
+                ('stat_money_earned_from_loot', models.BigIntegerField(default=0)),
+                ('stat_money_earned_from_artifacts', models.BigIntegerField(default=0)),
+                ('stat_money_earned_from_quests', models.BigIntegerField(default=0)),
+                ('stat_money_earned_from_help', models.BigIntegerField(default=0)),
+                ('stat_money_earned_from_habits', models.BigIntegerField(default=0)),
+                ('stat_money_earned_from_companions', models.BigIntegerField(default=0)),
+                ('stat_money_spend_for_heal', models.BigIntegerField(default=0)),
+                ('stat_money_spend_for_artifacts', models.BigIntegerField(default=0)),
+                ('stat_money_spend_for_sharpening', models.BigIntegerField(default=0)),
+                ('stat_money_spend_for_useless', models.BigIntegerField(default=0)),
+                ('stat_money_spend_for_impact', models.BigIntegerField(default=0)),
+                ('stat_money_spend_for_experience', models.BigIntegerField(default=0)),
+                ('stat_money_spend_for_repairing', models.BigIntegerField(default=0)),
+                ('stat_money_spend_for_tax', models.BigIntegerField(default=0)),
+                ('stat_money_spend_for_companions', models.BigIntegerField(default=0)),
+                ('stat_artifacts_had', models.BigIntegerField(default=0)),
+                ('stat_loot_had', models.BigIntegerField(default=0)),
+                ('stat_help_count', models.BigIntegerField(default=0)),
+                ('stat_quests_done', models.BigIntegerField(default=0)),
+                ('stat_companions_count', models.BigIntegerField(default=0)),
+                ('stat_pvp_battles_1x1_number', models.BigIntegerField(default=0)),
+                ('stat_pvp_battles_1x1_victories', models.BigIntegerField(default=0)),
+                ('stat_pvp_battles_1x1_draws', models.BigIntegerField(default=0)),
+                ('stat_cards_used', models.BigIntegerField(default=0)),
+                ('stat_cards_combined', models.BigIntegerField(default=0)),
+                ('stat_gifts_returned', models.BigIntegerField(default=0)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='HeroPreferences',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('energy_regeneration_type', models.IntegerField(default=0, blank=True, choices=[(0, '\u043c\u043e\u043b\u0438\u0442\u0432\u0430'), (1, '\u0436\u0435\u0440\u0442\u0432\u043e\u043f\u0440\u0438\u043d\u043e\u0448\u0435\u043d\u0438\u0435'), (2, '\u0431\u043b\u0430\u0433\u043e\u0432\u043e\u043d\u0438\u044f'), (3, '\u0441\u0438\u043c\u0432\u043e\u043b\u044b'), (4, '\u043c\u0435\u0434\u0438\u0442\u0430\u0446\u0438\u044f')])),
+                ('equipment_slot', rels.django.RelationIntegerField(default=None, null=True, blank=True)),
+                ('risk_level', rels.django.RelationIntegerField()),
+                ('favorite_item', rels.django.RelationIntegerField(default=None, null=True, blank=True)),
+                ('archetype', rels.django.RelationIntegerField(default=None, null=True, blank=True)),
+                ('companion_dedication', rels.django.RelationIntegerField(default=None, null=True, blank=True)),
+                ('companion_empathy', rels.django.RelationIntegerField(default=None, null=True, blank=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+    ]

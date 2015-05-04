@@ -185,7 +185,6 @@ INSTALLED_APPS = (
     'the_tale.portal.developers_info',
 
     'the_tale.game',
-    'the_tale.game.angels',
     'the_tale.game.abilities',
     'the_tale.game.heroes',
     'the_tale.game.actions',
@@ -201,7 +200,6 @@ INSTALLED_APPS = (
     'the_tale.game.bills',
     'the_tale.game.ratings',
     'the_tale.game.pvp',
-    'the_tale.game.phrase_candidates',
     'the_tale.game.chronicle',
     'the_tale.game.cards',
 
@@ -216,9 +214,7 @@ INSTALLED_APPS = (
     'the_tale.bank',
     'the_tale.bank.xsolla',
 
-    'the_tale.statistics',
-
-    'south'
+    'the_tale.statistics'
 )
 
 ###############################
@@ -234,8 +230,7 @@ AMQP_BROKER_VHOST = '/the-tale'
 # code coverage tests
 ##############################
 
-# TEST_RUNNER = 'django_coverage.coverage_runner.CoverageRunner'
-
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 ################
 # CACHING

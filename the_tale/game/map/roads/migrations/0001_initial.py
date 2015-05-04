@@ -1,82 +1,50 @@
-# encoding: utf-8
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
-class Migration(SchemaMigration):
-
-    depends_on = ( ("places", "0001_initial"),
-                   )
-
-    def forwards(self, orm):
-        
-        # Adding model 'Road'
-        db.create_table('roads_road', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('point_1', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['places.Place'])),
-            ('point_2', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['places.Place'])),
-            ('length', self.gf('django.db.models.fields.FloatField')(default=0.0, blank=True)),
-        ))
-        db.send_create_signal('roads', ['Road'])
-
-        # Adding unique constraint on 'Road', fields ['point_1', 'point_2']
-        db.create_unique('roads_road', ['point_1_id', 'point_2_id'])
-
-        # Adding model 'Waymark'
-        db.create_table('roads_waymark', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('point_from', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['places.Place'])),
-            ('point_to', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['places.Place'])),
-            ('road', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['roads.Road'])),
-        ))
-        db.send_create_signal('roads', ['Waymark'])
-
-        # Adding unique constraint on 'Waymark', fields ['point_from', 'point_to', 'road']
-        db.create_unique('roads_waymark', ['point_from_id', 'point_to_id', 'road_id'])
+from django.db import models, migrations
+import django.db.models.deletion
 
 
-    def backwards(self, orm):
-        
-        # Removing unique constraint on 'Waymark', fields ['point_from', 'point_to', 'road']
-        db.delete_unique('roads_waymark', ['point_from_id', 'point_to_id', 'road_id'])
+class Migration(migrations.Migration):
 
-        # Removing unique constraint on 'Road', fields ['point_1', 'point_2']
-        db.delete_unique('roads_road', ['point_1_id', 'point_2_id'])
+    dependencies = [
+        ('places', '0001_initial'),
+    ]
 
-        # Deleting model 'Road'
-        db.delete_table('roads_road')
-
-        # Deleting model 'Waymark'
-        db.delete_table('roads_waymark')
-
-
-    models = {
-        'places.place': {
-            'Meta': {'ordering': "('name',)", 'object_name': 'Place'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '150'}),
-            'size': ('django.db.models.fields.IntegerField', [], {}),
-            'subtype': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
-            'terrain': ('django.db.models.fields.CharField', [], {'default': "'.'", 'max_length': '1'}),
-            'type': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
-            'x': ('django.db.models.fields.BigIntegerField', [], {}),
-            'y': ('django.db.models.fields.BigIntegerField', [], {})
-        },
-        'roads.road': {
-            'Meta': {'unique_together': "(('point_1', 'point_2'),)", 'object_name': 'Road'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'length': ('django.db.models.fields.FloatField', [], {'default': '0.0', 'blank': 'True'}),
-            'point_1': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['places.Place']"}),
-            'point_2': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['places.Place']"})
-        },
-        'roads.waymark': {
-            'Meta': {'unique_together': "(('point_from', 'point_to', 'road'),)", 'object_name': 'Waymark'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'point_from': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['places.Place']"}),
-            'point_to': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['places.Place']"}),
-            'road': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['roads.Road']"})
-        }
-    }
-
-    complete_apps = ['roads']
+    operations = [
+        migrations.CreateModel(
+            name='Road',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('length', models.FloatField(default=0.0, blank=True)),
+                ('exists', models.BooleanField(default=True)),
+                ('path', models.TextField(default=b'')),
+                ('point_1', models.ForeignKey(related_name='+', to='places.Place')),
+                ('point_2', models.ForeignKey(related_name='+', to='places.Place')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Waymark',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('length', models.FloatField(default=0.0, blank=True)),
+                ('point_from', models.ForeignKey(related_name='+', to='places.Place')),
+                ('point_to', models.ForeignKey(related_name='+', to='places.Place')),
+                ('road', models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.SET_NULL, to='roads.Road', null=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.AlterUniqueTogether(
+            name='waymark',
+            unique_together=set([('point_from', 'point_to', 'road')]),
+        ),
+        migrations.AlterUniqueTogether(
+            name='road',
+            unique_together=set([('point_1', 'point_2')]),
+        ),
+    ]

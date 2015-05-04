@@ -16,8 +16,6 @@ class Command(BaseCommand):
 
     help = 'generate map'
 
-    requires_model_validation = False
-
     option_list = BaseCommand.option_list + ( make_option('-n', '--number',
                                                           action='store',
                                                           type=int,

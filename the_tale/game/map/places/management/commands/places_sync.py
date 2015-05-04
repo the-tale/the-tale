@@ -8,8 +8,6 @@ class Command(BaseCommand):
 
     help = 'sync places parameters'
 
-    requires_model_validation = False
-
     def handle(self, *args, **options):
 
         for place in places_storage.all():

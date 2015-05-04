@@ -15,3 +15,5 @@ __all__ = ['PostponedLogic',
            'FakePostpondTaskPrototype',
            'autodiscover',
            'POSTPONED_TASK_LOGIC_RESULT']
+
+default_app_config = 'the_tale.common.postponed_tasks.apps.Config'

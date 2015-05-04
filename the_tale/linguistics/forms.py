@@ -122,39 +122,12 @@ class WordField(django_forms.MultiValueField):
 
         self.word_type = word_type
 
-    def get_extra_errors(self, value):
-        from django.forms.util import ErrorDict, ErrorList
-        from django.core.exceptions import ValidationError
-
-        errors = ErrorDict()
-
-        if not value or isinstance(value, (list, tuple)):
-            if not value or not [v for v in value if v not in self.empty_values]:
-                return errors
-        else:
-            return errors
-
-
-        for i, field in enumerate(self.fields):
-            try:
-                field_value = value[i]
-            except IndexError:
-                field_value = None
-
-            try:
-                field.clean(field_value)
-            except ValidationError as e:
-                errors[self.fields_keys[i]] = ErrorList(e.messages)
-
-        return errors
-
 
     def clean(self, value):
-        from django.forms.util import ErrorList
         from django.core.exceptions import ValidationError
 
         clean_data = []
-        errors = ErrorList()
+        errors_count = 0
         if not value or isinstance(value, (list, tuple)):
             if not value or not [v for v in value if v not in self.empty_values]:
                 if self.required:
@@ -176,10 +149,10 @@ class WordField(django_forms.MultiValueField):
 
             try:
                 clean_data.append(field.clean(field_value))
-            except ValidationError as e:
-                errors.extend(e.error_list)
+            except ValidationError:
+                errors_count += 1
 
-        if errors:
+        if errors_count:
             return None
 
         out = self.compress(clean_data)

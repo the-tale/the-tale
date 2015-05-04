@@ -24,8 +24,6 @@ class Command(BaseCommand):
 
     help = 'generate javascript files'
 
-    requires_model_validation = False
-
     option_list = BaseCommand.option_list
 
     def handle(self, *args, **options):

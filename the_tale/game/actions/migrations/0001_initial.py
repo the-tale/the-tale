@@ -1,156 +1,42 @@
-# encoding: utf-8
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
-class Migration(SchemaMigration):
-
-    depends_on = (
-        ("places", "0001_initial"),
-        ("roads", "0001_initial"),
-    )
-
-    def forwards(self, orm):
-        
-        # Adding model 'Action'
-        db.create_table('actions_action', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('type', self.gf('django.db.models.fields.CharField')(max_length=150)),
-            ('hero', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['heroes.Hero'])),
-            ('order', self.gf('django.db.models.fields.IntegerField')()),
-            ('percents', self.gf('django.db.models.fields.FloatField')()),
-            ('state', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('entropy', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('leader', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('child_action', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', null=True, to=orm['actions.Action'])),
-            ('quest', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', null=True, to=orm['quests.Quest'])),
-            ('place', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', null=True, to=orm['places.Place'])),
-            ('road', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', null=True, to=orm['roads.Road'])),
-            ('npc', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['heroes.Hero'])),
-            ('data', self.gf('django.db.models.fields.TextField')(default='{}')),
-        ))
-        db.send_create_signal('actions', ['Action'])
+from django.db import models, migrations
+import django.db.models.deletion
+import rels.django
 
 
-    def backwards(self, orm):
-        
-        # Deleting model 'Action'
-        db.delete_table('actions_action')
+class Migration(migrations.Migration):
 
+    dependencies = [
+    ]
 
-    models = {
-        'accounts.account': {
-            'Meta': {'object_name': 'Account'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'user': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['auth.User']", 'unique': 'True'})
-        },
-        'actions.action': {
-            'Meta': {'object_name': 'Action'},
-            'child_action': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': "orm['actions.Action']"}),
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'data': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
-            'entropy': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'hero': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['heroes.Hero']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'leader': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'npc': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['heroes.Hero']"}),
-            'order': ('django.db.models.fields.IntegerField', [], {}),
-            'percents': ('django.db.models.fields.FloatField', [], {}),
-            'place': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': "orm['places.Place']"}),
-            'quest': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': "orm['quests.Quest']"}),
-            'road': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'null': 'True', 'to': "orm['roads.Road']"}),
-            'state': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
-            'type': ('django.db.models.fields.CharField', [], {'max_length': '150'})
-        },
-        'angels.angel': {
-            'Meta': {'object_name': 'Angel'},
-            'account': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['accounts.Account']", 'unique': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '150'})
-        },
-        'auth.group': {
-            'Meta': {'object_name': 'Group'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
-            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
-        },
-        'auth.permission': {
-            'Meta': {'ordering': "('content_type__app_label', 'content_type__model', 'codename')", 'unique_together': "(('content_type', 'codename'),)", 'object_name': 'Permission'},
-            'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
-        },
-        'auth.user': {
-            'Meta': {'object_name': 'User'},
-            'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
-            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
-        },
-        'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
-            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        'heroes.hero': {
-            'Meta': {'object_name': 'Hero'},
-            'alive': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'angel': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'heroes'", 'null': 'True', 'blank': 'True', 'to': "orm['angels.Angel']"}),
-            'bag': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
-            'chaoticity': ('django.db.models.fields.IntegerField', [], {}),
-            'charisma': ('django.db.models.fields.IntegerField', [], {'default': '3'}),
-            'constitution': ('django.db.models.fields.IntegerField', [], {}),
-            'equipment': ('django.db.models.fields.TextField', [], {'default': "'{}'"}),
-            'first': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'health': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'intellect': ('django.db.models.fields.IntegerField', [], {}),
-            'money': ('django.db.models.fields.BigIntegerField', [], {'default': '0'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '150'}),
-            'npc': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'reflexes': ('django.db.models.fields.IntegerField', [], {}),
-            'wisdom': ('django.db.models.fields.IntegerField', [], {})
-        },
-        'places.place': {
-            'Meta': {'ordering': "('name',)", 'object_name': 'Place'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '150'}),
-            'size': ('django.db.models.fields.IntegerField', [], {}),
-            'subtype': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
-            'terrain': ('django.db.models.fields.CharField', [], {'default': "'.'", 'max_length': '1'}),
-            'type': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
-            'x': ('django.db.models.fields.BigIntegerField', [], {}),
-            'y': ('django.db.models.fields.BigIntegerField', [], {})
-        },
-        'quests.quest': {
-            'Meta': {'object_name': 'Quest'},
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'percents': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
-            'state': ('django.db.models.fields.CharField', [], {'default': "'uninitialized'", 'max_length': '50'}),
-            'type': ('django.db.models.fields.CharField', [], {'max_length': '150'})
-        },
-        'roads.road': {
-            'Meta': {'unique_together': "(('point_1', 'point_2'),)", 'object_name': 'Road'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'length': ('django.db.models.fields.FloatField', [], {'default': '0.0', 'blank': 'True'}),
-            'point_1': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['places.Place']"}),
-            'point_2': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['places.Place']"})
-        }
-    }
-
-    complete_apps = ['actions']
+    operations = [
+        migrations.CreateModel(
+            name='MetaAction',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('type', rels.django.RelationIntegerField(default=None)),
+                ('percents', models.FloatField(default=0.0)),
+                ('state', models.CharField(default=b'uninitialized', max_length=50)),
+                ('data', models.TextField(default=b'{}')),
+                ('bundle_id', models.BigIntegerField(null=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='MetaActionMember',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('context', models.TextField(default=b'{}')),
+                ('role', models.CharField(max_length=32)),
+                ('action', models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.PROTECT, to='actions.MetaAction')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+    ]

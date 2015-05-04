@@ -1,50 +1,52 @@
-# encoding: utf-8
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from django.db import models, migrations
 import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
-
-class Migration(SchemaMigration):
-
-    def forwards(self, orm):
-        
-        # Adding model 'Person'
-        db.create_table('persons_person', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('place', self.gf('django.db.models.fields.related.ForeignKey')(related_name='persons', to=orm['places.Place'])),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=256)),
-            ('type', self.gf('django.db.models.fields.IntegerField')(max_length=256)),
-            ('power', self.gf('django.db.models.fields.IntegerField')(default=0)),
-        ))
-        db.send_create_signal('persons', ['Person'])
+import rels.django
 
 
-    def backwards(self, orm):
-        
-        # Deleting model 'Person'
-        db.delete_table('persons_person')
+class Migration(migrations.Migration):
 
+    dependencies = [
+    ]
 
-    models = {
-        'persons.person': {
-            'Meta': {'object_name': 'Person'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
-            'place': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'persons'", 'to': "orm['places.Place']"}),
-            'power': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'type': ('django.db.models.fields.IntegerField', [], {'max_length': '256'})
-        },
-        'places.place': {
-            'Meta': {'ordering': "('name',)", 'object_name': 'Place'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '150'}),
-            'size': ('django.db.models.fields.IntegerField', [], {}),
-            'subtype': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
-            'terrain': ('django.db.models.fields.CharField', [], {'default': "'.'", 'max_length': '1'}),
-            'type': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
-            'x': ('django.db.models.fields.BigIntegerField', [], {}),
-            'y': ('django.db.models.fields.BigIntegerField', [], {})
-        }
-    }
-
-    complete_apps = ['persons']
+    operations = [
+        migrations.CreateModel(
+            name='Person',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created_at', models.DateTimeField(default=datetime.datetime(2000, 1, 1, 0, 0), auto_now_add=True)),
+                ('created_at_turn', models.IntegerField(default=0)),
+                ('out_game_at', models.DateTimeField(default=datetime.datetime(2000, 1, 1, 0, 0))),
+                ('state', rels.django.RelationIntegerField()),
+                ('gender', rels.django.RelationIntegerField()),
+                ('race', rels.django.RelationIntegerField()),
+                ('type', rels.django.RelationIntegerField()),
+                ('friends_number', models.IntegerField(default=0)),
+                ('enemies_number', models.IntegerField(default=0)),
+                ('name', models.CharField(max_length=100, db_index=True)),
+                ('data', models.TextField(default='{}')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='SocialConnection',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('created_at_turn', models.BigIntegerField()),
+                ('out_game_at', models.DateTimeField(default=None, null=True)),
+                ('out_game_at_turn', models.BigIntegerField(default=None, null=True)),
+                ('connection', rels.django.RelationIntegerField()),
+                ('state', rels.django.RelationIntegerField()),
+                ('person_1', models.ForeignKey(related_name='+', to='persons.Person')),
+                ('person_2', models.ForeignKey(related_name='+', to='persons.Person')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+    ]

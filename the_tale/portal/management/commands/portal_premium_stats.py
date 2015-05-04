@@ -110,8 +110,6 @@ class Command(BaseCommand):
 
     help = 'dump all dymamic portal data and send to email from settings.DUMP_EMAIL'
 
-    requires_model_validation = False
-
     def handle(self, *args, **options):
 
         old_premiums_now_active = get_premium_sequences(Account.objects.filter(is_fast=False,

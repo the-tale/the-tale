@@ -20,8 +20,6 @@ class Command(BaseCommand):
 
     help = 'make map changing video from region datas'
 
-    requires_model_validation = False
-
     option_list = BaseCommand.option_list + ( make_option('-r', '--regions',
                                                           action='store',
                                                           type=str,

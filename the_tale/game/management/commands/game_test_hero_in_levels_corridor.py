@@ -53,7 +53,6 @@ class Command(BaseCommand):
 
     help = 'test how hero move in levels corridor on real map'
 
-    requires_model_validation = False
 
     option_list = BaseCommand.option_list
 

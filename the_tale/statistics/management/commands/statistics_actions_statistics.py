@@ -13,8 +13,6 @@ class Command(BaseCommand):
 
     help = 'Show actions statistics'
 
-    requires_model_validation = False
-
     def handle(self, *args, **options):
 
         actions = set(AccountPrototype._db_exclude(action_id=None).values_list('action_id', flat=True).order_by('action_id').distinct())

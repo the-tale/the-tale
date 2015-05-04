@@ -9,8 +9,6 @@ class Command(BaseCommand):
 
     help = 'update map on base of current database state'
 
-    requires_model_validation = False
-
     def handle(self, *args, **options):
         run_django_command(['roads_update_roads'])
 

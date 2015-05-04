@@ -13,8 +13,6 @@ class Command(BaseCommand):
 
     help = 'prepair all generated static files'
 
-    requires_model_validation = False
-
     option_list = BaseCommand.option_list + ( make_option('-g', '--game-version',
                                                           action='store',
                                                           type=str,

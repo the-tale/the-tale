@@ -8,7 +8,5 @@ class Command(BaseCommand):
 
     help = 'Recalculate mights of accounts'
 
-    requires_model_validation = False
-
     def handle(self, *args, **options):
         recalculate_accounts_might()

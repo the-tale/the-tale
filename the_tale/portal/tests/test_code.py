@@ -1,8 +1,8 @@
 # coding: utf-8
 import subprocess
 
-from django.conf import settings as project_settings
 from django.utils.importlib import import_module
+from django.apps import apps as django_apps
 
 from dext.common.utils.urls import url
 from dext.common.utils import storage
@@ -92,8 +92,8 @@ class CodeTests(testcase.TestCase):
         # get all stored types
         prototypes = []
 
-        for app_path in project_settings.INSTALLED_APPS:
-            storage_module = '%s.storage' % app_path
+        for application in django_apps.get_app_configs():
+            storage_module = '%s.storage' % application.name
             try:
                 module = import_module(storage_module)
             except:
