@@ -107,7 +107,7 @@ class ITEMS_OF_EXPENDITURE(DjangoEnum):
                  u'Копит деньги в надежде немного повысить свою грамотность.'),
                 ('REPAIRING_ARTIFACT',  6, u'починка артефакта', 'repairing', 15, 1.0, MONEY_SOURCE.SPEND_FOR_REPAIRING,
                  u'Копит на починку экипировки'),
-                ('HEAL_COMPANION',  7, u'лечение спутника', 'heal_companion', 10, 0.6, MONEY_SOURCE.SPEND_FOR_COMPANIONS,
+                ('HEAL_COMPANION',  7, u'лечение спутника', 'heal_companion', 10, 0.3, MONEY_SOURCE.SPEND_FOR_COMPANIONS,
                  u'Копит на лечение спутника')
               )
 
