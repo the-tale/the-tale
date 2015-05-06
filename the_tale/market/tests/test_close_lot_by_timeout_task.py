@@ -29,7 +29,6 @@ class TaskTests(testcase.TestCase):
 
         create_test_map()
 
-        goods_types.autodiscover(if_empty=True)
         goods_types.test_hero_good._clear()
 
         self.good_1_uid = 'good-1'

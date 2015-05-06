@@ -31,9 +31,6 @@ class LogicTests(testcase.TransactionTestCase):
 
         create_test_map()
 
-        goods_types.autodiscover(if_empty=True)
-        postponed_prototypes.autodiscover(if_empty=True)
-
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
 
@@ -55,8 +52,6 @@ class LogicTests(testcase.TransactionTestCase):
         self.lot_1 = logic.reserve_lot(self.account_1.id, self.good_1, price=self.price)
         self.lot_1.state = relations.LOT_STATE.ACTIVE
         logic.save_lot(self.lot_1)
-
-        goods_types.autodiscover(if_empty=True)
 
     def test_get_commission(self):
         self.assertEqual(logic.get_commission(0), 1)

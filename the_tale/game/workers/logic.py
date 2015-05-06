@@ -37,9 +37,6 @@ class Worker(workers.BaseWorker):
         if self.initialized:
             self.logger.warn('WARNING: game already initialized, do reinitialization')
 
-        postponed_tasks.autodiscover(if_empty=True)
-        goods_types.autodiscover(if_empty=True)
-
         self.storage = LogicStorage()
 
         self.initialized = True

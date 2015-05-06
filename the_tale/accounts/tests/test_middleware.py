@@ -29,8 +29,6 @@ class RegistrationMiddlewareTests(testcase.TestCase):
         self.referral_link = '/?%s=%d' % (accounts_settings.REFERRAL_URL_ARGUMENT, self.account.id)
         self.action_link = '/?%s=action' % accounts_settings.ACTION_URL_ARGUMENT
 
-        postponed_tasks.autodiscover()
-
     def test_handle_registration__not_anonymous(self):
         with mock.patch('the_tale.accounts.middleware.login_user') as login_user:
             result = self.middleware.handle_registration(self.make_request_html('/',

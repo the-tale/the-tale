@@ -4,7 +4,7 @@ import mock
 
 from the_tale.common.utils import testcase
 
-from the_tale.common.postponed_tasks import PostponedTaskPrototype, autodiscover
+from the_tale.common.postponed_tasks import PostponedTaskPrototype
 
 from the_tale.bank.prototypes import InvoicePrototype
 from the_tale.bank.relations import ENTITY_TYPE, CURRENCY_TYPE
@@ -30,8 +30,6 @@ class PremiumDaysTests(testcase.TestCase):
 
     def setUp(self):
         super(PremiumDaysTests, self).setUp()
-
-        autodiscover()
 
         create_test_map()
 
@@ -118,8 +116,6 @@ class PermanentPurchaseTests(testcase.TestCase):
 
     def setUp(self):
         super(PermanentPurchaseTests, self).setUp()
-
-        autodiscover()
 
         create_test_map()
 

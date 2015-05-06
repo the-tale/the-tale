@@ -65,8 +65,6 @@ class Worker(BaseWorker):
         if self.initialized:
             self.logger.warn('WARNING: pvp balancer already initialized, do reinitialization')
 
-        postponed_tasks.autodiscover()
-
         self.initialized = True
         self.worker_id = worker_id
 

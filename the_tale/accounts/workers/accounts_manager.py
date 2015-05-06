@@ -20,7 +20,6 @@ class Worker(BaseWorker):
 
     def initialize(self):
         self.initialized = True
-        postponed_tasks.autodiscover()
         postponed_tasks.PostponedTaskPrototype.reset_all()
         self.logger.info('ACCOUNT_MANAGER INITIALIZED')
 

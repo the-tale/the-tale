@@ -26,8 +26,6 @@ class Worker(BaseWorker):
         if self.initialized:
             self.logger.warn('WARNING: long commands already initialized, do reinitialization')
 
-        postponed_tasks.autodiscover()
-
         self.initialized = True
         self.worker_id = worker_id
 

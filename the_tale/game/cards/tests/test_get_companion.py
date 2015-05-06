@@ -27,8 +27,6 @@ class GetCompanionCreateTests(testcase.TestCase):
         super(GetCompanionCreateTests, self).setUp()
         create_test_map()
 
-        goods_types.autodiscover()
-
         self.account_1 = self.accounts_factory.create_account()
 
         self.storage = LogicStorage()
@@ -64,8 +62,6 @@ class GetCompanionMixin(CardsTestMixin):
     def setUp(self):
         super(GetCompanionMixin, self).setUp()
         create_test_map()
-
-        goods_types.autodiscover()
 
         self.account_1 = self.accounts_factory.create_account()
 

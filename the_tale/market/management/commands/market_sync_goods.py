@@ -16,7 +16,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        goods_types.autodiscover()
-
         for hero in heroes_prototypes.HeroPrototype.from_query(heroes_prototypes.HeroPrototype._db_all()):
             logic.sync_goods(hero.account_id, hero)

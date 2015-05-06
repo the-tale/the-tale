@@ -28,8 +28,6 @@ class RequestsTestsBase(testcase.TestCase):
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
 
-        goods_types.autodiscover(if_empty=True)
-
 
 class IndexRequestsTests(RequestsTestsBase):
 

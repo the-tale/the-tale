@@ -5,7 +5,7 @@ from the_tale.amqp_environment import environment
 
 from the_tale.common.utils import testcase
 
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, autodiscover, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 from the_tale.common.postponed_tasks.postponed_tasks import FakePostponedInternalTask
 
 
@@ -13,7 +13,6 @@ class RefrigeratorTests(testcase.TestCase):
 
     def setUp(self):
         super(RefrigeratorTests, self).setUp()
-        autodiscover()
 
         environment.deinitialize()
         environment.initialize()

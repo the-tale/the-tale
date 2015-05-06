@@ -6,7 +6,7 @@ from the_tale.common.utils import testcase
 from the_tale.common.utils.fake import FakeLogger
 
 from the_tale.common.postponed_tasks.exceptions import PostponedTaskException
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, PostponedLogic, _register_postponed_tasks, autodiscover, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, PostponedLogic, _register_postponed_tasks, POSTPONED_TASK_LOGIC_RESULT
 from the_tale.common.postponed_tasks.models import PostponedTask, POSTPONED_TASK_STATE
 from the_tale.common.postponed_tasks.postponed_tasks import FakePostponedInternalTask
 
@@ -15,7 +15,6 @@ class PrototypeTests(testcase.TestCase):
 
     def setUp(self):
         super(PrototypeTests, self).setUp()
-        autodiscover()
         self.task = PostponedTaskPrototype.create(FakePostponedInternalTask())
 
     def test_internals_tasks_collection(self):

@@ -130,9 +130,13 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
 
         self.hero.companion.health = 1
 
+        current_time = TimePrototype.get_current_time()
+
         with self.check_increased(lambda: self.action_heal_companion.percents):
             with self.check_increased(lambda: self.hero.companion.health):
                 while self.action_heal_companion.state != self.action_heal_companion.STATE.PROCESSED:
+                    current_time.increment_turn()
+
                     ability = self.PROCESSOR()
 
                     with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL_COMPANION):

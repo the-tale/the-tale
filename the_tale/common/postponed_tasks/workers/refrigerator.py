@@ -5,7 +5,7 @@ import datetime
 from the_tale.common.utils.workers import BaseWorker
 
 from the_tale.common.postponed_tasks.conf import postponed_tasks_settings
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, POSTPONED_TASK_LOGIC_RESULT, autodiscover
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 
 
 class RefrigeratorException(Exception): pass
@@ -24,7 +24,6 @@ class Worker(BaseWorker):
         self.initialized = True
         self.next_task_process_time = datetime.datetime.now()
         self.tasks = {}
-        autodiscover()
         PostponedTaskPrototype.reset_all()
         self.logger.info('REFRIGERATOR INITIALIZED')
 

@@ -17,8 +17,6 @@ class Worker(BaseWorker):
 
     def initialize(self):
         self.initialized = True
-        postponed_tasks.autodiscover()
-        goods_types.autodiscover()
         self.logger.info('MARKET MANAGER INITIALIZED')
 
     def process_no_cmd(self):

@@ -32,8 +32,6 @@ class TaskTests(testcase.TestCase):
 
         create_test_map()
 
-        goods_types.autodiscover()
-
         self.good_1_uid = 'good-1'
 
         self.account_1 = self.accounts_factory.create_account()

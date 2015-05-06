@@ -29,8 +29,6 @@ class ContainerTests(testcase.TestCase):
     def setUp(self):
         super(ContainerTests, self).setUp()
 
-        goods_types.autodiscover(if_empty=True)
-
         create_test_map()
 
         self.account = self.accounts_factory.create_account()
@@ -158,8 +156,6 @@ class GetNewCardTest(testcase.TestCase):
 
     def setUp(self):
         super(GetNewCardTest, self).setUp()
-
-        goods_types.autodiscover(if_empty=True)
 
         create_test_map()
 

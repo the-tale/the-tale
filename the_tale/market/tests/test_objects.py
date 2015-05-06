@@ -29,8 +29,6 @@ class LotTests(testcase.TestCase):
 
         self.account_1 = self.accounts_factory.create_account()
 
-        goods_types.autodiscover(if_empty=True)
-
         self.good_1 = goods_types.test_hero_good.create_good('good-1')
 
         self.price_1 = 666
