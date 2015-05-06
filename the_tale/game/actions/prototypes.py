@@ -34,7 +34,7 @@ from the_tale.game.actions import battle
 from the_tale.game.actions import contexts
 from the_tale.game.actions import exceptions
 from the_tale.game.actions import relations
-
+from the_tale.game.actions import meta_actions
 
 
 E = 0.0001
@@ -231,8 +231,8 @@ class ActionBase(object):
     @property
     def meta_action(self):
         if self.storage is None: # if meta_action accessed from views (not from logic)
-            return None
-        return self.storage.meta_actions.get(self.meta_action_id) if self.meta_action_id else None
+            return meta_actions.get_meta_action_by_id(self.meta_action_id) if self.meta_action_id is not None else None
+        return self.storage.meta_actions.get(self.meta_action_id) if self.meta_action_id is not None else None
 
     @property
     def help_choices(self):
@@ -339,7 +339,6 @@ class ActionBase(object):
         self.removed = True
 
     def on_save(self):
-
         if self.meta_action_id is not None and self.meta_action.updated:
             self.meta_action.save()
 
@@ -1896,8 +1895,6 @@ class ActionMetaProxyPrototype(ActionBase):
 
     @property
     def ui_type(self):
-        if self.meta_action is None:
-            return self.TYPE
         return self.meta_action.TYPE
 
     ###########################################

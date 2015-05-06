@@ -44,6 +44,8 @@ def get_meta_action_by_model(model):
 
     return META_ACTION_TYPES[model.type](model=model)
 
+def get_meta_action_by_id(meta_action_id):
+    return get_meta_action_by_model(MetaAction.objects.get(id=meta_action_id))
 
 class MetaActionPrototype(BasePrototype):
     _model_class = MetaAction
