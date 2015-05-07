@@ -7,7 +7,7 @@
 
 {% block title %}
   {% if key %}{{key.text}} | {{settings.PAGE_TITLE}}
-  {% else %}{{settings.PAGE_TITLE}}
+  {% else %}{{super()}}
   {% endif %}
 {% endblock %}
 
