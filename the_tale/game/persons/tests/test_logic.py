@@ -5,6 +5,8 @@ import mock
 
 from the_tale.common.utils import testcase
 
+from the_tale.game.balance import constants as c
+
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.map.roads.storage import waymarks_storage
@@ -145,3 +147,37 @@ class LogicTests(testcase.TestCase):
 
         for person in storage.persons_storage.filter(state=relations.PERSON_STATE.IN_GAME):
             self.assertTrue(len(storage.social_connections.get_connected_persons_ids(person)) >= conf.settings.SOCIAL_CONNECTIONS_MINIMUM)
+
+    def test_get_next_connection_minimum_distance__not_full_connections(self):
+        person = self.place_1.persons[0]
+
+        self.assertTrue(len(storage.social_connections.get_connected_persons_ids(person)) < conf.settings.SOCIAL_CONNECTIONS_MINIMUM - 1)
+
+        self.assertEqual(0, logic.get_next_connection_minimum_distance(person))
+
+
+    def test_get_next_connection_minimum_distance__full_connections(self):
+        person = self.place_1.persons[0]
+
+        for i in xrange(conf.settings.SOCIAL_CONNECTIONS_MINIMUM - 1):
+            logic.create_missing_connection(person)
+
+        self.assertEqual(len(storage.social_connections.get_connected_persons_ids(person)), conf.settings.SOCIAL_CONNECTIONS_MINIMUM - 1)
+
+        self.assertTrue(logic.get_next_connection_minimum_distance(person) > 0)
+
+
+    def test_get_next_connection_minimum_distance__distance_calculation(self):
+        person = self.place_1.persons[0]
+
+        for i in xrange(conf.settings.SOCIAL_CONNECTIONS_MINIMUM - 1):
+            logic.create_missing_connection(person)
+
+        minimum_distance = conf.settings.SOCIAL_CONNECTIONS_MINIMUM * c.QUEST_AREA_RADIUS * conf.settings.SOCIAL_CONNECTIONS_AVERAGE_PATH_FRACTION
+
+        for connected_person_id in storage.social_connections.get_connected_persons_ids(person):
+            connected_person = storage.persons_storage[connected_person_id]
+            path_length = waymarks_storage.look_for_road(person.place, connected_person.place).length
+            minimum_distance -= path_length
+
+        self.assertEqual(minimum_distance, logic.get_next_connection_minimum_distance(person))

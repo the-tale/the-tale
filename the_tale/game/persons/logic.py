@@ -60,12 +60,29 @@ def remove_connection(connection):
     storage.social_connections.refresh()
 
 
-def search_available_connections(person):
+def get_next_connection_minimum_distance(person):
+    if conf.settings.SOCIAL_CONNECTIONS_MINIMUM > len(storage.social_connections.get_connected_persons_ids(person)) + 1:
+        return 0
+
+    minimum_distance = conf.settings.SOCIAL_CONNECTIONS_MINIMUM * c.QUEST_AREA_RADIUS * conf.settings.SOCIAL_CONNECTIONS_AVERAGE_PATH_FRACTION
+
+    for connected_person_id in storage.social_connections.get_connected_persons_ids(person):
+        connected_person = storage.persons_storage[connected_person_id]
+        path_length = waymarks_storage.look_for_road(person.place, connected_person.place).length
+        minimum_distance -= path_length
+
+    return minimum_distance
+
+
+def search_available_connections(person, minimum_distance=None):
     excluded_persons_ids = storage.social_connections.get_connected_persons_ids(person)
 
     persons = storage.persons_storage.filter(state=relations.PERSON_STATE.IN_GAME)
 
     candidates = []
+
+    if minimum_distance is None:
+        minimum_distance = get_next_connection_minimum_distance(person)
 
     for candidate in persons:
         if candidate.id in excluded_persons_ids:
@@ -79,7 +96,13 @@ def search_available_connections(person):
         if path_length > c.QUEST_AREA_RADIUS:
             continue
 
+        if path_length < minimum_distance:
+            continue
+
         candidates.append(candidate)
+
+    if not candidates:
+        return search_available_connections(person, minimum_distance * conf.settings.SOCIAL_CONNECTIONS_MIN_DISTANCE_DECREASE)
 
     return candidates
 
@@ -91,26 +114,33 @@ def out_game_obsolete_connections():
                 remove_connection(connection)
 
 
+def create_missing_connection(person):
+
+    candidates = search_available_connections(person)
+
+    if not candidates:
+        return None
+
+    connected_person = random.choice(candidates)
+
+    create_social_connection(connection_type=relations.SOCIAL_CONNECTION_TYPE.random(),
+                             person_1=person,
+                             person_2=connected_person)
+
+    return connected_person
+
+
 @storage.social_connections.postpone_version_update
 def create_missing_connections():
     persons = storage.persons_storage.filter(state=relations.PERSON_STATE.IN_GAME)
 
     for person in persons:
         connections = storage.social_connections.get_connected_persons_ids(person)
-
         while len(connections) < conf.settings.SOCIAL_CONNECTIONS_MINIMUM:
-            candidates = search_available_connections(person)
-
-            if not candidates:
-                break
-
-            connected_person = random.choice(candidates)
-
-            create_social_connection(connection_type=relations.SOCIAL_CONNECTION_TYPE.random(),
-                                     person_1=person,
-                                     person_2=connected_person)
+            connected_person = create_missing_connection(person)
+            if connected_person is None:
+                continue
             connections.append(connected_person.id)
-
 
 def sync_social_connections():
     out_game_obsolete_connections()
