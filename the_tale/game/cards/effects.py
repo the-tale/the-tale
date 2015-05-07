@@ -230,20 +230,26 @@ class ChangeHabitBase(BaseEffect):
     def DESCRIPTION(self):
         if self.POINTS > 0:
             return u'Увеличивает %(habit)s героя на %(points)d единиц.' % {'habit': self.HABIT.text,
-                                                                          'points': self.POINTS}
+                                                                           'points': self.POINTS}
         return u'Уменьшает %(habit)s героя на %(points)d единиц.' % {'habit': self.HABIT.text,
-                                                                    'points': -self.POINTS}
+                                                                     'points': -self.POINTS}
 
     @property
     def success_message(self):
         if self.POINTS > 0:
             return u'Увеличивает %(habit)s героя на %(points)d единиц.' % {'habit': self.HABIT.text,
-                                                                          'points': self.POINTS}
+                                                                           'points': self.POINTS}
         return u'Уменьшает %(habit)s героя на %(points)d единиц.' % {'habit': self.HABIT.text,
-                                                                    'points': -self.POINTS}
+                                                                     'points': -self.POINTS}
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        old_habits = (task.hero.habit_honor.raw_value, task.hero.habit_peacefulness.raw_value)
+
         task.hero.change_habits(self.HABIT, self.POINTS)
+
+        if old_habits == (task.hero.habit_honor.raw_value, task.hero.habit_peacefulness.raw_value):
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Применение карты никак не изменит черты героя.')
+
         return task.logic_result()
 
 

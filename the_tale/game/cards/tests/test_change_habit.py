@@ -35,9 +35,6 @@ class ChangeHabitTestMixin(CardsTestMixin):
 
         self.card = self.CARD()
 
-        self.hero.change_habits(HABIT_TYPE.HONOR, -c.HABITS_BORDER if self.CARD.POINTS > 0 else c.HABITS_BORDER)
-        self.hero.change_habits(HABIT_TYPE.PEACEFULNESS, -c.HABITS_BORDER if self.CARD.POINTS > 0 else c.HABITS_BORDER)
-
     def habit_value(self):
         if self.card.HABIT.is_HONOR:
             return self.hero.habit_honor.raw_value
@@ -46,10 +43,22 @@ class ChangeHabitTestMixin(CardsTestMixin):
             return self.hero.habit_peacefulness.raw_value
 
     def test_use(self):
+        self.hero.change_habits(HABIT_TYPE.HONOR, -c.HABITS_BORDER if self.CARD.POINTS > 0 else c.HABITS_BORDER)
+        self.hero.change_habits(HABIT_TYPE.PEACEFULNESS, -c.HABITS_BORDER if self.CARD.POINTS > 0 else c.HABITS_BORDER)
+
         with self.check_delta(self.habit_value, self.CARD.POINTS):
             result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
 
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+
+    def test_no_effect(self):
+        self.hero.change_habits(HABIT_TYPE.HONOR, -c.HABITS_BORDER if self.CARD.POINTS < 0 else c.HABITS_BORDER)
+        self.hero.change_habits(HABIT_TYPE.PEACEFULNESS, -c.HABITS_BORDER if self.CARD.POINTS < 0 else c.HABITS_BORDER)
+
+        with self.check_not_changed(self.habit_value):
+            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+
+        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
 
 class ChangeHabitHonorPlusUncommonTests(ChangeHabitTestMixin, testcase.TestCase):

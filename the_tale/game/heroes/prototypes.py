@@ -335,19 +335,19 @@ class HeroPrototype(BasePrototype,
     ###########################################
 
     def can_change_person_power(self, person):
-       if self.is_banned:
-           return False
+        if self.is_banned:
+            return False
 
-       return self.can_change_place_power(person.place)
+        return self.can_change_place_power(person.place)
 
     def can_change_place_power(self, place):
-       if self.is_banned:
-           return False
+        if self.is_banned:
+            return False
 
-       if place.depends_from_all_heroes:
-           return True
+        if place.depends_from_all_heroes:
+            return True
 
-       return self.is_premium
+        return self.is_premium
 
     @property
     def can_participate_in_pvp(self): return not self.is_fast and not self.is_banned
