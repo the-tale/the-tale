@@ -158,7 +158,7 @@ class Companion(object):
         while self.experience_to_next_level <= self.experience:
 
             if self.coherence >= self.max_coherence:
-                self.experience = min(self.experience, self.experience_to_next_level)
+                self.experience = min(self.experience, self.experience_to_next_level - 1)
                 return
 
             self.experience -= self.experience_to_next_level

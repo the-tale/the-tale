@@ -161,7 +161,7 @@ class CompanionTests(testcase.TestCase):
         with self.check_not_changed(lambda: self.companion.coherence):
             self.companion.add_experience(66666666666)
 
-        self.assertEqual(self.companion.experience, self.companion.experience_to_next_level)
+        self.assertEqual(self.companion.experience, self.companion.experience_to_next_level - 1)
 
     def test_max_health(self):
 
@@ -194,17 +194,17 @@ class CompanionTests(testcase.TestCase):
 
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_max_coherence', 60):
             self.companion.add_experience(6666666)
-            self.assertEqual(self.companion.experience, self.companion.experience_to_next_level)
+            self.assertEqual(self.companion.experience, self.companion.experience_to_next_level - 1)
 
         self.assertEqual(self.companion.max_coherence, 20)
         self.assertEqual(self.companion.coherence, 60)
-        self.assertEqual(self.companion.experience, self.companion.experience_to_next_level)
+        self.assertEqual(self.companion.experience, self.companion.experience_to_next_level - 1)
 
         self.companion.add_experience(6666666666666)
 
         self.assertEqual(self.companion.max_coherence, 20)
         self.assertEqual(self.companion.coherence, 60)
-        self.assertEqual(self.companion.experience, self.companion.experience_to_next_level)
+        self.assertEqual(self.companion.experience, self.companion.experience_to_next_level - 1)
 
     def test_modify_attribute(self):
         checked_abilities = [ability
