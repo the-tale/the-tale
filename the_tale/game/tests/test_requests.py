@@ -93,15 +93,15 @@ class InfoRequestTests(RequestTestsBase):
 
     def test_account_not_exists(self):
         response = self.request_ajax_json(game_info_url(account_id=666))
-        self.check_ajax_error(response, 'game.api-info.account.wrong_value')
+        self.check_ajax_error(response, 'account.wrong_value')
 
     def test_wrong_account_id(self):
         response = self.request_ajax_json(game_info_url(account_id='sdsd'))
-        self.check_ajax_error(response, 'game.api-info.account.wrong_format')
+        self.check_ajax_error(response, 'account.wrong_format')
 
     def test_client_turns(self):
-        self.check_ajax_error(self.request_ajax_json(game_info_url(client_turns=['dds'])), 'game.api-info.client_turns.wrong_format')
-        self.check_ajax_error(self.request_ajax_json(game_info_url(client_turns=['1', ''])), 'game.api-info.client_turns.wrong_format')
+        self.check_ajax_error(self.request_ajax_json(game_info_url(client_turns=['dds'])), 'client_turns.wrong_format')
+        self.check_ajax_error(self.request_ajax_json(game_info_url(client_turns=['1', ''])), 'client_turns.wrong_format')
         self.check_ajax_ok(self.request_ajax_json(game_info_url(client_turns=['1'])))
         self.check_ajax_ok(self.request_ajax_json(game_info_url(client_turns=['1, 2, 3 ,4'])))
         self.check_ajax_ok(self.request_ajax_json(game_info_url(client_turns=[1, 2, 3 ,4])))

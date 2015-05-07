@@ -72,10 +72,7 @@ def handler(versions):
 
 class Processor(dext_views.BaseViewProcessor):
     __slots__ = ('versions',)
-
-    def __init__(self, versions, **kwargs):
-        super(Processor, self).__init__(**kwargs)
-        self.versions = versions
+    ARG_VERSIONS = dext_views.ProcessorArgument()
 
     def preprocess(self, context):
 

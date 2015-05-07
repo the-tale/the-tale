@@ -49,16 +49,7 @@ class CurrentAccountProcessor(dext_views.BaseViewProcessor):
                                                                         data={})
 
 
-current_account_processor = CurrentAccountProcessor()
-
-
 class SuperuserProcessor(dext_views.BaseViewProcessor):
-    __slots__ = ('required', )
-
-    def __init__(self, required, **kwargs):
-        super(SuperuserProcessor, self).__init__(**kwargs)
-        self.required = required
-
     def preprocess(self, context):
         context.django_superuser = context.account.is_superuser
 
@@ -72,12 +63,12 @@ class AccountProcessor(dext_views.ArgumentProcessor):
         try:
             account_id = int(raw_value)
         except ValueError:
-            self.raise_wrong_format(context=context)
+            self.raise_wrong_format()
 
         account = AccountPrototype.get_by_id(account_id)
 
         if account is None:
-            self.raise_wrong_value(context=context)
+            self.raise_wrong_value()
 
         return account
 
@@ -96,16 +87,12 @@ class LoginRequiredProcessor(dext_views.BaseViewProcessor):
 
         return dext_views.Redirect(target_url=self.login_page_url(context.django_request.get_full_path()))
 
-login_required_processor = LoginRequiredProcessor()
-
 
 class FullAccountProcessor(dext_views.BaseViewProcessor):
 
     def preprocess(self, context):
         if context.account.is_fast:
             raise dext_exceptions.ViewError(code='common.fast_account', message=u'Вы не закончили регистрацию и данная функция вам не доступна')
-
-full_account_processor = FullAccountProcessor()
 
 
 class BanGameProcessor(dext_views.BaseViewProcessor):
@@ -114,16 +101,12 @@ class BanGameProcessor(dext_views.BaseViewProcessor):
         if context.account.is_ban_game:
             raise dext_exceptions.ViewError(code='common.ban_game', message=u'Вам запрещено проводить эту операцию')
 
-ban_game_processor = BanGameProcessor()
-
 
 class BanForumProcessor(dext_views.BaseViewProcessor):
 
     def preprocess(self, context):
         if context.account.is_ban_forum:
             raise dext_exceptions.ViewError(code='common.ban_forum', message=u'Вам запрещено проводить эту операцию')
-
-ban_forum_processor = BanForumProcessor()
 
 
 ###############################

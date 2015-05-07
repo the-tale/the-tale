@@ -23,17 +23,16 @@ from the_tale.game.map.places import logic
 ########################################
 
 class PlaceProcessor(dext_views.ArgumentProcessor):
-
     def parse(self, context, raw_value):
         try:
             place_id = int(raw_value)
         except ValueError:
-            self.raise_wrong_format(context=context)
+            self.raise_wrong_format()
 
         place = storage.places_storage.get(place_id)
 
         if not place:
-            self.raise_wrong_value(context=context)
+            self.raise_wrong_value()
 
         return place
 
@@ -42,15 +41,15 @@ class PlaceProcessor(dext_views.ArgumentProcessor):
 # resource and global processors
 ########################################
 resource = dext_views.Resource(name='places')
-resource.add_processor(accounts_views.current_account_processor)
-resource.add_processor(utils_views.fake_resource_processor)
+resource.add_processor(accounts_views.CurrentAccountProcessor())
+resource.add_processor(utils_views.FakeResourceProcessor())
 
 ########################################
 # views
 ########################################
 
-@api.Processor.handler(versions=(conf.places_settings.API_LIST_VERSION,))
-@resource.handler('api', 'list', name='api-list')
+@api.Processor(versions=(conf.places_settings.API_LIST_VERSION,))
+@resource('api', 'list', name='api-list')
 def api_list(context):
     u'''
 Получить перечень всех городов с их основными параметрами
@@ -92,9 +91,9 @@ def api_list(context):
     return dext_views.AjaxOk(content=data)
 
 
-@api.Processor.handler(versions=(conf.places_settings.API_SHOW_VERSION,))
-@PlaceProcessor.handler(error_message=u'Город не найден', url_name='place', context_name='place')
-@resource.handler('#place', 'api', 'show', name='api-show')
+@api.Processor(versions=(conf.places_settings.API_SHOW_VERSION,))
+@PlaceProcessor(error_message=u'Город не найден', url_name='place', context_name='place')
+@resource('#place', 'api', 'show', name='api-show')
 def api_show(context):
     u'''
 Подробная информация о конкретном городе
@@ -240,8 +239,8 @@ def api_show(context):
     return dext_views.AjaxOk(content=logic.place_info(context.place))
 
 
-@PlaceProcessor.handler(error_message=u'Город не найден', url_name='place', context_name='place')
-@resource.handler('#place', name='show')
+@PlaceProcessor(error_message=u'Город не найден', url_name='place', context_name='place')
+@resource('#place', name='show')
 def show(context):
     place_info = logic.place_info(context.place)
     return dext_views.Page('places/show.html',

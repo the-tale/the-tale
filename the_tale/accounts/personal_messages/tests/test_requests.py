@@ -131,26 +131,26 @@ class NewRequestsTests(BaseRequestsTests):
 
     def test_wrong_recipient_id(self):
         self.check_html_ok(self.post_ajax_html(url('accounts:messages:new'), {'recipients': 'aaa'}),
-                           texts=[('personal_messages.new.form_errors', 1)])
+                           texts=[('pgf-error-form_errors', 1)])
 
     def test_recipient_not_found(self):
         self.check_html_ok(self.post_ajax_html(url('accounts:messages:new'), {'recipients': 666}),
-                           texts=[('personal_messages.new.unexisted_account', 1)])
+                           texts=[('pgf-error-unexisted_account', 1)])
 
     def test_answer_wrong_message_id(self):
         MessagePrototype.create(self.account2, self.account1, 'message_2_1 1')
         self.check_html_ok(self.post_ajax_html(url('accounts:messages:new', answer_to='aaa'), {'recipients': self.account2.id}),
-                           texts=[('personal_messages.new.answer_to.wrong_format', 1)])
+                           texts=[('pgf-error-answer_to.wrong_format', 1)])
 
     def test_answer_to_not_found(self):
         MessagePrototype.create(self.account2, self.account1, 'message_2_1 1')
         self.check_html_ok(self.post_ajax_html(url('accounts:messages:new', answer_to=666), {'recipients': self.account2.id}),
-                           texts=[('personal_messages.new.answer_to.wrong_value', 1)])
+                           texts=[('pgf-error-answer_to.wrong_value', 1)])
 
     def test_answer_to_no_permissions(self):
         message = MessagePrototype.create(self.account2, self.account3, 'message_2_3 1')
         self.check_html_ok(self.post_ajax_html(url('accounts:messages:new', answer_to=message.id), {'recipients': self.account2.id}),
-                           texts=[('personal_messages.new.not_permissions_to_answer_to', 1)])
+                           texts=[('pgf-error-no_permissions_to_answer_to', 1)])
 
     def test_success(self):
         self.check_html_ok(self.post_ajax_html(url('accounts:messages:new'), {'recipients': self.account2.id}),
@@ -172,14 +172,14 @@ class NewRequestsTests(BaseRequestsTests):
     def test_sent_to_system_user(self):
         recipients = '%d,%d' % (self.account2.id, get_system_user().id)
         self.check_html_ok(self.post_ajax_html(url('accounts:messages:new'), {'recipients': recipients}),
-                           texts=[('personal_messages.new.system_user', 1)])
+                           texts=[('pgf-error-system_user', 1)])
 
     def test_sent_to_fast_user(self):
         self.account3.is_fast = True
         self.account3.save()
         recipients = '%d,%d' % (self.account2.id, self.account3.id)
         self.check_html_ok(self.post_ajax_html(url('accounts:messages:new'), {'recipients': recipients}),
-                           texts=[('personal_messages.new.fast_account', 1)])
+                           texts=[('pgf-error-fast_account', 1)])
 
 
 class CreateRequestsTests(BaseRequestsTests):
@@ -206,17 +206,17 @@ class CreateRequestsTests(BaseRequestsTests):
 
     def test_wrong_recipient_id(self):
         self.check_ajax_error(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message', 'recipients': 'aaa'}),
-                              'personal_messages.create.form_errors')
+                              'form_errors')
         self.assertEqual(Message.objects.all().count(), 0)
 
     def test_recipient_not_found(self):
         self.check_ajax_error(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message', 'recipients': '666'}),
-                              'personal_messages.new.unexisted_account')
+                              'unexisted_account')
         self.assertEqual(Message.objects.all().count(), 0)
 
     def test_form_errors(self):
         self.check_ajax_error(self.post_ajax_json(url('accounts:messages:create'), {'text': '', 'recipients': self.account2.id}),
-                              'personal_messages.create.form_errors')
+                              'form_errors')
         self.assertEqual(Message.objects.all().count(), 0)
 
     def test_success(self):
@@ -246,14 +246,14 @@ class CreateRequestsTests(BaseRequestsTests):
 
     def test_sent_to_system_user(self):
         self.check_ajax_error(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message', 'recipients': ('%d,%d' % (self.account2.id, get_system_user().id))}),
-                              'personal_messages.new.system_user')
+                              'system_user')
         self.assertEqual(Message.objects.all().count(), 0)
 
     def test_sent_to_fast_user(self):
         self.account3.is_fast = True
         self.account3.save()
         self.check_ajax_error(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message', 'recipients': ('%d,%d' % (self.account2.id, self.account3.id))}),
-                              'personal_messages.new.fast_account')
+                              'fast_account')
         self.assertEqual(Message.objects.all().count(), 0)
 
 
@@ -275,7 +275,7 @@ class DeleteRequestsTests(BaseRequestsTests):
 
     def test_delete_no_permissions(self):
         self.request_login('test_user3@test.com')
-        self.check_ajax_error(self.post_ajax_json(url('accounts:messages:delete', self.message.id)), 'personal_messages.delete.no_permissions')
+        self.check_ajax_error(self.post_ajax_json(url('accounts:messages:delete', self.message.id)), 'no_permissions')
 
     def test_delete_from_sender(self):
         self.request_login(self.account1.email)

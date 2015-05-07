@@ -47,16 +47,12 @@ from the_tale.game.heroes.habilities import relations as habilities_relations
 ###############################
 
 class CurrentHeroProcessor(dext_views.BaseViewProcessor):
-    __slots__ = dext_views.BaseViewProcessor.__slots__
-
     def preprocess(self, context):
         if not context.account.is_authenticated():
             context.account_hero = None
             return
 
         context.account_hero = HeroPrototype.get_by_account_id(context.account.id)
-
-current_hero_processor = CurrentHeroProcessor()
 
 
 def split_list(items):

@@ -22,15 +22,22 @@ from the_tale.game.companions.abilities import relations as abilities_relations
 # processors definition
 ########################################
 
-create_companion_processor = dext_views.PermissionProcessor(permission='companions.create_companionrecord', context_name='companions_can_edit')
-moderate_companion_processor = dext_views.PermissionProcessor(permission='companions.moderate_companionrecord', context_name='companions_can_moderate')
+class CreateCompanionProcessor(dext_views.PermissionProcessor):
+    PERMISSION = 'companions.create_companionrecord'
+    CONTEXT_NAME = 'companions_can_edit'
+
+
+class ModerateCompanionProcessor(dext_views.PermissionProcessor):
+    PERMISSION = 'companions.moderate_companionrecord'
+    CONTEXT_NAME = 'companions_can_moderate'
 
 
 class EditorAccessProcessor(dext_views.AccessProcessor):
     ERROR_CODE = u'companions.no_edit_rights'
     ERROR_MESSAGE = u'Вы не можете редактировать спутников'
 
-    def check(self, context): return context.companions_can_edit
+    def check(self, context):
+        return context.companions_can_edit
 
 
 class ModeratorAccessProcessor(dext_views.AccessProcessor):
@@ -41,29 +48,29 @@ class ModeratorAccessProcessor(dext_views.AccessProcessor):
 
 
 class CompanionProcessor(dext_views.ArgumentProcessor):
+    ERROR_MESSAGE = u'Спутник не найден'
+    URL_NAME = 'companion'
+    CONTEXT_NAME = 'companion'
 
     def parse(self, context, raw_value):
         try:
             id = int(raw_value)
         except ValueError:
-            self.raise_wrong_format(context=context)
+            self.raise_wrong_format()
 
         if id not in storage.companions:
-            self.raise_wrong_value(context=context)
+            self.raise_wrong_value()
 
         return storage.companions.get(id)
-
-# TODO: sync semantics of CompanionProcessor and CompanionProcessor.handler
-companion_processor = CompanionProcessor.handler(error_message=u'Спутник не найден', url_name='companion', context_name='companion')
 
 ########################################
 # resource and global processors
 ########################################
 resource = dext_views.Resource(name='companions')
-resource.add_processor(accounts_views.current_account_processor)
-resource.add_processor(utils_views.fake_resource_processor)
-resource.add_processor(create_companion_processor)
-resource.add_processor(moderate_companion_processor)
+resource.add_processor(accounts_views.CurrentAccountProcessor())
+resource.add_processor(utils_views.FakeResourceProcessor())
+resource.add_processor(CreateCompanionProcessor())
+resource.add_processor(ModerateCompanionProcessor())
 
 ########################################
 # filters
@@ -112,22 +119,22 @@ class ModeratorIndexFilter(list_filter.ListFilter):
 # views
 ########################################
 
-@dext_views.RelationArgumentProcessor.handler(relation=relations.STATE, default_value=relations.STATE.ENABLED,
-                                              error_message=u'неверное состояние записи о спутнике',
-                                              context_name='companions_state', get_name='state')
-@dext_views.RelationArgumentProcessor.handler(relation=INDEX_TYPE, default_value=INDEX_TYPE.FILTER_ALL,
-                                              error_message=u'неверный тип спутника',
-                                              context_name='companions_type', get_name='type')
-@dext_views.RelationArgumentProcessor.handler(relation=INDEX_DEDICATION, default_value=INDEX_DEDICATION.FILTER_ALL,
-                                              error_message=u'неверный тип самоотверженности спутника',
-                                              context_name='companions_dedication', get_name='dedication')
-@dext_views.RelationArgumentProcessor.handler(relation=INDEX_ABILITIES, default_value=INDEX_ABILITIES.FILTER_ALL,
-                                              error_message=u'неверный тип особенности спутника',
-                                              context_name='companions_ability', get_name='ability')
-@dext_views.RelationArgumentProcessor.handler(relation=INDEX_ORDER, default_value=INDEX_ORDER.RARITY,
-                                              error_message=u'неверный тип сортировки',
-                                              context_name='order_by', get_name='order_by')
-@resource.handler('')
+@dext_views.RelationArgumentProcessor(relation=relations.STATE, default_value=relations.STATE.ENABLED,
+                                      error_message=u'неверное состояние записи о спутнике',
+                                      context_name='companions_state', get_name='state')
+@dext_views.RelationArgumentProcessor(relation=INDEX_TYPE, default_value=INDEX_TYPE.FILTER_ALL,
+                                      error_message=u'неверный тип спутника',
+                                      context_name='companions_type', get_name='type')
+@dext_views.RelationArgumentProcessor(relation=INDEX_DEDICATION, default_value=INDEX_DEDICATION.FILTER_ALL,
+                                      error_message=u'неверный тип самоотверженности спутника',
+                                      context_name='companions_dedication', get_name='dedication')
+@dext_views.RelationArgumentProcessor(relation=INDEX_ABILITIES, default_value=INDEX_ABILITIES.FILTER_ALL,
+                                      error_message=u'неверный тип особенности спутника',
+                                      context_name='companions_ability', get_name='ability')
+@dext_views.RelationArgumentProcessor(relation=INDEX_ORDER, default_value=INDEX_ORDER.RARITY,
+                                      error_message=u'неверный тип сортировки',
+                                      context_name='order_by', get_name='order_by')
+@resource('')
 def index(context):
 
     companions = storage.companions.all()
@@ -176,12 +183,12 @@ def index(context):
                                     'index_filter': index_filter})
 
 
-@companion_processor
-@resource.handler('#companion', name='show')
+@CompanionProcessor()
+@resource('#companion', name='show')
 def show(context):
 
     if context.companion.state.is_DISABLED and not (context.companions_can_edit or context.companions_can_moderate):
-        raise dext_views.exceptions.ViewError(code='companions.show.no_rights', message=u'Вы не можете просматривать информацию по данному спутнику.')
+        raise dext_views.ViewError(code='no_rights', message=u'Вы не можете просматривать информацию по данному спутнику.')
 
     template_restriction, ingame_companion_phrases = logic.required_templates_count(context.companion)
 
@@ -194,21 +201,21 @@ def show(context):
                                     'section': 'companions'})
 
 
-@companion_processor
-@resource.handler('#companion', 'info', name='info')
+@CompanionProcessor()
+@resource('#companion', 'info', name='info')
 def show_dialog(context):
 
     if context.companion.state.is_DISABLED and not (context.companions_can_edit or context.companions_can_moderate):
-        raise dext_views.exceptions.ViewError(code='companions.info.no_rights', message=u'Вы не можете просматривать информацию по данному спутнику.')
+        raise dext_views.ViewError(code='no_rights', message=u'Вы не можете просматривать информацию по данному спутнику.')
 
     return dext_views.Page('companions/info.html',
                            content={'companion': context.companion,
                                     'resource': context.resource})
 
 
-@accounts_views.LoginRequiredProcessor.handler()
-@EditorAccessProcessor.handler()
-@resource.handler('new')
+@accounts_views.LoginRequiredProcessor()
+@EditorAccessProcessor()
+@resource('new')
 def new(context):
     form = forms.CompanionRecordForm()
     return dext_views.Page('companions/new.html',
@@ -218,10 +225,10 @@ def new(context):
                                     'form': form})
 
 
-@accounts_views.LoginRequiredProcessor.handler()
-@EditorAccessProcessor.handler()
-@dext_views.FormProcessor.handler(form_class=forms.CompanionRecordForm)
-@resource.handler('create', method='POST')
+@accounts_views.LoginRequiredProcessor()
+@EditorAccessProcessor()
+@dext_views.FormProcessor(form_class=forms.CompanionRecordForm)
+@resource('create', method='POST')
 def create(context):
     companion_record = logic.create_companion_record(utg_name=context.form.c.name,
                                                      description=context.form.c.description,
@@ -234,10 +241,10 @@ def create(context):
     return dext_views.AjaxOk(content={'next_url': url('guide:companions:show', companion_record.id)})
 
 
-@accounts_views.LoginRequiredProcessor.handler()
-@EditorAccessProcessor.handler()
-@companion_processor
-@resource.handler('#companion', 'edit')
+@accounts_views.LoginRequiredProcessor()
+@EditorAccessProcessor()
+@CompanionProcessor()
+@resource('#companion', 'edit')
 def edit(context):
     form = forms.CompanionRecordForm(initial=forms.CompanionRecordForm.get_initials(context.companion))
     return dext_views.Page('companions/edit.html',
@@ -248,11 +255,11 @@ def edit(context):
                                     'form': form})
 
 
-@accounts_views.LoginRequiredProcessor.handler()
-@EditorAccessProcessor.handler()
-@companion_processor
-@dext_views.FormProcessor.handler(form_class=forms.CompanionRecordForm)
-@resource.handler('#companion', 'update', method='POST')
+@accounts_views.LoginRequiredProcessor()
+@EditorAccessProcessor()
+@CompanionProcessor()
+@dext_views.FormProcessor(form_class=forms.CompanionRecordForm)
+@resource('#companion', 'update', method='POST')
 def update(context):
     logic.update_companion_record(companion=context.companion,
                                   utg_name=context.form.c.name,
@@ -266,10 +273,10 @@ def update(context):
     return dext_views.AjaxOk(content={'next_url': url('guide:companions:show', context.companion.id)})
 
 
-@accounts_views.LoginRequiredProcessor.handler()
-@ModeratorAccessProcessor.handler()
-@companion_processor
-@resource.handler('#companion', 'enable', method='POST')
+@accounts_views.LoginRequiredProcessor()
+@ModeratorAccessProcessor()
+@CompanionProcessor()
+@resource('#companion', 'enable', method='POST')
 def enable(context):
     logic.enable_companion_record(context.companion)
     return dext_views.AjaxOk()

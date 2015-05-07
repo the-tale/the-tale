@@ -13,8 +13,6 @@ from the_tale.game import relations as game_relations
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 
-from the_tale.game.chronicle import RecordPrototype
-
 from the_tale.game.persons import relations as persons_relations
 
 from the_tale.game.map.storage import map_info_storage
@@ -22,7 +20,6 @@ from the_tale.game.map.conf import map_settings
 
 from the_tale.game.map.places import storage as places_storage
 from the_tale.game.map.places import prototypes as places_prototypes
-from the_tale.game.map.places import conf as places_conf
 from the_tale.game.map.places import logic as places_logic
 from the_tale.game.map.places import relations as places_relations
 
@@ -36,30 +33,30 @@ from the_tale.game.map.places import relations as places_relations
 # resource and global processors
 ########################################
 resource = dext_views.Resource(name='map')
-resource.add_processor(accounts_views.current_account_processor)
-resource.add_processor(utils_views.fake_resource_processor)
+resource.add_processor(accounts_views.CurrentAccountProcessor())
+resource.add_processor(utils_views.FakeResourceProcessor())
 
 ########################################
 # views
 ########################################
 
 
-@resource.handler('')
+@resource('')
 def index(context):
     return dext_views.Page('map/index.html',
                            content={'current_map_version': map_info_storage.version,
                                     'resource': context.resource})
 
 
-@dext_views.IntArgumentProcessor.handler(error_message=u'Неверная X координата', get_name='x', context_name='x')
-@dext_views.IntArgumentProcessor.handler(error_message=u'Неверная Y координата', get_name='y', context_name='y')
-@resource.handler('cell-info')
+@dext_views.IntArgumentProcessor(error_message=u'Неверная X координата', get_name='x', context_name='x')
+@dext_views.IntArgumentProcessor(error_message=u'Неверная Y координата', get_name='y', context_name='y')
+@resource('cell-info')
 def cell_info(context):
 
     x, y = context.x, context.y
 
     if x < 0 or y < 0 or x >= map_settings.WIDTH or y >= map_settings.HEIGHT:
-        raise dext_views.ViewError(code='game.map.cell_info.outside_map', message=u'Запрашиваемая зона не принадлежит карте')
+        raise dext_views.ViewError(code='outside_map', message=u'Запрашиваемая зона не принадлежит карте')
 
     map_info = map_info_storage.item
 

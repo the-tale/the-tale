@@ -111,24 +111,24 @@ class IndexRequestsTests(RequestsTestsBase):
     def test_normal_view__disabled_records(self):
         self.request_login(self.account_1.email)
         self.check_html_ok(self.request_html(self.requested_url_disabled), texts=[('pgf-no-companions-message', 1),
-                                                                         ('pgf-create-companion-button', 0),
-                                                                         (self.companion_1.name, 0),
-                                                                         (self.companion_2.name, 0)])
+                                                                                  ('pgf-create-companion-button', 0),
+                                                                                  (self.companion_1.name, 0),
+                                                                                  (self.companion_2.name, 0)])
 
     def test_editor_view__disabled_records(self):
         self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(self.requested_url_disabled), texts=[('pgf-no-companions-message', 0),
-                                                                         ('pgf-create-companion-button', 1),
-                                                                         (self.companion_1.name, 0),
-                                                                         (self.companion_2.name, 1)])
+                                                                                  ('pgf-create-companion-button', 1),
+                                                                                  (self.companion_1.name, 0),
+                                                                                  (self.companion_2.name, 1)])
 
 
     def test_moderator_view__disabled_records(self):
         self.request_login(self.account_3.email)
         self.check_html_ok(self.request_html(self.requested_url_disabled), texts=[('pgf-no-companions-message', 0),
-                                                                         ('pgf-create-companion-button', 1),
-                                                                         (self.companion_1.name, 0),
-                                                                         (self.companion_2.name, 1)])
+                                                                                  ('pgf-create-companion-button', 1),
+                                                                                  (self.companion_1.name, 0),
+                                                                                  (self.companion_2.name, 1)])
 
 
 
@@ -222,7 +222,7 @@ class CreateRequestsTests(RequestsTestsBase):
         with self.check_not_changed(models.CompanionRecord.objects.count):
             with self.check_not_changed(lambda: storage.companions._version):
                 with self.check_not_changed(storage.companions.__len__):
-                    self.check_ajax_error(self.post_ajax_json(self.requested_url, {}), 'companions.create.form_errors')
+                    self.check_ajax_error(self.post_ajax_json(self.requested_url, {}), 'form_errors')
 
 
 class ShowRequestsTests(RequestsTestsBase):
@@ -266,13 +266,13 @@ class ShowRequestsTests(RequestsTestsBase):
 
     def test_anonimouse_view(self):
         self.check_html_ok(self.request_html(self.requested_url_1), texts=[(self.companion_1.description, 1),
-                                                                           ('companions.show.no_rights', 0),
+                                                                           ('pgf-error-no_rights', 0),
                                                                            ('pgf-edit-companion-button', 0),
                                                                            ('pgf-enable-companion-button', 0)])
 
     def test_anonimouse_view__companion_disabled(self):
         self.check_html_ok(self.request_html(self.requested_url_2), texts=[(self.companion_2.description, 0),
-                                                                           ('companions.show.no_rights', 1),
+                                                                           ('pgf-error-no_rights', 1),
                                                                            ('pgf-edit-companion-button', 0),
                                                                            ('pgf-enable-companion-button', 0)])
 
@@ -280,14 +280,14 @@ class ShowRequestsTests(RequestsTestsBase):
     def test_normal_view(self):
         self.request_login(self.account_1.email)
         self.check_html_ok(self.request_html(self.requested_url_1), texts=[(self.companion_1.description, 1),
-                                                                           ('companions.show.no_rights', 0),
+                                                                           ('pgf-error-no_rights', 0),
                                                                            ('pgf-edit-companion-button', 0),
                                                                            ('pgf-enable-companion-button', 0)])
 
     def test_normal_view__companion_disabled(self):
         self.request_login(self.account_1.email)
         self.check_html_ok(self.request_html(self.requested_url_2), texts=[(self.companion_2.description, 0),
-                                                                           ('companions.show.no_rights', 1),
+                                                                           ('pgf-error-no_rights', 1),
                                                                            ('pgf-edit-companion-button', 0),
                                                                            ('pgf-enable-companion-button', 0)])
 
@@ -295,7 +295,7 @@ class ShowRequestsTests(RequestsTestsBase):
     def test_editor_view(self):
         self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(self.requested_url_1), texts=[(self.companion_1.description, 1),
-                                                                           ('companions.show.no_rights', 0),
+                                                                           ('pgf-error-no_rights', 0),
                                                                            ('pgf-edit-companion-button', 1),
                                                                            ('pgf-enable-companion-button', 0)])
 
@@ -303,14 +303,14 @@ class ShowRequestsTests(RequestsTestsBase):
     def test_editor_view__companion_disabled(self):
         self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(self.requested_url_2), texts=[(self.companion_2.description, 1),
-                                                                           ('companions.show.no_rights', 0),
+                                                                           ('pgf-error-no_rights', 0),
                                                                            ('pgf-edit-companion-button', 1),
                                                                            ('pgf-enable-companion-button', 0)])
 
     def test_moderator_view(self):
         self.request_login(self.account_3.email)
         self.check_html_ok(self.request_html(self.requested_url_1), texts=[(self.companion_1.description, 1),
-                                                                           ('companions.show.no_rights', 0),
+                                                                           ('pgf-error-no_rights', 0),
                                                                            ('pgf-edit-companion-button', 1),
                                                                            ('pgf-enable-companion-button', 0)])
 
@@ -318,7 +318,7 @@ class ShowRequestsTests(RequestsTestsBase):
     def test_moderator_view__companion_disabled(self):
         self.request_login(self.account_3.email)
         self.check_html_ok(self.request_html(self.requested_url_2), texts=[(self.companion_2.description, 1),
-                                                                           ('companions.show.no_rights', 0),
+                                                                           ('pgf-error-no_rights', 0),
                                                                            ('pgf-edit-companion-button', 1),
                                                                            ('pgf-enable-companion-button', 1)])
 
@@ -364,45 +364,45 @@ class InfoRequestsTests(RequestsTestsBase):
 
     def test_anonimouse_view(self):
         self.check_html_ok(self.request_ajax_html(self.requested_url_1), texts=[(self.companion_1.description, 1),
-                                                                           ('companions.info.no_rights', 0)])
+                                                                                ('pgf-error-no_rights', 0)])
 
     def test_anonimouse_view__companion_disabled(self):
         self.check_html_ok(self.request_ajax_html(self.requested_url_2), texts=[(self.companion_2.description, 0),
-                                                                           ('companions.info.no_rights', 1)])
+                                                                                ('pgf-error-no_rights', 1)])
 
 
     def test_normal_view(self):
         self.request_login(self.account_1.email)
         self.check_html_ok(self.request_ajax_html(self.requested_url_1), texts=[(self.companion_1.description, 1),
-                                                                           ('companions.info.no_rights', 0)])
+                                                                                ('pgf-error-no_rights', 0)])
 
     def test_normal_view__companion_disabled(self):
         self.request_login(self.account_1.email)
         self.check_html_ok(self.request_ajax_html(self.requested_url_2), texts=[(self.companion_2.description, 0),
-                                                                           ('companions.info.no_rights', 1)])
+                                                                                ('pgf-error-no_rights', 1)])
 
 
     def test_editor_view(self):
         self.request_login(self.account_2.email)
         self.check_html_ok(self.request_ajax_html(self.requested_url_1), texts=[(self.companion_1.description, 1),
-                                                                           ('companions.info.no_rights', 0)])
+                                                                                ('pgf-error-no_rights', 0)])
 
 
     def test_editor_view__companion_disabled(self):
         self.request_login(self.account_2.email)
         self.check_html_ok(self.request_ajax_html(self.requested_url_2), texts=[(self.companion_2.description, 1),
-                                                                           ('companions.info.no_rights', 0)])
+                                                                                ('pgf-error-no_rights', 0)])
 
     def test_moderator_view(self):
         self.request_login(self.account_3.email)
         self.check_html_ok(self.request_ajax_html(self.requested_url_1), texts=[(self.companion_1.description, 1),
-                                                                           ('companions.info.no_rights', 0)])
+                                                                                ('pgf-error-no_rights', 0)])
 
 
     def test_moderator_view__companion_disabled(self):
         self.request_login(self.account_3.email)
         self.check_html_ok(self.request_ajax_html(self.requested_url_2), texts=[(self.companion_2.description, 1),
-                                                                           ('companions.info.no_rights', 0)])
+                                                                                ('pgf-error-no_rights', 0)])
 
 
 
@@ -520,7 +520,7 @@ class UpdateRequestsTests(RequestsTestsBase):
         with self.check_not_changed(models.CompanionRecord.objects.count):
             with self.check_not_changed(lambda: storage.companions._version):
                 with self.check_not_changed(storage.companions.__len__):
-                    self.check_ajax_error(self.post_ajax_json(self.requested_url, {}), 'companions.update.form_errors')
+                    self.check_ajax_error(self.post_ajax_json(self.requested_url, {}), 'form_errors')
 
         companion = storage.companions[self.companion_1.id]
 

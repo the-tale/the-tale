@@ -137,15 +137,15 @@ class TestCreateRequests(TestRequestsBase):
     def test_form_errors(self):
         self.request_login(self.editor.email)
         self.check_ajax_error(self.post_ajax_json(url('news:create'), {}),
-                              'news.create.form_errors')
+                              'form_errors')
 
     def test_success(self):
         self.request_login(self.editor.email)
 
         with self.check_delta(models.News.objects.all().count, 1):
             self.check_ajax_ok(self.post_ajax_json(url('news:create'), {'caption': 'new-news-caption',
-                                                                     'description': 'new-news-description',
-                                                                     'content': 'new-news-content'}))
+                                                                        'description': 'new-news-description',
+                                                                        'content': 'new-news-content'}))
 
         last_news = logic.load_last_news()
 
@@ -201,7 +201,7 @@ class TestSendMailsRequests(TestRequestsBase):
 
         with self.check_not_changed(post_service_models.Message.objects.count):
             self.check_ajax_error(self.post_ajax_json(url('news:send-mails', self.news1.id)),
-                                  'news.send_mail.wrong_mail_state')
+                                  'wrong_mail_state')
 
 
 class TestDisableSendMailsRequests(TestRequestsBase):
@@ -228,7 +228,7 @@ class TestDisableSendMailsRequests(TestRequestsBase):
         logic.save_news(self.news1)
 
         self.check_ajax_error(self.post_ajax_json(url('news:disable-send-mails', self.news1.id)),
-                              'news.send_mail.wrong_mail_state')
+                              'wrong_mail_state')
 
 
 class TestUpdateRequests(TestRequestsBase):
@@ -242,7 +242,7 @@ class TestUpdateRequests(TestRequestsBase):
     def test_form_errors(self):
         self.request_login(self.editor.email)
         self.check_ajax_error(self.post_ajax_json(url('news:update', self.news1.id), {}),
-                              'news.update.form_errors')
+                              'form_errors')
 
         news = logic.load_news(self.news1.id)
 
@@ -304,7 +304,7 @@ class TestPostOnForumRequests(TestRequestsBase):
         forum_models.SubCategory.objects.all().delete()
 
         self.check_ajax_error(self.post_ajax_json(url('news:publish-on-forum', self.news1.id)),
-                              'news.publish_on_forum.forum_category_not_exists')
+                              'forum_category_not_exists')
 
         self.assertEqual(forum_models.Thread.objects.all().count(), 0)
 
@@ -316,7 +316,7 @@ class TestPostOnForumRequests(TestRequestsBase):
         self.post_ajax_json(url('news:publish-on-forum', self.news1.id))
 
         self.check_ajax_error(self.post_ajax_json(url('news:publish-on-forum', self.news1.id)),
-                              'news.publish_on_forum.forum_thread_already_exists')
+                              'forum_thread_already_exists')
 
 
     def test_post_on_forum__no_editor_rights(self):

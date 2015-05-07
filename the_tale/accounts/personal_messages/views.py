@@ -27,41 +27,36 @@ from the_tale.accounts.personal_messages import postponed_tasks
 ########################################
 
 class MessageProcessor(dext_views.ArgumentProcessor):
-
     def parse(self, context, raw_value):
         try:
             message_id = int(raw_value)
         except ValueError:
-            self.raise_wrong_format(context=context)
+            self.raise_wrong_format()
 
         message = prototypes.MessagePrototype.get_by_id(message_id)
 
         if not message:
-            self.raise_wrong_value(context=context)
+            self.raise_wrong_value()
 
         return message
-
-# # TODO: sync semantics of CompanionProcessor and CompanionProcessor.handler
-# message_processor = MessageProcessor.handler(error_message=u'Сообщение не найдено', url_name='message', context_name='message')
-
 
 ########################################
 # resource and global processors
 ########################################
 resource = dext_views.Resource(name='personal_messages')
-resource.add_processor(accounts_views.current_account_processor)
-resource.add_processor(utils_views.fake_resource_processor)
-resource.add_processor(accounts_views.login_required_processor)
-resource.add_processor(accounts_views.full_account_processor)
+resource.add_processor(accounts_views.CurrentAccountProcessor())
+resource.add_processor(utils_views.FakeResourceProcessor())
+resource.add_processor(accounts_views.LoginRequiredProcessor())
+resource.add_processor(accounts_views.FullAccountProcessor())
 
 ########################################
 # views
 ########################################
 
-@utils_views.page_number_processor.handler()
-@accounts_views.AccountProcessor.handler(error_message=u'Отправитель не найден', get_name='sender', context_name='sender', default_value=None)
-@utils_views.text_filter_processor.handler(get_name='filter', context_name='filter', default_value=None)
-@resource.handler('')
+@utils_views.PageNumberProcessor()
+@accounts_views.AccountProcessor(error_message=u'Отправитель не найден', get_name='sender', context_name='sender', default_value=None)
+@utils_views.TextFilterProcessor(get_name='filter', context_name='filter', default_value=None)
+@resource('')
 def index(context):
     context.account.reset_new_messages_number()
     query = models.Message.objects.filter(recipient_id=context.account.id, hide_from_recipient=False)
@@ -110,10 +105,10 @@ def index(context):
                                      'resource': context.resource})
 
 
-@utils_views.page_number_processor.handler()
-@accounts_views.AccountProcessor.handler(error_message=u'Получатель не найден', get_name='recipient', context_name='recipient', default_value=None)
-@utils_views.text_filter_processor.handler(get_name='filter', context_name='filter', default_value=None)
-@resource.handler('sent')
+@utils_views.PageNumberProcessor()
+@accounts_views.AccountProcessor(error_message=u'Получатель не найден', get_name='recipient', context_name='recipient', default_value=None)
+@utils_views.TextFilterProcessor(get_name='filter', context_name='filter', default_value=None)
+@resource('sent')
 def sent(context):
     query = models.Message.objects.filter(sender_id=context.account.id, hide_from_sender=False)
 
@@ -165,25 +160,25 @@ def check_recipients(recipients_form):
     system_user = accounts_logic.get_system_user()
 
     if system_user.id in recipients_form.c.recipients:
-        raise dext_views.ViewError(code='personal_messages.new.system_user', message=u'Нельзя отправить сообщение системному пользователю')
+        raise dext_views.ViewError(code='system_user', message=u'Нельзя отправить сообщение системному пользователю')
 
     if accounts_models.Account.objects.filter(is_fast=True, id__in=recipients_form.c.recipients).exists():
-        raise dext_views.ViewError(code='personal_messages.new.fast_account', message=u'Нельзя отправить сообщение пользователю, не завершившему регистрацию')
+        raise dext_views.ViewError(code='fast_account', message=u'Нельзя отправить сообщение пользователю, не завершившему регистрацию')
 
     if accounts_models.Account.objects.filter(id__in=recipients_form.c.recipients).count() != len(recipients_form.c.recipients):
-        raise dext_views.ViewError(code='personal_messages.new.unexisted_account', message=u'Вы пытаетесь отправить сообщение несуществующему пользователю')
+        raise dext_views.ViewError(code='unexisted_account', message=u'Вы пытаетесь отправить сообщение несуществующему пользователю')
 
 
-@accounts_views.ban_forum_processor.handler()
-@dext_views.FormProcessor.handler(form_class=forms.RecipientsForm)
-@MessageProcessor.handler(error_message=u'Сообщение не найдено', get_name='answer_to', context_name='answer_to', default_value=None)
-@resource.handler('new', method='POST')
+@accounts_views.BanForumProcessor()
+@dext_views.FormProcessor(form_class=forms.RecipientsForm)
+@MessageProcessor(error_message=u'Сообщение не найдено', get_name='answer_to', context_name='answer_to', default_value=None)
+@resource('new', method='POST')
 def new(context):
     text = u''
 
     if context.answer_to:
         if context.answer_to.recipient_id != context.account.id:
-            raise dext_views.ViewError(code='personal_messages.new.not_permissions_to_answer_to', message=u'Вы пытаетесь ответить на чужое сообщение')
+            raise dext_views.ViewError(code='no_permissions_to_answer_to', message=u'Вы пытаетесь ответить на чужое сообщение')
 
         text = u'[quote]\n%s\n[/quote]\n' % context.answer_to.text
 
@@ -198,9 +193,9 @@ def new(context):
                                     'resource': context.resource})
 
 
-@accounts_views.ban_forum_processor.handler()
-@dext_views.FormProcessor.handler(form_class=forms.NewMessageForm)
-@resource.handler('create', method='POST')
+@accounts_views.BanForumProcessor()
+@dext_views.FormProcessor(form_class=forms.NewMessageForm)
+@resource('create', method='POST')
 def create(context):
     check_recipients(context.form)
 
@@ -215,12 +210,12 @@ def create(context):
     return dext_views.AjaxProcessing(status_url=task.status_url)
 
 
-@MessageProcessor.handler(error_message=u'Сообщение не найдено', url_name='message_id', context_name='message')
-@resource.handler('#message_id', 'delete', method='POST')
+@MessageProcessor(error_message=u'Сообщение не найдено', url_name='message_id', context_name='message')
+@resource('#message_id', 'delete', method='POST')
 def delete(context):
 
     if context.account.id not in (context.message.sender_id, context.message.recipient_id):
-        raise dext_views.ViewError(code='personal_messages.delete.no_permissions', message=u'Вы не можете влиять на это сообщение')
+        raise dext_views.ViewError(code='no_permissions', message=u'Вы не можете влиять на это сообщение')
 
     context.message.hide_from(sender=(context.account.id == context.message.sender_id),
                               recipient=(context.account.id == context.message.recipient_id))
@@ -228,7 +223,7 @@ def delete(context):
     return dext_views.AjaxOk()
 
 
-@resource.handler('delete-all', method='POST')
+@resource('delete-all', method='POST')
 def delete_all(context):
     prototypes.MessagePrototype.hide_all(account_id=context.account.id)
     return dext_views.AjaxOk()

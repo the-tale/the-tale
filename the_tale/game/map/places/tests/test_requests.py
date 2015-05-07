@@ -58,10 +58,10 @@ class TestShowRequests(testcase.TestCase):
         self.check_html_ok(self.request_html(url('game:map:places:show', self.place_1.id)), texts=[('pgf-frontier-message', 0)])
 
     def test_wrong_place_id(self):
-        self.check_html_ok(self.request_html(url('game:map:places:show', 'wrong_id')), texts=['places.show.place.wrong_format'])
+        self.check_html_ok(self.request_html(url('game:map:places:show', 'wrong_id')), texts=['pgf-error-place.wrong_format'])
 
     def test_place_does_not_exist(self):
-        self.check_html_ok(self.request_html(url('game:map:places:show', 666)), texts=['places.show.place.wrong_value'])
+        self.check_html_ok(self.request_html(url('game:map:places:show', 666)), texts=['pgf-error-place.wrong_value'])
 
     def check_no_heroes(self):
         texts = [('pgf-no-heroes-message', 1 + len(self.place_1.persons))]

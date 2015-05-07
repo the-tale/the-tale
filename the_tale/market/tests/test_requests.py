@@ -308,7 +308,7 @@ class NewDialogRequestsTests(RequestsTestsBase):
         self.goods_1.clear()
         logic.save_goods(self.goods_1)
 
-        self.check_html_ok(self.request_ajax_html(self.requested_url), texts=[('market.new-dialog.good.wrong_value', 1)])
+        self.check_html_ok(self.request_ajax_html(self.requested_url), texts=[('pgf-error-good.wrong_value', 1)])
 
     def test_anonimouse_view(self):
         self.check_html_ok(self.request_ajax_html(self.requested_url), texts=[('common.login_required', 1)])
@@ -321,7 +321,7 @@ class NewDialogRequestsTests(RequestsTestsBase):
         logic.reserve_lot(self.account_1.id, self.goods_1.get_good(self.good_1.uid), price=777)
 
         self.request_login(self.account_1.email)
-        self.check_html_ok(self.request_ajax_html(self.requested_url), texts=[('market.new-dialog.lot_exists')])
+        self.check_html_ok(self.request_ajax_html(self.requested_url), texts=[('pgf-error-lot_exists')])
 
 
 
@@ -346,7 +346,7 @@ class CreateRequestsTests(RequestsTestsBase):
         logic.save_goods(self.goods_1)
 
         with self.check_not_changed(postponed_tasks_models.PostponedTask.objects.count):
-            self.check_ajax_error(self.post_ajax_json(self.requested_url, {'price': 600}), 'market.create.good.wrong_value')
+            self.check_ajax_error(self.post_ajax_json(self.requested_url, {'price': 600}), 'good.wrong_value')
 
     def test_anonimouse_view(self):
         with self.check_not_changed(postponed_tasks_models.PostponedTask.objects.count):
@@ -355,7 +355,7 @@ class CreateRequestsTests(RequestsTestsBase):
     def test_low_price(self):
         self.request_login(self.account_1.email)
         with self.check_not_changed(postponed_tasks_models.PostponedTask.objects.count):
-            self.check_ajax_error(self.post_ajax_json(self.requested_url, {'price': 0}), 'market.create.form_errors')
+            self.check_ajax_error(self.post_ajax_json(self.requested_url, {'price': 0}), 'form_errors')
 
 
     def test_normal_view(self):
@@ -369,7 +369,7 @@ class CreateRequestsTests(RequestsTestsBase):
 
         self.request_login(self.account_1.email)
         with self.check_not_changed(postponed_tasks_models.PostponedTask.objects.count):
-            self.check_ajax_error(self.post_ajax_json(self.requested_url, {'price': 100}), 'market.create.lot_exists')
+            self.check_ajax_error(self.post_ajax_json(self.requested_url, {'price': 100}), 'lot_exists')
 
 
 
@@ -396,7 +396,7 @@ class PurchaseRequestsTests(RequestsTestsBase):
         self.request_login(self.account_2.email)
 
         with self.check_not_changed(postponed_tasks_models.PostponedTask.objects.count):
-            self.check_ajax_error(self.post_ajax_json(url('market:purchase', 666)), 'market.purchase.lot.wrong_value')
+            self.check_ajax_error(self.post_ajax_json(url('market:purchase', 666)), 'lot.wrong_value')
 
 
     def test_anonimouse_view(self):
@@ -407,13 +407,13 @@ class PurchaseRequestsTests(RequestsTestsBase):
     def test_own_account(self):
         self.request_login(self.account_1.email)
         with self.check_not_changed(postponed_tasks_models.PostponedTask.objects.count):
-            self.check_ajax_error(self.post_ajax_json(self.requested_url), 'market.purchase.can_not_purchase_own_lot')
+            self.check_ajax_error(self.post_ajax_json(self.requested_url), 'can_not_purchase_own_lot')
 
 
     def test_no_money(self):
         self.request_login(self.account_2.email)
         with self.check_not_changed(postponed_tasks_models.PostponedTask.objects.count):
-            self.check_ajax_error(self.post_ajax_json(self.requested_url), 'market.purchase.no_money')
+            self.check_ajax_error(self.post_ajax_json(self.requested_url), 'no_money')
 
 
     def test_normal_view(self):

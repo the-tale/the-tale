@@ -27,16 +27,16 @@ from the_tale.game.cards.effects import EFFECTS
 # resource and global processors
 ########################################
 resource = dext_views.Resource(name='game')
-resource.add_processor(accounts_views.current_account_processor)
-resource.add_processor(utils_views.fake_resource_processor)
-resource.add_processor(heroes_views.current_hero_processor)
+resource.add_processor(accounts_views.CurrentAccountProcessor())
+resource.add_processor(utils_views.FakeResourceProcessor())
+resource.add_processor(heroes_views.CurrentHeroProcessor())
 
 ########################################
 # views
 ########################################
 
-@accounts_views.LoginRequiredProcessor.handler()
-@resource.handler('')
+@accounts_views.LoginRequiredProcessor()
+@resource('')
 def game_page(context):
 
     battle = Battle1x1Prototype.get_by_account_id(context.account.id)
@@ -60,10 +60,10 @@ def game_page(context):
                                     'resource': context.resource,
                                     'hero': context.account_hero} )
 
-@api.Processor.handler(versions=(game_settings.INFO_API_VERSION, '1.2', '1.1', '1.0'))
-@dext_views.IntsArgumentProcessor.handler(error_message=u'Неверный формат номера хода', get_name='client_turns', context_name='client_turns', default_value=None)
-@accounts_views.AccountProcessor.handler(error_message=u'Запрашиваемый Вами аккаунт не найден', get_name='account', context_name='requested_account', default_value=None)
-@resource.handler('api', 'info', name='api-info')
+@api.Processor(versions=(game_settings.INFO_API_VERSION, '1.2', '1.1', '1.0'))
+@dext_views.IntsArgumentProcessor(error_message=u'Неверный формат номера хода', get_name='client_turns', context_name='client_turns', default_value=None)
+@accounts_views.AccountProcessor(error_message=u'Запрашиваемый Вами аккаунт не найден', get_name='account', context_name='requested_account', default_value=None)
+@resource('api', 'info', name='api-info')
 def api_info(context):
     u'''
 Информация о текущем ходе и герое
@@ -344,10 +344,10 @@ def api_info(context):
     return dext_views.AjaxOk(content=data)
 
 
-@dext_views.DebugProcessor.handler(required=True)
-@accounts_views.LoginRequiredProcessor.handler()
-@accounts_views.SuperuserProcessor.handler(required=True)
-@resource.handler('next-turn', method='POST')
+@dext_views.DebugProcessor()
+@accounts_views.LoginRequiredProcessor()
+@accounts_views.SuperuserProcessor()
+@resource('next-turn', method='POST')
 def next_turn(context):
     environment.workers.supervisor.cmd_next_turn()
     return dext_views.AjaxOk()
