@@ -1029,9 +1029,12 @@ class ActionBattlePvE1x1Prototype(ActionBase):
         self.updated = True
         return True
 
-    def _kill_mob(self):
+    def _kill_mob(self, hero_alive=True):
         self.mob.kill()
         self.hero.statistics.change_pve_kills(1)
+
+        if not hero_alive:
+            return
 
         loot = artifacts_storage.generate_loot(self.hero, self.mob)
 
@@ -1075,8 +1078,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
         if not len(artifacts):
             return
 
-        artifact = utils_logic.random_value_by_priority([(artifact, 1 - artifact.integrity_fraction)
-                                             for artifact in artifacts])
+        artifact = utils_logic.random_value_by_priority([(artifact, 1 - artifact.integrity_fraction) for artifact in artifacts])
 
         artifact.break_it()
         self.hero.add_message('action_battlepve1x1_artifact_broken', hero=self.hero, mob=self.mob, diary=True, artifact=artifact)
@@ -1093,6 +1095,14 @@ class ActionBattlePvE1x1Prototype(ActionBase):
         self.hero.add_message('action_battlepve1x1_journal_hero_killed', hero=self.hero, mob=self.mob)
         self.state = self.STATE.PROCESSED
 
+    def on_both_killed(self):
+        self._kill_mob(hero_alive=False)
+        self.hero.kill()
+        self.hero.statistics.change_pve_deaths(1)
+        self.hero.add_message('action_battlepve1x1_diary_hero_and_mob_killed', diary=True, journal=False, hero=self.hero, mob=self.mob)
+        self.hero.add_message('action_battlepve1x1_journal_hero_and_mob_killed', hero=self.hero, mob=self.mob)
+        self.state = self.STATE.PROCESSED
+
     def process(self):
 
         if self.state == self.STATE.BATTLE_RUNNING:
@@ -1105,9 +1115,12 @@ class ActionBattlePvE1x1Prototype(ActionBase):
                 self.percents = 1.0 - self.mob.health_percents
 
             if self.hero.health <= 0:
-                self.on_hero_killed()
+                if self.mob.health <= 0:
+                    self.on_both_killed()
+                else:
+                    self.on_hero_killed()
 
-            if self.mob.health <= 0:
+            elif self.mob.health <= 0:
                 self.on_mob_killed()
 
             if self.state == self.STATE.PROCESSED:

@@ -1,5 +1,6 @@
 # coding: utf-8
 import time
+import collections
 
 from the_tale.common.utils import testcase
 
@@ -23,7 +24,7 @@ class MessagesContainerTest(testcase.TestCase):
                                          position=position)
 
     def test_create(self):
-        self.assertEqual(self.messages.messages, [])
+        self.assertEqual(self.messages.messages, collections.deque())
         self.assertFalse(self.messages.updated)
 
     def test_serialize(self):
@@ -40,14 +41,14 @@ class MessagesContainerTest(testcase.TestCase):
         self.messages.clear()
 
         self.assertTrue(self.messages.updated)
-        self.assertEqual(self.messages.messages, [])
+        self.assertEqual(self.messages.messages, collections.deque())
 
         self.messages.updated = False
 
         self.messages.clear()
 
         self.assertFalse(self.messages.updated)
-        self.assertEqual(self.messages.messages, [])
+        self.assertEqual(self.messages.messages, collections.deque())
 
 
     def test_push_message(self):

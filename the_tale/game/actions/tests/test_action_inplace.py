@@ -780,9 +780,7 @@ class InPlaceActionCompanionBuyMealTests(testcase.TestCase):
     def check_not_used(self):
         with contextlib.nested(
                 self.check_not_changed(lambda: self.hero.money),
-                self.check_not_changed(lambda: self.hero.statistics.money_spend_for_companions),
-                self.check_not_changed(lambda: len(self.hero.messages))
-                ):
+                self.check_not_changed(lambda: self.hero.statistics.money_spend_for_companions)):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_money_for_food_multiplier', 0.5)

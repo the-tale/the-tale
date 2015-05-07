@@ -119,6 +119,22 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.pve_deaths, 1)
         self.storage._test_save()
 
+    @mock.patch('the_tale.game.balance.constants.ARTIFACTS_PER_BATTLE', 1)
+    @mock.patch('the_tale.game.actions.prototypes.battle.make_turn', lambda a, b, c: None)
+    def test_hero_and_mob_killed(self):
+        self.hero.health = 0
+        self.action_battle.mob.health = 0
+        with self.check_not_changed(lambda: self.hero.statistics.artifacts_had):
+            with self.check_not_changed(lambda: self.hero.bag.occupation):
+                self.storage.process_turn(continue_steps_if_needed=False)
+        self.assertTrue(self.hero.messages.messages[-1].key.is_ACTION_BATTLEPVE1X1_JOURNAL_HERO_AND_MOB_KILLED)
+        self.assertTrue(self.hero.diary.messages[-1].key.is_ACTION_BATTLEPVE1X1_DIARY_HERO_AND_MOB_KILLED)
+        self.assertEqual(len(self.hero.actions.actions_list), 1)
+        self.assertEqual(self.hero.actions.current_action, self.action_idl)
+        self.assertTrue(not self.hero.is_alive)
+        self.assertEqual(self.hero.statistics.pve_deaths, 1)
+        self.storage._test_save()
+
     def test_full_battle(self):
 
         current_time = TimePrototype.get_current_time()

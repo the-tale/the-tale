@@ -1,5 +1,6 @@
 # coding: utf-8
 import time
+import collections
 
 from the_tale.game.balance import constants as c
 
@@ -95,7 +96,7 @@ class MessagesContainer(object):
     MESSAGES_LOG_LENGTH = None
 
     def __init__(self):
-        self.messages = []
+        self.messages = collections.deque()
         self.updated = False
 
     def push_message(self, msg):
@@ -104,17 +105,18 @@ class MessagesContainer(object):
         self.messages.append(msg)
 
         if len(self.messages) > 1 and (self.messages[-1].turn_number < self.messages[-2].turn_number or self.messages[-1].timestamp < self.messages[-2].timestamp):
-            self.messages.sort(key=_message_key) # compare tuples
+            messages = sorted(self.messages, key=_message_key)
+            self.messages = collections.deque(messages)
 
         if len(self.messages) > self.MESSAGES_LOG_LENGTH:
-            self.messages.pop(0)
+            self.messages.popleft()
 
     def messages_number(self):
         return len(self.messages)
 
     def clear(self):
         if self.messages:
-            del self.messages[:]
+            self.messages.clear()
             self.updated = True
 
     def __len__(self): return len(self.messages)
@@ -139,7 +141,7 @@ class MessagesContainer(object):
     @classmethod
     def deserialize(cls, hero, data):
         obj = cls()
-        obj.messages = [MessageSurrogate.deserialize(message_data) for message_data in data['messages']]
+        obj.messages = collections.deque(MessageSurrogate.deserialize(message_data) for message_data in data['messages'])
         return obj
 
     def __eq__(self, other):
