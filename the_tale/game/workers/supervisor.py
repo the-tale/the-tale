@@ -162,27 +162,36 @@ class Worker(BaseWorker):
 
                 logic_worker_name = self.choose_logic_worker_to_dispatch(min_account_id)
 
+                self.send_register_accounts_cmds(task.members, logic_worker_name)
+
                 for member_id in task.members:
                     del self.accounts_for_tasks[member_id]
-                    self.send_register_account_cmd(member_id, logic_worker_name)
+
                 task.remove()
 
             return
 
         logic_worker_name = self.choose_logic_worker_to_dispatch(account_id)
 
-        self.send_register_account_cmd(account_id, logic_worker_name)
+        self.send_register_accounts_cmds([account_id], logic_worker_name)
 
-    def send_register_account_cmd(self, account_id, logic_worker_name):
-        self.accounts_owners[account_id] = logic_worker_name
-        self.logic_accounts_number[logic_worker_name] += 1
+    def send_register_accounts_cmds(self, accounts_ids, logic_worker_name):
+        accounts_ids = sorted(accounts_ids)
 
-        self.logic_workers[logic_worker_name].cmd_register_account(account_id)
+        # register accounts in logic
+        for account_id in accounts_ids:
+            self.accounts_owners[account_id] = logic_worker_name
+            self.logic_accounts_number[logic_worker_name] += 1
 
-        if account_id in self.accounts_queues:
-            for cmd_name, kwargs in self.accounts_queues[account_id]:
-                self.dispatch_logic_cmd(account_id, cmd_name, kwargs)
-            del self.accounts_queues[account_id]
+            self.logic_workers[logic_worker_name].cmd_register_account(account_id)
+
+        # send delayed commands, only after all accounts will be registered
+        # sice some actions (for example, text generation) may need all bundle of heroes
+        for account_id in accounts_ids:
+            if account_id in self.accounts_queues:
+                for cmd_name, kwargs in self.accounts_queues[account_id]:
+                    self.dispatch_logic_cmd(account_id, cmd_name, kwargs)
+                del self.accounts_queues[account_id]
 
     def send_release_account_cmd(self, account_id):
         account_owner = self.accounts_owners[account_id]

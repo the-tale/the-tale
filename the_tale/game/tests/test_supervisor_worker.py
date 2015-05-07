@@ -324,6 +324,31 @@ class SupervisorWorkerTests(testcase.TestCase):
 
         self.assertEqual(logic_cmd_stop.call_count, len(self.worker.logic_workers))
 
+
+    def test_send_register_accounts_cmds__register_order(self):
+        self.worker.process_initialize()
+
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'game_logic_1', self.account_2.id: 'game_logic_2'})
+        self.worker.send_release_account_cmd(self.account_1.id)
+        self.worker.send_release_account_cmd(self.account_2.id)
+
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: None, self.account_2.id: None})
+
+        self.worker.accounts_queues[self.account_1.id] = [('cmd_1', 1), ('cmd_2', 2)]
+        self.worker.accounts_queues[self.account_2.id] = [('cmd_3', 3)]
+
+        call_recorder = mock.Mock()
+
+        with mock.patch('the_tale.game.workers.logic.Worker.cmd_register_account', call_recorder) as cmd_register_account:
+            with mock.patch('the_tale.game.workers.supervisor.Worker.dispatch_logic_cmd', call_recorder) as dispatch_logic_cmd:
+                self.worker.send_register_accounts_cmds([self.account_2.id, self.account_1.id], 'game_logic_2')
+
+        self.assertEqual(call_recorder.call_args_list, [mock.call(self.account_1.id),
+                                                        mock.call(self.account_2.id),
+                                                        mock.call(self.account_1.id, 'cmd_1', 1),
+                                                        mock.call(self.account_1.id, 'cmd_2', 2),
+                                                        mock.call(self.account_2.id, 'cmd_3', 3)])
+
     def test_send_release_account_cmd(self):
         self.worker.process_initialize()
 
