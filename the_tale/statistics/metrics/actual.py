@@ -8,11 +8,11 @@ from the_tale.portal import conf as portal_conf
 from the_tale.accounts.prototypes import AccountPrototype, RandomPremiumRequestPrototype
 from the_tale.accounts.conf import accounts_settings
 
-from the_tale.accounts.payments.relations import GOODS_GROUP
-from the_tale.accounts.payments import conf as payments_conf
+from the_tale.finances.payments.relations import GOODS_GROUP
+from the_tale.finances.payments import conf as payments_conf
 
-from the_tale.bank.prototypes import InvoicePrototype
-from the_tale.bank.relations import INVOICE_STATE, ENTITY_TYPE, CURRENCY_TYPE
+from the_tale.finances.bank.prototypes import InvoicePrototype
+from the_tale.finances.bank.relations import INVOICE_STATE, ENTITY_TYPE, CURRENCY_TYPE
 
 from the_tale.statistics.metrics.base import BaseMetric, BasePercentsCombination
 from the_tale.statistics import relations

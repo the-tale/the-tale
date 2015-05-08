@@ -14,7 +14,7 @@ from the_tale.accounts.achievements.prototypes import AccountAchievementsPrototy
 
 from the_tale.collections.prototypes import AccountItemsPrototype
 
-from the_tale.market import models as market_models
+from the_tale.finances.market import models as market_models
 
 from the_tale.game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
 

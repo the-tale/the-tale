@@ -2,8 +2,8 @@
 
 from the_tale.common.utils.decorators import lazy_property
 
-from the_tale.market import goods_types
-from the_tale.market import objects as market_objects
+from the_tale.finances.market import goods_types
+from the_tale.finances.market import objects as market_objects
 
 from the_tale.game.cards import objects
 from the_tale.game.cards import relations

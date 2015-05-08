@@ -7,12 +7,12 @@ from the_tale.common.utils.logic import days_range
 
 from the_tale.accounts.prototypes import AccountPrototype
 
-from the_tale.accounts.payments.relations import GOODS_GROUP
+from the_tale.finances.payments.relations import GOODS_GROUP
 
-from the_tale.bank.prototypes import InvoicePrototype
-from the_tale.bank.relations import INVOICE_STATE, ENTITY_TYPE, CURRENCY_TYPE
+from the_tale.finances.bank.prototypes import InvoicePrototype
+from the_tale.finances.bank.relations import INVOICE_STATE, ENTITY_TYPE, CURRENCY_TYPE
 
-from the_tale.market import conf as market_conf
+from the_tale.finances.market import conf as market_conf
 
 from the_tale.forum import models as forum_models
 

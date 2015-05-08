@@ -3,7 +3,7 @@
 
 from the_tale.common.utils.decorators import lazy_property
 
-from the_tale.accounts.payments.relations import PERMANENT_PURCHASE_TYPE
+from the_tale.finances.shop.relations import PERMANENT_PURCHASE_TYPE
 
 from the_tale.accounts.clans.prototypes import ClanPrototype, MembershipPrototype
 from the_tale.accounts.clans.conf import clans_settings

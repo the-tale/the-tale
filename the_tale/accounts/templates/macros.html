@@ -44,7 +44,7 @@
 {% macro account_type_label(account, additional_text='') %}
 
 {% if account.is_premium %}
-<a href="{{url('accounts:payments:shop')}}"
+<a href="{{url('shop:shop')}}"
    class="label label-success"
    rel="popover"
    title="бонусы"
@@ -69,7 +69,7 @@
   подписчик {{additional_text}}
 </a>
 {% else %}
-<a href="{{url('accounts:payments:shop')}}"
+<a href="{{url('shop:shop')}}"
    class="label label-info"
    rel="popover"
    title="ограничения"

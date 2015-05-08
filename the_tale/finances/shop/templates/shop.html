@@ -1,0 +1,97 @@
+{% extends "shop/base.html" %}
+
+{% block title %} Магазин | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}Список товаров.{% endblock %}
+
+
+{% macro buy_element(purchase, columns, last_row) %}
+
+  <td width="{{100/columns}}%" style="text-align: center; {% if not last_row %}padding-bottom: 1.5em;{% endif %}">
+
+    {% if purchase %}
+
+      {% set is_purchasable = purchase.is_purchasable(resource.account, hero) %}
+
+      <div style="font-size: 12pt; padding-bottom: 0.5em;">
+        <span style="vertical-align: middle;">{{purchase.name|upper}}</span>
+        {% if purchase.tooltip %}
+        <i class="icon-info-sign" rel="tooltip" title="{{purchase.tooltip}}" style="vertical-align: middle;"></i>
+        {% endif %}
+      </div>
+
+      <a class="btn pgf-forms-post-simple {% if purchase.cost > account.bank_account.amount or not is_purchasable %}disabled pgf-disabled{% else %}btn-info{% endif %}"
+         data-confirmation="Вы уверены, что хотите купить <strong>«{{purchase.full_name}}»</strong>, потратив {{purchase.cost}} печенек?"
+         data-success-message="Поздравляем с покупкой! <strong>(«{{purchase.full_name}}»)</strong>"
+         rel="tooltip"
+         {% if not is_purchasable %}
+           title="Вы уже приобрели этот предмет или получили его во время игры"
+           href="#"
+         {% elif purchase.cost > account.bank_account.amount %}
+           title="не хватает печенек"
+           href="#"
+         {% else %}
+           title="купить"
+           href="{{url('shop:buy', purchase=purchase.uid)}}"
+         {% endif %}>
+         <span style="font-size: 14pt; vertical-align: middle;">{{ purchase.cost }}</span>
+         <img src="{{ STATIC_CONTENT }}images/cookies.png" style="vertical-align: middle;"></img>
+      </a>
+
+    {% endif %}
+
+  </td>
+
+
+{% endmacro %}
+
+{% macro group_record(group) %}
+
+  <div class="offset2" style="{% if group.type == featured_group %}padding: 1em; background-color: #aaffaa; border-radius: 10px;{% endif %}">
+    <div id="price-group-{{group.uid}}" class="anchor"></div>
+    <h2>{{group.name}}</h2>
+
+    {{ group.description|safe }}
+
+    <table width="100%">
+      <tbody>
+        {% for row in group.items_table(4) %}
+          {% set last_row = loop.last %}
+          <tr>
+            {% for purchase in row %}
+              {{ buy_element(purchase, columns=4, last_row=last_row) }}
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+{% endmacro %}
+
+{% block payments_content %}
+
+<ul class="nav nav-tabs nav-stacked span2" style="margin-left: 0;">
+  {% for group in PRICE_GROUPS %}
+  <li><a href="#price-group-{{group.uid}}">{{group.short_name}}</a></li>
+  {% endfor %}
+</ul>
+
+{% if PRICE_GROUPS %}
+
+  {% for group in PRICE_GROUPS %}
+    {{ group_record(group) }}
+
+    {% if not loop.last and group.type != featured_group %}
+      <hr class="offset2" style="margin-top: 1em; margin-bottom: 1em;"/>
+    {% endif %}
+  {% endfor %}
+
+{% else %}
+
+  <p class="alert alert-info pgf-no-goods-message">
+    На текущий момент, в магазине нет товаров.
+  </p>
+
+{% endif %}
+
+{% endblock %}

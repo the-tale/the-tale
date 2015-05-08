@@ -55,7 +55,7 @@ jQuery(document).ready( function(e) {
 
 <h3>Выдать печеньки</h3>
 
-<form id="pgf-give-money-form" method="post" action="{{ url('accounts:payments:give-money', account=master_account.id) }}" class="easy-block">
+<form id="pgf-give-money-form" method="post" action="{{ url('shop:give-money', account=master_account.id) }}" class="easy-block">
 
   {{ give_money_form.errors_container }}
 

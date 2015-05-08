@@ -7,8 +7,8 @@ from django.core.management.base import BaseCommand
 
 from the_tale.accounts import models as accounts_models
 
-from the_tale.bank import models as bank_models
-from the_tale.bank import relations as bank_relations
+from the_tale.finances.bank import models as bank_models
+from the_tale.finances.bank import relations as bank_relations
 
 from the_tale.forum import models as forum_models
 

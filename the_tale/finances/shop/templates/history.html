@@ -1,0 +1,88 @@
+{% extends "shop/base.html" %}
+
+{% block title %}История платежей | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}История Ваших платежей в ZPG «Сказка»{% endblock %}
+
+{% block payments_content %}
+
+<h3>Приобретения</h3>
+
+<p>
+  Список ваших покупок, время действия которых никогда не истечёт.
+</p>
+
+{% if permanent_purchases %}
+
+<table class="table table-condensed table-striped table-bordered">
+  <thead>
+    <tr>
+      <th width="200px">название</th>
+      <th>описание</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for purchase in permanent_purchases %}
+    <tr>
+      <td>{{ purchase.text }}</td>
+      <td>{{ purchase.description }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% else %}
+
+<p class="alert alert-info pgf-no-permanent-purchases-message">
+  Вы ещё не совершали «вечных» покупок.
+</p>
+
+{% endif %}
+
+<h3>История</h3>
+
+<p>
+  Полная история ваших операций с печеньками.
+</p>
+
+{% if history %}
+
+<table class="table table-condensed table-striped table-bordered">
+  <thead>
+    <tr>
+      <th style="text-align: center" width="125px">дата</th>
+      <th style="text-align: center" width="100px">печеньки</th>
+      <th>описание</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for record in history %}
+    <tr>
+      <td style="text-align: center" class="pgf-format-datetime" data-timestamp="{{ record.updated_at|timestamp }}"></td>
+      <td style="text-align: center">
+        {% if account.id == record.recipient_id %}
+          {{ record.amount }}
+        {% else %}
+          {{ -record.amount }}
+        {% endif %}
+      </td>
+      <td>
+        {% if account.id == record.recipient_id %}
+          {{ record.description_for_recipient }}
+        {% else %}
+          {{ record.description_for_sender }}
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% else %}
+
+<p class="alert alert-info pgf-no-history-message">
+  Вы ещё не совершали покупок.
+</p>
+
+{% endif %}
+
+{% endblock %}

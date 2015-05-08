@@ -9,7 +9,7 @@ from the_tale.accounts.logic import register_user
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.accounts.payments.relations import PERMANENT_PURCHASE_TYPE
+from the_tale.finances.shop.relations import PERMANENT_PURCHASE_TYPE
 
 from the_tale.accounts.clans.logic import ClanInfo
 from the_tale.accounts.clans.relations import MEMBER_ROLE

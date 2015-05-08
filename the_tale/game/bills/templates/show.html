@@ -43,7 +43,7 @@
   {% elif not resource.can_vote %}
 
     <p class="alert alert-info pgf-can-not-participate-in-politics">
-      Голосовать могут только подписчики, оформить подписку можно на странице <a href="{{url('accounts:payments:shop')}}">магазина</a>.
+      Голосовать могут только подписчики, оформить подписку можно на странице <a href="{{url('shop:shop')}}">магазина</a>.
     </p>
 
   {% elif not can_vote %}

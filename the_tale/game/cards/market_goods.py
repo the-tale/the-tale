@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from the_tale.market import goods_types
+from the_tale.finances.market import goods_types
 
 
 class CardGoodType(goods_types.BaseGoodType):

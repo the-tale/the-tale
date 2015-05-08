@@ -12,11 +12,6 @@ from dext.views import create_handler_view
 
 from the_tale.portal.views import PortalResource # pylint: disable=W0403
 
-from the_tale.common import postponed_tasks # pylint: disable=W0403
-
-from the_tale.market import goods_types
-
-
 urlpatterns = patterns('',
                        (r'^', include('the_tale.cms.urls', namespace='cms') ),
                        (r'^admin/', include(admin.site.urls)),
@@ -31,8 +26,9 @@ urlpatterns = patterns('',
                        (r'^collections/', include('the_tale.collections.urls', namespace='collections') ),
                        (r'^news/', include('the_tale.cms.news.urls', namespace='news') ),
                        (r'^postponed-tasks/', include('the_tale.common.postponed_tasks.urls', namespace='postponed-tasks') ),
-                       (r'^market/', include('the_tale.market.urls', namespace='market') ),
-                       (r'^bank/', include('the_tale.bank.urls', namespace='bank') ),
+                       (r'^market/', include('the_tale.finances.market.urls', namespace='market') ),
+                       (r'^bank/', include('the_tale.finances.bank.urls', namespace='bank') ),
+                       (r'^shop/', include('the_tale.finances.shop.urls', namespace='shop')),
                        (r'^statistics/', include('the_tale.statistics.urls', namespace='statistics') ),
                        (r'^linguistics/', include('the_tale.linguistics.urls', namespace='linguistics') ),
                        (r'^', include('the_tale.portal.urls', namespace='portal') ),

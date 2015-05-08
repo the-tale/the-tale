@@ -201,7 +201,6 @@ jQuery(document).ready(function() {
                                                                            (standy_statistics_url(), "Статистика от standy")]) }}
 
             {{ base_macros.main_menu_item("world", "#", "Мир", [(url("game:bills:"), "Политика"),
-                                                                (url("market:"), "Рынок"),
                                                                 (url("linguistics:"), "Лингвистика"),
                                                                 (url("blogs:posts:"), "Фольклор"),
                                                                 (url("game:chronicle:"), "Летопись"),
@@ -213,7 +212,7 @@ jQuery(document).ready(function() {
             {{ base_macros.main_menu_item("map", url("game:map:"), "<span class='game-link'>Карта</span>") }}
             <li><a href="{{ url('accounts:registration:fast') }}" class="pgf-fast-registration attention-link"><strong>Создать героя</strong></a></li>
             {% endif %}
-            {{ base_macros.main_menu_item("shop", url("accounts:payments:shop"), "Магазин") }}
+            {{ base_macros.main_menu_item("shop", url("shop:"), "Магазин") }}
 
           </ul>
 
@@ -241,7 +240,6 @@ jQuery(document).ready(function() {
                                           "#",
                                           resource.account.nick_verbose,
                                           [(url("accounts:profile:show"), "Профиль"),
-                                           (url("accounts:payments:shop"), "Магазин"),
                                            (url("accounts:friends:"), "Друзья"),
                                            (url("accounts:messages:"), "Сообщения"),
                                            (url("accounts:third-party:tokens:"), "Приложения"),

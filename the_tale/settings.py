@@ -174,11 +174,8 @@ INSTALLED_APPS = [
     'the_tale.accounts.clans',
     'the_tale.accounts.personal_messages',
     'the_tale.accounts.friends',
-    'the_tale.accounts.payments',
     'the_tale.accounts.achievements',
     'the_tale.accounts.third_party',
-
-    'the_tale.market',
 
     'the_tale.guide',
 
@@ -212,8 +209,10 @@ INSTALLED_APPS = [
     'the_tale.collections',
     'the_tale.linguistics',
 
-    'the_tale.bank',
-    'the_tale.bank.xsolla',
+    'the_tale.finances.shop',
+    'the_tale.finances.market',
+    'the_tale.finances.bank',
+    'the_tale.finances.xsolla',
 
     'the_tale.statistics']
 

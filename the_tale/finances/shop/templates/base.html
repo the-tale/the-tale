@@ -1,0 +1,92 @@
+{% extends "accounts/base.html" %}
+
+{% import 'accounts/macros.html' as accounts_macros with context %}
+
+{% block title %}Магазин | {{settings.PAGE_TITLE}}{% endblock %}
+
+{% block head %}
+{{ super() }}
+
+{% if context.xsolla_enabled %}
+<script id="xsolla-paystation-lightbox" type="text/javascript" src="https://secure.xsolla.com/partners/embed/lightbox.js"></script>
+{% endif %}
+
+{% endblock %}
+
+{% block accounts_content %}
+
+<h2>
+  Магазин
+  <small>
+    месячный оборот рынка: {{gold_for_period()}} <img src="{{ STATIC_CONTENT }}images/cookies.png" style="vertical-align: middle;"></img>
+  </small>
+</h2>
+
+<table class="table table-condensed table-striped table-bordered table-no-highlighting">
+  <tbody>
+    <tr>
+      <th style="text-align: center;">У ВАС ЕСТЬ</th>
+      <th width="200px">тип аккаунта</th>
+      <td>
+        {{ accounts_macros.account_type_label(context.account) }} &nbsp; <a href="{{url('guide:account-types')}}">[типы аккаунтов]</a>
+      </td>
+    </tr>
+
+    <tr>
+      <td rowspan="2" width="150px" style="text-align: center; padding: 1em; vertical-align: middle;">
+        <div style="display: inline-block; vertical-align: middle;">
+          <span style="font-size: 20pt; vertical-align: middle;">{{ context.account.bank_account.amount }}</span>
+          <img src="{{ STATIC_CONTENT }}images/cookies.png" style="vertical-align: middle;"></img>
+        </div>
+
+        <div style="display: inline-block; vertical-align: middle;">
+
+          {% if context.xsolla_enabled %}
+          <a style="vertical-align: middle; font-size: 36pt; line-height: 18px; padding: 10px;"
+             href="#"
+             id="paystation-link"
+             rel="tooltip"
+             title="приобрести ещё…"
+             onclick="XPSLightBox.open('{{xsolla_paystaion_widget_link(context.account)|safe}}', {{shop_settings().XSOLLA_DIALOG_WIDTH}}, {{shop_settings().XSOLLA_DIALOG_HEIGHT}}); return false;"
+             class="pgf-xsolla-dialog-link btn btn-large btn-success">+</a>
+          {% endif %}
+        </div>
+      </td>
+
+      <th>окончание подписки</th>
+      <td>
+        {% if context.account.is_premium_infinit %}
+        <span class="updated-at">Вечная подписка!</spann>
+        {% elif context.account.is_premium %}
+        <span class="updated-at pgf-format-datetime" data-timestamp="{{ context.account.premium_end_at|timestamp }}"></spann>
+        {% else %}
+        —
+        {% endif %}
+      </td>
+    </tr>
+
+    <tr>
+      <th></th>
+      <td>
+        Стоимость печенек может колебаться в зависимости от курсов валют, платежной системы и комиссии агрегатора.<br/>
+        Перевести печеньки другому игроку можно, обратившись к администрации.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<ul class="nav nav-pills">
+  <li {% if page_type == 'shop' %}class="active"{% endif %}><a href="{{ url('shop:shop') }}">Магазин</a></li>
+  <li {% if page_type == 'shop-history' %}class="active"{% endif %}><a href="{{ url('shop:history') }}">История трат</a></li>
+
+  <li {% if page_type == 'index' %}class="active"{% endif %}><a href="{{ url('market:') }}">Рынок</a></li>
+  <li {% if page_type == 'new' %}class="active"{% endif %}><a href="{{url('market:new')}}">Выставить на продажу</a></li>
+  <li {% if page_type == 'own-lots' %}class="active"{% endif %}><a href="{{url('market:own-lots')}}">Ваш прилавок</a></li>
+  <li {% if page_type == 'market-history' %}class="active"{% endif %}><a href="{{url('market:history')}}">История рынка</a></li>
+</ul>
+
+
+{% block payments_content %}
+{% endblock %}
+
+{% endblock %}

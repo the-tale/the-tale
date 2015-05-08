@@ -8,7 +8,7 @@ from the_tale.common.utils import simple_tree
 
 from the_tale.accounts.models import Account#, RandomPremiumRequest
 
-from the_tale.bank.models import Invoice
+from the_tale.finances.bank.models import Invoice
 
 from django.core.management.base import BaseCommand
 

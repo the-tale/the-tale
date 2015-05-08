@@ -53,7 +53,7 @@ class SuperuserProcessor(dext_views.BaseViewProcessor):
     def preprocess(self, context):
         context.django_superuser = context.account.is_superuser
 
-        if self.required and not context.django_superuser:
+        if not context.django_superuser:
             raise dext_views.ViewError(code='common.superuser_required', message=u'У Вас нет прав для проведения данной операции')
 
 
@@ -567,7 +567,7 @@ class AccountResource(BaseAccountsResource):
     @validate_moderator_rights()
     @handler('#account', 'admin', name='admin', method='get')
     def admin(self):
-        from the_tale.accounts.payments.forms import GMForm
+        from the_tale.finances.shop.forms import GMForm
         return self.template('accounts/admin.html',
                              {'master_account': self.master_account,
                               'give_award_form': forms.GiveAwardForm(),

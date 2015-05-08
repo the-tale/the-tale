@@ -11,14 +11,14 @@ class Environment(BaseEnvironment):
         from the_tale.portal.workers import long_commands as portal_long_commands
         from the_tale.common.postponed_tasks.workers import refrigerator
         from the_tale.collections.workers import items_manager
-        from the_tale.bank.workers import bank_processor
-        from the_tale.bank.xsolla.workers import banker as xsolla_banker
+        from the_tale.finances.bank.workers import bank_processor
+        from the_tale.finances.xsolla.workers import banker as xsolla_banker
+        from the_tale.finances.market.workers import market_manager
         from the_tale.accounts.workers import registration
         from the_tale.accounts.workers import accounts_manager
         from the_tale.accounts.achievements.workers import achievements_manager
         from the_tale.post_service.workers import message_sender
         from the_tale.linguistics.workers import linguistics_manager
-        from the_tale.market.workers import market_manager
 
         from the_tale.game.workers import supervisor
         from the_tale.game.workers import logic

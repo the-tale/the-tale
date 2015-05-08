@@ -6,7 +6,7 @@ import mock
 
 from the_tale.common.utils import testcase
 
-from the_tale.market import goods_types
+from the_tale.finances.market import goods_types
 
 from the_tale.game.logic import create_test_map
 from the_tale.game.logic_storage import LogicStorage
@@ -62,7 +62,7 @@ class ContainerTests(testcase.TestCase):
         card_2 = objects.Card(relations.CARD_TYPE.ADD_GOLD_COMMON, available_for_auction=True)
         card_3 = objects.Card(relations.CARD_TYPE.KEEPERS_GOODS_LEGENDARY)
 
-        with mock.patch('the_tale.market.goods_types.BaseGoodType.sync_added_item') as sync_added_item:
+        with mock.patch('the_tale.finances.market.goods_types.BaseGoodType.sync_added_item') as sync_added_item:
             self.container.add_card(card_1)
             self.container.add_card(card_2)
             self.container.add_card(card_3)
@@ -86,7 +86,7 @@ class ContainerTests(testcase.TestCase):
 
         self.container.updated = False
 
-        with mock.patch('the_tale.market.goods_types.BaseGoodType.sync_removed_item') as sync_removed_item:
+        with mock.patch('the_tale.finances.market.goods_types.BaseGoodType.sync_removed_item') as sync_removed_item:
             self.container.remove_card(card_1.uid)
 
         self.assertEqual(sync_removed_item.call_args_list, [mock.call(self.account.id, card_1)])

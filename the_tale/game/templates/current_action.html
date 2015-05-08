@@ -79,7 +79,7 @@ jQuery(document).ready(function(e) {
     {% endif %}
 
     {% if not resource.account.is_fast and not resource.account.is_premium %}
-      <a href="{{url('accounts:payments:shop')}}"
+      <a href="{{url('shop:shop')}}"
          class="label label-info">
         Станьте подписчиком — вмешайтесь в судьбу Пандоры!
       </a>

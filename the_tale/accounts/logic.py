@@ -19,7 +19,7 @@ from the_tale.accounts.conf import accounts_settings
 from the_tale.accounts.achievements.prototypes import AccountAchievementsPrototype
 
 from the_tale.collections.prototypes import AccountItemsPrototype
-from the_tale.market import logic as market_logic
+from the_tale.finances.market import logic as market_logic
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.logic import dress_new_hero, messages_for_new_hero

@@ -70,7 +70,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
     @lazy_property
     def permanent_purchases(self):
-        from the_tale.accounts.payments.logic import PermanentRelationsStorage
+        from the_tale.finances.shop.logic import PermanentRelationsStorage
         return PermanentRelationsStorage.deserialize(s11n.from_json(self._model.permanent_purchases))
 
     @property
@@ -117,7 +117,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
     @property
     def is_premium_infinit(self):
-        from the_tale.accounts.payments.relations import PERMANENT_PURCHASE_TYPE
+        from the_tale.finances.shop.relations import PERMANENT_PURCHASE_TYPE
         return PERMANENT_PURCHASE_TYPE.INFINIT_SUBSCRIPTION in self.permanent_purchases
 
     @property
@@ -166,14 +166,14 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
 Вы можете продлить подписку на странице нашего %(shop_link)s.
 ''' % {'verbose_timedelta': verbose_timedelta(self.premium_end_at - current_time),
-       'shop_link': u'[url="%s"]магазина[/url]' % full_url('http', 'accounts:payments:shop')}
+       'shop_link': u'[url="%s"]магазина[/url]' % full_url('http', 'shop:shop')}
 
         PersonalMessagePrototype.create(get_system_user(), self, message)
 
     @lazy_property
     def bank_account(self):
-        from the_tale.bank.prototypes import AccountPrototype as BankAccountPrototype
-        from the_tale.bank.relations import ENTITY_TYPE, CURRENCY_TYPE
+        from the_tale.finances.bank.prototypes import AccountPrototype as BankAccountPrototype
+        from the_tale.finances.bank.relations import ENTITY_TYPE, CURRENCY_TYPE
 
         bank_account = BankAccountPrototype.get_for(entity_type=ENTITY_TYPE.GAME_ACCOUNT,
                                                     entity_id=self.id,

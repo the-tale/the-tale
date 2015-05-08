@@ -3,7 +3,7 @@ import random
 
 from the_tale.common.utils import testcase
 
-from the_tale.market import goods_types
+from the_tale.finances.market import goods_types
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map

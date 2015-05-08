@@ -10,8 +10,8 @@ from dext.views import handler
 from the_tale.common.utils.decorators import staff_required
 from the_tale.common.utils.resources import Resource
 
-from the_tale.bank.prototypes import AccountPrototype as BankAccountPrototype, InvoicePrototype
-from the_tale.bank.relations import ENTITY_TYPE as BANK_ENTITY_TYPE, INVOICE_STATE
+from the_tale.finances.bank.prototypes import AccountPrototype as BankAccountPrototype, InvoicePrototype
+from the_tale.finances.bank.relations import ENTITY_TYPE as BANK_ENTITY_TYPE, INVOICE_STATE
 
 from the_tale.accounts.prototypes import AccountPrototype
 

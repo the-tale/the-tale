@@ -9,8 +9,6 @@ from the_tale.amqp_environment import environment
 from the_tale.common.utils import workers
 from the_tale.common import postponed_tasks
 
-from the_tale.market import goods_types
-
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.conf import game_settings

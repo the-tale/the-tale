@@ -8,8 +8,8 @@ from django.db import models
 
 from the_tale.accounts.prototypes import AccountPrototype
 
-from the_tale.bank.prototypes import InvoicePrototype
-from the_tale.bank.relations import INVOICE_STATE, ENTITY_TYPE, CURRENCY_TYPE
+from the_tale.finances.bank.prototypes import InvoicePrototype
+from the_tale.finances.bank.relations import INVOICE_STATE, ENTITY_TYPE, CURRENCY_TYPE
 
 from the_tale.statistics.prototypes import RecordPrototype
 from the_tale.statistics import relations

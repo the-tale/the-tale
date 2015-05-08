@@ -1,4 +1,6 @@
 # coding: utf-8
+
+from dext.common.utils import views as dext_views
 from dext.views import handler, validate_argument
 from dext.common.utils.urls import url
 from dext.common.utils import cache
@@ -16,6 +18,18 @@ from the_tale.accounts.third_party import forms
 from the_tale.accounts.third_party.conf import third_party_settings
 from the_tale.accounts.third_party import decorators
 
+###############################
+# new view processors
+###############################
+
+class RefuseThirdPartyProcessor(dext_views.BaseViewProcessor):
+    def preprocess(self, context):
+        if third_party_settings.ACCESS_TOKEN_SESSION_KEY in context.django_request.session:
+            raise dext_views.ViewError(code='third_party.access_restricted', message=u'Доступ к этому функционалу запрещён для сторонних приложений')
+
+###############################
+# old views
+###############################
 
 class TokensResource(Resource):
 
