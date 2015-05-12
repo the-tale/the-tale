@@ -655,6 +655,8 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
         jQuery('.pgf-get-card-statistics', widget).toggleClass('pgf-hidden', data.cardsHelpCount >= data.cardsHelpBarrier);
         jQuery('.pgf-get-card-button', widget).toggleClass('pgf-hidden', data.cardsHelpCount < data.cardsHelpBarrier);
 
+        jQuery('.pgf-new-cards-number', widget).text(parseInt(data.cardsHelpCount / data.cardsHelpBarrier));
+
         instance.ShowCards(cardsListContainer);
 
         jQuery('.pgf-combine-card-button', widget).toggleClass('pgf-hidden', data.cards.length < 2);
