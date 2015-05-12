@@ -103,12 +103,6 @@ class BuildingDestroyBillSuccessed(_BuildingBase):
     TYPE = RECORD_TYPE.BUILDING_DESTROY_BILL_SUCCESSED
 
 
-class BuildingDestroyedByAmortization(RecordBase):
-    TYPE = RECORD_TYPE.BUILDING_DESTROYED_BY_AMORTIZATION
-    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.PERSON]
-    SUBSTITUTIONS  = ['place', 'person']
-
-
 # building renaming
 class _BuildingRenamingBillBase(_BuildingBase):
     pass

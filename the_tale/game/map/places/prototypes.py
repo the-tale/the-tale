@@ -557,8 +557,7 @@ class BuildingPrototype(BasePrototype, names.ManageNameMixin):
     def amortize(self, turns_number):
         self._model.integrity -= self.amortization_delta(turns_number)
         if self.integrity <= 0.0001:
-            self.destroy()
-            signals.building_destroyed_by_amortization.send(self.__class__, place=self.place, person=self.person)
+            self._model.integrity = 0
 
     @property
     def workers_to_full_repairing(self):

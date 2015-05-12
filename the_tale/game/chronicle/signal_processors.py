@@ -220,11 +220,3 @@ def chronicle_place_race_changed(sender, place, old_race, new_race, **kwargs): #
                             substitutions={'place': place,
                                            'old_race': old_race,
                                            'new_race': new_race}).create_record()
-
-
-@receiver(places_signals.building_destroyed_by_amortization, dispatch_uid='chronicle_building_destroyed_by_amortization')
-def chronicle_building_destroyed_by_amortization(sender, place, person, **kwargs): # pylint: disable=W0613
-    records.BuildingDestroyedByAmortization(actors=[(ACTOR_ROLE.PLACE, place),
-                                                    (ACTOR_ROLE.PERSON, person)],
-                                            substitutions={'place': place,
-                                                           'person': person}).create_record()

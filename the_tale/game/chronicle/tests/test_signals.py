@@ -289,20 +289,6 @@ class PersonMovementsTests(BaseTestPrototypes):
                 self.place1.sync_persons(force_add=True)
 
 
-class BuildingTests(BaseTestPrototypes):
-
-    def setUp(self):
-        super(BuildingTests, self).setUp()
-        self.building = BuildingPrototype.create(self.place1.persons[0], utg_name=names.generator.get_test_name('building-name'))
-
-    # @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.is_stable', True)
-    # @mock.patch('the_tale.game.chronicle.records.PlaceChangeRace.create_record', lambda x: None)
-    def test_building_destroyed_by_amortization(self):
-        with check_record_created(self, RECORD_TYPE.BUILDING_DESTROYED_BY_AMORTIZATION):
-            self.building._model.integrity = 0
-            self.building.amortize(1)
-
-
 class PlaceChangeRace(BaseTestPrototypes):
 
     def setUp(self):

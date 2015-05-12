@@ -444,11 +444,12 @@ class BuildingPrototypeTests(testcase.TestCase):
 
         self.assertTrue(old_integrity > building.integrity)
 
-        building._model.integrity = 0
+        building._model.integrity = -1
 
         building.amortize(1000)
 
-        self.assertTrue(building.state.is_DESTROYED)
+        self.assertEqual(building.integrity, 0)
+        self.assertTrue(building.state.is_WORKING)
 
 
     def test_amortization_grows(self):

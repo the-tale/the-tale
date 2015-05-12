@@ -3,11 +3,7 @@
 from the_tale.linguistics.lexicon.relations import VARIABLE as V
 from the_tale.linguistics.lexicon.groups.relations import LEXICON_GROUP
 
-KEYS = [(u'CHRONICLE_BUILDING_DESTROYED_BY_AMORTIZATION', 260009, u'Строение: разрушилось от старости', LEXICON_GROUP.CHRONICLE,
-        u'Строение разрушилось т.к. его никто не ремонтировал.',
-        [V.PERSON, V.PLACE]),
-
-        (u'CHRONICLE_PERSON_ARRIVED_TO_PLACE', 260013, u'Член Совета: в совет вошёл новый житель', LEXICON_GROUP.CHRONICLE,
+KEYS = [(u'CHRONICLE_PERSON_ARRIVED_TO_PLACE', 260013, u'Член Совета: в совет вошёл новый житель', LEXICON_GROUP.CHRONICLE,
         u'Новый житель вошёл в совет города.',
         [V.PERSON, V.PLACE]),
 
