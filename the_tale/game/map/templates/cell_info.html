@@ -478,26 +478,18 @@
             <tr><th width="200px">возведено</th><td>{{building.created_at_turn|verbose_game_date}}</td></tr>
             <tr>
               <th width="200px">целостность</th>
-              <td>
-                <span class="pgf-building-integrity"
-                      data-building-integrity="{{building.integrity}}">
-                  {{building.integrity|percents(2)}}
-                </span>
-              </td>
+              <td><span class="pgf-building-integrity">{{building.integrity|percents(2)}}</span></td>
             </tr>
             <tr><th width="200px">скорость износа</th><td>-{{building.amortization_in_day|percents}} в день</td></tr>
             <tr>
               <th width="200px">рабочих для ремонта</th>
               <td>
-                <span class="pgf-building-workers"
-                      data-building-workers="{{building.workers_to_full_repairing}}">
-                  {{building.workers_to_full_repairing}}
-                </span>
+                <span class="pgf-building-workers">{{building.workers_to_full_repairing}}</span>
 
                 <a href="#"
                    class="angel-ability pgf-ability-building_repair pgf-hidden"
                    data-building-id="{{building.id}}"
-                   data-building-repair-delta="{{building.repair_delta}}">
+                   data-building-workers="{{building.workers_to_full_repairing}}">
                   <i class="icon-tint" rel="tooltip" title="недостаточно энергии"></i>
                   <i class="icon-ban-circle" rel="tooltip" title="Починка зданий разрешена только обладателям подписки"></i>
                   вызвать рабочего

@@ -1310,18 +1310,9 @@ pgf.game.widgets.Abilities = function() {
                             ability.available_at = data.data.available_at;
 
                             if (buildingId != undefined) {
-                                var buildingRepairDelta = jQuery('.pgf-ability-'+ability.type).data('building-repair-delta');
-                                var buildingIntegrity = jQuery('.pgf-building-integrity').data('building-integrity');
-                                var newIntegrity = Math.min(buildingIntegrity + buildingRepairDelta, 1.0);
-                                jQuery('.pgf-building-integrity')
-                                    .data('building-integrity', newIntegrity)
-                                    .text(Math.round(newIntegrity*10000)/100+'%');
-
-                                var buildingWorkers = jQuery('.pgf-building-workers').data('building-workers');
-                                buildingWorkers = Math.max(0, buildingWorkers-1);
-                                jQuery('.pgf-building-workers')
-                                    .data('building-workers', buildingWorkers)
-                                    .text(buildingWorkers);
+                                jQuery('.pgf-building-integrity').text(Math.round(data.data.building.new_building_integrity*10000)/100.0+'%');
+                                jQuery('.pgf-building-workers').text(data.data.building.workers_to_full_repairing);
+                                jQuery('.pgf-ability-building_repair').data('building-workers', data.data.building.workers_to_full_repairing);
                             }
 
                             if (redirectOnSuccess != undefined) {
@@ -1361,7 +1352,8 @@ pgf.game.widgets.Abilities = function() {
         jQuery('.pgf-in-pvp-queue-message').toggleClass('pgf-hidden', !pvpWaiting);
 
         jQuery('.pgf-ability-arena_pvp_1x1').toggleClass('no-registration', !canParticipateInPvp).toggleClass('pgf-disable', !canParticipateInPvp);
-        jQuery('.pgf-ability-building_repair').toggleClass('no-registration', !canRepairBuilding).toggleClass('pgf-disable', !canRepairBuilding);
+        jQuery('.pgf-ability-building_repair').toggleClass('no-registration', !canRepairBuilding).toggleClass('pgf-disable', canRepairBuilding);
+        jQuery('.pgf-ability-building_repair').toggleClass('pgf-disable disabled', (jQuery('.pgf-ability-building_repair').data('building-workers') == 0));
     }
 
     function RenderDeck() {
