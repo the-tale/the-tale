@@ -46,8 +46,6 @@ accounts_settings = app_settings('ACCOUNTS',
                                  SETTINGS_PREV_PREIMIUM_EXPIRED_NOTIFICATION_RUN_TIME_KEY = 'pref premium expired notification',
                                  PREMIUM_EXPIRED_NOTIFICATION_RUN_TIME=3, # UTC time
 
-                                 CREATE_DEBUG_BANK_ACCOUNTS=False,
-
                                  INFORMER_SHOW=True,
                                  INFORMER_LINK=u'http://informer.the-tale.org/?id=%(account_id)d&type=4',
                                  INFORMER_CREATOR_ID=2557,
@@ -69,4 +67,8 @@ accounts_settings = app_settings('ACCOUNTS',
                                                       u'Существа', u'Существ', u'Существам', u'Существ', u'Существами', u'Существах'],
                                  BOT_HERO_NAME_PROPERTIES=(u'ср', ),
 
-                                 MAX_ACCOUNT_DESCRIPTION_LENGTH=10000)
+                                 MAX_ACCOUNT_DESCRIPTION_LENGTH=10000,
+
+                                 MINIMUM_SEND_MONEY=10,
+                                 MONEY_SEND_COMMISSION=0.05,
+                                 COMMISION_TRANSACTION_UID='transfer-money-between-accounts-commission')

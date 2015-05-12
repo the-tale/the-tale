@@ -96,6 +96,7 @@ METRICS = [
         monetization.IncomeFromGoodsAbilities,
         monetization.IncomeFromGoodsClans,
         monetization.IncomeFromGoodsMarketCommission,
+        monetization.IncomeFromTransferMoneyCommission,
 
         monetization.IncomeFromGoodsPremiumPercents,
         monetization.IncomeFromGoodsEnergyPercents,
@@ -106,6 +107,7 @@ METRICS = [
         monetization.IncomeFromGoodsAbilitiesPercents,
         monetization.IncomeFromGoodsClansPercents,
         monetization.IncomeFromGoodsMarketCommissionPercents,
+        monetization.IncomeFromTransferMoneyCommissionPercents,
 
         monetization.IncomeGroup0_500,
         monetization.IncomeGroup500_1000,

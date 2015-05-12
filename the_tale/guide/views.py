@@ -62,7 +62,7 @@ class TypeReference(object):
 
 def get_api_methods():
     from the_tale.portal.views import PortalResource
-    from the_tale.accounts.views import AuthResource, AccountResource
+    from the_tale.accounts import views as accounts_views
     from the_tale.game import views as game_views
     from the_tale.game.abilities.views import AbilitiesResource
     from the_tale.game.quests.views import QuestsResource
@@ -73,9 +73,9 @@ def get_api_methods():
     return [APIReference('portal_info', u'Базовая информация', PortalResource.api_info),
             APIReference('authorization', u'Авторизация в игре', getattr(TokensResource, 'api_request_authorisation')),
             APIReference('authorization_state', u'Состояние авторизации', getattr(TokensResource, 'api_authorisation_state')),
-            APIReference('login', u'Вход в игру', AuthResource.api_login),
-            APIReference('logout', u'Выход из игры', AuthResource.api_logout),
-            APIReference('account_info', u'Информация об игроке', AccountResource.api_show),
+            APIReference('login', u'Вход в игру', accounts_views.AuthResource.api_login),
+            APIReference('logout', u'Выход из игры', accounts_views.AuthResource.api_logout),
+            APIReference('account_info', u'Информация об игроке', accounts_views.api_show),
             APIReference('game_info', u'Информация об игре/герое', game_views.api_info),
             APIReference('game_abilities', u'Использование способности', AbilitiesResource.use),
             APIReference('game_quests', u'Выбор в задании', QuestsResource.api_choose),

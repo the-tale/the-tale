@@ -1,5 +1,6 @@
 # coding: utf-8
 import time
+import math
 import datetime
 
 from django.conf import settings as project_settings
@@ -8,6 +9,8 @@ from django.db import transaction
 
 from dext.common.utils.logic import normalize_email
 from dext.common.utils.urls import url
+
+from the_tale import amqp_environment
 
 from the_tale.common.utils.password import generate_password
 
@@ -25,6 +28,7 @@ from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.logic import dress_new_hero, messages_for_new_hero
 
 from the_tale.accounts import signals
+from the_tale.accounts import conf
 
 
 class REGISTER_USER_RESULT:
@@ -198,3 +202,29 @@ def get_account_info(account, hero):
                 'can_affect_game': account.can_affect_game
                 },
             'description': account.description_html}
+
+
+def get_transfer_commission(money):
+    commission = int(math.floor(money * conf.accounts_settings.MONEY_SEND_COMMISSION))
+
+    if commission == 0:
+        commission = 1
+
+    return commission
+
+def initiate_transfer_money(sender_id, recipient_id, amount, comment):
+    from the_tale.common.postponed_tasks import PostponedTaskPrototype
+    from the_tale.accounts import postponed_tasks
+
+    commission = get_transfer_commission(amount)
+
+    task = postponed_tasks.TransferMoneyTask(sender_id=sender_id,
+                                             recipient_id=recipient_id,
+                                             amount=amount-commission,
+                                             commission=commission,
+                                             comment=comment)
+    task = PostponedTaskPrototype.create(task)
+
+    amqp_environment.environment.workers.refrigerator.cmd_wait_task(task.id)
+
+    return task

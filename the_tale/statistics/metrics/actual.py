@@ -8,8 +8,8 @@ from the_tale.portal import conf as portal_conf
 from the_tale.accounts.prototypes import AccountPrototype, RandomPremiumRequestPrototype
 from the_tale.accounts.conf import accounts_settings
 
-from the_tale.finances.payments.relations import GOODS_GROUP
-from the_tale.finances.payments import conf as payments_conf
+from the_tale.finances.shop.relations import GOODS_GROUP
+from the_tale.finances.shop import conf as shop_conf
 
 from the_tale.finances.bank.prototypes import InvoicePrototype
 from the_tale.finances.bank.relations import INVOICE_STATE, ENTITY_TYPE, CURRENCY_TYPE
@@ -63,7 +63,7 @@ class Premiums(ActiveBase):
         starts = RandomPremiumRequestPrototype._db_all().values_list('created_at', flat=True)
         return len([True
                     for created_at in starts
-                    if created_at.date() <= date < (created_at + datetime.timedelta(days=payments_conf.payments_settings.RANDOM_PREMIUM_DAYS)).date()] )
+                    if created_at.date() <= date < (created_at + datetime.timedelta(days=shop_conf.payments_settings.RANDOM_PREMIUM_DAYS)).date()] )
 
     def get_restored_value(self, date):
         # TODO: now this method use euristic which give wrong results when user buy more then one subscription simultaneously

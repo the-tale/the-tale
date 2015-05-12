@@ -43,7 +43,7 @@ jQuery(document).ready(function(){
 
   <div class="row">
     <div class="span3">
-      {{account_sidebar(user_account=resource.account, page_account=master_account, page_caption="Страница игрока", can_moderate=resource.can_moderate_accounts, page_type="account")}}
+      {{account_sidebar(user_account=resource.account, page_account=master_account, page_caption="Страница игрока", can_moderate=context.can_moderate_accounts, page_type="account")}}
     </div>
 
     <div class="span9">

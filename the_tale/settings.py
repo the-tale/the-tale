@@ -132,8 +132,25 @@ TEMPLATES = [ {'BACKEND': 'dext.common.utils.jinja2.Engine',
                    'autoescape': True,
                    'trim_blocks': True,
                    'extensions': ['jinja2.ext.loopcontrols']
-                   }
-        },
+                   } },
+              { 'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                'APP_DIRS' : True,
+                'OPTIONS': {
+                    'context_processors':( 'django.contrib.auth.context_processors.auth',
+                                           'django.template.context_processors.debug',
+                                           'django.template.context_processors.i18n',
+                                           'django.template.context_processors.media',
+                                           'django.template.context_processors.static',
+                                           'django.contrib.messages.context_processors.messages',
+                                           'the_tale.portal.context_processors.section',
+                                           'the_tale.portal.context_processors.cdn_paths',
+                                           'the_tale.portal.context_processors.currencies',
+                                           'the_tale.game.balance.context_processors.balance',
+                                           'the_tale.game.bills.context_processors.bills_context',
+                                           'the_tale.linguistics.context_processors.linguistics_context'
+                                          ),
+                    'debug': False
+                            } }
     ]
 
 
@@ -255,7 +272,11 @@ except Exception: # pylint: disable=W0702,W0703
 
 if DEBUG:
     for template in TEMPLATES:
-        template['OPTIONS']['auto_reload'] = True
+        if 'OPTIONS' in template:
+            if 'auto_reload' in template['OPTIONS']:
+                template['OPTIONS']['auto_reload'] = True
+            if 'debug' in template['OPTIONS']:
+                template['OPTIONS']['debug'] = True
 
 
 AMQP_CONNECTION_URL = 'amqp://%s:%s@%s/%s' % (AMQP_BROKER_USER,

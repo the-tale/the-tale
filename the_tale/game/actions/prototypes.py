@@ -853,9 +853,9 @@ class ActionMoveToPrototype(ActionBase):
         if self.teleport(c.PICKED_UP_IN_ROAD_TELEPORT_LENGTH, create_inplace_action=True):
 
             self.hero.add_message('action_moveto_picked_up_in_road',
-                                hero=self.hero,
-                                destination=self.destination,
-                                current_destination=current_destination)
+                                   hero=self.hero,
+                                   destination=self.destination,
+                                   current_destination=current_destination)
 
 
 

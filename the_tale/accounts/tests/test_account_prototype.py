@@ -211,13 +211,6 @@ class AccountPrototypeTests(testcase.TestCase):
         self.assertTrue(bank_account.is_fake)
         self.assertEqual(bank_account.amount, 0)
 
-    @mock.patch('the_tale.accounts.conf.accounts_settings.CREATE_DEBUG_BANK_ACCOUNTS', True)
-    def test_bank_account__created(self):
-        bank_account = self.account.bank_account
-
-        self.assertFalse(bank_account.is_fake)
-        self.assertEqual(bank_account.amount, 10000)
-
     def test_update_referrals(self):
         register_user('user_2', 'user_2@test.com', '111111', referral_of_id=self.account.id)
         register_user('fast_user_3', referral_of_id=self.account.id)

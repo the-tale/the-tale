@@ -9,6 +9,7 @@ from dext.common.utils import exceptions as dext_exceptions
 from dext.common.utils.urls import UrlBuilder
 from dext.views import handler, validator, validate_argument
 
+from the_tale.common.utils import views as utils_views
 
 from the_tale.amqp_environment import environment
 
@@ -28,7 +29,7 @@ from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTask
 from the_tale.accounts.postponed_tasks import RegistrationTask
 from the_tale.accounts import relations
 from the_tale.accounts import forms
-from the_tale.accounts.conf import accounts_settings
+from the_tale.accounts import conf
 from the_tale.accounts import logic
 
 from the_tale.accounts.clans.prototypes import ClanPrototype
@@ -88,31 +89,298 @@ class LoginRequiredProcessor(dext_views.BaseViewProcessor):
         return dext_views.Redirect(target_url=self.login_page_url(context.django_request.get_full_path()))
 
 
-class FullAccountProcessor(dext_views.BaseViewProcessor):
+class FullAccountProcessor(dext_views.FlaggedAccessProcessor):
+    ERROR_CODE = 'common.fast_account'
+    ERROR_MESSAGE = u'Вы не закончили регистрацию и данная функция вам не доступна'
+    ARGUMENT = 'account'
 
-    def preprocess(self, context):
-        if context.account.is_fast:
-            raise dext_exceptions.ViewError(code='common.fast_account', message=u'Вы не закончили регистрацию и данная функция вам не доступна')
-
-
-class BanGameProcessor(dext_views.BaseViewProcessor):
-
-    def preprocess(self, context):
-        if context.account.is_ban_game:
-            raise dext_exceptions.ViewError(code='common.ban_game', message=u'Вам запрещено проводить эту операцию')
+    def validate(self, argument): return not argument.is_fast
 
 
-class BanForumProcessor(dext_views.BaseViewProcessor):
+class BanGameProcessor(dext_views.FlaggedAccessProcessor):
+    ERROR_CODE = 'common.ban_game'
+    ERROR_MESSAGE = u'Вам запрещено проводить эту операцию'
+    ARGUMENT = 'account'
 
-    def preprocess(self, context):
-        if context.account.is_ban_forum:
-            raise dext_exceptions.ViewError(code='common.ban_forum', message=u'Вам запрещено проводить эту операцию')
+    def validate(self, argument): return not argument.is_ban_game
+
+
+class BanForumProcessor(dext_views.FlaggedAccessProcessor):
+    ERROR_CODE = 'common.ban_forum'
+    ERROR_MESSAGE = u'Вам запрещено проводить эту операцию'
+    ARGUMENT = 'account'
+
+    def validate(self, argument): return not argument.is_ban_forum
+
+
+class BanAnyProcessor(dext_views.FlaggedAccessProcessor):
+    ERROR_CODE = 'common.ban_any'
+    ERROR_MESSAGE = u'Вам запрещено проводить эту операцию'
+    ARGUMENT = 'account'
+
+    def validate(self, argument): return not argument.is_ban_any
+
+
+class ModerateAccountProcessor(dext_views.PermissionProcessor):
+    PERMISSION = 'accounts.moderate_account'
+    CONTEXT_NAME = 'can_moderate_accounts'
+
+class ModerateAccessProcessor(dext_views.AccessProcessor):
+    ERROR_CODE = u'accounts.no_moderation_rights'
+    ERROR_MESSAGE = u'Вы не являетесь модератором'
+
+    def check(self, context):
+        return context.can_moderate_accounts
+
+
+########################################
+# resource and global processors
+########################################
+resource = dext_views.Resource(name='')
+resource.add_processor(CurrentAccountProcessor())
+resource.add_processor(utils_views.FakeResourceProcessor())
+
+###############################
+# new views
+###############################
+
+accounts_resource = dext_views.Resource(name='accounts')
+accounts_resource.add_processor(AccountProcessor(error_message=u'Аккаунт не найден', url_name='account', context_name='master_account', default_value=None))
+accounts_resource.add_processor(ModerateAccountProcessor())
+
+resource.add_child(accounts_resource)
+
+
+@utils_views.TextFilterProcessor(context_name='prefix', get_name='prefix', default_value=None)
+@utils_views.PageNumberProcessor()
+@accounts_resource('')
+def index(context):
+
+    accounts_query = AccountPrototype.live_query()
+
+    if context.prefix:
+        accounts_query = accounts_query.filter(nick__istartswith=context.prefix)
+
+    accounts_count = accounts_query.count()
+
+    url_builder = UrlBuilder(reverse('accounts:'), arguments={'page': context.page,
+                                                              'prefix': context.prefix})
+
+    paginator = Paginator(context.page, accounts_count, conf.accounts_settings.ACCOUNTS_ON_PAGE, url_builder)
+
+    if paginator.wrong_page_number:
+        return dext_views.Redirect(paginator.last_page_url, permanent=False)
+
+    account_from, account_to = paginator.page_borders(context.page)
+
+    accounts_models = accounts_query.select_related().order_by('nick')[account_from:account_to]
+
+    accounts = [AccountPrototype(model) for model in accounts_models]
+
+    accounts_ids = [ model.id for model in accounts_models]
+    clans_ids = [ model.clan_id for model in accounts_models]
+
+    heroes = dict( (model.account_id, HeroPrototype(model=model)) for model in Hero.objects.filter(account_id__in=accounts_ids))
+
+    clans = {clan.id:clan for clan in ClanPrototype.get_list_by_id(clans_ids)}
+
+    return dext_views.Page('accounts/index.html',
+                           content={'heroes': heroes,
+                                    'prefix': context.prefix,
+                                    'accounts': accounts,
+                                    'clans': clans,
+                                    'resource': context.resource,
+                                    'current_page_number': context.page,
+                                    'paginator': paginator  } )
+
+
+@accounts_resource('#account', name='show')
+def show(context):
+    from the_tale.game.ratings import relations as ratings_relations
+    from the_tale.game.ratings import conf as ratings_conf
+
+    friendship = FriendshipPrototype.get_for_bidirectional(context.account, context.master_account)
+
+    master_hero = HeroPrototype.get_by_account_id(context.master_account.id)
+
+    return dext_views.Page('accounts/show.html',
+                           content={'master_hero': master_hero,
+                                    'account_info': logic.get_account_info(context.master_account, master_hero),
+                                    'master_account': context.master_account,
+                                    'accounts_settings': conf.accounts_settings,
+                                    'RATING_TYPE': ratings_relations.RATING_TYPE,
+                                    'resource': context.resource,
+                                    'ratings_on_page': ratings_conf.ratings_settings.ACCOUNTS_ON_PAGE,
+                                    'informer_link': conf.accounts_settings.INFORMER_LINK % {'account_id': context.master_account.id},
+                                    'friendship': friendship} )
+
+@api.Processor(versions=('1.0', ))
+@accounts_resource('#account', 'api', 'show', name='api-show')
+def api_show(context):
+    u'''
+Получить информацию об игроке
+
+- **адрес:** /accounts/&lt;account&gt;/api/show
+- **http-метод:** GET
+- **версии:** 1.0
+- **параметры:**
+* URL account — идентификатор игрока
+- **возможные ошибки**:
+* account.wrong_value — аккаунт с таким идентификатором не найден
+
+формат данных в ответе:
+
+{
+  "id": <целое число>,           // идентификатор игрока
+  "registered": true|false,      // маркер завершения регистрации
+  "name": "строка",              // имя игрока
+  "hero_id": <целое число>,      // идентификатор героя
+  "places_history": [            // список истории помощи городам
+    "place": {                   // город
+      "id": <целое число>,       // идентификатор города
+      "name": "строка"           // название города
+    },
+    "count": <целое число>       // количество фактов помощи
+  ],
+  "might": <дробное число>,      // могущество
+  "achievements": <целое число>, // очки достижений
+  "collections": <целое число>,  // количество предметов в коллекции
+  "referrals": <целое число>,    // количество последователей (рефералов)
+  "ratings": {                                // рейтинги
+    "строка": {                               // идентификатор рейтинга:
+      "name": "строка",                       // название рейтинга: иинформация о рейтинге
+      "place": <целое число>,                 // место
+      "value": <целое число>|<дробное число>  // величина рейтингового значения
+    }
+  },
+  "permissions": {                // права на выполнение различных операций
+    "can_affect_game": true|false // оказывает ли влияние на игру
+  },
+  "description": "строка"         // описание игока, введённое им сами (в формате html)
+}
+    '''
+
+    master_hero = HeroPrototype.get_by_account_id(context.master_account.id)
+
+    return dext_views.AjaxOk(content=logic.get_account_info(context.master_account, master_hero))
+
+
+@LoginRequiredProcessor()
+@ModerateAccessProcessor()
+@accounts_resource('#account', 'admin', name='admin')
+def admin(context):
+    from the_tale.finances.shop.forms import GMForm
+    return dext_views.Page('accounts/admin.html',
+                           content={'master_account': context.master_account,
+                                    'give_award_form': forms.GiveAwardForm(),
+                                    'resource': context.resource,
+                                    'give_money_form': GMForm(),
+                                    'ban_form': forms.BanForm()} )
+
+
+@LoginRequiredProcessor()
+@ModerateAccessProcessor()
+@dext_views.FormProcessor(form_class=forms.GiveAwardForm)
+@accounts_resource('#account', 'give-award', name='give-award', method='post')
+def give_award(context):
+    AwardPrototype.create(description=context.form.c.description,
+                          type=context.form.c.type,
+                          account=context.master_account)
+
+    return dext_views.AjaxOk()
+
+
+
+@LoginRequiredProcessor()
+@ModerateAccessProcessor()
+@accounts_resource('#account', 'reset-nick', name='reset-nick', method='post')
+def reset_nick(context):
+    task = ChangeCredentialsTaskPrototype.create(account=context.master_account,
+                                                 new_nick=u'%s (%s)' % (conf.accounts_settings.RESET_NICK_PREFIX, uuid.uuid4().hex))
+
+    postponed_task = task.process(logger)
+
+    return dext_views.AjaxProcessing(postponed_task.status_url)
+
+
+@LoginRequiredProcessor()
+@ModerateAccessProcessor()
+@dext_views.FormProcessor(form_class=forms.BanForm)
+@accounts_resource('#account', 'ban', name='ban', method='post')
+def ban(context):
+
+    if context.form.c.ban_type.is_FORUM:
+        context.master_account.ban_forum(context.form.c.ban_time.days)
+        message = u'Вы лишены права общаться на форуме. Причина: \n\n%(message)s'
+    elif context.form.c.ban_type.is_GAME:
+        context.master_account.ban_game(context.form.c.ban_time.days)
+        message = u'Ваш герой лишён возможности влиять на мир игры. Причина: \n\n%(message)s'
+    elif context.form.c.ban_type.is_TOTAL:
+        context.master_account.ban_forum(context.form.c.ban_time.days)
+        context.master_account.ban_game(context.form.c.ban_time.days)
+        message = u'Вы лишены права общаться на форуме, ваш герой лишён возможности влиять на мир игры. Причина: \n\n%(message)s'
+    else:
+        raise dext_views.ViewError(code='unknown_ban_type', message=u'Неизвестный тип бана')
+
+    MessagePrototype.create(logic.get_system_user(),
+                            context.master_account,
+                            message % {'message': context.form.c.description})
+
+    return dext_views.AjaxOk()
+
+@LoginRequiredProcessor()
+@ModerateAccessProcessor()
+@accounts_resource('#account', 'reset-bans', method='post')
+def reset_bans(context):
+
+    context.master_account.ban_forum(0)
+    context.master_account.ban_game(0)
+
+    MessagePrototype.create(logic.get_system_user(),
+                            context.master_account,
+                            u'С вас сняли все ограничения, наложенные ранее.')
+
+    return dext_views.AjaxOk()
+
+
+@LoginRequiredProcessor()
+@FullAccountProcessor()
+@FullAccountProcessor(argument='master_account', error_code=u'receiver_is_fast', error_message=u'Нельзя перевести печеньки игроку, не завершившему регистрацию')
+@BanAnyProcessor()
+@BanAnyProcessor(argument='master_account', error_code=u'receiver_banned', error_message=u'Нельзя перевести печеньки забаненому игроку')
+@accounts_resource('#account', 'transfer-money-dialog')
+def transfer_money_dialog(context):
+    if context.account.id == context.master_account.id:
+        raise dext_views.ViewError(code='own_account', message=u'Нельзя переводить печеньки самому себе')
+
+    return dext_views.Page('accounts/transfer_money.html',
+                           content={'commission': conf.accounts_settings.MONEY_SEND_COMMISSION,
+                                    'form': forms.SendMoneyForm()} )
+
+@LoginRequiredProcessor()
+@FullAccountProcessor()
+@FullAccountProcessor(argument='master_account', error_code=u'receiver_is_fast', error_message=u'Нельзя перевести печеньки игроку, не завершившему регистрацию')
+@BanAnyProcessor()
+@BanAnyProcessor(argument='master_account', error_code=u'receiver_banned', error_message=u'Нельзя перевести печеньки забаненому игроку')
+@dext_views.FormProcessor(form_class=forms.SendMoneyForm)
+@accounts_resource('#account', 'transfer-money', method='POST')
+def transfer_money(context):
+    if context.account.id == context.master_account.id:
+        raise dext_views.ViewError(code='own_account', message=u'Нельзя переводить печеньки самому себе')
+
+    if context.form.c.money > context.account.bank_account.amount:
+        raise dext_views.ViewError(code='not_enough_money', message=u'Недостаточно печенек для перевода')
+
+    task = logic.initiate_transfer_money(sender_id=context.account.id,
+                                         recipient_id=context.master_account.id,
+                                         amount=context.form.c.money,
+                                         comment=context.form.c.comment)
+    return dext_views.AjaxProcessing(task.status_url)
 
 
 ###############################
-# end of new view processors
+# end of new views
 ###############################
-
 
 logger = getLogger('django.request')
 
@@ -143,9 +411,9 @@ class RegistrationResource(BaseAccountsResource):
         if self.account.is_authenticated():
             return self.json_error('accounts.registration.fast.already_registered', u'Вы уже зарегистрированы')
 
-        if accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY in self.request.session:
+        if conf.accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY in self.request.session:
 
-            task_id = self.request.session[accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY]
+            task_id = self.request.session[conf.accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY]
             task = PostponedTaskPrototype.get_by_id(task_id)
 
             if task is not None:
@@ -156,23 +424,23 @@ class RegistrationResource(BaseAccountsResource):
                 # in other case create new task
 
         referer = None
-        if accounts_settings.SESSION_REGISTRATION_REFERER_KEY in self.request.session:
-            referer = self.request.session[accounts_settings.SESSION_REGISTRATION_REFERER_KEY]
+        if conf.accounts_settings.SESSION_REGISTRATION_REFERER_KEY in self.request.session:
+            referer = self.request.session[conf.accounts_settings.SESSION_REGISTRATION_REFERER_KEY]
 
         referral_of_id = None
-        if accounts_settings.SESSION_REGISTRATION_REFERRAL_KEY in self.request.session:
-            referral_of_id = self.request.session[accounts_settings.SESSION_REGISTRATION_REFERRAL_KEY]
+        if conf.accounts_settings.SESSION_REGISTRATION_REFERRAL_KEY in self.request.session:
+            referral_of_id = self.request.session[conf.accounts_settings.SESSION_REGISTRATION_REFERRAL_KEY]
 
         action_id = None
-        if accounts_settings.SESSION_REGISTRATION_ACTION_KEY in self.request.session:
-            action_id = self.request.session[accounts_settings.SESSION_REGISTRATION_ACTION_KEY]
+        if conf.accounts_settings.SESSION_REGISTRATION_ACTION_KEY in self.request.session:
+            action_id = self.request.session[conf.accounts_settings.SESSION_REGISTRATION_ACTION_KEY]
 
         registration_task = RegistrationTask(account_id=None, referer=referer, referral_of_id=referral_of_id, action_id=action_id)
 
         task = PostponedTaskPrototype.create(registration_task,
-                                             live_time=accounts_settings.REGISTRATION_TIMEOUT)
+                                             live_time=conf.accounts_settings.REGISTRATION_TIMEOUT)
 
-        self.request.session[accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY] = task.id
+        self.request.session[conf.accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY] = task.id
 
         environment.workers.registration.cmd_task(task.id)
 
@@ -437,208 +705,4 @@ class ProfileResource(BaseAccountsResource):
     @handler('update-last-news-reminder-time', method='post')
     def update_last_news_reminder_time(self):
         self.account.update_last_news_remind_time()
-        return self.json_ok()
-
-
-class AccountResource(BaseAccountsResource):
-
-    @validate_argument('account', AccountPrototype.get_by_id, 'accounts.account', u'Аккаунт не найден')
-    def initialize(self, account=None, *args, **kwargs):
-        super(AccountResource, self).initialize(*args, **kwargs)
-        self.master_account = account
-        self.can_moderate_accounts = self.account.has_perm('accounts.moderate_account')
-
-    @validator(code='accounts.account.moderator_rights_required', message=u'Вы не являетесь модератором')
-    def validate_moderator_rights(self, *args, **kwargs): return self.can_moderate_accounts
-
-    @handler('', method='get')
-    def index(self, page=1, prefix=''):
-
-        accounts_query = AccountPrototype.live_query()
-
-        if prefix:
-            accounts_query = accounts_query.filter(nick__istartswith=prefix)
-
-        accounts_count = accounts_query.count()
-
-        url_builder = UrlBuilder(reverse('accounts:'), arguments={'page': page,
-                                                                  'prefix': prefix})
-
-        page = int(page) - 1
-
-        paginator = Paginator(page, accounts_count, accounts_settings.ACCOUNTS_ON_PAGE, url_builder)
-
-        if paginator.wrong_page_number:
-            return self.redirect(paginator.last_page_url, permanent=False)
-
-        account_from, account_to = paginator.page_borders(page)
-
-        accounts_models = accounts_query.select_related().order_by('nick')[account_from:account_to]
-
-        accounts = [AccountPrototype(model) for model in accounts_models]
-
-        accounts_ids = [ model.id for model in accounts_models]
-        clans_ids = [ model.clan_id for model in accounts_models]
-
-        heroes = dict( (model.account_id, HeroPrototype(model=model)) for model in Hero.objects.filter(account_id__in=accounts_ids))
-
-        clans = {clan.id:clan for clan in ClanPrototype.get_list_by_id(clans_ids)}
-
-        return self.template('accounts/index.html',
-                             {'heroes': heroes,
-                              'prefix': prefix,
-                              'accounts': accounts,
-                              'clans': clans,
-                              'current_page_number': page,
-                              'paginator': paginator  } )
-
-
-    @handler('#account', name='show', method='get')
-    def show(self): # pylint: disable=R0914
-        from the_tale.game.ratings import relations as ratings_relations
-        from the_tale.game.ratings import conf as ratings_conf
-
-        friendship = FriendshipPrototype.get_for_bidirectional(self.account, self.master_account)
-
-        master_hero = HeroPrototype.get_by_account_id(self.master_account.id)
-
-        return self.template('accounts/show.html',
-                             {'master_hero': master_hero,
-                              'account_info': logic.get_account_info(self.master_account, master_hero),
-                              'master_account': self.master_account,
-                              'accounts_settings': accounts_settings,
-                              'RATING_TYPE': ratings_relations.RATING_TYPE,
-                              'ratings_on_page': ratings_conf.ratings_settings.ACCOUNTS_ON_PAGE,
-                              'informer_link': accounts_settings.INFORMER_LINK % {'account_id': self.master_account.id},
-                              'friendship': friendship} )
-
-    @api.handler(versions=('1.0',))
-    @handler('#account', 'api', 'show', name='api-show', method=['get'])
-    def api_show(self, api_version):
-        u'''
-Получить информацию об игроке
-
-- **адрес:** /accounts/&lt;account&gt;/api/show
-- **http-метод:** GET
-- **версии:** 1.0
-- **параметры:**
-    * URL account — идентификатор игрока
-- **возможные ошибки**:
-    * accounts.account.account.not_found — аккаунт с таким идентификатором не найден
-
-формат данных в ответе:
-
-    {
-      "id": <целое число>,           // идентификатор игрока
-      "registered": true|false,      // маркер завершения регистрации
-      "name": "строка",              // имя игрока
-      "hero_id": <целое число>,      // идентификатор героя
-      "places_history": [            // список истории помощи городам
-        "place": {                   // город
-          "id": <целое число>,       // идентификатор города
-          "name": "строка"           // название города
-        },
-        "count": <целое число>       // количество фактов помощи
-      ],
-      "might": <дробное число>,      // могущество
-      "achievements": <целое число>, // очки достижений
-      "collections": <целое число>,  // количество предметов в коллекции
-      "referrals": <целое число>,    // количество последователей (рефералов)
-      "ratings": {                                // рейтинги
-        "строка": {                               // идентификатор рейтинга:
-          "name": "строка",                       // название рейтинга: иинформация о рейтинге
-          "place": <целое число>,                 // место
-          "value": <целое число>|<дробное число>  // величина рейтингового значения
-        }
-      },
-      "permissions": {                // права на выполнение различных операций
-        "can_affect_game": true|false // оказывает ли влияние на игру
-      },
-      "description": "строка"         // описание игока, введённое им сами (в формате html)
-    }
-        '''
-
-        master_hero = HeroPrototype.get_by_account_id(self.master_account.id)
-
-        return self.ok(data=logic.get_account_info(self.master_account, master_hero))
-
-
-    @login_required
-    @validate_moderator_rights()
-    @handler('#account', 'admin', name='admin', method='get')
-    def admin(self):
-        from the_tale.finances.shop.forms import GMForm
-        return self.template('accounts/admin.html',
-                             {'master_account': self.master_account,
-                              'give_award_form': forms.GiveAwardForm(),
-                              'give_money_form': GMForm(),
-                              'ban_form': forms.BanForm()} )
-
-
-    @validate_moderator_rights()
-    @handler('#account', 'give-award', name='give-award', method='post')
-    def give_award(self):
-
-        form = forms.GiveAwardForm(self.request.POST)
-
-        if not form.is_valid():
-            return self.json_error('accounts.account.give_award.form_errors', form.errors)
-
-        AwardPrototype.create(description=form.c.description,
-                              type=form.c.type,
-                              account=self.master_account)
-
-        return self.json_ok()
-
-
-
-    @validate_moderator_rights()
-    @handler('#account', 'reset-nick', name='reset-nick', method='post')
-    def reset_nick(self):
-        task = ChangeCredentialsTaskPrototype.create(account=self.master_account,
-                                                     new_nick=u'%s (%s)' % (accounts_settings.RESET_NICK_PREFIX, uuid.uuid4().hex))
-
-        postponed_task = task.process(logger)
-
-        return self.json_processing(postponed_task.status_url)
-
-    @validate_moderator_rights()
-    @handler('#account', 'ban', name='ban', method='post')
-    def ban(self):
-
-        form = forms.BanForm(self.request.POST)
-
-        if not form.is_valid():
-            return self.json_error('accounts.account.ban.form_errors', form.errors)
-
-        if form.c.ban_type.is_FORUM:
-            self.master_account.ban_forum(form.c.ban_time.days)
-            message = u'Вы лишены права общаться на форуме. Причина: \n\n%(message)s'
-        elif form.c.ban_type.is_GAME:
-            self.master_account.ban_game(form.c.ban_time.days)
-            message = u'Ваш герой лишён возможности влиять на мир игры. Причина: \n\n%(message)s'
-        elif form.c.ban_type.is_TOTAL:
-            self.master_account.ban_forum(form.c.ban_time.days)
-            self.master_account.ban_game(form.c.ban_time.days)
-            message = u'Вы лишены права общаться на форуме, ваш герой лишён возможности влиять на мир игры. Причина: \n\n%(message)s'
-        else:
-            return self.json_error('accounts.account.ban.unknown_ban_type', u'Неизвестный тип бана')
-
-        MessagePrototype.create(logic.get_system_user(),
-                                self.master_account,
-                                message % {'message': form.c.description})
-
-        return self.json_ok()
-
-    @validate_moderator_rights()
-    @handler('#account', 'reset-bans', method='post')
-    def reset_bans(self):
-
-        self.master_account.ban_forum(0)
-        self.master_account.ban_game(0)
-
-        MessagePrototype.create(logic.get_system_user(),
-                                self.master_account,
-                                u'С вас сняли все ограничения, наложенные ранее.')
-
         return self.json_ok()

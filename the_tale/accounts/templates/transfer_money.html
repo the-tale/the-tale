@@ -1,0 +1,62 @@
+
+<div class="modal hide">
+
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3 class="pgf-dialog-title dialog-title">
+      Перевести печеньки игроку «{{context.master_account}}»
+    </h3>
+  </div>
+
+  <div class="modal-body">
+
+    <h4>
+      У Вас есть {{context.account.bank_account.amount}} <img src="{{ STATIC_CONTENT }}images/cookies.png" style="vertical-align: middle;"></img>
+    </h4>
+
+    <p>
+      Переводя печеньки игроку «{{context.master_account}}», Вы соглашаетесь с тем, что:
+    </p>
+
+    <ul>
+      <li>это Ваше осознанное действие;</li>
+      <li>перевод отменить нельзя;</li>
+      <li>с перевода будет вычтена комиссия;</li>
+      <li>администрация игры не несёт ответственности за исполнение игроком «{{context.master_account}}» каких бы то ни было обязательств;</li>
+      <li>администрация игры не выступает в качестве арбитра, при решении любых споров, связанных с переводом.</li>
+    </ul>
+
+    <form id="pgf-send-money-form"
+          method="post"
+          action="{{url('accounts:transfer-money', context.master_account.id)}}">
+
+      {{ form.errors_container }}
+
+      <div class="pgf-sender-money">
+        {{ form.money.widget }}
+      </div>
+
+      <ul class="unstyled">
+        <li>
+          Игрок получит: <span class="pgf-receiver-income"></span>
+          <img src="{{ STATIC_CONTENT }}images/cookies.png" style="vertical-align: middle;"></img>
+        </li>
+        <li>
+          Комиссия: <span class="pgf-sender-commission"></span>
+          <img src="{{ STATIC_CONTENT }}images/cookies.png" style="vertical-align: middle;"></img>
+        </li>
+        <li>
+          Комиссия {{commission|percents()}}.
+        </li>
+      </ul>
+
+      {{ form.comment.widget }}
+
+      <div class="widget">
+        <input type="submit" class="btn btn-success" value="Перевести печеньки"/>
+      </div>
+
+    </form>
+
+  </div>
+</div>

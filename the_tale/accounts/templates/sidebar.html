@@ -92,6 +92,63 @@
     <li class="nav-element"><a href="{{url('forum:threads:')}}?participant={{page_account.id}}">обсуждения с комментариями ({{threads_with_posts}})</a></li>
 
     <li class="nav-header">Прочее</li>
+    <li class="nav-element">
+      {% if user_account.is_authenticated() and page_account.id != user_account.id and not page_account.is_fast and not page_account.is_ban_any %}
+
+<script type="text/javascript">
+jQuery(document).ready(function(e) {
+
+    function UpdateCommission() {
+        var input = jQuery('.pgf-sender-money input');
+
+        var price = parseInt(input.val());
+
+        if (price != input.val()) {
+            price = 1;
+        }
+
+        var commission = parseInt(Math.floor(price * {{commission}}));
+
+        if (commission == 0) {
+            commission = 1;
+        }
+
+        jQuery('.pgf-sender-commission').text(commission);
+        jQuery('.pgf-receiver-income').text(price-commission);
+    }
+
+    jQuery('.pgf-send-money').click(function(e){
+        e.preventDefault();
+        var target = jQuery(e.currentTarget);
+        var url = target.attr('href');
+
+        pgf.ui.dialog.Create({ fromUrl: url,
+                               OnOpen: function(dialog) {
+                                   var form = new pgf.forms.Form(jQuery('#pgf-send-money-form', dialog),
+                                                                     {OnSuccess: function(form, data){
+                                                                         location.reload();
+                                                                     }});
+                               },
+                               OnOpened: function(dialog) {
+                                   UpdateCommission();
+                               }
+                             });
+    });
+
+    setInterval(UpdateCommission, 500);
+});
+</script>
+
+      <a href="{{url('accounts:transfer-money-dialog', page_account.id)}}"
+         class="pgf-send-money"
+         rel="tooltip"
+         title="Перевести часть печенек этому игроку">
+        выслать печеньки
+      </a>
+      {% else %}
+      <a href="#" class="disabled" rel="tooltip" title="Нельзя выслать печеньки самому себе, забаненному или не завершившему регистрацию игроку">выслать печеньки</a>
+      {% endif %}
+    </li>
     <li class="nav-element"><a href="{{standy_statistics_account_url(page_account.id)}}">статистика от standy</a></li>
 
     {% if can_moderate %}

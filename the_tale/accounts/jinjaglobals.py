@@ -3,7 +3,7 @@
 from dext.common.utils import jinja2
 
 from the_tale.accounts import logic
-from the_tale.accounts.conf import accounts_settings
+from the_tale.accounts import conf
 
 
 @jinja2.jinjaglobal
@@ -20,7 +20,7 @@ def logout_url():
 
 @jinja2.jinjaglobal
 def forum_complaint_theme():
-    return accounts_settings.FORUM_COMPLAINT_THEME
+    return conf.accounts_settings.FORUM_COMPLAINT_THEME
 
 
 @jinja2.jinjaglobal
@@ -63,4 +63,5 @@ def account_sidebar(user_account, page_account, page_caption, page_type, can_mod
                                                      'threads_count': threads_count,
                                                      'threads_with_posts': threads_with_posts,
                                                      'can_moderate': can_moderate,
-                                                     'page_type': page_type}))
+                                                     'page_type': page_type,
+                                                     'commission': conf.accounts_settings.MONEY_SEND_COMMISSION}))
