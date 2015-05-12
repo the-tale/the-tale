@@ -183,7 +183,7 @@ class HeroResource(Resource):
 
         task = PostponedTaskPrototype.create(change_task)
 
-        environment.workers.supervisor.cmd_logic_task(self.account.id, task.id)
+        environment.workers.supervisor.cmd_logic_task(self.hero.account_id, task.id)
 
         return self.json_processing(task.status_url)
 
