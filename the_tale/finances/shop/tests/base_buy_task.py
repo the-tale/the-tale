@@ -126,11 +126,11 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
 
         self.task.state = self.task.RELATION.TRANSACTION_FROZEN
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.cmd_update_with_account_data') as cmd_update_with_account_data:
+        with mock.patch('the_tale.accounts.prototypes.AccountPrototype.cmd_update_hero') as cmd_update_hero:
             with mock.patch('the_tale.finances.bank.transaction.Transaction.confirm') as transaction_confirm:
                 self.assertEqual(self.task.process(main_task=mock.Mock(), storage=self.storage), POSTPONED_TASK_LOGIC_RESULT.WAIT)
 
-        self.assertEqual(cmd_update_with_account_data.call_count, self.cmd_update_with_account_data__call_count)
+        self.assertEqual(cmd_update_hero.call_count, self.cmd_update_with_account_data__call_count)
         self.assertEqual(transaction_confirm.call_count, 1)
 
         self._test_process__transaction_frozen()

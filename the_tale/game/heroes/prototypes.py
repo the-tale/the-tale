@@ -72,7 +72,8 @@ class HeroPrototype(BasePrototype,
                       'last_rare_operation_at_turn',
                       'health',
                       'settings_approved',
-                      'next_spending')
+                      'next_spending',
+                      'actual_bills')
     _get_by = ('id', 'account_id')
     _serialization_proxies = (('quests', QuestsContainer, heroes_settings.UNLOAD_TIMEOUT),
                               ('places_history', places_help_statistics.PlacesHelpStatistics, heroes_settings.UNLOAD_TIMEOUT),
@@ -262,38 +263,12 @@ class HeroPrototype(BasePrototype,
         return self.energy_full - old_energy
 
 
-    @property
-    def might_pvp_effectiveness_bonus(self): return f.might_pvp_effectiveness_bonus(self.might)
-
     def on_highlevel_data_updated(self):
         if self.preferences.friend is not None and self.preferences.friend.out_game:
             self.preferences.reset_friend()
 
         if self.preferences.enemy is not None and self.preferences.enemy.out_game:
             self.preferences.reset_enemy()
-
-    def modify_power(self, power, person=None, place=None):
-
-        if person and self.preferences.friend and person.id == self.preferences.friend.id:
-            power *= self.friend_power_modifier
-
-        if person and self.preferences.enemy and person.id == self.preferences.enemy.id:
-            power *= self.enemy_power_modifier
-
-        positive_bonus = 0.0
-        negative_bonus = 0.0
-
-        if ((self.preferences.place and place and place.id == self.preferences.place.id) or
-            (self.preferences.friend and person and person.id == self.preferences.friend.id) or
-            (self.preferences.enemy and person and person.id == self.preferences.enemy.id)):
-            if power > 0:
-                positive_bonus = c.HERO_POWER_BONUS
-            elif power < 0:
-                negative_bonus = c.HERO_POWER_BONUS
-
-        return (int(power * self.person_power_modifier),
-                positive_bonus * self.person_power_modifier,
-                negative_bonus * self.person_power_modifier)
 
     @lazy_property
     def habit_honor(self): return habits.Honor(self, 'honor')
@@ -624,7 +599,8 @@ class HeroPrototype(BasePrototype,
                 'cards': self.cards.ui_info(),
                 'might': { 'value': self.might,
                            'crit_chance': self.might_crit_chance,
-                           'pvp_effectiveness_bonus': self.might_pvp_effectiveness_bonus },
+                           'pvp_effectiveness_bonus': self.might_pvp_effectiveness_bonus,
+                           'politics_power': self.politics_power_might },
                 'permissions': { 'can_participate_in_pvp': self.can_participate_in_pvp,
                                  'can_repair_building': self.can_repair_building },
                 'energy': { 'max': self.energy_maximum,
@@ -767,22 +743,13 @@ class HeroPrototype(BasePrototype,
 
         return hero
 
-    def update_with_account_data(self, is_fast, premium_end_at, active_end_at, ban_end_at, might):
+    def update_with_account_data(self, is_fast, premium_end_at, active_end_at, ban_end_at, might, actual_bills):
         self.is_fast = is_fast
         self.active_state_end_at = active_end_at
         self.premium_state_end_at = premium_end_at
         self.ban_state_end_at = ban_end_at
         self.might = might
-
-    def cmd_update_with_account_data(self, account):
-        environment.workers.supervisor.cmd_update_hero_with_account_data(account.id,
-                                                                              self.id,
-                                                                              is_fast=account.is_fast,
-                                                                              premium_end_at=account.premium_end_at,
-                                                                              active_end_at=account.active_end_at,
-                                                                              ban_end_at=account.ban_game_end_at,
-                                                                              might=account.might)
-
+        self.actual_bills = actual_bills
 
     ###########################################
     # Game operations

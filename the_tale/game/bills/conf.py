@@ -10,6 +10,7 @@ bills_settings = app_settings('BILLS',
                               CHRONICLE_MAX_LENGTH=500,
                               MIN_VOTES_PERCENT=0.6,
                               BILL_LIVE_TIME=4*24*60*60,
+                              BILL_ACTUAL_LIVE_TIME=30*24*60*60,
                               MINIMUM_BILL_OWNER_AGE=2, # IN DAYS
                               FORUM_CATEGORY_UID='bills',
                               BILLS_ON_PAGE=10,

@@ -179,16 +179,18 @@ class DIPLOMATIC(AbilityPrototype):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
 
+    MAXIMUM_MULTIPLIER = 2.0
+
     NAME = u'Дипломатичный'
     normalized_name = NAME
-    DESCRIPTION = u'Некоторые герои приноровились выполнять задание особенно хитро и тщательно, тем самым увеличивая своё влияние на участников задания.'
+    DESCRIPTION = u'Некоторые герои приноровились выполнять задание особенно хитро и тщательно, тем самым увеличивая своё влияние на участников задания. Максимальный бонус к влиянию: %d%%' % (MAXIMUM_MULTIPLIER * 100)
 
-    POWER_MULTIPLIER = [1.2, 1.4, 1.6, 1.8, 2.0]
+    POWER_MULTIPLIER = [MAXIMUM_MULTIPLIER * i / 5 for i in xrange(1, 6)]
 
     @property
     def power_multiplier(self): return self.POWER_MULTIPLIER[self.level-1]
 
-    def modify_attribute(self, type_, value): return value*self.power_multiplier if type_.is_POWER else value
+    def modify_attribute(self, type_, value): return value + self.power_multiplier if type_.is_POWER else value
 
 
 class THRIFTY(AbilityPrototype):

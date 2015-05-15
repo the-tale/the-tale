@@ -82,8 +82,8 @@ class HabilitiesNonBattleTest(testcase.TestCase):
 
 
     def test_diplomatic(self):
-        old_power_modifier = self.hero.person_power_modifier
+        old_power_modifier = self.hero.politics_power_multiplier()
 
         self.hero.abilities.add(nonbattle.DIPLOMATIC.get_id())
 
-        self.assertTrue(old_power_modifier < self.hero.person_power_modifier)
+        self.assertTrue(old_power_modifier < self.hero.politics_power_multiplier())

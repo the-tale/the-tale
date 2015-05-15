@@ -1,0 +1,86 @@
+<div class="easy-block">
+
+  <h2>Влияние на политику</h2>
+
+  <h3>Влиятельность</h3>
+
+  <p>Величина влияния героя на политику определяется несколькими факторами.</p>
+
+  <table class="table table-condensed table-striped table-bordered">
+    <tbody>
+      <tr>
+        <th>параметр</th>
+        <th>влияние</th>
+      </tr>
+      <tr><td>базовое</td><td>{{100}}%</td></tr>
+      <tr><td>от уровня</td><td>{{resource.hero.politics_power_level|percents(2)}}</td></tr>
+      <tr><td>от могущества Хранителя</td><td>{{resource.hero.politics_power_might|percents(2)}}</td></tr>
+      <tr><td>от принятых законов</td><td>{{resource.hero.politics_power_bills|percents(2)}}</td></tr>
+      <tr><td>от риска</td><td>{{resource.hero.preferences.risk_level.power_modifier|percents(2)}}</td></tr>
+      <tr><td>от остального (способностей, предпочтений, спутников, артефактов)</td><td>{{resource.hero.politics_power_modifier|percents(2)}}</td></tr>
+      <tr><td>итого</td><td>{{resource.hero.politics_power_multiplier()|percents(2)}}</td></tr>
+  </table>
+
+  <p>Когда герой помогает соратнику, вредит противнику или посещает родной город, он оказывает на них дополнительное влиение.</p>
+
+  <table class="table table-condensed table-striped table-bordered">
+    <tbody>
+      <tr>
+        <th>действие</th>
+        <th>влияние</th>
+        <th>бонус к влиянию</th>
+      </tr>
+      <tr>
+        <td>помощь соратнику</td>
+        <td>+{{resource.hero.friend_power_modifier|percents(2)}}</td>
+        <td>позитивному + {{(c.HERO_POWER_BONUS*resource.hero.politics_power_multiplier(friend=true))|percents(2)}}</td>
+      </tr>
+      <tr>
+        <td>вред противнику</td>
+        <td>-{{resource.hero.enemy_power_modifier|percents(2)}}</td>
+        <td>негативному + {{(c.HERO_POWER_BONUS*resource.hero.politics_power_multiplier(enemy=true))|percents(2)}}</td>
+      </tr>
+      <tr>
+        <td>посещение родного города</td>
+        <td>+{{resource.hero.place_power_modifier|percents(2)}}</td>
+        <td>позитивному + {{(c.HERO_POWER_BONUS*resource.hero.politics_power_multiplier(hometown=true))|percents(2)}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Помощь городам</h3>
+
+  <p>Города, которым герой помогает чаще.</p>
+
+  {% set places_history = resource.hero.places_history.get_most_common_places() %}
+
+  {% if places_history %}
+    <div class="pgf-scrollable" style="overflow-y: auto; max-height: {{1+27*(1+12)}}px;">
+
+      <table class="table table-condensed table-striped table-bordered">
+        <tbody>
+          <tr>
+            <th width="30px">№</th>
+            <th >город</th>
+            <th width="100px">помогал (раз)</th>
+          </tr>
+          {% for place, count in places_history %}
+            <tr>
+              <td>{{loop.index}}</td>
+              <td><a href="{{url('game:map:places:show', place.id)}}">{{place.name}}</a></td>
+              <td>{{count}}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+    </div>
+
+  {% else %}
+
+    <p class="alert alert-info pgf-no-common-places-message">
+      Герой ещё не помог ни одному городу.
+    </p>
+  {% endif %}
+
+</div>

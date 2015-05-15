@@ -33,5 +33,7 @@ heroes_settings = app_settings('HEROES',
                                PLACE_HELP_HISTORY_SIZE=200,
                                UNLOAD_TIMEOUT=c.TURN_DELTA * 3,
                                RARE_OPERATIONS_INTERVAL=1000,
-                               INACTIVE_HERO_DELAY=int(10)  # для неактивных героев замедлять время в N раз
+                               INACTIVE_HERO_DELAY=int(10),  # для неактивных героев замедлять время в N раз
+                               POWER_PER_ACTIVE_BILL=0.75,
+                               ACTIVE_BILLS_MAXIMUM=4
     )

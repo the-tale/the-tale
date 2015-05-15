@@ -33,7 +33,8 @@ class LogicStorage(object):
                                       premium_end_at=account.premium_end_at,
                                       active_end_at=account.active_end_at,
                                       ban_end_at=account.ban_game_end_at,
-                                      might=account.might)
+                                      might=account.might,
+                                      actual_bills=account.actual_bills)
         self._add_hero(hero)
 
         return hero

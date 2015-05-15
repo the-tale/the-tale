@@ -8,7 +8,7 @@ from django.conf import settings as project_settings
 from the_tale.game.balance import constants as c, formulas as f
 
 from the_tale.game.heroes import relations
-from the_tale.game.heroes.conf import heroes_settings
+from the_tale.game.heroes import conf
 
 
 class LogicAccessorsMixin(object):
@@ -269,7 +269,13 @@ class LogicAccessorsMixin(object):
         return self.attribute_modifier(relations.MODIFIERS.ENERGY_DISCOUNT)
 
     @property
+    def might_pvp_effectiveness_bonus(self): return f.might_pvp_effectiveness_bonus(self.might)
+
+    @property
     def might_crit_chance(self): return min(1, f.might_crit_chance(self.might) + self.attribute_modifier(relations.MODIFIERS.MIGHT_CRIT_CHANCE))
+
+    @property
+    def politics_power_might(self): return f.politics_power_might(self.might)
 
     @property
     def damage_modifier(self): return self.attribute_modifier(relations.MODIFIERS.DAMAGE)
@@ -308,18 +314,6 @@ class LogicAccessorsMixin(object):
     @property
     def experience_to_next_level(self):
         return f.exp_on_lvl(self.level)
-
-    @property
-    def person_power_modifier(self):
-        return max(math.log(self.level, 2), 0.5) * self.attribute_modifier(relations.MODIFIERS.POWER) * self.preferences.risk_level.power_modifier
-
-    @property
-    def friend_power_modifier(self):
-        return self.attribute_modifier(relations.MODIFIERS.POWER_TO_FRIEND)
-
-    @property
-    def enemy_power_modifier(self):
-        return self.attribute_modifier(relations.MODIFIERS.POWER_TO_ENEMY)
 
     @property
     def reward_modifier(self):
@@ -467,4 +461,69 @@ class LogicAccessorsMixin(object):
 
         # делаем разброс обрабатываемых с задержкой героев в зависимости от их идентификатора
         # чтобы не делать скачкообразной нагрузки раз в c.INACTIVE_HERO_DELAY ходов
-        return (turn_number % heroes_settings.INACTIVE_HERO_DELAY) == (self.id % heroes_settings.INACTIVE_HERO_DELAY)
+        return (turn_number % conf.heroes_settings.INACTIVE_HERO_DELAY) == (self.id % conf.heroes_settings.INACTIVE_HERO_DELAY)
+
+    @property
+    def politics_power_level(self):
+        return math.log(self.level, 4)
+
+    @property
+    def politics_power_bills(self):
+        return min(self.actual_bills * conf.heroes_settings.POWER_PER_ACTIVE_BILL,
+                   conf.heroes_settings.ACTIVE_BILLS_MAXIMUM * conf.heroes_settings.POWER_PER_ACTIVE_BILL)
+
+    @property
+    def politics_power_modifier(self):
+        return self.attribute_modifier(relations.MODIFIERS.POWER)
+
+    @property
+    def friend_power_modifier(self):
+        return self.attribute_modifier(relations.MODIFIERS.POWER_TO_FRIEND)
+
+    @property
+    def enemy_power_modifier(self):
+        return self.attribute_modifier(relations.MODIFIERS.POWER_TO_ENEMY)
+
+    @property
+    def place_power_modifier(self):
+        return 0
+
+    def politics_power_multiplier(self, friend=False, enemy=False, hometown=False):
+        modifier = 1.0
+
+        if friend:
+            modifier += self.friend_power_modifier
+
+        if enemy:
+            modifier += self.enemy_power_modifier
+
+        if hometown:
+            modifier += self.place_power_modifier
+
+        modifier += self.politics_power_modifier
+        modifier += self.politics_power_bills
+        modifier += self.politics_power_level
+        modifier += self.politics_power_might
+        modifier += self.preferences.risk_level.power_modifier
+
+        return modifier
+
+
+    def modify_politics_power(self, power, person=None, place=None):
+
+        is_friend = person and self.preferences.friend and person.id == self.preferences.friend.id
+        is_enemy = person and self.preferences.enemy and person.id == self.preferences.enemy.id
+        is_hometown = place and self.preferences.place and place.id == self.preferences.place.id
+
+        multiplier = self.politics_power_multiplier(friend=is_friend, enemy=is_enemy, hometown=is_hometown)
+
+        positive_bonus = 0.0
+        negative_bonus = 0.0
+
+        if is_friend or is_enemy or is_hometown:
+            if power > 0:
+                positive_bonus = c.HERO_POWER_BONUS
+            elif power < 0:
+                negative_bonus = c.HERO_POWER_BONUS
+
+        return (int(power * multiplier), positive_bonus * multiplier, negative_bonus * multiplier)

@@ -69,7 +69,7 @@ class EffectsTests(testcase.TestCase):
             self._set_effect(relations.ARTIFACT_EFFECT.EXPERIENCE)
 
     def test_power(self):
-        with self.check_increased(lambda: self.hero.person_power_modifier):
+        with self.check_increased(lambda: self.hero.politics_power_modifier):
             self._set_effect(relations.ARTIFACT_EFFECT.POWER)
 
     def test_speed(self):
@@ -108,7 +108,7 @@ class EffectsTests(testcase.TestCase):
             self._set_effect(relations.ARTIFACT_EFFECT.GREAT_EXPERIENCE)
 
     def test_great_power(self):
-        with self.check_increased(lambda: self.hero.person_power_modifier):
+        with self.check_increased(lambda: self.hero.politics_power_modifier):
             self._set_effect(relations.ARTIFACT_EFFECT.GREAT_POWER)
 
     def test_great_speed(self):

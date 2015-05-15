@@ -252,14 +252,14 @@ class PoliticsPowerTests(BaseEffectsTests):
 
     def test_effect(self):
         effect = effects.PoliticsPower(3)
-        self.assertEqual(effect._modify_attribute({}, MODIFIERS.POWER, 11), 33)
+        self.assertEqual(effect._modify_attribute({}, MODIFIERS.POWER, 11), 14.0)
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.random(exclude=(MODIFIERS.POWER, )), 11), 11)
 
 
     def test_in_game(self):
         ability = self.get_ability(effects.PoliticsPower)
 
-        with self.check_changed(lambda: self.hero.person_power_modifier):
+        with self.check_changed(lambda: self.hero.politics_power_modifier):
             self.apply_ability(ability)
 
 

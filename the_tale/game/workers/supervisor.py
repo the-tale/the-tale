@@ -311,23 +311,23 @@ class Worker(BaseWorker):
         self.dispatch_logic_cmd(account_id, 'logic_task', {'account_id': account_id,
                                                            'task_id': task_id} )
 
-    def cmd_update_hero_with_account_data(self, account_id, hero_id, is_fast, premium_end_at, active_end_at, ban_end_at, might):
-        self.send_cmd('update_hero_with_account_data', {'hero_id': hero_id,
-                                                        'account_id': account_id,
+    def cmd_update_hero_with_account_data(self, account_id, is_fast, premium_end_at, active_end_at, ban_end_at, might, actual_bills):
+        self.send_cmd('update_hero_with_account_data', {'account_id': account_id,
                                                         'is_fast': is_fast,
                                                         'premium_end_at': time.mktime(premium_end_at.timetuple()),
                                                         'active_end_at': time.mktime(active_end_at.timetuple()),
                                                         'ban_end_at': time.mktime(ban_end_at.timetuple()),
-                                                        'might': might})
+                                                        'might': might,
+                                                        'actual_bills': actual_bills})
 
-    def process_update_hero_with_account_data(self, account_id, hero_id, is_fast, premium_end_at, active_end_at, ban_end_at, might):
+    def process_update_hero_with_account_data(self, account_id, is_fast, premium_end_at, active_end_at, ban_end_at, might, actual_bills):
         self.dispatch_logic_cmd(account_id, 'update_hero_with_account_data', {'account_id': account_id,
-                                                                              'hero_id': hero_id,
                                                                               'is_fast': is_fast,
                                                                               'premium_end_at': premium_end_at,
                                                                               'active_end_at': active_end_at,
                                                                               'ban_end_at': ban_end_at,
-                                                                              'might': might} )
+                                                                              'might': might,
+                                                                              'actual_bills': actual_bills} )
 
     def cmd_start_hero_caching(self, account_id):
         self.send_cmd('start_hero_caching', {'account_id': account_id})

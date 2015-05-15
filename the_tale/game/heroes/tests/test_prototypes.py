@@ -23,6 +23,8 @@ from the_tale.game.balance import formulas as f
 from the_tale.game.balance import constants as c
 from the_tale.game.balance.power import Damage
 
+from the_tale.game import relations as game_relations
+
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.companions import storage as companions_storage
@@ -34,8 +36,6 @@ from the_tale.game.companions.abilities import container as companions_abilities
 from the_tale.game.map.places.storage import places_storage
 from the_tale.game.map.places.relations import CITY_MODIFIERS
 from the_tale.game.mobs.storage import mobs_storage
-
-from the_tale.game.relations import HABIT_PEACEFULNESS_INTERVAL, HABIT_HONOR_INTERVAL
 
 from the_tale.game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
 from the_tale.game.heroes.habilities import ABILITY_TYPE, ABILITIES, battle, ABILITY_AVAILABILITY
@@ -175,7 +175,8 @@ class HeroTest(testcase.TestCase):
                                            premium_end_at=datetime.datetime.now(),
                                            active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
                                            ban_end_at=datetime.datetime.now() - datetime.timedelta(seconds=60),
-                                           might=0)
+                                           might=0,
+                                           actual_bills=0)
 
         self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
@@ -191,7 +192,8 @@ class HeroTest(testcase.TestCase):
                                            premium_end_at=datetime.datetime.now(),
                                            active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
                                            ban_end_at=datetime.datetime.now() - datetime.timedelta(seconds=60),
-                                           might=666)
+                                           might=666,
+                                           actual_bills=0)
 
         self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
@@ -259,13 +261,15 @@ class HeroTest(testcase.TestCase):
                                            premium_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
                                            active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
                                            ban_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
-                                           might=666)
+                                           might=666,
+                                           actual_bills=7)
 
         self.assertFalse(self.hero.is_fast)
         self.assertTrue(self.hero.active_state_end_at > datetime.datetime.now())
         self.assertTrue(self.hero.premium_state_end_at > datetime.datetime.now())
         self.assertTrue(self.hero.ban_state_end_at > datetime.datetime.now())
         self.assertEqual(self.hero.might, 666)
+        self.assertEqual(self.hero.actual_bills, 7)
 
     def test_reward_modifier__risk_level(self):
         self.assertEqual(self.hero.reward_modifier, 1.0)
@@ -273,78 +277,6 @@ class HeroTest(testcase.TestCase):
         self.assertTrue(self.hero.reward_modifier > 1.0)
         self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_LOW)
         self.assertTrue(self.hero.reward_modifier < 1.0)
-
-    def test_person_power_modifier__risk_level(self):
-        normal_power_modifier = self.hero.person_power_modifier
-
-        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_HIGH)
-        self.assertTrue(self.hero.person_power_modifier > normal_power_modifier)
-        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_LOW)
-        self.assertTrue(self.hero.person_power_modifier < normal_power_modifier)
-
-
-    def test_modify_person_power(self):
-        friend = self.place_1.persons[0]
-        enemy = self.place_2.persons[0]
-
-        self.hero.preferences.set_place(self.place_1)
-        self.hero.preferences.set_friend(friend)
-        self.hero.preferences.set_enemy(enemy)
-
-        self.assertEqual(self.hero.modify_power(person=self.place_3.persons[0], power=100), (100 * self.hero.person_power_modifier, 0.0, 0.0))
-        self.assertEqual(self.hero.modify_power(person=self.place_3.persons[0], power=-100), (-100 * self.hero.person_power_modifier, 0.0, 0.0))
-
-        # test person in hometown
-        self.assertEqual(self.hero.modify_power(person=self.place_1.persons[1], power=100), (100 * self.hero.person_power_modifier, 0.0, 0.0))
-        self.assertEqual(self.hero.modify_power(person=self.place_1.persons[1], power=-100), (-100 * self.hero.person_power_modifier, 0.0, 0.0))
-
-        self.assertEqual(self.hero.modify_power(person=enemy, power=100), (100 * self.hero.person_power_modifier, 0.005, 0.0))
-        self.assertEqual(self.hero.modify_power(person=enemy, power=-100), (-100 * self.hero.person_power_modifier, 0.0, 0.005))
-
-        self.assertEqual(self.hero.modify_power(person=friend, power=100), (100 * self.hero.person_power_modifier, 0.005, 0.0))
-        self.assertEqual(self.hero.modify_power(person=friend, power=-100), (-100 * self.hero.person_power_modifier, 0.0, 0.005))
-
-    def test_modify_person_power__enemy(self):
-        friend = self.place_1.persons[0]
-        enemy = self.place_2.persons[0]
-
-        self.hero.preferences.set_place(self.place_1)
-        self.hero.preferences.set_friend(friend)
-        self.hero.preferences.set_enemy(enemy)
-
-        place_power = self.hero.modify_power(place=self.place_1, power=100)
-        enemy_power = self.hero.modify_power(person=enemy, power=100)
-        friend_power = self.hero.modify_power(person=friend, power=100)
-
-        with mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.LEFT_3):
-            self.assertEqual(place_power, self.hero.modify_power(place=self.place_1, power=100))
-            self.assertTrue(enemy_power[0] < self.hero.modify_power(person=enemy, power=100)[0])
-            self.assertEqual(friend_power[0], self.hero.modify_power(person=friend, power=100)[0])
-
-
-    def test_modify_person_power__friend(self):
-        friend = self.place_1.persons[0]
-        enemy = self.place_2.persons[0]
-
-        self.hero.preferences.set_place(self.place_1)
-        self.hero.preferences.set_friend(friend)
-        self.hero.preferences.set_enemy(enemy)
-
-        place_power = self.hero.modify_power(place=self.place_1, power=100)
-        enemy_power = self.hero.modify_power(person=enemy, power=100)
-        friend_power = self.hero.modify_power(person=friend, power=100)
-
-        with mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.RIGHT_3):
-            self.assertEqual(place_power, self.hero.modify_power(place=self.place_1, power=100))
-            self.assertEqual(enemy_power[0], self.hero.modify_power(person=enemy, power=100)[0])
-            self.assertTrue(friend_power[0] < self.hero.modify_power(person=friend, power=100)[0])
-
-    def test_modify_place_power(self):
-        self.hero.preferences.set_place(self.place_1)
-
-        self.assertEqual(self.hero.modify_power(place=self.place_2, power=100), (100 * self.hero.person_power_modifier, 0, 0))
-        self.assertEqual(self.hero.modify_power(place=self.place_1, power=100), (100 * self.hero.person_power_modifier, 0.005, 0.0))
-        self.assertEqual(self.hero.modify_power(place=self.place_1, power=-100), (-100 * self.hero.person_power_modifier, 0.0, 0.005))
 
     def test_push_message(self):
         message = messages.MessageSurrogate(turn_number=TimePrototype.get_current_turn_number(),
@@ -1083,12 +1015,12 @@ class HeroQuestsTest(testcase.TestCase):
         self.assertEqual(self.hero.modify_quest_priority(QUESTS.HELP_FRIEND), QUESTS.HELP_FRIEND.priority)
         self.assertEqual(self.hero.modify_quest_priority(QUESTS.INTERFERE_ENEMY), QUESTS.INTERFERE_ENEMY.priority)
 
-    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', HABIT_PEACEFULNESS_INTERVAL.RIGHT_3)
+    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', game_relations.HABIT_PEACEFULNESS_INTERVAL.RIGHT_3)
     def test_modify_quest_priority__friend(self):
         self.assertTrue(self.hero.modify_quest_priority(QUESTS.HELP_FRIEND) > QUESTS.HELP_FRIEND.priority)
         self.assertEqual(self.hero.modify_quest_priority(QUESTS.INTERFERE_ENEMY), QUESTS.INTERFERE_ENEMY.priority)
 
-    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', HABIT_PEACEFULNESS_INTERVAL.LEFT_3)
+    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', game_relations.HABIT_PEACEFULNESS_INTERVAL.LEFT_3)
     def test_modify_quest_priority__enemy(self):
         self.assertEqual(self.hero.modify_quest_priority(QUESTS.HELP_FRIEND), QUESTS.HELP_FRIEND.priority)
         self.assertTrue(self.hero.modify_quest_priority(QUESTS.INTERFERE_ENEMY)> QUESTS.INTERFERE_ENEMY.priority)

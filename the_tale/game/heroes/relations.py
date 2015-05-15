@@ -16,12 +16,13 @@ class RISK_LEVEL(DjangoEnum):
     experience_modifier = Column()
     power_modifier = Column()
     reward_modifier = Column()
+    description = Column()
 
-    records = ( ('VERY_HIGH', 0, u'очень высокий', 0.70, 1.30, 1.30, 1.30),
-                ('HIGH',      1, u'высокий', 0.85, 1.15, 1.15, 1.15),
-                ('NORMAL',    2, u'обычный', 1.00, 1.00, 1.00, 1.00),
-                ('LOW',       3, u'низкий', 1.15, 0.85, 0.85, 0.85),
-                ('VERY_LOW',  4, u'очень низкий', 1.30, 0.70, 0.70, 0.70) )
+    records = ( ('VERY_HIGH', 0, u'очень высокий', 0.70, 1.30,  2.0, 1.30, u'больше опыта и наград за задания, +200% влияния'),
+                ('HIGH',      1, u'высокий',       0.85, 1.15,  1.0, 1.15, u'немного больше опыта и наград за задания, +100% влияния'),
+                ('NORMAL',    2, u'обычный',       1.00, 1.00,  0.0, 1.00, u'никакого влияния на опыт, награды и влиение героя'),
+                ('LOW',       3, u'низкий',        1.15, 0.85, -1.0, 0.85, u'немного меньше опыта и наград за задания, -100% влияния'),
+                ('VERY_LOW',  4, u'очень низкий',  1.30, 0.70, -2.0, 0.70, u'меньше опыта и наград за задания, -200% влияния') )
 
 
 
@@ -41,8 +42,7 @@ class PREFERENCE_TYPE(DjangoEnum):
                 ('FAVORITE_ITEM', 7, u'любимая вещь', 28, 'favorite_item', '_prepair_equipment_slot', True),
                 ('ARCHETYPE', 8, u'архетип', 16, 'archetype', '_prepair_archetype', False),
                 ('COMPANION_DEDICATION', 9, u'отношение со спутником', 2, 'companion_dedication', '_prepair_companion_dedication', False),
-                ('COMPANION_EMPATHY', 10, u'эмпатия', 24, 'companion_empathy', '_prepair_companion_empathy', False),
-        )
+                ('COMPANION_EMPATHY', 10, u'эмпатия', 24, 'companion_empathy', '_prepair_companion_empathy', False) )
 
 class COMPANION_DEDICATION(DjangoEnum):
     block_multiplier = Column(unique=False)
@@ -147,7 +147,7 @@ class MODIFIERS(DjangoEnum):
                 ('MIGHT_CRIT_CHANCE', 4, u'шанс критического срабатвания способности Хранителя', lambda: 0.0),
                 ('EXPERIENCE', 5, u'опыт', lambda: 1.0),
                 ('MAX_BAG_SIZE', 6, u'максимальный размер рюкзака', lambda: 0),
-                ('POWER', 7, u'влияние героя', lambda: 1.0),
+                ('POWER', 7, u'влияние героя', lambda: 0.0),
                 ('QUEST_MONEY_REWARD', 8, u'денежная награда за выполнение задения', lambda: 1.0),
                 ('BUY_PRICE', 9, u'цена покупки', lambda: 1.0),
                 ('SELL_PRICE', 10, u'цена продажи', lambda: 1.0),
@@ -156,8 +156,8 @@ class MODIFIERS(DjangoEnum):
                 # ('BUY_BETTER_ARTIFACT', 13, u'купить лучший артефакт', lambda: 0),
                 ('KILL_BEFORE_BATTLE', 14, u'убить монстра перед боем', lambda: False),
                 ('PICKED_UP_IN_ROAD', 15, u'ехать на попутных телегах', lambda: False),
-                ('POWER_TO_FRIEND', 16, u'бонус к влиянию на друга', lambda: 1.0),
-                ('POWER_TO_ENEMY', 17, u'бонус к влиянию на врага', lambda: 1.0),
+                ('POWER_TO_FRIEND', 16, u'бонус к влиянию на друга', lambda: 0.0),
+                ('POWER_TO_ENEMY', 17, u'бонус к влиянию на врага', lambda: 0.0),
                 ('QUEST_MARKERS', 18, u'маркеры задания', lambda: {}),
                 ('QUEST_MARKERS_REWARD_BONUS', 19, u'бонус наград за правильный выбор', lambda: {}),
                 ('LOOT_PROBABILITY', 21, u'вероятность получить лут после боя', lambda: 1.0),

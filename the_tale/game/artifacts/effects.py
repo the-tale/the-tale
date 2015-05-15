@@ -73,12 +73,12 @@ class Experience(BaseEffect):
 
 class PersonPower(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.POWER
-    DESCRIPTION = u'Немного увеличивает влияние героя'
-    MODIFIER = 1.02
+    DESCRIPTION = u'Немного увеличивает влияние героя (бонус к влиянию: 10%)'
+    MODIFIER = 0.1
 
     @classmethod
     def modify_attribute(cls, type_, value):
-        return value * cls.MODIFIER if type_.is_POWER else value
+        return value + cls.MODIFIER if type_.is_POWER else value
 
 
 class Energy(BaseEffect):
@@ -164,12 +164,12 @@ class GreatExperience(BaseEffect):
 
 class GreatPersonPower(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.GREAT_POWER
-    DESCRIPTION = u'Сильно увеличивает влияние героя'
-    MODIFIER = 1.1
+    DESCRIPTION = u'Сильно увеличивает влияние героя  (бонус к влиянию: 50%)'
+    MODIFIER = 0.5
 
     @classmethod
     def modify_attribute(cls, type_, value):
-        return value * cls.MODIFIER if type_.is_POWER else value
+        return value + cls.MODIFIER if type_.is_POWER else value
 
 
 class GreatEnergy(BaseEffect):

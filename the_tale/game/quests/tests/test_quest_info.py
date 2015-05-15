@@ -159,14 +159,14 @@ class QuestInfoTests(testcase.TestCase, QuestTestsMixin):
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.experience_modifier', self.hero.experience_modifier * 2):
             self.assertEqual(self.quest_info.ui_info(self.hero)['experience'], experience * 2 + 100)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.person_power_modifier', 1)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.politics_power_multiplier', lambda *argv, **kwargs: 1)
     def test_ui_info__power(self):
         power = self.quest_info.ui_info(self.hero)['power']
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.person_power_modifier', self.hero.person_power_modifier * 2):
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.politics_power_multiplier', lambda *argv, **kwargs: 2):
             self.assertEqual(self.quest_info.ui_info(self.hero)['power'], power * 2)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.person_power_modifier', 1)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.politics_power_multiplier', lambda *argv, **kwargs: 1)
     def test_ui_info__power__bonus(self):
         power = self.quest_info.ui_info(self.hero)['power']
 
@@ -174,5 +174,5 @@ class QuestInfoTests(testcase.TestCase, QuestTestsMixin):
 
         self.assertEqual(self.quest_info.ui_info(self.hero)['power'], power + 100)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.person_power_modifier', self.hero.person_power_modifier * 2):
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.politics_power_multiplier', lambda *argv, **kwargs: 2):
             self.assertEqual(self.quest_info.ui_info(self.hero)['power'], power * 2 + 100)

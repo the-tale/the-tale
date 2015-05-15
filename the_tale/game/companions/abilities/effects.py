@@ -133,7 +133,7 @@ class MaxBagSize(Summand):
     MODIFIER = heroes_relations.MODIFIERS.MAX_BAG_SIZE
 
 
-class PoliticsPower(Multiplier):
+class PoliticsPower(Summand):
     TYPE = relations.EFFECT.POLITICS_POWER
     MODIFIER = heroes_relations.MODIFIERS.POWER
 
@@ -399,8 +399,10 @@ class ABILITIES(DjangoEnum):
         (u'PARAPHERNALIA', 55, u'личные вещи', u'забирает 2 места в рюкзаке для своих вещей', MaxBagSize(-2), RARITY_LOW),
         (u'SPARE_PARTS', 56, u'запчасти', u'забирает 4 места в рюкзаке для запчастей', MaxBagSize(-4), RARITY_LOWER),
 
-        (u'KNOWN', 17, u'известный', u'находит политически важную работу, задания героя оказывают большее влияние на мир', PoliticsPower(1.5, 2.0), RARITY_BIGER),
-        (u'CAD', 18, u'хам', u'хамит горожанам, герою не доверяют политически важную работу, поэтому он оказывает меньшее влияние на мир ', PoliticsPower(0.5, 0.75), RARITY_LOWER),
+        (u'KNOWN', 17, u'известный', u'находит политически важную работу, задания героя оказывают большее влияние на мир (максимальный бонус к влиянию: 100%)',
+         PoliticsPower(0.5, 1.0), RARITY_BIGER),
+        (u'CAD', 18, u'хам', u'хамит горожанам, герою не доверяют политически важную работу, поэтому он оказывает меньшее влияние на мир (минимальный штраф к влиянию: -50%)',
+          PoliticsPower(-1.0, -0.5), RARITY_LOWER),
 
         (u'FIT_OF_ENERGY', 19, u'прилив сил', u'даёт небольшой бонус к физическому урону героя', MagicDamageBonus(1.05, 1.1), RARITY_BIGER),
         (u'PEP', 20, u'бодрость духа', u'даёт небольшой бонус к магическому урону героя', PhysicDamageBonus(1.05, 1.1), RARITY_BIGER),

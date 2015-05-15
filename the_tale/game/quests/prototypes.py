@@ -75,7 +75,7 @@ class QuestInfo(object):
 
     def ui_info(self, hero):
         experience = int(self.experience * hero.experience_modifier) if hero is not None else self.experience # show experience modified by hero level and abilities
-        power = int(self.power * hero.person_power_modifier) if hero is not None else self.power # show power modified by hero level and abilities
+        power = int(self.power * hero.politics_power_multiplier()) if hero is not None else self.power # show power modified by hero level and abilities
         return {'type': self.type,
                 'uid': self.uid,
                 'name': self.name,
@@ -388,7 +388,7 @@ class QuestPrototype(object):
 
         power = self._give_power(hero, person.place, power)
 
-        power, positive_bonus, negative_bonus = hero.modify_power(power, person=person)
+        power, positive_bonus, negative_bonus = hero.modify_politics_power(power, person=person)
 
         person_uid = uids.person(person.id)
         has_profession_marker = [marker for marker in self.knowledge_base.filter(facts.ProfessionMarker) if marker.person == person_uid]
@@ -409,7 +409,7 @@ class QuestPrototype(object):
 
         power = self._give_power(hero, place, power)
 
-        power, positive_bonus, negative_bonus = hero.modify_power(power, place=place)
+        power, positive_bonus, negative_bonus = hero.modify_politics_power(power, place=place)
 
         if not hero.can_change_place_power(place):
             return 0

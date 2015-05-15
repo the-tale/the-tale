@@ -11,6 +11,7 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.balance import constants as c
+from the_tale.game import relations as game_relations
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.artifacts.storage import artifacts_storage
@@ -185,3 +186,83 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
 
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.attribute_modifier', lambda s, t: 2 if t.is_COMPANION_DAMAGE_PROBABILITY else t.default()):
             self.assertEqual(self.hero.companion_damage_probability, 2)
+
+
+class PoliticalPowerTests(HeroLogicAccessorsTestBase):
+
+    def test_power_modifier__risk_level(self):
+        normal_power_modifier = self.hero.politics_power_multiplier()
+
+        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_HIGH)
+        self.assertTrue(self.hero.politics_power_multiplier() > normal_power_modifier)
+        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_LOW)
+        self.assertTrue(self.hero.politics_power_multiplier() < normal_power_modifier)
+
+
+    def test_modify_power(self):
+        friend = self.place_1.persons[0]
+        enemy = self.place_2.persons[0]
+
+        self.hero.preferences.set_place(self.place_1)
+        self.hero.preferences.set_friend(friend)
+        self.hero.preferences.set_enemy(enemy)
+
+        self.assertEqual(self.hero.modify_politics_power(person=self.place_3.persons[0], power=100), (100, 0.0, 0.0))
+        self.assertEqual(self.hero.modify_politics_power(person=self.place_3.persons[0], power=-100), (-100, 0.0, 0.0))
+
+        self.assertEqual(self.hero.modify_politics_power(person=self.place_1.persons[1], power=100), (100, 0.0, 0.0))
+        self.assertEqual(self.hero.modify_politics_power(person=self.place_1.persons[1], power=-100), (-100, 0.0, 0.0))
+
+        self.assertEqual(self.hero.modify_politics_power(person=enemy, power=100), (100, 0.001, 0.0))
+        self.assertEqual(self.hero.modify_politics_power(person=enemy, power=-100), (-100, 0.0, 0.001))
+
+        self.assertEqual(self.hero.modify_politics_power(person=friend, power=100), (100, 0.001, 0.0))
+        self.assertEqual(self.hero.modify_politics_power(person=friend, power=-100), (-100, 0.0, 0.001))
+
+        self.assertEqual(self.hero.modify_politics_power(place=self.place_2, power=100), (100, 0.0, 0.0))
+        self.assertEqual(self.hero.modify_politics_power(place=self.place_2, power=-100), (-100, 0.0, 0.0))
+
+        self.assertEqual(self.hero.modify_politics_power(place=self.place_1, power=100), (100, 0.001, 0.0))
+        self.assertEqual(self.hero.modify_politics_power(place=self.place_1, power=-100), (-100, 0.0, 0.001))
+
+    def test_modify_power__enemy(self):
+        friend = self.place_1.persons[0]
+        enemy = self.place_2.persons[0]
+
+        self.hero.preferences.set_place(self.place_1)
+        self.hero.preferences.set_friend(friend)
+        self.hero.preferences.set_enemy(enemy)
+
+        place_power = self.hero.modify_politics_power(place=self.place_1, power=100)
+        enemy_power = self.hero.modify_politics_power(person=enemy, power=100)
+        friend_power = self.hero.modify_politics_power(person=friend, power=100)
+
+        with mock.patch('the_tale.game.heroes.habits.Honor.interval', game_relations.HABIT_HONOR_INTERVAL.LEFT_3):
+            self.assertEqual(place_power, self.hero.modify_politics_power(place=self.place_1, power=100))
+            self.assertTrue(enemy_power[0] < self.hero.modify_politics_power(person=enemy, power=100)[0])
+            self.assertEqual(friend_power[0], self.hero.modify_politics_power(person=friend, power=100)[0])
+
+
+    def test_modify_power__friend(self):
+        friend = self.place_1.persons[0]
+        enemy = self.place_2.persons[0]
+
+        self.hero.preferences.set_place(self.place_1)
+        self.hero.preferences.set_friend(friend)
+        self.hero.preferences.set_enemy(enemy)
+
+        place_power = self.hero.modify_politics_power(place=self.place_1, power=100)
+        enemy_power = self.hero.modify_politics_power(person=enemy, power=100)
+        friend_power = self.hero.modify_politics_power(person=friend, power=100)
+
+        with mock.patch('the_tale.game.heroes.habits.Honor.interval', game_relations.HABIT_HONOR_INTERVAL.RIGHT_3):
+            self.assertEqual(place_power, self.hero.modify_politics_power(place=self.place_1, power=100))
+            self.assertEqual(enemy_power[0], self.hero.modify_politics_power(person=enemy, power=100)[0])
+            self.assertTrue(friend_power[0] < self.hero.modify_politics_power(person=friend, power=100)[0])
+
+    def test_modify_place_power(self):
+        self.hero.preferences.set_place(self.place_1)
+
+        self.assertEqual(self.hero.modify_politics_power(place=self.place_2, power=100), (100, 0, 0))
+        self.assertEqual(self.hero.modify_politics_power(place=self.place_1, power=100), (100, 0.001, 0.0))
+        self.assertEqual(self.hero.modify_politics_power(place=self.place_1, power=-100), (-100, 0.0, 0.001))

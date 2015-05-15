@@ -47,9 +47,28 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                  'action_id',
                  'clan_id',
                  'referrals_number',
-                 'might')
+                 'might',
+                 'actual_bills')
     _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription', 'news_subscription', 'description')
     _get_by = ('id', 'email', 'nick')
+
+    def cmd_update_hero(self):
+        environment.workers.supervisor.cmd_update_hero_with_account_data(self.id,
+                                                                         is_fast=self.is_fast,
+                                                                         premium_end_at=self.premium_end_at,
+                                                                         active_end_at=self.active_end_at,
+                                                                         ban_end_at=self.ban_game_end_at,
+                                                                         might=self.might,
+                                                                         actual_bills=self.actual_bills)
+
+    def update_actual_bills(self):
+        from the_tale.game.bills import logic as bills_logic
+
+        self.actual_bills = bills_logic.actual_bills_number(self.id)
+        self.save()
+
+        self.cmd_update_hero()
+
 
     @property
     def account_id(self): return self.id
@@ -97,11 +116,8 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
 
     def prolong_premium(self, days):
-        from the_tale.game.heroes.prototypes import HeroPrototype
-
         self._model.premium_end_at = max(self.premium_end_at, datetime.datetime.now()) + datetime.timedelta(days=days)
-
-        HeroPrototype.get_by_account_id(self.id).cmd_update_with_account_data(self)
+        self.cmd_update_hero()
 
     @property
     def is_premium(self): return self.is_premium_infinit or self.premium_end_at > datetime.datetime.now()
@@ -130,13 +146,11 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
     def is_ban_any(self): return self.is_ban_game or self.is_ban_forum
 
     def ban_game(self, days):
-        from the_tale.game.heroes.prototypes import HeroPrototype
-
         end_time = datetime.datetime.now() + datetime.timedelta(days=days)
         self._model_class.objects.filter(id=self.id).update(ban_game_end_at=end_time)
         self._model.ban_game_end_at = end_time
 
-        HeroPrototype.get_by_account_id(self.id).cmd_update_with_account_data(self)
+        self.cmd_update_hero()
 
     def ban_forum(self, days):
         end_time = datetime.datetime.now() + datetime.timedelta(days=days)
@@ -217,8 +231,6 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         return self._model.check_password(password)
 
     def change_credentials(self, new_email=None, new_password=None, new_nick=None):
-        from the_tale.game.heroes.prototypes import HeroPrototype
-
         if new_password:
             self._model.password = new_password
         if new_email:
@@ -233,7 +245,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         self.save()
 
         if old_fast:
-            HeroPrototype.get_by_account_id(self.id).cmd_update_with_account_data(self)
+            self.cmd_update_hero()
 
             if self.referral_of_id is not None:
                 environment.workers.accounts_manager.cmd_run_account_method(account_id=self.referral_of_id,
@@ -265,12 +277,10 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         return datetime.datetime.now() + datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT - accounts_settings.ACTIVE_STATE_REFRESH_PERIOD) > self.active_end_at
 
     def update_active_state(self):
-        from the_tale.game.heroes.prototypes import HeroPrototype
-
         self._model.active_end_at = self._next_active_end_at()
         self.save()
 
-        HeroPrototype.get_by_account_id(self.id).cmd_update_with_account_data(self)
+        self.cmd_update_hero()
 
     @property
     def was_in_game_at(self): return self.active_end_at - datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT)

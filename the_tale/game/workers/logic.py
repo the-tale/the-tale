@@ -154,22 +154,23 @@ class Worker(workers.BaseWorker):
         hero.ui_caching_started_at = datetime.datetime.now()
         self.storage.recache_bundle(hero.actions.current_action.bundle_id)
 
-    def cmd_update_hero_with_account_data(self, account_id, hero_id, is_fast, premium_end_at, active_end_at, ban_end_at, might):
-        self.send_cmd('update_hero_with_account_data', {'hero_id': hero_id,
-                                                        'account_id': account_id,
+    def cmd_update_hero_with_account_data(self, account_id, is_fast, premium_end_at, active_end_at, ban_end_at, might, actual_bills):
+        self.send_cmd('update_hero_with_account_data', {'account_id': account_id,
                                                         'is_fast': is_fast,
                                                         'premium_end_at': premium_end_at,
                                                         'active_end_at': active_end_at,
                                                         'ban_end_at': ban_end_at,
-                                                        'might': might})
+                                                        'might': might,
+                                                        'actual_bills': actual_bills})
 
-    def process_update_hero_with_account_data(self, account_id, hero_id, is_fast, premium_end_at, active_end_at, ban_end_at, might):
-        hero = self.storage.heroes[hero_id]
+    def process_update_hero_with_account_data(self, account_id, is_fast, premium_end_at, active_end_at, ban_end_at, might, actual_bills):
+        hero = self.storage.accounts_to_heroes[account_id]
         hero.update_with_account_data(is_fast=is_fast,
                                       premium_end_at=datetime.datetime.fromtimestamp(premium_end_at),
                                       active_end_at=datetime.datetime.fromtimestamp(active_end_at),
                                       ban_end_at=datetime.datetime.fromtimestamp(ban_end_at),
-                                      might=might)
+                                      might=might,
+                                      actual_bills=actual_bills)
         self.storage.save_bundle_data(hero.actions.current_action.bundle_id)
 
     def cmd_highlevel_data_updated(self):

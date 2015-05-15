@@ -153,6 +153,11 @@ def might_crit_chance(might):
         return 0
     return math.log(might, 10) / 10.0
 
+def politics_power_might(might):
+    if might < 1:
+        return 0
+    return math.log(might, 10) / 10.0
+
 def might_pvp_effectiveness_bonus(might):
     if might < 1:
         return 0

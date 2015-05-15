@@ -215,6 +215,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-might', widget).text(Math.round(data.might.value*100)/100);
         jQuery('.pgf-might-crit-chance', widget).text(Math.round(data.might.crit_chance*10000)/100.0);
         jQuery('.pgf-might-pvp-effectiveness-bonus', widget).text(Math.round(data.might.pvp_effectiveness_bonus*10000)/100.0);
+        jQuery('.pgf-might-politics-power-bonus', widget).text(Math.round(data.might.politics_power*10000)/100.0);
 
         jQuery('.pgf-energy', content).text(data.energy.value);
         jQuery('.pgf-max-energy', content).text(data.energy.max);

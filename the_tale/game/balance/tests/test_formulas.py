@@ -33,7 +33,7 @@ class FormulasTest(testcase.TestCase):
 
     def test_person_power_for_quest(self):
         self.assertTrue(f.person_power_for_quest(100) < f.person_power_for_quest(1000)< f.person_power_for_quest(10000))
-        self.assertEqual(int(f.person_power_for_quest__real(100)), 604)
+        self.assertEqual(int(f.person_power_for_quest__real(100)), 60)
 
     def test_companions_defend_in_battle_probability(self):
         self.assertEqual(round(f.companions_defend_in_battle_probability(0), 5), 0.15)

@@ -278,12 +278,12 @@ class SupervisorWorkerTests(testcase.TestCase):
         with mock.patch('the_tale.game.workers.logic.Worker.cmd_logic_task') as logic_task_counter:
             with mock.patch.object(self.worker.logger, 'warn') as logger_warn_counter:
                 self.worker.process_update_hero_with_account_data(account_3_id,
-                                                                  hero_3.id,
                                                                   is_fast=account_3.is_fast,
                                                                   premium_end_at=account_3.premium_end_at,
                                                                   active_end_at=account_3.active_end_at,
                                                                   ban_end_at=account_3.ban_game_end_at,
-                                                                  might=666)
+                                                                  might=666,
+                                                                  actual_bills=7)
 
         self.assertEqual(logic_task_counter.call_count, 0)
         self.assertEqual(logger_warn_counter.call_count, 1)

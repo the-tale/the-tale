@@ -170,10 +170,10 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.QUESTS_PILGRIMAGE_FRACTION, 0.025)
         self.assertEqual(c.QUESTS_SOCIAL_CONNECTIONS_FRACTION, 0.05)
 
-        self.assertEqual(c.HERO_POWER_PER_DAY, 1000)
+        self.assertEqual(c.HERO_POWER_PER_DAY, 100)
         self.assertEqual(c.PERSON_POWER_PER_QUEST_FRACTION, 0.33)
         self.assertEqual(c.PERSON_POWER_FOR_RANDOM_SPEND, 200)
-        self.assertEqual(c.HERO_POWER_BONUS, 0.01)
+        self.assertEqual(c.HERO_POWER_BONUS, 0.001)
 
         self.assertEqual(c.PREFERENCES_CHANGE_DELAY, 2*7*24*60*60)
         self.assertEqual(c.PREFERED_MOB_LOOT_PROBABILITY_MULTIPLIER, 2)
@@ -205,7 +205,7 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.HABIT_QUEST_PRIORITY_MODIFIER, 2.0)
 
-        self.assertEqual(c.HONOR_POWER_BONUS_FRACTION, 0.25)
+        self.assertEqual(c.HONOR_POWER_BONUS_FRACTION, 0.5)
         self.assertEqual(c.MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE, 0.02)
 
         self.assertEqual(c.HABIT_QUEST_REWARD_MAX_BONUS, 0.25)
