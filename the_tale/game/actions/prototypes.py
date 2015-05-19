@@ -1356,7 +1356,7 @@ class ActionInPlacePrototype(ActionBase):
             if not self.hero.can_change_person_power(person):
                 return
 
-            power, positive_bonus, negative_bonus = self.hero.modify_politics_power(f.person_power_from_random_spend(power_direction, self.hero.level), person=person)
+            power, positive_bonus, negative_bonus = self.hero.modify_politics_power(power_direction*f.person_power_for_quest(c.QUEST_AREA_RADIUS), person=person)
             person.cmd_change_power(power, positive_bonus, negative_bonus)
 
     def spend_money__experience(self):

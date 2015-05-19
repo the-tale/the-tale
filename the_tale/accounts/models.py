@@ -102,7 +102,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     permanent_purchases = models.TextField(default='[]')
 
     might = models.FloatField(default=0.0)
-    actual_bills = models.IntegerField(default=0)
+    actual_bills = models.TextField(default='[]')
 
     USERNAME_FIELD = 'nick'
     REQUIRED_FIELDS = ['email']

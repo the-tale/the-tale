@@ -82,7 +82,7 @@ class Hero(models.Model):
     energy_bonus = models.BigIntegerField(default=0)
 
     might = models.FloatField(null=False, default=0.0)
-    actual_bills = models.IntegerField(null=False, default=0)
+    actual_bills = models.TextField(default='[]')
 
     #position
     pos_previous_place = models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True, on_delete=models.PROTECT)

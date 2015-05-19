@@ -469,8 +469,7 @@ class LogicAccessorsMixin(object):
 
     @property
     def politics_power_bills(self):
-        return min(self.actual_bills * conf.heroes_settings.POWER_PER_ACTIVE_BILL,
-                   conf.heroes_settings.ACTIVE_BILLS_MAXIMUM * conf.heroes_settings.POWER_PER_ACTIVE_BILL)
+        return self.actual_bills_number * conf.heroes_settings.POWER_PER_ACTIVE_BILL
 
     @property
     def politics_power_modifier(self):
@@ -506,7 +505,7 @@ class LogicAccessorsMixin(object):
         modifier += self.politics_power_might
         modifier += self.preferences.risk_level.power_modifier
 
-        return modifier
+        return max(0, modifier)
 
 
     def modify_politics_power(self, power, person=None, place=None):

@@ -173,4 +173,9 @@ class CARD_TYPE(DjangoEnum):
 
                 ('INCREMENT_ARTIFACT_RARITY', 106, u'скрытый потенциал', AVAILABILITY.FOR_ALL, RARITY.EPIC, forms.EmptyForm,),
 
+                ('ADD_POWER_LEGENDARY', 107, u'туз в рукаве', AVAILABILITY.FOR_PREMIUMS, RARITY.EPIC, forms.EmptyForm,),
+                ('PERSON_POWER_BONUS_POSITIVE_COMMON', 108, u'улыбка фортуны', AVAILABILITY.FOR_PREMIUMS, RARITY.UNCOMMON, forms.PersonForm),
+
+                ('PLACE_POWER_BONUS_POSITIVE_COMMON', 109, u'выгодный контракт', AVAILABILITY.FOR_PREMIUMS, RARITY.UNCOMMON, forms.PlaceForm),
+                ('PLACE_POWER_BONUS_NEGATIVE_COMMON', 110, u'сорванный контракт', AVAILABILITY.FOR_PREMIUMS, RARITY.UNCOMMON, forms.PlaceForm),
                 )

@@ -266,3 +266,8 @@ class PoliticalPowerTests(HeroLogicAccessorsTestBase):
         self.assertEqual(self.hero.modify_politics_power(place=self.place_2, power=100), (100, 0, 0))
         self.assertEqual(self.hero.modify_politics_power(place=self.place_1, power=100), (100, 0.001, 0.0))
         self.assertEqual(self.hero.modify_politics_power(place=self.place_1, power=-100), (-100, 0.0, 0.001))
+
+    def test_politics_power_multiplier_below_zero(self):
+        self.assertTrue(self.hero.politics_power_multiplier() > 0)
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.politics_power_modifier', -666666666):
+            self.assertEqual(self.hero.politics_power_multiplier(), 0)

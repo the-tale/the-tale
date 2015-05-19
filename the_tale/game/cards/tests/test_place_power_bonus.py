@@ -71,6 +71,8 @@ class PlacePowerBonusMixin(CardsTestMixin):
         self.assertEqual(self.card.use(**self.use_attributes(hero=self.hero, place_id=666, storage=self.storage)),
                         (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
+class PlacePowerBonusPositiveCommonTests(PlacePowerBonusMixin, testcase.TestCase):
+    CARD = effects.PlacePowerBonusPositiveCommon
 
 class PlacePowerBonusPositiveUncommonTests(PlacePowerBonusMixin, testcase.TestCase):
     CARD = effects.PlacePowerBonusPositiveUncommon
@@ -84,6 +86,9 @@ class PlacePowerBonusPositiveEpicTests(PlacePowerBonusMixin, testcase.TestCase):
 class PlacePowerBonusPositiveLegendaryTests(PlacePowerBonusMixin, testcase.TestCase):
     CARD = effects.PlacePowerBonusPositiveLegendary
 
+
+class PlacePowerBonusNegativeCommonTests(PlacePowerBonusMixin, testcase.TestCase):
+    CARD = effects.PlacePowerBonusNegativeCommon
 
 class PlacePowerBonusNegativeUncommonTests(PlacePowerBonusMixin, testcase.TestCase):
     CARD = effects.PlacePowerBonusNegativeUncommon

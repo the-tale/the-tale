@@ -20,7 +20,7 @@ class UseAbilityTask(ComplexChangeTask):
 
         data = {}
 
-        if 'building_id' in self.data:
+        if self.data.get('building_id') is not None:
             building = places_storage.buildings_storage[self.data['building_id']]
             data['building'] = { 'new_building_integrity': building.integrity,
                                  'workers_to_full_repairing': building.workers_to_full_repairing }

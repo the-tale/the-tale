@@ -4,7 +4,7 @@
 
   <h3>Влиятельность</h3>
 
-  <p>Величина влияния героя на политику определяется несколькими факторами.</p>
+  <p>Величина влияния героя на политику определяется суммой нескольких факторов.</p>
 
   <table class="table table-condensed table-striped table-bordered">
     <tbody>
@@ -41,7 +41,7 @@
         <td>негативному + {{(c.HERO_POWER_BONUS*resource.hero.politics_power_multiplier(enemy=true))|percents(2)}}</td>
       </tr>
       <tr>
-        <td>посещение родного города</td>
+        <td>помощь родному городу</td>
         <td>+{{resource.hero.place_power_modifier|percents(2)}}</td>
         <td>позитивному + {{(c.HERO_POWER_BONUS*resource.hero.politics_power_multiplier(hometown=true))|percents(2)}}</td>
       </tr>

@@ -33,6 +33,8 @@ from the_tale.game.cards.container import CardsContainer
 
 from the_tale.game.companions import objects as companions_objects
 
+from the_tale.game.bills import conf as bills_conf
+
 from the_tale.game.heroes.statistics import HeroStatistics
 from the_tale.game.heroes.models import Hero, HeroPreferences
 from the_tale.game.heroes.habilities import AbilitiesPrototype
@@ -72,8 +74,7 @@ class HeroPrototype(BasePrototype,
                       'last_rare_operation_at_turn',
                       'health',
                       'settings_approved',
-                      'next_spending',
-                      'actual_bills')
+                      'next_spending')
     _get_by = ('id', 'account_id')
     _serialization_proxies = (('quests', QuestsContainer, heroes_settings.UNLOAD_TIMEOUT),
                               ('places_history', places_help_statistics.PlacesHelpStatistics, heroes_settings.UNLOAD_TIMEOUT),
@@ -743,13 +744,28 @@ class HeroPrototype(BasePrototype,
 
         return hero
 
+    @lazy_property
+    def actual_bills(self):
+        return s11n.from_json(self._model.actual_bills)
+
+    @property
+    def actual_bills_number(self):
+        time_border = time.time() - bills_conf.bills_settings.BILL_ACTUAL_LIVE_TIME
+        return min(len([bill_voted_time
+                        for bill_voted_time in self.actual_bills
+                        if bill_voted_time > time_border]),
+                   heroes_settings.ACTIVE_BILLS_MAXIMUM)
+
     def update_with_account_data(self, is_fast, premium_end_at, active_end_at, ban_end_at, might, actual_bills):
+        del self.actual_bills
+
         self.is_fast = is_fast
         self.active_state_end_at = active_end_at
         self.premium_state_end_at = premium_end_at
         self.ban_state_end_at = ban_end_at
         self.might = might
-        self.actual_bills = actual_bills
+        self._model.actual_bills = s11n.to_json(actual_bills)
+
 
     ###########################################
     # Game operations

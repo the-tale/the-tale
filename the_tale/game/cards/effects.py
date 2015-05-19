@@ -146,7 +146,7 @@ class AddPowerBase(BaseEffect):
 
 class AddPowerCommon(AddPowerBase):
     TYPE = relations.CARD_TYPE.ADD_POWER_COMMON
-    POWER = 500
+    POWER = c.HERO_POWER_PER_DAY
 
 class AddPowerUncommon(AddPowerBase):
     TYPE = relations.CARD_TYPE.ADD_POWER_UNCOMMON
@@ -159,6 +159,10 @@ class AddPowerRare(AddPowerBase):
 class AddPowerEpic(AddPowerBase):
     TYPE = relations.CARD_TYPE.ADD_POWER_EPIC
     POWER = AddPowerRare.POWER * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
+
+class AddPowerLegendary(AddPowerBase):
+    TYPE = relations.CARD_TYPE.ADD_POWER_LEGENDARY
+    POWER = AddPowerEpic.POWER * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
 
 
 class AddBonusEnergyBase(BaseEffect):
@@ -714,9 +718,13 @@ class PersonPowerBonusBase(BaseEffect):
             return task.logic_result()
 
 
+class PersonPowerBonusCommon(PersonPowerBonusBase):
+    TYPE = relations.CARD_TYPE.PERSON_POWER_BONUS_POSITIVE_COMMON
+    BONUS = c.HERO_POWER_BONUS
+
 class PersonPowerBonusUncommon(PersonPowerBonusBase):
     TYPE = relations.CARD_TYPE.PERSON_POWER_BONUS_POSITIVE_UNCOMMON
-    BONUS = c.HERO_POWER_BONUS / 4
+    BONUS = PersonPowerBonusCommon.BONUS * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
 
 class PersonPowerBonusRare(PersonPowerBonusBase):
     TYPE = relations.CARD_TYPE.PERSON_POWER_BONUS_POSITIVE_RARE
@@ -775,10 +783,13 @@ class PlacePowerBonusBase(BaseEffect):
             return task.logic_result()
 
 
+class PlacePowerBonusPositiveCommon(PlacePowerBonusBase):
+    TYPE = relations.CARD_TYPE.PLACE_POWER_BONUS_POSITIVE_COMMON
+    BONUS = c.HERO_POWER_BONUS
 
 class PlacePowerBonusPositiveUncommon(PlacePowerBonusBase):
     TYPE = relations.CARD_TYPE.PLACE_POWER_BONUS_POSITIVE_UNCOMMON
-    BONUS = c.HERO_POWER_BONUS / 4
+    BONUS = PlacePowerBonusPositiveCommon.BONUS * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
 
 class PlacePowerBonusPositiveRare(PlacePowerBonusBase):
     TYPE = relations.CARD_TYPE.PLACE_POWER_BONUS_POSITIVE_RARE
@@ -793,9 +804,13 @@ class PlacePowerBonusPositiveLegendary(PlacePowerBonusBase):
     BONUS = PlacePowerBonusPositiveEpic.BONUS * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
 
 
+class PlacePowerBonusNegativeCommon(PlacePowerBonusBase):
+    TYPE = relations.CARD_TYPE.PLACE_POWER_BONUS_NEGATIVE_COMMON
+    BONUS = -c.HERO_POWER_BONUS
+
 class PlacePowerBonusNegativeUncommon(PlacePowerBonusBase):
     TYPE = relations.CARD_TYPE.PLACE_POWER_BONUS_NEGATIVE_UNCOMMON
-    BONUS = -c.HERO_POWER_BONUS / 4
+    BONUS = PlacePowerBonusNegativeCommon.BONUS * (c.CARDS_COMBINE_TO_UP_RARITY + 1)
 
 class PlacePowerBonusNegativeRare(PlacePowerBonusBase):
     TYPE = relations.CARD_TYPE.PLACE_POWER_BONUS_NEGATIVE_RARE

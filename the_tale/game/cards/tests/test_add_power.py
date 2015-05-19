@@ -73,3 +73,6 @@ class AddPowerRareTests(AddPowerTestMixin, testcase.TestCase):
 
 class AddPowerEpicTests(AddPowerTestMixin, testcase.TestCase):
     CARD = effects.AddPowerEpic
+
+class AddPowerLegendaryTests(AddPowerTestMixin, testcase.TestCase):
+    CARD = effects.AddPowerLegendary

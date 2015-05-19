@@ -684,11 +684,20 @@ class QuestPrototype(object):
         self.current_info.process_message(self.knowledge_base, self.hero, action.type)
 
     def do_give_power(self, action):
+        # every quest branch give equal power to its participants
+        power = 0
+
+        if action.power > 0:
+            power = 1
+
+        if action.power < 0:
+            power = -1
+
         recipient = self.knowledge_base[action.object]
         if isinstance(recipient, facts.Person):
-            self._give_person_power(self.hero, persons_storage.persons_storage[recipient.externals['id']], action.power)
+            self._give_person_power(self.hero, persons_storage.persons_storage[recipient.externals['id']], power)
         elif isinstance(recipient, facts.Place):
-            self._give_place_power(self.hero, places_storage[recipient.externals['id']], action.power)
+            self._give_place_power(self.hero, places_storage[recipient.externals['id']], power)
         else:
             raise exceptions.UnknownPowerRecipientError(recipient=recipient)
 

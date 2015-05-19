@@ -39,10 +39,10 @@ class VOTED_TYPE(DjangoEnum):
     vote_type = rels.Column(unique=False, single_type=False)
 
     records = (('NO', 'no', u'не голосовал', None),
-                ('YES', 'yes', u'проголосовал', None),
-                ('FOR', 'for', u'«за»', VOTE_TYPE.FOR),
-                ('AGAINST', 'against', u'«против»', VOTE_TYPE.AGAINST),
-                ('REFRAINED', 'refrained', u'«воздержался»', VOTE_TYPE.REFRAINED) )
+               ('YES', 'yes', u'проголосовал', None),
+               ('FOR', 'for', u'«за»', VOTE_TYPE.FOR),
+               ('AGAINST', 'against', u'«против»', VOTE_TYPE.AGAINST),
+               ('REFRAINED', 'refrained', u'«воздержался»', VOTE_TYPE.REFRAINED) )
 
 
 def days_from_game_months(months):
@@ -53,20 +53,20 @@ class BILL_DURATION(DjangoEnum):
     game_months = rels.Column()
 
     records = ( ('UNLIMITED', 0, u'бесконечно', 0),
-                 ('MONTH',     1, u'1 месяц (реальных дней: %.1f)' % days_from_game_months(1), 1),
-                 ('MONTH_2',   2, u'2 месяца (реальных дней: %.1f)' % days_from_game_months(2), 2),
-                 ('MONTH_3',   3, u'3 месяца (реальных дней: %.1f)' % days_from_game_months(3), 3),
-                 ('YEAR',      4, u'1 год (реальных дней: %.1f)' % days_from_game_months(4), 4),
-                 ('YEAR_1_5',  5, u'1,5 года (реальных дней: %.1f)' % days_from_game_months(6), 6),
-                 ('YEAR_2',    6, u'2 года (реальных дней: %.1f)' % days_from_game_months(8), 8),
-                 ('YEAR_3',    7, u'3 года (реальных дней: %.1f)' % days_from_game_months(12), 12),
-                 ('YEAR_5',    8, u'5 лет (реальных дней: %.1f)' % days_from_game_months(20), 20),
-                 ('YEAR_10',   9, u'10 лет (реальных дней: %.1f)' % days_from_game_months(40), 40) )
+                ('MONTH',     1, u'1 месяц (реальных дней: %.1f)' % days_from_game_months(1), 1),
+                ('MONTH_2',   2, u'2 месяца (реальных дней: %.1f)' % days_from_game_months(2), 2),
+                ('MONTH_3',   3, u'3 месяца (реальных дней: %.1f)' % days_from_game_months(3), 3),
+                ('YEAR',      4, u'1 год (реальных дней: %.1f)' % days_from_game_months(4), 4),
+                ('YEAR_1_5',  5, u'1,5 года (реальных дней: %.1f)' % days_from_game_months(6), 6),
+                ('YEAR_2',    6, u'2 года (реальных дней: %.1f)' % days_from_game_months(8), 8),
+                ('YEAR_3',    7, u'3 года (реальных дней: %.1f)' % days_from_game_months(12), 12),
+                ('YEAR_5',    8, u'5 лет (реальных дней: %.1f)' % days_from_game_months(20), 20),
+                ('YEAR_10',   9, u'10 лет (реальных дней: %.1f)' % days_from_game_months(40), 40) )
 
 
 class POWER_BONUS_CHANGES(DjangoEnum):
     bonus_delta = rels.Column()
 
-    records = ( ('DOWN', 0, u'уменьшить на %.2f%%' % (c.HERO_POWER_BONUS*100), -c.HERO_POWER_BONUS),
+    records = ( ('DOWN', 0, u'уменьшить на %.2f%%' % (c.HERO_POWER_BONUS*100*10), -c.HERO_POWER_BONUS*10),
                 ('NOT_CHANGE', 1, u'не изменять', 0.0),
-                ('UP', 2, u'увеличить на %.2f%%' % (c.HERO_POWER_BONUS*100), c.HERO_POWER_BONUS) )
+                ('UP', 2, u'увеличить на %.2f%%' % (c.HERO_POWER_BONUS*100*10), c.HERO_POWER_BONUS*10) )

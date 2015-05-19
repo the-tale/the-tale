@@ -47,8 +47,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                  'action_id',
                  'clan_id',
                  'referrals_number',
-                 'might',
-                 'actual_bills')
+                 'might')
     _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription', 'news_subscription', 'description')
     _get_by = ('id', 'email', 'nick')
 
@@ -64,10 +63,17 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
     def update_actual_bills(self):
         from the_tale.game.bills import logic as bills_logic
 
-        self.actual_bills = bills_logic.actual_bills_number(self.id)
+        self._model.actual_bills = s11n.to_json(bills_logic.actual_bills_accepted_timestamps(self.id))
         self.save()
 
+        del self.actual_bills
+
         self.cmd_update_hero()
+
+
+    @lazy_property
+    def actual_bills(self):
+        return s11n.from_json(self._model.actual_bills)
 
 
     @property

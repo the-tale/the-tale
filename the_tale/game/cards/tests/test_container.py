@@ -212,7 +212,7 @@ class GetNewCardTest(testcase.TestCase):
                                                             state=companions_relations.STATE.ENABLED)
 
 
-        for i in xrange(len(relations.CARD_TYPE.records)*1000):
+        for i in xrange(len(relations.CARD_TYPE.records)*100):
             card = self.hero.cards.get_new_card()
             rarities.add(card.type.rarity)
 

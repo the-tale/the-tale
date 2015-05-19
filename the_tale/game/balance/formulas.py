@@ -178,9 +178,6 @@ def experience_for_quest(max_path_length):
 # расчёт изменения влияния песроанажа
 #########################################
 
-def person_power_from_random_spend(power_points, hero_lvl):
-    return power_points * math.log(hero_lvl, 2) * c.PERSON_POWER_FOR_RANDOM_SPEND
-
 def person_power_for_quest__real(path_length):
     # multiply by 2 since in most quests hero must return to start point
     return 2 * path_to_turns(path_length) / c.TURNS_IN_HOUR * (c.HERO_POWER_PER_DAY / 24.0)

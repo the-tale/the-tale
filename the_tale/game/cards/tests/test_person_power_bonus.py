@@ -74,6 +74,9 @@ class PersonPowerBonusMixin(CardsTestMixin):
                         (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
 
+class PersonPowerBonusCommon(PersonPowerBonusMixin, testcase.TestCase):
+    CARD = effects.PersonPowerBonusCommon
+
 class PersonPowerBonusUncommon(PersonPowerBonusMixin, testcase.TestCase):
     CARD = effects.PersonPowerBonusUncommon
 

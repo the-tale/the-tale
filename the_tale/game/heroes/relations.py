@@ -44,6 +44,7 @@ class PREFERENCE_TYPE(DjangoEnum):
                 ('COMPANION_DEDICATION', 9, u'отношение со спутником', 2, 'companion_dedication', '_prepair_companion_dedication', False),
                 ('COMPANION_EMPATHY', 10, u'эмпатия', 24, 'companion_empathy', '_prepair_companion_empathy', False) )
 
+
 class COMPANION_DEDICATION(DjangoEnum):
     block_multiplier = Column(unique=False)
     heal_spending_priority = Column()

@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='hero',
             name='actual_bills',
-            field=models.IntegerField(default=0),
+            field=models.TextField(default=b'[]'),
         ),
     ]
