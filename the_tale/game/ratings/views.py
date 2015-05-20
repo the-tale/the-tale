@@ -47,7 +47,7 @@ class RatingResource(Resource):
         if self.rating_type.is_MIGHT:
             ratings_query = ratings_query.filter(account__ratingvalues__might__gt=0).order_by('might_place')
             place_getter = lambda places: places.might_place
-            value_getter = lambda values: values.might
+            value_getter = lambda values: '%.2f' % values.might
 
         elif self.rating_type.is_BILLS:
             ratings_query = ratings_query.filter(account__ratingvalues__bills_count__gt=0).order_by('bills_count_place')
@@ -103,6 +103,11 @@ class RatingResource(Resource):
             ratings_query = ratings_query.filter(account__ratingvalues__gifts_returned__gt=0).order_by('gifts_returned_place')
             place_getter = lambda places: places.gifts_returned_place
             value_getter = lambda values: values.gifts_returned
+
+        elif self.rating_type.is_POLITICS_POWER:
+            ratings_query = ratings_query.filter(account__ratingvalues__politics_power__gt=0).order_by('politics_power_place')
+            place_getter = lambda places: places.politics_power_place
+            value_getter = lambda values: '%.2f%%' % (values.politics_power * 100)
 
         ratings_count = ratings_query.count()
 

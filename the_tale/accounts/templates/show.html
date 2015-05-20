@@ -136,6 +136,10 @@ jQuery(document).ready(function(){
                     <td>{{rating.name}}</td>
                     {% if menu_rating.is_PVP_BATTLES_1x1_VICTORIES %}
                     <td>{% if rating.value > 0 %}{{rating.value|percents(2)}}{% else %}—{% endif %}</td>
+                    {% elif menu_rating.is_MIGHT %}
+                    <td>{% if rating.value > 0 %}{{rating.value|round(2)}}{% else %}—{% endif %}</td>
+                    {% elif menu_rating.is_POLITICS_POWER %}
+                    <td>{% if rating.value > 0 %}{{rating.value|percents(2)}}{% else %}—{% endif %}</td>
                     {% else %}
                     <td>{% if rating.value > 0 %}{{rating.value}}{% else %}—{% endif %}</td>
                     {% endif %}

@@ -1,4 +1,5 @@
 # coding: utf-8
+import time
 import datetime
 
 import mock
@@ -24,7 +25,7 @@ class AccountPrototypeTests(testcase.TestCase):
 
     def setUp(self):
         super(AccountPrototypeTests, self).setUp()
-        create_test_map()
+        self.place_1, self.place_2, self.place_3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
         self.account = AccountPrototype.get_by_id(account_id)
@@ -238,3 +239,39 @@ class AccountPrototypeTests(testcase.TestCase):
                                                                         type=ACHIEVEMENT_TYPE.KEEPER_MIGHT,
                                                                         old_value=0,
                                                                         new_value=666)])
+
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    # fixt segmentation fault when testing with sqlite
+    def test_1_update_actual_bills(self):
+        from the_tale.game.bills import prototypes as bills_prototypes
+        from the_tale.game.bills import bills
+        from the_tale.game.bills import conf as bills_conf
+        from the_tale.game.map.places import modifiers as places_modifiers
+        from the_tale.forum import models as forum_models
+
+        forum_category = forum_models.Category.objects.create(caption='category-1', slug='category-1')
+        forum_models.SubCategory.objects.create(caption=bills_conf.bills_settings.FORUM_CATEGORY_UID + '-caption',
+                                                uid=bills_conf.bills_settings.FORUM_CATEGORY_UID,
+                                                category=forum_category)
+
+        self.account.update_actual_bills()
+        self.assertEqual(self.account.actual_bills, [])
+
+        bill_data = bills.PlaceModifier(place_id=self.place_1.id,
+                                        modifier_id=places_modifiers.TradeCenter.get_id(),
+                                        modifier_name=places_modifiers.TradeCenter.TYPE.text,
+                                       old_modifier_name=None)
+        bill = bills_prototypes.BillPrototype.create(self.account, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+
+        self.account.update_actual_bills()
+        self.assertEqual(self.account.actual_bills, [])
+
+        form = bills.PlaceModifier.ModeratorForm({'approved': True})
+        self.assertTrue(form.is_valid())
+        bill.update_by_moderator(form)
+
+        bill.apply()
+
+        self.account.update_actual_bills()
+        self.assertEqual(self.account.actual_bills, [time.mktime(bill.voting_end_at.timetuple())])

@@ -8,8 +8,6 @@ from django.db import transaction
 
 from dext.common.utils import s11n
 
-from the_tale import amqp_environment
-
 from the_tale.common.utils.decorators import lazy_property
 from the_tale.common.utils import bbcode
 from the_tale.common.utils.prototypes import BasePrototype
@@ -33,6 +31,7 @@ from the_tale.game.bills.conf import bills_settings
 from the_tale.game.bills import exceptions
 from the_tale.game.bills.relations import BILL_STATE, VOTE_TYPE, BILL_DURATION
 from the_tale.game.bills import signals
+from the_tale.game.bills import logic
 
 
 class BillPrototype(BasePrototype):
@@ -210,9 +209,7 @@ class BillPrototype(BasePrototype):
             if isinstance(actor, PlacePrototype):
                 actor.stability_modifiers.append((u'закон №%d' % self.id, -c.PLACE_STABILITY_PER_BILL))
 
-        amqp_environment.environment.workers.accounts_manager.cmd_run_account_method(account_id=self._model.owner_id,
-                                                                                     method_name=AccountPrototype.update_actual_bills.__name__,
-                                                                                     data={})
+        logic.initiate_actual_bills_update(self._model.owner_id)
 
         signals.bill_processed.send(self.__class__, bill=self)
         return True

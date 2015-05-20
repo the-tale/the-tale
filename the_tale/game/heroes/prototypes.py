@@ -310,6 +310,12 @@ class HeroPrototype(BasePrototype,
     # Permissions
     ###########################################
 
+    def can_change_all_powers(self):
+        if self.is_banned:
+            return False
+
+        return self.is_premium
+
     def can_change_person_power(self, person):
         if self.is_banned:
             return False
@@ -541,6 +547,8 @@ class HeroPrototype(BasePrototype,
             self._model.preferences = s11n.to_json(self.preferences.serialize())
             self.preferences.updated = False
 
+        self._model.stat_politics_multiplier = self.politics_power_multiplier() if self.can_change_all_powers() else 0
+
         database.raw_save(self._model)
 
     def reset_level(self):
@@ -750,7 +758,7 @@ class HeroPrototype(BasePrototype,
 
     @property
     def actual_bills_number(self):
-        time_border = time.time() - bills_conf.bills_settings.BILL_ACTUAL_LIVE_TIME
+        time_border = time.time() - bills_conf.bills_settings.BILL_ACTUAL_LIVE_TIME*24*60*60
         return min(len([bill_voted_time
                         for bill_voted_time in self.actual_bills
                         if bill_voted_time > time_border]),

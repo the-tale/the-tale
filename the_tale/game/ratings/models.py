@@ -29,6 +29,8 @@ class RatingValues(models.Model):
 
     gifts_returned = models.IntegerField(default=0, db_index=True)
 
+    politics_power = models.FloatField(default=0, db_index=True)
+
 
 class RatingPlaces(models.Model):
 
@@ -55,3 +57,5 @@ class RatingPlaces(models.Model):
     help_count_place = models.IntegerField(default=0, db_index=True)
 
     gifts_returned_place = models.IntegerField(default=0, db_index=True)
+
+    politics_power_place = models.IntegerField(default=0, db_index=True)

@@ -64,7 +64,9 @@ class AccountAdmin(DjangoUserAdmin):
                   (_('Data'), {'fields': ('permanent_purchases',)}),
                   (_('Important dates'), {'fields': ('last_login',
                                                     'active_end_at', 'premium_end_at',
-                                                    'ban_game_end_at', 'ban_forum_end_at')}),  )
+                                                    'ban_game_end_at', 'ban_forum_end_at')}),
+                  (_('Additional info'), {'fields': ('might',
+                                                     'actual_bills')}),)
 
     readonly_fields = list(DjangoUserAdmin.readonly_fields) + ['referer', 'referer_domain', 'referral_of', 'referrals_number']
 

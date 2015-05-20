@@ -139,6 +139,8 @@ class Hero(models.Model):
 
     stat_gifts_returned = models.BigIntegerField(default=0, null=False)
 
+    stat_politics_multiplier = models.FloatField(default=0, null=False) # for ratings
+
 
     def __unicode__(self): return u'hero[%s] — %s' % (self.id, s11n.from_json(self.data)['name']['forms'][0])
 

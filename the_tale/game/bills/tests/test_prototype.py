@@ -4,6 +4,7 @@ import datetime
 
 from the_tale.forum.models import Post
 
+from the_tale.accounts import prototypes as accounts_prototypes
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
 from the_tale.linguistics.tests import helpers as linguistics_helpers
@@ -149,7 +150,10 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         self.assertEqual(Post.objects.all().count(), 1)
 
-        self.assertFalse(self.bill.apply())
+        with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
+            self.assertFalse(self.bill.apply())
+
+        self.assertEqual(cmd_run_account_method.call_count, 0)
         self.assertTrue(self.bill.state.is_REJECTED)
 
         self.assertEqual(Post.objects.all().count(), 2)
@@ -190,7 +194,13 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         self.assertEqual(Post.objects.all().count(), 1)
 
-        self.assertTrue(self.bill.apply())
+        with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
+            self.assertTrue(self.bill.apply())
+
+        self.assertEqual(cmd_run_account_method.call_args_list, [mock.call(account_id=self.bill.owner.id,
+                                                                           method_name=accounts_prototypes.AccountPrototype.update_actual_bills.__name__,
+                                                                           data={})])
+
         self.assertTrue(self.bill.state.is_ACCEPTED)
         self.assertEqual(self.bill.ends_at_turn, None)
 

@@ -24,4 +24,6 @@ class RATING_TYPE(DjangoEnum):
                 ('HELP_COUNT', 'help_count', u'Помощь герою', u'', 'help_count'),
                 ('GIFTS_RETURNED', 'gifts_returned', u'Возвращено подарков',
                  u'Во время путешествия герой может найти потерянный детский подарок. Если помочь герою, когда подарок находится в рюкзаке, то он вернётся к ребёнку.',
-                 'gifts_returned'))
+                 'gifts_returned'),
+                ('POLITICS_POWER', 'politics_power', u'Влиятельность', u'Влияние, которое герой оказывает своими заданиями (участвуют только герои, влияющие на всех советников)', 'politics_power'),
+              )

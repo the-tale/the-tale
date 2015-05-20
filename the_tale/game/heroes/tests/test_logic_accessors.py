@@ -1,4 +1,5 @@
 # coding: utf-8
+import time
 import contextlib
 
 import mock
@@ -15,13 +16,17 @@ from the_tale.game import relations as game_relations
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.artifacts.storage import artifacts_storage
-from the_tale.game.artifacts.relations import RARITY
+from the_tale.game.artifacts import relations as artifacts_relations
 
 from the_tale.game.heroes.conf import heroes_settings
 from the_tale.game.heroes import relations
+from the_tale.game.heroes.habilities import nonbattle as nonbattle_abilities
 
 from the_tale.game.companions import storage as companions_storage
 from the_tale.game.companions import logic as companions_logic
+from the_tale.game.companions import relations as companions_relations
+from the_tale.game.companions.abilities import effects as companions_effects
+from the_tale.game.companions.abilities import container as companions_abilities_container
 
 
 class HeroLogicAccessorsTestBase(testcase.TestCase):
@@ -107,17 +112,17 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
                                        OPTION_MARKERS.UNAGGRESSIVE]))
 
     def test_can_safe_artifact_integrity(self):
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL)
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL)
         self.hero.preferences.set_favorite_item(None)
         self.assertFalse(any(self.hero.can_safe_artifact_integrity(artifact) for i in xrange(100)))
 
     def test_can_safe_artifact_integrity__favorite_item(self):
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL)
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL)
         self.hero.preferences.set_favorite_item(artifact.type.equipment_slot)
         self.assertTrue(any(self.hero.can_safe_artifact_integrity(artifact) for i in xrange(100)))
 
     def test_can_safe_artifact_integrity__favorite_item__wrong_slot(self):
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL)
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL)
 
         wrong_slot = None
         for slot in relations.EQUIPMENT_SLOT.records:
@@ -271,3 +276,30 @@ class PoliticalPowerTests(HeroLogicAccessorsTestBase):
         self.assertTrue(self.hero.politics_power_multiplier() > 0)
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.politics_power_modifier', -666666666):
             self.assertEqual(self.hero.politics_power_multiplier(), 0)
+
+    def test_politics_power_multiplier__all_effects(self):
+        with self.check_increased(self.hero.politics_power_multiplier):
+            self.hero.might = 1000
+
+        with self.check_increased(self.hero.politics_power_multiplier):
+            self.hero._model.level = 100
+
+        with self.check_increased(self.hero.politics_power_multiplier):
+            self.hero.actual_bills.append(time.time())
+            self.hero.actual_bills.append(time.time())
+
+        with self.check_increased(self.hero.politics_power_multiplier):
+            self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_HIGH)
+
+        with self.check_increased(self.hero.politics_power_multiplier):
+            self.hero.equipment.get(relations.EQUIPMENT_SLOT.PLATE).record.special_effect = artifacts_relations.ARTIFACT_EFFECT.GREAT_POWER
+
+        with self.check_increased(self.hero.politics_power_multiplier):
+            companion_record = companions_logic.create_random_companion_record(name='test-companion',
+                                                                               state=companions_relations.STATE.ENABLED,
+                                                                               abilities=companions_abilities_container.Container(start=(companions_effects.ABILITIES.KNOWN,)))
+            companion = companions_logic.create_companion(companion_record)
+            self.hero.set_companion(companion)
+
+        with self.check_increased(self.hero.politics_power_multiplier):
+            self.hero.abilities.add(nonbattle_abilities.DIPLOMATIC.get_id(), level=len(nonbattle_abilities.DIPLOMATIC.POWER_MULTIPLIER))

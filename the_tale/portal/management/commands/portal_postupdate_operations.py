@@ -16,6 +16,8 @@ from the_tale.linguistics import logic as linguistics_logic
 
 from the_tale.game.persons import logic as persons_logic
 
+from the_tale.game.bills import logic as bills_logic
+
 from the_tale.portal.conf import portal_settings
 
 
@@ -61,6 +63,11 @@ class Command(BaseCommand):
         print 'SYNC SOCIAL CONNECTIONS'
 
         persons_logic.sync_social_connections()
+
+        print
+        print 'SYNC ACTUAL BILLS'
+
+        bills_logic.update_actual_bills_for_all_accounts()
 
         print
         print 'REMOVE OLD SDN INFO'

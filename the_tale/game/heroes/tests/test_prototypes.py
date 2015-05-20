@@ -37,6 +37,8 @@ from the_tale.game.map.places.storage import places_storage
 from the_tale.game.map.places.relations import CITY_MODIFIERS
 from the_tale.game.mobs.storage import mobs_storage
 
+from the_tale.game.bills import conf as bills_conf
+
 from the_tale.game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
 from the_tale.game.heroes.habilities import ABILITY_TYPE, ABILITIES, battle, ABILITY_AVAILABILITY
 from the_tale.game.heroes.conf import heroes_settings
@@ -176,7 +178,7 @@ class HeroTest(testcase.TestCase):
                                            active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
                                            ban_end_at=datetime.datetime.now() - datetime.timedelta(seconds=60),
                                            might=0,
-                                           actual_bills=0)
+                                           actual_bills=[])
 
         self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
@@ -193,7 +195,7 @@ class HeroTest(testcase.TestCase):
                                            active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
                                            ban_end_at=datetime.datetime.now() - datetime.timedelta(seconds=60),
                                            might=666,
-                                           actual_bills=0)
+                                           actual_bills=[])
 
         self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
@@ -262,14 +264,14 @@ class HeroTest(testcase.TestCase):
                                            active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
                                            ban_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
                                            might=666,
-                                           actual_bills=7)
+                                           actual_bills=[7])
 
         self.assertFalse(self.hero.is_fast)
         self.assertTrue(self.hero.active_state_end_at > datetime.datetime.now())
         self.assertTrue(self.hero.premium_state_end_at > datetime.datetime.now())
         self.assertTrue(self.hero.ban_state_end_at > datetime.datetime.now())
         self.assertEqual(self.hero.might, 666)
-        self.assertEqual(self.hero.actual_bills, 7)
+        self.assertEqual(self.hero.actual_bills, [7])
 
     def test_reward_modifier__risk_level(self):
         self.assertEqual(self.hero.reward_modifier, 1.0)
@@ -650,6 +652,14 @@ class HeroTest(testcase.TestCase):
         for i in xrange(1000):
             self.hero.switch_spending()
             self.assertFalse(self.hero.next_spending.is_HEAL_COMPANION)
+
+    def test_actual_bills_number(self):
+        self.hero.actual_bills.append(time.time() - bills_conf.bills_settings.BILL_ACTUAL_LIVE_TIME*24*60*60)
+        self.hero.actual_bills.append(time.time() - bills_conf.bills_settings.BILL_ACTUAL_LIVE_TIME*24*60*60 + 1)
+        self.hero.actual_bills.append(time.time() - 1)
+        self.hero.actual_bills.append(time.time())
+
+        self.assertEqual(self.hero.actual_bills_number, 3)
 
 
 class HeroLevelUpTests(testcase.TestCase):
