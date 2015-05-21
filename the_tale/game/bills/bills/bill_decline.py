@@ -64,7 +64,7 @@ class BillDecline(BaseBill):
 
     @property
     def user_form_initials(self):
-        return {'bill': self.declined_bill_id}
+        return {'declined_bill': self.declined_bill_id}
 
     def initialize_with_user_data(self, user_form):
         self.declined_bill_id = int(user_form.c.declined_bill)
