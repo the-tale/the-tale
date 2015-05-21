@@ -21,6 +21,8 @@ jQuery(document).ready( function(e) {
 
 <h3>Редактирование законопроекта <small><a href="{{ url('game:bills:show', bill.id) }}">вернуться</a></small></h3>
 
+{% include "bills/rules.html" with context%}
+
 <div class="alert alert-info">
   <strong>ВНИМАНИЕ!</strong> После редактирования будут сброшены результаты голосования.
 </div>
