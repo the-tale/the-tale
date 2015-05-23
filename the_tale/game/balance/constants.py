@@ -340,7 +340,7 @@ PICKED_UP_IN_ROAD_PROBABILITY = PICKED_UP_IN_ROAD_SPEED_BONUS / PICKED_UP_IN_ROA
 
 HABIT_QUEST_PRIORITY_MODIFIER = float(2) # модификатор приоритета выбора заданий от предпочтений
 
-HONOR_POWER_BONUS_FRACTION = float(0.5) # бонус к влиянию для чести
+HONOR_POWER_BONUS_FRACTION = float(1.5) # бонус к влиянию для чести
 MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE = float(0.02) # вероятность крита по типу монстра, если все монстры этого типа
 
 HABIT_QUEST_REWARD_MAX_BONUS = float(0.25) # максимальный бонус к награде за задание при выборе, совпадающем с чертой
