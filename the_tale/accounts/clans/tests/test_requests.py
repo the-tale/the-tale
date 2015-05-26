@@ -12,10 +12,12 @@ from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.accounts.clans.prototypes import ClanPrototype, MembershipPrototype, MembershipRequestPrototype
-from the_tale.accounts.clans.relations import ORDER_BY, MEMBER_ROLE, MEMBERSHIP_REQUEST_TYPE
-from the_tale.accounts.clans.tests.helpers import ClansTestsMixin
-from the_tale.accounts.clans.conf import clans_settings
+from ..prototypes import ClanPrototype, MembershipPrototype, MembershipRequestPrototype
+from ..relations import ORDER_BY, MEMBER_ROLE, MEMBERSHIP_REQUEST_TYPE
+from ..conf import clans_settings
+from .. import meta_relations
+
+from .helpers import ClansTestsMixin
 
 from the_tale.forum.prototypes import CategoryPrototype
 
@@ -192,7 +194,22 @@ class TestShowRequests(BaseTestRequests):
         self.show_url = url('accounts:clans:show', self.clan.id)
 
     def test_ok(self):
-        self.check_html_ok(self.request_html(self.show_url), texts=[self.clan.abbr, self.clan.name, self.clan.motto, self.clan.description_html, (self.clan.description, 0)])
+        self.check_html_ok(self.request_html(self.show_url), texts=['pgf-no-folclor',
+                                                                    self.clan.abbr,
+                                                                    self.clan.name,
+                                                                    self.clan.motto,
+                                                                    self.clan.description_html,
+                                                                    (self.clan.description, 0)])
+
+    def test_no_folclor(self):
+        from the_tale.blogs.tests import helpers as blogs_helpers
+
+        blogs_helpers.prepair_forum()
+
+        blogs_helpers.create_post_for_meta_object(self.account, 'folclor-1-caption', 'folclor-1-text', meta_relations.Clan.create_from_object(self.clan))
+        blogs_helpers.create_post_for_meta_object(self.account, 'folclor-2-caption', 'folclor-2-text', meta_relations.Clan.create_from_object(self.clan))
+
+        self.check_html_ok(self.request_html(self.show_url), texts=[('pgf-no-folclor', 0)])
 
 
 class TestEditRequests(BaseTestRequests):

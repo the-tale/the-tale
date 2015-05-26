@@ -1,6 +1,8 @@
 {% extends "clans/base.html" %}
 
+{% import 'macros.html' as base_macros with context %}
 {% import 'friends/macros.html' as friends_macros with context %}
+{% import 'blogs/macros.html' as blogs_macros with context %}
 
 {% block title %}{{resource.clan.name}} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Страница гильдии [{{resource.clan.abbr}}] {{resource.clan.name}}{% endblock %}
@@ -13,7 +15,10 @@
 {% block clans_content %}
 
 <h2>
-  [{{resource.clan.abbr}}] {{resource.clan.name}}<br/>
+  [{{resource.clan.abbr}}]
+  {{resource.clan.name}}
+  {{base_macros.magnet(clan_meta_object)}}
+  <br/>
   <small>{{resource.clan.motto}}</small>
 </h2>
 
@@ -98,5 +103,22 @@
 {% if resource.clan_info.clan and resource.clan.id == resource.clan_info.clan_id %}
 <a type="button" class="btn pgf-new-message-button disabled">отправить сообщение</a>
 {% endif %}
+
+{% set folclor_objects = posts_about(clan_meta_object, allowed_for=leader) %}
+
+<br/>
+<br/>
+<h3>Произведения о Гильдии</h3>
+
+<p>
+  Чтобы произведение появилось в списке, его автор должен указать что оно об этой гильдии, а лидер гильдии должен поставить произведению «плюсик».
+</p>
+
+{% if folclor_objects %}
+{{ blogs_macros.meta_posts_list(folclor_objects) }}
+{% else %}
+<p class="alert alert-info pgf-no-folclor">В настоящее время нет произведений о гильдии.</p>
+{% endif %}
+
 
 {% endblock %}

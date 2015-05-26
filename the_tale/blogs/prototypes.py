@@ -11,18 +11,20 @@ from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import get_system_user
 
+from the_tale.game import prototypes as game_prototypes
+
 from the_tale.forum.prototypes import ThreadPrototype as ForumThreadPrototype, PostPrototype as ForumPostPrototype
 from the_tale.forum.prototypes import SubCategoryPrototype as ForumSubCategoryPrototype
 from the_tale.forum.models import MARKUP_METHOD
 
-from the_tale.blogs.models import Post, Vote
-from the_tale.blogs.conf import blogs_settings
-from the_tale.blogs.relations import POST_STATE
+from . import models
+from . import conf
+from . import relations
 
 
 class PostPrototype(BasePrototype):
-    _model_class = Post
-    _readonly = ('id', 'forum_thread_id', 'created_at', 'updated_at')
+    _model_class = models.Post
+    _readonly = ('id', 'forum_thread_id', 'created_at', 'updated_at', 'created_at_turn')
     _bidirectional = ('votes', 'moderator_id', 'caption', 'text', 'state')
     _get_by = ('id', )
 
@@ -39,19 +41,20 @@ class PostPrototype(BasePrototype):
         return None
 
     def recalculate_votes(self):
-        self.votes = Vote.objects.filter(post=self._model).count()
+        self.votes = models.Vote.objects.filter(post=self._model).count()
 
     @classmethod
     @transaction.atomic
     def create(cls, author, caption, text):
 
-        model = Post.objects.create(author=author._model,
+        model = models.Post.objects.create(author=author._model,
                                     caption=caption,
                                     text=text,
-                                    state=POST_STATE.ACCEPTED,
+                                    state=relations.POST_STATE.ACCEPTED,
+                                    created_at_turn=game_prototypes.TimePrototype.get_current_turn_number(),
                                     votes=1)
 
-        thread = ForumThreadPrototype.create(ForumSubCategoryPrototype.get_by_uid(blogs_settings.FORUM_CATEGORY_UID),
+        thread = ForumThreadPrototype.create(ForumSubCategoryPrototype.get_by_uid(conf.settings.FORUM_CATEGORY_UID),
                                              caption=caption,
                                              author=get_system_user(),
                                              text=u'обсуждение [url="%s%s"]произведения[/url]' % (project_settings.SITE_URL,
@@ -69,13 +72,13 @@ class PostPrototype(BasePrototype):
 
     @transaction.atomic
     def accept(self, moderator):
-        self.state = POST_STATE.ACCEPTED
+        self.state = relations.POST_STATE.ACCEPTED
         self.moderator_id = moderator.id
         self.save()
 
     @transaction.atomic
     def decline(self, moderator):
-        self.state = POST_STATE.DECLINED
+        self.state = relations.POST_STATE.DECLINED
         self.moderator_id = moderator.id
         self.save()
 
@@ -94,7 +97,7 @@ class PostPrototype(BasePrototype):
 
 
 class VotePrototype(BasePrototype):
-    _model_class = Vote
+    _model_class = models.Vote
     _readonly = ('id', )
     _bidirectional = ()
     _get_by = ('id', )
@@ -102,8 +105,8 @@ class VotePrototype(BasePrototype):
     @classmethod
     def get_for(cls, voter, post):
         try:
-            return cls(Vote.objects.get(voter_id=voter.id, post_id=post.id))
-        except Vote.DoesNotExist:
+            return cls(models.Vote.objects.get(voter_id=voter.id, post_id=post.id))
+        except models.Vote.DoesNotExist:
             return None
 
     @lazy_property
@@ -111,8 +114,8 @@ class VotePrototype(BasePrototype):
 
     @classmethod
     def create(cls, post, voter):
-        model = Vote.objects.create(post=post._model,
-                                    voter=voter._model)
+        model = models.Vote.objects.create(post=post._model,
+                                           voter=voter._model)
         return cls(model)
 
     @classmethod

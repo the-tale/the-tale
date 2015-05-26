@@ -1,3 +1,4 @@
+{% import 'blogs/macros.html' as blogs_macros with context %}
 
 {% macro companion_info(companion, limit_content=false, link_in_blank=false) %}
 
@@ -44,6 +45,16 @@
   {% else %}
   <p class="pgf-no-description">нет описания<p>
     {% endif %}
+
+  {% set folclor_objects = posts_about(companion_meta_object) %}
+
+  <h3>Произведения о спутнике</h3>
+
+  {% if folclor_objects %}
+  {{ blogs_macros.meta_posts_list(folclor_objects) }}
+  {% else %}
+  <p class="alert alert-info pgf-no-folclor">В настоящее время нет произведений о спутнике.</p>
+  {% endif %}
 
     {% if limit_content %}
 </div>

@@ -19,11 +19,12 @@ from the_tale.finances.bank import relations as bank_relations
 from the_tale.accounts.friends.prototypes import FriendshipPrototype
 from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 
-from the_tale.accounts.models import Award
-from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
-from the_tale.accounts.relations import AWARD_TYPE, BAN_TYPE, BAN_TIME
-from the_tale.accounts import logic
-from the_tale.accounts.conf import accounts_settings
+from ..models import Award
+from ..prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
+from ..relations import AWARD_TYPE, BAN_TYPE, BAN_TIME
+from .. import logic
+from .. import conf
+from .. import meta_relations
 
 from the_tale.accounts.clans.prototypes import ClanPrototype
 from the_tale.accounts.clans.conf import clans_settings
@@ -71,9 +72,9 @@ class IndexRequestsTests(AccountRequestsTests):
                                                                            ('abbr3', 1)))
 
     def test_index_pagination(self):
-        for i in xrange(accounts_settings.ACCOUNTS_ON_PAGE):
+        for i in xrange(conf.accounts_settings.ACCOUNTS_ON_PAGE):
             logic.register_user('test_user_%d' % i, 'test_user_%d@test.com' % i, '111111')
-        self.check_html_ok(self.request_html(reverse('accounts:')), texts=(('pgf-account-record', accounts_settings.ACCOUNTS_ON_PAGE),))
+        self.check_html_ok(self.request_html(reverse('accounts:')), texts=(('pgf-account-record', conf.accounts_settings.ACCOUNTS_ON_PAGE),))
         self.check_html_ok(self.request_html(reverse('accounts:')+'?page=2'), texts=(('pgf-account-record', 3),))
 
     def test_index_redirect_from_large_page(self):
@@ -90,7 +91,7 @@ class IndexRequestsTests(AccountRequestsTests):
     def test_accounts_search_by_prefix(self):
         texts = [('pgf-account-record', 6),
                  ('pgf-no-accounts-message', 0),]
-        for i in xrange(accounts_settings.ACCOUNTS_ON_PAGE):
+        for i in xrange(conf.accounts_settings.ACCOUNTS_ON_PAGE):
             logic.register_user('test_user_a_%d' % i, 'test_user_a_%d@test.com' % i, '111111')
             texts.append(('test_user_a_%d' % i, 0))
         for i in xrange(6):
@@ -102,14 +103,14 @@ class IndexRequestsTests(AccountRequestsTests):
     def test_accounts_search_by_prefix_second_page(self):
         texts = [('pgf-account-record', 6),
                  ('pgf-no-accounts-message', 0),]
-        for i in xrange(accounts_settings.ACCOUNTS_ON_PAGE):
+        for i in xrange(conf.accounts_settings.ACCOUNTS_ON_PAGE):
             logic.register_user('test_user_a_%d' % i, 'test_user_a_%d@test.com' % i, '111111')
             texts.append(('test_user_a_%d' % i, 0))
         for i in xrange(6):
             logic.register_user('test_user_b_%d' % i, 'test_user_b_%d@test.com' % i, '111111')
             texts.append(('test_user_b_%d' % i, 1))
 
-        for i in xrange(accounts_settings.ACCOUNTS_ON_PAGE):
+        for i in xrange(conf.accounts_settings.ACCOUNTS_ON_PAGE):
             logic.register_user('test_user_b2_%d' % i, 'test_user_b2_%d@test.com' % i, '111111')
             texts.append(('test_user_b2_%d' % i, 0))
 
@@ -189,6 +190,30 @@ class ShowRequestsTests(AccountRequestsTests):
                  ('pgf-friends-request-to', 1)]
         FriendshipPrototype.request_friendship(self.account_2, self.account_1, text=u'text')
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_1.id])), texts=texts)
+
+    def test_show_folclor(self):
+        from the_tale.blogs.tests import helpers as blogs_helpers
+
+        blogs_helpers.prepair_forum()
+
+        blogs_helpers.create_post_for_meta_object(self.account_2, 'folclor-1-caption', 'folclor-1-text', meta_relations.Account.create_from_object(self.account_1))
+        blogs_helpers.create_post_for_meta_object(self.account_3, 'folclor-2-caption', 'folclor-2-text', meta_relations.Account.create_from_object(self.account_1))
+
+        self.request_login('test_user2@test.com')
+
+        self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_1.id])), texts=[('pgf-no-folclor', 0), 'folclor-1-caption', 'folclor-2-caption'])
+
+    def test_show_no_folclor(self):
+        from the_tale.blogs.tests import helpers as blogs_helpers
+
+        blogs_helpers.prepair_forum()
+
+        blogs_helpers.create_post_for_meta_object(self.account_2, 'folclor-1-caption', 'folclor-1-text', meta_relations.Account.create_from_object(self.account_1))
+        blogs_helpers.create_post_for_meta_object(self.account_3, 'folclor-2-caption', 'folclor-2-text', meta_relations.Account.create_from_object(self.account_3))
+
+        self.request_login('test_user2@test.com')
+
+        self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_2.id])), texts=['pgf-no-folclor', ('folclor-1-caption', 0), ('folclor-2-caption', 0)])
 
     def test_fast_account(self):
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_4.id])))

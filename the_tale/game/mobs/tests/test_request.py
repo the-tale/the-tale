@@ -19,12 +19,15 @@ from the_tale.game import relations as game_relations
 
 from the_tale.game.map.relations import TERRAIN
 
-from the_tale.game.mobs.models import MobRecord
-from the_tale.game.mobs.storage import mobs_storage
-from the_tale.game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
-from the_tale.game.mobs.prototypes import MobRecordPrototype
-
 from the_tale.linguistics.tests import helpers as linguistics_helpers
+
+from ..models import MobRecord
+from ..storage import mobs_storage
+from ..relations import MOB_RECORD_STATE, MOB_TYPE
+from ..prototypes import MobRecordPrototype
+from .. import meta_relations
+
+
 
 class PostMixin(object):
     def get_create_data(self):
@@ -74,7 +77,7 @@ class BaseTestRequests(TestCase):
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
-        self.account1 = AccountPrototype.get_by_id(account_id)
+        self.account_1 = AccountPrototype.get_by_id(account_id)
 
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
         self.account_2 = AccountPrototype.get_by_id(account_id)
@@ -252,7 +255,23 @@ class TestShowRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('guide:mobs:show', args=[mob.id])), texts=[(mob.name.capitalize(), 5),
                                                                                               ('pgf-no-description', 0),
                                                                                               ('pgf-moderate-button', 0),
-                                                                                              ('pgf-edit-button', 0)])
+                                                                                              ('pgf-edit-button', 0),
+                                                                                              'pgf-no-folclor'])
+
+    def test_folclor(self):
+        from the_tale.blogs.tests import helpers as blogs_helpers
+
+        blogs_helpers.prepair_forum()
+
+        mob = MobRecordPrototype(MobRecord.objects.all()[0])
+
+        blogs_helpers.create_post_for_meta_object(self.account_1, 'folclor-1-caption', 'folclor-1-text', meta_relations.Mob.create_from_object(mob))
+        blogs_helpers.create_post_for_meta_object(self.account_2, 'folclor-2-caption', 'folclor-2-text', meta_relations.Mob.create_from_object(mob))
+
+        self.check_html_ok(self.request_html(url('guide:mobs:show', mob.id)), texts=[('pgf-no-folclor', 0),
+                                                                                     'folclor-1-caption',
+                                                                                     'folclor-2-caption'])
+
 
     def test_no_description(self):
         mob = mobs_storage.all()[0]
@@ -306,7 +325,23 @@ class TestInfoRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(url('guide:mobs:info', mob.id)), texts=[(mob.name.capitalize(), 1),
                                                                                    ('pgf-no-description', 0),
                                                                                    ('pgf-moderate-button', 0),
-                                                                                   ('pgf-edit-button', 0)])
+                                                                                   ('pgf-edit-button', 0),
+                                                                                   'pgf-no-folclor'])
+
+    def test_folclor(self):
+        from the_tale.blogs.tests import helpers as blogs_helpers
+
+        blogs_helpers.prepair_forum()
+
+        mob = MobRecordPrototype(MobRecord.objects.all()[0])
+
+        blogs_helpers.create_post_for_meta_object(self.account_1, 'folclor-1-caption', 'folclor-1-text', meta_relations.Mob.create_from_object(mob))
+        blogs_helpers.create_post_for_meta_object(self.account_2, 'folclor-2-caption', 'folclor-2-text', meta_relations.Mob.create_from_object(mob))
+
+        self.check_html_ok(self.request_html(url('guide:mobs:info', mob.id)), texts=[('pgf-no-folclor', 0),
+                                                                                     'folclor-1-caption',
+                                                                                     'folclor-2-caption'])
+
 
     def test_no_description(self):
         mob = mobs_storage.all()[0]

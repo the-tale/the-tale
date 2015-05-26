@@ -1,6 +1,8 @@
 {% extends "accounts/base.html" %}
 
+{% import 'macros.html' as base_macros with context %}
 {% import 'accounts/macros.html' as accounts_macros with context %}
+{% import 'blogs/macros.html' as blogs_macros with context %}
 
 {% block title %} {{ master_account.nick_verbose }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}О Хранителе «{{ master_account.nick_verbose }}» и «{{ master_hero.name }}» — герое {{ master_hero.level }} уровня.{% endblock %}
@@ -62,6 +64,8 @@ jQuery(document).ready(function(){
             {{ master_hero.gender_verbose }}-{{ master_hero.race_verbose }}
             {{ master_hero.level }} уровня
           </small>
+
+          {{base_macros.magnet(account_meta_object)}}
         </h2>
 
         {% if master_account.is_ban_forum %}
@@ -198,6 +202,21 @@ jQuery(document).ready(function(){
           </div>
 
         </div>
+
+        {% set folclor_objects = posts_about(account_meta_object, allowed_for=master_account) %}
+
+        <h3>Произведения о Хранителе</h3>
+
+        <p>
+          Чтобы произведение появилось в списке, его автор должен указать что оно об этом Хранителе, а Хранитель должен поставить произведению «плюсик».
+        </p>
+
+        {% if folclor_objects %}
+        {{ blogs_macros.meta_posts_list(folclor_objects) }}
+        {% else %}
+        <p class="alert alert-info pgf-no-folclor">В настоящее время нет произведений о Хранителе.</p>
+        {% endif %}
+
 
 
         {% if accounts_settings.INFORMER_SHOW and master_account.id == resource.account.id %}

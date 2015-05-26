@@ -25,11 +25,7 @@ jQuery(document).ready( function(e) {
 
 <form id="pgf-edit-post-form" method="post" action="{{ url('blogs:posts:update', resource.post.id) }}">
 
-  {{ form.errors_container }}
-
-  {{ form.caption.widget }}
-
-  {{ form.text.widget }}
+  {% include "blogs/form_fields.html" %}
 
   <div class="widget">
     <input type="submit" class="btn" value="Сохранить"/>

@@ -21,7 +21,7 @@
 
 </ul>
 
-{{ guide_macros.page_caption(artifact.name|up_first, "Описание артефакта") }}
+{{ guide_macros.page_caption(artifact.name|up_first, "Описание артефакта", meta_object=artifact_meta_object) }}
 
 {{ artifacts_macros.artifact_info(artifact, limit_content=false, link_in_blank=false) }}
 

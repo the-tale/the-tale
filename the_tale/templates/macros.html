@@ -116,3 +116,11 @@
   Вам необходимо <a href="{{login_url(resource.request.get_full_path())}}" style="font-weight: bold;">войти</a> или <a href="{{ url('accounts:registration:fast') }}" class="pgf-fast-registration attention-link" style="font-weight: bold;">создать героя</a>, чтобы {{text}}.
 </p>
 {% endmacro %}
+
+
+{% macro magnet(meta_object) %}
+<i class="icon icon-magnet"
+   style="vertical-align: middle;"
+   rel="tooltip"
+   title="уникальный идентификатор объекта: {{meta_object.uid}}"></i>
+{% endmacro %}

@@ -15,12 +15,13 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game import relations as game_relations
 
-from the_tale.game.companions import logic
-from the_tale.game.companions import models
-from the_tale.game.companions import storage
-from the_tale.game.companions import relations
+from .. import logic
+from .. import models
+from .. import storage
+from .. import relations
+from .. import meta_relations
 
-from the_tale.game.companions.tests import helpers
+from . import helpers
 
 
 
@@ -282,7 +283,21 @@ class ShowRequestsTests(RequestsTestsBase):
         self.check_html_ok(self.request_html(self.requested_url_1), texts=[(self.companion_1.description, 1),
                                                                            ('pgf-error-no_rights', 0),
                                                                            ('pgf-edit-companion-button', 0),
-                                                                           ('pgf-enable-companion-button', 0)])
+                                                                           ('pgf-enable-companion-button', 0),
+                                                                           'pgf-no-folclor'])
+
+    def test_folclor(self):
+        from the_tale.blogs.tests import helpers as blogs_helpers
+
+        blogs_helpers.prepair_forum()
+
+        blogs_helpers.create_post_for_meta_object(self.account_1, 'folclor-1-caption', 'folclor-1-text', meta_relations.Companion.create_from_object(self.companion_1))
+        blogs_helpers.create_post_for_meta_object(self.account_2, 'folclor-2-caption', 'folclor-2-text', meta_relations.Companion.create_from_object(self.companion_1))
+
+        self.check_html_ok(self.request_html(self.requested_url_1), texts=[('pgf-no-folclor', 0),
+                                                                          'folclor-1-caption',
+                                                                          'folclor-2-caption'])
+
 
     def test_normal_view__companion_disabled(self):
         self.request_login(self.account_1.email)
@@ -375,6 +390,18 @@ class InfoRequestsTests(RequestsTestsBase):
         self.request_login(self.account_1.email)
         self.check_html_ok(self.request_ajax_html(self.requested_url_1), texts=[(self.companion_1.description, 1),
                                                                                 ('pgf-error-no_rights', 0)])
+
+    def test_folclor(self):
+        from the_tale.blogs.tests import helpers as blogs_helpers
+
+        blogs_helpers.prepair_forum()
+
+        blogs_helpers.create_post_for_meta_object(self.account_1, 'folclor-1-caption', 'folclor-1-text', meta_relations.Companion.create_from_object(self.companion_1))
+        blogs_helpers.create_post_for_meta_object(self.account_2, 'folclor-2-caption', 'folclor-2-text', meta_relations.Companion.create_from_object(self.companion_1))
+
+        self.check_html_ok(self.request_html(self.requested_url_1), texts=[('pgf-no-folclor', 0),
+                                                                          'folclor-1-caption',
+                                                                          'folclor-2-caption'])
 
     def test_normal_view__companion_disabled(self):
         self.request_login(self.account_1.email)

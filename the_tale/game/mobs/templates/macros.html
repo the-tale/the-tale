@@ -1,3 +1,5 @@
+{% import 'macros.html' as base_macros with context %}
+{% import 'blogs/macros.html' as blogs_macros with context %}
 
 {% macro mob_info(mob, limit_content=false, link_in_blank=false, for_moderator=false) %}
 
@@ -58,6 +60,19 @@
   {% else %}
   <p class="pgf-no-description">нет описания<p>
     {% endif %}
+
+  {% set folclor_objects = posts_about(mob_meta_object) %}
+
+  <br/>
+  <br/>
+  <h3>Произведения о монстре</h3>
+
+  {% if folclor_objects %}
+  {{ blogs_macros.meta_posts_list(folclor_objects) }}
+  {% else %}
+  <p class="alert alert-info pgf-no-folclor">В настоящее время нет произведений о монстре.</p>
+  {% endif %}
+
 
     {% if limit_content %}
 </div>

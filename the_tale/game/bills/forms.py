@@ -16,7 +16,7 @@ class BaseUserForm(forms.Form):
     RATIONALE_MIN_LENGTH = 250 if not project_settings.TESTS_RUNNING else 0
 
     caption = fields.CharField(label=u'Название закона', max_length=Bill.CAPTION_MAX_LENGTH, min_length=Bill.CAPTION_MIN_LENGTH)
-    rationale = bbcode.BBField(label=u'Обоснование', min_length=RATIONALE_MIN_LENGTH)
+    rationale = bbcode.BBField(label=u'', min_length=RATIONALE_MIN_LENGTH)
 
     duration = fields.TypedChoiceField(label=u'Время действия', choices=BILL_DURATION.choices(), coerce=BILL_DURATION.get_from_name, required=False)
 

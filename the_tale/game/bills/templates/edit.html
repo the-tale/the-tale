@@ -31,19 +31,7 @@ jQuery(document).ready( function(e) {
 
 <form id="pgf-edit-bill-form" method="post" action="{{ url('game:bills:update', bill.id) }}">
 
-  {{ form.errors_container }}
-
-  {{ form.caption.widget }}
-  {{ form.chronicle_on_accepted.widget }}
-
-  {% if bill.data.WITH_DURATION %}
-  {{ form.duration.widget }}
-  {{ form.chronicle_on_ended.widget }}
-  {% endif %}
-
-  {% include bill.data.USER_FORM_TEMPLATE with context %}
-
-  {{ form.rationale.widget }}
+  {% include "bills/user_form.html" %}
 
   <div class="widget">
     <input type="submit" class="btn" value="Сохранить"/>

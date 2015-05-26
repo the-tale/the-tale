@@ -52,7 +52,9 @@ class CodeTests(testcase.TestCase):
         for code in self._filter_code('^\s*from ', only_models=False):
             code = code.strip()[len('from '):]
             self.assertTrue(self.check_starts(code,
-                                              ['the_tale',
+                                              ['.',
+                                               '..',
+                                               'the_tale',
                                                'dext',
                                                'django',
                                                'rels',

@@ -1,10 +1,15 @@
 
 {% import 'macros.html' as base_macros with context %}
 
-{% macro page_caption(caption, description) %}
+{% macro page_caption(caption, description, meta_object=none) %}
 <div class="guide-page-title">
   {{ base_macros.addthis(title="Путеводитель: "+caption, description=description) }}
-  <h3 style="display: inline-block;">{{caption|safe}}</h3>
+  <h3 style="display: inline-block;">
+    {{caption|safe}}
+    {% if meta_object %}
+    {{ base_macros.magnet(meta_object) }}
+    {% endif %}
+  </h3>
 </div>
 
 {% endmacro %}

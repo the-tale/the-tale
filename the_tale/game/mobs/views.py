@@ -15,10 +15,11 @@ from the_tale.game.map.relations import TERRAIN
 
 from the_tale.game import relations as game_relations
 
-from the_tale.game.mobs.relations import MOB_RECORD_STATE, INDEX_ORDER_TYPE, MOB_TYPE
-from the_tale.game.mobs.prototypes import MobRecordPrototype
-from the_tale.game.mobs.storage import mobs_storage
-from the_tale.game.mobs.forms import MobRecordForm, ModerateMobRecordForm
+from .relations import MOB_RECORD_STATE, INDEX_ORDER_TYPE, MOB_TYPE
+from .prototypes import MobRecordPrototype
+from .storage import mobs_storage
+from .forms import MobRecordForm, ModerateMobRecordForm
+from . import meta_relations
 
 
 BASE_INDEX_FILTERS = [list_filter.reset_element(),
@@ -136,12 +137,14 @@ class GuideMobResource(MobResourceBase):
     @handler('#mob', name='show', method='get')
     def show(self):
         return self.template('mobs/show.html', {'mob': self.mob,
+                                                'mob_meta_object': meta_relations.Mob.create_from_object(self.mob),
                                                 'section': 'mobs'})
 
     @validate_mob_disabled()
     @handler('#mob', 'info', method='get')
     def show_dialog(self):
-        return self.template('mobs/info.html', {'mob': self.mob})
+        return self.template('mobs/info.html', {'mob': self.mob,
+                                                'mob_meta_object': meta_relations.Mob.create_from_object(self.mob),})
 
 
 class GameMobResource(MobResourceBase):

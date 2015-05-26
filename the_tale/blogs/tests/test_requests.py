@@ -6,6 +6,9 @@ import mock
 from django.test import client
 from django.core.urlresolvers import reverse
 
+from dext.common.meta_relations import models as meta_relations_models
+from dext.common.meta_relations import logic as meta_relations_logic
+
 from the_tale.common.utils.permissions import sync_group
 from the_tale.common.utils.testcase import TestCase
 
@@ -15,12 +18,17 @@ from the_tale.accounts.logic import register_user, login_page_url
 from the_tale.accounts.clans.prototypes import ClanPrototype
 from the_tale.accounts.clans.conf import clans_settings
 
+from the_tale.forum.prototypes import CategoryPrototype
+
 from the_tale.game.logic import create_test_map
 
-from the_tale.blogs.models import Post, Vote
-from the_tale.blogs import relations
-from the_tale.blogs.prototypes import PostPrototype, VotePrototype
-from the_tale.blogs.conf import blogs_settings
+from .. import models
+from .. import relations
+from .. import prototypes
+from .. import conf
+from .. import meta_relations
+
+from . import helpers
 
 
 class BaseTestRequests(TestCase):
@@ -37,23 +45,17 @@ class BaseTestRequests(TestCase):
 
         self.client = client.Client()
 
-        from the_tale.forum.models import Category, SubCategory
-        from the_tale.forum.prototypes import CategoryPrototype
-
-        forum_category = Category.objects.create(caption='category-1', slug='category-1')
-        SubCategory.objects.create(caption=blogs_settings.FORUM_CATEGORY_UID + '-caption',
-                                   uid=blogs_settings.FORUM_CATEGORY_UID,
-                                   category=forum_category)
+        helpers.prepair_forum()
 
         CategoryPrototype.create(caption='category-1', slug=clans_settings.FORUM_CATEGORY_SLUG, order=0)
 
         self.clan_2 = ClanPrototype.create(self.account_2, abbr=u'abbr2', name=u'name2', motto=u'motto', description=u'description')
 
     def create_posts(self, number, author, caption_template, text_template):
-        return [PostPrototype.create(author, caption_template % i, text_template % i) for i in xrange(number) ]
+        return [prototypes.PostPrototype.create(author, caption_template % i, text_template % i) for i in xrange(number) ]
 
     def check_post_votes(self, post_id, votes):
-        post = Post.objects.get(id=post_id)
+        post = models.Post.objects.get(id=post_id)
         self.assertEqual(post.votes, votes)
 
     def check_vote(self, vote, voter, post_id):
@@ -71,7 +73,7 @@ class TestIndexRequests(BaseTestRequests):
         self.create_posts(2, self.account_1, 'caption-a1-%d', 'text-a1-%d')
         self.create_posts(3, self.account_2, 'caption-a2-%d', 'text-a2-%d')
 
-        declined_post = PostPrototype(Post.objects.get(caption='caption-a1-0'))
+        declined_post = prototypes.PostPrototype(models.Post.objects.get(caption='caption-a1-0'))
         declined_post.state = relations.POST_STATE.DECLINED
         declined_post.save()
 
@@ -88,7 +90,7 @@ class TestIndexRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('blogs:posts:')), texts=texts)
 
     def create_two_pages(self):
-        self.create_posts(blogs_settings.POSTS_ON_PAGE, self.account_1, 'caption-a1-%d', 'text-a1-%d')
+        self.create_posts(conf.settings.POSTS_ON_PAGE, self.account_1, 'caption-a1-%d', 'text-a1-%d')
         self.create_posts(3, self.account_2, 'caption-a2-%d', 'text-a2-%d')
 
     def test_two_pages(self):
@@ -129,7 +131,7 @@ class TestIndexRequests(BaseTestRequests):
                            'caption-a1-3',
                            ('caption-a2-0', 0),
                            ('caption-a2-2', 0),
-                           ('test_user_1', blogs_settings.POSTS_ON_PAGE + 1), #1 for filter text
+                           ('test_user_1', conf.settings.POSTS_ON_PAGE + 1), #1 for filter text
                            ('test_user_2', 0)]
 
         self.check_html_ok(self.request_html(reverse('blogs:posts:')+('?author_id=%d' % self.account_1.id)),
@@ -154,7 +156,7 @@ class TestIndexRequests(BaseTestRequests):
         # self.create_posts(blogs_settings.POSTS_ON_PAGE, self.account_1, 'caption-a1-%d', 'text-a1-%d')
         # self.create_posts(1, self.account_2, 'caption-a2-%d', 'text-a2-%d')
 
-        post = PostPrototype(Post.objects.all().order_by('-created_at')[0])
+        post = prototypes.PostPrototype(models.Post.objects.all().order_by('-created_at')[0])
 
         # default
         self.check_html_ok(self.request_html(reverse('blogs:posts:')), texts=(('caption-a2-2', 1),))
@@ -212,7 +214,7 @@ class TestShowRequests(BaseTestRequests):
     def setUp(self):
         super(TestShowRequests, self).setUp()
         self.create_posts(1, self.account_1, 'caption-a2-%d', 'text-a2-%d')
-        self.post = Post.objects.all()[0]
+        self.post = models.Post.objects.all()[0]
 
     def test_unexsists(self):
         self.check_html_ok(self.request_html(reverse('blogs:posts:show', args=[666])), status_code=404)
@@ -232,7 +234,7 @@ class TestShowRequests(BaseTestRequests):
 
     def test_show__clan_abbr(self):
         self.create_posts(1, self.account_2, 'caption-a2-%d', 'text-a2-%d')
-        post = Post.objects.all()[1]
+        post = models.Post.objects.all()[1]
 
         texts = [self.clan_2.abbr]
 
@@ -294,9 +296,14 @@ class TestCreateRequests(BaseTestRequests):
         super(TestCreateRequests, self).setUp()
         self.request_login('test_user_1@test.com')
 
-    def get_post_data(self):
-        return {'caption': 'post-caption',
+    def get_post_data(self, uids=None):
+        data = {'caption': 'post-caption',
                 'text': 'post-text-'+'1'*1000}
+
+        if uids:
+            data['meta_objects'] = uids
+
+        return data
 
     def test_unlogined(self):
         self.request_logout()
@@ -318,13 +325,13 @@ class TestCreateRequests(BaseTestRequests):
 
         response = self.client.post(reverse('blogs:posts:create'), self.get_post_data())
 
-        post = PostPrototype(Post.objects.all()[0])
+        post = prototypes.PostPrototype(models.Post.objects.all()[0])
         self.assertEqual(post.caption, 'post-caption')
         self.assertEqual(post.text, 'post-text-'+'1'*1000)
         self.assertEqual(post.votes, 1)
         self.assertTrue(post.state.is_ACCEPTED)
 
-        vote = VotePrototype(Vote.objects.all()[0])
+        vote = prototypes.VotePrototype(models.Vote.objects.all()[0])
         self.check_vote(vote, self.account_1, post.id)
 
         self.check_ajax_ok(response, data={'next_url': reverse('blogs:posts:show', args=[post.id])})
@@ -333,6 +340,28 @@ class TestCreateRequests(BaseTestRequests):
 
     def test_form_errors(self):
         self.check_ajax_error(self.client.post(reverse('blogs:posts:create'), {}), 'blogs.posts.create.form_errors')
+
+    def test_uids(self):
+
+        post_1, post_2 = self.create_posts(2, self.account_1, 'caption-a1-%d', 'text-a1-%d')
+
+        meta_post_1 = meta_relations.Post.create_from_object(post_1)
+        meta_post_2 = meta_relations.Post.create_from_object(post_2)
+
+        with self.check_not_changed(models.Post.objects.count):
+            self.check_ajax_error(self.client.post(reverse('blogs:posts:create'), self.get_post_data(uids='das')), 'blogs.posts.create.form_errors')
+            self.check_ajax_error(self.client.post(reverse('blogs:posts:create'), self.get_post_data(uids='das#asas')), 'blogs.posts.create.form_errors')
+            self.check_ajax_error(self.client.post(reverse('blogs:posts:create'), self.get_post_data(uids='6661#2')), 'blogs.posts.create.form_errors')
+
+            self.check_ajax_error(self.client.post(reverse('blogs:posts:create'), self.get_post_data(uids='%s#1' % meta_post_1.uid)), 'blogs.posts.create.form_errors')
+            self.check_ajax_error(self.client.post(reverse('blogs:posts:create'), self.get_post_data(uids='%s%s' % (meta_post_1.uid, meta_post_2.uid))),
+                                   'blogs.posts.create.form_errors')
+            self.check_ajax_error(self.client.post(reverse('blogs:posts:create'), self.get_post_data(uids='%s%s' % (meta_post_1.uid, meta_post_1.uid))),
+                                   'blogs.posts.create.form_errors')
+
+        with self.check_delta(models.Post.objects.count, 1):
+            self.check_ajax_ok(self.client.post(reverse('blogs:posts:create'), self.get_post_data(uids=' %s %s  ' % (meta_post_1.uid, meta_post_2.uid))))
+
 
 
 class TestVoteRequests(BaseTestRequests):
@@ -343,7 +372,7 @@ class TestVoteRequests(BaseTestRequests):
         self.request_login('test_user_1@test.com')
         self.client.post(reverse('blogs:posts:create'), {'caption': 'post-caption',
                                                          'text': 'post-text-'+'1'*1000})
-        self.post = PostPrototype(Post.objects.all()[0])
+        self.post = prototypes.PostPrototype(models.Post.objects.all()[0])
 
         self.request_logout()
         self.request_login('test_user_2@test.com')
@@ -363,12 +392,12 @@ class TestVoteRequests(BaseTestRequests):
 
     def test_success_for(self):
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:vote', args=[self.post.id]), {}))
-        vote = VotePrototype(Vote.objects.all()[1])
+        vote = prototypes.VotePrototype(models.Vote.objects.all()[1])
         self.check_vote(vote, self.account_2, self.post.id)
         self.check_post_votes(self.post.id, 2)
 
     def test_already_exists(self):
-        VotePrototype._db_all().delete()
+        prototypes.VotePrototype._db_all().delete()
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:vote', args=[self.post.id]), {}))
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:vote', args=[self.post.id]), {}))
         self.check_post_votes(self.post.id, 1)
@@ -381,7 +410,7 @@ class TestUnvoteRequests(BaseTestRequests):
         self.request_login('test_user_1@test.com')
         self.client.post(reverse('blogs:posts:create'), {'caption': 'post-caption',
                                                          'text': 'post-text-'+'1'*1000})
-        self.post = PostPrototype(Post.objects.all()[0])
+        self.post = prototypes.PostPrototype(models.Post.objects.all()[0])
 
         self.request_logout()
         self.request_login('test_user_2@test.com')
@@ -400,18 +429,18 @@ class TestUnvoteRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(reverse('blogs:posts:unvote', args=[666]), {}), 'blogs.posts.post.not_found')
 
     def test_remove_unexisted(self):
-        VotePrototype._db_all().delete()
-        self.assertEqual(VotePrototype._db_count(), 0)
+        prototypes.VotePrototype._db_all().delete()
+        self.assertEqual(prototypes.VotePrototype._db_count(), 0)
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:unvote', args=[self.post.id]), {}))
-        self.assertEqual(VotePrototype._db_count(), 0)
+        self.assertEqual(prototypes.VotePrototype._db_count(), 0)
 
     def test_remove_existed(self):
-        VotePrototype._db_all().delete()
-        self.assertEqual(VotePrototype._db_count(), 0)
+        prototypes.VotePrototype._db_all().delete()
+        self.assertEqual(prototypes.VotePrototype._db_count(), 0)
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:vote', args=[self.post.id]), {}))
-        self.assertEqual(VotePrototype._db_count(), 1)
+        self.assertEqual(prototypes.VotePrototype._db_count(), 1)
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:unvote', args=[self.post.id]), {}))
-        self.assertEqual(VotePrototype._db_count(), 0)
+        self.assertEqual(prototypes.VotePrototype._db_count(), 0)
 
 
 class TestEditRequests(BaseTestRequests):
@@ -423,7 +452,7 @@ class TestEditRequests(BaseTestRequests):
 
         self.client.post(reverse('blogs:posts:create'), {'caption': 'post-X-caption',
                                                          'text': 'post-X-text'+'1'*1000})
-        self.post = PostPrototype(Post.objects.all()[0])
+        self.post = prototypes.PostPrototype(models.Post.objects.all()[0])
 
     def test_unlogined(self):
         self.request_logout()
@@ -472,11 +501,16 @@ class TestUpdateRequests(BaseTestRequests):
         self.request_login('test_user_1@test.com')
         self.client.post(reverse('blogs:posts:create'), {'caption': 'post-X-caption',
                                                          'text': 'post-X-text-'+'1'*1000})
-        self.post = PostPrototype(Post.objects.all()[0])
+        self.post = prototypes.PostPrototype(models.Post.objects.all()[0])
 
-    def get_post_data(self):
-        return {'caption': 'new-X-caption',
+    def get_post_data(self, uids=None):
+        data = {'caption': 'new-X-caption',
                 'text': 'new-X-text-'+'1'*1000}
+
+        if uids:
+            data['meta_objects'] = uids
+
+        return data
 
     def test_unlogined(self):
         self.request_logout()
@@ -515,11 +549,11 @@ class TestUpdateRequests(BaseTestRequests):
         from the_tale.forum.models import Thread
         old_updated_at = self.post.updated_at
 
-        self.assertEqual(Post.objects.all().count(), 1)
+        self.assertEqual(models.Post.objects.all().count(), 1)
 
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:update', args=[self.post.id]), self.get_post_data()))
 
-        self.post = PostPrototype.get_by_id(self.post.id)
+        self.post = prototypes.PostPrototype.get_by_id(self.post.id)
         self.assertTrue(old_updated_at < self.post.updated_at)
 
         self.assertEqual(self.post.caption, 'new-X-caption')
@@ -527,8 +561,39 @@ class TestUpdateRequests(BaseTestRequests):
 
         self.assertTrue(self.post.state.is_ACCEPTED)
 
-        self.assertEqual(Post.objects.all().count(), 1)
+        self.assertEqual(models.Post.objects.all().count(), 1)
         self.assertEqual(Thread.objects.all()[0].caption, 'new-X-caption')
+
+    def test_update__uids(self):
+
+        meta_post = meta_relations.Post.create_from_object(self.post)
+
+        post_1, post_2, post_3 = self.create_posts(3, self.account_1, 'caption-a1-%d', 'text-a1-%d')
+
+        meta_post_1 = meta_relations.Post.create_from_object(post_1)
+        meta_post_2 = meta_relations.Post.create_from_object(post_2)
+        meta_post_3 = meta_relations.Post.create_from_object(post_3)
+
+        with self.check_delta(meta_relations_models.Relation.objects.count, 2):
+            self.check_ajax_ok(self.client.post(reverse('blogs:posts:update', args=[self.post.id]), self.get_post_data(uids='%s %s' % (meta_post_2.uid, meta_post_3.uid))))
+
+        self.assertFalse(meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_1))
+        self.assertTrue(meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_2))
+        self.assertTrue(meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_3))
+
+        with self.check_delta(meta_relations_models.Relation.objects.count, -1):
+            self.check_ajax_ok(self.client.post(reverse('blogs:posts:update', args=[self.post.id]), self.get_post_data(uids=meta_post_1.uid)))
+
+        self.assertTrue(meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_1))
+        self.assertFalse(meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_2))
+        self.assertFalse(meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_3))
+
+        with self.check_delta(meta_relations_models.Relation.objects.count, 0):
+            self.check_ajax_ok(self.client.post(reverse('blogs:posts:update', args=[self.post.id]), self.get_post_data(uids=meta_post_3.uid)))
+
+        self.assertFalse(meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_1))
+        self.assertFalse(meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_2))
+        self.assertTrue(meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_3))
 
 
 class TestModerateRequests(BaseTestRequests):
@@ -540,7 +605,7 @@ class TestModerateRequests(BaseTestRequests):
 
         self.client.post(reverse('blogs:posts:create'), {'caption': 'post-caption',
                                                          'text': 'post-text-'+'1'*1000})
-        self.post = PostPrototype(Post.objects.all()[0])
+        self.post = prototypes.PostPrototype(models.Post.objects.all()[0])
 
         self.request_logout()
         self.request_login('test_user_2@test.com')
@@ -575,9 +640,9 @@ class TestModerateRequests(BaseTestRequests):
         self.assertEqual(ForumPostPrototype._db_count(), 1)
 
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:accept', args=[self.post.id]), {}))
-        self.assertTrue(PostPrototype.get_by_id(self.post.id).state.is_ACCEPTED)
+        self.assertTrue(prototypes.PostPrototype.get_by_id(self.post.id).state.is_ACCEPTED)
 
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:decline', args=[self.post.id]), {}))
-        self.assertTrue(PostPrototype.get_by_id(self.post.id).state.is_DECLINED)
+        self.assertTrue(prototypes.PostPrototype.get_by_id(self.post.id).state.is_DECLINED)
 
         self.assertEqual(ForumPostPrototype._db_count(), 2)

@@ -15,9 +15,11 @@ from the_tale.game.heroes.prototypes import HeroPrototype
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.map.places import logic
-from the_tale.game.map.places import relations
-from the_tale.game.map.places import conf
+from .. import logic
+from .. import relations
+from .. import conf
+from .. import meta_relations
+
 
 
 class APIListRequestTests(testcase.TestCase):
@@ -114,3 +116,18 @@ class TestShowRequests(testcase.TestCase):
     def test_heroes__logined(self):
         self.request_login(self.account.email)
         self.check_heroes()
+
+    def test__has_folclor(self):
+        from the_tale.blogs.tests import helpers as blogs_helpers
+
+        blogs_helpers.prepair_forum()
+
+        blogs_helpers.create_post_for_meta_object(self.account, 'folclor-1-caption', 'folclor-1-text', meta_relations.Place.create_from_object(self.place_1))
+        blogs_helpers.create_post_for_meta_object(self.account, 'folclor-2-caption', 'folclor-2-text', meta_relations.Place.create_from_object(self.place_1))
+
+        self.check_html_ok(self.request_html(url('game:map:places:show', self.place_1.id)), texts=[('pgf-no-folclor', 0),
+                                                                                                   'folclor-1-caption',
+                                                                                                   'folclor-2-caption'])
+
+    def test__no_folclor(self):
+        self.check_html_ok(self.request_html(url('game:map:places:show', self.place_1.id)), texts=['pgf-no-folclor'])

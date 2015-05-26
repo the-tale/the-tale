@@ -10,13 +10,14 @@ from the_tale.common.utils import views as utils_views
 
 from the_tale.accounts import views as accounts_views
 
-from the_tale.game.companions import relations
-from the_tale.game.companions import forms
-from the_tale.game.companions import logic
-from the_tale.game.companions import storage
+from . import relations
+from . import forms
+from . import logic
+from . import storage
+from . import meta_relations
 
-from the_tale.game.companions.abilities import effects as abilities_effects
-from the_tale.game.companions.abilities import relations as abilities_relations
+from .abilities import effects as abilities_effects
+from .abilities import relations as abilities_relations
 
 ########################################
 # processors definition
@@ -194,6 +195,7 @@ def show(context):
 
     return dext_views.Page('companions/show.html',
                            content={'context': context,
+                                    'companion_meta_object': meta_relations.Companion.create_from_object(context.companion),
                                     'resource': context.resource,
                                     'companion': context.companion,
                                     'ingame_companion_phrases': ingame_companion_phrases,
@@ -210,6 +212,7 @@ def show_dialog(context):
 
     return dext_views.Page('companions/info.html',
                            content={'companion': context.companion,
+                                    'companion_meta_object': meta_relations.Companion.create_from_object(context.companion),
                                     'resource': context.resource})
 
 

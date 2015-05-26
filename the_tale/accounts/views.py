@@ -24,17 +24,18 @@ from the_tale.game.heroes.prototypes import HeroPrototype
 
 from the_tale.accounts.friends.prototypes import FriendshipPrototype
 from the_tale.accounts.personal_messages.prototypes import MessagePrototype
-
-from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype, AwardPrototype, ResetPasswordTaskPrototype
-from the_tale.accounts.postponed_tasks import RegistrationTask
-from the_tale.accounts import relations
-from the_tale.accounts import forms
-from the_tale.accounts import conf
-from the_tale.accounts import logic
-
 from the_tale.accounts.clans.prototypes import ClanPrototype
-
 from the_tale.accounts.third_party import decorators
+
+from .prototypes import AccountPrototype, ChangeCredentialsTaskPrototype, AwardPrototype, ResetPasswordTaskPrototype
+from . import postponed_tasks
+from . import relations
+from . import forms
+from . import conf
+from . import logic
+from . import meta_relations
+
+
 
 ###############################
 # new view processors
@@ -205,6 +206,7 @@ def show(context):
 
     return dext_views.Page('accounts/show.html',
                            content={'master_hero': master_hero,
+                                    'account_meta_object': meta_relations.Account.create_from_object(context.master_account),
                                     'account_info': logic.get_account_info(context.master_account, master_hero),
                                     'master_account': context.master_account,
                                     'accounts_settings': conf.accounts_settings,
@@ -435,7 +437,7 @@ class RegistrationResource(BaseAccountsResource):
         if conf.accounts_settings.SESSION_REGISTRATION_ACTION_KEY in self.request.session:
             action_id = self.request.session[conf.accounts_settings.SESSION_REGISTRATION_ACTION_KEY]
 
-        registration_task = RegistrationTask(account_id=None, referer=referer, referral_of_id=referral_of_id, action_id=action_id)
+        registration_task = postponed_tasks.RegistrationTask(account_id=None, referer=referer, referral_of_id=referral_of_id, action_id=action_id)
 
         task = PostponedTaskPrototype.create(registration_task,
                                              live_time=conf.accounts_settings.REGISTRATION_TIMEOUT)

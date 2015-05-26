@@ -17,10 +17,11 @@ from the_tale.game.logic import create_test_map, DEFAULT_HERO_EQUIPMENT
 
 from the_tale.game.mobs.storage import mobs_storage
 
-from the_tale.game.artifacts.models import ArtifactRecord
-from the_tale.game.artifacts.storage import artifacts_storage
-from the_tale.game.artifacts import relations
-from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
+from ..models import ArtifactRecord
+from ..storage import artifacts_storage
+from .. import relations
+from ..prototypes import ArtifactRecordPrototype
+from .. import meta_relations
 
 from the_tale.linguistics.tests import helpers as linguistics_helpers
 
@@ -75,7 +76,7 @@ class BaseTestRequests(TestCase):
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
-        self.account1 = AccountPrototype.get_by_id(account_id)
+        self.account_1 = AccountPrototype.get_by_id(account_id)
 
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
         self.account_2 = AccountPrototype.get_by_id(account_id)
@@ -239,7 +240,22 @@ class TestShowRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[(artifact.name.capitalize(), 5),
                                                                                                         ('pgf-no-description', 0),
                                                                                                         ('pgf-moderate-button', 0),
-                                                                                                        ('pgf-edit-button', 0)])
+                                                                                                        ('pgf-edit-button', 0),
+                                                                                                        'pgf-no-folclor'])
+
+    def test_folclor(self):
+        from the_tale.blogs.tests import helpers as blogs_helpers
+
+        blogs_helpers.prepair_forum()
+
+        artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all()[0])
+
+        blogs_helpers.create_post_for_meta_object(self.account_1, 'folclor-1-caption', 'folclor-1-text', meta_relations.Artifact.create_from_object(artifact))
+        blogs_helpers.create_post_for_meta_object(self.account_2, 'folclor-2-caption', 'folclor-2-text', meta_relations.Artifact.create_from_object(artifact))
+
+        self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[('pgf-no-folclor', 0),
+                                                                                                          'folclor-1-caption',
+                                                                                                          'folclor-2-caption'])
 
     def test_no_description(self):
         artifact = artifacts_storage.all()[0]
@@ -293,7 +309,23 @@ class TestInfoRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(url('guide:artifacts:info', artifact.id)), texts=[(artifact.name.capitalize(), 1),
                                                                                                ('pgf-no-description', 0),
                                                                                                ('pgf-moderate-button', 0),
-                                                                                               ('pgf-edit-button', 0)])
+                                                                                               ('pgf-edit-button', 0),
+                                                                                               'pgf-no-folclor'])
+
+    def test_folclor(self):
+        from the_tale.blogs.tests import helpers as blogs_helpers
+
+        blogs_helpers.prepair_forum()
+
+        artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all()[0])
+
+        blogs_helpers.create_post_for_meta_object(self.account_1, 'folclor-1-caption', 'folclor-1-text', meta_relations.Artifact.create_from_object(artifact))
+        blogs_helpers.create_post_for_meta_object(self.account_2, 'folclor-2-caption', 'folclor-2-text', meta_relations.Artifact.create_from_object(artifact))
+
+        self.check_html_ok(self.request_html(url('guide:artifacts:info', artifact.id)), texts=[('pgf-no-folclor', 0),
+                                                                                               'folclor-1-caption',
+                                                                                               'folclor-2-caption'])
+
 
     def test_no_description(self):
         artifact = artifacts_storage.all()[0]

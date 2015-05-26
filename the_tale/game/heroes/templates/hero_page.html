@@ -28,6 +28,7 @@ jQuery(document).ready(function(e){
     pgf.base.InitializeTabs('hero-tab-main', 'attributes', [['.pgf-attributes-tab-button', 'attributes'],
                                                             ['.pgf-politics-tab-button', 'politics'],
                                                             ['.pgf-statistics-tab-button', 'statistics'],
+                                                            ['.pgf-folclor-tab-button', 'folclor'],
                                                             ['.pgf-settings-tab-button', 'settings']]);
 
     pgf.base.ToggleWait(jQuery(".pgf-hero-data-wait"), true);
@@ -59,6 +60,7 @@ jQuery(document).ready(function(e){
       <li class=""><a href="#pgf-attributes-container" class="pgf-attributes-tab-button" data-toggle="tab">Атрибуты</a></li>
       <li class=""><a href="#pgf-politics-container" class="pgf-politics-tab-button" data-toggle="tab">Политика</a></li>
       <li class=""><a href="#pgf-statistics-container" class="pgf-statistics-tab-button" data-toggle="tab">Статистика</a></li>
+      <li class=""><a href="#pgf-folclor-container" class="pgf-folclor-tab-button" data-toggle="tab">Фольклор</a></li>
       {% if is_owner %}
       <li class="">
         <a href="#pgf-settings-container" class="pgf-settings-tab-button" data-toggle="tab">
@@ -102,6 +104,12 @@ jQuery(document).ready(function(e){
       <div class="tab-pane" id="pgf-statistics-container">
         <div class="span8">
           {% include "heroes/hero_statistics.html" with context %}
+        </div>
+      </div>
+
+      <div class="tab-pane" id="pgf-folclor-container">
+        <div class="span8">
+          {% include "heroes/hero_folclor.html" with context %}
         </div>
       </div>
 

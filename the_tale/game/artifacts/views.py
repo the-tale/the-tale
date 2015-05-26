@@ -12,11 +12,13 @@ from the_tale.common.utils.decorators import login_required
 
 from the_tale.game.map.relations import TERRAIN
 
-from the_tale.game.artifacts import relations
-from the_tale.game.artifacts import effects
-from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
-from the_tale.game.artifacts.storage import artifacts_storage
-from the_tale.game.artifacts.forms import ArtifactRecordForm, ModerateArtifactRecordForm
+from . import relations
+from . import effects
+from . import meta_relations
+from .prototypes import ArtifactRecordPrototype
+from .storage import artifacts_storage
+from .forms import ArtifactRecordForm, ModerateArtifactRecordForm
+
 
 EFFECTS_CHOICES = sorted(relations.ARTIFACT_EFFECT.select('value', 'text'),
                          key=lambda v: v[1])
@@ -135,6 +137,7 @@ class GuideArtifactResource(ArtifactResourceBase):
     @handler('#artifact', name='show', method='get')
     def show(self):
         return self.template('artifacts/show.html', {'artifact': self.artifact,
+                                                     'artifact_meta_object': meta_relations.Artifact.create_from_object(self.artifact),
                                                      'section': 'artifacts',
                                                      'EFFECTS': effects.EFFECTS})
 
@@ -142,6 +145,7 @@ class GuideArtifactResource(ArtifactResourceBase):
     @handler('#artifact', 'info', method='get')
     def show_dialog(self):
         return self.template('artifacts/info.html', {'artifact': self.artifact,
+                                                     'artifact_meta_object': meta_relations.Artifact.create_from_object(self.artifact),
                                                      'EFFECTS': effects.EFFECTS})
 
 

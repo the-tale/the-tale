@@ -33,11 +33,12 @@ from the_tale.game.relations import HABIT_TYPE
 from the_tale.game.cards import effects as cards_effects
 from the_tale.game.cards import relations as cards_relations
 
-from the_tale.game.heroes.prototypes import HeroPrototype
-from the_tale.game.heroes import postponed_tasks
-from the_tale.game.heroes import relations
-from the_tale.game.heroes.forms import ChoosePreferencesForm, EditNameForm
-from the_tale.game.heroes.conf import heroes_settings
+from . import prototypes
+from . import postponed_tasks
+from . import relations
+from . import forms
+from . import conf
+from . import meta_relations
 
 from the_tale.game.heroes.habilities import relations as habilities_relations
 
@@ -52,7 +53,7 @@ class CurrentHeroProcessor(dext_views.BaseViewProcessor):
             context.account_hero = None
             return
 
-        context.account_hero = HeroPrototype.get_by_account_id(context.account.id)
+        context.account_hero = prototypes.HeroPrototype.get_by_account_id(context.account.id)
 
 
 def split_list(items):
@@ -66,7 +67,7 @@ def split_list(items):
 
 class HeroResource(Resource):
 
-    @validate_argument('hero', HeroPrototype.get_by_id, 'heroes', u'Неверный идентификатор героя')
+    @validate_argument('hero', prototypes.HeroPrototype.get_by_id, 'heroes', u'Неверный идентификатор героя')
     def initialize(self, hero=None, *args, **kwargs):
         super(HeroResource, self).initialize(*args, **kwargs)
         self.hero = hero
@@ -88,7 +89,7 @@ class HeroResource(Resource):
     @login_required
     @handler('my-hero', method='get')
     def my_hero(self):
-        hero = HeroPrototype.get_by_account_id(self.account.id)
+        hero = prototypes.HeroPrototype.get_by_account_id(self.account.id)
         return self.redirect(reverse('game:heroes:show', args=[hero.id]))
 
 
@@ -100,7 +101,7 @@ class HeroResource(Resource):
         nonbattle_abilities = filter(lambda a: a.type.is_NONBATTLE, abilities)# pylint: disable=W0110
         companion_abilities = filter(lambda a: a.type.is_COMPANION, abilities)# pylint: disable=W0110
 
-        edit_name_form = EditNameForm(initial=EditNameForm.get_initials(hero=self.hero))
+        edit_name_form = forms.EditNameForm(initial=forms.EditNameForm.get_initials(hero=self.hero))
 
         master_account = AccountPrototype.get_by_id(self.hero.account_id)
 
@@ -113,7 +114,8 @@ class HeroResource(Resource):
                               'battle_passive_abilities': battle_passive_abilities,
                               'nonbattle_abilities': nonbattle_abilities,
                               'companion_abilities': companion_abilities,
-                              'heroes_settings': heroes_settings,
+                              'heroes_settings': conf.heroes_settings,
+                              'hero_meta_object': meta_relations.Hero.create_from_object(self.hero),
                               'is_owner': self.is_owner,
                               'edit_name_form': edit_name_form,
                               'master_account': master_account,
@@ -139,7 +141,7 @@ class HeroResource(Resource):
     @validate_ownership()
     @handler('#hero', 'change-hero', method='post')
     def change_hero(self):
-        edit_name_form = EditNameForm(self.request.POST)
+        edit_name_form = forms.EditNameForm(self.request.POST)
 
         if not edit_name_form.is_valid():
             return self.json_error('heroes.change_name.form_errors', edit_name_form.errors)
@@ -286,7 +288,7 @@ class HeroResource(Resource):
     @handler('#hero', 'choose-preferences', method='post')
     def choose_preferences(self):
 
-        choose_preferences_form = ChoosePreferencesForm(self.request.POST)
+        choose_preferences_form = forms.ChoosePreferencesForm(self.request.POST)
 
         if not choose_preferences_form.is_valid():
             return self.json_error('heroes.choose_preferences.form_errors', choose_preferences_form.errors)

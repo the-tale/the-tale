@@ -1,0 +1,19 @@
+{% import 'blogs/macros.html' as blogs_macros with context %}
+
+<div class="easy-block">
+
+  {% set folclor_objects = posts_about(hero_meta_object, allowed_for=master_account) %}
+
+  <h3>Произведения о герое</h3>
+
+  <p>
+    Чтобы произведение появилось в списке, его автор должен указать что оно об этом герое, а Хранитель героя должен поставить произведению «плюсик».
+  </p>
+
+  {% if folclor_objects %}
+  {{ blogs_macros.meta_posts_list(folclor_objects) }}
+  {% else %}
+  <p class="alert alert-info pgf-no-folclor">В настоящее время нет произведений о герое.</p>
+  {% endif %}
+
+</div>

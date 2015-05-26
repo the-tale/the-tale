@@ -5,6 +5,7 @@ from django.db import transaction
 
 from dext.views import handler, validator, validate_argument
 from dext.common.utils.urls import UrlBuilder
+from dext.common.meta_relations import logic as meta_relations_logic
 
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.pagination import Paginator
@@ -14,11 +15,12 @@ from the_tale.common.utils.enum import create_enum
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.views import validate_ban_forum
 
-from the_tale.blogs.prototypes import PostPrototype, VotePrototype
-from the_tale.blogs.models import Post, Vote
-from the_tale.blogs.conf import blogs_settings
-from the_tale.blogs.forms import PostForm
-from the_tale.blogs.relations import POST_STATE
+from . import prototypes
+from . import models
+from . import conf
+from . import forms
+from . import relations
+from . import meta_relations
 
 
 ORDER_BY = create_enum('ORDER_BY', (('ALPHABET', 'alphabet', u'по алфавиту'),
@@ -27,7 +29,7 @@ ORDER_BY = create_enum('ORDER_BY', (('ALPHABET', 'alphabet', u'по алфави
 
 class PostResource(Resource):
 
-    @validate_argument('post', PostPrototype.get_by_id, 'blogs.posts', u'Запись не найдена')
+    @validate_argument('post', prototypes.PostPrototype.get_by_id, 'blogs.posts', u'Запись не найдена')
     def initialize(self, post=None, *args, **kwargs):
         super(PostResource, self).initialize(*args, **kwargs)
         self.post = post
@@ -50,7 +52,7 @@ class PostResource(Resource):
     @handler('', method='get')
     def index(self, page=1, author_id=None, order_by=ORDER_BY.CREATED_AT):
 
-        posts_query = Post.objects.filter(state__in=[POST_STATE.NOT_MODERATED, POST_STATE.ACCEPTED])
+        posts_query = models.Post.objects.filter(state__in=[relations.POST_STATE.NOT_MODERATED, relations.POST_STATE.ACCEPTED])
 
         is_filtering = False
 
@@ -63,7 +65,7 @@ class PostResource(Resource):
                 posts_query = posts_query.filter(author_id=author_account.id)
                 is_filtering = True
             else:
-                posts_query = Post.objects.none()
+                posts_query = models.Post.objects.none()
 
         if order_by is not None:
             if order_by == ORDER_BY.ALPHABET:
@@ -83,19 +85,19 @@ class PostResource(Resource):
 
         page = int(page) - 1
 
-        paginator = Paginator(page, posts_count, blogs_settings.POSTS_ON_PAGE, url_builder)
+        paginator = Paginator(page, posts_count, conf.settings.POSTS_ON_PAGE, url_builder)
 
         if paginator.wrong_page_number:
             return self.redirect(paginator.last_page_url, permanent=False)
 
         post_from, post_to = paginator.page_borders(page)
 
-        posts = [ PostPrototype(post) for post in posts_query.select_related()[post_from:post_to]]
+        posts = [ prototypes.PostPrototype(post) for post in posts_query.select_related()[post_from:post_to]]
 
         votes = {}
 
         if self.account.is_authenticated():
-            votes = dict( (vote.post_id, VotePrototype(vote)) for vote in Vote.objects.filter(post_id__in=[post.id for post in posts], voter=self.account._model) )
+            votes = dict( (vote.post_id, prototypes.VotePrototype(vote)) for vote in models.Vote.objects.filter(post_id__in=[post.id for post in posts], voter=self.account._model) )
 
         return self.template('blogs/index.html',
                              {'posts': posts,
@@ -114,21 +116,27 @@ class PostResource(Resource):
     @validate_fast_account_restrictions()
     @handler('new', method='get')
     def new(self):
-        return self.template('blogs/new.html', {'form': PostForm(),
+        return self.template('blogs/new.html', {'form': forms.PostForm(),
                                                 'page_type': 'new',})
 
     @login_required
     @validate_ban_forum()
     @validate_fast_account_restrictions()
+    @transaction.atomic
     @handler('create', method='post')
     def create(self):
 
-        form = PostForm(self.request.POST)
+        form = forms.PostForm(self.request.POST)
 
         if not form.is_valid():
             return self.json_error('blogs.posts.create.form_errors', form.errors)
 
-        post = PostPrototype.create(author=self.account, caption=form.c.caption, text=form.c.text)
+        post = prototypes.PostPrototype.create(author=self.account, caption=form.c.caption, text=form.c.text)
+
+        meta_relations_logic.create_relations_for_objects(meta_relations.IsAbout,
+                                                          meta_relations.Post.create_from_object(post),
+                                                          form.c.meta_objects)
+
         return self.json_ok(data={'next_url': reverse('blogs:posts:show', args=[post.id])})
 
     @validate_declined_state()
@@ -139,10 +147,18 @@ class PostResource(Resource):
         thread_data = ThreadPageData()
         thread_data.initialize(account=self.account, thread=self.post.forum_thread, page=1, inline=True)
 
+        meta_post = meta_relations.Post.create_from_object(self.post)
+
+        is_about_objects = [obj for relation, obj in meta_relations_logic.get_objects_related_from(relation=meta_relations.IsAbout, meta_object=meta_post)]
+
+        is_about_objects.sort(key=lambda obj: (obj.TYPE_CAPTION, obj.caption))
+
         return self.template('blogs/show.html', {'post': self.post,
                                                  'page_type': 'show',
+                                                 'post_meta_object': meta_relations.Post.create_from_object(self.post),
+                                                 'is_about_objects': is_about_objects,
                                                  'thread_data': thread_data,
-                                                 'vote': None if not self.account.is_authenticated() else VotePrototype.get_for(self.account, self.post)})
+                                                 'vote': None if not self.account.is_authenticated() else prototypes.VotePrototype.get_for(self.account, self.post)})
 
     @login_required
     @validate_ban_forum()
@@ -151,8 +167,12 @@ class PostResource(Resource):
     @validate_declined_state()
     @handler('#post', 'edit', method='get')
     def edit(self):
-        form = PostForm(initial={'caption': self.post.caption,
-                                 'text': self.post.text})
+        meta_post = meta_relations.Post.create_from_object(self.post)
+
+        form = forms.PostForm(initial={'caption': self.post.caption,
+                                       'text': self.post.text,
+                                       'meta_objects': u' '.join(sorted(meta_relations_logic.get_uids_related_from(relation=meta_relations.IsAbout,
+                                                                                                                   meta_object=meta_post)))})
         return self.template('blogs/edit.html', {'post': self.post,
                                                  'page_type': 'edit',
                                                  'form': form} )
@@ -165,14 +185,13 @@ class PostResource(Resource):
     @transaction.atomic
     @handler('#post', 'update', method='post')
     def update(self):
-        form = PostForm(self.request.POST)
+        form = forms.PostForm(self.request.POST)
 
         if not form.is_valid():
             return self.json_error('blogs.posts.update.form_errors', form.errors)
 
         self.post.caption = form.c.caption
         self.post.text = form.c.text
-        # self.post.state = POST_STATE.NOT_MODERATED
 
         if self.can_moderate_post:
             self.post.moderator_id = self.account.id
@@ -181,6 +200,13 @@ class PostResource(Resource):
 
         self.post.forum_thread.caption = form.c.caption
         self.post.forum_thread.save()
+
+        meta_relations_logic.remove_relations_from_object(meta_relations.IsAbout,
+                                                          meta_relations.Post.create_from_object(self.post))
+
+        meta_relations_logic.create_relations_for_objects(meta_relations.IsAbout,
+                                                          meta_relations.Post.create_from_object(self.post),
+                                                          form.c.meta_objects)
 
         return self.json_ok()
 
@@ -206,7 +232,7 @@ class PostResource(Resource):
     @handler('#post', 'vote', method='post')
     def vote(self):
 
-        VotePrototype.create_if_not_exists(self.post, self.account)
+        prototypes.VotePrototype.create_if_not_exists(self.post, self.account)
 
         self.post.recalculate_votes()
         self.post.save()
@@ -219,7 +245,7 @@ class PostResource(Resource):
     @handler('#post', 'unvote', method='post')
     def unvote(self):
 
-        VotePrototype.remove_if_exists(self.post, self.account)
+        prototypes.VotePrototype.remove_if_exists(self.post, self.account)
 
         self.post.recalculate_votes()
         self.post.save()

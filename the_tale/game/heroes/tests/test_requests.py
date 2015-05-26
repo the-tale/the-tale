@@ -26,7 +26,8 @@ from the_tale.game import names
 from the_tale.game.cards import relations as cards_relations
 from the_tale.game.cards import objects as cards_objects
 
-from the_tale.game.heroes import relations
+from .. import relations
+from .. import meta_relations
 
 
 class HeroRequestsTestBase(TestCase):
@@ -35,14 +36,14 @@ class HeroRequestsTestBase(TestCase):
         super(HeroRequestsTestBase, self).setUp()
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        self.account = self.accounts_factory.create_account()
 
         self.storage = LogicStorage()
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
-        self.hero = self.storage.accounts_to_heroes[account_id]
+        self.storage.load_account_data(self.account)
+        self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.client = client.Client()
-        self.request_login('test_user@test.com')
+        self.request_login(self.account.email)
 
 
 class HeroIndexRequestsTests(HeroRequestsTestBase):
@@ -89,7 +90,8 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
                                   ('pgf-no-destiny-points', 2),
                                   ('pgf-settings-container',2),
                                   ('pgf-settings-tab-button', 2),
-                                  ('pgf-moderation-container', 0)))
+                                  ('pgf-moderation-container', 0),
+                                  'pgf-no-folclor'))
 
     def test_can_reset_abilities(self):
         self.hero.abilities.set_reseted_at(datetime.datetime.fromtimestamp(0))
@@ -116,7 +118,8 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
                  ('pgf-free-destiny-points', 0),
                  ('pgf-settings-container',0),
                  ('pgf-settings-tab-button', 1),
-                 ('pgf-moderation-container', 0))
+                 ('pgf-moderation-container', 0),
+                 'pgf-no-folclor')
 
         self.request_logout()
         self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)), texts=texts)
@@ -125,6 +128,16 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
 
         self.request_login('test_user_2@test.com')
         self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)), texts=texts)
+
+    def test_folclor(self):
+        from the_tale.blogs.tests import helpers as blogs_helpers
+
+        blogs_helpers.prepair_forum()
+
+        blogs_helpers.create_post_for_meta_object(self.account, 'folclor-1-caption', 'folclor-1-text', meta_relations.Hero.create_from_object(self.hero))
+        blogs_helpers.create_post_for_meta_object(self.account, 'folclor-2-caption', 'folclor-2-text', meta_relations.Hero.create_from_object(self.hero))
+
+        self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)), texts=(('pgf-no-folclor', 0), 'folclor-1-caption', 'folclor-2-caption'))
 
     def test_moderation_tab(self):
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
@@ -245,7 +258,7 @@ class ResetNameRequestsTests(HeroRequestsTestBase):
 
     def test_chane_hero_moderation(self):
         self.request_logout()
-        self.request_login('test_user@test.com')
+        self.request_login(self.account.email)
 
         self.check_ajax_error(self.client.post(url('game:heroes:reset-name', self.hero.id)), 'heroes.moderator_rights_required')
 
@@ -281,7 +294,7 @@ class ForceSaveRequestsTests(HeroRequestsTestBase):
 
     def test_no_moderation_rights(self):
         self.request_logout()
-        self.request_login('test_user@test.com')
+        self.request_login(self.account.email)
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_force_save') as cmd_force_save:
             self.check_ajax_error(self.client.post(url('game:heroes:force-save', self.hero.id)), 'heroes.moderator_rights_required')

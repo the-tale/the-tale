@@ -1,0 +1,22 @@
+{{ form.errors_container }}
+
+{{ form.caption.widget }}
+
+{{ form.chronicle_on_accepted.widget }}
+
+{% if bill_class.WITH_DURATION %}
+{{ form.duration.widget }}
+{{ form.chronicle_on_ended.widget }}
+{% endif %}
+
+{% include bill_class.USER_FORM_TEMPLATE with context %}
+
+<p>
+  В обосновании Вы можете подробно рассказать о причинах выдвижения закона. Оно может быть как художественным, так и деловым.
+</p>
+
+<p>
+  Если Вы хотите вместе с законом рассказать историю, то её можно опубликовать в <a href="{{url('blogs:posts:')}}">фольклоре</a>, дав ссылку на этот закон.
+</p>
+
+{{ form.rationale.widget }}

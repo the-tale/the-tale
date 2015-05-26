@@ -3,13 +3,14 @@
 {% import 'macros.html' as base_macros with context %}
 {% import 'bills/macros.html' as bills_macros with context %}
 {% import 'forum/thread_page.html' as thread_page with context %}
+{% import 'blogs/macros.html' as blogs_macros with context %}
 
 {% block title %} {{ bill.caption }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Информация о законе «{{ bill.caption }}».{% endblock %}
 
 {% block bills_content %}
 
-<h3>{{ bill.caption }}</h3>
+<h3>{{ bill.caption }} {{base_macros.magnet(bill_meta_object)}}</h3>
 
 {{ bills_macros.bill_info(bill, vote) }}
 
@@ -103,6 +104,25 @@
 
 <h4>Обоснование</h4>
 <p>{{ bill.rationale_html|safe }}</p>
+
+{% set folclor_objects = posts_about(bill_meta_object) %}
+
+{% if folclor_objects %}
+  <h4><a href="{{folclor_objects[0].url}}" target="_blank">{{folclor_objects[0].caption}}</a></h4>
+
+  {{folclor_objects[0].object.text_html|safe}}
+
+  {% if folclor_objects|length > 1 %}
+    <br/>
+    <br/>
+
+    <h4>Прочие произведения</h4>
+
+    {{ blogs_macros.meta_posts_list(folclor_objects) }}
+
+  {% endif %}
+
+{% endif %}
 
 {{ thread_page.thread_page(thread_data) }}
 

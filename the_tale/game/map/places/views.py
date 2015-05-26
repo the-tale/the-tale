@@ -14,9 +14,10 @@ from the_tale.game.persons import relations as persons_relations
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 
-from the_tale.game.map.places import storage
-from the_tale.game.map.places import conf
-from the_tale.game.map.places import logic
+from . import storage
+from . import conf
+from . import logic
+from . import meta_relations
 
 ########################################
 # processors definition
@@ -245,6 +246,7 @@ def show(context):
     place_info = logic.place_info(context.place)
     return dext_views.Page('places/show.html',
                            content={'place_info': place_info,
+                                    'place_meta_object': meta_relations.Place.create_from_object(context.place),
                                     'RACE': game_relations.RACE,
                                     'GENDER': game_relations.GENDER,
                                     'PERSON_TYPE': persons_relations.PERSON_TYPE,

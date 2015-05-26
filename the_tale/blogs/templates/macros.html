@@ -1,0 +1,20 @@
+
+
+{% macro meta_posts_list(objects) %}
+
+<table class="table table-condensed table-striped table-bordered">
+  <tbody>
+    {% for object in objects %}
+      <tr>
+        <td width="25px" style="text-align: center;">
+          <span class="blog-post-rating label {% if object.object.votes > 0 %}label-success{% endif %} {% if object.object.votes < 0 %}label-important{% endif %}">
+            {{ object.object.votes }}
+          </span>
+        </td>
+        <td><a href="{{object.url}}" target="_blank">{{object.caption}}</a></td>
+      </tr>
+      {% endfor %}
+  </tbody>
+</table>
+
+{% endmacro %}

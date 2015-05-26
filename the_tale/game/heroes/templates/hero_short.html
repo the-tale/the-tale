@@ -1,3 +1,4 @@
+{% import 'macros.html' as base_macros with context %}
 
 {% macro hero_short(block_id, is_owner, show_hero_link, master_account=none, data_mode='pve', clan=none, no_clan_placement=false) %}
 
@@ -27,6 +28,7 @@ jQuery(document).ready(function(e) {
     <a href="" class="pgf-hero-page-link pgf-name" style="vertical-align: middle;"></a>
     {% else %}
     <span href="" class="pgf-name" style="vertical-align: middle;"></span>
+    <div style="display: inline; vertical-align: middle;">{{base_macros.magnet(hero_meta_object)}}</div>
     {% endif %}
 
     {% if is_owner %}

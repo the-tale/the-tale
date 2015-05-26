@@ -20,11 +20,12 @@ from the_tale.game.heroes.prototypes import HeroPrototype
 
 from the_tale.game.map.places.storage import places_storage
 
-from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
-from the_tale.game.bills.conf import bills_settings
-from the_tale.game.bills.models import Bill, Vote
-from the_tale.game.bills.bills import BILLS_BY_ID
-from the_tale.game.bills.relations import VOTED_TYPE, VOTE_TYPE, BILL_STATE, BILL_TYPE
+from .prototypes import BillPrototype, VotePrototype
+from .conf import bills_settings
+from .models import Bill, Vote
+from .bills import BILLS_BY_ID
+from .relations import VOTED_TYPE, VOTE_TYPE, BILL_STATE, BILL_TYPE
+from . import meta_relations
 
 
 BASE_INDEX_FILTERS = [list_filter.reset_element(),
@@ -216,14 +217,18 @@ class BillResource(Resource):
     @handler('#bill', name='show', method='get')
     def show(self):
         from the_tale.forum.views import ThreadPageData
+        from the_tale.blogs import meta_relations as blogs_meta_relations
 
         thread_data = ThreadPageData()
         thread_data.initialize(account=self.account, thread=self.bill.forum_thread, page=1, inline=True)
+
+        meta_bill = meta_relations.Bill.create_from_object(self.bill)
 
         return self.template('bills/show.html', {'bill': self.bill,
                                                  'thread_data': thread_data,
                                                  'VOTE_TYPE': VOTE_TYPE,
                                                  'page_type': 'show',
+                                                 'bill_meta_object': meta_relations.Bill.create_from_object(self.bill),
                                                  'vote': VotePrototype.get_for(self.account, self.bill) if self.account.is_authenticated() else None,
                                                  'can_vote': self.bill.can_vote(self.hero) if self.hero is not None else None})
 

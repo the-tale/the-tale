@@ -14,11 +14,12 @@ from the_tale.accounts.views import validate_fast_account, validate_ban_any
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.conf import accounts_settings
 
-from the_tale.accounts.clans.prototypes import ClanPrototype, MembershipPrototype, MembershipRequestPrototype
-from the_tale.accounts.clans.conf import clans_settings
-from the_tale.accounts.clans.relations import ORDER_BY, MEMBER_ROLE, PAGE_ID, MEMBERSHIP_REQUEST_TYPE
-from the_tale.accounts.clans.forms import ClanForm, MembershipRequestForm
-from the_tale.accounts.clans.logic import ClanInfo
+from .prototypes import ClanPrototype, MembershipPrototype, MembershipRequestPrototype
+from .conf import clans_settings
+from .relations import ORDER_BY, MEMBER_ROLE, PAGE_ID, MEMBERSHIP_REQUEST_TYPE
+from .forms import ClanForm, MembershipRequestForm
+from .logic import ClanInfo
+from . import meta_relations
 
 
 class IndexFilter(list_filter.ListFilter):
@@ -139,8 +140,10 @@ class ClansResource(Resource):
 
         return self.template('clans/show.html',
                              {'page_id': PAGE_ID.SHOW,
+                              'clan_meta_object': meta_relations.Clan.create_from_object(self.clan),
                               'roles': roles,
                               'accounts': accounts,
+                              'leader': accounts[0],
                               'active_state_days': accounts_settings.ACTIVE_STATE_TIMEOUT / (24*60*60),
                               'affect_game_accounts_number': affect_game_accounts_number,
                               'active_accounts_number': active_accounts_number,

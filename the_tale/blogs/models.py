@@ -17,6 +17,8 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now=True, null=False)
 
+    created_at_turn = models.BigIntegerField()
+
     caption = models.CharField(max_length=CAPTION_MAX_LENGTH)
     text = models.TextField(null=False, blank=True, default='')
 

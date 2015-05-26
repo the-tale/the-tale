@@ -10,8 +10,9 @@ from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts import relations
 
-from the_tale.blogs.prototypes import PostPrototype as BlogPostPrototype, POST_STATE as BLOG_POST_STATE
-from the_tale.blogs.conf import blogs_settings
+from the_tale.blogs.prototypes import PostPrototype as BlogPostPrototype
+from the_tale.blogs.relations import POST_STATE as BLOG_POST_STATE
+from the_tale.blogs import conf as blogs_conf
 
 from the_tale.game import names
 
@@ -43,7 +44,7 @@ class CalculateMightTests(testcase.TestCase):
 
         self.forum_category = CategoryPrototype.create('category', 'category-slug', 0)
         self.bills_subcategory = SubCategoryPrototype.create(self.forum_category, 'subcategory', order=0, uid=bills_settings.FORUM_CATEGORY_UID)
-        self.blogs_subcategory = SubCategoryPrototype.create(self.forum_category, blogs_settings.FORUM_CATEGORY_UID + '-caption', order=1, uid=blogs_settings.FORUM_CATEGORY_UID)
+        self.blogs_subcategory = SubCategoryPrototype.create(self.forum_category, blogs_conf.settings.FORUM_CATEGORY_UID + '-caption', order=1, uid=blogs_conf.settings.FORUM_CATEGORY_UID)
 
 
     def test_initialize(self):
@@ -350,9 +351,9 @@ class CalculateMightTests(testcase.TestCase):
 
         with self.check_delta(lambda: calculate_might(self.account), relations.MIGHT_AMOUNT.FOR_MIN_FOLCLOR_POST.amount*(1 + 1.5 + 2.1)):
 
-            BlogPostPrototype.create(author=self.account, caption='caption', text='x'*blogs_settings.MIN_TEXT_LENGTH)
-            BlogPostPrototype.create(author=self.account, caption='caption-2', text='y'*blogs_settings.MIN_TEXT_LENGTH*2)
-            BlogPostPrototype.create(author=self.account, caption='caption-3', text='z'*blogs_settings.MIN_TEXT_LENGTH*4)
+            BlogPostPrototype.create(author=self.account, caption='caption', text='x'*blogs_conf.settings.MIN_TEXT_LENGTH)
+            BlogPostPrototype.create(author=self.account, caption='caption-2', text='y'*blogs_conf.settings.MIN_TEXT_LENGTH*2)
+            BlogPostPrototype.create(author=self.account, caption='caption-3', text='z'*blogs_conf.settings.MIN_TEXT_LENGTH*4)
 
             Post.objects.all().delete()
             Thread.objects.all().delete()
@@ -376,7 +377,7 @@ class CalculateMightHelpersTests(testcase.TestCase):
         super(CalculateMightHelpersTests, self).setUp()
 
     def test_folclor_post_might(self):
-        MIN = blogs_settings.MIN_TEXT_LENGTH
+        MIN = blogs_conf.settings.MIN_TEXT_LENGTH
         BASE = relations.MIGHT_AMOUNT.FOR_MIN_FOLCLOR_POST.amount
 
         self.assertEqual(folclor_post_might(MIN), BASE)

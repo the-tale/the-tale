@@ -45,7 +45,7 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
 
     def test_user_form_initials(self):
         self.assertEqual(self.bill.data.user_form_initials,
-                         {'bill': self.declined_bill.id})
+                         {'declined_bill': self.declined_bill.id})
 
     def test_actors(self):
         self.assertEqual(self.bill_data.actors, self.declined_bill.data.actors)

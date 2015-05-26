@@ -181,6 +181,7 @@ INSTALLED_APPS = [
     'dext.forms',
     'dext.common.utils',
     'dext.common.amqp_queues',
+    'dext.common.meta_relations',
 
     'the_tale.common.utils',
     'the_tale.common.postponed_tasks',

@@ -205,7 +205,7 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.HABIT_QUEST_PRIORITY_MODIFIER, 2.0)
 
-        self.assertEqual(c.HONOR_POWER_BONUS_FRACTION, 0.5)
+        self.assertEqual(c.HONOR_POWER_BONUS_FRACTION, 1.5)
         self.assertEqual(c.MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE, 0.02)
 
         self.assertEqual(c.HABIT_QUEST_REWARD_MAX_BONUS, 0.25)

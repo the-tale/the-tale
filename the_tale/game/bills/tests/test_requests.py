@@ -7,6 +7,7 @@ from django.test import client
 from django.core.urlresolvers import reverse
 
 from dext.common.utils.urls import url
+from dext.common.meta_relations import logic as meta_relations_logic
 
 from the_tale.common.utils.testcase import TestCase
 from the_tale.common.utils.permissions import sync_group
@@ -27,11 +28,12 @@ from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.map.places.storage import places_storage
 from the_tale.game.map.places.relations import RESOURCE_EXCHANGE_TYPE
 
-from the_tale.game.bills.models import Bill, Vote
-from the_tale.game.bills.relations import VOTE_TYPE, BILL_STATE, BILL_DURATION
-from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
-from the_tale.game.bills.bills import PlaceRenaming, PersonRemove, PlaceResourceExchange
-from the_tale.game.bills.conf import bills_settings
+from ..models import Bill, Vote
+from ..relations import VOTE_TYPE, BILL_STATE, BILL_DURATION
+from ..prototypes import BillPrototype, VotePrototype
+from ..bills import PlaceRenaming, PersonRemove, PlaceResourceExchange
+from ..conf import bills_settings
+from .. import meta_relations
 
 
 class BaseTestRequests(TestCase):
@@ -409,6 +411,25 @@ class TestShowRequests(BaseTestRequests):
                  ('pgf-bills-results-detailed', 0),
                  ('pgf-can-not-vote-message', 0),
                  (self.place2.name, 2)]
+
+        self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=texts)
+
+
+    def test_show__folclor(self):
+        from the_tale.blogs.tests import helpers as blogs_helpers
+
+        blogs_helpers.prepair_forum()
+
+        bill_data = PlaceRenaming(place_id=self.place2.id, name_forms=names.generator.get_test_name('new_name_2'))
+        self.create_bills(1, self.account1, 'Caption-a2-%d', 'rationale-a2-%d', bill_data)
+        bill = BillPrototype._db_latest()
+
+        blogs_helpers.create_post_for_meta_object(self.account1, 'folclor-1-caption', 'folclor-1-text', meta_relations.Bill.create_from_object(bill))
+        blogs_helpers.create_post_for_meta_object(self.account1, 'folclor-2-caption', 'folclor-2-text', meta_relations.Bill.create_from_object(bill))
+
+        texts = ['folclor-1-caption',
+                 'folclor-1-text',
+                 'folclor-2-caption']
 
         self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=texts)
 

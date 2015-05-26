@@ -1,5 +1,7 @@
 {% extends "places/base.html" %}
+{% import 'macros.html' as base_macros with context %}
 {% import 'places/macros.html' as places_macros with context %}
+{% import 'blogs/macros.html' as blogs_macros with context %}
 
 {% block title %} {{ place_info.name }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Информация о городе «{{place_info.name}}»{% endblock %}
@@ -24,7 +26,13 @@
 
 {% block places_content %}
 
-<h3>{{place_info.name}} <small>подробная информация</small></h3><br/>
+  <h3>
+    {{place_info.name}}
+    {{ base_macros.magnet(place_meta_object) }}
+    <small>подробная информация</small>
+  </h3>
+
+  <br/>
 
 <blockquote>
   {{place_info.description|safe}}
@@ -166,5 +174,14 @@
 
 </div>
 
+{% set folclor_objects = posts_about(place_meta_object) %}
+
+<h3>Произведения о городе</h3>
+
+{% if folclor_objects %}
+  {{ blogs_macros.meta_posts_list(folclor_objects) }}
+{% else %}
+  <p class="alert alert-info pgf-no-folclor">В настоящее время нет произведений о городе.</p>
+{% endif %}
 
 {% endblock %}

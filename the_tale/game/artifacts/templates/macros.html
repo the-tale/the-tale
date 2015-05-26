@@ -1,3 +1,4 @@
+{% import 'blogs/macros.html' as blogs_macros with context %}
 
 {% macro artifact_info(artifact, limit_content=false, link_in_blank=false) %}
 
@@ -73,6 +74,19 @@
   {% else %}
   <p class="pgf-no-description">нет описания</p>
   {% endif %}
+
+  {% set folclor_objects = posts_about(artifact_meta_object) %}
+
+  <br/>
+  <br/>
+  <h3>Произведения об артефакте</h3>
+
+  {% if folclor_objects %}
+  {{ blogs_macros.meta_posts_list(folclor_objects) }}
+  {% else %}
+  <p class="alert alert-info pgf-no-folclor">В настоящее время нет произведений об артефакте.</p>
+  {% endif %}
+
 
   {% if limit_content %}
 </div>

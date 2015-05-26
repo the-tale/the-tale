@@ -10,7 +10,8 @@
 
 {% block blogs_content %}
 
-<h3 style="display: inline-block;">{{ post.caption }}</h3>
+<h3 style="display: inline-block;">{{ post.caption }} {{base_macros.magnet(post_meta_object)}}</h3>
+
 <div class="blog-post-info">
   <span class="text"><span class="pgf-format-datetime" data-timestamp="{{ post.created_at|timestamp }}"></span>,</span>
   <span class="text">автор:</span>
@@ -79,6 +80,34 @@
     {% endif %}
   </ul>
 </div>
+
+{% if is_about_objects %}
+
+<div class="accordion" id="pgf-blog-post-is-about">
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-blog-post-is-about" href="#pgf-blog-post-is-about-intro">
+        Это произведение о…
+      </a>
+    </div>
+    <div id="pgf-blog-post-is-about-intro" class="accordion-body collapse" style="height: 0px; padding-left: 10px; padding-right: 10px;">
+
+      <table class="table table-condensed table-striped table-bordered">
+        <tbody>
+          {% for object in is_about_objects %}
+            <tr>
+              <td width="75px">{{object.TYPE_CAPTION}}</td>
+              <td><a href="{{object.url}}" target="_blank">{{object.caption}}</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endif %}
 
 
 <div class="blog-post-content">
