@@ -12,7 +12,7 @@ from the_tale.accounts import relations
 from the_tale.forum.models import Post, Thread, POST_STATE
 from the_tale.blogs.relations import POST_STATE as BLOG_POST_STATE
 from the_tale.blogs.prototypes import PostPrototype as BlogPostProtype
-from the_tale.blogs.conf import blogs_settings
+from the_tale.blogs import conf as blogs_conf
 
 from the_tale.game.bills.models import Bill, Vote
 from the_tale.game.bills.relations import BILL_STATE, VOTE_TYPE
@@ -45,16 +45,16 @@ def calculate_linguistics_migth(account_id, contribution_type, might_per_entity,
 def folclor_post_might(characters_count):
     might = relations.MIGHT_AMOUNT.FOR_MIN_FOLCLOR_POST.amount
 
-    characters_count -= blogs_settings.MIN_TEXT_LENGTH
+    characters_count -= blogs_conf.settings.MIN_TEXT_LENGTH
 
-    might += min(float(characters_count) / blogs_settings.MIN_TEXT_LENGTH, 2) * relations.MIGHT_AMOUNT.FOR_MIN_FOLCLOR_POST.amount * 0.5
+    might += min(float(characters_count) / blogs_conf.settings.MIN_TEXT_LENGTH, 2) * relations.MIGHT_AMOUNT.FOR_MIN_FOLCLOR_POST.amount * 0.5
 
-    characters_count -= 2 * blogs_settings.MIN_TEXT_LENGTH
+    characters_count -= 2 * blogs_conf.settings.MIN_TEXT_LENGTH
 
     if characters_count < 0:
         return might
 
-    might += float(characters_count) / blogs_settings.MIN_TEXT_LENGTH * relations.MIGHT_AMOUNT.FOR_MIN_FOLCLOR_POST.amount * 0.1
+    might += float(characters_count) / blogs_conf.settings.MIN_TEXT_LENGTH * relations.MIGHT_AMOUNT.FOR_MIN_FOLCLOR_POST.amount * 0.1
 
     return might
 

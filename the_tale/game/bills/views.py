@@ -242,6 +242,7 @@ class BillResource(Resource):
     def edit(self):
         user_form = self.bill.data.get_user_form_update(initial=self.bill.user_form_initials)
         return self.template('bills/edit.html', {'bill': self.bill,
+                                                 'bill_class': self.bill.data,
                                                  'page_type': 'edit',
                                                  'form': user_form} )
 

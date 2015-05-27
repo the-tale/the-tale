@@ -31,7 +31,7 @@ jQuery(document).ready( function(e) {
 
 <form id="pgf-edit-bill-form" method="post" action="{{ url('game:bills:update', bill.id) }}">
 
-  {% include "bills/user_form.html" %}
+  {% include "bills/user_form.html" with context %}
 
   <div class="widget">
     <input type="submit" class="btn" value="Сохранить"/>

@@ -32,7 +32,7 @@ jQuery(document).ready( function(e) {
 
 <form id="pgf-new-bill-form" method="post" action="{{ url('game:bills:create', bill_type=bill_class.type.value) }}">
 
-  {% include "bills/user_form.html" %}
+  {% include "bills/user_form.html" with context%}
 
   <div class="widget">
     <input type="submit" class="btn" value="Создать"/>
