@@ -201,15 +201,19 @@ class TestShowRequests(BaseTestRequests):
                                                                     self.clan.description_html,
                                                                     (self.clan.description, 0)])
 
-    def test_no_folclor(self):
+    def test_folclor(self):
         from the_tale.blogs.tests import helpers as blogs_helpers
 
         blogs_helpers.prepair_forum()
 
-        blogs_helpers.create_post_for_meta_object(self.account, 'folclor-1-caption', 'folclor-1-text', meta_relations.Clan.create_from_object(self.clan))
-        blogs_helpers.create_post_for_meta_object(self.account, 'folclor-2-caption', 'folclor-2-text', meta_relations.Clan.create_from_object(self.clan))
+        blogs_helpers.create_post_for_meta_object(self.accounts_factory.create_account(), 'folclor-1-caption', 'folclor-1-text',
+                                                  meta_relations.Clan.create_from_object(self.clan), vote_by=self.account)
+        blogs_helpers.create_post_for_meta_object(self.accounts_factory.create_account(), 'folclor-2-caption', 'folclor-2-text',
+                                                  meta_relations.Clan.create_from_object(self.clan), vote_by=self.account)
+        blogs_helpers.create_post_for_meta_object(self.accounts_factory.create_account(), 'folclor-3-caption', 'folclor-3-text',
+                                                   meta_relations.Clan.create_from_object(self.clan))
 
-        self.check_html_ok(self.request_html(self.show_url), texts=[('pgf-no-folclor', 0)])
+        self.check_html_ok(self.request_html(self.show_url), texts=[('pgf-no-folclor', 0), 'folclor-1-caption', 'folclor-2-caption', ('folclor-3-caption', 0)])
 
 
 class TestEditRequests(BaseTestRequests):

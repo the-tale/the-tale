@@ -14,8 +14,10 @@ def prepair_forum():
                                uid=conf.settings.FORUM_CATEGORY_UID,
                                category=forum_category)
 
-def create_post_for_meta_object(author, caption, text, meta_object):
+def create_post_for_meta_object(author, caption, text, meta_object, vote_by=None):
     post = prototypes.PostPrototype.create(author, caption, text)
     meta_relations_logic.create_relations_for_objects(meta_relations.IsAbout,
                                                       meta_relations.Post.create_from_object(post),
                                                       [meta_object])
+    if vote_by:
+        prototypes.VotePrototype.create(post, voter=vote_by)

@@ -196,24 +196,32 @@ class ShowRequestsTests(AccountRequestsTests):
 
         blogs_helpers.prepair_forum()
 
-        blogs_helpers.create_post_for_meta_object(self.account_2, 'folclor-1-caption', 'folclor-1-text', meta_relations.Account.create_from_object(self.account_1))
-        blogs_helpers.create_post_for_meta_object(self.account_3, 'folclor-2-caption', 'folclor-2-text', meta_relations.Account.create_from_object(self.account_1))
+        blogs_helpers.create_post_for_meta_object(self.account_2, 'folclor-1-caption', 'folclor-1-text',
+                                                  meta_relations.Account.create_from_object(self.account_1), vote_by=self.account_1)
+        blogs_helpers.create_post_for_meta_object(self.account_3, 'folclor-2-caption', 'folclor-2-text',
+                                                  meta_relations.Account.create_from_object(self.account_1), vote_by=self.account_1)
+        blogs_helpers.create_post_for_meta_object(self.account_3, 'folclor-3-caption', 'folclor-3-text', meta_relations.Account.create_from_object(self.account_1))
 
         self.request_login('test_user2@test.com')
 
-        self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_1.id])), texts=[('pgf-no-folclor', 0), 'folclor-1-caption', 'folclor-2-caption'])
+        self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_1.id])),
+                           texts=[('pgf-no-folclor', 0), 'folclor-1-caption', 'folclor-2-caption', ('folclor-3-caption', 0)])
 
     def test_show_no_folclor(self):
         from the_tale.blogs.tests import helpers as blogs_helpers
 
         blogs_helpers.prepair_forum()
 
-        blogs_helpers.create_post_for_meta_object(self.account_2, 'folclor-1-caption', 'folclor-1-text', meta_relations.Account.create_from_object(self.account_1))
-        blogs_helpers.create_post_for_meta_object(self.account_3, 'folclor-2-caption', 'folclor-2-text', meta_relations.Account.create_from_object(self.account_3))
+        blogs_helpers.create_post_for_meta_object(self.account_2, 'folclor-1-caption', 'folclor-1-text',
+                                                  meta_relations.Account.create_from_object(self.account_1), vote_by=self.account_1)
+        blogs_helpers.create_post_for_meta_object(self.account_3, 'folclor-2-caption', 'folclor-2-text',
+                                                  meta_relations.Account.create_from_object(self.account_1), vote_by=self.account_1)
+        blogs_helpers.create_post_for_meta_object(self.account_3, 'folclor-3-caption', 'folclor-3-text', meta_relations.Account.create_from_object(self.account_1))
 
         self.request_login('test_user2@test.com')
 
-        self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_2.id])), texts=['pgf-no-folclor', ('folclor-1-caption', 0), ('folclor-2-caption', 0)])
+        self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_2.id])),
+                           texts=['pgf-no-folclor', ('folclor-1-caption', 0), ('folclor-2-caption', 0), ('folclor-3-caption', 0)])
 
     def test_fast_account(self):
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_4.id])))
