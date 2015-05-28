@@ -60,7 +60,8 @@ class Contribution(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False, db_index=True)
     account = models.ForeignKey(project_settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
-    type = RelationIntegerField(relation=relations.CONTRIBUTION_TYPE, default=0, db_index=True)
+    state = RelationIntegerField(relation=relations.CONTRIBUTION_STATE, db_index=True)
+    type = RelationIntegerField(relation=relations.CONTRIBUTION_TYPE, db_index=True)
     source = RelationIntegerField(relation=relations.CONTRIBUTION_SOURCE, db_index=True)
 
     # if entity_id < 0 it is id of old phrase_candidate entity

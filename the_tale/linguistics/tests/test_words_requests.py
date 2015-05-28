@@ -35,6 +35,13 @@ class BaseRequestsTests(TestCase):
         result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')
         self.account_1 = AccountPrototype.get_by_id(account_id)
 
+        result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
+        self.moderator = AccountPrototype.get_by_id(account_id)
+
+        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_word'])
+        group.user_set.add(self.moderator._model)
+
+
 
 
 class IndexRequestsTests(BaseRequestsTests):
@@ -236,6 +243,29 @@ class CreateRequestsTests(BaseRequestsTests):
             self.assertEqual(child_word, last_prototype.utg_word)
             self.assertEqual(last_prototype.parent_id, None)
 
+    def test_create__with_on_review_parent__by_moderator(self):
+        self.request_login(self.moderator.email)
+
+        for word_type in utg_relations.WORD_TYPE.records:
+            parent_word = utg_words.Word.create_test_word(word_type, prefix=u'parent-')
+            child_word = utg_words.Word.create_test_word(word_type, prefix=u'child-')
+
+            parent = prototypes.WordPrototype.create(parent_word, author=self.account_1)
+
+            requested_url = url('linguistics:words:create', type=word_type.value, parent=parent.id)
+
+            with self.check_delta(prototypes.WordPrototype._db_count, 0):
+                response = self.client.post(requested_url, helpers.get_word_post_data(child_word))
+
+            last_prototype = prototypes.WordPrototype._db_latest()
+
+            self.assertTrue(parent.created_at < last_prototype.created_at)
+
+            self.check_ajax_ok(response, data={'next_url': url('linguistics:words:show', last_prototype.id)})
+
+            self.assertEqual(child_word, last_prototype.utg_word)
+            self.assertEqual(last_prototype.parent_id, None)
+
 
     def test_can_not_replace_onreview_word_from_another_author(self):
         for word_type in utg_relations.WORD_TYPE.records:
@@ -278,6 +308,7 @@ class CreateRequestsTests(BaseRequestsTests):
 
             self.assertEqual(child_word, last_prototype.utg_word)
             self.assertEqual(last_prototype.parent_id, parent.id)
+
 
     def test_create__with_parent__full_copy(self):
         for word_type in utg_relations.WORD_TYPE.records:
@@ -373,12 +404,6 @@ class ShowRequestsTests(BaseRequestsTests):
         super(ShowRequestsTests, self).setUp()
 
         self.word_type = random.choice(utg_relations.WORD_TYPE.records)
-
-        result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
-        self.moderator = AccountPrototype.get_by_id(account_id)
-
-        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_word'])
-        group.user_set.add(self.moderator._model)
 
 
     def test_word_errors(self):
@@ -518,14 +543,7 @@ class RemoveRequestsTests(BaseRequestsTests):
         self.word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True),
                                                     author=self.account_1)
 
-        result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
-        self.moderator = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('account_2', 'account_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
-
-        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_word'])
-        group.user_set.add(self.moderator._model)
+        self.account_2 = self.accounts_factory.create_account()
 
         self.request_login(self.account_1.email)
 
@@ -569,6 +587,28 @@ class RemoveRequestsTests(BaseRequestsTests):
         with self.check_delta(prototypes.WordPrototype._db_count, -1):
             self.check_ajax_ok(self.client.post(self.requested_url))
 
+
+    def test_remove_contributions(self):
+        self.request_login(self.moderator.email)
+
+        contribution_1 = prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                                 account_id=self.account_1.id,
+                                                                 entity_id=self.word.id,
+                                                                 source=relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                                 state=relations.CONTRIBUTION_STATE.ON_REVIEW)
+
+        contribution_2 = prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                                 account_id=self.account_2.id,
+                                                                 entity_id=self.word.id,
+                                                                 source=relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                                 state=relations.CONTRIBUTION_STATE.IN_GAME)
+
+        with self.check_delta(prototypes.WordPrototype._db_count, -1):
+            self.check_ajax_ok(self.client.post(self.requested_url))
+
+        self.assertFalse(prototypes.ContributionPrototype._db_filter(id=contribution_1.id).exists())
+        self.assertTrue(prototypes.ContributionPrototype._db_filter(id=contribution_2.id).exists())
+
     def test_remove__by_ownership(self):
         self.request_login(self.account_1.email)
 
@@ -594,11 +634,12 @@ class InGameRequestsTests(BaseRequestsTests):
         self.word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True),
                                                     author=self.account_1)
 
-        result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
-        self.moderator = AccountPrototype.get_by_id(account_id)
+        self.author_contribution = prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                                           account_id=self.account_1.id,
+                                                                           entity_id=self.word.id,
+                                                                           source=relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                                           state=self.word.state.contribution_state)
 
-        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_word'])
-        group.user_set.add(self.moderator._model)
 
         self.request_login(self.account_1.email)
 
@@ -638,7 +679,7 @@ class InGameRequestsTests(BaseRequestsTests):
 
         self.assertTrue(self.word.state.is_ON_REVIEW)
 
-        with self.check_delta(prototypes.ContributionPrototype._db_count, 1):
+        with self.check_not_changed(prototypes.ContributionPrototype._db_count):
             with self.check_delta(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.IN_GAME).count, 1):
                 with self.check_delta(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.ON_REVIEW).count, -1):
                     self.check_ajax_ok(self.client.post(self.requested_url))
@@ -660,20 +701,6 @@ class InGameRequestsTests(BaseRequestsTests):
 
         last_contribution = prototypes.ContributionPrototype._db_latest()
         self.assertTrue(last_contribution.source.is_PLAYER)
-
-
-    def test_in_game__author_is_moderator(self):
-        moderator_2 = self.accounts_factory.create_account()
-        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_word'])
-        group.user_set.add(moderator_2._model)
-
-        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w2-', only_required=True), author=moderator_2)
-
-        self.request_login(self.moderator.email)
-        self.check_ajax_ok(self.client.post(url('linguistics:words:in-game', word.id)))
-
-        last_contribution = prototypes.ContributionPrototype._db_latest()
-        self.assertTrue(last_contribution.source.is_MODERATOR)
 
 
     def test_in_game__no_parent_but_equal_word_already_in_game(self):
@@ -731,14 +758,10 @@ class InGameRequestsTests(BaseRequestsTests):
         self.word.save()
 
         prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.WORD,
-                                                account_id=self.account_1.id,
-                                                entity_id=self.word.id,
-                                                source=relations.CONTRIBUTION_SOURCE.random())
-
-        prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.WORD,
                                                 account_id=account_3.id,
                                                 entity_id=self.word.id,
-                                                source=relations.CONTRIBUTION_SOURCE.random())
+                                                source=relations.CONTRIBUTION_SOURCE.random(),
+                                                state=self.word.state.contribution_state)
 
 
         word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True),
@@ -747,16 +770,63 @@ class InGameRequestsTests(BaseRequestsTests):
 
 
         with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=self.word.id).count, -2):
-            with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=word_2.id).count, 3):
-                with self.check_not_changed(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.IN_GAME).count):
-                    with self.check_delta(prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.ON_REVIEW).count, -1):
-                        with self.check_delta(prototypes.WordPrototype._db_count, -1):
-                            self.check_ajax_ok(self.client.post(url('linguistics:words:in-game', word_2.id)))
+            with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=word_2.id).count, 2):
+                with self.check_delta(prototypes.WordPrototype._db_count, -1):
+                    self.check_ajax_ok(self.client.post(url('linguistics:words:in-game', word_2.id)))
 
         self.assertEqual(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD, entity_id=self.word.id).count(), 0)
-        self.assertEqual(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD, entity_id=word_2.id).count(), 3)
+        self.assertEqual(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD, entity_id=word_2.id, state=relations.CONTRIBUTION_STATE.IN_GAME).count(), 2)
         self.assertEqual(set(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD).values_list('account_id', flat=True)),
-                         set([self.account_1.id, account_2.id, account_3.id]))
+                         set([self.account_1.id, account_3.id]))
+
+        word_2.reload()
+
+        self.assertEqual(prototypes.WordPrototype.get_by_id(self.word.id), None)
+        self.assertTrue(word_2.state.is_IN_GAME)
+
+
+    def test_in_game__has_parent__with_intersected_contributors(self):
+        result, account_id, bundle_id = register_user('account_2', 'account_2@test.com', '111111')
+        account_2 = AccountPrototype.get_by_id(account_id)
+
+        result, account_id, bundle_id = register_user('account_3', 'account_3@test.com', '111111')
+        account_3 = AccountPrototype.get_by_id(account_id)
+
+        self.request_login(self.moderator.email)
+
+        self.word.state = relations.WORD_STATE.IN_GAME
+        self.word.save()
+
+        contribution_2 = prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                                 account_id=account_3.id,
+                                                                 entity_id=self.word.id,
+                                                                 source=relations.CONTRIBUTION_SOURCE.random(),
+                                                                 state=self.word.state.contribution_state)
+
+
+        word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True),
+                                                 parent=self.word,
+                                                 author=account_2)
+
+        contribution_3 = prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                                 account_id=self.account_1.id,
+                                                                 entity_id=word_2.id,
+                                                                 source=relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                                 state=word_2.state.contribution_state)
+
+
+        with self.check_delta(prototypes.ContributionPrototype._db_filter().count, -1):
+            with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=self.word.id).count, -2):
+                with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=word_2.id).count, 1):
+                    with self.check_delta(prototypes.WordPrototype._db_count, -1):
+                        self.check_ajax_ok(self.client.post(url('linguistics:words:in-game', word_2.id)))
+
+        self.assertEqual(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD, entity_id=self.word.id).count(), 0)
+        self.assertEqual(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD, entity_id=word_2.id, state=relations.CONTRIBUTION_STATE.IN_GAME).count(), 2)
+        self.assertEqual(set(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD).values_list('account_id', flat=True)),
+                         set([self.account_1.id, account_3.id]))
+        self.assertEqual(set(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD).values_list('id', flat=True)),
+                         set([self.author_contribution.id, contribution_2.id]))
 
         word_2.reload()
 

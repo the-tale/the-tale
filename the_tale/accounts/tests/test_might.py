@@ -140,24 +140,37 @@ class CalculateMightTests(testcase.TestCase):
         old_might = calculate_might(self.account)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=1,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=2,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=2,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=3,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=3,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=account_3.id, entity_id=3,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=4,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=account_3.id, entity_id=4,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
+
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=5,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.ON_REVIEW)
+
 
         self.assertEqual(calculate_might(self.account), old_might + 5.0 + 5.0 / 2 + 5.0 / 3)
 
@@ -168,24 +181,36 @@ class CalculateMightTests(testcase.TestCase):
         old_might = calculate_might(self.account)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=1,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=2,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=2,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=3,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=3,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=account_3.id, entity_id=3,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=4,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=account_3.id, entity_id=4,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
+
+        linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=5,
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.ON_REVIEW)
 
         self.assertEqual(calculate_might(self.account), old_might + 15.0 + 15.0 / 2 + 15.0 / 3)
 
@@ -195,24 +220,32 @@ class CalculateMightTests(testcase.TestCase):
         old_might = calculate_might(self.account)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=1,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=2,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=2,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=3,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=3,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=account_3.id, entity_id=3,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=4,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=account_3.id, entity_id=4,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         self.assertEqual(calculate_might(self.account), old_might + 5.0 + 5.0 / 1 + 5.0 / 2)
 
@@ -222,24 +255,32 @@ class CalculateMightTests(testcase.TestCase):
         old_might = calculate_might(self.account)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=1,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=2,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=2,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=3,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=3,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=account_3.id, entity_id=3,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=4,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=account_3.id, entity_id=4,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         self.assertEqual(calculate_might(self.account), old_might + 15.0 + 15.0 / 1 + 15.0 / 2)
 
@@ -250,26 +291,35 @@ class CalculateMightTests(testcase.TestCase):
         old_might = calculate_might(self.account)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=1,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=2,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=2,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=3,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=3,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=account_3.id, entity_id=3,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account.id, entity_id=4,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=self.account_2.id, entity_id=4,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.WORD, account_id=account_3.id, entity_id=4,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         self.assertEqual(calculate_might(self.account), old_might + 5.0 + 5.0 / 1 + 5.0 / 2 + 5.0 / 2)
 
@@ -279,26 +329,35 @@ class CalculateMightTests(testcase.TestCase):
         old_might = calculate_might(self.account)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=1,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=2,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=2,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=3,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=3,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=account_3.id, entity_id=3,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account.id, entity_id=4,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=self.account_2.id, entity_id=4,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
         linguistics_prototypes.ContributionPrototype.create(type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, account_id=account_3.id, entity_id=4,
-                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                                            source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                            state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
         self.assertEqual(calculate_might(self.account), old_might + 15.0 + 15.0 / 1 + 15.0 / 2 + 15.0 / 2)
 

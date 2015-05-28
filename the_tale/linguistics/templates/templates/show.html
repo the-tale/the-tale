@@ -98,7 +98,7 @@ jQuery(document).ready( function(e) {
 {% endfor %}
 
 {% if resource.can_edit_templates %}
-<a class="btn btn-success pgf-edit-button" href="{{url('linguistics:templates:edit', template.id)}}">Редактировать</a>
+<a class="btn btn-info pgf-edit-button" href="{{url('linguistics:templates:edit', template.id)}}">Редактировать</a>
 {% endif %}
 
 {% if resource.can_moderate_templates %}

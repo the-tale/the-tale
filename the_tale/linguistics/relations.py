@@ -67,6 +67,13 @@ class TEMPLATE_ERRORS_STATUS(DjangoEnum):
                 ('HAS_ERRORS', 1, u'есть ошибки'))
 
 
+class CONTRIBUTION_STATE(DjangoEnum):
+    related_template_state = Column(related_name='contribution_state')
+    related_word_state = Column(related_name='contribution_state')
+
+    records = ( ('ON_REVIEW', 0, u'на рассмотрении', TEMPLATE_STATE.ON_REVIEW, WORD_STATE.ON_REVIEW),
+                ('IN_GAME', 1, u'в игре', TEMPLATE_STATE.IN_GAME, WORD_STATE.IN_GAME))
+
 class CONTRIBUTION_TYPE(DjangoEnum):
     records = ( ('WORD', 0, u'слово'),
                 ('TEMPLATE', 1, u'фраза'))

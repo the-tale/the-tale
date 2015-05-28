@@ -193,7 +193,7 @@ class WordResource(Resource):
             return self.auto_error('linguistics.words.new.has_on_review_copy',
                                    u'Для этого слова уже создана улучшенная копия. Отредактируйте её или подождите, пока её примут в игру.')
 
-        if parent and parent.state.is_ON_REVIEW and parent.author_id != self.account.id:
+        if parent and parent.state.is_ON_REVIEW and parent.author_id != self.account.id and not self.can_moderate_words:
             return self.auto_error('linguistics.words.new.can_not_edit_anothers_word',
                                    u'Вы не можете редактировать вариант слова, созданный другим игроком. Подождите пока его проверит модератор.')
 
@@ -226,7 +226,7 @@ class WordResource(Resource):
             return self.auto_error('linguistics.words.create.has_on_review_copy',
                                    u'Для этого слова уже создана улучшенная копия. Отредактируйте её (если вы её автор) или подождите, пока её проверит модератор.')
 
-        if parent and parent.state.is_ON_REVIEW and parent.author_id != self.account.id:
+        if parent and parent.state.is_ON_REVIEW and parent.author_id != self.account.id and not self.can_moderate_words:
             return self.auto_error('linguistics.words.create.can_not_edit_anothers_word',
                                    u'Вы не можете редактировать вариант слова, созданный другим игроком. Подождите пока его проверит модератор.')
 
@@ -246,15 +246,27 @@ class WordResource(Resource):
 
         with transaction.atomic():
             removed_word = None
+            removed_id = None
 
             # remember, that we can replace only words from same author
             # this is chicking in begining of view
             if parent and parent.state.is_ON_REVIEW:
+                removed_id = parent.id
                 removed_word = parent
                 parent = parent.get_parent()
                 removed_word.remove()
 
             word = prototypes.WordPrototype.create(new_word, parent=parent, author=self.account)
+
+            if removed_id is not None:
+                prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                            entity_id=removed_id).update(entity_id=word.id)
+
+            prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                               account_id=word.author_id,
+                                                               entity_id=word.id,
+                                                               source=relations.CONTRIBUTION_SOURCE.MODERATOR if self.can_moderate_words else relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                               state=word.state.contribution_state)
 
         return self.json_ok(data={'next_url': url('linguistics:words:show', word.id)})
 
@@ -305,20 +317,26 @@ class WordResource(Resource):
 
         with transaction.atomic():
             if parent:
+                # remove duplicated contributions
+                parent_contributors_ids = prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                                                      entity_id=parent.id).values_list('account_id', flat=True)
+                prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                            entity_id=self.word.id,
+                                                            account_id__in=parent_contributors_ids).delete()
+
+                # migrate parent contributions to child
                 prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD,
                                                             entity_id=parent.id).update(entity_id=self.word.id)
+
                 parent.remove()
                 self.word.parent_id = None
 
             self.word.state = relations.WORD_STATE.IN_GAME
             self.word.save()
 
-            if self.word.author_id is not None:
-                author_is_moderator = AccountPrototype.get_by_id(self.word.author_id).has_perm('linguistics.moderate_word')
-                prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.WORD,
-                                                                   account_id=self.word.author_id,
-                                                                   entity_id=self.word.id,
-                                                                   source=relations.CONTRIBUTION_SOURCE.MODERATOR if author_is_moderator else relations.CONTRIBUTION_SOURCE.PLAYER)
+            prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                        entity_id=self.word.id).update(state=self.word.state.contribution_state)
+
 
         return self.json_ok()
 
@@ -330,7 +348,13 @@ class WordResource(Resource):
         if not (self.can_moderate_words or self.can_be_removed_by_owner):
             return self.json_error('linguistics.words.remove.no_rights', u'Удалить слово может только модератор либо автор слова, если оно не находится в игре.')
 
-        self.word.remove()
+        with transaction.atomic():
+            prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                        entity_id=self.word.id,
+                                                        state=relations.CONTRIBUTION_STATE.ON_REVIEW).delete()
+
+            self.word.remove()
+
         return self.json_ok()
 
 
@@ -469,6 +493,12 @@ class TemplateResource(Resource):
                                                        author=self.account,
                                                        restrictions=form.get_restrictions())
 
+        prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                           account_id=template.author_id,
+                                                           entity_id=template.id,
+                                                           source=relations.CONTRIBUTION_SOURCE.MODERATOR if self.can_moderate_templates else relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                           state=template.state.contribution_state)
+
         return self.json_ok(data={'next_url': url('linguistics:templates:show', template.id)})
 
 
@@ -498,7 +528,7 @@ class TemplateResource(Resource):
     @handler('#template', 'edit', method='get')
     def edit(self):
 
-        if self._template.state.is_ON_REVIEW and self._template.author_id != self.account.id:
+        if self._template.state.is_ON_REVIEW and not self.can_moderate_templates and self._template.author_id != self.account.id:
             return self.auto_error('linguistics.templates.edit.can_not_edit_anothers_template',
                                    u'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите пока его проверит модератор.')
 
@@ -527,7 +557,7 @@ class TemplateResource(Resource):
     @handler('#template', 'update', method='post')
     def update(self):
 
-        if self._template.state.is_ON_REVIEW and self._template.author_id != self.account.id:
+        if self._template.state.is_ON_REVIEW and not self.can_moderate_templates and self._template.author_id != self.account.id:
             return self.auto_error('linguistics.templates.update.can_not_edit_anothers_template',
                                    u'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите пока его проверит модератор.')
 
@@ -552,11 +582,18 @@ class TemplateResource(Resource):
             return self.json_error('linguistics.templates.update.full_copy_restricted', u'Вы пытаетесь создать полную копию шаблона, в этом нет необходимости.')
 
 
-        if self._template.author_id == self.account.id and self._template.state.is_ON_REVIEW:
+        if self.can_moderate_templates or (self._template.author_id == self.account.id and self._template.state.is_ON_REVIEW):
             self._template.update(raw_template=form.c.template,
                                   utg_template=utg_template,
                                   verificators=form.verificators,
                                   restrictions=form.get_restrictions())
+
+            prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                               account_id=self.account.id,
+                                                               entity_id=self._template.id,
+                                                               source=relations.CONTRIBUTION_SOURCE.MODERATOR if self.can_moderate_templates else relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                               state=self._template.state.contribution_state)
+
 
             return self.json_ok(data={'next_url': url('linguistics:templates:show', self._template.id)})
 
@@ -568,6 +605,13 @@ class TemplateResource(Resource):
                                                        restrictions=form.get_restrictions(),
                                                        author=self.account,
                                                        parent=self._template)
+
+        prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                           account_id=template.author_id,
+                                                           entity_id=template.id,
+                                                           source=relations.CONTRIBUTION_SOURCE.MODERATOR if self.can_moderate_templates else relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                           state=template.state.contribution_state)
+
 
         return self.json_ok(data={'next_url': url('linguistics:templates:show', template.id)})
 
@@ -590,6 +634,15 @@ class TemplateResource(Resource):
 
         with transaction.atomic():
             prototypes.TemplatePrototype._db_filter(parent_id=parent_template.id).update(parent=self._template.id)
+
+            # remove duplicated contributions
+            parent_contributors_ids = prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                                                  entity_id=parent_template.id).values_list('account_id', flat=True)
+            prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                        entity_id=self._template.id,
+                                                        account_id__in=parent_contributors_ids).delete()
+
+            # migrate parent contributions to child template
             prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
                                                         entity_id=parent_template.id).update(entity_id=self._template.id)
 
@@ -600,12 +653,12 @@ class TemplateResource(Resource):
 
             self._template.save()
 
-            if self._template.state.is_IN_GAME and self._template.author_id is not None:
-                author_is_moderator = AccountPrototype.get_by_id(self._template.author_id).has_perm('linguistics.moderate_template')
-                prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
-                                                                   account_id=self._template.author_id,
-                                                                   entity_id=self._template.id,
-                                                                   source=relations.CONTRIBUTION_SOURCE.MODERATOR if author_is_moderator else relations.CONTRIBUTION_SOURCE.PLAYER)
+            # update contributions state
+            prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                        entity_id=self._template.id).update(state=self._template.state.contribution_state)
+
+
+
 
         return self.json_ok()
 
@@ -639,12 +692,8 @@ class TemplateResource(Resource):
             self._template.state = relations.TEMPLATE_STATE.IN_GAME
             self._template.save()
 
-            if self._template.author_id is not None:
-                author_is_moderator = AccountPrototype.get_by_id(self._template.author_id).has_perm('linguistics.moderate_template')
-                prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
-                                                                   account_id=self._template.author_id,
-                                                                   entity_id=self._template.id,
-                                                                   source=relations.CONTRIBUTION_SOURCE.MODERATOR if author_is_moderator else relations.CONTRIBUTION_SOURCE.PLAYER)
+            prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                        entity_id=self._template.id).update(state=self._template.state.contribution_state)
 
         return self.json_ok()
 
@@ -656,8 +705,9 @@ class TemplateResource(Resource):
         if self._template.state.is_ON_REVIEW:
             return self.json_ok()
 
-        self._template.state = relations.TEMPLATE_STATE.ON_REVIEW
-        self._template.save()
+        with transaction.atomic():
+            self._template.state = relations.TEMPLATE_STATE.ON_REVIEW
+            self._template.save()
 
         return self.json_ok()
 
@@ -671,6 +721,9 @@ class TemplateResource(Resource):
 
         with transaction.atomic():
             prototypes.TemplatePrototype._db_filter(parent_id=self._template.id).update(parent=self._template.parent_id)
+            prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                        entity_id=self._template.id,
+                                                        state=relations.CONTRIBUTION_STATE.ON_REVIEW).delete()
             self._template.remove()
 
         return self.json_ok()

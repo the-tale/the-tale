@@ -415,31 +415,34 @@ class Verificator(object):
 
 class ContributionPrototype(BasePrototype):
     _model_class = models.Contribution
-    _readonly = ('id', 'created_at', 'account_id', 'type', 'entity_id', 'source')
+    _readonly = ('id', 'created_at', 'account_id', 'type', 'entity_id', 'source', 'state')
     _bidirectional = ()
     _get_by = ('id', 'account_id', 'entity_id')
 
 
     @classmethod
-    def create(cls, type, account_id, entity_id, source):
+    def create(cls, type, account_id, entity_id, source, state):
         return cls(cls._db_create(type=type,
                                   account_id=account_id,
                                   entity_id=entity_id,
-                                  source=source))
+                                  source=source,
+                                  state=state))
 
     @classmethod
-    def get_for(cls, type, account_id, entity_id, source):
+    def get_for(cls, type, account_id, entity_id, source, state):
         try:
-            return cls(cls._db_get(type=type, account_id=account_id, entity_id=entity_id))
+            return cls(cls._db_get(type=type, account_id=account_id, entity_id=entity_id, state=state))
         except cls._model_class.DoesNotExist:
             return None
 
     @classmethod
-    def get_for_or_create(cls, type, account_id, entity_id, source):
+    @transaction.atomic
+    def get_for_or_create(cls, type, account_id, entity_id, source, state):
         return get_or_create(get_method=cls.get_for,
                              create_method=cls.create,
                              exception=IntegrityError,
                              kwargs={'type': type,
                                      'account_id': account_id,
                                      'entity_id': entity_id,
-                                     'source': source})
+                                     'source': source,
+                                     'state': state})

@@ -503,26 +503,30 @@ class ContributionTests(testcase.TestCase):
             prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.WORD,
                                                     account_id=self.account_1.id,
                                                     entity_id=1,
-                                                    source=relations.CONTRIBUTION_SOURCE.random())
+                                                    source=relations.CONTRIBUTION_SOURCE.random(),
+                                                    state=relations.CONTRIBUTION_STATE.random())
 
     def test_get_for_or_create(self):
         with self.check_delta(prototypes.ContributionPrototype._db_count, 1):
             prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.WORD,
                                                                account_id=self.account_1.id,
                                                                entity_id=1,
-                                                               source=relations.CONTRIBUTION_SOURCE.random())
+                                                               source=relations.CONTRIBUTION_SOURCE.random(),
+                                                               state=relations.CONTRIBUTION_STATE.random())
 
 
     def test_create__when_exists(self):
         contribution_1 = prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.WORD,
                                                                  account_id=self.account_1.id,
                                                                  entity_id=1,
-                                                                 source=relations.CONTRIBUTION_SOURCE.random())
+                                                                 source=relations.CONTRIBUTION_SOURCE.random(),
+                                                                 state=relations.CONTRIBUTION_STATE.random())
 
         with self.check_not_changed(prototypes.ContributionPrototype._db_count):
             contribution_2 = prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.WORD,
                                                                                 account_id=self.account_1.id,
                                                                                 entity_id=1,
-                                                                                source=relations.CONTRIBUTION_SOURCE.random())
+                                                                                source=relations.CONTRIBUTION_SOURCE.random(),
+                                                                                state=relations.CONTRIBUTION_STATE.random())
 
         self.assertEqual(contribution_1.id, contribution_2.id)

@@ -28,9 +28,12 @@ def calculate_linguistics_migth(account_id, contribution_type, might_per_entity,
                                                                            type=contribution_type,
                                                                            source=source).values_list('entity_id', flat=True)
 
+    state = linguistics_relations.CONTRIBUTION_STATE.IN_GAME
+
     contributions_per_entity = collections.Counter(linguistics_prototypes.ContributionPrototype._db_filter(type=contribution_type,
                                                                                                            entity_id__in=entities_ids,
-                                                                                                           source=source).values_list('entity_id', flat=True))
+                                                                                                           source=source,
+                                                                                                           state=state).values_list('entity_id', flat=True))
 
     might = 0
 

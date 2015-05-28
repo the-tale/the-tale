@@ -31,11 +31,14 @@ class BaseRequestsTests(TestCase):
 
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')
-        self.account_1 = AccountPrototype.get_by_id(account_id)
+        self.account_1 = self.accounts_factory.create_account()
 
         storage.game_dictionary.refresh()
 
+        self.moderator = self.accounts_factory.create_account()
+
+        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_template'])
+        group.user_set.add(self.moderator._model)
 
 
 
@@ -151,24 +154,61 @@ class CreateRequestsTests(BaseRequestsTests):
                 'restriction_hero_%d' % relations.TEMPLATE_RESTRICTION_GROUP.RACE.value:  race_restriction.id}
 
         with self.check_delta(prototypes.TemplatePrototype._db_count, 1):
-            response = self.client.post(self.requested_url, data)
+            with self.check_delta(prototypes.ContributionPrototype._db_count, 1):
+                response = self.client.post(self.requested_url, data)
 
-        last_prototype = prototypes.TemplatePrototype._db_latest()
+        template = prototypes.TemplatePrototype._db_latest()
 
-        self.check_ajax_ok(response, data={'next_url': url('linguistics:templates:show', last_prototype.id)})
+        self.check_ajax_ok(response, data={'next_url': url('linguistics:templates:show', template.id)})
 
-        self.assertEqual(last_prototype.utg_template.template, u'%s %s %s')
-        self.assertEqual(len(last_prototype.verificators), 4)
+        self.assertEqual(template.utg_template.template, u'%s %s %s')
+        self.assertEqual(len(template.verificators), 4)
 
-        self.assertEqual(last_prototype.verificators[0], prototypes.Verificator(text=u'Призрак 13 неизвестное слово', externals={'hero': (u'герой', u''), 'level': (1, u'')}))
-        self.assertEqual(last_prototype.verificators[1], prototypes.Verificator(text=u'Привидение 13', externals={'hero': (u'рыцарь', u'мн'), 'level': (2, u'')}))
-        self.assertEqual(last_prototype.verificators[2], prototypes.Verificator(text=u'', externals={'hero': (u'привидение', u''), 'level': (5, u'')}))
-        self.assertEqual(last_prototype.verificators[3], prototypes.Verificator(text=u'', externals={'hero': (u'героиня', u''), 'level': (5, u'')}))
+        self.assertEqual(template.verificators[0], prototypes.Verificator(text=u'Призрак 13 неизвестное слово', externals={'hero': (u'герой', u''), 'level': (1, u'')}))
+        self.assertEqual(template.verificators[1], prototypes.Verificator(text=u'Привидение 13', externals={'hero': (u'рыцарь', u'мн'), 'level': (2, u'')}))
+        self.assertEqual(template.verificators[2], prototypes.Verificator(text=u'', externals={'hero': (u'привидение', u''), 'level': (5, u'')}))
+        self.assertEqual(template.verificators[3], prototypes.Verificator(text=u'', externals={'hero': (u'героиня', u''), 'level': (5, u'')}))
 
-        self.assertEqual(last_prototype.author_id, self.account_1.id)
-        self.assertEqual(last_prototype.parent_id, None)
+        self.assertEqual(template.author_id, self.account_1.id)
+        self.assertEqual(template.parent_id, None)
 
-        self.assertEqual(last_prototype.raw_restrictions, frozenset([('hero', race_restriction.id)]))
+        self.assertEqual(template.raw_restrictions, frozenset([('hero', race_restriction.id)]))
+
+        last_contribution = prototypes.ContributionPrototype._db_latest()
+
+        self.assertTrue(last_contribution.type.is_TEMPLATE)
+        self.assertTrue(last_contribution.state.is_ON_REVIEW)
+        self.assertTrue(last_contribution.source.is_PLAYER)
+        self.assertEqual(last_contribution.account_id, template.author_id)
+        self.assertEqual(last_contribution.entity_id, template.id)
+
+
+    def test_create_by_moderator(self):
+        self.request_login(self.moderator.email)
+
+        race_restriction = storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.RACE,
+                                                                        game_relations.RACE.ELF.value)
+
+        data = {'template': self.template_text,
+                'verificator_0': u'Призрак 13 неизвестное слово',
+                'verificator_1': u'Привидение 13',
+                'verificator_2': u'',
+                'restriction_hero_%d' % relations.TEMPLATE_RESTRICTION_GROUP.GENDER.value: '',
+                'restriction_hero_%d' % relations.TEMPLATE_RESTRICTION_GROUP.RACE.value:  race_restriction.id}
+
+        with self.check_delta(prototypes.TemplatePrototype._db_count, 1):
+            with self.check_delta(prototypes.ContributionPrototype._db_count, 1):
+                response = self.client.post(self.requested_url, data)
+
+        template = prototypes.TemplatePrototype._db_latest()
+
+        last_contribution = prototypes.ContributionPrototype._db_latest()
+
+        self.assertTrue(last_contribution.type.is_TEMPLATE)
+        self.assertTrue(last_contribution.state.is_ON_REVIEW)
+        self.assertTrue(last_contribution.source.is_MODERATOR)
+        self.assertEqual(last_contribution.account_id, template.author_id)
+        self.assertEqual(last_contribution.entity_id, template.id)
 
 
 
@@ -450,6 +490,12 @@ class UpdateRequestsTests(BaseRequestsTests):
                                                                           prototypes.Verificator(u'verificator-2', externals={'hero': (u'герой', u''), 'level': (2, u'')})],
                                                             author=self.account_1)
 
+        prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                account_id=self.account_1.id,
+                                                entity_id=self.template.id,
+                                                source=relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                state=self.template.state.contribution_state)
+
         self.request_login(self.account_1.email)
 
         self.requested_url = url('linguistics:templates:update', self.template.id)
@@ -508,7 +554,8 @@ class UpdateRequestsTests(BaseRequestsTests):
                 'restriction_hero_%d' % relations.TEMPLATE_RESTRICTION_GROUP.RACE.value:  race_restriction.id}
 
         with self.check_not_changed(prototypes.TemplatePrototype._db_count):
-            response = self.client.post(self.requested_url, data)
+            with self.check_not_changed(prototypes.ContributionPrototype._db_count):
+                response = self.client.post(self.requested_url, data)
 
         self.template.reload()
         self.assertTrue(self.template.state.is_ON_REVIEW)
@@ -543,28 +590,129 @@ class UpdateRequestsTests(BaseRequestsTests):
                 'verificator_2': u'verificatorx-3'}
 
         with self.check_delta(prototypes.TemplatePrototype._db_count, 1):
-            response = self.client.post(self.requested_url, data)
+            with self.check_delta(prototypes.ContributionPrototype._db_count, 1):
+                response = self.client.post(self.requested_url, data)
 
         self.template.reload()
         self.assertTrue(self.template.state.is_IN_GAME)
 
-        last_prototype = prototypes.TemplatePrototype._db_latest()
-        self.assertTrue(last_prototype.state.is_ON_REVIEW)
+        template = prototypes.TemplatePrototype._db_latest()
+        self.assertTrue(template.state.is_ON_REVIEW)
 
-        self.assertNotEqual(last_prototype.id, self.template.id)
+        self.assertNotEqual(template.id, self.template.id)
 
-        self.check_ajax_ok(response, data={'next_url': url('linguistics:templates:show', last_prototype.id)})
+        self.check_ajax_ok(response, data={'next_url': url('linguistics:templates:show', template.id)})
 
-        self.assertEqual(last_prototype.utg_template.template, u'updated-template')
-        self.assertEqual(len(last_prototype.verificators), 4)
+        self.assertEqual(template.utg_template.template, u'updated-template')
+        self.assertEqual(len(template.verificators), 4)
 
-        self.assertEqual(last_prototype.verificators[0], prototypes.Verificator(text=u'verificatorx-1', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')}))
-        self.assertEqual(last_prototype.verificators[1], prototypes.Verificator(text=u'verificatorx-2', externals={'hero': (u'герой', u''), 'level': (2, u'')}))
-        self.assertEqual(last_prototype.verificators[2], prototypes.Verificator(text=u'verificatorx-3', externals={'hero': (u'привидение', u''), 'level': (1, u'')}))
-        self.assertEqual(last_prototype.verificators[3], prototypes.Verificator(text=u'', externals={'hero': (u'героиня', u''), 'level': (1, u'')}))
+        self.assertEqual(template.verificators[0], prototypes.Verificator(text=u'verificatorx-1', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')}))
+        self.assertEqual(template.verificators[1], prototypes.Verificator(text=u'verificatorx-2', externals={'hero': (u'герой', u''), 'level': (2, u'')}))
+        self.assertEqual(template.verificators[2], prototypes.Verificator(text=u'verificatorx-3', externals={'hero': (u'привидение', u''), 'level': (1, u'')}))
+        self.assertEqual(template.verificators[3], prototypes.Verificator(text=u'', externals={'hero': (u'героиня', u''), 'level': (1, u'')}))
 
-        self.assertEqual(last_prototype.author_id, self.account_1.id)
-        self.assertEqual(last_prototype.parent_id, self.template.id)
+        self.assertEqual(template.author_id, self.account_1.id)
+        self.assertEqual(template.parent_id, self.template.id)
+
+        last_contribution = prototypes.ContributionPrototype._db_latest()
+
+        self.assertTrue(last_contribution.type.is_TEMPLATE)
+        self.assertTrue(last_contribution.state.is_ON_REVIEW)
+        self.assertTrue(last_contribution.source.is_PLAYER)
+        self.assertEqual(last_contribution.account_id, template.author_id)
+        self.assertEqual(last_contribution.entity_id, template.id)
+
+
+    def test_update__in_game_by_moderator(self):
+
+        self.request_login(self.moderator.email)
+
+        self.template.state = relations.TEMPLATE_STATE.IN_GAME
+        self.template.save()
+
+        data = {'template': 'updated-template',
+                'verificator_0': u'verificatorx-1',
+                'verificator_1': u'verificatorx-2',
+                'verificator_2': u'verificatorx-3'}
+
+        with self.check_not_changed(prototypes.TemplatePrototype._db_count):
+            with self.check_delta(prototypes.ContributionPrototype._db_count, 1):
+                response = self.client.post(self.requested_url, data)
+
+        self.template.reload()
+        self.assertTrue(self.template.state.is_IN_GAME)
+
+        template = prototypes.TemplatePrototype._db_latest()
+        self.assertTrue(template.state.is_IN_GAME)
+
+        self.assertEqual(template.id, self.template.id)
+
+        self.check_ajax_ok(response, data={'next_url': url('linguistics:templates:show', template.id)})
+
+        self.assertEqual(template.utg_template.template, u'updated-template')
+        self.assertEqual(len(template.verificators), 4)
+
+        self.assertEqual(template.verificators[0], prototypes.Verificator(text=u'verificatorx-1', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')}))
+        self.assertEqual(template.verificators[1], prototypes.Verificator(text=u'verificatorx-2', externals={'hero': (u'герой', u''), 'level': (2, u'')}))
+        self.assertEqual(template.verificators[2], prototypes.Verificator(text=u'verificatorx-3', externals={'hero': (u'привидение', u''), 'level': (1, u'')}))
+        self.assertEqual(template.verificators[3], prototypes.Verificator(text=u'', externals={'hero': (u'героиня', u''), 'level': (1, u'')}))
+
+        self.assertEqual(template.author_id, self.account_1.id)
+        self.assertEqual(template.parent_id, None)
+
+        last_contribution = prototypes.ContributionPrototype._db_latest()
+
+        self.assertTrue(last_contribution.type.is_TEMPLATE)
+        self.assertTrue(last_contribution.state.is_IN_GAME)
+        self.assertTrue(last_contribution.source.is_MODERATOR)
+        self.assertEqual(last_contribution.account_id, self.moderator.id)
+        self.assertEqual(last_contribution.entity_id, template.id)
+
+    def test_update__on_review_by_moderator(self):
+
+        self.request_login(self.moderator.email)
+
+        race_restriction = storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.RACE,
+                                                                        game_relations.RACE.ELF.value)
+
+        data = {'template': 'updated-template',
+                'verificator_0': u'verificatorx-1',
+                'verificator_1': u'verificatorx-2',
+                'verificator_2': u'verificatorx-3',
+                'restriction_hero_%d' % relations.TEMPLATE_RESTRICTION_GROUP.GENDER.value: '',
+                'restriction_hero_%d' % relations.TEMPLATE_RESTRICTION_GROUP.RACE.value:  race_restriction.id}
+
+        with self.check_not_changed(prototypes.TemplatePrototype._db_count):
+            with self.check_delta(prototypes.ContributionPrototype._db_count, 1):
+                response = self.client.post(self.requested_url, data)
+
+        self.template.reload()
+        self.assertTrue(self.template.state.is_ON_REVIEW)
+
+        self.check_ajax_ok(response, data={'next_url': url('linguistics:templates:show', self.template.id)})
+
+        self.assertEqual(self.template.raw_template, u'updated-template')
+        self.assertEqual(self.template.utg_template.template, u'updated-template')
+
+        self.assertEqual(len(self.template.verificators), 4)
+
+        self.assertEqual(self.template.verificators[0], prototypes.Verificator(text=u'verificatorx-1', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')}))
+        self.assertEqual(self.template.verificators[1], prototypes.Verificator(text=u'verificatorx-2', externals={'hero': (u'герой', u''), 'level': (2, u'')}))
+        self.assertEqual(self.template.verificators[2], prototypes.Verificator(text=u'verificatorx-3', externals={'hero': (u'привидение', u''), 'level': (1, u'')}))
+        self.assertEqual(self.template.verificators[3], prototypes.Verificator(text=u'', externals={'hero': (u'героиня', u''), 'level': (1, u'')}))
+
+        self.assertEqual(self.template.author_id, self.account_1.id)
+        self.assertEqual(self.template.parent_id, None)
+
+        self.assertEqual(self.template.raw_restrictions, frozenset([('hero', race_restriction.id)]))
+
+        last_contribution = prototypes.ContributionPrototype._db_latest()
+
+        self.assertTrue(last_contribution.type.is_TEMPLATE)
+        self.assertTrue(last_contribution.state.is_ON_REVIEW)
+        self.assertTrue(last_contribution.source.is_MODERATOR)
+        self.assertEqual(last_contribution.account_id, self.moderator.id)
+        self.assertEqual(last_contribution.entity_id, self.template.id)
 
 
     def test_update__on_review_by_other(self):
@@ -648,14 +796,13 @@ class ReplaceRequestsTests(BaseRequestsTests):
                                                             verificators=self.verificators[:2],
                                                             author=self.account_1)
 
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
+        self.author_contribution = prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                                           account_id=self.account_1.id,
+                                                                           entity_id=self.template.id,
+                                                                           source=relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                                           state=self.template.state.contribution_state)
 
-        result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
-        self.moderator = AccountPrototype.get_by_id(account_id)
-
-        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_template'])
-        group.user_set.add(self.moderator._model)
+        self.account_2 = self.accounts_factory.create_account()
 
         self.request_login(self.account_1.email)
 
@@ -831,8 +978,7 @@ class ReplaceRequestsTests(BaseRequestsTests):
     def test_reassigning_contributions(self):
         self.request_login(self.moderator.email)
 
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        account_3 = AccountPrototype.get_by_id(account_id)
+        account_3 = self.accounts_factory.create_account()
 
         text = u'[hero|загл] 2 [пепельница|hero|вн]'
         utg_template = utg_templates.Template()
@@ -848,17 +994,19 @@ class ReplaceRequestsTests(BaseRequestsTests):
         self.template.save()
 
         prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
-                                                account_id=self.account_1.id,
-                                                entity_id=self.template.id,
-                                                source=relations.CONTRIBUTION_SOURCE.random())
+                                                account_id=account_3.id,
+                                                entity_id=template.id,
+                                                source=relations.CONTRIBUTION_SOURCE.random(),
+                                                state=template.state.contribution_state)
 
         prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
                                                 account_id=self.account_2.id,
                                                 entity_id=self.template.id,
-                                                source=relations.CONTRIBUTION_SOURCE.random())
+                                                source=relations.CONTRIBUTION_SOURCE.random(),
+                                                state=self.template.state.contribution_state)
 
         with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=self.template.id).count, -2):
-            with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=template.id).count, 3):
+            with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=template.id).count, 2):
                 with self.check_delta(prototypes.TemplatePrototype._db_count, -1):
                     self.check_ajax_ok(self.client.post(url('linguistics:templates:replace', template.id), {}))
 
@@ -875,9 +1023,97 @@ class ReplaceRequestsTests(BaseRequestsTests):
         self.assertEqual(template.parent_id, None)
 
 
+    def test_remove_duplicate_contributions(self):
+        self.request_login(self.moderator.email)
+
+        account_3 = self.accounts_factory.create_account()
+
+        text = u'[hero|загл] 2 [пепельница|hero|вн]'
+        utg_template = utg_templates.Template()
+        utg_template.parse(text, externals=['hero'])
+        template = prototypes.TemplatePrototype.create(key=self.key,
+                                                       raw_template=text,
+                                                       utg_template=utg_template,
+                                                       verificators=[],
+                                                       author=account_3,
+                                                       parent=self.template)
+
+        self.template.state = relations.TEMPLATE_STATE.IN_GAME
+        self.template.save()
+
+        contribution_1 = prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                                 account_id=account_3.id,
+                                                                 entity_id=template.id,
+                                                                 source=relations.CONTRIBUTION_SOURCE.random(),
+                                                                 state=template.state.contribution_state)
+
+        contribution_2 = prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                                 account_id=self.account_1.id,
+                                                                 entity_id=template.id,
+                                                                 source=relations.CONTRIBUTION_SOURCE.random(),
+                                                                 state=self.template.state.contribution_state)
+
+        contribution_3 = prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                                 account_id=self.account_2.id,
+                                                                 entity_id=self.template.id,
+                                                                 source=relations.CONTRIBUTION_SOURCE.random(),
+                                                                 state=self.template.state.contribution_state)
+
+        with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=self.template.id).count, -2):
+            with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=template.id).count, 1):
+                with self.check_delta(prototypes.TemplatePrototype._db_count, -1):
+                    self.check_ajax_ok(self.client.post(url('linguistics:templates:replace', template.id), {}))
+
+        self.assertEqual(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE, entity_id=self.template.id).count(), 0)
+        self.assertEqual(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE, entity_id=template.id).count(), 3)
+        self.assertEqual(set(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE).values_list('account_id', flat=True)),
+                         set([self.account_1.id, self.account_2.id, account_3.id]))
+        self.assertEqual(set(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE).values_list('id', flat=True)),
+                         set([self.author_contribution.id, contribution_1.id, contribution_3.id]))
+
+        self.assertEqual(prototypes.TemplatePrototype.get_by_id(self.template.id), None)
+
+        template.reload()
+
+        self.assertTrue(template.state.is_IN_GAME)
+        self.assertEqual(template.parent_id, None)
 
 
+    def test_update_templates_state(self):
+        self.request_login(self.moderator.email)
 
+        account_3 = self.accounts_factory.create_account()
+
+        text = u'[hero|загл] 2 [пепельница|hero|вн]'
+        utg_template = utg_templates.Template()
+        utg_template.parse(text, externals=['hero'])
+        template = prototypes.TemplatePrototype.create(key=self.key,
+                                                       raw_template=text,
+                                                       utg_template=utg_template,
+                                                       verificators=[],
+                                                       author=account_3,
+                                                       parent=self.template)
+
+        self.template.state = relations.TEMPLATE_STATE.IN_GAME
+        self.template.save()
+
+        contribution_1 = prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                                 account_id=account_3.id,
+                                                                 entity_id=template.id,
+                                                                 source=relations.CONTRIBUTION_SOURCE.random(),
+                                                                 state=relations.CONTRIBUTION_STATE.random())
+
+        contribution_3 = prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                                 account_id=self.account_2.id,
+                                                                 entity_id=self.template.id,
+                                                                 source=relations.CONTRIBUTION_SOURCE.random(),
+                                                                 state=relations.CONTRIBUTION_STATE.random())
+
+        self.check_ajax_ok(self.client.post(url('linguistics:templates:replace', template.id), {}))
+
+        self.assertEqual(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                                     entity_id=template.id,
+                                                                     state=relations.CONTRIBUTION_STATE.IN_GAME).count(), 3)
 
 class DetachRequestsTests(BaseRequestsTests):
 
@@ -984,11 +1220,11 @@ class InGameRequestsTests(BaseRequestsTests):
                                                             verificators=self.verificators[:2],
                                                             author=self.account_1)
 
-        result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
-        self.moderator = AccountPrototype.get_by_id(account_id)
-
-        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_template'])
-        group.user_set.add(self.moderator._model)
+        prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                account_id=self.account_1.id,
+                                                entity_id=self.template.id,
+                                                source=relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                state=self.template.state.contribution_state)
 
         self.request_login(self.account_1.email)
 
@@ -1045,8 +1281,10 @@ class InGameRequestsTests(BaseRequestsTests):
 
         self.assertTrue(self.template.state.is_ON_REVIEW)
 
-        with self.check_delta(prototypes.ContributionPrototype._db_count, 1):
-            self.check_ajax_ok(self.client.post(self.requested_url))
+        with self.check_not_changed(prototypes.ContributionPrototype._db_count):
+            with self.check_delta(prototypes.ContributionPrototype._db_filter(state=relations.CONTRIBUTION_STATE.ON_REVIEW).count, -1):
+                with self.check_delta(prototypes.ContributionPrototype._db_filter(state=relations.CONTRIBUTION_STATE.IN_GAME).count, 1):
+                    self.check_ajax_ok(self.client.post(self.requested_url))
 
         self.template.reload()
         self.assertTrue(self.template.state.is_IN_GAME)
@@ -1056,34 +1294,6 @@ class InGameRequestsTests(BaseRequestsTests):
         self.assertTrue(last_contribution.type.is_TEMPLATE)
         self.assertEqual(last_contribution.account_id, self.template.author_id)
         self.assertEqual(last_contribution.entity_id, self.template.id)
-
-
-    def test_in_game__author_not_moderator(self):
-        self.request_login(self.moderator.email)
-        self.check_ajax_ok(self.client.post(self.requested_url))
-
-        last_contribution = prototypes.ContributionPrototype._db_latest()
-        self.assertTrue(last_contribution.source.is_PLAYER)
-
-
-    def test_in_game__author_is_moderator(self):
-        moderator_2 = self.accounts_factory.create_account()
-        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_template'])
-        group.user_set.add(moderator_2._model)
-
-        template = prototypes.TemplatePrototype.create(key=self.key,
-                                                       raw_template=self.text,
-                                                       utg_template=self.utg_template,
-                                                       verificators=self.verificators[:2],
-                                                       author=moderator_2)
-
-        self.request_login(self.moderator.email)
-        self.check_ajax_ok(self.client.post(url('linguistics:templates:in-game', template.id)))
-
-        last_contribution = prototypes.ContributionPrototype._db_latest()
-        self.assertTrue(last_contribution.source.is_MODERATOR)
-
-
 
 
 class OnReviewRequestsTests(BaseRequestsTests):
@@ -1105,12 +1315,12 @@ class OnReviewRequestsTests(BaseRequestsTests):
                                                             utg_template=self.utg_template,
                                                             verificators=self.verificators[:2],
                                                             author=self.account_1)
+        prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                account_id=self.account_1.id,
+                                                entity_id=self.template.id,
+                                                source=relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                state=self.template.state.contribution_state)
 
-        result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
-        self.moderator = AccountPrototype.get_by_id(account_id)
-
-        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_template'])
-        group.user_set.add(self.moderator._model)
 
         self.request_login(self.account_1.email)
 
@@ -1151,7 +1361,10 @@ class OnReviewRequestsTests(BaseRequestsTests):
         self.template.state = relations.TEMPLATE_STATE.IN_GAME
         self.template.save()
 
-        self.check_ajax_ok(self.client.post(self.requested_url))
+        with self.check_not_changed(prototypes.ContributionPrototype._db_count):
+            with self.check_not_changed(prototypes.ContributionPrototype._db_filter(state=relations.CONTRIBUTION_STATE.ON_REVIEW).count):
+                with self.check_not_changed(prototypes.ContributionPrototype._db_filter(state=relations.CONTRIBUTION_STATE.IN_GAME).count):
+                    self.check_ajax_ok(self.client.post(self.requested_url))
 
         self.template.reload()
         self.assertTrue(self.template.state.is_ON_REVIEW)
@@ -1180,12 +1393,6 @@ class RemoveRequestsTests(BaseRequestsTests):
 
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
         self.account_2 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
-        self.moderator = AccountPrototype.get_by_id(account_id)
-
-        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_template'])
-        group.user_set.add(self.moderator._model)
 
         self.request_login(self.account_1.email)
 
@@ -1220,6 +1427,27 @@ class RemoveRequestsTests(BaseRequestsTests):
         self.check_ajax_ok(self.client.post(self.requested_url))
 
         self.assertEqual(prototypes.TemplatePrototype.get_by_id(self.template.id), None)
+
+
+    def test_remove_contributions(self):
+        self.request_login(self.moderator.email)
+
+        contribution_1 = prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                                 account_id=self.account_1.id,
+                                                                 entity_id=self.template.id,
+                                                                 source=relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                                 state=relations.CONTRIBUTION_STATE.ON_REVIEW)
+
+        contribution_2 = prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                                 account_id=self.account_2.id,
+                                                                 entity_id=self.template.id,
+                                                                 source=relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                                 state=relations.CONTRIBUTION_STATE.IN_GAME)
+
+        self.check_ajax_ok(self.client.post(self.requested_url))
+
+        self.assertFalse(prototypes.ContributionPrototype._db_filter(id=contribution_1.id).exists())
+        self.assertTrue(prototypes.ContributionPrototype._db_filter(id=contribution_2.id).exists())
 
     def test_remove_by_owner(self):
         self.request_login(self.account_1.email)
