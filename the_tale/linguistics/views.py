@@ -733,3 +733,33 @@ class TemplateResource(Resource):
     def specification(self):
         return self.template('linguistics/templates/specification.html',
                              {'page_type': 'templates-specification'})
+
+
+    @moderation_template_rights()
+    @handler('#template', 'edit-key', method='get')
+    def edit_key(self):
+        return self.template('linguistics/templates/edit_key.html',
+                             {'page_type': 'keys',
+                              'template': self._template,
+                              'form': forms.TemplateKeyForm(initial={'key': self._template.key})})
+
+    @moderation_template_rights()
+    @handler('#template', 'change-key', method='post')
+    def change_key(self):
+        if self._template.get_child():
+            return self.auto_error('linguistics.templates.change_key.template_has_child',
+                                   u'У этой фразы есть копия, сначало надо определить её судьбу.')
+
+        form = forms.TemplateKeyForm(self.request.POST)
+
+        if not form.is_valid():
+            return self.json_error('linguistics.templates.change_key.form_errors', form.errors)
+
+        self._template.key = form.c.key
+        self._template.parent_id = None
+        self._template.state = relations.TEMPLATE_STATE.ON_REVIEW
+        del self._template.verificators[:]
+
+        self._template.save()
+
+        return self.json_ok()

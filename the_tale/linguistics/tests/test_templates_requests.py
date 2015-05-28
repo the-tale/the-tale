@@ -1470,3 +1470,105 @@ class SpecificationTests(BaseRequestsTests):
 
     def test_success(self):
         self.check_html_ok(self.request_html(url('linguistics:templates:specification')), texts=[])
+
+
+class EditKeyTests(BaseRequestsTests):
+
+    def setUp(self):
+        super(EditKeyTests, self).setUp()
+
+        self.key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
+
+        self.verificators = prototypes.TemplatePrototype.get_start_verificatos(key=self.key)
+        self.verificators[0].text = u'verificator-1'
+        self.verificators[1].text = u'verificator-2'
+
+        self.text = u'[hero|загл] 1 [пепельница|hero|вн]'
+        self.utg_template = utg_templates.Template()
+        self.utg_template.parse(self.text, externals=['hero'])
+        self.template = prototypes.TemplatePrototype.create(key=self.key,
+                                                            raw_template=self.text,
+                                                            utg_template=self.utg_template,
+                                                            verificators=self.verificators[:2],
+                                                            author=self.account_1)
+
+    def test_success(self):
+        self.request_login(self.moderator.email)
+        self.check_html_ok(self.request_html(url('linguistics:templates:edit-key', self.template.id)), texts=[str(self.template.key)])
+
+    def test_no_rights(self):
+        self.check_html_ok(self.request_html(url('linguistics:templates:edit-key', self.template.id)), texts=['pgf-error-linguistics.templates.moderation_rights'])
+
+
+
+class ChangeKeyTests(BaseRequestsTests):
+
+    def setUp(self):
+        super(ChangeKeyTests, self).setUp()
+
+        self.key_1 = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
+        self.key_2 = keys.LEXICON_KEY.HERO_COMMON_DIARY_CREATE
+
+        self.verificators = prototypes.TemplatePrototype.get_start_verificatos(key=self.key_1)
+        self.verificators[0].text = u'verificator-1'
+        self.verificators[1].text = u'verificator-2'
+
+        self.text = u'[hero|загл] 1 [пепельница|hero|вн]'
+        self.utg_template = utg_templates.Template()
+        self.utg_template.parse(self.text, externals=['hero'])
+        self.template = prototypes.TemplatePrototype.create(key=self.key_1,
+                                                            raw_template=self.text,
+                                                            utg_template=self.utg_template,
+                                                            verificators=self.verificators[:2],
+                                                            author=self.account_1,
+                                                            state=relations.TEMPLATE_STATE.IN_GAME)
+
+        self.request_login(self.moderator.email)
+
+    def test_no_rights(self):
+        self.request_logout()
+        self.check_ajax_error(self.post_ajax_json(url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}),
+                              'linguistics.templates.moderation_rights')
+
+    def test_form_errors(self):
+        self.check_ajax_error(self.post_ajax_json(url('linguistics:templates:change-key', self.template.id), {}),
+                              'linguistics.templates.change_key.form_errors')
+
+    def test_has_child(self):
+        prototypes.TemplatePrototype.create(key=self.key_1,
+                                            raw_template=self.text,
+                                            utg_template=self.utg_template,
+                                            verificators=self.verificators[:2],
+                                            author=self.account_1,
+                                            parent=self.template)
+
+        self.check_ajax_error(self.post_ajax_json(url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}),
+                              'linguistics.templates.change_key.template_has_child')
+
+    def test_success(self):
+        self.check_ajax_ok(self.post_ajax_json(url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}))
+
+        self.template.reload()
+
+        self.assertEqual(self.template.key, self.key_2)
+        self.assertTrue(self.template.state.is_ON_REVIEW)
+        self.assertEqual(self.template.parent_id, None)
+        self.assertEqual(self.template.verificators, [])
+
+    def test_has_parent(self):
+        child = prototypes.TemplatePrototype.create(key=self.key_1,
+                                                    raw_template=self.text,
+                                                    utg_template=self.utg_template,
+                                                    verificators=[],
+                                                    author=self.account_1,
+                                                    parent=self.template,
+                                                    state=relations.TEMPLATE_STATE.ON_REVIEW)
+
+        self.check_ajax_ok(self.post_ajax_json(url('linguistics:templates:change-key', child.id), {'key': str(self.key_2)}))
+
+        child.reload()
+
+        self.assertEqual(child.key, self.key_2)
+        self.assertTrue(child.state.is_ON_REVIEW)
+        self.assertEqual(child.parent_id, None)
+        self.assertEqual(child.verificators, [])

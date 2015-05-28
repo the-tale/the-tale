@@ -17,8 +17,10 @@ from utg import templates as utg_templates
 from utg import exceptions as utg_exceptions
 
 
-from the_tale.linguistics import models
-from the_tale.linguistics import storage
+from . import models
+from . import storage
+from .lexicon import keys as lexicon_keys
+from .lexicon.groups import relations as groups_relations
 
 
 WORD_FIELD_PREFIX = 'word_field'
@@ -300,3 +302,18 @@ class TemplateForm(forms.Form):
                 initials[field_name] = restriction.id
 
         return initials
+
+
+KEY_CHOICES = []
+
+for group in groups_relations.LEXICON_GROUP.records:
+    keys = []
+    for key in lexicon_keys.LEXICON_KEY.records:
+        if key.group != group:
+            continue
+        keys.append((key, key.text))
+    keys.sort(key=lambda x: x[1])
+    KEY_CHOICES.append((group.text, keys))
+
+class TemplateKeyForm(forms.Form):
+    key = django_forms.TypedChoiceField(label=u'Тип фразы', choices=KEY_CHOICES, coerce=lexicon_keys.LEXICON_KEY.get_from_name)

@@ -4,6 +4,8 @@ import random
 
 import mock
 
+from django.db import transaction
+
 from utg import relations as utg_relations
 from utg import words as utg_words
 from utg import templates as utg_templates
@@ -497,7 +499,6 @@ class ContributionTests(testcase.TestCase):
         self.account_1 = AccountPrototype.get_by_id(account_id)
 
 
-
     def test_create(self):
         with self.check_delta(prototypes.ContributionPrototype._db_count, 1):
             prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.WORD,
@@ -505,6 +506,7 @@ class ContributionTests(testcase.TestCase):
                                                     entity_id=1,
                                                     source=relations.CONTRIBUTION_SOURCE.random(),
                                                     state=relations.CONTRIBUTION_STATE.random())
+
 
     def test_get_for_or_create(self):
         with self.check_delta(prototypes.ContributionPrototype._db_count, 1):
@@ -523,10 +525,11 @@ class ContributionTests(testcase.TestCase):
                                                                  state=relations.CONTRIBUTION_STATE.random())
 
         with self.check_not_changed(prototypes.ContributionPrototype._db_count):
-            contribution_2 = prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.WORD,
-                                                                                account_id=self.account_1.id,
-                                                                                entity_id=1,
-                                                                                source=relations.CONTRIBUTION_SOURCE.random(),
-                                                                                state=relations.CONTRIBUTION_STATE.random())
+            with transaction.atomic():
+                contribution_2 = prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                                                    account_id=self.account_1.id,
+                                                                                    entity_id=1,
+                                                                                    source=relations.CONTRIBUTION_SOURCE.random(),
+                                                                                    state=relations.CONTRIBUTION_STATE.random())
 
         self.assertEqual(contribution_1.id, contribution_2.id)

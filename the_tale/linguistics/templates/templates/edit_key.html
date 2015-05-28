@@ -1,0 +1,41 @@
+{% extends "linguistics/templates/base.html" %}
+
+{% import 'linguistics/templates/macros.html' as templates_macros with context %}
+
+{% block title %}Изменение типа фразы «{{template.key.text}}» |{{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}Изменение типа фразы «{{template.key.text}}».{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    var newForm = new pgf.forms.Form(jQuery('#pgf-change-key-form'),
+                                     {OnSuccess: function(instance, data){location.href = "{{url('linguistics:templates:show', template.id)}}";}});
+
+});
+
+</script>
+
+{% endblock %}
+
+
+{% block templates_content %}
+
+{{ templates_macros.key_info(template.key)}}
+
+<form id="pgf-change-key-form"
+      method="post"
+      action="{{ url('linguistics:templates:change-key', template.id) }}">
+
+  {{ form.errors_container }}
+
+  {{ form.key.widget }}
+
+  <div class="widget">
+    <input type="submit" class="btn btn-success" value="Изменить"/>
+  </div>
+
+</form>
+
+{% endblock %}

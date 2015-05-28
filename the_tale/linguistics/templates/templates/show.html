@@ -103,6 +103,8 @@ jQuery(document).ready( function(e) {
 
 {% if resource.can_moderate_templates %}
 
+<a class="btn btn-info pgf-change-key" href="{{url('linguistics:templates:edit-key', template.id)}}">Изменить тип</a>
+
 {% if template_parent %}
 <a class="btn btn-info pgf-forms-post-simple pgf-replace-button"
    href="{{url('linguistics:templates:replace', template.id)}}">Заменить родителя</a>

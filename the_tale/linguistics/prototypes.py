@@ -103,8 +103,8 @@ class WordPrototype(BasePrototype):
 
 class TemplatePrototype(BasePrototype):
     _model_class = models.Template
-    _readonly = ('id', 'key', 'created_at', 'updated_at', 'raw_template', 'author_id')
-    _bidirectional = ('state', 'parent_id', 'errors_status')
+    _readonly = ('id', 'created_at', 'updated_at', 'raw_template', 'author_id')
+    _bidirectional = ('state', 'parent_id', 'errors_status', 'key')
     _get_by = ('id', 'parent_id')
 
     def get_parent(self):
@@ -436,7 +436,6 @@ class ContributionPrototype(BasePrototype):
             return None
 
     @classmethod
-    @transaction.atomic
     def get_for_or_create(cls, type, account_id, entity_id, source, state):
         return get_or_create(get_method=cls.get_for,
                              create_method=cls.create,
