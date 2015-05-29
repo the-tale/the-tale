@@ -735,17 +735,30 @@ class TemplateResource(Resource):
                              {'page_type': 'templates-specification'})
 
 
-    @moderation_template_rights()
+    # @moderation_template_rights()
     @handler('#template', 'edit-key', method='get')
     def edit_key(self):
+
+        if not self.can_moderate_templates and not (self._template.author_id == self.account.id and self._template.state.is_ON_REVIEW):
+            return self.auto_error('linguistics.templates.edit_key.can_not_edit',
+                                   u'Менять тип фразы может только модератор либо автор фразы, если она не внесена в игру.')
+
+        if self._template.get_child():
+            return self.auto_error('linguistics.templates.edit_key.template_has_child',
+                                   u'У этой фразы есть копия, сначало надо определить её судьбу.')
+
         return self.template('linguistics/templates/edit_key.html',
                              {'page_type': 'keys',
                               'template': self._template,
                               'form': forms.TemplateKeyForm(initial={'key': self._template.key})})
 
-    @moderation_template_rights()
+    # @moderation_template_rights()
     @handler('#template', 'change-key', method='post')
     def change_key(self):
+        if not self.can_moderate_templates and not (self._template.author_id == self.account.id and self._template.state.is_ON_REVIEW):
+            return self.auto_error('linguistics.templates.change_key.can_not_change',
+                                   u'Менять тип фразы может только модератор либо автор фразы, если она не внесена в игру.')
+
         if self._template.get_child():
             return self.auto_error('linguistics.templates.change_key.template_has_child',
                                    u'У этой фразы есть копия, сначало надо определить её судьбу.')

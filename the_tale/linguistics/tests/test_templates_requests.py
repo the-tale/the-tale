@@ -1492,12 +1492,36 @@ class EditKeyTests(BaseRequestsTests):
                                                             verificators=self.verificators[:2],
                                                             author=self.account_1)
 
-    def test_success(self):
+    def test_success__moderator(self):
         self.request_login(self.moderator.email)
         self.check_html_ok(self.request_html(url('linguistics:templates:edit-key', self.template.id)), texts=[str(self.template.key)])
 
+    def test_success__author(self):
+        self.request_login(self.account_1.email)
+        self.check_html_ok(self.request_html(url('linguistics:templates:edit-key', self.template.id)), texts=[str(self.template.key)])
+
     def test_no_rights(self):
-        self.check_html_ok(self.request_html(url('linguistics:templates:edit-key', self.template.id)), texts=['pgf-error-linguistics.templates.moderation_rights'])
+        self.check_html_ok(self.request_html(url('linguistics:templates:edit-key', self.template.id)), texts=['pgf-error-linguistics.templates.edit_key.can_not_edit'])
+
+    def test_no_rights__author_for_ingame(self):
+        self.request_login(self.account_1.email)
+
+        self.template.state = relations.TEMPLATE_STATE.IN_GAME
+        self.template.save()
+
+        self.check_html_ok(self.request_html(url('linguistics:templates:edit-key', self.template.id)), texts=['pgf-error-linguistics.templates.edit_key.can_not_edit'])
+
+    def test_has_child(self):
+        self.request_login(self.moderator.email)
+        prototypes.TemplatePrototype.create(key=self.key,
+                                            raw_template=self.text,
+                                            utg_template=self.utg_template,
+                                            verificators=self.verificators[:2],
+                                            author=self.account_1,
+                                            parent=self.template)
+
+        self.check_html_ok(self.request_html(url('linguistics:templates:edit-key', self.template.id)),
+                           texts=['pgf-error-linguistics.templates.edit_key.template_has_child'])
 
 
 
@@ -1528,7 +1552,7 @@ class ChangeKeyTests(BaseRequestsTests):
     def test_no_rights(self):
         self.request_logout()
         self.check_ajax_error(self.post_ajax_json(url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}),
-                              'linguistics.templates.moderation_rights')
+                              'linguistics.templates.change_key.can_not_change')
 
     def test_form_errors(self):
         self.check_ajax_error(self.post_ajax_json(url('linguistics:templates:change-key', self.template.id), {}),
@@ -1545,7 +1569,7 @@ class ChangeKeyTests(BaseRequestsTests):
         self.check_ajax_error(self.post_ajax_json(url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}),
                               'linguistics.templates.change_key.template_has_child')
 
-    def test_success(self):
+    def test_success__moderator(self):
         self.check_ajax_ok(self.post_ajax_json(url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}))
 
         self.template.reload()
@@ -1554,6 +1578,28 @@ class ChangeKeyTests(BaseRequestsTests):
         self.assertTrue(self.template.state.is_ON_REVIEW)
         self.assertEqual(self.template.parent_id, None)
         self.assertEqual(self.template.verificators, [])
+
+    def test_success__author_on_review(self):
+        self.template.state = relations.TEMPLATE_STATE.ON_REVIEW
+        self.template.save()
+
+        self.request_login(self.account_1.email)
+
+        self.check_ajax_ok(self.post_ajax_json(url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}))
+
+        self.template.reload()
+
+        self.assertEqual(self.template.key, self.key_2)
+        self.assertTrue(self.template.state.is_ON_REVIEW)
+        self.assertEqual(self.template.parent_id, None)
+        self.assertEqual(self.template.verificators, [])
+
+    def test__author_in_game(self):
+        self.request_login(self.account_1.email)
+
+        self.check_ajax_error(self.post_ajax_json(url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}),
+                              'linguistics.templates.change_key.can_not_change')
+
 
     def test_has_parent(self):
         child = prototypes.TemplatePrototype.create(key=self.key_1,
