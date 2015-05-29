@@ -54,8 +54,8 @@ class TemplatesIndexFilter(list_filter.ListFilter):
 
 
 
-def get_contributors(entity_id, author_id):
-    contributors_ids = list(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+def get_contributors(entity_id, author_id, type):
+    contributors_ids = list(prototypes.ContributionPrototype._db_filter(type=type,
                                                                         entity_id=entity_id).order_by('created_at').values_list('account_id', flat=True))
 
     if author_id is not None and author_id not in contributors_ids:
@@ -282,7 +282,7 @@ class WordResource(Resource):
         if word_parent:
             other_version = word_parent.utg_word
 
-        contributors, clans = get_contributors(entity_id=self.word.id, author_id=self.word.author_id)
+        contributors, clans = get_contributors(entity_id=self.word.id, author_id=self.word.author_id, type=relations.CONTRIBUTION_TYPE.WORD)
 
         return self.template('linguistics/words/show.html',
                              {'word': self.word,
@@ -509,7 +509,7 @@ class TemplateResource(Resource):
 
         errors = self._template.get_errors()
 
-        contributors, clans = get_contributors(entity_id=self._template.id, author_id=self._template.author_id)
+        contributors, clans = get_contributors(entity_id=self._template.id, author_id=self._template.author_id, type=relations.CONTRIBUTION_TYPE.TEMPLATE)
 
         return self.template('linguistics/templates/show.html',
                              {'template': self._template,
