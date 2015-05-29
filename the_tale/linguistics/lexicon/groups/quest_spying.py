@@ -19,10 +19,6 @@ KEYS = [(u'QUEST_SPYING_ACTION_ARRIVED_TO_TARGET', 560000, u'Активност�
         u'Краткое суммарное описание действий героя в момент получения задания.',
         [V.RECEIVER_POSITION, V.RECEIVER, V.HERO, V.INITIATOR, V.INITIATOR_POSITION]),
 
-        (u'QUEST_SPYING_ACTION_MOVE_TO_REPORT_DATA', 560004, u'Активность: возвращается с отчётом', LEXICON_GROUP.QUEST_SPYING,
-        u'Краткое суммарное описание действий героя, когда он возвращается с отчётом.',
-        [V.RECEIVER_POSITION, V.RECEIVER, V.HERO, V.INITIATOR, V.INITIATOR_POSITION]),
-
         (u'QUEST_SPYING_ACTION_MOVE_TO_REPORT_LIE', 560005, u'Активность: герой возвращается, чтобы солгать', LEXICON_GROUP.QUEST_SPYING,
         u'Краткое суммарное описание действий героя, когда он возвращается с ложью.',
         [V.RECEIVER_POSITION, V.RECEIVER, V.HERO, V.INITIATOR, V.INITIATOR_POSITION]),

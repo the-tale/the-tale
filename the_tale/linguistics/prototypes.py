@@ -378,6 +378,8 @@ class Verificator(object):
             correct_verificator = True
 
             for variable_value, substitution in old_verificator.externals.iteritems():
+                if variable_value not in work_substitutions: # if variable removed from key
+                    continue
                 if substitution not in work_substitutions[variable_value]:
                     correct_verificator = False
                     break
@@ -388,6 +390,8 @@ class Verificator(object):
             verificators.append(old_verificator)
 
             for variable_value, substitution in old_verificator.externals.iteritems():
+                if variable_value not in work_substitutions: # if variable removed from key
+                    continue
                 used_substitutions[variable_value].add(substitution)
 
                 work_substitution = work_substitutions[variable_value]

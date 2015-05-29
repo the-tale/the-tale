@@ -33,27 +33,27 @@ KEYS = [(u'QUEST_PILGRIMAGE_ACTION_INTRO', 520000, u'Активность: ин�
 
         (u'QUEST_PILGRIMAGE_JOURNAL_SPEAK_WITH_GURU_DESCRIPTION', 520007, u'Описание: общение с гуру', LEXICON_GROUP.QUEST_PILGRIMAGE,
         u'Краткая декларация того, что герой общается с гуру',
-        [V.RECEIVER_POSITION, V.HERO]),
+        [V.HERO]),
 
         (u'QUEST_PILGRIMAGE_JOURNAL_SPEAK_WITH_GURU_DONOTHING', 520008, u'Журнал: общение с гуру', LEXICON_GROUP.QUEST_PILGRIMAGE,
         u'Герой общается с гуру.',
-        [V.RECEIVER_POSITION, V.HERO]),
+        [V.HERO]),
 
         (u'QUEST_PILGRIMAGE_JOURNAL_SPEAK_WITH_GURU_START', 520009, u'Журнал: начало общения с гуру', LEXICON_GROUP.QUEST_PILGRIMAGE,
         u'Герой начинает общаться с гуру.',
-        [V.RECEIVER_POSITION, V.HERO]),
+        [V.HERO]),
 
         (u'QUEST_PILGRIMAGE_JOURNAL_STAGGER_HOLY_STREETS_DESCRIPTION', 520010, u'Описание: шатание по улочкам', LEXICON_GROUP.QUEST_PILGRIMAGE,
         u'Краткая декларация того, что герой шляется по улочкам.',
-        [V.RECEIVER_POSITION, V.HERO]),
+        [V.HERO]),
 
         (u'QUEST_PILGRIMAGE_JOURNAL_STAGGER_HOLY_STREETS_DONOTHING', 520011, u'Журнал: шатание по улочкам', LEXICON_GROUP.QUEST_PILGRIMAGE,
         u'Герой шатается по улочкам',
-        [V.RECEIVER_POSITION, V.HERO]),
+        [V.HERO]),
 
         (u'QUEST_PILGRIMAGE_JOURNAL_STAGGER_HOLY_STREETS_START', 520012, u'Журнал: начало шатания по улочкам', LEXICON_GROUP.QUEST_PILGRIMAGE,
         u'Герой отправляется бродить по улочкам города.',
-        [V.RECEIVER_POSITION, V.HERO]),
+        [V.HERO]),
 
         (u'QUEST_PILGRIMAGE_NAME', 520013, u'Название', LEXICON_GROUP.QUEST_PILGRIMAGE,
         u'Краткое название задания.',
