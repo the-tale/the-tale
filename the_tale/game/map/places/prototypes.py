@@ -293,7 +293,7 @@ class PlacePrototype(BasePrototype, names.ManageNameMixin):
         if not self.stability_modifiers:
             return 0
 
-        delta = c.PLACE_STABILITY_PER_HOUR / len(self.stability_modifiers)
+        delta = c.PLACE_STABILITY_RECOVER_SPEED / len(self.stability_modifiers)
 
         if self.modifier:
             delta = self.modifier.modify_stability_renewing_speed(delta)

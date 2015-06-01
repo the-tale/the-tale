@@ -259,8 +259,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PLACE_RACE_CHANGE_DELTA, 0.1 / 24)
         self.assertEqual(c.PLACE_ADD_PERSON_DELAY, 8640)
 
-        self.assertEqual(c.PLACE_STABILITY_PER_BILL, 0.1)
-        self.assertEqual(round(c.PLACE_STABILITY_PER_HOUR, 4), 0.0006)
+        self.assertEqual(round(c.PLACE_STABILITY_RECOVER_SPEED, 4), 0.0006)
 
         self.assertEqual(c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY, -200)
         self.assertEqual(c.PLACE_STABILITY_MAX_SAFETY_PENALTY, -0.25)

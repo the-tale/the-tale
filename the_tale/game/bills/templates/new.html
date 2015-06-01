@@ -26,7 +26,7 @@ jQuery(document).ready( function(e) {
 
 <br/>
 
-<h3>{{ bill_class.CAPTION }}</h3>
+<h3>{{ bill_class.CAPTION }} <small>стабильность -{{bill_class.type.stability|percents}}</small></h3>
 
 <p>{{bill_class.DESCRIPTION|safe}}</p>
 

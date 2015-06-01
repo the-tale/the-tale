@@ -455,8 +455,7 @@ PLACE_RACE_CHANGE_DELTA = (PLACE_RACE_CHANGE_DELTA_IN_DAY * MAP_SYNC_TIME) / (24
 PLACE_ADD_PERSON_DELAY = int(24 * TURNS_IN_HOUR) # раз в сколько ходов можно добавлять советника
 
 # считаем что штраф от одного закона должен восстанавливаться за неделю
-PLACE_STABILITY_PER_BILL = float(0.1)
-PLACE_STABILITY_PER_HOUR = float(PLACE_STABILITY_PER_BILL / (7*24))
+PLACE_STABILITY_RECOVER_SPEED = float(0.1 / (7*24)) # стабильности в час
 
 PLACE_STABILITY_MAX_PRODUCTION_PENALTY = float(-PLACE_GOODS_BONUS * 2)
 PLACE_STABILITY_MAX_SAFETY_PENALTY = float(-0.25)

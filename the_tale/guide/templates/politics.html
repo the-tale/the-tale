@@ -83,7 +83,7 @@
 <dl>
   {% for bill_id, bill in BILLS_BY_ID.items() %}
   <div class="dl-record">
-    <dt>{{bill.CAPTION}}</dt>
+    <dt>{{bill.CAPTION}} <small>стабильность -{{bill.type.stability|percents}}</small></dt>
     <dd>
       <p>{{bill.DESCRIPTION|safe}}</p>
     </dd>

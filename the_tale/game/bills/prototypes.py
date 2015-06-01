@@ -207,7 +207,7 @@ class BillPrototype(BasePrototype):
 
         for actor in self.data.actors:
             if isinstance(actor, PlacePrototype):
-                actor.stability_modifiers.append((u'закон №%d' % self.id, -c.PLACE_STABILITY_PER_BILL))
+                actor.stability_modifiers.append((u'закон №%d' % self.id, -self.type.stability))
 
         logic.initiate_actual_bills_update(self._model.owner_id)
 
