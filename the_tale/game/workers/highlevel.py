@@ -280,9 +280,6 @@ class Worker(BaseWorker):
         for bill in BillPrototype.get_applicable_bills():
             applied = bill.apply() or applied
 
-        for bill in BillPrototype.get_bills_to_end():
-            applied = bill.end() or applied
-
         self.logger.info('apply bills completed')
 
         return applied

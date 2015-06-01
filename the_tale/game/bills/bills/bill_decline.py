@@ -7,7 +7,7 @@ from dext.forms import fields
 from the_tale.common.utils.decorators import lazy_property
 
 
-from the_tale.game.bills.models import BILL_TYPE
+from the_tale.game.bills import relations
 from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
 from the_tale.game.bills.bills.base_bill import BaseBill
 
@@ -37,8 +37,7 @@ class ModeratorForm(BaseModeratorForm):
 
 
 class BillDecline(BaseBill):
-
-    type = BILL_TYPE.BILL_DECLINE
+    type = relations.BILL_TYPE.BILL_DECLINE
 
     UserForm = UserForm
     ModeratorForm = ModeratorForm

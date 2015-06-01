@@ -34,8 +34,8 @@ def portal_day_started(sender, **kwargs): # pylint: disable=W0613
     settings[portal_settings.SETTINGS_ACCOUNT_OF_THE_DAY_KEY] = str(account.id)
 
     environment.workers.accounts_manager.cmd_run_account_method(account_id=account.id,
-                                                                         method_name=AccountPrototype.prolong_premium.__name__,
-                                                                         data={'days': portal_settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY})
+                                                                method_name=AccountPrototype.prolong_premium.__name__,
+                                                                data={'days': portal_settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY})
 
     message = u'''
 Поздравляем!

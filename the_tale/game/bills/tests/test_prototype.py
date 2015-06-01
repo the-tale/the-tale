@@ -202,7 +202,6 @@ class TestPrototypeApply(BaseTestPrototypes):
                                                                            data={})])
 
         self.assertTrue(self.bill.state.is_ACCEPTED)
-        self.assertEqual(self.bill.ends_at_turn, None)
 
         self.assertEqual(Post.objects.all().count(), 2)
 
@@ -217,41 +216,6 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.assertEqual(bill.applyed_at_turn, current_time.turn_number)
 
         self.check_place(self.place1.id, u'new_name_1-нс,ед,им', self.bill.data.name_forms.forms)
-
-
-    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
-    def test_approved__duration(self):
-
-        ##################################
-        # set name forms
-        noun = names.generator.get_test_name('place-name')
-        data = linguistics_helpers.get_word_post_data(noun, prefix='name')
-        data.update({'approved': True})
-
-        form = PlaceRenaming.ModeratorForm(data)
-
-        self.assertTrue(form.is_valid())
-        self.bill.update_by_moderator(form)
-        ##################################
-
-        self.assertEqual(Post.objects.all().count(), 1)
-
-        self.bill._model.duration = relations.BILL_DURATION.YEAR
-        self.bill.save()
-
-        self.assertTrue(self.bill.apply())
-        self.assertTrue(self.bill.state.is_ACCEPTED)
-        self.assertEqual(self.bill.ends_at_turn, TimePrototype.get_current_turn_number() + relations.BILL_DURATION.YEAR.game_months * c.TURNS_IN_GAME_MONTH)
-
-        self.assertEqual(Post.objects.all().count(), 2)
-
-        bill = BillPrototype.get_by_id(self.bill.id)
-        self.assertTrue(bill.state.is_ACCEPTED)
-
-        places_storage.sync(force=True)
-
-        self.check_place(self.place1.id, u'place-name-нс,ед,им', self.bill.data.name_forms.forms)
 
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
@@ -291,7 +255,6 @@ class TestPrototypeEnd(BaseTestPrototypes):
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.bill.state = relations.BILL_STATE.ACCEPTED
-        self.bill._model.ends_at_turn = 0
 
         TimePrototype.get_current_time().increment_turn()
 
@@ -311,14 +274,6 @@ class TestPrototypeEnd(BaseTestPrototypes):
 
         with mock.patch('the_tale.game.bills.bills.base_bill.BaseBill.end') as end:
             self.assertRaises(exceptions.EndBillAlreadyEndedError, self.bill.end)
-
-        self.assertEqual(end.call_count, 0)
-
-    def test_before_timeout(self):
-        self.bill._model.ends_at_turn = TimePrototype.get_current_turn_number() + 1
-
-        with mock.patch('the_tale.game.bills.bills.base_bill.BaseBill.end') as end:
-            self.assertRaises(exceptions.EndBillBeforeTimeError, self.bill.end)
 
         self.assertEqual(end.call_count, 0)
 
@@ -372,52 +327,6 @@ class GetApplicableBillsTest(BaseTestPrototypes):
         self.bill_3._model.updated_at = datetime.datetime.now()
         self.bill_3.save()
         self.assertEqual(set(bill.id for bill in BillPrototype.get_applicable_bills()), set((self.bill_1.id, self.bill_2.id)))
-
-
-class GetBillsToEndTest(BaseTestPrototypes):
-
-    def setUp(self):
-        super(GetBillsToEndTest, self).setUp()
-
-        self.bill_data = PlaceDescripton(place_id=self.place1.id, description='description')
-        self.bill_1 = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
-        self.bill_2 = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
-        self.bill_3 = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
-
-        BillPrototype._model_class.objects.all().update(ends_at_turn=0,
-                                                        state=relations.BILL_STATE.ACCEPTED,
-                                                        approved_by_moderator=True)
-
-        TimePrototype.get_current_time().increment_turn()
-
-        self.bill_1.reload()
-        self.bill_2.reload()
-        self.bill_3.reload()
-
-    def test_all(self):
-        self.assertEqual(set(bill.id for bill in BillPrototype.get_bills_to_end()),
-                         set((self.bill_1.id, self.bill_2.id, self.bill_3.id)))
-
-    def test_wrong_state(self):
-
-        for state in relations.BILL_STATE.records:
-            if state.is_ACCEPTED:
-                continue
-            self.bill_1.state = state
-            self.bill_1.save()
-            self.assertEqual(set(bill.id for bill in BillPrototype.get_bills_to_end()), set((self.bill_2.id, self.bill_3.id)))
-
-    def test_already_ended(self):
-
-        self.bill_2._model.ended_at = datetime.datetime.now()
-        self.bill_2.save()
-        self.assertEqual(set(bill.id for bill in BillPrototype.get_bills_to_end()), set((self.bill_1.id, self.bill_3.id)))
-
-    def test_not_ended(self):
-
-        self.bill_3._model.ends_at_turn = TimePrototype.get_current_turn_number() + 1
-        self.bill_3.save()
-        self.assertEqual(set(bill.id for bill in BillPrototype.get_bills_to_end()), set((self.bill_1.id, self.bill_2.id)))
 
 
 

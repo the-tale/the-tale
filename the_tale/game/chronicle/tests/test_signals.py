@@ -107,7 +107,7 @@ class BillPlaceExchangeResourcesTests(BaseTestPrototypes):
                                                resource_1=self.resource_1,
                                                resource_2=self.resource_2)
 
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted', chronicle_on_ended='chronicle-on-ended')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.form = bills.PlaceModifier.ModeratorForm({'approved': True})
         self.assertTrue(self.form.is_valid())
@@ -120,15 +120,6 @@ class BillPlaceExchangeResourcesTests(BaseTestPrototypes):
 
         self.assertEqual(prototypes.RecordPrototype._db_latest().text, 'chronicle-on-accepted')
 
-
-    def test_bill_ended(self):
-        self.bill.update_by_moderator(self.form)
-        process_bill(self.bill, True)
-
-        with check_record_created(self, RECORD_TYPE.PLACE_RESOURCE_EXCHANGE_BILL_ENDED):
-            self.bill.end()
-
-        self.assertEqual(prototypes.RecordPrototype._db_latest().text, 'chronicle-on-ended')
 
 
 class BillPlaceConversionResourcesTests(BaseTestPrototypes):
@@ -144,7 +135,7 @@ class BillPlaceConversionResourcesTests(BaseTestPrototypes):
         self.bill_data = PlaceResourceConversion(place_id=self.place1.id,
                                                  conversion=self.conversion_1)
 
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted', chronicle_on_ended='chronicle-on-ended')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.form = bills.PlaceModifier.ModeratorForm({'approved': True})
         self.assertTrue(self.form.is_valid())
@@ -155,14 +146,6 @@ class BillPlaceConversionResourcesTests(BaseTestPrototypes):
         with check_record_created(self, RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_SUCCESSED):
             process_bill(self.bill, True)
         self.assertEqual(prototypes.RecordPrototype._db_latest().text, 'chronicle-on-accepted')
-
-    def test_bill_ended(self):
-        self.bill.update_by_moderator(self.form)
-        process_bill(self.bill, True)
-
-        with check_record_created(self, RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_ENDED):
-            self.bill.end()
-        self.assertEqual(prototypes.RecordPrototype._db_latest().text, 'chronicle-on-ended')
 
 
 class BillPersonRemoveTests(BaseTestPrototypes):

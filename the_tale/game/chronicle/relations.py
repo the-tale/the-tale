@@ -50,12 +50,12 @@ class RECORD_TYPE(DjangoEnum):
                 ('BILL_DECLINE_BILL_SUCCESSED', 30, u'отмена закона: принят закон', False),
                 ('BILL_DECLINE_BILL_FAILED', 31, u'отмена закона: отклонён закон', True),
 
-                ('PLACE_RESOURCE_EXCHANGE_BILL_ENDED', 32, u'обмен ресурсами: действие закона окончено', False),
+                ('PLACE_RESOURCE_EXCHANGE_BILL_ENDED', 32, u'обмен ресурсами: действие закона окончено', True),
 
                 ('PLACE_RESOURCE_CONVERSION_BILL_STARTED', 33, u'изменение параметров города: предложен закон', True),
                 ('PLACE_RESOURCE_CONVERSION_BILL_SUCCESSED', 34, u'изменение параметров города: принят закон', False),
                 ('PLACE_RESOURCE_CONVERSION_BILL_FAILED', 35, u'изменение параметров города: отклонён закон', True),
-                ('PLACE_RESOURCE_CONVERSION_BILL_ENDED', 36, u'оизменение параметров города: действие закона окончено', False),
+                ('PLACE_RESOURCE_CONVERSION_BILL_ENDED', 36, u'оизменение параметров города: действие закона окончено', True),
 
                 ('PERSON_CHRONICLE_BILL_SUCCESSED', 37, u'житель: принят закон о занесении записи в летопись', False),
                 ('PLACE_CHRONICLE_BILL_SUCCESSED', 38, u'город: принят закон о занесении записи в летопись', False),

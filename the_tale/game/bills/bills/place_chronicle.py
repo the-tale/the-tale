@@ -4,10 +4,9 @@ from dext.forms import fields
 
 from utg import words as utg_words
 
-from the_tale.game.bills.models import BILL_TYPE
+from the_tale.game.bills import relations
 from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
 from the_tale.game.bills.bills.base_bill import BaseBill
-from the_tale.game.bills import relations
 
 from the_tale.game.map.places.storage import places_storage
 
@@ -28,7 +27,7 @@ class ModeratorForm(BaseModeratorForm):
 
 class PlaceChronicle(BaseBill):
 
-    type = BILL_TYPE.PLACE_CHRONICLE
+    type = relations.BILL_TYPE.PLACE_CHRONICLE
 
     UserForm = UserForm
     ModeratorForm = ModeratorForm

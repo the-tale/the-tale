@@ -56,14 +56,6 @@
             принят
             <span class="pgf-format-datetime" data-timestamp="{{ bill.voting_end_at|timestamp }}"></span>
             ({{bill.applyed_at_turn|verbose_game_date}})
-            {% if not bill.duration.is_UNLIMITED %}
-              {% if bill.ended_at is none %}
-                прекратит действовать через {{bill.time_before_end|verbose_timedelta}}
-              {% else %}
-                прекратил действовать
-              {% endif %}
-            {% endif %}
-
           {% endif %}
 
         {% elif bill.state.is_REJECTED %}

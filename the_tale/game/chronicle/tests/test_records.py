@@ -86,7 +86,7 @@ class RecordTests(TestCase):
         declined_bill_data = bills.PlaceResourceConversion(place_id=self.place_1.id,
                                                            conversion=conversion_1)
 
-        declined_bill = BillPrototype.create(self.account, 'declined-bill-caption', 'declined-bill-rationale', declined_bill_data, chronicle_on_accepted='chronicle-on-accepted', chronicle_on_ended='chronicle-on-ended')
+        declined_bill = BillPrototype.create(self.account, 'declined-bill-caption', 'declined-bill-rationale', declined_bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         declined_form = bills.PlaceResourceConversion.ModeratorForm({'approved': True})
         self.assertTrue(declined_form.is_valid())
@@ -94,7 +94,7 @@ class RecordTests(TestCase):
         declined_bill.apply()
 
         bill_data = bills.BillDecline(declined_bill_id=declined_bill.id)
-        bill = BillPrototype.create(self.account, 'bill-caption', 'bill-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted', chronicle_on_ended='chronicle-on-ended')
+        bill = BillPrototype.create(self.account, 'bill-caption', 'bill-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
         return bill, declined_bill
 
     def test_bill_decline__actors__exchange(self):

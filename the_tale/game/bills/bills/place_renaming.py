@@ -9,7 +9,7 @@ from the_tale.game import names
 
 from the_tale.linguistics.forms import WordField
 
-from the_tale.game.bills.models import BILL_TYPE
+from the_tale.game.bills import relations
 from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
 from the_tale.game.bills.bills.base_bill import BaseBill
 
@@ -31,7 +31,7 @@ class ModeratorForm(BaseModeratorForm):
 
 class PlaceRenaming(BaseBill):
 
-    type = BILL_TYPE.PLACE_RENAMING
+    type = relations.BILL_TYPE.PLACE_RENAMING
 
     UserForm = UserForm
     ModeratorForm = ModeratorForm

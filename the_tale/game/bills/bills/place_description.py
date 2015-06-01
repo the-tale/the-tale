@@ -8,7 +8,7 @@ from the_tale.game import names
 
 from the_tale.common.utils import bbcode
 
-from the_tale.game.bills.models import BILL_TYPE
+from the_tale.game.bills import relations
 from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
 from the_tale.game.bills.bills.base_bill import BaseBill
 
@@ -31,7 +31,7 @@ class ModeratorForm(BaseModeratorForm):
 
 class PlaceDescripton(BaseBill):
 
-    type = BILL_TYPE.PLACE_DESCRIPTION
+    type = relations.BILL_TYPE.PLACE_DESCRIPTION
 
     UserForm = UserForm
     ModeratorForm = ModeratorForm

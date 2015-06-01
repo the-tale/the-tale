@@ -19,7 +19,6 @@ from the_tale.accounts.achievements.storage import achievements_storage
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
 from the_tale.game.prototypes import TimePrototype
-from the_tale.game.balance import constants as c
 
 from the_tale.game.map.places.prototypes import PlacePrototype
 
@@ -29,7 +28,7 @@ from the_tale.forum.models import MARKUP_METHOD
 from the_tale.game.bills.models import Bill, Vote, Actor
 from the_tale.game.bills.conf import bills_settings
 from the_tale.game.bills import exceptions
-from the_tale.game.bills.relations import BILL_STATE, VOTE_TYPE, BILL_DURATION
+from the_tale.game.bills.relations import BILL_STATE, VOTE_TYPE
 from the_tale.game.bills import signals
 from the_tale.game.bills import logic
 
@@ -38,7 +37,7 @@ class BillPrototype(BasePrototype):
     _model_class = Bill
     _readonly = ('id', 'type', 'created_at', 'updated_at', 'caption', 'rationale', 'votes_for',
                  'votes_against', 'votes_refrained', 'forum_thread_id', 'min_votes_percents_required',
-                 'voting_end_at', 'ended_at', 'ends_at_turn', 'duration', 'chronicle_on_accepted', 'chronicle_on_ended')
+                 'voting_end_at', 'ended_at', 'chronicle_on_accepted')
     _bidirectional = ('approved_by_moderator', 'state', 'is_declined', 'applyed_at_turn')
     _get_by = ('id', )
 
@@ -56,10 +55,6 @@ class BillPrototype(BasePrototype):
         if not hasattr(self, '_data'):
             self._data = deserialize_bill(s11n.from_json(self._model.technical_data))
         return self._data
-
-    @property
-    def time_before_end(self):
-        return datetime.timedelta(seconds=(self.ends_at_turn - TimePrototype.get_current_turn_number()) * c.TURN_DELTA)
 
     @property
     def rationale_html(self): return bbcode.render(self._model.rationale)
@@ -86,9 +81,7 @@ class BillPrototype(BasePrototype):
         special_initials = self.data.user_form_initials
         special_initials.update({'caption': self.caption,
                                  'rationale': self.rationale,
-                                 'duration': self.duration,
-                                 'chronicle_on_accepted': self.chronicle_on_accepted,
-                                 'chronicle_on_ended': self.chronicle_on_ended})
+                                 'chronicle_on_accepted': self.chronicle_on_accepted})
         return special_initials
 
     @property
@@ -175,8 +168,6 @@ class BillPrototype(BasePrototype):
                                                                                                             self.votes_refrained)
 
         self._model.voting_end_at = datetime.datetime.now()
-        if not self.duration.is_UNLIMITED:
-            self._model.ends_at_turn = TimePrototype.get_current_turn_number() + self.duration.game_months * c.TURNS_IN_GAME_MONTH
 
         self.applyed_at_turn = TimePrototype.get_current_turn_number()
 
@@ -222,9 +213,6 @@ class BillPrototype(BasePrototype):
         if self.ended_at is not None:
             raise exceptions.EndBillAlreadyEndedError(bill_id=self.id)
 
-        if self.ends_at_turn > TimePrototype.get_current_turn_number():
-            raise exceptions.EndBillBeforeTimeError(bill_id=self.id)
-
         results_text = u'Срок действия [url="%s%s"]закона[/url] истёк.' % (project_settings.SITE_URL,
                                                                            reverse('game:bills:show', args=[self.id]) )
 
@@ -261,16 +249,12 @@ class BillPrototype(BasePrototype):
 [b]запись в летописи о принятии:[/b]
 %(on_accepted)s
 
-[b]запись в летописи об окончании действия:[/b]
-%(on_ended)s
-
 [b]обоснование:[/b]
 %(rationale)s
 ''' % {'text': text,
        'caption': self.caption,
        'rationale': self.rationale,
-       'on_accepted': self.chronicle_on_accepted if self.chronicle_on_accepted else '—',
-       'on_ended': self.chronicle_on_ended if self.chronicle_on_ended else u'—'}
+       'on_accepted': self.chronicle_on_accepted if self.chronicle_on_accepted else '—'}
 
         return rendered_text
 
@@ -286,10 +270,8 @@ class BillPrototype(BasePrototype):
         self._model.updated_at = datetime.datetime.now()
         self._model.caption = form.c.caption
         self._model.rationale = form.c.rationale
-        self._model.duration = form.c.duration
         self._model.approved_by_moderator = False
         self._model.chronicle_on_accepted = form.c.chronicle_on_accepted
-        self._model.chronicle_on_ended = form.c.chronicle_on_ended
 
         self.recalculate_votes()
 
@@ -322,7 +304,7 @@ class BillPrototype(BasePrototype):
 
     @classmethod
     @transaction.atomic
-    def create(cls, owner, caption, rationale, bill, chronicle_on_accepted, chronicle_on_ended=u'', duration=BILL_DURATION.UNLIMITED):
+    def create(cls, owner, caption, rationale, bill, chronicle_on_accepted):
 
         model = Bill.objects.create(owner=owner._model,
                                     type=bill.type,
@@ -331,9 +313,7 @@ class BillPrototype(BasePrototype):
                                     created_at_turn=TimePrototype.get_current_turn_number(),
                                     technical_data=s11n.to_json(bill.serialize()),
                                     state=BILL_STATE.VOTING,
-                                    duration=duration,
                                     chronicle_on_accepted=chronicle_on_accepted,
-                                    chronicle_on_ended=chronicle_on_ended,
                                     votes_for=1) # author always wote for bill
 
         bill_prototype = cls(model)
@@ -390,14 +370,6 @@ class BillPrototype(BasePrototype):
                                                        approved_by_moderator=True,
                                                        updated_at__lt=datetime.datetime.now() - datetime.timedelta(seconds=bills_settings.BILL_LIVE_TIME))
         return [cls(model=model) for model in bills_models]
-
-    @classmethod
-    def get_bills_to_end(cls):
-        bills_models = cls._model_class.objects.filter(state=BILL_STATE.ACCEPTED,
-                                                       ended_at=None,
-                                                       ends_at_turn__lt=TimePrototype.get_current_turn_number())
-        return [cls(model=model) for model in bills_models]
-
 
 
 

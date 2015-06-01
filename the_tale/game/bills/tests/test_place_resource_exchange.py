@@ -27,7 +27,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
                                                resource_2=self.resource_2)
 
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data,
-                                         chronicle_on_accepted='chronicle-on-accepted', chronicle_on_ended='chronicle-on-ended')
+                                         chronicle_on_accepted='chronicle-on-accepted')
 
     def test_create(self):
         self.assertEqual(self.bill.data.place_1_id, self.place1.id)

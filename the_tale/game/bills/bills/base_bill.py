@@ -3,8 +3,6 @@
 
 class BaseBill(object):
 
-    WITH_DURATION = False
-
     @property
     def moderator_form_initials(self):
         return {}

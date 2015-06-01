@@ -8,7 +8,7 @@ from dext.forms import fields
 
 from the_tale.game.balance import constants as c
 
-from the_tale.game.bills.models import BILL_TYPE
+from the_tale.game.bills import relations
 from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
 from the_tale.game.bills.bills.base_bill import BaseBill
 
@@ -91,9 +91,7 @@ class ModeratorForm(BaseModeratorForm):
 
 class PlaceResourceExchange(BaseBill):
 
-    WITH_DURATION = True
-
-    type = BILL_TYPE.PLACE_RESOURCE_EXCHANGE
+    type = relations.BILL_TYPE.PLACE_RESOURCE_EXCHANGE
 
     UserForm = UserForm
     ModeratorForm = ModeratorForm

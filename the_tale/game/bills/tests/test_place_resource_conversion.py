@@ -24,7 +24,7 @@ class PlaceResourceConversionTests(BaseTestPrototypes):
                                                  conversion=self.conversion_1)
 
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data,
-                                         chronicle_on_accepted='chronicle-on-accepted', chronicle_on_ended='chronicle-on-ended')
+                                         chronicle_on_accepted='chronicle-on-accepted')
 
 
     def test_create(self):

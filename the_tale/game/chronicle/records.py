@@ -118,9 +118,6 @@ class _PlaceResourceExchangeBillBase(RecordBase):
 class PlaceResourceExchangeBillSuccessed(_PlaceResourceExchangeBillBase):
     TYPE = RECORD_TYPE.PLACE_RESOURCE_EXCHANGE_BILL_SUCCESSED
 
-class PlaceResourceExchangeBillEnded(_PlaceResourceExchangeBillBase):
-    TYPE = RECORD_TYPE.PLACE_RESOURCE_EXCHANGE_BILL_ENDED
-
 
 # bill decline
 class _BillDeclineBillBase(RecordBase):
@@ -144,9 +141,6 @@ class _PlaceResourceConversionBillBase(RecordBase):
 
 class PlaceResourceConversionBillSuccessed(_PlaceResourceConversionBillBase):
     TYPE = RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_SUCCESSED
-
-class PlaceResourceConversionBillEnded(_PlaceResourceConversionBillBase):
-    TYPE = RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_ENDED
 
 
 #chronicle

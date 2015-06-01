@@ -18,7 +18,8 @@ from the_tale.linguistics.relations import CONTRIBUTION_TYPE
 
 
 from the_tale.game.heroes.models import Hero
-from the_tale.game.bills.models import Bill, BILL_STATE
+from the_tale.game.bills import models as bill_models
+from the_tale.game.bills import relations as bill_relations
 
 from the_tale.game.ratings.models import RatingValues, RatingPlaces
 from the_tale.game.ratings.conf import ratings_settings
@@ -81,8 +82,8 @@ WHERE NOT %(accounts)s.is_fast AND NOT %(accounts)s.is_bot AND %(accounts)s.id <
                                      'accounts': Account._meta.db_table,
                                      'achievements': AccountAchievements._meta.db_table,
                                      'heroes': Hero._meta.db_table,
-                                     'bills': Bill._meta.db_table,
-                                     'bill_accepted_state': BILL_STATE.ACCEPTED.value,
+                                     'bills': bill_models.Bill._meta.db_table,
+                                     'bill_accepted_state': bill_relations.BILL_STATE.ACCEPTED.value,
                                      'phrase_candidates': ContributionPrototype._model_class._meta.db_table,
                                      'phrase_candidate_type': CONTRIBUTION_TYPE.TEMPLATE.value,
                                      'min_pvp_battles': heroes_settings.MIN_PVP_BATTLES,

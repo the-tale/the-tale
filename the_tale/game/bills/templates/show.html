@@ -85,21 +85,12 @@
 <h3 style="margin-bottom: 0.5em;">{{ bill.data.CAPTION }}</h3>
 
 <ul style="font-size: 14px;" class="unstyled">
-  {% if not bill.duration.is_UNLIMITED %}
-  <li class="pgf-duration-info"><strong>Время действия:</strong> {{ bill.duration.text }}</li>
-  {% endif %}
-
   {% include bill.data.SHOW_TEMPLATE with context %}
 </ul>
 
 {% if bill.chronicle_on_accepted %}
 <h4>Запись в летописи о принятии</h4>
 <p>{{ bill.chronicle_on_accepted }}</p>
-{% endif %}
-
-{% if bill.chronicle_on_ended %}
-<h4>Запись в летописи об окончании действия</h4>
-<p>{{ bill.chronicle_on_ended }}</p>
 {% endif %}
 
 <h4>Обоснование</h4>

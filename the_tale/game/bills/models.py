@@ -5,7 +5,7 @@ from rels.django import RelationIntegerField
 
 from the_tale.forum.models import Thread
 
-from the_tale.game.bills.relations import BILL_STATE, BILL_TYPE, VOTE_TYPE, BILL_DURATION
+from . import relations
 
 
 class Bill(models.Model):
@@ -20,16 +20,14 @@ class Bill(models.Model):
     created_at_turn = models.IntegerField(null=False)
     applyed_at_turn = models.IntegerField(null=True)
 
-    ends_at_turn = models.BigIntegerField(null=True, blank=True, db_index=True)
     ended_at = models.DateTimeField(null=True, blank=True)
-    duration = RelationIntegerField(relation=BILL_DURATION, relation_column='value')
 
     owner = models.ForeignKey('accounts.Account', null=True, related_name='+', on_delete=models.SET_NULL)
 
     caption = models.CharField(max_length=CAPTION_MAX_LENGTH)
 
-    type = RelationIntegerField(relation=BILL_TYPE, relation_column='value', db_index=True)
-    state = RelationIntegerField(relation=BILL_STATE, relation_column='value', db_index=True)
+    type = RelationIntegerField(relation=relations.BILL_TYPE, db_index=True)
+    state = RelationIntegerField(relation=relations.BILL_STATE, db_index=True)
 
     approved_by_moderator = models.BooleanField(default=False, db_index=True)
 
@@ -39,7 +37,6 @@ class Bill(models.Model):
     technical_data = models.TextField(null=False, blank=True, default={})
 
     chronicle_on_accepted = models.TextField(null=False, blank=True, default=u'')
-    chronicle_on_ended = models.TextField(null=False, blank=True, default=u'')
 
     # we should not remove bill when ocasionally remove forum thread
     forum_thread = models.ForeignKey(Thread, null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
@@ -78,7 +75,7 @@ class Vote(models.Model):
 
     bill = models.ForeignKey(Bill, null=False, on_delete=models.CASCADE)
 
-    type = RelationIntegerField(relation=VOTE_TYPE, relation_column='value', db_index=True)
+    type = RelationIntegerField(relation=relations.VOTE_TYPE, db_index=True)
 
     class Meta:
         unique_together = (('owner', 'bill'),)

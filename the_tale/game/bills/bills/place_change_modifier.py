@@ -6,7 +6,7 @@ from utg import words as utg_words
 
 from dext.forms import fields
 
-from the_tale.game.bills.models import BILL_TYPE
+from the_tale.game.bills import relations
 from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
 from the_tale.game.bills.bills.base_bill import BaseBill
 
@@ -47,7 +47,7 @@ class ModeratorForm(BaseModeratorForm):
 
 class PlaceModifier(BaseBill):
 
-    type = BILL_TYPE.PLACE_MODIFIER
+    type = relations.BILL_TYPE.PLACE_MODIFIER
 
     UserForm = UserForm
     ModeratorForm = ModeratorForm
