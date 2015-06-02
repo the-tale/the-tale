@@ -109,23 +109,23 @@ class RatingPrototypeTests(PrototypeTestsBase):
     def test_bills_count(self):
         from the_tale.forum.models import Category, SubCategory
         from the_tale.game.bills.conf import bills_settings
-        from the_tale.game.bills.models import BILL_STATE
+        from the_tale.game.bills import relations as bills_relations
 
         forum_category = Category.objects.create(caption='category-1', slug='category-1')
         SubCategory.objects.create(caption=bills_settings.FORUM_CATEGORY_UID + '-caption',
                                    uid=bills_settings.FORUM_CATEGORY_UID,
                                    category=forum_category)
 
-        self.create_bill(0, self.account_2, BILL_STATE.VOTING)
-        self.create_bill(1, self.account_2, BILL_STATE.ACCEPTED)
-        self.create_bill(2, self.account_2, BILL_STATE.REJECTED)
+        self.create_bill(0, self.account_2, bills_relations.BILL_STATE.VOTING)
+        self.create_bill(1, self.account_2, bills_relations.BILL_STATE.ACCEPTED)
+        self.create_bill(2, self.account_2, bills_relations.BILL_STATE.REJECTED)
 
-        self.create_bill(3, self.account_3, BILL_STATE.ACCEPTED)
-        self.create_bill(4, self.account_3, BILL_STATE.ACCEPTED)
-        self.create_bill(5, self.account_3, BILL_STATE.REJECTED)
+        self.create_bill(3, self.account_3, bills_relations.BILL_STATE.ACCEPTED)
+        self.create_bill(4, self.account_3, bills_relations.BILL_STATE.ACCEPTED)
+        self.create_bill(5, self.account_3, bills_relations.BILL_STATE.REJECTED)
 
-        self.create_bill(6, self.account_1, BILL_STATE.REJECTED)
-        self.create_bill(7, self.account_1, BILL_STATE.REJECTED)
+        self.create_bill(6, self.account_1, bills_relations.BILL_STATE.REJECTED)
+        self.create_bill(7, self.account_1, bills_relations.BILL_STATE.REJECTED)
 
         RatingValuesPrototype.recalculate()
         self.assertEqual([rv.bills_count for rv in RatingValues.objects.all().order_by('account__id')],
@@ -135,7 +135,8 @@ class RatingPrototypeTests(PrototypeTestsBase):
         ContributionPrototype.create(account_id=account.id,
                                      type=type,
                                      entity_id=entity_id,
-                                     source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
+                                     source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER,
+                                     state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME)
 
     def test_phrases_count(self):
         self.create_linguistic_contribution(account=self.account_1, type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE, entity_id=1)

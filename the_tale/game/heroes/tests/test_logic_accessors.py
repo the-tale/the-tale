@@ -218,17 +218,17 @@ class PoliticalPowerTests(HeroLogicAccessorsTestBase):
         self.assertEqual(self.hero.modify_politics_power(person=self.place_1.persons[1], power=100), (100, 0.0, 0.0))
         self.assertEqual(self.hero.modify_politics_power(person=self.place_1.persons[1], power=-100), (-100, 0.0, 0.0))
 
-        self.assertEqual(self.hero.modify_politics_power(person=enemy, power=100), (100, 0.001, 0.0))
-        self.assertEqual(self.hero.modify_politics_power(person=enemy, power=-100), (-100, 0.0, 0.001))
+        self.assertEqual(self.hero.modify_politics_power(person=enemy, power=100), (100, 0.01, 0.0))
+        self.assertEqual(self.hero.modify_politics_power(person=enemy, power=-100), (-100, 0.0, 0.01))
 
-        self.assertEqual(self.hero.modify_politics_power(person=friend, power=100), (100, 0.001, 0.0))
-        self.assertEqual(self.hero.modify_politics_power(person=friend, power=-100), (-100, 0.0, 0.001))
+        self.assertEqual(self.hero.modify_politics_power(person=friend, power=100), (100, 0.01, 0.0))
+        self.assertEqual(self.hero.modify_politics_power(person=friend, power=-100), (-100, 0.0, 0.01))
 
         self.assertEqual(self.hero.modify_politics_power(place=self.place_2, power=100), (100, 0.0, 0.0))
         self.assertEqual(self.hero.modify_politics_power(place=self.place_2, power=-100), (-100, 0.0, 0.0))
 
-        self.assertEqual(self.hero.modify_politics_power(place=self.place_1, power=100), (100, 0.001, 0.0))
-        self.assertEqual(self.hero.modify_politics_power(place=self.place_1, power=-100), (-100, 0.0, 0.001))
+        self.assertEqual(self.hero.modify_politics_power(place=self.place_1, power=100), (100, 0.01, 0.0))
+        self.assertEqual(self.hero.modify_politics_power(place=self.place_1, power=-100), (-100, 0.0, 0.01))
 
     def test_modify_power__enemy(self):
         friend = self.place_1.persons[0]
@@ -269,8 +269,8 @@ class PoliticalPowerTests(HeroLogicAccessorsTestBase):
         self.hero.preferences.set_place(self.place_1)
 
         self.assertEqual(self.hero.modify_politics_power(place=self.place_2, power=100), (100, 0, 0))
-        self.assertEqual(self.hero.modify_politics_power(place=self.place_1, power=100), (100, 0.001, 0.0))
-        self.assertEqual(self.hero.modify_politics_power(place=self.place_1, power=-100), (-100, 0.0, 0.001))
+        self.assertEqual(self.hero.modify_politics_power(place=self.place_1, power=100), (100, 0.01, 0.0))
+        self.assertEqual(self.hero.modify_politics_power(place=self.place_1, power=-100), (-100, 0.0, 0.01))
 
     def test_politics_power_multiplier_below_zero(self):
         self.assertTrue(self.hero.politics_power_multiplier() > 0)

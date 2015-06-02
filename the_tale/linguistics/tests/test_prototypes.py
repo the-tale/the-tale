@@ -4,8 +4,6 @@ import random
 
 import mock
 
-from django.db import transaction
-
 from utg import relations as utg_relations
 from utg import words as utg_words
 from utg import templates as utg_templates
@@ -525,11 +523,10 @@ class ContributionTests(testcase.TestCase):
                                                                  state=relations.CONTRIBUTION_STATE.random())
 
         with self.check_not_changed(prototypes.ContributionPrototype._db_count):
-            with transaction.atomic():
-                contribution_2 = prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.WORD,
-                                                                                    account_id=self.account_1.id,
-                                                                                    entity_id=1,
-                                                                                    source=relations.CONTRIBUTION_SOURCE.random(),
-                                                                                    state=relations.CONTRIBUTION_STATE.random())
+            contribution_2 = prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.WORD,
+                                                                                account_id=self.account_1.id,
+                                                                                entity_id=1,
+                                                                                source=contribution_1.source,
+                                                                                state=contribution_1.state)
 
         self.assertEqual(contribution_1.id, contribution_2.id)

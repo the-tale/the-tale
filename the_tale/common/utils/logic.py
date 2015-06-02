@@ -125,7 +125,6 @@ def split_into_table(sequence, columns):
 
 
 def get_or_create(get_method, create_method, exception, kwargs):
-
     obj = get_method(**kwargs)
 
     if obj is not None:

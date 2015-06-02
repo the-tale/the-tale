@@ -133,11 +133,14 @@ def log_sql_queries(turn_number):
 
 
 def remove_game_data(account):
-    from the_tale.game.logic_storage import LogicStorage
+    from the_tale.game.heroes.prototypes import HeroPrototype
 
-    storage = LogicStorage()
-    storage.load_account_data(account)
-    storage._destroy_account_data(account)
+    hero = HeroPrototype.get_by_account_id(account.id)
+
+    for action in reversed(hero.actions.actions_list):
+        action.remove()
+
+    hero.remove()
 
 
 def _form_game_account_info(game_time, account, in_pvp_queue, is_own, client_turns=None):

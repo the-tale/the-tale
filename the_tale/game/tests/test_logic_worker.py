@@ -119,7 +119,7 @@ class LogicWorkerTests(testcase.TestCase):
             self.worker.release_account(self.account.id)
 
         self.assertEqual(release_account_data.call_count, 1)
-        self.assertEqual(release_account_data.call_args_list[0][0][0].id, self.account.id)
+        self.assertEqual(release_account_data.call_args_list[0][0][0], self.account.id)
 
 
     def test_release_account__account_not_in_logic(self):

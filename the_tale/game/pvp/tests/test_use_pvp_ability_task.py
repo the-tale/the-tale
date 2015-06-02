@@ -58,7 +58,7 @@ class UsePvPAbilityTests(testcase.TestCase):
         self.assertEqual(self.task.state, USE_PVP_ABILITY_TASK_STATE.BATTLE_FINISHED)
 
     def test_process_hero_not_found(self):
-        self.storage.release_account_data(self.account_1)
+        self.storage.release_account_data(self.account_1.id)
         self.task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(self.task.state, USE_PVP_ABILITY_TASK_STATE.HERO_NOT_FOUND)
 
@@ -83,7 +83,7 @@ class UsePvPAbilityTests(testcase.TestCase):
         self.assertNotEqual(old_hero_1_last_message, self.hero_1.messages.messages[-1])
         self.assertNotEqual(old_hero_2_last_message, self.hero_2.messages.messages[-1])
 
-        self.assertNotEqual(old_hero_1_last_message[2], self.hero_1.messages.ui_info()[-1][2])
-        self.assertEqual(old_hero_2_last_message[2], self.hero_2.messages.ui_info()[-1][2])
+        self.assertNotEqual(old_hero_1_last_message.ui_info()[-1], self.hero_1.messages.ui_info()[-1][2])
+        self.assertEqual(old_hero_2_last_message.ui_info()[-1], self.hero_2.messages.ui_info()[-1][2])
 
         self.assertEqual(self.hero_1.pvp.energy, 0)

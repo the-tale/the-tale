@@ -212,11 +212,11 @@ class GetNewCardTest(testcase.TestCase):
                                                             state=companions_relations.STATE.ENABLED)
 
 
-        for i in xrange(len(relations.CARD_TYPE.records)*100):
+        for i in xrange(len(relations.CARD_TYPE.records)*10):
             card = self.hero.cards.get_new_card()
             rarities.add(card.type.rarity)
 
-        self.assertEqual(len(relations.CARD_TYPE.records), len(set(card.type for card in self.hero.cards.all_cards())))
+        self.assertTrue(len(relations.CARD_TYPE.records) > len(set(card.type for card in self.hero.cards.all_cards())) / 2)
         self.assertEqual(rarities, set(relations.RARITY.records))
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', False)
@@ -256,7 +256,7 @@ class GetNewCardTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True)
     def test_priority(self):
-        for i in xrange(len(relations.CARD_TYPE.records)*1000):
+        for i in xrange(len(relations.CARD_TYPE.records)*100):
             self.hero.cards.get_new_card()
 
         rarities = collections.Counter(card.type.rarity for card in self.hero.cards.all_cards())

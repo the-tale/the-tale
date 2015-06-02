@@ -1,6 +1,7 @@
 # coding: utf-8
 import sys
 import time
+import datetime
 import contextlib
 
 from dext.common.utils import cache
@@ -9,7 +10,7 @@ from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes.conf import heroes_settings
 
 from the_tale.game import exceptions
-from the_tale.game.conf import game_settings
+from the_tale.game import conf
 from the_tale.game.prototypes import TimePrototype
 
 
@@ -22,6 +23,7 @@ class LogicStorage(object):
         self.meta_actions_to_actions = {}
         self.skipped_heroes = set()
         self.bundles_to_accounts = {}
+        self.ignored_bundles = set()
 
         self.previous_cache = {}
         self.current_cache = {}
@@ -39,8 +41,8 @@ class LogicStorage(object):
 
         return hero
 
-    def release_account_data(self, account, save_required=True):
-        hero = self.accounts_to_heroes[account.id]
+    def release_account_data(self, account_id, save_required=True):
+        hero = self.accounts_to_heroes[account_id]
 
         if save_required:
             self._save_hero_data(hero.id)
@@ -49,11 +51,11 @@ class LogicStorage(object):
             self.skipped_heroes.remove(hero.id)
 
         del self.heroes[hero.id]
-        del self.accounts_to_heroes[account.id]
+        del self.accounts_to_heroes[account_id]
 
         bundle_id = hero.actions.current_action.bundle_id
 
-        self.bundles_to_accounts[bundle_id].remove(account.id)
+        self.bundles_to_accounts[bundle_id].remove(account_id)
         if not self.bundles_to_accounts[bundle_id]:
             del self.bundles_to_accounts[bundle_id]
 
@@ -159,7 +161,7 @@ class LogicStorage(object):
 
 
     @contextlib.contextmanager
-    def save_on_exception(self, logger, message, data, excluded_bundle_id):
+    def on_exception(self, logger, message, data, excluded_bundle_id):
         try:
             yield
         except Exception:
@@ -168,10 +170,13 @@ class LogicStorage(object):
                 logger.error('Exception',
                              exc_info=sys.exc_info(),
                              extra={} )
-            self._save_on_exception(excluded_bundle_id=excluded_bundle_id)
+
+            self.ignored_bundles.add(excluded_bundle_id)
+
+            self._save_on_exception()
+
             if logger:
                 logger.error('bundles saved')
-            raise
 
 
     # this method can be colled outside of process_turn
@@ -180,7 +185,10 @@ class LogicStorage(object):
         leader_action = hero.actions.current_action
         bundle_id = leader_action.bundle_id
 
-        with self.save_on_exception(logger,
+        if bundle_id in self.ignored_bundles:
+            return
+
+        with self.on_exception(logger,
                                     message='LogicStorage.process_turn catch exception, while processing hero %d, try to save all bundles except %d',
                                     data=(hero.id, bundle_id),
                                     excluded_bundle_id=bundle_id):
@@ -200,7 +208,7 @@ class LogicStorage(object):
                 break
 
 
-        hero.process_rare_operations()
+            hero.process_rare_operations()
 
         if leader_action.removed and leader_action.bundle_id != hero.actions.current_action.bundle_id:
             self.unmerge_bundles(account_id=hero.account_id,
@@ -210,7 +218,6 @@ class LogicStorage(object):
 
 
     def process_turn(self, logger=None, continue_steps_if_needed=True):
-
         self.switch_caches()
 
         timestamp = time.time()
@@ -220,6 +227,8 @@ class LogicStorage(object):
         processed_heroes = 0
 
         for hero in self.heroes.values():
+            if hero.actions.current_action.bundle_id in self.ignored_bundles:
+                continue
 
             if hero.id in self.skipped_heroes:
                 continue
@@ -231,21 +240,33 @@ class LogicStorage(object):
 
             processed_heroes += 1
 
-            if game_settings.UNLOAD_OBJECTS:
+            if conf.game_settings.UNLOAD_OBJECTS:
                 hero.unload_serializable_items(timestamp)
 
         if logger:
             logger.info('[next_turn] processed heroes: %d / %d' % (processed_heroes, len(self.heroes)))
+            if self.ignored_bundles:
+                logger.info('[next_turn] ignore bundles: %r' % list(self.ignored_bundles))
 
-
-    def _save_on_exception(self, excluded_bundle_id):
+    def _save_on_exception(self):
         for hero_id, hero in self.heroes.iteritems():
-            if hero.actions.current_action.bundle_id == excluded_bundle_id:
+            if hero.actions.current_action.bundle_id in self.ignored_bundles:
                 continue
-            self._save_hero_data(hero_id)
+
+            time_border = datetime.datetime.now() - datetime.timedelta(seconds=conf.game_settings.SAVE_ON_EXCEPTION_TIMEOUT)
+
+            if hero.saved_at < time_border:
+                self._save_hero_data(hero_id)
 
     def save_all(self, logger=None):
-        for hero_id, hero in self.heroes.iteritems():
+        heroes = self.heroes.items()
+        heroes.sort(key=lambda x: x[0])
+
+        for hero_id, hero in heroes:
+
+            if hero.actions.current_action.bundle_id in self.ignored_bundles:
+                continue
+
             if logger:
                 logger.info('save hero %d' % hero_id)
             self._save_hero_data(hero_id)
@@ -258,7 +279,7 @@ class LogicStorage(object):
 
         unsaved_heroes = sorted(self.heroes.itervalues(), key=lambda h: h.saved_at)
 
-        saved_uncached_heroes_number = int(game_settings.SAVED_UNCACHED_HEROES_FRACTION * len(self.heroes) + 1)
+        saved_uncached_heroes_number = int(conf.game_settings.SAVED_UNCACHED_HEROES_FRACTION * len(self.heroes) + 1)
 
         bundles.update(hero.actions.current_action.bundle_id for hero in unsaved_heroes[:saved_uncached_heroes_number])
 
@@ -283,10 +304,15 @@ class LogicStorage(object):
 
         for hero_id, hero in self.heroes.iteritems():
 
-            if hero.actions.current_action.bundle_id in cached_bundles:
+            bundle_id = hero.actions.current_action.bundle_id
+
+            if bundle_id in self.ignored_bundles:
+                continue
+
+            if bundle_id in cached_bundles:
                 self.cache_queue.add(hero_id)
 
-            if hero.actions.current_action.bundle_id in saved_bundles:
+            if bundle_id in saved_bundles:
                 self._save_hero_data(hero_id)
 
         cached_heroes_number = self.process_cache_queue(update_cache=True)
@@ -316,17 +342,6 @@ class LogicStorage(object):
     def switch_caches(self):
         self.previous_cache = self.current_cache
         self.current_cache = {}
-
-    def _destroy_account_data(self, account):
-
-        hero = self.accounts_to_heroes[account.id]
-
-        self.release_account_data(account, save_required=False)
-
-        for action in reversed(hero.actions.actions_list):
-            action.remove()
-
-        hero.remove()
 
     def _test_save(self):
         for hero_id in self.heroes:

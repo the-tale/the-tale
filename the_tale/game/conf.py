@@ -37,6 +37,8 @@ game_settings = app_settings('GAME',
 
                              INFO_API_VERSION='1.3',
 
+                             SAVE_ON_EXCEPTION_TIMEOUT=60*60, # seconds
+
                              TEXTGEN_SOURCES_DIR=os.path.join(APP_DIR, 'fixtures', 'textgen', 'texts_src'),
                              TEXTGEN_VOCABULARY=os.path.join(APP_DIR, 'fixtures', 'textgen', 'vocabulary.json'),
                              TEXTGEN_STORAGE_VOCABULARY=os.path.join(APP_DIR, 'fixtures', 'textgen', 'storage', 'vocabulary.json'),

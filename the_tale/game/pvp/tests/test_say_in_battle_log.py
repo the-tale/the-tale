@@ -47,12 +47,12 @@ class SayInBattleLogTests(testcase.TestCase):
         self.assertEqual(self.task.serialize(), SayInBattleLogTask.deserialize(self.task.serialize()).serialize())
 
     def test_process_account_hero_not_found(self):
-        self.storage.release_account_data(self.account_1)
+        self.storage.release_account_data(self.account_1.id)
         self.task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(self.task.state, SAY_IN_HERO_LOG_TASK_STATE.ACCOUNT_HERO_NOT_FOUND)
 
     def test_process_battle_not_found(self):
-        self.storage.release_account_data(self.account_1)
+        self.storage.release_account_data(self.account_1.id)
         self.battle.remove()
         self.task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(self.task.state, SAY_IN_HERO_LOG_TASK_STATE.BATTLE_NOT_FOUND)
@@ -71,7 +71,7 @@ class SayInBattleLogTests(testcase.TestCase):
         old_hero_1_last_message = self.hero_1.messages.messages[-1]
         old_hero_2_last_message = self.hero_2.messages.messages[-1]
 
-        self.storage.release_account_data(self.account_2)
+        self.storage.release_account_data(self.account_2.id)
         self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertEqual(self.task.state, SAY_IN_HERO_LOG_TASK_STATE.PROCESSED)

@@ -16,6 +16,7 @@ from the_tale.game.logic import create_test_map
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game import exceptions
 from the_tale.game.prototypes import TimePrototype
+from the_tale.game import conf
 
 
 class LogicStorageTestsCommon(testcase.TestCase):
@@ -123,7 +124,7 @@ class LogicStorageTests(testcase.TestCase):
 
         self.storage.skipped_heroes.add(self.hero_1.id)
 
-        self.storage.release_account_data(AccountPrototype.get_by_id(self.account_1.id))
+        self.storage.release_account_data(self.account_1.id)
 
         self.assertEqual(len(self.storage.heroes), 1)
         self.assertEqual(len(self.storage.accounts_to_heroes), 1)
@@ -403,11 +404,14 @@ class LogicStorageTests(testcase.TestCase):
 
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.process_turn', process_turn_raise_exception):
             with mock.patch('the_tale.game.logic_storage.LogicStorage._save_on_exception') as _save_on_exception:
-                self.assertRaises(Exception, self.storage.process_turn)
+                self.storage.process_turn()
+
+        self.assertIn(self.hero_2.actions.current_action.bundle_id, self.storage.ignored_bundles)
 
         self.assertEqual(_save_on_exception.call_count, 1)
-        self.assertEqual(_save_on_exception.call_args, mock.call(excluded_bundle_id=self.hero_2.actions.current_action.bundle_id))
+        self.assertEqual(_save_on_exception.call_args, mock.call())
 
+    @mock.patch('the_tale.game.conf.game_settings.SAVE_ON_EXCEPTION_TIMEOUT', 0)
     def test_save_on_exception(self):
         # hero 1 not saved due to one bundle with hero 3
         # hero 2 saved
@@ -429,10 +433,42 @@ class LogicStorageTests(testcase.TestCase):
         def save_hero_data(storage, hero_id, **kwargs):
             saved_heroes.add(hero_id)
 
+        self.storage.ignored_bundles.add(hero_3.actions.current_action.bundle_id)
+
         with mock.patch('the_tale.game.logic_storage.LogicStorage._save_hero_data', save_hero_data):
-            self.storage._save_on_exception(hero_3.actions.current_action.bundle_id)
+            self.storage._save_on_exception()
 
         self.assertEqual(saved_heroes, set([self.hero_2.id, hero_4.id]))
+
+    def test_save_on_exception__time_border(self):
+        # hero 1 not saved due to one bundle with hero 3
+        # hero 2 saved
+        # hero 3 not saved
+        # hero 4 saved
+
+        result, account_3_id, bundle_3_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_3_id))
+        hero_3 = self.storage.accounts_to_heroes[account_3_id]
+
+        result, account_4_id, bundle_4_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
+        self.storage.load_account_data(AccountPrototype.get_by_id(account_4_id))
+        hero_4 = self.storage.accounts_to_heroes[account_4_id]
+
+        self.hero_1.actions.current_action.bundle_id = hero_3.actions.current_action.bundle_id
+
+        saved_heroes = set()
+
+        self.hero_2._model.saved_at = datetime.datetime.now() - datetime.timedelta(seconds=conf.game_settings.SAVE_ON_EXCEPTION_TIMEOUT+1)
+
+        def save_hero_data(storage, hero_id, **kwargs):
+            saved_heroes.add(hero_id)
+
+        self.storage.ignored_bundles.add(hero_3.actions.current_action.bundle_id)
+
+        with mock.patch('the_tale.game.logic_storage.LogicStorage._save_hero_data', save_hero_data):
+            self.storage._save_on_exception()
+
+        self.assertEqual(saved_heroes, set([self.hero_2.id]))
 
 
     def test_save_changed_data(self):
@@ -513,23 +549,6 @@ class LogicStorageTests(testcase.TestCase):
         self.assertEqual(ui_info.call_count, 1) # cache only first hero
         self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=True, old_info=None))
         self.assertEqual(save_hero_data.call_args, mock.call(self.hero_2.id))
-
-    def test__destroy_account_data(self):
-        from the_tale.game.heroes.models import Hero
-
-        current_time = TimePrototype.get_current_time()
-
-        # make some actions
-        while self.hero_1.position.place is not None:
-            self.storage.process_turn()
-            current_time.increment_turn()
-
-        self.assertEqual(Hero.objects.all().count(), 2)
-
-        self.storage._destroy_account_data(self.account_1)
-        self.storage._destroy_account_data(self.account_2)
-
-        self.assertEqual(Hero.objects.all().count(), 0)
 
     def test_remove_action__from_middle(self):
         actions_prototypes.ActionRegenerateEnergyPrototype.create(hero=self.hero_1)

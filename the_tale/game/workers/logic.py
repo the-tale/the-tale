@@ -65,8 +65,11 @@ class Worker(workers.BaseWorker):
         self.storage.process_turn(logger=self.logger)
         self.storage.save_changed_data(logger=self.logger)
 
-        for hero_id in list(self.storage.skipped_heroes):
-            environment.workers.supervisor.cmd_account_release_required(self.storage.heroes[hero_id].account_id)
+        for hero_id in self.storage.skipped_heroes:
+            hero = self.storage.heroes[hero_id]
+            if hero.actions.current_action.bundle_id in self.storage.ignored_bundles:
+                continue
+            environment.workers.supervisor.cmd_account_release_required(hero.account_id)
 
         environment.workers.supervisor.cmd_answer('next_turn', self.worker_id)
 
@@ -76,8 +79,6 @@ class Worker(workers.BaseWorker):
             self.logger.info('GC: end')
 
     def release_account(self, account_id):
-        from the_tale.accounts.prototypes import AccountPrototype
-
         if account_id not in self.storage.accounts_to_heroes:
             environment.workers.supervisor.cmd_account_released(account_id)
             return
@@ -85,11 +86,14 @@ class Worker(workers.BaseWorker):
         hero = self.storage.accounts_to_heroes[account_id]
         bundle_id = hero.actions.current_action.bundle_id
 
-        with self.storage.save_on_exception(self.logger,
-                                            message='LogicWorker.process_release_account catch exception, while processing hero %d, try to save all bundles except %d',
-                                            data=(hero.id, bundle_id),
-                                            excluded_bundle_id=bundle_id):
-            self.storage.release_account_data(AccountPrototype.get_by_id(account_id))
+        if bundle_id in self.storage.ignored_bundles:
+            return
+
+        with self.storage.on_exception(self.logger,
+                                       message='LogicWorker.process_release_account catch exception, while processing hero %d, try to save all bundles except %d',
+                                       data=(hero.id, bundle_id),
+                                       excluded_bundle_id=bundle_id):
+            self.storage.release_account_data(account_id)
             environment.workers.supervisor.cmd_account_released(account_id)
 
     def cmd_stop(self):
@@ -127,10 +131,13 @@ class Worker(workers.BaseWorker):
         hero = self.storage.accounts_to_heroes[account_id]
         bundle_id = hero.actions.current_action.bundle_id
 
-        with self.storage.save_on_exception(self.logger,
-                                            message='LogicWorker.process_logic_task catch exception, while processing hero %d, try to save all bundles except %d',
-                                            data=(hero.id, bundle_id),
-                                            excluded_bundle_id=bundle_id):
+        if bundle_id in self.storage.ignored_bundles:
+            return
+
+        with self.storage.on_exception(self.logger,
+                                       message='LogicWorker.process_logic_task catch exception, while processing hero %d, try to save all bundles except %d',
+                                       data=(hero.id, bundle_id),
+                                       excluded_bundle_id=bundle_id):
             task = postponed_tasks.PostponedTaskPrototype.get_by_id(task_id)
             task.process(self.logger, storage=self.storage)
             task.do_postsave_actions()
@@ -144,6 +151,8 @@ class Worker(workers.BaseWorker):
     def process_force_save(self, account_id): # pylint: disable=W0613
         hero = self.storage.accounts_to_heroes[account_id]
         bundle_id = hero.actions.current_action.bundle_id
+        if bundle_id in self.storage.ignored_bundles:
+            return
         self.storage.save_bundle_data(bundle_id=bundle_id)
 
     def cmd_start_hero_caching(self, account_id):
@@ -151,6 +160,10 @@ class Worker(workers.BaseWorker):
 
     def process_start_hero_caching(self, account_id):
         hero = self.storage.accounts_to_heroes[account_id]
+
+        if hero.actions.current_action.bundle_id in self.storage.ignored_bundles:
+            return
+
         hero.ui_caching_started_at = datetime.datetime.now()
         self.storage.recache_bundle(hero.actions.current_action.bundle_id)
 
@@ -165,6 +178,10 @@ class Worker(workers.BaseWorker):
 
     def process_update_hero_with_account_data(self, account_id, is_fast, premium_end_at, active_end_at, ban_end_at, might, actual_bills):
         hero = self.storage.accounts_to_heroes[account_id]
+
+        if hero.actions.current_action.bundle_id in self.storage.ignored_bundles:
+            return
+
         hero.update_with_account_data(is_fast=is_fast,
                                       premium_end_at=datetime.datetime.fromtimestamp(premium_end_at),
                                       active_end_at=datetime.datetime.fromtimestamp(active_end_at),
@@ -187,9 +204,12 @@ class Worker(workers.BaseWorker):
         hero = self.storage.accounts_to_heroes[account_id]
         bundle_id = hero.actions.current_action.bundle_id
 
-        with self.storage.save_on_exception(self.logger,
-                                            message='LogicWorker.process_logic_task catch exception, while processing hero %d, try to save all bundles except %d',
-                                            data=(hero.id, bundle_id),
-                                            excluded_bundle_id=bundle_id):
+        if bundle_id in self.storage.ignored_bundles:
+            return
+
+        with self.storage.on_exception(self.logger,
+                                       message='LogicWorker.process_logic_task catch exception, while processing hero %d, try to save all bundles except %d',
+                                       data=(hero.id, bundle_id),
+                                       excluded_bundle_id=bundle_id):
             quests_logic.setup_quest_for_hero(hero, knowledge_base)
             self.storage.recache_bundle(bundle_id)
