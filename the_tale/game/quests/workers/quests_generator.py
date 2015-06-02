@@ -1,5 +1,5 @@
 # coding: utf-8
-
+import sys
 import collections
 
 from the_tale import amqp_environment
@@ -55,5 +55,14 @@ class Worker(BaseWorker):
         account_id = self.requests_query.popleft()
         hero_info = self.requests_heroes_infos.pop(account_id)
 
-        knowledge_base = logic.create_random_quest_for_hero(hero_info, logger=self.logger)
+        try:
+            knowledge_base = logic.create_random_quest_for_hero(hero_info, logger=self.logger)
+        except Exception:
+            self.logger.error('exception in quest generation')
+            self.logger.error('Exception',
+                              exc_info=sys.exc_info(),
+                              extra={} )
+            self.logger.error('continue processing')
+            return
+
         amqp_environment.environment.workers.supervisor.cmd_setup_quest(account_id, knowledge_base.serialize())

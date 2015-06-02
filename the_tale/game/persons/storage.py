@@ -90,7 +90,9 @@ class SocialConnectionsStorage(dext_storage.CachedStorage):
         result = []
 
         for connected_person_id, item in connections.iteritems():
-            connected_person = persons_storage[connected_person_id]
+            connected_person = persons_storage.get(connected_person_id)
+            if connected_person is None:
+                continue
             if not connected_person.state.is_IN_GAME:
                 continue
             result.append((item.connection, connected_person.id))
