@@ -178,8 +178,6 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PREFERENCES_CHANGE_DELAY, 2*7*24*60*60)
         self.assertEqual(c.PREFERED_MOB_LOOT_PROBABILITY_MULTIPLIER, 2)
 
-        self.assertEqual(c.POSITIVE_NEGATIVE_POWER_RELATION, 4.0)
-
         self.assertEqual(c.ABILITIES_ACTIVE_MAXIMUM, 5)
         self.assertEqual(c.ABILITIES_PASSIVE_MAXIMUM, 2)
 

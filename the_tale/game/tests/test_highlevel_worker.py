@@ -187,7 +187,7 @@ class HighlevelTest(testcase.TestCase):
         with self.check_increased(lambda: len(persons_storage.social_connections.all())):
             self.worker.sync_data()
 
-    @mock.patch('the_tale.game.workers.highlevel.Worker.get_power_correction', lambda self, positive, negative: (0.0, 0.0))
+    @mock.patch('the_tale.game.workers.highlevel.Worker.correct_objects_power', mock.Mock())
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.freedom', 1)
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
     def test_sync_data(self):
@@ -291,7 +291,7 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(settings[places_storage.SETTINGS_KEY], places_version_2)
 
 
-    @mock.patch('the_tale.game.workers.highlevel.Worker.get_power_correction', lambda self, positive, negative: (0.0, 0.0))
+    @mock.patch('the_tale.game.workers.highlevel.Worker.correct_objects_power', mock.Mock())
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.freedom', 1)
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
     def test_sync_data__power_from_building(self):
@@ -321,7 +321,7 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(self.p1.power, place_power - 10)
         self.assertEqual(person_1.power, person_power)
 
-    @mock.patch('the_tale.game.workers.highlevel.Worker.get_power_correction', lambda self, positive, negative: (0.0, 0.0))
+    @mock.patch('the_tale.game.workers.highlevel.Worker.correct_objects_power', mock.Mock())
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.freedom', 1.25)
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
     def test_sync_data__power_from_freedom(self):
@@ -345,7 +345,7 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(person_1.power, 1250)
 
 
-    @mock.patch('the_tale.game.workers.highlevel.Worker.get_power_correction', lambda self, positive, negative: (0.0, 0.0))
+    @mock.patch('the_tale.game.workers.highlevel.Worker.correct_objects_power', mock.Mock())
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.power_positive', 0.25)
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.power_negative', 0.5)
     @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.power_positive', 0.75)
@@ -371,7 +371,7 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(self.p1.power, 1000 * 1.75 * 1.25 - 100 * 1.5)
         self.assertEqual(person_1.power, 1000 * 1.75)
 
-    @mock.patch('the_tale.game.workers.highlevel.Worker.get_power_correction', lambda self, positive, negative: (0.0, 0.0))
+    @mock.patch('the_tale.game.workers.highlevel.Worker.correct_objects_power', mock.Mock())
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.power_positive', 0.25)
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.power_negative', 0.5)
     @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.power_positive', 0.75)
@@ -400,92 +400,26 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(self.p1.power, 10000 - 1000 * 2 * 1.5 + 100 * 1.25)
         self.assertEqual(person_1.power, 10000 - 1000 * 2)
 
-    @mock.patch('the_tale.game.balance.constants.POSITIVE_NEGATIVE_POWER_RELATION', 2.0)
-    def test_sync_data__places_power_relation__greater(self):
-        places_number = len(places_storage.all())
 
-        for place in places_storage.all():
-            place.push_power(TimePrototype.get_current_turn_number(), 10000)
+    def check_correct_objects_power(self, objects):
+        objects[0].push_power(TimePrototype.get_current_turn_number(), -1000)
 
-        test_place = places_storage.all()[0]
+        # power below zero will increased to zero
+        self.worker.correct_objects_power('object', objects)
 
-        self.worker.process_change_power(person_id=test_place.id, power_delta=places_number*1000, place_id=None, positive_bonus=0, negative_bonus=0)
+        self.assertEqual(objects[0].raw_power, 0)
+        for object in objects[1:]:
+            self.assertEqual(object.raw_power, 1000)
 
-        self.worker.sync_data()
+        # if there are no power below zero, nothing will changed
+        self.worker.correct_objects_power('object', objects)
 
-        for place in places_storage.all():
-            if place.id == test_place.id:
-                self.assertEqual(place.power, 10000 + places_number*1000 - 500)
-            else:
-                self.assertEqual(place.power, 10000 - 500)
+        self.assertEqual(objects[0].raw_power, 0)
+        for object in objects[1:]:
+            self.assertEqual(object.raw_power, 1000)
 
-    @mock.patch('the_tale.game.balance.constants.POSITIVE_NEGATIVE_POWER_RELATION', 2.0)
-    def test_sync_data__places_power_relation__lower(self):
-        places_number = len(places_storage.all())
+    def test_correct_objects_power__places(self):
+        self.check_correct_objects_power(places_storage.all())
 
-        for place in places_storage.all():
-            place.push_power(TimePrototype.get_current_turn_number(), 10000)
-
-        test_place = places_storage.all()[0]
-
-        self.worker.process_change_power(person_id=test_place.id, power_delta=-places_number*1000, place_id=None, positive_bonus=0, negative_bonus=0)
-
-        self.worker.sync_data()
-
-        for place in places_storage.all():
-            if place.id == test_place.id:
-                self.assertEqual(place.power, 10000 - places_number*1000 + 2000)
-            else:
-                self.assertEqual(place.power, 10000 + 2000)
-
-
-    @mock.patch('the_tale.game.balance.constants.POSITIVE_NEGATIVE_POWER_RELATION', 2.0)
-    def test_sync_data__persons_power_relation__greater(self):
-        persons_number = len(persons_storage.persons_storage.all())
-
-        for place in persons_storage.persons_storage.all():
-            place.push_power(TimePrototype.get_current_turn_number(), 10000)
-
-        test_place = persons_storage.persons_storage.all()[0]
-
-        self.worker.process_change_power(person_id=test_place.id, power_delta=persons_number*1000, place_id=None, positive_bonus=0, negative_bonus=0)
-
-        self.worker.sync_data()
-
-        for place in persons_storage.persons_storage.all():
-            if place.id == test_place.id:
-                self.assertEqual(place.power, 10000 + persons_number*1000 - 500)
-            else:
-                self.assertEqual(place.power, 10000 - 500)
-
-    @mock.patch('the_tale.game.balance.constants.POSITIVE_NEGATIVE_POWER_RELATION', 2.0)
-    def test_sync_data__persons_power_relation__lower(self):
-        persons_number = len(persons_storage.persons_storage.all())
-
-        for place in persons_storage.persons_storage.all():
-            place.push_power(TimePrototype.get_current_turn_number(), 10000)
-
-        test_place = persons_storage.persons_storage.all()[0]
-
-        self.worker.process_change_power(person_id=test_place.id, power_delta=-persons_number*1000, place_id=None, positive_bonus=0, negative_bonus=0)
-
-        self.worker.sync_data()
-
-        for place in persons_storage.persons_storage.all():
-            if place.id == test_place.id:
-                self.assertEqual(place.power, 10000 - persons_number*1000 + 2000)
-            else:
-                self.assertEqual(place.power, 10000 + 2000)
-
-
-    @mock.patch('the_tale.game.balance.constants.POSITIVE_NEGATIVE_POWER_RELATION', 2.0)
-    def test_get_power_correction__greate_then_relation(self):
-        self.assertEqual(self.worker.get_power_correction(400, 100), (0.0, 100))
-
-    @mock.patch('the_tale.game.balance.constants.POSITIVE_NEGATIVE_POWER_RELATION', 2.0)
-    def test_get_power_correction__lower_then_relation(self):
-        self.assertEqual(self.worker.get_power_correction(150, 100), (50.0, 0.0))
-
-    @mock.patch('the_tale.game.balance.constants.POSITIVE_NEGATIVE_POWER_RELATION', 2.0)
-    def test_get_power_correction__equal_to_relation(self):
-        self.assertEqual(self.worker.get_power_correction(200, 100), (0.0, 0.0))
+    def test_correct_objects_power__persons(self):
+        self.check_correct_objects_power(persons_storage.persons_storage.all())

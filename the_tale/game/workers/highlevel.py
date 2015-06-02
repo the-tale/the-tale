@@ -95,30 +95,16 @@ class Worker(BaseWorker):
         self.stop_required = True
         self.logger.info('HIGHLEVEL STOPPED')
 
-    def get_power_correction(self, positive_power, negative_power):
-        # if positive_power / negative_power < relation
-        # (positive_power + x) / negative_power = relation
-        # x = relation * negative_power - positive_power
-        #
-        # if positive_power / negative_power > relation
-        # positive_power / (negative_power + x) = relation
-        # (positive_power - negative_power * relation) / reltation = x
-
-        positive_power = abs(float(positive_power))
-        negative_power = abs(float(negative_power))
-
-        if negative_power > E and positive_power / negative_power < c.POSITIVE_NEGATIVE_POWER_RELATION:
-            return c.POSITIVE_NEGATIVE_POWER_RELATION * negative_power - positive_power, 0.0
-
-        return 0.0, (positive_power - negative_power * c.POSITIVE_NEGATIVE_POWER_RELATION) / c.POSITIVE_NEGATIVE_POWER_RELATION
+    def correct_objects_power(self, type_name, objects):
+        minimum_power = min([0] + [obj.raw_power for obj in objects])
+        self.logger.info('apply correction of minimum %s power: %d' % (type_name, minimum_power))
+        for obj in objects:
+            obj.push_power(self.turn_number, -minimum_power)
 
 
     def sync_persons_powers(self, persons):
         if not persons:
             return
-
-        total_positive_power = 0
-        total_negative_power = 0
 
         for person in persons:
 
@@ -138,9 +124,6 @@ class Worker(BaseWorker):
             # this power, only to person
             power = (positive_power + negative_power) * person.place.freedom
 
-            total_positive_power += positive_power * person.place.freedom
-            total_negative_power += negative_power * person.place.freedom
-
             person.push_power(self.turn_number, power)
             person.push_power_positive(self.turn_number, positive_bonus)
             person.push_power_negative(self.turn_number, negative_bonus)
@@ -148,21 +131,13 @@ class Worker(BaseWorker):
             self.change_place_power(person.place_id, 0, 0, positive_power)
             self.change_place_power(person.place_id, 0, 0, negative_power)
 
-
-        person_positive_delta, person_negative_delta = self.get_power_correction(total_positive_power, total_negative_power)
-        person_power_delta = (person_positive_delta - person_negative_delta) / len(persons)
-
-        for person in persons:
-            person.push_power(self.turn_number, person_power_delta)
+        self.correct_objects_power('person', persons)
 
 
     def sync_places_powers(self, places):
 
         if not places:
             return
-
-        total_positive_power = 0
-        total_negative_power = 0
 
         for place in places:
 
@@ -176,18 +151,11 @@ class Worker(BaseWorker):
 
             power = (positive_power + negative_power) * place.freedom
 
-            total_positive_power += positive_power * place.freedom
-            total_negative_power += negative_power * place.freedom
-
             place.push_power(self.turn_number, power)
             place.push_power_positive(self.turn_number, positive_bonus)
             place.push_power_negative(self.turn_number, negative_bonus)
 
-        place_positive_delta, place_negative_delta = self.get_power_correction(total_positive_power, total_negative_power)
-        place_power_delta = (place_positive_delta - place_negative_delta) / len(places)
-
-        for place in places:
-            place.push_power(self.turn_number, place_power_delta)
+        self.correct_objects_power('place', places)
 
 
     def sync_sizes(self, places, hours, max_size):

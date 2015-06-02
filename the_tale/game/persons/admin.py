@@ -12,11 +12,11 @@ class PersonAdmin(admin.ModelAdmin):
 
     def power(self, obj):
         person = PersonPrototype(obj)
-        return person.power
+        return int(person.power)
 
     def raw_power(self, obj):
         person = PersonPrototype(obj)
-        return person.raw_power
+        return int(person.raw_power)
 
     def positive_bonus(self, obj):
         person = PersonPrototype(obj)
