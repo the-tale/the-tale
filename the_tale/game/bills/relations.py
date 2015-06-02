@@ -55,7 +55,7 @@ def days_from_game_months(months):
 class POWER_BONUS_CHANGES(DjangoEnum):
     bonus_delta = rels.Column()
 
-    BONUS_MULTIPLIER = 50
+    BONUS_MULTIPLIER = 20
 
     records = ( ('DOWN', 0, u'уменьшить на %.2f%%' % (c.HERO_POWER_BONUS*100*BONUS_MULTIPLIER), -c.HERO_POWER_BONUS*BONUS_MULTIPLIER),
                 ('NOT_CHANGE', 1, u'не изменять', 0.0),

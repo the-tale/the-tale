@@ -11,10 +11,6 @@ def scale_power(apps, schema_editor):
         data = json.loads(place.data)
         if 'power_points' in data:
             data['power_points'] = [(turn, power / 10) for turn, power in data['power_points']]
-        if 'power_positive_points' in data:
-            data['power_positive_points'] = [(turn, power / 10) for turn, power in data['power_positive_points']]
-        if 'power_negative_points' in data:
-            data['power_negative_points'] = [(turn, power / 10) for turn, power in data['power_negative_points']]
         place.data = json.dumps(data)
         place.save()
 
