@@ -60,7 +60,8 @@ class WORD_BLOCK_BASE(DjangoEnum):
 
 class TEMPLATE_STATE(DjangoEnum):
     records = ( ('ON_REVIEW', 0, u'на рассмотрении'),
-                ('IN_GAME', 1, u'в игре'))
+                ('IN_GAME', 1, u'в игре'),
+                ('REMOVED', 2, u'удалена'))
 
 class TEMPLATE_ERRORS_STATUS(DjangoEnum):
     records = ( ('NO_ERRORS', 0, u'нет ошибок'),

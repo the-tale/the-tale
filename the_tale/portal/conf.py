@@ -66,6 +66,9 @@ portal_settings = app_settings('PORTAL',
                                SETTINGS_PREV_EXPIRE_ACCESS_TOKENS_SYNC_TIME_KEY='prev expire access tokens sync run time',
                                EXPIRE_ACCESS_TOKENS_SYNC_DELAY=1*60*60,
 
+                               SETTINGS_PREV_CLEAN_REMOVED_TEMPLATES_KEY='prev clean removed templates',
+                               EXPIRE_CLEAN_REMOVED_TEMPLATES=24*60*60,
+
                                SETTINGS_PREV_CDN_SYNC_TIME_KEY='prev cdn sync run time',
                                CDN_SYNC_DELAY=5*60,
 

@@ -3,6 +3,7 @@ import sys
 import collections
 
 from django.db import models as django_models
+from django.db import transaction
 from django.utils.log import getLogger
 from django.conf import settings as project_settings
 
@@ -20,10 +21,10 @@ from the_tale.linguistics.storage import game_dictionary
 from the_tale.linguistics.storage import game_lexicon
 from the_tale.linguistics.storage import restrictions_storage
 
-from the_tale.linguistics import exceptions
-from the_tale.linguistics import objects
-from the_tale.linguistics import models
-from the_tale.linguistics.lexicon.keys import LEXICON_KEY
+from . import exceptions
+from . import objects
+from . import models
+from .lexicon.keys import LEXICON_KEY
 
 logger = getLogger('the-tale.linguistics')
 
@@ -214,3 +215,12 @@ def fill_empty_keys_with_fake_phrases(prefix):
             prototype.update(verificators=verifiactos)
 
     game_lexicon.refresh()
+
+
+@transaction.atomic
+def full_remove_template(template):
+    prototypes.TemplatePrototype._db_filter(parent_id=template.id).update(parent=template.parent_id)
+    prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                entity_id=template.id,
+                                                state=relations.CONTRIBUTION_STATE.ON_REVIEW).delete()
+    template.remove()

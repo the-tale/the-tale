@@ -20,6 +20,10 @@ jQuery(document).ready( function(e) {
 
 {% block templates_content %}
 
+{% if template.state.is_REMOVED %}
+<p class="alert alert-danger pgf-template-in-game-message">Фраза удалена. Восстановить удалённые фразы может только модератор.</p>
+{% endif %}
+
 {% if template.state.is_IN_GAME %}
 <p class="alert alert-success pgf-template-in-game-message">Фраза находится в игре.</p>
 {% endif %}
@@ -97,7 +101,7 @@ jQuery(document).ready( function(e) {
 </p>
 {% endfor %}
 
-{% if resource.can_edit_templates %}
+{% if not template.state.is_REMOVED and resource.account.is_authenticated() and not resource.account.is_fast %}
 <a class="btn btn-info pgf-edit-button" href="{{url('linguistics:templates:edit', template.id)}}">Редактировать</a>
 
 <a class="btn btn-info pgf-change-key" href="{{url('linguistics:templates:edit-key', template.id)}}">Изменить тип</a>
@@ -108,9 +112,6 @@ jQuery(document).ready( function(e) {
 {% if template_parent %}
 <a class="btn btn-info pgf-forms-post-simple pgf-replace-button"
    href="{{url('linguistics:templates:replace', template.id)}}">Заменить родителя</a>
-
-<a class="btn btn-info pgf-forms-post-simple pgf-detach-button"
-   href="{{url('linguistics:templates:detach', template.id)}}">Отцепить от родителя</a>
 {% endif %}
 
 {% if template.state.is_ON_REVIEW %}
@@ -123,13 +124,23 @@ jQuery(document).ready( function(e) {
    href="{{url('linguistics:templates:on-review', template.id)}}">Из игры</a>
 {% endif %}
 
+{% if template.state.is_REMOVED %}
+<a class="btn btn-warning pgf-forms-post-simple pgf-restore-button"
+   href="{{url('linguistics:templates:restore', template.id)}}">Восстановить</a>
 {% endif %}
 
-{% if resource.can_moderate_templates or resource.can_be_removed_by_owner %}
+{% endif %}
+
+{% if not template.state.is_REMOVED and not (template_parent or template_child) and (resource.can_moderate_templates or resource.can_be_removed_by_owner and not template_parent) %}
 <a class="btn btn-danger pgf-forms-post-simple pgf-remove-button"
-   href="{{url('linguistics:templates:remove', template.id)}}"
-   data-action-type="redirect"
-   data-redirect-url="{{url('linguistics:templates:')}}">Удалить</a>
+   href="{{url('linguistics:templates:remove', template.id)}}">Удалить</a>
+{% endif %}
+
+{% if resource.can_edit_templates %}
+{% if template_parent %}
+<a class="btn btn-info pgf-forms-post-simple pgf-detach-button"
+   href="{{url('linguistics:templates:detach', template.id)}}">Отцепить от родителя</a>
+{% endif %}
 {% endif %}
 
 {% endblock %}

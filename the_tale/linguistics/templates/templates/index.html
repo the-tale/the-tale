@@ -72,7 +72,8 @@
     <tr>
       <td><span class="pgf-format-date" data-timestamp="{{ template.updated_at|timestamp }}"></span></td>
       <td>
-        {% if template.errors_status.is_HAS_ERRORS %}<span class="label label-important">ошибки</span>
+        {% if template.state.is_REMOVED %}<span class="label label-important">удалена</span>
+        {% elif template.errors_status.is_HAS_ERRORS %}<span class="label label-important">ошибки</span>
         {% else %}<span class="label label-success">чисто</span>
         {% endif %}
       </td>

@@ -11,6 +11,8 @@ from utg import relations as utg_relations
 
 from the_tale.common.utils.testcase import TestCase
 
+from the_tale.game.logic import create_test_map
+
 from the_tale.linguistics import prototypes
 from the_tale.linguistics import relations
 from the_tale.linguistics import logic
@@ -379,3 +381,48 @@ class LogicTests(TestCase):
         loaded_restriction = objects.Restriction.from_model(model)
 
         self.assertEqual(loaded_restriction, synced_restriction)
+
+    def create_removed_template(self):
+        TEXT = u'[hero|загл] [level] [дубль|hero|дт]'
+        utg_template = utg_templates.Template()
+        utg_template.parse(TEXT, externals=['hero', 'level'])
+        template = prototypes.TemplatePrototype.create(key=keys.LEXICON_KEY.random(),
+                                                       raw_template=TEXT,
+                                                       utg_template=utg_template,
+                                                       verificators=[],
+                                                       author=None,
+                                                       state=relations.TEMPLATE_STATE.REMOVED)
+        return template
+
+    def test_full_remove(self):
+
+        template = self.create_removed_template()
+
+        with self.check_delta(prototypes.TemplatePrototype._db_count, -1):
+            logic.full_remove_template(template)
+
+        self.assertEqual(prototypes.TemplatePrototype.get_by_id(template.id), None)
+
+
+    def test_remove_contributions(self):
+        create_test_map()
+
+        template = self.create_removed_template()
+
+        contribution_1 = prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                                 account_id=self.accounts_factory.create_account().id,
+                                                                 entity_id=template.id,
+                                                                 source=relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                                 state=relations.CONTRIBUTION_STATE.ON_REVIEW)
+
+        contribution_2 = prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                                 account_id=self.accounts_factory.create_account().id,
+                                                                 entity_id=template.id,
+                                                                 source=relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                                 state=relations.CONTRIBUTION_STATE.IN_GAME)
+
+        with self.check_delta(prototypes.TemplatePrototype._db_count, -1):
+            logic.full_remove_template(template)
+
+        self.assertFalse(prototypes.ContributionPrototype._db_filter(id=contribution_1.id).exists())
+        self.assertTrue(prototypes.ContributionPrototype._db_filter(id=contribution_2.id).exists())

@@ -364,12 +364,15 @@ class TemplateResource(Resource):
     @validator(code='linguistics.templates.moderation_rights', message=u'У вас нет прав для модерации шаблонов')
     def moderation_template_rights(self, *args, **kwargs): return self.can_moderate_templates
 
+    @validator(code='linguistics.templates.edition_rights', message=u'У вас нет прав для редактирования шаблонов')
+    def edition_template_rights(self, *args, **kwargs): return self.can_edit_templates
+
     @validate_argument('template', lambda v: prototypes.TemplatePrototype.get_by_id(int(v)), 'linguistics.templates', u'неверный идентификатор шаблона')
     def initialize(self, template=None, *args, **kwargs):
         super(TemplateResource, self).initialize(*args, **kwargs)
         self._template = template
         self.can_moderate_templates = self.account.has_perm('linguistics.moderate_template')
-        self.can_edit_templates = self.account.is_authenticated() and not self.account.is_fast
+        self.can_edit_templates = self.account.has_perm('linguistics.edit_template') or self.can_moderate_templates
         self.can_be_removed_by_owner = self._template and self._template.state.is_ON_REVIEW and self.account.is_authenticated() and self.account.id == self._template.author_id
 
     @validate_argument('contributor', AccountPrototype.get_by_id, 'linguistics.templates', u'неверный сооавтор')
@@ -664,7 +667,7 @@ class TemplateResource(Resource):
 
 
     @login_required
-    @moderation_template_rights()
+    @edition_template_rights()
     @handler('#template', 'detach', method='post')
     def detach(self):
         if self._template.parent_id is None:
@@ -716,16 +719,38 @@ class TemplateResource(Resource):
     @handler('#template', 'remove', method='post')
     def remove(self):
 
-        if not (self.can_moderate_templates or self.can_be_removed_by_owner):
-            return self.json_error('linguistics.templates.remove.no_rights', u'Удалить фразу может только модератор либо автор фразы, если она не находится в игре.')
+        if self._template.get_child():
+            return self.auto_error('linguistics.templates.remove.template_has_child',
+                                   u'У этой фразы есть копия, необходимо разорвать связь между ними.')
+
+
+        if self._template.get_parent():
+            return self.auto_error('linguistics.templates.remove.template_has_parent',
+                                   u'У этой фразы есть копия, необходимо разорвать связь между ними.')
+
+        ERROR_MSG = u'Удалить фразу может только модератор либо редактор или автор фразы, если она находится на рассмотрении.'
+
+        if self._template.state.is_ON_REVIEW:
+            if not self.can_edit_templates and self._template.author_id != self.account.id:
+                return self.json_error('linguistics.templates.remove.no_rights', ERROR_MSG)
+        else:
+            if not self.can_moderate_templates:
+                return self.json_error('linguistics.templates.remove.no_rights', ERROR_MSG)
 
         with transaction.atomic():
-            prototypes.TemplatePrototype._db_filter(parent_id=self._template.id).update(parent=self._template.parent_id)
-            prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
-                                                        entity_id=self._template.id,
-                                                        state=relations.CONTRIBUTION_STATE.ON_REVIEW).delete()
-            self._template.remove()
+            self._template.state = relations.TEMPLATE_STATE.REMOVED
+            self._template.save()
 
+        return self.json_ok()
+
+
+    @login_required
+    @moderation_template_rights()
+    @handler('#template', 'restore', method='post')
+    def restore(self):
+        with transaction.atomic():
+            self._template.state = relations.TEMPLATE_STATE.ON_REVIEW
+            self._template.save()
         return self.json_ok()
 
 
@@ -735,11 +760,15 @@ class TemplateResource(Resource):
                              {'page_type': 'templates-specification'})
 
 
-    # @moderation_template_rights()
+    @login_required
     @handler('#template', 'edit-key', method='get')
     def edit_key(self):
 
-        if not self.can_moderate_templates and not (self._template.author_id == self.account.id and self._template.state.is_ON_REVIEW):
+        if not self._template.state.is_ON_REVIEW:
+            return self.auto_error('linguistics.templates.edit_key.wrong_state',
+                                   u'Менять тип можно только у находящихся на рассмотрении фраз')
+
+        if not self.can_edit_templates and self._template.author_id != self.account.id:
             return self.auto_error('linguistics.templates.edit_key.can_not_edit',
                                    u'Менять тип фразы может только модератор либо автор фразы, если она не внесена в игру.')
 
@@ -752,10 +781,14 @@ class TemplateResource(Resource):
                               'template': self._template,
                               'form': forms.TemplateKeyForm(initial={'key': self._template.key})})
 
-    # @moderation_template_rights()
+    @login_required
     @handler('#template', 'change-key', method='post')
     def change_key(self):
-        if not self.can_moderate_templates and not (self._template.author_id == self.account.id and self._template.state.is_ON_REVIEW):
+        if not self._template.state.is_ON_REVIEW:
+            return self.auto_error('linguistics.templates.change_key.wrong_state',
+                                   u'Менять тип можно только у находящихся на рассмотрении фраз')
+
+        if not self.can_edit_templates and self._template.author_id != self.account.id:
             return self.auto_error('linguistics.templates.change_key.can_not_change',
                                    u'Менять тип фразы может только модератор либо автор фразы, если она не внесена в игру.')
 

@@ -88,7 +88,8 @@ class Command(BaseCommand):
         sync_group('developers group', ['mobs.moderate_mobrecord',
                                         'artifacts.moderate_artifactrecord',
                                         'linguistics.moderate_word',
-                                        'linguistics.moderate_template'])
+                                        'linguistics.moderate_template',
+                                        'linguistics.edit_template'])
 
         sync_group('folclor moderation group', ['blogs.moderate_post'])
 
@@ -107,4 +108,7 @@ class Command(BaseCommand):
 
 
         sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_word',
-                                                               'linguistics.moderate_template'])
+                                                               'linguistics.moderate_template',
+                                                               'linguistics.edit_template'])
+        sync_group(linguistics_settings.EDITOR_GROUP_NAME, ['linguistics.moderate_word',
+                                                            'linguistics.edit_template'])

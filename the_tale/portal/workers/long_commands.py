@@ -93,6 +93,12 @@ class Worker(BaseWorker):
                                             delay=portal_settings.EXPIRE_ACCESS_TOKENS_SYNC_DELAY):
             return
 
+        # is linguistic cleaning needed
+        if self._try_run_command_with_delay(cmd=self.run_clean_removed_templates,
+                                            settings_key=portal_settings.SETTINGS_PREV_CLEAN_REMOVED_TEMPLATES_KEY,
+                                            delay=portal_settings.EXPIRE_CLEAN_REMOVED_TEMPLATES):
+            return
+
 
 
 
@@ -148,6 +154,10 @@ class Worker(BaseWorker):
     def run_remove_expired_access_tokens(self):
         self.logger.info('remove expired access tokens')
         self._run_django_subprocess('third_party_remove_expired_access_tokens', ['third_party_remove_expired_access_tokens'])
+
+    def run_clean_removed_templates(self):
+        self.logger.info('clean removed templates')
+        self._run_django_subprocess('linguistics_clean_removed_templates', ['linguistics_clean_removed_templates'])
 
     def run_backup(self):
         self.logger.info('start backup')

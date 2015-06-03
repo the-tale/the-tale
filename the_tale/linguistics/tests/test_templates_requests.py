@@ -36,9 +36,14 @@ class BaseRequestsTests(TestCase):
         storage.game_dictionary.refresh()
 
         self.moderator = self.accounts_factory.create_account()
+        self.editor = self.accounts_factory.create_account()
 
-        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_template'])
-        group.user_set.add(self.moderator._model)
+        moderator_group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_template',
+                                                                                 'linguistics.edit_template'])
+        editor_group = sync_group(linguistics_settings.EDITOR_GROUP_NAME, ['linguistics.edit_template'])
+
+        moderator_group.user_set.add(self.moderator._model)
+        editor_group.user_set.add(self.editor._model)
 
 
 
@@ -249,6 +254,7 @@ class ShowRequestsTests(BaseRequestsTests):
                                                                                                ('pgf-in-game-button', 0),
                                                                                                ('pgf-on-review-button', 0),
                                                                                                ('pgf-remove-button', 1),
+                                                                                               ('pgf-restore-button', 0),
                                                                                                ('pgf-edit-button', 1) ])
 
     def test_success__in_game(self):
@@ -262,7 +268,38 @@ class ShowRequestsTests(BaseRequestsTests):
                                                                                                ('pgf-in-game-button', 0),
                                                                                                ('pgf-on-review-button', 0),
                                                                                                ('pgf-remove-button', 0),
+                                                                                               ('pgf-restore-button', 0),
                                                                                                ('pgf-edit-button', 1) ])
+
+    def test_success__removed(self):
+        self.template.state = relations.TEMPLATE_STATE.REMOVED
+        self.template.save()
+
+        self.check_html_ok(self.request_html(url('linguistics:templates:show', self.template.id)), texts=[('pgf-has-parent-message', 0),
+                                                                                               ('pgf-has-child-message', 0),
+                                                                                               ('pgf-replace-button', 0),
+                                                                                               ('pgf-detach-button', 0),
+                                                                                               ('pgf-in-game-button', 0),
+                                                                                               ('pgf-on-review-button', 0),
+                                                                                               ('pgf-remove-button', 0),
+                                                                                               ('pgf-restore-button', 0),
+                                                                                               ('pgf-edit-button', 0) ])
+
+    def test_success__removed__moderator(self):
+        self.request_login(self.moderator.email)
+
+        self.template.state = relations.TEMPLATE_STATE.REMOVED
+        self.template.save()
+
+        self.check_html_ok(self.request_html(url('linguistics:templates:show', self.template.id)), texts=[('pgf-has-parent-message', 0),
+                                                                                               ('pgf-has-child-message', 0),
+                                                                                               ('pgf-replace-button', 0),
+                                                                                               ('pgf-detach-button', 0),
+                                                                                               ('pgf-in-game-button', 0),
+                                                                                               ('pgf-on-review-button', 0),
+                                                                                               ('pgf-remove-button', 0),
+                                                                                               ('pgf-restore-button', 1),
+                                                                                               ('pgf-edit-button', 0) ])
 
     def test_success__unlogined(self):
         self.request_logout()
@@ -273,6 +310,7 @@ class ShowRequestsTests(BaseRequestsTests):
                                                                                                ('pgf-in-game-button', 0),
                                                                                                ('pgf-on-review-button', 0),
                                                                                                ('pgf-remove-button', 0),
+                                                                                               ('pgf-restore-button', 0),
                                                                                                ('pgf-edit-button', 0) ])
 
     def test_success__moderator(self):
@@ -294,14 +332,16 @@ class ShowRequestsTests(BaseRequestsTests):
                                                                                                           ('pgf-detach-button', 0),
                                                                                                           ('pgf-in-game-button', 0),
                                                                                                           ('pgf-on-review-button', 1),
-                                                                                                          ('pgf-remove-button', 1) ])
+                                                                                                          ('pgf-restore-button', 0),
+                                                                                                          ('pgf-remove-button', 0) ])
         self.check_html_ok(self.request_html(url('linguistics:templates:show', child.id)), texts=[('pgf-has-parent-message', 1),
                                                                                                   ('pgf-has-child-message', 0),
                                                                                                   ('pgf-replace-button', 1),
                                                                                                   ('pgf-detach-button', 1),
                                                                                                   ('pgf-in-game-button', 1),
                                                                                                   ('pgf-on-review-button', 0),
-                                                                                                  ('pgf-remove-button', 1) ])
+                                                                                                  ('pgf-restore-button', 0),
+                                                                                                  ('pgf-remove-button', 0) ])
 
     def test_success__has_parent_or_child(self):
         child = prototypes.TemplatePrototype.create(key=self.key,
@@ -312,9 +352,11 @@ class ShowRequestsTests(BaseRequestsTests):
                                                     parent=self.template)
 
         self.check_html_ok(self.request_html(url('linguistics:templates:show', child.id)), texts=[('pgf-has-parent-message', 1),
-                                                                                                  ('pgf-has-child-message', 0)])
+                                                                                                  ('pgf-has-child-message', 0),
+                                                                                                  ('pgf-remove-button', 0)])
         self.check_html_ok(self.request_html(url('linguistics:templates:show', self.template.id)), texts=[('pgf-has-parent-message', 0),
-                                                                                                          ('pgf-has-child-message', 1)])
+                                                                                                          ('pgf-has-child-message', 1),
+                                                                                                          ('pgf-remove-button', 0)])
 
     def check_errors(self, errors):
 
@@ -1137,14 +1179,7 @@ class DetachRequestsTests(BaseRequestsTests):
                                                             verificators=self.verificators[:2],
                                                             author=self.account_1)
 
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
-        self.moderator = AccountPrototype.get_by_id(account_id)
-
-        group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_template'])
-        group.user_set.add(self.moderator._model)
+        self.account_2 = self.accounts_factory.create_account()
 
         self.request_login(self.account_1.email)
 
@@ -1164,13 +1199,13 @@ class DetachRequestsTests(BaseRequestsTests):
             self.check_ajax_error(self.client.post(self.requested_url, {}), 'common.login_required')
 
 
-    def test_moderation_rights(self):
+    def test_edition_rights(self):
         with self.check_not_changed(prototypes.TemplatePrototype._db_count) :
-            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.templates.moderation_rights')
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.templates.edition_rights')
 
 
     def test_no_parent(self):
-        self.request_login(self.moderator.email)
+        self.request_login(self.editor.email)
 
         self.assertEqual(self.template.parent_id, None)
 
@@ -1179,7 +1214,7 @@ class DetachRequestsTests(BaseRequestsTests):
 
 
     def test_detach(self):
-        self.request_login(self.moderator.email)
+        self.request_login(self.editor.email)
 
         text = u'[hero|загл] 2 [пепельница|hero|вн]'
         utg_template = utg_templates.Template()
@@ -1400,7 +1435,7 @@ class RemoveRequestsTests(BaseRequestsTests):
 
 
     def test_template_errors(self):
-        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.ON_REVIEW).count):
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.REMOVED).count):
             self.check_ajax_error(self.client.post(url('linguistics:templates:remove', 'www'), {}), 'linguistics.templates.template.wrong_format')
             self.check_ajax_error(self.client.post(url('linguistics:templates:remove', 666), {}), 'linguistics.templates.template.not_found')
 
@@ -1408,62 +1443,135 @@ class RemoveRequestsTests(BaseRequestsTests):
     def test_login_required(self):
         self.request_logout()
 
-        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.ON_REVIEW).count):
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.REMOVED).count):
             self.check_ajax_error(self.client.post(self.requested_url, {}), 'common.login_required')
 
-    def test_moderation_rights(self):
+    def test_rights(self):
         self.request_login(self.account_2.email)
 
-        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.ON_REVIEW).count) :
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.REMOVED).count) :
             self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.templates.remove.no_rights')
 
-
-    def test_remove(self):
-        self.request_login(self.moderator.email)
+    def test_editor_rights(self):
+        self.request_login(self.editor.email)
 
         self.template.state = relations.TEMPLATE_STATE.IN_GAME
         self.template.save()
 
-        self.check_ajax_ok(self.client.post(self.requested_url))
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.REMOVED).count) :
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.templates.remove.no_rights')
 
-        self.assertEqual(prototypes.TemplatePrototype.get_by_id(self.template.id), None)
-
-
-    def test_remove_contributions(self):
-        self.request_login(self.moderator.email)
-
-        contribution_1 = prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
-                                                                 account_id=self.account_1.id,
-                                                                 entity_id=self.template.id,
-                                                                 source=relations.CONTRIBUTION_SOURCE.PLAYER,
-                                                                 state=relations.CONTRIBUTION_STATE.ON_REVIEW)
-
-        contribution_2 = prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
-                                                                 account_id=self.account_2.id,
-                                                                 entity_id=self.template.id,
-                                                                 source=relations.CONTRIBUTION_SOURCE.PLAYER,
-                                                                 state=relations.CONTRIBUTION_STATE.IN_GAME)
-
-        self.check_ajax_ok(self.client.post(self.requested_url))
-
-        self.assertFalse(prototypes.ContributionPrototype._db_filter(id=contribution_1.id).exists())
-        self.assertTrue(prototypes.ContributionPrototype._db_filter(id=contribution_2.id).exists())
-
-    def test_remove_by_owner(self):
+    def test_author_rights(self):
         self.request_login(self.account_1.email)
 
         self.template.state = relations.TEMPLATE_STATE.IN_GAME
         self.template.save()
 
-        with self.check_not_changed(prototypes.TemplatePrototype._db_count):
-            self.check_ajax_error(self.client.post(self.requested_url), 'linguistics.templates.remove.no_rights')
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.REMOVED).count) :
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.templates.remove.no_rights')
 
-        self.template.state = relations.TEMPLATE_STATE.ON_REVIEW
+    def test_moderation(self):
+        self.request_login(self.moderator.email)
+
+        self.template.state = relations.TEMPLATE_STATE.IN_GAME
         self.template.save()
 
-        self.check_ajax_ok(self.client.post(self.requested_url))
+        with self.check_delta(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.REMOVED).count, 1) :
+            self.check_ajax_ok(self.client.post(self.requested_url, {}))
 
-        self.assertEqual(prototypes.TemplatePrototype.get_by_id(self.template.id), None)
+    def test_editor(self):
+        self.request_login(self.editor.email)
+        with self.check_delta(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.REMOVED).count, 1) :
+            self.check_ajax_ok(self.client.post(self.requested_url, {}))
+
+    def test_author(self):
+        self.request_login(self.account_1.email)
+        with self.check_delta(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.REMOVED).count, 1) :
+            self.check_ajax_ok(self.client.post(self.requested_url, {}))
+
+    def test_has_child(self):
+        self.request_login(self.moderator.email)
+
+        prototypes.TemplatePrototype.create(key=self.key,
+                                            raw_template=self.text,
+                                            utg_template=self.utg_template,
+                                            verificators=self.verificators[:2],
+                                            author=self.account_1,
+                                            parent=self.template)
+
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.REMOVED).count) :
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.templates.remove.template_has_child')
+
+    def test_has_parent(self):
+        self.request_login(self.moderator.email)
+
+        template = prototypes.TemplatePrototype.create(key=self.key,
+                                                       raw_template=self.text,
+                                                       utg_template=self.utg_template,
+                                                       verificators=self.verificators[:2],
+                                                       author=self.account_1,
+                                                       parent=self.template)
+
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.REMOVED).count) :
+            self.check_ajax_error(self.client.post(url('linguistics:templates:remove', template.id), {}), 'linguistics.templates.remove.template_has_parent')
+
+
+class RestoreRequestsTests(BaseRequestsTests):
+
+    def setUp(self):
+        super(RestoreRequestsTests, self).setUp()
+
+        self.key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
+
+        self.verificators = prototypes.TemplatePrototype.get_start_verificatos(key=self.key)
+        self.verificators[0].text = u'verificator-1'
+        self.verificators[1].text = u'verificator-2'
+
+        self.text = u'[hero|загл] 1 [пепельница|hero|вн]'
+        self.utg_template = utg_templates.Template()
+        self.utg_template.parse(self.text, externals=['hero'])
+        self.template = prototypes.TemplatePrototype.create(key=self.key,
+                                                            raw_template=self.text,
+                                                            utg_template=self.utg_template,
+                                                            verificators=self.verificators[:2],
+                                                            state=relations.TEMPLATE_STATE.REMOVED,
+                                                            author=self.account_1)
+
+        self.account_2 = self.accounts_factory.create_account()
+
+        self.request_login(self.account_1.email)
+
+        self.requested_url = url('linguistics:templates:restore', self.template.id)
+
+
+    def test_template_errors(self):
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.REMOVED).count):
+            self.check_ajax_error(self.client.post(url('linguistics:templates:restore', 'www'), {}), 'linguistics.templates.template.wrong_format')
+            self.check_ajax_error(self.client.post(url('linguistics:templates:restore', 666), {}), 'linguistics.templates.template.not_found')
+
+
+    def test_login_required(self):
+        self.request_logout()
+
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.REMOVED).count):
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'common.login_required')
+
+    def test_moderation_rights(self):
+        self.request_login(self.moderator.email)
+
+        with self.check_delta(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.REMOVED).count, -1) :
+            with self.check_delta(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.ON_REVIEW).count, 1) :
+                self.check_ajax_ok(self.client.post(self.requested_url, {}))
+
+    def test_editor_rights(self):
+        self.request_login(self.editor.email)
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.REMOVED).count) :
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.templates.moderation_rights')
+
+    def test_author_rights(self):
+        self.request_login(self.account_1.email)
+        with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.REMOVED).count) :
+            self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.templates.moderation_rights')
 
 
 class SpecificationTests(BaseRequestsTests):
@@ -1492,15 +1600,21 @@ class EditKeyTests(BaseRequestsTests):
                                                             verificators=self.verificators[:2],
                                                             author=self.account_1)
 
-    def test_success__moderator(self):
-        self.request_login(self.moderator.email)
+    def test_success__editor(self):
+        self.request_login(self.editor.email)
         self.check_html_ok(self.request_html(url('linguistics:templates:edit-key', self.template.id)), texts=[str(self.template.key)])
 
     def test_success__author(self):
         self.request_login(self.account_1.email)
         self.check_html_ok(self.request_html(url('linguistics:templates:edit-key', self.template.id)), texts=[str(self.template.key)])
 
+    def test_login_required(self):
+        url_ = url('linguistics:templates:edit-key', self.template.id)
+        self.check_redirect(url_, login_page_url(url_))
+
     def test_no_rights(self):
+        account_2 = self.accounts_factory.create_account()
+        self.request_login(account_2.email)
         self.check_html_ok(self.request_html(url('linguistics:templates:edit-key', self.template.id)), texts=['pgf-error-linguistics.templates.edit_key.can_not_edit'])
 
     def test_no_rights__author_for_ingame(self):
@@ -1509,10 +1623,10 @@ class EditKeyTests(BaseRequestsTests):
         self.template.state = relations.TEMPLATE_STATE.IN_GAME
         self.template.save()
 
-        self.check_html_ok(self.request_html(url('linguistics:templates:edit-key', self.template.id)), texts=['pgf-error-linguistics.templates.edit_key.can_not_edit'])
+        self.check_html_ok(self.request_html(url('linguistics:templates:edit-key', self.template.id)), texts=['pgf-error-linguistics.templates.edit_key.wrong_state'])
 
     def test_has_child(self):
-        self.request_login(self.moderator.email)
+        self.request_login(self.editor.email)
         prototypes.TemplatePrototype.create(key=self.key,
                                             raw_template=self.text,
                                             utg_template=self.utg_template,
@@ -1545,12 +1659,18 @@ class ChangeKeyTests(BaseRequestsTests):
                                                             utg_template=self.utg_template,
                                                             verificators=self.verificators[:2],
                                                             author=self.account_1,
-                                                            state=relations.TEMPLATE_STATE.IN_GAME)
+                                                            state=relations.TEMPLATE_STATE.ON_REVIEW)
 
-        self.request_login(self.moderator.email)
+        self.request_login(self.editor.email)
+
+    def test_login_required(self):
+        self.request_logout()
+        self.check_ajax_error(self.post_ajax_json(url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}),
+                              'common.login_required')
 
     def test_no_rights(self):
-        self.request_logout()
+        account_2 = self.accounts_factory.create_account()
+        self.request_login(account_2.email)
         self.check_ajax_error(self.post_ajax_json(url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}),
                               'linguistics.templates.change_key.can_not_change')
 
@@ -1569,7 +1689,7 @@ class ChangeKeyTests(BaseRequestsTests):
         self.check_ajax_error(self.post_ajax_json(url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}),
                               'linguistics.templates.change_key.template_has_child')
 
-    def test_success__moderator(self):
+    def test_success__editor(self):
         self.check_ajax_ok(self.post_ajax_json(url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}))
 
         self.template.reload()
@@ -1595,10 +1715,13 @@ class ChangeKeyTests(BaseRequestsTests):
         self.assertEqual(self.template.verificators, [])
 
     def test__author_in_game(self):
+        self.template.state = relations.TEMPLATE_STATE.IN_GAME
+        self.template.save()
+
         self.request_login(self.account_1.email)
 
         self.check_ajax_error(self.post_ajax_json(url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}),
-                              'linguistics.templates.change_key.can_not_change')
+                              'linguistics.templates.change_key.wrong_state')
 
 
     def test_has_parent(self):

@@ -52,7 +52,8 @@ class Template(models.Model):
     errors_status = RelationIntegerField(relation=relations.TEMPLATE_ERRORS_STATUS, default=0, db_index=True)
 
     class Meta:
-        permissions = (("moderate_template", u"Может модерировать шаблоны фраз"), )
+        permissions = (("moderate_template", u"Может модерировать шаблоны фраз"),
+                       ("edit_template", u"Может редактировать шаблоны фраз"), )
 
 
 class Contribution(models.Model):
