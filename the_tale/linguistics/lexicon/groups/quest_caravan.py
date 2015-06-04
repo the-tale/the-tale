@@ -7,8 +7,8 @@ KEYS = [(u'QUEST_CARAVAN_ACTION_ATTACK', 360000, u'Активность: нап�
         u'Краткое суммарное описание действий героя, когда он сражается с охраной',
         [V.INITIATOR, V.HERO, V.INITIATOR_POSITION, V.RECEIVER, V.ANTAGONIST_POSITION, V.RECEIVER_POSITION]),
 
-        (u'QUEST_CARAVAN_ACTION_CHOOSE_ATTACK', 360001, u'Активность: выбор защиты от бандитов', LEXICON_GROUP.QUEST_CARAVAN,
-        u'Краткое суммарное описание действий героя при выборе атаки каравана от бандитов',
+        (u'QUEST_CARAVAN_ACTION_CHOOSE_ATTACK', 360001, u'Активность: выбор ограбления', LEXICON_GROUP.QUEST_CARAVAN,
+        u'Краткое суммарное описание действий героя при выборе ограбления каравана',
         [V.INITIATOR, V.HERO, V.INITIATOR_POSITION, V.RECEIVER, V.ANTAGONIST_POSITION, V.RECEIVER_POSITION]),
 
         (u'QUEST_CARAVAN_ACTION_CHOOSE_DEFENCE', 360002, u'Активность: выбор защиты от бандитов', LEXICON_GROUP.QUEST_CARAVAN,
@@ -23,12 +23,12 @@ KEYS = [(u'QUEST_CARAVAN_ACTION_ATTACK', 360000, u'Активность: нап�
         u'Краткое суммарное описание действий героя, когда он отбивается от преследователей.',
         [V.INITIATOR, V.HERO, V.INITIATOR_POSITION, V.RECEIVER, V.ANTAGONIST_POSITION, V.RECEIVER_POSITION]),
 
-        (u'QUEST_CARAVAN_ACTION_FINISH_ATTACK', 360005, u'Активность: изучение добычи', LEXICON_GROUP.QUEST_CARAVAN,
+        (u'QUEST_CARAVAN_ACTION_FINISH_ATTACK', 360005, u'Активность: продажа добычи', LEXICON_GROUP.QUEST_CARAVAN,
         u'Краткое суммарное описание действий героя, когда он продаёт добычу.',
         [V.INITIATOR, V.HERO, V.INITIATOR_POSITION, V.RECEIVER, V.ANTAGONIST_POSITION, V.RECEIVER_POSITION]),
 
-        (u'QUEST_CARAVAN_ACTION_FINISH_DEFENCE', 360006, u'Активность: атака бандитов', LEXICON_GROUP.QUEST_CARAVAN,
-        u'Краткое суммарное описание действий героя при атаке бандитов.',
+        (u'QUEST_CARAVAN_ACTION_FINISH_DEFENCE', 360006, u'Активность: успешное отражение атаки бандитов', LEXICON_GROUP.QUEST_CARAVAN,
+        u'Краткое суммарное описание действий героя после успешного отражения атаки бандитов.',
         [V.INITIATOR, V.HERO, V.INITIATOR_POSITION, V.RECEIVER, V.ANTAGONIST_POSITION, V.RECEIVER_POSITION]),
 
         (u'QUEST_CARAVAN_ACTION_FIRST_MOVING', 360007, u'Активность: сопровождение каравана', LEXICON_GROUP.QUEST_CARAVAN,
@@ -47,7 +47,7 @@ KEYS = [(u'QUEST_CARAVAN_ACTION_ATTACK', 360000, u'Активность: нап�
         u'Краткое суммарное описание действий героя, когда он прячется и путает следы.',
         [V.INITIATOR, V.HERO, V.INITIATOR_POSITION, V.RECEIVER, V.ANTAGONIST_POSITION, V.RECEIVER_POSITION]),
 
-        (u'QUEST_CARAVAN_ACTION_START_RUN', 360011, u'Активность: выбор ограбления каравана', LEXICON_GROUP.QUEST_CARAVAN,
+        (u'QUEST_CARAVAN_ACTION_START_RUN', 360011, u'Активность: убегание с добычей', LEXICON_GROUP.QUEST_CARAVAN,
         u'Краткое суммарное описание действий героя, когда он убегает с добычей',
         [V.INITIATOR, V.HERO, V.INITIATOR_POSITION, V.RECEIVER, V.ANTAGONIST_POSITION, V.RECEIVER_POSITION]),
 

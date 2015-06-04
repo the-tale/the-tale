@@ -195,7 +195,7 @@ class WordResource(Resource):
 
         if parent and parent.state.is_ON_REVIEW and parent.author_id != self.account.id and not self.can_moderate_words:
             return self.auto_error('linguistics.words.new.can_not_edit_anothers_word',
-                                   u'Вы не можете редактировать вариант слова, созданный другим игроком. Подождите пока его проверит модератор.')
+                                   u'Вы не можете редактировать вариант слова, созданный другим игроком. Подождите, пока его проверит модератор.')
 
         FormClass = forms.WORD_FORMS[type]
 

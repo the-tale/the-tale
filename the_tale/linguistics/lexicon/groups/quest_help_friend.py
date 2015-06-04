@@ -4,7 +4,7 @@ from the_tale.linguistics.lexicon.relations import VARIABLE as V
 from the_tale.linguistics.lexicon.groups.relations import LEXICON_GROUP
 
 KEYS = [(u'QUEST_HELP_FRIEND_ACTION_AFTER_HELP', 440000, u'Активность: после выполнения задания на помощь', LEXICON_GROUP.QUEST_HELP_FRIEND,
-        u'Краткое суммарное описание действий героя после выполнения взятием задания.',
+        u'Краткое суммарное описание действий героя после выполнения взятого задания.',
         [V.RECEIVER_POSITION, V.HERO, V.RECEIVER]),
 
         (u'QUEST_HELP_FRIEND_ACTION_BEFORE_HELP', 440001, u'Активность: перед взятием задания на помощь', LEXICON_GROUP.QUEST_HELP_FRIEND,

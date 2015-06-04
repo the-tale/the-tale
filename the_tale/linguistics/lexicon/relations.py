@@ -112,7 +112,7 @@ class VARIABLE(DjangoEnum):
 
     records = ( ('HERO', 'hero', u'герой', VARIABLE_TYPE.HERO),
                 ('LEVEL', 'level', u'уровень', VARIABLE_TYPE.NUMBER),
-                ('ANTAGONIST_POSITION', 'antagonist_position', u'позиция антаганиста', VARIABLE_TYPE.PLACE),
+                ('ANTAGONIST_POSITION', 'antagonist_position', u'позиция антагониста', VARIABLE_TYPE.PLACE),
                 ('RECEIVER_POSITION', 'receiver_position', u'позиция получателя задания', VARIABLE_TYPE.PLACE),
                 ('ANTAGONIST', 'antagonist', u'антагонист', VARIABLE_TYPE.PERSON),
                 ('RECEIVER', 'receiver', u'получатель задания', VARIABLE_TYPE.PERSON),

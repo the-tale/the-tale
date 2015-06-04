@@ -3,8 +3,8 @@
 from the_tale.linguistics.lexicon.relations import VARIABLE as V
 from the_tale.linguistics.lexicon.groups.relations import LEXICON_GROUP
 
-KEYS = [(u'QUEST_HELP_ACTION_AFTER_SUCCESSED_HELP', 420000, u'Активность: интро', LEXICON_GROUP.QUEST_HELP,
-         u'Краткое суммарное описание действий героя в момент получения задания.',
+KEYS = [(u'QUEST_HELP_ACTION_AFTER_SUCCESSED_HELP', 420000, u'Активность: после успешного задания', LEXICON_GROUP.QUEST_HELP,
+         u'Краткое суммарное описание действий героя, когда он возвращается доложить об успешном выполнении задания.',
          [V.RECEIVER_POSITION, V.RECEIVER, V.HERO, V.INITIATOR, V.INITIATOR_POSITION]),
 
         (u'QUEST_HELP_ACTION_INTRO', 420001, u'Активность: интро', LEXICON_GROUP.QUEST_HELP,

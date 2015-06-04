@@ -4,7 +4,7 @@ from the_tale.linguistics.lexicon.relations import VARIABLE as V
 from the_tale.linguistics.lexicon.groups.relations import LEXICON_GROUP
 
 KEYS = [(u'QUEST_SEARCH_SMITH_ACTION_INTRO', 540000, u'Активность: интро', LEXICON_GROUP.QUEST_SEARCH_SMITH,
-        u'Краткое суммарное описание действий героя в улучшения экипировки.',
+        u'Краткое суммарное описание действий героя в при начале задания.',
         [V.RECEIVER_POSITION, V.HERO, V.RECEIVER]),
 
         (u'QUEST_SEARCH_SMITH_ACTOR_RECEIVER', 540001, u'Актёр: Мастер', LEXICON_GROUP.QUEST_SEARCH_SMITH,

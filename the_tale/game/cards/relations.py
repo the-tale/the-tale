@@ -135,7 +135,7 @@ class CARD_TYPE(DjangoEnum):
                 ('ADD_POWER_COMMON', 78, u'новые обстоятельства', AVAILABILITY.FOR_PREMIUMS, RARITY.COMMON, forms.EmptyForm,),
                 ('ADD_POWER_UNCOMMON', 79, u'специальная операция', AVAILABILITY.FOR_PREMIUMS, RARITY.UNCOMMON, forms.EmptyForm,),
                 ('ADD_POWER_RARE', 80, u'слово Дабнглана', AVAILABILITY.FOR_PREMIUMS, RARITY.RARE, forms.EmptyForm,),
-                ('ADD_POWER_EPIC', 81, u'благословление Дабнглана', AVAILABILITY.FOR_PREMIUMS, RARITY.EPIC, forms.EmptyForm,),
+                ('ADD_POWER_EPIC', 81, u'благословение Дабнглана', AVAILABILITY.FOR_PREMIUMS, RARITY.EPIC, forms.EmptyForm,),
 
                 ('SHORT_TELEPORT', 82, u'телепорт', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
                 ('LONG_TELEPORT', 83, u'ТАРДИС', AVAILABILITY.FOR_ALL, RARITY.RARE, forms.EmptyForm,),
@@ -157,7 +157,7 @@ class CARD_TYPE(DjangoEnum):
                 ('PREFERENCES_COOLDOWNS_RESET_COMPANION_DEDICATION', 95, u'новый взгляд', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
                 ('PREFERENCES_COOLDOWNS_RESET_COMPANION_EMPATHY', 96, u'чуткость', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
 
-                ('ADD_EXPERIENCE_LEGENDARY', 97, u'благословление Гзанзара', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm,),
+                ('ADD_EXPERIENCE_LEGENDARY', 97, u'благословение Гзанзара', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm,),
 
                 ('RESET_ABILITIES', 98, u'новый путь', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.EmptyForm,),
 
