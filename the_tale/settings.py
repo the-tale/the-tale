@@ -188,12 +188,12 @@ INSTALLED_APPS = [
 
     'the_tale.post_service',
 
+    'the_tale.accounts.third_party', # MUST be before 'the_tale.accounts', since strange bug in Django 1.8, when model AccessToken placed in accounts application instead third_party
     'the_tale.accounts',
     'the_tale.accounts.clans',
     'the_tale.accounts.personal_messages',
     'the_tale.accounts.friends',
     'the_tale.accounts.achievements',
-    'the_tale.accounts.third_party',
 
     'the_tale.guide',
 

@@ -38,7 +38,7 @@
 
 {% block market_content %}
 
-  {% if page_type == 'history' %}
+  {% if page_type == 'market-history' %}
     <p>История сделок за последний месяц.</p>
   {% elif page_type == 'own-lots' %}
     <p>Перечень лотов, выставленных Вами.</p>
@@ -76,15 +76,15 @@
           <th>название</th>
           <th width="100px">цена</th>
 
-          {% if page_type != 'history' %}
+          {% if page_type != 'market-history' %}
           <th width="150px">времени до окончания</th>
           {% endif %}
 
-          {% if page_type not in ('history', 'own-lots') %}
+          {% if page_type not in ('market-history', 'own-lots') %}
           <th width="100px">операция</th>
           {% endif %}
 
-          {% if page_type == 'history' %}
+          {% if page_type == 'market-history' %}
           <th width="150px">закрыт</a>
           {% endif %}
         </tr>
@@ -95,11 +95,11 @@
             <td>{{lot.good.html_label()|safe}}</td>
             <td>{{lot.price}}</td>
 
-            {% if page_type != 'history' %}
+            {% if page_type != 'market-history' %}
             <td><span>{{lot.time_to_end|verbose_timedelta}}</span></td>
             {% endif %}
 
-            {% if page_type not in ('history', 'own-lots') %}
+            {% if page_type not in ('market-history', 'own-lots') %}
             <td>
               <a href="{{url('market:purchase', lot.id)}}"
                    class="pgf-purchase-lot"
@@ -113,7 +113,7 @@
             </td>
             {% endif %}
 
-            {% if page_type == 'history' %}
+            {% if page_type == 'market-history' %}
               <td><span class="pgf-format-datetime" data-timestamp="{{lot.closed_at|timestamp}}"></span></td>
             {% endif %}
           </tr>
