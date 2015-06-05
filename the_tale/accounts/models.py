@@ -30,6 +30,7 @@ class AccountManager(BaseUserManager):
                              referer_domain=referer_domain,
                              is_bot=is_bot,
                              referral_of=referral_of,
+                             last_login=datetime.datetime.now(),
                              action_id=action_id)
         account.set_password(password)
         account.save(using=self._db)
