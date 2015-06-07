@@ -12,11 +12,11 @@ from the_tale.game import relations
 
 class NamesGenerators(object):
 
-    elven = pynames.elven.DnDNamesGenerator()
-    orcish = pynames.mongolian.MongolianNamesGenerator()
-    dwarfish = pynames.scandinavian.ScandinavianNamesGenerator()
-    goblin = pynames.korean.KoreanNamesGenerator()
-    human = pynames.russian.PaganNamesGenerator()
+    elven = pynames.generators.elven.DnDNamesGenerator()
+    orcish = pynames.generators.mongolian.MongolianNamesGenerator()
+    dwarfish = pynames.generators.scandinavian.ScandinavianNamesGenerator()
+    goblin = pynames.generators.korean.KoreanNamesGenerator()
+    human = pynames.generators.russian.PaganNamesGenerator()
 
     def _get_name(self, race, gender):
         if race.is_HUMAN:
