@@ -117,6 +117,6 @@ def recalculate_accounts_might():
 
         if account.might != new_might:
             account.set_might(new_might)
-            HeroPrototype.get_by_account_id(account.id).cmd_update_with_account_data(account)
+            account.cmd_update_hero()
 
         time.sleep(0)
