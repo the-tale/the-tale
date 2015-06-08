@@ -1,5 +1,7 @@
 *~
 *.pyc
+*.egg-info
+dist
 dcont
 checkers/pylint.html
 settings_local.py

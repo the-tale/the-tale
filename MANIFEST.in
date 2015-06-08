@@ -15,3 +15,6 @@ global-include *.otf
 global-include *.ttf
 global-include *.sh
 global-include *.ico
+global-include *.rst
+prune docs
+prune the_tale/dcont

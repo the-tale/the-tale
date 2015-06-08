@@ -1,4 +1,20 @@
-# git+git@github.com:Tiendil/pynames.git#egg=Pynames
+Django==1.8.2
+Jinja2==2.6
+psycopg2==2.4.5
+kombu==2.3.2
+postmarkup==1.2.2
+markdown==2.2.0
+xlrd==0.8.0
+mock==1.0b1
+pylibmc==1.2.3
+MarkupSafe==0.15
+boto==2.15.0
+unicodecsv==0.9.4
 
-# -r https://raw.github.com/Tiendil/django-next/master/requirements.txt
-# git+git@github.com:Tiendil/django-next.git#egg=DjangoNext
+pynames==0.2.0
+utg==0.1.0
+rels==0.2.2.2
+
+-e git+https://github.com/Tiendil/dext.git@v0.2.0#egg=Dext
+-e git+https://github.com/Tiendil/deworld.git@v0.2.0#egg=DeWorld
+-e git+https://github.com/Tiendil/questgen.git@v0.2.0#egg=Questgen
