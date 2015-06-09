@@ -32,13 +32,13 @@
 .. code::
 
    # ставим необходимые пакеты
-   sudo aptitude install git gcc python-dev libmemcached-dev postgresql rabbitmq-server memcached python python-pip python-virtualenv
+   sudo aptitude install git gcc python-dev libmemcached-dev postgresql postgresql-server-dev-all rabbitmq-server memcached python python-pip python-virtualenv
 
    # састраиваем postgres
    sudo su postgres
    createuser -D -R -S <USERNAME>
    psql -U postgres
-   postgres=# ALTER USER <USERNAME> WITH PASSWORD '<USERNAME>';
+   postgres=# ALTER USER "<USERNAME>" WITH PASSWORD '<USERNAME>';
    postgres=# CREATE DATABASE "the-tale" WITH OWNER "<USERNAME>";
 
    # возвращаемся к нашему основному пользователю
@@ -65,10 +65,24 @@
    # ставим необходимые python пакеты
    pip install -r ./requirements.txt
 
+   # добавляем дополнительный модуль, чтобы тесты проекта не запускали миграции
+   pip install django-test-without-migrations
+
    # создаём конфиг с локальными настройками
    cp ./the_tale/settings_local_example.py ./the_tale/settings_local.py
 
    # в ./the_tale/settings_local.py заменяем <USERNAME> на нужные значения
+
+   # добавляем путь к игре в библиотекчные пути питона
+   # ! чтобы не делать это постоянно, эту строчку можно добавить в ~/.bashrc
+   export PYTHONPATH=$PYTHONPATH:$HOME/repos/the-tale
+
+   # создаём необходимые директории
+   # для логов
+   mkdir ~/logs
+
+   # для pid файлов
+   mkdir ~/.the-tale
 
    # готовим игру к запуску
 
@@ -78,6 +92,7 @@
    ./manage.py portal_postupdate_operations
 
    # запускаем тесты
+   # тестов много, поэтому выпейте чаю
    ./manage.py dext_run_tests
 
    # запускаем тестовый сервер

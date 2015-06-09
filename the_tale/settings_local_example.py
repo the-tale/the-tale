@@ -1,4 +1,6 @@
 # coding: utf-8
+import sys
+
 TESTS_RUNNING = 'test' in sys.argv or 'testserver' in sys.argv
 
 DEBUG = 'runserver' in sys.argv
@@ -23,7 +25,7 @@ DATABASES = {
         'NAME': 'the-tale',
         'USER': '<USERNAME>',
         'PASSWORD': '<USERNAME>',
-        'HOST': '',
+        'HOST': 'localhost',
         'PORT': '',
         'CONN_MAX_AGE': 0
     }
@@ -45,6 +47,7 @@ CDNS_ENABLED = False
 
 
 if TESTS_RUNNING:
+    PAYMENTS_ENABLE_REAL_PAYMENTS = True
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3'
