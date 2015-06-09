@@ -4,8 +4,6 @@ from django.core.management.base import BaseCommand
 
 from dext.settings import settings
 
-from the_tale.game.prototypes import TimePrototype
-
 from the_tale.common.utils.permissions import sync_group
 from dext.common.utils.logic import run_django_command
 
@@ -28,19 +26,6 @@ class Command(BaseCommand):
     requires_model_validation = False
 
     def handle(self, *args, **options):
-
-        if TimePrototype.get_current_time().turn_number == 0:
-
-            print
-            print 'CREATE TEST MAP'
-            print
-            run_django_command(['map_create_test_map'])
-
-            print
-            print 'CREATE_PERSONS'
-            print
-
-            run_django_command(['places_sync'])
 
         print
         print 'UPDATE MAP'
@@ -71,8 +56,12 @@ class Command(BaseCommand):
 
         print
         print 'REMOVE OLD SDN INFO'
-        del settings[portal_settings.SETTINGS_CDN_INFO_KEY]
-        del settings[portal_settings.SETTINGS_PREV_CDN_SYNC_TIME_KEY]
+
+        if portal_settings.SETTINGS_CDN_INFO_KEY in settings:
+            del settings[portal_settings.SETTINGS_CDN_INFO_KEY]
+
+        if portal_settings.SETTINGS_PREV_CDN_SYNC_TIME_KEY in settings:
+            del settings[portal_settings.SETTINGS_PREV_CDN_SYNC_TIME_KEY]
 
         print
         print 'SYNC GROUPS AND PERMISSIONS'

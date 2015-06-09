@@ -61,15 +61,15 @@ def _process_arguments(args):
 def _prepair_get_text__real(key, args, quiet=False):
     lexicon_key = LEXICON_KEY.index_name.get(key.upper())
 
+    externals, restrictions = _process_arguments(args)
+
     if lexicon_key is None and not quiet:
         raise exceptions.NoLexiconKeyError(key=key)
 
     if not game_lexicon.item.has_key(lexicon_key):
         if not quiet:
             logger.warn('unknown template type: %s', lexicon_key)
-        return None, {}, frozenset()
-
-    externals, restrictions = _process_arguments(args)
+        return None, externals, restrictions
 
     return lexicon_key, externals, restrictions
 
@@ -86,9 +86,13 @@ def _prepair_get_text__test(key, args, quiet=False):
     return lexicon_key, externals, restrictions
 
 
+def fake_text(lexicon_key, externals):
+    return unicode(lexicon_key) + u': ' + u' '.join(u'%s=%s' % (k, v.form) for k, v in externals.iteritems())
+
+
 def _render_text__real(lexicon_key, externals, quiet=False, restrictions=frozenset()):
     if lexicon_key is None:
-        return None
+        return fake_text(lexicon_key, externals)
 
     try:
         # dictionary & lexicon can be changed unexpectedly in any time
@@ -100,14 +104,12 @@ def _render_text__real(lexicon_key, externals, quiet=False, restrictions=frozens
             logger.error(u'Exception in linguistics; key=%s, args=%r, message: "%s"' % (lexicon_key, externals, e),
                          exc_info=sys.exc_info(),
                          extra={} )
-        return u''
+        return fake_text(lexicon_key, externals)
 
 
 def _render_text__test(lexicon_key, externals, quiet=False, restrictions=frozenset()):
-
     if not game_lexicon.item.has_key(lexicon_key):
-        # return fake text
-        return unicode(lexicon_key)
+        return fake_text(lexicon_key, externals)
 
     template = game_lexicon.item.get_random_template(lexicon_key, restrictions=restrictions)
 
@@ -119,6 +121,10 @@ render_text = _render_text__test if project_settings.TESTS_RUNNING else _render_
 
 def get_text(key, args, quiet=False):
     lexicon_key, externals, restrictions = prepair_get_text(key, args, quiet)
+
+    if lexicon_key is None:
+        return fake_text(key, externals)
+
     return render_text(lexicon_key, externals, quiet, restrictions=restrictions)
 
 

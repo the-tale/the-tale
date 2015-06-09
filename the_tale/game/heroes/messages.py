@@ -36,6 +36,17 @@ class MessageSurrogate(object):
                    restrictions=restrictions,
                    position=position)
 
+    @classmethod
+    def create_fake(cls, key, externals, turn_delta=0, restrictions=frozenset(), position=u''):
+        from the_tale.linguistics.logic import fake_text
+        return cls(turn_number=TimePrototype.get_current_turn_number()+turn_delta,
+                   timestamp=time.time()+turn_delta*c.TURN_DELTA,
+                   key=None,
+                   externals=externals,
+                   message=fake_text(key, externals),
+                   restrictions=restrictions,
+                   position=position)
+
     def serialize(self):
         return (self.turn_number, self.timestamp, self.message, self.position)
 

@@ -456,13 +456,16 @@ class HeroPrototype(BasePrototype,
 
         lexicon_key, externals, restrictions = prepair_get_text(type_, kwargs)
 
-        if lexicon_key is None: return
+        message_constructor = messages.MessageSurrogate.create
 
-        message = messages.MessageSurrogate.create(key=lexicon_key,
-                                                   externals=externals,
-                                                   turn_delta=turn_delta,
-                                                   restrictions=restrictions,
-                                                   position=self.position.get_description() if diary else u'')
+        if lexicon_key is None:
+            message_constructor = messages.MessageSurrogate.create_fake
+
+        message = message_constructor(key=lexicon_key if lexicon_key else type_,
+                                      externals=externals,
+                                      turn_delta=turn_delta,
+                                      restrictions=restrictions,
+                                      position=self.position.get_description() if diary else u'')
 
         self.push_message(message, diary=diary, journal=journal)
 
