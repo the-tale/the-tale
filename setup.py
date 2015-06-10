@@ -51,9 +51,9 @@ setuptools.setup(
                       'utg==0.1.0',
                       'rels==0.2.2.2',
 
-                      'dext==0.2.0',
-                      'deworld==0.2.0',
-                      'questgen==0.2.0'],
+                      'Dext==0.2.0',
+                      'DeWorld==0.2.0',
+                      'Questgen==0.2.0'],
 
     include_package_data=True,
     test_suite = 'tests',
