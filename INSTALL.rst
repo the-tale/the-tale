@@ -31,10 +31,15 @@
 
 .. code::
 
-   # ставим необходимые пакеты
-   sudo aptitude install git gcc python-dev libmemcached-dev postgresql postgresql-server-dev-all rabbitmq-server memcached python python-pip python-virtualenv
+   cd ~/
 
-   # састраиваем postgres
+   # ставим необходимые пакеты
+   sudo aptitude install -y git gcc python-dev libmemcached-dev postgresql postgresql-server-dev-all rabbitmq-server memcached python python-pip python-virtualenv
+
+   # ставим препроцессор css, необходим только для разработки
+   sudo aptitude install -y node-less
+
+   # настраиваем postgres
    sudo su postgres
    createuser -D -R -S <USERNAME>
    psql -U postgres
@@ -54,10 +59,13 @@
    mkdir ./repos
    cd ./repos
 
-   git clone git@github.com:Tiendil/the-tale.git
+   git clone https://github.com/Tiendil/the-tale.git
 
+   # создаём виртуально окружение
    virtualenv env
 
+   # инициализируем окружение
+   # необходимо делать перед любой работой с проектом (подробнее можно прочитать в гугле про virtualenv)
    . ./env/bin/activate
 
    cd ./the-tale
@@ -91,8 +99,7 @@
    ./manage.py accounts_create_superuser
    ./manage.py portal_postupdate_operations
 
-   # запускаем тесты
-   # тестов много, поэтому выпейте чаю
+   # запускаем тесты, их много, поэтому выпейте пока чаю
    ./manage.py dext_run_tests
 
    # запускаем тестовый сервер
@@ -142,3 +149,5 @@
 
 Каждый рабочий ведёт свой лог в каталоге ``~/.logs/``
 Каждый рабочий хранит свой pid-файл в каталоге ``~/.the-tale/``
+
+Не забывайте, что для работы фоновых рабочих модуль the_tale должен находиться питоном (быть по одному из путей, по которым идёт поиск модулей).
