@@ -357,7 +357,10 @@ class ThreadPageData(object):
         self.authors = {author.id:author for author in  AccountPrototype.get_list_by_id([post.author_id for post in self.posts])}
 
         self.game_objects = {game_object.account_id:game_object
-                             for game_object in  HeroPrototype.get_list_by_id([post.author_id for post in self.posts])}
+                             for game_object in  HeroPrototype.get_list_by_account_id([post.author_id for post in self.posts])}
+
+        print [post.author_id for post in self.posts]
+        print self.game_objects
 
         pages_on_page_slice = self.posts
         if post_from == 0:
