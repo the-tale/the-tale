@@ -13,15 +13,17 @@ from the_tale.common.utils.testcase import TestCase
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.linguistics import prototypes
-from the_tale.linguistics import relations
-from the_tale.linguistics import logic
-from the_tale.linguistics import models
-from the_tale.linguistics import objects
+from .. import prototypes
+from .. import relations
+from .. import logic
+from .. import models
+from .. import objects
+from .. import storage
+from .. import exceptions
 
-from the_tale.linguistics.lexicon import dictionary as lexicon_dictinonary
-from the_tale.linguistics.lexicon import keys
-from the_tale.linguistics import storage
+from ..lexicon import dictionary as lexicon_dictinonary
+from ..lexicon import keys
+
 
 from the_tale.linguistics.lexicon.groups import relations as groups_relations
 
@@ -125,9 +127,9 @@ class LogicTests(TestCase):
 
         hero_mock = mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word(u'герой'), linguistics_restrictions=lambda: [])
 
-        lexicon_key, externals, restrictions = logic._prepair_get_text__real(key.name,  args={'hero': hero_mock, 'level': 1})
+        lexicon_key, externals, restrictions = logic.prepair_get_text(key.name,  args={'hero': hero_mock, 'level': 1})
 
-        self.assertEqual(logic._render_text__real(lexicon_key, externals, restrictions),
+        self.assertEqual(logic.render_text(lexicon_key, externals, restrictions),
                          u'Герой 1 w-3-нс,ед,дт')
 
 
@@ -136,9 +138,9 @@ class LogicTests(TestCase):
         self.assertEqual(word_2.form(utg_relations.CASE.GENITIVE), u'дубль')
         dictionary.add_word(word_2)
 
-        lexicon_key, externals, restrictions = logic._prepair_get_text__real(key.name, args={'hero': hero_mock, 'level': 1})
+        lexicon_key, externals, restrictions = logic.prepair_get_text(key.name, args={'hero': hero_mock, 'level': 1})
 
-        self.assertEqual(logic._render_text__real(lexicon_key, externals, restrictions),
+        self.assertEqual(logic.render_text(lexicon_key, externals, restrictions),
                          u'Герой 1 w-2-нс,ед,дт')
 
 
@@ -426,3 +428,16 @@ class LogicTests(TestCase):
 
         self.assertFalse(prototypes.ContributionPrototype._db_filter(id=contribution_1.id).exists())
         self.assertTrue(prototypes.ContributionPrototype._db_filter(id=contribution_2.id).exists())
+
+
+    def test_get_text__no_key(self):
+        hero_mock = mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word(u'герой'), linguistics_restrictions=lambda: [])
+        self.assertRaises(exceptions.NoLexiconKeyError, logic.get_text, 'wrong_key', args={'hero': hero_mock, 'level': 1}, quiet=False)
+        self.assertEqual(logic.get_text('wrong_key', args={'hero': hero_mock, 'level': 1}, quiet=True), None)
+
+
+    def test_get_text__no_templates(self):
+        key = random.choice(keys.LEXICON_KEY.records)
+        hero_mock = mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word(u'герой'), linguistics_restrictions=lambda: [])
+        args = {'hero': hero_mock, 'level': 1}
+        self.assertEqual(logic.get_text(key.name, args=args), logic.fake_text(key.name, logic.prepair_get_text(key.name, args)[1]))

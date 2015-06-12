@@ -61,12 +61,12 @@ class MessageSurrogate(object):
 
     @property
     def message(self):
-        from the_tale.linguistics.logic import render_text
+        from the_tale.linguistics import logic
 
         if self._message is not None:
             return self._message
 
-        self._message = render_text(lexicon_key=self.key, externals=self.externals, restrictions=self.restrictions)
+        self._message = logic.render_text(lexicon_key=self.key, externals=self.externals, restrictions=self.restrictions)
 
         return self._message
 

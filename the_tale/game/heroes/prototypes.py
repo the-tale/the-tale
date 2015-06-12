@@ -447,14 +447,14 @@ class HeroPrototype(BasePrototype,
             self.diary.push_message(message)
 
     def add_message(self, type_, diary=False, journal=True, turn_delta=0, **kwargs):
-        from the_tale.linguistics.logic import prepair_get_text
+        from the_tale.linguistics import logic
 
         if not diary and not self.is_active and not self.is_premium:
             # do not process journal messages for inactive heroes (and clear it if needed)
             self.messages.clear()
             return
 
-        lexicon_key, externals, restrictions = prepair_get_text(type_, kwargs)
+        lexicon_key, externals, restrictions = logic.prepair_get_text(type_, kwargs)
 
         message_constructor = messages.MessageSurrogate.create
 
