@@ -58,30 +58,18 @@ def _process_arguments(args):
     return externals, frozenset(restrictions)
 
 
-def _prepair_get_text__real(key, args, quiet=False):
-    lexicon_key = LEXICON_KEY.index_name.get(key.upper())
-
-    externals, restrictions = _process_arguments(args)
-
-    if lexicon_key is None and not quiet:
-        raise exceptions.NoLexiconKeyError(key=key)
-
-    if not game_lexicon.item.has_key(lexicon_key):
-        if not quiet:
-            logger.warn('unknown template type: %s', lexicon_key)
-        return None, externals, restrictions
-
-    return lexicon_key, externals, restrictions
-
-
-def _prepair_get_text__test(key, args, quiet=False):
-
+def prepair_get_text(key, args, quiet=False):
     lexicon_key = LEXICON_KEY.index_name.get(key.upper())
 
     if lexicon_key is None and not quiet:
         raise exceptions.NoLexiconKeyError(key=key)
 
     externals, restrictions = _process_arguments(args)
+
+    if (not game_lexicon.item.has_key(lexicon_key) and
+        not quiet and
+        not project_settings.TESTS_RUNNING):
+        logger.warn('unknown template type: %s', lexicon_key)
 
     return lexicon_key, externals, restrictions
 
@@ -90,7 +78,7 @@ def fake_text(lexicon_key, externals):
     return unicode(lexicon_key) + u': ' + u' '.join(u'%s=%s' % (k, v.form) for k, v in externals.iteritems())
 
 
-def _render_text__real(lexicon_key, externals, quiet=False, restrictions=frozenset()):
+def render_text(lexicon_key, externals, quiet=False, restrictions=frozenset()):
     if lexicon_key is None:
         return fake_text(lexicon_key, externals)
 
@@ -100,29 +88,20 @@ def _render_text__real(lexicon_key, externals, quiet=False, restrictions=frozens
         template = game_lexicon.item.get_random_template(lexicon_key, restrictions=restrictions)
         return template.substitute(externals, game_dictionary.item)
     except utg_exceptions.UtgError as e:
-        if not quiet:
+        if not quiet and not project_settings.TESTS_RUNNING:
             logger.error(u'Exception in linguistics; key=%s, args=%r, message: "%s"' % (lexicon_key, externals, e),
                          exc_info=sys.exc_info(),
                          extra={} )
         return fake_text(lexicon_key, externals)
 
 
-def _render_text__test(lexicon_key, externals, quiet=False, restrictions=frozenset()):
-    if not game_lexicon.item.has_key(lexicon_key):
-        return fake_text(lexicon_key, externals)
-
-    template = game_lexicon.item.get_random_template(lexicon_key, restrictions=restrictions)
-
-    return template.substitute(externals, game_dictionary.item)
-
-
-prepair_get_text = _prepair_get_text__test if project_settings.TESTS_RUNNING else _prepair_get_text__real
-render_text = _render_text__test if project_settings.TESTS_RUNNING else _render_text__real
-
 def get_text(key, args, quiet=False):
     lexicon_key, externals, restrictions = prepair_get_text(key, args, quiet)
 
     if lexicon_key is None:
+        return None
+
+    if not game_lexicon.item.has_key(lexicon_key):
         return fake_text(key, externals)
 
     return render_text(lexicon_key, externals, quiet, restrictions=restrictions)
@@ -197,9 +176,9 @@ def sync_static_restrictions():
             sync_restriction(restrictions_group, record.value, name=record.text)
 
 
+# TODO: remove, since now that functional is default behaviour for missing template
 def fill_empty_keys_with_fake_phrases(prefix):
     from utg import templates as utg_templates
-    from the_tale.linguistics import prototypes
 
     models.Template.objects.filter(raw_template__startswith=prefix).delete()
 
