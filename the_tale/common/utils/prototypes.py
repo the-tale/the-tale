@@ -126,14 +126,14 @@ class _PrototypeMetaclass(type):
         readonly_attributes = attributes.get('_readonly', ())
         for readonly_attribute in readonly_attributes:
             if readonly_attribute in attributes:
-                raise PrototypeError('can not set readonly attribute "%s" class has already had attribue with such name' % readonly_attribute)
+                raise PrototypeError('cannot set readonly attribute "%s" class has already had attribute with such name' % readonly_attribute)
             attributes[readonly_attribute] = property(mcs.create_get_property(readonly_attribute))
 
         # create bidirectional properties
         bidirectional_attributes = attributes.get('_bidirectional', ())
         for bidirectional_attribute in bidirectional_attributes:
             if bidirectional_attribute in attributes:
-                raise PrototypeError('can not set bidirectional attribute "%s" class has already had attribue with such name' % bidirectional_attribute)
+                raise PrototypeError('cannot set bidirectional attribute "%s" class has already had attribute with such name' % bidirectional_attribute)
             attributes[bidirectional_attribute] = property(mcs.create_get_property(bidirectional_attribute),
                                                            mcs.create_set_property(bidirectional_attribute))
 
@@ -142,18 +142,18 @@ class _PrototypeMetaclass(type):
         for get_by_attribute in get_by_attributes:
             method_name = 'get_by_%s' % get_by_attribute
             if method_name in attributes:
-                raise PrototypeError('can not set attribute "%s" class has already had attribue with such name' % method_name)
+                raise PrototypeError('cannot set attribute "%s" class has already had attribute with such name' % method_name)
             attributes[method_name] = mcs.create_get_by(method_name, get_by_attribute)
 
             method_name = 'get_list_by_%s' % get_by_attribute
             if method_name in attributes:
-                raise PrototypeError('can not set attribute "%s" class has already had attribue with such name' % method_name)
+                raise PrototypeError('cannot set attribute "%s" class has already had attribute with such name' % method_name)
             attributes[method_name] = mcs.create_get_list_by(method_name, get_by_attribute)
 
         serialization_proxies = attributes.get('_serialization_proxies', ())
         for proxy_field, proxy_class, unload_after in serialization_proxies:
             if proxy_field in attributes:
-                raise PrototypeError('can not set attribute "%s" class has already had attribue with such name' % proxy_field)
+                raise PrototypeError('cannot set attribute "%s" class has already had attribute with such name' % proxy_field)
             attributes[proxy_field] = lazy_property(mcs.create_serialization_proxy(Class=proxy_class, field_name=proxy_field, unload_after=unload_after))
 
         return super(_PrototypeMetaclass, mcs).__new__(mcs, name, bases, attributes)
