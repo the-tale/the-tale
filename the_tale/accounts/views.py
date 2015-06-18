@@ -187,7 +187,7 @@ def index(context):
 
     return dext_views.Page('accounts/index.html',
                            content={'heroes': heroes,
-                                    'prefix': context.prefix,
+                                    'prefix': context.prefix if context.prefix else '',
                                     'accounts': accounts,
                                     'clans': clans,
                                     'resource': context.resource,
