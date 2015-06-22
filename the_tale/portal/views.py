@@ -2,6 +2,7 @@
 import random
 
 from django.conf import settings as project_settings
+from django.http import HttpResponsePermanentRedirect
 
 from dext.views import handler
 from dext.settings import settings
@@ -104,6 +105,9 @@ class PortalResource(Resource):
 
     @handler('landing')
     def landing(self, type="normal"):
+        if self.account.is_authenticated():
+                return HttpResponsePermanentRedirect("/")
+        
         from the_tale.game.map.storage import map_info_storage
         from the_tale.game.mobs.storage import mobs_storage
 
