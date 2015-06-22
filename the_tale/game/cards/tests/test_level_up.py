@@ -34,7 +34,7 @@ class LevelUpTest(testcase.TestCase, CardsTestMixin):
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
         self.abilities = self.hero.abilities
-        
+
         self.card = self.CARD()
 
 
@@ -45,8 +45,6 @@ class LevelUpTest(testcase.TestCase, CardsTestMixin):
         self.assertTrue(self.hero.experience > 0)
         self.assertEqual(self.hero.level, 1)
 
-        old_destiny_points = self.abilities.destiny_points
-		
         with self.check_not_changed(lambda: self.hero.experience):
             with self.check_delta(lambda: self.hero.level, 1):
                 result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
