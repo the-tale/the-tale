@@ -26,7 +26,7 @@ from the_tale.accounts import conf
 
 
 REGISTRATION_TASK_STATE = create_enum('REGISTRATION_TASK_STATE', ( ('UNPROCESSED', 0, u'ожидает обработки'),
-                                                                   ('PROCESSED', 1, u'обработкана'),
+                                                                   ('PROCESSED', 1, u'обработана'),
                                                                    ('UNKNOWN_ERROR', 2, u'неизвестная ошибка') ))
 
 class RegistrationTask(PostponedLogic):
@@ -177,7 +177,7 @@ class TransferMoneyTask(PostponedLogic):
                     ('TRANSFER_TRANSACTION_REJECTED', 3, u'в переводе отказано'),
                     ('COMMISSION_TRANSACTION_REJECTED', 4, u'невозможно снять комиссию'),
                     ('SENDER_BANNED', 5, u'отправитель забанен'),
-                    ('RECIPIENT_BANNED', 6, u'получатель забанен забанен'),
+                    ('RECIPIENT_BANNED', 6, u'получатель забанен'),
                     ('SENDER_IS_FAST', 7, u'отправитель не завершил регистрацию'),
                     ('RECIPIENT_IS_FAST', 8, u'получатель не завершил регистрацию'),
                     ('TRANSFER_TRANSACTION_WRONG_STATE', 9, u'ошибка при совершении перевода'),
