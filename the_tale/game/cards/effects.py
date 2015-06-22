@@ -86,6 +86,7 @@ class LevelUp(BaseEffect):
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         task.hero.increment_level(send_message=False)
+        storage.save_bundle_data(bundle_id=task.hero.actions.current_action.bundle_id)
         return task.logic_result()
 
 
