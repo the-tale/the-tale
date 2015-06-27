@@ -147,7 +147,6 @@ class BillPrototype(BasePrototype):
 
         return True
 
-    @transaction.atomic
     def apply(self):
         if not self.state.is_VOTING:
             raise exceptions.ApplyBillInWrongStateError(bill_id=self.id)
@@ -171,34 +170,36 @@ class BillPrototype(BasePrototype):
 
         self.applyed_at_turn = TimePrototype.get_current_turn_number()
 
-        if self.is_percents_barier_not_passed:
-            self.state = BILL_STATE.REJECTED
-            self.save()
+        with transaction.atomic():
+
+            if self.is_percents_barier_not_passed:
+                self.state = BILL_STATE.REJECTED
+                self.save()
+
+                PostPrototype.create(ThreadPrototype(self._model.forum_thread),
+                                     get_system_user(),
+                                     u'Законопроект отклонён.\n\n%s' % results_text,
+                                     technical=True)
+
+                signals.bill_processed.send(self.__class__, bill=self)
+                return False
+
+            self.data.apply(self)
+
+            self.state = BILL_STATE.ACCEPTED
+
+            with achievements_storage.verify(type=ACHIEVEMENT_TYPE.POLITICS_ACCEPTED_BILLS, object=self.owner):
+                self.save()
 
             PostPrototype.create(ThreadPrototype(self._model.forum_thread),
                                  get_system_user(),
-                                 u'Законопроект отклонён.\n\n%s' % results_text,
+                                 u'Законопроект принят. Изменения вступят в силу в ближайшее время.\n\n%s' % results_text,
                                  technical=True)
 
-            signals.bill_processed.send(self.__class__, bill=self)
-            return False
 
-        self.data.apply(self)
-
-        self.state = BILL_STATE.ACCEPTED
-
-        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.POLITICS_ACCEPTED_BILLS, object=self.owner):
-            self.save()
-
-        PostPrototype.create(ThreadPrototype(self._model.forum_thread),
-                             get_system_user(),
-                             u'Законопроект принят. Изменения вступят в силу в ближайшее время.\n\n%s' % results_text,
-                             technical=True)
-
-
-        for actor in self.data.actors:
-            if isinstance(actor, PlacePrototype):
-                actor.stability_modifiers.append((u'закон №%d' % self.id, -self.type.stability))
+            for actor in self.data.actors:
+                if isinstance(actor, PlacePrototype):
+                    actor.stability_modifiers.append((u'закон №%d' % self.id, -self.type.stability))
 
         logic.initiate_actual_bills_update(self._model.owner_id)
 
