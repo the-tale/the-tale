@@ -237,6 +237,9 @@ INSTALLED_APPS = [
 if TESTS_RUNNING:
     INSTALLED_APPS.append('test_without_migrations')
 
+    TEST_RUNNER = 'django_slowtests.DiscoverSlowestTestsRunner'
+    NUM_SLOW_TESTS = 10
+
 ###############################
 # AMQP
 ###############################
