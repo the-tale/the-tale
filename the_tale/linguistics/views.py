@@ -531,7 +531,7 @@ class TemplateResource(Resource):
     @handler('#template', 'edit', method='get')
     def edit(self):
 
-        if self._template.state.is_ON_REVIEW and not self.can_moderate_templates and self._template.author_id != self.account.id:
+        if self._template.state.is_ON_REVIEW and not self.can_edit_templates and self._template.author_id != self.account.id:
             return self.auto_error('linguistics.templates.edit.can_not_edit_anothers_template',
                                    u'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите пока его проверит модератор.')
 
@@ -560,7 +560,7 @@ class TemplateResource(Resource):
     @handler('#template', 'update', method='post')
     def update(self):
 
-        if self._template.state.is_ON_REVIEW and not self.can_moderate_templates and self._template.author_id != self.account.id:
+        if self._template.state.is_ON_REVIEW and not self.can_edit_templates and self._template.author_id != self.account.id:
             return self.auto_error('linguistics.templates.update.can_not_edit_anothers_template',
                                    u'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите пока его проверит модератор.')
 
@@ -585,7 +585,7 @@ class TemplateResource(Resource):
             return self.json_error('linguistics.templates.update.full_copy_restricted', u'Вы пытаетесь создать полную копию шаблона, в этом нет необходимости.')
 
 
-        if self.can_moderate_templates or (self._template.author_id == self.account.id and self._template.state.is_ON_REVIEW):
+        if self.can_edit_templates or (self._template.author_id == self.account.id and self._template.state.is_ON_REVIEW):
             self._template.update(raw_template=form.c.template,
                                   utg_template=utg_template,
                                   verificators=form.verificators,
@@ -594,7 +594,7 @@ class TemplateResource(Resource):
             prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
                                                                account_id=self.account.id,
                                                                entity_id=self._template.id,
-                                                               source=relations.CONTRIBUTION_SOURCE.MODERATOR if self.can_moderate_templates else relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                               source=relations.CONTRIBUTION_SOURCE.MODERATOR if self.can_edit_templates else relations.CONTRIBUTION_SOURCE.PLAYER,
                                                                state=self._template.state.contribution_state)
 
 
@@ -612,7 +612,7 @@ class TemplateResource(Resource):
         prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
                                                            account_id=template.author_id,
                                                            entity_id=template.id,
-                                                           source=relations.CONTRIBUTION_SOURCE.MODERATOR if self.can_moderate_templates else relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                           source=relations.CONTRIBUTION_SOURCE.MODERATOR if self.can_edit_templates else relations.CONTRIBUTION_SOURCE.PLAYER,
                                                            state=template.state.contribution_state)
 
 
