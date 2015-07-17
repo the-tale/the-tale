@@ -24,11 +24,7 @@ jQuery(document).ready( function(e) {
 
 {{ templates_macros.key_info(key)}}
 
-<ul>
-  <li>Свойства слов приведены в описании <a href="{{url('linguistics:templates:specification')}}">формата шаблонов</a>.</li>
-  <li>Обязательно ознакомьтесь с <a href="{{url('linguistics:how-add-phrase')}}">требованиями к фразам</a>.</li>
-  <li>Пожалуйста, используйте эти кавычки: <code>«»</code>.</li>
-</ul>
+{% include "linguistics/templates/edit_rules.html" %}
 
 <form id="pgf-new-template-form"
       method="post"

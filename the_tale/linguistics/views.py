@@ -94,7 +94,8 @@ class LinguisticsResource(Resource):
     @handler('how-add-phrase', method='get')
     def how_add_phrase(self):
         return self.template('linguistics/how_add_phrase.html',
-                             {'page_type': 'how-add-phrase'})
+                             {'page_type': 'how-add-phrase',
+                              'linguistics_settings': linguistics_settings})
 
 
 class WordResource(Resource):
@@ -469,6 +470,7 @@ class TemplateResource(Resource):
                              {'key': key,
                               'form': form,
                               'page_type': 'keys',
+                              'linguistics_settings': linguistics_settings,
                               'LEXICON_KEY': keys.LEXICON_KEY} )
 
 
@@ -549,6 +551,7 @@ class TemplateResource(Resource):
         return self.template('linguistics/templates/edit.html',
                              {'template': self._template,
                               'form': form,
+                              'linguistics_settings': linguistics_settings,
                               'page_type': 'keys',
                               'copy_will_be_created': not (self._template.author_id == self.account.id and self._template.state.is_ON_REVIEW),
                               'LEXICON_KEY': keys.LEXICON_KEY} )
