@@ -115,8 +115,8 @@ KEYS = [(u'ACTION_INPLACE_DESCRIPTION', 80000, u'Описание', LEXICON_GROU
         u'Герой платит процент от своего золота при входе в город.',
         [V.HERO, V.COINS, V.PLACE]),
 
-        (u'ACTION_INPLACE_TAX_NO_MONEY', 80028, u'Дневник: взимание пошлины', LEXICON_GROUP.ACTION_INPLACE,
-        u'Герой платит пошлину за посещение города.',
+        (u'ACTION_INPLACE_TAX_NO_MONEY', 80028, u'Дневник: Нет денег на пошлину', LEXICON_GROUP.ACTION_INPLACE,
+        u'У героя нет денег, чтобы заплатить пошлину, поэтому он проходит в город бесплатно.',
         [V.HERO, V.PLACE]),
 
         (u'ACTION_INPLACE_COMPANION_HEAL', 80029, u'Журнал: Лечение спутника в курорте', LEXICON_GROUP.ACTION_INPLACE,
