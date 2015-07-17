@@ -30,8 +30,8 @@ from .. import meta_relations
 
 
 class PostMixin(object):
-    def get_create_data(self):
-        word = names.generator.get_test_name(name='mob name')
+    def get_create_data(self, name='mob name'):
+        word = names.generator.get_test_name(name=name)
 
         data = linguistics_helpers.get_word_post_data(word, prefix='name')
 
@@ -45,8 +45,8 @@ class PostMixin(object):
 
         return data
 
-    def get_update_data(self):
-        word = names.generator.get_test_name(name='new name')
+    def get_update_data(self, name='new name'):
+        word = names.generator.get_test_name(name=name)
 
         data = linguistics_helpers.get_word_post_data(word, prefix='name')
 
@@ -221,6 +221,12 @@ class TestCreateRequests(BaseTestRequests, PostMixin):
         self.assertTrue(mob_record.archetype.is_NEUTRAL)
         self.assertEqual(mob_record.global_action_probability, 0.5)
         self.assertTrue(mob_record.editor_id, self.account_2.id)
+
+    def test_duplicate_name(self):
+        self.client.post(reverse('game:mobs:create'), self.get_create_data())
+
+        with self.check_not_changed(MobRecord.objects.count):
+            self.check_ajax_error(self.client.post(reverse('game:mobs:create'), self.get_create_data()), 'mobs.create.duplicate_name')
 
 
 class TestShowRequests(BaseTestRequests):
@@ -429,6 +435,18 @@ class TestUpdateRequests(BaseTestRequests, PostMixin):
         self.check_ajax_ok(response, data={'next_url': reverse('guide:mobs:show', args=[mob_record.id])})
 
         self.check_mob(mob_record, self.get_update_data())
+
+    def test_duplicate_name(self):
+        self.check_ajax_ok(self.client.post(reverse('game:mobs:create'), self.get_create_data(name='name-2-')))
+
+        self.check_ajax_error(self.client.post(reverse('game:mobs:update', args=[self.mob.id]), self.get_update_data(name='name-2-')), 'mobs.update.duplicate_name')
+
+        self.check_mob(MobRecordPrototype.get_by_id(self.mob.id), self.get_create_data())
+
+    def test_name_does_not_changed(self):
+        self.check_ajax_ok(self.client.post(reverse('game:mobs:update', args=[self.mob.id]), self.get_update_data(name='mob name')))
+
+        self.check_mob(MobRecordPrototype.get_by_id(self.mob.id), self.get_update_data(name='mob name'))
 
 
 class TestModerationPageRequests(BaseTestRequests):

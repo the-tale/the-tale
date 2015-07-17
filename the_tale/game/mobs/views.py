@@ -175,6 +175,9 @@ class GameMobResource(MobResourceBase):
         if not form.is_valid():
             return self.json_error('mobs.create.form_errors', form.errors)
 
+        if MobRecordPrototype._db_filter(name=form.c.name.normal_form()).exists():
+            return self.json_error('mobs.create.duplicate_name', u'Монстр с таким названием уже создан')
+
         mob = MobRecordPrototype.create(uuid=uuid.uuid4().hex,
                                         level=form.c.level,
                                         utg_name=form.c.name,
@@ -209,6 +212,9 @@ class GameMobResource(MobResourceBase):
 
         if not form.is_valid():
             return self.json_error('mobs.update.form_errors', form.errors)
+
+        if MobRecordPrototype._db_filter(name=form.c.name.normal_form()).exclude(id=self.mob.id).exists():
+            return self.json_error('mobs.update.duplicate_name', u'Монстр с таким названием уже создан')
 
         self.mob.update_by_creator(form, editor=self.account)
 
