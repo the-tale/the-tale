@@ -1306,7 +1306,7 @@ class ActionInPlacePrototype(ActionBase):
                                           hero=self.hero, artifact=artifact, coins=coins, sell_price=sell_price, coins_delta=coins-sell_price)
                 else:
                     self.hero.add_message('action_inplace_diary_buying_artifact_and_change', diary=True,
-                                          hero=self.hero, artifact=artifact, coins=coins, old_artifact=unequipped, sell_price=sell_price)
+                                          hero=self.hero, artifact=artifact, coins=coins, old_artifact=unequipped, sell_price=sell_price, coins_delta=coins-sell_price)
             else:
                 self.hero.add_message('action_inplace_diary_buying_artifact', diary=True, hero=self.hero, coins=coins, artifact=artifact)
 
