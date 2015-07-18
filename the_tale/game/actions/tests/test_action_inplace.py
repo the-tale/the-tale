@@ -54,7 +54,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.action_event = self.action_inplace
 
     def test_create(self):
-        self.assertEqual(self.hero.position.previous_place, self.hero.position.place)
+        self.assertEqual(self.hero.position.previous_place, None)
 
         self.assertEqual(self.action_idl.leader, False)
         self.assertEqual(self.action_inplace.leader, True)
@@ -278,6 +278,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
     @mock.patch('the_tale.game.balance.constants.PLACE_HABITS_EVENT_PROBABILITY', 1.0)
     def test_habit_event__not_visit(self):
+        self.hero.position.visit_current_place()
         self.assertEqual(self.hero.position.place, self.hero.position.previous_place)
 
         with self.check_not_changed(lambda: len(self.hero.diary.messages)):
@@ -289,6 +290,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
+        self.assertEqual(self.hero.position.previous_place, self.hero.position.place)
         self.storage._test_save()
 
     def test_regenerate_energy_action_create(self):
@@ -947,8 +949,10 @@ class InPlaceActionCompanionStealingTest(testcase.TestCase):
         self.storage = LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
+        self.hero._model.pos_previous_place_id = None # test setting prevouse place in action constructor
 
         self.action_idl = self.hero.actions.current_action
+
 
         self.action_inplace = prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
@@ -962,6 +966,21 @@ class InPlaceActionCompanionStealingTest(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_steal_item', lambda self: True)
     def test_no_companion(self):
         self.hero.remove_companion()
+
+        with contextlib.nested(
+                self.check_not_changed(lambda: self.hero.bag.occupation),
+                self.check_not_changed(lambda: self.hero.money),
+                self.check_not_changed(lambda: self.hero.statistics.money_earned_from_companions),
+                self.check_not_changed(lambda: self.hero.statistics.artifacts_had),
+                self.check_not_changed(lambda: self.hero.statistics.loot_had),
+                self.check_not_changed(lambda: len(self.hero.messages))
+                ):
+            self.storage.process_turn(continue_steps_if_needed=False)
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_steal_money', lambda self: True)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_steal_item', lambda self: True)
+    def test_place_not_changed(self):
+        self.hero.position.visit_current_place()
 
         with contextlib.nested(
                 self.check_not_changed(lambda: self.hero.bag.occupation),

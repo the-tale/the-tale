@@ -1251,9 +1251,6 @@ class ActionInPlacePrototype(ActionBase):
                 hero.add_message('action_inplace_companion_leave', diary=True, hero=hero, place=hero.position.place, companion=hero.companion)
                 hero.remove_companion()
 
-
-        hero.position.visit_current_place()
-
         return prototype
 
     def action_event_message_arguments(self):
@@ -1415,6 +1412,9 @@ class ActionInPlacePrototype(ActionBase):
         if self.hero.companion is None:
             return
 
+        if self.hero.position.place == self.hero.position.previous_place:
+            return
+
         if self.hero.can_companion_steal_money():
             money = int(f.normal_loot_cost_at_lvl(self.hero.level) * random.uniform(0.8, 1.2) * self.hero.companion_steal_money_modifier) + 1
             self.hero.change_money(MONEY_SOURCE.EARNED_FROM_COMPANIONS, money)
@@ -1472,6 +1472,7 @@ class ActionInPlacePrototype(ActionBase):
 
         if self.state == self.STATE.PROCESSED:
             self.process_companion_stealing()
+            self.hero.position.visit_current_place()
 
 
 class ActionRestPrototype(ActionBase):
