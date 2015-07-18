@@ -39,8 +39,8 @@ AMQP_BROKER_VHOST = '/the-tale'
 SITE_URL = 'localhost:8000'
 
 GA_CODE = None
-ADDTHIS = False
-MAIL_RU = False
+ADDTHIS = None
+MAIL_RU = None
 
 NEWRELIC_ENABLED = False
 CDNS_ENABLED = False
