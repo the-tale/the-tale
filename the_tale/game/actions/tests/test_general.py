@@ -3,9 +3,6 @@ import mock
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.logic import register_user
-from the_tale.accounts.prototypes import AccountPrototype
-
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.logic import create_test_map
@@ -19,8 +16,9 @@ from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.abilities.relations import HELP_CHOICES
 
-from the_tale.game.actions.prototypes import ACTION_TYPES
-from the_tale.game.actions.tests.helpers import TestAction
+from .. import meta_actions
+from ..prototypes import ACTION_TYPES
+from .helpers import TestAction
 
 
 class GeneralTest(testcase.TestCase):
@@ -29,14 +27,15 @@ class GeneralTest(testcase.TestCase):
         super(GeneralTest, self).setUp()
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user')
-
-        self.bundle_id = bundle_id
+        self.account = self.accounts_factory.create_account()
 
         self.storage = LogicStorage()
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
-        self.hero = self.storage.accounts_to_heroes[account_id]
+        self.storage.load_account_data(self.account)
+        self.hero = self.storage.accounts_to_heroes[self.account.id]
+
         self.action_idl = self.hero.actions.current_action
+
+        self.bundle_id = self.action_idl.bundle_id
 
     def tearDown(self):
         pass
@@ -199,9 +198,16 @@ class GeneralTest(testcase.TestCase):
 
         self.assertEqual(default_action, TestAction.deserialize(self.hero, default_action.serialize()))
 
-
     def test_action_full_serialization(self):
         mob = mobs_storage.create_mob_for_hero(self.hero)
+
+        account_2 = self.accounts_factory.create_account()
+
+        self.storage.load_account_data(account_2)
+        hero_2 = self.storage.accounts_to_heroes[account_2.id]
+
+
+        meta_action = meta_actions.ArenaPvP1x1.create(self.storage, self.hero, hero_2)
 
         default_action = TestAction( hero=self.hero,
                                      bundle_id=self.bundle_id,
@@ -222,7 +228,7 @@ class GeneralTest(testcase.TestCase):
                                      textgen_id='textgen_id',
                                      back=True,
                                      info_link='/bla-bla',
-                                     meta_action_id=7,
+                                     meta_action=meta_action,
                                      replane_required=True)
 
         self.assertEqual(default_action.serialize(), {'bundle_id': self.bundle_id,
@@ -230,7 +236,6 @@ class GeneralTest(testcase.TestCase):
                                                       'context': TestAction.CONTEXT_MANAGER().serialize(),
                                                       'mob_context': TestAction.CONTEXT_MANAGER().serialize(),
                                                       'mob': mob.serialize(),
-                                                      'meta_action_id': 7,
                                                       'length': 777,
                                                       'back': True,
                                                       'textgen_id': 'textgen_id',
@@ -246,6 +251,7 @@ class GeneralTest(testcase.TestCase):
                                                       'data': {'xxx': 'yyy'},
                                                       'info_link': '/bla-bla',
                                                       'break_at': 0.75,
+                                                      'meta_action': meta_action.serialize(),
                                                       'replane_required': True})
 
         self.assertEqual(default_action, TestAction.deserialize(self.hero, default_action.serialize()))

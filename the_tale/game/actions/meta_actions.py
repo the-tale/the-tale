@@ -1,20 +1,11 @@
 # coding: utf-8
 import random
 
-from django.db import transaction
+from dext.common.utils import discovering
 
-from dext.common.utils import s11n
-
-from the_tale.common.utils.prototypes import BasePrototype
-from the_tale.common.utils.decorators import lazy_property
 from the_tale.common.utils.logic import random_value_by_priority
 
 from the_tale.accounts.prototypes import AccountPrototype
-
-from the_tale.game.actions.models import MetaAction, MetaActionMember, UNINITIALIZED_STATE
-from the_tale.game.actions import battle
-from the_tale.game.actions import contexts
-from the_tale.game.actions import relations
 
 from the_tale.game.prototypes import TimePrototype
 
@@ -23,57 +14,53 @@ from the_tale.game.balance import constants as c
 from the_tale.game.companions import storage as companions_storage
 from the_tale.game.companions import logic as companions_logic
 
+from the_tale.game.pvp.abilities import ABILITIES as PVP_ABILITIES
 
 from the_tale.game import relations as game_relations
 
 from the_tale.game.pvp.prototypes import Battle1x1Prototype, Battle1x1ResultPrototype
 from the_tale.game.pvp.relations import BATTLE_1X1_RESULT
 
-
-def get_meta_actions_types():
-    actions = {}
-    for cls in globals().values():
-        if isinstance(cls, type) and issubclass(cls, MetaActionPrototype) and cls != MetaActionPrototype:
-            actions[cls.TYPE] = cls
-    return actions
+from . import battle
+from . import contexts
+from . import relations
 
 
-def get_meta_action_by_model(model):
-    if model is None:
-        return None
-
-    return META_ACTION_TYPES[model.type](model=model)
-
-def get_meta_action_by_id(meta_action_id):
-    return get_meta_action_by_model(MetaAction.objects.get(id=meta_action_id))
-
-class MetaActionPrototype(BasePrototype):
-    _model_class = MetaAction
-    _readonly = ('id', 'created_at', 'type')
-    _bidirectional = ('percents', 'state')
-    _get_by = ('id',)
+class MetaAction(object):
+    __slots__ = ('percents', 'state', 'last_processed_turn', 'storage', 'updated', 'uid')
 
     TYPE = None
     TEXTGEN_TYPE = None
 
     class STATE:
-        UNINITIALIZED = UNINITIALIZED_STATE
+        UNINITIALIZED = relations.UNINITIALIZED_STATE
         PROCESSED = 'processed'
 
-    def __init__(self, model, members=None):
-        super(MetaActionPrototype, self).__init__(model=model)
-
-        if members is None:
-            members = [MetaActionMemberPrototype(member_model) for member_model in MetaActionMember.objects.filter(action=model)]
-
-        self.members = dict( (member.id, member) for member in members)
-        self.members_by_roles = dict( (member.role, member) for member in members)
+    def __init__(self, last_processed_turn=-1, percents=0, state=STATE.UNINITIALIZED, uid=NotImplemented):
         self.storage = None
-        self.last_processed_turn = -1
+        self.last_processed_turn = last_processed_turn
         self.updated = False
 
-    @lazy_property
-    def data(self): return s11n.from_json(self._model.data)
+        self.percents = percents
+        self.state = state
+        self.uid = uid
+
+    def serialize(self):
+        return {'type': self.TYPE.value,
+                'last_processed_turn': self.last_processed_turn,
+                'state': self.state,
+                'percents': self.percents,
+                'uid': self.uid}
+
+    @classmethod
+    def deserialize(cls, data):
+        obj = cls()
+        obj.last_processed_turn = data['last_processed_turn']
+        obj.state = data['state']
+        obj.percents = data['percents']
+        obj.uid = data['uid']
+
+        return obj
 
     @property
     def description_text_name(self):
@@ -93,89 +80,103 @@ class MetaActionPrototype(BasePrototype):
         pass
 
 
-    def remove(self):
-        MetaActionMemberPrototype._model_class.objects.filter(action_id=self.id).delete()
-        self._model.delete()
-
-    def save(self):
-        self._model.data = s11n.to_json(self.data)
-
-        super(MetaActionPrototype, self).save()
-
-        self.updated = False
-
-
-class MetaActionMemberPrototype(BasePrototype):
-    _model_class = MetaActionMember
-    _readonly = ('id', 'hero_id', 'role', 'context')
-    _bidirectional = ('percents', 'state')
-    _get_by = ('id',)
-
-    @classmethod
-    def create(cls, meta_action_model, hero_model, role):
-
-        model = MetaActionMember.objects.create(action=meta_action_model,
-                                                hero=hero_model,
-                                                role=role)
-
-        return cls(model=model)
-
-
-class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
+class ArenaPvP1x1(MetaAction):
+    __slots__ = ('hero_1_context', 'hero_2_context', 'hero_1_old_health', 'hero_2_old_health', 'bot_pvp_properties', 'hero_1_id', 'hero_2_id')
 
     TYPE = relations.ACTION_TYPE.ARENA_PVP_1X1
     TEXTGEN_TYPE = 'meta_action_arena_pvp_1x1'
 
-    class STATE(MetaActionPrototype.STATE):
+    class STATE(MetaAction.STATE):
         BATTLE_RUNNING = 'battle_running'
         BATTLE_ENDING = 'battle_ending'
 
-    class ROLES(object):
-        HERO_1 = 'hero_1'
-        HERO_2 = 'hero_2'
+    def __init__(self, hero_1_old_health=None, hero_2_old_health=None, hero_1_context=None, hero_2_context=None, bot_pvp_properties=None, hero_1_id=None, hero_2_id=None, **kwargs):
+        super(ArenaPvP1x1, self).__init__(**kwargs)
+        self.hero_1_context = hero_1_context
+        self.hero_2_context = hero_2_context
+        self.hero_1_old_health = hero_1_old_health
+        self.hero_2_old_health = hero_2_old_health
+        self.bot_pvp_properties = bot_pvp_properties
+        self.hero_1_id = hero_1_id
+        self.hero_2_id = hero_2_id
+
+        self.uid = '%s#%s#%s' % (self.TYPE.value, min(hero_1_id, hero_2_id), max(hero_1_id, hero_2_id))
+
+    def serialize(self):
+        data = super(ArenaPvP1x1, self).serialize()
+        data.update({'hero_1_old_health': self.hero_1_old_health,
+                     'hero_2_old_health': self.hero_2_old_health,
+                     'hero_1_context': self.hero_1_context.serialize(),
+                     'hero_2_context': self.hero_2_context.serialize(),
+                     'bot_pvp_properties': self.bot_pvp_properties,
+                     'hero_1_id': self.hero_1_id,
+                     'hero_2_id': self.hero_2_id})
+        return data
+
+    @classmethod
+    def deserialize(cls, data):
+        obj = super(ArenaPvP1x1, cls).deserialize(data)
+
+        obj.hero_1_id = data['hero_1_id']
+        obj.hero_2_id = data['hero_2_id']
+        obj.hero_1_old_health = data['hero_1_old_health']
+        obj.hero_2_old_health = data['hero_2_old_health']
+        obj.hero_1_context = contexts.BattleContext.deserialize(data['hero_1_context'])
+        obj.hero_2_context = contexts.BattleContext.deserialize(data['hero_2_context'])
+        obj.bot_pvp_properties = data['bot_pvp_properties']
+
+        return obj
+
+    @classmethod
+    def create(cls, storage, hero_1, hero_2):
+
+        cls.prepair_bot(hero_1, hero_2)
+        cls.prepair_bot(hero_2, hero_1)
+
+        hero_1_old_health = hero_1.health
+        hero_2_old_health = hero_2.health
+
+        hero_1.health = hero_1.max_health
+        cls.reset_hero_info(hero_1)
+
+        hero_2.health = hero_2.max_health
+        cls.reset_hero_info(hero_2)
+
+        hero_1_context = contexts.BattleContext()
+        hero_1_context.use_pvp_advantage_stike_damage(hero_1.basic_damage * c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER)
+
+        hero_2_context = contexts.BattleContext()
+        hero_2_context.use_pvp_advantage_stike_damage(hero_2.basic_damage * c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER)
+
+        meta_action = cls(hero_1_id=hero_1.id,
+                          hero_2_id=hero_2.id,
+                          hero_1_old_health=hero_1_old_health,
+                          hero_2_old_health=hero_2_old_health,
+                          hero_1_context=hero_1_context,
+                          hero_2_context=hero_2_context,
+                          state=cls.STATE.BATTLE_RUNNING,
+                          bot_pvp_properties=cls.get_bot_pvp_properties())
+
+        meta_action.set_storage(storage)
+
+        meta_action.add_message('meta_action_arena_pvp_1x1_start', duelist_1=hero_1, duelist_2=hero_2)
+
+        return meta_action
+
+    @classmethod
+    def get_bot_pvp_properties(cls):
+        bot_priorities = {ability.TYPE: random.uniform(0.1, 1.0) for ability in PVP_ABILITIES.values()}
+        bot_priorities_sum = sum(bot_priorities.values())
+        bot_priorities = {ability_type: ability_priority/bot_priorities_sum
+                          for ability_type, ability_priority in bot_priorities.items()}
+        return {'priorities': bot_priorities, 'ability_chance': random.uniform(0.1, 0.33)}
+
 
     @property
-    def hero_1(self): return self.storage.heroes[self.members_by_roles[self.ROLES.HERO_1].hero_id]
-
-    def get_hero_1_old_health(self): return self.data.get('hero_1_old_health')
-    def set_hero_1_old_health(self, value): self.data['hero_1_old_health'] = value
-    hero_1_old_health = property(get_hero_1_old_health, set_hero_1_old_health)
+    def hero_1(self): return self.storage.heroes[self.hero_1_id]
 
     @property
-    def hero_1_context(self):
-        if not hasattr(self, '_hero_1_context'):
-            self._hero_1_context = contexts.BattleContext.deserialize(s11n.from_json(self.members_by_roles[self.ROLES.HERO_1].context))
-            self._hero_1_context.use_pvp_advantage_stike_damage(self.hero_1.basic_damage * c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER)
-        return self._hero_1_context
-
-    @property
-    def hero_2(self): return self.storage.heroes[self.members_by_roles[self.ROLES.HERO_2].hero_id]
-
-    def get_hero_2_old_health(self): return self.data.get('hero_2_old_health')
-    def set_hero_2_old_health(self, value): self.data['hero_2_old_health'] = value
-    hero_2_old_health = property(get_hero_2_old_health, set_hero_2_old_health)
-
-    @property
-    def hero_2_context(self):
-        if not hasattr(self, '_hero_2_context'):
-            self._hero_2_context = contexts.BattleContext.deserialize(s11n.from_json(self.members_by_roles[self.ROLES.HERO_2].context))
-            self._hero_2_context.use_pvp_advantage_stike_damage(self.hero_2.basic_damage * c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER)
-        return self._hero_2_context
-
-    def get_bot_pvp_properties(self):
-        from the_tale.game.pvp.abilities import ABILITIES
-
-        if 'bot_pvp_properties' in self.data:
-            return self.data['bot_pvp_properties']
-
-        priorities = {ability.TYPE: random.uniform(0.1, 1.0) for ability in ABILITIES.values()}
-        priorities_sum = sum(priorities.values())
-        priorities = {ability_type: ability_priority/priorities_sum
-                      for ability_type, ability_priority in priorities.items()}
-
-        self.data['bot_pvp_properties'] = {'priorities': priorities,
-                                           'ability_chance': random.uniform(0.1, 0.33)}
-        return self.data['bot_pvp_properties']
+    def hero_2(self): return self.storage.heroes[self.hero_2_id]
 
     def add_message(self, *argv, **kwargs):
         self.hero_1.add_message(*argv, **kwargs)
@@ -205,41 +206,6 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         if not companions_storage.companions.is_empty():
             companion_record = random.choice(companions_storage.companions.all())
             hero.set_companion(companions_logic.create_companion(companion_record))
-
-
-    @classmethod
-    def create(cls, storage, hero_1, hero_2, bundle_id):
-
-        cls.prepair_bot(hero_1, hero_2)
-        cls.prepair_bot(hero_2, hero_1)
-
-        hero_1_old_health = hero_1.health
-        hero_2_old_health = hero_2.health
-
-        hero_1.health = hero_1.max_health
-        cls.reset_hero_info(hero_1)
-
-        hero_2.health = hero_2.max_health
-        cls.reset_hero_info(hero_2)
-
-        with transaction.atomic():
-            model = MetaAction.objects.create(type=cls.TYPE,
-                                              percents=0,
-                                              data=s11n.to_json({'hero_1_old_health': hero_1_old_health,
-                                                                 'hero_2_old_health': hero_2_old_health}),
-                                              bundle_id=bundle_id,
-                                              state=cls.STATE.BATTLE_RUNNING )
-
-            member_1 = MetaActionMemberPrototype.create(meta_action_model=model, hero_model=hero_1._model, role=cls.ROLES.HERO_1)
-            member_2 = MetaActionMemberPrototype.create(meta_action_model=model, hero_model=hero_2._model, role=cls.ROLES.HERO_2)
-
-        meta_action = cls(model, members=[member_1, member_2])
-        meta_action.set_storage(storage)
-
-        meta_action.add_message('meta_action_arena_pvp_1x1_start', duelist_1=hero_1, duelist_2=hero_2)
-
-        return meta_action
-
 
     def _check_hero_health(self, hero, enemy):
         if hero.health <= 0:
@@ -291,9 +257,9 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         self.state = self.STATE.PROCESSED
 
     def process_bot(self, bot, enemy):
-        from the_tale.game.pvp.abilities import ABILITIES, Flame
+        from the_tale.game.pvp.abilities import Flame
 
-        properties = self.get_bot_pvp_properties()
+        properties = self.bot_pvp_properties
 
         if random.uniform(0.0, 1.0) > properties['ability_chance']:
             return
@@ -303,7 +269,7 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
         if used_ability_type == Flame.TYPE and enemy.pvp.energy_speed == 1:
             return
 
-        ABILITIES[used_ability_type](hero=bot, enemy=enemy).use()
+        PVP_ABILITIES[used_ability_type](hero=bot, enemy=enemy).use()
 
 
     def process_battle_running(self):
@@ -367,4 +333,5 @@ class MetaActionArenaPvP1x1Prototype(MetaActionPrototype):
 
 
 
-META_ACTION_TYPES = get_meta_actions_types()
+ACTION_TYPES = { action_class.TYPE:action_class
+                 for action_class in discovering.discover_classes(globals().values(), MetaAction) }

@@ -64,8 +64,9 @@ class ActionBase(object):
                   'textgen_id',
                   'back',
                   'info_link',
-                  'meta_action_id',
-                  'replane_required')
+                  'saved_meta_action',
+                  'replane_required',
+                  'updated')
 
 
     class STATE:
@@ -102,8 +103,10 @@ class ActionBase(object):
                  textgen_id=None,
                  back=False,
                  info_link=None,
-                 meta_action_id=None,
-                 replane_required=False):
+                 meta_action=None,
+                 replane_required=False,
+                 meta_action_id=None # TODO: remove in 0.3.21
+                ):
 
         self.updated = False
 
@@ -144,7 +147,11 @@ class ActionBase(object):
         self.extra_probability = extra_probability
         self.textgen_id = textgen_id
         self.back = back
-        self.meta_action_id = meta_action_id
+
+        if meta_action is None or isinstance(meta_action, meta_actions.MetaAction):
+            self.saved_meta_action = meta_action
+        else:
+            self.saved_meta_action = meta_actions.ACTION_TYPES[relations.ACTION_TYPE(meta_action['type'])].deserialize(meta_action)
 
         self.info_link = info_link
 
@@ -186,8 +193,8 @@ class ActionBase(object):
             data['textgen_id'] = self.textgen_id
         if self.back:
             data['back'] = self.back
-        if self.meta_action_id is not None:
-            data['meta_action_id'] = self.meta_action_id
+        if self.meta_action is not None:
+            data['meta_action'] = self.meta_action.serialize()
         if self.info_link is not None:
             data['info_link'] = self.info_link
 
@@ -230,9 +237,11 @@ class ActionBase(object):
 
     @property
     def meta_action(self):
+        if self.saved_meta_action is None:
+            return None
         if self.storage is None: # if meta_action accessed from views (not from logic)
-            return meta_actions.get_meta_action_by_id(self.meta_action_id) if self.meta_action_id is not None else None
-        return self.storage.meta_actions.get(self.meta_action_id) if self.meta_action_id is not None else None
+            return self.saved_meta_action
+        return self.storage.meta_actions.get(self.saved_meta_action.uid)
 
     @property
     def help_choices(self):
@@ -339,8 +348,7 @@ class ActionBase(object):
         self.removed = True
 
     def on_save(self):
-        if self.meta_action_id is not None and self.meta_action.updated:
-            self.meta_action.save()
+        pass
 
     def process_action(self):
         self.hero.actions.updated = True
@@ -1895,7 +1903,7 @@ class ActionMetaProxyPrototype(ActionBase):
     SINGLE = False
     TYPE = relations.ACTION_TYPE.META_PROXY
     TEXTGEN_TYPE = 'no texgen type'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY, HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY, HELP_CHOICES.HEAL_COMPANION))
     APPROVED_FOR_STEPS_CHAIN = False
 
     @property
@@ -1919,7 +1927,7 @@ class ActionMetaProxyPrototype(ActionBase):
     def _create(cls, hero, bundle_id, meta_action):
         return cls( hero=hero,
                     bundle_id=bundle_id,
-                    meta_action_id=meta_action.id,
+                    meta_action=meta_action,
                     state=meta_action.state)
 
     def process(self):

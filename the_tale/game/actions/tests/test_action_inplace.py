@@ -852,20 +852,14 @@ class InPlaceActionCompanionDrinkArtifactTests(testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_drink_artifact', lambda hero: True)
     def test_dring_artifact(self):
-        with contextlib.nested(
-                self.check_decreased(lambda: self.hero.bag.occupation),
-                self.check_increased(lambda: len(self.hero.messages))
-                ):
+        with self.check_decreased(lambda: self.hero.bag.occupation):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertTrue(self.hero.messages.messages[-1].key.is_ACTION_INPLACE_COMPANION_DRINK_ARTIFACT)
 
 
     def check_not_used(self):
-        with contextlib.nested(
-                self.check_not_changed(lambda: self.hero.bag.occupation),
-                self.check_not_changed(lambda: len(self.hero.messages))
-                ):
+        with self.check_not_changed(lambda: self.hero.bag.occupation):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_drink_artifact', lambda hero: True)

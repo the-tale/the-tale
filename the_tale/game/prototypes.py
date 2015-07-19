@@ -129,7 +129,7 @@ class SupervisorTaskPrototype(BasePrototype):
     def process_arena_pvp_1x1(self, bundle_id): # pylint: disable=R0914
         from the_tale.accounts.prototypes import AccountPrototype
         from the_tale.game.actions.prototypes import ActionMetaProxyPrototype
-        from the_tale.game.actions.meta_actions import MetaActionArenaPvP1x1Prototype
+        from the_tale.game.actions import meta_actions
         from the_tale.game.logic_storage import LogicStorage
         from the_tale.game.pvp.prototypes import Battle1x1Prototype
         from the_tale.game.pvp.models import BATTLE_1X1_STATE
@@ -150,7 +150,7 @@ class SupervisorTaskPrototype(BasePrototype):
         old_bundle_1_id = hero_1.actions.current_action.bundle_id
         old_bundle_2_id = hero_2.actions.current_action.bundle_id
 
-        meta_action_battle = MetaActionArenaPvP1x1Prototype.create(storage, hero_1, hero_2, bundle_id=bundle_id)
+        meta_action_battle = meta_actions.ArenaPvP1x1.create(storage, hero_1, hero_2)
 
         ActionMetaProxyPrototype.create(hero=hero_1, _bundle_id=bundle_id, meta_action=meta_action_battle)
         ActionMetaProxyPrototype.create(hero=hero_2, _bundle_id=bundle_id, meta_action=meta_action_battle)

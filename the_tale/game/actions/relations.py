@@ -5,6 +5,7 @@ from rels.django import DjangoEnum
 
 from the_tale.game.balance import constants as c
 
+UNINITIALIZED_STATE = 'uninitialized'
 
 class ACTION_EVENT(DjangoEnum):
 
