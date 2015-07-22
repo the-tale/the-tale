@@ -12,11 +12,11 @@ KEYS = [(u'ACTION_INPLACE_DESCRIPTION', 80000, u'Описание', LEXICON_GROU
         [V.COINS, V.HERO, V.ARTIFACT]),
 
         (u'ACTION_INPLACE_DIARY_BUYING_ARTIFACT_AND_CHANGE', 80002, u'Дневник: Покупка артефакта и замена', LEXICON_GROUP.ACTION_INPLACE,
-        u'Герой тратит деньги на покупку артефакта, и меняет на него экипированный ранее.',
+        u'Герой тратит деньги на покупку артефакта, и меняет на него экипированный ранее. Старая экипировка продаётся, деньги с продажи остаются у героя.',
         [V.SELL_PRICE, V.HERO, V.COINS_DELTA, V.OLD_ARTIFACT, V.COINS, V.ARTIFACT]),
 
         (u'ACTION_INPLACE_DIARY_BUYING_ARTIFACT_AND_CHANGE_EQUAL_ITEMS', 80003, u'Дневник: Покупка аналогичного артефакта и замена', LEXICON_GROUP.ACTION_INPLACE,
-        u'Герой тратит деньги на покупку нового, но аналогичного уже экипированному, артефакта, и меняет на него экипированный ранее.',
+        u'Герой тратит деньги на покупку нового, но аналогичного уже экипированному, артефакта, и меняет на него экипированный ранее. Старая экипировка продаётся, деньги с продажи остаются у героя.',
         [V.SELL_PRICE, V.COINS, V.HERO, V.ARTIFACT, V.COINS_DELTA]),
 
         (u'ACTION_INPLACE_DIARY_EXPERIENCE', 80004, u'Дневник: Обучение', LEXICON_GROUP.ACTION_INPLACE,

@@ -455,7 +455,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.storage._test_save()
 
 
-    def test_bying_artifact_with_hero_preferences(self):
+    def test_buying_artifact_with_hero_preferences(self):
         while not self.hero.next_spending.is_BUYING_ARTIFACT:
             self.hero.switch_spending()
 
@@ -485,7 +485,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         # self.storage._test_save()
 
 
-    def test_bying_artifact_without_change(self):
+    def test_buying_artifact_without_change(self):
         while not self.hero.next_spending.is_BUYING_ARTIFACT:
             self.hero.switch_spending()
 
@@ -511,7 +511,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.artifacts_had, 1)
         self.storage._test_save()
 
-    def test_bying_artifact_with_change(self):
+    def test_buying_artifact_with_change(self):
         while not self.hero.next_spending.is_BUYING_ARTIFACT:
             self.hero.switch_spending()
 
