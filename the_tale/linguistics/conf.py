@@ -14,6 +14,8 @@ linguistics_settings = app_settings('LINGUISTICS_SETTINGS',
 
                                     REMOVED_TEMPLATE_TIMEOUT=30, # days
 
+                                    MAX_RENDER_TEXT_RETRIES=3,
+
                                     EXAMPLES_URL=reverse_lazy('forum:threads:show', args=[3917]),
                                     RULES_URL=reverse_lazy('forum:threads:show', args=[3868]),
 
