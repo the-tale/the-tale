@@ -474,12 +474,17 @@ class HeroPrototype(BasePrototype,
         from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
         from the_tale.linguistics.storage import restrictions_storage
 
+        terrain = self.position.get_terrain()
+
         return (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.GENDER, self.gender.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.RACE, self.race.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR, self.habit_honor.interval.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS, self.habit_honor.interval.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARCHETYPE, self.preferences.archetype.value).id,
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, self.position.get_terrain().value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, terrain.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_TERRAIN, terrain.meta_terrain.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_HEIGHT, terrain.meta_height.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_VEGETATION, terrain.meta_vegetation.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE, self.actions.current_action.ui_type.value).id)
 
     def heal(self, delta):
