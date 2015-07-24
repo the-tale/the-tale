@@ -7,8 +7,12 @@ from django.conf import settings as project_settings
 
 from the_tale.game.balance import constants as c, formulas as f
 
-from the_tale.game.heroes import relations
-from the_tale.game.heroes import conf
+from the_tale.game.mobs import relations as mobs_relations
+
+from the_tale.game import relations as game_relations
+
+from . import relations
+from . import conf
 
 
 class LogicAccessorsMixin(object):
@@ -526,3 +530,14 @@ class LogicAccessorsMixin(object):
                 negative_bonus = c.HERO_POWER_BONUS
 
         return (int(power * multiplier), positive_bonus * multiplier, negative_bonus * multiplier)
+
+    mob_type = mobs_relations.MOB_TYPE.CIVILIZED
+    intellect_level = game_relations.INTELLECT_LEVEL.NORMAL
+    communication_verbal = game_relations.COMMUNICATION_VERBAL.CAN
+    communication_gestures = game_relations.COMMUNICATION_GESTURES.CAN
+
+    @property
+    def communication_telepathic(self):
+        if self.power.physic < self.power.magic:
+            return game_relations.COMMUNICATION_GESTURES.CAN
+        return game_relations.COMMUNICATION_GESTURES.CAN_NOT

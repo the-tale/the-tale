@@ -116,3 +116,28 @@ class SUPERVISOR_TASK_STATE(DjangoEnum):
     records = ( ('WAITING', 0, u'ожидает ресурсы'),
                 ('PROCESSED', 1, u'обработана'),
                 ('ERROR', 2, u'ошибка при обработке'), )
+
+class COMMUNICATION_VERBAL(DjangoEnum):
+    records = ( ('CAN_NOT', 0, u'может'),
+                ('CAN', 1, u'не может'), )
+
+class COMMUNICATION_GESTURES(DjangoEnum):
+    records = ( ('CAN_NOT', 0, u'может'),
+                ('CAN', 1, u'не может'), )
+
+class COMMUNICATION_TELEPATHIC(DjangoEnum):
+    records = ( ('CAN_NOT', 0, u'может'),
+                ('CAN', 1, u'не может'), )
+
+class INTELLECT_LEVEL(DjangoEnum):
+    records = ( ('NONE', 0, u'отсутствует'),
+                ('REFLEXES', 1, u'рефлексы'),
+                ('INSTINCTS', 2, u'инстинкты'),
+                ('LOW', 3, u'низкий'),
+                ('NORMAL', 4, u'нормальный'),
+                ('HIGHT', 5, u'гений') )
+
+class ACTOR(DjangoEnum):
+    records = ( ('HERO', 0, u'герой'),
+                ('MOB', 1, u'монстр'),
+                ('PERSON', 2, u'советник')  )

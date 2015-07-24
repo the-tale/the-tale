@@ -188,7 +188,11 @@ class GameMobResource(MobResourceBase):
                                         terrains=form.c.terrains,
                                         editor=self.account,
                                         global_action_probability=form.c.global_action_probability,
-                                        state=MOB_RECORD_STATE.DISABLED)
+                                        state=MOB_RECORD_STATE.DISABLED,
+                                        communication_verbal=form.c.communication_verbal,
+                                        communication_gestures=form.c.communication_gestures,
+                                        communication_telepathic=form.c.communication_telepathic,
+                                        intellect_level=form.c.intellect_level)
         return self.json_ok(data={'next_url': reverse('guide:mobs:show', args=[mob.id])})
 
 

@@ -35,21 +35,21 @@ from the_tale.game.companions import objects as companions_objects
 
 from the_tale.game.bills import conf as bills_conf
 
-from the_tale.game.heroes.statistics import HeroStatistics
-from the_tale.game.heroes.models import Hero, HeroPreferences
-from the_tale.game.heroes.habilities import AbilitiesPrototype
-from the_tale.game.heroes.conf import heroes_settings
-from the_tale.game.heroes import exceptions
-from the_tale.game.heroes.pvp import PvPData
-from the_tale.game.heroes import messages
-from the_tale.game.heroes import places_help_statistics
-from the_tale.game.heroes import relations
-from the_tale.game.heroes import habits
-from the_tale.game.heroes import logic_accessors
-from the_tale.game.heroes import shop_accessors
-from the_tale.game.heroes import equipment_methods
-from the_tale.game.heroes import bag
-from the_tale.game.heroes import storage
+from .statistics import HeroStatistics
+from .models import Hero, HeroPreferences
+from .habilities import AbilitiesPrototype
+from .conf import heroes_settings
+from . import exceptions
+from . import pvp
+from . import messages
+from . import places_help_statistics
+from . import relations
+from . import habits
+from . import logic_accessors
+from . import shop_accessors
+from . import equipment_methods
+from . import bag
+from . import storage
 
 
 class HeroPrototype(BasePrototype,
@@ -79,11 +79,13 @@ class HeroPrototype(BasePrototype,
     _serialization_proxies = (('quests', QuestsContainer, heroes_settings.UNLOAD_TIMEOUT),
                               ('places_history', places_help_statistics.PlacesHelpStatistics, heroes_settings.UNLOAD_TIMEOUT),
                               ('cards', CardsContainer, heroes_settings.UNLOAD_TIMEOUT),
-                              ('pvp', PvPData, heroes_settings.UNLOAD_TIMEOUT),
+                              ('pvp', pvp.PvPData, heroes_settings.UNLOAD_TIMEOUT),
                               ('diary', messages.DiaryContainer, heroes_settings.UNLOAD_TIMEOUT),
                               ('abilities', AbilitiesPrototype, None),
                               ('bag', bag.Bag, None),
                               ('equipment', bag.Equipment, None))
+
+    type
 
     def __init__(self, *argv, **kwargs):
         super(HeroPrototype, self).__init__(*argv, **kwargs)
@@ -145,8 +147,6 @@ class HeroPrototype(BasePrototype,
     ###########################################
     # Base attributes
     ###########################################
-
-    mob_type = None
 
     @property
     def gender_verbose(self): return self.gender.text
@@ -368,7 +368,7 @@ class HeroPrototype(BasePrototype,
 
     @lazy_property
     def preferences(self):
-        from the_tale.game.heroes.preferences import HeroPreferences
+        from .preferences import HeroPreferences
 
         preferences = HeroPreferences.deserialize(hero=self, data=s11n.from_json(self._model.preferences))
 
@@ -485,7 +485,12 @@ class HeroPrototype(BasePrototype,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_TERRAIN, terrain.meta_terrain.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_HEIGHT, terrain.meta_height.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_VEGETATION, terrain.meta_vegetation.value).id,
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE, self.actions.current_action.ui_type.value).id)
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE, self.actions.current_action.ui_type.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_VERBAL, self.communication_verbal.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_GESTURES, self.communication_gestures.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC, self.communication_telepathic.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL, self.intellect_level.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTOR, game_relations.ACTOR.HERO.value).id)
 
     def heal(self, delta):
         if delta < 0:

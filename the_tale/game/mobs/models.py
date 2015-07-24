@@ -38,6 +38,12 @@ class MobRecord(models.Model):
 
     data = models.TextField(null=False, default='{}')
 
+    communication_verbal = RelationIntegerField(relation=game_relations.COMMUNICATION_VERBAL, db_index=True)
+    communication_gestures = RelationIntegerField(relation=game_relations.COMMUNICATION_GESTURES, db_index=True)
+    communication_telepathic = RelationIntegerField(relation=game_relations.COMMUNICATION_TELEPATHIC, db_index=True)
+
+    intellect_level = RelationIntegerField(relation=game_relations.INTELLECT_LEVEL, db_index=True)
+
     class Meta:
         permissions = (("create_mobrecord", u"Может предлагать мобов"),
                        ("moderate_mobrecord", u"Может утверждать мобов"),)

@@ -123,4 +123,13 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
                 ('META_TERRAIN', 21, u'мета тип местности', map_relations.META_TERRAIN),
                 ('META_HEIGHT', 22, u'мета тип высоты', map_relations.META_HEIGHT),
                 ('META_VEGETATION', 23, u'мета тип растительности', map_relations.META_VEGETATION),
+
+                ('COMMUNICATION_VERBAL', 24, u'вербальная коммуникация', game_relations.COMMUNICATION_VERBAL),
+                ('COMMUNICATION_GESTURES', 25, u'невербальная коммуникация', game_relations.COMMUNICATION_GESTURES),
+                ('COMMUNICATION_TELEPATHIC', 26, u'телепатия', game_relations.COMMUNICATION_TELEPATHIC),
+
+                ('INTELLECT_LEVEL', 27, u'уровень интеллекта', game_relations.INTELLECT_LEVEL),
+
+                ('ACTOR', 28, u'мета-тип существа', game_relations.ACTOR),
+
               )

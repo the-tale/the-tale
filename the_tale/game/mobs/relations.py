@@ -6,7 +6,7 @@ from rels.django import DjangoEnum
 
 class MOB_RECORD_STATE(DjangoEnum):
    records = ( ('ENABLED', 0, u'в игре'),
-                ('DISABLED', 1, u'вне игры'),)
+               ('DISABLED', 1, u'вне игры'),)
 
 
 class MOB_TYPE(DjangoEnum):
@@ -23,7 +23,8 @@ class MOB_TYPE(DjangoEnum):
                 ('INSECT', 7, u'насекомые', False, True),
                 ('DEMON', 8, u'демоны', False, False),
                 ('UNDEAD', 9, u'нежить', False, False),
-                ('MONSTER', 10, u'чудовища', False, True))
+                ('MONSTER', 10, u'чудовища', False, True),
+                ('CHIMERA', 11, u'химеры', False, True) )
 
 
 class INDEX_ORDER_TYPE(DjangoEnum):
