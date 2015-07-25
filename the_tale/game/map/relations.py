@@ -10,7 +10,7 @@ class META_TERRAIN(DjangoEnum):
                 ('MOUNTAINS', 1, u'горы'),
                 ('DESERT', 2, u'пустыня'),
                 ('SWAMP', 3, u'болото'),
-                ('NORMAL', 4, u'обычные'),
+                ('NORMAL', 4, u'зелень'),
                 ('JUNGLE', 5, u'джунгли') )
 
 class META_HEIGHT(DjangoEnum):

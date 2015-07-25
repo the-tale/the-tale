@@ -29,7 +29,7 @@ class AbilityPrototype(object):
 
 
     def check_hero_conditions(self, hero, data):
-        return hero.energy_full >= max(1, self.TYPE.cost - hero.energy_discount)
+        return hero.energy_full >= max(0, self.TYPE.cost - hero.energy_discount)
 
 
     def hero_actions(self, hero, data):
