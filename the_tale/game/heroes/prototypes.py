@@ -36,7 +36,7 @@ from the_tale.game.companions import objects as companions_objects
 from the_tale.game.bills import conf as bills_conf
 
 from .statistics import HeroStatistics
-from .models import Hero, HeroPreferences
+from . import models
 from .habilities import AbilitiesPrototype
 from .conf import heroes_settings
 from . import exceptions
@@ -57,7 +57,7 @@ class HeroPrototype(BasePrototype,
                     shop_accessors.ShopAccessorsMixin,
                     equipment_methods.EquipmentMethodsMixin,
                     names.ManageNameMixin):
-    _model_class = Hero
+    _model_class = models.Hero
     _readonly = ('id', 'account_id', 'created_at_turn', 'experience', 'money', 'energy', 'level', 'saved_at_turn', 'saved_at', 'is_bot')
     _bidirectional = ('is_alive',
                       'is_fast',
@@ -358,7 +358,7 @@ class HeroPrototype(BasePrototype,
 
     @property
     def need_regenerate_energy(self):
-        return TimePrototype.get_current_turn_number() > self.last_energy_regeneration_at_turn + f.angel_energy_regeneration_delay(self.preferences.energy_regeneration_type)
+        return TimePrototype.get_current_turn_number() > self.last_energy_regeneration_at_turn + self.preferences.energy_regeneration_type.period
 
     @lazy_property
     def position(self): return HeroPositionPrototype(hero=self)
@@ -734,26 +734,25 @@ class HeroPrototype(BasePrototype,
 
         utg_name = names.generator.get_name(race, gender)
 
-        hero = Hero.objects.create(created_at_turn=current_turn_number,
-                                   saved_at_turn=current_turn_number,
-                                   active_state_end_at=account.active_end_at,
-                                   premium_state_end_at=account.premium_end_at,
-                                   account=account._model,
-                                   gender=gender,
-                                   race=race,
-                                   is_fast=account.is_fast,
-                                   is_bot=account.is_bot,
-                                   abilities=s11n.to_json(AbilitiesPrototype.create().serialize()),
-                                   messages=s11n.to_json(messages.JournalContainer().serialize()),
-                                   diary=s11n.to_json(messages.DiaryContainer().serialize()),
-                                   settings_approved=False,
-                                   next_spending=relations.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT,
-                                   health=f.hp_on_lvl(1),
-                                   energy=c.ANGEL_ENERGY_MAX,
-                                   energy_bonus=heroes_settings.START_ENERGY_BONUS,
-                                   pos_place = start_place._model,
-
-                                   data=s11n.to_json({'name': utg_name.serialize()}))
+        hero = cls._model_class.objects.create(created_at_turn=current_turn_number,
+                                               saved_at_turn=current_turn_number,
+                                               active_state_end_at=account.active_end_at,
+                                               premium_state_end_at=account.premium_end_at,
+                                               account=account._model,
+                                               gender=gender,
+                                               race=race,
+                                               is_fast=account.is_fast,
+                                               is_bot=account.is_bot,
+                                               abilities=s11n.to_json(AbilitiesPrototype.create().serialize()),
+                                               messages=s11n.to_json(messages.JournalContainer().serialize()),
+                                               diary=s11n.to_json(messages.DiaryContainer().serialize()),
+                                               settings_approved=False,
+                                               next_spending=relations.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT,
+                                               health=f.hp_on_lvl(1),
+                                               energy=c.ANGEL_ENERGY_MAX,
+                                               energy_bonus=heroes_settings.START_ENERGY_BONUS,
+                                               pos_place = start_place._model,
+                                               data=s11n.to_json({'name': utg_name.serialize()}) )
 
         hero = cls(model=hero)
 
@@ -1160,7 +1159,7 @@ class HeroPositionPrototype(object):
 
 
 class HeroPreferencesPrototype(BasePrototype):
-    _model_class = HeroPreferences
+    _model_class = models.HeroPreferences
     _readonly = ('id',
                  'hero_id',
                  'energy_regeneration_type',

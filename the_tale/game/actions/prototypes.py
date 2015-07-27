@@ -15,7 +15,7 @@ from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.heroes.relations import MONEY_SOURCE
 
-from the_tale.game.balance import constants as c, formulas as f, enums as e
+from the_tale.game.balance import constants as c, formulas as f
 
 from the_tale.game.quests import logic as quests_logic
 
@@ -544,7 +544,7 @@ class ActionIdlenessPrototype(ActionBase):
                 self.state = self.STATE.QUEST
                 ActionQuestPrototype.create(hero=self.hero)
 
-            elif self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
+            elif self.hero.need_regenerate_energy and not self.hero.preferences.energy_regeneration_type.is_SACRIFICE:
                 ActionRegenerateEnergyPrototype.create(hero=self.hero)
                 self.state = self.STATE.REGENERATE_ENERGY
 
@@ -869,7 +869,7 @@ class ActionMoveToPrototype(ActionBase):
 
     def process_moving(self):
 
-        if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
+        if self.hero.need_regenerate_energy and not self.hero.preferences.energy_regeneration_type.is_SACRIFICE:
             ActionRegenerateEnergyPrototype.create(hero=self.hero)
             self.state = self.STATE.REGENERATE_ENERGY
 
@@ -1455,7 +1455,7 @@ class ActionInPlacePrototype(ActionBase):
             if random.uniform(0, 1) < c.HABIT_IN_PLACE_EVENTS_IN_TURN:
                 self.do_events()
 
-            if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
+            if self.hero.need_regenerate_energy and not self.hero.preferences.energy_regeneration_type.is_SACRIFICE:
                 self.state = self.STATE.REGENERATE_ENERGY
                 ActionRegenerateEnergyPrototype.create(hero=self.hero)
 
@@ -1715,7 +1715,7 @@ class ActionMoveNearPlacePrototype(ActionBase):
     def process_moving(self):
 
 
-        if self.hero.need_regenerate_energy and self.hero.preferences.energy_regeneration_type != e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE:
+        if self.hero.need_regenerate_energy and not self.hero.preferences.energy_regeneration_type.is_SACRIFICE:
             ActionRegenerateEnergyPrototype.create(hero=self.hero)
             self.state = self.STATE.REGENERATE_ENERGY
 
@@ -1808,35 +1808,38 @@ class ActionRegenerateEnergyPrototype(ActionBase):
     # Object operations
     ###########################################
 
+    # TODO: remove in v0.3.21
+    @classmethod
+    def deserialize(cls, hero, data):
+        obj = super(ActionRegenerateEnergyPrototype, cls).deserialize(hero, data)
+        if obj.textgen_id is None:
+            obj.textgen_id = 'action_regenerate_energy_%s' % random.choice(hero.preferences.energy_regeneration_type.linguistics_slugs)
+        return obj
+
     @classmethod
     def _create(cls, hero, bundle_id):
+        textgen_id = 'action_regenerate_energy_%s' % random.choice(hero.preferences.energy_regeneration_type.linguistics_slugs)
+
         prototype = cls( hero=hero,
                          bundle_id=bundle_id,
-                         state=cls.STATE.REGENERATE)
+                         state=cls.STATE.REGENERATE,
+                         textgen_id=textgen_id)
 
-        hero.add_message('action_regenerate_energy_start_%s' % cls.regeneration_slug(hero.preferences.energy_regeneration_type), hero=hero)
+        hero.add_message('%s_start' % textgen_id, hero=hero)
 
         return prototype
 
     @property
     def description_text_name(self):
-        return '%s_description_%s' % (self.TEXTGEN_TYPE, self.regeneration_slug(self.regeneration_type))
+        return '%s_description' % self.textgen_id
 
 
     @property
     def regeneration_type(self):
         return self.hero.preferences.energy_regeneration_type
 
-    @classmethod
-    def regeneration_slug(cls, regeneration_type):
-        return { e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 'pray',
-                 e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 'sacrifice',
-                 e.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE: 'incense',
-                 e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 'symbols',
-                 e.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 'meditation' }[regeneration_type]
-
     def step_percents(self):
-        return 1.0 / c.ANGEL_ENERGY_REGENERATION_STEPS[self.regeneration_type]
+        return 1.0 / self.regeneration_type.length
 
     def process(self):
 
@@ -1846,13 +1849,13 @@ class ActionRegenerateEnergyPrototype(ActionBase):
 
             if self.percents >= 1:
                 multiplier = 2 if self.hero.can_regenerate_double_energy else 1
-                energy_delta = self.hero.change_energy(f.angel_energy_regeneration_amount(self.regeneration_type)*multiplier)
+                energy_delta = self.hero.change_energy(self.regeneration_type.amount * multiplier)
                 self.hero.last_energy_regeneration_at_turn = TimePrototype.get_current_turn_number()
 
                 if energy_delta:
-                    self.hero.add_message('action_regenerate_energy_energy_received_%s' % self.regeneration_slug(self.regeneration_type), hero=self.hero, energy=energy_delta)
+                    self.hero.add_message('%s_energy_received' % self.textgen_id, hero=self.hero, energy=energy_delta)
                 else:
-                    self.hero.add_message('action_regenerate_energy_no_energy_received_%s' % self.regeneration_slug(self.regeneration_type), hero=self.hero)
+                    self.hero.add_message('%s_no_energy_received' % self.textgen_id, hero=self.hero)
 
                 self.state = self.STATE.PROCESSED
 

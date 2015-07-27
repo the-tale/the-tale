@@ -159,8 +159,8 @@ class MobPrototype(object):
                    health=data['health'],
                    is_boss=data.get('is_boss', False),
                    abilities=abilities,
-                   action_type=actions_relations.ACTION_TYPE(data['action_type']),
-                   terrain=map_relations.TERRAIN(data['terrain']))
+                   action_type=actions_relations.ACTION_TYPE(data['action_type']) if 'action_type' in data else actions_relations.ACTION_TYPE.BATTLE_PVE_1X1,
+                   terrain=map_relations.TERRAIN(data['terrain']) if 'terrain' in data else map_relations.TERRAIN.PLANE_GRASS)
 
     def update_context(self, actor, enemy):
         self.abilities.update_context(actor, enemy)

@@ -2,7 +2,7 @@
 
 from the_tale.common.utils import testcase
 
-from the_tale.game.balance import constants as c, enums as e
+from the_tale.game.balance import constants as c
 
 E = 0.00001
 
@@ -105,18 +105,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_TIME,  0.5)
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_PERIOD,  180)
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_AMAUNT, 1)
-
-        self.assertEqual(c.ANGEL_ENERGY_REGENERATION_DELAY, { e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 1,
-                                                              e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 2,
-                                                              e.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE: 4,
-                                                              e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 3,
-                                                              e.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 2 })
-
-        self.assertEqual(c.ANGEL_ENERGY_REGENERATION_STEPS, { e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 3,
-                                                              e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 5,
-                                                              e.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE: 6,
-                                                              e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 4,
-                                                              e.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 4 })
+        self.assertEqual(c.ANGEL_ENERGY_REGENERATION_LENGTH, 3)
 
         self.assertEqual(c.ANGEL_HELP_COST, 4)
         self.assertEqual(c.ANGEL_ARENA_COST, 1)

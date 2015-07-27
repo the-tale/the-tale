@@ -8,8 +8,6 @@ from django.db import models
 
 from the_tale.common.utils.prototypes import BasePrototype
 
-from the_tale.game.balance import enums as e
-
 from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.map.places.storage import places_storage
@@ -162,6 +160,9 @@ class HeroPreferences(object):
 
     def _prepair_person(self, person_id): return persons_storage.get(person_id)
 
+    def _prepair_energy_regeneration(self, energy_regeneration_id):
+        return relations.ENERGY_REGENERATION.index_value.get(int(energy_regeneration_id))
+
     def _prepair_equipment_slot(self, slot_id):
         if slot_id is None: return None
         return relations.EQUIPMENT_SLOT.index_value.get(int(slot_id))
@@ -194,11 +195,6 @@ class HeroPreferences(object):
         if preferences_type.base_name not in self.data:
             return default
         return datetime.datetime.fromtimestamp(self.data[preferences_type.base_name]['changed_at'])
-
-    @property
-    def energy_regeneration_type_name(self):
-        return e.ANGEL_ENERGY_REGENERATION_TYPES._ID_TO_TEXT[self.energy_regeneration_type]
-
 
     # helpers
 

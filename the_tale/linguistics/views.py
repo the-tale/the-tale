@@ -807,7 +807,6 @@ class TemplateResource(Resource):
         self._template.key = form.c.key
         self._template.parent_id = None
         self._template.state = relations.TEMPLATE_STATE.ON_REVIEW
-        del self._template.verificators[:]
 
         self._template.save()
 

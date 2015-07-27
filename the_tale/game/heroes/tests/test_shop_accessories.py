@@ -1,6 +1,5 @@
 # coding: utf-8
 import mock
-import datetime
 
 from the_tale.common.utils import testcase
 
@@ -9,7 +8,6 @@ from the_tale.accounts.logic import register_user
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.balance import enums as e
 from the_tale.game.balance.power import Power
 from the_tale.game.logic_storage import LogicStorage
 

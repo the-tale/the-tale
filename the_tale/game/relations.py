@@ -10,7 +10,6 @@ from utg import relations as utg_relations
 from the_tale.game.balance.power import  PowerDistribution
 from the_tale.game.artifacts.relations import ARTIFACT_POWER_TYPE
 
-from the_tale.game.balance import enums as e
 from the_tale.game.balance import constants as c
 from the_tale.game import technical_words
 
@@ -20,8 +19,8 @@ class GENDER(DjangoEnum):
     pynames_id = Column(unique=False)
 
     records = ( ('MASCULINE', 0, u'мужчина', utg_relations.GENDER.MASCULINE, PYNAMES_GENDER.MALE),
-                 ('FEMININE', 1, u'женщина', utg_relations.GENDER.FEMININE, PYNAMES_GENDER.FEMALE),
-                 ('NEUTER', 2, u'оно', utg_relations.GENDER.NEUTER, PYNAMES_GENDER.MALE) )
+                ('FEMININE', 1, u'женщина', utg_relations.GENDER.FEMININE, PYNAMES_GENDER.FEMALE),
+                ('NEUTER', 2, u'оно', utg_relations.GENDER.NEUTER, PYNAMES_GENDER.MALE) )
 
 
 def _race_linguistics_restrictions(race):
@@ -33,20 +32,19 @@ def _race_linguistics_restrictions(race):
 
 class RACE(DjangoEnum):
     multiple_text = Column()
-    energy_regeneration = Column()
     utg_name_form = Column()
     linguistics_restrictions = Column()
 
-    records = ( ('HUMAN', 0, u'человек', u'люди', e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY,
+    records = ( ('HUMAN', 0, u'человек', u'люди',
                  technical_words.RACE_HUMANS, _race_linguistics_restrictions('HUMAN')),
-                 ('ELF', 1, u'эльф', u'эльфы', e.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE,
-                  technical_words.RACE_ELFS, _race_linguistics_restrictions('ELF')),
-                 ('ORC', 2, u'орк',  u'орки', e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE,
-                  technical_words.RACE_ORCS, _race_linguistics_restrictions('ORC')),
-                 ('GOBLIN', 3, u'гоблин', u'гоблины', e.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION,
-                  technical_words.RACE_GOBLINS, _race_linguistics_restrictions('GOBLIN')),
-                 ('DWARF', 4, u'дварф', u'дварфы', e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS,
-                  technical_words.RACE_DWARFS, _race_linguistics_restrictions('DWARF')) )
+                ('ELF', 1, u'эльф', u'эльфы',
+                 technical_words.RACE_ELFS, _race_linguistics_restrictions('ELF')),
+                ('ORC', 2, u'орк',  u'орки',
+                 technical_words.RACE_ORCS, _race_linguistics_restrictions('ORC')),
+                ('GOBLIN', 3, u'гоблин', u'гоблины',
+                 technical_words.RACE_GOBLINS, _race_linguistics_restrictions('GOBLIN')),
+                ('DWARF', 4, u'дварф', u'дварфы',
+                 technical_words.RACE_DWARFS, _race_linguistics_restrictions('DWARF')) )
 
 
 class GAME_STATE(DjangoEnum):

@@ -72,7 +72,7 @@ def prepair_get_text(key, args, quiet=False):
     if (not game_lexicon.item.has_key(lexicon_key) and
         not quiet and
         not project_settings.TESTS_RUNNING):
-        logger.warn('unknown template type: %s', lexicon_key)
+        logger.warn('no ingame templates for key: %s', lexicon_key)
 
     return lexicon_key, externals, restrictions
 

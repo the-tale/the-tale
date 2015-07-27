@@ -281,6 +281,7 @@ class HeroResource(Resource):
                               'RISK_LEVEL': relations.RISK_LEVEL,
                               'COMPANION_DEDICATION': relations.COMPANION_DEDICATION,
                               'COMPANION_EMPATHY': relations.COMPANION_EMPATHY,
+                              'ENERGY_REGENERATION': relations.ENERGY_REGENERATION,
                               'ARCHETYPE': game_relations.ARCHETYPE} )
 
     @login_required

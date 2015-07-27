@@ -54,7 +54,7 @@ class RegenerateEnergyActionTest(testcase.TestCase):
             current_time.increment_turn()
 
         self.assertTrue(self.action_idl.leader)
-        self.assertEqual(self.hero.energy, f.angel_energy_regeneration_amount(self.hero.preferences.energy_regeneration_type))
+        self.assertEqual(self.hero.energy, self.hero.preferences.energy_regeneration_type.amount)
         self.assertEqual(self.hero.need_regenerate_energy, False)
         self.assertEqual(self.hero.last_energy_regeneration_at_turn, TimePrototype.get_current_turn_number()-1)
 
@@ -71,7 +71,7 @@ class RegenerateEnergyActionTest(testcase.TestCase):
             current_time.increment_turn()
 
         self.assertTrue(self.action_idl.leader)
-        self.assertEqual(self.hero.energy, f.angel_energy_regeneration_amount(self.hero.preferences.energy_regeneration_type) * 2)
+        self.assertEqual(self.hero.energy, self.hero.preferences.energy_regeneration_type.amount * 2)
         self.assertEqual(self.hero.need_regenerate_energy, False)
         self.assertEqual(self.hero.last_energy_regeneration_at_turn, TimePrototype.get_current_turn_number()-1)
 

@@ -20,8 +20,6 @@ from the_tale.game.map.places.models import Place
 
 from the_tale.game.logic_storage import LogicStorage
 
-from the_tale.game.balance import enums as e
-
 from the_tale.game import relations as game_relations
 
 from the_tale.game.persons.models import Person
@@ -67,7 +65,7 @@ class HeroPreferencesEnergyRegenerationTypeTest(PreferencesTestMixin, TestCase):
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.hero._model.level = relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE.level_required
-        self.hero.preferences.set_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE, change_time=datetime.datetime.fromtimestamp(0))
+        self.hero.preferences.set_energy_regeneration_type(relations.ENERGY_REGENERATION.SACRIFICE, change_time=datetime.datetime.fromtimestamp(0))
         self.hero.save()
 
     def test_preferences_serialization(self):
@@ -76,12 +74,12 @@ class HeroPreferencesEnergyRegenerationTypeTest(PreferencesTestMixin, TestCase):
 
     def test_save(self):
         self.assertFalse(self.hero.preferences.updated)
-        self.hero.preferences.set_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY)
+        self.hero.preferences.set_energy_regeneration_type(relations.ENERGY_REGENERATION.PRAY)
         self.assertTrue(self.hero.preferences.updated)
         self.hero.save()
         self.assertFalse(self.hero.preferences.updated)
         self.hero.reload()
-        self.assertEqual(self.hero.preferences.energy_regeneration_type, e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY)
+        self.assertEqual(self.hero.preferences.energy_regeneration_type, relations.ENERGY_REGENERATION.PRAY)
 
     def test_create(self):
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, 666)
@@ -115,7 +113,9 @@ class HeroPreferencesEnergyRegenerationTypeTest(PreferencesTestMixin, TestCase):
         self.assertNotEqual(self.hero.preferences.energy_regeneration_type, None)
 
     def check_change_energy_regeneration_type(self, new_energy_regeneration_type, expected_energy_regeneration_type, expected_state):
-        task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, new_energy_regeneration_type)
+        task = ChoosePreferencesTask(self.hero.id,
+                                     relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE,
+                                     new_energy_regeneration_type.value if new_energy_regeneration_type is not None else None)
         self.assertNotEqual(self.hero.preferences.energy_regeneration_type, new_energy_regeneration_type)
 
         process_result = task.process(FakePostpondTaskPrototype(), self.storage)
@@ -126,20 +126,20 @@ class HeroPreferencesEnergyRegenerationTypeTest(PreferencesTestMixin, TestCase):
         self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).energy_regeneration_type, expected_energy_regeneration_type)
 
     def test_change_energy_regeneration_type(self):
-        self.check_change_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
+        self.check_change_energy_regeneration_type(relations.ENERGY_REGENERATION.PRAY, relations.ENERGY_REGENERATION.PRAY, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
 
     def test_change_energy_regeneration_type_cooldown(self):
-        task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS)
+        task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, relations.ENERGY_REGENERATION.SYMBOLS.value)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
-        self.check_change_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
+        self.check_change_energy_regeneration_type(relations.ENERGY_REGENERATION.PRAY, relations.ENERGY_REGENERATION.SYMBOLS, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
     def test_remove_energy_regeneration_type(self):
-        self.check_change_energy_regeneration_type(None, e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE, CHOOSE_PREFERENCES_TASK_STATE.UNSPECIFIED_PREFERENCE)
+        self.check_change_energy_regeneration_type(None, relations.ENERGY_REGENERATION.SACRIFICE, CHOOSE_PREFERENCES_TASK_STATE.UNSPECIFIED_PREFERENCE)
 
     def test_remove_energy_regeneration_type_cooldown(self):
-        task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS)
+        task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, relations.ENERGY_REGENERATION.SYMBOLS.value)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
-        self.check_change_energy_regeneration_type(None, e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
+        self.check_change_energy_regeneration_type(None, relations.ENERGY_REGENERATION.SYMBOLS, CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN)
 
 
 class HeroPreferencesMobTest(PreferencesTestMixin, TestCase):
@@ -1644,7 +1644,7 @@ class HeroPreferencesRequestsTest(TestCase):
     def test_preferences_dialog_energy_regeneration(self):
         self.request_login('test_user@test.com')
         response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE.value))
-        self.check_html_ok(response, texts=[text.capitalize() for text in e.ANGEL_ENERGY_REGENERATION_TYPES._ID_TO_TEXT.values()])
+        self.check_html_ok(response, texts=[record.text.capitalize() for record in relations.ENERGY_REGENERATION.records])
 
 
     def test_preferences_dialog_mob(self):
