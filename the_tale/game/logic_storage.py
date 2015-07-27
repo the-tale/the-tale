@@ -4,6 +4,8 @@ import time
 import datetime
 import contextlib
 
+from django.conf import settings as project_settings
+
 from dext.common.utils import cache
 
 from the_tale.game.heroes.prototypes import HeroPrototype
@@ -162,6 +164,9 @@ class LogicStorage(object):
         try:
             yield
         except Exception:
+            if project_settings.TESTS_RUNNING:
+                raise
+
             if logger:
                 logger.error(message % data)
                 logger.error('Exception',

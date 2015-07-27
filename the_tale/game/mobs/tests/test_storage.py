@@ -11,7 +11,8 @@ from the_tale.game import names
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.map.relations import TERRAIN
+from the_tale.game.map import relations as map_relations
+from the_tale.game.actions import relations as actions_relations
 
 from the_tale.game.heroes.prototypes import HeroPrototype
 
@@ -42,7 +43,7 @@ class MobsStorageTests(testcase.TestCase):
                                                 utg_name=names.generator.get_test_name(name='bandint'),
                                                 description='description',
                                                 abilities=['hit'],
-                                                terrains=[TERRAIN.PLANE_SAND],
+                                                terrains=[map_relations.TERRAIN.PLANE_SAND],
                                                 type=MOB_TYPE.CIVILIZED,
                                                 state=MOB_RECORD_STATE.ENABLED)
         self.bandint_wrong = MobRecordPrototype.create(uuid='bandit_wrong',
@@ -50,7 +51,7 @@ class MobsStorageTests(testcase.TestCase):
                                                        utg_name=names.generator.get_test_name(name='bandit_wrong'),
                                                        description='bandit_wrong description',
                                                        abilities=['hit'],
-                                                       terrains=[TERRAIN.PLANE_SAND],
+                                                       terrains=[map_relations.TERRAIN.PLANE_SAND],
                                                        type=MOB_TYPE.CIVILIZED,
                                                        state=MOB_RECORD_STATE.DISABLED)
 
@@ -62,35 +63,35 @@ class MobsStorageTests(testcase.TestCase):
         self.assertTrue(mobs_storage.mob_type_fraction(MOB_TYPE.CIVILIZED) > 2.0 / 5)
 
     def test_get_available_mobs_list(self):
-        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, TERRAIN.PLANE_SAND)]
+        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, map_relations.TERRAIN.PLANE_SAND)]
         self.assertEqual(frozenset(mobs_in_forest), frozenset([self.mob_1.uuid, self.mob_2.uuid, self.mob_3.uuid, self.bandit.uuid]))
 
-        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, TERRAIN.PLANE_GRASS)]
+        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, map_relations.TERRAIN.PLANE_GRASS)]
         self.assertEqual(frozenset(mobs_in_forest), frozenset([self.mob_1.uuid, self.mob_2.uuid, self.mob_3.uuid]))
 
-        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(0, TERRAIN.PLANE_SAND)]
+        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(0, map_relations.TERRAIN.PLANE_SAND)]
         self.assertEqual(frozenset(mobs_in_forest), frozenset())
 
     def test_get_available_mobs_list__mercenary__true(self):
 
-        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, TERRAIN.PLANE_SAND, mercenary=True)]
+        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, map_relations.TERRAIN.PLANE_SAND, mercenary=True)]
         self.assertEqual(frozenset(mobs_in_forest), frozenset([self.mob_1.uuid, self.mob_3.uuid, self.bandit.uuid]))
 
-        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, TERRAIN.PLANE_GRASS, mercenary=True)]
+        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, map_relations.TERRAIN.PLANE_GRASS, mercenary=True)]
         self.assertEqual(frozenset(mobs_in_forest), frozenset([self.mob_1.uuid, self.mob_3.uuid]))
 
-        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(0, TERRAIN.PLANE_SAND, mercenary=True)]
+        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(0, map_relations.TERRAIN.PLANE_SAND, mercenary=True)]
         self.assertEqual(frozenset(mobs_in_forest), frozenset())
 
 
     def test_get_available_mobs_list__mercenary__false(self):
-        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, TERRAIN.PLANE_SAND, mercenary=False)]
+        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, map_relations.TERRAIN.PLANE_SAND, mercenary=False)]
         self.assertEqual(frozenset(mobs_in_forest), frozenset([self.mob_2.uuid]))
 
-        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, TERRAIN.PLANE_GRASS, mercenary=False)]
+        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, map_relations.TERRAIN.PLANE_GRASS, mercenary=False)]
         self.assertEqual(frozenset(mobs_in_forest), frozenset([self.mob_2.uuid]))
 
-        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(0, TERRAIN.PLANE_SAND, mercenary=False)]
+        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(0, map_relations.TERRAIN.PLANE_SAND, mercenary=False)]
         self.assertEqual(frozenset(mobs_in_forest), frozenset())
 
     @mock.patch('the_tale.game.mobs.storage.MobsStorage.get_available_mobs_list', mock.Mock(return_value=[]))
@@ -114,6 +115,28 @@ class MobsStorageTests(testcase.TestCase):
         self.assertFalse(normal_mob.is_boss)
 
         self.assertTrue(boss.max_health > normal_mob.max_health)
+
+    def test_get_random_mob__action_type(self):
+        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
+        hero = HeroPrototype.get_by_account_id(account_id)
+
+        action_type = actions_relations.ACTION_TYPE.random()
+
+        with mock.patch('the_tale.game.actions.prototypes.ActionBase.ui_type', action_type):
+            mob = mobs_storage.get_random_mob(hero)
+
+        self.assertEqual(mob.action_type, action_type)
+
+    def test_get_random_mob__terrain(self):
+        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
+        hero = HeroPrototype.get_by_account_id(account_id)
+
+        terrain = map_relations.TERRAIN.random()
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.get_terrain', lambda h: terrain):
+            mob = mobs_storage.get_random_mob(hero)
+
+        self.assertEqual(mob.terrain, terrain)
 
     def test_choose_mob__when_actions(self):
         result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')

@@ -17,12 +17,13 @@ from the_tale.game.heroes.habilities import AbilitiesPrototype
 from the_tale.game.balance import formulas as f
 from the_tale.game.balance.power import Damage
 
-from the_tale.game.map.relations import TERRAIN
+from the_tale.game.map import relations as map_relations
 
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
 from the_tale.game.heroes.relations import MODIFIERS as HERO_MODIFIERS
 
 from the_tale.game import relations as game_relations
+from the_tale.game.actions import relations as actions_relations
 
 from the_tale.game.artifacts.storage import artifacts_storage
 
@@ -36,9 +37,16 @@ class MobException(Exception): pass
 
 class MobPrototype(object):
 
-    __slots__ = ('record_id', 'level', 'abilities', 'initiative', 'health_cooficient', 'damage_modifier', 'max_health', 'health', 'is_boss')
+    __slots__ = ('record_id', 'level', 'abilities', 'initiative', 'health_cooficient', 'damage_modifier', 'max_health', 'health', 'is_boss', 'action_type', 'terrain')
 
-    def __init__(self, record_id=None, level=None, health=None, abilities=None, is_boss=False):
+    def __init__(self,
+                 record_id=None,
+                 level=None,
+                 health=None,
+                 abilities=None,
+                 is_boss=False,
+                 action_type=actions_relations.ACTION_TYPE.BATTLE_PVE_1X1,
+                 terrain=map_relations.TERRAIN.PLANE_GRASS):
 
         self.record_id = record_id
         self.level = level
@@ -56,6 +64,9 @@ class MobPrototype(object):
             self.max_health = int(f.mob_hp_to_lvl(level) * self.health_cooficient)
 
         self.health = self.max_health if health is None else health
+
+        self.action_type = action_type
+        self.terrain = terrain
 
     @property
     def record(self):
@@ -106,7 +117,12 @@ class MobPrototype(object):
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_GESTURES, self.record.communication_gestures.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC, self.record.communication_telepathic.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL, self.record.intellect_level.value).id,
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTOR, game_relations.ACTOR.MOB.value).id )
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTOR, game_relations.ACTOR.MOB.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, self.terrain.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_TERRAIN, self.terrain.meta_terrain.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_HEIGHT, self.terrain.meta_height.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_VEGETATION, self.terrain.meta_vegetation.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE, self.action_type.value).id)
 
     def strike_by(self, percents):
         self.health = max(0, self.health - self.max_health * percents)
@@ -118,7 +134,9 @@ class MobPrototype(object):
         return {'level': self.level,
                 'id': self.id,
                 'is_boss': self.is_boss,
-                'health': self.health}
+                'health': self.health,
+                'action_type': self.action_type.value,
+                'terrain': self.terrain.value}
 
     @classmethod
     def deserialize(cls, data):
@@ -140,7 +158,9 @@ class MobPrototype(object):
                    level=level,
                    health=data['health'],
                    is_boss=data.get('is_boss', False),
-                   abilities=abilities)
+                   abilities=abilities,
+                   action_type=actions_relations.ACTION_TYPE(data['action_type']),
+                   terrain=map_relations.TERRAIN(data['terrain']))
 
     def update_context(self, actor, enemy):
         self.abilities.update_context(actor, enemy)
@@ -191,7 +211,7 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
 
     def get_terrains(self):
         if not hasattr(self, '_terrains'):
-            self._terrains = frozenset(TERRAIN(terrain) for terrain in s11n.from_json(self._model.terrains))
+            self._terrains = frozenset(map_relations.TERRAIN(terrain) for terrain in s11n.from_json(self._model.terrains))
         return self._terrains
     def set_terrains(self, value):
         self._terrains = frozenset(value)
@@ -257,7 +277,7 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
         return MobPrototype(record_id=self.id, level=hero.level, is_boss=is_boss)
 
     @classmethod
-    def create_random(cls, uuid, type=relations.MOB_TYPE.CIVILIZED, level=1, abilities_number=3, terrains=TERRAIN.records, state=relations.MOB_RECORD_STATE.ENABLED, global_action_probability=0): # pylint: disable=W0102
+    def create_random(cls, uuid, type=relations.MOB_TYPE.CIVILIZED, level=1, abilities_number=3, terrains=map_relations.TERRAIN.records, state=relations.MOB_RECORD_STATE.ENABLED, global_action_probability=0): # pylint: disable=W0102
 
         name = u'mob_'+uuid.lower()
 

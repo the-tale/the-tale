@@ -398,7 +398,8 @@ class LogicStorageTests(testcase.TestCase):
 
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.process_turn', process_turn_raise_exception):
             with mock.patch('the_tale.game.logic_storage.LogicStorage._save_on_exception') as _save_on_exception:
-                self.storage.process_turn()
+                with mock.patch('django.conf.settings.TESTS_RUNNING', False):
+                    self.storage.process_turn()
 
         self.assertIn(self.hero_2.actions.current_action.bundle_id, self.storage.ignored_bundles)
 

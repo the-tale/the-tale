@@ -490,7 +490,9 @@ class HeroPrototype(BasePrototype,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_GESTURES, self.communication_gestures.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC, self.communication_telepathic.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL, self.intellect_level.value).id,
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTOR, game_relations.ACTOR.HERO.value).id)
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTOR, game_relations.ACTOR.HERO.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB_TYPE, self.mob_type.value).id)
+
 
     def heal(self, delta):
         if delta < 0:
