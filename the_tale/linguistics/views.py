@@ -132,7 +132,7 @@ class WordResource(Resource):
             words_query = words_query.filter(type=type.utg_type)
 
         if filter:
-            words_query = words_query.filter(normal_form__istartswith=filter.lower())
+            words_query = words_query.filter(forms__icontains=filter.lower())
 
         if order_by.is_UPDATED_AT:
             words_query = words_query.order_by('-updated_at')
