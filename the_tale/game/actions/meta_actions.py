@@ -209,8 +209,7 @@ class ArenaPvP1x1(MetaAction):
 
     def _check_hero_health(self, hero, enemy):
         if hero.health <= 0:
-            # hero.statistics.change_pve_deaths(1)
-            self.add_message('meta_action_arena_pvp_1x1_diary_kill', diary=True, victim=hero, killer=enemy)
+            self.add_message('meta_action_arena_pvp_1x1_kill', victim=hero, killer=enemy)
             self.state = self.STATE.BATTLE_ENDING
             self.percents = 1.0
 

@@ -7,7 +7,7 @@ KEYS = [(u'META_ACTION_ARENA_PVP_1X1_DESCRIPTION', 320000, u'Описание', 
          u'Краткая декларация того, что делает герой.',
          [V.DUELIST_2, V.DUELIST_1]),
 
-        (u'META_ACTION_ARENA_PVP_1X1_DIARY_KILL', 320001, u'Дневник: Победа', LEXICON_GROUP.META_ACTION_ARENA_PVP_1X1,
+        (u'META_ACTION_ARENA_PVP_1X1_KILL', 320001, u'Журнал: Победа', LEXICON_GROUP.META_ACTION_ARENA_PVP_1X1,
          u'Один из противников нанёс завершающий удар.',
          [V.KILLER, V.VICTIM]),
 

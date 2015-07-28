@@ -19,32 +19,32 @@ KEYS = [(u'ACTION_INPLACE_DESCRIPTION', 80000, u'Описание', LEXICON_GROU
         u'Герой тратит деньги на покупку нового, но аналогичного уже экипированному, артефакта, и меняет на него экипированный ранее. Старая экипировка продаётся, деньги с продажи остаются у героя.',
         [V.SELL_PRICE, V.COINS, V.HERO, V.ARTIFACT, V.COINS_DELTA]),
 
-        (u'ACTION_INPLACE_DIARY_EXPERIENCE', 80004, u'Дневник: Обучение', LEXICON_GROUP.ACTION_INPLACE,
+        (u'ACTION_INPLACE_DIARY_EXPERIENCE', 80004, u'Дневник: Траты на обучение', LEXICON_GROUP.ACTION_INPLACE,
         u'Герой тратит деньги, чтобы немного подучиться',
         [V.COINS, V.HERO, V.EXPERIENCE]),
 
-        (u'ACTION_INPLACE_DIARY_IMPACT_BAD', 80005, u'Дневник: Вредительство жителю', LEXICON_GROUP.ACTION_INPLACE,
+        (u'ACTION_INPLACE_DIARY_IMPACT_BAD', 80005, u'Дневник: Траты на вредительство жителю', LEXICON_GROUP.ACTION_INPLACE,
         u'Герой тратит деньги, чтобы навредить жителю города',
         [V.PERSON, V.COINS, V.HERO]),
 
-        (u'ACTION_INPLACE_DIARY_IMPACT_GOOD', 80006, u'Дневник: Помощь жителю', LEXICON_GROUP.ACTION_INPLACE,
+        (u'ACTION_INPLACE_DIARY_IMPACT_GOOD', 80006, u'Дневник: Траты на помощь жителю', LEXICON_GROUP.ACTION_INPLACE,
         u'Герой тратит деньги на помощь жителю города.',
         [V.PERSON, V.COINS, V.HERO]),
 
-        (u'ACTION_INPLACE_DIARY_INSTANT_HEAL_FOR_MONEY', 80007, u'Дневник: Лечение за деньги', LEXICON_GROUP.ACTION_INPLACE,
+        (u'ACTION_INPLACE_DIARY_INSTANT_HEAL_FOR_MONEY', 80007, u'Дневник: Траты на лечение', LEXICON_GROUP.ACTION_INPLACE,
         u'Герой тратит деньги на лечение.',
         [V.COINS, V.HERO]),
 
-        (u'ACTION_INPLACE_DIARY_REPAIRING_ARTIFACT', 80008, u'Дневник: починка артефакта', LEXICON_GROUP.ACTION_INPLACE,
+        (u'ACTION_INPLACE_DIARY_REPAIRING_ARTIFACT', 80008, u'Дневник: Траты на починку артефакта', LEXICON_GROUP.ACTION_INPLACE,
         u'Герой тратит деньги на починку артефакта.',
         [V.COINS, V.HERO, V.ARTIFACT]),
 
-        (u'ACTION_INPLACE_DIARY_SHARPENING_ARTIFACT', 80009, u'Дневник: Заточка артефакта', LEXICON_GROUP.ACTION_INPLACE,
+        (u'ACTION_INPLACE_DIARY_SHARPENING_ARTIFACT', 80009, u'Дневник: Траты на заточку артефакта', LEXICON_GROUP.ACTION_INPLACE,
         u'Герой тратит деньги на заточку артефакта.',
         [V.COINS, V.HERO, V.ARTIFACT]),
 
-        (u'ACTION_INPLACE_DIARY_SPEND_USELESS', 80010, u'Дневник: Бесполезные траты', LEXICON_GROUP.ACTION_INPLACE,
-        u'Герой тратит деньги на бесполезную вещь или занятие.',
+        (u'ACTION_INPLACE_DIARY_SPEND_USELESS', 80010, u'Дневник: Траты на себя', LEXICON_GROUP.ACTION_INPLACE,
+        u'Герой тратит деньги на удовлетворение своих, не обязательно полезных, желаний.',
         [V.COINS, V.HERO]),
 
         (u'ACTION_INPLACE_HABIT_EVENT_HONOR_LEFT_1', 80011, u'Дневник: запись о характере города (Честь: уровень -1)', LEXICON_GROUP.ACTION_INPLACE,
