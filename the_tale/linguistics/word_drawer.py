@@ -5,6 +5,7 @@ from dext.forms import forms
 
 from utg import words
 from utg import data as utg_data
+from utg import restrictions as utg_restrictions
 from utg import relations as utg_relations
 from utg import logic as utg_logic
 
@@ -75,7 +76,7 @@ class Leaf(object):
     def choose_base(self, base):
         real_properties = tuple(property
                                 for property in base.schema
-                                if all(property not in utg_data.RESTRICTIONS[self.type].get(key, []) for key in self.key.values() if key is not None))
+                                if all(property not in utg_restrictions.RESTRICTIONS[self.type].get(key, []) for key in self.key.values() if key is not None))
         return relations.WORD_BLOCK_BASE.index_schema[real_properties]
 
 
@@ -141,13 +142,9 @@ class ShowDrawer(BaseDrawer):
     def get_property(self, property):
 
         if property in self.type.properties:
-            if self.word.properties.is_specified(property):
+            if self.word.properties.is_specified(property) or self.type.properties[property]:
                 return self.get_property_html(utg_relations.PROPERTY_TYPE.index_relation[property].text,
                                               self.word.properties.get(property).text,
-                                              self.other_version.properties.get(property).text if self.other_version else None)
-            elif self.type.properties[property]:
-                return self.get_property_html(utg_relations.PROPERTY_TYPE.index_relation[property].text,
-                                              u'<strong style="color: red;">необходимо указать</strong>',
                                               self.other_version.properties.get(property).text if self.other_version else None)
             else:
                 alternative = None
