@@ -27,6 +27,8 @@ from the_tale.game.pvp.models import Battle1x1, BATTLE_1X1_STATE
 from the_tale.game.pvp.conf import pvp_settings
 from the_tale.game.pvp.abilities import ABILITIES, Ice, Blood, Flame
 
+from the_tale.game.abilities.relations import ABILITY_TYPE
+
 def accept_call_valid_levels(hero_level):
     return (max(0, hero_level - pvp_settings.BALANCING_MIN_LEVEL_DELTA),
             hero_level + pvp_settings.BALANCING_MAX_LEVEL_DELTA)
@@ -151,7 +153,8 @@ class PvPResource(Resource):
                               'heroes': heroes,
                               'own_hero': self.own_hero,
                               'ACCEPTED_LEVEL_MAX': ACCEPTED_LEVEL_MAX,
-                              'ACCEPTED_LEVEL_MIN': ACCEPTED_LEVEL_MIN  })
+                              'ACCEPTED_LEVEL_MIN': ACCEPTED_LEVEL_MIN,
+                              'ABILITY_TYPE': ABILITY_TYPE})
 
     @login_required
     @validate_fast_account()

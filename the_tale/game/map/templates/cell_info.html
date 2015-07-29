@@ -492,7 +492,7 @@
                    data-building-workers="{{building.workers_to_full_repairing}}">
                   <i class="icon-tint" rel="tooltip" title="недостаточно энергии"></i>
                   <i class="icon-ban-circle" rel="tooltip" title="Починка зданий разрешена только обладателям подписки"></i>
-                  вызвать рабочего
+                  <span rel="tooltip" title="<i>{{ABILITY_TYPE.BUILDING_REPAIR.cost}} энергии без учёта бонусов</i>">вызвать рабочего</span>
                 </a>
                 <span style="white-space: nowrap;">(+{{building.repair_delta|percents(points=2)}} за рабочего)</span>
               </td>

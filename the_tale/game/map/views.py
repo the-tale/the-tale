@@ -23,6 +23,8 @@ from the_tale.game.map.places import prototypes as places_prototypes
 from the_tale.game.map.places import logic as places_logic
 from the_tale.game.map.places import relations as places_relations
 
+from the_tale.game.abilities.relations import ABILITY_TYPE
+
 
 
 ########################################
@@ -111,4 +113,5 @@ def cell_info(context):
                                     'terrain_points': terrain_points,
                                     'chronicle_records': chronicle_records,
                                     'hero': HeroPrototype.get_by_account_id(context.account.id) if context.account.is_authenticated() else None,
-                                    'resource': context.resource} )
+                                    'resource': context.resource,
+                                    'ABILITY_TYPE': ABILITY_TYPE})
