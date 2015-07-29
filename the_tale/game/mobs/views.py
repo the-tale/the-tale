@@ -175,6 +175,9 @@ class GameMobResource(MobResourceBase):
         if not form.is_valid():
             return self.json_error('mobs.create.form_errors', form.errors)
 
+        if [mob for mob in mobs_storage.all() if mob.name == form.c.name.normal_form()]:
+            return self.json_error('mobs.create.duplicate_name', u'Монстр с таким названием уже создан')
+
         mob = MobRecordPrototype.create(uuid=uuid.uuid4().hex,
                                         level=form.c.level,
                                         utg_name=form.c.name,
@@ -185,7 +188,11 @@ class GameMobResource(MobResourceBase):
                                         terrains=form.c.terrains,
                                         editor=self.account,
                                         global_action_probability=form.c.global_action_probability,
-                                        state=MOB_RECORD_STATE.DISABLED)
+                                        state=MOB_RECORD_STATE.DISABLED,
+                                        communication_verbal=form.c.communication_verbal,
+                                        communication_gestures=form.c.communication_gestures,
+                                        communication_telepathic=form.c.communication_telepathic,
+                                        intellect_level=form.c.intellect_level)
         return self.json_ok(data={'next_url': reverse('guide:mobs:show', args=[mob.id])})
 
 
@@ -209,6 +216,9 @@ class GameMobResource(MobResourceBase):
 
         if not form.is_valid():
             return self.json_error('mobs.update.form_errors', form.errors)
+
+        if [mob for mob in mobs_storage.all() if mob.name == form.c.name.normal_form() and mob.id != self.mob.id]:
+            return self.json_error('mobs.update.duplicate_name', u'Монстр с таким названием уже создан')
 
         self.mob.update_by_creator(form, editor=self.account)
 

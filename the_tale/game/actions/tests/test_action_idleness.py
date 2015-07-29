@@ -7,7 +7,7 @@ from the_tale.common.utils import testcase
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
 
-from the_tale.game.balance import constants as c, formulas as f, enums as e
+from the_tale.game.balance import constants as c, formulas as f
 from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.logic_storage import LogicStorage
@@ -16,6 +16,7 @@ from the_tale.game.logic import create_test_map
 from the_tale.game.abilities.relations import HELP_CHOICES
 
 from the_tale.game.map.roads.storage import roads_storage
+from the_tale.game.heroes import relations as heroes_relations
 
 from the_tale.game.actions import prototypes
 
@@ -82,9 +83,8 @@ class IdlenessActionTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_regenerate_energy_action_create(self):
-        self.hero.preferences.set_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY)
-        self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
-                                                           for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
+        self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.PRAY)
+        self.hero.last_energy_regeneration_at_turn -= max(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))[0])
         self.action_idl.percents = 0.0
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 2)
@@ -93,9 +93,8 @@ class IdlenessActionTest(testcase.TestCase):
 
     def test_regenerate_energy_action_not_create_for_sacrifice(self):
         self.action_idl.percents = 0
-        self.hero.preferences.set_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE)
-        self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
-                                                           for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
+        self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.SACRIFICE)
+        self.hero.last_energy_regeneration_at_turn -= max(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))[0])
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)

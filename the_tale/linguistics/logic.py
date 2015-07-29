@@ -7,6 +7,8 @@ from django.db import transaction
 from django.utils.log import getLogger
 from django.conf import settings as project_settings
 
+from dext.common.utils import decorators as dext_decorators
+
 from utg import exceptions as utg_exceptions
 from utg import dictionary as utg_dictionary
 
@@ -24,6 +26,7 @@ from the_tale.linguistics.storage import restrictions_storage
 from . import exceptions
 from . import objects
 from . import models
+from . import conf
 from .lexicon.keys import LEXICON_KEY
 
 logger = getLogger('the-tale.linguistics')
@@ -69,7 +72,7 @@ def prepair_get_text(key, args, quiet=False):
     if (not game_lexicon.item.has_key(lexicon_key) and
         not quiet and
         not project_settings.TESTS_RUNNING):
-        logger.warn('unknown template type: %s', lexicon_key)
+        logger.warn('no ingame templates for key: %s', lexicon_key)
 
     return lexicon_key, externals, restrictions
 
@@ -77,16 +80,19 @@ def prepair_get_text(key, args, quiet=False):
 def fake_text(lexicon_key, externals):
     return unicode(lexicon_key) + u': ' + u' '.join(u'%s=%s' % (k, v.form) for k, v in externals.iteritems())
 
+@dext_decorators.retry_on_exception(max_retries=conf.linguistics_settings.MAX_RENDER_TEXT_RETRIES, exceptions=[utg_exceptions.UtgError])
+def _render_utg_text(lexicon_key, restrictions, externals):
+    # dictionary & lexicon can be changed unexpectedly in any time
+    # and some rendered data can be obsolete
+    template = game_lexicon.item.get_random_template(lexicon_key, restrictions=restrictions)
+    return template.substitute(externals, game_dictionary.item)
 
 def render_text(lexicon_key, externals, quiet=False, restrictions=frozenset()):
     if lexicon_key is None:
         return fake_text(lexicon_key, externals)
 
     try:
-        # dictionary & lexicon can be changed unexpectedly in any time
-        # and some rendered data can be obsolete
-        template = game_lexicon.item.get_random_template(lexicon_key, restrictions=restrictions)
-        return template.substitute(externals, game_dictionary.item)
+        return _render_utg_text(lexicon_key, restrictions, externals)
     except utg_exceptions.UtgError as e:
         if not quiet and not project_settings.TESTS_RUNNING:
             logger.error(u'Exception in linguistics; key=%s, args=%r, message: "%s"' % (lexicon_key, externals, e),

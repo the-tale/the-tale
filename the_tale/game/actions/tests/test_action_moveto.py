@@ -9,10 +9,12 @@ from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.game.relations import HABIT_HONOR_INTERVAL
 
 from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.balance import formulas as f, constants as c, enums as e
+from the_tale.game.balance import formulas as f, constants as c
 
 from the_tale.game.companions import storage as companions_storage
 from the_tale.game.companions import logic as companions_logic
+
+from the_tale.game.heroes import relations as heroes_relations
 
 from the_tale.game.logic import create_test_map
 from the_tale.game.prototypes import TimePrototype
@@ -146,7 +148,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
 
         self.assertEqual(self.action_move.state, self.action_move.STATE.IN_CITY)
 
-        self.assertTrue(self.hero.messages.messages[-1].key.is_COMPANIONS_TELEPORT)
+        self.assertTrue(any(message.key.is_COMPANIONS_TELEPORT for message in self.hero.messages.messages if message.key is not None))
 
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
@@ -260,9 +262,8 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.storage._test_save()
 
     def test_regenerate_energy_on_move(self):
-        self.hero.preferences.set_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY)
-        self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
-                                                           for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
+        self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.PRAY)
+        self.hero.last_energy_regeneration_at_turn -= max(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))[0])
         self.action_move.state = self.action_move.STATE.CHOOSE_ROAD
 
         self.storage.process_turn(continue_steps_if_needed=False)
@@ -275,9 +276,8 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.storage._test_save()
 
     def test_not_regenerate_energy_on_move_for_sacrifice(self):
-        self.hero.preferences.set_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE)
-        self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
-                                                           for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
+        self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.SACRIFICE)
+        self.hero.last_energy_regeneration_at_turn -= max(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))[0])
         self.action_move.state = self.action_move.STATE.CHOOSE_ROAD
 
         self.storage.process_turn(continue_steps_if_needed=False)
@@ -291,9 +291,8 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.storage._test_save()
 
     def test_regenerate_energy_after_battle_for_sacrifice(self):
-        self.hero.preferences.set_energy_regeneration_type(e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE)
-        self.hero.last_energy_regeneration_at_turn -= max([f.angel_energy_regeneration_delay(energy_regeneration_type)
-                                                           for energy_regeneration_type in c.ANGEL_ENERGY_REGENERATION_STEPS.keys()])
+        self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.SACRIFICE)
+        self.hero.last_energy_regeneration_at_turn -= max(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))[0])
         self.action_move.state = self.action_move.STATE.BATTLE
 
         self.storage.process_turn(continue_steps_if_needed=False)

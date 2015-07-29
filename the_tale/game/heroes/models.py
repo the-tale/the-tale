@@ -8,7 +8,6 @@ from dext.common.utils import s11n
 from rels.django import RelationIntegerField
 
 from the_tale.game.relations import GENDER, RACE
-from the_tale.game.balance.enums import ANGEL_ENERGY_REGENERATION_TYPES
 
 from the_tale.game import relations as game_relations
 
@@ -150,7 +149,7 @@ class HeroPreferences(models.Model):
 
     hero = models.ForeignKey(Hero, on_delete=models.CASCADE)
 
-    energy_regeneration_type = models.IntegerField(null=False, default=ANGEL_ENERGY_REGENERATION_TYPES.PRAY, choices=ANGEL_ENERGY_REGENERATION_TYPES._CHOICES, blank=True)
+    energy_regeneration_type = RelationIntegerField(null=False, relation=relations.ENERGY_REGENERATION)
     mob = models.ForeignKey('mobs.MobRecord', null=True, default=None, blank=True, on_delete=models.PROTECT)
     place = models.ForeignKey('places.Place', null=True, default=None, related_name='+', blank=True, on_delete=models.PROTECT)
     friend = models.ForeignKey('persons.Person', null=True, default=None, related_name='+', blank=True, on_delete=models.PROTECT)

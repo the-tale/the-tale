@@ -94,7 +94,8 @@ class LinguisticsResource(Resource):
     @handler('how-add-phrase', method='get')
     def how_add_phrase(self):
         return self.template('linguistics/how_add_phrase.html',
-                             {'page_type': 'how-add-phrase'})
+                             {'page_type': 'how-add-phrase',
+                              'linguistics_settings': linguistics_settings})
 
 
 class WordResource(Resource):
@@ -131,7 +132,7 @@ class WordResource(Resource):
             words_query = words_query.filter(type=type.utg_type)
 
         if filter:
-            words_query = words_query.filter(normal_form__istartswith=filter.lower())
+            words_query = words_query.filter(forms__icontains=filter.lower())
 
         if order_by.is_UPDATED_AT:
             words_query = words_query.order_by('-updated_at')
@@ -469,6 +470,7 @@ class TemplateResource(Resource):
                              {'key': key,
                               'form': form,
                               'page_type': 'keys',
+                              'linguistics_settings': linguistics_settings,
                               'LEXICON_KEY': keys.LEXICON_KEY} )
 
 
@@ -531,7 +533,7 @@ class TemplateResource(Resource):
     @handler('#template', 'edit', method='get')
     def edit(self):
 
-        if self._template.state.is_ON_REVIEW and not self.can_moderate_templates and self._template.author_id != self.account.id:
+        if self._template.state.is_ON_REVIEW and not self.can_edit_templates and self._template.author_id != self.account.id:
             return self.auto_error('linguistics.templates.edit.can_not_edit_anothers_template',
                                    u'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите пока его проверит модератор.')
 
@@ -549,6 +551,7 @@ class TemplateResource(Resource):
         return self.template('linguistics/templates/edit.html',
                              {'template': self._template,
                               'form': form,
+                              'linguistics_settings': linguistics_settings,
                               'page_type': 'keys',
                               'copy_will_be_created': not (self._template.author_id == self.account.id and self._template.state.is_ON_REVIEW),
                               'LEXICON_KEY': keys.LEXICON_KEY} )
@@ -560,7 +563,7 @@ class TemplateResource(Resource):
     @handler('#template', 'update', method='post')
     def update(self):
 
-        if self._template.state.is_ON_REVIEW and not self.can_moderate_templates and self._template.author_id != self.account.id:
+        if self._template.state.is_ON_REVIEW and not self.can_edit_templates and self._template.author_id != self.account.id:
             return self.auto_error('linguistics.templates.update.can_not_edit_anothers_template',
                                    u'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите пока его проверит модератор.')
 
@@ -585,7 +588,7 @@ class TemplateResource(Resource):
             return self.json_error('linguistics.templates.update.full_copy_restricted', u'Вы пытаетесь создать полную копию шаблона, в этом нет необходимости.')
 
 
-        if self.can_moderate_templates or (self._template.author_id == self.account.id and self._template.state.is_ON_REVIEW):
+        if self.can_edit_templates or (self._template.author_id == self.account.id and self._template.state.is_ON_REVIEW):
             self._template.update(raw_template=form.c.template,
                                   utg_template=utg_template,
                                   verificators=form.verificators,
@@ -594,7 +597,7 @@ class TemplateResource(Resource):
             prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
                                                                account_id=self.account.id,
                                                                entity_id=self._template.id,
-                                                               source=relations.CONTRIBUTION_SOURCE.MODERATOR if self.can_moderate_templates else relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                               source=relations.CONTRIBUTION_SOURCE.MODERATOR if self.can_edit_templates else relations.CONTRIBUTION_SOURCE.PLAYER,
                                                                state=self._template.state.contribution_state)
 
 
@@ -612,7 +615,7 @@ class TemplateResource(Resource):
         prototypes.ContributionPrototype.get_for_or_create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
                                                            account_id=template.author_id,
                                                            entity_id=template.id,
-                                                           source=relations.CONTRIBUTION_SOURCE.MODERATOR if self.can_moderate_templates else relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                           source=relations.CONTRIBUTION_SOURCE.MODERATOR if self.can_edit_templates else relations.CONTRIBUTION_SOURCE.PLAYER,
                                                            state=template.state.contribution_state)
 
 
@@ -804,7 +807,6 @@ class TemplateResource(Resource):
         self._template.key = form.c.key
         self._template.parent_id = None
         self._template.state = relations.TEMPLATE_STATE.ON_REVIEW
-        del self._template.verificators[:]
 
         self._template.save()
 

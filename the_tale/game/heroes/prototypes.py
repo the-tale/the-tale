@@ -35,21 +35,21 @@ from the_tale.game.companions import objects as companions_objects
 
 from the_tale.game.bills import conf as bills_conf
 
-from the_tale.game.heroes.statistics import HeroStatistics
-from the_tale.game.heroes.models import Hero, HeroPreferences
-from the_tale.game.heroes.habilities import AbilitiesPrototype
-from the_tale.game.heroes.conf import heroes_settings
-from the_tale.game.heroes import exceptions
-from the_tale.game.heroes.pvp import PvPData
-from the_tale.game.heroes import messages
-from the_tale.game.heroes import places_help_statistics
-from the_tale.game.heroes import relations
-from the_tale.game.heroes import habits
-from the_tale.game.heroes import logic_accessors
-from the_tale.game.heroes import shop_accessors
-from the_tale.game.heroes import equipment_methods
-from the_tale.game.heroes import bag
-from the_tale.game.heroes import storage
+from .statistics import HeroStatistics
+from . import models
+from .habilities import AbilitiesPrototype
+from .conf import heroes_settings
+from . import exceptions
+from . import pvp
+from . import messages
+from . import places_help_statistics
+from . import relations
+from . import habits
+from . import logic_accessors
+from . import shop_accessors
+from . import equipment_methods
+from . import bag
+from . import storage
 
 
 class HeroPrototype(BasePrototype,
@@ -57,7 +57,7 @@ class HeroPrototype(BasePrototype,
                     shop_accessors.ShopAccessorsMixin,
                     equipment_methods.EquipmentMethodsMixin,
                     names.ManageNameMixin):
-    _model_class = Hero
+    _model_class = models.Hero
     _readonly = ('id', 'account_id', 'created_at_turn', 'experience', 'money', 'energy', 'level', 'saved_at_turn', 'saved_at', 'is_bot')
     _bidirectional = ('is_alive',
                       'is_fast',
@@ -79,11 +79,13 @@ class HeroPrototype(BasePrototype,
     _serialization_proxies = (('quests', QuestsContainer, heroes_settings.UNLOAD_TIMEOUT),
                               ('places_history', places_help_statistics.PlacesHelpStatistics, heroes_settings.UNLOAD_TIMEOUT),
                               ('cards', CardsContainer, heroes_settings.UNLOAD_TIMEOUT),
-                              ('pvp', PvPData, heroes_settings.UNLOAD_TIMEOUT),
+                              ('pvp', pvp.PvPData, heroes_settings.UNLOAD_TIMEOUT),
                               ('diary', messages.DiaryContainer, heroes_settings.UNLOAD_TIMEOUT),
                               ('abilities', AbilitiesPrototype, None),
                               ('bag', bag.Bag, None),
                               ('equipment', bag.Equipment, None))
+
+    type
 
     def __init__(self, *argv, **kwargs):
         super(HeroPrototype, self).__init__(*argv, **kwargs)
@@ -145,8 +147,6 @@ class HeroPrototype(BasePrototype,
     ###########################################
     # Base attributes
     ###########################################
-
-    mob_type = None
 
     @property
     def gender_verbose(self): return self.gender.text
@@ -358,7 +358,7 @@ class HeroPrototype(BasePrototype,
 
     @property
     def need_regenerate_energy(self):
-        return TimePrototype.get_current_turn_number() > self.last_energy_regeneration_at_turn + f.angel_energy_regeneration_delay(self.preferences.energy_regeneration_type)
+        return TimePrototype.get_current_turn_number() > self.last_energy_regeneration_at_turn + self.preferences.energy_regeneration_type.period
 
     @lazy_property
     def position(self): return HeroPositionPrototype(hero=self)
@@ -368,7 +368,7 @@ class HeroPrototype(BasePrototype,
 
     @lazy_property
     def preferences(self):
-        from the_tale.game.heroes.preferences import HeroPreferences
+        from .preferences import HeroPreferences
 
         preferences = HeroPreferences.deserialize(hero=self, data=s11n.from_json(self._model.preferences))
 
@@ -474,13 +474,25 @@ class HeroPrototype(BasePrototype,
         from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
         from the_tale.linguistics.storage import restrictions_storage
 
+        terrain = self.position.get_terrain()
+
         return (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.GENDER, self.gender.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.RACE, self.race.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR, self.habit_honor.interval.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS, self.habit_honor.interval.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARCHETYPE, self.preferences.archetype.value).id,
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, self.position.get_terrain().value).id,
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE, self.actions.current_action.ui_type.value).id)
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, terrain.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_TERRAIN, terrain.meta_terrain.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_HEIGHT, terrain.meta_height.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_VEGETATION, terrain.meta_vegetation.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE, self.actions.current_action.ui_type.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_VERBAL, self.communication_verbal.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_GESTURES, self.communication_gestures.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC, self.communication_telepathic.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL, self.intellect_level.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTOR, game_relations.ACTOR.HERO.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB_TYPE, self.mob_type.value).id)
+
 
     def heal(self, delta):
         if delta < 0:
@@ -535,7 +547,6 @@ class HeroPrototype(BasePrototype,
             self.diary.serialize()
 
         if self.actions.updated:
-            self.actions.on_save()
             self._model.actions = s11n.to_json(self.actions.serialize())
             self.actions.updated = False
 
@@ -601,52 +612,52 @@ class HeroPrototype(BasePrototype,
 
         new_info = {'id': self.id,
                     'patch_turn': None if old_info is None else old_info['actual_on_turn'],
-                'actual_on_turn': TimePrototype.get_current_turn_number() if actual_guaranteed else self.saved_at_turn,
-                'ui_caching_started_at': time.mktime(self.ui_caching_started_at.timetuple()),
-                'messages': self.messages.ui_info(),
-                'diary': self.diary.ui_info(with_info=True),
-                'position': self.position.ui_info(),
-                'bag': self.bag.ui_info(self),
-                'equipment': self.equipment.ui_info(self),
-                'cards': self.cards.ui_info(),
-                'might': { 'value': self.might,
-                           'crit_chance': self.might_crit_chance,
-                           'pvp_effectiveness_bonus': self.might_pvp_effectiveness_bonus,
-                           'politics_power': self.politics_power_might },
-                'permissions': { 'can_participate_in_pvp': self.can_participate_in_pvp,
-                                 'can_repair_building': self.can_repair_building },
-                'energy': { 'max': self.energy_maximum,
-                            'value': self.energy,
-                            'bonus': self.energy_bonus,
-                            'discount': self.energy_discount},
-                'action': self.actions.current_action.ui_info(),
-                'companion': self.companion.ui_info() if self.companion else None,
-                # 'pvp' will be filled in modify_ui_info_with_turn
-                'pvp__actual': self.pvp.ui_info(),
-                'pvp__last_turn': self.pvp.turn_ui_info(),
-                'base': { 'name': self.name,
-                          'level': self.level,
-                          'destiny_points': self.abilities.destiny_points,
-                          'health': int(self.health),
-                          'max_health': int(self.max_health),
-                          'experience': int(self.experience),
-                          'experience_to_level': int(self.experience_to_next_level),
-                          'gender': self.gender.value,
-                          'race': self.race.value,
-                          'money': self.money,
-                          'alive': self.is_alive},
-                'secondary': { 'power': self.power.ui_info(),
-                               'move_speed': float(self.move_speed),
-                               'initiative': self.initiative,
-                               'max_bag_size': self.max_bag_size,
-                               'loot_items_count': self.bag.occupation},
-                'habits': { game_relations.HABIT_TYPE.HONOR.verbose_value: {'verbose': self.habit_honor.verbose_value,
-                                                                            'raw': self.habit_honor.raw_value},
-                            game_relations.HABIT_TYPE.PEACEFULNESS.verbose_value: {'verbose': self.habit_peacefulness.verbose_value,
-                                                                                   'raw': self.habit_peacefulness.raw_value}},
-                'quests': self.quests.ui_info(self),
-                'sprite': get_hero_sprite(self).value,
-                }
+                    'actual_on_turn': TimePrototype.get_current_turn_number() if actual_guaranteed else self.saved_at_turn,
+                    'ui_caching_started_at': time.mktime(self.ui_caching_started_at.timetuple()),
+                    'messages': self.messages.ui_info(),
+                    'diary': self.diary.ui_info(with_info=True),
+                    'position': self.position.ui_info(),
+                    'bag': self.bag.ui_info(self),
+                    'equipment': self.equipment.ui_info(self),
+                    'cards': self.cards.ui_info(),
+                    'might': { 'value': self.might,
+                               'crit_chance': self.might_crit_chance,
+                               'pvp_effectiveness_bonus': self.might_pvp_effectiveness_bonus,
+                               'politics_power': self.politics_power_might },
+                    'permissions': { 'can_participate_in_pvp': self.can_participate_in_pvp,
+                                     'can_repair_building': self.can_repair_building },
+                    'energy': { 'max': self.energy_maximum,
+                                'value': self.energy,
+                                'bonus': self.energy_bonus,
+                                'discount': self.energy_discount},
+                    'action': self.actions.current_action.ui_info(),
+                    'companion': self.companion.ui_info() if self.companion else None,
+                    # 'pvp' will be filled in modify_ui_info_with_turn
+                    'pvp__actual': self.pvp.ui_info(),
+                    'pvp__last_turn': self.pvp.turn_ui_info(),
+                    'base': { 'name': self.name,
+                              'level': self.level,
+                              'destiny_points': self.abilities.destiny_points,
+                              'health': int(self.health),
+                              'max_health': int(self.max_health),
+                              'experience': int(self.experience),
+                              'experience_to_level': int(self.experience_to_next_level),
+                              'gender': self.gender.value,
+                              'race': self.race.value,
+                              'money': self.money,
+                              'alive': self.is_alive},
+                    'secondary': { 'power': self.power.ui_info(),
+                                   'move_speed': float(self.move_speed),
+                                   'initiative': self.initiative,
+                                   'max_bag_size': self.max_bag_size,
+                                   'loot_items_count': self.bag.occupation},
+                    'habits': { game_relations.HABIT_TYPE.HONOR.verbose_value: {'verbose': self.habit_honor.verbose_value,
+                                                                                'raw': self.habit_honor.raw_value},
+                                game_relations.HABIT_TYPE.PEACEFULNESS.verbose_value: {'verbose': self.habit_peacefulness.verbose_value,
+                                                                                       'raw': self.habit_peacefulness.raw_value}},
+                    'quests': self.quests.ui_info(self),
+                    'sprite': get_hero_sprite(self).value,
+                   }
 
         changed_fields = ['changed_fields', 'actual_on_turn', 'patch_turn']
 
@@ -723,26 +734,25 @@ class HeroPrototype(BasePrototype,
 
         utg_name = names.generator.get_name(race, gender)
 
-        hero = Hero.objects.create(created_at_turn=current_turn_number,
-                                   saved_at_turn=current_turn_number,
-                                   active_state_end_at=account.active_end_at,
-                                   premium_state_end_at=account.premium_end_at,
-                                   account=account._model,
-                                   gender=gender,
-                                   race=race,
-                                   is_fast=account.is_fast,
-                                   is_bot=account.is_bot,
-                                   abilities=s11n.to_json(AbilitiesPrototype.create().serialize()),
-                                   messages=s11n.to_json(messages.JournalContainer().serialize()),
-                                   diary=s11n.to_json(messages.DiaryContainer().serialize()),
-                                   settings_approved=False,
-                                   next_spending=relations.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT,
-                                   health=f.hp_on_lvl(1),
-                                   energy=c.ANGEL_ENERGY_MAX,
-                                   energy_bonus=heroes_settings.START_ENERGY_BONUS,
-                                   pos_place = start_place._model,
-
-                                   data=s11n.to_json({'name': utg_name.serialize()}))
+        hero = cls._model_class.objects.create(created_at_turn=current_turn_number,
+                                               saved_at_turn=current_turn_number,
+                                               active_state_end_at=account.active_end_at,
+                                               premium_state_end_at=account.premium_end_at,
+                                               account=account._model,
+                                               gender=gender,
+                                               race=race,
+                                               is_fast=account.is_fast,
+                                               is_bot=account.is_bot,
+                                               abilities=s11n.to_json(AbilitiesPrototype.create().serialize()),
+                                               messages=s11n.to_json(messages.JournalContainer().serialize()),
+                                               diary=s11n.to_json(messages.DiaryContainer().serialize()),
+                                               settings_approved=False,
+                                               next_spending=relations.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT,
+                                               health=f.hp_on_lvl(1),
+                                               energy=c.ANGEL_ENERGY_MAX,
+                                               energy_bonus=heroes_settings.START_ENERGY_BONUS,
+                                               pos_place = start_place._model,
+                                               data=s11n.to_json({'name': utg_name.serialize()}) )
 
         hero = cls(model=hero)
 
@@ -1149,7 +1159,7 @@ class HeroPositionPrototype(object):
 
 
 class HeroPreferencesPrototype(BasePrototype):
-    _model_class = HeroPreferences
+    _model_class = models.HeroPreferences
     _readonly = ('id',
                  'hero_id',
                  'energy_regeneration_type',

@@ -40,6 +40,13 @@ class PrototypesTests(TestCase):
         self.hero.save()
         self.assertFalse(self.ability.check_hero_conditions(self.hero, self.task_data))
 
+    @mock.patch('the_tale.game.abilities.relations.ABILITY_TYPE.HELP.cost', 0)
+    def test_process_no_energy__no_cost(self):
+        self.hero._model.energy = 0
+        self.hero._model.energy_bonus = 0
+        self.hero.save()
+        self.assertTrue(self.ability.check_hero_conditions(self.hero, self.task_data))
+
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.energy_discount', 1)
     def test_process_energy_discount(self):
         self.hero._model.energy = ABILITY_TYPE.HELP.cost - 1

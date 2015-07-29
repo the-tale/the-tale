@@ -50,6 +50,12 @@ class MobRecordBaseForm(forms.Form):
 
     description = bbcode.BBField(label=u'Описание', required=False)
 
+    communication_verbal = fields.RelationField(label=u'вербальное общение', relation=game_relations.COMMUNICATION_VERBAL, required=False)
+    communication_gestures = fields.RelationField(label=u'невербальное общение', relation=game_relations.COMMUNICATION_GESTURES, required=False)
+    communication_telepathic = fields.RelationField(label=u'телепатия', relation=game_relations.COMMUNICATION_TELEPATHIC, required=False)
+
+    intellect_level = fields.RelationField(label=u'уровень интеллекта', relation=game_relations.INTELLECT_LEVEL)
+
     def clean_abilities(self):
         abilities_ids = self.cleaned_data['abilities']
 
@@ -82,7 +88,11 @@ class MobRecordBaseForm(forms.Form):
                 'level': mob.level,
                 'global_action_probability': mob.global_action_probability,
                 'terrains': mob.terrains,
-                'abilities': mob.abilities}
+                'abilities': mob.abilities,
+                'communication_verbal': mob.communication_verbal,
+                'communication_gestures': mob.communication_gestures,
+                'communication_telepathic': mob.communication_telepathic,
+                'intellect_level': mob.intellect_level}
 
 
 class MobRecordForm(MobRecordBaseForm):

@@ -76,6 +76,9 @@
    # добавляем дополнительный модуль, чтобы тесты проекта не запускали миграции
    pip install django-test-without-migrations
 
+   # добавляем дополнительный модуль, чтобы тесты проекта после прохождения давали статистику по затраченному времени
+   pip install django-slowtests
+
    # создаём конфиг с локальными настройками
    cp ./the_tale/settings_local_example.py ./the_tale/settings_local.py
 

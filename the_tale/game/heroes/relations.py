@@ -10,6 +10,8 @@ from the_tale.game.balance.power import Power
 
 from the_tale.game.artifacts.relations import ARTIFACT_TYPE
 
+from the_tale.game import relations as game_relations
+
 
 class RISK_LEVEL(DjangoEnum):
     health_percent_to_rest = Column()
@@ -36,7 +38,7 @@ class PREFERENCE_TYPE(DjangoEnum):
                 ('PLACE', 1, u'родной город', 4, 'place', '_prepair_place', True),
                 ('FRIEND', 2, u'соратник', 12, 'friend', '_prepair_person', True),
                 ('ENEMY', 3, u'противник', 20, 'enemy', '_prepair_person', True),
-                ('ENERGY_REGENERATION_TYPE', 4, u'религиозность', 1, 'energy_regeneration_type', '_prepair_value', False),
+                ('ENERGY_REGENERATION_TYPE', 4, u'религиозность', 1, 'energy_regeneration_type', '_prepair_energy_regeneration', False),
                 ('EQUIPMENT_SLOT', 5, u'экипировка', 36, 'equipment_slot', '_prepair_equipment_slot', True),
                 ('RISK_LEVEL', 6, u'уровень риска', 32, 'risk_level', '_prepair_risk_level', False),
                 ('FAVORITE_ITEM', 7, u'любимая вещь', 28, 'favorite_item', '_prepair_equipment_slot', True),
@@ -100,7 +102,7 @@ class ITEMS_OF_EXPENDITURE(DjangoEnum):
                  u'Планирует приобретение новой экипировки.'),
                 ('SHARPENING_ARTIFACT', 2, u'заточка артефакта', 'sharpening', 3,  2.0, MONEY_SOURCE.SPEND_FOR_SHARPENING,
                  u'Собирает на улучшение экипировки.'),
-                ('USELESS',             3, u'бесполезные траты', 'useless',    7,  0.4, MONEY_SOURCE.SPEND_FOR_USELESS,
+                ('USELESS',             3, u'на себя', 'useless',    7,  0.4, MONEY_SOURCE.SPEND_FOR_USELESS,
                  u'Копит золото для не очень полезных но безусловно необходимых трат.'),
                 ('IMPACT',              4, u'изменение влияния', 'impact',     4,  2.0, MONEY_SOURCE.SPEND_FOR_IMPACT,
                  u'Планирует накопить деньжат, чтобы повлиять на «запомнившегося» горожанина.'),
@@ -257,5 +259,23 @@ class HABIT_CHANGE_SOURCE(DjangoEnum):
                 ('COMPANION_PEACEFULL_NEUTRAL_1', 17, u'спутник склоняет к нейтральной агрессивности 1', None, None, False, 0.0, -c.HABITS_HELP_ABILITY_DELTA),
                 ('COMPANION_PEACEFULL_NEUTRAL_2', 18, u'спутник склоняет к нейтральной агрессивности 2', None, None, False, 0.0, c.HABITS_HELP_ABILITY_DELTA),
                 ('COMPANION_PEACEFULL', 19, u'спутник склоняет к миролюбию',                             None, None, None,  0.0, c.HABITS_HELP_ABILITY_DELTA),
+              )
 
-                 )
+
+class ENERGY_REGENERATION(DjangoEnum):
+    delay = Column(unique=False)
+    period = Column(unique=False)
+    amount = Column(unique=False)
+    length = Column(unique=False)
+    base_race = Column(related_name='energy_regeneration')
+    linguistics_slugs = Column()
+
+    _PERIOD = c.ANGEL_ENERGY_REGENERATION_PERIOD
+    _AMOUNT = c.ANGEL_ENERGY_REGENERATION_AMAUNT
+    _LENGTH = c.ANGEL_ENERGY_REGENERATION_LENGTH
+
+    records = ( ('PRAY', 0, u'молитва',               1, 1 * _PERIOD, 1 * _AMOUNT, 1 * _LENGTH, game_relations.RACE.HUMAN, ('pray', )),
+                ('SACRIFICE', 1, u'жертвоприношение', 2, 2 * _PERIOD, 2 * _AMOUNT, 2 * _LENGTH, game_relations.RACE.ORC, ('sacrifice_fire', 'sacrifice_blood', 'sacrifice_knife')),
+                ('INCENSE', 2, u'благовония',         4, 4 * _PERIOD, 4 * _AMOUNT, 4 * _LENGTH, game_relations.RACE.ELF, ('incense', )),
+                ('SYMBOLS', 3, u'символы',            3, 3 * _PERIOD, 3 * _AMOUNT, 3 * _LENGTH, game_relations.RACE.DWARF, ('symbols_stone', 'symbols_ground', 'symbols_tree')),
+                ('MEDITATION', 4, u'медитация',       2, 2 * _PERIOD, 2 * _AMOUNT, 2 * _LENGTH, game_relations.RACE.GOBLIN, ('meditation', )) )

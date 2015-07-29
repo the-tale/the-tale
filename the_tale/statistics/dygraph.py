@@ -182,7 +182,8 @@ PLOTS_GROUPS = [
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_HABITS, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_ABILITIES, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS, y_axis='y2'),
-                      Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_MARKET_COMMISSION, y_axis='y2')] ),
+                      Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_MARKET_COMMISSION, y_axis='y2'),
+                      Plot(relations.RECORD_TYPE.INCOME_FROM_TRANSFER_MONEY_COMMISSION, y_axis='y2')] ),
 
     PlotsGroup(uid='goods-percents',
                title=u'% доходов по группам товаров (за предыдущий месяц)',
@@ -198,7 +199,8 @@ PLOTS_GROUPS = [
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_HABITS_PERCENTS, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_ABILITIES_PERCENTS, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS_PERCENTS, y_axis='y2'),
-                      Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_MARKET_COMMISSION_PERCENTS, y_axis='y2')] ),
+                      Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_MARKET_COMMISSION_PERCENTS, y_axis='y2'),
+                      Plot(relations.RECORD_TYPE.INCOME_FROM_TRANSFER_MONEY_COMMISSION_PERCENTS, y_axis='y2')] ),
 
     PlotsGroup(uid='income-groups',
                title=u'Численность игроков по размеру трат',

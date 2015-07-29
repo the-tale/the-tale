@@ -56,10 +56,6 @@ class ActionsContainer(object):
     @property
     def current_action(self): return self.actions_list[-1]
 
-    def on_save(self):
-        for action in self.actions_list:
-            action.on_save()
-
     @property
     def has_actions(self): return len(self.actions_list)
 

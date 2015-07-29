@@ -5,37 +5,59 @@ from rels.django import DjangoEnum
 
 from the_tale.game.map.conf import map_settings
 
+class META_TERRAIN(DjangoEnum):
+    records = ( ('WATER', 0, u'вода'),
+                ('MOUNTAINS', 1, u'горы'),
+                ('DESERT', 2, u'пустыня'),
+                ('SWAMP', 3, u'болото'),
+                ('NORMAL', 4, u'зелень'),
+                ('JUNGLE', 5, u'джунгли') )
+
+class META_HEIGHT(DjangoEnum):
+    records = ( ('WATER', 0, u'вода'),
+                ('PLAINS', 1, u'равнины'),
+                ('HILLS', 2, u'холмы'),
+                ('MOUNTAINS', 3, u'горы') )
+
+class META_VEGETATION(DjangoEnum):
+    records = ( ('NONE', 0, u'нет'),
+                ('GRASS', 1, u'трава'),
+                ('TREES', 2, u'деревья') )
 
 class TERRAIN(DjangoEnum):
-    records = ( ('WATER_DEEP',            0, u'глубокая вода'),
-                ('WATER_SHOAL',           1, u'мелкая вода'),
-                ('MOUNTAINS_HIGH',        2, u'высокие горы'),
-                ('MOUNTAINS_LOW',         3, u'низкие горы'),
+    meta_height = Column(unique=False, primary=False)
+    meta_terrain = Column(unique=False, primary=False)
+    meta_vegetation = Column(unique=False, primary=False)
 
-                ('PLANE_SAND',            4, u'пустыня'),
-                ('PLANE_DRY_LAND',        5, u'высохшая растрескавшаяся земля'),
-                ('PLANE_MUD',             6, u'грязь'),
-                ('PLANE_DRY_GRASS',       7, u'сухие луга'),
-                ('PLANE_GRASS',           8, u'луга'),
-                ('PLANE_SWAMP_GRASS',     9, u'болото'),
-                ('PLANE_CONIFER_FOREST',  10, u'хвойный лес'),
-                ('PLANE_GREENWOOD',       11, u'лиственный лес'),
-                ('PLANE_SWAMP_FOREST',    12, u'заболоченный лес'),
-                ('PLANE_JUNGLE',          13, u'джунгли'),
-                ('PLANE_WITHERED_FOREST', 14, u'мёртвый лес'),
+    records = ( ('WATER_DEEP',            0, u'глубокая вода',                   META_HEIGHT.WATER, META_TERRAIN.WATER, META_VEGETATION.NONE),
+                ('WATER_SHOAL',           1, u'мелкая вода',                     META_HEIGHT.WATER, META_TERRAIN.WATER, META_VEGETATION.NONE),
+                ('MOUNTAINS_HIGH',        2, u'высокие горы',                    META_HEIGHT.MOUNTAINS, META_TERRAIN.MOUNTAINS, META_VEGETATION.NONE),
+                ('MOUNTAINS_LOW',         3, u'низкие горы',                     META_HEIGHT.MOUNTAINS, META_TERRAIN.MOUNTAINS, META_VEGETATION.NONE),
 
-                ('HILLS_SAND',            15, u'песчаные дюны'),
-                ('HILLS_DRY_LAND',        16, u'высохшие растрескавшиеся холмы'),
-                ('HILLS_MUD',             17, u'грязевые холмы'),
-                ('HILLS_DRY_GRASS',       18, u'холмы с высохшей травой'),
-                ('HILLS_GRASS',           19, u'зелёные холмы'),
-                ('HILLS_SWAMP_GRASS',     20, u'заболоченные холмы'),
-                ('HILLS_CONIFER_FOREST',  21, u'хвойный лес на холмах'),
-                ('HILLS_GREENWOOD',       22, u'лиственный лес на холмах'),
-                ('HILLS_SWAMP_FOREST',    23, u'заболоченный лес на холмах'),
-                ('HILLS_JUNGLE',          24, u'джунгли на холмах'),
-                ('HILLS_WITHERED_FOREST', 25, u'мёртвый лес на холмах')
-                )
+                ('PLANE_SAND',            4, u'пустыня',                         META_HEIGHT.PLAINS, META_TERRAIN.DESERT, META_VEGETATION.NONE),
+                ('PLANE_DRY_LAND',        5, u'высохшая растрескавшаяся земля',  META_HEIGHT.PLAINS, META_TERRAIN.DESERT, META_VEGETATION.NONE),
+                ('PLANE_MUD',             6, u'грязь',                           META_HEIGHT.PLAINS, META_TERRAIN.SWAMP, META_VEGETATION.NONE),
+                ('PLANE_DRY_GRASS',       7, u'сухие луга',                      META_HEIGHT.PLAINS, META_TERRAIN.NORMAL, META_VEGETATION.GRASS),
+                ('PLANE_GRASS',           8, u'луга',                            META_HEIGHT.PLAINS, META_TERRAIN.NORMAL, META_VEGETATION.GRASS),
+                ('PLANE_SWAMP_GRASS',     9, u'болото',                          META_HEIGHT.PLAINS, META_TERRAIN.SWAMP, META_VEGETATION.GRASS),
+                ('PLANE_CONIFER_FOREST',  10, u'хвойный лес',                    META_HEIGHT.PLAINS, META_TERRAIN.NORMAL, META_VEGETATION.TREES),
+                ('PLANE_GREENWOOD',       11, u'лиственный лес',                 META_HEIGHT.PLAINS, META_TERRAIN.NORMAL, META_VEGETATION.TREES),
+                ('PLANE_SWAMP_FOREST',    12, u'заболоченный лес',               META_HEIGHT.PLAINS, META_TERRAIN.SWAMP, META_VEGETATION.TREES),
+                ('PLANE_JUNGLE',          13, u'джунгли',                        META_HEIGHT.PLAINS, META_TERRAIN.JUNGLE, META_VEGETATION.TREES),
+                ('PLANE_WITHERED_FOREST', 14, u'мёртвый лес',                    META_HEIGHT.PLAINS, META_TERRAIN.DESERT, META_VEGETATION.TREES),
+
+                ('HILLS_SAND',            15, u'песчаные дюны',                  META_HEIGHT.HILLS, META_TERRAIN.DESERT, META_VEGETATION.NONE),
+                ('HILLS_DRY_LAND',        16, u'высохшие растрескавшиеся холмы', META_HEIGHT.HILLS, META_TERRAIN.DESERT, META_VEGETATION.NONE),
+                ('HILLS_MUD',             17, u'грязевые холмы',                 META_HEIGHT.HILLS, META_TERRAIN.SWAMP, META_VEGETATION.NONE),
+                ('HILLS_DRY_GRASS',       18, u'холмы с высохшей травой',        META_HEIGHT.HILLS, META_TERRAIN.NORMAL, META_VEGETATION.GRASS),
+                ('HILLS_GRASS',           19, u'зелёные холмы',                  META_HEIGHT.HILLS, META_TERRAIN.NORMAL, META_VEGETATION.GRASS),
+                ('HILLS_SWAMP_GRASS',     20, u'заболоченные холмы',             META_HEIGHT.HILLS, META_TERRAIN.SWAMP, META_VEGETATION.GRASS),
+                ('HILLS_CONIFER_FOREST',  21, u'хвойный лес на холмах',          META_HEIGHT.HILLS, META_TERRAIN.NORMAL, META_VEGETATION.TREES),
+                ('HILLS_GREENWOOD',       22, u'лиственный лес на холмах',       META_HEIGHT.HILLS, META_TERRAIN.NORMAL, META_VEGETATION.TREES),
+                ('HILLS_SWAMP_FOREST',    23, u'заболоченный лес на холмах',     META_HEIGHT.HILLS, META_TERRAIN.SWAMP, META_VEGETATION.TREES),
+                ('HILLS_JUNGLE',          24, u'джунгли на холмах',              META_HEIGHT.HILLS, META_TERRAIN.JUNGLE, META_VEGETATION.TREES),
+                ('HILLS_WITHERED_FOREST', 25, u'мёртвый лес на холмах',          META_HEIGHT.HILLS, META_TERRAIN.JUNGLE, META_VEGETATION.TREES)
+              )
 
 
 class MAP_STATISTICS(DjangoEnum):

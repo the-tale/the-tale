@@ -1,7 +1,6 @@
 # coding: utf-8
 import math
 
-from the_tale.game.balance import enums as e
 from the_tale.game.balance import helpers as h
 
 TIME_TO_LVL_DELTA = float(7) # разница во времени получения двух соседних уровней
@@ -200,18 +199,7 @@ ANGEL_ENERGY_REGENERATION_AMAUNT = int(1) # сколько восстанавл�
 ANGEL_ENERGY_REGENERATION_PERIOD = int(ANGEL_ENERGY_REGENERATION_TIME * TURNS_IN_HOUR) # раз в сколько ходов
 _ANGEL_ENERGY_IN_DAY = int(24.0 / ANGEL_ENERGY_REGENERATION_TIME * ANGEL_ENERGY_REGENERATION_AMAUNT)
 
-
-ANGEL_ENERGY_REGENERATION_DELAY = { e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 1,
-                                    e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 2,
-                                    e.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE: 4,
-                                    e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 3,
-                                    e.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 2 }
-
-ANGEL_ENERGY_REGENERATION_STEPS = { e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY: 3,
-                                    e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE: 5,
-                                    e.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE: 6,
-                                    e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS: 4,
-                                    e.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION: 4 }
+ANGEL_ENERGY_REGENERATION_LENGTH = int(3) # сколько ходов будет идти ренерация единицы энергии
 
 ##########################
 # абилки ангела

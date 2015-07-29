@@ -17,17 +17,18 @@ from the_tale.game.heroes.habilities import AbilitiesPrototype
 from the_tale.game.balance import formulas as f
 from the_tale.game.balance.power import Damage
 
-from the_tale.game.map.relations import TERRAIN
+from the_tale.game.map import relations as map_relations
 
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
 from the_tale.game.heroes.relations import MODIFIERS as HERO_MODIFIERS
 
 from the_tale.game import relations as game_relations
+from the_tale.game.actions import relations as actions_relations
 
 from the_tale.game.artifacts.storage import artifacts_storage
 
-from the_tale.game.mobs.models import MobRecord
-from the_tale.game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
+from the_tale.game.mobs import models
+from the_tale.game.mobs import relations
 from the_tale.game.mobs import exceptions
 
 
@@ -36,9 +37,16 @@ class MobException(Exception): pass
 
 class MobPrototype(object):
 
-    __slots__ = ('record_id', 'level', 'abilities', 'initiative', 'health_cooficient', 'damage_modifier', 'max_health', 'health', 'is_boss')
+    __slots__ = ('record_id', 'level', 'abilities', 'initiative', 'health_cooficient', 'damage_modifier', 'max_health', 'health', 'is_boss', 'action_type', 'terrain')
 
-    def __init__(self, record_id=None, level=None, health=None, abilities=None, is_boss=False):
+    def __init__(self,
+                 record_id=None,
+                 level=None,
+                 health=None,
+                 abilities=None,
+                 is_boss=False,
+                 action_type=actions_relations.ACTION_TYPE.BATTLE_PVE_1X1,
+                 terrain=map_relations.TERRAIN.PLANE_GRASS):
 
         self.record_id = record_id
         self.level = level
@@ -56,6 +64,9 @@ class MobPrototype(object):
             self.max_health = int(f.mob_hp_to_lvl(level) * self.health_cooficient)
 
         self.health = self.max_health if health is None else health
+
+        self.action_type = action_type
+        self.terrain = terrain
 
     @property
     def record(self):
@@ -101,7 +112,17 @@ class MobPrototype(object):
         from the_tale.linguistics.storage import restrictions_storage
         return (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB_TYPE, self.record.type.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB, self.record.id).id,
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARCHETYPE, self.record.archetype.value).id )
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARCHETYPE, self.record.archetype.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_VERBAL, self.record.communication_verbal.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_GESTURES, self.record.communication_gestures.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC, self.record.communication_telepathic.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL, self.record.intellect_level.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTOR, game_relations.ACTOR.MOB.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, self.terrain.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_TERRAIN, self.terrain.meta_terrain.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_HEIGHT, self.terrain.meta_height.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_VEGETATION, self.terrain.meta_vegetation.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE, self.action_type.value).id)
 
     def strike_by(self, percents):
         self.health = max(0, self.health - self.max_health * percents)
@@ -113,7 +134,9 @@ class MobPrototype(object):
         return {'level': self.level,
                 'id': self.id,
                 'is_boss': self.is_boss,
-                'health': self.health}
+                'health': self.health,
+                'action_type': self.action_type.value,
+                'terrain': self.terrain.value}
 
     @classmethod
     def deserialize(cls, data):
@@ -135,7 +158,9 @@ class MobPrototype(object):
                    level=level,
                    health=data['health'],
                    is_boss=data.get('is_boss', False),
-                   abilities=abilities)
+                   abilities=abilities,
+                   action_type=actions_relations.ACTION_TYPE(data['action_type']) if 'action_type' in data else actions_relations.ACTION_TYPE.BATTLE_PVE_1X1,
+                   terrain=map_relations.TERRAIN(data['terrain']) if 'terrain' in data else map_relations.TERRAIN.PLANE_GRASS)
 
     def update_context(self, actor, enemy):
         self.abilities.update_context(actor, enemy)
@@ -157,14 +182,13 @@ class MobPrototype(object):
 
 
 class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
-    _model_class = MobRecord
+    _model_class = models.MobRecord
     _readonly = ('id', 'editor_id')
-    _bidirectional = ('level', 'uuid', 'description', 'state', 'type', 'archetype')
+    _bidirectional = ('level', 'uuid', 'description', 'state', 'type', 'archetype', 'communication_verbal', 'communication_gestures', 'communication_telepathic', 'intellect_level')
     _get_by = ('id', )
 
     @lazy_property
     def data(self): return s11n.from_json(self._model.data)
-
 
     def get_global_action_probability(self): return self.data.get('global_action_probability', 0)
     def set_global_action_probability(self, probability): self.data['global_action_probability'] = probability
@@ -187,7 +211,7 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
 
     def get_terrains(self):
         if not hasattr(self, '_terrains'):
-            self._terrains = frozenset(TERRAIN(terrain) for terrain in s11n.from_json(self._model.terrains))
+            self._terrains = frozenset(map_relations.TERRAIN(terrain) for terrain in s11n.from_json(self._model.terrains))
         return self._terrains
     def set_terrains(self, value):
         self._terrains = frozenset(value)
@@ -204,22 +228,34 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
     def loot(self): return artifacts_storage.get_mob_loot(self.id)
 
     @classmethod
-    def create(cls, uuid, level, utg_name, description, abilities, terrains, type, archetype=game_relations.ARCHETYPE.NEUTRAL, editor=None, state=MOB_RECORD_STATE.DISABLED, global_action_probability=0):
+    def create(cls, uuid, level, utg_name, description, abilities, terrains, type,
+               archetype=game_relations.ARCHETYPE.NEUTRAL,
+               editor=None,
+               state=relations.MOB_RECORD_STATE.DISABLED,
+               global_action_probability=0,
+               communication_verbal=game_relations.COMMUNICATION_VERBAL.CAN_NOT,
+               communication_gestures=game_relations.COMMUNICATION_GESTURES.CAN_NOT,
+               communication_telepathic=game_relations.COMMUNICATION_TELEPATHIC.CAN_NOT,
+               intellect_level=game_relations.INTELLECT_LEVEL.NONE):
 
         from the_tale.game.mobs.storage import mobs_storage
 
-        model = MobRecord.objects.create(uuid=uuid,
-                                         level=level,
-                                         name=utg_name.normal_form(),
-                                         type=type,
-                                         archetype=archetype,
-                                         data=s11n.to_json({'name': utg_name.serialize(),
-                                                            'global_action_probability': global_action_probability}),
-                                         description=description,
-                                         abilities=s11n.to_json(list(abilities)),
-                                         terrains=s11n.to_json([terrain.value for terrain in terrains]),
-                                         state=state,
-                                         editor=editor._model if editor else None)
+        model = models.MobRecord.objects.create(uuid=uuid,
+                                                level=level,
+                                                name=utg_name.normal_form(),
+                                                type=type,
+                                                archetype=archetype,
+                                                data=s11n.to_json({'name': utg_name.serialize(),
+                                                                   'global_action_probability': global_action_probability}),
+                                                description=description,
+                                                abilities=s11n.to_json(list(abilities)),
+                                                terrains=s11n.to_json([terrain.value for terrain in terrains]),
+                                                state=state,
+                                                editor=editor._model if editor else None,
+                                                communication_verbal=communication_verbal,
+                                                communication_gestures=communication_gestures,
+                                                communication_telepathic=communication_telepathic,
+                                                intellect_level=intellect_level)
 
         prototype = cls(model)
 
@@ -241,7 +277,7 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
         return MobPrototype(record_id=self.id, level=hero.level, is_boss=is_boss)
 
     @classmethod
-    def create_random(cls, uuid, type=MOB_TYPE.CIVILIZED, level=1, abilities_number=3, terrains=TERRAIN.records, state=MOB_RECORD_STATE.ENABLED, global_action_probability=0): # pylint: disable=W0102
+    def create_random(cls, uuid, type=relations.MOB_TYPE.CIVILIZED, level=1, abilities_number=3, terrains=map_relations.TERRAIN.records, state=relations.MOB_RECORD_STATE.ENABLED, global_action_probability=0): # pylint: disable=W0102
 
         name = u'mob_'+uuid.lower()
 
@@ -255,7 +291,15 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
         for i in xrange(abilities_number-1): # pylint: disable=W0612
             abilities.add(random.choice(list(battle_abilities-abilities)))
 
-        return cls.create(uuid, level=level, type=type, utg_name=utg_name, description='description of %s' % name, abilities=abilities, terrains=terrains, state=state, global_action_probability=global_action_probability)
+        return cls.create(uuid,
+                          level=level,
+                          type=type,
+                          utg_name=utg_name,
+                          description='description of %s' % name,
+                          abilities=abilities,
+                          terrains=terrains,
+                          state=state,
+                          global_action_probability=global_action_probability)
 
     def update_by_creator(self, form, editor):
         self.set_utg_name(form.c.name)
@@ -269,6 +313,11 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
         self.global_action_probability = form.c.global_action_probability
         self.editor = editor._model
 
+        self.communication_verbal = form.c.communication_verbal
+        self.communication_gestures = form.c.communication_gestures
+        self.communication_telepathic = form.c.communication_telepathic
+        self.intellect_level = form.c.intellect_level
+
         self.save()
 
     def update_by_moderator(self, form, editor=None):
@@ -278,11 +327,16 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
         self.level = form.c.level
         self.terrains = form.c.terrains
         self.abilities = form.c.abilities
-        self.state = MOB_RECORD_STATE.ENABLED if form.c.approved else MOB_RECORD_STATE.DISABLED
+        self.state = relations.MOB_RECORD_STATE.ENABLED if form.c.approved else relations.MOB_RECORD_STATE.DISABLED
         self.type = form.c.type
         self.archetype = form.c.archetype
         self.global_action_probability = form.c.global_action_probability
         self.editor = editor._model if editor is not None else None
+
+        self.communication_verbal = form.c.communication_verbal
+        self.communication_gestures = form.c.communication_gestures
+        self.communication_telepathic = form.c.communication_telepathic
+        self.intellect_level = form.c.intellect_level
 
         self.save()
 

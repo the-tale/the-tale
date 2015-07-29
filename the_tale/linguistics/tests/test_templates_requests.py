@@ -1697,7 +1697,7 @@ class ChangeKeyTests(BaseRequestsTests):
         self.assertEqual(self.template.key, self.key_2)
         self.assertTrue(self.template.state.is_ON_REVIEW)
         self.assertEqual(self.template.parent_id, None)
-        self.assertEqual(self.template.verificators, [])
+        self.assertEqual(self.template.verificators, self.verificators[:2])
 
     def test_success__author_on_review(self):
         self.template.state = relations.TEMPLATE_STATE.ON_REVIEW
@@ -1712,7 +1712,7 @@ class ChangeKeyTests(BaseRequestsTests):
         self.assertEqual(self.template.key, self.key_2)
         self.assertTrue(self.template.state.is_ON_REVIEW)
         self.assertEqual(self.template.parent_id, None)
-        self.assertEqual(self.template.verificators, [])
+        self.assertEqual(self.template.verificators, self.verificators[:2])
 
     def test__author_in_game(self):
         self.template.state = relations.TEMPLATE_STATE.IN_GAME

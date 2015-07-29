@@ -1,11 +1,11 @@
 
-{% macro preference_record(religion_id, name, description) %}
+{% macro preference_record(religion, description) %}
   <dt>
-    {{name}}
-    {% if religion_id == resource.hero.preferences.energy_regeneration_type %}
+    {{religion.text|up_first}}
+    {% if religion == resource.hero.preferences.energy_regeneration_type %}
     <span class="label label-success">выбрано</span>
     {% else %}
-    [<a href="#" class="pgf-hero-preference-record" data-preference-id="{{ religion_id }}">выбрать</a>]
+    [<a href="#" class="pgf-hero-preference-record" data-preference-id="{{ religion.value }}">выбрать</a>]
     {% endif %}
   </dt>
   <dd style="margin-bottom: 0.75em;">{{ description }}</dd>
@@ -16,9 +16,9 @@
 </p>
 
 <dl>
-  {{ preference_record(e.ANGEL_ENERGY_REGENERATION_TYPES.PRAY, 'Молитва', 'Герой осознаёт свою слабость и с надеждой взывает к своему покровителю.') }}
-  {{ preference_record(e.ANGEL_ENERGY_REGENERATION_TYPES.SACRIFICE, 'Жертвоприношение', 'Настоящий воин в состоянии позаботиться о себе, но всегда готов пожертвовать тело поверженного противника в благодарность за помощь свыше.') }}
-  {{ preference_record(e.ANGEL_ENERGY_REGENERATION_TYPES.INCENSE, 'Благовония', 'Благовония позволяют героям избавиться от стресса и направить часть освобождённой энергии своему покровителю.') }}
-  {{ preference_record(e.ANGEL_ENERGY_REGENERATION_TYPES.SYMBOLS, 'Символы', 'Герой должен делами прославлять своего хранителя! Трудолюбивые руки подопечного тянутся к любому достаточно большому камню, чтобы выбить на нём руны, восхваляющие хранителя.') }}
-  {{ preference_record(e.ANGEL_ENERGY_REGENERATION_TYPES.MEDITATION, 'Медитация', 'Истинный мыслитель с помощью медитации может восстановить силы не только себе, но и своему покровителю.') }}
+  {{ preference_record(ENERGY_REGENERATION.PRAY, 'Герой осознаёт свою слабость и с надеждой взывает к своему покровителю.') }}
+  {{ preference_record(ENERGY_REGENERATION.SACRIFICE, 'Настоящий воин в состоянии позаботиться о себе, но всегда готов пожертвовать тело поверженного противника в благодарность за помощь свыше.') }}
+  {{ preference_record(ENERGY_REGENERATION.INCENSE, 'Благовония позволяют героям избавиться от стресса и направить часть освобождённой энергии своему покровителю.') }}
+  {{ preference_record(ENERGY_REGENERATION.SYMBOLS, 'Герой должен делами прославлять своего хранителя! Трудолюбивые руки подопечного тянутся к любому достаточно большому камню, чтобы выбить на нём руны, восхваляющие хранителя.') }}
+  {{ preference_record(ENERGY_REGENERATION.MEDITATION, 'Истинный мыслитель с помощью медитации может восстановить силы не только себе, но и своему покровителю.') }}
 </dl>

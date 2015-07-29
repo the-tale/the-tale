@@ -12,6 +12,8 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.balance import constants as c
+from the_tale.game.balance import power
+
 from the_tale.game import relations as game_relations
 
 from the_tale.game.logic_storage import LogicStorage
@@ -191,6 +193,25 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
 
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.attribute_modifier', lambda s, t: 2 if t.is_COMPANION_DAMAGE_PROBABILITY else t.default()):
             self.assertEqual(self.hero.companion_damage_probability, 2)
+
+    def test_mob_type(self):
+        self.assertTrue(self.hero.mob_type.is_CIVILIZED)
+
+    def test_communication_verbal(self):
+        self.assertTrue(self.hero.communication_verbal)
+
+    def test_communication_gestures(self):
+        self.assertTrue(self.hero.communication_gestures)
+
+    def test_communication_telepathic(self):
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.power', power.Power(0, 1)):
+            self.assertTrue(self.hero.communication_telepathic.is_CAN)
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.power', power.Power(1, 0)):
+            self.assertTrue(self.hero.communication_telepathic.is_CAN_NOT)
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.power', power.Power(1, 1)):
+            self.assertTrue(self.hero.communication_telepathic.is_CAN_NOT)
 
 
 class PoliticalPowerTests(HeroLogicAccessorsTestBase):

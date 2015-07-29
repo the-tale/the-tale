@@ -168,7 +168,7 @@ jQuery(document).ready(function(e){
   <h3>предпочтения</h3>
 
   <ul class="unstyled">
-    {% set pref_religion = resource.hero.preferences.energy_regeneration_type_name %}
+    {% set pref_religion = resource.hero.preferences.energy_regeneration_type.text %}
     {% set pref_mob = resource.hero.preferences.mob and resource.hero.preferences.mob.name %}
     {% set pref_place = resource.hero.preferences.place and resource.hero.preferences.place.name %}
     {% set pref_friend = resource.hero.preferences.friend and resource.hero.preferences.friend.name_from %}
@@ -206,6 +206,30 @@ jQuery(document).ready(function(e){
     {{ preferences_record(PREFERENCE_TYPE.FAVORITE_ITEM, current_time, pref_favorite_item) }}
     {{ preferences_record(PREFERENCE_TYPE.RISK_LEVEL, current_time, pref_risk_level) }}
     {{ preferences_record(PREFERENCE_TYPE.EQUIPMENT_SLOT, current_time, pref_equipment_slot) }}
+  </ul>
+
+  <h3>особенности</h3>
+
+{% macro feature_record(name, value, tooltip) %}
+  <li class="hero-feature-record">
+    <strong>{{ name }}</strong>
+    <br/>
+    <span class="" style="margin-left: 2em;">
+      <span class="pull-right"  style="vertical-align: middle;">
+        <span class="" style="vertical-align: middle;">{{value}}</span>
+        <i class="icon-info-sign"
+           style="vertical-align: middle;"
+           rel="tooltip"
+           title="{{tooltip}}"></i>
+      </span>
+    </span>
+  </li>
+{% endmacro %}
+
+  <ul class="unstyled">
+    {{feature_record("тип", resource.hero.mob_type.text, "не изменяется, влияет только на фразы")}}
+    {{feature_record("интеллект", resource.hero.intellect_level.text, "не изменяется, влияет только на фразы")}}
+    {{feature_record("коммуникация", mob_communication_abilities(resource.hero), "влияет только на фразы, способность к телепатии появляется если магическая сила героя больше физической")}}
   </ul>
 
 </div>

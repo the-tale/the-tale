@@ -14,6 +14,8 @@ from the_tale.game.postponed_tasks import ComplexChangeTask
 
 from the_tale.game.cards.tests.helpers import CardsTestMixin
 
+from the_tale.game.heroes.prototypes import HeroPrototype
+
 
 class LevelUpTest(testcase.TestCase, CardsTestMixin):
     CARD = LevelUp
@@ -31,6 +33,8 @@ class LevelUpTest(testcase.TestCase, CardsTestMixin):
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
+        self.abilities = self.hero.abilities
+
         self.card = self.CARD()
 
 
@@ -44,5 +48,7 @@ class LevelUpTest(testcase.TestCase, CardsTestMixin):
         with self.check_not_changed(lambda: self.hero.experience):
             with self.check_delta(lambda: self.hero.level, 1):
                 result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+                self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
-        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+        saved_hero = HeroPrototype.get_by_id(self.hero.id)
+        self.assertEqual(saved_hero.abilities.destiny_points, self.abilities.destiny_points)

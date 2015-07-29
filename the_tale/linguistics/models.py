@@ -21,7 +21,7 @@ class Word(models.Model):
     parent = models.OneToOneField('linguistics.Word', null=True, blank=True, on_delete=models.SET_NULL)
 
     normal_form = models.CharField(max_length=MAX_FORM_LENGTH)
-    forms = models.TextField()
+    forms = models.TextField(db_index=True)
 
     state = RelationIntegerField(relation=relations.WORD_STATE, db_index=True)
     type = RelationIntegerField(relation=utg_relations.WORD_TYPE, db_index=True, choices=[(record, record.text) for record in utg_relations.WORD_TYPE.records])

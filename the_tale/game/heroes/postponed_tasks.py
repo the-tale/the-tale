@@ -222,20 +222,15 @@ class ChoosePreferencesTask(PostponedLogic):
 
     def process_energy_regeneration(self, main_task, hero):
 
-        try:
-            energy_regeneration_type = int(self.preference_id) if self.preference_id is not None else None
-        except:
-            main_task.comment = u'unknown energy regeneration type: %s' % (self.preference_id, )
-            self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_ENERGY_REGENERATION_TYPE
-            return POSTPONED_TASK_LOGIC_RESULT.ERROR
-
-        if energy_regeneration_type is None:
+        if self.preference_id is None:
             main_task.comment = u'energy regeneration preference can not be None'
             self.state = CHOOSE_PREFERENCES_TASK_STATE.UNSPECIFIED_PREFERENCE
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        if energy_regeneration_type not in c.ANGEL_ENERGY_REGENERATION_DELAY:
-            main_task.comment = u'unknown energy regeneration type: %s' % (energy_regeneration_type, )
+        try:
+            energy_regeneration_type = relations.ENERGY_REGENERATION(int(self.preference_id))
+        except Exception:
+            main_task.comment = u'unknown energy regeneration type: %s' % (self.preference_id, )
             self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_ENERGY_REGENERATION_TYPE
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 

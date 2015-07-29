@@ -45,7 +45,6 @@ class EditNameForm(forms.Form):
                     raise ValidationError(u'Слишком короткое имя, минимальное число символов: %d' % conf.heroes_settings.NAME_MIN_LENGHT)
 
                 if NAME_REGEX.match(name_form) is None:
-                    print name_form
                     raise ValidationError(u'Имя героя может содержать только следующие символы: %s' % conf.heroes_settings.NAME_SYMBOLS_DESCRITION)
 
             name.properties = name.properties.clone(cleaned_data['gender'].utg_id)
