@@ -23,6 +23,10 @@ from the_tale.game import logic as game_logic
 
 from the_tale.game.cards.effects import EFFECTS
 
+from the_tale.game.abilities.relations import ABILITY_TYPE
+
+
+
 ########################################
 # resource and global processors
 ########################################
@@ -58,7 +62,8 @@ def game_page(context):
                                     'clan': clan,
                                     'CARDS': cards,
                                     'resource': context.resource,
-                                    'hero': context.account_hero} )
+                                    'hero': context.account_hero,
+                                    'ABILITY_TYPE': ABILITY_TYPE})
 
 @api.Processor(versions=(game_settings.INFO_API_VERSION, '1.2', '1.1', '1.0'))
 @dext_views.IntsArgumentProcessor(error_message=u'Неверный формат номера хода', get_name='client_turns', context_name='client_turns', default_value=None)
