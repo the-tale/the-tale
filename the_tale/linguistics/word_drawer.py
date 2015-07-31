@@ -69,7 +69,7 @@ class Leaf(object):
         key.update(self.key)
         key = [key.get(relation) for relation in self.type.schema]
 
-        utg_logic._populate_key_with_presets(key, self.type.schema)
+        # utg_logic._populate_key_with_presets(key, self.type.schema)
 
         return tuple(key)
 
