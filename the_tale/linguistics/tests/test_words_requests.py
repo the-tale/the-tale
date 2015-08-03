@@ -7,6 +7,7 @@ from dext.common.utils.urls import url
 
 from utg import relations as utg_relations
 from utg import words as utg_words
+from utg import data as utg_data
 
 
 from the_tale.common.utils.testcase import TestCase
@@ -17,12 +18,14 @@ from the_tale.accounts.logic import register_user, login_page_url
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.linguistics import prototypes
-from the_tale.linguistics import relations
-from the_tale.linguistics.conf import linguistics_settings
+from .. import prototypes
+from .. import relations
+from .. import logic
+from ..conf import linguistics_settings
+from ..forms import WORD_FIELD_PREFIX
 
-from the_tale.linguistics.tests import helpers
-from the_tale.linguistics.forms import WORD_FIELD_PREFIX
+from . import helpers
+
 
 
 class BaseRequestsTests(TestCase):
@@ -144,7 +147,11 @@ class NewRequestsTests(BaseRequestsTests):
             requested_url = url('linguistics:words:new', type=word.type.value, parent=word.id)
 
             texts = [('%s_%d ' % (WORD_FIELD_PREFIX, i), 1) for i in xrange(utg_words.Word.get_forms_number(word_type))]
-            texts.extend(word.utg_word.forms)
+
+            for key, index in utg_data.WORDS_CACHES[word_type].iteritems():
+                if logic.key_is_synomym(key):
+                    continue
+                texts.append(word.utg_word.forms[index])
 
             for static_property, required in word.type.properties.iteritems():
                 texts.append(('%s_%s ' % (WORD_FIELD_PREFIX, static_property.__name__), 1))

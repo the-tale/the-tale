@@ -7,10 +7,10 @@ from utg import words
 from utg import data as utg_data
 from utg import restrictions as utg_restrictions
 from utg import relations as utg_relations
-from utg import logic as utg_logic
 
-from the_tale.linguistics import relations
-from the_tale.linguistics.forms import WORD_FIELD_PREFIX
+from . import relations
+from . import logic
+from .forms import WORD_FIELD_PREFIX
 
 
 def get_best_base(word_type):
@@ -68,8 +68,6 @@ class Leaf(object):
                for i, base_properties in enumerate(self.base.schema)}
         key.update(self.key)
         key = [key.get(relation) for relation in self.type.schema]
-
-        # utg_logic._populate_key_with_presets(key, self.type.schema)
 
         return tuple(key)
 
@@ -169,6 +167,12 @@ class FormFieldDrawer(BaseDrawer):
         return forms.HTML_WIDGET_WRAPPER % {'content': content}
 
     def get_form(self, key):
+
+        # that condition exclude synonym forms (inanimate & animate) for adjective and participle forms
+        # if there are more conditions appear, it will be better to seprate them in separate mechanism
+        if logic.key_is_synomym(key):
+            return u''
+
         cache = utg_data.WORDS_CACHES[self.type]
 
         if key not in cache:

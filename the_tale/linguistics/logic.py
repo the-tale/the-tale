@@ -11,6 +11,7 @@ from dext.common.utils import decorators as dext_decorators
 
 from utg import exceptions as utg_exceptions
 from utg import dictionary as utg_dictionary
+from utg import relations as utg_relations
 
 from the_tale.linguistics import relations
 from the_tale.linguistics import prototypes
@@ -215,3 +216,14 @@ def full_remove_template(template):
                                                 entity_id=template.id,
                                                 state=relations.CONTRIBUTION_STATE.ON_REVIEW).delete()
     template.remove()
+
+
+# that condition exclude synonym forms (inanimate & animate) for adjective and participle forms
+# if there are more conditions appear, it will be better to seprate them in separate mechanism
+def key_is_synomym(key):
+    if utg_relations.ANIMALITY.INANIMATE in key:
+        if utg_relations.CASE.ACCUSATIVE not in key:
+            return u''
+
+        if not (utg_relations.GENDER.MASCULINE in key or utg_relations.NUMBER.PLURAL in key):
+            return u''
