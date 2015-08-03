@@ -223,7 +223,7 @@ def full_remove_template(template):
 def key_is_synomym(key):
     if utg_relations.ANIMALITY.INANIMATE in key:
         if utg_relations.CASE.ACCUSATIVE not in key:
-            return u''
+            return True
 
         if not (utg_relations.GENDER.MASCULINE in key or utg_relations.NUMBER.PLURAL in key):
-            return u''
+            return True
