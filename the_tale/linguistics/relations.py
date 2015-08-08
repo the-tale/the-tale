@@ -89,6 +89,11 @@ class INDEX_ORDER_BY(DjangoEnum):
                 ('UPDATED_AT', 1, u'по дате') )
 
 
+class WORD_HAS_PLURAL_FORM(DjangoEnum):
+    records = ( ('HAS', 0, u'имеет'),
+                ('HAS_NO', 1, u'не имеет'))
+
+
 class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
     static_relation = Column(unique=False, single_type=False)
 
@@ -131,5 +136,7 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
                 ('INTELLECT_LEVEL', 27, u'уровень интеллекта', game_relations.INTELLECT_LEVEL),
 
                 ('ACTOR', 28, u'мета-тип существа', game_relations.ACTOR),
+
+                ('PLURAL_FORM', 29, u'есть множественное число', WORD_HAS_PLURAL_FORM),
 
               )

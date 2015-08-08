@@ -50,6 +50,15 @@ def get_templates_count():
     return groups_count, keys_count
 
 
+def get_word_restrictions(external, word_form):
+    if utg_relations.NUMBER in word_form.word.type.properties:
+        if word_form.word.properties.is_specified(utg_relations.NUMBER):
+            if word_form.word.properties.get(utg_relations.NUMBER).is_SINGULAR:
+                return ((external, restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM, relations.WORD_HAS_PLURAL_FORM.HAS_NO.value).id), )
+
+    return ((external, restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM, relations.WORD_HAS_PLURAL_FORM.HAS.value).id), )
+
+
 def _process_arguments(args):
     externals = {}
     restrictions = set()
@@ -58,6 +67,7 @@ def _process_arguments(args):
         word_form, variable_restrictions = VARIABLE(k).type.constructor(v)
         externals[k] = word_form
         restrictions.update((k, restriction_id) for restriction_id in variable_restrictions)
+        restrictions.update(get_word_restrictions(k, word_form))
 
     return externals, frozenset(restrictions)
 
