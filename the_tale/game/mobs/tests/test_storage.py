@@ -10,6 +10,7 @@ from the_tale.accounts.logic import register_user
 from the_tale.game import names
 
 from the_tale.game.logic import create_test_map
+from the_tale.game import relations as game_relations
 
 from the_tale.game.map import relations as map_relations
 from the_tale.game.actions import relations as actions_relations
@@ -17,7 +18,7 @@ from the_tale.game.actions import relations as actions_relations
 from the_tale.game.heroes.prototypes import HeroPrototype
 
 from the_tale.game.mobs.storage import mobs_storage
-from the_tale.game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
+from the_tale.game.mobs.relations import MOB_RECORD_STATE
 from the_tale.game.mobs.prototypes import MobRecordPrototype
 
 
@@ -29,13 +30,14 @@ class MobsStorageTests(testcase.TestCase):
 
         self.mob_1, self.mob_2, self.mob_3 = mobs_storage.all()
 
-        self.mob_1.type = MOB_TYPE.CIVILIZED
+        self.mob_1.type = game_relations.BEING_TYPE.CIVILIZED
         self.mob_1.save()
 
-        self.mob_2.type = MOB_TYPE.BARBARIAN
+        self.mob_2.type = game_relations.BEING_TYPE.CIVILIZED
+        self.mob_2.is_mercenary = False
         self.mob_2.save()
 
-        self.mob_3.type = MOB_TYPE.CIVILIZED
+        self.mob_3.type = game_relations.BEING_TYPE.CIVILIZED
         self.mob_3.save()
 
         self.bandit = MobRecordPrototype.create(uuid='bandit',
@@ -44,7 +46,7 @@ class MobsStorageTests(testcase.TestCase):
                                                 description='description',
                                                 abilities=['hit'],
                                                 terrains=[map_relations.TERRAIN.PLANE_SAND],
-                                                type=MOB_TYPE.CIVILIZED,
+                                                type=game_relations.BEING_TYPE.CIVILIZED,
                                                 state=MOB_RECORD_STATE.ENABLED)
         self.bandint_wrong = MobRecordPrototype.create(uuid='bandit_wrong',
                                                        level=1,
@@ -52,7 +54,7 @@ class MobsStorageTests(testcase.TestCase):
                                                        description='bandit_wrong description',
                                                        abilities=['hit'],
                                                        terrains=[map_relations.TERRAIN.PLANE_SAND],
-                                                       type=MOB_TYPE.CIVILIZED,
+                                                       type=game_relations.BEING_TYPE.CIVILIZED,
                                                        state=MOB_RECORD_STATE.DISABLED)
 
 
@@ -60,7 +62,7 @@ class MobsStorageTests(testcase.TestCase):
         self.assertEqual(len(mobs_storage.all()), 5)
         self.assertEqual(mobs_storage.mobs_number, 5)
         self.assertEqual(sum(mobs_storage._types_count.itervalues()), 5)
-        self.assertTrue(mobs_storage.mob_type_fraction(MOB_TYPE.CIVILIZED) > 2.0 / 5)
+        self.assertTrue(mobs_storage.mob_type_fraction(game_relations.BEING_TYPE.CIVILIZED) > 2.0 / 5)
 
     def test_get_available_mobs_list(self):
         mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, map_relations.TERRAIN.PLANE_SAND)]

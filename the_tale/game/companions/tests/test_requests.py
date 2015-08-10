@@ -56,22 +56,30 @@ class IndexRequestsTests(RequestsTestsBase):
 
         self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-1'),
                                                          description='companion-description',
-                                                         type=relations.TYPE.random(),
+                                                         type=game_relations.BEING_TYPE.random(),
                                                          max_health=100,
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
+                                                         communication_verbal=game_relations.COMMUNICATION_VERBAL.random(),
+                                                         communication_gestures=game_relations.COMMUNICATION_GESTURES.random(),
+                                                         communication_telepathic=game_relations.COMMUNICATION_TELEPATHIC.random(),
+                                                         intellect_level=game_relations.INTELLECT_LEVEL.random(),
                                                          state=relations.STATE.ENABLED)
 
         self.companion_2 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-2'),
                                                          description='companion-description',
-                                                         type=relations.TYPE.random(),
+                                                         type=game_relations.BEING_TYPE.random(),
                                                          max_health=100,
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_2,
+                                                         communication_verbal=game_relations.COMMUNICATION_VERBAL.random(),
+                                                         communication_gestures=game_relations.COMMUNICATION_GESTURES.random(),
+                                                         communication_telepathic=game_relations.COMMUNICATION_TELEPATHIC.random(),
+                                                         intellect_level=game_relations.INTELLECT_LEVEL.random(),
                                                          state=relations.STATE.DISABLED)
 
 
@@ -174,11 +182,15 @@ class CreateRequestsTests(RequestsTestsBase):
 
     def post_data(self):
         data = {'description': 'some-description',
-                'type': relations.TYPE.random(),
+                'type': game_relations.BEING_TYPE.random(),
                 'max_health': 650,
                 'dedication': relations.DEDICATION.random(),
                 'archetype': game_relations.ARCHETYPE.random(),
-                'mode': relations.MODE.random()}
+                'mode': relations.MODE.random(),
+                'communication_verbal': game_relations.COMMUNICATION_VERBAL.CAN,
+                'communication_gestures': game_relations.COMMUNICATION_GESTURES.CAN,
+                'communication_telepathic': game_relations.COMMUNICATION_TELEPATHIC.CAN,
+                'intellect_level': game_relations.INTELLECT_LEVEL.NORMAL}
         data.update(linguistics_helpers.get_word_post_data(names.generator.get_test_name(name='name'), prefix='name'))
         data.update(helpers.get_abilities_post_data(helpers.FAKE_ABILITIES_CONTAINER_1),)
         return data
@@ -207,6 +219,10 @@ class CreateRequestsTests(RequestsTestsBase):
 
         self.assertEqual(new_companion.description, 'some-description')
         self.assertTrue(new_companion.state.is_DISABLED)
+        self.assertTrue(new_companion.communication_verbal.is_CAN)
+        self.assertTrue(new_companion.communication_gestures.is_CAN)
+        self.assertTrue(new_companion.communication_telepathic.is_CAN)
+        self.assertTrue(new_companion.intellect_level.is_NORMAL)
         self.assertEqual(new_companion.type, post_data['type'])
         self.assertEqual(new_companion.max_health, post_data['max_health'])
         self.assertEqual(new_companion.dedication, post_data['dedication'])
@@ -233,22 +249,30 @@ class ShowRequestsTests(RequestsTestsBase):
 
         self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-1'),
                                                          description='companion-description-1',
-                                                         type=relations.TYPE.random(),
+                                                         type=game_relations.BEING_TYPE.random(),
                                                          max_health=100,
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
+                                                         communication_verbal=game_relations.COMMUNICATION_VERBAL.random(),
+                                                         communication_gestures=game_relations.COMMUNICATION_GESTURES.random(),
+                                                         communication_telepathic=game_relations.COMMUNICATION_TELEPATHIC.random(),
+                                                         intellect_level=game_relations.INTELLECT_LEVEL.random(),
                                                          state=relations.STATE.ENABLED)
 
         self.companion_2 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-2'),
                                                          description='companion-description-2',
-                                                         type=relations.TYPE.random(),
+                                                         type=game_relations.BEING_TYPE.random(),
                                                          max_health=100,
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_2,
+                                                         communication_verbal=game_relations.COMMUNICATION_VERBAL.random(),
+                                                         communication_gestures=game_relations.COMMUNICATION_GESTURES.random(),
+                                                         communication_telepathic=game_relations.COMMUNICATION_TELEPATHIC.random(),
+                                                         intellect_level=game_relations.INTELLECT_LEVEL.random(),
                                                          state=relations.STATE.DISABLED)
 
         self.requested_url_1 = url('game:companions:show', self.companion_1.id)
@@ -345,22 +369,30 @@ class InfoRequestsTests(RequestsTestsBase):
 
         self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-1'),
                                                          description='companion-description-1',
-                                                         type=relations.TYPE.random(),
+                                                         type=game_relations.BEING_TYPE.random(),
                                                          max_health=100,
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
+                                                         communication_verbal=game_relations.COMMUNICATION_VERBAL.random(),
+                                                         communication_gestures=game_relations.COMMUNICATION_GESTURES.random(),
+                                                         communication_telepathic=game_relations.COMMUNICATION_TELEPATHIC.random(),
+                                                         intellect_level=game_relations.INTELLECT_LEVEL.random(),
                                                          state=relations.STATE.ENABLED)
 
         self.companion_2 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-2'),
                                                          description='companion-description-2',
-                                                         type=relations.TYPE.random(),
+                                                         type=game_relations.BEING_TYPE.random(),
                                                          max_health=100,
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_2,
+                                                         communication_verbal=game_relations.COMMUNICATION_VERBAL.random(),
+                                                         communication_gestures=game_relations.COMMUNICATION_GESTURES.random(),
+                                                         communication_telepathic=game_relations.COMMUNICATION_TELEPATHIC.random(),
+                                                         intellect_level=game_relations.INTELLECT_LEVEL.random(),
                                                          state=relations.STATE.DISABLED)
 
         self.requested_url_1 = url('game:companions:info', self.companion_1.id)
@@ -441,12 +473,16 @@ class EditRequestsTests(RequestsTestsBase):
 
         self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-1'),
                                                          description='companion-description-1',
-                                                         type=relations.TYPE.random(),
+                                                         type=game_relations.BEING_TYPE.random(),
                                                          max_health=100,
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
+                                                         communication_verbal=game_relations.COMMUNICATION_VERBAL.random(),
+                                                         communication_gestures=game_relations.COMMUNICATION_GESTURES.random(),
+                                                         communication_telepathic=game_relations.COMMUNICATION_TELEPATHIC.random(),
+                                                         intellect_level=game_relations.INTELLECT_LEVEL.random(),
                                                          state=relations.STATE.DISABLED)
 
 
@@ -482,12 +518,16 @@ class UpdateRequestsTests(RequestsTestsBase):
 
         self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-1'),
                                                          description='companion-description-1',
-                                                         type=relations.TYPE.random(),
+                                                         type=game_relations.BEING_TYPE.random(),
                                                          max_health=100,
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
+                                                         communication_verbal=game_relations.COMMUNICATION_VERBAL.CAN_NOT,
+                                                         communication_gestures=game_relations.COMMUNICATION_GESTURES.CAN_NOT,
+                                                         communication_telepathic=game_relations.COMMUNICATION_TELEPATHIC.CAN_NOT,
+                                                         intellect_level=game_relations.INTELLECT_LEVEL.LOW,
                                                          state=relations.STATE.DISABLED)
 
         self.requested_url = url('game:companions:update', self.companion_1.id)
@@ -500,11 +540,15 @@ class UpdateRequestsTests(RequestsTestsBase):
 
     def post_data(self):
         data = {'description': 'new-description',
-                'type': relations.TYPE.random(),
+                'type': game_relations.BEING_TYPE.random(),
                 'max_health': 650,
                 'dedication': relations.DEDICATION.random(),
                 'archetype': game_relations.ARCHETYPE.random(),
-                'mode': relations.MODE.random()}
+                'mode': relations.MODE.random(),
+                'communication_verbal': game_relations.COMMUNICATION_VERBAL.CAN,
+                'communication_gestures': game_relations.COMMUNICATION_GESTURES.CAN,
+                'communication_telepathic': game_relations.COMMUNICATION_TELEPATHIC.CAN,
+                'intellect_level': game_relations.INTELLECT_LEVEL.NORMAL}
         data.update(linguistics_helpers.get_word_post_data(names.generator.get_test_name(name='new_name'), prefix='name'))
         data.update(helpers.get_abilities_post_data(helpers.FAKE_ABILITIES_CONTAINER_2),)
         return data
@@ -533,6 +577,10 @@ class UpdateRequestsTests(RequestsTestsBase):
 
         self.assertEqual(companion.description, 'new-description')
         self.assertTrue(companion.state.is_DISABLED)
+        self.assertTrue(companion.communication_verbal.is_CAN)
+        self.assertTrue(companion.communication_gestures.is_CAN)
+        self.assertTrue(companion.communication_telepathic.is_CAN)
+        self.assertTrue(companion.intellect_level.is_NORMAL)
         self.assertEqual(companion.type, post_data['type'])
         self.assertEqual(companion.max_health, post_data['max_health'])
         self.assertEqual(companion.dedication, post_data['dedication'])
@@ -562,12 +610,16 @@ class EnableRequestsTests(RequestsTestsBase):
 
         self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-1'),
                                                          description='companion-description-1',
-                                                         type=relations.TYPE.random(),
+                                                         type=game_relations.BEING_TYPE.random(),
                                                          max_health=100,
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
                                                          mode=relations.MODE.random(),
+                                                         communication_verbal=game_relations.COMMUNICATION_VERBAL.random(),
+                                                         communication_gestures=game_relations.COMMUNICATION_GESTURES.random(),
+                                                         communication_telepathic=game_relations.COMMUNICATION_TELEPATHIC.random(),
+                                                         intellect_level=game_relations.INTELLECT_LEVEL.random(),
                                                          state=relations.STATE.DISABLED)
 
         self.requested_url = url('game:companions:enable', self.companion_1.id)

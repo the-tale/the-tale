@@ -14,7 +14,7 @@ from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.mobs.storage import mobs_storage
-from the_tale.game.mobs.models import MOB_RECORD_STATE
+from the_tale.game.mobs import relations as mobs_relations
 
 from the_tale.game.map.places.models import Place
 
@@ -183,7 +183,7 @@ class HeroPreferencesMobTest(PreferencesTestMixin, TestCase):
 
         self.assertEqual(self.hero.preferences.mob, mob_record)
 
-        mob_record.state = MOB_RECORD_STATE.DISABLED
+        mob_record.state = mobs_relations.MOB_RECORD_STATE.DISABLED
         mob_record.save()
 
         self.assertEqual(self.hero.preferences.mob, None)
@@ -244,7 +244,7 @@ class HeroPreferencesMobTest(PreferencesTestMixin, TestCase):
 
     def test_mob_not_in_game(self):
         mob_record = mobs_storage.all()[1]
-        mob_record.state = MOB_RECORD_STATE.DISABLED
+        mob_record.state = mobs_relations.MOB_RECORD_STATE.DISABLED
         mob_record.save()
 
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.MOB, mob_record.uuid)

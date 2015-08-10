@@ -7,8 +7,6 @@ from django.conf import settings as project_settings
 
 from the_tale.game.balance import constants as c, formulas as f
 
-from the_tale.game.mobs import relations as mobs_relations
-
 from the_tale.game import relations as game_relations
 
 from . import relations
@@ -421,22 +419,20 @@ class LogicAccessorsMixin(object):
     def companion_max_coherence(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_MAX_COHERENCE)
 
     @property
-    def companion_living_heal_probability(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_LIVING_HEAL)
+    def companion_heal_probability(self):
+
+        if self.companion is None:
+            return 0
+
+        return self.attribute_modifier(self.companion.type.companion_heal_modifier)
 
     @property
-    def companion_construct_heal_probability(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_CONSTRUCT_HEAL)
+    def companion_coherence_speed(self):
 
-    @property
-    def companion_unusual_heal_probability(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_UNUSUAL_HEAL)
+        if self.companion is None:
+            return 0
 
-    @property
-    def companion_living_coherence_speed(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_LIVING_COHERENCE_SPEED)
-
-    @property
-    def companion_construct_coherence_speed(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_CONSTRUCT_COHERENCE_SPEED)
-
-    @property
-    def companion_unusual_coherence_speed(self): return self.attribute_modifier(relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED)
+        return self.attribute_modifier(self.companion.type.companion_coherence_modifier)
 
     @property
     def companion_habits_multiplier(self):
@@ -531,7 +527,7 @@ class LogicAccessorsMixin(object):
 
         return (int(power * multiplier), positive_bonus * multiplier, negative_bonus * multiplier)
 
-    mob_type = mobs_relations.MOB_TYPE.CIVILIZED
+    mob_type = game_relations.BEING_TYPE.CIVILIZED
     intellect_level = game_relations.INTELLECT_LEVEL.NORMAL
     communication_verbal = game_relations.COMMUNICATION_VERBAL.CAN
     communication_gestures = game_relations.COMMUNICATION_GESTURES.CAN

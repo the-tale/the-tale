@@ -107,6 +107,9 @@ class MobPrototype(object):
     @property
     def mob_type(self): return self.record.type
 
+    @property
+    def is_eatable(self): return self.record.is_eatable
+
     def linguistics_restrictions(self):
         from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
         from the_tale.linguistics.storage import restrictions_storage
@@ -184,7 +187,18 @@ class MobPrototype(object):
 class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
     _model_class = models.MobRecord
     _readonly = ('id', 'editor_id')
-    _bidirectional = ('level', 'uuid', 'description', 'state', 'type', 'archetype', 'communication_verbal', 'communication_gestures', 'communication_telepathic', 'intellect_level')
+    _bidirectional = ('level',
+                      'uuid',
+                      'description',
+                      'state',
+                      'type',
+                      'archetype',
+                      'communication_verbal',
+                      'communication_gestures',
+                      'communication_telepathic',
+                      'intellect_level',
+                      'is_mercenary',
+                      'is_eatable')
     _get_by = ('id', )
 
     @lazy_property
@@ -236,7 +250,9 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
                communication_verbal=game_relations.COMMUNICATION_VERBAL.CAN_NOT,
                communication_gestures=game_relations.COMMUNICATION_GESTURES.CAN_NOT,
                communication_telepathic=game_relations.COMMUNICATION_TELEPATHIC.CAN_NOT,
-               intellect_level=game_relations.INTELLECT_LEVEL.NONE):
+               intellect_level=game_relations.INTELLECT_LEVEL.NONE,
+               is_mercenary=True,
+               is_eatable=True):
 
         from the_tale.game.mobs.storage import mobs_storage
 
@@ -255,7 +271,9 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
                                                 communication_verbal=communication_verbal,
                                                 communication_gestures=communication_gestures,
                                                 communication_telepathic=communication_telepathic,
-                                                intellect_level=intellect_level)
+                                                intellect_level=intellect_level,
+                                                is_mercenary=is_mercenary,
+                                                is_eatable=is_eatable)
 
         prototype = cls(model)
 
@@ -277,7 +295,7 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
         return MobPrototype(record_id=self.id, level=hero.level, is_boss=is_boss)
 
     @classmethod
-    def create_random(cls, uuid, type=relations.MOB_TYPE.CIVILIZED, level=1, abilities_number=3, terrains=map_relations.TERRAIN.records, state=relations.MOB_RECORD_STATE.ENABLED, global_action_probability=0): # pylint: disable=W0102
+    def create_random(cls, uuid, type=game_relations.BEING_TYPE.CIVILIZED, level=1, abilities_number=3, terrains=map_relations.TERRAIN.records, state=relations.MOB_RECORD_STATE.ENABLED, global_action_probability=0, is_mercenary=True, is_eatable=True): # pylint: disable=W0102
 
         name = u'mob_'+uuid.lower()
 
@@ -299,7 +317,9 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
                           abilities=abilities,
                           terrains=terrains,
                           state=state,
-                          global_action_probability=global_action_probability)
+                          global_action_probability=global_action_probability,
+                          is_mercenary=is_mercenary,
+                          is_eatable=is_eatable)
 
     def update_by_creator(self, form, editor):
         self.set_utg_name(form.c.name)
@@ -312,6 +332,8 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
         self.archetype = form.c.archetype
         self.global_action_probability = form.c.global_action_probability
         self.editor = editor._model
+        self.is_mercenary = form.c.is_mercenary
+        self.is_eatable = form.c.is_eatable
 
         self.communication_verbal = form.c.communication_verbal
         self.communication_gestures = form.c.communication_gestures
@@ -332,6 +354,8 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
         self.archetype = form.c.archetype
         self.global_action_probability = form.c.global_action_probability
         self.editor = editor._model if editor is not None else None
+        self.is_mercenary = form.c.is_mercenary
+        self.is_eatable = form.c.is_eatable
 
         self.communication_verbal = form.c.communication_verbal
         self.communication_gestures = form.c.communication_gestures

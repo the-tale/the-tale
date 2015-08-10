@@ -15,11 +15,9 @@ from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 from the_tale.game.actions.fake import FakeActor
 from the_tale.game.actions.relations import ACTION_EVENT
 
-from the_tale.game.mobs.relations import MOB_TYPE
-
 from the_tale.game.balance import constants as c
 from the_tale.game.logic import create_test_map
-from the_tale.game.relations import GENDER, HABIT_HONOR_INTERVAL, HABIT_PEACEFULNESS_INTERVAL
+from the_tale.game import relations as game_relations
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.heroes.relations import MODIFIERS
@@ -155,7 +153,7 @@ class HabitTest(BaseHabitTest):
 
         self.hero.habit_honor.change(-500)
 
-        for gender in GENDER.records:
+        for gender in game_relations.GENDER.records:
             self.hero.gender = gender
             values.add(self.hero.habit_honor.verbose_value)
 
@@ -163,7 +161,7 @@ class HabitTest(BaseHabitTest):
 
         self.hero.habit_honor.change(600)
 
-        for gender in GENDER.records:
+        for gender in game_relations.GENDER.records:
             self.hero.gender = gender
             values.add(self.hero.habit_honor.verbose_value)
 
@@ -208,7 +206,7 @@ class HabitTest(BaseHabitTest):
         for i in xrange(100):
             intervals.add(self.hero.habit_honor._real_interval)
 
-        self.assertEqual(intervals, set(HABIT_HONOR_INTERVAL.records))
+        self.assertEqual(intervals, set(game_relations.HABIT_HONOR_INTERVAL.records))
 
     def test_reset_accessories_cache_on_change(self):
         with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
@@ -259,9 +257,9 @@ class UpdateHabitsTest(BaseHabitTest):
 
 @mock.patch('the_tale.game.balance.constants.KILL_BEFORE_BATTLE_PROBABILITY', 1.01)
 @mock.patch('the_tale.game.balance.constants.PICKED_UP_IN_ROAD_PROBABILITY', 1.01)
-@mock.patch('the_tale.game.mobs.storage.mobs_storage.mob_type_fraction', lambda mob_type: {MOB_TYPE.PLANT: 0.1,
-                                                                                           MOB_TYPE.CIVILIZED: 0.4,
-                                                                                           MOB_TYPE.MONSTER: 0.5}.get(mob_type, 0))
+@mock.patch('the_tale.game.mobs.storage.mobs_storage.mob_type_fraction', lambda mob_type: {game_relations.BEING_TYPE.PLANT: 0.1,
+                                                                                           game_relations.BEING_TYPE.CIVILIZED: 0.4,
+                                                                                           game_relations.BEING_TYPE.MONSTER: 0.5}.get(mob_type, 0))
 class HonorHabitModifiersTest(BaseHabitTest):
 
     def setUp(self):
@@ -269,12 +267,12 @@ class HonorHabitModifiersTest(BaseHabitTest):
 
         self.actor_hero = FakeActor(name='attacker')
 
-        self.mob_neutral = FakeActor(name='defender', mob_type=MOB_TYPE.PLANT)
+        self.mob_neutral = FakeActor(name='defender', mob_type=game_relations.BEING_TYPE.PLANT)
 
-        self.mob_civilized = FakeActor(name='defender', mob_type=MOB_TYPE.CIVILIZED)
-        self.mob_monster = FakeActor(name='defender', mob_type=MOB_TYPE.MONSTER)
+        self.mob_civilized = FakeActor(name='defender', mob_type=game_relations.BEING_TYPE.CIVILIZED)
+        self.mob_monster = FakeActor(name='defender', mob_type=game_relations.BEING_TYPE.MONSTER)
 
-    @mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.LEFT_3)
+    @mock.patch('the_tale.game.heroes.habits.Honor.interval', game_relations.HABIT_HONOR_INTERVAL.LEFT_3)
     def test_left_3(self):
         self.assertTrue(self.hero.check_attribute(MODIFIERS.KILL_BEFORE_BATTLE))
         self.assertFalse(self.hero.check_attribute(MODIFIERS.PICKED_UP_IN_ROAD))
@@ -292,7 +290,7 @@ class HonorHabitModifiersTest(BaseHabitTest):
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.HONOR_EVENTS, set()), set([ACTION_EVENT.DISHONORABLE]))
 
 
-    @mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.LEFT_2)
+    @mock.patch('the_tale.game.heroes.habits.Honor.interval', game_relations.HABIT_HONOR_INTERVAL.LEFT_2)
     def test_left_2(self):
         self.assertFalse(self.hero.check_attribute(MODIFIERS.KILL_BEFORE_BATTLE))
         self.assertFalse(self.hero.check_attribute(MODIFIERS.PICKED_UP_IN_ROAD))
@@ -310,7 +308,7 @@ class HonorHabitModifiersTest(BaseHabitTest):
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.HONOR_EVENTS, set()), set([ACTION_EVENT.DISHONORABLE]))
 
 
-    @mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.LEFT_1)
+    @mock.patch('the_tale.game.heroes.habits.Honor.interval', game_relations.HABIT_HONOR_INTERVAL.LEFT_1)
     def test_left_1(self):
         self.assertFalse(self.hero.check_attribute(MODIFIERS.KILL_BEFORE_BATTLE))
         self.assertFalse(self.hero.check_attribute(MODIFIERS.PICKED_UP_IN_ROAD))
@@ -327,7 +325,7 @@ class HonorHabitModifiersTest(BaseHabitTest):
 
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.HONOR_EVENTS, set()), set([]))
 
-    @mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.NEUTRAL)
+    @mock.patch('the_tale.game.heroes.habits.Honor.interval', game_relations.HABIT_HONOR_INTERVAL.NEUTRAL)
     def test_neutral(self):
         self.assertFalse(self.hero.check_attribute(MODIFIERS.KILL_BEFORE_BATTLE))
         self.assertFalse(self.hero.check_attribute(MODIFIERS.PICKED_UP_IN_ROAD))
@@ -344,7 +342,7 @@ class HonorHabitModifiersTest(BaseHabitTest):
 
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.HONOR_EVENTS, set()), set([]))
 
-    @mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.RIGHT_1)
+    @mock.patch('the_tale.game.heroes.habits.Honor.interval', game_relations.HABIT_HONOR_INTERVAL.RIGHT_1)
     def test_right_1(self):
         self.assertFalse(self.hero.check_attribute(MODIFIERS.KILL_BEFORE_BATTLE))
         self.assertFalse(self.hero.check_attribute(MODIFIERS.PICKED_UP_IN_ROAD))
@@ -361,7 +359,7 @@ class HonorHabitModifiersTest(BaseHabitTest):
 
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.HONOR_EVENTS, set()), set([]))
 
-    @mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.RIGHT_2)
+    @mock.patch('the_tale.game.heroes.habits.Honor.interval', game_relations.HABIT_HONOR_INTERVAL.RIGHT_2)
     def test_right_2(self):
         self.assertFalse(self.hero.check_attribute(MODIFIERS.KILL_BEFORE_BATTLE))
         self.assertFalse(self.hero.check_attribute(MODIFIERS.PICKED_UP_IN_ROAD))
@@ -378,7 +376,7 @@ class HonorHabitModifiersTest(BaseHabitTest):
 
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.HONOR_EVENTS, set()), set([ACTION_EVENT.NOBLE]))
 
-    @mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.RIGHT_3)
+    @mock.patch('the_tale.game.heroes.habits.Honor.interval', game_relations.HABIT_HONOR_INTERVAL.RIGHT_3)
     def test_right_3(self):
         self.assertFalse(self.hero.check_attribute(MODIFIERS.KILL_BEFORE_BATTLE))
         self.assertTrue(self.hero.check_attribute(MODIFIERS.PICKED_UP_IN_ROAD))
@@ -405,13 +403,13 @@ class PeacefulnessHabitModifiersTest(BaseHabitTest):
 
         self.actor_hero = FakeActor(name='attacker')
 
-        self.mob_neutral = FakeActor(name='defender', mob_type=MOB_TYPE.PLANT)
+        self.mob_neutral = FakeActor(name='defender', mob_type=game_relations.BEING_TYPE.PLANT)
 
-        self.mob_civilized = FakeActor(name='defender', mob_type=MOB_TYPE.CIVILIZED)
-        self.mob_monster = FakeActor(name='defender', mob_type=MOB_TYPE.MONSTER)
+        self.mob_civilized = FakeActor(name='defender', mob_type=game_relations.BEING_TYPE.CIVILIZED)
+        self.mob_monster = FakeActor(name='defender', mob_type=game_relations.BEING_TYPE.MONSTER)
 
 
-    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', HABIT_PEACEFULNESS_INTERVAL.LEFT_3)
+    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', game_relations.HABIT_PEACEFULNESS_INTERVAL.LEFT_3)
     def test_left_3(self):
 
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.FRIEND_QUEST_PRIORITY, 1.0), 1.0)
@@ -432,7 +430,7 @@ class PeacefulnessHabitModifiersTest(BaseHabitTest):
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.HONOR_EVENTS, set()), set([ACTION_EVENT.AGGRESSIVE]))
 
 
-    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', HABIT_PEACEFULNESS_INTERVAL.LEFT_2)
+    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', game_relations.HABIT_PEACEFULNESS_INTERVAL.LEFT_2)
     def test_left_2(self):
 
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.FRIEND_QUEST_PRIORITY, 1.0), 1.0)
@@ -451,7 +449,7 @@ class PeacefulnessHabitModifiersTest(BaseHabitTest):
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.HONOR_EVENTS, set()), set([ACTION_EVENT.AGGRESSIVE]))
 
 
-    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', HABIT_PEACEFULNESS_INTERVAL.LEFT_1)
+    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', game_relations.HABIT_PEACEFULNESS_INTERVAL.LEFT_1)
     def test_left_1(self):
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.FRIEND_QUEST_PRIORITY, 1.0), 1.0)
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.ENEMY_QUEST_PRIORITY, 1.0), 1.0)
@@ -468,7 +466,7 @@ class PeacefulnessHabitModifiersTest(BaseHabitTest):
 
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.HONOR_EVENTS, set()), set([]))
 
-    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', HABIT_PEACEFULNESS_INTERVAL.NEUTRAL)
+    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', game_relations.HABIT_PEACEFULNESS_INTERVAL.NEUTRAL)
     def test_neutral(self):
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.FRIEND_QUEST_PRIORITY, 1.0), 1.0)
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.ENEMY_QUEST_PRIORITY, 1.0), 1.0)
@@ -485,7 +483,7 @@ class PeacefulnessHabitModifiersTest(BaseHabitTest):
 
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.HONOR_EVENTS, set()), set([]))
 
-    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', HABIT_PEACEFULNESS_INTERVAL.RIGHT_1)
+    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', game_relations.HABIT_PEACEFULNESS_INTERVAL.RIGHT_1)
     def test_right_1(self):
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.FRIEND_QUEST_PRIORITY, 1.0), 1.0)
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.ENEMY_QUEST_PRIORITY, 1.0), 1.0)
@@ -502,7 +500,7 @@ class PeacefulnessHabitModifiersTest(BaseHabitTest):
 
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.HONOR_EVENTS, set()), set([]))
 
-    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', HABIT_PEACEFULNESS_INTERVAL.RIGHT_2)
+    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', game_relations.HABIT_PEACEFULNESS_INTERVAL.RIGHT_2)
     def test_right_2(self):
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.FRIEND_QUEST_PRIORITY, 1.0), 1.0)
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.ENEMY_QUEST_PRIORITY, 1.0), 1.0)
@@ -519,7 +517,7 @@ class PeacefulnessHabitModifiersTest(BaseHabitTest):
 
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.HONOR_EVENTS, set()), set([ACTION_EVENT.PEACEABLE]))
 
-    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', HABIT_PEACEFULNESS_INTERVAL.RIGHT_3)
+    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', game_relations.HABIT_PEACEFULNESS_INTERVAL.RIGHT_3)
     def test_right_3(self):
         self.assertTrue(self.hero.modify_attribute(MODIFIERS.FRIEND_QUEST_PRIORITY, 1.0) > 1.0)
         self.assertEqual(self.hero.modify_attribute(MODIFIERS.ENEMY_QUEST_PRIORITY, 1.0), 1.0)

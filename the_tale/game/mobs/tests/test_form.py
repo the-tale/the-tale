@@ -28,7 +28,7 @@ class MobsFormsTests(testcase.TestCase):
                        'global_action_probability': '0.25',
                        'terrains': ['TERRAIN.PLANE_GRASS', 'TERRAIN.HILLS_GRASS'],
                        'abilities': ['hit', 'strong_hit', 'sidestep'],
-                       'type': 'MOB_TYPE.CIVILIZED',
+                       'type': 'BEING_TYPE.CIVILIZED',
                        'archetype': 'ARCHETYPE.NEUTRAL',
                        'description': mob.description,
                        'communication_verbal': game_relations.COMMUNICATION_VERBAL.CAN,

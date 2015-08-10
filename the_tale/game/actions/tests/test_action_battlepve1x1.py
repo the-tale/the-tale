@@ -19,7 +19,7 @@ from the_tale.game.companions.abilities import container
 
 from the_tale.game.balance import constants as c
 from the_tale.game.balance.power import Power
-from the_tale.game.relations import HABIT_HONOR_INTERVAL, HABIT_PEACEFULNESS_INTERVAL
+from the_tale.game import relations as game_relations
 
 from the_tale.game.mobs.storage import mobs_storage
 from the_tale.game.mobs import prototypes as mobs_prototypes
@@ -174,7 +174,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_damage_probability', 0.0)
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUNDS_IN_HOUR_FROM_HEAL', 0.0)
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_EATEN_CORPSES_PER_BATTLE', 1.0)
-    @mock.patch('the_tale.game.mobs.prototypes.MobPrototype.mob_type', mobs_relations.MOB_TYPE.ANIMAL)
+    @mock.patch('the_tale.game.mobs.prototypes.MobPrototype.mob_type', game_relations.BEING_TYPE.ANIMAL)
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_eat_corpses', lambda hero: True)
     def test_full_battle__with_companion__eat_corpse(self):
         companion_record = companions_storage.companions.enabled_companions().next()
@@ -243,7 +243,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(self.action_battle.HELP_CHOICES, set((HELP_CHOICES.RESURRECT,)))
 
     @mock.patch('the_tale.game.balance.constants.KILL_BEFORE_BATTLE_PROBABILITY', 1.01)
-    @mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.LEFT_3)
+    @mock.patch('the_tale.game.heroes.habits.Honor.interval', game_relations.HABIT_HONOR_INTERVAL.LEFT_3)
     def test_kill_before_start(self):
 
         self.hero.actions.pop_action()
@@ -265,7 +265,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.companion_record = companions_logic.create_random_companion_record('exorcist', state=companions_relations.STATE.ENABLED)
         self.hero.set_companion(companions_logic.create_companion(self.companion_record))
 
-        demon_record = mobs_prototypes.MobRecordPrototype.create_random('demon', type=mobs_relations.MOB_TYPE.DEMON)
+        demon_record = mobs_prototypes.MobRecordPrototype.create_random('demon', type=game_relations.BEING_TYPE.DEMON)
         demon = mobs_prototypes.MobPrototype(record_id=demon_record.id, level=self.hero.level, is_boss=False)
 
         self.hero.actions.pop_action()
@@ -286,7 +286,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.companion_record = companions_logic.create_random_companion_record('exorcist', state=companions_relations.STATE.ENABLED)
         self.hero.set_companion(companions_logic.create_companion(self.companion_record))
 
-        not_demon_record = mobs_prototypes.MobRecordPrototype.create_random('demon', type=mobs_relations.MOB_TYPE.random(exclude=(mobs_relations.MOB_TYPE.DEMON, )))
+        not_demon_record = mobs_prototypes.MobRecordPrototype.create_random('demon', type=game_relations.BEING_TYPE.random(exclude=(game_relations.BEING_TYPE.DEMON, )))
         not_demon = mobs_prototypes.MobPrototype(record_id=not_demon_record.id, level=self.hero.level, is_boss=False)
 
         self.hero.actions.pop_action()
@@ -303,7 +303,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
 
     @mock.patch('the_tale.game.balance.constants.PEACEFULL_BATTLE_PROBABILITY', 1.01)
-    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', HABIT_PEACEFULNESS_INTERVAL.RIGHT_3)
+    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', game_relations.HABIT_PEACEFULNESS_INTERVAL.RIGHT_3)
     def test_peacefull_battle(self):
 
         self.hero.actions.pop_action()
@@ -338,7 +338,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.balance.constants.EXP_FOR_KILL_PROBABILITY', 1.01)
     @mock.patch('the_tale.game.balance.constants.EXP_FOR_KILL_DELTA', 0)
-    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', HABIT_PEACEFULNESS_INTERVAL.LEFT_3)
+    @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', game_relations.HABIT_PEACEFULNESS_INTERVAL.LEFT_3)
     def test_experience_for_kill(self):
         mob = mobs_storage.create_mob_for_hero(self.hero)
         mob.health = 0

@@ -42,12 +42,16 @@ class BaseEffectsTests(testcase.TestCase):
 
         self.companion_record = logic.create_companion_record(utg_name=names.generator.get_test_name(),
                                                               description='description',
-                                                              type=relations.TYPE.random(),
+                                                              type=game_relations.BEING_TYPE.random(),
                                                               max_health=10,
                                                               dedication=relations.DEDICATION.random(),
                                                               archetype=game_relations.ARCHETYPE.random(),
                                                               mode=relations.MODE.random(),
                                                               abilities=abilities_container.Container(),
+                                                              communication_verbal=game_relations.COMMUNICATION_VERBAL.random(),
+                                                              communication_gestures=game_relations.COMMUNICATION_GESTURES.random(),
+                                                              communication_telepathic=game_relations.COMMUNICATION_TELEPATHIC.random(),
+                                                              intellect_level=game_relations.INTELLECT_LEVEL.random(),
                                                               state=relations.STATE.ENABLED)
         self.hero.set_companion(logic.create_companion(self.companion_record))
 

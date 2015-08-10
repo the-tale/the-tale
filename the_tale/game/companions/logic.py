@@ -28,6 +28,10 @@ def create_companion_record(utg_name,
                             archetype,
                             mode,
                             abilities,
+                            communication_verbal,
+                            communication_gestures,
+                            communication_telepathic,
+                            intellect_level,
                             state=relations.STATE.DISABLED):
     model = models.CompanionRecord.objects.create(state=state,
                                                   type=type,
@@ -35,6 +39,10 @@ def create_companion_record(utg_name,
                                                   dedication=dedication,
                                                   archetype=archetype,
                                                   mode=mode,
+                                                  communication_verbal=communication_verbal,
+                                                  communication_gestures=communication_gestures,
+                                                  communication_telepathic=communication_telepathic,
+                                                  intellect_level=intellect_level,
                                                   data=s11n.to_json({'description': description,
                                                                      'name': utg_name.serialize(),
                                                                      'abilities': abilities.serialize()}))
@@ -52,13 +60,17 @@ def create_companion_record(utg_name,
 
 
 def create_random_companion_record(name,
-                                   type=relations.TYPE.LIVING,
+                                   type=game_relations.BEING_TYPE.CIVILIZED,
                                    max_health=int(c.COMPANIONS_MEDIUM_HEALTH),
                                    dedication=relations.DEDICATION.BRAVE,
                                    archetype=game_relations.ARCHETYPE.NEUTRAL,
                                    state=relations.STATE.DISABLED,
                                    abilities=abilities_container.Container(),
-                                   mode=relations.MODE.AUTOMATIC):
+                                   mode=relations.MODE.AUTOMATIC,
+                                   communication_verbal=game_relations.COMMUNICATION_VERBAL.CAN,
+                                   communication_gestures=game_relations.COMMUNICATION_GESTURES.CAN,
+                                   communication_telepathic=game_relations.COMMUNICATION_TELEPATHIC.CAN,
+                                   intellect_level=game_relations.INTELLECT_LEVEL.LOW):
     return create_companion_record(utg_name=names.generator.get_test_name(name=name),
                                    description=u'description-%s' % name,
                                    type=type,
@@ -67,7 +79,11 @@ def create_random_companion_record(name,
                                    archetype=archetype,
                                    mode=mode,
                                    abilities=abilities,
-                                   state=state)
+                                   state=state,
+                                   communication_verbal=communication_verbal,
+                                   communication_gestures=communication_gestures,
+                                   communication_telepathic=communication_telepathic,
+                                   intellect_level=intellect_level)
 
 
 def update_companion_record(companion,
@@ -78,7 +94,11 @@ def update_companion_record(companion,
                             dedication,
                             archetype,
                             mode,
-                            abilities):
+                            abilities,
+                            communication_verbal,
+                            communication_gestures,
+                            communication_telepathic,
+                            intellect_level):
 
     companion.set_utg_name(utg_name)
     companion.description = description
@@ -88,6 +108,10 @@ def update_companion_record(companion,
     companion.archetype = archetype
     companion.mode = mode
     companion.abilities = abilities
+    companion.communication_verbal = communication_verbal
+    companion.communication_gestures = communication_gestures
+    companion.communication_telepathic = communication_telepathic
+    companion.intellect_level = intellect_level
 
     models.CompanionRecord.objects.filter(id=companion.id).update(state=companion.state,
                                                                   type=type,
@@ -95,6 +119,10 @@ def update_companion_record(companion,
                                                                   dedication=dedication,
                                                                   archetype=archetype,
                                                                   mode=mode,
+                                                                  communication_verbal=communication_verbal,
+                                                                  communication_gestures=communication_gestures,
+                                                                  communication_telepathic=communication_telepathic,
+                                                                  intellect_level=intellect_level,
                                                                   data=s11n.to_json({'description': description,
                                                                                      'name': utg_name.serialize(),
                                                                                      'abilities': abilities.serialize()}),
@@ -126,7 +154,6 @@ def get_last_companion():
 
 
 def required_templates_count(companion_record):
-    from the_tale.linguistics import relations as linguistics_relations
     from the_tale.linguistics import storage as linguistics_storage
     from the_tale.linguistics.lexicon import keys as lexicon_keys
     from the_tale.linguistics.lexicon import relations as lexicon_relations

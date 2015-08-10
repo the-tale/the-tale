@@ -8,7 +8,6 @@ from utg import relations as utg_relations
 from the_tale.game import relations as game_relations
 from the_tale.game.actions import relations as actions_relations
 from the_tale.game.artifacts import relations as artifacts_relations
-from the_tale.game.mobs import relations as mobs_relations
 from the_tale.game.persons import relations as persons_relations
 from the_tale.game.map.places import relations as places_relations
 from the_tale.game.map import relations as map_relations
@@ -109,13 +108,13 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
                 ('ARTIFACT_RARITY', 8, u'редкость артефакта', artifacts_relations.RARITY),
                 ('ARTIFACT_EFFECT', 9, u'эффект артефакта', artifacts_relations.ARTIFACT_EFFECT),
 
-                ('MOB_TYPE', 10, u'тип монстра', mobs_relations.MOB_TYPE),
+                ('MOB_TYPE', 10, u'тип существа', game_relations.BEING_TYPE),
 
                 ('ARTIFACT', 11, u'артефакт', None),
                 ('MOB', 12, u'монстр', None),
                 ('COMPANION', 13, u'спутник', None),
 
-                ('COMPANION_TYPE', 14, u'тип спутника', companions_relations.TYPE),
+                # ('COMPANION_TYPE', 14, u'тип спутника', companions_relations.TYPE),
                 ('COMPANION_DEDICATION', 15, u'тип самоотверженности спутника', companions_relations.DEDICATION),
                 ('COMPANION_RARITY', 16, u'редкость спутника', companions_relations.RARITY),
 

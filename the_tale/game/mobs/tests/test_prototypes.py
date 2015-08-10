@@ -10,6 +10,7 @@ from the_tale.linguistics import relations as linguistics_relations
 from the_tale.game import names
 
 from the_tale.game.logic import create_test_map
+from the_tale.game import relations as game_relations
 
 from the_tale.game.map.relations import TERRAIN
 from the_tale.game.heroes.prototypes import HeroPrototype
@@ -17,7 +18,7 @@ from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game import relations as game_relations
 
 from the_tale.game.mobs.storage import mobs_storage
-from the_tale.game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
+from the_tale.game.mobs.relations import MOB_RECORD_STATE
 from the_tale.game.mobs.prototypes import MobPrototype, MobRecordPrototype
 from the_tale.game.mobs import exceptions
 
@@ -97,7 +98,7 @@ class MobsPrototypeTests(testcase.TestCase):
                                   description='bandint',
                                   abilities=['hit', 'thick', 'slow', 'extra_strong'],
                                   terrains=TERRAIN.records,
-                                  type=MOB_TYPE.CIVILIZED,
+                                  type=game_relations.BEING_TYPE.CIVILIZED,
                                   archetype=game_relations.ARCHETYPE.NEUTRAL,
                                   state=MOB_RECORD_STATE.ENABLED)
         mobs_storage.sync(force=True)

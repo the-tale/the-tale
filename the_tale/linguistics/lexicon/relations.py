@@ -99,6 +99,7 @@ class VARIABLE_TYPE(DjangoEnum):
                 ('MOB', 5, u'монстр', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.MOB_TYPE,
                                                                                               relations.TEMPLATE_RESTRICTION_GROUP.MOB,
                                                                                               relations.TEMPLATE_RESTRICTION_GROUP.ARCHETYPE,
+                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE,
                                                                                               relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_VERBAL,
                                                                                               relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_GESTURES,
                                                                                               relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC,
@@ -112,7 +113,6 @@ class VARIABLE_TYPE(DjangoEnum):
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.MOB,
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.MOB_TYPE,
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.COMPANION,
-                                                                                                                   relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_TYPE,
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_DEDICATION,
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_RARITY,
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.ARCHETYPE,
@@ -132,11 +132,16 @@ class VARIABLE_TYPE(DjangoEnum):
                 ('RACE', 9, u'раса', VARIABLE_VERIFICATOR.RACE, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.RACE,
                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM)),
                 ('COMPANION', 10, u'спутник', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.COMPANION,
-                                                                                                      relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_TYPE,
+                                                                                                      relations.TEMPLATE_RESTRICTION_GROUP.ACTOR,
                                                                                                       relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_DEDICATION,
                                                                                                       relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_RARITY,
                                                                                                       relations.TEMPLATE_RESTRICTION_GROUP.ARCHETYPE,
-                                                                                                      relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM)) )
+                                                                                                      relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
+                                                                                                      relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_VERBAL,
+                                                                                                      relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_GESTURES,
+                                                                                                      relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC,
+                                                                                                      relations.TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL,
+                                                                                                      relations.TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE)) )
 
 class VARIABLE(DjangoEnum):
     type = Column(unique=False, no_index=True)

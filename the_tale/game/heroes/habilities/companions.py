@@ -4,6 +4,8 @@ from the_tale.game.companions.abilities import relations as companions_abilities
 
 from the_tale.game.balance import constants as c
 
+from the_tale.game import relations as game_relations
+
 from the_tale.game.heroes import relations as heroes_relations
 
 from the_tale.game.heroes.habilities.prototypes import AbilityPrototype
@@ -121,23 +123,23 @@ class _CompanionHealBase(AbilityPrototype):
 class HEALING(_CompanionHealBase):
     NAME = u'Врачевание'
     normalized_name = NAME
-    DESCRIPTION = u'Умение обращаться с ниткой, иголкой и хирургическим ножом позволяет иногда восстановить немного здоровья живому спутнику.'
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_LIVING_HEAL
-
+    BEING_TYPES = [t.text for t in game_relations.BEING_TYPE.records if t.companion_heal_modifier == MODIFIER]
+    DESCRIPTION = u'Умение обращаться с ниткой, иголкой и хирургическим ножом позволяет иногда восстановить немного здоровья живому (%s) спутнику.' % u', '.join(BEING_TYPES)
 
 class MAGE_MECHANICS(_CompanionHealBase):
     NAME = u'Магомеханика'
     normalized_name = NAME
-    DESCRIPTION = u'С помощью плоскогубцев, проволоки и толики магии магомеханик иногда может отремонтировать своего магомеханического спутника.'
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_CONSTRUCT_HEAL
-
+    BEING_TYPES = [t.text for t in game_relations.BEING_TYPE.records if t.companion_heal_modifier == MODIFIER]
+    DESCRIPTION = u'С помощью плоскогубцев, проволоки и толики магии магомеханик иногда может отремонтировать своего магомеханического (%s) спутника.' % u', '.join(BEING_TYPES)
 
 class WITCHCRAFT(_CompanionHealBase):
     NAME = u'Ведовство'
     normalized_name = NAME
-    DESCRIPTION = u'Герой, сведущий в нетрадиционных областях знаний, иногда может восстановить здоровье особого спутника.'
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL
-
+    BEING_TYPES = [t.text for t in game_relations.BEING_TYPE.records if t.companion_heal_modifier == MODIFIER]
+    DESCRIPTION = u'Герой, сведущий в нетрадиционных областях знаний, иногда может восстановить здоровье особого (%s) спутника.' % u', '.join(BEING_TYPES)
 
 
 class _CompanionCoherenceSpeedBase(AbilityPrototype):
@@ -164,20 +166,24 @@ class _CompanionCoherenceSpeedBase(AbilityPrototype):
 class SOCIABILITY(_CompanionCoherenceSpeedBase):
     NAME = u'Коммуникабельность'
     normalized_name = NAME
-    DESCRIPTION = u'Хороший разговор сближает лучше кровавой стычки, коммуникабельный герой быстрее увеличивает слаженность живого спутника.'
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_LIVING_COHERENCE_SPEED
+    BEING_TYPES = [t.text for t in game_relations.BEING_TYPE.records if t.companion_coherence_modifier == MODIFIER]
+    DESCRIPTION = u'Хороший разговор сближает лучше кровавой стычки, коммуникабельный герой быстрее увеличивает слаженность живого (%s) спутника.' % u', '.join(BEING_TYPES)
 
 class SERVICE(_CompanionCoherenceSpeedBase):
     NAME = u'Обслуживание'
     normalized_name = NAME
-    DESCRIPTION = u'Каждому магомеханическому спутнику требуется регулярная смазка, или подзарядка кристаллов, или ещё какая-нибудь заумная операция. Чем ответственнее герой относится к обслуживанию своего спутника, тем быстрее растёт его слаженность.'
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_CONSTRUCT_COHERENCE_SPEED
+    BEING_TYPES = [t.text for t in game_relations.BEING_TYPE.records if t.companion_coherence_modifier == MODIFIER]
+    DESCRIPTION = u'Каждому магомеханическому (%s) спутнику требуется регулярная смазка, или подзарядка кристаллов, или ещё какая-нибудь заумная операция. Чем ответственнее герой относится к обслуживанию своего спутника, тем быстрее растёт его слаженность.' % u', '.join(BEING_TYPES)
 
 class SACREDNESS(_CompanionCoherenceSpeedBase):
     NAME = u'Сакральность'
     normalized_name = NAME
-    DESCRIPTION = u'Особые спутники настолько необычны, что герою приходится учиться думать как его напарник. Если герою удаётся найти схожие струны в душе спутника, то их слаженность начинает расти быстрее.'
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED
+    BEING_TYPES = [t.text for t in game_relations.BEING_TYPE.records if t.companion_coherence_modifier == MODIFIER]
+    DESCRIPTION = u'Особые (%s) спутники настолько необычны, что герою приходится учиться думать как его напарник. Если герою удаётся найти схожие струны в душе спутника, то их слаженность начинает расти быстрее.' % u', '.join(BEING_TYPES)
+
 
 
 ABILITIES = dict( (ability.get_id(), ability)

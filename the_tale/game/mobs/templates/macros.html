@@ -14,7 +14,7 @@
       <tr><th>тип</th><td>{{mob.type.text}}</td></tr>
       <tr><th>архетип</th><td>{{mob.archetype.text}}</td></tr>
       <tr><th>интеллект</th><td>{{mob.intellect_level.text}}</td></tr>
-      <tr><th>коммуникация</th><td>{{mob_communication_abilities(mob)}}</td></tr>
+      <tr><th>коммуникация</th><td>{{communication_abilities(mob)}}</td></tr>
       <tr>
         <th>способности</th>
         <td>
@@ -49,6 +49,14 @@
       <tr>
         <th>участие в событии</th>
         <td>{{mob.global_action_probability}}</td>
+      </tr>
+      <tr>
+        <th>наёмник</th>
+        <td>{% if mob.is_mercenary %} да {% else %} нет {% endif %}</td>
+      </tr>
+      <tr>
+        <th>съедобный</th>
+        <td>{% if mob.is_eatable %} да {% else %} нет {% endif %}</td>
       </tr>
       {% endif %}
     </tbody>

@@ -23,7 +23,7 @@ from the_tale.linguistics.tests import helpers as linguistics_helpers
 
 from ..models import MobRecord
 from ..storage import mobs_storage
-from ..relations import MOB_RECORD_STATE, MOB_TYPE
+from ..relations import MOB_RECORD_STATE
 from ..prototypes import MobRecordPrototype
 from .. import meta_relations
 
@@ -38,7 +38,7 @@ class PostMixin(object):
         data.update( { 'level': 666,
                        'terrains': [TERRAIN.PLANE_GRASS, TERRAIN.HILLS_GRASS],
                        'abilities': ['hit', 'strong_hit', 'sidestep'],
-                       'type': MOB_TYPE.CIVILIZED,
+                       'type': game_relations.BEING_TYPE.CIVILIZED,
                        'archetype': game_relations.ARCHETYPE.NEUTRAL,
                        'global_action_probability': 0.5,
                        'description': 'mob description',
@@ -57,7 +57,7 @@ class PostMixin(object):
         data.update( {'level': 667,
                       'terrains': [TERRAIN.PLANE_JUNGLE, TERRAIN.HILLS_JUNGLE],
                       'abilities': ['hit', 'speedup'],
-                      'type': MOB_TYPE.BARBARIAN,
+                      'type': game_relations.BEING_TYPE.ANIMAL,
                       'archetype': game_relations.ARCHETYPE.MAGICAL,
                       'global_action_probability': 0.1,
                       'description': 'new description',
@@ -159,14 +159,14 @@ class TestIndexRequests(BaseTestRequests):
     def test_filter_by_type_no_mobs_message(self):
         MobRecord.objects.all().delete()
         mobs_storage.clear()
-        MobRecordPrototype.create_random(uuid='bandit', type=MOB_TYPE.COLDBLOODED)
-        self.check_html_ok(self.request_html(url('guide:mobs:', type=MOB_TYPE.CIVILIZED.value)), texts=(('pgf-no-mobs-message', 1),))
+        MobRecordPrototype.create_random(uuid='bandit', type=game_relations.BEING_TYPE.COLDBLOODED)
+        self.check_html_ok(self.request_html(url('guide:mobs:', type=game_relations.BEING_TYPE.CIVILIZED.value)), texts=(('pgf-no-mobs-message', 1),))
 
     def test_filter_by_type(self):
         MobRecord.objects.all().delete()
         mobs_storage.clear()
-        MobRecordPrototype.create_random(uuid='bandit', type=MOB_TYPE.COLDBLOODED)
-        self.check_html_ok(self.request_html(url('guide:mobs:', type=MOB_TYPE.COLDBLOODED.value)), texts=['bandit'])
+        MobRecordPrototype.create_random(uuid='bandit', type=game_relations.BEING_TYPE.COLDBLOODED)
+        self.check_html_ok(self.request_html(url('guide:mobs:', type=game_relations.BEING_TYPE.COLDBLOODED.value)), texts=['bandit'])
 
 
 class TestNewRequests(BaseTestRequests):
@@ -536,7 +536,7 @@ class TestModerateRequests(BaseTestRequests, PostMixin):
         self.assertEqual(mob_record.abilities, frozenset(['hit', 'speedup']) )
         self.assertEqual(mob_record.description, 'new description')
         self.assertTrue(mob_record.state.is_ENABLED)
-        self.assertTrue(mob_record.type.is_BARBARIAN)
+        self.assertTrue(mob_record.type.is_ANIMAL)
         self.assertTrue(mob_record.archetype.is_MAGICAL)
         self.assertTrue(mob_record.editor_id, self.account_3.id)
 

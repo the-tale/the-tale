@@ -10,6 +10,8 @@ from the_tale.common.utils import views as utils_views
 
 from the_tale.accounts import views as accounts_views
 
+from the_tale.game import relations as game_relations
+
 from . import relations
 from . import forms
 from . import logic
@@ -77,7 +79,7 @@ resource.add_processor(ModerateCompanionProcessor())
 # filters
 ########################################
 
-INDEX_TYPE = list_filter.filter_relation(relations.TYPE)
+INDEX_TYPE = list_filter.filter_relation(game_relations.BEING_TYPE)
 INDEX_DEDICATION = list_filter.filter_relation(relations.DEDICATION)
 INDEX_ABILITIES = list_filter.filter_relation(abilities_effects.ABILITIES, sort_key=lambda r: r.text)
 
@@ -240,7 +242,11 @@ def create(context):
                                                      dedication=context.form.c.dedication,
                                                      mode=context.form.c.mode,
                                                      archetype=context.form.c.archetype,
-                                                     abilities=context.form.c.abilities)
+                                                     abilities=context.form.c.abilities,
+                                                     communication_verbal=context.form.c.communication_verbal,
+                                                     communication_gestures=context.form.c.communication_gestures,
+                                                     communication_telepathic=context.form.c.communication_telepathic,
+                                                     intellect_level=context.form.c.intellect_level)
     return dext_views.AjaxOk(content={'next_url': url('guide:companions:show', companion_record.id)})
 
 
@@ -272,7 +278,11 @@ def update(context):
                                   dedication=context.form.c.dedication,
                                   mode=context.form.c.mode,
                                   archetype=context.form.c.archetype,
-                                  abilities=context.form.c.abilities)
+                                  abilities=context.form.c.abilities,
+                                  communication_verbal=context.form.c.communication_verbal,
+                                  communication_gestures=context.form.c.communication_gestures,
+                                  communication_telepathic=context.form.c.communication_telepathic,
+                                  intellect_level=context.form.c.intellect_level)
     return dext_views.AjaxOk(content={'next_url': url('guide:companions:show', context.companion.id)})
 
 

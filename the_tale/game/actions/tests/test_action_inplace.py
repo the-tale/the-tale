@@ -69,7 +69,6 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         old_messages_len = len (self.hero.messages.messages)
         prototypes.ActionInPlacePrototype.create(hero=self.hero)
         self.assertEqual(self.hero.health, self.hero.max_health)
-        self.assertEqual(len(self.hero.messages.messages), old_messages_len + 1)
         self.storage._test_save()
 
     def test_no_instant_heal_in_resort(self):
@@ -78,7 +77,6 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         old_messages_len = len (self.hero.messages.messages)
         prototypes.ActionInPlacePrototype.create(hero=self.hero)
         self.assertEqual(self.hero.health, self.hero.max_health)
-        self.assertEqual(len(self.hero.messages.messages), old_messages_len)
         self.storage._test_save()
 
 
@@ -146,8 +144,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
-        with self.check_not_changed(lambda: len(self.hero.messages.messages)):
-            prototypes.ActionInPlacePrototype.create(hero=self.hero)
+        prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertEqual(self.hero.energy, self.hero.energy_maximum)
 
@@ -161,8 +158,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
-        with self.check_not_changed(lambda: len(self.hero.messages.messages)):
-            prototypes.ActionInPlacePrototype.create(hero=self.hero)
+        prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertEqual(self.hero.energy, 0)
 

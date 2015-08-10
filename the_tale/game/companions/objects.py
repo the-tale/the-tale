@@ -10,6 +10,7 @@ from the_tale.game.balance import constants as c
 from the_tale.game.balance import power as p
 
 from the_tale.game import prototypes as game_prototypes
+from the_tale.game import relations as game_relations
 
 from the_tale.game.heroes import relations as heroes_relations
 
@@ -72,11 +73,19 @@ class Companion(object):
         from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
         from the_tale.linguistics.storage import restrictions_storage
 
-        return (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION, self.record.id).id,
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_TYPE, self.record.type.value).id,
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_DEDICATION, self.record.dedication.value).id,
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_RARITY, self.record.rarity.value).id,
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARCHETYPE, self.record.archetype.value).id)
+        restrictions = [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION, self.record.id).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTOR, game_relations.ACTOR.COMPANION.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_DEDICATION, self.record.dedication.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_RARITY, self.record.rarity.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARCHETYPE, self.record.archetype.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_VERBAL, self.record.communication_verbal.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_GESTURES, self.record.communication_gestures.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC, self.record.communication_telepathic.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL, self.record.intellect_level.value).id ]
+        if self._hero:
+            restrictions.append(restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE, self._hero.actions.current_action.ui_type.value).id)
+
+        return restrictions
 
     @property
     def defend_in_battle_probability(self):
@@ -146,12 +155,7 @@ class Companion(object):
     def add_experience(self, value):
         value = round(self._hero.modify_attribute(heroes_relations.MODIFIERS.COHERENCE_EXPERIENCE, value))
 
-        if self.record.type.is_LIVING:
-            value *= self._hero.companion_living_coherence_speed
-        elif self.record.type.is_CONSTRUCT:
-            value *= self._hero.companion_construct_coherence_speed
-        elif self.record.type.is_UNUSUAL:
-            value *= self._hero.companion_unusual_coherence_speed
+        value *= self._hero.companion_coherence_speed
 
         self.experience += int(value)
 
@@ -208,7 +212,19 @@ class Companion(object):
 
 
 class CompanionRecord(names.ManageNameMixin):
-    __slots__ = ('id', 'state', 'data', 'type', 'max_health', 'dedication', 'archetype', 'mode', 'abilities')
+    __slots__ = ('id',
+                 'state',
+                 'data',
+                 'type',
+                 'max_health',
+                 'dedication',
+                 'archetype',
+                 'mode',
+                 'abilities',
+                 'communication_verbal',
+                 'communication_gestures',
+                 'communication_telepathic',
+                 'intellect_level')
 
     def __init__(self,
                  id,
@@ -218,7 +234,11 @@ class CompanionRecord(names.ManageNameMixin):
                  max_health,
                  dedication,
                  archetype,
-                 mode):
+                 mode,
+                 communication_verbal,
+                 communication_gestures,
+                 communication_telepathic,
+                 intellect_level):
         self.id = id
         self.state = state
         self.type = type
@@ -226,6 +246,11 @@ class CompanionRecord(names.ManageNameMixin):
         self.dedication = dedication
         self.archetype = archetype
         self.mode = mode
+
+        self.communication_verbal = communication_verbal
+        self.communication_gestures = communication_gestures
+        self.communication_telepathic = communication_telepathic
+        self.intellect_level = intellect_level
 
         self.data = data
 
@@ -260,7 +285,11 @@ class CompanionRecord(names.ManageNameMixin):
                    max_health=model.max_health,
                    dedication=model.dedication,
                    archetype=model.archetype,
-                   mode=model.mode)
+                   mode=model.mode,
+                   communication_verbal=model.communication_verbal,
+                   communication_gestures=model.communication_gestures,
+                   communication_telepathic=model.communication_telepathic,
+                   intellect_level=model.intellect_level)
 
     @property
     def description_html(self): return bbcode.render(self.description)

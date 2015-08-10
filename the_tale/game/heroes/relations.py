@@ -10,8 +10,6 @@ from the_tale.game.balance.power import Power
 
 from the_tale.game.artifacts.relations import ARTIFACT_TYPE
 
-from the_tale.game import relations as game_relations
-
 
 class RISK_LEVEL(DjangoEnum):
     health_percent_to_rest = Column()
@@ -267,15 +265,14 @@ class ENERGY_REGENERATION(DjangoEnum):
     period = Column(unique=False)
     amount = Column(unique=False)
     length = Column(unique=False)
-    base_race = Column(related_name='energy_regeneration')
     linguistics_slugs = Column()
 
     _PERIOD = c.ANGEL_ENERGY_REGENERATION_PERIOD
     _AMOUNT = c.ANGEL_ENERGY_REGENERATION_AMAUNT
     _LENGTH = c.ANGEL_ENERGY_REGENERATION_LENGTH
 
-    records = ( ('PRAY', 0, u'молитва',               1, 1 * _PERIOD, 1 * _AMOUNT, 1 * _LENGTH, game_relations.RACE.HUMAN, ('pray', )),
-                ('SACRIFICE', 1, u'жертвоприношение', 2, 2 * _PERIOD, 2 * _AMOUNT, 2 * _LENGTH, game_relations.RACE.ORC, ('sacrifice_fire', 'sacrifice_blood', 'sacrifice_knife')),
-                ('INCENSE', 2, u'благовония',         4, 4 * _PERIOD, 4 * _AMOUNT, 4 * _LENGTH, game_relations.RACE.ELF, ('incense', )),
-                ('SYMBOLS', 3, u'символы',            3, 3 * _PERIOD, 3 * _AMOUNT, 3 * _LENGTH, game_relations.RACE.DWARF, ('symbols_stone', 'symbols_ground', 'symbols_tree')),
-                ('MEDITATION', 4, u'медитация',       2, 2 * _PERIOD, 2 * _AMOUNT, 2 * _LENGTH, game_relations.RACE.GOBLIN, ('meditation', )) )
+    records = ( ('PRAY', 0, u'молитва',               1, 1 * _PERIOD, 1 * _AMOUNT, 1 * _LENGTH, ('pray', )),
+                ('SACRIFICE', 1, u'жертвоприношение', 2, 2 * _PERIOD, 2 * _AMOUNT, 2 * _LENGTH, ('sacrifice_fire', 'sacrifice_blood', 'sacrifice_knife')),
+                ('INCENSE', 2, u'благовония',         4, 4 * _PERIOD, 4 * _AMOUNT, 4 * _LENGTH, ('incense', )),
+                ('SYMBOLS', 3, u'символы',            3, 3 * _PERIOD, 3 * _AMOUNT, 3 * _LENGTH, ('symbols_stone', 'symbols_ground', 'symbols_tree')),
+                ('MEDITATION', 4, u'медитация',       2, 2 * _PERIOD, 2 * _AMOUNT, 2 * _LENGTH, ('meditation', )) )

@@ -16,6 +16,8 @@ from the_tale.game.balance.power import Power, PowerDistribution
 
 from the_tale.game.logic import create_test_map, DEFAULT_HERO_EQUIPMENT
 
+from the_tale.game.mobs import relations as mobs_relations
+
 from the_tale.game.heroes.prototypes import HeroPrototype
 
 from the_tale.game.artifacts import exceptions
@@ -147,11 +149,10 @@ class PrototypeTests(testcase.TestCase):
 
     def test_generate_artifact(self):
         from the_tale.game.mobs.prototypes import MobPrototype, MobRecordPrototype
-        from the_tale.game.mobs.models import MOB_RECORD_STATE
 
         self.hero._model.level = 5
 
-        mob_record = MobRecordPrototype.create_random(uuid='bandit', level=2, state=MOB_RECORD_STATE.ENABLED)
+        mob_record = MobRecordPrototype.create_random(uuid='bandit', level=2, state=mobs_relations.MOB_RECORD_STATE.ENABLED)
         mob = MobPrototype(record_id=mob_record.id, level=3)
         artifact_1 = ArtifactRecordPrototype.create_random('bandit_loot', mob=mob_record, type_=relations.ARTIFACT_TYPE.USELESS, state=relations.ARTIFACT_RECORD_STATE.ENABLED)
         artifact_2 = ArtifactRecordPrototype.create_random('bandit_artifact', mob=mob_record, type_=relations.ARTIFACT_TYPE.HELMET, state=relations.ARTIFACT_RECORD_STATE.ENABLED)
@@ -179,11 +180,10 @@ class PrototypeTests(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.artifacts_probability', lambda self, mob: 1.0)
     def test_generate_artifact__rarity(self):
         from the_tale.game.mobs.prototypes import MobPrototype, MobRecordPrototype
-        from the_tale.game.mobs.models import MOB_RECORD_STATE
 
         self.hero._model.level = 5
 
-        mob_record = MobRecordPrototype.create_random(uuid='bandit', level=2, state=MOB_RECORD_STATE.ENABLED)
+        mob_record = MobRecordPrototype.create_random(uuid='bandit', level=2, state=mobs_relations.MOB_RECORD_STATE.ENABLED)
         mob = MobPrototype(record_id=mob_record.id, level=3)
         ArtifactRecordPrototype.create_random('bandit_artifact', mob=mob_record, type_=relations.ARTIFACT_TYPE.HELMET, state=relations.ARTIFACT_RECORD_STATE.ENABLED)
 
@@ -203,11 +203,10 @@ class PrototypeTests(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.artifacts_probability', lambda self, mob: 1.0)
     def test_generate_artifact__rarity_with_normal_probabilities(self):
         from the_tale.game.mobs.prototypes import MobPrototype, MobRecordPrototype
-        from the_tale.game.mobs.models import MOB_RECORD_STATE
 
         self.hero._model.level = 5
 
-        mob_record = MobRecordPrototype.create_random(uuid='bandit', level=2, state=MOB_RECORD_STATE.ENABLED)
+        mob_record = MobRecordPrototype.create_random(uuid='bandit', level=2, state=mobs_relations.MOB_RECORD_STATE.ENABLED)
         mob = MobPrototype(record_id=mob_record.id, level=3)
         ArtifactRecordPrototype.create_random('bandit_artifact', mob=mob_record, type_=relations.ARTIFACT_TYPE.HELMET, state=relations.ARTIFACT_RECORD_STATE.ENABLED)
 

@@ -6,7 +6,7 @@ from rels.django import RelationIntegerField
 
 from the_tale.game import relations as game_relations
 
-from the_tale.game.mobs.relations import MOB_RECORD_STATE, MOB_TYPE
+from the_tale.game.mobs import relations
 
 
 class MobRecord(models.Model):
@@ -19,8 +19,11 @@ class MobRecord(models.Model):
 
     editor = models.ForeignKey('accounts.Account', null=True, related_name='+', on_delete=models.SET_NULL)
 
-    state = RelationIntegerField(relation=MOB_RECORD_STATE, db_index=True)
-    type = RelationIntegerField(relation=MOB_TYPE, db_index=True)
+    state = RelationIntegerField(relation=relations.MOB_RECORD_STATE, db_index=True)
+    type = RelationIntegerField(relation=game_relations.BEING_TYPE, db_index=True)
+
+    is_mercenary = models.BooleanField(default=False)
+    is_eatable = models.BooleanField(default=False)
 
     archetype = RelationIntegerField(relation=game_relations.ARCHETYPE, db_index=True)
 

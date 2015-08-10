@@ -12,13 +12,6 @@ class STATE(DjangoEnum):
     records = ( (u'ENABLED', 0, u'в игре'),
                 (u'DISABLED', 1, u'вне игры'),)
 
-
-class TYPE(DjangoEnum):
-    records = ( (u'LIVING', 0, u'живой'),
-                (u'CONSTRUCT', 1, u'магомеханический'),
-                (u'UNUSUAL', 2, u'особый') )
-
-
 class MODE(DjangoEnum):
     records = ( (u'AUTOMATIC', 0, u'автоматический'),
                 (u'MANUAL', 1, u'ручной'),)

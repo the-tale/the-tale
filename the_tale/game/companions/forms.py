@@ -23,10 +23,16 @@ class CompanionRecordForm(forms.Form):
 
     max_health = fields.IntegerField(label=u'здоровье', min_value=c.COMPANIONS_MIN_HEALTH, max_value=c.COMPANIONS_MAX_HEALTH)
 
-    type = fields.RelationField(label=u'тип', relation=relations.TYPE)
+    type = fields.RelationField(label=u'тип', relation=game_relations.BEING_TYPE)
     dedication = fields.RelationField(label=u'самоотверженность', relation=relations.DEDICATION)
     archetype = fields.RelationField(label=u'архетип', relation=game_relations.ARCHETYPE)
     mode = fields.RelationField(label=u'режим появления в игре', relation=relations.MODE)
+
+    communication_verbal = fields.RelationField(label=u'вербальное общение', relation=game_relations.COMMUNICATION_VERBAL)
+    communication_gestures = fields.RelationField(label=u'невербальное общение', relation=game_relations.COMMUNICATION_GESTURES)
+    communication_telepathic = fields.RelationField(label=u'телепатия', relation=game_relations.COMMUNICATION_TELEPATHIC)
+
+    intellect_level = fields.RelationField(label=u'уровень интеллекта', relation=game_relations.INTELLECT_LEVEL)
 
     abilities = abilities_forms.AbilitiesField(label=u'', required=False)
 
@@ -41,4 +47,8 @@ class CompanionRecordForm(forms.Form):
                 'archetype': companion.archetype,
                 'mode': companion.mode,
                 'abilities': companion.abilities,
-                'name': companion.utg_name}
+                'name': companion.utg_name,
+                'communication_verbal': companion.communication_verbal,
+                'communication_gestures': companion.communication_gestures,
+                'communication_telepathic': companion.communication_telepathic,
+                'intellect_level': companion.intellect_level}

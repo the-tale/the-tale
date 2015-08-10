@@ -13,6 +13,8 @@ from the_tale.game.artifacts.relations import ARTIFACT_POWER_TYPE
 from the_tale.game.balance import constants as c
 from the_tale.game import technical_words
 
+from the_tale.game.heroes import relations as heroes_relations
+
 
 class GENDER(DjangoEnum):
     utg_id = Column()
@@ -34,17 +36,18 @@ class RACE(DjangoEnum):
     multiple_text = Column()
     utg_name_form = Column()
     linguistics_restrictions = Column()
+    energy_regeneration = Column(related_name='base_race')
 
     records = ( ('HUMAN', 0, u'человек', u'люди',
-                 technical_words.RACE_HUMANS, _race_linguistics_restrictions('HUMAN')),
+                 technical_words.RACE_HUMANS, _race_linguistics_restrictions('HUMAN'), heroes_relations.ENERGY_REGENERATION.PRAY),
                 ('ELF', 1, u'эльф', u'эльфы',
-                 technical_words.RACE_ELFS, _race_linguistics_restrictions('ELF')),
+                 technical_words.RACE_ELFS, _race_linguistics_restrictions('ELF'), heroes_relations.ENERGY_REGENERATION.INCENSE),
                 ('ORC', 2, u'орк',  u'орки',
-                 technical_words.RACE_ORCS, _race_linguistics_restrictions('ORC')),
+                 technical_words.RACE_ORCS, _race_linguistics_restrictions('ORC'), heroes_relations.ENERGY_REGENERATION.SACRIFICE),
                 ('GOBLIN', 3, u'гоблин', u'гоблины',
-                 technical_words.RACE_GOBLINS, _race_linguistics_restrictions('GOBLIN')),
+                 technical_words.RACE_GOBLINS, _race_linguistics_restrictions('GOBLIN'), heroes_relations.ENERGY_REGENERATION.MEDITATION),
                 ('DWARF', 4, u'дварф', u'дварфы',
-                 technical_words.RACE_DWARFS, _race_linguistics_restrictions('DWARF')) )
+                 technical_words.RACE_DWARFS, _race_linguistics_restrictions('DWARF'), heroes_relations.ENERGY_REGENERATION.SYMBOLS) )
 
 
 class GAME_STATE(DjangoEnum):
@@ -116,16 +119,16 @@ class SUPERVISOR_TASK_STATE(DjangoEnum):
                 ('ERROR', 2, u'ошибка при обработке'), )
 
 class COMMUNICATION_VERBAL(DjangoEnum):
-    records = ( ('CAN_NOT', 0, u'может'),
-                ('CAN', 1, u'не может'), )
+    records = ( ('CAN_NOT', 0, u'не может'),
+                ('CAN', 1, u'может'), )
 
 class COMMUNICATION_GESTURES(DjangoEnum):
-    records = ( ('CAN_NOT', 0, u'может'),
-                ('CAN', 1, u'не может'), )
+    records = ( ('CAN_NOT', 0, u'не может'),
+                ('CAN', 1, u'может'), )
 
 class COMMUNICATION_TELEPATHIC(DjangoEnum):
-    records = ( ('CAN_NOT', 0, u'может'),
-                ('CAN', 1, u'не может'), )
+    records = ( ('CAN_NOT', 0, u'не может'),
+                ('CAN', 1, u'может'), )
 
 class INTELLECT_LEVEL(DjangoEnum):
     records = ( ('NONE', 0, u'отсутствует'),
@@ -138,4 +141,23 @@ class INTELLECT_LEVEL(DjangoEnum):
 class ACTOR(DjangoEnum):
     records = ( ('HERO', 0, u'герой'),
                 ('MOB', 1, u'монстр'),
-                ('PERSON', 2, u'советник')  )
+                ('PERSON', 2, u'советник'),
+                ('COMPANION', 3, u'спутник')  )
+
+
+class BEING_TYPE(DjangoEnum):
+    companion_heal_modifier = Column(unique=False)
+    companion_coherence_modifier = Column(unique=False)
+
+    records = ( (u'PLANT', 0, u'растения', heroes_relations.MODIFIERS.COMPANION_LIVING_HEAL, heroes_relations.MODIFIERS.COMPANION_LIVING_COHERENCE_SPEED),
+                (u'ANIMAL', 1, u'животные', heroes_relations.MODIFIERS.COMPANION_LIVING_HEAL, heroes_relations.MODIFIERS.COMPANION_LIVING_COHERENCE_SPEED),
+                (u'SUPERNATURAL', 2, u'стихийные существа', heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL, heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED),
+                (u'MECHANICAL', 3, u'конструкты', heroes_relations.MODIFIERS.COMPANION_CONSTRUCT_HEAL, heroes_relations.MODIFIERS.COMPANION_CONSTRUCT_COHERENCE_SPEED),
+                # (u'BARBARIAN', 4, u'дикари', heroes_relations.MODIFIERS.COMPANION_LIVING_HEAL, heroes_relations.MODIFIERS.COMPANION_LIVING_COHERENCE_SPEED),
+                (u'CIVILIZED', 5, u'разумные двуногие', heroes_relations.MODIFIERS.COMPANION_LIVING_HEAL, heroes_relations.MODIFIERS.COMPANION_LIVING_COHERENCE_SPEED),
+                (u'COLDBLOODED', 6, u'хладнокровные гады', heroes_relations.MODIFIERS.COMPANION_LIVING_HEAL, heroes_relations.MODIFIERS.COMPANION_LIVING_COHERENCE_SPEED),
+                (u'INSECT', 7, u'насекомые', heroes_relations.MODIFIERS.COMPANION_LIVING_HEAL, heroes_relations.MODIFIERS.COMPANION_LIVING_COHERENCE_SPEED),
+                (u'DEMON', 8, u'демоны', heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL, heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED),
+                (u'UNDEAD', 9, u'нежить', heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL, heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED),
+                (u'MONSTER', 10, u'чудовища', heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL, heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED),
+                (u'CHIMERA', 11, u'химеры', heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL, heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED) )

@@ -17,10 +17,7 @@ from the_tale.game import relations as game_relations
 from the_tale.game.heroes.habilities import ABILITIES
 from the_tale.game.heroes.habilities.battle import HIT
 
-
-
 from the_tale.game.mobs.prototypes import MobRecordPrototype
-from the_tale.game.mobs.relations import MOB_TYPE
 
 
 def to_ability(ability_id):
@@ -30,7 +27,7 @@ ABILITY_CHOICES_DICT = dict( (ability.get_id(), ability.NAME) for ability in Mob
 
 ABILITY_CHOICES = sorted(ABILITY_CHOICES_DICT.items(), key=lambda choice: choice[1])
 
-MOB_TYPE_CHOICES = sorted(MOB_TYPE.choices(), key=lambda choice: choice[1])
+MOB_TYPE_CHOICES = sorted(game_relations.BEING_TYPE.choices(), key=lambda choice: choice[1])
 
 
 class MobRecordBaseForm(forms.Form):
@@ -39,7 +36,7 @@ class MobRecordBaseForm(forms.Form):
 
     name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название')
 
-    type = fields.TypedChoiceField(label=u'тип', choices=MOB_TYPE_CHOICES, coerce=MOB_TYPE.get_from_name)
+    type = fields.TypedChoiceField(label=u'тип', choices=MOB_TYPE_CHOICES, coerce=game_relations.BEING_TYPE.get_from_name)
     archetype = fields.TypedChoiceField(label=u'тип', choices=game_relations.ARCHETYPE.choices(), coerce=game_relations.ARCHETYPE.get_from_name)
 
     global_action_probability = fields.FloatField(label=u'вероятность встретить монстра, если идёт его набег (от 0 до 1, 0 — нет набега)')
@@ -50,9 +47,12 @@ class MobRecordBaseForm(forms.Form):
 
     description = bbcode.BBField(label=u'Описание', required=False)
 
-    communication_verbal = fields.RelationField(label=u'вербальное общение', relation=game_relations.COMMUNICATION_VERBAL, required=False)
-    communication_gestures = fields.RelationField(label=u'невербальное общение', relation=game_relations.COMMUNICATION_GESTURES, required=False)
-    communication_telepathic = fields.RelationField(label=u'телепатия', relation=game_relations.COMMUNICATION_TELEPATHIC, required=False)
+    is_mercenary = fields.BooleanField(label=u'может быть наёмником', required=False)
+    is_eatable = fields.BooleanField(label=u'съедобный', required=False)
+
+    communication_verbal = fields.RelationField(label=u'вербальное общение', relation=game_relations.COMMUNICATION_VERBAL)
+    communication_gestures = fields.RelationField(label=u'невербальное общение', relation=game_relations.COMMUNICATION_GESTURES)
+    communication_telepathic = fields.RelationField(label=u'телепатия', relation=game_relations.COMMUNICATION_TELEPATHIC)
 
     intellect_level = fields.RelationField(label=u'уровень интеллекта', relation=game_relations.INTELLECT_LEVEL)
 
@@ -92,7 +92,9 @@ class MobRecordBaseForm(forms.Form):
                 'communication_verbal': mob.communication_verbal,
                 'communication_gestures': mob.communication_gestures,
                 'communication_telepathic': mob.communication_telepathic,
-                'intellect_level': mob.intellect_level}
+                'intellect_level': mob.intellect_level,
+                'is_mercenary': mob.is_mercenary,
+                'is_eatable': mob.is_eatable}
 
 
 class MobRecordForm(MobRecordBaseForm):

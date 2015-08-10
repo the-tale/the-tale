@@ -15,7 +15,7 @@ from the_tale.game.map.relations import TERRAIN
 
 from the_tale.game import relations as game_relations
 
-from .relations import MOB_RECORD_STATE, INDEX_ORDER_TYPE, MOB_TYPE
+from .relations import MOB_RECORD_STATE, INDEX_ORDER_TYPE
 from .prototypes import MobRecordPrototype
 from .storage import mobs_storage
 from .forms import MobRecordForm, ModerateMobRecordForm
@@ -23,7 +23,7 @@ from . import meta_relations
 
 
 BASE_INDEX_FILTERS = [list_filter.reset_element(),
-                      list_filter.choice_element(u'тип:', attribute='type', choices=[(None, u'все')] + sorted(list(MOB_TYPE.select('value', 'text')), key=lambda x: x[1])),
+                      list_filter.choice_element(u'тип:', attribute='type', choices=[(None, u'все')] + sorted(list(game_relations.BEING_TYPE.select('value', 'text')), key=lambda x: x[1])),
                       list_filter.choice_element(u'архетип:', attribute='archetype', choices=[(None, u'все')] + sorted(list(game_relations.ARCHETYPE.select('value', 'text')), key=lambda x: x[1])),
                       list_filter.choice_element(u'территория:', attribute='terrain', choices=[(None, u'все')] + sorted(list(TERRAIN.select('value', 'text')), key=lambda x: x[1])),
                       list_filter.choice_element(u'сортировка:',
@@ -60,7 +60,7 @@ class MobResourceBase(Resource):
 
 def argument_to_mob_state(value): return MOB_RECORD_STATE(int(value))
 
-def argument_to_mob_type(value): return MOB_TYPE(int(value))
+def argument_to_mob_type(value): return game_relations.BEING_TYPE(int(value))
 
 def argument_to_archetype(value): return game_relations.ARCHETYPE(int(value))
 
@@ -192,7 +192,9 @@ class GameMobResource(MobResourceBase):
                                         communication_verbal=form.c.communication_verbal,
                                         communication_gestures=form.c.communication_gestures,
                                         communication_telepathic=form.c.communication_telepathic,
-                                        intellect_level=form.c.intellect_level)
+                                        intellect_level=form.c.intellect_level,
+                                        is_mercenary=form.c.is_mercenary,
+                                        is_eatable=form.c.is_eatable)
         return self.json_ok(data={'next_url': reverse('guide:mobs:show', args=[mob.id])})
 
 

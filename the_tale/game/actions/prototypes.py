@@ -1069,7 +1069,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
             self.hero.companion.health < self.hero.companion.max_health and
             self.hero.can_companion_eat_corpses() and
             random.random() < self.hero.companion_eat_corpses_probability and
-            self.mob.mob_type.is_eatable):
+            self.mob.is_eatable):
             health = self.hero.companion.heal(c.COMPANIONS_EATEN_CORPSES_HEAL_AMOUNT)
             self.hero.add_message('companions_eat_corpse', companion_owner=self.hero, companion=self.hero.companion, health=health, mob=self.mob)
 
@@ -1990,11 +1990,7 @@ class ActionHealCompanionPrototype(ActionBase):
             health = self.hero.companion.heal(utils_logic.randint_from_1(c.COMPANIONS_REGEN_ON_HEAL_AMOUNT))
             self.hero.add_message('companions_regenerate', companion_owner=self.hero, companion=self.hero.companion, health=health)
 
-        if (self.hero.companion.health < self.hero.companion.max_health and
-            ( (self.hero.companion.type.is_LIVING and random.random() < self.hero.companion_living_heal_probability) or
-              (self.hero.companion.type.is_CONSTRUCT and random.random() < self.hero.companion_construct_heal_probability) or
-              (self.hero.companion.type.is_UNUSUAL and random.random() < self.hero.companion_unusual_heal_probability) )
-              ):
+        if (self.hero.companion.health < self.hero.companion.max_health and random.random() < self.hero.companion_heal_probability):
             health = self.hero.companion.heal(utils_logic.randint_from_1(c.COMPANIONS_REGEN_BY_HERO))
             self.hero.add_message('hero_ability_companion_healing', actor=self.hero, companion=self.hero.companion, health=health)
 
