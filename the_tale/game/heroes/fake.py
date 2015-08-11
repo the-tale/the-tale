@@ -1,6 +1,6 @@
 # coding: utf-8
 
-class FakeMessanger(object):
+class FakeMessenger(object):
 
     def __init__(self):
         self.messages = []

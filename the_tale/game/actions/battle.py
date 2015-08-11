@@ -81,18 +81,18 @@ class Actor(object):
     def update_context(self, enemy):
         self.actor.update_context(self, enemy)
 
-    def process_effects(self, messanger):
+    def process_effects(self, messenger):
         fire_damage = self.context.fire_damage
         if fire_damage:
             damage = self.context.modify_incoming_damage(fire_damage)
             self.change_health(-damage.total)
-            messanger.add_message('action_battlepve1x1_periodical_fire_damage', actor=self, damage=damage.total)
+            messenger.add_message('action_battlepve1x1_periodical_fire_damage', actor=self, damage=damage.total)
 
         poison_damage = self.context.poison_damage
         if poison_damage:
             damage = self.context.modify_incoming_damage(poison_damage)
             self.change_health(-damage.total)
-            messanger.add_message('action_battlepve1x1_periodical_poison_damage', actor=self, damage=damage.total)
+            messenger.add_message('action_battlepve1x1_periodical_poison_damage', actor=self, damage=damage.total)
 
 
 class CompanionActor(Actor):
@@ -130,12 +130,12 @@ class CompanionActor(Actor):
 
     def choose_ability(self): raise NotImplementedError()
 
-    def process_effects(self, messanger): raise NotImplementedError()
+    def process_effects(self, messenger): raise NotImplementedError()
 
     def change_health(self, value): raise NotImplementedError()
 
 
-def make_turn(actor_1, actor_2, messanger):
+def make_turn(actor_1, actor_2, messenger):
 
     if actor_1.context.turn == actor_2.context.turn == 0:
 
@@ -145,20 +145,20 @@ def make_turn(actor_1, actor_2, messanger):
 
         # check first strike
         if actor_1.context.first_strike and not actor_2.context.first_strike:
-            return strike(attacker=actor_1, defender=actor_2, messanger=messanger)
+            return strike(attacker=actor_1, defender=actor_2, messenger=messenger)
 
         if actor_2.context.first_strike and not actor_1.context.first_strike:
-            return strike(attacker=actor_2, defender=actor_1, messanger=messanger)
+            return strike(attacker=actor_2, defender=actor_1, messenger=messenger)
 
     actor_1_initiative = random.uniform(0, actor_1.initiative + actor_2.initiative)
 
     if actor_1_initiative < actor_1.initiative:
-        return strike(attacker=actor_1, defender=actor_2, messanger=messanger)
+        return strike(attacker=actor_1, defender=actor_2, messenger=messenger)
     else:
-        return strike(attacker=actor_2, defender=actor_1, messanger=messanger)
+        return strike(attacker=actor_2, defender=actor_1, messenger=messenger)
 
 
-def strike(attacker, defender, messanger):
+def strike(attacker, defender, messenger):
 
     attacker.context.on_own_turn()
     defender.context.on_enemy_turn()
@@ -166,49 +166,49 @@ def strike(attacker, defender, messanger):
     attacker.update_context(defender)
     defender.update_context(attacker)
 
-    attacker.process_effects(messanger)
-    defender.process_effects(messanger)
+    attacker.process_effects(messenger)
+    defender.process_effects(messenger)
 
     if attacker.context.is_stunned:
-        messanger.add_message('action_battlepve1x1_battle_stun', actor=attacker)
+        messenger.add_message('action_battlepve1x1_battle_stun', actor=attacker)
         return
 
-    if try_companion_block(attacker, defender, messanger):
+    if try_companion_block(attacker, defender, messenger):
         return
 
-    if not try_companion_strike(attacker, defender, messanger):
+    if not try_companion_strike(attacker, defender, messenger):
         ability = attacker.choose_ability()
-        _strike(ability, attacker, defender, messanger)
+        _strike(ability, attacker, defender, messenger)
 
     if attacker.health <= 0 and attacker.context.can_use_last_chance():
         attacker.change_health(-attacker.health+1)
-        messanger.add_message('hero_ability_last_chance', actor=attacker)
+        messenger.add_message('hero_ability_last_chance', actor=attacker)
 
     if defender.health <= 0 and defender.context.can_use_last_chance():
         defender.change_health(-defender.health+1)
-        messanger.add_message('hero_ability_last_chance', actor=defender)
+        messenger.add_message('hero_ability_last_chance', actor=defender)
 
-def _strike(ability, attacker, defender, messanger):
+def _strike(ability, attacker, defender, messenger):
     if ability.LOGIC_TYPE.is_WITHOUT_CONTACT:
-        strike_without_contact(ability, attacker, defender, messanger)
+        strike_without_contact(ability, attacker, defender, messenger)
     elif ability.LOGIC_TYPE.is_WITH_CONTACT:
-        strike_with_contact(ability, attacker, defender, messanger)
+        strike_with_contact(ability, attacker, defender, messenger)
 
 
-def strike_with_contact(ability, attacker, defender, messanger):
+def strike_with_contact(ability, attacker, defender, messenger):
 
     if attacker.context.should_miss_attack():
-        ability.on_miss(messanger, attacker, defender)
+        ability.on_miss(messenger, attacker, defender)
         return
 
-    ability.use(messanger, attacker, defender)
+    ability.use(messenger, attacker, defender)
 
 
-def strike_without_contact(ability, attacker, defender, messanger):
-    ability.use(messanger, attacker, defender)
+def strike_without_contact(ability, attacker, defender, messenger):
+    ability.use(messenger, attacker, defender)
 
 
-def try_companion_block(attacker, defender, messanger):
+def try_companion_block(attacker, defender, messenger):
     if not defender.has_companion:
         return False
 
@@ -216,28 +216,28 @@ def try_companion_block(attacker, defender, messanger):
         return False
 
     if random.random() > defender.companion_damage_probability + defender.companion.damage_from_heal_probability:
-        messanger.add_message('companions_block', attacker=attacker, companion_owner=defender, companion=defender.companion)
+        messenger.add_message('companions_block', attacker=attacker, companion_owner=defender, companion=defender.companion)
         return True
 
-    messanger.add_message('companions_wound', attacker=attacker, companion_owner=defender, companion=defender.companion)
+    messenger.add_message('companions_wound', attacker=attacker, companion_owner=defender, companion=defender.companion)
 
     defender.companion.hit()
 
     if defender.companion.is_dead:
-        messanger.add_message('companions_killed', diary=True, attacker=attacker, companion_owner=defender, companion=defender.companion)
+        messenger.add_message('companions_killed', diary=True, attacker=attacker, companion_owner=defender, companion=defender.companion)
 
         if defender.actor.can_companion_broke_to_spare_parts():
             coins = int(f.normal_action_price(defender.level) *
                         sum(item.price_fraction for item in heroes_relations.ITEMS_OF_EXPENDITURE.records))
             defender.actor.change_money(heroes_relations.MONEY_SOURCE.EARNED_FROM_COMPANIONS, coins)
-            messanger.add_message('companions_broke_to_spare_parts', diary=True, companion_owner=defender, companion=defender.companion, coins=coins)
+            messenger.add_message('companions_broke_to_spare_parts', diary=True, companion_owner=defender, companion=defender.companion, coins=coins)
 
         defender.remove_companion()
 
     return True
 
 
-def try_companion_strike(attacker, defender, messanger):
+def try_companion_strike(attacker, defender, messenger):
 
     if not attacker.has_companion:
         return False
@@ -255,6 +255,6 @@ def try_companion_strike(attacker, defender, messanger):
 
     companion_actor = CompanionActor(attacker, contexts.BattleContext())
 
-    _strike(ability, companion_actor, defender, messanger)
+    _strike(ability, companion_actor, defender, messenger)
 
     return True
