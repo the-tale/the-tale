@@ -14,6 +14,7 @@ class PrototypeTests(testcase.TestCase):
     def setUp(self):
         super(PrototypeTests, self).setUp()
         self.date = datetime.datetime.now()
+        self.timedelta = datetime.timedelta(microseconds=1)
 
     def test_create(self):
 
@@ -51,39 +52,33 @@ class PrototypeTests(testcase.TestCase):
         self.assertEqual(record.value_float, 666.0)
 
     def test_select__inverted_interval(self):
-        date_1 = datetime.datetime.now()
-        date_2 = datetime.datetime.now()
+        date_1 = self.date
+        date_2 = self.date + self.timedelta
         self.assertRaises(exceptions.InvertedDateIntervalError, RecordPrototype.select, type=relations.RECORD_TYPE.TEST_INT, date_from=date_2, date_to=date_1)
 
     def test_select__int(self):
-        date_1 = datetime.datetime.now()
-        date_2 = datetime.datetime.now()
-        date_3 = datetime.datetime.now()
-        date_4 = datetime.datetime.now()
+        dates = [self.date + self.timedelta * i for i in range(4)]
 
-        RecordPrototype.create(type=relations.RECORD_TYPE.TEST_INT, date=date_2, value_int=417)
-        RecordPrototype.create(type=relations.RECORD_TYPE.TEST_INT, date=date_3, value_int=666)
+        RecordPrototype.create(type=relations.RECORD_TYPE.TEST_INT, date=dates[1], value_int=417)
+        RecordPrototype.create(type=relations.RECORD_TYPE.TEST_INT, date=dates[2], value_int=666)
 
-        self.assertEqual(RecordPrototype.select(type=relations.RECORD_TYPE.TEST_INT, date_from=date_1, date_to=date_4), [(date_2, 417), (date_3, 666)])
-        self.assertEqual(RecordPrototype.select(type=relations.RECORD_TYPE.TEST_INT, date_from=date_2, date_to=date_3), [(date_2, 417), (date_3, 666)])
-        self.assertEqual(RecordPrototype.select(type=relations.RECORD_TYPE.TEST_INT, date_from=date_2, date_to=date_2), [(date_2, 417)])
-        self.assertEqual(RecordPrototype.select(type=relations.RECORD_TYPE.TEST_INT, date_from=date_3, date_to=date_3), [(date_3, 666)])
-        self.assertEqual(RecordPrototype.select(type=relations.RECORD_TYPE.TEST_INT, date_from=date_4, date_to=date_4), [])
+        self.assertEqual(RecordPrototype.select(type=relations.RECORD_TYPE.TEST_INT, date_from=dates[0], date_to=dates[3]), [(dates[1], 417), (dates[2], 666)])
+        self.assertEqual(RecordPrototype.select(type=relations.RECORD_TYPE.TEST_INT, date_from=dates[1], date_to=dates[2]), [(dates[1], 417), (dates[2], 666)])
+        self.assertEqual(RecordPrototype.select(type=relations.RECORD_TYPE.TEST_INT, date_from=dates[1], date_to=dates[1]), [(dates[1], 417)])
+        self.assertEqual(RecordPrototype.select(type=relations.RECORD_TYPE.TEST_INT, date_from=dates[2], date_to=dates[2]), [(dates[2], 666)])
+        self.assertEqual(RecordPrototype.select(type=relations.RECORD_TYPE.TEST_INT, date_from=dates[3], date_to=dates[3]), [])
 
     def test_select__float(self):
-        date_1 = datetime.datetime.now()
-        date_2 = datetime.datetime.now()
-        date_3 = datetime.datetime.now()
-        date_4 = datetime.datetime.now()
+        dates = [self.date + self.timedelta * i for i in range(4)]
 
-        RecordPrototype.create(type=relations.RECORD_TYPE.TEST_FLOAT, date=date_2, value_float=41.7)
-        RecordPrototype.create(type=relations.RECORD_TYPE.TEST_FLOAT, date=date_3, value_float=66.6)
+        RecordPrototype.create(type=relations.RECORD_TYPE.TEST_FLOAT, date=dates[1], value_float=41.7)
+        RecordPrototype.create(type=relations.RECORD_TYPE.TEST_FLOAT, date=dates[2], value_float=66.6)
 
-        self.assertEqual(RecordPrototype.select(type=relations.RECORD_TYPE.TEST_FLOAT, date_from=date_1, date_to=date_4), [(date_2, 41.7), (date_3, 66.6)])
-        self.assertEqual(RecordPrototype.select(type=relations.RECORD_TYPE.TEST_FLOAT, date_from=date_2, date_to=date_3), [(date_2, 41.7), (date_3, 66.6)])
-        self.assertEqual(RecordPrototype.select(type=relations.RECORD_TYPE.TEST_FLOAT, date_from=date_2, date_to=date_2), [(date_2, 41.7)])
-        self.assertEqual(RecordPrototype.select(type=relations.RECORD_TYPE.TEST_FLOAT, date_from=date_3, date_to=date_3), [(date_3, 66.6)])
-        self.assertEqual(RecordPrototype.select(type=relations.RECORD_TYPE.TEST_FLOAT, date_from=date_4, date_to=date_4), [])
+        self.assertEqual(RecordPrototype.select(type=relations.RECORD_TYPE.TEST_FLOAT, date_from=dates[0], date_to=dates[3]), [(dates[1], 41.7), (dates[2], 66.6)])
+        self.assertEqual(RecordPrototype.select(type=relations.RECORD_TYPE.TEST_FLOAT, date_from=dates[1], date_to=dates[2]), [(dates[1], 41.7), (dates[2], 66.6)])
+        self.assertEqual(RecordPrototype.select(type=relations.RECORD_TYPE.TEST_FLOAT, date_from=dates[1], date_to=dates[1]), [(dates[1], 41.7)])
+        self.assertEqual(RecordPrototype.select(type=relations.RECORD_TYPE.TEST_FLOAT, date_from=dates[2], date_to=dates[2]), [(dates[2], 66.6)])
+        self.assertEqual(RecordPrototype.select(type=relations.RECORD_TYPE.TEST_FLOAT, date_from=dates[3], date_to=dates[3]), [])
 
     def test_remove_by_type(self):
         RecordPrototype.create(type=relations.RECORD_TYPE.TEST_INT, date=self.date, value_int=41.7)
