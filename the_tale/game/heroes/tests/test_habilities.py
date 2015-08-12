@@ -22,7 +22,7 @@ from the_tale.game.balance import constants as c
 from the_tale.game.actions.fake import FakeActor
 from the_tale.game.actions.contexts.battle import Damage
 
-from the_tale.game.heroes.fake import FakeMessanger
+from the_tale.game.heroes.fake import FakeMessenger
 
 from the_tale.game.heroes.habilities import battle as battle_abilities
 from the_tale.game.heroes.habilities import modifiers as modifiers_abilities
@@ -163,7 +163,7 @@ class HabilitiesTest(TestCase):
 
     def setUp(self):
         super(HabilitiesTest, self).setUp()
-        self.messanger = FakeMessanger()
+        self.messenger = FakeMessenger()
         self.attacker = FakeActor(name='attacker')
         self.defender = FakeActor(name='defender')
 
@@ -181,37 +181,37 @@ class HabilitiesTest(TestCase):
                 self.assertTrue('on_miss' in ability_class.__dict__)
 
     def test_hit(self):
-        battle_abilities.HIT().use(self.messanger, self.attacker, self.defender)
+        battle_abilities.HIT().use(self.messenger, self.attacker, self.defender)
         self.assertTrue(self.defender.health < self.defender.max_health)
-        self.assertEqual(self.messanger.messages, ['hero_ability_hit'])
+        self.assertEqual(self.messenger.messages, ['hero_ability_hit'])
 
     def test_magic_mushroom(self):
-        battle_abilities.MAGIC_MUSHROOM().use(self.messanger, self.attacker, self.defender)
+        battle_abilities.MAGIC_MUSHROOM().use(self.messenger, self.attacker, self.defender)
         self.assertTrue(self.attacker.context.ability_magic_mushroom)
         self.assertFalse(self.defender.context.ability_magic_mushroom)
-        self.assertEqual(self.messanger.messages, ['hero_ability_magicmushroom'])
+        self.assertEqual(self.messenger.messages, ['hero_ability_magicmushroom'])
 
     def test_sidestep(self):
-        battle_abilities.SIDESTEP().use(self.messanger, self.attacker, self.defender)
+        battle_abilities.SIDESTEP().use(self.messenger, self.attacker, self.defender)
         self.assertFalse(self.attacker.context.ability_sidestep)
         self.assertTrue(self.defender.context.ability_sidestep)
-        self.assertEqual(self.messanger.messages, ['hero_ability_sidestep'])
+        self.assertEqual(self.messenger.messages, ['hero_ability_sidestep'])
 
     def test_run_up_push(self):
-        battle_abilities.RUN_UP_PUSH().use(self.messanger, self.attacker, self.defender)
+        battle_abilities.RUN_UP_PUSH().use(self.messenger, self.attacker, self.defender)
         self.assertFalse(self.attacker.context.stun_length)
         self.assertTrue(self.defender.context.stun_length)
         self.assertTrue(self.defender.health < self.defender.max_health)
-        self.assertEqual(self.messanger.messages, ['hero_ability_runuppush'])
+        self.assertEqual(self.messenger.messages, ['hero_ability_runuppush'])
 
     def test_regeneration(self):
         self.assertFalse(battle_abilities.REGENERATION().can_be_used(self.attacker))
         self.attacker.health = 1
         self.assertTrue(battle_abilities.REGENERATION().can_be_used(self.attacker))
 
-        battle_abilities.REGENERATION().use(self.messanger, self.attacker, self.defender)
+        battle_abilities.REGENERATION().use(self.messenger, self.attacker, self.defender)
         self.assertTrue(self.attacker.health > 1)
-        self.assertEqual(self.messanger.messages, ['hero_ability_regeneration'])
+        self.assertEqual(self.messenger.messages, ['hero_ability_regeneration'])
 
     def test_critical_chance(self):
         self.assertFalse(self.attacker.context.crit_chance > 0)
@@ -237,28 +237,28 @@ class HabilitiesTest(TestCase):
         self.assertTrue(self.defender.context.ninja > 0)
 
     def test_fireball(self):
-        battle_abilities.FIREBALL().use(self.messanger, self.attacker, self.defender)
+        battle_abilities.FIREBALL().use(self.messenger, self.attacker, self.defender)
         self.assertTrue(self.defender.health < self.defender.max_health)
         self.assertFalse(self.attacker.context.damage_queue_fire)
         self.assertTrue(self.defender.context.damage_queue_fire)
-        self.assertEqual(self.messanger.messages, ['hero_ability_fireball'])
+        self.assertEqual(self.messenger.messages, ['hero_ability_fireball'])
 
     def test_poison_cloud(self):
-        battle_abilities.POISON_CLOUD().use(self.messanger, self.attacker, self.defender)
+        battle_abilities.POISON_CLOUD().use(self.messenger, self.attacker, self.defender)
         self.assertEqual(self.defender.health, self.defender.max_health)
         self.assertFalse(self.attacker.context.damage_queue_poison)
         self.assertTrue(self.defender.context.damage_queue_poison)
-        self.assertEqual(self.messanger.messages, ['hero_ability_poison_cloud'])
+        self.assertEqual(self.messenger.messages, ['hero_ability_poison_cloud'])
 
     def test_vimpire_strike(self):
         self.attacker.health = 1
-        battle_abilities.VAMPIRE_STRIKE().use(self.messanger, self.attacker, self.defender)
+        battle_abilities.VAMPIRE_STRIKE().use(self.messenger, self.attacker, self.defender)
         self.assertTrue(self.defender.health < self.defender.max_health)
         self.assertTrue(self.attacker.health > 1)
-        self.assertEqual(self.messanger.messages, ['hero_ability_vampire_strike'])
+        self.assertEqual(self.messenger.messages, ['hero_ability_vampire_strike'])
 
     def test_freezing(self):
-        battle_abilities.FREEZING().use(self.messanger, self.attacker, self.defender)
+        battle_abilities.FREEZING().use(self.messenger, self.attacker, self.defender)
         self.assertEqual(self.defender.health, self.defender.max_health)
         self.assertFalse(self.attacker.context.initiative_queue)
         self.assertTrue(1 - E < self.attacker.context.initiative < 1 + E)
@@ -267,10 +267,10 @@ class HabilitiesTest(TestCase):
         self.defender.context.on_enemy_turn()
         self.assertTrue(self.defender.context.initiative < 1)
 
-        self.assertEqual(self.messanger.messages, ['hero_ability_freezing'])
+        self.assertEqual(self.messenger.messages, ['hero_ability_freezing'])
 
     def test_speedup(self):
-        battle_abilities.SPEEDUP().use(self.messanger, self.attacker, self.defender)
+        battle_abilities.SPEEDUP().use(self.messenger, self.attacker, self.defender)
         self.assertEqual(self.defender.health, self.defender.max_health)
         self.assertFalse(self.defender.context.initiative_queue)
         self.assertTrue(1 - E < self.defender.context.initiative < 1 + E)
@@ -279,7 +279,7 @@ class HabilitiesTest(TestCase):
         self.attacker.context.on_own_turn()
         self.assertTrue(self.attacker.context.initiative > 1)
 
-        self.assertEqual(self.messanger.messages, ['hero_ability_speedup'])
+        self.assertEqual(self.messenger.messages, ['hero_ability_speedup'])
 
     def test_last_chance(self):
         battle_abilities.LAST_CHANCE().update_context(self.attacker, self.defender)

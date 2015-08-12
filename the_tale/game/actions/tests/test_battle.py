@@ -337,7 +337,7 @@ class TryCompanionBlockTests(TestsBase):
         self.assertFalse(actor_1.has_companion)
         self.assertFalse(actor_2.has_companion)
 
-        self.assertFalse(battle.try_companion_block(attacker=actor_2, defender=actor_1, messanger=self.hero))
+        self.assertFalse(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
 
 
     @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
@@ -350,7 +350,7 @@ class TryCompanionBlockTests(TestsBase):
         self.assertTrue(actor_1.has_companion)
         self.assertFalse(actor_2.has_companion)
 
-        self.assertFalse(battle.try_companion_block(attacker=actor_1, defender=actor_2, messanger=self.hero))
+        self.assertFalse(battle.try_companion_block(attacker=actor_1, defender=actor_2, messenger=self.hero))
 
 
     @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=0.0))
@@ -366,7 +366,7 @@ class TryCompanionBlockTests(TestsBase):
         with self.check_not_changed(self.hero.diary.__len__):
             with self.check_not_changed(self.hero.messages.__len__):
                 with self.check_not_changed(lambda: self.hero.companion.health):
-                    self.assertFalse(battle.try_companion_block(attacker=actor_2, defender=actor_1, messanger=self.hero))
+                    self.assertFalse(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
 
 
     @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
@@ -383,7 +383,7 @@ class TryCompanionBlockTests(TestsBase):
         with self.check_not_changed(self.hero.diary.__len__):
             with self.check_delta(self.hero.messages.__len__, 1):
                 with self.check_not_changed(lambda: self.hero.companion.health):
-                    self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messanger=self.hero))
+                    self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
 
         self.assertTrue(self.hero.messages.messages[-1].key.is_COMPANIONS_BLOCK)
 
@@ -401,7 +401,7 @@ class TryCompanionBlockTests(TestsBase):
         with self.check_not_changed(self.hero.diary.__len__):
             with self.check_delta(self.hero.messages.__len__, 1):
                 with self.check_delta(lambda: self.hero.companion.health, -c.COMPANIONS_DAMAGE_PER_WOUND):
-                    self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messanger=self.hero))
+                    self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
 
         self.assertTrue(self.hero.messages.messages[-1].key.is_COMPANIONS_WOUND)
 
@@ -418,7 +418,7 @@ class TryCompanionBlockTests(TestsBase):
 
         with self.check_delta(self.hero.diary.__len__, 1):
             while self.hero.companion:
-                self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messanger=self.hero))
+                self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
 
         self.assertEqual(self.hero.companion, None)
         self.assertFalse(actor_1.has_companion)
@@ -443,7 +443,7 @@ class TryCompanionBlockTests(TestsBase):
             self.check_delta(self.hero.diary.__len__, 2)):
 
             while self.hero.companion:
-                self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messanger=self.hero))
+                self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
 
         self.assertEqual(self.hero.companion, None)
         self.assertFalse(actor_1.has_companion)
@@ -466,7 +466,7 @@ class TryCompanionStrikeTests(TestsBase):
         self.assertFalse(actor_1.has_companion)
         self.assertFalse(actor_2.has_companion)
 
-        self.assertFalse(battle.try_companion_strike(attacker=actor_1, defender=actor_2, messanger=self.hero))
+        self.assertFalse(battle.try_companion_strike(attacker=actor_1, defender=actor_2, messenger=self.hero))
 
 
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_BATTLE_STRIKE_PROBABILITY', 0.0)
@@ -476,7 +476,7 @@ class TryCompanionStrikeTests(TestsBase):
         self.assertTrue(actor_1.has_companion)
         self.assertFalse(actor_2.has_companion)
 
-        self.assertFalse(battle.try_companion_strike(attacker=actor_1, defender=actor_2, messanger=self.hero))
+        self.assertFalse(battle.try_companion_strike(attacker=actor_1, defender=actor_2, messenger=self.hero))
 
 
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_BATTLE_STRIKE_PROBABILITY', 1.0)
@@ -486,7 +486,7 @@ class TryCompanionStrikeTests(TestsBase):
         self.assertTrue(actor_1.has_companion)
         self.assertFalse(actor_2.has_companion)
 
-        self.assertFalse(battle.try_companion_strike(attacker=actor_1, defender=actor_2, messanger=self.hero))
+        self.assertFalse(battle.try_companion_strike(attacker=actor_1, defender=actor_2, messenger=self.hero))
 
 
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_BATTLE_STRIKE_PROBABILITY', 1.0)
@@ -505,4 +505,4 @@ class TryCompanionStrikeTests(TestsBase):
         self.assertTrue(actor_1.has_companion)
         self.assertFalse(actor_2.has_companion)
 
-        self.assertTrue(battle.try_companion_strike(attacker=actor_1, defender=actor_2, messanger=self.hero))
+        self.assertTrue(battle.try_companion_strike(attacker=actor_1, defender=actor_2, messenger=self.hero))

@@ -25,15 +25,15 @@ class HIT(AbilityPrototype):
     @property
     def damage_modifier(self): return self.DAMAGE_MODIFIER[self.level-1]
 
-    def use(self, messanger, actor, enemy):
+    def use(self, messenger, actor, enemy):
         damage = actor.basic_damage*self.damage_modifier
         damage = actor.context.modify_outcoming_damage(damage)
         damage = enemy.context.modify_incoming_damage(damage)
         enemy.change_health(-damage.total)
-        messanger.add_message('hero_ability_hit', attacker=actor, defender=enemy, damage=damage.total)
+        messenger.add_message('hero_ability_hit', attacker=actor, defender=enemy, damage=damage.total)
 
-    def on_miss(self, messanger, actor, enemy):
-        messanger.add_message('hero_ability_hit_miss', attacker=actor, defender=enemy)
+    def on_miss(self, messenger, actor, enemy):
+        messenger.add_message('hero_ability_hit_miss', attacker=actor, defender=enemy)
 
 
 class STRONG_HIT(AbilityPrototype):
@@ -54,15 +54,15 @@ class STRONG_HIT(AbilityPrototype):
     @property
     def damage_modifier(self): return self.DAMAGE_MODIFIER[self.level-1]
 
-    def use(self, messanger, actor, enemy):
+    def use(self, messenger, actor, enemy):
         damage = actor.basic_damage * self.damage_modifier
         damage = actor.context.modify_outcoming_damage(damage)
         damage = enemy.context.modify_incoming_damage(damage)
         enemy.change_health(-damage.total)
-        messanger.add_message('hero_ability_strong_hit', attacker=actor, defender=enemy, damage=damage.total)
+        messenger.add_message('hero_ability_strong_hit', attacker=actor, defender=enemy, damage=damage.total)
 
-    def on_miss(self, messanger, actor, enemy):
-        messanger.add_message('hero_ability_strong_hit_miss', attacker=actor, defender=enemy)
+    def on_miss(self, messenger, actor, enemy):
+        messenger.add_message('hero_ability_strong_hit_miss', attacker=actor, defender=enemy)
 
 
 class MAGIC_MUSHROOM(AbilityPrototype):
@@ -85,9 +85,9 @@ class MAGIC_MUSHROOM(AbilityPrototype):
     @property
     def damage_factors(self): return self.DAMAGE_FACTORS[self.level-1]
 
-    def use(self, messanger, actor, enemy): # pylint: disable=W0613
+    def use(self, messenger, actor, enemy): # pylint: disable=W0613
         actor.context.use_ability_magic_mushroom(self.damage_factors)
-        messanger.add_message('hero_ability_magicmushroom', actor=actor)
+        messenger.add_message('hero_ability_magicmushroom', actor=actor)
 
 
 class SIDESTEP(AbilityPrototype):
@@ -110,12 +110,12 @@ class SIDESTEP(AbilityPrototype):
     @property
     def miss_probabilities(self): return self.MISS_PROBABILITIES[self.level-1]
 
-    def use(self, messanger, actor, enemy):
+    def use(self, messenger, actor, enemy):
         enemy.context.use_ability_sidestep(self.miss_probabilities)
-        messanger.add_message('hero_ability_sidestep', attacker=actor, defender=enemy)
+        messenger.add_message('hero_ability_sidestep', attacker=actor, defender=enemy)
 
-    def on_miss(self, messanger, actor, enemy):
-        messanger.add_message('hero_ability__miss', attacker=actor, defender=enemy)
+    def on_miss(self, messenger, actor, enemy):
+        messenger.add_message('hero_ability__miss', attacker=actor, defender=enemy)
 
 
 class RUN_UP_PUSH(AbilityPrototype):
@@ -144,16 +144,16 @@ class RUN_UP_PUSH(AbilityPrototype):
     @property
     def damage_modifier(self): return self.DAMAGE_MODIFIER[self.level-1]
 
-    def use(self, messanger, actor, enemy):
+    def use(self, messenger, actor, enemy):
         damage = actor.basic_damage * self.damage_modifier
         damage = actor.context.modify_outcoming_damage(damage)
         damage = enemy.context.modify_incoming_damage(damage)
         enemy.change_health(-damage.total)
         enemy.context.use_stun(int(round(random.uniform(*self.stun_length))))
-        messanger.add_message('hero_ability_runuppush', attacker=actor, defender=enemy, damage=damage.total)
+        messenger.add_message('hero_ability_runuppush', attacker=actor, defender=enemy, damage=damage.total)
 
-    def on_miss(self, messanger, actor, enemy):
-        messanger.add_message('hero_ability_runuppush_miss', attacker=actor, defender=enemy)
+    def on_miss(self, messenger, actor, enemy):
+        messenger.add_message('hero_ability_runuppush_miss', attacker=actor, defender=enemy)
 
 
 
@@ -175,10 +175,10 @@ class REGENERATION(AbilityPrototype):
 
     def can_be_used(self, actor): return actor.health < actor.max_health
 
-    def use(self, messanger, actor, enemy): # pylint: disable=W0613
+    def use(self, messenger, actor, enemy): # pylint: disable=W0613
         health_to_regen = f.mob_hp_to_lvl(actor.level) * self.restored_percent * (1 + random.uniform(-c.DAMAGE_DELTA, c.DAMAGE_DELTA))# !!!MOB HP, NOT HERO!!!
         applied_health = int(round(actor.change_health(health_to_regen)))
-        messanger.add_message('hero_ability_regeneration', actor=actor, health=applied_health)
+        messenger.add_message('hero_ability_regeneration', actor=actor, health=applied_health)
 
 
 class CRITICAL_HIT(AbilityPrototype):
@@ -260,16 +260,16 @@ class FIREBALL(AbilityPrototype):
     @property
     def periodic_damage_modifiers(self): return self.PERIODIC_DAMAGE_MODIFIERS[self.level-1]
 
-    def use(self, messanger, actor, enemy):
+    def use(self, messenger, actor, enemy):
         damage = actor.basic_damage * self.damage_modifier
         outcoming_damage = actor.context.modify_outcoming_damage(damage)
         damage = enemy.context.modify_incoming_damage(outcoming_damage)
         enemy.change_health(-damage.total)
         enemy.context.use_damage_queue_fire([outcoming_damage * modifier for modifier in self.periodic_damage_modifiers])
-        messanger.add_message('hero_ability_fireball', attacker=actor, defender=enemy, damage=damage.total)
+        messenger.add_message('hero_ability_fireball', attacker=actor, defender=enemy, damage=damage.total)
 
-    def on_miss(self, messanger, actor, enemy):
-        messanger.add_message('hero_ability_fireball_miss', attacker=actor, defender=enemy)
+    def on_miss(self, messenger, actor, enemy):
+        messenger.add_message('hero_ability_fireball_miss', attacker=actor, defender=enemy)
 
 
 class POISON_CLOUD(AbilityPrototype):
@@ -293,11 +293,11 @@ class POISON_CLOUD(AbilityPrototype):
     @property
     def periodic_damage_modifiers(self): return self.PERIODIC_DAMAGE_MODIFIERS[self.level-1]
 
-    def use(self, messanger, actor, enemy):
+    def use(self, messenger, actor, enemy):
         damage = actor.basic_damage
         damage = actor.context.modify_outcoming_damage(damage)
         enemy.context.use_damage_queue_poison([damage * modifier for modifier in self.periodic_damage_modifiers])
-        messanger.add_message('hero_ability_poison_cloud', attacker=actor, defender=enemy)
+        messenger.add_message('hero_ability_poison_cloud', attacker=actor, defender=enemy)
 
 
 class VAMPIRE_STRIKE(AbilityPrototype):
@@ -321,17 +321,17 @@ class VAMPIRE_STRIKE(AbilityPrototype):
     @property
     def damage_fraction(self): return self.DAMAGE_FRACTION[self.level-1]
 
-    def use(self, messanger, actor, enemy):
+    def use(self, messenger, actor, enemy):
         damage = actor.basic_damage * self.damage_fraction
         damage = actor.context.modify_outcoming_damage(damage)
         damage = enemy.context.modify_incoming_damage(damage)
         health = int(round(damage.total * self.heal_fraction))
         enemy.change_health(-damage.total)
         actor.change_health(health)
-        messanger.add_message('hero_ability_vampire_strike', attacker=actor, defender=enemy, damage=damage.total, health=health)
+        messenger.add_message('hero_ability_vampire_strike', attacker=actor, defender=enemy, damage=damage.total, health=health)
 
-    def on_miss(self, messanger, actor, enemy):
-        messanger.add_message('hero_ability_vampire_strike_miss', attacker=actor, defender=enemy)
+    def on_miss(self, messenger, actor, enemy):
+        messenger.add_message('hero_ability_vampire_strike_miss', attacker=actor, defender=enemy)
 
 
 class FREEZING(AbilityPrototype):
@@ -354,9 +354,9 @@ class FREEZING(AbilityPrototype):
     @property
     def initiative_modifiers(self): return self.INITIATIVE_MODIFIERS[self.level-1]
 
-    def use(self, messanger, actor, enemy):
+    def use(self, messenger, actor, enemy):
         enemy.context.use_initiative(self.initiative_modifiers)
-        messanger.add_message('hero_ability_freezing', attacker=actor, defender=enemy)
+        messenger.add_message('hero_ability_freezing', attacker=actor, defender=enemy)
 
 
 class SPEEDUP(AbilityPrototype):
@@ -379,9 +379,9 @@ class SPEEDUP(AbilityPrototype):
     @property
     def initiative_modifiers(self): return self.INITIATIVE_MODIFIERS[self.level-1]
 
-    def use(self, messanger, actor, enemy):
+    def use(self, messenger, actor, enemy):
         actor.context.use_initiative(self.initiative_modifiers)
-        messanger.add_message('hero_ability_speedup', attacker=actor, defender=enemy)
+        messenger.add_message('hero_ability_speedup', attacker=actor, defender=enemy)
 
 
 class LAST_CHANCE(AbilityPrototype):
