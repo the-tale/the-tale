@@ -79,7 +79,7 @@ class SubCategoryPrototype(BasePrototype):
         else:
             self._model.last_poster = last_post.author._model
             self._model.last_thread = last_post._model.thread
-            self._model.updated_at = last_post.created_at
+            self._model.updated_at = last_post.updated_at
             self._model.last_thread_created_at = last_post.thread.created_at
 
         self.save()
@@ -229,7 +229,7 @@ class ThreadPrototype(BasePrototype):
             self._model.updated_at = datetime.datetime.now()
         else:
             self._model.last_poster = last_post.author._model
-            self._model.updated_at = last_post.created_at
+            self._model.updated_at = last_post.updated_at
 
         subcategory_changed = new_subcategory_id is not None and self.subcategory.id != new_subcategory_id
 
@@ -359,10 +359,14 @@ class PostPrototype(BasePrototype):
 
         self.thread.update()
 
+    @transaction.atomic
     def update(self, text):
         self._model.text = text
         self._model.updated_at_turn = TimePrototype.get_current_turn_number()
         self.save()
+
+        self.thread.update()
+        self.thread.subcategory.update()
 
     def save(self):
         self._model.save()
