@@ -76,14 +76,20 @@ class Companion(object):
         restrictions = [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION, self.record.id).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTOR, game_relations.ACTOR.COMPANION.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_DEDICATION, self.record.dedication.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_RARITY, self.record.rarity.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARCHETYPE, self.record.archetype.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_VERBAL, self.record.communication_verbal.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_GESTURES, self.record.communication_gestures.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC, self.record.communication_telepathic.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL, self.record.intellect_level.value).id ]
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL, self.record.intellect_level.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB_TYPE, self.record.type.value).id ]
         if self._hero:
-            restrictions.append(restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE, self._hero.actions.current_action.ui_type.value).id)
+            terrain = self._hero.position.get_terrain()
+
+            restrictions.extend((restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE, self._hero.actions.current_action.ui_type.value).id,
+                                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, terrain.value).id,
+                                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_TERRAIN, terrain.meta_terrain.value).id,
+                                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_HEIGHT, terrain.meta_height.value).id,
+                                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_VEGETATION, terrain.meta_vegetation.value).id))
 
         return restrictions
 

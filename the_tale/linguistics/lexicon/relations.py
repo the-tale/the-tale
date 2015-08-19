@@ -34,6 +34,7 @@ class VARIABLE_VERIFICATOR(DjangoEnum):
                                                          [u'Тагил', u'Чугуево', u'Рига', u'Афины'],
                                                          [u'Магадан', u'Бородино', u'Уфа', u'Чебоксары'])),
 
+                # TODO: во время следующей большой переделки добавить одушевлённый артефакт в каждый набор слов (скорее всего мужского рода)
                 ('ITEM', 4, u'любой предмет', WORD_TYPE.NOUN, s([u'нож', u'ядро', u'пепельница', u'ножницы'],
                                                                 [u'кинжал', u'окно', u'мечта', u'макароны'],
                                                                 [u'меч', u'варенье', u'чашка', u'дрова'])),
@@ -60,22 +61,7 @@ class VARIABLE_TYPE(DjangoEnum):
     constructor = Column(unique=False, no_index=True)
     restrictions = Column(unique=False, no_index=True)
 
-    records = ( ('HERO', 0, u'герой', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.GENDER,
-                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.RACE,
-                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR,
-                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS,
-                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.ARCHETYPE,
-                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.TERRAIN,
-                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.META_TERRAIN,
-                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.META_HEIGHT,
-                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.META_VEGETATION,
-                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE,
-                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_VERBAL,
-                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_GESTURES,
-                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC,
-                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL,
-                                                                                              relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM)),
-                ('NUMBER', 1, u'число', VARIABLE_VERIFICATOR.NUMBER, _construct_number, ()),
+    records = ( ('NUMBER', 1, u'число', VARIABLE_VERIFICATOR.NUMBER, _construct_number, ()),
                 ('PLACE', 2, u'город', VARIABLE_VERIFICATOR.PLACE, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.CITY_MODIFIER,
                                                                                               relations.TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR,
                                                                                               relations.TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS,
@@ -106,6 +92,7 @@ class VARIABLE_TYPE(DjangoEnum):
                                                                                               relations.TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL,
                                                                                               relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM)),
                 ('TEXT', 6, u'текст', VARIABLE_VERIFICATOR.TEXT, _construct_text, ()),
+
                 ('ACTOR', 7, u'герой, монстр или спутник', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.GENDER,
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.RACE,
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR,
@@ -114,7 +101,6 @@ class VARIABLE_TYPE(DjangoEnum):
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.MOB_TYPE,
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.COMPANION,
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_DEDICATION,
-                                                                                                                   relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_RARITY,
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.ARCHETYPE,
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.TERRAIN,
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.META_TERRAIN,
@@ -127,26 +113,17 @@ class VARIABLE_TYPE(DjangoEnum):
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL,
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.ACTOR,
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM)),
+
                 ('MODIFIER', 8, u'модификатор города', VARIABLE_VERIFICATOR.MODIFIER, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.CITY_MODIFIER,
                                                                                                                  relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM)),
+
                 ('RACE', 9, u'раса', VARIABLE_VERIFICATOR.RACE, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.RACE,
-                                                                                           relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM)),
-                ('COMPANION', 10, u'спутник', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.COMPANION,
-                                                                                                      relations.TEMPLATE_RESTRICTION_GROUP.ACTOR,
-                                                                                                      relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_DEDICATION,
-                                                                                                      relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_RARITY,
-                                                                                                      relations.TEMPLATE_RESTRICTION_GROUP.ARCHETYPE,
-                                                                                                      relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
-                                                                                                      relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_VERBAL,
-                                                                                                      relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_GESTURES,
-                                                                                                      relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC,
-                                                                                                      relations.TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL,
-                                                                                                      relations.TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE)) )
+                                                                                           relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM)) )
 
 class VARIABLE(DjangoEnum):
     type = Column(unique=False, no_index=True)
 
-    records = ( ('HERO', 'hero', u'герой', VARIABLE_TYPE.HERO),
+    records = ( ('HERO', 'hero', u'герой', VARIABLE_TYPE.ACTOR),
                 ('LEVEL', 'level', u'уровень', VARIABLE_TYPE.NUMBER),
                 ('ANTAGONIST_POSITION', 'antagonist_position', u'позиция антагониста', VARIABLE_TYPE.PLACE),
                 ('RECEIVER_POSITION', 'receiver_position', u'позиция получателя задания', VARIABLE_TYPE.PLACE),
@@ -162,10 +139,10 @@ class VARIABLE(DjangoEnum):
                 ('DESTINATION', 'destination', u'пункт назначения', VARIABLE_TYPE.PLACE),
                 ('CURRENT_DESTINATION', 'current_destination', u'текущий подпункт назначения', VARIABLE_TYPE.PLACE),
                 ('PLACE', 'place', u'город', VARIABLE_TYPE.PLACE),
-                ('KILLER', 'killer', u'победитель в pvp', VARIABLE_TYPE.HERO),
-                ('VICTIM', 'victim', u'проигравший в pvp', VARIABLE_TYPE.HERO),
-                ('DUELIST_1', 'duelist_1', u'1-ый участник pvp', VARIABLE_TYPE.HERO),
-                ('DUELIST_2', 'duelist_2', u'2-ый участник pvp', VARIABLE_TYPE.HERO),
+                ('KILLER', 'killer', u'победитель в pvp', VARIABLE_TYPE.ACTOR),
+                ('VICTIM', 'victim', u'проигравший в pvp', VARIABLE_TYPE.ACTOR),
+                ('DUELIST_1', 'duelist_1', u'1-ый участник pvp', VARIABLE_TYPE.ACTOR),
+                ('DUELIST_2', 'duelist_2', u'2-ый участник pvp', VARIABLE_TYPE.ACTOR),
                 ('DROPPED_ITEM', 'dropped_item', u'выпавший предмет', VARIABLE_TYPE.ARTIFACT),
                 ('EXPERIENCE', 'experience', u'опыт', VARIABLE_TYPE.NUMBER),
                 ('HEALTH', 'health', u'здоровье', VARIABLE_TYPE.NUMBER),
@@ -194,6 +171,6 @@ class VARIABLE(DjangoEnum):
                 ('DEFENDER', 'defender', u'защитник', VARIABLE_TYPE.ACTOR),
                 ('ACTOR', 'actor', u'актор (герой или монстр)', VARIABLE_TYPE.ACTOR),
                 ('CONVERSION', 'conversion', u'информация о конверсии параметров', VARIABLE_TYPE.TEXT),
-                ('COMPANION', 'companion', u'спутник', VARIABLE_TYPE.COMPANION),
+                ('COMPANION', 'companion', u'спутник', VARIABLE_TYPE.ACTOR),
                 ('COMPANION_OWNER', 'companion_owner', u'владелец спутника', VARIABLE_TYPE.ACTOR),
                 )
