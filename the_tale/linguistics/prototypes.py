@@ -1,5 +1,4 @@
 # coding: utf-8
-import random
 import datetime
 
 from django.db import IntegrityError, transaction
@@ -342,24 +341,22 @@ class Verificator(object):
             if variable_value in externals:
                 continue
 
-            substitution = random.choice(list(substitutions))
+            # we can just get first candidate element since all substitutions has already shifted in VARIABLE_VERIFICATOR
+            substitution = substitutions.pop(0)
 
             used_substitutions[variable_value].add(substitution)
 
             externals[variable_value] = substitution
 
-            substitutions.remove(substitution)
+            # substitutions.remove(substitution)
 
             if not substitutions:
-                substitutions |= start_substitutions[variable_value]
+                substitutions.extend(start_substitutions[variable_value])
 
 
     @classmethod
     def get_verificators(cls, key, groups, old_verificators=()):
         from the_tale.linguistics.lexicon.relations import VARIABLE_VERIFICATOR
-
-        random_state = random.getstate()
-        random.seed(key.value)
 
         start_substitutions = {}
         used_substitutions = {}
@@ -367,8 +364,8 @@ class Verificator(object):
 
         for variable_value, (verificator_value, substitution_index) in groups.iteritems():
             verificator = VARIABLE_VERIFICATOR(verificator_value)
-            start_substitutions[variable_value] = set(verificator.substitutions[substitution_index])
-            work_substitutions[variable_value] = set(start_substitutions[variable_value])
+            start_substitutions[variable_value] = list(verificator.substitutions[substitution_index])
+            work_substitutions[variable_value] = list(start_substitutions[variable_value])
             used_substitutions[variable_value] = set()
 
         verificators = []
@@ -397,21 +394,19 @@ class Verificator(object):
                 work_substitution = work_substitutions[variable_value]
                 work_substitution.remove(substitution)
                 if not work_substitution:
-                    work_substitution |= start_substitutions[variable_value]
+                    work_substitution.extend(start_substitutions[variable_value])
 
         # fill verificator groups with new substitutions, if they are added to groups after template was created
         for old_verificator in old_verificators:
             cls._fill_externals(old_verificator.externals, start_substitutions, work_substitutions, used_substitutions)
 
         # add lost verificators
-        while used_substitutions != start_substitutions:
+        while not all(used_substitutions[external] == set(start_substitutions[external]) for external in used_substitutions.iterkeys()):
             externals = {}
 
             cls._fill_externals(externals, start_substitutions, work_substitutions, used_substitutions)
 
             verificators.append(cls(text=u'', externals=externals))
-
-        random.setstate(random_state)
 
         return verificators
 

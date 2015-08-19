@@ -461,10 +461,10 @@ class VerificatorTests(testcase.TestCase):
 
         self.assertEqual(len(verificators), 4)
 
-        self.assertEqual(verificators[0], prototypes.Verificator(text=u'', externals={'hero': (u'героиня', u''), 'level': (1, u'')}))
-        self.assertEqual(verificators[1], prototypes.Verificator(text=u'', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')}))
-        self.assertEqual(verificators[2], prototypes.Verificator(text=u'', externals={'hero': (u'герой', u''), 'level': (2, u'')}))
-        self.assertEqual(verificators[3], prototypes.Verificator(text=u'', externals={'hero': (u'привидение', u''), 'level': (5, u'')}))
+        self.assertEqual(verificators[0], prototypes.Verificator(text=u'', externals={'hero': (u'герой', u''), 'level': (1, u'')}))
+        self.assertEqual(verificators[1], prototypes.Verificator(text=u'', externals={'hero': (u'привидение', u''), 'level': (2, u'')}))
+        self.assertEqual(verificators[2], prototypes.Verificator(text=u'', externals={'hero': (u'героиня', u''), 'level': (5, u'')}))
+        self.assertEqual(verificators[3], prototypes.Verificator(text=u'', externals={'hero': (u'рыцарь', u'мн'), 'level': (1, u'')}))
 
 
     def test_get_verificators__with_old(self):
@@ -483,8 +483,23 @@ class VerificatorTests(testcase.TestCase):
 
         self.assertEqual(verificators[0], prototypes.Verificator(text=u'1', externals={'hero': (u'привидение', u''), 'level': (1, u'')}))
         self.assertEqual(verificators[1], prototypes.Verificator(text=u'5', externals={'hero': (u'герой', u''), 'level': (2, u'')}))
-        self.assertEqual(verificators[2], prototypes.Verificator(text=u'', externals={'hero': (u'рыцарь', u'мн'), 'level': (5, u'')}))
-        self.assertEqual(verificators[3], prototypes.Verificator(text=u'', externals={'hero': (u'героиня', u''), 'level': (5, u'')}))
+        self.assertEqual(verificators[2], prototypes.Verificator(text=u'', externals={'hero': (u'героиня', u''), 'level': (5, u'')}))
+        self.assertEqual(verificators[3], prototypes.Verificator(text=u'', externals={'hero': (u'рыцарь', u'мн'), 'level': (1, u'')}))
+
+
+    def test_get_verificators__one_substitutions_type(self):
+        groups = lexicon_logic.get_verificators_groups(key=keys.LEXICON_KEY.PVP_USE_ABILITY_BLOOD, old_groups={})
+        self.assertEqual(groups, {'duelist_1': (0, 0), 'duelist_2': (0, 1), 'effectiveness': (1, 0)})
+
+        verificators = prototypes.Verificator.get_verificators(key=self.key, groups=groups)
+
+        self.assertEqual(len(verificators), 4)
+
+        self.assertEqual(verificators[0], prototypes.Verificator(text=u'', externals={'duelist_1': (u'герой', u''), 'duelist_2': (u'чудовище', u''), 'effectiveness': (1, u'')}))
+        self.assertEqual(verificators[1], prototypes.Verificator(text=u'', externals={'duelist_1': (u'привидение', u''), 'duelist_2': (u'русалка', u''), 'effectiveness': (2, u'')}))
+        self.assertEqual(verificators[2], prototypes.Verificator(text=u'', externals={'duelist_1': (u'героиня', u''), 'duelist_2': (u'боец', u'мн'),'effectiveness': (5, u'')}))
+        self.assertEqual(verificators[3], prototypes.Verificator(text=u'', externals={'duelist_1': (u'рыцарь', u'мн'), 'duelist_2': (u'призрак', u''), 'effectiveness': (1, u'')}))
+
 
 
 class ContributionTests(testcase.TestCase):

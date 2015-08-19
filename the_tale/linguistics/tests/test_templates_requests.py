@@ -170,9 +170,9 @@ class CreateRequestsTests(BaseRequestsTests):
         self.assertEqual(len(template.verificators), 4)
 
         self.assertEqual(template.verificators[0], prototypes.Verificator(text=u'Призрак 13 неизвестное слово', externals={'hero': (u'герой', u''), 'level': (1, u'')}))
-        self.assertEqual(template.verificators[1], prototypes.Verificator(text=u'Привидение 13', externals={'hero': (u'рыцарь', u'мн'), 'level': (2, u'')}))
-        self.assertEqual(template.verificators[2], prototypes.Verificator(text=u'', externals={'hero': (u'привидение', u''), 'level': (5, u'')}))
-        self.assertEqual(template.verificators[3], prototypes.Verificator(text=u'', externals={'hero': (u'героиня', u''), 'level': (5, u'')}))
+        self.assertEqual(template.verificators[1], prototypes.Verificator(text=u'Привидение 13', externals={'hero': (u'привидение', u''), 'level': (2, u'')}))
+        self.assertEqual(template.verificators[2], prototypes.Verificator(text=u'', externals={'hero': (u'героиня', u''), 'level': (5, u'')}))
+        self.assertEqual(template.verificators[3], prototypes.Verificator(text=u'', externals={'hero': (u'рыцарь', u'мн'), 'level': (1, u'')}))
 
         self.assertEqual(template.author_id, self.account_1.id)
         self.assertEqual(template.parent_id, None)
