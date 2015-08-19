@@ -1214,14 +1214,16 @@ class ActionInPlacePrototype(ActionBase):
                 healed_health = hero.companion.heal(c.COMPANIONS_HEAL_AMOUNT)
                 hero.add_message('action_inplace_companion_heal', hero=hero, place=hero.position.place, companion=hero.companion, health=healed_health)
 
+        # process variouse effects only if it is not repeated town visit
+        if hero.position.place == hero.position.previous_place:
+            return
+
         if (hero.energy < hero.energy_maximum and
-            hero.position.place.modifier and hero.position.place.modifier.energy_regen_allowed() and
-            hero.position.place != hero.position.previous_place):
+            hero.position.place.modifier and hero.position.place.modifier.energy_regen_allowed()):
             hero.change_energy(c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE)
             hero.add_message('action_inplace_instant_energy_regen', hero=hero, place=hero.position.place)
 
-        if (hero.position.place.tax > 0 and
-            hero.position.place != hero.position.previous_place):
+        if hero.position.place.tax > 0:
 
             if hero.money > 0:
                 tax = int(hero.money * hero.position.place.tax)
@@ -1230,8 +1232,7 @@ class ActionInPlacePrototype(ActionBase):
             else:
                 hero.add_message('action_inplace_tax_no_money', hero=hero, place=hero.position.place, diary=True)
 
-        if ( hero.position.place.can_habit_event() and
-             hero.position.place != hero.position.previous_place ):
+        if hero.position.place.can_habit_event():
 
             if random.uniform(0, 1) < 0.5:
                 hero.add_message('action_inplace_habit_event_honor_%s' % hero.position.place.habit_honor.interval.name.lower(),
@@ -1240,7 +1241,7 @@ class ActionInPlacePrototype(ActionBase):
                 hero.add_message('action_inplace_habit_event_peacefulness_%s' % hero.position.place.habit_peacefulness.interval.name.lower(),
                                  hero=hero, place=hero.position.place, diary=True)
 
-        if hero.companion and hero.position.place != hero.position.previous_place and hero.position.previous_place is not None:
+        if hero.companion:
 
             if hero.can_companion_eat():
                 waymark = waymarks_storage.look_for_road(point_from=hero.position.previous_place.id, point_to=hero.position.place)
@@ -1480,7 +1481,7 @@ class ActionInPlacePrototype(ActionBase):
 
         if self.state == self.STATE.PROCESSED:
             self.process_companion_stealing()
-            self.hero.position.visit_current_place()
+            self.hero.position.update_previous_place()
 
 
 class ActionRestPrototype(ActionBase):

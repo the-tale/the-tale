@@ -167,7 +167,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
     def test_instant_energy_regen_in_holy_city__place_not_changed(self):
         self.hero._model.energy = 0
         self.hero.position.place.modifier = HolyCity(self.hero.position.place)
-        self.hero.position.visit_current_place()
+        self.hero.position.update_previous_place()
 
         self.assertEqual(self.hero.position.place, self.hero.position.previous_place)
 
@@ -229,7 +229,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
     def test_tax__place_not_changed(self):
         self.hero._model.money = 100
 
-        self.hero.position.visit_current_place()
+        self.hero.position.update_previous_place()
         self.assertEqual(self.hero.position.place, self.hero.position.previous_place)
 
         with self.check_delta(lambda: len(self.hero.messages.messages), 0):
@@ -274,7 +274,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
     @mock.patch('the_tale.game.balance.constants.PLACE_HABITS_EVENT_PROBABILITY', 1.0)
     def test_habit_event__not_visit(self):
-        self.hero.position.visit_current_place()
+        self.hero.position.update_previous_place()
         self.assertEqual(self.hero.position.place, self.hero.position.previous_place)
 
         with self.check_not_changed(lambda: len(self.hero.diary.messages)):
@@ -759,7 +759,7 @@ class InPlaceActionCompanionBuyMealTests(testcase.TestCase):
         self.hero._model.money = f.expected_gold_in_day(self.hero.level)
 
         self.hero.position.set_place(self.place_1)
-        self.hero.position.visit_current_place()
+        self.hero.position.update_previous_place()
         self.hero.position.set_place(self.place_2)
 
 
@@ -788,7 +788,7 @@ class InPlaceActionCompanionBuyMealTests(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_money_for_food_multiplier', 0.5)
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_eat', lambda hero: True)
     def test_previouse_place_is_equal(self):
-        self.hero.position.visit_current_place()
+        self.hero.position.update_previous_place()
         self.check_not_used()
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_money_for_food_multiplier', 66666666)
@@ -835,7 +835,7 @@ class InPlaceActionCompanionDrinkArtifactTests(testcase.TestCase):
         self.hero._model.money = f.expected_gold_in_day(self.hero.level)
 
         self.hero.position.set_place(self.place_1)
-        self.hero.position.visit_current_place()
+        self.hero.position.update_previous_place()
         self.hero.position.set_place(self.place_2)
 
         self.artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 1, rarity=RARITY.NORMAL)
@@ -863,7 +863,7 @@ class InPlaceActionCompanionDrinkArtifactTests(testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_drink_artifact', lambda hero: True)
     def test_previouse_place_is_equal(self):
-        self.hero.position.visit_current_place()
+        self.hero.position.update_previous_place()
         self.check_not_used()
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_drink_artifact', lambda hero: True)
@@ -897,7 +897,7 @@ class InPlaceActionCompanionLeaveTests(testcase.TestCase):
         self.hero._model.money = f.expected_gold_in_day(self.hero.level)
 
         self.hero.position.set_place(self.place_1)
-        self.hero.position.visit_current_place()
+        self.hero.position.update_previous_place()
         self.hero.position.set_place(self.place_2)
 
         self.artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 1, rarity=RARITY.NORMAL)
@@ -968,7 +968,7 @@ class InPlaceActionCompanionStealingTest(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_steal_money', lambda self: True)
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_steal_item', lambda self: True)
     def test_place_not_changed(self):
-        self.hero.position.visit_current_place()
+        self.hero.position.update_previous_place()
 
         with contextlib.nested(
                 self.check_not_changed(lambda: self.hero.bag.occupation),

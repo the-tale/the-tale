@@ -79,16 +79,28 @@ class HeroPositionTest(testcase.TestCase):
         self.assertEqual(self.hero.position.get_minumum_distance_to(self.place_3), self.road_1_2.length + self.road_2_3.length)
 
     def test_get_minumum_distance_to__from_walking(self):
+        self.hero._model.pos_previous_place_id = self.place_1.id
+        self.assertNotEqual(self.hero.position.previous_place, None)
+
         self.hero.position.set_coordinates(self.place_1.x, self.place_1.y, self.place_1.x, self.place_1.y - 1, 1.0)
+
         self.assertEqual(self.hero.position.get_minumum_distance_to(self.place_1), 1)
         self.assertEqual(self.hero.position.get_minumum_distance_to(self.place_2), 1 + self.road_1_2.length)
         self.assertEqual(self.hero.position.get_minumum_distance_to(self.place_3), 1 + self.road_1_2.length + self.road_2_3.length)
 
+        self.assertEqual(self.hero.position.previous_place, None)  # test that when hero step outside town, previouse place will reset
+
     def test_get_minumum_distance_to__from_road(self):
+        self.hero._model.pos_previous_place_id = self.place_1.id
+        self.assertNotEqual(self.hero.position.previous_place, None)
+
         self.hero.position.set_road(self.road_1_2, percents=0.25)
+
         self.assertEqual(self.hero.position.get_minumum_distance_to(self.place_1), self.road_1_2.length * 0.25)
         self.assertEqual(self.hero.position.get_minumum_distance_to(self.place_2), self.road_1_2.length * 0.75)
         self.assertEqual(self.hero.position.get_minumum_distance_to(self.place_3), self.road_1_2.length * 0.75 + self.road_2_3.length)
+
+        self.assertEqual(self.hero.position.previous_place, None) # test that when hero step outside town, previouse place will reset
 
     def test_get_minumum_distance_to__from_road__invert(self):
         self.hero.position.set_road(self.road_1_2, percents=0.75)

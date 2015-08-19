@@ -896,7 +896,7 @@ class HeroPositionPrototype(object):
     @property
     def previous_place(self): return places_storage.get(self.hero._model.pos_previous_place_id)
 
-    def visit_current_place(self):
+    def update_previous_place(self):
         self.hero._model.pos_previous_place = self.hero._model.pos_place
 
     def _reset_position(self):
@@ -921,9 +921,12 @@ class HeroPositionPrototype(object):
 
     def set_road(self, road, percents=0, invert=False):
         self._reset_position()
+
         self.hero._model.pos_road = road._model
         self.hero._model.pos_invert_direction = invert
         self.hero._model.pos_percents = percents
+
+        self.update_previous_place()
 
     def get_percents(self): return self.hero._model.pos_percents
     def set_percents(self, value): self.hero._model.pos_percents = value
@@ -944,11 +947,14 @@ class HeroPositionPrototype(object):
 
     def set_coordinates(self, from_x, from_y, to_x, to_y, percents):
         self._reset_position()
+
         self.hero._model.pos_from_x = from_x
         self.hero._model.pos_from_y = from_y
         self.hero._model.pos_to_x = to_x
         self.hero._model.pos_to_y = to_y
         self.hero._model.pos_percents = percents
+
+        self.update_previous_place()
 
     @property
     def is_walking(self):
