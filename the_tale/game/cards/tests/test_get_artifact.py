@@ -70,13 +70,18 @@ class GetArtifactMixin(CardsTestMixin):
         action_idl = self.hero.actions.current_action
         action_trade = ActionTradingPrototype.create(hero=self.hero)
 
-        self.test_use()
+        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+
+        self.assertEqual(self.hero.bag.occupation, 1)
 
         self.assertTrue(action_trade.replane_required)
 
         self.storage.process_turn(continue_steps_if_needed=False)
 
         self.assertEqual(self.hero.actions.current_action, action_idl)
+
+        self.assertEqual(self.hero.bag.occupation, 1)
 
 
 
