@@ -215,6 +215,10 @@ small {
    background-color: @easy-block-background-color !important;
 }
 
+.open > .dropdown-menu.filter {
+   display: block;
+}
+
 .modal {
    background-color: @easy-block-background-color !important;
 }
@@ -242,6 +246,22 @@ small {
    a {
       padding: 0 5px !important;
       line-height: 24px !important;
+   }
+
+   ul.filter {
+      display: none;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+   
+      & > li > a {
+         float: none;
+         border: none;
+         border-radius: 0;
+         padding: 3px 20px;
+      }
+   }
+
+   & ul > li.dropdown {
+      display: inline-flex;
    }
 }
 

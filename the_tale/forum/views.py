@@ -10,9 +10,11 @@ from dext.common.utils.urls import UrlBuilder, url
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.pagination import Paginator
 from the_tale.common.utils.decorators import login_required
+from the_tale.common.utils.enum import create_enum
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.views import validate_fast_account, validate_ban_forum
+from the_tale.accounts.conf import accounts_settings
 
 from the_tale.forum.models import Category, SubCategory, Thread, Post
 from the_tale.forum import forms
@@ -25,7 +27,13 @@ from the_tale.forum.prototypes import ( CategoryPrototype,
                                SubscriptionPrototype,
                                ThreadReadInfoPrototype,
                                SubCategoryReadInfoPrototype)
+from the_tale.forum.relations import POST_STATE
 
+FILTER_TYPE = create_enum('FILTER_TYPE', (('ALL', 0, u'все сообщения'),
+                                          ('ADMIN', 1, u'сообщения администрации'),
+                                          ('USER', 2, u'мои сообщения'),
+                                          ('NO_REMOVED', 3, u'без удаленных сообщений'),))
+                                          
 
 def can_delete_thread(account):
     return account.has_perm('forum.moderate_thread')
@@ -310,34 +318,38 @@ class ThreadsResource(BaseForumResource):
 
 
     @validate_argument('page', int, 'forum.threads.show', u'неверный номер страницы')
+    @validate_argument('filter_type', FILTER_TYPE, 'forum.threads.show', u'Неверный тип фильтра')
     @handler('#thread', name='show', method='get')
-    def get_thread(self, page=1):
+    def get_thread(self, page=1, filter_type=None):
 
         thread_data = ThreadPageData()
 
-        if not thread_data.initialize(account=self.account, thread=self.thread, page=page):
+        if not thread_data.initialize(account=self.account, thread=self.thread, page=page, filter_type=filter_type):
             return self.redirect(thread_data.paginator.last_page_url, permanent=False)
 
         if self.account.is_authenticated():
             ThreadReadInfoPrototype.read_thread(self.thread, self.account)
-
+   
         return self.template('forum/thread.html',
                              {'category': self.category,
                               'thread': self.thread,
-                              'thread_data': thread_data} )
+                              'thread_data': thread_data,
+                              'FILTER_TYPE': FILTER_TYPE} )
 
 
 class ThreadPageData(object):
 
     def __init__(self):
         pass
-
-    def initialize(self, account, thread, page, inline=False):
+    
+    @handler('#filter_type', name='show', method='get')
+    def initialize(self, account, thread, page, filter_type=None, inline=False):
 
         from the_tale.game.heroes.prototypes import HeroPrototype
 
         self.account = account
         self.thread = thread
+        self.filter_type = filter_type
 
         url_builder = UrlBuilder(reverse('forum:threads:show', args=[self.thread.id]),
                                  arguments={'page': page})
@@ -352,7 +364,20 @@ class ThreadPageData(object):
         post_from, post_to = self.paginator.page_borders(page)
         self.post_from = post_from
 
-        self.posts = [PostPrototype(post_model) for post_model in Post.objects.filter(thread=self.thread._model).order_by('created_at')[post_from:post_to]]
+        if self.filter_type is not None:
+
+            if self.filter_type == FILTER_TYPE.ALL:
+                self.posts = [PostPrototype(post_model) for post_model in Post.objects.filter(thread=self.thread._model).order_by('created_at')[post_from:post_to]]
+            elif self.filter_type == FILTER_TYPE.ADMIN:
+                self.posts = [PostPrototype(post_model) for post_model in Post.objects.filter(thread=self.thread._model, author_id__in=accounts_settings.DEVELOPERS_IDS).order_by('created_at')[post_from:post_to]]
+            elif self.filter_type == FILTER_TYPE.USER:
+                self.posts = [PostPrototype(post_model) for post_model in Post.objects.filter(thread=self.thread._model, author_id=self.account.id).order_by('created_at')[post_from:post_to]]
+            elif self.filter_type == FILTER_TYPE.NO_REMOVED:
+                self.posts = [PostPrototype(post_model) for post_model in Post.objects.filter(thread=self.thread._model, state=POST_STATE.DEFAULT.value).order_by('created_at')[post_from:post_to]]
+        else:
+            self.filter_type = FILTER_TYPE.ALL
+            self.posts = [PostPrototype(post_model) for post_model in Post.objects.filter(thread=self.thread._model).order_by('created_at')[post_from:post_to]]
+                
 
         self.authors = {author.id:author for author in  AccountPrototype.get_list_by_id([post.author_id for post in self.posts])}
 
