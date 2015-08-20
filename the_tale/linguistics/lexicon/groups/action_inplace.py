@@ -39,8 +39,8 @@ KEYS = [(u'ACTION_INPLACE_DESCRIPTION', 80000, u'Описание', LEXICON_GROU
         u'Герой тратит деньги на починку артефакта.',
         [V.COINS, V.HERO, V.ARTIFACT]),
 
-        (u'ACTION_INPLACE_DIARY_SHARPENING_ARTIFACT', 80009, u'Дневник: Заточка артефакта', LEXICON_GROUP.ACTION_INPLACE,
-        u'Герой тратит деньги на заточку артефакта.',
+        (u'ACTION_INPLACE_DIARY_SHARPENING_ARTIFACT', 80009, u'Дневник: Улучшение артефакта', LEXICON_GROUP.ACTION_INPLACE,
+        u'Герой тратит деньги на улучшение артефакта.',
         [V.COINS, V.HERO, V.ARTIFACT]),
 
         (u'ACTION_INPLACE_DIARY_SPEND_USELESS', 80010, u'Дневник: Бесполезные траты', LEXICON_GROUP.ACTION_INPLACE,

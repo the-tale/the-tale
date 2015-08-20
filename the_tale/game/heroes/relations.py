@@ -77,7 +77,7 @@ class MONEY_SOURCE(DjangoEnum):
 
                 ('SPEND_FOR_HEAL', 1000, u'потрачено на лечение'),
                 ('SPEND_FOR_ARTIFACTS', 1001, u'потрачено на покупку артефактов'),
-                ('SPEND_FOR_SHARPENING', 1002, u'потрачено на заточку артефактов'),
+                ('SPEND_FOR_SHARPENING', 1002, u'потрачено на улучшение артефактов'),
                 ('SPEND_FOR_USELESS', 1003, u'потрачено без пользы'),
                 ('SPEND_FOR_IMPACT', 1004, u'потрачено на изменение влияния'),
                 ('SPEND_FOR_EXPERIENCE', 1005, u'потрачено на обучение'),
@@ -98,7 +98,7 @@ class ITEMS_OF_EXPENDITURE(DjangoEnum):
                  u'Собирает деньги, чтобы поправить здоровье, когда понадобится.'),
                 ('BUYING_ARTIFACT',     1, u'покупка артефакта', 'artifact',   4,  1.5, MONEY_SOURCE.SPEND_FOR_ARTIFACTS,
                  u'Планирует приобретение новой экипировки.'),
-                ('SHARPENING_ARTIFACT', 2, u'заточка артефакта', 'sharpening', 3,  2.0, MONEY_SOURCE.SPEND_FOR_SHARPENING,
+                ('SHARPENING_ARTIFACT', 2, u'улучшение артефакта', 'sharpening', 3,  2.0, MONEY_SOURCE.SPEND_FOR_SHARPENING,
                  u'Собирает на улучшение экипировки.'),
                 ('USELESS',             3, u'бесполезные траты', 'useless',    7,  0.4, MONEY_SOURCE.SPEND_FOR_USELESS,
                  u'Копит золото для не очень полезных но безусловно необходимых трат.'),

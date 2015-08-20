@@ -60,7 +60,7 @@ class DANDY(AbilityPrototype):
 
     NAME = u'Щёголь'
     normalized_name = NAME
-    DESCRIPTION = u'Увеличивает вероятность траты денег на заточку, ремонт и покупку артефактов.'
+    DESCRIPTION = u'Увеличивает вероятность траты денег на улучшение, ремонт и покупку артефактов.'
 
     PRIORITY_MULTIPLIER = [1.4, 1.8, 2.2, 2.6, 3.0]
 
