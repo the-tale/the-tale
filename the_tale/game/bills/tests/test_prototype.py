@@ -244,6 +244,28 @@ class TestPrototypeApply(BaseTestPrototypes):
                                                                         new_value=1)])
 
 
+class TestPrototypeStop(BaseTestPrototypes):
+
+    def setUp(self):
+        super(TestPrototypeStop, self).setUp()
+
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+
+        self.bill.approved_by_moderator = True
+        self.bill.save()
+
+    def test_wrong_state(self):
+        self.bill.state = relations.BILL_STATE.ACCEPTED
+        self.bill.save()
+        self.assertRaises(exceptions.StopBillInWrongStateError, self.bill.stop)
+
+    def test_stopped(self):
+        with self.check_delta(Post.objects.all().count, 1):
+            self.bill.stop()
+
+        self.assertTrue(self.bill.state.is_STOPPED)
+
 
 
 class TestPrototypeEnd(BaseTestPrototypes):
@@ -304,7 +326,7 @@ class GetApplicableBillsTest(BaseTestPrototypes):
         self.bill_3.reload()
 
     def test_all(self):
-        self.assertEqual(set(bill.id for bill in BillPrototype.get_applicable_bills()),
+        self.assertEqual(set(BillPrototype.get_applicable_bills_ids()),
                          set((self.bill_1.id, self.bill_2.id, self.bill_3.id)))
 
     def test_wrong_state(self):
@@ -314,19 +336,19 @@ class GetApplicableBillsTest(BaseTestPrototypes):
                 continue
             self.bill_1.state = state
             self.bill_1.save()
-            self.assertEqual(set(bill.id for bill in BillPrototype.get_applicable_bills()), set((self.bill_2.id, self.bill_3.id)))
+            self.assertEqual(set(BillPrototype.get_applicable_bills_ids()), set((self.bill_2.id, self.bill_3.id)))
 
     def test_approved_by_moderator(self):
 
         self.bill_2.approved_by_moderator = False
         self.bill_2.save()
-        self.assertEqual(set(bill.id for bill in BillPrototype.get_applicable_bills()), set((self.bill_1.id, self.bill_3.id)))
+        self.assertEqual(set(BillPrototype.get_applicable_bills_ids()), set((self.bill_1.id, self.bill_3.id)))
 
     def test_voting_not_ended(self):
 
         self.bill_3._model.updated_at = datetime.datetime.now()
         self.bill_3.save()
-        self.assertEqual(set(bill.id for bill in BillPrototype.get_applicable_bills()), set((self.bill_1.id, self.bill_2.id)))
+        self.assertEqual(set(BillPrototype.get_applicable_bills_ids()), set((self.bill_1.id, self.bill_2.id)))
 
 
 

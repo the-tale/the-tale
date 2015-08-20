@@ -120,12 +120,16 @@ class PlaceResourceConversion(BaseBill):
         self.conversion = user_form.c.conversion
         self.old_place_name_forms = self.place.utg_name
 
+    def has_meaning(self):
+        return True
+
     def apply(self, bill=None):
-        ResourceExchangePrototype.create(place_1=self.place,
-                                         place_2=None,
-                                         resource_1=self.conversion.resource_from,
-                                         resource_2=self.conversion.resource_to,
-                                         bill=bill)
+        if self.has_meaning():
+            ResourceExchangePrototype.create(place_1=self.place,
+                                             place_2=None,
+                                             resource_1=self.conversion.resource_from,
+                                             resource_2=self.conversion.resource_to,
+                                             bill=bill)
 
     def decline(self, bill):
         exchange = resource_exchange_storage.get_exchange_for_bill_id(bill.id)

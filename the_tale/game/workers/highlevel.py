@@ -9,6 +9,8 @@ from the_tale.common import postponed_tasks
 
 from the_tale.game.balance import constants as c
 
+from the_tale.game.bills import prototypes as bill_prototypes
+
 from the_tale.game.persons.relations import PERSON_STATE
 from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons import logic as persons_logic
@@ -100,7 +102,6 @@ class Worker(BaseWorker):
         self.logger.info('apply correction of minimum %s power: %d' % (type_name, minimum_power))
         for obj in objects:
             obj.push_power(self.turn_number, -minimum_power)
-
 
     def sync_persons_powers(self, persons):
         if not persons:
@@ -239,14 +240,19 @@ class Worker(BaseWorker):
 
 
     def apply_bills(self):
-        from the_tale.game.bills.prototypes import BillPrototype
-
         self.logger.info('apply bills')
 
         applied = False
 
-        for bill in BillPrototype.get_applicable_bills():
-            applied = bill.apply() or applied
+        for applied_bill_id in bill_prototypes.BillPrototype.get_applicable_bills_ids():
+            bill = bill_prototypes.BillPrototype.get_by_id(applied_bill_id)
+            if bill.state.is_VOTING:
+                applied = bill.apply() or applied
+
+            for active_bill_id in bill_prototypes.BillPrototype.get_active_bills_ids():
+                bill = bill_prototypes.BillPrototype.get_by_id(active_bill_id)
+                if not bill.has_meaning():
+                    bill.stop()
 
         self.logger.info('apply bills completed')
 

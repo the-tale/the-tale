@@ -95,9 +95,13 @@ class PlaceModifier(BaseBill):
         self.old_name_forms = self.place.utg_name
         self.old_modifier_name = self.place.modifier.NAME if self.place.modifier else None
 
+    def has_meaning(self):
+        return self.place.modifier is None or (self.place.modifier.TYPE != self.modifier_id)
+
     def apply(self, bill=None):
-        self.place.modifier = self.modifier_id
-        self.place.save()
+        if self.has_meaning():
+            self.place.modifier = self.modifier_id
+            self.place.save()
 
     def serialize(self):
         return {'type': self.type.name.lower(),

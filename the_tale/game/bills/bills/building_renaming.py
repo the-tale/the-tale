@@ -65,14 +65,16 @@ class BuildingRenaming(BasePersonBill):
     @property
     def new_name(self): return self.new_building_name_forms.normal_form()
 
+    @property
+    def building(self): return buildings_storage.get_by_person_id(self.person.id)
+
+    def has_meaning(self):
+        return self.building and not self.building.state.is_DESTROYED and self.building.utg_name != self.new_building_name_forms
+
     def apply(self, bill=None):
-        building = buildings_storage.get_by_person_id(self.person.id)
-
-        if building is None or building.state.is_DESTROYED:
-            return
-
-        building.set_utg_name(self.new_building_name_forms)
-        building.save()
+        if self.has_meaning():
+            self.building.set_utg_name(self.new_building_name_forms)
+            self.building.save()
 
 
     @property

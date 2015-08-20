@@ -125,6 +125,21 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
         self.assertTrue(declined_bill.is_declined)
         self.assertTrue(declined_bill.declined_by.id, bill.id)
 
+    def test_has_meaning(self):
+        VotePrototype.create(self.account2, self.bill, False)
+        VotePrototype.create(self.account3, self.bill, True)
+
+        form = BillDecline.ModeratorForm({'approved': True})
+        self.assertTrue(form.is_valid())
+        self.bill.update_by_moderator(form)
+
+        self.assertTrue(self.bill.has_meaning())
+
+        self.declined_bill.is_declined = True
+        self.declined_bill.save()
+
+        self.assertFalse(self.bill.has_meaning())
+
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))

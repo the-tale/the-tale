@@ -12,6 +12,7 @@ from the_tale.linguistics.forms import WordField
 from the_tale.game.persons.prototypes import PersonPrototype
 
 from the_tale.game.map.places.prototypes import BuildingPrototype
+from the_tale.game.map.places.storage import buildings_storage
 
 from the_tale.game.bills.relations import BILL_TYPE
 from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
@@ -56,11 +57,12 @@ class BuildingCreate(BasePersonBill):
     @property
     def base_name(self): return self.building_name_forms.normal_form()
 
-    def apply(self, bill=None):
-        if self.person is None or self.person.out_game:
-            return
+    def has_meaning(self):
+        return self.person and self.person.in_game and buildings_storage.get_by_person_id(self.person.id) is None
 
-        BuildingPrototype.create(self.person, utg_name=self.building_name_forms)
+    def apply(self, bill=None):
+        if self.has_meaning():
+            BuildingPrototype.create(self.person, utg_name=self.building_name_forms)
 
     @property
     def user_form_initials(self):

@@ -4,30 +4,8 @@ import datetime
 
 import mock
 
-from the_tale.forum.models import Post
-
-from the_tale.accounts import prototypes as accounts_prototypes
-from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
-
-from the_tale.linguistics.tests import helpers as linguistics_helpers
-
-from the_tale.game import names
-
-from the_tale.game.prototypes import TimePrototype
-from the_tale.game.balance import constants as c
-
-from the_tale.game.heroes.prototypes import HeroPrototype
-
-from the_tale.game.bills.models import Actor
-from the_tale.game.bills import relations
-from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
-from the_tale.game.bills.bills import PlaceRenaming, PlaceDescripton
-from the_tale.game.bills.conf import bills_settings
-from the_tale.game.bills import exceptions
-from the_tale.game.bills import logic
-from the_tale.game.bills.tests.helpers import BaseTestPrototypes
-
-from the_tale.game.map.places.storage import places_storage
+from .. import logic
+from .helpers import BaseTestPrototypes
 
 
 class LogicTests(BaseTestPrototypes):

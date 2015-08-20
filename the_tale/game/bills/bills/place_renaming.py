@@ -85,9 +85,13 @@ class PlaceRenaming(BaseBill):
     def initialize_with_moderator_data(self, moderator_form):
         self.name_forms = moderator_form.c.name
 
+    def has_meaning(self):
+        return self.place.utg_name != self.name_forms
+
     def apply(self, bill=None):
-        self.place.set_utg_name(self.name_forms)
-        self.place.save()
+        if self.has_meaning():
+            self.place.set_utg_name(self.name_forms)
+            self.place.save()
 
     def serialize(self):
         return {'type': self.type.name.lower(),

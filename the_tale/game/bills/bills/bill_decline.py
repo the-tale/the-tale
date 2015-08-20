@@ -68,8 +68,12 @@ class BillDecline(BaseBill):
     def initialize_with_user_data(self, user_form):
         self.declined_bill_id = int(user_form.c.declined_bill)
 
+    def has_meaning(self):
+        self.declined_bill.reload() # enshure that we loaded latest bill version
+        return not self.declined_bill.is_declined
+
     def apply(self, bill=None):
-        if not self.declined_bill.is_declined:
+        if self.has_meaning():
             self.declined_bill.decline(bill)
 
     def serialize(self):

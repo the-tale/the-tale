@@ -1,4 +1,7 @@
 # coding: utf-8
+import datetime
+
+import mock
 
 from the_tale.forum.models import Post, Thread, MARKUP_METHOD
 
@@ -6,11 +9,11 @@ from the_tale.linguistics.tests import helpers as linguistics_helpers
 
 from the_tale.game import names
 
-from the_tale.game.bills.models import Vote
-from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
-from the_tale.game.bills.bills import PlaceRenaming
-from the_tale.game.bills.relations import VOTE_TYPE
-from the_tale.game.bills.tests.helpers import BaseTestPrototypes
+from ..models import Vote
+from ..prototypes import BillPrototype, VotePrototype
+from ..bills import PlaceRenaming
+from ..relations import VOTE_TYPE
+from .helpers import BaseTestPrototypes
 
 
 class PlaceRenamingTests(BaseTestPrototypes):
@@ -125,3 +128,43 @@ class PlaceRenamingTests(BaseTestPrototypes):
 
         # not there are no anothe bills an get_minimum_created_time_of_active_bills return now()
         self.assertTrue(self.bill.created_at < BillPrototype.get_minimum_created_time_of_active_bills())
+
+
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    def test_apply(self):
+        VotePrototype.create(self.account2, self.bill, False)
+        VotePrototype.create(self.account3, self.bill, True)
+
+        new_name = names.generator.get_test_name('new-new-name')
+
+        data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
+        data.update({'approved': True})
+        form = PlaceRenaming.ModeratorForm(data)
+        self.assertTrue(form.is_valid())
+        self.bill.update_by_moderator(form)
+
+        self.assertTrue(self.bill.apply())
+
+        bill = BillPrototype.get_by_id(self.bill.id)
+        self.assertTrue(bill.state.is_ACCEPTED)
+
+        self.assertEqual(self.bill.data.place.utg_name, new_name)
+
+
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    def test_has_meaning__duplicate_name(self):
+        VotePrototype.create(self.account2, self.bill, False)
+        VotePrototype.create(self.account3, self.bill, True)
+
+        new_name = names.generator.get_test_name('new-new-name')
+        self.bill.data.place.set_utg_name(new_name)
+
+        data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
+        data.update({'approved': True})
+        form = PlaceRenaming.ModeratorForm(data)
+        self.assertTrue(form.is_valid())
+        self.bill.update_by_moderator(form)
+
+        self.assertFalse(self.bill.has_meaning())

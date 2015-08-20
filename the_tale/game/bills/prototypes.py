@@ -147,6 +147,30 @@ class BillPrototype(BasePrototype):
 
         return True
 
+    def has_meaning(self):
+        return self.data.has_meaning()
+
+    def stop(self):
+        if not self.state.is_VOTING:
+            raise exceptions.StopBillInWrongStateError(bill_id=self.id)
+
+        results_text = u'Итоги голосования: %d «за», %d «против» (итого %.1f%% «за»), %d «воздержалось».' % (self.votes_for,
+                                                                                                             self.votes_against,
+                                                                                                             round(self.votes_for_percents, 3)*100,
+                                                                                                             self.votes_refrained)
+
+        with transaction.atomic():
+            self.state = BILL_STATE.STOPPED
+            self.save()
+
+            PostPrototype.create(ThreadPrototype(self._model.forum_thread),
+                                 get_system_user(),
+                                 u'Законопроект потерял смысл, голосование остановлено. %s' % results_text,
+                                 technical=True)
+
+            signals.bill_stopped.send(self.__class__, bill=self)
+
+
     def apply(self):
         if not self.state.is_VOTING:
             raise exceptions.ApplyBillInWrongStateError(bill_id=self.id)
@@ -366,12 +390,14 @@ class BillPrototype(BasePrototype):
         signals.bill_removed.send(self.__class__, bill=self)
 
     @classmethod
-    def get_applicable_bills(cls):
-        bills_models = cls._model_class.objects.filter(state=BILL_STATE.VOTING,
-                                                       approved_by_moderator=True,
-                                                       updated_at__lt=datetime.datetime.now() - datetime.timedelta(seconds=bills_settings.BILL_LIVE_TIME))
-        return [cls(model=model) for model in bills_models]
+    def get_applicable_bills_ids(cls):
+        return cls._model_class.objects.filter(state=BILL_STATE.VOTING,
+                                               approved_by_moderator=True,
+                                               updated_at__lt=datetime.datetime.now() - datetime.timedelta(seconds=bills_settings.BILL_LIVE_TIME)).values_list('id', flat=True)
 
+    @classmethod
+    def get_active_bills_ids(cls):
+        return cls._model_class.objects.filter(state=BILL_STATE.VOTING).values_list('id', flat=True)
 
 
 class ActorPrototype(BasePrototype):

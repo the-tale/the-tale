@@ -94,3 +94,18 @@ class PersonRemoveTests(BaseTestPrototypes):
         self.assertNotEqual(self.place1.persons[0].id, self.person1.id)
         self.assertTrue(self.person1.out_game)
         self.assertTrue(Person.objects.get(id=self.person1.id).state, PERSON_STATE.OUT_GAME)
+
+
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    def test_has_meaning__person_out_game(self):
+        VotePrototype.create(self.account2, self.bill, False)
+        VotePrototype.create(self.account3, self.bill, True)
+
+        form = PersonRemove.ModeratorForm({'approved': True})
+        self.assertTrue(form.is_valid())
+        self.bill.update_by_moderator(form)
+
+        self.bill.data.person.move_out_game()
+
+        self.assertFalse(self.bill.has_meaning())

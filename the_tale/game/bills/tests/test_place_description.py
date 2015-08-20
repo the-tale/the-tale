@@ -73,3 +73,19 @@ class PlaceDescriptionTests(BaseTestPrototypes):
 
         self.assertNotEqual(self.place.description, 'old description' )
         self.assertEqual(self.place.description, 'new description' )
+
+
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    def test_has_meaning__duplicate_description(self):
+        VotePrototype.create(self.account2, self.bill, False)
+        VotePrototype.create(self.account3, self.bill, True)
+
+        form = PlaceDescripton.ModeratorForm({'approved': True})
+        self.assertTrue(form.is_valid())
+        self.bill.update_by_moderator(form)
+
+        self.place.description = 'new description'
+        self.place.save()
+
+        self.assertFalse(self.bill.has_meaning())

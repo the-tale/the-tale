@@ -1,5 +1,6 @@
 # coding: utf-8
 import mock
+import datetime
 import contextlib
 
 from dext.settings import settings
@@ -12,6 +13,9 @@ from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.game import names
+
+from the_tale.game.bills import bills
+from the_tale.game.bills import prototypes as bills_prototypes
 
 from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons.models import Person
@@ -40,11 +44,11 @@ class HighlevelTest(testcase.TestCase):
 
         self.p1, self.p2, self.p3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user')
+        self.account = self.accounts_factory.create_account()
 
         self.storage = LogicStorage()
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
-        self.hero = self.storage.accounts_to_heroes[account_id]
+        self.storage.load_account_data(self.account)
+        self.hero = self.storage.accounts_to_heroes[self.account.id]
         self.action_idl = self.hero.actions.current_action
 
         environment.deinitialize()
@@ -137,6 +141,37 @@ class HighlevelTest(testcase.TestCase):
 
         self.worker.process_next_turn(time.turn_number)
         self.assertTrue(self.worker._data_synced)
+
+
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0)
+    @mock.patch('the_tale.game.bills.conf.bills_settings.BILL_LIVE_TIME', 0)
+    def test_apply_bills__stop_bill_without_meaning(self):
+        from the_tale.forum.models import Category, SubCategory
+
+        forum_category = Category.objects.create(caption='category-1', slug='category-1')
+        SubCategory.objects.create(caption=bills_settings.FORUM_CATEGORY_UID + '-caption',
+                                   uid=bills_settings.FORUM_CATEGORY_UID,
+                                   category=forum_category)
+
+        new_name = names.generator.get_test_name('new-new-name')
+
+        bill_data_1 = bills.PlaceRenaming(place_id=self.p1.id, name_forms=new_name)
+        bill_1 = bills_prototypes.BillPrototype.create(self.account, 'bill-1-caption', 'bill-1-rationale', bill_data_1, chronicle_on_accepted='chronicle-on-accepted')
+        bill_1.approved_by_moderator = True
+        bill_1.save()
+
+        bill_data_2 = bills.PlaceRenaming(place_id=self.p1.id, name_forms=new_name)
+        bill_2 = bills_prototypes.BillPrototype.create(self.account, 'bill-2-caption', 'bill-2-rationale', bill_data_2, chronicle_on_accepted='chronicle-on-accepted')
+        bill_2.approved_by_moderator = True
+        bill_2.save()
+
+        self.worker.apply_bills()
+
+        bill_1.reload()
+        bill_2.reload()
+
+        self.assertTrue(bill_1.state.is_ACCEPTED)
+        self.assertTrue(bill_2.state.is_STOPPED)
 
 
     @mock.patch('the_tale.game.workers.highlevel.Worker.sync_data', fake_sync_data)

@@ -27,3 +27,6 @@ class BaseBill(object):
 
     def end(self, bill):
         raise NotImplementedError
+
+    def has_meaning(self):
+        raise NotImplementedError

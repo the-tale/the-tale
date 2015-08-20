@@ -111,6 +111,26 @@ class BuildingDestroyTests(BaseTestPrototypes):
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    def test_has_meaning__duplicate(self):
+        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
+
+        VotePrototype.create(self.account2, self.bill, False)
+        VotePrototype.create(self.account3, self.bill, True)
+
+        form = BuildingDestroy.ModeratorForm({'approved': True})
+        self.assertTrue(form.is_valid())
+        self.bill.update_by_moderator(form)
+        self.assertTrue(self.bill.apply())
+
+        bill = BillPrototype.get_by_id(self.bill.id)
+        bill.state = BILL_STATE.VOTING
+        bill.save()
+
+        self.assertFalse(bill.has_meaning())
+
+
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_no_building(self):
         self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
 
@@ -127,3 +147,21 @@ class BuildingDestroyTests(BaseTestPrototypes):
         self.assertTrue(self.bill.apply())
 
         self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 1)
+
+
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    def test_has_meaning__no_building(self):
+        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
+
+        VotePrototype.create(self.account2, self.bill, False)
+        VotePrototype.create(self.account3, self.bill, True)
+
+        form = BuildingDestroy.ModeratorForm({'approved': True})
+        self.assertTrue(form.is_valid())
+        self.bill.update_by_moderator(form)
+
+        self.building_1.destroy()
+        self.building_1.save()
+
+        self.assertFalse(self.bill.has_meaning())

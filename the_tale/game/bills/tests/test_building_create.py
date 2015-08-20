@@ -150,6 +150,40 @@ class BuildingCreateTests(BaseTestPrototypes):
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    def test_has_meaning__duplicate(self):
+        self.assertEqual(Building.objects.all().count(), 0)
+
+        VotePrototype.create(self.account2, self.bill, False)
+        VotePrototype.create(self.account3, self.bill, True)
+
+        noun = names.generator.get_test_name('building-name')
+        data = linguistics_helpers.get_word_post_data(noun, prefix='name')
+        data.update({'approved': True})
+
+        form = BuildingCreate.ModeratorForm(data)
+
+        self.assertTrue(form.is_valid())
+        self.bill.update_by_moderator(form)
+        self.assertTrue(self.bill.apply())
+
+        dup_noun = names.generator.get_test_name('dup-building-name')
+        data = linguistics_helpers.get_word_post_data(dup_noun, prefix='name')
+        data.update({'approved': True})
+
+        form = BuildingCreate.ModeratorForm(data)
+
+        bill = BillPrototype.get_by_id(self.bill.id)
+        bill.state = BILL_STATE.VOTING
+        bill.save()
+
+        self.assertTrue(form.is_valid())
+        bill.update_by_moderator(form)
+
+        self.assertFalse(bill.has_meaning())
+
+
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_apply_without_person(self):
         self.assertEqual(Building.objects.all().count(), 0)
 
@@ -177,3 +211,26 @@ class BuildingCreateTests(BaseTestPrototypes):
         self.assertTrue(bill.apply())
 
         self.assertEqual(Building.objects.all().count(), 0)
+
+
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    def test_apply_without_person(self):
+        self.assertEqual(Building.objects.all().count(), 0)
+
+        VotePrototype.create(self.account2, self.bill, False)
+        VotePrototype.create(self.account3, self.bill, True)
+
+        noun = names.generator.get_test_name('building-name')
+
+        data = linguistics_helpers.get_word_post_data(noun, prefix='name')
+        data.update({'approved': True})
+
+        form = BuildingCreate.ModeratorForm(data)
+
+        self.assertTrue(form.is_valid())
+        self.bill.update_by_moderator(form)
+
+        self.person_1.move_out_game()
+
+        self.assertFalse(self.bill.has_meaning())

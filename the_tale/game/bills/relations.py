@@ -11,7 +11,8 @@ class BILL_STATE(DjangoEnum):
     records = ( ('VOTING', 1, u'на голосовании'),
                 ('ACCEPTED', 2, u'принят'),
                 ('REJECTED', 3, u'отклонён'),
-                ('REMOVED', 4, u'удалён'))
+                ('REMOVED', 4, u'удалён'),
+                ('STOPPED', 5, u'потерял смысл'))
 
 
 class BILL_TYPE(DjangoEnum):

@@ -1216,7 +1216,7 @@ class ActionInPlacePrototype(ActionBase):
 
         # process variouse effects only if it is not repeated town visit
         if hero.position.place == hero.position.previous_place:
-            return
+            return prototype
 
         if (hero.energy < hero.energy_maximum and
             hero.position.place.modifier and hero.position.place.modifier.energy_regen_allowed()):
@@ -1243,9 +1243,10 @@ class ActionInPlacePrototype(ActionBase):
 
         if hero.companion:
 
-            if hero.can_companion_eat():
-                waymark = waymarks_storage.look_for_road(point_from=hero.position.previous_place.id, point_to=hero.position.place)
-                coins = min(hero.money, int(math.ceil(f.gold_in_path(hero.level, waymark.length) * hero.companion_money_for_food_multiplier)+1))
+            if hero.can_companion_eat() and TimePrototype.get_current_turn_number() != hero.position.last_place_visited_turn:
+                expected_coins = ( f.expected_gold_in_day(hero.level) *
+                                   float(TimePrototype.get_current_turn_number() - hero.position.last_place_visited_turn) / (c.TURNS_IN_HOUR * 24) )
+                coins = min(hero.money, int(expected_coins * hero.companion_money_for_food_multiplier)+1)
 
                 if coins > 0:
                     hero.change_money(MONEY_SOURCE.SPEND_FOR_COMPANIONS, -coins)

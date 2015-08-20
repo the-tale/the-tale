@@ -10,6 +10,9 @@ class UnknownLastEventTextError(BillError):
 class ApplyBillInWrongStateError(BillError):
     MSG = u'trying to apply bill %(bill_id)d not in voting state'
 
+class StopBillInWrongStateError(BillError):
+    MSG = u'trying to stop bill %(bill_id)d not in voting state'
+
 class ApplyUnapprovedBillError(BillError):
     MSG = u'trying to apply bill %(bill_id)d which did not approved by moderator'
 

@@ -86,3 +86,19 @@ class PlaceModifierTests(BaseTestPrototypes):
 
         self.assertNotEqual(self.place.modifier, None)
         self.assertEqual(self.place.modifier, TradeCenter(self.place) )
+
+
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    def test_has_meaning__duplicate_modifier(self):
+        VotePrototype.create(self.account2, self.bill, False)
+        VotePrototype.create(self.account3, self.bill, True)
+
+        form = PlaceModifier.ModeratorForm({'approved': True})
+        self.assertTrue(form.is_valid())
+        self.bill.update_by_moderator(form)
+
+        self.bill.data.place.modifier = self.bill.data.modifier_id
+        self.bill.data.place.save()
+
+        self.assertFalse(self.bill.has_meaning())

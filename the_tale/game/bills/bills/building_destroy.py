@@ -58,13 +58,15 @@ class BuildingDestroy(BasePersonBill):
     @property
     def base_name(self): return self.building_name_forms.normal_form()
 
+    @property
+    def building(self): return buildings_storage.get_by_person_id(self.person.id)
+
+    def has_meaning(self):
+        return self.building and not self.building.state.is_DESTROYED
+
     def apply(self, bill=None):
-        building = buildings_storage.get_by_person_id(self.person.id)
-
-        if building is None or building.state.is_DESTROYED:
-            return
-
-        building.destroy()
+        if self.has_meaning():
+            self.building.destroy()
 
     def initialize_with_user_data(self, user_form):
         super(BuildingDestroy, self).initialize_with_user_data(user_form)

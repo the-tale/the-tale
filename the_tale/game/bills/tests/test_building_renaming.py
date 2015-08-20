@@ -11,9 +11,11 @@ from the_tale.game.map.places.models import Building
 from the_tale.game.map.places.prototypes import BuildingPrototype
 from the_tale.game.map.places.relations import BUILDING_STATE
 
-from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
-from the_tale.game.bills.bills import BuildingRenaming
-from the_tale.game.bills.tests.helpers import BaseTestPrototypes
+from .. import relations
+from ..prototypes import BillPrototype, VotePrototype
+from ..bills import BuildingRenaming
+from .helpers import BaseTestPrototypes
+
 
 
 class BuildingRenamingTests(BaseTestPrototypes):
@@ -97,6 +99,31 @@ class BuildingRenamingTests(BaseTestPrototypes):
 
         self.assertEqual(self.building.name, u'r-building-name-нс,ед,им')
 
+
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    def test_is_make_sense__same_name(self):
+        VotePrototype.create(self.account2, self.bill, False)
+        VotePrototype.create(self.account3, self.bill, True)
+
+        noun = names.generator.get_test_name('r-building-name')
+
+        data = linguistics_helpers.get_word_post_data(noun, prefix='name')
+        data.update({'approved': True})
+
+        form = BuildingRenaming.ModeratorForm(data)
+
+        self.assertTrue(form.is_valid())
+        self.bill.update_by_moderator(form)
+
+        self.assertTrue(self.bill.apply())
+
+        self.bill.state = relations.BILL_STATE.VOTING
+        self.bill.save()
+
+        self.assertFalse(self.bill.has_meaning())
+
+
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_no_building(self):
@@ -122,3 +149,25 @@ class BuildingRenamingTests(BaseTestPrototypes):
 
         self.building.reload()
         self.assertEqual(self.building.name, u'building-name-нс,ед,им')
+
+
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    def test_is_make_sense__no_building(self):
+
+        VotePrototype.create(self.account2, self.bill, False)
+        VotePrototype.create(self.account3, self.bill, True)
+
+        noun = names.generator.get_test_name('r-building-name')
+
+        data = linguistics_helpers.get_word_post_data(noun, prefix='name')
+        data.update({'approved': True})
+        form = BuildingRenaming.ModeratorForm(data)
+
+        self.assertTrue(form.is_valid())
+        self.bill.update_by_moderator(form)
+
+        self.building.destroy()
+        self.building.save()
+
+        self.assertFalse(self.bill.has_meaning())

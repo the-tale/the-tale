@@ -71,7 +71,13 @@ class PlaceChronicle(BaseBill):
         self.power_bonus = user_form.c.power_bonus
         self.old_name_forms = self.place.utg_name
 
+    def has_meaning(self):
+        return True
+
     def apply(self, bill=None):
+        if not self.has_meaning():
+            return
+
         if self.power_bonus.bonus_delta == 0:
             return
 

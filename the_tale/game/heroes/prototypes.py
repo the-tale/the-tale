@@ -864,10 +864,12 @@ class HeroPrototype(BasePrototype,
 
 
 class HeroPositionPrototype(object):
-    __slots__ = ('hero', )
+    __slots__ = ('hero', 'last_place_visited_turn')
 
     def __init__(self, hero):
         self.hero = hero
+        # now we do not save that value between game starts, since it is specific and no one will notify that hack
+        self.last_place_visited_turn = TimePrototype.get_current_turn_number()
 
     def get_description(self):
         if self.place:
@@ -912,6 +914,7 @@ class HeroPositionPrototype(object):
     def set_place(self, place):
         self._reset_position()
         self.hero._model.pos_place = place._model
+        self.last_place_visited_turn = TimePrototype.get_current_turn_number()
 
     @property
     def road_id(self): return self.hero._model.pos_road_id

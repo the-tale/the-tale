@@ -156,12 +156,16 @@ class PlaceResourceExchange(BaseBill):
         self.old_place_1_name_forms = self.place_1.utg_name
         self.old_place_2_name_forms = self.place_2.utg_name
 
+    def has_meaning(self):
+        return True
+
     def apply(self, bill=None):
-        ResourceExchangePrototype.create(place_1=self.place_1,
-                                         place_2=self.place_2,
-                                         resource_1=self.resource_1,
-                                         resource_2=self.resource_2,
-                                         bill=bill)
+        if self.has_meaning():
+            ResourceExchangePrototype.create(place_1=self.place_1,
+                                             place_2=self.place_2,
+                                             resource_1=self.resource_1,
+                                             resource_2=self.resource_2,
+                                             bill=bill)
 
     def decline(self, bill):
         exchange = resource_exchange_storage.get_exchange_for_bill_id(bill.id)

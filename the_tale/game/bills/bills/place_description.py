@@ -83,9 +83,13 @@ class PlaceDescripton(BaseBill):
         self.old_name_forms = self.place.utg_name
         self.old_description = self.place.description
 
+    def has_meaning(self):
+        return self.place.description != self.description
+
     def apply(self, bill=None):
-        self.place.description = self.description
-        self.place.save()
+        if self.has_meaning():
+            self.place.description = self.description
+            self.place.save()
 
     def serialize(self):
         return {'type': self.type.name.lower(),

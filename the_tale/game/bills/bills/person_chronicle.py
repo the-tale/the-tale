@@ -41,7 +41,13 @@ class PersonChronicle(BasePersonBill):
         super(PersonChronicle, self).__init__(**kwargs)
         self.power_bonus = power_bonus
 
+    def has_meaning(self):
+        return self.person and self.person.in_game
+
     def apply(self, bill=None):
+        if not self.has_meaning():
+            return
+
         if self.power_bonus.bonus_delta == 0:
             return
 
