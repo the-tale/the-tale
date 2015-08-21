@@ -173,4 +173,5 @@ class VARIABLE(DjangoEnum):
                 ('CONVERSION', 'conversion', u'информация о конверсии параметров', VARIABLE_TYPE.TEXT),
                 ('COMPANION', 'companion', u'спутник', VARIABLE_TYPE.ACTOR),
                 ('COMPANION_OWNER', 'companion_owner', u'владелец спутника', VARIABLE_TYPE.ACTOR),
+                ('ATTACKER_DAMAGE', 'attacker_damage', u'урон по атакующему', VARIABLE_TYPE.NUMBER),
                 )

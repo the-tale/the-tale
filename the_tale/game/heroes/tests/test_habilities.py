@@ -285,6 +285,17 @@ class HabilitiesTest(TestCase):
         battle_abilities.LAST_CHANCE().update_context(self.attacker, self.defender)
         self.assertTrue(self.attacker.context.last_chance_probability > 0)
 
+    def test_insane_strike(self):
+        self.assertEqual(self.attacker.health, self.defender.health)
+
+        with self.check_decreased(lambda: self.attacker.health):
+            with self.check_decreased(lambda: self.defender.health):
+                battle_abilities.INSANE_STRIKE().use(self.messenger, self.attacker, self.defender)
+
+        self.assertTrue(self.attacker.health > self.defender.health)
+
+        self.assertEqual(self.messenger.messages, ['hero_ability_insane_strike'])
+
     @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_mage(self):
         modifiers_abilities.MAGE().update_context(self.attacker, self.defender)

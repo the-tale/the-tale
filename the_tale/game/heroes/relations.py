@@ -224,6 +224,8 @@ class MODIFIERS(DjangoEnum):
                 ('COMPANION_LIVING_COHERENCE_SPEED', 80, u'скорость развития живого спутника', lambda: 1.0),
                 ('COMPANION_CONSTRUCT_COHERENCE_SPEED', 81, u'скорость развития конструкта', lambda: 1.0),
                 ('COMPANION_UNUSUAL_COHERENCE_SPEED', 82, u'скорость развития особого спутника', lambda: 1.0),
+
+                ('CHARACTER_QUEST_PRIORITY', 83, u'приоритет заданий связанных с героем', lambda: 1.0),
                 )
 
 

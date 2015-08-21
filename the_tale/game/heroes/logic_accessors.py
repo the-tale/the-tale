@@ -99,6 +99,9 @@ class LogicAccessorsMixin(object):
         if quest.is_INTERFERE_ENEMY:
             priority *= self.attribute_modifier(relations.MODIFIERS.ENEMY_QUEST_PRIORITY)
 
+        if quest.quest_type.is_CHARACTER:
+            priority *= self.attribute_modifier(relations.MODIFIERS.CHARACTER_QUEST_PRIORITY)
+
         return priority
 
     ################################

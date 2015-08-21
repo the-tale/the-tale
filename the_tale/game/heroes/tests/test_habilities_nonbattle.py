@@ -87,3 +87,16 @@ class HabilitiesNonBattleTest(testcase.TestCase):
         self.hero.abilities.add(nonbattle.DIPLOMATIC.get_id())
 
         self.assertTrue(old_power_modifier < self.hero.politics_power_multiplier())
+
+
+    def test_open_minded(self):
+        with self.check_increased(lambda: self.hero.habits_increase_modifier):
+            self.hero.abilities.add(nonbattle.OPEN_MINDED.get_id())
+
+
+    def test_selfish(self):
+        from the_tale.game.quests import relations as quests_relations
+
+        with self.check_increased(lambda: self.hero.modify_quest_priority(quests_relations.QUESTS.HUNT)):
+            with self.check_not_changed(lambda: self.hero.modify_quest_priority(quests_relations.QUESTS.SPYING)):
+                self.hero.abilities.add(nonbattle.SELFISH.get_id())

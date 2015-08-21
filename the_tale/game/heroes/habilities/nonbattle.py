@@ -212,6 +212,44 @@ class THRIFTY(AbilityPrototype):
         return value + self.max_bag_size_modifier if type_.is_MAX_BAG_SIZE else value
 
 
+class OPEN_MINDED(AbilityPrototype):
+
+    TYPE = ABILITY_TYPE.NONBATTLE
+    ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
+    AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
+
+    NAME = u'Открытый'
+    normalized_name = NAME
+    DESCRIPTION = u'Герой всегда готов посмотреть на вещи с новой стороны, благодаря чему увеличивается скорость изменения его черт.'
+
+    HABIT_MULTIPLIER = [1.2, 1.4, 1.6, 1.8, 2.0]
+
+    @property
+    def habit_multiplier(self): return self.HABIT_MULTIPLIER[self.level-1]
+
+    def modify_attribute(self, type_, value):
+        return value * self.habit_multiplier if type_.is_HABITS_INCREASE else value
+
+
+class SELFISH(AbilityPrototype):
+
+    TYPE = ABILITY_TYPE.NONBATTLE
+    ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
+    AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
+
+    NAME = u'Эгоцентричный'
+    normalized_name = NAME
+    DESCRIPTION = u'Герой чаще выбирает задания связанные со своими предпочтениями.'
+
+    MULTIPLIER = [1.2, 1.4, 1.6, 1.8, 2.0]
+
+    @property
+    def multiplier(self): return self.MULTIPLIER[self.level-1]
+
+    def modify_attribute(self, type_, value):
+        return value * self.multiplier if type_.is_CHARACTER_QUEST_PRIORITY else value
+
+
 ABILITIES = dict( (ability.get_id(), ability)
                   for ability in globals().values()
                   if isinstance(ability, type) and issubclass(ability, AbilityPrototype) and ability != AbilityPrototype)
