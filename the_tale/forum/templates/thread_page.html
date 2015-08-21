@@ -35,6 +35,24 @@
         </a>
       </li>
 
+      <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+          {% if thread_data.filter_type %}
+          {{ FILTER_TYPE._ID_TO_TEXT[thread_data.filter_type.value] }}
+          {% else %}
+          {{ FILTER_TYPE._ID_TO_TEXT[thread_data.filter_type] }}
+          {% endif %}
+        </a>
+        <ul class="dropdown-menu filter">
+          <li><a href="{{ url('forum:threads:show', thread_data.thread.id, filter_type=FILTER_TYPE.ALL) }}" class="pgf-filter-option">{{FILTER_TYPE._ID_TO_TEXT[FILTER_TYPE.ALL]}}</a></li>
+          <li><a href="{{ url('forum:threads:show', thread_data.thread.id, filter_type=FILTER_TYPE.ADMIN) }}" class="pgf-filter-option">{{FILTER_TYPE._ID_TO_TEXT[FILTER_TYPE.ADMIN]}}</a></li>
+          {% if resource.account.is_authenticated() %}
+          <li><a href="{{ url('forum:threads:show', thread_data.thread.id, filter_type=FILTER_TYPE.USER) }}" class="pgf-filter-option">{{FILTER_TYPE._ID_TO_TEXT[FILTER_TYPE.USER]}}</a></li>
+          {% endif %}
+          <li><a href="{{ url('forum:threads:show', thread_data.thread.id, filter_type=FILTER_TYPE.NO_REMOVED) }}" class="pgf-filter-option">{{FILTER_TYPE._ID_TO_TEXT[FILTER_TYPE.NO_REMOVED]}}</a></li>
+        </ul>
+      </li>
+
     </ul>
   </div>
 
@@ -202,6 +220,12 @@ jQuery(document).ready( function(e) {
   {% endif %}
 
   {{ forum_paginator_line(thread_data, delete_thread_button=true, edit_thread_button=true) }}
+
+  {% if thread_data.no_posts and thread_data.filter_type %}
+  <p class="alert alert-info">
+    Сообщений по фильтру "{{ FILTER_TYPE._ID_TO_TEXT[thread_data.filter_type.value] }}" не найдено.
+  </p>
+  {% endif %} 
 
 <div>
   {% for post in thread_data.posts %}
