@@ -12,7 +12,7 @@ boto==2.15.0
 unicodecsv==0.9.4
 
 pynames==0.2.0
-utg==0.1.0
+-e git+https://github.com/Tiendil/utg.git@rc.v0.2.0#egg=Utg
 rels==0.2.2.2
 
 -e git+https://github.com/Tiendil/dext.git@v0.2.0#egg=Dext

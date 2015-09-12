@@ -1,0 +1,13 @@
+[databases]
+database1.domain.com
+
+[brokers]
+broker1.domain.com
+
+[apps]
+app1.domain.com
+
+[production:children]
+databases
+brokers
+apps

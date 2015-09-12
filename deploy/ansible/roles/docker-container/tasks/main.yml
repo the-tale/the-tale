@@ -1,0 +1,38 @@
+---
+- name: next
+  debug: msg={{ container.name }}
+
+- name: removed
+  docker:
+    name: "{{ container.name }}"
+    image: "{{ container.image }}"
+    state: absent
+
+- name: image updated
+  when: container.path is undefined
+  command: docker pull {{ container.image }}
+
+- name: image builded
+  when: container.path is defined
+  docker_image:
+    path: "{{ container.path }}"
+    name: "{{ container.image }}"
+    state: build
+  tags:
+    - build
+
+- name: started
+  docker:
+    name: "{{ container.name }}"
+    image: "{{ container.image }}"
+    net: "{{ container.net | default('host') }}"
+    hostname: "{{ ansible_hostname }}"
+    env: "{{ container.envs | default(omit) }}"
+    volumes: "{{ container.volumes | default(omit) }}"
+    state: started
+
+- name: ports opened
+  wait_for:
+    port: "{{ item }}"
+    timeout: "{{ service_start_timeout_sec }}"
+  with_items: "{{ container.ports }}"
