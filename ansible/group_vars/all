@@ -1,0 +1,43 @@
+---
+project_name: the-tale
+repo_dir: "{{ playbook_dir }}/.."
+app_dir: "{{ repo_dir }}/the_tale"
+venv_dir: "{{ repo_dir }}/../venv"
+
+
+postgres_user: "{{ ansible_user_id }}"
+postgres_password: "{{ ansible_user_id }}"
+postgres_db: "{{ project_name }}"
+
+postgres:
+  name: postgres
+  image: postgres
+  ports:
+    - 5432
+  envs:
+    POSTGRES_USER: "{{ postgres_user }}"
+    POSTGRES_PASSWORD: "{{ postgres_password }}"
+    POSTGRES_DB: "{{ postgres_db }}"
+
+
+rabbitmq_default_user: "{{ ansible_user_id }}"
+rabbitmq_default_password: "{{ ansible_user_id }}"
+rabbitmq_default_vhost: /{{ project_name }}
+
+rabbitmq:
+  name: rabbitmq
+  image: rabbitmq
+  ports:
+    - 5672
+  envs:
+    RABBITMQ_DEFAULT_USER: "{{ rabbitmq_default_user }}"
+    RABBITMQ_DEFAULT_PASS: "{{ rabbitmq_default_password }}"
+    RABBITMQ_DEFAULT_VHOST: "{{ rabbitmq_default_vhost }}"
+
+
+the_tale:
+  name: the_tale
+  image: the_tale
+  path: "{{ repo_dir }}"
+  ports:
+    - 8000
