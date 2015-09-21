@@ -770,7 +770,7 @@ class TemplateResource(Resource):
 
         if not self.can_edit_templates and self._template.author_id != self.account.id:
             return self.auto_error('linguistics.templates.edit_key.can_not_edit',
-                                   u'Менять тип фразы может только модератор либо автор фразы, если она не внесена в игру.')
+                                   u'Менять тип фразы могут только модераторы, редакторы и автор фразы, если она не внесена в игру.')
 
         if self._template.get_child():
             return self.auto_error('linguistics.templates.edit_key.template_has_child',
@@ -790,7 +790,7 @@ class TemplateResource(Resource):
 
         if not self.can_edit_templates and self._template.author_id != self.account.id:
             return self.auto_error('linguistics.templates.change_key.can_not_change',
-                                   u'Менять тип фразы может только модератор либо автор фразы, если она не внесена в игру.')
+                                   u'Менять тип фразы могут только модераторы, редакторы и автор фразы, если она не внесена в игру.')
 
         if self._template.get_child():
             return self.auto_error('linguistics.templates.change_key.template_has_child',
