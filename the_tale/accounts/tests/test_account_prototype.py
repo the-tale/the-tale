@@ -275,3 +275,107 @@ class AccountPrototypeTests(testcase.TestCase):
 
         self.account.update_actual_bills()
         self.assertEqual(self.account.actual_bills, [time.mktime(bill.voting_end_at.timetuple())])
+
+
+
+class AccountPrototypeBanTests(testcase.TestCase):
+
+    def setUp(self):
+        super(AccountPrototypeBanTests, self).setUp()
+        create_test_map()
+
+        self.account = self.accounts_factory.create_account()
+
+
+    def test_ban_game(self):
+        with mock.patch('the_tale.accounts.prototypes.AccountPrototype.cmd_update_hero') as cmd_update_hero:
+            self.account.ban_game(2)
+
+        self.assertEqual(cmd_update_hero.call_count, 1)
+
+        self.account.reload()
+
+        self.assertTrue(self.account.is_ban_game)
+        self.assertTrue(self.account.is_ban_any)
+        self.assertFalse(self.account.is_ban_forum)
+
+        self.assertTrue(datetime.timedelta(days=1) < self.account._model.ban_game_end_at - datetime.datetime.now() < datetime.timedelta(days=3))
+
+    def test_ban_game__extend(self):
+        self.account.ban_game(3)
+
+        with mock.patch('the_tale.accounts.prototypes.AccountPrototype.cmd_update_hero') as cmd_update_hero:
+            self.account.ban_game(2)
+
+        self.assertEqual(cmd_update_hero.call_count, 1)
+
+        self.account.reload()
+
+        self.assertTrue(self.account.is_ban_game)
+        self.assertTrue(self.account.is_ban_any)
+        self.assertFalse(self.account.is_ban_forum)
+
+        self.assertTrue(datetime.timedelta(days=4) < self.account._model.ban_game_end_at - datetime.datetime.now() < datetime.timedelta(days=6))
+
+    def test_ban_game__reset(self):
+        self.account.ban_game(2)
+
+        with mock.patch('the_tale.accounts.prototypes.AccountPrototype.cmd_update_hero') as cmd_update_hero:
+            self.account.reset_ban_game()
+
+        self.assertEqual(cmd_update_hero.call_count, 1)
+
+        self.account.reload()
+
+        self.assertFalse(self.account.is_ban_game)
+        self.assertFalse(self.account.is_ban_any)
+        self.assertFalse(self.account.is_ban_forum)
+
+        self.assertTrue(self.account._model.ban_game_end_at < datetime.datetime.now())
+
+    def test_ban_forum(self):
+        with mock.patch('the_tale.accounts.prototypes.AccountPrototype.cmd_update_hero') as cmd_update_hero:
+            self.account.ban_forum(2)
+
+        self.assertEqual(cmd_update_hero.call_count, 0)
+
+        self.account.reload()
+
+        self.assertTrue(self.account.is_ban_forum)
+        self.assertTrue(self.account.is_ban_any)
+        self.assertFalse(self.account.is_ban_game)
+
+        self.assertTrue(datetime.timedelta(days=1) < self.account._model.ban_forum_end_at - datetime.datetime.now() < datetime.timedelta(days=3))
+
+    def test_ban_forum__extend(self):
+        self.account.ban_forum(3)
+
+        with mock.patch('the_tale.accounts.prototypes.AccountPrototype.cmd_update_hero') as cmd_update_hero:
+            self.account.ban_forum(2)
+
+        self.assertEqual(cmd_update_hero.call_count, 0)
+
+        self.account.reload()
+
+        self.assertTrue(self.account.is_ban_forum)
+        self.assertTrue(self.account.is_ban_any)
+        self.assertFalse(self.account.is_ban_game)
+
+        self.assertTrue(datetime.timedelta(days=4) < self.account._model.ban_forum_end_at - datetime.datetime.now() < datetime.timedelta(days=6))
+
+
+    def test_ban_forum__reset(self):
+        self.account.ban_forum(2)
+
+        with mock.patch('the_tale.accounts.prototypes.AccountPrototype.cmd_update_hero') as cmd_update_hero:
+            self.account.reset_ban_forum()
+
+        self.assertEqual(cmd_update_hero.call_count, 0)
+
+        self.account.reload()
+
+        self.assertFalse(self.account.is_ban_forum)
+        self.assertFalse(self.account.is_ban_any)
+        self.assertFalse(self.account.is_ban_game)
+
+        self.assertTrue(self.account._model.ban_forum_end_at < datetime.datetime.now())

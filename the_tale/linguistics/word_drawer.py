@@ -6,6 +6,7 @@ from dext.forms import forms
 from utg import words
 from utg import data as utg_data
 from utg import relations as utg_relations
+from utg import restrictions as utg_restrictions
 from utg import logic as utg_logic
 
 from the_tale.linguistics import relations
@@ -75,7 +76,7 @@ class Leaf(object):
     def choose_base(self, base):
         real_properties = tuple(property
                                 for property in base.schema
-                                if all(property not in utg_data.RESTRICTIONS[self.type].get(key, []) for key in self.key.values() if key is not None))
+                                if all(property not in utg_restrictions.RESTRICTIONS[self.type].get(key, []) for key in self.key.values() if key is not None))
         return relations.WORD_BLOCK_BASE.index_schema[real_properties]
 
 
