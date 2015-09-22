@@ -80,6 +80,13 @@ body {
       &:hover {
          background-color: @hover-color;
       }
+
+      &.transparent {
+          border: none;
+          &:hover {
+              background-color: @easy-block-background-color !important;
+          }
+      }
    }
 
    .nav-tabs > .active > a {

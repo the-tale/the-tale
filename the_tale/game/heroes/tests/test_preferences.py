@@ -118,8 +118,12 @@ class HeroPreferencesEnergyRegenerationTypeTest(PreferencesTestMixin, TestCase):
                                      new_energy_regeneration_type.value if new_energy_regeneration_type is not None else None)
         self.assertNotEqual(self.hero.preferences.energy_regeneration_type, new_energy_regeneration_type)
 
-        process_result = task.process(FakePostpondTaskPrototype(), self.storage)
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+            process_result = task.process(FakePostpondTaskPrototype(), self.storage)
+
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED, process_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+
+        self.assertEqual(reset_accessors_cache.call_count, 1 if expected_state.is_PROCESSED else 0)
 
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.energy_regeneration_type, expected_energy_regeneration_type)
@@ -265,7 +269,8 @@ class HeroPreferencesMobTest(PreferencesTestMixin, TestCase):
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.MOB, new_mob_uuid)
         self.assertEqual(self.hero.preferences.mob.uuid, self.mob_uuid)
 
-        task_result = task.process(FakePostpondTaskPrototype(), self.storage)
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+            task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED, task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertEqual(task.state, expected_state)
@@ -275,6 +280,8 @@ class HeroPreferencesMobTest(PreferencesTestMixin, TestCase):
         else:
             self.assertEqual(self.hero.preferences.mob.uuid, expected_mob_uuid)
             self.assertEqual(mobs_storage[HeroPreferencesPrototype.get_by_hero_id(self.hero.id).mob_id].uuid, expected_mob_uuid)
+
+        self.assertEqual(reset_accessors_cache.call_count, 1 if expected_state.is_PROCESSED else 0)
 
 
     @mock.patch('the_tale.game.balance.constants.PREFERENCES_CHANGE_DELAY', 0)
@@ -389,7 +396,8 @@ class HeroPreferencesPlaceTest(PreferencesTestMixin, TestCase):
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.PLACE, new_place_id)
         self.assertEqual(self.hero.preferences.place.id, self.place.id)
 
-        task_result = task.process(FakePostpondTaskPrototype(), self.storage)
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+            task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertEqual(task.state, expected_state)
@@ -399,6 +407,8 @@ class HeroPreferencesPlaceTest(PreferencesTestMixin, TestCase):
         else:
             self.assertEqual(self.hero.preferences.place.id, expected_place_id)
         self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).place_id, expected_place_id)
+
+        self.assertEqual(reset_accessors_cache.call_count, 1 if expected_state.is_PROCESSED else 0)
 
     @mock.patch('the_tale.game.balance.constants.PREFERENCES_CHANGE_DELAY', 0)
     def test_change_place(self):
@@ -624,7 +634,9 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
 
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.FRIEND, new_friend_id)
         self.assertEqual(self.hero.preferences.friend.id, self.friend_id)
-        task_result = task.process(FakePostpondTaskPrototype(), self.storage)
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+            task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
         if expected_friend_id is None:
@@ -632,6 +644,8 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
         else:
             self.assertEqual(self.hero.preferences.friend.id, expected_friend_id)
         self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).friend_id, expected_friend_id)
+
+        self.assertEqual(reset_accessors_cache.call_count, 1 if expected_state.is_PROCESSED else 0)
 
     @mock.patch('the_tale.game.balance.constants.PREFERENCES_CHANGE_DELAY', 0)
     def test_change_friend(self):
@@ -869,7 +883,9 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
 
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.ENEMY, new_enemy_id)
         self.assertEqual(self.hero.preferences.enemy.id, self.enemy_id)
-        task_result = task.process(FakePostpondTaskPrototype(), self.storage)
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+            task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
         if expected_enemy_id is None:
@@ -877,6 +893,8 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
         else:
             self.assertEqual(self.hero.preferences.enemy.id, expected_enemy_id)
         self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).enemy_id, expected_enemy_id)
+
+        self.assertEqual(reset_accessors_cache.call_count, 1 if expected_state.is_PROCESSED else 0)
 
     @mock.patch('the_tale.game.balance.constants.PREFERENCES_CHANGE_DELAY', 0)
     def test_change_enemy(self):
@@ -1077,12 +1095,16 @@ class HeroPreferencesEquipmentSlotTest(PreferencesTestMixin, TestCase):
 
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, new_slot.value if new_slot is not None else None)
         self.assertEqual(self.hero.preferences.equipment_slot, self.slot_1)
-        task_result = task.process(FakePostpondTaskPrototype(), self.storage)
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+            task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.equipment_slot, expected_slot)
 
         self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).equipment_slot, expected_slot)
+
+        self.assertEqual(reset_accessors_cache.call_count, 1 if expected_state.is_PROCESSED else 0)
 
     @mock.patch('the_tale.game.balance.constants.PREFERENCES_CHANGE_DELAY', 0)
     def test_change_equipment_slot(self):
@@ -1188,12 +1210,16 @@ class HeroPreferencesFavoriteItemTest(PreferencesTestMixin, TestCase):
 
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.FAVORITE_ITEM, new_slot.value if new_slot is not None else None)
         self.assertEqual(self.hero.preferences.favorite_item, self.slot_1)
-        task_result = task.process(FakePostpondTaskPrototype(), self.storage)
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+            task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.favorite_item, expected_slot)
 
         self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).favorite_item, expected_slot)
+
+        self.assertEqual(reset_accessors_cache.call_count, 1 if expected_state.is_PROCESSED else 0)
 
     @mock.patch('the_tale.game.balance.constants.PREFERENCES_CHANGE_DELAY', 0)
     def test_change_favorite_item(self):
@@ -1295,12 +1321,16 @@ class HeroPreferencesRiskLevelTest(PreferencesTestMixin, TestCase):
 
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.RISK_LEVEL, new_slot.value if new_slot is not None else None)
         self.assertEqual(self.hero.preferences.risk_level, self.risk_1)
-        task_result = task.process(FakePostpondTaskPrototype(), self.storage)
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+            task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.risk_level, expected_slot)
 
         self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).risk_level, expected_slot)
+
+        self.assertEqual(reset_accessors_cache.call_count, 1 if expected_state.is_PROCESSED else 0)
 
     @mock.patch('the_tale.game.balance.constants.PREFERENCES_CHANGE_DELAY', 0)
     def test_change_risk_level(self):
@@ -1394,12 +1424,16 @@ class HeroPreferencesArchetypeTest(PreferencesTestMixin, TestCase):
 
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.ARCHETYPE, new_slot.value if new_slot is not None else None)
         self.assertEqual(self.hero.preferences.archetype, self.mage)
-        task_result = task.process(FakePostpondTaskPrototype(), self.storage)
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+            task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.archetype, expected_slot)
 
         self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).archetype, expected_slot)
+
+        self.assertEqual(reset_accessors_cache.call_count, 1 if expected_state.is_PROCESSED else 0)
 
     @mock.patch('the_tale.game.balance.constants.PREFERENCES_CHANGE_DELAY', 0)
     def test_change_archetype(self):
@@ -1495,12 +1529,16 @@ class HeroPreferencesCompanionDedicationTest(PreferencesTestMixin, TestCase):
 
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.COMPANION_DEDICATION, new_slot.value if new_slot is not None else None)
         self.assertEqual(self.hero.preferences.companion_dedication, self.egoism)
-        task_result = task.process(FakePostpondTaskPrototype(), self.storage)
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+            task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.companion_dedication, expected_slot)
 
         self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).companion_dedication, expected_slot)
+
+        self.assertEqual(reset_accessors_cache.call_count, 1 if expected_state.is_PROCESSED else 0)
 
     @mock.patch('the_tale.game.balance.constants.PREFERENCES_CHANGE_DELAY', 0)
     def test_change_companion_dedication(self):
@@ -1596,12 +1634,16 @@ class HeroPreferencesCompanionEmpathyTest(PreferencesTestMixin, TestCase):
 
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.COMPANION_EMPATHY, new_slot.value if new_slot is not None else None)
         self.assertEqual(self.hero.preferences.companion_empathy, self.empath)
-        task_result = task.process(FakePostpondTaskPrototype(), self.storage)
+
+        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+            task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.companion_empathy, expected_slot)
 
         self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).companion_empathy, expected_slot)
+
+        self.assertEqual(reset_accessors_cache.call_count, 1 if expected_state.is_PROCESSED else 0)
 
     @mock.patch('the_tale.game.balance.constants.PREFERENCES_CHANGE_DELAY', 0)
     def test_change_companion_empathy(self):

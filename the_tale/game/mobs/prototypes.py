@@ -37,7 +37,7 @@ class MobException(Exception): pass
 
 class MobPrototype(object):
 
-    __slots__ = ('record_id', 'level', 'abilities', 'initiative', 'health_cooficient', 'damage_modifier', 'max_health', 'health', 'is_boss', 'action_type', 'terrain')
+    __slots__ = ('record_id', 'level', 'abilities', 'initiative', 'health_cooficient', 'damage_modifier', 'max_health', 'health', 'is_boss', 'action_type', 'terrain', '_linguistics_restrictions_constants__lazy')
 
     def __init__(self,
                  record_id=None,
@@ -110,9 +110,14 @@ class MobPrototype(object):
     @property
     def is_eatable(self): return self.record.is_eatable
 
-    def linguistics_restrictions(self):
+    @lazy_property
+    def linguistics_restrictions_constants(self):
         from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
         from the_tale.linguistics.storage import restrictions_storage
+        from the_tale.game.map import logic as map_logic
+
+        terrains = map_logic.get_terrain_linguistics_restrictions(self.terrain)
+
         return (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB_TYPE, self.record.type.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB, self.record.id).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARCHETYPE, self.record.archetype.value).id,
@@ -121,11 +126,9 @@ class MobPrototype(object):
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC, self.record.communication_telepathic.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL, self.record.intellect_level.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTOR, game_relations.ACTOR.MOB.value).id,
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, self.terrain.value).id,
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_TERRAIN, self.terrain.meta_terrain.value).id,
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_HEIGHT, self.terrain.meta_height.value).id,
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_VEGETATION, self.terrain.meta_vegetation.value).id,
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE, self.action_type.value).id)
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE, self.action_type.value).id) + terrains
+
+    def linguistics_restrictions(self): return self.linguistics_restrictions_constants
 
     def strike_by(self, percents):
         self.health = max(0, self.health - self.max_health * percents)

@@ -24,5 +24,6 @@ class LEXICON_KEY(Enum):
     group = Column(unique=False)
     description = Column(unique=False)
     variables = Column(unique=False, no_index=True)
+    ui_text = Column(unique=False, no_index=True, single_type=False)
 
     records = get_key_records()

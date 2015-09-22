@@ -130,6 +130,8 @@ class ChangeHeroTask(PostponedLogic):
         hero.race = self.race
         hero.settings_approved = True
 
+        hero.reset_accessors_cache()
+
         storage.save_bundle_data(hero.actions.current_action.bundle_id)
 
         self.state = CHANGE_HERO_TASK_STATE.PROCESSED
@@ -139,8 +141,8 @@ class ChangeHeroTask(PostponedLogic):
 
 class RESET_HERO_ABILITIES_TASK_STATE(DjangoEnum):
    records = ( ('UNPROCESSED', 0, u'в очереди'),
-                ('PROCESSED', 1, u'обработана'),
-                ('RESET_TIMEOUT', 2, u'сброс способностей пока не доступен'))
+               ('PROCESSED', 1, u'обработана'),
+               ('RESET_TIMEOUT', 2, u'сброс способностей пока не доступен'))
 
 class ResetHeroAbilitiesTask(PostponedLogic):
 

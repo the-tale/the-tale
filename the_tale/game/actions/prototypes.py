@@ -13,7 +13,8 @@ from the_tale.common.utils import logic as utils_logic
 
 from the_tale.game.prototypes import TimePrototype
 
-from the_tale.game.heroes.relations import MONEY_SOURCE
+from the_tale.game.heroes import relations as heroes_relations
+from the_tale.game.heroes import prototypes as heroes_prototypes
 
 from the_tale.game.balance import constants as c, formulas as f
 
@@ -386,7 +387,7 @@ class ActionBase(object):
             self.hero.add_message(message_type, diary=True, hero=self.hero, **self.action_event_message_arguments())
         elif event_reward.is_MONEY:
             coins = int(math.ceil(f.normal_loot_cost_at_lvl(self.hero.level)))
-            self.hero.change_money(MONEY_SOURCE.EARNED_FROM_HABITS, coins)
+            self.hero.change_money(heroes_relations.MONEY_SOURCE.EARNED_FROM_HABITS, coins)
             self.hero.add_message(message_type, diary=True, hero=self.hero, coins=coins, **self.action_event_message_arguments())
         elif event_reward.is_ARTIFACT:
             artifact, unequipped, sell_price = self.hero.receive_artifact(equip=False, better=False, prefered_slot=False, prefered_item=False, archetype=False)
@@ -1227,7 +1228,7 @@ class ActionInPlacePrototype(ActionBase):
 
             if hero.money > 0:
                 tax = int(hero.money * hero.position.place.tax)
-                hero.change_money(MONEY_SOURCE.SPEND_FOR_TAX, -tax)
+                hero.change_money(heroes_relations.MONEY_SOURCE.SPEND_FOR_TAX, -tax)
                 hero.add_message('action_inplace_tax', hero=hero, place=hero.position.place, coins=tax, diary=True)
             else:
                 hero.add_message('action_inplace_tax_no_money', hero=hero, place=hero.position.place, diary=True)
@@ -1249,7 +1250,7 @@ class ActionInPlacePrototype(ActionBase):
                 coins = min(hero.money, int(expected_coins * hero.companion_money_for_food_multiplier)+1)
 
                 if coins > 0:
-                    hero.change_money(MONEY_SOURCE.SPEND_FOR_COMPANIONS, -coins)
+                    hero.change_money(heroes_relations.MONEY_SOURCE.SPEND_FOR_COMPANIONS, -coins)
                     hero.add_message('action_inplace_companion_money_for_food', hero=hero, place=hero.position.place, companion=hero.companion, coins=coins)
 
             if not hero.bag.is_empty and hero.can_companion_drink_artifact() and random.random() < hero.companion_drink_artifact_probability:
@@ -1427,7 +1428,7 @@ class ActionInPlacePrototype(ActionBase):
 
         if self.hero.can_companion_steal_money():
             money = int(f.normal_loot_cost_at_lvl(self.hero.level) * random.uniform(0.8, 1.2) * self.hero.companion_steal_money_modifier) + 1
-            self.hero.change_money(MONEY_SOURCE.EARNED_FROM_COMPANIONS, money)
+            self.hero.change_money(heroes_relations.MONEY_SOURCE.EARNED_FROM_COMPANIONS, money)
             self.hero.add_message('action_inplace_companion_steal_money', hero=self.hero, place=self.hero.position.place, companion=self.hero.companion, coins=money)
 
         if self.hero.can_companion_steal_item() and not self.hero.bag_is_full:
@@ -1920,7 +1921,12 @@ class ActionMetaProxyPrototype(ActionBase):
         return self.meta_action.description_text_name
 
     def get_description_arguments(self):
-        hero_2 = self.meta_action.hero_2 if self.hero.id == self.meta_action.hero_1.id else self.meta_action.hero_1
+        if self.meta_action.storage:
+            hero_2 = self.meta_action.hero_2 if self.hero.id == self.meta_action.hero_1_id else self.meta_action.hero_1
+        else:
+            hero_2_id = self.meta_action.hero_2_id if self.hero.id == self.meta_action.hero_1_id else self.meta_action.hero_1_id
+            hero_2 = heroes_prototypes.HeroPrototype.get_by_id(hero_2_id)
+
         return {'duelist_1': self.hero,
                 'duelist_2': hero_2}
 

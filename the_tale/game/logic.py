@@ -241,6 +241,17 @@ def _game_info_from_1_2_to_1_1__heroes(data):
     data['cards'] = {'cards': {}}
 
 
+def _remove_variables_from_message(message):
+    return message[:3] + message[5:]
+
+def _game_info_from_1_4_to_1_3__heroes(data):
+    if 'diary' in data:
+        data['diary'] = [_remove_variables_from_message(message) for message in data['diary']]
+
+    if 'messages' in data:
+        data['messages'] = [_remove_variables_from_message(message) for message in data['messages']]
+
+
 def game_info_from_1_1_to_1_0(data):
     if data['account'] is not None:
         _game_info_from_1_1_to_1_0__heroes(data['account']['hero'])
@@ -267,5 +278,15 @@ def game_info_from_1_3_to_1_2(data):
 
     if data['enemy'] is not None:
         _game_info_from_1_3_to_1_2__heroes(data['enemy']['hero'])
+
+    return data
+
+
+def game_info_from_1_4_to_1_3(data):
+    if data['account'] is not None:
+        _game_info_from_1_4_to_1_3__heroes(data['account']['hero'])
+
+    if data['enemy'] is not None:
+        _game_info_from_1_4_to_1_3__heroes(data['enemy']['hero'])
 
     return data

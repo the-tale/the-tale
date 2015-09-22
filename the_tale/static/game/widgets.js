@@ -275,8 +275,8 @@ pgf.game.widgets.Time = function(selector, updater, widgets, params) {
 
     var content = jQuery(selector);
 
-    var gameDate = jQuery('.pgf-game-date', content);
-    var gameTime = jQuery('.pgf-game-time', content);
+    var gameDate = jQuery('.pgf-game-date');
+    var gameTime = jQuery('.pgf-game-time');
 
     var data = {};
 
@@ -1124,21 +1124,75 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
     var MESSAGES_MAX_LENGTH = 100;
 
+    var SHOW_ARTISTIC_TEXT = (pgf.base.settings.get("log_artistic_text", true) == 'true');
+    var SHOW_TECHNICAL_TEXT = (pgf.base.settings.get("log_technical_text", true) == 'true');
+
+    function SetTextMode(artistic, technical) {
+        SHOW_ARTISTIC_TEXT = artistic;
+        SHOW_TECHNICAL_TEXT = technical;
+
+        pgf.base.settings.set("log_artistic_text", SHOW_ARTISTIC_TEXT);
+        pgf.base.settings.set("log_technical_text", SHOW_TECHNICAL_TEXT);
+
+        UpdateModeButtonsVisibility();
+        instance.Render();
+    }
+
+    function UpdateModeButtonsVisibility() {
+        jQuery('.pgf-log-mode').toggleClass('pgf-hidden', true);
+        jQuery('.pgf-log-mode-technical').toggleClass('pgf-hidden', !(!SHOW_ARTISTIC_TEXT && SHOW_TECHNICAL_TEXT));
+        jQuery('.pgf-log-mode-artistic').toggleClass('pgf-hidden', !(SHOW_ARTISTIC_TEXT && !SHOW_TECHNICAL_TEXT));
+        jQuery('.pgf-log-mode-all').toggleClass('pgf-hidden', !(SHOW_ARTISTIC_TEXT && SHOW_TECHNICAL_TEXT));
+    };
+
+    UpdateModeButtonsVisibility();
+
+    jQuery('.pgf-log-mode').click(function(e) {
+        if (SHOW_ARTISTIC_TEXT && SHOW_TECHNICAL_TEXT) {
+            SetTextMode(true, false);
+            return;
+        }
+        if (SHOW_ARTISTIC_TEXT && !SHOW_TECHNICAL_TEXT) {
+            SetTextMode(false, true);
+            return;
+        }
+        if (!SHOW_ARTISTIC_TEXT && SHOW_TECHNICAL_TEXT) {
+            SetTextMode(true, true);
+            return;
+        }
+    });
+
+    function ShortInfo(message) {
+        var shortInfo = "";
+        var key = message[3]
+
+        if (key in pgf.game.constants.linguistics_formatters) {
+            shortInfo = ' ' + pgf.game.constants.linguistics_formatters[key];
+            var variables = message[4];
+            for (variable in variables) {
+                shortInfo = shortInfo.replace('!'+variable+'!', variables[variable]);
+            }
+        }
+        return shortInfo;
+    }
+
     function RenderDiaryMessage(index, message, element) {
 
         var text = "";
         for (var i in message[1]) {
+            var shortInfo = ShortInfo(message[1][i]);
+            var intenalText = (SHOW_ARTISTIC_TEXT || !shortInfo ? message[1][i][2] : "") + (SHOW_TECHNICAL_TEXT ? shortInfo : "");
             if (i == 0) {
-                text += "<div class='submessage' style='vertical-align: top;'>" + message[1][i][2] + "</div>";
+                text += "<div class='submessage' style='vertical-align: top;'>" + intenalText + "</div>";
             }
             else {
-                text += "<div class='submessage'>" + message[1][i][2] + "</div>";
+                text += "<div class='submessage'>" + intenalText + "</div>";
             }
         }
 
-        jQuery('.pgf-time', element).text(message[1][0][3]);
+        jQuery('.pgf-time', element).text(message[1][0][5]);
         jQuery('.pgf-date', element).text(message[0]);
-        jQuery('.pgf-position', element).text(message[1][0][4].charAt(0).toUpperCase() + message[1][0][4].slice(1));
+        jQuery('.pgf-position', element).text(message[1][0][6].charAt(0).toUpperCase() + message[1][0][6].slice(1));
         jQuery('.pgf-message', element).html(text);
     }
 
@@ -1147,11 +1201,13 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
         var text = "";
         for (var i in message[1]) {
+            var shortInfo = ShortInfo(message[1][i]);
+            var intenalText = (SHOW_ARTISTIC_TEXT || !shortInfo ? message[1][i][2] : "") + (SHOW_TECHNICAL_TEXT ? shortInfo : "");
             if (i == 0) {
-                text += "<div class='submessage' style='vertical-align: top;'>" + message[1][i][2] + "</div>";
+                text += "<div class='submessage' style='vertical-align: top;'>" + intenalText + "</div>";
             }
             else {
-                text += "<br/><div class='submessage'>" + message[1][i][2] + "</div>";
+                text += "<br/><div class='submessage'>" + intenalText + "</div>";
             }
         }
 
@@ -1197,14 +1253,14 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
             if (turnMessages[i][0] <= lastTimestamp) continue;
 
-            if (lastGameTime == turnMessages[i][1] + turnMessages[i][3]) {
+            if (lastGameTime == turnMessages[i][1] + turnMessages[i][5]) {
                 messages[0][1].push(turnMessages[i]);
             }
             else {
                 messages.unshift([turnMessages[i][1], [turnMessages[i]]]);
             }
 
-            lastGameTime = turnMessages[i][1] + turnMessages[i][3];
+            lastGameTime = turnMessages[i][1] + turnMessages[i][5];
         }
 
         for (var i=0; i<=messages.length - MESSAGES_MAX_LENGTH; i++){

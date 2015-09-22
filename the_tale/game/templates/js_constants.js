@@ -84,6 +84,17 @@ pgf.game.constants.abilities = {
 
 };
 
+pgf.game.constants.linguistics_formatters = {
+
+    {% for key, text in LINGUISTICS_FORMATTERS.iteritems() %}
+
+    "{{key}}": "{{text|replace("\"", "'")|safe}}"{% if not loop.last %},{% endif %}
+
+    {% endfor %}
+
+};
+
+
 pgf.game.constants.sprites = {
 
     {% for sprite in SPRITES.records %}

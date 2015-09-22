@@ -136,6 +136,8 @@ class HeroPreferences(object):
                                                  'changed_at': time.mktime(change_time.timetuple())}
         HeroPreferencesPrototype.update(self.hero.id, preferences_type.base_name, value)
 
+        self.hero.reset_accessors_cache()
+
     def _reset(self, preferences_type):
         self._set(preferences_type, None, change_time=datetime.datetime.fromtimestamp(0))
 

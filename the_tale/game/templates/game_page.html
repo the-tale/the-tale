@@ -234,9 +234,11 @@ jQuery(document).ready(function(e){
     <div class="easy-block second-row-block">
 
       <ul class="nav nav-tabs">
-        <li><a href="#pgf-journal-container" class="pgf-journal-tab-button" data-toggle="tab">журнал</a></li>
+        <li><a href="#pgf-journal-container" class="pgf-journal-tab-button" data-toggle="tab">журнал <span class="pgf-game-time"></span></a></li>
         <li><a href="#pgf-diary-container" class="pgf-diary-tab-button" data-toggle="tab">дневник</a></li>
         <li><a href="#pgf-quests-container" class="pgf-quests-tab-button" data-toggle="tab">задания</a></li>
+
+        <li class="pull-right">{% include "game/log_mode.html" %}</li>
       </ul>
 
       <div class="tab-content">

@@ -111,7 +111,15 @@ jQuery(document).ready(function(e){
   </div>
   <div class="span6">
     <div class="easy-block">
-      {{ log_macros.log(data_mode="pvp") }}
+      <ul class="nav nav-tabs">
+        <li class="active"><a href="#pgf-journal-container" class="pgf-journal-tab-button" data-toggle="tab">журнал <span class="pgf-game-time"></span></a></li>
+
+        <li class="pull-right">{% include "game/log_mode.html" %}</li>
+      </ul>
+
+      <div class="tab-content">
+          {{ log_macros.log(data_mode="pvp") }}
+      </div>
     </div>
   </div>
   <div class="span3">

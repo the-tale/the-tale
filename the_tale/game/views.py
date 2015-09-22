@@ -65,7 +65,7 @@ def game_page(context):
                                     'hero': context.account_hero,
                                     'ABILITY_TYPE': ABILITY_TYPE})
 
-@api.Processor(versions=(game_settings.INFO_API_VERSION, '1.2', '1.1', '1.0'))
+@api.Processor(versions=(game_settings.INFO_API_VERSION, '1.3', '1.2', '1.1', '1.0'))
 @dext_views.IntsArgumentProcessor(error_message=u'Неверный формат номера хода', get_name='client_turns', context_name='client_turns', default_value=None)
 @accounts_views.AccountProcessor(error_message=u'Запрашиваемый Вами аккаунт не найден', get_name='account', context_name='requested_account', default_value=None)
 @resource('api', 'info', name='api-info')
@@ -183,21 +183,25 @@ def api_info(context):
         "initiative": <дробное число>            // инициатива героя
       },
 
-      "diary":[        // список последних сообщений в дневнике
-        [              // запись в дневнике
-          <timestamp>, // timestamp создания сообщения
-          "строка",    // текстовое описание времени в игре
-          "строка",    // текст
-          "строка",    // текстовое описание даты в игре
-          "строка"     // текстовое описание места, где герой находился во время создания записи
+      "diary":[                // список последних сообщений в дневнике
+        [                      // запись в дневнике
+          <timestamp>,         // timestamp создания сообщения
+          "строка",            // текстовое описание времени в игре
+          "строка",            // текст
+          <целое число>|null,  // идентификатор типа фразы, найти идентификатор типа фразы можно в адресе страницы лингвистики с фразами этого типа
+          {"строка": "строка"} // словарь соотношения переменных и их значений (ВНИМАНИЕ! перечень переменных может изменяться без изменения версии этого метода)
+          "строка",            // текстовое описание даты в игре
+          "строка"             // текстовое описание места, где герой находился во время создания записи
         ]
       ],
 
-      "messages":[ // сообщения из журнала
-        [              // запись в задании
-          <timestamp>, // timestamp создания сообщения
-          "строка",    // текстовое описание времени в игре
-          "строка",    // текст
+      "messages":[             // сообщения из журнала
+        [                      // запись в задании
+          <timestamp>,         // timestamp создания сообщения
+          "строка",            // текстовое описание времени в игре
+          "строка",            // текст
+          <целое число>|null,  // идентификатор типа фразы, найти идентификатор типа фразы можно в адресе страницы лингвистики с фразами этого типа
+          {"строка": "строка"} // словарь соотношения переменных и их значений (ВНИМАНИЕ! перечень переменных может изменяться без изменения версии этого метода)
         ]
       ],
 
@@ -337,6 +341,9 @@ def api_info(context):
     data = game_logic.form_game_info(account=account,
                                      is_own=False if account is None else (context.account.id == account.id),
                                      client_turns=context.client_turns)
+
+    if context.api_version in ('1.3', '1.2', '1.1', '1.0'):
+        data = game_logic.game_info_from_1_4_to_1_3(data)
 
     if context.api_version in ('1.2', '1.1', '1.0'):
         data = game_logic.game_info_from_1_3_to_1_2(data)

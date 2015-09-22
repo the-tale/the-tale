@@ -306,8 +306,6 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
         with self.check_not_changed(lambda: self.hero.statistics.help_count):
             self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
-        self.assertEqual(self.hero.messages.messages[-1].key, None)
-
 
     @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL_COMPANION)
     def test_heal_companion(self):

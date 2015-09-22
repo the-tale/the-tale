@@ -1,4 +1,5 @@
 # coding: utf-8
+import re
 import sys
 import collections
 
@@ -237,3 +238,38 @@ def key_is_synomym(key):
 
         if not (utg_relations.GENDER.MASCULINE in key or utg_relations.NUMBER.PLURAL in key):
             return True
+
+
+RE_NAME = re.compile(r'(\w+)#N')
+RE_HP_UP = re.compile(r'\+(\w+)#HP')
+RE_HP_DOWN = re.compile(r'\-(\w+)#HP')
+RE_GOLD_UP = re.compile(r'\+(\w+)#G')
+RE_GOLD_DOWN = re.compile(r'\-(\w+)#G')
+RE_EXP_UP = re.compile(r'\+(\w+)#EXP')
+RE_EXP_DOWN = re.compile(r'\-(\w+)#EXP')
+RE_ENERGY_UP = re.compile(r'\+(\w+)#EN')
+RE_ENERGY_DOWN = re.compile(r'\-(\w+)#EN')
+RE_EFFECTIVENESS_UP = re.compile(r'\+(\w+)#EF')
+RE_EFFECTIVENESS_DOWN = re.compile(r'\-(\w+)#EF')
+
+def ui_format(text):
+    '''
+    (+|-){variable}#{type}
+    {variable}#N
+
+    types are: HP — hit points, EXP — experience, G — gold, EN — energy, N — name
+    '''
+
+    text = RE_NAME.sub(u'<span class="log-short log-short-name" rel="tooltip" title="актёр">!\\1!</span>', text)
+    text = RE_HP_UP.sub(u'<span class="log-short log-short-hp-up" rel="tooltip" title="восстановленное здоровье">+!\\1!♥</span>', text)
+    text = RE_HP_DOWN.sub(u'<span class="log-short log-short-hp-down" rel="tooltip" title="полученный урон">-!\\1!♥</span>', text)
+    text = RE_GOLD_UP.sub(u'<span class="log-short log-short-gold-up" rel="tooltip" title="полученные монеты">+!\\1!⛁</span>', text)
+    text = RE_GOLD_DOWN.sub(u'<span class="log-short log-short-gold-down" rel="tooltip" title="потерянные монеты">-!\\1!⛁</span>', text)
+    text = RE_EXP_UP.sub(u'<span class="log-short log-short-exp-up" rel="tooltip" title="полученный опыт">+!\\1!★</span>', text)
+    # text = RE_EXP_DOWN.sub(u'<span class="log-short log-short-exp-down" rel="tooltip" title="полученный урон">-!\\1!★</span>', text)
+    text = RE_ENERGY_UP.sub(u'<span class="log-short log-short-energy-up" rel="tooltip" title="полученная энергия">+!\\1!⚡</span>', text)
+    text = RE_ENERGY_DOWN.sub(u'<span class="log-short log-short-energy-down" rel="tooltip" title="потерянная энергия">-!\\1!⚡</span>', text)
+    text = RE_EFFECTIVENESS_UP.sub(u'<span class="log-short log-short-effectiveness-up" rel="tooltip" title="полученная эффективность">+!\\1!👁</span>', text)
+    # text = RE_EFFECTIVENESS_DOWN(u'<span class="log-short log-short-effectiveness-down" rel="tooltip" title="полученный урон">-!\\1!⚡</span>', text)
+
+    return text

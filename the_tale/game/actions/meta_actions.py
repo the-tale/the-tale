@@ -173,10 +173,10 @@ class ArenaPvP1x1(MetaAction):
 
 
     @property
-    def hero_1(self): return self.storage.heroes[self.hero_1_id]
+    def hero_1(self): return self.storage.heroes.get(self.hero_1_id)
 
     @property
-    def hero_2(self): return self.storage.heroes[self.hero_2_id]
+    def hero_2(self): return self.storage.heroes.get(self.hero_2_id)
 
     def add_message(self, *argv, **kwargs):
         self.hero_1.add_message(*argv, **kwargs)

@@ -5,9 +5,15 @@ import random
 
 from django.conf import settings as project_settings
 
+from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
+from the_tale.linguistics.storage import restrictions_storage
+
 from the_tale.game.balance import constants as c, formulas as f
 
 from the_tale.game import relations as game_relations
+
+from the_tale.game.map import logic as map_logic
+
 
 from . import relations
 from . import conf
@@ -540,3 +546,38 @@ class LogicAccessorsMixin(object):
         if self.power.physic < self.power.magic:
             return game_relations.COMMUNICATION_GESTURES.CAN
         return game_relations.COMMUNICATION_GESTURES.CAN_NOT
+
+
+    ##########################
+    # linguistics restrictions
+    ##########################
+
+    def linguistics_restrictions_constants(self):
+        if not hasattr(self, '_cached_modifiers'):
+            self._cached_modifiers = {}
+
+        if '#linguistics_restrictions' in self._cached_modifiers:
+            return self._cached_modifiers['#linguistics_restrictions']
+
+        restrictions = (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.GENDER, self.gender.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.RACE, self.race.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR, self.habit_honor.interval.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS, self.habit_honor.interval.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARCHETYPE, self.preferences.archetype.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_VERBAL, self.communication_verbal.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_GESTURES, self.communication_gestures.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC, self.communication_telepathic.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL, self.intellect_level.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTOR, game_relations.ACTOR.HERO.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB_TYPE, self.mob_type.value).id,)
+
+        self._cached_modifiers['#linguistics_restrictions'] = restrictions
+
+        return restrictions
+
+    def linguistics_restrictions(self):
+        constants = self.linguistics_restrictions_constants()
+
+        terrains = map_logic.get_terrain_linguistics_restrictions(self.position.get_terrain())
+
+        return constants + terrains + (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE, self.actions.current_action.ui_type.value).id,)

@@ -19,6 +19,9 @@ from the_tale.game.artifacts.effects import EFFECTS
 from the_tale.game.cards import relations as cards_relations
 from the_tale.game.cards import effects as cards_effects
 
+from the_tale.linguistics import logic as linguistics_logic
+from the_tale.linguistics.lexicon import keys as linguistics_keys
+
 
 class Command(BaseCommand):
 
@@ -27,6 +30,10 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list
 
     def handle(self, *args, **options):
+
+        LINGUISTICS_FORMATTERS = {key.value: linguistics_logic.ui_format(key.ui_text)
+                                  for key in linguistics_keys.LEXICON_KEY.records
+                                  if key.ui_text is not None}
 
         with open(game_settings.JS_CONSTNATS_FILE_LOCATION, 'w') as f:
             f.write(jinja2.render('game/js_constants.js',
@@ -45,5 +52,6 @@ class Command(BaseCommand):
                                            'CARDS_EFFECTS': cards_effects.EFFECTS,
                                            'ABILITY_TYPE': ABILITY_TYPE,
                                            'SPRITES': SPRITES,
-                                           'CELL_SIZE': map_settings.CELL_SIZE
+                                           'CELL_SIZE': map_settings.CELL_SIZE,
+                                           'LINGUISTICS_FORMATTERS': LINGUISTICS_FORMATTERS
                                           }).encode('utf-8'))

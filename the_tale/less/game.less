@@ -373,11 +373,12 @@
    .time {
       display: inline;
       float: left;
+      /* color: */
    }
 
    .message {
-      margin-left: 3.5em;
-      padding-left: 0.5em;
+      margin-left: 1em;
+      /* padding-left: 0.5em; */
 
       .submessage {
          margin-bottom: 0.75em;
@@ -681,5 +682,22 @@
    &.miner {
       background: url('../game/images/professions.png') no-repeat scroll -32px -320px transparent;
    }
+
+}
+
+.log-short {
+    font-weight: bold;
+
+    &.log-short-name {text-transform: capitalize;}
+    &.log-short-hp-up {color: green;}
+    &.log-short-hp-down {color: red;}
+    &.log-short-gold-up {color: #FF6600;}
+    &.log-short-gold-down {color: #FF6600;}
+    &.log-short-exp-up {color: #6600FF;}
+    &.log-short-exp-down {color: #6600FF;}
+    &.log-short-energy-up {color: blue;}
+    &.log-short-energy-down {color: blue;}
+    &.log-short-effectiveness-up {color: #993300;}
+    &.log-short-effectiveness-down {color: #993300;}
 
 }

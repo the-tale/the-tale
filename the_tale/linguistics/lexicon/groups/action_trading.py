@@ -5,14 +5,14 @@ from the_tale.linguistics.lexicon.groups.relations import LEXICON_GROUP
 
 KEYS = [(u'ACTION_TRADING_DESCRIPTION', 220000, u'Описание', LEXICON_GROUP.ACTION_TRADING,
         u'Краткая декларация того, что делает герой.',
-        [V.HERO]),
+        [V.HERO], None),
 
         (u'ACTION_TRADING_SELL_ITEM', 220001, u'Журнал: Продажа', LEXICON_GROUP.ACTION_TRADING,
         u'Герой продаёт предмет.',
-        [V.COINS, V.HERO, V.ARTIFACT]),
+        [V.COINS, V.HERO, V.ARTIFACT], u'hero#N +coins#G'),
 
         (u'ACTION_TRADING_START', 220002, u'Журнал: Начало', LEXICON_GROUP.ACTION_TRADING,
         u'Герой начинает торговлю.',
-        [V.HERO]),
+        [V.HERO], None),
 
         ]

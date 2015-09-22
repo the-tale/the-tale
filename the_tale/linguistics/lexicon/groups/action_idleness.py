@@ -5,10 +5,10 @@ from the_tale.linguistics.lexicon.groups.relations import LEXICON_GROUP
 
 KEYS = [(u'ACTION_IDLENESS_DESCRIPTION', 60000, u'Описание', LEXICON_GROUP.ACTION_IDLENESS,
         u'Краткая декларация того, что делает герой.',
-        [V.HERO]),
+        [V.HERO], None),
 
         (u'ACTION_IDLENESS_WAITING', 60001, u'Журнал: Ожидание', LEXICON_GROUP.ACTION_IDLENESS,
         u'Герой занимается каким-нибудь бесполезным делом.',
-        [V.HERO]),
+        [V.HERO], None),
 
         ]
