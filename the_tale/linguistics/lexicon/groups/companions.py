@@ -21,7 +21,7 @@ KEYS = [(u'COMPANIONS_RECEIVED', 580000, u'Дневник: появился сп
 
         (u'COMPANIONS_WOUND', 580004, u'Журнал: спутник защитил своего владельца от удара, но получил рану', LEXICON_GROUP.COMPANIONS,
         u'Спутник защитил своего владельца от удара, но получил рану.',
-        [V.COMPANION_OWNER, V.COMPANION, V.ATTACKER], None),
+        [V.COMPANION_OWNER, V.COMPANION, V.ATTACKER, V.DAMAGE], u'companion#N -damage#HP'),
 
         (u'COMPANIONS_BROKE_TO_SPARE_PARTS', 580005, u'Дневник: после смерти спутника удалось выгодно продать его запчасти (способность «дорогой»)', LEXICON_GROUP.COMPANIONS,
         u'После смерти спутника удалось выгодно продать его запчасти',

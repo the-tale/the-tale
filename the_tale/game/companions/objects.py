@@ -1,4 +1,5 @@
 # coding: utf-8
+import random
 from dext.common.utils import s11n
 
 from the_tale.common.utils import bbcode
@@ -122,11 +123,14 @@ class Companion(object):
         return self._hero.companion_max_coherence
 
     def hit(self):
-        import random
+        old_health = self.health
+
         self.health -= self._hero.companion_damage
 
         if random.random() < self._damage_from_heal_probability() / (self._damage_from_heal_probability() + self._hero.companion_damage_probability):
             self._heals_wounds_count += float(c.COMPANIONS_DAMAGE_PER_WOUND) / c.COMPANIONS_HEALTH_PER_HEAL
+
+        return old_health - self.health
 
     def on_heal_started(self):
         self.healed_at_turn = game_prototypes.TimePrototype.get_current_turn_number()

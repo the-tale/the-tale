@@ -45,11 +45,11 @@ KEYS = [(u'ANGEL_ABILITY_ARENA_PVP_1X1', 240000, u'Журнал: Отправк�
 
         (u'ANGEL_ABILITY_LIGHTNING', 240010, u'Журнал: Нанесение урона', LEXICON_GROUP.ANGEL_ABILITY,
         u'Нанесение урона противнику (монстру).',
-        [V.MOB, V.HERO], None),
+        [V.MOB, V.HERO, V.DAMAGE], u'mob#N -damage#HP'),
 
         (u'ANGEL_ABILITY_LIGHTNING_CRIT', 240011, u'Журнал: Нанесение урона (критический эффект)', LEXICON_GROUP.ANGEL_ABILITY,
         u'Нанесение большего урона противнику (монстру).',
-        [V.MOB, V.HERO], None),
+        [V.MOB, V.HERO, V.DAMAGE], u'mob#N -damage#HP'),
 
         (u'ANGEL_ABILITY_MONEY', 240012, u'Журнал: Создание денег', LEXICON_GROUP.ANGEL_ABILITY,
         u'Герой находит небольшое количество монет',

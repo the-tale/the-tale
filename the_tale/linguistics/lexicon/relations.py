@@ -149,7 +149,6 @@ class VARIABLE(DjangoEnum):
                 ('MOB', 'mob', u'монстр', VARIABLE_TYPE.MOB),
                 ('ENERGY', 'energy', u'энергия', VARIABLE_TYPE.NUMBER),
                 ('SELL_PRICE', 'sell_price', u'цена продажи', VARIABLE_TYPE.NUMBER),
-                ('COINS_DELTA', 'coins_delta', u'разница в монетах', VARIABLE_TYPE.NUMBER),
                 ('OLD_ARTIFACT', 'old_artifact', u'старый артефакт', VARIABLE_TYPE.ARTIFACT),
                 ('PERSON', 'person', u'советник', VARIABLE_TYPE.PERSON),
                 ('DECLINED_BILL', 'declined_bill', u'название не прошедшего закона', VARIABLE_TYPE.TEXT),

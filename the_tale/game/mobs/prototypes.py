@@ -130,8 +130,10 @@ class MobPrototype(object):
 
     def linguistics_restrictions(self): return self.linguistics_restrictions_constants
 
-    def strike_by(self, percents):
-        self.health = max(0, self.health - self.max_health * percents)
+    def damage_percents_to_health(self, percents):
+        old_health = self.health
+        health = max(0, self.health - self.max_health * percents)
+        return old_health - health
 
     def kill(self):
         pass

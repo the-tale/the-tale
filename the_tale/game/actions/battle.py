@@ -219,9 +219,9 @@ def try_companion_block(attacker, defender, messenger):
         messenger.add_message('companions_block', attacker=attacker, companion_owner=defender, companion=defender.companion)
         return True
 
-    messenger.add_message('companions_wound', attacker=attacker, companion_owner=defender, companion=defender.companion)
+    damage = defender.companion.hit()
 
-    defender.companion.hit()
+    messenger.add_message('companions_wound', attacker=attacker, companion_owner=defender, companion=defender.companion, damage=damage)
 
     if defender.companion.is_dead:
         messenger.add_message('companions_killed', diary=True, attacker=attacker, companion_owner=defender, companion=defender.companion)

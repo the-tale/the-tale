@@ -63,11 +63,16 @@ class Help(AbilityPrototype):
 
     def use_lightning(self, task, action, hero, critical):
         if critical:
-            hero.add_message('angel_ability_lightning_crit', hero=hero, mob=action.mob)
-            damage = random.uniform(*c.ANGEL_HELP_CRIT_LIGHTING_FRACTION)
+            damage_percents = random.uniform(*c.ANGEL_HELP_CRIT_LIGHTING_FRACTION)
         else:
-            hero.add_message('angel_ability_lightning', hero=hero, mob=action.mob)
-            damage = random.uniform(*c.ANGEL_HELP_LIGHTING_FRACTION)
+            damage_percents = random.uniform(*c.ANGEL_HELP_LIGHTING_FRACTION)
+
+        damage = action.mob_damage_percents_to_health(damage_percents)
+
+        if critical:
+            hero.add_message('angel_ability_lightning_crit', hero=hero, mob=action.mob, damage=damage)
+        else:
+            hero.add_message('angel_ability_lightning', hero=hero, mob=action.mob, damage=damage)
 
         action.bit_mob(damage)
 

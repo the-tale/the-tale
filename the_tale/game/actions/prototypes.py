@@ -1009,12 +1009,18 @@ class ActionBattlePvE1x1Prototype(ActionBase):
         args.update({'mob': self.mob})
         return args
 
-    def bit_mob(self, percents):
+    def mob_damage_percents_to_health(self, percents):
+        if self.state != self.STATE.BATTLE_RUNNING:
+            return 0
+
+        return self.mob.damage_percents_to_health(percents)
+
+    def bit_mob(self, damage):
 
         if self.state != self.STATE.BATTLE_RUNNING:
             return False
 
-        self.mob.strike_by(percents)
+        self.mob.health = max(0, self.mob.health - damage)
 
         self.percents = 1.0 - self.mob.health_percents
         self.hero.actions.current_action.percents = self.percents
@@ -1221,8 +1227,8 @@ class ActionInPlacePrototype(ActionBase):
 
         if (hero.energy < hero.energy_maximum and
             hero.position.place.modifier and hero.position.place.modifier.energy_regen_allowed()):
-            hero.change_energy(c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE)
-            hero.add_message('action_inplace_instant_energy_regen', hero=hero, place=hero.position.place)
+            energy = hero.change_energy(c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE)
+            hero.add_message('action_inplace_instant_energy_regen', hero=hero, place=hero.position.place, energy=energy)
 
         if hero.position.place.tax > 0:
 
@@ -1290,8 +1296,8 @@ class ActionInPlacePrototype(ActionBase):
 
         coins = self.try_to_spend_money()
         if coins is not None:
-            self.hero.health = self.hero.max_health
-            self.hero.add_message('action_inplace_diary_instant_heal_for_money', diary=True, hero=self.hero, coins=coins)
+            healed_health = self.hero.heal(self.hero.max_health)
+            self.hero.add_message('action_inplace_diary_instant_heal_for_money', diary=True, hero=self.hero, coins=coins, health=healed_health)
 
     def spend_money__buying_artifact(self):
         if self.hero.need_equipping:
@@ -1862,7 +1868,7 @@ class ActionRegenerateEnergyPrototype(ActionBase):
                 if energy_delta:
                     self.hero.add_message('%s_energy_received' % self.textgen_id, hero=self.hero, energy=energy_delta)
                 else:
-                    self.hero.add_message('%s_no_energy_received' % self.textgen_id, hero=self.hero)
+                    self.hero.add_message('%s_no_energy_received' % self.textgen_id, hero=self.hero, energy=0)
 
                 self.state = self.STATE.PROCESSED
 

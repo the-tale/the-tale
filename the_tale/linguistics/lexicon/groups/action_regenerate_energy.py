@@ -77,39 +77,39 @@ KEYS = [(u'ACTION_REGENERATE_ENERGY_INCENSE_DESCRIPTION', 160000, u'Описан
 
         (u'ACTION_REGENERATE_ENERGY_INCENSE_NO_ENERGY_RECEIVED', 160010, u'Журнал: Энергия не восстановлена курением благовоний', LEXICON_GROUP.ACTION_REGENERATE_ENERGY,
          u'Окончание курения благовоний.',
-         [V.HERO], None),
+         [V.ENERGY, V.HERO], u'+energy#EN'),
 
         (u'ACTION_REGENERATE_ENERGY_MEDITATION_NO_ENERGY_RECEIVED', 160011, u'Журнал: Энергия не восстановлена медитацией', LEXICON_GROUP.ACTION_REGENERATE_ENERGY,
          u'Окончание медитации.',
-         [V.HERO], None),
+         [V.ENERGY, V.HERO], u'+energy#EN'),
 
         (u'ACTION_REGENERATE_ENERGY_PRAY_NO_ENERGY_RECEIVED', 160012, u'Журнал: Энергия не восстановлена молитвой', LEXICON_GROUP.ACTION_REGENERATE_ENERGY,
          u'Окончание молитвы.',
-         [V.HERO], None),
+         [V.ENERGY, V.HERO], u'+energy#EN'),
 
         (u'ACTION_REGENERATE_ENERGY_SACRIFICE_FIRE_NO_ENERGY_RECEIVED', 160013, u'Журнал: Энергия не восстановлена жертвоприношением огнём', LEXICON_GROUP.ACTION_REGENERATE_ENERGY,
          u'Окончание жертвоприношения огнём не принесло энергии.',
-         [V.HERO], None),
+         [V.ENERGY, V.HERO], u'+energy#EN'),
 
         (u'ACTION_REGENERATE_ENERGY_SACRIFICE_BLOOD_NO_ENERGY_RECEIVED', 160028, u'Журнал: Энергия не восстановлена жертвоприношением кровью', LEXICON_GROUP.ACTION_REGENERATE_ENERGY,
          u'Окончание жертвоприношения кровью не принесло энергии.',
-         [V.HERO], None),
+         [V.ENERGY, V.HERO], u'+energy#EN'),
 
         (u'ACTION_REGENERATE_ENERGY_SACRIFICE_KNIFE_NO_ENERGY_RECEIVED', 160029, u'Журнал: Энергия не восстановлена жертвоприношением ножом', LEXICON_GROUP.ACTION_REGENERATE_ENERGY,
          u'Окончание жертвоприношения ножом не принесло энергии.',
-         [V.HERO], None),
+         [V.ENERGY, V.HERO], u'+energy#EN'),
 
         (u'ACTION_REGENERATE_ENERGY_SYMBOLS_STONE_NO_ENERGY_RECEIVED', 160014, u'Журнал: Энергия не восстановлена вырезанием символов на камне', LEXICON_GROUP.ACTION_REGENERATE_ENERGY,
          u'Окончание вырезание символов на камне не принесло энергии.',
-         [V.HERO], None),
+         [V.ENERGY, V.HERO], u'+energy#EN'),
 
         (u'ACTION_REGENERATE_ENERGY_SYMBOLS_TREE_NO_ENERGY_RECEIVED', 160030, u'Журнал: Энергия не восстановлена вырезанием символов на дереве', LEXICON_GROUP.ACTION_REGENERATE_ENERGY,
          u'Окончание вырезание символов на дереве не принесло энергии.',
-         [V.HERO], None),
+         [V.ENERGY, V.HERO], u'+energy#EN'),
 
         (u'ACTION_REGENERATE_ENERGY_SYMBOLS_GROUND_NO_ENERGY_RECEIVED', 160031, u'Журнал: Энергия не восстановлена вырезанием символов на земле', LEXICON_GROUP.ACTION_REGENERATE_ENERGY,
          u'Окончание вырезание символов на земле не принесло энергии.',
-         [V.HERO], None),
+         [V.ENERGY, V.HERO], u'+energy#EN'),
 
         (u'ACTION_REGENERATE_ENERGY_INCENSE_START', 160015, u'Журнал: Начало курения благовоний', LEXICON_GROUP.ACTION_REGENERATE_ENERGY,
          u'Герой начинает курить благовония',

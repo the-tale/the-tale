@@ -13,11 +13,11 @@ KEYS = [(u'ACTION_INPLACE_DESCRIPTION', 80000, u'Описание', LEXICON_GROU
 
         (u'ACTION_INPLACE_DIARY_BUYING_ARTIFACT_AND_CHANGE', 80002, u'Дневник: Покупка артефакта и замена', LEXICON_GROUP.ACTION_INPLACE,
         u'Герой тратит деньги на покупку артефакта, и меняет на него экипированный ранее. Старая экипировка продаётся, деньги с продажи остаются у героя.',
-        [V.SELL_PRICE, V.HERO, V.COINS_DELTA, V.OLD_ARTIFACT, V.COINS, V.ARTIFACT], u'hero#N -coins#G +sell_price#G'),
+        [V.SELL_PRICE, V.HERO, V.OLD_ARTIFACT, V.COINS, V.ARTIFACT], u'hero#N -coins#G +sell_price#G'),
 
         (u'ACTION_INPLACE_DIARY_BUYING_ARTIFACT_AND_CHANGE_EQUAL_ITEMS', 80003, u'Дневник: Покупка аналогичного артефакта и замена', LEXICON_GROUP.ACTION_INPLACE,
         u'Герой тратит деньги на покупку нового, но аналогичного уже экипированному, артефакта, и меняет на него экипированный ранее. Старая экипировка продаётся, деньги с продажи остаются у героя.',
-        [V.SELL_PRICE, V.COINS, V.HERO, V.ARTIFACT, V.COINS_DELTA], u'hero#N -coins#G +sell_price#G'),
+        [V.SELL_PRICE, V.COINS, V.HERO, V.ARTIFACT], u'hero#N -coins#G +sell_price#G'),
 
         (u'ACTION_INPLACE_DIARY_EXPERIENCE', 80004, u'Дневник: Траты на обучение', LEXICON_GROUP.ACTION_INPLACE,
         u'Герой тратит деньги, чтобы немного подучиться',
@@ -33,7 +33,7 @@ KEYS = [(u'ACTION_INPLACE_DESCRIPTION', 80000, u'Описание', LEXICON_GROU
 
         (u'ACTION_INPLACE_DIARY_INSTANT_HEAL_FOR_MONEY', 80007, u'Дневник: Траты на лечение', LEXICON_GROUP.ACTION_INPLACE,
         u'Герой тратит деньги на лечение.',
-        [V.COINS, V.HERO], u'hero#N -coins#G'),
+        [V.COINS, V.HERO, V.HEALTH], u'hero#N +health#HP -coins#G'),
 
         (u'ACTION_INPLACE_DIARY_REPAIRING_ARTIFACT', 80008, u'Дневник: Траты на починку артефакта', LEXICON_GROUP.ACTION_INPLACE,
         u'Герой тратит деньги на починку артефакта.',
@@ -105,7 +105,7 @@ KEYS = [(u'ACTION_INPLACE_DESCRIPTION', 80000, u'Описание', LEXICON_GROU
 
         (u'ACTION_INPLACE_INSTANT_ENERGY_REGEN', 80025, u'Журнал: Восстановление энергии в святом городе', LEXICON_GROUP.ACTION_INPLACE,
         u'Игрок восстанавливает немного энергии, когда герой посещает город.',
-        [V.HERO, V.PLACE], None),
+        [V.HERO, V.PLACE, V.ENERGY], u'hero#N +energy#EN'),
 
         (u'ACTION_INPLACE_INSTANT_HEAL', 80026, u'Журнал: Лечение в курорте', LEXICON_GROUP.ACTION_INPLACE,
         u'Герой моментально излечивается благодаря типу города «Курорт».',
