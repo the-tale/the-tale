@@ -18,11 +18,11 @@ class RISK_LEVEL(DjangoEnum):
     reward_modifier = Column()
     description = Column()
 
-    records = ( ('VERY_HIGH', 0, u'очень высокий', 0.70, 1.30,  2.0, 1.30, u'больше опыта и наград за задания, +200% влияния'),
-                ('HIGH',      1, u'высокий',       0.85, 1.15,  1.0, 1.15, u'немного больше опыта и наград за задания, +100% влияния'),
-                ('NORMAL',    2, u'обычный',       1.00, 1.00,  0.0, 1.00, u'никакого влияния на опыт, награды и влиение героя'),
-                ('LOW',       3, u'низкий',        1.15, 0.85, -1.0, 0.85, u'немного меньше опыта и наград за задания, -100% влияния'),
-                ('VERY_LOW',  4, u'очень низкий',  1.30, 0.70, -2.0, 0.70, u'меньше опыта и наград за задания, -200% влияния') )
+    records = ( ('VERY_HIGH', 0, u'очень высокий', 0.70, 1.30,  2.0,  2.00, u'больше опыта и наград за задания, +200% к влиянию и денежным наградам за задания'),
+                ('HIGH',      1, u'высокий',       0.85, 1.15,  1.0,  1.00, u'немного больше опыта и наград за задания, +100% к влиянию и денежным наградам за задания'),
+                ('NORMAL',    2, u'обычный',       1.00, 1.00,  0.0,  0.00, u'никакого влияния на опыт, награды и влиение героя'),
+                ('LOW',       3, u'низкий',        1.15, 0.85, -1.0, -1.00, u'немного меньше опыта и наград за задания, -100% к влиянию и денежным наградам за задания'),
+                ('VERY_LOW',  4, u'очень низкий',  1.30, 0.70, -2.0, -2.00, u'меньше опыта и наград за задания, -200% к влиянию и денежным наградам за задания') )
 
 
 
@@ -96,17 +96,17 @@ class ITEMS_OF_EXPENDITURE(DjangoEnum):
 
     records = ( ('INSTANT_HEAL',        0, u'лечение',           'heal',       20, 0.3, MONEY_SOURCE.SPEND_FOR_HEAL,
                  u'Собирает деньги, чтобы поправить здоровье, когда понадобится.'),
-                ('BUYING_ARTIFACT',     1, u'покупка артефакта', 'artifact',   4,  1.5, MONEY_SOURCE.SPEND_FOR_ARTIFACTS,
+                ('BUYING_ARTIFACT',     1, u'покупка артефакта', 'artifact',   4,  3.0, MONEY_SOURCE.SPEND_FOR_ARTIFACTS,
                  u'Планирует приобретение новой экипировки.'),
                 ('SHARPENING_ARTIFACT', 2, u'заточка артефакта', 'sharpening', 3,  2.0, MONEY_SOURCE.SPEND_FOR_SHARPENING,
                  u'Собирает на улучшение экипировки.'),
                 ('USELESS',             3, u'на себя', 'useless',    7,  0.4, MONEY_SOURCE.SPEND_FOR_USELESS,
                  u'Копит золото для не очень полезных но безусловно необходимых трат.'),
-                ('IMPACT',              4, u'изменение влияния', 'impact',     4,  2.0, MONEY_SOURCE.SPEND_FOR_IMPACT,
+                ('IMPACT',              4, u'изменение влияния', 'impact',     4,  1.0, MONEY_SOURCE.SPEND_FOR_IMPACT,
                  u'Планирует накопить деньжат, чтобы повлиять на «запомнившегося» горожанина.'),
-                ('EXPERIENCE',          5, u'обучение',          'experience', 2,  5.0, MONEY_SOURCE.SPEND_FOR_EXPERIENCE,
+                ('EXPERIENCE',          5, u'обучение',          'experience', 2,  4.0, MONEY_SOURCE.SPEND_FOR_EXPERIENCE,
                  u'Копит деньги в надежде немного повысить свою грамотность.'),
-                ('REPAIRING_ARTIFACT',  6, u'починка артефакта', 'repairing', 15, 1.0, MONEY_SOURCE.SPEND_FOR_REPAIRING,
+                ('REPAIRING_ARTIFACT',  6, u'починка артефакта', 'repairing', 15, 1.5, MONEY_SOURCE.SPEND_FOR_REPAIRING,
                  u'Копит на починку экипировки'),
                 ('HEAL_COMPANION',  7, u'лечение спутника', 'heal_companion', 10, 0.3, MONEY_SOURCE.SPEND_FOR_COMPANIONS,
                  u'Копит на лечение спутника')
@@ -149,9 +149,9 @@ class MODIFIERS(DjangoEnum):
                 ('EXPERIENCE', 5, u'опыт', lambda: 1.0),
                 ('MAX_BAG_SIZE', 6, u'максимальный размер рюкзака', lambda: 0),
                 ('POWER', 7, u'влияние героя', lambda: 0.0),
-                ('QUEST_MONEY_REWARD', 8, u'денежная награда за выполнение задения', lambda: 1.0),
-                ('BUY_PRICE', 9, u'цена покупки', lambda: 1.0),
-                ('SELL_PRICE', 10, u'цена продажи', lambda: 1.0),
+                ('QUEST_MONEY_REWARD', 8, u'денежная награда за выполнение задения', lambda: 0.0),
+                ('BUY_PRICE', 9, u'цена покупки', lambda: 0.0),
+                ('SELL_PRICE', 10, u'цена продажи', lambda: 0.0),
                 ('ITEMS_OF_EXPENDITURE_PRIORITIES', 11, u'приортет трат', lambda: {record:record.priority for record in ITEMS_OF_EXPENDITURE.records}),
                 ('GET_ARTIFACT_FOR_QUEST', 12, u'получить артефакты за задания', lambda: c.ARTIFACT_FOR_QUEST_PROBABILITY),
                 # ('BUY_BETTER_ARTIFACT', 13, u'купить лучший артефакт', lambda: 0),

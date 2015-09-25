@@ -274,11 +274,11 @@ class HeroTest(testcase.TestCase):
         self.assertEqual(self.hero.actual_bills, [7])
 
     def test_reward_modifier__risk_level(self):
-        self.assertEqual(self.hero.reward_modifier, 1.0)
+        self.assertEqual(self.hero.quest_money_reward_multiplier(), 1.0)
         self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_HIGH)
-        self.assertTrue(self.hero.reward_modifier > 1.0)
+        self.assertTrue(self.hero.quest_money_reward_multiplier() > 1.0)
         self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_LOW)
-        self.assertTrue(self.hero.reward_modifier < 1.0)
+        self.assertTrue(self.hero.quest_money_reward_multiplier() < 1.0)
 
     def test_push_message(self):
         message = messages.MessageSurrogate(turn_number=TimePrototype.get_current_turn_number(),

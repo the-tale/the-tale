@@ -132,11 +132,11 @@ class EffectsTests(testcase.TestCase):
             self._set_effect(relations.ARTIFACT_EFFECT.IDLE_LENGTH)
 
     def test_conviction(self):
-        with self.check_decreased(lambda: self.hero.modify_buy_price(100)):
+        with self.check_decreased(self.hero.buy_price):
             self._set_effect(relations.ARTIFACT_EFFECT.CONVICTION)
 
     def test_charm(self):
-        with self.check_increased(lambda: self.hero.modify_sell_price(100)):
+        with self.check_increased(self.hero.sell_price):
             self._set_effect(relations.ARTIFACT_EFFECT.CHARM)
 
     def test_spiritual_connection(self):

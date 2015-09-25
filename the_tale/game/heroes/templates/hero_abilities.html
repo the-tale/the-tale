@@ -101,7 +101,7 @@ jQuery(document).ready(function(e){
   {% endif %}
 
   <table class="table table-condensed table-highlighting" style="cursor: default;">
-    <caption style="text-align: left;"><h4>Боевые</h4></caption>
+    <caption style="text-align: left;"><h3>Боевые</h3></caption>
     <tbody>
       {% for ability in battle_active_abilities %}
         {{macros.ability_record(ability)}}
@@ -121,7 +121,7 @@ jQuery(document).ready(function(e){
   </table>
 
   <table class="table table-condensed table-highlighting" style="cursor: default;">
-    <caption style="text-align: left;"><h4>Мирные</h4></caption>
+    <caption style="text-align: left;"><h3>Мирные</h3></caption>
     <tbody>
       {% for ability in nonbattle_abilities %}
         {{macros.ability_record(ability)}}
@@ -134,7 +134,7 @@ jQuery(document).ready(function(e){
   </table>
 
   <table class="table table-condensed table-highlighting" style="cursor: default;">
-    <caption style="text-align: left;"><h4>Для спутников</h4></caption>
+    <caption style="text-align: left;"><h3>Для спутников</h3></caption>
     <tbody>
       {% for ability in companion_abilities %}
         {{macros.ability_record(ability)}}

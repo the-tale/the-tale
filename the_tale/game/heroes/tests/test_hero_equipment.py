@@ -379,6 +379,23 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
         self.assertEqual(self.hero.statistics.money_earned_from_loot, 0)
         self.assertEqual(self.hero.statistics.money_earned_from_artifacts, price)
 
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.sell_price', lambda hero: -100)
+    def test_sell_artifact__sell_price_less_than_zero(self):
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL)
+        self.hero.bag.put_artifact(artifact)
+
+        self.assertEqual(self.hero.bag.occupation, 1)
+        self.assertEqual(self.hero.money, 0)
+        self.assertEqual(self.hero.statistics.money_earned_from_loot, 0)
+        self.assertEqual(self.hero.statistics.money_earned_from_artifacts, 0)
+
+        self.assertEqual(self.hero.sell_artifact(artifact), 1)
+
+        self.assertEqual(self.hero.bag.occupation, 0)
+        self.assertEqual(self.hero.money, 1)
+        self.assertEqual(self.hero.statistics.money_earned_from_loot, 0)
+        self.assertEqual(self.hero.statistics.money_earned_from_artifacts, 1)
+
     def test_sell_artifact__useless(self):
         artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL)
         self.hero.bag.put_artifact(artifact)

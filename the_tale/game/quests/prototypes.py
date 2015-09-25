@@ -1,4 +1,5 @@
 # coding: utf-8
+import math
 import time
 import random
 import datetime
@@ -15,7 +16,6 @@ from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
-from the_tale.game.balance.power import Power
 
 from the_tale.game.mobs.storage import mobs_storage
 
@@ -25,7 +25,6 @@ from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons.relations import PERSON_TYPE
 
 from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE, MONEY_SOURCE, HABIT_CHANGE_SOURCE
-from the_tale.game.heroes.relations import MODIFIERS as HERO_MODIFIERS
 
 from the_tale.game.quests import exceptions
 from the_tale.game.quests import writers
@@ -216,11 +215,11 @@ class QuestInfo(object):
 
     def get_real_reward_scale(self, hero, scale):
 
-        scale *= hero.reward_modifier
+        scale *= hero.quest_money_reward_multiplier()
 
         markers_bonuses = hero.quest_markers_rewards_bonus()
         for marker in self.used_markers:
-            scale *= (1 + markers_bonuses.get(marker, 0))
+            scale += markers_bonuses.get(marker, 0)
 
         return scale
 
@@ -502,20 +501,21 @@ class QuestPrototype(object):
 
         if hero.can_get_artifact_for_quest():
 
-            artifact, unequipped, sell_price = self.hero.receive_artifact(equip=False, better=False, prefered_slot=False, prefered_item=False, archetype=False)
+            level_delta = int(math.ceil(abs(scale)))
+            if scale < 0:
+                level_delta = -level_delta
+
+            artifact, unequipped, sell_price = self.hero.receive_artifact(equip=False, better=False, prefered_slot=False, prefered_item=False, archetype=False, level_delta=level_delta)
 
             if artifact is not None:
-                artifact.power += Power(physic=int((scale - 1.0) * c.POWER_TO_LVL / 2 ),
-                                        magic=int((scale - 1.0) * c.POWER_TO_LVL / 2 ) )
                 quest_info.process_message(knowledge_base=self.knowledge_base,
                                            hero=self.hero,
                                            message='%s_artifact' % reward_type,
                                            ext_substitution={'artifact': artifact})
                 return
 
-        multiplier = scale
-        money = 1 + int(f.sell_artifact_price(hero.level) * multiplier)
-        money = int(money * hero.attribute_modifier(HERO_MODIFIERS.QUEST_MONEY_REWARD))
+        money = int(max(1, f.sell_artifact_price(hero.level) * scale))
+
         hero.change_money(MONEY_SOURCE.EARNED_FROM_QUESTS, money)
 
         quest_info.process_message(knowledge_base=self.knowledge_base,

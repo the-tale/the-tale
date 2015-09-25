@@ -1282,7 +1282,7 @@ class ActionInPlacePrototype(ActionBase):
         return self.process_settlement()
 
     def try_to_spend_money(self):
-        gold_amount = self.hero.modify_buy_price(self.hero.spend_amount)
+        gold_amount = int(max(1, self.hero.spend_amount * self.hero.buy_price()))
         if gold_amount <= self.hero.money:
             self.hero.change_money(self.hero.next_spending.money_source, -gold_amount)
             self.hero.switch_spending()

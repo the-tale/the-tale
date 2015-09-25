@@ -4,6 +4,8 @@ import datetime
 
 from django.core.urlresolvers import reverse
 
+from questgen import relations as questgen_relations
+
 from dext.common.utils import views as dext_views
 from dext.views import handler, validator, validate_argument
 
@@ -127,6 +129,7 @@ class HeroResource(Resource):
                               'HABIT_TYPE': HABIT_TYPE,
                               'PREFERENCE_RESET_CARDS': cards_effects.PREFERENCE_RESET_CARDS,
                               'CARD_TYPE': cards_relations.CARD_TYPE,
+                              'QUEST_OPTION_MARKERS': questgen_relations.OPTION_MARKERS,
                               'HABITS_BORDER': c.HABITS_BORDER} )
 
     @login_required

@@ -349,7 +349,7 @@ class PrototypeTests(PrototypeTestsBase):
 
         artifact_1, artifact_2 = sorted(self.hero.bag.values(), key=lambda artifact: artifact.bag_uuid)
 
-        self.assertEqual(abs(artifact_1.power.total() - artifact_2.power.total()), 2 * int(c.POWER_TO_LVL * 0.25))
+        self.assertEqual(artifact_1.level + 1, artifact_2.level)
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_get_artifact_for_quest', lambda hero: False)
     def test_give_reward__money_scale(self):
@@ -362,7 +362,14 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.quest._give_reward(self.hero, 'bla-bla', scale=1.5)
 
-        self.assertEqual(self.hero.money - not_scaled_money, int(1 + f.sell_artifact_price(self.hero.level) * 1.5))
+        self.assertEqual(self.hero.money - not_scaled_money, int(f.sell_artifact_price(self.hero.level) * 1.5))
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_get_artifact_for_quest', lambda hero: False)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.quest_money_reward_multiplier', lambda hero: -100)
+    def test_give_reward__money_scale_less_then_zero(self):
+
+        with self.check_delta(lambda: self.hero.money, 1):
+            self.quest._give_reward(self.hero, 'bla-bla', scale=1.5)
 
     def test_give_social_power(self):
         self.quest.current_info.power = 10

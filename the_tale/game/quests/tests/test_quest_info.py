@@ -119,7 +119,7 @@ class QuestInfoTests(testcase.TestCase, QuestTestsMixin):
         self.assertEqual(self.quest_info.choice_alternatives,  ())
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reward_modifier', 1.0)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.quest_money_reward_multiplier', lambda hero: 1.0)
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.quest_markers_rewards_bonus', lambda self: {QUEST_OPTION_MARKERS.HONORABLE: 0.2,
                                                                                                            QUEST_OPTION_MARKERS.DISHONORABLE: 0.3,
                                                                                                            QUEST_OPTION_MARKERS.AGGRESSIVE: 0.4,
@@ -129,16 +129,16 @@ class QuestInfoTests(testcase.TestCase, QuestTestsMixin):
         self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.0)
 
         self.quest_info.used_markers[QUEST_OPTION_MARKERS.DISHONORABLE] = True
-        self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.3)
+        self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.0 + 0.3)
 
         self.quest_info.used_markers[QUEST_OPTION_MARKERS.AGGRESSIVE] = False
-        self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.3*1.4)
+        self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.0 + 0.3 + 0.4)
 
         self.quest_info.used_markers[QUEST_OPTION_MARKERS.HONORABLE] = False
-        self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.3*1.4*1.2)
+        self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), round(1.0 + 0.3 + 0.4 + 0.2, 2))
 
         self.quest_info.used_markers[QUEST_OPTION_MARKERS.UNAGGRESSIVE] =  True
-        self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), 1.3*1.4*1.2*1.5)
+        self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), round(1.0 + 0.3 + 0.4 + 0.2 + 0.5, 2))
 
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.experience_modifier', 1)

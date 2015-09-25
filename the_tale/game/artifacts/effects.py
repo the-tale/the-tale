@@ -5,6 +5,7 @@ from dext.common.utils import discovering
 from the_tale.game.balance import constants as c
 from the_tale.game.balance.power import Power
 
+from the_tale.game.heroes.habilities import nonbattle
 from the_tale.game.heroes.habilities import battle
 from the_tale.game.heroes.habilities import modifiers as battle_modifiers
 
@@ -235,22 +236,21 @@ class IDLELength(BaseEffect):
 class Conviction(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.CONVICTION
     DESCRIPTION = u'Уменьшение всех трат'
-
-    MULTIPLIER = 0.75
+    BONUS = nonbattle.HUCKSTER.BUY_BONUS[-1] / 2
 
     @classmethod
     def modify_attribute(cls, type_, value):
-        return value * cls.MULTIPLIER if type_.is_BUY_PRICE else value
+        return value + cls.BONUS if type_.is_BUY_PRICE else value
 
 
 class Charm(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.CHARM
     DESCRIPTION = u'Увеличение цены продажи предметов'
-    MULTIPLIER = 1.25
+    BONUS = nonbattle.HUCKSTER.SELL_BONUS[-1] / 2
 
     @classmethod
     def modify_attribute(cls, type_, value):
-        return value * cls.MULTIPLIER if type_.is_SELL_PRICE else value
+        return value + cls.BONUS if type_.is_SELL_PRICE else value
 
 
 class SpiritualConnection(BaseEffect):

@@ -395,6 +395,13 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend, 0)
         self.storage._test_save()
 
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.buy_price', lambda hero: -100)
+    def test_buy_price_less_than_zero(self):
+        money = self.hero.spend_amount
+        self.hero._model.money = money
+
+        self.assertEqual(self.action_inplace.try_to_spend_money(), 1)
+        self.assertEqual(self.hero.statistics.money_spend, 1)
 
     def test_instant_heal(self):
         while not self.hero.next_spending.is_INSTANT_HEAL:
@@ -794,7 +801,6 @@ class InPlaceActionCompanionBuyMealTests(testcase.TestCase):
                 self.check_increased(lambda: len(self.hero.messages))
                 ):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
-
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_money_for_food_multiplier', 66666666)
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_eat', lambda hero: True)

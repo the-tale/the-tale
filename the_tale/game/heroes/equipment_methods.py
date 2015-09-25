@@ -94,14 +94,14 @@ class EquipmentMethodsMixin(object):
 
         return artifacts_choices
 
-    def receive_artifact(self, equip, better, prefered_slot, prefered_item, archetype, rarity_type=None, power_bonus=0):
+    def receive_artifact(self, equip, better, prefered_slot, prefered_item, archetype, rarity_type=None, power_bonus=0, level_delta=0):
 
         artifact_choices = self.receive_artifacts_choices(better=better, prefered_slot=prefered_slot, prefered_item=prefered_item, archetype=archetype)
 
         if rarity_type is None:
             rarity_type = artifacts_storage.get_rarity_type(self)
 
-        artifact = artifacts_storage.generate_artifact_from_list(artifact_choices, self.level, rarity_type)
+        artifact = artifacts_storage.generate_artifact_from_list(artifact_choices, max(1, self.level + level_delta), rarity_type)
 
         artifact.power += Power(int(artifact.power.physic * power_bonus),
                                 int(artifact.power.magic * power_bonus))
@@ -134,9 +134,7 @@ class EquipmentMethodsMixin(object):
         return artifact, unequipped, sell_price
 
     def sell_artifact(self, artifact):
-        sell_price = artifact.get_sell_price()
-
-        sell_price = self.modify_sell_price(sell_price)
+        sell_price = int(max(1, artifact.get_sell_price() * self.sell_price()))
 
         if artifact.is_useless:
             money_source = relations.MONEY_SOURCE.EARNED_FROM_LOOT

@@ -22,10 +22,10 @@ class ModifiersTests(testcase.TestCase):
                 self.assertTrue(person_type.value in modifier.PERSON_EFFECTS)
 
     def test_trade_center(self):
-        self.assertEqual(CraftCenter(self.place_1).modify_sell_price(100), 100)
-        self.assertEqual(CraftCenter(self.place_1).modify_buy_price(100), 100)
-        self.assertTrue(TradeCenter(self.place_1).modify_sell_price(100) > 100)
-        self.assertTrue(TradeCenter(self.place_1).modify_buy_price(100) < 100)
+        self.assertEqual(CraftCenter(self.place_1).sell_price(), 0)
+        self.assertEqual(CraftCenter(self.place_1).buy_price(), 0)
+        self.assertTrue(TradeCenter(self.place_1).sell_price() > 0)
+        self.assertTrue(TradeCenter(self.place_1).buy_price() < 0)
 
     def test_craft_center(self):
         self.assertEqual(TradeCenter(self.place_1).buy_artifact_power_bonus(), 0)

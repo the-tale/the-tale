@@ -39,7 +39,7 @@ def boss_hp_to_lvl(lvl): return int(hp_on_lvl(lvl) * c.BOSS_HP_MULTIPLIER) # з�
 def expected_damage_to_hero_per_hit(lvl): return float(hp_on_lvl(lvl) * c.DAMAGE_TO_HERO_PER_HIT_FRACTION) # ожидаемый урон моба по герою за удар
 def expected_damage_to_mob_per_hit(lvl): return float(mob_hp_to_lvl(lvl) * c.DAMAGE_TO_MOB_PER_HIT_FRACTION) # ожидаемый урон героя по мобу за удар
 
-def battles_on_lvl(lvl): return int(time_on_lvl(lvl) * c.BATTLES_PER_HOUR)
+# def battles_on_lvl(lvl): return int(time_on_lvl(lvl) * c.BATTLES_PER_HOUR)
 
 # на текущий момент предполагаем, что из моба всегда может упась артефакт, подходящий герою по уровню
 # цена добычи из моба указанного уровня (т.е. для моба, появляющегося на этом уровне)
@@ -48,24 +48,19 @@ def battles_on_lvl(lvl): return int(time_on_lvl(lvl) * c.BATTLES_PER_HOUR)
 def normal_loot_cost_at_lvl(lvl): return  int(c.NORMAL_LOOT_COST * math.log(lvl, 1.3)) + 1
 def medium_loot_cost_at_lvl(lvl): return sum(normal_loot_cost_at_lvl(i) for i in xrange(1, lvl+1)) / lvl
 
-def sell_artifact_price(lvl): return normal_loot_cost_at_lvl(lvl) * c.SELL_ARTIFACT_PRICE_MULTIPLIER
-
-def expected_normal_gold_at_lvl(lvl):
-    MAGIC = 1.0
-    QUESTS_IN_DAY = 2.0
-
-    battles = battles_on_lvl(lvl)
-    artifact_price = sell_artifact_price(lvl)
-
-    loot_cost = battles * c.GET_LOOT_PROBABILITY * medium_loot_cost_at_lvl(lvl)
-    artifacts_cost = battles * c.ARTIFACTS_PER_BATTLE * artifact_price
-    quests_cost = QUESTS_IN_DAY * time_on_lvl(lvl) / 24 * artifact_price
-
-    return int((loot_cost + artifacts_cost + quests_cost) * MAGIC)
-
 # при рассчётах принимаем, что герой будет встречать мобов разных уровней с одинаковой вероятностью
-def expected_gold_in_day(lvl): return int(math.floor(expected_normal_gold_at_lvl(lvl) / (time_on_lvl(lvl) / 24)))
-def total_gold_at_lvl(lvl): return int(sum(expected_normal_gold_at_lvl(x) for x in xrange(1, lvl+1)))
+def expected_gold_in_day(lvl):
+    loot_cost = c.BATTLES_PER_HOUR * 24 * c.GET_LOOT_PROBABILITY * medium_loot_cost_at_lvl(lvl)
+    return int(1 + loot_cost / c.INCOME_LOOT_FRACTION)
+
+def artifacts_in_day(): return c.ARTIFACTS_LOOT_PER_DAY + c.EXPECTED_QUESTS_IN_DAY
+def sell_artifact_price(lvl): return 1 + int((expected_gold_in_day(lvl) * c.INCOME_ARTIFACTS_FRACTION) / artifacts_in_day())
+
+def total_gold_at_lvl(lvl):
+    top_level = int(math.floor(lvl))
+    before_level = int(sum(expected_gold_in_day(x) * time_on_lvl(x)/24 for x in xrange(1, top_level)))
+    on_level = (expected_gold_in_day(top_level+1) * time_on_lvl(top_level+1)/24) * (lvl - top_level)
+    return before_level + on_level
 
 def normal_action_price(lvl):
     return int(expected_gold_in_day(lvl))

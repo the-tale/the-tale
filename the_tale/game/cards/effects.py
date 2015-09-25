@@ -600,7 +600,7 @@ class InstantMonsterKill(BaseEffect):
         if not task.hero.actions.current_action.TYPE.is_BATTLE_PVE_1X1:
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Герой ни с кем не сражается.')
 
-        task.hero.actions.current_action.bit_mob(1.01)
+        task.hero.actions.current_action.bit_mob(task.hero.actions.current_action.mob.max_health)
 
         return task.logic_result()
 

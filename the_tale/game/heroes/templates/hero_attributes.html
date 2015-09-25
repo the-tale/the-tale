@@ -1,0 +1,26 @@
+<div class="easy-block pgf-abilities-block">
+  <h2 style="cursor: default;">Аттрибуты</h2>
+
+  <h3>Деньги</h3>
+
+  <table class="table table-condensed table-striped table-bordered">
+    <tbody>
+      <tr>
+        <th>параметр</th>
+        <th>величина</th>
+      </tr>
+      <tr><td>цена покупки</td><td>{{resource.hero.buy_price()|percents(2)}}</td></tr>
+      <tr><td>цена продажи</td><td>{{resource.hero.sell_price()|percents(2)}}</td></tr>
+      <tr><td>награда за задание</td><td>{{resource.hero.quest_money_reward_multiplier()|percents(2)}}</td></tr>
+
+      {% set quest_markers_bonuses = resource.hero.quest_markers_rewards_bonus() %}
+
+      <tr><td>бонус к награде за честь</td><td>{{quest_markers_bonuses.get(QUEST_OPTION_MARKERS.HONORABLE, 0)|percents(2)}}</td></tr>
+      <tr><td>бонус к награде за бесчестие</td><td>{{quest_markers_bonuses.get(QUEST_OPTION_MARKERS.DISHONORABLE, 0)|percents(2)}}</td></tr>
+      <tr><td>бонус к награде за миролюбие</td><td>{{quest_markers_bonuses.get(QUEST_OPTION_MARKERS.UNAGGRESSIVE, 0)|percents(2)}}</td></tr>
+      <tr><td>бонус к награде за агрессивность</td><td>{{quest_markers_bonuses.get(QUEST_OPTION_MARKERS.AGGRESSIVE, 0)|percents(2)}}</td></tr>
+
+    </tbody>
+  </table>
+
+</div>

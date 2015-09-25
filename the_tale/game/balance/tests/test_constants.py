@@ -22,9 +22,12 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.POWER_PER_LVL, 1)
         self.assertEqual(c.EQUIP_SLOTS_NUMBER, 11)
 
-        self.assertEqual(c.ARTIFACTS_LOOT_PER_DAY, 1.0)
-        self.assertEqual(c.ARTIFACT_FOR_QUEST_PROBABILITY, 0.1)
+        self.assertEqual(c.ARTIFACTS_LOOT_PER_DAY, 2.0)
+        self.assertEqual(c.ARTIFACT_FOR_QUEST_PROBABILITY, 0.2)
         self.assertEqual(round(c.ARTIFACTS_BREAKING_SPEED, 2), 0.37)
+
+        self.assertEqual(c.INCOME_LOOT_FRACTION, 0.6)
+        self.assertEqual(c.INCOME_ARTIFACTS_FRACTION, 0.4)
 
         self.assertEqual(c.EQUIPMENT_BREAK_FRACTION, 0.5)
         self.assertEqual(c.NORMAL_SLOT_REPAIR_PRIORITY, 1.0)
@@ -56,7 +59,6 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.BASE_EXPERIENCE_FOR_MONEY_SPEND, 96)
         self.assertEqual(c.EXPERIENCE_DELTA_FOR_MONEY_SPEND, 0.5)
 
-        self.assertEqual(c.SELL_ARTIFACT_PRICE_MULTIPLIER, 10)
         self.assertEqual(c.POWER_TO_LVL, 11.0)
         self.assertEqual(c.ARTIFACT_POWER_DELTA, 0.2)
         self.assertEqual(c.ARTIFACT_BETTER_MIN_POWER_DELTA, 5)
@@ -82,7 +84,7 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.BATTLES_PER_HOUR, 15.319148936170212)
 
-        self.assertEqual(c.ARTIFACTS_PER_BATTLE, 0.0027199074074074074)
+        self.assertEqual(c.ARTIFACTS_PER_BATTLE, 0.005439814814814815)
         self.assertEqual(c.ARTIFACTS_BREAKS_PER_BATTLE, 0.0009972993827160493)
         self.assertEqual(c.ARTIFACT_FROM_PREFERED_SLOT_PROBABILITY, 0.25)
 
@@ -195,7 +197,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.HONOR_POWER_BONUS_FRACTION, 1.5)
         self.assertEqual(c.MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE, 0.02)
 
-        self.assertEqual(c.HABIT_QUEST_REWARD_MAX_BONUS, 0.25)
+        self.assertEqual(c.HABIT_QUEST_REWARD_MAX_BONUS, 1.0)
         self.assertEqual(c.HABIT_LOOT_PROBABILITY_MODIFIER, 1.2)
 
         self.assertEqual(c.EXP_FOR_KILL, 20)

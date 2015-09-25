@@ -1,8 +1,14 @@
 # coding: utf-8
-from the_tale.game.heroes.habilities.prototypes import AbilityPrototype
-from the_tale.game.heroes.habilities.relations import ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
-from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE
 
+from the_tale.game.balance import constants as c
+from the_tale.game.balance import formulas as f
+
+from .prototypes import AbilityPrototype
+from .relations import ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
+from ..relations import ITEMS_OF_EXPENDITURE
+
+# Денежный способности расчитываем так, чтобы они увеличивали скорость прироста денег по отношению к скорости трат на константу
+MAX_MONEY_ABILITIES_BONUS = 1.5
 
 class CHARISMA(AbilityPrototype):
 
@@ -12,16 +18,26 @@ class CHARISMA(AbilityPrototype):
 
     NAME = u'Харизматичный'
     normalized_name = NAME
-    DESCRIPTION = u'Герой настолько обаятелен, что умудряется получать больше денег за выполнение заданий.'
+    DESCRIPTION = u'Герой настолько обаятелен, что умудряется получать лучшие награды за выполнение заданий.'
 
-    MONEY_MULTIPLIER = [2, 4, 6, 8, 10]
+    QUESTS_FRACTION = c.EXPECTED_QUESTS_IN_DAY / f.artifacts_in_day()
+    ARTIFACTS_FRACTION = 1 - QUESTS_FRACTION
+
+    # MAX_MONEY_ABILITIES_BONUS = c.INCOME_LOOT_FRACTION + c.INCOME_ARTIFACTS_FRACTION * (artifacts_fraction + TOTAL_BONUS * quests_fraction)
+    # (MAX_MONEY_ABILITIES_BONUS - c.INCOME_LOOT_FRACTION) / c.INCOME_ARTIFACTS_FRACTION  = artifacts_fraction + TOTAL_BONUS * quests_fraction
+    # (MAX_MONEY_ABILITIES_BONUS - c.INCOME_LOOT_FRACTION) / c.INCOME_ARTIFACTS_FRACTION - artifacts_fraction = TOTAL_BONUS * quests_fraction
+    # MAX_MONEY_ABILITIES_BONUS заменяем на 1 + self.MONEY_BONUS[self.level-1]
+    TOTAL_BONUS = ((MAX_MONEY_ABILITIES_BONUS - c.INCOME_LOOT_FRACTION) / c.INCOME_ARTIFACTS_FRACTION - ARTIFACTS_FRACTION) / QUESTS_FRACTION
+
+    MONEY_BONUS = [i * (TOTAL_BONUS - 1) / 5.0 for i in xrange(1, 6)]
 
     @property
-    def money_multiplier(self): return self.MONEY_MULTIPLIER[self.level-1]
+    def money_bonus(self): return self.MONEY_BONUS[self.level-1]
 
-    def modify_attribute(self, type_, value): return value * self.money_multiplier if type_.is_QUEST_MONEY_REWARD else value
+    def modify_attribute(self, type_, value): return value + self.money_bonus if type_.is_QUEST_MONEY_REWARD else value
 
 
+# Для этой способности важно не делать бонус к покупке большим, иначе она будет давать слишком большой бонус в сочетании со всеми другим эффектами увеличения дохода
 class HUCKSTER(AbilityPrototype):
 
     TYPE = ABILITY_TYPE.NONBATTLE
@@ -30,24 +46,28 @@ class HUCKSTER(AbilityPrototype):
 
     NAME = u'Торгаш'
     normalized_name = NAME
-    DESCRIPTION = u'Увеличивается цена продажи и уменьшается цена покупки предметов.'
+    DESCRIPTION = u'Увеличивается цена продажи и уменьшаются все траты.'
 
-    SELL_MULTIPLIER = [1.2, 1.4, 1.6, 1.8, 2.0]
-    BUY_MULTIPLIER = [0.9, 0.8, 0.7, 0.6, 0.5]
+    BUY_BONUS = [-0.025, -0.050, -0.075, -0.10, -0.125]
+    # MAX_MONEY_ABILITIES_BONUS = c.INCOME_LOOT_FRACTION * TOTAL_BONUS + c.INCOME_ARTIFACTS_FRACTION
+    # TOTAL_BONUS = (MAX_MONEY_ABILITIES_BONUS - c.INCOME_ARTIFACTS_FRACTION) / c.INCOME_LOOT_FRACTION
+    # MAX_MONEY_ABILITIES_BONUS пересчиываем с учётом скидки на покупку -> (1+BUY_BONUS[-1]) * MAX_MONEY_ABILITIES_BONUS
+    MAX_BONUS = (1+BUY_BONUS[-1]) * MAX_MONEY_ABILITIES_BONUS
+    SELL_BONUS = [((MAX_BONUS - c.INCOME_ARTIFACTS_FRACTION) / c.INCOME_LOOT_FRACTION - 1) / 5.0 * i for i in xrange(1, 6)]
 
     @property
-    def sell_multiplier(self): return self.SELL_MULTIPLIER[self.level-1]
+    def buy_bonus(self): return self.BUY_BONUS[self.level-1]
 
     @property
-    def buy_multiplier(self): return self.BUY_MULTIPLIER[self.level-1]
+    def sell_bonus(self): return self.SELL_BONUS[self.level-1]
 
     def modify_attribute(self, type_, value):
         if type_.is_BUY_PRICE:
-            return value * self.buy_multiplier
+            return value + self.buy_bonus
 
         if type_.is_SELL_PRICE:
             # +1 for increase price on low levels
-            return value * self.sell_multiplier + 1
+            return value + self.sell_bonus
 
         return value
 
@@ -85,7 +105,7 @@ class BUSINESSMAN(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = u'Герой имеет больше шансов получить артефакт в награду за выполнение задания.'
 
-    PROBABILITY = [0.03, 0.06, 0.09, 0.12, 0.15]
+    PROBABILITY = [0.04, 0.08, 0.12, 0.16, 0.20]
 
     @property
     def probability(self): return self.PROBABILITY[self.level-1]

@@ -10,10 +10,6 @@ class FormulasTest(testcase.TestCase):
 
     LVLS = [1, 2, 3, 4, 5, 7, 11, 17, 19, 25, 30, 40, 60, 71, 82, 99, 101]
 
-    def test_sell_artifact_price(self):
-
-        self.assertTrue(f.sell_artifact_price(1))
-
     def test_turns_to_game_time(self):
 
         self.assertEqual(f.turns_to_game_time(0), (0, 1, 1, 0, 0, 0))
@@ -58,7 +54,21 @@ class FormulasTest(testcase.TestCase):
 
 
     def test_gold_in_path(self):
-        self.assertEqual(f.gold_in_path(10, 100), 414)
+        self.assertEqual(f.gold_in_path(10, 100), 555)
+
+    def test_normal_loot_cost_at_lvl(self):
+        self.assertEqual(f.normal_loot_cost_at_lvl(1), 1)
+        self.assertEqual(f.normal_loot_cost_at_lvl(10), 9)
+        self.assertEqual(f.normal_loot_cost_at_lvl(25), 13)
+        self.assertEqual(f.normal_loot_cost_at_lvl(50), 15)
+        self.assertEqual(f.normal_loot_cost_at_lvl(100), 18)
+
+    def test_sell_artifact_price(self):
+        self.assertEqual(f.sell_artifact_price(1), 31)
+        self.assertEqual(f.sell_artifact_price(10), 184)
+        self.assertEqual(f.sell_artifact_price(25), 276)
+        self.assertEqual(f.sell_artifact_price(50), 338)
+        self.assertEqual(f.sell_artifact_price(100), 430)
 
 
 # if one of this tests broken, we MUST review appropriate achievements' barriers
@@ -75,9 +85,9 @@ class AchievementsBarriers(testcase.TestCase):
         self.check_money(0.03, 1000)
         self.check_money(0.3, 10000)
         self.check_money(1.0, 50000)
-        self.check_money(8.4, 500000)
-        self.check_money(15.5, 1000000)
-        self.check_money(33.8, 2500000)
+        self.check_money(6.8, 500000)
+        self.check_money(12.8, 1000000)
+        self.check_money(27.4, 2500000)
 
 
     def mobs_after_months(self, months):
@@ -100,19 +110,19 @@ class AchievementsBarriers(testcase.TestCase):
 
     def artifacts_after_months(self, months):
         MAGIC = 1.5 # magic cooficient, to spend money events and abilities
-        return int((c.ARTIFACTS_LOOT_PER_DAY * months*30-1) * MAGIC)
+        return int(((c.ARTIFACTS_LOOT_PER_DAY+c.EXPECTED_QUESTS_IN_DAY*c.ARTIFACT_FOR_QUEST_PROBABILITY) * months*30-1) * MAGIC)
 
     def check_artifacts(self, months, artifacts):
-        # print self.artifacts_after_months(months), artifacts, self.artifacts_after_months(months+0.25)
+        # print months, self.artifacts_after_months(months), artifacts, self.artifacts_after_months(months+0.25)
         self.assertTrue(self.artifacts_after_months(months) <= artifacts <= self.artifacts_after_months(months+0.25))
 
     def test_artifacts(self):
         self.check_artifacts(0, 1)
-        self.check_artifacts(1, 50)
-        self.check_artifacts(2.2, 100)
-        self.check_artifacts(5.5, 250)
-        self.check_artifacts(11, 500)
-        self.check_artifacts(16.5, 750)
+        self.check_artifacts(0.48, 50)
+        self.check_artifacts(0.9, 100)
+        self.check_artifacts(2.3, 250)
+        self.check_artifacts(4.6, 500)
+        self.check_artifacts(6.9, 750)
 
     def test_habits(self):
         self.assertEqual(c.HABITS_RIGHT_BORDERS, [-700, -300, -100, 100, 300, 700, 1001])

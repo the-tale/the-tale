@@ -7,6 +7,7 @@ from the_tale.game import relations as game_relations
 from the_tale.game.balance import constants as c
 
 from the_tale.game.heroes import relations as heroes_relations
+from the_tale.game.heroes.habilities import nonbattle as nonbatle_abilities
 from the_tale.game.heroes.habilities import battle as battle_abilities
 
 from the_tale.game.companions.abilities import relations
@@ -123,7 +124,7 @@ class ChangeHabits(Base):
         return value
 
 
-class QuestMoneyReward(Multiplier):
+class QuestMoneyReward(Summand):
     TYPE = relations.EFFECT.QUEST_MONEY_REWARD
     MODIFIER = heroes_relations.MODIFIERS.QUEST_MONEY_REWARD
 
@@ -305,26 +306,26 @@ class CompanionBlockProbability(Multiplier):
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_BLOCK_PROBABILITY
 
 
-class Huckster(Multiplier):
+class Huckster(Summand):
     TYPE = relations.EFFECT.HUCKSTER
 
-    def __init__(self, buy_multiplier_left, buy_multiplier_right, sell_multiplier_left, sell_multiplier_right):
-        super(Multiplier, self).__init__()
-        self.buy_multiplier_left = buy_multiplier_left
-        self.buy_multiplier_right = buy_multiplier_right
-        self.sell_multiplier_left = sell_multiplier_left
-        self.sell_multiplier_right = sell_multiplier_right
+    def __init__(self, buy_bonus_left, buy_bonus_right, sell_bonus_left, sell_bonus_right):
+        super(Huckster, self).__init__(summand_left=None)
+        self.buy_bonus_left = buy_bonus_left
+        self.buy_bonus_right = buy_bonus_right
+        self.sell_bonus_left = sell_bonus_left
+        self.sell_bonus_right = sell_bonus_right
 
     def _modify_attribute(self, abilities_levels, modifier, value):
         if modifier.is_BUY_PRICE:
-            return value * aprox(self.buy_multiplier_left,
-                                 self.buy_multiplier_right,
+            return value + aprox(self.buy_bonus_left,
+                                 self.buy_bonus_right,
                                  abilities_levels.get(self.TYPE.metatype, 0))
 
         if modifier.is_SELL_PRICE:
             # +1 for increase price on low levels
-            return value * aprox(self.sell_multiplier_left,
-                                 self.sell_multiplier_right,
+            return value + aprox(self.sell_bonus_left,
+                                 self.sell_bonus_right,
                                  abilities_levels.get(self.TYPE.metatype, 0)) + 1
 
         return value
@@ -361,6 +362,36 @@ RARITY_BIGEST = 2.0
 
 RARITY_LEGENDARY = 666.0
 
+# abilities constructors
+def quest_money_reward(name, value, text, description, rarity_delta, border_left, border_right): #
+    QUEST_MONEY_REWARD_BORDERS = [0.5, 1.0, 2.0]
+
+    if border_left < border_right:
+        description = (description + u' (от +%d%% до +%d%%)') % (QUEST_MONEY_REWARD_BORDERS[border_left]*100, QUEST_MONEY_REWARD_BORDERS[border_right]*100)
+        effect = QuestMoneyReward(QUEST_MONEY_REWARD_BORDERS[border_left], QUEST_MONEY_REWARD_BORDERS[border_right])
+    else:
+        description = (description + u' (от -%d%% до -%d%%)') % (QUEST_MONEY_REWARD_BORDERS[border_left]*100, QUEST_MONEY_REWARD_BORDERS[border_right]*100)
+        effect = QuestMoneyReward(-QUEST_MONEY_REWARD_BORDERS[border_left], -QUEST_MONEY_REWARD_BORDERS[border_right])
+
+    return (name,
+            value,
+            text,
+            description,
+            effect,
+            rarity_delta)
+
+def huckster(name, value, text, description, rarity_delta):
+    effect = Huckster(buy_bonus_left=nonbatle_abilities.HUCKSTER.BUY_BONUS[-1] / 2 / 5, buy_bonus_right=nonbatle_abilities.HUCKSTER.BUY_BONUS[-1] / 2,
+                      sell_bonus_left=nonbatle_abilities.HUCKSTER.SELL_BONUS[-1] / 2 / 5, sell_bonus_right=nonbatle_abilities.HUCKSTER.SELL_BONUS[-1] / 2)
+    return (name,
+            value,
+            text,
+            (description + u'(покупка от %.2f%% до %.2f%%; продажа от +%.2f%% до +%.2f%%)') % (effect.buy_bonus_left*100, effect.buy_bonus_right*100, effect.sell_bonus_left*100, effect.sell_bonus_right*100),
+            effect,
+            rarity_delta)
+
+
+
 class ABILITIES(DjangoEnum):
     description = Column()
     effect = Column(single_type=False)
@@ -387,10 +418,10 @@ class ABILITIES(DjangoEnum):
         (u'SNEAKY', 9, u'подлый', u'уменьшает честь героя',
          ChangeHabits(habit_type=game_relations.HABIT_TYPE.HONOR, habit_sources=(heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_DISHONORABLE,)), RARITY_NEUTRAL),
 
-        (u'CHARMING', 10, u'очаровательный', u'очень симпатичен горожанам, герой получает крупный бонус к денежной награде за задания', QuestMoneyReward(1.5, 3.0), RARITY_BIGER),
-        (u'CUTE', 11, u'милый', u'симпатичен горожанам, герой получает небольшой бонус к денежной награде за задания', QuestMoneyReward(1.25, 1.5), RARITY_BIG),
-        (u'FRIGHTFUL', 12, u'страшный', u'пугает горожан, герой получает меньше денег за задание', QuestMoneyReward(0.5, 0.75), RARITY_LOW),
-        (u'TERRIBLE', 13, u'мороз по коже', u'сильно пугает горожан, герой получает значительно меньше денег в награду за задание.', QuestMoneyReward(0.30, 0.60), RARITY_LOWER),
+        quest_money_reward(u'CHARMING', 10, u'очаровательный', u'очень симпатичен горожанам, герой получает крупный бонус к награде за задания', RARITY_BIGER, 1, 2),
+        quest_money_reward(u'CUTE', 11, u'милый', u'симпатичен горожанам, герой получает небольшой бонус к награде за задания', RARITY_BIG, 0, 1),
+        quest_money_reward(u'FRIGHTFUL', 12, u'страшный', u'пугает горожан, герой получает меньшие награды за задания', RARITY_LOW, 1, 0),
+        quest_money_reward(u'TERRIBLE', 13, u'мороз по коже', u'сильно пугает горожан, герой получает значительно меньшие награды за задание', RARITY_LOWER, 2, 1),
 
         (u'PACK', 14, u'вьючный', u'2 дополнительных места в рюкзаке', MaxBagSize(2), RARITY_BIG),
         (u'FREIGHT', 15, u'грузовой', u'4 дополнительных места в рюкзаке', MaxBagSize(4), RARITY_BIGER),
@@ -469,8 +500,8 @@ class ABILITIES(DjangoEnum):
         (u'COWARDLY', 62, u'трусливый', u'реже защищает героя в бою', CompanionBlockProbability(0.5, 0.75), RARITY_NEUTRAL),
         (u'BODYGUARD', 63, u'телохранитель', u'чаще защищает героя в бою', CompanionBlockProbability(1.1, 1.25), RARITY_NEUTRAL),
 
-        (u'HUCKSTER', 64, u'торгаш', u'помогает герою торговаться, увеличивая цены продажи и уменьшая цены покупки',
-         Huckster(buy_multiplier_left=0.85, buy_multiplier_right=0.7, sell_multiplier_left=1.15, sell_multiplier_right=1.3), RARITY_BIG),
+        # TODO: increase rarity?
+        huckster(u'HUCKSTER', 64, u'торгаш', u'помогает герою торговаться, увеличивая цены продажи и уменьшая цены покупки', RARITY_BIG),
 
         (u'CONTACT', 65, u'связной', u'служит маяком для Хранителя и увеличивает шанс критической помощи', EtherealMagnet(0.05, 0.1), RARITY_BIGEST),
 

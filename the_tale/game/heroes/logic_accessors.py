@@ -79,22 +79,6 @@ class LogicAccessorsMixin(object):
     # modifiers
     ################################
 
-    def modify_sell_price(self, price):
-        price *= self.attribute_modifier(relations.MODIFIERS.SELL_PRICE)
-
-        if self.position.place and self.position.place.modifier:
-            price = self.position.place.modifier.modify_sell_price(price)
-
-        return int(round(price))
-
-    def modify_buy_price(self, price):
-        price *= self.attribute_modifier(relations.MODIFIERS.BUY_PRICE)
-
-        if self.position.place and self.position.place.modifier:
-            price = self.position.place.modifier.modify_buy_price(price)
-
-        return int(round(price))
-
     def modify_quest_priority(self, quest):
 
         priority = quest.priority
@@ -197,6 +181,23 @@ class LogicAccessorsMixin(object):
     ################################
     # attributes
     ################################
+
+    def sell_price(self):
+        price = 1 + self.attribute_modifier(relations.MODIFIERS.SELL_PRICE)
+
+        if self.position.place and self.position.place.modifier:
+            price += self.position.place.modifier.sell_price()
+
+        return price
+
+    def buy_price(self):
+        price = 1 + self.attribute_modifier(relations.MODIFIERS.BUY_PRICE)
+
+        if self.position.place and self.position.place.modifier:
+            price += self.position.place.modifier.buy_price()
+
+        return price
+
 
     def buy_artifact_power_bonus(self):
         if self.position.place and self.position.place.modifier:
@@ -326,10 +327,6 @@ class LogicAccessorsMixin(object):
     def experience_to_next_level(self):
         return f.exp_on_lvl(self.level)
 
-    @property
-    def reward_modifier(self):
-        return self.preferences.risk_level.reward_modifier
-
     def spending_priorities(self):
         priorities = self.attribute_modifier(relations.MODIFIERS.ITEMS_OF_EXPENDITURE_PRIORITIES)
 
@@ -342,7 +339,7 @@ class LogicAccessorsMixin(object):
         return set(marker for marker, probability in markers.iteritems() if random.uniform(0, 1) < probability)
 
     def quest_money_reward_multiplier(self):
-        return self.attribute_modifier(relations.MODIFIERS.QUEST_MONEY_REWARD)
+        return 1 + self.attribute_modifier(relations.MODIFIERS.QUEST_MONEY_REWARD) + self.preferences.risk_level.reward_modifier
 
     def quest_markers_rewards_bonus(self):
         return self.attribute_modifier(relations.MODIFIERS.QUEST_MARKERS_REWARD_BONUS)

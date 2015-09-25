@@ -96,8 +96,8 @@ class PlaceModifierBase(object):
     def __ne__(self, other): return not self.__eq__(other)
 
 
-    def modify_sell_price(self, price): return price
-    def modify_buy_price(self, price): return price
+    def sell_price(self): return 0
+    def buy_price(self): return 0
     def modify_economic_size(self, size): return size
     def modify_terrain_change_power(self, power): return power
     def modify_terrain_owning_radius(self, radius): return radius
@@ -116,8 +116,8 @@ class TradeCenter(PlaceModifierBase):
     PRODUCTION_MODIFIER = c.PLACE_GOODS_BONUS / 2
     FREEDOM_MODIFIER = 0.1
 
-    def modify_sell_price(self, price): return price * 1.1
-    def modify_buy_price(self, price): return price * 0.9
+    def sell_price(self): return 0.25
+    def buy_price(self): return -0.25
 
 
 class CraftCenter(PlaceModifierBase):
