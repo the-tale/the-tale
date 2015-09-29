@@ -146,13 +146,13 @@ class TokensResource(Resource):
     @handler('api', 'authorisation-state', name='authorisation-state', method='get')
     def api_authorisation_state(self, api_version):
         u'''
-Метод возвращает состояние авторизации для текущие сессии. Обычно вызывается после запроса авторизации.
+Метод возвращает состояние авторизации для текущей сессии. Обычно вызывается после запроса авторизации.
 
 - **адрес:** /accounts/third-party/tokens/api/authorisation-state
 - **http-метод:** GET
 - **версии:** 1.0
-- **параметры:**: нет
-- **возможные ошибки**: нет
+- **параметры:** нет
+- **возможные ошибки:** нет
 
 формат данных в ответе:
 

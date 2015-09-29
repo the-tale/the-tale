@@ -125,7 +125,7 @@ def api_show(context):
       "persons": <persons_info>,                   // советники
       "keepers": <keepers_info>,                   // игроки, связанные с городом
       "parameters": <parameters_info>,             // параметры города
-      "demographics": <demographics_info>,         // рассовый состав
+      "demographics": <demographics_info>,         // расовый состав
       "bills": <bills_info>,                       // действующие законы
       "specializations": <specializations_info>,   // специализации
       "habits": <habits_info>,                     // черты города
