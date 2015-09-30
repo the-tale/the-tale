@@ -40,34 +40,30 @@ AMQP_BROKER_VHOST = '/the-tale'
 
 SITE_URL = 'localhost:8000'
 
-GA_CODE = None
-ADDTHIS = None
-MAIL_RU = None
-
 NEWRELIC_ENABLED = False
 CDNS_ENABLED = False
-CDN_DOMAIN = 'установить, если используется CDN'
+CDN_DOMAIN = None # установить, если используется CDN
 
 # см. ALLOWED_HOSTS в конфигурации Django, необходимо переопределить со своими доменами и/или ip адресами
 ALLOWED_HOSTS = ['the-tale.org',
                  '.the-tale.org']
 
-OWNER = u'строка с ревизитами владельца сайта для пользовательского соглашения и футера сайта'
+OWNER = u'' # строка с ревизитами владельца сайта для пользовательского соглашения и футера сайта
 
-PAGE_TITLE = u'базовоый заголовок для страниц'
+PAGE_TITLE = u'' # базовоый заголовок для страниц
 
-SECRET_KEY = 'ваш секретный ключ для некоторых частей фунциональности Django'
+SECRET_KEY = u'!@#1231' # ваш УНИКАЛЬНЫЙ секретный ключ для некоторых частей фунциональности Django
 
-GA_CODE = 'идентификатор в google analytics'
-ADDTHIS = 'идентификатор в addthis'
-MAIL_RU = 'номер счётчика mail.ru'
+GA_CODE = None # идентификатор в google analytics
+ADDTHIS = None # идентификатор в addthis
+MAIL_RU = None # номер счётчика mail.ru
 
-SERVER_EMAIL = u'почта сервера'
+SERVER_EMAIL = u'' # почта сервера
 ADMINS = () # перечень администраторов сайта (см. описание в конфигах Django)
 
-EMAIL_NOREPLY = u'почта, которая будет писаться в письмах, на которые игроки не должны отвечать'
-EMAIL_SUPPORT = u'почта службы подержки'
-EMAIL_SUPPORT_SHORT = u'короткий адрес службы поддержки (только сама почта, без вставки имени и прочего)'
+EMAIL_NOREPLY = u'' # почта, которая будет писаться в письмах, на которые игроки не должны отвечать
+EMAIL_SUPPORT = u'' # почта службы подержки
+EMAIL_SUPPORT_SHORT = u'' # короткий адрес службы поддержки (только сама почта, без вставки имени и прочего)
 
 
 if TESTS_RUNNING:
