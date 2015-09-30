@@ -6,6 +6,8 @@ import jinja2
 
 from dext.common.utils.meta_config import MetaConfig
 
+# NotImplemented settings MUST be defined in settings_local
+
 TESTS_RUNNING = 'test' in sys.argv or 'testserver' in sys.argv
 
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -38,36 +40,32 @@ CSRF_FAILURE_VIEW = 'the_tale.urls.handlerCSRF'
 SESSION_COOKIE_HTTPONLY = True
 
 SITE_ID = 1
-SITE_URL = None # MUST be defined in settings_local
+SITE_URL = NotImplemented
+CDN_DOMAIN = None
 
-SOCIAL_VK_GROUP_URL = 'http://vk.com/zpgtale'
-SOCIAL_TWITTER_GROUP_URL = 'https://twitter.com/zpg_tale'
-SOCIAL_FACEBOOK_GROUP_URL = 'https://www.facebook.com/groups/zpgtale/'
+SOCIAL_VK_GROUP_URL = None
+SOCIAL_TWITTER_GROUP_URL = None
+SOCIAL_FACEBOOK_GROUP_URL = None
 
-SOCIAL_WIKI_URL = u'http://ru.the-tale.wikia.com/wiki/Сказка_вики'
-SOCIAL_ANDROID_URL = u'https://play.google.com/store/apps/details?id=com.lonebytesoft.thetaleclient'
-SOCIAL_CHROME_URL = u'https://chrome.google.com/webstore/detail/the-tale-extended/hafakbhcckdligdjpghlofaplaajpaje'
-SOCIAL_DARK_THEME_URL = u'http://the-tale.org/forum/threads/1407'
+SOCIAL_WIKI_URL = None
+SOCIAL_ANDROID_URL = None
+SOCIAL_CHROME_URL = None
+SOCIAL_DARK_THEME_URL = None
 
-YOUTUBE_TUTORIAL = 'https://www.youtube.com/watch?v=P6oSC3zhcUQ'
+YOUTUBE_TUTORIAL = None
 
 X_FRAME_OPTIONS = 'DENY'
 
-ALLOWED_HOSTS = ['the-tale.org',
-                 '.the-tale.org',
-                 'the-tale.com',
-                 '.the-tale.com']
+ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = 'accounts.Account'
 
-OWNER = u'ИП Елецкий А.Н. УНП 291200954, юридический адрес: Беларусь Брестская обл. г. Барановичи ул. Кутузова д.4'
-OWNER_SHORT = u'Елецкий Алексей (Tiendil)'
-OWNER_COUNTRY = u'Республика Беларусь'
+OWNER = u''
 
 NEWRELIC_ENABLED = True
 NEWRELIC_CONF_PATH = '/home/the-tale/conf/newrelic.ini'
 
-PAGE_TITLE = u'Сказка'
+PAGE_TITLE = NotImplemented
 
 API_CLIENT = 'the_tale-%s' % META_CONFIG.version
 
@@ -78,12 +76,11 @@ API_CLIENT = 'the_tale-%s' % META_CONFIG.version
 USE_I18N = True
 USE_L10N = True
 
+SECRET_KEY = NotImplemented
 
-SECRET_KEY = 'i@oi33(3f0vlezy$aj3_3q%q=#fb1ehovw0k&==w3ycs+#5f)y'
-
-GA_CODE = 'UA-10915391-4'
-ADDTHIS = 'ra-505d67570062215a'
-MAIL_RU = '2422333'
+GA_CODE = None
+ADDTHIS = None
+MAIL_RU = None
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
@@ -95,12 +92,12 @@ SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 # Mail settings
 ################################
 
-SERVER_EMAIL = u'«Сказка»: системное сообщение <no-reply@the-tale.org>'
-ADMINS = (('Tiendil', 'admin@the-tale.org'), )
+SERVER_EMAIL = NotImplemented
+ADMINS = ()
 
-EMAIL_NOREPLY = u'«Сказка» <no-reply@the-tale.org>'
-EMAIL_SUPPORT = u'«Сказка» <support@the-tale.org>'
-EMAIL_SUPPORT_SHORT = u'support@the-tale.org'
+EMAIL_NOREPLY = NotImplemented
+EMAIL_SUPPORT = NotImplemented
+EMAIL_SUPPORT_SHORT = NotImplemented
 
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 
@@ -234,12 +231,6 @@ INSTALLED_APPS = [
 
     'the_tale.statistics']
 
-if TESTS_RUNNING:
-    INSTALLED_APPS.append('test_without_migrations')
-
-    TEST_RUNNER = 'django_slowtests.DiscoverSlowestTestsRunner'
-    NUM_SLOW_TESTS = 10
-
 ###############################
 # AMQP
 ###############################
@@ -250,10 +241,14 @@ AMQP_BROKER_PASSWORD = 'the-tale'
 AMQP_BROKER_VHOST = '/the-tale'
 
 ##############################
-# code coverage tests
+# tests
 ##############################
 
-TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+if TESTS_RUNNING:
+    INSTALLED_APPS.append('test_without_migrations')
+
+    TEST_RUNNER = 'django_slowtests.DiscoverSlowestTestsRunner'
+    NUM_SLOW_TESTS = 10
 
 ################
 # CACHING
@@ -299,7 +294,7 @@ STATIC_URL = '//%s/static/%s/' % (SITE_URL, META_CONFIG.static_data_version)
 
 if 'STATIC_DIR' not in globals():
     STATIC_DIR = os.path.join(PROJECT_DIR, 'static')
-STATIC_CDN = '//static.the-tale.org/static/%s/' % META_CONFIG.static_data_version
+STATIC_CDN = '//%s/static/%s/' % (CDN_DOMAIN, META_CONFIG.static_data_version)
 STATIC_DEBUG_URL = '/static/%s/' % META_CONFIG.static_data_version
 
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
@@ -308,7 +303,7 @@ ADMIN_DEBUG_MEDIA_PREFIX = STATIC_DEBUG_URL + 'admin/'
 DCONT_URL = '//%s/dcont/' % SITE_URL
 if 'DCONT_DIR' not in globals():
     DCONT_DIR = os.path.join(PROJECT_DIR, 'dcont')
-DCONT_CDN = '//static.the-tale.org%s' % DCONT_URL
+DCONT_CDN = '//%s%s' % (CDN_DOMAIN, DCONT_URL)
 DCONT_DEBUG_URL = '/dcont/'
 
 LESS_FILES_DIR = os.path.join(PROJECT_DIR, 'less')
