@@ -1124,8 +1124,8 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
     var MESSAGES_MAX_LENGTH = 100;
 
-    var SHOW_ARTISTIC_TEXT = (pgf.base.settings.get("log_artistic_text", true) == 'true');
-    var SHOW_TECHNICAL_TEXT = (pgf.base.settings.get("log_technical_text", true) == 'true');
+    var SHOW_ARTISTIC_TEXT = (pgf.base.settings.get("log_artistic_text", 'true') == 'true');
+    var SHOW_TECHNICAL_TEXT = (pgf.base.settings.get("log_technical_text", 'true') == 'true');
 
     function SetTextMode(artistic, technical) {
         SHOW_ARTISTIC_TEXT = artistic;

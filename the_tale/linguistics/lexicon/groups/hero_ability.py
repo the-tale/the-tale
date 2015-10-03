@@ -77,7 +77,7 @@ KEYS = [(u'HERO_ABILITY_FIREBALL', 280000, u'Журнал: Пиромания', 
 
         (u'HERO_ABILITY_INSANE_STRIKE', 280018, u'Журнал: безрассудная атака', LEXICON_GROUP.HERO_ABILITY,
         u'Герой проводит беззрассудную атаку, наносит противнику большой урон, но и сам получает ранения',
-        [V.ACTOR, V.COMPANION, V.DAMAGE, V.ATTACKER_DAMAGE], u'attacker#N -attacker_damage#HP defender#N -damage#HP'),
+        [V.ATTACKER, V.DEFENDER, V.DAMAGE, V.ATTACKER_DAMAGE], u'attacker#N -attacker_damage#HP defender#N -damage#HP'),
 
         (u'HERO_ABILITY_INSANE_STRIKE_MISS', 280019, u'Журнал: Безрассудная атака (промах)', LEXICON_GROUP.HERO_ABILITY,
         u'Атакующий промахнулся при использовании способности «Безрассудная атака»',
