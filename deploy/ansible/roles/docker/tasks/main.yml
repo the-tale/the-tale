@@ -1,0 +1,42 @@
+---
+- name: apt packages installed
+  apt:
+    pkg: "{{ item }}"
+    state: present
+  with_items:
+    - apt-transport-https
+    - ca-certificates
+
+- name: apt key added
+  apt_key:
+    id: 58118E89F3A912897C070ADBF76221572C52609D
+    keyserver: hkp://p80.pool.sks-keyservers.net:80
+
+- name: repository added
+  apt_repository:
+    repo: deb https://apt.dockerproject.org/repo {{ ansible_distribution | lower }}-{{ ansible_distribution_release }} main
+    update_cache: yes
+
+- name: installed
+  apt:
+    name: docker-engine
+    state: present
+
+- name: service configured
+  service:
+    name: docker
+    enabled: yes
+    state: started
+
+- name: user configured
+  user:
+    name: "{{ ansible_user_id }}"
+    groups: docker
+    append: yes
+
+- name: pip packages installed
+  pip:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - docker-py

@@ -1,0 +1,12 @@
+---
+- name: commands executed
+  django_manage:
+    command: "{{ item }}"
+    app_path: "{{ repo_dir }}"
+    virtualenv: "{{ venv_dir }}"
+    pythonpath: "{{ repo_dir }}"
+  with_items:
+     - migrate
+     - game_create_world
+     - accounts_create_superuser
+     - portal_postupdate_operations

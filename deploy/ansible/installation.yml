@@ -1,0 +1,13 @@
+---
+- hosts: databases
+  roles:
+     - { role: docker-container, container: "{{ postgres }}", tags: [env, postgres] }
+     - { role: django-manage, tags: [env, manage] }
+
+- hosts: brokers
+  roles:
+     - { role: docker-container, container: "{{ rabbitmq }}", tags: [env, rmq] }
+
+- hosts: apps
+  roles:
+     - { role: docker-container, container: "{{ the_tale }}", tags: app }
