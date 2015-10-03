@@ -82,6 +82,14 @@ body .nav-tabs > li > a:hover,
 body .nav-pills > li > a:hover {
   background-color: #e1e6e6;
 }
+body .nav-tabs > li > a.transparent,
+body .nav-pills > li > a.transparent {
+  border: none;
+}
+body .nav-tabs > li > a.transparent:hover,
+body .nav-pills > li > a.transparent:hover {
+  background-color: #f5fafa !important;
+}
 body .nav-tabs > .active > a {
   background-color: #f5fafa;
 }
