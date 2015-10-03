@@ -3,12 +3,14 @@
 import copy
 
 from django import forms as django_forms
+from django.core.exceptions import ValidationError
 from django.utils.safestring import mark_safe
 
 import jinja2
 
 from dext.forms import forms, fields
 from dext.common.utils import jinja2 as dext_jinja2
+from dext.common.utils import s11n
 
 from utg import relations as utg_relations
 from utg import words as utg_words
@@ -126,8 +128,6 @@ class WordField(django_forms.MultiValueField):
 
 
     def clean(self, value):
-        from django.core.exceptions import ValidationError
-
         clean_data = []
         errors_count = 0
         if not value or isinstance(value, (list, tuple)):
@@ -317,3 +317,25 @@ for group in groups_relations.LEXICON_GROUP.records:
 
 class TemplateKeyForm(forms.Form):
     key = django_forms.TypedChoiceField(label=u'Тип фразы', choices=KEY_CHOICES, coerce=lexicon_keys.LEXICON_KEY.get_from_name)
+
+
+class LoadDictionaryForm(forms.Form):
+    words = fields.TextField(label=u'Данные словаря')
+
+    def clean_words(self):
+        data = self.cleaned_data.get('words')
+
+        if data is None:
+            raise ValidationError(u'Нет данных', code='not_json')
+
+        try:
+            words_data = s11n.from_json(data)
+        except ValueError:
+            raise ValidationError(u'Данные должны быть в формате JSON', code='not_json')
+
+        try:
+            words = [utg_words.Word.deserialize(word_data) for word_data in words_data.get('words')]
+        except:
+            raise ValidationError(u'Неверный формат описания слов', code='wrong_words_format')
+
+        return words

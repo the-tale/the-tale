@@ -4,6 +4,7 @@ import random
 import mock
 
 from dext.common.utils.urls import url
+from dext.common.utils import s11n
 
 from utg import relations as utg_relations
 from utg import words as utg_words
@@ -21,6 +22,7 @@ from the_tale.game.logic import create_test_map
 from .. import prototypes
 from .. import relations
 from .. import logic
+from .. import storage
 from ..conf import linguistics_settings
 from ..forms import WORD_FIELD_PREFIX
 
@@ -35,11 +37,9 @@ class BaseRequestsTests(TestCase):
 
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')
-        self.account_1 = AccountPrototype.get_by_id(account_id)
+        self.account_1 = self.accounts_factory.create_account()
 
-        result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
-        self.moderator = AccountPrototype.get_by_id(account_id)
+        self.moderator = self.accounts_factory.create_account()
 
         group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_word'])
         group.user_set.add(self.moderator._model)
@@ -843,3 +843,146 @@ class InGameRequestsTests(BaseRequestsTests):
 
         self.assertEqual(prototypes.WordPrototype.get_by_id(self.word.id), None)
         self.assertTrue(word_2.state.is_IN_GAME)
+
+
+class DictionaryOperationsTests(BaseRequestsTests):
+
+    def test_normal_user(self):
+        self.request_login(self.account_1.email)
+        self.check_html_ok(self.request_html(url('linguistics:words:dictionary-operations')), texts=[('pgf-dictionary-load-form', 0)])
+
+    def test_moderator(self):
+        self.request_login(self.moderator.email)
+        self.check_html_ok(self.request_html(url('linguistics:words:dictionary-operations')), texts=[('pgf-dictionary-load-form', 0)])
+
+    def test_superuser(self):
+        superuser = self.accounts_factory.create_account(is_superuser=True)
+        self.request_login(superuser.email)
+        self.check_html_ok(self.request_html(url('linguistics:words:dictionary-operations')), texts=['pgf-dictionary-load-form'])
+
+
+class DictionaryDownloadTests(BaseRequestsTests):
+
+    def test_download(self):
+        word_type = relations.ALLOWED_WORD_TYPE.random().utg_type
+
+        parent_word = utg_words.Word.create_test_word(word_type, prefix=u'parent-')
+        child_word = utg_words.Word.create_test_word(word_type, prefix=u'child-')
+        ingame_word = utg_words.Word.create_test_word(word_type, prefix=u'ingame-')
+        outgame_word = utg_words.Word.create_test_word(word_type, prefix=u'outgame-')
+
+        parent = prototypes.WordPrototype.create(parent_word)
+        parent.state = relations.WORD_STATE.IN_GAME
+        parent.save()
+
+        prototypes.WordPrototype.create(child_word, parent=parent) # child
+
+        ingame = prototypes.WordPrototype.create(ingame_word)
+        ingame.state = relations.WORD_STATE.IN_GAME
+        ingame.save()
+
+        prototypes.WordPrototype.create(outgame_word) # outgame
+
+        response = self.client.get(url('linguistics:words:dictionary-download'))
+
+        data = s11n.from_json(response.content)
+
+        self.assertEqual(len(data['words']), 2)
+        self.assertIn(parent.utg_word.serialize(), data['words'])
+        self.assertIn(ingame.utg_word.serialize(), data['words'])
+
+
+class DictionaryLoadTests(BaseRequestsTests):
+
+    def setUp(self):
+        super(DictionaryLoadTests, self).setUp()
+
+        word_type = relations.ALLOWED_WORD_TYPE.random().utg_type
+
+        self.parent_word = utg_words.Word.create_test_word(word_type, prefix=u'parent-')
+        self.child_word = utg_words.Word.create_test_word(word_type, prefix=u'child-')
+        self.ingame_word = utg_words.Word.create_test_word(word_type, prefix=u'ingame-')
+        self.outgame_word = utg_words.Word.create_test_word(word_type, prefix=u'outgame-')
+        self.not_removed_word = utg_words.Word.create_test_word(word_type, prefix=u'not_removed-')
+
+        self.parent = prototypes.WordPrototype.create(self.parent_word)
+        self.parent.state = relations.WORD_STATE.IN_GAME
+        self.parent.save()
+
+        self.child = prototypes.WordPrototype.create(self.child_word, parent=self.parent)
+
+        self.ingame = prototypes.WordPrototype.create(self.ingame_word)
+        self.ingame.state = relations.WORD_STATE.IN_GAME
+        self.ingame.save()
+
+        self.outgame = prototypes.WordPrototype.create(self.outgame_word)
+
+        self.not_removed = prototypes.WordPrototype.create(self.not_removed_word)
+
+        self.requested_url = url('linguistics:words:dictionary-load')
+
+        self.superuser = self.accounts_factory.create_account(is_superuser=True)
+
+    def test_login_required(self):
+        self.check_ajax_error(self.client.post(self.requested_url, {}), 'common.login_required')
+
+    def test_superuser_required(self):
+        self.request_login(self.moderator.email)
+        self.check_ajax_error(self.client.post(self.requested_url, {}), 'common.superuser_required')
+
+    def test_form_errors(self):
+        self.request_login(self.superuser.email)
+        self.check_ajax_error(self.client.post(self.requested_url, {}), 'linguistics.words.load_dictionary.form_errors')
+
+    def test_load(self):
+        self.request_login(self.superuser.email)
+
+        self.parent_word.forms[1] = '1'
+        self.ingame_word.forms[1] = '2'
+        self.outgame_word.forms[1] = '3'
+
+        data = {'words': [self.parent_word.serialize(),
+                          self.ingame_word.serialize(),
+                          self.outgame_word.serialize()]}
+
+        with self.check_changed(lambda: storage.game_dictionary.version):
+            self.check_ajax_ok(self.client.post(self.requested_url, {'words': s11n.to_json(data)}))
+
+        self.assertFalse(prototypes.WordPrototype._db_filter(id__in=[self.parent.id, self.child.id, self.ingame.id, self.outgame.id]).exists())
+        self.assertTrue(prototypes.WordPrototype._db_filter(id=self.not_removed.id).exists())
+
+        self.assertTrue(storage.game_dictionary.item.has_word('1'))
+        self.assertTrue(storage.game_dictionary.item.has_word('2'))
+        self.assertTrue(storage.game_dictionary.item.has_word('3'))
+
+
+    def test_load__removed_only_by_normal_form(self):
+        self.request_login(self.superuser.email)
+
+        self.parent_word.forms[0] = '1'
+        self.ingame_word.forms[0] = '2'
+        self.outgame_word.forms[0] = '3'
+
+        data = {'words': [self.parent_word.serialize(),
+                          self.ingame_word.serialize(),
+                          self.outgame_word.serialize()]}
+
+        with self.check_changed(lambda: storage.game_dictionary.version):
+            self.check_ajax_ok(self.client.post(self.requested_url, {'words': s11n.to_json(data)}))
+
+        self.assertEqual(prototypes.WordPrototype._db_count(), 8)
+
+        self.assertTrue(storage.game_dictionary.item.has_word('1'))
+        self.assertTrue(storage.game_dictionary.item.has_word('2'))
+        self.assertTrue(storage.game_dictionary.item.has_word('3'))
+
+
+    def test_load__removed_by_child(self):
+        self.request_login(self.superuser.email)
+
+        data = {'words': [self.child_word.serialize()]}
+
+        with self.check_changed(lambda: storage.game_dictionary.version):
+            self.check_ajax_ok(self.client.post(self.requested_url, {'words': s11n.to_json(data)}))
+
+        self.assertFalse(prototypes.WordPrototype._db_filter(id__in=[self.parent.id, self.child.id]).exists())

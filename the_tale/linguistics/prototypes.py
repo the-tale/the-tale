@@ -47,9 +47,9 @@ class WordPrototype(BasePrototype):
 
 
     @classmethod
-    def create(cls, utg_word, parent=None, author=None):
+    def create(cls, utg_word, parent=None, author=None, state=relations.WORD_STATE.ON_REVIEW):
         model = cls._db_create(type=utg_word.type,
-                               state=relations.WORD_STATE.ON_REVIEW,
+                               state=state,
                                normal_form=utg_word.normal_form(),
                                forms=s11n.to_json(utg_word.serialize()),
                                parent=parent._model if parent is not None else None,

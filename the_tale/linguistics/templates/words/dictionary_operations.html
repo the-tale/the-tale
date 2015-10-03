@@ -1,0 +1,55 @@
+{% extends "linguistics/words/base.html" %}
+
+{% block description %}Специфические для разработчиков операции со словарём.{% endblock %}
+
+{% block head %}
+{{ super() }}
+{% if resource.account.is_superuser %}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    var newForm = new pgf.forms.Form(jQuery('#pgf-dictionary-load-form'),
+                                               {OnSuccess: function(instance, data){location.href = '{{url('linguistics:words:')}}';}});
+
+});
+{% endif %}
+
+</script>
+
+{% endblock %}
+
+{% block words_content %}
+
+<p>
+  Эта страница предназначена для разработчиков и содержит некоторые операции, упрощающие работу с лингвистикой.
+</p>
+
+<p>
+  <a href="{{url('linguistics:words:dictionary-download')}}" target="_blank">Скачать</a> актуальную версию словаря (все одобренные слова).
+</p>
+
+{% if not resource.account.is_superuser %}
+<p>Чтобы загрузить скачанный ранее словарь, Вам необходимо зайти на эту страницу под суперпользователем.</p>
+{% else %}
+
+<p class="alert alert-danger">
+  ВНИМАНИЕ!!! Загружаемые данные перетрут информацию из всех совпадающих с загружаемыми слов (включая информацию об их авторах и правках).
+</p>
+
+<form id="pgf-dictionary-load-form"
+      method="post"
+      action="{{ url('linguistics:words:dictionary-load') }}">
+
+  {{ form.errors_container }}
+
+  {{ form.words.widget }}
+
+  <div class="widget">
+    <input type="submit" class="btn" value="Обновить"/>
+  </div>
+
+</form>
+
+{% endif %}
+
+{% endblock %}

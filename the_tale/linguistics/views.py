@@ -17,7 +17,7 @@ from the_tale.accounts.views import validate_fast_account, validate_ban_forum
 
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.pagination import Paginator
-from the_tale.common.utils.decorators import login_required
+from the_tale.common.utils.decorators import login_required, superuser_required
 
 from the_tale.linguistics import relations
 from the_tale.linguistics.conf import linguistics_settings
@@ -341,7 +341,6 @@ class WordResource(Resource):
 
         return self.json_ok()
 
-
     @login_required
     @handler('#word', 'remove', method='post')
     def remove(self):
@@ -358,6 +357,44 @@ class WordResource(Resource):
 
         return self.json_ok()
 
+    @handler('dictionary-operations', method='get')
+    def dictionary_operations(self):
+        return self.template('linguistics/words/dictionary_operations.html',
+                             {'page_type': 'dictionary',
+                              'form': forms.LoadDictionaryForm()} )
+
+    @handler('dictionary-download', method='get')
+    def dictionary_download(self):
+
+        data = []
+
+        for word in storage.game_dictionary.item.get_words():
+            data.append(word.serialize())
+
+        return self.json(words=data)
+
+    @login_required
+    @superuser_required()
+    @handler('dictionary-load', method='post')
+    def dictionary_load(self):
+
+        form = forms.LoadDictionaryForm(self.request.POST)
+
+        if not form.is_valid():
+            return self.json_error('linguistics.words.load_dictionary.form_errors', form.errors)
+
+        with transaction.atomic():
+            for word in form.c.words:
+                prototypes.WordPrototype._db_filter(parent__normal_form=word.normal_form(), type=word.type).delete()
+                parents_ids = prototypes.WordPrototype._db_filter(normal_form=word.normal_form(), type=word.type).values_list('parent_id', flat=True)
+                prototypes.WordPrototype._db_filter(id__in=parents_ids).delete()
+                prototypes.WordPrototype._db_filter(normal_form=word.normal_form(), type=word.type).delete()
+                prototypes.WordPrototype.create(word, parent=None, author=self.account, state=relations.WORD_STATE.IN_GAME)
+
+        storage.game_dictionary.refresh()
+        storage.game_dictionary.update_version()
+
+        return self.json_ok()
 
 
 class TemplateResource(Resource):
