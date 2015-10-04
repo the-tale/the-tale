@@ -335,8 +335,8 @@ def ban(context):
 @accounts_resource('#account', 'reset-bans', method='post')
 def reset_bans(context):
 
-    context.master_account.ban_forum(0)
-    context.master_account.ban_game(0)
+    context.master_account.reset_ban_forum()
+    context.master_account.reset_ban_game()
 
     MessagePrototype.create(logic.get_system_user(),
                             context.master_account,

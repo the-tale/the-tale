@@ -7,6 +7,7 @@ from utg import words
 from utg import data as utg_data
 from utg import restrictions as utg_restrictions
 from utg import relations as utg_relations
+from utg import logic as utg_logic
 
 from . import relations
 from . import logic
