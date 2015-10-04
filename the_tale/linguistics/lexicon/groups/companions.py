@@ -29,7 +29,7 @@ KEYS = [(u'COMPANIONS_RECEIVED', 580000, u'Дневник: появился сп
 
         (u'COMPANIONS_SAY_WISDOM', 580006, u'Журнал: спутник говорит мудрость (способность «мудрый»)', LEXICON_GROUP.COMPANIONS,
         u'Спутник изрекает мудрость, герой получает немного опыта',
-        [V.COMPANION_OWNER, V.COMPANION, V.EXPERIENCE], u'hero#N +experience#EXP'),
+        [V.COMPANION_OWNER, V.COMPANION, V.EXPERIENCE], u'companion_owner#N +experience#EXP'),
 
         (u'COMPANIONS_EAT_CORPSE', 580007, u'Журнал: спутник ест труп (способность «пожиратель»)', LEXICON_GROUP.COMPANIONS,
         u'Спутник пожирает труп монстра и восстанавливает здоровье',

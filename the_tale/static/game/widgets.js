@@ -1170,7 +1170,7 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
             shortInfo = ' ' + pgf.game.constants.linguistics_formatters[key];
             var variables = message[4];
             for (variable in variables) {
-                shortInfo = shortInfo.replace('!'+variable+'!', variables[variable]);
+                shortInfo = shortInfo.replace('!'+variable+'!', variables[variable].charAt(0).toUpperCase() + variables[variable].slice(1));
             }
         }
         return shortInfo;

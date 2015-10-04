@@ -29,7 +29,7 @@ class LEXICON_GROUP(DjangoEnum):
 
                ('ACTION_INPLACE', 4, u'Действие: посещение города', 40000,
                u'Описание событий, происходящих при посещении героем города.',
-               {V.HERO: u'герой', V.COINS: u'количество монет', V.ARTIFACT: u'предмет', V.SELL_PRICE: u'цена продажи', V.PERSON: u'житель', V.PLACE: u'город', V.EXPERIENCE: u'количество опыта', V.OLD_ARTIFACT: u'старый артефакт', V.COMPANION: u'спутник', V.HEALTH: u'количество здоровья', V.ENERGY: 'энергия'}),
+               {V.HERO: u'герой', V.COINS: u'количество монет', V.ARTIFACT: u'предмет', V.SELL_PRICE: u'цена продажи', V.PERSON: u'житель', V.PLACE: u'город', V.EXPERIENCE: u'количество опыта', V.OLD_ARTIFACT: u'старый артефакт', V.COMPANION: u'спутник', V.HEALTH: u'количество здоровья', V.ENERGY: u'энергия'}),
 
                ('ACTION_MOVENEARPLACE', 5, u'Действие: путешествие в окрестностях города', 50000,
                u'Описание действий, происходящих при путешествии героя в окрестностях города.',
@@ -129,7 +129,7 @@ class LEXICON_GROUP(DjangoEnum):
 
                ('COMPANIONS', 29, u'Спутники', 290000,
                u'Тексты, относящиеся к спутникам.',
-               {V.COMPANION_OWNER: u'владелец спутника', V.COMPANION: u'спутник', V.ATTACKER: u'атакущий спутника', V.COINS: u'вырученные средства', V.EXPERIENCE: u'опыт', V.HEALTH: u'количество здоровья', V.MOB: u'монстр', V.DESTINATION: u'место назначения', V.DAMAGE: 'урон'}),
+               {V.COMPANION_OWNER: u'владелец спутника', V.COMPANION: u'спутник', V.ATTACKER: u'атакущий спутника', V.COINS: u'вырученные средства', V.EXPERIENCE: u'опыт', V.HEALTH: u'количество здоровья', V.MOB: u'монстр', V.DESTINATION: u'место назначения', V.DAMAGE: u'урон'}),
 
                ('ACTION_HEAL_COMPANION', 30, u'Действие: уход за спутником', 300000,
                u'Герой ухаживает за спутником (обрабатывает раны, смазывает детальки, чистит карму, в зависимости от спутника).',

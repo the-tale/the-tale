@@ -46,11 +46,11 @@ class EFFECT(DjangoEnum):
                 (u'MIGHT_CRIT_CHANCE', 28, u'шанс критического срабатывания способности хранителя', METATYPE.OTHER),
 
                 (u'BATTLE_ABILITY_HIT', 29, u'небольшое увеличение инициативы и способность удар', METATYPE.BATTLE),
-                (u'BATTLE_ABILITY_STRONG_HIT', 30, u'небольшое увеличение инициативы и способность тяжёлый удар', METATYPE.BATTLE),
-                (u'BATTLE_ABILITY_RUN_UP_PUSH', 31, u'небольшое увеличение инициативы и способность разбег-толчёк', METATYPE.BATTLE),
-                (u'BATTLE_ABILITY_FIREBALL', 32, u'небольшое увеличение инициативы и способность огненный шар', METATYPE.BATTLE),
-                (u'BATTLE_ABILITY_POSION_CLOUD', 33, u'небольшое увеличение инициативы и способность отравленное облако', METATYPE.BATTLE),
-                (u'BATTLE_ABILITY_FREEZING', 34, u'небольшое увеличение инициативы и способность заморозка', METATYPE.BATTLE),
+                (u'BATTLE_ABILITY_STRONG_HIT', 30, u'небольшое увеличение инициативы и способность сильный удар', METATYPE.BATTLE),
+                (u'BATTLE_ABILITY_RUN_UP_PUSH', 31, u'небольшое увеличение инициативы и способность ошеломление', METATYPE.BATTLE),
+                (u'BATTLE_ABILITY_FIREBALL', 32, u'небольшое увеличение инициативы и способность пиромания', METATYPE.BATTLE),
+                (u'BATTLE_ABILITY_POSION_CLOUD', 33, u'небольшое увеличение инициативы и способность ядовитость', METATYPE.BATTLE),
+                (u'BATTLE_ABILITY_FREEZING', 34, u'небольшое увеличение инициативы и способность контроль', METATYPE.BATTLE),
 
                 (u'COMPANION_TELEPORTATION', 35, u'спутник как-либо перемещает героя в пути', METATYPE.TRAVEL),
 
@@ -59,6 +59,8 @@ class EFFECT(DjangoEnum):
                 (u'RARITY', 37, u'редкость', METATYPE.UNCHANGEBLE),
 
                 (u'LEAVE_HERO', 38, u'покидает героя', METATYPE.UNCHANGEBLE),
+
+                (u'BATTLE_ABILITY_RECKLESSNESS', 39, u'небольшое увеличение инициативы и способность безрассудная атака', METATYPE.BATTLE),
 
                 )
 

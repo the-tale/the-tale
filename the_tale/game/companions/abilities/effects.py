@@ -190,6 +190,10 @@ class BattleAbilityFreezing(BaseBattleAbility):
     TYPE = relations.EFFECT.BATTLE_ABILITY_FREEZING
     ABILITY = battle_abilities.FREEZING(5)
 
+class BattleAbilityRecklessness(BaseBattleAbility):
+    TYPE = relations.EFFECT.BATTLE_ABILITY_RECKLESSNESS
+    ABILITY = battle_abilities.INSANE_STRIKE(5)
+
 
 class Initiative(Multiplier):
     TYPE = relations.EFFECT.INITIATIVE
@@ -444,12 +448,12 @@ class ABILITIES(DjangoEnum):
         (u'RACER', 23, u'скакун', u'постоянный бонус к скорости героя', Speed(1.1, 1.15), RARITY_BIGER),
         (u'FLEET_FOOTED', 69, u'быстроногий', u'постоянный большой бонус к скорости героя', Speed(1.1, 1.2), RARITY_BIGEST),
 
-        (u'FIGHTER', 24, u'боец', u'немного увеличивает инициативу героя, в бою может применить способность «Удар»', BattleAbilityHit(), RARITY_BIGER),
-        (u'RAM', 25, u'громила', u'немного увеличивает инициативу героя, в бою может применить способность «Тяжёлый удар»', BattleAbilityStrongHit(), RARITY_BIGER),
-        (u'HOUSEBREAKER', 26, u'таран', u'немного увеличивает инициативу героя, в бою может применить способность «Разбег-толчок»', BattleAbilityRunUpPush(), RARITY_BIGER),
-        (u'ARSONIST', 27, u'поджигатель', u'немного увеличивает инициативу героя, в бою может применить способность «Огненный шар»', BattleAbilityFireball(), RARITY_BIGER),
-        (u'POISONER', 28, u'отравитель', u'немного увеличивает инициативу героя, в бою может применить способность «Ядовитое облако»', BattleAbilityPoisonCloud(), RARITY_BIGER),
-        (u'FROST', 29, u'морозко', u'немного увеличивает инициативу героя, в бою может применить способность «Заморозка»', BattleAbilityFreezing(), RARITY_BIGER),
+        (u'FIGHTER', 24, u'боец', u'немного увеличивает инициативу героя, в бою может применить способность «%s»' % BattleAbilityHit.ABILITY.NAME, BattleAbilityHit(), RARITY_BIGER),
+        (u'RAM', 25, u'громила', u'немного увеличивает инициативу героя, в бою может применить способность «%s»' % BattleAbilityStrongHit.ABILITY.NAME, BattleAbilityStrongHit(), RARITY_BIGER),
+        (u'HOUSEBREAKER', 26, u'таран', u'немного увеличивает инициативу героя, в бою может применить способность «%s»' % BattleAbilityRunUpPush.ABILITY.NAME, BattleAbilityRunUpPush(), RARITY_BIGER),
+        (u'ARSONIST', 27, u'поджигатель', u'немного увеличивает инициативу героя, в бою может применить способность «%s»' % BattleAbilityFireball.ABILITY.NAME, BattleAbilityFireball(), RARITY_BIGER),
+        (u'POISONER', 28, u'отравитель', u'немного увеличивает инициативу героя, в бою может применить способность «%s»' % BattleAbilityPoisonCloud.ABILITY.NAME, BattleAbilityPoisonCloud(), RARITY_BIGER),
+        (u'FROST', 29, u'морозко', u'немного увеличивает инициативу героя, в бою может применить способность «%s»' % BattleAbilityFreezing.ABILITY.NAME, BattleAbilityFreezing(), RARITY_BIGER),
 
         (u'UNGAINLY', 30, u'неуклюжий', u'большой штраф к инициативе героя', Initiative(0.8, 0.875), RARITY_LOWER),
         (u'CLUMSY', 31, u'неповоротливый', u'малый штраф к инициативе героя', Initiative(0.89, 0.94), RARITY_LOW),
@@ -516,4 +520,6 @@ class ABILITIES(DjangoEnum):
          Unsociable(0.1 * c.COMPANIONS_LEAVE_IN_PLACE), RARITY_LOWEST),
         (u'UNSOCIABLE', 74, u'нелюдимый', u'спутник может покинуть героя при посещении города',
          Unsociable(c.COMPANIONS_LEAVE_IN_PLACE), RARITY_LOWEST_2),
+
+        (u'RECKLESSNESS', 75, u'боевое безумие', u'немного увеличивает инициативу героя, в бою может применить способность «%s»' % BattleAbilityRecklessness.ABILITY.NAME, BattleAbilityRecklessness(), RARITY_BIGER),
     )

@@ -532,9 +532,6 @@
 .log-short {
   font-weight: bold;
 }
-.log-short.log-short-name {
-  text-transform: capitalize;
-}
 .log-short.log-short-hp-up {
   color: green;
 }

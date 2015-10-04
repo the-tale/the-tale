@@ -296,48 +296,53 @@ class AdditionalAbilitiesBase(BaseEffect):
 
 class LastChance(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.LAST_CHANCE
-    DESCRIPTION = u'Герою становится доступна способность «Последний шанс» максимального уровня'
+    DESCRIPTION = u'Герою становится доступна способность «%s» максимального уровня' % battle.LAST_CHANCE.NAME
     ABILITY = battle.LAST_CHANCE
 
 class Regeneration(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.REGENERATION
-    DESCRIPTION = u'Герою становится доступна способность «Регенерация» максимального уровня'
+    DESCRIPTION = u'Герою становится доступна способность «%s» максимального уровня' % battle.REGENERATION.NAME
     ABILITY = battle.REGENERATION
 
 class Ice(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.ICE
-    DESCRIPTION = u'Герою становится доступна способность «Заморозка» максимального уровня'
+    DESCRIPTION = u'Герою становится доступна способность «%s» максимального уровня' % battle.FREEZING.NAME
     ABILITY = battle.FREEZING
 
 class Flame(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.FLAME
-    DESCRIPTION = u'Герою становится доступна способность «Огненный шар» максимального уровня'
+    DESCRIPTION = u'Герою становится доступна способность «%s» максимального уровня' % battle.FIREBALL.NAME
     ABILITY = battle.FIREBALL
 
 class Poison(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.POISON
-    DESCRIPTION = u'Герою становится доступна способность «Ядовитое облако» максимального уровня'
+    DESCRIPTION = u'Герою становится доступна способность «%s» максимального уровня' % battle.POISON_CLOUD.NAME
     ABILITY = battle.POISON_CLOUD
 
 class VampireStrike(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.VAMPIRE_STRIKE
-    DESCRIPTION = u'Герою становится доступна способность «Удар вампира» максимального уровня'
+    DESCRIPTION = u'Герою становится доступна способность «%s» максимального уровня' % battle.VAMPIRE_STRIKE.NAME
     ABILITY = battle.VAMPIRE_STRIKE
 
 class Speedup(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.SPEEDUP
-    DESCRIPTION = u'Герою становится доступна способность «Ускорение» максимального уровня'
+    DESCRIPTION = u'Герою становится доступна способность «%s» максимального уровня' % battle.SPEEDUP.NAME
     ABILITY = battle.SPEEDUP
 
 class CriticalHit(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.CRITICAL_HIT
-    DESCRIPTION = u'Герою становится доступна способность «Критический удар» максимального уровня'
+    DESCRIPTION = u'Герою становится доступна способность «%s» максимального уровня' % battle.CRITICAL_HIT.NAME
     ABILITY = battle.CRITICAL_HIT
 
 class AstralBarrier(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.ASTRAL_BARRIER
-    DESCRIPTION = u'Герою становится доступна способность «Горгулья» максимального уровня'
+    DESCRIPTION = u'Герою становится доступна способность «%s» максимального уровня' % battle_modifiers.GARGOYLE.NAME
     ABILITY = battle_modifiers.GARGOYLE
+
+class Recklessness(AdditionalAbilitiesBase):
+    TYPE = relations.ARTIFACT_EFFECT.RECKLESSNESS
+    DESCRIPTION = u'Герою становится доступна способность «%s» максимального уровня' % battle.INSANE_STRIKE.NAME
+    ABILITY = battle.INSANE_STRIKE
 
 
 class Esprit(BaseEffect):

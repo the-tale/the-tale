@@ -260,11 +260,13 @@ def ui_format(text):
     types are: HP — hit points, EXP — experience, G — gold, EN — energy, N — name
     '''
 
+    # ⛁ old money
+
     text = RE_NAME.sub(u'<span class="log-short log-short-name" rel="tooltip" title="актёр">!\\1!</span>', text)
     text = RE_HP_UP.sub(u'<span class="log-short log-short-hp-up" rel="tooltip" title="восстановленное здоровье">+!\\1!♥</span>', text)
     text = RE_HP_DOWN.sub(u'<span class="log-short log-short-hp-down" rel="tooltip" title="полученный урон">-!\\1!♥</span>', text)
-    text = RE_GOLD_UP.sub(u'<span class="log-short log-short-gold-up" rel="tooltip" title="полученные монеты">+!\\1!⛁</span>', text)
-    text = RE_GOLD_DOWN.sub(u'<span class="log-short log-short-gold-down" rel="tooltip" title="потерянные монеты">-!\\1!⛁</span>', text)
+    text = RE_GOLD_UP.sub(u'<span class="log-short log-short-gold-up" rel="tooltip" title="полученные монеты">+!\\1!☉</span>', text)
+    text = RE_GOLD_DOWN.sub(u'<span class="log-short log-short-gold-down" rel="tooltip" title="потерянные монеты">-!\\1!☉</span>', text)
     text = RE_EXP_UP.sub(u'<span class="log-short log-short-exp-up" rel="tooltip" title="полученный опыт">+!\\1!★</span>', text)
     # text = RE_EXP_DOWN.sub(u'<span class="log-short log-short-exp-down" rel="tooltip" title="полученный урон">-!\\1!★</span>', text)
     text = RE_ENERGY_UP.sub(u'<span class="log-short log-short-energy-up" rel="tooltip" title="полученная энергия">+!\\1!⚡</span>', text)

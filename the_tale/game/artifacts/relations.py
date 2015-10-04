@@ -103,7 +103,7 @@ class ARTIFACT_EFFECT(DjangoEnum):
                 ('IDEOLOGICAL', 1031, u'идейность'),
                 ('UNBREAKABLE', 1032, u'нерушимость'),
                 ('SPEEDUP', 1033, u'ускорение'),
+                ('RECKLESSNESS', 1034, u'безрассудность'),
 
                 ('CHILD_GIFT', 100001, u'детский подарок'),
-
             )

@@ -37,7 +37,7 @@ KEYS = [(u'HERO_ABILITY_FIREBALL', 280000, u'Журнал: Пиромания', 
 
         (u'HERO_ABILITY_REGENERATION', 280008, u'Журнал: Регенерация', LEXICON_GROUP.HERO_ABILITY,
         u'Герой использует способность и восстанавливает здоровье.',
-        [V.HEALTH, V.ACTOR], None),
+        [V.HEALTH, V.ACTOR], u'actor#N +health#HP'),
 
         (u'HERO_ABILITY_RUNUPPUSH', 280009, u'Журнал: Ошеломление', LEXICON_GROUP.HERO_ABILITY,
         u'Использование способности «Ошеломление»',
@@ -71,11 +71,11 @@ KEYS = [(u'HERO_ABILITY_FIREBALL', 280000, u'Журнал: Пиромания', 
         u'Атакующий промахнулся при использовании способности «Вампиризм»',
         [V.ATTACKER, V.DEFENDER], None),
 
-        (u'HERO_ABILITY_COMPANION_HEALING', 280017, u'Журнал: герой лечит спутника', LEXICON_GROUP.HERO_ABILITY,
+        (u'HERO_ABILITY_COMPANION_HEALING', 280017, u'Журнал: Герой лечит спутника', LEXICON_GROUP.HERO_ABILITY,
         u'Герой восстановил спутнику немного здоровья',
         [V.ACTOR, V.COMPANION, V.HEALTH], u'companion#N +damage#HP'),
 
-        (u'HERO_ABILITY_INSANE_STRIKE', 280018, u'Журнал: безрассудная атака', LEXICON_GROUP.HERO_ABILITY,
+        (u'HERO_ABILITY_INSANE_STRIKE', 280018, u'Журнал: Безрассудная атака', LEXICON_GROUP.HERO_ABILITY,
         u'Герой проводит беззрассудную атаку, наносит противнику большой урон, но и сам получает ранения',
         [V.ATTACKER, V.DEFENDER, V.DAMAGE, V.ATTACKER_DAMAGE], u'attacker#N -attacker_damage#HP defender#N -damage#HP'),
 

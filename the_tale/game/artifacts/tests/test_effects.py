@@ -169,6 +169,12 @@ class EffectsTests(testcase.TestCase):
         self.assertEqual(len(self.hero.additional_abilities), 1)
         self.assertEqual(self.hero.additional_abilities[0].__class__, effects.Ice.ABILITY)
 
+    def test_recklessness(self):
+        self.assertEqual(self.hero.additional_abilities, [])
+        self._set_effect(relations.ARTIFACT_EFFECT.RECKLESSNESS)
+        self.assertEqual(len(self.hero.additional_abilities), 1)
+        self.assertEqual(self.hero.additional_abilities[0].__class__, effects.Recklessness.ABILITY)
+
     def test_flame(self):
         self.assertEqual(self.hero.additional_abilities, [])
         self._set_effect(relations.ARTIFACT_EFFECT.FLAME)

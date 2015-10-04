@@ -7,9 +7,9 @@
 <h3>{{name}}</h3>
 {% endmacro %}
 
-<div class="easy-block hero-statistics">
+{% include "heroes/hero_attributes.html" with context %}
 
-  {% include "heroes/hero_attributes.html" with context %}
+<div class="easy-block hero-statistics">
 
   <h2>Статистика</h2>
 
