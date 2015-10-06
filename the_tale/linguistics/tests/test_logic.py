@@ -38,6 +38,8 @@ class LogicTests(testcase.TestCase):
         storage.game_dictionary.refresh()
         storage.game_lexicon.refresh()
 
+        self.external_id = random.randint(1, 999)
+
 
     def test_get_templates_count(self):
         key_1 = random.choice(keys.LEXICON_KEY.records)
@@ -348,11 +350,11 @@ class LogicTests(testcase.TestCase):
             with self.check_changed(lambda: storage.restrictions_storage._version):
                 with self.check_delta(storage.restrictions_storage.__len__, 1):
                     restriction = logic.create_restriction(group=group,
-                                                           external_id=666,
+                                                           external_id=self.external_id,
                                                            name=u'bla-bla-name')
 
         self.assertEqual(restriction.group, group)
-        self.assertEqual(restriction.external_id, 666)
+        self.assertEqual(restriction.external_id, self.external_id)
         self.assertEqual(restriction.name, u'bla-bla-name')
 
         model = models.Restriction.objects.get(id=restriction.id)
@@ -366,13 +368,14 @@ class LogicTests(testcase.TestCase):
 
         group = random.choice(relations.TEMPLATE_RESTRICTION_GROUP.records)
 
-        logic.create_restriction(group=group, external_id=666, name=u'bla-bla-name')
+        logic.create_restriction(group=group, external_id=self.external_id, name=u'bla-bla-name')
 
         with self.check_not_changed(models.Restriction.objects.count):
             with self.check_not_changed(lambda: storage.restrictions_storage._version):
                 with self.check_not_changed(storage.restrictions_storage.__len__):
                     with transaction.atomic():
-                        self.assertRaises(IntegrityError, logic.create_restriction, group=group, external_id=666, name=u'bla-bla-name')
+                        self.assertRaises(IntegrityError, logic.create_restriction, group=group,
+                                          external_id=self.external_id, name=u'bla-bla-name')
 
 
     def test_sync_static_restrictions(self):
@@ -423,12 +426,13 @@ class LogicTests(testcase.TestCase):
     def test_sync_restriction__exists(self):
         group = random.choice(relations.TEMPLATE_RESTRICTION_GROUP.records)
 
-        restriction = logic.create_restriction(group=group, external_id=666, name=u'bla-bla-name')
+        restriction = logic.create_restriction(group=group, external_id=self.external_id, name=u'bla-bla-name')
 
         with self.check_not_changed(models.Restriction.objects.count):
             with self.check_changed(lambda: storage.restrictions_storage._version):
                 with self.check_not_changed(storage.restrictions_storage.__len__):
-                    synced_restriction = logic.sync_restriction(group=group, external_id=666, name=u'new-name')
+                    synced_restriction = logic.sync_restriction(group=group, external_id=self.external_id,
+                                                                name=u'new-name')
 
         self.assertEqual(synced_restriction.name, u'new-name')
 

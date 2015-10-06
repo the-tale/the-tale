@@ -39,12 +39,6 @@
     src: "{{ app_dir }}/settings_local_example.py"
     dest: "{{ app_dir }}/settings_local.py"
 
-- name: app settings file configured
-  replace:
-    dest: "{{ app_dir }}/settings_local.py"
-    regexp: <USERNAME>
-    replace: "{{ ansible_user_id }}"
-
 - name: necessary directories created
   file:
     path: "{{ item }}"

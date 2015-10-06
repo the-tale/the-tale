@@ -1,5 +1,7 @@
 # coding: utf-8
 import sys
+import os
+import getpass
 
 # Всё что указано в settings.py как NotImplemented должно быть определено в settings_local.py
 
@@ -21,12 +23,14 @@ PAYMENTS_ENABLE_REAL_PAYMENTS = False
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = '/tmp/emails'
 
+CURRENT_USER = getpass.getuser()
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'the-tale',
-        'USER': '<USERNAME>',
-        'PASSWORD': '<USERNAME>',
+        'NAME': os.environ.get('THE_TALE_DB', 'the_tale'),
+        'USER': os.environ.get('THE_TALE_DB_USER', CURRENT_USER),
+        'PASSWORD': os.environ.get('THE_TALE_DB_PASSWORD', CURRENT_USER),
         'HOST': 'localhost',
         'PORT': '',
         'CONN_MAX_AGE': 0
@@ -34,9 +38,9 @@ DATABASES = {
 }
 
 AMQP_BROKER_HOST = 'localhost'
-AMQP_BROKER_USER = '<USERNAME>'
-AMQP_BROKER_PASSWORD = '<USERNAME>'
-AMQP_BROKER_VHOST = '/the-tale'
+AMQP_BROKER_USER = os.environ.get('THE_TALE_AMQP_USER', CURRENT_USER)
+AMQP_BROKER_PASSWORD = os.environ.get('THE_TALE_AMQP_PASSWORD', CURRENT_USER)
+AMQP_BROKER_VHOST = os.environ.get('THE_TALE_AMQP_VHOST', '/the_tale')
 
 SITE_URL = 'localhost:8000'
 
@@ -61,7 +65,7 @@ MAIL_RU = None # номер счётчика mail.ru
 SERVER_EMAIL = u'' # почта сервера
 ADMINS = () # перечень администраторов сайта (см. описание в конфигах Django)
 
-EMAIL_NOREPLY = u'' # почта, которая будет писаться в письмах, на которые игроки не должны отвечать
+EMAIL_NOREPLY = u'no-reply@example.com'  # почта, которая будет писаться в письмах, на которые игроки не должны отвечать
 EMAIL_SUPPORT = u'' # почта службы подержки
 EMAIL_SUPPORT_SHORT = u'' # короткий адрес службы поддержки (только сама почта, без вставки имени и прочего)
 

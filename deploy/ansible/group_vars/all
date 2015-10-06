@@ -1,5 +1,5 @@
 ---
-project_name: the-tale
+project_name: the_tale
 repo_dir: "{{ playbook_dir }}/../.."
 app_dir: "{{ repo_dir }}/the_tale"
 venv_dir: "{{ repo_dir }}/../venv"
@@ -42,3 +42,10 @@ the_tale:
   path: "{{ repo_dir }}"
   ports:
     - 8000
+  envs:
+    THE_TALE_DB: "{{ postgres_db }}"
+    THE_TALE_DB_USER: "{{ postgres_user }}"
+    THE_TALE_DB_PASSWORD: "{{ postgres_password }}"
+    THE_TALE_AMQP_USER: "{{ rabbitmq_user }}"
+    THE_TALE_AMQP_PASSWORD: "{{ rabbitmq_password }}"
+    THE_TALE_AMQP_VHOST: "{{ rabbitmq_vhost }}"
