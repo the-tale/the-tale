@@ -40,20 +40,14 @@
    sudo aptitude install -y node-less
 
    # настраиваем postgres
-   sudo su postgres
-   createuser -D -R -S <USERNAME>
-   psql -U postgres
-   postgres=# ALTER USER "<USERNAME>" WITH PASSWORD '<USERNAME>';
-   postgres=# CREATE DATABASE "the-tale" WITH OWNER "<USERNAME>";
-
-   # возвращаемся к нашему основному пользователю
-   CTRL^D
-   CTRL^D
+   sudo -u postgres createuser -D -R -S $USER
+   sudo -u postgres psql -c "alter user $USER with password '$USER';"
+   sudo -u postgres psql -c "create database the_tale with owner $USER;"
 
    # настраиваем rabbitmq
-   sudo rabbitmqctl add_user <USERNAME> <USERNAME>
-   sudo rabbitmqctl add_vhost "/the-tale"
-   sudo rabbitmqctl set_permissions -p "/the-tale" <USERNAME> ".*" ".*" ".*"
+   sudo rabbitmqctl add_user $USER $USER
+   sudo rabbitmqctl add_vhost /the_tale
+   sudo rabbitmqctl set_permissions -p /the_tale $USER ".*" ".*" ".*"
 
    # создаём директорию, клонируем репозиторий, создаём виртуальное окружение:
    mkdir ./repos
@@ -62,11 +56,11 @@
    git clone https://github.com/Tiendil/the-tale.git
 
    # создаём виртуально окружение
-   virtualenv env
+   virtualenv venv
 
    # инициализируем окружение
    # необходимо делать перед любой работой с проектом (подробнее можно прочитать в гугле про virtualenv)
-   . ./env/bin/activate
+   source ./venv/bin/activate
 
    cd ./the-tale
 
@@ -82,7 +76,8 @@
    # создаём конфиг с локальными настройками
    cp ./the_tale/settings_local_example.py ./the_tale/settings_local.py
 
-   # в ./the_tale/settings_local.py заменяем <USERNAME> на нужные значения
+   # если пользователи, пароли, имя базы данных или vhost были изменены,
+   # то в ./the_tale/settings_local.py меняем значения этих параметров на соответствующие
 
    # добавляем путь к игре в библиотекчные пути питона
    # ! чтобы не делать это постоянно, эту строчку можно добавить в ~/.bashrc

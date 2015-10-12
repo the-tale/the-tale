@@ -37,19 +37,19 @@ Quick Start
 
 Полное разворачивание с нуля::
 
-    ansible-playbook -i local stand.yml
+    ansible-playbook -i hosts/local stand.yml
 
 Только окружение::
 
-    ansible-playbook -i local stand.yml -t env
+    ansible-playbook -i hosts/local stand.yml -t env
 
 Только приложение::
 
-    ansible-playbook -i local stand.yml -t app
+    ansible-playbook -i hosts/local stand.yml -t app
 
 Только приложение без пересборки образа::
 
-    ansible-playbook -i local stand.yml -t app --skip-tags=build
+    ansible-playbook -i hosts/local stand.yml -t app --skip-tags=build
 
 Удаление всех контейнеров::
 

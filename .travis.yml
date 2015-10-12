@@ -1,0 +1,33 @@
+language: python
+
+python: 2.7
+
+services:
+  - rabbitmq
+
+env: >
+  PYTHONPATH=$(pwd)
+  THE_TALE_AMQP_USER=guest
+  THE_TALE_AMQP_PASSWORD=guest
+  THE_TALE_AMQP_VHOST=/
+
+install:
+  - "pip install -q -r requirements.txt"
+  - "pip install -q django-slowtests django-test-without-migrations"
+
+before_script:
+  - "mkdir -p $HOME/logs"
+  - "mkdir -p $HOME/.the-tale"
+  - "cp the_tale/settings_local_example.py the_tale/settings_local.py"
+
+script:
+  - "./manage.py test --nomigrations"
+
+cache:
+  directories:
+    - "$HOME/.cache/pip"
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always
