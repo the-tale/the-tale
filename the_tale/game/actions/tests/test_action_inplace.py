@@ -767,16 +767,27 @@ class InPlaceActionCompanionBuyMealTests(testcase.TestCase):
         self.hero.position.update_previous_place()
         self.hero.position.set_place(self.place_2)
 
+        self.hero.position.move_out_place()
+
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_money_for_food_multiplier', 1)
+    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_eat', lambda hero: True)
+    def test_buy_meal__from_moveto(self):
+        prototypes.ActionMoveToPrototype.create(hero=self.hero, destination=self.place_3)
+
+        current_time = TimePrototype.get_current_time()
+
+        with contextlib.nested( self.check_decreased(lambda: self.hero.money),
+                                self.check_increased(lambda: self.hero.statistics.money_spend_for_companions)):
+            while self.hero.actions.current_action.TYPE != prototypes.ActionInPlacePrototype.TYPE:
+                current_time.increment_turn()
+                self.storage.process_turn(continue_steps_if_needed=False)
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_money_for_food_multiplier', 0.5)
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_eat', lambda hero: True)
     def test_buy_meal(self):
         self.hero.position.last_place_visited_turn = TimePrototype.get_current_turn_number() - c.TURNS_IN_HOUR * 12
-        with contextlib.nested(
-                self.check_decreased(lambda: self.hero.money),
-                self.check_delta(lambda: self.hero.statistics.money_spend_for_companions, int(f.expected_gold_in_day(self.hero.level) / 2 * 0.5) + 1),
-                self.check_increased(lambda: len(self.hero.messages))
-                ):
+        with contextlib.nested( self.check_decreased(lambda: self.hero.money),
+                                self.check_increased(lambda: self.hero.statistics.money_spend_for_companions) ):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
     def check_not_used(self):
@@ -794,12 +805,10 @@ class InPlaceActionCompanionBuyMealTests(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_money_for_food_multiplier', 66666666)
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_eat', lambda hero: True)
     def test_not_enough_money(self):
-        self.hero.position.last_place_visited_turn = TimePrototype.get_current_turn_number() - 1
-        with contextlib.nested(
-                self.check_delta(lambda: self.hero.money, -self.hero.money),
-                self.check_delta(lambda: self.hero.statistics.money_spend_for_companions, self.hero.money),
-                self.check_increased(lambda: len(self.hero.messages))
-                ):
+        self.hero.position.last_place_visited_turn = TimePrototype.get_current_turn_number() - 1000
+
+        with contextlib.nested( self.check_delta(lambda: self.hero.money, -self.hero.money),
+                                self.check_delta(lambda: self.hero.statistics.money_spend_for_companions, self.hero.money )):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_money_for_food_multiplier', 66666666)
@@ -843,6 +852,7 @@ class InPlaceActionCompanionDrinkArtifactTests(testcase.TestCase):
 
         self.assertEqual(self.hero.bag.occupation, 1)
 
+        self.hero.position.move_out_place()
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_drink_artifact', lambda hero: True)
     def test_dring_artifact(self):
@@ -899,6 +909,8 @@ class InPlaceActionCompanionLeaveTests(testcase.TestCase):
         self.hero.put_loot(self.artifact)
 
         self.assertEqual(self.hero.bag.occupation, 1)
+
+        self.hero.position.move_out_place()
 
 
     @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_leave_in_place_probability', 1.0)

@@ -669,6 +669,7 @@ class ActionMoveToPrototype(ActionBase):
                         break_at=break_at,
                         state=cls.STATE.CHOOSE_ROAD)
         hero.add_message('action_moveto_start', hero=hero, destination=destination)
+        hero.position.move_out_place()
         return prototype
 
     def get_description_arguments(self):
@@ -1248,12 +1249,11 @@ class ActionInPlacePrototype(ActionBase):
                 hero.add_message('action_inplace_habit_event_peacefulness_%s' % hero.position.place.habit_peacefulness.interval.name.lower(),
                                  hero=hero, place=hero.position.place, diary=True)
 
-        if hero.companion:
-
-            if hero.can_companion_eat() and TimePrototype.get_current_turn_number() != hero.position.last_place_visited_turn:
+        if hero.companion and hero.position.moved_out_place:
+            if hero.can_companion_eat():
                 expected_coins = ( f.expected_gold_in_day(hero.level) *
                                    float(TimePrototype.get_current_turn_number() - hero.position.last_place_visited_turn) / (c.TURNS_IN_HOUR * 24) )
-                coins = min(hero.money, int(expected_coins * hero.companion_money_for_food_multiplier)+1)
+                coins = min(hero.money, int(expected_coins * hero.companion_money_for_food_multiplier))
 
                 if coins > 0:
                     hero.change_money(heroes_relations.MONEY_SOURCE.SPEND_FOR_COMPANIONS, -coins)
@@ -1267,6 +1267,8 @@ class ActionInPlacePrototype(ActionBase):
             if random.random() < hero.companion_leave_in_place_probability:
                 hero.add_message('action_inplace_companion_leave', diary=True, hero=hero, place=hero.position.place, companion=hero.companion)
                 hero.remove_companion()
+
+        hero.position.move_in_place() # <- must be last method
 
         return prototype
 
@@ -1678,6 +1680,7 @@ class ActionMoveNearPlacePrototype(ActionBase):
         from_x, from_y = hero.position.cell_coordinates
 
         hero.position.set_coordinates(from_x, from_y, x, y, percents=0)
+        hero.position.move_out_place()
 
         return prototype
 
