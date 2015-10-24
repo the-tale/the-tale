@@ -114,6 +114,8 @@ class BillPrototype(BasePrototype):
                 return u'исправлен закон'
             else:
                 return u'выдвинут закон'
+        if self.state.is_STOPPED:
+            return u'закон утратил смысл'
         raise exceptions.UnknownLastEventTextError(bill_id=self.id)
 
     @classmethod
@@ -160,6 +162,7 @@ class BillPrototype(BasePrototype):
                                                                                                              self.votes_refrained)
 
         with transaction.atomic():
+            self._model.voting_end_at = datetime.datetime.now()
             self.state = BILL_STATE.STOPPED
             self.save()
 
