@@ -43,6 +43,12 @@ class GeneralTest(testcase.TestCase):
     def test_HELP_CHOICES(self):
         for action_class in ACTION_TYPES.values():
             self.assertTrue('HELP_CHOICES' in action_class.__dict__)
+            if (not action_class.TYPE.is_IDLENESS and           # TODO: check
+                not action_class.TYPE.is_BATTLE_PVE_1X1 and     # TODO: check
+                not action_class.TYPE.is_MOVE_TO and            # TODO: check
+                not action_class.TYPE.is_HEAL_COMPANION and
+                not action_class.TYPE.is_RESURRECT):
+                self.assertIn(HELP_CHOICES.MONEY, action_class.HELP_CHOICES) # every action MUST has MONEY choice, or it will be great disbalance in energy & experience receiving
 
     def test_TEXTGEN_TYPE(self):
         for action_class in ACTION_TYPES.values():

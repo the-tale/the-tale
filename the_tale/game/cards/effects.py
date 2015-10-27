@@ -924,19 +924,19 @@ class ExperienceToEnergyBase(BaseEffect):
 
 class ExperienceToEnergyUncommon(ExperienceToEnergyBase):
     TYPE = relations.CARD_TYPE.EXPERIENCE_TO_ENERGY_UNCOMMON
-    EXPERIENCE = 6
+    EXPERIENCE = 7
 
 class ExperienceToEnergyRare(ExperienceToEnergyBase):
     TYPE = relations.CARD_TYPE.EXPERIENCE_TO_ENERGY_RARE
-    EXPERIENCE = 5
+    EXPERIENCE = 6
 
 class ExperienceToEnergyEpic(ExperienceToEnergyBase):
     TYPE = relations.CARD_TYPE.EXPERIENCE_TO_ENERGY_EPIC
-    EXPERIENCE = 4
+    EXPERIENCE = 5
 
 class ExperienceToEnergyLegendary(ExperienceToEnergyBase):
     TYPE = relations.CARD_TYPE.EXPERIENCE_TO_ENERGY_LEGENDARY
-    EXPERIENCE = 3
+    EXPERIENCE = 4
 
 
 class SharpRandomArtifact(BaseEffect):
