@@ -14,7 +14,7 @@ from the_tale.common.utils import logic as utils_logic
 from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.heroes import relations as heroes_relations
-from the_tale.game.heroes import prototypes as heroes_prototypes
+from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.balance import constants as c, formulas as f
 
@@ -83,7 +83,6 @@ class ActionBase(object):
     HABIT_MODE = relations.ACTION_HABIT_MODE.PEACEFUL
 
     def __init__(self,
-                 hero,
                  bundle_id,
                  state,
                  percents=0.0,
@@ -106,8 +105,7 @@ class ActionBase(object):
                  info_link=None,
                  meta_action=None,
                  replane_required=False,
-                 meta_action_id=None # TODO: remove in 0.3.21
-                ):
+                 hero=None):
 
         self.updated = False
 
@@ -202,8 +200,8 @@ class ActionBase(object):
         return data
 
     @classmethod
-    def deserialize(cls, hero, data):
-        return cls(hero=hero, **data)
+    def deserialize(cls, data):
+        return cls(**data)
 
     @property
     def ui_type(self): return self.TYPE
@@ -846,7 +844,7 @@ class ActionMoveToPrototype(ActionBase):
             self.teleport(c.ANGEL_HELP_TELEPORT_DISTANCE, create_inplace_action=True)
             return
 
-        move_speed = self.hero.position.modify_move_speed(self.hero.move_speed)
+        move_speed = self.hero.modify_move_speed(self.hero.move_speed)
 
         delta = move_speed / self.hero.position.road.length
 
@@ -875,7 +873,7 @@ class ActionMoveToPrototype(ActionBase):
             ActionRegenerateEnergyPrototype.create(hero=self.hero)
             self.state = self.STATE.REGENERATE_ENERGY
 
-        elif self.hero.position.is_battle_start_needed():
+        elif self.hero.is_battle_start_needed():
             mob = mobs_storage.create_mob_for_hero(self.hero)
             ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
             self.state = self.STATE.BATTLE
@@ -1735,7 +1733,7 @@ class ActionMoveNearPlacePrototype(ActionBase):
             ActionRegenerateEnergyPrototype.create(hero=self.hero)
             self.state = self.STATE.REGENERATE_ENERGY
 
-        elif self.hero.position.is_battle_start_needed():
+        elif self.hero.is_battle_start_needed():
             mob = mobs_storage.create_mob_for_hero(self.hero)
             ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
             self.state = self.STATE.BATTLE
@@ -1753,7 +1751,7 @@ class ActionMoveNearPlacePrototype(ActionBase):
             if self.hero.position.subroad_len() == 0:
                 self.hero.position.percents += 0.1
             else:
-                move_speed = self.hero.position.modify_move_speed(self.hero.move_speed)
+                move_speed = self.hero.modify_move_speed(self.hero.move_speed)
                 delta = move_speed / self.hero.position.subroad_len()
                 self.hero.position.percents += delta
 
@@ -1823,14 +1821,6 @@ class ActionRegenerateEnergyPrototype(ActionBase):
     ###########################################
     # Object operations
     ###########################################
-
-    # TODO: remove in v0.3.21
-    @classmethod
-    def deserialize(cls, hero, data):
-        obj = super(ActionRegenerateEnergyPrototype, cls).deserialize(hero, data)
-        if obj.textgen_id is None:
-            obj.textgen_id = 'action_regenerate_energy_%s' % random.choice(hero.preferences.energy_regeneration_type.linguistics_slugs)
-        return obj
 
     @classmethod
     def _create(cls, hero, bundle_id):
@@ -1934,7 +1924,7 @@ class ActionMetaProxyPrototype(ActionBase):
             hero_2 = self.meta_action.hero_2 if self.hero.id == self.meta_action.hero_1_id else self.meta_action.hero_1
         else:
             hero_2_id = self.meta_action.hero_2_id if self.hero.id == self.meta_action.hero_1_id else self.meta_action.hero_1_id
-            hero_2 = heroes_prototypes.HeroPrototype.get_by_id(hero_2_id)
+            hero_2 = heroes_logic.load_hero(hero_2_id)
 
         return {'duelist_1': self.hero,
                 'duelist_2': hero_2}

@@ -19,7 +19,7 @@ class PlacesHelpStatistics(object):
         return {'history': self.history}
 
     @classmethod
-    def deserialize(cls, hero, data):
+    def deserialize(cls, data):
         obj = cls()
         obj.history = data.get('history', [])
         return obj

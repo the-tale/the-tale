@@ -16,8 +16,8 @@ from the_tale.game.chronicle import prototypes as chronicle_prototypes
 
 from the_tale.game.map import conf as map_conf
 
-from the_tale.game.heroes import prototypes as heroes_prototypes
 from the_tale.game.heroes.preferences import HeroPreferences
+from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.persons import storage as persons_storage
 
@@ -228,7 +228,7 @@ def place_info_accounts(data):
         accounts_ids.update(person['keepers']['enemies'])
 
     accounts = {account.id: account for account in accounts_prototypes.AccountPrototype.get_list_by_id(list(accounts_ids))}
-    heroes = {hero.account_id: hero for hero in heroes_prototypes.HeroPrototype.get_list_by_account_id(list(accounts_ids))}
+    heroes = {hero.account_id: hero for hero in heroes_logic.load_heroes_by_account_ids(list(accounts_ids))}
 
     accounts_data = {}
 

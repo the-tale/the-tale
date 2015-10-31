@@ -30,6 +30,8 @@ from the_tale.game.companions import relations as companions_relations
 from the_tale.game.companions.abilities import effects as companions_effects
 from the_tale.game.companions.abilities import container as companions_abilities_container
 
+from .. import logic
+
 
 class HeroLogicAccessorsTestBase(testcase.TestCase):
 
@@ -54,10 +56,10 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
             turn_number = 6 * heroes_settings.INACTIVE_HERO_DELAY + self.hero.id + 1
 
         with contextlib.nested(
-                mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_banned', banned),
-                mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_bot', bot),
-                mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_active', active),
-                mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', premium),
+                mock.patch('the_tale.game.heroes.objects.Hero.is_banned', banned),
+                mock.patch('the_tale.game.heroes.objects.Hero.is_bot', bot),
+                mock.patch('the_tale.game.heroes.objects.Hero.is_active', active),
+                mock.patch('the_tale.game.heroes.objects.Hero.is_premium', premium),
                 mock.patch('the_tale.game.actions.container.ActionsContainer.is_single', single),
                 mock.patch('the_tale.game.actions.container.ActionsContainer.number', 1 if idle else 2)):
             self.assertEqual(self.hero.can_process_turn(turn_number), expected_result)
@@ -137,10 +139,10 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
 
     def test_update_context(self):
         additional_ability = mock.Mock()
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.abilities') as abilities:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.additional_abilities', [additional_ability, additional_ability]):
-                with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.habit_honor') as honor:
-                    with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.habit_peacefulness') as peacefulness:
+        with mock.patch('the_tale.game.heroes.objects.Hero.abilities') as abilities:
+            with mock.patch('the_tale.game.heroes.objects.Hero.additional_abilities', [additional_ability, additional_ability]):
+                with mock.patch('the_tale.game.heroes.objects.Hero.habit_honor') as honor:
+                    with mock.patch('the_tale.game.heroes.objects.Hero.habit_peacefulness') as peacefulness:
                         self.hero.update_context(mock.Mock(), mock.Mock())
 
         self.assertEqual(abilities.update_context.call_count, 1)
@@ -152,8 +154,8 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
     def test_prefered_mob_loot_multiplier(self):
         from the_tale.game.mobs.storage import mobs_storage
 
-        self.hero._model.level = relations.PREFERENCE_TYPE.MOB.level_required
-        self.hero._model.save()
+        self.hero.level = relations.PREFERENCE_TYPE.MOB.level_required
+        logic.save_hero(self.hero)
 
         self.mob = mobs_storage.get_available_mobs_list(level=self.hero.level)[0].create_mob(self.hero)
 
@@ -171,7 +173,7 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
 
         with mock.patch('the_tale.game.balance.constants.COMPANIONS_BONUS_DAMAGE_PROBABILITY', 666666):
             with mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS', c.COMPANIONS_WOUNDS_IN_HOUR):
-                with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.attribute_modifier', lambda s, t: 666 if t.is_COMPANION_DAMAGE else t.default()):
+                with mock.patch('the_tale.game.heroes.objects.Hero.attribute_modifier', lambda s, t: 666 if t.is_COMPANION_DAMAGE else t.default()):
                     for i in xrange(1000):
                         self.assertEqual(self.hero.companion_damage, c.COMPANIONS_DAMAGE_PER_WOUND + 666)
 
@@ -182,8 +184,8 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
         self.hero.set_companion(companion)
 
         with mock.patch('the_tale.game.balance.constants.COMPANIONS_BONUS_DAMAGE_PROBABILITY', 666666):
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_damage_probability', 0):
-                with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.attribute_modifier', lambda s, t: 666 if t.is_COMPANION_DAMAGE else t.default()):
+            with mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 0):
+                with mock.patch('the_tale.game.heroes.objects.Hero.attribute_modifier', lambda s, t: 666 if t.is_COMPANION_DAMAGE else t.default()):
                     for i in xrange(1000):
                         self.assertEqual(self.hero.companion_damage, c.COMPANIONS_DAMAGE_PER_WOUND)
 
@@ -191,7 +193,7 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
     def test_companion_damage_probability(self):
         self.assertEqual(self.hero.companion_damage_probability, c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY_FROM_WOUNDS)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.attribute_modifier', lambda s, t: 2 if t.is_COMPANION_DAMAGE_PROBABILITY else t.default()):
+        with mock.patch('the_tale.game.heroes.objects.Hero.attribute_modifier', lambda s, t: 2 if t.is_COMPANION_DAMAGE_PROBABILITY else t.default()):
             self.assertEqual(self.hero.companion_damage_probability, 2)
 
     def test_mob_type(self):
@@ -204,13 +206,13 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
         self.assertTrue(self.hero.communication_gestures)
 
     def test_communication_telepathic(self):
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.power', power.Power(0, 1)):
+        with mock.patch('the_tale.game.heroes.objects.Hero.power', power.Power(0, 1)):
             self.assertTrue(self.hero.communication_telepathic.is_CAN)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.power', power.Power(1, 0)):
+        with mock.patch('the_tale.game.heroes.objects.Hero.power', power.Power(1, 0)):
             self.assertTrue(self.hero.communication_telepathic.is_CAN_NOT)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.power', power.Power(1, 1)):
+        with mock.patch('the_tale.game.heroes.objects.Hero.power', power.Power(1, 1)):
             self.assertTrue(self.hero.communication_telepathic.is_CAN_NOT)
 
 
@@ -295,7 +297,7 @@ class PoliticalPowerTests(HeroLogicAccessorsTestBase):
 
     def test_politics_power_multiplier_below_zero(self):
         self.assertTrue(self.hero.politics_power_multiplier() > 0)
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.politics_power_modifier', -666666666):
+        with mock.patch('the_tale.game.heroes.objects.Hero.politics_power_modifier', -666666666):
             self.assertEqual(self.hero.politics_power_multiplier(), 0)
 
     def test_politics_power_multiplier__all_effects(self):
@@ -303,7 +305,7 @@ class PoliticalPowerTests(HeroLogicAccessorsTestBase):
             self.hero.might = 1000
 
         with self.check_increased(self.hero.politics_power_multiplier):
-            self.hero._model.level = 100
+            self.hero.level = 100
 
         with self.check_increased(self.hero.politics_power_multiplier):
             self.hero.actual_bills.append(time.time())

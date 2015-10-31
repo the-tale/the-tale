@@ -14,7 +14,8 @@ from the_tale.game import names
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.balance import constants as c
 
-from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes import logic as heroes_logic
+
 
 from the_tale.game.bills.models import Actor
 from the_tale.game.bills import relations
@@ -32,7 +33,7 @@ class BillPrototypeTests(BaseTestPrototypes):
     def setUp(self):
         super(BillPrototypeTests, self).setUp()
 
-        self.hero = HeroPrototype.get_by_account_id(self.account2.id)
+        self.hero = heroes_logic.load_hero(account_id=self.account2.id)
 
 
     def create_bill(self, account=None):

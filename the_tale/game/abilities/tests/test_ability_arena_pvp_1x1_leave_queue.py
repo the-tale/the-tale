@@ -83,7 +83,7 @@ class ArenaPvP1x1LeaveQueueAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
 
         self.pvp_balancer.add_to_arena_queue(self.hero.id)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
+        with mock.patch('the_tale.game.heroes.objects.Hero.update_habits') as update_habits:
             self.assertEqual(self.ability.use(**self.use_attributes(hero=self.hero, storage=self.storage))[:2],
                              (ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.PVP_BALANCER))
 

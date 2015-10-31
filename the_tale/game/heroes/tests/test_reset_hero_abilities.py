@@ -13,6 +13,8 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.heroes.habilities import battle as battle_abilities
 from the_tale.game.heroes.postponed_tasks import ResetHeroAbilitiesTask
 
+from .. import logic
+
 
 class ResetHeroAbilitiesTest(TestCase):
 
@@ -28,7 +30,7 @@ class ResetHeroAbilitiesTest(TestCase):
         self.hero = self.storage.accounts_to_heroes[account_id]
         self.hero.abilities.add(battle_abilities.STRONG_HIT.get_id())
         self.hero.abilities.set_reseted_at(datetime.datetime.fromtimestamp(0))
-        self.hero.save()
+        logic.save_hero(self.hero)
 
     def test_create(self):
         task = ResetHeroAbilitiesTask(self.hero.id)

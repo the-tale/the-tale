@@ -39,11 +39,14 @@ from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.bills import conf as bills_conf
 
-from the_tale.game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
-from the_tale.game.heroes.habilities import ABILITY_TYPE, ABILITIES, battle, ABILITY_AVAILABILITY
-from the_tale.game.heroes.conf import heroes_settings
-from the_tale.game.heroes import relations
-from the_tale.game.heroes import messages
+from ..habilities import ABILITY_TYPE, ABILITIES, battle, ABILITY_AVAILABILITY
+from ..conf import heroes_settings
+from .. import relations
+from .. import messages
+from .. import logic
+from .. import models
+from .. import objects
+
 
 def get_simple_cache_data(*argv, **kwargs):
     return {'ui_caching_started_at': kwargs.get('ui_caching_started_at', 0),
@@ -65,6 +68,7 @@ class HeroTest(testcase.TestCase):
         self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
         self.hero = self.storage.accounts_to_heroes[account_id]
 
+
     def test_create(self):
         self.assertFalse(self.hero.force_save_required)
 
@@ -75,9 +79,9 @@ class HeroTest(testcase.TestCase):
 
         self.assertTrue(self.hero.preferences.risk_level.is_NORMAL)
 
-        self.assertEqual(HeroPreferencesPrototype._db_count(), 1)
-        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).energy_regeneration_type, self.hero.preferences.energy_regeneration_type)
-        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).risk_level, self.hero.preferences.risk_level)
+        self.assertEqual(models.HeroPreferences.objects.count(), 1)
+        self.assertEqual(models.HeroPreferences.objects.get(hero_id=self.hero.id).energy_regeneration_type, self.hero.preferences.energy_regeneration_type)
+        self.assertEqual(models.HeroPreferences.objects.get(hero_id=self.hero.id).risk_level, self.hero.preferences.risk_level)
 
     def test_helps_number_restriction(self):
         self.assertEqual(self.hero.last_help_on_turn, 0)
@@ -131,7 +135,7 @@ class HeroTest(testcase.TestCase):
 
         result, account_id, bundle_id = register_user('test_user_2')
 
-        hero = HeroPrototype.get_by_account_id(account_id)
+        hero = logic.load_hero(account_id=account_id)
 
         self.assertEqual(hero.created_at_turn, TimePrototype.get_current_time().turn_number)
 
@@ -142,7 +146,7 @@ class HeroTest(testcase.TestCase):
             with self.check_not_changed(lambda: self.hero.energy_bonus):
                 self.hero.convert_experience_to_energy(10)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.experience_modifier', 1.0)
+    @mock.patch('the_tale.game.heroes.objects.Hero.experience_modifier', 1.0)
     def test_convert_experience_to_energy(self):
         self.hero.add_experience(41)
         self.assertEqual(self.hero.experience, 41)
@@ -168,7 +172,7 @@ class HeroTest(testcase.TestCase):
     def test_experience_modifier__active_inactive_state(self):
         self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
-        self.hero._model.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=60)
+        self.hero.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=60)
 
         # inactive heroes get the same exp, insteed experience penalty  there action delayed
         self.assertTrue(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
@@ -185,8 +189,8 @@ class HeroTest(testcase.TestCase):
     def test_experience_modifier__with_premium(self):
         self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
-        self.hero._model.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=60)
-        self.hero._model.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        self.hero.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=60)
+        self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
 
         self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_PREMIUM_ACCOUNT)
 
@@ -205,14 +209,14 @@ class HeroTest(testcase.TestCase):
         self.hero.is_fast = False
 
         self.assertTrue(self.hero.can_participate_in_pvp)
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_banned', True):
+        with mock.patch('the_tale.game.heroes.objects.Hero.is_banned', True):
             self.assertFalse(self.hero.can_participate_in_pvp)
 
     def test_can_change_person_power(self):
         self.assertFalse(self.hero.can_change_person_power(self.place_1.persons[0]))
 
     def test_can_change_person_power__premium(self):
-        self.hero._model.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         self.assertTrue(self.hero.can_change_person_power(self.place_1.persons[0]))
 
     def test_can_change_person_power__depends_from_all_heroes(self):
@@ -220,10 +224,10 @@ class HeroTest(testcase.TestCase):
             self.assertTrue(self.hero.can_change_person_power(self.place_1.persons[0]))
 
     def test_can_change_person_power__banned(self):
-        self.hero._model.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
 
         with mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.depends_from_all_heroes', True):
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_banned', True):
+            with mock.patch('the_tale.game.heroes.objects.Hero.is_banned', True):
                 self.assertFalse(self.hero.can_change_person_power(self.place_1.persons[0]))
 
 
@@ -231,7 +235,7 @@ class HeroTest(testcase.TestCase):
         self.assertFalse(self.hero.can_change_place_power(self.place_1))
 
     def test_can_change_place_power__premium(self):
-        self.hero._model.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         self.assertTrue(self.hero.can_change_place_power(self.place_1))
 
     def test_can_change_place_power__depends_from_all_heroes(self):
@@ -239,25 +243,23 @@ class HeroTest(testcase.TestCase):
             self.assertTrue(self.hero.can_change_place_power(self.place_1))
 
     def test_can_change_place_power__banned(self):
-        self.hero._model.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
 
         with mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.depends_from_all_heroes', True):
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_banned', True):
+            with mock.patch('the_tale.game.heroes.objects.Hero.is_banned', True):
                 self.assertFalse(self.hero.can_change_person_power(self.place_1))
 
     def test_can_repair_building(self):
         self.assertFalse(self.hero.can_repair_building)
-        self.hero._model.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         self.assertTrue(self.hero.can_repair_building)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_banned', True):
+        with mock.patch('the_tale.game.heroes.objects.Hero.is_banned', True):
             self.assertFalse(self.hero.can_repair_building)
 
     def test_update_with_account_data(self):
         self.hero.is_fast = True
         self.hero.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=1)
-        self.hero.change_person_power_allowed_end_at = datetime.datetime.now() - datetime.timedelta(seconds=1)
-        self.hero.normal_experience_rate_end_at = datetime.datetime.now() - datetime.timedelta(seconds=1)
 
         self.hero.update_with_account_data(is_fast=False,
                                            premium_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
@@ -287,33 +289,33 @@ class HeroTest(testcase.TestCase):
                                             externals=None,
                                             message='abrakadabra')
 
-        self.hero.messages.clear()
+        self.hero.journal.clear()
         self.hero.diary.clear()
 
-        self.assertEqual(len(self.hero.messages), 0)
+        self.assertEqual(len(self.hero.journal), 0)
         self.assertEqual(len(self.hero.diary), 0)
 
         self.hero.push_message(message)
 
-        self.assertEqual(len(self.hero.messages), 1)
+        self.assertEqual(len(self.hero.journal), 1)
         self.assertEqual(len(self.hero.diary), 0)
 
         self.hero.push_message(message, diary=True)
 
-        self.assertEqual(len(self.hero.messages), 2)
+        self.assertEqual(len(self.hero.journal), 2)
         self.assertEqual(len(self.hero.diary), 1)
 
         self.hero.push_message(message, diary=True, journal=False)
 
-        self.assertEqual(len(self.hero.messages), 2)
+        self.assertEqual(len(self.hero.journal), 2)
         self.assertEqual(len(self.hero.diary), 2)
 
     def test_add_message__inactive_hero(self):
 
-        self.hero.messages.clear()
+        self.hero.journal.clear()
         self.hero.diary.clear()
 
-        self.hero.messages.updated = False
+        self.hero.journal.updated = False
         self.hero.diary.updated = False
 
         self.assertTrue(self.hero.is_active)
@@ -321,27 +323,27 @@ class HeroTest(testcase.TestCase):
         with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_1')):
             self.hero.add_message('hero_common_journal_level_up', diary=True, journal=True)
 
-        self.assertEqual(len(self.hero.messages), 1)
+        self.assertEqual(len(self.hero.journal), 1)
         self.assertEqual(len(self.hero.diary), 1)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_active', False):
+        with mock.patch('the_tale.game.heroes.objects.Hero.is_active', False):
             with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_2')):
                 self.hero.add_message('hero_common_journal_level_up', diary=True, journal=True)
 
-            self.assertEqual(len(self.hero.messages), 2)
+            self.assertEqual(len(self.hero.journal), 2)
             self.assertEqual(len(self.hero.diary), 2)
 
             with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_2')):
                 self.hero.add_message('hero_common_journal_level_up', diary=False, journal=True)
 
-            self.assertEqual(len(self.hero.messages), 0)
+            self.assertEqual(len(self.hero.journal), 0)
             self.assertEqual(len(self.hero.diary), 2)
 
             with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_2')):
-                with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True):
+                with mock.patch('the_tale.game.heroes.objects.Hero.is_premium', True):
                     self.hero.add_message('hero_common_journal_level_up', diary=False, journal=True)
 
-            self.assertEqual(len(self.hero.messages), 1)
+            self.assertEqual(len(self.hero.journal), 1)
             self.assertEqual(len(self.hero.diary), 2)
 
 
@@ -353,21 +355,21 @@ class HeroTest(testcase.TestCase):
         self.assertTrue(maximum_without_premium < maximum_with_premium)
 
     def test_energy(self):
-        self.hero._model.energy = 6
+        self.hero.energy = 6
         self.hero.add_energy_bonus(100)
 
         self.assertEqual(self.hero.energy, 6)
         self.assertEqual(self.hero.energy_full, 106 + heroes_settings.START_ENERGY_BONUS)
 
     def test_change_energy__plus(self):
-        self.hero._model.energy = 6
+        self.hero.energy = 6
         self.hero.add_energy_bonus(100)
 
         self.assertEqual(self.hero.change_energy(self.hero.energy_maximum), self.hero.energy_maximum - 6)
         self.assertEqual(self.hero.energy_bonus, 100 + heroes_settings.START_ENERGY_BONUS)
 
     def test_change_energy__minus(self):
-        self.hero._model.energy = 6
+        self.hero.energy = 6
         self.hero.add_energy_bonus(100 - heroes_settings.START_ENERGY_BONUS)
 
         self.assertEqual(self.hero.change_energy(-50), -50)
@@ -376,9 +378,9 @@ class HeroTest(testcase.TestCase):
         self.assertEqual(self.hero.change_energy(-100), -56)
         self.assertEqual(self.hero.energy_bonus, 0)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.energy_discount', 1)
+    @mock.patch('the_tale.game.heroes.objects.Hero.energy_discount', 1)
     def test_change_energy__discount(self):
-        self.hero._model.energy = 6
+        self.hero.energy = 6
         self.hero.add_energy_bonus(100 - heroes_settings.START_ENERGY_BONUS)
 
         self.assertEqual(self.hero.change_energy(-50), -49)
@@ -387,9 +389,9 @@ class HeroTest(testcase.TestCase):
         self.assertEqual(self.hero.change_energy(-100), -57)
         self.assertEqual(self.hero.energy_bonus, 0)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.energy_discount', 100)
+    @mock.patch('the_tale.game.heroes.objects.Hero.energy_discount', 100)
     def test_change_energy__discount__no_less_1(self):
-        self.hero._model.energy = 6
+        self.hero.energy = 6
         self.hero.add_energy_bonus(-heroes_settings.START_ENERGY_BONUS)
 
         self.assertEqual(self.hero.change_energy(-50), -1)
@@ -402,7 +404,7 @@ class HeroTest(testcase.TestCase):
             values = []
             self.hero.preferences.set_risk_level(risk_level)
             for health_percents in xrange(1, 100, 1):
-                self.hero._model.health = self.hero.max_health * float(health_percents) / 100
+                self.hero.health = self.hero.max_health * float(health_percents) / 100
                 values.append(method(self.hero))
             results.append(values)
 
@@ -518,7 +520,7 @@ class HeroTest(testcase.TestCase):
 
         value_without_premium = self.hero.habit_honor.raw_value
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True):
+        with mock.patch('the_tale.game.heroes.objects.Hero.is_premium', True):
             self.hero.update_habits(relations.HABIT_CHANGE_SOURCE.QUEST_HONORABLE)
 
         self.assertTrue(value_without_premium < self.hero.habit_honor.raw_value - value_without_premium)
@@ -534,9 +536,9 @@ class HeroTest(testcase.TestCase):
         self.assertEqual(self.hero._cached_modifiers, {relations.MODIFIERS.HEALTH: 1.0})
 
     @mock.patch('the_tale.game.balance.power.Power.damage', lambda self: Damage(1, 1))
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.damage_modifier', 2)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.magic_damage_modifier', 3)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.physic_damage_modifier', 4)
+    @mock.patch('the_tale.game.heroes.objects.Hero.damage_modifier', 2)
+    @mock.patch('the_tale.game.heroes.objects.Hero.magic_damage_modifier', 3)
+    @mock.patch('the_tale.game.heroes.objects.Hero.physic_damage_modifier', 4)
     def test_basic_damage(self):
         self.assertEqual(self.hero.basic_damage, Damage(physic=8, magic=6))
 
@@ -555,7 +557,7 @@ class HeroTest(testcase.TestCase):
         self.assertEqual(self.hero.companion._hero.id, self.hero.id)
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_max_health_multiplier', 2)
+    @mock.patch('the_tale.game.heroes.objects.Hero.companion_max_health_multiplier', 2)
     def test_set_companion__health_maximum(self):
         companion_record = companions_storage.companions.enabled_companions().next()
         companion = companions_logic.create_companion(companion_record)
@@ -588,7 +590,7 @@ class HeroTest(testcase.TestCase):
 
         self.hero.set_companion(companion)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             self.hero.remove_companion()
 
         self.assertEqual(reset_accessors_cache.call_count, 1)
@@ -728,7 +730,7 @@ class HeroLevelUpTests(testcase.TestCase):
                                    5: 7}
 
         for level, points_number in level_to_points_number.items():
-            self.hero._model.level = level
+            self.hero.level = level
             self.assertEqual(self.hero.abilities.max_ability_points_number, points_number)
 
 
@@ -943,7 +945,7 @@ class HeroQuestsTest(testcase.TestCase):
 
         result, account_id, bundle_id = register_user('test_user')
 
-        self.hero = HeroPrototype.get_by_account_id(account_id)
+        self.hero = logic.load_hero(account_id=account_id)
 
         self.place = places_storage.all()[0]
         self.person = self.place.persons[0]
@@ -987,13 +989,13 @@ class HeroQuestsTest(testcase.TestCase):
     def test_character_quests_searchsmith_with_preferences_without_artifact(self):
         self.hero.equipment._remove_all()
         self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.PLATE)
-        self.hero.save()
+        logic.save_hero(self.hero)
 
         self.assertTrue(QUESTS.SEARCH_SMITH in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests_searchsmith_with_preferences_with_artifact(self):
         self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.PLATE)
-        self.hero.save()
+        logic.save_hero(self.hero)
 
         self.assertTrue(self.hero.equipment.get(relations.EQUIPMENT_SLOT.PLATE) is not None)
         self.assertTrue(QUESTS.SEARCH_SMITH in [quest for quest, priority in self.hero.get_quests_priorities()])
@@ -1009,16 +1011,19 @@ class HeroQuestsTest(testcase.TestCase):
         self.assertTrue(QUESTS.PILGRIMAGE in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_get_minimum_created_time_of_active_quests(self):
-        self.hero._model.quest_created_time = datetime.datetime.now() - datetime.timedelta(days=1)
-        self.hero.save()
+        with mock.patch('the_tale.game.quests.container.QuestsContainer.min_quest_created_time', datetime.datetime.now() - datetime.timedelta(days=1)):
+            logic.save_hero(self.hero)
 
-        result, account_id, bundle_id = register_user('test_user_2')
-        hero = HeroPrototype.get_by_account_id(account_id)
-        hero._model.quest_created_time = datetime.datetime.now() - datetime.timedelta(days=2)
-        hero.save()
+        account = self.accounts_factory.create_account()
+        hero = logic.load_hero(account_id=account.id)
+
+        test_time = datetime.datetime.now() - datetime.timedelta(days=2)
+
+        with mock.patch('the_tale.game.quests.container.QuestsContainer.min_quest_created_time', test_time):
+            logic.save_hero(hero)
 
         # not there are no another quests an get_minimum_created_time_of_active_quests return now()
-        self.assertEqual(hero._model.quest_created_time, HeroPrototype.get_minimum_created_time_of_active_quests())
+        self.assertEqual(test_time, logic.get_minimum_created_time_of_active_quests())
 
 
     def test_modify_quest_priority(self):
@@ -1059,33 +1064,33 @@ class HeroUiInfoTest(testcase.TestCase):
     # recache required
     ########################
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
     def test_cached_ui_info_from_cache__from_cache_is_true__for_not_visited_heroes(self):
         self.hero.ui_caching_started_at -= datetime.timedelta(seconds=heroes_settings.UI_CACHING_TIME + 1)
-        self.hero.save()
+        logic.save_hero(self.hero)
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turns=None, for_last_turn=False)
+            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
+                objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turns=None, for_last_turn=False)
         self.assertEqual(cmd_start_hero_caching.call_count, 1)
         self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
     def test_cached_ui_info_for_hero__data_is_none(self):
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turns=None, for_last_turn=False)
+            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
+                objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turns=None, for_last_turn=False)
 
         self.assertEqual(cmd_start_hero_caching.call_count, 1)
         self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
     def test_cached_ui_info_for_hero__data_is_none__game_stopped(self):
         GameState.stop()
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turns=None, for_last_turn=False)
+            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
+                objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turns=None, for_last_turn=False)
         self.assertEqual(cmd_start_hero_caching.call_count, 0)
         self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
 
@@ -1093,17 +1098,17 @@ class HeroUiInfoTest(testcase.TestCase):
     @mock.patch('dext.common.utils.cache.get', get_simple_cache_data)
     def test_cached_ui_info_for_hero__continue_caching_required__cache_exists(self):
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turns=None, for_last_turn=False)
+            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
+                objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turns=None, for_last_turn=False)
         self.assertEqual(cmd_start_hero_caching.call_count, 1)
         self.assertEqual(ui_info.call_count, 0)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
     @mock.patch('dext.common.utils.cache.get', lambda x: None)
     def test_cached_ui_info_for_hero__continue_caching_required__cache_not_exists(self):
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turns=None, for_last_turn=False)
+            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
+                objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turns=None, for_last_turn=False)
 
         self.assertEqual(cmd_start_hero_caching.call_count, 1)
         self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
@@ -1113,8 +1118,8 @@ class HeroUiInfoTest(testcase.TestCase):
         GameState.stop()
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turns=None, for_last_turn=False)
+            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
+                objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turns=None, for_last_turn=False)
         self.assertEqual(cmd_start_hero_caching.call_count, 0)
         self.assertEqual(ui_info.call_count, 0)
 
@@ -1123,16 +1128,16 @@ class HeroUiInfoTest(testcase.TestCase):
         GameState.stop()
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turns=None, for_last_turn=False)
+            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
+                objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turns=None, for_last_turn=False)
         self.assertEqual(cmd_start_hero_caching.call_count, 0)
         self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
 
     @mock.patch('dext.common.utils.cache.get', lambda x: get_simple_cache_data(ui_caching_started_at=time.time()))
     def test_cached_ui_info_for_hero__continue_caching_not_required(self):
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turns=None, for_last_turn=False)
+            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
+                objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turns=None, for_last_turn=False)
         self.assertEqual(cmd_start_hero_caching.call_count, 0)
         self.assertEqual(ui_info.call_count, 0)
 
@@ -1140,33 +1145,33 @@ class HeroUiInfoTest(testcase.TestCase):
     ########################
     # recache not required
     ########################
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
     def test_cached_ui_info_from_cache__from_cache_is_true__for_not_visited_heroes__recache_not_required(self):
         self.hero.ui_caching_started_at -= datetime.timedelta(seconds=heroes_settings.UI_CACHING_TIME + 1)
-        self.hero.save()
+        logic.save_hero(self.hero)
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=False)
+            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
+                objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=False)
         self.assertEqual(cmd_start_hero_caching.call_count, 0)
         self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
     def test_cached_ui_info_for_hero__data_is_none__recache_not_required(self):
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=False)
+            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
+                objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=False)
 
         self.assertEqual(cmd_start_hero_caching.call_count, 0)
         self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
     def test_cached_ui_info_for_hero__data_is_none__game_stopped__recache_not_required(self):
         GameState.stop()
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=False)
+            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
+                objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=False)
         self.assertEqual(cmd_start_hero_caching.call_count, 0)
         self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
 
@@ -1174,17 +1179,17 @@ class HeroUiInfoTest(testcase.TestCase):
     @mock.patch('dext.common.utils.cache.get', get_simple_cache_data)
     def test_cached_ui_info_for_hero__continue_caching_required__cache_exists__recache_not_required(self):
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=False)
+            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
+                objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=False)
         self.assertEqual(cmd_start_hero_caching.call_count, 0)
         self.assertEqual(ui_info.call_count, 0)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
     @mock.patch('dext.common.utils.cache.get', lambda x: None)
     def test_cached_ui_info_for_hero__continue_caching_required__cache_not_exists__recache_not_required(self):
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=False)
+            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
+                objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=False)
 
         self.assertEqual(cmd_start_hero_caching.call_count, 0)
         self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
@@ -1194,8 +1199,8 @@ class HeroUiInfoTest(testcase.TestCase):
         GameState.stop()
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=False)
+            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
+                objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=False)
         self.assertEqual(cmd_start_hero_caching.call_count, 0)
         self.assertEqual(ui_info.call_count, 0)
 
@@ -1204,16 +1209,16 @@ class HeroUiInfoTest(testcase.TestCase):
         GameState.stop()
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=False)
+            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
+                objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=False)
         self.assertEqual(cmd_start_hero_caching.call_count, 0)
         self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
 
     @mock.patch('dext.common.utils.cache.get', lambda x: get_simple_cache_data(ui_caching_started_at=time.time()))
     def test_cached_ui_info_for_hero__continue_caching_not_required__recache_not_required(self):
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
-                HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=False)
+            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
+                objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=False)
         self.assertEqual(cmd_start_hero_caching.call_count, 0)
         self.assertEqual(ui_info.call_count, 0)
 
@@ -1228,7 +1233,7 @@ class HeroUiInfoTest(testcase.TestCase):
                                                           'patch_turn': 666,
                                                           'changed_fields': ['b', 'c', 'changed_fields', 'patch_turn']})
     def test_cached_ui_info_for_hero__make_patch(self):
-        data = HeroPrototype.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turns=[666], for_last_turn=False)
+        data = objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turns=[666], for_last_turn=False)
         self.assertEqual(data,
                          {'b': 2,
                           'c': 3,
@@ -1308,7 +1313,7 @@ class HeroUiInfoTest(testcase.TestCase):
         self.assertEqual(self.hero.ui_info(actual_guaranteed=True)['actual_on_turn'], 666)
         self.assertEqual(self.hero.ui_info(actual_guaranteed=False)['actual_on_turn'], 0)
 
-        self.hero.save()
+        logic.save_hero(self.hero)
 
         self.assertTrue(self.hero.saved_at_turn, 666)
 
@@ -1319,7 +1324,7 @@ class HeroUiInfoTest(testcase.TestCase):
         self.assertTrue(heroes_settings.UI_CACHING_TIMEOUT > c.TURN_DELTA)
 
     def test_is_ui_continue_caching_required(self):
-        self.assertTrue(HeroPrototype.is_ui_continue_caching_required(0))
-        self.assertFalse(HeroPrototype.is_ui_continue_caching_required(time.time() - (heroes_settings.UI_CACHING_TIME - heroes_settings.UI_CACHING_CONTINUE_TIME - 1)))
-        self.assertTrue(HeroPrototype.is_ui_continue_caching_required(time.time() - (heroes_settings.UI_CACHING_TIME - heroes_settings.UI_CACHING_CONTINUE_TIME + 1)))
-        self.assertTrue(HeroPrototype.is_ui_continue_caching_required(time.time() - heroes_settings.UI_CACHING_TIME))
+        self.assertTrue(objects.Hero.is_ui_continue_caching_required(0))
+        self.assertFalse(objects.Hero.is_ui_continue_caching_required(time.time() - (heroes_settings.UI_CACHING_TIME - heroes_settings.UI_CACHING_CONTINUE_TIME - 1)))
+        self.assertTrue(objects.Hero.is_ui_continue_caching_required(time.time() - (heroes_settings.UI_CACHING_TIME - heroes_settings.UI_CACHING_CONTINUE_TIME + 1)))
+        self.assertTrue(objects.Hero.is_ui_continue_caching_required(time.time() - heroes_settings.UI_CACHING_TIME))

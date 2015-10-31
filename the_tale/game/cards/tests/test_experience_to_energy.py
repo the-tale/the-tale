@@ -36,7 +36,7 @@ class ExperienceToEnergyMixin(CardsTestMixin):
 
         self.card = self.CARD()
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.experience_modifier', 1.0)
+    @mock.patch('the_tale.game.heroes.objects.Hero.experience_modifier', 1.0)
     def test_use(self):
         self.hero.add_experience(39)
         self.assertEqual(self.hero.experience, 39)

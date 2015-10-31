@@ -69,7 +69,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
                     self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
     def test_success(self):
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.on_help') as on_help:
+        with mock.patch('the_tale.game.heroes.objects.Hero.on_help') as on_help:
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
                 with self.check_delta(lambda: self.hero.cards.help_count, 1):
                     self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
@@ -77,7 +77,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
         self.assertEqual(on_help.call_count, 1)
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_be_helped', lambda hero: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_be_helped', lambda hero: False)
     def test_help_restricted(self):
         with self.check_not_changed(lambda: self.hero.statistics.help_count):
             with self.check_not_changed(lambda: self.hero.cards.help_count):
@@ -134,7 +134,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
                 self.assertTrue(self.hero.money > old_hero_money)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_teleport(self):
         move_place = self.p3
         if move_place.id == self.hero.position.place.id:
@@ -160,7 +160,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
 
     @mock.patch('the_tale.game.balance.constants.ANGEL_HELP_CRIT_TELEPORT_DISTANCE', 9999999999)
     @mock.patch('the_tale.game.balance.constants.ANGEL_HELP_TELEPORT_DISTANCE', 9999999999)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_teleport__inplace_action_created(self):
         move_place = self.p3
         if move_place.id == self.hero.position.place.id:
@@ -263,7 +263,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
     @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HABIT_MODE', actions_relations.ACTION_HABIT_MODE.AGGRESSIVE)
     def test_update_habits__aggressive_action(self):
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
+        with mock.patch('the_tale.game.heroes.objects.Hero.update_habits') as update_habits:
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
@@ -271,7 +271,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
 
     @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HABIT_MODE', actions_relations.ACTION_HABIT_MODE.PEACEFUL)
     def test_update_habits__unaggressive_action(self):
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
+        with mock.patch('the_tale.game.heroes.objects.Hero.update_habits') as update_habits:
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
@@ -318,8 +318,8 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
-        self.assertTrue(self.hero.messages.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION)
-        self.assertFalse(self.hero.messages.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION_CRIT)
+        self.assertTrue(self.hero.journal.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION)
+        self.assertFalse(self.hero.journal.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION_CRIT)
 
     @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL_COMPANION)
     def test_heal_companion__full_health(self):
@@ -332,11 +332,11 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
             with self.check_not_changed(lambda: self.hero.statistics.help_count):
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
-        self.assertFalse(self.hero.messages.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION)
-        self.assertFalse(self.hero.messages.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION_CRIT)
+        self.assertFalse(self.hero.journal.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION)
+        self.assertFalse(self.hero.journal.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION_CRIT)
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.might_crit_chance', 1)
+    @mock.patch('the_tale.game.heroes.objects.Hero.might_crit_chance', 1)
     @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL_COMPANION)
     def test_heal_companion__crit(self):
         companion_record = companions_storage.companions.enabled_companions().next()
@@ -348,8 +348,8 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
-        self.assertFalse(self.hero.messages.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION)
-        self.assertTrue(self.hero.messages.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION_CRIT)
+        self.assertFalse(self.hero.journal.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION)
+        self.assertTrue(self.hero.journal.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION_CRIT)
 
 
     @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL_COMPANION)

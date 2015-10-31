@@ -7,10 +7,10 @@ from the_tale.common.utils import testcase
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
 
-from the_tale.game.heroes.prototypes import HeroPrototype
-
 from the_tale.game.actions import prototypes as actions_prototypes
 from the_tale.game.actions import meta_actions
+
+from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.logic import create_test_map
 from the_tale.game.logic_storage import LogicStorage
@@ -148,8 +148,8 @@ class LogicStorageTests(testcase.TestCase):
 
         self.storage._save_hero_data(self.hero_1.id)
 
-        self.assertEqual(self.hero_1.health, HeroPrototype.get_by_id(self.hero_1.id).health)
-        self.assertNotEqual(self.hero_2.health, HeroPrototype.get_by_id(self.hero_2.id).health)
+        self.assertEqual(self.hero_1.health, heroes_logic.load_hero(hero_id=self.hero_1.id).health)
+        self.assertNotEqual(self.hero_2.health, heroes_logic.load_hero(hero_id=self.hero_2.id).health)
 
         self.assertFalse(self.hero_1.actions.updated)
 
@@ -162,8 +162,8 @@ class LogicStorageTests(testcase.TestCase):
 
         self.storage.save_all()
 
-        self.assertEqual(self.hero_1.health, HeroPrototype.get_by_id(self.hero_1.id).health)
-        self.assertEqual(self.hero_2.health, HeroPrototype.get_by_id(self.hero_2.id).health)
+        self.assertEqual(self.hero_1.health, heroes_logic.load_hero(hero_id=self.hero_1.id).health)
+        self.assertEqual(self.hero_2.health, heroes_logic.load_hero(hero_id=self.hero_2.id).health)
 
         self.assertFalse(self.hero_1.actions.updated)
 
@@ -178,8 +178,9 @@ class LogicStorageTests(testcase.TestCase):
         self.storage._save_hero_data(self.hero_1.id)
         self.storage._save_hero_data(self.hero_2.id)
 
-        self.hero_1.reload()
-        self.hero_2.reload()
+        self.hero_1 = heroes_logic.load_hero(hero_id=self.hero_1.id)
+        self.hero_2 = heroes_logic.load_hero(hero_id=self.hero_2.id)
+
 
         self.assertEqual(meta_action_battle.serialize(), self.hero_1.actions.current_action.saved_meta_action.serialize())
         self.assertEqual(meta_action_battle.serialize(), self.hero_2.actions.current_action.saved_meta_action.serialize())
@@ -377,14 +378,14 @@ class LogicStorageTests(testcase.TestCase):
 
         self.assertEqual(save_hero_data.call_count, 1)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_process_turn', lambda self, turn: True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_process_turn', lambda self, turn: True)
     def test_process_turn__can_process_turn(self):
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.process_turn') as action_process_turn:
             self.storage.process_turn(continue_steps_if_needed=False)
 
         self.assertEqual(action_process_turn.call_count, 2)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_process_turn', lambda self, turn: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_process_turn', lambda self, turn: False)
     def test_process_turn__can_not_process_turn(self):
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.process_turn') as action_process_turn:
             self.storage.process_turn(continue_steps_if_needed=False)
@@ -453,7 +454,7 @@ class LogicStorageTests(testcase.TestCase):
 
         saved_heroes = set()
 
-        self.hero_2._model.saved_at = datetime.datetime.now() - datetime.timedelta(seconds=conf.game_settings.SAVE_ON_EXCEPTION_TIMEOUT+1)
+        self.hero_2.saved_at = datetime.datetime.now() - datetime.timedelta(seconds=conf.game_settings.SAVE_ON_EXCEPTION_TIMEOUT+1)
 
         def save_hero_data(storage, hero_id, **kwargs):
             saved_heroes.add(hero_id)
@@ -470,7 +471,7 @@ class LogicStorageTests(testcase.TestCase):
         self.storage.process_turn()
 
         with mock.patch('dext.common.utils.cache.set_many') as set_many:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
                 self.storage.save_changed_data()
 
         self.assertEqual(set_many.call_count, 1)
@@ -487,7 +488,7 @@ class LogicStorageTests(testcase.TestCase):
             calls.append(kwargs)
             return {'hero': hero.id}
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info', ui_info):
+        with mock.patch('the_tale.game.heroes.objects.Hero.ui_info', ui_info):
             self.storage.save_changed_data()
             self.storage.process_turn()
             self.storage.save_changed_data()
@@ -505,7 +506,7 @@ class LogicStorageTests(testcase.TestCase):
         self.storage.process_turn()
 
         with mock.patch('dext.common.utils.cache.set_many') as set_many:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
                 self.storage.save_changed_data()
 
         self.assertEqual(set_many.call_count, 1)
@@ -522,7 +523,7 @@ class LogicStorageTests(testcase.TestCase):
 
         with mock.patch('the_tale.game.logic_storage.LogicStorage._get_bundles_to_save', lambda x: [self.bundle_2_id]):
             with mock.patch('the_tale.game.logic_storage.LogicStorage._save_hero_data') as save_hero_data:
-                with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
                     self.storage.save_changed_data()
 
         self.assertEqual(ui_info.call_count, 2) # cache all heroes, since they are new
@@ -538,7 +539,7 @@ class LogicStorageTests(testcase.TestCase):
 
         with mock.patch('the_tale.game.logic_storage.LogicStorage._get_bundles_to_save', lambda x: [self.bundle_2_id]):
             with mock.patch('the_tale.game.logic_storage.LogicStorage._save_hero_data') as save_hero_data:
-                with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
                     self.storage.save_changed_data()
 
         self.assertEqual(ui_info.call_count, 1) # cache only first hero
@@ -592,7 +593,7 @@ class LogicStorageTests(testcase.TestCase):
         hero_3 = self.storage.accounts_to_heroes[account_3_id]
         hero_4 = self.storage.accounts_to_heroes[account_4_id]
 
-        self.hero_1._model.saved_at = datetime.datetime.now()
+        self.hero_1.saved_at = datetime.datetime.now()
         self.hero_1.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
         self.hero_2.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
         hero_4.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
@@ -628,7 +629,7 @@ class LogicStorageTests(testcase.TestCase):
 
         hero_4.force_save_required = True
 
-        self.hero_1._model.saved_at = datetime.datetime.now()
+        self.hero_1.saved_at = datetime.datetime.now()
         self.hero_1.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
         self.hero_2.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
         hero_4.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
@@ -662,7 +663,7 @@ class LogicStorageTests(testcase.TestCase):
         hero_3 = self.storage.accounts_to_heroes[account_3_id]
         hero_4 = self.storage.accounts_to_heroes[account_4_id]
 
-        self.hero_1._model.saved_at = datetime.datetime.now()
+        self.hero_1.saved_at = datetime.datetime.now()
         self.hero_1.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
         self.hero_2.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
         hero_4.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
@@ -689,7 +690,7 @@ class LogicStorageTests(testcase.TestCase):
 
         hero_3 = self.storage.accounts_to_heroes[account_3_id]
 
-        self.hero_1._model.saved_at = datetime.datetime.now()
+        self.hero_1.saved_at = datetime.datetime.now()
         self.hero_1.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
         self.hero_1.actions.current_action.bundle_id = hero_3.actions.current_action.bundle_id
         self.hero_2.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
@@ -705,7 +706,7 @@ class LogicStorageTests(testcase.TestCase):
 
         with mock.patch('dext.common.utils.cache.set_many') as set_many:
             with mock.patch('the_tale.game.logic_storage.LogicStorage._save_hero_data') as save_hero_data:
-                with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
                     self.storage.save_changed_data()
 
         self.assertEqual(set_many.call_count, 1)
@@ -727,7 +728,7 @@ class LogicStorageTests(testcase.TestCase):
 
         hero_3 = self.storage.accounts_to_heroes[account_3_id]
 
-        self.hero_1._model.saved_at = datetime.datetime.now()
+        self.hero_1.saved_at = datetime.datetime.now()
         self.hero_1.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
         self.hero_1.actions.current_action.bundle_id = self.hero_2.actions.current_action.bundle_id
         self.hero_2.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
@@ -743,7 +744,7 @@ class LogicStorageTests(testcase.TestCase):
 
         with mock.patch('dext.common.utils.cache.set_many') as set_many:
             with mock.patch('the_tale.game.logic_storage.LogicStorage._save_hero_data') as save_hero_data:
-                with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+                with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
                     self.storage.save_changed_data()
 
         self.assertEqual(set_many.call_count, 1)

@@ -83,7 +83,7 @@ class PrototypeTests(PrototypeTestsBase):
         super(PrototypeTests, self).setUp()
 
     def test_serialization(self):
-        self.assertEqual(self.quest.serialize(), QuestPrototype.deserialize(self.hero, self.quest.serialize()).serialize())
+        self.assertEqual(self.quest.serialize(), QuestPrototype.deserialize(self.quest.serialize()).serialize())
 
     def test_do_step(self):
         self.hero.quests.updated = False
@@ -127,7 +127,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertNotEqual(self.hero.quests.interfered_persons, {})
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_change_person_power', lambda self, person: True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True)
     def test_give_person_power__profession(self):
 
         person = persons_storage.persons_storage.all()[0]
@@ -230,7 +230,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertTrue(get_experience_modifier.call_count > 0)
 
     @mock.patch('the_tale.game.balance.constants.ARTIFACTS_PER_BATTLE', 0)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_get_artifact_for_quest', lambda *argv: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda *argv: False)
     def test_get_money_for_quest(self):
         self.assertEqual(self.hero.statistics.money_earned_from_quests, 0)
         self.assertEqual(self.hero.statistics.artifacts_had, 0)
@@ -239,7 +239,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertEqual(self.hero.statistics.artifacts_had, 0)
 
     @mock.patch('the_tale.game.balance.constants.ARTIFACTS_PER_BATTLE', 0)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_get_artifact_for_quest', lambda *argv: True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda *argv: True)
     def test_get_artifacts_for_quest(self):
         self.assertEqual(self.hero.statistics.money_earned_from_quests, 0)
         self.assertEqual(self.hero.statistics.artifacts_had, 0)
@@ -318,7 +318,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertEqual(test_artifact.integrity, test_artifact.max_integrity)
 
     def test_upgrade_equipment__money_limit(self):
-        self.hero._model.money = 99999999
+        self.hero.money = 99999999
 
         self.quest._upgrade_equipment(process_message=self.quest.current_info.process_message,
                                       hero=self.hero,
@@ -328,7 +328,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertTrue(self.hero.money > 0)
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_get_artifact_for_quest', lambda hero: True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda hero: True)
     @mock.patch('the_tale.game.balance.constants.ARTIFACT_POWER_DELTA', 0.0)
     def test_give_reward__artifact_scale(self):
 
@@ -337,11 +337,11 @@ class PrototypeTests(PrototypeTestsBase):
         ArtifactRecordPrototype.create_random('just_ring', type_=ARTIFACT_TYPE.RING)
         ArtifactRecordPrototype.create_random('just_amulet', type_=ARTIFACT_TYPE.AMULET)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.receive_artifacts_choices',
+        with mock.patch('the_tale.game.heroes.objects.Hero.receive_artifacts_choices',
                         lambda *argv, **kwargs: artifacts_storage.artifacts_for_type([ARTIFACT_TYPE.RING])):
             self.quest._give_reward(self.hero, 'bla-bla', scale=1.0)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.receive_artifacts_choices',
+        with mock.patch('the_tale.game.heroes.objects.Hero.receive_artifacts_choices',
                         lambda *argv, **kwargs: artifacts_storage.artifacts_for_type([ARTIFACT_TYPE.AMULET])):
             self.quest._give_reward(self.hero, 'bla-bla', scale=1.5)
 
@@ -351,7 +351,7 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.assertEqual(artifact_1.level + 1, artifact_2.level)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_get_artifact_for_quest', lambda hero: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda hero: False)
     def test_give_reward__money_scale(self):
 
         self.assertEqual(self.hero.money, 0)
@@ -364,8 +364,8 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.assertEqual(self.hero.money - not_scaled_money, int(f.sell_artifact_price(self.hero.level) * 1.5))
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_get_artifact_for_quest', lambda hero: False)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.quest_money_reward_multiplier', lambda hero: -100)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda hero: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.quest_money_reward_multiplier', lambda hero: -100)
     def test_give_reward__money_scale_less_then_zero(self):
 
         with self.check_delta(lambda: self.hero.money, 1):
@@ -514,7 +514,7 @@ class PrototypeTests(PrototypeTestsBase):
 
 
     @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.modify_experience', lambda self, exp: exp)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.experience_modifier', 2)
+    @mock.patch('the_tale.game.heroes.objects.Hero.experience_modifier', 2)
     def test_finish_quest__add_bonus_experience(self):
 
         self.quest.current_info.experience = 10
@@ -538,7 +538,7 @@ class PrototypeTests(PrototypeTestsBase):
             with self.check_not_changed(lambda: self.hero.companion.coherence):
                 self.quest._finish_quest(mock.Mock(results=mock.Mock(iteritems=lambda: [])), self.hero)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_premium', True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_premium', True)
     def test_give_power__add_bonus_power(self):
 
         self.quest.current_info.power = 10
@@ -585,7 +585,7 @@ class InterpreterCallbacksTests(PrototypeTestsBase):
         path = facts.ChoicePath(choice='some_choice', option=jump.uid, default=True)
         self.quest.knowledge_base += path
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
+        with mock.patch('the_tale.game.heroes.objects.Hero.update_habits') as update_habits:
             self.quest.on_jump_end__after_actions(jump)
         self.assertEqual(update_habits.call_args_list, [])
 
@@ -594,7 +594,7 @@ class InterpreterCallbacksTests(PrototypeTestsBase):
         path = facts.ChoicePath(choice='some_choice', option=jump.uid, default=True)
         self.quest.knowledge_base += path
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
+        with mock.patch('the_tale.game.heroes.objects.Hero.update_habits') as update_habits:
             self.quest.on_jump_end__after_actions(jump)
         self.assertEqual(update_habits.call_args_list, [])
 
@@ -616,7 +616,7 @@ class InterpreterCallbacksTests(PrototypeTestsBase):
 
         self.quest.on_jump_end__after_actions(jump)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
+        with mock.patch('the_tale.game.heroes.objects.Hero.update_habits') as update_habits:
             self.quest.on_state__after_actions(facts.Finish(uid='test_uid',
                                                             start='any_start_uid',
                                                             results={},
@@ -632,7 +632,7 @@ class InterpreterCallbacksTests(PrototypeTestsBase):
         path = facts.ChoicePath(choice='some_choice', option=jump.uid, default=False)
         self.quest.knowledge_base += path
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
+        with mock.patch('the_tale.game.heroes.objects.Hero.update_habits') as update_habits:
             self.quest.on_jump_end__after_actions(jump)
         self.assertEqual(update_habits.call_args_list, [])
 
@@ -641,7 +641,7 @@ class InterpreterCallbacksTests(PrototypeTestsBase):
         path = facts.ChoicePath(choice='some_choice', option=jump.uid, default=False)
         self.quest.knowledge_base += path
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
+        with mock.patch('the_tale.game.heroes.objects.Hero.update_habits') as update_habits:
             self.quest.on_jump_end__after_actions(jump)
         self.assertEqual(update_habits.call_args_list, [])
 
@@ -664,7 +664,7 @@ class InterpreterCallbacksTests(PrototypeTestsBase):
 
         self.quest.on_jump_end__after_actions(jump)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
+        with mock.patch('the_tale.game.heroes.objects.Hero.update_habits') as update_habits:
             self.quest.on_state__after_actions(facts.Finish(uid='test_uid',
                                                             start='any_start_uid',
                                                             results={},
@@ -864,7 +864,7 @@ class CheckRequirementsTests(PrototypeTestsBase):
         requirement = requirements.HasMoney(object=self.hero_fact.uid, money=666)
         self.assertFalse(self.quest.check_has_money(requirement))
 
-        self.hero._model.money = 667
+        self.hero.money = 667
         self.assertTrue(self.quest.check_has_money(requirement))
 
     def test_check_has_money__wrong_requirement(self):

@@ -225,7 +225,7 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
             self.assertTrue(ability_priority > 0)
 
     def test_process_bot_called__hero_1(self):
-        self.hero_1._model.is_bot = True
+        self.hero_1.is_bot = True
 
         with mock.patch('the_tale.game.actions.meta_actions.ArenaPvP1x1.process_bot') as process_bot:
             self.meta_action_battle.process()
@@ -236,7 +236,7 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
 
 
     def test_process_bot_called__hero_2(self):
-        self.hero_2._model.is_bot = True
+        self.hero_2.is_bot = True
 
         with mock.patch('the_tale.game.actions.meta_actions.ArenaPvP1x1.process_bot') as process_bot:
             self.meta_action_battle.process()
@@ -247,7 +247,7 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
 
 
     def test_process_bot_called__use_ability(self):
-        self.hero_1._model.is_bot = True
+        self.hero_1.is_bot = True
         self.hero_1.pvp.set_energy(10)
 
         properties = self.meta_action_battle.bot_pvp_properties
@@ -270,7 +270,7 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
         hero_1 = storage.accounts_to_heroes[account_1.id]
         hero_2 = storage.accounts_to_heroes[account_2.id]
 
-        hero_1._model.level = 50
+        hero_1.level = 50
         self.assertEqual(hero_2.level, 1)
 
         meta_actions.ArenaPvP1x1.create(storage, hero_1, hero_2)
@@ -291,7 +291,7 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
         hero_1 = storage.accounts_to_heroes[account_1.id]
         hero_2 = storage.accounts_to_heroes[account_2.id]
 
-        hero_2._model.level = 50
+        hero_2.level = 50
         self.assertEqual(hero_1.level, 1)
 
         meta_actions.ArenaPvP1x1.create(storage, hero_1, hero_2)
@@ -312,7 +312,7 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
         hero_1 = storage.accounts_to_heroes[account_1.id]
         hero_2 = storage.accounts_to_heroes[account_2.id]
 
-        hero_1._model.level = 50
+        hero_1.level = 50
         self.assertEqual(hero_2.level, 1)
 
         self.pvp_create_battle(account_1, account_2, BATTLE_1X1_STATE.PROCESSING)

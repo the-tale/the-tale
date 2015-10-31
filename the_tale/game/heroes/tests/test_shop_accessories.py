@@ -46,7 +46,7 @@ class ShopAccessoriesTest(testcase.TestCase):
 
         self.assertEqual(rechooce_choices.call_count, 1)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.experience_modifier', 1.0)
+    @mock.patch('the_tale.game.heroes.objects.Hero.experience_modifier', 1.0)
     def test_purchase_experience(self):
         self.assertEqual(self.hero.experience, 0)
         self.hero.purchase_experience(1)
@@ -94,7 +94,7 @@ class ShopAccessoriesTest(testcase.TestCase):
 
 
     def test_purchase_artifact__better_artifact__large_level(self):
-        self.hero._model.level = 100
+        self.hero.level = 100
 
         self.assertEqual(self.hero.level, 100)
 
@@ -113,7 +113,7 @@ class ShopAccessoriesTest(testcase.TestCase):
 
 
     def test_purchase_artifact__not_better_artifact__large_level(self):
-        self.hero._model.level = 100
+        self.hero.level = 100
 
         self.assertEqual(self.hero.level, 100)
 

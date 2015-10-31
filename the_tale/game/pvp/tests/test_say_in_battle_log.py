@@ -58,22 +58,22 @@ class SayInBattleLogTests(testcase.TestCase):
         self.assertEqual(self.task.state, SAY_IN_HERO_LOG_TASK_STATE.BATTLE_NOT_FOUND)
 
     def test_process_success(self):
-        old_hero_1_last_message = self.hero_1.messages.messages[-1]
-        old_hero_2_last_message = self.hero_2.messages.messages[-1]
+        old_hero_1_last_message = self.hero_1.journal.messages[-1]
+        old_hero_2_last_message = self.hero_2.journal.messages[-1]
 
         self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(self.task.state, SAY_IN_HERO_LOG_TASK_STATE.PROCESSED)
 
-        self.assertNotEqual(old_hero_1_last_message, self.hero_1.messages.messages[-1])
-        self.assertNotEqual(old_hero_2_last_message, self.hero_2.messages.messages[-1])
+        self.assertNotEqual(old_hero_1_last_message, self.hero_1.journal.messages[-1])
+        self.assertNotEqual(old_hero_2_last_message, self.hero_2.journal.messages[-1])
 
     def test_process_success_without_second_hero(self):
-        old_hero_1_last_message = self.hero_1.messages.messages[-1]
-        old_hero_2_last_message = self.hero_2.messages.messages[-1]
+        old_hero_1_last_message = self.hero_1.journal.messages[-1]
+        old_hero_2_last_message = self.hero_2.journal.messages[-1]
 
         self.storage.release_account_data(self.account_2.id)
         self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertEqual(self.task.state, SAY_IN_HERO_LOG_TASK_STATE.PROCESSED)
-        self.assertNotEqual(old_hero_1_last_message, self.hero_1.messages.messages[-1])
-        self.assertEqual(old_hero_2_last_message, self.hero_2.messages.messages[-1])
+        self.assertNotEqual(old_hero_1_last_message, self.hero_1.journal.messages[-1])
+        self.assertEqual(old_hero_2_last_message, self.hero_2.journal.messages[-1])

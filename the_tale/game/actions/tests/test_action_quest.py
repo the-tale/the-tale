@@ -64,7 +64,7 @@ class QuestActionTests(testcase.TestCase):
 
 
     def test_need_equipping(self):
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.need_equipping', lambda hero: True):
+        with mock.patch('the_tale.game.heroes.objects.Hero.need_equipping', lambda hero: True):
             self.storage.process_turn()
 
         self.assertEqual(self.action_quest.state, self.action_quest.STATE.EQUIPPING)

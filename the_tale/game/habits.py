@@ -6,18 +6,16 @@ from the_tale.game.balance import constants as c
 
 
 class HabitBase(object):
-    __slots__ = ('owner', 'field_name', 'intervals', '_interval__lazy')
+    __slots__ = ('owner', 'raw_value', 'intervals', '_interval__lazy')
     TYPE = None
 
-    def __init__(self, owner, name):
+    def __init__(self, raw_value):
         super(HabitBase, self).__init__()
-        self.owner = owner
-        self.field_name = 'habit_%s' % name
+        self.owner = None
+        self.raw_value = raw_value
 
-    @property
-    def raw_value(self):
-        return getattr(self.owner._model, self.field_name)
-
+    def set_habit(self, value):
+        self.raw_value = max(-c.HABITS_BORDER, min(c.HABITS_BORDER, value))
 
     @lazy_property
     def interval(self):
@@ -39,9 +37,6 @@ class HabitBase(object):
     @property
     def decrease_modifier(self):
         return 1
-
-    def set_habit(self, value):
-        setattr(self.owner._model, self.field_name, max(-c.HABITS_BORDER, min(c.HABITS_BORDER, value)))
 
     def change(self, delta):
         if (self.raw_value > 0 and delta > 0) or (self.raw_value < 0 and delta < 0):

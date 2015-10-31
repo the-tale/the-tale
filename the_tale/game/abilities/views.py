@@ -6,10 +6,10 @@ from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.decorators import login_required
 from the_tale.common.utils import api
 
-from the_tale.game.heroes.prototypes import HeroPrototype
-
 from the_tale.game.abilities.deck import ABILITIES
 from the_tale.game.abilities.relations import ABILITY_TYPE
+
+from the_tale.game.heroes import logic as heroes_logic
 
 
 def argument_to_ability(ability_type): return ABILITIES.get(ABILITY_TYPE(ability_type))
@@ -43,7 +43,7 @@ class AbilitiesResource(Resource):
 Цена использования способностей возвращается при запросе базовой информации.
         '''
 
-        task = self.ability.activate(HeroPrototype.get_by_account_id(self.account.id),
+        task = self.ability.activate(heroes_logic.load_hero(account_id=self.account.id),
                                      data={'building_id': building,
                                            'battle_id': battle})
 

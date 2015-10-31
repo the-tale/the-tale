@@ -23,7 +23,8 @@ from the_tale.forum.models import Post
 
 from the_tale.linguistics.tests import helpers as linguistics_helpers
 
-from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes import logic as heroes_logic
+
 
 from the_tale.game.map.places.storage import places_storage
 from the_tale.game.map.places.relations import RESOURCE_EXCHANGE_TYPE
@@ -318,11 +319,11 @@ class TestShowRequests(BaseTestRequests):
     def setUp(self):
         super(TestShowRequests, self).setUp()
 
-        self.hero = HeroPrototype.get_by_account_id(self.account2.id)
+        self.hero = heroes_logic.load_hero(account_id=self.account2.id)
         self.hero.places_history.add_place(self.place1.id)
         self.hero.places_history.add_place(self.place2.id)
         self.hero.places_history.add_place(self.place3.id)
-        self.hero.save()
+        heroes_logic.save_hero(self.hero)
 
 
     def test_unlogined(self):
@@ -366,7 +367,7 @@ class TestShowRequests(BaseTestRequests):
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', False)
     def test_can_not_vote(self):
         self.hero.places_history._reset()
-        self.hero.save()
+        heroes_logic.save_hero(self.hero)
 
         bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
         self.create_bills(1, self.account2, 'Caption-a1-%d', 'rationale-a1-%d', bill_data)
@@ -376,7 +377,7 @@ class TestShowRequests(BaseTestRequests):
 
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', False)
     def test_can_not_voted(self):
-        self.assertEqual(HeroPrototype.get_by_account_id(self.account1.id).places_history.history, [])
+        self.assertEqual(heroes_logic.load_hero(account_id=self.account1.id).places_history.history, [])
 
         # one vote automaticaly created for bill author
         bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
@@ -571,11 +572,12 @@ class TestVoteRequests(BaseTestRequests):
         self.account2.prolong_premium(30)
         self.account2.save()
 
-        self.hero = HeroPrototype.get_by_account_id(self.account2.id)
+        self.hero = heroes_logic.load_hero(account_id=self.account2.id)
         self.hero.places_history.add_place(self.place1.id)
         self.hero.places_history.add_place(self.place2.id)
         self.hero.places_history.add_place(self.place3.id)
-        self.hero.save()
+
+        heroes_logic.save_hero(self.hero)
 
         new_name = names.generator.get_test_name('new-name')
 
@@ -641,7 +643,7 @@ class TestVoteRequests(BaseTestRequests):
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', False)
     def test_can_not_vote(self):
         self.hero.places_history._reset()
-        self.hero.save()
+        heroes_logic.save_hero(self.hero)
 
         self.check_ajax_error(self.client.post(url('game:bills:vote', self.bill.id, type=VOTE_TYPE.FOR.value), {}), 'bills.vote.can_not_vote')
         self.check_bill_votes(self.bill.id, 1, 0)

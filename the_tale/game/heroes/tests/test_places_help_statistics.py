@@ -32,7 +32,7 @@ class PlacesHelpStatisticsTests(testcase.TestCase):
         self.statistics.add_place(1)
 
         self.assertEqual(self.statistics.serialize(),
-                         PlacesHelpStatistics.deserialize(None, self.statistics.serialize()).serialize())
+                         PlacesHelpStatistics.deserialize(self.statistics.serialize()).serialize())
 
 
     def test_add_place(self):

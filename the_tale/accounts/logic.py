@@ -24,9 +24,6 @@ from the_tale.accounts.achievements.prototypes import AccountAchievementsPrototy
 from the_tale.collections.prototypes import AccountItemsPrototype
 from the_tale.finances.market import logic as market_logic
 
-from the_tale.game.heroes.prototypes import HeroPrototype
-from the_tale.game.logic import dress_new_hero, messages_for_new_hero
-
 from the_tale.accounts import signals
 from the_tale.accounts import conf
 
@@ -63,6 +60,7 @@ def get_system_user():
 
 
 def register_user(nick, email=None, password=None, referer=None, referral_of_id=None, action_id=None, is_bot=False):
+    from the_tale.game.heroes import logic as heroes_logic
 
     if Account.objects.filter(nick=nick).exists():
         return REGISTER_USER_RESULT.DUPLICATE_USERNAME, None, None
@@ -100,10 +98,7 @@ def register_user(nick, email=None, password=None, referer=None, referral_of_id=
 
     market_logic.create_goods(account.id)
 
-    hero = HeroPrototype.create(account=account)
-    dress_new_hero(hero)
-    messages_for_new_hero(hero)
-    hero.save()
+    hero = heroes_logic.create_hero(account=account)
 
     return REGISTER_USER_RESULT.OK, account.id, hero.actions.current_action.bundle_id
 

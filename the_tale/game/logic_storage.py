@@ -8,12 +8,13 @@ from django.conf import settings as project_settings
 
 from dext.common.utils import cache
 
-from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes.conf import heroes_settings
 
 from the_tale.game import exceptions
 from the_tale.game import conf
 from the_tale.game.prototypes import TimePrototype
+
+from the_tale.game.heroes import logic as heroes_logic
 
 
 class LogicStorage(object):
@@ -32,7 +33,7 @@ class LogicStorage(object):
         self.cache_queue = set()
 
     def load_account_data(self, account):
-        hero = HeroPrototype.get_by_account_id(account.id)
+        hero = heroes_logic.load_hero(account_id=account.id)
         hero.update_with_account_data(is_fast=account.is_fast,
                                       premium_end_at=account.premium_end_at,
                                       active_end_at=account.active_end_at,
@@ -76,7 +77,7 @@ class LogicStorage(object):
         self.process_cache_queue()
 
     def _save_hero_data(self, hero_id):
-        self.heroes[hero_id].save()
+        heroes_logic.save_hero(self.heroes[hero_id])
 
     def _add_hero(self, hero):
 
@@ -351,7 +352,7 @@ class LogicStorage(object):
 
         test_storage = LogicStorage()
         for hero_id in self.heroes:
-            test_storage._add_hero(HeroPrototype.get_by_id(hero_id))
+            test_storage._add_hero(heroes_logic.load_hero(hero_id=hero_id))
 
         return self == test_storage
 

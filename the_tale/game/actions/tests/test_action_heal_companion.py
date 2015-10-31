@@ -109,7 +109,7 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
         self.assertEqual(self.action_heal_companion.state, self.action_heal_companion.STATE.PROCESSED)
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_exp_per_heal', lambda hero: True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_exp_per_heal', lambda hero: True)
     def test_ability_heal_companion__processed_when_healed__exp_per_heal(self):
 
         self.hero.companion.health -= 1
@@ -158,7 +158,7 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
         self.storage._test_save()
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_exp_per_heal', lambda hero: True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_exp_per_heal', lambda hero: True)
     def test_full__exp_per_heal(self):
         self.hero.companion.health = 1
 
@@ -177,7 +177,7 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
 
     @mock.patch('the_tale.common.utils.logic.randint_from_1', lambda v: v)
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_REGEN_ON_HEAL_PER_HEAL', 1.0)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_regenerate', lambda hero: True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_regenerate', lambda hero: True)
     def test_full__regeneration(self):
         self.hero.companion.health = 1
 
@@ -192,7 +192,7 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
 
         self.storage._test_save()
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_heal_probability', 1)
+    @mock.patch('the_tale.game.heroes.objects.Hero.companion_heal_probability', 1)
     @mock.patch('the_tale.common.utils.logic.randint_from_1', lambda v: v)
     def test_companion_healing_by_hero(self):
 
@@ -204,7 +204,7 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
             self.storage.process_turn(continue_steps_if_needed=False)
             current_time.increment_turn()
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_heal_probability', 0)
+    @mock.patch('the_tale.game.heroes.objects.Hero.companion_heal_probability', 0)
     @mock.patch('the_tale.common.utils.logic.randint_from_1', lambda v: v)
     def test_companion_healing_by_hero__not_healed(self):
 

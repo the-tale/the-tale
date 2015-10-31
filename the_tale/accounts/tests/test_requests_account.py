@@ -31,7 +31,8 @@ from the_tale.accounts.clans.conf import clans_settings
 
 from the_tale.forum.prototypes import CategoryPrototype
 
-from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes import logic as heroes_logic
+
 
 class AccountRequestsTests(TestCase):
 
@@ -148,11 +149,11 @@ class ShowRequestsTests(AccountRequestsTests):
                  (self.place3.name, 0),
                  ('pgf-no-common-places-message', 0)]
 
-        hero = HeroPrototype.get_by_account_id(self.account_1.id)
+        hero = heroes_logic.load_hero(account_id=self.account_1.id)
         hero.places_history.add_place(self.place1.id)
         hero.places_history.add_place(self.place2.id)
         hero.places_history.add_place(self.place1.id)
-        hero.save()
+        heroes_logic.save_hero(hero)
 
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_1.id])), texts=texts)
 
@@ -243,7 +244,7 @@ class ShowRequestsTests(AccountRequestsTests):
 class ShowApiRequestsTests(AccountRequestsTests):
 
     def test_show(self):
-        hero = HeroPrototype.get_by_account_id(self.account_1.id)
+        hero = heroes_logic.load_hero(account_id=self.account_1.id)
         self.check_ajax_ok(self.request_ajax_json(url('accounts:api-show', self.account_1.id, api_version='1.0', api_client=project_settings.API_CLIENT)),
                                                   data=logic.get_account_info(self.account_1, hero))
 

@@ -87,7 +87,7 @@ class LogicTestsBase(testcase.TestCase):
 class HeroQuestInfoTests(LogicTestsBase):
 
     def test_create_hero_info__all_properties(self):
-        self.hero._model.level = 11
+        self.hero.level = 11
 
         self.hero.position.set_place(self.place_1)
 
@@ -117,9 +117,9 @@ class HeroQuestInfoTests(LogicTestsBase):
         self.hero.quests.update_history(quest_type='hunt', turn_number=0)
 
         with contextlib.nested(
-                mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_first_quest_path_required', is_first_quest_path_required),
-                mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_short_quest_path_required', is_short_quest_path_required),
-                mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.prefered_quest_markers', lambda hero: prefered_quest_markers) ):
+                mock.patch('the_tale.game.heroes.objects.Hero.is_first_quest_path_required', is_first_quest_path_required),
+                mock.patch('the_tale.game.heroes.objects.Hero.is_short_quest_path_required', is_short_quest_path_required),
+                mock.patch('the_tale.game.heroes.objects.Hero.prefered_quest_markers', lambda hero: prefered_quest_markers) ):
             hero_info = logic.create_hero_info(self.hero)
 
         self.assertEqual(hero_info.id, self.hero.id)

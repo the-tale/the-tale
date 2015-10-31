@@ -64,7 +64,6 @@ class NamesGenerators(object):
 
 
 class ManageNameMixin(object):
-
     @lazy_property
     def utg_name(self):
         return utg_words.Word.deserialize(self.data['name'])
@@ -86,6 +85,21 @@ class ManageNameMixin(object):
 
         self.data['name'] = word.serialize()
 
+
+class ManageNameMixin2(object):
+    __slots__ = ()
+
+    @lazy_property
+    def utg_name_form(self):
+        return utg_words.WordForm(self.utg_name)
+
+    @lazy_property
+    def name(self): return self.utg_name.normal_form()
+
+    def set_utg_name(self, word):
+        del self.name
+        del self.utg_name_form
+        self.utg_name = word
 
 
 generator = NamesGenerators()

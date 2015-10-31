@@ -10,11 +10,11 @@ from the_tale.common.utils import testcase
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
 
-from the_tale.game.heroes.prototypes import HeroPrototype
-
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.models import SupervisorTask
+
+from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.pvp.models import Battle1x1, BATTLE_1X1_STATE
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
@@ -37,8 +37,8 @@ class BalancerTestsBase(testcase.TestCase):
         self.account_1 = AccountPrototype.get_by_id(account_1_id)
         self.account_2 = AccountPrototype.get_by_id(account_2_id)
 
-        self.hero_1 = HeroPrototype.get_by_account_id(account_1_id)
-        self.hero_2 = HeroPrototype.get_by_account_id(account_2_id)
+        self.hero_1 = heroes_logic.load_hero(account_id=account_1_id)
+        self.hero_2 = heroes_logic.load_hero(account_id=account_2_id)
 
         environment.deinitialize()
         environment.initialize()
@@ -313,8 +313,8 @@ class BalancerBalancingTests(BalancerTestsBase):
 
         self.assertEqual(SupervisorTask.objects.all().count(), 0)
 
-        self.hero_1._model.level = 100
-        self.hero_1.save()
+        self.hero_1.level = 100
+        heroes_logic.save_hero(self.hero_1)
 
         self.worker._initiate_battle(self.battle_1_record(), self.battle_2_record())
 
@@ -336,8 +336,8 @@ class BalancerBalancingTests(BalancerTestsBase):
 
 
     def test_initiate_battle_with_bot__create_battle(self):
-        self.hero_1._model.level = 50
-        self.hero_1.save()
+        self.hero_1.level = 50
+        heroes_logic.save_hero(self.hero_1)
 
         result, bot_account_id, bundle_id = register_user('bot_user', 'bot_user@test.com', '111111', is_bot=True)
 

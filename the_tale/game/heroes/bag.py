@@ -20,7 +20,7 @@ class Bag(object):
         self._ui_info = None
 
     @classmethod
-    def deserialize(cls, hero, data):
+    def deserialize(cls, data):
         obj = cls()
 
         obj.next_uuid = data.get('next_uuid', 0)
@@ -116,18 +116,20 @@ class Equipment(object):
 
     __slots__ = ('equipment', 'updated', '_ui_info', 'hero')
 
-    def __init__(self, hero=None):
+    def __init__(self):
         self.equipment = {}
         self.updated = True
         self._ui_info = None
-        self.hero = hero
+        self.hero = None
 
     # must be called on every attribute access, not only on updating of equipment
     # since artifacts can be changed from outsice this container
     def mark_updated(self):
         self.updated = True
         self._ui_info = None
-        self.hero.quests.mark_updated()
+
+        if self.hero:
+            self.hero.quests.mark_updated()
 
     def get_power(self):
         power = Power(0, 0)
@@ -146,10 +148,9 @@ class Equipment(object):
         return dict( (slot, artifact.serialize()) for slot, artifact in self.equipment.items() if artifact )
 
     @classmethod
-    def deserialize(cls, hero, data):
+    def deserialize(cls, data):
         obj = cls()
         obj.equipment = dict( (int(slot), ArtifactPrototype.deserialize(artifact_data)) for slot, artifact_data in data.items() if  artifact_data)
-        obj.hero = hero
         return obj
 
     def unequip(self, slot):

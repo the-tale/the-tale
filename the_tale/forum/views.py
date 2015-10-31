@@ -14,6 +14,8 @@ from the_tale.common.utils.decorators import login_required
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.views import validate_fast_account, validate_ban_forum
 
+from the_tale.game.heroes import logic as heroes_logic
+
 from the_tale.forum.models import Category, SubCategory, Thread, Post
 from the_tale.forum import forms
 from the_tale.forum.conf import forum_settings
@@ -334,8 +336,6 @@ class ThreadPageData(object):
 
     def initialize(self, account, thread, page, inline=False):
 
-        from the_tale.game.heroes.prototypes import HeroPrototype
-
         self.account = account
         self.thread = thread
 
@@ -357,7 +357,7 @@ class ThreadPageData(object):
         self.authors = {author.id:author for author in  AccountPrototype.get_list_by_id([post.author_id for post in self.posts])}
 
         self.game_objects = {game_object.account_id:game_object
-                             for game_object in  HeroPrototype.get_list_by_account_id([post.author_id for post in self.posts])}
+                             for game_object in  heroes_logic.load_heroes_by_account_ids([post.author_id for post in self.posts])}
 
         pages_on_page_slice = self.posts
         if post_from == 0:

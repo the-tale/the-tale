@@ -120,7 +120,7 @@ class ArenaPvP1x1AbilityTest(UseAbilityTaskMixin, testcase.TestCase):
     def test_update_habits(self):
         from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_habits') as update_habits:
+        with mock.patch('the_tale.game.heroes.objects.Hero.update_habits') as update_habits:
             self.ability_1.use(**self.use_attributes(hero=self.hero_1, storage=self.storage))
 
         self.assertEqual(update_habits.call_args_list, [mock.call(HABIT_CHANGE_SOURCE.ARENA_SEND)])

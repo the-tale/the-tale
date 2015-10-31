@@ -210,7 +210,7 @@ class UICell(object):
     @classmethod
     def transport(self, x, y):
         from the_tale.game.map.storage import map_info_storage
-        from the_tale.game.heroes.prototypes import HeroPositionPrototype
+        from the_tale.game.heroes.position import Position
 
         dominant_place = map_info_storage.item.get_dominant_place(x, y)
 
@@ -219,7 +219,7 @@ class UICell(object):
         if dominant_place:
             transport = dominant_place.transport
         else:
-            transport = HeroPositionPrototype.raw_transport()
+            transport = Position.raw_transport()
 
         if has_road:
             return _get_road_transport(transport)

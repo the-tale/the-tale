@@ -11,9 +11,9 @@ from the_tale.common.utils import testcase
 from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype
 
-from the_tale.game.heroes.prototypes import HeroPrototype
-
 from the_tale.game.logic import create_test_map
+
+from the_tale.game.heroes import logic as heroes_logic
 
 from .. import logic
 from .. import relations
@@ -71,30 +71,30 @@ class TestShowRequests(testcase.TestCase):
 
     def check_heroes(self):
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        hero_1 = HeroPrototype.get_by_account_id(account_id)
+        hero_1 = heroes_logic.load_hero(account_id=account_id)
 
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        hero_2 = HeroPrototype.get_by_account_id(account_id)
+        hero_2 = heroes_logic.load_hero(account_id=account_id)
 
         result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        hero_3 = HeroPrototype.get_by_account_id(account_id)
+        hero_3 = heroes_logic.load_hero(account_id=account_id)
 
         hero_1.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_1.preferences.set_place(self.place_1)
         hero_1.preferences.set_friend(self.place_1.persons[0])
         hero_1.preferences.set_enemy(self.place_1.persons[-1])
-        hero_1.save()
+        heroes_logic.save_hero(hero_1)
 
         hero_2.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_2.preferences.set_place(self.place_1)
         hero_2.preferences.set_friend(self.place_1.persons[-1])
         hero_2.preferences.set_enemy(self.place_1.persons[0])
-        hero_2.save()
+        heroes_logic.save_hero(hero_2)
 
         hero_3.preferences.set_place(self.place_1)
         hero_3.preferences.set_friend(self.place_1.persons[-1])
         hero_3.preferences.set_enemy(self.place_1.persons[0])
-        hero_3.save()
+        heroes_logic.save_hero(hero_3)
 
         texts = [(jinja2.escape(hero_1.name), 3),
                  (jinja2.escape(hero_2.name), 3),

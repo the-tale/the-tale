@@ -9,8 +9,7 @@ from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.views import validate_fast_account
 from the_tale.accounts.logic import get_system_user
 
-from the_tale.game.heroes.models import Hero
-from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.accounts.friends.prototypes import FriendshipPrototype
 from the_tale.accounts.friends.forms import RequestForm
@@ -31,7 +30,7 @@ class FriendsResource(Resource):
         candidates = FriendshipPrototype.get_candidates_for(self.account)
         accounts_ids = [account.id for account in friends]
         clans_ids = [ model.clan_id for model in friends]
-        heroes = dict( (model.account_id, HeroPrototype(model=model)) for model in Hero.objects.filter(account_id__in=accounts_ids))
+        heroes = {hero.account_id: hero for hero in  heroes_logic.load_heroes_by_account_ids(accounts_ids)}
         clans = {clan.id:clan for clan in ClanPrototype.get_list_by_id(clans_ids)}
         return self.template('friends/friends_list.html',
                              {'friends': friends,
@@ -44,7 +43,7 @@ class FriendsResource(Resource):
         candidates = FriendshipPrototype.get_candidates_for(self.account)
         accounts_ids = [account.id for account in candidates]
         clans_ids = [ model.clan_id for model in candidates]
-        heroes = dict( (model.account_id, HeroPrototype(model=model)) for model in Hero.objects.filter(account_id__in=accounts_ids))
+        heroes = {hero.account_id: hero for hero in  heroes_logic.load_heroes_by_account_ids(accounts_ids)}
         clans = {clan.id:clan for clan in ClanPrototype.get_list_by_id(clans_ids)}
         return self.template('friends/friends_candidates.html',
                              {'candidates': candidates,

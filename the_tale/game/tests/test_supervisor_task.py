@@ -6,7 +6,7 @@ from the_tale.game.logic import create_test_map
 from the_tale.game.prototypes import SupervisorTaskPrototype
 from the_tale.game import exceptions
 
-from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
 from the_tale.game.pvp.models import Battle1x1, BATTLE_1X1_STATE
@@ -43,14 +43,14 @@ class SupervisorTaskTests(TestCase):
         self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.PREPAIRING).count(), 2)
         self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.PROCESSING).count(), 0)
 
-        old_hero = HeroPrototype.get_by_account_id(self.account_1.id)
+        old_hero = heroes_logic.load_hero(account_id=self.account_1.id)
         old_hero.health = 1
-        old_hero.save()
+        heroes_logic.save_hero(old_hero)
 
         task.process(bundle_id=666)
 
-        new_hero = HeroPrototype.get_by_account_id(self.account_1.id)
-        new_hero_2 = HeroPrototype.get_by_account_id(self.account_2.id)
+        new_hero = heroes_logic.load_hero(account_id=self.account_1.id)
+        new_hero_2 = heroes_logic.load_hero(account_id=self.account_2.id)
 
         self.assertEqual(new_hero.actions.current_action.bundle_id, new_hero_2.actions.current_action.bundle_id)
         self.assertNotEqual(new_hero.actions.actions_list[0].bundle_id, new_hero.actions.actions_list[1].bundle_id)

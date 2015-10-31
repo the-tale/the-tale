@@ -16,6 +16,8 @@ from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.abilities.relations import HELP_CHOICES
 
+from the_tale.game.heroes import logic as heroes_logic
+
 from .. import meta_actions
 from ..prototypes import ACTION_TYPES
 from .helpers import TestAction
@@ -122,7 +124,7 @@ class GeneralTest(testcase.TestCase):
         self.check_heal_companion_in_choices(False)
 
     @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL_COMPANION,)))
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_heal_disabled', lambda hero: True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.companion_heal_disabled', lambda hero: True)
     def test_help_choice_has_heal_companion__for_companion_heal_disabled(self):
         companion_record = companions_storage.companions.enabled_companions().next()
         self.hero.set_companion(companions_logic.create_companion(companion_record))
@@ -158,7 +160,7 @@ class GeneralTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.STOCK_UP_ENERGY, HELP_CHOICES.MONEY)))
     def test_help_choice_has_stock_up_energy__can_stock(self):
-        self.hero.energy_charges = 0
+        self.hero.energy_bonus = 0
         self.check_stock_up_energy_in_choices(True)
 
     @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.STOCK_UP_ENERGY, HELP_CHOICES.MONEY)))
@@ -178,12 +180,12 @@ class GeneralTest(testcase.TestCase):
     def test_help_choice_heal_not_in_choices_for_dead_hero(self):
 
         self.hero.health = 1
-        self.hero.save()
+        heroes_logic.save_hero(self.hero)
 
         self.assertTrue(HELP_CHOICES.HEAL in self.action_idl.help_choices)
 
         self.hero.kill()
-        self.hero.save()
+        heroes_logic.save_hero(self.hero)
 
         self.assertFalse(HELP_CHOICES.HEAL in self.action_idl.help_choices)
 
@@ -201,8 +203,9 @@ class GeneralTest(testcase.TestCase):
                                                       'description': None,
                                                       'type': TestAction.TYPE.value,
                                                       'created_at_turn': TimePrototype.get_current_turn_number()})
-
-        self.assertEqual(default_action, TestAction.deserialize(self.hero, default_action.serialize()))
+        deserialized_action = TestAction.deserialize(default_action.serialize())
+        deserialized_action.hero = self.hero
+        self.assertEqual(default_action, deserialized_action)
 
     def test_action_full_serialization(self):
         mob = mobs_storage.create_mob_for_hero(self.hero)
@@ -259,5 +262,6 @@ class GeneralTest(testcase.TestCase):
                                                       'break_at': 0.75,
                                                       'meta_action': meta_action.serialize(),
                                                       'replane_required': True})
-
-        self.assertEqual(default_action, TestAction.deserialize(self.hero, default_action.serialize()))
+        deserialized_action = TestAction.deserialize(default_action.serialize())
+        deserialized_action.hero = self.hero
+        self.assertEqual(default_action, deserialized_action)

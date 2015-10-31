@@ -20,7 +20,7 @@ from the_tale.common.utils.decorators import login_required
 from the_tale.common.utils import api
 
 from the_tale.game.heroes.models import Hero
-from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.accounts.friends.prototypes import FriendshipPrototype
 from the_tale.accounts.personal_messages.prototypes import MessagePrototype
@@ -181,7 +181,7 @@ def index(context):
     accounts_ids = [ model.id for model in accounts_models]
     clans_ids = [ model.clan_id for model in accounts_models]
 
-    heroes = dict( (model.account_id, HeroPrototype(model=model)) for model in Hero.objects.filter(account_id__in=accounts_ids))
+    heroes = dict( (model.account_id, heroes_logic.load_hero(hero_model=model)) for model in Hero.objects.filter(account_id__in=accounts_ids))
 
     clans = {clan.id:clan for clan in ClanPrototype.get_list_by_id(clans_ids)}
 
@@ -202,7 +202,7 @@ def show(context):
 
     friendship = FriendshipPrototype.get_for_bidirectional(context.account, context.master_account)
 
-    master_hero = HeroPrototype.get_by_account_id(context.master_account.id)
+    master_hero = heroes_logic.load_hero(context.master_account.id)
 
     return dext_views.Page('accounts/show.html',
                            content={'master_hero': master_hero,
@@ -262,7 +262,7 @@ def api_show(context):
     }
     '''
 
-    master_hero = HeroPrototype.get_by_account_id(context.master_account.id)
+    master_hero = heroes_logic.load_hero(account_id=context.master_account.id)
 
     return dext_views.AjaxOk(content=logic.get_account_info(context.master_account, master_hero))
 

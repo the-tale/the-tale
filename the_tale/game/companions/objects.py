@@ -50,15 +50,14 @@ class Companion(object):
                 '_heals_wounds_count': self._heals_wounds_count}
 
     @classmethod
-    def deserialize(cls, hero, data):
+    def deserialize(cls, data):
         obj = cls(record_id=data['record'],
                   health=int(data['health']),
                   coherence=data['coherence'],
                   experience=data['experience'],
                   healed_at_turn=data.get('healed_at_turn', 0),
                   _heals_count=data.get('_heals_count', 0),
-                  _heals_wounds_count=data.get('_heals_wounds_count', 0),
-                  _hero=hero)
+                  _heals_wounds_count=data.get('_heals_wounds_count', 0))
         return obj
 
     @property

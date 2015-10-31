@@ -14,6 +14,7 @@ from the_tale.game.artifacts import relations as artifacts_relations
 
 
 class EquipmentMethodsMixin(object):
+    __slots__ = ()
 
     def put_loot(self, artifact, force=False):
         if force or not self.bag_is_full:

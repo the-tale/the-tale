@@ -7,28 +7,179 @@ from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 from the_tale.game.heroes import exceptions
 
 
-class HeroStatistics(object):
+class Statistics(object):
 
-    __slots__ = ('hero', )
+    __slots__ = ('hero',
+                 'pve_deaths',
+                 'pve_kills',
 
-    def __init__(self, hero):
-        self.hero = hero
+                 'money_earned_from_loot',
+                 'money_earned_from_artifacts',
+                 'money_earned_from_quests',
+                 'money_earned_from_help',
+                 'money_earned_from_habits',
+                 'money_earned_from_companions',
+
+                 'money_spend_for_heal',
+                 'money_spend_for_artifacts',
+                 'money_spend_for_sharpening',
+                 'money_spend_for_useless',
+                 'money_spend_for_impact',
+                 'money_spend_for_experience',
+                 'money_spend_for_repairing',
+                 'money_spend_for_tax',
+                 'money_spend_for_companions',
+
+                 'artifacts_had',
+                 'loot_had',
+
+                 'help_count',
+
+                 'quests_done',
+
+                 'companions_count',
+
+                 'pvp_battles_1x1_number',
+                 'pvp_battles_1x1_victories',
+                 'pvp_battles_1x1_draws',
+
+                 'cards_used',
+                 'cards_combined',
+
+                 'gifts_returned')
+
+    def __init__(self,
+                 pve_deaths,
+                 pve_kills,
+
+                 money_earned_from_loot,
+                 money_earned_from_artifacts,
+                 money_earned_from_quests,
+                 money_earned_from_help,
+                 money_earned_from_habits,
+                 money_earned_from_companions,
+
+                 money_spend_for_heal,
+                 money_spend_for_artifacts,
+                 money_spend_for_sharpening,
+                 money_spend_for_useless,
+                 money_spend_for_impact,
+                 money_spend_for_experience,
+                 money_spend_for_repairing,
+                 money_spend_for_tax,
+                 money_spend_for_companions,
+
+                 artifacts_had,
+                 loot_had,
+
+                 help_count,
+
+                 quests_done,
+
+                 companions_count,
+
+                 pvp_battles_1x1_number,
+                 pvp_battles_1x1_victories,
+                 pvp_battles_1x1_draws,
+
+                 cards_used,
+                 cards_combined,
+
+                 gifts_returned):
+
+        self.hero = None
+
+        self.pve_deaths = pve_deaths
+        self.pve_kills = pve_kills
+
+        self.money_earned_from_loot = money_earned_from_loot
+        self.money_earned_from_artifacts = money_earned_from_artifacts
+        self.money_earned_from_quests = money_earned_from_quests
+        self.money_earned_from_help = money_earned_from_help
+        self.money_earned_from_habits = money_earned_from_habits
+        self.money_earned_from_companions = money_earned_from_companions
+
+        self.money_spend_for_heal = money_spend_for_heal
+        self.money_spend_for_artifacts = money_spend_for_artifacts
+        self.money_spend_for_sharpening = money_spend_for_sharpening
+        self.money_spend_for_useless = money_spend_for_useless
+        self.money_spend_for_impact = money_spend_for_impact
+        self.money_spend_for_experience = money_spend_for_experience
+        self.money_spend_for_repairing = money_spend_for_repairing
+        self.money_spend_for_tax = money_spend_for_tax
+        self.money_spend_for_companions = money_spend_for_companions
+
+        self.artifacts_had = artifacts_had
+        self.loot_had = loot_had
+
+        self.help_count = help_count
+
+        self.quests_done = quests_done
+
+        self.companions_count = companions_count
+
+        self.pvp_battles_1x1_number = pvp_battles_1x1_number
+        self.pvp_battles_1x1_victories = pvp_battles_1x1_victories
+        self.pvp_battles_1x1_draws = pvp_battles_1x1_draws
+
+        self.cards_used = cards_used
+        self.cards_combined = cards_combined
+
+        self.gifts_returned = gifts_returned
+
+
+    @classmethod
+    def create(cls):
+        return cls(pve_deaths=0,
+                   pve_kills=0,
+
+                   money_earned_from_loot=0,
+                   money_earned_from_artifacts=0,
+                   money_earned_from_quests=0,
+                   money_earned_from_help=0,
+                   money_earned_from_habits=0,
+                   money_earned_from_companions=0,
+
+                   money_spend_for_heal=0,
+                   money_spend_for_artifacts=0,
+                   money_spend_for_sharpening=0,
+                   money_spend_for_useless=0,
+                   money_spend_for_impact=0,
+                   money_spend_for_experience=0,
+                   money_spend_for_repairing=0,
+                   money_spend_for_tax=0,
+                   money_spend_for_companions=0,
+
+                   artifacts_had=0,
+                   loot_had=0,
+
+                   help_count=0,
+
+                   quests_done=0,
+
+                   companions_count=0,
+
+                   pvp_battles_1x1_number=0,
+                   pvp_battles_1x1_victories=0,
+                   pvp_battles_1x1_draws=0,
+
+                   cards_used=0,
+                   cards_combined=0,
+
+                   gifts_returned=0)
+
 
     #########################################
     # kills
     #########################################
 
-    @property
-    def pve_deaths(self): return self.hero._model.stat_pve_deaths
     def change_pve_deaths(self, value):
         with achievements_storage.verify(type=ACHIEVEMENT_TYPE.DEATHS, object=self.hero):
-            self.hero._model.stat_pve_deaths += value
+            self.pve_deaths += value
 
-    @property
-    def pve_kills(self): return self.hero._model.stat_pve_kills
     def change_pve_kills(self, value):
         with achievements_storage.verify(type=ACHIEVEMENT_TYPE.MOBS, object=self.hero):
-            self.hero._model.stat_pve_kills += value
+            self.pve_kills += value
 
 
     #########################################
@@ -39,36 +190,36 @@ class HeroStatistics(object):
 
         with achievements_storage.verify(type=ACHIEVEMENT_TYPE.MONEY, object=self.hero):
             if source.is_EARNED_FROM_LOOT:
-                self.hero._model.stat_money_earned_from_loot += value
+                self.money_earned_from_loot += value
             elif source.is_EARNED_FROM_ARTIFACTS:
-                self.hero._model.stat_money_earned_from_artifacts += value
+                self.money_earned_from_artifacts += value
             elif source.is_EARNED_FROM_QUESTS:
-                self.hero._model.stat_money_earned_from_quests += value
+                self.money_earned_from_quests += value
             elif source.is_EARNED_FROM_HELP:
-                self.hero._model.stat_money_earned_from_help += value
+                self.money_earned_from_help += value
             elif source.is_EARNED_FROM_HABITS:
-                self.hero._model.stat_money_earned_from_habits += value
+                self.money_earned_from_habits += value
             elif source.is_EARNED_FROM_COMPANIONS:
-                self.hero._model.stat_money_earned_from_companions += value
+                self.money_earned_from_companions += value
 
             elif source.is_SPEND_FOR_HEAL:
-                self.hero._model.stat_money_spend_for_heal += value
+                self.money_spend_for_heal += value
             elif source.is_SPEND_FOR_ARTIFACTS:
-                self.hero._model.stat_money_spend_for_artifacts += value
+                self.money_spend_for_artifacts += value
             elif source.is_SPEND_FOR_SHARPENING:
-                self.hero._model.stat_money_spend_for_sharpening += value
+                self.money_spend_for_sharpening += value
             elif source.is_SPEND_FOR_USELESS:
-                self.hero._model.stat_money_spend_for_useless += value
+                self.money_spend_for_useless += value
             elif source.is_SPEND_FOR_IMPACT:
-                self.hero._model.stat_money_spend_for_impact += value
+                self.money_spend_for_impact += value
             elif source.is_SPEND_FOR_EXPERIENCE:
-                self.hero._model.stat_money_spend_for_experience += value
+                self.money_spend_for_experience += value
             elif source.is_SPEND_FOR_REPAIRING:
-                self.hero._model.stat_money_spend_for_repairing += value
+                self.money_spend_for_repairing += value
             elif source.is_SPEND_FOR_TAX:
-                self.hero._model.stat_money_spend_for_tax += value
+                self.money_spend_for_tax += value
             elif source.is_SPEND_FOR_COMPANIONS:
-                self.hero._model.stat_money_spend_for_companions += value
+                self.money_spend_for_companions += value
 
             else:
                 raise exceptions.UnknownMoneySourceError(source=source)
@@ -93,127 +244,58 @@ class HeroStatistics(object):
                                    self.money_spend_for_tax +
                                    self.money_spend_for_companions)
 
-    @property
-    def money_earned_from_loot(self): return self.hero._model.stat_money_earned_from_loot
-
-    @property
-    def money_earned_from_artifacts(self): return self.hero._model.stat_money_earned_from_artifacts
-
-    @property
-    def money_earned_from_quests(self): return self.hero._model.stat_money_earned_from_quests
-
-    @property
-    def money_earned_from_help(self): return self.hero._model.stat_money_earned_from_help
-
-    @property
-    def money_earned_from_habits(self): return self.hero._model.stat_money_earned_from_habits
-
-    @property
-    def money_earned_from_companions(self): return self.hero._model.stat_money_earned_from_companions
-
-
-    @property
-    def money_spend_for_heal(self): return self.hero._model.stat_money_spend_for_heal
-
-    @property
-    def money_spend_for_artifacts(self): return self.hero._model.stat_money_spend_for_artifacts
-
-    @property
-    def money_spend_for_sharpening(self): return self.hero._model.stat_money_spend_for_sharpening
-
-    @property
-    def money_spend_for_useless(self): return self.hero._model.stat_money_spend_for_useless
-
-    @property
-    def money_spend_for_impact(self): return self.hero._model.stat_money_spend_for_impact
-
-    @property
-    def money_spend_for_experience(self): return self.hero._model.stat_money_spend_for_experience
-
-    @property
-    def money_spend_for_repairing(self): return self.hero._model.stat_money_spend_for_repairing
-
-    @property
-    def money_spend_for_tax(self): return self.hero._model.stat_money_spend_for_tax
-
-    @property
-    def money_spend_for_companions(self): return self.hero._model.stat_money_spend_for_companions
-
     #########################################
     # different values
     #########################################
 
-    @property
-    def artifacts_had(self): return self.hero._model.stat_artifacts_had
     def change_artifacts_had(self, value):
         with achievements_storage.verify(type=ACHIEVEMENT_TYPE.ARTIFACTS, object=self.hero):
-            self.hero._model.stat_artifacts_had += value
+            self.artifacts_had += value
 
-    @property
-    def loot_had(self): return self.hero._model.stat_loot_had
-    def change_loot_had(self, value): self.hero._model.stat_loot_had += value
+    def change_loot_had(self, value): self.loot_had += value
 
-    @property
-    def help_count(self): return self.hero._model.stat_help_count
     def change_help_count(self, value):
         with achievements_storage.verify(type=ACHIEVEMENT_TYPE.KEEPER_HELP_COUNT, object=self.hero):
-            self.hero._model.stat_help_count += value
+            self.help_count += value
 
-    @property
-    def companions_count(self): return self.hero._model.stat_companions_count
     def change_companions_count(self, value):
-        self.hero._model.stat_companions_count += value
+        self.companions_count += value
 
-    @property
-    def cards_used(self): return self.hero._model.stat_cards_used
     def change_cards_used(self, value):
         with achievements_storage.verify(type=ACHIEVEMENT_TYPE.KEEPER_CARDS_USED, object=self.hero):
-            self.hero._model.stat_cards_used += value
+            self.cards_used += value
 
-    @property
-    def cards_combined(self): return self.hero._model.stat_cards_combined
     def change_cards_combined(self, value):
         with achievements_storage.verify(type=ACHIEVEMENT_TYPE.KEEPER_CARDS_COMBINED, object=self.hero):
-            self.hero._model.stat_cards_combined += value
+            self.cards_combined += value
 
-    @property
-    def quests_done(self): return self.hero._model.stat_quests_done
     def change_quests_done(self, value):
         with achievements_storage.verify(type=ACHIEVEMENT_TYPE.QUESTS, object=self.hero):
-            self.hero._model.stat_quests_done += value
+            self.quests_done += value
 
-    @property
-    def gifts_returned(self): return self.hero._model.stat_gifts_returned
     def change_gifts_returned(self, value):
-        self.hero._model.stat_gifts_returned += value
+        self.gifts_returned += value
 
     #########################################
     # pvp
     #########################################
 
-    @property
-    def pvp_battles_1x1_number(self): return self.hero._model.stat_pvp_battles_1x1_number
-
-    @property
-    def pvp_battles_1x1_victories(self): return self.hero._model.stat_pvp_battles_1x1_victories
     def change_pvp_battles_1x1_victories(self, value):
         with achievements_storage.verify(type=ACHIEVEMENT_TYPE.PVP_BATTLES_1X1, object=self.hero):
             with achievements_storage.verify(type=ACHIEVEMENT_TYPE.PVP_VICTORIES_1X1, object=self.hero):
-                self.hero._model.stat_pvp_battles_1x1_number += value
-                self.hero._model.stat_pvp_battles_1x1_victories += value
+                self.pvp_battles_1x1_number += value
+                self.pvp_battles_1x1_victories += value
 
-    @property
-    def pvp_battles_1x1_draws(self): return self.hero._model.stat_pvp_battles_1x1_draws
     def change_pvp_battles_1x1_draws(self, value):
         with achievements_storage.verify(type=ACHIEVEMENT_TYPE.PVP_BATTLES_1X1, object=self.hero):
-            self.hero._model.stat_pvp_battles_1x1_number += value
-            self.hero._model.stat_pvp_battles_1x1_draws += value
+            self.pvp_battles_1x1_number += value
+            self.pvp_battles_1x1_draws += value
 
     @property
     def pvp_battles_1x1_defeats(self): return self.pvp_battles_1x1_number - self.pvp_battles_1x1_draws - self.pvp_battles_1x1_victories
     def change_pvp_battles_1x1_defeats(self, value):
         with achievements_storage.verify(type=ACHIEVEMENT_TYPE.PVP_BATTLES_1X1, object=self.hero):
-            self.hero._model.stat_pvp_battles_1x1_number += value
+            self.pvp_battles_1x1_number += value
 
     def __eq__(self, other):
         return ( self.pve_deaths == other.pve_deaths and

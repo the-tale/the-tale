@@ -18,6 +18,7 @@ from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
 
 class Habit(HabitBase):
+    __slots__ = ()
 
     @property
     def _real_interval(self):
@@ -46,6 +47,7 @@ class Habit(HabitBase):
 
 
 class Honor(Habit):
+    __slots__ = ()
 
     TYPE = game_relations.HABIT_TYPE.HONOR
 
@@ -105,6 +107,7 @@ class Honor(Habit):
 
 
 class Peacefulness(Habit):
+    __slots__ = ()
 
     TYPE = game_relations.HABIT_TYPE.PEACEFULNESS
 

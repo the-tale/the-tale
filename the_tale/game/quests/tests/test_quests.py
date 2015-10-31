@@ -21,6 +21,7 @@ from the_tale.linguistics.lexicon.keys import LEXICON_KEY
 
 from the_tale.game.heroes.relations import EQUIPMENT_SLOT
 from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE
+from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.logic_storage import LogicStorage
 
@@ -65,14 +66,14 @@ class QuestsTestBase(testcase.TestCase):
         self.hero = self.storage.accounts_to_heroes[account_id]
         self.action_idl = self.hero.actions.current_action
 
-        self.hero._model.money += 1
+        self.hero.money += 1
         self.hero.preferences.set_mob(mobs_storage.all()[0])
         self.hero.preferences.set_place(self.p1)
         self.hero.preferences.set_friend(self.p1.persons[0])
         self.hero.preferences.set_enemy(self.p2.persons[0])
         self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
         self.hero.position.set_place(self.p3)
-        self.hero.save()
+        heroes_logic.save_hero(self.hero)
 
         self.p2.modifier = HolyCity(self.p2)
         self.p2.save()
@@ -97,15 +98,15 @@ def create_test_method(quest, quests):
 
     internal_quests = {q.quest_class.TYPE: q.quest_class for q in quests }
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_short_quest_path_required', False)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_first_quest_path_required', False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_short_quest_path_required', False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_first_quest_path_required', False)
     @mock.patch('the_tale.game.quests.logic.QUESTS_BASE._quests', internal_quests)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.get_quests_priorities', lambda hero: [(quest, 10000000)] + [(q, 0) for q in quests if q != quest])
+    @mock.patch('the_tale.game.heroes.objects.Hero.get_quests_priorities', lambda hero: [(quest, 10000000)] + [(q, 0) for q in quests if q != quest])
     def quest_test_method(self):
 
         # defends from first quest rule
         self.hero.statistics.change_quests_done(1)
-        self.hero.save()
+        heroes_logic.save_hero(self.hero)
 
         current_time = TimePrototype.get_current_time()
 
@@ -113,8 +114,8 @@ def create_test_method(quest, quests):
 
         while self.hero.actions.current_action.TYPE != ActionQuestPrototype.TYPE or not self.hero.quests.has_quests:
             if quest == SearchSmith and test_upgrade_equipment:
-                self.hero._model.money = QuestPrototype.upgrade_equipment_cost(self.hero) * 2
-                self.hero._model.next_spending = ITEMS_OF_EXPENDITURE.INSTANT_HEAL
+                self.hero.money = QuestPrototype.upgrade_equipment_cost(self.hero) * 2
+                self.hero.next_spending = ITEMS_OF_EXPENDITURE.INSTANT_HEAL
 
             self.storage.process_turn()
             current_time.increment_turn()
@@ -256,8 +257,8 @@ class RawQuestsTest(QuestsTestBase):
 
 def create_test_messages_method(quest, quests):
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_short_quest_path_required', False)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_first_quest_path_required', False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_short_quest_path_required', False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_first_quest_path_required', False)
     def quest_test_method(self):
         from questgen.selectors import Selector
 

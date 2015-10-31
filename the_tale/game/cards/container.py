@@ -15,10 +15,10 @@ class CardsContainer(object):
 
     __slots__ = ('updated', '_cards', '_hero', '_help_count', '_premium_help_count', '_next_uid')
 
-    def __init__(self, hero=None):
+    def __init__(self):
         self.updated = False
         self._cards = {}
-        self._hero = hero
+        self._hero = None
         self._help_count = 0
         self._premium_help_count = 0
         self._next_uid = 0
@@ -37,7 +37,7 @@ class CardsContainer(object):
                 'premium_help_count': self._premium_help_count}
 
     @classmethod
-    def deserialize(cls, hero, data):
+    def deserialize(cls, data):
         obj = cls()
         obj._cards = {}
 
@@ -45,7 +45,6 @@ class CardsContainer(object):
             card = objects.Card.deserialize(card_data)
             obj._cards[card.uid] = card
 
-        obj._hero = hero
         obj._help_count = data.get('help_count', 0)
         obj._premium_help_count = data.get('premium_help_count', 0)
         obj._next_uid = data.get('next_uid', 0)

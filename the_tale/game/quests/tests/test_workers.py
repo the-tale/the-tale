@@ -56,7 +56,7 @@ class QuestsGeneratorWorkerTests(testcase.TestCase):
     def test_process_request_quest__query(self):
         old_hero_1_info = logic.create_hero_info(self.hero_1)
 
-        self.hero_1._model.level = 666
+        self.hero_1.level = 666
 
         new_hero_1_info = logic.create_hero_info(self.hero_1)
 

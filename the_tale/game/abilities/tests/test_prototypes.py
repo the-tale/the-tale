@@ -11,6 +11,8 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
+from the_tale.game.heroes import logic as heroes_logic
+
 from the_tale.game.abilities.relations import ABILITY_TYPE
 from the_tale.game.abilities.deck import ABILITIES
 
@@ -35,39 +37,39 @@ class PrototypesTests(TestCase):
         self.task_data = {}
 
     def test_process_no_energy(self):
-        self.hero._model.energy = 0
-        self.hero._model.energy_bonus = 0
-        self.hero.save()
+        self.hero.energy = 0
+        self.hero.energy_bonus = 0
+        heroes_logic.save_hero(self.hero)
         self.assertFalse(self.ability.check_hero_conditions(self.hero, self.task_data))
 
     @mock.patch('the_tale.game.abilities.relations.ABILITY_TYPE.HELP.cost', 0)
     def test_process_no_energy__no_cost(self):
-        self.hero._model.energy = 0
-        self.hero._model.energy_bonus = 0
-        self.hero.save()
+        self.hero.energy = 0
+        self.hero.energy_bonus = 0
+        heroes_logic.save_hero(self.hero)
         self.assertTrue(self.ability.check_hero_conditions(self.hero, self.task_data))
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.energy_discount', 1)
+    @mock.patch('the_tale.game.heroes.objects.Hero.energy_discount', 1)
     def test_process_energy_discount(self):
-        self.hero._model.energy = ABILITY_TYPE.HELP.cost - 1
-        self.hero._model.energy_bonus = 0
-        self.hero.save()
+        self.hero.energy = ABILITY_TYPE.HELP.cost - 1
+        self.hero.energy_bonus = 0
+        heroes_logic.save_hero(self.hero)
         self.assertTrue(self.ability.check_hero_conditions(self.hero, self.task_data))
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.energy_discount', 1)
+    @mock.patch('the_tale.game.heroes.objects.Hero.energy_discount', 1)
     def test_process_energy_discount__no_energy(self):
-        self.hero._model.energy = ABILITY_TYPE.HELP.cost - 2
-        self.hero._model.energy_bonus = 0
-        self.hero.save()
+        self.hero.energy = ABILITY_TYPE.HELP.cost - 2
+        self.hero.energy_bonus = 0
+        heroes_logic.save_hero(self.hero)
 
         self.assertFalse(self.ability.check_hero_conditions(self.hero, self.task_data))
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.energy_discount', 100)
+    @mock.patch('the_tale.game.heroes.objects.Hero.energy_discount', 100)
     def test_process_energy_discount__limit_1(self):
-        self.hero._model.energy = 2
-        self.hero._model.energy_bonus = 0
-        self.hero.save()
+        self.hero.energy = 2
+        self.hero.energy_bonus = 0
+        heroes_logic.save_hero(self.hero)
 
         self.assertTrue(self.ability.check_hero_conditions(self.hero, self.task_data))
 
@@ -77,16 +79,16 @@ class PrototypesTests(TestCase):
 
 
     def test_process_bonus_energy(self):
-        self.hero._model.energy = 0
+        self.hero.energy = 0
         self.hero.add_energy_bonus(100)
-        self.hero.save()
+        heroes_logic.save_hero(self.hero)
 
         self.assertTrue(self.ability.check_hero_conditions(self.hero, self.task_data))
 
 
     def test_process_energy(self):
-        self.hero._model.energy = self.hero.energy_maximum
-        self.hero.save()
+        self.hero.energy = self.hero.energy_maximum
+        heroes_logic.save_hero(self.hero)
 
         self.assertTrue(self.ability.check_hero_conditions(self.hero, self.task_data))
 

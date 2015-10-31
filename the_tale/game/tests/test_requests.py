@@ -108,7 +108,7 @@ class InfoRequestTests(RequestTestsBase):
         self.check_ajax_ok(self.request_ajax_json(game_info_url(client_turns=['1',' 2',' 3 ','4'])))
 
     def test_client_turns_passed_to_data_receiver(self):
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero',
+        with mock.patch('the_tale.game.heroes.objects.Hero.cached_ui_info_for_hero',
                         mock.Mock(return_value={'actual_on_turn': 666})) as cached_ui_info_for_hero:
             self.check_ajax_ok(self.request_ajax_json(game_info_url(client_turns=[1, 2, 3 ,4])))
 

@@ -57,7 +57,7 @@ class BuildingRepairTest(UseAbilityTaskMixin, testcase.TestCase):
     def use_attributes(self, hero, building_id=None, step=ComplexChangeTask.STEP.LOGIC, storage=None, highlevel=None, critical=False):
         return super(BuildingRepairTest, self).use_attributes(building_id=self.building.id if building_id is None else building_id, critical=critical, highlevel=highlevel, step=step, storage=storage, hero=hero)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_repair_building', True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_repair_building', True)
     def test_use(self):
 
         with self.check_delta(lambda: self.hero_1.cards.help_count, 1):
@@ -82,8 +82,8 @@ class BuildingRepairTest(UseAbilityTaskMixin, testcase.TestCase):
         self.assertTrue(self.building.integrity > 0.5)
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_repair_building', True)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.might_crit_chance', 1.0)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_repair_building', True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.might_crit_chance', 1.0)
     def test_critical(self):
 
         use_attributes = self.use_attributes(hero=self.hero_1, storage=self.storage)
@@ -117,13 +117,13 @@ class BuildingRepairTest(UseAbilityTaskMixin, testcase.TestCase):
         self.assertEqual(self.ability_2.use(**self.use_attributes(hero=self.hero_2, storage=self.storage)), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
         self.assertEqual(self.building.integrity, 0.5)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_repair_building', False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_repair_building', False)
     def test_use_for_not_allowed_account(self):
         self.assertEqual(self.building.integrity, 0.5)
         self.assertEqual(self.ability_1.use(**self.use_attributes(hero=self.hero_1, storage=self.storage)), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
         self.assertEqual(self.building.integrity, 0.5)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_repair_building', True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_repair_building', True)
     def test_use_for_repaired_building(self):
         self.building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator.get_test_name('building-name'))
         self.building._model.integrity = 1.0
@@ -131,13 +131,13 @@ class BuildingRepairTest(UseAbilityTaskMixin, testcase.TestCase):
 
         self.assertEqual(self.ability_1.use(**self.use_attributes(hero=self.hero_1, storage=self.storage)), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_repair_building', True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_repair_building', True)
     def test_use_for_wrong_building_id(self):
         self.assertEqual(self.building.integrity, 0.5)
         self.assertEqual(self.ability_1.use(**self.use_attributes(hero=self.hero_1, building_id=666, storage=self.storage)), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
         self.assertEqual(self.building.integrity, 0.5)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_repair_building', True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_repair_building', True)
     def test_use_without_building(self):
         self.assertEqual(self.building.integrity, 0.5)
         arguments = self.use_attributes(hero=self.hero_1, storage=self.storage)

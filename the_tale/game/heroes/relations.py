@@ -122,20 +122,24 @@ class ITEMS_OF_EXPENDITURE(DjangoEnum):
 
 class EQUIPMENT_SLOT(DjangoEnum):
     artifact_type = Column(related_name='equipment_slot')
+    default = Column(unique=False, single_type=False)
 
     # records sorted in order in which they must be placed in UI
-    records = ( ('HAND_PRIMARY', 0, u'основная рука', ARTIFACT_TYPE.MAIN_HAND),
-                ('HAND_SECONDARY', 1, u'вспомогательная рука', ARTIFACT_TYPE.OFF_HAND),
-                ('HELMET', 2, u'шлем', ARTIFACT_TYPE.HELMET),
-                ('AMULET', 9, u'амулет', ARTIFACT_TYPE.AMULET),
-                ('SHOULDERS', 3, u'наплечники', ARTIFACT_TYPE.SHOULDERS),
-                ('PLATE', 4, u'доспех', ARTIFACT_TYPE.PLATE),
-                ('GLOVES', 5, u'перчатки', ARTIFACT_TYPE.GLOVES),
-                ('CLOAK', 6, u'плащ', ARTIFACT_TYPE.CLOAK),
-                ('PANTS', 7, u'штаны', ARTIFACT_TYPE.PANTS),
-                ('BOOTS', 8, u'сапоги', ARTIFACT_TYPE.BOOTS),
-                ('RING', 10, u'кольцо', ARTIFACT_TYPE.RING) )
+    records = ( ('HAND_PRIMARY', 0, u'основная рука', ARTIFACT_TYPE.MAIN_HAND, 'default_weapon'),
+                ('HAND_SECONDARY', 1, u'вспомогательная рука', ARTIFACT_TYPE.OFF_HAND, None),
+                ('HELMET', 2, u'шлем', ARTIFACT_TYPE.HELMET, None),
+                ('AMULET', 9, u'амулет', ARTIFACT_TYPE.AMULET, None),
+                ('SHOULDERS', 3, u'наплечники', ARTIFACT_TYPE.SHOULDERS, None),
+                ('PLATE', 4, u'доспех', ARTIFACT_TYPE.PLATE, 'default_plate'),
+                ('GLOVES', 5, u'перчатки', ARTIFACT_TYPE.GLOVES, 'default_gloves'),
+                ('CLOAK', 6, u'плащ', ARTIFACT_TYPE.CLOAK, None),
+                ('PANTS', 7, u'штаны', ARTIFACT_TYPE.PANTS, 'default_pants'),
+                ('BOOTS', 8, u'сапоги', ARTIFACT_TYPE.BOOTS, 'default_boots'),
+                ('RING', 10, u'кольцо', ARTIFACT_TYPE.RING, None) )
 
+    @classmethod
+    def default_uids(cls):
+        return [record.default for record in cls.records if record.default is not None]
 
 
 class MODIFIERS(DjangoEnum):

@@ -157,7 +157,7 @@ class IdlenessActionTest(testcase.TestCase):
         self.action_idl.percents = 1.0
         self.assertFalse(HELP_CHOICES.START_QUEST in self.action_idl.HELP_CHOICES)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_return_from_road__after_quest(self):
         self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.QUEST
         self.hero.position.set_road(list(roads_storage.all())[0], percents=0.5)
@@ -165,7 +165,7 @@ class IdlenessActionTest(testcase.TestCase):
         self.assertEqual(self.hero.actions.number, 2)
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionMoveToPrototype.TYPE)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_return_from_wild_terrain__after_quest(self):
         self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.QUEST
         self.hero.position.set_coordinates(0, 0, 5, 5, percents=0)
@@ -173,7 +173,7 @@ class IdlenessActionTest(testcase.TestCase):
         self.assertEqual(self.hero.actions.number, 2)
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionMoveNearPlacePrototype.TYPE)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_return_from_road__after_resurrect(self):
         self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.RESURRECT
         self.hero.position.set_road(list(roads_storage.all())[0], percents=0.5)
@@ -181,7 +181,7 @@ class IdlenessActionTest(testcase.TestCase):
         self.assertEqual(self.hero.actions.number, 2)
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionMoveToPrototype.TYPE)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_return_from_wild_terrain__after_resurrect(self):
         self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.RESURRECT
         self.hero.position.set_coordinates(0, 0, 5, 5, percents=0)

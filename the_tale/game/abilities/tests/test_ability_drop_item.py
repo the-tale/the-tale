@@ -52,7 +52,7 @@ class DropItemAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
             with self.check_delta(lambda: self.hero.cards.help_count, 1):
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.might_crit_chance', 1)
+    @mock.patch('the_tale.game.heroes.objects.Hero.might_crit_chance', 1)
     def test_success__critical(self):
         self.hero.bag.put_artifact(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL))
 

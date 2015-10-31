@@ -158,7 +158,7 @@ class MessagesContainer(object):
         return {'messages': [message.serialize() for message in self.messages]}
 
     @classmethod
-    def deserialize(cls, hero, data):
+    def deserialize(cls, data):
         obj = cls()
         obj.messages = collections.deque((MessageSurrogate.deserialize(message_data) for message_data in data['messages']),
                                          maxlen=cls.MESSAGES_LOG_LENGTH)

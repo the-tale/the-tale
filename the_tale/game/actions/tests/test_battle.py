@@ -53,7 +53,7 @@ class TestsBase(testcase.TestCase):
 
 class BattleTests(TestsBase):
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.additional_abilities', [VAMPIRE_STRIKE(level=1)])
+    @mock.patch('the_tale.game.heroes.objects.Hero.additional_abilities', [VAMPIRE_STRIKE(level=1)])
     def test_hero_actor(self):
         self.hero.health = 10
         self.hero.abilities.add(RUN_UP_PUSH.get_id())
@@ -101,13 +101,13 @@ class BattleTests(TestsBase):
 
         active_abilities = set(ability.get_id() for ability in all_abilities if ability.activation_type.is_ACTIVE)
 
-        self.hero._model.health = 1 # allow regeneration
+        self.hero.health = 1 # allow regeneration
 
         actor = battle.Actor(self.hero, BattleContext())
 
         chosen_abilities = set()
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.additional_abilities', all_abilities):
+        with mock.patch('the_tale.game.heroes.objects.Hero.additional_abilities', all_abilities):
             for i in xrange(1000):
                 chosen_abilities.add(actor.choose_ability().get_id())
 
@@ -136,7 +136,7 @@ class BattleTests(TestsBase):
                                                                            abilities=abilities_container.Container(start=(companion_ability,)),
                                                                            state=companions_relations.STATE.ENABLED)
         self.hero.set_companion(companions_logic.create_companion(companion_record))
-        self.hero._model.health = 1 # allow regeneration
+        self.hero.health = 1 # allow regeneration
 
         actor = battle.Actor(self.hero, BattleContext())
 
@@ -330,7 +330,7 @@ class TryCompanionBlockTests(TestsBase):
 
 
     @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_damage_probability', 1.0)
+    @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 1.0)
     def test_no_companion(self):
         actor_1, actor_2 = self.get_actors()
 
@@ -341,7 +341,7 @@ class TryCompanionBlockTests(TestsBase):
 
 
     @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_damage_probability', 1.0)
+    @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 1.0)
     def test_no_companion__attacker_has_companion(self):
         actor_1, actor_2 = self.get_actors()
 
@@ -354,7 +354,7 @@ class TryCompanionBlockTests(TestsBase):
 
 
     @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=0.0))
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_damage_probability', 1.0)
+    @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 1.0)
     def test_not_defend(self):
         actor_1, actor_2 = self.get_actors()
 
@@ -364,13 +364,13 @@ class TryCompanionBlockTests(TestsBase):
         self.assertFalse(actor_2.has_companion)
 
         with self.check_not_changed(self.hero.diary.__len__):
-            with self.check_not_changed(self.hero.messages.__len__):
+            with self.check_not_changed(self.hero.journal.__len__):
                 with self.check_not_changed(lambda: self.hero.companion.health):
                     self.assertFalse(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
 
 
     @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_damage_probability', 0.0)
+    @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 0.0)
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUNDS_IN_HOUR_FROM_HEAL', 0.0)
     def test_success_block(self):
         actor_1, actor_2 = self.get_actors()
@@ -381,15 +381,15 @@ class TryCompanionBlockTests(TestsBase):
         self.assertFalse(actor_2.has_companion)
 
         with self.check_not_changed(self.hero.diary.__len__):
-            with self.check_delta(self.hero.messages.__len__, 1):
+            with self.check_delta(self.hero.journal.__len__, 1):
                 with self.check_not_changed(lambda: self.hero.companion.health):
                     self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
 
-        self.assertTrue(self.hero.messages.messages[-1].key.is_COMPANIONS_BLOCK)
+        self.assertTrue(self.hero.journal.messages[-1].key.is_COMPANIONS_BLOCK)
 
 
     @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_damage_probability', 1.0)
+    @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 1.0)
     def test_wounded_on_block(self):
         actor_1, actor_2 = self.get_actors()
 
@@ -399,15 +399,15 @@ class TryCompanionBlockTests(TestsBase):
         self.assertFalse(actor_2.has_companion)
 
         with self.check_not_changed(self.hero.diary.__len__):
-            with self.check_delta(self.hero.messages.__len__, 1):
+            with self.check_delta(self.hero.journal.__len__, 1):
                 with self.check_delta(lambda: self.hero.companion.health, -c.COMPANIONS_DAMAGE_PER_WOUND):
                     self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
 
-        self.assertTrue(self.hero.messages.messages[-1].key.is_COMPANIONS_WOUND)
+        self.assertTrue(self.hero.journal.messages[-1].key.is_COMPANIONS_WOUND)
 
 
     @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_damage_probability', 1.0)
+    @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 1.0)
     def test_killed_on_block(self):
         actor_1, actor_2 = self.get_actors()
 
@@ -422,13 +422,13 @@ class TryCompanionBlockTests(TestsBase):
 
         self.assertEqual(self.hero.companion, None)
         self.assertFalse(actor_1.has_companion)
-        self.assertTrue(self.hero.messages.messages[-1].key.is_COMPANIONS_KILLED)
+        self.assertTrue(self.hero.journal.messages[-1].key.is_COMPANIONS_KILLED)
 
 
     @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_damage_probability', 1.0)
+    @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 1.0)
     @mock.patch('the_tale.game.heroes.messages.JournalContainer.MESSAGES_LOG_LENGTH', 10000)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_broke_to_spare_parts', lambda self: True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_broke_to_spare_parts', lambda self: True)
     def test_killed_on_block__has_spare_parts(self):
         actor_1, actor_2 = self.get_actors()
 
@@ -447,7 +447,7 @@ class TryCompanionBlockTests(TestsBase):
 
         self.assertEqual(self.hero.companion, None)
         self.assertFalse(actor_1.has_companion)
-        self.assertTrue(self.hero.messages.messages[-1].key.is_COMPANIONS_BROKE_TO_SPARE_PARTS)
+        self.assertTrue(self.hero.journal.messages[-1].key.is_COMPANIONS_BROKE_TO_SPARE_PARTS)
 
 
 class TryCompanionStrikeTests(TestsBase):

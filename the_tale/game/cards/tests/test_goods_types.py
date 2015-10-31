@@ -25,8 +25,7 @@ class CardsGoodTypeTests(testcase.TestCase):
         self.storage = LogicStorage()
         self.hero_1 = self.storage.load_account_data(self.account_1)
 
-        self.hero_1.cards._load_object()
-        self.container = self.hero_1.cards._object
+        self.container = self.hero_1.cards
 
         self.card_1 = objects.Card(relations.CARD_TYPE.ADD_GOLD_COMMON, available_for_auction=True)
         self.card_2 = objects.Card(relations.CARD_TYPE.ADD_GOLD_UNCOMMON, available_for_auction=False)

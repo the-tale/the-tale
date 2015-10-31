@@ -16,11 +16,11 @@ class ActionsContainer(object):
         return {'actions': [action.serialize() for action in self.actions_list]}
 
     @classmethod
-    def deserialize(cls, hero, data):
+    def deserialize(cls, data):
         from the_tale.game.actions import prototypes
 
         obj = cls()
-        obj.actions_list = [prototypes.ACTION_TYPES[relations.ACTION_TYPE.index_value[action_data['type']]].deserialize(hero=hero, data=action_data)
+        obj.actions_list = [prototypes.ACTION_TYPES[relations.ACTION_TYPE.index_value[action_data['type']]].deserialize(data=action_data)
                             for action_data in data.get('actions', [])]
         obj.is_single = obj._is_single
 
@@ -29,11 +29,13 @@ class ActionsContainer(object):
     def initialize(self, hero):
         from the_tale.game.actions import prototypes
         if not self.actions_list:
-            self.actions_list.append(prototypes.ActionIdlenessPrototype(hero=hero,
-                                                                        bundle_id=hero.account_id,
+            self.actions_list.append(prototypes.ActionIdlenessPrototype(bundle_id=hero.account_id,
                                                                         percents=1.0,
                                                                         state=prototypes.ActionIdlenessPrototype.STATE.WAITING))
             self.is_single = True
+
+        for action in self.actions_list:
+            action.hero = hero
 
     def ui_info(self):
         return {'actions': [action.ui_info() for action in self.actions_list]}

@@ -26,10 +26,12 @@ from the_tale.game.persons.models import Person
 from the_tale.game.persons.relations import PERSON_STATE
 from the_tale.game.persons.storage import persons_storage
 
-from the_tale.game.heroes.prototypes import HeroPrototype, HeroPreferencesPrototype
 from the_tale.game.heroes import relations
 from the_tale.game.heroes.postponed_tasks import ChoosePreferencesTask, CHOOSE_PREFERENCES_TASK_STATE
 from the_tale.game.heroes.preferences import HeroPreferences
+
+from .. import logic
+from .. import models
 
 
 class PreferencesTestMixin(object):
@@ -64,21 +66,21 @@ class HeroPreferencesEnergyRegenerationTypeTest(PreferencesTestMixin, TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.hero._model.level = relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE.level_required
+        self.hero.level = relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE.level_required
         self.hero.preferences.set_energy_regeneration_type(relations.ENERGY_REGENERATION.SACRIFICE, change_time=datetime.datetime.fromtimestamp(0))
-        self.hero.save()
+        logic.save_hero(self.hero)
 
     def test_preferences_serialization(self):
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(self.hero.id, data).serialize())
+        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_energy_regeneration_type(relations.ENERGY_REGENERATION.PRAY)
         self.assertTrue(self.hero.preferences.updated)
-        self.hero.save()
+        logic.save_hero(self.hero)
         self.assertFalse(self.hero.preferences.updated)
-        self.hero.reload()
+        self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.energy_regeneration_type, relations.ENERGY_REGENERATION.PRAY)
 
     def test_create(self):
@@ -118,7 +120,7 @@ class HeroPreferencesEnergyRegenerationTypeTest(PreferencesTestMixin, TestCase):
                                      new_energy_regeneration_type.value if new_energy_regeneration_type is not None else None)
         self.assertNotEqual(self.hero.preferences.energy_regeneration_type, new_energy_regeneration_type)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             process_result = task.process(FakePostpondTaskPrototype(), self.storage)
 
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED, process_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
@@ -127,7 +129,7 @@ class HeroPreferencesEnergyRegenerationTypeTest(PreferencesTestMixin, TestCase):
 
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.energy_regeneration_type, expected_energy_regeneration_type)
-        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).energy_regeneration_type, expected_energy_regeneration_type)
+        self.assertEqual(models.HeroPreferences.objects.get(hero_id=self.hero.id).energy_regeneration_type, expected_energy_regeneration_type)
 
     def test_change_energy_regeneration_type(self):
         self.check_change_energy_regeneration_type(relations.ENERGY_REGENERATION.PRAY, relations.ENERGY_REGENERATION.PRAY, CHOOSE_PREFERENCES_TASK_STATE.PROCESSED)
@@ -160,8 +162,8 @@ class HeroPreferencesMobTest(PreferencesTestMixin, TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.hero._model.level = relations.PREFERENCE_TYPE.MOB.level_required
-        self.hero._model.save()
+        self.hero.level = relations.PREFERENCE_TYPE.MOB.level_required
+        logic.save_hero(self.hero)
 
         self.mob_uuid = mobs_storage.get_available_mobs_list(level=self.hero.level)[0].uuid
         self.mob_2_uuid = mobs_storage.get_available_mobs_list(level=self.hero.level)[1].uuid
@@ -169,16 +171,16 @@ class HeroPreferencesMobTest(PreferencesTestMixin, TestCase):
     def test_preferences_serialization(self):
         self.hero.preferences.set_mob(mobs_storage.all()[0])
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(self.hero.id, data).serialize())
+        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         mob = mobs_storage.all()[0]
         self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_mob(mob)
         self.assertTrue(self.hero.preferences.updated)
-        self.hero.save()
+        logic.save_hero(self.hero)
         self.assertFalse(self.hero.preferences.updated)
-        self.hero.reload()
+        self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.mob.id, mob.id)
 
     def test_reset_mob_when_it_disabled(self):
@@ -201,7 +203,7 @@ class HeroPreferencesMobTest(PreferencesTestMixin, TestCase):
 
     def test_wrong_level(self):
         self.assertTrue(relations.PREFERENCE_TYPE.MOB.level_required > 1)
-        self.hero._model.level = 1
+        self.hero.level = 1
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.MOB, self.mob_uuid)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
@@ -216,7 +218,7 @@ class HeroPreferencesMobTest(PreferencesTestMixin, TestCase):
 
     def test_purchased(self):
         self.assertTrue(relations.PREFERENCE_TYPE.MOB.level_required > 1)
-        self.hero._model.level = 1
+        self.hero.level = 1
         self.account.permanent_purchases.insert(relations.PREFERENCE_TYPE.MOB.purchase_type)
         self.account.save()
 
@@ -269,17 +271,17 @@ class HeroPreferencesMobTest(PreferencesTestMixin, TestCase):
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.MOB, new_mob_uuid)
         self.assertEqual(self.hero.preferences.mob.uuid, self.mob_uuid)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED, task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertEqual(task.state, expected_state)
         if self.hero.preferences.mob is None:
             self.assertEqual(expected_mob_uuid, None)
-            self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).mob_id, None)
+            self.assertEqual(models.HeroPreferences.objects.get(hero_id=self.hero.id).mob_id, None)
         else:
             self.assertEqual(self.hero.preferences.mob.uuid, expected_mob_uuid)
-            self.assertEqual(mobs_storage[HeroPreferencesPrototype.get_by_hero_id(self.hero.id).mob_id].uuid, expected_mob_uuid)
+            self.assertEqual(mobs_storage[models.HeroPreferences.objects.get(hero_id=self.hero.id).mob_id].uuid, expected_mob_uuid)
 
         self.assertEqual(reset_accessors_cache.call_count, 1 if expected_state.is_PROCESSED else 0)
 
@@ -312,8 +314,8 @@ class HeroPreferencesPlaceTest(PreferencesTestMixin, TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.hero._model.level = relations.PREFERENCE_TYPE.PLACE.level_required
-        self.hero.save()
+        self.hero.level = relations.PREFERENCE_TYPE.PLACE.level_required
+        logic.save_hero(self.hero)
 
         self.place = place_1
         self.place_2 = place_2
@@ -322,15 +324,15 @@ class HeroPreferencesPlaceTest(PreferencesTestMixin, TestCase):
     def test_preferences_serialization(self):
         self.hero.preferences.set_place(self.place)
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(self.hero.id, data).serialize())
+        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_place(self.place)
         self.assertTrue(self.hero.preferences.updated)
-        self.hero.save()
+        logic.save_hero(self.hero)
         self.assertFalse(self.hero.preferences.updated)
-        self.hero.reload()
+        self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.place.id, self.place.id)
 
     def test_create(self):
@@ -340,7 +342,7 @@ class HeroPreferencesPlaceTest(PreferencesTestMixin, TestCase):
 
     def test_wrong_level(self):
         self.assertTrue(relations.PREFERENCE_TYPE.PLACE.level_required > 1)
-        self.hero._model.level = 1
+        self.hero.level = 1
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.PLACE, self.place.id)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
@@ -354,7 +356,7 @@ class HeroPreferencesPlaceTest(PreferencesTestMixin, TestCase):
 
     def test_purchased(self):
         self.assertTrue(relations.PREFERENCE_TYPE.PLACE.level_required > 1)
-        self.hero._model.level = 1
+        self.hero.level = 1
         self.account.permanent_purchases.insert(relations.PREFERENCE_TYPE.PLACE.purchase_type)
         self.account.save()
 
@@ -384,7 +386,7 @@ class HeroPreferencesPlaceTest(PreferencesTestMixin, TestCase):
         self.assertEqual([hero.id for hero in HeroPreferences.get_citizens_of(self.place, all=True)], [self.hero.id])
 
         self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=1)
-        self.hero.save()
+        logic.save_hero(self.hero)
 
         self.assertEqual([hero.id for hero in HeroPreferences.get_citizens_of(self.place, all=False)], [self.hero.id])
         self.assertEqual([hero.id for hero in HeroPreferences.get_citizens_of(self.place, all=True)], [self.hero.id])
@@ -396,7 +398,7 @@ class HeroPreferencesPlaceTest(PreferencesTestMixin, TestCase):
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.PLACE, new_place_id)
         self.assertEqual(self.hero.preferences.place.id, self.place.id)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
@@ -406,7 +408,7 @@ class HeroPreferencesPlaceTest(PreferencesTestMixin, TestCase):
             self.assertEqual(self.hero.preferences.place, None)
         else:
             self.assertEqual(self.hero.preferences.place.id, expected_place_id)
-        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).place_id, expected_place_id)
+        self.assertEqual(models.HeroPreferences.objects.get(hero_id=self.hero.id).place_id, expected_place_id)
 
         self.assertEqual(reset_accessors_cache.call_count, 1 if expected_state.is_PROCESSED else 0)
 
@@ -428,41 +430,41 @@ class HeroPreferencesPlaceTest(PreferencesTestMixin, TestCase):
         hero_1 = self.hero
         hero_1.preferences.set_place(self.place)
         hero_1.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
-        hero_1.save()
+        logic.save_hero(hero_1)
 
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        hero_2 = HeroPrototype.get_by_account_id(account_id)
+        hero_2 = logic.load_hero(account_id=account_id)
         hero_2.preferences.set_place(self.place)
-        hero_2.save()
+        logic.save_hero(hero_2)
 
         result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        hero_3 = HeroPrototype.get_by_account_id(account_id)
+        hero_3 = logic.load_hero(account_id=account_id)
         hero_3.preferences.set_place(self.place)
         hero_3.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
-        hero_3.save()
+        logic.save_hero(hero_3)
 
         result, account_id, bundle_id = register_user('test_user_4') # fast_account
-        hero_4 = HeroPrototype.get_by_account_id(account_id)
+        hero_4 = logic.load_hero(account_id=account_id)
         hero_4.preferences.set_place(self.place)
-        hero_4.save()
+        logic.save_hero(hero_4)
 
         result, account_id, bundle_id = register_user('test_user_5', 'test_user_5@test.com', '111111')
-        hero_5 = HeroPrototype.get_by_account_id(account_id)
+        hero_5 = logic.load_hero(account_id=account_id)
         hero_5.preferences.set_place(self.place)
         hero_5.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
-        hero_5.save()
+        logic.save_hero(hero_5)
 
         result, account_id, bundle_id = register_user('test_user_6', 'test_user_6@test.com', '111111')
-        hero_6 = HeroPrototype.get_by_account_id(account_id)
+        hero_6 = logic.load_hero(account_id=account_id)
         hero_6.preferences.set_place(self.place_2)
         hero_6.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
-        hero_6.save()
+        logic.save_hero(hero_6)
 
         result, account_id, bundle_id = register_user('test_user_7', 'test_user_7@test.com', '111111')
-        hero_7 = HeroPrototype.get_by_account_id(account_id)
+        hero_7 = logic.load_hero(account_id=account_id)
         hero_7.preferences.set_place(self.place)
         hero_7.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=60)
-        hero_7.save()
+        logic.save_hero(hero_7)
 
         self.assertEqual(HeroPreferences.count_citizens_of(self.place, all=False), 2)
         self.assertEqual(HeroPreferences.count_citizens_of(self.place_2, all=False), 1)
@@ -480,31 +482,31 @@ class HeroPreferencesPlaceTest(PreferencesTestMixin, TestCase):
         hero_1.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_1.habit_honor.change(-1)
         hero_1.habit_peacefulness.change(1)
-        hero_1.save()
+        logic.save_hero(hero_1)
 
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        hero_2 = HeroPrototype.get_by_account_id(account_id)
+        hero_2 = logic.load_hero(account_id=account_id)
         hero_2.preferences.set_place(self.place)
         hero_2.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_2.habit_honor.change(2)
         hero_2.habit_peacefulness.change(-2)
-        hero_2.save()
+        logic.save_hero(hero_2)
 
         result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        hero_3 = HeroPrototype.get_by_account_id(account_id)
+        hero_3 = logic.load_hero(account_id=account_id)
         hero_3.preferences.set_place(self.place_2)
         hero_3.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=30)
         hero_3.habit_honor.change(-4)
         hero_3.habit_peacefulness.change(4)
-        hero_3.save()
+        logic.save_hero(hero_3)
 
         result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
-        hero_4 = HeroPrototype.get_by_account_id(account_id)
+        hero_4 = logic.load_hero(account_id=account_id)
         hero_4.preferences.set_place(self.place)
         hero_4.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=30)
         hero_4.habit_honor.change(8)
         hero_4.habit_peacefulness.change(-8)
-        hero_4.save()
+        logic.save_hero(hero_4)
 
         self.assertEqual(HeroPreferences.count_habit_values(self.place, all=False), ((10, -1), (1, -10)))
         self.assertEqual(HeroPreferences.count_habit_values(self.place_2, all=False), ((0, -4), (4, 0)))
@@ -527,8 +529,8 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.hero._model.level = relations.PREFERENCE_TYPE.FRIEND.level_required
-        self.hero._model.save()
+        self.hero.level = relations.PREFERENCE_TYPE.FRIEND.level_required
+        logic.save_hero(self.hero)
 
         self.friend = self.place_1.persons[0]
         self.friend_2 = self.place_2.persons[0]
@@ -541,7 +543,7 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
     def test_preferences_serialization(self):
         self.hero.preferences.set_friend(persons_storage[self.friend_id])
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(self.hero.id, data).serialize())
+        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         friend = persons_storage[self.friend_id]
@@ -549,9 +551,9 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
         self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_friend(friend)
         self.assertTrue(self.hero.preferences.updated)
-        self.hero.save()
+        logic.save_hero(self.hero)
         self.assertFalse(self.hero.preferences.updated)
-        self.hero.reload()
+        self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.friend.id, friend.id)
 
     def test_create(self):
@@ -561,7 +563,7 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
 
     def test_wrong_level(self):
         self.assertTrue(relations.PREFERENCE_TYPE.FRIEND.level_required > 1)
-        self.hero._model.level = 1
+        self.hero.level = 1
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.FRIEND, self.friend_id)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
@@ -575,7 +577,7 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
 
     def test_purchased(self):
         self.assertTrue(relations.PREFERENCE_TYPE.FRIEND.level_required > 1)
-        self.hero._model.level = 1
+        self.hero.level = 1
         self.account.permanent_purchases.insert(relations.PREFERENCE_TYPE.FRIEND.purchase_type)
         self.account.save()
 
@@ -593,7 +595,7 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
 
     def test_set_enemy_as_friend(self):
         self.hero.preferences.set_enemy(persons_storage[self.enemy_id])
-        self.hero.save()
+        logic.save_hero(self.hero)
 
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.FRIEND, self.enemy_id)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
@@ -623,7 +625,7 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
         self.assertEqual([hero.id for hero in HeroPreferences.get_friends_of(persons_storage[self.friend_id], all=True)], [self.hero.id])
 
         self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=1)
-        self.hero.save()
+        logic.save_hero(self.hero)
 
         self.assertEqual([hero.id for hero in HeroPreferences.get_friends_of(persons_storage[self.friend_id], all=False)], [self.hero.id])
         self.assertEqual([hero.id for hero in HeroPreferences.get_friends_of(persons_storage[self.friend_id], all=True)], [self.hero.id])
@@ -635,7 +637,7 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.FRIEND, new_friend_id)
         self.assertEqual(self.hero.preferences.friend.id, self.friend_id)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
@@ -643,7 +645,7 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
             self.assertEqual(self.hero.preferences.friend, None)
         else:
             self.assertEqual(self.hero.preferences.friend.id, expected_friend_id)
-        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).friend_id, expected_friend_id)
+        self.assertEqual(models.HeroPreferences.objects.get(hero_id=self.hero.id).friend_id, expected_friend_id)
 
         self.assertEqual(reset_accessors_cache.call_count, 1 if expected_state.is_PROCESSED else 0)
 
@@ -665,41 +667,41 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
         hero_1 = self.hero
 
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        hero_2 = HeroPrototype.get_by_account_id(account_id)
+        hero_2 = logic.load_hero(account_id=account_id)
 
         result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        hero_3 = HeroPrototype.get_by_account_id(account_id)
+        hero_3 = logic.load_hero(account_id=account_id)
 
         person_1 = self.place_1.persons[0]
         person_2 = self.place_1.persons[-1]
 
         hero_1.preferences.set_friend(person_1)
         hero_1.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
-        hero_1.save()
+        logic.save_hero(hero_1)
 
         hero_2.preferences.set_friend(person_1)
-        hero_2.save()
+        logic.save_hero(hero_2)
 
         hero_3.preferences.set_friend(person_1)
         hero_3.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
-        hero_3.save()
+        logic.save_hero(hero_3)
 
         result, account_id, bundle_id = register_user('test_user_4') # fast_account
-        hero_4 = HeroPrototype.get_by_account_id(account_id)
+        hero_4 = logic.load_hero(account_id=account_id)
         hero_4.preferences.set_friend(person_1)
-        hero_4.save()
+        logic.save_hero(hero_4)
 
         result, account_id, bundle_id = register_user('test_user_5', 'test_user_5@test.com', '111111')
-        hero_5 = HeroPrototype.get_by_account_id(account_id)
+        hero_5 = logic.load_hero(account_id=account_id)
         hero_5.preferences.set_friend(person_1)
         hero_5.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
-        hero_5.save()
+        logic.save_hero(hero_5)
 
         result, account_id, bundle_id = register_user('test_user_6', 'test_user_6@test.com', '111111')
-        hero_6 = HeroPrototype.get_by_account_id(account_id)
+        hero_6 = logic.load_hero(account_id=account_id)
         hero_6.preferences.set_friend(person_1)
         hero_6.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=60)
-        hero_6.save()
+        logic.save_hero(hero_6)
 
         self.assertEqual(HeroPreferences.count_friends_of(person_1, all=False), 2)
         self.assertEqual(HeroPreferences.count_friends_of(person_2, all=False), 0)
@@ -713,7 +715,7 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
         friend = self.place_1.persons[0]
 
         self.hero.preferences.set_friend(friend)
-        self.hero.save()
+        logic.save_hero(self.hero)
 
         friend.move_out_game()
         friend.save()
@@ -729,31 +731,31 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
         hero_1.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_1.habit_honor.change(-1)
         hero_1.habit_peacefulness.change(1)
-        hero_1.save()
+        logic.save_hero(hero_1)
 
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        hero_2 = HeroPrototype.get_by_account_id(account_id)
+        hero_2 = logic.load_hero(account_id=account_id)
         hero_2.preferences.set_friend(self.friend)
         hero_2.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_2.habit_honor.change(2)
         hero_2.habit_peacefulness.change(-2)
-        hero_2.save()
+        logic.save_hero(hero_2)
 
         result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        hero_3 = HeroPrototype.get_by_account_id(account_id)
+        hero_3 = logic.load_hero(account_id=account_id)
         hero_3.preferences.set_friend(self.friend_2)
         hero_3.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=30)
         hero_3.habit_honor.change(-4)
         hero_3.habit_peacefulness.change(4)
-        hero_3.save()
+        logic.save_hero(hero_3)
 
         result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
-        hero_4 = HeroPrototype.get_by_account_id(account_id)
+        hero_4 = logic.load_hero(account_id=account_id)
         hero_4.preferences.set_friend(self.friend)
         hero_4.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=30)
         hero_4.habit_honor.change(8)
         hero_4.habit_peacefulness.change(-8)
-        hero_4.save()
+        logic.save_hero(hero_4)
 
         self.assertEqual(HeroPreferences.count_habit_values(self.place_1, all=False), ((10, -1), (1, -10)))
         self.assertEqual(HeroPreferences.count_habit_values(self.place_2, all=False), ((0, -4), (4, 0)))
@@ -777,8 +779,8 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.hero._model.level = relations.PREFERENCE_TYPE.ENEMY.level_required
-        self.hero._model.save()
+        self.hero.level = relations.PREFERENCE_TYPE.ENEMY.level_required
+        logic.save_hero(self.hero)
 
         self.enemy = self.place_1.persons[0]
         self.enemy_2 = self.place_2.persons[0]
@@ -791,7 +793,7 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
     def test_preferences_serialization(self):
         self.hero.preferences.set_enemy(persons_storage[self.enemy_id])
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(self.hero.id, data).serialize())
+        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         enemy = persons_storage[self.enemy_id]
@@ -799,9 +801,9 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
         self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_enemy(enemy)
         self.assertTrue(self.hero.preferences.updated)
-        self.hero.save()
+        logic.save_hero(self.hero)
         self.assertFalse(self.hero.preferences.updated)
-        self.hero.reload()
+        self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.enemy.id, enemy.id)
 
 
@@ -812,7 +814,7 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
 
     def test_wrong_level(self):
         self.assertTrue(relations.PREFERENCE_TYPE.ENEMY.level_required > 1)
-        self.hero._model.level = 1
+        self.hero.level = 1
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.ENEMY, self.enemy_id)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
@@ -826,7 +828,7 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
 
     def test_purchased(self):
         self.assertTrue(relations.PREFERENCE_TYPE.ENEMY.level_required > 1)
-        self.hero._model.level = 1
+        self.hero.level = 1
         self.account.permanent_purchases.insert(relations.PREFERENCE_TYPE.ENEMY.purchase_type)
         self.account.save()
 
@@ -864,14 +866,14 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
         self.assertEqual([hero.id for hero in HeroPreferences.get_enemies_of(persons_storage[self.enemy_id], all=True)], [self.hero.id])
 
         self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=1)
-        self.hero.save()
+        logic.save_hero(self.hero)
 
         self.assertEqual([hero.id for hero in HeroPreferences.get_enemies_of(persons_storage[self.enemy_id], all=False)], [self.hero.id])
         self.assertEqual([hero.id for hero in HeroPreferences.get_enemies_of(persons_storage[self.enemy_id], all=True)], [self.hero.id])
 
     def test_set_friend_as_enemy(self):
         self.hero.preferences.set_friend(persons_storage[self.friend_id])
-        self.hero.save()
+        logic.save_hero(self.hero)
 
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.ENEMY, self.friend_id)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
@@ -884,7 +886,7 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.ENEMY, new_enemy_id)
         self.assertEqual(self.hero.preferences.enemy.id, self.enemy_id)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
@@ -892,7 +894,7 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
             self.assertEqual(self.hero.preferences.enemy, None)
         else:
             self.assertEqual(self.hero.preferences.enemy.id, expected_enemy_id)
-        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).enemy_id, expected_enemy_id)
+        self.assertEqual(models.HeroPreferences.objects.get(hero_id=self.hero.id).enemy_id, expected_enemy_id)
 
         self.assertEqual(reset_accessors_cache.call_count, 1 if expected_state.is_PROCESSED else 0)
 
@@ -914,41 +916,41 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
         hero_1 = self.hero
 
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        hero_2 = HeroPrototype.get_by_account_id(account_id)
+        hero_2 = logic.load_hero(account_id=account_id)
 
         result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        hero_3 = HeroPrototype.get_by_account_id(account_id)
+        hero_3 = logic.load_hero(account_id=account_id)
 
         person_1 = self.place_1.persons[0]
         person_2 = self.place_1.persons[-1]
 
         hero_1.preferences.set_enemy(person_1)
         hero_1.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
-        hero_1.save()
+        logic.save_hero(hero_1)
 
         hero_2.preferences.set_enemy(person_1)
-        hero_2.save()
+        logic.save_hero(hero_2)
 
         hero_3.preferences.set_enemy(person_1)
         hero_3.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
-        hero_3.save()
+        logic.save_hero(hero_3)
 
         result, account_id, bundle_id = register_user('test_user_4') # fast_account
-        hero_4 = HeroPrototype.get_by_account_id(account_id)
+        hero_4 = logic.load_hero(account_id=account_id)
         hero_4.preferences.set_enemy(person_1)
-        hero_4.save()
+        logic.save_hero(hero_4)
 
         result, account_id, bundle_id = register_user('test_user_5', 'test_user_5@test.com', '111111')
-        hero_5 = HeroPrototype.get_by_account_id(account_id)
+        hero_5 = logic.load_hero(account_id=account_id)
         hero_5.preferences.set_enemy(person_1)
         hero_5.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
-        hero_5.save()
+        logic.save_hero(hero_5)
 
         result, account_id, bundle_id = register_user('test_user_6', 'test_user_6@test.com', '111111')
-        hero_6 = HeroPrototype.get_by_account_id(account_id)
+        hero_6 = logic.load_hero(account_id=account_id)
         hero_6.preferences.set_enemy(person_1)
         hero_6.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=60)
-        hero_6.save()
+        logic.save_hero(hero_6)
 
         self.assertEqual(HeroPreferences.count_enemies_of(person_1, all=False), 2)
         self.assertEqual(HeroPreferences.count_enemies_of(person_2, all=False), 0)
@@ -962,7 +964,7 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
         enemy = self.place_1.persons[0]
 
         self.hero.preferences.set_enemy(enemy)
-        self.hero.save()
+        logic.save_hero(self.hero)
 
         enemy.move_out_game()
         enemy.save()
@@ -978,31 +980,31 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
         hero_1.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_1.habit_honor.change(-1)
         hero_1.habit_peacefulness.change(1)
-        hero_1.save()
+        logic.save_hero(hero_1)
 
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        hero_2 = HeroPrototype.get_by_account_id(account_id)
+        hero_2 = logic.load_hero(account_id=account_id)
         hero_2.preferences.set_enemy(self.enemy)
         hero_2.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_2.habit_honor.change(2)
         hero_2.habit_peacefulness.change(-2)
-        hero_2.save()
+        logic.save_hero(hero_2)
 
         result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        hero_3 = HeroPrototype.get_by_account_id(account_id)
+        hero_3 = logic.load_hero(account_id=account_id)
         hero_3.preferences.set_enemy(self.enemy_2)
         hero_3.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=30)
         hero_3.habit_honor.change(-4)
         hero_3.habit_peacefulness.change(4)
-        hero_3.save()
+        logic.save_hero(hero_3)
 
         result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
-        hero_4 = HeroPrototype.get_by_account_id(account_id)
+        hero_4 = logic.load_hero(account_id=account_id)
         hero_4.preferences.set_enemy(self.enemy)
         hero_4.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=30)
         hero_4.habit_honor.change(8)
         hero_4.habit_peacefulness.change(-8)
-        hero_4.save()
+        logic.save_hero(hero_4)
 
         self.assertEqual(HeroPreferences.count_habit_values(self.place_1, all=False), ((10, -1), (1, -10)))
         self.assertEqual(HeroPreferences.count_habit_values(self.place_2, all=False), ((0, -4), (4, 0)))
@@ -1025,8 +1027,8 @@ class HeroPreferencesEquipmentSlotTest(PreferencesTestMixin, TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.hero._model.level = relations.PREFERENCE_TYPE.EQUIPMENT_SLOT.level_required
-        self.hero._model.save()
+        self.hero.level = relations.PREFERENCE_TYPE.EQUIPMENT_SLOT.level_required
+        logic.save_hero(self.hero)
 
         self.slot_1 = relations.EQUIPMENT_SLOT.HAND_PRIMARY
         self.slot_2 = relations.EQUIPMENT_SLOT.PLATE
@@ -1034,15 +1036,15 @@ class HeroPreferencesEquipmentSlotTest(PreferencesTestMixin, TestCase):
     def test_preferences_serialization(self):
         self.hero.preferences.set_equipment_slot(self.slot_1)
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(self.hero.id, data).serialize())
+        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_equipment_slot(self.slot_1)
         self.assertTrue(self.hero.preferences.updated)
-        self.hero.save()
+        logic.save_hero(self.hero)
         self.assertFalse(self.hero.preferences.updated)
-        self.hero.reload()
+        self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.equipment_slot, self.slot_1)
 
 
@@ -1053,7 +1055,7 @@ class HeroPreferencesEquipmentSlotTest(PreferencesTestMixin, TestCase):
 
     def test_wrong_level(self):
         self.assertTrue(relations.PREFERENCE_TYPE.EQUIPMENT_SLOT.level_required > 1)
-        self.hero._model.level = 1
+        self.hero.level = 1
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, self.slot_1.value)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
@@ -1067,7 +1069,7 @@ class HeroPreferencesEquipmentSlotTest(PreferencesTestMixin, TestCase):
 
     def test_purchased(self):
         self.assertTrue(relations.PREFERENCE_TYPE.EQUIPMENT_SLOT.level_required > 1)
-        self.hero._model.level = 1
+        self.hero.level = 1
         self.account.permanent_purchases.insert(relations.PREFERENCE_TYPE.EQUIPMENT_SLOT.purchase_type)
         self.account.save()
 
@@ -1096,13 +1098,13 @@ class HeroPreferencesEquipmentSlotTest(PreferencesTestMixin, TestCase):
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, new_slot.value if new_slot is not None else None)
         self.assertEqual(self.hero.preferences.equipment_slot, self.slot_1)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.equipment_slot, expected_slot)
 
-        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).equipment_slot, expected_slot)
+        self.assertEqual(models.HeroPreferences.objects.get(hero_id=self.hero.id).equipment_slot, expected_slot)
 
         self.assertEqual(reset_accessors_cache.call_count, 1 if expected_state.is_PROCESSED else 0)
 
@@ -1134,8 +1136,8 @@ class HeroPreferencesFavoriteItemTest(PreferencesTestMixin, TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.hero._model.level = relations.PREFERENCE_TYPE.FAVORITE_ITEM.level_required
-        self.hero._model.save()
+        self.hero.level = relations.PREFERENCE_TYPE.FAVORITE_ITEM.level_required
+        logic.save_hero(self.hero)
 
         self.slot_1 = relations.EQUIPMENT_SLOT.HAND_PRIMARY
         self.slot_2 = relations.EQUIPMENT_SLOT.PLATE
@@ -1143,15 +1145,15 @@ class HeroPreferencesFavoriteItemTest(PreferencesTestMixin, TestCase):
     def test_preferences_serialization(self):
         self.hero.preferences.set_favorite_item(self.slot_1)
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(self.hero.id, data).serialize())
+        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_favorite_item(self.slot_1)
         self.assertTrue(self.hero.preferences.updated)
-        self.hero.save()
+        logic.save_hero(self.hero)
         self.assertFalse(self.hero.preferences.updated)
-        self.hero.reload()
+        self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.favorite_item, self.slot_1)
 
 
@@ -1162,7 +1164,7 @@ class HeroPreferencesFavoriteItemTest(PreferencesTestMixin, TestCase):
 
     def test_wrong_level(self):
         self.assertTrue(relations.PREFERENCE_TYPE.FAVORITE_ITEM.level_required > 1)
-        self.hero._model.level = 1
+        self.hero.level = 1
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.FAVORITE_ITEM, self.slot_1.value)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
@@ -1182,7 +1184,7 @@ class HeroPreferencesFavoriteItemTest(PreferencesTestMixin, TestCase):
 
     def test_purchased(self):
         self.assertTrue(relations.PREFERENCE_TYPE.FAVORITE_ITEM.level_required > 1)
-        self.hero._model.level = 1
+        self.hero.level = 1
         self.account.permanent_purchases.insert(relations.PREFERENCE_TYPE.FAVORITE_ITEM.purchase_type)
         self.account.save()
 
@@ -1211,13 +1213,13 @@ class HeroPreferencesFavoriteItemTest(PreferencesTestMixin, TestCase):
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.FAVORITE_ITEM, new_slot.value if new_slot is not None else None)
         self.assertEqual(self.hero.preferences.favorite_item, self.slot_1)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.favorite_item, expected_slot)
 
-        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).favorite_item, expected_slot)
+        self.assertEqual(models.HeroPreferences.objects.get(hero_id=self.hero.id).favorite_item, expected_slot)
 
         self.assertEqual(reset_accessors_cache.call_count, 1 if expected_state.is_PROCESSED else 0)
 
@@ -1250,8 +1252,8 @@ class HeroPreferencesRiskLevelTest(PreferencesTestMixin, TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.hero._model.level = relations.PREFERENCE_TYPE.RISK_LEVEL.level_required
-        self.hero._model.save()
+        self.hero.level = relations.PREFERENCE_TYPE.RISK_LEVEL.level_required
+        logic.save_hero(self.hero)
 
         self.risk_1 = relations.RISK_LEVEL.VERY_HIGH
         self.risk_2 = relations.RISK_LEVEL.VERY_LOW
@@ -1259,15 +1261,15 @@ class HeroPreferencesRiskLevelTest(PreferencesTestMixin, TestCase):
     def test_preferences_serialization(self):
         self.hero.preferences.set_risk_level(self.risk_1)
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(self.hero.id, data).serialize())
+        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_risk_level(self.risk_1)
         self.assertTrue(self.hero.preferences.updated)
-        self.hero.save()
+        logic.save_hero(self.hero)
         self.assertFalse(self.hero.preferences.updated)
-        self.hero.reload()
+        self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.risk_level, self.risk_1)
 
     def test_create(self):
@@ -1277,7 +1279,7 @@ class HeroPreferencesRiskLevelTest(PreferencesTestMixin, TestCase):
 
     def test_wrong_level(self):
         self.assertTrue(relations.PREFERENCE_TYPE.RISK_LEVEL.level_required > 1)
-        self.hero._model.level = 1
+        self.hero.level = 1
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.RISK_LEVEL, self.risk_1.value)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
@@ -1292,7 +1294,7 @@ class HeroPreferencesRiskLevelTest(PreferencesTestMixin, TestCase):
 
     def test_purchased(self):
         self.assertTrue(relations.PREFERENCE_TYPE.RISK_LEVEL.level_required > 1)
-        self.hero._model.level = 1
+        self.hero.level = 1
         self.account.permanent_purchases.insert(relations.PREFERENCE_TYPE.RISK_LEVEL.purchase_type)
         self.account.save()
 
@@ -1322,13 +1324,13 @@ class HeroPreferencesRiskLevelTest(PreferencesTestMixin, TestCase):
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.RISK_LEVEL, new_slot.value if new_slot is not None else None)
         self.assertEqual(self.hero.preferences.risk_level, self.risk_1)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.risk_level, expected_slot)
 
-        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).risk_level, expected_slot)
+        self.assertEqual(models.HeroPreferences.objects.get(hero_id=self.hero.id).risk_level, expected_slot)
 
         self.assertEqual(reset_accessors_cache.call_count, 1 if expected_state.is_PROCESSED else 0)
 
@@ -1353,8 +1355,8 @@ class HeroPreferencesArchetypeTest(PreferencesTestMixin, TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.hero._model.level = relations.PREFERENCE_TYPE.ARCHETYPE.level_required
-        self.hero._model.save()
+        self.hero.level = relations.PREFERENCE_TYPE.ARCHETYPE.level_required
+        logic.save_hero(self.hero)
 
         self.mage = game_relations.ARCHETYPE.MAGICAL
         self.warior = game_relations.ARCHETYPE.PHYSICAL
@@ -1362,15 +1364,15 @@ class HeroPreferencesArchetypeTest(PreferencesTestMixin, TestCase):
     def test_preferences_serialization(self):
         self.hero.preferences.set_archetype(self.mage)
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(self.hero.id, data).serialize())
+        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_archetype(self.mage)
         self.assertTrue(self.hero.preferences.updated)
-        self.hero.save()
+        logic.save_hero(self.hero)
         self.assertFalse(self.hero.preferences.updated)
-        self.hero.reload()
+        self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.archetype, self.mage)
 
     def test_create(self):
@@ -1380,7 +1382,7 @@ class HeroPreferencesArchetypeTest(PreferencesTestMixin, TestCase):
 
     def test_wrong_level(self):
         self.assertTrue(relations.PREFERENCE_TYPE.ARCHETYPE.level_required > 1)
-        self.hero._model.level = 1
+        self.hero.level = 1
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.ARCHETYPE, self.mage.value)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
@@ -1395,7 +1397,7 @@ class HeroPreferencesArchetypeTest(PreferencesTestMixin, TestCase):
 
     def test_purchased(self):
         self.assertTrue(relations.PREFERENCE_TYPE.ARCHETYPE.level_required > 1)
-        self.hero._model.level = 1
+        self.hero.level = 1
         self.account.permanent_purchases.insert(relations.PREFERENCE_TYPE.ARCHETYPE.purchase_type)
         self.account.save()
 
@@ -1425,13 +1427,13 @@ class HeroPreferencesArchetypeTest(PreferencesTestMixin, TestCase):
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.ARCHETYPE, new_slot.value if new_slot is not None else None)
         self.assertEqual(self.hero.preferences.archetype, self.mage)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.archetype, expected_slot)
 
-        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).archetype, expected_slot)
+        self.assertEqual(models.HeroPreferences.objects.get(hero_id=self.hero.id).archetype, expected_slot)
 
         self.assertEqual(reset_accessors_cache.call_count, 1 if expected_state.is_PROCESSED else 0)
 
@@ -1455,8 +1457,8 @@ class HeroPreferencesCompanionDedicationTest(PreferencesTestMixin, TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.hero._model.level = relations.PREFERENCE_TYPE.COMPANION_DEDICATION.level_required
-        self.hero._model.save()
+        self.hero.level = relations.PREFERENCE_TYPE.COMPANION_DEDICATION.level_required
+        logic.save_hero(self.hero)
 
         self.egoism = relations.COMPANION_DEDICATION.EGOISM
         self.altruism = relations.COMPANION_DEDICATION.ALTRUISM
@@ -1467,15 +1469,15 @@ class HeroPreferencesCompanionDedicationTest(PreferencesTestMixin, TestCase):
     def test_preferences_serialization(self):
         self.hero.preferences.set_companion_dedication(self.egoism)
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(self.hero.id, data).serialize())
+        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_companion_dedication(self.egoism)
         self.assertTrue(self.hero.preferences.updated)
-        self.hero.save()
+        logic.save_hero(self.hero)
         self.assertFalse(self.hero.preferences.updated)
-        self.hero.reload()
+        self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.companion_dedication, self.egoism)
 
     def test_create(self):
@@ -1485,7 +1487,7 @@ class HeroPreferencesCompanionDedicationTest(PreferencesTestMixin, TestCase):
 
     def test_wrong_level(self):
         self.assertTrue(relations.PREFERENCE_TYPE.COMPANION_DEDICATION.level_required > 1)
-        self.hero._model.level = 1
+        self.hero.level = 1
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.COMPANION_DEDICATION, self.egoism.value)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
@@ -1500,7 +1502,7 @@ class HeroPreferencesCompanionDedicationTest(PreferencesTestMixin, TestCase):
 
     def test_purchased(self):
         self.assertTrue(relations.PREFERENCE_TYPE.COMPANION_DEDICATION.level_required > 1)
-        self.hero._model.level = 1
+        self.hero.level = 1
         self.account.permanent_purchases.insert(relations.PREFERENCE_TYPE.COMPANION_DEDICATION.purchase_type)
         self.account.save()
 
@@ -1530,13 +1532,13 @@ class HeroPreferencesCompanionDedicationTest(PreferencesTestMixin, TestCase):
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.COMPANION_DEDICATION, new_slot.value if new_slot is not None else None)
         self.assertEqual(self.hero.preferences.companion_dedication, self.egoism)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.companion_dedication, expected_slot)
 
-        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).companion_dedication, expected_slot)
+        self.assertEqual(models.HeroPreferences.objects.get(hero_id=self.hero.id).companion_dedication, expected_slot)
 
         self.assertEqual(reset_accessors_cache.call_count, 1 if expected_state.is_PROCESSED else 0)
 
@@ -1560,8 +1562,8 @@ class HeroPreferencesCompanionEmpathyTest(PreferencesTestMixin, TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.hero._model.level = relations.PREFERENCE_TYPE.COMPANION_EMPATHY.level_required
-        self.hero._model.save()
+        self.hero.level = relations.PREFERENCE_TYPE.COMPANION_EMPATHY.level_required
+        logic.save_hero(self.hero)
 
         self.empath = relations.COMPANION_EMPATHY.EMPATH
         self.egocentric = relations.COMPANION_EMPATHY.EGOCENTRIC
@@ -1572,15 +1574,15 @@ class HeroPreferencesCompanionEmpathyTest(PreferencesTestMixin, TestCase):
     def test_preferences_serialization(self):
         self.hero.preferences.set_companion_empathy(self.empath)
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(self.hero.id, data).serialize())
+        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_companion_empathy(self.empath)
         self.assertTrue(self.hero.preferences.updated)
-        self.hero.save()
+        logic.save_hero(self.hero)
         self.assertFalse(self.hero.preferences.updated)
-        self.hero.reload()
+        self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.companion_empathy, self.empath)
 
     def test_create(self):
@@ -1590,7 +1592,7 @@ class HeroPreferencesCompanionEmpathyTest(PreferencesTestMixin, TestCase):
 
     def test_wrong_level(self):
         self.assertTrue(relations.PREFERENCE_TYPE.COMPANION_EMPATHY.level_required > 1)
-        self.hero._model.level = 1
+        self.hero.level = 1
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.COMPANION_EMPATHY, self.empath.value)
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL)
@@ -1605,7 +1607,7 @@ class HeroPreferencesCompanionEmpathyTest(PreferencesTestMixin, TestCase):
 
     def test_purchased(self):
         self.assertTrue(relations.PREFERENCE_TYPE.COMPANION_EMPATHY.level_required > 1)
-        self.hero._model.level = 1
+        self.hero.level = 1
         self.account.permanent_purchases.insert(relations.PREFERENCE_TYPE.COMPANION_EMPATHY.purchase_type)
         self.account.save()
 
@@ -1635,13 +1637,13 @@ class HeroPreferencesCompanionEmpathyTest(PreferencesTestMixin, TestCase):
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.COMPANION_EMPATHY, new_slot.value if new_slot is not None else None)
         self.assertEqual(self.hero.preferences.companion_empathy, self.empath)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             task_result = task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(expected_state == CHOOSE_PREFERENCES_TASK_STATE.PROCESSED,  task_result == POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, expected_state)
         self.assertEqual(self.hero.preferences.companion_empathy, expected_slot)
 
-        self.assertEqual(HeroPreferencesPrototype.get_by_hero_id(self.hero.id).companion_empathy, expected_slot)
+        self.assertEqual(models.HeroPreferences.objects.get(hero_id=self.hero.id).companion_empathy, expected_slot)
 
         self.assertEqual(reset_accessors_cache.call_count, 1 if expected_state.is_PROCESSED else 0)
 
@@ -1666,8 +1668,8 @@ class HeroPreferencesRequestsTest(TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.hero._model.level = max(r.level_required for r in relations.PREFERENCE_TYPE.records) # maximum blocking level
-        self.hero._model.save()
+        self.hero.level = max(r.level_required for r in relations.PREFERENCE_TYPE.records) # maximum blocking level
+        logic.save_hero(self.hero)
 
         register_user('test_user_2', 'test_user_2@test.com', '111111')
 

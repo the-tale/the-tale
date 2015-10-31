@@ -160,3 +160,16 @@ class HeroPreferences(models.Model):
     archetype = RelationIntegerField(relation=game_relations.ARCHETYPE, null=True, default=None, blank=True)
     companion_dedication = RelationIntegerField(relation=relations.COMPANION_DEDICATION, null=True, default=None, blank=True)
     companion_empathy = RelationIntegerField(relation=relations.COMPANION_EMPATHY, null=True, default=None, blank=True)
+
+    @classmethod
+    def create(cls, hero, energy_regeneration_type, risk_level, archetype, companion_dedication, companion_empathy):
+        return cls.objects.create(hero_id=hero.id,
+                                  energy_regeneration_type=energy_regeneration_type,
+                                  risk_level=risk_level,
+                                  archetype=archetype,
+                                  companion_dedication=companion_dedication,
+                                  companion_empathy=companion_empathy)
+
+    @classmethod
+    def update(cls, hero_id, field, value):
+        cls.objects.filter(hero_id=hero_id).update(**{field: value})

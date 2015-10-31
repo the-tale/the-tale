@@ -35,14 +35,14 @@ class ShortTeleportTests(CardsTestMixin, testcase.TestCase):
 
         self.card = self.CARD()
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_moving(self):
         self.assertFalse(self.hero.actions.current_action.TYPE.is_MOVE_TO)
 
         result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_use(self):
         action_move = actions_prototypes.ActionMoveToPrototype.create(hero=self.hero, destination=self.place_3)
 
@@ -74,7 +74,7 @@ class ShortTeleportTests(CardsTestMixin, testcase.TestCase):
         self.assertTrue(self.hero.position.place.id, self.place_3.id)
         self.assertEqual(action_move.state, action_move.STATE.PROCESSED)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_use__wrong_state(self):
         actions_prototypes.ActionMoveToPrototype.create(hero=self.hero, destination=self.place_3)
         self.assertTrue(self.hero.actions.current_action.state != actions_prototypes.ActionMoveToPrototype.STATE.MOVING)
@@ -105,14 +105,14 @@ class LongTeleportTests(CardsTestMixin, testcase.TestCase):
 
         self.card = self.CARD()
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_moving(self):
         self.assertFalse(self.hero.actions.current_action.TYPE.is_MOVE_TO)
 
         result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_use(self):
         actions_prototypes.ActionMoveToPrototype.create(hero=self.hero, destination=self.place_3)
 
@@ -128,7 +128,7 @@ class LongTeleportTests(CardsTestMixin, testcase.TestCase):
         self.assertTrue(self.hero.position.place.id, self.place_3.id)
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_use__wrong_state(self):
         actions_prototypes.ActionMoveToPrototype.create(hero=self.hero, destination=self.place_3)
         self.assertTrue(self.hero.actions.current_action.state != actions_prototypes.ActionMoveToPrototype.STATE.MOVING)

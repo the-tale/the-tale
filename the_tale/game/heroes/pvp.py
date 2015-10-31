@@ -45,7 +45,7 @@ class PvPData(object):
                 'turn_energy_speed': self.turn_energy_speed }
 
     @classmethod
-    def deserialize(cls, hero, data):
+    def deserialize(cls, data):
         obj = cls()
 
         obj.advantage = data.get('advantage', 0)

@@ -14,6 +14,8 @@ from the_tale.accounts.views import validate_fast_account, validate_ban_any
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.conf import accounts_settings
 
+from the_tale.game.heroes import logic as heroes_logic
+
 from .prototypes import ClanPrototype, MembershipPrototype, MembershipRequestPrototype
 from .conf import clans_settings
 from .relations import ORDER_BY, MEMBER_ROLE, PAGE_ID, MEMBERSHIP_REQUEST_TYPE
@@ -129,11 +131,10 @@ class ClansResource(Resource):
 
     @handler('#clan', name='show')
     def show(self):
-        from the_tale.game.heroes.prototypes import HeroPrototype
 
         roles = {member.account_id:member.role for member in MembershipPrototype.get_list_by_clan_id(self.clan.id)}
         accounts = sorted(AccountPrototype.get_list_by_id(roles.keys()), key=lambda a: (roles[a.id].value, a.nick_verbose))
-        heroes = {hero.account_id:hero for hero in HeroPrototype.get_list_by_account_id(roles.keys())}
+        heroes = {hero.account_id:hero for hero in heroes_logic.load_heroes_by_account_ids(roles.keys())}
 
         active_accounts_number = sum((1 for account in accounts if account.is_active), 0)
         affect_game_accounts_number = sum((1 for account in accounts if account.can_affect_game), 0)

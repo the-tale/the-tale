@@ -22,6 +22,8 @@ from the_tale.game import relations as game_relations
 
 from the_tale.game.heroes import relations
 
+from .. import logic
+
 
 class _HeroEquipmentTestsBase(TestCase):
 
@@ -35,8 +37,8 @@ class _HeroEquipmentTestsBase(TestCase):
         self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
 
         self.hero = self.storage.accounts_to_heroes[account_id]
-        self.hero._model.level = relations.PREFERENCE_TYPE.EQUIPMENT_SLOT.level_required
-        self.hero.save()
+        self.hero.level = relations.PREFERENCE_TYPE.EQUIPMENT_SLOT.level_required
+        logic.save_hero(self.hero)
 
 
 class HeroEquipmentTests(_HeroEquipmentTestsBase):
@@ -50,21 +52,21 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
             for i in xrange(self.hero.max_bag_size*2):
                 self.hero.put_loot(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL))
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.bonus_artifact_power', Power(0, 0))
+    @mock.patch('the_tale.game.heroes.objects.Hero.bonus_artifact_power', Power(0, 0))
     def test_put_loot__bonus_power_no_bonus(self):
         artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL)
         artifact.power = Power(0, 0)
         self.hero.put_loot(artifact)
         self.assertEqual(artifact.power, Power(0, 0))
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.bonus_artifact_power', Power(1, 1))
+    @mock.patch('the_tale.game.heroes.objects.Hero.bonus_artifact_power', Power(1, 1))
     def test_put_loot__bonus_power_for_useless(self):
         artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL)
         artifact.power = Power(0, 0)
         self.hero.put_loot(artifact)
         self.assertEqual(artifact.power, Power(0, 0))
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.bonus_artifact_power', Power(1, 1))
+    @mock.patch('the_tale.game.heroes.objects.Hero.bonus_artifact_power', Power(1, 1))
     def test_put_loot__bonus_power_for_artifact(self):
         artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL)
         artifact.power = Power(0, 0)
@@ -98,7 +100,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
                         artifact.power == max_power + Power(0, 1))
         self.assertTrue(self.hero.equipment.updated)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_upgrade_prefered_slot', True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_upgrade_prefered_slot', True)
     def test_sharp_preferences(self):
         self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.HAND_PRIMARY)
 
@@ -133,7 +135,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
         self.assertTrue(unequipped is None)
         self.assertEqual(equipped, artifact)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             self.hero.change_equipment(slot, unequipped, equipped)
 
         self.assertEqual(reset_accessors_cache.call_count, 1)
@@ -151,7 +153,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
         self.assertEqual(unequipped, artifact)
         self.assertEqual(equipped, new_artifact)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             self.hero.change_equipment(slot, unequipped, equipped)
 
         self.assertEqual(reset_accessors_cache.call_count, 1)
@@ -231,7 +233,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
 
         old_hero_power = self.hero.power
 
-        self.hero._model.level = 50
+        self.hero.level = 50
 
         self.hero.randomize_equip()
 
@@ -379,7 +381,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
         self.assertEqual(self.hero.statistics.money_earned_from_loot, 0)
         self.assertEqual(self.hero.statistics.money_earned_from_artifacts, price)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.sell_price', lambda hero: -100)
+    @mock.patch('the_tale.game.heroes.objects.Hero.sell_price', lambda hero: -100)
     def test_sell_artifact__sell_price_less_than_zero(self):
         artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL)
         self.hero.bag.put_artifact(artifact)
@@ -452,7 +454,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
                 self.assertTrue(candidate.integrity <= int(c.EQUIP_SLOTS_NUMBER * c.EQUIPMENT_BREAK_FRACTION) + 1)
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_safe_artifact_integrity', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_safe_artifact_integrity', lambda self: False)
     def test_damage_integrity(self):
         self.hero.equipment._remove_all()
         for slot in relations.EQUIPMENT_SLOT.records:
@@ -464,7 +466,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
         for artifact in self.hero.equipment.values():
             self.assertTrue(artifact.integrity < artifact.max_integrity)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_safe_artifact_integrity', lambda self: True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_safe_artifact_integrity', lambda self: True)
     def test_damage_integrity__safe(self):
         self.hero.equipment._remove_all()
         for slot in relations.EQUIPMENT_SLOT.records:
@@ -484,7 +486,7 @@ class ReceiveArtifactsChoicesTests(_HeroEquipmentTestsBase):
 
         self.assertTrue(any(artifact.power_type.is_NEUTRAL for artifact in artifacts_storage.artifacts))
 
-        self.hero._model.level = 100
+        self.hero.level = 100
 
         self.base_artifacts = list(artifacts_storage.artifacts)
 
@@ -500,14 +502,14 @@ class ReceiveArtifactsChoicesTests(_HeroEquipmentTestsBase):
 
 
     def test_get_allowed_artifact_types__level(self):
-        self.hero._model.level = 3
+        self.hero.level = 3
 
         expected_artifact_types = self.base_artifacts + [self.artifact_most_magic, self.artifact_magic, self.artifact_neutral]
 
         self.check_artifacts_lists(self.hero.get_allowed_artifact_types(slots=relations.EQUIPMENT_SLOT.records, archetype=False),
                                    expected_artifact_types)
 
-        self.hero._model.level = 7
+        self.hero.level = 7
 
         expected_artifact_types = self.base_artifacts + [self.artifact_most_magic, self.artifact_magic, self.artifact_neutral, self.artifact_physic, self.artifact_most_physic]
 
@@ -552,32 +554,32 @@ class ReceiveArtifactsChoicesTests(_HeroEquipmentTestsBase):
         self.assertEqual(set(self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=False, prefered_item=True)),
                          set(relations.EQUIPMENT_SLOT.records) - set([relations.EQUIPMENT_SLOT.HELMET]))
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_upgrade_prefered_slot', False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_upgrade_prefered_slot', False)
     def test_receive_artifacts_slots_choices__prefered_slot__no_probability(self):
         self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.CLOAK)
         self.assertEqual(set(self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=True, prefered_item=False)),
                          set(relations.EQUIPMENT_SLOT.records))
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_upgrade_prefered_slot', True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_upgrade_prefered_slot', True)
     def test_prefered_slot_conflics_with_prefered_item__can_upgrade(self):
         self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.HELMET)
         self.hero.preferences.set_favorite_item(relations.EQUIPMENT_SLOT.HELMET)
         self.assertEqual(self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=True, prefered_item=True), [])
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_upgrade_prefered_slot', False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_upgrade_prefered_slot', False)
     def test_prefered_slot_conflics_with_prefered_item__can_not_upgrade(self):
         self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.HELMET)
         self.hero.preferences.set_favorite_item(relations.EQUIPMENT_SLOT.HELMET)
         self.assertFalse(relations.EQUIPMENT_SLOT.HELMET in self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=True, prefered_item=True))
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_upgrade_prefered_slot', True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_upgrade_prefered_slot', True)
     def test_receive_artifacts_slots_choices__prefered_slot__no_preference(self):
         self.hero.preferences.set_equipment_slot(None)
         self.assertEqual(set(self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=True, prefered_item=False)),
                          set(relations.EQUIPMENT_SLOT.records))
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_upgrade_prefered_slot', True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_upgrade_prefered_slot', True)
     def test_receive_artifacts_slots_choices__prefered_slot__has_preference(self):
         self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.CLOAK)
         self.assertEqual(set(self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=True, prefered_item=False)),
@@ -606,31 +608,31 @@ class ReceiveArtifactsChoicesTests(_HeroEquipmentTestsBase):
         self.assertEqual(set(self.hero.receive_artifacts_slots_choices(better=True, prefered_slot=False, prefered_item=False)),
                          set(relations.EQUIPMENT_SLOT.records) - set(excluded_slots))
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.get_allowed_artifact_types', lambda self, **kwargs: ['working'])
+    @mock.patch('the_tale.game.heroes.objects.Hero.get_allowed_artifact_types', lambda self, **kwargs: ['working'])
     def test_receive_artifacts_choices__has_choices(self):
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype._receive_artifacts_choices') as receive_artifacts_choices:
+        with mock.patch('the_tale.game.heroes.objects.Hero._receive_artifacts_choices') as receive_artifacts_choices:
             self.assertEqual(self.hero.receive_artifacts_choices(better=True, prefered_slot=True, prefered_item=True, archetype=True),
                              ['working'])
         self.assertEqual(receive_artifacts_choices.call_count, 0)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.get_allowed_artifact_types', lambda self, **kwargs: [])
+    @mock.patch('the_tale.game.heroes.objects.Hero.get_allowed_artifact_types', lambda self, **kwargs: [])
     def test_receive_artifacts_choices__no_choices(self):
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype._receive_artifacts_choices') as receive_artifacts_choices:
+        with mock.patch('the_tale.game.heroes.objects.Hero._receive_artifacts_choices') as receive_artifacts_choices:
             self.hero.receive_artifacts_choices(better=True, prefered_slot=True, prefered_item=True, archetype=True)
         self.assertEqual(receive_artifacts_choices.call_args_list,
                          [mock.call(better=True, prefered_slot=False, prefered_item=True, archetype=True)])
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype._receive_artifacts_choices') as receive_artifacts_choices:
+        with mock.patch('the_tale.game.heroes.objects.Hero._receive_artifacts_choices') as receive_artifacts_choices:
             self.hero.receive_artifacts_choices(better=True, prefered_slot=False, prefered_item=True, archetype=True)
         self.assertEqual(receive_artifacts_choices.call_args_list,
                          [mock.call(better=True, prefered_slot=False, prefered_item=True, archetype=False)])
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype._receive_artifacts_choices') as receive_artifacts_choices:
+        with mock.patch('the_tale.game.heroes.objects.Hero._receive_artifacts_choices') as receive_artifacts_choices:
             self.hero.receive_artifacts_choices(better=True, prefered_slot=False, prefered_item=True, archetype=False)
         self.assertEqual(receive_artifacts_choices.call_args_list,
                          [mock.call(better=False, prefered_slot=False, prefered_item=True, archetype=False)])
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype._receive_artifacts_choices') as receive_artifacts_choices:
+        with mock.patch('the_tale.game.heroes.objects.Hero._receive_artifacts_choices') as receive_artifacts_choices:
             self.assertEqual(self.hero.receive_artifacts_choices(better=False, prefered_slot=False, prefered_item=True, archetype=False),
                              [])
         self.assertEqual(receive_artifacts_choices.call_count, 0)
@@ -645,23 +647,23 @@ class ReceiveArtifactsTests(_HeroEquipmentTestsBase):
 
     def test_not_equip(self):
         self.hero.equipment.serialize()
-        old_equipment = self.hero._model.equipment
+        old_equipment_data = self.hero.equipment.serialize()
 
         self.hero.bag.serialize()
-        old_bag = self.hero._model.bag
+        old_bag_data = self.hero.bag.serialize()
 
         self.hero.receive_artifact(equip=False, better=True, prefered_slot=True, prefered_item=True, archetype=True)
 
         self.hero.equipment.serialize()
-        self.assertEqual(old_equipment, self.hero._model.equipment)
+        self.assertEqual(old_equipment_data, self.hero.equipment.serialize())
 
         self.hero.bag.serialize()
-        self.assertNotEqual(old_bag, self.hero._model.bag)
+        self.assertNotEqual(old_bag_data, self.hero.bag.serialize())
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_upgrade_prefered_slot', True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_upgrade_prefered_slot', True)
     def test_only_better_for_prefered_slot(self):
-        self.hero._model.level = 9999
+        self.hero.level = 9999
         self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.PLATE)
 
         # just set any artifact
@@ -720,7 +722,7 @@ class ReceiveArtifactsTests(_HeroEquipmentTestsBase):
         for artifact in self.hero.equipment.values():
             artifact.rarity = rarity
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             self.hero.increment_equipment_rarity(random.choice(self.hero.equipment.values()))
 
         self.assertEqual(reset_accessors_cache.call_count, 1)

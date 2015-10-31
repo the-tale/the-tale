@@ -12,7 +12,8 @@ from the_tale.game import relations as game_relations
 from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons import relations as persons_relations
 
-from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes import logic as heroes_logic
+
 
 from . import storage
 from . import conf
@@ -251,6 +252,6 @@ def show(context):
                                     'GENDER': game_relations.GENDER,
                                     'PERSON_TYPE': persons_relations.PERSON_TYPE,
                                     'CONNECTION_TYPE': persons_relations.SOCIAL_CONNECTION_TYPE,
-                                    'hero': HeroPrototype.get_by_account_id(context.account.id) if context.account else None,
+                                    'hero': heroes_logic.load_hero(account_id=context.account.id) if context.account else None,
                                     'persons_storage': persons_storage.persons_storage,
                                     'resource': context.resource} )

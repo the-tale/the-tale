@@ -26,7 +26,7 @@ class TestAction(ActionBase):
 class ActionEventsTestsMixin(object):
 
     @mock.patch('the_tale.game.balance.constants.HABIT_EVENTS_IN_TURN', 1.01)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.habit_events', lambda hero: set())
+    @mock.patch('the_tale.game.heroes.objects.Hero.habit_events', lambda hero: set())
     def test_habit_events__no_events(self):
 
         with self.check_not_changed(self.hero.diary.messages_number):
@@ -34,7 +34,7 @@ class ActionEventsTestsMixin(object):
 
 
     @mock.patch('the_tale.game.balance.constants.HABIT_EVENTS_IN_TURN', 1.01)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.habit_events', lambda hero: set(relations.ACTION_EVENT.records))
+    @mock.patch('the_tale.game.heroes.objects.Hero.habit_events', lambda hero: set(relations.ACTION_EVENT.records))
     @mock.patch('the_tale.game.actions.prototypes.ActionBase.choose_event_reward', lambda hero: relations.ACTION_EVENT_REWARD.NOTHING)
     def test_habit_events__nothing(self):
 
@@ -43,7 +43,7 @@ class ActionEventsTestsMixin(object):
 
 
     @mock.patch('the_tale.game.balance.constants.HABIT_EVENTS_IN_TURN', 1.01)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.habit_events', lambda hero: set(relations.ACTION_EVENT.records))
+    @mock.patch('the_tale.game.heroes.objects.Hero.habit_events', lambda hero: set(relations.ACTION_EVENT.records))
     @mock.patch('the_tale.game.actions.prototypes.ActionBase.choose_event_reward', lambda hero: relations.ACTION_EVENT_REWARD.MONEY)
     def test_habit_events__money(self):
 
@@ -56,7 +56,7 @@ class ActionEventsTestsMixin(object):
 
 
     @mock.patch('the_tale.game.balance.constants.HABIT_EVENTS_IN_TURN', 1.01)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.habit_events', lambda hero: set(relations.ACTION_EVENT.records))
+    @mock.patch('the_tale.game.heroes.objects.Hero.habit_events', lambda hero: set(relations.ACTION_EVENT.records))
     @mock.patch('the_tale.game.actions.prototypes.ActionBase.choose_event_reward', lambda hero: relations.ACTION_EVENT_REWARD.ARTIFACT)
     def test_habit_events__artifact(self):
 
@@ -71,7 +71,7 @@ class ActionEventsTestsMixin(object):
 
 
     @mock.patch('the_tale.game.balance.constants.HABIT_EVENTS_IN_TURN', 1.01)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.habit_events', lambda hero: set(relations.ACTION_EVENT.records))
+    @mock.patch('the_tale.game.heroes.objects.Hero.habit_events', lambda hero: set(relations.ACTION_EVENT.records))
     @mock.patch('the_tale.game.actions.prototypes.ActionBase.choose_event_reward', lambda hero: relations.ACTION_EVENT_REWARD.EXPERIENCE)
     def test_habit_events__experience(self):
 
@@ -85,7 +85,7 @@ class ActionEventsTestsMixin(object):
 
 
     @mock.patch('the_tale.game.balance.constants.HABIT_EVENTS_IN_TURN', 1.01)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.habit_events', lambda hero: set(relations.ACTION_EVENT.records))
+    @mock.patch('the_tale.game.heroes.objects.Hero.habit_events', lambda hero: set(relations.ACTION_EVENT.records))
     def test_habit_events__all_hero_events(self):
 
         with self.check_changed(self.hero.diary.messages_number):

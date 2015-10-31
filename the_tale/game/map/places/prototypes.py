@@ -170,10 +170,16 @@ class PlacePrototype(BasePrototype, names.ManageNameMixin):
         self.habit_peacefulness.change(self.habit_peacefulness_change_speed)
 
     @lazy_property
-    def habit_honor(self): return habits.Honor(self, 'honor')
+    def habit_honor(self):
+        honor = habits.Honor(raw_value=self._model.habit_honor)
+        honor.owner = self
+        return honor
 
     @lazy_property
-    def habit_peacefulness(self): return habits.Peacefulness(self, 'peacefulness')
+    def habit_peacefulness(self):
+        peacefulness = habits.Peacefulness(raw_value=self._model.habit_peacefulness)
+        peacefulness.owner = self
+        return peacefulness
 
     def can_habit_event(self):
         return random.uniform(0, 1) < c.PLACE_HABITS_EVENT_PROBABILITY
@@ -485,6 +491,8 @@ class PlacePrototype(BasePrototype, names.ManageNameMixin):
 
         self.races.serialize()
 
+        self._model.habit_honor = self.habit_honor.raw_value
+        self._model.habit_peacefulness = self.habit_peacefulness.raw_value
         self._model.data = s11n.to_json(self.data)
         self._model.save(force_update=True)
 

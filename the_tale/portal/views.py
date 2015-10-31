@@ -35,8 +35,6 @@ from the_tale.game.chronicle.prototypes import RecordToActorPrototype
 
 from the_tale.game.bills.prototypes import BillPrototype
 
-from the_tale.game.heroes.prototypes import HeroPrototype
-
 from the_tale.portal.conf import portal_settings
 from the_tale.portal import logic as portal_logic
 

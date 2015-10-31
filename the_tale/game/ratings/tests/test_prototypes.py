@@ -8,7 +8,6 @@ from the_tale.accounts.logic import register_user
 from the_tale.game.logic import create_test_map
 from the_tale.game import names
 
-from the_tale.game.heroes.prototypes import HeroPrototype
 
 from the_tale.game.ratings.models import RatingValues
 from the_tale.game.ratings.prototypes import RatingValuesPrototype
@@ -17,6 +16,7 @@ from the_tale.linguistics.prototypes import ContributionPrototype
 from the_tale.linguistics import relations as linguistics_relations
 
 from the_tale.game.heroes.conf import heroes_settings
+from the_tale.game.heroes import models as heroes_models
 
 
 class PrototypeTestsBase(TestCase):
@@ -64,17 +64,17 @@ class RatingPrototypeTests(PrototypeTestsBase):
 
     def set_values(self, account, might=0, level=0, magic_power=0, physic_power=0,
                    pvp_battles_1x1_number=0, pvp_battles_1x1_victories=0, help_count=0, gifts_returned=0, politics_power=0):
-        hero = HeroPrototype.get_by_account_id(account.id)
-        hero._model.might = might
-        hero._model.level = level
-        hero._model.raw_power_physic = physic_power
-        hero._model.raw_power_magic = magic_power
-        hero._model.stat_pvp_battles_1x1_number = pvp_battles_1x1_number
-        hero._model.stat_pvp_battles_1x1_victories = pvp_battles_1x1_victories
-        hero._model.stat_help_count = help_count
-        hero._model.stat_gifts_returned = gifts_returned
-        hero._model.stat_politics_multiplier = politics_power
-        hero._model.save()
+        hero = heroes_models.Hero.objects.get(account_id=account.id)
+        hero.might = might
+        hero.level = level
+        hero.raw_power_physic = physic_power
+        hero.raw_power_magic = magic_power
+        hero.stat_pvp_battles_1x1_number = pvp_battles_1x1_number
+        hero.stat_pvp_battles_1x1_victories = pvp_battles_1x1_victories
+        hero.stat_help_count = help_count
+        hero.stat_gifts_returned = gifts_returned
+        hero.stat_politics_multiplier = politics_power
+        hero.save()
 
     def test_might(self):
         self.set_values(self.account_1, might=10)

@@ -43,7 +43,7 @@ class RegenerateEnergyActionTest(testcase.TestCase):
         self.assertEqual(self.hero.actions.current_action, self.action_regenerate)
         self.storage._test_save()
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_regenerate_double_energy', False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_regenerate_double_energy', False)
     def test_full(self):
         self.hero.change_energy(-self.hero.energy)
 
@@ -60,7 +60,7 @@ class RegenerateEnergyActionTest(testcase.TestCase):
 
         self.storage._test_save()
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_regenerate_double_energy', True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_regenerate_double_energy', True)
     def test_full__double_energy(self):
         self.hero.change_energy(-self.hero.energy)
 

@@ -13,6 +13,8 @@ from the_tale.game import names
 
 from the_tale.game.logic_storage import LogicStorage
 
+from the_tale.game.heroes import logic as heroes_logic
+
 from the_tale.game.cards import relations
 from the_tale.game.cards.effects import EFFECTS
 from the_tale.game.cards import objects
@@ -50,7 +52,7 @@ class UseDialogRequestTests(CardsRequestsTestsBase):
 
     def test_has_cards(self):
         self.hero.cards.add_card(self.card)
-        self.hero.save()
+        heroes_logic.save_hero(self.hero)
 
         self.request_login(self.account.email)
         self.check_html_ok(self.request_ajax_html(url('game:cards:use-dialog', card=self.card.uid)))
@@ -76,7 +78,7 @@ class UseRequestTests(CardsRequestsTestsBase):
         self.request_login(self.account.email)
 
         self.hero.cards.add_card(self.card)
-        self.hero.save()
+        heroes_logic.save_hero(self.hero)
 
         self.check_ajax_error(self.post_ajax_json(logic.use_card_url(self.card.uid),
                                                   self.post_data(self.card.uid, place_id=666, building_id=666, person_id=666)), 'form_errors')
@@ -86,7 +88,7 @@ class UseRequestTests(CardsRequestsTestsBase):
         self.request_login(self.account.email)
 
         self.hero.cards.add_card(self.card)
-        self.hero.save()
+        heroes_logic.save_hero(self.hero)
 
         response = self.post_ajax_json(logic.use_card_url(self.card.uid), self.post_data(self.card.uid))
         task = common_postponed_tasks.PostponedTaskPrototype._db_get_object(0)
@@ -154,7 +156,7 @@ class CombineCardsRequestsTests(CardsRequestsTestsBase):
         self.hero.cards.add_card(card_1)
         self.hero.cards.add_card(card_2)
 
-        self.hero.save()
+        heroes_logic.save_hero(self.hero)
 
         with self.check_delta(common_postponed_tasks.PostponedTaskPrototype._db_count, 1):
             response = self.post_ajax_json(logic.combine_cards_url((card_1.uid, card_2.uid) ))

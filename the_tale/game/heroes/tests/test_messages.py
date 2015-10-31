@@ -31,7 +31,7 @@ class MessagesContainerTest(testcase.TestCase):
         self.messages.push_message(self.create_message('1'))
         self.messages.push_message(self.create_message('2'))
 
-        self.assertEqual(self.messages.serialize(), messages.JournalContainer.deserialize(None ,self.messages.serialize()).serialize())
+        self.assertEqual(self.messages.serialize(), messages.JournalContainer.deserialize(self.messages.serialize()).serialize())
 
     def test_clear(self):
         self.messages.push_message(self.create_message('1'))

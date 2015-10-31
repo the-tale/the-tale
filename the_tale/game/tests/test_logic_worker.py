@@ -10,7 +10,7 @@ from the_tale.common.utils import testcase
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
 
-from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.logic import create_test_map
 from the_tale.game.prototypes import TimePrototype
@@ -23,10 +23,8 @@ class LogicWorkerTests(testcase.TestCase):
 
         self.p1, self.p2, self.p3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user')
-
-        self.hero = HeroPrototype.get_by_account_id(account_id)
-        self.account = AccountPrototype.get_by_id(self.hero.account_id)
+        self.account = self.accounts_factory.create_account()
+        self.hero = heroes_logic.load_hero(account_id=self.account.id)
 
         environment.deinitialize()
         environment.initialize()
@@ -60,7 +58,7 @@ class LogicWorkerTests(testcase.TestCase):
         self.worker.process_register_account(self.account.id)
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_account_release_required') as release_required_counter:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.save') as save_counter:
+            with mock.patch('the_tale.game.heroes.logic.save_hero') as save_counter:
                 self.worker.process_next_turn(current_time.turn_number)
 
         self.assertEqual(save_counter.call_count, 1)
@@ -79,7 +77,7 @@ class LogicWorkerTests(testcase.TestCase):
 
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.process_turn') as action_process_turn:
             with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_account_release_required') as release_required_counter:
-                with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.save') as save_counter:
+                with mock.patch('the_tale.game.heroes.logic.save_hero') as save_counter:
                     with mock.patch('the_tale.game.conf.game_settings.SAVED_UNCACHED_HEROES_FRACTION', 0):
                         self.worker.process_next_turn(TimePrototype.get_current_turn_number())
 
@@ -90,7 +88,7 @@ class LogicWorkerTests(testcase.TestCase):
     def test_process_update_hero_with_account_data(self):
         self.worker.process_register_account(self.account.id)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.update_with_account_data') as update_method:
+        with mock.patch('the_tale.game.heroes.objects.Hero.update_with_account_data') as update_method:
             self.worker.process_update_hero_with_account_data(account_id=self.account.id,
                                                               is_fast=False,
                                                               premium_end_at=666,

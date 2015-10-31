@@ -5,8 +5,6 @@ import mock
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.logic import register_user
-
 from the_tale.game import names
 
 from the_tale.game.logic import create_test_map
@@ -15,7 +13,7 @@ from the_tale.game import relations as game_relations
 from the_tale.game.map import relations as map_relations
 from the_tale.game.actions import relations as actions_relations
 
-from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.mobs.storage import mobs_storage
 from the_tale.game.mobs.relations import MOB_RECORD_STATE
@@ -98,15 +96,15 @@ class MobsStorageTests(testcase.TestCase):
 
     @mock.patch('the_tale.game.mobs.storage.MobsStorage.get_available_mobs_list', mock.Mock(return_value=[]))
     def test_get_random_mob__no_mob(self):
-        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
-        hero = HeroPrototype.get_by_account_id(account_id)
+        account = self.accounts_factory.create_account()
+        hero = heroes_logic.load_hero(account_id=account.id)
 
         self.assertEqual(mobs_storage.get_random_mob(hero), None)
 
 
     def test_get_random_mob__boss(self):
-        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
-        hero = HeroPrototype.get_by_account_id(account_id)
+        account = self.accounts_factory.create_account()
+        hero = heroes_logic.load_hero(account_id=account.id)
 
         boss = mobs_storage.get_random_mob(hero, is_boss=True)
 
@@ -119,8 +117,8 @@ class MobsStorageTests(testcase.TestCase):
         self.assertTrue(boss.max_health > normal_mob.max_health)
 
     def test_get_random_mob__action_type(self):
-        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
-        hero = HeroPrototype.get_by_account_id(account_id)
+        account = self.accounts_factory.create_account()
+        hero = heroes_logic.load_hero(account_id=account.id)
 
         action_type = actions_relations.ACTION_TYPE.random()
 
@@ -130,19 +128,19 @@ class MobsStorageTests(testcase.TestCase):
         self.assertEqual(mob.action_type, action_type)
 
     def test_get_random_mob__terrain(self):
-        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
-        hero = HeroPrototype.get_by_account_id(account_id)
+        account = self.accounts_factory.create_account()
+        hero = heroes_logic.load_hero(account_id=account.id)
 
         terrain = map_relations.TERRAIN.random()
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.get_terrain', lambda h: terrain):
+        with mock.patch('the_tale.game.heroes.position.Position.get_terrain', lambda h: terrain):
             mob = mobs_storage.get_random_mob(hero)
 
         self.assertEqual(mob.terrain, terrain)
 
     def test_choose_mob__when_actions(self):
-        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
-        hero = HeroPrototype.get_by_account_id(account_id)
+        account = self.accounts_factory.create_account()
+        hero = heroes_logic.load_hero(account_id=account.id)
 
         MobRecordPrototype.create_random('action_1', global_action_probability=0.25)
         MobRecordPrototype.create_random('action_2', global_action_probability=0.10)
@@ -155,8 +153,8 @@ class MobsStorageTests(testcase.TestCase):
 
 
     def test_choose_mob__when_actions__total_actions(self):
-        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
-        hero = HeroPrototype.get_by_account_id(account_id)
+        account = self.accounts_factory.create_account()
+        hero = heroes_logic.load_hero(account_id=account.id)
 
         MobRecordPrototype.create_random('action_1', global_action_probability=0.66)
         MobRecordPrototype.create_random('action_2', global_action_probability=0.66)

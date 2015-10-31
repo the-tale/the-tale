@@ -30,6 +30,9 @@ from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
 from the_tale.game.heroes.postponed_tasks import ChooseHeroAbilityTask, CHOOSE_HERO_ABILITY_STATE
 from the_tale.game.heroes.conf import heroes_settings
 
+from .. import logic
+
+
 E = 0.0001
 
 class HabilitiesContainerTest(TestCase):
@@ -48,7 +51,7 @@ class HabilitiesContainerTest(TestCase):
         self.abilities = self.hero.abilities
 
     def test_simple_level_up(self):
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             self.assertEqual(self.abilities.randomized_mob_level_up(1), 1)
 
         self.assertEqual(reset_accessors_cache.call_count, 0)
@@ -57,7 +60,7 @@ class HabilitiesContainerTest(TestCase):
     def test_simple_level_up_with_level_up(self):
         self.abilities.add(battle_abilities.REGENERATION.get_id())
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             self.assertEqual(self.abilities.randomized_mob_level_up(1), 0)
 
         self.assertEqual(reset_accessors_cache.call_count, 1)
@@ -94,7 +97,7 @@ class HabilitiesContainerTest(TestCase):
 
         old_destiny_points = self.abilities.destiny_points_spend
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             self.abilities.reset()
 
         self.assertEqual(reset_accessors_cache.call_count, 1)
@@ -107,7 +110,7 @@ class HabilitiesContainerTest(TestCase):
         for i in xrange(1000):
             old_choices = set(ability.get_id() for ability in self.abilities.get_for_choose())
 
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+            with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
                 self.assertTrue(self.abilities.rechooce_choices())
 
             self.assertEqual(reset_accessors_cache.call_count, 1)
@@ -140,7 +143,7 @@ class HabilitiesContainerTest(TestCase):
             self.assertEqual(old_choices, new_choices)
 
     def test_add(self):
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             self.abilities.add(battle_abilities.REGENERATION.get_id())
 
         self.assertEqual(reset_accessors_cache.call_count, 1)
@@ -149,7 +152,7 @@ class HabilitiesContainerTest(TestCase):
     def test_increment_level(self):
         self.abilities.add(battle_abilities.REGENERATION.get_id())
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             self.abilities.increment_level(battle_abilities.REGENERATION.get_id())
 
         self.assertEqual(reset_accessors_cache.call_count, 1)
@@ -399,7 +402,7 @@ class ChooseAbilityTaskTest(TestCase):
 
         self.hero.abilities.abilities[battle_abilities.HIT.get_id()].level = battle_abilities.HIT.MAX_LEVEL
         self.hero.abilities.updated = True
-        self.hero.save()
+        logic.save_hero(self.hero)
 
         with mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.get_for_choose', lambda x: [ABILITIES[task.ability_id]]):
             with mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.can_choose_new_ability', True):

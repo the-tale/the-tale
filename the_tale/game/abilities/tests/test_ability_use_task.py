@@ -13,6 +13,8 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
+from the_tale.game.heroes import logic as heroes_logic
+
 from the_tale.game.abilities.postponed_tasks import UseAbilityTask
 from the_tale.game.abilities.relations import ABILITY_TYPE
 
@@ -45,14 +47,14 @@ class UseAbilityTasksTests(TestCase):
 
     def test_banned(self):
         self.hero.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(days=1)
-        self.hero.save()
+        heroes_logic.save_hero(self.hero)
         self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(self.task.state, ComplexChangeTask.STATE.BANNED)
 
     def test_process_no_energy(self):
-        self.hero._model.energy = 0
-        self.hero._model.energy_bonus = 0
-        self.hero.save()
+        self.hero.energy = 0
+        self.hero.energy_bonus = 0
+        heroes_logic.save_hero(self.hero)
         self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(self.task.state, ComplexChangeTask.STATE.HERO_CONDITIONS_NOT_PASSED)
 

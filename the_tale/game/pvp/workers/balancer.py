@@ -14,9 +14,9 @@ from the_tale.common import postponed_tasks
 
 from the_tale.accounts.prototypes import AccountPrototype
 
-from the_tale.game.heroes.prototypes import HeroPrototype
-
 from the_tale.game.prototypes import SupervisorTaskPrototype
+
+from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.pvp.conf import pvp_settings
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
@@ -96,7 +96,7 @@ class Worker(BaseWorker):
 
     def add_to_arena_queue(self, hero_id):
 
-        hero = HeroPrototype.get_by_id(hero_id)
+        hero = heroes_logic.load_hero(hero_id=hero_id)
 
         if hero.account_id in self.arena_queue:
             return None
@@ -119,8 +119,7 @@ class Worker(BaseWorker):
         return battle
 
     def leave_arena_queue(self, hero_id):
-
-        hero = HeroPrototype.get_by_account_id(hero_id)
+        hero = heroes_logic.load_hero(hero_id=hero_id)
 
         battle = Battle1x1Prototype.get_by_account_id(hero.account_id)
 
@@ -231,7 +230,7 @@ class Worker(BaseWorker):
         if bot_account is None:
             return [record], []
 
-        bot_hero = HeroPrototype.get_by_account_id(bot_account.id)
+        bot_hero = heroes_logic.load_hero(account_id=bot_account.id)
 
         self.logger.info('start battle between account %d and bot %d' % (record.account_id, bot_account.id))
 

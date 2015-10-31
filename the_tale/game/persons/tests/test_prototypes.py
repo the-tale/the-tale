@@ -10,7 +10,8 @@ from the_tale.game import names
 
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.logic import create_test_map
-from the_tale.game.heroes.prototypes import HeroPrototype
+
+from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.map.places.prototypes import BuildingPrototype
 
@@ -30,14 +31,14 @@ class PrototypeTests(testcase.TestCase):
 
         self.person = create_person(self.p1, PERSON_STATE.IN_GAME)
 
-        result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')
-        self.hero_1 = HeroPrototype.get_by_account_id(account_id)
+        account = self.accounts_factory.create_account()
+        self.hero_1 = heroes_logic.load_hero(account_id=account.id)
 
-        result, account_id, bundle_id = register_user('test_user2', 'test_user2@test.com', '111111')
-        self.hero_2 = HeroPrototype.get_by_account_id(account_id)
+        account = self.accounts_factory.create_account()
+        self.hero_2 = heroes_logic.load_hero(account_id=account.id)
 
-        result, account_id, bundle_id = register_user('test_user3', 'test_user3@test.com', '111111')
-        self.hero_3 = HeroPrototype.get_by_account_id(account_id)
+        account = self.accounts_factory.create_account()
+        self.hero_3 = heroes_logic.load_hero(account_id=account.id)
 
         current_time = TimePrototype.get_current_time()
         current_time.increment_turn()

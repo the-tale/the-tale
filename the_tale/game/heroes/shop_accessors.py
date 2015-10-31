@@ -9,6 +9,7 @@ from the_tale.game.cards import objects as cards_objects
 
 
 class ShopAccessorsMixin(object):
+    __slots__ = ()
 
     def purchase_energy_bonus(self, energy):
         self.add_energy_bonus(energy)

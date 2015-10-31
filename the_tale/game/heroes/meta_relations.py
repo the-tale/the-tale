@@ -4,8 +4,6 @@ from dext.common.utils import urls
 
 from the_tale.common.utils import meta_relations
 
-from . import prototypes
-
 
 class Hero(meta_relations.MetaType):
     __slots__ = ('caption', )

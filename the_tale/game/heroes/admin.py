@@ -9,7 +9,6 @@ class HeroAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at_turn', 'saved_at_turn', 'saved_at', 'account')
 
     def name(self, obj):
-        from the_tale.game.heroes.prototypes import HeroPrototype
         return HeroPrototype(model=obj).name
 
 class HeroPreferencesAdmin(admin.ModelAdmin):

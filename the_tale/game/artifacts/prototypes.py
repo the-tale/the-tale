@@ -341,9 +341,9 @@ class ArtifactRecordPrototype(BasePrototype, names.ManageNameMixin):
         self.save()
 
     def update_by_moderator(self, form, editor=None):
-        from the_tale.game.logic import DEFAULT_HERO_EQUIPMENT
+        from the_tale.game.heroes import relations as heroes_relations
 
-        if self.uuid in DEFAULT_HERO_EQUIPMENT._ALL: # pylint: disable=E0203
+        if self.uuid in heroes_relations.EQUIPMENT_SLOT.index_default: # pylint: disable=E0203
             if not form.c.approved:
                 raise exceptions.DisableDefaultEquipmentError(artifact=self.uuid)
 

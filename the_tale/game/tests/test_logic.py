@@ -12,7 +12,8 @@ from the_tale.game.prototypes import TimePrototype
 from the_tale.game.pvp.tests.helpers import PvPTestsMixin
 from the_tale.game.pvp.models import BATTLE_1X1_STATE
 
-from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes import models as heroes_models
+from the_tale.game.heroes import logic as heroes_logic
 
 
 class LogicTests(testcase.TestCase):
@@ -27,11 +28,11 @@ class LogicTests(testcase.TestCase):
 
     def test_remove_game_data(self):
 
-        self.assertEqual(HeroPrototype._db_count(), 1)
+        self.assertEqual(heroes_models.Hero.objects.count(), 1)
 
         remove_game_data(AccountPrototype.get_by_id(self.account_id))
 
-        self.assertEqual(HeroPrototype._db_count(), 0)
+        self.assertEqual(heroes_models.Hero.objects.count(), 0)
 
 
 
@@ -98,13 +99,13 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         self.assertEqual(data['enemy']['id'], self.account_2.id)
 
     def test_own_hero_get_cached_data(self):
-        hero = HeroPrototype.get_by_account_id(self.account_1.id)
+        hero = heroes_logic.load_hero(account_id=self.account_1.id)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero',
+        with mock.patch('the_tale.game.heroes.objects.Hero.cached_ui_info_for_hero',
                         mock.Mock(return_value={'actual_on_turn': hero.saved_at_turn,
                                                 'pvp':'actual',
                                                 'ui_caching_started_at': 0})) as cached_ui_info_for_hero:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info') as ui_info:
+            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
                 data = form_game_info(self.account_1, is_own=True)
 
         self.assertEqual(data['account']['hero']['pvp'], 'actual')
@@ -127,11 +128,11 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
                                                                'discount': 'fake'}}
 
     def test_not_own_hero_get_cached_data__not_cached(self):
-        hero = HeroPrototype.get_by_account_id(self.account_1.id)
+        hero = heroes_logic.load_hero(account_id=self.account_1.id)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.cached_ui_info_for_hero',
+        with mock.patch('the_tale.game.heroes.objects.Hero.cached_ui_info_for_hero',
                         mock.Mock(return_value=self.create_not_own_ui_info(hero))) as cached_ui_info_for_hero:
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info',
+            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info',
                             mock.Mock(return_value=self.create_not_own_ui_info(hero))) as ui_info:
                 form_game_info(self.account_1, is_own=False)
 
@@ -140,9 +141,9 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         self.assertEqual(ui_info.call_count, 0)
 
     def test_not_own_hero_get_cached_data(self):
-        hero = HeroPrototype.get_by_account_id(self.account_1.id)
+        hero = heroes_logic.load_hero(account_id=self.account_1.id)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info',
+        with mock.patch('the_tale.game.heroes.objects.Hero.ui_info',
                         mock.Mock(return_value=self.create_not_own_ui_info(hero))) as ui_info:
             data = form_game_info(self.account_1, is_own=False)
 
@@ -167,7 +168,7 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         TimePrototype(turn_number=666).save()
         self.assertTrue(form_game_info(self.account_1, is_own=True)['account']['is_old'])
 
-        HeroPrototype.get_by_account_id(self.account_1.id).save()
+        heroes_logic.save_hero(heroes_logic.load_hero(account_id=self.account_1.id))
         self.assertFalse(form_game_info(self.account_1, is_own=True)['account']['is_old'])
 
     def test_is_old__not_own_hero(self):
@@ -176,7 +177,7 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         TimePrototype(turn_number=666).save()
         self.assertTrue(form_game_info(self.account_1, is_own=False)['account']['is_old'])
 
-        HeroPrototype.get_by_account_id(self.account_1.id).save()
+        heroes_logic.save_hero(heroes_logic.load_hero(account_id=self.account_1.id))
         self.assertFalse(form_game_info(self.account_1, is_own=False)['account']['is_old'])
 
 
@@ -184,8 +185,8 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
 
-        hero_1 = HeroPrototype.get_by_account_id(self.account_1.id)
-        hero_2 = HeroPrototype.get_by_account_id(self.account_2.id)
+        hero_1 = heroes_logic.load_hero(account_id=self.account_1.id)
+        hero_2 = heroes_logic.load_hero(account_id=self.account_2.id)
 
         self.assertFalse(form_game_info(self.account_1)['account']['is_old'])
         self.assertFalse(form_game_info(self.account_1)['enemy']['is_old'])
@@ -194,8 +195,8 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         self.assertTrue(form_game_info(self.account_1)['account']['is_old'])
         self.assertTrue(form_game_info(self.account_1)['enemy']['is_old'])
 
-        hero_1.save()
-        hero_2.save()
+        heroes_logic.save_hero(hero_1)
+        heroes_logic.save_hero(hero_2)
 
         self.assertFalse(form_game_info(self.account_1)['account']['is_old'])
         self.assertFalse(form_game_info(self.account_1)['enemy']['is_old'])
@@ -209,14 +210,14 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
 
-        hero_1 = HeroPrototype.get_by_account_id(self.account_1.id)
-        hero_2 = HeroPrototype.get_by_account_id(self.account_2.id)
+        hero_1 = heroes_logic.load_hero(account_id=self.account_1.id)
+        hero_2 = heroes_logic.load_hero(account_id=self.account_2.id)
 
         hero_1.pvp.set_energy(1)
-        hero_1.save()
+        heroes_logic.save_hero(hero_1)
 
         hero_2.pvp.set_energy(2)
-        hero_2.save()
+        heroes_logic.save_hero(hero_2)
 
         data = form_game_info(self.account_1, is_own=True)
 
@@ -224,7 +225,7 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         self.assertEqual(data['enemy']['hero']['pvp']['energy'], 0)
 
         hero_2.pvp.store_turn_data()
-        hero_2.save()
+        heroes_logic.save_hero(hero_2)
 
         data = form_game_info(self.account_1, is_own=True)
 
@@ -234,8 +235,8 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
 
-        hero_1 = HeroPrototype.get_by_account_id(self.account_1.id)
-        hero_2 = HeroPrototype.get_by_account_id(self.account_2.id)
+        hero_1 = heroes_logic.load_hero(account_id=self.account_1.id)
+        hero_2 = heroes_logic.load_hero(account_id=self.account_2.id)
 
         def get_ui_info(hero, **kwargs):
             if hero.id == hero_1.id:
@@ -247,7 +248,7 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
             else:
                 return self.create_not_own_ui_info(hero_2)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.ui_info', get_ui_info):
+        with mock.patch('the_tale.game.heroes.objects.Hero.ui_info', get_ui_info):
             data = form_game_info(self.account_1, is_own=True)
 
         self.assertEqual(data['account']['hero']['pvp'], 'actual')

@@ -12,8 +12,7 @@ from the_tale.common.utils.pagination import Paginator
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.clans.prototypes import ClanPrototype
 
-from the_tale.game.heroes.models import Hero
-from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.ratings.conf import ratings_settings
 from the_tale.game.ratings.models import RatingValues, RatingPlaces
@@ -127,7 +126,7 @@ class RatingResource(Resource):
         accounts_ids = [rating.account_id for rating in ratings]
         clans_ids = set(AccountPrototype._db_filter(id__in=accounts_ids).exclude(clan_id=None).values_list('clan_id', flat=True))
 
-        heroes = dict( (hero_model.account_id, HeroPrototype(model=hero_model)) for hero_model in Hero.objects.filter(account_id__in=accounts_ids))
+        heroes = { hero.account_id: hero for hero in  heroes_logic.load_heroes_by_account_ids(accounts_ids)}
 
         values = dict( (values_model.account_id, RatingValuesPrototype(values_model)) for values_model in RatingValues.objects.filter(account_id__in=accounts_ids))
 

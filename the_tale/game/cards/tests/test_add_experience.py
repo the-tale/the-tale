@@ -39,8 +39,8 @@ class AddExperienceTestMixin(CardsTestMixin):
         self.card = self.CARD()
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_short_quest_path_required', False)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.is_first_quest_path_required', False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_short_quest_path_required', False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_first_quest_path_required', False)
     def test_use(self):
         self.action_quest = ActionQuestPrototype.create(hero=self.hero)
         quests_helpers.setup_quest(self.hero)

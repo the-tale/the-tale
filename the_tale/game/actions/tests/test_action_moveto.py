@@ -79,7 +79,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.storage._test_save()
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_not_ready(self):
         self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 2)
@@ -110,18 +110,18 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.storage._test_save()
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_modify_speed(self):
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.modify_move_speed',
+        with mock.patch('the_tale.game.heroes.objects.Hero.modify_move_speed',
                         mock.Mock(return_value=self.hero.move_speed)) as speed_modifier_call_counter:
             self.storage.process_turn(continue_steps_if_needed=False)
 
         self.assertEqual(speed_modifier_call_counter.call_count, 1)
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_fly_probability', 1.0)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.companion_fly_probability', 1.0)
     def test_teleport_by_flying_companion(self):
         companion_record = companions_storage.companions.enabled_companions().next()
         self.hero.set_companion(companions_logic.create_companion(companion_record))
@@ -133,10 +133,10 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         with self.check_increased(lambda: self.action_move.percents):
             self.storage.process_turn(continue_steps_if_needed=False)
 
-        self.assertTrue(self.hero.messages.messages[-1].key.is_COMPANIONS_FLY)
+        self.assertTrue(self.hero.journal.messages[-1].key.is_COMPANIONS_FLY)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_teleport_probability', 1.0)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.companion_teleport_probability', 1.0)
     def test_teleport_by_teleportator_companion(self):
         companion_record = companions_storage.companions.enabled_companions().next()
         self.hero.set_companion(companions_logic.create_companion(companion_record))
@@ -148,11 +148,11 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
 
         self.assertEqual(self.action_move.state, self.action_move.STATE.IN_CITY)
 
-        self.assertTrue(any(message.key.is_COMPANIONS_TELEPORT for message in self.hero.messages.messages if message.key is not None))
+        self.assertTrue(any(message.key.is_COMPANIONS_TELEPORT for message in self.hero.journal.messages if message.key is not None))
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_teleport_probability', 1.0)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.companion_teleport_probability', 1.0)
     def test_teleport_by_teleportator_companion__not_moving_state(self):
         companion_record = companions_storage.companions.enabled_companions().next()
         self.hero.set_companion(companions_logic.create_companion(companion_record))
@@ -165,10 +165,10 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
 
         self.assertEqual(self.action_move.state, self.action_move.STATE.PROCESSED)
 
-        self.assertFalse(self.hero.messages.messages[-1].key.is_COMPANIONS_TELEPORT)
+        self.assertFalse(self.hero.journal.messages[-1].key.is_COMPANIONS_TELEPORT)
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_teleport(self):
 
         self.storage.process_turn(continue_steps_if_needed=False)
@@ -184,7 +184,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.storage._test_save()
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_teleport_to_place(self):
 
         self.storage.process_turn(continue_steps_if_needed=False)
@@ -197,7 +197,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
 
         self.storage._test_save()
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_teleport_to_end(self):
         current_time = TimePrototype.get_current_time()
 
@@ -218,7 +218,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.storage._test_save()
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_teleport__length_is_0(self):
 
         current_time = TimePrototype.get_current_time()
@@ -245,7 +245,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.storage._test_save()
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: True)
     def test_battle(self):
         self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionBattlePvE1x1Prototype.TYPE)
@@ -310,7 +310,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.storage._test_save()
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_inplace(self):
 
         current_time = TimePrototype.get_current_time()
@@ -325,7 +325,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.storage._test_save()
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_stop_when_quest_required_replane(self):
         while self.action_move.state != prototypes.ActionMoveToPrototype.STATE.MOVING:
             self.storage.process_turn(continue_steps_if_needed=False)
@@ -368,7 +368,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.assertEqual(self.hero.actions.current_action.state, prototypes.ActionMoveToPrototype.STATE.HEALING_COMPANION)
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     @mock.patch('the_tale.game.companions.objects.Companion.need_heal', True)
     def test_hero_need_heal_companion__battle(self):
         self.action_move.state = self.action_move.STATE.BATTLE
@@ -387,7 +387,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.assertEqual(self.hero.actions.current_action.state, prototypes.ActionMoveToPrototype.STATE.HEALING_COMPANION)
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_move_when_real_length_is_zero(self):
         self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(self.action_move.state, prototypes.ActionMoveToPrototype.STATE.MOVING)
@@ -401,8 +401,8 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.assertEqual(self.action_move.percents, 1)
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_say_wisdom', lambda hero: True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_say_wisdom', lambda hero: True)
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_EXP_PER_MOVE_PROBABILITY', 1.0)
     def test_companion_say_wisdom(self):
         companion_record = companions_storage.companions.enabled_companions().next()
@@ -415,7 +415,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         with self.check_delta(lambda: self.hero.experience, c.COMPANIONS_EXP_PER_MOVE_GET_EXP):
             self.storage.process_turn(continue_steps_if_needed=False)
 
-        self.assertTrue(self.hero.messages.messages[-1].key.is_COMPANIONS_SAY_WISDOM)
+        self.assertTrue(self.hero.journal.messages[-1].key.is_COMPANIONS_SAY_WISDOM)
 
         self.storage._test_save()
 
@@ -474,7 +474,7 @@ class MoveToActionWithBreaksTest(testcase.TestCase):
         self.storage._test_save()
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_teleport_to_place__break_at(self):
 
         self.storage.process_turn(continue_steps_if_needed=False)
@@ -501,7 +501,7 @@ class MoveToActionWithBreaksTest(testcase.TestCase):
 
         self.storage._test_save()
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_teleport_to_end__break_at(self):
 
         self.storage.process_turn(continue_steps_if_needed=False)
@@ -528,7 +528,7 @@ class MoveToActionWithBreaksTest(testcase.TestCase):
 class MoveToActionPickedUpTest(BaseMoveToActionTest):
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_teleport_called(self):
 
         self.storage.process_turn(continue_steps_if_needed=False)

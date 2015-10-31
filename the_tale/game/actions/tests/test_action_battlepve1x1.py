@@ -47,7 +47,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
         self.hero = self.storage.accounts_to_heroes[account_id]
 
-        self.hero._model.level = 6
+        self.hero.level = 6
         self.hero.health = self.hero.max_health
 
         # do half of tests with companion
@@ -127,7 +127,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         with self.check_not_changed(lambda: self.hero.statistics.artifacts_had):
             with self.check_not_changed(lambda: self.hero.bag.occupation):
                 self.storage.process_turn(continue_steps_if_needed=False)
-        self.assertTrue(self.hero.messages.messages[-1].key.is_ACTION_BATTLEPVE1X1_JOURNAL_HERO_AND_MOB_KILLED)
+        self.assertTrue(self.hero.journal.messages[-1].key.is_ACTION_BATTLEPVE1X1_JOURNAL_HERO_AND_MOB_KILLED)
         self.assertTrue(self.hero.diary.messages[-1].key.is_ACTION_BATTLEPVE1X1_DIARY_HERO_AND_MOB_KILLED)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
@@ -171,11 +171,11 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         self.storage._test_save()
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.companion_damage_probability', 0.0)
+    @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 0.0)
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUNDS_IN_HOUR_FROM_HEAL', 0.0)
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_EATEN_CORPSES_PER_BATTLE', 1.0)
     @mock.patch('the_tale.game.mobs.prototypes.MobPrototype.mob_type', game_relations.BEING_TYPE.ANIMAL)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_eat_corpses', lambda hero: True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_eat_corpses', lambda hero: True)
     def test_full_battle__with_companion__eat_corpse(self):
         companion_record = companions_storage.companions.enabled_companions().next()
         self.hero.set_companion(companions_logic.create_companion(companion_record))
@@ -266,7 +266,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_do_exorcism', lambda hero: True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_do_exorcism', lambda hero: True)
     def test_companion_exorcims__demon(self):
 
         self.companion_record = companions_logic.create_random_companion_record('exorcist', state=companions_relations.STATE.ENABLED)
@@ -287,7 +287,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_do_exorcism', lambda hero: True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_do_exorcism', lambda hero: True)
     def test_companion_exorcims__not_demon(self):
 
         self.companion_record = companions_logic.create_random_companion_record('exorcist', state=companions_relations.STATE.ENABLED)
@@ -325,7 +325,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_leave_battle_in_fear', lambda self: True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_leave_battle_in_fear', lambda self: True)
     def test_fear_battle(self):
 
         self.hero.actions.pop_action()
@@ -351,7 +351,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         mob.health = 0
 
         with self.check_delta(lambda: self.hero.statistics.pve_kills, 1):
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.add_experience') as add_experience:
+            with mock.patch('the_tale.game.heroes.objects.Hero.add_experience') as add_experience:
                 with mock.patch('the_tale.game.actions.prototypes.ActionBattlePvE1x1Prototype.process_artifact_breaking') as process_artifact_breaking:
                     action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
                     self.storage.process_turn(continue_steps_if_needed=False)

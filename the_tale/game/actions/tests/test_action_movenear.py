@@ -98,7 +98,7 @@ class MoveNearActionTest(testcase.TestCase):
         self.assertEqual(coordinates, set([(self.p1.x, self.p1.y)]))
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_processed(self):
 
         current_time = TimePrototype.get_current_time()
@@ -118,7 +118,7 @@ class MoveNearActionTest(testcase.TestCase):
         self.storage._test_save()
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_not_ready(self):
         self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 2)
@@ -126,11 +126,11 @@ class MoveNearActionTest(testcase.TestCase):
         self.assertTrue(self.hero.position.is_walking or self.hero.position.place) # can end in start place
         self.storage._test_save()
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.subroad_len', lambda self: 1)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.position.Position.subroad_len', lambda self: 1)
     def test_modify_speed(self):
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.modify_move_speed',
+        with mock.patch('the_tale.game.heroes.objects.Hero.modify_move_speed',
                         mock.Mock(return_value=self.hero.move_speed)) as speed_modifier_call_counter:
             self.storage.process_turn(continue_steps_if_needed=False)
 
@@ -192,7 +192,7 @@ class MoveNearActionTest(testcase.TestCase):
 
         self.storage._test_save()
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: True)
     def test_battle(self):
         self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionBattlePvE1x1Prototype.TYPE)
@@ -261,8 +261,8 @@ class MoveNearActionTest(testcase.TestCase):
         self.assertEqual(self.hero.actions.current_action.state, prototypes.ActionMoveNearPlacePrototype.STATE.HEALING_COMPANION)
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_companion_say_wisdom', lambda hero: True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_say_wisdom', lambda hero: True)
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_EXP_PER_MOVE_PROBABILITY', 1.0)
     def test_companion_say_wisdom(self):
         companion_record = companions_storage.companions.enabled_companions().next()
@@ -275,7 +275,7 @@ class MoveNearActionTest(testcase.TestCase):
         with self.check_delta(lambda: self.hero.experience, c.COMPANIONS_EXP_PER_MOVE_GET_EXP):
             self.storage.process_turn(continue_steps_if_needed=False)
 
-        self.assertTrue(self.hero.messages.messages[-1].key.is_COMPANIONS_SAY_WISDOM)
+        self.assertTrue(self.hero.journal.messages[-1].key.is_COMPANIONS_SAY_WISDOM)
 
         self.storage._test_save()
 
@@ -289,7 +289,7 @@ class MoveNearActionTest(testcase.TestCase):
         self.storage._test_save()
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.is_battle_start_needed', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_stop_when_quest_required_replane(self):
         while self.action_move.state != prototypes.ActionMoveNearPlacePrototype.STATE.MOVING:
             self.storage.process_turn(continue_steps_if_needed=False)

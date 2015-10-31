@@ -11,9 +11,9 @@ from the_tale.accounts import views as accounts_views
 
 from the_tale.game import relations as game_relations
 
-from the_tale.game.heroes.prototypes import HeroPrototype
-
 from the_tale.game.persons import relations as persons_relations
+
+from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.map.storage import map_info_storage
 from the_tale.game.map.conf import map_settings
@@ -112,6 +112,6 @@ def cell_info(context):
                                     'y': y,
                                     'terrain_points': terrain_points,
                                     'chronicle_records': chronicle_records,
-                                    'hero': HeroPrototype.get_by_account_id(context.account.id) if context.account.is_authenticated() else None,
+                                    'hero': heroes_logic.load_hero(account_id=context.account.id) if context.account.is_authenticated() else None,
                                     'resource': context.resource,
                                     'ABILITY_TYPE': ABILITY_TYPE})

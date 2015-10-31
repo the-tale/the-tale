@@ -254,7 +254,7 @@ NO_QUEST_INFO__OUT_PLACE = QuestInfo(type='no-quest',
 
 class QuestPrototype(object):
 
-    def __init__(self, hero, knowledge_base, quests_stack=None, created_at=None, states_to_percents=None):
+    def __init__(self, knowledge_base, quests_stack=None, created_at=None, states_to_percents=None, hero=None):
         self.hero = hero
         self.quests_stack = [] if quests_stack is None else quests_stack
         self.knowledge_base = knowledge_base
@@ -274,12 +274,11 @@ class QuestPrototype(object):
                 'states_to_percents': self.states_to_percents,}
 
     @classmethod
-    def deserialize(cls, hero, data):
+    def deserialize(cls, data):
         return cls(knowledge_base=KnowledgeBase.deserialize(data['knowledge_base'], fact_classes=facts.FACTS),
                    quests_stack=[QuestInfo.deserialize(info_data) for info_data in data['quests_stack']],
                    created_at=datetime.datetime.fromtimestamp(data['created_at']),
-                   states_to_percents=data['states_to_percents'],
-                   hero=hero)
+                   states_to_percents=data['states_to_percents'])
 
     @property
     def percents(self): return self.states_to_percents.get(self.machine.pointer.state, 0.0)

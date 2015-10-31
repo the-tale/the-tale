@@ -111,7 +111,7 @@ class HabitTest(BaseHabitTest):
     def test_raw_value(self):
         self.assertEqual(self.hero.habit_honor.raw_value, 0)
 
-        self.hero._model.habit_honor = 500
+        self.hero.habit_honor.raw_value = 500
         self.assertEqual(self.hero.habit_honor.raw_value, 500)
 
     def test_achievements__honor(self):
@@ -171,11 +171,11 @@ class HabitTest(BaseHabitTest):
     def test_interval_and_change(self):
         self.assertTrue(self.hero.habit_honor.interval.is_NEUTRAL)
         for expected_interval, right_border in zip(self.hero.habit_honor.TYPE.intervals.records, c.HABITS_RIGHT_BORDERS):
-            self.hero.habit_honor.change(right_border - self.hero._model.habit_honor - 0.01)
+            self.hero.habit_honor.change(right_border - self.hero.habit_honor.raw_value - 0.01)
             self.assertEqual(self.hero.habit_honor.interval, expected_interval)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.habits_increase_modifier', 2)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.habits_decrease_modifier', 0.5)
+    @mock.patch('the_tale.game.heroes.objects.Hero.habits_increase_modifier', 2)
+    @mock.patch('the_tale.game.heroes.objects.Hero.habits_decrease_modifier', 0.5)
     def test_change_speed(self):
         self.hero.habit_honor.change(1)
         self.assertEqual(self.hero.habit_honor.raw_value, 1)
@@ -195,10 +195,10 @@ class HabitTest(BaseHabitTest):
     def test_real_interval(self):
         self.assertTrue(self.hero.habit_honor.interval.is_NEUTRAL)
         for expected_interval, right_border in zip(self.hero.habit_honor.TYPE.intervals.records, c.HABITS_RIGHT_BORDERS):
-            self.hero.habit_honor.change(right_border - self.hero._model.habit_honor - 0.01)
+            self.hero.habit_honor.change(right_border - self.hero.habit_honor.raw_value - 0.01)
             self.assertEqual(self.hero.habit_honor._real_interval, expected_interval)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.clouded_mind', True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.clouded_mind', True)
     def test_real_interval__clouded_mind(self):
         self.assertTrue(self.hero.habit_honor.interval.is_NEUTRAL)
         intervals = set()
@@ -209,7 +209,7 @@ class HabitTest(BaseHabitTest):
         self.assertEqual(intervals, set(game_relations.HABIT_HONOR_INTERVAL.records))
 
     def test_reset_accessories_cache_on_change(self):
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.reset_accessors_cache') as reset_accessors_cache:
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             self.hero.habit_honor.change(-500)
 
         self.assertEqual(reset_accessors_cache.call_count, 1)

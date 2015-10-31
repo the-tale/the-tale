@@ -8,7 +8,7 @@ from the_tale.common.utils import testcase
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
 
-from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.models import SupervisorTask
 from the_tale.game.logic import create_test_map
@@ -27,14 +27,11 @@ class SupervisorWorkerTests(testcase.TestCase):
 
         self.p1, self.p2, self.p3 = create_test_map()
 
-        result, account_1_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        result, account_2_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
+        self.account_1 = self.accounts_factory.create_account()
+        self.hero_1 = heroes_logic.load_hero(account_id=self.account_1.id)
 
-        self.hero_1 = HeroPrototype.get_by_account_id(account_1_id)
-        self.hero_2 = HeroPrototype.get_by_account_id(account_2_id)
-
-        self.account_1 = AccountPrototype.get_by_id(account_1_id)
-        self.account_2 = AccountPrototype.get_by_id(account_2_id)
+        self.account_2 = self.accounts_factory.create_account()
+        self.hero_2 = heroes_logic.load_hero(account_id=self.account_2.id)
 
         environment.deinitialize()
         environment.initialize()
@@ -236,22 +233,22 @@ class SupervisorWorkerTests(testcase.TestCase):
         account_5 = self.accounts_factory.create_account()
         account_6 = self.accounts_factory.create_account()
 
-        hero_2 = HeroPrototype.get_by_account_id(self.account_2.id)
-        hero_3 = HeroPrototype.get_by_account_id(account_3.id)
-        hero_4 = HeroPrototype.get_by_account_id(account_4.id)
-        hero_6 = HeroPrototype.get_by_account_id(account_6.id)
+        hero_2 = heroes_logic.load_hero(account_id=self.account_2.id)
+        hero_3 = heroes_logic.load_hero(account_id=account_3.id)
+        hero_4 = heroes_logic.load_hero(account_id=account_4.id)
+        hero_6 = heroes_logic.load_hero(account_id=account_6.id)
 
         hero_3.actions.current_action.bundle_id = hero_2.actions.current_action.bundle_id
         hero_3.actions.updated = True
-        hero_3.save()
+        heroes_logic.save_hero(hero_3)
 
         hero_4.actions.current_action.bundle_id = hero_2.actions.current_action.bundle_id
         hero_4.actions.updated = True
-        hero_4.save()
+        heroes_logic.save_hero(hero_4)
 
         hero_6.actions.current_action.bundle_id = hero_2.actions.current_action.bundle_id
         hero_6.actions.updated = True
-        hero_6.save()
+        heroes_logic.save_hero(hero_6)
 
         self.worker.process_initialize()
 
@@ -273,7 +270,7 @@ class SupervisorWorkerTests(testcase.TestCase):
         result, account_3_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
 
         account_3 = AccountPrototype.get_by_id(account_3_id)
-        hero_3 = HeroPrototype.get_by_id(account_3_id)
+        hero_3 = heroes_logic.load_hero(account_id=account_3_id)
 
         with mock.patch('the_tale.game.workers.logic.Worker.cmd_logic_task') as logic_task_counter:
             with mock.patch.object(self.worker.logger, 'warn') as logger_warn_counter:

@@ -201,7 +201,7 @@ class DevelopersInfoResource(Resource):
         from the_tale.game.mobs.storage import mobs_storage
         from the_tale.game.artifacts.storage import artifacts_storage
         from the_tale.game.map.relations import TERRAIN
-        from the_tale.game.logic import DEFAULT_HERO_EQUIPMENT
+        from the_tale.game.heroes import relations as heroes_relations
 
         mobs_without_loot = []
         mobs_without_artifacts = []
@@ -238,7 +238,7 @@ class DevelopersInfoResource(Resource):
         artifacts_without_mobs = []
 
         for artifact in itertools.chain(artifacts_storage.artifacts, artifacts_storage.loot):
-            if artifact.uuid not in DEFAULT_HERO_EQUIPMENT._ALL and artifact.mob is None:
+            if artifact.uuid not in heroes_relations.EQUIPMENT_SLOT.index_default and artifact.mob is None:
                 artifacts_without_mobs.append(artifact)
 
         return self.template('developers_info/mobs_and_artifacts.html',

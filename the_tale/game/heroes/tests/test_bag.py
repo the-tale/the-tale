@@ -43,7 +43,7 @@ class BagTests(TestCase):
         self.bag.put_artifact(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1, rarity=RARITY.NORMAL))
         self.bag.put_artifact(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1, rarity=RARITY.NORMAL))
 
-        self.assertEqual(self.bag.serialize(), bag.Bag.deserialize(self.hero, self.bag.serialize()).serialize())
+        self.assertEqual(self.bag.serialize(), bag.Bag.deserialize(self.bag.serialize()).serialize())
 
 
     def test_put_artifact(self):
@@ -120,7 +120,8 @@ class EquipmentTests(TestCase):
 
         self.hero = self.storage.accounts_to_heroes[account_id]
 
-        self.equipment = bag.Equipment(hero=self.hero)
+        self.equipment = bag.Equipment()
+        self.equipment.hero = self.hero
 
 
     def test_create(self):
@@ -133,7 +134,7 @@ class EquipmentTests(TestCase):
         artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1, rarity=RARITY.NORMAL)
         self.equipment.equip(artifact.type.equipment_slot, artifact)
 
-        self.assertEqual(self.equipment.serialize(), bag.Equipment.deserialize(self.hero, self.equipment.serialize()).serialize())
+        self.assertEqual(self.equipment.serialize(), bag.Equipment.deserialize(self.equipment.serialize()).serialize())
 
 
     def test_ui_info_cache(self):

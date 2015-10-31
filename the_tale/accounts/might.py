@@ -16,7 +16,6 @@ from the_tale.blogs import conf as blogs_conf
 
 from the_tale.game.bills.models import Bill, Vote
 from the_tale.game.bills.relations import BILL_STATE, VOTE_TYPE
-from the_tale.game.heroes.prototypes import HeroPrototype
 
 from the_tale.linguistics import prototypes as linguistics_prototypes
 from the_tale.linguistics import relations as linguistics_relations

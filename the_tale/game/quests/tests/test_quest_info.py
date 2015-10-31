@@ -119,8 +119,8 @@ class QuestInfoTests(testcase.TestCase, QuestTestsMixin):
         self.assertEqual(self.quest_info.choice_alternatives,  ())
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.quest_money_reward_multiplier', lambda hero: 1.0)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.quest_markers_rewards_bonus', lambda self: {QUEST_OPTION_MARKERS.HONORABLE: 0.2,
+    @mock.patch('the_tale.game.heroes.objects.Hero.quest_money_reward_multiplier', lambda hero: 1.0)
+    @mock.patch('the_tale.game.heroes.objects.Hero.quest_markers_rewards_bonus', lambda self: {QUEST_OPTION_MARKERS.HONORABLE: 0.2,
                                                                                                            QUEST_OPTION_MARKERS.DISHONORABLE: 0.3,
                                                                                                            QUEST_OPTION_MARKERS.AGGRESSIVE: 0.4,
                                                                                                            QUEST_OPTION_MARKERS.UNAGGRESSIVE: 0.5})
@@ -141,14 +141,14 @@ class QuestInfoTests(testcase.TestCase, QuestTestsMixin):
         self.assertEqual(self.quest_info.get_real_reward_scale(self.hero, 1.0), round(1.0 + 0.3 + 0.4 + 0.2 + 0.5, 2))
 
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.experience_modifier', 1)
+    @mock.patch('the_tale.game.heroes.objects.Hero.experience_modifier', 1)
     def test_ui_info__experience(self):
         experience = self.quest_info.ui_info(self.hero)['experience']
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.experience_modifier', self.hero.experience_modifier * 2):
+        with mock.patch('the_tale.game.heroes.objects.Hero.experience_modifier', self.hero.experience_modifier * 2):
             self.assertEqual(self.quest_info.ui_info(self.hero)['experience'], experience * 2)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.experience_modifier', 1)
+    @mock.patch('the_tale.game.heroes.objects.Hero.experience_modifier', 1)
     def test_ui_info__experience__bonus(self):
         experience = self.quest_info.ui_info(self.hero)['experience']
 
@@ -156,17 +156,17 @@ class QuestInfoTests(testcase.TestCase, QuestTestsMixin):
 
         self.assertEqual(self.quest_info.ui_info(self.hero)['experience'], experience + 100)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.experience_modifier', self.hero.experience_modifier * 2):
+        with mock.patch('the_tale.game.heroes.objects.Hero.experience_modifier', self.hero.experience_modifier * 2):
             self.assertEqual(self.quest_info.ui_info(self.hero)['experience'], experience * 2 + 100)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.politics_power_multiplier', lambda *argv, **kwargs: 1)
+    @mock.patch('the_tale.game.heroes.objects.Hero.politics_power_multiplier', lambda *argv, **kwargs: 1)
     def test_ui_info__power(self):
         power = self.quest_info.ui_info(self.hero)['power']
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.politics_power_multiplier', lambda *argv, **kwargs: 2):
+        with mock.patch('the_tale.game.heroes.objects.Hero.politics_power_multiplier', lambda *argv, **kwargs: 2):
             self.assertEqual(self.quest_info.ui_info(self.hero)['power'], power * 2)
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.politics_power_multiplier', lambda *argv, **kwargs: 1)
+    @mock.patch('the_tale.game.heroes.objects.Hero.politics_power_multiplier', lambda *argv, **kwargs: 1)
     def test_ui_info__power__bonus(self):
         power = self.quest_info.ui_info(self.hero)['power']
 
@@ -174,5 +174,5 @@ class QuestInfoTests(testcase.TestCase, QuestTestsMixin):
 
         self.assertEqual(self.quest_info.ui_info(self.hero)['power'], power + 100)
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.politics_power_multiplier', lambda *argv, **kwargs: 2):
+        with mock.patch('the_tale.game.heroes.objects.Hero.politics_power_multiplier', lambda *argv, **kwargs: 2):
             self.assertEqual(self.quest_info.ui_info(self.hero)['power'], power * 2 + 100)

@@ -17,7 +17,7 @@ from the_tale.accounts.logic import register_user, login_page_url
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.heroes.prototypes import HeroPrototype
+from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.pvp.models import Battle1x1, BATTLE_1X1_STATE
 from the_tale.game.pvp.tests.helpers import PvPTestsMixin
@@ -33,12 +33,12 @@ class TestRequestsBase(TestCase, PvPTestsMixin):
         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
         self.account_1_id = account_id
         self.account_1 = AccountPrototype.get_by_id(account_id)
-        self.hero_1 = HeroPrototype.get_by_account_id(self.account_1.id)
+        self.hero_1 = heroes_logic.load_hero(account_id=self.account_1.id)
 
         result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
         self.account_2_id = account_id
         self.account_2 = AccountPrototype.get_by_id(account_id)
-        self.hero_2 = HeroPrototype.get_by_account_id(self.account_2.id)
+        self.hero_2 = heroes_logic.load_hero(account_id=self.account_2.id)
 
         self.client = client.Client()
 
@@ -139,14 +139,14 @@ class TestCallsPage(TestRequestsBase):
         self.account_1.is_fast = True
         self.account_1.save()
         self.hero_1.is_fast = True
-        self.hero_1.save()
+        heroes_logic.save_hero(self.hero_1)
         self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('common.fast_account', 0),
                                                                               ('pgf-level-restrictions-message', 0),
                                                                               ('pgf-unlogined-message', 0),
                                                                               ('pgf-no-current-battles-message', 1),
                                                                               ('pgf-fast-account-message', 1)])
 
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.can_participate_in_pvp', False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_participate_in_pvp', False)
     def test_no_rights(self):
         self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pvp.no_rights', 0),
                                                                               ('pgf-level-restrictions-message', 0),
@@ -171,16 +171,16 @@ class TestCallsPage(TestRequestsBase):
                                                                               ('pgf-own-battle-message', 1)])
 
     def test_low_level_battle(self):
-        self.hero_1._model.level = 100
-        self.hero_1.save()
+        self.hero_1.level = 100
+        heroes_logic.save_hero(self.hero_1)
         self.pvp_create_battle(self.account_2, None, BATTLE_1X1_STATE.WAITING)
         self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 0),
                                                                               ('pgf-no-current-battles-message', 1),
                                                                               ('pgf-can-not-accept-call', 1)])
 
     def test_height_level_battle(self):
-        self.hero_2._model.level = 100
-        self.hero_2.save()
+        self.hero_2.level = 100
+        heroes_logic.save_hero(self.hero_2)
         self.pvp_create_battle(self.account_2, None, BATTLE_1X1_STATE.WAITING)
         self.check_html_ok(self.client.get(reverse('game:pvp:calls')), texts=[('pgf-no-calls-message', 0),
                                                                               ('pgf-no-current-battles-message', 1),

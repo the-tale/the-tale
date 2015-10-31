@@ -2,8 +2,6 @@
 
 from django.core.management.base import BaseCommand
 
-from the_tale.game.heroes import prototypes as heroes_prototypes
-
 from the_tale.finances.market import logic
 from the_tale.finances.market import goods_types
 

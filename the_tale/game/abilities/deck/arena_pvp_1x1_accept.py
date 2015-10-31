@@ -7,8 +7,8 @@ from the_tale.game.pvp.prototypes import Battle1x1Prototype
 from the_tale.game.abilities.prototypes import AbilityPrototype
 from the_tale.game.abilities.relations import ABILITY_TYPE
 
-from the_tale.game.heroes.prototypes import HeroPrototype
 from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
+from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
@@ -38,7 +38,7 @@ class ArenaPvP1x1Accept(AbilityPrototype):
         if not accepted_battle.account_id in pvp_balancer.arena_queue:
             return ACCEPT_BATTLE_RESULT.NOT_IN_QUEUE
 
-        initiator_id = HeroPrototype.get_by_id(hero_id).account_id
+        initiator_id = heroes_logic.load_hero(hero_id=hero_id).account_id
 
         initiator_battle = Battle1x1Prototype.get_by_account_id(initiator_id)
 

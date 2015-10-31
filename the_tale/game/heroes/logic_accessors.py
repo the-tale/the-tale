@@ -1,15 +1,19 @@
 # coding: utf-8
-
+import time
 import math
 import random
+import datetime
 
 from django.conf import settings as project_settings
 
 from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
 from the_tale.linguistics.storage import restrictions_storage
 
-from the_tale.game.balance import constants as c, formulas as f
+from the_tale.game.balance import constants as c
+from the_tale.game.balance import formulas as f
+from the_tale.game.balance import power
 
+from the_tale.game.prototypes import TimePrototype
 from the_tale.game import relations as game_relations
 
 from the_tale.game.map import logic as map_logic
@@ -20,6 +24,7 @@ from . import conf
 
 
 class LogicAccessorsMixin(object):
+    __slots__ = ('_cached_modifiers',)
 
     def reset_accessors_cache(self):
         if not hasattr(self, '_cached_modifiers'):
@@ -94,9 +99,112 @@ class LogicAccessorsMixin(object):
 
         return priority
 
+    def modify_move_speed(self, speed):
+        dominant_place = self.position.get_dominant_place()
+
+        if dominant_place is not None:
+            return speed * dominant_place.transport
+        else:
+            return speed * self.position.raw_transport()
+
     ################################
     # checkers
     ################################
+
+    def is_battle_start_needed(self):
+        dominant_place = self.position.get_dominant_place()
+
+        if dominant_place is not None:
+            battles_per_turn = 1.0 - dominant_place.safety
+        else:
+            battles_per_turn = c.BATTLES_PER_TURN + c.WHILD_BATTLES_PER_TURN_BONUS
+
+        battles_per_turn = min(c.MAX_BATTLES_PER_TURN, max(0, battles_per_turn + self.battles_per_turn_summand))
+
+        return random.uniform(0, 1) <=  battles_per_turn
+
+
+    def can_be_healed(self, strict=False):
+        if strict:
+            return self.is_alive and self.max_health > self.health
+
+        return self.is_alive and (c.ANGEL_HELP_HEAL_IF_LOWER_THEN * self.max_health > self.health)
+
+    @property
+    def need_rest_in_settlement(self): return self.health < self.max_health * c.HEALTH_IN_SETTLEMENT_TO_START_HEAL_FRACTION * self.preferences.risk_level.health_percent_to_rest
+
+    @property
+    def need_rest_in_move(self): return self.health < self.max_health * c.HEALTH_IN_MOVE_TO_START_HEAL_FRACTION * self.preferences.risk_level.health_percent_to_rest
+
+    @property
+    def need_trade_in_town(self):
+        return float(self.bag.occupation) / self.max_bag_size > c.BAG_SIZE_TO_SELL_LOOT_FRACTION
+
+    @property
+    def need_equipping(self):
+        slot, unequipped, equipped = self.get_equip_candidates() # pylint: disable=W0612
+        return equipped is not None
+
+    @property
+    def need_regenerate_energy(self):
+        return TimePrototype.get_current_turn_number() > self.last_energy_regeneration_at_turn + self.preferences.energy_regeneration_type.period
+
+
+    def can_change_all_powers(self):
+        if self.is_banned:
+            return False
+
+        return self.is_premium
+
+    def can_change_person_power(self, person):
+        if self.is_banned:
+            return False
+
+        return self.can_change_place_power(person.place)
+
+    def can_change_place_power(self, place):
+        if self.is_banned:
+            return False
+
+        if place.depends_from_all_heroes:
+            return True
+
+        return self.is_premium
+
+    @property
+    def can_participate_in_pvp(self): return not self.is_fast and not self.is_banned
+
+    @property
+    def can_repair_building(self):  return self.is_premium and not self.is_banned
+
+
+    @property
+    def is_ui_caching_required(self):
+        return (datetime.datetime.now() - self.ui_caching_started_at).total_seconds() < conf.heroes_settings.UI_CACHING_TIME
+
+    @classmethod
+    def is_ui_continue_caching_required(self, ui_caching_started_at):
+        return ui_caching_started_at + conf.heroes_settings.UI_CACHING_TIME - conf.heroes_settings.UI_CACHING_CONTINUE_TIME < time.time()
+
+
+    @property
+    def is_premium(self):
+        return self.premium_state_end_at > datetime.datetime.now()
+
+    @property
+    def is_banned(self):
+        return self.ban_state_end_at > datetime.datetime.now()
+
+    @property
+    def is_active(self):
+        return self.active_state_end_at > datetime.datetime.now()
+
+    def can_be_helped(self):
+        if (self.last_help_on_turn == TimePrototype.get_current_turn_number() and
+            self.helps_in_turn >= conf.heroes_settings.MAX_HELPS_IN_TURN):
+            return False
+
+        return True
 
     def can_get_artifact_for_quest(self):
         return random.uniform(0, 1) < self.attribute_modifier(relations.MODIFIERS.GET_ARTIFACT_FOR_QUEST)
@@ -181,6 +289,41 @@ class LogicAccessorsMixin(object):
     ################################
     # attributes
     ################################
+
+    @property
+    def actual_bills_number(self):
+        from the_tale.game.bills import conf as bills_conf
+        time_border = time.time() - bills_conf.bills_settings.BILL_ACTUAL_LIVE_TIME*24*60*60
+        return min(len([bill_voted_time
+                        for bill_voted_time in self.actual_bills
+                        if bill_voted_time > time_border]),
+                   conf.heroes_settings.ACTIVE_BILLS_MAXIMUM)
+
+    @property
+    def gender_verbose(self): return self.gender.text
+
+    @property
+    def power(self): return power.Power.clean_power_for_hero_level(self.level) + self.equipment.get_power()
+
+    @property
+    def basic_damage(self):
+        damage = self.power.damage() * self.damage_modifier
+        return damage.multiply(self.physic_damage_modifier, self.magic_damage_modifier)
+
+    @property
+    def race_verbose(self): return self.race.text
+
+    @property
+    def health_percents(self): return float(self.health) / self.max_health
+
+
+    @property
+    def birthday(self): return TimePrototype(self.created_at_turn).game_time
+
+    @property
+    def age(self):
+        return TimePrototype(TimePrototype.get_current_turn_number() - self.created_at_turn).game_time
+
 
     def sell_price(self):
         price = 1 + self.attribute_modifier(relations.MODIFIERS.SELL_PRICE)

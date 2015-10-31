@@ -33,39 +33,39 @@ class HeroPositionTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.safety', 1.0)
     def test_is_battle_start_needed__safety(self):
-        self.assertTrue(all(not self.hero.position.is_battle_start_needed() for i in xrange(100)))
+        self.assertTrue(all(not self.hero.is_battle_start_needed() for i in xrange(100)))
 
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.safety', 0.0)
     @mock.patch('the_tale.game.balance.constants.MAX_BATTLES_PER_TURN', 1.0)
     def test_is_battle_start_needed__no_safety(self):
-        self.assertTrue(all(self.hero.position.is_battle_start_needed() for i in xrange(100)))
+        self.assertTrue(all(self.hero.is_battle_start_needed() for i in xrange(100)))
 
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.safety', 0.5)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.battles_per_turn_summand', 0.5)
+    @mock.patch('the_tale.game.heroes.objects.Hero.battles_per_turn_summand', 0.5)
     @mock.patch('the_tale.game.balance.constants.MAX_BATTLES_PER_TURN', 1.0)
     def test_is_battle_start_needed__hero_modifier(self):
-        self.assertTrue(all(self.hero.position.is_battle_start_needed() for i in xrange(100)))
+        self.assertTrue(all(self.hero.is_battle_start_needed() for i in xrange(100)))
 
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.safety', 0.5)
-    @mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.battles_per_turn_summand', -0.5)
+    @mock.patch('the_tale.game.heroes.objects.Hero.battles_per_turn_summand', -0.5)
     @mock.patch('the_tale.game.balance.constants.MAX_BATTLES_PER_TURN', 1.0)
     def test_is_battle_start_needed__hero_modifier_2(self):
-        self.assertTrue(all(not self.hero.position.is_battle_start_needed() for i in xrange(100)))
+        self.assertTrue(all(not self.hero.is_battle_start_needed() for i in xrange(100)))
 
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.transport', 0.5)
     def test_modify_move_speed__less(self):
-        self.assertEqual(self.hero.position.modify_move_speed(10), 5)
+        self.assertEqual(self.hero.modify_move_speed(10), 5)
 
     @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.transport', 2.0)
     def test_modify_move_speed_greater(self):
-        self.assertEqual(self.hero.position.modify_move_speed(10), 20.0)
+        self.assertEqual(self.hero.modify_move_speed(10), 20.0)
 
     def test_get_neares_place(self):
 
         for place in places_storage.all():
             x, y = place.x, place.y
 
-            with mock.patch('the_tale.game.heroes.prototypes.HeroPositionPrototype.cell_coordinates', (x, y)):
+            with mock.patch('the_tale.game.heroes.position.Position.cell_coordinates', (x, y)):
                 self.assertEqual(place.id, self.hero.position.get_nearest_place().id)
 
 
@@ -79,7 +79,7 @@ class HeroPositionTest(testcase.TestCase):
         self.assertEqual(self.hero.position.get_minumum_distance_to(self.place_3), self.road_1_2.length + self.road_2_3.length)
 
     def test_get_minumum_distance_to__from_walking(self):
-        self.hero._model.pos_previous_place_id = self.place_1.id
+        self.hero.position.previous_place_id = self.place_1.id
         self.assertNotEqual(self.hero.position.previous_place, None)
 
         self.hero.position.set_coordinates(self.place_1.x, self.place_1.y, self.place_1.x, self.place_1.y - 1, 1.0)
@@ -91,7 +91,7 @@ class HeroPositionTest(testcase.TestCase):
         self.assertEqual(self.hero.position.previous_place, None)  # test that when hero step outside town, previouse place will reset
 
     def test_get_minumum_distance_to__from_road(self):
-        self.hero._model.pos_previous_place_id = self.place_1.id
+        self.hero.position.previous_place_id = self.place_1.id
         self.assertNotEqual(self.hero.position.previous_place, None)
 
         self.hero.position.set_road(self.road_1_2, percents=0.25)

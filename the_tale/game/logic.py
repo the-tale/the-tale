@@ -7,8 +7,6 @@ from django.conf import settings as project_settings
 
 from dext.common.utils.urls import url
 
-from the_tale.common.utils.enum import create_enum
-
 from the_tale.accounts.conf import accounts_settings
 
 from the_tale.linguistics import logic as linguistics_logic
@@ -16,11 +14,7 @@ from the_tale.linguistics import logic as linguistics_logic
 from the_tale.game import names
 from the_tale.game import conf
 
-from the_tale.game.balance.power import Power
-
 from the_tale.game.prototypes import TimePrototype
-
-from the_tale.game.heroes.relations import EQUIPMENT_SLOT
 
 from the_tale.game.persons.storage import persons_storage
 
@@ -47,12 +41,9 @@ from the_tale.game.map.roads.logic import update_waymarks
 from the_tale.game.companions import logic as companions_logic
 from the_tale.game.companions import relations as companions_relations
 
-
-DEFAULT_HERO_EQUIPMENT = create_enum('DEFAULT_HERO_EQUIPMENT', ( ('PANTS', 'default_pants', u'штаны'),
-                                                                 ('BOOTS', 'default_boots', u'обувь'),
-                                                                 ('PLATE', 'default_plate', u'доспех'),
-                                                                 ('GLOVES', 'default_gloves', u'перчатки'),
-                                                                 ('WEAPON', 'default_weapon', u'оружие') ))
+from the_tale.game.heroes import relations as heroes_relations
+from the_tale.game.heroes import logic as heroes_logic
+from the_tale.game.heroes import objects as heroes_objects
 
 
 @places_storage.postpone_version_update
@@ -93,32 +84,15 @@ def create_test_map():
     ArtifactRecordPrototype.create_random('plate_1', type_=ARTIFACT_TYPE.PLATE, mob=mob_2)
     ArtifactRecordPrototype.create_random('boots_1', type_=ARTIFACT_TYPE.BOOTS, mob=mob_3)
 
-    ArtifactRecordPrototype.create_random(DEFAULT_HERO_EQUIPMENT.PANTS, type_=ARTIFACT_TYPE.PANTS)
-    ArtifactRecordPrototype.create_random(DEFAULT_HERO_EQUIPMENT.BOOTS, type_=ARTIFACT_TYPE.BOOTS)
-    ArtifactRecordPrototype.create_random(DEFAULT_HERO_EQUIPMENT.PLATE, type_=ARTIFACT_TYPE.PLATE)
-    ArtifactRecordPrototype.create_random(DEFAULT_HERO_EQUIPMENT.GLOVES, type_=ARTIFACT_TYPE.GLOVES)
-    ArtifactRecordPrototype.create_random(DEFAULT_HERO_EQUIPMENT.WEAPON, type_=ARTIFACT_TYPE.MAIN_HAND)
+    for equipment_slot in heroes_relations.EQUIPMENT_SLOT.records:
+        if equipment_slot.default:
+            ArtifactRecordPrototype.create_random(equipment_slot.default, type_=equipment_slot.artifact_type)
 
     companions_logic.create_random_companion_record('companion_1', dedication=companions_relations.DEDICATION.HEROIC, state=companions_relations.STATE.ENABLED)
     companions_logic.create_random_companion_record('companion_2', dedication=companions_relations.DEDICATION.BOLD, state=companions_relations.STATE.ENABLED)
     companions_logic.create_random_companion_record('companion_3', dedication=companions_relations.DEDICATION.BOLD, state=companions_relations.STATE.DISABLED)
 
     return p1, p2, p3
-
-
-def dress_new_hero(hero):
-    hero.equipment.equip(EQUIPMENT_SLOT.PANTS, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.PANTS).create_artifact(level=1, power=Power(1, 1)))
-    hero.equipment.equip(EQUIPMENT_SLOT.BOOTS, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.BOOTS).create_artifact(level=1, power=Power(1, 1)))
-    hero.equipment.equip(EQUIPMENT_SLOT.PLATE, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.PLATE).create_artifact(level=1, power=Power(1, 1)))
-    hero.equipment.equip(EQUIPMENT_SLOT.GLOVES, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.GLOVES).create_artifact(level=1, power=Power(1, 1)))
-    hero.equipment.equip(EQUIPMENT_SLOT.HAND_PRIMARY, artifacts_storage.get_by_uuid(DEFAULT_HERO_EQUIPMENT.WEAPON).create_artifact(level=1, power=Power(1, 1)))
-
-def messages_for_new_hero(hero):
-    hero.add_message('hero_common_diary_create', diary=True, journal=False, hero=hero)
-    hero.add_message('hero_common_journal_create_1', hero=hero, turn_delta=-4)
-    hero.add_message('hero_common_journal_create_2', hero=hero, turn_delta=-3)
-    hero.add_message('hero_common_journal_create_3', hero=hero, turn_delta=-2)
-    hero.add_message('hero_common_journal_create_4', hero=hero, turn_delta=-1)
 
 
 def log_sql_queries(turn_number):
@@ -133,19 +107,10 @@ def log_sql_queries(turn_number):
 
 
 def remove_game_data(account):
-    from the_tale.game.heroes.prototypes import HeroPrototype
-
-    hero = HeroPrototype.get_by_account_id(account.id)
-
-    for action in reversed(hero.actions.actions_list):
-        action.remove()
-
-    hero.remove()
+    heroes_logic.remove_hero(account_id=account.id)
 
 
 def _form_game_account_info(game_time, account, in_pvp_queue, is_own, client_turns=None):
-    from the_tale.game.heroes.prototypes import HeroPrototype
-
     data = { 'new_messages': account.new_messages_number if is_own else 0,
              'id': account.id,
              'last_visit': time.mktime((account.active_end_at - datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT)).timetuple()),
@@ -154,7 +119,7 @@ def _form_game_account_info(game_time, account, in_pvp_queue, is_own, client_tur
              'hero': None,
              'in_pvp_queue': in_pvp_queue }
 
-    hero_data = HeroPrototype.cached_ui_info_for_hero(account_id=account.id,
+    hero_data = heroes_objects.Hero.cached_ui_info_for_hero(account_id=account.id,
                                                       recache_if_required=is_own,
                                                       patch_turns=client_turns,
                                                       for_last_turn=(not is_own))

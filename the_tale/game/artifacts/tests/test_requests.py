@@ -13,9 +13,11 @@ from the_tale.accounts.logic import register_user, login_page_url
 
 from the_tale.game import names
 
-from the_tale.game.logic import create_test_map, DEFAULT_HERO_EQUIPMENT
+from the_tale.game.logic import create_test_map
 
 from the_tale.game.mobs.storage import mobs_storage
+
+from the_tale.game.heroes import relations as heroes_relations
 
 from ..models import ArtifactRecord
 from ..storage import artifacts_storage
@@ -137,12 +139,12 @@ class TestIndexRequests(BaseTestRequests):
 
     def test_filter_by_type_no_artifacts_message(self):
         texts = [('loot_1', 0), ('plate_1', 0), ('loot_3', 0), ('pgf-no-artifacts-message', 1)]
-        texts += [(uuid, 0) for uuid in DEFAULT_HERO_EQUIPMENT._ALL]
+        texts += [(uid, 0) for uid in heroes_relations.EQUIPMENT_SLOT.default_uids()]
         self.check_html_ok(self.request_html(reverse('guide:artifacts:')+('?type=%d' % relations.ARTIFACT_TYPE.RING.value)), texts=texts)
 
     def test_filter_by_type(self):
         texts = [('loot_1', 1), ('loot_2', 1), ('loot_3', 1), ('pgf-no-artifacts-message', 0), ('helmet_2', 0), ('plate_2', 0), ('boots_2', 0)]
-        texts += [(uuid, 0) for uuid in DEFAULT_HERO_EQUIPMENT._ALL]
+        texts += [(uid, 0) for uid in heroes_relations.EQUIPMENT_SLOT.default_uids() ]
         self.check_html_ok(self.request_html(reverse('guide:artifacts:')+('?type=%d' % relations.ARTIFACT_TYPE.USELESS.value)), texts=texts)
 
 
