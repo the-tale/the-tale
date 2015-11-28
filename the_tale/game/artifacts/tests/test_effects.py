@@ -24,6 +24,7 @@ class EffectsTests(testcase.TestCase):
         artifacts_storage.sync(force=True)
 
         self.artifact = self.hero.equipment.values()[0]
+        self.artifact_2 = self.hero.equipment.values()[1]
 
 
     def test_all_effects_declared(self):
@@ -38,6 +39,11 @@ class EffectsTests(testcase.TestCase):
     def _set_effect(self, effect):
         self.artifact.rarity = relations.RARITY.RARE
         self.artifact.record.rare_effect = effect
+        self.hero.reset_accessors_cache()
+
+    def _set_effect_2(self, effect):
+        self.artifact_2.rarity = relations.RARITY.RARE
+        self.artifact_2.record.rare_effect = effect
         self.hero.reset_accessors_cache()
 
     def test_physical_damage(self):
@@ -140,6 +146,11 @@ class EffectsTests(testcase.TestCase):
     def test_spiritual_connection(self):
         with self.check_increased(lambda: self.hero.energy_discount):
             self._set_effect(relations.ARTIFACT_EFFECT.SPIRITUAL_CONNECTION)
+
+    def test_spiritual_connection__not_summurize(self):
+        with self.check_delta(lambda: self.hero.energy_discount, 1):
+            self._set_effect(relations.ARTIFACT_EFFECT.SPIRITUAL_CONNECTION)
+            self._set_effect_2(relations.ARTIFACT_EFFECT.SPIRITUAL_CONNECTION)
 
     def test_peace_of_mind(self):
         with self.check_increased(lambda: self.hero.regenerate_double_energy_probability):

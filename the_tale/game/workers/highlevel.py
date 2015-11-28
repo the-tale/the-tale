@@ -100,8 +100,8 @@ class Worker(BaseWorker):
     def correct_objects_power(self, type_name, objects):
         minimum_power = min([0] + [obj.raw_power for obj in objects])
         self.logger.info('apply correction of minimum %s power: %d' % (type_name, minimum_power))
-        for obj in objects:
-            obj.push_power(self.turn_number, -minimum_power)
+        # for obj in objects:
+        #     obj.push_power(self.turn_number, -minimum_power)
 
     def sync_persons_powers(self, persons):
         if not persons:

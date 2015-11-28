@@ -287,13 +287,14 @@ class GetNewCardTest(testcase.TestCase):
                                                             abilities=rarity_abilities,
                                                             state=companions_relations.STATE.ENABLED)
 
-        for i in xrange(len(relations.CARD_TYPE.records)):
+        for i in xrange(len([card_type for card_type in relations.CARD_TYPE.records if card_type.in_game])):
             card = self.hero.cards.get_new_card(exclude=cards)
             cards.append(card)
+            self.assertTrue(card.type.in_game)
 
         self.assertEqual(self.hero.cards.get_new_card(exclude=cards), None)
 
-        self.assertEqual(set(card.type for card in cards), set(relations.CARD_TYPE.records))
+        self.assertEqual(set(card.type for card in cards), set(card_type for card_type in relations.CARD_TYPE.records if card_type.in_game))
 
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_premium', True)
@@ -310,16 +311,17 @@ class GetNewCardTest(testcase.TestCase):
                                                             state=companions_relations.STATE.ENABLED)
 
 
-        for i in xrange(len(relations.CARD_TYPE.records)):
+        for i in xrange(len([card_type for card_type in relations.CARD_TYPE.records if card_type.in_game])):
             card = self.hero.cards.get_new_card(exclude=cards)
             cards.append(card)
+            self.assertTrue(card.type.in_game)
 
         self.assertEqual(self.hero.cards.get_new_card(exclude=cards), None)
 
         cards[0].data = {'fake-data': True}
         self.assertEqual(cards[0].type, self.hero.cards.get_new_card(exclude=cards).type)
 
-        self.assertEqual(set(card.type for card in cards), set(relations.CARD_TYPE.records))
+        self.assertEqual(set(card.type for card in cards), set(card_type for card_type in relations.CARD_TYPE.records if card_type.in_game))
 
 
 class CanCombineCardsTests(testcase.TestCase):

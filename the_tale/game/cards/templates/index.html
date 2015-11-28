@@ -62,8 +62,15 @@
                  rel="tooltip"
                  title="{{card.TYPE.rarity.text}}"></div>
           </td>
-          <td width="150px;" class="">{{card.TYPE.text}}</td>
-          <td>{{card.DESCRIPTION}}</td>
+          <td width="150px;" class="">
+            {% if not card.TYPE.in_game %}<s>{% endif %}
+              {{card.TYPE.text}}
+            {% if not card.TYPE.in_game %}</s>{% endif %}
+          </td>
+          <td>
+            {% if not card.TYPE.in_game %}<strong>Карта выведена из игры</strong>{% endif %}
+            {{card.DESCRIPTION}}
+          </td>
         </tr>
       {% endfor %}
     </tbody>

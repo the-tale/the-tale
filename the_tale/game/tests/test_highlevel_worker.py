@@ -436,25 +436,25 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(person_1.power, 10000 - 1000 * 2)
 
 
-    def check_correct_objects_power(self, objects):
-        objects[0].push_power(TimePrototype.get_current_turn_number(), -1000)
+    # def check_correct_objects_power(self, objects):
+    #     objects[0].push_power(TimePrototype.get_current_turn_number(), -1000)
 
-        # power below zero will increased to zero
-        self.worker.correct_objects_power('object', objects)
+    #     # power below zero will increased to zero
+    #     self.worker.correct_objects_power('object', objects)
 
-        self.assertEqual(objects[0].raw_power, 0)
-        for object in objects[1:]:
-            self.assertEqual(object.raw_power, 1000)
+    #     self.assertEqual(objects[0].raw_power, 0)
+    #     for object in objects[1:]:
+    #         self.assertEqual(object.raw_power, 1000)
 
-        # if there are no power below zero, nothing will changed
-        self.worker.correct_objects_power('object', objects)
+    #     # if there are no power below zero, nothing will changed
+    #     self.worker.correct_objects_power('object', objects)
 
-        self.assertEqual(objects[0].raw_power, 0)
-        for object in objects[1:]:
-            self.assertEqual(object.raw_power, 1000)
+    #     self.assertEqual(objects[0].raw_power, 0)
+    #     for object in objects[1:]:
+    #         self.assertEqual(object.raw_power, 1000)
 
-    def test_correct_objects_power__places(self):
-        self.check_correct_objects_power(places_storage.all())
+    # def test_correct_objects_power__places(self):
+    #     self.check_correct_objects_power(places_storage.all())
 
-    def test_correct_objects_power__persons(self):
-        self.check_correct_objects_power(persons_storage.persons_storage.all())
+    # def test_correct_objects_power__persons(self):
+    #     self.check_correct_objects_power(persons_storage.persons_storage.all())

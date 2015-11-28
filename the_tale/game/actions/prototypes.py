@@ -1281,8 +1281,11 @@ class ActionInPlacePrototype(ActionBase):
     def process(self):
         return self.process_settlement()
 
+    def spend_amount(self):
+        return int(max(1, self.hero.spend_amount * self.hero.buy_price()))
+
     def try_to_spend_money(self):
-        gold_amount = int(max(1, self.hero.spend_amount * self.hero.buy_price()))
+        gold_amount = self.spend_amount()
         if gold_amount <= self.hero.money:
             self.hero.change_money(self.hero.next_spending.money_source, -gold_amount)
             self.hero.switch_spending()
@@ -1292,6 +1295,8 @@ class ActionInPlacePrototype(ActionBase):
 
     def spend_money__instant_heal(self):
         if self.hero.health > self.hero.max_health * c.SPEND_MONEY_FOR_HEAL_HEALTH_FRACTION:
+            if self.spend_amount() <= self.hero.money:
+                self.hero.switch_spending()
             return
 
         coins = self.try_to_spend_money()
@@ -1384,9 +1389,12 @@ class ActionInPlacePrototype(ActionBase):
 
     def spend_money__heal_companion(self):
         if self.hero.companion is None:
+            self.hero.switch_spending()
             return
 
         if self.hero.companion.health == self.hero.companion.max_health:
+            if self.spend_amount() <= self.hero.money:
+                self.hero.switch_spending()
             return
 
         coins = self.try_to_spend_money()

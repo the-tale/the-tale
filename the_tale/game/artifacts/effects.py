@@ -255,12 +255,12 @@ class Charm(BaseEffect):
 
 class SpiritualConnection(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.SPIRITUAL_CONNECTION
-    DESCRIPTION = u'Все затраты энергии уменьшаются на 1 (но не меньше 1)'
+    DESCRIPTION = u'Все затраты энергии уменьшаются на 1, но не меньше 1. Эффекты этого типа не суммируются.'
     MULTIPLIER = 1
 
     @classmethod
     def modify_attribute(cls, type_, value):
-        return value + cls.MULTIPLIER if type_.is_ENERGY_DISCOUNT else value
+        return max(value, cls.MULTIPLIER) if type_.is_ENERGY_DISCOUNT else value
 
 class PeaceOfMind(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.PEACE_OF_MIND

@@ -418,6 +418,26 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend_for_heal, money)
         self.storage._test_save()
 
+    def test_instant_heal__switch_on_full_health(self):
+        while not self.hero.next_spending.is_INSTANT_HEAL:
+            self.hero.switch_spending()
+
+        money = self.hero.spend_amount
+
+        self.hero.money = money + 666
+        self.hero.health = self.hero.max_health
+
+        with mock.patch('the_tale.game.heroes.objects.Hero.switch_spending') as switch_spending:
+            self.storage.process_turn()
+
+        self.assertEqual(switch_spending.call_count, 1)
+        self.assertEqual(self.hero.money, money + 666)
+        self.assertEqual(self.hero.health, self.hero.max_health)
+
+        self.assertEqual(self.hero.statistics.money_spend, 0)
+        self.assertEqual(self.hero.statistics.money_spend_for_heal, 0)
+        self.storage._test_save()
+
     def test_instant_heal__too_much_health(self):
         while not self.hero.next_spending.is_INSTANT_HEAL:
             self.hero.switch_spending()
@@ -703,6 +723,32 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
         self.assertEqual(self.hero.statistics.money_spend, money)
         self.assertEqual(self.hero.statistics.money_spend_for_companions, money)
+
+        self.storage._test_save()
+
+
+    def test_heal_companion__swich_spending_on_full_health(self):
+        self.companion_record = companions_logic.create_random_companion_record('companion', state=companions_relations.STATE.ENABLED)
+        self.hero.set_companion(companions_logic.create_companion(self.companion_record))
+
+        while not self.hero.next_spending.is_HEAL_COMPANION:
+            self.hero.switch_spending()
+
+        self.hero.companion.health = self.hero.companion.max_health
+
+        money = self.hero.spend_amount
+
+        self.hero.money = money + 666
+
+        with self.check_not_changed(lambda: self.hero.companion.health):
+            with self.check_not_changed(lambda: self.hero.money):
+                with mock.patch('the_tale.game.heroes.objects.Hero.switch_spending') as switch_spending:
+                    self.storage.process_turn()
+
+        self.assertEqual(switch_spending.call_count, 1)
+
+        self.assertEqual(self.hero.statistics.money_spend, 0)
+        self.assertEqual(self.hero.statistics.money_spend_for_companions, 0)
 
         self.storage._test_save()
 

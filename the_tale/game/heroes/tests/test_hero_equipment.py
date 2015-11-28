@@ -721,11 +721,20 @@ class ReceiveArtifactsTests(_HeroEquipmentTestsBase):
 
         for artifact in self.hero.equipment.values():
             artifact.rarity = rarity
+            artifact.power = Power(666666, 666666)
 
-        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
-            self.hero.increment_equipment_rarity(random.choice(self.hero.equipment.values()))
+        self.hero.reset_accessors_cache()
 
-        self.assertEqual(reset_accessors_cache.call_count, 1)
+        # test that artifact power decreased
+        # it must be done to prevent farming of infinit power
+        # (buy normal artifact, increase its rarity, rarity increase preference rating, replace rare artifact with much better by stats normal artifact)
+        with self.check_decreased(lambda: self.hero.power.total()):
+            with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
+                self.hero.increment_equipment_rarity(random.choice(self.hero.equipment.values()))
 
-        self.assertEqual(len([artifact for artifact in self.hero.equipment.values() if artifact.rarity == rarity]), len(self.hero.equipment.values()) - 1)
-        self.assertEqual(len([artifact for artifact in self.hero.equipment.values() if artifact.rarity == artifacts_relations.RARITY(rarity.value+1)]), 1)
+            self.assertEqual(reset_accessors_cache.call_count, 1)
+
+            self.hero.reset_accessors_cache()
+
+            self.assertEqual(len([artifact for artifact in self.hero.equipment.values() if artifact.rarity == rarity]), len(self.hero.equipment.values()) - 1)
+            self.assertEqual(len([artifact for artifact in self.hero.equipment.values() if artifact.rarity == artifacts_relations.RARITY(rarity.value+1)]), 1)

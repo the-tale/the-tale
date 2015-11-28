@@ -113,6 +113,9 @@ class CardsContainer(object):
         if not self._hero.is_premium:
             cards_types = [card for card in cards_types if not card.availability.is_FOR_PREMIUMS]
 
+        # choose only from ingame cards
+        cards_types = [card for card in cards_types if card.in_game]
+
         if rarity:
             cards_types = [card for card in cards_types if card.rarity == rarity]
 

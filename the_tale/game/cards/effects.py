@@ -1097,7 +1097,7 @@ class HealCompanionLegendary(HealCompanionBase):
 
 class UpgradeArtifact(BaseEffect):
     TYPE = relations.CARD_TYPE.INCREMENT_ARTIFACT_RARITY
-    DESCRIPTION = u'Улучшает на один уровень качество случайного экипированного не эпического артефакта.'
+    DESCRIPTION = u'Заменяет случайный экипированный не эпический артефакт, на более редкий того же вида.'
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
 

@@ -95,7 +95,7 @@ class ITEMS_OF_EXPENDITURE(DjangoEnum):
     description = Column()
 
     records = ( ('INSTANT_HEAL',        0, u'лечение',           'heal',       20, 0.3, MONEY_SOURCE.SPEND_FOR_HEAL,
-                 u'Собирает деньги, чтобы поправить здоровье, когда понадобится.'),
+                 u'Собирает деньги, чтобы поправить здоровье, если понадобится.'),
                 ('BUYING_ARTIFACT',     1, u'покупка артефакта', 'artifact',   4,  3.0, MONEY_SOURCE.SPEND_FOR_ARTIFACTS,
                  u'Планирует приобретение новой экипировки.'),
                 ('SHARPENING_ARTIFACT', 2, u'заточка артефакта', 'sharpening', 3,  2.0, MONEY_SOURCE.SPEND_FOR_SHARPENING,
@@ -109,7 +109,7 @@ class ITEMS_OF_EXPENDITURE(DjangoEnum):
                 ('REPAIRING_ARTIFACT',  6, u'починка артефакта', 'repairing', 15, 1.5, MONEY_SOURCE.SPEND_FOR_REPAIRING,
                  u'Копит на починку экипировки'),
                 ('HEAL_COMPANION',  7, u'лечение спутника', 'heal_companion', 10, 0.3, MONEY_SOURCE.SPEND_FOR_COMPANIONS,
-                 u'Копит на лечение спутника')
+                 u'Копит на лечение спутника, если оно понадобится')
               )
 
 

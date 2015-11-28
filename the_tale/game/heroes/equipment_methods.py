@@ -262,6 +262,9 @@ class EquipmentMethodsMixin(object):
 
     def increment_equipment_rarity(self, artifact):
         artifact.rarity = artifacts_relations.RARITY(artifact.rarity.value+1)
+        artifact.power = Power.artifact_power_randomized(distribution=artifact.record.power_type.distribution,
+                                                         level=self.level)
+        artifact.max_integrity = int(artifact.rarity.max_integrity * random.uniform(1-c.ARTIFACT_MAX_INTEGRITY_DELTA, 1+c.ARTIFACT_MAX_INTEGRITY_DELTA))
         self.reset_accessors_cache()
 
 
