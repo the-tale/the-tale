@@ -64,6 +64,8 @@
           ({{bill.applyed_at_turn|verbose_game_date}})
         {% elif bill.state.is_REMOVED %}
           удалён
+        {% elif bill.state.is_STOPPED %}
+          потерял смысл
         {% endif %}
       </td>
     </tr>
