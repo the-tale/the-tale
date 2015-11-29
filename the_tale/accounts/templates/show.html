@@ -278,6 +278,10 @@ jQuery(document).ready(function(){
             Обсудить работу информера можно на нашем <a href="{{url('forum:threads:show', accounts_settings.INFORMER_FORUM_THREAD)}}">форуме</a>.
           </p>
 
+          <p>
+            Также игроком <a target="_blank" href="{{url('accounts:show', accounts_settings.INFORMER_2_CREATOR_ID)}}">{{accounts_settings.INFORMER_2_CREATOR_NAME}}</a> был разработан альтернативный  информер, который можно найти на <a href="{{url('forum:threads:show', accounts_settings.INFORMER_2_FORUM_THREAD)}}">форуме</a>.
+          </p>
+
         {% endif %}
 
     </div>
