@@ -35,6 +35,8 @@ from the_tale.game.chronicle.prototypes import RecordToActorPrototype
 
 from the_tale.game.bills.prototypes import BillPrototype
 
+from the_tale.game.heroes import logic as heroes_logic
+
 from the_tale.portal.conf import portal_settings
 from the_tale.portal import logic as portal_logic
 
@@ -58,7 +60,7 @@ class PortalResource(Resource):
         clan_of_the_day = None
 
         if account_of_the_day_id is not None:
-            hero_of_the_day = HeroPrototype.get_by_account_id(account_of_the_day_id)
+            hero_of_the_day = heroes_logic.load_hero(account_id=account_of_the_day_id)
             account_of_the_day = AccountPrototype.get_by_id(account_of_the_day_id)
 
             if account_of_the_day.clan_id is not None:

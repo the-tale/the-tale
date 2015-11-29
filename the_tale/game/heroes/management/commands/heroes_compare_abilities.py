@@ -50,7 +50,7 @@ def get_battles_statistics(hero_1, hero_2):
 
     for hero_level in HERO_LEVELS:
 
-        with mock.patch('the_tale.game.heroes.prototypes.HeroPrototype.power', Power.power_to_level(POWER_DISTRIBUTION, hero_level)):
+        with mock.patch('the_tale.game.heroes.objects.Hero.power', Power.power_to_level(POWER_DISTRIBUTION, hero_level)):
             hero_1._model.level = hero_level
             hero_2._model.level = hero_level
 
