@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from the_tale.blogs.models import Post, Vote
+from the_tale.blogs import models
 
 
 class PostAdmin(admin.ModelAdmin):
@@ -11,6 +11,14 @@ class PostAdmin(admin.ModelAdmin):
 class VoteAdmin(admin.ModelAdmin):
     list_display = ('id', 'voter', 'post', 'created_at')
 
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'description', 'created_at', 'updated_at')
 
-admin.site.register(Post, PostAdmin)
-admin.site.register(Vote, VoteAdmin)
+class TaggedAdmin(admin.ModelAdmin):
+    list_display = ('id', 'post', 'tag', 'created_at', 'updated_at')
+
+
+admin.site.register(models.Post, PostAdmin)
+admin.site.register(models.Vote, VoteAdmin)
+admin.site.register(models.Tag, TagAdmin)
+admin.site.register(models.Tagged, TaggedAdmin)

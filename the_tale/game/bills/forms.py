@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from django.conf import settings as project_settings
-from django.forms import ValidationError, Textarea
+from django.forms import Textarea
 
 from dext.forms import forms, fields
 

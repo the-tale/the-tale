@@ -31,7 +31,7 @@ class Post(models.Model):
     # we should not remove post when ocasionally remove forum thread
     forum_thread = models.ForeignKey('forum.Thread', null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
 
-    class Meta:
+    class Meta(object):
         permissions = (("moderate_post", u"Может редактировать сообщения пользователей"), )
 
     def __unicode__(self): return self.caption
@@ -44,5 +44,28 @@ class Vote(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)
 
-    class Meta:
+    class Meta(object):
         unique_together = (('voter', 'post'),)
+
+
+class Tag(models.Model):
+    NAME_MAX_LENGTH = 32
+
+    created_at = models.DateTimeField(auto_now_add=True, null=False)
+    updated_at = models.DateTimeField(auto_now=True, null=False)
+
+    name = models.CharField(max_length=NAME_MAX_LENGTH)
+    description = models.TextField()
+
+    def __unicode__(self): return self.name
+
+
+class Tagged(models.Model):
+
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+
+    created_at = models.DateTimeField(auto_now_add=True, null=False)
+    updated_at = models.DateTimeField(auto_now=True, null=False)
+
+    def __unicode__(self): return u'<%s - %s>' % (self.tag.name, self.post.caption)

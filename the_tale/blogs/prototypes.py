@@ -68,6 +68,9 @@ class PostPrototype(BasePrototype):
 
         VotePrototype.create(post, author)
 
+        for tag_id in conf.settings.DEFAULT_TAGS:
+            models.Tagged.objects.create(post_id=post.id, tag_id=tag_id)
+
         return post
 
     @transaction.atomic

@@ -44,3 +44,15 @@ class PostForm(forms.Form):
             raise ValidationError(u'Слишком много связей, должно быть не более %d' % conf.settings.IS_ABOUT_MAXIMUM)
 
         return objects
+
+
+class TagsForm(forms.Form):
+    tags = fields.MultipleChoiceField(label=u'теги', choices=())
+
+    def __init__(self, *args, **kwargs):
+        super(TagsForm, self).__init__(*args, **kwargs)
+        self.fields['tags'].choices = models.Tag.objects.order_by('name').values_list('id', 'name')
+
+    def clean_tags(self):
+        tags = self.cleaned_data['tags']
+        return frozenset(tags)

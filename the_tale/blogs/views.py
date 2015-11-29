@@ -25,7 +25,7 @@ from . import meta_relations
 
 ORDER_BY = create_enum('ORDER_BY', (('ALPHABET', 'alphabet', u'по алфавиту'),
                                     ('CREATED_AT', 'created_at', u'по дате создания'),
-                                    ('RATING', 'rating', u'по рейтингу'),))
+                                    ('RATING', 'rating', u'по голосам'),))
 
 class PostResource(Resource):
 
@@ -50,7 +50,7 @@ class PostResource(Resource):
 
 
     @handler('', method='get')
-    def index(self, page=1, author_id=None, order_by=ORDER_BY.CREATED_AT):
+    def index(self, page=1, author_id=None, order_by=ORDER_BY.CREATED_AT, tag_id=None):
 
         posts_query = models.Post.objects.filter(state__in=[relations.POST_STATE.NOT_MODERATED, relations.POST_STATE.ACCEPTED])
 
@@ -67,6 +67,9 @@ class PostResource(Resource):
             else:
                 posts_query = models.Post.objects.none()
 
+        if tag_id is not None:
+            posts_query = posts_query.filter(id__in=models.Tagged.objects.filter(tag_id=tag_id).values_list('post_id', flat=True))
+
         if order_by is not None:
             if order_by == ORDER_BY.ALPHABET:
                 posts_query = posts_query.order_by('caption')
@@ -79,7 +82,8 @@ class PostResource(Resource):
                 posts_query = posts_query.order_by('-created_at')
 
         url_builder = UrlBuilder(reverse('blogs:posts:'), arguments={'author_id': author_id,
-                                                                     'order_by': order_by})
+                                                                     'order_by': order_by,
+                                                                     'tag_id': tag_id})
 
         posts_count = posts_query.count()
 
@@ -103,7 +107,9 @@ class PostResource(Resource):
                              {'posts': posts,
                               'page_type': 'index',
                               'votes': votes,
+                              'FORUM_TAGS_THREAD': conf.settings.FORUM_TAGS_THREAD,
                               'order_by': order_by,
+                              'current_tag': models.Tag.objects.get(id=tag_id) if tag_id is not None else None,
                               'ORDER_BY': ORDER_BY,
                               'is_filtering': is_filtering,
                               'current_page_number': page,
@@ -158,6 +164,7 @@ class PostResource(Resource):
                                                  'post_meta_object': meta_relations.Post.create_from_object(self.post),
                                                  'is_about_objects': is_about_objects,
                                                  'thread_data': thread_data,
+                                                 'tags': models.Tag.objects.filter(id__in=models.Tagged.objects.filter(post_id=self.post.id).values_list('tag', flat=True)).order_by('name'),
                                                  'vote': None if not self.account.is_authenticated() else prototypes.VotePrototype.get_for(self.account, self.post)})
 
     @login_required
@@ -249,5 +256,32 @@ class PostResource(Resource):
 
         self.post.recalculate_votes()
         self.post.save()
+
+        return self.json_ok()
+
+    @login_required
+    @validate_fast_account_restrictions()
+    @validate_moderator_rights()
+    @handler('#post', 'edit-tags', method='get')
+    def edit_tags(self):
+        return self.template('blogs/edit_tags.html', {'post': self.post,
+                                                      'form': forms.TagsForm(),
+                                                      'page_type': 'edit'})
+
+
+    @login_required
+    @validate_fast_account_restrictions()
+    @validate_moderator_rights()
+    @transaction.atomic
+    @handler('#post', 'update-tags', method='post')
+    def update_tags(self):
+        form = forms.TagsForm(self.request.POST)
+
+        if not form.is_valid():
+            return self.json_error('blogs.posts.update_tags.form_errors', form.errors)
+
+        models.Tagged.objects.filter(post_id=self.post.id).delete()
+        for tag_id in form.c.tags:
+            models.Tagged.objects.create(post_id=self.post.id, tag_id=tag_id)
 
         return self.json_ok()

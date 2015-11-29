@@ -11,6 +11,44 @@
   В этом разделе Вы можете опубликовать рассказы о жизни ваших героев, Пандоре и её обитателях.
 </p>
 
+<div class="accordion" id="pgf-blogs-tags-accordion">
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-blogs-tags-accordion" href="#pgf-blogs-tags-accordion-intro">
+        Метки
+      </a>
+    </div>
+    <div id="pgf-blogs-tags-accordion-intro" class="accordion-body collapse" style="height: 0px; padding-left: 10px; padding-right: 10px;">
+      <p>
+        Для удобства произведения фольклора снабжены метками. Они упрощают навигацию и вводят некоторый порядок в хаос нашего творчества.
+      </p>
+
+      <p>
+        По-умолчанию, все произведения создаются с одной меткой <span class="label label-success">байка</span>. Метки устанавливаются администрацией по <strong>аргументированной</strong> просьбе сообщества игроков. Запросы на изменение меток необходимо оставлять в <a href="{{url('forum:threads:show', FORUM_TAGS_THREAD)}}">специальной теме на форуме</a>.
+      </p>
+
+      <table class="table table-condensed">
+        <thead>
+          <tr>
+            <th width="">метка</th>
+            <th>описание</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for tag in folclor_tags() %}
+          <tr>
+            <td><span class="label label-success">{{tag.name}}</span></td>
+            <td>{{tag.description}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>
+
 <div>
   <div class="btn-toolbar">
 
@@ -38,6 +76,18 @@
         <li><a href="{{ url_builder(order_by=ORDER_BY.CREATED_AT) }}">{{ORDER_BY._ID_TO_TEXT[ORDER_BY.CREATED_AT]}}</a></li>
         <li><a href="{{ url_builder(order_by=ORDER_BY.ALPHABET) }}">{{ORDER_BY._ID_TO_TEXT[ORDER_BY.ALPHABET]}}</a></li>
         <li><a href="{{ url_builder(order_by=ORDER_BY.RATING) }}">{{ORDER_BY._ID_TO_TEXT[ORDER_BY.RATING]}}</a></li>
+      </ul>
+    </div>
+
+    <div class="btn-group">
+      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        метка: {% if current_tag is not none %}{{current_tag.name}}{% else %}все{% endif %}
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu">
+        {% for tag in folclor_tags() %}
+        <li><a href="{{ url_builder(tag_id=tag.id if tag is not none else none) }}">{{tag.name}}</a></li>
+        {% endfor %}
       </ul>
     </div>
 
@@ -79,7 +129,7 @@
 {{ base_macros.render_paginator(paginator) }}
 
 {% else %}
-<span class="pgf-no-posts-message">Не найдено произведений, отвечающих условиям поиска</span>
+<p class="pgf-no-posts-message alert alert-info">Не найдено произведений, отвечающих условиям поиска</p>
 {% endif %}
 
 {% endblock %}

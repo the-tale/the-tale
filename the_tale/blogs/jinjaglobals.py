@@ -20,3 +20,8 @@ def posts_about(meta_object, allowed_for=None):
     folclor_objects.sort(key=lambda obj: obj.id)
 
     return folclor_objects
+
+
+@jinja2.jinjaglobal
+def folclor_tags():
+    return models.Tag.objects.order_by('name').all()
