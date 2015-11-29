@@ -8,7 +8,7 @@
 {% block blogs_content %}
 
 <p>
-  В этом разделе Вы можете опубликовать рассказы о жизни ваших героев, Пандоре и её обитателях.
+  В этом разделе Вы можете опубликовать рассказы о жизни ваших героев, Пандоре и её обитателях. Рейтинг произведений рассчитывается на основе могущества Хранителей, поставивших им плюс.
 </p>
 
 <div class="accordion" id="pgf-blogs-tags-accordion">
@@ -76,6 +76,7 @@
         <li><a href="{{ url_builder(order_by=ORDER_BY.CREATED_AT) }}">{{ORDER_BY._ID_TO_TEXT[ORDER_BY.CREATED_AT]}}</a></li>
         <li><a href="{{ url_builder(order_by=ORDER_BY.ALPHABET) }}">{{ORDER_BY._ID_TO_TEXT[ORDER_BY.ALPHABET]}}</a></li>
         <li><a href="{{ url_builder(order_by=ORDER_BY.RATING) }}">{{ORDER_BY._ID_TO_TEXT[ORDER_BY.RATING]}}</a></li>
+        <li><a href="{{ url_builder(order_by=ORDER_BY.MIGHT) }}">{{ORDER_BY._ID_TO_TEXT[ORDER_BY.MIGHT]}}</a></li>
       </ul>
     </div>
 
@@ -100,6 +101,13 @@
 {{ base_macros.render_paginator(paginator) }}
 
 <table class="table">
+  <thead>
+    <th>публикация</th>
+    <th>плюсы</th>
+    <th>рейтинг</th>
+    <th>название</th>
+    <th>автор</th>
+  </thead>
   <tbody>
   {% for post in posts %}
       <tr>
@@ -109,6 +117,7 @@
             {{ post.votes }}
           </span>
         </td>
+        <td width="20px">{{post.rating}}</td>
         <td>
           {% if post.state.is_NOT_MODERATED %}
           <span class="label label-info">не проверено</span>

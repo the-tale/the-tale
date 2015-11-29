@@ -24,7 +24,7 @@ from . import relations
 
 class PostPrototype(BasePrototype):
     _model_class = models.Post
-    _readonly = ('id', 'forum_thread_id', 'created_at', 'updated_at', 'created_at_turn')
+    _readonly = ('id', 'forum_thread_id', 'created_at', 'updated_at', 'created_at_turn', 'rating')
     _bidirectional = ('votes', 'moderator_id', 'caption', 'text', 'state')
     _get_by = ('id', )
 

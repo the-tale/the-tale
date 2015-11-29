@@ -25,7 +25,8 @@ from . import meta_relations
 
 ORDER_BY = create_enum('ORDER_BY', (('ALPHABET', 'alphabet', u'по алфавиту'),
                                     ('CREATED_AT', 'created_at', u'по дате создания'),
-                                    ('RATING', 'rating', u'по голосам'),))
+                                    ('RATING', 'rating', u'по голосам'),
+                                    ('MIGHT', 'might', u'по рейтингу'),))
 
 class PostResource(Resource):
 
@@ -77,6 +78,8 @@ class PostResource(Resource):
                 posts_query = posts_query.order_by('-created_at')
             elif order_by == ORDER_BY.RATING:
                 posts_query = posts_query.order_by('-votes')
+            elif order_by == ORDER_BY.MIGHT:
+                posts_query = posts_query.order_by('-rating')
             else:
                 order_by = ORDER_BY.CREATED_AT
                 posts_query = posts_query.order_by('-created_at')
