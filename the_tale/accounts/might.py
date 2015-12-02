@@ -126,11 +126,16 @@ def recalculate_folclor_rating():
 
     for post in folclor_models.Post.objects.all().iterator():
         voters_ids = folclor_models.Vote.objects.filter(post_id=post.id).values_list('voter_id', flat=True)
-        might = AccountPrototype._model_class.objects.filter(id__in=voters_ids).aggregate(models.Sum('might'))['might__sum']
 
-        if might is None or might < 1:
-            might = 1
-        else:
-            might /= 100
+        rating = 0
 
-        folclor_models.Post.objects.filter(id=post.id).update(rating=int(math.ceil(math.log(might)*100)))
+        for account in AccountPrototype._model_class.objects.filter(id__in=voters_ids).iterator():
+            might = account.might
+            if might is None or might < 100:
+                might = 1
+            else:
+                might /= 100
+
+            rating += math.log(might) * 100
+
+        folclor_models.Post.objects.filter(id=post.id).update(rating=int(math.ceil(rating)))

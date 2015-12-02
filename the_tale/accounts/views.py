@@ -202,7 +202,7 @@ def show(context):
 
     friendship = FriendshipPrototype.get_for_bidirectional(context.account, context.master_account)
 
-    master_hero = heroes_logic.load_hero(context.master_account.id)
+    master_hero = heroes_logic.load_hero(account_id=context.master_account.id)
 
     return dext_views.Page('accounts/show.html',
                            content={'master_hero': master_hero,

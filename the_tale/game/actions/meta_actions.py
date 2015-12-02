@@ -174,16 +174,10 @@ class ArenaPvP1x1(MetaAction):
 
     @property
     def hero_1(self):
-        from django.utils.log import getLogger
-        logger = getLogger('the-tale.workers.game_logic_1')
-        logger.error('hero_1: %s, %s' % (self.hero_1_id, self.storage.heroes.get(self.hero_1_id)))
         return self.storage.heroes.get(self.hero_1_id)
 
     @property
     def hero_2(self):
-        from django.utils.log import getLogger
-        logger = getLogger('the-tale.workers.game_logic_1')
-        logger.error('hero_2: %s, %s' % (self.hero_2_id, self.storage.heroes.get(self.hero_2_id)))
         return self.storage.heroes.get(self.hero_2_id)
 
     def add_message(self, *argv, **kwargs):
