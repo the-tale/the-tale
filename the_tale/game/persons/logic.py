@@ -2,18 +2,51 @@
 import random
 import datetime
 
+from dext.common.utils import s11n
+
 from the_tale.game import prototypes as game_protypes
 
 from the_tale.game.balance import constants as c
 
 from the_tale.game.map.roads.storage import waymarks_storage
 
-from the_tale.game.persons import models
-from the_tale.game.persons import objects
-from the_tale.game.persons import storage
-from the_tale.game.persons import conf
-from the_tale.game.persons import relations
-from the_tale.game.persons import exceptions
+from . import models
+from . import objects
+from . import storage
+from . import conf
+from . import relations
+from . import exceptions
+
+
+def save_person(person, new=False):
+
+    data = {'name': person.utg_name.serialize()}
+
+    arguments = {'place_id': person.place_id,
+                 'state': person.state,
+                 'gender': person.gender,
+                 'race': person.race,
+                 'type': person.type,
+                 'friends_number': person.friends_number,
+                 'enemies_number': person.enemies_number,
+                 'name': person.utg_name.normal_form(),
+                 'data': s11n.to_json(data),
+                 'created_at_turn': person.created_at_turn
+                 }
+
+    if new:
+        models.Person.objects.create(id=person.id, **arguments)
+
+        # TODO: that string was in .create method, is it needed here?
+        person.place.persons_changed_at_turn = game_protypes.TimePrototype.get_current_turn_number()
+
+        storage.persons_storage.add_item(person.id, person)
+        storage.persons_storage.update_version()
+
+    else:
+        models.Person.filter(id=person.id).update(**arguments)
+
+        storage.persons_storage.update_version()
 
 
 def social_connection_from_model(model):

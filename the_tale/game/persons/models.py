@@ -6,6 +6,8 @@ from django.db import models
 
 from rels.django import RelationIntegerField
 
+from dext.common.utils import s11n
+
 from the_tale.game.relations import GENDER, RACE
 from the_tale.game.persons import relations
 
@@ -31,11 +33,9 @@ class Person(models.Model):
 
     enemies_number = models.IntegerField(default=0)
 
-    name = models.CharField(max_length=MAX_NAME_LENGTH, null=False, db_index=True)
-
     data = models.TextField(null=False, default=u'{}')
 
-    def __unicode__(self): return u'%s from %s' % (self.name, self.place)
+    def __unicode__(self): return u'%s from %s' % (s11n.from_json(self.data)['name']['forms'][0], self.place)
 
 
 
