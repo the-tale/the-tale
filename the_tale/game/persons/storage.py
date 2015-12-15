@@ -2,27 +2,28 @@
 
 from dext.common.utils import storage as dext_storage
 
-from the_tale.common.utils import storage
-
 from the_tale.game.persons import models
-from the_tale.game.persons import prototypes
 from the_tale.game.persons import exceptions
 from the_tale.game.persons import relations
 
 
-class PersonsStorage(storage.Storage):
+class PersonsStorage(dext_storage.Storage):
     SETTINGS_KEY = 'persons change time'
     EXCEPTION = exceptions.PersonsStorageError
-    PROTOTYPE = prototypes.PersonPrototype
+
+    def _construct_object(self, model):
+        from the_tale.game.persons import logic
+        return logic.load_person(person_model=model)
 
     def _get_all_query(self):
-        return self.PROTOTYPE._db_exclude(state=relations.PERSON_STATE.REMOVED)
+        return models.Person.objects.filter(state=relations.PERSON_STATE.IN_GAME)
 
-    def filter(self, place_id=None, state=None):
-        return [person
-                for person in self.all()
-                if ((state is None or person.state==state) and
-                    (place_id is None or place_id==person.place_id))]
+
+    # def filter(self, place_id=None, state=None):
+    #     return [person
+    #             for person in self.all()
+    #             if ((state is None or person.state==state) and
+    #                 (place_id is None or place_id==person.place_id))]
 
     def remove_out_game_persons(self):
         from the_tale.game.bills.prototypes import BillPrototype
@@ -43,19 +44,7 @@ class PersonsStorage(storage.Storage):
             self.update_version()
 
 
-    def get_total_power(self):
-        return sum(person.power for person in self.filter(state=relations.PERSON_STATE.IN_GAME))
-
-    def get_medium_power_for_person(self):
-        persons_number = len(self.filter(state=relations.PERSON_STATE.IN_GAME))
-
-        if persons_number == 0:
-            return 0
-
-        return self.get_total_power() / persons_number
-
-
-persons_storage = PersonsStorage()
+persons = PersonsStorage()
 
 
 
@@ -90,7 +79,7 @@ class SocialConnectionsStorage(dext_storage.CachedStorage):
         result = []
 
         for connected_person_id, item in connections.iteritems():
-            connected_person = persons_storage.get(connected_person_id)
+            connected_person = persons.get(connected_person_id)
             if connected_person is None:
                 continue
             if not connected_person.state.is_IN_GAME:
@@ -103,7 +92,7 @@ class SocialConnectionsStorage(dext_storage.CachedStorage):
         self.sync()
         return [person_id
                 for person_id in self._person_connections.get(person.id, {}).iterkeys()
-                if persons_storage[person_id].state.is_IN_GAME]
+                if persons[person_id].state.is_IN_GAME]
 
     def is_connected(self, person_1, person_2):
         return person_2.id in self.get_connected_persons_ids(person_1)

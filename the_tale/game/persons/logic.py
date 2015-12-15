@@ -2,6 +2,8 @@
 import random
 import datetime
 
+from utg import words as utg_words
+
 from dext.common.utils import s11n
 
 from the_tale.game import prototypes as game_protypes
@@ -31,7 +33,8 @@ def save_person(person, new=False):
                  'enemies_number': person.enemies_number,
                  'name': person.utg_name.normal_form(),
                  'data': s11n.to_json(data),
-                 'created_at_turn': person.created_at_turn
+                 'created_at_turn': person.created_at_turn,
+                 'power': person.power
                  }
 
     if new:
@@ -47,6 +50,32 @@ def save_person(person, new=False):
         models.Person.filter(id=person.id).update(**arguments)
 
         storage.persons_storage.update_version()
+
+
+def load_person(person_id=None, person_model=None):
+    # TODO: get values instead model
+    # TODO: check that load_hero everywhere called with correct arguments
+    try:
+        if person_id is not None:
+            person_model = models.Person.objects.get(id=person_id)
+        elif person_model is None:
+            return None
+    except models.Person.DoesNotExist:
+        return None
+
+    data = s11n.from_json(person_model.data)
+
+    return objects.Person(id=person_model.id,
+                          created_at_turn=person_model.created_at_turn,
+                          place_id=person_model.place_id,
+                          gender=person_model.gender,
+                          race=person_model.race,
+                          type=person_model.type,
+                          state=person_model.state,
+                          friends_number=person_model.friends_number,
+                          enemies_number=person_model.enemies_number,
+                          power=person_model.power,
+                          utg_name=utg_words.Word.deserialize(data['name']))
 
 
 def social_connection_from_model(model):

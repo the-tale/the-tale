@@ -20,6 +20,8 @@ from the_tale.game.map.places.conf import places_settings
 
 from the_tale.game.bills.conf import bills_settings
 
+from the_tale.game import conf
+
 from the_tale.game import exceptions
 
 
@@ -97,42 +99,30 @@ class Worker(BaseWorker):
         self.stop_required = True
         self.logger.info('HIGHLEVEL STOPPED')
 
-    def correct_objects_power(self, type_name, objects):
-        minimum_power = min([0] + [obj.raw_power for obj in objects])
-        self.logger.info('apply correction of minimum %s power: %d' % (type_name, minimum_power))
-        # for obj in objects:
-        #     obj.push_power(self.turn_number, -minimum_power)
-
     def sync_persons_powers(self, persons):
         if not persons:
             return
 
         for person in persons:
 
-            if person.id not in self.persons_power:
-                continue
-
-            positive_power, negative_power, positive_bonus, negative_bonus = self.persons_power[person.id]
+            positive_power, negative_power = self.persons_power.get(person.id, (0, 0))
 
             power_multiplier = 1
+
             if person.has_building:
                 power_multiplier *= c.BUILDING_PERSON_POWER_MULTIPLIER
 
             # this power will go to person and to place
-            positive_power *= (1 + person.power_positive) * power_multiplier
-            negative_power *= (1 + person.power_negative) * power_multiplier
+            positive_power *= power_multiplier
+            negative_power *= power_multiplier
 
             # this power, only to person
             power = (positive_power + negative_power) * person.place.freedom
 
-            person.push_power(self.turn_number, power)
-            person.push_power_positive(self.turn_number, positive_bonus)
-            person.push_power_negative(self.turn_number, negative_bonus)
+            person.power = person.power * conf.game_settings.POWER_REDUCE_FRACTION + power
 
-            self.change_place_power(person.place_id, 0, 0, positive_power)
-            self.change_place_power(person.place_id, 0, 0, negative_power)
-
-        self.correct_objects_power('person', persons)
+            self.change_place_power(person.place_id, positive_power)
+            self.change_place_power(person.place_id, negative_power)
 
 
     def sync_places_powers(self, places):
@@ -142,21 +132,11 @@ class Worker(BaseWorker):
 
         for place in places:
 
-            if place.id not in self.places_power:
-                continue
-
-            positive_power, negative_power, positive_bonus, negative_bonus = self.places_power[place.id]
-
-            positive_power *= (1 + place.power_positive)
-            negative_power *= (1 + place.power_negative)
+            positive_power, negative_power = self.places_power.get(place.id, (0, 0))
 
             power = (positive_power + negative_power) * place.freedom
 
-            place.push_power(self.turn_number, power)
-            place.push_power_positive(self.turn_number, positive_bonus)
-            place.push_power_negative(self.turn_number, negative_bonus)
-
-        self.correct_objects_power('place', places)
+            place.power = place.power * conf.game_settings.POWER_REDUCE_FRACTION + power
 
 
     def sync_sizes(self, places, hours, max_size):
@@ -258,32 +238,28 @@ class Worker(BaseWorker):
 
         return applied
 
-    def _change_power(self, storage, id_, positive_bonus_delta, negative_bonus_delta, power_delta):
-        power_good, power_bad, positive_bonus, negative_bonus = storage.get(id_, (0, 0, 0, 0))
+    def _change_power(self, storage, id_, power_delta):
+        power_good, power_bad = storage.get(id_, (0, 0))
         storage[id_] = (power_good + (power_delta if power_delta > 0 else 0),
-                        power_bad + (power_delta if power_delta < 0 else 0),
-                        positive_bonus + positive_bonus_delta,
-                        negative_bonus + negative_bonus_delta)
+                        power_bad + (power_delta if power_delta < 0 else 0))
 
-    def change_person_power(self, id_, positive_bonus, negative_bonus, power_delta):
-        self._change_power(self.persons_power, id_, positive_bonus, negative_bonus, power_delta)
+    def change_person_power(self, id_, power_delta):
+        self._change_power(self.persons_power, id_, power_delta)
 
-    def change_place_power(self, id_, positive_bonus, negative_bonus, power_delta):
-        self._change_power(self.places_power, id_, positive_bonus, negative_bonus, power_delta)
+    def change_place_power(self, id_, power_delta):
+        self._change_power(self.places_power, id_, power_delta)
 
 
-    def cmd_change_power(self, person_id, positive_bonus, negative_bonus, place_id, power_delta):
+    def cmd_change_power(self, person_id, place_id, power_delta):
         self.send_cmd('change_power', {'person_id': person_id,
-                                       'positive_bonus': positive_bonus,
-                                       'negative_bonus': negative_bonus,
                                        'place_id': place_id,
                                        'power_delta': power_delta})
 
-    def process_change_power(self, person_id, positive_bonus, negative_bonus, place_id, power_delta):
+    def process_change_power(self, person_id, place_id, power_delta):
         if person_id is not None and place_id is None:
-            self.change_person_power(person_id, positive_bonus, negative_bonus, power_delta)
+            self.change_person_power(person_id, power_delta)
         elif place_id is not None and person_id is None:
-            self.change_place_power(place_id, positive_bonus, negative_bonus, power_delta)
+            self.change_place_power(place_id, power_delta)
         else:
             raise exceptions.ChangePowerError(place_id=place_id, person_id=person_id)
 

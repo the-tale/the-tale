@@ -10,7 +10,7 @@ from the_tale.game.balance import constants as c
 heroes_settings = app_settings('HEROES',
                                USE_ABILITY_CHANCE=0.1,
                                MESSAGES_LOG_LENGTH=10,
-                               DIARY_LOG_LENGTH=6,
+                               DIARY_LOG_LENGTH=20,
 
                                MIN_PVP_BATTLES=25,
 

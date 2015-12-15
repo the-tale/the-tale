@@ -8,7 +8,6 @@ from the_tale.game import relations as game_relations
 
 from the_tale.game.mobs import exceptions
 from the_tale.game.mobs.prototypes import MobPrototype, MobRecordPrototype
-from the_tale.game.mobs import relations
 
 
 class MobsStorage(storage.CachedStorage):

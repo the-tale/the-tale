@@ -29,6 +29,8 @@ class Person(models.Model):
 
     type = RelationIntegerField(relation=relations.PERSON_TYPE, relation_column='value')
 
+    power = models.FloatField(default=0.0)
+
     friends_number = models.IntegerField(default=0)
 
     enemies_number = models.IntegerField(default=0)

@@ -18,6 +18,7 @@ class PersonPrototype(names.ManageNameMixin2):
                  'race',
                  'type',
                  'state',
+                 'power',
 
                  'friends_number',
                  'enemies_number',
@@ -29,7 +30,7 @@ class PersonPrototype(names.ManageNameMixin2):
                  '_name__lazy')
 
 
-    def __init__(self, id, created_at_turn, place_id, gender, race, type, state, friends_number, enemies_number):
+    def __init__(self, id, created_at_turn, place_id, gender, race, type, state, friends_number, enemies_number, power, utg_name):
         self.id = id
         self.created_at_turn = created_at_turn
         self.place_id = place_id
@@ -39,6 +40,8 @@ class PersonPrototype(names.ManageNameMixin2):
         self.state = state
         self.friends_number = friends_number
         self.enemies_number = enemies_number
+        self.power = power
+        self.utg_name = utg_name
 
 
     @property
@@ -52,31 +55,13 @@ class PersonPrototype(names.ManageNameMixin2):
     def name_from(self):
         return u'%s — %s из %s' % (self.name, self.race_verbose, self.place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE)))
 
-    # @property
-    # def production(self):
-    #     return self.mastery * PROFESSION_TO_CITY_PARAMETERS[self.type.value][CITY_PARAMETERS.PRODUCTION.value] * c.PLACE_GOODS_BONUS
-
-    # @property
-    # def safety(self):
-    #     return self.mastery * PROFESSION_TO_CITY_PARAMETERS[self.type.value][CITY_PARAMETERS.SAFETY.value] * c.PLACE_SAFETY_FROM_BEST_PERSON
-
-    # @property
-    # def freedom(self):
-    #     return self.mastery * PROFESSION_TO_CITY_PARAMETERS[self.type.value][CITY_PARAMETERS.FREEDOM.value] * c.PLACE_FREEDOM_FROM_BEST_PERSON
-
-    # @property
-    # def transport(self):
-    #     return self.mastery * PROFESSION_TO_CITY_PARAMETERS[self.type.value][CITY_PARAMETERS.TRANSPORT.value] * c.PLACE_TRANSPORT_FROM_BEST_PERSON
-
     @property
     def has_building(self): return places_storage.buildings_storage.get_by_person_id(self.id) is not None
 
-    def cmd_change_power(self, power, positive_bonus, negative_bonus):
+    def cmd_change_power(self, power):
         if amqp_environment.environment.workers.highlevel is None:
             return
         amqp_environment.environment.workers.highlevel.cmd_change_power(power_delta=power,
-                                                                        positive_bonus=positive_bonus,
-                                                                        negative_bonus=negative_bonus,
                                                                         person_id=self.id,
                                                                         place_id=None)
 
