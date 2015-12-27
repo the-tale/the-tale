@@ -9,7 +9,10 @@ from the_tale.game.balance import constants as c
 
 from the_tale.game.persons.relations import PROFESSION_TO_CITY_MODIFIERS
 
-from the_tale.game.map.places.relations import CITY_MODIFIERS, EFFECT_SOURCES
+from the_tale.game.places.relations import CITY_MODIFIERS, EFFECT_SOURCES
+
+from the_tale.game.places import effects
+from the_tale.game.places import relations
 
 
 class PlaceModifierBase(object):
@@ -19,7 +22,6 @@ class PlaceModifierBase(object):
     @property
     def DESCRIPTION(self): return self.TYPE.description
 
-    PERSON_EFFECTS = None
     PERSON_POWER_MODIFIER = 20
 
     SAFETY_MODIFIER = 0.0
@@ -102,12 +104,13 @@ class PlaceModifierBase(object):
     def modify_terrain_change_power(self, power): return power
     def modify_terrain_owning_radius(self, radius): return radius
     def modify_experience(self, exp): return exp
-    def modify_stability_renewing_speed(self, stability): return stability
 
     def buy_artifact_power_bonus(self): return 0
     def full_regen_allowed(self): return False
     def companion_regen_allowed(self): return False
     def energy_regen_allowed(self): return False
+
+    def effects(self): return ()
 
 
 
@@ -138,6 +141,11 @@ class PoliticalCenter(PlaceModifierBase):
 
     def modify_terrain_owning_radius(self, radius): return radius * 1.25
     def modify_stability_renewing_speed(self, stability): return stability * 2
+
+    STABILITY_EFFECT =
+
+    def effects(self):
+        yield effects.Effect(actor_name=TYPE.text, attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=c.PLACE_STABILITY_RECOVER_SPEED)
 
 
 class Polic(PlaceModifierBase):

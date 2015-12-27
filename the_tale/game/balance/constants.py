@@ -419,8 +419,13 @@ PVP_EFFECTIVENESS_STEP = float(10)
 PVP_EFFECTIVENESS_INITIAL = float(300)
 
 ###########################
-# типы городов
+# города
 ###########################
+
+PLACE_MAX_SIZE = int(10)
+
+PLACE_POWER_HISTORY_WEEKS = int(6) # количество недель, которое хранится влияние города
+PLACE_POWER_HISTORY_LENGTH = int(PLACE_POWER_HISTORY_WEEKS*7*24*TURNS_IN_HOUR) # в ходах
 
 PLACE_TYPE_NECESSARY_BORDER = int(75)
 PLACE_TYPE_ENOUGH_BORDER = int(50)

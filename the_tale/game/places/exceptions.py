@@ -7,10 +7,6 @@ class PlaceError(TheTaleError):
     MSG = u'place error'
 
 
-class PlacesPowerError(PlaceError):
-    MSG = u'places power error: %(message)s'
-
-
 class PlacesStorageError(PlaceError):
     MSG = u'places storage error: %(message)s'
 

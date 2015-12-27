@@ -1,20 +1,17 @@
 # coding: utf-8
-import datetime
 
 from django.db import models
 
 from rels.django import RelationIntegerField
 
-from the_tale.game.balance import constants as c
+from dext.common.utils import s11n
 
 from the_tale.game.relations import RACE
 
-from the_tale.game.map.places import relations
+from the_tale.game.places import relations
 
 
 class Place(models.Model):
-
-    MAX_NAME_LENGTH = 150
 
     x = models.BigIntegerField(null=False)
     y = models.BigIntegerField(null=False)
@@ -27,23 +24,7 @@ class Place(models.Model):
 
     is_frontier = models.BooleanField(default=False)
 
-    # TODO: remove
-    name = models.CharField(max_length=MAX_NAME_LENGTH, null=False, db_index=True)
-
     description = models.TextField(null=False, default=u'', blank=True)
-
-    size = models.IntegerField(null=False)
-    expected_size = models.IntegerField(default=0)
-
-    goods = models.IntegerField(default=0)
-    keepers_goods = models.IntegerField(default=0)
-
-    production = models.IntegerField(default=c.PLACE_GOODS_BONUS)
-    safety = models.FloatField(default=1.0-c.BATTLES_PER_TURN)
-    freedom = models.FloatField(default=1.0)
-    transport = models.FloatField(default=1.0)
-    tax = models.FloatField(default=0.0)
-    stability = models.FloatField(default=1.0)
 
     data = models.TextField(null=False, default=u'{}')
 
@@ -62,11 +43,9 @@ class Place(models.Model):
 
     persons_changed_at_turn = models.BigIntegerField(default=0)
 
-    class Meta:
-        ordering = ('name', )
+    power = models.FloatField(default=0.0)
 
-    def __unicode__(self):
-        return self.name
+    def __unicode__(self): return s11n.from_json(self.data)['name']['forms'][0]
 
 
 class Building(models.Model):

@@ -35,7 +35,7 @@ class PlacesStorage(storage.Storage):
         self.save_all()
 
 
-places_storage = PlacesStorage()
+places = PlacesStorage()
 
 
 class BuildingsStorage(storage.CachedStorage):
@@ -73,7 +73,7 @@ class BuildingsStorage(storage.CachedStorage):
         return [(building.id, building.name) for building in sorted(self.all(), key=lambda p: p.name)]
 
 
-buildings_storage = BuildingsStorage()
+buildings = BuildingsStorage()
 
 
 class ResourceExchangeStorage(storage.Storage):
@@ -96,4 +96,4 @@ class ResourceExchangeStorage(storage.Storage):
         return None
 
 
-resource_exchange_storage = ResourceExchangeStorage()
+resource_exchanges = ResourceExchangeStorage()

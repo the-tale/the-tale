@@ -7,7 +7,8 @@ from questgen.relations import PLACE_TYPE as QUEST_PLACE_TYPE
 
 from the_tale.game.balance import constants as c
 
-from the_tale.game.map.places import technical_words
+from . import technical_words
+
 
 class BUILDING_STATE(DjangoEnum):
     records = ( ('WORKING', 0, u'работает'),
@@ -121,3 +122,42 @@ class CITY_MODIFIERS(DjangoEnum):
 
 class EFFECT_SOURCES(DjangoEnum):
     records = ( ('PERSON', 0, u'житель'),)
+
+
+class ATTRIBUTE_TYPE(DjangoEnum):
+    records = ( ('AGGREGATED', 0, u'аггрегируемый'),
+                ('CALCULATED', 1, u'вычисляемый'))
+
+
+class ATTRIBUTES(DjangoEnum):
+    default = Column(unique=False, primary=False, single_type=False)
+    type = Column(unique=False, primary=False)
+    order = Column(unique=False, primary=False)
+    destription = Column(primary=False)
+
+    records = ( ('SIZE', 0, u'размер города', lambda: 1, ATTRIBUTE_TYPE.CALCULATED, 1,
+                 u'Влияет на количество советников в городе, развитие специализаций и на потребление товаров его жителями. Зависит от производства товаров.'),
+                ('ECONOMIC', 1, u'размер экономики', lambda: 1, ATTRIBUTE_TYPE.AGGREGATED, 1,
+                 u'Определяет скорость производства товаров городом. Зависит от общей суммы влияния, поступившего в город, в результате выполнения героями заданий за определённый период времени (примерное количество недель: %d). Влияние от задания может быть отрицательным. Чем больше суммарное влияние по сравнению с другими городами, тем больше размер экономики.' % c.PLACE_POWER_HISTORY_WEEKS),
+                ('TERRAIN_RADIUS', 2, u'радиус изменений', lambda: 1, ATTRIBUTE_TYPE.AGGREGATED, 1,
+                 u'Радиус в котором город изменяет мир (в клетках).'),
+                ('POLITIC_RADIUS', 3, u'радиус владений', lambda: 1, ATTRIBUTE_TYPE.AGGREGATED, 1,
+                 u'Максимальное расстояние, на которое могут распространяться границы владений города (в клетках).'),
+                ('PRODUCTION', 4, u'производство', lambda: 0, ATTRIBUTE_TYPE.AGGREGATED, 1,
+                 u'Скорость производства товаров. Зависит от размера экономики города и состава его совета.'),
+                ('GOODS', 5, u'товары', lambda: 0, ATTRIBUTE_TYPE.CALCULATED, 1,
+                 u'Чтобы расти, город должен производить товары. Если их накапливается достаточно, то размер города увеличивается. Если товары кончаются, то уменьшается.'),
+                ('KEEPERS_GOODS', 6, u'дары Хранителей', lambda: 0, ATTRIBUTE_TYPE.CALCULATED, 1,
+                 u'Хранители могут подарить городу дополнительные товары, которые будут постепенно переводиться в производство (%2.f%% в час, но не менее %d). Чтобы сделать городу подарок, Вы можете использовать соответствующую Карту Судьбы.' % (c.PLACE_KEEPERS_GOODS_SPENDING*100, c.PLACE_GOODS_BONUS)),
+                ('SAFETY', 7, u'безопасность', lambda: 1.0, ATTRIBUTE_TYPE.AGGREGATED, 1,
+                 u'Насколько безопасно в окрестностях города (вероятность пройти по миру, не подвергнувшись нападению).'),
+                ('TRANSPORT', 8, u'транспорт', lambda: 1.0, ATTRIBUTE_TYPE.AGGREGATED, 1,
+                 u'Уровень развития транспортной инфраструктуры (с какой скоростью герои путешествуют в окрестностях города).'),
+                ('FREEDOM', 9, u'свобода', lambda: 1.0, ATTRIBUTE_TYPE.AGGREGATED, 1,
+                 u'Насколько активна политическая жизнь в городе (как сильно изменяется влияние советников от действий героев).'),
+                ('TAX', 10, u'пошлина', lambda: 0.0, ATTRIBUTE_TYPE.AGGREGATED, 1,
+                 u'Размер пошлины, которую платят герои при посещении города (процент от наличности в кошельке героя).'),
+                ('STABILITY', 11, u'стабильность', lambda: 1.0, ATTRIBUTE_TYPE.AGGREGATED, 0,
+                 u'Отражает текущую ситуацию в городе и влияет на многие его параметры. Уменьшается от изменений, происходящих в городе (при принятии законов), и постепенно восстанавливается до 100%.'),
+                ('STABILITY_RENEWING_SPEED', 12, u'восстанволение стабильности', lambda: 0.0, ATTRIBUTE_TYPE.AGGREGATED, -1,
+                 u'Скорость восстановления стабильности в городе.') )

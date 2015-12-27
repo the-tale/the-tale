@@ -229,6 +229,11 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PVP_EFFECTIVENESS_STEP, 10)
         self.assertEqual(c.PVP_EFFECTIVENESS_INITIAL, 300)
 
+        self.assertEqual(c.PLACE_MAX_SIZE, 10)
+
+        self.assertEqual(c.PLACE_POWER_HISTORY_WEEKS, 6)
+        self.assertEqual(c.PLACE_POWER_HISTORY_LENGTH, 0)
+
         self.assertEqual(c.PLACE_TYPE_NECESSARY_BORDER, 75)
         self.assertEqual(c.PLACE_TYPE_ENOUGH_BORDER, 50)
 

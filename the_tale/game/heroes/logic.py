@@ -21,7 +21,7 @@ from the_tale.game.quests import container as quests_container
 from the_tale.game.cards import container as cards_container
 
 from the_tale.game.artifacts.storage import artifacts_storage
-from the_tale.game.map.places.storage import places_storage
+from the_tale.game.places import storage as places_storage
 
 from the_tale.game.companions import objects as companions_objects
 
@@ -311,7 +311,7 @@ def messages_for_new_hero(hero):
 def create_hero(account):
     from the_tale.game.relations import GENDER, RACE
 
-    start_place = places_storage.random_place()
+    start_place = places_storage.places.random_place()
 
     race = random.choice(RACE.records)
 

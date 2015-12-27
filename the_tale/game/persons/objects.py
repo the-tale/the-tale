@@ -7,7 +7,7 @@ from the_tale import amqp_environment
 
 from the_tale.game import names
 
-from the_tale.game.map.places import storage as places_storage
+from the_tale.game.places import storage as places_storage
 
 
 class PersonPrototype(names.ManageNameMixin2):

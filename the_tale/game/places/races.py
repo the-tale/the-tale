@@ -16,18 +16,19 @@ class RaceInfo(collections.namedtuple('RaceInfo', ['race', 'percents', 'persons_
 
 class Races(object):
 
-    def __init__(self, data):
-        self._data = data
+    def __init__(self, races=None):
+        if races is None:
+            races = {race: 1.0 / len(RACE.records) for race in RACE.records}
 
-        if not self._data:
-            self._data.update({race.value: 1.0 / len(RACE.records) for race in RACE.records})
-
-        self._races = {RACE(int(race_id)):percents for race_id, percents in self._data.iteritems()}
+        self._races = races
 
 
     def serialize(self):
-        self._data.clear()
-        self._data.update({race.value: percents for race, percents in self._races.iteritems()})
+        return {race.value: percents for race, percents in self._races.iteritems()}
+
+    @classmethod
+    def deserialize(cls, data):
+        return cls(races={ RACE(int(race_id)): percents for race_id, percents in data.iteritems() })
 
     def get_race_percents(self, race):
         return self._races.get(race, 0)
