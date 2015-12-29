@@ -39,7 +39,7 @@ class PERSON_TYPE(DjangoEnum):
                 ('MAGICIAN',    15, u'волшебник', BUILDING_TYPE.MAGE_TOWER, questgen_relations.PROFESSION.NONE),
                 ('MAYOR',       16, u'ростовщик', BUILDING_TYPE.GUILDHALL, questgen_relations.PROFESSION.NONE),
                 ('BUREAUCRAT',  17, u'писарь', BUILDING_TYPE.BUREAU, questgen_relations.PROFESSION.NONE),
-                ('ARISTOCRAT',  18, u'ювелир', BUILDING_TYPE.MANOR, questgen_relations.PROFESSION.NONE),
+                ('ARISTOCRAT',  18, u'магомеханик', BUILDING_TYPE.MANOR, questgen_relations.PROFESSION.NONE),
                 ('BARD',        19, u'бард', BUILDING_TYPE.SCENE, questgen_relations.PROFESSION.NONE),
                 ('TAMER',       20, u'дрессировщик', BUILDING_TYPE.MEWS, questgen_relations.PROFESSION.NONE),
                 ('HERDSMAN',    21, u'скотовод', BUILDING_TYPE.RANCH, questgen_relations.PROFESSION.NONE) )
