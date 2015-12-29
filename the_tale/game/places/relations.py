@@ -39,9 +39,9 @@ class BUILDING_TYPE(DjangoEnum):
                 ('LABORATORY', 13, u'лаборатория'),
                 ('SCAFFOLD', 14, u'плаха'),
                 ('MAGE_TOWER', 15, u'башня мага'),
-                ('GUILDHALL', 16, u'ратуша'),
+                ('GUILDHALL', 16, u'ламбард'),
                 ('BUREAU', 17, u'бюро'),
-                ('MANOR', 18, u'поместье'),
+                ('MANOR', 18, u'мастерская ювелира'),
                 ('SCENE', 19, u'сцена'),
                 ('MEWS', 20, u'конюшни'),
                 ('RANCH', 21, u'ранчо') )

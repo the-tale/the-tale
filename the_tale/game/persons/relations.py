@@ -9,7 +9,7 @@ from questgen import relations as questgen_relations
 from the_tale.common.utils import xls
 
 from the_tale.game.relations import RACE
-from the_tale.game.map.places.relations import CITY_PARAMETERS, BUILDING_TYPE, CITY_MODIFIERS
+from the_tale.game.places.relations import CITY_PARAMETERS, BUILDING_TYPE, CITY_MODIFIERS
 
 
 class PERSON_STATE(DjangoEnum):
@@ -37,9 +37,9 @@ class PERSON_TYPE(DjangoEnum):
                 ('ALCHEMIST',   13, u'алхимик', BUILDING_TYPE.LABORATORY, questgen_relations.PROFESSION.NONE),
                 ('EXECUTIONER', 14, u'палач', BUILDING_TYPE.SCAFFOLD, questgen_relations.PROFESSION.NONE),
                 ('MAGICIAN',    15, u'волшебник', BUILDING_TYPE.MAGE_TOWER, questgen_relations.PROFESSION.NONE),
-                ('MAYOR',       16, u'мэр', BUILDING_TYPE.GUILDHALL, questgen_relations.PROFESSION.NONE),
-                ('BUREAUCRAT',  17, u'бюрократ', BUILDING_TYPE.BUREAU, questgen_relations.PROFESSION.NONE),
-                ('ARISTOCRAT',  18, u'аристократ', BUILDING_TYPE.MANOR, questgen_relations.PROFESSION.NONE),
+                ('MAYOR',       16, u'ростовщик', BUILDING_TYPE.GUILDHALL, questgen_relations.PROFESSION.NONE),
+                ('BUREAUCRAT',  17, u'писарь', BUILDING_TYPE.BUREAU, questgen_relations.PROFESSION.NONE),
+                ('ARISTOCRAT',  18, u'ювелир', BUILDING_TYPE.MANOR, questgen_relations.PROFESSION.NONE),
                 ('BARD',        19, u'бард', BUILDING_TYPE.SCENE, questgen_relations.PROFESSION.NONE),
                 ('TAMER',       20, u'дрессировщик', BUILDING_TYPE.MEWS, questgen_relations.PROFESSION.NONE),
                 ('HERDSMAN',    21, u'скотовод', BUILDING_TYPE.RANCH, questgen_relations.PROFESSION.NONE) )
